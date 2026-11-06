@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70411255,
+      "datetime": "20410312101500",
+      "nethackrc": "OPTIONS=name:Ferrum,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\u0017heavy iron ball\n\u0017wand of digging\nyhh\u0017boulder\nk\u0017boulder\nb\u0017boulder\nk\u0017boulder\n_\n\nd\u001b"
+    }
+  ],
+  "comment": "Variation of travel-boulder-pair-known-digging-wand without the zap: the wand of digging stays unidentified, which is the one case in which hack.c test_move() TEST_TRAV lets travel plan through a second boulder, so getpos.c auto_describe() shows the door without \" (no travel path)\"."
+}

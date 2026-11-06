@@ -3050,9 +3050,13 @@ export async function test_move(
                 && !(tunnels(species) && !needspick(species))
                 && !carrying(PICK_AXE, state)
                 && !carrying(DWARVISH_MATTOCK, state)) {
+                // C: !((obj = carrying(WAN_DIGGING))
+                //       && !objects[obj->otyp].oc_name_known)
+                // Only an unidentified wand of digging lets travel plan
+                // through a second boulder; a known one does not.
                 const diggingWand = carrying(WAN_DIGGING, state);
-                if (!diggingWand
-                    || !objectType(diggingWand, state).oc_name_known) {
+                if (!(diggingWand
+                      && !objectType(diggingWand, state).oc_name_known)) {
                     return false;
                 }
             }
