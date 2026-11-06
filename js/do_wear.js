@@ -1847,7 +1847,19 @@ export async function Boots_on(state) {
 // with await.  In particular, lava_effects() sets in_lava_effects before this
 // call, so burning water-walking boots clear their slot without recursively
 // applying the landing effect.
-export async function Boots_off(state = game) {
+//
+// A planning caller (steal.c remove_worn_item() during a monster's dry run)
+// passes its env: the messages go through env.message, and either landing arm
+// stops the dry run through env.requestPlanningInput(), so the live pass
+// replays the source call, which can print, trigger a trap and ask for input.
+export async function Boots_off(state = game, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
+    const requestLiveReplay = (operation) => {
+        if (!env.planning) return;
+        if (typeof env.requestPlanningInput !== 'function')
+            throw new TypeError(`planned ${operation} requires a replay boundary`);
+        env.requestPlanningInput(operation);
+    };
     const otmp = state.uarmf;
     if (!otmp) return 0;
     const otyp = otmp.otyp;
@@ -1871,9 +1883,10 @@ export async function Boots_off(state = game) {
             (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
         if (!veryFast && !takeoff.cancelled_don) {
             discover_object(otyp, true, true, true, state);
-            await ttyPline(
+            await env.message(
                 `You feel yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
                 state,
+                env,
             );
         }
         break;
@@ -1901,6 +1914,7 @@ export async function Boots_off(state = game) {
             && !state.iflags?.in_lava_effects) {
             // C learns fireproofed/water-walking boots before spoteffects can
             // drown the hero, which may itself return after a relocation.
+            requestLiveReplay('hack.c spoteffects');
             discover_object(otyp, true, true, true, state);
             const { spoteffects } = await import('./hack.js');
             await spoteffects(true, state);
@@ -1908,7 +1922,7 @@ export async function Boots_off(state = game) {
         break;
     }
     case ELVEN_BOOTS:
-        await toggle_stealth(otmp, oldprop, false, state);
+        await toggle_stealth(otmp, oldprop, false, state, env);
         break;
     case FUMBLE_BOOTS: {
         const fumbling = state.u?.uprops?.[FUMBLING] ?? {};
@@ -1928,6 +1942,7 @@ export async function Boots_off(state = game) {
         const cancelled = takeoff.cancelled_don;
         if (!oldprop && !hasIntrinsicLevitation && !fromOutside && !cancelled) {
             if (!state.iflags?.in_lava_effects) {
+                requestLiveReplay('trap.c float_down');
                 const { float_down } = await import('./trap.js');
                 await float_down(0, 0, state);
             }

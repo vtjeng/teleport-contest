@@ -404,7 +404,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
             else if (obj === state.uarmc)
                 await Cloak_off(state, { ...env, state });
             else if (obj === state.uarmf)
-                await Boots_off(state);
+                await Boots_off(state, env);
             else if (obj === state.uarmg)
                 await Gloves_off(state, env);
             else if (obj === state.uarmh)
