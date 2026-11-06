@@ -88,6 +88,7 @@ import {
 } from './obj.js';
 import { end_burn } from './timeout.js';
 import { block_point } from './vision.js';
+import { rest_engravings } from './engrave.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -807,6 +808,18 @@ function serializeBonesLevel(state) {
         }
     }
 
+    // C ref: engrave.c save_engravings() (1551-1580), which savelev_core()
+    // calls after the object chains: every engraving with text, in chain
+    // order. The text is copied whole; rest_engravings() strips the leading
+    // spaces that wipeout_text() left behind.
+    const engravings = [];
+    for (let ep = state.head_engr; ep; ep = ep.nxt_engr) {
+        if (!ep.engr_txt?.[0]) continue;
+        const saved = { ...ep, engr_txt: [...ep.engr_txt] };
+        delete saved.nxt_engr;
+        engravings.push(saved);
+    }
+
     return {
         locations,
         rooms: cloneBonesRooms(level.rooms),
@@ -831,6 +844,7 @@ function serializeBonesLevel(state) {
         monsters,
         floorObjects,
         buriedObjects,
+        engravings,
         fruitChain,
         moves: state.moves,
     };
@@ -1118,6 +1132,17 @@ async function restoreBonesLevel(bonesData, state) {
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
     restobjchn_ghostly(level.buriedobjlist, state);
+
+    // C ref: restore.c getlev():1166 rest_engravings(), after the object
+    // chains. save_engravings() writes head_engr in chain order and
+    // rest_engravings() pushes each one it reads, so the restored chain is
+    // reversed; it then strips leading spaces and stamps engr_time.
+    let engravings = null;
+    for (const saved of bonesData.engravings ?? [])
+        engravings = { ...saved, engr_txt: [...saved.engr_txt],
+            nxt_engr: engravings };
+    state.head_engr = engravings;
+    rest_engravings(state);
 
     rest_region_capacity(level);
 

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent bones.c witness for engrave.c save_engravings() and rest_engravings() on a bones level. A debug dwarven Valkyrie goes to a new level 3, writes 'Ingrid fell here' in the dust, steps west, is killed by a minotaur there, and saves bones. A second game on another seed and clock goes to level 3, loads the bones (restore.c getlev() reads the engravings after the object chains), quaffs a wished blessed potion of object detection, and asks to teleport onto the engraved square. The minotaur stands there, so safe_teleds() places the hero elsewhere, and the minotaur's next move rubs out part of the engraving (engrave.c wipe_engr_at() -> wipeout_text()). The seeds, clocks and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 8840213,
+      "datetime": "20370309161000",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nE- Ingrid fell here\nh\u0007minotaur\nmsmsmsmsmsmsmsmsmsmsmsmsmsmsms  yqy"
+    },
+    {
+      "seed": 8840237,
+      "datetime": "20370311074500",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy \u0017blessed potion of object detection\nqe  \u001b\u0014 kLLLllll. "
+    }
+  ]
+}
