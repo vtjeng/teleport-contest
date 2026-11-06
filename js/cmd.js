@@ -340,6 +340,7 @@ import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { pmatchi } from './strutil.js';
 import { deliver_splev_message } from './questpgr.js';
 import {
+    carryingTooMuchToMove,
     check_capacity,
     domove,
     dopickup,
@@ -2798,7 +2799,11 @@ async function executeMovement(command, key, firstTime, state) {
     const newx = state.u.ux + dx;
     const newy = state.u.uy + dy;
     try {
-        preflightDomoveDestination(newx, newy, state, run);
+        // domove_core() returns from carrying_too_much() (hack.c:2730-2731)
+        // before it reads the destination, so an overloaded or exhausted
+        // hero never reaches the arrival effects the preflight plans.
+        if (!carryingTooMuchToMove(state))
+            preflightDomoveDestination(newx, newy, state, run);
     } catch (error) {
         if (error instanceof UnsupportedHeroMoveBoundaryError)
             resetCommandVars(state);

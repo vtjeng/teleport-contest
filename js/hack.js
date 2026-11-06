@@ -3821,14 +3821,21 @@ export async function avoid_trap_andor_region(x, y, state = game) {
     return false;
 }
 
-// C ref: hack.c carrying_too_much() (2616-2636).
-export async function carrying_too_much(state = game) {
+// C ref: hack.c carrying_too_much() (2616-2636), its test alone. Pure: it
+// reads the load and hit points and changes nothing.
+export function carryingTooMuchToMove(state = game) {
     const wtcap = near_capacity(state);
     const lowHitPoints = Upolyd(state.u)
         ? state.u.mh < 5 && state.u.mh !== state.u.mhmax
         : state.u.uhp < 10 && state.u.uhp !== state.u.uhpmax;
-    if ((wtcap >= OVERLOADED || (wtcap > SLT_ENCUMBER && lowHitPoints))
-        && !Is_airlevel(state.u.uz)) {
+    return (wtcap >= OVERLOADED || (wtcap > SLT_ENCUMBER && lowHitPoints))
+        && !Is_airlevel(state.u.uz);
+}
+
+// C ref: hack.c carrying_too_much() (2616-2636).
+export async function carrying_too_much(state = game) {
+    if (carryingTooMuchToMove(state)) {
+        const wtcap = near_capacity(state);
         if (wtcap < OVERLOADED) {
             await ttyPline("You don't have enough stamina to move.", state);
             await exercise(A_CON, false, state, { rn2 }, {

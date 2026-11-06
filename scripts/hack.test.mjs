@@ -73,6 +73,7 @@ import {
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
+    carryingTooMuchToMove,
     crawl_destination,
     cmp_weights,
     disturb_buried_zombies,
@@ -2720,3 +2721,44 @@ test('safe-pet preflight admits pass-wall movement into obstructed terrain',
             true,
         );
     });
+
+// hack.c carrying_too_much() (2616-2636): the move stops when the hero is
+// Overloaded, or more than Burdened with hit points below 10 and not full.
+// Capacity levels come from hack.c calc_capacity(): (excess * 2 / wc) + 1.
+test('carryingTooMuchToMove follows carrying_too_much()\'s load test', async () => {
+    await runSegment({
+        // An independent seed and character: only the hero's capacity and
+        // hit points matter here.
+        seed: 2026110601,
+        datetime: '20461106120000',
+        nethackrc: 'OPTIONS=name:LoadTest,role:Knight,race:human,'
+            + 'gender:male,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const state = game;
+    const wc = weight_cap(state);
+    const load = (excess) => {
+        // One ordinary object stands in for the whole inventory, so the
+        // inventory weight is exactly wc + excess.
+        state.invent = { oclass: 1, otyp: 1, owt: wc + excess, nobj: null };
+    };
+    state.u.uhpmax = 16;
+    state.u.uhp = 16;
+    // Excess 0: unencumbered (calc_capacity returns 0 for excess <= 0).
+    load(0);
+    assert.equal(carryingTooMuchToMove(state), false);
+    // Excess 2 * wc: (2 * wc * 2 / wc) + 1 = 5, OVERLOADED.
+    load(2 * wc);
+    assert.equal(carryingTooMuchToMove(state), true);
+    // Excess wc / 2 rounds to Stressed, (wc / 2 * 2 / wc) + 1 = 2, which is
+    // above SLT_ENCUMBER: it stops the move only with low, unfull hit points.
+    load(Math.ceil(wc / 2));
+    assert.equal(carryingTooMuchToMove(state), false);
+    // uhp 9 is the first value below hack.c's `u.uhp < 10` bound.
+    state.u.uhp = 9;
+    assert.equal(carryingTooMuchToMove(state), true);
+    // uhp == uhpmax exempts a hero whose maximum is itself below 10.
+    state.u.uhpmax = 9;
+    assert.equal(carryingTooMuchToMove(state), false);
+});

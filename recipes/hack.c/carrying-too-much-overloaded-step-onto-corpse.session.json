@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c domove_core() and carrying_too_much(): a wizard-mode Knight with autopickup of food kills a newt, which leaves a corpse, wishes for ten cursed loadstones and tries to step onto the corpse. carrying_too_much() stops the overloaded move before the destination is read, so the corpse is never considered for pickup.",
+  "segments": [
+    {
+      "seed": 2290178,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:Overload,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,autopickup\nOPTIONS=pickup_types:%\n",
+      "moves": "\u0007newt\nFh\u001710 cursed loadstones\nh"
+    }
+  ]
+}
