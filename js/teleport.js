@@ -8,6 +8,7 @@
 // rloc_to(), rloc(), control_mon_tele() and u_teleport_mon().
 
 import { buried_ball_to_punishment } from './dig.js';
+import { migrate_to_level } from './dog.js';
 import {
     A_STR,
     A_WIS,
@@ -760,10 +761,10 @@ export async function mlevel_tele_trap(
             'monster level teleport requires a destination level',
         );
     }
-    const migrateToLevel = monsterTeleportOperation(
-        env,
-        'migrateToLevel',
-    );
+    // C calls dog.c migrate_to_level() directly. Monster-turn callers bind
+    // their planning-aware adapter; any other caller, such as a fountain
+    // monster that lands on a level teleporter, gets the source function.
+    const migrateToLevel = env.migrateToLevel ?? migrate_to_level;
     const seeTrap = inSight
         ? (env.seeTrap ?? ((candidate, operationEnv) => {
             candidate.tseen = true;
