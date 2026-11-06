@@ -4742,6 +4742,7 @@ export async function maybe_dunk_boulders(
 // consumed charge, then runs the type-specific explosion and callbacks in C's
 // eight-neighbor-plus-hero order.
 export async function do_break_wand(obj, state = game, rawEnv = {}) {
+    const nothing_else_happens = 'But nothing else happens...';
     const env = { ...rawEnv, state };
     const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const message = env.message ?? ttyPline;
@@ -4796,7 +4797,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     await setnotworn(obj, setwornEnv(state));
 
     if (!await zappable(obj, state)) {
-        await message(nothing_happens, state, env);
+        await message(nothing_else_happens, state, env);
         discard_broken_wand(state, env);
         return ECMD_TIME;
     }
@@ -4830,7 +4831,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     case WAN_ENLIGHTENMENT:
     case WAN_SECRET_DOOR_DETECTION:
     case WAN_STASIS:
-        await message('But nothing else happens...', state, env);
+        await message(nothing_else_happens, state, env);
         discard_broken_wand(state, env);
         return ECMD_TIME;
     case WAN_DEATH:

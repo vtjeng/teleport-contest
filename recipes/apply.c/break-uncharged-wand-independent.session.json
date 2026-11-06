@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9031544,
+      "datetime": "20270611200500",
+      "nethackrc": "OPTIONS=name:Snapper,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#wizwish\nwand of fire (0:0)\nafy :",
+      "comment": "A debug-mode hero breaks a wished wand of fire with no charges; zappable() refuses the wrest, so apply.c do_break_wand() says \"But nothing else happens...\" without an explosion."
+    }
+  ]
+}
