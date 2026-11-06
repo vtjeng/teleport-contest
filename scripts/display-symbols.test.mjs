@@ -10702,3 +10702,42 @@ test('full map repaint preserves blank glyph color and attributes', async () => 
         ch: ' ', color: NO_COLOR, attr: 0,
     });
 });
+
+// wintty.c check_fields() redraws every field whose position or length
+// changed. A strength of 18/01 that drops to 18 keeps "St:18" in the same
+// columns, yet render_status() rewrites those columns, so a map glyph
+// printed over the first of three status rows is covered again.
+test('a status field that shrinks redraws over a map glyph on its columns',
+    async () => {
+    // An independent Barbarian game with three status lines; the space
+    // dismisses the welcome message.
+    await runSegment({
+        seed: 77120934,
+        datetime: '20370911081500',
+        nethackrc: 'OPTIONS=name:Short,role:Barbarian,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+            + '!autopickup,statuslines:3\n',
+        moves: ' ',
+    });
+    const statusRow = () => game.nhDisplay.grid[21]
+        .map((cell) => cell.ch).join('');
+    // Base strength 19 is attrib.h STR18(1), shown as 18/01; no bonus or
+    // temporary change applies.
+    game.u.acurr.a[0] = 19;
+    game.u.abon = [0, 0, 0, 0, 0, 0];
+    game.u.atemp = [0, 0, 0, 0, 0, 0];
+    game.disp.botl = true;
+    await flush_screen(1);
+    const column = statusRow().indexOf('St:18/01');
+    assert.ok(column > 0, 'the first status row shows St:18/01');
+    // A glyph printed over the 'S' of the field, as tty_print_glyph()
+    // does for map row 20.
+    game._statusMapOverlay = new Map([[`21:${column}`, {
+        column, row: 21, ch: '#', color: NO_COLOR, attr: 0,
+    }]]);
+    game.u.acurr.a[0] = 18;
+    game.disp.botl = true;
+    await flush_screen(1);
+    assert.equal(statusRow().slice(column, column + 5), 'St:18');
+});

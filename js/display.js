@@ -6982,6 +6982,25 @@ function _clearRedrawnStatusOverlay(
                 || !sameStyle(newStyles?.[column], oldStyles?.[column]))
                 redraw.add(keys[column]);
         }
+        // check_fields() redraws a whole field whose position or length
+        // changed, even where its leading columns still match: "St:18/01"
+        // becoming "St:18" rewrites the "St:18" cells too.
+        const extents = (fieldKeys) => {
+            const result = new Map();
+            fieldKeys.forEach((key, column) => {
+                const extent = result.get(key);
+                if (extent) extent.end = column + 1;
+                else result.set(key, { start: column, end: column + 1 });
+            });
+            return result;
+        };
+        const oldExtents = extents(oldKeys);
+        for (const [key, extent] of extents(keys)) {
+            const before = oldExtents.get(key);
+            if (!before || before.start !== extent.start
+                || before.end !== extent.end)
+                redraw.add(key);
+        }
     }
     for (const [key, cell] of overlay) {
         if (cell.row !== screenRow) continue;
