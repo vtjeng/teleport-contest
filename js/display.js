@@ -7070,6 +7070,10 @@ function _buildScreenOutput(cursorOnHero = true) {
         const browserGlyphs = Boolean(display.spans);
         const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
         const firstStatusRow = display.rows - statusRows.length;
+        // Cells this flush prints over the status window. tty_print_glyph()
+        // writes them physically, so restoring the status cells kept while
+        // bot() is disabled must leave them in place.
+        const printedOverStatus = new Set();
         for (let offset = 0; offset < viewport.height; ++offset) {
             const y = viewport.top + offset;
             // An unclipped map row that lands on the status window is
@@ -7091,6 +7095,7 @@ function _buildScreenOutput(cursorOnHero = true) {
                 if (!ch) continue;
                 // display.c's nul_gbuf holds GLYPH_UNEXPLORED, so an
                 // unexplored square is never printed after cls().
+                if (overStatus) printedOverStatus.add(`${offset + 1}:${x - 1}`);
                 if (overStatus
                     && loc.disp_glyph?.glyph !== GLYPH_UNEXPLORED_OFF) {
                     recordStatusOverlay(
@@ -7129,6 +7134,8 @@ function _buildScreenOutput(cursorOnHero = true) {
             const firstRow = display.rows - savedStatusCells.length;
             for (let row = 0; row < savedStatusCells.length; ++row) {
                 for (let column = 0; column < display.cols; ++column) {
+                    if (printedOverStatus.has(`${firstRow + row}:${column}`))
+                        continue;
                     const cell = savedStatusCells[row][column];
                     display.setCell(
                         column,

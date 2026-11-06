@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8801301,
+      "datetime": "20410922143000",
+      "nethackrc": "OPTIONS=name:Bryn,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,statuslines:3\n",
+      "moves": "\u0006Og\u001b\u001b"
+    }
+  ],
+  "comment": "wintty.c erase_menu_or_text() dismisses the full-screen options menu with docrt() and flush_screen(1) while select_menu() keeps bot() disabled. cls() blanks the status rows, and the flush then prints map row 20, which ^F mapped and which lies on the first of three status lines on a 24-row terminal; the corridor glyph there stays visible under the next menu (\"Do what?\" for autopickup exceptions). Variation: menu-dismissal-keeps-map-over-three-line-status-two-lines."
+}

@@ -266,15 +266,18 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
         suspendVision: () => vision_recalc(2),
         restoreVision: () => vision_recalc(0),
     });
-    await flush_screen(1);
-    // _buildScreenOutput() reconstructs its canonical grid after every JS
-    // flush. C's tty has no equivalent reconstruction: when select_menu()
-    // keeps bot_disabled raised, cls()'s blank status rows remain physical
-    // blanks and botlx stays pending for the first enabled flush.
+    // _buildScreenOutput() reconstructs its canonical grid at every JS
+    // flush, keeping the physical status cells while bot() is disabled. C's
+    // tty has no equivalent reconstruction: when select_menu() keeps
+    // bot_disabled raised, cls()'s blank status rows remain physical blanks
+    // and botlx stays pending for the first enabled flush. Blank them before
+    // the flush, so the map glyphs flush_screen() then prints over a status
+    // row (a map taller than the rows above a three-line status) stay.
     if (state.gb?.bot_disabled) {
         for (let row = 0; row < status_window_rows(); ++row)
             clearRow(display, display.rows - 1 - row);
     }
+    await flush_screen(1);
 }
 
 // C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu
