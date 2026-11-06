@@ -16,6 +16,7 @@ import {
     MM_NONAME,
     NON_PM,
     NO_MINVENT,
+    OBJ_FREE,
     ROOMOFFSET,
     ROWNO,
     RIGHT_HANDED,
@@ -86,6 +87,7 @@ import {
     curse,
 } from './obj.js';
 import { end_burn } from './timeout.js';
+import { block_point } from './vision.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -834,28 +836,44 @@ function serializeBonesLevel(state) {
     };
 }
 
-// C ref: restore.c restmonchn/restobjchn. During ghostly restoration, every
-// monster and every object (including container contents and monster inventory)
-// receives a fresh identity via next_ident(), which draws rnd(2). The C code
-// processes in the order: monsters (with their inventory inline), floor
-// objects, buried objects. The total count of calls determines the PRNG
-// advancement; since each call draws exactly one rnd(2), the order within a
-// chain does not affect the final PRNG state.
-function reassignObjIds(ochain, state) {
+// C ref: restore.c restobjchn() (231-296), its ghostly fixup for each
+// object read from a bones file: a fresh identity from next_ident()
+// (254-259), in chain order, each container's contents (271-278) right
+// after the container.
+function restobjchn_ghostly(ochain, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
         otmp.o_id = next_ident({ state });
-        if (otmp.cobj) reassignObjIds(otmp.cobj, state);
+        if (otmp.cobj) restobjchn_ghostly(otmp.cobj, state);
     }
 }
 
-function reassignBonesIds(state) {
-    // Monster identities and inline inventories are assigned while
-    // restmonchn() rebuilds each monster. These are the remaining object
-    // chains in C getlev().
-    // Floor objects (C: restobjchn for fobj)
-    reassignObjIds(state.level?.objlist, state);
-    // Buried objects (C: restobjchn for buriedobjlist)
-    reassignObjIds(state.level?.buriedobjlist, state);
+// C ref: restore.c find_lev_obj() (71-107). The restored fobj chain is
+// reversed and every object freed, then each is put back with
+// place_object(), so the head of the saved chain ends on top of its pile,
+// boulders stay above other objects, and obj_no_longer_held() gives a
+// crysknife its chance to revert. Rooms have no resident yet (set_residency()
+// comes later in getlev()), so place_object() clears every no_charge and
+// costly_alteration() finds no shopkeeper. The ball and chain fixup applies
+// only to the hero's own level in a saved game, never to bones.
+async function find_lev_obj(state) {
+    let fobjtmp = null;
+    let otmp;
+    while ((otmp = state.level.objlist) != null) {
+        state.level.objlist = otmp.nobj;
+        otmp.nobj = fobjtmp;
+        otmp.where = OBJ_FREE;
+        fobjtmp = otmp;
+    }
+    const env = {
+        state,
+        hooks: {
+            blockPoint: (x, y, placeEnv) => block_point(x, y, placeEnv.state),
+        },
+    };
+    while ((otmp = fobjtmp) != null) {
+        fobjtmp = otmp.nobj;
+        await place_object(otmp, otmp.ox, otmp.oy, env);
+    }
 }
 
 // C ref: bones.c getbones() (716-730), mongone() leaves dead monsters on the
@@ -920,13 +938,7 @@ export async function getbones(state = game) {
     }
 
     // Restore the level from the bones snapshot.
-    restoreBonesLevel(bonesData, state);
-
-    // C ref: restore.c getlev() -- during ghostly (bones) restoration, each
-    // monster and object gets a fresh identity via next_ident(). Monster
-    // identities and inline inventories were assigned by restmonchn-shaped
-    // reconstruction above; this covers the floor and buried chains.
-    reassignBonesIds(state);
+    await restoreBonesLevel(bonesData, state);
 
     // C ref: restore.c getlev() resets peaceful/malign relative to the new
     // character while walking the restored monster chain.
@@ -950,7 +962,7 @@ export async function getbones(state = game) {
 }
 
 // Restore a bones level from a serialized snapshot into the game state.
-function restoreBonesLevel(bonesData, state) {
+async function restoreBonesLevel(bonesData, state) {
     if (!bonesData?.locations) return;
 
     // Older bones snapshots may contain the JS terminal buffer. Re-clone the
@@ -1033,7 +1045,7 @@ function restoreBonesLevel(bonesData, state) {
             // C restore.c restmonchn() (419-425): restore the monster back
             // pointer of every object in its pack.
             for (let obj = m.minvent; obj; obj = obj.nobj) obj.ocarry = m;
-            reassignObjIds(m.minvent, state);
+            restobjchn_ghostly(m.minvent, state);
         } else {
             m.minvent = null;
         }
@@ -1090,33 +1102,23 @@ function restoreBonesLevel(bonesData, state) {
     // level's zones onto the list the departing level's savelev() emptied.
     load_exclusions(bonesData.exclusion_zones, state);
 
-    // Rebuild floor objects: place in the per-location .objects chains, the
-    // per-location grid (level.objects), and the flat objlist chain.
+    // C ref: restore.c getlev() (1158-1163): fobj = restobjchn(), which
+    // gives each floor object a fresh identity on a ghostly level, then
+    // find_lev_obj() builds the pile grid; the buried chain is read after.
+    // place_object() works on state.level, so the level is installed first.
     const objGrid = [];
     for (let x = 0; x < COLNO; x++) objGrid.push(new Array(ROWNO).fill(null));
-    const floorObjList = rebuildObjChain(bonesData.floorObjects ?? []);
-    // Build per-location piles from the flat list (group by ox,oy)
-    for (let otmp = floorObjList; otmp; otmp = otmp.nobj) {
-        const x = otmp.ox;
-        const y = otmp.oy;
-        if (!isok(x, y)) continue;
-        // objects grid: head of per-square nobj chain for rendering
-        otmp.nexthere = objGrid[x][y];
-        objGrid[x][y] = otmp;
-        // locations .objects: same per-square chain for level operations
-        const loc = level.locations?.[x]?.[y];
-        if (loc) {
-            otmp.nexthere = loc.objects ?? null;
-            loc.objects = otmp;
-        }
-    }
     level.objects = objGrid;
-    level.objlist = floorObjList;
+    level.objlist = rebuildObjChain(bonesData.floorObjects ?? []);
+    restobjchn_ghostly(level.objlist, state);
+
+    state.level = level;
+    await find_lev_obj(state);
 
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
+    restobjchn_ghostly(level.buriedobjlist, state);
 
-    state.level = level;
     rest_region_capacity(level);
 
     // C restore.c getlev() (1181-1183): rest_rooms() cleared every room's
