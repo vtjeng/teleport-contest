@@ -407,7 +407,9 @@ export async function split_mon(mon, attacker = null, rawEnv = {}) {
 
 // C ref: potion.c mongrantswish() (2794-2812). Remove the djinni before the
 // wish can kill the hero, keep its old glyph visible while the prompt is up,
-// and erase that transient glyph after the wish returns.
+// and erase that transient glyph after the wish returns. The clean-up follows
+// makewish() sequentially, as in C: a wish that ends the game never returns,
+// so the clean-up does not run then.
 export async function mongrantswish(monster, state = game, env = {}) {
     const x = monster.mx;
     const y = monster.my;
@@ -423,11 +425,8 @@ export async function mongrantswish(monster, state = game, env = {}) {
     removeMonster(monster, { ...env, state, random: djinniRandom(env) });
     await transient(DISP_ALWAYS, glyph, state);
     await transient(x, y, state);
-    try {
-        await grantWish(state);
-    } finally {
-        await transient(DISP_END, 0, state);
-    }
+    await grantWish(state);
+    await transient(DISP_END, 0, state);
     return null;
 }
 

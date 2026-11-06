@@ -45,6 +45,7 @@ import { cansee } from '../js/vision.js';
 import {
     begin_burn, burn_away_slime, peek_timer,
 } from '../js/timeout.js';
+import { DISP_ALWAYS, DISP_END } from '../js/const.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -102,6 +103,7 @@ import {
     make_stoned,
     make_vomiting,
     mixtype,
+    mongrantswish,
     dopotion,
     dip_potion_explosion,
     peffects,
@@ -4301,3 +4303,43 @@ test('dip commands await covered-equipment messages and resolve terrain callees'
         assert.equal(await refusal, true);
         assert.match(game._ttyToplines, /take off .* to dip/u);
     });
+
+test('mongrantswish cleans up after makewish sequentially, as potion.c does', async () => {
+    const source = potionSource();
+    const start = source.indexOf('mongrantswish(struct monst **monp)');
+    const end = source.indexOf('\n}', start);
+    assert.ok(start > 0 && end > start, 'potion.c still defines mongrantswish');
+    const body = source.slice(start, end).replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/\s+/gu, ' ');
+    // The C body has no clean-up handler: tmp_at(DISP_END) is the statement
+    // after makewish(), so a fatal wish (which never returns) skips it.
+    assert.match(body,
+        /mongone\(mon\); \*monp = 0; tmp_at\(DISP_ALWAYS, glyph\); tmp_at\(mx, my\); makewish\(\); tmp_at\(DISP_END, 0\);$/u);
+
+    // A stand-in djinni square: (7, 4) is an arbitrary map position and 1234
+    // an arbitrary non-zero glyph; mongrantswish only reads disp_glyph there.
+    const state = { level: { at: (x, y) => (x === 7 && y === 4 ? { disp_glyph: 1234 } : null) } };
+    const monster = { mx: 7, my: 4 };
+    const calls = [];
+    const env = {
+        removeMonster: (mon) => calls.push(['mongone', mon]),
+        transient: async (a, b) => { calls.push(['tmp_at', a, b]); },
+        grantWish: async () => { calls.push(['makewish']); },
+    };
+    assert.equal(await mongrantswish(monster, state, env), null);
+    assert.deepEqual(calls, [
+        ['mongone', monster],
+        ['tmp_at', DISP_ALWAYS, 1234],
+        ['tmp_at', 7, 4],
+        ['makewish'],
+        ['tmp_at', DISP_END, 0],
+    ]);
+
+    // A wish that does not return normally leaves the transient glyph alone.
+    calls.length = 0;
+    const failure = new Error('makewish did not return');
+    env.grantWish = async () => { calls.push(['makewish']); throw failure; };
+    await assert.rejects(mongrantswish(monster, state, env), failure);
+    assert.deepEqual(calls.at(-1), ['makewish']);
+    assert.equal(calls.some(([name, a]) => name === 'tmp_at' && a === DISP_END), false);
+});
