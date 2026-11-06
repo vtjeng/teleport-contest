@@ -3159,7 +3159,11 @@ async function runKnownClassCommand(key, state) {
                 }
                 : line)),
         ),
-        yesNo: yn_function,
+        // doclassdisco() compares C's `char c` answers as characters;
+        // yn_function() returns the byte.
+        yesNo: async (...args) => String.fromCharCode(
+            await yn_function(...args),
+        ),
     }));
 }
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "o_init.c doclassdisco() under menustyle:traditional: the byte yn_function() returns selects the class. A human Samurai asks for amulets, a hidden class with no discoveries (\"You haven't discovered any amulets yet.\"), cancels a second prompt with Escape, and then lists his discovered potions in a text window. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 4418206,
+      "datetime": "20380602201500",
+      "nethackrc": "OPTIONS=name:Kaito,role:Samurai,race:human,gender:male,align:lawful,menustyle:traditional,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " `\"s`\u001bs`! s"
+    }
+  ]
+}
