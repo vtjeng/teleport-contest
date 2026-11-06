@@ -19,6 +19,7 @@ import { mksobj, mksobj_at, newomonst, weight } from './obj.js';
 import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
 import { obj_stop_timers, start_corpse_timeout } from './timeout.js';
+import { forget_temple_entry } from './priest.js';
 
 function corpstatEnv(env = {}) {
     return {
@@ -61,9 +62,9 @@ function monsterSpecies(monster, state) {
 // C ref: mkobj.c save_mtraits() (2156-2195). "save_mtraits updates
 // otmp->oextra->omonst in place": a corpse or statue carries a copy of the
 // monster so that a revival can restore it. mkcorpstat() below is C's only
-// caller. The priest arm at 2159-2160 is refused ahead of the call, in
-// mkcorpstat().
+// caller.
 function save_mtraits(obj, mtmp) {
+    if (mtmp.ispriest) forget_temple_entry(mtmp); /* EPRI() */
     const baselevel = mtmp.data.mlevel; /* "mtmp->data is valid ptr" */
     // C: if (!has_omonst(obj)) newomonst(obj);
     if (!(obj.oextra && obj.oextra.omonst))
@@ -148,17 +149,6 @@ export function mkcorpstat(
         ? env.hooks.relocateObject : null;
     if (x === 0 && y === 0 && typeof relocate !== 'function')
         throw new Error('mkcorpstat requires random object relocation');
-    // C ref: mkobj.c:2159-2160. save_mtraits() forgets a priest's temple entry
-    // before it copies anything, and priest.c forget_temple_entry() is not
-    // ported. The stop is preflighted here, with the relocation owner above,
-    // so that it precedes mksobj()'s draws rather than following them.
-    if (monster) {
-        const unsupported = env.unsupported;
-        if (typeof unsupported !== 'function')
-            throw new Error('mkcorpstat requires a refusal owner');
-        if (monster.ispriest) unsupported("a priest's saved traits");
-    }
-
     // The C helpers are always present.  Validate their JS equivalents and
     // source arguments before mksobj() can consume RNG, allocate an id, arm a
     // timer, or link the new object into a floor chain.

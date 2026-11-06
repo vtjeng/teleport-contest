@@ -48,6 +48,7 @@ import { change_luck } from './moveloop_preamble.js';
 import {
     free_exclusions, ledger_no, level_info, maxledgerno, save_exclusions,
 } from './dungeon.js';
+import { forget_temple_entry } from './priest.js';
 import { save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
@@ -135,9 +136,15 @@ export function saveobjchn(first, state) {
 // reset (900-902) has nothing left to do because do.c goto_level() (1607)
 // has already cleared that pointer, and the ustuck and usteed ids (903-906)
 // serve the saved-game path, which this port restores as an object graph.
-export function savemonchn(first, state) {
-    for (let mtmp = first; mtmp; mtmp = mtmp.nmon)
+//
+// When the chain is written (update_file(), 891-894), every priest forgets
+// its temple entry (priest.c forget_temple_entry()), so leaving the level
+// and coming back gives a fresh intone and entry message.
+export function savemonchn(first, state, writing = true) {
+    for (let mtmp = first; mtmp; mtmp = mtmp.nmon) {
+        if (writing && mtmp.ispriest) forget_temple_entry(mtmp);
         if (mtmp.minvent) saveobjchn(mtmp.minvent, state);
+    }
 }
 
 // C ref: save.c savemon() (861-870) and restore.c restmon() (350-357). A
@@ -245,7 +252,7 @@ export function savelev(ledger, state = game, options = {}) {
     // the buried list, in both the WRITING | FREEING and the FREEING mode.
     // Only their svc.context pointer invalidation remains; see saveobjchn()
     // above. gb.billobjs (547) is not level-local in this port.
-    savemonchn(state.level?.monlist, state);
+    savemonchn(state.level?.monlist, state, !freeing);
     saveobjchn(state.level?.objlist, state);
     saveobjchn(state.level?.buriedobjlist, state);
     const waterlevel = save_waterlevel(null, state, true);

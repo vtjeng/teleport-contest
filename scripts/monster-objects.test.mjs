@@ -600,44 +600,6 @@ test('mkcorpstat preflights required hooks before object construction', () => {
     assert.equal(state.context.ident, firstId);
     assert.equal(state.level.objlist, null);
 
-    assert.throws(
-        () => mkcorpstat(
-            CORPSE,
-            { data: state.mons[PM_KOBOLD], mcan: false },
-            null,
-            10,
-            5,
-            CORPSTAT_INIT,
-            { state, random: noDraws.random },
-        ),
-        /refusal owner/,
-    );
-    assert.equal(state.context.ident, firstId);
-    assert.equal(state.level.objects[10][5], null);
-    assert.equal(state.level.objlist, null);
-
-    // mkobj.c:2159's priest arm, refused ahead of construction for the same
-    // reason: a refusal that landed after mksobj() would have spent draws and
-    // linked an object onto the level.
-    assert.throws(
-        () => mkcorpstat(
-            CORPSE,
-            { data: state.mons[PM_KOBOLD], mcan: false, ispriest: true },
-            null,
-            10,
-            5,
-            CORPSTAT_INIT,
-            {
-                state,
-                random: noDraws.random,
-                unsupported: (reason) => { throw new Error(reason); },
-            },
-        ),
-        /a priest's saved traits/,
-    );
-    assert.equal(state.context.ident, firstId);
-    assert.equal(state.level.objects[10][5], null);
-    assert.equal(state.level.objlist, null);
     noDraws.assertExhausted();
 });
 
