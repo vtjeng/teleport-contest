@@ -595,6 +595,9 @@ export function revive_egg(obj, state = game, env = {}) {
 export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
+    // A planned monster action passes a silent message operation; the live
+    // pass prints through the same one.
+    const message = env.message ?? ttyPline;
     if (corpse?.otyp !== CORPSE) return null;
 
     const originalType = corpse.corpsenm;
@@ -646,7 +649,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     if (corpse.norevive
         || (originalSpecies.mlet === S_EEL && !is_pool(x, y, state))) {
         if (cansee(x, y, state)) {
-            await ttyPline(
+            await message(
                 `${upstart(corpse_xname(corpse, null, CXN_PFX_THE, state))} `
                     + 'twitches feebly.',
                 state,
@@ -724,7 +727,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             if (oneOf) corpse.quan++;
             const corpseName = corpse_xname(corpse, null, CXN_NO_PFX, state);
             if (oneOf) corpse.quan--;
-            await ttyPline(
+            await message(
                 upstart(owner + corpseName) + ' glows iridescently.',
                 state,
                 env,
@@ -732,7 +735,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
         } else if (shopkeeper) {
-            await ttyPline('A corpse is resuscitated.', state, env);
+            await message('A corpse is resuscitated.', state, env);
         }
         if (shopkeeper && monster !== shopkeeper) {
             await stolen_value(
@@ -745,7 +748,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         const ghost = find_mid(corpse.oextra.omid, FM_FMON, state);
         if (ghost && ghost.data === state.mons?.[PM_GHOST]) {
             if (canseemon(ghost, state)) {
-                await ttyPline(
+                await message(
                     Monnam(ghost, state, env)
                         + ' is suddenly drawn into its former body!',
                     state,
