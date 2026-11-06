@@ -359,7 +359,6 @@ import {
 } from './roles.js';
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
-import { tty_yn_function } from './topl.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
@@ -2600,11 +2599,14 @@ export async function list_genocided(
             ? 'extinct ' : ''}species${genocided ? ' genocided' : ''}${
             extinct && genocided ? ' and extinct' : ''}?`;
         const responses = gone.length > 1 ? 'ynaq' : 'ynq\u001ba';
-        const answer = ask
-            ? queryFunction
-                ? await queryFunction(query, responses, defquery, true, state)
-                : await tty_yn_function(query, responses, defquery, state)
-            : defquery;
+        let answer = defquery;
+        if (ask) {
+            // insight.c asks through yn_function(). cmd.js imports this
+            // module, so resolve it lazily, as list_vanquished() does.
+            const ask_fn = queryFunction
+                ?? (await import('./cmd.js')).yn_function;
+            answer = await ask_fn(query, responses, defquery, true, state);
+        }
         if (answer === 'q') disclosureStop(state);
         if (answer !== 'y' && answer !== 'a') return;
 
