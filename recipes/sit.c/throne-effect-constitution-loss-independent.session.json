@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7123403,
+      "datetime": "20280922143000",
+      "nethackrc": "OPTIONS=name:Sitter,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\nthrone\n#sit\n 1\n:",
+      "comment": "A debug-mode hero sits on a wished throne, gets the effect prompt and chooses effect 1; sit.c's adjattrib() call lowers constitution, which reaches encumber_msg() during play, then the cursed throne costs hit points."
+    }
+  ]
+}
