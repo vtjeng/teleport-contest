@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent bones.c witness for restore.c find_lev_obj() on a loaded bones level. A debug human Valkyrie goes to a new level 3, is killed by a minotaur, and saves bones; drop_upon_death() leaves her possessions in a pile on her square. A second game on another seed and clock goes to level 3, loads the bones (bones.c getbones() -> restore.c getlev()), and quaffs a wished blessed potion of object detection, which maps the top object of every floor pile (detect.c object_detect()). find_lev_obj() rebuilds each pile from the saved floor chain with place_object(), so the head of that chain is on top. The seeds, clocks and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 7301447,
+      "datetime": "20360521143000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0007minotaur\nmsmsmsmsmsmsmsmsmsmsmsmsmsmsms  yqy"
+    },
+    {
+      "seed": 7301459,
+      "datetime": "20360523091500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy\u0017blessed potion of object detection\nqe   "
+    }
+  ]
+}

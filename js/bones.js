@@ -16,6 +16,9 @@ import {
     MM_NONAME,
     NON_PM,
     NO_MINVENT,
+    OBJ_FREE,
+    TIMER_MONSTER,
+    TIMER_OBJECT,
     ROOMOFFSET,
     ROWNO,
     RIGHT_HANDED,
@@ -85,7 +88,9 @@ import {
     weight,
     curse,
 } from './obj.js';
-import { end_burn } from './timeout.js';
+import { end_burn, restore_timers, timer_is_local } from './timeout.js';
+import { block_point } from './vision.js';
+import { rest_engravings } from './engrave.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -101,6 +106,13 @@ import {
     SPE_NOVEL,
     STATUE,
     TIN,
+    BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
+    ICE_BOX,
+    OIL_LAMP,
+    POT_OIL,
+    TALLOW_CANDLE,
+    WAX_CANDLE,
 } from './objects.js';
 import {
     MS_LEADER,
@@ -805,6 +817,39 @@ function serializeBonesLevel(state) {
         }
     }
 
+    // C ref: engrave.c save_engravings() (1551-1580), which savelev_core()
+    // calls after the object chains: every engraving with text, in chain
+    // order. The text is copied whole; rest_engravings() strips the leading
+    // spaces that wipeout_text() left behind.
+    const engravings = [];
+    for (let ep = state.head_engr; ep; ep = ep.nxt_engr) {
+        if (!ep.engr_txt?.[0]) continue;
+        const saved = { ...ep, engr_txt: [...ep.engr_txt] };
+        delete saved.nxt_engr;
+        engravings.push(saved);
+    }
+
+    // C ref: timeout.c save_timers(RANGE_LEVEL) (2668-2699), which
+    // savelev_core() calls first: every level-local timer, in queue order.
+    // write_timer() (2505-2550) replaces an object or monster argument with
+    // its id and marks the timer for relinking.
+    const timers = [];
+    for (let timer = state.gt?.timer_base; timer; timer = timer.next) {
+        if (!timer_is_local(timer, state)) continue;
+        let arg = timer.arg;
+        if (timer.kind === TIMER_OBJECT) arg = timer.arg.o_id;
+        else if (timer.kind === TIMER_MONSTER) arg = timer.arg.m_id;
+        timers.push({
+            timeout: timer.timeout,
+            tid: timer.tid,
+            kind: timer.kind,
+            func_index: timer.func_index,
+            arg,
+            needs_fixup: timer.kind === TIMER_OBJECT
+                || timer.kind === TIMER_MONSTER,
+        });
+    }
+
     return {
         locations,
         rooms: cloneBonesRooms(level.rooms),
@@ -829,33 +874,69 @@ function serializeBonesLevel(state) {
         monsters,
         floorObjects,
         buriedObjects,
+        engravings,
+        timers,
         fruitChain,
         moves: state.moves,
     };
 }
 
-// C ref: restore.c restmonchn/restobjchn. During ghostly restoration, every
-// monster and every object (including container contents and monster inventory)
-// receives a fresh identity via next_ident(), which draws rnd(2). The C code
-// processes in the order: monsters (with their inventory inline), floor
-// objects, buried objects. The total count of calls determines the PRNG
-// advancement; since each call draws exactly one rnd(2), the order within a
-// chain does not affect the final PRNG state.
-function reassignObjIds(ochain, state) {
+// C ref: obj.h age_is_relative(): these objects keep their remaining burn
+// or fuel time in age rather than a creation turn.
+function age_is_relative(otmp) {
+    return otmp.otyp === BRASS_LANTERN || otmp.otyp === OIL_LAMP
+        || otmp.otyp === CANDELABRUM_OF_INVOCATION
+        || otmp.otyp === TALLOW_CANDLE || otmp.otyp === WAX_CANDLE
+        || otmp.otyp === POT_OIL;
+}
+
+// C ref: restore.c restobjchn() (231-296), its ghostly fixups for each
+// object read from a bones file, in chain order: a fresh identity from
+// next_ident() (254-259), then, unless the chain is frozen, the age moved
+// from the dead hero's clock to this one's (266-267), then the contents,
+// which are frozen inside an ice box (271-278). `omoves` is the turn the
+// bones level was saved on (getlev()'s svo.omoves). `idMap` is C's
+// add_id_mapping() table: it maps each saved id to the restored object.
+function restobjchn_ghostly(ochain, frozen, omoves, idMap, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
+        const oldId = otmp.o_id;
         otmp.o_id = next_ident({ state });
-        if (otmp.cobj) reassignObjIds(otmp.cobj, state);
+        idMap.set(oldId, otmp);
+        if (!frozen && !age_is_relative(otmp))
+            otmp.age = state.moves - omoves + otmp.age;
+        if (otmp.cobj)
+            restobjchn_ghostly(otmp.cobj, otmp.otyp === ICE_BOX, omoves,
+                idMap, state);
     }
 }
 
-function reassignBonesIds(state) {
-    // Monster identities and inline inventories are assigned while
-    // restmonchn() rebuilds each monster. These are the remaining object
-    // chains in C getlev().
-    // Floor objects (C: restobjchn for fobj)
-    reassignObjIds(state.level?.objlist, state);
-    // Buried objects (C: restobjchn for buriedobjlist)
-    reassignObjIds(state.level?.buriedobjlist, state);
+// C ref: restore.c find_lev_obj() (71-107). The restored fobj chain is
+// reversed and every object freed, then each is put back with
+// place_object(), so the head of the saved chain ends on top of its pile,
+// boulders stay above other objects, and obj_no_longer_held() gives a
+// crysknife its chance to revert. Rooms have no resident yet (set_residency()
+// comes later in getlev()), so place_object() clears every no_charge and
+// costly_alteration() finds no shopkeeper. The ball and chain fixup applies
+// only to the hero's own level in a saved game, never to bones.
+async function find_lev_obj(state) {
+    let fobjtmp = null;
+    let otmp;
+    while ((otmp = state.level.objlist) != null) {
+        state.level.objlist = otmp.nobj;
+        otmp.nobj = fobjtmp;
+        otmp.where = OBJ_FREE;
+        fobjtmp = otmp;
+    }
+    const env = {
+        state,
+        hooks: {
+            blockPoint: (x, y, placeEnv) => block_point(x, y, placeEnv.state),
+        },
+    };
+    while ((otmp = fobjtmp) != null) {
+        fobjtmp = otmp.nobj;
+        await place_object(otmp, otmp.ox, otmp.oy, env);
+    }
 }
 
 // C ref: bones.c getbones() (716-730), mongone() leaves dead monsters on the
@@ -920,13 +1001,7 @@ export async function getbones(state = game) {
     }
 
     // Restore the level from the bones snapshot.
-    restoreBonesLevel(bonesData, state);
-
-    // C ref: restore.c getlev() -- during ghostly (bones) restoration, each
-    // monster and object gets a fresh identity via next_ident(). Monster
-    // identities and inline inventories were assigned by restmonchn-shaped
-    // reconstruction above; this covers the floor and buried chains.
-    reassignBonesIds(state);
+    await restoreBonesLevel(bonesData, state);
 
     // C ref: restore.c getlev() resets peaceful/malign relative to the new
     // character while walking the restored monster chain.
@@ -950,7 +1025,7 @@ export async function getbones(state = game) {
 }
 
 // Restore a bones level from a serialized snapshot into the game state.
-function restoreBonesLevel(bonesData, state) {
+async function restoreBonesLevel(bonesData, state) {
     if (!bonesData?.locations) return;
 
     // Older bones snapshots may contain the JS terminal buffer. Re-clone the
@@ -1013,6 +1088,13 @@ function restoreBonesLevel(bonesData, state) {
         return head;
     }
 
+    // C ref: restore.c getlev():1110 reads the level's timestamp, the turn
+    // savebones() wrote it on.
+    const omoves = bonesData.moves;
+    // C's id mapping table (restore.c add_id_mapping()), cleared by getlev()
+    // and filled while the object chains are read.
+    const objIds = new Map();
+
     // Rebuild monsters: place in the grid and build the monlist chain.
     const monsGrid = [];
     for (let x = 0; x < COLNO; x++) monsGrid.push(new Array(ROWNO).fill(null));
@@ -1033,7 +1115,7 @@ function restoreBonesLevel(bonesData, state) {
             // C restore.c restmonchn() (419-425): restore the monster back
             // pointer of every object in its pack.
             for (let obj = m.minvent; obj; obj = obj.nobj) obj.ocarry = m;
-            reassignObjIds(m.minvent, state);
+            restobjchn_ghostly(m.minvent, false, omoves, objIds, state);
         } else {
             m.minvent = null;
         }
@@ -1090,33 +1172,34 @@ function restoreBonesLevel(bonesData, state) {
     // level's zones onto the list the departing level's savelev() emptied.
     load_exclusions(bonesData.exclusion_zones, state);
 
-    // Rebuild floor objects: place in the per-location .objects chains, the
-    // per-location grid (level.objects), and the flat objlist chain.
+    // C ref: restore.c getlev() (1158-1163): fobj = restobjchn(), which
+    // gives each floor object a fresh identity on a ghostly level, then
+    // find_lev_obj() builds the pile grid; the buried chain is read after.
+    // place_object() works on state.level, so the level is installed first.
     const objGrid = [];
     for (let x = 0; x < COLNO; x++) objGrid.push(new Array(ROWNO).fill(null));
-    const floorObjList = rebuildObjChain(bonesData.floorObjects ?? []);
-    // Build per-location piles from the flat list (group by ox,oy)
-    for (let otmp = floorObjList; otmp; otmp = otmp.nobj) {
-        const x = otmp.ox;
-        const y = otmp.oy;
-        if (!isok(x, y)) continue;
-        // objects grid: head of per-square nobj chain for rendering
-        otmp.nexthere = objGrid[x][y];
-        objGrid[x][y] = otmp;
-        // locations .objects: same per-square chain for level operations
-        const loc = level.locations?.[x]?.[y];
-        if (loc) {
-            otmp.nexthere = loc.objects ?? null;
-            loc.objects = otmp;
-        }
-    }
     level.objects = objGrid;
-    level.objlist = floorObjList;
+    level.objlist = rebuildObjChain(bonesData.floorObjects ?? []);
+    restobjchn_ghostly(level.objlist, false, omoves, objIds, state);
+
+    state.level = level;
+    await find_lev_obj(state);
 
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
+    restobjchn_ghostly(level.buriedobjlist, false, omoves, objIds, state);
 
-    state.level = level;
+    // C ref: restore.c getlev():1166 rest_engravings(), after the object
+    // chains. save_engravings() writes head_engr in chain order and
+    // rest_engravings() pushes each one it reads, so the restored chain is
+    // reversed; it then strips leading spaces and stamps engr_time.
+    let engravings = null;
+    for (const saved of bonesData.engravings ?? [])
+        engravings = { ...saved, engr_txt: [...saved.engr_txt],
+            nxt_engr: engravings };
+    state.head_engr = engravings;
+    rest_engravings(state);
+
     rest_region_capacity(level);
 
     // C restore.c getlev() (1181-1183): rest_rooms() cleared every room's
@@ -1124,6 +1207,25 @@ function restoreBonesLevel(bonesData, state) {
     // its room before the level begins play.
     for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon)
         if (mtmp.isshk) set_residency(mtmp, false, state);
+
+    // C ref: restore.c getlev():1130 restore_timers(RANGE_LEVEL, elapsed)
+    // and 1305 relink_timers(ghostly). A bones level's timers move from the
+    // dead hero's clock to this one's (timeout.c 2722-2723); each object
+    // timer then points at the restored object that had the saved id.
+    const timers = [];
+    for (const saved of bonesData.timers ?? []) {
+        const timer = { ...saved, next: null };
+        timer.timeout += state.moves - omoves;
+        if (timer.needs_fixup) {
+            if (timer.kind !== TIMER_OBJECT)
+                throw new Error('relink_timers: no monster timer implemented');
+            timer.arg = objIds.get(saved.arg);
+            if (!timer.arg) throw new Error(`can't find o_id ${saved.arg}`);
+            timer.needs_fixup = false;
+        }
+        timers.push(timer);
+    }
+    restore_timers(timers, state);
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first

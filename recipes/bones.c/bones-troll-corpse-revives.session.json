@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent bones.c witness for timeout.c save_timers() and restore_timers() on a bones level, with restore.c relink_timers(). A debug human Valkyrie goes to a new level 3, wishes for a troll corpse, whose start_corpse_timeout() schedules a REVIVE_MON timer, drops it, steps east, shoots herself with a wished wand of death, and saves bones. A second game on another seed and clock goes to level 3 and loads the bones; restore_timers() moves the timer to this hero's clock and relink_timers() points it at the restored corpse. The hero then searches until the timer fires and the troll revives out of sight (do.c revive_mon() -> makemon()). The seeds, clocks and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 5512093,
+      "datetime": "20390118064500",
+      "nethackrc": "OPTIONS=name:Gudrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0017troll corpse\ndel\u0017wand of death\nzf.  yqy"
+    },
+    {
+      "seed": 5512123,
+      "datetime": "20390120221500",
+      "nethackrc": "OPTIONS=name:Gudrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy msmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsms"
+    }
+  ]
+}
