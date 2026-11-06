@@ -192,6 +192,7 @@ import {
     stop_timer,
 } from './timeout.js';
 import {
+    clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
     ttyPline,
     tty_message_menu,
@@ -5476,6 +5477,9 @@ export async function dotypeinv(state = game, hooks = {}) {
             );
             selectedType = answer ? String.fromCharCode(answer) : '\0';
             if (selectedType === '\0') {
+                // invent.c:3933: Escape answers the default '\0', and
+                // clear_nhwindow(WIN_MESSAGE) takes the prompt off.
+                clearTtyMessageWindow(state);
                 return resetDotypeContext(state);
             }
         } else if (anyUnpaid) selectedType = 'u';

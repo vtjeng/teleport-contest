@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c dotypeinv() 3930-3935 under menustyle:traditional: Escape at the class prompt makes yn_function() return its '\\0' default, and clear_nhwindow(WIN_MESSAGE) erases the prompt before the command ends. A gnomish Archeologist tries I twice. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 6614093,
+      "datetime": "20410927164500",
+      "nethackrc": "OPTIONS=name:Tobble,role:Archeologist,race:gnome,gender:male,align:neutral,menustyle:traditional,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " I\u001bsI\u001bs"
+    }
+  ]
+}
