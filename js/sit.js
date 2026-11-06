@@ -636,7 +636,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const { tty_yn_function } = await import('./topl.js');
             removeThrone = await tty_yn_function(
                 'Analyze throne?', 'yn', 'n', state,
-            ) === 'y';
+            ) === 'y'.charCodeAt(0); // the prompt returns the key code
         }
         if (removeThrone) {
             const location = state.level?.at(tx, ty);

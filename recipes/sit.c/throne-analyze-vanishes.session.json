@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent sit.c witness for the wizard-mode \"Analyze throne?\" confirmation at the end of throne_sit_effect(): a debug Knight wishes a throne and sits; no throne effect is drawn, the rn2(3) removal chance asks the question, and answering y makes the throne vanish in a puff of logic. I selected seed 7350006 with a JavaScript scan over 7350001-7350060 (3 starts asked the question).",
+  "segments": [
+    {
+      "seed": 7350006,
+      "datetime": "20360511161000",
+      "nethackrc": "OPTIONS=name:ThroneLogic,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017throne\n#sit\n y\u001b"
+    }
+  ]
+}
