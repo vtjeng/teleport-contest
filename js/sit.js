@@ -353,6 +353,11 @@ async function throne_sit_effect(state, rawEnv = {}) {
     const random = sit_water_random(rawEnv);
     const message = rawEnv.message
         ?? (await import('./tty_message.js')).ttyPline;
+    // attrib.c adjattrib() ends a Strength or Constitution change with
+    // pickup.c encumber_msg(), which attrib.js receives through env.
+    const { encumber_msg } = await import('./pickup.js');
+    const encumberMessage = rawEnv.encumberMessage
+        ?? ((subject) => encumber_msg(subject, { message }));
     const tx = u.ux;
     const ty = u.uy;
     const specialThrone = u.uz?.dnum === state.tower_dnum;
@@ -378,6 +383,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 ...rawEnv,
                 random,
                 message,
+                encumberMessage,
             });
             return;
         }
@@ -387,7 +393,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const { adjattrib } = await import('./attrib.js');
             await adjattrib(
                 random.rn2(A_MAX), -random.rn1(4, 3), 0, state,
-                { ...rawEnv, random, message },
+                { ...rawEnv, random, message, encumberMessage },
             );
             const { losehp } = await import('./hack.js');
             await losehp(random.rnd(10), 'cursed throne', KILLED_BY_AN,
@@ -399,7 +405,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const { adjattrib } = await import('./attrib.js');
             await adjattrib(
                 random.rn2(A_MAX), 1, 0, state,
-                { ...rawEnv, random, message },
+                { ...rawEnv, random, message, encumberMessage },
             );
             break;
         }
