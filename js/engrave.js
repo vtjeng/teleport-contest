@@ -82,7 +82,7 @@ import {
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 
@@ -1286,7 +1286,8 @@ export async function read_engr_at(
     case ENGR_BLOOD:
         if (!blind) {
             sensed = true;
-            await pline('You see a message scrawled in blood here.', state);
+            await pline(
+                youSee('a message scrawled in blood here.', state), state);
         }
         break;
     default:

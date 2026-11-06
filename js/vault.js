@@ -55,7 +55,7 @@ import {
     map_invisible, map_invisible_planning, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
-import { verbalize, youHear } from './pline.js';
+import { verbalize, youHear, youSee } from './pline.js';
 import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
@@ -1180,7 +1180,7 @@ export async function invault(state, env = {}) {
             boulder = sobj_at(BOULDER, guard.mx, guard.my, state);
         } while (boulder);
         const suffix = `${count === 1 ? an(bname) : makeplural(bname)} shatter.`;
-        const line = Blind(state) ? youHear(suffix, state) : `You see ${suffix}`;
+        const line = Blind(state) ? youHear(suffix, state) : youSee(suffix, state);
         if (line) await message(line);
     }
 

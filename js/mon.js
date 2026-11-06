@@ -582,7 +582,6 @@ import {
     monhaskey,
     onscary,
     youHear,
-    youSee,
     mb_trapped,
     closed_door,
     set_apparxy,
@@ -594,7 +593,7 @@ import {
     place_monster,
     remove_monster,
 } from './monst.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youSee } from './pline.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
@@ -5213,8 +5212,8 @@ export async function vamprises(mtmp, state = game, env = {}) {
         } else if (!canspotmon(mtmp, state)) {
             await message(
                 messageAt(
-                    trapped ? 'You see a door exploding.'
-                        : 'You see a door being smashed.',
+                    youSee(`${trapped ? 'a door exploding'
+                        : 'a door being smashed'}.`, state),
                     x,
                     y,
                     state,

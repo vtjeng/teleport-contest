@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { DEAF, FAINTED } from '../js/const.js';
+import { BLINDED, DEAF, FAINTED } from '../js/const.js';
 import {
     consume_msg_xy,
     heroDeaf,
@@ -10,6 +10,7 @@ import {
     pline_mon,
     set_msg_xy,
     youHear,
+    youSee,
 } from '../js/pline.js';
 import { messageAt } from '../js/startup_a11y.js';
 
@@ -103,6 +104,27 @@ test('negative multi alone is not enough to dream that one hears', () => {
     assert.equal(heroUnaware(state), true);
     assert.equal(youHear('someone searching.', state),
         'You dream that you hear someone searching.');
+});
+
+test('You_see picks Unaware before Blind, then the plain prefix', () => {
+    // pline.c You_see(): `if (Unaware) ... else if (Blind) ... else`.
+    const cSee = C_PLINE_SOURCE.slice(
+        C_PLINE_SOURCE.indexOf('You_see(const char *line, ...)'));
+    assert.ok(cSee.indexOf('if (Unaware)') < cSee.indexOf('else if (Blind)'));
+    const state = hearingState();
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    assert.equal(youSee('a door open.', state), 'You see a door open.');
+
+    state.u.uprops[BLINDED].intrinsic = 1; // Any blindness timeout.
+    assert.equal(youSee('a door open.', state), 'You sense a door open.');
+    state.u.uprops[BLINDED].blocked = 1; // BBlinded (the Eyes of the Overworld): not Blind.
+    assert.equal(youSee('a door open.', state), 'You see a door open.');
+
+    state.u.uprops[BLINDED].blocked = 0;
+    state.multi = -1;
+    state.u.usleep = 1; // Asleep and helpless: Unaware outranks Blind.
+    assert.equal(youSee('a door open.', state),
+        'You dream that you see a door open.');
 });
 
 test('pline_mon forwards its formatted line through the source owner', async () => {

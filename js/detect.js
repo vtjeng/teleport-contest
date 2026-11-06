@@ -174,7 +174,7 @@ import { consume_obj_charge, currency, money_cnt, useup, sobj_at } from './inven
 import { findgold } from './steal.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
-import { youFeel } from './pline.js';
+import { youFeel, youSee } from './pline.js';
 import { note_unported } from './unported.js';
 import { isBox, objectType } from './obj.js';
 import {
@@ -1515,11 +1515,17 @@ export async function use_crystal_ball(optr, state = game) {
                 );
                 break;
             case 4:
-                await ttyPline('You see goldfish swimming above fluorescent rocks.', state);
+                await ttyPline(
+                    youSee('goldfish swimming above fluorescent rocks.', state),
+                    state,
+                );
                 break;
             case 5:
                 await ttyPline(
-                    'You see tiny snowflakes spinning around a miniature farmhouse.',
+                    youSee(
+                        'tiny snowflakes spinning around a miniature farmhouse.',
+                        state,
+                    ),
                     state,
                 );
                 break;
@@ -1596,7 +1602,10 @@ export async function use_crystal_ball(optr, state = game) {
                         ];
                         const [name, where] = levels[rn2(levels.length)];
                         await ttyPline(
-                            `You see ${name}, ${level_distance(where, state)}.`,
+                            youSee(
+                                `${name}, ${level_distance(where, state)}.`,
+                                state,
+                            ),
                             state,
                         );
                         detected = 0;
@@ -1606,7 +1615,10 @@ export async function use_crystal_ball(optr, state = game) {
         }
         if (detected) {
             if (!rn2(100))
-                await ttyPline('You see the Wizard of Yendor gazing out at you.', state);
+                await ttyPline(
+                    youSee('the Wizard of Yendor gazing out at you.', state),
+                    state,
+                );
             else
                 await ttyPline('The vision is unclear.', state);
         }

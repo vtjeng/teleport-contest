@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent route for timeout.c burn_object() -> pline.c You_see() while the hero is Unaware. A wished lit tallow candle (age 200) is dropped, a counted search passes 110 turns, and a wished potion of sleeping puts the hero to sleep, so the candle's 75-turns-left message arrives as \"You dream that you see a candle getting short.\" Seed 7310483 was chosen from a short probe because no monster or hidden door interrupts the search; the Valkyrie's fixed inventory fixes the item letters.",
+  "segments": [
+    {
+      "seed": 7310483,
+      "datetime": "20330311084500",
+      "nethackrc": "OPTIONS=name:Dreamer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #wizwish\nlit tallow candle\ndf110s#wizwish\npotion of sleeping\nqg s"
+    }
+  ]
+}

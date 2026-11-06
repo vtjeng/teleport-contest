@@ -46,7 +46,6 @@ import {
     FAILEDUNTRAP,
     FIRE_TRAP,
     FIRE_RES,
-    FAINTED,
     FOOT,
     FORCEBUNGLE,
     FORCETRAP,
@@ -181,7 +180,9 @@ import {
 import { game } from './gstate.js';
 import { get_obj_location } from './light.js';
 import { losexp } from './exper.js';
-import { youHear as plineYouHear } from './pline.js';
+import {
+    youFeel as plineYouFeel, youHear as plineYouHear, youSee as plineYouSee,
+} from './pline.js';
 import { m_in_air, newcham, setmangry } from './mon.js';
 import { hard_helmet } from './do_wear.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
@@ -1548,9 +1549,11 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         if (!sokoban && is_clinger(state.youmonst.data) && !plunged) {
             if (alreadyKnown) {
                 await message(
-                    `${heroIsBlind(state) ? 'You sense' : 'You see'} `
-                        + `${a_your[trap.madeby_u ? 1 : 0]} ${trap.ttyp === SPIKED_PIT
+                    plineYouSee(
+                        `${a_your[trap.madeby_u ? 1 : 0]} ${trap.ttyp === SPIKED_PIT
                             ? 'spiked ' : ''}pit below you.`,
+                        state,
+                    ),
                     state,
                     env,
                 );
@@ -1798,13 +1801,6 @@ function See_invisible(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-// C ref: youprop.h:399 Unaware. launch_obj() also composes You_see() here so
-// trap_effects.js does not depend on monmove.js, which imports this module.
-function heroUnaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
-
 async function domagictrap(env) {
     const { state } = env;
     const random = env.random;
@@ -1826,13 +1822,7 @@ async function domagictrap(env) {
             if (!heroIsBlind(state))
                 await message('Your vision clears.', state);
         } else if (!heroIsBlind(state)) {
-            // C's You_see() adds this prefix only when Unaware.
-            await message(
-                heroUnaware(state)
-                    ? 'You dream that you see a flash of light!'
-                    : 'You see a flash of light!',
-                state,
-            );
+            await message(plineYouSee('a flash of light!', state), state);
         }
 
         if (!heroIsDeaf(state)) {
@@ -1845,12 +1835,7 @@ async function domagictrap(env) {
             );
             state.disp.botl = true;
         } else {
-            await message(
-                heroUnaware(state)
-                    ? 'You dream that you feel rankled.'
-                    : 'You feel rankled.',
-                state,
-            );
+            await message(plineYouFeel('rankled.', state), state);
             await incr_itimeout(
                 state.u.uprops[DEAF], random.rn1(5, 15),
             );
@@ -2319,7 +2304,10 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
         // that same location into the accessible-message representation.
         await message(
             messageAt(
-                `You see a tower of flame erupt from the ${surface(mtmp.mx, mtmp.my, state)}!`,
+                plineYouSee(
+                    `a tower of flame erupt from the ${surface(mtmp.mx, mtmp.my, state)}!`,
+                    state,
+                ),
                 mtmp.mx,
                 mtmp.my,
                 state,
@@ -2657,11 +2645,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         ?? (planning ? async () => {} : tmp_at);
     const cursorOnHero = env.cursorOnHero
         ?? (planning ? async () => {} : curs_on_u);
-    const youSee = env.youSee ?? ((line, target) => {
-        if (heroUnaware(target)) return `You dream that you see ${line}`;
-        if (heroIsBlind(target)) return `You sense ${line}`;
-        return `You see ${line}`;
-    });
+    const youSee = env.youSee ?? plineYouSee;
     const youHear = env.youHear ?? plineYouHear;
 
     // Object lifecycle hooks receive the normalized operation environment,
@@ -4007,8 +3991,11 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
                     .replace('rear ', '');
                 beneath = `${s_suffix(monName)} ${foot}`;
             }
-            await message(`You see a strange vibration beneath ${beneath}.`,
-                state, env);
+            await message(
+                plineYouSee(`a strange vibration beneath ${beneath}.`, state),
+                state,
+                env,
+            );
         } else {
             const nearby = dist2(
                 mtmp.mx,
@@ -4016,8 +4003,8 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
                 state.u.ux,
                 state.u.uy,
             ) <= 2 * 2;
-            await message(`You see the ground vibrate ${nearby
-                ? 'nearby' : 'in the distance'}.`, state, env);
+            await message(plineYouSee(`the ground vibrate ${nearby
+                ? 'nearby' : 'in the distance'}.`, state), state, env);
         }
     }
     return Trap_Effect_Finished;
@@ -4484,7 +4471,5 @@ export async function drain_en(n, maxAlreadyDrained, state = game, env = {}) {
         state.disp.botl = true;
     }
 
-    const prefix = heroUnaware(state)
-        ? 'You dream that you feel' : 'You feel';
-    await message(`${prefix} ${text}${ending}`, state);
+    await message(plineYouFeel(`${text}${ending}`, state), state);
 }

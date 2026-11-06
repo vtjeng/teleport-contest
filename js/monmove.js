@@ -46,7 +46,6 @@ import {
     A_LAWFUL,
     A_STR,
     BEAR_TRAP,
-    BLINDED,
     BOLT_LIM,
     BUSTDOOR,
     COLNO,
@@ -220,6 +219,7 @@ import {
     heroUnaware,
     impossible,
     youHear,
+    youSee,
     verbalize,
 } from './pline.js';
 export { youHear } from './pline.js';
@@ -1884,17 +1884,6 @@ function fleesLight(monster, normalized) {
             || (state.uarm?.lamplit && artifact_light(state.uarm)))
         && monster.mcansee
         && couldSee(monster.mx, monster.my);
-}
-
-// C ref: pline.c You_see() (453-470).  C's own comment says a caller should
-// have caught the Blind case; most callers reach it only behind cansee(),
-// which is false while the hero is blind.
-export function youSee(line, state) {
-    if (heroUnaware(state)) return `You dream that you see ${line}`;
-    // youprop.h:103 defines Blind as ((HBlinded || EBlinded) && !BBlinded)
-    // and folds OPTIONS=blind into HBlinded, so there is no uroleplay term.
-    if (propertyActive(state, BLINDED, true)) return `You sense ${line}`;
-    return `You see ${line}`;
 }
 
 function fleeingLightSource(state) {

@@ -161,7 +161,7 @@ import { newMonster } from './monst.js';
 // pudding_merge_message() composes You_hear/You_see message strings from
 // pline.c helpers ported in monmove.js. monmove.js imports from this file;
 // both sides use the other's exports only inside function bodies.
-import { youHear, youSee } from './monmove.js';
+import { youHear } from './monmove.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
@@ -219,7 +219,7 @@ import {
     unpaid_cost,
 } from './shk.js';
 import { in_rooms } from './rooms.js';
-import { verbalize } from './pline.js';
+import { verbalize, youSee } from './pline.js';
 import { set_voice } from './sounds.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's

@@ -76,7 +76,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
-import { youSee } from './monmove.js';
+import { youSee } from './pline.js';
 import { wet_a_towel } from './weapon.js';
 import { blank_novel } from './zap.js';
 

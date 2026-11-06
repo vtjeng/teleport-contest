@@ -10,7 +10,7 @@ import { truncateByteString } from './hacklib.js';
 import { BUFSZ, DEAF, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { is_fainted } from './eat.js';
 import { unconscious } from './trap.js';
-import { messageAt } from './startup_a11y.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
 
@@ -43,6 +43,15 @@ export function youHear(line, state = game) {
 // the sensation's caller changes timeouts or schedules its wakeup message.
 export function youFeel(line, state = game) {
     return `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} ${line}`;
+}
+
+// C ref: pline.c You_see() (453-470). C's own comment says a caller should
+// have caught the Blind case; most callers reach it only behind cansee(),
+// which is false while the hero is blind.
+export function youSee(line, state = game) {
+    if (heroUnaware(state)) return `You dream that you see ${line}`;
+    if (heroIsBlind(state)) return `You sense ${line}`;
+    return `You see ${line}`;
 }
 
 // C ref: pline.c pline_mon() (138-152). The C helper sets the message
