@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "trap.c erode_obj(): a bare-handed melee hit on a spotted jelly splashes acid in uhitm.c passive(), whose rn2(30) roll calls erode_armor(); erode_obj() then draws the rnl(4) blessed-item roll (trap.c:257) for the blessed plate mail.",
+  "segments": [
+    {
+      "seed": 8150456,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:BlessMelee,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#levelchange\n30\n\u001b\u0017blessed +0 plate mail\nWe\u0017blessed +0 iron shoes\nWfw-\u0007spotted jelly\nn\u001bn\u001b"
+    }
+  ]
+}

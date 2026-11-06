@@ -70,7 +70,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { rn2 } from './rng.js';
+import { rn2, rnl } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
@@ -186,7 +186,10 @@ export async function erode_obj(obj, description, type, flags, env) {
         return ER_NOTHING;
     }
     const { state } = env;
-    const random = env.random;
+    // trap.c:257 draws rnl(4) for a blessed item. Callers inject partial
+    // sources built from the live rng.js functions (for example passive()'s
+    // { d, rn2, rnd }), so a missing function draws from the live generator.
+    const random = { rn2, rnl, ...env.random };
     const message = erosionOperation(env, 'message', ttyPline);
     const vismon = monsterVictim && erosionOperation(
         env,
