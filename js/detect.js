@@ -1572,7 +1572,12 @@ export async function use_crystal_ball(optr, state = game) {
         // calls makeknown before consuming the ball's charge.
         discover_object(CRYSTAL_BALL, true, true, true, state);
         await consume_obj_charge(obj, true, { state });
-        if (ch === ']') ch = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_MIMIC];
+        // C turns DEF_MIMIC_DEF (']') into DEF_MIMIC, the character 'm'.
+        if (ch === ']') {
+            ch = String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_MIMIC],
+            );
+        }
         if (def_char_is_furniture(ch) >= 0) {
             detected = await furniture_detect(state);
         } else {
