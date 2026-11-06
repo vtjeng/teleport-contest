@@ -7,6 +7,7 @@
 // dig.c bury_an_obj() is ported in js/bury.js, which predates this file and
 // keeps its own name because it also holds zap.c obj_resists().
 
+import { rm_doormask } from './game.js';
 import {
     AM_MASK,
     AM_SANCTUM,
@@ -2293,7 +2294,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         if (in_rooms(x, y, SHOPBASE, state).length)
             add_damage(x, y, 0, state);
         const sawit = canseemon(monster, state);
-        const trapped = Boolean((location.doormask ?? location.flags ?? 0) & D_TRAPPED);
+        const trapped = Boolean(rm_doormask(location) & D_TRAPPED);
         setTerrain(location, DOOR, trapped ? D_NODOOR : D_BROKEN);
         recalcBlockPoint(x, y, state);
         redraw(x, y);

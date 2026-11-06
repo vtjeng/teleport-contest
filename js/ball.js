@@ -7,6 +7,7 @@
 // hero is punished. The pointers in drag_ball() are represented by `{ value }`
 // cells.
 
+import { rm_doormask } from './game.js';
 import {
     A_STR,
     BC_BALL,
@@ -531,8 +532,7 @@ function chainRock(x, y, state) {
     const location = state.level.at(x, y);
     return IS_OBSTRUCTED(location.typ)
         || (IS_DOOR(location.typ)
-            && Boolean((location.doormask ?? location.flags ?? 0)
-                & (D_CLOSED | D_LOCKED)));
+            && Boolean(rm_doormask(location) & (D_CLOSED | D_LOCKED)));
 }
 
 // C ref: ball.c drag_ball() (560-830). The return value tells the caller to

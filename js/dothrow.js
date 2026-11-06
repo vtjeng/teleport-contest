@@ -29,6 +29,7 @@
 // #fire shares the source's autoquiver, launcher-selection, polearm and whip
 // helpers. The command-queue tail remains owned by js/cmd.js.
 
+import { rm_doormask } from './game.js';
 import { ghitm } from './dokick.js';
 import {
     ARTICLE_A,
@@ -937,7 +938,7 @@ export async function hurtle_step(arg, x, y) {
         let why = null;
         const diagonal = state.u.ux !== x && state.u.uy !== y;
         const openDoor = IS_DOOR(ltyp)
-            && ((lev.doormask ?? lev.flags ?? 0) & D_ISOPEN) !== 0;
+            && (rm_doormask(lev) & D_ISOPEN) !== 0;
         const openDoorDiagonal = openDoor && diagonal;
         if (IS_OBSTRUCTED(ltyp) || closed_door(x, y, state)
             || openDoorDiagonal) {

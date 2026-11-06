@@ -2,6 +2,7 @@
 // C refs: hack.c pooleffects() and spoteffects(), plus the selected return
 // helpers named at their definitions below.
 
+import { rm_doormask } from './game.js';
 import {
     A_CON,
     A_DEX,
@@ -2176,7 +2177,7 @@ export async function still_chewing(x, y, state = game) {
             ? 'You devour the iron bars.' : 'You eat through the bars.';
         await dissolve_bars(x, y, state);
     } else if (lev.typ === SDOOR) {
-        if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
+        if (rm_doormask(lev) & D_TRAPPED) {
             lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
             await b_trapped('secret door', NO_PART, state);
@@ -2191,7 +2192,7 @@ export async function still_chewing(x, y, state = game) {
             add_damage(x, y, SHOP_DOOR_COST, state);
             dmgtxt = 'break';
         }
-        if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
+        if (rm_doormask(lev) & D_TRAPPED) {
             lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
             await b_trapped('door', NO_PART, state);
