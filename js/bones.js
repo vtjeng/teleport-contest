@@ -104,6 +104,13 @@ import {
     SPE_NOVEL,
     STATUE,
     TIN,
+    BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
+    ICE_BOX,
+    OIL_LAMP,
+    POT_OIL,
+    TALLOW_CANDLE,
+    WAX_CANDLE,
 } from './objects.js';
 import {
     MS_LEADER,
@@ -850,14 +857,29 @@ function serializeBonesLevel(state) {
     };
 }
 
-// C ref: restore.c restobjchn() (231-296), its ghostly fixup for each
-// object read from a bones file: a fresh identity from next_ident()
-// (254-259), in chain order, each container's contents (271-278) right
-// after the container.
-function restobjchn_ghostly(ochain, state) {
+// C ref: obj.h age_is_relative(): these objects keep their remaining burn
+// or fuel time in age rather than a creation turn.
+function age_is_relative(otmp) {
+    return otmp.otyp === BRASS_LANTERN || otmp.otyp === OIL_LAMP
+        || otmp.otyp === CANDELABRUM_OF_INVOCATION
+        || otmp.otyp === TALLOW_CANDLE || otmp.otyp === WAX_CANDLE
+        || otmp.otyp === POT_OIL;
+}
+
+// C ref: restore.c restobjchn() (231-296), its ghostly fixups for each
+// object read from a bones file, in chain order: a fresh identity from
+// next_ident() (254-259), then, unless the chain is frozen, the age moved
+// from the dead hero's clock to this one's (266-267), then the contents,
+// which are frozen inside an ice box (271-278). `omoves` is the turn the
+// bones level was saved on (getlev()'s svo.omoves).
+function restobjchn_ghostly(ochain, frozen, omoves, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
         otmp.o_id = next_ident({ state });
-        if (otmp.cobj) restobjchn_ghostly(otmp.cobj, state);
+        if (!frozen && !age_is_relative(otmp))
+            otmp.age = state.moves - omoves + otmp.age;
+        if (otmp.cobj)
+            restobjchn_ghostly(otmp.cobj, otmp.otyp === ICE_BOX, omoves,
+                state);
     }
 }
 
@@ -1039,6 +1061,10 @@ async function restoreBonesLevel(bonesData, state) {
         return head;
     }
 
+    // C ref: restore.c getlev():1110 reads the level's timestamp, the turn
+    // savebones() wrote it on.
+    const omoves = bonesData.moves;
+
     // Rebuild monsters: place in the grid and build the monlist chain.
     const monsGrid = [];
     for (let x = 0; x < COLNO; x++) monsGrid.push(new Array(ROWNO).fill(null));
@@ -1059,7 +1085,7 @@ async function restoreBonesLevel(bonesData, state) {
             // C restore.c restmonchn() (419-425): restore the monster back
             // pointer of every object in its pack.
             for (let obj = m.minvent; obj; obj = obj.nobj) obj.ocarry = m;
-            restobjchn_ghostly(m.minvent, state);
+            restobjchn_ghostly(m.minvent, false, omoves, state);
         } else {
             m.minvent = null;
         }
@@ -1124,14 +1150,14 @@ async function restoreBonesLevel(bonesData, state) {
     for (let x = 0; x < COLNO; x++) objGrid.push(new Array(ROWNO).fill(null));
     level.objects = objGrid;
     level.objlist = rebuildObjChain(bonesData.floorObjects ?? []);
-    restobjchn_ghostly(level.objlist, state);
+    restobjchn_ghostly(level.objlist, false, omoves, state);
 
     state.level = level;
     await find_lev_obj(state);
 
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
-    restobjchn_ghostly(level.buriedobjlist, state);
+    restobjchn_ghostly(level.buriedobjlist, false, omoves, state);
 
     // C ref: restore.c getlev():1166 rest_engravings(), after the object
     // chains. save_engravings() writes head_engr in chain order and

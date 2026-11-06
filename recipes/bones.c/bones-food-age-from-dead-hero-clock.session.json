@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent bones.c witness for restore.c restobjchn()'s ghostly age shift. A debug human Valkyrie goes to a new level 3, drops her two food rations (made on turn 1), kills a grid bug, waits about 40 turns, shoots herself with a wished wand of death, and saves bones on turn 48. A second game on another seed and clock goes to level 3 on turn 2 and loads the bones; restobjchn() moves each object's age from the dead hero's clock to this one's (age = moves - omoves + age), so the rations now date from turn -45. After a wished blessed potion of object detection, the hero teleports onto the rations and eats one: doeat() finds a non-corpse food item more than 30 turns old and draws rn2(7) for rotting (eat.c 3026-3031). The seeds, clocks and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 6620923,
+      "datetime": "20380704120000",
+      "nethackrc": "OPTIONS=name:Astrid,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nddjjjjFhFjFkFlmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsms\u001b\u0017wand of death\nzf.  yqy"
+    },
+    {
+      "seed": 6620941,
+      "datetime": "20380706203000",
+      "nethackrc": "OPTIONS=name:Astrid,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy \u0017blessed potion of object detection\nqf  \u001b\u0014 ky.ey"
+    }
+  ]
+}
