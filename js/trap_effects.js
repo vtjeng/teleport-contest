@@ -301,10 +301,7 @@ import { m_at } from './monst.js';
 import { mpickobj } from './steal.js';
 import { hits_bars, ohitmon, thitu } from './mthrowu.js';
 import { sleep_monst } from './mhitm.js';
-import {
-    snuff_lit,
-    splash_monster_light,
-} from './apply_splash_lit.js';
+import { splash_lit } from './apply_splash_lit.js';
 import {
     add_to_migration,
     carried,
@@ -323,7 +320,6 @@ import { observe_object } from './o_init.js';
 import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
-    BRASS_LANTERN,
     CORPSE,
     DART,
     ARROW,
@@ -3462,16 +3458,6 @@ function rustTrapMonsterLifesaver(monster, state) {
     return null;
 }
 
-// C ref: apply.c splash_lit() (1518-1571), the hero-inventory arm reached by
-// trap.c water_damage() from trapeffect_rust_trap(). A brass lantern is not
-// extinguished by a rust trap unless the hero is actually dunked, which this
-// trap path cannot do. The remaining lit-object cases mirror snuff_lit() and
-// snuff_candle(), including their source messages.
-async function splash_hero_light(obj, env) {
-    if (!obj?.lamplit || obj.otyp === BRASS_LANTERN) return false;
-    return snuff_lit(obj, env);
-}
-
 // C ref: trap.c trapeffect_rust_trap() (1594-1727), both hero and monster
 // arms. The two arms deliberately share the source's rn2(5) split but differ
 // in target selection: hero traps hit the selected worn object even when it
@@ -3486,7 +3472,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
             obj,
             description,
             true,
-            { ...env, splashLight: splash_hero_light },
+            env,
         )
         : (obj, description) => water_damage_monster_equipment(
             obj,
@@ -3541,7 +3527,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
                 const next = obj.nobj;
                 if (obj.lamplit && obj !== state.uwep
                     && (obj !== state.uswapwep || !state.u.twoweap)) {
-                    await splash_hero_light(obj, env);
+                    await splash_lit(obj, env);
                 }
                 obj = next;
             }
@@ -3637,7 +3623,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
             if (obj.lamplit
                 && (obj.owornmask & (W_WEP | W_SWAPWEP)) === 0) {
-                await splash_monster_light(obj, env);
+                await splash_lit(obj, env);
             }
         }
         let target = which_armor(mtmp, W_ARMC, state);

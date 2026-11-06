@@ -15,7 +15,7 @@ import {
 import {
     snuff_candle,
     snuff_lit,
-    splash_monster_light,
+    splash_lit,
 } from '../js/apply_splash_lit.js';
 import { Shk_Your } from '../js/shk.js';
 
@@ -60,7 +60,7 @@ test('a visible monster-carried oil lamp goes out before burn cleanup',
         const { obj } = carriedLight(OIL_LAMP);
         const events = [];
 
-        const result = await splash_monster_light(obj, {
+        const result = await splash_lit(obj, {
             endBurn: (target) => {
                 events.push(['end', target.lamplit]);
                 target.lamplit = false;
@@ -241,10 +241,10 @@ test('a dry humanoid brass lantern crackles without being snuffed',
         monster.data.mflags1 = M1_HUMANOID;
         const events = [];
 
-        const result = await splash_monster_light(obj, {
+        const result = await splash_lit(obj, {
             endBurn: () => assert.fail('a dry humanoid lantern stays lit'),
             message: (text) => events.push(text),
-            objectName: () => 'brass lantern',
+            objectYname: () => 'The brass lantern', // C Yname2 for a monster-carried lantern.
             poolAt: () => false,
             squareCouldSee: () => true,
             squareVisible: () => true,
@@ -262,7 +262,7 @@ test('a nonhumanoid carrier receives ordinary lantern snuffing', async () => {
     const { obj } = carriedLight(BRASS_LANTERN);
     const events = [];
 
-    const result = await splash_monster_light(obj, {
+    const result = await splash_lit(obj, {
         endBurn: (target) => {
             events.push('end');
             target.lamplit = false;

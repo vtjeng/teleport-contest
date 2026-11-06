@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent production route for trapeffect_rust_trap -> splash_lit() on a lit brass lantern in the hero's inventory: a dry lantern crackles and flickers and stays lit (apply.c:1529-1560). Seed 9400060 has a D:1 rust trap five east steps from the Wizard start; this recipe changes the fixed date, hero name and wished object. C, not JavaScript, determines which rust-trap arm runs.",
+  "segments": [
+    {
+      "seed": 9400060,
+      "datetime": "20320917154500",
+      "nethackrc": "OPTIONS=name:LanternSplash,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #wizwish\nlit brass lantern\nlllll"
+    }
+  ]
+}
