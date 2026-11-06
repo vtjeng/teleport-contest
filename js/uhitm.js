@@ -4280,6 +4280,15 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             // removed from the still-mounted steed and takes the fall path.
             if (typeof env.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_POLY, state, env);
+            } else if (env.planning) {
+                // The dismount prints, moves the hero and changes later
+                // monster choices. Stop the planning clone here so its owner
+                // replays this theft live, then replans from that state.
+                if (typeof env.requestPlanningInput !== 'function')
+                    throw new TypeError(
+                        'planned saddle theft requires a replay boundary',
+                    );
+                env.requestPlanningInput('steed.c dismount_steed DISMOUNT_POLY');
             } else {
                 await dismount_steed(DISMOUNT_POLY, state, env);
             }
