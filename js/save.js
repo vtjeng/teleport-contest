@@ -52,7 +52,7 @@ import { save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
-import { tty_raw_print } from './tty_rawprint.js';
+import { tty_exit_nhwindows } from './wintty.js';
 import { save_waterlevel } from './mkmaze.js';
 import { rest_saved_level_regions } from './region.js';
 import { save_oracles } from './rumors.js';
@@ -338,7 +338,10 @@ export async function dosave(state = game) {
 
             // C ref: save.c:63: finish the message window before farewell.
             await displayPendingTtyMessageWindow(state);
-            tty_raw_print(state, 'Be seeing you...');
+            // C ref: save.c:64 exit_nhwindows(). settty()'s end_screen()
+            // clears the screen before the farewell's raw_print(), even when
+            // an earlier raw_print() already started the raw output rows.
+            tty_exit_nhwindows('Be seeing you...', state);
 
             // C ref: save.c:65 nh_terminate(EXIT_SUCCESS), which captures
             // the farewell screen and does not return.
