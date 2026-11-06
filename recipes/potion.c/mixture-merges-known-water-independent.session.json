@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5287310,
+      "datetime": "20300117083000",
+      "nethackrc": "OPTIONS=name:Mixer,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#wizwish\nuncursed potion of water\n\t_\n#wizwish\nuncursed diluted potion of blindness\n#wizwish\nuncursed potion of confusion\n#dip\njk   :",
+      "comment": "A debug-mode Rogue identifies a wished potion of water with ^I, then dips a diluted potion into another so the mixture turns to water; hold_potion()'s addinv() merges it with the known stack and prints invent.c's comparison message."
+    }
+  ]
+}

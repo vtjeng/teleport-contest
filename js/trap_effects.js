@@ -3682,8 +3682,12 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     del_engr_at(x, y, state);
     await wake_nearto(x, y, 400, env);
 
-    if (IS_DOOR(location.typ))
+    // struct rm's doormask is its flags byte; the port stores both fields
+    // and display and look-here read flags first, so write both.
+    if (IS_DOOR(location.typ)) {
         location.doormask = D_BROKEN;
+        location.flags = D_BROKEN;
+    }
 
     if (location.typ === DRAWBRIDGE_DOWN
         || is_drawbridge_wall(x, y, state) >= 0) {
