@@ -7046,8 +7046,15 @@ function _buildScreenOutput(cursorOnHero = true) {
     // Render into the canonical terminal grid.
     if (display.grid) {
         const msg = game._pending_message || '';
+        // A message shown by topl.c show_topl() keeps addtopl()'s physical
+        // rows; any row after the first was written over the map.
+        const layout = game._pendingMessageLayout;
+        const msgRows = msg && layout?.text === msg ? layout.rows : null;
+        const rowZeroLength = Math.min(
+            msgRows ? msgRows[0].length : msg.length, display.cols,
+        );
         let skippedMessageCells = null;
-        for (let c = 0; c < Math.min(msg.length, display.cols); ++c) {
+        for (let c = 0; c < rowZeroLength; ++c) {
             if (msg[c] === '\0') {
                 skippedMessageCells ??= [];
                 skippedMessageCells[c] = { ...display.grid[0][c] };
@@ -7055,7 +7062,7 @@ function _buildScreenOutput(cursorOnHero = true) {
         }
         if (!bufferedOnly) display.clearScreen();
         // Message line
-        for (let c = 0; !bufferedOnly && c < Math.min(msg.length, display.cols); c++) {
+        for (let c = 0; !bufferedOnly && c < rowZeroLength; c++) {
             // Recorder patch 006 ignores signed high-bit TTY bytes after the
             // source cursor has advanced. tty_message.js represents each such
             // byte as NUL, so restore the physical cell which clearScreen()
@@ -7129,6 +7136,16 @@ function _buildScreenOutput(cursorOnHero = true) {
                         : loc.disp_attr ?? 0,
                 );
             }
+        }
+        // topl_putsym('\n') cleared each continuation row from column 0
+        // before writing it, and flush_screen() reprints only changed map
+        // cells, so the wrapped text stays over the map.
+        for (let row = 1; !bufferedOnly && msgRows && row < msgRows.length
+            && row < display.rows; ++row) {
+            display.clearRow(row);
+            const text = msgRows[row];
+            for (let c = 0; c < Math.min(text.length, display.cols); ++c)
+                display.setCell(c, row, text[c], NO_COLOR, 0);
         }
         // C's flush_screen() still redraws the map while botl.c bot() returns
         // early with gb.bot_disabled.  Keep that suppression visible in the

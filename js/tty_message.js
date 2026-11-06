@@ -32,6 +32,7 @@ import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
 import { sound_speak } from './sounds.js';
 import {
+    addtoplRows,
     fitsOnTtyTopline,
     more,
     remember_topl,
@@ -185,6 +186,7 @@ export function clearTtyMessageWindow(state = game) {
     display.clearRow(0);
     display.setCursor(0, 0);
     state._pending_message = '';
+    delete state._pendingMessageLayout;
     delete state._ttyMixedFirstCell;
     display.toplin = TOPLINE_EMPTY;
     display.topMessage = state._ttyToplines ?? display.toplines ?? '';
@@ -368,6 +370,9 @@ async function ttyPlineCore(
             return;
         }
     }
+    // A shown message replaces any show_topl() layout; the SUPPRESS_HISTORY
+    // arm below records a fresh one.
+    delete state._pendingMessageLayout;
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     let stoppedAtEntry = Boolean(state._ttyMessageStopped);
@@ -427,6 +432,15 @@ async function ttyPlineCore(
                 if (show_topl(next, state)) {
                     display.topMessage = next;
                     state._pending_message = next;
+                    // show_topl() writes through addtopl(), which wraps at
+                    // column CO-1 rather than at a word, and nothing waits
+                    // for --More--. display.js redraws the top line from
+                    // _pending_message; this layout, valid while the text
+                    // is unchanged, gives it the physical rows.
+                    state._pendingMessageLayout = {
+                        text: next,
+                        rows: addtoplRows(next, display.cols),
+                    };
                 }
             }
         }

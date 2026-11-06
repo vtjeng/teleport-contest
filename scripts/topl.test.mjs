@@ -21,6 +21,7 @@ import { tty_create_nhwindow } from '../js/wintty.js';
 import { docorner } from '../js/display.js';
 import {
     addtopl,
+    addtoplRows,
     free_msghistory_snapshot,
     msghistory_snapshot,
     more,
@@ -452,4 +453,15 @@ test('wrapped startup topline reproduces the committed C recording', async () =>
         replay.getRngLog().map(normalizeRng),
         segment.steps.flatMap(({ rng }) => rng).map(normalizeRng),
     );
+});
+
+test('addtoplRows wraps at column CO-1 as topl_putsym() does', () => {
+    // topl.c topl_putsym() starts a new row when curx reaches CO - 1, so an
+    // 80-column terminal holds 79 characters a row, split mid-word.
+    const text = 'a'.repeat(78) + ' bc';
+    assert.deepEqual(addtoplRows(text, 80), ['a'.repeat(78) + ' ', 'bc']);
+    // Exactly 79 characters still fit on the first row.
+    assert.deepEqual(addtoplRows('x'.repeat(79), 80), ['x'.repeat(79)]);
+    // An empty message is one empty row, as show_topl() clears row 0.
+    assert.deepEqual(addtoplRows('', 80), ['']);
 });

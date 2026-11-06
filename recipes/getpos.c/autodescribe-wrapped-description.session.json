@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "getpos.c auto_describe() and topl.c show_topl(): an autodescribe text longer than 79 characters is written by addtopl(), which wraps at column CO-1 mid-word, and stays over the map's top row while the cursor rests; nothing waits for --More--. A human Tourist in debug mode wishes for combat boots with a long name, drops them, steps west and moves the farlook cursor onto them. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 8826341,
+      "datetime": "20370512130000",
+      "nethackrc": "OPTIONS=name:Rosamund,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017combat boots named Seventeen Lighthouses Fortnightly Restorative Walking Shoe\n dl h;l\u001bs"
+    }
+  ]
+}
