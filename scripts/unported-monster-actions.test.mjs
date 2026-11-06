@@ -145,6 +145,7 @@ import {
     PM_WATER_NYMPH,
     PM_WOOD_NYMPH,
     PM_VROCK,
+    PM_WERERAT,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     AT_CLAW,
@@ -217,6 +218,7 @@ import {
     normal_shape,
 } from '../js/mon.js';
 import { cancel_monst } from '../js/zap.js';
+import { set_ulycn } from '../js/were.js';
 import { newegd } from '../js/vault.js';
 import { clear_bypasses } from '../js/worn.js';
 import {
@@ -1320,6 +1322,22 @@ test('planningState gives hero monster form changes their own owner',
 
     assert.equal(game.youmonst.data, liveForm);
     assert.notEqual(game.youmonst.mcan, 1);
+});
+
+test('planningState gives botl.c gu.update_all its own owner', async () => {
+    await prepareSelectedAction({ adjacentHero: true });
+    // A settled game has no full status resend pending; false is the value
+    // bot() leaves behind.
+    game.gu = { update_all: false };
+    const planned = planningState(game);
+
+    // were.c set_ulycn() is how a planned lycanthrope bite reaches
+    // polyself.c set_uasmon() and botl.c status_initialize(REASSESS_ONLY),
+    // which raises gu.update_all. PM_WERERAT is the infecting form.
+    set_ulycn(PM_WERERAT, planned);
+
+    assert.equal(planned.gu.update_all, true);
+    assert.equal(game.gu.update_all, false);
 });
 
 test('planned cancellation routes chameleon redraws through its injected seam',

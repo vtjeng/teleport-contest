@@ -785,6 +785,12 @@ export function planningState(state) {
             billobjs: objectMap.get(state.gb.billobjs) ?? null,
         } : state.gb,
         gg: { ...state.gg },
+        // botl.c gu.update_all. A planned attack can reach were.c
+        // set_ulycn() -> polyself.c set_uasmon() -> status_initialize(),
+        // which raises the flag; shared, it would make a live bot() that
+        // precedes the live attack resend every field and drop temporary
+        // highlights a turn early.
+        gu: { ...(state.gu ?? {}) },
         gm: state.gm ? {
             ...state.gm,
             migrating_mons: monsterMap.get(state.gm.migrating_mons) ?? null,
