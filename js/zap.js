@@ -1080,6 +1080,9 @@ function probe_objchain(head, state = game) {
 export async function unturn_dead(monster, state = game, rawEnv = {}) {
     const isHero = monster === state.youmonst;
     const youSeeIt = isHero || canseemon(monster, state);
+    // A monster's zap reaches here from muse.c mbhitm(); its planning pass
+    // supplies a silent message operation that the live pass replaces.
+    const message = rawEnv.message ?? ttyPline;
     let object = isHero ? state.invent : monster.minvent;
     let revivedCount = 0;
     while (object) {
@@ -1121,13 +1124,13 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
                 const asMonster = differentType
                     ? ' as ' + an(monsterCommonName(revived.data, state))
                     : '';
-                await ttyPline(
+                await message(
                     owner + corpseName + ' suddenly ' + verb + asMonster + '!',
                     state,
                     rawEnv,
                 );
             } else if (canseemon(revived, state)) {
-                await ttyPline(
+                await message(
                     upstart(a_monnam(revived, { state }))
                         + ' suddenly appears!',
                     state,
@@ -1139,7 +1142,7 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
         }
         object = next;
     }
-    if (isHero && revivedCount) await encumber_msg(state);
+    if (isHero && revivedCount) await encumber_msg(state, { message });
     return revivedCount;
 }
 

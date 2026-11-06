@@ -229,7 +229,7 @@ import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
 import { s_suffix, upstart } from './hacklib.js';
 import { mpickobj, remove_worn_item } from './steal.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { doorlock } from './lock.js';
 import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
@@ -1037,7 +1037,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const t = t_at(trapx, trapy, state);
         if (vis) {
             await pline_mon(mtmp,
-                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp)}!`,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
         reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
@@ -1139,7 +1139,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const t = t_at(trapx, trapy, state);
         if (vis) {
             await pline_mon(mtmp,
-                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp)}!`,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
         reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
@@ -1695,6 +1695,8 @@ export async function use_misc(mtmp, selection, state, env = {}) {
     case 'bullwhip': {
         // MUSE_BULLWHIP -- attempt to disarm hero
         const The_whip = vismon ? 'The bullwhip' : 'A whip';
+        const message = env.message ?? ttyPline;
+        const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
         let where_to = rn2(4);
         let obj = state.uwep;
 
@@ -1714,24 +1716,27 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (vismon)
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} flicks a bullwhip towards your ${hand_buf}!`,
-                state);
+                state, env);
         if (obj.otyp === O.HEAVY_IRON_BALL) {
-            await ttyPline(
+            await message(
                 `${The_whip} fails to wrap around ${the_weapon}.`, state);
             return 1;
         }
-        // C: urgent_pline -- behaves like pline for message delivery
-        await ttyPline(
-            `${The_whip} wraps around ${the_weapon} you're wielding!`, state);
+        // C: urgent_pline -- shown even after Escape suppressed messages.
+        await urgentMessage(
+            `${The_whip} wraps around ${the_weapon} you're wielding!`,
+            state,
+            env,
+        );
         if (welded(obj, state)) {
-            await ttyPline(
+            await message(
                 `${!is_plural(obj, state) ? 'It is' : 'They are'} welded to your ${hand_buf}${!obj.bknown ? '!' : '.'}`,
                 state);
             /* welded() takes care of obj->bknown = 1 */
             where_to = 0;
         }
         if (!where_to) {
-            await ttyPline('The whip slips free.', state); /* not The_whip */
+            await message('The whip slips free.', state); /* not The_whip */
             return 1;
         } else if (where_to === 3 && mon_hates_silver(mtmp)
                    && objectType(obj, state).oc_material === O.SILVER) {
@@ -1745,14 +1750,14 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         case 1: /* onto floor beneath mon */
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} from your ${hand_buf}!`,
-                state);
+                state, env);
             const placement = place_object(obj, mtmp.mx, mtmp.my, { state });
             if (placement && typeof placement.then === 'function') await placement;
             break;
         case 2: /* onto floor beneath you */
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} to the ${surface(state.u.ux, state.u.uy, state)}!`,
-                state);
+                state, env);
             // do.c dropz() always redraws the landing square and updates
             // burden. These are the same caller-owned hooks as pickup.c
             // tipcontainer().
@@ -1767,7 +1772,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         case 3: /* into mon's inventory */
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} snatches ${the_weapon}!`,
-                state);
+                state, env);
             await mpickobj(mtmp, obj, { state });
             break;
         }

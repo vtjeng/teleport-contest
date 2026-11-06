@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_CHA,
     A_CON,
     A_STR,
     ARROW_TRAP,
@@ -465,6 +466,23 @@ test('poisontell A_STR produces "You feel weaker!"', async () => {
     const env = { message: async (text) => messages.push(text) };
     await poisontell(A_STR, true, state, env);
     assert.equal(messages[0], 'You feel weaker!');
+});
+
+test('poisontell A_STR uses You_feel()\'s dream prefix while Unaware', async () => {
+    // attrib.c poiseff[A_STR] delivers through You_feel(), which pline.c
+    // words as a dream while youprop.h Unaware holds: multi < 0 and asleep.
+    const state = await heroState();
+    state.multi = -5; // Any negative count; trap.c unconscious() needs it.
+    state.u.usleep = 1; // The turn sleep began; any nonzero turn means asleep.
+    const messages = [];
+    const env = { message: async (text) => messages.push(text) };
+    await poisontell(A_STR, true, state, env);
+    // A_CHA's You() entry has no dream form in C.
+    await poisontell(A_CHA, false, state, env);
+    assert.deepEqual(messages, [
+        'You dream that you feel weaker!',
+        'You break out in hives.',
+    ]);
 });
 
 // ── adjuhploss tests ──

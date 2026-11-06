@@ -141,7 +141,6 @@ import { make_confused } from './potion.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
-import { unconscious } from './trap.js';
 import { summon_furies } from './makemon.js';
 import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
@@ -573,10 +572,6 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
         const entry = table[index];
         const property = u.uprops[entry.ability];
         const prevabil = property.intrinsic;
-        // youprop.h Unaware and pline.c You_feel().
-        const feelPrefix = Math.trunc(state.multi ?? 0) < 0
-            && (unconscious(state) || u.uhs === FAINTED)
-            ? 'You dream that you feel' : 'You feel';
         if (oldlevel < entry.ulevel && newlevel >= entry.ulevel) {
             /* Abilities gained at level 1 can never be lost via level loss,
              * only via means that remove _any_ sort of ability.  A "gain" of
@@ -595,16 +590,16 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
             if (!(property.intrinsic & INTRINSIC & ~mask)) {
                 if (entry.gainstr) {
                     /* C ref: pline.c You_feel("%s!", abil->gainstr) */
-                    await message(`${feelPrefix} ${entry.gainstr}!`, state);
+                    await message(youFeel(`${entry.gainstr}!`, state), state);
                 }
             }
         } else if (oldlevel >= entry.ulevel && newlevel < entry.ulevel) {
             property.intrinsic &= ~mask;
             if (!(property.intrinsic & INTRINSIC)) {
                 const text = entry.losestr
-                    ? `${feelPrefix} ${entry.losestr}!`
+                    ? youFeel(`${entry.losestr}!`, state)
                     : entry.gainstr
-                        ? `${feelPrefix} less ${entry.gainstr}!`
+                        ? youFeel(`less ${entry.gainstr}!`, state)
                         : null;
                 if (text) {
                     await message(text, state);
@@ -1585,16 +1580,19 @@ export async function poison_strdmg(
 }
 
 // C ref: attrib.c poiseff[] (280-290). Each entry's delivery function controls
-// how the message opens: You_feel "weaker" => "You feel weaker", Your "brain
-// is on fire" => "Your brain is on fire", You "break out in hives" =>
-// "You break out in hives".
+// how the message opens: You_feel "weaker" => "You feel weaker" (or "You
+// dream that you feel weaker" while Unaware), Your "brain is on fire" =>
+// "Your brain is on fire", You "break out in hives" => "You break out in
+// hives".
+const youMessage = (line) => `You ${line}`;
+const yourMessage = (line) => `Your ${line}`;
 const POISON_EFFECT_MESSAGES = Object.freeze([
-    /* A_STR */ { prefix: 'You feel',  msg: 'weaker' },
-    /* A_INT */ { prefix: 'Your',      msg: 'brain is on fire' },
-    /* A_WIS */ { prefix: 'Your',      msg: 'judgement is impaired' },
-    /* A_DEX */ { prefix: 'Your',      msg: 'muscles won\'t obey you' },
-    /* A_CON */ { prefix: 'You feel',  msg: 'very sick' },
-    /* A_CHA */ { prefix: 'You',       msg: 'break out in hives' },
+    /* A_STR */ { delivery: youFeel,     msg: 'weaker' },
+    /* A_INT */ { delivery: yourMessage, msg: 'brain is on fire' },
+    /* A_WIS */ { delivery: yourMessage, msg: 'judgement is impaired' },
+    /* A_DEX */ { delivery: yourMessage, msg: 'muscles won\'t obey you' },
+    /* A_CON */ { delivery: youFeel,     msg: 'very sick' },
+    /* A_CHA */ { delivery: youMessage,  msg: 'break out in hives' },
 ]);
 
 // C ref: attrib.c poisontell() (293-313). Feedback for attribute loss due to
@@ -1609,7 +1607,7 @@ export async function poisontell(typ, exclaim, state = game, env = {}) {
     else if (typ === A_CON && acurr(state, A_CON) === 25)
         msg = 'sick inside';
     const message = requiredOperation(env, 'message');
-    await message(`${effect.prefix} ${msg}${exclaim ? '!' : '.'}`, state);
+    await message(effect.delivery(`${msg}${exclaim ? '!' : '.'}`, state), state);
 }
 
 // C ref: attrib.c adjuhploss() (1182-1194). Called after setuhpmax() when

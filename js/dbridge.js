@@ -26,7 +26,7 @@ import {
     noncorporeal, passes_walls, mhe,
 } from './mondata.js';
 import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
-import { heroUnaware as plineHeroUnaware, youHear } from './pline.js';
+import { heroUnaware as plineHeroUnaware, youHear, youSee } from './pline.js';
 import { minliquid, monkilled, wake_nearto, xkilled } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
@@ -601,7 +601,10 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
         const coming = ((state.u.ux === x || state.u.uy === y) && !state.u.uinwater)
             || dist2(state.u.ux, state.u.uy, x2, y2)
                 < dist2(state.u.ux, state.u.uy, x, y);
-        await (env.message ?? ttyPline)(`You see a drawbridge ${coming ? 'coming' : 'going'} up!`, state);
+        await (env.message ?? ttyPline)(
+            youSee(`a drawbridge ${coming ? 'coming' : 'going'} up!`, state),
+            state,
+        );
     } else {
         const heard = youHear('chains rattling and gears turning.', state);
         if (heard) await (env.message ?? ttyPline)(heard, state);
@@ -651,7 +654,10 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
     if (cansee(x, y, state) || cansee(x2, y2, state)) {
         const coming = dist2(state.u.ux, state.u.uy, x2, y2)
             >= dist2(state.u.ux, state.u.uy, x, y);
-        await (env.message ?? ttyPline)(`You see a drawbridge ${coming ? 'coming' : 'going'} down!`, state);
+        await (env.message ?? ttyPline)(
+            youSee(`a drawbridge ${coming ? 'coming' : 'going'} down!`, state),
+            state,
+        );
     } else {
         const heard = youHear('gears turning and chains rattling.', state);
         if (heard) await (env.message ?? ttyPline)(heard, state);

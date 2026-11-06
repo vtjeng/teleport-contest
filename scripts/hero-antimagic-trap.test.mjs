@@ -116,7 +116,7 @@ test('drain_en preserves the complete trap.c source branch order', () => {
         'state.u.uen -= n;',
         'state.u.uenmax -= random.rnd(-state.u.uen);',
         'state.u.uen = state.u.uenmax;',
-        'await message(`${prefix} ${text}${ending}`, state);',
+        'await message(plineYouFeel(`${text}${ending}`, state), state);',
     ].map((source) => jsBody.indexOf(source));
     assert.ok(jsOrder.every((position) => position >= 0));
     assert.ok(jsOrder.every((position, index) =>

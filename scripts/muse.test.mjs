@@ -161,6 +161,7 @@ import {
     WAN_TELEPORTATION,
     WAN_UNDEAD_TURNING,
     SHIELD_OF_REFLECTION,
+    BULLWHIP,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -745,6 +746,53 @@ test('defensive undead-turning wand revives a wielded corpse', async () => {
     assert.equal(corpse.owornmask, 0);
 });
 
+test('a monster\'s undead-turning zap reports revival through its message seam',
+    async () => {
+        // zap.c unturn_dead() prints through pline(); a monster-turn planning
+        // pass supplies a silent message operation for that pline, so the
+        // revival line must reach the caller's seam rather than the terminal.
+        const state = await offensiveHero();
+        state.nhDisplay.onEmptyQueue = () => 32;
+        const corpse = mksobj(CORPSE, false, false, { state });
+        set_corpsenm(corpse, PM_COCKATRICE, { state });
+        await setuwep(addinv(corpse, { state }), { state });
+
+        let lane = null;
+        for (let x = 3; x < COLNO - 3 && !lane; ++x) {
+            for (let y = 3; y < ROWNO - 3 && !lane; ++y) {
+                if (state.level.at(x, y).typ !== ROOM
+                    || state.level.at(x + 1, y).typ !== ROOM
+                    || state.level.monsters[x][y]
+                    || state.level.monsters[x + 1][y]) continue;
+                lane = { x, y };
+            }
+        }
+        assert.ok(lane);
+        await teleds(lane.x, lane.y, TELEDS_TELEPORT, state);
+
+        const wand = carried(state, WAN_UNDEAD_TURNING, {
+            where: OBJ_MINVENT, spe: 2, // Two charges: one zap leaves one.
+        });
+        const monster = offensiveMonster(state, PM_GOBLIN, wand, {
+            mx: lane.x + 1, my: lane.y,
+            mhp: 10, mhpmax: 10, mpeaceful: false,
+        });
+        wand.ocarry = monster;
+        wand.v = monster;
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        place_monster(monster, monster.mx, monster.my, state);
+
+        const choice = find_defensive(monster, false, { state });
+        assert.equal(choice?.kind, 'undead turning wand');
+        const messages = [];
+        assert.equal(await use_defensive(monster, choice, state, {
+            message: async (text) => messages.push(text),
+        }), 2);
+        assert.ok(messages.some((text) => /suddenly comes alive!$/u.test(text)),
+            messages.join(' | '));
+    });
+
 test('defensive undead-turning wand reaches a floor corpse through bhito',
     async () => {
         // C muse.c:use_defensive -> mbhit -> fhito_loc -> zap.c:bhito.
@@ -865,6 +913,31 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
         null,
     );
     assert.deepEqual(bounds, [5]);
+});
+
+test('the bullwhip disarm announces its wrap as an urgent message', async () => {
+    // muse.c:2578 urgent_pline("%s wraps around %s you're wielding!"): the
+    // tty shows it even after Escape at an earlier --More-- suppressed the
+    // turn's ordinary messages. The surrounding lines stay ordinary pline().
+    const state = await offensiveHero();
+    assert.ok(state.uwep, 'the Valkyrie starts wielding her long sword');
+    const whip = carried(state, BULLWHIP, {
+        where: OBJ_MINVENT, owornmask: W_WEP, // Wielded: MON_WEP(mtmp).
+    });
+    const monster = offensiveMonster(state, PM_GOBLIN, whip, {
+        mhp: 10, mhpmax: 10, mpeaceful: false,
+    });
+    whip.ocarry = monster;
+    monster.mw = whip;
+    const urgent = [];
+    const ordinary = [];
+    await use_misc(monster, { kind: 'bullwhip', object: whip }, state, {
+        message: async (text) => ordinary.push(text),
+        urgentMessage: async (text) => urgent.push(text),
+    });
+    assert.equal(urgent.length, 1);
+    assert.match(urgent[0], / wraps around the .* you're wielding!$/u);
+    assert.ok(!ordinary.some((text) => / wraps around /u.test(text)));
 });
 
 test('use_misc supplies seetrap redraw and preserves injected redraw owners',

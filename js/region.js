@@ -33,7 +33,7 @@ import { losehp } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { youSee } from './monmove.js';
+import { youSee } from './pline.js';
 import {
     haseyes,
     is_silent,

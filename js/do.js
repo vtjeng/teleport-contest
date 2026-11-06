@@ -226,7 +226,7 @@ import { floating_above } from './fountain.js';
 import { artifact_has_invprop } from './artifacts.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youSee } from './pline.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
@@ -1490,12 +1490,14 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
             await ttyPline("You don't see anything happen to the sink.", state);
             break;
         case RIN_FREE_ACTION:
-            await ttyPline('You see the ring slide right down the drain!', state);
+            await ttyPline(
+                youSee('the ring slide right down the drain!', state), state);
             break;
         case RIN_SEE_INVISIBLE: {
             const sinkContents = heroHallucinating(state)
                 ? 'oxygen molecules' : 'air';
-            await ttyPline(`You see some ${sinkContents} in the sink.`, state);
+            await ttyPline(
+                youSee(`some ${sinkContents} in the sink.`, state), state);
             break;
         }
         case RIN_STEALTH:

@@ -1267,7 +1267,7 @@ function presentedMonsterGlyphInfo(
 // display-RNG draw.
 function riddenMonsterGlyphInfo(monster, state) {
     const species = heroHallucinating(state)
-        ? state.mons?.[rn2_on_display_rng(NUMMONS)] : monster.data;
+        ? state.mons?.[rn2_on_display_rng(NUMMONS, state)] : monster.data;
     if (!species) {
         throw new Error(
             'ridden monster display requires the complete monster catalog',
@@ -1310,7 +1310,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     // disguise uses mappearance unless Hallucination replaces it with one
     // display-RNG species draw; tame highlighting does not apply.
     const speciesIndex = heroHallucinating(state)
-        ? rn2_on_display_rng(NUMMONS) : monster.mappearance;
+        ? rn2_on_display_rng(NUMMONS, state) : monster.mappearance;
     const species = state.mons?.[speciesIndex];
     if (!species) {
         throw new Error(
@@ -1512,7 +1512,7 @@ export function warning_of(monster, state = game) {
 
 function warningGlyphInfo(monster, state) {
     const warningLevel = _propertyActiveUnblocked(state.u, HALLUC)
-        ? rn2_on_display_rng(WARNCOUNT - 1) + 1
+        ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
         : Math.min(
             Math.trunc((monster.m_lev ?? 0) / 4),
             WARNCOUNT - 1,

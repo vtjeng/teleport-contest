@@ -40,7 +40,6 @@ import {
     FROMOUTSIDE,
     FUMBLING,
     FAST,
-    FAINTED,
     FAINTING,
     G_GONE,
     G_GENOD,
@@ -210,7 +209,9 @@ import {
 } from './obj.js';
 import { m_at } from './monst.js';
 import { cansee } from './vision.js';
-import { heroDeaf, verbalize, youHear } from './pline.js';
+import {
+    heroDeaf, heroUnaware, verbalize, youFeel, youHear, youSee,
+} from './pline.js';
 import { AD_ELEC } from './monsters.js';
 import { buzz } from './zap.js';
 import { cry_sound, set_voice } from './sounds.js';
@@ -489,16 +490,20 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
         knowsEgg = true;
         if (!canseeHatchspot) {
             await message(
-                `${unaware(state) ? 'You dream that you feel' : 'You feel'} `
-                    + `${something} ${locomotion(monster.data, 'drop')} `
+                youFeel(
+                    `${something} ${locomotion(monster.data, 'drop')} `
                     + 'from your pack!',
+                    state,
+                ),
                 state,
             );
         } else {
             await message(
-                `${unaware(state) ? 'You dream that you see' : 'You see'} `
-                    + `${monsterName} ${locomotion(monster.data, 'drop')} `
+                youSee(
+                    `${monsterName} ${locomotion(monster.data, 'drop')} `
                     + 'out of your pack!',
+                    state,
+                ),
                 state,
             );
         }
@@ -523,8 +528,10 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
         if (canseeHatchspot) {
             knowsEgg = true;
             await message(
-                `${unaware(state) ? 'You dream that you see' : 'You see'} `
-                    + `${monsterName} hatch.`,
+                youSee(
+                    `${monsterName} hatch.`,
+                    state,
+                ),
                 state,
             );
             redraw = true;
@@ -545,9 +552,11 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
                 carriedBy = 'thin air';
             }
             await message(
-                `${unaware(state) ? 'You dream that you see' : 'You see'} `
-                    + `${monsterName} ${locomotion(monster.data, 'drop')} `
+                youSee(
+                    `${monsterName} ${locomotion(monster.data, 'drop')} `
                     + `out of ${carriedBy}!`,
+                    state,
+                ),
                 state,
             );
         }
@@ -762,13 +771,6 @@ function deaf(state) {
         deafness?.intrinsic || deafness?.extrinsic
         || state.u?.uroleplay?.deaf,
     );
-}
-
-// C ref: youprop.h Unaware. You_feel() changes its prefix when a negative
-// multi-turn state leaves the hero unconscious or fainted.
-function unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
 }
 
 // C ref: timeout.c slip_or_trip() (1222-1341). This is called only after the
@@ -1566,8 +1568,10 @@ async function decrement_property_timeouts(state, env) {
         case FAST:
             if (!((property.intrinsic & ~INTRINSIC) || property.extrinsic)) {
                 await message(
-                    `${unaware(state) ? 'You dream that you feel' : 'You feel'} `
-                        + `yourself slow down${propertySource(state, FAST) ? ' a bit' : ''}.`,
+                    youFeel(
+                        `yourself slow down${propertySource(state, FAST) ? ' a bit' : ''}.`,
+                        state,
+                    ),
                     state,
                 );
             }
@@ -1653,7 +1657,7 @@ async function decrement_property_timeouts(state, env) {
                     set_itimeout(property, 1);
                     break;
                 }
-                if (!unaware(state))
+                if (!heroUnaware(state))
                     await message('You no longer feel safe from acid.', state);
             }
             break;
@@ -1663,7 +1667,7 @@ async function decrement_property_timeouts(state, env) {
                     set_itimeout(property, 1);
                     break;
                 }
-                if (!unaware(state))
+                if (!heroUnaware(state))
                     await message('You no longer feel secure from petrification.', state);
                 await wielding_corpse(state.uwep, null, false, state, env);
                 await wielding_corpse(state.uswapwep, null, false, state, env);
@@ -1694,7 +1698,7 @@ async function decrement_property_timeouts(state, env) {
             if (!propertySource(state, PASSES_WALLS)) {
                 if (stuck_in_wall(state)) {
                     await message(
-                        `${unaware(state) ? 'You dream that you feel' : 'You feel'} hemmed in again.`,
+                        youFeel('hemmed in again.', state),
                         state,
                     );
                 } else {
@@ -2379,7 +2383,7 @@ export async function see_lamp_flicker(obj, tailer, env = {}) {
         await message(`${Yname2(obj, state, env)} flickers${tailer}.`, state);
         break;
     case OBJ_FLOOR:
-        await message(`You see ${an(xname(obj, state))} flicker${tailer}.`, state);
+        await message(youSee(`${an(xname(obj, state))} flicker${tailer}.`, state), state);
         break;
     }
 }
@@ -2395,7 +2399,7 @@ export async function lantern_message(obj, env = {}) {
             await message('Batteries have not been invented yet.', state);
         break;
     case OBJ_FLOOR:
-        await message('You see a lantern getting dim.', state);
+        await message(youSee('a lantern getting dim.', state), state);
         break;
     case OBJ_MINVENT:
         await message(`${s_suffix(Monnam(obj.ocarry, state, env))} lantern is getting dim.`, state);
@@ -2463,7 +2467,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                 await message(`${whose}potion of oil has burnt away.`, state);
                 break;
             case OBJ_FLOOR:
-                await message('You see a burning potion of oil go out.', state);
+                await message(youSee('a burning potion of oil go out.', state), state);
                 needNewsym = true;
                 break;
             }
@@ -2503,7 +2507,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                         await message(`${Yname2(obj, state, env)} seems about to go out.`, state);
                         break;
                     case OBJ_FLOOR:
-                        await message(`You see ${an(xname(obj, state))} about to go out.`, state);
+                        await message(youSee(`${an(xname(obj, state))} about to go out.`, state), state);
                         break;
                     }
                 }
@@ -2521,9 +2525,9 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                         : `${Yname2(obj, state, env)} has gone out.`, state);
                     break;
                 case OBJ_FLOOR:
-                    await message(obj.otyp === BRASS_LANTERN
-                        ? 'You see a lantern run out of power.'
-                        : `You see ${an(xname(obj, state))} go out.`, state);
+                    await message(youSee(obj.otyp === BRASS_LANTERN
+                        ? 'a lantern run out of power.'
+                        : `${an(xname(obj, state))} go out.`, state), state);
                     break;
                 }
             }
@@ -2548,7 +2552,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                     await message(`${whose}${menorah ? "candelabrum's " : ''}candle${many ? 's are' : ' is'} getting short.`, state);
                     break;
                 case OBJ_FLOOR:
-                    await message(`You see ${floorPrefix}candle${many ? 's' : ''} getting short.`, state);
+                    await message(youSee(`${floorPrefix}candle${many ? 's' : ''} getting short.`, state), state);
                     break;
                 }
             }
@@ -2561,7 +2565,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                     await message(`${whose}${menorah ? "candelabrum's " : ''}candle${many ? "s'" : "'s"} flame${many ? 's' : ''} flicker${many ? '' : 's'} low!`, state);
                     break;
                 case OBJ_FLOOR:
-                    await message(`You see ${floorPrefix}candle${many ? "s'" : "'s"} flame${many ? 's' : ''} flicker low!`, state);
+                    await message(youSee(`${floorPrefix}candle${many ? "s'" : "'s"} flame${many ? 's' : ''} flicker low!`, state), state);
                     break;
                 }
             }
@@ -2577,7 +2581,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                         await message(`${whose}candelabrum's flame${many ? 's die' : ' dies'}.`, state);
                         break;
                     case OBJ_FLOOR:
-                        await message(`You see a candelabrum's flame${many ? 's' : ''} die.`, state);
+                        await message(youSee(`a candelabrum's flame${many ? 's' : ''} die.`, state), state);
                         break;
                     }
                 } else {
@@ -2587,7 +2591,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                         await message(`${Yname2(obj, state, env)} ${many ? 'are' : 'is'} consumed!`, state);
                         break;
                     case OBJ_FLOOR:
-                        await message(`You see ${many ? 'some ' : ''}${many ? xname(obj, state) : an(xname(obj, state))} consumed!`, state);
+                        await message(youSee(`${many ? 'some ' : ''}${many ? xname(obj, state) : an(xname(obj, state))} consumed!`, state), state);
                         needNewsym = true;
                         break;
                     }

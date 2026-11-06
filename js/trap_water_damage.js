@@ -9,7 +9,6 @@
 import {
     BURIED_TOO,
     CONTAINED_TOO,
-    DEAF,
     EF_DESTROY,
     ERODE_BURN,
     FIRE_RES,
@@ -19,24 +18,20 @@ import {
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
-    FLYING,
     Has_contents,
     HALLUC,
     HALLUC_RES,
-    LEVITATION,
     OBJ_INVENT,
     OBJ_MINVENT,
     plur,
-    WWALKING,
     W_ARMOR,
     W_WEP,
 } from './const.js';
 import { catch_lit } from './apply_catch_lit.js';
-import { splash_monster_light } from './apply_splash_lit.js';
+import { splash_lit } from './apply_splash_lit.js';
 import { obj_resists } from './bury.js';
 import {
     carried,
-    isCandle,
     isContainer,
     objectType,
 } from './obj.js';
@@ -75,14 +70,13 @@ import {
     FIRE_HORN,
 } from './objects.js';
 import { erode_obj } from './trap_erode_obj.js';
-import { end_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { note_unported } from './unported.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
-import { youSee } from './monmove.js';
+import { youSee } from './pline.js';
 import { wet_a_towel } from './weapon.js';
 import { blank_novel } from './zap.js';
 
@@ -91,23 +85,9 @@ function propertyActive(hero, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function heroIsDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(
-        deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
-}
-
 function heroHallucinating(state) {
     return propertyActive(state.u, HALLUC)
         && !propertyActive(state.u, HALLUC_RES);
-}
-
-function sameLevel(left, right) {
-    return Boolean(left && right
-        && left.dnum === right.dnum
-        && left.dlevel === right.dlevel);
 }
 
 function containerIsWaterproof(obj, objects) {
@@ -125,105 +105,10 @@ async function updateInventory(env) {
     return update_inventory(env);
 }
 
-async function splashEndBurn(obj, env) {
-    if (typeof env.endBurn === 'function') {
-        return env.endBurn(obj, env);
-    }
-    return end_burn(obj, true, objectGenerationEnv(env));
-}
-
-async function heroPoolAt(x, y, state, env) {
-    if (typeof env.poolAt === 'function')
-        return env.poolAt(x, y, state);
-    // Keep trap.js out of this module's static dependency graph: trap.js owns
-    // the production pool predicate and imports trap_effects.js, which calls
-    // back into this file.
-    const { is_pool } = await import('./dbridge.js');
-    return is_pool(x, y, state);
-}
-
-async function splashHeroLight(obj, env, state) {
-    if (!obj?.lamplit) return false;
-
-    if (obj.where === OBJ_MINVENT) {
-        return splash_monster_light(obj, env);
-    }
-
-    let dunk = false;
-    if (obj.otyp === (await import('./objects.js')).BRASS_LANTERN
-        && obj.where === OBJ_INVENT) {
-        const useeit = !heroIsBlind(state);
-        const uhearit = !heroIsDeaf(state);
-        dunk = await heroPoolAt(state.u?.ux, state.u?.uy, state, env)
-            && ((!propertyActive(state.u, LEVITATION)
-                    && !propertyActive(state.u, FLYING)
-                    && !propertyActive(state.u, WWALKING))
-                || sameLevel(state.u?.uz, state.water_level));
-        if (useeit || uhearit) {
-            const message = env.message ?? ttyPline;
-            await message(
-                `${Yname2(obj, state)} `
-                + `${uhearit ? 'crackles' : ''}`
-                + `${uhearit && useeit ? ' and ' : ''}`
-                + `${useeit ? 'flickers' : ''}.`,
-                state,
-            );
-        }
-        if (!dunk) return false;
-    }
-
-    const {
-        BRASS_LANTERN,
-        CANDELABRUM_OF_INVOCATION,
-        MAGIC_LAMP,
-        OIL_LAMP,
-        POT_OIL,
-    } = await import('./objects.js');
-    if (obj.otyp === OIL_LAMP
-        || obj.otyp === MAGIC_LAMP
-        || obj.otyp === BRASS_LANTERN
-        || obj.otyp === POT_OIL) {
-        const location = get_obj_location(obj, 0, state);
-        if (obj.where === OBJ_MINVENT
-            ? location && !heroIsBlind(state)
-            : !heroIsBlind(state)) {
-            const message = env.message ?? ttyPline;
-            await message(
-                `${Yname2(obj, state)} ${otense(obj, 'go', state)} out!`,
-                state,
-            );
-        }
-        await splashEndBurn(obj, env);
-    } else if (isCandle(obj) || obj.otyp === CANDELABRUM_OF_INVOCATION) {
-        const candle = isCandle(obj);
-        const many = candle
-            ? Math.trunc(obj.quan ?? 1) > 1
-            : Math.trunc(obj.spe ?? 0) > 1;
-        if (!heroIsBlind(state)) {
-            const message = env.message ?? ttyPline;
-            const kind = candle ? 'candle' : "candelabrum's candle";
-            await message(
-                `Your ${kind}${many ? "s'" : "'s"} flame`
-                    + `${many ? 's are' : ' is'} extinguished.`,
-                state,
-            );
-        }
-        await splashEndBurn(obj, env);
-    } else {
-        return false;
-    }
-
-    if (dunk) {
-        const age = Math.trunc(obj.age ?? 0);
-        obj.age = age - (age > 200 ? 100 : Math.trunc(age / 2));
-    }
-    return true;
-}
-
+// C ref: trap.c water_damage() calls apply.c splash_lit() first.
 async function splashLit(obj, env, state) {
-    if (typeof env.splashLight === 'function')
-        return env.splashLight(obj, env);
-    return splashHeroLight(obj, env, state);
+    const splashLight = env.splashLight ?? splash_lit;
+    return splashLight(obj, { ...env, state });
 }
 
 async function wetTowel(obj, random, env) {
@@ -536,7 +421,7 @@ export async function water_damage_monster_equipment(
     const splashLight = waterOperation(
         env,
         'splashLight',
-        splash_monster_light,
+        splash_lit,
     );
     if (await splashLight(obj, env)) return ER_DAMAGED;
 

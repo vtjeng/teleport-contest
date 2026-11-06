@@ -328,7 +328,6 @@ import {
 } from './mondata.js';
 import {
     accessible, closed_door, monflee, onscary, set_apparxy, youHear,
-    youSee,
 } from './monmove.js';
 import { m_at } from './monst.js';
 import { paralyze_monst } from './mhitm.js';
@@ -627,7 +626,7 @@ import {
     zapyourself,
 } from './zap.js';
 import { explode } from './explode.js';
-import { heroUnaware, pline_mon, verbalize } from './pline.js';
+import { heroUnaware, pline_mon, verbalize, youSee } from './pline.js';
 import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
@@ -2374,7 +2373,7 @@ export async function use_stone(tstone, state = game, env = {}) {
         );
     } else if (streakColor) {
         await ttyPline(
-            `You see ${streakColor} streaks on the ${stoneName}.`,
+            youSee(`${streakColor} streaks on the ${stoneName}.`, state),
             state,
         );
     } else {
@@ -3776,9 +3775,12 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
                 );
             } else {
                 await message(
-                    `You see ${monsterName} `
-                        + `${locomotion(monster.data, 'drop')} out of your `
-                        + `pack${andVanish}!`,
+                    youSee(
+                        `${monsterName} `
+                            + `${locomotion(monster.data, 'drop')} out of your `
+                            + `pack${andVanish}!`,
+                        state,
+                    ),
                     state,
                 );
             }
@@ -3787,8 +3789,11 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
             if (canSeeSpot && !silent) {
                 const text = suppressSee
                     ? `${an(xnameFresh(figurine, state))} suddenly vanishes!`
-                    : `You see a figurine transform into ${monsterName}`
-                        + `${andVanish}!`;
+                    : youSee(
+                        `a figurine transform into ${monsterName}`
+                            + `${andVanish}!`,
+                        state,
+                    );
                 await message(messageAt(text, x, y, state), state);
                 redraw = true;
             }
@@ -3806,9 +3811,12 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
                     carriedBy = 'thin air';
                 }
                 await message(
-                    `You see ${monsterName} `
-                        + `${locomotion(monster.data, 'drop')} out of `
-                        + `${carriedBy}${andVanish}!`,
+                    youSee(
+                        `${monsterName} `
+                            + `${locomotion(monster.data, 'drop')} out of `
+                            + `${carriedBy}${andVanish}!`,
+                        state,
+                    ),
                     state,
                 );
             }
