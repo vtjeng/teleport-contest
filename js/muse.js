@@ -1037,7 +1037,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const t = t_at(trapx, trapy, state);
         if (vis) {
             await pline_mon(mtmp,
-                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp)}!`,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
         reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
@@ -1139,7 +1139,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const t = t_at(trapx, trapy, state);
         if (vis) {
             await pline_mon(mtmp,
-                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp)}!`,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
         reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });

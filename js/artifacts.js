@@ -3016,7 +3016,7 @@ export function hcolor(colorpref, state) {
         && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
             || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
     return (halluc || !colorpref)
-        ? hcolors[rn2_on_display_rng(hcolors.length)]
+        ? hcolors[rn2_on_display_rng(hcolors.length, state)]
         : colorpref;
 }
 

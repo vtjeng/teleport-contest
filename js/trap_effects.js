@@ -4336,7 +4336,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                                 ? 'easily ' : ''}out of the pit.`;
                     } else if (tt === BEAR_TRAP || tt === WEB) {
                         text = `${capitalizedMonsterName(monster, state)}`
-                            + ` pulls free of the ${trapname(tt, false, state)}.`;
+                            + ` pulls free of the ${trapname(tt, false, state, random)}.`;
                     }
                     if (text !== null) {
                         await message(

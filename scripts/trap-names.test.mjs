@@ -4,6 +4,7 @@ import test from 'node:test';
 import { HALLUC, HALLUC_RES, NO_TRAP, TRAPNUM, WEB } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { cloneIsaacContext } from '../js/rng.js';
 import { trapname } from '../js/trap.js';
 import { halu_trapnames } from '../js/trap_names_data.js';
 import { generateTrapNames } from './generate-trap-names.mjs';
@@ -49,3 +50,22 @@ test('trapname preserves display/core RNG order and override/resistance gates', 
     assert.equal(trapname(WEB, false, game, random), 'web');
     assert.deepEqual(calls, []);
 });
+
+test('trapname draws a hallucinated name from its own state\'s display stream',
+    async () => {
+        // unported_monster_actions.js planningState() gives a monster-turn
+        // dry run its own copy of rnd.c's display stream; a name built there
+        // must leave the live stream where it was.
+        await runSegment({ seed: 6614907, datetime: '20381102170500', moves: '',
+            nethackrc: 'OPTIONS=name:Moss,role:Priest,race:human,gender:male,align:lawful\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n' });
+        game.u.uprops[HALLUC].intrinsic = 30; // A nonzero hallucination timeout.
+        game.u.uprops[HALLUC_RES].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].extrinsic = 0;
+        const planned = { ...game, displayCtx: cloneIsaacContext(game.displayCtx) };
+        const liveBefore = cloneIsaacContext(game.displayCtx);
+        const name = trapname(WEB, false, planned);
+        // The live stream, untouched, reproduces the clone's draw.
+        assert.deepEqual(game.displayCtx, liveBefore);
+        assert.equal(trapname(WEB, false, game), name);
+    });
