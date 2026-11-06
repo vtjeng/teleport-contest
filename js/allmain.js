@@ -859,12 +859,17 @@ export async function finishElapsedTurn(
     for (let monster = state.level.monlist;
         monster;
         monster = monster.nmon) {
-        monster.movement += mcalcmove(
+        // monst.h:102 declares movement a short, so C's `+=` wraps at
+        // 16 bits. A monster that movemon() skips keeps accruing: a ridden
+        // steed that arrived with the hero keeps MON_STILL_ARRIVING
+        // (dog.c mon_arrive() returns early for it) and so overflows
+        // to a negative ration after enough turns.
+        monster.movement = ((monster.movement + mcalcmove(
             monster,
             true,
             state,
             random.rn2,
-        );
+        )) << 16) >> 16;
     }
     // A random mimic can be born during this cloned allocation. makemon.c
     // set_mimic_sym() rebuilds vision after choosing a blocking disguise, so

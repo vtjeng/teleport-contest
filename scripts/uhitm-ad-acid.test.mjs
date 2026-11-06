@@ -162,3 +162,21 @@ test('acid resistance against a monster attack records the observed property', a
     assert.ok(attacker.seen_resistance & M_SEEN_ACID);
     assert.ok(ops.lines.some(line => line.includes('but it seems harmless.')));
 });
+
+// uhitm.c:2760 prints "You're covered in %s!  It burns!" with two spaces
+// between the sentences, as pline text does throughout the source.
+test('a vulnerable hero hit by acid gets the two-sentence burn line', async () => {
+    const state = await fixture();
+    const attacker = monster(state, PM_OCHRE_JELLY, 13297); // acid attacker
+    state.u.uprops[ACID_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const ops = operations([
+        { bound: 3, value: 0 }, // C !rn2(3): the acid lands on the hero.
+        { bound: 2, value: 0 }, // attrib.c exercise(A_STR, FALSE): -rn2(2).
+    ]);
+
+    await attack(attacker, state.youmonst, state, ops);
+
+    assert.deepEqual(ops.draws, [3, 2]);
+    assert.ok(ops.lines.includes("You're covered in acid!  It burns!"),
+        JSON.stringify(ops.lines));
+});

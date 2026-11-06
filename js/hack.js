@@ -114,6 +114,7 @@ import {
     PICK_NONE,
     PLNMSG_BACK_ON_GROUND,
     POISON_RES,
+    MOAT,
     POOL,
     RIGHT_SIDE,
     ROWNO,
@@ -1747,6 +1748,17 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
                 && !needspick(state.youmonst?.data)))) {
         return;
     }
+    // A safe monster in rock or a wall, such as a peaceful earth elemental.
+    // test_move()'s obstacle arm (hack.c:1011-1072) declines the step for
+    // DO_MOVE before the swap unless the hero passes walls (admitted below)
+    // or tunnels without a pick, whose chewing can fall through.
+    if (destination && IS_OBSTRUCTED(destination.typ)
+        && !(propertyPresent(state, PASSES_WALLS) && may_passwall(x, y, state))
+        && (state.u?.uinwater
+            || !(tunnels(state.youmonst?.data)
+                && !needspick(state.youmonst?.data)))) {
+        return;
+    }
     // C records a pony on wished ICE and CLOUD, a little dog in both an
     // intact open doorway and a kicked-broken doorway, and a tame water
     // elemental in a pool. test_move() admits those destinations and
@@ -1759,6 +1771,9 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             || destination.typ === ICE
             || destination.typ === CLOUD
             || destination.typ === POOL
+            // A moat is a pool to is_pool(), test_move() and
+            // swim_move_danger(); only waterbody_name() tells them apart.
+            || destination.typ === MOAT
             // The Plane of Air's open sky. test_move() admits AIR like any
             // other non-obstructed square, and the hero's arrival there runs
             // the same spoteffects() and describe_decor() owners as a walk
@@ -2564,7 +2579,7 @@ async function moverock_core(sx, sy, state, env) {
                 // 474-475. C names the steed when mounted; dopush() below
                 // carries the same distinction for a successful push.
                 const you_or_steed = state.u.usteed
-                    ? upstart(y_monnam(state.u.usteed, state)) : 'you';
+                    ? y_monnam(state.u.usteed, state) : 'you';
                 const who = deliver_part1
                     ? you_or_steed : upstart(you_or_steed);
                 const what = deliver_part1
@@ -2898,7 +2913,7 @@ export async function test_move(
                         if (state.u.usteed) {
                             await message(
                                 "You can't lead "
-                                + upstart(y_monnam(state.u.usteed, state))
+                                + y_monnam(state.u.usteed, state)
                                 + ' through that closed door.',
                                 state,
                             );

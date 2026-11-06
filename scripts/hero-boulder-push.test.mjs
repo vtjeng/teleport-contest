@@ -621,6 +621,32 @@ test('an unseen monster behind the boulder is heard, not pushed',
                      'the branch draws no random numbers');
     });
 
+// hack.c moverock_core():474-479 names a steed through y_monnam(), and only
+// the `!deliver_part1` form passes it to upstart(). The heard-monster arm
+// keeps "your pony" lowercase after "Perhaps that's why ".
+test('a heard monster behind the boulder keeps the steed name lowercase',
+    async () => {
+        const { rx, ry } = await heroBesideBoulder();
+        place_monster(newMonster({
+            data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+            m_id: 9403, mhp: 3, mhpmax: 3,
+        }), rx, ry, game);
+        const originalSteed = game.u.usteed;
+        // A tame steed takes y_monnam()'s ARTICLE_YOUR; it carries no saddle
+        // object here, so x_monnam() adds no "saddled".
+        game.u.usteed = newMonster({
+            data: game.mons[PM_PONY], mnum: PM_PONY, mtame: 10, mcanmove: 1,
+        });
+        // The You_hear() line and this one are separated by --More--.
+        game.nhDisplay.terminal.pushKey(' '.charCodeAt(0));
+        try {
+            assert.equal(await stepEast(),
+                         "Perhaps that's why your pony cannot move it.");
+        } finally {
+            game.u.usteed = originalSteed;
+        }
+    });
+
 // The spotted sibling at 461-463. Detect_monsters is the one operand of
 // display.h sensemon() that needs no line of sight and no telepathy, so it is
 // what turns canspotmon() TRUE for the same corridor monster. flags.verbose is

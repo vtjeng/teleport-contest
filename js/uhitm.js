@@ -3493,7 +3493,7 @@ function joust(mon, obj, state, random, env) {
 
     const joustDieroll = random.rn2(5);
     if (joustDieroll < skillRating) {
-        if (joustDieroll === 0 && random.rnl(50) === 49
+        if (joustDieroll === 0 && (random.rnl ?? rnl)(50) === 49
             && !unsolid(mon.data, state)
             && !obj_resists(obj, 0, 100, { ...env, state, random }))
             return -1;
@@ -4280,6 +4280,15 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             // removed from the still-mounted steed and takes the fall path.
             if (typeof env.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_POLY, state, env);
+            } else if (env.planning) {
+                // The dismount prints, moves the hero and changes later
+                // monster choices. Stop the planning clone here so its owner
+                // replays this theft live, then replans from that state.
+                if (typeof env.requestPlanningInput !== 'function')
+                    throw new TypeError(
+                        'planned saddle theft requires a replay boundary',
+                    );
+                env.requestPlanningInput('steed.c dismount_steed DISMOUNT_POLY');
             } else {
                 await dismount_steed(DISMOUNT_POLY, state, env);
             }
@@ -4728,7 +4737,7 @@ export async function mhitm_ad_acid(
                 mhm.damage = 0;
             } else {
                 await message(
-                    `You're covered in ${hliquid('acid', effectEnv)}! It burns!`,
+                    `You're covered in ${hliquid('acid', effectEnv)}!  It burns!`,
                     state,
                 );
                 await exercise(A_STR, false, state, random, {

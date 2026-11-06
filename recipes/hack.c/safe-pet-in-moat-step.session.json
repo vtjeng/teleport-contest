@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent hack.c domove_core() safe-pet step toward a moat. A debug-mode Valkyrie with paranoid_confirmation:swim puts on a wished ring of levitation, wishes a moat underfoot, steps north, creates a tame giant eel (C placed it in the moat), removes the ring and steps south into the eel twice. do_attack() spends its rn2(7) swap roll, test_move() admits the moat and swim_move_danger() stops with \"You avoid stepping into the moat.\"",
+  "segments": [
+    {
+      "seed": 61107410,
+      "datetime": "20850312101500",
+      "nethackrc": "OPTIONS=name:Moatswap,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,paranoid_confirmation:swim\n",
+      "moves": " \u0017ring of levitation\nPfr \u0017moat\nk\u0007tame giant eel\nR j j"
+    }
+  ]
+}

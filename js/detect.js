@@ -108,7 +108,6 @@ import {
     warning_of,
     glyph_to_cmap,
     glyph_to_obj,
-    hero_glyph_info,
     map_glyphinfo,
     map_monster_glyph_info,
     map_engraving,
@@ -2051,8 +2050,8 @@ async function defaultRevealFoundTrap(trap, env) {
     // show_glyph().  The discovered trap must survive the following docrt(),
     // including when WIN_STOP suppresses the message's --More-- wait.
     map_trap(trap, 1, env.state);
-    const heroGlyph = hero_glyph_info(env.state);
-    show_glyph_cell(env.state.u.ux, env.state.u.uy, heroGlyph);
+    // display.h display_self(): a visible steed is drawn in the hero's place.
+    display_self(env.state);
 }
 
 async function defaultWaitFoundTrap(env) {

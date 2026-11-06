@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent hack.c test_move() closed-door arm for a blind rider. A Knight with autoopen off mounts the adjacent east pony (forced in debug mode), wishes for and puts on a blindfold, then steps east into the closed door the C screen showed beyond the pony. C prints y_monnam() lowercase: \"You can't lead your pony through that closed door.\"",
+  "segments": [
+    {
+      "seed": 61107231,
+      "datetime": "20850312101500",
+      "nethackrc": "OPTIONS=name:Doorlead,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!autoopen,!debug_mongen\n",
+      "moves": " #ride\nly\u0017blindfold\nPil"
+    }
+  ]
+}
