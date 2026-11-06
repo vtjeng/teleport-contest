@@ -3426,6 +3426,14 @@ export function map_location(x, y, show, state) {
     }
 }
 
+// C ref: display.c _map_location() (470-471), its closing arm: unless the
+// hero is blind, a visible region is drawn over the location just mapped.
+function showVisibleRegionAt(x, y, state = game) {
+    if (_propertyActiveUnblocked(state.u, BLINDED)) return;
+    const region = visible_region_at(x, y, state);
+    if (region) show_region(region, x, y, state);
+}
+
 // C ref: display.c unset_seenv() (3384-3393). Called by vault.c blackout() when
 // the vault guard removes a temporary corridor; it clears the bit in
 // location.seenv that records that <x1,y1> was seen from <x0,y0>.
@@ -4010,8 +4018,13 @@ export function newsym(x, y) {
         // puts a visible steed's glyph on the hero's square. C's newsym()
         // first maps the underlying location when canspotself() is false,
         // which is what an invisible hero needs after HInvis changes.
-        if (heroCanSpotSelf(game)) display_self();
-        else show_glyph_cell(x, y, underlying);
+        if (heroCanSpotSelf(game)) {
+            display_self();
+        } else {
+            show_glyph_cell(x, y, underlying);
+            // _map_location(x, y, !see_self) ends with its region arm.
+            if (visible) showVisibleRegionAt(x, y);
+        }
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph
                 = remembered_glyph_from_presentation(rememberedUnderlying);
@@ -4064,6 +4077,11 @@ export function newsym(x, y) {
             );
         } else {
             show_glyph_cell(x, y, underlying);
+            // display.c:1035 _map_location(x, y, 1) ends by showing a
+            // visible region over any terrain, not only the accessible
+            // squares the region arm above covers: a fog cloud's vapor over
+            // iron bars shows once the cloud moves on.
+            showVisibleRegionAt(x, y);
         }
     } else if (outOfSightSensed) {
         // display.c:1046-1054, not-visible path: the hero senses or detects
