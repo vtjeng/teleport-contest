@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-energy-peak-observer-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-depleted-energy-20261029"
+  ],
+  "provenance": {
+    "jsSha": "e2d85fff23ed92836eee08cd03f21d41809c8751",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/spell.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    },
+    {
+      "side": "JS",
+      "path": "js/spell.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    }
+  ],
+  "hypothesis": "Losing a level must retain historical energy capacity for insufficient-energy message selection.",
+  "expectedBehavior": "Initial full7/7 says yet; level2 then1 full7/7 says anymore; depleted12/19 has no suffix.",
+  "observedBehavior": "Three complete C/JS matches with all three expected public messages and resource values verified.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Supported wizard gain/loss and ordinary rejected cast; public message observes historical energy capacity.",
+    "limitations": [
+      "C message proves peak at least15 after loss, not the exact C peak19 or complete memory state.",
+      "Level transitions are wizard-assisted; no natural level gain/drain claimed.",
+      "Rejected casts have no effects; depleted control uses the previously qualified failed cast."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/result.json"
+    ],
+    "reason": "Supported wizard gain/loss and ordinary rejected cast; public message observes historical energy capacity."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+        "control",
+        "/tmp/hero-peak-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+        "target",
+        "/tmp/hero-peak-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target-receipt.json"
+    },
+    {
+      "id": "depleted-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+        "depleted-control",
+        "/tmp/hero-peak-depleted-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/depleted-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/README.md",
+      "sha256": "5fd894522eb7689de5bac9f8ba3e22dd84e8b0ef021b5ecf384d5dd516f5dfb0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/js-output.json.gz",
+      "sha256": "c38d52c3102fe5c218942331920f698d371a075a48e89e6ad550d02a7eb37047",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/recipe.session.json",
+      "sha256": "e497aa2d3545bfb2b397327eba339790009c41ca0f625f836105c39fb4b59a83",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/recorded.session.json.gz",
+      "sha256": "4eca06b672697294172359b242dd1d60526ddbd4efd35c91f73219def4250539",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/recorder.json",
+      "sha256": "31b0dd7282310d5ed62b0bd63857629739c87e3c2a6918976429c84a18080a35",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/result.json",
+      "sha256": "5613e013b9c14e4fb27377c092f744ed882a7afad8ad881632df9228aafccde5",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control/worker.json",
+      "sha256": "890b1f7e83e3fb41d22557503c7eba65e36438a9ce66b04d0d73314e68edadc0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/control-receipt.json",
+      "sha256": "1503a47accca55c45537cc6cf0c97e8b3b5b6d350d12cc15ff16f291727a2b32",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/js-output.json.gz",
+      "sha256": "a6049869a95fd1cbcac5250bf68cb574b967a95017454e99a23a788460f63f04",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/recipe.session.json",
+      "sha256": "b1227045d5f4a442505a0b8321d24d18c5a438a2823230260b2377a773abff9c",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/recorded.session.json.gz",
+      "sha256": "626474cf2ca337d08eb5999ff63234e534129367240e2383036d2c60fdbdcaf0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/recorder.json",
+      "sha256": "a0c3fc9ed264244315affcf5a3705f2324b8035b6cfe973b3287f2666a0a304a",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/result.json",
+      "sha256": "2c58a8cb26ba20f6f83f23afdd46179b574e99af1d6e035e057e91062c0e507f",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control/worker.json",
+      "sha256": "aaf8b10a3386cfdbba67646c89dd9b5ef469ead1ca275ad1c3ab7fe46059150e",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/depleted-control-receipt.json",
+      "sha256": "dffc79f1ab0f383ace1c206a2574b9bacc64cd7a2541c8eac46abfbb7b000fe5",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/control.json",
+      "sha256": "ae4cee3d8f23d7365ab00b9a473e03f7bfc0c333b75d4f2d1cff8ddc05e99ac0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/depleted-control.json",
+      "sha256": "582b3908ea4cfb378c57436e57f7e09739af1221d76bc140d38888a689b994e6",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/recipes/target.json",
+      "sha256": "74acd382ce6e95e3208a4bf04f97be422d9b805d45edc5a6c65a824b839f3ca5",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/js-output.json.gz",
+      "sha256": "20fd4f2778ecb682d3b541487dac203bf1ea3cce0c1c7bf1207fdda4cbae6d1d",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/recipe.session.json",
+      "sha256": "ae7bdb6218d0253170ff3fa8af46514c14d232c143f72e5b6bf0fbed80d2b0ff",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/recorded.session.json.gz",
+      "sha256": "6efaee9da724124f53c7c5ea2f509a536f90b8d55ad9f2a9f433417a79c07146",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/recorder.json",
+      "sha256": "f7f9f86153a830237c17bf11ccb498ed032d445d1631f5e8aa1b0a9556682016",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/result.json",
+      "sha256": "a7602484cc90578aeb3337e3275446b14f4dca36e02486e6d360d0c13b63ee5c",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target/worker.json",
+      "sha256": "fa8ee05615b0dd12e35180a971b32ff5e055649e30113d04d5cd2d6f9b209bd2",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/target-receipt.json",
+      "sha256": "264fcb5fb19fa8476a2ef800edd60beba9194cc63b5fe20812d5687845243337",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/verification.txt",
+      "sha256": "3fc1f6c6d89ed37d4cf6d29fecc13f647242f9f16dda233f855f16c1b4e06597",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/energy-peak-observer-20261029/verify.mjs",
+      "sha256": "fb08af0826efca96b0bf507363fb23bb03879ec870eb65181164d7746ca19933",
+      "role": "recording, receipt or verification artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/jsmain.js",
+      "sha256": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/spell.js",
+      "sha256": "32607d2b069ffceaa3e5eaf68bb072e8a6468f9dc0734a557c91a9a18c93ff6a",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/spell.c",
+      "sha256": "db3d0148ecfe49c89d56381b028606c02c65a7657489006efdc81f239f38181c",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or recorder build provenance"
+    }
+  ]
+}

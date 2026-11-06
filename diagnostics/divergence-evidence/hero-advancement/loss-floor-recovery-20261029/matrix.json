@@ -1,0 +1,359 @@
+{
+  "control": [
+    {
+      "id": "level-one-zero",
+      "mode": "loss",
+      "level": 1,
+      "xp": 0,
+      "hp": 12,
+      "hpmax": 12,
+      "en": 6,
+      "enmax": 6,
+      "hi": 12,
+      "ei": 6,
+      "upper": 0,
+      "expected": {
+        "ulevel": 1,
+        "uexp": 0,
+        "uhp": 12,
+        "uen": 6,
+        "messages": ""
+      }
+    }
+  ],
+  "target": [
+    {
+      "id": "level-one-reset-1",
+      "mode": "loss",
+      "level": 1,
+      "xp": 1,
+      "hp": 3,
+      "hpmax": 12,
+      "en": 1,
+      "enmax": 6,
+      "hi": 12,
+      "ei": 6,
+      "upper": 0,
+      "expected": {
+        "ulevel": 1,
+        "uexp": 0,
+        "uhp": 3,
+        "uen": 1,
+        "messages": ""
+      }
+    },
+    {
+      "id": "level-one-reset-18",
+      "mode": "loss",
+      "level": 1,
+      "xp": 18,
+      "hp": 3,
+      "hpmax": 12,
+      "en": 1,
+      "enmax": 6,
+      "hi": 12,
+      "ei": 6,
+      "upper": 0,
+      "expected": {
+        "ulevel": 1,
+        "uexp": 0,
+        "uhp": 3,
+        "uen": 1,
+        "messages": ""
+      }
+    },
+    {
+      "id": "level-one-reset-19",
+      "mode": "loss",
+      "level": 1,
+      "xp": 19,
+      "hp": 3,
+      "hpmax": 12,
+      "en": 1,
+      "enmax": 6,
+      "hi": 12,
+      "ei": 6,
+      "upper": 0,
+      "expected": {
+        "ulevel": 1,
+        "uexp": 0,
+        "uhp": 3,
+        "uen": 1,
+        "messages": ""
+      }
+    },
+    {
+      "id": "level-floor-10--1",
+      "mode": "loss",
+      "level": 10,
+      "xp": 5120,
+      "hp": 13,
+      "hpmax": 13,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 9,
+        "uexp": 5119,
+        "uhp": 6,
+        "uhpmax": 10,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-10-0",
+      "mode": "loss",
+      "level": 10,
+      "xp": 5120,
+      "hp": 14,
+      "hpmax": 14,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 9,
+        "uexp": 5119,
+        "uhp": 10,
+        "uhpmax": 10,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-10-1",
+      "mode": "loss",
+      "level": 10,
+      "xp": 5120,
+      "hp": 15,
+      "hpmax": 15,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 9,
+        "uexp": 5119,
+        "uhp": 11,
+        "uhpmax": 11,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-11--1",
+      "mode": "loss",
+      "level": 11,
+      "xp": 10000,
+      "hp": 13,
+      "hpmax": 13,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 10,
+        "uexp": 9999,
+        "uhp": 6,
+        "uhpmax": 10,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-11-0",
+      "mode": "loss",
+      "level": 11,
+      "xp": 10000,
+      "hp": 14,
+      "hpmax": 14,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 10,
+        "uexp": 9999,
+        "uhp": 10,
+        "uhpmax": 10,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-11-1",
+      "mode": "loss",
+      "level": 11,
+      "xp": 10000,
+      "hp": 15,
+      "hpmax": 15,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 10,
+        "uexp": 9999,
+        "uhp": 11,
+        "uhpmax": 11,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-12--1",
+      "mode": "loss",
+      "level": 12,
+      "xp": 20000,
+      "hp": 14,
+      "hpmax": 14,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 11,
+        "uexp": 19999,
+        "uhp": 7,
+        "uhpmax": 11,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-12-0",
+      "mode": "loss",
+      "level": 12,
+      "xp": 20000,
+      "hp": 15,
+      "hpmax": 15,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 11,
+        "uexp": 19999,
+        "uhp": 11,
+        "uhpmax": 11,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-12-1",
+      "mode": "loss",
+      "level": 12,
+      "xp": 20000,
+      "hp": 16,
+      "hpmax": 16,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 11,
+        "uexp": 19999,
+        "uhp": 12,
+        "uhpmax": 12,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-30--1",
+      "mode": "loss",
+      "level": 30,
+      "xp": 100000000,
+      "hp": 32,
+      "hpmax": 32,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 29,
+        "uexp": 99999999,
+        "uhp": 25,
+        "uhpmax": 29,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-30-0",
+      "mode": "loss",
+      "level": 30,
+      "xp": 100000000,
+      "hp": 33,
+      "hpmax": 33,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 29,
+        "uexp": 99999999,
+        "uhp": 29,
+        "uhpmax": 29,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "level-floor-30-1",
+      "mode": "loss",
+      "level": 30,
+      "xp": 100000000,
+      "hp": 34,
+      "hpmax": 34,
+      "en": 1,
+      "enmax": 6,
+      "hi": 4,
+      "ei": 4,
+      "upper": 0,
+      "expected": {
+        "ulevel": 29,
+        "uexp": 99999999,
+        "uhp": 30,
+        "uhpmax": 30,
+        "uen": 0,
+        "uenmax": 2
+      }
+    },
+    {
+      "id": "welcome-back",
+      "mode": "gain",
+      "level": 1,
+      "maxlevel": 2,
+      "xp": 20,
+      "hp": 3,
+      "hpmax": 12,
+      "en": 1,
+      "enmax": 6,
+      "hi": 0,
+      "ei": 0,
+      "upper": 0,
+      "expected": {
+        "ulevel": 2,
+        "ulevelmax": 2,
+        "ulevelpeak": 2,
+        "uexp": 20,
+        "messages": "Welcome back to experience level 2.|2,5,5;"
+      }
+    }
+  ]
+}

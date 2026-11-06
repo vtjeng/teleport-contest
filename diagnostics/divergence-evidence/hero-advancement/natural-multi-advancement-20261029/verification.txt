@@ -1,0 +1,8 @@
+{"name":"below-control","slots":28,"healingLevel":2,"practice":78,"advanced":1,"publicHealingRow":true,"fullParity":true}
+{"name":"eligible-control","slots":28,"healingLevel":2,"practice":81,"advanced":1,"publicHealingRow":true,"fullParity":true}
+{"name":"spent-control","slots":0,"healingLevel":3,"practice":81,"advanced":2,"publicHealingRow":true,"fullParity":true}
+{"name":"last-refund-target","slots":0,"healingLevel":2,"practice":81,"advanced":1,"publicHealingRow":false,"fullParity":true}
+{"name":"all-refund-target","slots":0,"healingLevel":1,"practice":81,"advanced":0,"publicHealingRow":false,"fullParity":true}
+{"name":"regain-target","slots":2,"healingLevel":1,"practice":81,"advanced":0,"publicHealingRow":true,"fullParity":true}
+{"name":"last-refund-observer","slots":0,"healingLevel":2,"practice":81,"advanced":1,"publicHealingRow":true,"fullParity":true}
+{"name":"all-refund-observer","slots":0,"healingLevel":1,"practice":81,"advanced":0,"publicHealingRow":true,"fullParity":true}

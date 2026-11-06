@@ -1,0 +1,14 @@
+{
+  "status": "unresolved",
+  "readiness": "incomplete",
+  "jsSha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "qualification": "JS public startup and15 ordinary healthy casts only; no executed C comparison",
+  "observed": "Priest starts cure sickness and can reach Expert;15 successes give45 points and leave435 nutrition.",
+  "missing": "A permitted nutrition-preserving/replenishing history sufficient for180 earned practice points without excluded food/object effects or forced state.",
+  "actionStatus": "No denial or pending action. Expert transition was not executed.",
+  "runner": "priest-setup.mjs",
+  "expectedExit": 0,
+  "actualExit": 0,
+  "sourceReason": "spell.c spelleffects_check charges twice spell energy as hunger; Wizard INT discount does not apply to Priest."
+}

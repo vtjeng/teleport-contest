@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "gcc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "/tmp/hero-score-oracle-celdj2/oracle.c",
+    "-o",
+    "/tmp/hero-score-oracle-celdj2/oracle"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "skill-refund",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+    "skill-refund",
+    "/tmp/hero-integration-skill-refund-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:12:36.239048+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-refund.json": "d5759a79de7895000c74536de4f9bb0c9cd9a7f02493286469f0fcc397e087d4"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/worker.json"
+  ]
+}

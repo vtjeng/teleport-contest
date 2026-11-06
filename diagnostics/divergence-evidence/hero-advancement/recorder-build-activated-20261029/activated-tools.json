@@ -1,0 +1,29 @@
+{
+  "commands": {
+    "clang": "/workspace/.setup/bin/clang",
+    "bison": "/workspace/.setup/toolchain/usr/bin/bison",
+    "flex": "/workspace/.setup/toolchain/usr/bin/flex",
+    "rsync": "/workspace/.setup/toolchain/usr/bin/rsync",
+    "make": "/usr/bin/make",
+    "git": "/usr/local/bin/git",
+    "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"
+  },
+  "versions": {
+    "clang": {
+      "exit": 0,
+      "firstLine": "Debian clang version 19.1.7 (3+b1)"
+    },
+    "bison": {
+      "exit": 0,
+      "firstLine": "bison (GNU Bison) 3.8.2"
+    },
+    "flex": {
+      "exit": 0,
+      "firstLine": "flex 2.6.4"
+    },
+    "rsync": {
+      "exit": 0,
+      "firstLine": "rsync  version 3.4.1  protocol version 32"
+    }
+  }
+}

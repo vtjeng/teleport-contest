@@ -1,0 +1,17 @@
+[
+  {
+    "file": "nethack-c/upstream/src/exper.c",
+    "symbol": "enermod",
+    "sha256": "b3539185b28848c354a795288a55b78d881721486516ecd490e67f02c362ee88"
+  },
+  {
+    "file": "nethack-c/upstream/src/exper.c",
+    "symbol": "newpw",
+    "sha256": "3f5b5c26fdf331abe3732c9be201b59ecd4e75638d4d8b235812dcfddb5068b0"
+  },
+  {
+    "file": "nethack-c/upstream/src/attrib.c",
+    "symbol": "newhp",
+    "sha256": "14aeb8803d853822cc895dd59b4e8114952fde80c8fd5824bb18e0f764c6b85a"
+  }
+]

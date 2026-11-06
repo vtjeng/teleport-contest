@@ -1,0 +1,12 @@
+[
+  {
+    "file": "nethack-c/upstream/src/botl.c",
+    "symbol": "exp_percent_changing",
+    "sha256": "605c20b864ef4dacfaa8f9a746ac41bbcb11757764d9d5d17f649e63c2314223"
+  },
+  {
+    "file": "nethack-c/upstream/src/exper.c",
+    "symbol": "more_experienced",
+    "sha256": "7f51216c7613038bc881cf3c425032f3d93510b87061b9cc8422d86137d98577"
+  }
+]

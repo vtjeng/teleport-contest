@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{gunzipSync}from'node:zlib';import{createHash}from'node:crypto';import{dirname,resolve}from'node:path';import{fileURLToPath}from'node:url';import{compareSessionOutputs}from'../../../../scripts/diff-fresh.mjs';
+const here=dirname(fileURLToPath(import.meta.url)),read=n=>JSON.parse(readFileSync(resolve(here,n))),gz=n=>JSON.parse(gunzipSync(readFileSync(resolve(here,n))));
+const manifest=read('build-provenance.json');assert.equal(manifest.sourceScriptUnchanged,true);assert.equal(read('build-result.json').exitCode,0);for(const v of Object.values(read('activated-tools.json').versions))assert.equal(v.exit,0);
+assert.equal(createHash('sha256').update(gunzipSync(readFileSync(resolve(here,'nethack-binary.gz')))).digest('hex'),manifest.binary.sha256);
+for(const input of manifest.inputs)assert.equal(createHash('sha256').update(readFileSync(input.path)).digest('hex'),input.sha256);
+const c=gz('published-control/recorded.session.json.gz'),js=gz('published-control/js-output.json.gz');assert.equal(compareSessionOutputs(c,js).passed,true);const old=gz('../integration-20261029/below/recorded.session.json.gz');assert.deepEqual(c.segments[0].steps,old.segments[0].steps);
+console.log(JSON.stringify({buildExit:0,binarySha256:manifest.binary.sha256,unchangedInputsVerified:true,fullCJSControlParity:true,publishedControlStepsIdentical:true,elapsedSeconds:read('build-result.json').elapsedSeconds}));

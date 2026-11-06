@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "all-refund-observer",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+    "all-refund-observer",
+    "/tmp/hero-multi-all-refund-observer-20261029"
+  ],
+  "cwd": ".",
+  "environment": {
+    "NETHACK_INSTALL": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir",
+    "NETHACK_BINARY": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack"
+  },
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T06:17:47.117499+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/all-refund-observer.json": "4f45c7e8d70456836fb7ce6a68d82c1d329ba3c985f1e1ead82d850181e5deef",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/worker.json"
+  ]
+}

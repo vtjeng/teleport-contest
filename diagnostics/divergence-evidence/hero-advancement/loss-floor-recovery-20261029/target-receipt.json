@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:48:09.134541+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "312353d3382660182d43723a2b4605d9ed97b1f0aa3732b9d7a995c7da3d5e30",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/shim.h": "6ffe738049ec230ebb8c4db7e6b308a1d360d7eb533e67413bc0102c3f4fd0f8",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/driver.c": "f465f5c7f0d1de03adf411546b07e37c89f914f9869e5fdc3aa845411d3bc4e4",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/matrix.json": "ec2e2800f99357b210bf21db2870dfdf5252dfc433f9765b45ae6a817e516a12",
+    "nethack-c/upstream/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/upstream/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/compiler.json",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/oracle.c",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/results.json",
+    "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/source-bindings.json"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/run.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:41:16.518422+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "63460d074ca250b2aadc83f42baa140ea0ea64de5315792242df60bd82551284",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/shim.h": "69520734612a856365a3f198cb2de9713105a1554cd23904d8fed91f6df42667",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/driver.c": "d42f7e40534c5c9569c2660ae33596c5c4be7b17a504e5fd80bcdfcb0da7ea2d",
+    "nethack-c/upstream/src/weapon.c": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+    "nethack-c/upstream/include/skills.h": "d67ac10770b8aff667c163e93020b8974e53f12eede903f10bf026d351b2c238"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/c-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/compiler.json",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/input.txt.gz",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/js-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/matrix.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/mismatches.json",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/oracle.c",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/source-bindings.json",
+    "diagnostics/divergence-evidence/hero-advancement/skill-notification-20261029/target/summary.json"
+  ]
+}

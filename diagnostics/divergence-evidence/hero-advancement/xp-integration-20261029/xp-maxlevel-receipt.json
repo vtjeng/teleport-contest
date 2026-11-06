@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "xp-maxlevel",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+    "xp-maxlevel",
+    "/tmp/hero-xp-maxlevel-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:43:38.007400+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-maxlevel.json": "e6be7eb8a57f11f25e516bb101c1d5b296a549d9ab0cc9139651ac252d878638"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/worker.json"
+  ]
+}

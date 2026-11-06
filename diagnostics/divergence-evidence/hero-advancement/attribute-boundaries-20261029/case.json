@@ -1,0 +1,354 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-attribute-boundaries-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-ability-traversals-20261029"
+  ],
+  "provenance": {
+    "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/role.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    }
+  ],
+  "hypothesis": "Remaining ordinary advancement boundaries require an executed, explicitly restricted C comparison.",
+  "expectedBehavior": "C and JS agree on the declared component projection and pinned controls.",
+  "observedBehavior": "24254 target states and four numeric controls match increments, saved slots, alignment and RNG calls. Zero new semantic causes.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Literal C role/race inputs, legal starting alignment, explicit CON/WIS, lower/upper RNG outcomes and initial/cutoff component calls.",
+    "limitations": [
+      "Constructed API states; natural-play histories are not established.",
+      "Adapter, observer and dependency restrictions are detailed in README.md and shim.h.",
+      "This does not establish provenance of the separately preinstalled full recorder."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/summary.json",
+      "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/summary.json"
+    ],
+    "reason": "Actual JS component APIs and freshly compiled complete C function bodies execute the declared state projection."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/parse-c.mjs",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/driver.c",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/parse-c.mjs",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/driver.c",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/README.md",
+      "sha256": "bfba33a4ca34d601d7e55176993c0b77ba5c029f6147a1b59672628c4d49d25e",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/c-output.jsonl.gz",
+      "sha256": "5bd914a741d939fa53e6c967fbc389460cc6d8a4e74f01330c0c5b38d6f1661d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/c-progression.json",
+      "sha256": "1012e5a95597f683ebb0a19af70a4cb183c4e81b93344e8fffb89778e2172535",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/input.txt.gz",
+      "sha256": "74f57756b5b938bc8eee5d8ee633d6ff2d68fa01832595f4ff990df944c7126b",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/js-output.jsonl.gz",
+      "sha256": "5bd914a741d939fa53e6c967fbc389460cc6d8a4e74f01330c0c5b38d6f1661d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/matrix.json.gz",
+      "sha256": "1031156fe513f1cf9c24a8eb33e39008a8ba90db7d08f175279b8a159655026b",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/oracle.c",
+      "sha256": "eb797092ac25faf8984ea9e7d1c4c0926ae7aa056c5da2b651da83aa11b32d01",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/source-bindings.json",
+      "sha256": "0c317c09ab41804e7b9cd3a15f30eb92db6b3421c2904f85a0cba203331f3597",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control/summary.json",
+      "sha256": "fd25955948255216ae34c514963616b5e6a3575569a3443cad183c31cc1e5448",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/control-receipt.json",
+      "sha256": "ff010ad8f9c12c308ecc9428607e340fa7311b6f4af59cf9a55a22d98800f448",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/driver.c",
+      "sha256": "3269b911ce01eaf6f56242ed28b18dd877c495f52368059d908f00c6c98d6ba6",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/environment.json",
+      "sha256": "a29bb80dbd3dd9402e4a820a3ae06fefc2e180011a95615a2a1c7b2089c83613",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/focused-tests.txt",
+      "sha256": "01fd23b038ca6f4bc24bd4ef663b787e9df79425445cb46b6e1124160b1c0b6b",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/parse-c.mjs",
+      "sha256": "0dde714d7c80e7f361f67be4bdd366ca88df99ab44b3c58e604192ba706b119d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+      "sha256": "348129764750a44d2e487636f880e82c1b9a3e1723ce3b9a269120bde2532dcb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/shim.h",
+      "sha256": "31b2885d320112d0a9627e20956a9d0f3c4528e246884d3bc147013079c53926",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/c-output.jsonl.gz",
+      "sha256": "866d671352627bf986ac7312e8d8e3279bc8f5d7ed95483c31794aa87d7a341d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/c-progression.json",
+      "sha256": "1012e5a95597f683ebb0a19af70a4cb183c4e81b93344e8fffb89778e2172535",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/input.txt.gz",
+      "sha256": "8ba24a65d944ce6950738fb1dbfb1a27d8923808ee463710183a26d9b7dca76a",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/js-output.jsonl.gz",
+      "sha256": "866d671352627bf986ac7312e8d8e3279bc8f5d7ed95483c31794aa87d7a341d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/matrix.json.gz",
+      "sha256": "a654074d3f772731967ddcedf540a73aa99792f91132e3edc1ea55515a24b4c1",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/oracle.c",
+      "sha256": "eb797092ac25faf8984ea9e7d1c4c0926ae7aa056c5da2b651da83aa11b32d01",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/source-bindings.json",
+      "sha256": "0c317c09ab41804e7b9cd3a15f30eb92db6b3421c2904f85a0cba203331f3597",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/summary.json",
+      "sha256": "d78a7d3fd6a08a582f633350f7e34c8ffa8f411c0ae87f79f1bcbba7a5ea37ae",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target-receipt.json",
+      "sha256": "71b3d498d6206796ae86eabc3d594765cc88d777bcef40fbc41f7cfb49dfcc29",
+      "role": "audit evidence or pinned dependency"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/include/global.h",
+      "sha256": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/include/you.h",
+      "sha256": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "audit evidence or pinned dependency"
+    }
+  ]
+}
