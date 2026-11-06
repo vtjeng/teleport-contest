@@ -427,6 +427,9 @@ async function ttyPlineCore(
                 if (show_topl(next, state)) {
                     display.topMessage = next;
                     state._pending_message = next;
+                    // display.js rebuilds this line with show_topl()'s
+                    // character wrap rather than update_topl()'s.
+                    state._pendingMessagePutsyms = next;
                 }
             }
         }

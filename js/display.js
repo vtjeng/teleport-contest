@@ -7073,8 +7073,18 @@ function _buildScreenOutput(cursorOnHero = true) {
     // Render into the canonical terminal grid.
     if (display.grid) {
         const msg = game._pending_message || '';
+        // topl.c show_topl() prints through putsyms(), whose topl_putsym()
+        // moves to the next row on reaching column CO - 1, so a long
+        // getpos autodescription continues on row 1 mid-word.
+        const putsymsWidth = Math.max(1, display.cols - 1);
+        const messageRows = msg && msg === game._pendingMessagePutsyms
+            ? Array.from({ length: Math.ceil(msg.length / putsymsWidth) },
+                (_, row) => msg.slice(row * putsymsWidth,
+                    (row + 1) * putsymsWidth))
+            : [msg];
+        const firstRowLength = Math.min(messageRows[0].length, display.cols);
         let skippedMessageCells = null;
-        for (let c = 0; c < Math.min(msg.length, display.cols); ++c) {
+        for (let c = 0; c < firstRowLength; ++c) {
             if (msg[c] === '\0') {
                 skippedMessageCells ??= [];
                 skippedMessageCells[c] = { ...display.grid[0][c] };
@@ -7082,7 +7092,7 @@ function _buildScreenOutput(cursorOnHero = true) {
         }
         if (!bufferedOnly) display.clearScreen();
         // Message line
-        for (let c = 0; !bufferedOnly && c < Math.min(msg.length, display.cols); c++) {
+        for (let c = 0; !bufferedOnly && c < firstRowLength; c++) {
             // Recorder patch 006 ignores signed high-bit TTY bytes after the
             // source cursor has advanced. tty_message.js represents each such
             // byte as NUL, so restore the physical cell which clearScreen()
@@ -7098,6 +7108,11 @@ function _buildScreenOutput(cursorOnHero = true) {
                     NO_COLOR, 0,
                 );
             }
+        }
+        for (let row = 1; !bufferedOnly && row < messageRows.length
+            && row < display.rows; ++row) {
+            for (let c = 0; c < messageRows[row].length; ++c)
+                display.setCell(c, row, messageRows[row][c], NO_COLOR, 0);
         }
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);

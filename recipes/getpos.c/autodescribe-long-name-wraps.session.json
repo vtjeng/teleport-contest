@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "getpos.c auto_describe() prints through custompline(SUPPRESS_HISTORY), which tty show_topl() writes with putsyms(); a description longer than CO - 1 columns continues on the second row mid-word.",
+  "segments": [
+    {
+      "seed": 6230418,
+      "datetime": "20350827190000",
+      "nethackrc": "OPTIONS=name:Longname,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017magic marker named abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij\n dl l_ \u001bh\u001b"
+    }
+  ]
+}
