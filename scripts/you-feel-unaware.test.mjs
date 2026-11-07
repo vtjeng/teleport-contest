@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
 
 // Marks `state` as C's fall_asleep() leaves it: multi negative and usleep
@@ -42,4 +43,18 @@ test('exper.c pluslvl(FALSE) dreams the experience of a sleeping hero', async ()
     const { lines, message } = firstLine();
     await assert.rejects(pluslvl(false, state, { message }), STOP);
     assert.deepEqual(lines, ['You dream that you feel more experienced.']);
+});
+
+test('dogmove.c dog_starve() dreams the loss of an unseen pet', async () => {
+    // dog_starve() (dogmove.c:348-358) runs on the pet's own move, which
+    // goes on while the hero sleeps; an unseen pet's death is You_feel().
+    const state = asleep({ u: { uprops: {} } });
+    const lines = [];
+    await dog_starve({ mleashed: 0, mx: 5, my: 5 }, {
+        state,
+        message: async (line) => { lines.push(line); },
+        canSee: () => false, // The pet starves out of sight.
+        mondied: async () => {},
+    });
+    assert.deepEqual(lines, ['You dream that you feel sad for a moment.']);
 });

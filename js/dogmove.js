@@ -206,7 +206,7 @@ import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
-import { pline_mon } from './pline.js';
+import { pline_mon, youFeel } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
@@ -456,8 +456,8 @@ export async function dog_starve(monster, rawEnv = {}) {
     else if ((rawEnv.canSee ?? cansee)(monster.mx, monster.my, state))
         await message(messageAt(Monnam(monster, state, rawEnv) + ' starves.',
             monster.mx, monster.my, state), state);
-    else await message('You feel ' + (Hallucination(state) ? 'bummed' : 'sad')
-        + ' for a moment.', state);
+    else await message(youFeel(`${Hallucination(state) ? 'bummed' : 'sad'}`
+        + ' for a moment.', state), state);
     await (rawEnv.mondied ?? ((subject, env) => mondied(subject, state, env)))(
         monster, { ...rawEnv, state },
     );
@@ -498,7 +498,7 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
                 await (env.beg ?? beg)(monster, env);
             } else {
                 await (env.message ?? ttyPline)(
-                    'You feel worried about ' + y_monnam(monster, state, env) + '.', state,
+                    youFeel(`worried about ${y_monnam(monster, state, env)}.`, state), state,
                 );
             }
             if (env.stopOccupation) await env.stopOccupation(env);
