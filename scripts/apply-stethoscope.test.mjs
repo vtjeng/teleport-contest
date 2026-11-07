@@ -795,8 +795,10 @@ test('doapply routes eyewear through its source helpers and keeps its turn resul
     assert.equal(await apply(lenses, true), ECMD_TIME);
     assert.equal(game.ublindf, lenses,
         'doapply leaves a cursed worn eyewear object on');
+    // do_wear.c cursed() says why; LENSES take its plural wording.
+    assert.equal(pendingTopLine(), 'You can\'t.  They are cursed.');
     lenses.cursed = 0;
-    assert.equal(await apply(lenses), ECMD_TIME);
+    assert.equal(await apply(lenses, true), ECMD_TIME);
     assert.equal(game.ublindf, null);
 
     const towel = makeInventoryItem(TOWEL);
