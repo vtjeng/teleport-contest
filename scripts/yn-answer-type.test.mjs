@@ -113,10 +113,18 @@ test('tty_yn_function and yn_function answer C characters, including Escape', as
     const canned = promptState([]);
     cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), canned);
     assert.equal(await yn_function('Go?', 'ynq', 'q', true, canned), 'y');
-    // cmd.c:5508-5509: any other queued node answers Escape without a prompt.
+    // cmd.c:5508-5509: any other queued node answers Escape without a
+    // prompt. Escape is outside 'ynq', so cmd.c:5545-5570 reports it through
+    // impossible() and answers the default instead.
     const direction = promptState([]);
     cmdq_add_dir(CQ_CANNED, 1, 0, 0, direction);
-    assert.equal(await yn_function('Go?', 'ynq', 'q', true, direction), '\x1b');
+    assert.equal(await yn_function('Go?', 'ynq', 'q', true, direction), 'q');
+    assert.match(direction.nhDisplay.topMessage ?? '', /Please report/);
+    // An unrestricted prompt accepts that Escape unchanged.
+    const unrestricted = promptState([]);
+    cmdq_add_dir(CQ_CANNED, 1, 0, 0, unrestricted);
+    assert.equal(
+        await yn_function('Dir?', null, '\0', true, unrestricted), '\x1b');
     // A queued user-input marker reads the answer from the window port.
     const marker = promptState(['n']);
     cmdq_add_userinput(CQ_CANNED, marker);
@@ -127,10 +135,11 @@ test('y_n, ynq and paranoid_ynq answer what hack.h and cmd.c return', async () =
     // hack.h:1329-1330 defaults: a space answers 'n' for y_n and 'q' for ynq.
     assert.equal(await y_n('Go?', promptState([' '])), 'n');
     assert.equal(await ynq('Go?', promptState([' '])), 'q');
-    // ynq passes Escape from a non-key queued node through unchanged, as C.
+    // A non-key queued node gives ynq Escape, which cmd.c:5545-5570
+    // replaces with ynq's default 'q'.
     const direction = promptState([]);
     cmdq_add_dir(CQ_CANNED, 1, 0, 0, direction);
-    assert.equal(await ynq('Go?', direction), '\x1b');
+    assert.equal(await ynq('Go?', direction), 'q');
     // cmd.c:5645-5647 folds every answer but 'y' (and 'q' with accept_q)
     // into 'n'.
     assert.equal(await paranoid_ynq(false, 'Go?', false, promptState(['y'])), 'y');

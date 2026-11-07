@@ -315,7 +315,10 @@ export async function update_topl(message, state = game, context = {}) {
         return;
     }
 
-    if (current && !stoppedAtEntry) {
+    // Both waits below are topl.c more(), which returns at once while
+    // iflags.debug_fuzzer is set (yn_function()'s TEMP impossible() report).
+    const moreSuppressed = Boolean(state.iflags?.debug_fuzzer);
+    if (current && !stoppedAtEntry && !moreSuppressed) {
         await callbacks.dismissPendingTtyMessage?.(state, {
             // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
             // which tty_message_menu() sets to its item letter.
@@ -331,7 +334,7 @@ export async function update_topl(message, state = game, context = {}) {
     // including after the more() above. Remembering it until the next map
     // flush would leave the old physical line visible to missile animation.
     redrawTtyTopline(state, next, mixedFirstCell);
-    if (wrapTtyTopline(next, columns).length > 1) {
+    if (wrapTtyTopline(next, columns).length > 1 && !moreSuppressed) {
         await callbacks.dismissPendingTtyMessage?.(state, {
             // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
             // which tty_message_menu() sets to its item letter.
