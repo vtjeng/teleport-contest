@@ -312,8 +312,8 @@ export const PICK_ONE = 1;
 export const PICK_ANY = 2;
 export const MENU_BEHAVE_STANDARD = 0;
 export const MENU_BEHAVE_PERMINV = 1;
-export const ATR_ULINE = 1;
-export const ATR_BLINK = 4;
+export const ATR_ULINE = 4;
+export const ATR_BLINK = 5;
 export const ATR_URGENT = 16;
 export const ATR_NOHISTORY = 32;
 
@@ -642,7 +642,10 @@ export const BL_HPMAX = (BL_HP + 1);
 export const BL_LEVELDESC = (BL_HPMAX + 1);
 export const BL_EXP = (BL_LEVELDESC + 1);
 export const BL_CONDITION = (BL_EXP + 1);
-export const BL_VERS = (BL_CONDITION + 1);
+export const BL_WEAPON = (BL_CONDITION + 1);
+export const BL_ARMOR = (BL_WEAPON + 1);
+export const BL_TERRAIN = (BL_ARMOR + 1);
+export const BL_VERS = (BL_TERRAIN + 1);
 export const MAXBLSTATS = (BL_VERS + 1);
 export const NO_LTEQGT = -1;
 export const EQ_VALUE = (NO_LTEQGT + 1);
@@ -651,7 +654,7 @@ export const LE_VALUE = (LT_VALUE + 1);
 export const GE_VALUE = (LE_VALUE + 1);
 export const GT_VALUE = (GE_VALUE + 1);
 export const TXT_VALUE = (GT_VALUE + 1);
-export const CONDITION_COUNT = 0;
+export const CONDITION_COUNT = 30; // botl.h enum blconditions, bl_bareh..bl_holding
 export const HL_UNDEF = 0x00;
 export const HL_NONE = 0x01;
 export const HL_BOLD = 0x02;
@@ -717,12 +720,12 @@ export const NH_BASIC_COLOR = 0x1000000;
 export const NH_ALTPALETTE = 0x2000000;
 
 // ===== patchlevel.h =====
-export const EDITLEVEL = 134;
+export const EDITLEVEL = 0;
 export const NH_STATUS_RELEASED = 0;
 export const NH_STATUS_WIP = 1;
 export const NH_STATUS_BETA = 2;
 export const NH_STATUS_POSTRELEASE = 3;
-export const NH_DEVEL_STATUS = NH_STATUS_WIP;
+export const NH_DEVEL_STATUS = NH_STATUS_RELEASED;
 export const COPYRIGHT_BANNER_A = "NetHack, Copyright 1985-2026";
 export const COPYRIGHT_BANNER_B = "         By Stichting Mathematisch Centrum and M. Stephenson.";
 export const COPYRIGHT_BANNER_D = "         See license for details.";
@@ -974,7 +977,7 @@ export const GFILTER_NONE = 0;
 export const GFILTER_VIEW = (GFILTER_NONE + 1);
 export const GFILTER_AREA = (GFILTER_VIEW + 1);
 export const NUM_GFILTER = (GFILTER_AREA + 1);
-export const WC_COUNT = 0;
+export const WC_COUNT = 4; // flag.h enum windowcolors_windows
 export const PLNMSG_UNKNOWN = 0;
 export const PLNMSG_ONE_ITEM_HERE = (PLNMSG_UNKNOWN + 1);
 export const PLNMSG_TOWER_OF_FLAME = (PLNMSG_ONE_ITEM_HERE + 1);
@@ -1539,7 +1542,10 @@ export const COST_CONTENTS = 1;
 export const COST_SINGLEOBJ = 2;
 export const ARG_DEBUG = 0;
 export const ARG_VERSION = (ARG_DEBUG + 1);
-export const ARG_DUMPGLYPHIDS = (ARG_VERSION + 1);
+export const ARG_SHOWPATHS = (ARG_VERSION + 1);
+// The recorder build leaves NODUMPENUMS undefined, so hack.h keeps this one.
+export const ARG_DUMPENUMS = (ARG_SHOWPATHS + 1);
+export const ARG_DUMPGLYPHIDS = (ARG_DUMPENUMS + 1);
 export const ARG_DUMPMONGEN = (ARG_DUMPGLYPHIDS + 1);
 export const LOOK_TRADITIONAL = 0;
 export const LOOK_QUICK = 1;
@@ -1593,7 +1599,7 @@ export const VANQ_MCLS_LTOH = (VANQ_MCLS_HTOL + 1);
 export const VANQ_COUNT_H_L = (VANQ_MCLS_LTOH + 1);
 export const VANQ_COUNT_L_H = (VANQ_COUNT_H_L + 1);
 export const NUM_VANQ_ORDER_MODES = (VANQ_COUNT_L_H + 1);
-export const NUM_SAVEFORMATS = 0;
+export const NUM_SAVEFORMATS = 3; // hack.h enum saveformats, invalid..exportascii
 export const TELL = 1;
 export const NOTELL = 0;
 export const ON = 1;
@@ -1951,7 +1957,7 @@ export const FLMAP_CURSUP = 2;
 export const FLMAP_SKIP = 4;
 export const FLMSG_FIRST = 1;
 export const MAXWIN = 20;
-export const NHW_BASE = 6;
+export const NHW_BASE = (NHW_LAST_TYPE + 1); // wintty.h; winami.h's 6 is the Amiga port's
 export const NHW_OVER = 7;
 
 // ===== wincurs.h =====
@@ -2030,14 +2036,17 @@ export const EXPL_MAGICAL = 4;
 export const EXPL_FIERY = 5;
 export const EXPL_FROSTY = 6;
 export const EXPL_MAX = 7;
-export const MON_EXPLODE = -1;
-export const BURNING_OIL = -2;
-export const TRAP_EXPLODE = -3;
-export const MAY_HITMON = 0x1;
-export const MAY_HITYOU = 0x2;
-export const MAY_HIT = (0x1 | 0x2);
-export const MAY_DESTROY = 0x4;
-export const MAY_FRACTURE = 0x8;
+// objclass.h defines these as MAXOCLASSES + 1, + 2 and + 3. MAXOCLASSES (18)
+// lives in objects.js, which const.js cannot import, so the values are
+// written out; scripts/check-c-constants.mjs compares them with the C.
+export const BURNING_OIL = 19;
+export const MON_EXPLODE = 20;
+export const TRAP_EXPLODE = 21;
+export const MAY_HITMON = 0x02;
+export const MAY_HITYOU = 0x04;
+export const MAY_HIT = (MAY_HITMON | MAY_HITYOU);
+export const MAY_DESTROY = 0x08;
+export const MAY_FRACTURE = 0x10;
 
 // Steed dismount reason enum (hack.h:347-356 `enum dismount_types`)
 // Runtime fields: dismount_steed(reason) reason selector.
@@ -2261,11 +2270,10 @@ export const GP_AVOID_MONPOS = 0x01000000;
 
 // Monster relocation flags (include/hack.h; src/teleport.c rloc/rloc_to)
 // Runtime fields: rloc/rloc_to rlocflags args
-export const RLOC_NONE = 0x0000;
-export const RLOC_NOMSG = 0x0001;
-export const RLOC_MSG = 0x0002;
-export const RLOC_TELE = 0x0004;
-export const RLOC_ERR = 0x0100;
+export const RLOC_NONE = 0x00;
+export const RLOC_ERR = 0x01;
+export const RLOC_MSG = 0x02;
+export const RLOC_NOMSG = 0x04;
 
 // Hero teleport placement flags (include/hack.h; src/teleport.c teleds)
 // Runtime fields: teleds/safe_teleds flags args
