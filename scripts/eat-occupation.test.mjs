@@ -723,6 +723,28 @@ test('stop_occupation clears the occupation before the meal it hands off',
         assert.equal(game.go.occupation, null);
     });
 
+test('an interrupted last bite refreshes the status line as C\'s bot() does',
+    async () => {
+        // allmain.c stop_occupation() -> eat.c maybe_finished_meal() ->
+        // eatfood() -> done_eating() -> newuhs(FALSE), which calls bot()
+        // directly when the hunger status moves. Callers of stop_occupation()
+        // such as zap.c dobuzz() pass only a message operation, so the live
+        // owner must supply the refresh. A recorded HUNGRY status makes
+        // newuhs() take that arm when the finished food ration leaves the
+        // hero SATIATED.
+        await startMeal(segmentFor(5820011, 'ed '), 'd');
+        const meal = game.context.victual;
+        meal.usedtime = meal.reqtime;
+        game.u.uhs = HUNGRY;
+        const said = [];
+        await stop_occupation(game, {
+            message: async (text) => { said.push(text); },
+        });
+        assert.equal(game.u.uhs, SATIATED);
+        assert.equal(game.go.occupation, null);
+        assert.deepEqual(game.context.victual, zero_victual());
+    });
+
 test('cant_finish_meal clears the matching corpse meal before stopping it',
     async () => {
         await startMeal(segmentFor(5820011, 'ed '), 'd');
