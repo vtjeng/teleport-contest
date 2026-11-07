@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for invent.c display_minventory() (invent.c:5341-5386) through pickup.c query_objlist() (pickup.c:1079-1086): a Valkyrie creates five Woodland-elves and zaps a wand of probing around her. One elf was given an elven dagger and then an elven spear, so its inventory lists the spear first; INVORDER_SORT with the default sortloot:l gives SORTLOOT_LOOT, which orders the two same-subclass weapons by name.",
+ "segments": [
+  {
+   "seed": 2201,
+   "datetime": "20261208091100",
+   "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "\u001b\u0017blessed wand of probing\n \u0007Woodland-elf\n \u0007Woodland-elf\n \u0007Woodland-elf\n \u0007Woodland-elf\n \u0007Woodland-elf\n zfh      zfj      zfk      zfl      zfy      zfu      zfb      zfn      "
+  }
+ ]
+}

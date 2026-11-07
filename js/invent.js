@@ -32,6 +32,7 @@ import {
     COST_NOCONTENTS,
     CQ_CANNED,
     CQ_REPEAT,
+    INCLUDE_HERO,
     INVORDER_SORT,
     SIGNAL_ESCAPE,
     SIGNAL_NOMENU,
@@ -250,7 +251,7 @@ import { surface } from './dungeon.js';
 import { ice_descr, self_lookat } from './pager.js';
 import { digests } from './dothrow.js';
 import { can_reach_floor } from './engrave.js';
-import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
+import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -5887,9 +5888,13 @@ export async function display_minventory(
     let selected = null;
     try {
         const allow = doAll ? () => true : worn_wield_only;
+        // invent.c:5367-5370 passes INVORDER_SORT (and INCLUDE_HERO) as
+        // query_objlist()'s qflags, which turns them into a sortloot() mode.
         const sorted = sortloot(
             mon.minvent,
-            INVORDER_SORT,
+            query_objlist_sortflags(
+                INVORDER_SORT | (includeHero ? INCLUDE_HERO : 0), state,
+            ),
             false,
             (obj) => allow(obj),
             state,

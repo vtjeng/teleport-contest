@@ -620,6 +620,21 @@ function n_or_more(obj, state) {
         && obj.quan >= Math.trunc(state.gv?.val_for_n_or_more ?? 0);
 }
 
+// C ref: pickup.c query_objlist() (1079-1084). The sortloot() mode follows
+// from the caller's qflags and the sortloot and sortpack options.
+// invent.c display_minventory() reaches the same computation through its own
+// query_objlist() call, which js/invent.js lays out itself.
+export function query_objlist_sortflags(qflags, state = game) {
+    return (
+        (state.flags.sortloot === 'f'
+            || (state.flags.sortloot === 'l' && !(qflags & USE_INVLET)))
+            ? SORTLOOT_LOOT
+            : ((qflags & USE_INVLET) ? SORTLOOT_INVLET : 0)
+    )
+        | (state.flags.sortpack ? SORTLOOT_PACK : 0)
+        | ((qflags & FEEL_COCKATRICE) ? SORTLOOT_PETRIFY : 0);
+}
+
 // C ref: pickup.c query_objlist() (1025-1215). The counting loop and both of
 // its early returns are followed by the bounded full-menu branch: sort the
 // floor pile, group rows by inventory order, and return whole-stack choices
@@ -670,14 +685,7 @@ export async function query_objlist(
     }
 
     const sorted = (qflags & INVORDER_SORT) !== 0;
-    const sortflags = (
-        (state.flags.sortloot === 'f'
-            || (state.flags.sortloot === 'l' && !(qflags & USE_INVLET)))
-            ? SORTLOOT_LOOT
-            : ((qflags & USE_INVLET) ? SORTLOOT_INVLET : 0)
-    )
-        | (state.flags.sortpack ? SORTLOOT_PACK : 0)
-        | ((qflags & FEEL_COCKATRICE) ? SORTLOOT_PETRIFY : 0);
+    const sortflags = query_objlist_sortflags(qflags, state);
     // C's sortloot() calls allow() while it builds the temporary Loot array.
     // Bind the state here because the running caller's all_but_uchain() reads
     // state.uchain, while invent.js keeps the callback's source signature to
