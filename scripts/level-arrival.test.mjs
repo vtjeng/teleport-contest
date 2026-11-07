@@ -713,6 +713,8 @@ test('check_special_room handles Court and Morgue and stops later families',
             return 0;
         },
         canSeeMonster: () => true,
+        // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
+        canSpotMonster: () => true,
     });
     assert.deepEqual(courtEvents, [
         'msg:You enter an opulent throne room!',
@@ -745,6 +747,8 @@ test('check_special_room handles Court and Morgue and stops later families',
                 return 0;
             },
             canSeeMonster: () => true,
+            // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
+            canSpotMonster: () => true,
         });
         assert.equal(actualDraws, draws);
         assert.equal(sleeper.msleeping, draws === 0);
@@ -768,6 +772,8 @@ test('check_special_room handles Court and Morgue and stops later families',
         message: async (line) => plainCourtEvents.push(line),
         random: () => 1,
         canSeeMonster: () => true,
+        // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
+        canSpotMonster: () => true,
     });
     assert.equal(plainCourtEvents[0], 'You enter an opulent room!');
     state.level.at(12, 7).roomno = 3;
@@ -887,6 +893,8 @@ test('check_special_room completes the remaining C room-entry arms', async () =>
             return 0;
         },
         canSeeMonster: () => true,
+        // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
+        canSpotMonster: () => true,
     });
     assert.deepEqual(swampEvents, [
         'msg:It looks rather muddy down here.',

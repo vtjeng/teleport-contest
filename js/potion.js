@@ -149,6 +149,7 @@ import {
     W_WEP,
     ismnum,
     ECMD_FAIL,
+    vision_clears,
 } from './const.js';
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { permapoisoned, Sting_effects } from './artifacts.js';
@@ -3093,7 +3094,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
                 { ...env, random, message },
             );
             if (!heroIsBlind(state) && !unaware)
-                await message('Your vision quickly clears.', state);
+                await message(`Your ${vision_clears}`, state);
             break;
         }
     case POT_WATER:

@@ -175,6 +175,7 @@ import {
     engulfing_u,
     helpless,
     Upolyd,
+    vision_clears,
 } from './const.js';
 import {
     is_pool,
@@ -592,8 +593,10 @@ export async function hurtle(
     } = {},
 ) {
     const u = state.u;
+    // A planning copy of a monster's knockback must print nothing live.
+    const message = planning ? async () => {} : ttyPline;
     if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
-        await ttyPline('You feel a tug from the iron ball.', state);
+        await message('You feel a tug from the iron ball.', state);
         nomul(0, state);
         return;
     }
@@ -605,7 +608,7 @@ export async function hurtle(
                     ? surface(u.ux, u.uy, state)
                     : u.utraptype === TT_BURIEDBALL
                         ? 'buried ball' : 'trap';
-        await ttyPline(`You are anchored by the ${anchor}.`, state);
+        await message(`You are anchored by the ${anchor}.`, state);
         nomul(0, state);
         return;
     }
@@ -619,7 +622,7 @@ export async function hurtle(
     state.multi_reason = 'moving through the air';
     state.nomovemsg = '';
     if (verbose) {
-        await ttyPline(
+        await message(
             `You ${range > 1 ? 'hurtle' : 'float'} in the opposite direction.`,
             state,
         );
@@ -1346,7 +1349,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             await make_blinded(blindedTimeout + blindinc, false, state,
                 rawEnv);
             if (!heroIsBlind(state))
-                await message('Your vision clears.', state, rawEnv);
+                await message(`Your ${vision_clears}`, state, rawEnv);
         }
 
         if (!obj) return false;

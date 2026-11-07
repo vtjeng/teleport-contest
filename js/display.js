@@ -36,6 +36,7 @@ import * as statusConstants from './const.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { isok } from './cmd_isok.js';
+import { impossible } from './pline.js';
 import { is_pool, is_pool_or_lava, is_ice } from './dbridge.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
@@ -61,7 +62,7 @@ import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING, GLIB,
-    HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS, WOUNDED_LEGS,
+    HALLUC, HALLUC_RES, INFRAVISION, INTRINSIC, SEE_INVIS, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -415,8 +416,9 @@ export function canspotmon(mon, state = game) {
 
 // C ref: display.c knowninvisible() (208-212), used by zap.c:bhitm after
 // turning an unseen monster invisible. See-invisible and monster detection
-// count only when the hero can see that square; unblinded extrinsic telepathy
-// identifies an invisible monster in an otherwise empty square at bolt range.
+// count only when the hero can see that square. The telepathy arm tests
+// HTelepat & ~INTRINSIC: the timed and polymorph-form bits of the intrinsic,
+// not the extrinsic ETelepat a helm or amulet gives.
 export function knowninvisible(mon, state = game) {
     if (!mon?.minvis) return false;
     const { mx, my } = mon;
@@ -425,7 +427,8 @@ export function knowninvisible(mon, state = game) {
             || _propertyActive(state.u, DETECT_MONSTERS)))
         return true;
     const telepathy = state.u?.uprops?.[TELEPAT];
-    return !heroIsBlind(state) && Boolean(telepathy?.extrinsic)
+    return !heroIsBlind(state)
+        && Boolean((telepathy?.intrinsic ?? 0) & ~INTRINSIC)
         && dist2(mx, my, state.u?.ux, state.u?.uy) <= BOLT_LIM * BOLT_LIM;
 }
 
@@ -1196,6 +1199,36 @@ export function hallucinated_statue_glyph_info(
     }
     const female = displayDraw(displayRandom, 2) !== 0;
     return actualMonsterGlyphInfo({ data: species, mtame: 0, female }, state);
+}
+
+// C ref: worm.c detect_wsegs() (523-540), the glyph for one tail segment.
+// detect_wsegs() evaluates what_mon(PM_LONG_WORM_TAIL, newsym_rn2) once,
+// before its loop, so a hallucinating hero draws one display-RNG species for
+// the whole tail. wormTailSpeciesDraw() is that draw; every segment's glyph
+// then reuses its result.
+export function wormTailSpeciesDraw(state = game) {
+    return heroHallucinating(state)
+        ? rn2_on_display_rng(NUMMONS, state) : PM_LONG_WORM_TAIL;
+}
+
+// detected_monnum_to_glyph(), petnum_to_glyph() or monnum_to_glyph() of
+// that species, with the worm's gender.
+export function wormTailGlyphInfo(worm, what_tail, useDetectionGlyph,
+    state = game) {
+    const tail = { ...worm, data: state.mons?.[PM_LONG_WORM_TAIL] };
+    if (!tail.data || !state.mons?.[what_tail]) {
+        throw new Error(
+            'worm-tail detection requires the complete monster catalog',
+        );
+    }
+    return presentedMonsterGlyphInfo(
+        tail,
+        state,
+        Boolean(useDetectionGlyph),
+        !useDetectionGlyph && Boolean(worm.mtame),
+        Boolean(useDetectionGlyph),
+        () => what_tail,
+    );
 }
 
 // C ref: display.c display_monster()'s final pet/detected/ordinary branch.
@@ -4197,34 +4230,80 @@ export function see_monsters(state = game, env = {}) {
 
     const warn_of_mon = Boolean(state.u.uprops?.[WARN_OF_MON]?.intrinsic
                                 || state.u.uprops?.[WARN_OF_MON]?.extrinsic);
-    for (let mon = state.level?.monlist ?? null; mon; mon = mon.nmon) {
-        if (mon.mhp < 1) continue; /* DEADMONSTER() */
-        if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
-        repaint(mon.mx, mon.my, state);
+    const afterRepaint = (mon) => {
         if (mon.wormno)
             see_wsegs(mon, { ...env, state, redraw: repaint });
         if (warn_of_mon
             && (state.context?.warntype?.obj & mon.data.mflags2) !== 0) {
             ++new_warn_obj_cnt;
         }
-    }
+    };
+    // The loop stays synchronous unless newsym() has a diagnostic to print.
+    // It returns a promise only when that report or Sting's glow must wait
+    // for the message window.
+    const scan = (first) => {
+        for (let mon = first; mon; mon = mon.nmon) {
+            if (mon.mhp < 1) continue; /* DEADMONSTER() */
+            if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
+            if (newsymReportsOffMap(mon.mx, mon.my)) {
+                // A vault guard parked at <0,0> by vault.c parkguard() stays
+                // on fmon, so C's newsym() reports it from this loop.
+                const next = mon.nmon;
+                return newsymOffMapImpossible(mon.mx, mon.my, state, env)
+                    .then(() => {
+                        afterRepaint(mon);
+                        return scan(next);
+                    });
+            }
+            repaint(mon.mx, mon.my, state);
+            afterRepaint(mon);
+        }
+        return tail();
+    };
 
     const finish = () => {
         /* when mounted, hero's location gets caught by monster loop */
         if (!state.u.usteed) repaint(state.u.ux, state.u.uy, state);
     };
-    if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
-        // C emits the glow before recording the new count and repainting
-        // the hero. A pending More keeps this tail on the same source call.
-        return Sting_effects(new_warn_obj_cnt, state, {
+    const tail = () => {
+        if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
+            // C emits the glow before recording the new count and repainting
+            // the hero. A pending More keeps this tail on the same source
+            // call.
+            return Sting_effects(new_warn_obj_cnt, state, {
+                ...env,
+                ...(env.planning && !env.message
+                    ? { message: async () => {} } : {}),
+            }).then(() => {
+                state.warn_obj_cnt = new_warn_obj_cnt;
+                finish();
+            });
+        }
+        finish();
+        return undefined;
+    };
+    return scan(state.level?.monlist ?? null);
+}
+
+// C ref: display.c newsym() (928-936). A column-0 square is misuse rather
+// than a corrupt coordinate: newsym() reports it through impossible() and
+// draws nothing. Coordinates outside the map array reach panic() instead,
+// which this test leaves to the ordinary drawing path.
+export function newsymReportsOffMap(x, y) {
+    return !isok(x, y) && x >= 0 && y >= 0 && x <= COLNO - 1 && y <= ROWNO - 1;
+}
+
+// The port's newsym() is synchronous and cannot wait at the --More-- that
+// impossible() reaches, so callers that can meet an off-map square raise the
+// report through this helper. A planning clone prints nothing.
+export function newsymOffMapImpossible(x, y, state = game, env = {}) {
+    const message = env.message ?? (env.planning ? async () => {} : undefined);
+    return impossible(`newsym: attempting screen update for <${x},${y}>`,
+        state, {
             ...env,
-            ...(env.planning && !env.message ? { message: async () => {} } : {}),
-        }).then(() => {
-            state.warn_obj_cnt = new_warn_obj_cnt;
-            finish();
+            message,
+            urgentMessage: env.planning ? message : env.urgentMessage,
         });
-    }
-    finish();
 }
 
 // C ref: display.c see_objects() (1558-1570). Repaint the top object at each

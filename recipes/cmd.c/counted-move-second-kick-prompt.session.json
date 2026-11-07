@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of open-door-auto-kick for cmd.c yn_function(): the hero walks toward the wished-for locked door with a count of 4. The first step's \"Kick it?\" answer queues a canned dokick and its direction, but the counted move continues, meets the door again, and the second \"Kick it?\" pops the queued command instead of a key. yn_function() then reports \"yn_function() returned '^['; using 'q' instead\" through impossible(); C sets iflags.debug_fuzzer around that report, so its three lines show no --More--. Three Ctrl-P presses read them back from the message history.",
+  "segments": [
+    {
+      "seed": 15229011,
+      "datetime": "20700111111213",
+      "nethackrc": "OPTIONS=name:Kickcount,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\nOPTIONS=autounlock:apply-key+kick\n",
+      "moves": "j\u0017wall\n\u0017locked door\nk4j y\u0010\u0010\u0010\u001b"
+    }
+  ]
+}

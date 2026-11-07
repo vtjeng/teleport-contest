@@ -226,7 +226,7 @@ import {
 } from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
-import { livelog_printf } from './pline.js';
+import { impossible, livelog_printf } from './pline.js';
 import { fingers_or_gloves, setwornEnv } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
@@ -3224,21 +3224,25 @@ function* freeinv_core_steps(obj, env, facts) {
         return;
     }
     const have = state.u.uhave;
+    // C ref: invent.c freeinv_core() (1362-1381) reports a unique item it
+    // did not record as carried, for instance the second of two wished-for
+    // copies, through impossible() before clearing u.uhave.
+    const report = (text) => inventoryImpossible(text, env);
     if (obj.otyp === AMULET_OF_YENDOR) {
-        if (!have?.amulet) note_unported('pline.c impossible');
+        if (!have?.amulet) yield report("don't have amulet?");
         if (have) have.amulet = 0;
     } else if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
-        if (!have?.menorah) note_unported('pline.c impossible');
+        if (!have?.menorah) yield report("don't have candelabrum?");
         if (have) have.menorah = 0;
     } else if (obj.otyp === BELL_OF_OPENING) {
-        if (!have?.bell) note_unported('pline.c impossible');
+        if (!have?.bell) yield report("don't have silver bell?");
         if (have) have.bell = 0;
     } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-        if (!have?.book) note_unported('pline.c impossible');
+        if (!have?.book) yield report("don't have the book?");
         if (have) have.book = 0;
     } else if (obj.oartifact) {
         if (is_quest_artifact(obj, state)) {
-            if (!have?.questart) note_unported('pline.c impossible');
+            if (!have?.questart) yield report("don't have quest artifact?");
             if (have) have.questart = 0;
         }
         yield set_artifact_intrinsic(obj, false, W_ART, state, env);
@@ -4182,36 +4186,64 @@ function specialPrize(obj, state) {
     return null;
 }
 
+// C ref: invent.c addinv_core1() (959-984). The unique items' and the quest
+// artifact's arms report a second copy through impossible() before setting
+// u.uhave; wizard-mode wishes reach it. This names that report, or null.
+function addinvDuplicateReport(obj, state) {
+    const uhave = state.u.uhave ?? {};
+    if (obj.oclass === COIN_CLASS) return null;
+    if (obj.otyp === AMULET_OF_YENDOR)
+        return uhave.amulet ? 'already have amulet?' : null;
+    if (obj.otyp === CANDELABRUM_OF_INVOCATION)
+        return uhave.menorah ? 'already have candelabrum?' : null;
+    if (obj.otyp === BELL_OF_OPENING)
+        return uhave.bell ? 'already have silver bell?' : null;
+    if (obj.otyp === SPE_BOOK_OF_THE_DEAD)
+        return uhave.book ? 'already have the book?' : null;
+    if (obj.oartifact && is_quest_artifact(obj, state) && uhave.questart)
+        return 'already have quest artifact?';
+    return null;
+}
+
 function addinv_core1(obj, env, facts) {
+    const report = addinvDuplicateReport(obj, env.state);
+    if (!report) return addinv_core1_effects(obj, env, facts);
+    return inventoryImpossible(report, env)
+        .then(() => addinv_core1_effects(obj, env, facts));
+}
+
+// pline.c impossible() through the inventory environment's message seam. A
+// planning clone prints nothing.
+function inventoryImpossible(text, env) {
+    const silent = env.planning ? async () => {} : undefined;
+    const message = env.hooks?.message ?? env.message ?? silent;
+    return impossible(text, env.state, {
+        message,
+        urgentMessage: env.planning ? message : env.urgentMessage,
+    });
+}
+
+// addinv_core1() after its impossible() report.
+function addinv_core1_effects(obj, env, facts) {
     const { state } = env;
     let artifactTouch = null;
     if (obj.oclass === COIN_CLASS) {
         state.disp ??= {};
         state.disp.botl = true;
     } else if (obj.otyp === AMULET_OF_YENDOR) {
-        if (state.u.uhave?.amulet)
-            note_unported('pline.c impossible');
         state.u.uhave.amulet = 1;
         record_achievement(ACH_AMUL, state);
     } else if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
-        if (state.u.uhave?.menorah)
-            note_unported('pline.c impossible');
         state.u.uhave.menorah = 1;
         record_achievement(ACH_CNDL, state);
     } else if (obj.otyp === BELL_OF_OPENING) {
-        if (state.u.uhave?.bell)
-            note_unported('pline.c impossible');
         state.u.uhave.bell = 1;
         record_achievement(ACH_BELL, state);
     } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-        if (state.u.uhave?.book)
-            note_unported('pline.c impossible');
         state.u.uhave.book = 1;
         record_achievement(ACH_BOOK, state);
     } else if (obj.oartifact) {
         if (is_quest_artifact(obj, state)) {
-            if (state.u.uhave?.questart)
-                note_unported('pline.c impossible');
             state.u.uhave.questart = 1;
             // C calls artitouch() before set_artifact_intrinsic(). Its quest
             // pager can wait for input in JavaScript, so propagate that effect

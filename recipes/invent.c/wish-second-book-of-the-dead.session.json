@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20360614201530",
+      "nethackrc": "OPTIONS=name:Odile,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0017Book of the Dead\n\u0017Book of the Dead\n   djdk   i\u001b"
+    }
+  ],
+  "comment": "Independent invent.c witness for the unique-item impossible() reports: in debug mode a Priest wishes for the Book of the Dead twice. addinv_core1() finds u.uhave.book already set for the second copy and prints \"already have the book?\" with impossible()'s two follow-up lines. Dropping the first copy clears u.uhave.book, so dropping the second reaches freeinv_core()'s \"don't have the book?\" report."
+}

@@ -967,9 +967,10 @@ function hallucinationActive(state) {
 // The article is the one in force after x_monnam()'s two adjustments at
 // do_name.c:848-859, not the one the caller passed.
 function x_monnam_do_it(monster, article, suppress, state, env = {}) {
-    const spotMonster = env.canSpotMonster
-        ?? env.canSeeMonster
-        ?? canspotmon;
+    // do_name.c:861 tests canspotmon(). A caller's canSeeMonster operation
+    // is canseemon(), which misses a monster the hero only senses, so only
+    // a canSpotMonster operation may stand in for it.
+    const spotMonster = env.canSpotMonster ?? canspotmon;
     return !spotMonster(monster, state)
         && article !== ARTICLE_YOUR
         && !state.program_state?.gameover

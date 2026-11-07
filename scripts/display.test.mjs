@@ -8,6 +8,7 @@ import {
     IN_SIGHT,
     SEE_INVIS,
     TELEPAT,
+    FROMOUTSIDE,
 } from '../js/const.js';
 import {
     docrt,
@@ -145,12 +146,14 @@ test('knowninvisible uses visible see-invisible and monster-detection senses', (
     assert.equal(knowninvisible(monster, state), false);
 });
 
-test('knowninvisible requires unblinded extrinsic telepathy within bolt range', () => {
-    // display.h uses ETelepat (not intrinsic blind telepathy) and mdistu <=
-    // BOLT_LIM squared; hack.h defines mdistu() with squared Euclidean range.
+test('knowninvisible requires unblinded non-INTRINSIC HTelepat within bolt range', () => {
+    // display.h:146-151 tests (HTelepat & ~INTRINSIC), the intrinsic's timed
+    // and polymorph-form bits, and mdistu <= BOLT_LIM squared; hack.h
+    // defines mdistu() with squared Euclidean range.
     const state = invisibleState();
     const monster = { mx: 16, my: 14, minvis: true };
-    state.u.uprops[TELEPAT] = { intrinsic: 0, extrinsic: 1 };
+    // A timeout of 1 turn sits in the TIMEOUT bits outside INTRINSIC.
+    state.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
     assert.equal(knowninvisible(monster, state), true);
 
     monster.mx = 17;
@@ -159,8 +162,11 @@ test('knowninvisible requires unblinded extrinsic telepathy within bolt range', 
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     assert.equal(knowninvisible(monster, state), false);
 
-    state.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
+    // Neither a helm's ETelepat nor the permanent FROMOUTSIDE bit counts.
     state.u.uprops[BLINDED] = null;
+    state.u.uprops[TELEPAT] = { intrinsic: 0, extrinsic: 1 };
+    assert.equal(knowninvisible(monster, state), false);
+    state.u.uprops[TELEPAT] = { intrinsic: FROMOUTSIDE, extrinsic: 0 };
     assert.equal(knowninvisible(monster, state), false);
 });
 

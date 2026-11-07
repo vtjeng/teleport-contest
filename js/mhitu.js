@@ -93,6 +93,7 @@ import {
     BOLT_LIM,
     TELEDS_ALLOW_DRAG,
     Ugender,
+    vision_clears,
 } from './const.js';
 import {
     is_pool,
@@ -2502,7 +2503,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
                     await message("You can't see in here!", state, rawEnv);
                 await make_blinded(tmp, false, state, rawEnv);
                 if (!wasBlinded && !heroIsBlind(state))
-                    await message('Your vision clears.', state, rawEnv);
+                    await message(`Your ${vision_clears}`, state, rawEnv);
             } else {
                 incr_itimeout(prop(BLINDED), 1);
             }
@@ -2916,7 +2917,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
                 await message('You are blinded by a blast of light!', state);
                 await make_blinded(tmp, false, state, rawEnv);
                 if (!heroIsBlind(state))
-                    await message('Your vision clears.', state);
+                    await message(`Your ${vision_clears}`, state);
             } else if (state.flags?.verbose) {
                 await message(
                     'You get the impression it was not terribly bright.',
@@ -3205,7 +3206,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 await make_blinded(blinded, false, state, env);
                 await mattackuStopOccupation(env);
                 if (!heroIsBlind(state)) {
-                    await message('Your vision clears.', state, env);
+                    await message(`Your ${vision_clears}`, state, env);
                 } else {
                     const oldStun = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
                         & TIMEOUT;

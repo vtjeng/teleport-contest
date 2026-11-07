@@ -135,6 +135,7 @@ import {
     TT_BEARTRAP,
     BEAR_TRAP,
     NEUTRAL,
+    vision_clears,
     } from './const.js';
 import {
     acurr,
@@ -1475,7 +1476,7 @@ async function rottenfood(obj, state) {
         await ttyPline('Everything suddenly goes dark.', state);
         await make_blinded(blindedTimeout + d(2, 10), false, state);
         if (!heroIsBlind(state))
-            await ttyPline('Your vision quickly clears.', state);
+            await ttyPline(`Your ${vision_clears}`, state);
     } else if (!rn2(3)) {
         // Fainting arm.
         const duration = rnd(10);

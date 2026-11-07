@@ -77,6 +77,7 @@ import {
     SVALL,
     WM_MASK,
     u_at,
+    vision_clears,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { SPFX_SEARCH } from './artifacts.js';
@@ -241,6 +242,7 @@ import {
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
+import { detect_wsegs } from './worm.js';
 
 /** An explicit-search branch whose effects are still unported. */
 export class UnsupportedSearchError extends Error {
@@ -456,12 +458,16 @@ export async function browse_map(
 // and it must not replace remembered map glyphs. The display producer handles
 // pet highlighting and the display-RNG hallucination branch just as the C
 // mon_to_glyph()/pet_to_glyph() macros do.
-function map_monst(monster, state = game, env = {}) {
-    const showMonster = env.mapMonster ?? ((subject) => show_glyph_cell(
-        subject.mx,
-        subject.my,
-        map_monster_glyph_info(subject, state),
-    ));
+function map_monst(monster, showtail, state = game, env = {}) {
+    const showMonster = env.mapMonster ?? ((subject) => {
+        show_glyph_cell(
+            subject.mx,
+            subject.my,
+            map_monster_glyph_info(subject, state),
+        );
+        if (showtail && subject.data?.pmidx === PM_LONG_WORM)
+            detect_wsegs(subject, false, state);
+    });
     showMonster(monster, state);
 }
 
@@ -1096,7 +1102,7 @@ export async function monster_detect(
         if (!mclass || monster.data?.mlet === mclass
             || (monster.data?.pmidx === PM_LONG_WORM
                 && mclass === S_WORM_TAIL)) {
-            map_monst(monster, state, env);
+            map_monst(monster, true, state, env);
         }
         if (otmp?.cursed && helpless(monster)) {
             monster.msleeping = 0;
@@ -1451,7 +1457,7 @@ export async function use_crystal_ball(optr, state = game) {
                     & TIMEOUT;
                 await make_blinded(blindTimeout + impairment, false, state);
                 if (!heroBlind(state))
-                    await ttyPline('Your vision clears.', state);
+                    await ttyPline(`Your ${vision_clears}`, state);
             } else {
                 await ttyPline(
                     `${Tobjnam(obj, 'assault', state)} your vision.`, state,
@@ -1830,7 +1836,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
                     && !glyph_is_monster(oldGlyph)) {
                     map_invisible(x, y, state);
                 } else {
-                    map_monst(monster, state, env);
+                    map_monst(monster, false, state, env);
                 }
                 const newGlyph = glyph_at(x, y, state);
                 if (extended && newGlyph !== oldGlyph

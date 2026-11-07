@@ -17,7 +17,12 @@ import {
 import { game } from './gstate.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { cansee } from './vision.js';
-import { newsym } from './display.js';
+import {
+    newsym,
+    show_glyph_cell,
+    wormTailGlyphInfo,
+    wormTailSpeciesDraw,
+} from './display.js';
 import { m_at, remove_monster } from './monst.js';
 import { PM_LONG_WORM } from './monsters.js';
 import { clone_mon } from './makemon.js';
@@ -130,6 +135,19 @@ export function see_wsegs(worm, rawEnv = {}) {
         } else if (state === game) {
             newsym(x, y);
         }
+    }
+}
+
+// C ref: worm.c detect_wsegs() (523-540). Show every tail node, in
+// tail-to-head order and without the hidden head node, as a detected, pet
+// or ordinary tail glyph; monster detection's map_monst() passes FALSE.
+export function detect_wsegs(worm, use_detection_glyph, state = game) {
+    const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
+    const what_tail = wormTailSpeciesDraw(state);
+    for (let index = 0; index < segments.length - 1; ++index) {
+        const { x, y } = segments[index];
+        show_glyph_cell(x, y,
+            wormTailGlyphInfo(worm, what_tail, use_detection_glyph, state));
     }
 }
 

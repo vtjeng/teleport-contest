@@ -191,6 +191,7 @@ import {
     Upolyd,
     xdir,
     ydir,
+    vision_clears,
 } from './const.js';
 import {
     Adjmonnam,
@@ -2328,7 +2329,7 @@ export async function do_attack(monster, state = game, env = {}) {
         }
 
         await exercise(A_STR, true, state, random, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
+            encumberMessage: mhitmEncumberMessage(env),
         });
         u_wipe_engr(3, { ...env, state, random });
 
@@ -2611,7 +2612,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
     const mhit = { value: tmp > dieroll || state.u.uswallow };
     if (tmp > dieroll) {
         await exercise(A_DEX, true, state, random, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
+            encumberMessage: mhitmEncumberMessage(env),
         });
     }
 
@@ -4744,7 +4745,7 @@ export async function mhitm_ad_acid(
                     state,
                 );
                 await exercise(A_STR, false, state, random, {
-                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    encumberMessage: mhitmEncumberMessage(env),
                 });
                 monstunseesu(M_SEEN_ACID, state);
             }
@@ -5021,7 +5022,7 @@ export async function mhitm_ad_phys(
                 }
             } else if (state.u.ustuck === magr) {
                 await exercise(A_STR, false, state, random, {
-                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    encumberMessage: mhitmEncumberMessage(env),
                 });
                 const message = env.message ?? (env.planning
                     ? async () => {} : ttyPline);
@@ -5088,7 +5089,7 @@ export async function mhitm_ad_phys(
                 const message = requireAttackOperation(env, 'message');
                 await message('The silver sears your flesh!', state, env);
                 await exercise(A_CON, false, state, random, {
-                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    encumberMessage: mhitmEncumberMessage(env),
                 });
             }
 
@@ -5107,7 +5108,7 @@ export async function mhitm_ad_phys(
                     || state.u.umonnum === PM_BROWN_PUDDING)) {
                 if (tmp > 1)
                     await exercise(A_STR, false, state, random, {
-                        encumberMessage: env.encumberMessage ?? encumber_msg,
+                        encumberMessage: mhitmEncumberMessage(env),
                     });
                 state.u.mh -= tmp;
                 state.disp ??= {};
@@ -5215,6 +5216,16 @@ export async function mhitm_ad_phys(
     }
 }
 
+// attrib.c exercise() ends with encumber_msg() for Strength and
+// Constitution. A planning clone of a monster's turn must not print its
+// burden line on the live terminal, so the default reporter uses the
+// caller's message operation, which is silent while planning.
+function mhitmEncumberMessage(env) {
+    return env.encumberMessage ?? ((subject) => encumber_msg(subject, {
+        message: env.message ?? (env.planning ? async () => {} : ttyPline),
+    }));
+}
+
 // C ref: uhitm.c shade_miss() (2013-2050). "used for hero vs monster and
 // monster vs monster; also handles monster vs hero but that won't happen
 // because hero can't be a shade".
@@ -5317,7 +5328,7 @@ export async function mhitm_ad_blnd(
             // The source immediately checks Blind again. Eyes of the
             // Overworld may preserve sight while the property still changes.
             if (!heroIsBlind(state)) {
-                await message('Your vision quickly clears.', state);
+                await message(`Your ${vision_clears}`, state);
             }
         }
         mhm.damage = 0;
@@ -6796,7 +6807,7 @@ export async function mhitm_ad_famn(
         const text = `${Monnam(magr, state, env)} reaches out, and your body shrivels.`;
         await message(messageAt(text, magr.mx, magr.my, state), state, env);
         await exercise(A_CON, false, state, random, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
+            encumberMessage: mhitmEncumberMessage(env),
         });
         if (!is_fainted(state)) {
             await morehungry(random.rn1(40, 40), state, { ...env, random });
@@ -7025,12 +7036,12 @@ export async function mhitm_ad_heal(
 
             if (!random.rn2(3)) {
                 await exercise(A_STR, true, state, random, {
-                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    encumberMessage: mhitmEncumberMessage(env),
                 });
             }
             if (!random.rn2(3)) {
                 await exercise(A_CON, true, state, random, {
-                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    encumberMessage: mhitmEncumberMessage(env),
                 });
             }
             if (heroSick(state))
@@ -8201,7 +8212,7 @@ export async function passive(
             }
         }
         await exercise(A_STR, false, state, random, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
+            encumberMessage: mhitmEncumberMessage(env),
         });
         break;
     case AD_STON:
