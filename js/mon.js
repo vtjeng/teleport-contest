@@ -6175,6 +6175,8 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         state.gt.thrownobj = null;
     }
 
+    state.gv ??= {};
+    state.gv.vamp_rise_msg = false; /* "might get set in mondead(); checked below" */
     /* "dispose of monster and make cadaver" */
     const stoned = Boolean(state.gs?.stoned);
     state.gd ??= {};
