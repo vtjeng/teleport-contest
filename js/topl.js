@@ -32,6 +32,40 @@ function topline(state) {
     return String(state._ttyToplines ?? state.nhDisplay?.toplines ?? '');
 }
 
+// C's gt.toplines (decl.h:930) is the current top-line message.  update_topl()
+// copies a message into it and replaces a space with a newline wherever the
+// message must break (topl.c:266-267, 281-297).  Other code writes it itself,
+// leaving no newlines: hooked_tty_getlin()'s strcpy() (getline.c:81),
+// tty_yn_function()'s Sprintf() (topl.c:539), tty_putmsghistory()'s
+// Strcpy() (topl.c:706, 717), and the `*gt.toplines = '\0'` of
+// remember_topl() (topl.c:188) and getline.c:220.  redotoplin()'s putsyms()
+// then wraps such a line at the terminal edge, splitting words.
+//
+// The port keeps gt.toplines without newlines in state._ttyToplines and lays
+// it out with wrapTtyTopline(); state._ttyUnsplitToplines holds the same
+// text when the line was written directly, and null otherwise (see
+// toplineRows()).  nhDisplay.toplines is a copy of the same line.  Every
+// writer calls one of the two functions below, naming the C path it ports;
+// scripts/toplines-writer.test.mjs rejects any other assignment to these
+// fields.
+function writeToplines(text, state, unsplit) {
+    const line = String(text);
+    state._ttyToplines = line;
+    state._ttyUnsplitToplines = unsplit ? line : null;
+    if (state.nhDisplay) state.nhDisplay.toplines = line;
+}
+
+// A write of gt.toplines inside update_topl() (topl.c:266-267, 281).
+export function setToplinesViaUpdateTopl(text, state) {
+    writeToplines(text, state, false);
+}
+
+// A write of gt.toplines that bypasses update_topl(): strcpy(), Sprintf(),
+// Strcpy() or a NUL store.
+export function setToplinesDirectly(text, state) {
+    writeToplines(text, state, true);
+}
+
 function historyRows(state) {
     const cw = messageWindow(state);
     if (!cw) return MAX_MSG_HISTORY;
@@ -61,11 +95,8 @@ export function remember_topl(state = game) {
     cw.datlen[idx] = byteLength + (8 - (byteLength & 7));
     if (!state.program_state?.in_checkpoint) {
         cw.maxcol = cw.maxrow = (idx + 1) % rows;
-        state._ttyToplines = '';
-        if (state.nhDisplay) {
-            state.nhDisplay.toplines = '';
-            state.nhDisplay.topMessage = '';
-        }
+        setToplinesDirectly('', state);
+        if (state.nhDisplay) state.nhDisplay.topMessage = '';
     }
 }
 
@@ -160,10 +191,9 @@ function rememberPendingMessage(state, message, mixedFirstCell = null) {
     state._pending_message = message;
     if (mixedFirstCell) state._ttyMixedFirstCell = mixedFirstCell;
     else delete state._ttyMixedFirstCell;
-    state._ttyToplines = message;
+    setToplinesViaUpdateTopl(message, state);
     if (state.nhDisplay) {
         state.nhDisplay.topMessage = message;
-        state.nhDisplay.toplines = message;
         state.nhDisplay.toplin = TOPLINE_NEED_MORE;
     }
 }
@@ -191,21 +221,16 @@ function rememberSuppressedMessage(state, message, columns) {
         && fitsOnTtyTopline(current, next, columns);
     if (current && !sharesTopline) remember_topl(state);
     const toplines = sharesTopline ? `${current}  ${next}` : next;
-    state._ttyToplines = toplines;
-    if (state.nhDisplay) state.nhDisplay.toplines = toplines;
+    setToplinesViaUpdateTopl(toplines, state);
 }
 
-// C's gt.toplines holds the newlines update_topl() inserts at spaces
-// (topl.c:284-297) only when the line came through update_topl().
-// hooked_tty_getlin() rebuilds it with strcpy() and strcat() on every key
-// (getline.c:80), so redotoplin()'s putsyms() wraps that copy, and the
-// history entry remember_topl() later copies from it, at the terminal edge,
-// splitting words.  JavaScript keeps every top line unsplit and records the
-// last copy getline wrote in state._ttyUnsplitToplines; text equal to that
-// copy is laid out without the update_topl() split.  remember_topl() marks
-// a history entry copied from such a line; redotoplin() takes that mark as
-// `unsplit` and keeps the text it painted that way in _ttyUnsplitRedo, so a
-// later repaint of the pending line keeps the same layout.
+// The layout of a top line, as redotoplin() paints it.  A line that
+// setToplinesDirectly() wrote, which state._ttyUnsplitToplines holds, has no
+// update_topl() newlines, so it wraps at the terminal edge; see the comment
+// on writeToplines().  remember_topl() marks a history entry copied from such
+// a line; redotoplin() takes that mark as `unsplit` and keeps the text it
+// painted that way in _ttyUnsplitRedo, so a later repaint of the pending line
+// keeps the same layout.
 export function toplineRows(text, columns, state = game, unsplit = undefined) {
     const line = String(text ?? '');
     if (!line || !(unsplit ?? (line === state._ttyUnsplitToplines
@@ -555,11 +580,11 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
 }
 
 function setTopline(text, state) {
-    state._ttyToplines = text;
-    if (state.nhDisplay) {
-        state.nhDisplay.toplines = text;
-        state.nhDisplay.topMessage = text;
-    }
+    // topl.c:706 and :717 Strcpy() the message into gt.toplines; this keeps
+    // the port's earlier update_topl() layout until the following commits
+    // correct it.
+    setToplinesViaUpdateTopl(text, state);
+    if (state.nhDisplay) state.nhDisplay.topMessage = text;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_MESSAGE arm (1047-1058), as
@@ -672,8 +697,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // remember_topl() emptied gt.toplines and addtopl() does not write it, so
     // until clean_up rewrites it the prompt is on screen but not in
     // gt.toplines; tty_doprev_message() reads the empty string.
-    state._ttyToplines = '';
-    display.toplines = '';
+    setToplinesDirectly('', state);
     state._pending_message = '';
     // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
     display.toplin = TOPLINE_NEED_MORE;
@@ -703,8 +727,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                     // topl.c:442 redraws the prompt with addtopl(), which
                     // leaves gt.toplines empty.
                     show_topl(prompt, state);
-                    state._ttyToplines = '';
-                    display.toplines = '';
+                    setToplinesDirectly('', state);
                     display.toplin = TOPLINE_NEED_MORE;
                 } else {
                     if (!doprev) await tty_doprev_message(state);
@@ -716,8 +739,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
             } else if (doprev) {
                 await clearMessageWindowAfterRecall(state);
                 show_topl(prompt, state);
-                state._ttyToplines = '';
-                display.toplines = '';
+                setToplinesDirectly('', state);
                 display.toplin = TOPLINE_NEED_MORE;
                 doprev = false;
                 q = 0;
@@ -797,13 +819,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // so message recall shows the answered prompt rather than the bare query.
     const answerText = state.yn_number
         ? `#${state.yn_number}` : key2txt(q);
-    state._ttyToplines = `${prompt}${answerText}`;
-    display.toplines = state._ttyToplines;
-    display.topMessage = state._ttyToplines;
     // topl.c:539 writes gt.toplines with Sprintf(), not update_topl(), so a
     // recalled answer wider than the screen wraps at the terminal edge; see
     // toplineRows().
-    state._ttyUnsplitToplines = state._ttyToplines;
+    setToplinesDirectly(`${prompt}${answerText}`, state);
+    display.topMessage = state._ttyToplines;
     // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
     // commented out in favour of rewriting gt.toplines. A one-line prompt
     // stays on the physical line, and js/display.js _buildScreenOutput()

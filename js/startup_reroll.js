@@ -28,6 +28,7 @@ import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
+import { setToplinesViaUpdateTopl } from './topl.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
 const REROLL_QUERY = 'Reroll this character?';
@@ -151,9 +152,10 @@ function renderRerollPrompt(state) {
     display.clearRow(0);
     display.putstr(0, 0, prompt, NO_COLOR, 0);
     display.setCursor(prompt.length, 0);
-    state._ttyToplines = prompt.trimEnd();
+    // C's custompline() leaves gt.toplines empty while the prompt is up;
+    // fallbackRerollChoice() rewrites it before anything reads it.
+    setToplinesViaUpdateTopl(prompt.trimEnd(), state);
     display.topMessage = state._ttyToplines;
-    display.toplines = state._ttyToplines;
     display.toplin = TOPLINE_SPECIAL_PROMPT;
     return prompt;
 }
@@ -177,9 +179,11 @@ async function fallbackRerollChoice(state) {
     // tty_yn_function() keeps the physical prompt un-echoed but appends the
     // accepted key to its logical topline for message history and the next
     // pline() boundary.
-    state._ttyToplines = `${prompt}${response}`;
+    // tty_yn_function() writes this line with Sprintf() (topl.c:539); this
+    // keeps the port's earlier update_topl() layout until the following
+    // commit corrects it.
+    setToplinesViaUpdateTopl(`${prompt}${response}`, state);
     state.nhDisplay.topMessage = state._ttyToplines;
-    state.nhDisplay.toplines = state._ttyToplines;
     state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
     return response;
 }

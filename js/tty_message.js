@@ -37,6 +37,7 @@ import {
     fitsOnTtyTopline,
     more,
     remember_topl,
+    setToplinesDirectly,
     show_topl,
     toplineRows,
     update_topl,
@@ -251,7 +252,6 @@ export async function dismissPendingTtyMessage(
     // more() leaves gt.toplines intact for message history. Escape also
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.
-    state._ttyToplines ??= lines.join('\n');
     const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
     if ((response === 0 || response === 27)
         && !preventEscapeStop
@@ -453,8 +453,9 @@ async function ttyPlineCore(
                 }
             }
         }
-        state._ttyToplines = '';
-        if (state.nhDisplay) state.nhDisplay.toplines = '';
+        // remember_topl() emptied gt.toplines, and show_topl() does not
+        // write it.
+        setToplinesDirectly('', state);
         state._ttyPreviousMessage = normalizedMessage;
         if (resetLastMessage) {
             state.iflags ??= {};

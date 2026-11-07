@@ -34,6 +34,7 @@ import {
     addtopl,
     putsyms,
     remember_topl,
+    setToplinesDirectly,
     show_topl,
     topl_putsym,
     tty_doprev_message,
@@ -133,8 +134,6 @@ async function hooked_tty_getlin(query, hook, state) {
         if (state.u?.ux) await flush_screen(1);
         remember_topl(state);
         show_topl(`${query} `, state);
-        state._ttyToplines = `${query} `;
-        state._ttyUnsplitToplines = state._ttyToplines;
         state._pending_message = '';
         // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
         display.toplin = TOPLINE_NEED_MORE;
@@ -143,11 +142,7 @@ async function hooked_tty_getlin(query, hook, state) {
         for (;;) {
             // Strcat(strcat(strcpy(gt.toplines, query), " "), obufp) refreshes the
             // recall copy of the prompt before every keystroke.
-            state._ttyToplines = `${query} ${text}`;
-            display.toplines = state._ttyToplines;
-            // That strcpy() leaves gt.toplines without update_topl()'s
-            // newlines; see topl.js toplineRows().
-            state._ttyUnsplitToplines = state._ttyToplines;
+            setToplinesDirectly(`${query} ${text}`, state);
             const c = (await nhgetch(state)) & 0xFF;
 
             // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
@@ -266,9 +261,9 @@ async function hooked_tty_getlin(query, hook, state) {
     display.toplin = TOPLINE_EMPTY;
     state._pending_message = '';
     if (suppress_history) {
-        // Keep the query and answer out of message recall.
-        state._ttyToplines = '';
-        display.toplines = '';
+        // Keep the query and answer out of message recall:
+        // `*gt.toplines = '\0'` (getline.c:220).
+        setToplinesDirectly('', state);
     }
     display.topMessage = state._ttyToplines;
     return text;
