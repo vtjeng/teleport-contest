@@ -915,7 +915,7 @@ export async function use_whip(obj, state = game, env = {}) {
         }
     } else if (monster) {
         return await whipattack(monster, rx, ry, proficient, state, env);
-    } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+    } else if (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) {
         await ttyPline('You snap your whip through thin air.', state);
     } else {
         await ttyPline(msgSnap, state);
@@ -2003,7 +2003,7 @@ export async function use_trap(obj, state = game, env = {}) {
         || closed_door(state.u.ux, state.u.uy, state)
         || t_at(state.u.ux, state.u.uy, state)) {
         what = 'here';
-    } else if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+    } else if (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)) {
         what = levtyp === AIR ? 'in midair'
             : levtyp === CLOUD ? 'in a cloud' : 'in this place';
     }
@@ -3062,7 +3062,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         return ECMD_OK;
     }
     if (jumpPropertyActive(state, LEVITATION)
-        || Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+        || Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)) {
         if (magic) {
             await ttyPline('You flail around a little.', state);
             return ECMD_TIME;
@@ -3906,7 +3906,7 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
 
     const action = (state.u.dx || state.u.dy)
         ? 'set the figurine beside you'
-        : (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+        : (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)
             || is_pool(x, y, state))
             ? 'release the figurine'
             : state.u.dz < 0

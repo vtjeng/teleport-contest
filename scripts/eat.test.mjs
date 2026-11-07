@@ -286,24 +286,21 @@ test('offer_ok follows eat.c corpse and amulet alignment', () => {
     assert.match(EAT_C, /Is_astralevel\(&u\.uz\) \^/u);
     const subject = state();
     subject.u = { uz: { dnum: 0, dlevel: 2 } };
-    const savedAstralLevel = game.astral_level;
-    game.astral_level = { dnum: 0, dlevel: 1 };
+    // The Astral Plane on level 1 of dungeon 0, so the hero's level 2 is off
+    // it and level 1 is on it.
+    subject.astral_level = { dnum: 0, dlevel: 1 };
     const corpse = { oclass: FOOD_CLASS, otyp: CORPSE };
     const amulet = { oclass: AMULET_CLASS, otyp: AMULET_OF_YENDOR };
-    try {
-        assert.equal(offer_ok(null, subject), GETOBJ_EXCLUDE);
-        assert.equal(offer_ok(corpse, subject), GETOBJ_SUGGEST);
-        assert.equal(offer_ok(amulet, subject), GETOBJ_DOWNPLAY);
-        subject.u.uz.dlevel = 1;
-        assert.equal(offer_ok(corpse, subject), GETOBJ_DOWNPLAY);
-        assert.equal(offer_ok(amulet, subject), GETOBJ_SUGGEST);
-        assert.equal(
-            offer_ok({ oclass: FOOD_CLASS, otyp: FOOD_RATION }, subject),
-            GETOBJ_EXCLUDE_SELECTABLE,
-        );
-    } finally {
-        game.astral_level = savedAstralLevel;
-    }
+    assert.equal(offer_ok(null, subject), GETOBJ_EXCLUDE);
+    assert.equal(offer_ok(corpse, subject), GETOBJ_SUGGEST);
+    assert.equal(offer_ok(amulet, subject), GETOBJ_DOWNPLAY);
+    subject.u.uz.dlevel = 1;
+    assert.equal(offer_ok(corpse, subject), GETOBJ_DOWNPLAY);
+    assert.equal(offer_ok(amulet, subject), GETOBJ_SUGGEST);
+    assert.equal(
+        offer_ok({ oclass: FOOD_CLASS, otyp: FOOD_RATION }, subject),
+        GETOBJ_EXCLUDE_SELECTABLE,
+    );
 });
 
 test('tin_ok follows eat.c and apply.c corpse checks', () => {

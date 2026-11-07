@@ -1659,8 +1659,8 @@ async function peffect_paralysis(otmp, state = game) {
 
     const hero = state.u;
     if (Levitation(state)
-        || Is_airlevel(hero.uz)
-        || Is_waterlevel(hero.uz)) {
+        || Is_airlevel(hero.uz, state)
+        || Is_waterlevel(hero.uz, state)) {
         await ttyPline('You are motionlessly suspended.', state);
     } else if (hero.usteed) {
         await ttyPline('You are frozen in place!', state);

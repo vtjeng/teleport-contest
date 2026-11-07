@@ -2123,7 +2123,7 @@ export async function throwspell(state = game) {
     if (state.u.uinwater) {
         await ttyPline("You're joking!  In this weather?", state);
         return 0;
-    } else if (Is_waterlevel(state.u.uz)) {
+    } else if (Is_waterlevel(state.u.uz, state)) {
         await ttyPline('You had better wait for the sun to come out.', state);
         return 0;
     }

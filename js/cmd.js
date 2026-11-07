@@ -1929,7 +1929,7 @@ export async function hangup(_sig = 0, state = game) {
 // out ends the segment without it (js/jsmain.js playSegment()).
 export async function end_of_input(state = game) {
     state.program_state ??= {};
-    if (In_tutorial(state.u?.uz))
+    if (In_tutorial(state.u?.uz, state))
         state.program_state.something_worth_saving = 0;
     if (state.program_state.something_worth_saving
         && !state.program_state.done_hup_saved) {

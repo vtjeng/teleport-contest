@@ -110,8 +110,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
                 obj,
                 u.uswallow
                     ? 'Oops!  %s out of your reach!'
-                    : (Is_airlevel(u.uz)
-                       || Is_waterlevel(u.uz)
+                    : (Is_airlevel(u.uz, state)
+                       || Is_waterlevel(u.uz, state)
                        || state.level.at(u.ux, u.uy).typ < IRONBARS
                        || state.level.at(u.ux, u.uy).typ >= ICE)
                         ? 'Oops!  %s away from you!'

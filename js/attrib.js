@@ -1393,9 +1393,9 @@ export async function uchangealign(newalign, reason, state = game) {
                 state,
             );
             await make_confused(rn1(2, 3), false, state);
-            if (Is_astralevel(state.u?.uz)
+            if (Is_astralevel(state.u?.uz, state)
                 || (rn2(50) < state.u.ualign.abuse))
-                await summon_furies(Is_astralevel(state.u?.uz) ? 0 : 1, state);
+                await summon_furies(Is_astralevel(state.u?.uz, state) ? 0 : 1, state);
             livelog_printf(
                 LL_ALIGNMENT,
                 `used a helm to turn ${aligns[1 - newalign]?.adj ?? ''}`,

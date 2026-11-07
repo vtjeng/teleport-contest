@@ -1486,7 +1486,7 @@ async function rottenfood(obj, state) {
             what = 'goes';
             where = 'dark';
         } else if (Levitation(state)
-                   || Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+                   || Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) {
             what = 'you lose control of';
             where = 'yourself';
         } else {
@@ -3705,7 +3705,7 @@ export function offer_ok(obj, state = game) {
 
     // C's `Is_astralevel(&u.uz) ^ (obj->oclass == AMULET_CLASS)` suppresses
     // corpses on Astral and amulets elsewhere from the suggested set.
-    const astral = Is_astralevel(state.u?.uz);
+    const astral = Is_astralevel(state.u?.uz, state);
     if (Boolean(astral) !== (obj.oclass === AMULET_CLASS))
         return GETOBJ_DOWNPLAY;
 
@@ -3741,7 +3741,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
     const walking = Boolean(
         state.u?.uprops?.[WWALKING]?.intrinsic
         || state.u?.uprops?.[WWALKING]?.extrinsic,
-    ) && !Is_waterlevel(u.uz);
+    ) && !Is_waterlevel(u.uz, state);
     const breathlessHero = Boolean(
         state.u?.uprops?.[MAGICAL_BREATHING]?.intrinsic
         || state.u?.uprops?.[MAGICAL_BREATHING]?.extrinsic,

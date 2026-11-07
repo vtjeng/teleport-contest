@@ -453,7 +453,7 @@ export function e_survives_at(entity, x, y, state = game) {
     if (noncorporeal(entity.edata)) return true;
     if (is_pool(x, y, state)) {
         return (is_u(entity, state) && (
-            (heroProperty(WWALKING, state) && !Is_waterlevel(state.u?.uz))
+            (heroProperty(WWALKING, state) && !Is_waterlevel(state.u?.uz, state))
             || heroProperty(SWIMMING, state)
             || Boolean(state.u?.usteed && is_swimmer(state.u.usteed.data))
             || heroProperty(MAGICAL_BREATHING, state)

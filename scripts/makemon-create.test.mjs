@@ -6388,8 +6388,8 @@ test('Sokoban retries a first random rock thrower before placement', async () =>
         ...state.mons[PM_OGRE],
         geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
     };
-    const savedSokobanDnum = game.sokoban_dnum;
-    game.sokoban_dnum = state.u.uz.dnum;
+    const savedSokobanDnum = state.sokoban_dnum;
+    state.sokoban_dnum = state.u.uz.dnum;
     let reservoirDraw = 0;
     const random = recordingRandom({
         rn2Result(bound) {
@@ -6415,7 +6415,7 @@ test('Sokoban retries a first random rock thrower before placement', async () =>
         assert.equal(state.mvitals[PM_STONE_GIANT].born, 0);
         assert.equal(state.mvitals[PM_OGRE].born, 1);
     } finally {
-        game.sokoban_dnum = savedSokobanDnum;
+        state.sokoban_dnum = savedSokobanDnum;
     }
 });
 
@@ -6430,8 +6430,8 @@ test('the Sokoban rock-thrower retry is limited to its first candidate',
             ...state.mons[PM_STONE_GIANT],
             geno: state.mons[PM_STONE_GIANT].geno & ~G_SGROUP,
         };
-        const savedSokobanDnum = game.sokoban_dnum;
-        game.sokoban_dnum = state.u.uz.dnum;
+        const savedSokobanDnum = state.sokoban_dnum;
+        state.sokoban_dnum = state.u.uz.dnum;
         const random = recordingRandom();
         try {
             const monster = await makemon_runtime(
@@ -6451,7 +6451,7 @@ test('the Sokoban rock-thrower retry is limited to its first candidate',
                 'the second identical candidate proceeds to monster allocation',
             );
         } finally {
-            game.sokoban_dnum = savedSokobanDnum;
+            state.sokoban_dnum = savedSokobanDnum;
         }
     });
 
@@ -6465,8 +6465,8 @@ test('a first random rock thrower is accepted outside Sokoban', async () => {
         ...state.mons[PM_STONE_GIANT],
         geno: state.mons[PM_STONE_GIANT].geno & ~G_SGROUP,
     };
-    const savedSokobanDnum = game.sokoban_dnum;
-    game.sokoban_dnum = state.u.uz.dnum + 1;
+    const savedSokobanDnum = state.sokoban_dnum;
+    state.sokoban_dnum = state.u.uz.dnum + 1;
     const random = recordingRandom();
     try {
         const monster = await makemon_runtime(null, MON_X, MON_Y, NO_MM_FLAGS, {
@@ -6483,7 +6483,7 @@ test('a first random rock thrower is accepted outside Sokoban', async () => {
             'the first candidate proceeds directly to monster allocation',
         );
     } finally {
-        game.sokoban_dnum = savedSokobanDnum;
+        state.sokoban_dnum = savedSokobanDnum;
     }
 });
 
@@ -6498,8 +6498,8 @@ test('Sokoban accepts a first random monster that does not throw rocks',
             ...state.mons[PM_OGRE],
             geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
         };
-        const savedSokobanDnum = game.sokoban_dnum;
-        game.sokoban_dnum = state.u.uz.dnum;
+        const savedSokobanDnum = state.sokoban_dnum;
+        state.sokoban_dnum = state.u.uz.dnum;
         const random = recordingRandom();
         try {
             const monster = await makemon_runtime(
@@ -6519,7 +6519,7 @@ test('Sokoban accepts a first random monster that does not throw rocks',
                 'a non-rock-thrower proceeds after its first reservoir draw',
             );
         } finally {
-            game.sokoban_dnum = savedSokobanDnum;
+            state.sokoban_dnum = savedSokobanDnum;
         }
     });
 
@@ -6535,8 +6535,8 @@ test('random monster placement accepts the 51st candidate after bad positions',
             ...state.mons[PM_OGRE],
             geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
         };
-        const savedSokobanDnum = game.sokoban_dnum;
-        game.sokoban_dnum = state.u.uz.dnum + 1;
+        const savedSokobanDnum = state.sokoban_dnum;
+        state.sokoban_dnum = state.u.uz.dnum + 1;
         const random = recordingRandom();
         try {
             const monster = await makemon_runtime(
@@ -6557,7 +6557,7 @@ test('random monster placement accepts the 51st candidate after bad positions',
             assert.equal(random.calls[51].kind, 'rnd',
                 'the 51st selection proceeds to monster allocation');
         } finally {
-            game.sokoban_dnum = savedSokobanDnum;
+            state.sokoban_dnum = savedSokobanDnum;
         }
     });
 
@@ -6595,43 +6595,38 @@ test('minotaurs use their source inventory arm before generic giant items',
     });
 
 test('minotaurs receive a wand of digging from either source gate', () => {
-    const savedEarthLevel = game.earth_level;
-    try {
-        for (const earthLevel of [false, true]) {
-            const state = initialLevelState();
-            game.earth_level = earthLevel
-                ? { dnum: 0, dlevel: 1 }
-                : null;
-            const random = recordingRandom({
-                rn2Result: (bound) => bound === 8
-                    ? earthLevel ? 7 : 0
-                    : Math.max(0, bound - 1),
-            });
+    for (const earthLevel of [false, true]) {
+        const state = initialLevelState();
+        state.earth_level = earthLevel
+            ? { dnum: 0, dlevel: 1 }
+            : null;
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 8
+                ? earthLevel ? 7 : 0
+                : Math.max(0, bound - 1),
+        });
 
-            const monster = makemon(
-                state.mons[PM_MINOTAUR],
-                MON_X,
-                MON_Y,
-                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-                {
-                    state,
-                    random: random.random,
-                },
-            );
+        const monster = makemon(
+            state.mons[PM_MINOTAUR],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            {
+                state,
+                random: random.random,
+            },
+        );
 
-            assert.equal(monster.minvent.otyp, WAN_DIGGING, earthLevel);
-            const wandGate = random.calls.findIndex(
-                (call) => call.kind === 'rn2' && call.args[0] === 8,
-            );
-            assert.ok(wandGate >= 0, earthLevel);
-            assert.equal(
-                random.calls[wandGate].result,
-                earthLevel ? 7 : 0,
-                earthLevel,
-            );
-        }
-    } finally {
-        game.earth_level = savedEarthLevel;
+        assert.equal(monster.minvent.otyp, WAN_DIGGING, earthLevel);
+        const wandGate = random.calls.findIndex(
+            (call) => call.kind === 'rn2' && call.args[0] === 8,
+        );
+        assert.ok(wandGate >= 0, earthLevel);
+        assert.equal(
+            random.calls[wandGate].result,
+            earthLevel ? 7 : 0,
+            earthLevel,
+        );
     }
 });
 
@@ -8111,27 +8106,19 @@ test('umber hulk creation proceeds through the species gate and full '
 // predicates set mwandexp.  Each assertion checks the monster field after
 // makemon returns with the global game dnum fields pointing at the level.
 test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
-    // Save the global game's dungeon fields so the test can restore them.
-    const saved = {
-        quest_dnum: game.quest_dnum,
-        sokoban_dnum: game.sokoban_dnum,
-        stronghold_level: game.stronghold_level,
-        tower_dnum: game.tower_dnum,
-        knox_level: game.knox_level,
-        astral_level: game.astral_level,
+    // The dungeon numbers the const.js branch predicates read from the state.
+    const topology = {
+        quest_dnum: 3,
+        sokoban_dnum: 4,
+        stronghold_level: { dnum: 0, dlevel: 10 },
+        tower_dnum: 5,
+        knox_level: { dnum: 0, dlevel: 12 },
+        astral_level: { dnum: 9, dlevel: 1 },
     };
-    try {
-        // Assign dungeon numbers the const.js branch predicates will read.
-        game.quest_dnum = 3;
-        game.sokoban_dnum = 4;
-        game.stronghold_level = { dnum: 0, dlevel: 10 };
-        game.tower_dnum = 5;
-        game.knox_level = { dnum: 0, dlevel: 12 };
-        game.astral_level = { dnum: 9, dlevel: 1 };
-
+    {
         // --- Quest level: mwandexp should be true --------------------------
         {
-            const state = initialLevelState();
+            const state = Object.assign(initialLevelState(), topology);
             state.u.uz = { dnum: 3, dlevel: 1 };
             // Add a dungeon entry for dnum 3 so depth() does not crash.
             state.dungeons[3] = {
@@ -8155,7 +8142,7 @@ test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
 
         // --- Sokoban level: PIT and HOLE bits on non-mindless species ------
         {
-            const state = initialLevelState();
+            const state = Object.assign(initialLevelState(), topology);
             state.u.uz = { dnum: 4, dlevel: 1 };
             state.dungeons[4] = {
                 depth_start: 6, dunlev_ureached: 1, entry_lev: 1,
@@ -8186,7 +8173,7 @@ test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
 
         // --- Stronghold: TRAPDOOR bit on non-mindless species --------------
         {
-            const state = initialLevelState();
+            const state = Object.assign(initialLevelState(), topology);
             state.u.uz = { dnum: 0, dlevel: 10 };
             state.dungeons[0] = {
                 depth_start: 1, dunlev_ureached: 10, entry_lev: 1,
@@ -8211,7 +8198,7 @@ test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
 
         // --- Main dungeon ordinary level: nothing extra --------------------
         {
-            const state = initialLevelState();
+            const state = Object.assign(initialLevelState(), topology);
             // dnum=0, dlevel=1: not stronghold, not any branch.
             const random = recordingRandom();
             const monster = makemon(
@@ -8224,14 +8211,6 @@ test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
             assert.equal(monster.mtrapseen, 0, 'ordinary level: no trapseen');
             assert.equal(monster.mwandexp, false, 'ordinary level: no mwandexp');
         }
-    } finally {
-        // Restore the global game's dungeon fields.
-        game.quest_dnum = saved.quest_dnum;
-        game.sokoban_dnum = saved.sokoban_dnum;
-        game.stronghold_level = saved.stronghold_level;
-        game.tower_dnum = saved.tower_dnum;
-        game.knox_level = saved.knox_level;
-        game.astral_level = saved.astral_level;
     }
 });
 

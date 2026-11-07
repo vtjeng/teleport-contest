@@ -758,9 +758,8 @@ export function Can_rise_up(x, y, lev, state = game) {
 // exists, and mon.c m_in_air().
 //
 // dungeon.h:141 In_endgame() and :114 Is_earthlevel() are spelled out against
-// `state` rather than imported from js/const.js, whose copies read the module
-// singleton `game`: every other topology predicate in this file is
-// state-scoped, and grounded() is called with the planning clone in
+// `state`: every other topology predicate in this file is state-scoped, and
+// grounded() is called with the planning clone in
 // js/unported_monster_actions.js, which carries its own hero.
 export function has_ceiling(level, state = game) {
     const inEndgame = level?.dnum != null

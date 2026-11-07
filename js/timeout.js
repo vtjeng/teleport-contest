@@ -1119,7 +1119,7 @@ export async function levitation_dialogue(state = game, env = {}) {
             ?? (env.planning ? async () => {} : ttyPline);
         if (i === 1) {
             const danger = is_pool_or_lava(u.ux, u.uy, state)
-                && !Is_waterlevel(u.uz);
+                && !Is_waterlevel(u.uz, state);
             const urgentMessage = env.urgentMessage
                 ?? (env.planning ? message : ttyUrgentPline);
             await urgentMessage(
@@ -1675,7 +1675,7 @@ async function decrement_property_timeouts(state, env) {
                 await message('Your temporary ability to survive burning has ended.', state);
             break;
         case WWALKING:
-            if (!(propertySource(state, WWALKING) && !Is_waterlevel(u.uz)))
+            if (!(propertySource(state, WWALKING) && !Is_waterlevel(u.uz, state)))
                 await message('Your temporary ability to walk on liquid has ended.', state);
             break;
         case DISPLACED:

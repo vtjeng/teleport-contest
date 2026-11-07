@@ -1700,25 +1700,14 @@ export function altar_to_glyph(amsk) {
  * through In_mines(), In_hell(), Is_knox() and In_sokoban(), so the number a
  * wall gets is fixed where the square is recorded rather than where it is
  * repainted. Store what this returns; do not re-derive it at a repaint.
- *
- * The `state` argument reaches only one of the four. In_hell() takes a state
- * (js/dungeon.js), but In_mines(), Is_knox_level() and In_sokoban()
- * (js/const.js) compare the level they are handed against `game.mines_dnum`,
- * `game.knox_level` and `game.sokoban_dnum` on the module global, so this
- * answers correctly only when `state === game`. Passing a state that is not
- * the global returns main-dungeon wall numbers for Mines, Knox and Sokoban
- * walls, with no error: every production caller runs on the global, and the
- * tests that do not install theirs as the global work around it. Threading
- * those three predicates is a separate change, since js/const.js has other
- * callers.
  */
 export function cmap_walls_to_glyph(cmap_idx, state = game) {
     const uz = state.u?.uz;
     return cmap_idx - S_vwall
-        + (In_mines(uz) ? GLYPH_CMAP_MINES_OFF
+        + (In_mines(uz, state) ? GLYPH_CMAP_MINES_OFF
             : In_hell(uz, state) ? GLYPH_CMAP_GEH_OFF
-                : Is_knox_level(uz) ? GLYPH_CMAP_KNOX_OFF
-                    : In_sokoban(uz) ? GLYPH_CMAP_SOKO_OFF
+                : Is_knox_level(uz, state) ? GLYPH_CMAP_KNOX_OFF
+                    : In_sokoban(uz, state) ? GLYPH_CMAP_SOKO_OFF
                         : GLYPH_CMAP_MAIN_OFF);
 }
 
@@ -3031,7 +3020,7 @@ function unexploredGlyphInfo(state) {
 // delayed-update flag live once per game; resetGame() discards them. These
 // erase/clear operations change the transient buffer, not remembered map cells.
 export async function under_water(mode, state = game) {
-    if (Is_waterlevel(state.u.uz) || state.u.uswallow) return;
+    if (Is_waterlevel(state.u.uz, state) || state.u.uswallow) return;
     // Display owners use the live singleton. Planning clones leave terminal
     // output and input to the live pass, as shieldeff() does.
     if (state !== game || state.program_state?.planning) return;

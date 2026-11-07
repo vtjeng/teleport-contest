@@ -1013,8 +1013,8 @@ export async function look_traps(nearby, state = game) {
             } else {
                 const trap = t_at(x, y, state);
                 if (trap?.tseen
-                    && ((!Is_waterlevel(state.u?.uz)
-                        && !Is_airlevel(state.u?.uz))
+                    && ((!Is_waterlevel(state.u?.uz, state)
+                        && !Is_airlevel(state.u?.uz, state))
                         || couldsee(x, y, state))) {
                     obscuring = displayedGlyphCharacter(
                         glyph, x, y, state,
@@ -1259,7 +1259,7 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (index === S_altar) {
         const mask = altarmask_at(x, y, state);
         const alignment = Amask2align(mask & AM_MASK);
-        const high = Is_astralevel(state.u?.uz)
+        const high = Is_astralevel(state.u?.uz, state)
             && dist2(x, y, state.u?.ux, state.u?.uy) > 2
             && Boolean(mask & AM_SANCTUM);
         return `${high ? 'aligned' : align_str(alignment)} `
@@ -1273,7 +1273,7 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         return (mask & ~D_TRAPPED) === D_BROKEN ? 'broken door' : 'doorway';
     }
     if (index === S_cloud)
-        return Is_airlevel(state.u?.uz) ? 'cloudy area' : 'fog/vapor cloud';
+        return Is_airlevel(state.u?.uz, state) ? 'cloudy area' : 'fog/vapor cloud';
     if (index === S_pool || index === S_water
         || index === S_lava || index === S_lavawall || index === S_ice)
         return waterbody_name(x, y, state);
@@ -1282,7 +1282,7 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (index === S_stone) {
         const location = state.level?.at(x, y);
         if (!location?.seenv) return 'unexplored';
-        if (state.u?.uinwater && !Is_waterlevel(state.u?.uz)) {
+        if (state.u?.uinwater && !Is_waterlevel(state.u?.uz, state)) {
             return dist2(x, y, state.u?.ux, state.u?.uy) <= 2
                 ? 'land' : 'unknown';
         }
@@ -1354,7 +1354,7 @@ export function lookat(x, y, state = game) {
     } else if (glyph === GLYPH_NOTHING_OFF) {
         buf = 'dark part of a room';
     } else if (glyph === GLYPH_UNEXPLORED_OFF) {
-        buf = state.u?.uinwater && !Is_waterlevel(state.u?.uz)
+        buf = state.u?.uinwater && !Is_waterlevel(state.u?.uz, state)
             ? (dist2(x, y, state.u?.ux, state.u?.uy) <= 2
                 ? 'land' : 'unknown')
             : 'unexplored area';
@@ -1440,7 +1440,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
             if (description === 'water') {
                 if (index === S_pool) description = 'pool of water';
                 else if (index === S_water) {
-                    description = Is_waterlevel(state.u?.uz)
+                    description = Is_waterlevel(state.u?.uz, state)
                         ? 'limitless water' : 'wall of water';
                 }
             }
@@ -1557,7 +1557,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
     // C's restricted-vision arm precedes every generic class.  The swallow
     // explanation remains in the list and must not reset a prior match.
     const submerged = Boolean(
-        state.u?.uinwater && !Is_waterlevel(state.u?.uz),
+        state.u?.uinwater && !Is_waterlevel(state.u?.uz, state),
     );
     if (looked && (((state.u?.uswallow || submerged)
             && dist2(cc.x, cc.y, state.u?.ux, state.u?.uy) > 2)
@@ -1618,7 +1618,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         if (resetTrap) hitTrap = false;
         if (!state.iflags?.terrainmode
             || (state.iflags.terrainmode & TER_OBJ) !== 0) {
-            const rogue = Is_rogue_level(state.u?.uz);
+            const rogue = Is_rogue_level(state.u?.uz, state);
             const boulderSymbols = rogue
                 ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
             // C falls back to def_oc_syms[ROCK_CLASS], independently of the
@@ -1662,7 +1662,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         if (glyph === GLYPH_UNEXPLORED_OFF
             || (looked && symbolByte === misc_symbol(SYM_UNEXPLORED, state).ttychar)) {
             appendGeneric(
-                state.u?.uinwater && !Is_waterlevel(state.u?.uz)
+                state.u?.uinwater && !Is_waterlevel(state.u?.uz, state)
                     ? 'land' : 'unexplored',
                 false,
             );
@@ -1725,7 +1725,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
     // re-enters check_monsters for a pet/hero override, preserving any text
     // already accumulated for the displayed byte.
     if (!stopBeforeGeneric) {
-        const rogue = Is_rogue_level(state.u?.uz);
+        const rogue = Is_rogue_level(state.u?.uz, state);
         const overrideSymbols = rogue
             ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
         for (let index = SYM_OFF_X; index < SYM_MAX; ++index) {

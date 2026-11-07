@@ -2557,7 +2557,7 @@ export async function look_here(
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
     let skip_dfeature = plan.skip_dfeature;
     if (blind) {
-        const drift = Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz);
+        const drift = Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state);
         if (dfeature?.startsWith('altar ')) {
             await message('You try to feel what is here.', state);
         } else if (is_ice(ux, uy, state)) {

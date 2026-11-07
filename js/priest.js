@@ -833,7 +833,7 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
 
     pname += what;
     if (do_hallu || !high_priest || reveal_high_priest
-        || !Is_astralevel(state.u?.uz)
+        || !Is_astralevel(state.u?.uz, state)
         || m_next2u(mon, state) || state.program_state?.gameover) {
         pname += ' of ';
         pname += halu_gname(mon_aligntyp(mon), state);

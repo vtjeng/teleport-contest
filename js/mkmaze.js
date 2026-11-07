@@ -1151,7 +1151,7 @@ export async function fixup_special(state = game, env = {}) {
             && env.badStatueSpecies(statue.corpsenm, state)) {
             env.setCorpsenm(statue, env.rndmonnum(objectEnv), objectEnv);
         }
-    } else if (state.urole?.mnum === PM_CLERIC && In_quest(state.u.uz)) {
+    } else if (state.urole?.mnum === PM_CLERIC && In_quest(state.u.uz, state)) {
         state.level.flags.graveyard = true;
     } else if (on_level(state.u.uz, state.stronghold_level)) {
         state.level.flags.graveyard = true;

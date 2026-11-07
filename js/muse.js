@@ -879,7 +879,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         if (obj_is_cursed || mtmp.mconf) {
             const nlev = random_teleport_level(state);
             if (mon_has_amulet(mtmp)
-                || In_endgame(state.u?.uz)) {
+                || In_endgame(state.u?.uz, state)) {
                 if (vismon)
                     await pline_mon(mtmp,
                         `${capitalizedMonsterName(mtmp, state)} seems very disoriented for a moment.`,
@@ -1033,7 +1033,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
     }
     case 'trapdoor': {
         // MUSE_TRAPDOOR
-        if (Is_botlevel(state.u?.uz))
+        if (Is_botlevel(state.u?.uz, state))
             return 0;
         await m_flee(mtmp);
         const trapx = selection.x;
@@ -1839,7 +1839,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
     if (is_animal(species) || mindless(species)) return null;
     if (!tryescape && dist2(x, y, monster.mux, monster.muy) > 25)
         return null;
-    if (tryescape && Is_knox_level(hero?.uz)
+    if (tryescape && Is_knox_level(hero?.uz, state)
         && !m_next2u(monster, state) && m_next2m(monster, state))
         return null;
     if (hero?.uswallow && stuck) return null;
@@ -2033,10 +2033,10 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
             && !state.level?.flags?.sokoban_rules
             /* digging wouldn't be effective; assume they know that */
             && !((state.level?.at?.(x, y)?.flags ?? 0) & W_NONDIGGABLE)
-            && !(Is_botlevel(hero?.uz) || In_endgame(hero?.uz))
+            && !(Is_botlevel(hero?.uz, state) || In_endgame(hero?.uz, state))
             && !(is_ice(x, y, state) || is_pool(x, y, state)
                 || is_lava(x, y, state))
-            && !(is_Vlad(monster) && In_V_tower(hero?.uz))) {
+            && !(is_Vlad(monster) && In_V_tower(hero?.uz, state))) {
             def = selected('digging wand', obj);
             defKind = 'digging wand';
         }

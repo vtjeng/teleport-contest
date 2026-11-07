@@ -6272,8 +6272,8 @@ export async function mhitm_ad_wrap(
                     && !swimming && !amphibiousHero && !breathlessHero) {
                     const moat = state.level.at(magr.mx, magr.my).typ !== POOL
                         && !is_waterwall(magr.mx, magr.my, state)
-                        && !Is_medusa_level(u.uz)
-                        && !Is_waterlevel(u.uz);
+                        && !Is_medusa_level(u.uz, state)
+                        && !Is_waterlevel(u.uz, state);
                     await urgentMessage(
                         `${Monnam(magr, state, env)} drowns you...`,
                         state,
@@ -7906,8 +7906,8 @@ export function m_is_steadfast(mon, state = game) {
         ? Flying(state) || Levitation(state)
         : is_flyer(mon?.data) || is_floater(mon?.data);
     if (flying
-        || Is_airlevel(state.u?.uz)
-        || (Is_waterlevel(state.u?.uz)
+        || Is_airlevel(state.u?.uz, state)
+        || (Is_waterlevel(state.u?.uz, state)
             && !is_pool(state.u?.ux, state.u?.uy, state))) {
         return false;
     }

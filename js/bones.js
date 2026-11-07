@@ -423,7 +423,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 // off her own level and should be removed; otherwise she is made peaceful and,
 // if she has left her chamber, moved back and the chamber's type restored.
 function fixuporacle(oracle, state) {
-    if (!Is_oracle_level(state.u.uz))
+    if (!Is_oracle_level(state.u.uz, state))
         return false;
 
     oracle.mpeaceful = 1;

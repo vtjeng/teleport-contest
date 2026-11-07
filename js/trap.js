@@ -1245,7 +1245,7 @@ function heroLavaProperty(state, property) {
 
 function heroLavaWalking(state) {
     return heroLavaProperty(state, WWALKING)
-        && !Is_waterlevel(state.u?.uz);
+        && !Is_waterlevel(state.u?.uz, state);
 }
 
 // objclass.h is_organic(): material values through WOOD burn in lava.  Keep
@@ -1308,7 +1308,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
 
     if (how === DROWNING) {
         if (is_pool(u.ux, u.uy, state)) {
-            const midst = Is_waterlevel(u.uz) || is_waterwall(u.ux, u.uy, state);
+            const midst = Is_waterlevel(u.uz, state) || is_waterwall(u.ux, u.uy, state);
             await message(
                 `You find yourself ${midst ? 'in the midst' : 'on top'} of ${hliquid('water', { state })}.`,
                 state,
@@ -1316,7 +1316,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
             messageGiven = true;
         } else if (IS_AIR(levelTyp)) {
             await message(
-                `You find yourself in ${Is_waterlevel(u.uz) ? 'an air bubble' : 'mid air'}.`,
+                `You find yourself in ${Is_waterlevel(u.uz, state) ? 'an air bubble' : 'mid air'}.`,
                 state,
             );
             messageGiven = true;
@@ -1492,7 +1492,7 @@ export async function drown(state = game) {
         if (amphibiousHero || breathlessHero) {
             if (state.flags?.verbose)
                 await ttyPline("But you aren't drowning.", state);
-            if (!Is_waterlevel(u.uz)) {
+            if (!Is_waterlevel(u.uz, state)) {
                 const hallucinating = activeHeroProperty(state, HALLUC)
                     && !activeHeroProperty(state, HALLUC_RES);
                 await ttyPline(
@@ -1552,7 +1552,7 @@ export async function drown(state = game) {
         : null;
     if (destination) {
         const lost = { value: false };
-        const success = Is_waterlevel(u.uz)
+        const success = Is_waterlevel(u.uz, state)
             ? true
             : await emergency_disrobe(lost, state);
         await ttyPline(
@@ -2043,7 +2043,7 @@ export async function float_up(state = game) {
         }
     } else if (Hallucination(state)) {
         await ttyPline("Up, up, and awaaaay!  You're walking on air!", state);
-    } else if (Is_airlevel(u.uz)) {
+    } else if (Is_airlevel(u.uz, state)) {
         await ttyPline('You gain control over your movements.', state);
     } else {
         await ttyPline('You start to float in the air!', state);
@@ -2188,9 +2188,9 @@ export async function float_down(hmask, emask, state = game) {
 
     if (!trap) {
         trap = t_at(u.ux, u.uy, state);
-        if (Is_airlevel(u.uz))
+        if (Is_airlevel(u.uz, state))
             await ttyPline('You begin to tumble in place.', state);
-        else if (Is_waterlevel(u.uz) && !noMsg)
+        else if (Is_waterlevel(u.uz, state) && !noMsg)
             await ttyPline('You feel heavier.', state);
         else if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
             if (state.level?.flags?.sokoban_rules && trap) {
@@ -2242,7 +2242,7 @@ export async function float_down(hmask, emask, state = game) {
             await dotrap(trap, NO_TRAP_FLAGS, state);
     }
 
-    if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uswallow
+    if (!Is_airlevel(u.uz, state) && !Is_waterlevel(u.uz, state) && !u.uswallow
         && on_level(u.uz, currentDungeonLevel)) {
         // C discards pickup()'s result. pickup.c owns its behavior.
         await pickup(1, state);

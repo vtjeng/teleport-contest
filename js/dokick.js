@@ -718,7 +718,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     let slide = false;
     if (is_pool(x, y, state)) {
         range = Math.trunc(range / 3) + 1;
-    } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+    } else if (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) {
         range += random.rnd(3);
     } else {
         if (is_ice(x, y, state)) { range += random.rnd(3); slide = true; }
@@ -865,7 +865,7 @@ async function kick_dumb(x, y, state) {
     }
     // 876-877. C short-circuits the roll off the air level; otherwise one
     // rn2(2) decides whether this empty kick sends the hero backward.
-    if ((Is_airlevel(u.uz) || Levitation(state)) && rn2(2))
+    if ((Is_airlevel(u.uz, state) || Levitation(state)) && rn2(2))
         await hurtle(-u.dx, -u.dy, 1, true, state);
 }
 
@@ -947,7 +947,7 @@ async function kick_ouch(x, y, kickobjnam, state) {
     const dmg = rnd(acurr(state, A_CON) > 15 ? 3 : 5);
     await losehp(Maybe_Half_Phys(dmg, state), kickstr(maploc, kickobjnam,
         state), KILLED_BY, state);
-    if (Is_airlevel(u.uz) || Levitation(state))
+    if (Is_airlevel(u.uz, state) || Levitation(state))
         await hurtle(-u.dx, -u.dy, rn1(2, 4), true, state);
 }
 
@@ -1418,7 +1418,7 @@ export async function dokick(state = game) {
         const behind = isok(xx, yy) ? state.level.at(xx, yy) : null;
         const objectBehind = state.level?.objects?.[xx]?.[yy] ?? null;
         if (behind && !IS_OBSTRUCTED(behind.typ) && !IS_DOOR(behind.typ)
-            && (!Is_airlevel(u.uz) || !objectBehind)) {
+            && (!Is_airlevel(u.uz, state) || !objectBehind)) {
             await ttyPline('You have nothing to brace yourself against.', state);
             return ECMD_OK;
         }
@@ -1464,7 +1464,7 @@ export async function dokick(state = game) {
 
         // dokick.c:1428-1439. C uses integer division for both range steps;
         // mdat remains the pre-kick species if the monster died above.
-        if ((Is_airlevel(u.uz) || Levitation(state)) && state.context?.move) {
+        if ((Is_airlevel(u.uz, state) || Levitation(state)) && state.context?.move) {
             let range = state.youmonst.data.cwt
                 + weight_cap(state) + inv_weight(state);
             if (range < 1) range = 1;
@@ -1487,11 +1487,11 @@ export async function dokick(state = game) {
     // 1452-1453. OBJ_AT() read off the per-square pile chain, so that a
     // supplied state rather than the module global answers for it.
     const pile = state.level?.objects?.[x]?.[y] ?? null;
-    if (pile && (!Levitation(state) || Is_airlevel(u.uz) || Is_waterlevel(u.uz)
+    if (pile && (!Levitation(state) || Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)
                  || sobj_at(BOULDER, x, y, state))) {
         const kickName = { value: '' };
         if (await kick_object(x, y, kickName, state)) {
-            if (Is_airlevel(u.uz))
+            if (Is_airlevel(u.uz, state))
                 await hurtle(-u.dx, -u.dy, 1, true, state);
             return ECMD_TIME;
         }
@@ -1923,7 +1923,7 @@ export function deliver_obj_to_mon(mtmp, cnt, deliverflags, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
-    const at_crime_scene = In_mines(state.u.uz);
+    const at_crime_scene = In_mines(state.u.uz, state);
     let maxobj;
 
     if ((deliverflags & DF_RANDOM) && cnt > 1)

@@ -633,7 +633,7 @@ export async function dosounds(
     }
     // C ref: sounds.c:330-334 temple ambient sound.
     if (flags.has_temple && random(200) === 0
-        && !(Is_astralevel(state.u?.uz)
+        && !(Is_astralevel(state.u?.uz, state)
             || (state.sanctum_level
                 && on_level(state.u?.uz, state.sanctum_level)))) {
         const monster = get_iter_mons(
@@ -1244,7 +1244,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         // FALLTHROUGH: peaceful giants use generic humanoid dialogue.
     case MS_HUMANOID:
         if (!mtmp.mpeaceful) {
-            if (In_endgame(state.u?.uz) && is_mplayer(ptr))
+            if (In_endgame(state.u?.uz, state) && is_mplayer(ptr))
                 await mplayer_talk(mtmp, state, { random, message });
             else
                 plineMsg = 'threatens you.';

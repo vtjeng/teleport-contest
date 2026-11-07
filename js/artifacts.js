@@ -2537,7 +2537,7 @@ async function invoke_create_portal(obj, state) {
     else
         newlev.dlevel = state.dungeons[chosen].dunlev_ureached;
 
-    if (u.uhave?.amulet || In_endgame(u.uz) || In_endgame(newlev)
+    if (u.uhave?.amulet || In_endgame(u.uz, state) || In_endgame(newlev, state)
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
         await ttyPline('You feel very disoriented for a moment.', state);
     } else {
@@ -2605,7 +2605,7 @@ export async function invoke_banish(obj, state = game) {
         if (!couldsee(mtmp.mx, mtmp.my, state)) continue;
         if (mtmp.data?.msound === MS_NEMESIS) continue;
 
-        if (In_quest(u.uz) && !state.svq?.quest_status?.killed_nemesis)
+        if (In_quest(u.uz, state) && !state.svq?.quest_status?.killed_nemesis)
             chance += 10;
         if (is_dprince(mtmp.data)) chance += 2;
         if (is_dlord(mtmp.data)) chance++;

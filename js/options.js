@@ -1833,7 +1833,7 @@ function optfn_IBMgraphics(result, request, negated, opts, op) {
         }
         if (result.gs?.symset) switch_symbols(result, true);
         if (result.go?.opt_initial === false
-            && Is_rogue_level(result.u?.uz))
+            && Is_rogue_level(result.u?.uz, result))
             assign_graphics(ROGUESET, result);
     }
     if (request === GET_VAL || request === GET_CNF_VAL) return '';
@@ -8598,7 +8598,7 @@ const OPTION_SET_HANDLERS = Object.freeze({
             state.go.ov_primary_syms[index] = byte;
             state.go.ov_rogue_syms[index] = byte;
             const symbol = get_othersym(
-                SYM_BOULDER, Is_rogue_level(state.u.uz) ? ROGUESET : PRIMARYSET,
+                SYM_BOULDER, Is_rogue_level(state.u.uz, state) ? ROGUESET : PRIMARYSET,
                 state,
             );
             if (symbol) state.gs.showsyms[index] = symbol;
@@ -9180,7 +9180,7 @@ export function dosetSimpleMenuItems(state, helpers) {
                 // which changes nothing: neither symset row is one of the
                 // four rows that take a suffix.
                 let valued = option;
-                if (option.optfn === 'symset' && Is_rogue_level(state.u?.uz)) {
+                if (option.optfn === 'symset' && Is_rogue_level(state.u?.uz, state)) {
                     valued = allopt[ROGUESYMSET_INDEX];
                     name = valued.name;
                     a_int = ROGUESYMSET_INDEX + 1;

@@ -1541,7 +1541,7 @@ export async function digactualhole(
 
     const oldType = location.typ;
     const surfaceType = IS_FURNITURE(oldType)
-        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
+        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz, state) ? 'floor' : 'ground')
         : surface(x, y, state);
     let furniture = '';
     if (IS_FURNITURE(oldType)) {
@@ -1964,7 +1964,7 @@ export async function zap_dig(
         return;
     }
     if (u.dz) {
-        if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uinwater) {
+        if (!Is_airlevel(u.uz, state) && !Is_waterlevel(u.uz, state) && !u.uinwater) {
             const stway = stairway_at(u.ux, u.uy, state);
             if (u.dz < 0 || stway) {
                 if (stway) {
@@ -2017,7 +2017,7 @@ export async function zap_dig(
     let diridx = 8;
     if (trapWithHero) diridx = xytodir(u.dx, u.dy);
     const mazeDig = Boolean(
-        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz),
+        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz, state),
     );
     let zx = u.ux + u.dx;
     let zy = u.uy + u.dy;

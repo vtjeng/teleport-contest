@@ -779,7 +779,7 @@ async function makelevel(specialLevelLoader = null) {
     // in the dungeon definition) are generated via makemaz() with a
     // role-specific proto: Bar-fila (above the locate level) or
     // Bar-filb (at or below it).
-    if (In_quest(g.u.uz)) {
+    if (In_quest(g.u.uz, g)) {
         const filecode = g.urole?.filecode;
         const locaName = `${filecode}-loca`;
         const loc_lev = find_level(locaName, g);
@@ -5574,7 +5574,7 @@ function rndtrap(state) {
             break;
         case ROLLING_BOULDER_TRAP:
         case ROCKTRAP:
-            if (In_endgame(state.u?.uz))
+            if (In_endgame(state.u?.uz, state))
                 rtrap = NO_TRAP;
             break;
         }

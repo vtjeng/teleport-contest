@@ -583,7 +583,7 @@ function createMonsterBody(m, croom, env) {
         /* if we can't get a specific monster type (pm == 0) then the
            class has been genocided, so settle for a random monster */
     }
-    if (In_mines(state.u?.uz) && pm && your_race(pm, state)
+    if (In_mines(state.u?.uz, state) && pm && your_race(pm, state)
         && (state.urace?.mnum === PM_DWARF || state.urace?.mnum === PM_GNOME)
         && env.random.rn2(3))
         pm = null;
@@ -862,7 +862,7 @@ function assertSupportedMonsterAppearance(m, state) {
             && m.id !== PM_WIZARD_OF_YENDOR
             && !(vital & G_GONE)
             && !((species.geno & G_UNIQ) && (vital & G_EXTINCT))
-            && !In_mines(state.u?.uz)) return;
+            && !In_mines(state.u?.uz, state)) return;
     }
     if (m.appear === M_AP_MONSTER
         && (ismnum(m.id) ? (state.mons[m.id]?.mlet === S_MIMIC

@@ -1602,7 +1602,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         // Wumpus reference. Is_qlocate() is on_level() against the quest's
         // locate level in this port; `trap.once` is C's one-shot latch.
         if (state.urole?.mnum === PM_RANGER
-            && !trap.madeby_u && !trap.once && In_quest(state.u.uz)
+            && !trap.madeby_u && !trap.once && In_quest(state.u.uz, state)
             && on_level(state.u.uz, state.qlocate_level)) {
             await message('Fortunately it has a bottom after all...', state, env);
             trap.once = true;
@@ -1925,7 +1925,7 @@ async function domagictrap(env) {
                     `You suddenly yearn for ${
                         Hallucination(state)
                             ? 'Cleveland'
-                            : (In_quest(state.u.uz) || at_dgn_entrance('The Quest', state))
+                            : (In_quest(state.u.uz, state) || at_dgn_entrance('The Quest', state))
                                   ? 'your nearby homeland'
                                   : 'your distant homeland'
                     }.`,

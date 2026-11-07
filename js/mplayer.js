@@ -134,7 +134,7 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
         await relocateMonster(blocker, RLOC_ERR | RLOC_NOMSG, env);
     }
 
-    if (!In_endgame(state.u?.uz)) special = false;
+    if (!In_endgame(state.u?.uz, state)) special = false;
     const monster = state.in_mklev || env._specialRoomFill
         ? await makemon(
             species, x, y, special ? MM_NOMSG : NO_MM_FLAGS, env,
