@@ -200,7 +200,7 @@ import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
-import { pline_mon, verbalize } from './pline.js';
+import { pline_mon, verbalize, youFeel } from './pline.js';
 import {
     destroy_drawbridge,
     find_drawbridge,
@@ -1805,9 +1805,9 @@ async function you_aggravate(mtmp, state) {
     // C: #ifdef CLIPPING cliparound() -- not applicable to the JS renderer
     show_glyph_cell(mtmp.mx, mtmp.my, map_monster_glyph_info(mtmp, state));
     display_self(state);
-    // C: You_feel("aggravated at %s.") -- prepends "You feel "
     await ttyPline(messageAt(
-        `You feel aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
+        youFeel(`aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
+            state),
         mtmp.mx, mtmp.my, state), state);
     // C: display_nhwindow(WIN_MAP, TRUE) -- flush the map display
     await flush_screen(1);

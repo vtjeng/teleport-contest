@@ -2834,3 +2834,19 @@ test('smoky monster potions await runtime djinni creation before either release 
         }
     }
 });
+
+// muse.c you_aggravate() announces the monster through pline.c You_feel(),
+// which turns "You feel" into "You dream that you feel" while the hero is
+// Unaware. A monster must drink a cursed potion of invisibility while the
+// hero sleeps, so no cheap recipe reaches it; pin the shared prefix owner.
+test('you_aggravate() prints through the You_feel() prefix owner', () => {
+    const c = readFileSync('nethack-c/upstream/src/muse.c', 'utf8');
+    const js = readFileSync('js/muse.js', 'utf8');
+    const cBody = c.match(/\nyou_aggravate\(struct monst \*mtmp\)\n\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cBody, 'muse.c you_aggravate() exists');
+    assert.match(cBody, /You_feel\("aggravated at %s\.", noit_mon_nam\(mtmp\)\);/u);
+    const jsBody = js.match(/\nasync function you_aggravate\(mtmp, state\) \{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(jsBody, 'js/muse.js you_aggravate() exists');
+    assert.match(jsBody, /youFeel\(`aggravated at \$\{/u);
+    assert.doesNotMatch(jsBody, /`You feel aggravated/u);
+});
