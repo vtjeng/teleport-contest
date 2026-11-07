@@ -3,6 +3,10 @@
 
 import { rest_region_capacity } from './region.js';
 import {
+    BR_NO_END1,
+    BR_NO_END2,
+    BR_PORTAL,
+    BR_STAIR,
     COLNO,
     DEFUNCT_MONSTER,
     DELPHI,
@@ -48,6 +52,7 @@ import {
     load_exclusions,
     mapseen_room,
     maxledgerno,
+    on_level,
     save_exclusions,
 } from './dungeon.js';
 import { formatkiller } from './topten.js';
@@ -94,6 +99,7 @@ import {
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { block_point } from './vision.js';
 import { place_wsegs } from './worm.js';
+import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { ghostfruit, reset_oattached_mids } from './restore.js';
@@ -1340,6 +1346,42 @@ async function restoreBonesLevel(bonesData, state) {
         }
     } else {
         initrack(state);
+    }
+
+    // C ref: restore.c getlev() (1235-1296), its ghostly arm. getbones()
+    // calls getlev() with lev 0, so the arm that gives a level between
+    // Medusa's and the castle a missing down staircase (1246-1257) never runs
+    // for bones. The old fruit chain freed at 1251 is ghost.oldfruit.
+    const br = Is_branchlev(state.u.uz, state);
+    if (br && state.u.uz.dlevel === 1) {
+        // A branch's first level keeps the dead hero's way back to the
+        // parent dungeon; point it at this game's other end of the branch.
+        const ltmp = assign_level({},
+            on_level(state.u.uz, br.end1) ? br.end2 : br.end1);
+        switch (br.type) {
+        case BR_STAIR:
+        case BR_NO_END1:
+        case BR_NO_END2: {
+            let stway = state.stairs;
+            while (stway && stway.tolev?.dnum === state.u.uz.dnum)
+                stway = stway.next;
+            if (stway) assign_level(stway.tolev, ltmp);
+            break;
+        }
+        case BR_PORTAL: { /* max of 1 portal per level */
+            const trap = level.traps.find((t) => t.ttyp === MAGIC_PORTAL);
+            if (!trap) throw new Error('getlev: need portal but none found');
+            assign_level(trap.dst, ltmp);
+            break;
+        }
+        default:
+            break;
+        }
+    } else if (!br) {
+        // Remove any dangling portals.
+        for (const trap of [...level.traps]) {
+            if (trap.ttyp === MAGIC_PORTAL) deltrap(trap, state);
+        }
     }
 
     // C ref: restore.c getlev():1301, the last fixup once every monster and
