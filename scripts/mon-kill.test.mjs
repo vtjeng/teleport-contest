@@ -111,6 +111,7 @@ import {
     PM_NEWT,
     PM_OWLBEAR,
     PM_PAPER_GOLEM,
+    PM_IXOTH,
     PM_PONY,
     PM_SEWER_RAT,
     PM_QUASIT,
@@ -2222,6 +2223,38 @@ test('a planned dead-steed detach stops for live replay', async () => {
     assert.strictEqual(game.u.usteed, steed, 'the live rider remains mounted');
     assert.strictEqual(planned.u.usteed, plannedSteed,
         'the planning clone stops before generic dismount side effects');
+});
+
+test('a planned nemesis death stops for live replay', async () => {
+    await hero();
+    const nemesis = spawn(PM_IXOTH);
+    const liveCore = structuredClone(game.coreCtx);
+    const liveLog = [...getRngLog()];
+    const planned = planningState(game);
+    const plannedNemesis = m_at(nemesis.mx, nemesis.my, planned);
+    let requestedOperation;
+    const boundary = new Error('planning requests live monster replay');
+
+    // mon.c m_detach():2769-2773 calls quest.c nemdead(), whose pager waits
+    // for a key in a text window, so the clone must stop before it.
+    await assert.rejects(
+        async () => m_detach(plannedNemesis, plannedNemesis.data, true,
+            planned, {
+                ...killEnv(),
+                planning: true,
+                requestPlanningInput(operation) {
+                    requestedOperation = operation;
+                    throw boundary;
+                },
+            }),
+        (error) => error === boundary,
+    );
+
+    assert.equal(requestedOperation, 'quest.c nemdead');
+    assert.deepEqual(game.coreCtx, liveCore, 'preflight leaves live RNG intact');
+    assert.deepEqual(getRngLog(), liveLog, 'preflight adds no live RNG entries');
+    assert.equal(game.svq.quest_status.killed_nemesis ?? false, false,
+        'the live quest state is untouched');
 });
 
 // mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()

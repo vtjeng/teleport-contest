@@ -4961,6 +4961,17 @@ export function m_detach(
         if (due_to_death) {
             const finishDeathEffects = async () => {
                 if (mtmp.data.msound === MS_NEMESIS) {
+                    // nemdead() shows the quest text in a window that waits
+                    // for a key. Stop a planning clone here so its owner
+                    // replays the death live, as for a dying steed above.
+                    if (env.planning) {
+                        if (typeof env.requestPlanningInput !== 'function') {
+                            throw new TypeError(
+                                'planned nemesis death requires a replay boundary',
+                            );
+                        }
+                        env.requestPlanningInput('quest.c nemdead');
+                    }
                     // mon.c:2769-2773. nemdead() displays and records the
                     // role's quest message before stinky_nemesis() reads its
                     // unconverted text; only then can a cloud be created.
