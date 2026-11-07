@@ -28,7 +28,6 @@ import {
     FLYING,
     FUMBLING,
     GLIB,
-    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     has_mgivenname,
@@ -180,6 +179,7 @@ import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
 // stands for, because the terms differ from macro to macro.

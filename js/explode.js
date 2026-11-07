@@ -21,7 +21,6 @@ import {
     EXPL_NOXIOUS,
     EXPL_WET,
     FIRE_RES,
-    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     INVULNERABLE,
@@ -204,6 +203,7 @@ import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 import { canspotmon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].

@@ -52,7 +52,6 @@ import {
     ECMD_OK,
     ECMD_TIME,
     engulfing_u,
-    Maybe_Half_Phys,
     Has_contents,
     CXN_PFX_THE,
     IRONBARS,
@@ -235,6 +234,7 @@ import { breakchestlock } from './lock.js';
 import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708

@@ -102,7 +102,6 @@ import {
     PRONOUN_HALLU,
     PRONOUN_NO_IT,
     Has_contents,
-    Maybe_Half_Phys,
     HOLE,
     IS_ALTAR,
     PASSES_WALLS,
@@ -489,6 +488,7 @@ import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic

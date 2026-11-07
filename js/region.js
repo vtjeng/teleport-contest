@@ -12,7 +12,6 @@ import {
     DB_UNDER,
     DRAWBRIDGE_UP,
     EYE,
-    Maybe_Half_Phys,
     IS_LAVA,
     IS_POOL,
     KILLED_BY_AN,
@@ -58,6 +57,7 @@ import { ttyPline } from './tty_message.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
 import { note_unported } from './unported.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 const MAX_CLOUD_SIZE = 150;
 const INSIDE_GAS_CLOUD = 'inside_gas_cloud';

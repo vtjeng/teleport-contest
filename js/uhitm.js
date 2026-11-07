@@ -62,8 +62,6 @@ import {
     HALLUC,
     HALLUC_RES,
     FUMBLING,
-    Half_physical_damage,
-    Maybe_Half_Phys,
     HMON_APPLIED,
     HMON_MELEE,
     HMON_KICKED,
@@ -714,6 +712,7 @@ import { mhidden_description, object_from_map } from './pager.js';
 import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
+import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);

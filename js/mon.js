@@ -70,7 +70,6 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
-    Maybe_Half_Phys,
     INTRINSIC,
     KILLED_BY_AN,
     LL_KILLEDPET,
@@ -728,6 +727,7 @@ import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;

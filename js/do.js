@@ -59,7 +59,6 @@ import {
     GRAVE,
     G_GENOD,
     HAND,
-    Maybe_Half_Phys,
     IS_ALTAR,
     IS_WATERWALL,
     IS_SINK,
@@ -412,6 +411,7 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.

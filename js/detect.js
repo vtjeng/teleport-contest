@@ -38,7 +38,6 @@ import {
     HALLUC,
     IN_SIGHT,
     HALLUC_RES,
-    Maybe_Half_Phys,
     KILLED_BY_AN,
     LAVAPOOL,
     LAVAWALL,
@@ -243,6 +242,7 @@ import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 /** An explicit-search branch whose effects are still unported. */
 export class UnsupportedSearchError extends Error {

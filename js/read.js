@@ -74,7 +74,6 @@ import {
     LS_OBJECT,
     thats_enough_tries,
     SPE_LIM,
-    Maybe_Half_Phys,
     A_STR,
     LEFT_RING,
     RIGHT_RING,
@@ -443,6 +442,7 @@ import {
     APRON_MESSAGES, CANDY_WRAPPERS, HAWAIIAN_BACKGROUNDS,
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for

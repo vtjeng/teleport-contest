@@ -25,7 +25,6 @@ import {
     DISPLACED,
     FIRE_RES,
     FREE_ACTION,
-    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -123,6 +122,7 @@ import {
     youHear,
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
+import { Half_physical_damage } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
 // and the monster spell share this HP/killer path. Terminal death/recovery

@@ -64,8 +64,6 @@ import {
     GP_ALLOW_U,
     HALLUC,
     HALLUC_RES,
-    Half_physical_damage,
-    Maybe_Half_Phys,
     HEADSTONE,
     ICE,
     IS_AIR,
@@ -551,6 +549,7 @@ import {
     vision_recalc,
 } from './vision.js';
 import { canspotmon, mon_visible, sensemon } from './display.js';
+import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
 
 function reset_tmp_anything(state) {
     state.tmp_anything ??= {};

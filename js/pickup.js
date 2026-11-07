@@ -40,7 +40,6 @@ import {
     EXT_ENCUMBER,
     FOOT,
     HALLUC,
-    Maybe_Half_Phys,
     IS_ALTAR,
     IS_THRONE,
     T_LOOTED,
@@ -301,6 +300,7 @@ import {
     start_corpse_timeout, start_glob_timeout, stop_timer,
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,

@@ -6,7 +6,7 @@ import {
     ARTICLE_THE,
     BLINDED, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
     DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE,
-    Maybe_Half_Phys, HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
+    HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
@@ -65,6 +65,7 @@ import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 function property(state, index) {
     const p = state.u.uprops[index];

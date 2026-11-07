@@ -118,7 +118,6 @@ import {
     G_GONE,
     GLIB,
     HALF_PHDAM,
-    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -387,6 +386,7 @@ import { digests } from './dothrow.js';
 import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
+import { Half_physical_damage } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
 // description and the status window share this source-owned wording. The

@@ -3052,31 +3052,6 @@ export function uhim(state = game) {
     return genders[state?.flags?.female ? 1 : 0].him;
 }
 
-// C ref: youprop.h:339-341.
-//   #define HHalf_physical_damage u.uprops[HALF_PHDAM].intrinsic
-//   #define EHalf_physical_damage u.uprops[HALF_PHDAM].extrinsic
-//   #define Half_physical_damage (HHalf_physical_damage || EHalf_physical_damage)
-// Either source counts, and no blocked term applies. This is the port's only
-// reader of the HALF_PHDAM slot; scripts/half-physical-damage.test.mjs fails
-// when code elsewhere in js/ tests the property itself. The argument is the
-// hero struct the caller holds, so a planning clone's call reads the clone's
-// hero. A call given no hero, or the game state in place of the hero, throws
-// rather than answer FALSE.
-export function Half_physical_damage(hero) {
-    const property = hero.uprops[HALF_PHDAM];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
-// C ref: hack.h:1236-1237.
-//   #define Maybe_Half_Phys(dmg) \
-//       ((Half_physical_damage) ? (((dmg) + 1) / 2) : (dmg))
-// C's int division truncates toward zero, as Math.trunc does. Callers evaluate
-// `dmg` before the property test, while C tests first; the test draws no
-// random number and changes no state, so the order makes no difference.
-export function Maybe_Half_Phys(dmg, hero) {
-    return Half_physical_damage(hero) ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // Canonical macros — previously duplicated as local stubs in 15+ files
 // C ref: you.h:562 u_at(). The optional state argument matches the rest of the
 // port's calling convention; the module-global default preserves the reading

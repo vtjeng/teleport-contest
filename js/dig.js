@@ -135,7 +135,6 @@ import {
     BEAR_TRAP,
     KILLED_BY,
     KILLED_BY_AN,
-    Maybe_Half_Phys,
     HEAD,
     STOMACH,
     MM_NOMSG,
@@ -303,6 +302,7 @@ import { AD_DGST, AT_ENGL, MZ_HUGE } from './monsters.js';
 import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.

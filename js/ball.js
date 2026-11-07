@@ -20,7 +20,6 @@ import {
     OBJ_FLOOR,
     POOL,
     SLT_ENCUMBER,
-    Maybe_Half_Phys,
     HEAD,
     KILLED_BY,
     LEG,
@@ -90,6 +89,7 @@ import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;

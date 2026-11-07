@@ -33,7 +33,6 @@ import {
     EDOG,
     FOOT,
     FUMBLING,
-    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     IRONBARS,
@@ -281,6 +280,7 @@ import {
 
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */

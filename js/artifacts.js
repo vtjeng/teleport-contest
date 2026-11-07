@@ -26,7 +26,6 @@ import {
     GETOBJ_SUGGEST,
     GETOBJ_ALLOWCNT,
     HALF_PHDAM,
-    Maybe_Half_Phys,
     HALF_SPDAM,
     HALLUC,
     Has_contents,
@@ -296,6 +295,7 @@ import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.

@@ -28,7 +28,6 @@ import {
     FAST,
     FROMOUTSIDE,
     FOUNTAIN,
-    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -133,6 +132,7 @@ import { update_inventory } from './invent.js';
 import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
+import { Half_physical_damage } from './youprop.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {

@@ -27,8 +27,6 @@ import {
     FIRE_RES,
     FEMALE,
     G_EXTINCT,
-    Half_physical_damage,
-    Maybe_Half_Phys,
     INVIS,
     M_AP_NOTHING,
     M_AP_OBJECT,
@@ -324,6 +322,7 @@ import { mpickobj, remove_worn_item, unresponsive } from './steal.js';
 import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
+import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any

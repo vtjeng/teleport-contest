@@ -52,8 +52,6 @@ import {
     FROMOUTSIDE,
     FUMBLING,
     HEAD,
-    Half_physical_damage,
-    Maybe_Half_Phys,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -416,6 +414,7 @@ import {
     water_damage_monster_equipment,
 } from './trap_water_damage.js';
 import { canseemon, canspotmon } from './display.js';
+import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
 // mintrap() supplies live defaults for state-only production callers; planning

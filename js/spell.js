@@ -32,7 +32,6 @@ import {
     DISP_BEAM, DISP_END, D_ISOPEN, IS_DOOR, IS_STWALL, Is_waterlevel, ZAP_POS, EXPL_FIERY, EXPL_FROSTY,
     ECMD_OK,
     ECMD_TIME,
-    Maybe_Half_Phys,
     KILLED_BY_AN,
     LL_CONDUCT,
     MAX_SPELL_STUDY,
@@ -212,6 +211,7 @@ import { explode } from './explode.js';
 import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells.

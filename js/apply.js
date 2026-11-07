@@ -116,7 +116,6 @@ import {
     DISP_END,
     FLYING,
     FORCEBUNGLE,
-    Maybe_Half_Phys,
     INTRINSIC,
     INVIS,
     INVIS_BEAM,
@@ -643,6 +642,7 @@ import {
     retouch_object,
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
     const value = state.u?.uprops?.[property];

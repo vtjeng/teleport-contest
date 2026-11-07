@@ -86,7 +86,6 @@ import {
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
-    Maybe_Half_Phys,
     HAND,
     INFRAVISION,
     INTRINSIC,
@@ -322,6 +321,7 @@ import { floating_above, wash_hands } from './fountain.js';
 import { is_pool } from './dbridge.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
+import { Maybe_Half_Phys } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported, such as an unported potion type.

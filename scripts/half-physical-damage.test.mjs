@@ -1,4 +1,4 @@
-// js/const.js Half_physical_damage() is the port's one reading of C's
+// js/youprop.js Half_physical_damage() is the port's one reading of C's
 // youprop.h:339-341 macro, and Maybe_Half_Phys() is its one reading of
 // hack.h:1236. Before they existed, each file spelled the property test out
 // for itself or kept a private copy of the helper: 38 copies in 28 files.
@@ -11,7 +11,8 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { HALF_PHDAM, Half_physical_damage, Maybe_Half_Phys } from '../js/const.js';
+import { HALF_PHDAM } from '../js/const.js';
+import { Half_physical_damage, Maybe_Half_Phys } from '../js/youprop.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const JS_DIR = join(ROOT, 'js');
@@ -21,8 +22,11 @@ const JS_DIR = join(ROOT, 'js');
 const ALLOWED_USES = {
     'const.js': [
         'export const HALF_PHDAM = 56;',
-        // The body of Half_physical_damage() itself.
-        'hero.uprops[HALF_PHDAM]',
+    ],
+    'youprop.js': [
+        // The bodies of HHalf_physical_damage() and EHalf_physical_damage().
+        'intrinsic(u, HALF_PHDAM)',
+        'extrinsic(u, HALF_PHDAM)',
     ],
     'artifacts.js': [
         // artifact.c:2360 spfx table and its inverse, which map an artifact
@@ -128,12 +132,12 @@ export function halfPhysicalFindings(source, file) {
         add(match.index, 'reads HALF_PHDAM; call Half_physical_damage(hero)');
 
     for (const match of code.matchAll(LOCAL_COPY)) {
-        const definesShared = file === 'const.js'
-            && /^function\s+(?:Half_physical_damage|Maybe_Half_Phys)$/u.test(match[0]);
+        const definesShared = file === 'youprop.js'
+            && /^function\s+(?:[HE]?Half_physical_damage|Maybe_Half_Phys)$/u.test(match[0]);
         if (!definesShared)
-            add(match.index, `defines ${match[1] ?? match[2]}; import it from const.js`);
+            add(match.index, `defines ${match[1] ?? match[2]}; import it from youprop.js`);
     }
-    if (file !== 'const.js') {
+    if (file !== 'youprop.js') {
         for (const match of code.matchAll(SPELLED_OUT)) {
             if (match[1] === match[2])
                 add(match.index, 'spells out Maybe_Half_Phys(); call it instead');
@@ -144,7 +148,7 @@ export function halfPhysicalFindings(source, file) {
     return findings;
 }
 
-test('js/ tests Half_physical_damage only through const.js', () => {
+test('js/ tests Half_physical_damage only through youprop.js', () => {
     const findings = [];
     for (const name of readdirSync(JS_DIR).filter((f) => f.endsWith('.js')).sort())
         findings.push(...halfPhysicalFindings(readFileSync(join(JS_DIR, name), 'utf8'), name));
@@ -220,10 +224,13 @@ test('Half_physical_damage and Maybe_Half_Phys follow youprop.h and hack.h', () 
     assert.ok(Maybe_Half_Phys(-2, hero) == 0);
 });
 
-test('Half_physical_damage needs a hero to read', () => {
-    // Without a hero, or given the game state in its place, the call must throw
-    // rather than answer FALSE, which would leave the damage unhalved.
-    assert.throws(() => Half_physical_damage(), TypeError);
+test('Half_physical_damage reads the hero, not the game state', () => {
+    // Given the game state in place of the hero, the call must throw rather
+    // than answer FALSE, which would leave the damage unhalved. With no hero
+    // at all it reads as a hero with no properties, as every youprop.js
+    // accessor does (js/youprop.js slot()).
     assert.throws(() => Half_physical_damage({ u: { uprops: [] } }), TypeError);
-    assert.throws(() => Maybe_Half_Phys(5), TypeError);
+    assert.throws(() => Maybe_Half_Phys(5, { u: { uprops: [] } }), TypeError);
+    assert.equal(Half_physical_damage(undefined), false);
+    assert.equal(Maybe_Half_Phys(5, undefined), 5);
 });
