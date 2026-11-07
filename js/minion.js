@@ -47,7 +47,7 @@ import { mk_roamer, mon_aligntyp } from './priest.js';
 import { mon_has_amulet } from './wizard.js';
 import { acurr } from './attrib.js';
 import { getlin } from './windows.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { show_transient_light, transient_light_cleanup } from './light.js';
 import { rloc, tele_restrict } from './teleport.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -70,7 +70,7 @@ import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
 
 function guardianRandom(state, rawEnv = {}) {
-    return { d, rn1, rn2, rnd, rne, ...state.random, ...rawEnv.random };
+    return rawEnv.random ?? state.random ?? coreRandom;
 }
 
 function conflictActive(state) {
@@ -165,12 +165,6 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
     }
 }
 
-const defaultSelectorRandom = { rn1, rn2, rnd };
-
-function selectorRandom(raw = {}) {
-    return { ...defaultSelectorRandom, ...raw };
-}
-
 function transientLightEnv(state) {
     return {
         visionRecalc: (control) => vision_recalc(control, {
@@ -247,7 +241,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
 // function's return, but demon_talk() consumes bribe()'s long result when it
 // decides whether the demon departs or attacks.
 export async function demon_talk(mtmp, state = game, env = {}) {
-    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const speak = env.verbalize ?? verbalize;
     // newsym() paints the live game; a monster turn's planning pass
@@ -427,8 +421,7 @@ export function newemin(monster) {
 
 // C ref: minion.c dprince() (391-402).  The fallback is deliberately the
 // source's approximate lower rank rather than a second selection strategy.
-export function dprince(atyp = A_NONE, state = game, random = { rn1 }) {
-    random = selectorRandom(random);
+export function dprince(atyp = A_NONE, state = game, random = coreRandom) {
     const endgame = state.u?.uz && state.astral_level
         && state.u.uz.dnum === state.astral_level.dnum;
     for (let tries = endgame ? 0 : 20; tries > 0; --tries) {
@@ -445,8 +438,7 @@ export function dprince(atyp = A_NONE, state = game, random = { rn1 }) {
 }
 
 // C ref: minion.c dlord() (405-416).
-export function dlord(atyp = A_NONE, state = game, random = { rn1 }) {
-    random = selectorRandom(random);
+export function dlord(atyp = A_NONE, state = game, random = coreRandom) {
     const endgame = state.u?.uz && state.astral_level
         && state.u.uz.dnum === state.astral_level.dnum;
     for (let tries = endgame ? 0 : 20; tries > 0; --tries) {
@@ -463,15 +455,13 @@ export function dlord(atyp = A_NONE, state = game, random = { rn1 }) {
 }
 
 // C ref: minion.c llord() (420-426).
-export function llord(state = game, random = { rnd }) {
-    random = selectorRandom(random);
+export function llord(state = game, random = coreRandom) {
     return (state.mvitals[M.PM_ARCHON].mvflags & G_GONE)
         ? lminion(state, random) : M.PM_ARCHON;
 }
 
 // C ref: minion.c lminion() (429-441).
-export function lminion(state = game, random = { rnd }) {
-    random = selectorRandom(random);
+export function lminion(state = game, random = coreRandom) {
     for (let tries = 0; tries < 20; ++tries) {
         const species = mkclass(M.S_ANGEL, 0, { state, random });
         if (species && !is_lord(species)) return species.pmidx;
@@ -482,8 +472,7 @@ export function lminion(state = game, random = { rnd }) {
 // C ref: minion.c ndemon() (444-464).  This is shared by level construction
 // and runtime summons, so keep it in the minion owner rather than duplicating
 // the selector in mkroom.js.
-export function ndemon(atyp = A_NONE, state = game, random = { rnd }) {
-    random = selectorRandom(random);
+export function ndemon(atyp = A_NONE, state = game, random = coreRandom) {
     const species = mkclass_aligned(M.S_DEMON, 0, atyp, { state, random });
     return species && is_ndemon(species) ? species.pmidx : M.NON_PM;
 }
@@ -494,16 +483,7 @@ function isLawfulMinion(monster) {
 }
 
 function summonRandom(rawEnv = {}) {
-    const source = rawEnv.random ?? {};
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        rnz,
-        ...source,
-    };
+    const random = rawEnv.random ?? coreRandom;
     for (const name of ['rn2', 'rnd', 'rn1', 'd', 'rne', 'rnz']) {
         if (typeof random[name] !== 'function') {
             throw new TypeError(`msummon requires random.${name}`);

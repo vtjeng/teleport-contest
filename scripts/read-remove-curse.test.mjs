@@ -12,6 +12,7 @@ import { newObject } from '../js/obj.js';
 import { seffects } from '../js/read.js';
 import { spelleffects } from '../js/spell.js';
 import { loadReadRemoveCurseRecipe } from './run-read-remove-curse.mjs';
+import { coreRandom } from '../js/rng.js';
 
 async function freshWorld(seed) {
     await runSegment({
@@ -101,7 +102,7 @@ test('confused remove-curse preserves wisdom and blessorcurse draw order',
         game.u.uprops[CONFUSION] = { intrinsic: 7, extrinsic: 0 };
 
         const draws = [];
-        const random = {
+        const random = { ...coreRandom,
             rn2(bound) {
                 draws.push(bound);
                 return 0;

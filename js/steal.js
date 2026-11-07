@@ -119,7 +119,7 @@ import {
 import { makeplural } from './fruit.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
-import { rn1, rn2, rnd, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
@@ -527,11 +527,7 @@ async function stealarm(state = game, rawEnv = {}) {
                         state,
                     });
                     if (!(await tele_restrict(monster, state, rawEnv))) {
-                        const random = {
-                            rn2,
-                            rnd,
-                            ...(rawEnv.random ?? {}),
-                        };
+                        const random = rawEnv.random ?? coreRandom;
                         await rloc(monster, RLOC_MSG, {
                             ...rawEnv,
                             state,
@@ -612,7 +608,8 @@ export async function steal(
     // attributes or the --More-- boundary.
     const message = env.message ?? ttyPline;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
-    const random = env.random?.rn2 ?? rn2;
+    const randomSet = env.random ?? coreRandom;
+    const random = randomSet.rn2;
 
     // C clears the caller's char buffer at entry, including unsuccessful
     // calls that return before choosing an object.
@@ -781,7 +778,7 @@ export async function steal(
                 if (stuck || can_carry(mtmp, otmp, {
                     ...env,
                     state,
-                    random: env.random ?? { rn2: random },
+                    random: randomSet,
                 }) === 0) {
                     return await cantTake(otmp);
                 }
@@ -929,7 +926,7 @@ export async function steal(
 // run before the theft message and encumbrance update.
 export async function stealamulet(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const have = state.u?.uhave ?? {};
     let otmp = null;
@@ -1143,7 +1140,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
 // when no later transfer or message can occur.
 export async function maybe_absorb_item(mon, obj, ochance, achance, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
 
     if (obj === state.uball || obj === state.uchain
@@ -1200,7 +1197,7 @@ export async function maybe_absorb_item(mon, obj, ochance, achance, rawEnv = {})
 // finish their source-ordered removal afterwards.
 export function mdrop_special_objs(mon, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const env = {
         ...rawEnv,
         state,
@@ -1282,7 +1279,7 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
 
 // C ref: steal.c somegold() (14-34). Return a bounded proportional subset of
 // the available money, preserving the source's thresholds and rn1 arguments.
-export function somegold(lmoney, random = { rn1 }) {
+export function somegold(lmoney, random = coreRandom) {
     const largestInt = 0x7fffffff;
     let igold = lmoney >= largestInt ? largestInt : Math.trunc(lmoney);
 
@@ -1318,7 +1315,7 @@ export function findgold(chain) {
 // stack, otherwise taking a proportional subset of the hero's carried gold.
 export async function stealgold(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const inventoryEnv = dropCommandEnv(state, env);

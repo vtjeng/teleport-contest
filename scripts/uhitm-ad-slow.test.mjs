@@ -153,7 +153,7 @@ test('mhitm_ad_slow matches the whole C function, three dispatch routes, and HFa
         /#if 0 \/\* not yet implemented \*\/[\s\S]*?MON\(NAM\("beholder"\)/u);
     const slowDownJs = readFileSync(new URL('../js/mhitu.js', import.meta.url), 'utf8');
     assert.match(slowDownJs,
-        /export async function u_slow_down\([\s\S]*?random = \{ rn2 \}[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
+        /export async function u_slow_down\([\s\S]*?random = coreRandom[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
     const js = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
     assert.match(js,
         /case AD_SLOW:\s*await mhitm_ad_slow\(magr, mattk, mdef, mhm, state, env\);\s*break;/u);

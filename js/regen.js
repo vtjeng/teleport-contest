@@ -23,7 +23,7 @@ import { game } from './gstate.js';
 import { breathless } from './mondata.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rehumanize } from './polyself.js';
-import { rn1, rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 
 
 function propertyActive(hero, index) {
@@ -74,7 +74,7 @@ async function reachedFull(kind, state, env) {
 export async function regen_hp(wtcap, state = game, env = {}) {
     const hero = state.u;
     const encumbranceOk = wtcap < MOD_ENCUMBER || !hero.umoved;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('regen_hp requires rn2');
     if (Upolyd(hero)) {
@@ -143,7 +143,7 @@ export async function regen_pw(wtcap, state = game, env = {}) {
         return false;
     }
 
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn1 !== 'function')
         throw new TypeError('regen_pw requires rn1');
     let upper = Math.trunc(

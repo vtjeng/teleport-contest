@@ -45,7 +45,7 @@ import {
     PM_WIZARD,
 } from './monsters.js';
 import * as O from './objects.js';
-import { rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom } from './rng.js';
 import {
     ini_inv,
     reset_ini_inv_nocreate,
@@ -56,8 +56,6 @@ import {
     STARTING_INVENTORY_TABLES,
     rollElfStartingInstrument,
 } from './u_init_inventory_data.js';
-
-const DEFAULT_RANDOM = Object.freeze({ rn1, rn2, rnd, rne });
 
 const {
     Archeologist,
@@ -215,7 +213,7 @@ function knowEach(types, state) {
 // conditional draw stays on the same side of its corresponding object calls.
 export function u_init_role(
     state = game,
-    random = DEFAULT_RANDOM,
+    random = coreRandom,
     options = {},
 ) {
     const env = normalizedEnvironment(state, random, options);
@@ -324,7 +322,7 @@ export function u_init_role(
 
 export function u_init_race(
     state = game,
-    random = DEFAULT_RANDOM,
+    random = coreRandom,
     options = {},
 ) {
     const env = normalizedEnvironment(state, random, options);
@@ -412,7 +410,7 @@ export function hidden_gold(evenIfUnknown, state = game) {
 
 export function u_init_inventory_attrs(
     state = game,
-    random = DEFAULT_RANDOM,
+    random = coreRandom,
     options = {},
 ) {
     const env = normalizedEnvironment(state, random, options);

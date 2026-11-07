@@ -199,7 +199,7 @@ import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
-import { d, rn1, rn2, rnl, rnd, rne, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
@@ -422,7 +422,7 @@ export async function explode(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnl, rnd, rne };
+    const random = env.random ?? coreRandom;
     let damu = dam;
     let visible = false;
     let anyShield = false;
@@ -830,7 +830,7 @@ export function adtyp_to_expltype(adtyp) {
 // its own first roll before calling this function.
 export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     let damage;
     if (mattk.damn) damage = random.d(mattk.damn, mattk.damd);
     else if (mattk.damd) damage = random.d((mon.data?.mlevel ?? 0) + 1, mattk.damd);
@@ -874,7 +874,7 @@ export async function scatter(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const individualObject = Boolean(obj);
     const chains = [];
@@ -1286,7 +1286,7 @@ export async function splatter_burning_oil(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = { d, rn1, rn2, rnl, rnd, rne, ...env.random };
+    const random = env.random ?? coreRandom;
     const damage = random.d(dilutedOil ? 3 : 4, 4);
     await explode(x, y, 11, damage, BURNING_OIL, EXPL_FIERY, state,
         { ...env, random });
@@ -1299,7 +1299,7 @@ export async function splatter_burning_oil(
 export async function explode_oil(obj, x, y, state = game, rawEnv = {}) {
     const dilutedOil = Boolean(obj.odiluted);
     const env = { ...rawEnv, state };
-    const random = { d, rn1, rn2, rnl, rnd, rne, ...env.random };
+    const random = env.random ?? coreRandom;
 
     if (!obj.lamplit) note_unported('pline.c impossible');
     end_burn(obj, true, env);

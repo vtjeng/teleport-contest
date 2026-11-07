@@ -141,7 +141,7 @@ import {
 } from './objnam.js';
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
-import { rn2, rnd, rnl } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import {
     add_damage,
     costly_spot,
@@ -405,7 +405,7 @@ export async function breakchestlock(box, destroyit, state = game) {
             );
         delobj(box, {
             state,
-            random: { rn2 },
+            random: coreRandom,
             hooks: {
                 resetPick: (_obj, env) => reset_pick(env.state),
             },
@@ -448,7 +448,7 @@ async function forcelock(state = game) {
         await ttyPline('You give up your attempt to force the lock.', state);
         if (xlock.usedtime >= 50) /* you made the effort */
             await exercise(
-                xlock.picktyp ? A_DEX : A_STR, true, state, { rn2 },
+                xlock.picktyp ? A_DEX : A_STR, true, state, coreRandom,
                 { encumberMessage: encumber_msg },
             );
         return (xlock.usedtime = 0);
@@ -463,7 +463,7 @@ async function forcelock(state = game) {
         if (rn2(1000 - Math.trunc(uwep.spe ?? 0))
             > (992 - greatest_erosion(uwep) * 10)
             && !uwep.cursed
-            && !obj_resists(uwep, 0, 99, { state, random: { rn2 } })) {
+            && !obj_resists(uwep, 0, 99, { state, random: coreRandom })) {
             const prefix = (uwep.quan > 1) ? 'One of y' : 'Y';
             await ttyPline(
                 `${prefix}our ${xnameFresh(uwep, state)} broke!`, state,
@@ -475,7 +475,7 @@ async function forcelock(state = game) {
                 'You give up your attempt to force the lock.', state,
             );
             await exercise(
-                A_DEX, true, state, { rn2 },
+                A_DEX, true, state, coreRandom,
                 { encumberMessage: encumber_msg },
             );
             return (xlock.usedtime = 0);
@@ -492,7 +492,7 @@ async function forcelock(state = game) {
     // lock.c:247-254. Success.
     await ttyPline('You succeed in forcing the lock.', state);
     await exercise(
-        xlock.picktyp ? A_DEX : A_STR, true, state, { rn2 },
+        xlock.picktyp ? A_DEX : A_STR, true, state, coreRandom,
         { encumberMessage: encumber_msg },
     );
     // breakchestlock() might destroy xlock.box; if so, xlock context will
@@ -563,7 +563,7 @@ async function picklock(state = game) {
         await ttyPline(
             `You give up your attempt at ${lock_action(state)}.`, state,
         );
-        await exercise(A_DEX, true, state, { rn2 }, {
+        await exercise(A_DEX, true, state, coreRandom, {
             encumberMessage: encumber_msg,
         }); /* even if you don't succeed */
         return (xlock.usedtime = 0);
@@ -607,14 +607,14 @@ async function picklock(state = game) {
                     + `${alreadyunlocked ? 'un' : ''}locked.`,
                 state,
             );
-            await exercise(A_WIS, true, state, { rn2 }, {
+            await exercise(A_WIS, true, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
         } else {
             await ttyPline(
                 `You stop ${lock_action(state)}.`, state,
             );
-            await exercise(A_WIS, false, state, { rn2 }, {
+            await exercise(A_WIS, false, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
         }
@@ -643,7 +643,7 @@ async function picklock(state = game) {
         if (xlock.box.otrapped)
             await chest_trap(xlock.box, FINGER, false, state);
     }
-    await exercise(A_DEX, true, state, { rn2 }, {
+    await exercise(A_DEX, true, state, coreRandom, {
         encumberMessage: encumber_msg,
     });
     return (xlock.usedtime = 0);
@@ -1085,7 +1085,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             throw new TypeError(`doopen_indir does not read env.${name}`);
     }
     const message = env.message ?? ttyPline;
-    const random = { rn2, rnd, rnl, ...env.random };
+    const random = env.random ?? coreRandom;
     const u = state.u;
 
     // lock.c:788-791. nohands check.
@@ -1439,7 +1439,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                     await mb_trapped(monster, sawit || seeit, {
                         ...rawEnv,
                         state,
-                        random: rawEnv.random ?? { rnd },
+                        random: rawEnv.random ?? coreRandom,
                         message,
                     });
                 } else {
@@ -1664,7 +1664,7 @@ export async function doclose(state = game) {
             feel_newsym(x, y, state);
             block_point(x, y, state);
         } else {
-            await exercise(A_STR, true, state, { rn2 }, {
+            await exercise(A_STR, true, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
             await ttyPline('The door resists!', state);

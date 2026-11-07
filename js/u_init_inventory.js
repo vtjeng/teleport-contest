@@ -52,7 +52,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { restrictedSpellDiscipline } from './role_skills.js';
-import { rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom } from './rng.js';
 import {
     INITIAL_INVENTORY_SUBSTITUTIONS,
     UNDEF_BLESS,
@@ -68,7 +68,7 @@ const NOCREATE_FIELDS = Object.freeze([
 ]);
 
 function inventoryInitEnv(env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     for (const name of ['rn1', 'rn2', 'rnd', 'rne']) {
         if (typeof random[name] !== 'function') {
             throw new TypeError(
@@ -104,7 +104,7 @@ export function reset_ini_inv_nocreate(state = game) {
 
 // C ref: u_init.c trquan(). Fixed nonzero quantities deliberately consume
 // rn2(1); the zero-valued sentinel is the only no-draw case.
-export function trquan(trop, random = { rn2 }) {
+export function trquan(trop, random = coreRandom) {
     if (!trop || typeof trop !== 'object')
         throw new TypeError('trquan requires a trobj descriptor');
     const minimum = Math.trunc(trop.trquan_min ?? 0);

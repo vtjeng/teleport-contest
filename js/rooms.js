@@ -48,7 +48,7 @@ import { wake_msg } from './mon.js';
 import { mapseen_room, room_discovered } from './dungeon.js';
 import { midnight } from './calendar.js';
 import { search_special } from './mkroom.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { Hello } from './role_init.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { set_voice } from './sounds.js';
@@ -218,7 +218,7 @@ export async function check_special_room(
     state = game,
     {
         message = ttyPline,
-        random = rn2,
+        random = coreRandom,
         canSeeMonster = null,
         canSpotMonster = null,
         actionEnv = {},
@@ -347,7 +347,7 @@ export async function check_special_room(
             // C falls through to default after intemple(): discover the temple
             // but retain its permanent room type.
             const { intemple } = await import('./priest.js');
-            await intemple(roomno, { state, random: { rn2: random }, message });
+            await intemple(roomno, { state, random, message });
             resetType = 0;
         } else {
             // C's default discovers temples and all shop types; ordinary and
@@ -403,7 +403,7 @@ export async function check_special_room(
                     // Preserve hack.c's accidental room comparison: the room
                     // array index is compared to levl.roomno with ROOMOFFSET.
                     if (!location || location.roomno !== roomIndex) continue;
-                    if (!stealthy && !random(3)) {
+                    if (!stealthy && !random.rn2(3)) {
                         await wake_msg(monster, false, {
                             state,
                             message,

@@ -176,7 +176,7 @@ import { An, corpse_xname, is_plural, otense, Tobjnam, xname, The, Doname2, dona
 import { change_luck } from './moveloop_preamble.js';
 import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { coreRandom, rn1, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { obj_resists } from './bury.js';
 import {
@@ -316,7 +316,7 @@ function Fumbling(state) {
 
 function kickEnvironment(state) {
     state.context ??= {};
-    const random = { d, rn1, rn2, rnd, rne, rnl };
+    const random = coreRandom;
     return {
         state,
         random,
@@ -572,7 +572,7 @@ export async function kick_monster(mon, x, y, state = game) {
 // C ref: dokick.c ghitm() (295-407). Gold remains the caller's object until
 // mpickobj consumes it. The TRUE result prevents that caller placing it again.
 export async function ghitm(monster, gold, state = game, rawEnv = {}) {
-    const random = { d, rn1, rn2, rnd, rne, rnl, ...rawEnv.random };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
     const env = { ...rawEnv, state, random, message };
     let messageGiven = false;
@@ -664,7 +664,7 @@ export async function kick_object(x, y, kickName, state = game, rawEnv = {}) {
 // C ref: dokick.c really_kick_object() (508-790). Fragile objects break as
 // a whole stack before splitobj; the returned Boolean controls dokick's ouch.
 export async function really_kick_object(x, y, state = game, rawEnv = {}) {
-    const random = { d, rn1, rn2, rnd, rne, rnl, ...rawEnv.random };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
     const redraw = rawEnv.planning ? () => {}
         : (rawEnv.redraw ?? ((px, py) => newsym(px, py, state)));
@@ -848,7 +848,7 @@ async function kick_dumb(x, y, state) {
     const u = state.u;
     // 866. A_DEX never reaches exercise()'s trailing encumber_msg(), which C
     // runs for Strength and Constitution only, so this call owns no message.
-    await exercise(A_DEX, false, state, { rn2 });
+    await exercise(A_DEX, false, state, coreRandom);
     // 867. martial() and the Dexterity test are both short circuits: a martial
     // hero, and an ordinary one with 16 or more Dexterity, draw no rn2(3) at
     // all. Getting that wrong changes the stream rather than the message.
@@ -857,7 +857,7 @@ async function kick_dumb(x, y, state) {
         if (Blind(state)) feel_location(x, y, state);
     } else {
         await ttyPline('Dumb move!  You strain a muscle.', state);
-        await exercise(A_STR, false, state, { rn2 },
+        await exercise(A_STR, false, state, coreRandom,
                        { encumberMessage: encumber_msg });
         // 874. C evaluates rnd(5) before adding, so the draw precedes the
         // write set_wounded_legs() makes.
@@ -928,8 +928,8 @@ async function kick_ouch(x, y, kickobjnam, state) {
     let maploc = isok(x, y) ? state.level.at(x, y) : null;
 
     await ttyPline('Ouch!  That hurts!', state);
-    await exercise(A_DEX, false, state, { rn2 });
-    await exercise(A_STR, false, state, { rn2 },
+    await exercise(A_DEX, false, state, coreRandom);
+    await exercise(A_STR, false, state, coreRandom,
                    { encumberMessage: encumber_msg });
     if (isok(x, y)) {
         if (Blind(state)) feel_location(x, y, state);
@@ -964,25 +964,25 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
         await kick_ouch(x, y, '', state);
         return;
     }
-    await exercise(A_DEX, true, state, { rn2 });
+    await exercise(A_DEX, true, state, coreRandom);
     const doorbuster = Upolyd(state.u) && is_giant(state.youmonst?.data);
     if (doorbuster || rnl(35) < avrg_attrib
         + (martial(state) ? acurr(state, A_DEX) : 0)) {
         const shopdoor = in_rooms(x, y, SHOPBASE, state).length > 0;
         if (mask & D_TRAPPED) {
             if (state.flags.verbose) await ttyPline('You kick the door.', state);
-            await exercise(A_STR, false, state, { rn2 },
+            await exercise(A_STR, false, state, coreRandom,
                 { encumberMessage: encumber_msg });
             maploc.flags = D_NODOOR;
             await b_trapped('door', FOOT, state);
         } else if (acurr(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
             await ttyPline('As you kick the door, it shatters to pieces!', state);
-            await exercise(A_STR, true, state, { rn2 },
+            await exercise(A_STR, true, state, coreRandom,
                 { encumberMessage: encumber_msg });
             maploc.flags = D_NODOOR;
         } else {
             await ttyPline('As you kick the door, it crashes open!', state);
-            await exercise(A_STR, true, state, { rn2 },
+            await exercise(A_STR, true, state, coreRandom,
                 { encumberMessage: encumber_msg });
             maploc.flags = D_BROKEN;
         }
@@ -1004,7 +1004,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
         }
     } else {
         if (Blind(state)) feel_location(x, y, state);
-        await exercise(A_STR, true, state, { rn2 },
+        await exercise(A_STR, true, state, coreRandom,
             { encumberMessage: encumber_msg });
         await ttyPline(`${Deaf(state) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
         if (in_town(x, y, state)) {
@@ -1032,7 +1032,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
 // dokick()'s attribute average and always return ECMD_TIME.
 export async function kick_nondoor(x, y, avrg_attrib, state = game) {
     const maploc = state.level.at(x, y);
-    const random = { d, rn1, rn2, rnd, rne, rnl };
+    const random = coreRandom;
     const objects = objectGenerationEnv({ state, random });
     if (maploc.typ === SDOOR) {
         if (!Levitation(state) && rn2(30) < avrg_attrib) {
@@ -1539,7 +1539,7 @@ export function drop_to(cc, loc, x, y, state = game) {
 // before impact; for drops and throws the callers pass the hero's square.
 export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     if (!isContainer(obj) || !Has_contents(obj)
         || obj.otyp === BAG_OF_HOLDING || obj.otyp === BAG_OF_TRICKS) {
@@ -1627,7 +1627,7 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
             recalc_block_point(bx, by, objectEnv.state),
         ...rawEnv.hooks,
     } });
-    const random = { rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     let toloc = down_gate(x, y, state);
     const cc = {};
@@ -1720,7 +1720,7 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
 // TRUE means this function consumed it or moved it to the migration chain.
 export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     const state = env.state ?? game;
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (!obj) return false;
     const toloc = down_gate(x, y, state);
@@ -1813,7 +1813,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
 // scatter draw at the source call sites.
 export async function obj_delivery(near_hero, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const u = state.u;
     const level = u.uz;
@@ -1921,7 +1921,7 @@ const DELIVER_PM = M2_UNDEAD | M2_WERE | M2_HUMAN | M2_ELF | M2_DWARF
 // and dog.c mon_arrive() with (0, DF_ALL) for a MIGR_LEFTOVERS arrival.
 export function deliver_obj_to_mon(mtmp, cnt, deliverflags, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const at_crime_scene = In_mines(state.u.uz);
     let maxobj;

@@ -100,7 +100,7 @@ import {
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
 import { lined_up } from './mthrowu.js';
-import { rn2, rn2_on_display_rng, rnd, d, rnl } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
 import { aggravate, has_aggravatables, nasty } from './wizard.js';
@@ -129,7 +129,7 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 // runs live; planning uses the established handoff before reading input.
 export async function touch_of_death(mtmp, env = {}) {
     const state = env.state ?? game;
-    const random = { d, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     let dmg = 50 + random.d(8, 6);
     const drain = Math.trunc(dmg / 2);
@@ -190,7 +190,7 @@ export function death_inflicted_by(deathreason, monster, state = game) {
 // before its rn2 draw and publish observed resistance after the effect.
 export async function mcast_death_touch(mtmp, env = {}) {
     const state = env.state ?? game;
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     const effectEnv = { ...env, state, random, message,
         canSpotMonster: env.canSpotMonster ?? canspotmon };
@@ -341,7 +341,7 @@ function is_undirected_spell(spellnum) {
 // C ref: mcastu.c spell_would_be_useless() (908-985).
 function spell_would_be_useless(mtmp, spellnum, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
 
     /* spell is only cast by hostile monsters */
     if ((mcast_data[spellnum].flags & MCF_HOSTILE) !== 0) {
@@ -398,7 +398,7 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
 // ---- choose_monster_spell() ----
 // C ref: mcastu.c choose_monster_spell() (88-123).
 function choose_monster_spell(mtmp, adtyp, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     let list = null;
 
     if (adtyp === AD_SPEL) {
@@ -434,7 +434,7 @@ function choose_monster_spell(mtmp, adtyp, env = {}) {
 // "feedback when frustrated monster couldn't cast a spell"
 async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message;
     const norepMessage = env.planning ? async () => {}
         : (env.norepMessage ?? ttyNorep);
@@ -495,7 +495,7 @@ export async function castmu(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, d, rnd };
+    const random = rawEnv.random ?? coreRandom;
     // The remaining AD_FIRE arm and most mcast_spell() effects still refuse
     // through this boundary rather than running as spells that quietly do nothing.
     const unsupported = requireCastmuOperation(rawEnv, 'unsupported');
@@ -727,7 +727,7 @@ async function mcast_open_wounds(dmg, env = {}) {
 // C ref: mcastu.c m_cure_self() (307-318).
 async function m_cure_self(mtmp, dmg, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { d };
+    const random = env.random ?? coreRandom;
     const message = env.message;
 
     if (mtmp.mhp < mtmp.mhpmax) {
@@ -749,7 +749,7 @@ async function m_cure_self(mtmp, dmg, env = {}) {
 // C ref: mcastu.c mcast_geyser() (523-538).
 async function mcast_geyser(dmg, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { d };
+    const random = env.random ?? coreRandom;
     if (typeof env.message === 'function')
         await env.message('A sudden geyser slams into you from nowhere!', state);
     dmg = random.d(8, 6);
@@ -761,7 +761,7 @@ async function mcast_geyser(dmg, env = {}) {
 // C ref: mcastu.c mcast_fire_pillar() (540-564).
 async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { d };
+    const random = env.random ?? coreRandom;
     const message = env.message;
     if (typeof message === 'function')
         await message('A pillar of fire strikes all around you!', state);
@@ -799,7 +799,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
 // C ref: mcastu.c mcast_lightning() (566-598).
 async function mcast_lightning(mtmp, dmg, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { d };
+    const random = env.random ?? coreRandom;
     if (typeof env.message === 'function')
         await env.message('A bolt of lightning strikes down at you from above!', state);
     const reflects = typeof env.ureflects === 'function'
@@ -933,7 +933,7 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
 // MCAST_INSECTS and then clears the spell damage.
 export async function mcast_insects(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
@@ -1034,7 +1034,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
 // timeout before clearing the caster's remembered magic resistance.
 async function mcast_stun_you(dmg, env = {}) {
     const state = env.state ?? game;
-    const random = { d, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const hStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
@@ -1066,7 +1066,7 @@ async function mcast_stun_you(dmg, env = {}) {
 // damage and the actual attribute update.
 export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rnd, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
 
@@ -1099,7 +1099,7 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
 // resistance; an ineffective hit only makes the hero's skin itch.
 export async function mcast_destroy_armor(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rn2, rnl, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
 
@@ -1343,7 +1343,7 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
 // M_ATTK_HIT on a successful spell, M_ATTK_MISS otherwise.
 export async function buzzmu(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message;
     const env = { ...rawEnv, state, random };
 

@@ -53,7 +53,7 @@ import {
     WAN_CANCELLATION,
     objects_globals_init,
 } from '../js/objects.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { coreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { check_unpaid } from '../js/shk.js';
 import { m_canseeu } from '../js/vision.js';
 import {
@@ -721,7 +721,7 @@ test('zap.c zapnodir uses create_critters return and source count draws', async 
     });
     game.iflags.debug_mongen = true;
     const calls = [];
-    const random = {
+    const random = { ...coreRandom,
         rn2(bound) { calls.push(['rn2', bound]); return 0; },
         rn1(range, base) { calls.push(['rn1', range, base]); return base; },
     };

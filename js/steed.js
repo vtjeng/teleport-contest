@@ -155,7 +155,7 @@ import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { enexto, rloc, rloc_to, teleds } from './teleport.js';
 import {
     float_down,
@@ -213,7 +213,7 @@ function Blind(state) {
 function saddleEnv(env = {}) {
     return {
         ...env,
-        random: env.random ?? { d, rn1, rn2, rnd, rne, rnz },
+        random: env.random ?? coreRandom,
         state: env.state ?? game,
     };
 }
@@ -771,7 +771,7 @@ export async function kick_steed(state = game) {
 // `rn2(2)` orders the two secondary directions for DISMOUNT_KNOCKED;
 // `rn2(viable)` breaks ties between equally distant candidates; and enexto()
 // behind `forceit` searches farther away if the adjacent squares fail.
-async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
+async function landing_spot(reason, forceit, state = game, random = coreRandom) {
     const u = state.u;
     const spot = { x: 0, y: 0 };
     const tries = [];
@@ -880,10 +880,7 @@ async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
 // branches.
 export async function dismount_steed(reason, state = game, rawEnv = {}) {
     const u = state.u;
-    const random = {
-        d, rn1, rn2, rnd, rne, rnl, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const positionEnv = { ...rawEnv, state, random };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dismount_steed random injection requires rn2');

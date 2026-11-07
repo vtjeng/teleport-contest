@@ -221,7 +221,7 @@ import {
 } from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
-import { rn1, rn2, rnd, rnl } from './rng.js';
+import { coreRandom, rn2, rnl } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
@@ -273,7 +273,7 @@ export class UnsupportedPositionCheckError extends Error {
 }
 
 function teleportEnv(env = {}) {
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('teleport random injection requires rn2');
     return { ...env, random, state: env.state ?? game };
@@ -520,7 +520,7 @@ export function rloc(monster, rlocflags = 0, rawEnv = {}) {
 // and ordinary random relocation in the C branch order.
 export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const now = Math.trunc(state.moves ?? 0);
     if (Math.trunc(state.level?.flags?.stasis_until ?? 0) >= now) {
@@ -1238,7 +1238,7 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                 u_on_newpos(monster.mx, monster.my, state);
                 const roomCheck = check_special_room(false, state, {
                     message,
-                    random: env.random.rn2,
+                    random: env.random,
                     actionEnv: { ...env, state, message },
                 });
                 return thenResult(roomCheck, () => thenResult(
@@ -1392,7 +1392,7 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
 // adjacent square only when the pet is outside m_next2u()'s squared-distance
 // radius. The pet list is mon.c's live fmon chain (`level.monlist`).
 export async function tele_to_rnd_pet(state = game, env = {}) {
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     if (noteleport_level(state.youmonst, state)) {
         note_unported('pline.c impossible');
         return;
@@ -2198,7 +2198,7 @@ export function random_teleport_level(
     state = game,
     rawEnv = {},
 ) {
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const cur_depth = depth(state.u.uz, state);
 
     /* [the endgame case can only occur in wizard mode] */
@@ -2618,7 +2618,7 @@ export async function level_tele(state = game) {
 // sequence. Its independent C callers outside the zap path remain unported.
 export async function rloco(obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn1, rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const redraw = rawEnv.redraw ?? ((x, y) => newsym(x, y, state));
 

@@ -47,7 +47,7 @@ import {
 import { PM_ARCHEOLOGIST, PM_GUARD, S_NYMPH, S_SNAKE } from './monsters.js';
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
-import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { altarmask_at, desecrate_altar } from './pray.js';
 import { in_rooms } from './rooms.js';
 import { add_damage } from './shk.js';
@@ -65,7 +65,6 @@ import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 
-const musicRandom = { d, rn1, rn2, rne, rnl, rnd, rnz };
 function property(state, index) {
     const p = state.u.uprops[index];
     return Boolean(p?.intrinsic || p?.extrinsic);
@@ -78,7 +77,7 @@ function Hallucination(state) {
 // C ref: music.c awaken_scare() (45-60). The waiting arm excludes scare
 // checks, including their resistance draw, even when the sound is scary.
 export async function awaken_scare(mon, scary, state = game, env = {}) {
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     mon.msleeping = 0;
     mon.mcanmove = 1;
     mon.mfrozen = 0;
@@ -154,7 +153,7 @@ export async function awaken_soldiers(bugler, state = game, env = {}) {
 // C ref: music.c charm_monsters() (194-217). Save nmon before taming because
 // tamedog() may change the live monster chain; C discards its return.
 export async function charm_monsters(distance, state = game, env = {}) {
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     if (state.u.uswallow) distance = 0;
 
     for (let mon = state.level.monlist; mon;) {
@@ -173,7 +172,7 @@ export async function charm_monsters(distance, state = game, env = {}) {
 // live fmon chain, draws damage only after the strict range test, and uses
 // sleep_monst()'s boolean before setting the separate msleeping flag.
 export async function put_monsters_to_sleep(distance, state = game, env = {}) {
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     for (let mon = state.level.monlist; mon; mon = mon.nmon) {
         if (mon.mhp < 1) continue;
         if (dist2(mon.mx, mon.my, state.u.ux, state.u.uy) < distance
@@ -260,7 +259,7 @@ export function musicMaybeHalfPhys(damage, state) {
 // named gaps at their C call sites until those source units are ported.
 export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
 
     const chasm = await maketrap(x, y, PIT, { ...env, random });
@@ -377,7 +376,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
 // rn2(14-force) terrain test.
 export async function do_earthquake(force, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const trapAtU = t_at(state.u.ux, state.u.uy, state);
     const tuPit = trapAtU ? Number(is_pit(trapAtU.ttyp)) : 0;
@@ -506,7 +505,7 @@ const beats = ['stepper', 'one drop', 'slow two', 'triple stroke roll',
 // C ref: music.c improvised_notes() (733-753). context.jingle is C's
 // svc.context.jingle, saved/restored with the existing context object.
 // Return the string and C's boolean out-parameter together.
-export function improvised_notes(state = game, random = musicRandom) {
+export function improvised_notes(state = game, random = coreRandom) {
     state.context ??= {};
     if (!(property(state, UNCHANGING) && state.context.jingle)) {
         const count = random.rnd(5); // C char jingle[6], excluding its NUL.
@@ -520,7 +519,7 @@ export function improvised_notes(state = game, random = musicRandom) {
 
 // C ref: music.c do_improvisation() (503-730), every instrument arm.
 export async function do_improvisation(instr, state = game, env = {}) {
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const stunned = Boolean(state.u.uprops[STUNNED]?.intrinsic);
     const confused = Boolean(state.u.uprops[CONFUSION]?.intrinsic);
@@ -662,7 +661,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
 // preserves both loop-coordinate updates made by find_drawbridge().
 export async function do_play_instrument(instr, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? musicRandom;
+    const random = env.random ?? coreRandom;
     let c = 'y';
     if (state.u.uinwater) {
         await message("You can't play music underwater!", state);

@@ -43,7 +43,7 @@ import {
     qt_pager,
     QUEST_PAGER_OUTPUT,
 } from './questpgr.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { the, xname } from './objnam.js';
 import { Monnam, noit_mon_nam } from './do_name.js';
 import { canseemon } from './display.js';
@@ -64,7 +64,7 @@ import { observe_object } from './o_init.js';
 // wait for a key.
 function questConversation(env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const pagerRandom = typeof random === 'function'
         ? random : random.rn2 ?? rn2;
     if (typeof env.unsupported !== 'function')
@@ -101,7 +101,7 @@ export function artitouch(obj, state = game, ops = {}) {
     observe_object(obj, state);
     qs.touched_artifact = true;
 
-    const random = ops.random ?? { rn2 };
+    const random = ops.random ?? coreRandom;
     const output = ops.output ?? QUEST_PAGER_OUTPUT;
     return Promise.resolve(qt_pager(
         'gotit', state, random.rn2, output,
@@ -117,7 +117,7 @@ export function nemdead(state = game, ops = {}) {
     if (status.killed_nemesis) return;
 
     status.killed_nemesis = true;
-    const random = ops.random ?? { rn2, rnd };
+    const random = ops.random ?? coreRandom;
     const pagerRandom = typeof random === 'function' ? random : random.rn2;
     return qt_pager(
         'killed_nemesis', state, pagerRandom,
@@ -157,7 +157,7 @@ export async function nemesis_stinks(mx, my, state = game, ops = {}) {
         await create_gas_cloud(mx, my, 5, 8, {
             ...ops,
             state,
-            random: ops.random ?? { rn2, rnd },
+            random: ops.random ?? coreRandom,
             blockPoint: ops.blockPoint
                 ?? ((x, y) => block_point(x, y, state)),
             canSee: ops.canSee ?? ((x, y) => cansee(x, y, state)),
@@ -249,7 +249,7 @@ export async function finish_quest(obj, env = {}) {
     const state = env.state ?? game;
     const u = state.u;
     const qs = state.svq.quest_status;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const pagerRandom = typeof random === 'function'
         ? random : random.rn2 ?? rn2;
     const message = env.message ?? ttyPline;

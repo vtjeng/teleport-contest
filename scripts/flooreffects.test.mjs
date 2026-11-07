@@ -27,7 +27,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { objects_globals_init } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
-import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
+import { coreRandom, initRng, enableRngLog, getRngLog } from '../js/rng.js';
 import { addinv_runtime, freeinv } from '../js/invent.js';
 import { addtobill, shop_keeper } from '../js/shk.js';
 import { mksobj, newObject, place_object } from '../js/obj.js';
@@ -429,11 +429,11 @@ test('an offscreen pit boulder sound respects acoustics', async () => {
     }
 });
 
-test('boulder_hits_pool supplies the C damage die for a partial random owner',
+test('boulder_hits_pool draws the C damage die from the core set',
     async () => {
         // do.c:65-73 calls d(3,6) when an adjacent boulder does not fill lava.
-        // Only rn2 is overridden here; the selected C helper supplies d/rnd
-        // from the initialized core RNG rather than invoking an absent method.
+        // Only rn2 is overridden here; d() comes from the initialized core
+        // RNG.
         const state = fixture({ typ: LAVAPOOL });
         state.u.ux = DROP_X - 1;
         state.u.uy = DROP_Y;
@@ -444,7 +444,7 @@ test('boulder_hits_pool supplies the C damage die for a partial random owner',
         const boulder = object({ otyp: BOULDER });
 
         assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
-            random: { rn2: (n) => { calls.push(n); return 1; } },
+            random: { ...coreRandom, rn2: (n) => { calls.push(n); return 1; } },
             message: async () => {},
             newsym: () => {},
             wakeNear: async () => {},
@@ -452,7 +452,7 @@ test('boulder_hits_pool supplies the C damage die for a partial random owner',
 
         assert.deepEqual(calls, [10]);
         assert.ok(state.u.uhp < 100 && state.u.uhp >= 82,
-            'the fallback d(3,6) deals one to eighteen damage');
+            'the core d(3,6) deals one to eighteen damage');
         assert.notEqual(boulder.where, OBJ_FREE);
     });
 

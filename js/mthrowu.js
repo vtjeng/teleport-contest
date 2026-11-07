@@ -241,7 +241,7 @@ import {
     vtense,
     xnameFresh,
 } from './objnam.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { note_unported } from './unported.js';
 import { cansee, clear_path, couldsee } from './vision.js';
@@ -312,7 +312,7 @@ const hallublasts = [
 
 // C ref: mthrowu.c rnd_hallublast() (50-55). Return a random hallucinatory
 // blast name. Uses the gameplay RNG (ROLL_FROM macro).
-export function rnd_hallublast(random = { rn2 }) {
+export function rnd_hallublast(random = coreRandom) {
     return hallublasts[random.rn2(hallublasts.length)];
 }
 
@@ -409,7 +409,7 @@ export function linedup_callback(ax, ay, bx, by, fnc, rawEnv = {}) {
 // throw direction. Surface them on state.gt.
 export function linedup(ax, ay, bx, by, boulderhandling, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     state.gt ??= {};
     const tbx = state.gt.tbx = ax - bx;
     const tby = state.gt.tby = ay - by;
@@ -452,7 +452,7 @@ export function linedup(ax, ay, bx, by, boulderhandling, rawEnv = {}) {
 // believes the hero is, <mux,muy>, not at the hero's real square.
 export function m_lined_up(mtarg, mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const utarget = mtarg === state.youmonst;
     const tx = utarget ? mtmp.mux : mtarg.mx;
     const ty = utarget ? mtmp.muy : mtarg.my;
@@ -618,7 +618,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
 // monster's volley in the source order, including the one gameplay RNG draw.
 export function monmulti(monster, missile, launcher, env = {}) {
     const state = env.state ?? game;
-    const random = { rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     let multishot = 1;
 
     if (missile.quan > 1
@@ -679,7 +679,7 @@ export function monmulti(monster, missile, launcher, env = {}) {
 // stop the flight; FALSE if the missile continues.
 export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const message = env.message ?? ttyPline;
 
@@ -908,7 +908,7 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
 // A miss lets the missile continue flying and drop at range expiry or terrain.
 export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const message = env.message ?? ttyPline;
     const arw = autoreturn_weapon(obj);
@@ -1306,7 +1306,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 // throw of a returning weapon (Aklys / Mjollnir). Handles the return flight
 // animation, the message, re-equipping the weapon, and the case where the
 // return goes wrong (weapon hits thrower or drops).
-export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }, rawEnv = {}) {
+export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = coreRandom, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
     // C's three newsym() calls repaint the live map. newsym() paints the
     // module-global game whatever state it is handed, so a foreign state
@@ -1470,7 +1470,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
 // monster. Returns M_ATTK_HIT or M_ATTK_MISS.
 export async function thrwmm(mtmp, mtarg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     /* Polearms won't be applied by monsters against other monsters */
@@ -1520,7 +1520,7 @@ export async function thrwmm(mtmp, mtarg, rawEnv = {}) {
 // Returns M_ATTK_HIT or M_ATTK_MISS.
 export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     if (mtmp.mcan) {
@@ -1600,7 +1600,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
 // C ref: mthrowu.c breathwep_name() (1082-1089). Return the name of a breath
 // weapon. If the player is hallucinating, return a silly name instead.
 // typ is AD_MAGM, AD_FIRE, etc.
-export function breathwep_name(typ, state = game, random = { rn2 }) {
+export function breathwep_name(typ, state = game, random = coreRandom) {
     if (Hallucination(state))
         return rnd_hallublast(random);
     return breathwep[BZ_OFS_AD(typ)];
@@ -1610,7 +1610,7 @@ export function breathwep_name(typ, state = game, random = { rn2 }) {
 // Returns M_ATTK_HIT or M_ATTK_MISS.
 export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     const typ = get_atkdam_type(mattk.adtyp, random);
@@ -1806,7 +1806,7 @@ export async function m_useup(mon, obj, env = {}) {
 // polearm arm and the throw-and-return weapon arm before ordinary monshoot().
 export async function thrwmu(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
@@ -1956,7 +1956,7 @@ export async function breamu(mtmp, mattk, rawEnv = {}) {
 // env.losehp and env.exercise are cycle-breaking injections from the caller.
 // env.random provides rnd(); the caller must supply it.
 export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message;
     if (typeof message !== 'function')
         throw new TypeError('thitu requires a message owner');
@@ -2096,7 +2096,7 @@ export function m_has_launcher_and_ammo(mtmp, state = game) {
 // bars: it might break against the bars (dissolving them if acid), or bounce
 // off with a sound effect, or break the bars when the hero hammers them.
 // *objp is set to null if the object breaks.
-export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = game, random = { rn2 }, rawEnv = {}) {
+export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = game, random = coreRandom, rawEnv = {}) {
     const otmp = objRef.obj;
     const obj_type = otmp.otyp;
     const location = state.level.at(barsx, barsy);
@@ -2182,7 +2182,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
 // C ref: mthrowu.c hits_bars() (1498-1559). TRUE iff a thrown/kicked/rolled
 // object doesn't pass through iron bars. When whodidit != -1 and the object
 // would hit, calls hit_bars() to resolve breakage and sound effects.
-export async function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, state = game, random = { rn2 }, rawEnv = {}) {
+export async function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, state = game, random = coreRandom, rawEnv = {}) {
     const otmp = obj_ref.obj;
     const obj_type = otmp.otyp;
     let hits = Boolean(always_hit);

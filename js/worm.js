@@ -15,7 +15,7 @@ import {
     NON_PM,
 } from './const.js';
 import { game } from './gstate.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 import { cansee } from './vision.js';
 import {
     newsym,
@@ -55,7 +55,7 @@ function wormEnvironment(rawEnv = {}) {
     // Keep the three source random operations bound to rng.js unless a caller
     // explicitly injects an override. Synthesizing rnd/d from rn2 changes the
     // recorder's call sites and can reorder their source attribution.
-    const random = { rn1, rn2, rnd, d, ...(supplied.random ?? {}) };
+    const random = supplied.random ?? coreRandom;
     return { ...supplied, state, random };
 }
 

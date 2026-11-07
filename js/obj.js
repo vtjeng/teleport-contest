@@ -175,12 +175,9 @@ import {
     Yname2, donameFresh, erosion_matters, obj_typename, otense, simpleonames,
 } from './objnam.js';
 import {
-    pushRngLogEntry,
-    rn1 as coreRn1,
+    coreRandom,
+    coreRandomFor,
     rn2 as coreRn2,
-    rnd as coreRnd,
-    rne as coreRne,
-    rnz as coreRnz,
 } from './rng.js';
 import {
     attach_egg_hatch_timeout,
@@ -614,60 +611,14 @@ export function objectType(objOrType, state = game) {
     return type;
 }
 
+// C ref: rnd.c. A non-global state (a planning clone) reads rne()'s level and
+// rnl()'s Luck from its own hero.
 function sourceRandom(env) {
     const injected = env?.random;
-    const state = env?.state ?? game;
-    if (injected != null) {
-        const names = ['rn2', 'rnd', 'rn1', 'rne'];
-        if (!names.every((name) => typeof injected[name] === 'function')) {
-            throw new TypeError(
-                'random injection requires rn2, rnd, rn1, and rne',
-            );
-        }
-        const random = Object.fromEntries(
-            names.map((name) => [name, injected[name]]),
-        );
-        // C ref: rnd.c rnz(). Callers such as mkmaze.c populate_maze() inject
-        // the logging rn2() and rne() without rnz(); C's rnz() logs its own
-        // result after those draws, so this composition must too.
-        random.rnz = typeof injected.rnz === 'function'
-            ? injected.rnz
-            : (value) => {
-                const scale = (1000 + random.rn2(1000)) * random.rne(4);
-                const result = random.rn2(2)
-                    ? Math.trunc(value * scale / 1000)
-                    : Math.trunc(value * 1000 / scale);
-                pushRngLogEntry(`rnz(${value})=${result}`);
-                return result;
-            };
-        return random;
-    }
-
-    const stateAwareRne = (bound) => {
-        const level = Math.trunc(state.u?.ulevel ?? 1);
-        const limit = level < 15 ? 5 : Math.trunc(level / 3);
-        let result = 1;
-        while (result < limit && !coreRn2(bound)) ++result;
-        // coreRne logs this after its internal rn2 calls. Keep the same
-        // recorder-visible identity when a non-global state supplies ulevel.
-        pushRngLogEntry(`rne(${bound})=${result}`);
-        return result;
-    };
-    const stateAwareRnz = (value) => {
-        const scale = (1000 + coreRn2(1000)) * stateAwareRne(4);
-        const result = coreRn2(2)
-            ? Math.trunc(value * scale / 1000)
-            : Math.trunc(value * 1000 / scale);
-        pushRngLogEntry(`rnz(${value})=${result}`);
-        return result;
-    };
-    return {
-        rn2: coreRn2,
-        rnd: coreRnd,
-        rn1: coreRn1,
-        rne: state === game ? coreRne : stateAwareRne,
-        rnz: state === game ? coreRnz : stateAwareRnz,
-    };
+    if (injected == null) return coreRandomFor(env?.state ?? game);
+    if (!['rn2', 'rnd', 'rn1', 'rne'].every((name) => typeof injected[name] === 'function'))
+        throw new TypeError('random injection requires rn2, rnd, rn1, and rne');
+    return injected;
 }
 
 function objectEnv(env = {}) {
@@ -3994,7 +3945,7 @@ export async function obj_absorb(otmp1, otmp2, state = game, env = {}) {
 // updates the display and unhides monsters where the absorbed glob stood.
 // C takes struct obj **; JS takes the objects directly and returns the survivor.
 export async function obj_meld(otmp1, otmp2, state = game, env = {}) {
-    const random = env.random ?? { rn2: coreRn2 };
+    const random = env.random ?? coreRandom;
     let result = null;
     if (otmp1 && otmp2) {
         if (otmp1 !== otmp2) {

@@ -140,7 +140,7 @@ import {
     weight,
 } from './obj.js';
 import { priestini } from './priest.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { inside_room } from './room_coordinates.js';
 import { t_at } from './trap.js';
 import { SHTYPES } from './shtypes_data.js';
@@ -191,8 +191,6 @@ import {
     S_vwall,
     S_water,
 } from './symbols.js';
-
-const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 export function cmap_to_type(symbol) {
     switch (symbol) {
@@ -553,7 +551,7 @@ function mkshop(state, random) {
 // C ref: mkroom.c pick_room(). Zoo-family rooms prefer a one-door ordinary
 // room, may use the down-stair room one time in three, and never use the
 // up-stair room. The non-strict form is the one mkzoo() calls.
-export function pick_room(strict, state = game, random = SOURCE_RANDOM) {
+export function pick_room(strict, state = game, random = coreRandom) {
     let index = random.rn2(state.level.nroom);
     for (let remaining = state.level.nroom; remaining-- > 0;) {
         const sroom = state.level.rooms[index];
@@ -583,7 +581,7 @@ function mkzoo(type, state, random) {
 // C ref: mkroom.c courtmon(). D:5 can reach the kobold, gnome, hobgoblin,
 // bugbear and orc outcomes; the higher thresholds remain source-complete for
 // callers that exercise this pure selector at a deeper difficulty.
-export function courtmon(state = game, random = SOURCE_RANDOM) {
+export function courtmon(state = game, random = coreRandom) {
     const i = random.rn2(60) + random.rn2(3 * level_difficulty(state));
     if (i > 100) return mkclass(S_DRAGON, 0, { state, random });
     if (i > 95) return mkclass(S_GIANT, 0, { state, random });
@@ -599,7 +597,7 @@ export function courtmon(state = game, random = SOURCE_RANDOM) {
 // C ref: mkroom.c mkundead(). Select and place each attempt before examining
 // its floor corpse. A successful revival consumes that attempt's creation.
 export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv = {}) {
-    const random = { ...SOURCE_RANDOM, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     let count = Math.trunc((level_difficulty(state) + 1) / 10) + random.rnd(5);
     while (count-- > 0) {
@@ -617,7 +615,7 @@ export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv 
 }
 
 // C ref: mkroom.c morguemon().
-export function morguemon(state = game, random = SOURCE_RANDOM) {
+export function morguemon(state = game, random = coreRandom) {
     const i = random.rn2(100);
     const hd = random.rn2(level_difficulty(state));
 
@@ -678,7 +676,7 @@ const squadprob = Object.freeze([
 // C ref: mkroom.c squadmon(). Return a soldier type selected by the source's
 // cumulative table, including its uniform fallback draw when the difficulty
 // makes the first roll exceed the table's 80-point common range.
-export function squadmon(state = game, random = SOURCE_RANDOM) {
+export function squadmon(state = game, random = coreRandom) {
     const selectedProbability = random.rnd(80 + level_difficulty(state));
     let cumulativeProbability = 0;
     let monsterIndex;
@@ -702,7 +700,7 @@ export function squadmon(state = game, random = SOURCE_RANDOM) {
 // fires. The rnd(10) call must still happen to keep the RNG aligned.
 export function mk_tt_object(objtype, x, y, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? SOURCE_RANDOM;
+    const random = env.random ?? coreRandom;
     const normalized = { ...env, state, random };
     const otmp = mksobj_at(objtype, x, y, objtype !== STATUE, false, normalized);
     random.rnd(10);
@@ -757,7 +755,7 @@ export function courtCellIsFillable(sroom, x, y, state) {
 // by sp_lev.c fill_special_room(), including their source-ordered side effects.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? SOURCE_RANDOM;
+    const random = env.random ?? coreRandom;
     // C's fill_special_room() may run after level_finalize_topology() has
     // cleared in_mklev.  Keep that state transition intact while marking the
     // exact internal level-filling call shape for makemon's admission gate.
@@ -1004,7 +1002,7 @@ function mktemple(state, random) {
 
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
 // level, with the type its depth selects.
-export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
+export function do_mkroom(roomtype, state = game, random = coreRandom) {
     if (roomtype >= SHOPBASE) {
         mkshop(state, random);
         return;

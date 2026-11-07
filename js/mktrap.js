@@ -105,7 +105,7 @@ import {
     WAX_CANDLE,
     WEAPON_CLASS,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
@@ -114,7 +114,7 @@ function levelTrapEnv(env = {}) {
     return {
         ...env,
         state: env.state ?? game,
-        random: env.random ?? { d, rn1, rn2, rnd, rne, rnz },
+        random: env.random ?? coreRandom,
         hooks: env.hooks ?? {},
     };
 }

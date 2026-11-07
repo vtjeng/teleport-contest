@@ -26,7 +26,7 @@ import { newpw } from './exper.js';
 import { game } from './gstate.js';
 import { M3_INFRAVISION } from './monsters.js';
 import { MAXSPELL } from './objects.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 import { aligns } from './roles.js';
 
 export const RIGHT_HANDED = 0;
@@ -355,7 +355,7 @@ export function max_rank_sz(state) {
  */
 export async function u_init_misc(
     state = game,
-    random = { rn2, rnd },
+    random = coreRandom,
     { now = new Date() } = {},
 ) {
     if (!state.urole || !state.urace)

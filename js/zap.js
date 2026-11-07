@@ -176,8 +176,8 @@ import {
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
     healup, make_blinded, incr_itimeout, make_stunned, speed_up, self_invis_message, } from './potion.js';
-import {
-    d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz, } from './rng.js';
+import { coreRandom,
+    d, rn1, rn2, rn2_on_display_rng, rnd, } from './rng.js';
 import {
     killed, shieldeff_mon, monkilled, mlifesaver, normal_shape, replmon, restore_cham, seemimic, healmon, hideunder, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
 import { dmgval } from './weapon.js';
@@ -380,9 +380,9 @@ export async function boomhit(
                     {
                         message: ttyPline,
                         losehp,
-                        random: { rnd },
+                        random: coreRandom,
                         exercise: (index, increase, subject) => exercise(
-                            index, increase, subject, { rn2 },
+                            index, increase, subject, coreRandom,
                             { encumberMessage: encumber_msg },
                         ),
                     },
@@ -457,7 +457,7 @@ export class UnsupportedRevivalError extends Error {
 }
 
 function revivalEnv(rawEnv = {}) {
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     return { ...rawEnv, random, state: rawEnv.state ?? game };
 }
 
@@ -944,7 +944,7 @@ export async function dozap(state = game) {
         // exercise() below, whose -rn2(2) draw would otherwise follow.
         if (state.program_state?.gameover) return ECMD_TIME;
         await exercise(
-            A_STR, false, state, { rn2 },
+            A_STR, false, state, coreRandom,
             { encumberMessage: encumber_msg },
         );
         // backfire() freed obj and refreshed inventory; C returns before the
@@ -1153,15 +1153,7 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
 export async function unturn_you(state = game, rawEnv = {}) {
     // Monster actions pass a cloned RNG through mbhitm(); direct self-zaps
     // keep using the live game stream when no invocation stream is supplied.
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, random };
     const message = rawEnv.message ?? ttyPline;
     await unturn_dead(state.youmonst, state, env);
@@ -1194,7 +1186,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     let learn_it = false;
     let damage = 0;
     let orig_dmg = 0;
-    const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = coreRandom;
     const env = { state, random };
 
     switch (obj.otyp) {
@@ -1602,7 +1594,7 @@ export async function miss(str, mtmp, state = game, env = {}) {
 // When `tell` is truthy (TELL = 1), shows a shield effect and "<monster>
 // resists!" message; when falsy (NOTELL = 0), silent.
 export async function resist(mtmp, oclass, damage, tell, state = game,
-    random = { rn2 }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     /* fake players always pass resistance test against Conflict */
     if (oclass === RING_CLASS && !damage && !tell && is_mplayer(mtmp.data))
         return 1;
@@ -1639,11 +1631,7 @@ export async function resist(mtmp, oclass, damage, tell, state = game,
             const killEnv = {
                 ...rawEnv,
                 state,
-                random: {
-                    d, rn1, rn2, rnd, rne, rnz,
-                    ...random,
-                    ...(rawEnv.random ?? {}),
-                },
+                random: rawEnv.random ?? random,
                 message: rawEnv.message ?? ttyPline,
                 unsupported: rawEnv.unsupported
                     ?? ((reason) => note_unported(`mon.c ${reason}`)),
@@ -1689,7 +1677,7 @@ export async function zhitm(
     type,
     nd,
     state = game,
-    random = { d, rn2, rnd },
+    random = coreRandom,
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state, random };
@@ -2212,7 +2200,7 @@ function zapObjectEnv(state, random, rawEnv = {}) {
 // The first four terms are the source macro; obj_resists() is the final
 // ordinary/artifact protection check and is evaluated when those terms allow
 // execution to reach it.
-export function obj_unpolyable(obj, state = game, random = { rn2 }) {
+export function obj_unpolyable(obj, state = game, random = coreRandom) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('obj_unpolyable requires an object');
     if (obj.otyp === WAN_POLYMORPH
@@ -2227,7 +2215,7 @@ export function obj_unpolyable(obj, state = game, random = { rn2 }) {
 
 // C ref: zap.c obj_shudders() (1476-1499).  This is pure apart from the one
 // rn2 which chooses whether system shock happens.
-export function obj_shudders(obj, state = game, random = { rn2 }) {
+export function obj_shudders(obj, state = game, random = coreRandom) {
     if (state.context?.bypasses && obj.bypass) return false;
     let odds;
     if (obj.oclass === WAND_CLASS || obj.cursed) odds = 3;
@@ -2240,7 +2228,7 @@ export function obj_shudders(obj, state = game, random = { rn2 }) {
 // C ref: zap.c do_osshock() (1637-1674).  delobj() consumes the final
 // object-resistance draw after the system-shock roll, so keep deletion in the
 // source order instead of using a direct grid splice.
-export async function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
+export async function do_osshock(obj, state = game, random = coreRandom, rawEnv = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('do_osshock requires an object');
     // MAIL_STRUCTURES is enabled by the recorder build.  C never shocks a
@@ -2282,7 +2270,7 @@ export async function do_osshock(obj, state = game, random = { rn2, rnd }, rawEn
 // C ref: zap.c polyuse() (1505-1544).  The object successor is captured
 // before each deletion because delobj() changes both pile chains.
 export async function polyuse(objhdr, material, minwt, state = game,
-    random = { rn2 }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     let current = objhdr;
     while (minwt > 0 && current) {
         const next = current.nexthere;
@@ -2316,7 +2304,7 @@ export async function polyuse(objhdr, material, minwt, state = game,
 // witness does not enter it, but retaining the source selection and calling
 // canonical makemon/polyuse keeps the state contract complete when it does.
 export async function create_polymon(obj, material, state = game,
-    random = { rn2 }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     if (state.context?.bypasses) {
         // Bypassed objects form the consecutive prefix of the pile in C.
         // Skip that prefix before deciding whether enough material remains.
@@ -2410,7 +2398,7 @@ export async function create_polymon(obj, material, state = game,
 // and deletion remain in their canonical obj/invent owners; this function
 // carries zap.c's polymorph-specific choice and field preservation.
 export async function poly_obj(obj, id, state = game,
-    random = { rn2, rnd }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('poly_obj requires an object');
     const env = zapObjectEnv(state, random, rawEnv);
@@ -2697,7 +2685,7 @@ export async function poly_obj(obj, id, state = game,
 // callback used by bhito(); it handles both ordinary mineral replacement and
 // statue/figurine revival before reporting whether the object was affected.
 export async function stone_to_flesh_obj(obj, state = game,
-    random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const norepMessage = rawEnv.norepMessage ?? ttyNorep;
     const env = zapObjectEnv(state, random, {
@@ -2855,7 +2843,7 @@ export async function stone_to_flesh_obj(obj, state = game,
 // C ref: zap.c fracture_rock() (5537-5580), shared by striking, pick-axe,
 // vault-guard, and shopkeeper hits. Sokoban's guilt helper is still a named
 // void gap; shop billing and object conversion retain their source order.
-export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv = {}) {
+export async function fracture_rock(obj, state = game, random = coreRandom, rawEnv = {}) {
     const objectEnv = zapObjectEnv(state, random, rawEnv);
     const redraw = rawEnv.redraw ?? rawEnv.newsym
         ?? (!rawEnv.planning && state === game ? newsym : () => {});
@@ -2890,7 +2878,7 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
             await breakobj(obj, location.x, location.y, true, false, {
                 ...rawEnv,
                 state,
-                random: { ...random, d: random.d ?? d, rn1: random.rn1 ?? rn1 },
+                random,
             });
         }
     }
@@ -2923,7 +2911,7 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
 // C ref: zap.c break_statue() (5582-5607). The statue trap's return decides
 // whether the statue itself should fracture; historic archeologist statues
 // lose alignment before that conversion.
-export async function break_statue(obj, state = game, random = { rn1 }, rawEnv = {}) {
+export async function break_statue(obj, state = game, random = coreRandom, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const objectEnv = zapObjectEnv(state, random, rawEnv);
     const trap = t_at(obj.ox, obj.oy, state);
@@ -3085,7 +3073,7 @@ export function blank_novel(obj, env = {}) {
 // `random`, status refresh and inventory output stay with this invocation so
 // a planning clone never writes through the live game.
 export function drain_item(obj, byYou, state = game, rawEnv = {}) {
-    const random = { rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const statusRefresh = rawEnv.statusRefresh
         ?? (rawEnv.planning ? () => {} : () => bot());
     if (!obj
@@ -3162,7 +3150,7 @@ export function drain_item(obj, byYou, state = game, rawEnv = {}) {
 // C ref: zap.c bhito() (2119-2427), complete floor-object callback. Void
 // callees without a JS owner are recorded and skipped at their source sites.
 export async function bhito(obj, wand, state = game,
-    random = { rn2, rnd }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     let res = 1;
     let learn_it = false;
     let maybelearnit = false;
@@ -3294,12 +3282,7 @@ export async function bhito(obj, wand, state = game,
                 const breakEnv = {
                     ...rawEnv,
                     state,
-                    random: {
-                        ...random,
-                        d: random.d ?? d,
-                        rn1: random.rn1 ?? rn1,
-                        rnd: random.rnd ?? rnd,
-                    },
+                    random,
                 };
                 const broken = state.context?.mon_moving
                     ? await breaks(obj, ox, oy, breakEnv)
@@ -3450,7 +3433,7 @@ function bhitmRelocationEnv(state, random, rawEnv = {}) {
 }
 
 export async function bhitm(monster, wand, state = game,
-    random = { d, rn2, rnd }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     // bhit() consumes the callback's return value while walking the ray.
     state.gn ??= {};
     const hitpos = state.gb?.bhitpos ?? { x: monster.mx, y: monster.my };
@@ -3930,7 +3913,7 @@ export async function bhitm(monster, wand, state = game,
 // C ref: zap.c bhitpile() (2428-2537).  Every floor callback receives the
 // object successor captured before the callback can replace or delete it.
 export async function bhitpile(wand, tx, ty, state = game,
-    random = { rn2, rnd }, rawEnv = {}, zz = 0, fhito = bhito) {
+    random = coreRandom, rawEnv = {}, zz = 0, fhito = bhito) {
     let object = state.level?.objects?.[tx]?.[ty] ?? null;
     if (!object) return 0;
     const hidingunder = zz !== 0
@@ -3997,7 +3980,7 @@ export async function maybe_explode_trap(
     object,
     learnIt,
     state = game,
-    random = {},
+    random = coreRandom,
     rawEnv = {},
 ) {
     if (!trap || !object
@@ -4014,19 +3997,15 @@ export async function maybe_explode_trap(
         }
     } else if (is_magical_trap(trap.ttyp)) {
         const seeIt = cansee(x, y, state);
-        const explosionRandom = {
-            d, rn1, rn2, rnl, rnd, rne,
-            ...random,
-        };
         await explode(
             x,
             y,
             -WAN_CANCELLATION,
-            20 + (random.d ?? d)(3, 6),
+            20 + random.d(3, 6),
             TRAP_EXPLODE,
             EXPL_MAGICAL,
             state,
-            { ...rawEnv, random: explosionRandom },
+            { ...rawEnv, random },
         );
         deltrap(trap, state);
         newsym(x, y, state);
@@ -4036,7 +4015,7 @@ export async function maybe_explode_trap(
 
 export async function zap_map(
     x, y, wand, state = game,
-    random = { d, rn2, rn2_on_display_rng }, rawEnv = {},
+    random = coreRandom, rawEnv = {},
 ) {
     const trapLearn = { value: false };
     await maybe_explode_trap(
@@ -4069,7 +4048,7 @@ export async function zap_map(
                 await draft_message(false, {
                     ...rawEnv,
                     state,
-                    random: { ...random, rn1: random.rn1 ?? rn1 },
+                    random,
                     message: rawEnv.message ?? ttyPline,
                 });
             }
@@ -4092,14 +4071,7 @@ export async function zap_map(
             trap.tseen = 1;
             newsym(x, y);
             if (!alreadySeen || hallucinatory) {
-                const displayRandom = {
-                    ...random,
-                    rn2_on_display_rng: random.rn2_on_display_rng
-                        ?? ((bound) => rn2_on_display_rng(bound, state)),
-                };
-                const name = trapname(
-                    trap.ttyp, false, state, displayRandom,
-                );
+                const name = trapname(trap.ttyp, false, state, random);
                 const useThe = !hallucinatory
                     ? trap.ttyp === VIBRATING_SQUARE
                         && Invocation_lev(state.u.uz, state)
@@ -4218,7 +4190,7 @@ export async function zap_map(
 // C ref: zap.c skiprange() (3578-3590). Picks the range window over which a
 // thrown rock may skip. Its rnd() draws are part of the stream whether or not
 // any water lies ahead, so the caller runs it for every thrown rock.
-export function skiprange(range, random = { rnd }) {
+export function skiprange(range, random = coreRandom) {
     const tr = Math.trunc(range / 4);
     const tmp = range - (tr > 0 ? random.rnd(tr) : 0);
     let skipend = tmp - Math.trunc(tmp / 4) * random.rnd(3);
@@ -4235,7 +4207,7 @@ export async function bhit(
     fhito,
     pobj,
     state = game,
-    random = { rn2, rnd },
+    random = coreRandom,
     rawEnv = {},
 ) {
     let obj = pobj.obj;
@@ -4695,7 +4667,7 @@ function Half_spell_damage(state) {
 // player reads afterwards names the bolt that killed them. The hallucinating
 // arm needs rnd_hallublast(), which draws, so it stops; dobuzz() stops on the
 // same property one call earlier.
-export function flash_str(typ, nohallu, state = game, random = { rn2 }) {
+export function flash_str(typ, nohallu, state = game, random = coreRandom) {
     typ = zaptype(typ);
     if (!nohallu && Hallucination(state)) {
         return `blast of ${rnd_hallublast(random)}`;
@@ -4754,7 +4726,7 @@ export function u_adtyp_resistance_obj(dmgtyp, state = game) {
 export function inventory_resistance_check(
     dmgtyp,
     state = game,
-    random = { rn2 },
+    random = coreRandom,
 ) {
     const prob = u_adtyp_resistance_obj(dmgtyp, state);
     if (!prob) return false;
@@ -4824,7 +4796,7 @@ function negate(delta) {
 }
 
 export function bounce_dir(
-    sx, sy, ddx, ddy, bounceback, state = game, random = { rn2 },
+    sx, sy, ddx, ddy, bounceback, state = game, random = coreRandom,
 ) {
     if (!ddx || !ddy || (bounceback > 0 && !random.rn2(bounceback))) {
         return { dx: negate(ddx), dy: negate(ddy) };
@@ -4896,7 +4868,7 @@ export function spell_hit_bonus(skill, state = game) {
     return hitBonus;
 }
 
-export function zap_hit(ac, type, random = { rn2, rnd }, state = game) {
+export function zap_hit(ac, type, random = coreRandom, state = game) {
     const chance = random.rn2(20);
     const spell_bonus = type ? spell_hit_bonus(type, state) : 0;
 
@@ -4945,7 +4917,7 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
 // losehp() call, except fatal death/disintegration, which returns immediately
 // after done() even when life-saving or wizard recovery lets play continue.
 export async function zhitu(type, nd, fltxt, sx, sy, state = game,
-                            random = { rn2, rnd, d, rn1 }, rawEnv = {}) {
+                            random = coreRandom, rawEnv = {}) {
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const env = { ...rawEnv, state, random, message };
@@ -5210,7 +5182,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
 // a returned zero installs the level timer, while exhaustion leaves the ice
 // permanent.
 export function start_melt_ice_timeout(
-    x, y, minTime, state = game, random = { rn2 },
+    x, y, minTime, state = game, random = coreRandom,
 ) {
     let when = Math.trunc(minTime);
     if (when < 49) when = 49;
@@ -5279,7 +5251,7 @@ export async function zap_over_floor(
     ignoremon,
     exploding_wand_typ,
     state = game,
-    random = { rn2, rnd },
+    random = coreRandom,
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state, random };
@@ -5601,7 +5573,7 @@ export async function zap_over_floor(
             await draft_message(false, {
                 ...env,
                 state,
-                random: { ...random, rn1: random.rn1 ?? rn1 },
+                random,
                 message,
             });
         }
@@ -5717,7 +5689,7 @@ export async function mon_spell_hits_spot(
     _caster, adtyp, x, y, rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     if (adtyp === AD_MAGM || adtyp === AD_ACID) {
@@ -5968,7 +5940,7 @@ export async function dobuzz(
     sayhit, saymiss,    /* report out of sight hit/miss events */
     forcemiss,
     state = game,
-    random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    random = coreRandom,
     rawEnv = {},
 ) {
     const message = rawEnv.planning ? async () => {}
@@ -6284,7 +6256,7 @@ export async function dobuzz(
 // C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
 // square along u.dx/u.dy.
 export async function ubuzz(
-    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+    type, nd, state = game, random = coreRandom, rawEnv = {},
 ) {
     return dobuzz(
         type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
@@ -6297,7 +6269,7 @@ export async function ubuzz(
 // forcemiss=false.
 export async function buzz(
     type, nd, sx, sy, dx, dy,
-    state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+    state = game, random = coreRandom, rawEnv = {},
 ) {
     return dobuzz(type, nd, sx, sy, dx, dy, true, false, false, state, random, rawEnv);
 }
@@ -6306,7 +6278,7 @@ export async function buzz(
 // breath attack against self (direction '.').  Delegates to zhitu() with the
 // hero-breath type offset and the hero's own coordinates.
 export async function ubreatheu(
-    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+    mattk, state = game, random = coreRandom, rawEnv = {},
 ) {
     // C: int dtyp = 20 + mattk->adtyp - 1;  /* breath by hero */
     const dtyp = 20 + mattk.adtyp - 1;
@@ -6319,7 +6291,7 @@ export async function ubreatheu(
 // prints the trailing line before exercising Wisdom.
 export async function do_enlightenment_effect(
     state = game,
-    random = { rn2 },
+    random = coreRandom,
 ) {
     await ttyPline('You feel self-knowledgeable...', state);
     await displayPendingTtyMessageWindow(state);
@@ -6345,7 +6317,7 @@ export async function do_enlightenment_effect(
 // versions of light and unseen detection call this same function from
 // spell.c:spelleffects through weffects().
 export async function zapnodir(obj, state = game,
-    random = { rn1, rn2 }) {
+    random = coreRandom) {
     let known = false;
     switch (obj.otyp) {
     case WAN_LIGHT:
@@ -6418,7 +6390,7 @@ export async function zapwrapup(state = game, rawEnv = {}) {
 
 // C ref: zap.c zap_steed() (3087-3142).  Probing and teleportation have their
 // own steed behavior; the source's listed effect types delegate to bhitm().
-export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
+export async function zap_steed(obj, state = game, random = coreRandom, rawEnv = {}) {
     const steed = state.u?.usteed;
     if (!steed) return false;
     state.gb ??= {};
@@ -6470,7 +6442,7 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
 // probing, knock/opening, striking/force bolt, locking/wizard lock, and stone
 // to flesh before the shared floor-pile/map or ceiling-hiding behavior.
 export async function zap_updown(obj, state = game,
-    random = { d, rn2, rnd }, rawEnv = {}) {
+    random = coreRandom, rawEnv = {}) {
     const x = state.u.ux;
     const y = state.u.uy;
     let xx = x;
@@ -6702,7 +6674,7 @@ export async function zap_updown(obj, state = game,
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
 // types 0..5 in the order objects.h:1488 lists them.
 export async function weffects(
-    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+    obj, state = game, random = coreRandom, rawEnv = {},
 ) {
     const otyp = obj.otyp;
     let disclose = false;
@@ -6781,7 +6753,7 @@ export async function cancel_monst(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const youdefend = (mdef === state.youmonst);

@@ -2442,17 +2442,6 @@ test('hallucinatory clone search preserves isolated display capabilities before 
         /injected displayFoundTrap for non-global state/u);
     assert.deepEqual(events, []);
     random.done();
-
-    const operations = recordingOperations(state, events);
-    const noDisplayRandom = scriptedRandom(events, []);
-    await assert.rejects(dosearch0(0, {
-        state,
-        random: noDisplayRandom,
-        ...operations,
-        trapName: undefined,
-    }), /random\.rn2_on_display_rng for hallucinatory trap naming/u);
-    assert.deepEqual(events, []);
-    noDisplayRandom.done();
 });
 
 

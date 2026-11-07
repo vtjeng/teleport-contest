@@ -83,7 +83,7 @@ import { otense, xnameFresh, yname, Yname2 } from './objnam.js';
 import { body_part } from './polyself.js';
 import { hard_helmet } from './do_wear.js';
 import { encumber_msg } from './pickup.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { setuwep, welded } from './wield.js';
@@ -333,7 +333,7 @@ export async function ballfall(state = game, rawEnv = {}) {
     const ball = state.uball;
     if (!ball || (carried(ball) && welded(ball, state, rawEnv))) return;
 
-    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const getsHit = (ball.ox !== state.u.ux || ball.oy !== state.u.uy)
         && (state.uwep === ball ? false : Boolean(random.rn2(5)));
     await ballrelease(true, state);
@@ -422,7 +422,7 @@ export async function drag_down(state = game) {
                 state,
             );
             if (state.program_state?.gameover) return;
-            await exercise(A_STR, false, state, { rn2 }, {
+            await exercise(A_STR, false, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
             dragchance -= 2;
@@ -436,7 +436,7 @@ export async function drag_down(state = game) {
                 state,
             );
             if (state.program_state?.gameover) return;
-            await exercise(A_STR, false, state, { rn2 }, {
+            await exercise(A_STR, false, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
             await litter(state);

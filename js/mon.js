@@ -683,7 +683,7 @@ import {
 import { end_burn, kill_egg, obj_stop_timers } from './timeout.js';
 import { migrate_to_level, wary_dog } from './dog.js';
 import { m_useup } from './mthrowu.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     mdrop_special_objs,
@@ -1314,7 +1314,7 @@ export function set_ustuck(mtmp, state = game) {
 // missing owner cannot duplicate its fog-cloud side effect on retry.
 export async function movemon_singlemon(monster, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
 
     if (state.u?.utotype) {
         state.somebody_can_move = false;
@@ -1606,7 +1606,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
     // monmove.c postmov() replaces with a no-op so that hallucinatory
     // glyphs do not draw from the live display RNG.
     const redraw = rawEnv.redraw ?? newsym;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const visible = canseemon(mtmp, state);
     if (mtmp.mtame) return 0;
 
@@ -1881,8 +1881,8 @@ export async function mon_givit(mtmp, ptr, rawEnv = {}) {
         mtmp.mstun = 1;
         return;
     }
-    const prop = corpse_intrinsic(ptr, rawEnv.random ?? { rn2 });
-    if (!prop || !should_givit(prop, ptr, rawEnv.random ?? { rn2 })) return;
+    const prop = corpse_intrinsic(ptr, rawEnv.random ?? coreRandom);
+    if (!prop || !should_givit(prop, ptr, rawEnv.random ?? coreRandom)) return;
     await mon_give_prop(mtmp, prop, rawEnv);
 }
 
@@ -1952,7 +1952,7 @@ export function check_gear_next_turn(monster) {
 // monmove.c:1680.
 export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     // pline_mon() and newsym(). A planning scan overrides both with no-ops,
     // because it re-runs the same turn against the live display.
@@ -2116,7 +2116,7 @@ export function mm_displacement(magr, mdef, state = game) {
 // homes at monmove.c:96 and :133 put them.
 export function mon_allowflags(monster, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const species = monster.data;
     const conflict = conflictActive(state);
     const canOpen = !(nohands(species) || verysmall(species));
@@ -2325,14 +2325,7 @@ export async function minliquid(monster, env = {}) {
 export async function minliquid_core(monster, env = {}) {
     const state = env.state ?? game;
     const namingEnv = { ...env, state };
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
     const location = state.level?.at?.(monster.mx, monster.my);
     const waterwall = Boolean(location && IS_WATERWALL(location.typ));
     const inpool = is_pool(monster.mx, monster.my, state)
@@ -2568,7 +2561,7 @@ export function mon_regen(monster, digestMeal = false, state = game) {
 }
 
 function distressRandom(env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne']) {
         if (typeof random[name] !== 'function') {
             throw new TypeError(
@@ -3348,7 +3341,7 @@ function coordinateDescriptionForPrompt(x, y, state, mode) {
 // wolf and bat/fog draws, matching the fall-through structure in C.
 export function pickvampshape(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const uppercaseOnly = on_level(state.u?.uz, state.rogue_level);
     let mndx = monster.cham;
     let wolfchance = 10;
@@ -3448,7 +3441,7 @@ export function validvamp(monster, mndxRef, monclass, state = game) {
 // replay and unit tests; the normal caller reaches windows.c getlin().
 export async function wiz_force_cham_form(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const input = rawEnv.getlin ?? getlin;
     const message = rawEnv.message ?? ttyPline;
     const mode = state.iflags?.getpos_coords === GPCOORDS_NONE
@@ -3736,7 +3729,7 @@ export async function new_were(monster, rawEnv = {}) {
 // its creation side effects and random calls remain part of the shriek.
 async function m_respond_shrieker(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     if (!distressDeaf(state)) {
@@ -3797,7 +3790,7 @@ export async function m_respond(monster, rawEnv = {}) {
     }
     if (monster.data === state.mons?.[PM_ERINYS]
         && !monster.mpeaceful && m_canseeu(monster, state)) {
-        aggravate(state, rawEnv.random ?? { rn2 });
+        aggravate(state, rawEnv.random ?? coreRandom);
     }
 }
 
@@ -3866,7 +3859,7 @@ function responseFleeMessage(monster, detail, rawEnv) {
 // draws, and state writes remain in C order.
 export async function peacefuls_respond(attacked, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const attackedIndex = monsndx(attacked.data);
@@ -4009,7 +4002,7 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
 // the target and its witnesses. Message waits preserve the C output order.
 export async function setmangry(monster, via_attack, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const { ux, uy } = state.u;
 
@@ -4071,7 +4064,7 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         const was_peaceful = monster.mpeaceful;
 
         if (was_sleeping)
-            await growl(monster, state, rawEnv.random ?? { rn2 });
+            await growl(monster, state, rawEnv.random ?? coreRandom);
         await setmangry(monster, true, rawEnv);
         if (was_peaceful) {
             if (monster.ispriest
@@ -4256,7 +4249,7 @@ export function m_restartcham(mon, state = game, rawEnv = {}) {
         set_mimic_sym(mon, {
             ...rawEnv,
             state,
-            random: rawEnv.random ?? { rn2 },
+            random: rawEnv.random ?? coreRandom,
         });
         newsym(mon.mx, mon.my);
     }
@@ -4515,7 +4508,7 @@ export function zombie_form(pm) {
 // the monster on to another level.
 export function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const ptr = mtmp.data;
     const swallowed = Boolean(state.u.uswallow);
 
@@ -4976,7 +4969,7 @@ export function m_detach(
                     // role's quest message before stinky_nemesis() reads its
                     // unconverted text; only then can a cloud be created.
                     const { nemdead, nemesis_stinks } = await import('./quest.js');
-                    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+                    const random = env.random ?? coreRandom;
                     await nemdead(state, {
                         random,
                         output: env.output,
@@ -5386,7 +5379,7 @@ export async function anger_quest_guardians(mtmp, state = game, env = {}) {
 // gd.disintegested and gv.vamp_rise_msg, which xkilled() sets around this
 // call, are read by vamprises() and by the life-saved return at 3558.
 export async function mondead(mtmp, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
 
     /* "potential pet message; always clear global flag" */
@@ -5545,7 +5538,7 @@ export async function corpse_chance(
     state = game,
     env = {},
 ) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const mdat = mon.data;
     let i;
@@ -5661,7 +5654,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     // C's global RNG exposes every draw primitive. Caller environments can
     // carry only the subset their own function uses, so fill this source
     // function's defaults before honoring supplied overrides.
-    const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const objectEnv = objectGenerationEnv({ ...env, state, random });
     const message = env.message ?? ttyPline;
     const mdat = mtmp.data;
@@ -5919,7 +5912,7 @@ export async function mondied(mdef, state = game, env = {}) {
 // source order: inventory is detached before the statue is made, and the
 // dead monster is detached only after the square has been redrawn.
 export async function monstone(mdef, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     // C uses the process-global random functions in both monstone() and
     // mkobj.c's statue creation. Keep the internal rn2 fallback local; the
     // object helpers need the caller's complete provider or their own
@@ -6140,7 +6133,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     });
     const message = env.message ?? ttyPline;
     env = { ...env, state, unsupported, message };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const x = mtmp.mx;
     const y = mtmp.my;
     const wasinside = engulfing_u(mtmp, state);
@@ -6634,7 +6627,7 @@ export async function elemental_clog(mon, state = game, env = {}) {
     let m4 = null;
     let m5 = null;
     let mLevel = 0;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
 
     const messageMove = state.elemental_clog_msgmv ?? 0;
     if (!messageMove
@@ -6808,7 +6801,7 @@ function trappedOutsideAPit(monster, state) {
 // frozen mimic revealed after spending only restrap()'s rn2(3).
 export function restrap(monster, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (monster.mcan
         || M_AP_TYPE(monster)
         || cansee(monster.mx, monster.my, state)
@@ -7073,7 +7066,7 @@ export function healmon(mtmp, amt, overheal) {
 // breeder-egg result. Forced ordinary eggs skip that draw, as C's short-circuit
 // expression does.
 export function egg_type_from_parent(mnum, force_ordinary = false, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     if (force_ordinary || random.rn2(77) !== 0) {
         if (mnum === PM_QUEEN_BEE) return PM_KILLER_BEE;
         if (mnum === PM_WINGED_GARGOYLE) return PM_GARGOYLE;
@@ -7099,7 +7092,7 @@ export async function kill_genocided_monsters(state = game, env = {}) {
     const deathEnv = {
         ...env,
         state,
-        random: env.random ?? { d, rn1, rn2, rnd, rne },
+        random: env.random ?? coreRandom,
         message: env.message ?? ttyPline,
         // Preserve the existing death owner's unsupported-operation boundary.
         // Ordinary deaths need no missing operation; special branches still

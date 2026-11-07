@@ -14,6 +14,7 @@ import {
     AD_DGST, AT_ENGL, NON_PM, PM_GAS_SPORE, PM_LICH,
     PM_LIZARD, PM_PURPLE_WORM, PM_DEATH, PM_TITANOTHERE,
 } from '../js/monsters.js';
+import { coreRandom } from '../js/rng.js';
 
 const source = (file) => readFileSync(
     new URL(`../nethack-c/upstream/src/${file}`, import.meta.url), 'utf8',
@@ -172,7 +173,7 @@ test('a contained explosion kills its monster engulfer before death feedback', a
     const magr = place(monster(PM_PURPLE_WORM, { mhp: 2 }));
     const e = effect();
     // Ten points exceed two HP; other corpse/timer draws use the source RNG.
-    e.env.random = { d: () => 10 };
+    e.env.random = { ...coreRandom, d: () => 10 };
     assert.equal(await corpse_chance(monster(PM_GAS_SPORE), magr, true,
         game, e.env), false);
     assert.equal(magr.mhp, 0);

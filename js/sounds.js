@@ -204,7 +204,7 @@ import {
     temple_occupied,
 } from './priest.js';
 import { demon_talk } from './minion.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { aggravate, cuss } from './wizard.js';
 import { genders } from './roles.js';
 
@@ -723,7 +723,7 @@ export function growl_sound(mtmp) {
 //
 // `random` is the injection seam for the hallucination draw; the game passes
 // nothing and draws from the core stream.
-export async function growl(mtmp, state = game, random = { rn2 }) {
+export async function growl(mtmp, state = game, random = coreRandom) {
     let growl_verb = 0;
 
     if (helpless(mtmp) || mtmp.data?.msound === MS_SILENT)
@@ -761,7 +761,7 @@ export async function growl(mtmp, state = game, random = { rn2 }) {
 // C's Soundeffect() calls are omitted: the recorder's soundlib is `nosound`,
 // whose soundprocs.sound_soundeffect is null, so the macro expands to a test
 // that never fires.
-export async function yelp(mtmp, state = game, random = { rn2 }) {
+export async function yelp(mtmp, state = game, random = coreRandom) {
     let yelp_verb = 0;
 
     if (helpless(mtmp) || !mtmp.data?.msound)
@@ -810,7 +810,7 @@ export async function yelp(mtmp, state = game, random = { rn2 }) {
 // C ref: sounds.c whimper() (479-515), the sounds of distressed pets.
 export async function whimper(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     let whimper_verb = 0;
 
@@ -884,7 +884,7 @@ export async function beg(mtmp, rawEnv = {}) {
 
 // C ref: sounds.c maybe_gasp() (546-609). The caller has already established
 // that a peaceful humanoid witnessed the hero attack another peaceful.
-export function maybe_gasp(mon, state = game, random = { rn2 }) {
+export function maybe_gasp(mon, state = game, random = coreRandom) {
     const exclamations = ['Gasp!', 'Uh-oh.', 'Oh my!', 'What?', 'Why?'];
     const mptr = mon.data;
     let msound = mptr?.msound ?? MS_SILENT;
@@ -979,7 +979,7 @@ export class UnsupportedChatError extends Error {
 // be polymorphed and still speaks with quest-leader dialogue. The switch is
 // kept in the source order so its fall-through and random draws stay visible.
 export async function domonnoise(mtmp, state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2, rnd, rn1 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
@@ -1191,7 +1191,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         break;
     case MS_SHRIEK:
         plineMsg = 'shrieks.';
-        aggravate(state, { rn2 });
+        aggravate(state, coreRandom);
         break;
     case MS_IMITATE:
         plineMsg = 'imitates you.';
@@ -1379,7 +1379,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             && !state.svc?.context?.tribute?.Deathnotice
             && u_have_novel(state)) {
             const book = u_have_novel(state);
-            const title = noveltitle(book.novelidx, { random: { rn2 } });
+            const title = noveltitle(book.novelidx, { random: coreRandom });
             book.novelidx = title.novelidx;
             verbalMsg = `Ah, so you have a copy of /${title.title}/.`;
             if (title.title.toLowerCase() !== 'snuff'
@@ -1662,7 +1662,7 @@ export async function tiphat(state = game, rawEnv = {}) {
     res = 1;
 
     const message = rawEnv.message ?? ttyPline;
-    const random = rawEnv.random ?? { rn1, rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const seesMonster = rawEnv.canseemon ?? canseemon;
     const couldSee = rawEnv.couldsee ?? couldsee;
     const displayedGlyph = rawEnv.glyph_at ?? glyph_at;

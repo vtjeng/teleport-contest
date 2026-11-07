@@ -138,7 +138,7 @@ import { body_part, uasmon_maxStr } from './polyself.js';
 // both sides use the other's exports only inside function bodies, so the
 // cycle resolves.
 import { make_confused } from './potion.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn1, rn2 } from './rng.js';
 import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { summon_furies } from './makemon.js';
@@ -650,7 +650,7 @@ function ensureIncrementArray(u, key) {
 
 // C ref: attrib.c newhp(). The initial branch is the one used by
 // u_init_misc(), but the level-gain branches are kept here with it.
-export function newhp(state = game, random = { rnd }) {
+export function newhp(state = game, random = coreRandom) {
     const u = state.u;
     const { role, race } = roleAndRace(state);
     if (!u) throw new Error('hero state must be initialized first');
@@ -844,7 +844,7 @@ function init_attr_role_redist(state, points, addition, random) {
 }
 
 // C ref: attrib.c init_attr().
-export function init_attr(points, state = game, random = { rn2 }) {
+export function init_attr(points, state = game, random = coreRandom) {
     const { role } = roleAndRace(state);
     const attrs = attributeArrays(state.u);
     let remaining = Math.trunc(points);
@@ -867,7 +867,7 @@ export function init_attr(points, state = game, random = { rn2 }) {
 // Cycle avoidance: uasmon_maxStr() lives in polyself.js, which imports from
 // this file. To avoid a circular dependency it is injected through env.
 export function redist_attr(state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const { race } = roleAndRace(state);
     const attrs = attributeArrays(state.u);
 
@@ -924,7 +924,7 @@ function adjustInitialAttribute(state, index, increment, random) {
 }
 
 // C ref: attrib.c vary_init_attr().
-export function vary_init_attr(state = game, random = { rn2 }) {
+export function vary_init_attr(state = game, random = coreRandom) {
     const attrs = attributeArrays(state.u);
     for (let i = 0; i < NUM_ATTRS; i++) {
         if (random.rn2(20) === 0) {
@@ -974,7 +974,7 @@ export async function exercise(
     index,
     increase,
     state = game,
-    random = { rn2 },
+    random = coreRandom,
     { encumberMessage } = {},
 ) {
     const { adjustment, encumbranceDue } = exerciseAttribute(
@@ -996,7 +996,7 @@ export function exercise_nonphysical(
     index,
     increase,
     state = game,
-    random = { rn2 },
+    random = coreRandom,
 ) {
     if (index === A_STR || index === A_CON) {
         throw new Error(
@@ -1033,7 +1033,7 @@ async function exerciseWithEnvironment(index, increase, state, env) {
 // the active boundary, but nearCapacity is live: temporary Strength changes
 // can change capacity and burden before the next allocation.
 export async function exerper(state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const encumberMessage = requiredOperation(env, 'encumberMessage');
     const nearCapacity = requiredOperation(env, 'nearCapacity');
     const normalized = {
@@ -1157,7 +1157,7 @@ export async function adjattrib(
         return false;
     }
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const attrs = attributeArrays(state.u);
     const oldCurrent = acurr(state, index);
     const oldBase = attrs.base[index];
@@ -1244,7 +1244,7 @@ function halveExercise(value) {
 // C ref: attrib.c exerchk(). The scheduled check begins at move 600 in a new
 // game and advances by rn1(200, 800) after every completed check.
 export async function exerchk(state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn1 !== 'function'
         || typeof random.rn2 !== 'function') {
         throw new TypeError('attribute check random injection requires rn1 and rn2');
@@ -1488,7 +1488,7 @@ export async function restore_attrib(state = game, env = {}) {
 // Cycle avoidance: adjattrib() needs pickup.c encumber_msg(), which lives in a
 // file that imports this one. The caller supplies it through env.
 export async function gainstr(otmp, incr, givemsg, state = game, env = {}) {
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     let num = incr;
 
     if (!num) {
@@ -1513,7 +1513,7 @@ export async function gainstr(otmp, incr, givemsg, state = game, env = {}) {
 // on a Strength change, lives in a file that imports that one. Both arrive
 // through env.
 export async function losestr(num, knam, k_format, state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? coreRandom;
     const losehp = requiredOperation(env, 'losehp');
     const encumberMessage = requiredOperation(env, 'encumberMessage');
     const u = state.u;
@@ -1642,7 +1642,7 @@ export async function poisoned(
     reason, typ, pkiller, fatal, thrown_weapon,
     state = game, env = {},
 ) {
-    const random = env.random ?? { rn2, d, rnd, rn1 };
+    const random = env.random ?? coreRandom;
     const message = requiredOperation(env, 'message');
     const losehp = requiredOperation(env, 'losehp');
     const done = requiredOperation(env, 'done');

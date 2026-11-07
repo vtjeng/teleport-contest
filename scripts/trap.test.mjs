@@ -355,7 +355,7 @@ test('electric chest resistance animates before its resistance message', () => {
         'await destroy_items(state.youmonst, AD_ELEC, orig_dmg, {', jsPerception,
     );
     const jsRandom = jsBranch.indexOf(
-        'random: { d, rn1, rn2, rnd, rne, rnl },', jsDestroy,
+        'random: coreRandom,', jsDestroy,
     );
     assert.ok(jsCharge >= 0 && jsCharge < jsResistance
         && jsResistance < jsShield && jsShield < jsUnaffected
@@ -391,7 +391,7 @@ test('dotrap forwards planner owners and keeps C-discarded selector return', () 
     assert.ok(heroEnvStart >= 0 && heroEnvEnd > heroEnvStart);
     const heroEnv = JS_TRAP_EFFECTS.slice(heroEnvStart, heroEnvEnd);
     assert.match(heroEnv,
-        /random: \{ d, rn1, rn2, rnd, rne, rnl, \.\.\.\(rawEnv\.random \?\? \{\}\) \}/u);
+        /random: rawEnv\.random \?\? coreRandom,/u);
     assert.match(heroEnv,
         /message: rawEnv\.message\s*\?\?\s*\(\(line, target\) => ttyPline\(line, target \?\? state\)\)/u);
     assert.match(heroEnv,

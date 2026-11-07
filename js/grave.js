@@ -10,14 +10,14 @@ import {
 import { del_engr_at, make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { get_rnd_text } from './random_text.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { t_at } from './trap.js';
 
 export function make_grave(x, y, text, rawEnv = {}) {
     const env = {
         ...rawEnv,
-        random: rawEnv.random ?? { rn2 },
+        random: rawEnv.random ?? coreRandom,
         state: rawEnv.state ?? game,
     };
     const location = env.state.level?.at(x, y);

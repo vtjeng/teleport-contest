@@ -360,3 +360,22 @@ export function rnz(i) {
 
 export const c_d = d;
 export const lua_d = d;
+
+// C ref: rnd.c. C has one core generator, and any function can call any of
+// its wrappers, so the port passes this one complete set wherever a function
+// takes an injected `random` and the caller has none of its own. While a
+// planning clone is installed, each wrapper draws from the clone's stream.
+// scripts/random-source.test.mjs rejects any other hand-built set in js/.
+export const coreRandom = Object.freeze({ d, rn1, rn2, rnd, rne, rnl, rnz });
+
+// The same live set for a hero other than `game`'s, such as a planning
+// clone's: rnl() reads that hero's Luck and rne() and rnz() its level.
+export function coreRandomFor(state) {
+    if (state === game) return coreRandom;
+    return Object.freeze({
+        d, rn1, rn2, rnd,
+        rne: (x) => rneFrom(liveCtx(), state, x, liveLog()),
+        rnl: (x) => rnlFrom(liveCtx(), state, x, liveLog()),
+        rnz: (i) => rnzFrom(liveCtx(), state, i, liveLog()),
+    });
+}

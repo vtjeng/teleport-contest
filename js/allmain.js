@@ -151,15 +151,9 @@ import {
     vision_recalc,
     vision_reset,
 } from './vision.js';
-import {
+import { coreRandom,
     createCoreRandom,
-    d,
-    rn1,
     rn2,
-    rnd,
-    rne,
-    rnl,
-    rnz,
     isTerminated,
     raceTermination,
 } from './rng.js';
@@ -446,7 +440,7 @@ export async function stop_occupation(state = game, env = {}) {
 // movement only on the following allocation round because this gate follows
 // the current round's monster movement allocation.
 export async function maybe_generate_rnd_mon(state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = env.random ?? coreRandom;
     const createMonster = env.makemon ?? makemon_runtime;
     const heroLevel = state.u?.uz;
     const strongholdLevel = state.stronghold_level;
@@ -481,7 +475,7 @@ export async function maybe_generate_rnd_mon(state = game, env = {}) {
 // branch fired, which is the only thing this gate decides.
 export function maybeWipeHeroEngraving(
     state = game,
-    random = { rn2, rnd },
+    random = coreRandom,
 ) {
     const dexterity = acurr(state, A_DEX);
     if (random.rn2(40 + dexterity * 3) !== 0) return false;
@@ -502,7 +496,7 @@ function clairvoyancePlan(state, env) {
     }
     if (moves < seerTurn) return { due: false };
 
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn1 !== 'function') {
         throw new TypeError('clairvoyance cadence requires rn1');
     }
@@ -1585,7 +1579,7 @@ async function planElapsedTurn(state, {
 // elapsed command and every subsequent elapsed command.
 async function advanceElapsedTurn(state) {
     let preflight = await planElapsedTurn(state);
-    const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = coreRandom;
 
     // A lethal monster action stops the planning clone before movemon() has
     // returned its scan result. The live pass must replay that action first,
@@ -1983,7 +1977,7 @@ async function moveloop_core_body() {
 
     await runEveryTurnEffectWithRegionHooks(g.youmonst, {
         state: g,
-        random: { d, rn1, rn2, rnd, rne, rnl, rnz },
+        random: coreRandom,
     });
     // Close glyph work produced by region hooks before command dispatch.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });

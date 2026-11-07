@@ -23,5 +23,5 @@ test('zero-seed wipeout_text uses the process rn2 source in C and JavaScript', (
     const jsBody = jsEngrave.slice(jsStart, jsEnd);
     assert.match(cBody, /if \(!seed\)[\s\S]*?nxt = rn2\(\(int\) lth\);[\s\S]*?use_rubout = rn2\(4\);[\s\S]*?j = rn2\(\(int\) ln\);/u);
     assert.match(jsBody, /const \{ random \} = engravingEnv\(env\);[\s\S]*?if \(!currentSeed\)[\s\S]*?next = random\.rn2\(length\);[\s\S]*?useRubout = random\.rn2\(4\);[\s\S]*?replacementIndex = random\.rn2\(replacements\.length\);/u);
-    assert.match(jsEngrave, /function engravingEnv\(env = \{\}\)[\s\S]*?random: env\.random \?\? \{ rn2, rnd \}/u);
+    assert.match(jsEngrave, /function engravingEnv\(env = \{\}\)[\s\S]*?random: env\.random \?\? coreRandom/u);
 });

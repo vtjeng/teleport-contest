@@ -14,7 +14,7 @@ import {
 import { PM_SAMURAI } from './monsters.js';
 import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
-import { rn2 } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { note_unported } from './unported.js';
 import { append_price_quote, gem_learned } from './shk.js';
 import {
@@ -454,7 +454,7 @@ export function discover_object(
     const env = {
         ...rawEnv,
         state,
-        random: rawEnv.random ?? { rn2 },
+        random: rawEnv.random ?? coreRandom,
         hooks: rawEnv.hooks ?? {},
     };
     if (learnsName && creditHero

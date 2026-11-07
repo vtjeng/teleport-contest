@@ -112,7 +112,7 @@ import { a_gname_at, halu_gname } from './pray.js';
 import { linedup } from './mthrowu.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom, d, rn2 } from './rng.js';
 import { exercise, adjalign } from './attrib.js';
 import { currency, money_cnt } from './invent.js';
 import { incr_itimeout } from './potion.js';
@@ -474,7 +474,7 @@ function pm_good_location(x, y, pm, env = {}) {
 // to a shrine altar. Called exclusively from mktemple() during level creation.
 export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? coreRandom;
 
     const prim = state.mons[sanctum ? PM_HIGH_CLERIC : PM_ALIGNED_CLERIC];
     let px = 0;
@@ -621,7 +621,7 @@ export async function move_special(
     omx, omy, ggx, ggy, env = {},
 ) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const redraw = env.planning ? () => {} : (env.redraw ?? newsym);
 
     if (omx === ggx && omy === ggy) return 0;
@@ -713,7 +713,7 @@ export async function move_special(
                 const { check_special_room } = await import('./rooms.js');
                 await check_special_room(false, state, {
                     message: env.message ?? ttyPline,
-                    random: random.rn2,
+                    random,
                 });
             }
         }
@@ -726,7 +726,7 @@ export async function move_special(
 // m_move do it), or -2 (died). Called from m_move() for ispriest monsters.
 export async function pri_move(priest, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? coreRandom;
 
     const omx = priest.mx;
     const omy = priest.my;
@@ -858,7 +858,7 @@ function heroHallucinating(state) {
 // room.
 export async function intemple(roomno, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const u = state.u;
 
@@ -964,20 +964,10 @@ export async function intemple(roomno, env = {}) {
     }
     if (!random.rn2(5)) {
         // C uses the shared game RNG for makemon() as well as intemple's
-        // local rn2() checks. The room-entry caller supplies only rn2, so
-        // complete that provider with the same game-stream operations before
-        // handing runtime creation to its async tail adapter.
-        const creationRandom = {
-            d,
-            rn1,
-            rn2,
-            rnd,
-            rne,
-            ...random,
-        };
+        // local rn2() checks.
         const mtmp = await makemon_runtime(
             state.mons[PM_GHOST], u.ux, u.uy, MM_NOMSG,
-            { ...env, state, message, random: creationRandom },
+            { ...env, state, message, random },
         );
         if (mtmp) {
             const ngen = state.mvitals[PM_GHOST].born;
@@ -1009,7 +999,7 @@ export async function intemple(roomno, env = {}) {
 // shrine and donation logic, and only asks for a donation after the priest is
 // peaceful inside its own tended temple.
 export async function priest_talk(priest, state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const speak = env.verbalize ?? verbalize;
     const setVoice = env.setVoice

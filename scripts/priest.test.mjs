@@ -99,9 +99,9 @@ test('untended intemple awaits ghost creation with the complete RNG provider', (
     assert.match(intempleC,
         /if \(!rn2\(5\)\s*&&\s*\(mtmp = makemon\(&mons\[PM_GHOST\], u\.ux, u\.uy, MM_NOMSG\)\)/u);
     assert.match(intempleJs,
-        /const creationRandom = \{\s*d,\s*rn1,\s*rn2,\s*rnd,\s*rne,/u);
+        /const random = env\.random \?\? coreRandom;/u);
     assert.match(intempleJs,
-        /await makemon_runtime\([\s\S]*?MM_NOMSG,[\s\S]*?random: creationRandom/u);
+        /await makemon_runtime\([\s\S]*?MM_NOMSG,[\s\S]*?\{ \.\.\.env, state, message, random \}/u);
     assert.doesNotMatch(intempleJs,
         /const mtmp = makemon\([\s\S]*?PM_GHOST/u);
 });

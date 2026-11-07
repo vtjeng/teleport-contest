@@ -181,7 +181,7 @@ import {
     OBJ_NAME,
     TRIPE_RATION,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnz, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
@@ -318,7 +318,7 @@ function setMonsterAttackPosition(target, x, y, state) {
 
 function normalizePetMoveEnv(rawEnv) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_move random injection requires rn2');
     return {
@@ -562,7 +562,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const edog = mtmp?.mextra?.edog;
     if (!edog) throw new TypeError('dog_eat requires a tame pet with edog');
     if (!obj) throw new TypeError('dog_eat requires an object');
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     if (edog.hungrytime < state.moves) edog.hungrytime = state.moves;
     const nutrit = dog_nutrition(mtmp, obj, state);
     if (devour && mtmp.meating > 1)
@@ -722,7 +722,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
         }
         await dismountSteed(DISMOUNT_POLY, state, rawEnv);
     }
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('quickmimic random injection requires rn2');
 
@@ -821,7 +821,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         return MMOVE_NOTHING;
 
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     // Every branch draws through rn2, so that much is required up front. The
     // carry arm needs more, and asks for it there rather than here: requiring
     // the whole set eagerly would reject the many callers that never split a
@@ -964,7 +964,7 @@ export function dog_goal(
     const hero = state.u;
     if (monster === hero?.usteed) return -2;
 
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_goal random injection requires rn2');
     const dogfood = goalOperation(rawEnv, 'dogfood', classifyDogFood);
@@ -1203,7 +1203,7 @@ export function find_friends(monster, target, maxDistance, rawEnv = {}) {
 // random draws.
 export function score_targ(monster, target, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rnd };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rnd !== 'function')
         throw new TypeError('score_targ random injection requires rnd');
     const drawRn2 = (bound) => {
@@ -1313,7 +1313,7 @@ export function best_target(monster, forced, rawEnv = {}) {
 // retaliation draws and the forced steed caller's command-time result.
 export async function pet_ranged_attk(monster, forced, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const hungry = !monster.isminion
         && state.moves > monster.mextra.edog.hungrytime + DOG_HUNGRY;

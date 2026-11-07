@@ -49,7 +49,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
-import { cloneIsaacContext, createCoreRandom } from '../js/rng.js';
+import { coreRandom, cloneIsaacContext, createCoreRandom } from '../js/rng.js';
 import {
     cures_stoning,
     find_offensive,
@@ -349,7 +349,7 @@ test('use_misc paralyzes the monster after a milky potion releases a ghost',
         object: potion,
     }, state, {
         message: async () => {},
-        random: { rn2: (bound) => {
+        random: { ...coreRandom, rn2: (bound) => {
             draws.push(bound);
             return 0;
         } },
@@ -2259,7 +2259,7 @@ test('mbhit records a monster-broken shop door without losing its global state',
     const randomCalls = [];
     const env = {
         ...offensiveEnv(state),
-        random: {
+        random: { ...coreRandom,
             // Keep the wand's range and hit checks deterministic so this test
             // reaches the shop-door branch without depending on a seed.
             rn1: (_bound, base) => base,
@@ -2310,7 +2310,7 @@ test('monster striking wand destroys a lowered bridge on its beam',
         state.viz_array[y][attacker.mx] |= IN_SIGHT;
         const env = {
             ...offensiveEnv(state),
-            random: {
+            random: { ...coreRandom,
                 rn1: (_bound, base) => base,
                 rn2: () => 0,
                 rnd: () => 1,
@@ -2803,7 +2803,7 @@ test('smoky monster potions await runtime djinni creation before either release 
         assert.equal(state.in_mklev, false);
         const result = await use_misc(monster, { kind: 'gain level', object: potion }, state, {
             message: async () => {},
-            random: { rn2: (bound) => {
+            random: { ...coreRandom, rn2: (bound) => {
                 draws.push(bound);
                 return bound === 2 && freed ? 1 : 0;
             } },

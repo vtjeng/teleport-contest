@@ -5,7 +5,7 @@ import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
 import { LFILE_EXISTS, LL_NONE } from './const.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces } from './hacklib.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
 import { note_unported } from './unported.js';
 
@@ -94,7 +94,7 @@ function prefixCommand(line, command) {
 // C ref: files.c choose_passage() (3431-3468). It stores a shuffled
 // without-replacement sample in svc.context.novel.pasg and selects a passage
 // by swapping the last available index into the chosen slot.
-export function choose_passage(passagecnt, oid, state = game, random = { rn2 }) {
+export function choose_passage(passagecnt, oid, state = game, random = coreRandom) {
     const count = Math.trunc(passagecnt);
     if (count < 1) return 0;
     if (typeof random.rn2 !== 'function')
@@ -193,7 +193,7 @@ export async function read_tribute(
                                 === asciiFold(tribtitle)) {
                             matchedtitle = true;
                             targetpassage = !tribpassage
-                                ? choose_passage(passagecnt, oid, state, env.random ?? { rn2 })
+                                ? choose_passage(passagecnt, oid, state, env.random ?? coreRandom)
                                 : tribpassage <= passagecnt
                                     ? tribpassage : 0;
                         } else {

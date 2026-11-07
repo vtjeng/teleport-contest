@@ -68,7 +68,7 @@ import {
 } from './calendar.js';
 import { rest_engravings } from './engrave.js';
 import { add_worn_property } from './worn.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
     shift_level_edog_times,
@@ -976,7 +976,7 @@ export async function getlev(ledger, state = game) {
 export function hide_monst(mon, state = game) {
     const setMimicSym = (mimic) => set_mimic_sym(mimic, {
         state,
-        random: { rn1, rn2, rnd },
+        random: coreRandom,
     });
     const hider_under = hides_under(mon.data) || mon.data?.mlet === S_EEL;
 

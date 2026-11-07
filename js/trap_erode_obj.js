@@ -70,7 +70,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { rn2, rnl } from './rng.js';
+import { coreRandom } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
@@ -186,10 +186,8 @@ export async function erode_obj(obj, description, type, flags, env) {
         return ER_NOTHING;
     }
     const { state } = env;
-    // trap.c:257 draws rnl(4) for a blessed item. Callers inject partial
-    // sources built from the live rng.js functions (for example passive()'s
-    // { d, rn2, rnd }), so a missing function draws from the live generator.
-    const random = { rn2, rnl, ...env.random };
+    // trap.c:257 draws rnl(4) for a blessed item.
+    const random = env.random ?? coreRandom;
     const message = erosionOperation(env, 'message', ttyPline);
     const vismon = monsterVictim && erosionOperation(
         env,
@@ -381,7 +379,7 @@ export async function erode_obj(obj, description, type, flags, env) {
 // helper shared so each caller preserves its own source order.
 export async function grease_protect(obj, description, victim, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = erosionOperation(env, 'message', ttyPline);
     const heroVictim = victim === state.youmonst;
     const vismon = victim && !heroVictim && canseemon(victim, state);
@@ -424,7 +422,7 @@ export async function grease_protect(obj, description, victim, env = {}) {
 export async function acid_damage(obj, env = {}) {
     if (!obj) return;
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const heroVictim = carried(obj);
     const monsterVictim = !heroVictim && obj.where === OBJ_MINVENT
         ? obj.ocarry : null;

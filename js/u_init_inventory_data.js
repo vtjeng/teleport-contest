@@ -2,7 +2,7 @@
 // C ref: src/u_init.c Archeologist through Money, plus inv_subs[].
 
 import * as O from './objects.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 
 export const UNDEF_TYP = 0;
 export const UNDEF_SPE = 0x7f;
@@ -268,7 +268,7 @@ export const ELF_STARTING_INSTRUMENT_ROLES = Object.freeze(['Pri', 'Wiz']);
 // C ref: u_init.c u_init_race() local Instrument[] and ROLL_FROM(trotyp).
 // The caller performs the elf/role eligibility check, then calls this before
 // ini_inv(); that preserves the roll even when pauper makes ini_inv a no-op.
-export function rollElfStartingInstrument(random = { rn2 }) {
+export function rollElfStartingInstrument(random = coreRandom) {
     const index = random.rn2(ELF_STARTING_INSTRUMENTS.length);
     const instrument = ELF_STARTING_INSTRUMENTS[index];
     if (instrument === undefined)

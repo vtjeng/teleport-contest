@@ -64,7 +64,7 @@ import {
     is_animal, is_demon, is_vampire, is_whirly, resists_blnd, sticks, } from './mondata.js';
 import {
     AT_HUGS, M1_CLING, M1_FLY, M1_HIDE, MZ_HUGE, PM_GHOUL, S_MIMIC, } from './monsters.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import {
     AMULET_CLASS, ARMOR_CLASS, BALL_CLASS, CHAIN_CLASS, COIN_CLASS, FOOD_CLASS, GEM_CLASS, ILLOBJ_CLASS, MAGIC_MARKER, POTION_CLASS, RANDOM_CLASS, RING_CLASS, ROCK_CLASS, SCROLL_CLASS, SPBOOK_CLASS, TOOL_CLASS, TOWEL, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WAN_CANCELLATION, WAN_COLD, WAN_CREATE_MONSTER, WAN_DEATH, WAN_DIGGING, WAN_ENLIGHTENMENT, WAN_FIRE, WAN_LIGHT, WAN_LIGHTNING, WAN_LOCKING, WAN_MAGIC_MISSILE, WAN_MAKE_INVISIBLE, WAN_NOTHING, WAN_OPENING, WAN_POLYMORPH, WAN_PROBING, WAN_SECRET_DOOR_DETECTION, WAN_SLEEP, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_STASIS, WAN_STRIKING, WAN_TELEPORTATION, WAN_UNDEAD_TURNING, WAN_WISHING, ATHAME, } from './objects.js';
 import { more_experienced } from './exper.js';
@@ -107,7 +107,7 @@ function engravingEnv(env = {}) {
     return {
         ...env,
         state: env.state ?? game,
-        random: env.random ?? { rn2, rnd },
+        random: env.random ?? coreRandom,
     };
 }
 
@@ -277,7 +277,7 @@ const BLIND_WRITING = [
 
 // C ref: engrave.c blengr(). ROLL_FROM(blind_writing) performs one rn2(9)
 // call, then returns that row up to its NUL byte.
-export function blengr(random = { rn2 }) {
+export function blengr(random = coreRandom) {
     const row = BLIND_WRITING[random.rn2(BLIND_WRITING.length)];
     return String.fromCharCode(...row);
 }
@@ -400,8 +400,7 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
     case WAN_CREATE_MONSTER:
     case WAN_WISHING:
     case WAN_ENLIGHTENMENT:
-        // The E-command supplies a partial RNG; zapnodir also consumes rn1.
-        await zapnodir(otmp, state, { rn1, rn2, ...env.random });
+        await zapnodir(otmp, state, env.random ?? coreRandom);
         break;
     case WAN_STRIKING:
         setPost('The wand unsuccessfully fights your attempt to write!');
@@ -855,16 +854,14 @@ export async function disturb_grave(x, y, state = game, env = {}) {
     maploc.horizontal = true;
 
     const { makemon_runtime } = await import('./makemon_create.js');
-    // The command caller exposes only engraving's rn2/rnd pair. C's
-    // makemon() runtime needs the complete source RNG family, so retain those
-    // overrides and fill the remaining operations from the shared RNG module.
-    const random = { d, rn1, rn2, rnd, rne, rnz, ...(env.random ?? {}) };
+    // C's makemon() draws d(), rn1() and rne() as well as rn2() and rnd().
+    const random = env.random ?? coreRandom;
     await makemon_runtime(
         state.mons[PM_GHOUL], x, y, NO_MM_FLAGS,
         { ...env, state, message, norepMessage, random },
     );
     exercise_nonphysical(
-        A_WIS, false, state, env.random ?? { rn2 },
+        A_WIS, false, state, env.random ?? coreRandom,
     );
 }
 
@@ -1453,7 +1450,7 @@ export function sanitize_engravings(state = game) {
 // C ref: engrave.c rloc_engr() (1667-1681). The caller refreshes the old square;
 // relocation preserves the linked engraving and redraws only its new location.
 export function rloc_engr(ep, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     let tx, ty, tryct = 200;
     do {
         if (--tryct < 0) return;

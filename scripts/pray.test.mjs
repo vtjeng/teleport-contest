@@ -2415,7 +2415,7 @@ test('prayer_done reconciles the whole C callback and return order', () => {
     assert.match(cBody, /u\.ualign\.record <= 0 \|\| rnl\(u\.ualign\.record\)/u);
     assert.match(jsBody, /const alignment = state\.gp\.p_aligntyp;\s*state\.u\.uinvulnerable = false;/u);
     assert.match(jsBody, /await wake_nearby\(false, \{ state \}\);\s*adjalign\(-2, state\);\s*await exercise\(A_WIS, false, state\);/u);
-    assert.match(jsBody, /await rehumanize\(state\);\s*await losehp\(rnd\(20\), 'residual undead turning effect', KILLED_BY_AN, state\);\s*await exercise\(A_CON, false, state, \{ rn2 \}, \{\s*encumberMessage: encumber_msg,\s*\}\);\s*return 1;/u);
+    assert.match(jsBody, /await rehumanize\(state\);\s*await losehp\(rnd\(20\), 'residual undead turning effect', KILLED_BY_AN, state\);\s*await exercise\(A_CON, false, state, coreRandom, \{\s*encumberMessage: encumber_msg,\s*\}\);\s*return 1;/u);
     assert.match(jsBody, /state\.u\.ualign\.record <= 0 \|\| rnl\(state\.u\.ualign\.record\)/u);
     assert.match(jsBody, /return 0;/u);
     assert.doesNotMatch(jsBody, /throw new UnsupportedPrayerError/u);

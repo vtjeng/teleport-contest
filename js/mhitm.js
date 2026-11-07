@@ -199,7 +199,7 @@ import { objectType } from './obj.js';
 import { IRON, METAL, SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
 import { heroUnaware, pline_mon } from './pline.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 
 import {
     erode_armor,
@@ -290,7 +290,7 @@ export function paralyze_monst(mon, amount) {
 // by this source module.
 export async function sleep_monst(mtmp, amount, how, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     // C reveals a furniture/object mimic before applying the resistance test;
     // this happens even when the monster is already helpless.
     if (how >= 0 && !mtmp.msleeping && !mtmp.mfrozen
@@ -346,7 +346,7 @@ function requireAttackOperation(env, name) {
 
 function attackEnv(rawEnv) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     for (const name of ['d', 'rn2', 'rnd']) {
         if (typeof random[name] !== 'function')
             throw new TypeError(`mattackm random injection requires ${name}`);
@@ -503,7 +503,7 @@ async function missmm(magr, mdef, mattk, env) {
 // the Conflict bookkeeping and the source-ordered retaliation draws.
 export async function fightm(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rnd };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rnd !== 'function')
         throw new TypeError('fightm random injection requires rnd');
     const env = { ...rawEnv, state, random };
@@ -585,7 +585,7 @@ export async function fightm(mtmp, rawEnv = {}) {
 // arm stays here rather than being represented by note_unported().
 export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     // The planning scan passes only { state, random, planning }.  Every
     // display seam below therefore needs an explicit planning no-op; falling
     // back to ttyPline/newsym would write the live terminal while the clone
@@ -1390,7 +1390,7 @@ export async function rustm(mdef, obj, state = game, env = {}) {
         chance = 6;
     }
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (dmgtyp !== ERODE_NONE && !random.rn2(chance)) {
         await erode_obj(obj, null, dmgtyp, EF_GREASE | EF_VERBOSE, {
             ...env,
@@ -1647,7 +1647,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
 // attack weakens only monsters with a magical or breath attack while
 // mspec_used is below 20. Adding the two-die drain can take it above 20.
 export async function xdrainenergym(mon, givemsg, state = game, env = {}) {
-    const random = env.random ?? { d };
+    const random = env.random ?? coreRandom;
     if ((mon.mspec_used ?? 0) < 20
         && (attacktype(mon.data, AT_MAGC)
             || attacktype(mon.data, AT_BREA))) {
@@ -1666,7 +1666,7 @@ export async function xdrainenergym(mon, givemsg, state = game, env = {}) {
 // C ref: mhitm.c mon_poly() (1122-1207). Return the remaining damage
 // after magic resistance, system shock, or a complete shape transition.
 export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const oldform = mdef.data;

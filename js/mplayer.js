@@ -22,7 +22,7 @@ import { is_female, is_mplayer, monsndx, set_mon_data } from './mondata.js';
 import { mkobj, mksobj, rnd_class, is_spear, weight } from './obj.js';
 import { curse, bless } from './obj.js';
 import { PM_ARCHEOLOGIST, PM_BARBARIAN, PM_CAVE_DWELLER, PM_CLERIC, PM_HEALER, PM_KNIGHT, PM_MONK, PM_RANGER, PM_ROGUE, PM_SAMURAI, PM_TOURIST, PM_VALKYRIE, PM_WIZARD } from './monsters.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom } from './rng.js';
 import { mpickobj } from './steal.js';
 import { set_malign } from './makemon.js';
 import { m_dowear } from './worn.js';
@@ -49,7 +49,7 @@ const developers = Object.freeze([
 export async function mplayer_talk(monster, state = game, rawEnv = {}) {
     if (monster.mpeaceful) return;
 
-    const random = rawEnv.random ?? state.random ?? { rn2 };
+    const random = rawEnv.random ?? state.random ?? coreRandom;
     const sameClass = monster.data === state.mons?.[state.urole?.mnum];
     const messages = sameClass
         ? [
@@ -124,7 +124,7 @@ export function mk_mplayer_armor(monster, type, env = {}) {
 // special-level player species enter this function through sp_lev.c.
 export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? state.random ?? { d, rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? state.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     if (!is_mplayer(species)) return null;
 
@@ -265,7 +265,7 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
 // C: mplayer.c create_mplayers().
 export async function create_mplayers(count, special, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? state.random ?? { d, rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? state.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const fakeMonster = {};
     while (count) {

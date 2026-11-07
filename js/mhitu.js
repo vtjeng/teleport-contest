@@ -265,7 +265,7 @@ import { hard_helmet } from './do_wear.js';
 import { enexto, teleds } from './teleport.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_quest_artifact } from './questpgr.js';
-import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { dismount_steed, Punished } from './steed.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
@@ -329,7 +329,7 @@ import { worm_move } from './worm.js';
 // extrinsic speed source (such as speed boots) for the second message arm.
 export async function u_slow_down(
     state = game,
-    { message = ttyPline, random = { rn2 } } = {},
+    { message = ttyPline, random = coreRandom } = {},
 ) {
     const fast = state.u?.uprops?.[FAST];
     if (!fast) return;
@@ -345,7 +345,7 @@ export async function u_slow_down(
 // other grabbing attacks inspect cloak, suit, shirt, or the AD_DRIN helmet.
 export async function u_slip_free(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? (rawEnv.planning ? async () => {}
         : ttyPline);
 
@@ -419,7 +419,7 @@ export function Protection_from_shape_changers(state) {
 // evaluating the turn on its planning clone.
 export async function summonmu(monster, youseeit, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const mdat = monster.data;
 
@@ -525,14 +525,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
 // failed creation returns null and never mutates the hero's pool.
 export async function cloneu(rawState = game, rawEnv = {}) {
     const state = rawEnv.state ?? rawState ?? game;
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const mndx = monsndx(state.youmonst?.data);
     if (state.u.mh <= 1)
         return null;
@@ -620,7 +613,7 @@ export function m_next2u(monster, state) {
 // gameplay draws without painting the live terminal.
 export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const canSee = rawEnv.canSee
         ?? ((x, y) => cansee(x, y, state));
     const message = rawEnv.message ?? ttyPline;
@@ -774,7 +767,7 @@ export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
 // and verbalization branches in order. remove_worn_item() owns the armor-state
 // updates and any landing effects.
 async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const pline = (text) => message(text, state);
 
@@ -814,10 +807,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
 // private mayberem() calls are void; await their side effects before continuing
 // through the same source-ordered armor slots.
 export async function doseduce(mon, state = game, rawEnv = {}) {
-    const random = {
-        d, rn1, rn2, rnd,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const urgentMessage = rawEnv.urgentMessage
@@ -1414,7 +1404,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
 // does something else reaches it.
 export function mswings_verb(mwep, bash, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const type = objectType(mwep, state);
     /* (monsters don't actually wield towels, wet or otherwise) */
     const lash = type.oc_skill === P_WHIP || is_wet_towel(mwep);
@@ -2211,7 +2201,7 @@ export async function expels(mtmp, rawEnv = {}) {
 export async function diseasemu(mdat, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
 
     if (heroSickResistance(state)) {
         await message('You feel a slight illness.', state, rawEnv);
@@ -2243,7 +2233,7 @@ export async function diseasemu(mdat, rawEnv = {}) {
 async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.d !== 'function' || typeof random.rn2 !== 'function'
         || typeof random.rnd !== 'function') {
         throw new TypeError('gulpmu requires d, rn2 and rnd random sources');
@@ -2980,7 +2970,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
 // order here. The #ifdef PM_BEHOLDER cases remain excluded just as upstream.
 export async function gazemu(monster, attack, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const urgentMessage = rawEnv.planning
@@ -3351,7 +3341,7 @@ export async function mdamageu(mtmp, n, state, env = {}) {
 // DISTANCE_ATTK_TYPE() rejects; walking the mattk array itself reaches the
 // same slots in the same order.
 export function ranged_attk_available(mtmp, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const ptr = mtmp.data;
 
     return Boolean(ptr?.mattk?.some((mattk) => {
@@ -3402,7 +3392,7 @@ async function assess_dmg(mtmp, tmp, state, env) {
 }
 
 async function passiveum(olduasmon, mtmp, mattk, state, env) {
-    const random = env.random ?? { d, rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     let i;
@@ -3695,7 +3685,7 @@ export async function gulp_blnd_check(state = game, rawEnv = {}) {
         await gulpmu(stuck, mattk, {
             ...rawEnv,
             state,
-            random: rawEnv.random ?? { d, rn1, rn2, rnd },
+            random: rawEnv.random ?? coreRandom,
             message: rawEnv.message ?? ttyPline,
             urgentMessage: rawEnv.urgentMessage ?? ttyUrgentPline,
             redraw: rawEnv.redraw ?? newsym,

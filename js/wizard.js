@@ -83,7 +83,7 @@ import { add_to_minv } from './invent.js';
 import { mksobj } from './obj.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom, rn1, rn2 } from './rng.js';
 import { newsym } from './display.js';
 import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
@@ -109,7 +109,7 @@ const M3_WANTSARTI = 0x0010;
 // C ref: wizard.c amulet() (61-103). moveloop_core owns the uhave.amulet
 // guard; this helper handles portal feedback and the sleeping Wizard check.
 export async function amulet(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const roll = random.rn2 ?? rn2;
     const message = rawEnv.message ?? ttyPline;
     const amu = state.uamul?.otyp === AMULET_OF_YENDOR
@@ -193,7 +193,7 @@ export function has_aggravatables(mon, state = game) {
 // source order, waking every living monster in the hero's Wizard's Tower
 // region. C only consumes RNG for an immobile monster after clearing its
 // strategy and sleeping state; a zero rn2(5) result thaws it.
-export function aggravate(state = game, random = { rn2 }) {
+export function aggravate(state = game, random = coreRandom) {
     const in_w_tower = In_W_tower(
         state.u.ux, state.u.uy, state.u.uz, state,
     );
@@ -225,7 +225,7 @@ function creationEnv(state, rawEnv) {
 // square; its source-owned placement branch relocates it before construction.
 export async function clonewiz(state = game, rawEnv = {}) {
     const createMonster = rawEnv.makemon ?? makemon_runtime;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const species = state.mons?.[PM_WIZARD_OF_YENDOR];
     if (!species)
         throw new Error('clonewiz requires the Wizard monster record');
@@ -315,7 +315,7 @@ export async function resurrect(state = game, rawEnv = {}) {
 // C ref: wizard.c:wizdeadorgone() (812-822). The Wizard is counted as gone
 // whether he dies or leaves the dungeon alive; only the first removal marks
 // the hero demigod and starts the countdown.
-export function wizdeadorgone(state = game, random = { rn1 }) {
+export function wizdeadorgone(state = game, random = coreRandom) {
     state.context.no_of_wizards--;
     if (!state.u.uevent.udemigod) {
         state.u.uevent.udemigod = true;
@@ -327,7 +327,7 @@ export function wizdeadorgone(state = game, random = { rn1 }) {
 // demigod countdown expires, after engraving wear and before level effects.
 // The caller supplies rndcurse because sit.c already imports this module.
 export async function intervene(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const effectEnv = { ...rawEnv, state, random, message };
     const which = Is_astralevel(state.u.uz)
@@ -368,7 +368,7 @@ async function resurrectMigratingWizard(state, rawEnv) {
             'resurrect requires the dog.c arrival and catch-up operations',
         );
     }
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     state.gm ??= {};
     let previous = null;
     let monster = state.gm.migrating_mons ?? null;
@@ -469,9 +469,7 @@ export function pick_nasty(difcap, normalized) {
 // source's selection, retry, census, and post-creation order remain here.
 export async function nasty(summoner, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? {
-        d, rn1, rn2, rnd, rne, rnz,
-    };
+    const random = rawEnv.random ?? coreRandom;
     const normalized = { ...rawEnv, state, random };
     const createMonster = rawEnv.makemon ?? makemon_runtime;
     const summonMinion = rawEnv.msummon ?? msummon;
@@ -825,7 +823,7 @@ function wizardOperation(rawEnv, name, fallback = null) {
 // is the swallowed expels(TRUE) arm; its return is not used by C.
 export async function tactics(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const noTeleport = wizardOperation(rawEnv, 'noteleportLevel',
         () => false);
     const mnearto = wizardOperation(rawEnv, 'mnearto');
@@ -1028,7 +1026,7 @@ const RANDOM_MALEDICTION = Object.freeze([
 export async function cuss(mtmp, state = game, rawEnv = {}) {
     if (heroIsDeaf(state)) return;
 
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const roll = random.rn2 ?? rn2;
     const message = rawEnv.message ?? ttyPline;
     const say = async (line) => message(line, state, rawEnv);

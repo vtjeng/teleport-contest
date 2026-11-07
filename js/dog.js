@@ -160,7 +160,7 @@ import {
     SPE_CREATE_FAMILIAR,
     SPBOOK_CLASS,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import { messageAt } from './startup_a11y.js';
 import { night } from './calendar.js';
@@ -199,10 +199,7 @@ export { can_saddle, put_saddle_on_mon };
 // a trapped follower (dog.c:826), and mintrap() draws rnl(5) (trap.c:3822)
 // from the same RNG; mintrap() refuses a random set without it.
 function dogEnv(env = {}) {
-    const random = {
-        d, rn1, rn2, rnd, rne, rnl, rnz,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
     return {
         ...env,
         random,
@@ -1646,7 +1643,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
  * hallucination draw inside yelp() and growl(); the game passes nothing and
  * draws from the core stream.
  */
-export async function abuse_dog(mtmp, state = game, random = { rn2 }) {
+export async function abuse_dog(mtmp, state = game, random = coreRandom) {
     if (!mtmp.mtame) return;
 
     if (Aggravate_monster(state) || Conflict(state))

@@ -568,7 +568,7 @@ import {
 } from './objects.js';
 import { mon_aligntyp, newepri } from './priest.js';
 import { newegd } from './vault.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -738,7 +738,7 @@ export function neweshk(monster) {
 
 export function creationEnv(env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = env.random ?? coreRandom;
     const required = ['d', 'rn1', 'rn2', 'rnd', 'rne'];
     if (!required.every((name) => typeof random[name] === 'function')) {
         throw new TypeError(

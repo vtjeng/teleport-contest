@@ -2362,8 +2362,8 @@ test('potionhit uses the C process RNG when a caller has no random seam',
             'utf8',
         );
         assert.match(randomImports,
-            /import \{[^}]*\brnl\b[^}]*\} from '\.\/rng\.js';/u,
-            'the shared default RNG bundle includes C potionhit rnl calls');
+            /export async function potionhit\([\s\S]*?const random = rawEnv\.random \?\? coreRandom;/u,
+            'potionhit defaults to the complete core set, which holds rnl()');
 
         await assert.doesNotReject(() => potionhit(
             monster,

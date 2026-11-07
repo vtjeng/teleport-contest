@@ -28,9 +28,7 @@ import {
     KELP_FROND,
     ROCK,
 } from './objects.js';
-import { rn1, rn2, rnd, rne, rnz } from './rng.js';
-
-const SOURCE_RANDOM = Object.freeze({ rn1, rn2, rnd, rne, rnz });
+import { coreRandom } from './rng.js';
 
 export class UnsupportedMineralizeContextError extends Error {
     constructor(detail) {
@@ -134,7 +132,7 @@ function excludedSpecialLevel(state) {
 
 function mineralizeEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? SOURCE_RANDOM;
+    const random = rawEnv.random ?? coreRandom;
     for (const name of ['rn2', 'rnd', 'rn1', 'rne']) {
         if (typeof random[name] !== 'function') {
             throw new TypeError(
@@ -190,7 +188,7 @@ export function water_has_kelp(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? SOURCE_RANDOM;
+    const random = rawEnv.random ?? coreRandom;
     if (typeof random.rn2 !== 'function') {
         throw new TypeError(
             'water_has_kelp random injection requires rn2()',

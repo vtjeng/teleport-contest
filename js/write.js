@@ -59,7 +59,7 @@ import {
     SPE_NOVEL,
 } from './objects.js';
 import { encumber_msg } from './pickup.js';
-import { rn1, rn2, rnl } from './rng.js';
+import { coreRandom, rn1, rn2, rnl } from './rng.js';
 import { check_unpaid } from './shk.js';
 import {
     known_spell,
@@ -189,14 +189,14 @@ export async function dowrite(pen, state = game, env = {}) {
     observe_object(paper, state);
     if (paper.otyp !== SCR_BLANK_PAPER && paper.otyp !== SPE_BLANK_PAPER) {
         await ttyPline(`That ${typeword} is not blank!`, state);
-        await exercise(A_WIS, false, state, { rn2 },
+        await exercise(A_WIS, false, state, coreRandom,
                        { encumberMessage: encumber_msg });
         return ECMD_TIME;
     }
     // C: makeknown(SCR_BLANK_PAPER) expands to
     // discover_object(SCR_BLANK_PAPER, TRUE, TRUE, TRUE).
     discover_object(SCR_BLANK_PAPER, true, true, true, state, {
-        random: { rn2 },
+        random: coreRandom,
         hooks: {},
     });
 
@@ -376,7 +376,7 @@ export async function dowrite(pen, state = game, env = {}) {
     /* we're really going to write now, so calculate cost */
     const actualcost = rn1(Math.trunc(basecost / 2), Math.trunc(basecost / 2));
     const curseval = bcsign(pen) + bcsign(paper);
-    await exercise(A_WIS, true, state, { rn2 },
+    await exercise(A_WIS, true, state, coreRandom,
                    { encumberMessage: encumber_msg });
     /* dry out marker */
     if (pen.spe < actualcost) {

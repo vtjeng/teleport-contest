@@ -28,7 +28,7 @@ import { get_obj_location } from './light.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 
 function ignitionOperation(env, name, fallback) {
     const operation = env[name] ?? fallback;
@@ -70,7 +70,7 @@ export async function catch_lit(obj, rawEnv = {}) {
         || (obj.otyp === CANDELABRUM_OF_INVOCATION && obj.cursed)) {
         return false;
     }
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if ((obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP)
         && obj.cursed && random.rn2(2) === 0) {
         return false;

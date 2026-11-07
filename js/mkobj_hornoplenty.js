@@ -45,28 +45,11 @@ import {
 } from './objects.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { rn2 as coreRn2 } from './rng.js';
-
-
-// Preserve obj.js's injected-random validation; this function only draws rn2.
-function hornoplentyRandom(env) {
-    const injected = env?.random;
-    if (injected == null) return { rn2: coreRn2 };
-    const names = ['rn2', 'rnd', 'rn1', 'rne'];
-    if (!names.every((name) => typeof injected[name] === 'function')) {
-        throw new TypeError(
-            'random injection requires rn2, rnd, rn1, and rne',
-        );
-    }
-    const random = Object.fromEntries(
-        names.map((name) => [name, injected[name]]),
-    );
-    return { rn2: random.rn2 };
-}
+import { coreRandom } from './rng.js';
 
 export async function hornoplenty(horn, tipping, targetbox, env = {}) {
     const state = env.state ?? game;
-    const { rn2 } = hornoplentyRandom(env);
+    const { rn2 } = env.random ?? coreRandom;
     const u = state.u;
     let objcount = 0;
 

@@ -103,7 +103,7 @@ import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { create_drawbridge, drawbridgeFlags, drawbridgeUnder,
     find_drawbridge, get_wall_for_db } from '../js/dbridge.js';
-import { getRngLog } from '../js/rng.js';
+import { coreRandom, getRngLog } from '../js/rng.js';
 import { engr_at } from '../js/engrave.js';
 import { t_at } from '../js/trap.js';
 import { m_at, newMonster } from '../js/monst.js';
@@ -1556,7 +1556,7 @@ test('tree chopping wires the canonical fruit generator after clearing terrain',
         const events = [];
         const values = [0, selection < 0 ? 1 : 0, selection, 5];
         const result = await dig(state, {
-            random: {
+            random: { ...coreRandom,
                 rn2(bound) {
                     events.push(['rn2', bound]);
                     if (events.length > 2)

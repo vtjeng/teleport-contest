@@ -43,7 +43,7 @@ import { mpickobj } from '../js/steal.js';
 import { mksobj, objectType } from '../js/obj.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { coreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { P_BARE_HANDED_COMBAT, P_CLERIC_SPELL, P_SKILLED } from '../js/const.js';
 import { skillSlot } from '../js/startup_skills.js';
 
@@ -256,7 +256,7 @@ test('read.c create-monster count preserves blessed/cursed RNG order', async () 
     await emptyTamingWorld(8080050);
     game.iflags.debug_mongen = true; // makemon.c returns null before selection.
     const calls = [];
-    const random = {
+    const random = { ...coreRandom,
         rn2(bound) { calls.push(['rn2', bound]); return bound === 19 ? 0 : 1; },
         rnd(bound) { calls.push(['rnd', bound]); return 1; },
     };

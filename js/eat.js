@@ -210,7 +210,7 @@ import {
     body_part, change_sex, polymon, polyself, rehumanize, } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
-import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
+import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
@@ -313,7 +313,7 @@ function strncmpi(text, prefix) {
         && lcase(text.slice(0, prefix.length)) === lcase(prefix);
 }
 function tinEnv(env = {}) {
-    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('tin variety random injection requires rn2');
     return { state: env.state ?? game, random };
@@ -580,7 +580,7 @@ export async function gethungry(state = game, env = {}) {
     const plan = preflightGetHungry(state, env);
     if (plan.skipped) return 0;
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function') {
         throw new TypeError('gethungry random injection requires rn2');
     }
@@ -729,7 +729,7 @@ export async function eating_conducts(pd, state = game, env = {}) {
 // defender instead receives physical damage first and then the Int/memory
 // effects here.
 export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (env.planning ? async () => {}
         : ttyPline);
     const effectEnv = { ...env, random, message };
@@ -1838,7 +1838,7 @@ export async function newuhs(incr, state = game, env = {}) {
         const hungerTens = Math.sign(u.uhunger)
             * Math.trunc((Math.abs(u.uhunger) + 5) / 10);
         if (is_fainted(state)) newhs = FAINTED;
-        const random = env.random ?? { rn2 };
+        const random = env.random ?? coreRandom;
         if (u.uhs <= WEAK || random.rn2(20 - hungerTens) >= 19) {
             if (!is_fainted(state) && (state.multi ?? 0) >= 0) {
                 const duration = 10 - hungerTens;
@@ -1993,7 +1993,7 @@ async function choke(food, state, env = {}) {
         await message('You feel like a glutton!', state);
     }
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     await exercise(A_CON, false, state, random, {
         encumberMessage: env.encumberMessage
             ?? ((subject) => encumber_msg(subject, { message })),
@@ -2215,7 +2215,7 @@ function CANNIBAL_ALLOWED(state) {
 async function maybe_cannibal(pm, allowmsg, state, env = {}) {
     const u = state.u;
     const fptr = state.mons[pm]; /* food type */
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (env.planning ? async () => {}
         : ttyPline);
 
@@ -2316,7 +2316,7 @@ export async function cprefx(pm, state = game, env = {}) {
         state.killer.format = NO_KILLER_PREFIX;
         await done(DIED, state, env);
         if (state.program_state?.gameover) return;
-        await exercise(A_WIS, false, state, env.random ?? { rn2 }, {
+        await exercise(A_WIS, false, state, env.random ?? coreRandom, {
             encumberMessage: env.encumberMessage ?? encumber_msg,
         });
         const piece = victual(state).piece;
@@ -2394,7 +2394,7 @@ export function intrinsic_possible(type, ptr) {
 // C ref: eat.c corpse_intrinsic() (1337-1372). Picks one of the intrinsics a
 // species can convey, uniformly, in one pass: "a 1 in count chance of replacing
 // the old choice with this one". -1 stands in for strength, and 0 for nothing.
-export function corpse_intrinsic(ptr, random = { rn2 }) {
+export function corpse_intrinsic(ptr, random = coreRandom) {
     /* Check the monster for all of the intrinsics.  If this
      * monster can give more than one, pick one to try to give
      * from among all it can give.
@@ -2427,7 +2427,7 @@ export function corpse_intrinsic(ptr, random = { rn2 }) {
 
 // C ref: eat.c should_givit() (961-991). Monster intrinsic chances use the
 // corpse species' level, with the killer bee and scorpion poison exception.
-export function should_givit(type, ptr, random = { rn2 }) {
+export function should_givit(type, ptr, random = coreRandom) {
     let chance;
     if (type === POISON_RES) {
         const isFastPoison = ptr?.pmidx === PM_KILLER_BEE
@@ -2447,7 +2447,7 @@ export function should_givit(type, ptr, random = { rn2 }) {
 
 // C ref: eat.c temp_givit() (992-996). Stone resistance lasts longer than
 // acid resistance; every other intrinsic has no temporary grant chance.
-function temp_givit(type, ptr, random = { rn2 }) {
+function temp_givit(type, ptr, random = coreRandom) {
     const chance = type === STONE_RES ? 6 : type === ACID_RES ? 3 : 0;
     return chance ? ptr.mlevel > random.rn2(chance) : false;
 }
@@ -2457,7 +2457,7 @@ function temp_givit(type, ptr, random = { rn2 }) {
 // fails. This is an impure helper because both the chances and temporary
 // timeout use the game RNG.
 async function givit(type, ptr, state, env = {}) {
-    const random = { rn2, d, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (!should_givit(type, ptr, random)
         && !temp_givit(type, ptr, random))
@@ -2595,7 +2595,7 @@ async function givit(type, ptr, state, env = {}) {
  * Eating an eye of newt can give the player a small magical energy boost.
  */
 export async function eye_of_newt_buzz(state, env = {}) {
-    const random = { rn2, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (random.rn2(3) || 3 * state.u.uen <= 2 * state.u.uenmax) {
         const old_uen = state.u.uen;
@@ -2676,7 +2676,7 @@ export function eatmupdate(state = game, env = {}) {
 async function cpostfx(pm, state, env = {}) {
     // A planning clone finishes a meal through stop_occupation() and passes
     // its own random source and a silent message operation.
-    const random = { rn1, rn2, d, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     let tmp = 0;
     let catch_lycanthropy = NON_PM;
@@ -3181,7 +3181,7 @@ async function eatcorpse(otmp, state, env = {}) {
 // C ref: eat.c fpostfx() (2510-2595), the effects that follow a finished
 // non-corpse meal. Wolfsbane uses canonical lycanthropy purification.
 async function fpostfx(otmp, state, env = {}) {
-    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const effectEnv = { ...env, random };
     const message = env.message ?? ttyPline;
     switch (otmp.otyp) {
@@ -3327,7 +3327,7 @@ async function garlic_breath(monster, state) {
 // effects for non-corpse food; false means the object was consumed early.
 async function fprefx(otmp, state, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = { d, rn1, rn2, rne, rnl, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const uptr = state.youmonst.data;
     const maybeRace = (predicate, race) => Upolyd(state.u)
         ? predicate(uptr) : state.urace.mnum === race;
@@ -4172,13 +4172,13 @@ async function eatspecial(state, env) {
                 : 'That was pure chewing satisfaction!',
             state,
         );
-        await exercise(A_WIS, true, state, { rn2 }, {
+        await exercise(A_WIS, true, state, coreRandom, {
             encumberMessage: encumber_msg,
         });
     }
     if (otmp.otyp === FLINT && !otmp.cursed) {
         await env.message('Yabba-dabba delicious!', state);
-        await exercise(A_CON, true, state, { rn2 }, {
+        await exercise(A_CON, true, state, coreRandom, {
             encumberMessage: encumber_msg,
         });
     }

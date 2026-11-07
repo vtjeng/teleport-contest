@@ -297,6 +297,8 @@ test('rndmonnum plan B ignores extinction but still filters geno flags', () => {
                 assert.equal(bound, SPECIAL_PM);
                 return candidates.shift();
             },
+            // hack.h defines rn1(x, y) as rn2(x) + (y).
+            rn1(range, base) { return this.rn2(range) + base; },
         },
     });
     assert.deepEqual(bounds, [SPECIAL_PM, SPECIAL_PM]);

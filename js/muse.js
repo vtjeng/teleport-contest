@@ -195,7 +195,7 @@ import { accessible, closed_door, monflee, mon_would_take_item, monnear, onscary
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { encumber_msg, removed_from_icebox } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom, d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
@@ -333,7 +333,7 @@ function activeHeroProperty(state, property) {
 // nothing happened, 1 if the monster died, 2 if it was incapacitated.
 async function precheck(mon, obj, state, env = {}, selection = null) {
     if (!obj) return 0;
-    const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const vis = cansee(mon.mx, mon.my, state);
 
     if (obj.oclass === O.POTION_CLASS) {
@@ -837,8 +837,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             state.gz.zap_oseen = oseen;
             await mzapwand(mtmp, otmp, false, state);
             state.m_using = true;
-            const random = { d, rn1, rn2, rnd, rne, rnl, rnz,
-                ...(env.random ?? {}) };
+            const random = env.random ?? coreRandom;
             await mbhit(
                 mtmp, rn1(8, 6), mbhitm,
                 (obj, wand, callbackState, callbackEnv) => bhito(
@@ -973,8 +972,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         state.gz.zap_oseen = oseen;
         await mzapwand(mtmp, otmp, false, state);
         state.m_using = true;
-        const random = { d, rn1, rn2, rnd, rne, rnl, rnz,
-            ...(env.random ?? {}) };
+        const random = env.random ?? coreRandom;
         await mbhit(
             mtmp, rn1(8, 6), mbhitm,
             (obj, wand, callbackState, callbackEnv) => bhito(
@@ -1240,7 +1238,7 @@ function canLetGoWithoutDiscovery(obj, state) {
 // object or null; use_misc() executes the selected action.
 export function find_misc(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const species = monster.data;
     const hero = state.u;
 
@@ -1829,7 +1827,7 @@ async function you_aggravate(mtmp, state) {
 // coordinates C stores in gt.trapx and gt.trapy.
 export function find_defensive(monster, tryescape, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const species = monster.data;
     const hero = state.u;
     const x = monster.mx;
@@ -2253,10 +2251,7 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
 export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     // mattacku() can be dry-run against a cloned PRNG.  Keep every draw made
     // by this callback on that stream; direct callers retain the live RNG.
-    const random = {
-        d, rn1, rn2, rnd, rne, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const discoveryEnv = { ...rawEnv, random };
     const message = rawEnv.message ?? ttyPline;
     let reveal_invis = false;
@@ -2541,7 +2536,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
 // first time (mwandexp is false).
 async function buzz_force_miss(
     type, nd, sx, sy, dx, dy, state,
-    random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
+    random = coreRandom, rawEnv = {},
 ) {
     await dobuzz(type, nd, sx, sy, dx, dy, true, false, true,
         state, random, rawEnv);
@@ -2654,7 +2649,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
         if (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
             select(MUSE_POT_ACID, obj);
         if (has_offense === MUSE_SCR_EARTH) continue;
-        const random = rawEnv.random ?? { rn2 };
+        const random = rawEnv.random ?? coreRandom;
         if (otyp === O.SCR_EARTH
             && (hard_helmet(helmet, state) || mtmp.mconf
                 || amorphous(species) || passes_walls(species)
@@ -2689,10 +2684,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
 export async function use_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const random = {
-        d, rn1, rn2, rnd, rne, rnl, rnz,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
     const selection = state.m_offense;
     if (!selection) {
         throw new Error(
@@ -3240,7 +3232,7 @@ export async function munstone(mon, by_you, state = game, env = {}) {
 async function mon_consume_unstone(
     mon, obj, by_you, stoning, state = game, env = {},
 ) {
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const vis = canseemon(mon, state);
     const tinned = obj.otyp === O.TIN;
     const food = obj.otyp === O.CORPSE || tinned;
@@ -3328,7 +3320,7 @@ async function mon_consume_unstone(
    item from its inventory, or stepping onto a fire trap. Returns TRUE if
    the monster took action. */
 export async function munslime(mon, by_you, state = game, env = {}) {
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     const mptr = mon.data;
 
     if (slimeproof(mptr))
@@ -3390,10 +3382,7 @@ export async function munslime(mon, by_you, state = game, env = {}) {
 /* C ref: muse.c muse_unslime() (3104-3219). A monster uses an item or trap
    selected by munslime() to burn away incipient slime. */
 async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
-    const random = {
-        d, rn1, rn2, rnd, rne, rnl,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const redraw = env.planning || state !== game
