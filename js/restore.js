@@ -53,7 +53,9 @@ import { adj_erinys, hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
-import { defineObjAliases } from './obj.js';
+import { defineObjAliases, free_omid } from './obj.js';
+import { fruitadd } from './fruit.js';
+import { note_unported } from './unported.js';
 import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
 import { set_mimic_sym } from './makemon_create.js';
 import { restpriest } from './priest.js';
@@ -604,6 +606,40 @@ export function restobjchn(first, state) {
             context.spbook.book = otmp;
     }
     return first;
+}
+
+// C ref: restore.c ghostfruit() (500-512). A slime mold read from a bones
+// file names its fruit by the dead hero's fid; look that up in the old chain
+// getlev() loaded and give the object this game's fid for the same name,
+// adding the name to this game's chain if it is new.
+export function ghostfruit(otmp, oldfruit, state) {
+    const oldf = oldfruit.find((fruit) => fruit.fid === otmp.spe);
+    if (!oldf) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    otmp.spe = fruitadd(oldf.fname, null, { state });
+}
+
+// C ref: restore.c reset_oattached_mids() (1509-1530), which getlev() calls
+// last of all. Only a bones file's floor objects are touched: a corpse's or
+// statue's remembered monster stops being anyone's pet or anyone in
+// particular, and an object attached to a monster id (a ghost's corpse) is
+// pointed at that monster's new id, or detached if the monster was not
+// restored. `idMap` maps each saved id to the restored monster or object.
+export function reset_oattached_mids(idMap, state = game) {
+    for (let otmp = state.level?.objlist ?? null; otmp; otmp = otmp.nobj) {
+        const omonst = otmp.oextra?.omonst;
+        if (omonst) {
+            omonst.m_id = 0;
+            omonst.mpeaceful = omonst.mtame = 0; /* pet's owner died! */
+        }
+        if (otmp.oextra?.omid) {
+            const restored = idMap.get(otmp.oextra.omid);
+            if (restored) otmp.oextra.omid = restored.m_id ?? restored.o_id;
+            else free_omid(otmp);
+        }
+    }
 }
 
 // C ref: restore.c restmon() (307-373). The snapshot keeps nmon and every

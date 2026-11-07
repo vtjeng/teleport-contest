@@ -51,8 +51,6 @@ import {
     save_exclusions,
 } from './dungeon.js';
 import { formatkiller } from './topten.js';
-import { fruitadd } from './fruit.js';
-import { note_unported } from './unported.js';
 import { game } from './gstate.js';
 import { yyyymmddhhmmss } from './calendar.js';
 import {
@@ -96,7 +94,9 @@ import {
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { block_point } from './vision.js';
 import { place_wsegs } from './worm.js';
-import { rest_engravings } from './engrave.js';
+import { rest_engravings, sanitize_engravings } from './engrave.js';
+import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import { ghostfruit, reset_oattached_mids } from './restore.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -222,18 +222,6 @@ function goodfruit(id, state) {
     }
 }
 
-// C ref: restore.c ghostfruit() (500-512). A slime mold read from a bones
-// file names its fruit by the dead hero's fid; look that up in the old chain
-// getlev() loaded and give the object this game's fid for the same name,
-// adding the name to this game's chain if it is new.
-function ghostfruit(otmp, oldfruit, state) {
-    const oldf = oldfruit.find((fruit) => fruit.fid === otmp.spe);
-    if (!oldf) {
-        note_unported('pline.c impossible');
-        return;
-    }
-    otmp.spe = fruitadd(oldf.fname, null, { state });
-}
 
 // C ref: bones.c set_ghostly_objlist() (783-790). Sets the ghostly flag on
 // every object in a chain so the next hero knows the item came from bones.
@@ -997,6 +985,11 @@ async function find_lev_obj(state) {
 // arrival code begins iterating monsters.
 function purgeDefunctBonesMonsters(state) {
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        // C ref: bones.c:717-718. MGIVENNAME() reads either home.
+        if (mtmp.mextra?.mgivenname)
+            mtmp.mextra.mgivenname = sanitize_name(mtmp.mextra.mgivenname, state);
+        else if (mtmp.mgivenname)
+            mtmp.mgivenname = sanitize_name(mtmp.mgivenname, state);
         if (mtmp.mhpmax === DEFUNCT_MONSTER) {
             mongone(mtmp, { state });
         } else {
@@ -1066,6 +1059,8 @@ export async function getbones(state = game) {
 
     // C ref: bones.c:731 repairs shop damage after restoring the bones level.
     await fix_shop_damage(state);
+    // C ref: bones.c:736, once the file is closed.
+    sanitize_engravings(state);
 
     state.u.uroleplay ??= {};
     state.u.uroleplay.numbones = (state.u.uroleplay.numbones ?? 0) + 1;
@@ -1347,6 +1342,25 @@ async function restoreBonesLevel(bonesData, state) {
     } else {
         initrack(state);
     }
+
+    // C ref: restore.c getlev():1301, the last fixup once every monster and
+    // object has its new id.
+    reset_oattached_mids(idMap, state);
+}
+
+// C ref: bones.c sanitize_name() (197-220), for the tty window port the
+// recorder uses. It works on the name's bytes: a control character or DEL
+// becomes '.', and without wc_eight_bit_input a byte with its eighth bit set
+// becomes '_'. JavaScript strings cannot be changed in place, so the caller
+// stores the result.
+export function sanitize_name(name, state = game) {
+    const strip8thBit = !state.iflags?.wc_eight_bit_input;
+    return decodeUtf8ByteString(encodeUtf8ByteString(name).map((byte) => {
+        const c = byte & 0x7F;
+        if (c < 0x20 || c === 0x7F) return 0x2E;
+        if (c !== byte && strip8thBit) return 0x5F;
+        return byte;
+    }));
 }
 
 // C ref: bones.c bones_include_name() (762-780). Checks whether the current

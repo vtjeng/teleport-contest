@@ -2,13 +2,16 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { can_make_bones, ghostly_getlev_monsters, savebones } from '../js/bones.js';
+import {
+    can_make_bones, ghostly_getlev_monsters, sanitize_name, savebones,
+} from '../js/bones.js';
 import {
     DIED, HOLE, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
     NON_PM, OBJ_FLOOR,
     PIT,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { bless, mksobj_at } from '../js/obj.js';
 import { AMULET_OF_YENDOR, FAKE_AMULET_OF_YENDOR } from '../js/objects.js';
@@ -403,4 +406,28 @@ test('savebones removes numeric quest leaders and nemeses before serialization',
     } finally {
         setStorageForTesting(null);
     }
+});
+
+test('sanitize_name maps bytes as bones.c sanitize_name() does', () => {
+    // bones.c:208-219. Plain printable ASCII is kept; a control character
+    // (here ESC, 0x1b, and a newline) and DEL (0x7f) become '.'.
+    assert.equal(sanitize_name('Gudrun', { iflags: {} }), 'Gudrun');
+    assert.equal(sanitize_name('a\x1b[2Jb\nc\x7f', { iflags: {} }), 'a.[2Jb.c.');
+    // 'e' with an acute accent is two UTF-8 bytes with the eighth bit set
+    // (0xc3 0xa9). The tty port without wc_eight_bit_input turns each into
+    // '_'; with it they are kept.
+    assert.equal(sanitize_name('caf\u00e9', { iflags: {} }), 'caf__');
+    assert.equal(
+        sanitize_name('caf\u00e9', { iflags: { wc_eight_bit_input: true } }),
+        'caf\u00e9',
+    );
+    // 0x9b keeps its eighth bit but its low seven bits are ESC, so it is
+    // replaced by '.' whatever the option says (bones.c:210-212). U+00DB is
+    // encoded as 0xc3 0x9b; the result's bytes are 0xc3 0x2e.
+    assert.deepEqual(
+        encodeUtf8ByteString(
+            sanitize_name('\u00db', { iflags: { wc_eight_bit_input: true } }),
+        ),
+        [0xc3, 0x2e],
+    );
 });
