@@ -698,6 +698,7 @@ import {
     enexto,
     goodpos,
     noteleport_level,
+    rloc,
     rloc_to,
     rloc_to_flag,
     tele_restrict,
@@ -2213,8 +2214,17 @@ async function liquidTeleportRestricted(monster, env) {
     return tele_restrict(monster, state, env);
 }
 
+// C minliquid_core() calls teleport.c rloc() and deal_with_overcrowding()
+// directly. A live caller that supplies neither gets those owners; a planning
+// clone must bring its own silent relocation.
+function liquidLiveOperation(env, name, owner) {
+    if (typeof env[name] === 'function' || env.planning)
+        return liquidOperation(env, name);
+    return owner;
+}
+
 async function liquidRelocate(monster, flags, env) {
-    const relocate = liquidOperation(env, 'relocateMonster');
+    const relocate = liquidLiveOperation(env, 'relocateMonster', rloc);
     return Boolean(await relocate(monster, flags, env));
 }
 
@@ -2279,7 +2289,13 @@ async function liquidDeath(monster, water, env) {
 }
 
 async function liquidOvercrowding(monster, env) {
-    await liquidOperation(env, 'dealWithOvercrowding')(monster, env);
+    await liquidLiveOperation(
+        env,
+        'dealWithOvercrowding',
+        (subject, subjectEnv) => deal_with_overcrowding(
+            subject, subjectEnv.state ?? game, subjectEnv,
+        ),
+    )(monster, env);
 }
 
 // C ref: mon.c minliquid() and minliquid_core() (945-1122). This includes the

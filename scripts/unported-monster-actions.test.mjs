@@ -2239,6 +2239,44 @@ test('minliquid preserves source ordering for lava survivors', async () => {
     }
 });
 
+test('a live lava survivor relocates through rloc() without a caller seam',
+    async () => {
+        // mon.c minliquid_core() calls teleport.c rloc() directly; dothrow.c
+        // mhurtle() is a live caller that supplies no relocation of its own.
+        // A planning clone still has to bring a silent one.
+        const target = await prepareSelectedAction();
+        game.level.at(target.monsterX, target.heroY).typ = LAVAPOOL;
+        target.monster.mintrinsics = 1 << (FIRE_RES - 1);
+        target.monster.mhp = 2;
+        game.context.mon_moving = true;
+        try {
+            await assert.rejects(
+                () => minliquid(target.monster, {
+                    state: game,
+                    planning: true,
+                    canSee: () => false,
+                    fireDamageChain: () => {},
+                }),
+                /monster liquid effects require relocateMonster/u,
+            );
+            target.monster.mhp = 2;
+            const result = await minliquid(target.monster, {
+                state: game,
+                canSee: () => false,
+                fireDamageChain: () => {},
+            });
+            assert.equal(result, 0);
+            assert.equal(target.monster.mhp, 1);
+            assert.notEqual(
+                game.level.at(target.monster.mx, target.monster.my).typ,
+                LAVAPOOL,
+                'rloc() moved the survivor off the lava',
+            );
+        } finally {
+            game.context.mon_moving = false;
+        }
+    });
+
 test('minliquid orders pool messages before monster death', async () => {
     const target = await prepareSelectedAction();
     game.level.at(target.monsterX, target.heroY).typ = POOL;

@@ -902,7 +902,9 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
                 mhurtleTrapEnvironment(movementEnv, state),
             );
         } else {
-            await minliquid(monster, movementEnv);
+            // A caller's minLiquid owner carries the elapsed-turn or planning
+            // seams for relocation and output, as dochug()'s own call does.
+            await (movementEnv.minLiquid ?? minliquid)(monster, movementEnv);
         }
     }
 }
