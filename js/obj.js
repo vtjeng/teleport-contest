@@ -145,7 +145,6 @@ import {
     is_female,
     is_male,
     is_neuter,
-    is_reviver,
     monsndx,
     noncorporeal,
     undead_to_corpse,
@@ -1970,12 +1969,6 @@ function mkbox_cnts(box, env) {
         obj_no_longer_held(obj, hookEnv);
     hooks.stopObjectTimers ??= (obj, hookEnv) =>
         obj_stop_timers(obj, hookEnv.state, hookEnv);
-    hooks.isReviver ??= (mnum, hookEnv) => {
-        const monster = hookEnv.state?.mons?.[mnum];
-        if (!monster)
-            throw new Error('container corpse merging requires a monster catalog');
-        return is_reviver(monster);
-    };
     const enrichedEnv = { ...env, hooks };
 
     for (let i = count; i > 0; i--) {

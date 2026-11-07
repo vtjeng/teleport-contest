@@ -355,10 +355,7 @@ import {
 import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
 import { done2, nh_terminate, UnsupportedEndOfGameError } from './end.js';
-import {
-    exercise_nonphysical,
-    UnsupportedAbilityChangeError,
-} from './attrib.js';
+import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import {
     doread,
@@ -3297,17 +3294,8 @@ async function runEngraveCommand(key, state) {
         redraw: newsym,
         setOccupation: set_occupation,
         random: { rn2, rnd },
-        // random_engraving() reaches getrumor(), whose C implementation
-        // exercises WIS.  The callback stays at the command caller so the
-        // synchronous helper receives doengrave's exact state and RNG.
         randomEngraving: ({ state: engravingState, random }) =>
-            random_engraving({
-                state: engravingState,
-                random,
-                exercise: (attribute, increase) => exercise_nonphysical(
-                    attribute, increase, engravingState, random,
-                ),
-            }),
+            random_engraving({ state: engravingState, random }),
         yesNo: yn_function,
         monName: mon_nam,
         // engrave.c engrave() hands the dulled dagger split off a stack to

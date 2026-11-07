@@ -161,6 +161,7 @@ import {
     PM_KNIGHT,
     NUMMONS,
     PM_NEWT,
+    PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -1140,25 +1141,22 @@ test('merge_choice preserves the source candidate gates', () => {
     assert.equal(incoming.no_charge, false);
 });
 
-test('corpse reviver decisions require the monster predicate seam', () => {
+test('revivable corpses never merge; other corpses do (invent.c:4442-4446)', () => {
     const state = initializedState();
-    const first = instance(CORPSE, state, {
-        corpsenm: TEST_SPECIES,
-        owt: PLACEHOLDER_CORPSE_WEIGHT,
-    });
-    const second = instance(CORPSE, state, {
-        corpsenm: TEST_SPECIES,
-        owt: PLACEHOLDER_CORPSE_WEIGHT,
-    });
-    assert.throws(
-        () => mergable(first, second, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'isReviver',
-    );
-    assert.equal(mergable(first, second, {
-        state,
-        hooks: { isReviver: () => false },
-    }), true);
+    monst_globals_init(state);
+    // A fox is no reviver; a troll is one (mondata.h is_reviver(): Riders
+    // and S_TROLL), so the same pair of corpses merges only for the fox.
+    for (const [species, merges] of [[TEST_SPECIES, true], [PM_TROLL, false]]) {
+        const first = instance(CORPSE, state, {
+            corpsenm: species,
+            owt: PLACEHOLDER_CORPSE_WEIGHT,
+        });
+        const second = instance(CORPSE, state, {
+            corpsenm: species,
+            owt: PLACEHOLDER_CORPSE_WEIGHT,
+        });
+        assert.equal(mergable(first, second, { state }), merges);
+    }
 });
 
 test('merge visibility uses canonical Blind and Hallucination properties', () => {
@@ -1493,10 +1491,7 @@ test('corpse weight dependencies are checked before merge mutation', () => {
     });
     addinv(target, { state });
     assert.throws(
-        () => addinv(incoming, {
-            state,
-            hooks: { isReviver: () => false },
-        }),
+        () => addinv(incoming, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
             && error.operation === 'monster weight lookup',
     );
@@ -1507,7 +1502,6 @@ test('corpse weight dependencies are checked before merge mutation', () => {
     addinv(incoming, {
         state,
         hooks: {
-            isReviver: () => false,
             monster: () => ({ cwt: corpseWeight }),
         },
     });

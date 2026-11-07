@@ -16,7 +16,7 @@ import {
     NUM_MGENDERS,
     RUMORFILE,
 } from './const.js';
-import { exercise } from './attrib.js';
+import { exercise_nonphysical } from './attrib.js';
 import { bogon_is_pname } from './do_name.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, lowc, xcrypt } from './hacklib.js';
@@ -242,7 +242,12 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
     if (count >= 50) {
         env.impossible?.("Can't find non-cookie rumor?");
     } else if (!env.state?.in_mklev) {
-        env.exercise?.(A_WIS, adjustedTruth > 0);
+        /* avoid exercising wisdom for graffiti */
+        const exerciseWisdom = env.exercise
+            ?? ((index, increase) => exercise_nonphysical(
+                index, increase, state, env.random,
+            ));
+        exerciseWisdom(A_WIS, adjustedTruth > 0);
     }
     if (!excludeCookie && rumor.startsWith(COOKIE_MARKER))
         rumor = rumor.slice(COOKIE_MARKER.length);
@@ -275,16 +280,6 @@ export async function outrumor(truth, mechanism, state = game, rawEnv = {}) {
         ...rawEnv,
         random: randomSource,
         state,
-        // getrumor() is synchronous like its C counterpart. A Wis exercise
-        // has no awaitable encumber_msg() tail, so exercise() mutates the
-        // source state before returning its Promise here.
-        exercise: rawEnv.exercise
-            ?? ((index, increase) => exercise(
-                index,
-                increase,
-                state,
-                { rn2: random },
-            )),
     });
     const line = lineResult || 'NetHack rumors file closed for renovation.';
 

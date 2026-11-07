@@ -459,6 +459,22 @@ export async function dorestore(state = game) {
     state.gb ??= {};
     state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
 
+    // C ref: restore.c getlev():1181-1221, the hero's level under
+    // REST_CURRENT_LEVEL. The snapshot keeps level.monsters, the steed and
+    // the holder, so place_monster(), place_wsegs() and the u.usteed_mid and
+    // u.ustuck_mid fixups have no work. dorecover() reads the level at the
+    // turn it was saved, so `elapsed` is zero: no mon_catchup_elapsed_time()
+    // and no hide_monst(). restore_cham() still runs: a vampire that rose in
+    // its own form with cham NON_PM may shapeshift again after the restore.
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.isshk) set_residency(mtmp, false, state);
+        if (mtmp !== state.u.usteed && hides_under(mtmp.data)
+            && mtmp.mundetected) {
+            hideunder(mtmp, { state });
+        }
+        await restore_cham(mtmp, state);
+    }
+
     // C ref: restore.c getlev():1226 rest_bubbles(), after the hero's
     // level's monsters and regions, rebuilds the Plane of Water's or Air's
     // bubbles through mkmaze.c restore_waterlevel(); the snapshot has none

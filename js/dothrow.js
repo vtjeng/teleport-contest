@@ -1195,8 +1195,10 @@ export function should_mulch_missile(obj, state = game, env = {}) {
 export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {}) {
     const { ux, uy } = state.u;
     const location = state.level.at(ux, uy);
+    // dropy() and dropz() end in the newsym() and encumber_msg() that
+    // dropCommandEnv() supplies (do.c:840-842).
     if (IS_SOFT(location.typ) || state.u.uinwater || state.u.uswallow) {
-        await dropy(obj, { ...rawEnv, state });
+        await dropy(obj, dropCommandEnv(state, rawEnv));
         return;
     }
 
@@ -1232,7 +1234,7 @@ export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {})
     if (await hero_breaks(obj, ux, uy, BRK_FROM_INV,
         { ...rawEnv, state })) return;
     if (await ship_object(obj, ux, uy, false, { ...rawEnv, state })) return;
-    await dropz(obj, true, { ...rawEnv, state });
+    await dropz(obj, true, dropCommandEnv(state, rawEnv));
 }
 
 // C ref: dothrow.c toss_up() (1256-1431). A vertically thrown object either

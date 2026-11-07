@@ -262,3 +262,38 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
     assert.deepEqual(replay.getRngLog(), stepLiveRng,
         'planned hurtle movement consumes no live RNG');
 });
+
+test('vision_recalc on a planning clone never writes the live buffer pair', async () => {
+    // Planned venom that blinds the hero reaches potion.c toggle_blindness()
+    // -> vision_recalc(0), and a planned engulf reaches mhitu.c gulpmu() ->
+    // vision_recalc(2), on a clone no vision owner isolated first. Whichever
+    // buffer the live game holds, those calls must leave it alone.
+    resetGame();
+    // Independent fixed startup; only its initialized vision state is used.
+    await runSegment({
+        seed: 2026110601,
+        datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:VisionPair,role:Priest,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    // Two live parities: the first loop pass uses the startup buffer, the
+    // second flips the live pair with one more live vision_recalc(0).
+    for (const parity of [0, 1]) {
+        if (parity) vision_recalc(0);
+        const liveBuffers = liveVisionBufferViews().map((view) => view.slice());
+        const liveView = game.viz_array;
+        const liveRows = liveView.map((row) => row.slice());
+        const planned = planningState(game);
+        // Both control values the unisolated callers pass, each twice, so
+        // the clone swaps through both halves of whatever pair it uses.
+        for (const control of [0, 0, 2, 2])
+            vision_recalc(control, { state: planned, redraw: () => {} });
+        assert.deepEqual(liveVisionBufferViews(), liveBuffers,
+            `parity ${parity}: live rows, spare rows, rmin and rmax unchanged`);
+        assert.strictEqual(game.viz_array, liveView);
+        assert.deepEqual(game.viz_array, liveRows,
+            `parity ${parity}: the live COULD_SEE array is unchanged`);
+    }
+});
