@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent pickup.c lift_object() witness for its safe_qbuf() question, chosen for this run (seed, clock and elf Priest identity are new). Wish 300 blessed rocks with a 62-character name; they slip to the floor. Pick them up with , so carry_count() lifts only some, and the overload question with the full doname() would exceed QBUFSZ, so safe_qbuf() shortens the name through short_oname(). y accepts it.",
+  "segments": [
+    {
+      "seed": 5170942,
+      "datetime": "20461201153000",
+      "nethackrc": "OPTIONS=name:LongName,role:Priest,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\n300 blessed rocks named the very long and carefully chosen name of this rock pile here\n , y"
+    }
+  ]
+}

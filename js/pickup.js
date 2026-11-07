@@ -3015,9 +3015,15 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
                             : slightloadpfx;
                 const savequan = obj.quan;
                 obj.quan = count;
-                const qbuf = `${pfx} `
-                    + `${!container ? 'lifting' : 'removing'} `
-                    + `${donameFresh(obj, state)}.  Continue?`;
+                const qbuf = safe_qbuf(
+                    `${pfx} ${!container ? 'lifting' : 'removing'} `,
+                    '.  Continue?',
+                    obj,
+                    (candidate) => donameFresh(candidate, state),
+                    (candidate) => ansimpleoname(candidate, state),
+                    something,
+                    state,
+                );
                 obj.quan = savequan;
                 const ch = await ynq(qbuf, state);
                 if (ch === 'q') result = -1;
