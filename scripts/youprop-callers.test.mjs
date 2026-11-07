@@ -77,3 +77,17 @@ test('apply.c, do_name.c and uhitm.c read Deaf with its roleplay term', () => {
         assert.equal(count(jsText, /\bHDeaf\(|\bEDeaf\(/gu), 0, `${file}.js ${name}() spells no part of it`);
     }
 });
+
+test('pager.c and teleport.c read Blind and Blinded, with no roleplay term', () => {
+    // pager.js and teleport.js added u.uroleplay.blind to Blind. Blindf_on()
+    // clears that option when the Eyes of the Overworld end the hero's
+    // blindness, the only way Blind turns false while it is set, so the term
+    // changed no result; C does not read it. scrolltele() reads Blinded.
+    const pager = read('js/pager.js');
+    const teleport = read('js/teleport.js');
+    for (const js of [pager, teleport]) assert.doesNotMatch(js, /uroleplay\?*\.blind/u);
+    assert.match(cBody(read('nethack-c/upstream/src/teleport.c'), 'scrolltele'),
+        /if \(!Blinded\)\s*make_blinded\(0L, FALSE\);/u);
+    assert.match(jsBody(teleport, 'scrolltele'),
+        /if \(!Blinded\(state\.u\)\)\s*await make_blinded\(0, false, state\);/u);
+});

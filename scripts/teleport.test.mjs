@@ -318,7 +318,7 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.ok(blockedCheck < blockedLearn);
     assert.ok(blockedLearn < cScrolltele.indexOf('return;', blockedLearn));
     assert.ok(jsScrolltele.indexOf('learnscroll(scroll, state)')
-        < jsScrolltele.indexOf('if (!heroBlind(state))'));
+        < jsScrolltele.indexOf('if (!Blinded(state.u))'));
 
     // C lets a wizard override disorientation and treats a blessed scroll as
     // teleport control when the hero is not stunned.

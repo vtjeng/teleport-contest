@@ -254,10 +254,7 @@ import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import {
-    Blind,
-    Hallucination,
-} from './youprop.js';
+import { Blind, Blinded, Hallucination } from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -612,10 +609,6 @@ function monsterTeleportOperation(env, name) {
     return operation;
 }
 
-function heroBlind(state) {
-    return (Blind(state.u))
-        || Boolean(state.u?.uroleplay?.blind);
-}
 
 // C ref: teleport.c tele_restrict() (1950-1960). Returns true when the
 // level forbids teleportation, printing a message if the hero can see the
@@ -1294,7 +1287,7 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                     ? Amonnam(monster, { ...nameEnv, state })
                     : Monnam(monster, state, nameEnv);
                 text = `${name} ${appearmsg ? 'suddenly ' : ''}`
-                    + `${heroBlind(state) ? 'arrives' : 'appears'}`
+                    + `${Blind(state.u) ? 'arrives' : 'appears'}`
                     + `${next ?? close ?? ''}!`;
             }
             const result = message(messageAt(text, x, y, state), state, env);
@@ -1537,7 +1530,7 @@ export async function scrolltele(scroll, state = game, rawEnv = {}) {
         return;
     }
 
-    if (!heroBlind(state))
+    if (!Blinded(state.u))
         await make_blinded(0, false, state);
 
     if ((state.u?.uhave?.amulet || On_W_tower_level(state.u.uz, state))

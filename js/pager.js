@@ -277,8 +277,7 @@ import {
 } from './cmd.js';
 import {
     Blind, Detect_monsters, EDetect_monsters, EHalluc_resistance,
-    HDetect_monsters, Hallucination,
-    Infravision, Invis, See_invisible, Unblind_telepat,
+    Hallucination, Infravision, Invis, See_invisible, Unblind_telepat,
 } from './youprop.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
@@ -301,19 +300,14 @@ export class UnsupportedHelpError extends Error {
 
 
 
-function heroBlind(state) {
-    return Blind(state.u)
-        || Boolean(state.u?.uroleplay?.blind);
-}
 
 // pager.c keeps two explanations for the remembered invisible-monster glyph.
 // Active clairvoyance and blindness use the short form, matching the generic
 // symbol pass in do_screen_description(); lookat() itself always returns the
 // longer source string.
 function invisibleGlyphDescription(state) {
-    const special = (Number(HDetect_monsters(state.u)) & I_SPECIAL)
-        || (Number(EDetect_monsters(state.u)) & I_SPECIAL);
-    return (special || heroBlind(state))
+    const special = (EDetect_monsters(state.u) & I_SPECIAL) !== 0;
+    return (special || Blind(state.u))
         ? 'unseen creature' : 'remembered, unseen, creature';
 }
 
@@ -564,7 +558,7 @@ export function self_lookat(state = game) {
     const invisible = Invis(state.u)
         && (unblindTelepathy
             || Detect_monsters(state.u)
-            || !heroBlind(state));
+            || !Blind(state.u));
     const race = !Upolyd(u) ? (state.urace?.adj ?? '') + ' ' : '';
     let description = (invisible ? 'invisible ' : '') + race
         + pmname(species, Ugender(state)) + ' called ' + state.plname;
@@ -842,7 +836,7 @@ export async function look_all(nearby, doMons, state = game) {
     // display.h:canspotself(). Invisible includes the see-invisible exception.
     const invisible = Invis(state.u)
         && !See_invisible(state.u);
-    const canSpotSelf = heroBlind(state) || state.u.uswallow
+    const canSpotSelf = Blind(state.u) || state.u.uswallow
         || (!invisible && !state.u.uundetected)
         || Boolean(Unblind_telepat(state.u))
         || Detect_monsters(state.u);
@@ -1284,7 +1278,7 @@ export function lookat(x, y, state = game) {
         && !See_invisible(state.u);
     const telepathy = Boolean(Unblind_telepat(state.u));
     const detection = Detect_monsters(state.u);
-    const canSpotSelf = heroBlind(state)
+    const canSpotSelf = Blind(state.u)
         || u.uswallow
         || (!invisible && !u.uundetected)
         || telepathy || detection;
@@ -1295,7 +1289,7 @@ export function lookat(x, y, state = game) {
             || glyph !== mon_to_glyph(u.ustuck, state))
         && selfTerrainAllowed) {
         buf = self_lookat(state);
-        if ((invisible || u.uundetected) && !heroBlind(state)
+        if ((invisible || u.uundetected) && !Blind(state.u)
             && !u.uswallow && !state.iflags?.save_uswallow) {
             const seen = [];
             if (Infravision(state.u)) seen.push('infravision');

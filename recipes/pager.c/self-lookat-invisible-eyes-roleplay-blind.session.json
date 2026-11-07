@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "pager.c self_lookat() calls the hero invisible when Invis && (senseself() || !Blind). A Monk playing with the blind option puts on the Eyes of the Overworld, which make Blind false (BBlinded) and, through do_wear.c Blindf_on(), clear u.uroleplay.blind; she then quaffs a potion of invisibility and farlooks at herself, so C describes her as invisible.",
+  "segments": [
+    {
+      "seed": 7720491,
+      "datetime": "20261112101500",
+      "nethackrc": "OPTIONS=name:Lensmonk,role:Monk,race:human,gender:female,align:neutral,playmode:debug,blind\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017Eyes of the Overworld\n Pj \u0017uncursed potion of invisibility\nqk  ;.  "
+    }
+  ]
+}
