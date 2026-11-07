@@ -139,8 +139,9 @@ export function addtoplRows(text, columns) {
     return rows;
 }
 
-// C ref: topl.c update_topl()'s line splitting and byte cursor rules.
-export function wrapTtyTopline(message, columns) {
+// C ref: topl.c update_topl() 284-297.  The lines it splits gt.toplines
+// into, each newline taking the place of a space.
+function updateToplLines(message, columns) {
     const logicalLines = [];
     let remaining = String(message);
     while (remaining.length >= columns) {
@@ -154,8 +155,13 @@ export function wrapTtyTopline(message, columns) {
         remaining = remaining.slice(split + 1);
     }
     logicalLines.push(remaining);
+    return logicalLines;
+}
+
+// C ref: topl.c update_topl()'s line splitting and byte cursor rules.
+export function wrapTtyTopline(message, columns) {
     const physicalWidth = Math.max(1, columns - 1);
-    return logicalLines.flatMap((line) => {
+    return updateToplLines(message, columns).flatMap((line) => {
         if (!line.length) return [''];
         const rows = [];
         for (let start = 0; start < line.length; start += physicalWidth)
@@ -511,12 +517,33 @@ export async function tty_doprev_message(state = game) {
     return 0;
 }
 
+// C's cw->data[] strings, oldest first.  An entry remember_topl() copied
+// from an update_topl() line holds that function's newlines; one copied
+// from a line written directly holds none.  The port's entries hold no
+// newlines and carry that difference in cw.unsplit, so this puts them back.
+function savedHistory(state) {
+    const cw = messageWindow(state);
+    if (!cw?.data) return [];
+    const rows = historyRows(state);
+    const columns = state.nhDisplay?.cols ?? 80;
+    const result = [];
+    for (let i = 0, idx = cw.maxrow ?? 0; i < rows; ++i, idx = (idx + 1) % rows) {
+        const item = cw.data[idx];
+        if (!item) continue;
+        result.push(cw.unsplit?.[idx]
+            ? item : updateToplLines(item, columns).join('\n'));
+    }
+    return result;
+}
+
+// C ref: topl.c msghistory_snapshot().  The entries are C's strings; see
+// savedHistory().
 function snapshot(state, purge) {
     const cw = messageWindow(state);
     if (!cw) return null;
     remember_topl(state);
     if (!purge) cw.flags |= WIN_LOCKHISTORY;
-    const entries = chronologicalHistory(state);
+    const entries = savedHistory(state);
     if (purge) {
         cw.data = Array(historyRows(state)).fill(null);
         cw.datlen = Array(historyRows(state)).fill(0);
@@ -529,8 +556,11 @@ function snapshot(state, purge) {
 // C refs: topl.c msghistory_snapshot(), free_msghistory_snapshot(),
 // tty_getmsghistory(), and tty_putmsghistory().  Save/restore uses copied
 // strings in JavaScript rather than C-owned pointer arrays.
+// The port's callers read the text, so this returns it without
+// update_topl()'s newlines.
 export function msghistory_snapshot(purge = false, state = game) {
-    return snapshot(state, purge);
+    return snapshot(state, purge)?.map((entry) => entry.replaceAll('\n', ' '))
+        ?? null;
 }
 export function free_msghistory_snapshot(_purged = false, state = game) {
     const cw = messageWindow(state);
@@ -559,11 +589,11 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
         state._ttyRestoreHistory = null;
         for (const entry of prior) {
             remember_topl(state);
-            setTopline(entry, state, false);
+            setTopline(entry, state);
         }
         for (const entry of current) {
             remember_topl(state);
-            setTopline(entry, state, false);
+            setTopline(entry, state);
         }
         state._ttyRestoreSnapshot = null;
         state._ttyRestoreInitialized = false;
@@ -573,19 +603,25 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
         if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE)
             state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
         remember_topl(state);
-        setTopline(String(message), state, true);
+        setTopline(String(message), state);
         return;
     }
     (state._ttyRestoreHistory ??= []).push(String(message));
 }
 
 // topl.c:706 and :717 Strcpy() the message into gt.toplines.  A caller's
-// message (`direct`) holds no update_topl() newlines, so ^P wraps it at the
-// terminal edge.  A restored message keeps the port's update_topl() layout.
-function setTopline(text, state, direct) {
-    if (direct) setToplinesDirectly(text, state);
-    else setToplinesViaUpdateTopl(text, state);
-    if (state.nhDisplay) state.nhDisplay.topMessage = text;
+// message holds no update_topl() newlines, so ^P wraps it at the terminal
+// edge.  A message restored from a save file or from the snapshot is one of
+// C's history strings (see savedHistory()): one that update_topl() split
+// still holds its newlines, so it keeps that layout.  One without a newline
+// is taken as a direct write: had update_topl() written it, it fitted on one
+// row or had no space to split at, and wraps the same either way.
+function setTopline(message, state) {
+    const text = String(message);
+    if (text.includes('\n'))
+        setToplinesViaUpdateTopl(text.replaceAll('\n', ' '), state);
+    else setToplinesDirectly(text, state);
+    if (state.nhDisplay) state.nhDisplay.topMessage = state._ttyToplines;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_MESSAGE arm (1047-1058), as

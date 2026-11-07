@@ -28,6 +28,9 @@ import {
     more,
     putsyms,
     remember_topl,
+    setToplinesDirectly,
+    setToplinesViaUpdateTopl,
+    toplineRows,
     tty_doprev_message,
     tty_getmsghistory,
     tty_putmsghistory,
@@ -163,6 +166,51 @@ test('save snapshots read oldest first and restore puts prior-session lines firs
     const win = state.wintty.wins[state.wintty.messageWindow];
     assert.deepEqual(win.data.slice(0, 3), [
         'prior one', 'prior two', 'current session',
+    ]);
+});
+
+// C saves cw->data[] strings as remember_topl() copied them from gt.toplines
+// (topl.c:186, save.c:1039-1049): update_topl() replaced a space with a
+// newline wherever the line broke (topl.c:284-297), and a line written with
+// Strcpy() or Sprintf() holds none.  tty_putmsghistory() copies each string
+// back with Strcpy() (topl.c:706, 717), so a restored line keeps its layout.
+test('saved message history keeps update_topl() newlines and restores each layout', () => {
+    const state = historyState();
+    // 86 columns: update_topl() breaks at the last space at or before
+    // column 79, the one after the b's at column 71.
+    const split = `${'a'.repeat(50)} ${'b'.repeat(20)} ${'c'.repeat(14)}`;
+    // 85 columns, written directly, so it wraps at column 79 instead.
+    const direct = `${'d'.repeat(60)} ${'e'.repeat(24)}`;
+    setToplinesViaUpdateTopl(split, state);
+    remember_topl(state);
+    setToplinesDirectly(direct, state);
+    remember_topl(state);
+
+    const saved = [];
+    for (let message = tty_getmsghistory(true, state); message != null;
+        message = tty_getmsghistory(false, state)) saved.push(message);
+    assert.deepEqual(saved, [
+        `${'a'.repeat(50)} ${'b'.repeat(20)}\n${'c'.repeat(14)}`, direct,
+    ]);
+    // The port's readers of a snapshot see the text alone.
+    assert.deepEqual(msghistory_snapshot(false, state), [split, direct]);
+    free_msghistory_snapshot(false, state);
+
+    const restored = historyState();
+    for (const message of saved) tty_putmsghistory(message, true, restored);
+    tty_putmsghistory(null, true, restored);
+    // The last restored line stays in gt.toplines until the next message
+    // moves it into history.
+    assert.equal(restored._ttyToplines, direct);
+    remember_topl(restored);
+    const win = restored.wintty.wins[restored.wintty.messageWindow];
+    assert.deepEqual(win.data.slice(0, 2), [split, direct]);
+    assert.deepEqual(win.unsplit.slice(0, 2), [false, true]);
+    assert.deepEqual(toplineRows(split, 80, restored, win.unsplit[0]), [
+        `${'a'.repeat(50)} ${'b'.repeat(20)}`, 'c'.repeat(14),
+    ]);
+    assert.deepEqual(toplineRows(direct, 80, restored, win.unsplit[1]), [
+        direct.slice(0, 79), direct.slice(79),
     ]);
 });
 

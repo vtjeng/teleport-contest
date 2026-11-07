@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "_comment": "Blocked: sys/unix/unixmain.c main() prints 'Restoring save file...' with pline() before dorecover(), and the port does not, so the restored history recalled by ^P is one entry short from the second ^P on. Witness for win/tty/topl.c tty_getmsghistory() and tty_putmsghistory() (topl.c:633-726): a dwarven Valkyrie wishes for a lembas wafer whose 83-column name message update_topl() splits at a word, level-teleports to the quest home level for an 85-column putmsghistory() synopsis, saves, restores, and recalls history with ^P. The saved strings keep the newlines update_topl() put in gt.toplines, so after the restore the wafer message still breaks at a word and the synopsis, saved without newlines, still wraps at the terminal edge. scripts/topl.test.mjs pins the same round trip.",
+ "segments": [
+  {
+   "seed": 3306917,
+   "datetime": "20290918081500",
+   "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": " \u0017lembas wafer named Abcdefghijklmnopqrstuvwxyz Zyxwvutsrqponmlkjihgfedcba Mno\n \u0016?\n>y  #save\ny",
+   "terminalInputKey": "y"
+  },
+  {
+   "seed": 3306917,
+   "datetime": "20290918081500",
+   "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": " \u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010"
+  }
+ ]
+}
