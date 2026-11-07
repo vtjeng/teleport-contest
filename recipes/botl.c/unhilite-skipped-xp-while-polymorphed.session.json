@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for botl.c status_eval_next_unhilite() (botl.c:2279-2319) and the gu.update_all timer reset in eval_notify_windowport_field() (botl.c:1574-1576). A Valkyrie with an experience-level/up highlight gains levels, lets a turn pass so the highlight timer starts, and polymorphs; set_uasmon() requests update_all, but evaluate_and_notify_windowport() skips BL_XP while Upolyd, so its timer survives and later sets disp.botl on every turn with multi == 0. After a travel leaves context.run at 8, only that botl repaints the turn counter at the end of a counted search.",
+ "segments": [
+  {
+   "seed": 6604417,
+   "datetime": "20261204103000",
+   "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,statushilites:20\nOPTIONS=hilite_status:experience-level/up/green\n",
+   "moves": "#levelchange\n5\n\u001bss#polyself\nminotaur\n\u001b30s_ll.20s"
+  }
+ ]
+}
