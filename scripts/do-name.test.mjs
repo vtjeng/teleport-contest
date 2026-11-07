@@ -20,6 +20,7 @@ import {
     Monnam,
     Mgender,
     minimal_monnam,
+    mon_nam,
     mon_nam_too,
     m_monnam,
     mon_pmname,
@@ -1142,6 +1143,30 @@ test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
     // hallucinating" row.
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     assert.equal(mon_nam_too(mon, mon, state, env), 'themselves');
+});
+
+// do_name.c x_monnam() says "it" only when !canspotmon(mtmp). A monster-turn
+// env carries a canSeeMonster (canseemon()) operation too; a monster the
+// hero senses but does not see must keep its name, as "Dirk's ghost" does
+// when a barbed devil's adhere attempt passes through it.
+test('x_monnam reads canspotmon(), not an env canSeeMonster seam', () => {
+    // The same bare state as the mon_nam_too() test above: Detect_monsters
+    // lets sensemon(), and so canspotmon(), answer TRUE for this monster.
+    const state = { mons: [], u: { uprops: [], uroleplay: { blind: false } } };
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    const mon = {
+        data: { pmnames: ['gnome lord'], mflags1: M1_HUMANOID,
+            mflags2: 0, mflags3: 0, geno: 0 },
+        female: false,
+        mextra: {},
+    };
+    // canseemon() is FALSE: the monster is sensed, not seen.
+    const env = { canSeeMonster: () => false };
+    assert.equal(mon_nam(mon, state, env), 'the gnome lord');
+    assert.equal(mon_nam(mon, state, { ...env, canSpotMonster: () => false }),
+        'it');
 });
 
 test('the remaining do_name monster wrappers preserve source article rules', () => {
