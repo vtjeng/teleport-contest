@@ -41,6 +41,11 @@ export function resetGame() {
 // and goes through to the live game, as it did before the guard existed, so
 // a path no test reached costs the scored game nothing, and runSegment()
 // reports what was recorded to the local scorers, which fail that game.
+//
+// js/youprop.js applies the same policy to a property macro given the game
+// state in place of the hero, or the reverse: recordLiveGameUse() throws in
+// local runs and, under runSegment(), records a `youpropArgument` use beside
+// the planning uses, so the same reporter fails the game.
 export class PlanningLiveGameError extends Error {
     constructor(message) {
         super(message);
@@ -51,6 +56,8 @@ export class PlanningLiveGameError extends Error {
 let liveGameDuringPlanning = null;
 let recordPlanningUses = false;
 // One entry per distinct message, in first-use order: { kind, detail, count }.
+// `kind` is 'planningLiveGame' for the guard below and 'youpropArgument' for
+// js/youprop.js.
 const planningUses = new Map();
 
 // Select recording (true) or throwing (false); returns the previous mode.
@@ -82,14 +89,21 @@ function framesOf(stack) {
     return callers.length ? `${user}, called from ${callers.join(' < ')}` : user;
 }
 
+// Unless recording is selected, throw makeError(detail); otherwise record one
+// use of `kind`, so that runSegment() reports it, and return so that the
+// caller can carry on.
+export function recordLiveGameUse(kind, detail, makeError) {
+    if (!recordPlanningUses) throw makeError(detail);
+    const use = planningUses.get(detail);
+    if (use) use.count++;
+    else planningUses.set(detail, { kind, detail, count: 1 });
+}
+
 function planningUse(operation, property) {
     const name = typeof property === 'symbol' ? property.toString() : String(property);
     const where = framesOf(new Error().stack);
     const detail = `planning pass reached the live game: ${operation} game.${name} in ${where}`;
-    if (!recordPlanningUses) throw new PlanningLiveGameError(detail);
-    const use = planningUses.get(detail);
-    if (use) use.count++;
-    else planningUses.set(detail, { kind: 'planningLiveGame', detail, count: 1 });
+    recordLiveGameUse('planningLiveGame', detail, (message) => new PlanningLiveGameError(message));
 }
 
 // Each trap reports the use, which throws unless recording is selected, and

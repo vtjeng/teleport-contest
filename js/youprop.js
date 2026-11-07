@@ -15,7 +15,11 @@
 // The H, E and B accessors return the field's value, 0 when the hero has no
 // slot for it; the combined macros return a boolean, as C's || and && give
 // 0 or 1. Passing the game state where the hero is expected, or the hero
-// where the state is expected, throws rather than answer FALSE.
+// where the state is expected, follows js/gstate.js recordLiveGameUse(): it
+// throws in local runs, while the judge's runSegment() records a
+// `youpropArgument` use, which fails the game in local scoring, and the macro
+// answers from the argument it should have had (the state's hero, or the
+// live game whose globals C reads).
 
 import {
     ACID_RES, ADORNED, AGGRAVATE_MONSTER, ANTIMAGIC, BLINDED,
@@ -33,6 +37,7 @@ import {
     WARN_OF_MON, WARN_UNDEAD, WOUNDED_LEGS, WWALKING, W_ARTI,
 } from './const.js';
 import { is_fainted } from './eat.js';
+import { game, recordLiveGameUse } from './gstate.js';
 import {
     amphibious, breathless, defended, hates_silver, is_flyer, is_swimmer,
 } from './mondata.js';
@@ -40,13 +45,50 @@ import { AD_DISE } from './monsters.js';
 import { TOWEL } from './objects.js';
 import { unconscious } from './trap.js';
 
+// Helpers in this file that sit between a macro and the argument check.
+const INTERNAL = new Set(['wrongArgument', 'heroArg', 'stateOf', 'slot',
+    'intrinsic', 'extrinsic', 'blocked']);
+
+// Report a macro given the wrong kind of argument: the outermost youprop.js
+// function on the stack is the macro the caller misused, and the next frame
+// is that caller.
+function wrongArgument(problem) {
+    const frames = String(new Error().stack).split('\n').slice(1).map((line) => {
+        const m = /^\s*at (?:async )?(?:([\w$.<>]+) )?\(?(.*?):\d+:\d+\)?$/u.exec(line);
+        // A call through a namespace import is named `Module.Blind`.
+        const name = (m?.[1] ?? '<anonymous>').replace(/^.*\./u, '');
+        return { name, file: (m?.[2] ?? '').replace(/^.*\/js\//u, '') };
+    });
+    const outside = frames.findIndex((frame) => frame.file !== 'youprop.js');
+    const macro = frames.slice(0, outside < 0 ? frames.length : outside)
+        .filter((frame) => !INTERNAL.has(frame.name)).at(-1)?.name ?? 'a macro';
+    const caller = outside < 0 ? 'an unknown caller'
+        : `${frames[outside].name} (${frames[outside].file})`;
+    recordLiveGameUse('youpropArgument', `youprop.js ${macro}() was given ${problem}, in ${caller}`,
+        (detail) => new TypeError(detail));
+}
+
+// The hero a hero macro reads: its argument, or the state's hero when it was
+// given the game state.
+function heroArg(u) {
+    if (u?.u === undefined) return u;
+    wrongArgument('the game state in place of the hero (state.u)');
+    return u.u;
+}
+
+// The game state a state macro reads: its argument, or the live game, whose
+// globals C reads, when it was given the hero.
+function stateOf(state) {
+    if (state.uprops === undefined) return state;
+    wrongArgument('the hero in place of the game state');
+    return game;
+}
+
 // u.uprops[index] for the hero `u`, or undefined when there is no hero or
 // it has no slot: the copies these functions replaced read
 // `state.u?.uprops?.[index]`, and unit tests build states without either.
 function slot(u, index) {
-    if (u?.u !== undefined)
-        throw new TypeError('youprop.js reads the hero (state.u), not the game state');
-    return u?.uprops?.[index];
+    return heroArg(u)?.uprops?.[index];
 }
 
 function intrinsic(u, index) {
@@ -57,13 +99,6 @@ function extrinsic(u, index) {
 }
 function blocked(u, index) {
     return slot(u, index)?.blocked ?? 0;
-}
-
-// The macros below that read more than the hero take the game state.
-function heroOf(state) {
-    if (state.uprops !== undefined)
-        throw new TypeError('youprop.js needs the game state here, not the hero');
-    return state.u;
 }
 
 /*** Resistances to troubles ***/
@@ -187,7 +222,8 @@ export function ESick_resistance(u) {
     return extrinsic(u, SICK_RES);
 }
 export function Sick_resistance(state) {
-    const u = heroOf(state);
+    state = stateOf(state);
+    const u = state.u;
     return Boolean(HSick_resistance(u) || ESick_resistance(u)
         || defended(state.youmonst, AD_DISE, state));
 }
@@ -201,7 +237,7 @@ export function Invulnerable(u) {
 
 // C ref: youprop.h:77. Takes the game state, which holds the ball.
 export function Punished(state) {
-    heroOf(state);
+    state = stateOf(state);
     return Boolean(state.uball);
 }
 
@@ -295,6 +331,7 @@ export function EDeaf(u) {
     return extrinsic(u, DEAF);
 }
 export function Deaf(u) {
+    u = heroArg(u);
     return Boolean(HDeaf(u) || EDeaf(u) || u?.uroleplay?.deaf);
 }
 
@@ -597,6 +634,7 @@ export function BFlying(u) {
     return blocked(u, FLYING);
 }
 export function Flying(u) {
+    u = heroArg(u);
     return Boolean((HFlying(u) || EFlying(u)
         || (u?.usteed && is_flyer(u.usteed.data))) && !BFlying(u));
 }
@@ -610,7 +648,8 @@ export function EWwalking(u) {
     return extrinsic(u, WWALKING);
 }
 export function Wwalking(state) {
-    const u = heroOf(state);
+    state = stateOf(state);
+    const u = state.u;
     return Boolean((HWwalking(u) || EWwalking(u)) && !Is_waterlevel(u?.uz, state));
 }
 
@@ -622,6 +661,7 @@ export function ESwimming(u) {
     return extrinsic(u, SWIMMING);
 }
 export function Swimming(u) {
+    u = heroArg(u);
     return Boolean(HSwimming(u) || ESwimming(u)
         || (u?.usteed && is_swimmer(u.usteed.data)));
 }
@@ -635,18 +675,21 @@ export function EMagical_breathing(u) {
     return extrinsic(u, MAGICAL_BREATHING);
 }
 export function Amphibious(state) {
-    const u = heroOf(state);
+    state = stateOf(state);
+    const u = state.u;
     return Boolean(HMagical_breathing(u) || EMagical_breathing(u)
         || amphibious(state.youmonst?.data));
 }
 export function Breathless(state) {
-    const u = heroOf(state);
+    state = stateOf(state);
+    const u = state.u;
     return Boolean(HMagical_breathing(u) || EMagical_breathing(u)
         || breathless(state.youmonst?.data));
 }
 
 // C ref: youprop.h:279
 export function Underwater(u) {
+    u = heroArg(u);
     return Boolean(u?.uinwater);
 }
 
@@ -829,21 +872,22 @@ export function Lifesaved(u) {
 // C ref: youprop.h:399. unconscious() (trap.c) includes u.usleep but not
 // is_fainted() (eat.c). Takes the game state, which holds gm.multi.
 export function Unaware(state) {
-    heroOf(state);
+    state = stateOf(state);
     return Math.trunc(state.multi ?? 0) < 0
         && (unconscious(state) || is_fainted(state));
 }
 
 // C ref: youprop.h:401. Takes the game state, which holds gy.youmonst.
 export function Hate_silver(state) {
-    const u = heroOf(state);
+    state = stateOf(state);
+    const u = state.u;
     return Boolean(u?.ulycn >= LOW_PM || hates_silver(state.youmonst?.data));
 }
 
 // C ref: youprop.h:405-406. A worn towel with charges left; there is no
 // u.uprops[] slot. Takes the game state, which holds ublindf.
 export function Half_gas_damage(state) {
-    heroOf(state);
+    state = stateOf(state);
     const towel = state.ublindf;
     return Boolean(towel && towel.otyp === TOWEL && towel.spe > 0);
 }

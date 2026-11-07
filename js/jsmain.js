@@ -830,7 +830,10 @@ export function segmentIterationLimit(movesLength) {
 // runSegmentStrict() it throws PlanningLiveGameError like any crash. Under
 // runSegment() it is recorded and goes through to the live game, so the
 // scored run keeps the behaviour it had before the guard; the uses are kept
-// as game.planningLiveGameUses and passed to the reporter below.
+// as game.planningLiveGameUses and passed to the reporter below. A youprop.js
+// macro given the wrong argument is handled the same way (js/gstate.js
+// recordLiveGameUse()): it throws under runSegmentStrict() and is recorded,
+// with the answer recovered, under runSegment().
 export async function runSegment(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
     resetPlanningLiveGameUses();

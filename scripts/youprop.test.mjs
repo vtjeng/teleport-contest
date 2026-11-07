@@ -15,6 +15,9 @@ import { fileURLToPath } from 'node:url';
 import * as C from '../js/const.js';
 import { M1_AMPHIBIOUS, M1_BREATHLESS, M1_FLY, M1_SWIM } from '../js/monsters.js';
 import { TOWEL } from '../js/objects.js';
+import {
+    game, planningLiveGameUses, resetPlanningLiveGameUses, setPlanningUseRecording,
+} from '../js/gstate.js';
 import * as Y from '../js/youprop.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -289,13 +292,58 @@ test('Maybe_Half_Phys halves rounding up (hack.h:1236-1237)', () => {
     assert.equal(Y.Maybe_Half_Phys(7, hero()), 7);
 });
 
-test('a hero macro given the game state, or a state macro given the hero, throws', () => {
+test('locally, a hero macro given the game state, or a state macro given the hero, throws', () => {
     const u = hero();
-    assert.throws(() => Y.Blind({ u }), TypeError);
-    assert.throws(() => Y.Unaware(u), TypeError);
+    assert.throws(() => Y.Blind({ u }),
+        { name: 'TypeError', message: /^youprop\.js Blind\(\) was given the game state in place of the hero/u });
+    assert.throws(() => Y.Deaf({ u }), { message: /^youprop\.js Deaf\(\) was given/u });
+    assert.throws(() => Y.Unaware(u),
+        { name: 'TypeError', message: /^youprop\.js Unaware\(\) was given the hero in place of the game state/u });
     assert.throws(() => Y.Unaware(undefined), TypeError);
     // A state with no hero reads as a hero with no properties, as the
     // `state.u?.uprops?.[...]` copies did; unit tests build such states.
     assert.equal(Y.Blind(undefined), false);
     assert.equal(Y.HBlinded(undefined), 0);
+});
+
+// Under the judge's runSegment(), js/gstate.js records the misuse instead
+// (runSegment() passes it to the local scorers, which fail the game), and
+// the macro answers from the argument it should have had.
+function recording(t) {
+    const previous = setPlanningUseRecording(true);
+    resetPlanningLiveGameUses();
+    t.after(() => {
+        setPlanningUseRecording(previous);
+        resetPlanningLiveGameUses();
+    });
+}
+
+test('when recording, a hero macro given the state records the use and reads state.u', (t) => {
+    recording(t);
+    // A timed blindness (5) with no lenses: Blind is true for state.u.
+    const state = { u: heroWith(C.BLINDED, 'intrinsic', 5) };
+    assert.equal(Y.Blind(state), true);
+    // The roleplay term is read from the recovered hero too.
+    assert.equal(Y.Deaf({ u: hero({ uroleplay: { deaf: true } }) }), true);
+    const uses = planningLiveGameUses();
+    assert.deepEqual(uses.map(({ kind }) => kind), ['youpropArgument', 'youpropArgument']);
+    assert.match(uses[0].detail, /^youprop\.js Blind\(\) was given the game state in place of the hero \(state\.u\), in /u);
+    // Blind reads HBlinded, which is set, so it skips EBlinded, then
+    // BBlinded: two reads, each through the check.
+    assert.equal(uses[0].count, 2);
+    assert.match(uses[1].detail, /^youprop\.js Deaf\(\) was given/u);
+    assert.equal(uses[1].count, 1);
+});
+
+test('when recording, a state macro given the hero records the use and reads the live game', (t) => {
+    recording(t);
+    const saved = { u: game.u, multi: game.multi, nomovemsg: game.nomovemsg };
+    t.after(() => Object.assign(game, saved));
+    // The live game's hero is asleep (u.usleep) with multi < 0, so Unaware
+    // is true for it, while the hero handed in is awake.
+    Object.assign(game, { u: hero({ usleep: 1 }), multi: -3 });
+    assert.equal(Y.Unaware(hero()), true);
+    const [use] = planningLiveGameUses();
+    assert.equal(use.kind, 'youpropArgument');
+    assert.match(use.detail, /^youprop\.js Unaware\(\) was given the hero in place of the game state, in /u);
 });
