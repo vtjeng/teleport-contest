@@ -220,6 +220,7 @@ import {
 import {
     dead_species,
     hides_under,
+    is_reviver,
     poly_when_stoned,
     touch_petrifies,
 } from './mondata.js';
@@ -2711,7 +2712,8 @@ function requiredHook(env, name, obj) {
 // Missing live hooks throw UnsupportedObjectOperationError before mutation
 // whenever the branch can be preflighted.
 //
-// Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
+// Predicates: artifactConfersLuck(obj, env), isReviver(species, env) (default
+// mondata.h is_reviver()),
 // samePrice(obj, target, env).
 // consume_obj_charge's optional call-site checkUnpaid(obj, state) adapter
 // intercepts only invent.c's discarded void billing call; absent it, the
@@ -3588,9 +3590,13 @@ export function mergable(otmp, obj, env = {}) {
         if (obj.corpsenm !== otmp.corpsenm) return false;
     }
     if (obj.otyp === EGG && (obj.timed || otmp.timed)) return false;
-    if (obj.otyp === CORPSE && otmp.corpsenm >= LOW_PM) {
-        const isReviver = requiredHook(normalized, 'isReviver', otmp);
-        if (isReviver(otmp.corpsenm, normalized)) return false;
+    // C calls mondata.h is_reviver() on mons[] directly; a caller's hook
+    // remains a test seam.
+    if (obj.otyp === CORPSE && otmp.corpsenm >= LOW_PM
+        && (normalized.hooks?.isReviver
+            ? normalized.hooks.isReviver(otmp.corpsenm, normalized)
+            : is_reviver(normalized.state.mons[otmp.corpsenm]))) {
+        return false;
     }
     if (isCandle(obj)
         && Math.trunc(obj.age / 25) !== Math.trunc(otmp.age / 25)) {

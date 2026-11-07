@@ -161,6 +161,7 @@ import {
     PM_KNIGHT,
     NUMMONS,
     PM_NEWT,
+    PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -1140,22 +1141,22 @@ test('merge_choice preserves the source candidate gates', () => {
     assert.equal(incoming.no_charge, false);
 });
 
-test('corpse reviver decisions require the monster predicate seam', () => {
+test('corpse reviver decisions read mondata.h is_reviver()', () => {
     const state = initializedState();
-    const first = instance(CORPSE, state, {
-        corpsenm: TEST_SPECIES,
+    monst_globals_init(state);
+    const corpse = (species) => instance(CORPSE, state, {
+        corpsenm: species,
         owt: PLACEHOLDER_CORPSE_WEIGHT,
     });
-    const second = instance(CORPSE, state, {
-        corpsenm: TEST_SPECIES,
-        owt: PLACEHOLDER_CORPSE_WEIGHT,
-    });
-    assert.throws(
-        () => mergable(first, second, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'isReviver',
-    );
-    assert.equal(mergable(first, second, {
+    // invent.c mergable() refuses to stack reviving corpses. A fox (S_DOG)
+    // is no reviver, so its corpses stack; a troll (S_TROLL) revives, so
+    // two of its corpses stay apart.
+    assert.equal(mergable(corpse(TEST_SPECIES), corpse(TEST_SPECIES),
+        { state }), true);
+    assert.equal(mergable(corpse(PM_TROLL), corpse(PM_TROLL), { state }),
+        false);
+    // A caller's hook still answers in place of the predicate.
+    assert.equal(mergable(corpse(PM_TROLL), corpse(PM_TROLL), {
         state,
         hooks: { isReviver: () => false },
     }), true);
