@@ -649,7 +649,7 @@ export async function shopdig(fall, state = game, rawEnv = {}) {
     if (!shkp) return;
     if (!inhishop(shkp, state)) {
         if (state.urole?.mnum === PM_KNIGHT) {
-            await message('You feel like a common thief.', state, env);
+            await message(youFeel('like a common thief.', state), state, env);
             adjalign(-sgn(state.u.ualign.type), state);
         }
         return;

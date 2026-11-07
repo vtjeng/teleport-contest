@@ -13,7 +13,7 @@ import { ART_EXCALIBUR } from '../js/artifacts.js';
 
 import {
     ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
-    OBJ_FLOOR,
+    OBJ_FLOOR, ROOMOFFSET,
 } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
@@ -24,9 +24,12 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { demon_talk } from '../js/minion.js';
 import { elemental_clog } from '../js/mon.js';
 import { mon_poly } from '../js/mhitm.js';
-import { PM_HORNED_DEVIL, PM_STONE_GOLEM, PM_WEREWOLF } from '../js/monsters.js';
+import {
+    PM_HORNED_DEVIL, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
+} from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
 import { intemple } from '../js/priest.js';
+import { shopdig } from '../js/shk.js';
 import { attrcurse } from '../js/sit.js';
 import { level_tele_trap } from '../js/teleport.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
@@ -241,4 +244,24 @@ test('priest.c intemple() dreams an untended temple\'s watchers', async () => {
         message,
     }), STOP);
     assert.deepEqual(lines, ['You dream that you feel like you are being watched.']);
+});
+
+test('shk.c shopdig(1) dreams a Knight\'s theft from an absent keeper', async () => {
+    // trap.c:668 fall_through() calls shopdig(1) when the hero drops
+    // through a shop floor, as a sleeping hero moved onto a trap door
+    // can. A keeper away from his shop takes shk.c:5029's You_feel().
+    const here = { dnum: 0, dlevel: 4 };
+    const keeper = {
+        mpeaceful: 1,
+        // The keeper's shop is on another level, so inhishop() is false.
+        mextra: { eshk: { shoplevel: { dnum: 0, dlevel: 5 }, shoproom: ROOMOFFSET } },
+    };
+    const state = asleep({
+        u: { uz: here, ushops: [ROOMOFFSET], ualign: { type: 1 } },
+        urole: { mnum: PM_KNIGHT },
+        level: { rooms: [{ resident: keeper }] }, // Room ROOMOFFSET's keeper.
+    });
+    const { lines, message } = firstLine();
+    await assert.rejects(shopdig(1, state, { message }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel like a common thief.']);
 });
