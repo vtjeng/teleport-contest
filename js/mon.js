@@ -594,7 +594,7 @@ import {
     place_monster,
     remove_monster,
 } from './monst.js';
-import { livelog_printf, youSee } from './pline.js';
+import { livelog_printf, youFeel, youSee } from './pline.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
@@ -4008,7 +4008,7 @@ export async function setmangry(monster, via_attack, rawEnv = {}) {
 
     if (via_attack && sengr_at('Elbereth', ux, uy, true, state)
         && (onscary(ux, uy, monster, state) || monster.mpeaceful)) {
-        await message('You feel like a hypocrite.', state, rawEnv);
+        await message(youFeel('like a hypocrite.', state), state, rawEnv);
         adjalign(state.u.ualign.record > 5 ? -5 : -random.rnd(5), state);
         if (!heroIsBlind(state))
             await message('The engraving beneath you fades.', state, rawEnv);
@@ -6369,7 +6369,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     if (is_unicorn(mdat)
         && Math.sign(state.u.ualign.type) === Math.sign(mdat.maligntyp)) {
         change_luck(-5, state);
-        await message('You feel guilty...', state);
+        await message(youFeel('guilty...', state), state);
     }
 
     /* "give experience points" */
@@ -6632,7 +6632,7 @@ export async function elemental_clog(mon, state = game, env = {}) {
         || (state.moves - messageMove) > 200) {
         if (!messageMove || random.rn2(2)) {
             const message = env.message ?? ttyPline;
-            await message('You feel besieged.', state, env);
+            await message(youFeel('besieged.', state), state, env);
         }
         state.elemental_clog_msgmv = state.moves;
     }

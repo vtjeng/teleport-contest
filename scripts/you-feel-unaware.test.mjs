@@ -13,6 +13,7 @@ import { FIRE_RES, FROMOUTSIDE } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
+import { elemental_clog } from '../js/mon.js';
 import { attrcurse } from '../js/sit.js';
 import { intervene } from '../js/wizard.js';
 
@@ -100,4 +101,15 @@ test('sit.c attrcurse() dreams a sleeping hero\'s lost intrinsic', async () => {
         message: async (line) => { lines.push(line); },
     });
     assert.deepEqual(lines, ['You dream that you feel warmer.']);
+});
+
+test('mon.c elemental_clog() dreams the siege of a sleeping hero', async () => {
+    // mon.c deal_with_overcrowding() calls elemental_clog() when a monster
+    // arrives on a full endgame level, on any turn; its first call opens
+    // with mon.c:3888's You_feel("besieged.").
+    const endgame = { dnum: 7, dlevel: 2 }; // Any endgame level but Astral.
+    const state = asleep({ u: { uz: endgame }, astral_level: { dnum: 7, dlevel: 1 }, moves: 500 });
+    const { lines, message } = firstLine();
+    await assert.rejects(elemental_clog({}, state, { message }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel besieged.']);
 });
