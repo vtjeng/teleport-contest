@@ -2623,7 +2623,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             break;
         case POT_POLYMORPH:
             await message(
-                `You feel a little ${Hallucination(state) ? 'normal' : 'strange'}.`,
+                youFeel(`a little ${Hallucination(state) ? 'normal' : 'strange'}.`, state),
                 state,
             );
             if (!(state.u.uprops[UNCHANGING]?.intrinsic

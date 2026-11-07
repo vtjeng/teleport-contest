@@ -13,7 +13,7 @@ import { ART_EXCALIBUR } from '../js/artifacts.js';
 
 import {
     ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
-    OBJ_FLOOR, ROOMOFFSET,
+    OBJ_FLOOR, POTHIT_MONST_THROW, ROOMOFFSET,
 } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
@@ -27,7 +27,10 @@ import { mon_poly } from '../js/mhitm.js';
 import {
     PM_HORNED_DEVIL, PM_HUMAN_ZOMBIE, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
 } from '../js/monsters.js';
+import { mksobj } from '../js/obj.js';
+import { POT_POLYMORPH } from '../js/objects.js';
 import { polymon } from '../js/polyself.js';
+import { potionhit } from '../js/potion.js';
 import { intemple } from '../js/priest.js';
 import { shopdig } from '../js/shk.js';
 import { attrcurse } from '../js/sit.js';
@@ -276,4 +279,22 @@ test('zap.c unturn_you() dreams the dread of a sleeping undead hero', async () =
     const { lines, message } = firstLine();
     await assert.rejects(unturn_you(state, { message }), STOP);
     assert.deepEqual(lines, ['You dream that you feel frightened and stunned.']);
+});
+
+test('potion.c potionhit() dreams a polymorph potion broken on a sleeper', async () => {
+    // mthrowu.c lets a monster throw a potion at a hero who may be
+    // asleep; POT_POLYMORPH takes potion.c:1690's You_feel() after the
+    // bottle breaks.
+    const state = await sleepingGame();
+    const lines = [];
+    // Stop at the feeling, before polyself() would change the hero.
+    const message = async (line) => {
+        lines.push(line);
+        if (line.includes('a little')) throw STOP;
+    };
+    // Neither blessed nor cursed: BUC does not change this arm.
+    const potion = mksobj(POT_POLYMORPH, false, false, { state });
+    await assert.rejects(potionhit(state.youmonst, potion, POTHIT_MONST_THROW,
+        { state, message }), STOP);
+    assert.equal(lines.at(-1), 'You dream that you feel a little strange.');
 });
