@@ -852,6 +852,11 @@ export async function touch_artifact(obj, monster, env = game) {
 
     const artifact = state.artilist[index];
     const yours = monster === state.youmonst;
+    // A caller passes either the game state or an env carrying it. An env's
+    // message and losehp() operations let a planning clone run this hero arm
+    // without writing to the live message window.
+    const effectEnv = env === state ? {} : env;
+    const message = effectEnv.message ?? ttyPline;
     /* all quest artifacts are self-willed; if this ever changes, `badclass'
        will have to be extended to explicitly include quest artifacts */
     const { selfWilled, badclass, badalign } = artifactTouchRestrictions(
@@ -862,7 +867,7 @@ export async function touch_artifact(obj, monster, env = game) {
         || (badalign && (!yours || !randomFromEnv(env)(4)))) {
         if (!yours) return false;
         // C ref: artifact.c:951-959. Blast the hero.
-        await ttyPline(
+        await message(
             `You are blasted by ${s_suffix(the(xnameFresh(obj, state), state))} power!`,
             state);
         touch_blasted = true;
@@ -874,7 +879,7 @@ export async function touch_artifact(obj, monster, env = game) {
             dmg += Maybe_Half_Phys(tmp, state);
         }
         const buf = `touching ${artifact.name}`;
-        await losehp(dmg, buf, KILLED_BY, state);
+        await losehp(dmg, buf, KILLED_BY, state, effectEnv);
         // C's accepted death enters done() and does not return.
         if (state.program_state?.gameover) return false;
         await exercise(A_WIS, false, state);
@@ -885,10 +890,10 @@ export async function touch_artifact(obj, monster, env = game) {
         if (yours) {
             // C ref: artifact.c:965-968. Evade message.
             if (!carried(obj))
-                await ttyPline(
+                await message(
                     `${Tobjnam(obj, 'evade', state)} your grasp!`, state);
             else
-                await ttyPline(
+                await message(
                     `${Tobjnam(obj, 'are', state)} beyond your control!`,
                     state);
         }
@@ -3101,6 +3106,7 @@ export function isPermanentlyPoisoned(obj) {
 // controls whether the object is dropped when the hero can no longer touch it.
 export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
     let obj = objp.obj;
+    const message = rawEnv.message ?? ttyPline;
 
     /* allow hero in silver-hating form to try to perform invocation ritual */
     if (obj.otyp === BELL_OF_OPENING
@@ -3109,7 +3115,7 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
         return 1;
     }
 
-    if (await touch_artifact(obj, state.youmonst, state)) {
+    if (await touch_artifact(obj, state.youmonst, { ...rawEnv, state })) {
         let dmg = 0;
         const ag = (state.objects[obj.otyp].oc_material === SILVER
             && Hate_silver(state));
@@ -3125,7 +3131,7 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
 
         /* hero can't handle this object, but didn't get touch_artifact()'s
            "<obj> evades your grasp|control" message; give an alternate one */
-        await ttyPline(
+        await message(
             `You can't handle ${yname(obj, state)}${obj.owornmask ? ' anymore' : ''}!`,
             state);
         /* also inflict damage unless touch_artifact() already did so */
@@ -3152,13 +3158,11 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
             if (bane)
                 dmg += rnd(10);
             const buf = `handling ${what}`;
-            await losehp(dmg, buf, KILLED_BY, state);
+            await losehp(dmg, buf, KILLED_BY, state, rawEnv);
             await exercise(A_CON, false, state, { rn2 }, {
                 encumberMessage: rawEnv.encumberMessage ?? (async (subject) => {
                     const { encumber_msg } = await import('./pickup.js');
-                    await encumber_msg(subject, {
-                        message: rawEnv.message ?? ttyPline,
-                    });
+                    await encumber_msg(subject, { message });
                 }),
             });
         }
@@ -3168,7 +3172,7 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
        dropping the hero onto a polymorph trap or into water or
        lava and potentially dropping or destroying the item */
     if (obj.owornmask) {
-        await remove_worn_item(obj, false, state);
+        await remove_worn_item(obj, false, state, rawEnv);
         let found = false;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
             if (otmp === obj) { found = true; break; }
@@ -3181,12 +3185,12 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
     if (loseit && obj) {
         if (Levitation(state)) {
             await freeinv(obj, { state });
-            await hitfloor(obj, true, state);
+            await hitfloor(obj, true, state, rawEnv);
         } else {
             /* dropx gives a message if a dropped item lands on an altar;
                we provide one for other terrain */
             if (!IS_ALTAR(state.level.at(state.u.ux, state.u.uy).typ))
-                await ttyPline(
+                await message(
                     `${Tobjnam(obj, 'fall', state)} to the ${surface(state.u.ux, state.u.uy, state)}.`,
                     state);
             await dropx(obj, dropCommandEnv(state, rawEnv));
