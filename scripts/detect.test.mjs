@@ -619,8 +619,15 @@ function scriptedRandom(events, rnlResults, rn2Results = []) {
     };
 }
 
+// Returns the scripted core set and, separately, the scripted display
+// stream: a random set never carries rnd.c's display functions.
 function productionTrapRandom(events, displayChoice) {
-    return {
+    const displayRandom = (bound) => {
+        events.push(`rn2_on_display_rng(${bound})`);
+        return typeof displayChoice === 'function'
+            ? displayChoice(bound) : displayChoice;
+    };
+    return { displayRandom, random: {
         rnl(bound) {
             events.push(`rnl(${bound})`);
             assert.equal(bound, 8);
@@ -632,12 +639,7 @@ function productionTrapRandom(events, displayChoice) {
             if (bound === 3) return 1;
             assert.fail(`unexpected rn2(${bound})`);
         },
-        rn2_on_display_rng(bound) {
-            events.push(`rn2_on_display_rng(${bound})`);
-            return typeof displayChoice === 'function'
-                ? displayChoice(bound) : displayChoice;
-        },
-    };
+    } };
 }
 
 function recordingOperations(state, events) {
@@ -1684,9 +1686,9 @@ test('explicit default search uses global trap naming, reveal, and queued acknow
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const randomCalls = [];
-    const random = productionTrapRandom(randomCalls, ANTI_MAGIC);
+    const { random, displayRandom } = productionTrapRandom(randomCalls, ANTI_MAGIC);
 
-    assert.equal(await dosearch0(0, { state: game, random }), 1);
+    assert.equal(await dosearch0(0, { state: game, random, displayRandom }), 1);
 
     assert.equal(trap.tseen, true);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
@@ -1713,9 +1715,11 @@ test('dosearch caller uses the default role/rank trap-name RNG path', async () =
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const randomCalls = [];
-    const random = productionTrapRandom(randomCalls, (bound) => bound - 1);
+    const { random, displayRandom } = productionTrapRandom(
+        randomCalls, (bound) => bound - 1,
+    );
 
-    assert.equal(await dosearch(game, { random }), ECMD_TIME);
+    assert.equal(await dosearch(game, { random, displayRandom }), ECMD_TIME);
 
     assert.equal(trap.tseen, true);
     assert.equal(game.nhDisplay.inputQueueLength, 0);

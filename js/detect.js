@@ -2190,10 +2190,13 @@ function normalizeSearchEnv(rawEnv = {}) {
             defaultDisplayPendingTtyMessageWindow,
         ),
         // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). Pass the
-        // searching state and its core/display RNG so the default preserves
-        // Hallucination naming, including the rare core role/rank draw.
+        // searching state, its core set and any injected display stream
+        // (a separate function, never part of the set) so the default
+        // preserves Hallucination naming, including the rare core role/rank
+        // draw.
         trapName: operation('trapName', (trap) =>
-            trapname(trap.ttyp, false, state, random)),
+            trapname(trap.ttyp, false, state, random,
+                rawEnv.displayRandom ?? undefined)),
     };
     return env;
 }
