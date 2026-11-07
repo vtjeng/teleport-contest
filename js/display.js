@@ -318,7 +318,7 @@ import {
     S_EEL,
     monsterClassSymbol,
 } from './monsters.js';
-import { rn2_on_display_rng } from './rng.js';
+import { planningContextInstalled, rn2_on_display_rng } from './rng.js';
 import {
     emitGlyphUpdateNotices,
     heroIsBlind,
@@ -3829,6 +3829,12 @@ function observeNearbyObject(object, x, y, state) {
 // which need the persistent map glyph must reread
 // level.at(x, y).remembered_glyph afterward.
 export function newsym(x, y) {
+    // newsym() takes no state: it always repaints the live game's square. A
+    // planning clone (js/unported_monster_actions.js planningState()) dry-runs
+    // a turn that the live pass then runs again, and the live pass repaints
+    // every square it changes, so a planned repaint is dropped here, as
+    // js/tty_message.js drops a planned message.
+    if (planningContextInstalled()) return;
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppressMapOutput()) return;
