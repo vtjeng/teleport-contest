@@ -252,7 +252,7 @@ function unplacebc_core(state) {
         return;
     }
     if (state.u.uswallow) {
-        if (Is_waterlevel(state.u.uz)) {
+        if (Is_waterlevel(state.u.uz, state)) {
             if (!carried(ball) && ball.where === OBJ_FLOOR)
                 remove_object(ball, { state });
             if (chain.where === OBJ_FLOOR)

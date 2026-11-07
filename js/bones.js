@@ -366,10 +366,10 @@ function give_to_nearby_mon(otmp, x, y, state) {
             if (!rn2(nmon)) selected = mtmp;
         }
     }
-    if (selected && can_carry(selected, otmp)) {
+    if (selected && can_carry(selected, otmp, { state })) {
         add_to_minv(selected, otmp, bonesObjectEnv(state));
     } else {
-        place_object(otmp, x, y);
+        place_object(otmp, x, y, { state });
     }
 }
 
@@ -390,7 +390,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 
     while (state.invent) {
         const otmp = state.invent;
-        obj_extract_self(otmp);
+        obj_extract_self(otmp, { state });
         // When not turning into a living monster, detach equipment effects
         if (!mtmp || is_undead(mtmp.data))
             await obj_no_longer_held(otmp, { state });
@@ -413,7 +413,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         } else if (!rn2(8)) {
             give_to_nearby_mon(otmp, x, y, state);
         } else {
-            place_object(otmp, x, y);
+            place_object(otmp, x, y, { state });
         }
     }
     if (cont) cont.owt = weight(cont, bonesObjectEnv(state));
@@ -423,7 +423,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 // off her own level and should be removed; otherwise she is made peaceful and,
 // if she has left her chamber, moved back and the chamber's type restored.
 function fixuporacle(oracle, state) {
-    if (!Is_oracle_level(state.u.uz))
+    if (!Is_oracle_level(state.u.uz, state))
         return false;
 
     oracle.mpeaceful = 1;
@@ -553,7 +553,7 @@ export async function savebones(how, when, corpse, state) {
         // hero's square without inventory and receives the possessions.
         state.in_mklev = true;
         mtmp = makemon(state.mons[state.u.ugrave_arise], state.u.ux,
-            state.u.uy, NO_MINVENT);
+            state.u.uy, NO_MINVENT, { state });
         state.in_mklev = false;
         if (!mtmp) { /* arise-type might have been genocided */
             await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
@@ -561,7 +561,7 @@ export async function savebones(how, when, corpse, state) {
             return;
         }
         give_u_to_m_resistances(mtmp, state);
-        mtmp = christen_monst(mtmp, state.plname);
+        mtmp = christen_monst(mtmp, state.plname, { state });
         newsym(state.u.ux, state.u.uy);
         await drop_upon_death(mtmp, null, state.u.ux, state.u.uy, state);
         if (mtmp.data.mlet === S_MUMMY
@@ -581,10 +581,10 @@ export async function savebones(how, when, corpse, state) {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
         await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.in_mklev = true;
-        mtmp = makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME);
+        mtmp = makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
         state.in_mklev = false;
         if (!mtmp) return;
-        mtmp = christen_monst(mtmp, state.plname);
+        mtmp = christen_monst(mtmp, state.plname, { state });
         if (corpse) {
             obj_attach_mid(corpse, mtmp.m_id);
         }

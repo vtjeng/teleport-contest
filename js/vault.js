@@ -434,11 +434,11 @@ async function wallify_vault(grd, state, env) {
                 // C ref: vault.c lines 682-689.
                 let rocks;
                 while ((rocks = sobj_at(ROCK, x, y, state)) != null) {
-                    obj_extract_self(rocks);
+                    obj_extract_self(rocks, { state });
                     obfree(rocks);
                 }
                 while ((rocks = sobj_at(BOULDER, x, y, state)) != null) {
-                    obj_extract_self(rocks);
+                    obj_extract_self(rocks, { state });
                     obfree(rocks);
                 }
                 const trap = t_at(x, y, state);

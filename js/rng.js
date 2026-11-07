@@ -2,7 +2,7 @@
 // C ref: rnd.c — independent core and display RNG contexts.
 
 import { isaac64_init, isaac64_next_uint64 } from './isaac64.js';
-import { game } from './gstate.js';
+import { game, withLiveGameGuarded } from './gstate.js';
 
 let _rngLog = [];
 let _rngLogEnabled = false;
@@ -282,15 +282,26 @@ export function cloneIsaacContext(context) {
 // otherwise advance the live stream and log a call C never makes. While a
 // planning context is installed, the wrappers draw from it, unlogged, so
 // such a draw lands in the clone's sequence where the clone's own draws are.
+// The planning clone itself is installed beside its context: rnl() reads the
+// hero's Luck and rne() and rnz() the hero's level, which on a planned turn
+// are the clone's. While the context is installed, js/gstate.js's `game`
+// throws on every use (withLiveGameGuarded()), so a callee that forgot to
+// pass the clone fails at the line that reached the live game.
 let _planningCtx = null;
+let _planningState = null;
 
-export async function withPlanningCoreContext(context, run) {
+export async function withPlanningCoreContext(context, state, run) {
+    if (!context || !state || typeof run !== 'function')
+        throw new TypeError('withPlanningCoreContext requires a context, the planning state and a function');
     const previous = _planningCtx;
+    const previousState = _planningState;
     _planningCtx = context;
+    _planningState = state;
     try {
-        return await run();
+        return await withLiveGameGuarded(run);
     } finally {
         _planningCtx = previous;
+        _planningState = previousState;
     }
 }
 
@@ -300,8 +311,18 @@ export function planningContextInstalled() {
     return _planningCtx !== null;
 }
 
+// The planning clone the installed context belongs to, or null. For callers
+// that take no state, such as note_unported() (js/unported.js).
+export function installedPlanningState() {
+    return _planningState;
+}
+
 function liveCtx() {
     return _planningCtx ?? game.coreCtx;
+}
+
+function liveState() {
+    return _planningState ?? game;
 }
 
 function liveLog() {
@@ -338,7 +359,7 @@ export function rn1(x, y) {
 
 // C ref: rnl(x) — luck-biased random number in 0..x-1.
 export function rnl(x) {
-    return rnlFrom(liveCtx(), game, x, liveLog());
+    return rnlFrom(liveCtx(), liveState(), x, liveLog());
 }
 
 // C ref: d(n, x) — roll n dice of x sides
@@ -349,13 +370,13 @@ export function d(n, x) {
 // C ref: rne(x) — exponentially distributed
 // Internal rn2 calls are logged (matching C's PRNG log format).
 export function rne(x) {
-    return rneFrom(liveCtx(), game, x, liveLog());
+    return rneFrom(liveCtx(), liveState(), x, liveLog());
 }
 
 // C ref: rnz(i) — fuzzy random around i
 // Internal rn2/rne calls are logged (matching C's PRNG log format).
 export function rnz(i) {
-    return rnzFrom(liveCtx(), game, i, liveLog());
+    return rnzFrom(liveCtx(), liveState(), i, liveLog());
 }
 
 export const c_d = d;

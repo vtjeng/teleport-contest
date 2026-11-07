@@ -83,7 +83,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
             await rehumanize(state);
         } else if (state.youmonst.data.mlet === S_EEL
                    && !is_pool(hero.ux, hero.uy, state)
-                   && !Is_waterlevel(hero.uz)
+                   && !Is_waterlevel(hero.uz, state)
                    && !Breathless(state)) {
             /* eel out of water loses hp, similar to monster eels;
                as hp gets lower, rate of further loss slows down */

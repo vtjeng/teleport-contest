@@ -7,12 +7,17 @@
 // which functions were skipped.
 
 import { game } from './gstate.js';
+import { installedPlanningState } from './rng.js';
 
 export function initUnported() {
     game.unported = new Set();
 }
 
+// A planning clone shares the live game's set (planningState() copies the
+// reference), so a gap reached while planning is recorded in the same set
+// without reaching `game`, which throws while planning (js/gstate.js).
 export function note_unported(functionName) {
-    if (!game.unported) game.unported = new Set();
-    game.unported.add(functionName);
+    const state = installedPlanningState() ?? game;
+    if (!state.unported) state.unported = new Set();
+    state.unported.add(functionName);
 }

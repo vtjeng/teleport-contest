@@ -3128,32 +3128,35 @@ export function ismnum(pm) {
 }
 
 // ── Level classification predicates (C: dungeon.h macros) ──
-export function In_quest(uz) { return (uz ?? game?.u?.uz)?.dnum === game?.quest_dnum; }
-export function In_endgame(uz) { const lev = uz ?? game?.u?.uz; const al = game?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
-export function Is_astralevel(uz) { return In_endgame(uz) && (uz ?? game?.u?.uz)?.dlevel === 1; }
+// Each reads the dungeon topology (C's svd.dungeon_topology, fixed for a game)
+// from `state`. A planning clone shares the live topology, but a plan must
+// still pass its own state: js/gstate.js makes `game` throw while planning.
+export function In_quest(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.quest_dnum; }
+export function In_endgame(uz, state = game) { const lev = uz ?? state?.u?.uz; const al = state?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
+export function Is_astralevel(uz, state = game) { return In_endgame(uz, state) && (uz ?? state?.u?.uz)?.dlevel === 1; }
 // dungeon.h:142. C's tutorial_dnum is always a valid dungeon number; this port
 // leaves game.tutorial_dnum undefined when the topology holds no tutorial, so
 // the integer test keeps an undefined dnum from matching an undefined dnum.
-export function In_tutorial(uz) { const lev = uz ?? game?.u?.uz; return !!lev && Number.isInteger(game?.tutorial_dnum) && lev.dnum === game.tutorial_dnum; }
-export function Is_waterlevel(uz) { const lev = uz ?? game?.u?.uz; const wl = game?.water_level; return !!lev && !!wl && lev.dnum === wl.dnum && lev.dlevel === wl.dlevel; }
-export function Is_firelevel(uz) { const lev = uz ?? game?.u?.uz; const fl = game?.fire_level; return !!lev && !!fl && lev.dnum === fl.dnum && lev.dlevel === fl.dlevel; }
-export function Is_earthlevel(uz) { const lev = uz ?? game?.u?.uz; const el = game?.earth_level; return !!lev && !!el && lev.dnum === el.dnum && lev.dlevel === el.dlevel; }
-export function Is_airlevel(uz) { const lev = uz ?? game?.u?.uz; const al = game?.air_level; return !!lev && !!al && lev.dnum === al.dnum && lev.dlevel === al.dlevel; }
-export function In_mines(uz) { return (uz ?? game?.u?.uz)?.dnum === game?.mines_dnum; }
-export function In_sokoban(uz) { return (uz ?? game?.u?.uz)?.dnum === game?.sokoban_dnum; }
-export function In_V_tower(uz) { return (uz ?? game?.u?.uz)?.dnum === game?.tower_dnum; }
-export function Is_stronghold(uz) { const g = game; return g?.stronghold_level && (uz ?? g?.u?.uz)?.dnum === g.stronghold_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.stronghold_level.dlevel; }
+export function In_tutorial(uz, state = game) { const lev = uz ?? state?.u?.uz; return !!lev && Number.isInteger(state?.tutorial_dnum) && lev.dnum === state.tutorial_dnum; }
+export function Is_waterlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const wl = state?.water_level; return !!lev && !!wl && lev.dnum === wl.dnum && lev.dlevel === wl.dlevel; }
+export function Is_firelevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const fl = state?.fire_level; return !!lev && !!fl && lev.dnum === fl.dnum && lev.dlevel === fl.dlevel; }
+export function Is_earthlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const el = state?.earth_level; return !!lev && !!el && lev.dnum === el.dnum && lev.dlevel === el.dlevel; }
+export function Is_airlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const al = state?.air_level; return !!lev && !!al && lev.dnum === al.dnum && lev.dlevel === al.dlevel; }
+export function In_mines(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.mines_dnum; }
+export function In_sokoban(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.sokoban_dnum; }
+export function In_V_tower(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.tower_dnum; }
+export function Is_stronghold(uz, state = game) { const g = state; return g?.stronghold_level && (uz ?? g?.u?.uz)?.dnum === g.stronghold_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.stronghold_level.dlevel; }
 // C ref: dungeon.c:1637 — Is_botlevel checks if level is the deepest
 // in its dungeon branch. Each branch has its own num_dunlevs.
-export function Is_botlevel(uz) {
-    const lev = uz ?? game?.u?.uz;
+export function Is_botlevel(uz, state = game) {
+    const lev = uz ?? state?.u?.uz;
     if (!lev) return false;
-    const dun = game?.dungeons?.[lev.dnum];
+    const dun = state?.dungeons?.[lev.dnum];
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
-export function Is_rogue_level(uz) { const g = game; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
-export function Is_oracle_level(uz) { const g = game; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
-export function Is_bigroom(uz) { const g = game; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }
-export function Is_knox_level(uz) { const g = game; return g?.knox_level && (uz ?? g?.u?.uz)?.dnum === g.knox_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.knox_level.dlevel; }
-export function Is_medusa_level(uz) { const g = game; return g?.medusa_level && (uz ?? g?.u?.uz)?.dnum === g.medusa_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.medusa_level.dlevel; }
+export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
+export function Is_oracle_level(uz, state = game) { const g = state; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
+export function Is_bigroom(uz, state = game) { const g = state; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }
+export function Is_knox_level(uz, state = game) { const g = state; return g?.knox_level && (uz ?? g?.u?.uz)?.dnum === g.knox_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.knox_level.dlevel; }
+export function Is_medusa_level(uz, state = game) { const g = state; return g?.medusa_level && (uz ?? g?.u?.uz)?.dnum === g.medusa_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.medusa_level.dlevel; }
 export function Is_juiblex_level(uz) { return false; /* TODO */ }

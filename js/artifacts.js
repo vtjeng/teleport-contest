@@ -2273,7 +2273,7 @@ export async function artifact_hit(
         if (!youdefend) {
             const m_lev = mdef.m_lev | 0; /* will be 0 for 1d4 mon */
             const mhpmax = mdef.mhpmax;
-            let drain = monhp_per_lvl(mdef); /* usually 1d8 */
+            let drain = monhp_per_lvl(mdef, { state }); /* usually 1d8 */
             /* note: DRLI attack uses 2d6, attacker doesn't get healed */
 
             /* stop draining HP if it drops too low (still drains level;
@@ -2485,7 +2485,7 @@ async function invoke_charge_obj(obj, state) {
         return ECMD_CANCEL;
     }
     await recharge(otmp, blessedEffect ? 1 : obj.cursed ? -1 : 0, state);
-    update_inventory(state);
+    update_inventory({ state });
     return ECMD_TIME;
 }
 
@@ -2531,7 +2531,7 @@ async function invoke_create_portal(obj, state) {
     else
         newlev.dlevel = state.dungeons[chosen].dunlev_ureached;
 
-    if (u.uhave?.amulet || In_endgame(u.uz) || In_endgame(newlev)
+    if (u.uhave?.amulet || In_endgame(u.uz, state) || In_endgame(newlev, state)
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
         await ttyPline('You feel very disoriented for a moment.', state);
     } else {
@@ -2599,7 +2599,7 @@ export async function invoke_banish(obj, state = game) {
         if (!couldsee(mtmp.mx, mtmp.my, state)) continue;
         if (mtmp.data?.msound === MS_NEMESIS) continue;
 
-        if (In_quest(u.uz) && !state.svq?.quest_status?.killed_nemesis)
+        if (In_quest(u.uz, state) && !state.svq?.quest_status?.killed_nemesis)
             chance += 10;
         if (is_dprince(mtmp.data)) chance += 2;
         if (is_dlord(mtmp.data)) chance++;
@@ -2638,7 +2638,7 @@ export async function invoke_banish(obj, state = game) {
 async function invoke_fling_poison(obj, state) {
     if (await getdir(null, state)) {
         const venom = rn2(2) ? BLINDING_VENOM : ACID_VENOM;
-        const otmp = mksobj(venom, true, false, state);
+        const otmp = mksobj(venom, true, false, { state });
         otmp.spe = 1;
         await throwit(otmp, 0, false, null, state);
     } else {
@@ -3297,7 +3297,7 @@ export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
     if (had_rings
         !== Number(Boolean(state.uleft)) + Number(Boolean(state.uright))
         && state.uarmg && state.uarmg.cursed)
-        await uncurse(state.uarmg, state); /* temporary ring-removal hack */
+        await uncurse(state.uarmg, { state }); /* temporary ring-removal hack */
     if (had_gloves && !state.uarmg)
         await selftouch('After losing your gloves, you', state, retouchEnv);
 

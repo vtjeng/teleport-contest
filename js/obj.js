@@ -3868,7 +3868,7 @@ export function obj_nexto_xy(obj, x, y, recurs, state = game, random = null) {
     const drawRn2 = random?.rn2 ?? coreRn2;
     let otmp = inventory_sobj_at(obj.otyp, x, y, state);
     while (otmp) {
-        if (otmp !== obj && mergable(otmp, obj))
+        if (otmp !== obj && mergable(otmp, obj, { state }))
             return otmp;
         otmp = nxtobj(otmp, obj.otyp, true);
     }

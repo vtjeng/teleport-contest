@@ -779,7 +779,7 @@ async function makelevel(specialLevelLoader = null) {
     // in the dungeon definition) are generated via makemaz() with a
     // role-specific proto: Bar-fila (above the locate level) or
     // Bar-filb (at or below it).
-    if (In_quest(g.u.uz)) {
+    if (In_quest(g.u.uz, g)) {
         const filecode = g.urole?.filecode;
         const locaName = `${filecode}-loca`;
         const loc_lev = find_level(locaName, g);
@@ -4600,7 +4600,7 @@ export async function lspo_finalize_level(args, env) {
      * purpose.
      */
     if (!state.level.flags.corrmaze)
-        wallification(1, 0, COLNO - 1, ROWNO - 1);
+        wallification(1, 0, COLNO - 1, ROWNO - 1, state);
 
     if (args !== null) await flip_level_rnd(coder.allow_flips, false, state);
 
@@ -4633,8 +4633,8 @@ async function finishFixupSpecial(state) {
     await fixup_special(state, {
         findLevel: find_level,
         isMedusaLevel: Is_medusa_level,
-        somex: (room) => somex(room),
-        somey: (room) => somey(room),
+        somex: (room) => somex(room, { state }),
+        somey: (room) => somey(room, { state }),
         goodpos,
         levelObjectEnv,
         mkTtObject: (x, y, env) => mk_tt_object(STATUE, x, y, env),
@@ -4983,7 +4983,7 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c load_special() post-processing.
             map_cleanup(state);
             if (!state.level.flags.corrmaze)
-                wallification(1, 0, COLNO - 1, ROWNO - 1);
+                wallification(1, 0, COLNO - 1, ROWNO - 1, state);
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
             // consumes rn2(2). bigrm-12's "noflipy" clears bit 1, leaving
             // only the horizontal axis flip.
@@ -5409,7 +5409,7 @@ function mkmap_join_map(bg_typ, fg_typ, state) {
         const croom2 = rooms[ci2];
         const sm = {};
         const em = {};
-        if (!somexy(croom, sm) || !somexy(croom2, em)) {
+        if (!somexy(croom, sm, { state }) || !somexy(croom2, em, { state })) {
             sm.x = croom.lx + Math.trunc((croom.hx - croom.lx) / 2);
             sm.y = croom.ly + Math.trunc((croom.hy - croom.ly) / 2);
             em.x = croom2.lx + Math.trunc((croom2.hx - croom2.lx) / 2);
@@ -5574,7 +5574,7 @@ function rndtrap(state) {
             break;
         case ROLLING_BOULDER_TRAP:
         case ROCKTRAP:
-            if (In_endgame(state.u?.uz))
+            if (In_endgame(state.u?.uz, state))
                 rtrap = NO_TRAP;
             break;
         }
@@ -8144,7 +8144,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         make_level_trap(0, MKTRAP_NOFLAGS, croom, null, env);
     }
 
-    if (!rn2(3) && somexyspace(croom, position))
+    if (!rn2(3) && somexyspace(croom, position, { state }))
         mkgold(0, position.x, position.y, env);
 
     if (!on_level(state.u.uz, state.rogue_level)) {
@@ -8156,7 +8156,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         if (chance < 2) chance = 2;
         if (!rn2(chance)) mkgrave(croom, env);
 
-        if (!rn2(20) && somexyspace(croom, position)) {
+        if (!rn2(20) && somexyspace(croom, position, { state })) {
             mkcorpstat(
                 STATUE,
                 null,
@@ -8169,7 +8169,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         }
 
         let skipChests = false;
-        if (bonusItems && somexyspace(croom, position)) {
+        if (bonusItems && somexyspace(croom, position, { state })) {
             const branch = is_branchlev();
             if (isMinesEntrance(branch, state)) {
                 const food = rn2(5) < 3
@@ -8194,7 +8194,7 @@ export function fill_ordinary_room(croom, bonusItems) {
 
         const chestBound = Math.trunc(state.level.nroom * 5 / 2);
         if (!skipChests && !rn2(chestBound)
-            && somexyspace(croom, position)) {
+            && somexyspace(croom, position, { state })) {
             mksobj_at(
                 rn2(3) ? LARGE_BOX : CHEST,
                 position.x,
@@ -8206,10 +8206,10 @@ export function fill_ordinary_room(croom, bonusItems) {
         }
 
         if (!rn2(27 + 3 * Math.abs(depth(state.u.uz, state)))) {
-            const engraving = random_engraving();
+            const engraving = random_engraving({ state });
             if (engraving.text) {
                 do {
-                    somexyspace(croom, position);
+                    somexyspace(croom, position, { state });
                 } while (state.level.at(position.x, position.y).typ !== ROOM
                     && !rn2(40));
                 if (state.level.at(position.x, position.y).typ === ROOM) {
@@ -8219,14 +8219,14 @@ export function fill_ordinary_room(croom, bonusItems) {
                         engraving.text,
                         engraving.pristine,
                         0,
-                        MARK,
+                        MARK, { state },
                     );
                 }
             }
         }
     }
 
-    if (!rn2(3) && somexyspace(croom, position)) {
+    if (!rn2(3) && somexyspace(croom, position, { state })) {
         mkobj_at(
             RANDOM_CLASS,
             position.x,
@@ -8237,7 +8237,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         tryCount = 0;
         while (!rn2(5)) {
             if (++tryCount > 100) break;
-            if (somexyspace(croom, position)) {
+            if (somexyspace(croom, position, { state })) {
                 mkobj_at(
                     RANDOM_CLASS,
                     position.x,
@@ -8252,7 +8252,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         };
 
         const maybeMonster = (state.u.uhave.amulet || !rn2(3))
-            && somexyspace(croom, position)
+            && somexyspace(croom, position, { state })
             ? makemon(null, position.x, position.y, MM_NOGRP, env)
             : null;
         return maybeMonster && typeof maybeMonster.then === 'function'

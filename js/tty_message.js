@@ -409,7 +409,7 @@ async function ttyPlineCore(
     // player is being told about. C brackets the call with in_pline = 0 so a
     // message raised inside it counts as top level; this port keeps no
     // in_pline counter to save and restore.
-    if (state === game && state.vision_full_recalc) vision_recalc(0);
+    if (state === game && state.vision_full_recalc) vision_recalc(0, { state });
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.

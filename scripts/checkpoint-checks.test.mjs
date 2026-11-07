@@ -127,6 +127,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'recordings corpus',
             'session scan',
             'end-of-input over-read',
+            'planning leaks',
         ],
     );
 });
@@ -231,9 +232,10 @@ function scorerOutput(sessions) {
         'human-readable scorer output',
         `__RESULTS_JSON__${JSON.stringify({
             results: Object.entries(sessions).map(
-                ([session, { screens, rngCalls, cursors, terminationViolations }]) => ({
+                ([session, { screens, rngCalls, cursors, terminationViolations, planningLiveGameUses }]) => ({
                     session,
                     ...(terminationViolations ? { terminationViolations } : {}),
+                    ...(planningLiveGameUses ? { planningLiveGameUses } : {}),
                     metrics: {
                         screens: { matched: screens },
                         rngCalls: { matched: rngCalls },
@@ -285,6 +287,20 @@ test('the score check fails a session that reports a termination violation', () 
     assert.deepEqual(compareScoreToBaseline(scorerOutput(run)), {
         passed: false,
         detail: `termination violations: ${first}`,
+    });
+});
+
+test('the score check fails a session whose planning pass used the live game', () => {
+    // Every score meets the ratchet, so only the planning use runScorer()
+    // attached can fail the check: the judge's runSegment() records it
+    // instead of throwing (js/gstate.js). The stand-in is one read.
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const run = baselineRun(baseline);
+    run[first].planningLiveGameUses = [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 1 }];
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(run)), {
+        passed: false,
+        detail: `planning uses of the live game: ${first}`,
     });
 });
 

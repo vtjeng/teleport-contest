@@ -1128,12 +1128,12 @@ export function sanity_check_single_mon(
     if (mtmp.mleashed) {
         if (!get_mleash(mtmp, state))
             sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp)}`,
+                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp, state)}`,
                 env,
             );
         else if (!mtmp.mtame)
             sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp)}`,
+                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp, state)}`,
                 env,
             );
     }
@@ -2919,7 +2919,7 @@ function* apply_newcham_steps(
     const l_oldname = names.l_oldname;
 
     mgender_from_permonst(monster, target, random);
-    if (In_endgame(state.u?.uz) && is_mplayer(olddata)
+    if (In_endgame(state.u?.uz, state) && is_mplayer(olddata)
         && has_mgivenname(monster)) {
         const given = monster.mextra?.mgivenname;
         if (typeof given === 'string') {
@@ -3153,7 +3153,7 @@ function* apply_newcham_steps(
     }
 
     if (state.context?.mon_moving) {
-        if (!u_at(monster.mux, monster.muy)) set_apparxy(monster, normalized);
+        if (!u_at(monster.mux, monster.muy, state)) set_apparxy(monster, normalized);
         if (!monster.mpeaceful
             && onscary(monster.mux, monster.muy, monster, state)
             && monnear(monster, monster.mux, monster.muy, state)) {
@@ -4909,7 +4909,7 @@ export function m_detach(
             thiefdead(state);
         if (mtmp.isshk) shkgone(mtmp, state);
         if (mtmp.wormno) wormgone(mtmp, { state });
-        if (In_endgame(state.u.uz))
+        if (In_endgame(state.u.uz, state))
             mtmp.mstate = (mtmp.mstate ?? 0) | MON_ENDGAME_FREE;
 
         if ((mtmp.mstate ?? 0) & MON_DETACH)
@@ -5879,7 +5879,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         obj = oname(obj, MGIVENNAME(mtmp), ONAME_NO_FLAGS, objectEnv);
 
     /* Avoid naming an unseen corpse while blind: hitmu() calls it "something". */
-    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj);
+    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj, state);
 
     stackobj(obj, objectGenerationEnv(objectEnv));
     killRedraw(x, y, { ...env, state });
@@ -6617,7 +6617,7 @@ export function ok_to_obliterate(mtmp, state = game) {
 // It is not part of the saved game, matching the C function static.
 
 export async function elemental_clog(mon, state = game, env = {}) {
-    if (!In_endgame(state.u?.uz)) return;
+    if (!In_endgame(state.u?.uz, state)) return;
 
     let m1 = null;
     let m2 = null;
@@ -6671,7 +6671,7 @@ export async function elemental_clog(mon, state = game, env = {}) {
         await mongone(target, { ...env, state });
         // C intentionally relocates `mon`, not the monster just obliterated.
         return rloc_to(mon, mx, my, { ...env, state });
-    } else if (!Is_astralevel(state.u?.uz)) {
+    } else if (!Is_astralevel(state.u?.uz, state)) {
         const destination = {
             ...state.u.uz,
             dlevel: state.u.uz.dlevel - 1,
@@ -6686,7 +6686,7 @@ export async function elemental_clog(mon, state = game, env = {}) {
 // calls are empty under this build's lint.h configuration; the state-changing
 // branches are the complete function body here.
 export function deal_with_overcrowding(mtmp, state = game, env = {}) {
-    if (In_endgame(state.u?.uz))
+    if (In_endgame(state.u?.uz, state))
         return elemental_clog(mtmp, state, env);
     else
         return m_into_limbo(mtmp, state, env);

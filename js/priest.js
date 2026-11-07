@@ -793,7 +793,7 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
         && !(resistance.intrinsic || resistance.extrinsic);
     const randomName = do_hallu ? rndmonnamDetails({ state,
         random: env.displayRandom }) : null;
-    let what = do_hallu ? randomName.name : mon_pmname(mon);
+    let what = do_hallu ? randomName.name : mon_pmname(mon, state);
     if (!mon.ispriest && !mon.isminion) return what;
 
     if (mon.ispriest || aligned_priest || high_priest)
@@ -833,7 +833,7 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
 
     pname += what;
     if (do_hallu || !high_priest || reveal_high_priest
-        || !Is_astralevel(state.u?.uz)
+        || !Is_astralevel(state.u?.uz, state)
         || m_next2u(mon, state) || state.program_state?.gameover) {
         pname += ' of ';
         pname += halu_gname(mon_aligntyp(mon), state);
@@ -1038,7 +1038,7 @@ export async function priest_talk(priest, state = game, env = {}) {
 
         if (helpless(priest)) {
             await message(
-                `${Monnam(priest, state)} breaks out of ${mhis(priest)} reverie!`,
+                `${Monnam(priest, state)} breaks out of ${mhis(priest, { state })} reverie!`,
                 state,
             );
             priest.mfrozen = 0;

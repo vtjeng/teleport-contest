@@ -398,7 +398,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_WATER, true, false, objectEnv);
-            bless(potion);
+            bless(potion, { state });
             note_unported('potion.c peffects');
             obfree(potion, null, { state });
             ++remedies;
@@ -408,7 +408,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
-            bless(potion);
+            bless(potion, { state });
             note_unported('potion.c peffects');
             obfree(potion, null, { state });
             ++remedies;
@@ -616,7 +616,7 @@ export async function done2(state = game) {
     state.killer ??= { name: '', format: KILLED_BY_AN };
 
     let abandonTutorial = false;
-    if (In_tutorial(state.u?.uz)
+    if (In_tutorial(state.u?.uz, state)
         && await y_n(
             'Switch from the tutorial back to regular play?', state,
         ) === 'y') {
@@ -1357,10 +1357,10 @@ async function really_done(how, state) {
         );
 
         corpse = mk_named_object(
-            CORPSE, mnum, state.u.ux, state.u.uy, state.plname,
+            CORPSE, mnum, state.u.ux, state.u.uy, state.plname, { state },
         );
         const graveText = `${state.plname}, ${formatkiller(how, true, state)}`;
-        make_grave(state.u.ux, state.u.uy, graveText);
+        make_grave(state.u.ux, state.u.uy, graveText, { state });
         const loc = state.level.at(state.u.ux, state.u.uy);
         if (loc && IS_GRAVE(loc.typ) && !wasAlreadyGrave) {
             loc.flags = 1; // emptygrave: corpse is on the surface, not buried
@@ -1471,7 +1471,7 @@ async function really_done(how, state) {
     if (state.u.uhave?.amulet) {
         state.killer.name += ' (with the Amulet)';
     } else if (how === ESCAPED) {
-        if (Is_astralevel(state.u.uz)) {
+        if (Is_astralevel(state.u.uz, state)) {
             state.killer.name += ' (in celestial disgrace)';
         } else if (carrying(FAKE_AMULET_OF_YENDOR, state)) {
             state.killer.name += ' (with a fake Amulet)';
@@ -1572,10 +1572,10 @@ async function really_done(how, state) {
         } else {
             let where = state.dungeons?.[uz.dnum]?.dname
                 ?? 'The Dungeons of Doom';
-            if (Is_astralevel(uz)) where = 'The Astral Plane';
+            if (Is_astralevel(uz, state)) where = 'The Astral Plane';
             pbuf = `You ${ends[how]} in ${where}`;
-            if (!In_endgame(uz) && !single_level_branch(uz, state)) {
-                const dlevel = In_quest(uz)
+            if (!In_endgame(uz, state) && !single_level_branch(uz, state)) {
+                const dlevel = In_quest(uz, state)
                     ? dunlev(uz) : depth(uz, state);
                 pbuf += ` on dungeon level ${dlevel}`;
             }

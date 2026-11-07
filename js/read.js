@@ -2053,7 +2053,7 @@ export async function litroom(on, object, state) {
     );
     const swallowed = Boolean(state.u?.uswallow);
     const noOp = swallowed || Boolean(state.u?.uinwater)
-        || Is_waterlevel(state.u?.uz);
+        || Is_waterlevel(state.u?.uz, state);
     const gremlins = [];
 
     if (!on) {
@@ -2104,7 +2104,7 @@ export async function litroom(on, object, state) {
                 }
             }
         } else if (!propertyActive(BLINDED, state)
-            && (!Is_rogue_level(state.u?.uz)
+            && (!Is_rogue_level(state.u?.uz, state)
                 || state.level?.at(state.u.ux, state.u.uy)?.typ !== CORR)) {
             await ttyPline(
                 `A lit field ${noOp ? 'briefly ' : ''}surrounds you!`, state,
@@ -2114,7 +2114,7 @@ export async function litroom(on, object, state) {
 
     if (noOp) return;
 
-    if (Is_rogue_level(state.u?.uz)) {
+    if (Is_rogue_level(state.u?.uz, state)) {
         const roomNumber = (state.level.at(state.u.ux, state.u.uy)?.roomno ?? 0)
             - ROOMOFFSET;
         const room = state.level.rooms?.[roomNumber];
@@ -2260,7 +2260,7 @@ export async function seffect_magic_mapping(
                     const location = state.level.at(x, y);
                     if (location.typ !== SDOOR) continue;
                     cvt_sdoor_to_door(location, state);
-                    if (Is_rogue_level(state.u.uz))
+                    if (Is_rogue_level(state.u.uz, state))
                         unblock_point(x, y, state);
                 }
             }
@@ -2477,7 +2477,7 @@ export async function seffect_earth(scroll, state = game) {
         && level.dnum === state.astral_level?.dnum;
     const earthLevel = on_level(level, state.earth_level);
 
-    if (Is_rogue_level(level)
+    if (Is_rogue_level(level, state)
         || !has_ceiling(level, state)
         || (inEndgame && !earthLevel)) return;
 
@@ -3609,7 +3609,7 @@ async function create_particular_creation(d, state = game) {
             mtmp.mpeaceful = d.makepeaceful;
             set_malign(mtmp, state);
         }
-        if (d.saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE))
+        if (d.saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE, state))
             await put_saddle_on_mon(null, mtmp, { state });
         if (d.hidden
             && ((is_hider(mtmp.data) && mtmp.data.mlet !== S_MIMIC)

@@ -2,6 +2,7 @@ import { queueVisionMonsterNotices } from './startup_a11y.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
+import { installedPlanningState } from './rng.js';
 import { on_level } from './dungeon.js';
 import { do_light_sources } from './light.js';
 import { is_pool } from './dbridge.js';
@@ -717,8 +718,14 @@ export function do_clear_area(
         throw new RangeError(`do_clear_area: illegal range ${range}`);
 
     if (scol !== state.u.ux || srow !== state.u.uy) {
+        // The live level owns the index. While planning, `game` throws
+        // (js/gstate.js); the planning clone records the live level it
+        // borrows from, so compare with that.
+        const planning = installedPlanningState();
+        const owner = planning
+            ? planning.level?._visionTransparencyOwner : game.level;
         if (state !== game
-            && state.level?._visionTransparencyOwner !== game.level) {
+            && state.level?._visionTransparencyOwner !== owner) {
             throw new Error(
                 'do_clear_area alternate state must share active '
                     + 'vision transparency',
@@ -736,7 +743,7 @@ export function do_clear_area(
         return;
     }
 
-    if (state === game && game.vision_full_recalc) vision_recalc(0);
+    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
     const minY = Math.max(0, srow - range);
     const maxY = Math.min(ROWNO - 1, srow + range);
     for (let y = minY; y <= maxY; ++y) {
@@ -786,7 +793,7 @@ export async function do_clear_area_async(
         return;
     }
 
-    if (state === game && game.vision_full_recalc) vision_recalc(0);
+    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
     // vision.c only bypasses couldsee() for a centered detection callback on
     // the air or water plane. Other async area effects keep normal visibility.
     const overrideVision = Boolean(rawEnv.detecting

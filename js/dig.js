@@ -1149,7 +1149,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
                     seetrap(trap, { redraw: (x, y) => newsym(x, y, state) });
                     await message('There is a spider web there!', state);
                 }
-                await message(`${Yobjnam2(obj, 'become')} entangled in the web.`, state);
+                await message(`${Yobjnam2(obj, 'become', state)} entangled in the web.`, state);
                 nomul(-random.d(2, 2), state);
                 state.multi_reason = 'stuck in a spider web';
                 state.nomovemsg = 'You pull free.';
@@ -1535,7 +1535,7 @@ export async function digactualhole(
 
     const oldType = location.typ;
     const surfaceType = IS_FURNITURE(oldType)
-        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
+        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz, state) ? 'floor' : 'ground')
         : surface(x, y, state);
     let furniture = '';
     if (IS_FURNITURE(oldType)) {
@@ -1952,7 +1952,7 @@ export async function zap_dig(
         return;
     }
     if (u.dz) {
-        if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uinwater) {
+        if (!Is_airlevel(u.uz, state) && !Is_waterlevel(u.uz, state) && !u.uinwater) {
             const stway = stairway_at(u.ux, u.uy, state);
             if (u.dz < 0 || stway) {
                 if (stway) {
@@ -2005,7 +2005,7 @@ export async function zap_dig(
     let diridx = 8;
     if (trapWithHero) diridx = xytodir(u.dx, u.dy);
     const mazeDig = Boolean(
-        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz),
+        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz, state),
     );
     let zx = u.ux + u.dx;
     let zy = u.uy + u.dy;
@@ -2084,7 +2084,7 @@ export async function zap_dig(
                     await ttyPline('The wall glows then fades.', state);
                 }
                 break;
-            } else if (IS_TREE(room.typ)) {
+            } else if (IS_TREE(room.typ, state)) {
                 if (!(room.flags & W_NONDIGGABLE)) {
                     room.typ = ROOM;
                     room.flags = 0;
@@ -2120,7 +2120,7 @@ export async function zap_dig(
                     room.flags = D_NODOOR;
                 }
                 digdepth -= 2;
-            } else if (IS_TREE(room.typ)) {
+            } else if (IS_TREE(room.typ, state)) {
                 room.typ = ROOM;
                 room.flags = 0;
                 digdepth -= 2;

@@ -2119,12 +2119,12 @@ export async function makewish(state = game) {
 
     // 6405-6420. makewish() derives the drop verb and caller message before
     // hold_another_object() checks whether the object can stay in inventory.
-    const verb = (Is_airlevel(state.u.uz) || state.u.uinwater)
+    const verb = (Is_airlevel(state.u.uz, state) || state.u.uinwater)
         ? 'slip' : (otmp.otyp === CORPSE && otmp.wishedfor) ? 'materialize' : 'drop';
     const here = state.level.at(state.u.ux, state.u.uy).typ;
     const oops_msg = state.u.uswallow
         ? 'Oops!  %s out of your reach!'
-        : (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+        : (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)
            || here < IRONBARS || here >= ICE)
             ? 'Oops!  %s away from you!'
             : !(otmp.otyp === CORPSE && otmp.wishedfor)
@@ -2999,7 +2999,7 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
     const objectTypeData = state.objects?.[otyp] ?? {};
     if (objectTypeData.oc_magic
         || (obj.spe && (obj.oclass === ARMOR_CLASS
-            || obj.oclass === WEAPON_CLASS || is_weptool(obj)))
+            || obj.oclass === WEAPON_CLASS || is_weptool(obj, state)))
         || otyp === POT_ACID
         || otyp === POT_SICKNESS
         || (otyp === POT_WATER && (obj.blessed || obj.cursed))
@@ -3651,7 +3651,7 @@ export async function bhitm(monster, wand, state = game,
         }
     } else if (otyp === SPE_DRAIN_LIFE) {
         if (disguised_mimic) seemimic(monster, state);
-        let damage = monhp_per_lvl(monster);
+        let damage = monhp_per_lvl(monster, { state });
         if (state.urole?.mnum === PM_KNIGHT
             && state.u?.uhave?.questart)
             damage *= 2;
@@ -4038,7 +4038,7 @@ export async function zap_map(
             if (cansee(x, y, state)) {
                 await ttyPline('Probing reveals a secret door.', state, rawEnv);
                 learnIt = true;
-            } else if (Is_rogue_level(state.u.uz)) {
+            } else if (Is_rogue_level(state.u.uz, state)) {
                 await draft_message(false, {
                     ...rawEnv,
                     state,
@@ -5290,7 +5290,7 @@ export async function zap_over_floor(
         if (is_ice(x, y, state)) {
             await melt_ice(x, y, null, state, env);
         } else if (is_pool(x, y, state)) {
-            const onWaterLevel = Is_waterlevel(state.u.uz);
+            const onWaterLevel = Is_waterlevel(state.u.uz, state);
             let messageGiven = false;
             let evaporatedTrap = null;
             let msgtxt = !heroIsDeaf(state)
@@ -5563,7 +5563,7 @@ export async function zap_over_floor(
                 `${yourzap ? 'Your' : 'The'} ${zapverb} reveals a secret door.`,
                 state, env,
             );
-        } else if (Is_rogue_level(state.u?.uz)) {
+        } else if (Is_rogue_level(state.u?.uz, state)) {
             await draft_message(false, {
                 ...env,
                 state,
@@ -6203,13 +6203,13 @@ export async function dobuzz(
         if (make_bounce) {
             const bchance = (!isok(sx, sy)
                              || state.level.at(sx, sy).typ === STONE) ? 10
-                : (In_mines(state.u.uz)
+                : (In_mines(state.u.uz, state)
                    && IS_WALL(state.level.at(sx, sy).typ)) ? 20
                     : 75;
             const visibleBounce = --range > 0 && isok(lsx, lsy)
                 && cansee(lsx, lsy, state);
             if (visibleBounce || fireball) {
-                if (Is_airlevel(state.u.uz)) { /* nothing to bounce off of */
+                if (Is_airlevel(state.u.uz, state)) { /* nothing to bounce off of */
                     await message(
                         `The ${flash_str(fltyp, false, state, random)} vanishes `
                         + 'into the aether!', state,
@@ -6544,8 +6544,8 @@ export async function zap_updown(obj, state = game,
             disclose = true;
         } else if (striking && state.u.dz < 0
                    && random.rn2(3) !== 0
-                   && !Is_airlevel(state.u.uz)
-                   && !Is_waterlevel(state.u.uz)
+                   && !Is_airlevel(state.u.uz, state)
+                   && !Is_waterlevel(state.u.uz, state)
                    && !state.u.uinwater
                    && !on_level(state.u.uz, state.qstart_level)) {
             await ttyPline(
@@ -6608,7 +6608,7 @@ export async function zap_updown(obj, state = game,
     }
 
     if (obj?.otyp === SPE_STONE_TO_FLESH) {
-        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+        if (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)
             || state.u.uinwater
             || (on_level(state.u.uz, state.qstart_level)
                 && state.u.dz < 0)) {

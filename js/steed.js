@@ -895,7 +895,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
     u.usteed = mtmp;
 
     /* Check the reason for dismounting */
-    const otmp = which_armor(mtmp, W_SADDLE);
+    const otmp = which_armor(mtmp, W_SADDLE, state);
     switch (reason) {
     case DISMOUNT_THROWN:
         verb = 'are thrown';
@@ -1140,7 +1140,7 @@ async function maybewakesteed(steed, state = game) {
     if (wasimmobile && !helpless(steed))
         await ttyPline(`${Monnam(steed, state)} wakes up.`, state);
     /* regardless of waking, terminate any meal in progress */
-    finish_meating(steed);
+    finish_meating(steed, { state });
 }
 
 // C ref: steed.c stucksteed() (876-895). Answers whether the hero's steed can

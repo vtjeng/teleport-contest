@@ -645,7 +645,7 @@ function propertyPresent(state, property) {
 }
 
 function heroWwalking(state) {
-    return !Is_waterlevel(state.u?.uz)
+    return !Is_waterlevel(state.u?.uz, state)
         && propertyPresent(state, WWALKING);
 }
 
@@ -1102,7 +1102,7 @@ export async function hurtle_step(arg, x, y) {
             }
             return false;
         }
-        if (!Is_waterlevel(state.u.uz) && !stoppingShort) {
+        if (!Is_waterlevel(state.u.uz, state) && !stoppingShort) {
             await norepMessage(
                 `You move over ${an(isMoat(x, y, state) ? 'moat' : 'pool')}.`,
                 state,
@@ -2669,7 +2669,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     if ((u.dx || u.dy || u.dz < 1)
         && calc_capacity(obj.owt, state) > SLT_ENCUMBER
         && currentHp < (polyd ? 5 : 10) && currentHp !== maxHp
-        && obj.owt > currentHp * 2 && !Is_airlevel(u.uz)) {
+        && obj.owt > currentHp * 2 && !Is_airlevel(u.uz, state)) {
         await ttyPline(
             `You have so little stamina, ${the(xnameFresh(obj, state), state)}`
             + ' drops from your grasp.', state,
@@ -2725,7 +2725,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         throwit_return(true, state);
         return;
     } else if (obj.otyp === BOOMERANG && !u.uinwater) {
-        if (Is_airlevel(u.uz) || Levitation(state))
+        if (Is_airlevel(u.uz, state) || Levitation(state))
             await hurtle(-u.dx, -u.dy, 1, true, state);
         mon = await boomhit(
             obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
@@ -2769,7 +2769,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             }
         }
 
-        if (Is_airlevel(u.uz) || Levitation(state)) {
+        if (Is_airlevel(u.uz, state) || Levitation(state)) {
             urange -= range;
             if (urange < 1) urange = 1;
             range -= urange;
@@ -2792,7 +2792,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         );
         obj = pobj.obj;
         setThrownObject(state, obj);
-        if (Is_airlevel(u.uz) || Levitation(state))
+        if (Is_airlevel(u.uz, state) || Levitation(state))
             await hurtle(-u.dx, -u.dy, urange, true, state);
         if (!obj) {
             if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
@@ -3408,8 +3408,8 @@ async function throw_gold(obj, state = game) {
        the struct on first use, and both arms below write into it. */
     state.gb ??= {};
     if (u.dz) {
-        if (u.dz < 0 && !Is_airlevel(u.uz) && !u.uinwater
-            && !Is_waterlevel(u.uz)) {
+        if (u.dz < 0 && !Is_airlevel(u.uz, state) && !u.uinwater
+            && !Is_waterlevel(u.uz, state)) {
             await ttyPline(
                 `The gold hits the ${ceiling(u.ux, u.uy, state)}, then falls `
                 + `back on top of your ${body_part(HEAD, state.youmonst)}.`,

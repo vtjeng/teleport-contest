@@ -470,7 +470,7 @@ export async function do_symset(
     }
 
     if (readyToSwitch) switch_symbols(state, true);
-    if (Is_rogue_level(state.u?.uz)) {
+    if (Is_rogue_level(state.u?.uz, state)) {
         if (rogueFlag) assign_graphics(ROGUESET, state);
     } else if (!rogueFlag) {
         assign_graphics(PRIMARYSET, state);

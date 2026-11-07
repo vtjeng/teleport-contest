@@ -161,9 +161,9 @@ function heroIsDeaf(state) {
     );
 }
 
-// C In_endgame() compares the current dungeon number with astral_level.  The
-// shared const.js helper reads the live game object; this local spelling keeps
-// nasty()'s substitute cap clone-local during planning and source-pinned tests.
+// C In_endgame() compares the current dungeon number with astral_level. This
+// local spelling keeps nasty()'s substitute cap clone-local during planning
+// and source-pinned tests.
 function inEndgameState(state) {
     const level = state.u?.uz;
     const astral = state.astral_level;
@@ -330,7 +330,7 @@ export async function intervene(state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const effectEnv = { ...rawEnv, state, random, message };
-    const which = Is_astralevel(state.u.uz)
+    const which = Is_astralevel(state.u.uz, state)
         ? random.rnd(4) : random.rn2(6);
     switch (which) {
     case 0:
@@ -427,7 +427,7 @@ export function pick_nasty(difcap, normalized) {
 
     // On the rogue level, prefer monsters with uppercase display symbols.
     // C: Is_rogue_level(&u.uz) && !('A' <= monsym(&mons[res]) && <= 'Z')
-    if (Is_rogue_level(state.u?.uz)) {
+    if (Is_rogue_level(state.u?.uz, state)) {
         const sym = monsterClassSymbol(mons[res].mlet);
         if (!(sym >= 'A' && sym <= 'Z')) {
             res = NASTIES[random.rn2(NASTIES.length)];

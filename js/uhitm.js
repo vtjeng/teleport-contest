@@ -1686,7 +1686,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                         await message(totalMessage, state);
                     }
                     if (pd === state.mons?.[PM_GREEN_SLIME]) {
-                        const slimeMessage = `${The(pmname(pd, Mgender(mdef, state)))} isn't sitting well with you.`;
+                        const slimeMessage = `${The(pmname(pd, Mgender(mdef, state)), state)} isn't sitting well with you.`;
                         // C rewrites its static msgbuf after assigning that same
                         // buffer to nomovemsg, so an active delayed message sees
                         // the new text. With no delay the overwritten buffer is
@@ -3322,7 +3322,7 @@ async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
         /* A rock missile passes through a wall-walking target and is consumed
            by this hit path without dealing damage. */
         if ((hmd.thrown === HMON_THROWN || hmd.thrown === HMON_KICKED)
-            && stone_missile(obj) && passes_rocks(hmd.mdat)) {
+            && stone_missile(obj, state) && passes_rocks(hmd.mdat)) {
             await hit(
                 mshot_xname(obj, state),
                 mon,
@@ -6272,8 +6272,8 @@ export async function mhitm_ad_wrap(
                     && !swimming && !amphibiousHero && !breathlessHero) {
                     const moat = state.level.at(magr.mx, magr.my).typ !== POOL
                         && !is_waterwall(magr.mx, magr.my, state)
-                        && !Is_medusa_level(u.uz)
-                        && !Is_waterlevel(u.uz);
+                        && !Is_medusa_level(u.uz, state)
+                        && !Is_waterlevel(u.uz, state);
                     await urgentMessage(
                         `${Monnam(magr, state, env)} drowns you...`,
                         state,
@@ -7905,8 +7905,8 @@ export function m_is_steadfast(mon, state = game) {
         ? Flying(state) || Levitation(state)
         : is_flyer(mon?.data) || is_floater(mon?.data);
     if (flying
-        || Is_airlevel(state.u?.uz)
-        || (Is_waterlevel(state.u?.uz)
+        || Is_airlevel(state.u?.uz, state)
+        || (Is_waterlevel(state.u?.uz, state)
             && !is_pool(state.u?.ux, state.u?.uy, state))) {
         return false;
     }
@@ -7989,7 +7989,7 @@ export async function mhitm_knockback(
     /* A non-cursed saddle lets the hero be dismounted; a cursed saddle makes
        the steed itself the defender, while preserving the source hit flags. */
     if (u_def && state.u?.usteed) {
-        const saddle = which_armor(state.u.usteed, W_SADDLE);
+        const saddle = which_armor(state.u.usteed, W_SADDLE, state);
         if (saddle?.cursed) {
             mdef = state.u.usteed;
             was_u = true;

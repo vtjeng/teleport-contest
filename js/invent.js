@@ -2557,7 +2557,7 @@ export async function look_here(
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
     let skip_dfeature = plan.skip_dfeature;
     if (blind) {
-        const drift = Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz);
+        const drift = Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state);
         if (dfeature?.startsWith('altar ')) {
             await message('You try to feel what is here.', state);
         } else if (is_ice(ux, uy, state)) {
@@ -5003,7 +5003,7 @@ export async function hold_another_object(
             return null;
         }
         if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask
-            && (is_missile(obj)
+            && (is_missile(obj, state)
                 || ammo_and_launcher(obj, state.uwep, state)
                 || ammo_and_launcher(obj, state.uswapwep, state))) {
             setuqwep(obj, { state });

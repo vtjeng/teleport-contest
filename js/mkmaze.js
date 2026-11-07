@@ -1151,7 +1151,7 @@ export async function fixup_special(state = game, env = {}) {
             && env.badStatueSpecies(statue.corpsenm, state)) {
             env.setCorpsenm(statue, env.rndmonnum(objectEnv), objectEnv);
         }
-    } else if (state.urole?.mnum === PM_CLERIC && In_quest(state.u.uz)) {
+    } else if (state.urole?.mnum === PM_CLERIC && In_quest(state.u.uz, state)) {
         state.level.flags.graveyard = true;
     } else if (on_level(state.u.uz, state.stronghold_level)) {
         state.level.flags.graveyard = true;
@@ -1281,7 +1281,7 @@ export async function stolen_booty(state = game) {
     let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
                           monsterEnv);
     if (monster) {
-        monster = christen_monst(monster, upstart(gang));
+        monster = christen_monst(monster, upstart(gang), { state });
         monster.mpeaceful = false;
         set_malign(monster, state);
         shiny_orc_stuff(monster, state);

@@ -783,7 +783,7 @@ export async function docall(obj, state = game) {
     let qbuf;
     if (objectType(obj, state).oc_class === POTION_CLASS && obj.fromsink)
         /* fromsink: kludge, meaning it's sink water */
-        qbuf = `Call a stream of ${OBJ_DESCR(state.objects[obj.otyp])} fluid:`;
+        qbuf = `Call a stream of ${OBJ_DESCR(state.objects[obj.otyp], state)} fluid:`;
     else
         qbuf = safe_qbuf(
             'Call ', ':', obj, docall_xname, simpleonames, 'thing', state,
@@ -908,7 +908,7 @@ export async function namefloorobj(state = game) {
         const female = poly_gender(state) === FEMALE;
         const names = [
             female ? state.urole?.name?.f : null,
-            rank_of(rn2_on_display_rng(30) + 1, state.urole?.mnum, female, state),
+            rank_of(rn2_on_display_rng(30, state) + 1, state.urole?.mnum, female, state),
             bogusmon({ state }).name,
             null,
             roguename(state),
@@ -917,7 +917,7 @@ export async function namefloorobj(state = game) {
         names[0] ??= state.urole?.name?.m ?? 'Adventurer';
         names[3] = names[2];
         await ttyPline(
-            `${The(buf, state)} ${usePlural ? 'decide' : 'decides'} to call you "${names[rn2_on_display_rng(6)]}."`,
+            `${The(buf, state)} ${usePlural ? 'decide' : 'decides'} to call you "${names[rn2_on_display_rng(6, state)]}."`,
             state,
         );
     } else if (call_ok(obj, state) === GETOBJ_EXCLUDE) {

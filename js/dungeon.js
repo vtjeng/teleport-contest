@@ -371,7 +371,7 @@ export function level_range(dgn, baseValue, randc, chain, pd, state = game) {
 
 function parent_dlevel(name, pd, state, random) {
     const dnum = parent_dnum(name, pd);
-    const branchIndex = find_branch(name, pd);
+    const branchIndex = find_branch(name, pd, state);
     const tmpBranch = pd.tmpbranch[branchIndex];
     const { base, count } = level_range(
         dnum,
@@ -453,7 +453,7 @@ export function insert_branch(newBranch, extractFirst, state = game) {
 }
 
 function add_branch(dgn, childEntryLevel, pd, state, random) {
-    const branchIndex = find_branch(state.dungeons[dgn].dname, pd);
+    const branchIndex = find_branch(state.dungeons[dgn].dname, pd, state);
     const tmpBranch = pd.tmpbranch[branchIndex];
     const branch = {
         next: null,
@@ -758,9 +758,8 @@ export function Can_rise_up(x, y, lev, state = game) {
 // exists, and mon.c m_in_air().
 //
 // dungeon.h:141 In_endgame() and :114 Is_earthlevel() are spelled out against
-// `state` rather than imported from js/const.js, whose copies read the module
-// singleton `game`: every other topology predicate in this file is
-// state-scoped, and grounded() is called with the planning clone in
+// `state`: every other topology predicate in this file is state-scoped, and
+// grounded() is called with the planning clone in
 // js/unported_monster_actions.js, which carries its own hero.
 export function has_ceiling(level, state = game) {
     const inEndgame = level?.dnum != null

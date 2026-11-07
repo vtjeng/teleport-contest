@@ -1245,7 +1245,7 @@ function heroLavaProperty(state, property) {
 
 function heroLavaWalking(state) {
     return heroLavaProperty(state, WWALKING)
-        && !Is_waterlevel(state.u?.uz);
+        && !Is_waterlevel(state.u?.uz, state);
 }
 
 // objclass.h is_organic(): material values through WOOD burn in lava.  Keep
@@ -1281,9 +1281,9 @@ export async function back_on_ground(rescued, state = game, env = {}) {
     } else if (/^(?:bridge|altar|headstone)$/iu.test(surf)) {
         surf = an(surf);
     } else if (/^(?:stairs|lava|bottom)$/iu.test(surf)) {
-        surf = the(surf);
+        surf = the(surf, state);
     } else {
-        surf = surf.toLowerCase() === 'air' ? the(surf) : an(surf);
+        surf = surf.toLowerCase() === 'air' ? the(surf, state) : an(surf);
         preposition = 'in';
     }
     const subject = rescued
@@ -1308,7 +1308,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
 
     if (how === DROWNING) {
         if (is_pool(u.ux, u.uy, state)) {
-            const midst = Is_waterlevel(u.uz) || is_waterwall(u.ux, u.uy, state);
+            const midst = Is_waterlevel(u.uz, state) || is_waterwall(u.ux, u.uy, state);
             await message(
                 `You find yourself ${midst ? 'in the midst' : 'on top'} of ${hliquid('water', { state })}.`,
                 state,
@@ -1316,7 +1316,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
             messageGiven = true;
         } else if (IS_AIR(levelTyp)) {
             await message(
-                `You find yourself in ${Is_waterlevel(u.uz) ? 'an air bubble' : 'mid air'}.`,
+                `You find yourself in ${Is_waterlevel(u.uz, state) ? 'an air bubble' : 'mid air'}.`,
                 state,
             );
             messageGiven = true;
@@ -1492,7 +1492,7 @@ export async function drown(state = game) {
         if (amphibiousHero || breathlessHero) {
             if (state.flags?.verbose)
                 await ttyPline("But you aren't drowning.", state);
-            if (!Is_waterlevel(u.uz)) {
+            if (!Is_waterlevel(u.uz, state)) {
                 const hallucinating = activeHeroProperty(state, HALLUC)
                     && !activeHeroProperty(state, HALLUC_RES);
                 await ttyPline(
@@ -1509,7 +1509,7 @@ export async function drown(state = game) {
             unplacebc(state);
             await placebc(state);
         }
-        vision_recalc(2);
+        vision_recalc(2, { state });
         await set_uinwater(true, state);
         await under_water(1, state);
         state.vision_full_recalc = 1;
@@ -1552,7 +1552,7 @@ export async function drown(state = game) {
         : null;
     if (destination) {
         const lost = { value: false };
-        const success = Is_waterlevel(u.uz)
+        const success = Is_waterlevel(u.uz, state)
             ? true
             : await emergency_disrobe(lost, state);
         await ttyPline(
@@ -2043,7 +2043,7 @@ export async function float_up(state = game) {
         }
     } else if (Hallucination(state)) {
         await ttyPline("Up, up, and awaaaay!  You're walking on air!", state);
-    } else if (Is_airlevel(u.uz)) {
+    } else if (Is_airlevel(u.uz, state)) {
         await ttyPline('You gain control over your movements.', state);
     } else {
         await ttyPline('You start to float in the air!', state);
@@ -2188,9 +2188,9 @@ export async function float_down(hmask, emask, state = game) {
 
     if (!trap) {
         trap = t_at(u.ux, u.uy, state);
-        if (Is_airlevel(u.uz))
+        if (Is_airlevel(u.uz, state))
             await ttyPline('You begin to tumble in place.', state);
-        else if (Is_waterlevel(u.uz) && !noMsg)
+        else if (Is_waterlevel(u.uz, state) && !noMsg)
             await ttyPline('You feel heavier.', state);
         else if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
             if (state.level?.flags?.sokoban_rules && trap) {
@@ -2242,7 +2242,7 @@ export async function float_down(hmask, emask, state = game) {
             await dotrap(trap, NO_TRAP_FLAGS, state);
     }
 
-    if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uswallow
+    if (!Is_airlevel(u.uz, state) && !Is_waterlevel(u.uz, state) && !u.uswallow
         && on_level(u.uz, currentDungeonLevel)) {
         // C discards pickup()'s result. pickup.c owns its behavior.
         await pickup(1, state);
@@ -2528,12 +2528,12 @@ function untrap_prob(ttmp, state = game) {
 
     /* non-spiders are less adept at dealing with webs */
     if (ttmp.ttyp === WEB) {
-        const wep = (uwep && is_blade(uwep)) ? uwep
-            : (uswapwep && u.twoweap && is_blade(uswapwep))
+        const wep = (uwep && is_blade(uwep, state)) ? uwep
+            : (uswapwep && u.twoweap && is_blade(uswapwep, state))
                 ? uswapwep : null;
 
         if (wep && !m_at(ttmp.tx, ttmp.ty, state)) {
-            if (u_wield_art(ART_STING, state) || attacks(AD_FIRE, wep))
+            if (u_wield_art(ART_STING, state) || attacks(AD_FIRE, wep, state))
                 chance = 1;
             /* else chance stays 3 */
         } else if (!webmaker(state.youmonst?.data)) {
@@ -2782,14 +2782,14 @@ async function disarm_holdingtrap(ttmp, state = game) {
     } else if (ttmp.ttyp === WEB) {
         const uwep = state.uwep;
         const uswapwep = state.uswapwep;
-        const wep = (uwep && is_blade(uwep)) ? uwep
-            : (uswapwep && state.u.twoweap && is_blade(uswapwep))
+        const wep = (uwep && is_blade(uwep, state)) ? uwep
+            : (uswapwep && state.u.twoweap && is_blade(uswapwep, state))
                 ? uswapwep : null;
 
         if (wep && wep.oartifact
-            && (u_wield_art(ART_STING, state) || attacks(AD_FIRE, wep))) {
+            && (u_wield_art(ART_STING, state) || attacks(AD_FIRE, wep, state))) {
             const verb = u_wield_art(ART_STING, state) ? 'cuts' : 'burns';
-            await ttyPline(`${bare_artifactname(uwep)} ${verb} through ${which} web!`, state);
+            await ttyPline(`${bare_artifactname(uwep, state)} ${verb} through ${which} web!`, state);
         } else if (wep) {
             await ttyPline(`You cut through ${which} web.`, state);
         } else {
@@ -2839,7 +2839,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
         // C: consume_obj_charge(obj, TRUE). invent.c.
         await consume_obj_charge(obj, true, { state });
     } else {
-        await useup(obj, state); /* oil */
+        await useup(obj, { state }); /* oil */
         // C hack.h makeknown(): all three discovery flags are TRUE.
         discover_object(POT_OIL, true, true, true, state);
     }
@@ -2906,7 +2906,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
 
         await ttyPline(`You grab the trapped ${mtmp_pmname} using your bare ${makeplural(body_part(HAND, state.youmonst))}.`, state);
 
-        if (poly_when_stoned(state.youmonst?.data)
+        if (poly_when_stoned(state.youmonst?.data, state)
             && await polymon(PM_STONE_GOLEM, state)) {
             await displayPendingTtyMessageWindow(state);
         } else {
@@ -2990,9 +2990,9 @@ async function untrap_box(box, force, confused, state = game) {
         || box.tknown
         || (!force && confused && !rn2(3))) {
         if (!(box.tknown && box.dknown))
-            await ttyPline(`You find a trap on ${the(xnameFresh(box, state))}!`, state);
+            await ttyPline(`You find a trap on ${the(xnameFresh(box, state), state)}!`, state);
         else
-            await ttyPline(`There's a trap on ${the(xnameFresh(box, state))}.`, state);
+            await ttyPline(`There's a trap on ${the(xnameFresh(box, state), state)}.`, state);
         box.tknown = 1;
         observe_object(box, state);
         if (!confused) await exercise(A_WIS, true, state);
@@ -3000,7 +3000,7 @@ async function untrap_box(box, force, confused, state = game) {
         if (await ynq('Disarm it?', state) === 'y')
             await disarm_box(box, force, confused, state);
     } else {
-        await ttyPline(`You find no traps on ${the(xnameFresh(box, state))}.`, state);
+        await ttyPline(`You find no traps on ${the(xnameFresh(box, state), state)}.`, state);
     }
 }
 
@@ -3070,7 +3070,7 @@ export async function untrap(force, rx, ry, container, state = game) {
     } else { /* deal_with_floor_trap */
 
         if (ttmp) {
-            const the_trap = the(trapdescr);
+            const the_trap = the(trapdescr, state);
             if (boxcnt) {
                 if (is_pit(ttmp.ttyp)) {
                     const suffix = u.utrap
@@ -3693,7 +3693,7 @@ export async function b_trapped(item, bodypart, state = game, env = {}) {
 
     // Soundeffect(se_kaboom, 80) is a sound-backend macro; it has no
     // screen, state, or RNG effect in the reference recorder.
-    await message(`KABOOM!!  ${The(item)} was booby-trapped!`, state);
+    await message(`KABOOM!!  ${The(item, state)} was booby-trapped!`, state);
     await wake_nearby(false, { ...env, state, random, message });
     await losehp(Maybe_Half_Phys(dmg, state.u), 'explosion', KILLED_BY_AN,
         state, { ...env, message });
@@ -3829,7 +3829,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         case 20: case 19: case 18: case 17:
             // Poison gas.
             await ttyPline(
-                `A cloud of noxious gas billows from ${the(xnameFresh(obj, state))}.`,
+                `A cloud of noxious gas billows from ${the(xnameFresh(obj, state), state)}.`,
                 state,
             );
             if (rn2(3))
@@ -3897,7 +3897,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 ? blindgas[rn2(blindgas.length)]
                 : rndcolor(state);
             await ttyPline(
-                `A cloud of ${gascolor} gas billows from ${the(xnameFresh(obj, state))}.`,
+                `A cloud of ${gascolor} gas billows from ${the(xnameFresh(obj, state), state)}.`,
                 state,
             );
             if (!Stunned(state)) {

@@ -1139,7 +1139,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     // for a home elemental.
     const mlvl = mdat.mlevel;
     if (mdat.mlet === M.S_DRAGON && mntmp >= M.PM_GRAY_DRAGON) {
-        u.mhmax = In_endgame(u.uz)
+        u.mhmax = In_endgame(u.uz, state)
             ? (8 * mlvl)
             : (4 * mlvl + random.d(mlvl, 4));
     } else if (mdat.mlet === M.S_GOLEM) {
@@ -1860,7 +1860,7 @@ export async function polyself(psflags, state = game, env = {}) {
                     let pm_name = pmname(state.mons[mntmp],
                         state.flags.female ? FEMALE : MALE);
                     if (the_unique_pm(state.mons[mntmp]))
-                        pm_name = the(pm_name);
+                        pm_name = the(pm_name, state);
                     else if (!type_is_pname(state.mons[mntmp]))
                         pm_name = an(pm_name);
                     await ttyPline(`You can't polymorph into ${pm_name}.`, state);
@@ -2722,7 +2722,7 @@ export async function dohide(state = game) {
         return ECMD_OK;
     }
     if ((is_hider(state.youmonst.data) && !Flying(state)) /* floor hider */
-        && (Is_airlevel(u.uz) || Is_waterlevel(u.uz))) {
+        && (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state))) {
         await ttyPline('There is nowhere to hide beneath you.', state);
         u.uundetected = 0;
         return ECMD_OK;

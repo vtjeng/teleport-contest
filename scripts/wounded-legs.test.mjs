@@ -437,6 +437,9 @@ test('the planning clone leaves the live canned command queue alone',
         // return, and everything this case is about has already happened by
         // the time the round begins.
         const inspected = new Error('planning round inspected');
+        // js/gstate.js makes `game` throw while planning; compare with the
+        // live object captured here.
+        const live = game;
 
         await assert.rejects(
             () => preflightSimpleMonsterActions(game, {
@@ -447,9 +450,9 @@ test('the planning clone leaves the live canned command queue alone',
                     // however the dry run reaches it, and by this point the
                     // clone has already cleared its own copy.
                     assert.notStrictEqual(planned.command_queue,
-                        game.command_queue);
+                        live.command_queue);
                     assert.notStrictEqual(planned.command_queue[CQ_CANNED],
-                        game.command_queue[CQ_CANNED]);
+                        live.command_queue[CQ_CANNED]);
                     throw inspected;
                 },
             }),

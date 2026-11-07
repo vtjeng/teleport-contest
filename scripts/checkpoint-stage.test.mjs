@@ -23,7 +23,7 @@ test('CI includes every local checkpoint check and scans before checking input b
     const identities = commands => commands.map(({ summarize, ...command }) =>
         ({ ...command, summarize: Boolean(summarize) }));
     assert.deepEqual(identities(Object.values(groups).flat()), identities(checkpointCommands()));
-    assert.deepEqual(groups.scan.map(({ label }) => label), ['session scan', 'end-of-input over-read']);
+    assert.deepEqual(groups.scan.map(({ label }) => label), ['session scan', 'end-of-input over-read', 'planning leaks']);
 });
 
 test('CI jobs may finish in any order without changing the combined checkpoint', () => {

@@ -915,7 +915,7 @@ export async function use_whip(obj, state = game, env = {}) {
         }
     } else if (monster) {
         return await whipattack(monster, rx, ry, proficient, state, env);
-    } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+    } else if (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) {
         await ttyPline('You snap your whip through thin air.', state);
     } else {
         await ttyPline(msgSnap, state);
@@ -933,7 +933,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
             const rememberedGlyph = glyph_at(rx, ry, state);
             if (spotItNow || !glyph_is_invisible(rememberedGlyph)) {
                 await ttyPline(
-                `${spotItNow ? Amonnam(monster, state) : 'A monster'} is there that you `
+                `${spotItNow ? Amonnam(monster, { state }) : 'A monster'} is there that you `
                         + `${heroIsBlind(state) ? "hadn't noticed" : "couldn't see"}.`,
                     state,
                 );
@@ -2003,7 +2003,7 @@ export async function use_trap(obj, state = game, env = {}) {
         || closed_door(state.u.ux, state.u.uy, state)
         || t_at(state.u.ux, state.u.uy, state)) {
         what = 'here';
-    } else if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+    } else if (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)) {
         what = levtyp === AIR ? 'in midair'
             : levtyp === CLOUD ? 'in a cloud' : 'in this place';
     }
@@ -3056,7 +3056,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         return ECMD_OK;
     }
     if (jumpPropertyActive(state, LEVITATION)
-        || Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+        || Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)) {
         if (magic) {
             await ttyPline('You flail around a little.', state);
             return ECMD_TIME;
@@ -3861,7 +3861,7 @@ export async function figurine_location_checks(
         && !(passes_walls(species) && may_passwall(x, y, state))) {
         if (!quietly) {
             await message(
-                `You cannot place a figurine in ${IS_TREE(type)
+                `You cannot place a figurine in ${IS_TREE(type, state)
                     ? 'a tree' : 'solid rock'}!`,
                 state,
             );
@@ -3900,7 +3900,7 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
 
     const action = (state.u.dx || state.u.dy)
         ? 'set the figurine beside you'
-        : (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+        : (Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)
             || is_pool(x, y, state))
             ? 'release the figurine'
             : state.u.dz < 0
@@ -3958,7 +3958,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
                 { ...rawEnv, state, random },
             );
             if (monster) {
-                await message(`You summon ${a_monnam(monster, state)}!`);
+                await message(`You summon ${a_monnam(monster, { state })}!`);
                 if (!obj_resists(obj, 93, 100, { state, random })) {
                     await message(`${Tobjnam(obj, 'have', state)} shattered!`);
                     await useup(obj, { ...rawEnv, state });
@@ -5051,7 +5051,7 @@ export async function doapply(state = game, env = {}) {
             if (!(env.random?.rn2 ?? rn2)(49)) {
                 if (!heroIsBlind(state)) {
                     await ttyPline(
-                        `${Yobjnam2(obj, 'glow', state)} ${hcolor('brown')}.`,
+                        `${Yobjnam2(obj, 'glow', state)} ${hcolor('brown', state)}.`,
                         state,
                     );
                     set_bknown(obj, true, { ...env, state });

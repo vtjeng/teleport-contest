@@ -318,7 +318,7 @@ import {
     S_EEL,
     monsterClassSymbol,
 } from './monsters.js';
-import { rn2_on_display_rng } from './rng.js';
+import { planningContextInstalled, rn2_on_display_rng } from './rng.js';
 import {
     emitGlyphUpdateNotices,
     heroIsBlind,
@@ -1700,25 +1700,14 @@ export function altar_to_glyph(amsk) {
  * through In_mines(), In_hell(), Is_knox() and In_sokoban(), so the number a
  * wall gets is fixed where the square is recorded rather than where it is
  * repainted. Store what this returns; do not re-derive it at a repaint.
- *
- * The `state` argument reaches only one of the four. In_hell() takes a state
- * (js/dungeon.js), but In_mines(), Is_knox_level() and In_sokoban()
- * (js/const.js) compare the level they are handed against `game.mines_dnum`,
- * `game.knox_level` and `game.sokoban_dnum` on the module global, so this
- * answers correctly only when `state === game`. Passing a state that is not
- * the global returns main-dungeon wall numbers for Mines, Knox and Sokoban
- * walls, with no error: every production caller runs on the global, and the
- * tests that do not install theirs as the global work around it. Threading
- * those three predicates is a separate change, since js/const.js has other
- * callers.
  */
 export function cmap_walls_to_glyph(cmap_idx, state = game) {
     const uz = state.u?.uz;
     return cmap_idx - S_vwall
-        + (In_mines(uz) ? GLYPH_CMAP_MINES_OFF
+        + (In_mines(uz, state) ? GLYPH_CMAP_MINES_OFF
             : In_hell(uz, state) ? GLYPH_CMAP_GEH_OFF
-                : Is_knox_level(uz) ? GLYPH_CMAP_KNOX_OFF
-                    : In_sokoban(uz) ? GLYPH_CMAP_SOKO_OFF
+                : Is_knox_level(uz, state) ? GLYPH_CMAP_KNOX_OFF
+                    : In_sokoban(uz, state) ? GLYPH_CMAP_SOKO_OFF
                         : GLYPH_CMAP_MAIN_OFF);
 }
 
@@ -2860,6 +2849,9 @@ export function back_to_glyph(x, y, state = game) {
 
 // ── show_glyph_cell ──
 export function show_glyph_cell(x, y, glyph) {
+    // The live glyph buffer, like newsym() below: a planned paint is dropped,
+    // and the live pass paints the square when it plays the turn.
+    if (planningContextInstalled()) return;
     if (!glyph || typeof glyph !== 'object'
         || !Object.hasOwn(glyph, 'dec')) {
         throw new TypeError(
@@ -3031,7 +3023,7 @@ function unexploredGlyphInfo(state) {
 // delayed-update flag live once per game; resetGame() discards them. These
 // erase/clear operations change the transient buffer, not remembered map cells.
 export async function under_water(mode, state = game) {
-    if (Is_waterlevel(state.u.uz) || state.u.uswallow) return;
+    if (Is_waterlevel(state.u.uz, state) || state.u.uswallow) return;
     // Display owners use the live singleton. Planning clones leave terminal
     // output and input to the live pass, as shieldeff() does.
     if (state !== game || state.program_state?.planning) return;
@@ -3840,6 +3832,12 @@ function observeNearbyObject(object, x, y, state) {
 // which need the persistent map glyph must reread
 // level.at(x, y).remembered_glyph afterward.
 export function newsym(x, y) {
+    // newsym() takes no state: it always repaints the live game's square. A
+    // planning clone (js/unported_monster_actions.js planningState()) dry-runs
+    // a turn that the live pass then runs again, and the live pass repaints
+    // every square it changes, so a planned repaint is dropped here, as
+    // js/tty_message.js drops a planned message.
+    if (planningContextInstalled()) return;
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppressMapOutput()) return;
@@ -4356,6 +4354,8 @@ async function redraw_map(cursorOnHero = false) {
 // restore defers see_monsters(). Callers can supply equivalent vision callbacks;
 // overlayMonsters=false lets a caller perform its own final monster overlay.
 export async function docrt(options = {}) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
     game.program_state.in_docrt = true;
@@ -4645,7 +4645,7 @@ export async function tmp_at(x, y, state = game) {
                 break; /* too many locations */
             if (tglyph.saved.length) {
                 const prev = tglyph.saved[tglyph.saved.length - 1];
-                show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y));
+                show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y, state));
             }
             /* save pos for later use or erasure */
             tglyph.saved.push({ x, y });
@@ -7371,6 +7371,8 @@ function suppressMapOutput(state = game) {
 }
 
 export async function flush_screen(mode) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (suppressMapOutput()) return;
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
@@ -7418,6 +7420,8 @@ export async function flush_screen(mode) {
 
 // ── cls ──
 export async function cls() {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     // C's static in_cls protects reentrant message/display callbacks.
     if (game._inCls) return;
     game._inCls = true;
@@ -7503,6 +7507,8 @@ export async function cls() {
 // during the "You die..." --More-- sequence would show HP:0 instead of the
 // pre-damage value that C's incremental terminal leaves on screen.
 export async function bot({ initialTtyRefresh = false } = {}) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
@@ -7593,6 +7599,8 @@ export async function bot({ initialTtyRefresh = false } = {}) {
 // cleared, exactly as bot() does above; suppress_map_output() covers the save,
 // restore and hangup states this port does not enter.
 export async function timebot() {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     if (game.flags?.time && game.iflags?.status_updates !== false) {

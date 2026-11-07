@@ -9,7 +9,13 @@
 //
 // For browser play, see nethack.js (uses NethackGame directly).
 
-import { game, resetGame } from './gstate.js';
+import {
+    game,
+    planningLiveGameUses,
+    resetGame,
+    resetPlanningLiveGameUses,
+    setPlanningUseRecording,
+} from './gstate.js';
 import {
     MAX_COMMAND_COUNT,
     yn_function,
@@ -819,8 +825,16 @@ export function segmentIterationLimit(movesLength) {
 // termination"). runSegment() keeps the scores the judge computes and passes
 // the violations to the reporter below; runSegmentStrict() throws after the
 // segment, with the game attached as `segmentGame` for diagnosis.
+//
+// A planning pass's use of `game` (js/gstate.js) differs the same way. Under
+// runSegmentStrict() it throws PlanningLiveGameError like any crash. Under
+// runSegment() it is recorded and goes through to the live game, so the
+// scored run keeps the behaviour it had before the guard; the uses are kept
+// as game.planningLiveGameUses and passed to the reporter below.
 export async function runSegment(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
+    resetPlanningLiveGameUses();
+    const previousRecording = setPlanningUseRecording(true);
     try {
         await playSegment(nhGame, input, options);
     } catch (error) {
@@ -831,10 +845,15 @@ export async function runSegment(input, options = {}) {
         };
         options.onError?.(error);
         segmentErrorReporter?.(nhGame.segmentError);
+    } finally {
+        setPlanningUseRecording(previousRecording);
     }
     nhGame.terminationViolations = terminationViolations();
     if (nhGame.terminationViolations.length)
         terminationViolationReporter?.(nhGame.terminationViolations);
+    nhGame.planningLiveGameUses = planningLiveGameUses();
+    if (nhGame.planningLiveGameUses.length)
+        planningLiveGameReporter?.(nhGame.planningLiveGameUses);
     return nhGame;
 }
 
@@ -868,6 +887,14 @@ export function setSegmentErrorReporter(reporter) {
 let terminationViolationReporter = null;
 export function setTerminationViolationReporter(reporter) {
     terminationViolationReporter = reporter;
+}
+
+// The same, for the planning passes' uses of `game` that runSegment()
+// recorded in a segment (js/gstate.js): one call per segment that has any,
+// with an array of { kind, detail, count }. The judge never registers one.
+let planningLiveGameReporter = null;
+export function setPlanningLiveGameReporter(reporter) {
+    planningLiveGameReporter = reporter;
 }
 
 function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {

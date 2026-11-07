@@ -496,7 +496,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
         break;
     case OBJ_CONTAINED: {
         const name = canspotmon(monster, state)
-            ? Amonnam(monster, state) : 'Something';
+            ? Amonnam(monster, { state }) : 'Something';
         if (!container) {
             note_unported('pline.c impossible');
         } else if (carrier && canseemon(carrier, state)) {
@@ -520,7 +520,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
                 const trap = t_at(monster.mx, monster.my, state);
                 if (trap) trap.tseen = true;
                 await message(`${canspotmon(monster, state)
-                    ? Amonnam(monster, state) : 'Something'}`
+                    ? Amonnam(monster, { state }) : 'Something'}`
                     + ' claws itself out of the ground!', state, env);
                 (env.newsym ?? newsym)(monster.mx, monster.my, state);
             } else if (dist2(monster.mx, monster.my,
@@ -2442,9 +2442,9 @@ export async function dodown(state = game, env = {}) {
                 ladder_down = glyph_to_cmap(glyph) === S_dnladder;
         }
 
-        if (Is_airlevel(u.uz)) {
+        if (Is_airlevel(u.uz, state)) {
             await ttyPline(`You are floating in the ${surface(u.ux, u.uy, state)}.`, state);
-        } else if (Is_waterlevel(u.uz)) {
+        } else if (Is_waterlevel(u.uz, state)) {
             await ttyPline(
                 `You are floating in ${is_pool(u.ux, u.uy, state)
                     ? 'the water' : 'a bubble of air'}.`,
@@ -2705,11 +2705,6 @@ function discard_unreachable_levels(state, leavingTutorial) {
 // including endgame/tutorial transitions, portal fallback, flight, falling,
 // and the unreachable-level cleanup. Gehennom, Knox, Mines, Sokoban and the
 // Rogue-level arms are implemented below.
-//
-// One caution about `state`: In_endgame() and In_tutorial() are js/const.js's
-// renderings of the dungeon.h macros and read the module-level game. They
-// ignore the state passed here, as every other caller of those two does. On
-// the live path the two are the same object.
 // C ref: do.c final_level(). Keep its source call order at Astral arrival.
 async function final_level(state = game) {
     iter_mons((monster) => reset_hostility(monster, state), state);
@@ -2742,15 +2737,15 @@ export async function goto_level(
     if (newdungeon) {
         // do.c:1504-1515. Endgame entry requires the Amulet. Wizard mode may
         // bypass the Earth plane, while ordinary entry is redirected there.
-        if (In_endgame(newlevel)) {
+        if (In_endgame(newlevel, state)) {
             if (!u.uhave?.amulet) return;
             if (!state.wizard && state.earth_level)
                 assign_level(newlevel, state.earth_level);
-        } else if (In_tutorial(newlevel)) {
+        } else if (In_tutorial(newlevel, state)) {
             // nhlua.c tutorial() calls the optional Lua transition callback;
             // the callback result is discarded by C.
             await tutorial(true, state);
-        } else if (In_tutorial(u.uz)) {
+        } else if (In_tutorial(u.uz, state)) {
             await tutorial(false, state);
             up = false;
             leaving_tutorial = true;
@@ -2883,7 +2878,7 @@ export async function goto_level(
     // do.c:1652-1664. Endgame and tutorial levels cannot be reached again;
     // savelev still performs the timer/light teardown, then the in-memory
     // snapshots and map-overview rows for discarded levels are removed.
-    const cant_go_back = (newdungeon && In_endgame(newlevel))
+    const cant_go_back = (newdungeon && In_endgame(newlevel, state))
         || leaving_tutorial;
     if (!cant_go_back) {
         update_mlstmv(state);
@@ -2971,7 +2966,7 @@ export async function goto_level(
     // do.c:1721-1745. A portal arrival lands the hero on the destination
     // level's own magic portal, which mklev() places when the branch is laid
     // out. Endgame portals use the random-arrival arm below, as in C.
-    if (portal && !In_endgame(u.uz)) {
+    if (portal && !In_endgame(u.uz, state)) {
         const ttrap = (state.level?.traps ?? []).find(
             (trap) => trap.ttyp === MAGIC_PORTAL,
         );
@@ -2992,7 +2987,7 @@ export async function goto_level(
         }
     // do.c:1802-1810 places the hero at a random spot after a fall or a
     // level teleport.
-    } else if (at_stairs && !In_endgame(u.uz) && up) {
+    } else if (at_stairs && !In_endgame(u.uz, state) && up) {
         // do.c:1747-1764. Ascending at stairs: place the hero on the
         // downstair of the destination level (the stairway that connects
         // back to the level she came from).
@@ -3022,7 +3017,7 @@ export async function goto_level(
                 state,
             );
         }
-    } else if (at_stairs && !In_endgame(u.uz)) {
+    } else if (at_stairs && !In_endgame(u.uz, state)) {
         // do.c:1765-1800. Descending at stairs.
         const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
         if (stway) {
@@ -3187,7 +3182,7 @@ export async function goto_level(
     // The if/else-if chain is mutually exclusive: exactly one arm fires. Keep
     // the branch tests ahead of the ordinary main-dungeon messages because
     // the arrival achievement is part of the level-change output order.
-    if (In_endgame(u.uz)) {
+    if (In_endgame(u.uz, state)) {
         // C ref: do.c:1884-1890. A first arrival in an endgame dungeon
         // records Endgame, then runs final_level() before recording Astral on
         // a newly created Astral level.
@@ -3208,10 +3203,10 @@ export async function goto_level(
                     mon_catchup_elapsed_time(monster, elapsed, { state }),
             });
         }
-    } else if (In_quest(u.uz)) {
+    } else if (In_quest(u.uz, state)) {
         // C ref: do.c:1891-1892.
         await onquest(state);
-    } else if (Is_knox_level(u.uz)) {
+    } else if (Is_knox_level(u.uz, state)) {
         // C ref: do.c:1893-1904. Croesus stops the alarm after his death;
         // on a fresh level the alarm always sounds. The C Soundeffect call is
         // silent in the tty recorder, while every living monster is woken.
@@ -3225,11 +3220,11 @@ export async function goto_level(
                 mtmp.msleeping = false;
             }
         }
-    } else if (In_mines(u.uz)) {
+    } else if (In_mines(u.uz, state)) {
         // C ref: do.c:1905-1907. Only a cross-dungeon arrival counts; moving
         // between Mines levels does not record the achievement again.
         if (newdungeon) record_achievement(ACH_MINE, state);
-    } else if (In_sokoban(u.uz)) {
+    } else if (In_sokoban(u.uz, state)) {
         // C ref: do.c:1908-1910.
         if (newdungeon) record_achievement(ACH_SOKO, state);
     } else {
@@ -3247,7 +3242,7 @@ export async function goto_level(
             record_achievement(ACH_BGRM, state);
         }
         // C ref: do.c:1918-1931.  Main-dungeon quest portal message.
-        if (!In_quest(u.uz0)
+        if (!In_quest(u.uz0, state)
             && at_dgn_entrance('The Quest', state)
             && !(u.uevent?.qcompleted || u.uevent?.qexpelled
                  || state.svq?.quest_status?.leader_is_dead)) {

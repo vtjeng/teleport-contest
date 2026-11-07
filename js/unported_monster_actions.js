@@ -2021,6 +2021,7 @@ export async function preflightSimpleMonsterActions(
         try {
             const scan = await withPlanningCoreContext(
                 plannedCoreContext,
+                planned,
                 () => planSimpleMonsterTurn(
                     planned,
                     random,
@@ -2100,6 +2101,7 @@ export async function preflightElapsedTurnTail(state, advanceTail) {
     try {
         return await withPlanningCoreContext(
             context,
+            planned,
             () => advanceTail(planned, random),
         );
     } catch (error) {

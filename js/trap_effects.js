@@ -1062,7 +1062,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
     if (mtmp === state.youmonst) {
         if (trap.once && trap.tseen && !random.rn2(15)) {
             await message(
-                `A trap door in ${the(ceiling(state.u.ux, state.u.uy), state)}`
+                `A trap door in ${the(ceiling(state.u.ux, state.u.uy, state), state)}`
                     + ' opens, but nothing falls out!',
                 state,
                 env,
@@ -1081,7 +1081,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
         const placement = place_object(otmp, state.u.ux, state.u.uy, objectEnv);
         if (placement && typeof placement.then === 'function') await placement;
         await message(
-            `A trap door in ${the(ceiling(state.u.ux, state.u.uy), state)}`
+            `A trap door in ${the(ceiling(state.u.ux, state.u.uy, state), state)}`
                 + ` opens and ${an(xnameFresh(otmp, state))} falls on your `
                 + `${body_part(HEAD, state.youmonst)}!`,
             state,
@@ -1593,7 +1593,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         // Wumpus reference. Is_qlocate() is on_level() against the quest's
         // locate level in this port; `trap.once` is C's one-shot latch.
         if (state.urole?.mnum === PM_RANGER
-            && !trap.madeby_u && !trap.once && In_quest(state.u.uz)
+            && !trap.madeby_u && !trap.once && In_quest(state.u.uz, state)
             && on_level(state.u.uz, state.qlocate_level)) {
             await message('Fortunately it has a bottom after all...', state, env);
             trap.once = true;
@@ -1916,7 +1916,7 @@ async function domagictrap(env) {
                     `You suddenly yearn for ${
                         Hallucination(state)
                             ? 'Cleveland'
-                            : (In_quest(state.u.uz) || at_dgn_entrance('The Quest', state))
+                            : (In_quest(state.u.uz, state) || at_dgn_entrance('The Quest', state))
                                   ? 'your nearby homeland'
                                   : 'your distant homeland'
                     }.`,
@@ -2249,7 +2249,7 @@ export async function dofiretrap(box, rawEnv = {}) {
     }
     // C's final ice check and melt_ice() use the hero's coordinates even
     // when dofiretrap() was entered from a trapped chest elsewhere.
-    if (is_ice(u.ux, u.uy)) {
+    if (is_ice(u.ux, u.uy, state)) {
         const { melt_ice } = await import('./zap.js');
         await melt_ice(u.ux, u.uy, null, state, env);
     }
@@ -2375,7 +2375,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
         && dist2(tx, ty, state.u.ux, state.u.uy) <= 3 * 3) {
         await message('You smell smoke.', state, env);
     }
-    if (is_ice(tx, ty)) {
+    if (is_ice(tx, ty, state)) {
         const { melt_ice } = await import('./zap.js');
         await melt_ice(tx, ty, null, state, env);
     }

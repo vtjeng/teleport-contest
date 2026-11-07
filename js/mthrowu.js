@@ -844,7 +844,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
             if (vis && mtmp.mcansee)
                 await message(`${Monnam(mtmp, state, env)} is blinded by `
                     + `${the(otmp.oclass === VENOM_CLASS ? 'venom'
-                        : otmp.otyp === CREAM_PIE ? 'pie' : xnameFresh(otmp, state))}.`,
+                        : otmp.otyp === CREAM_PIE ? 'pie' : xnameFresh(otmp, state), state)}.`,
                 state, env);
             mtmp.mcansee = 0;
             tmp = (mtmp.mblinded | 0) + random.rnd(25) + 20;
@@ -973,7 +973,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     await env.message(`${Monnam(monster, state)} misfires!`, state);
             } else if (typeof env.message === 'function') {
                 await env.message(
-                    `${Tobjnam(singleobj, 'slip')} as ${mon_nam(monster, state)} throws it!`,
+                    `${Tobjnam(singleobj, 'slip', state)} as ${mon_nam(monster, state)} throws it!`,
                     state,
                 );
             }
@@ -1236,7 +1236,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         if (flightEnded) {
             if (singleobj_ref.obj) { /* hits_bars might have destroyed it */
                 // C ref: mthrowu.c:800-821.
-                if (range && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y)
+                if (range && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                     && IS_SINK(state.level.at(
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
@@ -1252,7 +1252,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                            && (!state.mesg_given
                                || state.gb.bhitpos.x !== state.u.ux
                                || state.gb.bhitpos.y !== state.u.uy)
-                           && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y)
+                           && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                                || (state.gm?.marcher
                                    && canseemon(state.gm.marcher, state)))) {
                     // C evaluates the object name before calling pline.
@@ -1351,7 +1351,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             if (!returnDoNotAnnoy || moves - returnDoNotAnnoy > 500) {
                 if (typeof env.message === 'function') {
                     await env.message(
-                        `${Tobjnam(otmp, 'return')} to `
+                        `${Tobjnam(otmp, 'return', state)} to `
                         + `${s_suffix(mon_nam(magr, state))} `
                         + `${mbodypart(magr, HAND)}!`,
                         state,
@@ -1376,9 +1376,9 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 if (canseemon(magr, state)) {
                     if (typeof env.message === 'function') {
                         await env.message(
-                            `${Tobjnam(otmp, 'return')} back to `
+                            `${Tobjnam(otmp, 'return', state)} back to `
                             + `${mon_nam(magr, state)}, landing at `
-                            + `${mhis(magr)} ${makeplural(mbodypart(magr, FOOT))}.`,
+                            + `${mhis(magr, { state })} ${makeplural(mbodypart(magr, FOOT))}.`,
                             state,
                         );
                     }
@@ -1394,9 +1394,9 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 if (canseemon(magr, state)) {
                     if (typeof env.message === 'function')
                         await env.message(
-                            `${Tobjnam(otmp, 'fly')} back toward `
+                            `${Tobjnam(otmp, 'fly', state)} back toward `
                             + `${mon_nam(magr, state)}, hitting `
-                            + `${mhis(magr)} ${body_part(ARM, state.youmonst)}!`,
+                            + `${mhis(magr, { state })} ${body_part(ARM, state.youmonst)}!`,
                             state,
                         );
                 } else if (!Deaf(state)) {

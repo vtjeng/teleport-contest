@@ -710,7 +710,7 @@ async function bestow_artifact(maxGiftValue, state) {
 
     artifact_origin(otmp, ONAME_GIFT | ONAME_KNOW_ARTI, state);
     if (otmp.spe < 0) otmp.spe = 0;
-    if (otmp.cursed) await uncurse(otmp, state);
+    if (otmp.cursed) await uncurse(otmp, { state });
     otmp.oerodeproof = true;
 
     const blind = Blind(state);

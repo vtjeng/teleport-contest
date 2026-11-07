@@ -85,7 +85,9 @@ function batchCount(sizes) {
 // results as `segmentErrors` and names them on stderr, leaving every score
 // and `error` field as the judge reports it. It records the termination
 // violations runSegment() reports the same way, attached as
-// `terminationViolations`.
+// `terminationViolations`, and a planning pass's uses of the live game
+// (js/gstate.js), which runSegment() records instead of throwing, attached as
+// `planningLiveGameUses`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
 
 export function runScorer(targetRoot) {
@@ -135,6 +137,12 @@ export function withSegmentErrors(child, errorDir) {
             result.terminationViolations = readLog(violationLog);
             const named = result.terminationViolations.map(({ kind, detail }) => `${kind}: ${detail}`);
             lines.push(`  VIOLATION: ${result.session} (${named.join('; ')})\n`);
+        }
+        const planningLog = join(errorDir, `${result.session}.planning.jsonl`);
+        if (existsSync(planningLog)) {
+            result.planningLiveGameUses = readLog(planningLog);
+            const named = result.planningLiveGameUses.map(({ detail, count }) => `${detail} (${count}x)`);
+            lines.push(`  PLANNING: ${result.session} (${named.join('; ')})\n`);
         }
     }
     if (!lines.length) return child;

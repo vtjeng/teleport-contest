@@ -760,22 +760,22 @@ function background_enlightenment(final, state, lines) {
         + `${u.uhandedness === RIGHT_HANDED ? 'right' : 'left'}-handed`, '');
 
     /* dungeon level; ^X reveals more than the status line does */
-    if (In_endgame(u.uz)) {
+    if (In_endgame(u.uz, state)) {
         const egdepth = observable_depth(u.uz, state);
         const levelName = endgamelevelname(egdepth);
         buf = truncateByteString(`in the endgame, on the `
             + `${levelName.startsWith('Plane') ? 'Elemental ' : ''}`
             + levelName, BUFSZ - 1);
-    } else if (Is_knox_level(u.uz)) {
+    } else if (Is_knox_level(u.uz, state)) {
         /* this gives away the fact that the knox branch is only 1 level */
         buf = `on the ${state.dungeons[u.uz.dnum].dname} level`;
     } else {
         let dgnbuf = state.dungeons[u.uz.dnum].dname;
         if (dgnbuf.slice(0, 4).toLowerCase() === 'the ')
             dgnbuf = lowc(dgnbuf[0]) + dgnbuf.slice(1);
-        tmpbuf = `level ${In_quest(u.uz) ? dunlev(u.uz) : depth(u.uz, state)}`;
-        if (Is_rogue_level(u.uz)) tmpbuf += ', a primitive area';
-        else if (Is_bigroom(u.uz) && !heroIsBlind(state))
+        tmpbuf = `level ${In_quest(u.uz, state) ? dunlev(u.uz) : depth(u.uz, state)}`;
+        if (Is_rogue_level(u.uz, state)) tmpbuf += ', a primitive area';
+        else if (Is_bigroom(u.uz, state) && !heroIsBlind(state))
             tmpbuf += ', a very big room';
         buf = truncateByteString(`in ${dgnbuf}, on ${tmpbuf}`, BUFSZ - 1);
     }
@@ -1178,7 +1178,7 @@ function weapon_insight(final, state, lines) {
 function walking_on_water(state, levitation, flying) {
     const { u } = state;
     return !u.uinwater && !levitation && !flying
-        && hasProperty(state, WWALKING) && !Is_waterlevel(u.uz)
+        && hasProperty(state, WWALKING) && !Is_waterlevel(u.uz, state)
         && is_pool_or_lava(u.ux, u.uy, state);
 }
 
@@ -1473,7 +1473,7 @@ export async function attributes_enlightenment(final, state, lines) {
     const flying = Boolean((active(FLYING)
         || (u.usteed && is_flyer(u.usteed.data))) && !b(FLYING));
     const levitation = activeUnblocked(LEVITATION);
-    const walking = activeUnblocked(WWALKING) && !Is_waterlevel(u.uz);
+    const walking = activeUnblocked(WWALKING) && !Is_waterlevel(u.uz, state);
     const swimming = Boolean(active(SWIMMING)
         || (u.usteed && is_swimmer(u.usteed.data)));
     const breathlessHero = activeUnblocked(MAGICAL_BREATHING)

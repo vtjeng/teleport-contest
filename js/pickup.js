@@ -1837,7 +1837,7 @@ async function able_to_loot(x, y, looting, state) {
         || is_lava(x, y, state)) {
         await ttyPline(
             `You cannot ${verb} things that are deep in the `
-            + `${hliquid(is_lava(x, y, state) ? 'lava' : 'water')}.`,
+            + `${hliquid(is_lava(x, y, state) ? 'lava' : 'water', { state })}.`,
             state,
         );
         return false;
@@ -2225,7 +2225,7 @@ export async function use_container(obj, held, more_containers, state) {
         return ECMD_OK;
     } else if (obj.otrapped) {
         if (held)
-            await ttyPline(`You open ${the(xnameFresh(obj, state))}...`, state);
+            await ttyPline(`You open ${the(xnameFresh(obj, state), state)}...`, state);
         await chest_trap(obj, HAND, false, state);
         // Even if the trap fails, you've used up this turn.
         if ((state.multi ?? 0) >= 0) {
@@ -3081,7 +3081,7 @@ async function in_container(obj, state) {
         // Prohibit Amulets in containers; if you allow it, monsters can't
         // steal them.  Ditto for the Candelabrum, the Bell and the Book.
         await ttyPline(
-            `${The(xnameFresh(obj, state))} cannot be confined in such`
+            `${The(xnameFresh(obj, state), state)} cannot be confined in such`
             + ' trappings.', state);
         return 0;
     } else if (obj.otyp === LEASH && obj.leashmon !== 0) {
@@ -3110,8 +3110,8 @@ async function in_container(obj, state) {
     if (obj.otyp === ICE_BOX || isBox(obj) || obj.otyp === BOULDER
         || (obj.otyp === STATUE
             && bigmonst(state.mons[obj.corpsenm]))) {
-        const objName = the(xnameFresh(obj, state));
-        const contName = the(xnameFresh(state.gc.current_container, state));
+        const objName = the(xnameFresh(obj, state), state);
+        const contName = the(xnameFresh(state.gc.current_container, state), state);
         await ttyPline(
             `You cannot fit ${objName} into ${contName}.`, state);
         return 0;
@@ -3224,7 +3224,7 @@ async function in_container(obj, state) {
 
     // gc.current_container is intact unless the source explosion path above
     // consumed it.
-    const contName = the(xnameFresh(state.gc.current_container, state));
+    const contName = the(xnameFresh(state.gc.current_container, state), state);
     await ttyPline(
         `You put ${donameFresh(obj, state)} into ${contName}.`, state);
 
@@ -4257,8 +4257,8 @@ async function tipcontainer(box, state) {
             `You owe ${loss} ${currency(loss, state)} for lost merchandise.`,
             state,
         );
-    box.owt = weight(box);
-    if (targetbox) targetbox.owt = weight(targetbox);
+    box.owt = weight(box, { state });
+    if (targetbox) targetbox.owt = weight(targetbox, { state });
     if (srcheld || dstheld) await encumber_msg(state);
     if (srcheld || dstheld) update_inventory({ state });
 }

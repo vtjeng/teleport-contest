@@ -841,7 +841,7 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     }
     if (mon.mhp > 0) await mondead(mon, state, env);
     state.killer ??= { name: '', format: KILLED_BY };
-    state.killer.name = `${s_suffix(mon_pmname(mon))} explosion`;
+    state.killer.name = `${s_suffix(mon_pmname(mon, state))} explosion`;
     state.killer.format = KILLED_BY_AN;
     await explode(mon.mx, mon.my, type, damage, MON_EXPLODE,
         adtyp_to_expltype(mattk.adtyp), state, env);

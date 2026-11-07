@@ -2208,7 +2208,7 @@ export function random_teleport_level(
     }
 
     let min_depth, max_depth;
-    if (In_quest(state.u.uz)) {
+    if (In_quest(state.u.uz, state)) {
         let bottom = dunlevs_in_dungeon(state.u.uz, state);
         const qlocate_depth = state.qlocate_level?.dlevel ?? 0;
 
@@ -2235,7 +2235,7 @@ export function random_teleport_level(
     if (nlev > max_depth) {
         nlev = max_depth;
         /* teleport up if already on bottom */
-        if (Is_botlevel(state.u.uz))
+        if (Is_botlevel(state.u.uz, state))
             nlev -= random.rnd(3);
     }
     if (nlev < min_depth) {

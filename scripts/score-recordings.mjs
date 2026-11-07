@@ -66,14 +66,17 @@ export function flatName(relativePath) {
  * Totals over a runner bundle, and the recordings that did not match. A
  * recording whose replay recorded a termination violation (scripts/
  * scoring-workspace.mjs runScorer() attaches them) fails even when the
- * judge's comparison passed: something ran after the game ended.
+ * judge's comparison passed: something ran after the game ended. So does one
+ * whose planning pass used the live game, which the judge's runSegment()
+ * records instead of throwing (js/gstate.js).
  */
 export function summarizeRecordings(bundle) {
     const totals = { recordings: 0, passing: 0, screens: 0, screensTotal: 0,
         rng: 0, rngTotal: 0, failing: [] };
     for (const result of bundle.results) {
         totals.recordings += 1;
-        if (result.passed && !result.terminationViolations?.length) totals.passing += 1;
+        if (result.passed && !result.terminationViolations?.length
+            && !result.planningLiveGameUses?.length) totals.passing += 1;
         else totals.failing.push(result.session);
         const screens = result.metrics?.screens ?? {};
         const rng = result.metrics?.rngCalls ?? {};

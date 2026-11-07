@@ -726,7 +726,7 @@ export function weight_cap(state = game) {
     // hack.c:4330-4333. Levitation and the Plane of Air both provide the
     // full carrying capacity even when no equipment changes u.uprops.
     if (propertyActiveUnblocked(state, LEVITATION)
-        || Is_airlevel(state.u.uz)
+        || Is_airlevel(state.u.uz, state)
         || (state.u.usteed && strongmonst(state.u.usteed.data))) {
         capacity = MAX_CARR_CAP;
     } else {
@@ -1252,7 +1252,7 @@ export async function u_rooted(state = game) {
     const species = state.youmonst?.data;
     if (!species?.mmove) {
         const inPlace = propertyActiveUnblocked(state, LEVITATION)
-            || Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz);
+            || Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state);
         await ttyPline(
             `You are rooted ${inPlace ? 'in place' : 'to the ground'}.`,
             state,
@@ -2083,7 +2083,7 @@ export async function still_chewing(x, y, state = game) {
     if (!boulder && ((IS_OBSTRUCTED(lev.typ) && !may_dig(x, y, state))
         || (lev.typ === IRONBARS && (lev.flags & W_NONDIGGABLE)))) {
         const what = lev.typ === IRONBARS ? 'bars'
-            : IS_TREE(lev.typ) ? 'tree' : 'hard stone';
+            : IS_TREE(lev.typ, state) ? 'tree' : 'hard stone';
         await ttyPline(`You hurt your teeth on the ${what}.`, state);
         nomul(0, state);
         return 1;
@@ -2102,12 +2102,12 @@ export async function still_chewing(x, y, state = game) {
         digging.pos = { x, y };
         digging.level ??= {};
         assign_level(digging.level, state.u.uz);
-        digging.effort = (IS_OBSTRUCTED(lev.typ) && !IS_TREE(lev.typ)
+        digging.effort = (IS_OBSTRUCTED(lev.typ) && !IS_TREE(lev.typ, state)
             ? 30 : 60) + Math.trunc(state.u.udaminc ?? 0);
-        const prep = boulder || IS_TREE(lev.typ) || lev.typ === IRONBARS
+        const prep = boulder || IS_TREE(lev.typ, state) || lev.typ === IRONBARS
             ? 'on a' : 'a hole in the';
         const target = boulder ? 'boulder'
-            : IS_TREE(lev.typ) ? 'tree'
+            : IS_TREE(lev.typ, state) ? 'tree'
                 : IS_OBSTRUCTED(lev.typ) ? 'rock'
                     : lev.typ === IRONBARS ? 'bar' : 'door';
         await ttyPline(`You start chewing ${prep} ${target}.`, state);
@@ -2118,7 +2118,7 @@ export async function still_chewing(x, y, state = game) {
     if (digging.effort <= 100) {
         if (state.flags?.verbose) {
             const target = boulder ? 'boulder'
-                : IS_TREE(lev.typ) ? 'tree'
+                : IS_TREE(lev.typ, state) ? 'tree'
                     : IS_OBSTRUCTED(lev.typ) ? 'rock'
                         : lev.typ === IRONBARS ? 'bars' : 'door';
             await ttyPline(`You continue chewing on the ${target}.`, state);
@@ -2131,7 +2131,7 @@ export async function still_chewing(x, y, state = game) {
     state.u.uconduct ??= {};
     if (!(state.u.uconduct.food ?? 0)) {
         const target = boulder ? 'a boulder'
-            : IS_TREE(lev.typ) ? 'a tree'
+            : IS_TREE(lev.typ, state) ? 'a tree'
                 : IS_OBSTRUCTED(lev.typ) ? 'rock'
                     : lev.typ === IRONBARS ? 'iron bars' : 'a door';
         livelog_printf(
@@ -2165,7 +2165,7 @@ export async function still_chewing(x, y, state = game) {
             lev.typ = DOOR;
             lev.flags = D_NODOOR;
         }
-    } else if (IS_TREE(lev.typ)) {
+    } else if (IS_TREE(lev.typ, state)) {
         digtxt = 'You chew through the tree.';
         lev.typ = ROOM;
     } else if (lev.typ === IRONBARS) {
@@ -2493,7 +2493,7 @@ async function moverock_core(sx, sy, state, env) {
         // 412-421. Levitation and the air level have distinct source feedback
         // and are not interchangeable with the ordinary push transaction.
         if (propertyActiveUnblocked(state, LEVITATION)
-            || Is_airlevel(state.u?.uz)) {
+            || Is_airlevel(state.u?.uz, state)) {
             if (heroIsBlind(state)) feel_location(sx, sy, state);
             await message(
                 `You don't have enough leverage to push ${the(xnameFresh(otmp, state), state)}.`,
@@ -2836,7 +2836,7 @@ export async function test_move(
                 if (is_db_wall(x, y, state)) {
                     await message('That drawbridge is up!', state);
                 } else if (passesWalls && !may_passwall(x, y, state)
-                    && In_sokoban(state.u?.uz)) {
+                    && In_sokoban(state.u?.uz, state)) {
                     await message('The Sokoban walls resist your ability.', state);
                 } else if (state.flags?.mention_walls) {
                     const glyph = back_to_glyph(x, y, state);
@@ -3555,7 +3555,7 @@ export async function domove_attackmon_at(
 
 // C ref: hack.c air_turbulence() (2342-2362).
 export async function air_turbulence(state = game) {
-    if (Is_airlevel(state.u.uz) && rn2(4)
+    if (Is_airlevel(state.u.uz, state) && rn2(4)
         && !propertyActiveUnblocked(state, LEVITATION)
         && !heroIsFlying(state)) {
         switch (rn2(3)) {
@@ -3590,7 +3590,7 @@ export async function water_turbulence(x, y, state = game) {
         x = state.u.ux + state.u.dx;
         y = state.u.uy + state.u.dy;
         if (isok(x, y) && !is_pool(x, y, state)
-            && !Is_waterlevel(state.u.uz) && near_capacity(state) > wtmod) {
+            && !Is_waterlevel(state.u.uz, state) && near_capacity(state) > wtmod) {
             await ttyPline(
                 'You are carrying too much to climb out of the water.', state,
             );
@@ -3841,7 +3841,7 @@ export function carryingTooMuchToMove(state = game) {
         ? state.u.mh < 5 && state.u.mh !== state.u.mhmax
         : state.u.uhp < 10 && state.u.uhp !== state.u.uhpmax;
     return (wtcap >= OVERLOADED || (wtcap > SLT_ENCUMBER && lowHitPoints))
-        && !Is_airlevel(state.u.uz);
+        && !Is_airlevel(state.u.uz, state);
 }
 
 // C ref: hack.c carrying_too_much() (2616-2636).
@@ -4103,7 +4103,7 @@ async function domove_fight_empty(x, y, state) {
     if (boulder) {
         buf = ansimpleoname(boulder, state);
     } else if (state.u.uinwater && !is_pool(x, y, state)) {
-        buf = Is_waterlevel(state.u.uz) && location.typ === AIR
+        buf = Is_waterlevel(state.u.uz, state) && location.typ === AIR
             ? 'an air bubble' : 'nothing';
     } else if (solid) {
         // C ref: hack.c:2302-2310. An attack does not identify unseen
@@ -4697,7 +4697,7 @@ async function domove_core(state = game) {
         u.umoved = true;
         newsym(oldx, oldy);
         // vision_recalc() redraws the hero; C has no second arrival newsym().
-        vision_recalc(1);
+        vision_recalc(1, { state });
         await invocation_message(state);
     }
     // C ref: hack.c domove_core():2976-2987. The attached objects return
@@ -4801,7 +4801,7 @@ export async function pickup_checks(state = game, env = {}) {
     }
     // youprop.h: Wwalking excludes the Water Plane; Breathless reads raw
     // magical-breathing sources, while Flying includes a steed and blocking.
-    const waterWalking = propertyPresent(state, WWALKING) && !Is_waterlevel(u.uz);
+    const waterWalking = propertyPresent(state, WWALKING) && !Is_waterlevel(u.uz, state);
     const breathlessHero = propertyPresent(state, MAGICAL_BREATHING)
         || breathless(state.youmonst.data);
     const cannotDive = () => waterWalking || is_floater(state.youmonst.data)
@@ -5436,7 +5436,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     const levitating = propertyActiveUnblocked(state, LEVITATION);
     const flying = heroIsFlying(state);
     const waterWalking = propertyPresent(state, WWALKING)
-        && !Is_waterlevel(u.uz);
+        && !Is_waterlevel(u.uz, state);
     const swimming = propertyPresent(state, SWIMMING)
         || Boolean(u.usteed && is_swimmer(u.usteed.data));
     const hasMagicalBreathing = propertyPresent(state, MAGICAL_BREATHING);
@@ -5448,7 +5448,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     if (u.uinwater) {
         let stillInWater = false;
         if (!is_pool(u.ux, u.uy, state)) {
-            if (Is_waterlevel(u.uz)) {
+            if (Is_waterlevel(u.uz, state)) {
                 await message('You pop into an air bubble.', state);
                 state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
             } else if (is_lava(u.ux, u.uy, state)) {
@@ -5459,7 +5459,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
             } else {
                 await back_on_ground(false, state);
             }
-        } else if (Is_waterlevel(u.uz)) {
+        } else if (Is_waterlevel(u.uz, state)) {
             stillInWater = true;
         } else if (levitating) {
             await message(
@@ -5478,7 +5478,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
         }
         if (!stillInWater) {
             const wasUnderwater = Boolean(
-                u.uinwater && !Is_waterlevel(u.uz),
+                u.uinwater && !Is_waterlevel(u.uz, state),
             );
             await set_uinwater(false, state, rawEnv);
             if (wasUnderwater) {
@@ -5509,7 +5509,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
                 u.uinwater ? DISMOUNT_FELL : DISMOUNT_GENERIC,
                 state,
             );
-            if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) return false;
+            if (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) return false;
             if (newspot) await check_special_room(false, state);
             return true;
         }
