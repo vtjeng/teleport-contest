@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent invent.c merged() comparison discovery from a live hold_another_object(). A debug-mode Monk wishes for an uncursed horn of plenty with 20 charges and applies it fifteen times, ESC dismissing each --More--. mkobj.c hornoplenty() hands each spilled food to hold_another_object(); when it stacks with the Monk's starting food, whose curse state is known, merged() prints 'You learn more about your items by comparing them.' before it frees the incoming object.",
+  "segments": [
+    {
+      "seed": 50418236,
+      "datetime": "20640921083000",
+      "nethackrc": "OPTIONS=name:Cornu,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017uncursed horn of plenty (0:20)\nak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001bak\u001b"
+    }
+  ]
+}

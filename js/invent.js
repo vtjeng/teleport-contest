@@ -2728,7 +2728,8 @@ function requiredHook(env, name, obj) {
 // Merge effects: mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
-// inventoryComparisonDiscovered(target, env).
+// inventoryComparisonDiscovered(target, env); live addinv supplies merged()'s
+// pline().
 
 function suppressMapOutput(state) {
     return Boolean(state.in_mklev
@@ -4697,11 +4698,19 @@ async function addinvCore0Runtime(
     // Live addinv() may be called by a wish or a container path with only a
     // state argument. Supply ttyPline to the async addinv_core2() arm while
     // leaving synchronous startup addinv() free of an unawaited Promise.
+    const message = env.hooks?.message ?? env.message ?? ttyPline;
     const liveEnv = {
         ...env,
         hooks: {
+            // C ref: invent.c merged():941. The live merge prints the
+            // comparison discovery through the same pline() owner, and
+            // mergedRuntime() awaits it before obfree().
+            inventoryComparisonDiscovered: (target, hookEnv) => message(
+                'You learn more about your items by comparing them.',
+                hookEnv.state,
+            ),
             ...(env.hooks ?? {}),
-            message: env.hooks?.message ?? env.message ?? ttyPline,
+            message,
         },
     };
     const pendingContext = beginAddinv(obj, liveEnv, prepared);
