@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for read.c drop_boulder_on_player() (read.c:2294-2338): a Samurai given half spell damage, but not half physical damage, through #wizintrinsic reads an uncursed scroll of earth. The boulder that hits him is halved only by Maybe_Half_Phys(), so he takes its full damage.",
+ "segments": [
+  {
+   "seed": 7203311,
+   "datetime": "20261206151500",
+   "nethackrc": "OPTIONS=name:Probe,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,time\n",
+   "moves": "#levelchange\n12\n\u001b#wizintrinsic\n>>n\n \u0017uncursed scroll of earth\nrf   "
+  }
+ ]
+}
