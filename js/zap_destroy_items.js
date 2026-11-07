@@ -20,8 +20,9 @@ import { exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
     hcolor,
-    monsterPossessive,
+    y_monnam,
 } from './do_name.js';
+import { s_suffix, upstart } from './hacklib.js';
 import { losehp } from './hack.js';
 import { makeplural } from './fruit.js';
 import {
@@ -182,22 +183,21 @@ function floorBurnMessageNames(obj, state) {
 // C ref: zap.c:5905-5907, the one `(cnt == 1L && quan == 1L) ? Yname2(obj)
 // : yname(obj)` both carriers share.
 //
-// objnam.c yname() reaches shk.c shk_your(), whose mon_owns() arm needs
-// y_monnam() for an object in a monster's pack; js/shk.js stops there. The
-// monster arm below builds the same possessive from do_name.js
-// monsterPossessive() instead, which is that y_monnam() call by another name.
+// For an object in a monster's pack, objnam.c yname() reaches shk.c
+// shk_your()'s mon_owns() arm, s_suffix(y_monnam(obj->ocarry)): "your
+// kitten's" for a pet, "the gnome's" otherwise. Yname2() capitalizes it.
 function destroyedItemName(u_carry, carrier, obj, cnt, quan, state, displayRandom) {
     if (u_carry) {
         return (cnt === 1 && quan === 1)
             ? Yname2(obj, state)
             : yname(obj, state);
     }
+    const owner = s_suffix(y_monnam(carrier, state, { displayRandom }));
     if (cnt === 1 && quan === 1) {
-        return `${monsterPossessive(carrier, state, true, { displayRandom })} `
+        return `${upstart(owner)} `
             + `${fire_object_name_at_quantity(obj, 1, state)}`;
     }
-    return `${monsterPossessive(carrier, state, false, { displayRandom })} `
-        + `${fire_object_name_at_quantity(obj, 2, state)}`;
+    return `${owner} ${fire_object_name_at_quantity(obj, 2, state)}`;
 }
 
 // C ref: zap.c maybe_destroy_item() (5797-5954), "guts of destroy_items(); the

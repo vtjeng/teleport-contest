@@ -810,6 +810,25 @@ test('a visible monster has its own losses announced', async () => {
     assert.equal(toplines(), '');
 });
 
+// shk.c mon_owns() names a monster-carried object through y_monnam(), whose
+// ARTICLE_YOUR prefix marks a pet: "Your newt's scroll ..." rather than
+// "The newt's scroll ...".
+test('a pet\'s losses are named with y_monnam()', async () => {
+    const monster = await initializedMonster(982444, 'PetSeen');
+    monster.minvis = false;
+    monster.mtame = 10;
+    discover_object(SCR_TELEPORTATION, true, true, false, game);
+    monster.minvent = carriedByMonster(monster, SCR_TELEPORTATION, 1);
+    clearTopline();
+    // The same draws as the 1-of-1 case above: limit 1, then the scroll burns.
+    await destroy_items(monster, AD_FIRE, 5, {
+        random: scriptedRandom([[5, 4], [3, 0]], []),
+        state: game,
+    });
+    assert.equal(toplines(),
+        'Your newt\'s scroll of teleportation catches fire and burns!');
+});
+
 test('the vapors reach a hero who breathes or a hero who has eyes',
     async () => {
     // zap.c:5919-5920 `!breathless(youmonst.data) || haseyes(youmonst.data)`.
