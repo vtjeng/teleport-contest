@@ -2,13 +2,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, CORR, HALLUC, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
+import { COLNO, CORR, HALLUC, W_ARMH, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
 import { drain_weapon_skill } from '../js/weapon.js';
 import { monsterCommonName } from '../js/do_name.js';
 import { cloneIsaacContext } from '../js/rng.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
+import { Helmet_off } from '../js/do_wear.js';
+import { mksobj } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { HELM_OF_TELEPATHY } from '../js/objects.js';
 import { hurtle, hurtle_step } from '../js/dothrow.js';
 import {
     isolatePlannedVision,
@@ -286,4 +290,26 @@ test('a planned hurtle prints nothing on the live terminal', async () => {
     await hurtle(1, 0, 1, false, planned, { planning: true });
     assert.equal(topLine(), before);
     assert.equal(game._pending_message, pending);
+});
+
+// steal.c remove_worn_item() reaches do_wear.c Helmet_off(), whose helm of
+// telepathy arm calls see_monsters(). On a planning clone that call needs the
+// caller's silent redraw seam, which Helmet_off() now forwards.
+test('a planned helm of telepathy removal repaints through the caller seam', async () => {
+    await runSegment({
+        // An independent Valkyrie startup gives a live level and hero.
+        seed: 128070403, datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:Unhelmed,role:Valkyrie,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const planned = planningState(game);
+    const helm = mksobj(HELM_OF_TELEPATHY, false, false,
+        objectGenerationEnv({ state: planned }));
+    helm.owornmask = W_ARMH;
+    planned.uarmh = helm;
+    let repaints = 0;
+    await Helmet_off(planned, { redraw: () => { repaints += 1; } });
+    assert.equal(planned.uarmh, null);
+    assert.ok(repaints > 0, 'see_monsters() repainted through the seam');
 });

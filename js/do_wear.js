@@ -2370,7 +2370,9 @@ async function helmetOnCursePath(state) {
 // changes, HELM_OF_TELEPATHY's and HELM_OF_CAUTION's see_monsters(),
 // HELM_OF_BRILLIANCE's adj_abon(), and the plain break the four remaining
 // hard helms share with the dented pot.
-export async function Helmet_off(state = game) {
+// `env.redraw` is see_monsters()'s repaint seam; a planning clone's caller
+// supplies its silent one.
+export async function Helmet_off(state = game, env = {}) {
     const helmet = state.uarmh;
     if (!helmet) return 0;
     const otyp = helmet.otyp;
@@ -2411,7 +2413,7 @@ export async function Helmet_off(state = game) {
         // C updates the property before see_monsters(), then returns without
         // reaching the common setworn() below.
         await setworn(null, W_ARMH, setwornEnv(state));
-        await see_monsters(state);
+        await see_monsters(state, { redraw: env.redraw ?? null });
         takeoffContext(state).cancelled_don = false;
         return 0;
     case HELM_OF_BRILLIANCE:
