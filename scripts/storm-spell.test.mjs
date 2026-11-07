@@ -9,7 +9,7 @@ import {NO_COLOR} from '../js/terminal.js';
 // Source helpers inspect terrain and vision without changing either. The
 // hero at (20,10) leaves room for the C distance-ten boundary on both sides.
 function stateAt(typ = ROOM, doormask = 0) {
-    const cell = {typ, doormask};
+    const cell = {typ, flags: doormask};
     return {u:{ux:20,uy:10},level:{at:()=>cell},
         viz_array:Array.from({length:ROWNO},()=>Array(COLNO).fill(IN_SIGHT))};
 }

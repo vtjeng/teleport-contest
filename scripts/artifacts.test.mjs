@@ -1013,13 +1013,13 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
             cells[`${x},${y}`] = {
                 disp_glyph: { glyph: NOT_TRAP_GLYPH },
                 typ: 0,        // STONE, not a door
-                doormask: 0,
+                flags: 0,
             };
         }
     }
     const state = {
         level: {
-            at(x, y) { return cells[`${x},${y}`] || { disp_glyph: { glyph: NOT_TRAP_GLYPH }, typ: 0, doormask: 0 }; },
+            at(x, y) { return cells[`${x},${y}`] || { disp_glyph: { glyph: NOT_TRAP_GLYPH }, typ: 0, flags: 0 }; },
             traps: [],
             objects: {},
         },
@@ -1037,7 +1037,7 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     // Place a trapped door at (6, 5). IS_DOOR(typ) requires typ === 23 (DOOR
     // from const.js:74). D_TRAPPED is 0x10 (const.js:96).
     cells['6,5'].typ = 23;      // DOOR
-    cells['6,5'].doormask = 0x10; // D_TRAPPED
+    cells['6,5'].flags = 0x10; // D_TRAPPED
     assert.equal(count_surround_traps(5, 5, state), 2,
         'hidden trap plus trapped door');
 

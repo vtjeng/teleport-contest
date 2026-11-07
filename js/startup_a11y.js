@@ -1028,7 +1028,7 @@ function drawbridgeMask(location) {
 function doorDescription(location, x, y, state) {
     if (is_drawbridge_wall(x, y, state) >= 0)
         return 'open drawbridge portcullis';
-    const mask = location.flags || location.doormask || 0;
+    const mask = location.flags;
     if ((mask & ~D_TRAPPED) === D_BROKEN) return 'broken door';
     if (!mask) return 'doorway';
     if (mask & D_ISOPEN) return 'open door';

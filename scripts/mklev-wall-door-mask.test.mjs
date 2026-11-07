@@ -61,7 +61,7 @@ for (const [dir, dx, dy] of [['north',0,-1], ['south',0,1], ['east',1,0], ['west
                 assert.equal(wall.typ,mode === 'open-door' ? DOOR : DBWALL);
                 des.terrain({x:wx,y:wy,typ:mode === 'closed-secret' ? 'S' : '+',lit:0});
                 assert.equal(wall.typ,mode === 'closed-secret' ? SDOOR : DOOR);
-                assert.equal(wall.doormask,mode === 'closed-secret' ? D_CLOSED
+                assert.equal(wall.flags,mode === 'closed-secret' ? D_CLOSED
                     : mode === 'closed-door' ? D_LOCKED : 0);
                 des.terrain({x,y,typ:'.',lit:0});
             });

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 71830512,
+   "datetime": "20470822101500",
+   "nethackrc": "OPTIONS=name:Crowned,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none,!autopickup\n",
+   "moves": " #levelchange\n14\n\u001b\u0017neutral altar\n\u00175 mastodon corpses\n #offer\ny #offer\ny #offer\ny n #offer\ny n #offer\ny n\u0016?\n>y \u001b\u0014 kkkkkkkkklllllllllllllll.#chat\nh  y \u001b#pray\ny n    :"
+  }
+ ],
+ "comment": "pray.c gcrownu(): a neutral Wizard in debug mode raises Luck to 10 with three mastodon sacrifices on a wished altar (declining each gift), takes the quest leader's debug-mode alignment adjustment to 20, and prays. pleased() pats the hero on the head and rolls the crowning, whose spellbook of finger of death falls at the hero's feet through do.c dropy()."
+}

@@ -18,7 +18,7 @@ for (const kind of ['locked', 'closed', 'ordinary-control']) {
             const {game} = await import(root + '/js/gstate.js');
             const {DOOR, D_BROKEN} = await import(root + '/js/const.js');
             assert.equal(game.level.at(23, 7).typ, DOOR);
-            assert.equal(game.level.at(23, 7).doormask, D_BROKEN);
+            assert.equal(game.level.at(23, 7).flags, D_BROKEN);
         } finally {
             removeScoringWorkspace(root);
         }

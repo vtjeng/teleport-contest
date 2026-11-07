@@ -1294,7 +1294,6 @@ function adjacentRefusalEffects(target = null) {
         terrain: location ? {
             typ: location.typ,
             flags: location.flags,
-            doormask: location.doormask,
         } : null,
         pendingMessage: pendingTopLine(),
         // Rows 22-23 are the status window. Hand-setting Hallucination in one
@@ -1685,7 +1684,6 @@ test('secret terrain changes the map, vision, display, and turn result',
             const location = game.level.at(target.x, target.y);
             location.typ = secretType;
             location.flags = 0;
-            location.doormask = 0;
             game.flags.acoustics = acoustics;
             game.vision_full_recalc = 0;
             const priorMessage = pendingTopLine();
@@ -1699,7 +1697,7 @@ test('secret terrain changes the map, vision, display, and turn result',
             assert.equal(location.typ, exposedType, label);
             assert.equal(location.flags,
                 secretType === SDOOR ? D_CLOSED : 0, label);
-            assert.equal(location.doormask,
+            assert.equal(location.flags,
                 secretType === SDOOR ? D_CLOSED : 0, label);
             assert.equal(location.disp_ch, symbol, label);
             assert.equal(game.vision_full_recalc, 1, label);

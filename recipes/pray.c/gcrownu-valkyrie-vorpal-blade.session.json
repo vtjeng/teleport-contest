@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 52906174,
+   "datetime": "20531207183000",
+   "nethackrc": "OPTIONS=name:Envoy,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none,!autopickup\n",
+   "moves": " #levelchange\n14\n\u001b\u0017neutral altar\n\u00175 mastodon corpses\n #offer\ny #offer\ny #offer\ny n #offer\ny n #offer\ny n\u0016?\n>y \u001bk#chat\ny  y \u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b#pray\ny n    :"
+  }
+ ],
+ "comment": "pray.c gcrownu(): a neutral human Valkyrie in debug mode raises Luck to 10 with three mastodon sacrifices on a wished altar (declining each gift), takes the Norn's debug-mode alignment adjustment to 20, waits seven turns and prays. The crowning's neutral arm makes Vorpal Blade, which falls at the hero's feet through do.c dropy()."
+}

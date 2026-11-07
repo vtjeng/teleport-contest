@@ -29,7 +29,7 @@ async function setup(carryPick) {
     game.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];
     if (carryPick) addinv(mksobj(PICK_AXE, false, false, { state: game }), { state: game });
     game.level.doors = [{x: 2, y: 6}];
-    Object.assign(game.level.at(2, 6), {typ: DOOR, flags: D_ISOPEN, doormask: D_ISOPEN});
+    Object.assign(game.level.at(2, 6), {typ: DOOR, flags: D_ISOPEN});
     game.in_mklev = true;
     await stock_room(0, room, {state: game});
     game.in_mklev = false;

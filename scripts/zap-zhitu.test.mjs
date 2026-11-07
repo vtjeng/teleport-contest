@@ -288,7 +288,7 @@ test('monster breath reaches planned direct death through dobuzz and zhitu', asy
             });
             for (let x = dragon.mx; x <= planned.u.ux; ++x) {
                 planned.level.at(x, dragon.my).typ = ROOM;
-                planned.level.at(x, dragon.my).doormask = 0;
+                planned.level.at(x, dragon.my).flags = 0;
             }
             await breamm(dragon, dragon.data.mattk[0], planned.youmonst, {
                 state: planned, random, ...quiet,

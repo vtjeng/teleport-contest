@@ -16,7 +16,7 @@ test('monster movement admits closed-door tunneling and matches live C', async (
         assert.equal(result.passed, true, formatReport(result));
         const {game} = await import(root + '/js/gstate.js');
         const {D_BROKEN} = await import(root + '/js/const.js');
-        assert.equal(game.level.at(52, 6).doormask, D_BROKEN);
+        assert.equal(game.level.at(52, 6).flags, D_BROKEN);
     } finally {
         removeScoringWorkspace(root);
     }

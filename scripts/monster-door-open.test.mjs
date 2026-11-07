@@ -16,7 +16,7 @@ function doorMasks() {
         for (let y = 0; y < ROWNO; ++y) {
             const location = game.level.at(x, y);
             if (location?.typ !== DOOR) continue;
-            masks.set(`${x},${y}`, location.flags || location.doormask || 0);
+            masks.set(`${x},${y}`, location.flags);
         }
     }
     return masks;

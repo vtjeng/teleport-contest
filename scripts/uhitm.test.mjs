@@ -275,7 +275,6 @@ function standPetEastOf(pet, terrain) {
     const square = game.level.at(...destination);
     square.typ = terrain;
     square.flags = 0;
-    square.doormask = 0;
     game.level.objects[destination[0]][destination[1]] = null;
     game.level.traps = [];
     game.level.regions = [];

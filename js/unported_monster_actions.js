@@ -1007,7 +1007,7 @@ function transitionCallbackUnset(callback) {
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
-    const doorMask = location?.flags || location?.doormask || 0;
+    const doorMask = location?.flags ?? 0;
     // Every IS_ROOM type is ordinary terrain for a monster that is not
     // covetous: mon.c mfndpos() admits typ >= ROOM directly, so this includes
     // all furniture plus ICE, DRAWBRIDGE_DOWN, AIR and CLOUD. No terrain arm

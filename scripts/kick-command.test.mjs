@@ -578,7 +578,6 @@ function setDoorWest(mask) {
     const loc = game.level.at(x, y);
     loc.typ = DOOR;
     loc.flags = mask;
-    loc.doormask = mask;
     return loc;
 }
 
@@ -696,7 +695,6 @@ test('kicking boots break a door that a feeble hero could not', async () => {
     assert.equal(game._ttyToplines, 'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
     // dokick.c:949 sets D_BROKEN; Strength 3 never reaches the rn2(5) at :940.
-    assert.equal(loc.doormask, D_BROKEN);
     assert.equal(loc.flags, D_BROKEN);
     // :926 exercise(A_DEX, TRUE), :930 rnl(35), :948 exercise(A_STR, TRUE),
     // with no rn2(5) between the last two and no rn2(3) from :966 after them.
@@ -749,8 +747,7 @@ test('a weak hero always gets crash-open, skipping the rn2(5) draw',
         'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
     // dokick.c:949 sets D_BROKEN.
-    assert.equal(loc.doormask, D_BROKEN, 'doormask is D_BROKEN');
-    assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+    assert.equal(loc.flags, D_BROKEN, 'doormask is D_BROKEN');
     // :926, :930 and :948 in that order; the rn2(5) of :940 is absent.
     assert.match(draws[0], /^rn2\(19\)=/u);
     assert.match(draws[1], /^rnl\(35\)=/u);
@@ -772,8 +769,7 @@ test('a strong hero whose rn2(5) is 0 shatters the door', async () => {
         'As you kick the door, it shatters to pieces!');
     const loc = game.level.at(game.u.ux + 1, game.u.uy);
     // :944 sets D_NODOOR.
-    assert.equal(loc.doormask, D_NODOOR, 'shatter sets D_NODOOR');
-    assert.equal(loc.flags, D_NODOOR, 'flags mirror doormask');
+    assert.equal(loc.flags, D_NODOOR, 'shatter sets D_NODOOR');
     // :926 exercise(A_DEX, TRUE), :930 rnl(35), :940 rn2(5), :943
     // exercise(A_STR, TRUE).
     assert.match(draws[0], /^rn2\(19\)=/u);
@@ -791,8 +787,7 @@ test('a strong hero whose rn2(5) is not 0 crashes the door open', async () => {
     assert.equal(kicked.toplines, 'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
     // :949 sets D_BROKEN.
-    assert.equal(loc.doormask, D_BROKEN, 'crash sets D_BROKEN');
-    assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+    assert.equal(loc.flags, D_BROKEN, 'crash sets D_BROKEN');
     // The same four draws as the shatter arm, with rn2(5) in 1..4.
     assert.match(draws[0], /^rn2\(19\)=/u);
     assert.match(draws[1], /^rnl\(35\)=/u);
@@ -817,7 +812,7 @@ test('a locked door can be kicked open the same way a closed one can',
     assert.equal(game._ttyToplines,
         'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
-    assert.equal(loc.doormask, D_BROKEN);
+    assert.equal(loc.flags, D_BROKEN);
 });
 
 test('a trapped door clears its mask and reaches b_trapped before redraw',
@@ -831,7 +826,6 @@ test('a trapped door clears its mask and reaches b_trapped before redraw',
         game.nhDisplay.pushKey(commandKeyCode(key));
     await rhack(0, game);
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
-    assert.equal(loc.doormask, D_NODOOR);
     assert.equal(loc.flags, D_NODOOR);
     assert.ok(game.u.uhp < hp); // b_trapped's source explosion inflicts damage.
 });
@@ -922,13 +916,12 @@ test('Unix TTY recorder excludes the pointer-only mouse fallback kick caller',()
     assert.equal(lineOf(CMD_C,4967),'cmdq_add_ec(CQ_CANNED, dokick);');
 });
 
-// C rm.doormask aliases flags; ordinary generated doors populate flags while
-// their unused doormask spelling remains zero. Adjacent closed doors expose
-// the same three actions as cmd.c:4541–4557.
-test('context-menu kick sees the canonical mask of a generated door',async()=>{
+// rm.h's doormask is struct rm's `flags`. Adjacent closed doors expose the
+// same three actions as cmd.c:4541–4557.
+test('context-menu kick sees the doormask of a generated door',async()=>{
     await replay(MONK(), '');
     const x=game.u.ux-1,y=game.u.uy; // Adjacent west, as act_on_act queues it.
-    const door=game.level.at(x,y);door.typ=DOOR;door.flags=D_CLOSED;door.doormask=0;
+    const door=game.level.at(x,y);door.typ=DOOR;door.flags=D_CLOSED;
     game.level.monlist=[]; // Ordinary empty door has no additional monster actions.
     game.level.objlist=[];
     const items=[];

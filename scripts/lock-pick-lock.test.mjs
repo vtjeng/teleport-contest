@@ -64,7 +64,7 @@ test('pick_lock pins both chance tables and cursed integer division to lock.c', 
         game.level.monsters[x][y] = null;
         const door = game.level.at(x, y);
         door.typ = DOOR;
-        door.doormask = door.flags = D_LOCKED;
+        door.flags = D_LOCKED;
         const dex = acurr(game, A_DEX);
         assert.equal(await pick_lock(newObject({ otyp, oclass: TOOL_CLASS, quan: 1 }), x, y, null, game, env), 1);
         assert.equal(game.xlock.chance, doorMultiplier * dex + doorBonus);

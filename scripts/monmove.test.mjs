@@ -757,7 +757,6 @@ test('postmov opens a closed door and reports what the hero heard',
         // UnblockDoor writes D_ISOPEN, not the D_NODOOR its `!btrapped`
         // ternary picks: whole-mask equality with D_CLOSED excludes D_TRAPPED.
         assert.equal(state.level.at(5, 4).flags, D_ISOPEN);
-        assert.equal(state.level.at(5, 4).doormask, D_ISOPEN);
         // The old square, then UnblockDoor's redraw of the door, then
         // monmove.c:1656's redraw of the square the monster reached.
         assert.deepEqual(redraws, [[4, 4], [5, 4], [5, 4]]);

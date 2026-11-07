@@ -58,8 +58,8 @@ export async function verifyHeaLocaSegment(segment) {
             const cell = game.level.at(x, y);
             litPool ||= cell.typ === POOL && Boolean(cell.lit);
             protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
-            if (cell.typ === DOOR && (cell.doormask & D_CLOSED)) ++closed;
-            if (cell.typ === SDOOR && (cell.doormask & D_LOCKED)) ++locked;
+            if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
+            if (cell.typ === SDOOR && (cell.flags & D_LOCKED)) ++locked;
         }
     }
     assert.ok(litPool);

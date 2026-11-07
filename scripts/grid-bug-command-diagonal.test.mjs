@@ -25,7 +25,7 @@ async function preparedHero(gridBug) {
     for (const [x, y] of [[ux, uy], [ux - 1, uy], [ux - 1, uy - 1]]) {
         const spot = game.level.at(x, y);
         spot.typ = ROOM;
-        spot.flags = spot.doormask = 0;
+        spot.flags = 0;
         game.level.monsters[x][y] = null;
         game.level.objects[x][y] = null;
     }

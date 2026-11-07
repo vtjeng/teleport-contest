@@ -1210,7 +1210,7 @@ test('live Fake Delphi builds and registers its nested room in source order', as
     const door = { x: 40, y: 7 };
     const loc = game.level.at(door.x, door.y);
     assert.equal(loc.typ, DOOR);
-    assert.equal(loc.doormask, D_NODOOR);
+    assert.equal(loc.flags, D_NODOOR);
     assert.deepEqual(game.level.doors, [door, door]);
     assert.deepEqual(
         [child.fdoor, child.doorct, parent.fdoor, parent.doorct],
@@ -1267,7 +1267,7 @@ test('Room in a room preserves random room and door source order', () => {
     assert.equal(child.needfill, FILL_NONE);
 
     const door = { x: 16, y: 5 };
-    assert.equal(game.level.at(door.x, door.y).doormask, D_NODOOR);
+    assert.equal(game.level.at(door.x, door.y).flags, D_NODOOR);
     assert.deepEqual(game.level.doors, [door, door]);
     assert.deepEqual(
         [child.fdoor, child.doorct, parent.fdoor, parent.doorct],
@@ -1328,7 +1328,7 @@ test('Huge nested room creates both source-ordered optional doors', () => {
     assert.equal(child.needfill, FILL_NORMAL);
     const doors = [{ x: 38, y: 6 }, { x: 39, y: 10 }];
     assert.deepEqual(
-        doors.map(({ x, y }) => game.level.at(x, y).doormask),
+        doors.map(({ x, y }) => game.level.at(x, y).flags),
         [D_NODOOR, D_NODOOR],
     );
     assert.equal(new Set(game.level.doors.map(({ x, y }) => `${x},${y}`)).size, 2);
@@ -1373,7 +1373,7 @@ test('Huge nested room stops after the failed second-door gate', () => {
 
     const parent = game.level.rooms[0];
     const child = game.subrooms[0];
-    assert.equal(game.level.at(38, 6).doormask, D_NODOOR);
+    assert.equal(game.level.at(38, 6).flags, D_NODOOR);
     assert.equal(new Set(
         game.level.doors.map(({ x, y }) => `${x},${y}`),
     ).size, 1);
@@ -1496,7 +1496,7 @@ test('Nesting rooms preserves deep room, percentage, and door order', () => {
         { x: 42, y: 9 },
     ];
     assert.deepEqual(
-        doors.map(({ x, y }) => game.level.at(x, y).doormask),
+        doors.map(({ x, y }) => game.level.at(x, y).flags),
         [D_NODOOR, D_NODOOR, D_NODOOR, D_NODOOR],
     );
     assert.equal(new Set(game.level.doors.map(({ x, y }) => `${x},${y}`)).size, 4);
@@ -1791,7 +1791,6 @@ test('random room doors preserve source draws, state, and nested registration', 
     assert.equal(loc.typ, DOOR);
     assert.equal(loc.horizontal, true);
     assert.equal(loc.flags, D_LOCKED | D_TRAPPED);
-    assert.equal(loc.doormask, D_LOCKED | D_TRAPPED);
 
     // A nested lspo_room() registers its doors when its callback closes. The
     // outer close then registers the shared physical door for the parent too,
@@ -1908,7 +1907,7 @@ test('south and west doors retry obstructed outward squares', () => {
         const location = game.level.at(placed.x, placed.y);
         assert.equal(location.typ, DOOR, scenario.wall);
         assert.equal(location.horizontal, scenario.horizontal, scenario.wall);
-        assert.equal(location.doormask, D_ISOPEN, scenario.wall);
+        assert.equal(location.flags, D_ISOPEN, scenario.wall);
         assert.equal(
             game.level.at(rejected.x, rejected.y).typ,
             rejectedType,
@@ -1938,7 +1937,6 @@ test('explicit secret room doors retry walls and truncate the parser-only bit', 
     // D_SECRET is 0x20, outside struct rm.flags' five bits. A room-wall secret
     // door therefore stores zero and becomes closed when eventually revealed.
     assert.equal(loc.flags, 0);
-    assert.equal(loc.doormask, 0);
 });
 
 test('create_door resolves random secret descriptors in place', () => {
@@ -1968,7 +1966,6 @@ test('create_door resolves random secret descriptors in place', () => {
     const loc = game.level.at(child.hx + 1, child.ly + 1);
     assert.equal(loc.typ, SDOOR);
     assert.equal(loc.flags, D_LOCKED);
-    assert.equal(loc.doormask, D_LOCKED);
 });
 
 test('create_room_door stops after one hundred rejected wall attempts', () => {
@@ -2486,7 +2483,7 @@ test('Twin businesses builds both source shop subrooms', async () => {
     assert.deepEqual(
         shops.map((room) => {
             const door = game.level.doors[room.fdoor];
-            return game.level.at(door.x, door.y).doormask;
+            return game.level.at(door.x, door.y).flags;
         }),
         [D_CLOSED, D_CLOSED],
     );
@@ -2723,7 +2720,7 @@ test('Twin businesses marks the exterior of a locked shop', async () => {
     const door = game.level.doors[lockedShop.fdoor];
     assert.deepEqual(door, { x: 33, y: 5 });
     assert.equal(game.level.at(door.x, door.y).typ, DOOR);
-    assert.equal(game.level.at(door.x, door.y).doormask, D_LOCKED);
+    assert.equal(game.level.at(door.x, door.y).flags, D_LOCKED);
     const notice = engr_at(33, 6, game);
     assert.equal(notice.engr_type, DUST);
     assert.equal(notice.engr_txt[0], 'Closed for inventory');
@@ -2732,7 +2729,7 @@ test('Twin businesses marks the exterior of a locked shop', async () => {
     const openDoor = game.level.doors[openShop.fdoor];
     assert.deepEqual(openDoor, { x: 39, y: 3 });
     assert.equal(game.level.at(openDoor.x, openDoor.y).typ, DOOR);
-    assert.equal(game.level.at(openDoor.x, openDoor.y).doormask, D_ISOPEN);
+    assert.equal(game.level.at(openDoor.x, openDoor.y).flags, D_ISOPEN);
 });
 
 test('themed alignment shuffle is retained independently per branch', () => {

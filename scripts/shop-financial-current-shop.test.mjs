@@ -26,8 +26,8 @@ for (const debit of [17, 0]) test(`${debit ? 'target' : 'control'}: current shop
         Object.assign(game.level.at(x, y), { typ: ROOM, lit: true, seenv: 255,
             roomno: ROOMOFFSET, edge: false });
     game.level.doors = [{ x: 3, y: 6 }];
-    Object.assign(game.level.at(3, 6), { typ: DOOR, doormask: D_ISOPEN,
-        flags: D_ISOPEN, lit: true, seenv: 255, roomno: ROOMOFFSET, edge: true });
+    Object.assign(game.level.at(3, 6), { typ: DOOR, flags: D_ISOPEN,
+        lit: true, seenv: 255, roomno: ROOMOFFSET, edge: true });
     game.u.ux = 6; game.u.uy = 6;
     game.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
     game.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];

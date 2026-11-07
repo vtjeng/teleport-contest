@@ -231,7 +231,7 @@ const TARGET_DIRECTIONS = Object.freeze([
 ]);
 
 function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 function goalOperation(rawEnv, name, fallback) {

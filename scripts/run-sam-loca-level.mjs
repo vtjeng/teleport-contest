@@ -31,8 +31,8 @@ export async function verifySamLocaSegment(segment) {
     for (let x = 1; x < COLNO; ++x) for (let y = 0; y < ROWNO; ++y) {
         const cell = game.level.at(x, y);
         if (cell.typ === DOOR || cell.typ === SDOOR) {
-            if (cell.doormask === D_LOCKED) ++locked;
-            if (cell.doormask === D_CLOSED) ++closed;
+            if (cell.flags === D_LOCKED) ++locked;
+            if (cell.flags === D_CLOSED) ++closed;
         }
         protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
     }

@@ -3320,7 +3320,7 @@ export function count_surround_traps(x, y, state = game) {
                 continue;
             }
             const levp = state.level.at(dx, dy);
-            if (IS_DOOR(levp.typ) && (levp.doormask & D_TRAPPED) !== 0) {
+            if (IS_DOOR(levp.typ) && (levp.flags & D_TRAPPED) !== 0) {
                 ++ret;
                 continue;
             }

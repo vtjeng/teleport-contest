@@ -875,7 +875,7 @@ export async function gd_move(grd, env = {}) {
                     }
                     crm.typ = (typ === SCORR) ? CORR : DOOR;
                     if (crm.typ === DOOR)
-                        crm.doormask = D_NODOOR;
+                        crm.flags = D_NODOOR;
                     else
                         crm.flags = 0;
                     del_engr_at(nx, ny, state);
@@ -914,7 +914,7 @@ async function gd_move_nextpos(grd, x, y, semi_dead, state, env) {
         const ey = ny + ny - y;
         if (isok(ex, ey) && IS_ROOM(state.level.at(ex, ey).typ)) {
             crm.typ = DOOR;
-            crm.doormask = D_NODOOR;
+            crm.flags = D_NODOOR;
             del_engr_at(ex, ey, state);
             return gd_move_proceed(
                 grd, x, y, nx, ny, typ, semi_dead, true, state, env,
@@ -937,7 +937,7 @@ async function gd_move_nextpos(grd, x, y, semi_dead, state, env) {
         }
         if (IS_ROOM(typ)) {
             crm.typ = DOOR;
-            crm.doormask = D_NODOOR;
+            crm.flags = D_NODOOR;
             del_engr_at(nx + nx - x, ny + ny - y, state);
             return gd_move_proceed(
                 grd, x, y, nx, ny, typ, semi_dead, true, state, env,
@@ -1370,7 +1370,7 @@ export async function invault(state, env = {}) {
     spot_stop_timers(x, y, MELT_ICE_AWAY, state);
     const loc = state.level.at(x, y);
     loc.typ = DOOR;
-    loc.doormask = D_NODOOR;
+    loc.flags = D_NODOOR;
     unblock_point(x, y, state);
     EGD(guard).fcend = 1;
     EGD(guard).warncnt = 1;

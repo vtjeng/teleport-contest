@@ -111,15 +111,12 @@ function quiet(state) {
     state._ttyToplines = '';
 }
 
-// rm.h:213-218 aliases doormask, altarmask and looted onto one field, which
-// js/game.js splits into `flags` and `doormask`; hack.c pickup_checks() reads
-// it as doormask, so every caller here writes the mask through `flags`, the
-// field js/hack.js doorMask() prefers.
+// rm.h:213-218 aliases doormask, altarmask and looted onto struct rm's
+// `flags`; hack.c pickup_checks() reads it as doormask.
 function squareUnderHero(state, typ, flags = 0) {
     const location = state.level.at(state.u.ux, state.u.uy);
     location.typ = typ;
     location.flags = flags;
-    location.doormask = 0;
     return state;
 }
 

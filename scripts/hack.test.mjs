@@ -682,7 +682,7 @@ test('crawl_destination follows the source goodpos and diagonal gates', async ()
     const north = game.level.at(ux, uy - 1);
     for (const location of [east, northeast, north]) {
         location.typ = ROOM;
-        location.flags = location.doormask = 0;
+        location.flags = 0;
     }
     game.level.monsters[ux + 1][uy] = null;
     game.level.monsters[ux + 1][uy - 1] = null;
@@ -701,7 +701,7 @@ test('crawl_destination follows the source goodpos and diagonal gates', async ()
     game.youmonst.data = humanSpecies;
 
     northeast.typ = DOOR;
-    northeast.flags = northeast.doormask = D_CLOSED;
+    northeast.flags = D_CLOSED;
     assert.equal(await crawl_destination(ux + 1, uy - 1, game), false);
 });
 
@@ -963,7 +963,7 @@ test('moverock_core consumes the C liquid-push result before dopush', async () =
     ]) {
         const location = game.level.at(x, y);
         location.typ = typ;
-        location.flags = location.doormask = 0;
+        location.flags = 0;
         game.level.monsters[x][y] = null;
         game.level.objects[x][y] = null;
     }
@@ -1107,7 +1107,7 @@ test('a blocked boulder can be stepped over and picked up by a giant', async () 
     for (const [x, typ] of [[sx, ROOM], [bx, ROOM], [rx, STONE]]) {
         const location = game.level.at(x, sy);
         location.typ = typ;
-        location.flags = location.doormask = 0;
+        location.flags = 0;
         game.level.monsters[x][sy] = null;
         game.level.objects[x][sy] = null;
     }
@@ -1634,7 +1634,7 @@ function runLevel() {
         grid.push([]);
         monsters.push([]);
         for (let y = 0; y < ROWNO; ++y) {
-            grid[x].push({ typ: STONE, flags: 0, doormask: 0, lit: 1 });
+            grid[x].push({ typ: STONE, flags: 0, lit: 1 });
             monsters[x].push(null);
         }
     }
@@ -2484,7 +2484,7 @@ test('domove applies success effects only to explicit movement attempts',
         game.level.at(startX, startY).typ = ROOM;
         const destination = game.level.at(startX + 1, startY);
         destination.typ = ROOM;
-        destination.flags = destination.doormask = 0;
+        destination.flags = 0;
         game.level.monsters[startX + 1][startY] = null;
         game.level.monlist = null;
         game.level.objects[startX + 1][startY] = null;

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 60417233,
+   "datetime": "20450611083000",
+   "nethackrc": "OPTIONS=name:Lookup,role:Priest,race:human,gender:male,align:lawful,query_menu\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup\n",
+   "moves": " // . y \u001b// . n"
+  }
+ ],
+ "comment": "pager.c checkfile(): with query_menu set, the whatis command's \"More info about\" question goes through y_n() and so through yn_function()'s menu. A human Priest looks at himself twice, choosing Yes from the menu the first time and No the second."
+}

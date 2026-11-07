@@ -4513,8 +4513,7 @@ export async function bhit(
                         learnwand(obj, state);
                     }
                     const hitDoor = state.level.at(x, y);
-                    if ((hitDoor.doormask === D_BROKEN
-                        || hitDoor.flags === D_BROKEN)
+                    if (hitDoor.flags === D_BROKEN
                         && in_rooms(x, y, SHOPBASE, state).length) {
                         shopdoor = true;
                         add_damage(x, y, SHOP_DOOR_COST, state);
@@ -5668,7 +5667,6 @@ export async function zap_over_floor(
                     shopdamage.value = true;
             }
             lev.flags = newDoormask;
-            lev.doormask = newDoormask;
             recalc_block_point(x, y, state);
             if (seeIt) {
                 await message(seeText, state, env);

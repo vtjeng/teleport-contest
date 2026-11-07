@@ -1054,7 +1054,7 @@ test('configured tutorial choices skip the query or reach its first command', as
     assert.equal(game.level.at(56, 5).lit, false);
     assert.deepEqual(
         {
-            mask: game.level.at(5, 9).doormask,
+            mask: game.level.at(5, 9).flags,
             horizontal: game.level.at(5, 9).horizontal,
         },
         { mask: D_CLOSED, horizontal: true },

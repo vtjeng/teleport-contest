@@ -3520,7 +3520,7 @@ test('nh_timeout real melt callback resets a FAINTED hero before drown crawl', a
         const tile = state.level.at(x + dx, y + dy);
         tile.typ = dx === 0 && dy === 0 ? ICE : ROOM;
         tile.icedpool = dx === 0 && dy === 0 ? ICED_POOL : 0;
-        tile.flags = tile.doormask = tile.wall_info = 0;
+        tile.flags = tile.wall_info = 0;
     }
     assert.equal(state.u.umonnum, state.urole.mnum);
     assert.equal(state.u.umonster, state.urole.mnum);

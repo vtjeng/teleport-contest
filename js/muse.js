@@ -2507,8 +2507,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
                     );
-                    if ((hitDoor.doormask === D_BROKEN
-                        || hitDoor.flags === D_BROKEN)
+                    if (hitDoor.flags === D_BROKEN
                         && in_rooms(
                             state.gb.bhitpos.x,
                             state.gb.bhitpos.y,
@@ -2527,7 +2526,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
             }
         }
         if (!ZAP_POS(ltyp)
-            || (IS_DOOR(ltyp) && (lev.doormask
+            || (IS_DOOR(ltyp) && (lev.flags
                                   & (D_LOCKED | D_CLOSED)))) {
             state.gb.bhitpos.x -= ddx;
             state.gb.bhitpos.y -= ddy;

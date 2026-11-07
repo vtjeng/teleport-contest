@@ -901,7 +901,7 @@ export function m_bad_boulder_spot(x, y, rawEnv = {}) {
     if (sobj_at(BOULDER, x, y, state))
         return true;
     const lev = state.level.at(x, y);
-    if (IS_DOOR(lev.typ) && (lev.doormask & (D_CLOSED | D_LOCKED)) !== 0)
+    if (IS_DOOR(lev.typ) && (lev.flags & (D_CLOSED | D_LOCKED)) !== 0)
         return true;
     return false;
 }

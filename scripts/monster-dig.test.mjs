@@ -113,7 +113,7 @@ test('the matrix covers both of mdig_tunnel\'s reachable terrain arms',
                 const location = game.level.at(x, y);
                 if (IS_STWALL(location.typ)) continue;
                 if (location.typ === DOOR
-                    && (location.flags || location.doormask || 0) === D_NODOOR) {
+                    && (location.flags) === D_NODOOR) {
                     doorways++;
                 }
                 for (let obj = game.level.objects?.[x]?.[y];

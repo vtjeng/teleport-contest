@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 38415027,
+   "datetime": "20440316094500",
+   "nethackrc": "OPTIONS=name:Soulthief,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none,!autopickup\n",
+   "moves": " #levelchange\n14\n\u001b\u0017chaotic altar\n\u00174 mastodon corpses\n #offer\ny #offer\ny n #offer\ny n #offer\ny n\u0016?\n>y \u001b#wizgenesis\npeaceful Master of Thieves\ny#chat\nu  y \u001bs\u001bs\u001bs\u001bs\u001b#pray\ny n    :"
+  }
+ ],
+ "comment": "pray.c gcrownu(): a chaotic human Rogue in debug mode raises Luck to 10 with three mastodon sacrifices on a wished altar (declining each gift), goes to the quest home, creates a peaceful Master of Thieves beside the hero, takes the leader's debug-mode alignment adjustment to 20, waits four turns and prays. The crowning's chaotic arm makes Stormbringer, which falls at the hero's feet through do.c dropy()."
+}

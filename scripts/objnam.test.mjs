@@ -667,7 +667,7 @@ function lookState(typ, otmp, { blind = false } = {}) {
     state.flags.pile_limit = 5;
     state.stairs = null;
     state.level = {
-        at: () => ({ typ }),
+        at: () => ({ typ, flags: 0 }),
         objects: [[null, null], [null, otmp]],
         regions: [],
         traps: [],

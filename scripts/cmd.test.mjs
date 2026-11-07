@@ -802,7 +802,7 @@ async function prepareHeroMoveAdmission(extraRc = '') {
     const y = game.u.uy;
     const destination = game.level.at(x, y);
     destination.typ = ROOM;
-    destination.flags = destination.doormask = 0;
+    destination.flags = 0;
     game.level.monsters[x][y] = null;
     game.level.monlist = null;
     game.level.objects[x][y] = null;
@@ -1071,7 +1071,7 @@ test('a walk reports decorated pile terrain on menu and count paths',
             }],
             ['doorway count', true, (destination) => {
                 destination.typ = DOOR;
-                destination.flags = destination.doormask = D_NODOOR;
+                destination.flags = D_NODOOR;
             }],
         ]) {
             const { destination, replay, x, y } =
@@ -1453,11 +1453,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             reason,
             install: ({ destination }) => {
                 destination.typ = typ;
-                destination.flags = destination.doormask = mask;
+                destination.flags = mask;
             },
             remove: ({ destination }) => {
                 destination.typ = ROOM;
-                destination.flags = destination.doormask = 0;
+                destination.flags = 0;
             },
         })),
     ];
@@ -1481,7 +1481,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         const y = game.u.uy + (refusal.dy ?? 0);
         const destination = game.level.at(x, y);
         destination.typ = ROOM;
-        destination.flags = destination.doormask = 0;
+        destination.flags = 0;
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         game.level.objects[x][y] = null;
@@ -1926,7 +1926,7 @@ test('doorless destinations admit the diagonal test_move() allows',
         const [x, y] = [game.u.ux + 1, game.u.uy - 1];
         const destination = game.level.at(x, y);
         destination.typ = DOOR;
-        destination.flags = destination.doormask = mask;
+        destination.flags = mask;
         game.level.at(game.u.ux, game.u.uy).typ = ROOM;
 
         game.nhDisplay.pushKey(commandKeyCode('u'));
@@ -1955,10 +1955,10 @@ test('a doorless mask leaves both diagonal doorway rules unarmed',
             const start = [game.u.ux, game.u.uy];
             const heroSquare = game.level.at(start[0], start[1]);
             heroSquare.typ = DOOR;
-            heroSquare.flags = heroSquare.doormask = mask;
+            heroSquare.flags = mask;
             const destination = game.level.at(start[0] + 1, start[1] - 1);
             destination.typ = ROOM;
-            destination.flags = destination.doormask = 0;
+            destination.flags = 0;
             for (const column of game.level.monsters) column.fill(null);
             game.level.monlist = null;
             game.level.objects[start[0] + 1][start[1] - 1] = null;
@@ -1994,7 +1994,7 @@ test('unsupported movement retains its byte ahead of the next command',
         // An occupied fixed-teleport destination is refused before mutation;
         // this keeps the queued-byte assertion independent of terrain.
         east.typ = ROOM;
-        east.flags = east.doormask = 0;
+        east.flags = 0;
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         game.level.objects[start[0] + 1][start[1]] = null;
@@ -2061,7 +2061,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     // A seen fire trap is refused after the reqmenu prefix is parsed;
     // this pins retry ownership without treating ICE as blocked terrain.
     east.typ = ROOM;
-    east.flags = east.doormask = 0;
+    east.flags = 0;
     for (const column of game.level.monsters) column.fill(null);
     game.level.monlist = null;
     const floorObject = installFloorPile(x, y, 1);
@@ -2130,7 +2130,7 @@ test('retried fight movement retains its force-fight prefix', async () => {
     const y = start[1];
     const east = game.level.at(x, y);
     east.typ = ROOM;
-    east.flags = east.doormask = 0;
+    east.flags = 0;
     for (const column of game.level.monsters) column.fill(null);
     game.level.objects[x][y] = null;
     game.level.traps = [];
@@ -2228,7 +2228,7 @@ test('retried fight movement retains its committed walk intent', async () => {
     const y = start[1];
     const east = game.level.at(x, y);
     east.typ = ROOM;
-    east.flags = east.doormask = 0;
+    east.flags = 0;
     for (const column of game.level.monsters) column.fill(null);
     game.level.objects[x][y] = null;
     game.level.traps = [];
@@ -2368,7 +2368,7 @@ test('a furniture square with one object prints its dfeature line',
                 }],
             ['open doorway', 'There is an open door here.', (destination) => {
                 destination.typ = DOOR;
-                destination.flags = destination.doormask = D_ISOPEN;
+                destination.flags = D_ISOPEN;
             }],
         ]) {
             const { destination, x, y } = await prepareHeroMoveAdmission();
@@ -2465,7 +2465,7 @@ test('a blind hero feels the surface named under one object', async () => {
         ['open doorway', 'doorway', 'There is an open door here.',
             (destination) => {
                 destination.typ = DOOR;
-                destination.flags = destination.doormask = D_ISOPEN;
+                destination.flags = D_ISOPEN;
             }],
         ['room', 'floor', null, () => {}],
         ['corridor', 'ground', null, (destination) => {
@@ -2538,7 +2538,7 @@ test('a furniture square or doorway with mention_decor is source-admitted', asyn
     ]) {
         const { destination, x, y } = await prepareHeroMoveAdmission();
         destination.typ = terrain;
-        destination.flags = destination.doormask = mask;
+        destination.flags = mask;
         game.flags.mention_decor = true;
         // The selected movement boundary begins after startup has described
         // and remembered the traversed D:1 staircase.
@@ -2585,7 +2585,7 @@ test('a run onto a doorway or a furniture square ends on the square it reaches',
     ]) {
         const { destination, x, y } = await prepareHeroMoveAdmission();
         destination.typ = typ;
-        destination.flags = destination.doormask = doormask;
+        destination.flags = doormask;
         game.context.run = 1;
         game.multi = 12;
         // nomul() clears these two and sets disp.botl; the three field
@@ -4436,7 +4436,7 @@ test('first-turn fog upkeep commits before later monster work', async () => {
     const y = game.u.uy;
     const square = game.level.at(x, y);
     square.typ = ROOM;
-    square.flags = square.doormask = 0;
+    square.flags = 0;
     const fogCloud = {
         data: game.mons[PM_FOG_CLOUD],
         mnum: PM_FOG_CLOUD,
@@ -4689,7 +4689,7 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
     const start = [game.u.ux, game.u.uy];
     const destination = game.level.at(start[0] + 1, start[1]);
     destination.typ = ROOM;
-    destination.flags = destination.doormask = 0;
+    destination.flags = 0;
     // A new game starts the hero on the upstairs, and hack.c lookaround()
     // reads levl[u.ux][u.uy].typ; only a ROOM square stays inside the
     // running boundary this port admits.
@@ -4765,7 +4765,7 @@ async function prepareRunPastTheFirstStep() {
     const { x, y } = await prepareHeroMoveAdmission();
     const beyond = game.level.at(x + 1, y);
     beyond.typ = ROOM;
-    beyond.flags = beyond.doormask = 0;
+    beyond.flags = 0;
     game.level.monsters[x + 1][y] = null;
     game.level.objects[x + 1][y] = null;
     game.level.at(game.u.ux, game.u.uy).typ = ROOM;
@@ -4874,7 +4874,7 @@ test('all source direction families dispatch their exact movement intent', async
             const y = start[1] + dy;
             const square = game.level.at(x, y);
             square.typ = ROOM;
-            square.flags = square.doormask = 0;
+            square.flags = 0;
             game.level.monsters[x][y] = null;
             game.level.objects[x][y] = null;
 
@@ -4914,7 +4914,7 @@ test('a first-time altmeta number-pad run establishes the run sentinel',
     const start = [game.u.ux, game.u.uy];
     const west = game.level.at(start[0] - 1, start[1]);
     west.typ = ROOM;
-    west.flags = west.doormask = 0;
+    west.flags = 0;
     // Any nonzero sentinel proves first-time running resets last_str_turn to
     // zero. With number_pad+altmeta, ESC followed by 4 composes M-4, the
     // runwest binding.

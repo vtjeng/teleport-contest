@@ -3501,7 +3501,7 @@ test('heavy wish drops stay on an up staircase and a doorway', async () => {
         ['doorway', ({ state }) => {
             const square = state.level.at(10, 5);
             square.typ = DOOR;
-            square.flags = square.doormask = D_NODOOR;
+            square.flags = D_NODOOR;
         }],
     ]) {
         const fixture = ordinaryDropFixture();

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 83150426,
+   "datetime": "20490919161500",
+   "nethackrc": "OPTIONS=name:Ringer,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup\n",
+   "moves": " \u0017cursed leather gloves\n\u0017uncursed ring of adornment\nWo Ppl\u0001r:"
+  }
+ ],
+ "comment": "do_wear.c doputon(): a gnomish Wizard in debug mode wears wished cursed gloves and tries to put on a ring. The ring-finger question, asked through yn_function() with addcmdq TRUE, is answered 'l' before the cursed gloves stop the ring. #repeat then replays the command and the queued finger answer without asking again."
+}

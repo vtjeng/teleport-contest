@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 29573461,
+   "datetime": "20520128071500",
+   "nethackrc": "OPTIONS=name:MimicGazer,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup\n",
+   "moves": " \u0017blessed crystal ball\n#wizgenesis\nlarge mimic\nap ]    "
+  }
+ ],
+ "comment": "detect.c use_crystal_ball(): an elven Wizard in debug mode creates a large mimic, which hides as gold, and looks into a blessed crystal ball for ']'. C turns ']' into the mimic class symbol 'm' before the class lookups, so monster_detect() shows the mimic."
+}

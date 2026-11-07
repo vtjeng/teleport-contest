@@ -300,7 +300,6 @@ test('fix_shop_damage silently restores and discards eligible terrain damage', a
     const location = state.level.at(4, 5);
     location.typ = DOOR;
     location.flags = D_BROKEN;
-    location.doormask = D_BROKEN;
     const damage = {
         when: 0, // Exactly REPAIR_DELAY turns have elapsed.
         place: { x: 4, y: 5 },
@@ -315,7 +314,6 @@ test('fix_shop_damage silently restores and discards eligible terrain damage', a
 
     assert.equal(location.typ, DOOR);
     assert.equal(location.flags, D_CLOSED);
-    assert.equal(location.doormask, D_CLOSED);
     assert.equal(state.level.damagelist, null);
     assert.equal(damage.next, null);
 });

@@ -229,7 +229,7 @@ test('travel and trap probes apply testdiag to a closed diagonal doorway', async
     const { ux, uy } = game.u;
     const diagonal = game.level.at(ux - 1, uy - 1);
     diagonal.typ = DOOR;
-    diagonal.flags = diagonal.doormask = D_CLOSED;
+    diagonal.flags = D_CLOSED;
     game.context.run = 8;
 
     for (const mode of [TEST_TRAV, TEST_TRAP]) {
@@ -520,7 +520,7 @@ test('walking autoopen reaches trapped-door effects and queued kick', async () =
     const base = loadLockedDoorRecipe().segments[0];
     await runSegment({ ...base, moves: '' });
     const door = game.level.at(game.u.ux, game.u.uy - 1);
-    door.flags = door.doormask = D_CLOSED | D_TRAPPED;
+    door.flags = D_CLOSED | D_TRAPPED;
     const hp = game.u.uhp;
     const messages = [];
     await test_move(game.u.ux, game.u.uy, 0, -1, DO_MOVE, game, {
@@ -530,7 +530,6 @@ test('walking autoopen reaches trapped-door effects and queued kick', async () =
         random: { rnl: () => 0, rnd: () => 2, rn2: () => 1 },
     });
     assert.equal(door.flags, D_NODOOR);
-    assert.equal(door.doormask, D_NODOOR);
     assert.equal(game.u.uhp, hp - 2);
     assert.equal(game.u.uprops[STUNNED].intrinsic, 2);
     assert.ok(messages.some(text => text.includes('KABOOM!!')));
@@ -707,7 +706,7 @@ test('a trapped locked door is named, not refused', async () => {
     const replay = await runSegment({ ...base, moves: '' });
     const door = game.level.at(game.u.ux, game.u.uy - 1);
     assert.equal(door.flags, D_LOCKED);
-    door.flags = door.doormask = D_LOCKED | D_TRAPPED;
+    door.flags = D_LOCKED | D_TRAPPED;
     // replay.getRngLog(), not game.rng: nothing assigns game.rng, so a
     // comparison against it is a constant 0 on both sides.
     const drawsBefore = replay.getRngLog().length;
@@ -883,7 +882,7 @@ test('a suppressed pull skips doopen_indir effects and prompts', async () => {
         // lock.c:907's b_trapped() tail sits inside the roll, and the roll
         // never happens here, so the trap bit cannot fire.
         ['trapped closed door', (state, door) => {
-            door.flags = door.doormask = D_CLOSED | D_TRAPPED;
+            door.flags = D_CLOSED | D_TRAPPED;
         }],
         // lock.c:876-893's autounlock tail hangs off the message switch,
         // which only the pull reaches. These two set D_LOCKED as well: the
@@ -891,14 +890,14 @@ test('a suppressed pull skips doopen_indir effects and prompts', async () => {
         // this fixture would need another input if the early return did not
         // suppress the call.
         ['skeleton key', (state, door) => {
-            door.flags = door.doormask = D_LOCKED;
+            door.flags = D_LOCKED;
             state.invent = {
                 otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
                 nobj: state.invent,
             };
         }],
         ['autounlock setting', (state, door) => {
-            door.flags = door.doormask = D_LOCKED;
+            door.flags = D_LOCKED;
             state.flags.autounlock = AUTOUNLOCK_KICK;
         }],
     ];

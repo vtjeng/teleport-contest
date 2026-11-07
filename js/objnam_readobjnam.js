@@ -730,31 +730,31 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
                 d.doorless = 1;
                 d.locked = d.closed = d.open = d.broken = 0;
             }
-            lev.doormask = d.locked ? D_LOCKED
+            lev.flags = d.locked ? D_LOCKED
                 : (d.doorless || secret) ? D_NODOOR
                     : d.open ? D_ISOPEN
                         : d.broken ? D_BROKEN : D_CLOSED;
-            if (secret) lev.doormask |= oldWallInfo & WM_MASK;
+            if (secret) lev.flags |= oldWallInfo & WM_MASK;
             if (d.trapped === 2
-                || ((lev.doormask & (D_LOCKED | D_CLOSED)) === 0
+                || ((lev.flags & (D_LOCKED | D_CLOSED)) === 0
                     && !secret)) {
                 d.trapped = 0;
             }
-            if (d.trapped) lev.doormask |= D_TRAPPED;
-            // C rm.h aliases doormask and wall_info to flags. Keep the
-            // shared value current before redraw and vision read flags.
-            lev.flags = lev.wall_info = lev.doormask;
+            if (d.trapped) lev.flags |= D_TRAPPED;
+            // rm.h's doormask is `flags`; wall_info is too, but the port
+            // keeps it as a separate field, so copy the value there.
+            lev.wall_info = lev.flags;
 
             let doorDescription = '';
-            if (lev.doormask & D_TRAPPED) doorDescription += 'trapped ';
-            if (lev.doormask & D_LOCKED) doorDescription += 'locked ';
+            if (lev.flags & D_TRAPPED) doorDescription += 'trapped ';
+            if (lev.flags & D_LOCKED) doorDescription += 'locked ';
             if (lev.typ === SDOOR) {
                 doorDescription += 'secret door';
             } else {
-                if (lev.doormask & D_CLOSED) doorDescription += 'closed ';
-                if (lev.doormask & D_ISOPEN) doorDescription += 'open ';
-                if (lev.doormask & D_BROKEN) doorDescription += 'broken ';
-                if ((lev.doormask & ~D_TRAPPED) === D_NODOOR)
+                if (lev.flags & D_CLOSED) doorDescription += 'closed ';
+                if (lev.flags & D_ISOPEN) doorDescription += 'open ';
+                if (lev.flags & D_BROKEN) doorDescription += 'broken ';
+                if ((lev.flags & ~D_TRAPPED) === D_NODOOR)
                     doorDescription += 'doorless doorway';
                 else
                     doorDescription += 'door';
