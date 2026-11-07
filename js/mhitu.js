@@ -868,7 +868,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
 
     const seewho = canseemon(mon, state);
     if (!seewho) await pline('Someone caresses you...');
-    else await pline(`You feel very attracted to ${mon_nam(mon, state, namingEnv)}.`);
+    else await pline(youFeel(`very attracted to ${mon_nam(mon, state, namingEnv)}.`, state));
     const who = seewho
         ? Monnam(mon, state, namingEnv)
         : femaleDemon ? 'She' : 'He';
@@ -1082,7 +1082,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         );
         switch (random.rn2(5)) {
         case 0:
-            await pline('You feel drained of energy.');
+            await pline(youFeel('drained of energy.', state));
             state.u.uen = 0;
             state.u.uenmax -= random.rnd(Half_physical_damage(state.u) ? 5 : 10);
             await exercise(A_CON, false, state, random, {
@@ -1111,7 +1111,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             break;
         case 3:
             if (!resists_drli(state.youmonst, state)) {
-                await pline('You feel out of shape.');
+                await pline(youFeel('out of shape.', state));
                 await losexp('overexertion', state, effectEnv);
             } else {
                 await pline('You have a curious feeling...');
@@ -1124,7 +1124,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             }
             break;
         case 4: {
-            await pline('You feel exhausted.');
+            await pline(youFeel('exhausted.', state));
             await exercise(A_STR, false, state, random, {
                 encumberMessage: (currentState) =>
                     encumber_msg(currentState, { message }),
@@ -1145,7 +1145,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         );
         switch (random.rn2(5)) {
         case 0:
-            await pline('You feel raised to your full potential.');
+            await pline(youFeel('raised to your full potential.', state));
             await exercise(A_CON, true, state, random, {
                 encumberMessage: (currentState) =>
                     encumber_msg(currentState, { message }),
@@ -1156,7 +1156,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 state.u.uenpeak = state.u.uenmax;
             break;
         case 1:
-            await pline('You feel good enough to do it again.');
+            await pline(youFeel('good enough to do it again.', state));
             await adjattrib(A_CON, 1, true, state, effectEnv);
             await exercise(A_CON, true, state, random, {
                 encumberMessage: (currentState) =>
@@ -1184,7 +1184,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             });
             break;
         case 4:
-            await pline('You feel restored to health!');
+            await pline(youFeel('restored to health!', state));
             state.u.uhp = state.u.uhpmax;
             if (Upolyd(state.u)) state.u.mh = state.u.mhmax;
             await exercise(A_STR, true, state, random, {
@@ -2204,7 +2204,7 @@ export async function diseasemu(mdat, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
 
     if (heroSickResistance(state)) {
-        await message('You feel a slight illness.', state, rawEnv);
+        await message(youFeel('a slight illness.', state), state, rawEnv);
         return false;
     }
 
@@ -2501,7 +2501,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (!mtmp.mcan && random.rn2(2)) {
             if (coldResistant) {
                 await shieldeff(u.ux, u.uy, state);
-                await message('You feel mildly chilly.', state, rawEnv);
+                await message(youFeel('mildly chilly.', state), state, rawEnv);
                 monstseesu(M_SEEN_COLD, state);
                 await ugolemeffects(M.AD_COLD, tmp, state, rawEnv);
                 tmp = 0;
@@ -2533,7 +2533,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (!mtmp.mcan && random.rn2(2)) {
             if (fireResistant) {
                 await shieldeff(u.ux, u.uy, state);
-                await message('You feel mildly hot.', state, rawEnv);
+                await message(youFeel('mildly hot.', state), state, rawEnv);
                 monstseesu(M_SEEN_FIRE, state);
                 await ugolemeffects(M.AD_FIRE, tmp, state, rawEnv);
                 tmp = 0;

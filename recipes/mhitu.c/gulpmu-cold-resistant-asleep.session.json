@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c gulpmu() AD_COLD on a cold-resistant hero who is asleep: You_feel() prints \"You dream that you feel mildly chilly.\" while Unaware (pline.c You_feel()). A Valkyrie supplies cold resistance; a wished potion of sleeping supplies the sleep.",
+  "segments": [
+    {
+      "seed": 41870233,
+      "datetime": "20930614093000",
+      "nethackrc": "OPTIONS=name:Drowsy,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed potion of sleeping\n#wizgenesis\nhostile ice vortex\nqe       "
+    }
+  ]
+}
