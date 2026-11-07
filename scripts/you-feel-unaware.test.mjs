@@ -11,7 +11,9 @@ import test from 'node:test';
 
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 
-import { FIRE_RES, FROMOUTSIDE, G_GENOD, OBJ_FLOOR } from '../js/const.js';
+import {
+    ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, OBJ_FLOOR,
+} from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
 import { hurtle } from '../js/dothrow.js';
@@ -24,6 +26,7 @@ import { mon_poly } from '../js/mhitm.js';
 import { PM_HORNED_DEVIL, PM_STONE_GOLEM, PM_WEREWOLF } from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
 import { attrcurse } from '../js/sit.js';
+import { level_tele_trap } from '../js/teleport.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { intervene } from '../js/wizard.js';
 
@@ -186,4 +189,18 @@ test('dothrow.c hurtle() dreams the ball\'s tug on a sleeping hero', async () =>
     await hurtle(1, 0, 2, false, state);
     assert.equal(state.nhDisplay.topMessage,
         'You dream that you feel a tug from the iron ball.');
+});
+
+test('teleport.c level_tele_trap() dreams the wrench of a blocked trap', async () => {
+    // A sleeping hero reaches a trap when moved: teleds() and expels()
+    // call spoteffects(), which calls dotrap(). With Antimagic an
+    // unintended level teleporter stops at teleport.c:1554's You_feel().
+    const state = await sleepingGame();
+    state.u.uprops[ANTIMAGIC].intrinsic = 1;
+    const trap = { ttyp: LEVEL_TELEP, tseen: true, tx: state.u.ux, ty: state.u.uy };
+    const lines = [];
+    await level_tele_trap(trap, 0, state, {
+        message: async (line) => { lines.push(line); },
+    });
+    assert.equal(lines.at(-1), 'You dream that you feel a wrenching sensation.');
 });

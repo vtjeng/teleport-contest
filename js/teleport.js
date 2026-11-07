@@ -227,7 +227,7 @@ import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded, make_confused, make_stunned } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
-import { verbalize } from './pline.js';
+import { verbalize, youFeel } from './pline.js';
 import { y_n, ynq } from './cmd.js';
 import { inhistemple } from './priest.js';
 import { set_voice, yelp } from './sounds.js';
@@ -1543,7 +1543,7 @@ export async function scrolltele(scroll, state = game, rawEnv = {}) {
 
     if ((state.u?.uhave?.amulet || On_W_tower_level(state.u.uz, state))
         && !random.rn2(3)) {
-        await message("You feel disoriented for a moment.", state);
+        await message(youFeel('disoriented for a moment.', state), state);
         if (!state.wizard)
             return;
         const askYesNo = teleportInput(env, 'y_n', y_n);
@@ -2041,7 +2041,7 @@ export async function domagicportal(trap, state = game) {
 
     await ttyPline('You activated a magic portal!', state);
     if (inEndgame(state) && !u.uhave?.amulet) {
-        await ttyPline('You feel dizzy for a moment, but nothing happens...', state);
+        await ttyPline(youFeel('dizzy for a moment, but nothing happens...', state), state);
         return;
     }
 
@@ -2075,7 +2075,7 @@ export async function tele_trap(trap, state = game) {
             if (Antimagic_prop(state)) {
                 await shieldeff(state.u.ux, state.u.uy, state);
             }
-            await ttyPline('You feel a wrenching sensation.', state);
+            await ttyPline(youFeel('a wrenching sensation.', state), state);
         } else if (!(await next_to_u(state))) {
             await ttyPline('You shudder for a moment.', state);
         } else if (trap.once) {
@@ -2133,7 +2133,7 @@ export async function level_tele_trap(
     if (antimagic && !intentional)
         await shieldeff(state.u.ux, state.u.uy, state);
     if ((antimagic && !intentional) || inEndgame(state)) {
-        await message('You feel a wrenching sensation.', state, env);
+        await message(youFeel('a wrenching sensation.', state), state, env);
         return;
     }
 
@@ -2155,7 +2155,7 @@ export async function level_tele_trap(
         );
     } else {
         await message(
-            `You feel ${Confusion(state) ? 'even more ' : ''}disoriented.`,
+            youFeel(`${Confusion(state) ? 'even more ' : ''}disoriented.`, state),
             state,
             env,
         );
@@ -2351,7 +2351,7 @@ export async function level_tele(state = game) {
     // teleport input is considered.
     if ((u.uhave?.amulet || levelInEndgame(u.uz, state)
         || levelInSokoban(u.uz, state)) && !state.wizard) {
-        await ttyPline('You feel very disoriented for a moment.', state);
+        await ttyPline(youFeel('very disoriented for a moment.', state), state);
         return;
     }
 
@@ -2534,7 +2534,7 @@ export async function level_tele(state = game) {
             killer.format = NO_KILLER_PREFIX;
             killer.name = 'went to heaven prematurely';
         } else if (newlev === -9) {
-            await ttyPline('You feel deliriously happy.', state);
+            await ttyPline(youFeel('deliriously happy.', state), state);
             await ttyPline('(In fact, you\'re on Cloud 9!)', state);
             note_unported('window.c display_nhwindow');
         } else {
