@@ -181,7 +181,7 @@ import {
     iter_mons_safe, mon_offmap, mondied, monstone, pm_to_cham, rescham,
 } from './mon.js';
 import {
-    humanoid, is_elf, is_orc, acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, mindless, monsndx, noncorporeal, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
+    humanoid, is_dwarf, is_elf, is_orc, acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, mindless, monsndx, noncorporeal, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
 import {
     AD_ACID, AD_BLND, AD_DISE, AD_POLY, AT_BREA, AT_ENGL, PM_KNIGHT,
     PM_PYROLISK, PM_QUEEN_BEE, PM_STONE_GOLEM, } from './monsters.js';
@@ -1621,20 +1621,22 @@ export function eaten_stat(base, obj, env = {}) {
 // worth, which two races read differently for the two foods they were made
 // for. Only start_eating() and bite() call it, and only with nmod negative.
 //
-// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) uses the current
-// form only when the completed food meal reaches this nutrition adjustment.
+// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) reads the
+// current form while polymorphed and the race otherwise, at every bite.
 export function adj_victual_nutrition(state) {
     const otyp = victual(state).piece.otyp;
     let nut = -victual(state).nmod; /* convert 'nmod' to positive */
     if (nut <= 0)
         throw new Error('adj_victual_nutrition requires a negative nmod');
+    const maybePolyd = (predicate, race) => Upolyd(state.u)
+        ? predicate(state.youmonst.data) : state.urace.mnum === race;
     if (otyp === LEMBAS_WAFER) {
-        if (state.urace.mnum === PM_ELF)
+        if (maybePolyd(is_elf, PM_ELF))
             nut += Math.trunc((nut + 2) / 4); /* 800 -> 1000 */
-        else if (state.urace.mnum === PM_ORC)
+        else if (maybePolyd(is_orc, PM_ORC))
             nut -= Math.trunc((nut + 2) / 4); /* 800 -> 600 */
     } else if (otyp === CRAM_RATION) {
-        if (state.urace.mnum === PM_DWARF)
+        if (maybePolyd(is_dwarf, PM_DWARF))
             nut += Math.trunc((nut + 3) / 6); /* 600 -> 700 */
     }
     return Math.max(nut, 1);
