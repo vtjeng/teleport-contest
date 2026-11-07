@@ -1047,18 +1047,20 @@ export async function attrcurse(state = game, rawEnv = {}) {
         ?? (await import('./tty_message.js')).ttyPline;
     const u = state.u;
     const start = random.rnd(11);
+    // The text after You_feel() for each arm; TELEPAT and SEE_INVIS print
+    // their own lines below.
     const effects = [
-        [FIRE_RES, 'You feel warmer.'],
-        [TELEPORT, 'You feel less jumpy.'],
-        [POISON_RES, 'You feel a little sick!'],
-        [TELEPAT, 'Your senses fail!'],
-        [COLD_RES, 'You feel cooler.'],
-        [INVIS, 'You feel paranoid.'],
+        [FIRE_RES, 'warmer.'],
+        [TELEPORT, 'less jumpy.'],
+        [POISON_RES, 'a little sick!'],
+        [TELEPAT, null],
+        [COLD_RES, 'cooler.'],
+        [INVIS, 'paranoid.'],
         [SEE_INVIS, null],
-        [FAST, 'You feel slower.'],
-        [STEALTH, 'You feel clumsy.'],
-        [PROTECTION, 'You feel vulnerable.'],
-        [AGGRAVATE_MONSTER, 'You feel less attractive.'],
+        [FAST, 'slower.'],
+        [STEALTH, 'clumsy.'],
+        [PROTECTION, 'vulnerable.'],
+        [AGGRAVATE_MONSTER, 'less attractive.'],
     ];
 
     for (let index = start - 1; index < effects.length; ++index) {
@@ -1102,7 +1104,7 @@ export async function attrcurse(state = game, rawEnv = {}) {
             await message(`You ${Hallucination(state)
                 ? 'tawt you taw a puttie tat' : 'thought you saw something'}!`, state);
         } else {
-            await message(feedback, state);
+            await message(youFeel(feedback, state), state);
         }
         return propertyId;
     }

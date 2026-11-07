@@ -9,9 +9,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { FIRE_RES, FROMOUTSIDE } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
+import { attrcurse } from '../js/sit.js';
 import { intervene } from '../js/wizard.js';
 
 // Marks `state` as C's fall_asleep() leaves it: multi negative and usleep
@@ -84,4 +86,18 @@ test('dig.c draft_message(FALSE) dreams a draft from a digging monster', async (
         message: async (line) => { lines.push(line); },
     });
     assert.deepEqual(lines, ['You dream that you feel a draft.']);
+});
+
+test('sit.c attrcurse() dreams a sleeping hero\'s lost intrinsic', async () => {
+    // uhitm.c:3057 (a gremlin's AD_CURS hit at night) calls attrcurse() on
+    // a hero who may be asleep; rnd(11) == 1 takes sit.c:652's fire arm.
+    const state = asleep({
+        u: { uprops: { [FIRE_RES]: { intrinsic: FROMOUTSIDE, extrinsic: 0 } } },
+    });
+    const lines = [];
+    await attrcurse(state, {
+        random: { rnd: () => 1 },
+        message: async (line) => { lines.push(line); },
+    });
+    assert.deepEqual(lines, ['You dream that you feel warmer.']);
 });
