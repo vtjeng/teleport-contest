@@ -398,7 +398,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_WATER, true, false, objectEnv);
-            bless(potion);
+            bless(potion, { state });
             note_unported('potion.c peffects');
             obfree(potion, null, { state });
             ++remedies;
@@ -408,7 +408,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
-            bless(potion);
+            bless(potion, { state });
             note_unported('potion.c peffects');
             obfree(potion, null, { state });
             ++remedies;
@@ -1357,10 +1357,10 @@ async function really_done(how, state) {
         );
 
         corpse = mk_named_object(
-            CORPSE, mnum, state.u.ux, state.u.uy, state.plname,
+            CORPSE, mnum, state.u.ux, state.u.uy, state.plname, { state },
         );
         const graveText = `${state.plname}, ${formatkiller(how, true, state)}`;
-        make_grave(state.u.ux, state.u.uy, graveText);
+        make_grave(state.u.ux, state.u.uy, graveText, { state });
         const loc = state.level.at(state.u.ux, state.u.uy);
         if (loc && IS_GRAVE(loc.typ) && !wasAlreadyGrave) {
             loc.flags = 1; // emptygrave: corpse is on the surface, not buried

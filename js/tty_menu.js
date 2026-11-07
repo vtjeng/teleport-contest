@@ -268,8 +268,8 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
         return;
     }
     await docrt({
-        suspendVision: () => vision_recalc(2),
-        restoreVision: () => vision_recalc(0),
+        suspendVision: () => vision_recalc(2, { state }),
+        restoreVision: () => vision_recalc(0, { state }),
     });
     // _buildScreenOutput() reconstructs its canonical grid at every JS
     // flush, keeping the physical status cells while bot() is disabled. C's

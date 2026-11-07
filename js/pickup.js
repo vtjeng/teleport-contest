@@ -1837,7 +1837,7 @@ async function able_to_loot(x, y, looting, state) {
         || is_lava(x, y, state)) {
         await ttyPline(
             `You cannot ${verb} things that are deep in the `
-            + `${hliquid(is_lava(x, y, state) ? 'lava' : 'water')}.`,
+            + `${hliquid(is_lava(x, y, state) ? 'lava' : 'water', { state })}.`,
             state,
         );
         return false;
@@ -4261,8 +4261,8 @@ async function tipcontainer(box, state) {
             `You owe ${loss} ${currency(loss, state)} for lost merchandise.`,
             state,
         );
-    box.owt = weight(box);
-    if (targetbox) targetbox.owt = weight(targetbox);
+    box.owt = weight(box, { state });
+    if (targetbox) targetbox.owt = weight(targetbox, { state });
     if (srcheld || dstheld) await encumber_msg(state);
     if (srcheld || dstheld) update_inventory({ state });
 }

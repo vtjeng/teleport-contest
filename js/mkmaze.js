@@ -1281,7 +1281,7 @@ export async function stolen_booty(state = game) {
     let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
                           monsterEnv);
     if (monster) {
-        monster = christen_monst(monster, upstart(gang));
+        monster = christen_monst(monster, upstart(gang), { state });
         monster.mpeaceful = false;
         set_malign(monster, state);
         shiny_orc_stuff(monster, state);

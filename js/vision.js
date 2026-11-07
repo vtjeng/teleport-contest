@@ -743,7 +743,7 @@ export function do_clear_area(
         return;
     }
 
-    if (state === game && game.vision_full_recalc) vision_recalc(0);
+    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
     const minY = Math.max(0, srow - range);
     const maxY = Math.min(ROWNO - 1, srow + range);
     for (let y = minY; y <= maxY; ++y) {
@@ -793,7 +793,7 @@ export async function do_clear_area_async(
         return;
     }
 
-    if (state === game && game.vision_full_recalc) vision_recalc(0);
+    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
     // vision.c only bypasses couldsee() for a centered detection callback on
     // the air or water plane. Other async area effects keep normal visibility.
     const overrideVision = Boolean(rawEnv.detecting

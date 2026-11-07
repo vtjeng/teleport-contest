@@ -289,13 +289,13 @@ function corr(x, y, state = game) {
 function makerogueghost(state = game) {
     if (!state.level.nroom) return;
     const croom = state.level.rooms[rn2(state.level.nroom)];
-    const x = somex(croom);
-    const y = somey(croom);
+    const x = somex(croom, { state });
+    const y = somey(croom, { state });
     const env = objectGenerationEnv({ state });
     const ghost = makemon(state.mons[PM_GHOST], x, y, NO_MM_FLAGS, env);
     if (!ghost) return;
     ghost.msleeping = true;
-    christen_monst(ghost, roguename(state));
+    christen_monst(ghost, roguename(state), { state });
 
     let ghostobj;
     if (rn2(4)) {

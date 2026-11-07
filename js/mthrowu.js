@@ -1383,7 +1383,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                         await env.message(
                             `${Tobjnam(otmp, 'return', state)} back to `
                             + `${mon_nam(magr, state)}, landing at `
-                            + `${mhis(magr)} ${makeplural(mbodypart(magr, FOOT))}.`,
+                            + `${mhis(magr, { state })} ${makeplural(mbodypart(magr, FOOT))}.`,
                             state,
                         );
                     }
@@ -1401,7 +1401,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                         await env.message(
                             `${Tobjnam(otmp, 'fly', state)} back toward `
                             + `${mon_nam(magr, state)}, hitting `
-                            + `${mhis(magr)} ${body_part(ARM, state.youmonst)}!`,
+                            + `${mhis(magr, { state })} ${body_part(ARM, state.youmonst)}!`,
                             state,
                         );
                 } else if (!Deaf(state)) {

@@ -3657,7 +3657,7 @@ export async function bhitm(monster, wand, state = game,
         }
     } else if (otyp === SPE_DRAIN_LIFE) {
         if (disguised_mimic) seemimic(monster, state);
-        let damage = monhp_per_lvl(monster);
+        let damage = monhp_per_lvl(monster, { state });
         if (state.urole?.mnum === PM_KNIGHT
             && state.u?.uhave?.questart)
             damage *= 2;

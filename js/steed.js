@@ -1147,7 +1147,7 @@ async function maybewakesteed(steed, state = game) {
     if (wasimmobile && !helpless(steed))
         await ttyPline(`${Monnam(steed, state)} wakes up.`, state);
     /* regardless of waking, terminate any meal in progress */
-    finish_meating(steed);
+    finish_meating(steed, { state });
 }
 
 // C ref: steed.c stucksteed() (876-895). Answers whether the hero's steed can

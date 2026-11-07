@@ -650,7 +650,7 @@ function createMonsterBody(m, croom, env) {
     m.y = y;
     /* handle specific attributes for some special monsters */
     if (m.name != null)
-        christen_monst(mtmp, m.name);
+        christen_monst(mtmp, m.name, { state });
 
     /*
      * This doesn't complain if an attempt is made to give a

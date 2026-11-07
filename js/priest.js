@@ -1038,7 +1038,7 @@ export async function priest_talk(priest, state = game, env = {}) {
 
         if (helpless(priest)) {
             await message(
-                `${Monnam(priest, state)} breaks out of ${mhis(priest)} reverie!`,
+                `${Monnam(priest, state)} breaks out of ${mhis(priest, { state })} reverie!`,
                 state,
             );
             priest.mfrozen = 0;

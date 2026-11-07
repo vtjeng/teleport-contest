@@ -2279,7 +2279,7 @@ export async function artifact_hit(
         if (!youdefend) {
             const m_lev = mdef.m_lev | 0; /* will be 0 for 1d4 mon */
             const mhpmax = mdef.mhpmax;
-            let drain = monhp_per_lvl(mdef); /* usually 1d8 */
+            let drain = monhp_per_lvl(mdef, { state }); /* usually 1d8 */
             /* note: DRLI attack uses 2d6, attacker doesn't get healed */
 
             /* stop draining HP if it drops too low (still drains level;

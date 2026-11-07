@@ -1509,7 +1509,7 @@ export async function drown(state = game) {
             unplacebc(state);
             await placebc(state);
         }
-        vision_recalc(2);
+        vision_recalc(2, { state });
         await set_uinwater(true, state);
         await under_water(1, state);
         state.vision_full_recalc = 1;

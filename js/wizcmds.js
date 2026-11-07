@@ -674,8 +674,8 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
     // The JS redraw exposes that bracket to callers. It must run again here
     // after the menu's repair so visible hallucinated objects are remapped.
     await docrt({
-        suspendVision: () => vision_recalc(2),
-        restoreVision: () => vision_recalc(0),
+        suspendVision: () => vision_recalc(2, { state }),
+        restoreVision: () => vision_recalc(0, { state }),
     });
     return ECMD_OK;
 }

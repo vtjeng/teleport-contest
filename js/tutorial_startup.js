@@ -91,7 +91,7 @@ export async function maybe_do_tutorial(state = game) {
         schedule_goto(sp.dlevel, UTOTYPE_NONE, 'Entering the tutorial.',
             null, state);
         await deferred_goto(state);
-        vision_recalc(0);
+        vision_recalc(0, { state });
         await docrt();
         state.iflags.nofollowers = false;
     }

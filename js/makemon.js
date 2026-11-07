@@ -427,7 +427,7 @@ export async function grow_up(mtmp, victim, env = {}) {
         if (!env.planning) newsym(mtmp.mx, mtmp.my);
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
         mtmp.female = Boolean(fem);
-        if (mtmp.mleashed) update_inventory();
+        if (mtmp.mleashed) update_inventory({ state });
     }
 
     /* sanity checks */
