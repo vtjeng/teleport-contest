@@ -567,7 +567,7 @@ function drawbridgeTestCell(state, x, y) {
     const engraving = engr_at(x, y, state);
     return { x, y, typ: cell?.typ ?? null, flags: cell?.flags ?? null,
         horizontal: cell?.horizontal ?? null,
-        wallInfo: cell?.wall_info ?? null,
+        wallInfo: cell?.flags ?? null,
         actor: actor ? { id: actor.m_id ?? null, species: actor.data?.pmidx ?? null,
             hp: actor.mhp ?? null } : null,
         floorObjects: drawbridgePile(state.level.objects[x]?.[y]),
@@ -1257,7 +1257,7 @@ function firstWall() {
         for (let y = 0; y < ROWNO; ++y) {
             const location = game.level.at(x, y);
             if (IS_WALL(location?.typ)
-                && !((location.wall_info ?? 0) & W_NONDIGGABLE)) {
+                && !((location.flags ?? 0) & W_NONDIGGABLE)) {
                 return { x, y };
             }
         }
@@ -1435,10 +1435,10 @@ test("dig_check follows C's ordered terrain, trap, and actor tests", () => {
     state.u.uz = { dnum: 0, dlevel: 1 };
 
     location.typ = VWALL;
-    location.wall_info = W_NONDIGGABLE;
+    location.flags = W_NONDIGGABLE;
     assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_TOOHARD);
     location.typ = ROOM;
-    location.wall_info = 0;
+    location.flags = 0;
     state.level.traps.push({ tx: X, ty: Y, ttyp: MAGIC_PORTAL });
     assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_UNDESTROYABLETRAP);
     state.level.traps.length = 0;

@@ -26,7 +26,7 @@ export async function verifyRogLocaSegment(segment) {
     assert.equal(game.level.nroom,0); // Solidfill/map and lighting selection create no rooms.
     let protectedCells=0;
     for(let x=1;x<80;++x) for(let y=0;y<21;++y) // Whole playable grid.
-        if(game.level.at(x,y).wall_info&W_NONDIGGABLE) ++protectedCells;
+        if(game.level.at(x,y).flags&W_NONDIGGABLE) ++protectedCells;
     assert.ok(protectedCells>0); // Lua42 protects map walls, preserved across flips.
     const stairs=linkedItems(game.stairs,'next');
     assert.equal(stairs.filter(s=>!s.up).length,1); // Lua40 always creates a down stair.

@@ -32,7 +32,6 @@ test('monster wand strikes give resist the active kill RNG and environment',
         const loc = game.level.at(x, y);
         loc.typ = ROOM;
         loc.flags = 0;
-        loc.wall_info = 0;
         game.viz_array[y][x] |= COULD_SEE | IN_SIGHT;
     }
 
@@ -140,7 +139,6 @@ test('a told resistance prints "resists!" through the caller message operation',
     const loc = game.level.at(x, y);
     loc.typ = ROOM;
     loc.flags = 0;
-    loc.wall_info = 0;
     game.viz_array[y][x] |= COULD_SEE | IN_SIGHT;
     const target = newMonster({
         cham: NON_PM,

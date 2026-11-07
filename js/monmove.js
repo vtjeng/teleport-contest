@@ -1466,7 +1466,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 if (IS_WATERWALL(nextType) && !is_swimmer(species)) continue;
                 if (nextType === IRONBARS
                     && (!(flags & ALLOW_BARS)
-                        || (((location.wall_info ?? 0) & W_NONDIGGABLE)
+                        || (((location.flags ?? 0) & W_NONDIGGABLE)
                             && (dmgtype(species, AD_RUST)
                                 || dmgtype(species, AD_CORR))))) {
                     continue;
@@ -3516,7 +3516,7 @@ export async function postmov(
             }
         } else if (here?.typ === IRONBARS) {
             // C ref: monmove.c:1624-1641, iron bars handling.
-            if (!(state.level.at(monster.mx, monster.my).wall_info & W_NONDIGGABLE)
+            if (!(state.level.at(monster.mx, monster.my).flags & W_NONDIGGABLE)
                 && (dmgtype(species, AD_RUST) || dmgtype(species, AD_CORR)
                     || metallivorous(species))) {
                 if (canseemon(monster, state)) {

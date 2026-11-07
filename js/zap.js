@@ -5549,7 +5549,7 @@ export async function zap_over_floor(
     case ZT_ACID:
         if (lev.typ === IRONBARS) {
             if (damgtype === ZT_LIGHTNING && random.rn2(10)) break;
-            if ((lev.wall_info ?? 0) & W_NONDIGGABLE) {
+            if ((lev.flags ?? 0) & W_NONDIGGABLE) {
                 if (seeIt)
                     await norepMessage(
                         `The iron bars ${damgtype === ZT_ACID ? 'corrode' : 'melt'} somewhat but remain intact.`,

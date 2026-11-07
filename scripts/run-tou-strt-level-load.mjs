@@ -39,7 +39,7 @@ export async function verifyTouStrtLevel(segment) {
         && obj.ox === leader.mx && obj.oy === leader.my)); // Lua103 shares the leader's square after flips.
     let protectedWall = false;
     for (let x = 1; x < COLNO; ++x) for (let y = 0; y < ROWNO; ++y)
-        protectedWall ||= Boolean(game.level.at(x, y).wall_info & W_NONDIGGABLE);
+        protectedWall ||= Boolean(game.level.at(x, y).flags & W_NONDIGGABLE);
     assert.ok(protectedWall); // Lua53 protects the entire source map.
 }
 export function runTouStrtLevelLoadMatrix() {

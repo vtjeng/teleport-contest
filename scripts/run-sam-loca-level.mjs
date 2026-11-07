@@ -34,7 +34,7 @@ export async function verifySamLocaSegment(segment) {
             if (cell.flags === D_LOCKED) ++locked;
             if (cell.flags === D_CLOSED) ++closed;
         }
-        protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
+        protectedCell ||= Boolean(cell.flags & W_NONDIGGABLE);
     }
     assert.equal(locked, 16); // Lua35–50 includes two source secret doors.
     assert.equal(closed, 8); // Lua51–58.

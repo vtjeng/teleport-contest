@@ -9,23 +9,23 @@ import {
     dbterrainmesg, set_wallprop_from_str, wizterrainwish,
 } from '../js/objnam_readobjnam.js';
 
-test('set_wallprop_from_str ORs source spellings into wall_info', () => {
-    const location = { wall_info: 0x40 };
+test('set_wallprop_from_str ORs source spellings into wall_info (rm.flags)', () => {
+    const location = { flags: 0x40 };
     const state = { u: { ux: 4, uy: 7 }, level: { at: () => location } };
 
     set_wallprop_from_str('undiggable unphaseable wall', state);
 
-    assert.equal(location.wall_info,
+    assert.equal(location.flags,
         0x40 | W_NONDIGGABLE | W_NONPASSWALL);
 });
 
 test('set_wallprop_from_str keeps the C substring checks case-sensitive', () => {
-    const location = { wall_info: 0 };
+    const location = { flags: 0 };
     const state = { u: { ux: 4, uy: 7 }, level: { at: () => location } };
 
     set_wallprop_from_str('Undiggable Unphaseable wall', state);
 
-    assert.equal(location.wall_info, 0);
+    assert.equal(location.flags, 0);
 });
 
 test('dbterrainmesg names the square relative to the drawbridge state', async () => {

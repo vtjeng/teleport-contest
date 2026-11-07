@@ -44,7 +44,7 @@ export async function verifySamGoalLevel(segment) {
         for (let y = 0; y < ROWNO; ++y) {
             const cell = game.level.at(x, y);
             if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
-            protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
+            protectedCell ||= Boolean(cell.flags & W_NONDIGGABLE);
         }
     }
     assert.equal(closed, 4); // Lua38–41's four closed doors survive map flips.

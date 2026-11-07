@@ -1038,7 +1038,7 @@ test('configured tutorial choices skip the query or reach its first command', as
     const corner = game.level.at(4, 4);
     assert.equal(corner.typ, BRCORNER);
     assert.equal(
-        corner.wall_info,
+        corner.flags,
         W_NONDIGGABLE | WM_C_INNER,
         'level finalization applies both non-diggability and wall angles',
     );
@@ -1047,7 +1047,7 @@ test('configured tutorial choices skip the query or reach its first command', as
     // ordinary COLNO-1 bound while finalizing the wider special-level map.
     const farRightWall = game.level.at(74, 3);
     assert.deepEqual(
-        { typ: farRightWall.typ, wallInfo: farRightWall.wall_info },
+        { typ: farRightWall.typ, wallInfo: farRightWall.flags },
         { typ: HWALL, wallInfo: W_NONDIGGABLE | WM_W_LEFT },
     );
     assert.equal(game.level.at(34, 12).lit, false);

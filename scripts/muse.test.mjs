@@ -1650,7 +1650,6 @@ test('find_offensive skips the reflectable half for an adjacent attacker',
         const location = state.level.at(x, state.u.uy);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
     }
     state.viz_array[state.u.uy][state.u.ux + 3] |= COULD_SEE;
     const distant = offensiveMonster(state, PM_GNOME, wand, {
@@ -1842,7 +1841,6 @@ test('find_offensive selects on the object type and its own conditions',
         const location = state.level.at(x, state.u.uy);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
     }
     state.viz_array[state.u.uy][state.u.ux + 3] |= COULD_SEE;
 
@@ -1923,7 +1921,6 @@ function hurlingGnome(state) {
         const location = state.level.at(x, state.u.uy);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
         // IN_SIGHT as well as COULD_SEE: use_offensive() announces the throw
         // only for a thrower on a square the hero can actually see.
         state.viz_array[state.u.uy][x] |= COULD_SEE | IN_SIGHT;
@@ -2029,7 +2026,6 @@ test('use_offensive fires a monster fire wand and records its first-use state',
         const location = state.level.at(x, state.u.uy);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
         state.viz_array[state.u.uy][x] |= COULD_SEE | IN_SIGHT;
     }
     state.context.mon_moving = true;
@@ -2231,7 +2227,6 @@ test('mbhit records a monster-broken shop door without losing its global state',
         const tile = state.level.at(tileX, y);
         tile.typ = ROOM;
         tile.flags = 0;
-        tile.wall_info = 0;
     }
     const door = state.level.at(doorX, y);
     Object.assign(door, {
@@ -2300,7 +2295,6 @@ test('monster striking wand destroys a lowered bridge on its beam',
             const tile = state.level.at(tx, y);
             tile.typ = ROOM;
             tile.flags = 0;
-            tile.wall_info = 0;
         }
         const wall = state.level.at(bridgeX, y - 1);
         wall.typ = VWALL;

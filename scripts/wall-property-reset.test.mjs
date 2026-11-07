@@ -34,7 +34,7 @@ for(const row of cases) test(`C wall-flag ${row.kind}: ${row.bit} ${row.method}`
             des.terrain({x:x-1,y,typ:'-',lit:0});cells.push([x,y]);
         }
         des.wall_property({region:[9,6,11,8],property:row.bit===8?'nondiggable':'nonpasswall'});
-        assert.deepEqual(cells.map(([x,y])=>game.level.at(x,y).wall_info),row.before);
+        assert.deepEqual(cells.map(([x,y])=>game.level.at(x,y).flags),row.before);
         const before=getRngLog().length;
         if(row.method==='map'||row.method==='transparent')
             des.map({x:10,y:6,map:row.method==='map'?'---\n---\n---':'xxx\nxxx\nxxx'});
@@ -42,7 +42,7 @@ for(const row of cases) test(`C wall-flag ${row.kind}: ${row.bit} ${row.method}`
             des.level_init({style:row.method,fg:'-',bg:'-',lit:0});
         else for(const [x,y]of cells)des.terrain({x:x-1,y,typ:'-',lit:0});
         assert.equal(getRngLog().length,before,'C oracle aborts on any RNG draw in these fixed paths');
-        assert.deepEqual(cells.map(([x,y])=>[x,y,game.level.at(x,y).typ,game.level.at(x,y).wall_info]),row.after);
+        assert.deepEqual(cells.map(([x,y])=>[x,y,game.level.at(x,y).typ,game.level.at(x,y).flags]),row.after);
     });
 });
 test('wall-flag C body proof source inputs remain pinned',()=>{

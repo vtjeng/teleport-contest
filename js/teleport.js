@@ -903,7 +903,7 @@ function inWaterLevel(state) {
 
 function mayPasswall(location) {
     return !(IS_STWALL(location.typ)
-        && (location.wall_info & W_NONPASSWALL));
+        && (location.flags & W_NONPASSWALL));
 }
 
 // C ref: teleport.c goodpos_onscary(). This deliberately needs only species

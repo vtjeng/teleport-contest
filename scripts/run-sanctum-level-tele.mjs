@@ -14,6 +14,7 @@ import {
     AM_SHRINE,
     A_NONE,
     FIRE_TRAP,
+    IS_STWALL,
     MORGUE,
     TEMPLE,
     W_NONDIGGABLE,
@@ -119,10 +120,14 @@ export async function verifySanctumSegment(segment) {
         nhy: -1,
     });
 
+    // rm.flags means wall_info only on stone and wall squares; elsewhere the
+    // same bit is another overlay (the Sanctum's altar has AM_SANCTUM, which
+    // equals W_NONPASSWALL).
     const nonPasswall = [];
     for (let x = 1; x < 80; ++x) {
         for (let y = 0; y < 21; ++y) {
-            if (game.level.at(x, y).wall_info & W_NONPASSWALL)
+            const location = game.level.at(x, y);
+            if (IS_STWALL(location.typ) && (location.flags & W_NONPASSWALL))
                 nonPasswall.push([x, y]);
         }
     }
@@ -135,7 +140,7 @@ export async function verifySanctumSegment(segment) {
     assert.ok(nonPasswall.every(([x, y]) => (x >= 40 && x <= 42)
         || x < 6 || x > 72 || y < 2 || y > 19));
     assert.equal(
-        game.level.at(3, 1).wall_info & W_NONDIGGABLE,
+        game.level.at(3, 1).flags & W_NONDIGGABLE,
         W_NONDIGGABLE,
     );
 

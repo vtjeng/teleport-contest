@@ -64,7 +64,7 @@ export async function verifyKniStrtSegment(segment) {
             const cell = game.level.at(x, y);
             if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
             if (cell.typ === DOOR && (cell.flags & D_LOCKED)) ++locked;
-            protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
+            protectedCell ||= Boolean(cell.flags & W_NONDIGGABLE);
         }
     }
     // The fifteen Lua door descriptors include locations that final map

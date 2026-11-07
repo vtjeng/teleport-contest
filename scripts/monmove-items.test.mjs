@@ -68,7 +68,6 @@ function makeState() {
             lit: true,
             roomno: 0,
             typ: ROOM,
-            wall_info: 0,
         })));
     state.level = {
         at: (x, y) => locations[x]?.[y],

@@ -429,15 +429,15 @@ test('mkmaze.c okay() checks the square two cardinal steps away', () => {
 test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', async () => {
     const state = mazeState();
     for (let x = 20; x <= 60; ++x)
-        state.level.at(x, Math.trunc(ROWNO / 2)).wall_info = W_NONDIGGABLE;
+        state.level.at(x, Math.trunc(ROWNO / 2)).flags = W_NONDIGGABLE;
     for (let y = 3; y <= 17; ++y)
-        state.level.at(21, y).wall_info = W_NONDIGGABLE;
+        state.level.at(21, y).flags = W_NONDIGGABLE;
 
     state.level.at(30, 5).typ = POOL;
     state.level.at(30, 15).typ = POOL;
     state.level.at(40, 10).typ = IRONBARS;
-    state.level.at(39, 10).wall_info = W_NONDIGGABLE;
-    state.level.at(38, 10).wall_info = W_NONDIGGABLE;
+    state.level.at(39, 10).flags = W_NONDIGGABLE;
+    state.level.at(38, 10).flags = W_NONDIGGABLE;
     state.level.at(25, 8).typ = VWALL;
     state.level.at(20, 3).typ = VWALL;
 
@@ -445,8 +445,8 @@ test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', as
 
     assert.notEqual(state.level.at(30, 5).typ, POOL);
     assert.notEqual(state.level.at(30, 15).typ, POOL);
-    assert.equal(state.level.at(39, 10).wall_info & W_NONDIGGABLE, 0);
-    assert.equal(state.level.at(38, 10).wall_info & W_NONDIGGABLE, 0);
+    assert.equal(state.level.at(39, 10).flags & W_NONDIGGABLE, 0);
+    assert.equal(state.level.at(38, 10).flags & W_NONDIGGABLE, 0);
     assert.equal(state.level.at(25, 8).typ, VWALL);
     assert.equal(state.level.at(20, 3).typ, STONE);
     assert.deepEqual(state.bughack, {

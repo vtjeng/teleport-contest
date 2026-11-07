@@ -2097,7 +2097,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
     const otmp = objRef.obj;
     const obj_type = otmp.otyp;
     const location = state.level.at(barsx, barsy);
-    const nodissolve = (location.wall_info & W_NONDIGGABLE) !== 0;
+    const nodissolve = (location.flags & W_NONDIGGABLE) !== 0;
     const your_fault = (breakflags & BRK_BY_HERO) !== 0;
     const melee_attk = (breakflags & BRK_MELEE) !== 0;
     let noise = 0;

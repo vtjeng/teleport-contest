@@ -247,7 +247,7 @@ test('D:1 deposits preserve RNG order, weight, discard, and ownership', () => {
     fillTerrain(state, ROOM);
     makeStoneIsland(state, MINERAL_X, MINERAL_Y);
     makeStoneIsland(state, 12, MINERAL_Y);
-    state.level.at(12, MINERAL_Y).wall_info = W_NONDIGGABLE;
+    state.level.at(12, MINERAL_Y).flags = W_NONDIGGABLE;
 
     const script = scriptedRandom([
         expectedCall('rn2', [1000], 0), // D:1 gold chance succeeds.

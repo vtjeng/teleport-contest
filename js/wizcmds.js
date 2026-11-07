@@ -196,7 +196,7 @@ export async function wiz_show_wmodes(state = game, env = {}) {
             const location = state.level.at(x, y);
             if (u_at(x, y, state)) row += '@';
             else if (IS_WALL(location.typ) || location.typ === SDOOR)
-                row += String(location.wall_info & WM_MASK);
+                row += String(location.flags & WM_MASK);
             else if (location.typ === CORR) row += '#';
             else if (IS_ROOM(location.typ) || IS_DOOR(location.typ)) row += '.';
             else row += 'x';

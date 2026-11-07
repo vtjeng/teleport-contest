@@ -1,6 +1,7 @@
-// rm.h:213-220 defines doormask and looted (and altarmask, ladder,
-// drawbridgemask, icedpool and emptygrave) as macros over struct rm's
-// `flags`, so each of those values has one home per square. js/game.js
+// rm.h:213-220 defines doormask, wall_info and looted (and altarmask,
+// ladder, drawbridgemask, icedpool and emptygrave) as macros over struct
+// rm's `flags`, so each of those values has one home per square; a secret
+// door's lock and trap bits share it with its wall mode. js/game.js
 // makeLocation() mirrors that: the port keeps them in `flags` and has no
 // separate field for any of them. A writer that set a separate field would
 // leave `flags`, which every reader uses, stale; a watchman's D_WARNED, for
@@ -37,7 +38,7 @@ const ALLOWED = {
     ],
 };
 
-const FIELDS = ['doormask', 'looted'];
+const FIELDS = ['doormask', 'looted', 'wall_info'];
 
 // Returns "file:line: text" for each code line that names the field. Line
 // comments and block-comment lines are skipped, because comments quote C's
@@ -122,7 +123,7 @@ test('the looted scan allows only the wish descriptor', () => {
     );
 });
 
-test('a fresh location keeps its door and looted state only in flags', () => {
+test('a fresh location keeps its door, wall and looted state only in flags', () => {
     const location = makeLocation();
     for (const field of FIELDS)
         assert.equal(Object.hasOwn(location, field), false, field);

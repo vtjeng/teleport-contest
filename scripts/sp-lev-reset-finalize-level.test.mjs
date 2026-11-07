@@ -273,9 +273,9 @@ test('solidify finalization preserves authored walls and protects unpainted wall
         splevMap[x + 2][y] = 0;
         assert.equal(splevMap[x + 3][y], 1);
         await des.finalize_level();
-        assert.equal(game.level.at(x + 3, y).wall_info & W_NONPASSWALL, 0);
-        assert.equal(game.level.at(x + 2, y).wall_info
+        assert.equal(game.level.at(x + 3, y).flags & W_NONPASSWALL, 0);
+        assert.equal(game.level.at(x + 2, y).flags
             & (W_NONDIGGABLE | W_NONPASSWALL), W_NONDIGGABLE | W_NONPASSWALL);
-        assert.equal(game.level.at(x + 3, y + 1).wall_info, 0);
+        assert.equal(game.level.at(x + 3, y + 1).flags, 0);
     });
 });

@@ -520,7 +520,7 @@ async function prepareSelectedAction({
             const location = game.level.at(x, y);
             location.typ = STONE;
             location.flags = 0;
-            location.wall_info = W_NONDIGGABLE | W_NONPASSWALL;
+            location.flags = W_NONDIGGABLE | W_NONPASSWALL;
         }
     }
     // The source square and straight route to the remembered hero are clear.
@@ -529,7 +529,6 @@ async function prepareSelectedAction({
         const location = game.level.at(x, heroY);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
     }
 
     const monster = ordinaryMonster(pmidx, monsterX, heroY);
@@ -2863,7 +2862,7 @@ test('simple movement admits a rust monster destination at iron bars', async () 
     const target = await prepareSelectedAction({ pmidx: PM_RUST_MONSTER });
     const bars = game.level.at(target.destinationX, target.heroY);
     bars.typ = IRONBARS;
-    bars.wall_info = 0;
+    bars.flags = 0;
     const before = preflightSnapshot();
 
     await preflightSimpleMonsterActions(game);
@@ -3002,7 +3001,7 @@ test('simple movement admits a passwall wall candidate', async () => {
     });
     const wall = game.level.at(target.destinationX, target.heroY);
     wall.typ = STONE;
-    wall.wall_info = 0;
+    wall.flags = 0;
     const before = preflightSnapshot();
 
     await preflightSimpleMonsterActions(game);
@@ -4135,11 +4134,11 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
             const cell = game.level.at(x, y);
             cell.typ = STONE;
             cell.flags = 0;
-            cell.wall_info = W_NONDIGGABLE | W_NONPASSWALL;
+            cell.flags = W_NONDIGGABLE | W_NONPASSWALL;
         }
         const lane = game.level.at(x, 10);
         lane.typ = CORR;
-        lane.wall_info = 0;
+        lane.flags = 0;
     }
     game.level.at(8, 11).typ = ROOM;
     const trap = {
@@ -6643,7 +6642,7 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
     const sourceX = target.monsterX - 1;
     game.level.monsters[target.monsterX][target.heroY] = null;
     game.level.at(sourceX, target.heroY).typ = ROOM;
-    game.level.at(sourceX, target.heroY).wall_info = 0;
+    game.level.at(sourceX, target.heroY).flags = 0;
     game.level.monsters[sourceX][target.heroY] = sourceWorm;
     sourceWorm.mx = sourceX;
     sourceWorm.wormno = 1;
@@ -6679,7 +6678,7 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
     // action's worm_move cannot heal it before the arrow trap.
     worm.mhp = 1;
     planned.level.at(target.destinationX + 1, target.heroY).typ = STONE;
-    planned.level.at(target.destinationX + 1, target.heroY).wall_info =
+    planned.level.at(target.destinationX + 1, target.heroY).flags =
         W_NONDIGGABLE | W_NONPASSWALL;
     planned.level.traps = [{
         tx: target.destinationX,

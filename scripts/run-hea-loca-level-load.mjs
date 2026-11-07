@@ -57,7 +57,7 @@ export async function verifyHeaLocaSegment(segment) {
         for (let y = 0; y < ROWNO; ++y) {
             const cell = game.level.at(x, y);
             litPool ||= cell.typ === POOL && Boolean(cell.lit);
-            protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
+            protectedCell ||= Boolean(cell.flags & W_NONDIGGABLE);
             if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
             if (cell.typ === SDOOR && (cell.flags & D_LOCKED)) ++locked;
         }

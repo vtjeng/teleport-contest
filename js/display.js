@@ -587,7 +587,7 @@ export function xy_set_wall_state(x, y, state = game) {
         return;
     }
 
-    loc.wall_info = ((loc.wall_info ?? loc.flags ?? 0) & ~WM_MASK) | mode;
+    loc.flags = (loc.flags & ~WM_MASK) | mode;
 }
 
 // C ref: display.c set_wall_state(); called once by mklev after topologize().
@@ -598,9 +598,8 @@ export function set_wall_state(state = game) {
 }
 
 function wallMode(loc) {
-    // C's wall_info macro aliases struct rm.flags. The JS location keeps a
-    // dedicated field, while the fallback supports source-shaped test data.
-    return (loc.wall_info ?? loc.flags ?? 0) & WM_MASK;
+    // C's wall_info macro aliases struct rm.flags.
+    return loc.flags & WM_MASK;
 }
 
 function only(seenv, bits) {

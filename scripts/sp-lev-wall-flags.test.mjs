@@ -79,7 +79,7 @@ async function runLoader(seed, body) {
     return result;
 }
 
-const wallInfo = (x, y) => game.level.at(x, y).wall_info ?? 0;
+const wallInfo = (x, y) => game.level.at(x, y).flags ?? 0;
 
 // C ref: sp_lev.c sel_set_wall_property(): only STWALL, TREE, and IRONBARS
 // squares take the flag. A row of those three followed by a floor square
