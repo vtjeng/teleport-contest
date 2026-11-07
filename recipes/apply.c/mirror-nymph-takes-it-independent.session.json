@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c use_mirror() nymph witness: a water nymph admires itself, takes the mirror and teleports. C does not make the nymph flee (apply.c:1152-1167), so its later dochug() turns skip the fleeing rn2(40) and rn2(25) draws. New seed, clock and character; the direction was read from the C screen.",
+  "segments": [
+    {
+      "seed": 55120738,
+      "datetime": "20640312101500",
+      "nethackrc": "OPTIONS=name:Glassy,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " \u0017mirror\n\u0007water nymph\naiy 20s"
+    }
+  ]
+}

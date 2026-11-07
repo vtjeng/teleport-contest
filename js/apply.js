@@ -4318,7 +4318,6 @@ export async function use_mirror(obj, state = game, env = {}) {
         await setnotworn(obj, { ...env, state });
         await freeinv(obj, { ...env, state });
         mpickobj(mtmp, obj, { ...env, state });
-        await monflee(mtmp, 0, false, false, { ...env, state, random });
         if (!await tele_restrict(mtmp, state, env)) {
             await rloc(mtmp, RLOC_MSG, {
                 ...env,
