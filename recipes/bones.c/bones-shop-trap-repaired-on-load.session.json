@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1002,
+      "datetime": "20440417113000",
+      "nethackrc": "OPTIONS=name:Trapper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00162\n\u0014HHHHHHHHhhhhhhhkk.  \u0017bear trap\nafmsmsmsmsmsmsms\u0017wand of death\nzg.  y qy",
+      "comment": "A debug Valkyrie level-teleports to D:2 of seed 1002, which has a tended armor shop (see shopkeeper-level-bones), teleports into it, wishes for a beartrap and sets it on her square, which apply.c set_trap() records with add_damage() for the shopkeeper to remove. She waits seven turns on the trap, so its repair delay has passed while repairable_damage() still refuses a trap the hero stands in, then dies to a wished wand of death and saves bones. save.c savedamage() writes the damage record."
+    },
+    {
+      "seed": 40920,
+      "datetime": "20440419204500",
+      "nethackrc": "OPTIONS=name:Mender,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00162\nyy\u0006",
+      "comment": "A Samurai loads the bones on D:2. restore.c restdamage() reads the record back with its time moved to this game's clock, and bones.c getbones() calls shk.c fix_shop_damage(), whose repair_damage() turns the trap into an object for the shopkeeper. The wizard-mode map (^F), which shows every trap, then shows none in the shop."
+    }
+  ]
+}

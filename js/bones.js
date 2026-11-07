@@ -874,6 +874,19 @@ function serializeBonesLevel(state) {
         });
     }
 
+    // C ref: save.c savedamage() (640-662), which savelev_core() calls after
+    // the monster loop's data: the shop damage list in chain order.
+    const damage = [];
+    for (let dam = level.damagelist ?? null; dam; dam = dam.next) {
+        damage.push({
+            when: dam.when,
+            place: { x: dam.place.x, y: dam.place.y },
+            cost: dam.cost,
+            typ: dam.typ,
+            flags: dam.flags,
+        });
+    }
+
     return {
         locations,
         rooms: cloneBonesRooms(level.rooms),
@@ -908,6 +921,7 @@ function serializeBonesLevel(state) {
                 growtime: slot.growtime,
             }
             : null)),
+        damage,
         // C ref: light.c save_light_sources(RANGE_LEVEL), which savelev_core()
         // calls right after save_timers().
         lights: maybe_write_ls(RANGE_LEVEL, state),
@@ -1301,6 +1315,19 @@ async function restoreBonesLevel(bonesData, state) {
     // the still-unlinked source.
     restore_light_sources(bonesData.lights, state);
     relink_light_sources(idMap, state);
+
+    // C ref: restore.c restdamage() (153-179), which getlev() calls after
+    // its monster loop: each record read is pushed, so the list comes back
+    // reversed, and a bones file's times move to this game's clock.
+    level.damagelist = null;
+    for (const saved of bonesData.damage ?? []) {
+        level.damagelist = {
+            ...saved,
+            place: { ...saved.place },
+            when: saved.when + (state.moves - omoves),
+            next: level.damagelist,
+        };
+    }
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first
