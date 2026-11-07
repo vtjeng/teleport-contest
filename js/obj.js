@@ -118,7 +118,12 @@ import {
     sobj_at as inventory_sobj_at, update_inventory,
     useupall,
 } from './invent.js';
-import { confers_luck } from './artifacts.js';
+import {
+    confers_luck,
+    makeArtifact as mkArtifactAdapter,
+    nartifact_exist,
+    permapoisoned,
+} from './artifacts.js';
 // mkobj.c:curse() calls spell.c:book_cursed(). spell.js imports object helpers
 // from this module, so use this binding only inside curse(), after init.
 import { book_cursed } from './spell.js';
@@ -455,11 +460,12 @@ export class UnsupportedObjectOperationError extends Error {
 //
 //   monster(index, env) -> monster record
 //   eatenStat(weight, obj, env) -> adjusted weight (default eat.c eaten_stat)
-//   artifactCount(env) -> existing artifact count
+//   artifactCount(env) -> existing artifact count (default nartifact_exist)
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
+//     (default artifact.c mk_artifact())
 //   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
 //     STATUE and FIGURINE branches
-//   isPermanentlyPoisoned(obj, env) -> boolean
+//   isPermanentlyPoisoned(obj, env) -> boolean (default permapoisoned())
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
 
@@ -1876,7 +1882,9 @@ function inHell(state) {
 }
 
 function makeArtifact(obj, env, adjustSpe) {
-    const result = requiredHook(env, 'makeArtifact', obj)(obj, {
+    // C ref: mkobj.c mksobj_init() calls artifact.c mk_artifact() directly;
+    // a caller's makeArtifact hook remains a test seam.
+    const result = (env.hooks.makeArtifact ?? mkArtifactAdapter)(obj, {
         adjustSpe,
         alignment: A_NONE,
         maxGiftValue: 99,
@@ -1889,7 +1897,11 @@ function makeArtifact(obj, env, adjustSpe) {
 
 function maybeGenerateArtifact(obj, artif, divisorBase, env) {
     if (!artif) return obj;
-    const artifactCount = requiredHook(env, 'artifactCount', obj)(env);
+    // C ref: mkobj.c mksobj_init() calls artifact.c nartifact_exist()
+    // directly; a caller's artifactCount hook remains a test seam.
+    const artifactCount = env.hooks.artifactCount
+        ? env.hooks.artifactCount(env)
+        : nartifact_exist(env.state);
     if (!env.random.rn2(divisorBase + 10 * artifactCount))
         return makeArtifact(obj, env, true);
     return obj;
@@ -2693,10 +2705,10 @@ function mksobj_init(obj, artif = false, env = {}) {
 
     mkobj_erosions(obj, normalized);
     if (obj.oartifact) {
-        const poisoned = requiredHook(normalized, 'isPermanentlyPoisoned', obj)(
-            obj,
-            normalized,
-        );
+        // C ref: mkobj.c mksobj_init():1173 calls artifact.c permapoisoned().
+        const poisoned = normalized.hooks.isPermanentlyPoisoned
+            ? normalized.hooks.isPermanentlyPoisoned(obj, normalized)
+            : permapoisoned(obj);
         if (poisoned) obj.opoisoned = true;
     }
     return obj;
