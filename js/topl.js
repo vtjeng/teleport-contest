@@ -800,6 +800,10 @@ export async function tty_yn_function(query, resp, def, state = game) {
     state._ttyToplines = `${prompt}${answerText}`;
     display.toplines = state._ttyToplines;
     display.topMessage = state._ttyToplines;
+    // topl.c:539 writes gt.toplines with Sprintf(), not update_topl(), so a
+    // recalled answer wider than the screen wraps at the terminal edge; see
+    // toplineRows().
+    state._ttyUnsplitToplines = state._ttyToplines;
     // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
     // commented out in favour of rewriting gt.toplines. A one-line prompt
     // stays on the physical line, and js/display.js _buildScreenOutput()
