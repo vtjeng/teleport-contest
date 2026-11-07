@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 80442917,
+      "datetime": "20661122071000",
+      "nethackrc": "OPTIONS=name:Nightfall,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " #levelchange\n30\n\u001b\u0017blindfold\n\u0007vampire\nFjFj Sy"
+    },
+    {
+      "seed": 80442918,
+      "datetime": "20661122083000",
+      "nethackrc": "OPTIONS=name:Nightfall,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " n 20s  "
+    }
+  ],
+  "comment": "restore.c getlev() under REST_CURRENT_LEVEL calls mon.c restore_cham() for every monster on the hero's level (restore.c:1217). A vampire created with the debug-mode create-monster command arrives as a fog cloud; killed, it rises as a vampire with cham NON_PM (mon.c vamprises()). After the save and restore, restore_cham() gives it back its shapeshifter index, so each turn m_calcdistress() reaches decide_to_shapeshift()'s healthy-vampire rn2(6). New seed, clock and character."
+}
