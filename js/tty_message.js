@@ -354,9 +354,10 @@ async function ttyPlineCore(
     // a turn that the live pass then runs again with the real window, and it
     // shares the live terminal. A rehearsal that reached the shared window
     // would show its message twice, or early, and wait for a --More-- C never
-    // asks for: drop output while a planning context is installed or from a
-    // planning clone's state.
-    if (planningContextInstalled() || (state !== game && state._plannedMapMemory)) return;
+    // asks for. Both preflights run their clone inside
+    // withPlanningCoreContext(), so drop output while that context is
+    // installed.
+    if (planningContextInstalled()) return;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
