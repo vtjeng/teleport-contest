@@ -64,7 +64,6 @@ import {
     has_oname,
     helpless,
     u_at,
-    DEAF,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { fmt_ptr } from './alloc.js';
@@ -164,8 +163,8 @@ import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
 import {
-    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
-    Hallucination, See_invisible,
+    Blind, EDeaf, EHalluc_resistance, HDeaf, HHalluc_resistance,
+    HHallucination, Hallucination, See_invisible,
 } from './youprop.js';
 
 const GHOST_NAMES = Object.freeze([
@@ -586,7 +585,7 @@ export async function do_mgivenname(state = game) {
         if (!await alreadynamed(monster, monnambuf, buf, state))
             await ttyPline(`${upstart(monnambuf)} doesn't like being called names!`, state);
     } else if (monster.isshk
-        && !namingPropertyActive(state, DEAF)
+        && !(HDeaf(state.u) || EDeaf(state.u))
         && !helpless(monster)
         && (monster.data?.msound ?? 0) > MS_ANIMAL) {
         if (!await alreadynamed(monster, monnambuf, buf, state)) {
@@ -1312,25 +1311,17 @@ export function x_monnam(
         || type_is_pname(mdat);
 
     if ((monster.ispriest || monster.isminion) && !do_mappear) {
-        const properties = state.u?.uprops;
-        const resistance = properties?.[HALLUC_RES];
-        const hadResistance = resistance != null;
-        const savedResistance = resistance?.extrinsic;
+        // C sets EHalluc_resistance for the call and restores it after.
+        const savedResistance = EHalluc_resistance(state.u);
         const savedInvisible = monster.minvis;
         let name;
         try {
-            if (!do_hallu && properties) {
-                if (resistance) resistance.extrinsic = 1;
-                else properties[HALLUC_RES] = { extrinsic: 1 };
-            }
+            if (!do_hallu) state.u.uprops[HALLUC_RES].extrinsic = 1;
             if (!do_invis) monster.minvis = 0;
             name = priestname(monster, effectiveArticle,
                 (effectiveSuppress & EXACT_NAME) === EXACT_NAME, state, env);
         } finally {
-            if (!do_hallu && properties) {
-                if (hadResistance) resistance.extrinsic = savedResistance;
-                else delete properties[HALLUC_RES];
-            }
+            if (!do_hallu) state.u.uprops[HALLUC_RES].extrinsic = savedResistance;
             monster.minvis = savedInvisible;
         }
         return effectiveArticle === ARTICLE_NONE && name.startsWith('the ')

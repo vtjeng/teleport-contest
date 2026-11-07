@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { SUPPRESS_NAME } from '../js/const.js';
+import { SUPPRESS_NAME, LAST_PROP } from '../js/const.js';
 import {
     Amonnam,
     Adjmonnam,
@@ -494,7 +494,7 @@ test('a_monnam wires every source naming branch through x_monnam', () => {
     // Priests, minions, shopkeepers and player monsters all use x_monnam(),
     // exactly as do_name.c a_monnam() does.
     const state = {
-        u: { uprops: [], uroleplay: { blind: false } },
+        u: { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })), uroleplay: { blind: false } },
         urole: { lgod: 'Athena', ngod: 'Thoth', cgod: 'Set' },
     };
     monst_globals_init(state);
@@ -539,7 +539,7 @@ test('x_monnam formats priest, shopkeeper and player monster names', () => {
     // visibility gate and retain their source-specific article rules.
     const state = {
         u: {
-            uprops: [],
+            uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
             uroleplay: { blind: false },
             ualign: { type: 0 },
         },

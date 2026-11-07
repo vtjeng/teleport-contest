@@ -1143,11 +1143,10 @@ function* set_artifact_intrinsic_steps(otmp, on, wp_mask, state, rawEnv) {
 }
 
 function extrinsicMaskToggle(state, property, wp_mask, on) {
-    const prop = state.u.uprops[property];
     if (on)
-        prop.extrinsic |= wp_mask;
+        state.u.uprops[property].extrinsic |= wp_mask;
     else
-        prop.extrinsic &= ~wp_mask;
+        state.u.uprops[property].extrinsic &= ~wp_mask;
 }
 
 // C ref: artifact.c dispose_of_orig_obj() (312-320). Frees the original

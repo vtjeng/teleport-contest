@@ -384,12 +384,13 @@ import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
-    BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, Blindfolded_only,
-    Blnd_resist, Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant,
-    EHalluc_resistance, EInvis, HBlinded, HClairvoyant, HDetect_monsters,
-    HHalluc_resistance, HHallucination, HInvis, Half_physical_damage,
-    Halluc_resistance, Infravision, Invis, Searching, See_invisible,
-    Undead_warning, Warn_of_mon, Warning,
+    BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, BlindedTimeout,
+    Blindfolded, Blindfolded_only, Blnd_resist, Clairvoyant, Deaf,
+    Detect_monsters, EBlinded, EClairvoyant, EHalluc_resistance, EInvis,
+    HBlinded, HClairvoyant, HDetect_monsters, HHalluc_resistance,
+    HHallucination, HInvis, Half_physical_damage, Halluc_resistance,
+    Infravision, Invis, Searching, See_invisible, Undead_warning, Warn_of_mon,
+    Warning,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -3193,17 +3194,10 @@ export async function ustatusline(state = game) {
     if (properties[STRANGLED]?.intrinsic) info += ', being strangled';
     if (properties[VOMITING]?.intrinsic) info += ', nauseated';
     if (properties[CONFUSION]?.intrinsic) info += ', confused';
-    const blind = Boolean(
-        (properties[BLINDED]?.intrinsic || properties[BLINDED]?.extrinsic)
-        && !properties[BLINDED]?.blocked,
-    );
-    if (blind) {
+    if (Blind(u)) {
         info += ', blind';
         if (u.ucreamed) {
-            const blindedTimeout = Number(properties[BLINDED]?.intrinsic ?? 0)
-                & TIMEOUT;
-            const blindfolded = Boolean(properties[BLINDED]?.extrinsic);
-            if (u.ucreamed < blindedTimeout || blindfolded
+            if (u.ucreamed < BlindedTimeout(u) || Blindfolded(u)
                 || !haseyes(state.youmonst.data))
                 info += ', covered';
             info += ' by sticky goop';
@@ -3230,11 +3224,7 @@ export async function ustatusline(state = game) {
     if (u.uundetected) info += ', concealed';
     else if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
         info += ', disguised';
-    const invisible = Boolean(
-        (properties[INVIS]?.intrinsic || properties[INVIS]?.extrinsic)
-        && !properties[INVIS]?.blocked,
-    );
-    if (invisible) info += ', invisible';
+    if (Invis(u)) info += ', invisible';
     if (u.ustuck) {
         if (u.uswallow)
             info += digests(u.ustuck.data)

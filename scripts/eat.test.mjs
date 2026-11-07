@@ -42,6 +42,7 @@ import {
     W_RINGR,
     W_TOOL,
     W_WEP,
+    LAST_PROP,
 } from '../js/const.js';
 import * as eatModule from '../js/eat.js';
 import {
@@ -401,7 +402,7 @@ function hungerState() {
         uhs: NOT_HUNGRY,
         uhave: { amulet: false },
         uinvulnerable: false,
-        uprops: [],
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
     };
     result.urole = { mnum: PM_HEALER, name: { m: 'Healer' } };
     result.urace = { mnum: PM_HUMAN };

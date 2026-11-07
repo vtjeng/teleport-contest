@@ -22,7 +22,6 @@ import {
     ANTIMAGIC,
     CMDQ_KEY,
     CONFUSION,
-    BLINDED,
     CLOUD, IS_TREE,
     ERODE_CORRODE,
     EF_GREASE,
@@ -210,8 +209,8 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 import {
-    BClairvoyant, Blind, EHalluc_resistance, HHalluc_resistance,
-    HHallucination, Maybe_Half_Phys,
+    BClairvoyant, Blind, BlindedTimeout, EHalluc_resistance,
+    HHalluc_resistance, HHallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -454,9 +453,8 @@ export async function cursed_book(book, state = game, env = {}) {
         aggravate(state, random);
         break;
     case 2: {
-        const prior = timeout[BLINDED]?.intrinsic ?? 0;
         await make_blinded(
-            (prior & TIMEOUT) + random.rn1(100, 250), true, state,
+            BlindedTimeout(state.u) + random.rn1(100, 250), true, state,
             { message },
         );
         break;

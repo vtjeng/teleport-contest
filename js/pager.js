@@ -1449,36 +1449,14 @@ export function do_screen_description(cc, looked, sym, state = game) {
                 },
             } : state;
             // C temporarily sets EHalluc_resistance while the scratch terrain
-            // is named. Mirror that global property through the shared hero
-            // property table, then restore the exact prior record before any
-            // later matching or lookat work can observe it.
-            const properties = viewState.u?.uprops;
-            let savedResistance;
-            let temporaryProperties = false;
-            if (properties) {
-                savedResistance = properties[HALLUC_RES];
-                properties[HALLUC_RES] = {
-                    ...(savedResistance ?? {}),
-                    extrinsic: 1,
-                };
-            } else {
-                temporaryProperties = true;
-                viewState = {
-                    ...viewState,
-                    u: { ...viewState.u, uprops: [] },
-                };
-                viewState.u.uprops[HALLUC_RES] = { extrinsic: 1 };
-            }
+            // is named, then restores it before any later matching or lookat
+            // work can observe it.
+            const savedResistance = EHalluc_resistance(viewState.u);
+            viewState.u.uprops[HALLUC_RES].extrinsic = 1;
             try {
                 description = waterbody_name(cc.x, cc.y, viewState);
             } finally {
-                if (temporaryProperties) {
-                    // The temporary view is discarded with no state write.
-                } else if (savedResistance === undefined) {
-                    delete properties[HALLUC_RES];
-                } else {
-                    properties[HALLUC_RES] = savedResistance;
-                }
+                viewState.u.uprops[HALLUC_RES].extrinsic = savedResistance;
             }
             if (description === 'pool of water') description = 'pool';
             else if (description === 'molten lava') description = 'lava';

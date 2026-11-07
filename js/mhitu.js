@@ -2475,7 +2475,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
                 if (!wasBlinded && !Blind(state.u))
                     await message(`Your ${vision_clears}`, state, rawEnv);
             } else {
-                incr_itimeout(prop(BLINDED), 1);
+                incr_itimeout(u.uprops[BLINDED], 1);
             }
         }
         tmp = 0;

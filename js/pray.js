@@ -48,7 +48,6 @@ import {
     Amask2align,
     AGGRAVATE_MONSTER,
     ACH_TUNE,
-    BLINDED,
     BOLT_LIM,
     CONFUSION,
     DIED,
@@ -357,8 +356,8 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, Blnd_resist, Deaf, EBlinded, EDeaf, HBlinded, HDeaf,
-    HHallucination, Hallucination,
+    Blind, Blinded, BlindedTimeout, Blindfolded, Blnd_resist, Deaf, EBlinded,
+    EDeaf, HBlinded, HDeaf, HHallucination, Hallucination,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -1315,7 +1314,7 @@ export function in_trouble(state = game) {
             return TROUBLE_UNUSEABLE_HANDS;
     }
     // Blindfolded is EBlinded alone, so ublindf is necessarily worn here.
-    if (extrinsic(state, BLINDED) && state.ublindf.cursed)
+    if (Blindfolded(state.u) && state.ublindf.cursed)
         return TROUBLE_CURSED_BLINDFOLD;
 
     /*
@@ -1333,8 +1332,8 @@ export function in_trouble(state = game) {
         if (Cursed_obj(otmp, SADDLE)) return TROUBLE_SADDLE;
     }
 
-    if ((intrinsic(state, BLINDED) & TIMEOUT) > 1
-        && !(intrinsic(state, BLINDED) & ~TIMEOUT)
+    if (BlindedTimeout(state.u) > 1
+        && !(HBlinded(state.u) & ~TIMEOUT)
         && (!state.u.uswallow
             || !attacktype_fordmg(state.u.ustuck.data, AT_ENGL, AD_BLND)))
         return TROUBLE_BLIND;

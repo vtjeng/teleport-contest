@@ -296,7 +296,7 @@ function setInitialUasmon(state) {
     state.context.warntype.speciesidx = NON_PM;
     state.context.warntype.species = null;
     state.context.warntype.polyd = 0;
-    property(u, WARN_OF_MON).intrinsic &= ~FROM_RACE;
+    u.uprops[WARN_OF_MON].intrinsic &= ~FROM_RACE;
     state.gw ??= {};
     state.gw.were_changes = 0;
 }
@@ -402,7 +402,7 @@ export async function u_init_misc(
     u.xray_range = -1;
     u.unblind_telepat_range = -1;
     if (u.uroleplay.blind)
-        property(u, BLINDED).intrinsic |= FROMOUTSIDE;
+        u.uprops[BLINDED].intrinsic |= FROMOUTSIDE;
 
     u.uhandedness = random.rn2(10) ? RIGHT_HANDED : LEFT_HANDED;
     max_rank_sz(state);

@@ -640,9 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, Deaf, EDeaf, EHalluc_resistance, HBlinded, HDeaf,
-    HHalluc_resistance, HHallucination, Halluc_resistance, Hallucination,
-    Invis, Maybe_Half_Phys, See_invisible,
+    BBlinded, Blind, BlindedTimeout, Deaf, EDeaf, EHalluc_resistance,
+    HBlinded, HDeaf, HHalluc_resistance, HHallucination, Halluc_resistance,
+    Hallucination, Invis, Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -1110,7 +1110,7 @@ export async function use_pole(obj, autohit, state = game) {
         if (obj === state.uwep && obj.oartifact === ART_SNICKERSNEE) {
             freehit = state.moves !== state.context.snickersnee_turn;
             state.context.snickersnee_turn = state.moves;
-            if (freehit && !applyPropertyActive(DEAF, state))
+            if (freehit && !(HDeaf(state.u) || EDeaf(state.u)))
                 await ttyPline('Shkinng!', state);
         }
         await thitmonst(monster, state.uwep, state);
@@ -3529,7 +3529,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         }
         case 1:
             await make_blinded(
-                (intrinsic(BLINDED) & TIMEOUT) + lcount,
+                BlindedTimeout(state.u) + lcount,
                 true,
                 state,
                 env,
@@ -5444,9 +5444,7 @@ export function unfixable_trouble_count(isHorn = false, state = game) {
     if (intrinsic(VOMITING)
         && (!isHorn || (intrinsic(VOMITING) & ~TIMEOUT) !== 0)) count++;
 
-    const deafness = prop(DEAF);
-    if ((deafness.intrinsic || deafness.extrinsic || u.uroleplay?.deaf)
-        && (!isHorn || (deafness.intrinsic & ~TIMEOUT) !== 0)) count++;
+    if (Deaf(u) && (!isHorn || (HDeaf(u) & ~TIMEOUT) !== 0)) count++;
 
     return count;
 }

@@ -973,7 +973,9 @@ test('castmu fumble: m_lev=2 always fumbles (rn2(20) is always < 20)', async () 
 test('castmu fumble names priests and minions through mon_nam', async () => {
     const state = makeState({
         u: {
-            ux: 4, uy: 5, uprops: {},
+            // do_name.c priestname() callers set EHalluc_resistance for
+            // the call, so the slot must exist.
+            ux: 4, uy: 5, uprops: { [HALLUC_RES]: { intrinsic: 0, extrinsic: 0 } },
             ualign: { align: 0, type: 0 },
             uz: { dnum: 0, dlevel: 1 },
         },

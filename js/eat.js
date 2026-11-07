@@ -1485,7 +1485,7 @@ async function rottenfood(obj, state) {
         await ttyPline(
             `The world spins and ${what} ${where}.`, state,
         );
-        incr_itimeout(hungerProperty(state, DEAF), duration);
+        incr_itimeout(state.u.uprops[DEAF], duration);
         state.disp ??= {};
         state.disp.botl = true;
         nomul(-duration, state);
@@ -1834,7 +1834,7 @@ export async function newuhs(incr, state = game, env = {}) {
                 const { stop_occupation } = await import('./allmain.js');
                 await stop_occupation(state, env);
                 await requireEatOperation(env, 'message')('You faint from lack of food.', state);
-                incr_itimeout(hungerProperty(state, DEAF), duration);
+                incr_itimeout(state.u.uprops[DEAF], duration);
                 state.disp ??= {};
                 state.disp.botl = true;
                 nomul(-duration, state);

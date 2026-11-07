@@ -30,6 +30,7 @@ import {
     SINK,
     TELEPAT,
     W_SADDLE,
+    LAST_PROP,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
@@ -72,7 +73,7 @@ function startupState(ux = 13, uy = 6) {
         ux,
         uy,
         urooms: [ROOMOFFSET, 0, 0, 0, 0],
-        uprops: [],
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
         unblind_telepat_range: 0,
         uswallow: false,
         uinwater: false,

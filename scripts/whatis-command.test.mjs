@@ -44,6 +44,7 @@ import {
     SEE_INVIS,
     TT_BURIEDBALL,
     WATER,
+    LAST_PROP,
 } from '../js/const.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
@@ -502,7 +503,7 @@ function terrainDescriptionState(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
     const state = {
-        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 } },
+        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 }, uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })) },
         level: {},
         iflags: { terrainmode: 0 },
     };
@@ -846,7 +847,7 @@ test('doorway refinement distinguishes broken and trapped-broken masks', () => {
 
 test('visible dart traps refine the overloaded trap symbol', () => {
     const state = {
-        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 } },
+        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 }, uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })) },
         level: {},
         iflags: { terrainmode: 0 },
     };
