@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "artifact.c arti_invoke()'s INVIS toggle calls nothing_special() when Blind. An Archeologist wishes for the Orb of Detection and a blindfold, puts the blindfold on and invokes the Orb: 'You feel a surge of power, but nothing seems to happen.'",
+  "segments": [
+    {
+      "seed": 8811,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0017the Orb of Detection\n \u0017blindfold\n Pj#invoke\ni"
+    }
+  ]
+}
