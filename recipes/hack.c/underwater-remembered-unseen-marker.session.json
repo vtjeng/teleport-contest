@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c domove_fight_empty() 2241-2245: the remembered-'I' test reads glyph_at(), the glyph on the screen, not levl[x][y].glyph. Underwater the screen shows none of the land around the hero, so a step toward a remembered unseen-monster marker is an ordinary move out of the pool, not \"You attack nothing.\" A human Caveman in debug mode wishes for and puts on an amulet of magical breathing, wishes for a blindfold and a wand of teleportation, creates a gnome lord, puts the blindfold on and swings at thin air while the gnome lord hits him from the south, which maps the 'I' there, zaps the wand south to send the gnome lord away, wishes a pool onto his square, steps off and back into it with the m prefix, sinks to the bottom and walks south onto the marked square. Seed, character and inputs chosen independently of batch 7.",
+  "segments": [
+    {
+      "seed": 4417001,
+      "datetime": "20380622141500",
+      "nethackrc": "OPTIONS=name:Ogma,role:Caveman,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017amulet of magical breathing\nPf\u0017blindfold\n\u0017wand of teleportation\n\u0007gnome lord\nPgFbzhj\u0017pool\nlmh  j  s"
+    }
+  ]
+}

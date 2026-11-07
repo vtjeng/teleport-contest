@@ -17,10 +17,16 @@ import { hurtle, hurtle_step } from '../js/dothrow.js';
 import {
     isolatePlannedVision,
     planningState,
+    preflightElapsedTurnTail,
 } from '../js/unported_monster_actions.js';
 import {
+    block_point,
+    does_block,
     liveVisionBufferViews,
+    transparencyIndexViews,
+    unblock_point,
     vision_recalc,
+    vision_reset,
 } from '../js/vision.js';
 
 const DATETIME = '20260930120000';
@@ -300,6 +306,47 @@ test('vision_recalc on a planning clone never writes the live buffer pair', asyn
         assert.deepEqual(game.viz_array, liveRows,
             `parity ${parity}: the live COULD_SEE array is unchanged`);
     }
+});
+
+test('a plan that changes obstructions leaves the live transparency index', async () => {
+    // zap.c zap_over_floor() burns a closed door away and calls
+    // recalc_block_point(); a planned flaming-sphere explosion reached that
+    // with no caller-side admission, and the live hero then saw through the
+    // door before the real explosion arrived. block_point(), unblock_point()
+    // and vision_reset() are the only writers of the module-wide index, so a
+    // plan that calls them directly, with no admitPlannedVisionChange(), must
+    // still leave the live index as it found it.
+    resetGame();
+    // Independent fixed startup; only its level and vision index are used.
+    await runSegment({
+        seed: 2026110602,
+        datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:IndexCopy,role:Samurai,race:human,'
+            + 'gender:male,align:lawful\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const live = transparencyIndexViews().map((row) => row.slice());
+    // The hero's square is clear; the first blocked square on the hero's
+    // row, scanning from column 1, is stone or wall.
+    const clear = { x: game.u.ux, y: game.u.uy };
+    let blockedX = 1;
+    while (!does_block(blockedX, clear.y)) blockedX++;
+    let changedInside = false;
+    await preflightElapsedTurnTail(game, async (planned) => {
+        // vision_reset() first: it rebuilds the index from the clone's map,
+        // which still matches the live map, so running it last would hide a
+        // missing restore.
+        vision_reset(planned);
+        block_point(clear.x, clear.y, planned);
+        unblock_point(blockedX, clear.y, planned);
+        changedInside = transparencyIndexViews()
+            .some((row, index) => row.some((v, i) => v !== live[index][i]));
+        return {};
+    });
+    assert.ok(changedInside, 'the plan did change the borrowed index');
+    assert.deepEqual(transparencyIndexViews().map((row) => row.slice()), live,
+        'viz_clear and both pointer grids are restored after the plan');
 });
 
 test('a planned hurtle prints nothing on the live terminal', async () => {

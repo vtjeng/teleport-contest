@@ -37,7 +37,7 @@ for (const hallucinating of [true, false]) {
         // The production save and restore paths preserve the effect across
         // segments. C allmain.c:welcome() prints the film line before the
         // ordinary welcome only when Hallucination is effective.
-        dosave0(game);
+        await dosave0(game);
         assert.ok(storage.getItem('vfs:nhsave'));
         const replay = await runSegment({ seed: 901755,
             datetime: '20320405060810', nethackrc, moves: '  ', storage });
