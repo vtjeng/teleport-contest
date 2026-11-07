@@ -11,7 +11,7 @@ import test from 'node:test';
 
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 
-import { FIRE_RES, FROMOUTSIDE } from '../js/const.js';
+import { FIRE_RES, FROMOUTSIDE, G_GENOD } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
@@ -19,7 +19,8 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { demon_talk } from '../js/minion.js';
 import { elemental_clog } from '../js/mon.js';
-import { PM_HORNED_DEVIL } from '../js/monsters.js';
+import { PM_HORNED_DEVIL, PM_STONE_GOLEM } from '../js/monsters.js';
+import { polymon } from '../js/polyself.js';
 import { attrcurse } from '../js/sit.js';
 import { intervene } from '../js/wizard.js';
 
@@ -145,4 +146,16 @@ test('minion.c demon_talk() dreams the tension of an unseen demon', async () => 
     const { lines, message } = firstLine();
     await assert.rejects(demon_talk(demon, state, { message }), STOP);
     assert.deepEqual(lines, ['You dream that you feel tension building.']);
+});
+
+test('polyself.c polymon() dreams a genocided form for a sleeping hero', async () => {
+    // uhitm.c:3928 do_stone_u() tries polymon(PM_STONE_GOLEM) when a
+    // cockatrice's AD_STON hit reaches a hero in a form that
+    // poly_when_stoned(), asleep or not; with stone golems genocided
+    // polyself.c:744 reports the failure with You_feel().
+    const state = await sleepingGame();
+    state.svm.mvitals[PM_STONE_GOLEM].mvflags |= G_GENOD;
+    const { lines, message } = firstLine();
+    await assert.rejects(polymon(PM_STONE_GOLEM, state, { message }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel rather stone golem-ish.']);
 });

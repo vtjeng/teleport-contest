@@ -183,7 +183,7 @@ import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { youhiding } from './insight.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import {
     deltrap, instapetrify, maketrap, reset_utrap, set_utrap, selftouch, t_at,
     unconscious,
@@ -1001,7 +1001,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 
     if ((state.svm.mvitals[mntmp].mvflags & G_GENOD) !== 0) {
         const pm_name = pmname(mdat, state.flags?.female ? FEMALE : MALE);
-        await message(`You feel rather ${pm_name}-ish.`, state, env);
+        await message(youFeel(`rather ${pm_name}-ish.`, state), state, env);
         await exercise(A_WIS, true, state, random);
         return 0;
     }
