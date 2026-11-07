@@ -1154,7 +1154,7 @@ export async function unturn_you(state = game, rawEnv = {}) {
     if (is_undead(state.youmonst?.data)) {
         const already = Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
         await message(
-            `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
+            youFeel(`frightened and ${already ? 'even more ' : ''}stunned.`, state),
             state,
             rawEnv,
         );
@@ -2926,7 +2926,7 @@ export async function break_statue(obj, state = game, random = coreRandom, rawEn
         && state.urole?.mnum === PM_ARCHEOLOGIST
         && (obj.spe & CORPSTAT_HISTORIC)) {
         await message(
-            'You feel guilty about damaging such a historic statue.', state,
+            youFeel('guilty about damaging such a historic statue.', state), state,
             rawEnv,
         );
         adjalign(-1, state);
@@ -6785,7 +6785,7 @@ export async function cancel_monst(
                 } else {
                     const hallucinating = Hallucination(state);
                     await message(
-                        `You feel ${hallucinating ? 'dark' : 'light'} headed.`,
+                        youFeel(`${hallucinating ? 'dark' : 'light'} headed.`, state),
                         state, env,
                     );
                 }

@@ -25,7 +25,7 @@ import { demon_talk } from '../js/minion.js';
 import { elemental_clog } from '../js/mon.js';
 import { mon_poly } from '../js/mhitm.js';
 import {
-    PM_HORNED_DEVIL, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
+    PM_HORNED_DEVIL, PM_HUMAN_ZOMBIE, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
 } from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
 import { intemple } from '../js/priest.js';
@@ -35,6 +35,7 @@ import { level_tele_trap } from '../js/teleport.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { intervene } from '../js/wizard.js';
+import { unturn_you } from '../js/zap.js';
 
 // Marks `state` as C's fall_asleep() leaves it: multi negative and usleep
 // set, so trap.c unconscious() and youprop.h Unaware are true. Ten turns
@@ -264,4 +265,15 @@ test('shk.c shopdig(1) dreams a Knight\'s theft from an absent keeper', async ()
     const { lines, message } = firstLine();
     await assert.rejects(shopdig(1, state, { message }), STOP);
     assert.deepEqual(lines, ['You dream that you feel like a common thief.']);
+});
+
+test('zap.c unturn_you() dreams the dread of a sleeping undead hero', async () => {
+    // muse.c mbhitm() calls unturn_you() when a monster's wand of undead
+    // turning hits the hero (muse.c:1764 fhitm on &youmonst), asleep or
+    // not. An undead form takes zap.c:1230's You_feel().
+    const state = await sleepingGame();
+    state.youmonst.data = state.mons[PM_HUMAN_ZOMBIE];
+    const { lines, message } = firstLine();
+    await assert.rejects(unturn_you(state, { message }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel frightened and stunned.']);
 });
