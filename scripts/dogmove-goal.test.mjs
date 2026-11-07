@@ -43,6 +43,8 @@ import {
     UNICORN_HORN,
 } from '../js/objects.js';
 import { initrack, settrack } from '../js/track.js';
+import { game, PlanningLiveGameError, resetGame } from '../js/gstate.js';
+import { cloneIsaacContext, initRng, withPlanningCoreContext } from '../js/rng.js';
 
 function petState() {
     const level = new GameMap();
@@ -245,6 +247,45 @@ test('droppables preserves artifact and utility-tool preference order', () => {
         droppables(monster),
         pick,
         'the skeleton key is reserved and the next redundant key is dropped',
+    );
+});
+
+// A planned pet move (dog_goal() in a planning pass) reached droppables()'s
+// mattock branch, whose which_armor() call read the live game's youmonst and
+// threw PlanningLiveGameError (batch-6 games g00306, g02575, g02805, g02985).
+test('droppables reads the state its caller passes while planning', async () => {
+    const { state, monster } = petState();
+    // which_armor() compares the monster with the hero's own monster first;
+    // a distinct object keeps this pet on the monster branch.
+    state.youmonst = {};
+    resetGame();
+    // Any seed: the call draws no random number, so only the guard matters.
+    initRng(20261107);
+    const mattock = {
+        oartifact: 0,
+        otyp: DWARVISH_MATTOCK,
+        owornmask: 0,
+        nobj: null,
+    };
+    // A worn shield sends droppables() through the mattock's which_armor()
+    // test and makes the mattock droppable, as in the unguarded test above.
+    monster.minvent = {
+        oartifact: 0,
+        otyp: SMALL_SHIELD,
+        owornmask: W_ARMS,
+        nobj: mattock,
+    };
+    const planned = await withPlanningCoreContext(
+        cloneIsaacContext(game.coreCtx), state,
+        async () => droppables(monster, { state }),
+    );
+    assert.equal(planned, mattock);
+    // Without the state, the same call reaches the live game and throws.
+    await assert.rejects(
+        withPlanningCoreContext(cloneIsaacContext(game.coreCtx), state,
+            async () => droppables(monster)),
+        (error) => error instanceof PlanningLiveGameError
+            && /read game\.youmonst in which_armor/u.test(error.message),
     );
 });
 
