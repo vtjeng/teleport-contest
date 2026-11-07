@@ -51,7 +51,7 @@ export function instrumentPlanningLeakWorkspace(root) {
     replaceOnce(js('rng.js'), '    const val = isaac64_next_uint64(context);', '    globalThis.__leakRng?.(context); const val = isaac64_next_uint64(context);');
     replaceOnce(js('rng.js'), '    const val = isaac64_next_uint64(state.displayCtx);', '    globalThis.__leakRng?.(state.displayCtx); const val = isaac64_next_uint64(state.displayCtx);');
     replaceOnce(js('display.js'), '    if (planningContextInstalled()) return;\n    // C display.c:926-928', '    if (planningContextInstalled()) return; globalThis.__leakNewsym?.(x, y);\n    // C display.c:926-928');
-    replaceOnce(js('display.js'), 'export function show_glyph_cell(x, y, glyph) {', 'export function show_glyph_cell(x, y, glyph) { globalThis.__leakGlyph?.(x, y);');
+    replaceOnce(js('display.js'), '    // and the live pass paints the square when it plays the turn.\n    if (planningContextInstalled()) return;\n', '    // and the live pass paints the square when it plays the turn.\n    if (planningContextInstalled()) return; globalThis.__leakGlyph?.(x, y);\n');
     replaceOnce(js('jsmain.js'), '        this._screens = [];', '        this._screens = []; globalThis.__leakScreens = this._screens; globalThis.__leakSegment = (globalThis.__leakSegment ?? -1) + 1;');
 }
 

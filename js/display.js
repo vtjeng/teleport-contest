@@ -2849,6 +2849,9 @@ export function back_to_glyph(x, y, state = game) {
 
 // ── show_glyph_cell ──
 export function show_glyph_cell(x, y, glyph) {
+    // The live glyph buffer, like newsym() below: a planned paint is dropped,
+    // and the live pass paints the square when it plays the turn.
+    if (planningContextInstalled()) return;
     if (!glyph || typeof glyph !== 'object'
         || !Object.hasOwn(glyph, 'dec')) {
         throw new TypeError(

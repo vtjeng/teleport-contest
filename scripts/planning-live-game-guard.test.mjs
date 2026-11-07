@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import { u_at } from '../js/const.js';
+import { newsym, show_glyph_cell } from '../js/display.js';
 import { game, PlanningLiveGameError, resetGame } from '../js/gstate.js';
 import {
     cloneIsaacContext,
@@ -96,6 +97,18 @@ test('rnl() reached while planning reads the planned hero\'s Luck', async () => 
     const plannedDraws = await draw(planned, cloneIsaacContext(context));
     assert.deepEqual(await draw(planned, cloneIsaacContext(context)), plannedDraws);
     assert.notDeepEqual(await draw({ ...planned, u: live.u }, cloneIsaacContext(context)), plannedDraws);
+});
+
+test('newsym() and show_glyph_cell() drop a planned paint without reaching the live game', async () => {
+    // Both take no state and paint the live game's square. Inside a plan
+    // they must return before reading `game`, which would throw here.
+    const { planned, context } = planningFixture();
+    // Any square and any glyph record: the call must return at once.
+    const glyph = { ch: '^', dec: false };
+    await withPlanningCoreContext(context, planned, async () => {
+        newsym(10, 5);
+        show_glyph_cell(10, 5, glyph);
+    });
 });
 
 // Every planningState() call must sit in a function that also calls
