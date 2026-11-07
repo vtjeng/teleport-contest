@@ -119,14 +119,14 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
     await Hear_again(state, env);
     if (conflictActive(state)) {
         if (!heroDeaf(state)) await message('A voice booms:', state);
-        else await message('You feel a booming voice:', state);
+        else await message(youFeel('a booming voice:', state), state);
         set_voice(null, 0, 80, voice_deity, state);
         await verbalize('Thy desire for conflict shall be fulfilled!', state,
             { message });
         await lose_guardian_angel(null, state, env);
     } else if ((state.u?.ualign?.record ?? 0) > 8) {
         if (!heroDeaf(state)) await message('A voice whispers:', state);
-        else await message('You feel a soft voice:', state);
+        else await message(youFeel('a soft voice:', state), state);
         set_voice(null, 0, 80, voice_deity, state);
         await verbalize('Thou hast been worthy of me!', state, { message });
         const at = enexto(state.u.ux, state.u.uy,
@@ -143,7 +143,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
             }
             newsym(angel.mx, angel.my, state);
             await message(heroIsBlind(state)
-                ? 'You feel the presence of a friendly angel near you.'
+                ? youFeel('the presence of a friendly angel near you.', state)
                 : 'An angel appears near you.', state);
             angel.m_lev = random.rn1(8, 15);
             angel.mhp = angel.mhpmax = random.d(angel.m_lev, 10)
@@ -254,7 +254,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         if (canseemon(mtmp, state))
             await message(`${Amonnam(mtmp, { state })} looks very angry.`, state);
         else
-            await message('You feel tension building.', state);
+            await message(youFeel('tension building.', state), state);
         mtmp.mpeaceful = 0;
         mtmp.mtame = 0;
         set_malign(mtmp, state);
