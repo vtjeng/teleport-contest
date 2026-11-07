@@ -5,6 +5,7 @@ import { createArtifactTable } from '../js/artifacts.js';
 import {
     HALLUC,
     HALLUC_RES,
+    NHW_MESSAGE,
     NO_SPELL,
     NON_PM,
     TOPLINE_NON_EMPTY,
@@ -34,16 +35,19 @@ import {
     validrace,
 } from '../js/roles.js';
 import { initRng } from '../js/rng.js';
+import { remember_topl } from '../js/topl.js';
 import {
     _startupRerollInternals,
     buildRerollMenuSpec,
     reroll_menu,
 } from '../js/startup_reroll.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 import { u_init_misc } from '../js/u_init.js';
 import { u_init_inventory_attrs } from '../js/u_init_inventory_attrs.js';
 import { loadRerollMenuNamingRecipe } from './run-reroll-menu-naming.mjs';
 
 const {
+    fallbackRerollChoice,
     rerollAttributeLine,
     rerollObjectGlyphInfo,
     strengthText,
@@ -891,4 +895,27 @@ test('newgame applies startup effects only after multiple rerolls are accepted',
     for (const otyp of rejectedOnlySpellbooks)
         assert.equal(learnedSpellTypes(game).includes(otyp), false);
     assert.equal(skillsHaveEffects(game), true);
+});
+
+// invent.c reroll_menu() asks y_n("Reroll this character?") when the menu is
+// closed without a choice, and tty_yn_function() writes the answered prompt
+// into gt.toplines with Sprintf() (topl.c:539), so remember_topl() files a
+// line without update_topl() newlines.  At 33 columns it lays out the same
+// either way, so no recording can show the path; this pins it.
+test('the fallback reroll answer is filed as a line written directly', async () => {
+    const state = {
+        iflags: { msg_history: 20, cbreak: true },
+        nhDisplay: new GameDisplay(null),
+        program_state: {},
+        wintty: { wins: [] },
+    };
+    tty_create_nhwindow(NHW_MESSAGE, state);
+    // 'y' is one of the two answers the prompt accepts.
+    state.nhDisplay.pushKey('y'.charCodeAt(0));
+    assert.equal(await fallbackRerollChoice(state), 'y');
+    assert.equal(state._ttyToplines, 'Reroll this character? [yn] (n) y');
+    remember_topl(state);
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    assert.equal(win.data[0], 'Reroll this character? [yn] (n) y');
+    assert.equal(win.unsplit[0], true);
 });
