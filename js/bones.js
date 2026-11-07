@@ -17,6 +17,7 @@ import {
     NON_PM,
     NO_MINVENT,
     OBJ_FREE,
+    RANGE_LEVEL,
     TIMER_MONSTER,
     TIMER_OBJECT,
     ROOMOFFSET,
@@ -78,7 +79,9 @@ import { can_carry } from './moncarry.js';
 import { the, xname } from './objnam.js';
 import { artifact_light } from './artifacts.js';
 import { unleash_all } from './apply.js';
-import { obj_is_burning } from './light.js';
+import {
+    maybe_write_ls, obj_is_burning, relink_light_sources, restore_light_sources,
+} from './light.js';
 import {
     defineObjAliases,
     next_ident,
@@ -895,6 +898,9 @@ function serializeBonesLevel(state) {
         buriedObjects,
         engravings,
         timers,
+        // C ref: light.c save_light_sources(RANGE_LEVEL), which savelev_core()
+        // calls right after save_timers().
+        lights: maybe_write_ls(RANGE_LEVEL, state),
         fruitChain,
         moves: state.moves,
     };
@@ -1114,15 +1120,16 @@ async function restoreBonesLevel(bonesData, state) {
     // savebones() wrote it on.
     const omoves = bonesData.moves;
     // C's id mapping table (restore.c add_id_mapping()), cleared by getlev()
-    // and filled while the object chains are read.
-    const objIds = new Map();
+    // and filled while the monster and object chains are read: each saved
+    // m_id or o_id maps to the restored monster or object.
+    const idMap = new Map();
     // C ref: restore.c getlev():1076-1077 loadfruitchn(), first of all: the
     // dead hero's fruits, which loadfruitchn() pushes as it reads them, so
     // the old chain is in reverse order. getlev():1251 frees it; this game's
     // own chain, gf.ffruit, only gains the names ghostfruit() adds.
     const ghost = {
         omoves,
-        idMap: objIds,
+        idMap,
         oldfruit: [...(bonesData.fruitChain ?? [])].reverse(),
     };
 
@@ -1135,7 +1142,9 @@ async function restoreBonesLevel(bonesData, state) {
         // C restmonchn() assigns a fresh identity, resolves mtmp->data from
         // the serialized species number, and then calls propagate() for the
         // ghostly birth before restoring inline inventory.
+        const oldId = m.m_id;
         m.m_id = next_ident({ state });
+        idMap.set(oldId, m);
         m.data = state.mons?.[m.mnum] ?? m.data;
         const mndx = m.cham === NON_PM ? monsndx(m.data) : m.cham;
         if (!propagate(mndx, true, true, { state }))
@@ -1250,13 +1259,22 @@ async function restoreBonesLevel(bonesData, state) {
         if (timer.needs_fixup) {
             if (timer.kind !== TIMER_OBJECT)
                 throw new Error('relink_timers: no monster timer implemented');
-            timer.arg = objIds.get(saved.arg);
+            timer.arg = idMap.get(saved.arg);
             if (!timer.arg) throw new Error(`can't find o_id ${saved.arg}`);
             timer.needs_fixup = false;
         }
         timers.push(timer);
     }
     restore_timers(timers, state);
+
+    // C ref: restore.c getlev():1131 restore_light_sources(), right after
+    // the timers, and 1300 relink_light_sources(ghostly) after every monster
+    // and object is read. C relinks after the monster loop's restore_cham();
+    // this relinks first, which differs only if restore_cham() changed a
+    // light-emitting shapeshifter, where C's del_light_source() would miss
+    // the still-unlinked source.
+    restore_light_sources(bonesData.lights, state);
+    relink_light_sources(idMap, state);
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first

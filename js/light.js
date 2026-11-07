@@ -304,6 +304,73 @@ export function save_light_sources(range, state = game) {
     }
 }
 
+// C ref: light.c:41-43.
+const LSF_SHOW = 0x1;
+const LSF_NEEDS_FIXUP = 0x2;
+
+// C ref: light.c maybe_write_ls() (570-601) with write_it TRUE, for the one
+// file the port writes: a bones level. It returns, in chain order, the record
+// write_ls() would write for each source of the given range. Camera flashes,
+// which have no object, never exist in the port (see save_light_sources()).
+export function maybe_write_ls(range, state = game) {
+    const records = [];
+    for (let ls = lightGlobals(state).light_base; ls; ls = ls.next) {
+        let isGlobal;
+        if (ls.type === LS_OBJECT)
+            isGlobal = !obj_is_local(ls.id, state);
+        else if (ls.type === LS_MONSTER)
+            isGlobal = !(ls.id.mx > 0);
+        else
+            throw new Error(`maybe_write_ls: bad type ${ls.type}`);
+        if (isGlobal !== (range === RANGE_LEVEL)) records.push(write_ls(ls));
+    }
+    return records;
+}
+
+// C ref: light.c write_ls() (633-703). The object or monster pointer is
+// replaced by its id and the record is marked for relink_light_sources().
+// C's checks that the id still finds the same object or monster report an
+// impossible() and write the record anyway; a port source always names a
+// live object or monster.
+function write_ls(ls) {
+    return {
+        x: ls.x,
+        y: ls.y,
+        range: ls.range,
+        type: ls.type,
+        flags: ls.flags | LSF_NEEDS_FIXUP,
+        id: ls.type === LS_OBJECT ? ls.id.o_id : ls.id.m_id,
+    };
+}
+
+// C ref: light.c restore_light_sources() (478-495). Each source read is
+// pushed onto gl.light_base, so the file's sources come back in reverse
+// order, ahead of the sources already in the chain.
+export function restore_light_sources(records, state = game) {
+    const globals = lightGlobals(state);
+    for (const record of records ?? []) {
+        globals.light_base = { ...record, next: globals.light_base };
+    }
+}
+
+// C ref: light.c relink_light_sources() (516-567), its ghostly arm: each
+// saved id goes through restore.c's id mapping, and find_oid() or find_mid()
+// then finds the restored object or monster. `idMap` maps a saved id
+// straight to that restored object or monster, which is what the two
+// lookups return.
+export function relink_light_sources(idMap, state = game) {
+    for (let ls = lightGlobals(state).light_base; ls; ls = ls.next) {
+        if (!(ls.flags & LSF_NEEDS_FIXUP)) continue;
+        if (ls.type !== LS_OBJECT && ls.type !== LS_MONSTER)
+            throw new Error(`relink_light_sources: bad type (${ls.type})`);
+        const found = idMap.get(ls.id);
+        if (!found)
+            throw new Error('relink_light_sources: no id mapping');
+        ls.id = found;
+        ls.flags &= ~LSF_NEEDS_FIXUP;
+    }
+}
+
 // C ref: zap.c get_mon_location(), for a live level monster or steed.
 export function get_mon_location(monster, locflags = 0, state = game) {
     if (!monster || typeof monster !== 'object') return null;
@@ -440,8 +507,6 @@ export function arti_light_description(obj, state = game) {
     default: return 'strangely';
     }
 }
-
-const LSF_SHOW = 0x1;
 
 // light.c:do_light_sources(). NetHack gets clear_path() and circle_data[]
 // from vision.c; this port receives the corresponding operations explicitly

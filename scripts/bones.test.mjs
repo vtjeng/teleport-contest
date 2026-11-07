@@ -35,7 +35,8 @@ test('drop_upon_death uses the canonical burning-object predicate', async () => 
         /if \(\(cont \|\| artifact_light\(otmp\)\) && obj_is_burning\(otmp\)\)\s*end_burn\(otmp, TRUE\)/u);
     assert.match(jsSource,
         /if \(\(cont \|\| artifact_light\(otmp\)\) && obj_is_burning\(otmp\)\)\s*await end_burn\(otmp, true, \{ state \}\)/u);
-    assert.match(jsSource, /import \{ obj_is_burning \} from '\.\/light\.js';/u);
+    assert.match(jsSource,
+        /import \{[^}]*\bobj_is_burning\b[^}]*\} from '\.\/light\.js';/u);
 });
 
 test('savebones releases leashes before unpunishing the hero', async () => {
