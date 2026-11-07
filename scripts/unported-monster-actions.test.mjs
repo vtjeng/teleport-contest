@@ -1204,13 +1204,16 @@ test('multi-round planning isolates every monster-generation global',
         const liveFlags = structuredClone(game.flags);
         let reachedRound = false;
 
+        // js/gstate.js makes `game` throw while planning; compare with the live
+        // object captured here.
+        const live = game;
         await preflightSimpleMonsterActions(game, {
             advanceRound(planned) {
                 reachedRound = true;
-                assert.notStrictEqual(planned.mvitals, game.mvitals);
+                assert.notStrictEqual(planned.mvitals, live.mvitals);
                 assert.strictEqual(planned.svm.mvitals, planned.mvitals);
-                assert.notStrictEqual(planned.flags, game.flags);
-                assert.notStrictEqual(planned.gl, game.gl);
+                assert.notStrictEqual(planned.flags, live.flags);
+                assert.notStrictEqual(planned.gl, live.gl);
                 const plannedHead = planned.gl.light_base;
                 const plannedObject = plannedHead.next;
                 const plannedTail = plannedObject.next;
@@ -6957,6 +6960,7 @@ test('planned covetous relocation isolates flagged naming and position',
         const liveDisplay = structuredClone(game.displayCtx);
         const liveRng = rngSnapshot();
         let plannedMonster;
+        const live = game;
 
         await preflightSimpleMonsterActions(game, {
             advanceRound(planned) {
@@ -6965,7 +6969,7 @@ test('planned covetous relocation isolates flagged naming and position',
                     [plannedMonster.mx, plannedMonster.my],
                     livePosition,
                 );
-                assert.notStrictEqual(planned.displayCtx, game.displayCtx);
+                assert.notStrictEqual(planned.displayCtx, live.displayCtx);
                 return true;
             },
         });

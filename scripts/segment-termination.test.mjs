@@ -159,9 +159,9 @@ test('done() and nh_terminate() refuse to end the game from a planning clone', a
     initRng(20261105);
     const state = { program_state: {} };
     const context = cloneIsaacContext(game.coreCtx);
-    await assert.rejects(withPlanningCoreContext(context, () => nh_terminate(state)),
+    await assert.rejects(withPlanningCoreContext(context, state, () => nh_terminate(state)),
         /nh_terminate\(\) reached while a planning context is installed/u);
-    await assert.rejects(withPlanningCoreContext(context, () => done(DIED, state)),
+    await assert.rejects(withPlanningCoreContext(context, state, () => done(DIED, state)),
         /done\(\) reached while a planning context is installed/u);
     assert.equal(isTerminated(), false);
     assert.deepEqual(state.program_state, {});
