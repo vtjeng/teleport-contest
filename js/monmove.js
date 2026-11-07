@@ -177,7 +177,13 @@ import { isok } from './cmd_isok.js';
 import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
-import { newsym, swallowed, vobj_at } from './display.js';
+import {
+    newsym,
+    newsymOffMapImpossible,
+    newsymReportsOffMap,
+    swallowed,
+    vobj_at,
+} from './display.js';
 import {
     Adjmonnam,
     Amonnam,
@@ -217,7 +223,6 @@ import { m_next2u, ranged_attk_available } from './mhitu.js';
 import {
     heroDeaf,
     heroUnaware,
-    impossible,
     youHear,
     youSee,
     verbalize,
@@ -3578,22 +3583,14 @@ export async function postmov(
                 note_unported('display.c swallowed clone redraw');
             }
         } else {
-            // C display.c newsym():929-935 reports a column-0 square through
-            // impossible() and draws nothing. gd_move() returns 1 after
-            // gd_move_cleanup() parks a vault guard at <0,0>, so C reaches
-            // this report with mx == 0. The port's newsym() is synchronous
-            // and cannot await the messages, so its caller raises them here.
-            if (!isok(monster.mx, monster.my)) {
-                await impossible(
-                    `newsym: attempting screen update for <${monster.mx},${monster.my}>`,
-                    state,
-                    {
-                        ...env,
-                        message,
-                        urgentMessage: env.planning
-                            ? message : rawEnv.urgentMessage,
-                    },
-                );
+            // gd_move() returns 1 after gd_move_cleanup() parks a vault
+            // guard at <0,0>, so C's newsym() reports this square.
+            if (newsymReportsOffMap(monster.mx, monster.my)) {
+                await newsymOffMapImpossible(monster.mx, monster.my, state, {
+                    ...env,
+                    message,
+                    urgentMessage: rawEnv.urgentMessage,
+                });
             } else {
                 redraw(monster.mx, monster.my);
             }

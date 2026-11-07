@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Variation of guard-parked-escort-exit for display.c see_monsters(): the Valkyrie first wishes for and wears a helm of telepathy, then follows the vault guard's escort until gd_move_cleanup() parks it at <0,0>. After postmov()'s newsym(0,0) report, every later input reaches allmain.c's once-per-input see_monsters() for an unblind telepathic hero, whose loop still meets the parked guard on fmon and calls newsym(0,0) again, so impossible() prints its three messages after each keystroke, including the ones C reports as unknown commands.",
+ "segments": [
+  {
+   "seed": 7328,
+   "datetime": "20261031193000",
+   "nethackrc": "OPTIONS=name:Telma,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+   "moves": " \u0017helm of telepathy\n\u001bWe\u001b\u0014  Hhhhhhjjjjjjj. 40s  Telma\rsskkkkkk         "
+  }
+ ]
+}
