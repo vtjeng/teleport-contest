@@ -1342,7 +1342,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             await make_blinded(blindedTimeout + blindinc, false, state,
                 rawEnv);
             if (!heroIsBlind(state))
-                await message('Your vision clears.', state, rawEnv);
+                await message('Your vision quickly clears.', state, rawEnv);
         }
 
         if (!obj) return false;

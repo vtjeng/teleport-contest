@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mhitu.c explmu() AD_BLND: a yellow light explodes at a Monk wearing the Eyes of the Overworld, so Blind stays false after make_blinded() and Your1(vision_clears) prints decl.c's 'vision quickly clears.'",
+  "segments": [
+    {
+      "seed": 8812,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0017the Eyes of the Overworld\n Pk\u0007yellow light\nms ms ms ms ms "
+    }
+  ]
+}

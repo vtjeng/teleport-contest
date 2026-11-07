@@ -1294,6 +1294,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         const blinded = state.u.uprops?.[BLINDED];
         const blindedTimeout = Math.trunc(blinded?.intrinsic ?? 0) & TIMEOUT;
         await make_blinded(blindedTimeout + blindinc, false, state);
+        if (!heroIsBlind(state))
+            await message('Your vision quickly clears.', state);
     }
     state.gt.thrownobj = null;
     return 0;

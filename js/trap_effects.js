@@ -1820,7 +1820,7 @@ async function domagictrap(env) {
             );
             await make_blinded(random.rn1(5, 10), false, state, env);
             if (!heroIsBlind(state))
-                await message('Your vision clears.', state);
+                await message('Your vision quickly clears.', state);
         } else if (!heroIsBlind(state)) {
             await message(plineYouSee('a flash of light!', state), state);
         }

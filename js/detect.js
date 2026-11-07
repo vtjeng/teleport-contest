@@ -1451,7 +1451,7 @@ export async function use_crystal_ball(optr, state = game) {
                     & TIMEOUT;
                 await make_blinded(blindTimeout + impairment, false, state);
                 if (!heroBlind(state))
-                    await ttyPline('Your vision clears.', state);
+                    await ttyPline('Your vision quickly clears.', state);
             } else {
                 await ttyPline(
                     `${Tobjnam(obj, 'assault', state)} your vision.`, state,

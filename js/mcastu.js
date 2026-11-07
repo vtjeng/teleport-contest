@@ -1244,7 +1244,7 @@ async function mcast_blind_you(env = {}) {
         await make_blinded(heroProperty(state, HALF_SPDAM) ? 100 : 200,
             false, state, { ...env, message });
         if (!activeHeroProperty(state, BLINDED))
-            await message('Your vision clears.', state);
+            await message('Your vision quickly clears.', state);
     } else {
         // C's impossible() is diagnostic only; callers that expose an
         // impossible hook keep the report without changing gameplay state.
