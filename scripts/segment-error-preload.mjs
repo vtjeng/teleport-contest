@@ -10,7 +10,9 @@
 // workspace's js/jsmain.js, the same module instance the runner imports,
 // that appends one JSON line per crash to
 // $TELEPORT_SEGMENT_ERROR_DIR/<session file name>.jsonl, and one per
-// violation to <session file name>.violations.jsonl beside it. It changes no
+// violation to <session file name>.violations.jsonl beside it, and one per
+// planning use of the live game (js/gstate.js) to
+// <session file name>.planning.jsonl. It changes no
 // game state and no score; any other process it is loaded into is left alone.
 import { appendFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -25,8 +27,11 @@ if (sessionArg && errorDir) {
     // with PROJECT_ROOT the parent of the runner's own directory.
     const runnerPath = process.argv[1];
     const jsmain = resolve(dirname(runnerPath), '..', 'js', 'jsmain.js');
-    const { setSegmentErrorReporter, setTerminationViolationReporter }
-        = await import(pathToFileURL(jsmain).href);
+    const {
+        setPlanningLiveGameReporter,
+        setSegmentErrorReporter,
+        setTerminationViolationReporter,
+    } = await import(pathToFileURL(jsmain).href);
     const session = basename(sessionArg.slice(WORKER_FLAG.length));
     const log = join(errorDir, `${session}.jsonl`);
     setSegmentErrorReporter(({ name, message }) => {
@@ -36,5 +41,10 @@ if (sessionArg && errorDir) {
     setTerminationViolationReporter((violations) => {
         appendFileSync(violationLog, violations
             .map(({ kind, detail }) => `${JSON.stringify({ kind, detail })}\n`).join(''));
+    });
+    const planningLog = join(errorDir, `${session}.planning.jsonl`);
+    setPlanningLiveGameReporter((uses) => {
+        appendFileSync(planningLog, uses
+            .map(({ kind, detail, count }) => `${JSON.stringify({ kind, detail, count })}\n`).join(''));
     });
 }

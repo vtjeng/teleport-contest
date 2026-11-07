@@ -80,3 +80,18 @@ test('summarizeRecordings fails a matching recording that reports a termination 
         screensTotal: 7, rng: 40, rngTotal: 40,
         failing: ['end.c__quit.session.json'] });
 });
+
+test('summarizeRecordings fails a matching recording whose planning pass used the live game', () => {
+    // The judge's runSegment() records a planning pass's use of `game`
+    // instead of throwing (js/gstate.js), so the replay matches; runScorer()
+    // attaches the use as planningLiveGameUses. The stand-in is one read.
+    const bundle = { results: [
+        { session: 'mon.c__planned.session.json', passed: true,
+            planningLiveGameUses: [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 1 }],
+            metrics: { screens: { matched: 7, total: 7 },
+                rngCalls: { matched: 40, total: 40 } } },
+    ] };
+    assert.deepEqual(summarizeRecordings(bundle), { recordings: 1, passing: 0, screens: 7,
+        screensTotal: 7, rng: 40, rngTotal: 40,
+        failing: ['mon.c__planned.session.json'] });
+});

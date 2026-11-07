@@ -45,14 +45,20 @@ export function measuredCases(root, manifest, bundle) {
         if (!result || !screensTotal || result.metrics?.screens?.total !== screensTotal
             || result.metrics?.cursors?.total !== screensTotal)
             throw new Error(`runner did not measure ${entry.id}: ${result?.error || 'incomplete output'}`);
-        return { id: entry.id, recordingSha256: entry.recordingSha256, passed: result.passed,
+        // A planning pass's use of the live game, which the judge's
+        // runSegment() records instead of throwing (js/gstate.js), fails the
+        // case as the crash it is under every local runner.
+        const planningUses = result.planningLiveGameUses ?? [];
+        return { id: entry.id, recordingSha256: entry.recordingSha256,
+            passed: result.passed && !planningUses.length,
             metrics: { screens: result.metrics.screens, rng: result.metrics.rngCalls, cursors: result.metrics.cursors },
             error: result.error ?? null,
             // A crash the judge's runSegment() ended the segment on, and what
             // ran after a segment terminated; runScorer() attaches both.
             ...(result.segmentErrors ? { segmentErrors: result.segmentErrors } : {}),
             ...(result.terminationViolations
-                ? { terminationViolations: result.terminationViolations } : {}) };
+                ? { terminationViolations: result.terminationViolations } : {}),
+            ...(planningUses.length ? { planningLiveGameUses: planningUses } : {}) };
     });
 }
 

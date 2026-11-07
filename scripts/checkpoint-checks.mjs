@@ -364,12 +364,19 @@ export function compareScoreToBaseline(stdout) {
     const violating = (results ?? [])
         .filter(({ terminationViolations }) => terminationViolations?.length)
         .map(({ session }) => session);
+    // And a planning pass's uses of the live game, which the judge's
+    // runSegment() records instead of throwing (js/gstate.js).
+    const planning = (results ?? [])
+        .filter(({ planningLiveGameUses }) => planningLiveGameUses?.length)
+        .map(({ session }) => session);
     const failed = comparison.drops.length > 0 || comparison.missing.length > 0;
-    if (!failed && !violating.length) return { passed: true };
+    if (!failed && !violating.length && !planning.length) return { passed: true };
     const details = [];
     if (failed) details.push(describeDrops(comparison));
     if (violating.length)
         details.push(`termination violations: ${violating.join(', ')}`);
+    if (planning.length)
+        details.push(`planning uses of the live game: ${planning.join(', ')}`);
     return { passed: false, detail: details.join('; ') };
 }
 

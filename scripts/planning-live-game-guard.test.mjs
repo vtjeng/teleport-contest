@@ -13,7 +13,14 @@ import test from 'node:test';
 
 import { u_at } from '../js/const.js';
 import { bot, cls, docrt, flush_screen, newsym, show_glyph_cell, timebot } from '../js/display.js';
-import { game, PlanningLiveGameError, resetGame } from '../js/gstate.js';
+import {
+    game,
+    PlanningLiveGameError,
+    planningLiveGameUses,
+    resetGame,
+    resetPlanningLiveGameUses,
+    setPlanningUseRecording,
+} from '../js/gstate.js';
 import {
     cloneIsaacContext,
     initRng,
@@ -75,6 +82,40 @@ test('every kind of use of game throws while planning', async () => {
         );
     }
     assert.equal(game.moves, undefined, 'the refused write did not land');
+});
+
+test('with recording selected, as runSegment() does, a planned use is recorded and reaches the live game', async () => {
+    const { live, planned, context } = planningFixture();
+    live.moves = 5;
+    resetPlanningLiveGameUses();
+    const previous = setPlanningUseRecording(true);
+    let result;
+    try {
+        result = await withPlanningCoreContext(context, planned, async () => {
+            // u_at() reads `state.u` at two places in its line; calling it
+            // twice gives two entries, each with a count of two.
+            const reads = [0, 1].map(() => u_at(10, 5));
+            game.moves = 6;
+            return reads;
+        });
+    } finally {
+        assert.equal(setPlanningUseRecording(previous), true);
+    }
+    // The reads saw the live hero at (10, 5) and the write landed on the live
+    // game, as both did before the guard existed.
+    assert.deepEqual(result, [true, true]);
+    assert.equal(live.moves, 6);
+    const uses = planningLiveGameUses();
+    assert.deepEqual(uses.map(({ kind, count }) => [kind, count]),
+        [['planningLiveGame', 2], ['planningLiveGame', 2], ['planningLiveGame', 1]]);
+    for (const use of uses.slice(0, 2))
+        assert.match(use.detail, /^planning pass reached the live game: read game\.u in u_at const\.js:\d+:\d+, called from /u);
+    assert.match(uses[2].detail, /^planning pass reached the live game: write game\.moves in /u);
+    resetPlanningLiveGameUses();
+    assert.deepEqual(planningLiveGameUses(), []);
+    // Recording is off again, so the next planned use throws.
+    await assert.rejects(withPlanningCoreContext(context, planned, async () => game.moves),
+        PlanningLiveGameError);
 });
 
 test('an identity test against game is false for the clone, and passing the clone works', async () => {
