@@ -4354,6 +4354,8 @@ async function redraw_map(cursorOnHero = false) {
 // restore defers see_monsters(). Callers can supply equivalent vision callbacks;
 // overlayMonsters=false lets a caller perform its own final monster overlay.
 export async function docrt(options = {}) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
     game.program_state.in_docrt = true;
@@ -7369,6 +7371,8 @@ function suppressMapOutput(state = game) {
 }
 
 export async function flush_screen(mode) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (suppressMapOutput()) return;
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
@@ -7416,6 +7420,8 @@ export async function flush_screen(mode) {
 
 // ── cls ──
 export async function cls() {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     // C's static in_cls protects reentrant message/display callbacks.
     if (game._inCls) return;
     game._inCls = true;
@@ -7501,6 +7507,8 @@ export async function cls() {
 // during the "You die..." --More-- sequence would show HP:0 instead of the
 // pre-damage value that C's incremental terminal leaves on screen.
 export async function bot({ initialTtyRefresh = false } = {}) {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
@@ -7591,6 +7599,8 @@ export async function bot({ initialTtyRefresh = false } = {}) {
 // cleared, exactly as bot() does above; suppress_map_output() covers the save,
 // restore and hangup states this port does not enter.
 export async function timebot() {
+    // A planned redraw is dropped, as in newsym().
+    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     if (game.flags?.time && game.iflags?.status_updates !== false) {

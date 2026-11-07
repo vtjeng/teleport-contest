@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import { u_at } from '../js/const.js';
-import { newsym, show_glyph_cell } from '../js/display.js';
+import { bot, cls, docrt, flush_screen, newsym, show_glyph_cell, timebot } from '../js/display.js';
 import { game, PlanningLiveGameError, resetGame } from '../js/gstate.js';
 import {
     cloneIsaacContext,
@@ -99,8 +99,8 @@ test('rnl() reached while planning reads the planned hero\'s Luck', async () => 
     assert.notDeepEqual(await draw({ ...planned, u: live.u }, cloneIsaacContext(context)), plannedDraws);
 });
 
-test('newsym() and show_glyph_cell() drop a planned paint without reaching the live game', async () => {
-    // Both take no state and paint the live game's square. Inside a plan
+test('the stateless display entry points drop a planned paint without reaching the live game', async () => {
+    // Each takes no state and paints the live game's display. Inside a plan
     // they must return before reading `game`, which would throw here.
     const { planned, context } = planningFixture();
     // Any square and any glyph record: the call must return at once.
@@ -108,6 +108,11 @@ test('newsym() and show_glyph_cell() drop a planned paint without reaching the l
     await withPlanningCoreContext(context, planned, async () => {
         newsym(10, 5);
         show_glyph_cell(10, 5, glyph);
+        await flush_screen(1);
+        await docrt();
+        await cls();
+        await bot();
+        await timebot();
     });
 });
 
