@@ -30,7 +30,7 @@ import {
     ismnum,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { christen_monst } from './do_name.js';
+import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { eaten_stat } from './eat.js';
@@ -323,8 +323,7 @@ function resetobjs(ochain, restore, state) {
                      || (otmp.otyp === CORPSE
                          && ismnum(otmp.corpsenm)
                          && otmp.corpsenm >= SPECIAL_PM))) {
-                otmp.oname = null;
-                otmp.onamelth = 0;
+                free_oname(otmp);
             }
 
             if (otmp.otyp === SLIME_MOLD) {
