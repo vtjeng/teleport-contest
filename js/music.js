@@ -3,8 +3,7 @@
 // (sndprocs.h:273); their arguments, including obj_to_instr, are not evaluated.
 import {
     ACH_TUNE, A_DEX, A_WIS, ALTAR, AM_MASK, AM_SANCTUM, Amask2align,
-    ARTICLE_THE,
-    BLINDED, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
+    ARTICLE_THE, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
     DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE,
     HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
@@ -65,7 +64,7 @@ import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, Maybe_Half_Phys } from './youprop.js';
 
 function property(state, index) {
     const p = state.u.uprops[index];
@@ -576,8 +575,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         } else {
             // BZ_OFS_AD(AD_COLD/AD_FIRE) = adtyp-1; BZ_U_WAND leaves it unchanged.
             const type = instr.otyp === FROST_HORN ? 2 : 1;
-            const blinded = state.u.uprops[BLINDED];
-            if (!((blinded?.intrinsic || blinded?.extrinsic) && !blinded?.blocked))
+            if (!(Blind(state.u)))
                 await message(`A ${flash_str(type, false, state)} blasts out of the horn!`, state);
             // gc.current_wand already lives at state.current_wand in zap.js.
             state.current_wand = instr;

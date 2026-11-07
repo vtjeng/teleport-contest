@@ -14,7 +14,6 @@ import {
     AM_NEUTRAL,
     AM_NONE,
     BLCORNER,
-    BLINDED,
     BOLT_LIM,
     COLNO,
     CROSSWALL,
@@ -75,7 +74,6 @@ import {
     ROWNO,
     SCORR,
     SDOOR,
-    SEE_INVIS,
     SHOPBASE,
     P_POLEARMS,
     PIT,
@@ -599,6 +597,7 @@ import {
     which_armor,
 } from './worn.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Blind, See_invisible } from './youprop.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -1663,10 +1662,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
 }
 
-function heroIsBlind(state) {
-    const blind = state.u?.uprops?.[BLINDED];
-    return Boolean((blind?.intrinsic || blind?.extrinsic) && !blind?.blocked);
-}
 
 // C ref: makemon.c makemon_rnd_goodpos(). Level generation skips the
 // visibility pass and stair fallback. Runtime generation first avoids every
@@ -1697,7 +1692,7 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
     const xofs = nx;
     const yofs = ny;
-    const firstScanStage = state.in_mklev || heroIsBlind(state) ? 1 : 0;
+    const firstScanStage = state.in_mklev || Blind(state.u) ? 1 : 0;
     let scanFlags = gpflags | GP_AVOID_MONPOS;
     for (let scanStage = firstScanStage; scanStage < 2; ++scanStage) {
         const visibleSquaresAllowed = scanStage === 1;
@@ -2474,7 +2469,7 @@ export function rnd_misc_item(monster, normalized) {
         if (monster.isgd) return 0;
         return random.rn2(6) ? POT_SPEED : WAN_SPEED_MONSTER;
     case 1:
-        if (monster.mpeaceful && !heroHasProperty(state, SEE_INVIS)) return 0;
+        if (monster.mpeaceful && !See_invisible(state.u)) return 0;
         return random.rn2(6) ? POT_INVISIBILITY : WAN_MAKE_INVISIBLE;
     case 2:
         return POT_GAIN_LEVEL;

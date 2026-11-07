@@ -65,7 +65,6 @@ import {
     has_oname,
     helpless,
     u_at,
-    SEE_INVIS,
     DEAF,
 } from './const.js';
 import { isok } from './cmd_isok.js';
@@ -165,7 +164,7 @@ import { beautiful } from './apply.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { Blind, See_invisible } from './youprop.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -560,7 +559,7 @@ export async function do_mgivenname(state = game) {
         }
     }
 
-    const seeInvisible = namingPropertyActive(state, SEE_INVIS);
+    const seeInvisible = See_invisible(state.u);
     const appearance = monster ? M_AP_TYPE(monster) : 0;
     if (!doSwallow && (!monster
         || (!sensemon(monster, state)
@@ -1381,7 +1380,7 @@ export function x_monnam(
     // do_name.c:938-941 reads Blind and Hallucination directly here, not
     // do_hallu, so SUPPRESS_HALLUCINATION does not restore the saddle.
     if (do_saddle && (monster.misc_worn_check & W_SADDLE)
-        && !heroIsBlind(state)
+        && !Blind(state.u)
         && !hallucinationActive(state))
         buf += 'saddled ';
     const has_adjectives = buf !== '';

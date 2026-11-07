@@ -13,7 +13,6 @@ import {
     AM_MASK,
     Amask2align,
     Align2amask,
-    BLINDED,
     CLOUD,
     COLNO,
     DBWALL,
@@ -114,6 +113,7 @@ import { ttyPline } from './tty_message.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { tty_clear_map_window } from './wintty.js';
+import { Blind } from './youprop.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1136,15 +1136,6 @@ function dname_to_dnum(name, state) {
     return index;
 }
 
-// C ref: youprop.h Blind (103) and Hallucination (116). Both are read once,
-// by the same-level arm of u_on_newpos() below. Blindness is intrinsic or
-// extrinsic unless an artifact blocks it; hallucination is solely an intrinsic
-// timeout that either kind of resistance suppresses.
-function heroBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked);
-}
 
 function heroHallucinating(state) {
     const halluc = state.u?.uprops?.[HALLUC];
@@ -1193,7 +1184,7 @@ export function u_on_newpos(
         map_location(x, y, false, state);
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
-    } else if (!heroBlind(state)
+    } else if (!Blind(state.u)
         && !heroHallucinating(state)
         && !hero.uswallow) {
         // still on same level; might have come close enough to
@@ -2576,7 +2567,7 @@ export function recalc_mapseen(state = game) {
     mapseen.flags.sokosolved = in_sokoban_level(u.uz, state)
         && !state.level?.flags?.sokoban_rules ? 1 : 0;
     // flags.bigroom keeps its previous value while the hero cannot see.
-    if (!heroBlind(state))
+    if (!Blind(state.u))
         mapseen.flags.bigroom = on_level(u.uz, state.bigroom_level) ? 1 : 0;
     else if (mapseen.flags.forgot)
         mapseen.flags.bigroom = 0;

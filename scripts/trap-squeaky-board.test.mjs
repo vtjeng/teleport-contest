@@ -85,7 +85,7 @@ test('trapeffect_sqky_board preserves C hero and monster branch order', () => {
 
     const jsHero = JS_BODY.indexOf('if (monster === state.youmonst)');
     const jsAir = JS_BODY.indexOf('(Levitation(state) || Flying(state)) && !forcetrap');
-    const jsBlind = JS_BODY.indexOf('if (!heroIsBlind(state))', jsAir);
+    const jsBlind = JS_BODY.indexOf('if (!Blind(state.u))', jsAir);
     const jsHeroWake = JS_BODY.indexOf('wake_nearby(false', jsBlind);
     const jsMonster = JS_BODY.indexOf('// stepped on a squeaky board', jsHeroWake);
     const jsInSight = JS_BODY.indexOf('const inSight = canseemon(monster, state)', jsMonster);

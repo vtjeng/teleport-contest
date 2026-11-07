@@ -7,7 +7,6 @@ import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
     A_WIS,
-    BLINDED,
     BURN,
     BUFSZ,
     CLOUD,
@@ -87,6 +86,7 @@ import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
+import { Blind } from './youprop.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -211,9 +211,6 @@ function propertyActiveUnblocked(hero, propertyIndex) {
         && !(property.blocked ?? 0));
 }
 
-function heroBlind(state) {
-    return propertyActiveUnblocked(state.u, BLINDED);
-}
 
 function heroDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
@@ -387,7 +384,7 @@ export async function u_can_engrave(
 export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
     const otmp = de.otmp;
     const typ = otmp.otyp;
-    const blind = heroBlind(state);
+    const blind = Blind(state.u);
     const surfaceName = surface(state.u.ux, state.u.uy, state);
     const setPost = (text) => setText(de, 'post_engr_text', text);
 
@@ -520,7 +517,7 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
 // whether doengrave() proceeds to its setup and text prompt.
 export async function doengrave_sfx_item(de, state = game, env = {}) {
     const otmp = de.otmp;
-    const blind = heroBlind(state);
+    const blind = Blind(state.u);
     const surfaceName = surface(state.u.ux, state.u.uy, state);
     const message = async (text) => env.message?.(text, state);
 
@@ -969,7 +966,7 @@ export async function doengrave(state = game, env = {}) {
             { state, random: env.random },
         );
         const tmpEp = engr_at(state.u.ux, state.u.uy, state);
-        if (!heroBlind(state) && tmpEp) {
+        if (!Blind(state.u) && tmpEp) {
             await say(`The engraving now reads: "${de.buf}".`);
             tmpEp.eread = true;
             tmpEp.erevealed = true;
@@ -978,7 +975,7 @@ export async function doengrave(state = game, env = {}) {
         de.ptext = false;
     }
     if (de.zapwand && de.otmp.spe < 0) {
-        await say(`${The(xnameFresh(de.otmp, state), state)} ${heroBlind(state) ? '' : 'glows violently, then '}turns to dust.`);
+        await say(`${The(xnameFresh(de.otmp, state), state)} ${Blind(state.u) ? '' : 'glows violently, then '}turns to dust.`);
         if (!IS_GRAVE(currentTyp))
             await say(`You are not going to get anywhere trying to write in the ${de.frosted ? 'frost' : 'dust'} with your dust.`);
         await useup(de.otmp, { state, hooks: env.inventoryHooks ?? {} });
@@ -1003,7 +1000,7 @@ export async function doengrave(state = game, env = {}) {
         let choice = 'n';
         if (de.type === HEADSTONE) choice = 'y';
         else if (de.type === de.oep.engr_type
-            && (!heroBlind(state) || [BURN, ENGRAVE].includes(de.oep.engr_type))) {
+            && (!Blind(state.u) || [BURN, ENGRAVE].includes(de.oep.engr_type))) {
             choice = await env.yesNo(
                 'Do you want to add to the current engraving?', 'ynq', 'y',
                 true, state,
@@ -1015,9 +1012,9 @@ export async function doengrave(state = game, env = {}) {
             }
         }
 
-        if (choice === 'n' || heroBlind(state)) {
+        if (choice === 'n' || Blind(state.u)) {
             if ([DUST, ENGR_BLOOD, MARK].includes(de.oep.engr_type)) {
-                if (!heroBlind(state)) {
+                if (!Blind(state.u)) {
                     const description = de.oep.engr_type === DUST
                         ? (de.frosted ? 'written in the frost' : 'written in the dust')
                         : de.oep.engr_type === ENGR_BLOOD
@@ -1038,7 +1035,7 @@ export async function doengrave(state = game, env = {}) {
                 if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
                 return de.ret;
             } else if (de.type !== de.oep.engr_type || choice === 'n') {
-                if (!heroBlind(state) || can_reach_floor(true, state))
+                if (!Blind(state.u) || can_reach_floor(true, state))
                     await say('You will overwrite the current message.');
                 de.eow = true;
             }
@@ -1067,7 +1064,7 @@ export async function doengrave(state = game, env = {}) {
     for (const byte of bytes) if (byte === 0x20) length--;
     if (!length || bytes.includes(0x1b)) {
         if (de.zapwand) {
-            if (!heroBlind(state))
+            if (!Blind(state.u))
                 await say(`${Tobjnam(de.otmp, 'glow', state)}, then ${otense(de.otmp, 'fade', state)}.`);
             de.ret = env.ECMD_TIME ?? ECMD_TIME;
         } else {
@@ -1088,7 +1085,7 @@ export async function doengrave(state = game, env = {}) {
         if (corrupted[i] === 0x20) continue;
         const damage = (de.type === DUST || de.type === ENGR_BLOOD)
             && !env.random.rn2(25)
-            || heroBlind(state) && !env.random.rn2(11)
+            || Blind(state.u) && !env.random.rn2(11)
             || propertyActiveUnblocked(state.u, CONFUSION)
                 && !env.random.rn2(7)
             || propertyActiveUnblocked(state.u, STUNNED)
@@ -1118,7 +1115,7 @@ export async function doengrave(state = game, env = {}) {
     if (de.doblind && !resists_blnd(state.youmonst, state)) {
         await say('You are blinded by the flash!');
         await make_blinded(env.random.rnd(50), false, state, env.blindingEnv ?? {});
-        if (!heroBlind(state)) await say(`Your ${vision_clears}`);
+        if (!Blind(state.u)) await say(`Your ${vision_clears}`);
     }
     if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
     return de.ret;
@@ -1235,7 +1232,7 @@ export async function read_engr_at(
     if (typeof pline !== 'function')
         throw new TypeError('read_engr_at requires a pline callback');
 
-    const blind = propertyActiveUnblocked(state.u, BLINDED);
+    const blind = Blind(state.u);
     const onIce = state.level?.at(x, y)?.typ === ICE;
     const tactileFloor = () => {
         if (!blind) return true;

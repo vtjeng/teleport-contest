@@ -26,9 +26,9 @@ import { verbalize } from './pline.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { coreRandom, rn2 } from './rng.js';
 import { init_rumors } from './rumors.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { Blind } from './youprop.js';
 
 export { xcrypt } from './hacklib.js';
 
@@ -268,7 +268,7 @@ export async function outrumor(truth, mechanism, state = game, rawEnv = {}) {
         // predicate in this source path. Only a cookie's meal can use it.
         if (mechanism === BY_COOKIE && state.u?.uhs === FAINTED)
             return;
-        if (heroIsBlind(state)) {
+        if (Blind(state.u)) {
             if (mechanism === BY_COOKIE)
                 await message('This cookie has a scrap of paper inside.', state);
             await message('What a pity that you cannot read it!', state);

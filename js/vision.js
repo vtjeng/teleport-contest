@@ -11,14 +11,12 @@ import { BOULDER } from './objects.js';
 import { visible_region_at } from './region.js';
 import { m_at } from './monst.js';
 import { perceives } from './mondata.js';
-import {
-    BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
-    IN_SIGHT, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR,
+import { CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
+    IN_SIGHT, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR,
     POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     MAX_RADIUS,
-    M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
-    DETECT_MONSTERS,
+    M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
     MONSEEN_NORMAL, MONSEEN_SEEINVIS, MONSEEN_INFRAVIS,
     MONSEEN_TELEPAT, MONSEEN_XRAYVIS, MONSEEN_DETECT, MONSEEN_WARNMON,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
@@ -39,12 +37,9 @@ import {
     S_tree,
     S_vcdoor,
 } from './symbols.js';
-
-function heroIsBlind(hero) {
-    const blindness = hero?.uprops?.[BLINDED];
-    return Boolean(blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked;
-}
+import {
+    Blind, Detect_monsters, Invis, See_invisible,
+} from './youprop.js';
 
 // C ref: display.c seenv_matrix, shared with vision.c.
 export const seenv_matrix = Object.freeze([
@@ -143,10 +138,6 @@ function mark_visible_range(row, left, right, scan) {
     if (scan.right[row] < right) scan.right[row] = right;
 }
 
-function heroSeesInvisible(state) {
-    const property = state.u?.uprops?.[SEE_INVIS];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // defsym.h keeps every wall cmap entry in the contiguous half-open range
 // [S_stone, S_ndoor).  C's is_lightblocker_mappear() expresses this as
@@ -173,7 +164,7 @@ export function is_lightblocker_mappear(monster) {
 // hero cannot see through because of what it is pretending to be.
 function mimicBlocksLight(x, y, state) {
     const monster = m_at(x, y, state);
-    if (!monster || (monster.minvis && !heroSeesInvisible(state))) return false;
+    if (!monster || (monster.minvis && !See_invisible(state.u))) return false;
     return is_lightblocker_mappear(monster);
 }
 
@@ -919,11 +910,11 @@ export function vision_recalc(control = 0, env = {}) {
         u.uinwater && !on_level(u.uz, state.water_level),
     );
     const underwaterSight = Boolean(
-        underwaterOutsideWaterLevel && !heroIsBlind(u) && !rogueLevel,
+        underwaterOutsideWaterLevel && !Blind(u) && !rogueLevel,
     );
     const pitSight = Boolean(
         u.utrap && u.utraptype === TT_PIT
-        && !heroIsBlind(u)
+        && !Blind(u)
         && !rogueLevel
         && !underwaterOutsideWaterLevel,
     );
@@ -958,7 +949,7 @@ export function vision_recalc(control = 0, env = {}) {
                 for (let col = minCol; col <= maxCol; ++col)
                     next[row][col] = IN_SIGHT | COULD_SEE;
             }
-        } else if (rogueLevel && !heroIsBlind(u)) {
+        } else if (rogueLevel && !Blind(u)) {
             // vision.c:584-585. Blind sight takes the view_from() path.
             rogue_vision(next, next_rmin, next_rmax, state, redraw);
         } else {
@@ -972,7 +963,7 @@ export function vision_recalc(control = 0, env = {}) {
     // C ref: vision.c vision_recalc(), Blind branch. Keep COULD_SEE so
     // monster line-of-sight remains available, but grant the hero no
     // IN_SIGHT cells and remove anything which was visible previously.
-    if (control !== 2 && heroIsBlind(u)) {
+    if (control !== 2 && Blind(u)) {
         const oldArray = state.viz_array;
         state.viz_array = next;
         state.active_buf = spare;
@@ -1180,11 +1171,7 @@ export function couldsee(x, y, state = game) {
 // `Underwater` is youprop.h:279, the bare u.uinwater field. The two commented
 // -out terms at vision.h:45-48, u.uburied and mburied, are not compiled.
 export function m_canseeu(mon, state = game) {
-    const invisible = state.u?.uprops?.[INVIS] ?? {};
-    const Invis = Boolean(
-        (invisible.intrinsic || invisible.extrinsic) && !invisible.blocked,
-    );
-    return (!Invis || perceives(mon.data))
+    return (!Invis(state.u) || perceives(mon.data))
         && !state.u?.uinwater
         && couldsee(mon.mx, mon.my, state);
 }
@@ -1210,9 +1197,8 @@ export function howmonseen(mon, state = game) {
         seen |= MONSEEN_NORMAL;
     if (useemon && mon.minvis)
         seen |= MONSEEN_SEEINVIS;
-    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
     if ((!mon.minvis
-        || Boolean(seeInvisible?.intrinsic || seeInvisible?.extrinsic))
+        || See_invisible(state.u))
         && see_with_infrared(mon, state)) {
         seen |= MONSEEN_INFRAVIS;
     }
@@ -1223,8 +1209,7 @@ export function howmonseen(mon, state = game) {
     const dy = (mon.my ?? 0) - (hero.uy ?? 0);
     if (useemon && xrayRange > 0 && dx * dx + dy * dy <= xrayRange)
         seen |= MONSEEN_XRAYVIS;
-    const detect = hero.uprops?.[DETECT_MONSTERS];
-    if (Boolean(detect?.intrinsic || detect?.extrinsic))
+    if (Detect_monsters(hero))
         seen |= MONSEEN_DETECT;
     if (warningMatches(mon, state))
         seen |= MONSEEN_WARNMON;

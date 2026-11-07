@@ -42,7 +42,6 @@ import {
     ARM,
     AUGMENT_IT,
     BACKTRACK,
-    BLINDED,
     BOLT_LIM,
     BRK_FROM_INV,
     BRK_KNOWN2BREAK,
@@ -462,7 +461,6 @@ import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { explode, explode_oil } from './explode.js';
 import { align_gname } from './pray.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { in_out_region, m_in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
@@ -480,7 +478,6 @@ import {
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { dotrap, mintrap } from './trap_effects.js';
-import { Punished } from './steed.js';
 import { move_bc, drag_ball, drop_ball } from './ball.js';
 import { note_unported } from './unported.js';
 import { cutworm } from './worm.js';
@@ -488,7 +485,8 @@ import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Punished } from './steed.js';
+import { Blind, HBlinded, Maybe_Half_Phys } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -1255,7 +1253,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
                 state,
                 rawEnv,
             );
-            await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+            await breakmsg(obj, !Blind(state.u), { ...rawEnv, state });
             // Crackable armor may pass breaktest() but survive breakobj().
             if (!await breakobj(obj, u.ux, u.uy, true, true,
                 { ...rawEnv, state, random })) {
@@ -1288,7 +1286,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
         const blindinc = ((otyp === CREAM_PIE || otyp === BLINDING_VENOM)
             && can_blnd(state.youmonst, state.youmonst, AT_WEAP, obj, state))
             ? random.rnd(25) : 0;
-        await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+        await breakmsg(obj, !Blind(state.u), { ...rawEnv, state });
         if (await breakobj(obj, u.ux, u.uy, true, true,
             { ...rawEnv, state, random }))
             obj = null;
@@ -1331,14 +1329,14 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
         }
 
         if (blindinc) {
-            if (otyp === BLINDING_VENOM && !heroIsBlind(state))
+            if (otyp === BLINDING_VENOM && !Blind(state.u))
                 await message('It blinds you!', state, rawEnv);
             u.ucreamed = (u.ucreamed ?? 0) + blindinc;
-            const blindedTimeout = (u.uprops?.[BLINDED]?.intrinsic ?? 0)
+            const blindedTimeout = (HBlinded(u))
                 & TIMEOUT;
             await make_blinded(blindedTimeout + blindinc, false, state,
                 rawEnv);
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`Your ${vision_clears}`, state, rawEnv);
         }
 
@@ -1606,7 +1604,7 @@ export async function hero_breaks(
 ) {
     const state = rawEnv.state ?? game;
     const fromInventory = Boolean(breakFlags & BRK_FROM_INV);
-    const inView = !heroIsBlind(state)
+    const inView = !Blind(state.u)
         && (fromInventory || cansee(x, y, state));
     let outcome = breakFlags & BRK_KNOWN_OUTCOME;
     if (!outcome) {
@@ -1629,7 +1627,7 @@ export async function hero_breaks(
 // cause and never bills a floor object to the hero as an inventory loss.
 export async function breaks(obj, x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const inView = !heroIsBlind(state) && cansee(x, y, state);
+    const inView = !Blind(state.u) && cansee(x, y, state);
     if (!breaktest(obj, { ...rawEnv, state })) return 0;
     await breakmsg(obj, inView, { ...rawEnv, state });
     return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
@@ -2615,7 +2613,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
         ret = 1;
     }
 
-    if (!heroIsBlind(state)) await message(text, state, env);
+    if (!Blind(state.u)) await message(text, state, env);
     if (!(await tele_restrict(mon, state, { ...env, message }))) {
         rloc(mon, RLOC_MSG, {
             ...env,
@@ -2637,7 +2635,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     const arw = autoreturn_weapon(obj);
     let impaired = propertyHeld(state, CONFUSION)
         || propertyHeld(state, STUNNED)
-        || heroIsBlind(state)
+        || Blind(state.u)
         || hallucinating(state)
         || propertyHeld(state, FUMBLING);
     const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
@@ -2840,7 +2838,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 const damageRoll = rn2(2);
                 if (!damageRoll) {
                     await ttyPline(
-                        heroIsBlind(state)
+                        Blind(state.u)
                             ? `Something lands ${
                                 Levitation(state) ? 'beneath' : 'at'} your ${
                                 makeplural(body_part(FOOT, state.youmonst))}.`
@@ -2851,7 +2849,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 } else {
                     let damage = damageRoll + rnd(3);
                     await ttyPline(
-                        heroIsBlind(state)
+                        Blind(state.u)
                             ? `${Tobjnam(obj, 'hit', state)} your ${body_part(ARM, state.youmonst)}!`
                             : `${Tobjnam(obj, 'fly', state)} back toward you, `
                                 + `hitting your ${body_part(ARM, state.youmonst)}!`, state,

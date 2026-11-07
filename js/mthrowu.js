@@ -20,7 +20,6 @@ import {
     ARM,
     BACKTRACK,
     FACE,
-    BLINDED,
     BOLT_LIM,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
@@ -280,7 +279,7 @@ import {
 
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, HBlinded, Maybe_Half_Phys } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -484,16 +483,6 @@ export function lined_up(mtmp, rawEnv = {}) {
     return m_lined_up(state.youmonst, mtmp, { ...rawEnv, state });
 }
 
-// youprop.h:341 Blind. hero is blind if the intrinsic or extrinsic is present
-// and not blocked (typically by telepathy). Each C port file defines this
-// module-locally; see the note in js/hack.js heroIsBlind().
-function heroIsBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean(
-        (blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked,
-    );
-}
 
 function requireRangedOperation(env, name) {
     const operation = env[name];
@@ -519,7 +508,7 @@ async function u_catch_thrown_obj(obj, env) {
     const role = state.urole?.mnum;
     const catchChance = 100 - acurr(state, A_DEX)
         - ((role === PM_MONK || role === PM_ROGUE) ? 20 : 0);
-    if (!heroIsBlind(state)
+    if (!Blind(state.u)
         && !propertyActive(state, CONFUSION)
         && !propertyActive(state, STUNNED)
         && !propertyActive(state, FUMBLING)
@@ -1155,7 +1144,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 blindinc = random.rnd(25);
                 if (typeof env.message === 'function') {
                     if (singleobj.otyp === CREAM_PIE) {
-                        if (heroIsBlind(state)) {
+                        if (Blind(state.u)) {
                             await env.message(
                                 `There's something sticky all over your ${body_part(FACE, state.youmonst)}.`,
                                 state,
@@ -1163,7 +1152,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                         } else {
                             await env.message('Yecch!  You\'ve been creamed.', state);
                         }
-                    } else if (heroIsBlind(state)) {
+                    } else if (Blind(state.u)) {
                         let eyes = body_part(EYE, state.youmonst);
                         const pmidx = state.youmonst.data?.pmidx;
                         if (pmidx !== PM_CYCLOPS && pmidx !== PM_FLOATING_EYE)
@@ -1287,10 +1276,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     state.mesg_given = 0;
     if (blindinc) {
         state.u.ucreamed = Math.trunc(state.u.ucreamed ?? 0) + blindinc;
-        const blinded = state.u.uprops?.[BLINDED];
-        const blindedTimeout = Math.trunc(blinded?.intrinsic ?? 0) & TIMEOUT;
+        const blindedTimeout = Math.trunc(HBlinded(state.u)) & TIMEOUT;
         await make_blinded(blindedTimeout + blindinc, false, state);
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`Your ${vision_clears}`, state);
     }
     state.gt.thrownobj = null;
@@ -1989,7 +1977,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
         // Miss. C increments gm.mesg_given, which m_throw() reads when deciding
         // whether a later multishot miss needs its own message.
         state.mesg_given = (state.mesg_given ?? 0) + 1;
-        if (heroIsBlind(state) || !state.flags?.verbose) {
+        if (Blind(state.u) || !state.flags?.verbose) {
             await message('It misses.', state);
         } else if (state.u.uac + tlev <= dieroll - 2) {
             // Clear miss: "A little dart misses you."
@@ -2005,7 +1993,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
     }
 
     // Hit.
-    if (heroIsBlind(state) || !state.flags?.verbose)
+    if (Blind(state.u) || !state.flags?.verbose)
         await message(`You are hit${exclam(dam)}`, state);
     else
         await message(`You are hit by ${onm}${exclam(dam)}`, state);

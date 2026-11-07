@@ -146,7 +146,6 @@ import {
     update_inventory, useup, useupall,
 } from './invent.js';
 import { game } from './gstate.js';
-import { heroIsBlind } from './startup_a11y.js';
 import {
     inv_weight, NODIAG, You_can_move_again, nomul, spoteffects, } from './hack.js';
 import {
@@ -219,6 +218,9 @@ import { coreRandom,
     createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    Blind, Invis, See_invisible, Warn_of_mon,
+} from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
 
@@ -798,7 +800,7 @@ export async function slip_or_trip(state = game, env = {}) {
         if (state.iflags?.last_msg === PLNMSG_ONE_ITEM_HERE) {
             what = object.quan === 1
                 ? 'it' : hallucinating(state) ? 'they' : 'them';
-        } else if (object.dknown || !heroPropertyActive(state, BLINDED)) {
+        } else if (object.dknown || !Blind(state.u)) {
             what = donameFresh(object, state);
         } else {
             otherObject = sobj_at(ROCK, u.ux, u.uy, state);
@@ -1025,7 +1027,7 @@ async function slime_dialogue(state = game, env = {}) {
 
         if (text.includes('%')) {
             if (index === 4) {
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     text = text.replace('%s', hcolor('green', state, displayEnv));
                     await urgentMessage(text, state);
                 }
@@ -1584,10 +1586,10 @@ async function decrement_property_timeouts(state, env) {
             if (!property.intrinsic) await stop_occupation(state, occupationEnv);
             break;
         case BLINDED: {
-            const wasBlind = heroPropertyActive(state, BLINDED);
+            const wasBlind = Blind(state.u);
             set_itimeout(property, 1);
             await make_blinded(0, true, state, env);
-            if (wasBlind && !heroPropertyActive(state, BLINDED))
+            if (wasBlind && !Blind(state.u))
                 await stop_occupation(state, occupationEnv);
             break;
         }
@@ -1600,9 +1602,9 @@ async function decrement_property_timeouts(state, env) {
             break;
         case INVIS:
             (env.newsym ?? newsym)(u.ux, u.uy, state);
-            if (!heroPropertyActive(state, INVIS) && !property.blocked
-                && !heroPropertyActive(state, BLINDED)) {
-                await message(!propertySource(state, SEE_INVIS)
+            if (!Invis(state.u) && !property.blocked
+                && !Blind(state.u)) {
+                await message(!See_invisible(state.u)
                     ? 'You are no longer invisible.'
                     : 'You can no longer see through yourself.', state);
                 await stop_occupation(state, occupationEnv);
@@ -1683,7 +1685,7 @@ async function decrement_property_timeouts(state, env) {
                 await toggle_displacement(null, 0, false, state);
             break;
         case WARN_OF_MON:
-            if (!propertySource(state, WARN_OF_MON)) {
+            if (!Warn_of_mon(state.u)) {
                 const species = state.context.warntype.species;
                 state.context.warntype.species = null;
                 state.context.warntype.speciesidx = NON_PM;
@@ -1831,7 +1833,7 @@ export async function nh_timeout(state = game, env = {}) {
         u.usptime = u.uspmtime;
         --u.uspellprot;
         find_ac(state);
-        if (!heroPropertyActive(state, BLINDED))
+        if (!Blind(state.u))
             await (env.norepMessage ?? ttyNorep)(
                 `The ${hcolor('golden', state, displayEnv)} haze around you ${u.uspellprot ? 'becomes less dense' : 'disappears'}.`,
                 state,
@@ -2440,7 +2442,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
     }
 
     const location = get_obj_location(obj, 0, state);
-    const blind = heroIsBlind(state);
+    const blind = Blind(state.u);
     let canseeit = false;
     let whose;
     if (location) {

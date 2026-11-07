@@ -8,7 +8,6 @@ import {
     ALL_TRAPS,
     ACID_RES,
     ANTIMAGIC,
-    BLINDED,
     BLND_RES,
     COLD_RES,
     DRAIN_RES,
@@ -119,6 +118,7 @@ export function set_mon_data(monster, species, state = game) {
     }
 }
 import { which_armor } from './worn.js';
+import { Blind, Blnd_resist, EBlinded } from './youprop.js';
 
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
@@ -255,9 +255,7 @@ export function resists_blnd_by_arti(mon, state = game) {
 // line; monsters retain their mblinded/mcansee/sleeping flags.
 export function resists_blnd(mon, state = game) {
     const isYou = mon === state.youmonst;
-    const blinded = state.u?.uprops?.[BLINDED];
-    const heroBlind = Boolean((blinded?.intrinsic || blinded?.extrinsic)
-        && !blinded?.blocked);
+    const heroBlind = Blind(state.u);
     const heroUnaware = heroUnawareForBlindness(state);
     if (isYou
         ? (heroBlind || heroUnaware)
@@ -270,8 +268,7 @@ export function resists_blnd(mon, state = game) {
         return true;
     }
     if (resists_blnd_by_arti(mon, state)) return true;
-    const blindResist = state.u?.uprops?.[BLND_RES];
-    if (isYou && (blindResist?.intrinsic || blindResist?.extrinsic)) {
+    if (isYou && Blnd_resist(state.u)) {
         // mondata.c explicitly calls impossible() for this inconsistent state
         // before returning TRUE; keep the source-named diagnostic gap.
         note_unported('pline.c impossible');
@@ -289,7 +286,7 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     const isYou = mdef === state.youmonst;
     // youprop.h:88-96. Blindfolded is EBlinded, which lenses do not set;
     // attacks that specifically check all eyewear use ublindf below.
-    const blindfolded = Boolean(state.u?.uprops?.[BLINDED]?.extrinsic);
+    const blindfolded = Boolean(EBlinded(state.u));
     if (!isYou && !mdef?.mcansee && !mdef?.mblinded) return false;
     if (magr?.data?.pmidx === M.PM_RAVEN
         && mdef?.data?.pmidx === M.PM_RAVEN) return false;

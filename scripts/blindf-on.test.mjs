@@ -23,7 +23,7 @@ import {
     TOOL_CLASS,
     TOWEL,
 } from '../js/objects.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
+import { Blind } from '../js/youprop.js';
 
 const { Blindf_on } = _doWearInternals;
 
@@ -82,7 +82,7 @@ test('Blindf_on with blindfold makes sighted hero blind', async () => {
     // do_wear.c:1489-1491 toggle_blindness() fires.
     await initGame('blindfold', /* extraKeys */ 1);
 
-    assert.equal(heroIsBlind(game), false,
+    assert.equal(Blind(game.u), false,
         'hero starts sighted before putting on blindfold');
 
     const bf = syntheticEyewear(BLINDFOLD);
@@ -92,7 +92,7 @@ test('Blindf_on with blindfold makes sighted hero blind', async () => {
         'blindfold is in the ublindf slot after Blindf_on');
     assert.equal(bf.owornmask & W_TOOL, W_TOOL,
         'blindfold has W_TOOL owornmask set');
-    assert.equal(heroIsBlind(game), true,
+    assert.equal(Blind(game.u), true,
         'hero is blind after putting on blindfold');
     // setworn sets BLINDED extrinsic through addSlotEffects.
     assert.equal(
@@ -106,7 +106,7 @@ test('Blindf_on with towel makes sighted hero blind', async () => {
     // as BLINDFOLD, so setworn sets the same extrinsic.
     await initGame('towel', /* extraKeys */ 1);
 
-    assert.equal(heroIsBlind(game), false,
+    assert.equal(Blind(game.u), false,
         'hero starts sighted before putting on towel');
 
     const tw = syntheticEyewear(TOWEL);
@@ -114,7 +114,7 @@ test('Blindf_on with towel makes sighted hero blind', async () => {
 
     assert.equal(game.ublindf, tw,
         'towel is in the ublindf slot after Blindf_on');
-    assert.equal(heroIsBlind(game), true,
+    assert.equal(Blind(game.u), true,
         'hero is blind after putting on towel');
 });
 
@@ -128,7 +128,7 @@ test('Blindf_on releases a wielded blindfold before wearing it', async () => {
     assert.equal(game.uwep, null);
     assert.equal(game.ublindf, bf);
     assert.equal(bf.owornmask, W_TOOL);
-    assert.equal(heroIsBlind(game), true);
+    assert.equal(Blind(game.u), true);
 });
 
 // ---- toggle_blindness effects ----

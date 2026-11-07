@@ -38,7 +38,6 @@ import {
     ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
-    BLINDED,
     BUFSZ,
     COLD_RES,
     CONFUSION,
@@ -66,7 +65,6 @@ import {
     HMON_MELEE,
     HMON_KICKED,
     HMON_THROWN,
-    INVIS,
     KILLED_BY,
     KILLED_BY_AN,
     LL_CONDUCT,
@@ -112,7 +110,6 @@ import {
     POISON_RES,
     STONE_RES,
     SHOCK_RES,
-    DETECT_MONSTERS,
     ECMD_TIME,
     EXACT_NAME,
     IS_OBSTRUCTED,
@@ -125,7 +122,6 @@ import {
     M_AP_NOTHING,
     OBJ_FREE,
     PROT_FROM_SHAPE_CHANGERS,
-    SEE_INVIS,
     SICK,
     SICK_ALL,
     SICK_RES,
@@ -638,7 +634,7 @@ import {
 } from './potion.js';
 import { coreRandom, rnl } from './rng.js';
 import { night } from './calendar.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import { losespells } from './spell.js';
 import {
@@ -712,7 +708,10 @@ import { mhidden_description, object_from_map } from './pager.js';
 import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
-import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Blind_telepat, Detect_monsters, EBlinded, HBlinded,
+    Half_physical_damage, Invisible, Maybe_Half_Phys, See_invisible,
+} from './youprop.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -1068,14 +1067,11 @@ export async function that_is_a_mimic(
     let fmtbuf = "Wait!  That's %s!";
     let what = null;
 
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         // Blind: default format unless the hero has blind telepathy and the
         // mimic is disguised as a monster (in which case it looks different
         // from what was sensed).
-        const Blind_telepat = Boolean(
-            state.u?.uprops?.[30 /* TELEPAT */]?.intrinsic
-            || state.u?.uprops?.[30]?.extrinsic);
-        if (!Blind_telepat) {
+        if (!Blind_telepat(state.u)) {
             what = generic;
         } else if (M_AP_TYPE(mtmp) === M_AP_MONSTER) {
             what = a_monnam(mtmp, { state });
@@ -1117,7 +1113,7 @@ export async function that_is_a_mimic(
         }
 
         // Determine what the mimic really is.
-        if (mtmp.minvis && !propertyPresent(state.u, SEE_INVIS)) {
+        if (mtmp.minvis && !See_invisible(state.u)) {
             what = generic;
         } else if (M_AP_TYPE(mtmp) === M_AP_MONSTER) {
             what = x_monnam(mtmp, 2 /* ARTICLE_A */, null, EXACT_NAME, true,
@@ -1193,7 +1189,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     if (!canspotmon(mtmp, state)
         && !glyph_is_warning(glyph)
         && !glyph_is_invisible(glyph)
-        && !(!(heroIsBlind(state)) && mtmp.mundetected
+        && !(!(Blind(state.u)) && mtmp.mundetected
             && hides_under(mtmp.data))) {
         await message(
             `Wait!  There's ${something} there you can't see!`,
@@ -1245,14 +1241,14 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             return false;
         }
         if (!tp_sensemon(mtmp, state)
-            && !propertyPresent(state.u, DETECT_MONSTERS)) {
+            && !Detect_monsters(state.u)) {
             const lmonbuf = l_monnam(mtmp, state);
             const notseen = lmonbuf === 'it';
-            if (!heroIsBlind(state) && Hallucination(state)) {
+            if (!Blind(state.u) && Hallucination(state)) {
                 await message(`A ${mtmp.mtame ? 'tame' : 'wild'} `
                     + `${notseen ? 'creature' : lmonbuf} `
                     + `${notseen ? 'is present' : 'appears'}!`, state);
-            } else if (heroIsBlind(state)
+            } else if (Blind(state.u)
                 || (is_pool(mtmp.mx, mtmp.my, state)
                     && !state.u.uinwater)) {
                 await message("Wait!  There's a hidden monster there!", state);
@@ -1427,12 +1423,6 @@ export function heroStoneResistance(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-export function heroInvisible(state) {
-    const invis = state.u?.uprops?.[INVIS];
-    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
-    return Boolean((invis?.intrinsic || invis?.extrinsic) && !invis?.blocked
-        && !(seeInvisible?.intrinsic || seeInvisible?.extrinsic));
-}
 
 export function heroSlowDigestion(state) {
     const property = state.u?.uprops?.[SLOW_DIGESTION];
@@ -1517,7 +1507,7 @@ export async function start_engulf(mdef, state = game, env = {}) {
     const message = requireAttackOperation(env, 'message');
     const uDigest = digests(state.youmonst.data);
     const uEnfold = enfolds(state.youmonst.data);
-    if (!heroInvisible(state)) {
+    if (!Invisible(state.u)) {
         map_location(state.u.ux, state.u.uy, true, state);
         await tmp_at(
             DISP_ALWAYS,
@@ -1537,7 +1527,7 @@ export async function start_engulf(mdef, state = game, env = {}) {
 
 // C ref: uhitm.c end_engulf() (4949-4955).
 export async function end_engulf(state = game) {
-    if (!heroInvisible(state)) {
+    if (!Invisible(state.u)) {
         await tmp_at(DISP_END, 0, state);
         await newsym(state.u.ux, state.u.uy, state);
     }
@@ -3177,7 +3167,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             obj,
             state,
         )) {
-            if (heroIsBlind(state)) {
+            if (Blind(state.u)) {
                 await message(obj.otyp === CREAM_PIE ? 'Splat!' : 'Splash!', state);
             } else if (obj.otyp === BLINDING_VENOM) {
                 await message(
@@ -3716,7 +3706,7 @@ async function nohandglow(mon, state, env) {
     if (!state.u.umconf || mon.mconf) return;
 
     const hands = makeplural(body_part(HAND, state.youmonst));
-    const altfeedback = heroIsBlind(state) || heroInvisible(state);
+    const altfeedback = Blind(state.u) || Invisible(state.u);
     const postMessage = requireAttackOperation(env, 'message');
     if (state.u.umconf === 1) {
         if (altfeedback) {
@@ -4092,7 +4082,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         }
         if (!Upolyd(state.u)) break;
         const unwornmask = otmp.owornmask ?? 0;
-        if (otmp.oartifact && !heroIsBlind(state))
+        if (otmp.oartifact && !Blind(state.u))
             find_artifact(otmp, state);
         await extract_from_minvent(mdef, otmp, true, false, env);
         if (otmp === ustealo) {
@@ -4189,8 +4179,8 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             return;
         } else if (magr.mcan) {
             const blind = Boolean(
-                state.u?.uprops?.[BLINDED]?.intrinsic
-                || state.u?.uprops?.[BLINDED]?.extrinsic,
+                HBlinded(state.u)
+                || EBlinded(state.u),
             );
             if (!blind) {
                 const adj = Adjmonnam(magr, 'plain', state);
@@ -4414,11 +4404,11 @@ export async function mhitm_ad_fire(
             mhm.damage = 0;
             return;
         }
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`${Monnam(mdef, state, env)} is ${on_fire(pd, mattk)}!`,
                 state, env);
         if (completelyburns(pd)) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(
                     `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
                         ? 'is totally engulfed in flames'
@@ -4437,7 +4427,7 @@ export async function mhitm_ad_fire(
         }
         if (Resists_Elem(mdef, FIRE_RES, state)
             || defended(mdef, AD_FIRE, state)) {
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`The fire doesn't heat ${mon_nam(mdef, state, env)}!`,
                     state, env);
             await golemeffects(mdef, AD_FIRE, mhm.damage, { ...env, state });
@@ -4567,13 +4557,13 @@ export async function mhitm_ad_cold(
             mhm.damage = 0;
             return;
         }
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`${Monnam(mdef, state, env)} is covered in frost!`,
                 state, env);
         if (Resists_Elem(mdef, COLD_RES, state)
             || defended(mdef, AD_COLD, state)) {
             await shieldeff(mdef.mx, mdef.my, state);
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`The frost doesn't chill ${mon_nam(mdef, state, env)}!`,
                     state, env);
             await golemeffects(mdef, AD_COLD, mhm.damage, effectEnv);
@@ -4643,11 +4633,11 @@ export async function mhitm_ad_elec(
             mhm.damage = 0;
             return;
         }
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`${Monnam(mdef, state, env)} is zapped!`, state, env);
         if (Resists_Elem(mdef, SHOCK_RES, state)
             || defended(mdef, AD_ELEC, state)) {
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`The zap doesn't shock ${mon_nam(mdef, state, env)}!`,
                     state, env);
             await golemeffects(mdef, AD_ELEC, mhm.damage, effectEnv);
@@ -5299,7 +5289,7 @@ export async function mhitm_ad_blnd(
     if (magr === state.youmonst) {
         /* uhitm */
         if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
-            if (!heroIsBlind(state) && mdef.mcansee)
+            if (!Blind(state.u) && mdef.mcansee)
                 await message(`${Monnam(mdef, state, env)} is blinded.`, state);
             mdef.mcansee = 0;
             mhm.damage += mdef.mblinded;
@@ -5310,14 +5300,14 @@ export async function mhitm_ad_blnd(
     } else if (mdef === state.youmonst) {
         /* mhitu */
         if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`${Monnam(magr, state, env)} blinds you!`, state);
-            const blindedTimeout = (state.u.uprops?.[BLINDED]?.intrinsic ?? 0)
+            const blindedTimeout = (HBlinded(state.u))
                 & TIMEOUT;
             await make_blinded(blindedTimeout + mhm.damage, false, state, env);
             // The source immediately checks Blind again. Eyes of the
             // Overworld may preserve sight while the property still changes.
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(`Your ${vision_clears}`, state);
             }
         }
@@ -5407,7 +5397,7 @@ export async function mhitm_ad_ston(
                     if (heard) await message(heard, state, env);
                 }
             } else {
-                if (Hallucination(state) && !heroIsBlind(state)) {
+                if (Hallucination(state) && !Blind(state.u)) {
                     // Soundeffect(se_cockatrice_hiss, 50) is a no-op in the
                     // recorder's nosound backend, while You_hear is visible.
                     const heard = youHear('hissing.', state);
@@ -5421,7 +5411,7 @@ export async function mhitm_ad_ston(
                     const heard = youHear(
                         `${s_suffix(mon_nam(magr, state, env))} hissing!`, state);
                     if (heard) await message(heard, state, env);
-                } else if (!heroIsBlind(state)) {
+                } else if (!Blind(state.u)) {
                     await message(
                         `${Monnam(magr, state, env)} seems to grimace.`,
                         state,
@@ -5467,7 +5457,7 @@ export async function mhitm_ad_stun(
     const defenderData = mdef.data;
 
     if (magr === state.youmonst) {
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message(
                 `${Monnam(mdef, state, env)} ${makeplural(
                     stagger(defenderData, 'stagger'),
@@ -5647,7 +5637,7 @@ export async function mhitm_ad_curs(
         // uhitm.c hero-polymorph arm: cancellation is attempted only at night.
         if (night(state) && !random.rn2(10) && !mdef.mcan) {
             if (pd === state.mons?.[PM_CLAY_GOLEM]) {
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     await message(
                         `Some writing vanishes from ${s_suffix(mon_nam(mdef, state, env))} head!`,
                         state,
@@ -5674,7 +5664,7 @@ export async function mhitm_ad_curs(
         if (!magr.mcan && !random.rn2(10)) {
             if (!Deaf(state)) {
                 // sound.h compiles Soundeffect() away in the reference tty build.
-                if (heroIsBlind(state)) {
+                if (Blind(state.u)) {
                     const heard = youHear('laughter.', state);
                     if (heard) await message(heard, state, env);
                 } else {
@@ -5806,7 +5796,7 @@ export async function mhitm_ad_plys(
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, { ...env, random, message },
             ))) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(
                     `${Monnam(mdef, state, env)} is frozen by you!`,
                     state,
@@ -5826,7 +5816,7 @@ export async function mhitm_ad_plys(
             if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
                 await message('You momentarily stiffen.', state, env);
             } else {
-                if (heroIsBlind(state)) {
+                if (Blind(state.u)) {
                     await message('You are frozen!', state, env);
                 } else {
                     await message(
@@ -6355,7 +6345,7 @@ export async function mhitm_ad_slee(
             && await sleep_monst(
                 mdef, random.rnd(10), -1, effectEnv,
             )) {
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(
                     `${Monnam(mdef, state)} is put to sleep by you!`,
                     state,
@@ -6377,7 +6367,7 @@ export async function mhitm_ad_slee(
             }
             monstunseesu(M_SEEN_SLEEP, state);
             await fall_asleep(-random.rnd(10), true, state, effectEnv);
-            if (heroIsBlind(state)) {
+            if (Blind(state.u)) {
                 await message('You are put to sleep!', state, env);
             } else {
                 await message(
@@ -8162,7 +8152,7 @@ export async function passive(
         break;
     case AD_ACID:
         if (mhitb && random.rn2(2)) {
-            if (heroIsBlind(state) || !state.flags?.verbose) {
+            if (Blind(state.u) || !state.flags?.verbose) {
                 await effectEnv.message('You are splashed!', state, effectEnv);
             } else {
                 await effectEnv.message(

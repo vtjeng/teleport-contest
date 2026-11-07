@@ -87,7 +87,7 @@ test('ghost_from_bottle preserves the complete C branch and caller order', () =>
         '// C ref: potion.c dodrink()',
     );
     assert.match(jsHelper, /await makeMonster\([\s\S]*?if \(!monster\)/u);
-    assert.match(jsHelper, /if \(heroIsBlind\(state\)\)[\s\S]*?return null;/u);
+    assert.match(jsHelper, /if \(Blind\(state\.u\)\)[\s\S]*?return null;/u);
     assert.match(jsHelper, /await message\([\s\S]*?nomul\(-3, state\);[\s\S]*?state\.multi_reason[\s\S]*?state\.nomovemsg/u);
 
     const jsDrink = sourceFunction(

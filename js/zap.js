@@ -47,7 +47,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -201,8 +201,8 @@ import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
-import { deltrap } from './trap.js';
-import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects, Levitation } from './trap.js';
+import { deltrap, Levitation } from './trap.js';
+import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
     erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
@@ -250,7 +250,9 @@ import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
 import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 import { canseemon, canspotmon } from './display.js';
 import { setuwep } from './wield.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    BInvis, Blind, EInvis, HInvis, Maybe_Half_Phys,
+} from './youprop.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {
@@ -261,13 +263,6 @@ export class UnsupportedZapError extends Error {
     }
 }
 
-// C ref: youprop.h:103 Blind, which is either source of blindness minus the
-// artifact block that cancels both.
-function heroIsBlind(state) {
-    const blinded = state.u?.uprops?.[BLINDED];
-    return Boolean((blinded?.intrinsic || blinded?.extrinsic)
-        && !blinded?.blocked);
-}
 
 // C ref: youprop.h Deaf, either an intrinsic property or the role-play
 // option. zap_over_floor() uses this to select the water-boiling message.
@@ -845,7 +840,7 @@ export function learnwand(obj, state = game, env = {}) {
         } else {
             /* in case it was picked up while blind and then zapped without
                examining inventory after regaining sight (bypassing xname) */
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 observe_object(obj, state);
             /* make the discovery iff we know what we're manipulating */
             if (obj.dknown)
@@ -946,7 +941,7 @@ export async function dozap(state = game) {
         // ordinary update_inventory() tail.
         return ECMD_TIME;
     } else if (need_dir && !await getdir(null, state)) {
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await ttyPline(
                 `${The(xnameFresh(obj, state), state)} glows and fades.`, state,
             );
@@ -1039,7 +1034,7 @@ export async function release_hold(state = game) {
         const digests = holder.data?.mattk?.some((attack) =>
             attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
         if (digests) {
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await ttyPline(`${Monnam(holder, state)} opens its mouth!`, state);
             else
                 await ttyPline(youFeel('a sudden rush of air!', state), state);
@@ -1311,24 +1306,20 @@ export async function zapyourself(obj, ordinary, state = game) {
         break;
 
     case WAN_MAKE_INVISIBLE: {
-        state.u.uprops ??= {};
-        const property = state.u.uprops[INVIS] ??= {
-            intrinsic: 0, extrinsic: 0,
-        };
         // C's BInvis is the blocked field (a worn artifact can cancel an
         // intrinsic or extrinsic invisibility source); it is distinct from
         // the extrinsic source itself.
-        const msg = !(property.intrinsic || property.extrinsic)
-            && !heroIsBlind(state)
-            && !property.blocked;
-        if (property.blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
+        const msg = !(HInvis(state.u) || EInvis(state.u))
+            && !Blind(state.u)
+            && !BInvis(state.u);
+        if (BInvis(state.u) && state.uarmc?.otyp === MUMMY_WRAPPING) {
             await ttyPline(
                 youFeel(`rather itchy under ${yname(state.uarmc, state)}.`, state),
                 state,
             );
             break;
         }
-        incr_itimeout(property, rn1(15, 31));
+        incr_itimeout(state.u.uprops[INVIS], rn1(15, 31));
         if (msg) {
             learn_it = true;
             newsym(state.u.ux, state.u.uy, state);
@@ -3469,7 +3460,7 @@ export async function bhitm(monster, wand, state = game,
         )) {
             await slept_monst(monster, { ...rawEnv, state, random });
         }
-        if (!heroIsBlind(state)) learn_it = true;
+        if (!Blind(state.u)) learn_it = true;
     } else if (otyp === WAN_CANCELLATION || otyp === SPE_CANCELLATION) {
         if (disguised_mimic) seemimic(monster, state);
         // C explicitly discards cancel_monst()'s Boolean result.
@@ -4281,12 +4272,12 @@ export async function bhit(
         /* WATER aka "wall of water" stops items */
         if (physical && (IS_WATERWALL(typ) || typ === LAVAWALL)) break;
 
-        if (physical && obj.lamplit && !heroIsBlind(state)) {
+        if (physical && obj.lamplit && !Blind(state.u)) {
             await show_transient_light(
                 obj, x, y, state,
                 bhitTransientLightEnv(state, random, rawEnv),
             );
-        } else if (flashed && !heroIsBlind(state)) {
+        } else if (flashed && !Blind(state.u)) {
             await show_transient_light(
                 null, x, y, state,
                 bhitTransientLightEnv(state, random, rawEnv),
@@ -4331,7 +4322,7 @@ export async function bhit(
         if (physical && skiprange_start && range === skiprange_start && allow_skip) {
             if (is_pool(x, y, state) && !mtmp) {
                 in_skip = true;
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     await ttyPline(
                         `${Yname2(obj, state)} ${otense(obj, 'skip', state)}`
                             + `${skipcount ? ' again' : ''}.`, state,
@@ -4356,7 +4347,7 @@ export async function bhit(
                 || is_swimmer(mtmp.data)
                 || amphibious(mtmp.data)
                 || breathless(mtmp.data))) {
-                if (!heroIsBlind(state) && canspotmon(mtmp, state)) {
+                if (!Blind(state.u) && canspotmon(mtmp, state)) {
                     await ttyPline(
                         `${Yname2(obj, state)} ${otense(obj, 'pass', state)} over `
                             + `${mon_nam(mtmp, state)}.`, state,
@@ -5659,7 +5650,7 @@ export async function zap_over_floor(
         if (burned && couldsee(x, y, state)) {
             redrawAt(x, y, state);
             await message(
-                `${heroIsBlind(state) ? 'You smell a whiff' : 'You see a puff'} of smoke.`,
+                `${Blind(state.u) ? 'You smell a whiff' : 'You see a puff'} of smoke.`,
                 state, env,
             );
         }
@@ -5765,7 +5756,7 @@ export async function flashburn(duration, viaLightning, state, env = {}) {
     if (!resists_blnd(state.youmonst, state)) {
         await message('You are blinded by the flash!', state, env);
         await make_blinded(duration, false, state, { ...env, message });
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`Your ${vision_clears}`, state, env);
         return true;
     }
@@ -6130,7 +6121,7 @@ export async function dobuzz(
                         state,
                     );
                     if (Reflecting(state)) {
-                        if (!heroIsBlind(state)) {
+                        if (!Blind(state.u)) {
                             // Printed through dobuzz()'s message operation,
                             // which a planned breath silences.
                             await ureflects(
@@ -6162,7 +6153,7 @@ export async function dobuzz(
                         if (state.program_state?.gameover) return;
                         monstunseesu(M_SEEN_REFL, state);
                     }
-                } else if (!heroIsBlind(state)) {
+                } else if (!Blind(state.u)) {
                     await message(
                         `${The(flash_str(fltyp, false, state, random), state)} whizzes `
                         + 'by you!',
@@ -6317,7 +6308,7 @@ export async function zapnodir(obj, state = game,
     switch (obj.otyp) {
     case WAN_LIGHT:
     case SPE_LIGHT:
-        known = Boolean(obj.dknown && !heroIsBlind(state));
+        known = Boolean(obj.dknown && !Blind(state.u));
         await litroom(true, obj, state);
         await lightdamage(obj, true, 5, state);
         break;
@@ -6578,7 +6569,7 @@ export async function zap_updown(obj, state = game,
                     disclose ||= closed.noticed;
                 } else if (trap.ttyp === HOLE) {
                     trap.ttyp = TRAPDOOR;
-                    if (heroIsBlind(state) || !trap.tseen) {
+                    if (Blind(state.u) || !trap.tseen) {
                         await ttyPline(
                             `Some ${is_ice(x, y, state) ? 'frost' : 'dust'} swirls beneath you.`,
                             state,
@@ -6592,7 +6583,7 @@ export async function zap_updown(obj, state = game,
                     }
                 }
             } else if (trap.ttyp === TRAPDOOR) {
-                if (heroIsBlind(state) && !trap.tseen) {
+                if (Blind(state.u) && !trap.tseen) {
                     await ttyPline('Something beneath you shatters.', state, rawEnv);
                 } else if (!trap.tseen) {
                     await ttyPline("There's a trapdoor beneath you; it shatters.", state, rawEnv);
@@ -6778,7 +6769,7 @@ export async function cancel_monst(
         // branch before the Unchanging check.
         if (Upolyd(state.u)) {
             if (state.u.umonnum === PM_CLAY_GOLEM) {
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     await message(
                         'Some writing vanishes from your head!', state,
                         env,

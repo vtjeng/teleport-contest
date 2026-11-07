@@ -20,7 +20,6 @@ import {
     ACH_INVK,
     ACH_NOVL,
     ANTIMAGIC,
-    CLAIRVOYANT,
     CMDQ_KEY,
     CONFUSION,
     BLINDED,
@@ -194,7 +193,6 @@ import { mkundead } from './mkroom.js';
 import { iter_mons_async, wakeup, xkilled } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
 import { noveltitle, hcolor, hliquid, mon_nam, Monnam } from './do_name.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 // C spell.c:spelleffects() passes scroll-duplicate fake spellbooks to
@@ -211,7 +209,7 @@ import { explode } from './explode.js';
 import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { BClairvoyant, Blind, Maybe_Half_Phys } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells.
@@ -632,7 +630,7 @@ async function deadbook(book, state = game, env = {}) {
         && !On_stairs(state.u.ux, state.u.uy, state)) {
         if (book.cursed) {
             await message(
-                spellPropertyActive(BLINDED, state)
+                Blind(state.u)
                     ? 'The Book seems to be ignoring you!'
                     : "The runes appear scrambled.  You can't read them!",
                 state,
@@ -1560,7 +1558,7 @@ export async function cast_protection(state = game, env = {}) {
     const gain = loglev - Math.trunc(u.uspellprot / (4 - Math.min(3, natac)));
     const message = env.message ?? ttyPline;
     if (gain > 0) {
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             // decl.c c_color_names.c_golden is "golden". Naming uses display
             // RNG, independently of spelleffects' optional core RNG adapter.
             const displayEnv = { state, displayRandom: env.displayRandom };
@@ -1896,7 +1894,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     // temporary spellbook blessed for the map scan; BClairvoyant blocks only
     // the effect, with the Cornuthaum message retained from the source.
     case SPE_CLAIRVOYANCE:
-        if (!state.u.uprops?.[CLAIRVOYANT]?.blocked) {
+        if (!BClairvoyant(state.u)) {
             if (role_skill >= P_SKILLED) pseudo.blessed = 1;
             await do_vicinity_map(pseudo, state, env);
         } else if (state.uarmh?.otyp === CORNUTHAUM) {

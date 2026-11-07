@@ -61,13 +61,13 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING, GLIB,
-    HALLUC, HALLUC_RES, INFRAVISION, INTRINSIC, SEE_INVIS, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, CONFUSION, DEAF, FLYING, GLIB,
+    HALLUC, HALLUC_RES, INTRINSIC, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
-    SLIMED, STONED, STR18, STRANGLED, STUNNED, TELEPAT, INVIS, OBJ_FLOOR,
+    SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
     DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
     P_SHORT_SWORD, P_SABER,
@@ -93,10 +93,9 @@ import {
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, M_AP_NOTHING, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
-    M_AP_TYPMASK, MON_STILL_ARRIVING, WARN_OF_MON,
+    M_AP_TYPMASK, MON_STILL_ARRIVING,
     SYM_BOULDER, SYM_INVISIBLE, SYM_NOTHING, SYM_UNEXPLORED,
-    SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE,
-    WARNING, WARNCOUNT,
+    SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNCOUNT,
     PROT_FROM_SHAPE_CHANGERS,
     def_warnsyms,
 } from './const.js';
@@ -321,12 +320,15 @@ import {
 import { planningContextInstalled, rn2_on_display_rng } from './rng.js';
 import {
     emitGlyphUpdateNotices,
-    heroIsBlind,
     glyphGnewSinceNotice,
     noteGlyphBufferMutation,
     queueGlyphUpdateNotice,
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
+import {
+    Blind, Detect_monsters, ETelepat, HTelepat, Infravision, Invis,
+    See_invisible, Warn_of_mon, Warning,
+} from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
 // _tp_sensemon() macro. This is only the telepathy predicate; underwater,
@@ -335,10 +337,9 @@ export function tp_sensemon(mon, state = game) {
     const hero = state.u ?? {};
     const data = mon?.data;
     if (!data || (data.mflags1 & M1_MINDLESS)) return false;
-    const telepathy = hero.uprops?.[TELEPAT] ?? {};
-    const blind = heroIsBlind(state);
-    const intrinsic = Boolean(telepathy.intrinsic);
-    const extrinsic = Boolean(telepathy.extrinsic);
+    const blind = Blind(state.u);
+    const intrinsic = Boolean(HTelepat(hero));
+    const extrinsic = Boolean(ETelepat(hero));
     if (blind && (intrinsic || extrinsic)) return true;
     if (!extrinsic) return false;
     const dx = (mon.mx ?? 0) - (hero.ux ?? 0);
@@ -351,7 +352,7 @@ export function tp_sensemon(mon, state = game) {
 // the monster's square; invisibility and undetected-hider state remain here.
 export function mon_visible(mon, state = game) {
     return Boolean(mon
-        && (!mon.minvis || _propertyActive(state.u, SEE_INVIS))
+        && (!mon.minvis || See_invisible(state.u))
         && !mon.mundetected);
 }
 
@@ -359,8 +360,8 @@ export function mon_visible(mon, state = game) {
 // _mon_visible(), so infrared does not reveal an invisible monster by itself.
 export function see_with_infrared(mon, state = game) {
     return Boolean(mon
-        && !heroIsBlind(state)
-        && _propertyActive(state.u, INFRAVISION)
+        && !Blind(state.u)
+        && Infravision(state.u)
         && (mon.data?.mflags3 & M3_INFRAVISIBLE)
         && couldsee(mon.mx, mon.my, state));
 }
@@ -369,7 +370,7 @@ export function see_with_infrared(mon, state = game) {
 // vision.c howmonseen(); keep the one predicate implementation here.
 export function warningMatches(mon, state = game) {
     const hero = state.u ?? {};
-    if (!_propertyActive(hero, WARN_OF_MON) || !mon?.data) return false;
+    if (!Warn_of_mon(hero) || !mon?.data) return false;
     const warned = state.context?.warntype ?? {};
     const flags = mon.data.mflags2 ?? 0;
     return Boolean((warned.obj & flags) || (warned.polyd & flags)
@@ -385,7 +386,7 @@ function sensemonCore(mon, state, includeDetection) {
                 && is_pool(mon.mx, mon.my, state)))) {
         return false;
     }
-    if (includeDetection && _propertyActive(hero, DETECT_MONSTERS))
+    if (includeDetection && Detect_monsters(hero))
         return true;
     return tp_sensemon(mon, state) || warningMatches(mon, state);
 }
@@ -423,12 +424,11 @@ export function knowninvisible(mon, state = game) {
     if (!mon?.minvis) return false;
     const { mx, my } = mon;
     if (cansee(mx, my, state)
-        && (_propertyActive(state.u, SEE_INVIS)
-            || _propertyActive(state.u, DETECT_MONSTERS)))
+        && (See_invisible(state.u)
+            || Detect_monsters(state.u)))
         return true;
-    const telepathy = state.u?.uprops?.[TELEPAT];
-    return !heroIsBlind(state)
-        && Boolean((telepathy?.intrinsic ?? 0) & ~INTRINSIC)
+    return !Blind(state.u)
+        && Boolean((HTelepat(state.u)) & ~INTRINSIC)
         && dist2(mx, my, state.u?.ux, state.u?.uy) <= BOLT_LIM * BOLT_LIM;
 }
 
@@ -1518,7 +1518,7 @@ function is_worm_tail_at(monster, x, y) {
 
 // C ref: display.h mon_warning() and display.c warning_of().
 function monsterWarnsHero(monster, state) {
-    if (!monster || monster.mpeaceful || !_propertyActive(state.u, WARNING))
+    if (!monster || monster.mpeaceful || !Warning(state.u))
         return false;
     const warningLevel = Math.trunc((monster.m_lev ?? 0) / 4);
     const threshold = Math.trunc(state.context?.warnlevel ?? 1);
@@ -3044,7 +3044,7 @@ export async function under_water(mode, state = game) {
         for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y)
             if (isok(x, y)
                 && (is_pool_or_lava(x, y, state) || is_ice(x, y, state))) {
-                if (heroIsBlind(state) && !u_at(x, y, state))
+                if (Blind(state.u) && !u_at(x, y, state))
                     show_glyph_cell(x, y, unexploredGlyphInfo(state));
                 else
                     newsym(x, y);
@@ -3444,7 +3444,7 @@ export function map_location(x, y, show, state) {
     update_lastseentyp(x, y, state, {
         canSeeMonster: (subject) => canseemon(subject, state),
     });
-    if (show && !_propertyActiveUnblocked(state.u, BLINDED)) {
+    if (show && !Blind(state.u)) {
         const region = visible_region_at(x, y, state);
         if (region) show_region(region, x, y, state);
     }
@@ -3453,7 +3453,7 @@ export function map_location(x, y, show, state) {
 // C ref: display.c _map_location() (470-471), its closing arm: unless the
 // hero is blind, a visible region is drawn over the location just mapped.
 function showVisibleRegionAt(x, y, state = game) {
-    if (_propertyActiveUnblocked(state.u, BLINDED)) return;
+    if (Blind(state.u)) return;
     const region = visible_region_at(x, y, state);
     if (region) show_region(region, x, y, state);
 }
@@ -3514,7 +3514,7 @@ export function map_object(obj, show, state = game) {
 // requires that same active display state, matching its map writes and the
 // display globals that C reads.
 export function feel_newsym(x, y, state = game) {
-    if (_propertyActiveUnblocked(state.u, BLINDED)) feel_location(x, y, state);
+    if (Blind(state.u)) feel_location(x, y, state);
     else newsym(x, y);
 }
 
@@ -3898,8 +3898,7 @@ export function newsym(x, y) {
     );
     // C display.c newsym() uses see_it and Detect_monsters directly;
     // sensemon() adds an underwater gate which this source branch lacks.
-    const detection = game.u?.uprops?.[DETECT_MONSTERS] ?? {};
-    const detectMonsters = Boolean(detection.intrinsic || detection.extrinsic);
+    const detectMonsters = Detect_monsters(game.u);
     const seeIt = Boolean(monster && (monsterDirectlyVisible
         || (!wormTail && (tp_sensemon(monster, game)
             || warningMatches(monster, game)))));
@@ -4193,9 +4192,7 @@ export function newsym(x, y) {
 // A planning clone passes admitPointChange, which it calls before each
 // block_point() or unblock_point() rewrites the shared obstruction index.
 export function set_mimic_blocking(state = game, { admitPointChange = null } = {}) {
-    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
-    const canSeeInvisible = Boolean(seeInvisible?.intrinsic
-        || seeInvisible?.extrinsic);
+    const canSeeInvisible = See_invisible(state.u);
     iter_mons((monster) => {
         if (!monster.minvis || !is_lightblocker_mappear(monster)) return;
         admitPointChange?.(monster.mx, monster.my, state);
@@ -4229,8 +4226,7 @@ export function see_monsters(state = game, env = {}) {
     if (state.u.usteed) state.u.usteed.meverseen = 1;
     if (state.u.ustuck) state.u.ustuck.meverseen = 1;
 
-    const warn_of_mon = Boolean(state.u.uprops?.[WARN_OF_MON]?.intrinsic
-                                || state.u.uprops?.[WARN_OF_MON]?.extrinsic);
+    const warn_of_mon = Warn_of_mon(state.u);
     const afterRepaint = (mon) => {
         if (mon.wormno)
             see_wsegs(mon, { ...env, state, redraw: repaint });
@@ -5006,13 +5002,13 @@ function _propertyActiveUnblocked(u, index) {
 function heroCanSpotSelf(state) {
     const hero = state.u;
     // C Invisible is Invis && !See_invisible, not the raw invisibility.
-    const invisible = _propertyActiveUnblocked(hero, INVIS)
-        && !_propertyActive(hero, SEE_INVIS);
-    const canSeeSelf = _propertyActiveUnblocked(hero, BLINDED)
+    const invisible = Invis(hero)
+        && !See_invisible(hero);
+    const canSeeSelf = Blind(hero)
         || hero?.uswallow
         || (!invisible && !hero?.uundetected);
-    const unblindTelepathy = Boolean(hero?.uprops?.[TELEPAT]?.extrinsic);
-    const detectsMonsters = _propertyActive(hero, DETECT_MONSTERS);
+    const unblindTelepathy = Boolean(ETelepat(hero));
+    const detectsMonsters = Detect_monsters(hero);
     return Boolean(canSeeSelf || unblindTelepathy || detectsMonsters);
 }
 
@@ -5183,7 +5179,7 @@ export function statusConditionActive(option, u) {
     case 'sleep':
     case 'unconscious': return botl_incapacitated_conditions(game, u)[option];
     case 'barehanded': return !game.uarmg && !game.uwep;
-    case 'blind': return _propertyActiveUnblocked(u, BLINDED);
+    case 'blind': return Blind(u);
     case 'conf': return _propertyIntrinsic(u, CONFUSION);
     case 'deaf': return _propertyActive(u, DEAF) || u.uroleplay?.deaf;
     // youprop.h:253's Flying counts a flying steed as carrying the hero, and

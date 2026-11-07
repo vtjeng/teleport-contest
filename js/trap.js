@@ -26,7 +26,6 @@ import {
     ARM,
     ARROW_TRAP,
     BEAR_TRAP,
-    BLINDED,
     CONFUSION,
     CORR,
     DIR_180,
@@ -357,7 +356,7 @@ import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, Maybe_Half_Phys } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
 // flag. Conduct and luck remain the separate player values initialized by
@@ -681,7 +680,7 @@ export async function fall_through(td, ftflags, state = game) {
 
     // Sokoban's special fall rule overrides levitation, but a blind,
     // levitating hero elsewhere gets no message and no other side effect.
-    if (Blind(state) && Levitation(state) && !state.level?.flags?.sokoban_rules)
+    if (Blind(state.u) && Levitation(state) && !state.level?.flags?.sokoban_rules)
         return;
 
     const nextLevel = dunlev(u.uz) + 1;
@@ -1718,7 +1717,7 @@ export async function lava_effects(state = game) {
             if (obj.o_id === protectedId) {
                 obj.in_use = true;
             } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-                if (survives && !heroIsBlindForLava(state)) {
+                if (survives && !Blind(state.u)) {
                     await ttyPline(
                         `${The(xnameFresh(obj, state), state)} glows a strange ${hcolor('dark red', state)}, but remains intact.`,
                         state,
@@ -1916,17 +1915,12 @@ export async function fire_damage_chain(
         }
         obj = next;
     }
-    if (count && heroIsBlindForLava(state) && !couldsee(x, y, state)) {
+    if (count && Blind(state.u) && !couldsee(x, y, state)) {
         await message('You smell smoke.', state);
     }
     return count;
 }
 
-function heroIsBlindForLava(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked);
-}
 
 // C ref: trap.c unconscious() (6775-6786). The youprop.h:399 Unaware macro
 // combines this pending-message query with eat.c:is_fainted(); the JS caller
@@ -2449,11 +2443,6 @@ export function immune_to_trap(mon, ttype, state = game) {
 // C ref: decl.c c_common_strings.c_the_your, indexed by madeby_u.
 const the_your = ['the', 'your'];
 
-// Hero property helpers, local to this file. Each mirrors its youprop.h macro.
-function Blind(state) {
-    const v = state.u?.uprops?.[BLINDED];
-    return Boolean(v?.intrinsic || v?.extrinsic) && !v?.blocked;
-}
 function Confusion(state) {
     return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
 }
@@ -2542,7 +2531,7 @@ function untrap_prob(ttmp, state = game) {
     }
     if (Confusion(state) || Hallucination(state))
         chance++;
-    if (Blind(state))
+    if (Blind(state.u))
         chance++;
     if (Stunned(state))
         chance += 2;
@@ -3179,7 +3168,7 @@ export async function untrap(force, rx, ry, container, state = game) {
     const doormask = loc?.flags ?? 0;
     switch (doormask) {
     case D_NODOOR:
-        await ttyPline(`You ${Blind(state) ? 'feel' : 'see'} no door there.`, state);
+        await ttyPline(`You ${Blind(state.u) ? 'feel' : 'see'} no door there.`, state);
         return 0;
     case D_ISOPEN:
         await ttyPline('This door is safely open.', state);
@@ -3589,7 +3578,7 @@ export async function animate_statue(
             `You find ${spotted ? a_monnam(monster, { ...objectEnv, state, random }) : something} posing as a statue.`,
             state,
         );
-        if (!spotted && Blind(state))
+        if (!spotted && Blind(state.u))
             map_invisible(x, y, state);
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, { message });
@@ -3893,7 +3882,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             break;
         case 2: case 1: case 0: {
             // Stun/hallucination gas.
-            const gascolor = Blind(state)
+            const gascolor = Blind(state.u)
                 ? blindgas[rn2(blindgas.length)]
                 : rndcolor(state);
             await ttyPline(
@@ -3905,7 +3894,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                     await ttyPline('What a groovy feeling!', state);
                 } else {
                     const dizzy = Halluc_resistance(state) ? ''
-                        : Blind(state) ? ' and get dizzy'
+                        : Blind(state.u) ? ' and get dizzy'
                         : ' and your vision blurs';
                     await ttyPline(
                         `You ${stagger(state.youmonst.data, 'stagger')}${dizzy}...`,

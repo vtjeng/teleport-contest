@@ -141,7 +141,6 @@ import {
     digests,
     enfolds,
     heroHatesSilver,
-    heroInvisible,
     heroSick,
     heroSickResistance,
     heroSlowDigestion,
@@ -154,6 +153,7 @@ import {
     m_is_steadfast,
 } from '../js/uhitm.js';
 import { will_hurtle } from '../js/dothrow.js';
+import { Invisible } from '../js/youprop.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
@@ -1848,9 +1848,9 @@ test('hmonas source predicates follow their C macros', async () => {
     game.u.uprops[INVIS].blocked = 0;
     game.u.uprops[SEE_INVIS].intrinsic = 0;
     game.u.uprops[SEE_INVIS].extrinsic = 0;
-    assert.equal(heroInvisible(game), true);
+    assert.equal(Invisible(game.u), true);
     game.u.uprops[SEE_INVIS].extrinsic = 1;
-    assert.equal(heroInvisible(game), false);
+    assert.equal(Invisible(game.u), false);
     game.u.ulycn = LOW_PM;
     assert.equal(heroHatesSilver(game), true);
 });

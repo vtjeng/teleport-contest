@@ -203,7 +203,7 @@ test('doloot_core handles blind floor cockatrice before container selection', ()
     assert.ok(cFeelStart >= 0 && cFeelEnd > cFeelStart);
     assert.ok(jsFeelStart >= 0 && jsFeelEnd > jsFeelStart);
     assert.match(cLoot, /if \(Blind && !uarmg\)[\s\S]*?will_feel_cockatrice\(nobj, FALSE\)[\s\S]*?feel_cockatrice\(nobj, FALSE\);[\s\S]*?return ECMD_TIME;[\s\S]*?if \(num_conts > 1\)/u);
-    assert.match(jsLoot, /if \(heroIsBlind\(state\) && !state\.uarmg\)[\s\S]*?will_feel_cockatrice\(nobj, false, state\)[\s\S]*?await feel_cockatrice\(nobj, false, state\);[\s\S]*?return ECMD_TIME;[\s\S]*?if \(num_conts > 1\)/u);
+    assert.match(jsLoot, /if \(Blind\(state\.u\) && !state\.uarmg\)[\s\S]*?will_feel_cockatrice\(nobj, false, state\)[\s\S]*?await feel_cockatrice\(nobj, false, state\);[\s\S]*?return ECMD_TIME;[\s\S]*?if \(num_conts > 1\)/u);
     assert.match(cFeel, /if \(will_feel_cockatrice\(otmp, force_touch\)\)[\s\S]*?Sprintf\(kbuf, "touching %s bare-handed", killer_xname\(otmp\)\);[\s\S]*?instapetrify\(kbuf\);/u);
     assert.match(jsFeel, /if \(!will_feel_cockatrice\(otmp, force_touch, state\)\) return;[\s\S]*?killer_xname\(otmp, state\)[\s\S]*?await instapetrify\(killer, state\);/u);
     assert.doesNotMatch(jsFeel, /note_unported\('trap\.c instapetrify'\)/u);

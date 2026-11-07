@@ -83,7 +83,7 @@ test('Armor_on and wearing admission preserve the full C callback order',()=>{
     assert.match(cb,/uarm->known = 1;[\s\S]*update_inventory\(\);[\s\S]*dragon_armor_handling\(uarm, TRUE, TRUE\);[\s\S]*begin_burn\(uarm, FALSE\);[\s\S]*if \(!Blind\)/u);
     const jb=js.slice(js.indexOf('async function Armor_on('),js.indexOf('// C ref: do_wear.c Armor_off'));
     assert.doesNotMatch(jb,/UnsupportedWearError/u);
-    let offset=0;for(const marker of ['state.uarm.known = true','update_inventory','await dragon_armor_handling','begin_burn','heroIsBlind','Yname2','otense','arti_light_description']){
+    let offset=0;for(const marker of ['state.uarm.known = true','update_inventory','await dragon_armor_handling','begin_burn','Blind(state.u)','Yname2','otense','arti_light_description']){
         const next=jb.indexOf(marker,offset);assert.ok(next>=offset,marker);offset=next+marker.length;
     }
     assert.doesNotMatch(js,/Armor_on\(\) for otyp/u,'gold suit reaches the production callback selector');

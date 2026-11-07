@@ -19,7 +19,6 @@ import {
     A_WIS,
     CHOKING,
     BY_COOKIE,
-    BLINDED,
     COST_DSTROY,
     COST_OPEN,
     IS_ALTAR,
@@ -208,13 +207,15 @@ import {
 import { encumber_msg } from './pickup.js';
 import {
     body_part, change_sex, polymon, polyself, rehumanize, } from './polyself.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
-    Flying, Levitation, b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at, unconscious } from './trap.js';
+    b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at, unconscious,
+    Flying,
+    Levitation,
+} from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
@@ -222,6 +223,10 @@ import { explode } from './explode.js';
 import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
+import {
+    BInvis, Blind, EInvis, ESee_invisible, HBlinded, HInvis, HSee_invisible,
+    Invis,
+} from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
 // insight.c. Every entry is eight columns wide, so a reader that wants the
@@ -1120,7 +1125,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         }
     } else {
         if (tin.cursed) {
-            const blind = heroIsBlind(state);
+            const blind = Blind(state.u);
             const color = blind ? '' : ` ${hcolor('green', state)}`;
             await message(`It contains some decaying${color} substance.`, state);
         } else {
@@ -1468,21 +1473,20 @@ async function rottenfood(obj, state) {
             false,
             state,
         );
-    } else if (!rn2(4) && !heroIsBlind(state)) {
+    } else if (!rn2(4) && !Blind(state.u)) {
         // Blindness arm.  The hero is not Blind, but BlindedTimeout might
         // be nonzero if blindness is being overridden by Eyes of the Overworld.
-        const blindedProp = state.u.uprops[BLINDED];
-        const blindedTimeout = (blindedProp?.intrinsic ?? 0) & 0x00FFFFFF;
+        const blindedTimeout = (HBlinded(state.u)) & 0x00FFFFFF;
         await ttyPline('Everything suddenly goes dark.', state);
         await make_blinded(blindedTimeout + d(2, 10), false, state);
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await ttyPline(`Your ${vision_clears}`, state);
     } else if (!rn2(3)) {
         // Fainting arm.
         const duration = rnd(10);
         let what, where;
 
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             what = 'goes';
             where = 'dark';
         } else if (Levitation(state)
@@ -2559,7 +2563,7 @@ async function givit(type, ptr, state, env = {}) {
                 state,
             );
             addOutside();
-            if (heroIsBlind(state)) await see_monsters(state, { ...env,
+            if (Blind(state.u)) await see_monsters(state, { ...env,
                 redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
         }
         break;
@@ -2706,21 +2710,19 @@ async function cpostfx(pm, state, env = {}) {
         check_intrinsics = true; // might also convey poison resistance
         break;
     case PM_STALKER: {
-        const invis = state.u.uprops[INVIS];
-        const seeInvisible = state.u.uprops[SEE_INVIS];
-        const blocked = Boolean(invis.blocked);
+        const blocked = Boolean(BInvis(state.u));
         const invisible = Boolean(
-            (invis.intrinsic || invis.extrinsic) && !blocked,
+            (HInvis(state.u) || EInvis(state.u)) && !blocked,
         );
         if (!invisible) {
-            set_itimeout(invis, random.rn1(100, 50));
-            if (!heroIsBlind(state) && !blocked)
+            set_itimeout(state.u.uprops[INVIS], random.rn1(100, 50));
+            if (!Blind(state.u) && !blocked)
                 await self_invis_message(state);
         } else {
-            if (!(invis.intrinsic & INTRINSIC))
+            if (!(HInvis(state.u) & INTRINSIC))
                 await message(youFeel('hidden!', state), state);
-            invis.intrinsic |= FROMOUTSIDE;
-            seeInvisible.intrinsic |= FROMOUTSIDE;
+            state.u.uprops[INVIS].intrinsic |= FROMOUTSIDE;
+            state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
         }
         newsym(state.u.ux, state.u.uy);
         // C falls through to the shared yellow-light/giant-bat stun arm.
@@ -3205,7 +3207,7 @@ async function fpostfx(otmp, state, env = {}) {
             state,
             { message },
         );
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             const firstLiterate = !(state.u.uconduct.literate ?? 0);
             state.u.uconduct.literate = Math.trunc(
                 state.u.uconduct.literate ?? 0,
@@ -3976,14 +3978,12 @@ async function eataccessory(otmp, state, env) {
             set_mimic_blocking(state);
             await see_monsters(state, { ...env,
                 redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
-            const invis = state.u.uprops[INVIS];
-            const seeInvisible = state.u.uprops[SEE_INVIS];
             const invisible = Boolean(
-                (invis.intrinsic || invis.extrinsic) && !invis.blocked,
+                Invis(state.u),
             );
-            if (invisible && !oldprop && !seeInvisible.extrinsic
+            if (invisible && !oldprop && !ESee_invisible(state.u)
                 && !perceives(state.youmonst.data)
-                && !heroIsBlind(state)) {
+                && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
                 await message('Suddenly you can see yourself.', state);
                 discover_object(typ, true, true, true, state);
@@ -3991,13 +3991,11 @@ async function eataccessory(otmp, state, env) {
             break;
         }
         case RIN_INVISIBILITY: {
-            const invis = state.u.uprops[INVIS];
-            const seeInvisible = state.u.uprops[SEE_INVIS];
             const seeInvis = Boolean(
-                seeInvisible.intrinsic || seeInvisible.extrinsic,
+                HSee_invisible(state.u) || ESee_invisible(state.u),
             );
-            if (!oldprop && !seeInvisible.extrinsic && !invis.blocked
-                && !seeInvis && !heroIsBlind(state)) {
+            if (!oldprop && !ESee_invisible(state.u) && !BInvis(state.u)
+                && !seeInvis && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
                 await message(
                     `Your body takes on a ${Hallucination(state)

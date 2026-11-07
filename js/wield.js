@@ -15,7 +15,6 @@ import {
     CXN_PFX_THE,
     RIGHT_HANDED,
     HALLUC_RES,
-    BLINDED,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
@@ -135,7 +134,6 @@ import { shkname } from './shknam.js';
 import { arti_light_description } from './light.js';
 import { begin_burn, end_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { body_part } from './polyself.js';
 import { strange_feeling } from './potion.js';
 import { coreRandom, rn2, rnd } from './rng.js';
@@ -150,6 +148,7 @@ import {
     setnotworn,
     setworn,
 } from './worn.js';
+import { Blind } from './youprop.js';
 
 // C ref: wield.c setuwep() (100-137). Slot changes and status invalidation
 // precede artifact-light shutdown; finish unweapon only after the live message.
@@ -181,7 +180,7 @@ export async function setuwep(obj, env = {}) {
                 ...normalized.hooks,
             },
         }));
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await (env.message ?? ttyPline)(
                 `${Tobjnam(olduwep, 'stop', state)} shining.`, state,
             );
@@ -438,7 +437,7 @@ export async function chwepon(otmp, amount, state = game) {
         && !is_weptool(uwep, state))) {
         let text;
         if (amount >= 0 && uwep && will_weld(uwep, state)) {
-            if (!propertyActiveForWield(state, BLINDED)) {
+            if (!Blind(state.u)) {
                 text = `${Yobjnam2(uwep, 'glow', state)} with `
                     + `${an(hcolor('amber', state))} aura.`;
                 // wield.c deliberately bypasses set_bknown() here.
@@ -502,7 +501,7 @@ export async function chwepon(otmp, amount, state = game) {
     const wepname = has_oname(uwep) ? uwep.oextra.oname : '';
     if (amount < 0 && uwep.oartifact
         && restrict_name(uwep, wepname, state)) {
-        if (!propertyActiveForWield(state, BLINDED)) {
+        if (!Blind(state.u)) {
             await ttyPline(
                 `${Yobjnam2(uwep, 'faintly glow', state)} ${color}.`, state,
             );
@@ -513,7 +512,7 @@ export async function chwepon(otmp, amount, state = game) {
     // C's soft upper and lower limit can destroy the whole wielded stack.
     if (((uwep.spe > 5 && amount >= 0)
         || (uwep.spe < -5 && amount < 0)) && rn2(3)) {
-        if (!propertyActiveForWield(state, BLINDED)) {
+        if (!Blind(state.u)) {
             await ttyPline(
                 `${Yobjnam2(uwep, 'violently glow', state)} ${color} for a while and then `
                     + `${otense(uwep, 'evaporate', state)}.`,
@@ -533,7 +532,7 @@ export async function chwepon(otmp, amount, state = game) {
         return 1;
     }
 
-    if (!propertyActiveForWield(state, BLINDED)) {
+    if (!Blind(state.u)) {
         const xtime = amount * amount === 1 ? 'moment' : 'while';
         await ttyPline(
             `${Yobjnam2(uwep, amount === 0 ? 'violently glow' : 'glow', state)} `
@@ -585,10 +584,6 @@ async function sourceCostlyAlteration(obj, alterType, state) {
     await costly_alteration(obj, alterType, { state });
 }
 
-function propertyActiveForWield(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 // C ref: mondata.h:123 cantwield().
 export function cantwield(species) {
@@ -683,7 +678,7 @@ export async function ready_weapon(wep, state = game) {
         if (wep.oartifact) res |= await arti_speak(wep, state);
         if (artifact_light(wep) && !wep.lamplit) {
             begin_burn(wep, false, objectGenerationEnv({ state }));
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await ttyPline(
                     `${Tobjnam(wep, 'begin', state)} to shine ${arti_light_description(wep, state)}!`, state,
                 );
@@ -1252,7 +1247,7 @@ export function uwepgone(env = {}) {
                     ...env.hooks,
                 },
             }));
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 const message = (env.message ?? ttyPline)(
                     `${Tobjnam(weapon, 'stop', state)} shining.`, state,
                 );

@@ -166,7 +166,6 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
@@ -179,6 +178,7 @@ import {
     loadApplyStethoscopeRecipeInventory,
     loadApplyStethoscopeRecipe,
 } from './run-apply-stethoscope.mjs';
+import { Blind } from '../js/youprop.js';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -773,7 +773,7 @@ test('doapply routes eyewear through its source helpers and keeps its turn resul
     assert.equal(game.ublindf, blindfold,
         'Blindf_on installs the selected object in ublindf');
     assert.equal(blindfold.owornmask & W_TOOL, W_TOOL);
-    assert.equal(heroIsBlind(game), true,
+    assert.equal(Blind(game.u), true,
         'the worn blindfold supplies the BLINDED extrinsic');
 
     const lenses = makeInventoryItem(LENSES);
@@ -784,12 +784,12 @@ test('doapply routes eyewear through its source helpers and keeps its turn resul
     assert.equal(await apply(blindfold, true), ECMD_TIME);
     assert.equal(game.ublindf, null,
         'Blindf_off clears the source eyewear slot');
-    assert.equal(heroIsBlind(game), false,
+    assert.equal(Blind(game.u), false,
         'removing the blindfold restores sight');
 
     assert.equal(await apply(lenses, true), ECMD_TIME);
     assert.equal(game.ublindf, lenses);
-    assert.equal(heroIsBlind(game), false,
+    assert.equal(Blind(game.u), false,
         'lenses occupy ublindf without supplying blindness');
     lenses.cursed = 1;
     assert.equal(await apply(lenses, true), ECMD_TIME);

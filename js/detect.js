@@ -8,11 +8,9 @@ import {
     A_INT,
     BEAR_TRAP,
     COULD_SEE,
-    BLINDED,
     BURIED_TOO,
     BOLT_LIM,
     COLNO,
-    CLAIRVOYANT,
     CONFUSION,
     CONTAINED_TOO,
     CORR,
@@ -216,7 +214,6 @@ import {
     SYM_OFF_X,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
-import { heroIsBlind } from './startup_a11y.js';
 import {
     activate_statue_trap as trapActivateStatueTrap,
     b_trapped, openfallingtrap, openholdingtrap, t_at, trapname,
@@ -242,7 +239,9 @@ import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Clairvoyant, EDetect_monsters, HBlinded, Maybe_Half_Phys,
+} from './youprop.js';
 
 /** An explicit-search branch whose effects are still unported. */
 export class UnsupportedSearchError extends Error {
@@ -1118,15 +1117,11 @@ export async function monster_detect(
     if (otmp?.blessed && !unconstrained) {
         await waitMap(state);
     } else {
-        const detection = state.u.uprops[DETECT_MONSTERS] ??= {
-            intrinsic: 0,
-            extrinsic: 0,
-        };
-        detection.extrinsic |= I_SPECIAL;
+        state.u.uprops[DETECT_MONSTERS].extrinsic |= I_SPECIAL;
         try {
             await browse(TER_DETECT | TER_MON, 'monster of interest', state);
         } finally {
-            detection.extrinsic &= ~I_SPECIAL;
+            state.u.uprops[DETECT_MONSTERS].extrinsic &= ~I_SPECIAL;
         }
     }
     await redisplay(state);
@@ -1394,11 +1389,6 @@ export function level_distance(where, state = game, random = coreRandom) {
     return result;
 }
 
-function heroBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked);
-}
 
 function heroHallucinating(state) {
     const hallucination = state.u?.uprops?.[HALLUC];
@@ -1413,7 +1403,7 @@ function heroHallucinating(state) {
 export async function use_crystal_ball(optr, state = game) {
     let obj = optr.obj;
     const charged = obj.spe > 0;
-    if (heroBlind(state)) {
+    if (Blind(state.u)) {
         await ttyPline(
             `Too bad you can't see ${the(xnameFresh(obj, state), state)}.`,
             state,
@@ -1447,10 +1437,10 @@ export async function use_crystal_ball(optr, state = game) {
                 await ttyPline(
                     `${Tobjnam(obj, 'damage', state)} your vision!`, state,
                 );
-                const blindTimeout = (state.u.uprops[BLINDED]?.intrinsic ?? 0)
+                const blindTimeout = (HBlinded(state.u))
                     & TIMEOUT;
                 await make_blinded(blindTimeout + impairment, false, state);
-                if (!heroBlind(state))
+                if (!Blind(state.u))
                     await ttyPline(`Your ${vision_clears}`, state);
             } else {
                 await ttyPline(
@@ -1774,16 +1764,9 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     const vizRow = state.viz_array?.[uy];
     const saveViz = vizRow?.[ux] ?? 0;
     const swallowed = Boolean(state.u.uswallow);
-    const detectProperty = state.u.uprops[DETECT_MONSTERS] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-        blocked: 0,
-    };
-    const saveEDetectMons = detectProperty.extrinsic ?? 0;
+    const saveEDetectMons = EDetect_monsters(state.u);
     const extended = Boolean(sobj
-        && (sobj.blessed || propertyActiveUnblocked(
-            state.u, CLAIRVOYANT,
-        )));
+        && (sobj.blessed || Clairvoyant(state.u)));
     const randomFarsight = !sobj;
     let refresh = false;
     let monsterDetected = false;
@@ -1798,7 +1781,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     // every sensed monster as special for getpos/map presentation.
     if (swallowed && vizRow)
         vizRow[ux] = saveViz | IN_SIGHT;
-    detectProperty.extrinsic = saveEDetectMons | I_SPECIAL;
+    state.u.uprops[DETECT_MONSTERS].extrinsic = saveEDetectMons | I_SPECIAL;
     const unconstrained = unconstrain_map(state);
 
     for (let x = loX; x <= hiX; ++x) {
@@ -1857,7 +1840,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     }
 
     reconstrain_map(state);
-    detectProperty.extrinsic = saveEDetectMons;
+    state.u.uprops[DETECT_MONSTERS].extrinsic = saveEDetectMons;
     if (vizRow) vizRow[ux] = saveViz;
 
     // Replace stale detected-monster glyphs only after constraints have been
@@ -2010,7 +1993,7 @@ function defaultFeelSearchLocation(x, y, env) {
 }
 
 function defaultFeelSearchNewSym(x, y, env) {
-    if (propertyActiveUnblocked(env.state.u, BLINDED)) {
+    if (Blind(env.state.u)) {
         defaultFeelSearchLocation(x, y, env);
         return;
     }
@@ -2360,7 +2343,7 @@ async function mfind0(monster, via_warning, env) {
             if (via_warning && foundSomething) {
                 await env.message(
                     `Your danger sense causes you to take a second ${
-                        propertyActiveUnblocked(state.u, BLINDED)
+                        Blind(state.u)
                             ? 'to check nearby' : 'look close by'}.`,
                     x,
                     y,
@@ -2429,7 +2412,7 @@ function searchFund(state) {
     let fund = artifactSearchAbility(state.uwep, state)
         ? Math.trunc(state.uwep.spe ?? 0) : 0;
     if (state.ublindf?.otyp === LENSES
-        && !propertyActiveUnblocked(state.u, BLINDED)) {
+        && !Blind(state.u)) {
         fund += 2;
     }
     return Math.min(fund, 5);
@@ -2498,7 +2481,7 @@ export function foundone(x, y, glyph, state) {
 
     const viz = state.viz_array?.[y];
     const saveViz = viz?.[x] ?? 0;
-    if (!heroIsBlind(state) && viz) viz[x] = COULD_SEE | IN_SIGHT;
+    if (!Blind(state.u) && viz) viz[x] = COULD_SEE | IN_SIGHT;
     newsym(x, y, state);
     if (viz) viz[x] = saveViz;
 }
@@ -2764,7 +2747,7 @@ export async function openit(state = game, rawEnv = {}) {
     const message = (text) => (rawEnv.message ?? ttyPline)(text, state);
     if (state.u.uswallow) {
         if (digests(state.u.ustuck?.data)) {
-            await message(heroIsBlind(state)
+            await message(Blind(state.u)
                 ? 'Its mouth opens!'
                 : `${Monnam(state.u.ustuck, state)} opens its mouth!`);
         }
@@ -2882,7 +2865,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
             // square's terrain branch whenever Blind or a visible region
             // covers it. Keep this ahead of SDOOR/SCORR and trap handling;
             // the canonical display owner performs all tactile memory work.
-            if (explicit && (propertyActiveUnblocked(u, BLINDED)
+            if (explicit && (Blind(u)
                 || visible_region_at(x, y, state))) {
                 await env.feelLocation(x, y, env);
             }
@@ -2919,7 +2902,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 // See if an invisible monster has moved. When Blind,
                 // feel_location() has already handled the tactile display.
                 if (explicit && !monster
-                    && !propertyActiveUnblocked(u, BLINDED)) {
+                    && !Blind(u)) {
                     unmap_invisible(x, y, state);
                 }
                 const trap = t_at(x, y, state);

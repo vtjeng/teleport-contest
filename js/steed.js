@@ -10,7 +10,6 @@ import {
     A_WIS,
     ARTICLE_A,
     ARTICLE_YOUR,
-    BLINDED,
     BOTH_SIDES,
     CONFUSION,
     DIR_ERR,
@@ -56,7 +55,6 @@ import {
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
     TELEDS_ALLOW_DRAG,
-    TELEPAT,
     TEST_MOVE,
     RLOC_ERR,
     RLOC_NOMSG,
@@ -179,7 +177,7 @@ import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, Blind_telepat, Maybe_Half_Phys } from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
 // stands for, because the terms differ from macro to macro.
@@ -204,11 +202,6 @@ function Hallucination(state) {
         && !propertyActive(state, HALLUC_RES);
 }
 
-// youprop.h:103. Blindness subtracts a blocking term the others do not have.
-function Blind(state) {
-    const value = state.u?.uprops?.[BLINDED];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 function saddleEnv(env = {}) {
     return {
@@ -516,7 +509,7 @@ export async function mount_steed(mtmp, force, state = game) {
 
     /* Can the player reach and see the monster? */
     const appearance = (mtmp?.m_ap_type ?? 0) & M_AP_TYPMASK;
-    if (!mtmp || (!force && ((Blind(state) && !propertyActive(state, TELEPAT))
+    if (!mtmp || (!force && ((Blind(state.u) && !Blind_telepat(state.u))
                              || mtmp.mundetected
                              || appearance === M_AP_FURNITURE
                              || appearance === M_AP_OBJECT))) {

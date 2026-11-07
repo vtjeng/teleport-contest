@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { SPE_PROTECTION } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { Blind } from '../js/youprop.js';
 
 function entries() {
     return ['knight-initial', 'cleric-repeat', 'blind-cleric', 'learned-wizard'].map(label => {
@@ -24,7 +24,7 @@ async function verifyProtection(segment) {
     assert.equal(game.u.uspmtime, 10); // All four roles remain below Expert.
     assert.ok(game.u.usptime > 0 && game.u.usptime < 10); // Post-cast nh_timeout.
     const blind = segment.moves.includes('blindfold');
-    assert.equal(heroIsBlind(game), blind);
+    assert.equal(Blind(game.u), blind);
     if (segment.moves.includes('#cast\n')) {
         // The ordinary production route must learn, retain and cast the book.
         assert.ok(game.svs.spl_book.some(spell => spell.sp_id === SPE_PROTECTION));

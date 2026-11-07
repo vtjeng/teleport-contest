@@ -8,7 +8,6 @@ import {
     ANY_SHOP,
     BARRACKS,
     BEEHIVE,
-    BLINDED,
     BOLT_LIM,
     CONFLICT,
     COURT,
@@ -23,7 +22,6 @@ import {
     HALLUC,
     HALLUC_RES,
     HEAD,
-    INVIS,
     IRONBARS,
     IS_WALL,
     FULL_MOON,
@@ -223,6 +221,7 @@ import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
+import { Blind, Invis } from './youprop.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -257,13 +256,6 @@ function Deaf(state) {
         || Boolean(state.u?.uroleplay?.deaf);
 }
 
-// C ref: youprop.h:103 Blind. Blindness subtracts a blocking term the other
-// properties here do not have.
-function Blind(state) {
-    const blinded = state.u?.uprops?.[BLINDED];
-    return Boolean(blinded?.intrinsic || blinded?.extrinsic)
-        && !blinded?.blocked;
-}
 
 // C ref: strchr(u.ushops, roomno). Checks whether a 0-terminated room-number
 // buffer contains a specific room number.
@@ -1482,7 +1474,7 @@ async function dochat(state) {
         await ttyPline('Your speech is unintelligible underwater.', state);
         return ECMD_OK;
     }
-    const shopGoods = !Deaf(state) && !Blind(state)
+    const shopGoods = !Deaf(state) && !Blind(state.u)
         ? shop_object(u.ux, u.uy, state) : null;
     if (shopGoods) {
         /* standing on something in a shop and chatting causes the shopkeeper
@@ -1535,7 +1527,7 @@ async function dochat(state) {
         const otmp = vobj_at(tx, ty, state);
         if (otmp && otmp.otyp === STATUE) {
             /* Talking to a statue */
-            if (!Blind(state)) {
+            if (!Blind(state.u)) {
                 await ttyPline(
                     /* if hallucinating, you can't tell it's a statue */
                     `The ${Hallucination(state) ? rndmonnam({ state })
@@ -1550,7 +1542,7 @@ async function dochat(state) {
             /* Talking to a wall; secret door remains hidden by behaving
                like a wall; IS_WALL() test excludes solid rock even when
                that serves as a wall bordering a corridor */
-            if (Blind(state)
+            if (Blind(state.u)
                 && !IS_WALL(state.level.lastseentyp?.[tx]?.[ty] ?? STONE)) {
                 /* when blind, you can only talk to a wall if it has
                    already been mapped as a wall */
@@ -1623,10 +1615,8 @@ export async function dotalk(state = game) {
 // at the head square (never a worm tail) which is able to see and react.
 export function responsive_mon_at(x, y, state = game) {
     let mtmp = isok(x, y) ? m_at(x, y, state) : null;
-    const invisibility = state.u?.uprops?.[INVIS];
     const invisible = Boolean(
-        (invisibility?.intrinsic || invisibility?.extrinsic)
-        && !invisibility?.blocked,
+        Invis(state.u),
     );
     if (mtmp && (helpless(mtmp)
         || !mtmp.mcansee

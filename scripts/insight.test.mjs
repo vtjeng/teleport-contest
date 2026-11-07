@@ -592,7 +592,7 @@ test('status enlightenment uses C Blindfolded_only for deliberate blindness',
             import.meta.url), 'utf8');
         const js = readFileSync(new URL('../js/insight.js', import.meta.url), 'utf8');
         assert.match(c, /#define Blindfolded_only \(Blindfolded && !Blinded\)/u);
-        assert.match(js, /const blindfoldedOnly = Boolean\(E\(BLINDED\)\s*&&\s*!\(H\(BLINDED\) && !B\(BLINDED\)\)\);/u);
+        assert.match(js, /const blindfoldedOnly = Blindfolded_only\(u\);/u);
     });
 
 test('status enlightenment reports movement and trouble branches in C order',

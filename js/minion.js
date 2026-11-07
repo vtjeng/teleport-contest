@@ -50,7 +50,6 @@ import { getlin } from './windows.js';
 import { coreRandom } from './rng.js';
 import { show_transient_light, transient_light_cleanup } from './light.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { vision_recalc } from './vision.js';
 import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
@@ -68,6 +67,7 @@ import {
 } from './objects.js';
 import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
+import { Blind } from './youprop.js';
 
 function guardianRandom(state, rawEnv = {}) {
     return rawEnv.random ?? state.random ?? coreRandom;
@@ -142,7 +142,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
                 state.u.uconduct.pets++;
             }
             newsym(angel.mx, angel.my, state);
-            await message(heroIsBlind(state)
+            await message(Blind(state.u)
                 ? youFeel('the presence of a friendly angel near you.', state)
                 : 'An angel appears near you.', state);
             angel.m_lev = random.rn1(8, 15);
@@ -611,7 +611,7 @@ export async function msummon(mon = null, rawEnv = {}) {
             created.mextra.emin.renegade =
                 (atyp !== state.u.ualign.type) ^ !created.mpeaceful;
         }
-        if (created.data.mlet === M.S_ANGEL && !heroIsBlind(state)) {
+        if (created.data.mlet === M.S_ANGEL && !Blind(state.u)) {
             hasTransientLight = true;
             if (!env.planning && typeof env.showTransientLight === 'function') {
                 await env.showTransientLight(created.mx, created.my, state, env);

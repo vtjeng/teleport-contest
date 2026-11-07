@@ -8,7 +8,6 @@
 import { rm_doormask } from './game.js';
 import {
     BEAR_TRAP,
-    BLINDED,
     BOLT_LIM,
     BUFSZ,
     QBUFSZ,
@@ -46,11 +45,6 @@ import {
     HALLUC,
     HALLUC_RES,
     I_SPECIAL,
-    INFRAVISION,
-    INVIS,
-    SEE_INVIS,
-    TELEPAT,
-    DETECT_MONSTERS,
     MONSEEN_NORMAL,
     MONSEEN_SEEINVIS,
     MONSEEN_INFRAVIS,
@@ -252,7 +246,6 @@ import { rn2, rn2_on_display_rng } from './rng.js';
 import {
     describeMonster,
     furnitureDescription,
-    heroIsBlind,
     monsterSurfaceDescription,
 } from './startup_a11y.js';
 import {
@@ -283,6 +276,10 @@ import { getlin, select_menu } from './windows.js';
 import {
     cmdq_key_char, getdir, key2extcmddesc, key2txt, y_n, yn_function,
 } from './cmd.js';
+import {
+    Blind, Detect_monsters, EDetect_monsters, HDetect_monsters, Infravision,
+    Invis, See_invisible, Unblind_telepat,
+} from './youprop.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -314,7 +311,7 @@ function heroHallucinating(state) {
 }
 
 function heroBlind(state) {
-    return propertyActive(state, BLINDED)
+    return Blind(state.u)
         || Boolean(state.u?.uroleplay?.blind);
 }
 
@@ -323,9 +320,8 @@ function heroBlind(state) {
 // symbol pass in do_screen_description(); lookat() itself always returns the
 // longer source string.
 function invisibleGlyphDescription(state) {
-    const detect = state.u?.uprops?.[DETECT_MONSTERS] ?? {};
-    const special = (Number(detect.intrinsic) & I_SPECIAL)
-        || (Number(detect.extrinsic) & I_SPECIAL);
+    const special = (Number(HDetect_monsters(state.u)) & I_SPECIAL)
+        || (Number(EDetect_monsters(state.u)) & I_SPECIAL);
     return (special || heroBlind(state))
         ? 'unseen creature' : 'remembered, unseen, creature';
 }
@@ -573,12 +569,10 @@ export function self_lookat(state = game) {
     const species = state.mons?.[u.umonnum] ?? state.youmonst?.data;
     if (!species?.pmnames)
         throw new UnsupportedWhatisError('a hero form without monster names');
-    const telepathyProperty = state.u?.uprops?.[TELEPAT] ?? {};
-    const unblindTelepathy = Boolean(telepathyProperty.extrinsic)
-        && !telepathyProperty.blocked;
-    const invisible = propertyActive(state, INVIS)
+    const unblindTelepathy = Boolean(Unblind_telepat(state.u));
+    const invisible = Invis(state.u)
         && (unblindTelepathy
-            || propertyActive(state, DETECT_MONSTERS)
+            || Detect_monsters(state.u)
             || !heroBlind(state));
     const race = !Upolyd(u) ? (state.urace?.adj ?? '') + ' ' : '';
     let description = (invisible ? 'invisible ' : '') + race
@@ -768,7 +762,7 @@ export function object_from_map(glyph, x, y, state) {
     const dx = x - (hero?.ux ?? 0);
     const dy = y - (hero?.uy ?? 0);
     if (object && dx * dx + dy * dy <= 2
-        && !heroIsBlind(state)
+        && !Blind(state.u)
         && !heroHallucinating(state)
         && (fakeobj || object.where === OBJ_FLOOR)
         && !state.iflags?.terrainmode)
@@ -855,13 +849,12 @@ export async function look_all(nearby, doMons, state = game) {
     const lines = [];
     let count = 0;
     // display.h:canspotself(). Invisible includes the see-invisible exception.
-    const invisible = propertyActive(state, INVIS)
-        && !propertyActive(state, SEE_INVIS);
-    const telepathy = state.u?.uprops?.[TELEPAT] ?? {};
+    const invisible = Invis(state.u)
+        && !See_invisible(state.u);
     const canSpotSelf = heroBlind(state) || state.u.uswallow
         || (!invisible && !state.u.uundetected)
-        || (Boolean(telepathy.extrinsic) && !telepathy.blocked)
-        || propertyActive(state, DETECT_MONSTERS);
+        || Boolean(Unblind_telepat(state.u))
+        || Detect_monsters(state.u);
     for (let y = loY; y <= hiY; ++y) {
         for (let x = loX; x <= hiX; ++x) {
             const glyph = glyph_at(x, y, state);
@@ -1300,12 +1293,10 @@ export function lookat(x, y, state = game) {
     let buf = '';
     let monbuf = '';
     let pm = null;
-    const invisible = propertyActive(state, INVIS)
-        && !propertyActive(state, SEE_INVIS);
-    const telepathyProperty = state.u?.uprops?.[TELEPAT] ?? {};
-    const telepathy = Boolean(telepathyProperty.extrinsic)
-        && !telepathyProperty.blocked;
-    const detection = propertyActive(state, DETECT_MONSTERS);
+    const invisible = Invis(state.u)
+        && !See_invisible(state.u);
+    const telepathy = Boolean(Unblind_telepat(state.u));
+    const detection = Detect_monsters(state.u);
     const canSpotSelf = heroBlind(state)
         || u.uswallow
         || (!invisible && !u.uundetected)
@@ -1320,7 +1311,7 @@ export function lookat(x, y, state = game) {
         if ((invisible || u.uundetected) && !heroBlind(state)
             && !u.uswallow && !state.iflags?.save_uswallow) {
             const seen = [];
-            if (propertyActive(state, INFRAVISION)) seen.push('infravision');
+            if (Infravision(state.u)) seen.push('infravision');
             if (telepathy) seen.push('telepathy');
             if (detection) seen.push('monster detection');
             if (seen.length) buf += ' [seen: ' + seen.join(', ') + ']';

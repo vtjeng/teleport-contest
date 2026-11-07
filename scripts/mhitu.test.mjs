@@ -4642,7 +4642,7 @@ test('gulp_blnd_check runs gulpmu and keeps its source timer order',
     assert.ok(jsEnd > jsStart, 'gulp_blnd_check must have a complete JS body');
     const jsBody = MHITU_JS.slice(jsStart, jsEnd);
     assert.match(jsBody,
-        /if \(!\(blinded\?\.intrinsic && !blinded\.blocked\)[\s\S]*?\+\+state\.u\.uswldtim;\s*await gulpmu\(stuck, mattk/u);
+        /if \(!Blinded\(state\.u\)[\s\S]*?\+\+state\.u\.uswldtim;\s*await gulpmu\(stuck, mattk/u);
 
     await runSegment({
         seed: 83015139,

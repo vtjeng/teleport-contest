@@ -27,8 +27,8 @@ import { begin_burn } from './timeout.js';
 import { get_obj_location } from './light.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { coreRandom } from './rng.js';
+import { Blind } from './youprop.js';
 
 function ignitionOperation(env, name, fallback) {
     const operation = env[name] ?? fallback;
@@ -101,7 +101,7 @@ export async function catch_lit(obj, rawEnv = {}) {
             { message },
         ),
     );
-    const blind = heroIsBlind(state);
+    const blind = Blind(state.u);
     if (obj.where === OBJ_INVENT
         || squareVisible(location.x, location.y, state)) {
         if (obj.where === OBJ_FLOOR

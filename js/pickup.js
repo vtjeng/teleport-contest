@@ -24,7 +24,6 @@ import {
     BUC_UNCURSED,
     BUC_UNKNOWN,
     BUCX_TYPES,
-    BLINDED,
     BY_NEXTHERE,
     BILLED_TYPES,
     WORN_TYPES,
@@ -300,7 +299,7 @@ import {
     start_corpse_timeout, start_glob_timeout, stop_timer,
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, Maybe_Half_Phys } from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -364,17 +363,12 @@ export class UnsupportedPickupError extends Error {
     }
 }
 
-function heroIsBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked);
-}
 
 // C ref: pickup.c pickup_object()'s sight-gated observe_object() call. Keep
 // this source boundary independently testable because later object naming can
 // also set dknown and would otherwise mask a wrong early Blind predicate.
 export function observe_pickup_object(obj, state = game) {
-    if (!heroIsBlind(state)) observe_object(obj, state);
+    if (!Blind(state.u)) observe_object(obj, state);
     return obj;
 }
 
@@ -1059,7 +1053,7 @@ function preflightPickupObjects(selected, state) {
     const computedPlans = preflight_addinv_sequence(
         actionable.map(({ obj }) => obj),
         env,
-        { observeObjects: !heroIsBlind(state) },
+        { observeObjects: !Blind(state.u) },
     );
     const addPlans = [];
     let planIndex = 0;
@@ -2537,7 +2531,7 @@ async function mbag_item_gone(held, item, silent, state) {
             );
         } else {
             await ttyPline(
-                `You ${heroIsBlind(state) ? 'notice' : 'see'} `
+                `You ${Blind(state.u) ? 'notice' : 'see'} `
                 + `${donameFresh(item, state)} disappear!`,
                 state,
             );
@@ -3617,7 +3611,7 @@ async function doloot_core(state) {
 
         // pickup.c:2223-2235. Blind cockatrice corpse handling happens
         // before a container menu or interaction.
-        if (heroIsBlind(state) && !state.uarmg) {
+        if (Blind(state.u) && !state.uarmg) {
             for (let nobj = state.level.objects[cc.x][cc.y]; nobj;
                 nobj = nobj.nexthere) {
                 if (nobj.otyp === CORPSE

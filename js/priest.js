@@ -33,7 +33,6 @@ import {
     HALLUC_RES,
     helpless,
     HOT,
-    INVIS,
     IS_ALTAR,
     IS_DOOR,
     IS_ROOM,
@@ -126,6 +125,7 @@ import { which_armor } from './worn.js';
 import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
+import { Invis } from './youprop.js';
 
 // C ref: priest.c local constants.
 const ALGN_SINNED = -4;
@@ -771,8 +771,7 @@ export async function pri_move(priest, env = {}) {
             avoid = false;
         }
     } else {
-        const invisProp = state.u.uprops?.[INVIS];
-        if ((invisProp?.intrinsic || invisProp?.extrinsic) && !invisProp?.blocked)
+        if (Invis(state.u))
             avoid = false;
     }
 
@@ -1148,13 +1147,11 @@ export async function priest_talk(priest, state = game, env = {}) {
             adjalign(1, state);
         }
         await speak('I bestow upon thee a blessing.', state);
-        if (u.uprops?.[CLAIRVOYANT]) {
-            const timeout = Math.trunc(500 * offer / suggested);
-            incr_itimeout(
-                u.uprops[CLAIRVOYANT],
-                random.rn1(timeout, timeout),
-            );
-        }
+        const timeout = Math.trunc(500 * offer / suggested);
+        incr_itimeout(
+            u.uprops[CLAIRVOYANT],
+            random.rn1(timeout, timeout),
+        );
     } else if (offer < suggested * quan * 3) {
         // C's next tier restores/grows protection. Its loop intentionally
         // compares against 2*suggested, not suggested*quan.

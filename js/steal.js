@@ -4,7 +4,6 @@
 
 import {
     ADORNED,
-    BLINDED,
     CONFLICT,
     FOOT,
     HAND,
@@ -152,6 +151,7 @@ import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
 import { body_part, mbodypart } from './polyself.js';
+import { Blind } from './youprop.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -185,11 +185,6 @@ function requiredPickupOperation(env, operation, obj) {
     return callback;
 }
 
-function heroIsBlind(state) {
-    const blinded = state.u?.uprops?.[BLINDED];
-    return Boolean((blinded?.intrinsic || blinded?.extrinsic)
-        && !blinded?.blocked);
-}
 
 function reportImpossible(env, message, monster, obj) {
     if (typeof env.hooks?.impossible === 'function')
@@ -221,7 +216,7 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
     const reportObjectGoesOut = snuff
         && env.state.u?.uswallow
         && env.state.u?.ustuck === monster
-        && !heroIsBlind(env.state)
+        && !Blind(env.state.u)
         ? requiredPickupOperation(env, 'reportObjectGoesOut', obj)
         : null;
 
@@ -649,7 +644,7 @@ export async function steal(
             // C discards openholdingtrap()'s struct result; this ported owner
             // is awaited for its release and display effects.
             await openholdingtrap(state.youmonst, state);
-        } else if (heroIsBlind(state)) {
+        } else if (Blind(state.u)) {
             await message(
                 'Somebody tries to rob you, but finds nothing to steal.',
                 state,

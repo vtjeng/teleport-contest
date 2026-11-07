@@ -46,6 +46,7 @@ import {
     W_BALL,
     W_CHAIN,
     WARNING,
+    LAST_PROP,
 } from '../js/const.js';
 import {
     check_map_spot,
@@ -222,7 +223,9 @@ function searchState() {
             uinvulnerable: true,
             usleep: 3,
             uz: { dnum: 0, dlevel: 1 },
-            uprops: [],
+            // Every slot zeroed, as u_init.c gives a new hero.
+            uprops: Array.from({ length: LAST_PROP + 1 },
+                () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
             acurr: { a: [10, 10, 10, 10, 10, 10] },
             abon: [0, 0, 0, 0, 0, 0],
             atemp: [0, 0, 0, 0, 0, 0],

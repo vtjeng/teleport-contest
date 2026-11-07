@@ -28,7 +28,6 @@ import {
     HALLUC_RES,
     HAND,
     HEAD,
-    INVIS,
     IS_FOUNTAIN,
     KILLED_BY,
     KILLED_BY_AN,
@@ -89,7 +88,6 @@ import {
 import { get_iter_mons } from './mon.js';
 import { monflee, onscary, set_apparxy, youHear } from './monmove.js';
 import { m_at } from './monst.js';
-import { heroIsBlind } from './startup_a11y.js';
 import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
@@ -118,8 +116,6 @@ import {
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
 import { livelog_printf, verbalize, youSee, youFeel } from './pline.js';
-import { Fire_resistance } from './zap.js';
-import { Glib } from './wield.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { the, xnameFresh } from './objnam.js';
 import {
@@ -131,6 +127,9 @@ import {
 } from './objects.js';
 import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
+import { Glib } from './wield.js';
+import { Fire_resistance } from './zap.js';
+import { Blind, Invisible } from './youprop.js';
 
 // ── Fail-closed error ──
 // Thrown when a fountain function reaches a branch this port has not ported.
@@ -155,14 +154,6 @@ function Poison_resistance(state) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-// C ref: youprop.h Invisible. See-invisible suppresses the invisible status.
-function Invisible(state) {
-    const invisibility = state.u?.uprops?.[INVIS];
-    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
-    return Boolean(invisibility?.intrinsic || invisibility?.extrinsic)
-        && !invisibility?.blocked
-        && !(seeInvisible?.intrinsic || seeInvisible?.extrinsic);
-}
 
 // ── floating_above ──
 // C ref: fountain.c floating_above() (18-32). Prints a message when the
@@ -201,7 +192,7 @@ async function dowaterdemon(state = game, env = {}) {
             { ...env, state, random },
         );
         if (mtmp) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(
                     `You unleash ${a_monnam(mtmp, { state })}!`,
                     state,
@@ -257,7 +248,7 @@ async function dowatersnakes(state = game, env = {}) {
             'The fountain bubbles furiously for a moment, then calms.', state,
         );
 
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         // Soundeffect(se_snakes_hissing, 75) is a no-op in the TTY recorder.
         const heard = youHear(`${something} hissing!`, state);
         if (heard) await message(heard, state);
@@ -307,7 +298,7 @@ export async function dowaternymph(state = game, env = {}) {
             { ...env, state, random },
         );
         if (mtmp) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(
                     `You attract ${a_monnam(mtmp, { state })}!`, state);
             } else {
@@ -321,7 +312,7 @@ export async function dowaternymph(state = game, env = {}) {
                 await mintrap(mtmp, 0, { ...env, state, random });
             }
         }
-    } else if (!heroIsBlind(state)) {
+    } else if (!Blind(state.u)) {
         // C ref: fountain.c:109-110. Extinct nymphs, sighted hero.
         // Soundeffect calls are not ported; skip them.
         await message(
@@ -458,7 +449,7 @@ async function dofindgem(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
 
-    if (!heroIsBlind(state)) {
+    if (!Blind(state.u)) {
         await message('You spot a gem in the sparkling waters!', state);
     } else {
         await message(youFeel('a gem here!', state), state);
@@ -826,8 +817,8 @@ export async function drinkfountain(state = game, env = {}) {
             break;
         }
         case 25: { // See invisible
-            if (heroIsBlind(state)) {
-                if (Invisible(state)) {
+            if (Blind(state.u)) {
+                if (Invisible(state.u)) {
                     await message('You feel transparent.', state);
                 } else {
                     await message('You feel very self-conscious.', state);
@@ -1037,7 +1028,7 @@ export async function dipfountain(obj, state = game, env = {}) {
     case 19:
     case 20: // Uncurse the item
         if (!is_hands && obj.cursed) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(
                     `The ${hliquid('water', env)} glows for a moment.`,
                     state);
@@ -1112,7 +1103,7 @@ export async function dipfountain(obj, state = game, env = {}) {
             (dunlevs_in_dungeon(state.u.uz, state) - dunlev(state.u.uz)
                 + 1) * 2) + 5;
         mkgold(coinAmount, state.u.ux, state.u.uy, { random, state });
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message(
                 `Far below you, you see coins glistening in the ${hliquid('water', env)}.`,
                 state);
@@ -1234,7 +1225,7 @@ export async function dipsink(obj, state = game, env = {}) {
         break;
     }
     case POT_OIL:
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message('It leaves an oily film on the basin.', state);
             try_call = true;
         } else {
@@ -1243,7 +1234,7 @@ export async function dipsink(obj, state = game, env = {}) {
         break;
     case POT_ACID:
         try_call = true;
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message('The drain seems less clogged.', state);
         } else if (!heroIsDeaf(state)) {
             await message(youHear('a sucking sound.', state), state);
@@ -1296,7 +1287,7 @@ export async function dipsink(obj, state = game, env = {}) {
 export async function sink_backs_up(x, y, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
-    const blind = heroIsBlind(state);
+    const blind = Blind(state.u);
     const deaf = heroIsDeaf(state);
     const splash = blind && deaf
         ? `Something splashes you in the ${body_part(FACE, state.youmonst)}`
@@ -1363,7 +1354,7 @@ export async function drinksink(state = game, env = {}) {
             const monster = await makeMonster(state.mons[PM_SEWER_RAT],
                 x, y, MM_NOMSG, { ...env, state, random });
             if (monster) {
-                const name = heroIsBlind(state) || !canspotmon(monster, state)
+                const name = Blind(state.u) || !canspotmon(monster, state)
                     ? 'something squirmy' : a_monnam(monster, { state });
                 await message(`Eek!  There's ${name} in the sink!`, state);
             }
@@ -1377,11 +1368,11 @@ export async function drinksink(state = game, env = {}) {
             obfree(potion, null, { ...env, state });
         }
         potion.cursed = potion.blessed = 0;
-        const color = heroIsBlind(state) ? 'odd'
+        const color = Blind(state.u) ? 'odd'
             : hcolor(OBJ_DESCR(objectType(potion, state), state), state,
                 { displayRandom: env.displayRandom });
         await message(`Some ${color} liquid flows from the faucet.`, state);
-        if (!(heroIsBlind(state) || hallucination))
+        if (!(Blind(state.u) || hallucination))
             observe_object(potion, state);
         ++potion.quan; // C avoids freeing this temporary potion in useup().
         potion.fromsink = 1;

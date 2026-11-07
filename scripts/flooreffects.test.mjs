@@ -110,7 +110,7 @@ test('boulder_hits_pool keeps the C trap pointer and pushing visibility arms', (
     assert.match(jsBody, /await delfloortrap\(trap, state\)/u);
     assert.doesNotMatch(jsBody, /const currentTrap = t_at/u);
     assert.match(jsBody,
-        /pushing \? !heroIsBlind\(state\) : cansee\(rx, ry, state\)/u);
+        /pushing \? !Blind\(state\.u\) : cansee\(rx, ry, state\)/u);
 });
 
 function fixture({

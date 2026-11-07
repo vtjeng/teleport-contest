@@ -2332,10 +2332,7 @@ test('erosion_matters keeps the full C switch, weptool macro, and source callers
     );
 
     const jsName = OBJNAM_JS_SOURCE.indexOf('export function erosion_matters(');
-    const jsEnd = OBJNAM_JS_SOURCE.indexOf(
-        '\nfunction heroIsBlind',
-        jsName,
-    );
+    const jsEnd = OBJNAM_JS_SOURCE.indexOf('\n}\n', jsName) + 2;
     const jsBody = OBJNAM_JS_SOURCE.slice(jsName, jsEnd);
     assert.ok(jsName >= 0 && jsEnd > jsName,
         'extract the complete JavaScript helper');

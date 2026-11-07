@@ -89,7 +89,7 @@ import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { verbalize, youFeel } from './pline.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { Blind } from './youprop.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
 const WIZARD_APPEARANCES = Object.freeze([
@@ -338,7 +338,7 @@ export async function intervene(state = game, rawEnv = {}) {
         await message(youFeel('vaguely nervous.', state), state);
         break;
     case 2:
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message(`You notice a ${hcolor('black', state)} glow surrounding you.`, state);
         if (typeof rawEnv.rndcurse !== 'function')
             throw new TypeError('intervene requires rndcurse for the curse arm');

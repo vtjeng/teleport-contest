@@ -9,7 +9,6 @@ import {
     A_LAWFUL,
     ARTICLE_A,
     BLCORNER,
-    BLINDED,
     BRCORNER,
     COLNO,
     CORR,
@@ -104,6 +103,7 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
+import { EBlinded, HBlinded } from './youprop.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -725,7 +725,7 @@ export async function gd_move(grd, env = {}) {
             if (egrd.warncnt < 6) {
                 egrd.warncnt = 6;
                 if (Deaf(state)) {
-                    if (!Blind(state)) {
+                    if (!BlindIgnoringLenses(state)) {
                         await message(
                             `${noit_Monnam(grd, state)} holds out ${noit_mhis(grd, { state })} palm demandingly!`,
                             state, gdEnv,
@@ -738,7 +738,7 @@ export async function gd_move(grd, env = {}) {
                 return 0;
             }
             if (Deaf(state)) {
-                if (!Blind(state)) {
+                if (!BlindIgnoringLenses(state)) {
                     await message(
                         `${noit_Monnam(grd, state)} rubs ${noit_mhis(grd, { state })} hands with enraged delight!`,
                         state, gdEnv,
@@ -1055,8 +1055,8 @@ function Deaf(state) {
     return propertyActive(state.u, DEAF)
         || Boolean(state.u?.uroleplay?.deaf);
 }
-function Blind(state) {
-    return propertyActive(state.u, BLINDED);
+function BlindIgnoringLenses(state) {
+    return Boolean(HBlinded(state.u) || EBlinded(state.u));
 }
 function Strangled(state) {
     return propertyActive(state.u, STRANGLED);
@@ -1180,7 +1180,7 @@ export async function invault(state, env = {}) {
             boulder = sobj_at(BOULDER, guard.mx, guard.my, state);
         } while (boulder);
         const suffix = `${count === 1 ? an(bname) : makeplural(bname)} shatter.`;
-        const line = Blind(state) ? youHear(suffix, state) : youSee(suffix, state);
+        const line = BlindIgnoringLenses(state) ? youHear(suffix, state) : youSee(suffix, state);
         if (line) await message(line);
     }
 
@@ -1272,7 +1272,7 @@ export async function invault(state, env = {}) {
         || buf.toLowerCase() === 'creosote') {
         if (!state.mvitals[PM_CROESUS].died) {
             if (Deaf(state)) {
-                if (!Blind(state))
+                if (!BlindIgnoringLenses(state))
                     await message(`${noit_Monnam(guard, state)} waves goodbye.`, state);
             } else {
                 set_voice(guard, 0, 80, 0, state);
@@ -1287,7 +1287,7 @@ export async function invault(state, env = {}) {
         const guardEnv = { ...env, state, random, message };
         await setmangry(guard, false, guardEnv);
         if (Deaf(state)) {
-            if (!Blind(state))
+            if (!BlindIgnoringLenses(state))
                 await message(`${noit_Monnam(guard, state)} mouths something and looks very angry!`);
         } else {
             set_voice(guard, 0, 80, 0, state);
@@ -1303,7 +1303,7 @@ export async function invault(state, env = {}) {
     }
 
     if (Deaf(state)) {
-        await message(`${noit_Monnam(guard, state)} doesn't ${Blind(state) ? '' : 'appear to '}recognize you.`);
+        await message(`${noit_Monnam(guard, state)} doesn't ${BlindIgnoringLenses(state) ? '' : 'appear to '}recognize you.`);
     } else {
         await message('"I don\'t know you."');
     }
@@ -1311,20 +1311,20 @@ export async function invault(state, env = {}) {
     const umoney = money_cnt(state.invent);
     if (!umoney && !hidden_gold(true, state)) {
         if (Deaf(state)) {
-            await message(`${noit_Monnam(guard, state)} stomps${Blind(state) ? '' : ' and beckons'}.`);
+            await message(`${noit_Monnam(guard, state)} stomps${BlindIgnoringLenses(state) ? '' : ' and beckons'}.`);
         } else {
             await message('"Please follow me."');
         }
     } else {
         if (Deaf(state)) {
             if (!umoney) {
-                if (!Blind(state)) {
+                if (!BlindIgnoringLenses(state)) {
                     await message(
                         `${noit_Monnam(guard, state)} glares at you${state.invent ? 'r stuff' : ''}.`,
                     );
                 }
             }
-            if (!Blind(state)) {
+            if (!BlindIgnoringLenses(state)) {
                 const possessive = noit_mhis(guard, { state });
                 await message(
                     `${noit_Monnam(guard, state)} holds out ${possessive} palm and beckons with ${possessive} other hand.`,

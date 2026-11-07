@@ -70,7 +70,6 @@ import {
     WAN_LIGHTNING,
     WAND_CLASS,
 } from './objects.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { Fire_resistance, inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
@@ -78,6 +77,7 @@ import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
 import { note_unported } from './unported.js';
+import { Blind } from './youprop.js';
 
 // C ref: zap.c destroyable() (5612-5650), translated whole. "Return TRUE if obj
 // is eligible to pass to maybe_destroy_item given the type of elemental damage
@@ -235,7 +235,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                        : Resists_Elem(carrier, FIRE_RES, state)));
         if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
             skip = true;
-            if (u_carry ? !heroIsBlind(state) : vis) {
+            if (u_carry ? !Blind(state.u) : vis) {
                 await message(
                     `${The(
                         u_carry

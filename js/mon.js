@@ -683,7 +683,7 @@ import { end_burn, kill_egg, obj_stop_timers } from './timeout.js';
 import { migrate_to_level, wary_dog } from './dog.js';
 import { m_useup } from './mthrowu.js';
 import { coreRandom, rn2 } from './rng.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import {
     mdrop_special_objs,
     mpickobj,
@@ -727,7 +727,9 @@ import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Blind_telepat, HTelepat, Maybe_Half_Phys,
+} from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
@@ -4010,7 +4012,7 @@ export async function setmangry(monster, via_attack, rawEnv = {}) {
         && (onscary(ux, uy, monster, state) || monster.mpeaceful)) {
         await message(youFeel('like a hypocrite.', state), state, rawEnv);
         adjalign(state.u.ualign.record > 5 ? -5 : -random.rnd(5), state);
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await message('The engraving beneath you fades.', state, rawEnv);
         del_engr_at(ux, uy, state);
     }
@@ -5879,7 +5881,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         obj = oname(obj, MGIVENNAME(mtmp), ONAME_NO_FLAGS, objectEnv);
 
     /* Avoid naming an unseen corpse while blind: hitmu() calls it "something". */
-    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj, state);
+    if (Blind(state.u) && !sensemon(mtmp, state)) clear_dknown(obj, state);
 
     stackobj(obj, objectGenerationEnv(objectEnv));
     killRedraw(x, y, { ...env, state });
@@ -6353,13 +6355,10 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         && state.u.ualign.type !== A_CHAOTIC) {
         // mon.c:3650-3663. HTelepat is intrinsic telepathy and ETelepat is
         // equipment-granted telepathy; only the former is removed here.
-        const telepathy = state.u.uprops?.[TELEPAT];
-        if (telepathy)
-            telepathy.intrinsic = (telepathy.intrinsic ?? 0) & ~INTRINSIC;
+        state.u.uprops[TELEPAT].intrinsic = HTelepat(state.u) & ~INTRINSIC;
         change_luck(-2, state);
         await message('You murderer!', state);
-        if (heroIsBlind(state)
-            && !(telepathy?.intrinsic || telepathy?.extrinsic))
+        if (Blind(state.u) && !Blind_telepat(state.u))
             await see_monsters(state, { ...env,
                 ...(env.planning && !env.redraw ? { redraw: () => {} } : {}),
             });

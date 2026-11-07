@@ -14,7 +14,6 @@ import {
     A_WIS,
     ALTAR,
     ANTIMAGIC,
-    BLINDED,
     BOLT_LIM,
     CC_INCL_CENTER,
     CC_NO_FLAGS,
@@ -257,6 +256,7 @@ import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Blind } from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -612,9 +612,7 @@ function monsterTeleportOperation(env, name) {
 }
 
 function heroBlind(state) {
-    const property = state.u?.uprops?.[BLINDED];
-    return (Boolean(property?.intrinsic || property?.extrinsic)
-        && !property?.blocked)
+    return (Blind(state.u))
         || Boolean(state.u?.uroleplay?.blind);
 }
 

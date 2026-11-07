@@ -67,11 +67,11 @@ import {
     spe_GoingStale,
     spe_Unknown,
 } from './spell.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import { getlin } from './windows.js';
 import { Glib } from './wield.js';
+import { Blind } from './youprop.js';
 
 // C ref: write.c cost() (12-57). Returns the base ink cost for a scroll or
 // spellbook type. The table values are copied verbatim from the C source.
@@ -167,7 +167,7 @@ export async function dowrite(pen, state = game, env = {}) {
     const typeword = (paper.otyp === SPE_NOVEL) ? 'book'
         : (paper.oclass === SPBOOK_CLASS) ? 'spellbook'
             : 'scroll';
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         if (!paper.dknown) {
             await ttyPline(
                 `You don't know whether that ${typeword} is blank or not.`,
@@ -455,7 +455,7 @@ export async function dowrite(pen, state = game, env = {}) {
     }
     /* can write scrolls when blind, but requires luck too;
        attempts to write books when blind are caught above */
-    if (heroIsBlind(state) && rnl(3)) {
+    if (Blind(state.u) && rnl(3)) {
         /* writing while blind usually fails regardless of whether the
            target scroll is known */
         await ttyPline(

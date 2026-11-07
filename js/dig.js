@@ -230,8 +230,6 @@ import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from
 import { coreRandom } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
-    Flying,
-    Levitation,
     b_trapped,
     conjoined_pits,
     cnv_trap_obj,
@@ -244,6 +242,8 @@ import {
     delfloortrap,
     uteetering_at_seen_pit,
     uescaped_shaft,
+    Flying,
+    Levitation,
 } from './trap.js';
 import { feeltrap, seetrap } from './trap_effects.js';
 import { bimanual } from './worn.js';
@@ -262,7 +262,6 @@ import {
 import { altar_wrath, altarmask_at, desecrate_altar } from './pray.js';
 import { note_unported } from './unported.js';
 import { angry_priest } from './priest.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { mk_tt_object } from './mkroom.js';
 import { mkclass } from './makemon.js';
 import {
@@ -302,7 +301,7 @@ import { AD_DGST, AT_ENGL, MZ_HUGE } from './monsters.js';
 import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, Maybe_Half_Phys } from './youprop.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -1702,7 +1701,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
         break;
     }
     case 2: {
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             const surprise = hallucinating
                 ? 'Dude!  The living dead'
                 : "The grave's owner is very upset";
@@ -1736,7 +1735,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
         break;
     }
     case 3: {
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             const surprise = hallucinating
                 ? 'I want my mummy'
                 : "You've disturbed a tomb";
@@ -2080,7 +2079,7 @@ export async function zap_dig(
                     room.typ = ROOM;
                     room.flags = 0;
                     unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
+                } else if (!Blind(state.u)) {
                     await ttyPline('The wall glows then fades.', state);
                 }
                 break;
@@ -2089,7 +2088,7 @@ export async function zap_dig(
                     room.typ = ROOM;
                     room.flags = 0;
                     unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
+                } else if (!Blind(state.u)) {
                     await ttyPline('The tree shudders but is unharmed.', state);
                 }
                 break;
@@ -2098,7 +2097,7 @@ export async function zap_dig(
                     room.typ = CORR;
                     room.flags = 0;
                     unblock_point(zx, zy, state);
-                } else if (!heroIsBlind(state)) {
+                } else if (!Blind(state.u)) {
                     await ttyPline('The rock glows then fades.', state);
                 }
                 break;

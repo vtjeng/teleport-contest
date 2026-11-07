@@ -11,7 +11,6 @@
 import {
     A_CHA,
     AGGRAVATE_MONSTER,
-    BLINDED,
     CONFLICT,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
@@ -67,7 +66,6 @@ import {
     RLOC_NOMSG,
     STRAT_ARRIVE,
     STRAT_WAITFORU,
-    TELEPAT,
     Upolyd,
     helpless,
 } from './const.js';
@@ -189,6 +187,9 @@ import { somexy } from './room_coordinates.js';
 import {
     stairway_find, stairway_find_dir, stairway_find_from,
 } from './stairs.js';
+import {
+    BBlinded, Blind_telepat, EBlinded, HBlinded,
+} from './youprop.js';
 
 export { christen_monst } from './do_name.js';
 // Re-export for existing dog-related callers. The source implementations live
@@ -327,9 +328,6 @@ function propertyActive(hero, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-function propertyBlocked(hero, index) {
-    return Boolean(hero?.uprops?.[index]?.blocked);
-}
 
 // C's Hallucination macro is the intrinsic hallucination property without
 // its resistance property. Keep this query beside the other dog.c property
@@ -656,9 +654,9 @@ export async function see_monster_closeup(monster, photo = false, env = {}) {
     const hero = state.u;
     const hallucinating = propertyActive(hero, HALLUC)
         && !propertyActive(hero, HALLUC_RES);
-    const blind = propertyActive(hero, BLINDED)
-        && !propertyBlocked(hero, BLINDED);
-    const blindTelepathy = propertyActive(hero, TELEPAT);
+    const blind = Boolean(HBlinded(hero) || EBlinded(hero))
+        && !Boolean(BBlinded(hero));
+    const blindTelepathy = Blind_telepat(hero);
     if (hallucinating || (blind && !blindTelepathy)) return false;
 
     let mndx = monster.data.pmidx;
@@ -732,9 +730,9 @@ export async function see_nearby_monsters(state = game, env = {}) {
     const hero = state.u;
     const hallucinating = propertyActive(hero, HALLUC)
         && !propertyActive(hero, HALLUC_RES);
-    const blind = propertyActive(hero, BLINDED)
-        && !propertyBlocked(hero, BLINDED);
-    if (hallucinating || (blind && !propertyActive(hero, TELEPAT))) return 0;
+    const blind = Boolean(HBlinded(hero) || EBlinded(hero))
+        && !Boolean(BBlinded(hero));
+    if (hallucinating || (blind && !Blind_telepat(hero))) return 0;
 
     let seen = 0;
     for (let x = hero.ux - 1; x <= hero.ux + 1; ++x) {

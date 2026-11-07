@@ -9,9 +9,9 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ICE, IN_SIGHT, ROOM } from '../js/const.js';
 import { PM_EARTH_ELEMENTAL, PM_FIRE_ELEMENTAL } from '../js/monsters.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { Blind } from '../js/youprop.js';
 
 const cases = [
     { name: 'blind-floor-wish', form: PM_FIRE_ELEMENTAL, terrain: ROOM },
@@ -32,12 +32,12 @@ export async function verifyBlindVisionSegment(segment) {
         { onBoundary: error => { boundary = error; } });
     assert.equal(boundary, undefined);
     assert.equal(game.u.umonnum, entry.form);
-    assert.equal(heroIsBlind(game), true);
+    assert.equal(Blind(game.u), true);
     const coordinates = [game.u.ux, game.u.uy];
     await runSegment(segment, { onBoundary: error => { boundary = error; } });
     assert.equal(boundary, undefined);
     assert.equal(game.u.umonnum, entry.form);
-    assert.equal(heroIsBlind(game), true);
+    assert.equal(Blind(game.u), true);
     assert.deepEqual([game.u.ux, game.u.uy], coordinates);
     assert.equal(game.level.at(...coordinates).typ, entry.terrain);
     assert.equal(game.vision_full_recalc, 0);

@@ -15,7 +15,6 @@ import {
     A_STR,
     A_WIS,
     ANTIMAGIC,
-    BLINDED,
     COLD_RES,
     CONFUSION,
     DEAF,
@@ -123,7 +122,6 @@ import {
     uteetering_at_seen_pit,
 } from './trap.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { burn_away_slime } from './timeout.js';
 import { canspotmon, shieldeff } from './display.js';
@@ -132,7 +130,10 @@ import { update_inventory } from './invent.js';
 import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
-import { Half_physical_damage } from './youprop.js';
+import {
+    Blind, ETelepat, HBlinded, HSee_invisible, HTelepat, Half_physical_damage,
+    See_invisible,
+} from './youprop.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {
@@ -526,7 +527,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             );
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
             if (luck > 0) {
-                const blind = u.uprops?.[BLINDED]?.intrinsic ?? 0;
+                const blind = HBlinded(u);
                 const { make_blinded } = await import('./potion.js');
                 await make_blinded(
                     (blind & TIMEOUT) + random.rn1(100, 250),
@@ -543,7 +544,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
         }
         case 10: {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
-            const seeInvisible = u.uprops?.[SEE_INVIS]?.intrinsic ?? 0;
+            const seeInvisible = HSee_invisible(u);
             if (luck < 0 || (seeInvisible & INTRINSIC)) {
                 if (state.level?.flags?.nommap) {
                     await message('A terrible drone fills your head!', state);
@@ -561,7 +562,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                     await do_mapping(state, { ...rawEnv, random });
                 }
             } else {
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     await message('Your vision becomes clear.', state);
                 } else {
                     const species = state.youmonst?.data;
@@ -579,11 +580,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                         await message(`Your ${eye} ${vtense(eye, 'tingle')}...`, state);
                     }
                 }
-                const seeInvisibleProp = (u.uprops[SEE_INVIS] ??= {
-                    intrinsic: 0,
-                    extrinsic: 0,
-                });
-                seeInvisibleProp.intrinsic |= FROMOUTSIDE;
+                u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
                 const { newsym } = await import('./display.js');
                 newsym(u.ux, u.uy);
             }
@@ -1027,7 +1024,7 @@ export async function rndcurse(state = game, rawEnv = {}) {
         if (otmp && !otmp.cursed) {
             if (otmp.blessed) await unbless(otmp, objectEnv);
             else await curse(otmp, objectEnv);
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 await message(`${Yobjnam2(otmp, 'glow', state)} ${hcolor(otmp.cursed ? 'black' : 'brown', state, objectEnv)}.`, state);
                 otmp.bknown = Hallucination(state) ? 0 : 1;
             } else {
@@ -1070,18 +1067,16 @@ export async function attrcurse(state = game, rawEnv = {}) {
 
         property.intrinsic &= ~INTRINSIC;
         if (propertyId === TELEPAT) {
-            const telepathy = u.uprops[TELEPAT];
             const blindTelepathy = Boolean(
-                telepathy?.intrinsic || telepathy?.extrinsic,
+                HTelepat(u) || ETelepat(u),
             );
-            if (heroIsBlind(state) && !blindTelepathy) {
+            if (Blind(state.u) && !blindTelepathy) {
                 const { see_monsters } = await import('./display.js');
                 await see_monsters(state, { ...rawEnv, message });
             }
             await message('Your senses fail!', state);
         } else if (propertyId === SEE_INVIS) {
-            const seeInvisible = u.uprops[SEE_INVIS];
-            if (!(seeInvisible?.intrinsic || seeInvisible?.extrinsic)) {
+            if (!See_invisible(u)) {
                 const { newsym, see_monsters, set_mimic_blocking } = await import('./display.js');
                 // A planning clone borrows vision.c's shared obstruction
                 // index, so it admits each point set_mimic_blocking()

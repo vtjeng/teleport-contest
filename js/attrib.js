@@ -144,6 +144,10 @@ import { ttyPline } from './tty_message.js';
 import { summon_furies } from './makemon.js';
 import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
+import {
+    BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
+    EBlinded, HBlinded, HBlnd_resist, HClairvoyant,
+} from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
 const ATTRIBUTE_NAMES = Object.freeze([
@@ -389,7 +393,7 @@ export function is_innate(propidx, state = game) {
         return INNATE_ROLE;
     if ((propidx === BLINDED && !haseyes(state.youmonst?.data))
         || (propidx === BLND_RES
-            && ((u.uprops?.[BLND_RES]?.intrinsic ?? 0) & FROMFORM) !== 0))
+            && ((HBlnd_resist(u)) & FROMFORM) !== 0))
         return INNATE_FORM;
     return INNATE_NONE;
 }
@@ -467,45 +471,32 @@ export function from_what(propidx, state = game) {
             }
         }
 
-        // C ref: youprop.h:96 Blindfolded = EBlinded (W_TOOL)
-        // Blindfolded_only = Blindfolded && !Blinded
-        // where Blinded = HBlinded && !BBlinded
-        const propBlind = u.uprops?.[BLINDED] ?? {};
-        const HBlinded = propBlind.intrinsic ?? 0;
-        const EBlinded = propBlind.extrinsic ?? 0;
-        const BBlinded = propBlind.blocked ?? 0;
-        const Blindfolded = EBlinded;
-        const Blinded = HBlinded && !BBlinded;
-        const Blindfolded_only = Blindfolded && !Blinded;
-        if (propidx === BLINDED && Blindfolded_only)
+        if (propidx === BLINDED && Blindfolded_only(u))
             return from_what_trim(
                 ` because of ${ysimple_name(state.ublindf, state)}`, propidx,
             );
-        const BlindedTimeout = HBlinded & TIMEOUT;
         if (propidx === BLINDED && u.ucreamed
-            && BlindedTimeout === u.ucreamed
-            && !EBlinded && !(HBlinded & ~TIMEOUT))
+            && BlindedTimeout(u) === u.ucreamed
+            && !EBlinded(u) && !(HBlinded(u) & ~TIMEOUT))
             return `due to goop covering your ${body_part(FACE, state.youmonst)}`;
     } else {
         // negative property index: blocking capabilities
         const u = state.u;
         switch (-propidx) {
         case BLINDED: {
-            const propBlind = u.uprops?.[BLINDED] ?? {};
-            const BBlinded = propBlind.blocked ?? 0;
-            if (BBlinded && state.ublindf
+            if (BBlinded(u) && state.ublindf
                 && state.ublindf.oartifact === ART_EYES_OF_THE_OVERWORLD) {
                 return ` because of ${bare_artifactname(state.ublindf, state)}`;
             }
             break;
         }
         case INVIS:
-            if ((u.uprops?.[INVIS]?.blocked ?? 0) & W_ARMC)
+            if ((BInvis(u)) & W_ARMC)
                 return ` because of ${ysimple_name(state.uarmc, state)}`; // mummy wrapping
             break;
         case CLAIRVOYANT:
             if (state.wizard
-                && ((u.uprops?.[CLAIRVOYANT]?.blocked ?? 0) & W_ARMH))
+                && ((BClairvoyant(u)) & W_ARMH))
                 return ` because of ${ysimple_name(state.uarmh, state)}`; // cornuthaum
             break;
         }
@@ -1095,8 +1086,8 @@ export async function exerper(state = game, env = {}) {
     }
 
     if (moves % 5 === 0) {
-        if (intrinsicPropertyPresent(hero, CLAIRVOYANT)
-            && !hero.uprops?.[CLAIRVOYANT]?.blocked) {
+        if (Boolean(HClairvoyant(hero))
+            && !BClairvoyant(hero)) {
             await exerciseWithEnvironment(A_WIS, true, state, normalized);
         }
         if (intrinsicPropertyPresent(hero, REGENERATION))

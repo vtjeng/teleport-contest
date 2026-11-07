@@ -4,7 +4,7 @@ import test from 'node:test';
 import {STAIRS} from '../js/const.js';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
-import {heroIsBlind} from '../js/startup_a11y.js';
+import { Blind } from '../js/youprop.js';
 
 for (const kind of ['blindfold', 'towel']) {
     test(`blind force-fight does not identify unseen stairs: ${kind}`, async () => {
@@ -16,7 +16,7 @@ for (const kind of ['blindfold', 'towel']) {
         const options = {onBoundary: error => { boundary = error; }};
         await runSegment({...segment, moves: segment.moves.slice(0, offset)}, options);
         assert.equal(boundary, undefined);
-        assert.ok(heroIsBlind(game));
+        assert.ok(Blind(game.u));
         const [x, y] = [game.u.ux, game.u.uy];
         const target = () => game.level.at(x, y + 1);
         assert.equal(target().typ, STAIRS);

@@ -16,8 +16,7 @@ import {
     find_artifact, undiscovered_artifact,
     permapoisoned,
 } from './artifacts.js';
-import {
-    BLINDED, BUFSZ, BURN_OBJECT, COST_CONTENTS, CORPSTAT_FEMALE,
+import { BUFSZ, BURN_OBJECT, COST_CONTENTS, CORPSTAT_FEMALE,
     CORPSTAT_GENDER, CORPSTAT_HISTORIC,
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, FM_FMON, ismnum,
@@ -25,8 +24,7 @@ import {
     MALE, NEUTRAL, NON_PM,
     QBUFSZ,
     M_AP_OBJECT, M_AP_TYPE,
-    P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGL, W_RINGR,
-    WARN_OF_MON, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
+    P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
@@ -98,8 +96,9 @@ import {
 // wield.js holds the port's single reading of youprop.h:112 Glib. It imports
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
-import { Glib } from './wield.js';
 import { note_unported } from './unported.js';
+import { Glib } from './wield.js';
+import { Blind, EWarn_of_mon } from './youprop.js';
 
 // C ref: objnam.c erosion_matters() (1195-1215). Keep this predicate in the
 // source-owned objnam module so its callers share the same implementation.
@@ -117,11 +116,6 @@ export function erosion_matters(obj, state = game) {
     }
 }
 
-function heroIsBlind(state) {
-    const blinded = state.u?.uprops?.[BLINDED];
-    return Boolean((blinded?.intrinsic || blinded?.extrinsic)
-        && !blinded?.blocked);
-}
 
 // C ref: objnam.c an(), whose article comes from just_an(). That helper is
 // defined below with the other name formatters; C's own an() returns the
@@ -850,7 +844,7 @@ export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
     // dknown nor enters the type in the discoveries list. invent.c
     // reroll_menu():2579 raises it for the same reason: a character the
     // player has not accepted yet must discover nothing.
-    if (!heroIsBlind(state) && !state.gd?.distantname)
+    if (!Blind(state.u) && !state.gd?.distantname)
         observe_object(obj, state);
     if (state.urole?.mnum === PM_CLERIC)
         obj.bknown = true;
@@ -1237,7 +1231,7 @@ function wornClassSuffix(obj, type, state, body, bufferOffset) {
         // through Concat; :1410-1414 uses ConcatF to replace the next paren.
         if (obj === state.uarmg && Glib(state) && body.endsWith(')'))
             body = concatNameBody(body, '; slippery)', 1, bufferOffset);
-        if (!heroIsBlind(state) && obj.lamplit && artifact_light(obj)
+        if (!Blind(state.u) && obj.lamplit && artifact_light(obj)
             && body.endsWith(')')) {
             body = concatFormatNameBody(
                 body, `, ${arti_light_description(obj, state)} lit)`, 1,
@@ -1301,10 +1295,10 @@ function wornWeaponSuffix(obj, type, state, body, bufferOffset) {
             );
             const warnCount = Math.trunc(state.warn_obj_cnt ?? 0);
             const warnOfMon = Math.trunc(
-                state.u?.uprops?.[WARN_OF_MON]?.extrinsic ?? 0,
+                EWarn_of_mon(state.u),
             );
             const spaceleft = nameBodySpaceLeft(body, bufferOffset);
-            if (!heroIsBlind(state) && spaceleft > 0 && body.endsWith(')')
+            if (!Blind(state.u) && spaceleft > 0 && body.endsWith(')')
                 && warnCount && obj === state.uwep && (warnOfMon & W_WEP)) {
                 body = concatFormatNameBody(
                     body, `, ${glow_verb(warnCount, true)} ${glow_color(
@@ -1312,7 +1306,7 @@ function wornWeaponSuffix(obj, type, state, body, bufferOffset) {
                     )})`, 1,
                     bufferOffset,
                 );
-            } else if (!heroIsBlind(state) && spaceleft > 0
+            } else if (!Blind(state.u) && spaceleft > 0
                 && body.endsWith(')')
                 && obj.lamplit && artifact_light(obj)) {
                 body = concatFormatNameBody(

@@ -186,7 +186,6 @@ import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
@@ -224,6 +223,7 @@ import {
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
 import { tty_exit_nhwindows } from './wintty.js';
+import { Blind } from './youprop.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -790,7 +790,7 @@ export async function done(how, state = game, source = {}) {
             AMULET_OF_LIFE_SAVING, true, true, true, state, lifeEnv,
         );
         await ttyPline(
-            `Your medallion ${heroIsBlind(state)
+            `Your medallion ${Blind(state.u)
                 ? 'feels warm' : 'begins to glow'}!`,
             state,
         );

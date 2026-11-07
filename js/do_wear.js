@@ -67,7 +67,6 @@ import {
     CMDQ_KEY,
     CQ_CANNED,
     CXN_ARTICLE,
-    DETECT_MONSTERS,
     DISPLACED,
     EF_DESTROY,
     EF_PAY,
@@ -103,7 +102,6 @@ import {
     HEAD,
     I_SPECIAL,
     INFRAVISION,
-    INVIS,
     INTRINSIC,
     LEVITATION,
     LEFT_HANDED,
@@ -113,7 +111,6 @@ import {
     NECK,
     PARANOID_REMOVE,
     RIGHT_RING,
-    SEE_INVIS,
     SICK_RES,
     SLIMED,
     SLEEPY,
@@ -124,7 +121,6 @@ import {
     st_corpse,
     st_petrifies,
     TIMEOUT,
-    TELEPAT,
     STEALTH,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_SADDLE,
@@ -399,7 +395,6 @@ import {
     make_glib, toggle_blindness,
 } from './potion.js';
 import { coreRandom, rnd } from './rng.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { remove_worn_item } from './steal.js';
 import { youFeel } from './pline.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
@@ -417,6 +412,10 @@ import {
 } from './worn.js';
 import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
+import {
+    BInvis, Blind, EDetect_monsters, EInvis, ESee_invisible, ETelepat,
+    HDetect_monsters, HInvis, HSee_invisible, HTelepat, Invis, See_invisible,
+} from './youprop.js';
 
 // The armor callbacks can run during a planning polymorph.  Keep the live
 // defaults in one place while allowing that caller to supply its message and
@@ -968,12 +967,10 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
     case RIN_SEE_INVISIBLE: {
         set_mimic_blocking(state);
         await see_monsters(state, env);
-        const invisibility = state.u.uprops[INVIS];
-        const invisible = Boolean((invisibility?.intrinsic
-            || invisibility?.extrinsic) && !invisibility?.blocked);
+        const invisible = Invis(state.u);
         if (invisible && !maskedOldprop
-            && !state.u.uprops[SEE_INVIS]?.intrinsic
-            && !heroIsBlind(state)) {
+            && !HSee_invisible(state.u)
+            && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
             await env.message(
                 'Suddenly you are transparent, but there!', state, env,
@@ -983,9 +980,8 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
         break;
     }
     case RIN_INVISIBILITY: {
-        const invisibility = state.u.uprops[INVIS];
-        if (!maskedOldprop && !invisibility?.intrinsic
-            && !invisibility?.blocked && !heroIsBlind(state)) {
+        if (!maskedOldprop && !HInvis(state.u)
+            && !BInvis(state.u) && !Blind(state.u)) {
             learnring(obj, true, state);
             env.redraw(state.u.ux, state.u.uy, state);
             await self_invis_message(state, env);
@@ -1080,17 +1076,13 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         await see_monsters(state, env);
         break;
     case RIN_SEE_INVISIBLE: {
-        const seeInvisible = state.u.uprops[SEE_INVIS];
-        const canSeeInvisible = Boolean(seeInvisible?.intrinsic
-            || seeInvisible?.extrinsic);
-        const invisibility = state.u.uprops[INVIS];
-        const invisible = Boolean((invisibility?.intrinsic
-            || invisibility?.extrinsic) && !invisibility?.blocked);
+        const canSeeInvisible = See_invisible(state.u);
+        const invisible = Invis(state.u);
         if (!canSeeInvisible) {
             set_mimic_blocking(state);
             await see_monsters(state, env);
         }
-        if (invisible && !canSeeInvisible && !heroIsBlind(state)) {
+        if (invisible && !canSeeInvisible && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
             await env.message('Suddenly you cannot see yourself.', state);
             learnring(obj, true, state);
@@ -1098,16 +1090,12 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         break;
     }
     case RIN_INVISIBILITY: {
-        const invisibility = state.u.uprops[INVIS];
         // C's Invis and BInvis macros read these fields after the setter clears
         // this ring's extrinsic; Blind applies its own blocked check.
-        const invisible = Boolean((invisibility?.intrinsic
-            || invisibility?.extrinsic) && !invisibility?.blocked);
-        const blockedInvisibility = Boolean(invisibility?.blocked);
-        if (!invisible && !blockedInvisibility && !heroIsBlind(state)) {
-            const seeInvisible = state.u.uprops[SEE_INVIS];
-            const canSeeInvisible = Boolean(seeInvisible?.intrinsic
-                || seeInvisible?.extrinsic);
+        const invisible = Invis(state.u);
+        const blockedInvisibility = Boolean(BInvis(state.u));
+        if (!invisible && !blockedInvisibility && !Blind(state.u)) {
+            const canSeeInvisible = See_invisible(state.u);
             env.redraw(state.u.ux, state.u.uy, state);
             await env.message(
                 `Your body seems to unfade${canSeeInvisible
@@ -1433,7 +1421,7 @@ export async function Amulet_off(state = game, env = {}) {
 // releasing any held slot and installing W_TOOL; set_bc precedes the vision
 // rebuild when the newly worn item makes a punished hero blind.
 async function Blindf_on(obj, state = game, rawEnv = {}) {
-    const already_blind = heroIsBlind(state);
+    const already_blind = Blind(state.u);
     let changed = false;
     const env = wearOperationEnv(rawEnv);
 
@@ -1441,12 +1429,12 @@ async function Blindf_on(obj, state = game, rawEnv = {}) {
     await setworn(obj, W_TOOL, setwornEnv(state, env));
     await on_msg(obj, state);
 
-    if (heroIsBlind(state) && !already_blind) {
+    if (Blind(state.u) && !already_blind) {
         changed = true;
         if (state.flags.verbose)
             await env.message("You can't see any more.", state);
         if (state.uball) set_bc(0, state, env);
-    } else if (already_blind && !heroIsBlind(state)) {
+    } else if (already_blind && !Blind(state.u)) {
         changed = true;
         if (state.u.uroleplay.blind) {
             await env.message('For the first time in your life, you can see!', state);
@@ -1462,7 +1450,7 @@ async function Blindf_on(obj, state = game, rawEnv = {}) {
 // check consumes its result; sight loss on removing Eyes uses the same ball
 // memory setup as sight loss on putting on ordinary eyewear.
 export async function Blindf_off(otmp, state = game, rawEnv = {}) {
-    const was_blind = heroIsBlind(state);
+    const was_blind = Blind(state.u);
     let changed = false;
     const nooffmsg = !otmp;
     const env = wearOperationEnv(rawEnv);
@@ -1476,7 +1464,7 @@ export async function Blindf_off(otmp, state = game, rawEnv = {}) {
     await setworn(null, otmp.owornmask, setwornEnv(state, env));
     if (!nooffmsg) await off_msg(otmp, state, env.message);
 
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         if (was_blind) {
             if (otmp.otyp !== LENSES)
                 await env.message('You still cannot see.', state);
@@ -1665,7 +1653,7 @@ async function Armor_on(state, rawEnv = {}) {
         const { objectGenerationEnv } = await import('./object_generation.js');
         const { arti_light_description } = await import('./light.js');
         begin_burn(state.uarm, false, objectGenerationEnv({ ...env, state }));
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await env.message(
                 `${Yname2(state.uarm, state, env)} ${otense(state.uarm, 'begin', state)} to shine ${arti_light_description(state.uarm, state)}!`,
                 state, env,
@@ -1702,7 +1690,7 @@ export async function Armor_off(state = game, rawEnv = {}) {
         const { end_burn } = await import('./timeout.js');
         const { objectGenerationEnv } = await import('./object_generation.js');
         end_burn(otmp, false, objectGenerationEnv({ ...env, state }));
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await env.message(
                 `${Tobjnam(otmp, 'stop', state)} shining.`, state, env,
             );
@@ -1734,7 +1722,7 @@ async function Armor_gone(state, rawEnv = {}) {
         const { end_burn } = await import('./timeout.js');
         const { objectGenerationEnv } = await import('./object_generation.js');
         end_burn(otmp, false, objectGenerationEnv({ ...env, state }));
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await env.message(
                 `${Tobjnam(otmp, 'stop', state)} shining.`, state, env);
     }
@@ -1985,22 +1973,17 @@ export async function toggle_displacement(
         return 0;
 
     const displacement = state.u.uprops[DISPLACED];
-    const invisibility = state.u.uprops[INVIS];
-    const seeInvisible = state.u.uprops[SEE_INVIS];
-    const telepathy = state.u.uprops[TELEPAT];
-    const detection = state.u.uprops[DETECT_MONSTERS];
-    const blind = heroIsBlind(state);
+    const blind = Blind(state.u);
     const invisible = Boolean(
-        (invisibility?.intrinsic || invisibility?.extrinsic)
-        && !invisibility?.blocked
-        && !(seeInvisible?.intrinsic || seeInvisible?.extrinsic),
+        Invis(state.u)
+        && !See_invisible(state.u),
     );
-    const unblindTelepat = Boolean(telepathy?.extrinsic);
+    const unblindTelepat = Boolean(ETelepat(state.u));
     const blindTelepat = Boolean(
-        telepathy?.intrinsic || telepathy?.extrinsic,
+        HTelepat(state.u) || ETelepat(state.u),
     );
     const detectMonsters = Boolean(
-        detection?.intrinsic || detection?.extrinsic,
+        HDetect_monsters(state.u) || EDetect_monsters(state.u),
     );
 
     if (!oldprop
@@ -2117,13 +2100,12 @@ async function Cloak_on(state, rawEnv = {}) {
         await toggle_displacement(cloak, oldprop, true, state, env);
         break;
     case MUMMY_WRAPPING:
-        if ((state.u.uprops[INVIS].intrinsic
-            || state.u.uprops[INVIS].extrinsic)
-            && !heroIsBlind(state)) {
+        if ((HInvis(state.u)
+            || EInvis(state.u))
+            && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
-            const seeInvisible = state.u.uprops[SEE_INVIS];
             await env.message(
-                `You can ${seeInvisible.intrinsic || seeInvisible.extrinsic
+                `You can ${HSee_invisible(state.u) || ESee_invisible(state.u)
                     ? 'no longer see through yourself' : 'see yourself'}!`,
                 state,
                 env,
@@ -2131,14 +2113,13 @@ async function Cloak_on(state, rawEnv = {}) {
         }
         break;
     case CLOAK_OF_INVISIBILITY:
-        if (!oldprop && !state.u.uprops[INVIS].intrinsic
-            && !heroIsBlind(state)) {
+        if (!oldprop && !HInvis(state.u)
+            && !Blind(state.u)) {
             discover_object(otyp, true, true, true, state, env);
             env.redraw(state.u.ux, state.u.uy, state);
-            const seeInvisible = state.u.uprops[SEE_INVIS];
             await env.message(
-                `Suddenly you can${seeInvisible.intrinsic
-                    || seeInvisible.extrinsic ? ' see through' : 'not see'} yourself.`,
+                `Suddenly you can${HSee_invisible(state.u)
+                    || ESee_invisible(state.u) ? ' see through' : 'not see'} yourself.`,
                 state,
                 env,
             );
@@ -2202,14 +2183,12 @@ export async function Cloak_off(state = game, rawEnv = {}) {
     case MUMMY_WRAPPING:
         // Invisibility is recalculated by setworn() before this branch.  The
         // visible self-message needs the same state predicate as C's Invis.
-        if ((state.u.uprops[INVIS]?.intrinsic
-             || state.u.uprops[INVIS]?.extrinsic)
-            && !state.u.uprops[INVIS]?.blocked
-            && !heroIsBlind(state)) {
+        if (Invis(state.u)
+            && !Blind(state.u)) {
             redraw(state.u.ux, state.u.uy, state);
             await message(
-                `You can ${state.u.uprops[SEE_INVIS]?.intrinsic
-                    || state.u.uprops[SEE_INVIS]?.extrinsic
+                `You can ${HSee_invisible(state.u)
+                    || ESee_invisible(state.u)
                     ? 'see through yourself' : 'no longer see yourself'}.`,
                 state,
                 env,
@@ -2218,14 +2197,14 @@ export async function Cloak_off(state = game, rawEnv = {}) {
         break;
     case CLOAK_OF_INVISIBILITY:
         if (!oldprop
-            && !state.u.uprops[INVIS]?.intrinsic
-            && !state.u.uprops[INVIS]?.extrinsic
-            && !heroIsBlind(state)) {
+            && !HInvis(state.u)
+            && !EInvis(state.u)
+            && !Blind(state.u)) {
             discover_object(otyp, true, true, true, state);
             redraw(state.u.ux, state.u.uy, state);
             await message(
-                `Suddenly you can ${state.u.uprops[SEE_INVIS]?.intrinsic
-                    || state.u.uprops[SEE_INVIS]?.extrinsic
+                `Suddenly you can ${HSee_invisible(state.u)
+                    || ESee_invisible(state.u)
                     ? 'no longer see through yourself' : 'see yourself'}.`,
                 state,
                 env,
@@ -2325,7 +2304,7 @@ async function Helmet_on(state) {
 // update the status line, as C finishes the call before those statements.
 async function helmetOnCursePath(state) {
     if (state.uarmh && !state.uarmh.cursed) {
-        if (heroIsBlind(state))
+        if (Blind(state.u))
             await ttyPline(
                 `${Tobjnam(state.uarmh, 'vibrate', state)} for a moment.`,
                 state);
@@ -2336,7 +2315,7 @@ async function helmetOnCursePath(state) {
         await curse(state.uarmh, { state });
         /* curse() doesn't touch bknown so doesn't update persistent
            inventory; do so now [set_bknown() calls update_inventory()] */
-        if (heroIsBlind(state))
+        if (Blind(state.u))
             set_bknown(state.uarmh, 0, { state });
         else if (state.urole?.mnum === PM_CLERIC)
             set_bknown(state.uarmh, 1, { state });

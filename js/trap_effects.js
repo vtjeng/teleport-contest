@@ -93,7 +93,6 @@ import {
     RUST_TRAP,
     SLEEP_RES,
     STONE_RES,
-    SEE_INVIS,
     M_SEEN_SLEEP,
     SLP_GAS_TRAP,
     SPIKED_PIT,
@@ -352,7 +351,7 @@ import { encumber_msg } from './pickup.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import {
     Flying,
     Levitation,
@@ -380,7 +379,6 @@ import {
     tele_trap,
 } from './teleport.js';
 import { Fire_resistance, fracture_rock, poly_obj, resist } from './zap.js';
-import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -414,7 +412,11 @@ import {
     water_damage_monster_equipment,
 } from './trap_water_damage.js';
 import { canseemon, canspotmon } from './display.js';
-import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
+import { Punished } from './steed.js';
+import {
+    Blind, EInvis, HInvis, Half_physical_damage, Invis, Maybe_Half_Phys,
+    See_invisible,
+} from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
 // mintrap() supplies live defaults for state-only production callers; planning
@@ -603,7 +605,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
         || (Flying(state) && (trflags & VIASITTING) !== 0);
     if (monster === state.youmonst) {
         if ((Levitation(state) || Flying(state)) && !forcetrap) {
-            if (!heroIsBlind(state)) {
+            if (!Blind(state.u)) {
                 seetrap(trap, env);
                 await message(
                     Hallucination(state)
@@ -763,7 +765,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             const placement = place_object(otmp, state.u.ux, state.u.uy, objectEnv);
             if (placement && typeof placement.then === 'function')
                 await placement;
-            if (!heroIsBlind(state)) observe_object(otmp, state);
+            if (!Blind(state.u)) observe_object(otmp, state);
             stackobj(otmp, objectEnv);
             newsym(state.u.ux, state.u.uy);
         }
@@ -994,7 +996,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             const placement = place_object(otmp, state.u.ux, state.u.uy, { state });
             if (placement && typeof placement.then === 'function')
                 await placement;
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 observe_object(otmp, state);
             stackobj(otmp, { state });
             newsym(state.u.ux, state.u.uy);
@@ -1117,7 +1119,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
             await message('It passes harmlessly through you.', state, env);
             harmless = true;
         }
-        if (!heroIsBlind(state)) observe_object(otmp, state);
+        if (!Blind(state.u)) observe_object(otmp, state);
         stackobj(otmp, objectEnv);
         redraw(state.u.ux, state.u.uy);
 
@@ -1778,19 +1780,6 @@ function Hallucination(state) {
 //   fate 19: increase charisma and tame nearby monsters.
 //   fate 20: uncurse items through read.c:seffects(SPE_REMOVE_CURSE).
 
-// C ref: youprop.h:198 Invis, the intrinsic or extrinsic invisibility source
-// minus its block; :152 See_invisible has no block term. Each C file spells
-// these macros out beside its callers, so domagictrap keeps local copies.
-function Invis(state) {
-    const property = state.u?.uprops?.[INVIS];
-    return Boolean((property?.intrinsic || property?.extrinsic)
-        && !property?.blocked);
-}
-
-function See_invisible(state) {
-    const property = state.u?.uprops?.[SEE_INVIS];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 async function domagictrap(env) {
     const { state } = env;
@@ -1810,9 +1799,9 @@ async function domagictrap(env) {
                 'You are momentarily blinded by a flash of light!', state,
             );
             await make_blinded(random.rn1(5, 10), false, state, env);
-            if (!heroIsBlind(state))
+            if (!Blind(state.u))
                 await message(`Your ${vision_clears}`, state);
-        } else if (!heroIsBlind(state)) {
+        } else if (!Blind(state.u)) {
             await message(plineYouSee('a flash of light!', state), state);
         }
 
@@ -1856,29 +1845,28 @@ async function domagictrap(env) {
                 const heard = plineYouHear('a low hum.', state);
                 if (heard !== null) await message(heard, state);
             }
-            const invisProp = state.u.uprops[INVIS];
-            if (!Invis(state)) {
-                if (!heroIsBlind(state))
+            if (!Invis(state.u)) {
+                if (!Blind(state.u))
                     await self_invis_message(state, { message });
-            } else if (!invisProp.extrinsic
+            } else if (!EInvis(state.u)
                        && !pm_invisible(state.youmonst.data)) {
-                if (!heroIsBlind(state)) {
-                    if (!See_invisible(state))
+                if (!Blind(state.u)) {
+                    if (!See_invisible(state.u))
                         await message('You can see yourself again!', state);
                     else
                         await message("You can't see through yourself anymore.", state);
                 }
             } else {
                 await message(
-                    plineYouFeel(`a little more ${invisProp.intrinsic
+                    plineYouFeel(`a little more ${HInvis(state.u)
                         ? 'obvious' : 'hidden'} now.`, state),
                     state,
                 );
             }
             // C preserves any existing HInvis value only when it is false;
             // the true arm clears it before redraw.
-            invisProp.intrinsic = invisProp.intrinsic
-                ? 0 : invisProp.intrinsic | FROMOUTSIDE;
+            state.u.uprops[INVIS].intrinsic = HInvis(state.u)
+                ? 0 : HInvis(state.u) | FROMOUTSIDE;
             requireTrapOperation(env, 'redraw')(
                 state.u.ux,
                 state.u.uy,
@@ -2137,7 +2125,7 @@ export async function dofiretrap(box, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const u = state.u;
-    const seeIt = !heroIsBlind(state);
+    const seeIt = !Blind(state.u);
     const origDmg = random.d(2, 4);
     let num = origDmg;
     const towerOfFlame = 'tower of flame'; // trap.c:79 static const.
@@ -3968,7 +3956,7 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
 
     const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const seeIt = cansee(mtmp.mx, mtmp.my, state);
-    if (seeIt && !heroIsBlind(state)) {
+    if (seeIt && !Blind(state.u)) {
         seetrap(trap, env);
         if (inSight) {
             const monName = mon_nam(mtmp, state, env);

@@ -87,7 +87,6 @@ import {
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HAND,
-    INFRAVISION,
     INTRINSIC,
     INVIS,
     LS_OBJECT,
@@ -131,7 +130,6 @@ import {
     STUNNED,
     STONED,
     STRANGLED,
-    TELEPAT,
     TIMEOUT,
     P_BASIC,
     P_RIDING,
@@ -141,7 +139,6 @@ import {
     SUPPRESS_SADDLE,
     UNCHANGING,
     Upolyd,
-    WARN_OF_MON,
     VOMITING,
     WOUNDED_LEGS,
     W_SADDLE,
@@ -226,13 +223,12 @@ import { eatmupdate, fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import {
     burn_away_slime, fall_asleep, obj_stop_timers,
 } from './timeout.js';
 import { explode, explode_oil } from './explode.js';
-import { Levitation, float_up, unconscious } from './trap.js';
+import { float_up, unconscious, Levitation } from './trap.js';
 import { rider_cant_reach } from './steed.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
@@ -241,8 +237,10 @@ import {
 import { stairway_at } from './stairs.js';
 import { cansee, vision_recalc } from './vision.js';
 import {
-    bhitm, Cold_resistance, do_enlightenment_effect, Fire_resistance, makewish,
+    bhitm, do_enlightenment_effect, makewish,
     resist,
+    Cold_resistance,
+    Fire_resistance,
 } from './zap.js';
 import {
     OBJ_DESCR,
@@ -321,7 +319,13 @@ import { floating_above, wash_hands } from './fountain.js';
 import { is_pool } from './dbridge.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
+    Blindfolded, Detect_monsters, EBlinded,
+    EWarn_of_mon, HBlinded, HDetect_monsters, HInvis,
+    HSee_invisible, Infravision, Invis, Maybe_Half_Phys, PermaBlind,
+    See_invisible,
+} from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported, such as an unported potion type.
@@ -449,7 +453,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
         return null;
     }
 
-    if (!heroIsBlind(state)) {
+    if (!Blind(state.u)) {
         const indefinite = Amonnam(monster, { state });
         await message(
             `In a cloud of smoke, ${indefinite.charAt(0).toLowerCase()}${
@@ -697,7 +701,7 @@ export async function self_invis_message(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     await message(
         `${Hallucination(state) ? 'Far out, man!  You'
-            : 'Gee!  All of a sudden, you'} ${See_invisible(state)
+            : 'Gee!  All of a sudden, you'} ${See_invisible(state.u)
             ? 'can see right through yourself' : "can't see yourself"}.`,
         state,
     );
@@ -745,24 +749,21 @@ export async function make_deaf(xtime, talk, state = game, env = {}) {
 // clones do not write to the live terminal; toggle_blindness() remains the
 // canonical owner of the full vision rebuild.
 export async function make_blinded(xtime, talk, state = game, env = {}) {
-    const prop = state.u?.uprops?.[BLINDED];
-    if (!prop)
-        throw new Error('make_blinded requires initialized BLINDED state');
-    const old = prop.intrinsic & TIMEOUT;
+    const old = BlindedTimeout(state.u);
 
     // C probes one timed turn and restores the complete old HBlinded value.
     // This is deliberately done before changing talk for Unaware: the source
     // still needs the visibility transition even when its message is silent.
-    const uCouldSee = !heroIsBlind(state);
-    set_itimeout(prop, xtime ? 1 : 0);
-    const canSeeNow = !heroIsBlind(state);
-    set_itimeout(prop, old);
+    const uCouldSee = !Blind(state.u);
+    set_itimeout(state.u.uprops[BLINDED], xtime ? 1 : 0);
+    const canSeeNow = !Blind(state.u);
+    set_itimeout(state.u.uprops[BLINDED], old);
     if (Unaware(state)) talk = false;
 
     const message = env.message ?? ttyPline;
     const hallucinating = Hallucination(state);
-    const permaBlind = Boolean(prop.intrinsic & FROMOUTSIDE);
-    const blindfolded = Boolean(prop.extrinsic);
+    const permaBlind = PermaBlind(state.u);
+    const blindfolded = Boolean(Blindfolded(state.u));
     const eyes = () => {
         const species = state.youmonst?.data;
         let result = species && haseyes(species)
@@ -833,7 +834,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
         }
     }
 
-    set_itimeout(prop, xtime);
+    set_itimeout(state.u.uprops[BLINDED], xtime);
     if (uCouldSee !== canSeeNow)
         await toggle_blindness(state, env);
 }
@@ -970,7 +971,7 @@ export async function make_hallucinated(
         if (!changed && !hallucination.intrinsic && old && talk) {
             if (!haseyes(state.youmonst?.data)) {
                 await strange_feeling(null, null, state);
-            } else if (heroIsBlind(state)) {
+            } else if (Blind(state.u)) {
                 let eyes = body_part(EYE, state.youmonst);
                 if (state.youmonst.data.pmidx !== PM_CYCLOPS
                     && state.youmonst.data.pmidx !== PM_FLOATING_EYE) {
@@ -1007,7 +1008,7 @@ export async function make_hallucinated(
     update_inventory({ ...env, state });
     state.disp.botl = true;
     if (talk) {
-        const verb = heroIsBlind(state) ? 'feels' : 'looks';
+        const verb = Blind(state.u) ? 'feels' : 'looks';
         const message = xtime
             ? `Oh wow!  Everything ${verb} so cosmic!`
             : `Everything ${verb} SO boring now.`;
@@ -1371,16 +1372,15 @@ async function peffect_speed(otmp, state = game) {
 // extends HBlinded, even when current blindness or a blocker makes the
 // potion's result seem ineffective.
 async function peffect_blindness(otmp, state = game) {
-    const property = state.u.uprops[BLINDED];
-    const blind = heroIsBlind(state);
+    const blind = Blind(state.u);
 
-    if (blind || ((property.intrinsic || property.extrinsic)
-        && property.blocked)) {
+    if (blind || ((HBlinded(state.u) || EBlinded(state.u))
+        && BBlinded(state.u))) {
         state.gp.potion_nothing++;
     }
 
     const duration = itimeout_incr(
-        property.intrinsic,
+        HBlinded(state.u),
         rn1(200, 250 - 125 * bcsign(otmp)),
     );
     await make_blinded(duration, !blind, state);
@@ -1537,8 +1537,7 @@ async function peffect_oil(otmp, state = game) {
 async function peffect_invisibility(otmp, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const isSpell = otmp.oclass === SPBOOK_CLASS;
-    const invisibility = state.u.uprops[INVIS];
-    const blocked = Boolean(invisibility?.blocked);
+    const blocked = Boolean(BInvis(state.u));
 
     if (isSpell && blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
         await ttyPline(
@@ -1548,7 +1547,7 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
         return;
     }
 
-    if (Invis(state) || heroIsBlind(state) || blocked) {
+    if (Invis(state.u) || Blind(state.u) || blocked) {
         state.gp.potion_nothing++;
     } else {
         await self_invis_message(state);
@@ -1556,12 +1555,12 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
 
     // C tests the whole HInvis intrinsic bitfield, not only its timeout;
     // FROMOUTSIDE and racial/permanent sources select the shorter chance too.
-    const hInvis = invisibility?.intrinsic ?? 0;
+    const hInvis = HInvis(state.u);
     if (otmp.blessed && !random.rn2(hInvis ? 15 : 30)) {
-        invisibility.intrinsic |= FROMOUTSIDE;
+        state.u.uprops[INVIS].intrinsic |= FROMOUTSIDE;
     } else {
         incr_itimeout(
-            invisibility,
+            state.u.uprops[INVIS],
             random.d(6 - 3 * bcsign(otmp), 100) + 100,
         );
     }
@@ -1571,7 +1570,7 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
         await ttyPline(
             'For some reason, you feel your presence is known.', state);
         aggravate(state, random);
-        invisibility.intrinsic &= ~FROMOUTSIDE;
+        state.u.uprops[INVIS].intrinsic &= ~FROMOUTSIDE;
     }
 }
 
@@ -1590,11 +1589,11 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     // source order keeps the later see-invisible continuation source-shaped.
     // youprop.h:199 Invisible is Invis && !See_invisible. The message is
     // decided before clearing blindness or granting see-invisible.
-    const msg = Invis(state) && !See_invisible(state) && !heroIsBlind(state);
+    const msg = Invis(state.u) && !See_invisible(state.u) && !Blind(state.u);
     const permchance = 10
-        - (state.u.uprops[INVIS]?.intrinsic ? 3 : 0)
+        - (HInvis(state.u) ? 3 : 0)
         // C uses HSee_invisible, the intrinsic field only, for this chance.
-        - (state.u.uprops[SEE_INVIS]?.intrinsic ? 6 : 0);
+        - (HSee_invisible(state.u) ? 6 : 0);
 
     state.gp.potion_unkn++;
     if (otmp.cursed) {
@@ -1640,7 +1639,7 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     await see_monsters(state, { ...env, message,
         redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
     newsym(state.u.ux, state.u.uy);
-    if (msg && !heroIsBlind(state)) {
+    if (msg && !Blind(state.u)) {
         await message(
             'You can see through yourself, but you are visible!', state);
         state.gp.potion_unkn--;
@@ -1962,20 +1961,16 @@ async function peffect_monster_detection(otmp, state = game) {
     state.gp.potion_unkn ??= 0;
 
     if (otmp.blessed) {
-        const prop = state.u.uprops[DETECT_MONSTERS] ??= {
-            intrinsic: 0,
-            extrinsic: 0,
-        };
-        if (prop.intrinsic || prop.extrinsic)
+        if (Detect_monsters(state.u))
             state.gp.potion_nothing++;
         state.gp.potion_unkn++;
 
-        const duration = (prop.intrinsic & TIMEOUT) >= 300
+        const duration = (HDetect_monsters(state.u) & TIMEOUT) >= 300
             ? 1
             : otmp.oclass === SPBOOK_CLASS
                 ? rn1(40, 21)
                 : rn2(100) + 100;
-        incr_itimeout(prop, duration);
+        incr_itimeout(state.u.uprops[DETECT_MONSTERS], duration);
 
         for (let x = 1; x < COLNO; x++) {
             for (let y = 0; y < ROWNO; y++) {
@@ -2199,7 +2194,7 @@ export async function ghost_from_bottle(state = game, rawEnv = {}) {
         return null;
     }
 
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         await message('As you open the bottle, something emerges.', state);
         return null;
     }
@@ -2339,8 +2334,7 @@ export async function toggle_blindness(state = game, env = {}) {
 
     // C ref: potion.c:338. Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L).
     // True only when the hero wields the artifact Sting.
-    const EWarn_of_mon = hero.uprops?.[WARN_OF_MON]?.extrinsic ?? 0;
-    const Stinging = Boolean(state.uwep && (EWarn_of_mon & W_WEP));
+    const Stinging = Boolean(state.uwep && (EWarn_of_mon(hero) & W_WEP));
 
     state.disp.botl = true;               // status conditions need update
     state.vision_full_recalc = 1;          // vision has changed
@@ -2354,15 +2348,7 @@ export async function toggle_blindness(state = game, env = {}) {
 
     // C ref: potion.c:349. Blind_telepat = (HTelepat || ETelepat);
     // Infravision = (HInfravision || EInfravision).
-    const Blind_telepat = Boolean(
-        hero.uprops?.[TELEPAT]?.intrinsic
-        || hero.uprops?.[TELEPAT]?.extrinsic,
-    );
-    const Infravision = Boolean(
-        hero.uprops?.[INFRAVISION]?.intrinsic
-        || hero.uprops?.[INFRAVISION]?.extrinsic,
-    );
-    if (Blind_telepat || Infravision || Stinging)
+    if (Blind_telepat(hero) || Infravision(hero) || Stinging)
         await see_monsters(state, { ...env, redraw });
 
     // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
@@ -2376,25 +2362,11 @@ export async function toggle_blindness(state = game, env = {}) {
 
     // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects
     // the hero picked up while blind. Fires only when the hero regains sight.
-    if (!heroIsBlind(state)) {
+    if (!Blind(state.u)) {
         await learn_unseen_invent(state, env);
     }
 }
 
-// C ref: youprop.h:198 Invis, "either source minus the block that cancels
-// both". js/vision.js m_canseeu() spells the same three terms inline for its
-// own local; this is the first copy any other module can call.
-function Invis(state) {
-    const property = state.u?.uprops?.[INVIS];
-    return Boolean((property?.intrinsic || property?.extrinsic)
-        && !property?.blocked);
-}
-
-// C ref: youprop.h:152 See_invisible. Unlike Invis it has no blocked term.
-function See_invisible(state) {
-    const property = state.u?.uprops?.[SEE_INVIS];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // C ref: youprop.h:36 Sleep_resistance and :215 Free_action. Both are the
 // plain "either source" spelling, with no blocking term.
@@ -2648,7 +2620,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             break;
         }
     } else if (hit_saddle && saddle) {
-        const useeit = !heroIsBlind(state) && canseemon(mon, state)
+        const useeit = !Blind(state.u) && canseemon(mon, state)
             && cansee(tx, ty, state);
         const monsterName = x_monnam(
             mon, ARTICLE_THE, null, SUPPRESS_IT | SUPPRESS_SADDLE,
@@ -3019,11 +2991,11 @@ export async function potionbreathe(obj, state = game, env = {}) {
         }
         break;
     case POT_INVISIBILITY:
-        if (!heroIsBlind(state) && !Invis(state)) {
+        if (!Blind(state.u) && !Invis(state.u)) {
             kn++;
             await message(
                 'For an instant you '
-                    + (See_invisible(state)
+                    + (See_invisible(state.u)
                         ? 'could see right through yourself'
                         : "couldn't see yourself") + '!',
                 state,
@@ -3067,18 +3039,17 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_BLINDNESS:
         {
             const unaware = Unaware(state);
-            if (!heroIsBlind(state) && !unaware) {
+            if (!Blind(state.u) && !unaware) {
                 kn++;
                 await message('It suddenly gets dark.', state);
             }
-            const blinded = state.u.uprops[BLINDED];
             await make_blinded(
-                itimeout_incr(blinded.intrinsic, random.rnd(5)),
+                itimeout_incr(HBlinded(state.u), random.rnd(5)),
                 false,
                 state,
                 { ...env, random, message },
             );
-            if (!heroIsBlind(state) && !unaware)
+            if (!Blind(state.u) && !unaware)
                 await message(`Your ${vision_clears}`, state);
             break;
         }
@@ -3185,9 +3156,6 @@ function pair_of(obj, state = game) {
     return obj.otyp === LENSES || is_gloves(obj, state) || is_boots(obj, state);
 }
 
-function Blind(state) {
-    return heroIsBlind(state);
-}
 
 function Glib(state) {
     return Boolean(state.u?.uprops?.[GLIB]?.intrinsic & TIMEOUT);
@@ -3476,10 +3444,9 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
     obj.pickup_prev = 0;
     potion.in_use = true;
     if (potion.otyp === POT_WATER) {
-        const blindProp = state.u.uprops[BLINDED];
-        const blinded = Boolean(blindProp?.intrinsic && !blindProp?.blocked);
-        const blindfoldedOnly = Boolean(blindProp?.extrinsic) && !blinded;
-        const useeit = !Blind(state)
+        const blinded = Blinded(state.u);
+        const blindfoldedOnly = Boolean(EBlinded(state.u)) && !blinded;
+        const useeit = !Blind(state.u)
             || (obj === state.ublindf && blindfoldedOnly);
         const objGlows = Yobjnam2(obj, 'glow', state);
         if (await H2Opotion_dip(potion, obj, useeit, objGlows, state, env)) {
@@ -3544,7 +3511,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         obj.blessed = 0;
         obj.cursed = 0;
         obj.bknown = 0;
-        if (Blind(state) || Hallucination(state)) obj.dknown = 0;
+        if (Blind(state.u) || Hallucination(state)) obj.dknown = 0;
         if (mix !== STRANGE_OBJECT) {
             obj.otyp = mix;
         } else {
@@ -3568,7 +3535,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             }
             default:
                 await useupall(obj, env);
-                await message('The mixture ' + (Blind(state)
+                await message('The mixture ' + (Blind(state.u)
                     ? 'evaporates.' : 'glows brightly and evaporates.'), state);
                 return ECMD_TIME;
             }
@@ -3576,8 +3543,8 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         obj.odiluted = obj.otyp !== POT_WATER ? 1 : 0;
         if (obj.otyp === POT_WATER && !Hallucination(state)) {
             await message('The mixture bubbles'
-                + (Blind(state) ? '.' : ', then clears.'), state);
-        } else if (!Blind(state)) {
+                + (Blind(state.u) ? '.' : ', then clears.'), state);
+        } else if (!Blind(state.u)) {
             const color = hcolor(OBJ_DESCR(state.objects[obj.otyp], state), state, env);
             await message('The mixture looks ' + color + '.', state);
         }
@@ -3589,7 +3556,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
 
     if (potion.otyp === POT_ACID && obj.otyp === CORPSE
         && obj.corpsenm === PM_LICHEN) {
-        const color = Blind(state) ? 'wrinkled'
+        const color = Blind(state.u) ? 'wrinkled'
             : potion.odiluted ? hcolor('orange', state, env)
                 : hcolor('red', state, env);
         await message(The(cxname(obj, state), state) + ' '
@@ -3646,7 +3613,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             moreDips = true;
         } else if ((!isRustprone(obj, state) && !isCorrodeable(obj, state))
             || is_ammo(obj, state) || (!obj.oeroded && !obj.oeroded2)) {
-            if (!Blind(state))
+            if (!Blind(state.u))
                 await message(Yname2(obj, state) + ' '
                     + otense(obj, 'gleam', state) + ' with an oily sheen.', state);
             else
@@ -3656,7 +3623,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             const description = obj.oeroded && obj.oeroded2
                 ? 'corroded and rusty' : obj.oeroded ? 'rusty' : 'corroded';
             await message(Yname2(obj, state) + ' '
-                + otense(obj, Blind(state) ? 'feel' : 'are', state)
+                + otense(obj, Blind(state.u) ? 'feel' : 'are', state)
                 + ' less ' + description + '.', state);
             if (obj.oeroded > 0) obj.oeroded--;
             if (obj.oeroded2 > 0) obj.oeroded2--;
@@ -3726,7 +3693,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         }
         singlePotion.bknown = false;
         singlePotion.dknown = false;
-        if (!Blind(state)) {
+        if (!Blind(state.u)) {
             if (!Hallucination(state)) observe_object(singlePotion, state);
             let result = '';
             if (mixture === POT_WATER && singlePotion.dknown) result = 'clears';

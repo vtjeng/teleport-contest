@@ -177,8 +177,8 @@ test('source arm inventory stays explicit when a constant is renamed', () => {
 test('self-zap source guards use blocked invisibility and pre-call trap state', () => {
     // zap.c:2840-2848 and :2902-2928.  The BInvis field is a blocker, and
     // C's short-circuit reads u.utrap before open/closeholdingtrap mutates it.
-    assert.match(JS_SOURCE, /!property\.blocked/u);
-    assert.match(JS_SOURCE, /property\.blocked && state\.uarmc/u);
+    assert.match(JS_SOURCE, /!BInvis\(state\.u\)/u);
+    assert.match(JS_SOURCE, /BInvis\(state\.u\) && state\.uarmc/u);
     assert.match(JS_SOURCE, /const wasTrapped = Boolean\(state\.u\.utrap\)/gu);
     assert.match(JS_SOURCE, /if \(!wasTrapped \|\| !holding\.result\)/u);
     assert.match(JS_SOURCE, /if \(wasTrapped \|\| !closing\.result\)/u);

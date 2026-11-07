@@ -13,7 +13,6 @@ import {
     ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
-    BLINDED,
     COLD_RES,
     CLOUD,
     CONFUSION,
@@ -166,7 +165,6 @@ import {
     TT_WEB,
     Upolyd,
     VIBRATING_SQUARE,
-    WARNING,
     WATER,
     WEB,
     WOUNDED_LEGS,
@@ -449,7 +447,6 @@ import {
     is_waterwall,
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
-import { Cold_resistance } from './zap.js';
 import {
     enexto,
     goodpos,
@@ -549,7 +546,10 @@ import {
     vision_recalc,
 } from './vision.js';
 import { canspotmon, mon_visible, sensemon } from './display.js';
-import { Half_physical_damage, Maybe_Half_Phys } from './youprop.js';
+import { Cold_resistance } from './zap.js';
+import {
+    Blind, Half_physical_damage, Maybe_Half_Phys, Warning,
+} from './youprop.js';
 
 function reset_tmp_anything(state) {
     state.tmp_anything ??= {};
@@ -1403,13 +1403,6 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
     }
 }
 
-function heroIsBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean(
-        (blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked,
-    );
-}
 
 // youprop.h:125 Deaf is (HDeaf || EDeaf || u.uroleplay.deaf). Unlike Blind it
 // has no blocked term, so a source of deafness is never suppressed.
@@ -1988,7 +1981,7 @@ async function cannot_push_msg(otmp, sx, sy, state, env) {
     } else {
         await message(`You try to move ${what}, but in vain.`, state);
     }
-    if (heroIsBlind(state)) feel_location(sx, sy, state);
+    if (Blind(state.u)) feel_location(sx, sy, state);
 }
 
 // C ref: hack.c cannot_push() (262-312). A failed push can instead let giants
@@ -2359,7 +2352,7 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     otmp.next_boulder = 0;
     movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
     // 210-215.
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         // hack.c:211-212 feels both the boulder's destination and the square
         // it left.  The destination may be two cells away, so feel_location()
         // must use display.c's sign-clamped seenv indexing.
@@ -2438,7 +2431,7 @@ async function moverock_core(sx, sy, state, env) {
     while ((otmp = sobj_at(BOULDER, sx, sy, state)) !== null) {
         // 355-363. C identifies an unseen boulder by its remembered glyph,
         // then maps the live object before refusing the push.
-        if (heroIsBlind(state)
+        if (Blind(state.u)
             && glyph_to_obj(glyph_at(sx, sy, state)) !== BOULDER) {
             const message = requiredMessageOperation(
                 env, 'unseen boulder feedback',
@@ -2493,7 +2486,7 @@ async function moverock_core(sx, sy, state, env) {
         // and are not interchangeable with the ordinary push transaction.
         if (propertyActiveUnblocked(state, LEVITATION)
             || Is_airlevel(state.u?.uz, state)) {
-            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            if (Blind(state.u)) feel_location(sx, sy, state);
             await message(
                 `You don't have enough leverage to push ${the(xnameFresh(otmp, state), state)}.`,
                 state,
@@ -2501,7 +2494,7 @@ async function moverock_core(sx, sy, state, env) {
             return -1;
         }
         if (verysmall(state.youmonst?.data) && !u.usteed) {
-            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            if (Blind(state.u)) feel_location(sx, sy, state);
             await message(
                 `You're too small to push that ${xnameFresh(otmp, state)}.`,
                 state,
@@ -2529,7 +2522,7 @@ async function moverock_core(sx, sy, state, env) {
         // 443-448. Sokoban's diagonal rule is local to moverock_core(); the
         // result of cannot_push() remains the source return value.
         if (state.level?.flags?.sokoban_rules && u.dx && u.dy) {
-            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            if (Blind(state.u)) feel_location(sx, sy, state);
             await message(
                 `${The(xnameFresh(otmp, state), state)} won't roll diagonally `
                 + `on this ${surface(sx, sy, state)}.`,
@@ -2605,7 +2598,7 @@ async function moverock_core(sx, sy, state, env) {
                     place_object(otmp, rx, ry, objectEnv);
                     redraw(sx, sy, state);
                     await message(
-                        `${(!heroIsDeaf(state) || !heroIsBlind(state))
+                        `${(!heroIsDeaf(state) || !Blind(state.u))
                             ? 'KAABLAMM!!' : 'Gadzooks'}!  `
                             + `${Tobjnam(otmp, 'trigger', state)} `
                             + `${ttmp.madeby_u ? 'your' : 'a'} land mine.`,
@@ -2620,17 +2613,17 @@ async function moverock_core(sx, sy, state, env) {
             case SPIKED_PIT:
             case PIT: {
                 obj_extract_self(otmp, objectEnv);
-                if (!heroIsBlind(state) && state.viz_array?.[ry])
+                if (!Blind(state.u) && state.viz_array?.[ry])
                     state.viz_array[ry][rx] |= IN_SIGHT;
                 const { flooreffects } = await import('./do.js');
                 if (!await flooreffects(otmp, rx, ry, 'fall', effectEnv))
                     place_object(otmp, rx, ry, objectEnv);
-                if (mtmp && !heroIsBlind(state)) redraw(rx, ry, state);
+                if (mtmp && !Blind(state.u)) redraw(rx, ry, state);
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             }
             case HOLE:
             case TRAPDOOR:
-                if (heroIsBlind(state)) {
+                if (Blind(state.u)) {
                     await message(
                         `Kerplunk!  You no longer feel `
                             + `${the(xnameFresh(otmp, state), state)}.`,
@@ -2799,7 +2792,7 @@ export async function test_move(
     // branch, and the pass-wall and tunnelling forms deliberately fall through
     // instead of being treated as ordinary refusals.
     if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
-        if (heroIsBlind(state) && mode === DO_MOVE)
+        if (Blind(state.u) && mode === DO_MOVE)
             feel_location(x, y, state);
         if (passesWalls && may_passwall(x, y, state)) {
             // The source intentionally continues into the common checks.
@@ -2857,7 +2850,7 @@ export async function test_move(
     } else if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
         // hack.c:1074-1137. TEST_TRAV and TEST_TRAP jump to testdiag;
         // TEST_MOVE and DO_MOVE return after this closed-door arm.
-        if (heroIsBlind(state) && mode === DO_MOVE)
+        if (Blind(state.u) && mode === DO_MOVE)
             feel_location(x, y, state);
         if (passesWalls) {
             // The source falls through to the common checks.
@@ -2898,7 +2891,7 @@ export async function test_move(
                     state.context.move = (ux !== state.u.ux || uy !== state.u.uy)
                         ? 1 : 0;
                 } else if (x === ux || y === uy) {
-                    if (heroIsBlind(state)
+                    if (Blind(state.u)
                         || propertyIntrinsic(state, STUNNED)
                         || acurr(state, A_DEX) < 10
                         || propertyPresent(state, FUMBLING)) {
@@ -2946,7 +2939,7 @@ export async function test_move(
             && (!doorless_door(location, state)
                 || await block_door(x, y, state, { message }))) {
             if (mode === DO_MOVE) {
-                if (heroIsBlind(state)) feel_location(x, y, state);
+                if (Blind(state.u)) feel_location(x, y, state);
                 if (state.u?.uinwater || state.flags?.mention_walls) {
                     await message(
                         "You can't move diagonally into an intact doorway.",
@@ -3027,7 +3020,7 @@ export async function test_move(
     if (sobj_at(BOULDER, x, y, state)
         && (state.level?.flags?.sokoban_rules || !passesWalls)) {
         if (mode !== TEST_TRAV && run >= 2
-            && !(heroIsBlind(state) || heroHallucinating(state))
+            && !(Blind(state.u) || heroHallucinating(state))
             && !could_move_onto_boulder(
                 x,
                 y,
@@ -3125,7 +3118,7 @@ function travelMapSet(state, x, y) {
 function travelSquareVisible(x, y, state) {
     const location = state.level?.at(x, y);
     return Boolean(location?.seenv
-        || (!heroIsBlind(state) && couldsee(x, y, state)));
+        || (!Blind(state.u) && couldsee(x, y, state)));
 }
 
 // C ref: hack.c findtravelpath() (1266-1523). TRAVP_TRAVEL grows a shortest
@@ -3760,7 +3753,7 @@ export async function avoid_running_into_trap_or_liquid(
     const wouldStop = (state.context.run ?? 0) >= 2;
     if (!state.context.run) return false;
     if (await avoid_moving_on_trap(x, y, wouldStop, state)
-        || (heroIsBlind(state)
+        || (Blind(state.u)
             && await avoid_moving_on_liquid(x, y, wouldStop, state))) {
         nomul(0, state);
         if (wouldStop) state.context.move = 0;
@@ -3780,7 +3773,7 @@ export async function avoid_trap_andor_region(x, y, state = game) {
     const paranoidTrap = Boolean(paranoia & PARANOID_TRAP);
     const impaired = propertyIntrinsic(state, STUNNED)
         || propertyIntrinsic(state, CONFUSION);
-    if (paranoidTrap && !heroIsBlind(state) && !impaired
+    if (paranoidTrap && !Blind(state.u) && !impaired
         && !heroHallucinating(state)
         && (!state.context.nopick || state.context.run)) {
         const newreg = visible_region_at(x, y, state);
@@ -3905,7 +3898,7 @@ export function runStopsBeforeMonster(monster, run, state) {
     if (!run || !monster || is_safemon(monster, state))
         return false;
     const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
-    const seen = !heroIsBlind(state)
+    const seen = !Blind(state.u)
         && mon_visible(monster, state)
         && ((appearance !== M_AP_FURNITURE && appearance !== M_AP_OBJECT)
             || propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS));
@@ -4792,7 +4785,7 @@ export async function pickup_checks(state = game, env = {}) {
                 await message(`You pick up ${s_suffix(mon_nam(u.ustuck, state, env))} tongue.`, state);
                 await message("But it's kind of slimy, so you drop it.", state);
             } else {
-                await message(`You don't ${heroIsBlind(state) ? 'feel' : 'see'} anything in here to pick up.`, state);
+                await message(`You don't ${Blind(state.u) ? 'feel' : 'see'} anything in here to pick up.`, state);
             }
             return 1;
         }
@@ -4866,7 +4859,7 @@ export async function pickup_checks(state = game, env = {}) {
             await message('You cannot reach the bottom of the pit.', state);
         } else if (u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
             await rider_cant_reach(state, env);
-        } else if (heroIsBlind(state)) {
+        } else if (Blind(state.u)) {
             await message('You cannot reach anything here.', state);
         } else {
             let surf = surface(u.ux, u.uy, state);
@@ -4925,7 +4918,7 @@ export async function lookaround(state = game) {
         return;
     }
 
-    if (heroIsBlind(state) || state.context.run === 0) return;
+    if (Blind(state.u) || state.context.run === 0) return;
 
     const here = state.level.at(u.ux, u.uy);
 
@@ -5679,8 +5672,7 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
 
         // C ref: hack.c:3402-3410. Warning reads the raw HWarning/EWarning
         // fields (including blocked bits) and looks up this square's timer.
-        const warning = u.uprops[WARNING];
-        if ((warning?.intrinsic || warning?.extrinsic)
+        if (Warning(u)
             && is_ice(u.ux, u.uy, state)) {
             const warnings = [
                 'The ice seems very soft and slushy.',
@@ -5738,7 +5730,7 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
                     state,
                 );
             } else if (monster.mpeaceful) {
-                const name = heroIsBlind(state) && !sensemon(monster, state)
+                const name = Blind(state.u) && !sensemon(monster, state)
                     ? 'something'
                     : a_monnam(monster, { ...rawEnv, state });
                 await message(`You surprise ${name}!`, state);
@@ -5877,7 +5869,7 @@ export async function invocation_message(state = game, env = {}) {
 
     if (candelabrum?.spe === 7 && candelabrum.lamplit) {
         await (env.message ?? ttyPline)(
-            `${The(xnameFresh(candelabrum, state), state)} ${heroIsBlind(state)
+            `${The(xnameFresh(candelabrum, state), state)} ${Blind(state.u)
                 ? 'throbs palpably' : 'glows with a strange light'}!`,
             state, env,
         );

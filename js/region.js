@@ -5,7 +5,6 @@
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
-    BLINDED,
     COLNO,
     DB_LAVA,
     DB_MOAT,
@@ -57,7 +56,7 @@ import { ttyPline } from './tty_message.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
 import { note_unported } from './unported.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Blind, HBlinded, Maybe_Half_Phys } from './youprop.js';
 
 const MAX_CLOUD_SIZE = 150;
 const INSIDE_GAS_CLOUD = 'inside_gas_cloud';
@@ -111,11 +110,6 @@ function isFogCloud(monster, state) {
         || monster?.mnum === PM_FOG_CLOUD;
 }
 
-function heroIsBlind(state) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    return Boolean(blindness?.intrinsic || blindness?.extrinsic)
-        && !blindness?.blocked;
-}
 
 function findMonsterById(id, state) {
     for (let monster = state.level?.monlist ?? null;
@@ -326,7 +320,7 @@ function preflightVisibleRemoval(region, env) {
         canSee: null,
         newsym: null,
     };
-    if (!heroIsBlind(env.state)) {
+    if (!Blind(env.state.u)) {
         operations.canSee = requiredOperation(env, 'canSee');
         operations.newsym = requiredOperation(env, 'newsym');
     }
@@ -339,7 +333,7 @@ function preflightGasDissipation(region, env) {
         unblockPoint: requiredOperation(env, 'unblockPoint'),
         canSee: null,
     };
-    if (!heroIsBlind(env.state))
+    if (!Blind(env.state.u))
         operations.canSee = requiredOperation(env, 'canSee');
     // expire_gas_cloud() can aggregate either of its two messages.  Require
     // the output boundary before the callback mutates opacity or counters.
@@ -366,7 +360,7 @@ export function remove_region(region, state = game, rawEnv = {}) {
     if (!visual) return true;
 
     const savedInWater = Boolean(state.u?.uinwater);
-    const passes = heroIsBlind(state) ? 1 : 2;
+    const passes = Blind(state.u) ? 1 : 2;
     try {
         for (let pass = 1; pass <= passes; ++pass) {
             if (state.u) state.u.uinwater = pass === 1 ? false : savedInWater;
@@ -410,7 +404,7 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
         if (m_poisongas_ok(state.youmonst, state) === M_POISONGAS_OK)
             return false;
 
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             const eyes = makeplural(body_part(EYE, state.youmonst));
             await message(`Your ${eyes} sting.`, state, env);
             await make_blinded(1, false, state, env);
@@ -496,7 +490,7 @@ export function expire_gas_cloud(region, _subject = null, rawEnv = {}) {
 
     const visual = preflightGasDissipation(region, env);
     env.state.gg ??= {};
-    const passes = heroIsBlind(env.state) ? 1 : 2;
+    const passes = Blind(env.state.u) ? 1 : 2;
     const bounds = region.bounding_box;
     for (let pass = 1; pass <= passes; ++pass) {
         for (let x = bounds.lx; x <= bounds.hx; ++x) {
@@ -935,7 +929,7 @@ export async function region_safety(state = game, rawEnv = {}) {
         );
     }
 
-    const blindedTimeout = state.u?.uprops?.[BLINDED]?.intrinsic & TIMEOUT;
+    const blindedTimeout = HBlinded(state.u) & TIMEOUT;
     if (blindedTimeout === 1) {
         const makeBlinded = env.makeBlinded ?? make_blinded;
         await makeBlinded(0, true, state, env);

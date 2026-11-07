@@ -57,7 +57,6 @@ import {
     NON_PM,
     PM_LONG_WORM,
 } from '../js/monsters.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     COIN_CLASS,
@@ -72,6 +71,7 @@ import {
     objects_globals_init,
     RUBY,
 } from '../js/objects.js';
+import { Blind } from '../js/youprop.js';
 
 const APPLY_C = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
@@ -746,7 +746,7 @@ test('apply.c use_towel tests C Blinded, not the broader Blind macro',
         game.u.ucreamed = 3;
         game.u.uswallow = false;
         game.unported = new Set();
-        assert.equal(heroIsBlind(game), c.cBlind, `${c.name}: broad Blind state`);
+        assert.equal(Blind(game.u), c.cBlind, `${c.name}: broad Blind state`);
 
         const messages = [];
         const result = await use_towel({

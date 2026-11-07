@@ -85,7 +85,6 @@ import * as eatModule from '../js/eat.js';
 import { initRng } from '../js/rng.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import {
     PM_BABY_CROCODILE,
     PM_CROCODILE,
@@ -153,6 +152,7 @@ import {
     stop_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+import { Blind } from '../js/youprop.js';
 
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const C_EAT = readFileSync('nethack-c/upstream/src/eat.c', 'utf8');
@@ -3155,7 +3155,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         assert.match(jsBody,
             /nolimbs\(state\.youmonst\.data\) && strstri\(text, 'limbs'\) >= 0\)\s*text = strsubst\(text, 'limbs', 'extremities'\)/u);
         assert.match(jsBody,
-            /if \(index === 4\) \{\s*if \(!heroIsBlind\(state\)\)/u);
+            /if \(index === 4\) \{\s*if \(!Blind\(state\.u\)\)/u);
         assert.match(jsBody,
             /case 3:[\s\S]*?u\.uprops\[FAST\]\.intrinsic = 0;[\s\S]*?Popeye\(SLIMED, state\)[\s\S]*?case 2:[\s\S]*?set_itimeout\(u\.uprops\[DEAF\], 5\);[\s\S]*?case 1:[\s\S]*?make_stoned\(0, null, KILLED_BY_AN, null, state\)[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
         assert.match(JS_TIMEOUT,
@@ -3220,7 +3220,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         blindfolded.u.uprops[BLINDED].intrinsic = 0;
         blindfolded.u.uprops[BLINDED].extrinsic = W_TOOL;
         blindfolded.u.uprops[BLINDED].blocked = 0;
-        assert.equal(heroIsBlind(blindfolded), true,
+        assert.equal(Blind(blindfolded.u), true,
             'W_TOOL extrinsic represents the worn blindfold EBlinded bit');
         const blindMessages = [];
         const blindDraws = [];

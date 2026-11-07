@@ -10,9 +10,10 @@ import { truncateByteString } from './hacklib.js';
 import { BUFSZ, DEAF, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { is_fainted } from './eat.js';
 import { unconscious } from './trap.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
+import { Blind } from './youprop.js';
 
 // C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
 // trap.c unconscious(). C's Deaf macro includes timeout, worn and roleplay
@@ -53,7 +54,7 @@ export function youFeel(line, state = game) {
 // which is false while the hero is blind.
 export function youSee(line, state = game) {
     if (heroUnaware(state)) return `You dream that you see ${line}`;
-    if (heroIsBlind(state)) return `You sense ${line}`;
+    if (Blind(state.u)) return `You sense ${line}`;
     return `You see ${line}`;
 }
 

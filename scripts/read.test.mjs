@@ -140,11 +140,11 @@ test('read.c litroom routes carried artifact lights through impact_arti_light', 
     assert.match(jsLitroom, /if \(!artifact_light\(current\)\)/u);
     assert.match(
         jsLitroom,
-        /await impact_arti_light\(\s*current, true, !propertyActive\(BLINDED, state\), state,/u,
+        /await impact_arti_light\(\s*current, true, !Blind\(state\.u\), state,/u,
     );
     assert.match(
         jsLitroom,
-        /await impact_arti_light\(\s*current, false, !propertyActive\(BLINDED, state\), state,/u,
+        /await impact_arti_light\(\s*current, false, !Blind\(state\.u\), state,/u,
     );
 
     const jsHelperStart = JS_POTION.indexOf(

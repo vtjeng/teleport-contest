@@ -16,7 +16,6 @@ import {
     ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
-    BLINDED,
     BZ_M_WAND,
     BZ_OFS_AD,
     BZ_OFS_WAN,
@@ -81,7 +80,6 @@ import {
     SCORR,
     SDOOR,
     SHOPBASE,
-    SEE_INVIS,
     STAIRS,
     STONE_RES,
     STRAT_WAITFORU,
@@ -199,7 +197,7 @@ import { coreRandom, d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { pline_mon, verbalize, youFeel } from './pline.js';
 import {
     destroy_drawbridge,
@@ -255,6 +253,7 @@ import {
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Blind, HBlinded, See_invisible } from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names.
@@ -1311,7 +1310,7 @@ export function find_misc(monster, rawEnv = {}) {
         if (obj.otyp === O.WAN_MAKE_INVISIBLE && obj.spe > 0
             && !monster.minvis && !monster.invis_blkd
             && (!monster.mpeaceful
-                || activeHeroProperty(state, SEE_INVIS))
+                || See_invisible(state.u))
             && (!attacktype(species, AT_GAZE) || monster.mcan)) {
             selected = { kind: 'make invisible', object: obj };
         }
@@ -1319,7 +1318,7 @@ export function find_misc(monster, rawEnv = {}) {
         if (obj.otyp === O.POT_INVISIBILITY
             && !monster.minvis && !monster.invis_blkd
             && (!monster.mpeaceful
-                || activeHeroProperty(state, SEE_INVIS))
+                || See_invisible(state.u))
             && (!attacktype(species, AT_GAZE) || monster.mcan)) {
             selected = { kind: 'invisibility', object: obj };
         }
@@ -2661,7 +2660,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
             && (!inEndgame || earthLevelHere))
             select(MUSE_SCR_EARTH, obj);
         if (has_offense === MUSE_CAMERA) continue;
-        const blindedByFlash = !heroIsBlind(state)
+        const blindedByFlash = !Blind(state.u)
             && !resists_blnd(state.youmonst ?? state.u, state);
         if (otyp === O.EXPENSIVE_CAMERA
             && (blindedByFlash || hates_light(state.youmonst?.data ?? state.u?.data))
@@ -2769,7 +2768,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         const message = env.message ?? ttyPline;
         if (Hallucination(state)) {
             await verbalize('Say cheese!', state, { message });
-        } else if (!heroIsBlind(state)) {
+        } else if (!Blind(state.u)) {
             await message(
                 capitalizedMonsterName(mtmp, state, env)
                     + ' takes a picture of you with '
@@ -2779,10 +2778,10 @@ export async function use_offensive(mtmp, rawEnv = {}) {
             );
         }
         state.m_using = true;
-        if (!heroIsBlind(state)
+        if (!Blind(state.u)
             && !resists_blnd(state.youmonst ?? state.u, state)) {
             await message('You are blinded by the flash of light!', state, env);
-            const blindedTimeout = (state.u.uprops?.[BLINDED]?.intrinsic ?? 0)
+            const blindedTimeout = (HBlinded(state.u))
                 & TIMEOUT;
             await make_blinded(
                 blindedTimeout + random.rnd(1 + 50), false, state, env,

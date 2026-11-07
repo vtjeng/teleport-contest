@@ -154,20 +154,21 @@ import {
     t_at,
     unconscious,
     could_untrap,
-    Levitation,
     untrap,
+    Levitation,
 } from './trap.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { maybe_absorb_item } from './steal.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { block_point, cansee, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
+import { BBlinded, Blind, HBlinded } from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
 export class UnsupportedLockError extends Error {
@@ -281,7 +282,7 @@ async function chest_shatter_msg(otmp, state = game) {
     if (otmp.oclass === POTION_CLASS) {
         const { bottlename, potionbreathe } = await import('./potion.js');
         await ttyPline(
-            `You ${heroIsBlind(state) ? 'hear' : 'see'} `
+            `You ${Blind(state.u) ? 'hear' : 'see'} `
                 + `${an(bottlename(state), state)} shatter!`,
             state,
         );
@@ -293,21 +294,16 @@ async function chest_shatter_msg(otmp, state = game) {
     }
     // lock.c:1290-1317 hides the item's visual description while naming it,
     // then selects the shattering message from its source material.
-    const blindness = state.u.uprops[BLINDED] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    const oldIntrinsic = blindness.intrinsic;
-    const oldBlocked = blindness.blocked;
-    blindness.intrinsic = 1;
-    blindness.blocked = false;
+    const oldIntrinsic = HBlinded(state.u);
+    const oldBlocked = BBlinded(state.u);
+    state.u.uprops[BLINDED].intrinsic = 1;
+    state.u.uprops[BLINDED].blocked = 0;
     let thing;
     try {
         thing = singular(otmp, xnameFresh, state);
     } finally {
-        blindness.intrinsic = oldIntrinsic;
-        if (oldBlocked === undefined) delete blindness.blocked;
-        else blindness.blocked = oldBlocked;
+        state.u.uprops[BLINDED].intrinsic = oldIntrinsic;
+        state.u.uprops[BLINDED].blocked = oldBlocked;
     }
     let disposition;
     switch (objectType(otmp, state).oc_material) {
@@ -875,7 +871,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
                 || state.level.lastseentyp[cc.x][cc.y] !== oldlastseentyp)
                 res = PICKLOCK_LEARNED_SOMETHING;
-            const blind = heroIsBlind(state);
+            const blind = Blind(state.u);
             if (is_drawbridge_wall(cc.x, cc.y, state) >= 0)
                 await message(`You ${blind ? 'feel' : 'see'} no lock on the drawbridge.`, state);
             else await message(`You ${blind ? 'feel' : 'see'} no door there.`, state);
@@ -1162,13 +1158,13 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             await message('The drawbridge is already open.', state);
         else if (container_at(cc.x, cc.y, true, state))
             await message(
-                `${heroIsBlind(state) ? 'Feels' : 'Seems'}`
+                `${Blind(state.u) ? 'Feels' : 'Seems'}`
                 + ' like something lootable over there.',
                 state,
             );
         else
             await message(
-                `You ${heroIsBlind(state) ? 'feel' : 'see'} no door there.`,
+                `You ${Blind(state.u) ? 'feel' : 'see'} no door there.`,
                 state,
             );
         return res;
@@ -1578,7 +1574,7 @@ export async function doclose(state = game) {
 
     // lock.c:984-985. isok rejects coordinates outside the map.
     if (!isok(x, y)) {
-        const blind = heroIsBlind(state);
+        const blind = Blind(state.u);
         await ttyPline(
             `You ${blind ? 'feel' : 'see'} no door there.`, state,
         );
@@ -1599,7 +1595,7 @@ export async function doclose(state = game) {
     const portcullis = is_drawbridge_wall(x, y, state) >= 0;
 
     // lock.c:997-1005. Blind hero feels the location to learn what is there.
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         const oldglyph = door.remembered_glyph;
         const oldlastseentyp = update_mapseen_for(x, y, state);
 
@@ -1619,7 +1615,7 @@ export async function doclose(state = game) {
             );
         else {
             // nodoor:
-            const blind = heroIsBlind(state);
+            const blind = Blind(state.u);
             await ttyPline(
                 `You ${blind ? 'feel' : 'see'} no door there.`, state,
             );

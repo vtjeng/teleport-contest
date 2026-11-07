@@ -16,7 +16,6 @@ import {
     AM_MASK,
     AM_NEUTRAL,
     AM_SANCTUM,
-    BLINDED,
     BOLT_LIM,
     COLNO,
     CLOUD,
@@ -198,6 +197,7 @@ import {
     S_vodoor,
     S_water,
 } from './symbols.js';
+import { Blind } from './youprop.js';
 
 // mhidden_description() is owned by pager.c.  Keep this compatibility export
 // for status-line and startup callers while pager.js remains the sole JS
@@ -1260,7 +1260,7 @@ function observeBufferedObject(object, synthetic, x, y, state) {
     const dx = x - state.u.ux;
     const dy = y - state.u.uy;
     if (dx * dx + dy * dy <= 2
-        && !heroIsBlind(state)
+        && !Blind(state.u)
         && !heroHallucinating(state)
         && (synthetic || object.where === OBJ_FLOOR)
         && !state.iflags?.terrainmode) {
@@ -1444,14 +1444,6 @@ export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
 function propertyActive(hero, index) {
     const property = hero?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
-// C ref: youprop.h Blind() (103). Exported because mon.c make_corpse():927
-// needs it too and this is the copy nearest its other visibility helpers.
-export function heroIsBlind(state) {
-    const property = state.u?.uprops?.[BLINDED];
-    return Boolean(property?.intrinsic || property?.extrinsic)
-        && !property?.blocked;
 }
 
 function singularMovementVerb(species) {

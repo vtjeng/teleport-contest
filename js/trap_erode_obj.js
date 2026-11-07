@@ -69,7 +69,6 @@ import {
     Yobjnam2,
     xnameFresh,
 } from './objnam.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { coreRandom } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
@@ -79,6 +78,7 @@ import { dist2 } from './hacklib.js';
 import { canseemon } from './display.js';
 import { dry_a_towel } from './weapon.js';
 import { note_unported } from './unported.js';
+import { Blind } from './youprop.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -359,7 +359,7 @@ export async function erode_obj(obj, description, type, flags, env) {
         if (uvictim) {
             await message(
                 `Your ${name} `
-                + `${vtense(name, heroIsBlind(state) ? 'feel' : 'look')} `
+                + `${vtense(name, Blind(state.u) ? 'feel' : 'look')} `
                 + `completely ${details.result}.`,
                 state,
             );
@@ -438,7 +438,7 @@ export async function acid_damage(obj, env = {}) {
     } else if (obj.oclass === SCROLL_CLASS
         && obj.otyp !== SCR_BLANK_PAPER) {
         if (obj.otyp !== SCR_BLANK_PAPER && obj.otyp !== SCR_MAIL
-            && !heroIsBlind(state)) {
+            && !Blind(state.u)) {
             const msg = aobjnam(obj, 'fade', state);
             if (heroVictim) {
                 await erosionOperation(env, 'message', ttyPline)(

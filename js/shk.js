@@ -32,7 +32,6 @@ import {
     COST_SINGLEOBJ,
     CONTAINED_TOO,
     CONFLICT,
-    DETECT_MONSTERS,
     DEAF,
     DISINT_RES,
     DISPLACED,
@@ -49,7 +48,6 @@ import {
     helpless,
     HUNGRY,
     ismnum,
-    INVIS,
     IS_DOOR,
     IS_ROOM,
     IS_WALL,
@@ -287,7 +285,6 @@ import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
 import { body_part, mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -309,6 +306,9 @@ import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
+import {
+    Blind, EDetect_monsters, ETelepat, HDetect_monsters, HTelepat, Invis,
+} from './youprop.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
 // in one C process but is not saved; each recorder segment starts a new
@@ -881,7 +881,7 @@ export async function block_door(x, y, state = game, { message = ttyPline } = {}
         return false;
     }
     await message(
-        `${Shknam(shopkeeper, state)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        `${Shknam(shopkeeper, state)}${Invis(state.u) ? ' senses your motion and' : ''} blocks your way!`,
         state,
     );
     return true;
@@ -903,12 +903,12 @@ export async function block_entry(x, y, state = game, { message = ttyPline } = {
         || helpless(shopkeeper)
         || !(x === extension.shk.x - 1 || x === extension.shk.x + 1
             || y === extension.shk.y - 1 || y === extension.shk.y + 1)
-        || !(heroIsInvisible(state)
+        || !(Invis(state.u)
             || carrying(PICK_AXE, state)
             || carrying(DWARVISH_MATTOCK, state)
             || state.u.usteed)) return false;
     await message(
-        `${Shknam(shopkeeper, state)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        `${Shknam(shopkeeper, state)}${Invis(state.u) ? ' senses your motion and' : ''} blocks your way!`,
         state,
     );
     return true;
@@ -1159,11 +1159,11 @@ async function deserted_shop(
         }
     }
 
-    if (heroIsBlind(state)
-        && !(state.u?.uprops?.[TELEPAT]?.intrinsic
-            || state.u?.uprops?.[TELEPAT]?.extrinsic
-            || state.u?.uprops?.[DETECT_MONSTERS]?.intrinsic
-            || state.u?.uprops?.[DETECT_MONSTERS]?.extrinsic)) {
+    if (Blind(state.u)
+        && !(HTelepat(state.u)
+            || ETelepat(state.u)
+            || HDetect_monsters(state.u)
+            || EDetect_monsters(state.u))) {
         ++total;
     }
     await message(
@@ -2303,9 +2303,8 @@ export async function dopay(state = game, env = {}) {
     let shkp;
     if (next && nearby === 1) shkp = next;
     else {
-        const blind = heroIsBlind(state);
-        const telepathy = state.u.uprops[TELEPAT];
-        if ((!count && (!blind || telepathy.intrinsic || telepathy.extrinsic))
+        const blind = Blind(state.u);
+        if ((!count && (!blind || HTelepat(state.u) || ETelepat(state.u)))
             || (!blind && !seen)) {
             await message('There appears to be no shopkeeper here to receive your payment.', state);
             return ECMD_OK;
@@ -2767,10 +2766,6 @@ export function Shk_Your(obj, state = game, env = {}) {
     return upstart(shk_your(obj, state, env));
 }
 
-function heroIsInvisible(state) {
-    const value = state.u?.uprops?.[INVIS];
-    return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
-}
 
 // C ref: youprop.h Deaf. Unlike ordinary properties it has a roleplay-option
 // source and no blocked term.
@@ -2991,7 +2986,7 @@ export async function u_entered_shop(
 
     const roll = random.rn2;
     const namingEnv = { random };
-    if (heroIsInvisible(state)) {
+    if (Invis(state.u)) {
         await message(
             `${Shknam(shopkeeper, state, namingEnv)} senses your presence.`, state,
         );
@@ -3108,7 +3103,7 @@ export async function u_entered_shop(
                 tool = 'mattock';
                 for (mattock = mattock.nobj; mattock; mattock = mattock.nobj)
                     if (mattock.otyp === DWARVISH_MATTOCK) ++count;
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     discover_object(
                         DWARVISH_MATTOCK,
                         true,
@@ -4040,9 +4035,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             gty = hero.uy;
         }
     } else {
-        const invis = hero.uprops?.[INVIS];
-        const invisible = Boolean((invis?.intrinsic || invis?.extrinsic)
-            && !invis.blocked);
+        const invisible = Invis(hero);
         if (invisible || hero.usteed) {
             // C leaves appr at 1: the keeper still approaches its guard
             // square, but no longer avoids the unseen or mounted hero.
@@ -5137,7 +5130,7 @@ export async function pay_for_damage(
         return;
     }
 
-    if (heroIsInvisible(state))
+    if (Invis(state.u))
         await message(`Your invisibility does not fool ${shkname(shopkeeper, state)}!`, state, env);
     const query = `${!animal ? `${cad(true, state)}` : ''}`
         + `You did ${damageCost} ${currency(damageCost, state)} worth of damage!`

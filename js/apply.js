@@ -117,7 +117,6 @@ import {
     FLYING,
     FORCEBUNGLE,
     INTRINSIC,
-    INVIS,
     INVIS_BEAM,
     IS_DOOR,
     IS_AIR,
@@ -151,7 +150,6 @@ import {
     SICK_ALL,
     SICK_NONVOMITABLE,
     SLIMED,
-    SEE_INVIS,
     MONSEEN_INFRAVIS,
     MONSEEN_NORMAL,
     MONSEEN_SEEINVIS,
@@ -517,7 +515,7 @@ import {
     make_vomiting,
     set_itimeout,
 } from './potion.js';
-import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
@@ -642,7 +640,9 @@ import {
     retouch_object,
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    BBlinded, Blind, HBlinded, Invis, Maybe_Half_Phys, See_invisible,
+} from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
     const value = state.u?.uprops?.[property];
@@ -934,7 +934,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
             if (spotItNow || !glyph_is_invisible(rememberedGlyph)) {
                 await ttyPline(
                 `${spotItNow ? Amonnam(monster, { state }) : 'A monster'} is there that you `
-                        + `${heroIsBlind(state) ? "hadn't noticed" : "couldn't see"}.`,
+                        + `${Blind(state.u) ? "hadn't noticed" : "couldn't see"}.`,
                     state,
                 );
                 if (!spotItNow) map_invisible(rx, ry, state);
@@ -1894,7 +1894,7 @@ function heroDeaf(state) {
 async function use_cream_pie(obj, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
-    const wasblind = heroIsBlind(state);
+    const wasblind = Blind(state.u);
     const wascreamed = Boolean(state.u.ucreamed);
     const several = obj.quan > 1;
 
@@ -1917,14 +1917,13 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     if (can_blnd(null, state.youmonst, AT_WEAP, obj, state)) {
         const blindinc = random.rnd(25);
         state.u.ucreamed += blindinc;
-        const blindness = state.u.uprops[BLINDED];
         await make_blinded(
-            (blindness.intrinsic & TIMEOUT) + blindinc,
+            (HBlinded(state.u) & TIMEOUT) + blindinc,
             false,
             state,
             env,
         );
-        if (!heroIsBlind(state) || wasblind) {
+        if (!Blind(state.u) || wasblind) {
             await ttyPline(
                 `There's ${wascreamed ? 'more ' : ''}sticky goop all over your ${
                     body_part(FACE, state.youmonst)}.`,
@@ -2040,7 +2039,7 @@ export async function use_trap(obj, state = game, env = {}) {
     let attribute = acurr(state, A_DEX);
     currentTrapInfo.time_needed = attribute > 17 ? 2
         : attribute > 12 ? 3 : attribute > 7 ? 4 : 5;
-    if (heroIsBlind(state)) currentTrapInfo.time_needed *= 2;
+    if (Blind(state.u)) currentTrapInfo.time_needed *= 2;
     attribute = acurr(state, A_STR);
     if (ttyp === BEAR_TRAP && attribute < 18) {
         currentTrapInfo.time_needed += attribute > 12 ? 1
@@ -2232,7 +2231,7 @@ export function touchstone_ok(obj, state = game) {
 // `#rub` callers.
 export async function use_stone(tstone, state = game, env = {}) {
     const scritch = '"scritch, scritch"';
-    if (!heroIsBlind(state))
+    if (!Blind(state.u))
         observe_object(tstone, state);
 
     const known = tstone.otyp === TOUCHSTONE
@@ -2258,7 +2257,7 @@ export async function use_stone(tstone, state = game, env = {}) {
     if (tstone.otyp === TOUCHSTONE && tstone.cursed
         && obj.oclass === GEM_CLASS && !is_graystone(obj)
         && !obj_resists(obj, 80, 100, { ...env, state })) {
-        if (heroIsBlind(state)) {
+        if (Blind(state.u)) {
             await ttyPline(youFeel('something shatter.', state), state);
         } else if (heroHallucinating(state)) {
             await ttyPline('Oh, wow, look at the pretty shards.', state);
@@ -2273,7 +2272,7 @@ export async function use_stone(tstone, state = game, env = {}) {
         return ECMD_TIME;
     }
 
-    if (heroIsBlind(state)) {
+    if (Blind(state.u)) {
         await ttyPline(scritch, state);
         return ECMD_TIME;
     } else if (heroHallucinating(state)) {
@@ -2440,7 +2439,7 @@ export async function dorub(state = game, env = {}) {
             update_inventory({ ...env, state });
         } else if (random.rn2(2)) {
             await ttyPline(
-                `You ${heroIsBlind(state) ? 'smell' : 'see a puff of'} smoke.`,
+                `You ${Blind(state.u) ? 'smell' : 'see a puff of'} smoke.`,
                 state,
             );
         } else {
@@ -2529,7 +2528,7 @@ export async function its_dead(rx, ry, state = game, response = null) {
         const visglyph = glyph_at(rx, ry, state);
         const corpseglyph = obj_to_glyph(corpse, state);
         let reviver = false;
-        if (heroIsBlind(state) && visglyph !== corpseglyph.glyph)
+        if (Blind(state.u) && visglyph !== corpseglyph.glyph)
             map_object(corpse, true, state);
         if (state.urole?.mnum === PM_HEALER) {
             // apply.c:265-274. This only detects a pending revival; it neither
@@ -2556,7 +2555,7 @@ export async function its_dead(rx, ry, state = game, response = null) {
         const species = state.mons[statue.corpsenm];
         let what;
         let how = 'fine';
-        if (heroIsBlind(state)) {
+        if (Blind(state.u)) {
             what = `${u_at(rx, ry, state) ? 'This' : 'That'} ${
                 humanoid(species) ? 'person' : 'creature'}`;
         } else {
@@ -3194,7 +3193,7 @@ export async function use_lamp(obj, state = game, env = {}) {
     if ((!candle && obj.age === 0)
         || (obj.otyp === MAGIC_LAMP && obj.spe === 0)) {
         if (obj.otyp === BRASS_LANTERN) {
-            await ttyPline(heroIsBlind(state)
+            await ttyPline(Blind(state.u)
                 ? 'Nothing seems to happen.'
                 : 'Your lantern is out of power.', state);
         } else {
@@ -3212,7 +3211,7 @@ export async function use_lamp(obj, state = game, env = {}) {
             );
             const glib = state.u?.uprops?.[GLIB]?.intrinsic ?? 0;
             make_glib((glib & TIMEOUT) + d(2, 10), state, env);
-        } else if (!heroIsBlind(state)) {
+        } else if (!Blind(state.u)) {
             await ttyPline(
                 `${Tobjnam(obj, 'flicker', state)} for a moment, then ${otense(obj, 'die', state)}.`,
                 state,
@@ -3232,7 +3231,7 @@ export async function use_lamp(obj, state = game, env = {}) {
         const plural = obj.quan !== 1;
         await ttyPline(
             `${s_suffix(name)} flame${plural ? 's' : ''} ${otense(obj, 'burn', state)}`
-                + `${heroIsBlind(state) ? '.' : ' brightly!'}`,
+                + `${Blind(state.u) ? '.' : ' brightly!'}`,
             state,
         );
         const cost = objectType(obj, state).oc_cost;
@@ -3286,7 +3285,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
 
     const ownership = shk_your(obj, state);
     await message(
-        `You light ${ownership}potion.${heroIsBlind(state)
+        `You light ${ownership}potion.${Blind(state.u)
             ? '' : '  It gives off a dim light.'}`,
         state,
     );
@@ -3373,7 +3372,7 @@ export async function use_candelabrum(obj, state = game, env = {}) {
         return;
     }
     if (state.u?.uswallow || obj.cursed) {
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message(
                 `${The(s, state)} ${vtense(s, 'flicker')} for a moment,`
                     + ` then ${vtense(s, 'die')}.`,
@@ -3388,7 +3387,7 @@ export async function use_candelabrum(obj, state = game, env = {}) {
                 + `${the(xnameFresh(obj, state), state)}.`,
             state,
         );
-        if (!heroIsBlind(state)) {
+        if (!Blind(state.u)) {
             await message(
                 `${obj.spe === 1 ? 'It is' : 'They are'} lit.  `
                     + `${Tobjnam(obj, 'shine', state)} dimly.`,
@@ -3398,7 +3397,7 @@ export async function use_candelabrum(obj, state = game, env = {}) {
     } else {
         await message(
             `${The(xnameFresh(obj, state), state)}'s ${s} burn`
-                + `${heroIsBlind(state) ? '.' : ' brightly!'}`,
+                + `${Blind(state.u) ? '.' : ' brightly!'}`,
             state,
         );
     }
@@ -3415,7 +3414,7 @@ export async function use_candelabrum(obj, state = game, env = {}) {
         }
     } else {
         if (obj.spe === 7) {
-            if (heroIsBlind(state)) {
+            if (Blind(state.u)) {
                 await message(
                     `${Tobjnam(obj, 'radiate', state)} a strange warmth!`,
                     state,
@@ -3747,7 +3746,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
         const monsterName = an(m_monnam(monster, state, env));
         let andVanish = '';
         let suppressSee = (monster.minvis
-            && !applyPropertyActive(SEE_INVIS, state))
+            && !See_invisible(state.u))
             || (monster.data?.mlet === S_MIMIC
                 && M_AP_TYPE(monster) !== M_AP_NOTHING);
 
@@ -3765,7 +3764,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
 
         switch (figurine.where) {
         case OBJ_INVENT:
-            if (heroIsBlind(state) || suppressSee) {
+            if (Blind(state.u) || suppressSee) {
                 await message(
                     youFeel(`something ${locomotion(monster.data, 'drop')} `
                         + 'from your pack!', state),
@@ -3907,14 +3906,14 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
                 ? 'toss the figurine into the air'
                 : 'set the figurine on the ground';
     await (env.message ?? ttyPline)(
-        `You ${action} and it ${heroIsBlind(state) ? 'supposedly ' : ''}`
+        `You ${action} and it ${Blind(state.u) ? 'supposedly ' : ''}`
             + 'transforms.',
         state,
     );
     await make_familiar(obj, x, y, false, env);
     stop_timer(FIG_TRANSFORM, obj, state, env);
     await useup(obj, env);
-    if (heroIsBlind(state)) map_invisible(x, y, state);
+    if (Blind(state.u)) map_invisible(x, y, state);
     objp.obj = null;
     return ECMD_TIME;
 }
@@ -4141,13 +4140,13 @@ export async function use_mirror(obj, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     if (!await getdir(null, state)) return ECMD_CANCEL;
 
-    const invisMirror = applyPropertyActive(INVIS, state);
-    const useeit = !heroIsBlind(state)
-        && (!invisMirror || applyPropertyActive(SEE_INVIS, state));
+    const invisMirror = Invis(state.u);
+    const useeit = !Blind(state.u)
+        && (!invisMirror || See_invisible(state.u));
     const visage = beautiful(state);
     const mirror = simpleonames(obj, state);
     if (obj.cursed && random.rn2(2) === 0) {
-        if (!heroIsBlind(state))
+        if (!Blind(state.u))
             await ttyPline(`The ${mirror} fogs up and doesn't reflect!`, state);
         else
             await ttyPline(nothing_seems_to_happen, state);
@@ -4350,8 +4349,8 @@ export async function use_mirror(obj, state = game, env = {}) {
                 random,
             });
         }
-    } else if (!heroIsBlind(state)) {
-        if (mtmp.minvis && !applyPropertyActive(SEE_INVIS, state)) {
+    } else if (!Blind(state.u)) {
+        if (mtmp.minvis && !See_invisible(state.u)) {
             // The hero cannot distinguish this from no reaction.
         } else if ((mtmp.minvis && !perceives(mtmp.data))
             || !haseyes(mtmp.data) || state.gn.notonhead || !mtmp.mcansee) {
@@ -4409,7 +4408,7 @@ export async function use_towel(obj, state = game, env = {}) {
                     state,
                 );
                 await make_blinded(
-                    ((u.uprops[BLINDED].intrinsic & TIMEOUT)
+                    ((HBlinded(u) & TIMEOUT)
                         + u.ucreamed - old),
                     true,
                     state,
@@ -4457,8 +4456,8 @@ export async function use_towel(obj, state = game, env = {}) {
         // C tests its `Blinded` macro here: HBlinded && !BBlinded.
         // The broader `Blind` macro also includes an extrinsic blindfold.
         const blinded = Boolean(
-            u.uprops?.[BLINDED]?.intrinsic
-                && !u.uprops[BLINDED].blocked,
+            HBlinded(u)
+                && !BBlinded(u),
         );
         if (!blinded) {
             await message("You've got the glop off.", state);
@@ -5049,7 +5048,7 @@ export async function doapply(state = game, env = {}) {
         if (obj.blessed) {
             await use_magic_whistle(obj, state, env);
             if (!(env.random?.rn2 ?? rn2)(49)) {
-                if (!heroIsBlind(state)) {
+                if (!Blind(state.u)) {
                     await ttyPline(
                         `${Yobjnam2(obj, 'glow', state)} ${hcolor('brown', state)}.`,
                         state,
@@ -5306,7 +5305,7 @@ async function flip_through_book(obj, state = game) {
                 state,
             );
             if (heard) await ttyPline(heard, state);
-        } else if (!heroIsBlind(state)) {
+        } else if (!Blind(state.u)) {
             await ttyPline(
                 youSee(
                     `the pages glow faintly ${hcolor('red', state)}.`, state,
@@ -5316,7 +5315,7 @@ async function flip_through_book(obj, state = game) {
         } else {
             await ttyPline(youFeel('the pages tremble.', state), state);
         }
-    } else if (heroIsBlind(state)) {
+    } else if (Blind(state.u)) {
         await ttyPline(
             `The pages feel ${
                 heroHallucinating(state) ? 'freshly picked' : 'rough and dry'

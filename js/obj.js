@@ -5,7 +5,6 @@
 import {
     ARTICLE_A,
     A_NONE,
-    BLINDED,
     BURIED_TOO,
     CONTAINED_TOO,
     CORPSTAT_FEMALE,
@@ -387,6 +386,7 @@ import {
     PM_WINGED_GARGOYLE,
     S_CENTAUR,
 } from './monsters.js';
+import { Blind } from './youprop.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -2363,9 +2363,7 @@ export async function maybe_adjust_light(obj, old_range, env = {}) {
         // C: obj_adjust_light_radius(obj, new_range) -- void, result discarded
         obj_adjust_light_radius(obj, new_range, state);
         const heroIsBlind = Boolean(
-            (state.u?.uprops?.[BLINDED]?.intrinsic
-             || state.u?.uprops?.[BLINDED]?.extrinsic)
-            && !state.u?.uprops?.[BLINDED]?.blocked,
+            Blind(state.u),
         );
         if (!heroIsBlind) {
             const loc = get_obj_location(obj, 0, state);
@@ -4004,9 +4002,7 @@ export async function pudding_merge_message(otmp, otmp2, state = game, env = {})
     const inpack = carried(otmp) || carried(otmp2);
 
     const blind = Boolean(
-        (state.u?.uprops?.[BLINDED]?.intrinsic
-         || state.u?.uprops?.[BLINDED]?.extrinsic)
-        && !state.u?.uprops?.[BLINDED]?.blocked,
+        Blind(state.u),
     );
     const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
         && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic

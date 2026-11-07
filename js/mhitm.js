@@ -238,7 +238,7 @@ import { mintrap } from './trap_effects.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import { simpleonames, xnameFresh } from './objnam.js';
 import { strsubst } from './hacklib.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { Blind } from './youprop.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -1404,7 +1404,7 @@ export async function rustm(mdef, obj, state = game, env = {}) {
 // attack when verbose output is enabled; mswings_verb() owns its source RNG.
 async function mswingsm(magr, mdef, otemp, env) {
     const { state, random } = env;
-    if (!state.flags.verbose || heroIsBlind(state)
+    if (!state.flags.verbose || Blind(state.u)
         || !mon_visible(magr, state)) return;
 
     const bash = is_pole(otemp, state)

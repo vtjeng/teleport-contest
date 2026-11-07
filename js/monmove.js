@@ -76,7 +76,6 @@ import {
     HALLUC_RES,
     HOLE,
     ICE,
-    INVIS,
     IRONBARS,
     KILLED_BY_AN,
     IS_ALTAR,
@@ -152,7 +151,6 @@ import {
     STRAT_CLOSE,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
-    TELEPAT,
     TELEP_TRAP,
     TEMPLE,
     TRAPDOOR,
@@ -476,6 +474,7 @@ import { extract_from_minvent, is_pole, which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { Blind_telepat, Invis } from './youprop.js';
 
 
 function movementEnv(env = {}) {
@@ -764,8 +763,7 @@ async function mind_blast(mtmp, env = {}) {
     } else if (!state.u?.uinvulnerable) {
         const m_sen = sensemon(mtmp, state);
         // C ref: youprop.h Blind_telepat = (HTelepat || ETelepat)
-        const heroTelepat = state.u?.uprops?.[TELEPAT];
-        const blind_telepat = Boolean(heroTelepat?.intrinsic || heroTelepat?.extrinsic);
+        const blind_telepat = Blind_telepat(state.u);
         if (m_sen || (blind_telepat && random.rn2(2)) || !random.rn2(10)) {
             /* hiding monsters are brought out of hiding when hit by a psychic
                blast, so do the same for hiding poly'd hero */
@@ -1517,7 +1515,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 }
 
                 const monsterSeesHero = monster.mcansee
-                    && (!propertyActive(state, INVIS, true)
+                    && (!Invis(state.u)
                         || perceives(species));
                 const checkObject = Boolean(
                     state.level?.objects?.[nx]?.[ny],
@@ -2253,7 +2251,7 @@ export async function distfleeck(monster, env = {}) {
         && monnear(monster, monster.mux, monster.muy, state);
 
     const seesWrongSquare = !monster.mcansee
-        || (propertyActive(state, INVIS, true) && !perceives(monster.data));
+        || (Invis(state.u) && !perceives(monster.data));
     const scaryX = seesWrongSquare ? monster.mux : state.u.ux;
     const scaryY = seesWrongSquare ? monster.muy : state.u.uy;
     const sawScary = onScary(
@@ -2300,7 +2298,7 @@ export function set_apparxy(monster, env = {}) {
     }
 
     const notseen = !monster.mcansee
-        || (propertyActive(state, INVIS, true) && !perceives(monster.data));
+        || (Invis(state.u) && !perceives(monster.data));
     const notthere = propertyActive(state, DISPLACED)
         && !isSpecies(monster, PM_DISPLACER_BEAST, state);
     let displacement;
@@ -4019,7 +4017,7 @@ export async function m_move(monster, rawEnv = {}) {
             && (goalSquare.lit || !sourceSquare.lit)
             && dist2(oldX, oldY, goalX, goalY) <= 36;
         if (!monster.mcansee
-            || (shouldSee && activeProperty(state, INVIS)
+            || (shouldSee && Invis(state.u)
                 && !perceives(monster.data) && random.rn2(11))
             || M_AP_TYPE(state.youmonst) === M_AP_OBJECT
                 && state.youmonst.mappearance === STRANGE_OBJECT

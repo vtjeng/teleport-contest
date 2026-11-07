@@ -10,14 +10,12 @@
 import {
     A_DEX,
     ANTIMAGIC,
-    BLINDED,
     COLD_RES,
     BZ_M_SPELL,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
     CONFUSION,
     DEAF,
-    DETECT_MONSTERS,
     DIED,
     EYE,
     KILLED_BY,
@@ -29,7 +27,6 @@ import {
     HALLUC,
     HALLUC_RES,
     HEAD,
-    INVIS,
     M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
@@ -41,7 +38,6 @@ import {
     MFAST,
     MM_ANGRY,
     MM_NOMSG,
-    SEE_INVIS,
     SHOCK_RES,
     STUNNED,
     TIMEOUT,
@@ -122,7 +118,10 @@ import {
     youHear,
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { Half_physical_damage } from './youprop.js';
+import {
+    Blind, Blinded, Detect_monsters, Half_physical_damage, Invis,
+    See_invisible,
+} from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
 // and the monster spell share this HP/killer path. Terminal death/recovery
@@ -305,13 +304,6 @@ function Hallucination(state) {
         && !heroProperty(state, HALLUC_RES);
 }
 
-// C ref: youprop.h:92 Blinded, `HBlinded && !BBlinded`. Intrinsic only: a
-// worn blindfold sets EBlinded and does not count, unlike the Blind macro at
-// youprop.h:102, which activeHeroProperty(state, BLINDED) would give.
-function Blinded(state) {
-    const value = state.u?.uprops?.[BLINDED];
-    return Boolean(value?.intrinsic) && !value?.blocked;
-}
 
 // C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. The third
 // term is the permanent-deafness roleplay option, as in js/dokick.js.
@@ -381,13 +373,13 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
         break;
     case MCAST_DISAPPEAR:
         if (mtmp.minvis || mtmp.invis_blkd) return true;
-        if (mtmp.mpeaceful && !heroProperty(state, SEE_INVIS)) return true;
+        if (mtmp.mpeaceful && !See_invisible(state.u)) return true;
         break;
     case MCAST_CURE_SELF:
         if (mtmp.mhp === mtmp.mhpmax) return true;
         break;
     case MCAST_BLIND_YOU:
-        if (Blinded(state)) return true;
+        if (Blinded(state.u)) return true;
         break;
     default:
         break;
@@ -444,7 +436,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
         let point_msg;
         if (undirected) {
             point_msg = 'all around, then curses';
-        } else if ((activeHeroProperty(state, INVIS)
+        } else if ((Invis(state.u)
                 && !perceives(mtmp.data)
                 && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy))
             /* is_obj_mappear(&gy.youmonst, STRANGE_OBJECT) */
@@ -574,7 +566,7 @@ export async function castmu(
             let target;
             if (is_undirected_spell(spellnum)) {
                 target = '';
-            } else if (activeHeroProperty(state, INVIS)
+            } else if (Invis(state.u)
                     && !perceives(mtmp.data)
                     && !u_at(mtmp.mux, mtmp.muy, state)) {
                 target = ' at a spot near you';
@@ -910,7 +902,7 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
     const mappear = one ? 'A monster appears' : 'Monsters appear';
     const displaced = mtmp?.mux !== state.u?.ux
         || mtmp?.muy !== state.u?.uy;
-    if (activeHeroProperty(state, INVIS)
+    if (Invis(state.u)
         && !perceives(mtmp?.data)
         && displaced) {
         await message(
@@ -977,7 +969,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
     // decision; telepathy and monster detection are separate alternatives.
     const seesCaster = (env.canseemon ?? canseemon)(mtmp, state)
         || (env.tpSensemon ?? tp_sensemon)(mtmp, state)
-        || heroProperty(state, DETECT_MONSTERS);
+        || Detect_monsters(state.u);
     let what = classSymbol === S_SNAKE ? 'snakes' : 'insects';
     if (Hallucination(state)) {
         const displayRandom = env.displayRandom
@@ -1015,7 +1007,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
         line = `${Monnam(mtmp, state, env)} casts at a clump of sticks, but nothing happens.`;
     } else if (classSymbol === S_SNAKE) {
         line = `${Monnam(mtmp, state, env)} transforms a clump of sticks into ${what}!`;
-    } else if (activeHeroProperty(state, INVIS)
+    } else if (Invis(state.u)
         && !perceives(mtmp.data)
         && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
         line = `${Monnam(mtmp, state, env)} summons ${what} around a spot near you!`;
@@ -1232,7 +1224,7 @@ async function mcast_blind_you(env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
 
-    if (!Blinded(state)) {
+    if (!Blinded(state.u)) {
         const species = state.youmonst.data;
         const numEyes = !haseyes(species) ? 0
             : (species.pmidx === PM_CYCLOPS
@@ -1243,7 +1235,7 @@ async function mcast_blind_you(env = {}) {
         await message(`Scales cover your ${eyes}!`, state);
         await make_blinded(heroProperty(state, HALF_SPDAM) ? 100 : 200,
             false, state, { ...env, message });
-        if (!activeHeroProperty(state, BLINDED))
+        if (!Blind(state.u))
             await message(`Your ${vision_clears}`, state);
     } else {
         // C's impossible() is diagnostic only; callers that expose an
@@ -1269,7 +1261,7 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
         // coordinates when accessiblemsg is enabled.
         const monsterName = rawEnv.monsterName?.(mtmp)
             ?? Monnam(mtmp, state, rawEnv);
-        const verb = heroProperty(state, SEE_INVIS)
+        const verb = See_invisible(state.u)
             ? 'becomes transparent' : 'disappears';
         await message(
             messageAt(

@@ -12,9 +12,9 @@ import { readFileSync } from 'node:fs';
 import { BLINDED, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { Blind } from '../js/youprop.js';
 
 const RECIPE = new URL(
     '../recipes/uhitm.c/mhitm-ad-blnd-fresh.session.json',
@@ -39,7 +39,7 @@ export async function verifyUhitmMhitmAdBlndSegment(segment) {
         segment.moves.length + 1,
         'fresh raven-blinding segment reached its final key',
     );
-    assert.equal(heroIsBlind(game), true, 'the raven reached AD_BLND');
+    assert.equal(Blind(game.u), true, 'the raven reached AD_BLND');
     assert.ok(
         (game.u.uprops?.[BLINDED]?.intrinsic ?? 0) & TIMEOUT,
         'the fresh monster attack set temporary blindness',

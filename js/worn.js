@@ -56,7 +56,6 @@ import {
     W_SWAPWEP,
     W_TOOL,
     W_WEP,
-    SEE_INVIS,
     NON_PM,
     has_mcorpsenm,
 } from './const.js';
@@ -182,6 +181,7 @@ import {
     Yname2,
 } from './objnam.js';
 import { canseemon } from './display.js';
+import { ETelepat, See_invisible } from './youprop.js';
 
 const WORN_SLOTS = Object.freeze([
     Object.freeze({ mask: W_ARM, field: 'uarm' }),
@@ -317,7 +317,7 @@ export function recalc_telepat_range(state = game, hooks = {}) {
     }
     if (typeof hooks.hasArtifactTelepathy === 'function'
         ? hooks.hasArtifactTelepathy(state)
-        : Boolean(property(state, TELEPAT).extrinsic & W_ART)) {
+        : Boolean(ETelepat(state.u) & W_ART)) {
         ++count;
     }
     state.u.unblind_telepat_range = count
@@ -609,10 +609,6 @@ function monsterArmorEnv(rawEnv = {}) {
     };
 }
 
-function monsterHeroProperty(state, index) {
-    const value = state.u?.uprops?.[index];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: worn.c extra_pref() (1339-1356). Speed boots receive a preference
 // only while the monster does not already have permanent FAST.
@@ -783,7 +779,7 @@ function selectMonsterArmor(monster, mask, env, racialException) {
             && obj.otyp !== MUMMY_WRAPPING) continue;
         if (mask === W_ARMC && monster.minvis
             && obj.otyp === MUMMY_WRAPPING
-            && !monsterHeroProperty(state, SEE_INVIS) && !env.creation) continue;
+            && !See_invisible(state.u) && !env.creation) continue;
         if (mask === W_ARMH && obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
             && (monster.ispriest || monster.isminion)) continue;
         if (mask === W_ARMH && has_horns(monster.data)
@@ -904,7 +900,7 @@ async function applyMonsterArmorRuntime(
         ...env, state, silent,
     });
     if (!silent && sawMonster !== canseemon(monster, state)) {
-        if (monster.minvis && !monsterHeroProperty(state, SEE_INVIS)) {
+        if (monster.minvis && !See_invisible(state.u)) {
             const message = env.message ?? ttyPline;
             await message(`Suddenly you cannot see ${sourceName}.`, state);
             discover_object(best.otyp, true, true, true, state, env);
@@ -925,7 +921,7 @@ function m_dowear_type(
     // The armor owner's canSeeMonster seam controls visible wear messages;
     // forward only its cosmetic RNG to the canonical naming owner.
     const nameEnv = { displayRandom: env.displayRandom };
-    const sourceName = monsterHeroProperty(env.state, SEE_INVIS)
+    const sourceName = See_invisible(env.state.u)
         ? Monnam(monster, env.state, nameEnv)
         : mon_nam(monster, env.state, nameEnv);
     const selected = selectMonsterArmor(monster, mask, {

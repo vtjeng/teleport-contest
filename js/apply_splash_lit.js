@@ -28,9 +28,9 @@ import { Shk_Your } from './shk.js';
 import { end_burn } from './timeout.js';
 
 import { consume_msg_xy, heroDeaf, set_msg_xy } from './pline.js';
-import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
+import { Blind } from './youprop.js';
 
 function splashOperation(env, name, fallback) {
     const operation = env[name] ?? fallback;
@@ -95,7 +95,7 @@ export async function snuff_candle(obj, env = {}) {
         ? Boolean(location && splashOperation(
             context, 'squareVisible', cansee,
         )(location.x, location.y, state))
-        : !(context.heroBlind ?? heroIsBlind)(state);
+        : !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
     if (visible) {
         const message = splashOperation(context, 'message', ttyPline);
         await message(
@@ -126,7 +126,7 @@ export async function snuff_lit(obj, env = {}) {
             ? Boolean(location && splashOperation(
                 context, 'squareVisible', cansee,
             )(location.x, location.y, state))
-            : !(context.heroBlind ?? heroIsBlind)(state);
+            : !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
         if (visible) {
             const message = splashOperation(context, 'message', ttyPline);
             const objectYname = splashOperation(
@@ -162,7 +162,7 @@ export async function splash_lit(obj, env = {}) {
         const poolAt = splashOperation(context, 'poolAt', is_pool);
         if (obj.where === OBJ_INVENT) {
             const { Flying, Levitation } = await import('./trap.js');
-            useeit = !(context.heroBlind ?? heroIsBlind)(state);
+            useeit = !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
             uhearit = !heroDeaf(state);
             /* underwater light sources aren't allowed but if hero is just
                entering water, Underwater won't be set yet */

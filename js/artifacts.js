@@ -9,7 +9,6 @@ import {
     A_LAWFUL,
     A_NEUTRAL,
     ANTIMAGIC,
-    BLINDED,
     BLND_RES,
     COLD_RES,
     CONFUSION,
@@ -295,7 +294,9 @@ import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import {
+    BBlinded, BInvis, Blind, EBlinded, HBlinded, Maybe_Half_Phys,
+} from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.
@@ -1996,12 +1997,6 @@ export async function Mb_hit(
 // C ref: artifact.c FATAL_DAMAGE_MODIFIER (63). Local to artifact.c.
 const FATAL_DAMAGE_MODIFIER = 200;
 
-// Local property helpers, following the pattern used in uhitm.js and other
-// combat modules. Each mirrors one youprop.h macro.
-function Blind(state) {
-    const value = state.u?.uprops?.[BLINDED];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 function Hallucination(state) {
     const halluc = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
@@ -2034,7 +2029,7 @@ export async function artifact_hit(
     const youdefend = (mdef === state.youmonst);
     const vis = (!youattack && magr && cansee(magr.mx, magr.my, state))
               || (!youdefend && cansee(mdef.mx, mdef.my, state))
-              || (youattack && engulfing_u(mdef, state) && !Blind(state));
+              || (youattack && engulfing_u(mdef, state) && !Blind(state.u));
     let realizes_damage;
     let wepdesc;
     let hittee = youdefend ? 'you'
@@ -2319,7 +2314,7 @@ export async function artifact_hit(
         } else { /* youdefend */
             const oldhpmax = state.u.uhpmax;
 
-            if (Blind(state)) {
+            if (Blind(state.u)) {
                 await message(
                     youFeel(
                         `an ${is_art(otmp, ART_STORMBRINGER) ? 'unholy blade' : 'object'} drain your ${life}!`,
@@ -2407,13 +2402,12 @@ export async function invoke_healing(obj, state) {
 
     // C: Sick = u.uprops[SICK].intrinsic, Slimed = u.uprops[SLIMED].intrinsic,
     // BlindedTimeout = u.uprops[BLINDED].intrinsic & TIMEOUT.
-    const blindProp = u.uprops?.[BLINDED] ?? { intrinsic: 0, extrinsic: 0 };
-    const blindedTimeout = blindProp.intrinsic & TIMEOUT;
+    const blindedTimeout = HBlinded(u) & TIMEOUT;
     const sick = (u.uprops?.[SICK]?.intrinsic ?? 0) !== 0;
     const slimed = (u.uprops?.[SLIMED]?.intrinsic ?? 0) !== 0;
-    const hBlinded = blindProp.intrinsic;
+    const hBlinded = HBlinded(u);
     // youprop.h:92 Blinded is a boolean, distinct from BlindedTimeout.
-    const blinded = Boolean(hBlinded) && !blindProp.blocked;
+    const blinded = Boolean(hBlinded) && !BBlinded(u);
     if (healamt || sick || slimed || blinded > creamed)
         await ttyPline(youFeel('better.', state), state);
 
@@ -2535,7 +2529,7 @@ async function invoke_create_portal(obj, state) {
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
         await ttyPline(youFeel('very disoriented for a moment.', state), state);
     } else {
-        if (!Blind(state))
+        if (!Blind(state.u))
             await ttyPline('You are surrounded by a shimmering sphere!', state);
         else
             await ttyPline(youFeel('weightless for a moment.', state), state);
@@ -2673,7 +2667,7 @@ export async function invoke_blinding_ray(obj, state = game) {
         } else if (state.u.dz) {
             await litroom(true, obj, state);
             const spot = state.level.at(state.u.ux, state.u.uy);
-            await ttyPline(!Blind(state) && spot.lit && !spot.waslit
+            await ttyPline(!Blind(state.u) && spot.lit && !spot.waslit
                 ? 'It is lit here now.' : nothing_seems_to_happen, state);
         } else {
             // Capture vulnerability before lightdamage can rehumanize the hero.
@@ -2821,7 +2815,7 @@ async function arti_invoke(obj, state = game) {
         break;
     case INVIS: {
         // youprop.h BInvis is u.uprops[INVIS].blocked (a mummy wrapping).
-        if (state.u.uprops[INVIS]?.blocked || Blind(state)) {
+        if (BInvis(state.u) || Blind(state.u)) {
             await nothing_special(obj, state);
             return ECMD_TIME;
         }
@@ -3053,8 +3047,8 @@ export async function Sting_effects(orc_count, state = game, env = {}) {
         const oldstr = glow_strength(warn_cnt);
         const newstr = glow_strength(orc_count);
 
-        const blind = (state.u.uprops?.[BLINDED]?.intrinsic ?? 0) !== 0
-            || (state.u.uprops?.[BLINDED]?.extrinsic ?? 0) !== 0;
+        const blind = (HBlinded(state.u)) !== 0
+            || (EBlinded(state.u)) !== 0;
 
         if (orc_count === -1 && warn_cnt > 0) {
             await message(

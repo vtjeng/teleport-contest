@@ -1119,8 +1119,8 @@ test('Blindf_off clears the blindfold slot and toggles blindness', async () => {
     game.invent = unseen;
 
     // Confirm the hero is now blind (the blindfold extrinsic is set by setworn).
-    const { heroIsBlind } = await import('../js/startup_a11y.js');
-    assert.ok(heroIsBlind(game), 'hero should be blind with blindfold on');
+    const { Blind } = await import('../js/youprop.js');
+    assert.ok(Blind(game.u), 'hero should be blind with blindfold on');
 
     // Take it off through the dispatch.
     game._pending_message = '';
@@ -1131,7 +1131,7 @@ test('Blindf_off clears the blindfold slot and toggles blindness', async () => {
     assert.equal(blindfold.owornmask, 0, 'owornmask should be cleared');
 
     // The hero should be able to see again.
-    assert.ok(!heroIsBlind(game), 'hero should see after removing blindfold');
+    assert.ok(!Blind(game.u), 'hero should see after removing blindfold');
     assert.equal(unseen.dknown, true,
         'inventory acquired while blind should become known by sight');
 
@@ -1167,14 +1167,14 @@ test('Blindf_off on lenses says "still cannot see" when blind from another sourc
     game.u.uprops[BLINDED_PROP] ??= {};
     game.u.uprops[BLINDED_PROP].intrinsic = 1;
 
-    const { heroIsBlind } = await import('../js/startup_a11y.js');
-    assert.ok(heroIsBlind(game), 'hero should be blind before removal');
+    const { Blind } = await import('../js/youprop.js');
+    assert.ok(Blind(game.u), 'hero should be blind before removal');
 
     game._pending_message = '';
     await armor_or_accessory_off(lenses, game);
 
     // Hero remains blind (BLINDED intrinsic still active).
-    assert.ok(heroIsBlind(game), 'hero should still be blind');
+    assert.ok(Blind(game.u), 'hero should still be blind');
     assert.equal(game.ublindf, null, 'ublindf should be null');
 
     // Lenses suppress the "still cannot see" message.

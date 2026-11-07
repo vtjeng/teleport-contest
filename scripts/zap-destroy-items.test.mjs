@@ -1203,7 +1203,7 @@ test('the Book of the Dead survives the fire and says so', async () => {
 });
 
 test('a blind hero is told nothing when the Book survives', async () => {
-    // The same arm's `u_carry ? !heroIsBlind(state) : vis` selector. C prints
+    // The same arm's `u_carry ? !Blind(state.u) : vis` selector. C prints
     // through hcolor() only for a hero who can see it, and the skip stands
     // either way, so a blind hero loses the message and keeps the Book.
     await initializedGame(982462, 'BlindBook');

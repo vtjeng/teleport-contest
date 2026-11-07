@@ -8,7 +8,6 @@ import {
     A_CHAOTIC,
     A_LAWFUL,
     A_ORIGINAL,
-    BLINDED,
     MIN_QUEST_LEVEL,
     NEUTRAL,
 } from './const.js';
@@ -26,6 +25,7 @@ import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
+import { EBlinded, HBlinded } from './youprop.js';
 
 // C ref: questpgr.c quest_info(). Role quest identities remain fixed even
 // when a quest monster changes shape.
@@ -195,9 +195,8 @@ function convertArg(c, state) {
     case 'N': return 'neutral';
     case 'L': return 'lawful';
     case 'x': {
-        const blinded = state.u?.uprops?.[BLINDED];
         const blind = Boolean(
-            (blinded?.intrinsic || blinded?.extrinsic)
+            (HBlinded(state.u) || EBlinded(state.u))
             && !state.u?.uroleplay?.blind);
         return blind ? 'sense' : 'see';
     }

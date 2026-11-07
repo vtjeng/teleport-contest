@@ -20,7 +20,6 @@ import {
     FIRE_RES,
     HEADSTONE,
     IRONBARS,
-    INVIS,
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_ROOM,
@@ -197,6 +196,7 @@ import {
 } from './weapon.js';
 import { canseemon, canspotmon } from './display.js';
 import { gd_move } from './vault.js';
+import { Invis } from './youprop.js';
 
 // questpgr.c's two window-port calls, suppressed for the dry run. The pager
 // still shuffles nhlib's alignment table and converts every %-code, so the
@@ -238,11 +238,6 @@ function stopPlanBeforeItemUse(env, operation) {
     env.requestPlanningInput(operation);
 }
 
-function activeProperty(state, property, blockedMatters = true) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        && (!blockedMatters || !value?.blocked);
-}
 
 function liveOnMap(monster) {
     return monster.mhp > 0
@@ -890,7 +885,7 @@ function actionRandom(rawEnv) {
 }
 
 function ordinaryMonsterCanSeeHero(monster, state) {
-    return (!activeProperty(state, INVIS) || perceives(monster.data))
+    return (!Invis(state.u) || perceives(monster.data))
         && !state.u.uinwater
         && couldsee(monster.mx, monster.my, state);
 }

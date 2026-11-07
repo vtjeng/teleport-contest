@@ -12,9 +12,9 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { BRASS_LANTERN, MAGIC_LAMP, OIL_LAMP } from '../js/objects.js';
 import { PM_EARTH_ELEMENTAL } from '../js/monsters.js';
-import { heroIsBlind } from '../js/startup_a11y.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { Blind } from '../js/youprop.js';
 
 export const START = '  n.';
 export const WIZWISH_KEY = '\x17'; /* C('w'), cmd.c's wizwish binding */
@@ -264,7 +264,7 @@ async function verifyRubFeedback(segment) {
     assert.equal(game.command_queue[CQ_CANNED].length, 0);
     if (entry.otyp === MAGIC_LAMP) assert.equal(game.uwep.spe, 0);
     if (entry.blind) {
-        assert.equal(heroIsBlind(game), true);
+        assert.equal(Blind(game.u), true);
         assert.match(game.nhDisplay.toplines, /You smell smoke\./u);
     } else if (entry.otyp === BRASS_LANTERN) {
         assert.match(game.nhDisplay.toplines, /Anyway, nothing exciting happens\./u);

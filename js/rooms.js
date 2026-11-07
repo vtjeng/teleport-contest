@@ -35,7 +35,6 @@ import {
     ZOO,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { heroIsBlind } from './startup_a11y.js';
 import {
     PM_CAPTAIN,
     PM_LIEUTENANT,
@@ -53,6 +52,7 @@ import { Hello } from './role_init.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
+import { Blind } from './youprop.js';
 
 const ROOM_STRING_SIZE = 5;
 
@@ -279,7 +279,7 @@ export async function check_special_room(
         if (rt === ZOO) {
             await message("Welcome to David's treasure zoo!", state);
         } else if (rt === SWAMP) {
-            const blind = heroIsBlind(state);
+            const blind = Blind(state.u);
             await message(
                 `It ${blind ? 'feels' : 'looks'} rather `
                     + `${blind ? 'humid' : 'muddy'} down here.`,
