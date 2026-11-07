@@ -2424,3 +2424,21 @@ test('the sad feeling prints once and clears the flag', async () => {
         'You hear the rumble of distant thunder...',
     ]);
 });
+
+// mon.c xkilled():3543 clears gv.vamp_rise_msg before mondead() on every
+// kill, because only this kill's vampire rising may suppress the lifesaved
+// "Maybe not...". The port never cleared it, so after one visible rise no
+// later unseen lifesaved kill said "Maybe not...". A recipe needs a vampire
+// to rise in view and a second unseen monster to survive by life-saving.
+test('xkilled() clears vamp_rise_msg before mondead(), as C does', () => {
+    const c = readFileSync('nethack-c/upstream/src/mon.c', 'utf8');
+    const js = readFileSync('js/mon.js', 'utf8');
+    const cReset = c.indexOf('gv.vamp_rise_msg = FALSE; /* might get set in mondead(); checked below */');
+    const cDispose = c.indexOf('mondead(mtmp);', cReset);
+    assert.ok(cReset > 0 && cDispose > cReset);
+    const jsBody = js.slice(js.indexOf('export async function xkilled('));
+    const jsReset = jsBody.indexOf('state.gv.vamp_rise_msg = false;');
+    const jsDispose = jsBody.indexOf('await mondead(mtmp, state, env);');
+    assert.ok(jsReset > 0 && jsDispose > jsReset,
+        'js/mon.js xkilled() resets the flag before mondead()');
+});

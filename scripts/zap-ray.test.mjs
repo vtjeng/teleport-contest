@@ -37,12 +37,15 @@ import {
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
     KILLED_BY,
     NOTELL,
     OBJ_FLOOR,
     OBJ_CONTAINED,
     OBJ_FREE,
     STONED,
+    IRONBARS,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
@@ -2935,3 +2938,52 @@ for (const planning of [true, false]) {
         });
     }
 }
+
+// zap.c dobuzz():4955-4957 reports a miss nobody asked to hear (saymiss is
+// FALSE for buzz() and ubuzz()) only when the monster is seen and not
+// disguised_as_non_mon(): monst.h excludes M_AP_MONSTER alone, so a mimic
+// posing as an object is passed over silently while one posing as a monster
+// is still named.
+for (const [appearance, expected] of [
+    [M_AP_OBJECT, 0], [M_AP_MONSTER, 1],
+]) {
+    test(`a seen monster with appearance ${appearance} ${expected ? 'gets' : 'gets no'} miss message`, async () => {
+        await aimedWand(1, 0, 0);
+        const monster = game.level.monlist;
+        assert.ok(monster);
+        const x = game.u.ux + 1, y = game.u.uy;
+        game.level.at(x, y).typ = ROOM;
+        relocate_monster(monster, x, y, game);
+        game.viz_array[y][x] |= IN_SIGHT;
+        monster.mhp = monster.mhpmax = 100;
+        monster.m_ap_type = appearance;
+        const lines = [];
+        // forcemiss TRUE takes the miss arm without zap_hit() draws.
+        await dobuzz(0, 1, game.u.ux, game.u.uy, 1, 0,
+            true, false, true, game,
+            {...straightThrough(), rn1: () => 1, rn2: bound => bound - 1},
+            {message: async text => lines.push(text)});
+        assert.equal(lines.filter((line) => /misses/u.test(line)).length,
+            expected);
+    });
+}
+
+// zap.c zap_over_floor()'s ZT_POISON_GAS arm ends with `break`: poison gas
+// lays a 1x1 cloud where ZAP_POS() allows and never reaches the
+// lightning/acid iron-bars arm below it. Bars are not ZAP_POS(), so a gas
+// blast over them neither melts them nor prints anything.
+test('a poison gas blast over iron bars leaves them alone', async () => {
+    await aimedWand(-1, 0, 0);
+    const x = game.u.ux - 1, y = game.u.uy;
+    game.level.at(x, y).typ = IRONBARS;
+    game.level.at(x, y).wall_info = 0;
+    const messages = [];
+    // Type 26 is the hero's breath (20) plus ZT_POISON_GAS (6).
+    await zap_over_floor(x, y, 26, { value: false }, true, 0,
+        game, straightThrough(), {
+            message: async (line) => messages.push(line),
+            norepMessage: async (line) => messages.push(line),
+        });
+    assert.equal(game.level.at(x, y).typ, IRONBARS);
+    assert.deepEqual(messages, []);
+});

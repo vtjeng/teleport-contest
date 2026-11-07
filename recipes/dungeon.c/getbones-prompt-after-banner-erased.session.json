@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "dungeon.c init_dungeons() calls clear_nhwindow(WIN_MAP) once the windows exist, so tty_init_nhwindows()'s copyright banner is gone before mklev(). The first game turns a debug-mode Valkyrie to stone and saves bones on level 1; the second game's getbones() then asks 'Get bones?' over a blank screen.",
+  "segments": [
+    {
+      "seed": 3131,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cockatrice corpse\n, y qy"
+    },
+    {
+      "seed": 3132,
+      "datetime": "20261104120500",
+      "nethackrc": "OPTIONS=name:Wizard,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\nn"
+    }
+  ]
+}

@@ -20,8 +20,9 @@ import { exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
     hcolor,
-    monsterPossessive,
+    y_monnam,
 } from './do_name.js';
+import { s_suffix, upstart } from './hacklib.js';
 import { losehp } from './hack.js';
 import { makeplural } from './fruit.js';
 import {
@@ -43,10 +44,11 @@ import { objectGenerationEnv } from './object_generation.js';
 import { m_useup } from './mthrowu.js';
 import { isMetallic, objectType, weight } from './obj.js';
 import {
+    An,
     The,
     Yname2,
+    cxname,
     distant_name,
-    donameFresh,
     xnameFresh,
     yname,
 } from './objnam.js';
@@ -76,20 +78,6 @@ import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
 import { note_unported } from './unported.js';
-
-function withoutObjectArticle(name) {
-    return name.replace(/^(?:an?|the) /u, '').replace(/^\d+ /u, '');
-}
-
-export function fire_object_name_at_quantity(obj, quantity, state) {
-    const original = obj.quan;
-    obj.quan = quantity;
-    try {
-        return withoutObjectArticle(donameFresh(obj, state));
-    } finally {
-        obj.quan = original;
-    }
-}
 
 // C ref: zap.c destroyable() (5612-5650), translated whole. "Return TRUE if obj
 // is eligible to pass to maybe_destroy_item given the type of elemental damage
@@ -172,32 +160,41 @@ async function removeObjectQuantity(obj, quantity, env) {
     delobj(obj, lifecycleEnv);
 }
 
-function floorBurnMessageNames(obj, state) {
-    return {
-        singular: fire_object_name_at_quantity(obj, 1, state),
-        plural: fire_object_name_at_quantity(obj, 2, state),
-    };
+// C ref: zap.c burn_floor_objects() (4617-4628). Both names are xname(),
+// through distant_name() unless the hero stands on the burning square, taken
+// at quantity 1 and then 2 before any of the stack is used up.
+function floorBurnMessageNames(obj, x, y, state) {
+    const name = () => (state.u?.ux === x && state.u?.uy === y)
+        ? xnameFresh(obj, state)
+        : distant_name(obj, xnameFresh, state);
+    const original = obj.quan;
+    try {
+        obj.quan = 1;
+        const singular = name();
+        obj.quan = 2;
+        const plural = name();
+        return { singular, plural };
+    } finally {
+        obj.quan = original;
+    }
 }
 
 // C ref: zap.c:5905-5907, the one `(cnt == 1L && quan == 1L) ? Yname2(obj)
 // : yname(obj)` both carriers share.
 //
-// objnam.c yname() reaches shk.c shk_your(), whose mon_owns() arm needs
-// y_monnam() for an object in a monster's pack; js/shk.js stops there. The
-// monster arm below builds the same possessive from do_name.js
-// monsterPossessive() instead, which is that y_monnam() call by another name.
+// For an object in a monster's pack, objnam.c yname() reaches shk.c
+// shk_your()'s mon_owns() arm, s_suffix(y_monnam(obj->ocarry)): "your
+// kitten's" for a pet, "the gnome's" otherwise. Yname2() capitalizes it.
 function destroyedItemName(u_carry, carrier, obj, cnt, quan, state, displayRandom) {
     if (u_carry) {
         return (cnt === 1 && quan === 1)
             ? Yname2(obj, state)
             : yname(obj, state);
     }
-    if (cnt === 1 && quan === 1) {
-        return `${monsterPossessive(carrier, state, true, { displayRandom })} `
-            + `${fire_object_name_at_quantity(obj, 1, state)}`;
-    }
-    return `${monsterPossessive(carrier, state, false, { displayRandom })} `
-        + `${fire_object_name_at_quantity(obj, 2, state)}`;
+    // yname() appends cxname(), which names the whole stack.
+    const owner = s_suffix(y_monnam(carrier, state, { displayRandom }));
+    const name = `${owner} ${cxname(obj, state)}`;
+    return (cnt === 1 && quan === 1) ? upstart(name) : name;
 }
 
 // C ref: zap.c maybe_destroy_item() (5797-5954), "guts of destroy_items(); the
@@ -549,7 +546,7 @@ export async function burn_floor_objects(
             }
             if (destroyed) {
                 const names = giveFeedback
-                    ? floorBurnMessageNames(obj, env.state)
+                    ? floorBurnMessageNames(obj, x, y, env.state)
                     : null;
                 if (uCaused)
                     await useupf(obj, destroyed, objectGenerationEnv(env));
@@ -560,9 +557,7 @@ export async function burn_floor_objects(
                     await message(
                         destroyed > 1
                             ? `${destroyed} ${names.plural} burn.`
-                            : `${/^[aeiou]/iu.test(names.singular)
-                                ? 'An'
-                                : 'A'} ${names.singular} burns.`,
+                            : `${An(names.singular)} burns.`,
                         env.state,
                     );
                 }

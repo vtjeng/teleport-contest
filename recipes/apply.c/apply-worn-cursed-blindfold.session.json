@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "apply.c doapply() removes a worn blindfold only if do_wear.c cursed() says it is not cursed, and cursed() prints why. A debug-mode Samurai puts on a wished-for cursed blindfold and applies it: 'You can't.  It is cursed.'",
+  "segments": [
+    {
+      "seed": 909,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0017cursed blindfold\n Pf#apply\nf"
+    }
+  ]
+}

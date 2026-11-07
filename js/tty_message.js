@@ -350,11 +350,13 @@ async function ttyPlineCore(
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return;
-    // A planning clone (js/unported_monster_actions.js) dry-runs a turn that
-    // the live pass then runs again with the real window. The live pass shows
-    // every message; a rehearsal that reached the shared window would show it
-    // twice and wait for a --More-- C never asks for.
-    if (planningContextInstalled()) return;
+    // A planning clone (js/unported_monster_actions.js planningState()) dry-runs
+    // a turn that the live pass then runs again with the real window, and it
+    // shares the live terminal. A rehearsal that reached the shared window
+    // would show its message twice, or early, and wait for a --More-- C never
+    // asks for: drop output while a planning context is installed or from a
+    // planning clone's state.
+    if (planningContextInstalled() || (state !== game && state._plannedMapMemory)) return;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "apply.c jump() names the monster holding the hero with mon_nam(u.ustuck). A debug-mode Valkyrie in jumping boots is stuck to a lichen and tries #jump: 'You cannot escape from the lichen!'",
+  "segments": [
+    {
+      "seed": 707,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0017jumping boots\n We\u0007lichen\nms ms ms ms ms ms ms ms ms ms #jump\n"
+    }
+  ]
+}

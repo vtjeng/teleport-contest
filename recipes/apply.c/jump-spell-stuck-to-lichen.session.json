@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "apply.c jump()'s magic arm: a Wizard who knows the jumping spell casts it while stuck to a lichen: 'You writhe a little in the grasp of the lichen!'",
+  "segments": [
+    {
+      "seed": 708,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0007lichen\nms ms ms ms ms ms Zb"
+    }
+  ]
+}

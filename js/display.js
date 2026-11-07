@@ -1543,7 +1543,7 @@ export function warning_of(monster, state = game) {
 }
 
 function warningGlyphInfo(monster, state) {
-    const warningLevel = _propertyActiveUnblocked(state.u, HALLUC)
+    const warningLevel = heroHallucinating(state)
         ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
         : Math.min(
             Math.trunc((monster.m_lev ?? 0) / 4),
@@ -3914,11 +3914,13 @@ export function newsym(x, y) {
         && monsterWarnsHero(monster, game),
     );
     // newsym()'s warning arm (display.c:1029-1030): a visible monster that
-    // is neither seen nor detected but warns the hero. m_at() answers null on
-    // the hero's own square, so this never applies there.
+    // is neither seen nor detected but warns the hero. C reaches it only in
+    // the `else` of `if (u_at(x, y))`; an engulfer that mhitu.c gulpmu() has
+    // just placed on the hero's square must not show its warning there.
     const warningOnly = Boolean(
         visible && monsterWarning
-        && !(seeIt || (!wormTail && detectMonsters)),
+        && !(seeIt || (!wormTail && detectMonsters))
+        && !(game.u?.ux === x && game.u?.uy === y),
     );
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
@@ -4022,6 +4024,7 @@ export function newsym(x, y) {
     // port's m_at() answers null wherever the hero stands.
     const tt = trapAt ? trapAt.ttyp : NO_TRAP;
     if (shouldDisplayMonster && monster.mtrapped
+        && !(game.u?.ux === x && game.u?.uy === y)
         && (tt === BEAR_TRAP || is_pit(tt) || tt === WEB))
         trapAt.tseen = true;
     const trap = covered ? null : trapAt;
@@ -7248,11 +7251,8 @@ function _buildScreenOutput(cursorOnHero = true) {
                 // wintty.c tty_print_glyph() prints spaces too: detected
                 // ghosts carry inverse video on their otherwise blank glyph.
                 if (!ch) continue;
-                // display.c's nul_gbuf holds GLYPH_UNEXPLORED, so an
-                // unexplored square is never printed after cls().
                 if (overStatus) printedOverStatus.add(`${offset + 1}:${x - 1}`);
-                if (overStatus
-                    && loc.disp_glyph?.glyph !== GLYPH_UNEXPLORED_OFF) {
+                if (overStatus) {
                     recordStatusOverlay(
                         x - 1,
                         offset + 1,

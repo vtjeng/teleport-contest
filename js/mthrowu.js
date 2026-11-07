@@ -80,6 +80,7 @@ import {
     WT_IRON_BALL_INCR,
     XKILL_NOMSG,
     u_at,
+    vision_clears,
 } from './const.js';
 import {
     is_pool,
@@ -1294,6 +1295,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         const blinded = state.u.uprops?.[BLINDED];
         const blindedTimeout = Math.trunc(blinded?.intrinsic ?? 0) & TIMEOUT;
         await make_blinded(blindedTimeout + blindinc, false, state);
+        if (!heroIsBlind(state))
+            await message(`Your ${vision_clears}`, state);
     }
     state.gt.thrownobj = null;
     return 0;

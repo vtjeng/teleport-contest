@@ -579,6 +579,7 @@ import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
     Blindf_off,
+    cursed,
     fingers_or_gloves,
     inaccessible_equipment,
     setwornEnv,
@@ -3051,10 +3052,14 @@ export async function jump(magic = 0, state = game, env = {}) {
             return ECMD_TIME;
         }
         if (magic) {
-            await ttyPline('You writhe a little in the grasp of your captor!', state);
+            await ttyPline(
+                `You writhe a little in the grasp of ${mon_nam(captor, state)}!`,
+                state,
+            );
             return ECMD_TIME;
         }
-        await ttyPline('You cannot escape from your captor!', state);
+        await ttyPline(`You cannot escape from ${mon_nam(captor, state)}!`,
+            state);
         return ECMD_OK;
     }
     if (jumpPropertyActive(state, LEVITATION)
@@ -5011,7 +5016,7 @@ export async function doapply(state = game, env = {}) {
     case BLINDFOLD:
     case LENSES:
         if (obj === state.ublindf) {
-            if (!obj.cursed)
+            if (!(await cursed(obj, state)))
                 await Blindf_off(obj, state);
         } else if (!state.ublindf) {
             await _doWearInternals.Blindf_on(obj, state);

@@ -113,6 +113,7 @@ import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
+import { tty_clear_map_window } from './wintty.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -2826,6 +2827,9 @@ export function init_dungeons(
     if (typeof roleFilecode !== 'string' || roleFilecode.length === 0) {
         panic('init_dungeons requires state.urole.filecode from role_init');
     }
+
+    // dungeon.c:1247-1248, after dungeon.lua is loaded.
+    if (state.iflags?.window_inited !== false) tty_clear_map_window(state);
 
     init_private_lua(random);
 

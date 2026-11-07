@@ -2541,9 +2541,7 @@ async function invoke_create_portal(obj, state) {
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
         await ttyPline('You feel very disoriented for a moment.', state);
     } else {
-        const blind = (u.uprops?.[44]?.intrinsic ?? 0) !== 0
-            || (u.uprops?.[44]?.extrinsic ?? 0) !== 0;
-        if (!blind)
+        if (!Blind(state))
             await ttyPline('You are surrounded by a shimmering sphere!', state);
         else
             await ttyPline('You feel weightless for a moment.', state);
@@ -2828,21 +2826,15 @@ async function arti_invoke(obj, state = game) {
         }
         break;
     case INVIS: {
-        // BInvis: extrinsic/intrinsic blocking invisibility
-        const bInvis = (state.u.uprops?.[INVIS]?.extrinsic ?? 0)
-            & ~(W_ARTI | W_ART);
-        const blind = (state.u.uprops?.[44]?.intrinsic ?? 0) !== 0
-            || (state.u.uprops?.[44]?.extrinsic ?? 0) !== 0;
-        if (bInvis || blind) {
+        // youprop.h BInvis is u.uprops[INVIS].blocked (a mummy wrapping).
+        if (state.u.uprops[INVIS]?.blocked || Blind(state)) {
             await nothing_special(obj, state);
             return ECMD_TIME;
         }
         newsym(state.u.ux, state.u.uy);
-        const halluc = (state.u.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
-            || (state.u.uprops?.[HALLUC]?.extrinsic ?? 0) !== 0;
         if (on)
             await ttyPline(
-                `Your body takes on a ${halluc ? 'normal' : 'strange'} transparency...`,
+                `Your body takes on a ${Hallucination(state) ? 'normal' : 'strange'} transparency...`,
                 state);
         else
             await ttyPline('Your body seems to unfade...', state);

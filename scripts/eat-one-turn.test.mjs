@@ -95,11 +95,13 @@ import {
     PM_DWARF,
     PM_ELF,
     PM_HEALER,
+    PM_HILL_ORC,
     PM_HUMAN,
     PM_LICHEN,
     PM_ORC,
     PM_VALKYRIE,
     PM_WIZARD,
+    PM_WOODLAND_ELF,
     monst_globals_init,
 } from '../js/monsters.js';
 import { isMetallic, newObject, weight } from '../js/obj.js';
@@ -302,6 +304,27 @@ test('adj_victual_nutrition adjusts lembas and cram by race', () => {
         };
         assert.equal(adj_victual_nutrition(current), expected,
             `otyp ${otyp} race ${race}`);
+    }
+    // maybe_polyd() reads the current form while polymorphed: an elf hero
+    // turned into an orc loses the quarter, and a human turned into a dwarf
+    // gains the cram bonus. The 800 and 600 are the objects.h nutrition.
+    const polyCases = [
+        [LEMBAS_WAFER, PM_ELF, PM_HILL_ORC, 800, 600],
+        [LEMBAS_WAFER, PM_HUMAN, PM_WOODLAND_ELF, 800, 1000],
+        [LEMBAS_WAFER, PM_ORC, PM_HUMAN, 800, 800],
+        [CRAM_RATION, PM_HUMAN, PM_DWARF, 600, 700],
+    ];
+    for (const [otyp, race, form, nmod, expected] of polyCases) {
+        const current = state();
+        current.urace = { mnum: race };
+        current.u.umonster = race;
+        current.u.umonnum = form;
+        current.youmonst = { data: current.mons[form] };
+        current.context.victual = {
+            ...zero_victual(), piece: food(current, otyp), nmod: -nmod,
+        };
+        assert.equal(adj_victual_nutrition(current), expected,
+            `otyp ${otyp} race ${race} form ${form}`);
     }
     // C asserts nut > 0; only a negative nmod reaches this function.
     const current = state();
