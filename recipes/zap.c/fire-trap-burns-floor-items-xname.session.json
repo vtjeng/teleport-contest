@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "zap.c burn_floor_objects() names a burning floor scroll or book with xname() (distant_name() off the hero's square), so known BUC never appears: a debug-mode Wizard wishes for a fire trap, drops two scrolls and two spellbooks on it and steps back on: 'A scroll of punishment burns.'",
+  "segments": [
+    {
+      "seed": 611,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " l\u0017fire trap\ndldmdidkhly  "
+    }
+  ]
+}
