@@ -233,8 +233,8 @@ import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
-    Maybe_Half_Phys,
+    Blind, Deaf,
+    Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
@@ -664,8 +664,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     if (trap) {
         if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
             if (!trap.tseen) await find_trap(trap, { ...rawEnv, state });
-            const hallucination = Boolean(HHallucination(u))
-                && !(HHalluc_resistance(u) || EHalluc_resistance(u));
+            const hallucination = Hallucination(u);
             await message(`You can't kick something that's in a ${hallucination ? 'tizzy' : trap.ttyp === WEB ? 'web' : 'pit'}!`, state, env);
             return 1;
         }

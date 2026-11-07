@@ -294,8 +294,7 @@ import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
-    BBlinded, BInvis, Blind, EBlinded, EHalluc_resistance, HBlinded,
-    HHalluc_resistance, HHallucination, Hallucination, Maybe_Half_Phys,
+    BBlinded, BInvis, Blind, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -1825,9 +1824,7 @@ export async function Mb_hit(
     }
 
     /* give the hit message prior to inflicting the effects */
-    const halluc = (HHallucination(state.u)) !== 0
-        && !(HHalluc_resistance(state.u))
-        && !(EHalluc_resistance(state.u));
+    const halluc = Hallucination(state.u);
     const verb = mb_verb[halluc ? 1 : 0][attack_indx];
     if (youattack || youdefend || vis) {
         result = true;
@@ -2998,9 +2995,7 @@ const hcolors = HCOLORS;
 
 // C ref: do_name.c hcolor() (1460-1466).
 export function hcolor(colorpref, state) {
-    const halluc = (HHallucination(state.u)) !== 0
-        && !(HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u));
+    const halluc = Hallucination(state.u);
     return (halluc || !colorpref)
         ? hcolors[rn2_on_display_rng(hcolors.length, state)]
         : colorpref;

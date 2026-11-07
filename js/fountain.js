@@ -127,8 +127,8 @@ import { somegold } from './steal.js';
 import { Glib } from './wield.js';
 import { Fire_resistance } from './zap.js';
 import {
-    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
-    Invisible,
+    Blind, Deaf,
+    Hallucination, Invisible,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -253,9 +253,7 @@ async function dowatersnakes(state = game, env = {}) {
         const heard = youHear(`${something} hissing!`, state);
         if (heard) await message(heard, state);
     } else {
-        const hallucinating = Boolean(HHallucination(state.u))
-            && !(HHalluc_resistance(state.u)
-                || EHalluc_resistance(state.u));
+        const hallucinating = Hallucination(state.u);
         const name = hallucinating
             ? makeplural(rndmonnam({ state, random: env.displayRandom }))
             : 'snakes';
@@ -1308,9 +1306,7 @@ export async function drinksink(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
     const { ux: x, uy: y } = state.u;
-    const hallucination = Boolean(HHallucination(state.u))
-        && !(HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u));
+    const hallucination = Hallucination(state.u);
     const liquidEnv = { state, displayRandom: env.displayRandom };
 
     if (Levitation(state)) {

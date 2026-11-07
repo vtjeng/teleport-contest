@@ -357,7 +357,7 @@ import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
     Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded,
-    EDeaf, HBlinded, HDeaf, HHallucination, Hallucination,
+    HBlinded, HDeaf, HHallucination, Hallucination,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -2935,8 +2935,7 @@ export async function altar_wrath(x, y, state = game) {
         return;
     }
 
-    const deaf = Boolean(HDeaf(u) || EDeaf(u))
-        || Boolean(u.uroleplay?.deaf);
+    const deaf = Deaf(u);
     await ttyPline(
         `${deaf
             ? 'Despite your deafness, you seem to hear'

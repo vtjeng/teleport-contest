@@ -321,9 +321,9 @@ import { obj_unpolyable, poly_obj } from './zap.js';
 import {
     BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
     Blindfolded, Deaf, Detect_monsters, EBlinded, EHalluc_resistance,
-    EWarn_of_mon, HBlinded, HDeaf, HDetect_monsters, HHalluc_resistance,
-    HHallucination, HInvis, HSee_invisible, Hallucination, Infravision, Invis,
-    Maybe_Half_Phys, PermaBlind, See_invisible, Unaware,
+    EWarn_of_mon, HBlinded, HDeaf, HDetect_monsters,
+    HHallucination, HInvis, HSee_invisible, Halluc_resistance, Hallucination,
+    Infravision, Invis, Maybe_Half_Phys, PermaBlind, See_invisible, Unaware,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -1049,7 +1049,7 @@ async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
     state.gp.potion_unkn ??= 0;
     const { message, random } = potionEffectEnvironment(rawEnv);
 
-    if (HHalluc_resistance(state.u) || EHalluc_resistance(state.u)) {
+    if (Halluc_resistance(state.u)) {
         state.gp.potion_nothing++;
         return;
     } else if (Hallucination(state.u)) {

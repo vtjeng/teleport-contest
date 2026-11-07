@@ -640,8 +640,8 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Deaf, EDeaf, EHalluc_resistance,
-    HBlinded, HDeaf, HHalluc_resistance, HHallucination, Halluc_resistance,
+    BBlinded, Blind, BlindedTimeout, Deaf, EDeaf,
+    HBlinded, HDeaf, HHallucination, Halluc_resistance,
     Hallucination, Invis, Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
@@ -3502,15 +3502,8 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         const value = intrinsic(property);
         return value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0;
     };
-    const hallucinating = () => Boolean(
-        HHallucination(state.u)
-        && !(HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u)),
-    );
-    const deaf = () => Boolean(
-        HDeaf(state.u) || EDeaf(state.u)
-        || state.u?.uroleplay?.deaf,
-    );
+    const hallucinating = () => Hallucination(state.u);
+    const deaf = () => Deaf(state.u);
 
     if (obj?.cursed) {
         const lcount = rn1(90, 10);

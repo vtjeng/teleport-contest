@@ -123,7 +123,8 @@ import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
-    Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination, Invis,
+    Deaf, HHallucination,
+    Hallucination, Invis,
 } from './youprop.js';
 
 // C ref: priest.c local constants.
@@ -785,8 +786,7 @@ export async function pri_move(priest, env = {}) {
 export function priestname(mon, article, reveal_high_priest, state = game, env = {}) {
     const aligned_priest = mon.data === state.mons[PM_ALIGNED_CLERIC];
     const high_priest = mon.data === state.mons[PM_HIGH_CLERIC];
-    const do_hallu = Boolean(HHallucination(state.u))
-        && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u));
+    const do_hallu = Hallucination(state.u);
     const randomName = do_hallu ? rndmonnamDetails({ state,
         random: env.displayRandom }) : null;
     let what = do_hallu ? randomName.name : mon_pmname(mon, state);

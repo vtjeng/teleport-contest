@@ -163,8 +163,7 @@ import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
 import {
-    Blind, EDeaf, EHalluc_resistance, HDeaf, HHalluc_resistance,
-    HHallucination, Hallucination, See_invisible,
+    Blind, EDeaf, EHalluc_resistance, HDeaf, Hallucination, See_invisible,
 } from './youprop.js';
 
 const GHOST_NAMES = Object.freeze([
@@ -1668,12 +1667,7 @@ export function hliquid(liquidpref, env = {}) {
         env.displayRandom ?? stateDisplayRandom(state),
     );
     const preferred = liquidpref == null ? '' : String(liquidpref);
-    const hallucinating = Boolean(
-        HHallucination(state.u),
-    ) && !Boolean(
-        HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u),
-    ) && !state.program_state?.gameover;
+    const hallucinating = Hallucination(state.u) && !state.program_state?.gameover;
     if (hallucinating || !preferred) {
         const count = HLIQUIDS.length + (preferred ? 1 : 0);
         const index = random(count);

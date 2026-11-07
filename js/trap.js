@@ -355,7 +355,7 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Blind, HHallucination,
     Halluc_resistance, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
@@ -2301,8 +2301,7 @@ export async function climb_pit(state = game) {
 // random set (scripts/random-source.mjs).
 export function trapname(ttyp, override, state, random = coreRandom,
                          displayRandom = (bound) => rn2_on_display_rng(bound, state)) {
-    if (HHallucination(state.u) && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u))
-        && !override) {
+    if (Hallucination(state.u) && !override) {
         const totalNames = TRAPNUM + halu_trapnames.length;
         const nameidx = displayRandom(totalNames + 1);
         if (nameidx === totalNames) {

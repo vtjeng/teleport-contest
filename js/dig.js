@@ -297,8 +297,8 @@ import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
 import {
-    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
-    Maybe_Half_Phys, Unaware,
+    Blind, Deaf,
+    Hallucination, Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
 
@@ -1671,11 +1671,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
         await message('You have violated the sanctity of this grave!', state, rawEnv);
     }
 
-    const hallucinating = Boolean(
-        HHallucination(state.u)
-        && !HHalluc_resistance(state.u)
-        && !EHalluc_resistance(state.u),
-    );
+    const hallucinating = Hallucination(state.u);
     const whatHappens = location.emptygrave ? -1 : random.rn2(5);
     switch (whatHappens) {
     case 0:
@@ -2188,11 +2184,7 @@ export async function draft_message(unexpected, env) {
     const state = env.state;
     const random = env.random ?? coreRandom;
     const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
-    const hallucinating = Boolean(
-        HHallucination(state.u)
-        && !HHalluc_resistance(state.u)
-        && !EHalluc_resistance(state.u),
-    );
+    const hallucinating = Hallucination(state.u);
     if (unexpected) {
         if (!hallucinating) {
             await message(youFeel('an unexpected draft.', state), state, env);

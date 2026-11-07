@@ -436,8 +436,7 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, EDeaf, EHalluc_resistance, ESee_invisible, HDeaf,
-    HHalluc_resistance, HHallucination, HSee_invisible, Invis,
+    Blind, Deaf, ESee_invisible, HHallucination, HSee_invisible, Hallucination, Invis,
     Maybe_Half_Phys,
 } from './youprop.js';
 
@@ -1807,9 +1806,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
     const confused = Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
-    const hallucination = Boolean(HHallucination(state.u))
-        && !(HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u));
+    const hallucination = Hallucination(state.u);
     const random = env.random ?? coreRandom;
 
     // pline.c:You_feel() chooses its prefix from youprop.h:Unaware before
@@ -2221,12 +2218,7 @@ export async function seffect_magic_mapping(
             await ttyPline('Your mind is filled with crazy lines!', state);
             // youprop.h defines Hallucination from the intrinsic timeout and
             // Halluc_resistance, not from HALLUC's generic extrinsic value.
-            const hallucinating = Boolean(
-                HHallucination(state.u),
-            ) && !Boolean(
-                HHalluc_resistance(state.u)
-                || EHalluc_resistance(state.u),
-            );
+            const hallucinating = Hallucination(state.u);
             if (hallucinating) {
                 await ttyPline('Wow!  Modern art.', state);
             } else {
@@ -2955,8 +2947,7 @@ export async function do_genocide(how, state = game) {
             if (is_human(ptr)) adjalign(-Math.sign(state.u.ualign.type), state);
             if (is_demon(ptr)) adjalign(Math.sign(state.u.ualign.type), state);
             if (!(ptr.geno & G_GENO)) {
-                const deaf = Boolean(HDeaf(state.u) || EDeaf(state.u)
-                    || state.u?.uroleplay?.deaf);
+                const deaf = Deaf(state.u);
                 if (!deaf) {
                     if (state.flags?.verbose)
                         await ttyPline('A thunderous voice booms through the caverns:', state);

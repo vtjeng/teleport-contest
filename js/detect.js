@@ -237,7 +237,7 @@ import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
 import {
-    Blind, Clairvoyant, EDeaf, EDetect_monsters, HBlinded, HDeaf,
+    Blind, Clairvoyant, Deaf, EDetect_monsters, HBlinded,
     HHallucination, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
@@ -2592,9 +2592,7 @@ export async function openone(x, y, counter, state) {
             if (dist2(x, y, state.u.ux, state.u.uy) < 3) {
                 await b_trapped('door', NO_PART, state);
             } else {
-                const deaf = Boolean(HDeaf(state.u)
-                    || EDeaf(state.u)
-                    || state.u.uroleplay?.deaf);
+                const deaf = Deaf(state.u);
                 await ttyNorep(
                     `You ${cansee(x, y, state) ? 'see'
                         : deaf ? 'feel the shock of' : 'hear'} an explosion!`,

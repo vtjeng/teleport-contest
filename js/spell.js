@@ -209,8 +209,7 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 import {
-    BClairvoyant, Blind, BlindedTimeout, EHalluc_resistance,
-    HHalluc_resistance, HHallucination, Maybe_Half_Phys,
+    BClairvoyant, Blind, BlindedTimeout, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -2000,7 +1999,7 @@ export async function propagate_chain_lightning(clq, sourceZap, state = game) {
 // wave per delay, retaining C's bhitpos-based head test and Pw decrement.
 export async function cast_chain_lightning(state = game, env = {}) {
     const clq = { q: [], head: 0, tail: 0,
-        displayed_beam: HHallucination(state.u) && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u))
+        displayed_beam: Hallucination(state.u)
             ? rn2_on_display_rng(6, state) : AD_ELEC - 1 };
     // Source TODO: no damage to the engulfer. Display RNG was already drawn.
     if (state.u.uswallow) return;

@@ -2682,8 +2682,7 @@ export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         await ghod_hitsu(mon, { ...env, state });
     if (angerGuards) {
         await angry_guards(
-            Boolean(HDeaf(state.u) || EDeaf(state.u)
-                || state.u?.uroleplay?.deaf),
+            Deaf(state.u),
             { ...env, state },
         );
     }

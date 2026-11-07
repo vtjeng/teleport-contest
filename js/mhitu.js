@@ -318,8 +318,7 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Deaf, Detect_monsters, EHalluc_resistance,
-    HHalluc_resistance, HHallucination, Half_physical_damage, Hallucination,
+    Blind, Blinded, Deaf, Detect_monsters, HHallucination, Half_physical_damage, Hallucination,
     Invis, Maybe_Half_Phys, See_invisible, Unaware,
 } from './youprop.js';
 
@@ -2889,9 +2888,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
         }
         break;
     case M.AD_HALU: {
-        const alreadyHallucinating = Boolean(HHallucination(state.u)
-            && !(HHalluc_resistance(state.u)
-                || EHalluc_resistance(state.u)));
+        const alreadyHallucinating = Hallucination(state.u);
         notAffected = Boolean(notAffected || Blind(state.u)
             || state.u.umonnum === M.PM_BLACK_LIGHT
             || state.u.umonnum === M.PM_VIOLET_FUNGUS
@@ -2981,8 +2978,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         && couldsee(monster.mx, monster.my, state)
         && isMedusa;
     const hallucination = () => {
-        return Boolean(HHallucination(state.u))
-            && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u));
+        return Hallucination(state.u);
     };
     let cancelled = cancelledInitially;
     if ((hallucination() && draw('rn2', 4))

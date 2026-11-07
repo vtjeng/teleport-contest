@@ -277,7 +277,7 @@ import {
 } from './cmd.js';
 import {
     Blind, Detect_monsters, EDetect_monsters, EHalluc_resistance,
-    HDetect_monsters, HHalluc_resistance, HHallucination, Hallucination,
+    HDetect_monsters, Hallucination,
     Infravision, Invis, See_invisible, Unblind_telepat,
 } from './youprop.js';
 
@@ -1165,11 +1165,7 @@ export function waterbody_name(x, y, state = game, env = {}) {
         state,
         displayRandom: env.displayRandom,
     });
-    const hallucinating = Boolean(HHallucination(state.u))
-        && !Boolean(
-            HHalluc_resistance(state.u)
-            || EHalluc_resistance(state.u),
-        )
+    const hallucinating = Hallucination(state.u)
         && !state.program_state?.gameover;
     if (typ === LAVAPOOL) return `molten ${liquid('lava')}`;
     if (typ === ICE)

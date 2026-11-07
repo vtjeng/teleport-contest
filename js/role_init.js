@@ -50,7 +50,8 @@ import {
     validrace,
     validrole,
 } from './roles.js';
-import { EHalluc_resistance, HHalluc_resistance, HHallucination } from './youprop.js';
+import { Hallucination,
+} from './youprop.js';
 
 const PM_CLERIC = 337;
 const PM_KNIGHT = 335;
@@ -597,8 +598,7 @@ export function welcomeMessage(state) {
 // Hallucination is the intrinsic effect unless either form of resistance
 // suppresses it. This line precedes the ordinary welcome message.
 export function welcomeHallucinationMessage(state) {
-    return HHallucination(state.u)
-        && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u))
+    return Hallucination(state.u)
         ? 'NetHack is filmed in front of an undead studio audience.'
         : null;
 }
