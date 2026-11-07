@@ -17,7 +17,7 @@ import {
 import { adjabil, acurr, minuhpmax, newhp, setuhpmax } from './attrib.js';
 import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import { achieve_rank, record_achievement } from './insight.js';
 import { amphibious, extra_nasty, resists_drli } from './mondata.js';
 import {
@@ -374,7 +374,7 @@ export async function pluslvl(incr, state = game, env = {}) {
     const u = state.u;
 
     if (!incr)
-        await message('You feel more experienced.', state);
+        await message(youFeel('more experienced.', state), state);
 
     /* increase hit points (when polymorphed, C does monster form first
        in order to retain normal human/whatever increase for later) */
