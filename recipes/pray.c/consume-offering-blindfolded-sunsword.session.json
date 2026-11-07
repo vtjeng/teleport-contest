@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "pray.c consume_offering() reads Blind, which a worn blindfold makes true even while the hero wields Sunsword (blindness resistance, BLND_RES). A lawful Knight wishes for Sunsword, wields it, puts on a blindfold and sacrifices a fresh newt on a lawful altar, so C prints \"Your sacrifice disappears!\".",
+  "segments": [
+    {
+      "seed": 7720431,
+      "datetime": "20261108093000",
+      "nethackrc": "OPTIONS=name:Sunblind,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017Sunsword\nwi \u0017blindfold\nPj\u0017lawful altar\n\u0017newt corpse\n#offer\nk    "
+    }
+  ]
+}

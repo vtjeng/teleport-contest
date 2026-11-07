@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of consume-offering-blindfolded-sunsword: a lawful Samurai wraps a towel over her eyes (also EBlinded) while wielding Sunsword (blindness resistance, BLND_RES) and sacrifices a fresh lichen on a lawful altar. pray.c consume_offering() reads Blind, so C prints \"Your sacrifice disappears!\".",
+  "segments": [
+    {
+      "seed": 7720449,
+      "datetime": "20261109161500",
+      "nethackrc": "OPTIONS=name:Towelsun,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017Sunsword\nwf \u0017towel\nPg\u0017lawful altar\n\u0017lichen corpse\n#offer\nh  "
+    }
+  ]
+}

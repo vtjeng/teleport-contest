@@ -356,7 +356,7 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, BlindedTimeout, Blindfolded, Blnd_resist, Deaf, EBlinded,
+    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded,
     EDeaf, HBlinded, HDeaf, HHallucination, Hallucination,
 } from './youprop.js';
 
@@ -648,7 +648,7 @@ async function consume_offering(otmp, state) {
             );
             break;
         }
-    } else if (BlindUnlessResistant(state) && state.u.ualign.type === A_LAWFUL) {
+    } else if (Blind(state.u) && state.u.ualign.type === A_LAWFUL) {
         await ttyPline('Your sacrifice disappears!', state);
     } else {
         const effect = state.u.ualign.type === A_LAWFUL
@@ -707,7 +707,7 @@ async function bestow_artifact(maxGiftValue, state) {
     if (otmp.cursed) await uncurse(otmp, { state });
     otmp.oerodeproof = true;
 
-    const blind = BlindUnlessResistant(state);
+    const blind = Blind(state.u);
     const hallucinating = Hallucination(state.u);
     let name = hallucinating
         ? 'a doodad'
@@ -995,7 +995,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         altar.flags = Align2amask(u.ualign.type)
             | (shrine ? AM_SHRINE : 0);
         newsym(u.ux, u.uy);
-        if (!BlindUnlessResistant(state)) {
+        if (!Blind(state.u)) {
             const color = u.ualign.type === A_LAWFUL
                 ? 'white' : u.ualign.type ? 'black' : 'gray';
             await ttyPline(`The altar glows ${hcolor(color, state)}.`, state);
@@ -1148,7 +1148,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         change_luck(luckIncrease, state);
         if (u.uluck < 0) u.uluck = 0;
         if (u.uluck !== originalLuck) {
-            if (BlindUnlessResistant(state)) {
+            if (Blind(state.u)) {
                 await ttyPline(
                     `You think ${something} brushed your `
                         + `${makeplural(body_part(FOOT, state.youmonst))}.`,
@@ -1170,7 +1170,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
 
 // C ref: pray.c:788-803 at_your_feet(), used for a divine artifact gift.
 async function at_your_feet(str, state) {
-    const blind = BlindUnlessResistant(state);
+    const blind = Blind(state.u);
     if (blind) str = 'Something';
     if (state.u.uswallow) {
         const captor = state.u.ustuck;
@@ -1190,10 +1190,6 @@ async function at_your_feet(str, state) {
     }
 }
 
-function BlindUnlessResistant(state) {
-    return Boolean((HBlinded(state.u) || EBlinded(state.u))
-        && !Blnd_resist(state.u));
-}
 
 // The intrinsic half of a youprop.h macro. Every trouble test below that reads
 // one names it here rather than reaching into u.uprops, so a stray `.extrinsic`
@@ -2344,7 +2340,7 @@ async function gcrownu(state) {
         if (classGift === STRANGE_OBJECT && obj?.otyp === LONG_SWORD
             && !obj.oartifact) {
             const before = simpleonames(obj, state);
-            if (!BlindUnlessResistant(state))
+            if (!Blind(state.u))
                 await ttyPline('Your sword shines brightly for a moment.', state);
             obj = await oname(
                 obj,
