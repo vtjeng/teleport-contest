@@ -33,7 +33,7 @@ import { losehp } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { youSee } from './pline.js';
+import { youFeel, youSee } from './pline.js';
 import {
     haseyes,
     is_silent,
@@ -921,7 +921,7 @@ export async function region_safety(state = game, rawEnv = {}) {
                 state.u.uprops[MAGICAL_BREATHING], d(4, 4) + 4,
             );
             await requiredOperation(env, 'message')(
-                'You feel able to breathe.', state, env,
+                youFeel('able to breathe.', state), state, env,
             );
         }
     } else if (removable) {

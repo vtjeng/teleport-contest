@@ -132,6 +132,7 @@ import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifacts.js'
 import { update_inventory } from './invent.js';
 import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
+import { youFeel } from './pline.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {
@@ -206,7 +207,7 @@ export async function take_gold(state, rawEnv = {}) {
     }
 
     if (!lostMoney) {
-        await message('You feel a strange sensation.', state);
+        await message(youFeel('a strange sensation.', state), state);
     } else {
         await message('You notice you have no gold!', state);
         state.disp ??= {};
@@ -288,7 +289,7 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
         find_hell(destination, state);
         destination.dlevel = state.dungeons[destination.dnum].num_dunlevs - 1;
         if (u.uhave.amulet) {
-            await message('You feel extremely disoriented for a moment.', state, env);
+            await message(youFeel('extremely disoriented for a moment.', state), state, env);
         } else {
             const { schedule_goto } = await import('./do.js');
             schedule_goto(destination, UTOTYPE_NONE, null,
@@ -321,10 +322,10 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
     }
     case 11:
         if (is_vampire(state.youmonst.data)) {
-            await message('You feel unworthy.', state, env);
+            await message(youFeel('unworthy.', state), state, env);
         } else {
             await message('This throne was not meant for those such as you!', state, env);
-            await message('You feel a change coming over you.', state, env);
+            await message(youFeel('a change coming over you.', state), state, env);
             const { polyself } = await import('./polyself.js');
             await polyself(POLY_NOFLAGS, state);
         }
@@ -430,7 +431,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             break;
         }
         case 4: {
-            await message('You feel much, much better!', state);
+            await message(youFeel('much, much better!', state), state);
             if (Upolyd(u)) {
                 if (u.mh >= u.mhmax - 5) u.mhmax += 4;
                 u.mh = u.mhmax;
@@ -459,7 +460,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
         case 6: {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
             if ((u.uluck ?? 0) + random.rn2(5) < 0) {
-                await message('You feel your luck is changing.', state);
+                await message(youFeel('your luck is changing.', state), state);
                 const { change_luck } = await import('./moveloop_preamble.js');
                 change_luck(1, state);
             } else {
@@ -591,10 +592,10 @@ async function throne_sit_effect(state, rawEnv = {}) {
         case 11: {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
             if (luck < 0) {
-                await message('You feel threatened.', state);
+                await message(youFeel('threatened.', state), state);
                 aggravate(state, random);
             } else {
-                await message('You feel a wrenching sensation.', state);
+                await message(youFeel('a wrenching sensation.', state), state);
                 const { tele } = await import('./teleport.js');
                 await tele(state);
             }
@@ -626,9 +627,9 @@ async function throne_sit_effect(state, rawEnv = {}) {
         }
     } else if (is_prince(state.youmonst?.data)
                || state.u?.uevent?.uhand_of_elbereth) {
-        await message('You feel very comfortable here.', state);
+        await message(youFeel('very comfortable here.', state), state);
     } else {
-        await message('You feel somehow out of place...', state);
+        await message(youFeel('somehow out of place...', state), state);
     }
 
     if (!specialThrone && !random.rn2(3)) {

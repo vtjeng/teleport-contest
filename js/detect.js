@@ -726,7 +726,7 @@ export async function gold_detect(scroll, state = game) {
         newsym(state.u.ux, state.u.uy);
         terrainType |= TER_MON;
     }
-    await ttyPline('You feel very greedy, and sense gold!', state);
+    await ttyPline(youFeel('very greedy, and sense gold!', state), state);
     exercise(A_WIS, true, state, coreRandom);
     await browse_map(terrainType, 'gold', state);
     await map_redisplay(state);
@@ -1244,7 +1244,7 @@ async function display_trap_map(cursedSource, state = game) {
         newsym(state.u.ux, state.u.uy);
         terrainType |= TER_MON;
     }
-    await ttyPline(cursedSource ? 'You feel very greedy.' : 'You feel entrapped.', state);
+    await ttyPline(youFeel(`${cursedSource ? 'very greedy' : 'entrapped'}.`, state), state);
     await browse_map(
         terrainType,
         cursedSource ? 'gold' : 'trap of interest',
@@ -2749,7 +2749,7 @@ export async function findit(state = game, rawEnv = {}) {
     if (found.num_cleared_invis) {
         if (!total) {
             await message(
-                `You feel ${found.num_kept_invis ? 'somewhat ' : ''}less paranoid.`,
+                youFeel(`${found.num_kept_invis ? 'somewhat ' : ''}less paranoid.`, state),
             );
         }
         total += found.num_cleared_invis;

@@ -185,9 +185,9 @@ import { game } from './gstate.js';
 import { losehp, near_capacity, nomul, You_can_move_again } from './hack.js';
 import {
     heroDeaf,
-    heroUnaware,
     livelog_printf,
     verbalize,
+    youFeel,
     youHear,
 } from './pline.js';
 import { dist2, upstart, s_suffix } from './hacklib.js';
@@ -602,10 +602,7 @@ async function offer_too_soon(altaralign, state) {
         : altaralign === u.ualign.type
             ? 'an urge to return to the surface'
             : 'ashamed';
-    const prefix = heroUnaware(state)
-        ? 'You dream that you feel'
-        : 'You feel';
-    await ttyPline(`${prefix} ${feeling}.`, state);
+    await ttyPline(youFeel(`${feeling}.`, state), state);
 }
 
 // C ref: pray.c desecrate_altar() (1501-1523). Keep the alignment penalty,
@@ -617,7 +614,7 @@ export async function desecrate_altar(highaltar, altaralign, state = game) {
         u.ugangr += 5;
     }
 
-    await ttyPline('You feel the air around you grow charged...', state);
+    await ttyPline(youFeel('the air around you grow charged...', state), state);
     await ttyPline(
         `Suddenly, you realize that ${align_gname(altaralign, state)} `
             + 'has noticed you...',
@@ -784,12 +781,12 @@ async function eval_offering(otmp, altaralign, state) {
         if (state.u.ualign.type === altaralign) {
             if (state.u.ualign.record < ALIGNLIM(state)) {
                 await ttyPline(
-                    `You feel appropriately ${align_str(state.u.ualign.type)}.`,
+                    youFeel(`appropriately ${align_str(state.u.ualign.type)}.`, state),
                     state,
                 );
             } else {
                 await ttyPline(
-                    'You feel you are thoroughly on the right path.', state,
+                    youFeel('you are thoroughly on the right path.', state), state,
                 );
             }
             adjalign(5, state);
@@ -990,7 +987,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         state,
     );
     if (rn2(8 + u.ulevel) > 5) {
-        await ttyPline(`You feel the power of ${u_gname(state)} increase.`,
+        await ttyPline(youFeel(`the power of ${u_gname(state)} increase.`, state),
             state);
         await exercise(A_WIS, true, state);
         change_luck(1, state);
@@ -1113,7 +1110,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         if (value > maxValue) value = maxValue;
         if (value > -u.ualign.record) value = -u.ualign.record;
         adjalign(value, state);
-        await ttyPline('You feel partially absolved.', state);
+        await ttyPline(youFeel('partially absolved.', state), state);
     } else if (u.ublesscnt > 0) {
         const savedBlesscnt = u.ublesscnt;
         u.ublesscnt -= Math.trunc(
@@ -1517,7 +1514,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         state.disp.botl = true;
         break;
     case TROUBLE_SICK:
-        await ttyPline('You feel better.', state);
+        await ttyPline(youFeel('better.', state), state);
         await make_sick(0, null, false, SICK_ALL, state);
         break;
     case TROUBLE_REGION:
@@ -1532,7 +1529,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         });
         break;
     case TROUBLE_HIT: {
-        await ttyPline('You feel much better.', state);
+        await ttyPline(youFeel('much better.', state), state);
         if (Upolyd(state.u)) {
             const maxhp = state.u.mhmax + rnd(5);
             setuhpmax(Math.max(maxhp, 5 + 1), false, state);
@@ -1549,8 +1546,8 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
     }
     case TROUBLE_COLLAPSING:
         await ttyPline(
-            `You feel ${state.u.amax.a[A_STR] - state.u.acurr.a[A_STR] > 6
-                ? 'much ' : ''}stronger.`,
+            youFeel(`${state.u.amax.a[A_STR] - state.u.acurr.a[A_STR] > 6
+                ? 'much ' : ''}stronger.`, state),
             state,
         );
         state.u.acurr.a[A_STR] = state.u.amax.a[A_STR];
@@ -1578,7 +1575,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
                 extrinsic: 0,
             };
             set_itimeout(passesWalls, d(4, 4) + 4);
-            await ttyPline('You feel much slimmer.', state);
+            await ttyPline(youFeel('much slimmer.', state), state);
         }
         break;
     case TROUBLE_CURSED_LEVITATION:
@@ -1643,7 +1640,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         await ttyPline(
             Hallucination(state)
                 ? "There's a tiger in your tank."
-                : 'You feel in good health again.',
+                : youFeel('in good health again.', state),
             state,
         );
         for (let i = 0; i < A_MAX; i++) {
@@ -1945,7 +1942,7 @@ export async function prayer_done(state = game) {
         await godvoice(alignment, alignment === A_LAWFUL
             ? 'Vile creature, thou durst call upon me?'
             : 'Walk no more, perversion of nature!', state);
-        await ttyPline('You feel like you are falling apart.', state);
+        await ttyPline(youFeel('like you are falling apart.', state), state);
         await rehumanize(state);
         await losehp(rnd(20), 'residual undead turning effect', KILLED_BY_AN, state);
         await exercise(A_CON, false, state, coreRandom, {
@@ -2453,7 +2450,7 @@ async function gcrownu(state) {
         if (obj.spe < 1) obj.spe = 1;
         unrestrict_weapon_skill(weapon_type(obj, state), state);
     } else if (classGift === STRANGE_OBJECT) {
-        await ttyPline('You feel unworthy.', state);
+        await ttyPline(youFeel('unworthy.', state), state);
     }
     update_inventory({ state });
     add_weapon_skill(1, state);
@@ -2478,7 +2475,7 @@ export async function pleased(g_align, state = game) {
             ? (Hallucination(state) ? 'ticklish' : 'pleased')
             : (Hallucination(state) ? 'full' : 'satisfied');
     await ttyPline(
-        `You feel that ${align_gname(g_align, state)} is ${satisfaction}.`,
+        youFeel(`that ${align_gname(g_align, state)} is ${satisfaction}.`, state),
         state,
     );
 
@@ -2567,7 +2564,7 @@ export async function pleased(g_align, state = game) {
                         state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else {
                         await ttyPline(
-                            `You feel the power of ${u_gname(state)} over ${yname(weapon, state)}.`,
+                            youFeel(`the power of ${u_gname(state)} over ${yname(weapon, state)}.`, state),
                             state,
                         );
                     }
@@ -2583,7 +2580,7 @@ export async function pleased(g_align, state = game) {
                         state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
                     } else {
                         await ttyPline(
-                            `You feel the blessing of ${u_gname(state)} over ${yname(weapon, state)}.`,
+                            youFeel(`the blessing of ${u_gname(state)} over ${yname(weapon, state)}.`, state),
                             state,
                         );
                     }
@@ -2669,7 +2666,7 @@ export async function pleased(g_align, state = game) {
         case 4: {
             let any = 0;
             if (heroIsBlind(state))
-                await ttyPline(`You feel the power of ${u_gname(state)}.`, state);
+                await ttyPline(youFeel(`the power of ${u_gname(state)}.`, state), state);
             else
                 await ttyPline(
                     `You are surrounded by ${an(hcolor('light blue', state))} aura.`,
@@ -3010,8 +3007,8 @@ export async function angrygods(resp_god, state = game) {
     case 0:
     case 1:
         await ttyPline(
-            `You feel that ${align_gname(resp_god, state)} is `
-            + `${Hallucination(state) ? 'bummed' : 'displeased'}.`,
+            youFeel(`that ${align_gname(resp_god, state)} is `
+                + `${Hallucination(state) ? 'bummed' : 'displeased'}.`, state),
             state,
         );
         break;

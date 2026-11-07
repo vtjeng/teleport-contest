@@ -628,7 +628,7 @@ import {
     zapyourself,
 } from './zap.js';
 import { explode } from './explode.js';
-import { heroUnaware, pline_mon, verbalize, youSee } from './pline.js';
+import { pline_mon, verbalize, youSee, youFeel } from './pline.js';
 import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
@@ -2259,7 +2259,7 @@ export async function use_stone(tstone, state = game, env = {}) {
         && obj.oclass === GEM_CLASS && !is_graystone(obj)
         && !obj_resists(obj, 80, 100, { ...env, state })) {
         if (heroIsBlind(state)) {
-            await ttyPline('You feel something shatter.', state);
+            await ttyPline(youFeel('something shatter.', state), state);
         } else if (heroHallucinating(state)) {
             await ttyPline('Oh, wow, look at the pretty shards.', state);
         } else {
@@ -4336,7 +4336,7 @@ export async function use_mirror(obj, state = game, env = {}) {
                 );
             else
                 await ttyPline(
-                    'You feel a bit silly gesturing the mirror in that direction.',
+                    youFeel('a bit silly gesturing the mirror in that direction.', state),
                     state,
                 );
             doReact = false;
@@ -4509,7 +4509,7 @@ export async function use_whistle(obj, state = game, env = {}) {
     }
     if (deaf) {
         await message(
-            `You feel rushing air tickle your ${body_part(NOSE, state.youmonst)}.`,
+            youFeel(`rushing air tickle your ${body_part(NOSE, state.youmonst)}.`, state),
             state,
         );
     } else {
@@ -5314,9 +5314,7 @@ async function flip_through_book(obj, state = game) {
                 state,
             );
         } else {
-            const prefix = heroUnaware(state)
-                ? 'You dream that you feel' : 'You feel';
-            await ttyPline(`${prefix} the pages tremble.`, state);
+            await ttyPline(youFeel('the pages tremble.', state), state);
         }
     } else if (heroIsBlind(state)) {
         await ttyPline(

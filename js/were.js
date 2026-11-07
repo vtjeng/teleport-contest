@@ -34,7 +34,7 @@ import { canseemon } from './display.js';
 import { monster_nearby } from './hack.js';
 import { paranoid_query } from './cmd.js';
 import { an } from './objnam.js';
-import { heroUnaware } from './pline.js';
+import { heroUnaware, youFeel } from './pline.js';
 import { is_were } from './mondata.js';
 import { ttyPline } from './tty_message.js';
 
@@ -70,7 +70,7 @@ export async function you_unwere(purify, state = game, env = {}) {
         && !(active(STUNNED) || heroUnaware(state));
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     if (purify) {
-        await message('You feel purified.', state);
+        await message(youFeel('purified.', state), state);
         set_ulycn(NON_PM, state);
     }
     let leaveBeast = false;

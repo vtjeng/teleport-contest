@@ -218,6 +218,7 @@ import {
     consume_msg_xy,
     livelog_printf,
     verbalize,
+    youFeel,
 } from './pline.js';
 import {
     displayPendingTtyMessageWindow,
@@ -1460,15 +1461,6 @@ export function hugThrottles(species, state) {
     return species === state.mons?.[PM_ROPE_GOLEM];
 }
 
-async function youFeel(line, state, env) {
-    const unaware = Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || is_fainted(state));
-    await requireAttackOperation(env, 'message')(
-        `${unaware ? 'You dream that you feel ' : 'You feel '}${line}`,
-        state,
-    );
-}
-
 // C ref: uhitm.c explum() (4891-4928). The return is consumed by hmonas().
 export async function explum(mdef, mattk, state = game, env = {}) {
     const random = env.random ?? coreRandom;
@@ -2123,10 +2115,9 @@ export async function hmonas(mon, state = game, env = {}) {
                         if (sums[i] === M_ATTK_DEF_DIED
                             && [S_ZOMBIE, S_MUMMY].includes(mon.data.mlet)
                             && random.rn2(5) && !heroSickResistance(state)) {
-                            await youFeel(
-                                `${heroSick(state) ? 'very ' : ''}sick.`,
+                            await requireAttackOperation(attackEnv, 'message')(
+                                youFeel(`${heroSick(state) ? 'very ' : ''}sick.`, state),
                                 state,
-                                attackEnv,
                             );
                             await mdamageu(mon, random.rnd(8), state, attackEnv);
                         }
@@ -3459,7 +3450,7 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
     } else if (state.u.ualign?.type === A_LAWFUL
                && (state.u.ualign.record ?? 0) > -10) {
         await message(
-            'You feel like an evil coward for using a poisoned weapon.',
+            youFeel('like an evil coward for using a poisoned weapon.', state),
             state,
         );
         adjalign(-1, state);
@@ -6950,7 +6941,9 @@ export async function mhitm_ad_deth(
             return;
         }
 
-        await youFeel('your life force draining away...', state, env);
+        await requireAttackOperation(env, 'message')(
+            youFeel('your life force draining away...', state), state,
+        );
         mhm.permdmg = 1;
         return;
     }
@@ -7816,7 +7809,7 @@ export async function damageum(
     mdef.mhp -= mhm.damage;
     if (mdef.mhp < 1) {
         if (mdef.mtame && !cansee(mdef.mx, mdef.my, state)) {
-            await message('You feel embarrassed for a moment.', state);
+            await message(youFeel('embarrassed for a moment.', state), state);
             if (mhm.damage)
                 await xkilled(mdef, XKILL_NOMSG, state, {
                     ...env,
@@ -8043,7 +8036,7 @@ export async function mhitm_knockback(
         );
     } else if (u_agr) {
         await message(
-            `You feel ${some_mon_nam(mdef, state, env)} be knocked ${knockedhow}!`,
+            youFeel(`${some_mon_nam(mdef, state, env)} be knocked ${knockedhow}!`, state),
             state,
         );
     }
@@ -8372,7 +8365,7 @@ export async function passive(
             if (monnear(mon, state.u.ux, state.u.uy, state)) {
                 if (Cold_resistance(state)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
-                    await effectEnv.message('You feel a mild chill.', state,
+                    await effectEnv.message(youFeel('a mild chill.', state), state,
                         effectEnv);
                     monstseesu(M_SEEN_COLD, state);
                     await ugolemeffects(AD_COLD, tmp, state);
@@ -8401,7 +8394,7 @@ export async function passive(
             if (monnear(mon, state.u.ux, state.u.uy, state)) {
                 if (Fire_resistance(state)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
-                    await effectEnv.message('You feel mildly warm.', state,
+                    await effectEnv.message(youFeel('mildly warm.', state), state,
                         effectEnv);
                     monstseesu(M_SEEN_FIRE, state);
                     await ugolemeffects(AD_FIRE, tmp, state);
@@ -8416,7 +8409,7 @@ export async function passive(
         case AD_ELEC:
             if (propertyPresent(state.u, SHOCK_RES)) {
                 await shieldeff(state.u.ux, state.u.uy, state);
-                await effectEnv.message('You feel a mild tingle.', state,
+                await effectEnv.message(youFeel('a mild tingle.', state), state,
                     effectEnv);
                 monstseesu(M_SEEN_ELEC, state);
                 await ugolemeffects(AD_ELEC, tmp, state);

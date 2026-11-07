@@ -1041,7 +1041,7 @@ export async function release_hold(state = game) {
             if (!heroIsBlind(state))
                 await ttyPline(`${Monnam(holder, state)} opens its mouth!`, state);
             else
-                await ttyPline('You feel a sudden rush of air!', state);
+                await ttyPline(youFeel('a sudden rush of air!', state), state);
         }
         await expels(holder, { state, expulsionMessage: true });
     } else if (sticks(state.youmonst?.data)) {
@@ -1238,7 +1238,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         orig_dmg = d(12, 6);
         if (heroHasProperty(state, FIRE_RES)) {
             await shieldeff(state.u.ux, state.u.uy, state);
-            await ttyPline('You feel rather warm.', state);
+            await ttyPline(youFeel('rather warm.', state), state);
             monstseesu(M_SEEN_FIRE, state);
             await ugolemeffects(AD_FIRE, orig_dmg, state);
         } else {
@@ -1262,7 +1262,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         orig_dmg = d(12, 6);
         if (heroHasProperty(state, COLD_RES)) {
             await shieldeff(state.u.ux, state.u.uy, state);
-            await ttyPline('You feel a little chill.', state);
+            await ttyPline(youFeel('a little chill.', state), state);
             monstseesu(M_SEEN_COLD, state);
             await ugolemeffects(AD_COLD, orig_dmg, state);
         } else {
@@ -1322,7 +1322,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             && !property.blocked;
         if (property.blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
             await ttyPline(
-                `You feel rather itchy under ${yname(state.uarmc, state)}.`,
+                youFeel(`rather itchy under ${yname(state.uarmc, state)}.`, state),
                 state,
             );
             break;
@@ -1417,7 +1417,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         await healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
             (obj.blessed || obj.otyp === SPE_EXTRA_HEALING), state);
         await ttyPline(
-            `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,
+            youFeel(`${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`, state),
             state,
         );
         break;
@@ -6287,7 +6287,7 @@ export async function do_enlightenment_effect(
     state = game,
     random = coreRandom,
 ) {
-    await ttyPline('You feel self-knowledgeable...', state);
+    await ttyPline(youFeel('self-knowledgeable...', state), state);
     await displayPendingTtyMessageWindow(state);
     const { enlightenment } = await import('./insight.js');
     const { select_menu } = await import('./windows.js');
@@ -6377,7 +6377,7 @@ export async function zapwrapup(state = game, rawEnv = {}) {
     state.go ??= {};
     if (state.go.obj_zapped) {
         const message = rawEnv.message ?? ttyPline;
-        await message('You feel shuddering vibrations.', state, rawEnv);
+        await message(youFeel('shuddering vibrations.', state), state, rawEnv);
     }
     state.go.obj_zapped = false;
 }

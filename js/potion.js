@@ -606,7 +606,7 @@ export async function make_vomiting(xtime, talk, state = game, env = {}) {
     state.disp.botl = true;
     if (!xtime && old && talk) {
         await (env.message ?? ttyPline)(
-            'You feel much less nauseated now.', state,
+            youFeel('much less nauseated now.', state), state,
         );
     }
 }
@@ -859,7 +859,7 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
 
     if (!xtime && old && talk) {
         await (env.message ?? ttyPline)(
-            `You feel less ${Hallucination(state) ? 'trippy' : 'confused'} now.`,
+            youFeel(`less ${Hallucination(state) ? 'trippy' : 'confused'} now.`, state),
             state,
         );
     }
@@ -884,8 +884,8 @@ export async function make_stunned(xtime, talk, state = game, env = {}) {
 
     if (!xtime && old && talk) {
         await message(
-            `You feel ${Hallucination(state)
-                ? 'less wobbly' : 'a bit steadier'} now.`,
+            youFeel(`${Hallucination(state)
+                ? 'less wobbly' : 'a bit steadier'} now.`, state),
             state,
         );
     }
@@ -1160,14 +1160,14 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
                 rawEnv,
             );
         } else if (otmp.cursed) {
-            await message('You feel quite proud of yourself.', state);
+            await message(youFeel('quite proud of yourself.', state), state);
             await healup(random.d(2, 6), 0, 0, 0, state);
             if (ismnum(u.ulycn) && !Upolyd(u))
                 await you_were(state, rawEnv);
             await exercise(A_CON, true, state, random, { encumberMessage });
         }
     } else if (otmp.blessed) {
-        await message('You feel full of awe.', state);
+        await message(youFeel('full of awe.', state), state);
         await make_sick(0, null, true, SICK_ALL, state, {
             ...rawEnv, message, random, encumberMessage,
         });
@@ -1187,7 +1187,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
                 rawEnv,
             );
         } else {
-            await message('You feel full of dread.', state);
+            await message(youFeel('full of dread.', state), state);
         }
         if (ismnum(u.ulycn) && !Upolyd(u))
             await you_were(state, rawEnv);
@@ -1542,7 +1542,7 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
 
     if (isSpell && blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
         await ttyPline(
-            `You feel rather itchy under ${yname(state.uarmc, state)}.`,
+            youFeel(`rather itchy under ${yname(state.uarmc, state)}.`, state),
             state,
         );
         return;
@@ -1701,7 +1701,7 @@ async function peffect_sleeping(otmp, state = game, env = {}) {
 
 // C ref: potion.c peffect_healing() (1119-1125).
 async function peffect_healing(otmp, state = game) {
-    await ttyPline('You feel better.', state);
+    await ttyPline(youFeel('better.', state), state);
     await healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp.cursed ? 1 : 0,
         Boolean(otmp.blessed), !otmp.cursed, state);
     await exercise(A_CON, true, state, coreRandom, {
@@ -1714,7 +1714,7 @@ async function peffect_healing(otmp, state = game) {
 // Constitution followed by Strength. A blessed dose heals the hero's
 // wounded legs only when no steed owns the wound.
 async function peffect_extra_healing(otmp, state = game) {
-    await ttyPline('You feel much better.', state);
+    await ttyPline(youFeel('much better.', state), state);
     await healup(16 + d(4 + 2 * bcsign(otmp), 8),
         otmp.blessed ? 5 : !otmp.cursed ? 2 : 0,
         !otmp.cursed, true, state);
@@ -1738,7 +1738,7 @@ async function peffect_extra_healing(otmp, state = game) {
 async function peffect_full_healing(otmp, state = game, env = {}) {
     const { message, random, encumberMessage } = env;
 
-    await message('You feel completely healed.', state);
+    await message(youFeel('completely healed.', state), state);
     await healup(
         400,
         4 + 4 * bcsign(otmp),
@@ -1771,7 +1771,7 @@ async function peffect_full_healing(otmp, state = game, env = {}) {
 // complete before this potion effect continues.
 async function peffect_polymorph(otmp, state = game) {
     await ttyPline(
-        `You feel a little ${Hallucination(state) ? 'normal' : 'strange'}.`,
+        youFeel(`a little ${Hallucination(state) ? 'normal' : 'strange'}.`, state),
         state,
     );
 
@@ -1930,7 +1930,7 @@ async function peffect_gain_level(otmp, state = game) {
 async function peffect_gain_energy(otmp, state = game) {
     const { u } = state;
     if (otmp.cursed)
-        await ttyPline('You feel lackluster.', state);
+        await ttyPline(youFeel('lackluster.', state), state);
     else
         await ttyPline('Magical energies course through your body.', state);
 
@@ -1993,7 +1993,7 @@ async function peffect_monster_detection(otmp, state = game) {
         if (!state.u.uswallow && !state.u.uinwater) {
             await see_monsters(state);
             if (state.gp.potion_unkn)
-                await ttyPline('You feel lonely.', state);
+                await ttyPline(youFeel('lonely.', state), state);
             return 0;
         }
     }

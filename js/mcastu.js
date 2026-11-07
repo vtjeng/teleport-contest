@@ -1153,8 +1153,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_AGGRAVATION:
         if (typeof env.message === 'function')
             await env.message(
-                `${heroUnaware(state) ? 'You dream that you feel ' : 'You feel '}`
-                    + 'that monsters are aware of your presence.',
+                youFeel('that monsters are aware of your presence.', state),
                 state,
             );
         aggravate(state, env.random);

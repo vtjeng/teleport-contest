@@ -212,7 +212,7 @@ import { cvt_sdoor_to_door } from './detect.js';
 import {
     cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
 } from './display.js';
-import { verbalize } from './pline.js';
+import { verbalize, youFeel } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
 import {
@@ -1678,7 +1678,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
     await exercise(A_WIS, false, state, random);
     if (state.urole?.mnum === PM_ARCHEOLOGIST) {
         adjalign(-Math.sign(state.u.ualign.type) * 3, state);
-        await message('You feel like a despicable grave-robber!', state, rawEnv);
+        await message(youFeel('like a despicable grave-robber!', state), state, rawEnv);
     } else if (state.urole?.mnum === PM_SAMURAI) {
         adjalign(-Math.sign(state.u.ualign.type), state);
         await message('You disturb the honorable dead!', state, rawEnv);
@@ -2211,12 +2211,12 @@ export async function draft_message(unexpected, env) {
     );
     if (unexpected) {
         if (!hallucinating) {
-            await message('You feel an unexpected draft.', state, env);
+            await message(youFeel('an unexpected draft.', state), state, env);
             return;
         }
         const weak = [A_STR, A_DEX, A_CON, A_CHA, A_INT, A_WIS]
             .some((attribute) => acurr(state, attribute) < 6);
-        await message(`You feel like you are ${weak ? '4-F' : '1-A'}.`, state, env);
+        await message(youFeel(`like you are ${weak ? '4-F' : '1-A'}.`, state), state, env);
         return;
     }
     if (!hallucinating) {

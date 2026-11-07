@@ -47,7 +47,7 @@ test('full-healing effect keeps the C helper and dispatch order', () => {
         'heal_legs(0);',
     ];
     const jsOrder = [
-        "await message('You feel completely healed.', state);",
+        "await message(youFeel('completely healed.', state), state);",
         'await healup(',
         'state.u.ulevelmax -= 1;',
         'await pluslvl(false, state, { message, random });',

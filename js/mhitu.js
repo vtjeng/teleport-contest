@@ -314,7 +314,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { heroDeaf, heroUnaware, pline_mon, verbalize, youHear } from './pline.js';
+import { heroDeaf, heroUnaware, pline_mon, verbalize, youHear, youFeel } from './pline.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -485,7 +485,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
     );
 
     const hemmedIn = async () => message(
-        `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} hemmed in.`,
+        youFeel('hemmed in.', state),
         state,
     );
     if (youseeit) {
@@ -1838,7 +1838,7 @@ export async function mattacku(monster, rawEnv = {}) {
         } else if (!range2) {
             await message(initial.youseeit || sensemon(monster, state)
                 ? `${Monnam(monster, state, env)} starts to attack you, but pulls back.`
-                : 'You feel something move nearby.', state, env);
+                : youFeel('something move nearby.', state), state, env);
         }
         return false;
     }

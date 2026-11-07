@@ -117,7 +117,7 @@ import {
     displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
-import { livelog_printf, verbalize, youSee } from './pline.js';
+import { livelog_printf, verbalize, youSee, youFeel } from './pline.js';
 import { Fire_resistance } from './zap.js';
 import { Glib } from './wield.js';
 import { fingers_or_gloves } from './do_wear.js';
@@ -207,7 +207,7 @@ async function dowaterdemon(state = game, env = {}) {
                     state,
                 );
             } else {
-                await message('You feel the presence of evil.', state);
+                await message(youFeel('the presence of evil.', state), state);
             }
 
             // C ref: fountain.c:78. On low levels the demon is grateful
@@ -461,7 +461,7 @@ async function dofindgem(state = game, env = {}) {
     if (!heroIsBlind(state)) {
         await message('You spot a gem in the sparkling waters!', state);
     } else {
-        await message('You feel a gem here!', state);
+        await message(youFeel('a gem here!', state), state);
     }
     // C ref: fountain.c:171. rnd_class(DILITHIUM_CRYSTAL, LUCKSTONE - 1)
     // picks a random gem type.
@@ -696,7 +696,7 @@ export async function drinkfountain(state = game, env = {}) {
     } else {
         switch (fate) {
         case 19: // Self-knowledge
-            await message('You feel self-knowledgeable...', state);
+            await message(youFeel('self-knowledgeable...', state), state);
             await displayPendingTtyMessageWindow(state);
             {
                 const { enlightenment } = await import('./insight.js');
@@ -1072,7 +1072,7 @@ export async function dipfountain(obj, state = game, env = {}) {
             state);
         break;
     case 27: // Strange feeling
-        await message('You feel a sudden chill.', state);
+        await message(youFeel('a sudden chill.', state), state);
         break;
     case 28: { // An urge to take a bath
         await message(

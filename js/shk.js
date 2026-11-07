@@ -42,7 +42,6 @@ import {
     D_BROKEN,
     D_CLOSED,
     ESHK,
-    FAINTED,
     EYE,
     FAST,
     G_GONE,
@@ -277,7 +276,7 @@ import { holetime } from './dig.js';
 import { SHTYPES } from './shtypes_data.js';
 import { makeplural } from './fruit.js';
 import { m_at } from './monst.js';
-import { deltrap, trapname, t_at, unconscious } from './trap.js';
+import { deltrap, trapname, t_at } from './trap.js';
 import { closed_door } from './monmove.js';
 import { picking_at } from './lock.js';
 import { block_point, m_canseeu } from './vision.js';
@@ -287,7 +286,7 @@ import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
 import { body_part, mbodypart, poly_gender } from './polyself.js';
-import { livelog_printf, verbalize, youHear } from './pline.js';
+import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
@@ -681,7 +680,7 @@ export async function shopdig(fall, state = game, rawEnv = {}) {
             }
         }
         if (state.urole?.mnum === PM_KNIGHT) {
-            await message('You feel like a common thief.', state, env);
+            await message(youFeel('like a common thief.', state), state, env);
             adjalign(-sgn(state.u.ualign.type), state);
         }
     } else if (!um_dist(shkp.mx, shkp.my, 5, state)
@@ -3871,8 +3870,8 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     } else if (IS_WALL(damage.typ)) {
         if (inside_shop(state.u.ux, state.u.uy, state)
             === shkp.mextra.eshk.shoproom) {
-            await message(youFeelPrefix(state)
-                + ' more claustrophobic than before.', state, env);
+            await message(youFeel('more claustrophobic than before.', state),
+                state, env);
         } else if (!heroIsDeaf(state) && !randomFor(env).rn2(10)) {
             await (env.planning ? message : ttyNorep)(
                 'The dungeon acoustics noticeably change.', state, env);
@@ -3898,12 +3897,6 @@ function shopRepairMessage(env) {
 
 function randomFor(env) {
     return env.random ?? coreRandom;
-}
-
-function youFeelPrefix(state) {
-    const isUnconscious = Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-    return isUnconscious ? 'You dream that you feel' : 'You feel';
 }
 
 // C ref: shk.c shk_fixes_damage() (4556-4577). Fresh shop damage is ignored

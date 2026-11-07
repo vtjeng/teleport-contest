@@ -169,7 +169,7 @@ import {
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
@@ -445,11 +445,11 @@ export async function cursed_book(book, state = game, env = {}) {
     const timeout = state.u?.uprops ?? {};
     switch (random.rn2(level)) {
     case 0:
-        await message('You feel a wrenching sensation.', state);
+        await message(youFeel('a wrenching sensation.', state), state);
         await tele(state, { ...env, random, message });
         break;
     case 1:
-        await message('You feel threatened.', state);
+        await message(youFeel('threatened.', state), state);
         aggravate(state, random);
         break;
     case 2: {
@@ -1673,7 +1673,7 @@ export async function spelleffects_check(spell, state = game, env = {}) {
 
     // Amulet of Yendor energy drain
     if (state.u.uhave?.amulet && state.u.uen >= energy) {
-        await env.message('You feel the amulet draining your energy away.', state);
+        await env.message(youFeel('the amulet draining your energy away.', state), state);
         state.u.uen = Math.max(0, state.u.uen - random.rnd(2 * energy));
         state.disp ??= {};
         state.disp.botl = true;

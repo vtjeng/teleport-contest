@@ -64,6 +64,7 @@ import { block_point, cansee, does_block, recalc_block_point, unblock_point } fr
 import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
+import { youFeel } from './pline.js';
 
 function property(state, index) {
     const p = state.u.uprops[index];
@@ -534,9 +535,9 @@ export async function do_improvisation(instr, state = game, env = {}) {
     switch (mode) {
     case 0: await message(`You start playing ${yname(instr, state)}.`, state); break;
     case 1: await message(!Deaf(state) ? 'You radiate an obnoxious droning sound.'
-        : 'You feel a monotonous vibration.', state); break;
+        : youFeel('a monotonous vibration.', state), state); break;
     case 2: await message(!Deaf(state) ? 'You generate a raucous noise.'
-        : 'You feel a jarring vibration.', state); break;
+        : youFeel('a jarring vibration.', state), state); break;
     case 4: await message('You disseminate a kaleidoscopic display of floating butterflies.', state); break;
     default: await message('What you perform is quite far from music...', state); break;
     }
@@ -556,7 +557,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         special &= random.rn2(acurr(state, A_DEX)) + state.u.ulevel > 25;
         await message(!Deaf(state)
             ? `${Tobjnam(instr, special ? 'trill' : 'toot', state)}${same ? ' a familiar tune' : ''}.`
-            : `You feel ${yname(instr, state)} ${special ? 'trill' : 'toot'}.`, state);
+            : youFeel(`${yname(instr, state)} ${special ? 'trill' : 'toot'}.`, state), state);
         if (special)
             await charm_snakes(state.u.ulevel * 3, state, { ...env, message, random });
         await exercise(A_DEX, true, state, random);
@@ -603,7 +604,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         await consume_obj_charge(instr, true, { state });
         await message(!Deaf(state)
             ? `${Tobjnam(instr, 'produce', state)} very attractive${same ? ' and familiar' : ''} music.`
-            : 'You feel very soothing vibrations.', state);
+            : youFeel('very soothing vibrations.', state), state);
         await charm_monsters(Math.trunc((state.u.ulevel - 1) / 3) + 1, state, {
             ...env, message, random,
         });
@@ -614,7 +615,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         await message(!Deaf(state)
             ? `${Yname2(instr, state)} ${special ? (same ? 'produces a familiar, lilting melody' : 'produces a lilting melody')
                 : (same ? 'twangs a familiar tune' : 'twangs')}.`
-            : 'You feel soothing vibrations.', state);
+            : youFeel('soothing vibrations.', state), state);
         if (special)
             await calm_nymphs(state.u.ulevel * 3, state, { ...env, message, random });
         await exercise(A_DEX, true, state, random);

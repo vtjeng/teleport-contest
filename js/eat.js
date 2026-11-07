@@ -1456,10 +1456,10 @@ async function rottenfood(obj, state) {
     if (!rn2(4)) {
         // Confusion arm.
         if (Hallucination(state))
-            await ttyPline('You feel rather trippy.', state);
+            await ttyPline(youFeel('rather trippy.', state), state);
         else
             await ttyPline(
-                `You feel rather ${body_part(LIGHT_HEADED, state.youmonst)}.`,
+                youFeel(`rather ${body_part(LIGHT_HEADED, state.youmonst)}.`, state),
                 state,
             );
         await make_confused(
@@ -1990,7 +1990,7 @@ async function choke(food, state, env = {}) {
         && state.urole?.mnum === PM_KNIGHT
         && u.ualign?.type === A_LAWFUL) {
         adjalign(-1, state);
-        await message('You feel like a glutton!', state);
+        await message(youFeel('like a glutton!', state), state);
     }
 
     const random = env.random ?? coreRandom;
@@ -2293,8 +2293,8 @@ export async function cprefx(pm, state = game, env = {}) {
         /* cannibals are allowed to eat domestic animals without penalty */
         if (!CANNIBAL_ALLOWED(state)) {
             await message(
-                'You feel that eating the '
-                + `${state.mons[pm].pmnames[NEUTRAL]} was a bad idea.`,
+                youFeel(`that eating the ${state.mons[pm].pmnames[NEUTRAL]}`
+                    + ' was a bad idea.', state),
                 state,
             );
             hungerProperty(state, AGGRAVATE_MONSTER).intrinsic |= FROMOUTSIDE;
@@ -2486,13 +2486,13 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case SLEEP_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await message('You feel wide awake.', state);
+            await message(youFeel('wide awake.', state), state);
             addOutside();
         }
         break;
     case COLD_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await message('You feel full of hot air.', state);
+            await message(youFeel('full of hot air.', state), state);
             addOutside();
         }
         break;
@@ -2500,8 +2500,8 @@ async function givit(type, ptr, state, env = {}) {
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
                 Hallucination(state)
-                    ? 'You feel totally together, man.'
-                    : 'You feel very firm.',
+                    ? youFeel('totally together, man.', state)
+                    : youFeel('very firm.', state),
                 state,
             );
             addOutside();
@@ -2511,7 +2511,7 @@ async function givit(type, ptr, state, env = {}) {
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
                 Hallucination(state)
-                    ? 'You feel grounded in reality.'
+                    ? youFeel('grounded in reality.', state)
                     : 'Your health currently feels amplified!',
                 state,
             );
@@ -2521,8 +2521,8 @@ async function givit(type, ptr, state, env = {}) {
     case POISON_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                `You feel ${propertyActive(state, POISON_RES)
-                    ? 'especially healthy' : 'healthy'}.`,
+                youFeel(`${propertyActive(state, POISON_RES)
+                    ? 'especially healthy' : 'healthy'}.`, state),
                 state,
             );
             addOutside();
@@ -2532,8 +2532,8 @@ async function givit(type, ptr, state, env = {}) {
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
                 Hallucination(state)
-                    ? 'You feel diffuse.'
-                    : 'You feel very jumpy.',
+                    ? youFeel('diffuse.', state)
+                    : youFeel('very jumpy.', state),
                 state,
             );
             addOutside();
@@ -2543,8 +2543,8 @@ async function givit(type, ptr, state, env = {}) {
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
                 Hallucination(state)
-                    ? 'You feel centered in your personal space.'
-                    : 'You feel in control of yourself.',
+                    ? youFeel('centered in your personal space.', state)
+                    : youFeel('in control of yourself.', state),
                 state,
             );
             addOutside();
@@ -2554,8 +2554,8 @@ async function givit(type, ptr, state, env = {}) {
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
                 Hallucination(state)
-                    ? 'You feel in touch with the cosmos.'
-                    : 'You feel a strange mental acuity.',
+                    ? youFeel('in touch with the cosmos.', state)
+                    : youFeel('a strange mental acuity.', state),
                 state,
             );
             addOutside();
@@ -2566,9 +2566,9 @@ async function givit(type, ptr, state, env = {}) {
     case ACID_RES:
         if (!propertyActive(state, ACID_RES)) {
             await message(
-                `You feel ${Hallucination(state)
+                youFeel(`${Hallucination(state)
                     ? 'secure from flashbacks'
-                    : 'less concerned about being harmed by acid'}.`,
+                    : 'less concerned about being harmed by acid'}.`, state),
                 state,
             );
         }
@@ -2577,9 +2577,9 @@ async function givit(type, ptr, state, env = {}) {
     case STONE_RES:
         if (!propertyActive(state, STONE_RES)) {
             await message(
-                `You feel ${Hallucination(state)
+                youFeel(`${Hallucination(state)
                     ? 'unusually limber'
-                    : 'less concerned about becoming petrified'}.`,
+                    : 'less concerned about becoming petrified'}.`, state),
                 state,
             );
         }
@@ -2611,8 +2611,7 @@ export async function eye_of_newt_buzz(state, env = {}) {
         }
         if (old_uen !== state.u.uen) {
             // pline.c You_feel() dreams the feeling while Unaware.
-            await message(`${Unaware(state)
-                ? 'You dream that you feel' : 'You feel'} a mild buzz.`, state);
+            await message(youFeel('a mild buzz.', state), state);
             state.disp ??= {};
             state.disp.botl = true;
         }
@@ -2719,7 +2718,7 @@ async function cpostfx(pm, state, env = {}) {
                 await self_invis_message(state);
         } else {
             if (!(invis.intrinsic & INTRINSIC))
-                await message('You feel hidden!', state);
+                await message(youFeel('hidden!', state), state);
             invis.intrinsic |= FROMOUTSIDE;
             seeInvisible.intrinsic |= FROMOUTSIDE;
         }
@@ -2831,7 +2830,7 @@ async function cpostfx(pm, state, env = {}) {
     case PM_SANDESTIN: // moot--they do not leave corpses
     case PM_GENETIC_ENGINEER:
         if (propertyActive(state, UNCHANGING)) {
-            await message('You feel momentarily different.', state);
+            await message(youFeel('momentarily different.', state), state);
         } else {
             // C's tin context exists and holds NULL even when this call
             // comes from a corpse meal or Finish_digestion rather than a tin.
@@ -2950,7 +2949,7 @@ async function violated_vegetarian(state, env = {}) {
         : ttyPline);
     state.u.uconduct.unvegetarian++;
     if (state.urole.mnum === PM_MONK) {
-        await message('You feel guilty.', state, env);
+        await message(youFeel('guilty.', state), state, env);
         adjalign(-1, state);
     }
 }
@@ -3096,8 +3095,8 @@ async function eatcorpse(otmp, state, env = {}) {
                && !sickResistance(state)) {
         tp++;
         await ttyPline(
-            `${hungerProperty(state, SICK).intrinsic ? 'You feel very sick.'
-                : 'You feel sick.'}`,
+            youFeel(`${hungerProperty(state, SICK).intrinsic ? 'very ' : ''}sick.`,
+                state),
             state,
         );
         await losehp(
@@ -4066,7 +4065,7 @@ async function eataccessory(otmp, state, env) {
         if (!(sleepResistance.intrinsic & FROMOUTSIDE)) await effect();
         if (!(sleepResistance.intrinsic || sleepResistance.extrinsic)
             || sleepResistance.blocked)
-            await message('You feel wide awake.', state);
+            await message(youFeel('wide awake.', state), state);
         sleepResistance.intrinsic |= FROMOUTSIDE;
         break;
     }

@@ -52,7 +52,7 @@ import { show_transient_light, transient_light_cleanup } from './light.js';
 import { rloc, tele_restrict } from './teleport.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { vision_recalc } from './vision.js';
-import { livelog_printf, verbalize } from './pline.js';
+import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
 import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
@@ -226,7 +226,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
     if (talk) {
         const deity = align_gname(alignment, state);
         await message(heroDeaf(state)
-            ? `You feel ${s_suffix(deity)} booming voice:`
+            ? youFeel(`${s_suffix(deity)} booming voice:`, state)
             : `The voice of ${deity} booms:`, state);
         set_voice(mon, 0, 80, 0, state);
         await verbalize('Thou shalt pay for thine indiscretion!', state, env);

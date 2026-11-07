@@ -538,7 +538,7 @@ import {
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects, objdescr_is } from './o_init.js';
 import { note_unported } from './unported.js';
-import { heroUnaware, livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import { makeplural } from './fruit.js';
 import { On_stairs } from './stairs.js';
 import { select_menu } from './windows.js';
@@ -5324,7 +5324,7 @@ export async function domove_swap_with_pet(
         await newexplevel(state, { message, random });
         if (random.rn2(4)) {
             await message(
-                'You feel guilty about losing your pet like this.',
+                youFeel('guilty about losing your pet like this.', state),
                 state,
             );
             state.u.ugangr++;
@@ -5870,11 +5870,8 @@ export async function invocation_message(state = game, env = {}) {
         : propertyActiveUnblocked(state, LEVITATION) || heroIsFlying(state)
             ? 'beneath you'
             : `under your ${makeplural(body_part(FOOT, state.youmonst))}`;
-    const feelPrefix = heroUnaware(state)
-        ? 'You dream that you feel'
-        : 'You feel';
     await (env.message ?? ttyPline)(
-        `${feelPrefix} a strange vibration ${beneath}.`, state, env,
+        youFeel(`a strange vibration ${beneath}.`, state), state, env,
     );
     u.uevent ??= {};
     u.uevent.uvibrated = 1;

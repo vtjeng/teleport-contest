@@ -533,7 +533,7 @@ test('desecrate_altar keeps C anger, messages, and retaliation order', () => {
     assert.match(cHelper[1], /if \(altaralign == u\.ualign\.type\)\s*\{\s*adjalign\(-20\);\s*u\.ugangr \+= 5;/u);
     assert.match(jsHelper[1], /if \(altaralign === u\.ualign\.type\)\s*\{\s*adjalign\(-20, state\);\s*u\.ugangr \+= 5;/u);
     assert.match(cHelper[1], /You_feel\("the air around you grow charged\.\.\."\);[\s\S]*?align_gname\(altaralign\)\);[\s\S]*?godvoice\(altaralign, gvbuf\);[\s\S]*?god_zaps_you\(altaralign\);/u);
-    assert.match(jsHelper[1], /You feel the air around you grow charged\.\.\.[\s\S]*?align_gname\(altaralign, state\)[\s\S]*?await godvoice\(altaralign, words, state\);\s*await god_zaps_you\(altaralign, state\);/u);
+    assert.match(jsHelper[1], /youFeel\('the air around you grow charged\.\.\.', state\)[\s\S]*?align_gname\(altaralign, state\)[\s\S]*?await godvoice\(altaralign, words, state\);\s*await god_zaps_you\(altaralign, state\);/u);
     assert.match(jsHelper[1], /highaltar \? 'High Temple' : 'altar'/u);
 });
 

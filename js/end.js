@@ -181,7 +181,7 @@ import {
     record_achievement,
     show_conduct,
 } from './insight.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
@@ -194,8 +194,7 @@ import {
     single_level_branch,
 } from './dungeon.js';
 import { Goodbye } from './role_init.js';
-import { reset_utrap, unconscious } from './trap.js';
-import { is_fainted } from './eat.js';
+import { reset_utrap } from './trap.js';
 import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
@@ -798,12 +797,7 @@ export async function done(how, state = game, source = {}) {
         if (how === CHOKING)
             await ttyPline('You vomit ...', state);
         // C end.c:1088 calls You_feel before savelife clears the faint.
-        const unaware = Math.trunc(state.multi ?? 0) < 0
-            && (unconscious(state) || is_fainted(state));
-        await ttyPline(
-            `${unaware ? 'You dream that you feel' : 'You feel'} much better!`,
-            state,
-        );
+        await ttyPline(youFeel('much better!', state), state);
         await ttyPline('The medallion crumbles to dust!', state);
         if (state.uamul)
             await useup(state.uamul, lifeEnv);

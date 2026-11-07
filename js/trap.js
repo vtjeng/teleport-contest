@@ -250,7 +250,7 @@ import {
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, sgn, upstart } from './hacklib.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import {
     stackobj,
     getobj,
@@ -2756,7 +2756,7 @@ async function reward_untrap(ttmp, mtmp, state = game) {
         /* Helping someone out of a trap is a nice thing to do. */
         if (!rn2(3) && !rnl(8) && state.u.ualign?.type === A_LAWFUL) {
             adjalign(1, state);
-            await ttyPline('You feel that you did the right thing.', state);
+            await ttyPline(youFeel('that you did the right thing.', state), state);
         }
     }
 }
@@ -3842,7 +3842,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         case 16: case 15: case 14: case 13:
             // Poisoned needle.
             await ttyPline(
-                `You feel a needle prick your ${body_part(bodypart, state.youmonst)}.`,
+                youFeel(`a needle prick your ${body_part(bodypart, state.youmonst)}.`, state),
                 state,
             );
             await poisoned('needle', A_CON, 'poisoned needle', 10, false,

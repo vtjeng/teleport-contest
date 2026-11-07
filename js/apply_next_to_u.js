@@ -7,7 +7,7 @@ import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
 import { m_next2u } from './mhitu.js';
 import { get_iter_mons_async, mnexto } from './mon.js';
-import { heroUnaware } from './pline.js';
+import { youFeel } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { mon_has_amulet } from './wizard.js';
@@ -31,10 +31,8 @@ async function mleashed_next2u(monster, state, rawEnv) {
             leash.leashmon = 0;
             update_inventory({ ...rawEnv, state });
             const subject = number_leashed(state) > 1 ? 'a' : 'the';
-            const prefix = heroUnaware(state)
-                ? 'You dream that you feel' : 'You feel';
             const message = rawEnv.message ?? ttyPline;
-            await message(`${prefix} ${subject} leash go slack.`, state, rawEnv);
+            await message(youFeel(`${subject} leash go slack.`, state), state, rawEnv);
         }
     }
     return false;

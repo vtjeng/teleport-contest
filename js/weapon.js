@@ -243,7 +243,7 @@ import {
 import { y_n } from './cmd.js';
 import { handle_tip } from './hack.js';
 import { select_menu, ttyMenuColorAttribute } from './windows.js';
-import { heroUnaware } from './pline.js';
+import { youFeel } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
@@ -1902,7 +1902,7 @@ export async function enhance_weapon_skill(
             for (let i = 0; i < P_NUM_SKILLS; i++) {
                 if (!can_advance(i, speedy, state)) continue;
                 if (!speedy) await message(
-                    'You feel you could be more dangerous!', state,
+                    youFeel('you could be more dangerous!', state), state,
                 );
                 n++;
                 break;
@@ -1919,9 +1919,9 @@ async function give_may_advance_msg(skill, state = game) {
         : skill <= P_LAST_WEAPON ? 'weapon '
             : skill <= P_LAST_SPELL ? 'spell casting '
                 : 'fighting ';
-    const feel = heroUnaware(state)
-        ? 'You dream that you feel' : 'You feel';
-    await ttyPline(`${feel} more confident in your ${category}skills.`, state);
+    await ttyPline(
+        youFeel(`more confident in your ${category}skills.`, state), state,
+    );
     await handle_tip(TIP_ENHANCE, state);
 }
 

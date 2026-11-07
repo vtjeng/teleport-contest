@@ -85,7 +85,6 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FACE,
-    FAINTED,
     FAST,
     FUMBLING,
     FINGER,
@@ -223,7 +222,6 @@ import {
     float_up,
     instapetrify,
     selftouch,
-    unconscious,
 } from './trap.js';
 import {
     WrappingAllowed,
@@ -2018,11 +2016,9 @@ export async function toggle_displacement(
             // an armor callback cannot spend the live stream while a clone
             // is being evaluated.
             discover_object(obj.otyp, true, true, true, state, env);
-        const unaware = state.multi < 0
-            && (unconscious(state) || state.u.uhs === FAINTED);
         await env.message(
-            `${unaware ? 'You dream that you feel' : 'You feel'} that monsters${on ? '' : ' no longer'} have difficulty `
-            + 'pinpointing your location.',
+            youFeel(`that monsters${on ? '' : ' no longer'} have difficulty `
+                + 'pinpointing your location.', state),
             state,
             env,
         );

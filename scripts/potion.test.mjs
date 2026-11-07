@@ -1793,7 +1793,7 @@ test('peffect_gain_energy follows C source order and the POT_GAIN_ENERGY arm',
         assert.ok(jsStart > 0 && jsEnd > jsStart);
         const jsBody = js.slice(jsStart, jsEnd).replace(/\s+/gu, ' ');
         assert.match(jsBody,
-            /if \(otmp\.cursed\) await ttyPline\('You feel lackluster\.', state\); else await ttyPline\('Magical energies course through your body\.', state\); let amount = d\(otmp\.blessed \? 3 : !otmp\.cursed \? 2 : 1, 6\); if \(otmp\.cursed\) amount = -amount; u\.uenmax \+= amount;/u);
+            /if \(otmp\.cursed\) await ttyPline\(youFeel\('lackluster\.', state\), state\); else await ttyPline\('Magical energies course through your body\.', state\); let amount = d\(otmp\.blessed \? 3 : !otmp\.cursed \? 2 : 1, 6\); if \(otmp\.cursed\) amount = -amount; u\.uenmax \+= amount;/u);
         const dispatchStart = js.indexOf('export async function peffects(');
         const energyArm = js.indexOf('case POT_GAIN_ENERGY:', dispatchStart);
         const oilArm = js.indexOf('case POT_OIL:', energyArm);

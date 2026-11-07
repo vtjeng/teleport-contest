@@ -2385,7 +2385,7 @@ export async function doinvoke(state = game) {
 async function nothing_special(obj, state) {
     if (carried(obj)) {
         await ttyPline(
-            'You feel a surge of power, but nothing seems to happen.', state);
+            youFeel('a surge of power, but nothing seems to happen.', state), state);
     }
 }
 
@@ -2415,12 +2415,12 @@ export async function invoke_healing(obj, state) {
     // youprop.h:92 Blinded is a boolean, distinct from BlindedTimeout.
     const blinded = Boolean(hBlinded) && !blindProp.blocked;
     if (healamt || sick || slimed || blinded > creamed)
-        await ttyPline('You feel better.', state);
+        await ttyPline(youFeel('better.', state), state);
 
     if (healamt || sick || slimed || blindedTimeout > creamed) {
         const prefix = (!healamt && !sick && !slimed
             && (hBlinded & ~TIMEOUT) !== 0) ? 'slightly ' : '';
-        await ttyPline(`You feel ${prefix}better.`, state);
+        await ttyPline(youFeel(`${prefix}better.`, state), state);
     } else {
         await nothing_special(obj, state);
         return ECMD_TIME;
@@ -2454,7 +2454,7 @@ async function invoke_energy_boost(obj, state) {
         u.uen += epboost;
         state.disp ??= {};
         state.disp.botl = true;
-        await ttyPline('You feel re-energized.', state);
+        await ttyPline(youFeel('re-energized.', state), state);
     } else {
         await nothing_special(obj, state);
         return ECMD_TIME;
@@ -2533,12 +2533,12 @@ async function invoke_create_portal(obj, state) {
 
     if (u.uhave?.amulet || In_endgame(u.uz, state) || In_endgame(newlev, state)
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {
-        await ttyPline('You feel very disoriented for a moment.', state);
+        await ttyPline(youFeel('very disoriented for a moment.', state), state);
     } else {
         if (!Blind(state))
             await ttyPline('You are surrounded by a shimmering sphere!', state);
         else
-            await ttyPline('You feel weightless for a moment.', state);
+            await ttyPline(youFeel('weightless for a moment.', state), state);
         await goto_level(newlev, false, false, false, state);
     }
     return ECMD_TIME;
@@ -2708,12 +2708,12 @@ async function arti_invoke_cost(obj, state) {
         const pw_cost = arti_invoke_cost_pw(obj, state);
         if (pw_cost < 0 || state.u.uen < pw_cost) {
             await ttyPline(
-                `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`,
+                youFeel(`that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`, state),
                 state);
             obj.age += d(3, 10);
             return false;
         } else {
-            await ttyPline('You feel drained...', state);
+            await ttyPline(youFeel('drained...', state), state);
             state.u.uen -= pw_cost;
             state.disp ??= {};
             state.disp.botl = true;
@@ -2792,7 +2792,7 @@ async function arti_invoke(obj, state = game) {
     if (on && obj.age > state.moves) {
         prop.extrinsic ^= W_ARTI;
         await ttyPline(
-            `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`,
+            youFeel(`that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`, state),
             state);
         obj.age += d(3, 10);
         return ECMD_TIME;
@@ -2807,9 +2807,9 @@ async function arti_invoke(obj, state = game) {
     switch (oart.inv_prop) {
     case CONFLICT:
         if (on)
-            await ttyPline('You feel like a rabble-rouser.', state);
+            await ttyPline(youFeel('like a rabble-rouser.', state), state);
         else
-            await ttyPline('You feel the tension decrease around you.', state);
+            await ttyPline(youFeel('the tension decrease around you.', state), state);
         break;
     case LEVITATION:
         if (on) {

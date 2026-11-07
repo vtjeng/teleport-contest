@@ -35,7 +35,6 @@ import {
     GENOCIDED,
     POLY_REVERT,
     POLYMORPH,
-    FAINTED,
     M_SEEN_FIRE,
     ECMD_CANCEL,
     ECMD_OK,
@@ -411,7 +410,7 @@ import { closed_door, monflee, youHear } from './monmove.js';
 import {
     avoid_ceiling, ceiling, has_ceiling, on_level,
 } from './dungeon.js';
-import { heroUnaware, livelog_printf, verbalize } from './pline.js';
+import { livelog_printf, verbalize, youFeel } from './pline.js';
 import {
     an,
     simpleonames,
@@ -802,10 +801,10 @@ export async function seffect_charging(scroll, state = game) {
 
     if (confused) {
         if (cursed) {
-            await ttyPline('You feel discharged.', state);
+            await ttyPline(youFeel('discharged.', state), state);
             state.u.uen = 0;
         } else {
-            await ttyPline('You feel charged up!', state);
+            await ttyPline(youFeel('charged up!', state), state);
             state.u.uen += d(blessed ? 6 : 4, 4);
             if (state.u.uen > state.u.uenmax)
                 state.u.uenmax = state.u.uen;
@@ -905,13 +904,7 @@ export async function seffect_confuse_monster(sobj, state = game, env = {}) {
 
     if (state.youmonst?.data?.mlet !== S_HUMAN || scursed) {
         if (!hconfusion) {
-            let prefix = 'You feel';
-            if (Math.trunc(state.multi ?? 0) < 0) {
-                const { unconscious } = await import('./trap.js');
-                if (unconscious(state) || state.u?.uhs === FAINTED)
-                    prefix = 'You dream that you feel';
-            }
-            await message(`${prefix} confused.`, state);
+            await message(youFeel('confused.', state), state);
         }
         await make_confused(
             hconfusion + random.rnd(100), false, state, { message },
@@ -1162,7 +1155,7 @@ export async function seffect_punishment(scroll, state = game) {
         throw new UnsupportedReadError('the selected punishment-scroll branch');
     state.gk.known = true;
     if (scroll.blessed || propertyActive(CONFUSION, state)) {
-        await ttyPline('You feel guilty.', state);
+        await ttyPline(youFeel('guilty.', state), state);
         return;
     }
     await punish(scroll, state);
@@ -1834,7 +1827,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
         : (!confused ? 'in touch with the Universal Oneness.'
             : 'the power of the Force against you!');
     await ttyPline(
-        `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} ${feeling}`,
+        youFeel(feeling, state),
         state,
     );
 
@@ -2636,7 +2629,7 @@ export async function seffect_fire(scroll, state = game) {
                     `Oh, look, what a pretty fire in your ${hands}.`, state,
                 );
             } else {
-                await ttyPline(`You feel a pleasant warmth in your ${hands}.`,
+                await ttyPline(youFeel(`a pleasant warmth in your ${hands}.`, state),
                     state);
             }
         } else {
@@ -2692,14 +2685,8 @@ export async function seffect_fire(scroll, state = game) {
 const G_GENO = 0x0020;
 
 async function youFeelDeadInside(state) {
-    let prefix = 'You feel';
-    if (Math.trunc(state.multi ?? 0) < 0) {
-        const { unconscious } = await import('./trap.js');
-        if (unconscious(state) || state.u?.uhs === FAINTED)
-            prefix = 'You dream that you feel';
-    }
     const { udeadinside } = await import('./polyself.js');
-    await ttyPline(`${prefix} ${udeadinside(state)} inside.`, state);
+    await ttyPline(youFeel(`${udeadinside(state)} inside.`, state), state);
 }
 
 const GENOCIDE_REALLY = 1;
