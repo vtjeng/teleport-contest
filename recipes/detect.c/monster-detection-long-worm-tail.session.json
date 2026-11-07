@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9021701,
+      "datetime": "20360912153020",
+      "nethackrc": "OPTIONS=name:Wyrmwatch,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0017uncursed potion of monster detection\n\u0007long worm\n12s\u001bqf \u001b\u001b"
+    }
+  ],
+  "comment": "Independent detect.c witness for map_monst()'s tail: in debug mode a Samurai wishes for an uncursed potion of monster detection, creates a long worm whose makemon() initworm() gave it a tail, searches briefly and drinks the potion. monster_detect() calls map_monst(mtmp, TRUE), which shows the worm and then calls worm.c detect_wsegs() to draw each tail segment as '~' on the detection map."
+}

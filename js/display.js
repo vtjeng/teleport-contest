@@ -1200,6 +1200,36 @@ export function hallucinated_statue_glyph_info(
     return actualMonsterGlyphInfo({ data: species, mtame: 0, female }, state);
 }
 
+// C ref: worm.c detect_wsegs() (523-540), the glyph for one tail segment.
+// detect_wsegs() evaluates what_mon(PM_LONG_WORM_TAIL, newsym_rn2) once,
+// before its loop, so a hallucinating hero draws one display-RNG species for
+// the whole tail. wormTailSpeciesDraw() is that draw; every segment's glyph
+// then reuses its result.
+export function wormTailSpeciesDraw(state = game) {
+    return heroHallucinating(state)
+        ? rn2_on_display_rng(NUMMONS, state) : PM_LONG_WORM_TAIL;
+}
+
+// detected_monnum_to_glyph(), petnum_to_glyph() or monnum_to_glyph() of
+// that species, with the worm's gender.
+export function wormTailGlyphInfo(worm, what_tail, useDetectionGlyph,
+    state = game) {
+    const tail = { ...worm, data: state.mons?.[PM_LONG_WORM_TAIL] };
+    if (!tail.data || !state.mons?.[what_tail]) {
+        throw new Error(
+            'worm-tail detection requires the complete monster catalog',
+        );
+    }
+    return presentedMonsterGlyphInfo(
+        tail,
+        state,
+        Boolean(useDetectionGlyph),
+        !useDetectionGlyph && Boolean(worm.mtame),
+        Boolean(useDetectionGlyph),
+        () => what_tail,
+    );
+}
+
 // C ref: display.c display_monster()'s final pet/detected/ordinary branch.
 // Hallucination changes the presented species for both detected and physically
 // seen monsters, but not the gender half of the range each of the three
