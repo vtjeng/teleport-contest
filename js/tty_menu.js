@@ -195,10 +195,15 @@ async function restoreCorner(state, display, repairColumn, snapshot) {
     // suffix the window covered: keep the cells left of the repair column
     // and let bot() redraw the status only when its caller has not disabled
     // bot updates.
+    // docorner() already cleared those rows and then reprinted any map row
+    // that lies over the status window (three status lines on 24 rows).
     const firstStatusRow = display.rows - status_window_rows();
     if (snapshot.length < firstStatusRow) return;
-    for (let row = Math.max(0, firstStatusRow); row < snapshot.length; ++row)
-        clearRowFrom(display, repairColumn, row);
+    if (!(state.level && state.u?.ux)) {
+        for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
+            ++row)
+            clearRowFrom(display, repairColumn, row);
+    }
     state.disp ??= {};
     state.disp.botlx = true;
     await bot();

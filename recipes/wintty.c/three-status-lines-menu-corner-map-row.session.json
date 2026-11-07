@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "wintty.c docorner() clears each row a partial menu covered and reprints the map from gbuf, including map row ROWNO-1, which lies on the first of three status rows on a 24-row terminal. ^F maps the level, so the corridor on row 20 is remembered; the #name getobj menu covers the status rows; select_menu() keeps bot() disabled through the repair, so the getlin prompt shows that corridor over the cleared status suffix.",
+  "segments": [
+    {
+      "seed": 7029,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,statuslines:3,time\n",
+      "moves": "\u0006#name\ni?c\u001b"
+    }
+  ]
+}
