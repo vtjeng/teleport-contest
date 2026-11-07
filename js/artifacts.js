@@ -218,7 +218,7 @@ import {
 
 import { fuzzymatch, lcase, s_suffix, upstart } from './hacklib.js';
 import { aligns } from './roles.js';
-import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -2023,7 +2023,11 @@ export async function artifact_hit(
     magr, mdef, otmp, dmgptr, dieroll, state = game, rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { rn2, rnd, d };
+    // The effects below reach far: Magicbane's cancellation runs
+    // zap.c cancel_monst() into mon.c newcham(), and the elemental brands
+    // reach the item-destruction rolls. A caller that supplies no random
+    // source gets the whole core set C calls.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const effectEnv = { ...env, state, random };
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
