@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6170342,
+      "datetime": "20360718121500",
+      "nethackrc": "OPTIONS=name:Sensa,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:dog,playmode:debug\n",
+      "moves": "\u0017helm of telepathy\n\u0017wand of make invisible\nWf\u001b\u0007jackal\nzgu\u001bmsmsmsmsmsms"
+    }
+  ],
+  "comment": "Independent zap.c witness for bhitm()'s WAN_MAKE_INVISIBLE message: a Samurai wearing a wished-for helm of telepathy zaps a wand of make invisible at her little dog. display.c knowninvisible() tests HTelepat & ~INTRINSIC, not the helm's extrinsic telepathy, so it is false; the dog was seen and no longer is, so C prints \"Hachi vanishes!\" rather than \"turns transparent\". The dog then fights a summoned jackal while invisible."
+}
