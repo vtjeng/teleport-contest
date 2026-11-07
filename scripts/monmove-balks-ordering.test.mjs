@@ -68,7 +68,7 @@ function makeState() {
             worms: [],
             at(x, y) {
                 return locations.get(`${x},${y}`) ?? {
-                    typ: ROOM, flags: 0, lit: true, wall_info: 0,
+                    typ: ROOM, flags: 0, lit: true,
                 };
             },
         },

@@ -900,14 +900,9 @@ function pitTerrain(x, y, env) {
             : state.level.flags?.is_cavernous_lev ? CORR : DOOR, env);
     }
 
-    // C's `lev->flags = 0`. rm.h makes doormask and wall_info aliases of
-    // flags; the port keeps wall_info as a separate field, so clear it with
-    // flags: a hole dug in an open doorway leaves D_NODOOR, which lets monsters
-    // and the hero move diagonally through it.
-    if (clearFlags) {
-        location.flags = 0;
-        location.wall_info = 0;
-    }
+    // C's `lev->flags = 0`: a hole dug in an open doorway leaves D_NODOOR,
+    // which lets monsters and the hero move diagonally through it.
+    if (clearFlags) location.flags = 0;
     const exposed = capability(env, 'unearthObjects')(x, y, env);
     const recompute = () => capability(env, 'recalculateBlockPoint')(x, y, env);
     if (exposed && typeof exposed.then === 'function') return exposed.then(recompute);

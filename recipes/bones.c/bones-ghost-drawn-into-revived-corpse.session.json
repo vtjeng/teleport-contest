@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 88414,
+      "datetime": "20450122083000",
+      "nethackrc": "OPTIONS=name:Revenant,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nms\u0017wand of death\nze.  yqy",
+      "comment": "A debug Valkyrie level-teleports to D:3, searches once and dies to a wished wand of death, saving bones. bones.c savebones() makes her ghost on her corpse's square and attaches the ghost's monster id to the corpse with obj_attach_mid()."
+    },
+    {
+      "seed": 66251,
+      "datetime": "20450124171500",
+      "nethackrc": "OPTIONS=name:Exorcist,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy\u0017wand of undead turning\n\u0014LLllllJjjjjj.zij  ",
+      "comment": "A Priest loads the bones on D:3. restore.c getlev() gives the ghost a new id and reset_oattached_mids() points the corpse's attached id at it. The Priest teleports beside the ghost and zaps a wished wand of undead turning at it: zap.c revive() finds the ghost through the corpse and prints 'Wizard's ghost is suddenly drawn into its former body!'"
+    }
+  ]
+}

@@ -1228,10 +1228,9 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 // cell immediately to its left.
 function set_themeroom_map_terrain(x, y, typ, state, lit = 0, frame = null) {
     const loc = state.level.at(x, y);
+    // sp_lev.c lspo_map() clears rm.flags, which wall_info overlays, before
+    // calling sel_set_ter().
     loc.flags = 0;
-    // sp_lev.c lspo_map() clears rm.flags before calling sel_set_ter();
-    // C wall_info aliases that storage, while this port stores it apart.
-    loc.wall_info = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
@@ -1452,15 +1451,11 @@ export function mkinvk_check_wall(x, y, state = game) {
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
-    const previous = state.level.at(x, y);
-    const wallFlags = previous && IS_WALL(previous.typ) ? previous.wall_info : null;
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
     const actualType = location.typ;
     if (actualType === SDOOR || IS_DOOR(actualType)) {
-        // C retains the shared wall flags as the new ordinary door mask.
-        if (actualType === DOOR && wallFlags !== null)
-            location.flags = wallFlags;
+        // A wall's flags (its wall_info) stay as an ordinary door's mask.
         if (actualType === SDOOR) location.flags = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
@@ -1484,7 +1479,7 @@ function sel_set_wall_property(x, y, prop, state = game) {
         /* 3.6.2: made iron bars eligible to be flagged nondiggable
            (checked by chewing(hack.c) and zap_over_floor(zap.c)) */
         || loc.typ === IRONBARS)
-        loc.wall_info |= prop;
+        loc.flags |= prop;
 }
 
 // C ref: sp_lev.c set_wall_property(). Makes the walls of the area
@@ -1801,7 +1796,6 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
-            loc.wall_info = 0;
             loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
@@ -7892,11 +7886,11 @@ function premap_detect(state) {
         for (let y = 0; y < ROWNO; y++) {
             const loc = state.level.at(x, y);
             if (loc.typ === STONE
-                && (loc.wall_info & (W_NONDIGGABLE | W_NONPASSWALL)) !== 0)
+                && (loc.flags & (W_NONDIGGABLE | W_NONPASSWALL)) !== 0)
                 continue;
             loc.seenv = SVALL;
             loc.waslit = true;
-            if (loc.typ === SDOOR) loc.wall_info = 0;
+            if (loc.typ === SDOOR) loc.flags = 0;
             map_background(x, y, 1, state);
             const obj = sobj_at(BOULDER, x, y, state);
             if (obj) map_object(obj, 1, state);
@@ -8021,7 +8015,7 @@ function solidify_map(state, frame) {
         for (let y = 0; y < ROWNO; ++y) {
             const location = state.level.at(x, y);
             if (IS_STWALL(location.typ) && !frame.splevMap[x][y])
-                location.wall_info |= W_NONDIGGABLE | W_NONPASSWALL;
+                location.flags |= W_NONDIGGABLE | W_NONPASSWALL;
         }
     }
 }

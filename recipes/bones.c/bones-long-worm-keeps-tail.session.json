@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91208,
+      "datetime": "20430905160000",
+      "nethackrc": "OPTIONS=name:Annelid,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0007long worm\n\u0017wand of death\nmsze.  yqy",
+      "comment": "A debug Valkyrie level-teleports to D:3, creates a long worm (makemon gives it tail segments), searches once and dies to a wished wand of death, saving bones. save.c savelev_core() writes the worm's segments with worm.c save_worm()."
+    },
+    {
+      "seed": 91233,
+      "datetime": "20430907093000",
+      "nethackrc": "OPTIONS=name:Segment,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy\u0014LLLLlllllljjj.",
+      "comment": "A Samurai loads the bones on D:3. restore.c getlev() reads the segments back with rest_worm() and places them with place_wsegs(), so after a teleport into the worm's room its tail shows as '~' beside its head."
+    }
+  ]
+}

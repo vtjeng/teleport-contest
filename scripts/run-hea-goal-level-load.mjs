@@ -49,7 +49,7 @@ export async function verifyHeaGoalSegment(segment) {
         for (let y = 0; y < ROWNO; ++y) {
             const cell = game.level.at(x, y);
             litPool ||= cell.typ === POOL && Boolean(cell.lit);
-            protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
+            protectedCell ||= Boolean(cell.flags & W_NONDIGGABLE);
         }
     }
     assert.ok(litPool);

@@ -1280,14 +1280,15 @@ function teleport_sink(state = game, random = { rn2, rnd }) {
             && (!cansee(cx, cy, state)
                 || dist2(cx, cy, state.u.ux, state.u.uy) > 3 * 3)) {
             const oldSink = state.level.at(state.u.ux, state.u.uy);
-            const alreadylooted = oldSink.looted;
+            // rm.h: looted overlays flags.
+            const alreadylooted = oldSink.flags;
 
             set_levltyp(state.u.ux, state.u.uy, ROOM, { state });
-            oldSink.looted = 0;
+            oldSink.flags = 0;
             newsym(state.u.ux, state.u.uy);
 
             set_levltyp(cx, cy, SINK, { state });
-            state.level.at(cx, cy).looted = alreadylooted ? 1 : 0;
+            state.level.at(cx, cy).flags = alreadylooted ? 1 : 0;
             newsym(cx, cy);
             return true;
         }

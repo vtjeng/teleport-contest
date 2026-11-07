@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 57101,
+      "datetime": "20450601120000",
+      "nethackrc": "OPTIONS=name:Miner,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u0016?\nb\u0014Lljjj.> h\u0017wand of death\nze.  yqy",
+      "comment": "A debug Valkyrie whose Gnomish Mines branch leaves D:2 picks that branch level from the wizard-mode level-teleport menu, teleports onto the Mines staircase, descends to Mines level 1 (Dlvl 3), steps off the up staircase and dies to a wished wand of death, saving bones. The level's up staircase leads to D:2."
+    },
+    {
+      "seed": 57105,
+      "datetime": "20450603193000",
+      "nethackrc": "OPTIONS=name:Delver,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u0016?\nb\u0014LLLlllllllJjjj.>yy < ",
+      "comment": "A Samurai, whose Mines branch leaves D:4, reaches Mines level 1 (Dlvl 5) the same way and loads the bones. restore.c getlev()'s ghostly fixup for a branch's first level points the up staircase at this game's branch end, D:4, so climbing it reaches Dlvl 4, a level already visited, rather than the dead hero's D:2."
+    }
+  ]
+}

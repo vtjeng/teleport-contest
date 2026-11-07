@@ -503,7 +503,7 @@ export function dig_check(madeby, x, y, state = game) {
     if (on_level(state.u?.uz, state.water_level, state))
         return DIGCHECK_FAIL_WATERLEVEL;
     if (IS_OBSTRUCTED(location.typ) && location.typ !== SDOOR
-        && (location.wall_info & W_NONDIGGABLE) !== 0) {
+        && (location.flags & W_NONDIGGABLE) !== 0) {
         return DIGCHECK_FAIL_TOOHARD;
     }
     if (trap && undestroyable_trap(trap.ttyp))
@@ -1815,7 +1815,7 @@ export async function dighole(
     let retval = false;
     if ((trap && (undestroyable_trap(trap.ttyp) || nohole))
         || (IS_OBSTRUCTED(oldType) && oldType !== SDOOR
-            && (location.wall_info & W_NONDIGGABLE))) {
+            && (location.flags & W_NONDIGGABLE))) {
         await message(
             `The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`,
             state, rawEnv,
@@ -2090,7 +2090,7 @@ export async function zap_dig(
             if (mazeDig) break;
         } else if (mazeDig) {
             if (IS_WALL(room.typ)) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
+                if (!(room.flags & W_NONDIGGABLE)) {
                     if (in_rooms(zx, zy, SHOPBASE, state).length) {
                         add_damage(zx, zy, SHOP_WALL_COST, state);
                         shopwall = true;
@@ -2103,7 +2103,7 @@ export async function zap_dig(
                 }
                 break;
             } else if (IS_TREE(room.typ)) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
+                if (!(room.flags & W_NONDIGGABLE)) {
                     room.typ = ROOM;
                     room.flags = 0;
                     unblock_point(zx, zy, state);
@@ -2112,7 +2112,7 @@ export async function zap_dig(
                 }
                 break;
             } else if (room.typ === STONE || room.typ === SCORR) {
-                if (!(room.wall_info & W_NONDIGGABLE)) {
+                if (!(room.flags & W_NONDIGGABLE)) {
                     room.typ = CORR;
                     room.flags = 0;
                     unblock_point(zx, zy, state);
@@ -2191,7 +2191,7 @@ export function adj_pit_checks(coordinate, state = game) {
     } else if (IS_TREE(room.typ, state)) {
         message = "The tree's roots glow then fade.";
     } else if ((room.typ === STONE || room.typ === SCORR)
-               && (room.wall_info & W_NONDIGGABLE)) {
+               && (room.flags & W_NONDIGGABLE)) {
         message = 'The rock glows then fades.';
     } else if (room.typ === IRONBARS) {
         message = 'The bars go much deeper than your pit.';
@@ -2314,7 +2314,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     }
     if (!IS_OBSTRUCTED(location.typ) && !IS_TREE(location.typ, state))
         return false;
-    if ((location.wall_info ?? 0) & W_NONDIGGABLE)
+    if ((location.flags ?? 0) & W_NONDIGGABLE)
         return false;
 
     if (IS_WALL(location.typ)) {

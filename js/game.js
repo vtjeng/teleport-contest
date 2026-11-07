@@ -6,7 +6,7 @@ import { NO_COLOR } from './terminal.js';
 
 // C ref: rm.h `#define doormask flags`. C keeps one door mask per square,
 // in struct rm's `flags`, and so does makeLocation(): there is no separate
-// `doormask` field, and scripts/door-mask-field.test.mjs rejects one. A
+// `doormask` field, and scripts/rm-flags-overlay.test.mjs rejects one. A
 // missing location reads as D_NODOOR.
 export function rm_doormask(location) {
     return location?.flags ?? 0;
@@ -19,16 +19,17 @@ export function makeLocation() {
         roomno: 0,        // room number (0 = not in a room)
         lit: false,        // is this cell lit?
         waslit: false,     // was this cell lit last time we checked?
-        // C ref: rm.h struct rm `flags`. rm.h's doormask, altarmask, ladder,
-        // drawbridgemask, looted, icedpool and emptygrave are macros over
-        // this field, so a door's state (D_NODOOR, D_CLOSED, ...) lives
-        // here and nowhere else; scripts/door-mask-field.test.mjs rejects
-        // a separate `doormask` property.
+        // C ref: rm.h struct rm `flags`. rm.h's doormask, altarmask,
+        // wall_info, ladder, drawbridgemask, looted, icedpool and emptygrave
+        // are macros over this field, so a door's state (D_NODOOR, D_CLOSED,
+        // ...) and a wall's mode and W_NONDIGGABLE/W_NONPASSWALL bits live
+        // here and nowhere else; a secret door keeps both in it.
+        // scripts/rm-flags-overlay.test.mjs rejects a separate `doormask`,
+        // `wall_info` or `looted` property.
         flags: 0,
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?
-        wall_info: 0,      // wall flags (W_NONDIGGABLE, etc.)
         disp_ch: ' ',      // current display character
         disp_color: NO_COLOR,
         disp_decgfx: false,

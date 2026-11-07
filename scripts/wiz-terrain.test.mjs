@@ -9,7 +9,7 @@ const c = readFileSync(new URL('../nethack-c/upstream/src/wizcmds.c', import.met
 const ccmd = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
 function fixture(dnum = 0) {
     const cells = Array.from({ length: ROWNO }, () => Array.from({ length: COLNO },
-        () => ({ typ: STONE, wall_info: W_NONDIGGABLE })));
+        () => ({ typ: STONE, flags: W_NONDIGGABLE })));
     const state = { cells, u: { uz: { dnum, dlevel: 1 }, ux: 1, uy: 0 },
         level: { at: (x, y) => cells[y][x], flags: { hero_memory: true } },
         specialLevels: [], dungeons: Array.from({ length: 9 },
@@ -48,7 +48,7 @@ test('internal map preserves raw codes, tty row zero and invalid column zero mar
     assert.equal(typeof wiz.wiz_map_levltyp, 'function');
     const state = fixture();
     for (let typ = 0; typ < MAX_TYPE; typ++)
-        state.cells[0][typ + 1] = { typ, wall_info: 0 };
+        state.cells[0][typ + 1] = { typ, flags: 0 };
     state.cells[1][0].typ = ROOM; // Source corrupt off-screen column emits trailing !.
     const before = JSON.stringify(state.cells);
     const rows = await rowsFor(wiz.wiz_map_levltyp, state);

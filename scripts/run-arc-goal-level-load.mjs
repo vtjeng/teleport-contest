@@ -43,7 +43,7 @@ function nonDiggableCount() {
     let count = 0;
     for (let y = 0; y < 21; ++y)
         for (let x = 0; x < 80; ++x)
-            if ((game.level.at(x, y).wall_info & W_NONDIGGABLE) !== 0)
+            if ((game.level.at(x, y).flags & W_NONDIGGABLE) !== 0)
                 ++count;
     return count;
 }

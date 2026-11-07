@@ -424,7 +424,7 @@ function origbp(d) {
 }
 
 // C ref: objnam.c set_wallprop_from_str() (3539-3550). The strstr() checks
-// are case-sensitive, and wall_info keeps its existing bits.
+// are case-sensitive, and wall_info (rm.flags) keeps its existing bits.
 export function set_wallprop_from_str(bp, state = game) {
     let wallProp = 0;
     if (bp.includes('undiggable ') || bp.includes('nondiggable '))
@@ -433,7 +433,7 @@ export function set_wallprop_from_str(bp, state = game) {
         wallProp |= W_NONPASSWALL;
     if (wallProp) {
         const location = state.level.at(state.u.ux, state.u.uy);
-        location.wall_info = (location.wall_info ?? 0) | wallProp;
+        location.flags = (location.flags ?? 0) | wallProp;
     }
 }
 
@@ -720,10 +720,9 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         if (lev.typ === DOOR || lev.typ === SDOOR
             || (IS_WALL(lev.typ) && lev.typ !== DBWALL)
             || lev.typ === IRONBARS) {
-            const oldWallInfo = lev.typ !== DOOR
-                ? (lev.wall_info ?? 0) : 0;
+            const oldWallInfo = lev.typ !== DOOR ? lev.flags : 0;
             lev.typ = secret ? SDOOR : DOOR;
-            lev.wall_info = 0;
+            lev.flags = 0; /* wall_info overlays 'flags' */
             if (state.rogue_level
                 && state.u.uz?.dnum === state.rogue_level.dnum
                 && state.u.uz?.dlevel === state.rogue_level.dlevel) {
@@ -741,9 +740,6 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
                 d.trapped = 0;
             }
             if (d.trapped) lev.flags |= D_TRAPPED;
-            // rm.h's doormask is `flags`; wall_info is too, but the port
-            // keeps it as a separate field, so copy the value there.
-            lev.wall_info = lev.flags;
 
             let doorDescription = '';
             if (lev.flags & D_TRAPPED) doorDescription += 'trapped ';

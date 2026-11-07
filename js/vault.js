@@ -455,7 +455,7 @@ async function wallify_vault(grd, state, env) {
                     typ = HWALL;
 
                 lev.typ = typ;
-                lev.wall_info = 0;
+                lev.flags = 0;
                 xy_set_wall_state(x, y, state);
                 del_engr_at(x, y, state);
                 // Hack: show the wall restoration on screen even if not in
@@ -1362,7 +1362,7 @@ export async function invault(state, env = {}) {
 
         const loc = state.level.at(x, y);
         loc.typ = typ;
-        loc.wall_info = 0;
+        loc.flags = 0;
         xy_set_wall_state(x, y, state);
     }
     EGD(guard).fakecorr[0].ftyp = typ;

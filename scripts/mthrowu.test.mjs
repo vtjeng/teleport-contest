@@ -148,7 +148,7 @@ test('hit_bars consumes hero_breaks before deciding the projectile survives',
         clearRow(state, state.u.ux, barsx, y);
         const egg = mksobj_at(EGG, objx, y, false, false, { state });
         state.level.at(barsx, y).typ = IRONBARS;
-        state.level.at(barsx, y).wall_info = 0;
+        state.level.at(barsx, y).flags = 0;
         const objRef = { obj: egg };
         const draws = [];
 
@@ -180,7 +180,7 @@ test('a shattered acid potion dissolves ordinary iron bars', async () => {
     clearRow(state, state.u.ux, barsx, y);
     const bars = state.level.at(barsx, y);
     bars.typ = IRONBARS;
-    bars.wall_info = 0;
+    bars.flags = 0;
     state.viz_array[y][barsx] |= IN_SIGHT;
     const potion = mksobj_at(POT_ACID, objx, y, false, false, { state });
     const objRef = { obj: potion };
@@ -204,7 +204,7 @@ test('acid does not dissolve nondiggable iron bars', async () => {
     clearRow(state, state.u.ux, barsx, y);
     const bars = state.level.at(barsx, y);
     bars.typ = IRONBARS;
-    bars.wall_info = W_NONDIGGABLE;
+    bars.flags = W_NONDIGGABLE;
     state.viz_array[y][barsx] |= IN_SIGHT;
     const potion = mksobj_at(POT_ACID, objx, y, false, false, { state });
     const objRef = { obj: potion };
@@ -216,7 +216,7 @@ test('acid does not dissolve nondiggable iron bars', async () => {
 
     assert.ok(objRef.obj === null);
     assert.equal(bars.typ, IRONBARS);
-    assert.equal(bars.wall_info, W_NONDIGGABLE);
+    assert.equal(bars.flags, W_NONDIGGABLE);
     assert.equal(messages.includes('The iron bars are dissolved!'), false);
 });
 
@@ -333,7 +333,7 @@ test('hits_bars awaits the non-hero break result before returning', async () => 
     clearRow(state, barsx, state.u.ux, y);
     const egg = mksobj_at(EGG, objx, y, false, false, { state });
     state.level.at(barsx, y).typ = IRONBARS;
-    state.level.at(barsx, y).wall_info = 0;
+    state.level.at(barsx, y).flags = 0;
     const objRef = { obj: egg };
     const draws = [];
 
@@ -543,7 +543,6 @@ function clearRow(state, fromX, toX, y) {
         const location = state.level.at(x, y);
         location.typ = ROOM;
         location.flags = 0;
-        location.wall_info = 0;
     }
 }
 
@@ -2291,7 +2290,7 @@ test('linedup_callback walks toward the target and stops when fnc matches',
         const farX = bx + 9;
         for (let x = ax + 1; x <= farX; x++) {
             const loc = state.level.at(x, y);
-            loc.typ = ROOM; loc.flags = 0; loc.wall_info = 0;
+            loc.typ = ROOM; loc.flags = 0; loc.flags = 0;
         }
         assert.equal(
             linedup_callback(farX, y, bx, y, () => true, { state }),

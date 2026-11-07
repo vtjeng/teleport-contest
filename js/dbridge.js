@@ -204,7 +204,7 @@ export function create_drawbridge(x, y, dir, flag, state = game) {
         loc.typ = DRAWBRIDGE_UP;
         loc2.typ = DBWALL;
         /* Drawbridges are non-diggable. */
-        loc2.wall_info = W_NONDIGGABLE;
+        loc2.flags = W_NONDIGGABLE;
     }
     loc.horizontal = !horiz;
     loc2.horizontal = horiz;
@@ -616,7 +616,7 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
         wall.horizontal = true;
     else
         wall.horizontal = false;
-    wall.wall_info = W_NONDIGGABLE;
+    wall.flags = W_NONDIGGABLE;
     const [first, second] = occupants(state);
     set_entity(x, y, first, state);
     set_entity(x2, y2, second, state);

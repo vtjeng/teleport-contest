@@ -1019,10 +1019,8 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
                 } else {
                     await mon_yells(mon, 'Hey, stop damaging that door!',
                         { state });
-                    // C's looted and doormask alias the same map byte.
-                    const warnedMask = mask | D_WARNED;
-                    maploc.looted = warnedMask;
-                    maploc.flags = warnedMask;
+                    // rm.h: looted and doormask both overlay flags.
+                    maploc.flags |= D_WARNED;
                 }
                 return true;
             }, state);

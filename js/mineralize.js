@@ -253,7 +253,7 @@ export function mineralize(
                 y += 2;
             } else if (locationAt(state, x, y).typ !== STONE) {
                 y += 1;
-            } else if (!(locationAt(state, x, y).wall_info & W_NONDIGGABLE)
+            } else if (!(locationAt(state, x, y).flags & W_NONDIGGABLE)
                        && locationAt(state, x, y - 1).typ === STONE
                        && locationAt(state, x + 1, y - 1).typ === STONE
                        && locationAt(state, x - 1, y - 1).typ === STONE

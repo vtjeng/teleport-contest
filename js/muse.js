@@ -2033,7 +2033,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
             /* monsters digging in Sokoban can ruin things */
             && !state.level?.flags?.sokoban_rules
             /* digging wouldn't be effective; assume they know that */
-            && !((state.level?.at?.(x, y)?.wall_info ?? 0) & W_NONDIGGABLE)
+            && !((state.level?.at?.(x, y)?.flags ?? 0) & W_NONDIGGABLE)
             && !(Is_botlevel(hero?.uz) || In_endgame(hero?.uz))
             && !(is_ice(x, y, state) || is_pool(x, y, state)
                 || is_lava(x, y, state))

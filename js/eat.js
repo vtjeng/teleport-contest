@@ -3794,7 +3794,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
 
             if (state.level.at(u.ux, u.uy).typ === IRONBARS) {
                 const nodig = Boolean(
-                    state.level.at(u.ux, u.uy).wall_info & W_NONDIGGABLE,
+                    state.level.at(u.ux, u.uy).flags & W_NONDIGGABLE,
                 );
                 let c = 'n';
                 const qbuf = 'There are iron bars here';

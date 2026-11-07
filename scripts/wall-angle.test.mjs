@@ -104,24 +104,24 @@ test('T-wall seen vectors rotate into the source wall-matrix rows', () => {
     ];
 
     for (const { typ, seenv, expected } of cases) {
-        assert.equal(wall_angle({ typ, seenv, wall_info: 0 }), expected);
+        assert.equal(wall_angle({ typ, seenv, flags: 0 }), expected);
     }
 });
 
 test('unfinished straight and corner walls suppress their rock-facing side', () => {
     const cases = [
         // Left unfinished vertical wall: westward SV7 is rock; eastward SV3 is wall.
-        { typ: VWALL, seenv: SV7, wall_info: WM_W_LEFT, expected: S_stone },
-        { typ: VWALL, seenv: SV3, wall_info: WM_W_LEFT, expected: S_vwall },
+        { typ: VWALL, seenv: SV7, flags: WM_W_LEFT, expected: S_stone },
+        { typ: VWALL, seenv: SV3, flags: WM_W_LEFT, expected: S_vwall },
         // Top unfinished horizontal wall: northward SV1 is rock; southward SV5 is wall.
-        { typ: HWALL, seenv: SV1, wall_info: WM_W_TOP, expected: S_stone },
-        { typ: HWALL, seenv: SV5, wall_info: WM_W_TOP, expected: S_hwall },
+        { typ: HWALL, seenv: SV1, flags: WM_W_TOP, expected: S_stone },
+        { typ: HWALL, seenv: SV5, flags: WM_W_TOP, expected: S_hwall },
         // TLCORNER outer mode exposes only the southern/western octants.
-        { typ: TLCORNER, seenv: SV0, wall_info: WM_C_OUTER, expected: S_stone },
-        { typ: TLCORNER, seenv: SV4, wall_info: WM_C_OUTER, expected: S_tlcorn },
+        { typ: TLCORNER, seenv: SV0, flags: WM_C_OUTER, expected: S_stone },
+        { typ: TLCORNER, seenv: SV4, flags: WM_C_OUTER, expected: S_tlcorn },
         // TLCORNER inner mode hides the diagonal inner SV4 octant alone.
-        { typ: TLCORNER, seenv: SV4, wall_info: WM_C_INNER, expected: S_stone },
-        { typ: TLCORNER, seenv: SV3, wall_info: WM_C_INNER, expected: S_tlcorn },
+        { typ: TLCORNER, seenv: SV4, flags: WM_C_INNER, expected: S_stone },
+        { typ: TLCORNER, seenv: SV3, flags: WM_C_INNER, expected: S_tlcorn },
     ];
 
     for (const loc of cases) {
@@ -133,19 +133,19 @@ test('unfinished straight and corner walls suppress their rock-facing side', () 
 test('single-solid crosswalls rotate their hidden and visible corners', () => {
     const cases = [
         // First vector in each pair rotates onto the hidden solid SV4 quarter.
-        { wall_info: WM_X_TL, hidden: SV0, visible: SV4, expected: S_tlcorn },
-        { wall_info: WM_X_TR, hidden: SV2, visible: SV6, expected: S_trcorn },
-        { wall_info: WM_X_BL, hidden: SV6, visible: SV2, expected: S_blcorn },
-        { wall_info: WM_X_BR, hidden: SV4, visible: SV0, expected: S_brcorn },
+        { flags: WM_X_TL, hidden: SV0, visible: SV4, expected: S_tlcorn },
+        { flags: WM_X_TR, hidden: SV2, visible: SV6, expected: S_trcorn },
+        { flags: WM_X_BL, hidden: SV6, visible: SV2, expected: S_blcorn },
+        { flags: WM_X_BR, hidden: SV4, visible: SV0, expected: S_brcorn },
     ];
 
-    for (const { wall_info, hidden, visible, expected } of cases) {
+    for (const { flags, hidden, visible, expected } of cases) {
         assert.equal(
-            wall_angle({ typ: CROSSWALL, seenv: hidden, wall_info }),
+            wall_angle({ typ: CROSSWALL, seenv: hidden, flags }),
             S_stone,
         );
         assert.equal(
-            wall_angle({ typ: CROSSWALL, seenv: visible, wall_info }),
+            wall_angle({ typ: CROSSWALL, seenv: visible, flags }),
             expected,
         );
     }
@@ -153,16 +153,16 @@ test('single-solid crosswalls rotate their hidden and visible corners', () => {
 
 test('secret doors share wall geometry unless their tree alias is set', () => {
     assert.equal(
-        wall_angle({ typ: SDOOR, seenv: SV3, wall_info: 0 }),
+        wall_angle({ typ: SDOOR, seenv: SV3, flags: 0 }),
         S_vwall,
     );
     assert.equal(
-        wall_angle({ typ: SDOOR, seenv: SV5, wall_info: 0, horizontal: true }),
+        wall_angle({ typ: SDOOR, seenv: SV5, flags: 0, horizontal: true }),
         S_hwall,
     );
     assert.equal(
         // rm.h aliases arboreal_sdoor to the location's candig bit.
-        wall_angle({ typ: SDOOR, seenv: SV3, wall_info: 0, candig: true }),
+        wall_angle({ typ: SDOOR, seenv: SV3, flags: 0, candig: true }),
         S_tree,
     );
 });
@@ -180,13 +180,13 @@ function modeForWall(typ, { horizontal = false, rock = [] } = {}) {
     const loc = level.at(WALL_X, WALL_Y);
     loc.typ = typ;
     loc.horizontal = horizontal;
-    loc.wall_info = W_NONDIGGABLE | WM_MASK;
+    loc.flags = W_NONDIGGABLE | WM_MASK;
     for (const [dx, dy] of rock) {
         level.at(WALL_X + dx, WALL_Y + dy).typ = STONE;
     }
 
     xy_set_wall_state(WALL_X, WALL_Y, { level });
-    return loc.wall_info;
+    return loc.flags;
 }
 
 test('xy_set_wall_state assigns every source wall-mode orientation', () => {
@@ -240,7 +240,7 @@ test('set_wall_state scans the level with source map-boundary semantics', () => 
     const level = new GameMap();
     const edgeWall = level.at(1, 2);
     edgeWall.typ = VWALL;
-    edgeWall.wall_info = W_NONDIGGABLE | WM_MASK;
+    edgeWall.flags = W_NONDIGGABLE | WM_MASK;
     // Column zero exists in levl[][] but is outside isok(), so it remains an
     // unfinished exterior even if its terrain is otherwise accessible.
     level.at(0, 2).typ = ROOM;
@@ -248,10 +248,10 @@ test('set_wall_state scans the level with source map-boundary semantics', () => 
 
     const floor = level.at(10, 10);
     floor.typ = ROOM;
-    floor.wall_info = W_NONDIGGABLE | WM_X_BLTR;
+    floor.flags = W_NONDIGGABLE | WM_X_BLTR;
 
     set_wall_state({ level });
 
-    assert.equal(edgeWall.wall_info, W_NONDIGGABLE | WM_W_LEFT);
-    assert.equal(floor.wall_info, W_NONDIGGABLE | WM_X_BLTR);
+    assert.equal(edgeWall.flags, W_NONDIGGABLE | WM_W_LEFT);
+    assert.equal(floor.flags, W_NONDIGGABLE | WM_X_BLTR);
 });

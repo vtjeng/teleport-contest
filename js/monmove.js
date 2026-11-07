@@ -1129,9 +1129,16 @@ export async function m_break_boulder(mtmp, x, y, env = {}) {
 // whether the hero is picking a lock or digging, and warns or arrests.
 // picking_lock() and is_digging() are occupation predicates from lock.c and
 // dig.c; watch_dig() owns the digging warning and arrest branch in dig.c.
-async function watch_on_duty(mtmp, env = {}) {
-    const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+//
+// dochug() passes no message operation, so this one picks the live TTY or,
+// on a planning clone, a silent one; mon_yells() and stop_occupation() both
+// print through it.
+async function watch_on_duty(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const env = { ...rawEnv, state, message };
     if (mtmp.mpeaceful
         && in_town(state.u.ux + (state.u.dx ?? 0),
             state.u.uy + (state.u.dy ?? 0), state)
@@ -1143,7 +1150,9 @@ async function watch_on_duty(mtmp, env = {}) {
             if (IS_DOOR(here?.typ)
                 && (doorMask(here) & D_LOCKED)) {
                 if (couldsee(mtmp.mx, mtmp.my, state)) {
-                    if ((here.looted ?? 0) & D_WARNED) {
+                    // rm.h: looted overlays flags, and D_WARNED equals
+                    // D_TRAPPED, so the warning also traps the door.
+                    if (here.flags & D_WARNED) {
                         await mon_yells(
                             mtmp,
                             "Halt, thief!  You're under arrest!",
@@ -1156,7 +1165,7 @@ async function watch_on_duty(mtmp, env = {}) {
                             'Hey, stop picking that lock!',
                             env,
                         );
-                        here.looted = (here.looted ?? 0) | D_WARNED;
+                        here.flags |= D_WARNED;
                     }
                     // stop_occupation() lives in allmain.js which
                     // imports from monmove.js; a lazy import avoids the
@@ -1457,7 +1466,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 if (IS_WATERWALL(nextType) && !is_swimmer(species)) continue;
                 if (nextType === IRONBARS
                     && (!(flags & ALLOW_BARS)
-                        || (((location.wall_info ?? 0) & W_NONDIGGABLE)
+                        || (((location.flags ?? 0) & W_NONDIGGABLE)
                             && (dmgtype(species, AD_RUST)
                                 || dmgtype(species, AD_CORR))))) {
                     continue;
@@ -3507,7 +3516,7 @@ export async function postmov(
             }
         } else if (here?.typ === IRONBARS) {
             // C ref: monmove.c:1624-1641, iron bars handling.
-            if (!(state.level.at(monster.mx, monster.my).wall_info & W_NONDIGGABLE)
+            if (!(state.level.at(monster.mx, monster.my).flags & W_NONDIGGABLE)
                 && (dmgtype(species, AD_RUST) || dmgtype(species, AD_CORR)
                     || metallivorous(species))) {
                 if (canseemon(monster, state)) {

@@ -487,8 +487,7 @@ function sealNeighborhood(locations, x, y) {
             if (nx === x && ny === y) continue;
             locations.set(`${nx},${ny}`, {
                 typ: STONE,
-                flags: 0,
-                wall_info: W_NONDIGGABLE | W_NONPASSWALL,
+                flags: W_NONDIGGABLE | W_NONPASSWALL,
             });
         }
     }
@@ -1453,7 +1452,7 @@ test('postmov fires an already-seen dart trap that survives its roll',
 test('postmov reports passage between iron bars through the Norep owner', async () => {
     const { locations, state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });
-    locations.set('5,4', { typ: IRONBARS, flags: 0, wall_info: 0 });
+    locations.set('5,4', { typ: IRONBARS, flags: 0 });
     state.flags = { verbose: true };
     seeSquare(state, 5, 4);
     const repeatedMessages = [];
@@ -1563,8 +1562,7 @@ test('postmov delegates the dig arm only where may_dig admits the square',
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
         locations.set('5,4', {
             typ: STONE,
-            flags: 0,
-            wall_info: W_NONDIGGABLE,
+            flags: W_NONDIGGABLE,
         });
         const { env, redraws } = postmovEnv(state, {
             random: { rnd: (bound) => {
@@ -1620,7 +1618,7 @@ const UNSEEN_WIELD = { canSeeMonster: () => false };
 test('m_digweapon_check wields a pick for a wall and spends the move',
     async () => {
         const { locations, state } = makeState();
-        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+        locations.set('5,4', { typ: STONE, flags: 0 });
         const pick = objectFor(state, PICK_AXE);
         const monster = diggingDwarf(state, pick);
 
@@ -1637,7 +1635,7 @@ test('m_digweapon_check wields a pick for a wall and spends the move',
 test('m_digweapon_check leaves a dwarf that already holds its pick alone',
     async () => {
         const { locations, state } = makeState();
-        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+        locations.set('5,4', { typ: STONE, flags: 0 });
         const pick = objectFor(state, PICK_AXE);
         const monster = diggingDwarf(state, pick, {
             mw: pick,
@@ -1672,7 +1670,7 @@ test('m_digweapon_check names the tool the destination terrain calls for',
             { location: { typ: TREE, flags: 0 }, pick: false, axe: true },
             // Stone and every wall type take a pick: monmove.c:1126-1128.
             {
-                location: { typ: STONE, flags: 0, wall_info: 0 },
+                location: { typ: STONE, flags: 0 },
                 pick: true,
                 axe: false,
             },
@@ -1757,8 +1755,7 @@ test('m_digweapon_check leaves weapon_check alone where no arm applies',
             {
                 location: {
                     typ: STONE,
-                    flags: 0,
-                    wall_info: W_NONDIGGABLE,
+                    flags: W_NONDIGGABLE,
                 },
             },
         ];
@@ -1783,7 +1780,7 @@ test('m_digweapon_check refuses a welded weapon, a rogue level and a monster '
         // C ref: monmove.c:1113-1118. Each case below fails one term of the
         // guard, and none of them may touch weapon_check.
         const { locations, state } = makeState();
-        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+        locations.set('5,4', { typ: STONE, flags: 0 });
 
         // A cursed weapon in hand welds, so wield.c mwelded() is true.
         const welded = objectFor(state, DWARVISH_MATTOCK, {
@@ -1890,7 +1887,7 @@ test('soko_allow_web follows off-level, solved, and unsolved path rules', () => 
     assert.equal(soko_allow_web(monster, state), true);
 
     // An opaque intervening square makes m_cansee()/clear_path() fail.
-    locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+    locations.set('5,4', { typ: STONE, flags: 0 });
     vision_reset(state);
     assert.equal(soko_allow_web(monster, state), false);
 
@@ -2508,7 +2505,7 @@ test('m_move rechecks concealment before postmov re-hide', async () => {
     state.level.monsters[4][4] = monster;
     // One legal western destination keeps movement selection deterministic.
     sealNeighborhood(locations, monster.mx, monster.my);
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     // C's can_hide_under_obj() requires a floor object with matching coords;
     // the destination intentionally has no object.
     state.level.objects[4][4] = objectFor(state, DAGGER, {
@@ -2578,10 +2575,10 @@ test('m_move reads unicorn line avoidance from the returned candidate count',
             // (3,4) is orthogonal, which avoids mfndpos()'s tight-squeeze
             // rejection of a diagonal step between two rock squares, and it
             // shares the hero's row, so mfndpos() marks it NOTONL.
-            locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+            locations.set('3,4', { typ: ROOM, flags: 0 });
             if (offLineSquare) {
                 locations.set(`${offLineSquare[0]},${offLineSquare[1]}`,
-                    { typ: ROOM, flags: 0, wall_info: 0 });
+                    { typ: ROOM, flags: 0 });
             }
             const posts = [];
 
@@ -3000,11 +2997,11 @@ test('m_everyturn_effect creates only unobstructed missing fog clouds', async ()
     await m_everyturn_effect(fog, env);
     assert.deepEqual(calls, [{ x: 4, y: 4, radius: 1, damage: 0 }]);
 
-    locations.set('4,4', { typ: DOOR, flags: D_CLOSED, wall_info: 0 });
+    locations.set('4,4', { typ: DOOR, flags: D_CLOSED });
     await m_everyturn_effect(fog, env);
     assert.equal(calls.length, 1);
 
-    locations.set('4,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('4,4', { typ: ROOM, flags: 0 });
     const existing = create_region([{ lx: 4, ly: 4, hx: 4, hy: 4 }]);
     existing.visible = true;
     state.level.regions = [existing];
@@ -3906,19 +3903,19 @@ test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
 
 test('movement terrain helpers and mon.c m_in_air preserve boundaries', () => {
     const { locations, state } = makeState();
-    locations.set('3,3', { typ: STONE, flags: 0, wall_info: 0 });
+    locations.set('3,3', { typ: STONE, flags: 0 });
     assert.equal(may_dig(3, 3, state), true);
     assert.equal(may_passwall(3, 3, state), true);
-    locations.get('3,3').wall_info = W_NONDIGGABLE | W_NONPASSWALL;
+    locations.get('3,3').flags = W_NONDIGGABLE | W_NONPASSWALL;
     assert.equal(may_dig(3, 3, state), false);
     assert.equal(may_passwall(3, 3, state), false);
 
     const human = state.mons[PM_HUMAN];
     assert.equal(bad_rock(human, 3, 3, state), true);
-    locations.get('3,3').wall_info = 0;
+    locations.get('3,3').flags = 0;
     assert.equal(bad_rock(state.mons[PM_XORN], 3, 3, state), false);
 
-    locations.set('6,6', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('6,6', { typ: ROOM, flags: 0 });
     state.level.flags.sokoban_rules = true;
     state.level.objects[6][6] = objectFor(state, BOULDER);
     assert.equal(bad_rock(human, 6, 6, state), true);
@@ -4091,7 +4088,7 @@ test('mfndpos records scary squares and adjacent hero discovery', () => {
 test('mfndpos remaps a displaced scary image to the real hero square', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     state.u.uprops[DISPLACED].intrinsic = 1;
     // The remembered image is adjacent at (3,4); the real hero remains at
     // makeState()'s distant (10,10), so the callback coordinate is decisive.
@@ -4117,7 +4114,7 @@ test('mfndpos remaps a displaced scary image to the real hero square', () => {
     ]) {
         const unseeing = makeState();
         sealNeighborhood(unseeing.locations, 4, 4);
-        unseeing.locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+        unseeing.locations.set('3,4', { typ: ROOM, flags: 0 });
         unseeing.state.u.uprops[DISPLACED].intrinsic = 1;
         if (invisible) unseeing.state.u.uprops[INVIS].intrinsic = 1;
         const blindly = [];
@@ -4137,7 +4134,7 @@ test('mfndpos remaps a displaced scary image to the real hero square', () => {
 test('mfndpos reveals an adjacent hero before rejecting the square', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     state.u.ux = 3;
     state.u.uy = 4;
     const monster = ordinaryMonster(state, { mux: 12, muy: 12 });
@@ -4186,8 +4183,8 @@ test('mfndpos rebuilds the nine output slots on every call', () => {
 test('mfndpos rolls back partial output when trap resistance is unavailable', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
-    locations.set('5,5', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,3', { typ: ROOM, flags: 0 });
+    locations.set('5,5', { typ: ROOM, flags: 0 });
     // x-major enumeration accepts the adjacent hero at (3,3) before reaching
     // the sleep trap at the last candidate, (5,5).
     state.u.ux = 3;
@@ -4199,8 +4196,8 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
     for (const ttyp of [SLP_GAS_TRAP, FIRE_TRAP, ANTI_MAGIC]) {
         const each = makeState();
         sealNeighborhood(each.locations, 4, 4);
-        each.locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
-        each.locations.set('5,5', { typ: ROOM, flags: 0, wall_info: 0 });
+        each.locations.set('3,3', { typ: ROOM, flags: 0 });
+        each.locations.set('5,5', { typ: ROOM, flags: 0 });
         each.state.u.ux = 3;
         each.state.u.uy = 3;
         each.state.level.traps = [{ tx: 5, ty: 5, ttyp }];
@@ -4264,7 +4261,7 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
 test('mfndpos prevents amorphous door passage while engulfing the hero', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    const door = { typ: DOOR, flags: D_CLOSED, wall_info: 0 };
+    const door = { typ: DOOR, flags: D_CLOSED };
     locations.set('3,4', door);
     const cloud = newMonster({ data: state.mons[PM_FOG_CLOUD], mx: 4, my: 4 });
     const env = { state, onScary: () => false };
@@ -4283,7 +4280,7 @@ test('mfndpos prevents amorphous door passage while engulfing the hero', () => {
 test('mfndpos applies door and digging tools before candidate metadata', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    const door = { typ: DOOR, flags: D_CLOSED, wall_info: 0 };
+    const door = { typ: DOOR, flags: D_CLOSED };
     locations.set('3,4', door);
     const human = newMonster({
         data: state.mons[PM_HUMAN],
@@ -4311,7 +4308,7 @@ test('mfndpos applies door and digging tools before candidate metadata', () => {
         onScary: () => false,
     }), 1);
 
-    locations.set('3,4', { typ: TREE, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: TREE, flags: 0 });
     const tunneler = newMonster({
         data: {
             ...state.mons[PM_HUMAN],
@@ -4332,7 +4329,7 @@ test('mfndpos applies door and digging tools before candidate metadata', () => {
 test('mfndpos preserves boulder, garlic, and trap information bits', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     const human = newMonster({
         data: state.mons[PM_HUMAN],
         mx: 4,
@@ -4379,7 +4376,7 @@ test('mfndpos preserves boulder, garlic, and trap information bits', () => {
 test('mfndpos applies monster aggression and displacement at occupancy', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('5,4', { typ: ROOM, flags: 0 });
     const data = {};
     const env = { state, onScary: () => false };
     const attacker = newMonster({
@@ -4423,8 +4420,8 @@ test('mfndpos applies monster aggression and displacement at occupancy', () => {
 test('mfndpos clears inherited displacement permission across candidates', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,3', { typ: ROOM, flags: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     const attacker = newMonster({
         data: state.mons[PM_DISPLACER_BEAST],
         mnum: PM_DISPLACER_BEAST,
@@ -4455,7 +4452,7 @@ test('mfndpos clears inherited displacement permission across candidates', () =>
 test('mfndpos applies zombie aggression and Wizard Tower partitioning', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('5,4', { typ: ROOM, flags: 0 });
     const attacker = newMonster({
         data: state.mons[PM_HUMAN_ZOMBIE],
         mnum: PM_HUMAN_ZOMBIE,
@@ -4521,7 +4518,7 @@ test('mfndpos retries eel movement on land only when no pool is adjacent', () =>
     const env = { state, onScary: () => false };
 
     assert.equal(mfndpos(eel, data, 0, env), 8);
-    locations.set('3,4', { typ: POOL, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: POOL, flags: 0 });
     assert.equal(mfndpos(eel, data, 0, env), 1);
     assert.deepEqual(data.poss[0], { x: 3, y: 4 });
 });
@@ -4538,7 +4535,7 @@ test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
         mcansee: false,
     });
 
-    locations.set('3,4', { typ: WATER, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: WATER, flags: 0 });
     assert.equal(mfndpos(human, data, 0, env), 0);
     const eel = newMonster({
         data: state.mons[PM_GIANT_EEL],
@@ -4548,7 +4545,7 @@ test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
     });
     assert.equal(mfndpos(eel, data, 0, env), 1);
 
-    locations.set('3,4', { typ: LAVAPOOL, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: LAVAPOOL, flags: 0 });
     assert.equal(mfndpos(human, data, 0, env), 0);
     const salamander = newMonster({
         data: state.mons[PM_SALAMANDER],
@@ -4557,11 +4554,11 @@ test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
         mcansee: false,
     });
     assert.equal(mfndpos(salamander, data, 0, env), 1);
-    locations.set('3,4', { typ: LAVAWALL, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: LAVAWALL, flags: 0 });
     assert.equal(mfndpos(salamander, data, 0, env), 0);
     assert.equal(mfndpos(salamander, data, ALLOW_WALL, env), 1);
 
-    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0 });
     const cloud = create_region([{ lx: 3, ly: 4, hx: 3, hy: 4 }]);
     cloud.visible = true;
     cloud.glyph_cmap = S_poisoncloud;
@@ -4583,8 +4580,8 @@ test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
 test('mfndpos blocks source diagonal door and worm crossings', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
-    locations.set('4,4', { typ: DOOR, flags: D_CLOSED, wall_info: 0 });
+    locations.set('3,3', { typ: ROOM, flags: 0 });
+    locations.set('4,4', { typ: DOOR, flags: D_CLOSED });
     const monster = ordinaryMonster(state, { mcansee: false });
     const data = {};
     const env = { state, onScary: () => false };
@@ -4593,7 +4590,7 @@ test('mfndpos blocks source diagonal door and worm crossings', () => {
     locations.get('4,4').flags = D_BROKEN;
     assert.equal(mfndpos(monster, data, 0, env), 1);
 
-    locations.set('4,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('4,4', { typ: ROOM, flags: 0 });
     const giant = newMonster({
         data: state.mons[PM_HILL_GIANT],
         mx: 4,
@@ -4621,7 +4618,7 @@ test('mfndpos blocks source diagonal door and worm crossings', () => {
 test('mfndpos records line, sanctuary, and fixed-teleport constraints', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
-    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('5,4', { typ: ROOM, flags: 0 });
     const monster = ordinaryMonster(state, {
         mcansee: true,
         mux: 8,
@@ -4641,7 +4638,6 @@ test('mfndpos records line, sanctuary, and fixed-teleport constraints', () => {
     locations.set('5,4', {
         typ: ROOM,
         flags: 0,
-        wall_info: 0,
         roomno: roomNumber,
     });
     assert.equal(mfndpos(monster, data, 0, {

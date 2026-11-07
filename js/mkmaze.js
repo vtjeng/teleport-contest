@@ -296,7 +296,6 @@ function resetAirLocation(location, typ = AIR) {
     location.seenv = 0;
     location.horizontal = false;
     location.edge = false;
-    location.wall_info = 0;
     location.roomno = 0;
 }
 
@@ -939,7 +938,7 @@ export async function baalz_fixup(state = game) {
     let lasty = 0;
 
     for (x = 0; x < COLNO; ++x) {
-        if ((state.level.at(x, y).wall_info & W_NONDIGGABLE) !== 0) {
+        if ((state.level.at(x, y).flags & W_NONDIGGABLE) !== 0) {
             if (!lastx) bughack.inarea.x1 = x + 1;
             lastx = x;
         }
@@ -948,7 +947,7 @@ export async function baalz_fixup(state = game) {
 
     x = bughack.inarea.x1;
     for (y = 0; y < ROWNO; ++y) {
-        if ((state.level.at(x, y).wall_info & W_NONDIGGABLE) !== 0) {
+        if ((state.level.at(x, y).flags & W_NONDIGGABLE) !== 0) {
             if (!lasty) bughack.inarea.y1 = y + 1;
             lasty = y;
         }
@@ -971,15 +970,15 @@ export async function baalz_fixup(state = game) {
                 const left = state.level.at(x - 1, y);
                 const right = state.level.at(x + 1, y);
                 if (isok(x - 1, y)
-                    && (left.wall_info & W_NONDIGGABLE) !== 0) {
-                    left.wall_info &= ~W_NONDIGGABLE;
+                    && (left.flags & W_NONDIGGABLE) !== 0) {
+                    left.flags &= ~W_NONDIGGABLE;
                     if (isok(x - 2, y))
-                        state.level.at(x - 2, y).wall_info &= ~W_NONDIGGABLE;
+                        state.level.at(x - 2, y).flags &= ~W_NONDIGGABLE;
                 } else if (isok(x + 1, y)
-                    && (right.wall_info & W_NONDIGGABLE) !== 0) {
-                    right.wall_info &= ~W_NONDIGGABLE;
+                    && (right.flags & W_NONDIGGABLE) !== 0) {
+                    right.flags &= ~W_NONDIGGABLE;
                     if (isok(x + 2, y))
-                        state.level.at(x + 2, y).wall_info &= ~W_NONDIGGABLE;
+                        state.level.at(x + 2, y).flags &= ~W_NONDIGGABLE;
                 }
             }
         }
@@ -1592,9 +1591,9 @@ export function bound_digging(state = game) {
             const location = state.level.at(x, y);
             if (!IS_STWALL(location.typ)) continue;
             if (y <= ymin || y >= ymax || x <= xmin || x >= xmax)
-                location.wall_info |= W_NONDIGGABLE;
+                location.flags |= W_NONDIGGABLE;
             if (y < ymin || y > ymax || x < xmin || x > xmax)
-                location.wall_info |= W_NONPASSWALL;
+                location.flags |= W_NONPASSWALL;
         }
     }
 }

@@ -2080,7 +2080,7 @@ export async function still_chewing(x, y, state = game) {
     if (digging.down) digging = reset_digging(state);
 
     if (!boulder && ((IS_OBSTRUCTED(lev.typ) && !may_dig(x, y, state))
-        || (lev.typ === IRONBARS && (lev.wall_info & W_NONDIGGABLE)))) {
+        || (lev.typ === IRONBARS && (lev.flags & W_NONDIGGABLE)))) {
         const what = lev.typ === IRONBARS ? 'bars'
             : IS_TREE(lev.typ) ? 'tree' : 'hard stone';
         await ttyPline(`You hurt your teeth on the ${what}.`, state);
@@ -2661,7 +2661,7 @@ async function moverock_core(sx, sy, state, env) {
                 deltrap(ttmp, state);
                 await useupf(otmp, 1, objectEnv);
                 await bury_objs(rx, ry, state, effectEnv);
-                state.level.at(rx, ry).wall_info &= ~W_NONDIGGABLE;
+                state.level.at(rx, ry).flags &= ~W_NONDIGGABLE;
                 state.level.at(rx, ry).candig = 1;
                 if (cansee(rx, ry, state)) redraw(rx, ry, state);
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
@@ -5961,14 +5961,14 @@ export function may_dig(x, y, state = game) {
     const location = state.level?.at?.(x, y);
     if (!location) return false;
     return !((IS_STWALL(location.typ) || IS_TREE(location.typ, state))
-        && ((location.wall_info ?? 0) & W_NONDIGGABLE));
+        && ((location.flags ?? 0) & W_NONDIGGABLE));
 }
 
 export function may_passwall(x, y, state = game) {
     const location = state.level?.at?.(x, y);
     if (!location) return false;
     return !(IS_STWALL(location.typ)
-        && ((location.wall_info ?? 0) & W_NONPASSWALL));
+        && ((location.flags ?? 0) & W_NONPASSWALL));
 }
 
 // C ref: hack.c bad_rock(), specialized only by its supplied monster species.
