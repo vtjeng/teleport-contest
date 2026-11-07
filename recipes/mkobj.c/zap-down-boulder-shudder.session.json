@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mkobj.c remove_object() of a boulder destroyed by system shock. A debug-mode Priestess wishes three times for a boulder, each of which drops onto her square, then wishes for a wand of polymorph with 20 charges and zaps it down eight times. zap.c bhitpile() polymorphs the pile; when obj_shudders() picks a boulder, do_osshock() deletes it ('You feel shuddering vibrations.'), and remove_object() calls vision.c recalc_block_point() for the square.",
+  "segments": [
+    {
+      "seed": 15062291,
+      "datetime": "20730915071500",
+      "nethackrc": "OPTIONS=name:Ilse,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017boulder\n\u001b\u0017boulder\n\u001b\u0017boulder\n\u001b\u0017wand of polymorph (0:20)\nzl>\u001bzl>\u001bzl>\u001bzl>\u001bzl>\u001bzl>\u001bzl>\u001bzl>\u001b"
+    }
+  ]
+}
