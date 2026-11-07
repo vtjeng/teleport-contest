@@ -717,7 +717,7 @@ test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
             });
 
             const scalesIndex = messages.indexOf('Scales cover your eyes!');
-            const clearsIndex = messages.indexOf('Your vision clears.');
+            const clearsIndex = messages.indexOf('Your vision quickly clears.');
             assert.ok(scalesIndex >= 0);
             assert.equal(clearsIndex >= 0, clearsVision);
             if (clearsVision) assert.ok(scalesIndex < clearsIndex);

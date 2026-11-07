@@ -175,6 +175,7 @@ import {
     engulfing_u,
     helpless,
     Upolyd,
+    vision_clears,
 } from './const.js';
 import {
     is_pool,
@@ -1342,7 +1343,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             await make_blinded(blindedTimeout + blindinc, false, state,
                 rawEnv);
             if (!heroIsBlind(state))
-                await message('Your vision clears.', state, rawEnv);
+                await message(`Your ${vision_clears}`, state, rawEnv);
         }
 
         if (!obj) return false;

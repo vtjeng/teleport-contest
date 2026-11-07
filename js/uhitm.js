@@ -191,6 +191,7 @@ import {
     Upolyd,
     xdir,
     ydir,
+    vision_clears,
 } from './const.js';
 import {
     Adjmonnam,
@@ -5314,7 +5315,7 @@ export async function mhitm_ad_blnd(
             // The source immediately checks Blind again. Eyes of the
             // Overworld may preserve sight while the property still changes.
             if (!heroIsBlind(state)) {
-                await message('Your vision quickly clears.', state);
+                await message(`Your ${vision_clears}`, state);
             }
         }
         mhm.damage = 0;

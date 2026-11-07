@@ -384,6 +384,8 @@ export const thats_enough_tries = "That's enough tries!";
 export const silly_thing_to = 'That is a silly thing to %s.';
 export const something = "something";
 export const Never_mind = "Never mind.";
+// Every C site prints it through Your1(vision_clears).
+export const vision_clears = "vision quickly clears.";
 
 // Command queue type IDs and queue selectors (include/hack.h cmdq_cmdtypes/CQ_*)
 // Runtime fields:

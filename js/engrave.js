@@ -45,6 +45,7 @@ import {
     HAND,
     ECMD_TIME,
     DEAF,
+    vision_clears,
     } from './const.js';
 import {
     is_pool,
@@ -1119,7 +1120,7 @@ export async function doengrave(state = game, env = {}) {
     if (de.doblind && !resists_blnd(state.youmonst, state)) {
         await say('You are blinded by the flash!');
         await make_blinded(env.random.rnd(50), false, state, env.blindingEnv ?? {});
-        if (!heroBlind(state)) await say('Your vision clears.');
+        if (!heroBlind(state)) await say(`Your ${vision_clears}`);
     }
     if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
     return de.ret;

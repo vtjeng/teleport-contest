@@ -77,6 +77,7 @@ import {
     SVALL,
     WM_MASK,
     u_at,
+    vision_clears,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { SPFX_SEARCH } from './artifacts.js';
@@ -1456,7 +1457,7 @@ export async function use_crystal_ball(optr, state = game) {
                     & TIMEOUT;
                 await make_blinded(blindTimeout + impairment, false, state);
                 if (!heroBlind(state))
-                    await ttyPline('Your vision clears.', state);
+                    await ttyPline(`Your ${vision_clears}`, state);
             } else {
                 await ttyPline(
                     `${Tobjnam(obj, 'assault', state)} your vision.`, state,
