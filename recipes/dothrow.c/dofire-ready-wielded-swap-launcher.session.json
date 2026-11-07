@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for dothrow.c dofire() (dothrow.c:543-571): a Ranger wields her arrows, empties the quiver and fires; doquiver_core() readies the wielded stack, which unwields it and takes a move, and fireassist finds the bow as the alternate weapon, queues #swap and #fire and returns that ECMD_TIME, so the turn passes before the queued commands run.",
+ "segments": [
+  {
+   "seed": 8812093,
+   "datetime": "20261205083000",
+   "nethackrc": "OPTIONS=name:Probe,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,time\n",
+   "moves": "Q-wcf cny    h  "
+  }
+ ]
+}

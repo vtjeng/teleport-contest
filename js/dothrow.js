@@ -2111,10 +2111,11 @@ export async function dofire(state = game) {
         if (ammo_and_launcher(state.uquiver, state.uwep, state)) {
             obj = state.uquiver;
         } else if (ammo_and_launcher(state.uquiver, state.uswapwep, state)) {
-            /* swap weapons and retry fire */
+            /* swap weapons and retry fire; readying a wielded stack above
+               already took a move, which res carries */
             cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
             cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
-            return ECMD_OK;
+            return res;
         } else {
             /* wield launcher, retry fire */
             const launcher = find_launcher(state.uquiver, state);
