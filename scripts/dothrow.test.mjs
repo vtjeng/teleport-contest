@@ -122,7 +122,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { UnsupportedObjectOperationError, newObject, splitobj } from '../js/obj.js';
+import { newObject, splitobj } from '../js/obj.js';
 import {
     AKLYS,
     ARROW,
@@ -1715,22 +1715,28 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         assert.equal(heavier._ttyToplines, 'Splash!');
         assert.deepEqual(draws(), ['rn2(20)']);
 
-        // The same weight() call refuses for a food the hero has bitten:
-        // js/obj.js needs an eatenStat hook to read oeaten and js/eat.js is
-        // its only provider, which js/dothrow.js cannot import without
-        // closing a cycle. The stop must come before any output, and
-        // js/cmd.js failClosedCommandRefusals() is what turns it into a
-        // segment end rather than a crash.
+        // The same weight() call scales a food the hero has bitten through
+        // eat.c eaten_stat() (3786-3805): a food ration weighs 20 whole and
+        // holds 800 nutrition, so 360 left weighs 20 * 360 / 800 = 9, at the
+        // threshold, and only plops; 400 left weighs 10 and splashes.
+        assert.equal(materials.objects[FOOD_RATION].oc_weight, 20);
+        assert.equal(materials.objects[FOOD_RATION].oc_nutrition, 800);
         const bitten = arena();
         bitten.level.at(9, 4).typ = POOL;
         bitten._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(bitten, FOOD_RATION, { oeaten: 400 }),
-                0, false, null, bitten),
-            UnsupportedObjectOperationError,
-        );
-        assert.equal(bitten._ttyToplines, '');
-        assert.deepEqual(draws(), []);
+        await throwit(item(bitten, FOOD_RATION, { oeaten: 360 }),
+            0, false, null, bitten);
+        assert.equal(bitten._ttyToplines, 'Plop!');
+        // trap.c water_damage():4771's `(Luck + 5) > rn2(20)` protection
+        // roll comes first for food as for darts.
+        assert.deepEqual(draws(), ['rn2(20)']);
+        const bittenLess = arena();
+        bittenLess.level.at(9, 4).typ = POOL;
+        bittenLess._ttyToplines = '';
+        await throwit(item(bittenLess, FOOD_RATION, { oeaten: 400 }),
+            0, false, null, bittenLess);
+        assert.equal(bittenLess._ttyToplines, 'Splash!');
+        assert.deepEqual(draws(), ['rn2(20)']);
 
         // Lava sounds only for what will not burn. An iron dagger will not.
         const lava = arena();

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent monmove.c monflee() release of a holding monster. A debug-mode Valkyrie wishes for a clove of garlic and creates a large mimic, which hides as hiking boots to her north-west. She walks into it and is stuck to it, then eats the garlic. eat.c garlic_breath() scares the adjacent mimic through monflee(), whose release_hero() calls mon.c unstuck(): 'You get released!' and unstuck()'s rnd(2) re-hold cooldown.",
+  "segments": [
+    {
+      "seed": 40571839,
+      "datetime": "20620403161000",
+      "nethackrc": "OPTIONS=name:Hlif,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017clove of garlic\n\u0007large mimic\ny\u001bee\u001b\u001b"
+    }
+  ]
+}

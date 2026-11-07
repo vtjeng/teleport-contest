@@ -102,7 +102,7 @@ import { depth, level_difficulty, on_level } from './dungeon.js';
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
 import { stop_occupation } from './allmain.js';
-import { eating_glob, set_tin_variety } from './eat.js';
+import { eaten_stat, eating_glob, set_tin_variety } from './eat.js';
 // makesingular() is used by sanity_check_worn() for class name formatting.
 // fruit.js imports nothing from this file; the edge is acyclic.
 import { makeplural, makesingular } from './fruit.js';
@@ -118,7 +118,12 @@ import {
     sobj_at as inventory_sobj_at, update_inventory,
     useupall,
 } from './invent.js';
-import { confers_luck } from './artifacts.js';
+import {
+    confers_luck,
+    makeArtifact as mkArtifactAdapter,
+    nartifact_exist,
+    permapoisoned,
+} from './artifacts.js';
 // mkobj.c:curse() calls spell.c:book_cursed(). spell.js imports object helpers
 // from this module, so use this binding only inside curse(), after init.
 import { book_cursed } from './spell.js';
@@ -453,12 +458,13 @@ export class UnsupportedObjectOperationError extends Error {
 // source-ordered RNG and id changes are intentionally retained).
 //
 //   monster(index, env) -> monster record
-//   eatenStat(weight, obj, env) -> adjusted weight
-//   artifactCount(env) -> existing artifact count
+//   eatenStat(weight, obj, env) -> adjusted weight (default eat.c eaten_stat)
+//   artifactCount(env) -> existing artifact count (default nartifact_exist)
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
+//     (default artifact.c mk_artifact())
 //   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
 //     STATUE and FIGURINE branches
-//   isPermanentlyPoisoned(obj, env) -> boolean
+//   isPermanentlyPoisoned(obj, env) -> boolean (default permapoisoned())
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
 
@@ -1752,6 +1758,12 @@ function monsterRecord(obj, env) {
     return monster;
 }
 
+// C ref: mkobj.c weight() calls eat.c eaten_stat() directly for partly
+// eaten food; a caller's eatenStat hook remains a test seam.
+function eatenStat(env) {
+    return env.hooks.eatenStat ?? eaten_stat;
+}
+
 // C ref: mkobj.c weight(). Monster-dependent food/statue calculations use a
 // narrow lookup seam until the monster catalog is ported; ordinary startup
 // objects, coins, and nested containers are complete here.
@@ -1791,16 +1803,11 @@ export function weight(obj, env = {}) {
     if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM) {
         const monster = monsterRecord(obj, normalized);
         wt = Math.min(obj.quan * Math.trunc(monster.cwt), LARGEST_INT);
-        if (obj.oeaten) {
-            const eatenStat = requiredHook(normalized, 'eatenStat', obj);
-            wt = eatenStat(wt, obj, normalized);
-        }
+        if (obj.oeaten) wt = eatenStat(normalized)(wt, obj, normalized);
         return Math.trunc(wt);
     }
-    if (obj.oclass === FOOD_CLASS && obj.oeaten) {
-        const eatenStat = requiredHook(normalized, 'eatenStat', obj);
-        return Math.trunc(eatenStat(obj.quan * wt, obj, normalized));
-    }
+    if (obj.oclass === FOOD_CLASS && obj.oeaten)
+        return Math.trunc(eatenStat(normalized)(obj.quan * wt, obj, normalized));
     if (obj.oclass === COIN_CLASS)
         return Math.max(Math.trunc((obj.quan + 50) / 100), 1);
     if (obj.otyp === HEAVY_IRON_BALL && obj.owt)
@@ -1827,12 +1834,8 @@ export function preflightWeight(obj, env = {}) {
             preflightWeight(contents, normalized);
         return;
     }
-    if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM) {
+    if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM)
         monsterRecord(obj, normalized);
-        if (obj.oeaten) requiredHook(normalized, 'eatenStat', obj);
-    } else if (obj.oclass === FOOD_CLASS && obj.oeaten) {
-        requiredHook(normalized, 'eatenStat', obj);
-    }
 }
 
 // C ref: mkobj.c treefruits[] (1978-1980).
@@ -1878,7 +1881,9 @@ function inHell(state) {
 }
 
 function makeArtifact(obj, env, adjustSpe) {
-    const result = requiredHook(env, 'makeArtifact', obj)(obj, {
+    // C ref: mkobj.c mksobj_init() calls artifact.c mk_artifact() directly;
+    // a caller's makeArtifact hook remains a test seam.
+    const result = (env.hooks.makeArtifact ?? mkArtifactAdapter)(obj, {
         adjustSpe,
         alignment: A_NONE,
         maxGiftValue: 99,
@@ -1891,7 +1896,11 @@ function makeArtifact(obj, env, adjustSpe) {
 
 function maybeGenerateArtifact(obj, artif, divisorBase, env) {
     if (!artif) return obj;
-    const artifactCount = requiredHook(env, 'artifactCount', obj)(env);
+    // C ref: mkobj.c mksobj_init() calls artifact.c nartifact_exist()
+    // directly; a caller's artifactCount hook remains a test seam.
+    const artifactCount = env.hooks.artifactCount
+        ? env.hooks.artifactCount(env)
+        : nartifact_exist(env.state);
     if (!env.random.rn2(divisorBase + 10 * artifactCount))
         return makeArtifact(obj, env, true);
     return obj;
@@ -2689,10 +2698,10 @@ function mksobj_init(obj, artif = false, env = {}) {
 
     mkobj_erosions(obj, normalized);
     if (obj.oartifact) {
-        const poisoned = requiredHook(normalized, 'isPermanentlyPoisoned', obj)(
-            obj,
-            normalized,
-        );
+        // C ref: mkobj.c mksobj_init():1173 calls artifact.c permapoisoned().
+        const poisoned = normalized.hooks.isPermanentlyPoisoned
+            ? normalized.hooks.isPermanentlyPoisoned(obj, normalized)
+            : permapoisoned(obj);
         if (poisoned) obj.opoisoned = true;
     }
     return obj;

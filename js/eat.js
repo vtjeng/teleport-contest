@@ -1596,8 +1596,7 @@ export function obj_nutrition(otmp, state = game) {
 }
 
 // C ref: eat.c eaten_stat() (3786-3805). Scales a whole food's weight or price
-// down to the fraction that is left. mkobj.c weight() is the caller, and
-// reaches it through the object env's eatenStat seam.
+// down to the fraction that is left. mkobj.c weight() is the caller.
 export function eaten_stat(base, obj, env = {}) {
     const state = env.state ?? game;
     const full_amount = obj_nutrition(obj, state);
@@ -3480,15 +3479,12 @@ export async function edibility_prompts(otmp, state = game, env = {}) {
 function eatOperations(state, statusRefresh, message = ttyPline) {
     return {
         state,
-        // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
-        // eaten_stat() through this port's object env, and timeout.c
-        // obj_stop_timers(), which done_eating() reaches through useup() ->
-        // obfree() for a corpse, whose ROT_CORPSE timer mkobj.c
-        // start_corpse_timeout() hung on it.
+        // C ref: timeout.c obj_stop_timers(), which done_eating() reaches
+        // through useup() -> obfree() for a corpse, whose ROT_CORPSE timer
+        // mkobj.c start_corpse_timeout() hung on it.
         // Billing a bite is a discarded-return mkobj.c call; the direct
         // costly_alteration() call owns its output and billing continuation.
         hooks: {
-            eatenStat: eaten_stat,
             stopObjectTimers: (obj, hookEnv) => {
                 obj_stop_timers(obj, hookEnv.state, hookEnv);
             },

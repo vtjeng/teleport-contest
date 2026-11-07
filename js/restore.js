@@ -20,6 +20,7 @@ import {
     COULD_SEE,
     IN_SIGHT,
     LFILE_EXISTS,
+    LS_MONSTER,
     M_AP_TYPE,
     ROWNO,
     VISITED,
@@ -422,6 +423,15 @@ export async function dorestore(state = game) {
         set_uasmon(state);
     } finally {
         state.program_state.restoring = wasRestoring;
+    }
+
+    // C ref: light.c relink_light_sources() -> find_mid(nid, FM_EVERYWHERE),
+    // whose FM_YOU arm answers m_id 1 with &youmonst. A light emitted by the
+    // polymorphed hero was saved with the hero's monster record, which the
+    // snapshot does not restore as youmonst, so point it back at youmonst.
+    for (let light = state.gl?.light_base; light; light = light.next) {
+        if (light.type === LS_MONSTER && light.id?.m_id === 1)
+            light.id = state.youmonst;
     }
 
     // C ref: restore.c dorecover():905-906. The current symbol set is not

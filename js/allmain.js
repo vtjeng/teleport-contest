@@ -419,7 +419,15 @@ function requireOccupationOperation(env, name) {
 export async function stop_occupation(state = game, env = {}) {
     if (state.go?.occupation) {
         const message = requireOccupationOperation(env, 'message');
-        if (!await maybe_finished_meal(true, state, env)) {
+        // A meal that finishes here reaches eat.c newuhs(), whose bot() call
+        // C makes directly. Callers pass only their message seam; refresh
+        // the live status line, and keep a planning clone's silent.
+        const mealEnv = {
+            ...env,
+            statusRefresh: env.statusRefresh
+                ?? (state === game ? () => bot() : () => {}),
+        };
+        if (!await maybe_finished_meal(true, state, mealEnv)) {
             await message(`You stop ${state.go.occtxt}.`, state, env);
         }
         state.go.occupation = null;

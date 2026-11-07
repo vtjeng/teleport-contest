@@ -37,7 +37,6 @@ import { isok } from './cmd_isok.js';
 import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { eaten_stat } from './eat.js';
 import { newsym } from './display.js';
 import { m_dowear } from './worn.js';
 import {
@@ -376,12 +375,9 @@ function give_to_nearby_mon(otmp, x, y, state) {
 
 // Object hooks for the possessions savebones() moves. mkobj.c
 // add_to_container() calls obj_no_longer_held() again for a container outside
-// any inventory, such as the hero's statue, and a partly eaten food item in
-// its contents needs eat.c eaten_stat() for the statue's weight. mkobj.c
-// add_to_minv() can merge a partly eaten item into a monster's stack, and the
-// merge's weight() needs the same eaten_stat().
+// any inventory, such as the hero's statue.
 function bonesObjectEnv(state) {
-    return objectGenerationEnv({ state, hooks: { eatenStat: eaten_stat } });
+    return objectGenerationEnv({ state });
 }
 
 // C ref: bones.c drop_upon_death() (259-303). Drops all hero inventory,

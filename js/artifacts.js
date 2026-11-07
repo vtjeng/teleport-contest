@@ -218,7 +218,7 @@ import {
 
 import { fuzzymatch, lcase, s_suffix, upstart } from './hacklib.js';
 import { aligns } from './roles.js';
-import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -239,7 +239,8 @@ import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import {
-    canspotmon, glyph_at, glyph_is_trap, map_invisible, newsym, shieldeff,
+    canspotmon, glyph_at, glyph_is_trap, map_invisible, map_invisible_planning,
+    newsym, shieldeff,
     see_monsters,
 } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
@@ -1841,8 +1842,12 @@ export async function Mb_hit(
             state, env);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
-        if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state))
-            map_invisible(mdef.mx, mdef.my, state);
+        // A planning clone keeps display.c map_invisible()'s memory write
+        // and leaves the live paint to the replayed turn.
+        if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
+            if (state === game) map_invisible(mdef.mx, mdef.my, state);
+            else map_invisible_planning(mdef.mx, mdef.my, state);
+        }
     }
 
     /* now perform special effects */
@@ -2023,7 +2028,11 @@ export async function artifact_hit(
     magr, mdef, otmp, dmgptr, dieroll, state = game, rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { rn2, rnd, d };
+    // The effects below reach far: Magicbane's cancellation runs
+    // zap.c cancel_monst() into mon.c newcham(), and the elemental brands
+    // reach the item-destruction rolls. A caller that supplies no random
+    // source gets the whole core set C calls.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const effectEnv = { ...env, state, random };
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
@@ -3247,6 +3256,18 @@ async function untouchable(obj, drop_untouchable, state = game, rawEnv = {}) {
 // and carried objects after a form or alignment change. The per-game field
 // represents C's static recursion counter; nested calls share it across awaits.
 export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
+    // The touch tests print, can blast the hero to death in done(), and
+    // unwield or drop equipment. Stop a planning clone here so its owner
+    // replays this source path live, then replans from that state. With an
+    // empty pack and no steed every scan below finds nothing, and the call
+    // has no observable effect, so a plan may continue through it.
+    if (rawEnv.planning && (state.invent || state.u.usteed)) {
+        if (typeof rawEnv.requestPlanningInput !== 'function')
+            throw new TypeError(
+                'planned retouch_equipment requires a replay boundary',
+            );
+        return rawEnv.requestPlanningInput('artifact.c retouch_equipment');
+    }
     const had_gloves = Boolean(state.uarmg);
     const had_rings = Number(Boolean(state.uleft)) + Number(Boolean(state.uright));
     const retouchEnv = { ...rawEnv, state };

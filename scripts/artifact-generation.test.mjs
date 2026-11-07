@@ -382,6 +382,35 @@ test('obj.js hooks preserve generation order and finalize artifact weight', () =
     assert.equal(obj.corpsenm, NON_PM);
 });
 
+test('mksobj() reaches nartifact_exist() and mk_artifact() without hooks', () => {
+    // mkobj.c mksobj_init():889-891 calls artifact.c nartifact_exist() and
+    // mk_artifact() directly, and mksobj_init():1173 permapoisoned(), so a
+    // caller such as a monster's m_initinv() need not supply them.
+    const state = stateFor('Wiz', 'neutral', 'orc');
+    // One artifact already exists, so the gate widens to rn2(20 + 10 * 1).
+    artifact_exists(bareWeapon(LONG_SWORD), 'Excalibur', true,
+        ONAME_NO_FLAGS, state);
+    assert.equal(nartifact_exist(state), 1);
+    const script = scriptedRandom([
+        // next_ident(): object id increments by rnd(2).
+        ['rnd', 2, 1],
+        // Ordinary weapon BUC path: miss +spe, miss -spe, no bless/curse.
+        ['rn2', 11, 1],
+        ['rn2', 10, 1],
+        ['rn2', 10, 1],
+        ['rn2', 30, 0],
+        // Orcrist is the sole ELVEN_BROADSWORD candidate.
+        ['rn2', 1, 0],
+    ]);
+    const obj = mksobj(ELVEN_BROADSWORD, true, true, {
+        state,
+        random: script.random,
+    });
+    script.done();
+    assert.equal(obj.oartifact, ART_ORCRIST);
+    assert.equal(obj.opoisoned ?? false, false);
+});
+
 test('aligned role gift selects its first choice in source RNG order', () => {
     const state = stateFor('Pri', 'lawful');
     // artifact.c mk_artifact() skips already-existing records, then makes a

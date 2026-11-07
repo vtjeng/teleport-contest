@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent restore.c relink of the polymorphed hero's light source. A debug-mode Healer uses #polyself to become a fire vortex, which emits light, and saves. The second segment restores the game and becomes a newt with #polyself; polyself.c polyself() deletes the vortex's light source with del_light_source(LS_MONSTER, &youmonst), which finds it only if restoring relinked it to the hero as light.c relink_light_sources() does through find_mid(1, FM_YOU).",
+  "segments": [
+    {
+      "seed": 46602917,
+      "datetime": "20680528114500",
+      "nethackrc": "OPTIONS=name:Lumen,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "#polyself\nfire vortex\n\u001bs.Sy"
+    },
+    {
+      "seed": 46602918,
+      "datetime": "20680528121500",
+      "nethackrc": "OPTIONS=name:Lumen,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " n#polyself\nnewt\n\u001bs."
+    }
+  ]
+}

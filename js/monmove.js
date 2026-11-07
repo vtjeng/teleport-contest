@@ -2076,7 +2076,10 @@ export async function monflee(
     if (monster.mhp < 1) return;
 
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    // monflee() draws rn2() itself, and its release_hero() continuation
+    // reaches mon.c unstuck()'s rnd(2) cooldown and mhitu.c expels(); a
+    // caller that supplies no source gets the whole core set C calls.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
     const checksFleeingLight = env.fleesLight ?? fleesLight;
     // C's `first` means "only establish fear if not already fleeing"; false

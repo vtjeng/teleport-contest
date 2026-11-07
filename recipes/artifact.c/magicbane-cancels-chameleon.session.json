@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent artifact.c Mb_hit() cancellation of a shapeshifter. A debug-mode Wizard wishes for Magicbane, wields it, sets her experience level to 14 and creates a hostile chameleon, then fights it to the south. When the blade cancels it, zap.c cancel_monst() calls mon.c normal_shape(), and newcham() turns the fog cloud back into a chameleon.",
+  "segments": [
+    {
+      "seed": 59920471,
+      "datetime": "20660711101500",
+      "nethackrc": "OPTIONS=name:Edda,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017Magicbane\nwn#levelchange\n14\n\u001b\u0007hostile chameleon\nFj\u001bFj\u001bFj\u001bFj\u001bFj\u001bFj\u001bFj\u001bFj\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent invent.c mergable() corpse test inside an engulfer. A debug-mode dwarven Valkyrie wishes for two uncursed lichen corpses, creates a hostile dust vortex and waits with m-prefixed searches until it engulfs her, then drops one corpse and then the other. do.c dropz() hands each to steal.c mpickobj(); the second meets the first in the vortex's inventory, and mergable() asks mondata.h is_reviver() of the lichen before stacking them.",
+  "segments": [
+    {
+      "seed": 31977504,
+      "datetime": "20590221191500",
+      "nethackrc": "OPTIONS=name:Bryn,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u00172 uncursed lichen corpses\n\u0007hostile dust vortex\nms\u001bms\u001bd1e\u001bde\u001b"
+    }
+  ]
+}

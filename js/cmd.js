@@ -3001,14 +3001,11 @@ export function failClosedCommandRefusals() {
         // and dryup() raise this for the fountain-effect arms this port
         // leaves unported.
         UnsupportedFountainError,
-        // Two paths raise this. invent.c hold_another_object(), which
-        // makewish() calls unguarded, raises it from its drop, artifact,
-        // Fumbling and autoquiver arms. A wish heavy or numerous enough to
-        // push near_capacity() past flags.pickup_burden reaches the drop arm:
-        // a boulder does it on any hero. dothrow.c throwit() raises it from
-        // the weight() call that picks Splash! or Plop!, for a food the hero
-        // has bitten, because js/dothrow.js cannot supply the eatenStat hook
-        // without an import cycle. js/allmain.js
+        // invent.c hold_another_object(), which makewish() calls unguarded,
+        // raises it from its drop, artifact, Fumbling and autoquiver arms. A
+        // wish heavy or numerous enough to push near_capacity() past
+        // flags.pickup_burden reaches the drop arm: a boulder does it on any
+        // hero. js/allmain.js
         // elapsedTurnPlanningRefusals() already lists the class, and the note
         // above says a class several paths can reach belongs in each.
         UnsupportedObjectOperationError,

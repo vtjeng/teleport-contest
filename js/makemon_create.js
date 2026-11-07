@@ -100,6 +100,7 @@ import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
     artifact_exists,
+    artifact_light,
 } from './artifacts.js';
 import { newemin } from './minion.js';
 import { in_town } from './hack.js';
@@ -591,6 +592,7 @@ import {
     t_at,
 } from './trap.js';
 import {
+    extract_from_minvent,
     m_dowear,
     mon_set_minvis,
     update_mon_extrinsics,
@@ -2780,6 +2782,27 @@ export { m_dowear, racial_exception, update_mon_extrinsics } from './worn.js';
 // still reversed here before each generated inventory object is uncreated.
 export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     const normalized = creationEnv(env);
+    // A wielded light-emitting artifact makes extract_from_minvent()'s
+    // mwepgone() -> setmnotwielded() end its light and say "<obj> in <mon>'s
+    // hand stops shining." That message can wait for --More--, so take the
+    // complete awaited source owner for such an inventory; every other
+    // inventory keeps the synchronous path below, which has no output.
+    const weapon = monster.mw;
+    if (weapon && weapon.lamplit && artifact_light(weapon)) {
+        return (async () => {
+            while (monster.minvent) {
+                const obj = monster.minvent;
+                await extract_from_minvent(monster, obj, true, true,
+                    normalized);
+                if (uncreateArtifacts && obj.oartifact) {
+                    artifact_exists(obj, ONAME(obj), false, ONAME_NO_FLAGS,
+                        normalized.state);
+                }
+                obfree(obj, null, objectGenerationEnv(normalized));
+            }
+            return monster;
+        })();
+    }
     while (monster.minvent) {
         const obj = monster.minvent;
         const unwornmask = obj.owornmask;
@@ -2809,7 +2832,10 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
                 normalized.state,
             );
         }
-        obfree(obj, null, normalized);
+        // mkobj.c obfree() stops the object's timers and deletes its light
+        // source through timeout.c and light.c directly; supply those owners
+        // unless the caller brought its own.
+        obfree(obj, null, objectGenerationEnv(normalized));
     }
     return monster;
 }

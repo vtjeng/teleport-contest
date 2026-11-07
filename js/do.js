@@ -593,10 +593,6 @@ export async function zombify_mon(body, timeout, rawEnv = {}) {
     if (zmon !== NON_PM && !(state.mvitals[zmon].mvflags & G_GENOD)) {
         if (body.oextra?.omid) free_omid(body);
         if (body.oextra?.omonst) free_omonst(body);
-        // set_corpsenm -> weight consumes eaten_stat for a partly eaten
-        // corpse. Keep the canonical owner available through its object seam.
-        const { eaten_stat } = await import('./eat.js');
-        env.hooks = { eatenStat: eaten_stat, ...env.hooks };
         set_corpsenm(body, zmon, env);
         await revive_mon(body, timeout, env);
     } else {

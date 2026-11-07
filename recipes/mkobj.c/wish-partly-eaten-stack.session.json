@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mkobj.c weight() of a partly eaten stack in a live merge. A debug-mode orcish Barbarian wishes twice for an uncursed partly eaten cram ration. The second goes through invent.c hold_another_object() and merged() into the first, and the merged stack's weight() scales its weight through eat.c eaten_stat().",
+  "segments": [
+    {
+      "seed": 88120547,
+      "datetime": "20480706120500",
+      "nethackrc": "OPTIONS=name:Ottar,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017uncursed partly eaten cram ration\n\u0017uncursed partly eaten cram ration\n"
+    }
+  ]
+}

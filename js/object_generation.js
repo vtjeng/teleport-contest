@@ -14,7 +14,7 @@ import { del_light_source } from './light.js';
 import { monsterObject } from './monster_object.js';
 import { obj_no_longer_held } from './obj.js';
 import { obj_stop_timers } from './timeout.js';
-import { block_point } from './vision.js';
+import { block_point, recalc_block_point } from './vision.js';
 
 export function objectGenerationHooks(overrides = {}) {
     return {
@@ -31,6 +31,9 @@ export function objectGenerationHooks(overrides = {}) {
         // of the boulder and shows up only as a screen mismatch many steps
         // later.
         blockPoint: (x, y, env) => block_point(x, y, env.state),
+        // mkobj.c remove_object():2518 is the other half: lifting a boulder
+        // off a square calls vision.c recalc_block_point() there.
+        recalcBlockPoint: (x, y, env) => recalc_block_point(x, y, env.state),
         deleteObjectLightSource: (obj, env) => {
             del_light_source(LS_OBJECT, obj, env.state);
         },
