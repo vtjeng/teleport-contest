@@ -4020,9 +4020,11 @@ async function domove_fight_web(x, y, state) {
 async function domove_fight_empty(x, y, state) {
     // C computes `off_edge` and the glyph above the entry test, and an
     // off-edge square takes GLYPH_UNEXPLORED, which is not the marker. So the
-    // disjunct needs isok() where the forcefight half does not.
+    // disjunct needs isok() where the forcefight half does not. hack.c:2234
+    // reads glyph_at(), the drawn glyph, not levl[x][y].glyph: an underwater
+    // hero's screen shows none of the remembered 'I' markers around it.
     const remembersUnseenMonster = isok(x, y)
-        && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
+        && glyph_is_invisible(glyph_at(x, y, state))
         && !m_at(x, y, state)
         && !state.context.nopick;
     if (!state.context.forcefight && !remembersUnseenMonster) return false;
