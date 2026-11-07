@@ -116,7 +116,7 @@ import { coreRandom, d, rn2 } from './rng.js';
 import { exercise, adjalign } from './attrib.js';
 import { currency, money_cnt } from './invent.js';
 import { incr_itimeout } from './potion.js';
-import { livelog_printf, verbalize } from './pline.js';
+import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -951,7 +951,7 @@ export async function intemple(roomno, env = {}) {
         await message('You have an eerie feeling...', state);
         break;
     case 1:
-        await message('You feel like you are being watched.', state);
+        await message(youFeel('like you are being watched.', state), state);
         break;
     case 2:
         await message(

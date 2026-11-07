@@ -26,6 +26,7 @@ import { elemental_clog } from '../js/mon.js';
 import { mon_poly } from '../js/mhitm.js';
 import { PM_HORNED_DEVIL, PM_STONE_GOLEM, PM_WEREWOLF } from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
+import { intemple } from '../js/priest.js';
 import { attrcurse } from '../js/sit.js';
 import { level_tele_trap } from '../js/teleport.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
@@ -225,4 +226,19 @@ test('trap.c domagictrap() dreams a magic trap\'s fatigue', async () => {
         redraw: () => {}, // seetrap() repaints the trap square.
     });
     assert.deepEqual(lines, ['You dream that you feel tired.']);
+});
+
+test('priest.c intemple() dreams an untended temple\'s watchers', async () => {
+    // spoteffects() calls check_special_room() and so intemple() when a
+    // move such as a monster's teleport of the sleeping hero lands her in
+    // a temple. With no priest, rn2(4) == 1 takes priest.c:509's
+    // You_feel(). Room 0 is any room; the fixture level has no priest.
+    const state = await sleepingGame();
+    const { lines, message } = firstLine();
+    await assert.rejects(intemple(0, {
+        state,
+        random: { rn2: () => 1 },
+        message,
+    }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel like you are being watched.']);
 });
