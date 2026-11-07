@@ -226,7 +226,7 @@ import { floating_above } from './fountain.js';
 import { artifact_has_invprop } from './artifacts.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
-import { livelog_printf, youSee } from './pline.js';
+import { livelog_printf, youFeel, youSee } from './pline.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
@@ -461,7 +461,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
     case OBJ_INVENT:
         await message(wielded
             ? `The ${cname} writhes out of your grasp!`
-            : 'You feel squirming in your backpack!', state, env);
+            : youFeel('squirming in your backpack!', state), state, env);
         break;
     case OBJ_FLOOR:
         if (cansee(coordinate.x, coordinate.y, state)
@@ -574,8 +574,8 @@ export async function revive_mon(body, _timeout, rawEnv = {}) {
             when = rider_revival_time(body, true, env);
         } else {
             if (!obj_has_timer(body, ROT_CORPSE, state))
-                await message(`You feel ${is_rider(species) ? 'much ' : ''}`
-                    + 'less hassled.', state, env);
+                await message(youFeel(`${is_rider(species) ? 'much ' : ''}`
+                    + 'less hassled.', state), state, env);
             action = ROT_CORPSE;
             when = Math.max(1, random.d(5, 50) - (state.moves - body.age));
         }
