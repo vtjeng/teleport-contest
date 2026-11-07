@@ -2809,7 +2809,10 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
                 normalized.state,
             );
         }
-        obfree(obj, null, normalized);
+        // mkobj.c obfree() stops the object's timers and deletes its light
+        // source through timeout.c and light.c directly; supply those owners
+        // unless the caller brought its own.
+        obfree(obj, null, objectGenerationEnv(normalized));
     }
     return monster;
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mkobj.c discard_minvent() of a lit, timed object. A debug-mode Valkyrie wishes for an oil lamp and lights it, drops the rest of her pack, steps east and wishes for a blessed scroll of genocide, which she drops there. A hostile monkey steals the lit lamp; she picks the scroll back up, reads it and answers '*', which in debug mode makes read.c do_class_genocide() call mongone() on every monster. discard_minvent() frees the lamp through obfree(), which stops its burn timer and deletes its light source.",
+  "segments": [
+    {
+      "seed": 64093318,
+      "datetime": "20670512174500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017oil lamp\naeTdadbdcddl\u0017blessed scroll of genocide\ndf\u0007hostile monkey\nms\u001bms\u001b,rf  *\n"
+    }
+  ]
+}
