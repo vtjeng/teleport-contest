@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vision.c block_point()/unblock_point() and zap.c zap_over_floor() 5411-5454: a flaming sphere explodes beside a closed door and burns it away. The port plans each monster turn on a cloned state before running it live, and the planned explosion's recalc_block_point() rewrote vision.c's module-wide transparency index. The dying sphere's light source forces a live vision_recalc(), and the red mold caught in the blast before the door is reached gives a --More-- screen in between, on which the port let the hero see through the still-closed door and show the brown mold in the lit room behind it. A dwarvish Valkyrie in debug mode wishes for and puts on a ring of fire resistance, creates a brown mold beside the west door of her lit start room, walks out through the door and closes it, reads a scroll of light so that the corridor squares are lit, creates a red mold one step up the corridor, steps back beside the door and creates a flaming sphere, which can stand only between her and the red mold. Seed, character and inputs chosen independently of batch 7.",
+  "segments": [
+    {
+      "seed": 3310033,
+      "datetime": "20410315093000",
+      "nethackrc": "OPTIONS=name:Torvin,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017ring of fire resistance\nPerbbj\u0007brown mold\nohhhhcl\u0017scroll of light\nrfks\u0007red mold\nj\u0007flaming sphere\nmsmsms      msms"
+    }
+  ]
+}

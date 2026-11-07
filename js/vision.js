@@ -211,9 +211,24 @@ export function does_block(x, y, _location = null, state = game) {
     return blocksVisionAt(x, y, state);
 }
 
+// A planning clone (any state other than the live game) borrows the
+// module-wide transparency index. Every write to that index passes through
+// here or vision_reset(), so the borrow is recorded at the write itself
+// rather than by each of the hundred-odd block_point() callers: the
+// preflight wrappers in unported_monster_actions.js restore the snapshot when
+// _plannedVisionChange is set. A planned explosion that burns a door away
+// otherwise leaves the live hero seeing through the door the real
+// explosion has not yet reached.
+function borrowTransparencyIndex(x, y, state) {
+    if (state === game) return;
+    state._plannedTransparencyIndex ??= snapshotTransparencyIndex();
+    state._plannedVisionChange ??= { x, y };
+}
+
 // C vision.c block_point/unblock_point explicitly change one obstruction.
 // Rebuilding from does_block would erase forced openings such as Water bubbles.
 function updateVisionPoint(x, y, state, blocked) {
+    borrowTransparencyIndex(x, y, state);
     if (blocked) fill_point(y, x);
     else dig_point(y, x);
     if (state.viz_array?.[y]?.[x]) state.vision_full_recalc = 1;
@@ -339,6 +354,7 @@ function rebuildTransparencyRow(y) {
 // Only vision_reset derives all obstructions from the map.
 function rebuildTransparencyIndex(state) {
     if (!state.level) return;
+    borrowTransparencyIndex(0, 0, state);
     for (let y = 0; y < ROWNO; y++) {
         viz_clear[y][0] = 0;
         for (let x = 1; x < COLNO; x++)
