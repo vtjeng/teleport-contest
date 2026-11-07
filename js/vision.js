@@ -868,7 +868,11 @@ export function vision_recalc(control = 0, env = {}) {
     if (state.in_mklev || state.program_state?.in_getlev
         || !state.iflags?.vision_inited) return;
 
-    // Swap to unused buffer
+    // Swap to unused buffer. vision.c's cs_rows pair belongs to the one
+    // running game; a planning clone that reaches vision_recalc() (blindness
+    // from a planned venom splash, a planned engulf) writes a pair of its own,
+    // or it would overwrite the live view and its spare buffer.
+    if (state !== game) state._visionBuffers ??= makeVisionBuffers();
     const buffers = visionBuffers(state);
     const spare = state.active_buf === 0 ? 1 : 0;
     const next = buffers.rows[spare];
