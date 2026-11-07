@@ -37,6 +37,8 @@ import {
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
     KILLED_BY,
     NOTELL,
     OBJ_FLOOR,
@@ -2934,4 +2936,33 @@ for (const planning of [true, false]) {
             }
         });
     }
+}
+
+// zap.c dobuzz():4955-4957 reports a miss nobody asked to hear (saymiss is
+// FALSE for buzz() and ubuzz()) only when the monster is seen and not
+// disguised_as_non_mon(): monst.h excludes M_AP_MONSTER alone, so a mimic
+// posing as an object is passed over silently while one posing as a monster
+// is still named.
+for (const [appearance, expected] of [
+    [M_AP_OBJECT, 0], [M_AP_MONSTER, 1],
+]) {
+    test(`a seen monster with appearance ${appearance} ${expected ? 'gets' : 'gets no'} miss message`, async () => {
+        await aimedWand(1, 0, 0);
+        const monster = game.level.monlist;
+        assert.ok(monster);
+        const x = game.u.ux + 1, y = game.u.uy;
+        game.level.at(x, y).typ = ROOM;
+        relocate_monster(monster, x, y, game);
+        game.viz_array[y][x] |= IN_SIGHT;
+        monster.mhp = monster.mhpmax = 100;
+        monster.m_ap_type = appearance;
+        const lines = [];
+        // forcemiss TRUE takes the miss arm without zap_hit() draws.
+        await dobuzz(0, 1, game.u.ux, game.u.uy, 1, 0,
+            true, false, true, game,
+            {...straightThrough(), rn1: () => 1, rn2: bound => bound - 1},
+            {message: async text => lines.push(text)});
+        assert.equal(lines.filter((line) => /misses/u.test(line)).length,
+            expected);
+    });
 }

@@ -5840,8 +5840,8 @@ async function buzzmonst(
         || !zap_hit(find_mac(mon, state), spellType, random, state)) {
         if (saymiss
             || (canseemon(mon, state)
-                && !(mon.m_ap_type
-                    && (mon.m_ap_type & 0x7) !== 2 /* M_AP_MONSTER */)))
+                // monst.h disguised_as_non_mon()
+                && !(M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)))
             await miss(flash_str(fltyp, false, state, random), mon, state, env);
         return { hit: false, reflected: false, clearGas: false, stop: false };
     }
