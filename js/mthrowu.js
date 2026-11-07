@@ -32,8 +32,6 @@ import {
     EDOG,
     FOOT,
     FUMBLING,
-    HALLUC,
-    HALLUC_RES,
     IRONBARS,
     IS_OBSTRUCTED,
     IS_SINK,
@@ -279,7 +277,9 @@ import {
 
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
-import { Blind, HBlinded, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, HBlinded, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -322,10 +322,6 @@ function heroProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function Hallucination(state) {
-    return heroProperty(state, HALLUC)
-        && !heroProperty(state, HALLUC_RES);
-}
 
 function Deaf(state) {
     return heroProperty(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
@@ -1235,7 +1231,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     // existing message owner.
                     const name = The(mshot_xname(singleobj, state), state);
                     const verb = otense(singleobj,
-                        Hallucination(state) ? 'plop' : 'drop', state);
+                        Hallucination(state.u) ? 'plop' : 'drop', state);
                     await message(`${name} ${verb} onto the sink.`, state, env);
                 } else if ((state.m_shot?.n ?? 0) > 1
                            && (!state.mesg_given
@@ -1584,7 +1580,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
 // weapon. If the player is hallucinating, return a silly name instead.
 // typ is AD_MAGM, AD_FIRE, etc.
 export function breathwep_name(typ, state = game, random = coreRandom) {
-    if (Hallucination(state))
+    if (Hallucination(state.u))
         return rnd_hallublast(random);
     return breathwep[BZ_OFS_AD(typ)];
 }
@@ -2105,7 +2101,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
                 await message('The iron bars are dissolved!', state, rawEnv);
             } else {
                 note_unported('sounds.c Soundeffect');
-                const heard = youHear(Hallucination(state)
+                const heard = youHear(Hallucination(state.u)
                     ? 'angry snakes!' : 'a hissing noise.', state);
                 if (heard) await message(heard, state, rawEnv);
             }

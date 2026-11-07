@@ -79,6 +79,7 @@ import {
     loadEngravingDropRecipe,
     verifyDropCommandSegment,
 } from './run-drop-command.mjs';
+import { Hallucination } from '../js/youprop.js';
 
 // The three recipes are the only record of which C branches were recorded, so
 // a silent re-recording that lost one has to fail here.
@@ -155,12 +156,10 @@ test('any_obj_ok suggests every object and excludes the hands', () => {
 // C ref: youprop.h HHallucination and Hallucination macros (115-120).
 test('sink hallucination checks intrinsic timeout and both resistance sources', () => {
     const hallucinating = (hallucination, resistance) =>
-        _dropInternals.heroHallucinating({
-            u: {
-                uprops: {
-                    [HALLUC]: hallucination,
-                    [HALLUC_RES]: resistance,
-                },
+        Hallucination({
+            uprops: {
+                [HALLUC]: hallucination,
+                [HALLUC_RES]: resistance,
             },
         });
 

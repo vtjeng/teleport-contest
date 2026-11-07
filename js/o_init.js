@@ -18,7 +18,7 @@ import { coreRandom, rn2 } from './rng.js';
 import { note_unported } from './unported.js';
 import { append_price_quote, gem_learned } from './shk.js';
 import {
-    A_WIS, BUFSZ, ECMD_OK, HALLUC, HALLUC_RES, MENU_COMBINATION,
+    A_WIS, BUFSZ, ECMD_OK, MENU_COMBINATION,
     MENU_PARTIAL, MENU_TRADITIONAL, PICK_ONE,
 } from './const.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -71,6 +71,7 @@ import {
     SLIME_MOLD,
     objects_globals_init,
 } from './objects.js';
+import { Hallucination } from './youprop.js';
 
 function ensureObjectGlobals(state) {
     if (!Array.isArray(state.objects)
@@ -415,15 +416,7 @@ export function oinit(state = game) {
     return setgemprobs(state.u?.uz ?? null, state);
 }
 
-function propertyActive(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
-function hallucinating(state) {
-    return propertyActive(state.u, HALLUC)
-        && !propertyActive(state.u, HALLUC_RES);
-}
 
 // C ref: o_init.c discover_object(). The source calls shk.c gem_learned()
 // directly when a gem becomes identified during live play.
@@ -518,7 +511,7 @@ export function undiscover_object(oindx, state = game) {
 export function observe_object(obj, state = game) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('observe_object requires an object');
-    if (obj.otyp >= FIRST_OBJECT && !hallucinating(state)) {
+    if (obj.otyp >= FIRST_OBJECT && !Hallucination(state.u)) {
         obj.dknown = true;
         discover_object(obj.otyp, false, true, false, state);
     }

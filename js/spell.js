@@ -10,7 +10,7 @@
 import {
     A_INT,
     DISP_CHANGE, D_CLOSED, D_LOCKED, SPACE_POS, POOL, MOAT,
-    DRAWBRIDGE_UP, LAVAPOOL, SHOCK_RES, HALLUC, HALLUC_RES,
+    DRAWBRIDGE_UP, LAVAPOOL, SHOCK_RES,
     N_DIRS, xdir, ydir, XKILL_GIVEMSG,
     A_STR,
     A_WIS,
@@ -209,7 +209,10 @@ import { explode } from './explode.js';
 import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
-import { BClairvoyant, Blind, Maybe_Half_Phys } from './youprop.js';
+import {
+    BClairvoyant, Blind, EHalluc_resistance, HHalluc_resistance,
+    HHallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells.
@@ -1998,10 +2001,8 @@ export async function propagate_chain_lightning(clq, sourceZap, state = game) {
 // C ref: spell.c cast_chain_lightning() (1003–1101). Process one breadth
 // wave per delay, retaining C's bhitpos-based head test and Pw decrement.
 export async function cast_chain_lightning(state = game, env = {}) {
-    const halluc = state.u.uprops[HALLUC];
-    const resistance = state.u.uprops[HALLUC_RES];
     const clq = { q: [], head: 0, tail: 0,
-        displayed_beam: halluc.intrinsic && !(resistance.intrinsic || resistance.extrinsic)
+        displayed_beam: HHallucination(state.u) && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u))
             ? rn2_on_display_rng(6, state) : AD_ELEC - 1 };
     // Source TODO: no damage to the engulfer. Display RNG was already drawn.
     if (state.u.uswallow) return;

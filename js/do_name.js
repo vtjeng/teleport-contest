@@ -25,7 +25,6 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     FEMALE,
-    HALLUC,
     HALLUC_RES,
     HAND,
     LL_ARTIFACT,
@@ -164,7 +163,10 @@ import { beautiful } from './apply.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
-import { Blind, See_invisible } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Hallucination, See_invisible,
+} from './youprop.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -522,8 +524,7 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
 
 // C ref: do_name.c do_mgivenname() (199-282).
 export async function do_mgivenname(state = game) {
-    if (namingPropertyActive(state, HALLUC)
-        && !namingPropertyActive(state, HALLUC_RES)) {
+    if (Hallucination(state.u)) {
         await ttyPline('You would never recognize it anyway.', state);
         return;
     }
@@ -902,8 +903,7 @@ export async function namefloorobj(state = game) {
         ? simpleonames(obj, state)
         : state.obj_descr?.[STRANGE_OBJECT]?.oc_name ?? 'glorkum';
     const usePlural = (obj.quan ?? 1) > 1;
-    if (namingPropertyActive(state, HALLUC)
-        && !namingPropertyActive(state, HALLUC_RES)) {
+    if (Hallucination(state.u)) {
         const female = poly_gender(state) === FEMALE;
         const names = [
             female ? state.urole?.name?.f : null,
@@ -945,15 +945,6 @@ function namingPropertyActive(state, property) {
         && !value?.blocked;
 }
 
-// C ref: youprop.h Hallucination (116-120). Hallucination is the intrinsic
-// timeout alone; unlike most properties, an extrinsic bit does not turn it
-// on. Either intrinsic or extrinsic hallucination resistance defeats it.
-function hallucinationActive(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: do_name.c x_monnam()'s do_it predicate (863-865). Six terms, and
 // each defeats "it" on its own: the hero can make the monster out; the caller
@@ -986,7 +977,7 @@ function x_monnam_it(suppress, monster, state, env = {}) {
         return 'it';
     const mdat = monster.data;
     const s_one = humanoid(mdat) && !is_animal(mdat) && !mindless(mdat);
-    const hallucinating = hallucinationActive(state);
+    const hallucinating = Hallucination(state.u);
     // x_monnam() uses rn2(), rather than rn2_on_display_rng(), for the
     // someone/something coin flip. Hallucinated species selection below is
     // the display-only path; this branch is ordinary gameplay grammar.
@@ -1121,7 +1112,7 @@ export function rndcolor(state = game, env = {}) {
     const random = typeof env.random === 'function'
         ? env.random : env.random?.rn2 ?? rn2;
     const k = random(CLR_MAX);
-    return hallucinationActive(state)
+    return Hallucination(state.u)
         ? hcolor(null, state, env)
         : (k === NO_COLOR) ? 'colorless' : c_obj_colors[k];
 }
@@ -1132,7 +1123,7 @@ export function rndcolor(state = game, env = {}) {
 // x_monnam() without changing the C-shaped state argument. env.random is the
 // gameplay stream in callers' environments, so it is never consulted here.
 export function hcolor(colorpref, state = game, env = {}) {
-    const hallucinating = hallucinationActive(state);
+    const hallucinating = Hallucination(state.u);
     if (!hallucinating && colorpref) return colorpref;
     const random = displayRandomFunction(
         env.displayRandom ?? stateDisplayRandom(state),
@@ -1160,7 +1151,7 @@ export function distant_monnam(
     state = game,
     env = {},
 ) {
-    const hallucinating = hallucinationActive(state);
+    const hallucinating = Hallucination(state.u);
     const level = state.u?.uz;
     const astral = Boolean(
         level && state.astral_level
@@ -1305,7 +1296,7 @@ export function x_monnam(
     }
 
     // do_name.c:861-862.
-    const do_hallu = hallucinationActive(state)
+    const do_hallu = Hallucination(state.u)
         && !(effectiveSuppress & SUPPRESS_HALLUCINATION);
     const do_invis = Boolean(monster.minvis)
         && !(effectiveSuppress & SUPPRESS_INVISIBLE);
@@ -1381,7 +1372,7 @@ export function x_monnam(
     // do_hallu, so SUPPRESS_HALLUCINATION does not restore the saddle.
     if (do_saddle && (monster.misc_worn_check & W_SADDLE)
         && !Blind(state.u)
-        && !hallucinationActive(state))
+        && !Hallucination(state.u))
         buf += 'saddled ';
     const has_adjectives = buf !== '';
 
@@ -1687,10 +1678,10 @@ export function hliquid(liquidpref, env = {}) {
     );
     const preferred = liquidpref == null ? '' : String(liquidpref);
     const hallucinating = Boolean(
-        state.u?.uprops?.[HALLUC]?.intrinsic,
+        HHallucination(state.u),
     ) && !Boolean(
-        state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+        HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u),
     ) && !state.program_state?.gameover;
     if (hallucinating || !preferred) {
         const count = HLIQUIDS.length + (preferred ? 1 : 0);

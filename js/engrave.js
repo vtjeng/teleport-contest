@@ -20,8 +20,6 @@ import {
     FLYING,
     GETOBJ_DOWNPLAY,
     GETOBJ_SUGGEST,
-    HALLUC,
-    HALLUC_RES,
     HEADSTONE,
     ICE,
     LEVITATION,
@@ -86,7 +84,7 @@ import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -1090,8 +1088,7 @@ export async function doengrave(state = game, env = {}) {
                 && !env.random.rn2(7)
             || propertyActiveUnblocked(state.u, STUNNED)
                 && !env.random.rn2(4)
-            || propertyActiveUnblocked(state.u, HALLUC)
-                && !propertyActiveUnblocked(state.u, HALLUC_RES)
+            || Hallucination(state.u)
                 && !env.random.rn2(2);
         if (damage) corrupted[i] = 0x20 + env.random.rnd(94);
     }

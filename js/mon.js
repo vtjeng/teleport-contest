@@ -68,8 +68,6 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
-    HALLUC,
-    HALLUC_RES,
     INTRINSIC,
     KILLED_BY_AN,
     LL_KILLEDPET,
@@ -728,7 +726,7 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, HTelepat, Maybe_Half_Phys,
+    Blind, Blind_telepat, HTelepat, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -2579,10 +2577,6 @@ function distressPropertyActive(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function heroHallucinating(state) {
-    return distressPropertyActive(state, HALLUC)
-        && !distressPropertyActive(state, HALLUC_RES);
-}
 
 function distressDeaf(state) {
     return distressPropertyActive(state, DEAF)
@@ -3671,7 +3665,7 @@ function newWereTargetName(target) {
 
 async function announceNewWere(monster, target, normalized) {
     if (normalized.canSeeMonster(monster, normalized)
-        && !heroHallucinating(normalized.state)) {
+        && !Hallucination(normalized.state.u)) {
         await normalized.message(
             `${distressMonnam(monster)} changes into a ${newWereTargetName(target)}.`,
             normalized.state,
@@ -3813,7 +3807,7 @@ export async function qst_guardians_respond(rawEnv = {}) {
             if (canseemon(monster, state)) ++gotMad;
         }
     }
-    if (gotMad && !heroHallucinating(state)) {
+    if (gotMad && !Hallucination(state.u)) {
         const who = gotMad > 1
             ? makeplural(pmname(qGuardian, NEUTRAL))
             : pmname(qGuardian, NEUTRAL);
@@ -6157,7 +6151,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         /* mon.c:3504. A hallucinating hero cannot read a pet's collar, so a
            named pet is named only while the hallucination is off; that is
            what decides both the article and the saddle suppression below. */
-        const namedpet = has_mgivenname(mtmp) && !heroHallucinating(state);
+        const namedpet = has_mgivenname(mtmp) && !Hallucination(state.u);
 
         await message(
             `You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} `
@@ -6400,7 +6394,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         state.u.ugangr++;
         change_luck(-4, state);
         await message(
-            heroHallucinating(state)
+            Hallucination(state.u)
                 ? 'Whoopsie-daisy!'
                 : 'That was probably a bad idea...',
             state,
@@ -6418,7 +6412,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
            this port, as js/sounds.js yelp() records. The LL_KILLEDPET event
            remains in the canonical in-memory chronicle. */
         const heard = youHear(
-            heroHallucinating(state)
+            Hallucination(state.u)
                 ? 'the studio audience applaud!'
                 : 'the rumble of distant thunder...',
             state,

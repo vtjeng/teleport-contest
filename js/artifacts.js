@@ -26,7 +26,6 @@ import {
     GETOBJ_ALLOWCNT,
     HALF_PHDAM,
     HALF_SPDAM,
-    HALLUC,
     Has_contents,
     HALLUC_RES,
     I_SPECIAL,
@@ -295,7 +294,8 @@ import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
-    BBlinded, BInvis, Blind, EBlinded, HBlinded, Maybe_Half_Phys,
+    BBlinded, BInvis, Blind, EBlinded, EHalluc_resistance, HBlinded,
+    HHalluc_resistance, HHallucination, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -1826,9 +1826,9 @@ export async function Mb_hit(
     }
 
     /* give the hit message prior to inflicting the effects */
-    const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
-        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic ?? 0)
-        && !(state.u?.uprops?.[HALLUC_RES]?.extrinsic ?? 0);
+    const halluc = (HHallucination(state.u)) !== 0
+        && !(HHalluc_resistance(state.u))
+        && !(EHalluc_resistance(state.u));
     const verb = mb_verb[halluc ? 1 : 0][attack_indx];
     if (youattack || youdefend || vis) {
         result = true;
@@ -1997,12 +1997,6 @@ export async function Mb_hit(
 // C ref: artifact.c FATAL_DAMAGE_MODIFIER (63). Local to artifact.c.
 const FATAL_DAMAGE_MODIFIER = 200;
 
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 function Slimed(state) {
     return Boolean(state.u?.uprops?.[SLIMED]?.intrinsic);
 }
@@ -2226,7 +2220,7 @@ export async function artifact_hit(
                     msg.replace('%wepdesc', wepdesc)
                        .replace('%target', monsterCommonName(mdef, state, 0, nameEnv)),
                     state);
-                if (Hallucination(state) && !state.flags.female)
+                if (Hallucination(state.u) && !state.flags.female)
                     await message(
                         "Good job Henry, but that wasn't Anne.", state);
                 observe_object(otmp, state);
@@ -2822,7 +2816,7 @@ async function arti_invoke(obj, state = game) {
         newsym(state.u.ux, state.u.uy);
         if (on)
             await ttyPline(
-                `Your body takes on a ${Hallucination(state) ? 'normal' : 'strange'} transparency...`,
+                `Your body takes on a ${Hallucination(state.u) ? 'normal' : 'strange'} transparency...`,
                 state);
         else
             await ttyPline('Your body seems to unfade...', state);
@@ -3005,9 +2999,9 @@ const hcolors = HCOLORS;
 
 // C ref: do_name.c hcolor() (1460-1466).
 export function hcolor(colorpref, state) {
-    const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
-        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+    const halluc = (HHallucination(state.u)) !== 0
+        && !(HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u));
     return (halluc || !colorpref)
         ? hcolors[rn2_on_display_rng(hcolors.length, state)]
         : colorpref;

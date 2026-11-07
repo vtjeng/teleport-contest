@@ -33,9 +33,7 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
-    HALLUC,
     IN_SIGHT,
-    HALLUC_RES,
     KILLED_BY_AN,
     LAVAPOOL,
     LAVAWALL,
@@ -240,7 +238,8 @@ import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
 import {
-    Blind, Clairvoyant, EDetect_monsters, HBlinded, Maybe_Half_Phys,
+    Blind, Clairvoyant, EDetect_monsters, HBlinded, HHallucination,
+    Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 /** An explicit-search branch whose effects are still unported. */
@@ -892,7 +891,7 @@ export async function object_detect(detector = null, objectClass = 0,
     const boulder = classSymbol
         && classSymbol === showSymbols[SYM_OFF_X + SYM_BOULDER]
         ? ROCK_CLASS : 0;
-    const stuff = heroHallucinating(state)
+    const stuff = Hallucination(state.u)
         || (heroConfused(state) && oclass === SCROLL_CLASS)
         ? 'something'
         : oclass ? DEF_OC_SYMS_NAMES[oclass] : 'objects';
@@ -1069,7 +1068,7 @@ export async function monster_detect(
         if (otmp) {
             await strange_feeling(
                 otmp,
-                heroHallucinating(state)
+                Hallucination(state.u)
                     ? 'You get the heebie jeebies.'
                     : 'You feel threatened.',
                 state,
@@ -1138,10 +1137,10 @@ const FOUND_FLASH_COUNT = 6;
 // (865-1008). The optional findone collection callback flashes and records
 // trapped containers before the recursive object scan continues.
 function sense_trap(trap, x, y, srcCursed, state = game) {
-    if (heroHallucinating(state) || srcCursed) {
+    if (Hallucination(state.u) || srcCursed) {
         // display.h random_object(rn2) and random_monster(rn2) are macros;
         // preserve their draw order around the quantity roll from objects[].
-        const otyp = !heroHallucinating(state)
+        const otyp = !Hallucination(state.u)
             ? GOLD_PIECE
             : FIRST_OBJECT + rn2(NUM_OBJECTS - FIRST_OBJECT);
         const obj = {
@@ -1390,12 +1389,6 @@ export function level_distance(where, state = game, random = coreRandom) {
 }
 
 
-function heroHallucinating(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: detect.c use_crystal_ball() (1206-1371). `optr` is the JavaScript
 // equivalent of C's `struct obj **`: useup() mutates the inventory chain and
@@ -1452,7 +1445,7 @@ export async function use_crystal_ball(optr, state = game) {
         case 4:
             await ttyPline(`${Tobjnam(obj, 'zap', state)} your mind!`, state);
             await make_hallucinated(
-                ((state.u.uprops[HALLUC]?.intrinsic ?? 0) & TIMEOUT)
+                ((HHallucination(state.u)) & TIMEOUT)
                     + impairment,
                 false,
                 0,
@@ -1473,7 +1466,7 @@ export async function use_crystal_ball(optr, state = game) {
         return;
     }
 
-    if (heroHallucinating(state)) {
+    if (Hallucination(state.u)) {
         nomul(-rnd(charged ? 4 : 2), state);
         state.multi_reason = 'gazing into a Magic 8-Ball (tm)';
         state.nomovemsg = '';
@@ -1625,9 +1618,7 @@ export async function reveal_terrain(whichSubset, state = game) {
     // youprop.h: troubles use intrinsic values; only hallucination resistance
     // also uses extrinsic. These macros do not read the blocked field.
     const properties = state.u.uprops;
-    const hallucination = Boolean(properties[HALLUC]?.intrinsic)
-        && !Boolean(properties[HALLUC_RES]?.intrinsic
-                    || properties[HALLUC_RES]?.extrinsic);
+    const hallucination = Hallucination(state.u);
     if ((hallucination || properties[STUNNED]?.intrinsic
          || properties[CONFUSION]?.intrinsic) && !full) {
         await ttyPline('You are too disoriented for this.', state);
@@ -1867,16 +1858,6 @@ function propertyActiveUnblocked(hero, propertyIndex) {
         && !property?.blocked;
 }
 
-function hallucinating(state) {
-    // C's youprop.h Hallucination macro uses the intrinsic timeout only and
-    // treats either kind of hallucination resistance as effective, even when
-    // its property record is marked blocked.
-    const properties = state.u?.uprops;
-    const hallucination = properties?.[HALLUC];
-    const resistance = properties?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 function compassDescription(x, y, state, full) {
     const dx = x - state.u.ux;
@@ -2237,7 +2218,7 @@ function preflightTrap(env, trap) {
     validateDisplayCapability(env, 'displayFoundTrap', 'an unseen trap');
     requireOperation(env, 'message', 'an unseen trap');
     requireOperation(env, 'trapName', 'an unseen trap');
-    if (hallucinating(env.state) && !env.injected.has('trapName')) {
+    if (Hallucination(env.state.u) && !env.injected.has('trapName')) {
         if (typeof env.random.rn2 !== 'function') {
             throw new TypeError(
                 'automatic search requires random.rn2 '
@@ -2447,7 +2428,7 @@ function trappedBoxInDirectChain(first, nextKey) {
 // consumes core RNG only after the displayed glyph and trap type match.
 export function trapped_chest_at(ttyp, x, y, state = game) {
     if (!glyph_is_trap(glyph_at(x, y, state))) return false;
-    if (ttyp !== TRAPPED_CHEST || (heroHallucinating(state) && rn2(20))) return false;
+    if (ttyp !== TRAPPED_CHEST || (Hallucination(state.u) && rn2(20))) return false;
     if (sobj_at(CHEST, x, y, state) || sobj_at(LARGE_BOX, x, y, state))
         return true;
     if (u_at(x, y, state)) {
@@ -2462,7 +2443,7 @@ export function trapped_chest_at(ttyp, x, y, state = game) {
 // hallucination gate before inspecting the door and its mask.
 export function trapped_door_at(ttyp, x, y, state = game) {
     if (!glyph_is_trap(glyph_at(x, y, state))) return false;
-    if (ttyp !== TRAPPED_DOOR || (heroHallucinating(state) && rn2(20))) return false;
+    if (ttyp !== TRAPPED_DOOR || (Hallucination(state.u) && rn2(20))) return false;
     const location = state.level?.at(x, y);
     if (location?.typ !== DOOR) return false;
     const mask = location.flags;
@@ -2791,7 +2772,7 @@ async function findTrap(trap, env) {
             'automatic search displayFoundTrap must return a Boolean',
         );
     }
-    const cleared = hallucinating(env.state) || trapVisible === false;
+    const cleared = Hallucination(env.state.u) || trapVisible === false;
     if (cleared) {
         requireOperation(env, 'revealFoundTrap', 'a cluttered trap');
         requireOperation(env, 'waitFoundTrap', 'a cluttered trap');

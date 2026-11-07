@@ -14,7 +14,6 @@ import {
     COST_DEGRD,
     CXN_PFX_THE,
     RIGHT_HANDED,
-    HALLUC_RES,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
@@ -26,7 +25,6 @@ import {
     GETOBJ_SUGGEST,
     GLIB,
     HAND,
-    HALLUC,
     has_oname,
     plur,
     Upolyd,
@@ -148,7 +146,7 @@ import {
     setnotworn,
     setworn,
 } from './worn.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
 // C ref: wield.c setuwep() (100-137). Slot changes and status invalidation
 // precede artifact-light shutdown; finish unweapon only after the live message.
@@ -441,7 +439,7 @@ export async function chwepon(otmp, amount, state = game) {
                 text = `${Yobjnam2(uwep, 'glow', state)} with `
                     + `${an(hcolor('amber', state))} aura.`;
                 // wield.c deliberately bypasses set_bknown() here.
-                uwep.bknown = !hallucinationActiveForWield(state);
+                uwep.bknown = !Hallucination(state.u);
             } else {
                 // C says this tin opener is in the right hand.
                 text = `Your right ${body_part(HAND, state.youmonst)} tingles.`;
@@ -573,12 +571,6 @@ const ELVEN_WEAPON_TYPES = new Set([
     ELVEN_SHORT_SWORD, ELVEN_BROADSWORD, ELVEN_BOW,
 ]);
 
-function hallucinationActiveForWield(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 async function sourceCostlyAlteration(obj, alterType, state) {
     await costly_alteration(obj, alterType, { state });

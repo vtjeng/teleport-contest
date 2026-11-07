@@ -22,8 +22,6 @@ import {
     FIG_TRANSFORM,
     FIRE_RES,
     G_GONE,
-    HALLUC,
-    HALLUC_RES,
     HATCH_EGG,
     I_SPECIAL,
     ICE,
@@ -386,7 +384,9 @@ import {
     PM_WINGED_GARGOYLE,
     S_CENTAUR,
 } from './monsters.js';
-import { Blind } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+} from './youprop.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -4004,9 +4004,9 @@ export async function pudding_merge_message(otmp, otmp2, state = game, env = {})
     const blind = Boolean(
         Blind(state.u),
     );
-    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
-             || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+    const hallucinating = Boolean(HHallucination(state.u))
+        && !(HHalluc_resistance(state.u)
+             || EHalluc_resistance(state.u));
 
     /* the player will know something happened inside his own inventory */
     if ((!blind && visible) || inpack) {

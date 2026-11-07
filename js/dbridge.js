@@ -2,8 +2,7 @@
 import {
     BURNING, CONFUSION, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA, DEAF,
     DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST, DBWALL, DOOR,
-    DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, HALLUC,
-    HALLUC_RES, ICE, ICED_MOAT,
+    DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, ICE, ICED_MOAT,
     IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL,
     MAGICAL_BREATHING, MOAT, NO_KILLER_PREFIX, OBJ_AT, PASSES_WALLS,
     POOL, ROOM, STUNNED, SWIMMING, WATER, WWALKING, Is_waterlevel,
@@ -42,6 +41,7 @@ import { mksobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
+import { Hallucination } from './youprop.js';
 
 // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
 // field is the live JavaScript owner of drawbridgemask on map records.
@@ -345,7 +345,7 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
             if (state.program_state?.gameover) return;
         } else {
             if (inview) {
-                if (!is_u(bridgeEntity, state) && heroHallucinating(state))
+                if (!is_u(bridgeEntity, state) && Hallucination(state.u))
                     await say(`${E_phrase(bridgeEntity, 'get', state)} into some heavy metal!`);
                 else
                     await say(`${E_phrase(bridgeEntity, 'are', state)} hit by a huge chunk of metal!`);
@@ -401,9 +401,6 @@ function heroConfused(state) { return heroProperty(CONFUSION, state); }
 function heroStunned(state) { return heroProperty(STUNNED, state); }
 function heroFumbling(state) { return heroProperty(FUMBLING, state); }
 function heroUnaware(state) { return plineHeroUnaware(state); }
-function heroHallucinating(state) {
-    return heroProperty(HALLUC, state) && !heroProperty(HALLUC_RES, state);
-}
 function entityCanSee(entity, state) {
     return is_u(entity, state) || canseemon(entity.emon, state);
 }
@@ -523,7 +520,7 @@ async function e_died(entity, xkillFlags, how, state, env) {
             if (!e_survives_at(entity, entity.ex, entity.ey, state)) {
                 const target = enexto(entity.ex, entity.ey, entity.edata, { state });
                 if (target) {
-                    await ttyPline(`A ${heroHallucinating(state) ? 'normal' : 'strange'} force teleports you away...`, state);
+                    await ttyPline(`A ${Hallucination(state.u) ? 'normal' : 'strange'} force teleports you away...`, state);
                     await teleds(target.x, target.y, TELEDS_NO_FLAGS, state, env);
                 }
             }
@@ -786,7 +783,7 @@ async function do_entity(entity, state, env = {}) {
     if ((pool || lava) && inview && !is_u(entity, state)) {
         // C dbridge.c:743-753 uses a different visible-monster line while
         // hallucinating; its liquid name is literal in that arm.
-        if (heroHallucinating(state)) {
+        if (Hallucination(state.u)) {
             await message(`${E_phrase(entity, 'drink', state)} the `
                 + `${lava ? 'lava' : 'moat'} and disappears.`, state);
         } else {

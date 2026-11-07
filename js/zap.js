@@ -47,7 +47,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -251,7 +251,7 @@ import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 import { canseemon, canspotmon } from './display.js';
 import { setuwep } from './wield.js';
 import {
-    BInvis, Blind, EInvis, HInvis, Maybe_Half_Phys,
+    BInvis, Blind, EInvis, HInvis, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
@@ -3210,7 +3210,7 @@ export async function bhito(obj, wand, state = game,
                 if (!obj.cobj) {
                     await message(`${Tobjnam(obj, 'are', state)} empty.`, state, rawEnv);
                 } else if (obj.otyp === LARGE_BOX && obj.spe === 1) {
-                    const cat = Hallucination(state)
+                    const cat = Hallucination(state.u)
                         ? rndmonnam({ state, displayRandom: rawEnv.displayRandom })
                         : 'cat';
                     await message(
@@ -3250,7 +3250,7 @@ export async function bhito(obj, wand, state = game,
             } else if (obj.otyp === STATUE) {
                 if (await break_statue(obj, state, random, rawEnv)) {
                     if (cansee(obj.ox, obj.oy, state)) {
-                        const text = Hallucination(state)
+                        const text = Hallucination(state.u)
                             ? `${The(rndmonnam({
                                 state,
                                 displayRandom: rawEnv.displayRandom,
@@ -3334,7 +3334,7 @@ export async function bhito(obj, wand, state = game,
                             && !nonliving(state.mons?.[corpsenm])) {
                             const name = type_is_pname(state.mons?.[corpsenm])
                                 ? corpseName : an(corpseName, state);
-                            const heard = youHear(!Hallucination(state)
+                            const heard = youHear(!Hallucination(state.u)
                                 ? `${name} reviving.` : 'a defibrillator.', state);
                             if (heard) await message(heard, state, rawEnv);
                             learn_it = byHero ? true : Boolean(state.gz?.zap_oseen);
@@ -3823,7 +3823,7 @@ export async function bhitm(monster, wand, state = game,
             rawEnv,
         )) {
             const polyspot = otyp !== POT_POLYMORPH;
-            const give_msg = !Hallucination(state)
+            const give_msg = !Hallucination(state.u)
                 && (canseemon(monster, state) || engulfing_u(monster, state));
             if (polyspot) {
                 for (let object = monster.minvent; object; object = object.nobj)
@@ -4053,7 +4053,7 @@ export async function zap_map(
 
         if (trap) {
             const alreadySeen = trap.tseen;
-            const hallucinatory = Hallucination(state);
+            const hallucinatory = Hallucination(state.u);
             trap.tseen = 1;
             newsym(x, y);
             if (!alreadySeen || hallucinatory) {
@@ -4148,7 +4148,7 @@ export async function zap_map(
     case SPE_STONE_TO_FLESH:
         if (engraving.engr_type === ENGRAVE) {
             await ttyPline(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? 'The floor runs like butter!'
                     : 'The edges on the floor get smoother.',
                 state,
@@ -4607,15 +4607,6 @@ export function zaptype(type) {
     return Math.abs(type);
 }
 
-// C ref: youprop.h:120 Hallucination, over :116-119. The property is an
-// intrinsic timeout alone, and either source of Halluc_resistance suppresses
-// it.
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: youprop.h:28 Fire_resistance and :381 Reflecting, both the plain
 // "either source" spelling. Fire_resistance is exported because
@@ -4655,7 +4646,7 @@ function Half_spell_damage(state) {
 // same property one call earlier.
 export function flash_str(typ, nohallu, state = game, random = coreRandom) {
     typ = zaptype(typ);
-    if (!nohallu && Hallucination(state)) {
+    if (!nohallu && Hallucination(state.u)) {
         return `blast of ${rnd_hallublast(random)}`;
     }
     return flash_types[typ];
@@ -5954,7 +5945,7 @@ export async function dobuzz(
           || (type >= -39 && type <= -10)))
         throw new RangeError(`invalid zap type ${type}`);
     // C draws the beam colour before the first square when hallucinating.
-    const hdmgtype = Hallucination(state) ? random.rn2(6) : damgtype;
+    const hdmgtype = Hallucination(state.u) ? random.rn2(6) : damgtype;
 
     if (state.u.uswallow) {
         // C handles a hero's own ray inside the engulfer before it allocates
@@ -6775,7 +6766,7 @@ export async function cancel_monst(
                         env,
                     );
                 } else {
-                    const hallucinating = Hallucination(state);
+                    const hallucinating = Hallucination(state.u);
                     await message(
                         youFeel(`${hallucinating ? 'dark' : 'light'} headed.`, state),
                         state, env,

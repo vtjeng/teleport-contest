@@ -29,8 +29,6 @@ import {
     DELPHI,
     DOOR,
     FLYING,
-    HALLUC,
-    HALLUC_RES,
     ICE,
     IS_AIR,
     IS_ALTAR,
@@ -113,7 +111,7 @@ import { ttyPline } from './tty_message.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { tty_clear_map_window } from './wintty.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1137,12 +1135,6 @@ function dname_to_dnum(name, state) {
 }
 
 
-function heroHallucinating(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: dungeon.c u_on_newpos() (1567-1601). The one place that writes the
 // hero's map position, and with it the ridden steed's, which always shares it.
@@ -1185,7 +1177,7 @@ export function u_on_newpos(
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
     } else if (!Blind(state.u)
-        && !heroHallucinating(state)
+        && !Hallucination(state.u)
         && !hero.uswallow) {
         // still on same level; might have come close enough to
         // generic object(s) to redisplay them as specific objects

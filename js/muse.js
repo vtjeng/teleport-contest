@@ -34,8 +34,6 @@ import {
     HAND,
     G_GONE,
     HALF_SPDAM,
-    HALLUC,
-    HALLUC_RES,
     HOLE,
     IS_AIR,
     IS_DOOR,
@@ -253,7 +251,9 @@ import {
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Blind, HBlinded, See_invisible } from './youprop.js';
+import {
+    Blind, HBlinded, Hallucination, See_invisible,
+} from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names.
@@ -307,13 +307,6 @@ function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u?.ux ?? 0, state.u?.uy ?? 0);
 }
 
-// C ref: youprop.h Hallucination (116-120).
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: youprop.h Deaf.
 function Deaf(state) {
@@ -359,7 +352,7 @@ async function precheck(mon, obj, state, env = {}, selection = null) {
                         await pline_mon(mon,
                             `As ${monsterCommonName(mon, state)} opens `
                             + `the bottle, an enormous `
-                            + `${Hallucination(state)
+                            + `${Hallucination(state.u)
                                 ? rndmonnam({
                                     state,
                                     displayRandom: env.displayRandom,
@@ -569,7 +562,7 @@ async function mreadmsg(mtmp, otmp, state, rawEnv = {}) {
         const similar = same_race(state.youmonst?.data, mtmp.data, state);
         const uniqmon = ((mtmp.data?.geno & M.G_UNIQ) !== 0
             || mtmp.isshk);
-        const recognize = !Hallucination(state)
+        const recognize = !Hallucination(state.u)
             && (mtmp.meverseen || (similar && !uniqmon));
         const mflags = (SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
             | (recognize ? SUPPRESS_IT : AUGMENT_IT));
@@ -1573,7 +1566,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (vismon && mtmp.minvis) { /* was seen, now invisible */
             if (canspotmon(mtmp, state)) {
                 await ttyPline(messageAt(
-                    `${upstart(s_suffix(nambuf))} body takes on a ${Hallucination(state) ? 'normal' : 'strange'} transparency.`,
+                    `${upstart(s_suffix(nambuf))} body takes on a ${Hallucination(state.u) ? 'normal' : 'strange'} transparency.`,
                     mtmp.mx, mtmp.my, state), state);
             } else {
                 await ttyPline(messageAt(
@@ -2766,7 +2759,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     }
     case MUSE_CAMERA: {
         const message = env.message ?? ttyPline;
-        if (Hallucination(state)) {
+        if (Hallucination(state.u)) {
             await verbalize('Say cheese!', state, { message });
         } else if (!Blind(state.u)) {
             await message(
@@ -3285,7 +3278,7 @@ async function mon_consume_unstone(
         }
     }
     if (stoning && vis) {
-        if (Hallucination(state))
+        if (Hallucination(state.u))
             await ttyPline(
                 `What a pity - ${monsterCommonName(mon, state)} just ruined a future piece of art!`,
                 state);
@@ -3604,7 +3597,7 @@ export function cures_sliming(mon, obj) {
 /* C ref: muse.c green_mon() (3268-3307). TRUE if the monster appears green
    based on its display color. Returns FALSE under hallucination. */
 export function green_mon(mon, state = game) {
-    if (Hallucination(state))
+    if (Hallucination(state.u))
         return false;
     return mon.data.mcolor === CLR_GREEN
         || mon.data.mcolor === CLR_BRIGHT_GREEN;

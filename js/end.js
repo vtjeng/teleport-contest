@@ -223,7 +223,7 @@ import {
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
 import { tty_exit_nhwindows } from './wintty.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -463,11 +463,7 @@ export async function done_in_by(mtmp, how, state = game) {
     const champtr = ismnum(mtmp.cham) ? mons[mtmp.cham] : mptr;
     // C ref: display.h:129 canspotmon(). Hallucination is youprop.h:116-120:
     // the intrinsic timeout defeated by either half of Halluc_resistance.
-    const hallucinating = Boolean(
-        state.u?.uprops?.[23]?.intrinsic  // HALLUC = 23
-        && !(state.u?.uprops?.[24]?.intrinsic  // HALLUC_RES = 24
-            || state.u?.uprops?.[24]?.extrinsic),
-    );
+    const hallucinating = Hallucination(state.u);
     const distorted = hallucinating && canspotmon(mtmp, state);
     const mimicker = M_AP_TYPE(mtmp) === M_AP_MONSTER;
     const imitator = mptr !== champtr || mimicker;

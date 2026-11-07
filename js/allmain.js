@@ -15,8 +15,6 @@ import {
     LL_ACHIEVE,
     EXT_ENCUMBER,
     FAST,
-    HALLUC,
-    HALLUC_RES,
     HVY_ENCUMBER,
     INTRINSIC,
     MOD_ENCUMBER,
@@ -205,8 +203,8 @@ import { amulet, intervene } from './wizard.js';
 import { rndcurse } from './sit.js';
 import { Glib } from './wield.js';
 import {
-    BClairvoyant, Blind, EClairvoyant, ETelepat, HClairvoyant, Searching,
-    Warn_of_mon, Warning,
+    BClairvoyant, Blind, EClairvoyant, ETelepat, HClairvoyant, Hallucination,
+    Searching, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -1906,12 +1904,7 @@ async function moveloop_core_body() {
         await makewish(g);
     }
 
-    const hallucination = g.u.uprops?.[HALLUC];
-    const hallucinating = Boolean(
-        hallucination?.intrinsic
-        && !hallucination?.blocked
-        && !propertyActive(g, HALLUC_RES),
-    );
+    const hallucinating = Hallucination(g.u);
     const blind = Blind(g.u);
     // Keep the existing non-hallucinatory vision/region ordering. Hallucination
     // below follows C's sensing layers before spending pending vision work.

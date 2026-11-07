@@ -91,7 +91,6 @@ import {
     PIT,
     plur,
     HALLUC,
-    HALLUC_RES,
     HOMEMADE_TIN,
     HAND,
     KILLED_BY,
@@ -641,7 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, HBlinded, Invis, Maybe_Half_Phys, See_invisible,
+    BBlinded, Blind, EHalluc_resistance, HBlinded, HHalluc_resistance,
+    HHallucination, Halluc_resistance, Hallucination, Invis, Maybe_Half_Phys,
+    See_invisible,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -657,12 +658,6 @@ function applyIsStunned(state) {
     return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
 }
 
-function applyIsHallucinating(state) {
-    const hallu = state.u?.uprops?.[HALLUC];
-    const resist = state.u?.uprops?.[HALLUC_RES];
-    return Boolean((hallu?.intrinsic || hallu?.extrinsic) && !hallu?.blocked
-        && !(resist?.intrinsic || resist?.extrinsic));
-}
 
 function applyIsFumbling(state) {
     return applyPropertyActive(FUMBLING, state);
@@ -728,7 +723,7 @@ export async function display_polearm_positions(onOff, state = game) {
 // y-major scan and the single-target-only result.
 export function find_poleable_mon(pos, state = game) {
     const impaired = applyIsConfused(state) || applyIsStunned(state)
-        || applyIsHallucinating(state);
+        || Hallucination(state.u);
     const rt = isqrt(state.gp.polearm_range_max);
     const lowX = Math.max(state.u.ux - rt, 1);
     const highX = Math.min(state.u.ux + rt, COLNO - 1);
@@ -1870,16 +1865,6 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     );
 }
 
-// C ref: youprop.h:120 Hallucination, which is the intrinsic timeout alone
-// minus resistance from either source.
-function heroHallucinating(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    if (!hallucination || !resistance)
-        throw new Error('Hallucination requires initialized u.uprops');
-    return Boolean(hallucination.intrinsic
-        && !(resistance.intrinsic || resistance.extrinsic));
-}
 
 // C ref: youprop.h:125 Deaf, which adds the permanent-deafness roleplay
 // option to the intrinsic and the extrinsic.
@@ -1901,7 +1886,7 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     if (several)
         obj = splitobj(obj, 1, env);
 
-    if (heroHallucinating(state)) {
+    if (Hallucination(state.u)) {
         await ttyPline('You give yourself a facial.', state);
     } else {
         const pieName = the(xnameFresh(obj, state), state);
@@ -2171,7 +2156,7 @@ export function apply_ok(obj, state = game) {
         || obj.otyp === LUMP_OF_ROYAL_JELLY)
         return GETOBJ_SUGGEST;
 
-    if (obj.otyp === BANANA && heroHallucinating(state))
+    if (obj.otyp === BANANA && Hallucination(state.u))
         return GETOBJ_DOWNPLAY;
 
     if (is_graystone(obj)) {
@@ -2259,7 +2244,7 @@ export async function use_stone(tstone, state = game, env = {}) {
         && !obj_resists(obj, 80, 100, { ...env, state })) {
         if (Blind(state.u)) {
             await ttyPline(youFeel('something shatter.', state), state);
-        } else if (heroHallucinating(state)) {
+        } else if (Hallucination(state.u)) {
             await ttyPline('Oh, wow, look at the pretty shards.', state);
         } else {
             await ttyPline(
@@ -2275,7 +2260,7 @@ export async function use_stone(tstone, state = game, env = {}) {
     if (Blind(state.u)) {
         await ttyPline(scritch, state);
         return ECMD_TIME;
-    } else if (heroHallucinating(state)) {
+    } else if (Hallucination(state.u)) {
         await ttyPline('Oh wow, man: Fractals!', state);
         return ECMD_TIME;
     }
@@ -2494,7 +2479,7 @@ function selectedDeadObject(rx, ry, state) {
 // *resp`; direct callers that need only the source boolean result may omit it.
 export async function its_dead(rx, ry, state = game, response = null) {
     const { corpse, statue } = selectedDeadObject(rx, ry, state);
-    if ((corpse || statue) && heroHallucinating(state)) {
+    if ((corpse || statue) && Hallucination(state.u)) {
         let answer;
         if (!corpse) {
             answer = "You're both stoned";
@@ -3148,7 +3133,7 @@ export async function jump(magic = 0, state = game, env = {}) {
             return ECMD_TIME;
         }
         await ttyPline(
-            `${heroHallucinating(state) ? 'You hop up and down a bit.' : 'You decide not to jump after all.'}`,
+            `${Hallucination(state.u) ? 'You hop up and down a bit.' : 'You decide not to jump after all.'}`,
             state,
         );
         return ECMD_OK;
@@ -3525,9 +3510,9 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         return value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0;
     };
     const hallucinating = () => Boolean(
-        intrinsic(HALLUC)
-        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic),
+        HHallucination(state.u)
+        && !(HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u)),
     );
     const deaf = () => Boolean(
         intrinsic(DEAF) || state.u?.uprops?.[DEAF]?.extrinsic
@@ -3585,7 +3570,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             break;
         case 5:
             await make_hallucinated(
-                (intrinsic(HALLUC) & TIMEOUT) + lcount,
+                (HHallucination(state.u) & TIMEOUT) + lcount,
                 true,
                 0,
                 state,
@@ -4165,7 +4150,7 @@ export async function use_mirror(obj, state = game, env = {}) {
             if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
                 await ttyPline('You stiffen momentarily under your gaze.', state);
             } else {
-                const hallucinating = applyIsHallucinating(state);
+                const hallucinating = Hallucination(state.u);
                 await ttyPline(hallucinating
                     ? `Yow!  The ${mirror} stares back!`
                     : "Yikes!  You've frozen yourself!", state);
@@ -4187,7 +4172,7 @@ export async function use_mirror(obj, state = game, env = {}) {
                 false,
                 state,
             );
-        } else if (applyIsHallucinating(state)) {
+        } else if (Hallucination(state.u)) {
             await ttyPline(`You look ${hcolor(null, state)}.`, state);
         } else if (state.u.uprops[SICK]?.intrinsic) {
             await ttyPline('You look peaked.', state);
@@ -4216,7 +4201,7 @@ export async function use_mirror(obj, state = game, env = {}) {
     }
     if (u.uinwater) {
         if (useeit)
-            await ttyPline(applyIsHallucinating(state)
+            await ttyPline(Hallucination(state.u)
                 ? 'You give the fish a chance to fix their makeup.'
                 : 'You reflect the murky water.', state);
         return ECMD_TIME;
@@ -4541,7 +4526,7 @@ export async function use_magic_whistle(obj, state = game, env = {}) {
                 ...env, random, message,
             });
     } else {
-        const descriptor = heroHallucinating(state) ? 'normal'
+        const descriptor = Hallucination(state.u) ? 'normal'
             : state.u?.uinwater && !deaf ? 'strange, high-pitched' : 'strange';
         await message(
             `You produce a ${descriptor}${deaf
@@ -5198,7 +5183,7 @@ export async function doapply(state = game, env = {}) {
         // apply.c:4401-4403. Hallucinating heroes get the banana's ringing
         // message and the source's initial ECMD_TIME result; otherwise C
         // falls through to the generic default arm below.
-        if (heroHallucinating(state)) {
+        if (Hallucination(state.u)) {
             await ttyPline("It rings! ... But no-one answers.", state);
             return ECMD_TIME;
         }
@@ -5269,7 +5254,7 @@ export async function flip_coin(obj, state = game, env = {}) {
         return ECMD_TIME;
     }
 
-    if (heroHallucinating(state)) {
+    if (Hallucination(state.u)) {
         await message(drawRn2(100)
             ? 'Wow, a double header!'
             : 'The coin miraculously lands on its edge!', state);
@@ -5300,7 +5285,7 @@ async function flip_through_book(obj, state = game) {
             // this build. You_hear still applies the acoustics/Unaware rules.
             const heard = youHear(
                 `the pages make an unpleasant ${
-                    heroHallucinating(state) ? 'chuckling' : 'rustling'
+                    Hallucination(state.u) ? 'chuckling' : 'rustling'
                 } sound.`,
                 state,
             );
@@ -5318,13 +5303,13 @@ async function flip_through_book(obj, state = game) {
     } else if (Blind(state.u)) {
         await ttyPline(
             `The pages feel ${
-                heroHallucinating(state) ? 'freshly picked' : 'rough and dry'
+                Hallucination(state.u) ? 'freshly picked' : 'rough and dry'
             }.`,
             state,
         );
     } else if (obj.otyp === SPE_BLANK_PAPER) {
         await ttyPline(
-            `This spellbook ${heroHallucinating(state)
+            `This spellbook ${Hallucination(state.u)
                 ? "doesn't have much of a plot"
                 : 'has nothing written in it'}.`,
             state,
@@ -5332,7 +5317,7 @@ async function flip_through_book(obj, state = game) {
         // C makeknown(obj->otyp) expands to discover_object(type, TRUE, TRUE,
         // TRUE); it also credits the hero's discovery and Wisdom exercise.
         discover_object(obj.otyp, true, true, true, state);
-    } else if (heroHallucinating(state)) {
+    } else if (Hallucination(state.u)) {
         await ttyPline('You enjoy the animated initials.', state);
     } else if (obj.otyp === SPE_NOVEL) {
         await ttyPline(
@@ -5459,9 +5444,8 @@ export function unfixable_trouble_count(isHorn = false, state = game) {
     if (intrinsic(CONFUSION)
         && (!isHorn || (intrinsic(CONFUSION) & ~TIMEOUT) !== 0)) count++;
 
-    const hallucination = intrinsic(HALLUC);
-    const resistance = prop(HALLUC_RES);
-    if (hallucination && !(resistance.intrinsic || resistance.extrinsic)
+    const hallucination = HHallucination(state.u);
+    if (hallucination && !Halluc_resistance(state.u)
         && (!isHorn || (hallucination & ~TIMEOUT) !== 0)) count++;
 
     if (intrinsic(VOMITING)

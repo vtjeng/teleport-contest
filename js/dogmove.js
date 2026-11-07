@@ -23,8 +23,6 @@ import {
     DISMOUNT_POLY,
     DISMOUNT_THROWN,
     DOGFOOD,
-    HALLUC,
-    HALLUC_RES,
     helpless,
     IS_DOOR,
     IS_OBSTRUCTED,
@@ -210,6 +208,7 @@ import { pline_mon, youFeel } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
+import { Hallucination } from './youprop.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -293,15 +292,6 @@ function heroDeaf(state) {
         || state.u?.uroleplay?.deaf);
 }
 
-// C ref: youprop.h:120 Hallucination, over :115-119. The comment at :115 says
-// hallucination is solely a timeout, so the positive term is the intrinsic
-// alone with no worn mask; Halluc_resistance is the intrinsic or the
-// extrinsic.
-function Hallucination(state) {
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 function monsterOffMap(monster) {
     return monster.mx === 0;
@@ -456,7 +446,7 @@ export async function dog_starve(monster, rawEnv = {}) {
     else if ((rawEnv.canSee ?? cansee)(monster.mx, monster.my, state))
         await message(messageAt(Monnam(monster, state, rawEnv) + ' starves.',
             monster.mx, monster.my, state), state);
-    else await message(youFeel(`${Hallucination(state) ? 'bummed' : 'sad'}`
+    else await message(youFeel(`${Hallucination(state.u) ? 'bummed' : 'sad'}`
         + ' for a moment.', state), state);
     await (rawEnv.mondied ?? ((subject, env) => mondied(subject, state, env)))(
         monster, { ...rawEnv, state },
@@ -1741,7 +1731,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             // says: place_monster() above has already put the pet on the
             // square, so glyph_at() would answer with the pet. The question is
             // whether the hero's map memory holds an object there.
-            const remembersObject = !Hallucination(state)
+            const remembersObject = !Hallucination(state.u)
                 && Boolean(state.level?.flags?.hero_memory)
                 && glyph_is_object(
                     state.level.at(nextX, nextY).remembered_glyph?.glyph,

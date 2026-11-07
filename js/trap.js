@@ -65,8 +65,6 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
-    HALLUC,
-    HALLUC_RES,
     HAND,
     I_SPECIAL,
     HOLE,
@@ -356,7 +354,10 @@ import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Halluc_resistance, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
 // flag. Conduct and luck remain the separate player values initialized by
@@ -1458,8 +1459,7 @@ export async function drown(state = game) {
             state,
         );
         if (!swimming && !solid) {
-            const hallucinating = activeHeroProperty(state, HALLUC)
-                && !activeHeroProperty(state, HALLUC_RES);
+            const hallucinating = Hallucination(state.u);
             await ttyPline(
                 `You sink like ${hallucinating ? 'the Titanic' : 'a rock'}.`,
                 state,
@@ -1492,8 +1492,7 @@ export async function drown(state = game) {
             if (state.flags?.verbose)
                 await ttyPline("But you aren't drowning.", state);
             if (!Is_waterlevel(u.uz, state)) {
-                const hallucinating = activeHeroProperty(state, HALLUC)
-                    && !activeHeroProperty(state, HALLUC_RES);
+                const hallucinating = Hallucination(state.u);
                 await ttyPline(
                     hallucinating
                         ? 'Your keel hits the bottom.'
@@ -2035,7 +2034,7 @@ export async function float_up(state = game) {
         } else {
             await ttyPline(`You spiral up into ${mon_nam(u.ustuck, state)}.`, state);
         }
-    } else if (Hallucination(state)) {
+    } else if (Hallucination(state.u)) {
         await ttyPline("Up, up, and awaaaay!  You're walking on air!", state);
     } else if (Is_airlevel(u.uz, state)) {
         await ttyPline('You gain control over your movements.', state);
@@ -2188,7 +2187,7 @@ export async function float_down(hmask, emask, state = game) {
             await ttyPline(youFeel('heavier.', state), state);
         else if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
             if (state.level?.flags?.sokoban_rules && trap) {
-                if (Hallucination(state))
+                if (Hallucination(state.u))
                     await ttyPline("Bummer!  You've crashed.", state);
                 else
                     await ttyPline('You fall over.', state);
@@ -2202,7 +2201,7 @@ export async function float_down(hmask, emask, state = game) {
             } else if (u.usteed
                 && (is_floater(u.usteed.data) || is_flyer(u.usteed.data))) {
                 await ttyPline('You settle more firmly in the saddle.', state);
-            } else if (Hallucination(state)) {
+            } else if (Hallucination(state.u)) {
                 const what = is_pool(u.ux, u.uy, state)
                     ? 'splashed down' : 'hit the ground';
                 await ttyPline(`Bummer!  You've ${what}.`, state);
@@ -2285,7 +2284,7 @@ export async function climb_pit(state = game) {
     } else if (u.dz || state.flags?.verbose) {
         if (u.usteed) {
             await ttyNorep(`${YMonnam(u.usteed, state)} is still in a pit.`, state);
-        } else if (Hallucination(state) && !rn2(5)) {
+        } else if (Hallucination(state.u) && !rn2(5)) {
             await ttyNorep("You've fallen, and you can't get up.", state);
         } else {
             await ttyNorep('You are still in a pit.', state);
@@ -2302,9 +2301,7 @@ export async function climb_pit(state = game) {
 // random set (scripts/random-source.mjs).
 export function trapname(ttyp, override, state, random = coreRandom,
                          displayRandom = (bound) => rn2_on_display_rng(bound, state)) {
-    const hallu = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    if (hallu?.intrinsic && !(resistance?.intrinsic || resistance?.extrinsic)
+    if (HHallucination(state.u) && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u))
         && !override) {
         const totalNames = TRAPNUM + halu_trapnames.length;
         const nameidx = displayRandom(totalNames + 1);
@@ -2446,12 +2443,6 @@ const the_your = ['the', 'your'];
 function Confusion(state) {
     return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
 }
-function Hallucination(state) {
-    const h = state.u?.uprops?.[HALLUC];
-    const r = state.u?.uprops?.[HALLUC_RES];
-    return Boolean((h?.intrinsic || h?.extrinsic) && !h?.blocked
-                   && !(r?.intrinsic || r?.extrinsic));
-}
 function Stunned(state) {
     return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
 }
@@ -2529,7 +2520,7 @@ function untrap_prob(ttmp, state = game) {
             chance = 7; /* 5.0: used to be 30 */
         }
     }
-    if (Confusion(state) || Hallucination(state))
+    if (Confusion(state) || Hallucination(state.u))
         chance++;
     if (Blind(state.u))
         chance++;
@@ -2998,7 +2989,7 @@ export async function untrap(force, rx, ry, container, state = game) {
     const u = state.u;
     let x, y;
     let ttmp;
-    const confused = Confusion(state) || Hallucination(state);
+    const confused = Confusion(state) || Hallucination(state.u);
     let trap_skipped = false;
     let autounlock_door = false;
     let boxcnt = 0;
@@ -3560,7 +3551,7 @@ export async function animate_statue(
             ? xnameFresh(statue, state) : 'statue';
         const statueName = `${shk_your(statue, state)}${noun}`;
         await message(`${upstart(statueName)} ${comesToLife}!`, state);
-    } else if (Hallucination(state)) {
+    } else if (Hallucination(state.u)) {
         await message(
             `The ${rndmonnam({ state })} suddenly seems more animated.`,
             state,
@@ -3639,11 +3630,6 @@ function Shock_resistance(state) {
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
 
-// Local helper: Halluc_resistance. C ref: youprop.h Halluc_resistance.
-function Halluc_resistance(state) {
-    const p = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
 
 // C ref: trap.c chest_trap() (6294-6501). Handles a trapped chest:
 // explosions, poison gas, paralysis, etc. Called from disarm_box (trap.c)
@@ -3890,10 +3876,10 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 state,
             );
             if (!Stunned(state)) {
-                if (Hallucination(state)) {
+                if (Hallucination(state.u)) {
                     await ttyPline('What a groovy feeling!', state);
                 } else {
-                    const dizzy = Halluc_resistance(state) ? ''
+                    const dizzy = Halluc_resistance(state.u) ? ''
                         : Blind(state.u) ? ' and get dizzy'
                         : ' and your vision blurs';
                     await ttyPline(
@@ -3907,7 +3893,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             ) + rn1(7, 16);
             await make_stunned(stunTimeout, false, state);
             await make_hallucinated(
-                ((state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) & TIMEOUT)
+                ((HHallucination(state.u)) & TIMEOUT)
                     + rn1(5, 16),
                 false, 0, state,
             );

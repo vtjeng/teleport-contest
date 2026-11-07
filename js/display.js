@@ -61,8 +61,7 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BOLT_LIM, CONFUSION, DEAF, FLYING, GLIB,
-    HALLUC, HALLUC_RES, INTRINSIC, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, CONFUSION, DEAF, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -326,8 +325,9 @@ import {
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 import {
-    Blind, Detect_monsters, ETelepat, HTelepat, Infravision, Invis,
-    See_invisible, Warn_of_mon, Warning,
+    Blind, Detect_monsters, ETelepat, HHallucination, HTelepat,
+    Halluc_resistance, Hallucination, Infravision, Invis, See_invisible,
+    Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -1174,13 +1174,6 @@ export function random_object_glyph_info(
     return withObjectAccessibility(glyph, randomObject, state);
 }
 
-function heroHallucinating(state) {
-    // youprop.h Hallucination: the property is solely an intrinsic timeout,
-    // and either intrinsic or extrinsic resistance suppresses it.
-    return Boolean(state.u)
-        && _propertyIntrinsic(state.u, HALLUC)
-        && !_propertyActive(state.u, HALLUC_RES);
-}
 
 export function hallucinated_statue_glyph_info(
     state = game,
@@ -1207,7 +1200,7 @@ export function hallucinated_statue_glyph_info(
 // the whole tail. wormTailSpeciesDraw() is that draw; every segment's glyph
 // then reuses its result.
 export function wormTailSpeciesDraw(state = game) {
-    return heroHallucinating(state)
+    return Hallucination(state.u)
         ? rn2_on_display_rng(NUMMONS, state) : PM_LONG_WORM_TAIL;
 }
 
@@ -1243,7 +1236,7 @@ function presentedMonsterGlyphInfo(
     forceOrdinary = false,
     displayRandom = rn2_on_display_rng,
 ) {
-    const hallucinating = heroHallucinating(state);
+    const hallucinating = Hallucination(state.u);
     if (monster.mtame && !hallucinating && !forceOrdinary)
         return actualMonsterGlyphInfo(monster, state);
     const species = hallucinating
@@ -1298,7 +1291,7 @@ function presentedMonsterGlyphInfo(
 // it. what_mon() replaces the species under Hallucination, at the cost of one
 // display-RNG draw.
 function riddenMonsterGlyphInfo(monster, state) {
-    const species = heroHallucinating(state)
+    const species = Hallucination(state.u)
         ? state.mons?.[rn2_on_display_rng(NUMMONS, state)] : monster.data;
     if (!species) {
         throw new Error(
@@ -1341,7 +1334,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     // C ref: display.c display_monster(), M_AP_MONSTER. This transient
     // disguise uses mappearance unless Hallucination replaces it with one
     // display-RNG species draw; tame highlighting does not apply.
-    const speciesIndex = heroHallucinating(state)
+    const speciesIndex = Hallucination(state.u)
         ? rn2_on_display_rng(NUMMONS, state) : monster.mappearance;
     const species = state.mons?.[speciesIndex];
     if (!species) {
@@ -1543,7 +1536,7 @@ export function warning_of(monster, state = game) {
 }
 
 function warningGlyphInfo(monster, state) {
-    const warningLevel = heroHallucinating(state)
+    const warningLevel = Hallucination(state.u)
         ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
         : Math.min(
             Math.trunc((monster.m_lev ?? 0) / 4),
@@ -2676,11 +2669,11 @@ function withObjectAccessibility(glyph, obj, state) {
 // so the required display RNG draws are retained.
 export function obj_to_glyph(obj, state = game, displayRandom = undefined) {
     if (obj.otyp === STATUE) {
-        return heroHallucinating(state)
+        return Hallucination(state.u)
             ? hallucinated_statue_glyph_info(state, displayRandom)
             : object_glyph_info(obj, state);
     }
-    return heroHallucinating(state)
+    return Hallucination(state.u)
         ? random_object_glyph_info(state, displayRandom)
         : object_glyph_info(obj, state);
 }
@@ -2691,7 +2684,7 @@ export function obj_to_glyph(obj, state = game, displayRandom = undefined) {
 // obj_to_glyph() itself, which is what C passes to show_glyph() here.
 function mappedObjectGlyphInfo(obj, state) {
     const shown = obj_to_glyph(obj, state);
-    if (obj.otyp !== STATUE || !heroHallucinating(state))
+    if (obj.otyp !== STATUE || !Hallucination(state.u))
         return { shown, remembered: shown };
     // map_object() gates this memory-only draw independently from its caller's
     // later decision to persist remembered output. The shown statue glyph has
@@ -3062,7 +3055,7 @@ export function swallow_to_glyph(
     state = game,
     displayRandom = rn2_on_display_rng,
 ) {
-    const displayedMnum = heroHallucinating(state)
+    const displayedMnum = Hallucination(state.u)
         ? displayDraw(displayRandom, NUMMONS) : mnum;
     const clampedLoc = loc < S_sw_tl || loc > S_sw_br ? S_sw_br : loc;
     return ((displayedMnum << 3) | (clampedLoc - S_sw_tl))
@@ -3818,7 +3811,7 @@ export function see_nearby_objects(state = game, { redraw = null } = {}) {
 }
 
 function observeNearbyObject(object, x, y, state) {
-    if (heroHallucinating(state)
+    if (Hallucination(state.u)
         || !object_is_generic(object)
         || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
@@ -5221,8 +5214,8 @@ export function statusConditionActive(option, u) {
         return option === (grab ? 'grab' : 'held');
     }
     case 'hallucinat':
-        return _propertyIntrinsic(u, HALLUC)
-            && !_propertyActive(u, HALLUC_RES);
+        return Boolean(HHallucination(u))
+            && !Halluc_resistance(u);
     case 'ice':
         return game.level?.at(u.ux, u.uy)?.typ === ICE;
     // botl.c:1154-1163: enabled specific conditions suppress generic Trap.

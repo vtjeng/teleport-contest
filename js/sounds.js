@@ -19,8 +19,6 @@ import {
     EPRI,
     FEMALE,
     HAIR,
-    HALLUC,
-    HALLUC_RES,
     HEAD,
     IRONBARS,
     IS_WALL,
@@ -221,7 +219,7 @@ import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
-import { Blind, Invis } from './youprop.js';
+import { Blind, Hallucination, Invis } from './youprop.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -241,13 +239,6 @@ function propertyActive(hero, propertyIndex) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-// C ref: youprop.h:120 Hallucination, over :116-119. HHallucination is the
-// intrinsic alone -- no worn item confers hallucination -- while
-// Halluc_resistance adds the extrinsic to it.
-function Hallucination(state) {
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !propertyActive(state.u, HALLUC_RES);
-}
 
 // C ref: youprop.h:125 Deaf, which adds the permanent-deafness roleplay option
 // to the intrinsic and the extrinsic.
@@ -468,7 +459,7 @@ async function temple_priest_sound(mtmp, state, hallu, { random, pline }) {
 
 async function oracle_sound(mtmp, state, hallu, { random, pline }) {
     if (mtmp.data !== state.mons?.[PM_ORACLE]) return false;
-    if (Hallucination(state) || !canseemon(mtmp, state)) {
+    if (Hallucination(state.u) || !canseemon(mtmp, state)) {
         const messages = [
             'a strange wind.',
             'convulsive ravings.',
@@ -495,7 +486,7 @@ export async function dosounds(
         return;
     }
 
-    const hallu = Hallucination(state) ? 1 : 0;
+    const hallu = Hallucination(state.u) ? 1 : 0;
 
     if (flags.nfountains && random(400) === 0) {
         await hear(FOUNTAIN_MESSAGES[random(3) + hallu], state, pline);
@@ -722,7 +713,7 @@ export async function growl(mtmp, state = game, random = coreRandom) {
         return;
 
     /* presumably nearness and soundok checks have already been made */
-    if (Hallucination(state))
+    if (Hallucination(state.u))
         growl_verb = h_sounds[random.rn2(h_sounds.length)];
     else
         growl_verb = growl_sound(mtmp);
@@ -760,7 +751,7 @@ export async function yelp(mtmp, state = game, random = coreRandom) {
         return;
 
     /* presumably nearness and soundok checks have already been made */
-    if (Hallucination(state)) {
+    if (Hallucination(state.u)) {
         yelp_verb = h_sounds[random.rn2(h_sounds.length)];
     } else {
         switch (mtmp.data.msound) {
@@ -807,7 +798,7 @@ export async function whimper(mtmp, rawEnv = {}) {
     let whimper_verb = 0;
 
     if (helpless(mtmp) || !mtmp.data?.msound) return;
-    if (Hallucination(state)) {
+    if (Hallucination(state.u)) {
         whimper_verb = h_sounds[random.rn2(h_sounds.length)];
     } else {
         switch (mtmp.data.msound) {
@@ -993,11 +984,11 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     } else if (msound === MS_ORC
                && (same_race(ptr, state.youmonst?.data)
                    || same_race(ptr, state.mons?.[state.urace?.mnum])
-                   || Hallucination(state))) {
+                   || Hallucination(state.u))) {
         msound = MS_HUMANOID;
     } else if (msound === MS_MOO && !mtmp.mtame) {
         msound = MS_BELLOW;
-    } else if (Hallucination(state) && mon_is_gecko(mtmp, state)) {
+    } else if (Hallucination(state.u) && mon_is_gecko(mtmp, state)) {
         msound = MS_SELL;
     }
 
@@ -1027,7 +1018,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         }
         break;
     case MS_SELL:
-        if (!Hallucination(state) || is_silent(ptr)
+        if (!Hallucination(state.u) || is_silent(ptr)
             || (mtmp.isshk && !random.rn2(2))) {
             await shk_chat(mtmp, state, { ...rawEnv, random });
         } else {
@@ -1260,7 +1251,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         else if (likes_magic(ptr)) plineMsg = 'talks about spellcraft.';
         else if (ptr?.mlet === S_CENTAUR) plineMsg = 'discusses hunting.';
         else if (is_gnome(ptr)) {
-            const gnomeplan = Hallucination(state) ? random.rn2(4) : 0;
+            const gnomeplan = Hallucination(state.u) ? random.rn2(4) : 0;
             if (gnomeplan % 2) {
                 verbalMsg = gnomeplan === 1
                     ? 'Phase one, collect underpants.'
@@ -1530,7 +1521,7 @@ async function dochat(state) {
             if (!Blind(state.u)) {
                 await ttyPline(
                     /* if hallucinating, you can't tell it's a statue */
-                    `The ${Hallucination(state) ? rndmonnam({ state })
+                    `The ${Hallucination(state.u) ? rndmonnam({ state })
                         : 'statue'} seems not to notice you.`,
                     state,
                 );
@@ -1547,7 +1538,7 @@ async function dochat(state) {
                 /* when blind, you can only talk to a wall if it has
                    already been mapped as a wall */
                 /* (C's empty statement: the arm prints nothing) */
-            } else if (!Hallucination(state)) {
+            } else if (!Hallucination(state.u)) {
                 await ttyPline("It's like talking to a wall.", state);
             } else {
                 let idx = rn2(10);
@@ -1712,7 +1703,7 @@ export async function tiphat(state = game, rawEnv = {}) {
             vismon = false;
             mtmp = null;
         }
-        if (vismon || unseen || (statue && Hallucination(state))
+        if (vismon || unseen || (statue && Hallucination(state.u))
             || (range === 1 && mtmp && responsive_mon_at(x, y, state)
                 && !is_silent(mtmp.data))
             || !(accessible(x, y, state)
@@ -1721,7 +1712,7 @@ export async function tiphat(state = game, rawEnv = {}) {
         }
     }
 
-    if (unseen || (statue && Hallucination(state))) {
+    if (unseen || (statue && Hallucination(state.u))) {
         await message(
             `That ${unseen ? 'unseen ' : ''}creature is ignoring you!`,
             state,

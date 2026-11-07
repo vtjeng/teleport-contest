@@ -38,7 +38,6 @@ import {
     CQ_CANNED,
     EXT_ENCUMBER,
     FOOT,
-    HALLUC,
     IS_ALTAR,
     IS_THRONE,
     T_LOOTED,
@@ -299,7 +298,9 @@ import {
     start_corpse_timeout, start_glob_timeout, stop_timer,
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -2046,9 +2047,7 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
     } else {
         box.spe = 0;
         if (givemsg) {
-            const catName = (state.u?.uprops?.[HALLUC]?.intrinsic
-                && !(state.u?.uprops?.[HALLUC + 1]?.intrinsic
-                    || state.u?.uprops?.[HALLUC + 1]?.extrinsic))
+            const catName = Hallucination(state.u)
                 ? rndmonnam({ state }) : 'housecat';
             await ttyPline(
                 `The ${catName} inside the box is dead!`,

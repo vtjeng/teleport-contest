@@ -76,8 +76,6 @@ import {
     Upolyd,
     is_pit,
     u_at,
-    HALLUC,
-    HALLUC_RES,
     REFLECTING,
     KILLED_BY,
     HAND,
@@ -320,7 +318,8 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Detect_monsters, Half_physical_damage, Invis,
+    Blind, Blinded, Detect_monsters, EHalluc_resistance, HHalluc_resistance,
+    HHallucination, Half_physical_damage, Hallucination, Invis,
     Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
@@ -2241,8 +2240,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     // C's Hallucination macro reads the timed intrinsic only when effective
     // hallucination resistance is absent.  A suppressed timeout must not
     // select the hallucination-only acid-engulf message.
-    const hallucinating = Boolean(prop(HALLUC).intrinsic)
-        && !Boolean(prop(HALLUC_RES).intrinsic || prop(HALLUC_RES).extrinsic);
+    const hallucinating = Hallucination(u);
     const acidResistant = Boolean(
         prop(ACID_RES).intrinsic || prop(ACID_RES).extrinsic,
     );
@@ -2891,11 +2889,9 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
         }
         break;
     case M.AD_HALU: {
-        const hallucination = state.u?.uprops?.[HALLUC];
-        const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
-        const alreadyHallucinating = Boolean(hallucination?.intrinsic
-            && !(hallucinationResistance?.intrinsic
-                || hallucinationResistance?.extrinsic));
+        const alreadyHallucinating = Boolean(HHallucination(state.u)
+            && !(HHalluc_resistance(state.u)
+                || EHalluc_resistance(state.u)));
         notAffected = Boolean(notAffected || Blind(state.u)
             || state.u.umonnum === M.PM_BLACK_LIGHT
             || state.u.umonnum === M.PM_VIOLET_FUNGUS
@@ -2911,7 +2907,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
             await mondead(mtmp, state, rawEnv);
             killAgr = false;
             const changed = await make_hallucinated(
-                (hallucination?.intrinsic ?? 0) + tmp,
+                (HHallucination(state.u)) + tmp,
                 false,
                 0,
                 state,
@@ -2985,10 +2981,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         && couldsee(monster.mx, monster.my, state)
         && isMedusa;
     const hallucination = () => {
-        const property = state.u?.uprops?.[HALLUC];
-        const resistance = state.u?.uprops?.[HALLUC_RES];
-        return Boolean(property?.intrinsic)
-            && !(resistance?.intrinsic || resistance?.extrinsic);
+        return Boolean(HHallucination(state.u))
+            && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u));
     };
     let cancelled = cancelledInitially;
     if ((hallucination() && draw('rn2', 4))

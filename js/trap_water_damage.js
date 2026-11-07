@@ -19,8 +19,6 @@ import {
     ER_GREASED,
     ER_NOTHING,
     Has_contents,
-    HALLUC,
-    HALLUC_RES,
     OBJ_INVENT,
     OBJ_MINVENT,
     plur,
@@ -78,17 +76,9 @@ import { destroy_strings } from './zap_destroy_items.js';
 import { youSee } from './pline.js';
 import { wet_a_towel } from './weapon.js';
 import { blank_novel } from './zap.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
-function propertyActive(hero, property) {
-    const value = hero?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
-function heroHallucinating(state) {
-    return propertyActive(state.u, HALLUC)
-        && !propertyActive(state.u, HALLUC_RES);
-}
 
 function containerIsWaterproof(obj, objects) {
     return obj.otyp === objects.OILSKIN_SACK
@@ -512,7 +502,7 @@ export async function water_damage(obj, description, force, env = {}) {
                 state,
             );
             state.gm ??= {};
-            state.gm.mentioned_water = !heroHallucinating(state);
+            state.gm.mentioned_water = !Hallucination(state.u);
         }
         await damageContents(obj, env);
         return ER_DAMAGED;
@@ -525,7 +515,7 @@ export async function water_damage(obj, description, force, env = {}) {
                 state,
             );
             state.gm ??= {};
-            state.gm.mentioned_water = !heroHallucinating(state);
+            state.gm.mentioned_water = !Hallucination(state.u);
             const makeKnown = env.makeKnown ?? env.makeknown;
             if (typeof makeKnown === 'function') {
                 await makeKnown(obj.otyp, state, env);

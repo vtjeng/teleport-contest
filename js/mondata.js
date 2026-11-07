@@ -16,8 +16,6 @@ import {
     FAINTED,
     FIRE_RES,
     G_GENOD,
-    HALLUC,
-    HALLUC_RES,
     INTRINSIC,
     M_SEEN_ACID,
     M_SEEN_COLD,
@@ -118,7 +116,9 @@ export function set_mon_data(monster, species, state = game) {
     }
 }
 import { which_armor } from './worn.js';
-import { Blind, Blnd_resist, EBlinded } from './youprop.js';
+import {
+    Blind, Blnd_resist, EBlinded, Hallucination,
+} from './youprop.js';
 
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
@@ -1845,13 +1845,6 @@ export function gender(monster) {
     return monster.female ? FEMALE : MALE;
 }
 
-// youprop.h:116-120 Hallucination: the intrinsic timeout, defeated by either
-// half of Halluc_resistance.
-function hallucinatingHero(state) {
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic
-        && !(resistance?.intrinsic || resistance?.extrinsic));
-}
 
 // C ref: mondata.c pronoun_gender() (1191-1210). Which row of role.c genders[]
 // a monster's pronouns come from: 0 male, 1 female, 2 neuter, and 3 -- "they"
@@ -1866,7 +1859,7 @@ export function pronoun_gender(mtmp, pg_flags, env = {}) {
     const override_vis = (pg_flags & PRONOUN_NO_IT) !== 0;
     const hallu_rand = (pg_flags & PRONOUN_HALLU) !== 0;
 
-    if (hallu_rand && hallucinatingHero(state)) return random.rn2(4); /* 0..3 */
+    if (hallu_rand && Hallucination(state.u)) return random.rn2(4); /* 0..3 */
     if (!override_vis) {
         const canSpotMonster = env.canSpotMonster ?? canspotmon;
         if (!canSpotMonster(mtmp, state)) return NEUTRAL;

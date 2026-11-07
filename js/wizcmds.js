@@ -110,6 +110,7 @@ import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { monsndx, nonliving, olfaction } from './mondata.js';
 import { setpaid } from './shk.js';
+import { HHallucination } from './youprop.js';
 
 // C refs: wizcmds.c makemap_unmakemon() and makemap_remove_mons().
 async function makemap_unmakemon(monster, migratory, state) {
@@ -376,13 +377,12 @@ export async function wiz_makemap(state = game) {
 export async function wiz_map(state = game) {
     if (state.wizard) {
         const confusion = state.u.uprops[CONFUSION];
-        const hallucination = state.u.uprops[HALLUC];
         const save_Hconf = confusion.intrinsic;
-        const save_Hhallu = hallucination.intrinsic;
+        const save_Hhallu = HHallucination(state.u);
 
         notice_mon_off(state);
         confusion.intrinsic = 0;
-        hallucination.intrinsic = 0;
+        state.u.uprops[HALLUC].intrinsic = 0;
         for (const trap of state.level.traps) {
             trap.tseen = 1;
             map_trap(trap, true, state);
@@ -395,7 +395,7 @@ export async function wiz_map(state = game) {
         await do_mapping(state);
         notice_mon_on(state);
         confusion.intrinsic = save_Hconf;
-        hallucination.intrinsic = save_Hhallu;
+        state.u.uprops[HALLUC].intrinsic = save_Hhallu;
     } else {
         await ttyPline("Unavailable command 'wizmap'.", state);
     }

@@ -138,8 +138,6 @@ import {
     W_ARTI,
     I_SPECIAL,
     SINK,
-    HALLUC,
-    HALLUC_RES,
     HOLE,
     is_pit,
     u_at,
@@ -411,7 +409,7 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    Blind, EBlinded, HBlinded, Maybe_Half_Phys,
+    Blind, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
@@ -837,8 +835,7 @@ async function familiar_level_msg(state) {
         null, // no message
     ];
     const which = rn2(4);
-    const halluc = heroPropertyActive(state.u, HALLUC)
-        && !heroPropertyActive(state.u, HALLUC_RES);
+    const halluc = Hallucination(state.u);
     let mesg = halluc ? halu_fam_msgs[which] : fam_msgs[which];
     if (mesg && mesg.includes('%s')) {
         const blind = Boolean(HBlinded(state.u)
@@ -1280,12 +1277,6 @@ function teleport_sink(state = game, random = coreRandom) {
     return false;
 }
 
-function heroHallucinating(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: do.c polymorph_sink() (404-456). Keep the saved sink loot bit
 // separate from the cleared feature flags: fountain and throne preserve it,
@@ -1375,7 +1366,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
         );
         break;
     case RIN_AGGRAVATE_MONSTER: {
-        const insects = heroHallucinating(state)
+        const insects = Hallucination(state.u)
             ? makeplural(rndmonnam({ state })) : 'flies';
         await ttyPline(
             `Several ${insects} buzz angrily around the sink.`, state,
@@ -1478,7 +1469,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
                 youSee('the ring slide right down the drain!', state), state);
             break;
         case RIN_SEE_INVISIBLE: {
-            const sinkContents = heroHallucinating(state)
+            const sinkContents = Hallucination(state.u)
                 ? 'oxygen molecules' : 'air';
             await ttyPline(
                 youSee(`some ${sinkContents} in the sink.`, state), state);
@@ -1912,7 +1903,6 @@ export const _dropInternals = Object.freeze({
     dosinkring,
     engulfer_digests_food,
     engulfer_polyfood,
-    heroHallucinating,
     teleport_sink,
 });
 
@@ -2129,7 +2119,7 @@ export async function doaltarobj(obj, state = game, env = {}) {
             `There is ${an(color)} flash as ${name} ${verb} the altar.`,
             state,
         );
-        if (!heroHallucinating(state)) obj.bknown = 1;
+        if (!Hallucination(state.u)) obj.bknown = 1;
     } else {
         const name = Doname2(obj, state);
         const verb = otense(obj, 'land', state);

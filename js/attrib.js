@@ -38,8 +38,6 @@ import {
     FROMOUTSIDE,
     FROM_RACE,
     FUMBLING,
-    HALLUC,
-    HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
     INFRAVISION,
@@ -146,7 +144,8 @@ import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
-    EBlinded, HBlinded, HBlnd_resist, HClairvoyant,
+    EBlinded, HBlinded, HBlnd_resist, HClairvoyant, HHallucination,
+    Halluc_resistance, Hallucination,
 } from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
@@ -1096,8 +1095,8 @@ export async function exerper(state = game, env = {}) {
             || intrinsicPropertyPresent(hero, VOMITING)) {
             await exerciseWithEnvironment(A_CON, false, state, normalized);
         }
-        const hallucinating = intrinsicPropertyPresent(hero, HALLUC)
-            && !propertyPresent(hero, HALLUC_RES);
+        const hallucinating = Boolean(HHallucination(hero))
+            && !Halluc_resistance(hero);
         if (intrinsicPropertyPresent(hero, CONFUSION) || hallucinating) {
             await exerciseWithEnvironment(A_WIS, false, state, normalized);
         }
@@ -1336,14 +1335,6 @@ export function adjalign(n, state = game) {
     }
 }
 
-// C ref: youprop.h Hallucination macro. TRUE when the hero is hallucinating
-// and does not have hallucination resistance.
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: attrib.c uchangealign() (1320-1365). Change the hero's alignment
 // type, possibly losing use of artifacts. `reason` is A_CG_CONVERT (altar
@@ -1380,7 +1371,7 @@ export async function uchangealign(newalign, reason, state = game) {
         if (reason === A_CG_HELM_ON) {
             adjalign(-7, state); /* for abuse -- record will be cleared shortly */
             await ttyPline(
-                `Your mind oscillates ${Hallucination(state) ? 'wildly' : 'briefly'}.`,
+                `Your mind oscillates ${Hallucination(state.u) ? 'wildly' : 'briefly'}.`,
                 state,
             );
             await make_confused(rn1(2, 3), false, state);
@@ -1394,7 +1385,7 @@ export async function uchangealign(newalign, reason, state = game) {
             );
         } else if (reason === A_CG_HELM_OFF) {
             await ttyPline(
-                `Your mind is ${Hallucination(state) ? 'much of a muchness' : 'back in sync with your body'}.`,
+                `Your mind is ${Hallucination(state.u) ? 'much of a muchness' : 'back in sync with your body'}.`,
                 state,
             );
         }

@@ -61,8 +61,6 @@ import {
     FROMOUTSIDE,
     GOLD_SYM,
     GP_ALLOW_U,
-    HALLUC,
-    HALLUC_RES,
     HEADSTONE,
     ICE,
     IS_AIR,
@@ -548,7 +546,7 @@ import {
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
-    Blind, Half_physical_damage, Maybe_Half_Phys, Warning,
+    Blind, Half_physical_damage, Hallucination, Maybe_Half_Phys, Warning,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -944,11 +942,6 @@ function propertyPresent(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function heroHallucinating(state) {
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return propertyIntrinsic(state, HALLUC)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: hack.c in_town() (3562-3585). A Mine Town level with subrooms uses
 // the containing room as its town boundary. A variant without subrooms treats
@@ -970,7 +963,7 @@ export function in_town(x, y, state = game) {
 // disposition, helplessness, and scare checks than canspotmon().
 export function monster_nearby(state = game) {
     const { ux, uy } = state.u;
-    const hallucinating = heroHallucinating(state);
+    const hallucinating = Hallucination(state.u);
     for (let x = ux - 1; x <= ux + 1; ++x) {
         for (let y = uy - 1; y <= uy + 1; ++y) {
             if (!isok(x, y) || (x === ux && y === uy)) continue;
@@ -3020,7 +3013,7 @@ export async function test_move(
     if (sobj_at(BOULDER, x, y, state)
         && (state.level?.flags?.sokoban_rules || !passesWalls)) {
         if (mode !== TEST_TRAV && run >= 2
-            && !(Blind(state.u) || heroHallucinating(state))
+            && !(Blind(state.u) || Hallucination(state.u))
             && !could_move_onto_boulder(
                 x,
                 y,
@@ -3508,7 +3501,7 @@ export async function domove_bump_mon(mtmp, glyph, state = game) {
             && !propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS)
             && !sensemon(mtmp, state)) {
             await stumble_onto_mimic(mtmp, state);
-        } else if (mtmp.mpeaceful && !heroHallucinating(state)) {
+        } else if (mtmp.mpeaceful && !Hallucination(state.u)) {
             await ttyPline(`Pardon me, ${m_monnam(mtmp, state)}.`, state);
         } else {
             await ttyPline(`You move right into ${mon_nam(mtmp, state)}.`, state);
@@ -3774,7 +3767,7 @@ export async function avoid_trap_andor_region(x, y, state = game) {
     const impaired = propertyIntrinsic(state, STUNNED)
         || propertyIntrinsic(state, CONFUSION);
     if (paranoidTrap && !Blind(state.u) && !impaired
-        && !heroHallucinating(state)
+        && !Hallucination(state.u)
         && (!state.context.nopick || state.context.run)) {
         const newreg = visible_region_at(x, y, state);
         const oldreg = visible_region_at(state.u.ux, state.u.uy, state);
@@ -3808,8 +3801,8 @@ export async function avoid_trap_andor_region(x, y, state = game) {
             TEST_MOVE, state,
         )
         && (immune_to_trap(state.youmonst, trap.ttyp, state)
-            !== TRAP_CLEARLY_IMMUNE || heroHallucinating(state))) {
-        const traptype = heroHallucinating(state)
+            !== TRAP_CLEARLY_IMMUNE || Hallucination(state.u))) {
+        const traptype = Hallucination(state.u)
             ? rnd(TRAPNUM - 1) : Math.trunc(trap.ttyp);
         const prompt = `Really ${u_locomotion('step', state)} ${
             into_vs_onto(traptype) ? 'into' : 'onto'
@@ -4054,7 +4047,7 @@ async function domove_fight_empty(x, y, state) {
     if (!state.u.uinwater) {
         boulder = sobj_at(BOULDER, x, y, state);
         if (glyph_is_statue(glyph)
-            || (heroHallucinating(state) && glyph_is_monster(glyph))) {
+            || (Hallucination(state.u) && glyph_is_monster(glyph))) {
             boulder = sobj_at(STATUE, x, y, state);
         }
         // 2267-2276. A hero who force-fights while wielding a digging tool starts

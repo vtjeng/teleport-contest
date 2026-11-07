@@ -10787,7 +10787,5 @@ test('display_warning() reads Hallucination with its resistance', () => {
     const js = readFileSync('js/display.js', 'utf8');
     const body = js.match(/function warningGlyphInfo\(monster, state\) \{([\s\S]*?)\n\}/u)?.[1];
     assert.ok(body, 'js/display.js warningGlyphInfo() exists');
-    assert.match(body, /const warningLevel = heroHallucinating\(state\)/u);
-    const helper = js.match(/function heroHallucinating\(state\) \{([\s\S]*?)\n\}/u)?.[1];
-    assert.match(helper, /!_propertyActive\(state\.u, HALLUC_RES\)/u);
+    assert.match(body, /const warningLevel = Hallucination\(state\.u\)/u);
 });

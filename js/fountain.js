@@ -24,8 +24,6 @@ import {
     FROMOUTSIDE,
     FOUNTAIN,
     G_GONE,
-    HALLUC,
-    HALLUC_RES,
     HAND,
     HEAD,
     IS_FOUNTAIN,
@@ -129,7 +127,9 @@ import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
 import { Glib } from './wield.js';
 import { Fire_resistance } from './zap.js';
-import { Blind, Invisible } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination, Invisible,
+} from './youprop.js';
 
 // ── Fail-closed error ──
 // Thrown when a fountain function reaches a branch this port has not ported.
@@ -253,11 +253,9 @@ async function dowatersnakes(state = game, env = {}) {
         const heard = youHear(`${something} hissing!`, state);
         if (heard) await message(heard, state);
     } else {
-        const hallucination = state.u?.uprops?.[HALLUC];
-        const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
-        const hallucinating = Boolean(hallucination?.intrinsic)
-            && !(hallucinationResistance?.intrinsic
-                || hallucinationResistance?.extrinsic);
+        const hallucinating = Boolean(HHallucination(state.u))
+            && !(HHalluc_resistance(state.u)
+                || EHalluc_resistance(state.u));
         const name = hallucinating
             ? makeplural(rndmonnam({ state, random: env.displayRandom }))
             : 'snakes';
@@ -1319,9 +1317,9 @@ export async function drinksink(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
     const { ux: x, uy: y } = state.u;
-    const hallucination = Boolean(state.u.uprops[HALLUC]?.intrinsic)
-        && !(state.u.uprops[HALLUC_RES]?.intrinsic
-            || state.u.uprops[HALLUC_RES]?.extrinsic);
+    const hallucination = Boolean(HHallucination(state.u))
+        && !(HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u));
     const liquidEnv = { state, displayRandom: env.displayRandom };
 
     if (Levitation(state)) {

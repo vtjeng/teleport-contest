@@ -165,6 +165,7 @@ import {
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
 } from './objects.js';
+import { EHalluc_resistance } from './youprop.js';
 
 // C ref: objnam.c's TIN_UNDEFINED, TIN_EMPTY and TIN_SPINACH (3928-3930),
 // the values readobjnam_init() and readobjnam_preparse() give d.contents.
@@ -598,15 +599,13 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         const { del_engr_at } = await import('./engrave.js');
         del_engr_at(x, y, state);
         if (!isDbridge) {
-            const resistance = state.u.uprops[HALLUC_RES]
-                ?? (state.u.uprops[HALLUC_RES] = {});
-            const savedExtrinsic = resistance.extrinsic;
-            resistance.extrinsic = 1;
+            const savedExtrinsic = EHalluc_resistance(state.u);
+            state.u.uprops[HALLUC_RES].extrinsic = 1;
             try {
                 const { waterbody_name } = await import('./pager.js');
                 newWater = waterbody_name(x, y, state, env);
             } finally {
-                resistance.extrinsic = savedExtrinsic;
+                state.u.uprops[HALLUC_RES].extrinsic = savedExtrinsic;
             }
             await message((await article(newWater)) + '.');
         } else {

@@ -29,8 +29,6 @@ import {
     DRY,
     EPRI,
     FROMOUTSIDE,
-    HALLUC,
-    HALLUC_RES,
     helpless,
     HOT,
     IS_ALTAR,
@@ -125,7 +123,9 @@ import { which_armor } from './worn.js';
 import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
-import { Invis } from './youprop.js';
+import {
+    EHalluc_resistance, HHalluc_resistance, HHallucination, Invis,
+} from './youprop.js';
 
 // C ref: priest.c local constants.
 const ALGN_SINNED = -4;
@@ -786,10 +786,8 @@ export async function pri_move(priest, env = {}) {
 export function priestname(mon, article, reveal_high_priest, state = game, env = {}) {
     const aligned_priest = mon.data === state.mons[PM_ALIGNED_CLERIC];
     const high_priest = mon.data === state.mons[PM_HIGH_CLERIC];
-    const hallucination = state.u.uprops[HALLUC] ?? {};
-    const resistance = state.u.uprops[HALLUC_RES] ?? {};
-    const do_hallu = Boolean(hallucination.intrinsic)
-        && !(resistance.intrinsic || resistance.extrinsic);
+    const do_hallu = Boolean(HHallucination(state.u))
+        && !(HHalluc_resistance(state.u) || EHalluc_resistance(state.u));
     const randomName = do_hallu ? rndmonnamDetails({ state,
         random: env.displayRandom }) : null;
     let what = do_hallu ? randomName.name : mon_pmname(mon, state);
@@ -848,9 +846,8 @@ function heroDeaf(state) {
 }
 
 // C ref: youprop.h:157 Hallucination.
-function heroHallucinating(state) {
-    const prop = state.u?.uprops?.[HALLUC];
-    return Boolean(prop?.intrinsic || prop?.extrinsic) && !prop?.blocked;
+function HallucinatingIgnoringResistance(state) {
+    return Boolean(HHallucination(state.u));
 }
 
 // C ref: priest.c intemple(int roomno). Called when the hero enters a TEMPLE
@@ -880,7 +877,7 @@ export async function intemple(roomno, env = {}) {
         if (can_speak && !heroDeaf(state)
             && state.moves >= (epri_p.intone_time ?? 0)) {
             const save_priest = priest.ispriest;
-            if (sanctum && !heroHallucinating(state))
+            if (sanctum && !HallucinatingIgnoringResistance(state))
                 priest.ispriest = 0;
             const who = canseemon(priest, state)
                 ? Monnam(priest, state)
@@ -1068,7 +1065,7 @@ export async function priest_talk(priest, state = game, env = {}) {
         if (coaligned && !strayed) {
             const pmoney = money_cnt(priest.minvent);
             if (pmoney > 0) {
-                const bits = heroHallucinating(state)
+                const bits = HallucinatingIgnoringResistance(state)
                     ? currency(pmoney, state)
                     : pmoney === 1 ? 'bit' : 'bits';
                 await message(

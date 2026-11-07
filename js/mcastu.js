@@ -24,8 +24,6 @@ import {
     FIRE_RES,
     FREE_ACTION,
     HALF_SPDAM,
-    HALLUC,
-    HALLUC_RES,
     HEAD,
     M_AP_OBJECT,
     M_ATTK_HIT,
@@ -119,8 +117,8 @@ import {
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
-    Blind, Blinded, Detect_monsters, Half_physical_damage, Invis,
-    See_invisible,
+    Blind, Blinded, Detect_monsters, HHallucination, Half_physical_damage,
+    Halluc_resistance, Hallucination, Invis, See_invisible,
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -197,7 +195,7 @@ export async function mcast_death_touch(mtmp, env = {}) {
     if (nonliving(state.youmonst.data) || is_demon(state.youmonst.data)) {
         await message('You seem no deader than before.', state, effectEnv);
     } else if (!heroProperty(state, ANTIMAGIC) && random.rn2(mtmp.m_lev) > 12) {
-        if (Hallucination(state))
+        if (Hallucination(state.u))
             await message('You have an out of body experience.', state, effectEnv);
         else
             await touch_of_death(mtmp, effectEnv);
@@ -298,12 +296,6 @@ function activeHeroProperty(state, property) {
     return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
 }
 
-// C ref: youprop.h Hallucination. `HHallucination && !Halluc_resistance`.
-function Hallucination(state) {
-    return heroProperty(state, HALLUC)
-        && !heroProperty(state, HALLUC_RES);
-}
-
 
 // C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. The third
 // term is the permanent-deafness roleplay option, as in js/dokick.js.
@@ -347,7 +339,7 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
 
     switch (spellnum) {
     case MCAST_DEATH_TOUCH:
-        if ((heroProperty(state, ANTIMAGIC) || Hallucination(state))
+        if ((heroProperty(state, ANTIMAGIC) || Hallucination(state.u))
             && !random.rn2(2))
             return true;
         break;
@@ -971,7 +963,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
         || (env.tpSensemon ?? tp_sensemon)(mtmp, state)
         || Detect_monsters(state.u);
     let what = classSymbol === S_SNAKE ? 'snakes' : 'insects';
-    if (Hallucination(state)) {
+    if (Hallucination(state.u)) {
         const displayRandom = env.displayRandom
             ?? ((bound) => rn2_on_display_rng(bound, state));
         what = makeplural((env.bogusmon ?? bogusmon)(
@@ -1314,8 +1306,8 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
 
     // C's Hallucination macro tests the raw intrinsic field and both
     // Hallucination-resistance fields; HConfusion may contain high flag bits.
-    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !heroProperty(state, HALLUC_RES);
+    const hallucinating = Boolean(HHallucination(state.u))
+        && !Halluc_resistance(state.u);
     if (hallucinating) {
         await message(
             youFeel(`${oldConfusion ? 'trippier' : 'trippy'}!`, state), state,

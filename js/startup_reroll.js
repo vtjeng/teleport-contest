@@ -8,8 +8,6 @@ import {
     A_INT,
     A_STR,
     A_WIS,
-    HALLUC,
-    HALLUC_RES,
     PICK_ONE,
     TOPLINE_NON_EMPTY,
     TOPLINE_SPECIAL_PROMPT,
@@ -29,20 +27,11 @@ import { NO_COLOR } from './terminal.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { setToplinesDirectly } from './topl.js';
+import { Hallucination } from './youprop.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
 const REROLL_QUERY = 'Reroll this character?';
-function propertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
-function hallucinating(state) {
-    // C ref: youprop.h Hallucination. Unlike ordinary properties, HALLUC's
-    // extrinsic field does not activate it; only the intrinsic timeout does.
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !propertyActive(state, HALLUC_RES);
-}
 
 // C ref: display.h obj_to_glyph(). The TTY does not print these glyphs for
 // reroll rows (their identifiers are zero), but it still computes them and
@@ -55,9 +44,9 @@ function rerollObjectGlyphInfo(
     if (typeof displayRandom !== 'function')
         throw new TypeError('reroll displayRandom must be a function');
 
-    if (obj.otyp === O.STATUE && hallucinating(state))
+    if (obj.otyp === O.STATUE && Hallucination(state.u))
         return hallucinated_statue_glyph_info(state, displayRandom);
-    if (!hallucinating(state)) return object_glyph_info(obj, state);
+    if (!Hallucination(state.u)) return object_glyph_info(obj, state);
     return random_object_glyph_info(state, displayRandom);
 }
 

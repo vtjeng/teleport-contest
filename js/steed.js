@@ -27,8 +27,6 @@ import {
     FLYING,
     FUMBLING,
     GLIB,
-    HALLUC,
-    HALLUC_RES,
     has_mgivenname,
     KILLED_BY_AN,
     LEG,
@@ -177,7 +175,9 @@ import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
-import { Blind, Blind_telepat, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Blind_telepat, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
 // stands for, because the terms differ from macro to macro.
@@ -194,12 +194,6 @@ function propertyIntrinsic(state, index) {
 // youprop.h:77. The punishing ball is the whole test.
 export function Punished(state) {
     return Boolean(state.uball);
-}
-
-// youprop.h:120. Hallucination is a timeout, so it reads the intrinsic alone.
-function Hallucination(state) {
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !propertyActive(state, HALLUC_RES);
 }
 
 
@@ -475,7 +469,7 @@ export async function mount_steed(mtmp, force, state = game) {
     }
 
     /* Is the player in the right form? */
-    if (Hallucination(state) && !force) {
+    if (Hallucination(state.u) && !force) {
         await ttyPline('Maybe you should find a designated driver.', state);
         return false;
     }
@@ -959,7 +953,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
                 + `${an(pmname(mtmp.data, gender(mtmp)))} with no name.`,
                 state,
             );
-            if (Hallucination(state)) {
+            if (Hallucination(state.u)) {
                 await ttyPline(
                     'It felt good to get out of the rain.', state,
                 );

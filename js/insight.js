@@ -118,7 +118,6 @@ import {
     GLIB,
     HALF_PHDAM,
     HALF_SPDAM,
-    HALLUC,
     HALLUC_RES,
     HANDED,
     HUNGER,
@@ -386,10 +385,11 @@ import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
     BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, Blindfolded_only,
-    Blnd_resist, Clairvoyant, Detect_monsters, EBlinded, EClairvoyant, EInvis,
-    HBlinded, HClairvoyant, HDetect_monsters, HInvis, Half_physical_damage,
-    Infravision, Invis, Searching, See_invisible, Undead_warning, Warn_of_mon,
-    Warning,
+    Blnd_resist, Clairvoyant, Detect_monsters, EBlinded, EClairvoyant,
+    EHalluc_resistance, EInvis, HBlinded, HClairvoyant, HDetect_monsters,
+    HHalluc_resistance, HHallucination, HInvis, Half_physical_damage,
+    Halluc_resistance, Infravision, Invis, Searching, See_invisible,
+    Undead_warning, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -1202,8 +1202,8 @@ function status_enlightenment(mode, final, state, lines) {
     const actualFlying = flying && !B(FLYING);
     const blind = Blind(u);
     const blindfoldedOnly = Blindfolded_only(u);
-    const hallucinating = Boolean(H(HALLUC)
-        && !(H(HALLUC_RES) || E(HALLUC_RES)));
+    const hallucinating = Boolean(HHallucination(u)
+        && !(HHalluc_resistance(u) || EHalluc_resistance(u)));
     const deaf = Boolean(H(DEAF) || E(DEAF) || u.uroleplay?.deaf);
     const woundedLegs = Boolean(H(WOUNDED_LEGS) || E(WOUNDED_LEGS));
     const glib = Boolean(H(GLIB));
@@ -1577,7 +1577,7 @@ export async function attributes_enlightenment(final, state, lines) {
 
     // C ref: insight.c:1559-1561. Halluc_resistance is reported with the
     // source wording supplied by attrib.c from_what() in wizard mode.
-    if (hasProperty(state, HALLUC_RES))
+    if (Halluc_resistance(state.u))
         enl_msg(lines, final, You_, 'resist', 'resisted',
             ' hallucinations', from_what(HALLUC_RES, state));
     if (u.uedibility)

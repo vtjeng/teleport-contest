@@ -58,8 +58,6 @@ import {
     HOMEMADE_TIN,
     HUNGER,
     HUNGRY,
-    HALLUC,
-    HALLUC_RES,
     INVIS,
     INTRINSIC,
     Is_airlevel,
@@ -224,8 +222,8 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    BInvis, Blind, EInvis, ESee_invisible, HBlinded, HInvis, HSee_invisible,
-    Invis,
+    BInvis, Blind, EInvis, ESee_invisible, HBlinded, HHallucination, HInvis,
+    HSee_invisible, Hallucination, Invis,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -1034,7 +1032,7 @@ async function consume_tin(mesg, state = game, env = {}) {
     if (variety !== SPINACH_TIN) {
         const monsterNumber = tin.corpsenm;
         if (monsterNumber === NON_PM) {
-            if (Hallucination(state)) {
+            if (Hallucination(state.u)) {
                 await message(`It's full of ${random.rn2(2)
                     ? 'air elemental souffle' : 'dehydrated water'}.`, state);
             } else {
@@ -1053,10 +1051,10 @@ async function consume_tin(mesg, state = game, env = {}) {
         const monster = state.mons[monsterNumber];
         if ((monsterNumber === PM_COCKATRICE
             || monsterNumber === PM_CHICKATRICE)
-            && (propertyActive(state, STONE_RES) || Hallucination(state))) {
+            && (propertyActive(state, STONE_RES) || Hallucination(state.u))) {
             what = 'chicken';
             which = 1;
-        } else if (Hallucination(state)) {
+        } else if (Hallucination(state.u)) {
             what = rndmonnam({ state });
         } else {
             what = monster.pmnames[NEUTRAL];
@@ -1071,7 +1069,7 @@ async function consume_tin(mesg, state = game, env = {}) {
             if (await y_n('Eat it?', state) === 'n') {
                 if (state.flags?.verbose)
                     await message('You discard the open tin.', state);
-                if (!Hallucination(state)) {
+                if (!Hallucination(state.u)) {
                     observe_object(tin, state);
                     tin.known = true;
                 }
@@ -1149,7 +1147,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         conduct.food = Math.trunc(conduct.food ?? 0) + 1;
         if (!tin.cursed) {
             const fixed = Boolean(state.u.uprops[FIXED_ABIL]?.extrinsic);
-            const feeling = Hallucination(state)
+            const feeling = Hallucination(state.u)
                 ? "Swee'pea"
                 : !fixed ? 'Popeye'
                     : state.flags?.female ? 'Olive Oyl' : 'Bluto';
@@ -1397,13 +1395,6 @@ export async function use_tin_opener(obj, state = game, env = {}) {
 // The meal in progress.
 // ---------------------------------------------------------------------------
 
-// C ref: youprop.h Hallucination (120). Its positive term is HHallucination
-// (116), the intrinsic alone -- "Hallucination is solely a timeout" (115) --
-// while Halluc_resistance (119) is the intrinsic or the extrinsic.
-function Hallucination(state) {
-    return Boolean(hungerProperty(state, HALLUC).intrinsic)
-        && !propertyActive(state, HALLUC_RES);
-}
 
 // C ref: eat.c nonrotting_food() (64-66). Fortune cookies are handled by the
 // separate otyp test beside this macro's only call site.
@@ -1460,7 +1451,7 @@ async function rottenfood(obj, state) {
 
     if (!rn2(4)) {
         // Confusion arm.
-        if (Hallucination(state))
+        if (Hallucination(state.u))
             await ttyPline(youFeel('rather trippy.', state), state);
         else
             await ttyPline(
@@ -1931,7 +1922,7 @@ export async function newuhs(incr, state = game, env = {}) {
 // C ref: the HUNGRY and WEAK arms of newuhs()'s switch (3468-3496).
 function hungerTransitionMessage(newhs, incr, state) {
     const u = state.u;
-    const hallucinating = Hallucination(state);
+    const hallucinating = Hallucination(state.u);
     if (newhs === HUNGRY) {
         if (hallucinating) {
             return incr
@@ -2355,7 +2346,7 @@ export async function cprefx(pm, state = game, env = {}) {
 // make_stoned() state transition as the other petrification effects, which
 // clears the delayed killer along with the timeout.
 export async function fix_petrification(state = game) {
-    const message = Hallucination(state)
+    const message = Hallucination(state.u)
         ? `What a pity--you just ruined a future piece of ${
             acurr(state, A_CHA) > 15 ? 'fine ' : ''
         }art!`
@@ -2480,7 +2471,7 @@ async function givit(type, ptr, state, env = {}) {
     case FIRE_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? "You be chillin'."
                     : 'You feel a momentary chill.',
                 state,
@@ -2503,7 +2494,7 @@ async function givit(type, ptr, state, env = {}) {
     case DISINT_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? youFeel('totally together, man.', state)
                     : youFeel('very firm.', state),
                 state,
@@ -2514,7 +2505,7 @@ async function givit(type, ptr, state, env = {}) {
     case SHOCK_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? youFeel('grounded in reality.', state)
                     : 'Your health currently feels amplified!',
                 state,
@@ -2535,7 +2526,7 @@ async function givit(type, ptr, state, env = {}) {
     case TELEPORT:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? youFeel('diffuse.', state)
                     : youFeel('very jumpy.', state),
                 state,
@@ -2546,7 +2537,7 @@ async function givit(type, ptr, state, env = {}) {
     case TELEPORT_CONTROL:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? youFeel('centered in your personal space.', state)
                     : youFeel('in control of yourself.', state),
                 state,
@@ -2557,7 +2548,7 @@ async function givit(type, ptr, state, env = {}) {
     case TELEPAT:
         if (!(property.intrinsic & FROMOUTSIDE)) {
             await message(
-                Hallucination(state)
+                Hallucination(state.u)
                     ? youFeel('in touch with the cosmos.', state)
                     : youFeel('a strange mental acuity.', state),
                 state,
@@ -2570,7 +2561,7 @@ async function givit(type, ptr, state, env = {}) {
     case ACID_RES:
         if (!propertyActive(state, ACID_RES)) {
             await message(
-                youFeel(`${Hallucination(state)
+                youFeel(`${Hallucination(state.u)
                     ? 'secure from flashbacks'
                     : 'less concerned about being harmed by acid'}.`, state),
                 state,
@@ -2581,7 +2572,7 @@ async function givit(type, ptr, state, env = {}) {
     case STONE_RES:
         if (!propertyActive(state, STONE_RES)) {
             await message(
-                youFeel(`${Hallucination(state)
+                youFeel(`${Hallucination(state.u)
                     ? 'unusually limber'
                     : 'less concerned about becoming petrified'}.`, state),
                 state,
@@ -2646,13 +2637,13 @@ export function eatmupdate(state = game, env = {}) {
     let altapp = 0;
     if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
         && state.youmonst.mappearance === ORANGE
-        && !Hallucination(state)) {
+        && !Hallucination(state.u)) {
         // Revert the hallucinatory orange appearance to mimicked gold.
         altmsg = 'You now prefer mimicking yourself.';
         altapp = GOLD_PIECE;
     } else if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
         && state.youmonst.mappearance === GOLD_PIECE
-        && Hallucination(state)) {
+        && Hallucination(state.u)) {
         // C retains this branch although normal callers end mimicry before
         // starting hallucination during the immobilized occupation.
         altmsg = 'Your rind escaped intact.';
@@ -2760,7 +2751,7 @@ async function cpostfx(pm, state, env = {}) {
         tmp += 20;
         if (state.youmonst.data.mlet !== S_MIMIC
             && !propertyActive(state, UNCHANGING)) {
-            const hallucinating = Hallucination(state);
+            const hallucinating = Hallucination(state.u);
             const tempshape = hallucinating ? 'an orange' : 'a pile of gold';
             state.u.uconduct ??= {};
             const oldPolyselfs = Math.trunc(
@@ -2900,9 +2891,8 @@ async function cpostfx(pm, state, env = {}) {
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm === PM_VIOLET_FUNGUS) {
             await message('Oh wow!  Great stuff!', state);
-            const hallucination = state.u.uprops[HALLUC];
             await make_hallucinated(
-                (hallucination.intrinsic & TIMEOUT) + 200,
+                (HHallucination(state.u) & TIMEOUT) + 200,
                 false,
                 0,
                 state,
@@ -3136,7 +3126,7 @@ async function eatcorpse(otmp, state, env = {}) {
         if (!retcode)
             consume_oeaten(otmp, 2, state); /* oeaten >>= 2 */
     } else if ((mnum === PM_COCKATRICE || mnum === PM_CHICKATRICE)
-               && (propertyActive(state, STONE_RES) || Hallucination(state))) {
+               && (propertyActive(state, STONE_RES) || Hallucination(state.u))) {
         await ttyPline('This tastes just like chicken!', state);
     } else if (mnum === PM_FLOATING_EYE && u.umonnum === PM_RAVEN) {
         await ttyPline('You peck the eyeball with delight.', state);
@@ -3155,7 +3145,7 @@ async function eatcorpse(otmp, state, env = {}) {
         const idx = vegetarian(corpse)
             ? 0 : rn2(PALATABLE_MSGS.length);
         const palat_msg = PALATABLE_MSGS[idx];
-        const use_is = Hallucination(state)
+        const use_is = Hallucination(state.u)
             || (palatable && palat_msg[0] === 'I');
 
         if (pmxnam.slice(0, 4).toLowerCase() === 'the ')
@@ -3166,7 +3156,7 @@ async function eatcorpse(otmp, state, env = {}) {
                 use_is ? 'is' : 'tastes'} ${
                 /* tiger reference is to TV ads for "Frosted Flakes",
                    breakfast cereal targeted at kids by "Tony the tiger" */
-                Hallucination(state)
+                Hallucination(state.u)
                     ? (yummy ? (u.umonnum === PM_TIGER ? 'gr-r-reat' : 'gnarly')
                         : palatable ? 'copacetic' : 'grody')
                     : (yummy ? 'delicious'
@@ -3284,7 +3274,7 @@ async function fpostfx(otmp, state, env = {}) {
         break;
     case APPLE:
         if (otmp.cursed && !propertyActive(state, SLEEP_RES)) {
-            if (state.urace?.mnum === PM_DWARF && Hallucination(state)) {
+            if (state.urace?.mnum === PM_DWARF && Hallucination(state.u)) {
                 await verbalize(
                     "Heigh-ho, ho-hum, I think I'll skip work today.",
                     state,
@@ -3334,9 +3324,9 @@ async function fprefx(otmp, state, env = {}) {
         ? predicate(uptr) : state.urace.mnum === race;
     const feedback = async () => message(
         `This ${singular(otmp, xnameFresh, state)} is ${otmp.cursed
-            ? (Hallucination(state) ? 'grody!' : 'terrible!')
+            ? (Hallucination(state.u) ? 'grody!' : 'terrible!')
             : [CRAM_RATION, K_RATION, C_RATION].includes(otmp.otyp)
-                ? 'bland.' : Hallucination(state) ? 'gnarly!' : 'delicious!'}`,
+                ? 'bland.' : Hallucination(state.u) ? 'gnarly!' : 'delicious!'}`,
         state,
     );
     switch (otmp.otyp) {
@@ -3355,7 +3345,7 @@ async function fprefx(otmp, state, env = {}) {
         break;
     case FOOD_RATION:
         if (state.u.uhunger <= 200) {
-            await message(`${Hallucination(state)
+            await message(`${Hallucination(state.u)
                 ? 'Oh wow, like, superior, man' : 'This food really hits the spot'}!`, state);
         } else if (state.u.uhunger < 700) {
             await message(`This satiates your ${body_part(STOMACH, state.youmonst)}!`, state);
@@ -3365,7 +3355,7 @@ async function fprefx(otmp, state, env = {}) {
         if (carnivorous(uptr) && !humanoid(uptr)) {
             await message('This tripe ration is surprisingly good!', state);
         } else if (maybeRace(is_orc, PM_ORC)) {
-            await message(Hallucination(state) ? 'Tastes great!  Less filling!' : 'Mmm, tripe... not bad!', state);
+            await message(Hallucination(state.u) ? 'Tastes great!  Less filling!' : 'Mmm, tripe... not bad!', state);
         } else {
             await message('Yak - dog food!', state);
             more_experienced(1, 0, state);
@@ -3396,7 +3386,7 @@ async function fprefx(otmp, state, env = {}) {
     default:
         if (otmp.otyp === SLIME_MOLD && !otmp.cursed
             && otmp.spe === state.context.current_fruit) {
-            await message(`My, this is a ${Hallucination(state) ? 'primo' : 'yummy'} ${singular(otmp, xnameFresh, state)}!`, state);
+            await message(`My, this is a ${Hallucination(state.u) ? 'primo' : 'yummy'} ${singular(otmp, xnameFresh, state)}!`, state);
         } else if (otmp.otyp === APPLE && otmp.cursed
             && !propertyActive(state, SLEEP_RES)) {
             // C defers this flavor feedback to fpostfx().
@@ -3404,7 +3394,7 @@ async function fprefx(otmp, state, env = {}) {
             // The recorded reference compiles MACOS before the UNIX arm.
             await message('Delicious!  Must be a Macintosh!', state);
         } else if (otmp.otyp === PEAR) {
-            if (!Hallucination(state)) await message('Core dumped.', state);
+            if (!Hallucination(state.u)) await message('Core dumped.', state);
             else {
                 const roll = random.rnd(100);
                 await message(`${roll <= 75 ? 'Segmentation fault'
@@ -3998,7 +3988,7 @@ async function eataccessory(otmp, state, env) {
                 && !seeInvis && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
                 await message(
-                    `Your body takes on a ${Hallucination(state)
+                    `Your body takes on a ${Hallucination(state.u)
                         ? 'normal' : 'strange'} transparency...`,
                     state,
                 );
@@ -4164,7 +4154,7 @@ async function eatspecial(state, env) {
     // optional encumbrance message before consuming the object.
     if (otmp.otyp === TRIDENT && !otmp.cursed) {
         await env.message(
-            Hallucination(state)
+            Hallucination(state.u)
                 ? 'Four out of five dentists agree.'
                 : 'That was pure chewing satisfaction!',
             state,

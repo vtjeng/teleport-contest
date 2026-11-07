@@ -21,8 +21,6 @@ import {
     DF_ALL,
     EYE,
     G_EXTINCT,
-    HALLUC,
-    HALLUC_RES,
     LL_CONDUCT,
     LARGEST_INT,
     MAGIC_PORTAL,
@@ -188,7 +186,7 @@ import {
     stairway_find, stairway_find_dir, stairway_find_from,
 } from './stairs.js';
 import {
-    BBlinded, Blind_telepat, EBlinded, HBlinded,
+    BBlinded, Blind_telepat, EBlinded, HBlinded, Hallucination,
 } from './youprop.js';
 
 export { christen_monst } from './do_name.js';
@@ -329,13 +327,6 @@ function propertyActive(hero, index) {
 }
 
 
-// C's Hallucination macro is the intrinsic hallucination property without
-// its resistance property. Keep this query beside the other dog.c property
-// predicates so every tamedog message uses the same state owner.
-function heroHallucinating(state) {
-    return propertyActive(state.u, HALLUC)
-        && !propertyActive(state.u, HALLUC_RES);
-}
 
 function carryingType(state, otyp) {
     for (let object = state.invent ?? state.gi?.invent ?? null;
@@ -454,7 +445,7 @@ export async function tamedog(
         await message(
             messageAt(
                 `${Monnam(monster, state)} seems `
-                    + `${heroHallucinating(state) ? 'really chill' : 'more amiable'}.`,
+                    + `${Hallucination(state.u) ? 'really chill' : 'more amiable'}.`,
                 monster.mx,
                 monster.my,
                 state,
@@ -583,7 +574,7 @@ export async function tamedog(
         await message(
             messageAt(
                 `${Monnam(monster, state)} seems `
-                    + `${heroHallucinating(state) ? 'quite approachable' : 'quite friendly'}.`,
+                    + `${Hallucination(state.u) ? 'quite approachable' : 'quite friendly'}.`,
                 monster.mx,
                 monster.my,
                 state,
@@ -652,8 +643,7 @@ function setMonsterObservationPosition(monster, observedAt, state) {
 export async function see_monster_closeup(monster, photo = false, env = {}) {
     const { state } = dogEnv(env);
     const hero = state.u;
-    const hallucinating = propertyActive(hero, HALLUC)
-        && !propertyActive(hero, HALLUC_RES);
+    const hallucinating = Hallucination(hero);
     const blind = Boolean(HBlinded(hero) || EBlinded(hero))
         && !Boolean(BBlinded(hero));
     const blindTelepathy = Blind_telepat(hero);
@@ -728,8 +718,7 @@ export async function see_monster_closeup(monster, photo = false, env = {}) {
 // species as seen up close after the hero's time-consuming action.
 export async function see_nearby_monsters(state = game, env = {}) {
     const hero = state.u;
-    const hallucinating = propertyActive(hero, HALLUC)
-        && !propertyActive(hero, HALLUC_RES);
+    const hallucinating = Hallucination(hero);
     const blind = Boolean(HBlinded(hero) || EBlinded(hero))
         && !Boolean(BBlinded(hero));
     if (hallucinating || (blind && !Blind_telepat(hero))) return 0;

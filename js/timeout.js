@@ -46,7 +46,6 @@ import {
     GENOCIDED,
     HATCH_EGG,
     HALLUC,
-    HALLUC_RES,
     GLIB,
     INTRINSIC,
     INVIS,
@@ -219,7 +218,7 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Invis, See_invisible, Warn_of_mon,
+    Blind, Hallucination, Invis, See_invisible, Warn_of_mon,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -757,12 +756,6 @@ function heroPropertyActive(state, propertyIndex) {
         && !property?.blocked;
 }
 
-function hallucinating(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 function deaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
@@ -799,7 +792,7 @@ export async function slip_or_trip(state = game, env = {}) {
         // a single floor item, so the timeout refers to it by pronoun.
         if (state.iflags?.last_msg === PLNMSG_ONE_ITEM_HERE) {
             what = object.quan === 1
-                ? 'it' : hallucinating(state) ? 'they' : 'them';
+                ? 'it' : Hallucination(state.u) ? 'they' : 'them';
         } else if (object.dknown || !Blind(state.u)) {
             what = donameFresh(object, state);
         } else {
@@ -809,7 +802,7 @@ export async function slip_or_trip(state = game, env = {}) {
                 : something;
         }
 
-        if (hallucinating(state)) {
+        if (Hallucination(state.u)) {
             what = highc(what[0]) + what.slice(1);
             await message(
                 `Egads!  ${what} bite${object.quan === 1 ? 's' : ''} `
@@ -876,7 +869,7 @@ export async function slip_or_trip(state = game, env = {}) {
         switch (random.rn2(4)) {
         case 1:
             await message(
-                `You trip over your own ${hallucinating(state)
+                `You trip over your own ${Hallucination(state.u)
                     ? 'elbow'
                     : makeplural(body_part(FOOT, state.youmonst))}.`,
                 state,
@@ -884,7 +877,7 @@ export async function slip_or_trip(state = game, env = {}) {
             break;
         case 2:
             await message(
-                `You slip ${hallucinating(state)
+                `You slip ${Hallucination(state.u)
                     ? 'on a banana peel' : 'and nearly fall'}.`, state,
             );
             break;
@@ -1032,7 +1025,7 @@ async function slime_dialogue(state = game, env = {}) {
                     await urgentMessage(text, state);
                 }
             } else {
-                const monster = hallucinating(state)
+                const monster = Hallucination(state.u)
                     ? rndmonnam({ state, random: displayRandom })
                     : 'green slime';
                 await urgentMessage(text.replace('%s', an(monster)), state);
@@ -1092,7 +1085,7 @@ export async function sickness_dialogue(state = game, env = {}) {
         if (!((state.u.usick_type ?? 0) & SICK_NONVOMITABLE))
             text = text.replace('illness', 'sickness');
 
-        if (hallucinating(state) && text.includes("Death's door")) {
+        if (Hallucination(state.u) && text.includes("Death's door")) {
             // C passes youmonst to mhe(); its species is irrelevant when the
             // hallucination flag selects the pronoun RNG branch.
             const pronoun = mhe(state.youmonst, { state, random });
@@ -1253,7 +1246,7 @@ async function vomiting_dialogue(state, env = {}) {
         text = vomitingTexts[4];
         if (cantvomit(state.youmonst.data)) {
             text = 'gag uncontrollably.';
-        } else if (hallucinating(state)) {
+        } else if (Hallucination(state.u)) {
             text = 'are about to hurl!';
         }
         break;
@@ -1263,7 +1256,7 @@ async function vomiting_dialogue(state, env = {}) {
             await morehungry(20, state, env);
             if (state.u.uhs < FAINTING) {
                 await message(
-                    `You ${hallucinating(state) ? 'hurl chunks' : 'vomit'}!`,
+                    `You ${Hallucination(state.u) ? 'hurl chunks' : 'vomit'}!`,
                     state,
                 );
             }
@@ -1625,7 +1618,7 @@ async function decrement_property_timeouts(state, env) {
         case HALLUC:
             set_itimeout(property, 1);
             await make_hallucinated(0, true, 0, state);
-            if (!hallucinating(state)) await stop_occupation(state, occupationEnv);
+            if (!Hallucination(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case SLEEPY:
             if (unconscious(state) || propertySource(state, SLEEP_RES)) {
@@ -2395,7 +2388,7 @@ export async function lantern_message(obj, env = {}) {
     switch (obj.where) {
     case OBJ_INVENT:
         await message('Your lantern is getting dim.', state);
-        if (hallucinating(state))
+        if (Hallucination(state.u))
             await message('Batteries have not been invented yet.', state);
         break;
     case OBJ_FLOOR:
@@ -2595,7 +2588,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                         needNewsym = true;
                         break;
                     }
-                    await message(hallucinating(state)
+                    await message(Hallucination(state.u)
                         ? many ? 'They shriek!' : 'It shrieks!'
                         : blind ? '' : many ? 'Their flames die.' : 'Its flame dies.', state);
                 }

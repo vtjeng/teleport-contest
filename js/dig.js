@@ -72,8 +72,6 @@ import {
     FAINTED,
     FORCEBUNGLE,
     Has_contents,
-    HALLUC,
-    HALLUC_RES,
     IRONBARS,
     IN_SIGHT,
     IS_WATERWALL,
@@ -301,7 +299,10 @@ import { AD_DGST, AT_ENGL, MZ_HUGE } from './monsters.js';
 import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Maybe_Half_Phys,
+} from './youprop.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -1687,9 +1688,9 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
     }
 
     const hallucinating = Boolean(
-        state.u?.uprops?.[HALLUC]?.intrinsic
-        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
-        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+        HHallucination(state.u)
+        && !HHalluc_resistance(state.u)
+        && !EHalluc_resistance(state.u),
     );
     const whatHappens = location.emptygrave ? -1 : random.rn2(5);
     switch (whatHappens) {
@@ -2204,9 +2205,9 @@ export async function draft_message(unexpected, env) {
     const random = env.random ?? coreRandom;
     const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
     const hallucinating = Boolean(
-        state.u?.uprops?.[HALLUC]?.intrinsic
-        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
-        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+        HHallucination(state.u)
+        && !HHalluc_resistance(state.u)
+        && !EHalluc_resistance(state.u),
     );
     if (unexpected) {
         if (!hallucinating) {

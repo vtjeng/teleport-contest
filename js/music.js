@@ -4,8 +4,7 @@
 import {
     ACH_TUNE, A_DEX, A_WIS, ALTAR, AM_MASK, AM_SANCTUM, Amask2align,
     ARTICLE_THE, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
-    DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE,
-    HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
+    DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
@@ -64,16 +63,13 @@ import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import { Blind, Hallucination, Maybe_Half_Phys } from './youprop.js';
 
 function property(state, index) {
     const p = state.u.uprops[index];
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
 function Deaf(state) { return property(state, DEAF) || state.u.uroleplay?.deaf; }
-function Hallucination(state) {
-    return Boolean(state.u.uprops[HALLUC]?.intrinsic) && !property(state, HALLUC_RES);
-}
 
 // C ref: music.c awaken_scare() (45-60). The waiting arm excludes scare
 // checks, including their resistance draw, even when the sound is scary.
@@ -527,7 +523,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
             mundane = true;
         }
     }
-    let mode = (stunned ? 1 : 0) | (confused ? 2 : 0) | (Hallucination(state) ? 4 : 0);
+    let mode = (stunned ? 1 : 0) | (confused ? 2 : 0) | (Hallucination(state.u) ? 4 : 0);
     if (!random.rn2(2)) {
         if (mode === 3) mode = !random.rn2(2) ? 1 : 2;
         if (mode & 4) mode = 4;
@@ -545,7 +541,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
     switch (itmp.otyp) {
     case MAGIC_FLUTE:
         await consume_obj_charge(instr, true, { state });
-        await message(`You ${!Deaf(state) ? '' : 'seem to '}produce ${Hallucination(state) ? 'piped' : 'soft'}${same ? ', familiar' : ''} music.`, state);
+        await message(`You ${!Deaf(state) ? '' : 'seem to '}produce ${Hallucination(state.u) ? 'piped' : 'soft'}${same ? ', familiar' : ''} music.`, state);
         await put_monsters_to_sleep(state.u.ulevel * 5, state, {
             ...env,
             message,
@@ -667,7 +663,7 @@ export async function do_play_instrument(instr, state = game, env = {}) {
     }
     if (instr.otyp !== LEATHER_DRUM && instr.otyp !== DRUM_OF_EARTHQUAKE
         && !(state.u.uprops[STUNNED]?.intrinsic || state.u.uprops[CONFUSION]?.intrinsic
-            || Hallucination(state))) c = await ynq('Improvise?', state);
+            || Hallucination(state.u))) c = await ynq('Improvise?', state);
     if (c === 'q') {
         await message('Never mind.', state);
         return ECMD_OK;

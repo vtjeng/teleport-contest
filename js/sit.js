@@ -28,8 +28,6 @@ import {
     FROMOUTSIDE,
     FOUNTAIN,
     HALF_SPDAM,
-    HALLUC,
-    HALLUC_RES,
     HEAD,
     INTRINSIC,
     INVIS,
@@ -132,16 +130,9 @@ import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
 import {
     Blind, ETelepat, HBlinded, HSee_invisible, HTelepat, Half_physical_damage,
-    See_invisible,
+    Hallucination, See_invisible,
 } from './youprop.js';
 
-// youprop.h:120 Hallucination: intrinsic only, unless resisted.
-function Hallucination(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // youprop.h:240 Levitation, including its blocking term.
 function Levitation(state) {
@@ -702,7 +693,7 @@ export async function lay_an_egg(state = game, rawEnv = {}) {
 
     if (!state.flags?.female) {
         await message(
-            Hallucination(state)
+            Hallucination(state.u)
                 ? 'You may think you are a platypus, but a male still can\'t lay eggs!'
                 : "Males can't lay eggs!",
             state,
@@ -1026,7 +1017,7 @@ export async function rndcurse(state = game, rawEnv = {}) {
             else await curse(otmp, objectEnv);
             if (!Blind(state.u)) {
                 await message(`${Yobjnam2(otmp, 'glow', state)} ${hcolor(otmp.cursed ? 'black' : 'brown', state, objectEnv)}.`, state);
-                otmp.bknown = Hallucination(state) ? 0 : 1;
+                otmp.bknown = Hallucination(state.u) ? 0 : 1;
             } else {
                 otmp.bknown = 0;
             }
@@ -1096,7 +1087,7 @@ export async function attrcurse(state = game, rawEnv = {}) {
                 await see_monsters(state, { ...rawEnv, message });
                 (rawEnv.redraw ?? newsym)(u.ux, u.uy, state);
             }
-            await message(`You ${Hallucination(state)
+            await message(`You ${Hallucination(state.u)
                 ? 'tawt you taw a puttie tat' : 'thought you saw something'}!`, state);
         } else {
             await message(youFeel(feedback, state), state);

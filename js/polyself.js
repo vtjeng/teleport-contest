@@ -51,7 +51,6 @@ import {
     G_GENOD,
     GENOCIDED,
     HAIR,
-    HALLUC,
     HALLUC_RES,
     HAND,
     HANDED,
@@ -278,7 +277,9 @@ import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
-import { Blind, Invis, See_invisible } from './youprop.js';
+import {
+    Blind, Hallucination, Invis, See_invisible,
+} from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
 // failClosedCommand() in cmd.js converts this to an
@@ -314,15 +315,6 @@ function Levitation(state) {
                    && !levitation.blocked);
 }
 
-
-// youprop.h:120 Hallucination is HHallucination && !Halluc_resistance, and
-// :119 Halluc_resistance is intrinsic or extrinsic.
-function Hallucination(state) {
-    const halluc = uprop(state, HALLUC);
-    const resistance = uprop(state, HALLUC_RES);
-    return Boolean(halluc.intrinsic
-                   && !(resistance.intrinsic || resistance.extrinsic));
-}
 
 // youprop.h:84 Confusion is HConfusion alone.
 function Confusion(state) {
@@ -2468,7 +2460,7 @@ export async function dogaze(state = game) {
     if (Blind(state.u)) {
         await ttyPline("You can't see anything to gaze at.", state);
         return ECMD_OK;
-    } else if (Hallucination(state)) {
+    } else if (Hallucination(state.u)) {
         await ttyPline("You can't gaze at anything you can see.", state);
         return ECMD_OK;
     }

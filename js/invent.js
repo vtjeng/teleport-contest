@@ -43,8 +43,6 @@ import {
     FUMBLING,
     GOLD_SYM,
     HAND,
-    HALLUC,
-    HALLUC_RES,
     st_all,
     engulfing_u,
     LEFT_HANDED,
@@ -392,7 +390,7 @@ import {
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
 import { welded } from './wield.js';
-import { Blind } from './youprop.js';
+import { Blind, Hallucination } from './youprop.js';
 
 // invent.c owns reroll_menu(); the startup module holds its complete menu
 // implementation so the startup dependency graph stays acyclic. Re-export
@@ -3496,14 +3494,6 @@ function propertyPresent(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function isHallucinating(env) {
-    const hallucination = env.state.u?.uprops?.[HALLUC];
-    const resistance = env.state.u?.uprops?.[HALLUC_RES];
-    if (!hallucination || !resistance)
-        throw new Error('Hallucination requires initialized u.uprops');
-    return Boolean(hallucination.intrinsic
-        && !(resistance.intrinsic || resistance.extrinsic));
-}
 
 function isCleric(state) {
     return state.urole?.filecode === 'Pri';
@@ -3551,7 +3541,7 @@ export function mergable(otmp, obj, env = {}) {
     const blindOrHallucinating = () => {
         if (perceptionBlocksComparison === undefined) {
             perceptionBlocksComparison = Blind(normalized.state.u)
-                || isHallucinating(normalized);
+                || Hallucination(normalized.state.u);
         }
         return perceptionBlocksComparison;
     };
@@ -4542,7 +4532,7 @@ export function preflight_addinv_sequence(objects, env = {}, options = {}) {
             ...source,
             oextra: source.oextra ? { ...source.oextra } : source.oextra,
         };
-        if (options.observeObjects && !isHallucinating(projectedEnv))
+        if (options.observeObjects && !Hallucination(projectedEnv.state.u))
             projected.dknown = true;
         const result = projectAddinv(projected, projectedEnv);
         plans.push({ ...plan, ...result });
@@ -5266,7 +5256,7 @@ const CURRENCIES = Object.freeze([
 
 export function currency(amount, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const res = isHallucinating({ state })
+    const res = Hallucination(state.u)
         ? CURRENCIES[random.rn2(CURRENCIES.length)]
         : 'zorkmid';
     return amount !== 1 ? makeplural(res) : res;

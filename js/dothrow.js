@@ -72,8 +72,6 @@ import {
     FIRE_TRAP,
     FUMBLING,
     FOOT,
-    HALLUC,
-    HALLUC_RES,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -486,7 +484,9 @@ import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
-import { Blind, HBlinded, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, HBlinded, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -498,13 +498,6 @@ function propertyHeld(state, property) {
     return Boolean(held?.intrinsic || held?.extrinsic);
 }
 
-// C ref: youprop.h Hallucination, HHallucination && !Halluc_resistance. Resistance is a
-// separate property from the hallucination source, so it must be checked at
-// the same admission point rather than folded into propertyHeld().
-function hallucinating(state) {
-    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !propertyHeld(state, HALLUC_RES);
-}
 
 // C ref: youprop.h Deaf (125), `HDeaf || EDeaf || u.uroleplay.deaf`. The third
 // term is the deaf conduct, which only `OPTIONS=roleplay:deaf` sets and nothing
@@ -1675,7 +1668,7 @@ export async function release_camera_demon(obj, x, y, env = {}) {
             MM_NOMSG, { ...env, state, random, message });
         if (monster) {
             if (canspotmon(monster, state)) {
-                const name = hallucinating(state)
+                const name = Hallucination(state.u)
                     ? An(rndmonnam({ state, random: env.displayRandom }))
                     : 'The picture-painting demon';
                 await message(`${name} is released!`, state, env);
@@ -2636,7 +2629,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     let impaired = propertyHeld(state, CONFUSION)
         || propertyHeld(state, STUNNED)
         || Blind(state.u)
-        || hallucinating(state)
+        || Hallucination(state.u)
         || propertyHeld(state, FUMBLING);
     const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
 

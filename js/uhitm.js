@@ -58,8 +58,6 @@ import {
     EF_VERBOSE,
     ER_NOTHING,
     FACE,
-    HALLUC,
-    HALLUC_RES,
     FUMBLING,
     HMON_APPLIED,
     HMON_MELEE,
@@ -710,7 +708,8 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
     Blind, Blind_telepat, Detect_monsters, EBlinded, HBlinded,
-    Half_physical_damage, Invisible, Maybe_Half_Phys, See_invisible,
+    Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
+    See_invisible,
 } from './youprop.js';
 
 function intrinsicProperty(hero, index) {
@@ -722,15 +721,6 @@ function propertyPresent(hero, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-// C ref: youprop.h:120 Hallucination, over :116-119. HHallucination is the
-// intrinsic alone -- no worn item confers hallucination, so there is no
-// EHallucination term -- while Halluc_resistance is the intrinsic or the
-// extrinsic. Both readers below take the macro from here, because uhitm.c
-// spells it the same way at 300 as display.h is_safemon() does.
-function Hallucination(state) {
-    return intrinsicProperty(state?.u, HALLUC)
-        && !propertyPresent(state?.u, HALLUC_RES);
-}
 
 // C ref: youprop.h Deaf.  The role-play flag is part of the macro even when
 // no timed deafness property is active.
@@ -989,7 +979,7 @@ export function is_safemon(monster, state = game) {
         && monster?.mpeaceful
         && canspotmon(monster, state)
         && !intrinsicProperty(hero, CONFUSION)
-        && !Hallucination(state)
+        && !Hallucination(state.u)
         && !intrinsicProperty(hero, STUNNED),
     );
 }
@@ -1244,7 +1234,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             && !Detect_monsters(state.u)) {
             const lmonbuf = l_monnam(mtmp, state);
             const notseen = lmonbuf === 'it';
-            if (!Blind(state.u) && Hallucination(state)) {
+            if (!Blind(state.u) && Hallucination(state.u)) {
                 await message(`A ${mtmp.mtame ? 'tame' : 'wild'} `
                     + `${notseen ? 'creature' : lmonbuf} `
                     + `${notseen ? 'is present' : 'appears'}!`, state);
@@ -1273,7 +1263,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
 
     if (state.flags?.confirm && mtmp.mpeaceful
         && !intrinsicProperty(state.u, CONFUSION)
-        && !Hallucination(state)
+        && !Hallucination(state.u)
         && !intrinsicProperty(state.u, STUNNED)) {
         if (is_art(wep, ART_STORMBRINGER)) {
             state.go ??= {};
@@ -5397,7 +5387,7 @@ export async function mhitm_ad_ston(
                     if (heard) await message(heard, state, env);
                 }
             } else {
-                if (Hallucination(state) && !Blind(state.u)) {
+                if (Hallucination(state.u) && !Blind(state.u)) {
                     // Soundeffect(se_cockatrice_hiss, 50) is a no-op in the
                     // recorder's nosound backend, while You_hear is visible.
                     const heard = youHear('hissing.', state);
@@ -8298,7 +8288,7 @@ export async function passive(
                         effectEnv,
                     )) {
                         // Reflection owns its message and identification.
-                    } else if (Hallucination(state) && random.rn2(4)) {
+                    } else if (Hallucination(state.u) && random.rn2(4)) {
                         const intensity = !random.rn2(2) ? '' : 'rather ';
                         const adjective = !random.rn2(2)
                             ? 'numb' : 'stupefied';

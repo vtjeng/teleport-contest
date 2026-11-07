@@ -33,8 +33,6 @@ import {
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
     FORCETRAP,
-    HALLUC,
-    HALLUC_RES,
     HOLE,
     IS_STWALL,
     I_SPECIAL,
@@ -256,7 +254,9 @@ import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Blind } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+} from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -2142,9 +2142,9 @@ export async function level_tele_trap(
         newsym(state.u.ux, state.u.uy);
     await level_tele(state);
 
-    const hallucination = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !Boolean(state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+    const hallucination = Boolean(HHallucination(state.u))
+        && !Boolean(HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u));
     if (hallucination || Teleport_control_prop(state)) {
         await message(
             `You briefly feel ${hallucination ? 'oriented' : 'centered'}.`,

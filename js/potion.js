@@ -321,9 +321,9 @@ import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
 import {
     BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
-    Blindfolded, Detect_monsters, EBlinded,
-    EWarn_of_mon, HBlinded, HDetect_monsters, HInvis,
-    HSee_invisible, Infravision, Invis, Maybe_Half_Phys, PermaBlind,
+    Blindfolded, Detect_monsters, EBlinded, EHalluc_resistance, EWarn_of_mon, HBlinded, HDetect_monsters, HHalluc_resistance,
+    HHallucination, HInvis, HSee_invisible,
+    Hallucination, Infravision, Invis, Maybe_Half_Phys, PermaBlind,
     See_invisible,
 } from './youprop.js';
 
@@ -700,7 +700,7 @@ export function make_glib(xtime, state = game, env = {}) {
 export async function self_invis_message(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     await message(
-        `${Hallucination(state) ? 'Far out, man!  You'
+        `${Hallucination(state.u) ? 'Far out, man!  You'
             : 'Gee!  All of a sudden, you'} ${See_invisible(state.u)
             ? 'can see right through yourself' : "can't see yourself"}.`,
         state,
@@ -761,7 +761,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
     if (Unaware(state)) talk = false;
 
     const message = env.message ?? ttyPline;
-    const hallucinating = Hallucination(state);
+    const hallucinating = Hallucination(state.u);
     const permaBlind = PermaBlind(state.u);
     const blindfolded = Boolean(Blindfolded(state.u));
     const eyes = () => {
@@ -860,7 +860,7 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
 
     if (!xtime && old && talk) {
         await (env.message ?? ttyPline)(
-            youFeel(`less ${Hallucination(state) ? 'trippy' : 'confused'} now.`, state),
+            youFeel(`less ${Hallucination(state.u) ? 'trippy' : 'confused'} now.`, state),
             state,
         );
     }
@@ -885,7 +885,7 @@ export async function make_stunned(xtime, talk, state = game, env = {}) {
 
     if (!xtime && old && talk) {
         await message(
-            youFeel(`${Hallucination(state)
+            youFeel(`${Hallucination(state.u)
                 ? 'less wobbly' : 'a bit steadier'} now.`, state),
             state,
         );
@@ -945,30 +945,25 @@ export async function make_hallucinated(
             ? { updateInventory: () => {} } : {}),
     };
     const env = { ...rawEnv, state, message, redraw, hooks };
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    if (!hallucination || !resistance)
-        throw new Error('make_hallucinated requires initialized HALLUC state');
-
     if (Unaware(state)) talk = false;
-    const old = hallucination.intrinsic & TIMEOUT;
+    const old = HHallucination(state.u) & TIMEOUT;
     let changed = false;
 
     if (mask) {
-        changed = Boolean(hallucination.intrinsic);
-        if (!xtime) resistance.extrinsic |= mask;
-        else resistance.extrinsic &= ~mask;
+        changed = Boolean(HHallucination(state.u));
+        if (!xtime) state.u.uprops[HALLUC_RES].extrinsic |= mask;
+        else state.u.uprops[HALLUC_RES].extrinsic &= ~mask;
     } else {
         // C's changed test uses EHalluc_resistance alone. Intrinsic
         // resistance can suppress effective Hallucination without
         // suppressing this timeout transition.
-        changed = !resistance.extrinsic
+        changed = !EHalluc_resistance(state.u)
             && Boolean(old) !== Boolean(xtime);
-        set_itimeout(hallucination, xtime);
+        set_itimeout(state.u.uprops[HALLUC], xtime);
         // C can clear an active timeout without changing the effective
         // Hallucination state when resistance is present; it still gives the
         // source's special feedback for that case.
-        if (!changed && !hallucination.intrinsic && old && talk) {
+        if (!changed && !HHallucination(state.u) && old && talk) {
             if (!haseyes(state.youmonst?.data)) {
                 await strange_feeling(null, null, state);
             } else if (Blind(state.u)) {
@@ -994,7 +989,7 @@ export async function make_hallucinated(
 
     // potion.c calls the void eat.c:eatmupdate() helper when hallucination
     // ends; its message and appearance update precedes the display rebuild.
-    if (!Hallucination(state)) eatmupdate(state, { redraw });
+    if (!Hallucination(state.u)) eatmupdate(state, { redraw });
 
     if (state.u.uswallow) {
         await swallow(false, state, env);
@@ -1066,18 +1061,16 @@ async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
     state.gp.potion_unkn ??= 0;
     const { message, random } = potionEffectEnvironment(rawEnv);
 
-    const hallucination = state.u.uprops[HALLUC];
-    const resistance = state.u.uprops[HALLUC_RES];
-    if (resistance.intrinsic || resistance.extrinsic) {
+    if (HHalluc_resistance(state.u) || EHalluc_resistance(state.u)) {
         state.gp.potion_nothing++;
         return;
-    } else if (Hallucination(state)) {
+    } else if (Hallucination(state.u)) {
         state.gp.potion_nothing++;
     }
 
     await make_hallucinated(
         itimeout_incr(
-            hallucination.intrinsic,
+            HHallucination(state.u),
             random.rn1(200, 600 - 300 * bcsign(otmp)),
         ),
         true,
@@ -1200,7 +1193,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
 async function peffect_booze(otmp, state = game) {
     state.gp.potion_unkn++;
     await ttyPline(`Ooph!  This tastes like ${otmp.odiluted
-        ? 'watered down ' : ''}${Hallucination(state)
+        ? 'watered down ' : ''}${Hallucination(state.u)
         ? 'dandelion wine' : 'liquid fire'}!`, state);
     if (!otmp.blessed) {
         // C reads u.uhs before adding the potion's nutrition.
@@ -1262,7 +1255,7 @@ async function peffect_confusion(otmp, state = game) {
     };
 
     if (!prop.intrinsic) {
-        if (Hallucination(state)) {
+        if (Hallucination(state.u)) {
             await ttyPline('What a trippy feeling!', state);
             state.gp.potion_unkn++;
         } else {
@@ -1487,7 +1480,7 @@ async function peffect_sickness(otmp, state = game, env = {}) {
         }
     }
 
-    if (Hallucination(state)) {
+    if (Hallucination(state.u)) {
         await message('You are shocked back to your senses!', state);
         await make_hallucinated(0, false, 0, state, env);
     }
@@ -1598,11 +1591,11 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     state.gp.potion_unkn++;
     if (otmp.cursed) {
         await message(
-            `Yecch!  This tastes ${Hallucination(state) ? 'overripe' : 'rotten'}.`,
+            `Yecch!  This tastes ${Hallucination(state.u) ? 'overripe' : 'rotten'}.`,
             state,
         );
     } else {
-        const hallucinating = Hallucination(state);
+        const hallucinating = Hallucination(state.u);
         const juiceName = fruitname(true, state);
         await message(hallucinating
             ? `This tastes like 10% real ${otmp.odiluted
@@ -1770,7 +1763,7 @@ async function peffect_full_healing(otmp, state = game, env = {}) {
 // complete before this potion effect continues.
 async function peffect_polymorph(otmp, state = game) {
     await ttyPline(
-        youFeel(`a little ${Hallucination(state) ? 'normal' : 'strange'}.`, state),
+        youFeel(`a little ${Hallucination(state.u) ? 'normal' : 'strange'}.`, state),
         state,
     );
 
@@ -1857,7 +1850,7 @@ async function peffect_levitation(otmp, state) {
 async function peffect_acid(otmp, state = game) {
     if (Acid_resistance(state)) {
         await ttyPline(
-            `This tastes ${Hallucination(state) ? 'tangy' : 'sour'}.`, state,
+            `This tastes ${Hallucination(state.u) ? 'tangy' : 'sour'}.`, state,
         );
     } else {
         await ttyPline(
@@ -2110,21 +2103,13 @@ export async function peffects(otmp, state = game, env = {}) {
     return -1;
 }
 
-// C ref: youprop.h:115-120. A hallucination timeout is effective only without
-// intrinsic or extrinsic hallucination resistance.
-function Hallucination(state) {
-    const prop = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(prop?.intrinsic
-        && !(resistance?.intrinsic || resistance?.extrinsic));
-}
 
 // C ref: potion.c strange_feeling() (1461-1475). An absent object is used by
 // crystal-ball trap detection and make_blinded(); otherwise a known object can
 // be called and the selected object is consumed after that prompt completes.
 export async function strange_feeling(obj, txt, state = game) {
     const message = state.flags?.beginner || !txt
-        ? `You have a ${Hallucination(state) ? 'normal' : 'strange'}`
+        ? `You have a ${Hallucination(state.u) ? 'normal' : 'strange'}`
             + ' feeling for a moment, then it passes.'
         : txt;
     await ttyPline(message, state);
@@ -2150,7 +2135,7 @@ export async function dopotion(otmp, state = game, env = {}) {
     if (state.gp.potion_nothing) {
         state.gp.potion_unkn++;
         await ttyPline(
-            `You have a ${Hallucination(state) ? 'normal' : 'peculiar'}`
+            `You have a ${Hallucination(state.u) ? 'normal' : 'peculiar'}`
             + ' feeling for a moment, then it passes.',
             state);
     }
@@ -2199,7 +2184,7 @@ export async function ghost_from_bottle(state = game, rawEnv = {}) {
         return null;
     }
 
-    const monsterName = Hallucination(state)
+    const monsterName = Hallucination(state.u)
         ? rndmonnam({
             state,
             random: rawEnv.displayRandom ?? rawEnv.random,
@@ -2412,7 +2397,7 @@ const hbottlenames = [
 // C ref: potion.c bottlename() (1487-1494). hack.h:1493 expands
 // ROLL_FROM(array) to array[rn2(SIZE(array))], so this always spends one draw.
 export function bottlename(state = game, random = coreRandom) {
-    const names = Hallucination(state) ? hbottlenames : bottlenames;
+    const names = Hallucination(state.u) ? hbottlenames : bottlenames;
     return names[random.rn2(names.length)];
 }
 
@@ -2469,7 +2454,7 @@ async function H2Opotion_dip(potion, target, useeit, objphrase, state, env) {
                 state,
             );
             state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
-            target.bknown = !Hallucination(state);
+            target.bknown = !Hallucination(state.u);
         } else if (!potion.bknown || !potion.dknown) {
             target.bknown = 0;
         }
@@ -2595,7 +2580,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             break;
         case POT_POLYMORPH:
             await message(
-                youFeel(`a little ${Hallucination(state) ? 'normal' : 'strange'}.`, state),
+                youFeel(`a little ${Hallucination(state.u) ? 'normal' : 'strange'}.`, state),
                 state,
             );
             if (!(state.u.uprops[UNCHANGING]?.intrinsic
@@ -3511,7 +3496,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         obj.blessed = 0;
         obj.cursed = 0;
         obj.bknown = 0;
-        if (Blind(state.u) || Hallucination(state)) obj.dknown = 0;
+        if (Blind(state.u) || Hallucination(state.u)) obj.dknown = 0;
         if (mix !== STRANGE_OBJECT) {
             obj.otyp = mix;
         } else {
@@ -3541,7 +3526,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             }
         }
         obj.odiluted = obj.otyp !== POT_WATER ? 1 : 0;
-        if (obj.otyp === POT_WATER && !Hallucination(state)) {
+        if (obj.otyp === POT_WATER && !Hallucination(state.u)) {
             await message('The mixture bubbles'
                 + (Blind(state.u) ? '.' : ', then clears.'), state);
         } else if (!Blind(state.u)) {
@@ -3694,7 +3679,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         singlePotion.bknown = false;
         singlePotion.dknown = false;
         if (!Blind(state.u)) {
-            if (!Hallucination(state)) observe_object(singlePotion, state);
+            if (!Hallucination(state.u)) observe_object(singlePotion, state);
             let result = '';
             if (mixture === POT_WATER && singlePotion.dknown) result = 'clears';
             else result = 'turns ' + hcolor(

@@ -96,8 +96,6 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
-    HALLUC,
-    HALLUC_RES,
     HAND,
     HEAD,
     I_SPECIAL,
@@ -414,7 +412,8 @@ import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
     BInvis, Blind, EDetect_monsters, EInvis, ESee_invisible, ETelepat,
-    HDetect_monsters, HInvis, HSee_invisible, HTelepat, Invis, See_invisible,
+    HDetect_monsters, HInvis, HSee_invisible, HTelepat, Hallucination, Invis,
+    See_invisible,
 } from './youprop.js';
 
 // The armor callbacks can run during a planning polymorph.  Keep the live
@@ -2221,14 +2220,6 @@ export async function Cloak_off(state = game, rawEnv = {}) {
     return 0;
 }
 
-// C ref: youprop.h Hallucination macro. TRUE when the hero is hallucinating
-// and does not have hallucination resistance.
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: do_wear.c Helmet_on() (434-515). accessory_or_armor_on installs
 // this callback after setworn; set_wear also calls it for starting equipment.
@@ -2324,7 +2315,7 @@ async function helmetOnCursePath(state) {
     }
     state.disp ??= {};
     state.disp.botl = true; /* reveal new alignment or INT & WIS */
-    if (Hallucination(state)) {
+    if (Hallucination(state.u)) {
         await ttyPline('My brain hurts!', state); /* Monty Python */
     } else if (state.uarmh && state.uarmh.otyp === DUNCE_CAP) {
         // DUNCE_CAP arm: track INT change, ignore WIS.

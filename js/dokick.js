@@ -21,7 +21,7 @@ import { isok } from './cmd_isok.js';
 import { getdir, yn_function } from './cmd.js';
 import {
     TT_PIT, TT_WEB, TT_BEARTRAP,
-    A_CHA, HALLUC, HALLUC_RES, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
+    A_CHA, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
     A_LAWFUL,
     A_WIS,
     CORR,
@@ -233,7 +233,10 @@ import { breakchestlock } from './lock.js';
 import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Maybe_Half_Phys,
+} from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708
@@ -669,10 +672,8 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     if (trap) {
         if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
             if (!trap.tseen) await find_trap(trap, { ...rawEnv, state });
-            const hallu = u.uprops[HALLUC];
-            const halluRes = u.uprops[HALLUC_RES];
-            const hallucination = Boolean(hallu.intrinsic)
-                && !(halluRes.intrinsic || halluRes.extrinsic);
+            const hallucination = Boolean(HHallucination(u))
+                && !(HHalluc_resistance(u) || EHalluc_resistance(u));
             await message(`You can't kick something that's in a ${hallucination ? 'tizzy' : trap.ttyp === WEB ? 'web' : 'pit'}!`, state, env);
             return 1;
         }

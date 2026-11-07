@@ -42,7 +42,6 @@ import {
     GPCOORDS_SCREEN,
     GPCOORDS_MAP,
     GPCOORDS_NONE,
-    HALLUC,
     HALLUC_RES,
     I_SPECIAL,
     MONSEEN_NORMAL,
@@ -277,8 +276,9 @@ import {
     cmdq_key_char, getdir, key2extcmddesc, key2txt, y_n, yn_function,
 } from './cmd.js';
 import {
-    Blind, Detect_monsters, EDetect_monsters, HDetect_monsters, Infravision,
-    Invis, See_invisible, Unblind_telepat,
+    Blind, Detect_monsters, EDetect_monsters, EHalluc_resistance,
+    HDetect_monsters, HHalluc_resistance, HHallucination, Hallucination,
+    Infravision, Invis, See_invisible, Unblind_telepat,
 } from './youprop.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
@@ -299,16 +299,7 @@ export class UnsupportedHelpError extends Error {
     }
 }
 
-function propertyActive(state, index) {
-    const property = state.u?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic)
-        && !property?.blocked;
-}
 
-function heroHallucinating(state) {
-    return propertyActive(state, HALLUC)
-        && !propertyActive(state, HALLUC_RES);
-}
 
 function heroBlind(state) {
     return Blind(state.u)
@@ -331,7 +322,7 @@ function invisibleGlyphDescription(state) {
 // monster presentation is not interchangeable because it would skip that
 // source draw.
 function mon_to_glyph(monster, state) {
-    const mnum = heroHallucinating(state)
+    const mnum = Hallucination(state.u)
         ? rn2_on_display_rng(NUMMONS, state)
         : monster?.data?.pmidx;
     if (!Number.isInteger(mnum)) return null;
@@ -372,7 +363,7 @@ export function whatisMenuItems(state = game) {
     ];
     // C ref: pager.c do_look() gates the separator and list choices, rather
     // than the entire menu, on !u.uswallow && !Hallucination (1748).
-    if (state.u?.uswallow || heroHallucinating(state)) return ordinaryChoices;
+    if (state.u?.uswallow || Hallucination(state.u)) return ordinaryChoices;
     return [
         ...ordinaryChoices,
         {
@@ -425,7 +416,7 @@ export function whatisMenuItems(state = game) {
 
 function menuLines(state) {
     const items = whatisMenuItems(state);
-    if (state.u?.uswallow || heroHallucinating(state)) return items;
+    if (state.u?.uswallow || Hallucination(state.u)) return items;
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
@@ -607,7 +598,7 @@ export function self_lookat(state = game) {
 // the C monbuf/howmonseen side channel; lookat() returns the permonst pointer
 // separately, as its caller does.
 function look_at_monster(monster, x, y, state, output = null) {
-    const hallucinating = heroHallucinating(state);
+    const hallucinating = Hallucination(state.u);
     const name = describeMonster(monster, {
         state,
         hallucinating,
@@ -663,7 +654,7 @@ function look_at_monster(monster, x, y, state, output = null) {
             if (seen & MONSEEN_XRAYVIS) labels.push('astral vision');
             if (seen & MONSEEN_DETECT) labels.push('monster detection');
             if (seen & MONSEEN_WARNMON) {
-                labels.push(heroHallucinating(state)
+                labels.push(Hallucination(state.u)
                     ? 'paranoid delusion'
                     : 'warned of ' + warningMonsterName(monster, state));
             }
@@ -763,7 +754,7 @@ export function object_from_map(glyph, x, y, state) {
     const dy = y - (hero?.uy ?? 0);
     if (object && dx * dx + dy * dy <= 2
         && !Blind(state.u)
-        && !heroHallucinating(state)
+        && !Hallucination(state.u)
         && (fakeobj || object.where === OBJ_FLOOR)
         && !state.iflags?.terrainmode)
         observe_object(object, state);
@@ -1174,10 +1165,10 @@ export function waterbody_name(x, y, state = game, env = {}) {
         state,
         displayRandom: env.displayRandom,
     });
-    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+    const hallucinating = Boolean(HHallucination(state.u))
         && !Boolean(
-            state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+            HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u),
         )
         && !state.program_state?.gameover;
     if (typ === LAVAPOOL) return `molten ${liquid('lava')}`;
@@ -1330,7 +1321,7 @@ export function lookat(x, y, state = game) {
             buf = look_at_monster(monster, x, y, state, side);
             monbuf = side.monbuf ?? '';
             pm = monster.data ?? null;
-        } else if (heroHallucinating(state)) {
+        } else if (Hallucination(state.u)) {
             buf = rndmonnam({ state });
         }
     } else if (glyph_is_object(glyph)) {
@@ -1357,7 +1348,7 @@ export function lookat(x, y, state = game) {
     return {
         buf,
         monbuf,
-        pm: pm && !heroHallucinating(state) ? pm : null,
+        pm: pm && !Hallucination(state.u) ? pm : null,
     };
 }
 
@@ -1688,7 +1679,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
                 || altIndex === S_engrcorr || altIndex === S_grave
                 || (altIndex >= S_arrow_trap
                     && altIndex < S_arrow_trap + MAXTCHARS)
-                || (heroHallucinating(state) && liquid)) {
+                || (Hallucination(state.u) && liquid)) {
                 needToLook = true;
             }
         }

@@ -53,8 +53,6 @@ import {
     G_GONE,
     G_EXTINCT,
     G_GENOD,
-    HALLUC,
-    HALLUC_RES,
     MALE,
     MM_FEMALE,
     MM_EDOG,
@@ -439,7 +437,8 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, ESee_invisible, HSee_invisible, Invis, Maybe_Half_Phys,
+    Blind, EHalluc_resistance, ESee_invisible, HHalluc_resistance,
+    HHallucination, HSee_invisible, Invis, Maybe_Half_Phys,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -1446,7 +1445,7 @@ export async function doread(state = game) {
             );
         }
         if (confused) {
-            if (propertyActive(HALLUC, state)) {
+            if (Boolean(HHallucination(state.u))) {
                 await ttyPline('Being so trippy, you screw up...', state);
             } else {
                 await ttyPline(
@@ -1808,9 +1807,9 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
     const confused = Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
-    const hallucination = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+    const hallucination = Boolean(HHallucination(state.u))
+        && !(HHalluc_resistance(state.u)
+            || EHalluc_resistance(state.u));
     const random = env.random ?? coreRandom;
 
     // pline.c:You_feel() chooses its prefix from youprop.h:Unaware before
@@ -2223,10 +2222,10 @@ export async function seffect_magic_mapping(
             // youprop.h defines Hallucination from the intrinsic timeout and
             // Halluc_resistance, not from HALLUC's generic extrinsic value.
             const hallucinating = Boolean(
-                state.u.uprops[HALLUC]?.intrinsic,
+                HHallucination(state.u),
             ) && !Boolean(
-                state.u.uprops[HALLUC_RES]?.intrinsic
-                || state.u.uprops[HALLUC_RES]?.extrinsic,
+                HHalluc_resistance(state.u)
+                || EHalluc_resistance(state.u),
             );
             if (hallucinating) {
                 await ttyPline('Wow!  Modern art.', state);
@@ -2564,7 +2563,7 @@ export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
         return;
     }
     if (!can_center_cloud(cc.x, cc.y, state)) {
-        if (propertyActive(HALLUC, state)) {
+        if (Boolean(HHallucination(state.u))) {
             await ttyPline('Ugh... someone cut the cheese.', state);
         } else {
             await ttyPline(
@@ -2975,7 +2974,7 @@ export async function do_genocide(how, state = game) {
 
     let which = 'all ';
     const realName = ptr.pmnames[NEUTRAL];
-    if (propertyActive(HALLUC, state)) {
+    if (Boolean(HHallucination(state.u))) {
         if (Upolyd(state.u)) {
             buf = pmname(state.youmonst.data,
                 state.flags?.female ? FEMALE : MALE);
@@ -3145,7 +3144,7 @@ export async function seffect_amnesia(
     state.gk.known = true;
     await forget(blessed ? 0 : ALL_SPELLS, state, random, message);
 
-    if (propertyActive(HALLUC, state)) {
+    if (Boolean(HHallucination(state.u))) {
         await message(
             'Your mind releases itself from mundane concerns.', state,
         );

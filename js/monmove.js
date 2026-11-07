@@ -71,9 +71,7 @@ import {
     FIRE_TRAP,
     G_GENOD,
     HALF_SPDAM,
-    HALLUC,
     HEAD,
-    HALLUC_RES,
     HOLE,
     ICE,
     IRONBARS,
@@ -474,7 +472,7 @@ import { extract_from_minvent, is_pole, which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Blind_telepat, Invis } from './youprop.js';
+import { Blind_telepat, Hallucination, Invis } from './youprop.js';
 
 
 function movementEnv(env = {}) {
@@ -904,12 +902,6 @@ function requireDochugwOperation(env, name) {
     return operation;
 }
 
-function heroHallucinating(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(hallucination?.intrinsic)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // Source predicate shared by monmove.c:dochugw() and makemon.c:makemon()'s
 // runtime-creation tail.  makemon() calls dochugw(mtmp, FALSE), so it needs to
@@ -936,7 +928,7 @@ function dochugwInterruptsOccupation(
     }
     const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
     return !result
-        && (heroHallucinating(state)
+        && (Hallucination(state.u)
             || (!monster.mpeaceful && !noattacks(monster.data)))
         && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)
             <= threatRange
@@ -2469,8 +2461,7 @@ export async function dochug(monster, rawEnv = {}) {
     // live map.
     const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? newsym);
     const env = { ...rawEnv, state, random, unsupported };
-    const hallucinating = () => activeProperty(state, HALLUC)
-        && !activeProperty(state, HALLUC_RES);
+    const hallucinating = () => Hallucination(state.u);
 
     // PHASE ONE: pre-movement adjustments.
     preflight(monster, state);

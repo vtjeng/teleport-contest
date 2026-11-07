@@ -53,8 +53,6 @@ import {
     FUMBLING,
     HEAD,
     HALF_SPDAM,
-    HALLUC,
-    HALLUC_RES,
     HOLE,
     HURTLING,
     IS_STWALL,
@@ -414,8 +412,8 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, EInvis, HInvis, Half_physical_damage, Invis, Maybe_Half_Phys,
-    See_invisible,
+    Blind, EInvis, HInvis, Half_physical_damage, Hallucination, Invis,
+    Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -608,7 +606,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
             if (!Blind(state.u)) {
                 seetrap(trap, env);
                 await message(
-                    Hallucination(state)
+                    Hallucination(state.u)
                         ? 'You notice a crease in the linoleum.'
                         : 'You notice a loose board below you.',
                     state,
@@ -1529,7 +1527,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         let steedArticle = ARTICLE_THE;
         const steed = state.u.usteed;
 
-        if (steed && has_mgivenname(steed) && !Hallucination(state))
+        if (steed && has_mgivenname(steed) && !Hallucination(state.u))
             steedArticle = ARTICLE_NONE;
 
         // KMH -- You can't escape the Sokoban level traps.
@@ -1758,15 +1756,6 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
-// C ref: youprop.h:119-120 Hallucination, the bare HALLUC intrinsic minus
-// either form of Halluc_resistance. Each file that reads this property defines
-// its own copy; see js/pray.js and js/zap.js.
-function Hallucination(state) {
-    const halluc = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return Boolean(halluc?.intrinsic)
-        && !(resistance?.intrinsic || resistance?.extrinsic);
-}
 
 // C ref: trap.c domagictrap() (4317-4451). Called from the hero arm of
 // trapeffect_magic_trap() when the 1/30 explosion did not fire.
@@ -1885,7 +1874,7 @@ async function domagictrap(env) {
         case 14:
             {
                 const heard = plineYouHear(
-                    Hallucination(state)
+                    Hallucination(state.u)
                         ? 'the moon howling at you.' : 'distant howling.',
                     state,
                 );
@@ -1901,7 +1890,7 @@ async function domagictrap(env) {
             else
                 await message(
                     `You suddenly yearn for ${
-                        Hallucination(state)
+                        Hallucination(state.u)
                             ? 'Cleveland'
                             : (In_quest(state.u.uz, state) || at_dgn_entrance('The Quest', state))
                                   ? 'your nearby homeland'
@@ -1915,7 +1904,7 @@ async function domagictrap(env) {
             break;
         case 17:
             await message(
-                `You ${Hallucination(state) ? 'smell hamburgers.' : 'smell charred flesh.'}`,
+                `You ${Hallucination(state.u) ? 'smell hamburgers.' : 'smell charred flesh.'}`,
                 state,
             );
             break;
@@ -2718,7 +2707,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     `${an(xnameFresh(singleobj, state))} start to roll.`,
                     state,
                 );
-            } else if (Hallucination(state)) {
+            } else if (Hallucination(state.u)) {
                 note_unported('sounds.c Soundeffect');
                 announcement = youHear('someone bowling.', state);
             } else {
@@ -3173,7 +3162,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         let verbbuf;
         const steed = state.u?.usteed;
         const steedArticle = steed && has_mgivenname(steed)
-            && !Hallucination(state) ? ARTICLE_NONE : ARTICLE_THE;
+            && !Hallucination(state.u) ? ARTICLE_NONE : ARTICLE_THE;
 
         seetrap(trap, env);
         if (viasitting) {
@@ -3262,7 +3251,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
         const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0;
         const viasitting = (trflags & VIASITTING) !== 0;
         const steed = state.u.usteed;
-        const steedArticle = steed && has_mgivenname(steed) && !Hallucination(state)
+        const steedArticle = steed && has_mgivenname(steed) && !Hallucination(state.u)
             ? ARTICLE_NONE : ARTICLE_THE;
 
         feeltrap(trap, env);

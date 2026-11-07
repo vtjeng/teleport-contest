@@ -21,8 +21,6 @@ import {
     EXPL_NOXIOUS,
     EXPL_WET,
     FIRE_RES,
-    HALLUC,
-    HALLUC_RES,
     INVULNERABLE,
     IS_SINK,
     LARGEST_INT,
@@ -203,7 +201,7 @@ import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 import { canspotmon } from './display.js';
-import { Maybe_Half_Phys } from './youprop.js';
+import { Hallucination, Maybe_Half_Phys } from './youprop.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].
@@ -256,10 +254,6 @@ function propertyActive(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function hallucination(state) {
-    return propertyActive(state, HALLUC)
-        && !propertyActive(state, HALLUC_RES);
-}
 
 function deaf(state) {
     return propertyActive(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
@@ -484,7 +478,7 @@ export async function explode(
 
     if (olet === MON_EXPLODE && type < 0) {
         str = state.killer?.name ?? '';
-        doHallu = hallucination(state)
+        doHallu = Hallucination(state.u)
             && (str.includes("'s explosion") || str.includes("s' explosion"));
     }
 

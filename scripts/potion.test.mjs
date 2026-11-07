@@ -370,10 +370,10 @@ test('make_hallucinated reports clearing an active timeout under resistance',
         assert.ok(jsStart >= 0 && jsEnd > jsStart);
         const jsBody = js.slice(jsStart, jsEnd);
         assert.match(jsBody,
-            /!changed && !hallucination\.intrinsic && old && talk/u);
+            /!changed && !HHallucination\(state\.u\) && old && talk/u);
         assert.match(jsBody, /await strange_feeling\(null, null, state\)/u);
         assert.match(jsBody,
-            /if \(!Hallucination\(state\)\) eatmupdate\(state, \{ redraw \}\)/u);
+            /if \(!Hallucination\(state\.u\)\) eatmupdate\(state, \{ redraw \}\)/u);
 
         await startedGame(8460004, 'HallucinationClearWithResistance');
         clearTopline();
@@ -417,7 +417,7 @@ test('make_hallucinated change detection uses extrinsic resistance only',
         assert.ok(jsStart >= 0 && jsEnd > jsStart);
         const jsBody = js.slice(jsStart, jsEnd);
         assert.match(jsBody,
-            /changed = !resistance\.extrinsic\s*&&\s*Boolean\(old\) !== Boolean\(xtime\)/u);
+            /changed = !EHalluc_resistance\(state\.u\)\s*&&\s*Boolean\(old\) !== Boolean\(xtime\)/u);
 
         // This independent seed supplies a fresh initialized hero; the
         // property values below select the intrinsic-only resistance case.
@@ -2410,7 +2410,7 @@ test('potionhit preserves the C polymorph message and squared vapor distance',
     assert.match(jsBody,
         /distance = isyou \? 0 : dist2\(\s*mon\.mx, mon\.my, state\.u\.ux, state\.u\.uy,/u);
     assert.match(jsBody,
-        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\.u\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
 });
 
 test('potionhit wires lit oil through both C target arms', () => {
