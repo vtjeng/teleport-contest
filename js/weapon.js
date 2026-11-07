@@ -228,7 +228,7 @@ import {
     YUMI,
 } from './objects.js';
 import { makeplural, makesingular } from './fruit.js';
-import { d, rn2, rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 import {
     P_ADVANCE,
     P_MAX_SKILL,
@@ -532,7 +532,7 @@ const SMALL_PLUS_D6 = Object.freeze([ACID_VENOM]);
 // spec_dbon() reports whether this weapon doubles damage and leaves its source
 // flag for artifact_hit() to consume later.
 export function dmgval(otmp, mon, state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     let tmp = 0;
     const otyp = otmp.otyp;
     const ptr = mon.data;
@@ -618,7 +618,7 @@ export function dmgval(otmp, mon, state = game, env = {}) {
 // C returns the bonus and writes the mask through `silverhit_p`; `out` carries
 // that second result.
 export function special_dmgval(magr, mdef, armask, out, state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const left_ring = (armask & W_RINGL) !== 0;
     const right_ring = (armask & W_RINGR) !== 0;
     let silverhit = 0;
@@ -1615,7 +1615,7 @@ function slots_required(skill, state) {
 export async function drain_weapon_skill(
     n,
     state = game,
-    { random = { rn2 }, message = ttyPline } = {},
+    { random = coreRandom, message = ttyPline } = {},
 ) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('drain_weapon_skill requires rn2');

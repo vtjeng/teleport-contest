@@ -13,7 +13,7 @@ import { mksobj, place_object, weight } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, GOLD_PIECE } from '../js/objects.js';
 import { BLINDED, G_GENOD, LEVITATION, OBJ_INVENT, ROOM, THRONE, T_LOOTED, W_QUIVER } from '../js/const.js';
-import { rn2 } from '../js/rng.js';
+import { coreRandom, rn2 } from '../js/rng.js';
 import { PM_BUGBEAR } from '../js/monsters.js';
 import { normal_obj_to_glyph } from '../js/display.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -37,7 +37,7 @@ function coins(state, quantity) {
 function messagesAndDraws(values) {
     const draws = [], messages = [];
     return { draws, messages, env: {message: async text => messages.push(text),
-        random: {rn2: n => {draws.push(n); assert.ok(values.length); return values.shift();}}}};
+        random: { ...coreRandom, rn2: n => {draws.push(n); assert.ok(values.length); return values.shift();}}}};
 }
 
 test('reverse_loot old inventory selection draws once per object with decreasing bounds', async () => {
@@ -104,13 +104,13 @@ test('reverse_loot treasury chest beats nearest chest and nearest distance ties 
     place_object(near, ux + 1, uy, env);
     state.level.at(ux, uy).typ = THRONE;
     coins(state, 1);
-    await pickup.reverse_loot(state, {...messagesAndDraws([1]).env, random: {rn2: () => 1, rnd: () => 5}});
+    await pickup.reverse_loot(state, {...messagesAndDraws([1]).env, random: { ...coreRandom, rn2: () => 1, rnd: () => 5}});
     assert.equal(far.cobj.quan, 1);
     assert.equal(near.cobj, null);
     far.spe = 0;
     far.ox = ux - 1;
     coins(state, 1);
-    await pickup.reverse_loot(state, {...messagesAndDraws([1]).env, random: {rn2: () => 1, rnd: () => 5}});
+    await pickup.reverse_loot(state, {...messagesAndDraws([1]).env, random: { ...coreRandom, rn2: () => 1, rnd: () => 5}});
     assert.equal(near.cobj.quan, 1);
     assert.equal(far.cobj.quan, 1);
 });
@@ -149,7 +149,7 @@ test('reverse_loot successful court creation transfers gold before setting thron
     Object.assign(location, {typ: THRONE, flags: 0});
     const messages = [], draws = [];
     await pickup.reverse_loot(state, {message: async text => messages.push(text),
-        random: {rn2: n => {
+        random: { ...coreRandom, rn2: n => {
             draws.push(n);
             if (n === 60) return 50; // mkroom.c courtmon: bugbear threshold.
             if (n === 10) return 0;
@@ -175,7 +175,7 @@ test('reverse_loot genocided court selection falls back to gold drop without loo
     let threeCalls = 0;
     const result = await pickup.reverse_loot(state, {
         message: async text => messages.push(text),
-        random: {rn2: n => {
+        random: { ...coreRandom, rn2: n => {
             calls.push(['rn2', n]);
             callers.push(new Error().stack.split('\n')[2]);
             if (n === 3 && ++threeCalls <= 2) return threeCalls === 1 ? 1 : 0;
@@ -214,7 +214,7 @@ test('reverse_loot direct drops accept levitation and map blind gold before redr
                 const expected = Math.trunc((fifth * 13 + 4) / 5);
                 await pickup.reverse_loot(state, {
                     message: async text => events.push(text),
-                    random: {rn2: n => { calls.push(['rn2', n]); return 1; },
+                    random: { ...coreRandom, rn2: n => { calls.push(['rn2', n]); return 1; },
                         rnd: n => { calls.push(['rnd', n]); return n === 5 ? fifth : 1; }},
                     hooks: {newsym: () => {
                         const dropped = state.level.objects[state.u.ux][state.u.uy];

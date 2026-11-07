@@ -184,7 +184,7 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import {
     get_free_room_loc,
     get_location,
@@ -226,7 +226,6 @@ function sequenceThemeroomSteps(count, step, finish = () => undefined) {
     return next();
 }
 
-const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 const WHOLE_LEVEL_FRAME = Object.freeze({
     xstart: 1,
     ystart: 0,
@@ -249,7 +248,7 @@ export class UnsupportedThemeroomFillError extends Error {
 
 function fillEnvironment(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? DEFAULT_RANDOM;
+    const random = rawEnv.random ?? coreRandom;
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
         if (typeof random[name] !== 'function') {
             throw new TypeError(

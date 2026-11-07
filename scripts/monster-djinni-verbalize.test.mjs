@@ -11,6 +11,7 @@ import { newObject } from '../js/obj.js';
 import { POT_GAIN_LEVEL } from '../js/objects.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
+import { coreRandom } from '../js/rng.js';
 
 for (const freed of [false, true]) {
     for (const deaf of [false, true]) {
@@ -35,7 +36,7 @@ for (const freed of [false, true]) {
                 potion.ocarry = monster;
                 const draws = [];
                 assert.equal(await use_misc(monster, { kind: 'gain level', object: potion }, state, {
-                    message: async () => {}, random: { rn2: bound => {
+                    message: async () => {}, random: { ...coreRandom, rn2: bound => {
                         draws.push(bound); return bound === 2 && freed ? 1 : 0;
                     } },
                 }), 2);

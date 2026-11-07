@@ -84,7 +84,7 @@ import {
     TRIPE_RATION,
     WOOD,
 } from './objects.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 
 function effectiveCorpseAge(obj, state) {
     let age = Math.trunc(obj.age ?? 0);
@@ -128,7 +128,7 @@ function isRustprone(obj, state) {
 
 function normalizedDogfoodEnv(rawEnv, requireRandom = true) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     if (requireRandom && typeof random.rn2 !== 'function')
         throw new TypeError('dogfood random injection requires rn2');
     return {

@@ -113,7 +113,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
-import { d, rn1, rn2, rne, rnd, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 
@@ -185,7 +185,7 @@ function sit_message(what) {
 }
 
 function sit_water_random(rawEnv) {
-    return rawEnv.random ?? { d, rn1, rn2, rne, rnd };
+    return rawEnv.random ?? coreRandom;
 }
 
 // C ref: sit.c take_gold() (14-35). Save the next inventory link before
@@ -485,10 +485,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             );
             const { courtmon } = await import('./mkroom.js');
             const { makemon_runtime } = await import('./makemon_create.js');
-            const creationRandom = {
-                d, rn1, rn2, rne, rnd, rnz,
-                ...random,
-            };
+            const creationRandom = random ?? coreRandom;
             const creationEnv = {
                 ...rawEnv,
                 state,
@@ -987,7 +984,7 @@ export async function dosit(state = game, rawEnv = {}) {
 export async function rndcurse(state = game, rawEnv = {}) {
     // curse() and unbless() reach mkobj.c weight() for a bag of holding,
     // whose object environment requires the whole random set.
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const objectEnv = objectGenerationEnv({ ...rawEnv, state, random, message });
@@ -1049,7 +1046,7 @@ export async function rndcurse(state = game, rawEnv = {}) {
 // leaving timeouts and any equipment sources untouched. The returned value is
 // the property enum consumed by pray.c and uhitm.c callers.
 export async function attrcurse(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rnd };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (await import('./tty_message.js')).ttyPline;
     const u = state.u;

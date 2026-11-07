@@ -31,7 +31,7 @@ import {
 import { christen_monst } from './do_name.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rnd } from './rng.js';
 
 import { note_unported } from './unported.js';
 import { canseemon } from './display.js';
@@ -203,7 +203,7 @@ export function classmon(plrole) {
 // then retries rank one, rather than filtering bad lines and changing rank.
 export function get_rnd_toptenentry(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn1, rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     // NethackGame installs the same storage object on game.mockStorage that
     // vfsReadFile() reads.  A hand-built source test can supply that owner on
     // its state directly; this keeps the scorefile contract state-local
@@ -243,7 +243,7 @@ export function get_rnd_toptenentry(rawEnv = {}) {
 // the source's rank/empty-file behavior.
 export function tt_doppel(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn1, rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     const entry = random.rn2(13)
         ? get_rnd_toptenentry({ ...rawEnv, state, random }) : null;
     if (!entry) {

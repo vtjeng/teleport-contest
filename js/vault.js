@@ -103,7 +103,7 @@ import { canspotmon, mon_visible } from './display.js';
 import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom } from './rng.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -558,7 +558,7 @@ async function gd_letknow(grd, state, env) {
 // -2 guard died.
 export async function gd_move(grd, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2: () => { throw new Error('no rng'); } };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const gdEnv = { ...env, message };
     const egrd = EGD(grd);
@@ -1383,13 +1383,13 @@ export async function paygd(silently, state = game, rawEnv = {}) {
     const umoney = money_cnt(state.invent);
 
     if (!umoney || !grd) return;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const env = objectGenerationEnv({ ...rawEnv, state, random, message });
     let gdx, gdy;
     if (state.u.uinvault) {
         if (!silently) await message(
-            `Your ${umoney} ${currency(umoney, state, { random: random.rn2 })} goes into the Magic Memory Vault.`, state);
+            `Your ${umoney} ${currency(umoney, state, { random })} goes into the Magic Memory Vault.`, state);
         gdx = state.u.ux;
         gdy = state.u.uy;
     } else {

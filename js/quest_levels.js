@@ -70,7 +70,7 @@ import {
     LUCKSTONE,
     MACE, MIRROR, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import {
     selection_area, selection_new, selection_negate, ThemeroomSelection,
 } from './themerooms.js';
@@ -603,7 +603,7 @@ async function oracle(des, state) {
                 [5, 1], [5, 7], [2, 4], [8, 4],
             ]) {
                 const species = mkclass(S_CENTAUR, G_NOGEN | G_IGNORE, {
-                    state, random: { rn2, rnd },
+                    state, random: coreRandom,
                 });
                 await des.object({
                     id: STATUE, coord: [sx, sy],

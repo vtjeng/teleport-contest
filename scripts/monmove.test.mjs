@@ -143,7 +143,7 @@ test('m_move awaits shopkeeper room checks after its source movement hooks', () 
     assert.match(MONMOVE_C,
         /if \(mtmp->isshk\) \{\s*after_shk_move\(mtmp\);/u);
     assert.match(MONMOVE_JS,
-        /if \(monster\.isshk\) await after_shk_move\(monster, state, \{\s*message,\s*random: random\.rn2,/u);
+        /if \(monster\.isshk\) await after_shk_move\(monster, state, \{\s*message,\s*random,/u);
 });
 // mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
 // here because makeState() and ordinaryMonster() below build the level, hero

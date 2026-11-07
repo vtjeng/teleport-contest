@@ -219,6 +219,7 @@ import {
 } from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { coreRandom } from '../js/rng.js';
 
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
@@ -3780,7 +3781,7 @@ test('mhitm_ad_phys continues source weapon branches after corpse handling',
         const { env, lines } = physEnv(state);
         // weapon.c uses one die for each ordinary weapon here; the minimum
         // result makes the added weapon damage source-visible and repeatable.
-        env.random = { rnd: () => 1, rn1: (_range, base) => base };
+        env.random = { ...coreRandom, rnd: () => 1, rn1: (_range, base) => base };
         // Keep this fixture outside the source's optional poison threshold.
         env.dieroll = 20;
         const mhm = physMhm(1);

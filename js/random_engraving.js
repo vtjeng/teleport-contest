@@ -5,12 +5,12 @@ import { wipeout_text } from './engrave.js';
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { get_rnd_text, getrumor } from './random_text.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 
 export function random_engraving(rawEnv = {}) {
     const env = {
         ...rawEnv,
-        random: rawEnv.random ?? { rn2 },
+        random: rawEnv.random ?? coreRandom,
         state: rawEnv.state ?? game,
     };
     const selectRumor = env.getRumor

@@ -557,7 +557,7 @@ import {
     watch_dig,
 } from './dig.js';
 import { genders } from './roles.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom, d, rn1, rn2, rnd, rnl } from './rng.js';
 import { shuffle_int_array } from './rnd.js';
 import {
     add_damage,
@@ -1362,9 +1362,8 @@ export function get_mleash(monster, state = game) {
 export async function check_leash(x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    // allmain's planning pass can inject a partial cloned stream; preserve the
-    // live defaults and let the caller's random operations override them.
-    const random = { rnd, rn2, ...(rawEnv.random ?? {}) };
+    // allmain's planning pass injects its cloned stream.
+    const random = rawEnv.random ?? coreRandom;
 
     for (let leash = state.invent; leash; leash = leash.nobj) {
         if (leash.otyp !== LEASH || leash.leashmon === 0)
@@ -1491,7 +1490,7 @@ export function grapple_menu_choice_to_hit(itemId) {
 
 export async function use_grapple(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn1, rn2, rnd };
+    const random = env.random ?? coreRandom;
     let res = ECMD_OK;
     let typ;
     let tohit;
@@ -1671,7 +1670,7 @@ export async function do_blinding_ray(
     state = game,
     env = {},
 ) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const monster = await bhit(
         state.u.dx,
         state.u.dy,
@@ -1717,7 +1716,7 @@ export async function use_camera(object, state = game, env = {}) {
     }
     await consume_obj_charge(object, true, { ...env, state });
 
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     if (object.cursed && !random.rn2(2)) {
         await zapyourself(object, true, state);
     } else if (state.u.uswallow) {
@@ -1893,7 +1892,7 @@ function heroDeaf(state) {
 // C ref: apply.c use_cream_pie() (3568-3603). Complete the shop alteration
 // and its audible billing before consuming the cream pie.
 async function use_cream_pie(obj, state = game, rawEnv = {}) {
-    const random = { d, rn1, rn2, rnd, rne, rnz, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const wasblind = heroIsBlind(state);
     const wascreamed = Boolean(state.u.ucreamed);
@@ -1976,7 +1975,7 @@ function trapSettingStunned(state) {
 // land mine or bear trap in doapply(); this function validates the square,
 // records gt.trapinfo, and installs set_trap() as the turn occupation.
 export async function use_trap(obj, state = game, env = {}) {
-    const random = env.random ?? { rnl };
+    const random = env.random ?? coreRandom;
     const location = state.level.at(state.u.ux, state.u.uy);
     const levtyp = location.typ;
     const trapinfo = state.gt?.trapinfo;
@@ -2304,7 +2303,7 @@ export async function use_stone(tstone, state = game, env = {}) {
                 || (!tstone.cursed
                     && (state.urole?.mnum === PM_ARCHEOLOGIST
                         || state.urace?.mnum === PM_GNOME)))) {
-            const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+            const random = env.random ?? coreRandom;
             const knowledgeEnv = { ...env, random };
             discover_object(TOUCHSTONE, true, true, true, state, {
                 ...knowledgeEnv,
@@ -2417,7 +2416,7 @@ export async function dorub(state = game, env = {}) {
     }
 
     if (state.uwep.otyp === MAGIC_LAMP) {
-        const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+        const random = env.random ?? coreRandom;
         if (state.uwep.spe > 0 && !random.rn2(3)) {
             await check_unpaid_usage(state.uwep, true, state, { ...env, random });
             state.uwep.otyp = OIL_LAMP;
@@ -3261,7 +3260,7 @@ export async function use_lamp(obj, state = game, env = {}) {
 export async function light_cocktail(objp, state = game, env = {}) {
     let obj = objp.obj;
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
 
     if (state.u?.uswallow) {
         await message(
@@ -3709,7 +3708,7 @@ function figurineObjectEnv(state, env = {}) {
 export async function fig_transform(figurine, timeout, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = figurineObjectEnv(state, rawEnv);
-    const random = { d, rn1, rn2, rnd, rne, rnz, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (!figurine) {
         note_unported('pline.c impossible');
@@ -3932,10 +3931,7 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
 export async function use_bell(objp, state = game, rawEnv = {}) {
     const obj = objp.obj;
     const message = (text) => (rawEnv.message ?? ttyPline)(text, state);
-    const random = {
-        d, rn1, rn2, rnd, rne, rnl, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     let wakem = false;
     let learno = false;
     const ordinary = obj.otyp !== BELL_OF_OPENING || !obj.spe;
@@ -4148,7 +4144,7 @@ export function beautiful(state = game) {
 // glyph or animation. Its returned monster and gn.notonhead are both used
 // here, so the zap.c callee is wired at this exact source call.
 export async function use_mirror(obj, state = game, env = {}) {
-    const random = { d, rn2, rnd, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     if (!await getdir(null, state)) return ECMD_CANCEL;
 
     const invisMirror = applyPropertyActive(INVIS, state);
@@ -4289,7 +4285,7 @@ export async function use_mirror(obj, state = game, env = {}) {
         state.gs.stoned = true;
         await killed(mtmp, state, {
             ...env,
-            random: { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) },
+            random: env.random ?? coreRandom,
         });
     } else if (monable && mtmp.data === state.mons[PM_FLOATING_EYE]) {
         let amount = random.d(
@@ -4382,7 +4378,7 @@ export async function use_mirror(obj, state = game, env = {}) {
 // C ref: apply.c use_towel() (112-197). Towel wetness is stored in spe; its
 // four cleanup branches call weapon.c dry_a_towel() in source order.
 export async function use_towel(obj, state = game, env = {}) {
-    const random = { rn1, rn2, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const u = state.u;
     const drying_feedback = obj === state.uwep;
@@ -4495,8 +4491,6 @@ export async function use_towel(obj, state = game, env = {}) {
     return ECMD_OK;
 }
 
-const whistleRandom = { d, rn1, rn2, rnd, rne, rnl, rnz };
-
 function whistleHowMany(count) {
     return count === 2 ? 'two'
         : count === 3 ? 'three'
@@ -4531,14 +4525,14 @@ export async function use_whistle(obj, state = game, env = {}) {
         );
     }
     await (env.wakeNearby ?? wake_nearby)(true, {
-        ...env, state, random: env.random ?? whistleRandom,
+        ...env, state, random: env.random ?? coreRandom,
     });
     if (obj.cursed) vault_summon_gd(state);
 }
 
 export async function use_magic_whistle(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = { ...whistleRandom, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const deaf = heroDeaf(state);
     if (!can_blow(state.youmonst, state)) {
         await message('You are incapable of using the whistle.', state);
@@ -4570,7 +4564,7 @@ export async function use_magic_whistle(obj, state = game, env = {}) {
 // void call, while mintrap()'s consumed result is wired through its existing
 // implementation.
 export async function magic_whistled(obj, state = game, env = {}) {
-    const random = { ...whistleRandom, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const alreadyDiscovered = Boolean(
         state.objects?.[obj.otyp]?.oc_name_known,
@@ -4697,7 +4691,7 @@ function discard_broken_wand(state = game, rawEnv = {}) {
 async function broken_wand_explode(obj, damage, expltype, state = game,
     rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = env.random ?? coreRandom;
     await explode(
         state.u.ux,
         state.u.uy,
@@ -4721,12 +4715,7 @@ export async function maybe_dunk_boulders(
     x, y, state = game, rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const suppliedRandom = env.random ?? {};
-    const random = {
-        d: suppliedRandom.d ?? d,
-        rn2: suppliedRandom.rn2 ?? rn2,
-        rnd: suppliedRandom.rnd ?? rnd,
-    };
+    const random = env.random ?? coreRandom;
     let boulder;
     while (is_pool_or_lava(x, y, state)
         && (boulder = sobj_at(BOULDER, x, y, state))) {
@@ -4748,7 +4737,7 @@ export async function maybe_dunk_boulders(
 export async function do_break_wand(obj, state = game, rawEnv = {}) {
     const nothing_else_happens = 'But nothing else happens...';
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const fragile = objdescr_is(obj, 'balsa', state)
         || objdescr_is(obj, 'glass', state);
@@ -5245,8 +5234,8 @@ export async function doapply(state = game, env = {}) {
 // for stacked drops. Every lost coin calls do.c:dropx(), including underwater.
 export async function flip_coin(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? {};
-    const drawRn2 = random.rn2 ?? rn2;
+    const random = env.random ?? coreRandom;
+    const drawRn2 = random.rn2;
     let coin = obj;
     let loseCoin = false;
 

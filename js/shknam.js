@@ -55,7 +55,7 @@ import {
     TOUCHSTONE,
     VEGGY,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { newsym } from './display.js';
 import { note_unported } from './unported.js';
 import { rloc } from './teleport.js';
@@ -67,8 +67,6 @@ import {
     shktools,
     shkwands,
 } from './shtypes_data.js';
-
-const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 // C ref: shknam.c saleable() (805-825).
 export function saleable(shkp, obj, state = game) {
@@ -161,7 +159,7 @@ const VEGETARIAN_CLASS = MAXOCLASSES + 1;
 
 function shopEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? SOURCE_RANDOM;
+    const random = rawEnv.random ?? coreRandom;
     const required = ['d', 'rn1', 'rn2', 'rnd', 'rne'];
     if (!required.every((name) => typeof random[name] === 'function')) {
         throw new TypeError(

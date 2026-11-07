@@ -29,7 +29,7 @@ import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
 import { heroUnaware as plineHeroUnaware, youHear, youSee } from './pline.js';
 import { minliquid, monkilled, wake_nearto, xkilled } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { BOULDER, IRON_CHAIN } from './objects.js';
 import { update_monster_region } from './region.js';
 import { deltrap, drown, Flying, Levitation, lava_effects, t_at } from './trap.js';
@@ -217,34 +217,17 @@ export function create_drawbridge(x, y, dir, flag, state = game) {
 // C ref: dbridge.c destroy_drawbridge() (888-1020). Destruction differs
 // from open/close: it removes the bridge and resolves debris before it
 // captures either occupant, so scatter can change who is on the two squares.
-function drawbridgeRandom(selected = {}, state = game) {
-    return {
-        ...selected,
-        d: selected.d ?? d,
-        rn1: selected.rn1 ?? rn1,
-        rn2: selected.rn2 ?? rn2,
-        rnd: selected.rnd ?? rnd,
-        rne: selected.rne ?? rne,
-        rnl: selected.rnl ?? rnl,
-        rnz: selected.rnz ?? rnz,
-        rn2_on_display_rng: selected.rn2_on_display_rng
-            ?? ((bound) => rn2_on_display_rng(bound, state)),
-    };
-}
-
 export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
     const bridge = state.level?.at(x, y);
     if (!IS_DRAWBRIDGE(bridge?.typ)) return;
 
-    // zap_map's selected random parameter is sometimes partial. Retain its
-    // supplied callbacks, fill only absent canonical operations, and give
-    // object creation, scatter and display naming the same stream.
-    const random = drawbridgeRandom(rawEnv.random, state);
+    const random = rawEnv.random ?? coreRandom;
     const env = {
         ...rawEnv,
         state,
         random,
-        displayRandom: rawEnv.displayRandom ?? random.rn2_on_display_rng,
+        displayRandom: rawEnv.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state)),
     };
     const message = env.message ?? ttyPline;
     const say = async (line) => message(line, state, env);
@@ -591,7 +574,7 @@ function heroDeaf(state) {
 // and nokiller() (380-769). C state mutation and RNG order stay in source order.
 // C ref: dbridge.c close_drawbridge() (775-834).
 export async function close_drawbridge(x, y, state = game, env = {}) {
-    const randomEnv = env.random ?? { d, rn2, rnd };
+    const randomEnv = env.random ?? coreRandom;
     const bridge = state.level.at(x, y);
     if (bridge?.typ !== DRAWBRIDGE_DOWN) return;
     const wallPosition = { x, y };
@@ -645,7 +628,7 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
 
 // C ref: dbridge.c open_drawbridge() (840-882).
 export async function open_drawbridge(x, y, state = game, env = {}) {
-    const randomEnv = env.random ?? { d, rn2, rnd };
+    const randomEnv = env.random ?? coreRandom;
     const bridge = state.level.at(x, y);
     if (bridge?.typ !== DRAWBRIDGE_UP) return;
     const wallPosition = { x, y };
@@ -690,7 +673,7 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
 }
 
 async function do_entity(entity, state, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (!entity.edata) return;
     let inview = entityCanSee(entity, state);

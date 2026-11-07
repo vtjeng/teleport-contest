@@ -93,7 +93,7 @@ import {
     okay,
     set_levltyp_lit,
 } from './mkmaze.js';
-import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
+import { coreRandom, rn2, rnd, rn1 } from './rng.js';
 import { l_selection_setpoint } from './nhlsel.js';
 import { flip_level_rnd } from './sp_lev.js';
 import {
@@ -370,7 +370,6 @@ const SPLEV_BOTTOM = 5;
 const THEMEROOM_RANDOM_METHODS = Object.freeze([
     'd', 'rn1', 'rn2', 'rnd', 'rne', 'rnz',
 ]);
-const SOURCE_THEMEROOM_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 // Direction deltas
 const xdir = [-1, -1, 0, 1, 1, 1, 0, -1];
@@ -2346,7 +2345,7 @@ export function lspo_monster(args, croom, rawEnv = {}) {
     const env = {
         ...rawEnv,
         state: rawEnv.state ?? game,
-        random: rawEnv.random ?? SOURCE_THEMEROOM_RANDOM,
+        random: rawEnv.random ?? coreRandom,
         spObjectContext: rawEnv.spObjectContext
             ?? new_sp_lev_object_context(),
     };
@@ -4673,7 +4672,7 @@ function createSpecialLevelApi(state) {
     // gc.coder, and sp_lev.c's file-scope placement state through `frame`.
     const env = {
         state,
-        random: SOURCE_THEMEROOM_RANDOM,
+        random: coreRandom,
         hooks: {
             ...objectGenerationHooks(),
             makeMonster(species, x, y, mmflags, monEnv) {
@@ -4692,7 +4691,7 @@ function createSpecialLevelApi(state) {
     };
 
     const des = l_register_des({
-        random: SOURCE_THEMEROOM_RANDOM,
+        random: coreRandom,
         get frame() { return frame; },
 
         level_init(...args) { return lspo_level_init(args, env); },
@@ -4893,7 +4892,7 @@ function createSpecialLevelApi(state) {
                     if (montype.length === 1 && cls !== MAXMCLASSES) {
                         species = mkclass(cls, G_NOGEN | G_IGNORE, {
                             state,
-                            random: SOURCE_THEMEROOM_RANDOM,
+                            random: coreRandom,
                         });
                     } else {
                         for (let i = LOW_PM; i < NUMMONS; ++i) {
@@ -5013,7 +5012,7 @@ function createSpecialLevelApi(state) {
     // selection is a Lua global library, separate from the C des.* table.
     // Bind its setpoint helper to this load's coder and random source.
     const luaGlobals = Object.freeze({
-        random: SOURCE_THEMEROOM_RANDOM,
+        random: coreRandom,
         selection: Object.freeze({
             set(...args) { return l_selection_setpoint(args, env); },
         }),
@@ -6563,7 +6562,7 @@ export function dispatch_themeroom(
         );
     }
     const sourceRandomFacade = random === rn2 && randomOneBased === rnd
-        ? SOURCE_THEMEROOM_RANDOM
+        ? coreRandom
         : null;
     const context = {
         definition,
@@ -6604,7 +6603,7 @@ export async function themerooms_generate(
     // absent diagnostics, this optional chain has no runtime effect.
     game._themeroomSelectionCollector?.record('room', pick.id);
     const sourceRandomFacade = random === rn2 && randomOneBased === rnd
-        ? SOURCE_THEMEROOM_RANDOM
+        ? coreRandom
         : null;
     const useDefaultFill = rawEnv.themeroomFill == null;
     return dispatch_themeroom(pick, random, randomOneBased, {

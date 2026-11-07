@@ -2281,9 +2281,11 @@ test('currency uses gameplay RNG for hallucinated names', () => {
     state.u.uprops[HALLUC].intrinsic = 1;
     let bound = null;
     assert.equal(currency(1, state, {
-        random: (limit) => {
-            bound = limit;
-            return 2;
+        random: {
+            rn2: (limit) => {
+                bound = limit;
+                return 2; // CURRENCIES[2] is 'auric'
+            },
         },
     }), 'auric');
     assert.equal(bound, 21);

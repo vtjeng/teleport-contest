@@ -212,7 +212,7 @@ import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
 import { keepdogs } from './dog.js';
 import { make_sick, set_itimeout } from './potion.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { d } from './rng.js';
 import {
     isTerminated,
@@ -379,7 +379,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
     if (programState.panicking || how === PANICKED || how === TRICKED)
         return false;
 
-    const random = source.random ?? { rn2 };
+    const random = source.random ?? coreRandom;
     await savelife(how, state);
 
     // C compares gd.done_seq with gh.hero_seq before drawing this roll.

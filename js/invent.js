@@ -256,7 +256,7 @@ import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { def_char_to_objclass } from './drawing.js';
-import { rn2, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2, rn2_on_display_rng } from './rng.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
@@ -5283,9 +5283,9 @@ const CURRENCIES = Object.freeze([
 ]);
 
 export function currency(amount, state = game, env = {}) {
-    const random = env.random ?? rn2;
+    const random = env.random ?? coreRandom;
     const res = isHallucinating({ state })
-        ? CURRENCIES[random(CURRENCIES.length)]
+        ? CURRENCIES[random.rn2(CURRENCIES.length)]
         : 'zorkmid';
     return amount !== 1 ? makeplural(res) : res;
 }

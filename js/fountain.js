@@ -97,7 +97,7 @@ import {
 import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { coreRandom } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { rloc } from './teleport.js';
 import {
@@ -189,7 +189,7 @@ async function dowaterdemon(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     // The default covers trap.c mintrap()'s rnl(5) for a demon that lands
     // on a trap, which C draws from the same global RNG.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
 
     if (!(state.mvitals[PM_WATER_DEMON].mvflags & G_GONE)) {
@@ -247,7 +247,7 @@ async function dowatersnakes(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     // The default covers trap.c mintrap()'s rnl(5) for a snake that lands
     // on a trap, which C draws from the same global RNG.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
     const number = random.rn1(5, 2);
 
@@ -295,7 +295,7 @@ export async function dowaternymph(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     // The default covers trap.c mintrap()'s rnl(5) for a nymph that lands
     // on a trap, which C draws from the same global RNG.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
 
     if (!(state.mvitals[PM_WATER_NYMPH].mvflags & G_GONE)) {
@@ -338,7 +338,7 @@ export async function dowaternymph(state = game, env = {}) {
 async function gush(x, y, argument, state = game, env = {}) {
     const context = argument ?? { madepool: 0 };
     const message = context.message ?? env.message ?? ttyPline;
-    const random = context.random ?? env.random ?? { rn2 };
+    const random = context.random ?? env.random ?? coreRandom;
 
     // C ref: fountain.c gush() (133-140).  Keep the short-circuit order: the
     // candidate draw must happen only after the parity and hero-square tests.
@@ -381,23 +381,11 @@ async function gush(x, y, argument, state = game, env = {}) {
         // fountain.c:gush() discards minliquid()'s result, but minliquid's
         // lava and water survivor arms consume rloc()'s result. Keep that
         // return-valued teleport path complete for monsters created on this
-        // newly flooded square.
-        // dogushforth's candidate stream normally supplies only rn2.  The
-        // survivor arm may call teleport.c:rloc(), whose source contract also
-        // needs rnd (and the other standard random operations), so complete
-        // that adapter without changing the already-consumed candidate draw.
-        const liquidRandom = {
-            d,
-            rn1,
-            rn2,
-            rnd,
-            rne,
-            ...random,
-        };
+        // newly flooded square; rloc() draws rnd().
         const liquidEnv = {
             ...env,
             state,
-            random: liquidRandom,
+            random,
             message,
             relocateMonster: env.relocateMonster ?? (
                 (subject, flags, relocationEnv) => rloc(
@@ -406,7 +394,7 @@ async function gush(x, y, argument, state = game, env = {}) {
                     {
                         ...relocationEnv,
                         state,
-                        random: relocationEnv.random ?? liquidRandom,
+                        random: relocationEnv.random ?? random,
                         message,
                         newsym: relocationEnv.newsym
                             ?? ((tx, ty) => newsym(tx, ty, state)),
@@ -417,7 +405,7 @@ async function gush(x, y, argument, state = game, env = {}) {
                             ?? ((target, setEnv) => set_apparxy(target, {
                                 ...setEnv,
                                 state,
-                                random: setEnv.random ?? liquidRandom,
+                                random: setEnv.random ?? random,
                             })),
                     },
                 )
@@ -440,7 +428,7 @@ async function gush(x, y, argument, state = game, env = {}) {
 // fountain, potentially creating pools.
 export async function dogushforth(drinking, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const context = { madepool: 0, message, random };
 
     // C ref: fountain.c:124. do_clear_area with range 7 calls gush() for
@@ -468,7 +456,7 @@ export async function dogushforth(drinking, state = game, env = {}) {
 // fountain and mark it looted.
 async function dofindgem(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
 
     if (!heroIsBlind(state)) {
         await message('You spot a gem in the sparkling waters!', state);
@@ -554,7 +542,7 @@ export function watchman_warn_fountain(mtmp, state = game, env = {}) {
 // warned), dry up the fountain and replace it with ordinary floor.
 export async function dryup(x, y, isyou, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const canSeeSquare = env.canSeeSquare ?? env.canSee
         ?? ((tx, ty) => cansee(tx, ty, state));
     const glyphAt = env.glyphAt ?? env.glyph_at
@@ -630,7 +618,7 @@ const F_WARNED = 2;
 // the hero is standing on a fountain and answers 'y' to the prompt.
 export async function drinkfountain(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = env.random ?? coreRandom;
     const liquidEnv = { state, displayRandom: env.displayRandom };
 
     // C rm.h overlays blessedftn on horizontal for fountain terrain. The
@@ -945,7 +933,7 @@ function CLEAR_FOUNTAIN_LOOTED(x, y, state) {
 // Excalibur creation and the common fountain-removal path.
 export async function dipfountain(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const { hands_obj } = await import('./invent.js');
 
     let er = ER_NOTHING;
@@ -1150,7 +1138,7 @@ export async function dipfountain(obj, state = game, env = {}) {
 // or sink. Clears Glib and optionally applies water damage to gloves.
 export async function wash_hands(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const hands = makeplural(body_part(HAND, state.youmonst));
     let res = ER_NOTHING;
     const wasGlib = Glib(state);
@@ -1200,7 +1188,7 @@ export async function breaksink(x, y, state = game, env = {}) {
 // the discovery bit until after its object creation, redraw and exercises.
 export async function dipsink(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const { ux: x, uy: y } = state.u;
     const location = state.level.at(x, y);
     const not_looted_yet = !(location.flags & S_LRING);
@@ -1307,7 +1295,7 @@ export async function dipsink(obj, state = game, env = {}) {
 // exercise() calls have run.
 export async function sink_backs_up(x, y, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const blind = heroIsBlind(state);
     const deaf = heroIsDeaf(state);
     const splash = blind && deaf
@@ -1337,7 +1325,7 @@ export async function sink_backs_up(x, y, state = game, env = {}) {
 // prompt. Keep the separate default-temperature draws: hot skips rn2(2).
 export async function drinksink(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const makeMonster = env.makeMonster ?? makemon_runtime;
     const { ux: x, uy: y } = state.u;
     const hallucination = Boolean(state.u.uprops[HALLUC]?.intrinsic)

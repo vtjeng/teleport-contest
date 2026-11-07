@@ -353,7 +353,7 @@ import { level_tele, scrolltele } from './teleport.js';
 import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
+import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     cmap_to_glyph, map_glyphinfo, map_invisible, map_invisible_planning, newsym,
@@ -878,7 +878,7 @@ export async function wand_explode(obj, charge, state = game) {
     );
     await useup(obj, { state });
     await exercise(
-        A_STR, false, state, { rn2 },
+        A_STR, false, state, coreRandom,
         { encumberMessage: encumber_msg },
     );
 }
@@ -892,7 +892,7 @@ function propertyActive(property, state) {
 // HConfusion, so this effect tests and updates only the intrinsic timeout;
 // blindness/invisibility, by contrast, use their full property predicates.
 export async function seffect_confuse_monster(sobj, state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const confusion = state.u.uprops[CONFUSION] ??= {
         intrinsic: 0,
@@ -1506,7 +1506,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     const sblessed = Boolean(sobj.blessed);
     const scursed = Boolean(sobj.cursed);
     const confused = propertyActive(CONFUSION, state);
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const effectEnv = { ...env, state, message };
     const otmp = some_armor(state.youmonst, state, random);
@@ -1519,10 +1519,10 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
                 : 'Your skin glows then fades.',
             state,
         );
-        await exercise(A_CON, !scursed, state, { rn2: random.rn2 }, {
+        await exercise(A_CON, !scursed, state, random, {
             encumberMessage: encumber_msg,
         });
-        await exercise(A_STR, !scursed, state, { rn2: random.rn2 }, {
+        await exercise(A_STR, !scursed, state, random, {
             encumberMessage: encumber_msg,
         });
         return true;
@@ -1684,7 +1684,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
 
 // C ref: read.c disintegrate_cursed_armor() (1294-1322). Preserve the
 // source's cursed-slot array order before selecting exactly one target.
-async function disintegrate_cursed_armor(state = game, random = { rn2 }) {
+async function disintegrate_cursed_armor(state = game, random = coreRandom) {
     const armors = [
         state.uarm,
         state.uarmc,
@@ -1713,7 +1713,7 @@ export async function seffect_destroy_armor(
         throw new UnsupportedReadError('the selected destroy-armor branch');
 
     state.gk ??= {};
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rnl };
+    const random = rawEnv.random ?? coreRandom;
     const exerciseEnv = { encumberMessage: encumber_msg };
     const otmp = some_armor(state.youmonst, state, random);
     const scursed = Boolean(scroll.cursed);
@@ -1798,7 +1798,7 @@ export async function seffect_destroy_armor(
 // mkobj.c:remove_object is the default floor extractor behind obj_extract_self.
 export function unpunish(state = game, rawEnv = {}) {
     const savechain = state.uchain;
-    const random = { rn1, rn2, rnd, rne, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const defaults = setwornEnv(state);
     const env = {
         ...rawEnv,
@@ -1830,10 +1830,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
     const hallucination = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
         && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
             || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
-    const random = {
-        rn1, rn2, rnd, rne,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
 
     // pline.c:You_feel() chooses its prefix from youprop.h:Unaware before
     // formatting this source's text. Keep that boundary ahead of all effects.
@@ -1967,7 +1964,7 @@ export function learnscroll(scroll, state = game) {
 export function learnscrolltyp(scrolltyp, state = game) {
     if (!state.objects[scrolltyp].oc_name_known) {
         discover_object(scrolltyp, true, true, true, state, {
-            random: { rn2 }, hooks: {},
+            random: coreRandom, hooks: {},
         });
         more_experienced(0, 10, state);
         return true;
@@ -2228,7 +2225,7 @@ export async function seffect_light(scroll, state = game) {
 export async function seffect_magic_mapping(
     scroll, state = game, env = {},
 ) {
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     const isScroll = scroll.oclass === SCROLL_CLASS;
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
@@ -2319,7 +2316,7 @@ export async function drop_boulder_on_player(
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? rawEnv.newsym
         ?? (rawEnv.planning ? () => {} : newsym);
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
 
     if (state.u?.uswallow && !skipUswallow) {
@@ -2389,7 +2386,7 @@ export async function drop_boulder_on_monster(
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? rawEnv.newsym
         ?? (rawEnv.planning ? () => {} : newsym);
-    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const rock = mksobj(confused ? ROCK : BOULDER, false, false, env);
     if (!rock) return false;
@@ -2606,7 +2603,7 @@ export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
         8 + 4 * cloudSign,
         {
             state,
-            random: { rn2 },
+            random: coreRandom,
             blockPoint: (x, y) => block_point(x, y, state),
             canSee: (x, y) => cansee(x, y, state),
             newsym: (x, y) => newsym(x, y, state),
@@ -3166,7 +3163,7 @@ async function forget(howmuch, state, random, message) {
 export async function seffect_amnesia(
     scroll,
     state = game,
-    { random = { rn2, rnd, rnl }, message = ttyPline } = {},
+    { random = coreRandom, message = ttyPline } = {},
 ) {
     const blessed = Boolean(scroll.blessed);
     state.gk ??= {};
@@ -3200,7 +3197,7 @@ export async function seffect_amnesia(
 // C ref: read.c seffect_create_monster() (1606-1623). The count expression's
 // short-circuit draws precede the consumed create_critters() visibility result.
 async function seffect_create_monster(scroll, state = game,
-    random = { rn2, rnd }) {
+    random = coreRandom) {
     const blessed = Boolean(scroll.blessed);
     const cursed = Boolean(scroll.cursed);
     const confused = propertyActive(CONFUSION, state);
@@ -3254,7 +3251,7 @@ async function seffect_mail(scroll, state = game, env = {}) {
 
 export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
-    const random = env.random ?? { rn1, rn2, rnd, rnl };
+    const random = env.random ?? coreRandom;
     if (objectType(scroll, state).oc_magic)
         await exercise(A_WIS, true, state, random);
 

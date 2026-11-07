@@ -38,8 +38,8 @@ test('potionhit delegates the C polymorph effect and discards bhitm result', () 
         'find the complete potionhit implementation in potion.js');
     const jsBody = jsSource.slice(jsStart, jsEnd);
     assert.match(jsBody,
-        /const random = \{\s*d, rn1, rn2, rnd, rnl, rne, rnz,\s*\.\.\.\(rawEnv\.random \?\? \{\}\),\s*\};/u,
-        'potionhit fills omitted process RNG methods and preserves caller overrides');
+        /const random = rawEnv\.random \?\? coreRandom;/u,
+        'potionhit defaults to the complete core random set');
     const armStart = jsBody.lastIndexOf('case POT_POLYMORPH:');
     assert.ok(armStart >= 0, 'find the monster-effect polymorph arm');
     assert.match(jsBody.slice(armStart),

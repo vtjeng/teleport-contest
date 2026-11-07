@@ -22,14 +22,14 @@ import {
     GEM_CLASS,
     ROCK_CLASS,
 } from './objects.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { can_touch_safely } from './weapon.js';
 
 // Return the maximum quantity from obj's stack that monster can pick up.
 // Object weight already represents the complete stack, matching struct obj.
 export function can_carry(monster, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const canTouch = rawEnv.canTouchSafely ?? can_touch_safely;
     const species = monster.data;
 

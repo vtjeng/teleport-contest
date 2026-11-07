@@ -439,7 +439,7 @@ import {
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import {
     is_db_wall,
@@ -826,7 +826,7 @@ export async function overexert_hp(state = game, env = {}) {
     } else {
         const message = env.message ?? ttyPline;
         await message('You pass out from exertion!', state);
-        await exercise(A_CON, false, state, env.random ?? { rn2 }, {
+        await exercise(A_CON, false, state, env.random ?? coreRandom, {
             encumberMessage: env.encumberMessage ?? encumber_msg,
         });
         await fall_asleep(-10, false, state, {
@@ -2271,7 +2271,7 @@ export async function dosinkfall(state = game) {
                 maybe_half_phys(rnd(3), state),
                 'fell onto a sink', NO_KILLER_PREFIX, state,
             );
-            await exercise(A_CON, false, state, { rn2 }, {
+            await exercise(A_CON, false, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
         }
@@ -2349,7 +2349,7 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
             );
         }
         if (!easypush) {
-            await exercise(A_STR, true, state, env.random ?? { rn2 }, {
+            await exercise(A_STR, true, state, env.random ?? coreRandom, {
                 encumberMessage: env.encumberMessage ?? encumber_msg,
             });
         }
@@ -2418,13 +2418,7 @@ async function moverock_core(sx, sy, state, env) {
     env ??= {};
     const u = state.u;
     const message = env.message ?? ttyPline;
-    const random = {
-        d: env.random?.d ?? d,
-        rn1: env.random?.rn1 ?? rn1,
-        rn2: env.random?.rn2 ?? rn2,
-        rnd: env.random?.rnd ?? rnd,
-        rne: env.random?.rne ?? rne,
-    };
+    const random = env.random ?? coreRandom;
     const baseObjectEnv = boulderVisionEnv(state);
     const objectEnv = {
         ...baseObjectEnv,
@@ -2926,7 +2920,7 @@ export async function test_move(
                                 A_DEX,
                                 false,
                                 state,
-                                env.random ?? { rn2 },
+                                env.random ?? coreRandom,
                             );
                         }
                         state.context.door_opened = true;
@@ -3099,7 +3093,7 @@ export async function crawl_destination(x, y, state = game) {
     const species = hero?.data;
     const good = goodpos(x, y, hero, 0, {
         state,
-        random: { rn2 },
+        random: coreRandom,
     });
     if (!good) return false;
 
@@ -3860,7 +3854,7 @@ export async function carrying_too_much(state = game) {
         const wtcap = near_capacity(state);
         if (wtcap < OVERLOADED) {
             await ttyPline("You don't have enough stamina to move.", state);
-            await exercise(A_CON, false, state, { rn2 }, {
+            await exercise(A_CON, false, state, coreRandom, {
                 encumberMessage: encumber_msg,
             });
         } else {
@@ -4035,7 +4029,7 @@ async function domove_fight_empty(x, y, state) {
     async function expendExplodingForm() {
         if (!explo) return;
         const attk = attacktype_fordmg(state.youmonst.data, AT_EXPL, AD_ANY);
-        const env = { state, message: ttyPline, random: { d, rn1, rn2, rnd } };
+        const env = { state, message: ttyPline, random: coreRandom };
         await wake_nearto(state.u.ux, state.u.uy, 7 * 7, env);
         if (attk) await explum(null, attk, state, env);
         state.u.mh = -1;
@@ -5112,20 +5106,9 @@ function domove_monster_trap_env(state, env = {}) {
     const message = env.message ?? ttyPline;
     // hack.c:2198-2199 and 2907-2908. minliquid() precedes mintrap(); both are
     // invoked after the monster has arrived on the hero's former square.
-    // The movement caller commonly supplies only its candidate rn2 seam.
-    // minliquid's ordinary survivor path can reach teleport.c:rloc(), whose
-    // source contract also requires rnd; fill the standard operations here so
-    // the caller's supplied draws remain authoritative without a partial
-    // random object causing a relocation failure.
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        rnl,
-        ...(env.random ?? {}),
-    };
+    // minliquid's ordinary survivor path can reach teleport.c:rloc(), which
+    // draws rnd().
+    const random = env.random ?? coreRandom;
     const trapEnv = {
         ...env,
         state,
@@ -5266,7 +5249,7 @@ export async function domove_swap_with_pet(
         await handle_tip(TIP_UNTRAP_MON, state);
         didntMove = true;
     } else if (monster.mpeaceful
-        && (!goodpos(oldX, oldY, monster, 0, { state, random: env.random ?? { rn2 } })
+        && (!goodpos(oldX, oldY, monster, 0, { state, random: env.random ?? coreRandom })
             || t_at(oldX, oldY, state) !== null
             || monster.ispriest
             || monster.isshk
@@ -5606,7 +5589,7 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
     const message = rawEnv.planning
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
-    const random = { rn2, rnd, d, ...rawEnv.random };
+    const random = rawEnv.random ?? coreRandom;
     const staticState = spoteffectsStaticsFor(state);
     let trap = t_at(u.ux, u.uy, state);
     // C ref: hack.c:3322. untrap.c is not ported and nothing sets the flag, so
@@ -5917,7 +5900,7 @@ export function maybe_smudge_engr(
     x2,
     y2,
     state = game,
-    random = { rn2, rnd },
+    random = coreRandom,
 ) {
     if (!can_reach_floor(true, state)) return false;
     let smudged = false;

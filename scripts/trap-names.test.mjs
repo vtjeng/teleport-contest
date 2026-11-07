@@ -4,7 +4,7 @@ import test from 'node:test';
 import { HALLUC, HALLUC_RES, NO_TRAP, TRAPNUM, WEB } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { cloneIsaacContext } from '../js/rng.js';
+import { cloneIsaacContext, coreRandom } from '../js/rng.js';
 import { trapname } from '../js/trap.js';
 import { halu_trapnames } from '../js/trap_names_data.js';
 import { generateTrapNames } from './generate-trap-names.mjs';
@@ -26,28 +26,29 @@ test('trapname preserves display/core RNG order and override/resistance gates', 
     let coreResult = 1; // Nonzero chooses the role; zero below chooses rank.
     const calls = [];
     const random = {
-        rn2_on_display_rng: (n) => { calls.push(['display', n]); return displayResult; },
+        ...coreRandom,
         rn2: (n) => { calls.push(['core', n]); return coreResult; },
     };
-    assert.equal(trapname(WEB, false, game, random), 'web');
+    const display = (n) => { calls.push(['display', n]); return displayResult; };
+    assert.equal(trapname(WEB, false, game, random, display), 'web');
     assert.deepEqual(calls, [['display', total + 1]]);
     displayResult = TRAPNUM; // The first invented trap.c name.
     calls.length = 0;
-    assert.equal(trapname(WEB, false, game, random), 'bottomless pit');
+    assert.equal(trapname(WEB, false, game, random, display), 'bottomless pit');
     assert.deepEqual(calls, [['display', total + 1]]);
     displayResult = total; // Extra entry after both actual and invented names.
     calls.length = 0;
-    assert.equal(trapname(WEB, false, game, random), 'valkyrie trap');
+    assert.equal(trapname(WEB, false, game, random, display), 'valkyrie trap');
     assert.deepEqual(calls, [['display', total + 1], ['core', 3]]);
     coreResult = 0;
     calls.length = 0;
-    assert.equal(trapname(WEB, false, game, random), 'stripling trap');
+    assert.equal(trapname(WEB, false, game, random, display), 'stripling trap');
     assert.deepEqual(calls, [['display', total + 1], ['core', 3]]);
     calls.length = 0;
-    assert.equal(trapname(WEB, true, game, random), 'web');
+    assert.equal(trapname(WEB, true, game, random, display), 'web');
     assert.deepEqual(calls, []);
     game.u.uprops[HALLUC_RES].extrinsic = 1; // Either resistance source suppresses it.
-    assert.equal(trapname(WEB, false, game, random), 'web');
+    assert.equal(trapname(WEB, false, game, random, display), 'web');
     assert.deepEqual(calls, []);
 });
 

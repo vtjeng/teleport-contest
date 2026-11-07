@@ -20,7 +20,7 @@ import {
     SLIME_MOLD,
 } from './objects.js';
 import { LOW_PM, NUMMONS } from './monsters.js';
-import { rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 
 export const PL_FSIZ = 32;
 export const DEFAULT_FRUIT = 'slime mold';
@@ -689,7 +689,7 @@ export function fruitadd(str, replace_fruit = null, env = {}) {
     let fruit = existing;
     if (!fruit) {
         if (highestFid >= 127) {
-            const random = env.random ?? { rnd };
+            const random = env.random ?? coreRandom;
             if (typeof random.rnd !== 'function')
                 throw new TypeError('fruitadd random injection requires rnd');
             return random.rnd(127);

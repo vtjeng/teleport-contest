@@ -359,7 +359,7 @@ import { reset_hostility } from './priest.js';
 import { in_out_region } from './region.js';
 import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
-import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
+import { coreRandom, cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot, fix_shop_damage, sellobj, sellobj_state } from './shk.js';
@@ -546,7 +546,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
 export async function revive_mon(body, _timeout, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rnz };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const species = state.mons[body.corpsenm];
     if (is_displacer(species) && body.where === OBJ_FLOOR) {
@@ -881,12 +881,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
     if (!otmp || otmp.otyp !== BOULDER)
         return false;
     if (!is_pool_or_lava(rx, ry, state)) return false;
-    const suppliedRandom = rawEnv.random ?? {};
-    const random = {
-        d: suppliedRandom.d ?? d,
-        rn2: suppliedRandom.rn2 ?? rn2,
-        rnd: suppliedRandom.rnd ?? rnd,
-    };
+    const random = rawEnv.random ?? coreRandom;
     const location = state.level?.at(rx, ry);
     const lava = is_lava(rx, ry, state);
     const what = (await import('./pager.js')).waterbody_name(
@@ -1071,7 +1066,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             } else if (trappedHero) {
                 if (!passes_walls(state.youmonst?.data)
                     && !throws_rocks(state.youmonst?.data)) {
-                    const random = rawEnv.random ?? { rnd };
+                    const random = rawEnv.random ?? coreRandom;
                     await losehp(
                         maybeHalfPhysical(random.rnd(15), state),
                         'squished under a boulder',
@@ -1120,7 +1115,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             result = await lava_damage(obj, x, y, {
                 ...rawEnv,
                 state,
-                random: rawEnv.random ?? { rn2, rnd },
+                random: rawEnv.random ?? coreRandom,
             });
             return result;
         }
@@ -1143,7 +1138,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             result = (await water_damage(obj, null, false, {
                 ...rawEnv,
                 state,
-                random: rawEnv.random ?? { rn2, rnd },
+                random: rawEnv.random ?? coreRandom,
             })) === ER_DESTROYED;
             return result;
         }
@@ -1175,7 +1170,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             }
         } else if (obj.globby) {
             let globbyobj = obj;
-            const random = rawEnv.random ?? { rn2 };
+            const random = rawEnv.random ?? coreRandom;
             while (globbyobj) {
                 const other = obj_nexto_xy(
                     globbyobj, x, y, true, state, random,
@@ -1207,7 +1202,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             let survivalChance = obj.blessed ? 70 : 50;
             if (obj.invlet) survivalChance += Math.trunc(state.u?.luck ?? 0) * 2;
             if (obj.otyp === POT_OIL) survivalChance = 100;
-            const random = rawEnv.random ?? { rn2, rnd };
+            const random = rawEnv.random ?? coreRandom;
             if (!obj_resists(obj, survivalChance, 100, {
                 ...rawEnv,
                 state,
@@ -1264,7 +1259,7 @@ export async function trycall(obj, state = game, env = {}) {
 // C ref: do.c teleport_sink() (459-493). It tries up to 200 room squares in
 // source order, moving the current sink only after finding a square without a
 // trap or engraving that is unseen or more than three squares away.
-function teleport_sink(state = game, random = { rn2, rnd }) {
+function teleport_sink(state = game, random = coreRandom) {
     let trycnt = 0;
 
     do {
@@ -1305,7 +1300,7 @@ function heroHallucinating(state) {
 // while the altar mask replaces those flags and the grave branch consumes
 // make_grave()'s random-text continuation before its message and redraw.
 export async function polymorph_sink(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const { ux: x, uy: y } = state.u;
     const location = state.level.at(x, y);
@@ -1360,7 +1355,7 @@ export async function polymorph_sink(state = game, rawEnv = {}) {
 // Soundeffect() are intentionally omitted: the patched recorder uses the
 // `nosound` backend, where the C macro is a no-op.
 async function dosinkring(obj, state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     let ideed = true;
     let nosink = false;
 

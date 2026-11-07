@@ -24,7 +24,7 @@ import { G_UNIQ, LOW_PM, NUMMONS } from './monsters.js';
 import { the_unique_pm } from './objnam.js';
 import { verbalize } from './pline.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
-import { rn2 } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { init_rumors } from './rumors.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
@@ -177,7 +177,7 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
     const env = {
         ...rawEnv,
         files: rawEnv.files ?? RANDOM_TEXT_FILES,
-        random: rawEnv.random ?? { rn2 },
+        random: rawEnv.random ?? coreRandom,
         state: rawEnv.state ?? game,
     };
     const state = env.state;
@@ -260,7 +260,7 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
 export async function outrumor(truth, mechanism, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const reading = mechanism === BY_COOKIE || mechanism === BY_PAPER;
-    const randomSource = rawEnv.random ?? { rn2 };
+    const randomSource = rawEnv.random ?? coreRandom;
     const random = randomFunction(randomSource);
 
     if (reading) {

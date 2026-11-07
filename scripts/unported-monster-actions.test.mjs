@@ -236,13 +236,7 @@ import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { canseemon } from '..//js/display.js';
-import {
-    cloneIsaacContext,
-    createCoreRandom,
-    enableRngLog,
-    getRngLog,
-    initRng,
-} from '../js/rng.js';
+import { coreRandom, cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';
 
 // C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
 // AT_NONE describe an unused slot without shortening that fixed array.
@@ -2627,7 +2621,7 @@ test('minliquid splits a gremlin and dries a fountain in source order',
         const result = await minliquid(target.monster, {
             state: game,
             planning: true,
-            random: {
+            random: { ...coreRandom,
             rn2(bound) {
                 calls.push(bound);
                 // The first rn2(3) admits splitting; dryup's final rn2(3)
@@ -4100,7 +4094,7 @@ test('planned pet landmine scatter interrupts the selected clone', async () => {
     assert.strictEqual(planned.context.victual.piece, planned.invent);
     const plannedPony = planned.level.monlist;
     const draws = [];
-    const random = {
+    const random = { ...coreRandom,
         rn2(bound) {
             draws.push(['rn2', bound]);
             if (bound === 1301) return 400; // dog_move's mine trigger.

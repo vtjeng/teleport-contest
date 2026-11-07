@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 7130540,
+   "datetime": "20711203141516",
+   "nethackrc": "OPTIONS=name:Tallyho,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+   "moves": "\u00164\n\u0014LLllllllKk.\n\nu,\n\u0017uncursed potion of hallucination\nql\n\nEk\n\nhi\n"
+  }
+ ],
+ "_comment": "invent.c currency() under Hallucination: hack.h ROLL_FROM(currencies) draws rn2(SIZE(currencies)) on the core RNG. A debug-mode gnomish Healer level-teleports to Dlvl 4 of seed 7130540, wizard-teleports into Holmavik's general store, picks up an unpaid iridium wand, wishes for and quaffs a potion of hallucination, and engraves with the wand: engrave.c zapwand() -> check_unpaid() -> shk.c check_unpaid_usage() names the usage fee with currency()."
+}

@@ -12,7 +12,7 @@ import { get_level_extends } from './mkmaze.js';
 import { fix_wall_spines } from './mklev.js';
 import { placebc, unplacebc } from './ball.js';
 import { vision_reset } from './vision.js';
-import { rn2 } from './rng.js';
+import { coreRandom } from './rng.js';
 import { flip_worm_segs_horizontal, flip_worm_segs_vertical } from './worm.js';
 
 // C ref: sp_lev.c flip_dbridge_horizontal(). A drawbridge facing west now
@@ -421,7 +421,7 @@ export async function flip_level(flp, extras = false, state = game) {
 // axis; each enabled axis consumes rn2(2). When the combined result is
 // nonzero, flip_level() mirrors the map.
 export async function flip_level_rnd(flp, extras = false, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     let c = 0;
     if ((flp & 1) && random.rn2(2)) c |= 1;
     if ((flp & 2) && random.rn2(2)) c |= 2;

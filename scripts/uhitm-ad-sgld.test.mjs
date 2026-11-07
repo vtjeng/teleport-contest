@@ -14,6 +14,7 @@ import { inv_cnt } from '../js/hack.js';
 import { GOLD_PIECE, DAGGER } from '../js/objects.js';
 import { AD_SGLD, AT_CLAW, PM_LEPRECHAUN, PM_DWARF, NON_PM } from '../js/monsters.js';
 import { COLNO, M_ATTK_AGR_DONE, OBJ_FLOOR, OBJ_MINVENT, ROOM, ROWNO, STRAT_WAITFORU } from '../js/const.js';
+import { coreRandom } from '../js/rng.js';
 // A synthetic one-claw attack selects AD_SGLD without relying on damage dice;
 // the nine-point mhm fixture distinguishes preservation from the zeroing arms.
 const mattk = { aatyp: AT_CLAW, adtyp: AD_SGLD, damn: 1, damd: 2 };
@@ -30,7 +31,7 @@ async function fixture() {
     const lines = [];
     const env = { message: async text => { lines.push(text); },
         unsupported: reason => { throw new Error(reason); },
-        random: { rn2: () => { throw new Error('unexpected handler RNG'); },
+        random: { ...coreRandom, rn2: () => { throw new Error('unexpected handler RNG'); },
             rnd: () => { throw new Error('unexpected handler RNG'); },
             d: () => { throw new Error('unexpected handler RNG'); } } };
     return { monster, lines, env };
@@ -159,7 +160,7 @@ test('incoming leprechaun transfers a source-sized subset of carried gold', asyn
     const hit = mhm();
     await mhitm_adtyping(attacker, mattk, game.youmonst, hit, game, {
         ...env,
-        random: {
+        random: { ...coreRandom,
             rn1: (range, base) => { randomCalls.push(['rn1', range, base]); return base; },
             rn2: bound => { randomCalls.push(['rn2', bound]); return bound - 1; },
         },
@@ -189,7 +190,7 @@ test('incoming leprechaun prefers a larger floor-gold stack', async () => {
     const redraws = [];
     await mhitm_adtyping(attacker, mattk, game.youmonst, mhm(), game, {
         ...env,
-        random: {
+        random: { ...coreRandom,
             rn1: () => { throw new Error('floor stack does not call somegold'); },
             rn2: bound => { randomCalls.push(bound); return bound - 1; },
         },
@@ -222,7 +223,7 @@ test('mounted floor-gold theft uses the steed name before fleeing', async () => 
 
     await mhitm_adtyping(attacker, mattk, game.youmonst, mhm(), game, {
         ...env,
-        random: { rn2: bound => { randomCalls.push(bound); return bound - 1; } }, // Prevent the C flee branch.
+        random: { ...coreRandom, rn2: bound => { randomCalls.push(bound); return bound - 1; } }, // Prevent the C flee branch.
         teleRestrict: async () => true,
         monflee: async () => {},
     });
@@ -327,7 +328,7 @@ for (const planning of [false, true]) {
         const draws = []; const redraws = [];
         await mhitm_adtyping(attacker, mattk, target, hit, game, {
             ...env, planning, redraw: (...args) => { redraws.push(args); },
-            random: { ...env.random,
+            random: { ...coreRandom, ...env.random,
                 rnd: bound => { draws.push(['rnd', bound]); return destination[0]; },
                 rn2: bound => { draws.push(['rn2', bound]); return destination[1]; } },
         });

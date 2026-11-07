@@ -225,7 +225,7 @@ import {
 } from './end.js';
 import { eatmupdate, fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
-import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
+import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
@@ -348,7 +348,7 @@ export function drink_ok(obj) {
 }
 
 function djinniRandom(env = {}) {
-    return env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    return env.random ?? coreRandom;
 }
 
 // C ref: potion.c split_mon() (2873-2935).  A heat-triggered split can target
@@ -623,7 +623,7 @@ export async function make_sick(
         throw new Error('make_sick requires initialized SICK state');
     const old = sick.intrinsic;
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const encumberMessage = env.encumberMessage ?? encumber_msg;
 
     if (xtime > 0) {
@@ -1409,7 +1409,7 @@ function potionEffectEnvironment(env = {}) {
         ...env,
         message: env.message ?? ttyPline,
         encumberMessage: env.encumberMessage ?? encumber_msg,
-        random: { d, rn1, rn2, rnd, ...env.random },
+        random: env.random ?? coreRandom,
     };
 }
 
@@ -1535,7 +1535,7 @@ async function peffect_oil(otmp, state = game) {
 // intrinsic field in u.uprops[INVIS], including FROMOUTSIDE. Spell objects
 // cannot bypass a blocking source when mummy wrapping is worn.
 async function peffect_invisibility(otmp, state = game, env = {}) {
-    const random = env.random ?? { d, rn2 };
+    const random = env.random ?? coreRandom;
     const isSpell = otmp.oclass === SPBOOK_CLASS;
     const invisibility = state.u.uprops[INVIS];
     const blocked = Boolean(invisibility?.blocked);
@@ -1704,7 +1704,7 @@ async function peffect_healing(otmp, state = game) {
     await ttyPline('You feel better.', state);
     await healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp.cursed ? 1 : 0,
         Boolean(otmp.blessed), !otmp.cursed, state);
-    await exercise(A_CON, true, state, { rn2 }, {
+    await exercise(A_CON, true, state, coreRandom, {
         encumberMessage: encumber_msg,
     });
 }
@@ -1719,10 +1719,10 @@ async function peffect_extra_healing(otmp, state = game) {
         otmp.blessed ? 5 : !otmp.cursed ? 2 : 0,
         !otmp.cursed, true, state);
     await make_hallucinated(0, true, 0, state);
-    await exercise(A_CON, true, state, { rn2 }, {
+    await exercise(A_CON, true, state, coreRandom, {
         encumberMessage: encumber_msg,
     });
-    await exercise(A_STR, true, state, { rn2 }, {
+    await exercise(A_STR, true, state, coreRandom, {
         encumberMessage: encumber_msg,
     });
 
@@ -1875,7 +1875,7 @@ async function peffect_acid(otmp, state = game) {
         );
         // C's done() never returns after a fatal dose; JS marks gameover.
         if (state.program_state?.gameover) return;
-        await exercise(A_CON, false, state, { rn2 }, {
+        await exercise(A_CON, false, state, coreRandom, {
             encumberMessage: encumber_msg,
         });
     }
@@ -2447,7 +2447,7 @@ const hbottlenames = [
 
 // C ref: potion.c bottlename() (1487-1494). hack.h:1493 expands
 // ROLL_FROM(array) to array[rn2(SIZE(array))], so this always spends one draw.
-export function bottlename(state = game, random = { rn2 }) {
+export function bottlename(state = game, random = coreRandom) {
     const names = Hallucination(state) ? hbottlenames : bottlenames;
     return names[random.rn2(names.length)];
 }
@@ -2526,10 +2526,7 @@ async function H2Opotion_dip(potion, target, useeit, objphrase, state, env) {
 // for each carried lit artifact light; its temporary water potion is freed
 // after H2Opotion_dip() applies the BUC change and any visible feedback.
 export async function impact_arti_light(obj, worsen, seeit, state = game, rawEnv = {}) {
-    const random = {
-        d, rn1, rn2, rnd, rnl, rne, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
 
     if ((worsen ? obj.cursed : obj.blessed)
@@ -2549,12 +2546,8 @@ export async function impact_arti_light(obj, worsen, seeit, state = game, rawEnv
 // reach, optional calling, shop disposition, and final object release.
 export async function potionhit(mon, obj, how, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    // C uses the process RNG. Merge method overrides so downstream callees
-    // retain the complete draw bundle when a caller injects only a subset.
-    const random = {
-        d, rn1, rn2, rnd, rnl, rne, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    // C uses the process RNG.
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const botlnam = bottlename(state, random);
@@ -2914,7 +2907,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
     let kn = 0;
     let cureblind = false;
     const already_in_use = obj.in_use;
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     // potionhit() can call this inside a monster planning clone, which must
     // send feedback through its own message operation.
     const message = env.message ?? ttyPline;
@@ -3219,10 +3212,7 @@ function drinkEnvironment(state, rawEnv = {}) {
     return {
         ...rawEnv,
         state,
-        random: {
-            d, rn1, rn2, rnd, rnl, rne, rnz,
-            ...(rawEnv.random ?? {}),
-        },
+        random: rawEnv.random ?? coreRandom,
         message,
         hooks: {
             ...(rawEnv.hooks ?? {}),
@@ -3252,7 +3242,7 @@ function drinkEnvironment(state, rawEnv = {}) {
 
 // C ref: potion.c mixtype() (2122-2210). Its result selects the named
 // mixture; only the two source branches below consume randomness.
-export function mixtype(o1, o2, random = { rn2 }) {
+export function mixtype(o1, o2, random = coreRandom) {
     let o1typ = o1.otyp;
     let o2typ = o2.otyp;
 

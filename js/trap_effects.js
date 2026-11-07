@@ -352,7 +352,7 @@ import {
 import { encumber_msg } from './pickup.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { makeplural } from './fruit.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     Flying,
@@ -441,7 +441,7 @@ function heroTrapEnv(state, rawEnv = {}) {
     return {
         ...rawEnv,
         state,
-        random: { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) },
+        random: rawEnv.random ?? coreRandom,
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
         redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
@@ -2143,7 +2143,7 @@ async function trapeffect_magic_portal(mtmp, trap, trflags, env) {
 // armor, inventory, floor-object and ice effects in C order.
 export async function dofiretrap(box, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const u = state.u;
@@ -2634,7 +2634,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     const env = {
         ...rawEnv,
         state,
-        random: { d, rn1, rn2, rnd, rne, ...rawEnv.random },
+        random: rawEnv.random ?? coreRandom,
     };
     const planning = Boolean(env.planning);
     const message = env.message ?? ((line, target) =>
@@ -3656,7 +3656,7 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     if (!location) return;
 
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const oldTyp = location.typ;
 
     // C discards scatter()'s return value. Its side effects are fully ported,
@@ -3714,7 +3714,7 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
             // fillholetyp() is a shared source helper. Keep this lazy import
             // to avoid pulling dig.c's monmove edge into this module cycle.
             const { fillholetyp, liquid_flow } = await import('./dig.js');
-            const typ = fillholetyp(x, y, false, state, { rn2: random.rn2 });
+            const typ = fillholetyp(x, y, false, state, random);
             if (typ !== ROOM) {
                 location.typ = typ;
                 await liquid_flow(
@@ -3782,7 +3782,7 @@ function keep_saddle_with_steedcorpse(
 export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = env.random ?? coreRandom;
     const message = requireTrapOperation(env, 'message');
     const damageBase = random.rnd(16);
     const damage = wearing_iron_shoes(mtmp, state)
@@ -4436,7 +4436,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
 // canonical hero energy fields (`u.uen`, `u.uenmax`) and bottom-line flag
 // before printing through You_feel(), whose prefix reflects Unaware.
 export async function drain_en(n, maxAlreadyDrained, state = game, env = {}) {
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const punctuation = maxAlreadyDrained ? '!' : '.';
     let ending = punctuation;

@@ -135,7 +135,7 @@ import {
     S_MUMMY,
 } from './monsters.js';
 import { peace_minded, propagate, set_malign } from './makemon.js';
-import { rn2 } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { unpunish } from './read.js';
 import { fix_shop_damage } from './shk.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
@@ -166,7 +166,7 @@ export function no_bones_level(level, state) {
 // whether bones are feasible. really_done() still refuses the positive result
 // because creating and saving a bones level is outside the current slice.
 export function can_make_bones(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const level = state.u.uz;
 
     if (!state.flags.bones) return false;

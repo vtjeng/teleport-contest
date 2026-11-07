@@ -152,7 +152,7 @@ import {
 } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HCOLORS, HLIQUIDS } from './random_text_data.js';
-import { rn1, rn2, rn2_on_display_rng, rnd_on_display_rng } from './rng.js';
+import { coreRandom, rn2, rn2_on_display_rng, rnd_on_display_rng } from './rng.js';
 import { getlin } from './windows.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { livelog_printf, verbalize } from './pline.js';
@@ -378,7 +378,7 @@ export function roguename(state = game, random = rn2) {
 // chunk after the first.  Keeping this here lets mkmaze.c's stolen_booty()
 // consume the same draws as the source without embedding naming policy in the
 // maze generator.
-export function rndorcname(random = { rn1, rn2 }) {
+export function rndorcname(random = coreRandom) {
     const vowels = ['a', 'ai', 'og', 'u'];
     const sounds = ['gor', 'gris', 'un', 'bane', 'ruk', 'oth', 'ul', 'z',
         'thos', 'akh', 'hai'];
@@ -399,7 +399,7 @@ export function rndorcname(random = { rn1, rn2 }) {
 // C ref: do_name.c christen_orc() (1556-1585).  The generated personal name
 // is capitalized and optionally followed by the invading gang name.
 export function christen_orc(monster, gang, other, env = {}) {
-    const orcname = rndorcname(env.random ?? { rn1, rn2 });
+    const orcname = rndorcname(env.random ?? coreRandom);
     let size = encodeUtf8ByteString(orcname).length;
     // C tests pointers for presence, so an empty gang or suffix still names
     // the monster and takes the corresponding branch.
@@ -1547,7 +1547,7 @@ export function monsterPossessive(
 }
 
 export function rndghostname(env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const state = env.state ?? game;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('rndghostname random injection requires rn2');
@@ -1777,7 +1777,7 @@ export const SIR_TERRY_NOVELS = Object.freeze([
 // Return the potentially updated union value alongside the chosen title so a
 // caller cannot accidentally skip that distinction.
 export function noveltitle(novelidx = undefined, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('noveltitle random injection requires rn2');
     let selected = random.rn2(SIR_TERRY_NOVELS.length);

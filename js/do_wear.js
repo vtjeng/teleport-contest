@@ -400,7 +400,7 @@ import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
     make_glib, toggle_blindness,
 } from './potion.js';
-import { rn2, rnl, rnd } from './rng.js';
+import { coreRandom, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { remove_worn_item } from './steal.js';
 import { youFeel } from './pline.js';
@@ -4027,8 +4027,7 @@ export async function doremring(state = game) {
 
 // C ref: do_wear.c some_armor() (2630-2652). The hero's seven armor globals
 // and a monster's minvent are selected in the same source order.
-export function some_armor(victim, state = game, rawRandom = {}) {
-    const random = { rn2, ...rawRandom };
+export function some_armor(victim, state = game, random = coreRandom) {
     const hero = victim === state.youmonst;
     const slot = (field, mask) => hero
         ? state[field] ?? null
@@ -4082,7 +4081,7 @@ function maybe_destroy_armor(
     selected,
     resisted,
     state = game,
-    random = { rn2 },
+    random = coreRandom,
 ) {
     if (armor && (!selected || selected === armor)) {
         const didResist = obj_resists(armor, 0, 90, { state, random });
@@ -4138,7 +4137,7 @@ export async function disintegrate_arm(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     let losingGloves = false;
     const resistedCloak = { value: false };
     const resistedSuit = { value: false };
@@ -4240,7 +4239,7 @@ export function obj_erode_type(obj, state = game) {
 // erosion fields, inventory refreshes and EF_PAY/EF_DESTROY handling.
 export async function destroy_arm(
     state = game,
-    random = { rn2, rnl },
+    random = coreRandom,
     rawEnv = {},
 ) {
     const message = rawEnv.message

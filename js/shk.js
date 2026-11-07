@@ -299,7 +299,7 @@ import {
 } from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
 import { Monnam, x_monnam, y_monnam } from './do_name.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom, rn2, rnd } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
     obj_typename, simpleonames, the_unique_pm, thesimpleoname, The, the, xnameFresh } from './objnam.js';
@@ -644,7 +644,7 @@ export function shop_keeper(roomno, state = game) {
 // the wand currently being used.
 export async function shopdig(fall, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
-    const random = { rn2, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, message, random };
     const shkp = shop_keeper(state.u?.ushops?.[0] ?? 0, state);
     if (!shkp) return;
@@ -1179,7 +1179,7 @@ async function deserted_shop(
 export function after_shk_move(shopkeeper, state = game, {
     defer = false,
     message = ttyPline,
-    random = rn2,
+    random = coreRandom,
 } = {}) {
     const extension = shopkeeper?.mextra?.eshk;
     if (!extension || extension.bill_p !== -1000
@@ -2282,7 +2282,7 @@ async function pay_billed_items(shkp, ibillct, ibill, stashed, paid, state, env)
 // quantities and billing flags stay changed across the source's prompts.
 export async function dopay(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const pronoun = (mon, key) => genders[pronoun_gender(mon,
         PRONOUN_NO_IT | PRONOUN_HALLU, { state, random })][key];
     const paid = { value: false };
@@ -2521,7 +2521,7 @@ export async function check_unpaid_usage(otmp, altusage, state = game, env = {})
     const price = cost_per_charge(shopkeeper, otmp, altusage, state);
     if (price === 0) return;
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     let first = '';
     let second = '';
     let line;
@@ -2684,7 +2684,7 @@ export async function price_quote(firstObj, state = game, env = {}) {
 // C ref: shk.c shk_embellish() (5468-5504). Its rn2 calls are part of the
 // core gameplay stream; the remaining branch is an artifact-only fallback.
 function shk_embellish(item, cost, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (!random.rn2(3)) {
         let choice = random.rn2(5);
         if (choice === 0)
@@ -2799,10 +2799,6 @@ function copyRoomNumbers(target, source) {
         target[index] = rooms[index];
 }
 
-function randomRoll(random) {
-    return typeof random === 'function' ? random : random?.rn2 ?? rn2;
-}
-
 // C ref: shk.c pacify_shk() (1344-1360). Make the keeper peaceful and, when
 // requested, remove the surcharge from each active bill entry.
 function pacify_shk(shopkeeper, clearSurcharge) {
@@ -2892,7 +2888,7 @@ export async function make_happy_shk(
             if (canspotmon(shopkeeper, state)) {
                 await (env.message ?? ttyPline)(Shknam(shopkeeper, state)
                     + ' returns to '
-                    + noitPronoun(shopkeeper, 'his', state, rn2)
+                    + noitPronoun(shopkeeper, 'his', state, coreRandom)
                     + ' shop.', state);
                 vanished = false;
             }
@@ -2920,7 +2916,7 @@ function noitPronoun(shopkeeper, field, state, random) {
     const gender = genders[pronoun_gender(
         shopkeeper,
         PRONOUN_NO_IT | PRONOUN_HALLU,
-        { state, random: { rn2: random } },
+        { state, random },
     )];
     return gender[field];
 }
@@ -2937,7 +2933,7 @@ function heroIsFast(state) {
 export async function u_entered_shop(
     enterstring,
     state = game,
-    { message = ttyPline, random = rn2, directDochug = null } = {},
+    { message = ttyPline, random = coreRandom, directDochug = null } = {},
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
     if (!roomno) return false;
@@ -2994,8 +2990,8 @@ export async function u_entered_shop(
     if (muteshk(shopkeeper) || extension.following)
         return true;
 
-    const roll = randomRoll(random);
-    const namingEnv = { random: { rn2: roll } };
+    const roll = random.rn2;
+    const namingEnv = { random };
     if (heroIsInvisible(state)) {
         await message(
             `${Shknam(shopkeeper, state, namingEnv)} senses your presence.`, state,
@@ -3009,7 +3005,7 @@ export async function u_entered_shop(
             await message(
                 `${Shknam(shopkeeper, state, namingEnv)} stands firm as if `
                 + `${noitPronoun(
-                    shopkeeper, 'he', state, roll,
+                    shopkeeper, 'he', state, random,
                 )} knows you are there.`,
                 state,
             );
@@ -3032,7 +3028,7 @@ export async function u_entered_shop(
                 `${Shknam(shopkeeper, state, namingEnv)} seems ${[
                     'quite upset', 'ticked off', 'furious',
                 ][roll(3)]} over your return to ${noitPronoun(
-                    shopkeeper, 'his', state, roll,
+                    shopkeeper, 'his', state, random,
                 )} ${shopName}!`,
                 state,
             );
@@ -3066,7 +3062,7 @@ export async function u_entered_shop(
             await message(
                 `${Shknam(shopkeeper, state, namingEnv)} is combing through `
                 + `${noitPronoun(
-                    shopkeeper, 'his', state, roll,
+                    shopkeeper, 'his', state, random,
                 )} inventory list.`,
                 state,
             );
@@ -3120,7 +3116,7 @@ export async function u_entered_shop(
                         true,
                         true,
                         state,
-                        { random: { rn2: roll } },
+                        { random },
                     );
                 }
             }
@@ -3229,7 +3225,7 @@ async function special_stock(obj, shkp, quietly, state = game, env = {}) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize("I won't stock that.  Take it out of here!", state, env);
         } else {
-            const possessive = noitPronoun(shkp, 'his', state, env.random?.rn2 ?? rn2);
+            const possessive = noitPronoun(shkp, 'his', state, env.random ?? coreRandom);
             await message(`${Shknam(shkp, state, env)} shakes ${possessive} ${
                 mbodypart(shkp, HEAD)} in refusal.`, state);
         }
@@ -3483,7 +3479,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
 // conversation when MS_SELL passes its existing hallucination and silence gate.
 export async function shk_chat(shkp, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (!shkp.isshk) {
         await message(`${Monnam(shkp, state, env)} asks whether you've seen any untended shops recently.`, state);
         return;
@@ -3493,7 +3489,7 @@ export async function shk_chat(shkp, state = game, env = {}) {
     if (!NOTANGRY(shkp)) {
         await message(`${Shknam(shkp, state, env)} ${
             speaks() ? 'mentions' : 'indicates'} how much ${
-            noitPronoun(shkp, 'he', state, random.rn2)} dislikes ${
+            noitPronoun(shkp, 'he', state, random)} dislikes ${
             eshk.robbed ? 'non-paying' : 'rude'} customers.`, state);
     } else if (eshk.following) {
         const customer = encodeUtf8ByteString(eshk.customer ?? '').slice(0, PL_NSIZ);
@@ -3523,7 +3519,7 @@ export async function shk_chat(shkp, state = game, env = {}) {
     } else if (eshk.debit) {
         await message(`${Shknam(shkp, state, env)} ${
             speaks() ? 'reminds you' : 'indicates'} that you owe ${
-            noitPronoun(shkp, 'him', state, random.rn2)} ${eshk.debit} ${
+            noitPronoun(shkp, 'him', state, random)} ${eshk.debit} ${
             currency(eshk.debit, state)}.`, state);
     } else if (eshk.credit) {
         await message(`${Shknam(shkp, state, env)} encourages you to use your ${
@@ -3534,7 +3530,7 @@ export async function shk_chat(shkp, state = game, env = {}) {
     } else if (eshk.surcharge) {
         await message(`${Shknam(shkp, state, env)} ${
             speaks() ? 'warns you' : 'indicates'} that ${
-            noitPronoun(shkp, 'he', state, random.rn2)} is watching you carefully.`, state);
+            noitPronoun(shkp, 'he', state, random)} is watching you carefully.`, state);
     } else {
         const shopMoney = money_cnt(shkp.minvent, state);
         if (shopMoney < 50) {
@@ -3685,7 +3681,7 @@ function litter_getpos(litter, x, y, shkp, state = game) {
 // C ref: shk.c litter_scatter() (4622-4709). Move the objects out of the
 // repaired wall into adjacent open shop squares, retaining billing behavior.
 async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const chain = state.uchain;
     const ball = state.uball;
     if (ball && !state.u?.uswallow
@@ -3901,7 +3897,7 @@ function shopRepairMessage(env) {
 }
 
 function randomFor(env) {
-    return env.random ?? { rn2 };
+    return env.random ?? coreRandom;
 }
 
 function youFeelPrefix(state) {
@@ -3978,7 +3974,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
         const conflictActive = Boolean(
             conflict?.intrinsic || conflict?.extrinsic,
         );
-        const random = env.random ?? { rnd: () => 0 };
+        const random = env.random ?? coreRandom;
         if (!shkp.mpeaceful
             || (conflictActive
                 && !resist_conflict(shkp, state, random))) {
@@ -4111,7 +4107,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
     );
     if (result > 0) await after_shk_move(shkp, state, {
         message: env.message ?? ttyPline,
-        random: env.random?.rn2 ?? rn2,
+        random: env.random ?? coreRandom,
     });
     return result;
 }
@@ -5003,17 +4999,18 @@ export function add_damage(x, y, cost, state = game) {
 async function getcad(shopkeeper, dmgstr, x, y, uinshp, animal, pursue, state, env) {
     const dugwall = dmgstr === 'dig into' || dmgstr === 'damage';
     const message = env.message ?? ttyPline;
-    const roll = env.random?.rn2 ?? rn2;
+    const random = env.random ?? coreRandom;
+    const roll = random.rn2;
     if (muteshk(shopkeeper)) {
         if (animal && !helpless(shopkeeper))
-            await yelp(shopkeeper, state, env.random ?? { rn2: roll });
+            await yelp(shopkeeper, state, random);
     } else if (pursue || uinshp || !um_dist(x, y, 1, state)) {
         if (!heroIsDeaf(state)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize(`How dare you ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
         } else {
             const angrytexts = ['quite upset', 'ticked off', 'furious'];
-            await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that you decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, roll)} ${dugwall ? 'shop' : 'door'}!`, state);
+            await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that you decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, random)} ${dugwall ? 'shop' : 'door'}!`, state);
         }
     } else if (!heroIsDeaf(state)) {
         await message(`${Shknam(shopkeeper, state)} shouts:`, state);
@@ -5021,7 +5018,7 @@ async function getcad(shopkeeper, dmgstr, x, y, uinshp, animal, pursue, state, e
         await verbalize(`Who dared ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
     } else {
         const angrytexts = ['quite upset', 'ticked off', 'furious'];
-        await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that someone decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, roll)} ${dugwall ? 'shop' : 'door'}!`, state);
+        await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that someone decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, random)} ${dugwall ? 'shop' : 'door'}!`, state);
     }
     await hot_pursuit(shopkeeper, state);
 }
@@ -5035,10 +5032,10 @@ export async function pay_for_damage(
     state = game,
     rawEnv = {},
 ) {
-    const random = rawEnv.random ?? {};
-    const roll = random.rn2 ?? rn2;
+    const random = rawEnv.random ?? coreRandom;
+    const roll = random.rn2;
     const message = rawEnv.message ?? ttyPline;
-    const env = { ...rawEnv, state, message, random: { ...random, rn2: roll } };
+    const env = { ...rawEnv, state, message, random };
     const moves = Math.trunc(state.moves ?? state.svm?.moves ?? 0);
     const inShop = Boolean(state.u?.ushops?.[0]);
     let shopkeeper = null;
@@ -5167,7 +5164,7 @@ export async function pay_for_damage(
         pacify_shk(shopkeeper, false);
         if (shopkeeper.mx !== oldX || shopkeeper.my !== oldY) {
             if (wasOutside && canspotmon(shopkeeper, state)) {
-                await message(`${Shknam(shopkeeper, state)} returns to ${noitPronoun(shopkeeper, 'his', state, roll)} shop.`, state, env);
+                await message(`${Shknam(shopkeeper, state)} returns to ${noitPronoun(shopkeeper, 'his', state, random)} shop.`, state, env);
             } else {
                 const isSeen = canseemon(shopkeeper, state);
                 if (isSeen || wasSeen) {
@@ -5186,7 +5183,7 @@ export async function pay_for_damage(
                 await verbalize("Oh, yes!  You'll pay!", state, env);
             } else {
                 await message(
-                    `${Shknam(shopkeeper, state)} lunges ${noitPronoun(shopkeeper, 'his', state, roll)} ${mbodypart(shopkeeper, HAND)} toward your ${mbodypart(state.youmonst, NECK)}!`,
+                    `${Shknam(shopkeeper, state)} lunges ${noitPronoun(shopkeeper, 'his', state, random)} ${mbodypart(shopkeeper, HAND)} toward your ${mbodypart(state.youmonst, NECK)}!`,
                     state,
                     env,
                 );

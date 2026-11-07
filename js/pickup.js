@@ -237,7 +237,7 @@ import { discover_object, observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
 import { in_rooms } from './rooms.js';
-import { rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom, rn2, rnd } from './rng.js';
 import { rider_cant_reach } from './steed.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
@@ -2000,7 +2000,7 @@ export async function u_handsy(state) {
 // Keep the random choice and object mutation in this canonical pickup.c owner.
 export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { rn1, rn2, rnd, rne, rnz, d, ...rawEnv.random };
+    const random = rawEnv.random ?? coreRandom;
     const sc = "Schroedinger's Cat";
     let deadcat = box?.cobj ?? null;
     let livecat = null;
@@ -3799,7 +3799,7 @@ export async function doloot(state = game) {
 // chains correspond to gi.invent and fobj; keep chest selection in fobj order.
 export async function reverse_loot(state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
-    const random = { rn1, rn2, rnd, rne, rnz, d, ...rawEnv.random };
+    const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv(dropCommandEnv(state, {
         ...rawEnv, state, random,
         hooks: { message, ...rawEnv.hooks },

@@ -94,6 +94,7 @@ import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
 import { dmgval, select_rwep, setmnotwielded } from '../js/weapon.js';
+import { coreRandom } from '../js/rng.js';
 
 const MTHROWU_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
@@ -525,15 +526,9 @@ test('monmulti draws once and adds the orcish racial volley bonus', async () => 
     assert.equal(monmulti(subject, arrows, bow, {
         state,
         // The source reaches rnd(1) before adding the matching orc bonus.
-        random: { rnd: (bound) => { draws.push(bound); return 1; } },
+        random: { ...coreRandom, rnd: (bound) => { draws.push(bound); return 1; } },
     }), 2);
     assert.deepEqual(draws, [1]);
-
-    // A partial adapter receives the module's default rnd implementation.
-    assert.doesNotThrow(() => monmulti(subject, arrows, bow, {
-        state,
-        random: {},
-    }));
 });
 
 // Straight open floor along one row, and unlit so that no vision rebuild is

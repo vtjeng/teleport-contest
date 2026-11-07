@@ -120,7 +120,7 @@ import {
 } from './objects.js';
 import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import {
     deltrap,
@@ -248,7 +248,7 @@ export async function fumaroles(state = game) {
             rn1(10, 5),
             {
                 state,
-                random: { rn2 },
+                random: coreRandom,
                 allowPositiveDamage: true,
                 blockPoint: (bx, by) => block_point(bx, by, state),
                 canSee: (bx, by) => cansee(bx, by, state),
@@ -1200,7 +1200,7 @@ export async function migrate_orc(monster, flags, state = game) {
 
 // C ref: mkmaze.c shiny_orc_stuff() (747-777).
 export function shiny_orc_stuff(monster, state = game) {
-    const env = objectGenerationEnv({ state, random: { rn1, rn2, rnd, rne } });
+    const env = objectGenerationEnv({ state, random: coreRandom });
     const captain = monster.data === state.mons[PM_ORC_CAPTAIN];
     const goldProbability = captain ? 600 : 300;
     const gemProbability = Math.trunc(goldProbability / 4);
@@ -1230,7 +1230,7 @@ export function shiny_orc_stuff(monster, state = game) {
 
 // C ref: mkmaze.c migr_booty_item() (779-796).
 export function migr_booty_item(otyp, gang, state = game) {
-    const env = objectGenerationEnv({ state, random: { rn1, rn2, rnd, rne } });
+    const env = objectGenerationEnv({ state, random: coreRandom });
     const object = mksobj_migr_to_species(otyp, M2_ORC, true, false, env);
     if (object && gang) {
         new_oname(object, gang.length + 1);
@@ -1249,7 +1249,7 @@ export function migr_booty_item(otyp, gang, state = game) {
 
 // C ref: mkmaze.c stolen_booty() (798-889).
 export async function stolen_booty(state = game) {
-    const gang = rndorcname({ rn1, rn2 });
+    const gang = rndorcname(coreRandom);
     let count = rnd(4);
     for (let i = 0; i < count; ++i)
         migr_booty_item(rn2(4) ? TALLOW_CANDLE : WAX_CANDLE, gang, state);
@@ -1275,7 +1275,7 @@ export async function stolen_booty(state = game) {
 
     const monsterEnv = {
         state,
-        random: { d, rn1, rn2, rnd, rne },
+        random: coreRandom,
         hooks: objectGenerationEnv({ state }).hooks,
     };
     let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
@@ -1291,7 +1291,7 @@ export async function stolen_booty(state = game) {
         if ((current.mhp ?? 1) < 1) continue;
         if (is_orc(current.data) && !current.mextra?.mgivenname && rn2(10)
             && current.data !== state.mons[PM_ORC_CAPTAIN]) {
-            christen_orc(current, upstart(gang), '', { random: { rn1, rn2 } });
+            christen_orc(current, upstart(gang), '', { random: coreRandom });
         }
     }
     count = rn2(10) + 5;
@@ -1463,7 +1463,7 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
 export function populate_maze(frame, state = game) {
     const env = objectGenerationEnv({
         state,
-        random: { d, rn1, rn2, rnd, rne },
+        random: coreRandom,
         hooks: {
             mazexy: coordinate => mazexy(coordinate, frame, state),
             makeMonster: makemon,
@@ -1484,13 +1484,13 @@ export function populate_maze(frame, state = game) {
     for (; count; --count) {
         const point = mazexy(null, frame, state);
         makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
-                { state, random: { d, rn1, rn2, rnd, rne }, hooks: env.hooks });
+                { state, random: coreRandom, hooks: env.hooks });
     }
     count = rn1(5, 7);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
         makemon(null, point.x, point.y, NO_MM_FLAGS,
-                { state, random: { d, rn1, rn2, rnd, rne }, hooks: env.hooks });
+                { state, random: coreRandom, hooks: env.hooks });
     }
     count = rn1(6, 7);
     for (; count; --count) {

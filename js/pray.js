@@ -288,7 +288,7 @@ import {
 } from './potion.js';
 import { region_danger, region_safety } from './region.js';
 import { losexp, pluslvl } from './exper.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnl, rnd, rne, rnz } from './rng.js';
+import { coreRandom, d, rn1, rn2, rn2_on_display_rng, rnl, rnd, rnz } from './rng.js';
 import { roles } from './roles.js';
 import { randrole } from './role_init.js';
 import { aggravate } from './wizard.js';
@@ -1528,7 +1528,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
             unblockPoint: (x, y) => unblock_point(x, y, state),
             canSee: (x, y) => cansee(x, y, state),
             newsym: (x, y) => newsym(x, y),
-            random: { d },
+            random: coreRandom,
         });
         break;
     case TROUBLE_HIT: {
@@ -1948,7 +1948,7 @@ export async function prayer_done(state = game) {
         await ttyPline('You feel like you are falling apart.', state);
         await rehumanize(state);
         await losehp(rnd(20), 'residual undead turning effect', KILLED_BY_AN, state);
-        await exercise(A_CON, false, state, { rn2 }, {
+        await exercise(A_CON, false, state, coreRandom, {
             encumberMessage: encumber_msg,
         });
         return 1;
@@ -2036,7 +2036,7 @@ async function turnFleeMessage(monster, detail, env = {}) {
 // installed. `killed()` and `monflee()` discard their C return values; a
 // refusal from either unported downstream branch remains a command boundary.
 export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const couldSee = env.couldSee
         ?? ((x, y) => couldsee(x, y, state));
     const range = env.turnUndeadRange ?? state.turn_undead_range ?? 0;
@@ -2122,7 +2122,7 @@ export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
 
 // C ref: pray.c doturn() (2407-2489), the #turn extended command.
 export async function doturn(state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? turnDefaultMessage;
     const normalized = { ...env, state, random, message };
     const role = state.urole?.mnum;
@@ -2206,7 +2206,7 @@ export async function doturn(state = game, env = {}) {
 // unusable books up to u.ulevel times, and either teaches its spell directly
 // or blesses and places the book at the hero's feet.
 export async function give_spell(state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd, rne };
+    const random = env.random ?? coreRandom;
     let trycnt = state.u.ulevel + 1;
     let otmp = mkobj(SPBOOK_NO_NOVEL, true, { ...env, state, random });
 

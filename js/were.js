@@ -27,7 +27,7 @@ import {
     PM_WINTER_WOLF_CUB,
     PM_WOLF,
 } from './monsters.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn1 } from './rng.js';
 
 import { polymon, rehumanize, set_uasmon } from './polyself.js';
 import { canseemon } from './display.js';
@@ -128,7 +128,7 @@ export async function were_summon(
 ) {
     const pm = ptr.pmidx;
     let total = 0;
-    const draws = random ?? { rn2, rnd };
+    const draws = random ?? coreRandom;
     if (typeof draws.rn2 !== 'function' || typeof draws.rnd !== 'function') {
         throw new TypeError('were_summon requires an rn2 and rnd source');
     }

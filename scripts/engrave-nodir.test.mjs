@@ -6,7 +6,7 @@ import { doengrave_sfx_item_WAN } from '../js/engrave.js';
 import { ROOM } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { WAN_STASIS } from '../js/objects.js';
-import { initRng } from '../js/rng.js';
+import { coreRandom, initRng } from '../js/rng.js';
 
 const engravingC = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
 const engravingJs = readFileSync('js/engrave.js', 'utf8');
@@ -23,7 +23,7 @@ test('all six source NODIR engraving arms await the canonical wand effect', () =
     assert.deepEqual([...c.matchAll(/case (WAN_[A-Z_]+):/gu)].map(x => x[1]), types);
     assert.deepEqual([...js.matchAll(/case (WAN_[A-Z_]+):/gu)].map(x => x[1]), types);
     assert.match(c, /zapnodir\(de->otmp\);/u);
-    assert.match(js, /await zapnodir\(otmp, state, \{ rn1, rn2, \.\.\.env\.random \}\);/u);
+    assert.match(js, /await zapnodir\(otmp, state, env\.random \?\? coreRandom\);/u);
     assert.doesNotMatch(js, /note_unported\('zap\.c zapnodir'\)/u);
 });
 
@@ -52,7 +52,7 @@ test('engraving forwards the source stasis draw and publishes its deadline', asy
     assert.equal(state.level.flags.stasis_until, 120);
 });
 
-test('the production partial engraving RNG admits stasis through canonical rn1', async () => {
+test('the engraving command\'s core random set admits stasis through canonical rn1', async () => {
     initRng(1402811); // Independently chosen stable seed for the canonical draw.
     const level = new GameMap();
     level.flags.stasis_until = 0; // C initializes a fresh level without stasis.
@@ -60,10 +60,10 @@ test('the production partial engraving RNG admits stasis through canonical rn1',
     const state = { moves: 70, level,
         u: { ux: 10, uy: 10, uz: { dnum: 0, dlevel: 1 }, uprops: [] },
         youmonst: { data: {} } };
-    // cmd.c's E-command supplies rn2/rnd but no rn1. The caller completes
-    // zapnodir's source RNG contract without changing the command owner.
+    // The E command passes the complete core set; only its rn2 is replaced,
+    // to show that zapnodir()'s stasis arm draws nothing but rn1(21,10).
     await doengrave_sfx_item_WAN({ otmp: { otyp: WAN_STASIS } }, state,
-        { random: { rn2: () => assert.fail('STASIS only consumes rn1(21,10)') } });
+        { random: { ...coreRandom, rn2: () => assert.fail('STASIS only consumes rn1(21,10)') } });
     assert.ok(state.level.flags.stasis_until >= 80); // moves + source minimum 10.
     assert.ok(state.level.flags.stasis_until <= 100); // moves + source maximum 30.
 });

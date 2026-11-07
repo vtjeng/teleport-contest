@@ -165,17 +165,10 @@ import {
     m_in_out_region,
     mon_in_region,
 } from './region.js';
-import {
+import { coreRandom,
     cloneIsaacContext,
     createCoreRandom,
     withPlanningCoreContext,
-    d,
-    rn1,
-    rn2,
-    rnd,
-    rne,
-    rnl,
-    rnz,
 } from './rng.js';
 
 
@@ -893,7 +886,7 @@ export function planningState(state) {
 }
 
 function actionRandom(rawEnv) {
-    return rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    return rawEnv.random ?? coreRandom;
 }
 
 function ordinaryMonsterCanSeeHero(monster, state) {

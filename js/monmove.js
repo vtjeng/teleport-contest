@@ -431,7 +431,7 @@ import {
 } from './priest.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { see_wsegs, worm_move, worm_nomove, wormhitu } from './worm.js';
 import { add_damage, after_shk_move, costly_spot, inhishop, shk_move } from './shk.js';
@@ -480,7 +480,7 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 
 function movementEnv(env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('monster movement random injection requires rn2');
     const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
@@ -540,7 +540,7 @@ async function msg_mon_movement(mtmp, omx, omy, env = {}) {
 // it. Returns true if the monster died.
 export async function mb_trapped(mtmp, canseeit, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (state.flags?.verbose) {
         if (canseeit && !unconscious(state)) {
@@ -631,7 +631,7 @@ export function m_avoid_soko_push_loc(monster, x, y, state = game) {
 // differs from the trap knowledge used by other monsters.
 export function undesirable_disp(monster, x, y, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('undesirable_disp requires rn2');
     const trap = t_at(x, y, state);
@@ -739,7 +739,7 @@ async function mind_blast(mtmp, env = {}) {
     const state = env.state ?? game;
     // Psychic feedback keeps canonical sensing and the active display owner.
     const nameEnv = { ...env, canSpotMonster: env.canSpotMonster ?? canspotmon };
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (async () => {});
 
     if (canseemon(mtmp, state)) {
@@ -1096,7 +1096,7 @@ export function m_can_break_boulder(monster) {
 // rock conversion and map updates after monster-only messaging and billing.
 export async function m_break_boulder(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     let otmp;
     if (m_can_break_boulder(mtmp)
@@ -1140,7 +1140,7 @@ export async function m_break_boulder(mtmp, x, y, env = {}) {
 // print through it.
 async function watch_on_duty(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const env = { ...rawEnv, state, message };
@@ -1665,7 +1665,7 @@ function leppie_avoidance(mtmp, state = game) {
 // gold may drop and bury it.
 async function leppie_stash(mtmp, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
 
     if ((mtmp.data === state.mons?.[PM_LEPRECHAUN]
          || mtmp.data?.pmidx === PM_LEPRECHAUN)
@@ -1689,7 +1689,7 @@ async function leppie_stash(mtmp, env = {}) {
 // with ranged attacks prefer to keep their distance.
 // Returns oldappr unchanged, -1 to retreat, or -2 to maintain a preferred
 // range (setting *pdistmin and *pdistmax via the returned object).
-function m_balks_at_approaching(oldappr, mtmp, state = game, random = { rn2 }) {
+function m_balks_at_approaching(oldappr, mtmp, state = game, random = coreRandom) {
     const mwep = mtmp.mw; /* MON_WEP() */
     const x = mtmp.mx, y = mtmp.my, ux = mtmp.mux, uy = mtmp.muy;
     const edist = dist2(x, y, ux, uy);
@@ -1947,7 +1947,7 @@ export function find_pmmonst(pm, state = game) {
 // Returns 1 if the bee died, 0 if it ate and lived, -1 if it did not eat.
 export async function bee_eat_jelly(mon, obj, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     // delobj() repaints the jelly's square through objectEnv.redraw, which a
     // monster turn's planning pass silences.
@@ -2084,7 +2084,7 @@ export async function monflee(
     // monflee() draws rn2() itself, and its release_hero() continuation
     // reaches mon.c unstuck()'s rnd(2) cooldown and mhitu.c expels(); a
     // caller that supplies no source gets the whole core set C calls.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = env.random ?? coreRandom;
     const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
     const checksFleeingLight = env.fleesLight ?? fleesLight;
     // C's `first` means "only establish fear if not already fleeing"; false
@@ -2430,7 +2430,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // safe_pet refusal) and for hostile monsters (after monflee() calls).
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = rawEnv.random ?? coreRandom;
     // C captures mdat before movement; a trap may polymorph this monster.
     const preMoveSpecies = monster.data;
     const preflight = requireDochugOperation(rawEnv, 'preflight');
@@ -2933,7 +2933,7 @@ export function select_postmove_object_action(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const objects = state.level?.objects?.[x]?.[y] ?? null;
     if (!monster.mcanmove) return null;
@@ -3047,7 +3047,7 @@ export function m_search_items(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const canReach = rawEnv.couldReachItem ?? could_reach_item;
     const canSee = rawEnv.canSee ?? cansee;
@@ -3206,7 +3206,7 @@ export function soko_allow_web(mon, state = game) {
 // adjacent walls, and existing web traps on the level.
 async function maybe_spin_web(mtmp, env) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2, d };
+    const random = env.random ?? coreRandom;
     const species = mtmp.data;
     if (webmaker(species)
         && !helpless(mtmp) && !mtmp.mspec_used
@@ -3279,7 +3279,7 @@ export async function postmov(
     // explicit positional signature keeps this source order at every caller.
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     // pline() and newsym().  The planning scan replays the same turn against
     // the live display afterwards, so a dry run must produce neither.
@@ -3698,7 +3698,7 @@ export async function postmov(
         // for a shopkeeper that moved.
         if (monster.isshk) await after_shk_move(monster, state, {
             message,
-            random: random.rn2,
+            random,
         });
     }
     return outcome;
@@ -3739,7 +3739,7 @@ export async function m_move(monster, rawEnv = {}) {
     // as well as rn2, and a fallback narrower than the call graph raises a
     // bare TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert, so
     // it would escape runSegment() and discard the segment rather than stop it.
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const resistsTrapEffect = requireMoveOperation(
         rawEnv,
         'resistsTrapEffect',
@@ -4332,7 +4332,7 @@ export async function m_move(monster, rawEnv = {}) {
 // The defender may also counterattack if conditions are met.
 export async function m_move_aggress(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     let mstatus = 0; /* M_ATTK_MISS */
 
     const mtmp2 = m_at(x, y, state);

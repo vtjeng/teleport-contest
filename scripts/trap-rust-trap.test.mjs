@@ -14,6 +14,7 @@ import {
     preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
+import { coreRandom } from '../js/rng.js';
 
 // C ref: trap.c trapeffect_rust_trap() (1594-1727), reached through
 // trapeffect_selector() (2936-2992). Character creation is completed so the
@@ -47,7 +48,7 @@ function effectEnv(state, roll) {
     const randomCalls = [];
     return {
         state,
-        random: {
+        random: { ...coreRandom,
             rn2(bound) {
                 randomCalls.push(bound);
                 return bound === 5 ? roll : 1;

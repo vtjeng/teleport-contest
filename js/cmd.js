@@ -384,7 +384,7 @@ import {
     UnsupportedWieldError,
     cantwield,
 } from './wield.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
@@ -3315,7 +3315,7 @@ async function runEngraveCommand(key, state) {
         message: ttyPline,
         redraw: newsym,
         setOccupation: set_occupation,
-        random: { rn2, rnd },
+        random: coreRandom,
         randomEngraving: ({ state: engravingState, random }) =>
             random_engraving({ state: engravingState, random }),
         yesNo: yn_function,
@@ -3677,7 +3677,7 @@ export async function domonability(state = game) {
                 'Unfortunately sound does not carry well through rock.',
                 state,
             );
-        else aggravate(state, { rn2 });
+        else aggravate(state, coreRandom);
     } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
         return dopoly(state);
     } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {

@@ -125,10 +125,7 @@ import {
 } from '../js/objects.js';
 import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
 import { HeroDeathPlanningError } from '../js/hack.js';
-import {
-    d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng,
-    rnd, rne, rnl, rnz,
-} from '../js/rng.js';
+import { coreRandom, d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
 // arithmetic the arm under test performs.
@@ -2895,7 +2892,7 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
         game.level.at(hallucX, hallucY).flags = 0;
         await zap_over_floor(
             hallucX, hallucY, 2, { value: false }, true, 0,
-            game, { rn2, rnd },
+            game, { ...coreRandom, rn2, rnd },
         );
         assert.match(game._pending_message, /You feel like (enlisting|marching|protesting|fleeing)\./u,
             'hallucinated draft uses the imported rn1 fallback with a partial bundle');

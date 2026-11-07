@@ -161,7 +161,7 @@ import {
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { aggravate } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
@@ -377,7 +377,7 @@ export function tport_spell(what, state = game) {
 // only retention is cleared, while an interrupted study context is discarded.
 export async function losespells(
     state = game,
-    { random = { rn2, rnd, rnl } } = {},
+    { random = coreRandom } = {},
 ) {
     if (typeof random.rn2 !== 'function'
         || typeof random.rnd !== 'function'
@@ -428,7 +428,7 @@ function spellPropertyActive(property, state) {
 }
 
 function randomSource(env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn1 !== 'function'
         || typeof random.rn2 !== 'function'
         || typeof random.rnd !== 'function') {
@@ -1923,7 +1923,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     case SPE_CREATE_FAMILIAR:
         await make_familiar(null, state.u.ux, state.u.uy, false, {
             ...env,
-            random: { d, rn1, rn2, rnd, rne, rnz, ...random },
+            random: random ?? coreRandom,
             state,
         });
         break;
@@ -2035,7 +2035,7 @@ export async function cast_chain_lightning(state = game, env = {}) {
                 // C BZ_U_SPELL(AD_ELEC - 1) = 10 + AD_ELEC - 1.
                 // zhitm's armor result is unused: electricity cannot destroy it.
                 const { damage: dmg } = await zhitm(mon, 10 + AD_ELEC - 1, 2,
-                    state, { d, rn2, rnd, ...env.random }, env);
+                    state, env.random ?? coreRandom, env);
                 if (dmg) {
                     if (mon.mhp <= 0) await xkilled(mon, XKILL_GIVEMSG, state, env);
                     else {

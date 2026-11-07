@@ -87,13 +87,7 @@ import {
     in_out_region,
     visible_region_at,
 } from '../js/region.js';
-import {
-    createCoreRandom,
-    cloneIsaacContext,
-    enableRngLog,
-    getRngLog,
-    initRng,
-} from '../js/rng.js';
+import { coreRandom, createCoreRandom, cloneIsaacContext, enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
 import { in_rooms, move_update } from '../js/rooms.js';
 import {
@@ -109,6 +103,10 @@ import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
 } from './run-level-teleport-arrival.mjs';
+
+// The code under test takes a complete random set; these fixtures script
+// only its rn2().
+const rn2Set = (rn2) => ({ ...coreRandom, rn2 });
 
 async function directDochugWithGame(shopkeeper) {
     const { runDirectMonsterAction } =
@@ -1355,7 +1353,7 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             setup();
             const lines = [];
             await u_entered_shop([roomno], game, {
-                random,
+                random: rn2Set(random),
                 directDochug: directDochugWithGame,
                 message: async (line) => lines.push(line),
             });
@@ -1967,7 +1965,7 @@ test('shop-entry direct action preserves planning state and supplied RNG',
         const liveCoreBefore = structuredClone(game.coreCtx);
         await check_special_room(false, planned, {
             message: async (line) => messages.push(line),
-            random: () => 0,
+            random: rn2Set(() => 0),
             actionEnv: { planning: true, random: actionRandom },
         });
 

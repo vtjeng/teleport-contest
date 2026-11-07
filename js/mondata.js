@@ -87,7 +87,7 @@ import {
     TOOL_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom } from './rng.js';
 import { makesingular } from './fruit.js';
 import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
@@ -749,7 +749,7 @@ export function resists_magm(monster, state = game) {
 
 // C ref: mondata.c resist_conflict(). Keep the unbounded lower end of the
 // source chance: sufficiently strong monsters always resist a weak hero.
-export function resist_conflict(monster, state = game, random = { rnd }) {
+export function resist_conflict(monster, state = game, random = coreRandom) {
     if (typeof random.rnd !== 'function')
         throw new TypeError('resist_conflict random injection requires rnd');
     const resistChance = Math.min(
@@ -1465,7 +1465,7 @@ export function can_be_hatched(mnum, env = {}) {
         'can_be_hatched');
     if (!(monster.mflags1 & M.M1_OVIPAROUS)) return M.NON_PM;
 
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('can_be_hatched random injection requires rn2');
     const breederEgg = random.rn2(77) === 0;
@@ -1865,7 +1865,7 @@ function hallucinatingHero(state) {
 // may pass env.canSpotMonster to substitute its own visibility test.
 export function pronoun_gender(mtmp, pg_flags, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const override_vis = (pg_flags & PRONOUN_NO_IT) !== 0;
     const hallu_rand = (pg_flags & PRONOUN_HALLU) !== 0;
 
@@ -2098,7 +2098,7 @@ const rnd_breath_typ = Object.freeze([
     M.AD_DISN, M.AD_ELEC, M.AD_DRST, M.AD_ACID,
 ]);
 
-export function get_atkdam_type(adtyp, random = { rn2 }) {
+export function get_atkdam_type(adtyp, random = coreRandom) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('get_atkdam_type random injection requires rn2');
     if (adtyp === M.AD_RBRE)

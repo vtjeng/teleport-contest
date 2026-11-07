@@ -53,7 +53,7 @@ import {
 import { AD_DRST, PM_FOG_CLOUD } from './monsters.js';
 import { make_blinded, set_itimeout } from './potion.js';
 import { body_part } from './polyself.js';
-import { d as roll_d, rn2, rnd } from './rng.js';
+import { coreRandom, d as roll_d } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
@@ -83,7 +83,7 @@ function normalizedRegionEnv(rawEnv = {}) {
     return {
         ...rawEnv,
         state: rawEnv.state ?? game,
-        random: rawEnv.random ?? { rn2, rnd },
+        random: rawEnv.random ?? coreRandom,
         callbacks: rawEnv.callbacks ?? {},
     };
 }

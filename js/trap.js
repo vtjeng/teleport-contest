@@ -323,7 +323,7 @@ import { make_hallucinated, make_stunned, set_itimeout } from './potion.js';
 import { ice_descr, waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
+import { coreRandom, d, rn1, rn2, rnd, rnl, rn2_on_display_rng } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { dismount_steed, Punished, rider_cant_reach } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
@@ -443,7 +443,7 @@ export async function selftouch(arg, state = game, env = {}) {
 // Env object for poisoned() calls inside chest_trap and other trap functions.
 function poisonedEnv(state) {
     return {
-        random: { rn2, d, rnd, rn1 },
+        random: coreRandom,
         message: (text) => ttyPline(text, state),
         losehp: (n, knam, k_format) => losehp(n, knam, k_format, state),
         done: (how) => done(how, state),
@@ -455,7 +455,7 @@ function trapEnv(env = {}) {
     return {
         ...env,
         state: env.state ?? game,
-        random: env.random ?? { rn1, rn2, rnd, rne },
+        random: env.random ?? coreRandom,
     };
 }
 
@@ -1354,7 +1354,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
 export function rnd_nextto_goodpos(x, y, monster, rawEnv = {}) {
     const env = rawEnv && typeof rawEnv === 'object' ? rawEnv : {};
     const state = env.state ?? game;
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const directions = Array.from({ length: N_DIRS }, (_, index) => index);
     for (let count = N_DIRS; count > 0; --count) {
         const selected = random.rn2(count);
@@ -1547,7 +1547,7 @@ export async function drown(state = game) {
             u.ux,
             u.uy,
             state.youmonst,
-            { state, random: { rn2 } },
+            { state, random: coreRandom },
         )
         : null;
     if (destination) {
@@ -1627,7 +1627,7 @@ export async function lava_effects(state = game) {
     let waterWalking = heroLavaWalking(state);
     let survives = fireResistant || (waterWalking && damage < u.uhp);
     let protectedId = 0;
-    const random = { rn2, rnd, rn1, rne, d };
+    const random = coreRandom;
 
     // C marks vulnerable inventory before the first message, so a save or
     // hangup at that message still destroys the same objects.  obj_resists()
@@ -2304,15 +2304,15 @@ export async function climb_pit(state = game) {
 // uses `state`'s own stream unless the caller injects one, so a monster-turn
 // planning clone advances its copy rather than the live game's. `state` has
 // no default, and scripts/trapname-state.test.mjs requires every caller in
-// js/ to pass it.
-export function trapname(ttyp, override, state, random = { rn2 }) {
+// js/ to pass it. The display stream is its own function, never part of a
+// random set (scripts/random-source.mjs).
+export function trapname(ttyp, override, state, random = coreRandom,
+                         displayRandom = (bound) => rn2_on_display_rng(bound, state)) {
     const hallu = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (hallu?.intrinsic && !(resistance?.intrinsic || resistance?.extrinsic)
         && !override) {
         const totalNames = TRAPNUM + halu_trapnames.length;
-        const displayRandom = random.rn2_on_display_rng
-            ?? ((bound) => rn2_on_display_rng(bound, state));
         const nameidx = displayRandom(totalNames + 1);
         if (nameidx === totalNames) {
             const female = Upolyd(state) ? state.u.mfemale : state.flags.female;
@@ -3444,7 +3444,7 @@ export async function animate_statue(
     if (!statue || typeof statue !== 'object')
         throw new TypeError('animate_statue requires a statue object');
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const norepMessage = rawEnv.norepMessage ?? message;
     const objectEnv = objectGenerationEnv({
@@ -3694,7 +3694,7 @@ export async function activate_statue_trap(
 
 // C ref: trap.c b_trapped() (6694-6709), shared by trapped doors and tins.
 export async function b_trapped(item, bodypart, state = game, env = {}) {
-    const random = env.random ?? { rnd, rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const lvl = level_difficulty(state);
     const dmg = random.rnd(5 + (lvl < 5 ? lvl : 2 + Math.trunc(lvl / 2)));
@@ -3819,7 +3819,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             }
             await wake_nearby({ state });
             await losehp(Maybe_Half_Phys(d(6, 6), state), buf, KILLED_BY_AN, state);
-            await exercise(A_STR, false, state, { rn2 }, exerciseEnv);
+            await exercise(A_STR, false, state, coreRandom, exerciseEnv);
             if (costly && loss) {
                 if (insider) {
                     await ttyPline(`You owe ${loss} ${currency(loss, state)} `
@@ -3845,7 +3845,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                     false, state, poisonedEnv(state));
             else
                 await create_gas_cloud(obj.ox, obj.oy, 1, 8, { state });
-            await exercise(A_CON, false, state, { rn2 }, exerciseEnv);
+            await exercise(A_CON, false, state, coreRandom, exerciseEnv);
             break;
         case 16: case 15: case 14: case 13:
             // Poisoned needle.
@@ -3855,13 +3855,13 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             );
             await poisoned('needle', A_CON, 'poisoned needle', 10, false,
                 state, poisonedEnv(state));
-            await exercise(A_CON, false, state, { rn2 }, exerciseEnv);
+            await exercise(A_CON, false, state, coreRandom, exerciseEnv);
             break;
         case 12: case 11: case 10: case 9:
             // Fire trap.
             await dofiretrap(obj, {
                 state,
-                random: { d, rn1, rn2, rnd, rne, rnl },
+                random: coreRandom,
                 message: ttyPline,
             });
             break;
@@ -3881,7 +3881,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             }
             await destroy_items(state.youmonst, AD_ELEC, orig_dmg, {
                 state,
-                random: { d, rn1, rn2, rnd, rne, rnl },
+                random: coreRandom,
             });
             if (dmg)
                 await losehp(dmg, 'electric shock', KILLED_BY_AN, state);

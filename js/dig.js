@@ -228,7 +228,7 @@ import {
     rnd_treefruit_at,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
-import { d, rn1, rn2, rn2_on_display_rng, rne, rnl, rnd, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
     Flying,
@@ -393,10 +393,7 @@ export async function mkcavepos(
             await relocate(monster, RLOC_NOMSG, {
                 ...rawEnv,
                 state,
-                random: {
-                    d, rn1, rn2, rne, rnl, rnd, rnz,
-                    ...(rawEnv.random ?? {}),
-                },
+                random: rawEnv.random ?? coreRandom,
             });
         }
     } else if (location.typ === ROOM) {
@@ -597,7 +594,7 @@ function breakDugDoor(location) {
 export async function dig(state = game, rawEnv = {}) {
     const { u } = state;
     const digging = state.context?.digging;
-    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const weapon = state.uwep;
     const ispick = Boolean(weapon && is_pick(weapon, state));
@@ -1091,7 +1088,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
     const ispick = is_pick(obj, state);
     const verbing = ispick ? 'digging' : 'chopping';
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     let attackConsumed = false;
     if (u.uswallow) {
         const { do_attack } = await import('./uhitm.js');
@@ -1331,7 +1328,7 @@ function maybeHalfPhysical(damage, state) {
 // x-major/y-minor order, reduce ordinary pools when not forced, then preserve
 // C's short-circuit order for the three rn2() choices. This helper is impure
 // only because those choices consume the caller's random stream.
-export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
+export function fillholetyp(x, y, fillIfAny, state = game, random = coreRandom) {
     const loX = Math.max(1, x - 1);
     const hiX = Math.min(x + 1, COLNO - 1);
     const loY = Math.max(0, y - 1);
@@ -1371,10 +1368,7 @@ export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
 export async function liquid_flow(
     x, y, typ, trap, fillmsg = null, state = game, rawEnv = {},
 ) {
-    const random = {
-        d, rn1, rn2, rn2_on_display_rng, rnz, rnd, rne, rnl,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const uSpot = u_at(x, y, state);
 
@@ -1521,7 +1515,7 @@ export async function digactualhole(
     x, y, madeby, trapType, state = game, rawEnv = {},
 ) {
     const message = rawEnv.message ?? ttyPline;
-    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const location = state.level.at(x, y);
     const monster = m_at(x, y, state);
@@ -1673,7 +1667,7 @@ export async function digactualhole(
 // and cleanup order.
 async function dig_up_grave(coordinate, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     let x;
     let y;
@@ -1801,7 +1795,7 @@ export async function dighole(
 ) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const x = coordinate?.x ?? state.u.ux;
     const y = coordinate?.y ?? state.u.uy;
     if (!isok(x, y)) return false;
@@ -1942,7 +1936,7 @@ function zapDigMaybeHalfPhys(damage, state) {
 
 export async function zap_dig(
     state = game,
-    random = { rn1, rnd, rn2 },
+    random = coreRandom,
 ) {
     const u = state.u;
     if (u.uswallow) {
@@ -2220,7 +2214,7 @@ function setTerrain(location, typ, flags = 0) {
 
 export async function draft_message(unexpected, env) {
     const state = env.state;
-    const random = env.random ?? { rn1 };
+    const random = env.random ?? coreRandom;
     const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
     const hallucinating = Boolean(
         state.u?.uprops?.[HALLUC]?.intrinsic
@@ -2255,7 +2249,7 @@ export async function draft_message(unexpected, env) {
 // and redraws the changed square before the caller continues.
 export async function mdig_tunnel(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rnd: () => 1, rn2: () => 0 };
+    const random = rawEnv.random ?? coreRandom;
     const objectEnv = objectGenerationEnv({ ...rawEnv, state, random });
     const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? (() => {}));
     const message = rawEnv.planning

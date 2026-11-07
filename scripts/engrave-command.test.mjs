@@ -31,7 +31,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { M1_ANIMAL, PM_GHOUL, S_VORTEX } from '../js/monsters.js';
-import { rn2, rnd } from '../js/rng.js';
+import { coreRandom } from '../js/rng.js';
 import {
     ENGRAVE_SETUP,
     ENGRAVE_KEY,
@@ -208,10 +208,10 @@ test('doengrave returns C ECMD_FAIL when its entry predicate refuses', async () 
     assert.equal(prompted, false);
 });
 
-test('disturb_grave completes makemon with engraving callers partial RNG',
+test('disturb_grave completes makemon with the engraving command\'s random set',
     async () => {
-        // The production engraving dispatcher supplies rn2 and rnd, while
-        // makemon.c also uses d, rn1, and rne during this explicit ghoul call.
+        // The engraving dispatcher passes the complete core set, and
+        // makemon.c uses d, rn1, and rne as well during this ghoul call.
         // Reuse the established engraving startup recipe to seed the shared
         // RNG, then turn the hero's accessible square into the source grave.
         const segment = loadEngraveFingertipDustRecipe().segments[0];
@@ -225,7 +225,7 @@ test('disturb_grave completes makemon with engraving callers partial RNG',
         const messages = [];
 
         await disturb_grave(ux, uy, state, {
-            random: { rn2, rnd },
+            random: coreRandom,
             message: async (text) => messages.push(text),
             norepMessage: async (text) => messages.push(text),
         });

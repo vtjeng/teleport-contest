@@ -195,7 +195,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { visible_region_at } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
+import { coreRandom, coreRandomFor, rn2, rnd, rn2_on_display_rng } from './rng.js';
 import { hidden_gold } from './vault.js';
 import {
     MAXMCLASSES,
@@ -727,7 +727,7 @@ export async function gold_detect(scroll, state = game) {
         terrainType |= TER_MON;
     }
     await ttyPline('You feel very greedy, and sense gold!', state);
-    exercise(A_WIS, true, state, { rn2 });
+    exercise(A_WIS, true, state, coreRandom);
     await browse_map(terrainType, 'gold', state);
     await map_redisplay(state);
     return 0;
@@ -854,7 +854,7 @@ export async function food_detect(scroll, state = game) {
     } else {
         await ttyPline(`You sense ${description}.`, state);
     }
-    exercise(A_WIS, true, state, { rn2 });
+    exercise(A_WIS, true, state, coreRandom);
     await browse_map(terrainType, 'food', state);
     await map_redisplay(state);
     return 0;
@@ -1370,7 +1370,7 @@ export async function map_redisplay(state = game) {
 
 // C ref: detect.c level_distance() (1142-1173). The two randomized threshold
 // checks are kept under their exact short-circuit conditions.
-export function level_distance(where, state = game, random = { rn2 }) {
+export function level_distance(where, state = game, random = coreRandom) {
     const distance = depth(state.u.uz, state) - depth(where, state);
     const sameDungeon = state.u.uz.dnum === where.dnum;
     let result = '';
@@ -1699,7 +1699,7 @@ function glyphIsTrap(glyph) {
 // C ref: detect.c show_map_spot() (1372-1419). Confusion independently skips
 // most squares before any map state or display is changed.
 export function show_map_spot(
-    x, y, cnf, state = game, random = { rn2 },
+    x, y, cnf, state = game, random = coreRandom,
 ) {
     if (state !== game)
         throw new TypeError('show_map_spot() redraws the global game');
@@ -1740,7 +1740,7 @@ export function show_map_spot(
 // C ref: detect.c do_mapping() (1422-1444). The temporary map is browsed when
 // memory is unavailable or the hero was unconstrained for the projection.
 export async function do_mapping(state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const unconstrained = unconstrain_map(state);
     const confused = Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
     for (let x = 1; x < COLNO; ++x) {
@@ -1773,7 +1773,7 @@ function coversObjects(x, y, state) {
 // snapshotted before show_map_spot() clears remembered detections; each map
 // operation then updates the same state before the extended-detection test.
 export async function do_vicinity_map(sobj, state = game, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const ux = state.u.ux;
     const uy = state.u.uy;
@@ -2096,12 +2096,8 @@ function injectedOperation(rawEnv, name) {
 function normalizeSearchEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     // Statue activation can create a monster through trap.c animate_statue()
-    // and makemon(). Keep the full shared random interface available to that
-    // callee; explicit-search draws still use the same rn2/rnl functions.
-    const defaultRandom = state === game
-        ? { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } : {};
-    const random = rawEnv.random
-        ? { ...defaultRandom, ...rawEnv.random } : defaultRandom;
+    // and makemon(), so the set must be complete.
+    const random = rawEnv.random ?? coreRandomFor(state);
 
     const injected = new Set();
     const operation = (name, fallback) => {
@@ -2262,12 +2258,6 @@ function preflightTrap(env, trap) {
     requireOperation(env, 'message', 'an unseen trap');
     requireOperation(env, 'trapName', 'an unseen trap');
     if (hallucinating(env.state) && !env.injected.has('trapName')) {
-        if (typeof env.random.rn2_on_display_rng !== 'function') {
-            throw new TypeError(
-                'automatic search requires random.rn2_on_display_rng '
-                + 'for hallucinatory trap naming',
-            );
-        }
         if (typeof env.random.rn2 !== 'function') {
             throw new TypeError(
                 'automatic search requires random.rn2 '

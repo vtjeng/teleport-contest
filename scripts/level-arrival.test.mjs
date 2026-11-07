@@ -123,6 +123,11 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+import { coreRandom } from '../js/rng.js';
+
+// The code under test takes a complete random set; these fixtures script
+// only its rn2().
+const rn2Set = (rn2) => ({ ...coreRandom, rn2 });
 
 // dat/dungeon.lua's first two dungeons: "The Dungeons of Doom" builds down
 // from level one, "The Gnomish Mines" branches off it.
@@ -577,7 +582,7 @@ test('check_special_room handles Court and Morgue and stops later families',
     };
     await check_special_room(false, state, {
         message: async (line) => morgueMessages.push(line),
-        random: morgueRandom,
+        random: rn2Set(morgueRandom),
     });
 
     assert.deepEqual(morgueMessages, ['You have an uncanny feeling...']);
@@ -705,13 +710,13 @@ test('check_special_room handles Court and Morgue and stops later families',
             }
             courtEvents.push(`msg:${line}`);
         },
-        random: (limit) => {
+        random: rn2Set((limit) => {
             assert.equal(limit, 3);
             assert.equal(state.level.rooms[3].rtype, OROOM);
             assert.equal(state.level.flags.has_court, false);
             courtEvents.push(`rng:${limit}`);
             return 0;
-        },
+        }),
         canSeeMonster: () => true,
         // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
         canSpotMonster: () => true,
@@ -742,10 +747,10 @@ test('check_special_room handles Court and Morgue and stops later families',
         let actualDraws = 0;
         await check_special_room(false, state, {
             message: async () => {},
-            random: () => {
+            random: rn2Set(() => {
                 ++actualDraws;
                 return 0;
-            },
+            }),
             canSeeMonster: () => true,
             // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
             canSpotMonster: () => true,
@@ -770,7 +775,7 @@ test('check_special_room handles Court and Morgue and stops later families',
     const plainCourtEvents = [];
     await check_special_room(false, state, {
         message: async (line) => plainCourtEvents.push(line),
-        random: () => 1,
+        random: rn2Set(() => 1),
         canSeeMonster: () => true,
         // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
         canSpotMonster: () => true,
@@ -833,7 +838,7 @@ test('check_special_room completes the remaining C room-entry arms', async () =>
                 assert.equal(mapseen.msrooms[0].seen, 0);
                 messages.push(line);
             },
-            random: () => assert.fail('no resident monsters in this fixture'),
+            random: rn2Set(() => assert.fail('no resident monsters in this fixture')),
         });
         assert.deepEqual(messages, [expected]);
         assert.equal(state.level.rooms[0].rtype, OROOM);
@@ -851,7 +856,7 @@ test('check_special_room completes the remaining C room-entry arms', async () =>
     const blindMessages = [];
     await check_special_room(false, state, {
         message: async line => blindMessages.push(line),
-        random: () => assert.fail('no resident monsters in this fixture'),
+        random: rn2Set(() => assert.fail('no resident monsters in this fixture')),
     });
     assert.deepEqual(blindMessages, ['It feels rather humid down here.']);
     assert.equal(state.level.rooms[0].rtype, OROOM);
@@ -884,14 +889,14 @@ test('check_special_room completes the remaining C room-entry arms', async () =>
         message: async line => {
             swampEvents.push(`msg:${line}`);
         },
-        random: limit => {
+        random: rn2Set(limit => {
             assert.equal(limit, 3);
             assert.equal(state.level.rooms[0].rtype, OROOM);
             assert.equal(state.level.flags.has_swamp, false);
             assert.equal(mapseen.msrooms[0].seen, 1);
             swampEvents.push(`rng:${limit}`);
             return 0;
-        },
+        }),
         canSeeMonster: () => true,
         // x_monnam() reads canspotmon(); the mocked hero spots what it sees.
         canSpotMonster: () => true,

@@ -7,7 +7,7 @@ import { experience } from '../js/exper.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
+import { coreRandom, cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
 import { add_to_minv } from '../js/invent.js';
 import {
     adj_erinys,
@@ -363,14 +363,17 @@ test('corpse_chance divides by frequency and size', async () => {
 // pass a partial RNG object (uhitm.c mhitm_ad_curs supplies rn2/rnd), while
 // mksobj_at()'s object RNG contract also needs rn1/rne; the source function
 // fills those missing global RNG operations before creating its object.
-test('make_corpse fills missing RNG operations for a gold golem', async () => {
+test('make_corpse draws a gold golem\'s rnl(101) from the killer\'s set', async () => {
     await hero();
     enableRngLog();
     const golem = spawn(PM_GOLD_GOLEM, { mhp: 0 });
+    // The recorder scripts rn2() and rnd(); rnl(101) comes from the core RNG
+    // so that it reaches the RNG log.
     const fullEnv = killEnv();
     const env = {
         ...fullEnv,
         random: {
+            ...coreRandom,
             rn2: fullEnv.random.rn2,
             rnd: fullEnv.random.rnd,
         },

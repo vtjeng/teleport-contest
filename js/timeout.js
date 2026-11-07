@@ -215,8 +215,8 @@ import {
 import { AD_ELEC } from './monsters.js';
 import { buzz } from './zap.js';
 import { cry_sound, set_voice } from './sounds.js';
-import {
-    createCoreRandom, d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnz,
+import { coreRandom,
+    createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 
@@ -399,10 +399,7 @@ export class UnsupportedHeroTimeoutBoundaryError extends Error {
 export async function hatch_egg(egg, timeout, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const random = {
-        d, rn1, rn2, rnd, rne, rnz,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const env = {
         ...rawEnv,
         state,
@@ -778,7 +775,7 @@ function deaf(state) {
 // observe the same post-decrement value and all movement draws stay in C order.
 export async function slip_or_trip(state = game, env = {}) {
     const u = state.u;
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const displayEnv = {
         ...env,
@@ -1001,7 +998,7 @@ const slimeTexts = Object.freeze([
 ]);
 
 async function slime_dialogue(state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const displayRandom = env.displayRandom
         ?? (state === game
             ? rn2_on_display_rng
@@ -1077,7 +1074,7 @@ const sicknessTexts = Object.freeze([
 ]);
 
 export async function sickness_dialogue(state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const urgentMessage = env.urgentMessage
@@ -1156,7 +1153,7 @@ const chokeTexts2 = Object.freeze([
 ]);
 
 export async function choke_dialogue(state, env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const intrinsic = state.u?.uprops?.[STRANGLED]?.intrinsic ?? 0;
@@ -1203,7 +1200,7 @@ const vomitingTexts = Object.freeze([
 ]);
 
 async function vomiting_dialogue(state, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const encumberMessage = (subject) => encumber_msg(subject, { message });
     const timeout = Math.trunc(
@@ -1291,7 +1288,7 @@ const stonedTexts = Object.freeze([
 export async function stoned_dialogue(state = game, env = {}) {
     const u = state.u;
     const i = u.uprops[STONED].intrinsic & TIMEOUT;
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const urgentMessage = env.urgentMessage
@@ -1495,7 +1492,7 @@ export function nh_timeout_requires_live_state(state = game) {
 // decrement and delayed-killer lookup, including properties with no case.
 async function decrement_property_timeouts(state, env) {
     const u = state.u;
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     // timeout.c:735-790 call stop_occupation() and fall_asleep(), whose
     // "You stop %s." line needs the same message() as this function's own.
@@ -1765,7 +1762,7 @@ async function decrement_property_timeouts(state, env) {
 // Each skipped discarded-return call records its source owner; no invented
 // state or random draw stands in for those unported callees.
 export async function nh_timeout(state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const u = state.u;
     const displayEnv = {
@@ -2732,14 +2729,14 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
 }
 
 function timeoutEnv(env = {}) {
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     if (typeof random.rn2 !== 'function' || typeof random.rnd !== 'function')
         throw new TypeError('timeout random injection requires rn2 and rnd');
     return { state: env.state ?? game, random };
 }
 
 function corpseTimerEnv(env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd, rnz };
+    const random = env.random ?? coreRandom;
     for (const name of ['rn1', 'rn2', 'rnz']) {
         if (typeof random[name] !== 'function')
             throw new TypeError(`corpse timer random injection requires ${name}`);

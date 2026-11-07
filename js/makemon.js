@@ -78,7 +78,7 @@ import { next_ident } from './obj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS } from './objects.js';
 import { create_particular } from './read.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom, rn2, rnd } from './rng.js';
 import { shkname } from './shknam.js';
 import {
     G_FREQ,
@@ -161,52 +161,12 @@ function generationState(env = {}) {
 
 function generationEnv(env = {}) {
     const state = generationState(env);
-    const random = env.random ?? { d, rn1, rn2, rnd };
-    // Every selection path needs rn2. rndmonnum's fallback can synthesize rn1
-    // from it; a missing rnd is tolerated unless a path reaches mkclass(),
-    // which requires it (including a rejected fixed Quest enemy's fallback).
-    if (typeof random.rn2 !== 'function')
-        throw new TypeError('monster random injection requires rn2');
-    const randomOneBased = typeof random.rnd === 'function' ? random.rnd : null;
-    const sourceRandom = {
-        rn2: random.rn2,
-        rn1: typeof random.rn1 === 'function'
-            ? random.rn1
-            : (range, base) => random.rn2(range) + base,
-        rnd: randomOneBased,
-        d: typeof random.d === 'function'
-            ? random.d
-            : randomOneBased && ((number, sides) => {
-                let total = 0;
-                for (let die = 0; die < number; ++die)
-                    total += randomOneBased(sides);
-                return total;
-            }),
-    };
-    return { ...env, state, random: sourceRandom };
+    return { ...env, state, random: env.random ?? coreRandom };
 }
 
 function hitPointEnv(env = {}) {
     const state = generationState(env);
-    const random = env.random ?? { d, rnd };
-    const randomOneBased = typeof random.rnd === 'function'
-        ? random.rnd
-        : null;
-    return {
-        ...env,
-        state,
-        random: {
-            rnd: randomOneBased,
-            d: typeof random.d === 'function'
-                ? random.d
-                : randomOneBased && ((number, sides) => {
-                    let total = 0;
-                    for (let die = 0; die < number; ++die)
-                        total += randomOneBased(sides);
-                    return total;
-                }),
-        },
-    };
+    return { ...env, state, random: env.random ?? coreRandom };
 }
 
 function currentSpecialLevel(state) {
@@ -367,7 +327,7 @@ export function adj_lev(monster, state = game) {
 // null for a gain-level potion, killer-bee jelly and wraith-corpse growth.
 export async function grow_up(mtmp, victim, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     let ptr = mtmp.data;
 
@@ -489,14 +449,7 @@ export async function grow_up(mtmp, victim, env = {}) {
 // rawEnv carries the planning RNG and redraw seam when a clone is made during
 // an isolated monster turn; ordinary callers retain the live defaults.
 export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        rne,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const redraw = typeof rawEnv.redraw === 'function'
         ? rawEnv.redraw
         : rawEnv.planning
@@ -696,10 +649,7 @@ export async function create_critters(cnt, mptr, neverask, state = game,
     // makemon.c:makemon() completes an asynchronous runtime tail after its
     // constructor. Keep a complete wrapper bundle for that consumed pointer
     // result while allowing source callers to inject the effect's RNG.
-    const random = {
-        d, rn1, rn2, rnd, rne,
-        ...(env.random ?? {}),
-    };
+    const random = env.random ?? coreRandom;
 
     while (cnt-- > 0) {
         if (ask) {
@@ -797,7 +747,7 @@ export function golemhp(mndx) {
 // riders; riders use the normal d8.
 export function monhp_per_lvl(mon, env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rnd, rn2 };
+    const random = env.random ?? coreRandom;
     const ptr = mon.data;
     let hp = random.rnd(8); /* default is d8 */
 

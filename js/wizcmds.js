@@ -72,7 +72,7 @@ import { keepdogs, migrate_to_level } from './dog.js';
 import { AD_PHYS, G_UNIQ, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { load_lua } from './nhlua.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import {
     cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function, ynq,
 } from './cmd.js';
@@ -555,7 +555,7 @@ function wizardIntrinsicMenuSpec(state) {
 // property_by_index() order, and each selected value follows its source arm;
 // potion.c make_stoned() owns the delayed-killer state for STONED.
 export async function wiz_intrinsic(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const encumberMessage = rawEnv.encumberMessage
         ?? ((subject) => encumber_msg(subject, { message }));
@@ -943,7 +943,7 @@ export async function wiz_kill(state = game, env = {}) {
     // Canonical death owners pass this family into object creation and timers.
     // In particular, rnz must retain its own recorder-visible wrapper entry.
     const killEnv = { ...env, state, message,
-        random: { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) },
+        random: env.random ?? coreRandom,
         unsupported: env.unsupported
             ?? (reason => note_unported(reason === "the death of the hero's steed"
                 ? 'steed.c dismount_steed' : `mon.c ${reason}`)),

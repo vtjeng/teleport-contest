@@ -426,7 +426,7 @@ import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
-import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
+import { coreRandom, d, rn2, rnd } from './rng.js';
 import {
     autoreturn_weapon, dmgval, dry_a_towel, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
@@ -722,10 +722,7 @@ function mhurtleTrapEnvironment(rawEnv, state) {
     return {
         ...rawEnv,
         state,
-        random: {
-            d, rn1, rn2, rnd, rne, rnl,
-            ...(rawEnv.random ?? {}),
-        },
+        random: rawEnv.random ?? coreRandom,
         mInAir: rawEnv.mInAir ?? m_in_air,
         heroDeaf: rawEnv.heroDeaf ?? Deaf,
         youHear: rawEnv.youHear ?? youHear,
@@ -887,10 +884,7 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
     const movementEnv = {
         ...env,
         state,
-        random: {
-            d, rn1, rn2, rnd, rne, rnl,
-            ...(random ?? {}),
-        },
+        random: random ?? coreRandom,
     };
     await walk_path(source, destination, mhurtle_step, {
         monster,
@@ -918,7 +912,7 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
 export async function hurtle_step(arg, x, y) {
     const state = arg?.state ?? game;
     const planning = Boolean(arg?.planning);
-    const random = arg?.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const random = arg?.random ?? coreRandom;
     const message = planning ? async () => {} : ttyPline;
     const norepMessage = planning ? async () => {} : ttyNorep;
     const redraw = planning ? () => {} : newsym;
@@ -1094,7 +1088,7 @@ export async function hurtle_step(arg, x, y) {
         await switch_terrain(state, { planning, message });
     await check_special_room(false, state, {
         message,
-        random: random.rn2,
+        random,
     });
 
     if (is_pool(x, y, state) && !state.u.uinwater) {
@@ -1156,10 +1150,8 @@ export async function hurtle_step(arg, x, y) {
             return true;
         } else if (trap.tseen) {
             await message(
-                `You pass right over ${an(trapname(trap.ttyp, false, state, {
-                    rn2: random.rn2,
-                    rn2_on_display_rng: arg?.displayRandom ?? undefined,
-                }))}.`, state,
+                `You pass right over ${an(trapname(trap.ttyp, false, state, random,
+                    arg?.displayRandom ?? undefined))}.`, state,
             );
         }
     }
@@ -1178,7 +1170,7 @@ export function should_mulch_missile(obj, state = game, env = {}) {
         || objectType(obj, state).oc_magic)) {
         return false;
     }
-    const random = { rn2, rnl, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const chance = 3 + greatest_erosion(obj) - Math.trunc(obj.spe ?? 0);
     let broken = chance > 1
         ? random.rn2(chance) !== 0
@@ -1248,7 +1240,7 @@ export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {})
 // C ref: dothrow.c toss_up() (1256-1431). A vertically thrown object either
 // breaks against the ceiling, hits the hero, or comes back down harmlessly.
 export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
-    const random = { d, rn1, rn2, rnd, ...(rawEnv.random ?? {}) };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     const u = state.u;
     state.gt ??= {};
@@ -1682,7 +1674,7 @@ async function check_shop_obj(obj, x, y, broken, state = game, rawEnv = {}) {
 // gate precedes species selection and creation; feedback precedes peacefulness.
 export async function release_camera_demon(obj, x, y, env = {}) {
     const state = env.state ?? game;
-    const random = { d, rn1, rn2, rnd, rne, ...env.random };
+    const random = env.random ?? coreRandom;
     const message = env.planning ? async () => {} : (env.message ?? ttyPline);
     if (!random.rn2(3)) {
         const species = random.rn2(3) ? PM_HOMUNCULUS : PM_IMP;
@@ -1715,7 +1707,7 @@ export async function breakobj(
 ) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const random = rawEnv.random ?? { rn2, rnd, d };
+    const random = rawEnv.random ?? coreRandom;
     const objectEnv = objectGenerationEnv({
         ...rawEnv,
         state,
@@ -1750,7 +1742,7 @@ export async function breakobj(
         if (obj.otyp === POT_OIL && obj.lamplit) {
             await explode_oil(obj, x, y, state, {
                 ...objectEnv,
-                random: { d, rn1, rn2, rnl, rnd, rne, ...random },
+                random: random ?? coreRandom,
                 message,
             });
             if (state.program_state?.gameover) return 1;
@@ -2520,7 +2512,7 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
 // the target's real name when it is not a valid visible monster appearance.
 async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const missile = mshot_xname(obj, state);
     if (!canseemon(mon, state)
         || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
@@ -2565,7 +2557,7 @@ export async function throwit_mon_hit(mon, obj, state = game) {
 // the object while relocating. The inventory and teleport owners are called
 // through their existing source APIs so their lifecycle checks remain active.
 async function gem_accept(mon, obj, state = game, rawEnv = {}) {
-    const env = { ...rawEnv, state, random: rawEnv.random ?? { rn2, rnd } };
+    const env = { ...rawEnv, state, random: rawEnv.random ?? coreRandom };
     const message = env.message ?? ttyPline;
     const type = objectType(obj, state);
     const isBuddy = sgn(mon.data.maligntyp ?? 0)
@@ -2687,7 +2679,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             `You have so little stamina, ${the(xnameFresh(obj, state), state)}`
             + ' drops from your grasp.', state,
         );
-        await exercise(A_CON, false, state, { rn2 },
+        await exercise(A_CON, false, state, coreRandom,
             { encumberMessage: encumber_msg });
         u.dx = 0;
         u.dy = 0;
@@ -2746,7 +2738,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         if (state.program_state?.gameover) return;
         state.iflags.returning_missile = null;
         if (mon === state.youmonst) {
-            await exercise(A_DEX, true, state, { rn2 });
+            await exercise(A_DEX, true, state, coreRandom);
             obj = await return_throw_to_inv(
                 obj, wep_mask, twoweap, oldslot, state,
             );
@@ -2986,10 +2978,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     // thitmonst() itself draws rnd(20) and rnd(25), but it hands this set to
     // hmon(), whose kill path reaches mon.c xkilled()'s treasure drop and
-    // mkobj.c mkobj(). C draws all of those from the one global RNG, so the
-    // default is the complete module family rather than this function's own
-    // three operations.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    // mkobj.c mkobj(). C draws all of those from the one global RNG.
+    const random = env.random ?? coreRandom;
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     // Existing partial owners may still report an unported discarded or
     // impossible branch. Keep this source function running so such a gap
@@ -3337,7 +3327,7 @@ export function impact_disturbs_zombies(obj, violent, state = game) {
 // thrown. Called from ohitmon() (mthrowu.c) and thitmonst() (dothrow.c).
 export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? coreRandom;
     let tmp = 0;
 
     /* size of target affects the chance of hitting */

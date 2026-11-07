@@ -30,7 +30,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     WOOD,
 } from './objects.js';
-import { rn1, rn2, rnd, rne } from './rng.js';
+import { coreRandom } from './rng.js';
 
 import { unpunish } from './read.js';
 import { o_unleash } from './apply.js';
@@ -48,14 +48,8 @@ import {
     is_ice,
 } from './dbridge.js';
 
-// C draws every burial number from the core RNG. bury_an_obj() forwards this
-// default to obj_extract_self(), whose weight preflight for a contained object
-// (dig.c rot_organic() burying a container's contents) accepts only the full
-// rn2/rnd/rn1/rne family; goto_level()'s run_timers() injects none.
-const SOURCE_RANDOM = Object.freeze({ rn1, rn2, rnd, rne });
-
 function burialEnvironment(rawEnv = {}, randomNames = ['rn2']) {
-    const random = rawEnv.random ?? SOURCE_RANDOM;
+    const random = rawEnv.random ?? coreRandom;
     for (const name of randomNames) {
         if (typeof random[name] !== 'function')
             throw new TypeError(`burial random injection requires ${name}()`);

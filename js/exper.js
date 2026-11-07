@@ -34,7 +34,7 @@ import {
     PM_WIZARD,
     S_EEL,
 } from './monsters.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn2 } from './rng.js';
 import { Goodbye } from './role_init.js';
 import { monhp_per_lvl } from './makemon.js';
 import { ttyPline } from './tty_message.js';
@@ -163,7 +163,7 @@ function enermod(energy, role) {
 }
 
 // C ref: exper.c newpw().
-export function newpw(state = game, random = { rn1, rnd }) {
+export function newpw(state = game, random = coreRandom) {
     const u = state?.u;
     const role = state?.urole;
     const race = state?.urace;
@@ -370,7 +370,7 @@ export async function pluslvl(incr, state = game, env = {}) {
     const message = env.message;
     if (typeof message !== 'function')
         throw new TypeError('pluslvl needs a message owner');
-    const random = env.random ?? { rn1, rnd };
+    const random = env.random ?? coreRandom;
     const u = state.u;
 
     if (!incr)
@@ -381,8 +381,7 @@ export async function pluslvl(incr, state = game, env = {}) {
     if (Upolyd(u)) {
         const hpinc = monhp_per_lvl(state.youmonst, {
             state,
-            random: { rn1: random.rn1 ?? rn1, rn2: random.rn2 ?? rn2,
-                rnd: random.rnd ?? rnd },
+            random,
         });
         u.mh += hpinc;
         setuhpmax(u.mhmax, false, state);

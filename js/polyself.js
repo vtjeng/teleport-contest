@@ -249,7 +249,7 @@ import {
     VORTEX_PARTS,
     WORM_PARTS,
 } from './polyself_bodyparts.js';
-import { rn1, rn2, rnd, rne, rnl, d, rn2_on_display_rng } from './rng.js';
+import { coreRandom, rn1, rn2, rnd, d, rn2_on_display_rng } from './rng.js';
 import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
 import { newpw, rndexp } from './exper.js';
@@ -716,13 +716,7 @@ async function dropp(obj, state, rawEnv = {}) {
 // do_wear.js, so this owner supplies their source-order polymorph context and
 // drops each object only after its worn slot has been updated.
 async function break_armor(state, rawEnv = {}) {
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnd,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const env = { ...rawEnv, state, random, message };
@@ -761,7 +755,7 @@ async function break_armor(state, rawEnv = {}) {
             cancelDonning(otmp);
             await endBurn(otmp);
             await message('You break out of your armor!', state, env);
-            await exercise(A_STR, false, state, { rn2: random.rn2 }, {
+            await exercise(A_STR, false, state, random, {
                 encumberMessage: (target) => encumber_msg(target, { message }),
             });
             await Armor_gone(state, env);
@@ -991,14 +985,7 @@ async function drop_weapon(alone, state, rawEnv = {}) {
 // monster type in source order, including prior-form capture, post-form
 // property cleanup, escape from holders/terrain, and the command hints.
 export async function polymon(mntmp, state = game, rawEnv = {}) {
-    const random = {
-        d,
-        rn1,
-        rn2,
-        rnl,
-        rnd,
-        ...(rawEnv.random ?? {}),
-    };
+    const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const redraw = rawEnv.redraw
@@ -1015,7 +1002,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     if ((state.svm.mvitals[mntmp].mvflags & G_GENOD) !== 0) {
         const pm_name = pmname(mdat, state.flags?.female ? FEMALE : MALE);
         await message(`You feel rather ${pm_name}-ish.`, state, env);
-        await exercise(A_WIS, true, state, { rn2: random.rn2 });
+        await exercise(A_WIS, true, state, random);
         return 0;
     }
 
@@ -1031,9 +1018,9 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     u.uconduct.polyselfs = (u.uconduct.polyselfs || 0) + 1;
 
     // exercise: C does CON then WIS at polyself.c:758-759
-    await exercise(A_CON, false, state, { rn2: random.rn2 },
+    await exercise(A_CON, false, state, random,
         { encumberMessage: (target) => encumber_msg(target, { message }) });
-    await exercise(A_WIS, true, state, { rn2: random.rn2 });
+    await exercise(A_WIS, true, state, random);
 
     if (!Upolyd(u)) {
         // Human to monster; save human stats
@@ -1736,7 +1723,7 @@ export async function polyself(psflags, state = game, env = {}) {
         await losehp(rnd(30), 'system shock', KILLED_BY_AN, state);
         // C's done() never returns after a fatal shock; JS marks gameover.
         if (state.program_state?.gameover) return;
-        await exercise(A_CON, false, state, { rn2 }, {
+        await exercise(A_CON, false, state, coreRandom, {
             encumberMessage: encumber_msg,
         });
         return;
@@ -2233,11 +2220,11 @@ export async function dobreathe(state = game) {
         // C: impossible("bad breath attack?");
         throw new Error('impossible: bad breath attack?');
     } else if (!state.u.dx && !state.u.dy && !state.u.dz) {
-        await ubreatheu(mattk, state, { d, rn1, rn2, rnd, rne, rnl });
+        await ubreatheu(mattk, state, coreRandom);
     } else {
         await ubuzz(
             BZ_U_BREATH(BZ_OFS_AD(mattk.adtyp)), mattk.damn,
-            state, { d, rn1, rn2, rnd, rne, rnl },
+            state, coreRandom,
         );
     }
     return ECMD_TIME;
@@ -2372,7 +2359,7 @@ export async function dospinweb(state = game) {
         await ttyPline('You cannot spin webs while stuck in a trap.', state);
         return ECMD_OK;
     }
-    await exercise(A_DEX, true, state, { rn2 });
+    await exercise(A_DEX, true, state, coreRandom);
     if (ttmp) {
         switch (ttmp.ttyp) {
         case PIT:
@@ -2466,7 +2453,7 @@ export async function dosummon(state = game) {
     state.disp.botl = true;
 
     await ttyPline('You call upon your brethren for help!', state);
-    await exercise(A_WIS, true, state, { rn2 });
+    await exercise(A_WIS, true, state, coreRandom);
     if (!await were_summon(state.youmonst.data, true, placeholder, null, state))
         await ttyPline('But none arrive.', state);
     return ECMD_TIME;
@@ -2585,9 +2572,9 @@ export async function dogaze(state = game) {
                     }
                     if (lev > rn2(20)) {
                         dmg += await destroy_items(mtmp, M.AD_FIRE, orig_dmg,
-                            { state, random: { d, rn1, rn2, rnd, rne, rnl } });
+                            { state, random: coreRandom });
                         await ignite_items(mtmp.minvent,
-                            { state, random: { d, rn1, rn2, rnd, rne, rnl } });
+                            { state, random: coreRandom });
                     }
                     if (dmg)
                         mtmp.mhp -= dmg;
@@ -2872,7 +2859,7 @@ export function poly_gender(state = game) {
 // form's maximum.
 export async function ugolemeffects(damtype, dam, state = game, env = {}) {
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? coreRandom;
     const u = state.u;
     let heal = 0;
 

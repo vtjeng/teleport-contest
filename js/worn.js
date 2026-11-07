@@ -170,7 +170,7 @@ import { can_ride } from './steed.js';
 import { m_useup } from './mthrowu.js';
 import { surface } from './dungeon.js';
 import { youHear } from './monmove.js';
-import { rnl } from './rng.js';
+import { coreRandom } from './rng.js';
 import { discover_object } from './o_init.js';
 import { note_unported } from './unported.js';
 import {
@@ -1309,7 +1309,7 @@ function mon_break_armor_has_effect(monster, state) {
 async function mon_break_armor_effects(monster, polyspot, env, pronoun, possessive) {
     const { state } = env;
     const message = env.message ?? ttyPline;
-    const random = { rnl, ...(env.random ?? {}) };
+    const random = env.random ?? coreRandom;
     const data = monster.data;
     const visible = cansee(monster.mx, monster.my, state);
     const handlessOrTiny = nohands(data) || verysmall(data);

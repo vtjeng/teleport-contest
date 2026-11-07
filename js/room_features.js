@@ -24,14 +24,14 @@ import {
     weight,
 } from './obj.js';
 import { BELL, GOLD_PIECE, RANDOM_CLASS } from './objects.js';
-import { rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { coreRandom } from './rng.js';
 import { set_levltyp } from './terrain.js';
 
 function roomFeatureEnv(rawEnv = {}) {
     return objectGenerationEnv({
         ...rawEnv,
         state: rawEnv.state ?? game,
-        random: rawEnv.random ?? { rn1, rn2, rnd, rne, rnz },
+        random: rawEnv.random ?? coreRandom,
     });
 }
 

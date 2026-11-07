@@ -138,7 +138,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { body_part } from './polyself.js';
 import { strange_feeling } from './potion.js';
-import { rn2, rnd } from './rng.js';
+import { coreRandom, rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { instapetrify } from './trap.js';
 import {
@@ -454,7 +454,7 @@ export async function chwepon(otmp, amount, state = game) {
                 + `${amount >= 0 ? 'twitch' : 'itch'}.`;
         }
         await strange_feeling(otmp, text, state);
-        await exercise(A_DEX, amount >= 0, state, { rn2 });
+        await exercise(A_DEX, amount >= 0, state, coreRandom);
         return 0;
     }
 
@@ -476,7 +476,7 @@ export async function chwepon(otmp, amount, state = game) {
         if (uwep.cursed) await uncurse(uwep, { state });
         if (uwep.unpaid) alter_cost(uwep, 0, state);
         if (otyp !== STRANGE_OBJECT)
-            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+            discover_object(otyp, true, true, true, state, { random: coreRandom });
         if (multiple) await encumber_msg(state);
         return 1;
     } else if (uwep.otyp === CRYSKNIFE && amount < 0) {
@@ -494,7 +494,7 @@ export async function chwepon(otmp, amount, state = game) {
             uwep.owt = weight(uwep, { state });
         }
         if (otyp !== STRANGE_OBJECT && otmp.bknown)
-            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+            discover_object(otyp, true, true, true, state, { random: coreRandom });
         if (multiple) await encumber_msg(state);
         return 1;
     }
@@ -542,7 +542,7 @@ export async function chwepon(otmp, amount, state = game) {
         );
         if (otyp !== STRANGE_OBJECT && uwep.known
             && (amount > 0 || (amount < 0 && otmp.bknown))) {
-            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+            discover_object(otyp, true, true, true, state, { random: coreRandom });
         }
     }
 
