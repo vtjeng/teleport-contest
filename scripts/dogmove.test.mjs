@@ -1737,9 +1737,9 @@ test('dog_move reports a cursed landing seen before movement', async () => {
     assert.deepEqual(cursedChecks, [[destination.x, destination.y]]);
     // C calls canseemon() once before place_monster() and again after it only
     // when the first answered FALSE, so a pet seen at its origin asks once.
+    // noit_Monnam() tests canspotmon(), not this canseemon() operation.
     assert.deepEqual(events, [
         'see:5,5',
-        'see:6,5',
         'report:6,5',
     ]);
     // This state sets no level.flags.hero_memory, so dogmove.c:1302 keeps o at

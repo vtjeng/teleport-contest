@@ -220,6 +220,7 @@ export async function check_special_room(
         message = ttyPline,
         random = rn2,
         canSeeMonster = null,
+        canSpotMonster = null,
         actionEnv = {},
     } = {},
 ) {
@@ -407,6 +408,7 @@ export async function check_special_room(
                             state,
                             message,
                             canSeeMonster,
+                            ...(canSpotMonster ? { canSpotMonster } : {}),
                         });
                         monster.msleeping = false;
                     }
