@@ -451,6 +451,20 @@ export function newclipping(x, y, state = game, env = {}) {
     }
 }
 
+// C ref: wintty.c tty_clear_nhwindow() NHW_MAP arm (1074-1088): set
+// disp.botlx and erase the whole terminal with term_clear_screen(), whose
+// erase_tty_screen() leaves BASE_WINDOW's cursor on row 0. dungeon.c
+// init_dungeons() calls it once the windows exist, which is what erases the
+// startup banner before mklev()'s first prompt.
+export function tty_clear_map_window(state = game) {
+    state.disp ??= {};
+    state.disp.botlx = true;
+    const display = state.nhDisplay;
+    if (!display?.grid) return;
+    display.clearScreen();
+    if (state._ttyBaseCursorRow !== undefined) state._ttyBaseCursorRow = 0;
+}
+
 // C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()
 // on every status row, spaces in the window's data, and disp.botlx. The
 // port's status window contents are the cached layouts the screen rebuild
