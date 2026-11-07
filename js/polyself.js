@@ -859,7 +859,7 @@ async function break_armor(state, rawEnv = {}) {
                 env,
             );
             await drop_weapon(0, state, env);
-            await Gloves_off(state);
+            await Gloves_off(state, env);
             await dropp(otmp, state, env);
         }
         if ((otmp = state.uarms) != null) {
@@ -888,7 +888,7 @@ async function break_armor(state, rawEnv = {}) {
                 state,
                 env,
             );
-            await Boots_off(state);
+            await Boots_off(state, env);
             // C polyself.c:1290-1292. Boots_off can enter spoteffects() for
             // water-walking boots; lava_effects() reaches done(BURNING), a
             // non-returning C call.  The JS finalizer marks gameover and
@@ -904,7 +904,7 @@ async function break_armor(state, rawEnv = {}) {
             state,
             env,
         );
-        await Blindf_off(null, state);
+        await Blindf_off(null, state, env);
         await dropp(otmp, state, env);
     }
 }

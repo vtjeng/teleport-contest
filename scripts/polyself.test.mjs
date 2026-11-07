@@ -58,6 +58,7 @@ import {
     DAGGER,
     GRAY_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
+    LEVITATION_BOOTS,
     STRANGE_OBJECT,
     T_SHIRT,
     WATER_WALKING_BOOTS,
@@ -595,4 +596,82 @@ test('headless polymorph removes eyewear through Blindf_off before dropping it',
     assert.ok(!replay.getScreens().some(screen =>
         screen.includes('You were wearing a blindfold.')),
         'the source NULL call skips the usual removal message');
+});
+
+test('planned break_armor routes levitation-boot removal through the caller env',
+    async () => {
+    // polyself.c:1282-1293: a nohands form pushes the boots off and calls
+    // Boots_off(), whose LEVITATION_BOOTS arm (do_wear.c:300-312) reaches
+    // float_down() when no other source keeps the hero aloft.  A planning
+    // polymon() must hand its env to Boots_off(), so the landing stops the dry
+    // run at requestPlanningInput() instead of printing on the live TTY.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    // Worn levitation boots are the only armor and the only levitation
+    // source, so the boots arm is the one break_armor() reaches and
+    // float_down() is not skipped by another intrinsic or extrinsic.
+    const boots = {
+        oclass: ARMOR_CLASS,
+        otyp: LEVITATION_BOOTS,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_ARMF,
+        nobj: null,
+    };
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg', 'uarmu'])
+        game[slot] = null;
+    game.invent = boots;
+    game.uwep = null;
+    game.uswapwep = null;
+    game.uarmf = boots;
+    for (const index of [LEVITATION, FLYING]) {
+        game.u.uprops[index].intrinsic = 0;
+        game.u.uprops[index].extrinsic = 0;
+        game.u.uprops[index].blocked = 0;
+    }
+    game.u.uprops[LEVITATION].extrinsic = W_ARMF;
+    game.iflags.in_lava_effects = 0;
+    game.flags.verbose = false;
+    game.gs.sex_change_ok = false;
+    const liveLines = [];
+    const liveMessage = game.nhDisplay.putstr_message?.bind(game.nhDisplay);
+    if (liveMessage) {
+        game.nhDisplay.putstr_message = (line, ...rest) => {
+            liveLines.push(line);
+            return liveMessage(line, ...rest);
+        };
+    }
+    const lines = [];
+    const requests = [];
+    const stop = new Error('planning replay boundary');
+    const env = {
+        planning: true,
+        message: async (line) => { lines.push(line); },
+        redraw: () => {},
+        requestPlanningInput: (operation) => {
+            requests.push(operation);
+            throw stop;
+        },
+    };
+    // Giant ant is M1_NOHANDS and MZ_TINY, so polyself.c:1282 takes the boots
+    // arm and polyself.c:1287 picks the verysmall "slide" wording.
+    await assert.rejects(() => polymon(PM_GIANT_ANT, game, env),
+        (error) => error === stop);
+    assert.deepEqual(requests, ['trap.c float_down'],
+        'Boots_off asks the planner to replay float_down() live');
+    assert.ok(lines.includes('Your boots slide off your feet!'),
+        'break_armor prints through the planning message seam');
+    assert.deepEqual(liveLines, [],
+        'no planned message reaches the live TTY');
+    assert.equal(game.u.uprops[LEVITATION].extrinsic & W_ARMF, 0,
+        'setworn() already cleared the boots\' levitation source');
 });
