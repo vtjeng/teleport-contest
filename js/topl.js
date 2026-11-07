@@ -50,6 +50,11 @@ export function remember_topl(state = game) {
     cw.datlen ??= Array(rows).fill(0);
     const idx = cw.maxrow ?? 0;
     cw.data[idx] = text;
+    // An entry copied from hooked_tty_getlin()'s gt.toplines holds no
+    // update_topl() newlines, so redotoplin() later wraps it at the
+    // terminal edge; see toplineRows().
+    cw.unsplit ??= Array(rows).fill(false);
+    cw.unsplit[idx] = text === state._ttyUnsplitToplines;
     // C pads the allocation size to a multiple of eight, including a full
     // eight bytes when the terminator already lands on a multiple of eight.
     const byteLength = new TextEncoder().encode(`${text}\0`).length;
@@ -197,12 +202,14 @@ function rememberSuppressedMessage(state, message, columns) {
 // history entry remember_topl() later copies from it, at the terminal edge,
 // splitting words.  JavaScript keeps every top line unsplit and records the
 // last copy getline wrote in state._ttyUnsplitToplines; text equal to that
-// copy is laid out without the update_topl() split.  An entry from an
-// earlier getlin is laid out as an update_topl() line, which differs from C
-// only when it is at least CO bytes long.
-export function toplineRows(text, columns, state = game) {
+// copy is laid out without the update_topl() split.  remember_topl() marks
+// a history entry copied from such a line; redotoplin() takes that mark as
+// `unsplit` and keeps the text it painted that way in _ttyUnsplitRedo, so a
+// later repaint of the pending line keeps the same layout.
+export function toplineRows(text, columns, state = game, unsplit = undefined) {
     const line = String(text ?? '');
-    if (!line || line !== state._ttyUnsplitToplines)
+    if (!line || !(unsplit ?? (line === state._ttyUnsplitToplines
+        || line === state._ttyUnsplitRedo)))
         return wrapTtyTopline(line, columns);
     // topl_putsym() wraps when curx reaches CO - 1.
     const width = Math.max(1, columns - 1);
@@ -213,7 +220,7 @@ export function toplineRows(text, columns, state = game) {
 }
 
 // C ref: topl.c redotoplin().  Wrapped text invokes more() after painting.
-export async function redotoplin(text, state = game) {
+export async function redotoplin(text, state = game, unsplit = undefined) {
     const display = state.nhDisplay;
     if (!display) return;
     const oldToplin = display.toplin;
@@ -222,7 +229,8 @@ export async function redotoplin(text, state = game) {
     // the same bytes on its terminal.
     state._pending_message = text;
     display.topMessage = text;
-    const lines = toplineRows(text, display.cols, state);
+    state._ttyUnsplitRedo = unsplit ? text : null;
+    const lines = toplineRows(text, display.cols, state, unsplit);
     for (let row = 0; row < lines.length && row < display.rows; ++row) {
         display.setCursor(0, row);
         for (let col = 0; col < lines[row].length && col < display.cols; ++col)
@@ -446,7 +454,8 @@ export async function tty_doprev_message(state = game) {
                     if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
                 } else if (cw.maxcol === cw.maxrow - 1) {
                     display.dismiss_more = CTRL_P;
-                    await redotoplin(cw.data[cw.maxcol], state);
+                    await redotoplin(cw.data[cw.maxcol], state,
+                        cw.unsplit?.[cw.maxcol]);
                     cw.maxcol = (cw.maxcol + historyRows(state) - 1) % historyRows(state);
                     if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
                 } else {
@@ -468,7 +477,7 @@ export async function tty_doprev_message(state = game) {
             if (index == null)
                 await redotoplin(topline(state), state);
             else if (cw.data[index])
-                await redotoplin(cw.data[index], state);
+                await redotoplin(cw.data[index], state, cw.unsplit?.[index]);
             cw.maxcol = (cw.maxcol + historyRows(state) - 1) % historyRows(state);
             if (!cw.data[cw.maxcol]) cw.maxcol = cw.maxrow;
         } while (display.morc === CTRL_P);
@@ -486,6 +495,7 @@ function snapshot(state, purge) {
     if (purge) {
         cw.data = Array(historyRows(state)).fill(null);
         cw.datlen = Array(historyRows(state)).fill(0);
+        cw.unsplit = Array(historyRows(state)).fill(false);
         cw.maxcol = cw.maxrow = 0;
     }
     return entries;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3305718,
+      "datetime": "20360601190045",
+      "nethackrc": "OPTIONS=name:Hopper,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0016qzx\nmabcdq\nrst\u0010   \u001b\u001b\u001b"
+    }
+  ],
+  "comment": "Independent tty topl.c witness for message history copied from getlin: in debug mode ^V asks for a level, an unknown name re-prompts with the long [type a number, name, or ? for a menu] form, and a second unknown answer makes that prompt plus answer reach column 80. hooked_tty_getlin() builds gt.toplines with strcpy() and strcat(), so the history entry remember_topl() copies has no update_topl() newlines. At the third prompt Ctrl-P recalls it, and redotoplin() wraps it at the terminal edge, after the answer's first letter, rather than at the space before the answer."
+}
