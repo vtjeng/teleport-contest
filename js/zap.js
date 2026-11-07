@@ -5543,6 +5543,7 @@ export async function zap_over_floor(
                 },
             });
         }
+        break;
 
     case ZT_LIGHTNING:
         /* FALLTHRU */

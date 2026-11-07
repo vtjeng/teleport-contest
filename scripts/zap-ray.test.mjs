@@ -45,6 +45,7 @@ import {
     OBJ_CONTAINED,
     OBJ_FREE,
     STONED,
+    IRONBARS,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
@@ -2966,3 +2967,23 @@ for (const [appearance, expected] of [
             expected);
     });
 }
+
+// zap.c zap_over_floor()'s ZT_POISON_GAS arm ends with `break`: poison gas
+// lays a 1x1 cloud where ZAP_POS() allows and never reaches the
+// lightning/acid iron-bars arm below it. Bars are not ZAP_POS(), so a gas
+// blast over them neither melts them nor prints anything.
+test('a poison gas blast over iron bars leaves them alone', async () => {
+    await aimedWand(-1, 0, 0);
+    const x = game.u.ux - 1, y = game.u.uy;
+    game.level.at(x, y).typ = IRONBARS;
+    game.level.at(x, y).wall_info = 0;
+    const messages = [];
+    // Type 26 is the hero's breath (20) plus ZT_POISON_GAS (6).
+    await zap_over_floor(x, y, 26, { value: false }, true, 0,
+        game, straightThrough(), {
+            message: async (line) => messages.push(line),
+            norepMessage: async (line) => messages.push(line),
+        });
+    assert.equal(game.level.at(x, y).typ, IRONBARS);
+    assert.deepEqual(messages, []);
+});
