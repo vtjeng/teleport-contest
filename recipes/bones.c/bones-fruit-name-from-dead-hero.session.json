@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73320,
+      "datetime": "20410302101500",
+      "nethackrc": "OPTIONS=name:Pomona,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,fruit:kumquat\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0017kumquat\ndel\u0017wand of death\nzf.  yqy",
+      "comment": "A debug Valkyrie whose fruit option is 'kumquat' level-teleports to D:3, wishes for a kumquat (slime mold, spe = her fruit id), drops it one square from where she then dies to a wished wand of death, and saves bones. bones.c savebones() negates every fid and goodfruit() restores the kumquat's; save.c savefruitchn() writes that fruit."
+    },
+    {
+      "seed": 73344,
+      "datetime": "20410304183000",
+      "nethackrc": "OPTIONS=name:Quince,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy\u0017blessed potion of object detection\nqe  \u0014HHHHHHHhkk.:",
+      "comment": "A second Valkyrie with the default fruit loads the bones on D:3. restore.c getlev() loads the old fruit chain and ghostfruit() gives the kumquat this game's id for 'kumquat' (fruitadd() adds it), so after object detection and a teleport onto it, ':' reports 'You see here a kumquat.' rather than this game's fruit id 1, 'slime mold'."
+    }
+  ]
+}

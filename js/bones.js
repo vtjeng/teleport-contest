@@ -49,7 +49,8 @@ import {
     save_exclusions,
 } from './dungeon.js';
 import { formatkiller } from './topten.js';
-import { fruit_from_indx } from './fruit.js';
+import { fruitadd } from './fruit.js';
+import { note_unported } from './unported.js';
 import { game } from './gstate.js';
 import { yyyymmddhhmmss } from './calendar.js';
 import {
@@ -204,10 +205,29 @@ export function deleteBonesFile(uz) {
 // ── Bones helper functions ──
 
 // C ref: bones.c goodfruit() (41-48). Marks a fruit type as existing by
-// restoring its positive fid (savebones negates all fids beforehand).
+// restoring its positive fid (savebones negates all fids beforehand). The
+// lookup is objnam.c fruit_from_indx()'s plain walk of gf.ffruit: js/fruit.js
+// fruit_from_indx() rejects a chain holding the negated fids as invalid.
 function goodfruit(id, state) {
-    const f = fruit_from_indx(-id, state);
-    if (f) f.fid = id;
+    for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
+        if (f.fid === -id) {
+            f.fid = id;
+            return;
+        }
+    }
+}
+
+// C ref: restore.c ghostfruit() (500-512). A slime mold read from a bones
+// file names its fruit by the dead hero's fid; look that up in the old chain
+// getlev() loaded and give the object this game's fid for the same name,
+// adding the name to this game's chain if it is new.
+function ghostfruit(otmp, oldfruit, state) {
+    const oldf = oldfruit.find((fruit) => fruit.fid === otmp.spe);
+    if (!oldf) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    otmp.spe = fruitadd(oldf.fname, null, { state });
 }
 
 // C ref: bones.c set_ghostly_objlist() (783-790). Sets the ghostly flag on
@@ -523,8 +543,9 @@ export async function savebones(how, when, corpse, state) {
         ep.eread = 0;
     }
 
-    // Negate all fruit IDs; goodfruit() restores the ones objects reference.
-    for (let f = state.ffruit; f; f = f.nextf) {
+    // C ref: bones.c:449-453. Mark every named fruit as nonexistent;
+    // goodfruit() restores the fid of each one an object still uses.
+    for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
         f.fid = -f.fid;
     }
 
@@ -808,13 +829,11 @@ function serializeBonesLevel(state) {
         return tc;
     });
 
-    // Clone fruit chain
-    let fruitChain = null;
-    if (state.ffruit) {
-        fruitChain = [];
-        for (let f = state.ffruit; f; f = f.nextf) {
-            fruitChain.push({ fname: f.fname, fid: f.fid });
-        }
+    // C ref: save.c savefruitchn() (951-971), which savebones() calls
+    // before savelev(): the fruits goodfruit() marked, in chain order.
+    const fruitChain = [];
+    for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
+        if (f.fid >= 0) fruitChain.push({ fname: f.fname, fid: f.fid });
     }
 
     // C ref: engrave.c save_engravings() (1551-1580), which savelev_core()
@@ -894,19 +913,22 @@ function age_is_relative(otmp) {
 // object read from a bones file, in chain order: a fresh identity from
 // next_ident() (254-259), then, unless the chain is frozen, the age moved
 // from the dead hero's clock to this one's (266-267), then the contents,
-// which are frozen inside an ice box (271-278). `omoves` is the turn the
-// bones level was saved on (getlev()'s svo.omoves). `idMap` is C's
-// add_id_mapping() table: it maps each saved id to the restored object.
-function restobjchn_ghostly(ochain, frozen, omoves, idMap, state) {
+// which are frozen inside an ice box (271-278). A slime mold also has its
+// fruit renumbered by ghostfruit() (260-261) before its age moves.
+// `ghost` carries getlev()'s state for the whole file: `omoves`, the turn the
+// bones level was saved on (svo.omoves); `idMap`, C's add_id_mapping() table,
+// which maps each saved id to the restored object; and `oldfruit`, the dead
+// hero's fruit chain (go.oldfruit).
+function restobjchn_ghostly(ochain, frozen, ghost, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
         const oldId = otmp.o_id;
         otmp.o_id = next_ident({ state });
-        idMap.set(oldId, otmp);
+        ghost.idMap.set(oldId, otmp);
+        if (otmp.otyp === SLIME_MOLD) ghostfruit(otmp, ghost.oldfruit, state);
         if (!frozen && !age_is_relative(otmp))
-            otmp.age = state.moves - omoves + otmp.age;
+            otmp.age = state.moves - ghost.omoves + otmp.age;
         if (otmp.cobj)
-            restobjchn_ghostly(otmp.cobj, otmp.otyp === ICE_BOX, omoves,
-                idMap, state);
+            restobjchn_ghostly(otmp.cobj, otmp.otyp === ICE_BOX, ghost, state);
     }
 }
 
@@ -1094,6 +1116,15 @@ async function restoreBonesLevel(bonesData, state) {
     // C's id mapping table (restore.c add_id_mapping()), cleared by getlev()
     // and filled while the object chains are read.
     const objIds = new Map();
+    // C ref: restore.c getlev():1076-1077 loadfruitchn(), first of all: the
+    // dead hero's fruits, which loadfruitchn() pushes as it reads them, so
+    // the old chain is in reverse order. getlev():1251 frees it; this game's
+    // own chain, gf.ffruit, only gains the names ghostfruit() adds.
+    const ghost = {
+        omoves,
+        idMap: objIds,
+        oldfruit: [...(bonesData.fruitChain ?? [])].reverse(),
+    };
 
     // Rebuild monsters: place in the grid and build the monlist chain.
     const monsGrid = [];
@@ -1115,7 +1146,7 @@ async function restoreBonesLevel(bonesData, state) {
             // C restore.c restmonchn() (419-425): restore the monster back
             // pointer of every object in its pack.
             for (let obj = m.minvent; obj; obj = obj.nobj) obj.ocarry = m;
-            restobjchn_ghostly(m.minvent, false, omoves, objIds, state);
+            restobjchn_ghostly(m.minvent, false, ghost, state);
         } else {
             m.minvent = null;
         }
@@ -1180,14 +1211,14 @@ async function restoreBonesLevel(bonesData, state) {
     for (let x = 0; x < COLNO; x++) objGrid.push(new Array(ROWNO).fill(null));
     level.objects = objGrid;
     level.objlist = rebuildObjChain(bonesData.floorObjects ?? []);
-    restobjchn_ghostly(level.objlist, false, omoves, objIds, state);
+    restobjchn_ghostly(level.objlist, false, ghost, state);
 
     state.level = level;
     await find_lev_obj(state);
 
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
-    restobjchn_ghostly(level.buriedobjlist, false, omoves, objIds, state);
+    restobjchn_ghostly(level.buriedobjlist, false, ghost, state);
 
     // C ref: restore.c getlev():1166 rest_engravings(), after the object
     // chains. save_engravings() writes head_engr in chain order and
@@ -1244,18 +1275,6 @@ async function restoreBonesLevel(bonesData, state) {
         }
     } else {
         initrack(state);
-    }
-
-    // Restore fruit chain.
-    if (bonesData.fruitChain) {
-        let fHead = null;
-        let fTail = null;
-        for (const fc of bonesData.fruitChain) {
-            const f = { fname: fc.fname, fid: fc.fid, nextf: null };
-            if (fTail) { fTail.nextf = f; fTail = f; }
-            else { fHead = f; fTail = f; }
-        }
-        state.ffruit = fHead;
     }
 }
 
