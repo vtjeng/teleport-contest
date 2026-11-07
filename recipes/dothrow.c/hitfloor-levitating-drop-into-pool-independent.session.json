@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dothrow.c hitfloor() witness: a levitating hero cannot reach the floor, so do.c drop() hands the wakizashi to hitfloor(); over a debug-mode wished pool (IS_SOFT) hitfloor() calls dropy() (dothrow.c:610-613), whose dropz() tail splashes it into the water and calls water_damage(). New seed, clock and character.",
+  "segments": [
+    {
+      "seed": 46102938,
+      "datetime": "20640229131500",
+      "nethackrc": "OPTIONS=name:Vapour,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " \u0017ring of levitation\nPfr \u0017pool\ndb ms"
+    }
+  ]
+}
