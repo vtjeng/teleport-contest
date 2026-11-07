@@ -12,7 +12,8 @@ import test from 'node:test';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 
 import {
-    ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, OBJ_FLOOR,
+    ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
+    OBJ_FLOOR,
 } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
@@ -27,6 +28,7 @@ import { PM_HORNED_DEVIL, PM_STONE_GOLEM, PM_WEREWOLF } from '../js/monsters.js'
 import { polymon } from '../js/polyself.js';
 import { attrcurse } from '../js/sit.js';
 import { level_tele_trap } from '../js/teleport.js';
+import { trapeffect_selector } from '../js/trap_effects.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { intervene } from '../js/wizard.js';
 
@@ -203,4 +205,24 @@ test('teleport.c level_tele_trap() dreams the wrench of a blocked trap', async (
         message: async (line) => { lines.push(line); },
     });
     assert.equal(lines.at(-1), 'You dream that you feel a wrenching sensation.');
+});
+
+test('trap.c domagictrap() dreams a magic trap\'s fatigue', async () => {
+    // As for teleporters above, spoteffects() can spring a magic trap on
+    // a hero moved in her sleep. rn2(30) != 0 skips the explosion and
+    // rnd(20) == 18 (trap.c:4319) takes trap.c:4414's You_feel("tired.").
+    const state = await sleepingGame();
+    const trap = { ttyp: MAGIC_TRAP, tseen: false, once: false,
+        tx: state.u.ux, ty: state.u.uy, tnote: 0, madeby_u: false };
+    const lines = [];
+    await trapeffect_selector(state.youmonst, trap, 0, {
+        state,
+        random: {
+            rn2: () => 1, // Nonzero: no explosion at trap.c:2300.
+            rnd: (n) => (n === 20 ? 18 : 1), // Fate 18 is the tired arm.
+        },
+        message: async (line) => { lines.push(line); },
+        redraw: () => {}, // seetrap() repaints the trap square.
+    });
+    assert.deepEqual(lines, ['You dream that you feel tired.']);
 });

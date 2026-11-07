@@ -2191,7 +2191,7 @@ export async function float_down(hmask, emask, state = game) {
         if (Is_airlevel(u.uz, state))
             await ttyPline('You begin to tumble in place.', state);
         else if (Is_waterlevel(u.uz, state) && !noMsg)
-            await ttyPline('You feel heavier.', state);
+            await ttyPline(youFeel('heavier.', state), state);
         else if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
             if (state.level?.flags?.sokoban_rules && trap) {
                 if (Hallucination(state))
@@ -3609,7 +3609,7 @@ export async function animate_statue(
         && (statue.spe & CORPSTAT_HISTORIC)
         && (!movingMonster || cansee(x, y, state))) {
         await message(
-            `You feel ${movingMonster ? 'regret' : 'guilty'} that the historic statue is now gone.`,
+            youFeel(`${movingMonster ? 'regret' : 'guilty'} that the historic statue is now gone.`, state),
             state,
         );
         if (!movingMonster) adjalign(-1, state);

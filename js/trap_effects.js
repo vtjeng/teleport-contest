@@ -1871,8 +1871,8 @@ async function domagictrap(env) {
                 }
             } else {
                 await message(
-                    `You feel a little more ${invisProp.intrinsic
-                        ? 'obvious' : 'hidden'} now.`,
+                    plineYouFeel(`a little more ${invisProp.intrinsic
+                        ? 'obvious' : 'hidden'} now.`, state),
                     state,
                 );
             }
@@ -1908,7 +1908,7 @@ async function domagictrap(env) {
         case 15:
             if (on_level(state.u.uz, state.qstart_level))
                 await message(
-                    `You feel ${(state.flags.female || (Upolyd(state.u) && is_neuter(state.youmonst.data))) ? 'oddly ' : ''}like the prodigal son.`,
+                    plineYouFeel(`${(state.flags.female || (Upolyd(state.u) && is_neuter(state.youmonst.data))) ? 'oddly ' : ''}like the prodigal son.`, state),
                     state,
                 );
             else
@@ -1933,7 +1933,7 @@ async function domagictrap(env) {
             );
             break;
         case 18:
-            await message('You feel tired.', state);
+            await message(plineYouFeel('tired.', state), state);
             break;
         /* very occasionally something nice happens. */
         case 19: /* tame nearby monsters */
@@ -2485,9 +2485,9 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
                 damage = Math.trunc((damage + 3) / 4);
 
             await message(
-                damage >= hp ? 'You feel unbearably torpid!'
-                    : damage >= Math.trunc(hp / 4) ? 'You feel very lethargic.'
-                        : 'You feel sluggish.',
+                damage >= hp ? plineYouFeel('unbearably torpid!', state)
+                    : damage >= Math.trunc(hp / 4) ? plineYouFeel('very lethargic.', state)
+                        : plineYouFeel('sluggish.', state),
                 state,
                 env,
             );
@@ -3217,13 +3217,13 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         } else if (antimagicTrapHero(state)
             || unchangingTrapHero(state)) {
             await shieldeff(state.u.ux, state.u.uy, state);
-            await message('You feel momentarily different.', state, env);
+            await message(plineYouFeel('momentarily different.', state), state, env);
         } else {
             // C explicitly discards steedintrap() and polyself()'s results.
             await steedintrap(trap, null, env);
             deltrap(trap, state);
             newsym(state.u.ux, state.u.uy);
-            await message('You feel a change coming over you.', state, env);
+            await message(plineYouFeel('a change coming over you.', state), state, env);
             await polyself(POLY_NOFLAGS, state);
         }
         return Trap_Effect_Finished;

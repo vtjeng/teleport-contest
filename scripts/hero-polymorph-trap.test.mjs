@@ -51,7 +51,7 @@ test('trapeffect_poly_trap keeps the ordinary hero source order', () => {
         'await steedintrap(trap, null, env);',
         'deltrap(trap, state);',
         'newsym(state.u.ux, state.u.uy);',
-        "await message('You feel a change coming over you.', state, env);",
+        "await message(plineYouFeel('a change coming over you.', state), state, env);",
         'await polyself(POLY_NOFLAGS, state);',
     ].map((part) => jsOrdinaryArm.indexOf(part));
     assert.ok(cOrder.every((position) => position >= 0));
