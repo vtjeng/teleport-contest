@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent artifact.c retouch_equipment() reached from a monster's turn. A debug-mode lawful Valkyrie wishes for a blessed silver saber, wields it, creates a hostile werejackal and waits with m-prefixed searches, ESC dismissing each --More-- and answering no to each 'Die?'. When the jackal-form bite gives lycanthropy, uhitm.c mhitm_ad_were() calls retouch_equipment(2): the saber now burns a silver-hater, 'You can't handle your silver saber anymore!' follows 'You feel feverish.', and the saber falls to the stairs. The elapsed-turn planning clone stops at that call, so the live pass prints it in source order.",
+  "segments": [
+    {
+      "seed": 77310452,
+      "datetime": "20710604143000",
+      "nethackrc": "OPTIONS=name:Hrefna,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017blessed silver saber\nwe\u0007hostile werejackal\nms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}

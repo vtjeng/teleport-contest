@@ -3248,6 +3248,18 @@ async function untouchable(obj, drop_untouchable, state = game, rawEnv = {}) {
 // and carried objects after a form or alignment change. The per-game field
 // represents C's static recursion counter; nested calls share it across awaits.
 export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
+    // The touch tests print, can blast the hero to death in done(), and
+    // unwield or drop equipment. Stop a planning clone here so its owner
+    // replays this source path live, then replans from that state. With an
+    // empty pack and no steed every scan below finds nothing, and the call
+    // has no observable effect, so a plan may continue through it.
+    if (rawEnv.planning && (state.invent || state.u.usteed)) {
+        if (typeof rawEnv.requestPlanningInput !== 'function')
+            throw new TypeError(
+                'planned retouch_equipment requires a replay boundary',
+            );
+        return rawEnv.requestPlanningInput('artifact.c retouch_equipment');
+    }
     const had_gloves = Boolean(state.uarmg);
     const had_rings = Number(Boolean(state.uleft)) + Number(Boolean(state.uright));
     const retouchEnv = { ...rawEnv, state };
