@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_yn_function() clean_up (topl.c:533-539) and tty_doprev_message() (topl.c:117-131): a Monk drops a lembas wafer whose name makes the eat prompt 80 columns wide, answers it with q, and recalls it with ^P. Sprintf() wrote the answered prompt to gt.toplines without update_topl() newlines, so redotoplin() wraps it at the terminal edge and the answer begins row 1 after a space.",
+ "segments": [
+  {
+   "seed": 5517029,
+   "datetime": "20261207113000",
+   "nethackrc": "OPTIONS=name:Probe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "\u00171 lembas wafer named abcdefghijklmnopqrstuvwxy\n  dkeq\u0010  "
+  }
+ ]
+}

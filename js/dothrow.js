@@ -1156,7 +1156,10 @@ export async function hurtle_step(arg, x, y) {
             return true;
         } else if (trap.tseen) {
             await message(
-                `You pass right over ${an(trapname(trap.ttyp))}.`, state,
+                `You pass right over ${an(trapname(trap.ttyp, false, state, {
+                    rn2: random.rn2,
+                    rn2_on_display_rng: arg?.displayRandom ?? undefined,
+                }))}.`, state,
             );
         }
     }
@@ -2108,10 +2111,11 @@ export async function dofire(state = game) {
         if (ammo_and_launcher(state.uquiver, state.uwep, state)) {
             obj = state.uquiver;
         } else if (ammo_and_launcher(state.uquiver, state.uswapwep, state)) {
-            /* swap weapons and retry fire */
+            /* swap weapons and retry fire; readying a wielded stack above
+               already took a move, which res carries */
             cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
             cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
-            return ECMD_OK;
+            return res;
         } else {
             /* wield launcher, retry fire */
             const launcher = find_launcher(state.uquiver, state);

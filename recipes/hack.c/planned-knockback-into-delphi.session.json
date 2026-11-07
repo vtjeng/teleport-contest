@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for hack.c check_special_room() (hack.c:3654-3770) reached from dothrow.c hurtle_step() through uhitm.c mhitm_knockback(): a dwarvish Valkyrie on the Oracle level waits outside the Delphi doorway while two ettin zombies attack, and one knocks her into the doorway. The port dry-runs that monster turn on a clone first; the clone must keep its own u.urooms[]/u.uentered[] and its own Delphi subroom, or the live entry finds the room already entered and loses the greeting.",
+ "segments": [
+  {
+   "seed": 9140217,
+   "datetime": "20261210140000",
+   "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "\u001b#wizlevelport\n?\nc #levelchange\n14\n\u001b\u0006_llllll.sssss\u0007ettin zombie\n\u0007ettin zombie\nms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   "
+  }
+ ]
+}

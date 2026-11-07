@@ -767,8 +767,8 @@ test('a trapped monster pulls free of the bear trap', async () => {
 // trapname() indexed that table by one place.
 test('the escape line names the trap it frees the monster from', async () => {
     await hero();
-    assert.equal(trapname(BEAR_TRAP), 'bear trap');
-    assert.equal(trapname(WEB), 'web');
+    assert.equal(trapname(BEAR_TRAP, false, game), 'bear trap');
+    assert.equal(trapname(WEB, false, game), 'web');
 
     // The web is left unmapped, because C:3745 admits it beside the bear trap
     // and the hole: seeing a held monster reveals whichever of the four holds

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for dothrow.c hurtle_step() (dothrow.c:961-963): a hallucinating gnomish Wizard ringed by revealed squeaky boards is knocked back by an ettin zombie (uhitm.c mhitm_knockback()) and passes over a trap, whose hallucinated trapname() spends the display RNG. The monster-turn dry run must spend its clone's display RNG, not the live one, or the next hallucinated monster name differs.",
+ "segments": [
+  {
+   "seed": 5120733,
+   "datetime": "20261203141500",
+   "nethackrc": "OPTIONS=name:Probe,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "#levelchange\n14\n\u001b\u0017blessed potion of hallucination\nqo h\u0017squeaky board\nk\u0017squeaky board\nl\u0017squeaky board\nl\u0017squeaky board\nj\u0017squeaky board\nj\u0017squeaky board\nh\u0017squeaky board\nh\u0017squeaky board\nu\u0005\u0007ettin zombie\nmsmsms   msmsmsms"
+  }
+ ]
+}

@@ -25,7 +25,6 @@ import {
     DISP_BEAM,
     DISP_END,
     EXPL_FIERY,
-    HALF_SPDAM,
     HAND,
     HEAD,
     LEG,
@@ -2370,10 +2369,10 @@ export async function drop_boulder_on_player(
         redraw(state.u.ux, state.u.uy, state);
     }
     if (damage) {
-        const halfPhysical = state.u?.uprops?.[HALF_SPDAM];
-        const adjusted = halfPhysical?.intrinsic || halfPhysical?.extrinsic
-            ? Math.trunc((damage + 1) / 2) : damage;
-        await losehp(adjusted, 'scroll of earth', KILLED_BY_AN, state, env);
+        // read.c:2337 losehp(Maybe_Half_Phys(dmg), ...): half physical
+        // damage, not half spell damage, halves the falling boulder.
+        await losehp(maybeHalfPhysical(damage, state), 'scroll of earth',
+            KILLED_BY_AN, state, env);
     }
 }
 

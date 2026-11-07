@@ -6257,7 +6257,9 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // own continuation, and ECMD_TIME for the shot itself. The
             // ECMD_OK arm is why the reset below must be told not to clear
             // the queue -- it is the one that leaves [doswapweapon, dofire]
-            // standing for the next two rhack() calls.
+            // standing for the next two rhack() calls. That arm returns
+            // ECMD_TIME instead when doquiver_core() unwielded the stack it
+            // readied, and the queued commands then wait for the turn.
             //
             // extcmdlist[]'s "fire" row carries no flags at all, so neither
             // the prefix test at 3693-3695 nor the MOVEMENTCMD and

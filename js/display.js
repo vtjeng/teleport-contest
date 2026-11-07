@@ -6338,12 +6338,17 @@ function _beginStatusHilitePass(onlyField = null) {
     if (!onlyField) {
         game.gb.status_hilite_times[1] = [...game.gb.status_hilite_times[0]];
         if (game._statusHiliteUpdateAll) {
-            game.gb.status_hilite_times[0].fill(0);
-            game.gb.status_hilite_times[1].fill(0);
             for (const field of STATUS_FIELDS) {
-                // The core's skip test; see _collectStatusHilites().
-                if (_computeStatusFieldEnabled(field, game))
-                    _setStatusHiliteChange(game.gb, field.fld, true);
+                // The core's skip test; see _collectStatusHilites(). C clears
+                // a timer under gu.update_all in eval_notify_windowport_field()
+                // (botl.c:1574-1576), which evaluate_and_notify_windowport()
+                // never calls for a skipped field: BL_XP keeps its timer while
+                // the hero is polymorphed, and status_eval_next_unhilite()
+                // goes on finding it expired.
+                if (!_computeStatusFieldEnabled(field, game)) continue;
+                game.gb.status_hilite_times[0][field.fld] = 0;
+                game.gb.status_hilite_times[1][field.fld] = 0;
+                _setStatusHiliteChange(game.gb, field.fld, true);
             }
         }
     }
