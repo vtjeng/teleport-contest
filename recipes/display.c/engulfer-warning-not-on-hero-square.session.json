@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "display.c newsym() handles the hero's own square before any monster arm, so an engulfer that mhitu.c gulpmu() has just placed there never shows its warning glyph. A debug-mode Healer at level 15 has Warning, turns a steam vortex invisible and waits until it engulfs her: the hero's '@' stays at the More prompt.",
+  "segments": [
+    {
+      "seed": 1401,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " #levelchange\n15\n              \u0017wand of make invisible\n \u0007steam vortex\nzkh ms ms ms ms ms ms ms ms "
+    }
+  ]
+}

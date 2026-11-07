@@ -3882,11 +3882,13 @@ export function newsym(x, y) {
         && monsterWarnsHero(monster, game),
     );
     // newsym()'s warning arm (display.c:1029-1030): a visible monster that
-    // is neither seen nor detected but warns the hero. m_at() answers null on
-    // the hero's own square, so this never applies there.
+    // is neither seen nor detected but warns the hero. C reaches it only in
+    // the `else` of `if (u_at(x, y))`; an engulfer that mhitu.c gulpmu() has
+    // just placed on the hero's square must not show its warning there.
     const warningOnly = Boolean(
         visible && monsterWarning
-        && !(seeIt || (!wormTail && detectMonsters)),
+        && !(seeIt || (!wormTail && detectMonsters))
+        && !(game.u?.ux === x && game.u?.uy === y),
     );
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
@@ -3990,6 +3992,7 @@ export function newsym(x, y) {
     // port's m_at() answers null wherever the hero stands.
     const tt = trapAt ? trapAt.ttyp : NO_TRAP;
     if (shouldDisplayMonster && monster.mtrapped
+        && !(game.u?.ux === x && game.u?.uy === y)
         && (tt === BEAR_TRAP || is_pit(tt) || tt === WEB))
         trapAt.tseen = true;
     const trap = covered ? null : trapAt;
