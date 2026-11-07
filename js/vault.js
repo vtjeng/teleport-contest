@@ -1389,7 +1389,7 @@ export async function paygd(silently, state = game, rawEnv = {}) {
     let gdx, gdy;
     if (state.u.uinvault) {
         if (!silently) await message(
-            `Your ${umoney} ${currency(umoney, state, { random: random.rn2 })} goes into the Magic Memory Vault.`, state);
+            `Your ${umoney} ${currency(umoney, state, { random })} goes into the Magic Memory Vault.`, state);
         gdx = state.u.ux;
         gdy = state.u.uy;
     } else {
