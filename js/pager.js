@@ -336,7 +336,7 @@ function invisibleGlyphDescription(state) {
 // source draw.
 function mon_to_glyph(monster, state) {
     const mnum = heroHallucinating(state)
-        ? rn2_on_display_rng(NUMMONS)
+        ? rn2_on_display_rng(NUMMONS, state)
         : monster?.data?.pmidx;
     if (!Number.isInteger(mnum)) return null;
     return mnum + (monster?.female ? GLYPH_MON_FEM_OFF : GLYPH_MON_MALE_OFF);

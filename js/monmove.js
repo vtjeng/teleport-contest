@@ -1430,10 +1430,10 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
         } else {
             rockOkay = Boolean(m_carrying(monster, PICK_AXE, state)
                 || (m_carrying(monster, DWARVISH_MATTOCK, state)
-                    && !which_armor(monster, W_ARMS)));
+                    && !which_armor(monster, W_ARMS, state)));
             treeOkay = Boolean(m_carrying(monster, AXE, state)
                 || (m_carrying(monster, BATTLE_AXE, state)
-                    && !which_armor(monster, W_ARMS)));
+                    && !which_armor(monster, W_ARMS, state)));
         }
         if (rockOkay || treeOkay) throughDoor = true;
     }

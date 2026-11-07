@@ -231,7 +231,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
         set_voice(mon, 0, 80, 0, state);
         await verbalize('Thou shalt pay for thine indiscretion!', state, env);
         if (canspotmon(mon, state))
-            await message(`${Amonnam(mon, state, env)} appears before you.`, state);
+            await message(`${Amonnam(mon, { ...env, state })} appears before you.`, state);
         mon.mstrategy &= ~STRAT_APPEARMSG;
     }
     mon.mpeaceful = false;
@@ -252,7 +252,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     if (is_art(state.uwep, ART_EXCALIBUR)
         || is_art(state.uwep, ART_DEMONBANE)) {
         if (canseemon(mtmp, state))
-            await message(`${Amonnam(mtmp, state)} looks very angry.`, state);
+            await message(`${Amonnam(mtmp, { state })} looks very angry.`, state);
         else
             await message('You feel tension building.', state);
         mtmp.mpeaceful = 0;
@@ -277,7 +277,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         mtmp.minvis = 0;
         mtmp.perminvis = 0;
         if (wasUnseen && canspotmon(mtmp, state)) {
-            await message(`${Amonnam(mtmp, state)} appears before you.`, state);
+            await message(`${Amonnam(mtmp, { state })} appears before you.`, state);
             mtmp.mstrategy &= ~STRAT_APPEARMSG;
         }
         redraw(mtmp.mx, mtmp.my, state);
@@ -286,11 +286,11 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     if (state.youmonst?.data?.mlet === M.S_DEMON) {
         if (!deaf) {
             await message(
-                `${Amonnam(mtmp, state)} says, "Good hunting, ${state.flags?.female ? 'Sister' : 'Brother'}."`,
+                `${Amonnam(mtmp, { state })} says, "Good hunting, ${state.flags?.female ? 'Sister' : 'Brother'}."`,
                 state,
             );
         } else if (canseemon(mtmp, state)) {
-            await message(`${Amonnam(mtmp, state)} says something.`, state);
+            await message(`${Amonnam(mtmp, { state })} says something.`, state);
         }
         if (!await tele_restrict(mtmp, state, env))
             await rloc(mtmp, RLOC_MSG, { ...env, state, random });
@@ -318,27 +318,27 @@ export async function demon_talk(mtmp, state = game, env = {}) {
 
     if (!deaf) {
         await message(
-            `${Amonnam(mtmp, state)} demands ${demand} ${currency(demand, state)} for safe passage.`,
+            `${Amonnam(mtmp, { state })} demands ${demand} ${currency(demand, state)} for safe passage.`,
             state,
         );
         offer = await bribe(mtmp, 'How much will you offer?', state, env);
     } else if (canseemon(mtmp, state)) {
-        await message(`${Amonnam(mtmp, state)} seems to be demanding something.`, state);
+        await message(`${Amonnam(mtmp, { state })} seems to be demanding something.`, state);
     }
 
     if (!deaf && offer >= demand) {
         await message(
-            `${Amonnam(mtmp, state)} vanishes, laughing about cowardly mortals.`,
+            `${Amonnam(mtmp, { state })} vanishes, laughing about cowardly mortals.`,
             state,
         );
     } else if (offer > 0
         && random.rnd(5 * acurr(state, A_CHA)) > demand - offer) {
         await message(
-            `${Amonnam(mtmp, state)} scowls at you menacingly, then vanishes.`,
+            `${Amonnam(mtmp, { state })} scowls at you menacingly, then vanishes.`,
             state,
         );
     } else {
-        await message(`${Amonnam(mtmp, state)} gets angry...`, state);
+        await message(`${Amonnam(mtmp, { state })} gets angry...`, state);
         mtmp.mpeaceful = 0;
         set_malign(mtmp, state);
         return 0;

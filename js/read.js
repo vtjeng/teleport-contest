@@ -3615,7 +3615,7 @@ async function create_particular_creation(d, state = game) {
             mtmp.mpeaceful = d.makepeaceful;
             set_malign(mtmp, state);
         }
-        if (d.saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE))
+        if (d.saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE, state))
             await put_saddle_on_mon(null, mtmp, { state });
         if (d.hidden
             && ((is_hider(mtmp.data) && mtmp.data.mlet !== S_MIMIC)

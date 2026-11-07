@@ -498,7 +498,7 @@ export async function dowrite(pen, state = game, env = {}) {
     const held = await hold_another_object(
         new_obj,
         'Oops!  %s out of your grasp!',
-        The(aobjnam(new_obj, 'slip', state)),
+        The(aobjnam(new_obj, 'slip', state), state),
         null,
         writeEnv(state),
     );

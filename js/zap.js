@@ -3005,7 +3005,7 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
     const objectTypeData = state.objects?.[otyp] ?? {};
     if (objectTypeData.oc_magic
         || (obj.spe && (obj.oclass === ARMOR_CLASS
-            || obj.oclass === WEAPON_CLASS || is_weptool(obj)))
+            || obj.oclass === WEAPON_CLASS || is_weptool(obj, state)))
         || otyp === POT_ACID
         || otyp === POT_SICKNESS
         || (otyp === POT_WATER && (obj.blessed || obj.cursed))

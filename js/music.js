@@ -695,8 +695,8 @@ export async function do_play_instrument(instr, state = game, env = {}) {
         tune = [...tune].map(highc).join('').replaceAll('H', 'B');
     }
     await message(!Deaf(state)
-        ? `You extract a strange sound from ${the(xnameFresh(instr, state))}!`
-        : `You can feel ${the(xnameFresh(instr, state))} emitting vibrations.`, state);
+        ? `You extract a strange sound from ${the(xnameFresh(instr, state), state)}!`
+        : `You can feel ${the(xnameFresh(instr, state), state)} emitting vibrations.`, state);
     if (state.stronghold_level?.dnum === state.u.uz.dnum
         && state.stronghold_level.dlevel === state.u.uz.dlevel) {
         await exercise(A_WIS, true, state, random);

@@ -1004,7 +1004,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
         case AT_BREA:
         case AT_SPIT:
             /* Ranged attacks aren't allowed at point blank range. */
-            if (!monnear(magr, mdef.mx, mdef.my)) {
+            if (!monnear(magr, mdef.mx, mdef.my, state)) {
                 const mmtmp = ((mattk.aatyp === AT_BREA)
                              ? await breamm(magr, mattk, mdef, env)
                              : await spitmm(magr, mattk, mdef, env));

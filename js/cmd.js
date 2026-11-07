@@ -2527,7 +2527,7 @@ export function u_can_see_whole_selection(selection, state = game) {
 // C ref: cmd.c dolookaround_floodfill_findroom() (1263-1275).
 export function dolookaround_floodfill_findroom(x, y, state = game) {
     const typ = state.level?.at(x, y)?.typ;
-    return !(IS_STWALL(typ) || IS_DOOR(typ) || IS_TREE(typ)
+    return !(IS_STWALL(typ) || IS_DOOR(typ) || IS_TREE(typ, state)
         || IS_WATERWALL(typ) || typ === LAVAWALL || typ === IRONBARS
         || typ === SCORR || typ === SDOOR || typ === DRAWBRIDGE_UP);
 }

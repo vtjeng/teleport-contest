@@ -2082,7 +2082,7 @@ export async function still_chewing(x, y, state = game) {
     if (!boulder && ((IS_OBSTRUCTED(lev.typ) && !may_dig(x, y, state))
         || (lev.typ === IRONBARS && (lev.flags & W_NONDIGGABLE)))) {
         const what = lev.typ === IRONBARS ? 'bars'
-            : IS_TREE(lev.typ) ? 'tree' : 'hard stone';
+            : IS_TREE(lev.typ, state) ? 'tree' : 'hard stone';
         await ttyPline(`You hurt your teeth on the ${what}.`, state);
         nomul(0, state);
         return 1;
@@ -2101,12 +2101,12 @@ export async function still_chewing(x, y, state = game) {
         digging.pos = { x, y };
         digging.level ??= {};
         assign_level(digging.level, state.u.uz);
-        digging.effort = (IS_OBSTRUCTED(lev.typ) && !IS_TREE(lev.typ)
+        digging.effort = (IS_OBSTRUCTED(lev.typ) && !IS_TREE(lev.typ, state)
             ? 30 : 60) + Math.trunc(state.u.udaminc ?? 0);
-        const prep = boulder || IS_TREE(lev.typ) || lev.typ === IRONBARS
+        const prep = boulder || IS_TREE(lev.typ, state) || lev.typ === IRONBARS
             ? 'on a' : 'a hole in the';
         const target = boulder ? 'boulder'
-            : IS_TREE(lev.typ) ? 'tree'
+            : IS_TREE(lev.typ, state) ? 'tree'
                 : IS_OBSTRUCTED(lev.typ) ? 'rock'
                     : lev.typ === IRONBARS ? 'bar' : 'door';
         await ttyPline(`You start chewing ${prep} ${target}.`, state);
@@ -2117,7 +2117,7 @@ export async function still_chewing(x, y, state = game) {
     if (digging.effort <= 100) {
         if (state.flags?.verbose) {
             const target = boulder ? 'boulder'
-                : IS_TREE(lev.typ) ? 'tree'
+                : IS_TREE(lev.typ, state) ? 'tree'
                     : IS_OBSTRUCTED(lev.typ) ? 'rock'
                         : lev.typ === IRONBARS ? 'bars' : 'door';
             await ttyPline(`You continue chewing on the ${target}.`, state);
@@ -2130,7 +2130,7 @@ export async function still_chewing(x, y, state = game) {
     state.u.uconduct ??= {};
     if (!(state.u.uconduct.food ?? 0)) {
         const target = boulder ? 'a boulder'
-            : IS_TREE(lev.typ) ? 'a tree'
+            : IS_TREE(lev.typ, state) ? 'a tree'
                 : IS_OBSTRUCTED(lev.typ) ? 'rock'
                     : lev.typ === IRONBARS ? 'iron bars' : 'a door';
         livelog_printf(
@@ -2164,7 +2164,7 @@ export async function still_chewing(x, y, state = game) {
             lev.typ = DOOR;
             lev.flags = D_NODOOR;
         }
-    } else if (IS_TREE(lev.typ)) {
+    } else if (IS_TREE(lev.typ, state)) {
         digtxt = 'You chew through the tree.';
         lev.typ = ROOM;
     } else if (lev.typ === IRONBARS) {

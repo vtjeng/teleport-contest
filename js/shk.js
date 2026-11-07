@@ -1584,7 +1584,7 @@ export function picked_container(obj) {
 
 // C ref: shk.c set_cost() (3148-3193). Shopkeeper's buying price.
 export function set_cost(obj, shkp, state = game) {
-    let price = get_pricing_units(obj) * getprice(obj, true, state);
+    let price = get_pricing_units(obj, state) * getprice(obj, true, state);
     let multiplier = 1;
     let divisor = 1;
     if (state.uarmh?.otyp === DUNCE_CAP
@@ -1637,7 +1637,7 @@ async function add_one_tobill(obj, dummy, shkp, state, env) {
     if (dummy) add_to_billobjs(obj, state, env);
     bill.price = get_cost(obj, shkp, state);
     if (obj.globby) {
-        bill.price *= get_pricing_units(obj);
+        bill.price *= get_pricing_units(obj, state);
         newomid(obj);
         obj.oextra.omid = obj.owt;
     }
@@ -1715,7 +1715,7 @@ export async function addtobill(obj, ininv, dummy, silent, state = game, env = {
     const container = hasContents(obj);
     if (!obj.no_charge) {
         price = get_cost(obj, shkp, state);
-        if (obj.globby) price *= get_pricing_units(obj);
+        if (obj.globby) price *= get_pricing_units(obj, state);
     }
     if (obj.no_charge && !container) {
         obj.no_charge = 0;
@@ -4370,7 +4370,7 @@ function stolen_container(obj, shkp, price, ininv, state) {
 
         if (billamt) price += billamt;
         else if (ininv ? item.unpaid : !item.no_charge)
-            price += get_pricing_units(item) * get_cost(item, shkp, state);
+            price += get_pricing_units(item, state) * get_cost(item, shkp, state);
 
         if (hasContents(item))
             price = stolen_container(item, shkp, price, ininv, state);
@@ -4419,7 +4419,7 @@ export async function stolen_value(
     } else {
         if (billamt) value += billamt;
         else if (!obj.no_charge)
-            value += get_pricing_units(obj) * get_cost(obj, shkp, state);
+            value += get_pricing_units(obj, state) * get_cost(obj, shkp, state);
 
         if (hasContents(obj)) {
             const ininv = obj.where === OBJ_INVENT || obj.where === OBJ_FREE;
@@ -5147,7 +5147,7 @@ export async function pay_for_damage(
     if (heroIsInvisible(state))
         await message(`Your invisibility does not fool ${shkname(shopkeeper, state)}!`, state, env);
     const query = `${!animal ? `${cad(true, state)}` : ''}`
-        + `You did ${damageCost} ${currency(damageCost)} worth of damage!`
+        + `You did ${damageCost} ${currency(damageCost, state)} worth of damage!`
         + `${!animal ? '"' : ''}  Pay?`;
     if (await y_n(query, state) !== 'n') {
         const wasSeen = canseemon(shopkeeper, state);

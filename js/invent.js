@@ -5003,7 +5003,7 @@ export async function hold_another_object(
             return null;
         }
         if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask
-            && (is_missile(obj)
+            && (is_missile(obj, state)
                 || ammo_and_launcher(obj, state.uwep, state)
                 || ammo_and_launcher(obj, state.uswapwep, state))) {
             setuqwep(obj, { state });

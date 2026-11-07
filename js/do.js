@@ -496,7 +496,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
         break;
     case OBJ_CONTAINED: {
         const name = canspotmon(monster, state)
-            ? Amonnam(monster, state) : 'Something';
+            ? Amonnam(monster, { state }) : 'Something';
         if (!container) {
             note_unported('pline.c impossible');
         } else if (carrier && canseemon(carrier, state)) {
@@ -520,7 +520,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
                 const trap = t_at(monster.mx, monster.my, state);
                 if (trap) trap.tseen = true;
                 await message(`${canspotmon(monster, state)
-                    ? Amonnam(monster, state) : 'Something'}`
+                    ? Amonnam(monster, { state }) : 'Something'}`
                     + ' claws itself out of the ground!', state, env);
                 (env.newsym ?? newsym)(monster.mx, monster.my, state);
             } else if (dist2(monster.mx, monster.my,

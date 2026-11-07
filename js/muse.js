@@ -2597,7 +2597,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
                 && !seenres(M_SEEN_FIRE))
                 select(MUSE_WAN_FIRE, obj);
             if (has_offense === MUSE_FIRE_HORN) continue;
-            if (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp)
+            if (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp, state)
                 && !seenres(M_SEEN_FIRE))
                 select(MUSE_FIRE_HORN, obj);
             if (has_offense === MUSE_WAN_COLD) continue;
@@ -2605,7 +2605,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
                 && !seenres(M_SEEN_COLD))
                 select(MUSE_WAN_COLD, obj);
             if (has_offense === MUSE_FROST_HORN) continue;
-            if (otyp === O.FROST_HORN && obj.spe > 0 && can_blow(mtmp)
+            if (otyp === O.FROST_HORN && obj.spe > 0 && can_blow(mtmp, state)
                 && !seenres(M_SEEN_COLD))
                 select(MUSE_FROST_HORN, obj);
             if (has_offense === MUSE_WAN_LIGHTNING) continue;
@@ -3061,7 +3061,7 @@ export function searches_for_item(monster, obj, state = game) {
                 && species?.pmidx !== M.PM_KI_RIN;
         }
         if (otyp === O.FROST_HORN || otyp === O.FIRE_HORN)
-            return obj.spe > 0 && can_blow(monster);
+            return obj.spe > 0 && can_blow(monster, state);
         if (isContainer(obj)
             && !(isMagicBag(obj) && obj.cursed)
             && !obj.olocked) {

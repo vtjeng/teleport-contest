@@ -2380,7 +2380,7 @@ export function rnd_offensive_item(monster, normalized) {
         9 - Number(ptr.difficulty < 4) + 4 * Number(ptr.difficulty > 6),
     )) {
     case 0: {
-        const helmet = which_armor(monster, W_ARMH);
+        const helmet = which_armor(monster, W_ARMH, state);
         if (isHardHelmet(helmet, state)
             || (ptr.mflags1 & (M1_AMORPHOUS | M1_WALLWALK | M1_UNSOLID))
             || ptr.mlet === S_GHOST) {
@@ -2970,7 +2970,7 @@ function finishMonsterInventoryAndStrategy(
         const saddleRoll = random.rn2(100);
         if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
             && can_saddle(monster)
-            && !which_armor(monster, W_SADDLE)) {
+            && !which_armor(monster, W_SADDLE, state)) {
             put_saddle_on_mon(null, monster, normalized);
         }
     } else {

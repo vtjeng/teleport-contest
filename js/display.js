@@ -4634,7 +4634,7 @@ export async function tmp_at(x, y, state = game) {
                 break; /* too many locations */
             if (tglyph.saved.length) {
                 const prev = tglyph.saved[tglyph.saved.length - 1];
-                show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y));
+                show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y, state));
             }
             /* save pos for later use or erasure */
             tglyph.saved.push({ x, y });

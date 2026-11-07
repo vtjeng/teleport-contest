@@ -1860,7 +1860,7 @@ export async function polyself(psflags, state = game, env = {}) {
                     let pm_name = pmname(state.mons[mntmp],
                         state.flags.female ? FEMALE : MALE);
                     if (the_unique_pm(state.mons[mntmp]))
-                        pm_name = the(pm_name);
+                        pm_name = the(pm_name, state);
                     else if (!type_is_pname(state.mons[mntmp]))
                         pm_name = an(pm_name);
                     await ttyPline(`You can't polymorph into ${pm_name}.`, state);

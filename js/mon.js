@@ -1128,12 +1128,12 @@ export function sanity_check_single_mon(
     if (mtmp.mleashed) {
         if (!get_mleash(mtmp, state))
             sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp)}`,
+                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp, state)}`,
                 env,
             );
         else if (!mtmp.mtame)
             sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp)}`,
+                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp, state)}`,
                 env,
             );
     }
@@ -3153,7 +3153,7 @@ function* apply_newcham_steps(
     }
 
     if (state.context?.mon_moving) {
-        if (!u_at(monster.mux, monster.muy)) set_apparxy(monster, normalized);
+        if (!u_at(monster.mux, monster.muy, state)) set_apparxy(monster, normalized);
         if (!monster.mpeaceful
             && onscary(monster.mux, monster.muy, monster, state)
             && monnear(monster, monster.mux, monster.muy, state)) {
@@ -5881,7 +5881,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         obj = oname(obj, MGIVENNAME(mtmp), ONAME_NO_FLAGS, objectEnv);
 
     /* Avoid naming an unseen corpse while blind: hitmu() calls it "something". */
-    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj);
+    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj, state);
 
     stackobj(obj, objectGenerationEnv(objectEnv));
     killRedraw(x, y, { ...env, state });

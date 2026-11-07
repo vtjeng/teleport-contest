@@ -4600,7 +4600,7 @@ export async function lspo_finalize_level(args, env) {
      * purpose.
      */
     if (!state.level.flags.corrmaze)
-        wallification(1, 0, COLNO - 1, ROWNO - 1);
+        wallification(1, 0, COLNO - 1, ROWNO - 1, state);
 
     if (args !== null) await flip_level_rnd(coder.allow_flips, false, state);
 
@@ -4983,7 +4983,7 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c load_special() post-processing.
             map_cleanup(state);
             if (!state.level.flags.corrmaze)
-                wallification(1, 0, COLNO - 1, ROWNO - 1);
+                wallification(1, 0, COLNO - 1, ROWNO - 1, state);
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
             // consumes rn2(2). bigrm-12's "noflipy" clears bit 1, leaving
             // only the horizontal axis flip.

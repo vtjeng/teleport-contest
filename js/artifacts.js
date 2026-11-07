@@ -2491,7 +2491,7 @@ async function invoke_charge_obj(obj, state) {
         return ECMD_CANCEL;
     }
     await recharge(otmp, blessedEffect ? 1 : obj.cursed ? -1 : 0, state);
-    update_inventory(state);
+    update_inventory({ state });
     return ECMD_TIME;
 }
 
@@ -2644,7 +2644,7 @@ export async function invoke_banish(obj, state = game) {
 async function invoke_fling_poison(obj, state) {
     if (await getdir(null, state)) {
         const venom = rn2(2) ? BLINDING_VENOM : ACID_VENOM;
-        const otmp = mksobj(venom, true, false, state);
+        const otmp = mksobj(venom, true, false, { state });
         otmp.spe = 1;
         await throwit(otmp, 0, false, null, state);
     } else {
@@ -3303,7 +3303,7 @@ export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
     if (had_rings
         !== Number(Boolean(state.uleft)) + Number(Boolean(state.uright))
         && state.uarmg && state.uarmg.cursed)
-        await uncurse(state.uarmg, state); /* temporary ring-removal hack */
+        await uncurse(state.uarmg, { state }); /* temporary ring-removal hack */
     if (had_gloves && !state.uarmg)
         await selftouch('After losing your gloves, you', state, retouchEnv);
 

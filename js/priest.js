@@ -793,7 +793,7 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
         && !(resistance.intrinsic || resistance.extrinsic);
     const randomName = do_hallu ? rndmonnamDetails({ state,
         random: env.displayRandom }) : null;
-    let what = do_hallu ? randomName.name : mon_pmname(mon);
+    let what = do_hallu ? randomName.name : mon_pmname(mon, state);
     if (!mon.ispriest && !mon.isminion) return what;
 
     if (mon.ispriest || aligned_priest || high_priest)

@@ -778,7 +778,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             await message(`Doing that would probably melt ${yname(pick, state)}.`, state);
             return PICKLOCK_LEARNED_SOMETHING;
         } else if (is_pool(u.ux, u.uy, state) && !u.uinwater) {
-            await message(`The ${hliquid('water', state)} has no lock.`, state);
+            await message(`The ${hliquid('water', { state })} has no lock.`, state);
             return PICKLOCK_LEARNED_SOMETHING;
         }
         let count = 0;
@@ -788,7 +788,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             if (!Is_box(otmp)) continue;
             ++count;
             if (!can_reach_floor(true, state)) {
-                await message(`You can't reach ${the(xnameFresh(otmp, state))} from up here.`, state);
+                await message(`You can't reach ${the(xnameFresh(otmp, state), state)} from up here.`, state);
                 return PICKLOCK_LEARNED_SOMETHING;
             }
             let verb;
