@@ -19,7 +19,8 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { demon_talk } from '../js/minion.js';
 import { elemental_clog } from '../js/mon.js';
-import { PM_HORNED_DEVIL, PM_STONE_GOLEM } from '../js/monsters.js';
+import { mon_poly } from '../js/mhitm.js';
+import { PM_HORNED_DEVIL, PM_STONE_GOLEM, PM_WEREWOLF } from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
 import { attrcurse } from '../js/sit.js';
 import { intervene } from '../js/wizard.js';
@@ -158,4 +159,15 @@ test('polyself.c polymon() dreams a genocided form for a sleeping hero', async (
     const { lines, message } = firstLine();
     await assert.rejects(polymon(PM_STONE_GOLEM, state, { message }), STOP);
     assert.deepEqual(lines, ['You dream that you feel rather stone golem-ish.']);
+});
+
+test('mhitm.c mon_poly() dreams a lycanthrope\'s urge in a sleeping hero', async () => {
+    // A monster's AD_POLY hit reaches mon_poly() with the hero as mdef,
+    // asleep or not. A human lycanthrope (u.ulycn set, not in were form)
+    // takes mhitm.c:1138's You_feel() arm.
+    const state = await sleepingGame();
+    state.u.ulycn = PM_WEREWOLF;
+    const { lines, message } = firstLine();
+    await assert.rejects(mon_poly({}, state.youmonst, 5, state, { message }), STOP);
+    assert.deepEqual(lines, ['You dream that you feel an unnatural urge coming on.']);
 });

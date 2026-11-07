@@ -198,7 +198,7 @@ import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { IRON, METAL, SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
-import { heroUnaware, pline_mon } from './pline.js';
+import { heroUnaware, pline_mon, youFeel } from './pline.js';
 import { coreRandom } from './rng.js';
 
 import {
@@ -1691,10 +1691,10 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
                 await message('You are subjected to a freakish metamorphosis.', state);
                 await polyself(POLY_NOFLAGS, state);
             } else if (state.u.umonnum !== state.u.ulycn) {
-                await message('You feel an unnatural urge coming on.', state);
+                await message(youFeel('an unnatural urge coming on.', state), state);
                 await you_were(state, env);
             } else {
-                await message('You feel a natural urge coming on.', state);
+                await message(youFeel('a natural urge coming on.', state), state);
                 await you_unwere(false, state, env);
             }
             damage = 0;
