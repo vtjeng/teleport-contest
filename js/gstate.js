@@ -43,14 +43,14 @@ export class PlanningLiveGameError extends Error {
 let liveGameDuringPlanning = null;
 
 // Lines 0-2 of the stack are the message, refuse() and the trap below; line 3
-// is the function that used `game`, and lines 4-5 its callers, one of which is
-// usually the call that did not pass the clone.
+// is the function that used `game`, and lines 4-7 its callers, one of which
+// is usually the call that did not pass the clone.
 function framesOf(stack) {
     const frame = (line) => (line ?? '').trim().replace(/^at /u, '')
         .replace(/file:\/\/\S*\/js\//u, '').replace(/[()]/gu, '');
     const lines = String(stack ?? '').split('\n');
     const user = frame(lines[3]) || 'an unknown function';
-    const callers = lines.slice(4, 6).map(frame).filter(Boolean);
+    const callers = lines.slice(4, 8).map(frame).filter(Boolean);
     return callers.length ? `${user}, called from ${callers.join(' < ')}` : user;
 }
 
