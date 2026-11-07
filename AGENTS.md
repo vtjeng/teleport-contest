@@ -251,6 +251,27 @@ reset, changed, saved, restored, or discarded. Create separate JavaScript values
 only when the C code treats them as separate, keep their update logic together,
 and test that values the C code changes together change together in JavaScript.
 
+### Fix a repeated defect at its source
+
+When a defect comes from a convention the port follows in many places rather
+than from one function's logic, search `js/` for every site that follows it
+before you fix the defect, and put the search and its count in the commit
+message. Such conventions include a value held in another type than C's, one C
+value kept in two places, and an injected random source or environment that a
+caller can pass incomplete.
+
+- If three or more sites share the convention, fix the convention instead of
+  each site, and add a check that fails if the defect returns, as
+  `scripts/yn-answer-type.test.mjs` does. Add a recording for each site whose
+  behavior changes.
+- If that change is too large for the current task, fix the one site, then ask
+  the user whether to schedule the larger fix, giving the convention, the
+  search and the count. A subagent gives these to the lead, which asks the user.
+
+When the same kind of fix appears in two branches, or recurs across rounds,
+the lead runs the same search and, if three or more sites share the
+convention, schedules a fix of the convention.
+
 ### Keep each source file's port in one place
 
 Some code in `js/` is ported from the C or Lua source. The rest stands in for
