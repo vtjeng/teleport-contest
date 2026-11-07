@@ -1129,9 +1129,16 @@ export async function m_break_boulder(mtmp, x, y, env = {}) {
 // whether the hero is picking a lock or digging, and warns or arrests.
 // picking_lock() and is_digging() are occupation predicates from lock.c and
 // dig.c; watch_dig() owns the digging warning and arrest branch in dig.c.
-async function watch_on_duty(mtmp, env = {}) {
-    const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+//
+// dochug() passes no message operation, so this one picks the live TTY or,
+// on a planning clone, a silent one; mon_yells() and stop_occupation() both
+// print through it.
+async function watch_on_duty(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const env = { ...rawEnv, state, message };
     if (mtmp.mpeaceful
         && in_town(state.u.ux + (state.u.dx ?? 0),
             state.u.uy + (state.u.dy ?? 0), state)
