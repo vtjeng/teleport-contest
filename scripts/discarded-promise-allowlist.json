@@ -656,10 +656,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/muse.js | mon_escape | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/muse.js | precheck | mongone": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

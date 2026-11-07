@@ -480,7 +480,8 @@ export async function dorestore(state = game) {
         if (mtmp.isshk) set_residency(mtmp, false, state);
         if (mtmp !== state.u.usteed && hides_under(mtmp.data)
             && mtmp.mundetected) {
-            hideunder(mtmp, { state });
+            // restore.c:1197 discards hideunder()'s result.
+            await hideunder(mtmp, { state });
         }
         await restore_cham(mtmp, state);
     }
