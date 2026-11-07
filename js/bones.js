@@ -13,6 +13,7 @@ import {
     LOST_NONE,
     MAGIC_PORTAL,
     MAXNROFROOMS,
+    MAX_NUM_WORMS,
     MM_NONAME,
     NON_PM,
     NO_MINVENT,
@@ -94,6 +95,7 @@ import {
 } from './obj.js';
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { block_point } from './vision.js';
+import { place_wsegs } from './worm.js';
 import { rest_engravings } from './engrave.js';
 import {
     BOW,
@@ -898,6 +900,14 @@ function serializeBonesLevel(state) {
         buriedObjects,
         engravings,
         timers,
+        // C ref: worm.c save_worm() (528-551), which savelev_core() calls
+        // right after savemonchn(): every worm slot's segments, tail first.
+        worms: (level.worms ?? []).map((slot) => (slot
+            ? {
+                segments: slot.segments.map(({ x, y }) => ({ x, y })),
+                growtime: slot.growtime,
+            }
+            : null)),
         // C ref: light.c save_light_sources(RANGE_LEVEL), which savelev_core()
         // calls right after save_timers().
         lights: maybe_write_ls(RANGE_LEVEL, state),
@@ -1175,12 +1185,24 @@ async function restoreBonesLevel(bonesData, state) {
         if (m.isshk) restshk(m, true, state);
         if (m.ispriest) restpriest(m, true, state);
         m.nmon = null;
-        if (isok(m.mx, m.my)) monsGrid[m.mx][m.my] = m;
         if (monTail) { monTail.nmon = m; monTail = m; }
         else { monHead = m; monTail = m; }
     }
     level.monsters = monsGrid;
     level.monlist = monHead;
+    // C ref: worm.c rest_worm() (577-603), which getlev() calls right after
+    // restmonchn(): each worm slot's segments, tail first, and every slot's
+    // wgrowtime. A slot with no segments is free (get_wormno() tests its
+    // head), so it restores as js/worm.js's empty slot.
+    level.worms = Array(MAX_NUM_WORMS).fill(null);
+    (bonesData.worms ?? []).forEach((saved, wormno) => {
+        if (wormno > 0 && saved?.segments?.length) {
+            level.worms[wormno] = {
+                segments: saved.segments.map(({ x, y }) => ({ x, y })),
+                growtime: saved.growtime,
+            };
+        }
+    });
 
     // C restore.c:rest_stairs() rebuilds gs.stairs before the caller places
     // the hero. Rebuild the chain separately from level.upstair/dnstair;
@@ -1242,11 +1264,15 @@ async function restoreBonesLevel(bonesData, state) {
 
     rest_region_capacity(level);
 
-    // C restore.c getlev() (1181-1183): rest_rooms() cleared every room's
-    // resident pointer, so each shopkeeper on the restored chain reclaims
-    // its room before the level begins play.
-    for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon)
+    // C restore.c getlev() (1177-1195), the placement half of its monster
+    // loop: rest_rooms() cleared every room's resident pointer, so each
+    // shopkeeper on the restored chain reclaims its room; then each monster
+    // goes onto the map and a worm's tail with it, in chain order.
+    for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.isshk) set_residency(mtmp, false, state);
+        if (isok(mtmp.mx, mtmp.my)) level.monsters[mtmp.mx][mtmp.my] = mtmp;
+        if (mtmp.wormno) place_wsegs(mtmp, null, { state });
+    }
 
     // C ref: restore.c getlev():1130 restore_timers(RANGE_LEVEL, elapsed)
     // and 1305 relink_timers(ghostly). A bones level's timers move from the
