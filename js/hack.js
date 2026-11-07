@@ -3715,7 +3715,7 @@ async function avoid_moving_on_trap(x, y, msg, state) {
         if (msg && state.flags?.mention_walls) {
             await ttyPline(
                 messageAt(
-                    `You stop in front of ${an(trapname(trap.ttyp))}.`,
+                    `You stop in front of ${an(trapname(trap.ttyp, false, state))}.`,
                     x,
                     y,
                     state,
@@ -5246,7 +5246,7 @@ export async function domove_swap_with_pet(
     } else if (monster.mpeaceful && monster.mtrapped) {
         // hack.c:2141-2157. feeltrap() is deliberately before the name is
         // assembled for an unseen trap, and handle_tip() follows the line.
-        const what = trapname(trap.ttyp);
+        const what = trapname(trap.ttyp, false, state);
         const unseen = !trap.tseen;
         let which = 'that ';
         if (unseen) {

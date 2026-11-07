@@ -1677,7 +1677,7 @@ export function readobjnam_postparse1(d, env) {
             } else if (d.trapped === 1 || zp !== '') {
                 // objnam.c:4653-4658 goes to wiztrap:, where wizterrainwish()
                 // builds a trap rather than an object.
-                d.bp = trapname(beartrap ? BEAR_TRAP : LANDMINE, true);
+                d.bp = trapname(beartrap ? BEAR_TRAP : LANDMINE, true, state);
                 return 5; /*goto wiztrap;*/
             }
             /* [no prefix or suffix; we're going to end up matching

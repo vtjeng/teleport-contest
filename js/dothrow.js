@@ -1156,7 +1156,10 @@ export async function hurtle_step(arg, x, y) {
             return true;
         } else if (trap.tseen) {
             await message(
-                `You pass right over ${an(trapname(trap.ttyp))}.`, state,
+                `You pass right over ${an(trapname(trap.ttyp, false, state, {
+                    rn2: random.rn2,
+                    rn2_on_display_rng: arg?.displayRandom ?? undefined,
+                }))}.`, state,
             );
         }
     }

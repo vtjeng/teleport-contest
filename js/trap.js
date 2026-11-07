@@ -2302,9 +2302,10 @@ export async function climb_pit(state = game) {
 // C ref: trap.c trapname() (7100-7155). The display RNG chooses the name;
 // only the extra role/rank entry also spends a core rn2(3). The display draw
 // uses `state`'s own stream unless the caller injects one, so a monster-turn
-// planning clone advances its copy rather than the live game's.
-export function trapname(ttyp, override = false, state = game,
-                         random = { rn2 }) {
+// planning clone advances its copy rather than the live game's. `state` has
+// no default, and scripts/trapname-state.test.mjs requires every caller in
+// js/ to pass it.
+export function trapname(ttyp, override, state, random = { rn2 }) {
     const hallu = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (hallu?.intrinsic && !(resistance?.intrinsic || resistance?.extrinsic)
@@ -3285,6 +3286,7 @@ export async function openholdingtrap(mon, state = game) {
                 u.utraptype === TT_WEB ? WEB
                 : u.utraptype === TT_PIT ? PIT
                 : BEAR_TRAP,
+                false, state,
             );
             break;
         default:
@@ -3318,7 +3320,7 @@ export async function openholdingtrap(mon, state = game) {
         // Non-hero path.
         if (!t || (t.ttyp !== BEAR_TRAP && t.ttyp !== WEB))
             return { result: false, noticed };
-        const trapdescr = trapname(t.ttyp);
+        const trapdescr = trapname(t.ttyp, false, state);
 
         let which;
         if (!which) {

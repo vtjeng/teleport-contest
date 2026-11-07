@@ -1020,7 +1020,7 @@ export async function look_traps(nearby, state = game) {
                         glyph, x, y, state,
                     );
                     obscuringGlyph = glyph;
-                    description = `${trapname(trap.ttyp)}, obscured by `
+                    description = `${trapname(trap.ttyp, false, state)}, obscured by `
                         + obscuring;
                     glyph = trap_to_glyph(trap, state);
                 }
