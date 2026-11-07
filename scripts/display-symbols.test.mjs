@@ -9525,6 +9525,49 @@ test('three-line status leaves a 24-row map unclipped', async () => {
     );
 });
 
+// display.c flush_screen() prints every gbuf cell whose gnew bit is set,
+// GLYPH_UNEXPLORED included. When a monster on map row ROWNO-1 moves off an
+// unexplored square, tty_print_glyph() prints that square's blank over the
+// first of three status rows, erasing both the monster and the status
+// character beneath it.
+test('three-line status: an unexplored glyph flushed on map row 20 prints its blank', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    state.dungeons = dungeonsOfDoom();
+    state.flags = {};
+    state.iflags = { wc2_statuslines: 3 };
+    state.urole = {
+        name: { m: 'Archeologist' },
+        rank: { m: 'Digger' },
+    };
+    state.u = {
+        ux: 1,
+        uy: 1,
+        uz: { dnum: 0, dlevel: 1 },
+        ulevel: 1,
+        uhp: 12,
+        uhpmax: 12,
+        uen: 3,
+        uenmax: 3,
+        uac: 10,
+        ualign: { type: 1 },
+        acurr: { a: [12, 13, 14, 15, 16, 17] },
+        uprops: zeroHeroProperties(),
+    };
+    monst_globals_init(state);
+    await flush_screen(1);
+    const cell = () => state.nhDisplay.grid[21][2].ch;
+    // Column 2 of "Hero the Digger" is the 'r' of "Hero"; map x 3 prints there.
+    assert.equal(cell(), 'r');
+    show_glyph_cell(3, 20, map_glyphinfo(GLYPH_MON_MALE_OFF + PM_JACKAL, state));
+    await flush_screen(1);
+    assert.equal(cell(), 'd', 'the jackal is printed over the status row');
+    show_glyph_cell(3, 20, map_glyphinfo(GLYPH_UNEXPLORED_OFF, state));
+    await flush_screen(1);
+    assert.equal(cell(), ' ', 'the unexplored blank replaces the jackal');
+});
+
 // do.c goto_level() calls flush_screen(-1) at 1718 to postpone every map flush
 // while it builds the destination, and again at 1839 to release it. Nothing
 // pinned either half: mutating the `-1` the toggle tests for left the whole

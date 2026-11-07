@@ -7170,11 +7170,8 @@ function _buildScreenOutput(cursorOnHero = true) {
                 // wintty.c tty_print_glyph() prints spaces too: detected
                 // ghosts carry inverse video on their otherwise blank glyph.
                 if (!ch) continue;
-                // display.c's nul_gbuf holds GLYPH_UNEXPLORED, so an
-                // unexplored square is never printed after cls().
                 if (overStatus) printedOverStatus.add(`${offset + 1}:${x - 1}`);
-                if (overStatus
-                    && loc.disp_glyph?.glyph !== GLYPH_UNEXPLORED_OFF) {
+                if (overStatus) {
                     recordStatusOverlay(
                         x - 1,
                         offset + 1,
