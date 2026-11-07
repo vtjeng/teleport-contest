@@ -60,3 +60,20 @@ test('priest.c intemple() and priest_talk() read Hallucination, which resistance
     }
     assert.doesNotMatch(js, /function \w*Halluc\w*\(/u, 'priest.js keeps no hallucination copy');
 });
+
+test('apply.c, do_name.c and uhitm.c read Deaf with its roleplay term', () => {
+    // Deaf is HDeaf || EDeaf || u.uroleplay.deaf (youprop.h:125). These three
+    // callers spelled out the first two terms only, so a hero who chose the
+    // deaf roleplay option heard Snickersnee ring, a shopkeeper's retort to
+    // being renamed, and a nymph's brag. Each needs a monster placed for the
+    // case (at polearm range for Snickersnee, a shopkeeper, a seducer hitting
+    // a hero polymorphed into a nymph), out of reach of a short recipe.
+    for (const [file, name] of [['apply', 'use_pole'], ['do_name', 'do_mgivenname'],
+        ['uhitm', 'mhitm_ad_sedu']]) {
+        const cText = cBody(read(`nethack-c/upstream/src/${file}.c`), name);
+        const jsText = jsBody(read(`js/${file}.js`), name);
+        assert.equal(count(cText, /\bDeaf\b/gu), 1, `C ${name}() reads Deaf`);
+        assert.equal(count(jsText, /\bDeaf\(state\.u\)/gu), 1, `${file}.js ${name}() calls Deaf()`);
+        assert.equal(count(jsText, /\bHDeaf\(|\bEDeaf\(/gu), 0, `${file}.js ${name}() spells no part of it`);
+    }
+});

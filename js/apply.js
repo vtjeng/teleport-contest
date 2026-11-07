@@ -640,9 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Deaf, EDeaf,
-    HBlinded, HDeaf, HHallucination, Halluc_resistance,
-    Hallucination, Invis, Maybe_Half_Phys, See_invisible,
+    BBlinded, Blind, BlindedTimeout, Deaf, HBlinded, HDeaf,
+    HHallucination, Halluc_resistance, Hallucination, Invis, Maybe_Half_Phys,
+    See_invisible,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -1110,7 +1110,7 @@ export async function use_pole(obj, autohit, state = game) {
         if (obj === state.uwep && obj.oartifact === ART_SNICKERSNEE) {
             freehit = state.moves !== state.context.snickersnee_turn;
             state.context.snickersnee_turn = state.moves;
-            if (freehit && !(HDeaf(state.u) || EDeaf(state.u)))
+            if (freehit && !Deaf(state.u))
                 await ttyPline('Shkinng!', state);
         }
         await thitmonst(monster, state.uwep, state);

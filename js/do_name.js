@@ -163,7 +163,8 @@ import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
 import {
-    Blind, EDeaf, EHalluc_resistance, HDeaf, Hallucination, See_invisible,
+    Blind, Deaf, EHalluc_resistance, Hallucination,
+    See_invisible,
 } from './youprop.js';
 
 const GHOST_NAMES = Object.freeze([
@@ -584,7 +585,7 @@ export async function do_mgivenname(state = game) {
         if (!await alreadynamed(monster, monnambuf, buf, state))
             await ttyPline(`${upstart(monnambuf)} doesn't like being called names!`, state);
     } else if (monster.isshk
-        && !(HDeaf(state.u) || EDeaf(state.u))
+        && !Deaf(state.u)
         && !helpless(monster)
         && (monster.data?.msound ?? 0) > MS_ANIMAL) {
         if (!await alreadynamed(monster, monnambuf, buf, state)) {

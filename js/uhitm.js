@@ -706,8 +706,7 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Deaf, Detect_monsters, EBlinded, EDeaf, HBlinded,
-    HDeaf, Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
+    Blind, Blind_telepat, Deaf, Detect_monsters, EBlinded, HBlinded, Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
     See_invisible,
 } from './youprop.js';
 
@@ -4140,10 +4139,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         } else if (dmgtype(state.youmonst?.data, AD_SEDU)
                    || dmgtype(state.youmonst?.data, AD_SSEX)) {
             // Hero's own species is seductive; attacker brags and teleports.
-            const deaf = Boolean(
-                HDeaf(state.u)
-                || EDeaf(state.u),
-            );
+            const deaf = Deaf(state.u);
             const bragMsg = deaf
                 ? 'says something but you can\'t hear it'
                 : magr.minvent
