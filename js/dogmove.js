@@ -358,7 +358,9 @@ function nearestVisibleGoal(monster, state, clearArea) {
 
 // C ref: dogmove.c droppables(). Return the first carried object this pet
 // does not reserve as its wielded weapon or one preferred utility tool.
-export function droppables(monster) {
+// `env.state` is the state the caller plays on; a planned pet move passes the
+// planning clone, so which_armor() must read that, not the live game.
+export function droppables(monster, env = {}) {
     const species = monster.data;
     const weapon = monster.mw;
     let pickaxe = null;
@@ -384,7 +386,7 @@ export function droppables(monster) {
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         switch (obj.otyp) {
         case DWARVISH_MATTOCK:
-            if (which_armor(monster, W_ARMS)) break;
+            if (which_armor(monster, W_ARMS, env.state)) break;
             if (pickaxe?.otyp === PICK_AXE && pickaxe !== weapon
                 && (!pickaxe.oartifact || obj.oartifact)) {
                 return pickaxe;
