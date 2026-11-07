@@ -557,11 +557,31 @@ test('newman refreshes hunger and clears stoning for live and planning calls', a
         game.nhDisplay.readKey = async () => 32;
         initRng(15129021);
         let refreshes = 0;
-        await newman(game, { planning, statusRefresh: state => {
+        // A planned polyself() comes from a monster's turn, whose env
+        // (js/unported_monster_actions.js planSimpleMonsterScan()) carries a
+        // requestPlanningInput() that throws to end the dry run. newman()
+        // ends with retouch_equipment(2), which takes that boundary because
+        // the Ranger carries a pack; the hunger and stoning checks below
+        // precede it in C's newman().
+        const boundaries = [];
+        const plannedEnv = planning ? {
+            requestPlanningInput(operation) {
+                boundaries.push(operation);
+                throw new Error(`planning boundary: ${operation}`);
+            },
+        } : {};
+        const call = newman(game, { planning, ...plannedEnv, statusRefresh: state => {
             assert.equal(state, game);
             assert.equal(state.u.uhs, NOT_HUNGRY);
             refreshes++;
         } });
+        if (planning) {
+            await assert.rejects(call,
+                /planning boundary: artifact\.c retouch_equipment/u);
+            assert.deepEqual(boundaries, ['artifact.c retouch_equipment']);
+        } else {
+            await call;
+        }
         assert.equal(refreshes, 1);
         assert.ok(game.u.uhunger >= 500 && game.u.uhunger <= 999);
         assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
