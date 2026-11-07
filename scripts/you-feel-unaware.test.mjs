@@ -11,6 +11,7 @@ import test from 'node:test';
 
 import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
+import { intervene } from '../js/wizard.js';
 
 // Marks `state` as C's fall_asleep() leaves it: multi negative and usleep
 // set, so trap.c unconscious() and youprop.h Unaware are true. Ten turns
@@ -57,4 +58,16 @@ test('dogmove.c dog_starve() dreams the loss of an unseen pet', async () => {
         mondied: async () => {},
     });
     assert.deepEqual(lines, ['You dream that you feel sad for a moment.']);
+});
+
+test('wizard.c intervene() dreams the nervousness of a sleeping hero', async () => {
+    // allmain.c:366 calls intervene() when the demigod countdown expires,
+    // asleep or not; rn2(6) == 0 takes wizard.c:793's You_feel() arm.
+    const state = asleep({ u: { uz: { dnum: 0, dlevel: 3 } } }); // Not Astral.
+    const lines = [];
+    await intervene(state, {
+        random: { rn2: () => 0, rnd: () => 1 },
+        message: async (line) => { lines.push(line); },
+    });
+    assert.deepEqual(lines, ['You dream that you feel vaguely nervous.']);
 });
