@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "youprop.h Sick_resistance includes defended(&youmonst, AD_DISE), and mondata.c defended() treats an adult green dragon as wearing its scales. A debug-mode Valkyrie polymorphs into a green dragon and views her attributes: 'You are immune to sickness.'",
+  "segments": [
+    {
+      "seed": 1301,
+      "datetime": "20261104120000",
+      "nethackrc": "OPTIONS=name:Wizard,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " #polyself\ngreen dragon\n    \u0018  "
+    }
+  ]
+}
