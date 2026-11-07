@@ -349,6 +349,11 @@ async function ttyPlineCore(
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return;
+    // A monster-action planning clone (unported_monster_actions.js
+    // planningState()) shares the live terminal, and its dry run is replayed
+    // live afterwards. A callee that prints through ttyPline() instead of its
+    // env.message seam must not reach the screen twice, or early.
+    if (state !== game && state._plannedMapMemory) return;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive

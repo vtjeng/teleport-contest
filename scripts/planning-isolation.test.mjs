@@ -9,7 +9,7 @@ import { cloneIsaacContext } from '../js/rng.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
-import { hurtle_step } from '../js/dothrow.js';
+import { hurtle, hurtle_step } from '../js/dothrow.js';
 import {
     isolatePlannedVision,
     planningState,
@@ -261,4 +261,29 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
         'planned hurtle movement leaves the live cursor unchanged');
     assert.deepEqual(replay.getRngLog(), stepLiveRng,
         'planned hurtle movement consumes no live RNG');
+});
+
+// A planning clone from planningState() shares the live terminal, and the
+// planned monster turn is replayed live afterwards. dothrow.c hurtle()'s
+// punished arm prints "You feel a tug from the iron ball." through ttyPline()
+// rather than an env.message seam; during the dry run that line must not
+// reach the live top line, or the live replay gains an early --More--.
+test('a planned hurtle prints nothing on the live terminal', async () => {
+    await runSegment({
+        // An independent startup gives the live display and message window.
+        seed: 128070402, datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:Tugged,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const planned = planningState(game);
+    // steed.c Punished() reads uball; one on the floor takes hurtle()'s
+    // first arm.
+    planned.uball = { where: 0 };
+    const topLine = () => game.nhDisplay.grid[0].map((cell) => cell.ch).join('');
+    const before = topLine();
+    const pending = game._pending_message;
+    await hurtle(1, 0, 1, false, planned, { planning: true });
+    assert.equal(topLine(), before);
+    assert.equal(game._pending_message, pending);
 });
