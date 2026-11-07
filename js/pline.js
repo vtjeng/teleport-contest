@@ -41,6 +41,9 @@ export function youHear(line, state = game) {
 
 // C ref: pline.c You_feel() (388-401). Use the awareness state before
 // the sensation's caller changes timeouts or schedules its wakeup message.
+// Every port of a You_feel() call builds its line here;
+// scripts/you-feel-literal.mjs fails on a hand-written "You feel" in js/
+// unless it lists the C call that writes the text without You_feel().
 export function youFeel(line, state = game) {
     return `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} ${line}`;
 }
