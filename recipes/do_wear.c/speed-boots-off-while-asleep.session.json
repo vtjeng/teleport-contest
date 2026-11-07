@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "do_wear.c Boots_off() 274-278 and pline.c You_feel() 388-401: speed boots that come off while the hero is Unaware report \"You dream that you feel yourself slow down.\" A human Priestess in debug mode wishes for and wears speed boots, wishes for a potion of sleeping, creates a genetic engineer and drinks the potion; asleep, she is polymorphed by the engineer's touch into a gas spore, whose form pushes the boots off. Seed, character and inputs chosen independently of batch 7.",
+  "segments": [
+    {
+      "seed": 5528001,
+      "datetime": "20390811200000",
+      "nethackrc": "OPTIONS=name:Isolde,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017speed boots\nWi\u0017potion of sleeping\n\u0007genetic engineer\nqj            "
+    }
+  ]
+}

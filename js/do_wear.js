@@ -403,6 +403,7 @@ import {
 import { rn2, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { remove_worn_item } from './steal.js';
+import { youFeel } from './pline.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
@@ -1805,8 +1806,8 @@ export async function Boots_on(state) {
         if (!oldprop && !(fast.intrinsic & TIMEOUT)) {
             discover_object(otyp, true, true, true, state);
             await ttyPline(
-                `You feel yourself speed up${fast.intrinsic
-                    ? ' a bit more' : ''}.`,
+                youFeel(`yourself speed up${fast.intrinsic
+                    ? ' a bit more' : ''}.`, state),
                 state,
             );
         }
@@ -1883,8 +1884,12 @@ export async function Boots_off(state = game, rawEnv = {}) {
             (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
         if (!veryFast && !takeoff.cancelled_don) {
             discover_object(otyp, true, true, true, state);
+            // C You_feel(): "You dream that you feel" while Unaware, as when
+            // a polymorph into a form too small to carry the pack has left
+            // the hero unable to move.
             await env.message(
-                `You feel yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
+                youFeel(`yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
+                    state),
                 state,
                 env,
             );
@@ -2354,7 +2359,7 @@ async function helmetOnCursePath(state) {
             + (state.u.atemp?.a?.[A_INT] ?? 0);
         const msg = curInt <= rawInt
             ? 'like sitting in a corner' : 'giddy';
-        await ttyPline(`You feel ${msg}.`, state);
+        await ttyPline(youFeel(`${msg}.`, state), state);
     } else {
         /* [message formerly given here moved to uchangealign()] */
         discover_object(HELM_OF_OPPOSITE_ALIGNMENT, true, true, true, state);
