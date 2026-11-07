@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent pickup.c carry_count() gold witness, chosen for this run (seed, clock and Priest identity are new). Wish 250000 gold pieces and a statue of a giant; both slip to the floor. Pick up both from the menu. carry_count() lifts only some of the gold (\"You can only lift some of ...\"), lift_object() asks the overload question and y accepts it, pickup_object() splits the gold, and the statue row then lifts none (\"you cannot lift any more\"), which stops pickup().",
+  "segments": [
+    {
+      "seed": 3306781,
+      "datetime": "20460415171500",
+      "nethackrc": "OPTIONS=name:GoldLift,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,autopickup,!acoustics\n",
+      "moves": "#wizwish\n250000 gold pieces\n#wizwish\nstatue of a giant\n,.\n y  "
+    }
+  ]
+}
