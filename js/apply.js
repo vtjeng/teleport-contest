@@ -116,7 +116,7 @@ import {
     DISP_END,
     FLYING,
     FORCEBUNGLE,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     INTRINSIC,
     INVIS,
     INVIS_BEAM,
@@ -878,7 +878,7 @@ export async function use_whip(obj, state = game, env = {}) {
         if (damage <= 0) damage = 1;
         await ttyPline(`You hit your ${body_part(FOOT, state.youmonst)} with your bullwhip.`, state);
         const killer = `killed ${uhim(state)}self with ${state.flags.female ? 'her' : 'his'} bullwhip`;
-        await losehp(halfPhysicalDamage(damage, state), killer, NO_KILLER_PREFIX, state);
+        await losehp(Maybe_Half_Phys(damage, state.u), killer, NO_KILLER_PREFIX, state);
         return ECMD_TIME;
     } else if ((applyIsFumbling(state) || applyIsGlib(state)) && !rn2(5)) {
         await ttyPline(`The bullwhip slips out of your ${body_part(HAND, state.youmonst)}.`, state);
@@ -1629,7 +1629,7 @@ export async function use_grapple(obj, state = game, env = {}) {
         if (P_SKILL(typ, state) <= P_BASIC) {
             await message('You hook yourself!', state);
             await losehp(
-                halfPhysicalDamage(random.rn1(10, 10), state),
+                Maybe_Half_Phys(random.rn1(10, 10), state.u),
                 'a grappling hook', KILLED_BY, state, { ...env, random },
             );
             return ECMD_TIME;
@@ -2970,12 +2970,6 @@ async function display_jump_positions(onOff, state = game) {
     }
 }
 
-function halfPhysicalDamage(damage, state) {
-    const prop = state.u?.uprops?.[HALF_PHDAM];
-    return (prop?.intrinsic || prop?.extrinsic)
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 async function jumpLandingPath(target, state) {
     const source = { x: state.u.ux, y: state.u.uy };
     const destination = { x: target.x, y: target.y };
@@ -3108,7 +3102,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         case TT_BEARTRAP: {
             const side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
             await ttyPline('You rip yourself free of the bear trap!  Ouch!', state);
-            await losehp(halfPhysicalDamage(rnd(10), state),
+            await losehp(Maybe_Half_Phys(rnd(10), state.u),
                 'jumping out of a bear trap', KILLED_BY, state);
             await set_wounded_legs(side, rn1(1000, 500), state);
             break;
@@ -4950,7 +4944,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
             if (dealt) {
                 const killer = `killed ${uhim(state)}self by breaking a wand`;
                 await losehp(
-                    halfPhysicalDamage(dealt, state),
+                    Maybe_Half_Phys(dealt, state.u),
                     killer,
                     NO_KILLER_PREFIX,
                     state,

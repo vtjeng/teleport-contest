@@ -27,7 +27,8 @@ import {
     FIRE_RES,
     FEMALE,
     G_EXTINCT,
-    HALF_PHDAM,
+    Half_physical_damage,
+    Maybe_Half_Phys,
     INVIS,
     M_AP_NOTHING,
     M_AP_OBJECT,
@@ -1083,7 +1084,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         case 0:
             await pline('You feel drained of energy.');
             state.u.uen = 0;
-            state.u.uenmax -= random.rnd(Half_physical_damage(state) ? 5 : 10);
+            state.u.uenmax -= random.rnd(Half_physical_damage(state.u) ? 5 : 10);
             await exercise(A_CON, false, state, random, {
                 encumberMessage: (currentState) =>
                     encumber_msg(currentState, { message }),
@@ -1130,8 +1131,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             });
             const damage = random.rn1(10, 6);
             await losehp(
-                Half_physical_damage(state)
-                    ? Math.trunc((damage + 1) / 2) : damage,
+                Maybe_Half_Phys(damage, state.u),
                 'exhaustion', KILLED_BY, state, effectEnv,
             );
             break;
@@ -2246,9 +2246,6 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const slowDigestion = Boolean(
         prop(SLOW_DIGESTION).intrinsic || prop(SLOW_DIGESTION).extrinsic,
     );
-    const halfPhysicalDamage = Boolean(
-        prop(HALF_PHDAM).intrinsic || prop(HALF_PHDAM).extrinsic,
-    );
     const magicalBreathing = Boolean(
         prop(MAGICAL_BREATHING).intrinsic
             || prop(MAGICAL_BREATHING).extrinsic,
@@ -2441,7 +2438,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         } else if (u.uswldtim === 0) {
             await message(`${Monnam(mtmp, state, rawEnv)} totally digests you!`, state, rawEnv);
             tmp = u.uhp;
-            if (halfPhysicalDamage) tmp *= 2;
+            if (Half_physical_damage(u)) tmp *= 2;
         } else {
             const adverb = u.uswldtim === 2 ? ' thoroughly'
                 : u.uswldtim === 1 ? ' utterly' : '';
@@ -2571,7 +2568,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     if (physicalDamage) {
         if (u.uac < 0) tmp -= random.rnd(-u.uac);
         if (tmp < 0) tmp = 1;
-        if (halfPhysicalDamage) tmp = Math.trunc((tmp + 1) / 2);
+        tmp = Maybe_Half_Phys(tmp, u);
     }
 
     state.gm ??= {};
@@ -2674,14 +2671,6 @@ export function magic_negation(mon, state = game) {
             mc = 1;
     }
     return mc;
-}
-
-// youprop.h:339-341 Half_physical_damage, spelled out here because each C
-// file's port expands its own macros; js/trap_effects.js:158 expands the same
-// one. It is the intrinsic or the extrinsic, with no blocking term.
-function Half_physical_damage(state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return Boolean(halved?.intrinsic || halved?.extrinsic);
 }
 
 // C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
@@ -2796,7 +2785,7 @@ async function hitmu(mtmp, mattk, env) {
 
     if (mhm.damage > 0) {
         /* [Half_physical_damage isn't applied to mhm.permdmg] */
-        if (Half_physical_damage(state)
+        if (Half_physical_damage(state.u)
             /* Mitre of Holiness, even if not currently blessed */
             || (state.urole?.mnum === M.PM_CLERIC && state.uarmh
                 && is_quest_artifact(state.uarmh, state)

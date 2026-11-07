@@ -52,7 +52,8 @@ import {
     FROMOUTSIDE,
     FUMBLING,
     HEAD,
-    HALF_PHDAM,
+    Half_physical_damage,
+    Maybe_Half_Phys,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -458,16 +459,6 @@ export function wearing_iron_shoes(monster, state = game) {
     return Boolean(armf && objectType(armf, state).oc_material === IRON);
 }
 
-// hack.h:1236 Maybe_Half_Phys(), expanded here for the same reason js/steed.js
-// expands it there: it is a macro over one property, and each C file's port
-// spells its macros out. youprop.h:341 defines Half_physical_damage as the
-// intrinsic or the extrinsic, with no blocking term.
-function Maybe_Half_Phys(dmg, state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return (halved?.intrinsic || halved?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: trap.c floor_trigger(). Is trap type ttyp triggered by touching the
 // floor?
 export function floor_trigger(ttyp) {
@@ -749,7 +740,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             // The steed absorbed the arrow trap's hit.
         } else if (await thitu(
             8,
-            Maybe_Half_Phys(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             otmp,
             'arrow',
             state,
@@ -964,7 +955,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             // nothing
         } else if (await thitu(
             7,
-            Maybe_Half_Phys(dam, state),
+            Maybe_Half_Phys(dam, state.u),
             otmp,
             'little dart',
             state,
@@ -1133,7 +1124,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
 
         if (!harmless) {
             await losehp(
-                Maybe_Half_Phys(damage, state),
+                Maybe_Half_Phys(damage, state.u),
                 'falling rock',
                 KILLED_BY_AN,
                 state,
@@ -1343,7 +1334,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
             random.rn1(10, 10),
             state,
         );
-        await losehp(Maybe_Half_Phys(dmg, state), 'bear trap', KILLED_BY_AN,
+        await losehp(Maybe_Half_Phys(dmg, state.u), 'bear trap', KILLED_BY_AN,
             state);
         // C's losehp() reaches done(DIED), which does not return; the
         // port's returns once the game is over, so stop where C stops.
@@ -1637,7 +1628,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                 const oldumort = state.u.umortality ?? 0;
                 const spikeDamage = random.rnd(conjPit ? 4 : adjPit ? 6 : 10);
                 await losehp(
-                    Maybe_Half_Phys(spikeDamage, state),
+                    Maybe_Half_Phys(spikeDamage, state.u),
                     plunged ? 'deliberately plunged into a pit of iron spikes'
                         : (conjPit || deliberate) ? 'stepped into a pit of iron spikes'
                             : adjPit ? 'stumbled into a pit of iron spikes'
@@ -1667,7 +1658,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             } else if (!conjPit && !deliberate
                 && !(plunged && (Flying(state) || is_clinger(state.youmonst.data)))) {
                 await losehp(
-                    Maybe_Half_Phys(random.rnd(adjPit ? 3 : 6), state),
+                    Maybe_Half_Phys(random.rnd(adjPit ? 3 : 6), state.u),
                     plunged ? 'deliberately plunged into a pit' : 'fell into a pit',
                     NO_KILLER_PREFIX,
                     state,
@@ -2472,9 +2463,8 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
         if (antimagicTrapHero(state)) {
             let damage = random.rnd(4);
             const hp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
-            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
             const halfSpell = state.u?.uprops?.[HALF_SPDAM];
-            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic
+            if (Half_physical_damage(state.u)
                 || halfSpell?.intrinsic || halfSpell?.extrinsic) {
                 damage += random.rnd(4);
             }
@@ -2883,7 +2873,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
             if (state.multi)
                 nomul(0, state);
             const hitHero = await thitu(9 + (singleobj.spe || 0),
-                    Maybe_Half_Phys(dam, state),
+                    Maybe_Half_Phys(dam, state.u),
                     singleobj, null, state, {
                         message,
                         // thitu() passes losehp() its planning flag.
@@ -3529,7 +3519,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
             const dam = state.u.mhmax ?? state.youmonst.mhpmax ?? 0;
             await message('You are covered with rust!', state, env);
             await losehp(
-                Maybe_Half_Phys(dam, state),
+                Maybe_Half_Phys(dam, state.u),
                 'rusting away',
                 KILLED_BY,
                 state,
@@ -3855,7 +3845,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         trap.ttyp = PIT;
         trap.madeby_u = false;
         await losehp(
-            Maybe_Half_Phys(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             'land mine',
             KILLED_BY_AN,
             state,

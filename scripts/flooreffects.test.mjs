@@ -130,6 +130,9 @@ function fixture({
             utraptype: 0,
             uinwater: false,
             luck: 0,
+            // u_init.js gives every hero a property table; an empty one
+            // grants no Half_physical_damage source.
+            uprops: [],
         },
         viz_array: Array.from({ length: 21 }, () => new Array(80).fill(0)),
     };

@@ -118,6 +118,7 @@ import {
     G_GONE,
     GLIB,
     HALF_PHDAM,
+    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -1792,7 +1793,7 @@ export async function attributes_enlightenment(final, state, lines) {
         you_are(lines, final, mc_types[armpro], '');
     }
 
-    if (active(HALF_PHDAM))
+    if (Half_physical_damage(u))
         enl_msg(lines, final, You_, 'take', 'took',
             ` ${enlght_halfdmg(HALF_PHDAM)}`, from_what(HALF_PHDAM, state));
     if (active(HALF_SPDAM))

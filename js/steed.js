@@ -28,7 +28,7 @@ import {
     FLYING,
     FUMBLING,
     GLIB,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     has_mgivenname,
@@ -333,13 +333,6 @@ function Lev_at_will(state) {
     return ((intrinsic & I_SPECIAL) !== 0 || (extrinsic & W_ARTI) !== 0)
         && (intrinsic & ~(I_SPECIAL | TIMEOUT)) === 0
         && (extrinsic & ~W_ARTI) === 0;
-}
-
-// hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
-// as the intrinsic or the extrinsic, with no blocking term.
-function Maybe_Half_Phys(dmg, state) {
-    return propertyActive(state, HALF_PHDAM)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
 }
 
 // C ref: steed.c can_ride() (168-174).
@@ -655,7 +648,7 @@ export async function mount_steed(mtmp, force, state = game) {
         const buf = `slipped while mounting ${x_monnam(mtmp, ARTICLE_A, null,
             SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION,
             true, state)}`;
-        await losehp(Maybe_Half_Phys(rn1(5, 10), state), buf,
+        await losehp(Maybe_Half_Phys(rn1(5, 10), state.u), buf,
                      NO_KILLER_PREFIX, state);
         return false;
     }
@@ -919,7 +912,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             have_spot = await landing_spot(reason, 1, state, random);
         if (!ulev && !ufly) {
             await losehp(
-                Maybe_Half_Phys(rn1(10, 10), state),
+                Maybe_Half_Phys(rn1(10, 10), state.u),
                 'riding accident', KILLED_BY_AN, state,
             );
             const wounded = state.u.uprops[WOUNDED_LEGS].intrinsic & TIMEOUT;

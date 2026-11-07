@@ -52,7 +52,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     engulfing_u,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     Has_contents,
     CXN_PFX_THE,
     IRONBARS,
@@ -869,15 +869,6 @@ async function kick_dumb(x, y, state) {
         await hurtle(-u.dx, -u.dy, 1, true, state);
 }
 
-// C ref: hack.h Maybe_Half_Phys(), used by dokick.c kick_ouch() at :903.
-// Half physical damage has no blocking term: either intrinsic or extrinsic
-// Half_physical_damage halves the odd damage with C integer arithmetic.
-function Maybe_Half_Phys(dmg, state) {
-    const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
-    return (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: dokick.c kickstr() (794-830). The killer string is selected from the
 // object name when one exists; otherwise it describes the square saved by
 // dokick(). `maploc === null` is the JavaScript representation of C's
@@ -945,7 +936,7 @@ async function kick_ouch(x, y, kickobjnam, state) {
     if (!rn2(3))
         await set_wounded_legs(RIGHT_SIDE, 5 + rnd(5), state);
     const dmg = rnd(acurr(state, A_CON) > 15 ? 3 : 5);
-    await losehp(Maybe_Half_Phys(dmg, state), kickstr(maploc, kickobjnam,
+    await losehp(Maybe_Half_Phys(dmg, state.u), kickstr(maploc, kickobjnam,
         state), KILLED_BY, state);
     if (Is_airlevel(u.uz) || Levitation(state))
         await hurtle(-u.dx, -u.dy, rn1(2, 4), true, state);

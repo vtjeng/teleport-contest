@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { ACH_TUNE, A_WIS, COLNO, D_CLOSED, D_NODOOR, DB_EAST, DB_NORTH,
     DB_SOUTH, DB_WEST, DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP,
-    FUMBLING, HALF_PHDAM,
+    FUMBLING,
     OBJ_DELETED, OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE,
     STRAT_WAITMASK,
     TELEDS_TELEPORT, TIMEOUT, TT_PIT, UNCHANGING }
@@ -15,7 +15,6 @@ import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     charm_snakes, calm_nymphs, do_improvisation, do_play_instrument,
     do_earthquake, do_pit, generic_lvl_desc, improvised_notes,
-    musicMaybeHalfPhys,
     put_monsters_to_sleep } from '../js/music.js';
 import { PM_COCKATRICE, PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
@@ -380,24 +379,6 @@ test('earthquake reaches hero chasm contact through do_pit', async () => {
     assert.equal(state.unported.has('trap.c selftouch'), false);
     assert.equal(state.program_state.gameover, true);
     assert.equal(state.killer.name, 'a cockatrice corpse');
-});
-
-test('Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up', () => {
-    const hack = readFileSync(new URL('../nethack-c/upstream/include/hack.h', import.meta.url), 'utf8');
-    const properties = readFileSync(new URL('../nethack-c/upstream/include/youprop.h', import.meta.url), 'utf8');
-    const macro = hack.match(/#define Maybe_Half_Phys\(dmg\)[^\n]*\n[^\n]*/u)?.[0];
-    assert.ok(macro?.includes('((Half_physical_damage) ? (((dmg) + 1) / 2) : (dmg))'));
-    assert.match(properties, /#define Half_physical_damage \(HHalf_physical_damage \|\| EHalf_physical_damage\)/u);
-    assert.match(properties, /#define HHalf_physical_damage u\.uprops\[HALF_PHDAM\]\.intrinsic\s*#define EHalf_physical_damage u\.uprops\[HALF_PHDAM\]\.extrinsic/u);
-
-    const state = { u: { uprops: [] } };
-    assert.equal(musicMaybeHalfPhys(5, state), 5); // Neither C property source is present.
-    state.u.uprops[HALF_PHDAM] = { intrinsic: 1, extrinsic: 0 };
-    assert.equal(musicMaybeHalfPhys(5, state), 3); // C uses (5 + 1) / 2.
-    state.u.uprops[HALF_PHDAM] = { intrinsic: 0, extrinsic: 1 };
-    assert.equal(musicMaybeHalfPhys(5, state), 3); // Extrinsic grants the same protection.
-    state.u.uprops[HALF_PHDAM] = { intrinsic: 0, extrinsic: 0 };
-    assert.equal(musicMaybeHalfPhys(4, state), 4);
 });
 
 test('improvised_notes draws one to five notes, then preserves the saved jingle when Unchanging', () => {

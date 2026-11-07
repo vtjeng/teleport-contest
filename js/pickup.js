@@ -40,7 +40,7 @@ import {
     EXT_ENCUMBER,
     FOOT,
     HALLUC,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     IS_ALTAR,
     IS_THRONE,
     T_LOOTED,
@@ -1954,11 +1954,7 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
             state,
         );
         const damage = rnd(10);
-        const halfPhysicalDamage = state.u?.uprops?.[HALF_PHDAM];
-        const inflictedDamage = halfPhysicalDamage?.intrinsic
-            || halfPhysicalDamage?.extrinsic
-            // hack.h:1236 Maybe_Half_Phys() rounds odd damage upward.
-            ? Math.trunc((damage + 1) / 2) : damage;
+        const inflictedDamage = Maybe_Half_Phys(damage, state.u);
         await losehp(
             inflictedDamage,
             'carnivorous bag',

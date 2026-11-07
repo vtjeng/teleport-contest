@@ -25,7 +25,7 @@ import {
     DISPLACED,
     FIRE_RES,
     FREE_ACTION,
-    HALF_PHDAM,
+    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -753,7 +753,7 @@ async function mcast_geyser(dmg, env = {}) {
     if (typeof env.message === 'function')
         await env.message('A sudden geyser slams into you from nowhere!', state);
     dmg = random.d(8, 6);
-    if (heroProperty(state, HALF_PHDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    if (Half_physical_damage(state.u)) dmg = Math.trunc((dmg + 1) / 2);
     // C's water_damage_chain block is compiled out for this build.
     return dmg;
 }

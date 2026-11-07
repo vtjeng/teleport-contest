@@ -33,7 +33,7 @@ import {
     EDOG,
     FOOT,
     FUMBLING,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     IRONBARS,
@@ -509,11 +509,6 @@ function refuseRanged(env, reason) {
 function propertyActive(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
-function maybeHalfPhysical(damage, state) {
-    return propertyActive(state, HALF_PHDAM)
-        ? Math.trunc((damage + 1) / 2) : damage;
 }
 
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
@@ -1106,7 +1101,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 hitv += 8 + singleobj.spe;
                 if (damage < 1) damage = 1;
                 if (singleobj.otyp !== ACID_VENOM)
-                    damage = maybeHalfPhysical(damage, state);
+                    damage = Maybe_Half_Phys(damage, state.u);
             }
             hit = Boolean(await hitHero(hitv, damage, singleobj, env));
             // C thitu() calls losehp(), whose lethal done() path is NORETURN.
@@ -1865,7 +1860,7 @@ export async function thrwmu(monster, rawEnv = {}) {
         if (typeof env.hitHero === 'function') {
             await env.hitHero(
                 hitv,
-                maybeHalfPhysical(damage, state),
+                Maybe_Half_Phys(damage, state.u),
                 selected,
                 env,
             );

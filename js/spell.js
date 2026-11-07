@@ -32,7 +32,7 @@ import {
     DISP_BEAM, DISP_END, D_ISOPEN, IS_DOOR, IS_STWALL, Is_waterlevel, ZAP_POS, EXPL_FIERY, EXPL_FROSTY,
     ECMD_OK,
     ECMD_TIME,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     KILLED_BY_AN,
     LL_CONDUCT,
     MAX_SPELL_STUDY,
@@ -529,7 +529,7 @@ export async function cursed_book(book, state = game, env = {}) {
             );
             const damage = 2 * random.rnd(10) + 5;
             await losehp(
-                Maybe_Half_Phys(damage, state),
+                Maybe_Half_Phys(damage, state.u),
                 'exploding rune',
                 KILLED_BY_AN,
                 state,
@@ -1728,14 +1728,6 @@ export async function spelleffects_check(spell, state = game, env = {}) {
     return { abort: false, res, energy };
 }
 
-// hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
-// as the intrinsic or the extrinsic, with no blocking term.
-function Maybe_Half_Phys(dmg, state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return (halved?.intrinsic || halved?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: spell.c spelleffects() (1385-1603). Casts the spell identified by
 // spell_otyp (an object type such as SPE_HEALING). The wand-duplicate and
 // potion-duplicate dispatch arms are open; scroll-duplicate spells (seffects)
@@ -1868,7 +1860,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
                     const buf =
                         `zapped ${uhim(state)}self with a spell`;
                     if (physical_damage)
-                        damage = Maybe_Half_Phys(damage, state);
+                        damage = Maybe_Half_Phys(damage, state.u);
                     await losehp(damage, buf, NO_KILLER_PREFIX, state);
                 }
             } else {

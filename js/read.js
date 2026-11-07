@@ -75,7 +75,7 @@ import {
     LS_OBJECT,
     thats_enough_tries,
     SPE_LIM,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     A_STR,
     LEFT_RING,
     RIGHT_RING,
@@ -582,12 +582,6 @@ export function charge_ok(obj) {
     return GETOBJ_EXCLUDE_SELECTABLE;
 }
 
-function maybeHalfPhysical(damage, state) {
-    const half = state.u?.uprops?.[HALF_PHDAM];
-    return half?.intrinsic || half?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: read.c recharge() (729-1008). Keep object class order, short-circuit
 // tests, mutations, messages, and random draws in source order. Side-effect
 // helpers whose C results are discarded remain named gaps where their JS
@@ -643,7 +637,7 @@ export async function recharge(obj, curseBless, state = game) {
             n = rnd(3 * Math.abs(obj.spe));
             await useup(obj, { state });
             await losehp(
-                maybeHalfPhysical(n, state), 'exploding ring',
+                Maybe_Half_Phys(n, state.u), 'exploding ring',
                 KILLED_BY_AN, state,
             );
         } else {
@@ -873,7 +867,7 @@ export async function wand_explode(obj, charge, state = game) {
     obj.in_use = true;
     await ttyPline(`${Yname2(obj, state)} ${expl} explodes!`, state);
     await losehp(
-        maybeHalfPhysical(damage, state), 'exploding wand',
+        Maybe_Half_Phys(damage, state.u), 'exploding wand',
         KILLED_BY_AN, state,
     );
     await useup(obj, { state });
@@ -2368,7 +2362,7 @@ export async function drop_boulder_on_player(
     if (damage) {
         // read.c:2337 losehp(Maybe_Half_Phys(dmg), ...): half physical
         // damage, not half spell damage, halves the falling boulder.
-        await losehp(maybeHalfPhysical(damage, state), 'scroll of earth',
+        await losehp(Maybe_Half_Phys(damage, state.u), 'scroll of earth',
             KILLED_BY_AN, state, env);
     }
 }
