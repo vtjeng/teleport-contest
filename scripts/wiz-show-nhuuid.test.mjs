@@ -57,7 +57,7 @@ test('production save/restore transports a nonempty UUID before moves', async ()
     await runSegment({ ...recipe.segments[0], moves: ' .', storage });
     const uuid = 'abcdefab-cdef-abcd-efab-cdefabcdefab'; // 36-byte valid UUID.
     game.svn.nhuuid = uuid;
-    assert.equal(dosave0(game), 1); // save.c returns success after writing.
+    assert.equal(await dosave0(game), 1); // save.c returns success after writing.
     const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
     assert.equal(snapshot.nhuuid, uuid);
     assert.ok(Object.keys(snapshot).indexOf('nhuuid') < Object.keys(snapshot).indexOf('moves'));

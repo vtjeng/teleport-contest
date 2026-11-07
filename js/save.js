@@ -40,7 +40,7 @@ import {
     BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
 } from './const.js';
 import { game } from './gstate.js';
-import { nh_terminate } from './end.js';
+import { done_object_cleanup, nh_terminate } from './end.js';
 import { nomul } from './hack.js';
 import { save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
@@ -342,7 +342,7 @@ export async function dosave(state = game) {
     } else {
         clearTtyMessageWindow(state);
         await ttyPline('Saving...', state);
-        if (dosave0(state)) {
+        if (await dosave0(state)) {
             // C ref: save.c:57-65. program_state.savefile_completed is a C
             // bookkeeping counter with no JS consumer. u.uhp = -1 is the
             // universal game-over indicator.
@@ -375,12 +375,19 @@ export async function dosave(state = game) {
 // Many C-side operations have no JS counterpart:
 //   - notice_mon_off/on() — the port has no mon_warning display
 //   - iflags.save_uswallow/save_uinwater/save_uburied — no hangup handler
-//   - done_object_cleanup() — no thrown-object transit
 //   - program_state.something_worth_saving — always true in the port
 //   - opening/closing the binary save file — replaced by vfsWriteFile()
 //   - store_version/store_plname — part of the JSON snapshot
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
-export function dosave0(state = game) {
+export async function dosave0(state = game) {
+    // C ref: save.c:86. A hangup save could arrive mid-prayer.
+    state.u.uinvulnerable = 0;
+    // C ref: save.c:98 done_object_cleanup(). Besides objects in transit,
+    // this puts a swallowed Punished hero's ball and chain, which
+    // mhitu.c gulpmu() took off the floor, back on the map under the
+    // engulfer, so the saved level holds them as floor objects.
+    await done_object_cleanup(state);
+
     // C ref: save.c:142-145. Undo date-dependent luck adjustments made at
     // startup time in moveloop_preamble(). The session exercises the
     // Friday-13th path: change_luck(-1) was applied at startup, so

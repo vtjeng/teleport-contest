@@ -1933,7 +1933,7 @@ export async function end_of_input(state = game) {
         state.program_state.something_worth_saving = 0;
     if (state.program_state.something_worth_saving
         && !state.program_state.done_hup_saved) {
-        dosave0(state);
+        await dosave0(state);
         state.program_state.done_hup_saved = true;
     }
     await nh_terminate(state);

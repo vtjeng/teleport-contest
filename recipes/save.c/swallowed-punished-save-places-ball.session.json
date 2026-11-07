@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c dosave0():98 done_object_cleanup() and end.c done_object_cleanup():893-896: when a Punished hero saves while engulfed, the ball and chain that mhitu.c gulpmu() took off the floor are free objects, and the cleanup puts them back on the map under the engulfer with lift_covet_and_placebc(), so the saved level holds them as floor objects and restore.c find_lev_obj() reattaches them. A human Samurai in debug mode wishes for and reads a scroll of punishment, creates a dust vortex, waits until it engulfs him and saves. The second segment restores, declines to keep the save file, hits the vortex from inside, which expels him, and, blinded, feels the ball and chain among the things on his square. Seeds, datetimes, character and inputs chosen independently of batch 7.",
+  "segments": [
+    {
+      "seed": 6639001,
+      "datetime": "20420212071500",
+      "nethackrc": "OPTIONS=name:Hideo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,!tips\n",
+      "moves": " \u0017uncursed scroll of punishment\n\u001brf  \u0007dust vortex\nmsmsms Sy"
+    },
+    {
+      "seed": 6639002,
+      "datetime": "20420212093000",
+      "nethackrc": "OPTIONS=name:Hideo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,!tips\n",
+      "moves": " nFh  \u001b"
+    }
+  ]
+}
