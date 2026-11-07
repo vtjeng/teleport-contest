@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "read.c seffect_amnesia() reads Hallucination, which hallucination resistance makes false. A lawful dwarvish Valkyrie quaffs a potion of hallucination, then wields Grayswandir (EHalluc_resistance) and reads a scroll of amnesia, so C prints one of its two Maud lines rather than \"Your mind releases itself from mundane concerns.\"",
+  "segments": [
+    {
+      "seed": 7720463,
+      "datetime": "20261110201500",
+      "nethackrc": "OPTIONS=name:Graymind,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017potion of hallucination\nqe \u0017Grayswandir\nwf \u0017uncursed scroll of amnesia\nrg    "
+    }
+  ]
+}

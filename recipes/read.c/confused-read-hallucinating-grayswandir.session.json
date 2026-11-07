@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of amnesia-hallucinating-grayswandir for read.c doread()'s confused-reading line, which also reads Hallucination. A lawful Samurai quaffs a cursed potion of hallucination (no enlightenment roll), wields Grayswandir (EHalluc_resistance), quaffs a potion of confusion and reads a scroll of identify, so C prints \"Being confused, you mispronounce the magic words...\" rather than \"Being so trippy, you screw up...\".",
+  "segments": [
+    {
+      "seed": 7720479,
+      "datetime": "20261111083000",
+      "nethackrc": "OPTIONS=name:Grayread,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017cursed potion of hallucination\nqf \u0017Grayswandir\nwg \u0017uncursed potion of confusion\nqh \u0017uncursed scroll of identify\nri     "
+    }
+  ]
+}

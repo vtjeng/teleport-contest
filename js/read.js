@@ -436,7 +436,7 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, Deaf, ESee_invisible, HHallucination, HSee_invisible, Hallucination, Invis,
+    Blind, Deaf, ESee_invisible, HSee_invisible, Hallucination, Invis,
     Maybe_Half_Phys,
 } from './youprop.js';
 
@@ -1444,7 +1444,7 @@ export async function doread(state = game) {
             );
         }
         if (confused) {
-            if (Boolean(HHallucination(state.u))) {
+            if (Hallucination(state.u)) {
                 await ttyPline('Being so trippy, you screw up...', state);
             } else {
                 await ttyPline(
@@ -2555,7 +2555,7 @@ export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
         return;
     }
     if (!can_center_cloud(cc.x, cc.y, state)) {
-        if (Boolean(HHallucination(state.u))) {
+        if (Hallucination(state.u)) {
             await ttyPline('Ugh... someone cut the cheese.', state);
         } else {
             await ttyPline(
@@ -2964,7 +2964,7 @@ export async function do_genocide(how, state = game) {
 
     let which = 'all ';
     const realName = ptr.pmnames[NEUTRAL];
-    if (Boolean(HHallucination(state.u))) {
+    if (Hallucination(state.u)) {
         if (Upolyd(state.u)) {
             buf = pmname(state.youmonst.data,
                 state.flags?.female ? FEMALE : MALE);
@@ -3134,7 +3134,7 @@ export async function seffect_amnesia(
     state.gk.known = true;
     await forget(blessed ? 0 : ALL_SPELLS, state, random, message);
 
-    if (Boolean(HHallucination(state.u))) {
+    if (Hallucination(state.u)) {
         await message(
             'Your mind releases itself from mundane concerns.', state,
         );
