@@ -462,6 +462,31 @@ function cloneDamageList(damage) {
     };
 }
 
+// The hero's records and arrays that the planning clone must not share with
+// the live `u`. C's struct you holds them by value -- d_level uz, uz0, utolev
+// and ucamefrom, the urooms[], uentered[] and ushops*[] room strings, the
+// macurr/mamax attribute sets, uhpinc[], ueninc[], uachieved[] -- so a copy of
+// `u` copies them too. Copying every array and Object-prototype record keeps
+// a field added later from being shared by default; planningState() then
+// remaps the four fields that point at level monsters and objects (usteed,
+// ustuck, uball, uchain) from the live `u`.
+// scripts/planning-state-copy.test.mjs fails if a planned `u` shares any
+// other array or record with the live one.
+export function copyPlanningHeroData(hero) {
+    const copy = {};
+    for (const [field, value] of Object.entries(hero ?? {})) {
+        copy[field] = value && typeof value === 'object'
+            && (Array.isArray(value)
+                || Object.getPrototypeOf(value) === Object.prototype)
+            && !PLANNING_HERO_POINTERS.has(field)
+            ? structuredClone(value) : value;
+    }
+    return copy;
+}
+export const PLANNING_HERO_POINTERS = new Set([
+    'usteed', 'ustuck', 'uball', 'uchain',
+]);
+
 export function planningState(state) {
     const monsterMap = new Map();
     for (const head of [
@@ -517,6 +542,12 @@ export function planningState(state) {
         heroMonster.mw = objectMap.get(state.youmonst.mw) ?? null;
     }
 
+    const clonePlanningRooms = (rooms) => rooms.map((room) => (room ? {
+        ...room,
+        resident: monsterMap.get(room.resident) ?? room.resident,
+        sbrooms: Array.isArray(room.sbrooms)
+            ? clonePlanningRooms(room.sbrooms) : room.sbrooms,
+    } : room));
     const level = Object.assign(
         Object.create(Object.getPrototypeOf(state.level)),
         state.level,
@@ -538,10 +569,10 @@ export function planningState(state) {
             buriedobjlist: clonedObject(state.level.buriedobjlist),
             flags: { ...state.level.flags },
             monlist: monsterMap.get(state.level.monlist) ?? null,
-            rooms: state.level.rooms.map(room => ({
-                ...room,
-                resident: monsterMap.get(room.resident) ?? room.resident,
-            })),
+            // hack.c check_special_room() resets a room's rtype through
+            // mapseen_room(), which reaches a subroom through its parent's
+            // sbrooms[]; a planned entry must change only the clone's copy.
+            rooms: clonePlanningRooms(state.level.rooms),
             regions: state.level.regions.map((region) => ({
                 ...region,
                 monsters: [...(region.monsters ?? [])],
@@ -588,7 +619,7 @@ export function planningState(state) {
         },
     );
     const hero = {
-        ...state.u,
+        ...copyPlanningHeroData(state.u),
         // shkgone removes the dead resident's room from this array in place.
         ushops: state.u?.ushops ? [...state.u.ushops] : state.u?.ushops,
         // weapon.c drain_weapon_skill shifts u.skill_record and mutates
