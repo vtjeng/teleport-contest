@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent invent.c mergable() witness: while a fog cloud engulfs the hero, three wished uncursed storm giant corpses are too heavy to hold and drop into the engulfer (do.c dropz() -> steal.c mpickobj() -> mkobj.c add_to_minv()). Two of them share a gender (spe), so mergable() reaches its revivable-corpse test (invent.c:4442-4446): a storm giant is no reviver, and the corpses merge. New seed, clock and character.",
+  "segments": [
+    {
+      "seed": 91827364,
+      "datetime": "20650716152000",
+      "nethackrc": "OPTIONS=name:Stomach,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " \u0007fog cloud\nmsmsms \u0017uncursed storm giant corpse\n\u0017uncursed storm giant corpse\n\u0017uncursed storm giant corpse\nmsms"
+    }
+  ]
+}

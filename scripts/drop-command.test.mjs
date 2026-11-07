@@ -1035,9 +1035,7 @@ test('a timed non-reviver corpse stack is admitted and stops the absorbed timer'
         state.level.objects[ux][uy] = member;
         state.level.objlist = member;
 
-        const env = dropCommandEnv(state, {
-            hooks: { isReviver: () => false },
-        });
+        const env = dropCommandEnv(state);
         assert.doesNotThrow(() => preflight_dropx(dropped, env));
         await dropx(dropped, env);
 

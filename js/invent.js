@@ -220,6 +220,7 @@ import {
 import {
     dead_species,
     hides_under,
+    is_reviver,
     poly_when_stoned,
     touch_petrifies,
 } from './mondata.js';
@@ -2711,8 +2712,7 @@ function requiredHook(env, name, obj) {
 // Missing live hooks throw UnsupportedObjectOperationError before mutation
 // whenever the branch can be preflighted.
 //
-// Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
-// samePrice(obj, target, env).
+// Predicates: artifactConfersLuck(obj, env), samePrice(obj, target, env).
 // consume_obj_charge's optional call-site checkUnpaid(obj, state) adapter
 // intercepts only invent.c's discarded void billing call; absent it, the
 // existing check_unpaid implementation remains in effect.
@@ -3587,9 +3587,9 @@ export function mergable(otmp, obj, env = {}) {
         if (obj.corpsenm !== otmp.corpsenm) return false;
     }
     if (obj.otyp === EGG && (obj.timed || otmp.timed)) return false;
-    if (obj.otyp === CORPSE && otmp.corpsenm >= LOW_PM) {
-        const isReviver = requiredHook(normalized, 'isReviver', otmp);
-        if (isReviver(otmp.corpsenm, normalized)) return false;
+    if (obj.otyp === CORPSE && otmp.corpsenm >= LOW_PM
+        && is_reviver(normalized.state.mons?.[otmp.corpsenm])) {
+        return false;
     }
     if (isCandle(obj)
         && Math.trunc(obj.age / 25) !== Math.trunc(otmp.age / 25)) {

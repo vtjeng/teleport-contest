@@ -2085,10 +2085,6 @@ export async function makewish(state = game) {
         hooks: {
             message: ttyPline,
             encumberMessage: encumber_msg,
-            // C's invent.c:mergable() can compare a second corpse while
-            // addinv() handles the wish. Reuse the canonical object-generation
-            // adapter instead of letting that source branch hit a missing hook.
-            isReviver: objectGenerationEnv({ state }).hooks.isReviver,
             // invent.c merged():933-942.  A wished-for object that merges
             // into a stack the hero already carries settles any known,
             // rknown or bknown the two disagreed on, and says so.  Only a
