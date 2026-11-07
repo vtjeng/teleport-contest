@@ -20,7 +20,7 @@ import {
     OBJ_FLOOR,
     POOL,
     SLT_ENCUMBER,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HEAD,
     KILLED_BY,
     LEG,
@@ -350,7 +350,7 @@ export async function ballfall(state = game, rawEnv = {}) {
             }
         }
         await losehp(
-            maybeHalfPhysical(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             'crunched in the head by an iron ball',
             NO_KILLER_PREFIX,
             state,
@@ -380,12 +380,6 @@ async function litter(state) {
     }
 }
 
-function maybeHalfPhysical(damage, state) {
-    const property = state.u.uprops?.[HALF_PHDAM];
-    return property?.intrinsic || property?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: ball.c drag_down() (986-1031). This runs while a punished hero
 // descends a stairway; the selected holdout reaches the collision arm.
 export async function drag_down(state = game) {
@@ -404,7 +398,7 @@ export async function drag_down(state = game) {
         if (rn2(6)) {
             await ttyPline('The iron ball drags you downstairs!', state);
             await losehp(
-                maybeHalfPhysical(rnd(6), state),
+                Maybe_Half_Phys(rnd(6), state.u),
                 'dragged downstairs by an iron ball',
                 NO_KILLER_PREFIX,
                 state,
@@ -416,7 +410,7 @@ export async function drag_down(state = game) {
         if (rn2(2)) {
             await ttyPline('The iron ball smacks into you!', state);
             await losehp(
-                maybeHalfPhysical(rnd(20), state),
+                Maybe_Half_Phys(rnd(20), state.u),
                 'iron ball collision',
                 KILLED_BY_AN,
                 state,
@@ -430,7 +424,7 @@ export async function drag_down(state = game) {
         if (dragchance >= rnd(6)) {
             await ttyPline('The iron ball drags you downstairs!', state);
             await losehp(
-                maybeHalfPhysical(rnd(3), state),
+                Maybe_Half_Phys(rnd(3), state.u),
                 'dragged downstairs by an iron ball',
                 NO_KILLER_PREFIX,
                 state,
@@ -828,7 +822,7 @@ export async function drop_ball(x, y, state = game) {
                     state,
                 );
                 await losehp(
-                    maybeHalfPhysical(2, state),
+                    Maybe_Half_Phys(2, state.u),
                     'leg damage from being pulled out of a bear trap',
                     KILLED_BY,
                     state,

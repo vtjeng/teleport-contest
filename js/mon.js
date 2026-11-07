@@ -70,7 +70,7 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     INTRINSIC,
     KILLED_BY_AN,
     LL_KILLEDPET,
@@ -5579,10 +5579,8 @@ export async function corpse_chance(
                 );
                 state.killer ??= {};
                 state.killer.name = `${s_suffix(mon_pmname(mon, state))} explosion`;
-                const half = state.u?.uprops?.[HALF_PHDAM];
                 await losehp(
-                    half?.intrinsic || half?.extrinsic
-                        ? Math.trunc((tmp + 1) / 2) : tmp,
+                    Maybe_Half_Phys(tmp, state.u),
                     state.killer.name,
                     KILLED_BY_AN,
                     state,

@@ -102,7 +102,7 @@ import {
     PRONOUN_HALLU,
     PRONOUN_NO_IT,
     Has_contents,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HOLE,
     IS_ALTAR,
     PASSES_WALLS,
@@ -653,11 +653,6 @@ function heroPassesWalls(state) {
     return propertyPresent(state, PASSES_WALLS);
 }
 
-function heroHalfPhysicalDamage(damage, state) {
-    return propertyPresent(state, HALF_PHDAM)
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 function isMoat(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location || on_level(state.u?.uz, state.juiblex_level)) return false;
@@ -976,7 +971,7 @@ export async function hurtle_step(arg, x, y) {
         }
         if (why) {
             await losehp(
-                heroHalfPhysicalDamage(random.rnd(2 + range()), state),
+                Maybe_Half_Phys(random.rnd(2 + range()), state.u),
                 why,
                 KILLED_BY,
                 state,
@@ -1390,7 +1385,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
         if (damage > 1 && lessDamage) damage = 1;
         if (damage > 0) damage += u.udaminc ?? 0;
         if (damage < 0) damage = 0;
-        damage = heroHalfPhysicalDamage(damage, state);
+        damage = Maybe_Half_Phys(damage, state.u);
 
         if (state.uarmh) {
             if ((lessDamage && damage < (Upolyd(u) ? u.mh : u.uhp))
@@ -2870,7 +2865,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                         damage = damagePtr.value;
                     }
                     await losehp(
-                        heroHalfPhysicalDamage(damage, state),
+                        Maybe_Half_Phys(damage, state.u),
                         killer_xname(obj, state), KILLED_BY, state,
                     );
                     if (state.program_state?.gameover) return;

@@ -26,6 +26,7 @@ import {
     GETOBJ_SUGGEST,
     GETOBJ_ALLOWCNT,
     HALF_PHDAM,
+    Maybe_Half_Phys,
     HALF_SPDAM,
     HALLUC,
     Has_contents,
@@ -821,13 +822,6 @@ function Antimagic(state) {
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
 
-// C ref: youprop.h:341. Half_physical_damage.
-function Maybe_Half_Phys(dmg, state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return (halved?.intrinsic || halved?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: youprop.h:401. Hate_silver: lycanthrope or silver-hating species.
 function Hate_silver(state) {
     return (state.u.ulycn >= LOW_PM)
@@ -877,7 +871,7 @@ export async function touch_artifact(obj, monster, env = game) {
         if (state.objects[obj.otyp].oc_material === SILVER
             && Hate_silver(state)) {
             const tmp = rnd(10);
-            dmg += Maybe_Half_Phys(tmp, state);
+            dmg += Maybe_Half_Phys(tmp, state.u);
         }
         const buf = `touching ${artifact.name}`;
         await losehp(dmg, buf, KILLED_BY, state, effectEnv);
@@ -3149,7 +3143,7 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
                for silver, 1d10 magical for <foo>bane, potentially both */
             if (ag) {
                 const tmp = rnd(10);
-                dmg += Maybe_Half_Phys(tmp, state);
+                dmg += Maybe_Half_Phys(tmp, state.u);
             }
             if (bane)
                 dmg += rnd(10);

@@ -12,7 +12,7 @@ import {
     DB_UNDER,
     DRAWBRIDGE_UP,
     EYE,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     IS_LAVA,
     IS_POOL,
     KILLED_BY_AN,
@@ -423,10 +423,7 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
             await message('You cough and spit blood!', state, env);
             await wake_nearto(state.u.ux, state.u.uy, 2, env);
 
-            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
-            damage = env.random.rnd(damage) + 5;
-            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
-                damage = Math.trunc((damage + 1) / 2);
+            damage = Maybe_Half_Phys(env.random.rnd(damage) + 5, state.u);
             const blindfold = state.ublindf;
             if (blindfold?.otyp === TOWEL && blindfold.spe > 0)
                 damage = Math.trunc((damage + 1) / 2);

@@ -64,7 +64,8 @@ import {
     GP_ALLOW_U,
     HALLUC,
     HALLUC_RES,
-    HALF_PHDAM,
+    Half_physical_damage,
+    Maybe_Half_Phys,
     HEADSTONE,
     ICE,
     IS_AIR,
@@ -2225,11 +2226,6 @@ export function movobj(obj, ox, oy, state = game) {
     newsym(ox, oy);
 }
 
-function maybe_half_phys(damage, state) {
-    return propertyPresent(state, HALF_PHDAM)
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: hack.c dosinkfall() (836-922). This function preserves hack.c's
 // property-mask and fall-damage updates, then calls do_wear.c's equipment
 // callbacks to remove levitation rings and boots in source order.
@@ -2256,7 +2252,7 @@ export async function dosinkfall(state = game) {
         await ttyPline('You crash to the floor!', state);
         const damage = rn1(8, 25 - acurr(state, A_CON));
         await losehp(
-            maybe_half_phys(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             'fell onto a sink', NO_KILLER_PREFIX, state,
         );
         await exercise(A_DEX, false, state);
@@ -2268,7 +2264,7 @@ export async function dosinkfall(state = game) {
                 continue;
             await ttyPline(`You fell on ${donameFresh(obj, state)}.`, state);
             await losehp(
-                maybe_half_phys(rnd(3), state),
+                Maybe_Half_Phys(rnd(3), state.u),
                 'fell onto a sink', NO_KILLER_PREFIX, state,
             );
             await exercise(A_CON, false, state, coreRandom, {
@@ -5732,8 +5728,8 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
                             state,
                         );
                         let damage = random.d(4, 6);
-                        if (propertyPresent(state, HALF_PHDAM))
-                            damage = Math.floor((damage + 1) / 2);
+                        if (Half_physical_damage(state.u))
+                            damage = Math.trunc((damage + 1) / 2);
                         await mdamageu(monster, damage, state, rawEnv);
                     }
                 }

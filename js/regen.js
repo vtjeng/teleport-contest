@@ -6,7 +6,7 @@ import {
     A_INT,
     A_WIS,
     ENERGY_REGENERATION,
-    HALF_PHDAM,
+    Half_physical_damage,
     Is_waterlevel,
     MAGICAL_BREATHING,
     MAXULEV,
@@ -89,7 +89,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
                as hp gets lower, rate of further loss slows down */
             if (hero.mh > 1 && !propertyActive(hero, REGENERATION)
                 && random.rn2(hero.mh) > random.rn2(8)
-                && (!propertyActive(hero, HALF_PHDAM)
+                && (!Half_physical_damage(hero)
                     || !(state.moves % 2)))
                 heal = -1;
         } else if (hero.mh < hero.mhmax) {

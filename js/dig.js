@@ -135,7 +135,7 @@ import {
     BEAR_TRAP,
     KILLED_BY,
     KILLED_BY_AN,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HEAD,
     STOMACH,
     MM_NOMSG,
@@ -729,7 +729,7 @@ export async function dig(state = game, rawEnv = {}) {
                 await message(`You hit yourself in the ${part}.`, state, rawEnv);
                 const own = state.flags?.female ? 'her' : 'his';
                 await losehp(
-                    maybeHalfPhysical(damage, state),
+                    Maybe_Half_Phys(damage, state.u),
                     `chopping off ${own} own ${part}`,
                     KILLED_BY,
                     state,
@@ -1112,7 +1112,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
         const objectName = OBJ_NAME(state.objects[obj.otyp], state);
         const possessive = state.flags?.female ? 'her' : 'his';
         await losehp(
-            maybeHalfPhysical(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             `${possessive} own ${objectName}`,
             KILLED_BY,
             state,
@@ -1182,7 +1182,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
                         );
                         if (vibrates) {
                             await losehp(
-                                maybeHalfPhysical(2, state),
+                                Maybe_Half_Phys(2, state.u),
                                 'axing a hard object',
                                 KILLED_BY,
                                 state,
@@ -1316,12 +1316,6 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
         set_occupation(dig, verbing, 0, state);
     }
     return ECMD_TIME;
-}
-
-function maybeHalfPhysical(damage, state) {
-    const property = state.u?.uprops?.[HALF_PHDAM];
-    return property?.intrinsic || property?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
 }
 
 // C ref: dig.c fillholetyp() (606-637). Count the liquid around a square in
@@ -1928,12 +1922,6 @@ function zapDigHardHelmet(helmet, state) {
     return isMetallic(helmet, state) || type.oc_material === GLASS;
 }
 
-function zapDigMaybeHalfPhys(damage, state) {
-    const property = state.u?.uprops?.[HALF_PHDAM];
-    return property?.intrinsic || property?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 export async function zap_dig(
     state = game,
     random = coreRandom,
@@ -1986,7 +1974,7 @@ export async function zap_dig(
                     zapDigHardHelmet(state.uarmh, state) ? 2 : 6,
                 );
                 await losehp(
-                    zapDigMaybeHalfPhys(damage, state),
+                    Maybe_Half_Phys(damage, state.u),
                     'falling rock', KILLED_BY_AN, state,
                 );
                 const rock = mksobj_at(

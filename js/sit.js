@@ -28,7 +28,7 @@ import {
     FAST,
     FROMOUTSIDE,
     FOUNTAIN,
-    HALF_PHDAM,
+    Half_physical_damage,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -163,11 +163,6 @@ function Is_waterlevel(state) {
     const here = state.u?.uz;
     return Boolean(level && here
         && level.dnum === here.dnum && level.dlevel === here.dlevel);
-}
-
-function Half_physical_damage(state) {
-    const value = state.u?.uprops?.[HALF_PHDAM];
-    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 function Fire_resistance(state) {
@@ -882,7 +877,7 @@ export async function dosit(state = game, rawEnv = {}) {
             } else if (u.utraptype === TT_PIT) {
                 if (trap && trap.ttyp === SPIKED_PIT) {
                     await message('You sit down on a spike.  Ouch!', state);
-                    const damage = Half_physical_damage(state)
+                    const damage = Half_physical_damage(state.u)
                         ? random.rn2(2) : 1;
                     const { losehp } = await import('./hack.js');
                     await losehp(

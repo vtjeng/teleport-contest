@@ -38,7 +38,7 @@ import {
     HALLUC,
     IN_SIGHT,
     HALLUC_RES,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     KILLED_BY_AN,
     LAVAPOOL,
     LAVAWALL,
@@ -1407,12 +1407,6 @@ function heroHallucinating(state) {
         && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-function halfPhysicalDamage(damage, state) {
-    const half = state.u?.uprops?.[HALF_PHDAM];
-    return half?.intrinsic || half?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: detect.c use_crystal_ball() (1206-1371). `optr` is the JavaScript
 // equivalent of C's `struct obj **`: useup() mutates the inventory chain and
 // this holder is cleared on the two source branches that destroy the ball.
@@ -1480,7 +1474,7 @@ export async function use_crystal_ball(optr, state = game) {
             await useup(obj, { state });
             optr.obj = obj = null;
             await losehp(
-                halfPhysicalDamage(rnd(30), state),
+                Maybe_Half_Phys(rnd(30), state.u),
                 'exploding crystal ball', KILLED_BY_AN, state,
             );
             break;

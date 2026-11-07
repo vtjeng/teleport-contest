@@ -86,7 +86,7 @@ import {
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HAND,
     INFRAVISION,
     INTRINSIC,
@@ -1151,7 +1151,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
                     await you_unwere(false, state, { ...rawEnv, random, message });
                 set_ulycn(NON_PM, state);
             }
-            const damage = Maybe_Half_Phys(random.d(2, 6), state);
+            const damage = Maybe_Half_Phys(random.d(2, 6), state.u);
             await losehp(
                 damage,
                 'potion of holy water',
@@ -1178,7 +1178,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
     } else {
         if (u.ualign.type === A_LAWFUL) {
             await message(`This burns like ${hliquid('acid', { state })}!`, state);
-            const damage = Maybe_Half_Phys(random.d(2, 6), state);
+            const damage = Maybe_Half_Phys(random.d(2, 6), state.u);
             await losehp(
                 damage,
                 'potion of unholy water',
@@ -1833,7 +1833,7 @@ async function peffect_levitation(otmp, state) {
                 state,
             );
             await losehp(
-                Maybe_Half_Phys(dmg, state),
+                Maybe_Half_Phys(dmg, state.u),
                 'colliding with the ceiling',
                 KILLED_BY,
                 state,
@@ -1868,7 +1868,7 @@ async function peffect_acid(otmp, state = game) {
         );
         const damage = d(otmp.cursed ? 2 : 1, otmp.blessed ? 4 : 8);
         await losehp(
-            Maybe_Half_Phys(damage, state),
+            Maybe_Half_Phys(damage, state.u),
             'potion of acid',
             KILLED_BY_AN,
             state,
@@ -2418,14 +2418,6 @@ function Acid_resistance(state) {
     return eitherSource(state, ACID_RES);
 }
 
-// hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
-// as the intrinsic or the extrinsic, with no blocking term.
-function Maybe_Half_Phys(dmg, state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return (halved?.intrinsic || halved?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: youprop.h:405 Half_gas_damage, "wrap it round your head to ward off
 // noxious fumes [we require it to be damp or wet]". It is the one property
 // here with no u.uprops slot: a worn towel with charges left, and nothing else.
@@ -2568,7 +2560,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             state,
         );
         await losehp(
-            Maybe_Half_Phys(random.rnd(2), state),
+            Maybe_Half_Phys(random.rnd(2), state.u),
             how === POTHIT_OTHER_THROW ? 'propelled potion' : 'thrown potion',
             KILLED_BY_AN,
             state,
@@ -2647,7 +2639,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                 await losehp(
                     Maybe_Half_Phys(
                         random.d(obj.cursed ? 2 : 1, obj.blessed ? 4 : 8),
-                        state,
+                        state.u,
                     ),
                     'potion of acid', KILLED_BY_AN, state, env,
                 );

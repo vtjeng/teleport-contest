@@ -21,7 +21,7 @@ import {
     EXPL_NOXIOUS,
     EXPL_WET,
     FIRE_RES,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     INVULNERABLE,
@@ -263,11 +263,6 @@ function hallucination(state) {
 
 function deaf(state) {
     return propertyActive(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
-}
-
-function maybeHalfPhys(damage, state) {
-    return propertyActive(state, HALF_PHDAM)
-        ? Math.trunc((damage + 1) / 2) : damage;
 }
 
 function monsterResists(monster, adtyp, olet, state) {
@@ -705,7 +700,7 @@ export async function explode(
             damu = 0;
             await messageLine('You are unharmed!', state, env);
         } else if (adtyp === AD_PHYS || adtyp === AD_ACID) {
-            damu = maybeHalfPhys(damu, state);
+            damu = Maybe_Half_Phys(damu, state.u);
         }
         if (adtyp === AD_FIRE) {
             await burnarmor(state.youmonst, { ...env, state, random });
@@ -1206,7 +1201,7 @@ export async function scatter(
                             + (bigmonst(state.youmonst?.data) ? 1 : 0);
                         const hit = await hitHero(
                             hitValue,
-                            maybeHalfPhys(damage, state),
+                            Maybe_Half_Phys(damage, state.u),
                             chain.obj,
                         );
                         if (hit && typeof hit === 'object') {

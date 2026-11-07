@@ -66,7 +66,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     HALLUC,
     HALLUC_RES,
     HAND,
@@ -1473,7 +1473,7 @@ export async function drown(state = game) {
         await split_mon(state.youmonst, null, { state });
     } else if (u.umonnum === PM_IRON_GOLEM) {
         await ttyPline('You rust!', state);
-        const damage = Maybe_Half_Phys(d(2, 6), state);
+        const damage = Maybe_Half_Phys(d(2, 6), state.u);
         if (u.mhmax > damage) u.mhmax -= damage;
         await losehp(damage, 'rusting away', KILLED_BY, state);
     }
@@ -2478,14 +2478,6 @@ function Passes_walls(state) {
 function Free_action(state) {
     return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
 }
-// C ref: hack.h Maybe_Half_Phys(). Halves physical damage when the hero
-// has Half_physical_damage from either source.
-function Maybe_Half_Phys(dmg, state) {
-    const halved = state.u?.uprops?.[HALF_PHDAM];
-    return (halved?.intrinsic || halved?.extrinsic)
-        ? Math.trunc((dmg + 1) / 2) : dmg;
-}
-
 // C ref: obj.h u_wield_art(art) => is_art(uwep, art).
 function u_wield_art(art, state) {
     return is_art(state.uwep, art);
@@ -3703,7 +3695,7 @@ export async function b_trapped(item, bodypart, state = game, env = {}) {
     // screen, state, or RNG effect in the reference recorder.
     await message(`KABOOM!!  ${The(item)} was booby-trapped!`, state);
     await wake_nearby(false, { ...env, state, random, message });
-    await losehp(Maybe_Half_Phys(dmg, state), 'explosion', KILLED_BY_AN,
+    await losehp(Maybe_Half_Phys(dmg, state.u), 'explosion', KILLED_BY_AN,
         state, { ...env, message });
     // C's losehp() reaches done(), which does not return.
     if (state.program_state?.gameover) return;
@@ -3818,7 +3810,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 otmp = next;
             }
             await wake_nearby({ state });
-            await losehp(Maybe_Half_Phys(d(6, 6), state), buf, KILLED_BY_AN, state);
+            await losehp(Maybe_Half_Phys(d(6, 6), state.u), buf, KILLED_BY_AN, state);
             await exercise(A_STR, false, state, coreRandom, exerciseEnv);
             if (costly && loss) {
                 if (insider) {

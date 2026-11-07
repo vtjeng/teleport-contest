@@ -6,7 +6,7 @@ import {
     ARTICLE_THE,
     BLINDED, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
     DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE,
-    HALF_PHDAM, HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
+    Maybe_Half_Phys, HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
@@ -249,12 +249,6 @@ export async function calm_nymphs(distance, state = game, env = {}) {
     }
 }
 
-// C refs: hack.h Maybe_Half_Phys() and youprop.h Half_physical_damage.
-export function musicMaybeHalfPhys(damage, state) {
-    return property(state, HALF_PHDAM)
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: music.c do_pit() (221-338). Discarded floor/touch effects remain
 // named gaps at their C call sites until those source units are ported.
 export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
@@ -343,7 +337,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
         } else if (!tuPit || !u.utrap || u.utraptype !== TT_PIT) {
             await message('You fall into a chasm!', state);
             set_utrap(random.rn1(6, 2), TT_PIT, state);
-            await losehp(musicMaybeHalfPhys(random.rnd(6), state),
+            await losehp(Maybe_Half_Phys(random.rnd(6), state.u),
                 'fell into a chasm', NO_KILLER_PREFIX, state, env);
             await selftouch('Falling, you', state, env);
         } else if (u.utrap && u.utraptype === TT_PIT) {
@@ -354,7 +348,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
 
             await message('You are jostled around violently!', state);
             set_utrap(random.rn1(6, 2), TT_PIT, state);
-            await losehp(musicMaybeHalfPhys(random.rnd(keepFooting ? 2 : 4), state),
+            await losehp(Maybe_Half_Phys(random.rnd(keepFooting ? 2 : 4), state.u),
                 'hurt in a chasm', NO_KILLER_PREFIX, state, env);
             if (keepFooting) {
                 await exercise(A_DEX, true, state, random);

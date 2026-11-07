@@ -62,7 +62,8 @@ import {
     HALLUC,
     HALLUC_RES,
     FUMBLING,
-    HALF_PHDAM,
+    Half_physical_damage,
+    Maybe_Half_Phys,
     HMON_APPLIED,
     HMON_MELEE,
     HMON_KICKED,
@@ -5099,8 +5100,7 @@ export async function mhitm_ad_phys(
             if (state.u.uac < 0)
                 tmp -= random.rnd(-state.u.uac);
             if (tmp < 1) tmp = 1;
-            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
-            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
+            if (Half_physical_damage(state.u))
                 tmp = Math.trunc((tmp + 1) / 2);
             if (state.u.mh - tmp > 1
                 && [IRON, METAL].includes(objectType(otmp, state).oc_material)
@@ -5989,7 +5989,7 @@ export async function mhitm_ad_drin(
             );
             return;
         }
-        if (propertyPresent(state.u, HALF_PHDAM))
+        if (Half_physical_damage(state.u))
             mhm.damage = Math.trunc((mhm.damage + 1) / 2);
         await mdamageu(magr, mhm.damage, state, effectEnv);
         mhm.damage = 0;
@@ -7381,7 +7381,7 @@ export async function mhitm_ad_tlpt(
                 );
             }
             await tele(state, env);
-            const halfPhysical = propertyPresent(state.u, HALF_PHDAM);
+            const halfPhysical = Half_physical_damage(state.u);
             const effectiveDamage = halfPhysical
                 ? Math.trunc((mhm.damage - 1) / 2) : mhm.damage;
             const currentHp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
@@ -7459,8 +7459,7 @@ export async function mhitm_ad_poly(
         }
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
-        const damage = propertyPresent(state.u, HALF_PHDAM)
-            ? Math.trunc((mhm.damage + 1) / 2) : mhm.damage;
+        const damage = Maybe_Half_Phys(mhm.damage, state.u);
         if (damage < (Upolyd(state.u) ? state.u.mh : state.u.uhp)) {
             if (negated) {
                 if (magr.mcan) await message("You aren't transformed.", state);

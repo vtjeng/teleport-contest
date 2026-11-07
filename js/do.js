@@ -59,7 +59,7 @@ import {
     GRAVE,
     G_GENOD,
     HAND,
-    HALF_PHDAM,
+    Maybe_Half_Phys,
     IS_ALTAR,
     IS_WATERWALL,
     IS_SINK,
@@ -863,14 +863,6 @@ function heroIsDeaf(state) {
         || state.u?.uroleplay?.deaf);
 }
 
-// hack.h Maybe_Half_Phys() rounds up, preserving the source damage contract
-// for a boulder-created lava splash.
-function maybeHalfPhysical(damage, state) {
-    const property = state.u?.uprops?.[HALF_PHDAM];
-    return property?.intrinsic || property?.extrinsic
-        ? Math.trunc((damage + 1) / 2) : damage;
-}
-
 // C ref: do.c boulder_hits_pool() (50-145). A boulder consumes itself when it
 // reaches a pool, moat, water wall, or lava, with one source rn2(10) deciding
 // whether the square fills. The helper is async because a dead monster on a
@@ -979,7 +971,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
             // A planned monster throw stops at a lethal hit, before done();
             // the live pass repeats the throw and owns the death.
             await losehp(
-                maybeHalfPhysical(damage, state),
+                Maybe_Half_Phys(damage, state.u),
                 'molten lava',
                 KILLED_BY,
                 state,
@@ -1068,7 +1060,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                     && !throws_rocks(state.youmonst?.data)) {
                     const random = rawEnv.random ?? coreRandom;
                     await losehp(
-                        maybeHalfPhysical(random.rnd(15), state),
+                        Maybe_Half_Phys(random.rnd(15), state.u),
                         'squished under a boulder',
                         NO_KILLER_PREFIX,
                         state,
@@ -2548,12 +2540,8 @@ export async function dodown(state = game, env = {}) {
             if (await y_n(`Try to squeeze ${down_or_thru}?`, state) === 'y') {
                 if (!rn2(3)) {
                     actn = 'manage to squeeze';
-                    let damage = rnd(4);
-                    const halfPhysical = u.uprops?.[HALF_PHDAM];
-                    if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
-                        damage = Math.trunc((damage + 1) / 2);
                     await losehp(
-                        damage,
+                        Maybe_Half_Phys(rnd(4), u),
                         'contusion from a small passage',
                         KILLED_BY,
                         state,
@@ -3077,11 +3065,8 @@ export async function goto_level(
                 await dismount_steed(DISMOUNT_FELL, state);
                 if (state.program_state?.gameover) return;
             } else {
-                const damage = heroPropertyActive(u, HALF_PHDAM)
-                    ? Math.trunc((rnd(3) + 1) / 2)
-                    : rnd(3);
                 await losehp(
-                    damage,
+                    Maybe_Half_Phys(rnd(3), u),
                     state.ga?.at_ladder
                         ? 'falling off a ladder'
                         : 'tumbling down a flight of stairs',
@@ -3325,7 +3310,7 @@ export async function goto_level(
     // do.c:1989-1992. Shaft damage is deliberately charged after the shop
     // repair catch-up and before pickup, preserving C's RNG and message order.
     if (do_fall_dmg) {
-        const damage = maybeHalfPhysical(d(Math.max(dist, 1), 6), state);
+        const damage = Maybe_Half_Phys(d(Math.max(dist, 1), 6), state.u);
         await losehp(damage, 'falling down a mine shaft', KILLED_BY, state);
         if (state.program_state?.gameover) return;
     }
