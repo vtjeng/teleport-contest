@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent artifact.c witness: a human Valkyrie in debug mode wishes for and wields a silver saber, creates a werewolf and waits with forced searches. The werewolf's bite makes her feverish (uhitm.c mhitm_ad_were()), and retouch_equipment() reaches retouch_object(), which says she can't handle the saber anymore and drops it. The port plans each monster move before playing it; that planning pass must not print the retouch message on the live screen, where it added an extra --More-- before the bite.",
+  "segments": [
+    {
+      "seed": 50311827,
+      "datetime": "20590314131500",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": " \u0017silver saber\n\u001bwe\u001b\u0007werewolf\nmsms  ms"
+    }
+  ]
+}

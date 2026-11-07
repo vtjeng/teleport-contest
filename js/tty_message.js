@@ -26,6 +26,7 @@ import {
     encodeUtf8ByteString,
 } from './hacklib.js';
 import { nhgetch } from './input.js';
+import { planningContextInstalled } from './rng.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
@@ -349,6 +350,11 @@ async function ttyPlineCore(
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return;
+    // A planning clone (js/unported_monster_actions.js) dry-runs a turn that
+    // the live pass then runs again with the real window. The live pass shows
+    // every message; a rehearsal that reached the shared window would show it
+    // twice and wait for a --More-- C never asks for.
+    if (planningContextInstalled()) return;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
