@@ -61,7 +61,7 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BOLT_LIM, CONFUSION, DEAF, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, CONFUSION, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -325,7 +325,7 @@ import {
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 import {
-    Blind, Detect_monsters, ETelepat, HHallucination, HTelepat,
+    Blind, Deaf, Detect_monsters, ETelepat, HHallucination, HTelepat,
     Halluc_resistance, Hallucination, Infravision, Invis, See_invisible,
     Warn_of_mon, Warning,
 } from './youprop.js';
@@ -5174,7 +5174,7 @@ export function statusConditionActive(option, u) {
     case 'barehanded': return !game.uarmg && !game.uwep;
     case 'blind': return Blind(u);
     case 'conf': return _propertyIntrinsic(u, CONFUSION);
-    case 'deaf': return _propertyActive(u, DEAF) || u.uroleplay?.deaf;
+    case 'deaf': return Deaf(u);
     // youprop.h:253's Flying counts a flying steed as carrying the hero, and
     // botl.c:1194 reads the whole macro. No steed this port can reach flies,
     // so the steed term is dormant; it is written out because the other five

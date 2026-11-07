@@ -17,7 +17,6 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
-    DEAF,
     UNCHANGING,
     DISP_BEAM,
     DISP_END,
@@ -437,8 +436,9 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, EHalluc_resistance, ESee_invisible, HHalluc_resistance,
-    HHallucination, HSee_invisible, Invis, Maybe_Half_Phys,
+    Blind, EDeaf, EHalluc_resistance, ESee_invisible, HDeaf,
+    HHalluc_resistance, HHallucination, HSee_invisible, Invis,
+    Maybe_Half_Phys,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -2955,8 +2955,7 @@ export async function do_genocide(how, state = game) {
             if (is_human(ptr)) adjalign(-Math.sign(state.u.ualign.type), state);
             if (is_demon(ptr)) adjalign(Math.sign(state.u.ualign.type), state);
             if (!(ptr.geno & G_GENO)) {
-                const deafness = state.u?.uprops?.[DEAF];
-                const deaf = Boolean(deafness?.intrinsic || deafness?.extrinsic
+                const deaf = Boolean(HDeaf(state.u) || EDeaf(state.u)
                     || state.u?.uroleplay?.deaf);
                 if (!deaf) {
                     if (state.flags?.verbose)

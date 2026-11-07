@@ -11,7 +11,6 @@ import {
     BOLT_LIM,
     CONFLICT,
     COURT,
-    DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -219,7 +218,9 @@ import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
-import { Blind, Hallucination, Invis } from './youprop.js';
+import {
+    Blind, Deaf, Hallucination, Invis,
+} from './youprop.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -234,18 +235,6 @@ const SINK_MESSAGES = Object.freeze([
     'dishes being washed!',
 ]);
 
-function propertyActive(hero, propertyIndex) {
-    const property = hero?.uprops?.[propertyIndex];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
-
-// C ref: youprop.h:125 Deaf, which adds the permanent-deafness roleplay option
-// to the intrinsic and the extrinsic.
-function Deaf(state) {
-    return propertyActive(state.u, DEAF)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 
 
 // C ref: strchr(u.ushops, roomno). Checks whether a 0-terminated room-number
@@ -481,7 +470,7 @@ export async function dosounds(
 ) {
     const hero = state.u;
     const flags = state.level?.flags ?? {};
-    if (Deaf(state) || state.flags?.acoustics === false
+    if (Deaf(state.u) || state.flags?.acoustics === false
         || hero?.uswallow || hero?.uinwater) {
         return;
     }
@@ -718,7 +707,7 @@ export async function growl(mtmp, state = game, random = coreRandom) {
     else
         growl_verb = growl_sound(mtmp);
     if (growl_verb) {
-        if (canseemon(mtmp, state) || !Deaf(state)) {
+        if (canseemon(mtmp, state) || !Deaf(state.u)) {
             await ttyPline(
                 `${capitalizedMonsterName(mtmp, state)} `
                 + `${vtense(null, growl_verb)}!`,
@@ -756,23 +745,23 @@ export async function yelp(mtmp, state = game, random = coreRandom) {
     } else {
         switch (mtmp.data.msound) {
         case MS_MEW:
-            yelp_verb = !Deaf(state) ? 'yowl' : 'arch';
+            yelp_verb = !Deaf(state.u) ? 'yowl' : 'arch';
             break;
         case MS_BARK:
         case MS_GROWL:
-            yelp_verb = !Deaf(state) ? 'yelp' : 'recoil';
+            yelp_verb = !Deaf(state.u) ? 'yelp' : 'recoil';
             break;
         case MS_ROAR:
-            yelp_verb = !Deaf(state) ? 'snarl' : 'bluff';
+            yelp_verb = !Deaf(state.u) ? 'snarl' : 'bluff';
             break;
         case MS_SQEEK:
-            yelp_verb = !Deaf(state) ? 'squeal' : 'quiver';
+            yelp_verb = !Deaf(state.u) ? 'squeal' : 'quiver';
             break;
         case MS_SQAWK:
-            yelp_verb = !Deaf(state) ? 'screak' : 'thrash';
+            yelp_verb = !Deaf(state.u) ? 'screak' : 'thrash';
             break;
         case MS_WAIL:
-            yelp_verb = !Deaf(state) ? 'wail' : 'cringe';
+            yelp_verb = !Deaf(state.u) ? 'wail' : 'cringe';
             break;
         default:
             break;
@@ -968,7 +957,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
         ?? (rawEnv.planning ? () => {} : map_invisible);
     const ptr = mtmp.data;
-    if (Deaf(state)) return ECMD_OK;
+    if (Deaf(state.u)) return ECMD_OK;
     if (is_silent(ptr) && !mtmp.isshk) return ECMD_OK;
 
     let msound = ptr?.msound ?? MS_SILENT;
@@ -1465,7 +1454,7 @@ async function dochat(state) {
         await ttyPline('Your speech is unintelligible underwater.', state);
         return ECMD_OK;
     }
-    const shopGoods = !Deaf(state) && !Blind(state.u)
+    const shopGoods = !Deaf(state.u) && !Blind(state.u)
         ? shop_object(u.ux, u.uy, state) : null;
     if (shopGoods) {
         /* standing on something in a shop and chatting causes the shopkeeper
@@ -1529,7 +1518,7 @@ async function dochat(state) {
             return ECMD_OK;
         }
         const typ = state.level.at(tx, ty).typ;
-        if (!Deaf(state) && (IS_WALL(typ) || typ === SDOOR)) {
+        if (!Deaf(state.u) && (IS_WALL(typ) || typ === SDOOR)) {
             /* Talking to a wall; secret door remains hidden by behaving
                like a wall; IS_WALL() test excludes solid rock even when
                that serves as a wall bordering a corridor */
@@ -1573,7 +1562,7 @@ async function dochat(state) {
     // sounds.c:1388-1395. Chat prods a waiting monster, and an eating tame
     // monster makes noise instead of entering its sound-specific arm.
     mtmp.mstrategy &= ~STRAT_WAITMASK;
-    if (!Deaf(state) && mtmp.mtame && mtmp.meating) {
+    if (!Deaf(state.u) && mtmp.mtame && mtmp.meating) {
         if (!canspotmon(mtmp, state))
             map_invisible(mtmp.mx, mtmp.my, state);
         await ttyPline(
@@ -1585,7 +1574,7 @@ async function dochat(state) {
 
     // sounds.c:1397-1406. This remains a complete common tail even though the
     // witnessed quest leader is audible and therefore skips it.
-    if (Deaf(state)) {
+    if (Deaf(state.u)) {
         const xresponse = humanoid(state.youmonst.data)
             ? 'falls on deaf ears' : 'is inaudible';
         const name = canspotmon(mtmp, state)
@@ -1763,7 +1752,7 @@ export async function tiphat(state = game, rawEnv = {}) {
             }
         } else if (vismon && humanoid(mtmp.data)) {
             const reactions = ['curses', 'gestures rudely', 'gestures offensively'];
-            const deaf = Deaf(state);
+            const deaf = Deaf(state.u);
             const which = !deaf ? random.rn2(3) : random.rn1(2, 1);
             const twice = (deaf || which > 0 || random.rn2(3))
                 ? 0 : random.rn1(2, 1);
@@ -1772,7 +1761,7 @@ export async function tiphat(state = game, rawEnv = {}) {
                 + `${twice ? ` and ${reactions[twice]}` : ''} at you...`,
                 state,
             );
-        } else if (next2u(x, y, state) && !Deaf(state)
+        } else if (next2u(x, y, state) && !Deaf(state.u)
             && await monsterNoise(mtmp, state)) {
             if (!vismon) map_invisible(x, y, state);
         } else if (vismon) {

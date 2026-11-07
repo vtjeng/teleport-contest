@@ -49,11 +49,11 @@ import { Monnam, noit_mon_nam } from './do_name.js';
 import { canseemon } from './display.js';
 import { ttyPline } from './tty_message.js';
 import {
-    heroDeaf,
     livelog_printf,
     verbalize,
 } from './pline.js';
 import { observe_object } from './o_init.js';
+import { Deaf } from './youprop.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -268,7 +268,7 @@ export async function finish_quest(obj, env = {}) {
 
     if (obj && !isQuestArtifact(obj, state)) {
         /* tossed an invocation item (or [fake] Amulet) at the leader */
-        if (heroDeaf(state)) return;
+        if (Deaf(state.u)) return;
         identifyObject(obj, state);
         if (obj.otyp === AMULET_OF_YENDOR) {
             await pager('hasamulet');

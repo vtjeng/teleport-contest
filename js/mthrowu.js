@@ -24,7 +24,6 @@ import {
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
     CONFUSION,
-    DEAF,
     DISP_TETHER,
     DISP_END,
     DISP_FLASH,
@@ -278,7 +277,7 @@ import {
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
 import {
-    Blind, HBlinded, Hallucination, Maybe_Half_Phys,
+    Blind, Deaf, HBlinded, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
@@ -322,10 +321,6 @@ function heroProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-
-function Deaf(state) {
-    return heroProperty(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
-}
 
 function Sleep_resistance(state) {
     return heroProperty(state, SLEEP_RES);
@@ -1366,7 +1361,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                             state,
                         );
                     }
-                } else if (!Deaf(state)) {
+                } else if (!Deaf(state.u)) {
                     const heard = youHear(
                         `Something land near ${mon_nam(magr, state)}.`, state);
                     if (heard && typeof env.message === 'function')
@@ -1383,7 +1378,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                             + `${mhis(magr, { state })} ${body_part(ARM, state.youmonst)}!`,
                             state,
                         );
-                } else if (!Deaf(state)) {
+                } else if (!Deaf(state.u)) {
                     const heard = youHear(
                         `something hit ${mon_nam(magr, state)} with a thud!`,
                         state);
@@ -1427,7 +1422,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                     await placement;
                 stackobj(otmp, env);
             }
-            if (!Deaf(state) && !state.u?.uinwater) {
+            if (!Deaf(state.u) && !state.u?.uinwater) {
                 if (is_pool(x, y, state)
                     || (is_lava(x, y, state) && !is_flammable(otmp, state))) {
                     note_unported('sound.c Soundeffect');
@@ -1503,7 +1498,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
 
     if (mtmp.mcan) {
-        if (!Deaf(state) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
+        if (!Deaf(state.u) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
             if (canspotmon(mtmp, state)) {
                 if (typeof env.message === 'function')
                     await env.message(
@@ -1597,7 +1592,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
 
     if (m_lined_up(mtarg, mtmp, { state, random })) {
         if (mtmp.mcan) {
-            if (!Deaf(state)) {
+            if (!Deaf(state.u)) {
                 if (canseemon(mtmp, state)) {
                     if (typeof env.message === 'function')
                         await env.message(`${Monnam(mtmp, state, { displayRandom: env.displayRandom })} coughs.`, state);
@@ -2109,7 +2104,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
                 await dissolve_bars(barsx, barsy, state);
         }
     } else {
-        if (!Deaf(state)) {
+        if (!Deaf(state.u)) {
             /* Sound effect table: Whang/Whap/Flapp/Clink/Clonk */
             const barsounds = [
                 '', 'Whang', 'Whap', 'Flapp', 'Clink', 'Clonk',

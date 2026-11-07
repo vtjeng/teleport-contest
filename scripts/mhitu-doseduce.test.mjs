@@ -57,7 +57,7 @@ test('doseduce wires the source-ordered mayberem armor path', () => {
     )?.[0];
     assert.ok(mayberemJs, 'mhitu.js contains the complete mayberem port');
     assert.match(mayberemJs,
-        /if \(!obj \|\| !obj\.owornmask\) return;[\s\S]*?if \(state\.utotype \|\| !m_next2u\(mon, state\)\) return;[\s\S]*?if \(heroDeaf\(state\)\)[\s\S]*?else if \(random\.rn2\(20\) < acurr\(state, A_CHA\)\)[\s\S]*?const endearment = !random\.rn2\(2\)[\s\S]*?await y_n\(query, state\)[\s\S]*?body_part\(HAIR, state\.youmonst\)[\s\S]*?await verbalize\([\s\S]*?await remove_worn_item\(obj, true, state, rawEnv\);/u);
+        /if \(!obj \|\| !obj\.owornmask\) return;[\s\S]*?if \(state\.utotype \|\| !m_next2u\(mon, state\)\) return;[\s\S]*?if \(Deaf\(state\.u\)\)[\s\S]*?else if \(random\.rn2\(20\) < acurr\(state, A_CHA\)\)[\s\S]*?const endearment = !random\.rn2\(2\)[\s\S]*?await y_n\(query, state\)[\s\S]*?body_part\(HAIR, state\.youmonst\)[\s\S]*?await verbalize\([\s\S]*?await remove_worn_item\(obj, true, state, rawEnv\);/u);
     // C's uarmc predicate must select the same text in JavaScript.
     assert.match(mayberemJs,
         /obj === state\.uarmc \|\| obj === state\.uarms\s*\? "it's in the way"/u,

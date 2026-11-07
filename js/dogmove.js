@@ -19,7 +19,6 @@ import {
     COST_DEGRD,
     D_CLOSED,
     D_LOCKED,
-    DEAF,
     DISMOUNT_POLY,
     DISMOUNT_THROWN,
     DOGFOOD,
@@ -208,7 +207,7 @@ import { pline_mon, youFeel } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
-import { Hallucination } from './youprop.js';
+import { Deaf, Hallucination } from './youprop.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -282,15 +281,6 @@ function conflictActive(state) {
     return Boolean(conflict?.intrinsic || conflict?.extrinsic);
 }
 
-// C ref: youprop.h:125 Deaf, `(HDeaf || EDeaf || u.uroleplay.deaf)`. Three
-// disjuncts and no blocking term: the third is the deaf conduct, which only
-// `OPTIONS=roleplay:deaf` sets and nothing clears. js/apply.js and js/mhitm.js
-// each keep their own copy of this one-line macro, as C does.
-function heroDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 
 function monsterOffMap(monster) {
@@ -1591,7 +1581,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ? t_at(x, y, state) : null;
         if (trap) {
             if (monster.mleashed) {
-                if (!heroDeaf(state)) {
+                if (!Deaf(state.u)) {
                     await petMoveOperation(env, 'whimper')(monster, env);
                 }
             } else if (trap.tseen && random.rn2(40)) {

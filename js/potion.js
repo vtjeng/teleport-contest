@@ -73,7 +73,6 @@ import {
     EYE,
     FACE,
     FAST,
-    FAINTED,
     FOOT,
     FROMOUTSIDE,
     HALLUC,
@@ -228,7 +227,7 @@ import {
     burn_away_slime, fall_asleep, obj_stop_timers,
 } from './timeout.js';
 import { explode, explode_oil } from './explode.js';
-import { float_up, unconscious, Levitation } from './trap.js';
+import { float_up, Levitation } from './trap.js';
 import { rider_cant_reach } from './steed.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
@@ -321,10 +320,10 @@ import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
 import {
     BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
-    Blindfolded, Detect_monsters, EBlinded, EHalluc_resistance, EWarn_of_mon, HBlinded, HDetect_monsters, HHalluc_resistance,
-    HHallucination, HInvis, HSee_invisible,
-    Hallucination, Infravision, Invis, Maybe_Half_Phys, PermaBlind,
-    See_invisible,
+    Blindfolded, Deaf, Detect_monsters, EBlinded, EHalluc_resistance,
+    EWarn_of_mon, HBlinded, HDeaf, HDetect_monsters, HHalluc_resistance,
+    HHallucination, HInvis, HSee_invisible, Hallucination, Infravision, Invis,
+    Maybe_Half_Phys, PermaBlind, See_invisible, Unaware,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -714,19 +713,14 @@ export async function self_invis_message(state = game, env = {}) {
 // `env.message` lets elapsed-turn planning run this source call without
 // writing the clone's message to the live terminal.
 export async function make_deaf(xtime, talk, state = game, env = {}) {
-    const prop = state.u?.uprops?.[DEAF];
-    if (!prop) return;
-    const old = prop.intrinsic & TIMEOUT;
+    // Nothing sets HDeaf's non-timeout bits, so the whole field C reads as
+    // `old` is its timeout.
+    const old = HDeaf(state.u);
 
     if (Unaware(state)) talk = false;
 
-    set_itimeout(prop, xtime);
-
-    // C ref: youprop.h:125 Deaf. HDeaf || EDeaf || u.uroleplay.deaf.
-    const deaf = Boolean(
-        (prop.intrinsic & TIMEOUT) || prop.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
+    set_itimeout(state.u.uprops[DEAF], xtime);
+    const deaf = Deaf(state.u);
 
     if (Boolean(xtime) !== Boolean(old)) {
         state.disp ??= {};
@@ -839,12 +833,6 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
         await toggle_blindness(state, env);
 }
 
-// C ref: youprop.h:399 Unaware. trap.c unconscious() owns the pending-message
-// half; eat.c is_fainted() is the `u.uhs == FAINTED` half.
-function Unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
 
 // C ref: potion.c make_confused() (89-104). Replace HConfusion's timeout,
 // report a cleared condition when requested, and mark the status line only
@@ -3146,11 +3134,6 @@ function Glib(state) {
     return Boolean(state.u?.uprops?.[GLIB]?.intrinsic & TIMEOUT);
 }
 
-function Deaf(state) {
-    const prop = state.u?.uprops?.[DEAF];
-    return Boolean(prop?.intrinsic || prop?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 function drinkEnvironment(state, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
@@ -3390,7 +3373,7 @@ export async function dip_potion_explosion(obj, dmg, state = game,
         || (obj.otyp === POT_OIL && obj.lamplit)
         || !random.rn2(state.uarmc?.otyp === ALCHEMY_SMOCK ? 30 : 10)) {
         obj.in_use = 1;
-        await env.message((Deaf(state) ? '' : 'BOOM!  ') + 'They explode!', state);
+        await env.message((Deaf(state.u) ? '' : 'BOOM!  ') + 'They explode!', state);
         const boltLimit = BOLT_LIM;
         await wake_nearto(
             state.u.ux, state.u.uy, (boltLimit + 1) * (boltLimit + 1), env,

@@ -9,7 +9,6 @@ import {
     ACID_RES,
     ANTIMAGIC,
     COLD_RES,
-    DEAF,
     DISINT_RES,
     DISP_BEAM,
     DISP_CHANGE,
@@ -201,7 +200,7 @@ import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 import { canspotmon } from './display.js';
-import { Hallucination, Maybe_Half_Phys } from './youprop.js';
+import { Deaf, Hallucination, Maybe_Half_Phys } from './youprop.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].
@@ -255,9 +254,6 @@ function propertyActive(state, property) {
 }
 
 
-function deaf(state) {
-    return propertyActive(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
-}
 
 function monsterResists(monster, adtyp, olet, state) {
     switch (adtyp) {
@@ -571,7 +567,7 @@ export async function explode(
             str = 'explosion';
             generic = true;
         }
-        if (!deaf(state) && olet !== SCROLL_CLASS) {
+        if (!Deaf(state.u) && olet !== SCROLL_CLASS) {
             note_unported('sound.c Soundeffect');
             const heard = youHear('a blast.', state);
             if (heard) await messageLine(heard, state, env);
@@ -579,7 +575,7 @@ export async function explode(
         }
     }
 
-    if (!deaf(state) && !didmsg) await messageLine('Boom!', state, env);
+    if (!Deaf(state.u) && !didmsg) await messageLine('Boom!', state, env);
 
     if (dam) {
         for (let i = 0; i < 3; i++) {

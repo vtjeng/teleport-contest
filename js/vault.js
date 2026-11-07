@@ -14,7 +14,6 @@ import {
     CORR,
     COULD_SEE,
     D_NODOOR,
-    DEAF,
     DOOR,
     EGD,
     FCSIZ,
@@ -103,7 +102,7 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
-import { EBlinded, HBlinded } from './youprop.js';
+import { Deaf, EBlinded, HBlinded } from './youprop.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -500,7 +499,7 @@ async function wallify_vault(grd, state, env) {
 async function gd_mv_monaway(grd, nx, ny, state, env) {
     const mtmp = m_at(nx, ny, state);
     if (mtmp && mtmp !== grd) {
-        if (!Deaf(state)) {
+        if (!Deaf(state.u)) {
             await env.message('"Out of my way, scum!"', state, env);
         }
         if (!(await rloc(mtmp, RLOC_ERR | RLOC_MSG, { state }))
@@ -614,7 +613,7 @@ export async function gd_move(grd, env = {}) {
     if (egrd.witness) {
         // C ref: vault.c:933-944. The guard reacts before the ordinary
         // pursuit path; clear the observation so it is announced once.
-        if (!Deaf(state)) {
+        if (!Deaf(state.u)) {
             set_voice(grd, 0, 80, 0, state);
             await verbalize(
                 `How dare you ${egrd.witness & GD_EATGOLD ? 'consume' : 'destroy'} that gold, scoundrel!`,
@@ -632,7 +631,7 @@ export async function gd_move(grd, env = {}) {
     if (egrd.fcend === 1) {
         if (u_in_vault && (u_carry_gold
             || um_dist(grd.mx, grd.my, 1, state))) {
-            if (egrd.warncnt === 3 && !Deaf(state)) {
+            if (egrd.warncnt === 3 && !Deaf(state.u)) {
                 let buf;
                 if (u_carry_gold) {
                     buf = (!umoney ? 'drop that hidden gold and ' : 'drop that gold and ');
@@ -653,7 +652,7 @@ export async function gd_move(grd, env = {}) {
             if (egrd.warncnt === 7) {
                 const m = grd.mx;
                 const n = grd.my;
-                if (!Deaf(state)) {
+                if (!Deaf(state.u)) {
                     set_voice(grd, 0, 80, 0, state);
                     await verbalize('You\'ve been warned, knave!',
                         state, { message });
@@ -694,7 +693,7 @@ export async function gd_move(grd, env = {}) {
                 await gd_letknow(grd, state, gdEnv);
                 return -1;
             } else {
-                if (!Deaf(state)) {
+                if (!Deaf(state.u)) {
                     await message('"Well, begone."', state, gdEnv);
                 }
                 egrd.gddone = 1;
@@ -724,7 +723,7 @@ export async function gd_move(grd, env = {}) {
             }
             if (egrd.warncnt < 6) {
                 egrd.warncnt = 6;
-                if (Deaf(state)) {
+                if (Deaf(state.u)) {
                     if (!BlindIgnoringLenses(state)) {
                         await message(
                             `${noit_Monnam(grd, state)} holds out ${noit_mhis(grd, { state })} palm demandingly!`,
@@ -737,7 +736,7 @@ export async function gd_move(grd, env = {}) {
                 }
                 return 0;
             }
-            if (Deaf(state)) {
+            if (Deaf(state.u)) {
                 if (!BlindIgnoringLenses(state)) {
                     await message(
                         `${noit_Monnam(grd, state)} rubs ${noit_mhis(grd, { state })} hands with enraged delight!`,
@@ -833,7 +832,7 @@ export async function gd_move(grd, env = {}) {
     }
 
     if (um_dist(grd.mx, grd.my, 1, state) || egrd.gddone) {
-        if (!egrd.gddone && !random.rn2(10) && !Deaf(state)
+        if (!egrd.gddone && !random.rn2(10) && !Deaf(state.u)
             && !state.u.uswallow
             && !(state.u.ustuck
                 && !sticks(state.youmonst?.data ?? state.u.umonster))) {
@@ -1051,10 +1050,6 @@ function propertyActive(hero, index) {
     const property = hero?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
-function Deaf(state) {
-    return propertyActive(state.u, DEAF)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 function BlindIgnoringLenses(state) {
     return Boolean(HBlinded(state.u) || EBlinded(state.u));
 }
@@ -1199,7 +1194,7 @@ export async function invault(state, env = {}) {
     }
 
     if (u.uswallow) {
-        if (!Deaf(state)) {
+        if (!Deaf(state.u)) {
             set_voice(guard, 0, 80, 0, state);
             await verbalize("What's going on here?", state, { message });
         }
@@ -1212,7 +1207,7 @@ export async function invault(state, env = {}) {
     const uApType = state.youmonst?.m_ap_type ?? 0;
     if (uApType === M_AP_OBJECT || u.uundetected) {
         if (uApType === M_AP_OBJECT
-            && state.youmonst.mappearance !== GOLD_PIECE && !Deaf(state)) {
+            && state.youmonst.mappearance !== GOLD_PIECE && !Deaf(state.u)) {
             set_voice(guard, 0, 80, 0, state);
             await verbalize(
                 `Hey!  Who left that ${mimic_obj_name(state.youmonst, state)} in here?`,
@@ -1225,7 +1220,7 @@ export async function invault(state, env = {}) {
     }
     if (Strangled(state) || is_silent(state.youmonst?.data ?? u.umonster)
         || state.multi < 0) {
-        if (Deaf(state)) {
+        if (Deaf(state.u)) {
             await message(`${noit_Monnam(guard, state)} huffs and turns to leave.`);
         } else {
             set_voice(guard, 0, 80, 0, state);
@@ -1254,7 +1249,7 @@ export async function invault(state, env = {}) {
     let trycount = 5;
     do {
         buf = await getlin(
-            Deaf(state) ? 'You are required to supply your name. -'
+            Deaf(state.u) ? 'You are required to supply your name. -'
                 : '"Hello stranger, who are you?" -',
             state,
         );
@@ -1271,7 +1266,7 @@ export async function invault(state, env = {}) {
         || buf.toLowerCase() === 'kroisos'
         || buf.toLowerCase() === 'creosote') {
         if (!state.mvitals[PM_CROESUS].died) {
-            if (Deaf(state)) {
+            if (Deaf(state.u)) {
                 if (!BlindIgnoringLenses(state))
                     await message(`${noit_Monnam(guard, state)} waves goodbye.`, state);
             } else {
@@ -1286,7 +1281,7 @@ export async function invault(state, env = {}) {
         }
         const guardEnv = { ...env, state, random, message };
         await setmangry(guard, false, guardEnv);
-        if (Deaf(state)) {
+        if (Deaf(state.u)) {
             if (!BlindIgnoringLenses(state))
                 await message(`${noit_Monnam(guard, state)} mouths something and looks very angry!`);
         } else {
@@ -1302,7 +1297,7 @@ export async function invault(state, env = {}) {
         return { afterInput: true };
     }
 
-    if (Deaf(state)) {
+    if (Deaf(state.u)) {
         await message(`${noit_Monnam(guard, state)} doesn't ${BlindIgnoringLenses(state) ? '' : 'appear to '}recognize you.`);
     } else {
         await message('"I don\'t know you."');
@@ -1310,13 +1305,13 @@ export async function invault(state, env = {}) {
 
     const umoney = money_cnt(state.invent);
     if (!umoney && !hidden_gold(true, state)) {
-        if (Deaf(state)) {
+        if (Deaf(state.u)) {
             await message(`${noit_Monnam(guard, state)} stomps${BlindIgnoringLenses(state) ? '' : ' and beckons'}.`);
         } else {
             await message('"Please follow me."');
         }
     } else {
-        if (Deaf(state)) {
+        if (Deaf(state.u)) {
             if (!umoney) {
                 if (!BlindIgnoringLenses(state)) {
                     await message(

@@ -640,9 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, EHalluc_resistance, HBlinded, HHalluc_resistance,
-    HHallucination, Halluc_resistance, Hallucination, Invis, Maybe_Half_Phys,
-    See_invisible,
+    BBlinded, Blind, Deaf, EDeaf, EHalluc_resistance, HBlinded, HDeaf,
+    HHalluc_resistance, HHallucination, Halluc_resistance, Hallucination,
+    Invis, Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -1866,13 +1866,6 @@ async function use_tinning_kit(obj, state = game, env = {}) {
 }
 
 
-// C ref: youprop.h:125 Deaf, which adds the permanent-deafness roleplay
-// option to the intrinsic and the extrinsic.
-function heroDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF] ?? {};
-    return Boolean(deafness.intrinsic || deafness.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 // C ref: apply.c use_cream_pie() (3568-3603). Complete the shop alteration
 // and its audible billing before consuming the cream pie.
@@ -2579,7 +2572,7 @@ async function use_stethoscope(obj, state = game) {
     if (nohands(state.youmonst.data)) {
         await ttyPline('You have no hands!', state); /* not `body_part(HAND)' */
         return ECMD_OK;
-    } else if (heroDeaf(state)) {
+    } else if (Deaf(state.u)) {
         await ttyPline("You can't hear anything!", state);
         return ECMD_OK;
     } else if (!freehand(state)) {
@@ -3515,7 +3508,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             || EHalluc_resistance(state.u)),
     );
     const deaf = () => Boolean(
-        intrinsic(DEAF) || state.u?.uprops?.[DEAF]?.extrinsic
+        HDeaf(state.u) || EDeaf(state.u)
         || state.u?.uroleplay?.deaf,
     );
 
@@ -3580,7 +3573,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         case 6:
             if (deaf()) await message(nothing_seems_to_happen, state);
             await make_deaf(
-                (intrinsic(DEAF) & TIMEOUT) + lcount,
+                (HDeaf(state.u) & TIMEOUT) + lcount,
                 true,
                 state,
                 env,
@@ -4482,7 +4475,7 @@ function whistleHowMany(count) {
 // effect and are intentionally not evaluated.
 export async function use_whistle(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const deaf = heroDeaf(state);
+    const deaf = Deaf(state.u);
     if (!can_blow(state.youmonst, state)) {
         await message('You are incapable of using the whistle.', state);
         return;
@@ -4511,7 +4504,7 @@ export async function use_whistle(obj, state = game, env = {}) {
 export async function use_magic_whistle(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
-    const deaf = heroDeaf(state);
+    const deaf = Deaf(state.u);
     if (!can_blow(state.youmonst, state)) {
         await message('You are incapable of using the whistle.', state);
     } else if (obj.cursed && !random.rn2(2)) {
@@ -4588,7 +4581,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
                     message,
                     redraw: (x, y) => newsym(x, y),
                     mInAir: subject => m_in_air(subject, state),
-                    heroDeaf: () => heroDeaf(state),
+                    heroDeaf: () => Deaf(state.u),
                     youHear,
                     unsupported: name => {
                         note_unported(`trap.c ${name}`);
@@ -5280,7 +5273,7 @@ async function flip_through_book(obj, state = game) {
     );
 
     if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-        if (!heroDeaf(state)) {
+        if (!Deaf(state.u)) {
             // The C Soundeffect(se_rustling_paper, 50) expands to nothing in
             // this build. You_hear still applies the acoustics/Unaware rules.
             const heard = youHear(

@@ -23,11 +23,9 @@ import {
     D_BROKEN,
     D_CLOSED,
     D_LOCKED,
-    DEAF,
     EXPL_FIERY,
     DRAWBRIDGE_UP,
     EDOG,
-    FAINTED,
     FIRE_TRAP,
     FORCEBUNGLE,
     FORCETRAP,
@@ -252,7 +250,7 @@ import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, HBlinded, Hallucination, See_invisible,
+    Blind, Deaf, HBlinded, Hallucination, See_invisible, Unaware,
 } from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
@@ -307,13 +305,6 @@ function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u?.ux ?? 0, state.u?.uy ?? 0);
 }
 
-
-// C ref: youprop.h Deaf.
-function Deaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 function activeHeroProperty(state, property) {
     const value = state.u?.uprops?.[property];
@@ -545,7 +536,7 @@ async function mreadmsg(mtmp, otmp, state, rawEnv = {}) {
     const vismon = canseemon(mtmp, state);
     let tpindicator = !vismon && sensemon(mtmp, state);
 
-    if (!vismon && Deaf(state))
+    if (!vismon && Deaf(state.u))
         return; /* no feedback */
 
     observe_object(otmp, state);
@@ -603,7 +594,7 @@ async function mquaffmsg(mtmp, otmp, state) {
         await pline_mon(mtmp,
             `${capitalizedMonsterName(mtmp, state)} drinks ${singular(otmp, donameFresh, state)}!`,
             state);
-    } else if (!Deaf(state)) {
+    } else if (!Deaf(state.u)) {
         // Soundeffect is a no-op in the tty build.
         const heardChug = youHear('a chugging sound.', state);
         if (heardChug) await ttyPline(heardChug, state);
@@ -811,7 +802,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} plays ${donameFresh(otmp, state)}!`,
                 state);
-        } else if (!Deaf(state)) {
+        } else if (!Deaf(state.u)) {
             // Soundeffect is a no-op in the tty build.
             const heard = youHear('a bugle playing reveille!', state);
             if (heard) await ttyPline(heard, state);
@@ -944,7 +935,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} ${is_flyer(mtmp.data) ? 'dives' : 'falls'} through...`,
                 state);
-        } else if (!Deaf(state)) {
+        } else if (!Deaf(state.u)) {
             // Soundeffect is a no-op in the tty build.
             const heard = youHear(
                 `something crash through the ${surface(mtmp.mx, mtmp.my, state)}.`,
@@ -3248,7 +3239,7 @@ async function mon_consume_unstone(
             `${capitalizedMonsterName(mon, state)} ${verb} ${distant_name(obj, donameFresh, state)}.`,
             state);
         obj.quan = save_quan;
-    } else if (!Deaf(state)) {
+    } else if (!Deaf(state.u)) {
         const heard = youHear(
             `${(obj.oclass === O.POTION_CLASS) ? 'drinking' : 'chewing'}.`,
             state);
@@ -3387,7 +3378,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         message,
         redraw,
         mInAir: env.mInAir ?? m_in_air,
-        heroDeaf: env.heroDeaf ?? Deaf,
+        heroDeaf: env.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: env.youHear ?? youHear,
         unsupported: env.unsupported ?? ((reason) => {
             throw new TypeError(`unslime trap requires ${reason}`);
@@ -3604,7 +3595,3 @@ export function green_mon(mon, state = game) {
 }
 
 /* C ref: youprop.h Unaware. Local copy for muse_unslime. */
-function Unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}

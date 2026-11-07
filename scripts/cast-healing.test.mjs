@@ -23,6 +23,7 @@ import test from 'node:test';
 import {
     A_INT,
     BLINDED,
+    DEAF,
     FROMOUTSIDE,
     NUM_ATTRS,
     STRANGLED,
@@ -239,7 +240,12 @@ test('healup is a no-op for cureblind on a sighted hero', async () => {
     const state = {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
-            uprops: { [BLINDED]: { intrinsic: 0, extrinsic: 0 } },
+            // healup() also calls make_deaf(0L) (potion.c:1445), which
+            // reads the DEAF slot.
+            uprops: {
+                [BLINDED]: { intrinsic: 0, extrinsic: 0 },
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
+            },
         },
         disp: {},
     };
@@ -255,6 +261,7 @@ test('healup leaves extrinsic blindfold blindness in place', async () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: { intrinsic: 0, extrinsic: 1 },
             },
         },
@@ -276,6 +283,7 @@ test('healup clears timed blindness through make_blinded', async () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: {
                     intrinsic: highTimeoutBit & TIMEOUT,
                     extrinsic: 0,
@@ -292,6 +300,7 @@ test('healup clears timed blindness through make_blinded', async () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: { intrinsic: 37 & TIMEOUT, extrinsic: 0 },
             },
         },
@@ -304,6 +313,7 @@ test('healup clears timed blindness through make_blinded', async () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: { intrinsic: FROMOUTSIDE, extrinsic: 0 },
             },
         },
@@ -316,6 +326,7 @@ test('healup clears timed blindness through make_blinded', async () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
+                [DEAF]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: {
                     intrinsic: FROMOUTSIDE | highTimeoutBit,
                     extrinsic: 0,

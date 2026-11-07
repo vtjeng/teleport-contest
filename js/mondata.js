@@ -13,7 +13,6 @@ import {
     DRAIN_RES,
     DISINT_RES,
     FEMALE,
-    FAINTED,
     FIRE_RES,
     G_GENOD,
     INTRINSIC,
@@ -91,7 +90,6 @@ import { is_fshk } from './shk.js';
 import { objdescr_is } from './o_init.js';
 import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
 import { MAXMCLASSES } from './symbols.js';
-import { unconscious } from './trap.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
 // file; the two modules reach each other the way this file and js/dungeon.js
 // already do, and neither side uses the other's exports at module scope.
@@ -117,7 +115,7 @@ export function set_mon_data(monster, species, state = game) {
 }
 import { which_armor } from './worn.js';
 import {
-    Blind, Blnd_resist, EBlinded, Hallucination,
+    Blind, Blnd_resist, EBlinded, Hallucination, Unaware,
 } from './youprop.js';
 
 function hasAttackType(species, attackType) {
@@ -256,7 +254,7 @@ export function resists_blnd_by_arti(mon, state = game) {
 export function resists_blnd(mon, state = game) {
     const isYou = mon === state.youmonst;
     const heroBlind = Blind(state.u);
-    const heroUnaware = heroUnawareForBlindness(state);
+    const heroUnaware = Unaware(state);
     if (isYou
         ? (heroBlind || heroUnaware)
         : (mon?.mblinded || !mon?.mcansee || !haseyes(mon?.data)
@@ -316,7 +314,7 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
         if (magr === state.youmonst && state.u?.uswallow) return false;
         break;
     case M.AT_ENGL:
-        if (isYou && (blindfolded || heroUnawareForBlindness(state)
+        if (isYou && (blindfolded || Unaware(state)
             || state.u?.ucreamed)) return false;
         if (!isYou && mdef?.msleeping) return false;
         break;
@@ -345,15 +343,6 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     return true;
 }
 
-// youprop.h:125 Unaware; trap.c unconscious() (6775-6786) and
-// eat.c is_fainted(). The turn multiplier belongs to game state, while the
-// pending wake message distinguishes an unconscious hero from another
-// immobilizing effect. Reuse trap.js's source owner for the pending-message
-// test so the two macros cannot drift.
-function heroUnawareForBlindness(state) {
-    if (Math.trunc(state.multi ?? 0) >= 0) return false;
-    return unconscious(state) || state.u?.uhs === FAINTED;
-}
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
 export function nolimbs(species) {
     return species != null

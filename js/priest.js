@@ -23,7 +23,6 @@ import {
     ARTICLE_YOUR,
     A_WIS,
     CLAIRVOYANT,
-    DEAF,
     CONFLICT,
     DISPLACED,
     DRY,
@@ -124,7 +123,7 @@ import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
-    EHalluc_resistance, HHalluc_resistance, HHallucination, Invis,
+    Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination, Invis,
 } from './youprop.js';
 
 // C ref: priest.c local constants.
@@ -838,12 +837,6 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
     return pname;
 }
 
-// C ref: youprop.h:125 Deaf. HDeaf || EDeaf || u.uroleplay.deaf.
-function heroDeaf(state) {
-    const prop = state.u?.uprops?.[DEAF];
-    return Boolean(prop?.intrinsic || prop?.extrinsic)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 
 // C ref: youprop.h:157 Hallucination.
 function HallucinatingIgnoringResistance(state) {
@@ -874,7 +867,7 @@ export async function intemple(roomno, env = {}) {
                 || (state.astral_level
                     && u.uz?.dnum === state.astral_level.dnum));
         const can_speak = !helpless(priest);
-        if (can_speak && !heroDeaf(state)
+        if (can_speak && !Deaf(state.u)
             && state.moves >= (epri_p.intone_time ?? 0)) {
             const save_priest = priest.ispriest;
             if (sanctum && !HallucinatingIgnoringResistance(state))
@@ -902,7 +895,7 @@ export async function intemple(roomno, env = {}) {
         } else if (state.moves >= (epri_p.enter_time ?? 0)) {
             msg1 = `Pilgrim, you enter a ${!shrined ? 'desecrated' : 'sacred'} place!`;
         }
-        if (msg1 && can_speak && !heroDeaf(state)) {
+        if (msg1 && can_speak && !Deaf(state.u)) {
             await message(`"${msg1}"`, state);
             if (msg2)
                 await message(`"${msg2}"`, state);

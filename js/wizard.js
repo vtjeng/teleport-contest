@@ -5,7 +5,6 @@
 import {
     A_LAWFUL,
     BOLT_LIM,
-    DEAF,
     EMIN,
     G_GENOD,
     M_AP_MONSTER,
@@ -89,7 +88,7 @@ import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { verbalize, youFeel } from './pline.js';
-import { Blind } from './youprop.js';
+import { Blind, Deaf } from './youprop.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
 const WIZARD_APPEARANCES = Object.freeze([
@@ -152,14 +151,6 @@ export async function amulet(state = game, rawEnv = {}) {
     }
 }
 
-function heroIsDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(
-        deafness?.intrinsic
-        || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C In_endgame() compares the current dungeon number with astral_level. This
 // local spelling keeps nasty()'s substitute cap clone-local during planning
@@ -300,7 +291,7 @@ export async function resurrect(state = game, rawEnv = {}) {
 
     // wizard.c:774-778. SetVoice() has no screen/state consumer in the port;
     // verbalize() is the ordinary quoted pline immediately after the voice.
-    if (!heroIsDeaf(state)) {
+    if (!Deaf(state.u)) {
         const message = rawEnv.message ?? ttyPline;
         await message('A voice booms out...', state, rawEnv);
         await message(
@@ -402,7 +393,7 @@ async function resurrectMigratingWizard(state, rawEnv) {
     monster.mtame = 0;
     monster.mpeaceful = false;
     set_malign(monster, state);
-    if (!heroIsDeaf(state)) {
+    if (!Deaf(state.u)) {
         const message = rawEnv.message ?? ttyPline;
         await message('A voice booms out...', state, rawEnv);
         await message(
@@ -1024,7 +1015,7 @@ const RANDOM_MALEDICTION = Object.freeze([
 // C ref: wizard.c cuss() (846-883). The caller decides whether this source
 // function is reached; Deaf is its first early-return guard.
 export async function cuss(mtmp, state = game, rawEnv = {}) {
-    if (heroIsDeaf(state)) return;
+    if (Deaf(state.u)) return;
 
     const random = rawEnv.random ?? coreRandom;
     const roll = random.rn2 ?? rn2;

@@ -17,7 +17,6 @@ import {
     ANTIMAGIC,
     COLD_RES,
     CONFUSION,
-    DEAF,
     DRAWBRIDGE_DOWN,
     ECMD_OK,
     ECMD_TIME,
@@ -129,8 +128,8 @@ import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, ETelepat, HBlinded, HSee_invisible, HTelepat, Half_physical_damage,
-    Hallucination, See_invisible,
+    Blind, Deaf, ETelepat, HBlinded, HSee_invisible, HTelepat,
+    Half_physical_damage, Hallucination, See_invisible,
 } from './youprop.js';
 
 
@@ -140,12 +139,6 @@ function Levitation(state) {
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
 }
 
-// youprop.h:125 Deaf: intrinsic/extrinsic deafness and the roleplay option.
-function Deaf(state) {
-    const value = state.u?.uprops?.[DEAF];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 
 function Underwater(state) {
     return Boolean(state.u?.uinwater);
@@ -846,7 +839,7 @@ export async function dosit(state = game, rawEnv = {}) {
                 && amorphous(state.mons[obj.corpsenm])) {
                 await message("It's squishy...", state);
             } else if (obj.otyp === CREAM_PIE) {
-                if (!Deaf(state)) await message('Squelch!', state);
+                if (!Deaf(state.u)) await message('Squelch!', state);
                 const { useupf } = await import('./invent.js');
                 await useupf(obj, obj.quan, { state });
             } else if (!(isBox(obj)

@@ -22,7 +22,6 @@ import {
     COULD_SEE,
     CORR,
     ALTAR,
-    DEAF,
     CQ_CANNED,
     DB_MOAT,
     DB_LAVA,
@@ -69,7 +68,6 @@ import {
     DIGTYP_STATUE,
     DIGTYP_TREE,
     DIGTYP_UNDIGGABLE,
-    FAINTED,
     FORCEBUNGLE,
     Has_contents,
     IRONBARS,
@@ -247,7 +245,6 @@ import { feeltrap, seetrap } from './trap_effects.js';
 import { bimanual } from './worn.js';
 import { On_stairs, stairway_at } from './stairs.js';
 import { dist2, s_suffix } from './hacklib.js';
-import { unconscious } from './trap.js';
 import {
     displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
@@ -300,16 +297,10 @@ import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
 import {
-    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
-    Maybe_Half_Phys,
+    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
-// C ref: youprop.h Unaware. The draft-message random roll is skipped while a
-// negative multi represents unconsciousness or fainting.
-function unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
 
 // C ref: dig.c pick_can_reach() (141-164). A pick reaches a target in a pit
 // only when the hero's pit links to it; otherwise the hero must be able to
@@ -946,13 +937,6 @@ export function watchman_canseeu(mtmp, state = game) {
         && mtmp.mpeaceful;
 }
 
-function heroDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF] ?? {};
-    return Boolean(
-        deafness.intrinsic || deafness.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C ref: dig.c watch_dig() (1377-1410). This is called by the monster watch,
 // chewing, and wand-digging paths before their terrain mutation. The optional
@@ -987,7 +971,7 @@ export async function watch_dig(mtmp, x, y, zap, rawEnv = {}) {
             { message },
         );
         const anger = rawEnv.angryGuards ?? angry_guards;
-        await anger(heroDeaf(state), { ...rawEnv, state, message });
+        await anger(Deaf(state.u), { ...rawEnv, state, message });
     } else {
         const target = IS_DOOR(lev.typ) ? 'door'
             : IS_TREE(lev.typ, state) ? 'tree'
@@ -2280,7 +2264,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
                 return true;
             }
         } else if (state.flags?.verbose
-            && !unaware(state)
+            && !Unaware(state)
             && !random.rn2(3)) {
             await draft_message(true, { ...rawEnv, state, message });
         }

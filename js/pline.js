@@ -7,36 +7,22 @@
 import { game } from './gstate.js';
 import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
-import { BUFSZ, DEAF, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
-import { is_fainted } from './eat.js';
-import { unconscious } from './trap.js';
+import { BUFSZ, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { messageAt } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
-import { Blind } from './youprop.js';
+import { Blind, Deaf, Unaware } from './youprop.js';
 
-// C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
-// trap.c unconscious(). C's Deaf macro includes timeout, worn and roleplay
-// deafness; Unaware requires both negative multi and an insensible state.
-export function heroDeaf(state = game) {
-    const deaf = state.u?.uprops?.[DEAF];
-    return Boolean(deaf?.intrinsic || deaf?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
-export function heroUnaware(state = game) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || is_fainted(state));
-}
 
 // C builds the prefix before vpline() formats the caller's variadic suffix.
 // JS callers pass the already-formatted suffix and deliver the resulting line
 // through their ordinary pline callback, preserving its wait/boundary order.
 export function youHear(line, state = game) {
-    if ((heroDeaf(state) && !heroUnaware(state)) || !state.flags?.acoustics)
+    if ((Deaf(state.u) && !Unaware(state)) || !state.flags?.acoustics)
         return null;
     if (state.u?.uinwater) return `You barely hear ${line}`;
-    if (heroUnaware(state)) return `You dream that you hear ${line}`;
+    if (Unaware(state)) return `You dream that you hear ${line}`;
     return `You hear ${line}`;
 }
 
@@ -46,14 +32,14 @@ export function youHear(line, state = game) {
 // scripts/you-feel-literal.mjs fails on a hand-written "You feel" in js/
 // unless it lists the C call that writes the text without You_feel().
 export function youFeel(line, state = game) {
-    return `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} ${line}`;
+    return `${Unaware(state) ? 'You dream that you feel' : 'You feel'} ${line}`;
 }
 
 // C ref: pline.c You_see() (453-470). C's own comment says a caller should
 // have caught the Blind case; most callers reach it only behind cansee(),
 // which is false while the hero is blind.
 export function youSee(line, state = game) {
-    if (heroUnaware(state)) return `You dream that you see ${line}`;
+    if (Unaware(state)) return `You dream that you see ${line}`;
     if (Blind(state.u)) return `You sense ${line}`;
     return `You see ${line}`;
 }

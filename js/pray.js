@@ -51,7 +51,6 @@ import {
     BLINDED,
     BOLT_LIM,
     CONFUSION,
-    DEAF,
     DIED,
     ESCAPED,
     ASCENDED,
@@ -181,7 +180,6 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { losehp, near_capacity, nomul, You_can_move_again } from './hack.js';
 import {
-    heroDeaf,
     livelog_printf,
     verbalize,
     youFeel,
@@ -359,8 +357,8 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, Blnd_resist, EBlinded, HBlinded, HHallucination,
-    Hallucination,
+    Blind, Blinded, Blnd_resist, Deaf, EBlinded, EDeaf, HBlinded, HDeaf,
+    HHallucination, Hallucination,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -934,7 +932,7 @@ async function offer_fake_amulet(otmp, highaltar, altaralign, state) {
     } else {
         // The source reports this only when the hero is Deaf; the earlier
         // You_hear() has already suppressed the thunderclap in that case.
-        if (heroDeaf(state)) await ttyPline('Oh, no.', state);
+        if (Deaf(state.u)) await ttyPline('Oh, no.', state);
         change_luck(-3, state);
         adjalign(-1, state);
         u.ugangr += 3;
@@ -1342,7 +1340,7 @@ export function in_trouble(state = game) {
         return TROUBLE_BLIND;
     /* deafness isn't its own trouble; healing magic cures deafness
        when it cures blindness, so do the same with trouble repair */
-    if ((intrinsic(state, DEAF) & TIMEOUT) > 1) return TROUBLE_BLIND;
+    if ((HDeaf(state.u) & TIMEOUT) > 1) return TROUBLE_BLIND;
 
     for (let i = 0; i < A_MAX; i++)
         if (state.u.acurr.a[i] < state.u.amax.a[i]) return TROUBLE_POISONED;
@@ -1454,13 +1452,6 @@ export async function fix_curse_trouble(otmp, what = null, state = game) {
 }
 
 
-function heroIsDeaf(state) {
-    const property = state.u?.uprops?.[DEAF];
-    return Boolean(
-        (property?.intrinsic ?? 0) || (property?.extrinsic ?? 0)
-            || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C ref: pray.c fix_worst_trouble() (372-600). Every switch arm is retained
 // in source order. Helpers whose C implementations are not yet available are
@@ -1649,7 +1640,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
     case TROUBLE_BLIND: {
         let msgbuf = '';
         let eyes = body_part(EYE, state.youmonst);
-        const cureDeaf = Boolean(intrinsic(state, DEAF) & TIMEOUT);
+        const cureDeaf = Boolean(HDeaf(state.u) & TIMEOUT);
         if (Blinded(state.u)) {
             const pmidx = state.youmonst?.data?.pmidx;
             if (pmidx !== PM_FLOATING_EYE && pmidx !== PM_CYCLOPS)
@@ -1660,7 +1651,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         }
         if (cureDeaf) {
             await make_deaf(0, false, state);
-            if (!heroIsDeaf(state))
+            if (!Deaf(state.u))
                 msgbuf += `${msgbuf ? ' and you' : 'You'} can hear again`;
         }
         if (msgbuf) await ttyPline(`${msgbuf}.`, state);
@@ -1922,7 +1913,7 @@ export async function prayer_done(state = game) {
     state.u.uinvulnerable = false;
     if (state.gp.p_type === -2) {
         await ttyPline(
-            `You ${heroDeaf(state) ? 'intuit' : 'hear'} diabolical laughter all around you...`,
+            `You ${Deaf(state.u) ? 'intuit' : 'hear'} diabolical laughter all around you...`,
             state,
         );
         await wake_nearby(false, { state });
@@ -2949,8 +2940,7 @@ export async function altar_wrath(x, y, state = game) {
         return;
     }
 
-    const deafness = u.uprops?.[DEAF];
-    const deaf = Boolean(deafness?.intrinsic || deafness?.extrinsic)
+    const deaf = Boolean(HDeaf(u) || EDeaf(u))
         || Boolean(u.uroleplay?.deaf);
     await ttyPline(
         `${deaf

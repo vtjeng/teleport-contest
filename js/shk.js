@@ -32,7 +32,6 @@ import {
     COST_SINGLEOBJ,
     CONTAINED_TOO,
     CONFLICT,
-    DEAF,
     DISINT_RES,
     DISPLACED,
     ECMD_CANCEL,
@@ -307,7 +306,8 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
 import {
-    Blind, EDetect_monsters, ETelepat, HDetect_monsters, HTelepat, Invis,
+    Blind, Deaf, EDetect_monsters, ETelepat, HDetect_monsters, HTelepat,
+    Invis,
 } from './youprop.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
@@ -549,7 +549,7 @@ async function call_kops(
 ) {
     if (!shopkeeper) return;
 
-    const deaf = heroIsDeaf(state);
+    const deaf = Deaf(state.u);
     if (!deaf) await message('An alarm sounds!', state);
 
     const mvitals = state.mvitals ?? state.svm?.mvitals ?? [];
@@ -663,7 +663,7 @@ export async function shopdig(fall, state = game, rawEnv = {}) {
     }
 
     if (!fall) {
-        if (lang === 2 && !heroIsDeaf(state) && !muteshk(shkp)) {
+        if (lang === 2 && !Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             if (state.u.utraptype === TT_PIT) {
                 await verbalize(
@@ -753,7 +753,7 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
         ...rawEnv,
         state,
     }) === 2
-        && !heroIsDeaf(state) && !muteshk(shkp)) {
+        && !Deaf(state.u) && !muteshk(shkp)) {
         set_voice(shkp, 0, 80, 0, state);
         await verbalize('Out of my way, scum!', state);
     }
@@ -831,7 +831,7 @@ export async function u_left_shop(
     // rob_shop() below.
     if (!left.length && !muteshk(shopkeeper)) {
         const notUpset = !extension.surcharge;
-        if (!heroIsDeaf(state)) {
+        if (!Deaf(state.u)) {
             // SetVoice has no effect in the recorder's tty build; preserve its
             // source position before verbalize() prints the boundary warning.
             set_voice(shopkeeper, 0, 80, 0, state);
@@ -956,7 +956,7 @@ export async function pick_pick(
 
     const moves = Math.trunc(state.moves ?? state.svm?.moves ?? 0);
     if (moves !== pickmovetime) {
-        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        if (!Deaf(state.u) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             state.gp.pline_flags |= PLINE_VERBALIZE;
             try {
@@ -1737,7 +1737,7 @@ export async function addtobill(obj, ininv, dummy, silent, state = game, env = {
         await add_one_tobill(obj, dummy, shkp, state, env);
         contentsCount = 0;
     }
-    if (!heroIsDeaf(state) && !muteshk(shkp) && !silent) {
+    if (!Deaf(state.u) && !muteshk(shkp) && !silent) {
         if (!price) {
             await message(`${Shknam(shkp, state)} has no interest in ${
                 the(xnameFresh(obj, state), state)}.`, state);
@@ -2050,7 +2050,7 @@ async function reject_purchase(shkp, obj, billedQuantity, state, env) {
     const intact = obj.quan;
     obj.quan = billedQuantity - intact;
     try {
-        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+        if (!Deaf(state.u) && !muteshk(shkp)) {
             const which = obj.where === OBJ_CONTAINED
                 ? `the one${plur(intact)} in ${thesimpleoname(obj.ocontainer, state)}`
                 : intact > 1 ? 'these' : 'this one';
@@ -2462,7 +2462,7 @@ export async function dopay(state = game, env = {}) {
     if (done && NOTANGRY(shkp) && paid.value) {
         const shop = SHTYPES[eshk.shoptype - SHOPBASE].name;
         const punctuation = eshk.surcharge ? '.' : '!';
-        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+        if (!Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize(`Thank you for shopping in ${s_suffix(shkname(shkp, state))} ${shop}${punctuation}`,
                 state, env);
@@ -2542,7 +2542,7 @@ export async function check_unpaid_usage(otmp, altusage, state = game, env = {})
         line = `${first}${second}Usage fee, ${price} ${currency(price, state, env)}.`;
     }
 
-    if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+    if (!Deaf(state.u) && !muteshk(shopkeeper)) {
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(line, state, { message: env.message ?? ttyPline });
         await exercise(A_WIS, true, state, random);
@@ -2559,7 +2559,7 @@ export async function check_unpaid(otmp, state = game, env = {}) {
 // it up for billing before the set_trap occupation begins.
 export async function use_unpaid_trapobj(otmp, x, y, state = game, env = {}) {
     if (!otmp.unpaid) return;
-    if (!heroIsDeaf(state)) {
+    if (!Deaf(state.u)) {
         const shopkeeper = find_objowner(otmp, x, y, state);
         if (shopkeeper && !muteshk(shopkeeper)) {
             // SetVoice is an empty macro in this recorder's no-sound build.
@@ -2767,14 +2767,6 @@ export function Shk_Your(obj, state = game, env = {}) {
 }
 
 
-// C ref: youprop.h Deaf. Unlike ordinary properties it has a roleplay-option
-// source and no blocked term.
-function heroIsDeaf(state) {
-    const value = state.u?.uprops?.[DEAF];
-    return Boolean(
-        value?.intrinsic || value?.extrinsic || state.u?.uroleplay?.deaf,
-    );
-}
 
 function roomNumbers(buffer) {
     const result = [];
@@ -2990,7 +2982,7 @@ export async function u_entered_shop(
         await message(
             `${Shknam(shopkeeper, state, namingEnv)} senses your presence.`, state,
         );
-        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        if (!Deaf(state.u) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize(
                 'Invisible customers are not welcome!', state, { message },
@@ -3010,7 +3002,7 @@ export async function u_entered_shop(
     const room = mapseen_room(roomno - ROOMOFFSET, state);
     const shopName = SHTYPES[room.rtype - SHOPBASE].name;
     if (!NOTANGRY(shopkeeper)) {
-        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        if (!Deaf(state.u) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize(
                 `So, ${playerName}, you dare return to `
@@ -3028,7 +3020,7 @@ export async function u_entered_shop(
             );
         }
     } else if (extension.surcharge) {
-        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        if (!Deaf(state.u) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize(
                 `Back again, ${playerName}?  I've got my ${mbodypart(
@@ -3044,7 +3036,7 @@ export async function u_entered_shop(
             );
         }
     } else if (extension.robbed) {
-        if (!heroIsDeaf(state)) {
+        if (!Deaf(state.u)) {
             // Soundeffect(se_mutter_imprecations, 50) is compiled out by the
             // recorder's no-sound backend, so only the pline remains.
             await message(
@@ -3061,7 +3053,7 @@ export async function u_entered_shop(
                 state,
             );
         }
-    } else if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+    } else if (!Deaf(state.u) && !muteshk(shopkeeper)) {
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(
             `${Hello(state.urole, {
@@ -3114,7 +3106,7 @@ export async function u_entered_shop(
                     );
                 }
             }
-            if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            if (!Deaf(state.u) && !muteshk(shopkeeper)) {
                 set_voice(shopkeeper, 0, 80, 0, state);
                 await verbalize(
                     `${notUpset ? 'Will you please leave your' : 'Leave the'} `
@@ -3130,7 +3122,7 @@ export async function u_entered_shop(
             }
             shouldBlock = true;
         } else if (state.u.usteed) {
-            if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            if (!Deaf(state.u) && !muteshk(shopkeeper)) {
                 set_voice(shopkeeper, 0, 80, 0, state);
                 await verbalize(
                     `${notUpset ? 'Will you please leave' : 'Leave'} `
@@ -3203,7 +3195,7 @@ async function special_stock(obj, shkp, quietly, state = game, env = {}) {
     if (!quietly) {
         const message = env.message ?? ttyPline;
         if (is_izchak(shkp, true, state) && !state.u.uevent?.invoked) {
-            if (heroIsDeaf(state) || muteshk(shkp)) {
+            if (Deaf(state.u) || muteshk(shkp)) {
                 await message(`${Shknam(shkp, state, env)} seems ${
                     obj.spe < 7 ? 'horrified' : 'concerned'} that you want to sell that.`, state);
             } else {
@@ -3215,7 +3207,7 @@ async function special_stock(obj, shkp, quietly, state = game, env = {}) {
                         obj.spe > 0 ? ' more' : ''} candle${plur(7 - obj.spe)} to go along with it.`, state, env);
                 }
             }
-        } else if (!heroIsDeaf(state) && !muteshk(shkp)) {
+        } else if (!Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize("I won't stock that.  Take it out of here!", state, env);
         } else {
@@ -3292,7 +3284,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
     await rouse_shk(shkp, true, state, env);
     const eshk = shkp.mextra.eshk;
     if (!NOTANGRY(shkp)) {
-        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+        if (!Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize('Thank you, scum!', state, env);
         } else {
@@ -3322,7 +3314,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
         else if (cgold) offer += cgold;
         eshk.robbed -= offer < 0 ? 1 : 0;
         if (eshk.robbed) eshk.robbed = 0;
-        if (offer && !heroIsDeaf(state) && !muteshk(shkp)) {
+        if (offer && !Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize(
                 'Thank you for your contribution to restock this recently plundered shop.',
@@ -3479,7 +3471,7 @@ export async function shk_chat(shkp, state = game, env = {}) {
         return;
     }
     const eshk = shkp.mextra.eshk;
-    const speaks = () => !heroIsDeaf(state) && !muteshk(shkp);
+    const speaks = () => !Deaf(state.u) && !muteshk(shkp);
     if (!NOTANGRY(shkp)) {
         await message(`${Shknam(shkp, state, env)} ${
             speaks() ? 'mentions' : 'indicates'} how much ${
@@ -3681,7 +3673,7 @@ async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
     if (ball && !state.u?.uswallow
         && ((chain?.ox === x && chain?.oy === y)
             || (ball.where === OBJ_FLOOR && ball.ox === x && ball.oy === y))) {
-        if (!heroIsDeaf(state) && !muteshk(shkp)) {
+        if (!Deaf(state.u) && !muteshk(shkp)) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize('Get your junk out of my wall!', state, env);
         }
@@ -3867,7 +3859,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
             === shkp.mextra.eshk.shoproom) {
             await message(youFeel('more claustrophobic than before.', state),
                 state, env);
-        } else if (!heroIsDeaf(state) && !randomFor(env).rn2(10)) {
+        } else if (!Deaf(state.u) && !randomFor(env).rn2(10)) {
             await (env.planning ? message : ttyNorep)(
                 'The dungeon acoustics noticeably change.', state, env);
         }
@@ -3910,7 +3902,7 @@ async function shk_fixes_damage(shkp, state, env = {}) {
             state,
             env,
         );
-    } else if (closeby && !heroIsDeaf(state)) {
+    } else if (closeby && !Deaf(state.u)) {
         const heard = youHear('someone muttering an incantation.', state);
         if (heard) await message(heard, state, env);
     }
@@ -3991,7 +3983,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                 throw new UnsupportedShopError('shk_move following speech');
             const globals = state.gf ??= {};
             if ((state.moves ?? 0) > (globals.followmsg ?? 0) + 4) {
-                if (!heroIsDeaf(state) && !muteshk(shkp)) {
+                if (!Deaf(state.u) && !muteshk(shkp)) {
                     set_voice(shkp, 0, 80, 0, state);
                     await verbalize(
                         `${Hello(state.urole, { shopkeeper: true })}, ${state.plname}!  Didn't you forget to pay?`,
@@ -4459,7 +4451,7 @@ export async function stolen_value(
                     + `"${state.plname}, you are a thief!"`,
                     state,
                 );
-            } else if (!heroIsDeaf(state)) {
+            } else if (!Deaf(state.u)) {
                 await ttyNorep('You hear a scream, "Thief!"', state);
             }
         }
@@ -4991,14 +4983,14 @@ async function getcad(shopkeeper, dmgstr, x, y, uinshp, animal, pursue, state, e
         if (animal && !helpless(shopkeeper))
             await yelp(shopkeeper, state, random);
     } else if (pursue || uinshp || !um_dist(x, y, 1, state)) {
-        if (!heroIsDeaf(state)) {
+        if (!Deaf(state.u)) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize(`How dare you ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
         } else {
             const angrytexts = ['quite upset', 'ticked off', 'furious'];
             await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that you decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, random)} ${dugwall ? 'shop' : 'door'}!`, state);
         }
-    } else if (!heroIsDeaf(state)) {
+    } else if (!Deaf(state.u)) {
         await message(`${Shknam(shopkeeper, state)} shouts:`, state);
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(`Who dared ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
@@ -5106,7 +5098,7 @@ export async function pay_for_damage(
     } else {
         if (m_at(x, y, state)) {
             if (!animal) {
-                if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+                if (!Deaf(state.u) && !muteshk(shopkeeper)) {
                     const heard = youHear('an angry voice:', state);
                     if (heard) await message(heard, state, env);
                     set_voice(shopkeeper, 0, 80, 0, state);
@@ -5164,7 +5156,7 @@ export async function pay_for_damage(
         }
     } else {
         if (!animal) {
-            if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            if (!Deaf(state.u) && !muteshk(shopkeeper)) {
                 set_voice(shopkeeper, 0, 80, 0, state);
                 await verbalize("Oh, yes!  You'll pay!", state, env);
             } else {

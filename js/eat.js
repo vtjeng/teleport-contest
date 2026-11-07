@@ -165,7 +165,7 @@ import { is_ice,
 import { note_unported } from './unported.js';
 import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
-import { heroDeaf, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
+import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import {
     HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
@@ -210,7 +210,7 @@ import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
-    b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at, unconscious,
+    b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at,
     Flying,
     Levitation,
 } from './trap.js';
@@ -222,8 +222,8 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    BInvis, Blind, EInvis, ESee_invisible, HBlinded, HHallucination, HInvis,
-    HSee_invisible, Hallucination, Invis,
+    BInvis, Blind, Deaf, EInvis, ESee_invisible, HBlinded, HHallucination,
+    HInvis, HSee_invisible, Hallucination, Invis, Unaware,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -373,12 +373,6 @@ export function is_fainted(state = game) {
     return state.u?.uhs === FAINTED;
 }
 
-// C ref: youprop.h:399 Unaware. js/trap.js unconscious() carries the pending-
-// message half; eat.c is_fainted() carries the hunger-status half.
-function Unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || is_fainted(state));
-}
 
 function hungerStatus(nutrition) {
     return nutrition > 1000 ? SATIATED
@@ -3280,7 +3274,7 @@ async function fpostfx(otmp, state, env = {}) {
                     state,
                     { message },
                 );
-            } else if (heroDeaf(state) || !state.flags?.acoustics) {
+            } else if (Deaf(state.u) || !state.flags?.acoustics) {
                 await message('You fall asleep.', state);
             } else {
                 // This recorder build compiles Soundeffect() to an empty

@@ -48,7 +48,6 @@ import {
     CORPSTAT_NONE,
     NC_SHOW_MSG,
     NC_VIA_WAND_OR_SPELL,
-    DEAF,
     DOOR,
     D_CLOSED,
     D_LOCKED,
@@ -157,7 +156,6 @@ import {
     ROWNO,
     STOMACH,
     FEMALE,
-    FAINTED,
     IN_SIGHT,
     MALE,
     W_AMUL,
@@ -703,7 +701,6 @@ import {
 import {
     fill_pit,
     t_at,
-    unconscious,
     Flying,
     Levitation,
 } from './trap.js';
@@ -726,7 +723,8 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, HTelepat, Hallucination, Maybe_Half_Phys,
+    Blind, Blind_telepat, Deaf, HTelepat, Hallucination, Maybe_Half_Phys,
+    Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -2578,10 +2576,6 @@ function distressPropertyActive(state, property) {
 }
 
 
-function distressDeaf(state) {
-    return distressPropertyActive(state, DEAF)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 
 function distressSpeciesName(monster) {
     const names = monster.data?.pmnames ?? [];
@@ -3728,7 +3722,7 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
-    if (!distressDeaf(state)) {
+    if (!Deaf(state.u)) {
         await message(`${Monnam(monster, state)} shrieks.`, state, rawEnv);
         const stopOccupation = rawEnv.stopOccupation;
         if (typeof stopOccupation === 'function')
@@ -3875,11 +3869,11 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
             if (is_watch(monster.data)) {
                 await message('"Halt!  You\'re under arrest!"', state, rawEnv);
                 await angry_guards(
-                    distressDeaf(state),
+                    Deaf(state.u),
                     { ...rawEnv, state, message },
                 );
             } else {
-                if (!distressDeaf(state) && !random.rn2(5)) {
+                if (!Deaf(state.u) && !random.rn2(5)) {
                     const gasp = maybe_gasp(monster, state, random);
                     if (gasp) {
                         if (gasp.slice(0, 4).toLowerCase() === 'gasp') {
@@ -4303,7 +4297,7 @@ export async function were_change(monster, rawEnv = {}) {
 
     await new_were(monster, normalized);
     state.gw.were_changes++;
-    if (humanForm && !distressDeaf(state)
+    if (humanForm && !Deaf(state.u)
         && !normalized.canSeeMonster(monster, normalized)) {
         let howler = null;
         if (monster.data?.pmidx === PM_WEREWOLF) howler = 'wolf';
@@ -5157,10 +5151,6 @@ export function set_mon_min_mhpmax(mon, minimum_mhpmax) {
     if (mon.mhpmax < minimum_mhpmax) mon.mhpmax = minimum_mhpmax;
 }
 
-function monsterUnaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
 
 // C ref: mon.c vamprises() (2890-2994). A shifted vampire revives in its
 // natural form, then breaks a door or its trapped door if necessary. The
@@ -5172,7 +5162,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
         || (state.svm.mvitals[mndx].mvflags & G_GENOD)) return false;
 
     const message = env.message ?? ttyPline;
-    const unaware = monsterUnaware(state);
+    const unaware = Unaware(state);
     const specMon = nonliving(mtmp.data)
         || noncorporeal(mtmp.data)
         || amorphous(mtmp.data);

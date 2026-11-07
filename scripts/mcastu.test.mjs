@@ -1029,7 +1029,7 @@ test('castmu fumble formatter follows C mon_nam at the same message point', () =
     assert.ok(cBody);
     assert.ok(jsBody);
     assert.match(cBody, /canseemon\(mtmp\) && !Deaf[\s\S]*set_msg_xy\(mtmp->mx, mtmp->my\)[\s\S]*mon_nam\(mtmp\)/u);
-    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\)[\s\S]*env\.monnam\?\.\(mtmp\)\s*\?\?\s*mon_nam\(mtmp, state, env\)/u);
+    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\.u\)[\s\S]*env\.monnam\?\.\(mtmp\)\s*\?\?\s*mon_nam\(mtmp, state, env\)/u);
 });
 
 test('castmu fumble: the deaf roleplay option silences the crackle', async () => {

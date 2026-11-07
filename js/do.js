@@ -36,7 +36,6 @@ import {
     BOTH_SIDES,
     BLINDED,
     COLNO,
-    DEAF,
     CORR,
     DIR_DOWN,
     DIR_UP,
@@ -409,7 +408,7 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    Blind, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
+    Blind, Deaf, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
@@ -851,14 +850,6 @@ function next2u(x, y, state) {
     return dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }
 
-// C's Deaf macro has the role conduct and the active property as separate
-// sources. Keeping this local avoids making a display-only dependency part of
-// the floor mutation owner.
-function heroIsDeaf(state) {
-    const deaf = state.u?.uprops?.[DEAF];
-    return Boolean(deaf?.intrinsic || deaf?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 // C ref: do.c boulder_hits_pool() (50-145). A boulder consumes itself when it
 // reaches a pool, moat, water wall, or lava, with one source rn2(10) deciding
@@ -937,7 +928,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                         + `${fillsUp ? 'fills' : 'falls into'} the ${what}.`,
                     state,
                 );
-            } else if (!heroIsDeaf(state)) {
+            } else if (!Deaf(state.u)) {
                 const heard = youHear(`a${lava ? ' sizzling' : ''} splash.`, state);
                 if (heard) await message(heard, state);
             }
@@ -1111,7 +1102,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
         if (is_pool(x, y, state)) {
             const blind = Blind(state.u);
             const floating = Levitation(state) || Flying(state);
-            if ((blind || floating) && !heroIsDeaf(state)
+            if ((blind || floating) && !Deaf(state.u)
                 && u_at(x, y, state)) {
                 if (!state.u?.uinwater) {
                     if (weight(obj, { state }) > WT_SPLASH_THRESHOLD) {
@@ -1138,7 +1129,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             // names the pit, and its message ignores `verb`.
             if (is_pit(trap.ttyp)) {
                 const message = rawEnv.message ?? ttyPline;
-                if (Blind(state.u) && !heroIsDeaf(state)) {
+                if (Blind(state.u) && !Deaf(state.u)) {
                     const heard = youHear(
                         `${the(xname(obj, state), state)} tumble downwards.`,
                         state,

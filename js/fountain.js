@@ -15,7 +15,6 @@ import {
     A_CON,
     A_DEX,
     A_WIS,
-    DEAF,
     ENL_GAMEINPROGRESS,
     ER_DESTROYED,
     ER_GREASED,
@@ -128,7 +127,8 @@ import { somegold } from './steal.js';
 import { Glib } from './wield.js';
 import { Fire_resistance } from './zap.js';
 import {
-    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination, Invisible,
+    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Invisible,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -467,15 +467,6 @@ async function dofindgem(state = game, env = {}) {
     });
 }
 
-// C ref: youprop.h:125 Deaf.  The role-play flag is part of the C macro in
-// addition to the intrinsic and extrinsic property values.
-function heroIsDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(
-        deafness?.intrinsic || deafness?.extrinsic
-            || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C ref: fountain.c watchman_warn_fountain() (178-198).  get_iter_mons()
 // expects a synchronous predicate, while tty messages are asynchronous in
@@ -501,7 +492,7 @@ export function watchman_warn_fountain(mtmp, state = game, env = {}) {
         state,
         displayRandom: env.displayRandom,
     });
-    if (!heroIsDeaf(state)) {
+    if (!Deaf(state.u)) {
         pendingMessages.push(async () => {
             await message(`${name} yells:`, state);
             await verbalize(
@@ -1234,7 +1225,7 @@ export async function dipsink(obj, state = game, env = {}) {
         try_call = true;
         if (!Blind(state.u)) {
             await message('The drain seems less clogged.', state);
-        } else if (!heroIsDeaf(state)) {
+        } else if (!Deaf(state.u)) {
             await message(youHear('a sucking sound.', state), state);
         } else {
             await message(nothing_seems_to_happen, state);
@@ -1286,7 +1277,7 @@ export async function sink_backs_up(x, y, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
     const blind = Blind(state.u);
-    const deaf = heroIsDeaf(state);
+    const deaf = Deaf(state.u);
     const splash = blind && deaf
         ? `Something splashes you in the ${body_part(FACE, state.youmonst)}`
         : `${!deaf ? 'Flupp!  ' : ''}${blind

@@ -19,7 +19,6 @@ import {
     CONFLICT,
     COLNO,
     CORR,
-    DEAF,
     DB_ICE,
     DB_UNDER,
     DIED,
@@ -546,7 +545,8 @@ import {
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
-    Blind, Half_physical_damage, Hallucination, Maybe_Half_Phys, Warning,
+    Blind, Deaf, Half_physical_damage, Hallucination, Maybe_Half_Phys,
+    Warning,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -1397,19 +1397,6 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
 }
 
 
-// youprop.h:125 Deaf is (HDeaf || EDeaf || u.uroleplay.deaf). Unlike Blind it
-// has no blocked term, so a source of deafness is never suppressed.
-//
-// This is the raw property. pline.c You_hear() applies its own wider test --
-// deafness that an unaware hero still dreams through, plus flags.acoustics --
-// which is why moverock_core() cannot infer `!Deaf` from youHear() printing.
-function heroIsDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(
-        deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C ref: hack.c test_move()'s IS_OBSTRUCTED entry test, narrowed to the wall
 // and rock destinations the ported half of test_move() refuses. It answers
@@ -2550,7 +2537,7 @@ async function moverock_core(sx, sy, state, env) {
                 const heard = the(xnameFresh(otmp, state), state);
                 const line = youHear(`a monster behind ${heard}.`, state);
                 if (line !== null) await message(line, state);
-                if (!heroIsDeaf(state)) deliver_part1 = true;
+                if (!Deaf(state.u)) deliver_part1 = true;
                 map_invisible(rx, ry, state);
             }
             if (state.flags?.verbose) {
@@ -2591,7 +2578,7 @@ async function moverock_core(sx, sy, state, env) {
                     place_object(otmp, rx, ry, objectEnv);
                     redraw(sx, sy, state);
                     await message(
-                        `${(!heroIsDeaf(state) || !Blind(state.u))
+                        `${(!Deaf(state.u) || !Blind(state.u))
                             ? 'KAABLAMM!!' : 'Gadzooks'}!  `
                             + `${Tobjnam(otmp, 'trigger', state)} `
                             + `${ttmp.madeby_u ? 'your' : 'a'} land mine.`,
@@ -5097,7 +5084,7 @@ function domove_monster_trap_env(state, env = {}) {
         message,
         redraw: env.redraw ?? ((tx, ty) => newsym(tx, ty, state)),
         mInAir: env.mInAir ?? ((mon, st) => m_in_air(mon, st)),
-        heroDeaf: env.heroDeaf ?? heroIsDeaf,
+        heroDeaf: env.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: env.youHear ?? ((line, st) => youHear(line, st)),
         // hack.c:2198-2199 calls minliquid() after the swap and consumes the
         // rloc() result inside that source function. Supply the complete

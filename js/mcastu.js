@@ -15,7 +15,6 @@ import {
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
     CONFUSION,
-    DEAF,
     DIED,
     EYE,
     KILLED_BY,
@@ -108,8 +107,6 @@ import {
     buzz, flash_str, flashburn, mon_spell_hits_spot,
 } from './zap.js';
 import {
-    heroDeaf,
-    heroUnaware,
     pline_mon,
     verbalize as plineVerbalize,
     youFeel,
@@ -117,8 +114,9 @@ import {
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
-    Blind, Blinded, Detect_monsters, HHallucination, Half_physical_damage,
-    Halluc_resistance, Hallucination, Invis, See_invisible,
+    Blind, Blinded, Deaf, Detect_monsters, HHallucination,
+    Half_physical_damage, Halluc_resistance, Hallucination, Invis,
+    See_invisible, Unaware,
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -297,12 +295,6 @@ function activeHeroProperty(state, property) {
 }
 
 
-// C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. The third
-// term is the permanent-deafness roleplay option, as in js/dokick.js.
-function Deaf(state) {
-    return heroProperty(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
-}
-
 function requireCastmuOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
@@ -451,7 +443,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
             ), state);
         }
     } else if (!(state.moves % 4) || !random.rn2(4)) {
-        if (!Deaf(state)) {
+        if (!Deaf(state.u)) {
             // mcastu.c calls Norep(), not pline(), so repeated curses from
             // consecutive attack slots share pline.c's duplicate suppression.
             await norepMessage('You hear a mumbled curse.', state, env);
@@ -537,7 +529,7 @@ export async function castmu(
     nomul(0, state);
     if (random.rn2(ml * 10) < (mtmp.mconf ? 100 : 20)) {
         /* fumbled attack */
-        if (canseemon(mtmp, state) && !Deaf(state) && message) {
+        if (canseemon(mtmp, state) && !Deaf(state.u) && message) {
             await message(messageAt(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
@@ -972,13 +964,13 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
     }
 
     if (!seesCaster) {
-        if (newseen <= oldseen || heroUnaware(state)) {
+        if (newseen <= oldseen || Unaware(state)) {
             const heard = youHear(`someone summoning ${what}.`, state);
             if (heard) await message(heard, state, env);
         } else {
             const arg = newseen === oldseen + 1
                 ? an(makesingular(what)) : what;
-            if (!heroDeaf(state)) {
+            if (!Deaf(state.u)) {
                 // sndprocs.h compiles Soundeffect() to an empty macro in the
                 // recorder's tty build; preserve the following You_hear line.
                 const heard = youHear(

@@ -5,14 +5,13 @@ import test from 'node:test';
 import { BLINDED, DEAF, FAINTED } from '../js/const.js';
 import {
     consume_msg_xy,
-    heroDeaf,
-    heroUnaware,
     pline_mon,
     set_msg_xy,
     youHear,
     youSee,
 } from '../js/pline.js';
 import { messageAt } from '../js/startup_a11y.js';
+import { Deaf, Unaware } from '../js/youprop.js';
 
 const C_PLINE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/pline.c', import.meta.url),
@@ -62,11 +61,11 @@ test('You_hear reproduces the C guard and prefix branch order', () => {
 test('You_hear applies Deaf, acoustics, underwater, and Unaware in C order', () => {
     const state = hearingState();
     assert.equal(youHear('a low buzzing.', state), 'You hear a low buzzing.');
-    assert.equal(heroDeaf(state), false);
-    assert.equal(heroUnaware(state), false);
+    assert.equal(Deaf(state.u), false);
+    assert.equal(Unaware(state), false);
 
     state.u.uprops[DEAF].intrinsic = 1;
-    assert.equal(heroDeaf(state), true);
+    assert.equal(Deaf(state.u), true);
     assert.equal(youHear('a low buzzing.', state), null);
 
     state.u.uprops[DEAF].intrinsic = 0;
@@ -76,7 +75,7 @@ test('You_hear applies Deaf, acoustics, underwater, and Unaware in C order', () 
     state.u.uroleplay.deaf = false;
     state.multi = -1;
     state.u.usleep = 1;
-    assert.equal(heroUnaware(state), true);
+    assert.equal(Unaware(state), true);
     state.u.uroleplay.deaf = true;
     assert.equal(
         youHear('a low buzzing.', state),
@@ -96,12 +95,12 @@ test('You_hear applies Deaf, acoustics, underwater, and Unaware in C order', () 
 test('negative multi alone is not enough to dream that one hears', () => {
     const state = hearingState();
     state.multi = -1;
-    assert.equal(heroUnaware(state), false);
+    assert.equal(Unaware(state), false);
     assert.equal(youHear('someone searching.', state),
         'You hear someone searching.');
 
     state.u.uhs = FAINTED;
-    assert.equal(heroUnaware(state), true);
+    assert.equal(Unaware(state), true);
     assert.equal(youHear('someone searching.', state),
         'You dream that you hear someone searching.');
 });

@@ -41,7 +41,6 @@ import {
     FINGERTIP,
     HAND,
     ECMD_TIME,
-    DEAF,
     vision_clears,
     } from './const.js';
 import {
@@ -84,7 +83,7 @@ import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
-import { Blind, Hallucination } from './youprop.js';
+import { Blind, Deaf, Hallucination } from './youprop.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -210,11 +209,6 @@ function propertyActiveUnblocked(hero, propertyIndex) {
 }
 
 
-function heroDeaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 function tileAt(x, y, state) {
     return state.level?.at?.(x, y) ?? state.level?.locations?.[x]?.[y] ?? {};
@@ -471,7 +465,7 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
                 await env.message?.(`This ${xnameFresh(otmp, state)} is a wand of digging!`, state);
             de.doknown = true;
         }
-        const deaf = heroDeaf(state);
+        const deaf = Deaf(state.u);
         const levtyp = tileAt(state.u.ux, state.u.uy, state).typ;
         const text = blind
             ? (!deaf ? 'You hear drilling!' : 'You feel tremors.')
@@ -505,7 +499,7 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
             setPost('Lightning arcs from the wand.');
             de.doblind = true;
         } else {
-            setPost(!heroDeaf(state) ? 'You hear crackling!' : 'Your hair stands up!');
+            setPost(!Deaf(state.u) ? 'You hear crackling!' : 'Your hair stands up!');
         }
         break;
     }

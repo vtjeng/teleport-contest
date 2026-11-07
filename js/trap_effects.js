@@ -412,7 +412,7 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, EInvis, HInvis, Half_physical_damage, Hallucination, Invis,
+    Blind, Deaf, EInvis, HInvis, Half_physical_damage, Hallucination, Invis,
     Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
@@ -617,7 +617,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
         }
 
         seetrap(trap, env);
-        if (heroIsDeaf(state)) {
+        if (Deaf(state.u)) {
             await message('A board beneath you vibrates.', state, env);
         } else {
             await message(
@@ -638,7 +638,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
     if (mInAir(monster, state)) return Trap_Effect_Finished;
     if (inSight) {
         const heroDeaf = requireTrapOperation(env, 'heroDeaf');
-        if (!heroDeaf(state)) {
+        if (!Deaf(state.u)) {
             await message(
                 messageAt(
                     `A board beneath ${monsterCommonName(monster, state)}`
@@ -1794,7 +1794,7 @@ async function domagictrap(env) {
             await message(plineYouSee('a flash of light!', state), state);
         }
 
-        if (!heroIsDeaf(state)) {
+        if (!Deaf(state.u)) {
             // Soundeffect(se_deafening_roar_atmospheric, 100) is a no-op
             // under the patched tty recorder build; You_hear() is observable.
             const heard = plineYouHear('a deafening roar!', state);
@@ -2936,7 +2936,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                             'Suddenly the rolling boulder disappears!',
                             x, y, state,
                         ), state, env);
-                    } else if (!heroIsDeaf(state)) {
+                    } else if (!Deaf(state.u)) {
                         const heard = youHear(
                             'a rumbling stop abruptly.', state);
                         if (heard) await message(heard, state, env);
@@ -3051,7 +3051,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 }
             } else if (IS_STWALL(typ) || IS_TREE(typ, state)) {
                 x2 = x; y2 = y; // object stops here
-                if (!heroIsDeaf(state))
+                if (!Deaf(state.u))
                     await message('Thump!');
                 await wake_nearto(x2, y2, 16, env);
                 break;
@@ -3082,7 +3082,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
         let style = ROLL | (trap.tseen ? LAUNCH_KNOWN : 0);
 
         feeltrap(trap, env);
-        await message(`${!heroIsDeaf(state) ? 'Click!  ' : ''
+        await message(`${!Deaf(state.u) ? 'Click!  ' : ''
             }You trigger a rolling boulder trap!`, state);
         if (!await launch_obj(BOULDER, trap.launch.x, trap.launch.y,
                 trap.launch2.x, trap.launch2.y, style, state, env)) {
@@ -3106,7 +3106,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
             if (inSight) {
                 await message(
                     messageAt(
-                        `${!heroIsDeaf(state) ? 'Click!  ' : ''}`
+                        `${!Deaf(state.u) ? 'Click!  ' : ''}`
                             + `${capitalizedMonsterName(monster, state)}`
                             + ` triggers ${trap.tseen
                                 ? 'a rolling boulder trap' : 'something'}.`,
@@ -3285,7 +3285,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
             const { m_in_air } = await import('./mon.js');
             const { youHear } = await import('./monmove.js');
             const result = await mintrap(steed, trflags, {
-                ...env, mInAir: m_in_air, heroDeaf: heroIsDeaf, youHear,
+                ...env, mInAir: m_in_air, heroDeaf: (hookState) => Deaf(hookState.u), youHear,
             });
             if (result !== Trap_Effect_Finished) {
                 steed.mtrapped = false;
@@ -3387,14 +3387,6 @@ export async function trapeffect_web(monster, trap, trflags, env) {
     return monster.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
-// Local helper: checks the Deaf property on the hero. youprop.h defines Deaf
-// as the intrinsic or the extrinsic of property index 16 (DEAF), plus
-// uroleplay.deaf.
-function heroIsDeaf(state) {
-    const deafProp = state.u?.uprops?.[DEAF];
-    return Boolean((deafProp?.intrinsic || deafProp?.extrinsic)
-        || state.u?.uroleplay?.deaf);
-}
 
 // C ref: mon.c mlifesaver() (2825-2836), in the rust-trap death message.
 // `monkilled()` owns the later life-saving operation; this read only selects
@@ -3885,7 +3877,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
         await message(
             messageAt(
-                `${heroDeaf(state) ? '' : 'KAABLAMM!!!  '}`
+                `${Deaf(state.u) ? '' : 'KAABLAMM!!!  '}`
                     + `${capitalizedMonsterName(mtmp, state, env)} triggers`
                     + ` ${a_your[Number(Boolean(trap.madeby_u))]} land mine!`,
                 mtmp.mx,
@@ -3896,7 +3888,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             env,
         );
     }
-    if (!inSight && !heroDeaf(state))
+    if (!inSight && !Deaf(state.u))
         await message('Kaablamm!  You hear an explosion in the distance!', state, env);
 
     await blow_up_landmine(trap, env);
@@ -4218,7 +4210,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     const env = {
         ...defaults,
         mInAir: m_in_air,
-        heroDeaf: heroIsDeaf,
+        heroDeaf: (hookState) => Deaf(hookState.u),
         youHear: plineYouHear,
         ...rawEnv,
         state,

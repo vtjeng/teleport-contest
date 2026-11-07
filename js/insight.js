@@ -385,7 +385,7 @@ import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
     BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, Blindfolded_only,
-    Blnd_resist, Clairvoyant, Detect_monsters, EBlinded, EClairvoyant,
+    Blnd_resist, Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant,
     EHalluc_resistance, EInvis, HBlinded, HClairvoyant, HDetect_monsters,
     HHalluc_resistance, HHallucination, HInvis, Half_physical_damage,
     Halluc_resistance, Infravision, Invis, Searching, See_invisible,
@@ -1204,7 +1204,7 @@ function status_enlightenment(mode, final, state, lines) {
     const blindfoldedOnly = Blindfolded_only(u);
     const hallucinating = Boolean(HHallucination(u)
         && !(HHalluc_resistance(u) || EHalluc_resistance(u)));
-    const deaf = Boolean(H(DEAF) || E(DEAF) || u.uroleplay?.deaf);
+    const deaf = Deaf(u);
     const woundedLegs = Boolean(H(WOUNDED_LEGS) || E(WOUNDED_LEGS));
     const glib = Boolean(H(GLIB));
     const fumbling = Boolean(H(FUMBLING) || E(FUMBLING));

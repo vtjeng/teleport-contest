@@ -18,7 +18,6 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
-    DEAF,
     DOOR,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
@@ -26,7 +25,6 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
-    FAINTED,
     FINGER,
     IS_DOOR,
     M_AP_FURNITURE,
@@ -152,7 +150,6 @@ import {
     b_trapped,
     chest_trap,
     t_at,
-    unconscious,
     could_untrap,
     untrap,
     Levitation,
@@ -168,7 +165,9 @@ import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
-import { BBlinded, Blind, HBlinded } from './youprop.js';
+import {
+    BBlinded, Blind, Deaf, HBlinded, Unaware,
+} from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
 export class UnsupportedLockError extends Error {
@@ -1447,7 +1446,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                                 state,
                                 rawEnv,
                             );
-                        } else if (!heroIsDeaf(state)) {
+                        } else if (!Deaf(state.u)) {
                             const distance = dist2(
                                 state.u.ux, state.u.uy, x, y,
                             ) > 7 * 7 ? 'distant' : 'nearby';
@@ -1468,7 +1467,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
             if (state.flags?.verbose) {
                 if ((sawit || seeit) && !Unaware(state)) {
                     await message('The door crashes open!', state, rawEnv);
-                } else if (!heroIsDeaf(state)) {
+                } else if (!Deaf(state.u)) {
                     const heard = youHear('a crashing sound.', state);
                     if (heard) await message(heard, state, rawEnv);
                 }
@@ -1504,16 +1503,6 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
     return result;
 }
 
-function heroIsDeaf(state) {
-    const property = state.u?.uprops?.[DEAF];
-    return Boolean(property?.intrinsic || property?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
-
-function Unaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
 
 // C ref: youprop.h:286 Passes_walls, the bare intrinsic OR extrinsic.
 function Passes_walls(state) {

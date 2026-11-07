@@ -9,7 +9,6 @@ import {
     A_NEUTRAL,
     ARTICLE_A,
     CONFLICT,
-    DEAF,
     EXACT_NAME,
     G_GONE,
     LL_UMONST,
@@ -67,7 +66,7 @@ import {
 } from './objects.js';
 import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
-import { Blind } from './youprop.js';
+import { Blind, Deaf } from './youprop.js';
 
 function guardianRandom(state, rawEnv = {}) {
     return rawEnv.random ?? state.random ?? coreRandom;
@@ -85,7 +84,7 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
     if (mon) {
         if (canspotmon(mon, state)) {
-            if (!heroDeaf(state)) {
+            if (!Deaf(state.u)) {
                 await (rawEnv.message ?? ttyPline)(
                     `${Monnam(mon, state)} rebukes you, saying:`, state,
                 );
@@ -118,14 +117,14 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
     const env = { ...rawEnv, state, random, message };
     await Hear_again(state, env);
     if (conflictActive(state)) {
-        if (!heroDeaf(state)) await message('A voice booms:', state);
+        if (!Deaf(state.u)) await message('A voice booms:', state);
         else await message(youFeel('a booming voice:', state), state);
         set_voice(null, 0, 80, voice_deity, state);
         await verbalize('Thy desire for conflict shall be fulfilled!', state,
             { message });
         await lose_guardian_angel(null, state, env);
     } else if ((state.u?.ualign?.record ?? 0) > 8) {
-        if (!heroDeaf(state)) await message('A voice whispers:', state);
+        if (!Deaf(state.u)) await message('A voice whispers:', state);
         else await message(youFeel('a soft voice:', state), state);
         set_voice(null, 0, 80, voice_deity, state);
         await verbalize('Thou hast been worthy of me!', state, { message });
@@ -178,11 +177,6 @@ function transientLightEnv(state) {
     };
 }
 
-function heroDeaf(state) {
-    const deaf = state.u?.uprops?.[DEAF];
-    return Boolean(deaf?.intrinsic || deaf?.extrinsic
-        || state.u?.uroleplay?.deaf);
-}
 
 // C ref: minion.c summon_minion() (198-255). The deity creates a hostile
 // minion without recomputing malign after overriding its initial peacefulness.
@@ -225,7 +219,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
     }
     if (talk) {
         const deity = align_gname(alignment, state);
-        await message(heroDeaf(state)
+        await message(Deaf(state.u)
             ? youFeel(`${s_suffix(deity)} booming voice:`, state)
             : `The voice of ${deity} booms:`, state);
         set_voice(mon, 0, 80, 0, state);
@@ -247,7 +241,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     // newsym() paints the live game; a monster turn's planning pass
     // (monmove.c dochug() on a planning copy) leaves that to the live pass.
     const redraw = env.planning ? () => {} : newsym;
-    const deaf = heroDeaf(state);
+    const deaf = Deaf(state.u);
 
     if (is_art(state.uwep, ART_EXCALIBUR)
         || is_art(state.uwep, ART_DEMONBANE)) {

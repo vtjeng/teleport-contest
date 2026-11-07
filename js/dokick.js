@@ -45,7 +45,6 @@ import {
     D_NODOOR,
     D_TRAPPED,
     D_WARNED,
-    DEAF,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
@@ -234,7 +233,7 @@ import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    Blind, EHalluc_resistance, HHalluc_resistance, HHallucination,
+    Blind, Deaf, EHalluc_resistance, HHalluc_resistance, HHallucination,
     Maybe_Half_Phys,
 } from './youprop.js';
 
@@ -285,13 +284,6 @@ function Passes_walls(state) {
     return Boolean(passes.intrinsic || passes.extrinsic);
 }
 
-// youprop.h:125 Deaf. HDeaf || EDeaf || u.uroleplay.deaf. The third term is
-// the permanent-deafness roleplay option, matching js/sit.js and js/dothrow.js.
-function Deaf(state) {
-    const value = state.u?.uprops?.[DEAF];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
 
 // C ref: dokick.c:8-10, the martial() macro over is_bigfoot() at :7. A Samurai
 // or a Monk answers TRUE from martial_bonus() without either later term being
@@ -324,7 +316,7 @@ function kickEnvironment(state) {
         encumberMessage: encumber_msg,
         redraw: (x, y) => newsym(x, y),
         mInAir: m_in_air,
-        heroDeaf: Deaf,
+        heroDeaf: (hookState) => Deaf(hookState.u),
         youHear: (line, targetState) => youHear(line, targetState),
     };
 }
@@ -782,7 +774,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
             state.gk.kickedobj = splitobj(object(), 1, env);
         } else {
             if (random.rn2(20)) {
-                if (!Deaf(state)) await message('Thwwpingg!', state, env);
+                if (!Deaf(state.u)) await message('Thwwpingg!', state, env);
                 const messages = ['scatter the coins', 'knock coins all over the place', 'send coins flying in all directions'];
                 await message(`You ${messages[random.rn2(messages.length)]}!`, state, env);
                 await scatter(x, y, random.rnd(3), SCATTER_VIS_EFFECTS | SCATTER_MAY_HIT, object(), state, env);
@@ -990,7 +982,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
         if (Blind(state.u)) feel_location(x, y, state);
         await exercise(A_STR, true, state, coreRandom,
             { encumberMessage: encumber_msg });
-        await ttyPline(`${Deaf(state) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
+        await ttyPline(`${Deaf(state.u) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
         if (in_town(x, y, state)) {
             await get_iter_mons_async(async (mon) => {
                 if (!is_watch(mon.data) || !mon.mpeaceful
@@ -1239,7 +1231,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             return ECMD_TIME;
         }
         if (rn2(5)) {
-            await ttyPline(Deaf(state) ? 'Klunk!' : 'Klunk!  The pipes vibrate noisily.', state);
+            await ttyPline(Deaf(state.u) ? 'Klunk!' : 'Klunk!  The pipes vibrate noisily.', state);
             await exercise(A_DEX, true, state, random);
             return ECMD_TIME;
         } else if (!(maploc.flags & S_LPUDDING) && !rn2(3)

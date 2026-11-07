@@ -14,7 +14,6 @@ import {
     CONFUSION,
     CONTAINED_TOO,
     CORR,
-    DEAF,
     DETECT_MONSTERS,
     DOOR,
     D_CLOSED,
@@ -238,8 +237,8 @@ import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
 import {
-    Blind, Clairvoyant, EDetect_monsters, HBlinded, HHallucination,
-    Hallucination, Maybe_Half_Phys,
+    Blind, Clairvoyant, EDeaf, EDetect_monsters, HBlinded, HDeaf,
+    HHallucination, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 /** An explicit-search branch whose effects are still unported. */
@@ -2593,8 +2592,8 @@ export async function openone(x, y, counter, state) {
             if (dist2(x, y, state.u.ux, state.u.uy) < 3) {
                 await b_trapped('door', NO_PART, state);
             } else {
-                const deaf = Boolean(state.u.uprops?.[DEAF]?.intrinsic
-                    || state.u.uprops?.[DEAF]?.extrinsic
+                const deaf = Boolean(HDeaf(state.u)
+                    || EDeaf(state.u)
                     || state.u.uroleplay?.deaf);
                 await ttyNorep(
                     `You ${cansee(x, y, state) ? 'see'

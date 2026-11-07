@@ -307,7 +307,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { heroDeaf, heroUnaware, pline_mon, verbalize, youHear, youFeel } from './pline.js';
+import { pline_mon, verbalize, youHear, youFeel } from './pline.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -318,9 +318,9 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Detect_monsters, EHalluc_resistance, HHalluc_resistance,
-    HHallucination, Half_physical_damage, Hallucination, Invis,
-    Maybe_Half_Phys, See_invisible,
+    Blind, Blinded, Deaf, Detect_monsters, EHalluc_resistance,
+    HHalluc_resistance, HHallucination, Half_physical_damage, Hallucination,
+    Invis, Maybe_Half_Phys, See_invisible, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -495,7 +495,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
         return;
     }
 
-    const deaf = heroDeaf(state);
+    const deaf = Deaf(state.u);
     if (!deaf) {
         await message(
             `Something ${makeplural(growl_sound(monster))}!`,
@@ -762,7 +762,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
     if (!obj || !obj.owornmask) return;
     if (state.utotype || !m_next2u(mon, state)) return;
 
-    if (heroDeaf(state)) {
+    if (Deaf(state.u)) {
         await pline(`${seducer} takes off your ${str}.`);
     } else if (random.rn2(20) < acurr(state, A_CHA)) {
         set_voice(mon, 0, 80, 0, state);
@@ -882,7 +882,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                     continue;
                 }
             }
-            if (!heroDeaf(state) && random.rn2(20) < acurr(state, A_CHA)) {
+            if (!Deaf(state.u) && random.rn2(20) < acurr(state, A_CHA)) {
                 const query = safe_qbuf(
                     '"That ', ' looks pretty.  May I have it?"', ring,
                     xname, simpleonames, 'ring', state,
@@ -920,7 +920,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 if (state.uarmg) break;
             }
-            if (!heroDeaf(state) && random.rn2(20) < acurr(state, A_CHA)) {
+            if (!Deaf(state.u) && random.rn2(20) < acurr(state, A_CHA)) {
                 const query = safe_qbuf(
                     '"That ',
                     ' looks pretty.  Would you wear it for me?"',
@@ -986,7 +986,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
     const naked = !state.uarmc && !state.uarmf && !state.uarmg
         && !state.uarms && !state.uarmh && !state.uarmu;
     await urgent(
-        `${who} ${heroDeaf(state)
+        `${who} ${Deaf(state.u)
             ? 'seems to murmur into your ear'
             : naked ? 'murmurs sweet nothings into your ear'
                 : 'murmurs in your ear'}${naked
@@ -1016,7 +1016,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
 
     if (state.utotype || !m_next2u(mon, state)) return 1;
     if (state.uarm || state.uarmc) {
-        if (!heroDeaf(state)) {
+        if (!Deaf(state.u)) {
             // mhitu.c's ld() compares the fixed date's MMDD remainder with
             // 0229; it is a leap-day predicate, independent of alignment.
             const leapDay = yyyymmdd(state) - getyear(state) * 10000 === 0xe5;
@@ -1205,7 +1205,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             }
             if (cost > heroMoney) cost = heroMoney;
             if (!cost) {
-                if (!heroDeaf(state)) {
+                if (!Deaf(state.u)) {
                     set_voice(mon, 0, 80, 0, state);
                     await verbalize("It's on the house!", state, { message });
                 } else {
@@ -2986,7 +2986,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
     };
     let cancelled = cancelledInitially;
     if ((hallucination() && draw('rn2', 4))
-        || (heroUnaware(state) && !reflectable)) {
+        || (Unaware(state) && !reflectable)) {
         cancelled = true;
     }
 
@@ -2994,7 +2994,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
     case M.AD_STON:
         if (cancelled || !monster.mcansee) {
             if (!canseemon(monster, state)) break;
-            if (heroUnaware(state)) {
+            if (Unaware(state)) {
                 react = isMedusa ? 4 : 2;
                 break;
             }
@@ -3058,7 +3058,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         if (canseemon(monster, state)
             && couldsee(monster.mx, monster.my, state)
             && !Stone_resistance(state)
-            && !heroUnaware(state)) {
+            && !Unaware(state)) {
             await message(
                 `You meet ${monsterPossessive(monster, state)} gaze.`,
                 state,

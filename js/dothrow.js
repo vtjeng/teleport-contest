@@ -51,7 +51,6 @@ import {
     CXN_PFX_THE,
     CQ_CANNED,
     D_ISOPEN,
-    DEAF,
     DB_UNDER,
     DB_MOAT,
     DISP_END,
@@ -485,7 +484,7 @@ import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, HBlinded, Hallucination, Maybe_Half_Phys,
+    Blind, Deaf, HBlinded, Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -498,14 +497,6 @@ function propertyHeld(state, property) {
     return Boolean(held?.intrinsic || held?.extrinsic);
 }
 
-
-// C ref: youprop.h Deaf (125), `HDeaf || EDeaf || u.uroleplay.deaf`. The third
-// term is the deaf conduct, which only `OPTIONS=roleplay:deaf` sets and nothing
-// clears; js/display.js statusConditionActive() spells the same union for the
-// status line.
-function Deaf(state) {
-    return propertyHeld(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
-}
 
 // A branch of dothrow.c this port has not translated. js/cmd.js
 // failClosedCommandRefusals() lists it, so the segment keeps every frame the
@@ -710,7 +701,7 @@ function mhurtleTrapEnvironment(rawEnv, state) {
         state,
         random: rawEnv.random ?? coreRandom,
         mInAir: rawEnv.mInAir ?? m_in_air,
-        heroDeaf: rawEnv.heroDeaf ?? Deaf,
+        heroDeaf: rawEnv.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: rawEnv.youHear ?? youHear,
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
@@ -2898,7 +2889,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             return;
         }
     }
-    if (!Deaf(state) && !u.uinwater
+    if (!Deaf(state.u) && !u.uinwater
         && (is_pool(bx, by, state)
             || (is_lava(bx, by, state) && !is_flammable(obj, state)))) {
         note_unported('sounds.c Soundeffect');
@@ -3081,7 +3072,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                  && objectType(obj, state).oc_unique
                  && otyp !== AMULET_OF_YENDOR)
                 || !mon.mpeaceful) {
-                if (mon.mpeaceful && !Deaf(state)) {
+                if (mon.mpeaceful && !Deaf(state.u)) {
                     fully_identify_obj(obj, state);
                     await verbalize(
                         `${s_suffix(The(xnameFresh(obj, state), state))} part in this is finished.`,

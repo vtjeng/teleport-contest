@@ -208,7 +208,7 @@ import {
 import { m_at } from './monst.js';
 import { cansee } from './vision.js';
 import {
-    heroDeaf, heroUnaware, verbalize, youFeel, youHear, youSee,
+    verbalize, youFeel, youHear, youSee,
 } from './pline.js';
 import { AD_ELEC } from './monsters.js';
 import { buzz } from './zap.js';
@@ -218,7 +218,8 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Hallucination, Invis, See_invisible, Warn_of_mon,
+    Blind, Deaf, HDeaf, Hallucination, Invis, See_invisible, Unaware,
+    Warn_of_mon,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -508,7 +509,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
         if (yours) {
             const speaker = siblings ? 'Their' : 'Its';
             const sound = ing_suffix(cry_sound(monster));
-            const verb = is_silent(monster.data) || heroDeaf(state)
+            const verb = is_silent(monster.data) || Deaf(state.u)
                 ? 'seems' : 'sounds';
             await message(
                 `${speaker} ${sound} ${verb} like `
@@ -516,7 +517,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
                     + `${egg.spe ? '.' : '?'}"`,
                 state,
             );
-        } else if (monster.data.mlet === S_DRAGON && !heroDeaf(state)) {
+        } else if (monster.data.mlet === S_DRAGON && !Deaf(state.u)) {
             set_voice(monster, 0, 80, 0, state);
             await verbalize('Gleep!', state, { message });
         }
@@ -757,13 +758,6 @@ function heroPropertyActive(state, propertyIndex) {
 }
 
 
-function deaf(state) {
-    const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(
-        deafness?.intrinsic || deafness?.extrinsic
-        || state.u?.uroleplay?.deaf,
-    );
-}
 
 // C ref: timeout.c slip_or_trip() (1222-1341). This is called only after the
 // Fumbling property has been decremented, so FROMOUTSIDE and ice-only checks
@@ -1044,7 +1038,7 @@ async function slime_dialogue(state = game, env = {}) {
             nomul(0, state);
         break;
     case 2: {
-        const deafTimeout = Math.trunc(u.uprops[DEAF]?.intrinsic ?? 0)
+        const deafTimeout = Math.trunc(HDeaf(u))
             & TIMEOUT;
         if (deafTimeout > 0 && deafTimeout < 5)
             set_itimeout(u.uprops[DEAF], 5);
@@ -1314,7 +1308,7 @@ export async function stoned_dialogue(state = game, env = {}) {
             await heal_legs(state, { ...env, how: 2, message });
         break;
     case 2: {
-        const deafTimeout = u.uprops[DEAF].intrinsic & TIMEOUT;
+        const deafTimeout = HDeaf(u) & TIMEOUT;
         if (deafTimeout > 0 && deafTimeout < 5)
             set_itimeout(u.uprops[DEAF], 5);
         if (u.uprops[VOMITING].intrinsic)
@@ -1591,7 +1585,7 @@ async function decrement_property_timeouts(state, env) {
             await make_deaf(0, true, state, env);
             state.disp ??= {};
             state.disp.botl = true;
-            if (!deaf(state)) await stop_occupation(state, occupationEnv);
+            if (!Deaf(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case INVIS:
             (env.newsym ?? newsym)(u.ux, u.uy, state);
@@ -1649,7 +1643,7 @@ async function decrement_property_timeouts(state, env) {
                     set_itimeout(property, 1);
                     break;
                 }
-                if (!heroUnaware(state))
+                if (!Unaware(state))
                     await message('You no longer feel safe from acid.', state);
             }
             break;
@@ -1659,7 +1653,7 @@ async function decrement_property_timeouts(state, env) {
                     set_itimeout(property, 1);
                     break;
                 }
-                if (!heroUnaware(state))
+                if (!Unaware(state))
                     await message('You no longer feel secure from petrification.', state);
                 await wielding_corpse(state.uwep, null, false, state, env);
                 await wielding_corpse(state.uswapwep, null, false, state, env);
@@ -1723,7 +1717,7 @@ async function decrement_property_timeouts(state, env) {
                 state.multi_reason = 'fumbling';
                 state.nomovemsg = '';
                 if (inv_weight(state) > -WT_NOISY_INV) {
-                    if (!deaf(state)) await message('You make a lot of noise!', state);
+                    if (!Deaf(state.u)) await message('You make a lot of noise!', state);
                     await wake_nearby(false, { ...env, state, random, message });
                 }
             }

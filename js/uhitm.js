@@ -41,7 +41,6 @@ import {
     BUFSZ,
     COLD_RES,
     CONFUSION,
-    DEAF,
     DIED,
     DRAIN_RES,
     DISP_ALWAYS,
@@ -707,8 +706,8 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Detect_monsters, EBlinded, HBlinded,
-    Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
+    Blind, Blind_telepat, Deaf, Detect_monsters, EBlinded, EDeaf, HBlinded,
+    HDeaf, Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
     See_invisible,
 } from './youprop.js';
 
@@ -721,13 +720,6 @@ function propertyPresent(hero, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-
-// C ref: youprop.h Deaf.  The role-play flag is part of the macro even when
-// no timed deafness property is active.
-function Deaf(state) {
-    return propertyPresent(state?.u, DEAF)
-        || Boolean(state?.u?.uroleplay?.deaf);
-}
 
 // C ref: uhitm.c erode_armor() (126-183). Rust, acid and decay effects keep
 // selecting a random worn slot until a head, shield, gloves or boots target
@@ -939,7 +931,7 @@ export async function light_hits_gremlin(
 ) {
     const random = rawEnv.random ?? coreRandom;
     const distance = dist2(state.u.ux, state.u.uy, monster.mx, monster.my);
-    if (!Deaf(state) && distance <= 90) {
+    if (!Deaf(state.u) && distance <= 90) {
         await ttyPline(
             `${Monnam(monster, state, rawEnv)} `
                 + `${damage > monster.mhp / 2 ? 'wails in agony' : 'cries out in pain'}!`,
@@ -2689,9 +2681,8 @@ export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     if (mon.ispriest && !random.rn2(2))
         await ghod_hitsu(mon, { ...env, state });
     if (angerGuards) {
-        const deaf = state.u?.uprops?.[DEAF];
         await angry_guards(
-            Boolean(deaf?.intrinsic || deaf?.extrinsic
+            Boolean(HDeaf(state.u) || EDeaf(state.u)
                 || state.u?.uroleplay?.deaf),
             { ...env, state },
         );
@@ -4151,8 +4142,8 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                    || dmgtype(state.youmonst?.data, AD_SSEX)) {
             // Hero's own species is seductive; attacker brags and teleports.
             const deaf = Boolean(
-                state.u?.uprops?.[DEAF]?.intrinsic
-                || state.u?.uprops?.[DEAF]?.extrinsic,
+                HDeaf(state.u)
+                || EDeaf(state.u),
             );
             const bragMsg = deaf
                 ? 'says something but you can\'t hear it'
@@ -5381,7 +5372,7 @@ export async function mhitm_ad_ston(
         await hitmsg(magr, mattk, state, env);
         if (!random.rn2(3)) {
             if (magr.mcan) {
-                if (!Deaf(state)) {
+                if (!Deaf(state.u)) {
                     const heard = youHear(
                         `a cough from ${mon_nam(magr, state, env)}!`, state);
                     if (heard) await message(heard, state, env);
@@ -5397,7 +5388,7 @@ export async function mhitm_ad_ston(
                         state,
                         env,
                     );
-                } else if (!Deaf(state)) {
+                } else if (!Deaf(state.u)) {
                     const heard = youHear(
                         `${s_suffix(mon_nam(magr, state, env))} hissing!`, state);
                     if (heard) await message(heard, state, env);
@@ -5652,7 +5643,7 @@ export async function mhitm_ad_curs(
         await hitmsg(magr, mattk, state, { ...env, random, message });
         if (!night(state) && pa === state.mons?.[PM_GREMLIN]) return;
         if (!magr.mcan && !random.rn2(10)) {
-            if (!Deaf(state)) {
+            if (!Deaf(state.u)) {
                 // sound.h compiles Soundeffect() away in the reference tty build.
                 if (Blind(state.u)) {
                     const heard = youHear('laughter.', state);
@@ -5733,7 +5724,7 @@ export async function mhitm_ad_curs(
                 mhm.done = true;
                 return;
             }
-            if (!Deaf(state)) {
+            if (!Deaf(state.u)) {
                 if (!state.gv?.vis) {
                     const heard = youHear('laughter.', state);
                     if (heard) await message(heard, state, env);
@@ -7042,7 +7033,7 @@ export async function mhitm_ad_heal(
         } else if (state.urole?.mnum === PM_HEALER) {
             // sndprocs.h SetVoice is an empty macro in this build. Its only
             // runtime effect is the source verbalize() call below.
-            if (!Deaf(state) && !(state.moves % 5)) {
+            if (!Deaf(state.u) && !(state.moves % 5)) {
                 await verbalize(
                     "Doc, I can't help you unless you cooperate.",
                     state,
@@ -7486,7 +7477,7 @@ export async function mhitm_ad_dgst(
         mhm.done = true;
         return;
     }
-    if (state.flags.verbose && !Deaf(state)) {
+    if (state.flags.verbose && !Deaf(state.u)) {
         // sndprocs.h SetVoice is empty in the recorder's nosound build.
         await verbalize('Burrrrp!', state, { message });
     }

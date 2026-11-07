@@ -63,13 +63,14 @@ import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
-import { Blind, Hallucination, Maybe_Half_Phys } from './youprop.js';
+import {
+    Blind, Deaf, Hallucination, Maybe_Half_Phys,
+} from './youprop.js';
 
 function property(state, index) {
     const p = state.u.uprops[index];
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
-function Deaf(state) { return property(state, DEAF) || state.u.uroleplay?.deaf; }
 
 // C ref: music.c awaken_scare() (45-60). The waiting arm excludes scare
 // checks, including their resistance draw, even when the sound is scary.
@@ -134,7 +135,7 @@ export async function awaken_soldiers(bugler, state = game, env = {}) {
             mon.mstrategy &= ~STRAT_WAITMASK;
             if (canSeeMonster(mon)) {
                 await message(`${Monnam(mon, state)} is now ready for battle!`, state);
-            } else if (!Deaf(state)) {
+            } else if (!Deaf(state.u)) {
                 await norep('You hear the rattle of battle gear being readied.', state);
             }
         } else {
@@ -530,9 +531,9 @@ export async function do_improvisation(instr, state = game, env = {}) {
     }
     switch (mode) {
     case 0: await message(`You start playing ${yname(instr, state)}.`, state); break;
-    case 1: await message(!Deaf(state) ? 'You radiate an obnoxious droning sound.'
+    case 1: await message(!Deaf(state.u) ? 'You radiate an obnoxious droning sound.'
         : youFeel('a monotonous vibration.', state), state); break;
-    case 2: await message(!Deaf(state) ? 'You generate a raucous noise.'
+    case 2: await message(!Deaf(state.u) ? 'You generate a raucous noise.'
         : youFeel('a jarring vibration.', state), state); break;
     case 4: await message('You disseminate a kaleidoscopic display of floating butterflies.', state); break;
     default: await message('What you perform is quite far from music...', state); break;
@@ -541,7 +542,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
     switch (itmp.otyp) {
     case MAGIC_FLUTE:
         await consume_obj_charge(instr, true, { state });
-        await message(`You ${!Deaf(state) ? '' : 'seem to '}produce ${Hallucination(state.u) ? 'piped' : 'soft'}${same ? ', familiar' : ''} music.`, state);
+        await message(`You ${!Deaf(state.u) ? '' : 'seem to '}produce ${Hallucination(state.u) ? 'piped' : 'soft'}${same ? ', familiar' : ''} music.`, state);
         await put_monsters_to_sleep(state.u.ulevel * 5, state, {
             ...env,
             message,
@@ -551,7 +552,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         break;
     case WOODEN_FLUTE:
         special &= random.rn2(acurr(state, A_DEX)) + state.u.ulevel > 25;
-        await message(!Deaf(state)
+        await message(!Deaf(state.u)
             ? `${Tobjnam(instr, special ? 'trill' : 'toot', state)}${same ? ' a familiar tune' : ''}.`
             : youFeel(`${yname(instr, state)} ${special ? 'trill' : 'toot'}.`, state), state);
         if (special)
@@ -582,14 +583,14 @@ export async function do_improvisation(instr, state = game, env = {}) {
         break;
     }
     case TOOLED_HORN:
-        await message(!Deaf(state)
+        await message(!Deaf(state.u)
             ? `You produce a frightful, grave${same ? ', yet familiar,' : ''} sound.`
             : 'You blow into the horn.', state);
         await awaken_monsters(state.u.ulevel * 30, state, env);
         await exercise(A_WIS, false, state, random);
         break;
     case BUGLE:
-        await message(!Deaf(state)
+        await message(!Deaf(state.u)
             ? `You extract a loud${same ? ', familiar' : ''} noise from ${yname(instr, state)}.`
             : 'You blow into the bugle.', state);
         await awaken_soldiers(state.youmonst, state, { ...env, message, random });
@@ -597,7 +598,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         break;
     case MAGIC_HARP:
         await consume_obj_charge(instr, true, { state });
-        await message(!Deaf(state)
+        await message(!Deaf(state.u)
             ? `${Tobjnam(instr, 'produce', state)} very attractive${same ? ' and familiar' : ''} music.`
             : youFeel('very soothing vibrations.', state), state);
         await charm_monsters(Math.trunc((state.u.ulevel - 1) / 3) + 1, state, {
@@ -607,7 +608,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         break;
     case WOODEN_HARP:
         special &= random.rn2(acurr(state, A_DEX)) + state.u.ulevel > 25;
-        await message(!Deaf(state)
+        await message(!Deaf(state.u)
             ? `${Yname2(instr, state)} ${special ? (same ? 'produces a familiar, lilting melody' : 'produces a lilting melody')
                 : (same ? 'twangs a familiar tune' : 'twangs')}.`
             : youFeel('soothing vibrations.', state), state);
@@ -626,7 +627,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         break;
     case LEATHER_DRUM:
         if (!mundane) {
-            if (!Deaf(state)) {
+            if (!Deaf(state.u)) {
                 await message(`You beat a ${same ? 'familiar ' : ''}deafening row!`, state);
                 incr_itimeout(state.u.uprops[DEAF], random.rn1(20, 30));
             } else {
@@ -684,7 +685,7 @@ export async function do_play_instrument(instr, state = game, env = {}) {
         }
         tune = [...tune].map(highc).join('').replaceAll('H', 'B');
     }
-    await message(!Deaf(state)
+    await message(!Deaf(state.u)
         ? `You extract a strange sound from ${the(xnameFresh(instr, state), state)}!`
         : `You can feel ${the(xnameFresh(instr, state), state)} emitting vibrations.`, state);
     if (state.stronghold_level?.dnum === state.u.uz.dnum
@@ -708,7 +709,7 @@ export async function do_play_instrument(instr, state = game, env = {}) {
                     }
                 }
             }
-        } else if (!Deaf(state)) {
+        } else if (!Deaf(state.u)) {
             if (state.u.uevent.uheard_tune < 1) state.u.uevent.uheard_tune = 1;
             let nearby = false;
             for (let y = state.u.uy - 1; y <= state.u.uy + 1 && !nearby; y++) {
