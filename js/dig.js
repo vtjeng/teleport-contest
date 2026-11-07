@@ -2220,7 +2220,7 @@ export async function draft_message(unexpected, env) {
         return;
     }
     if (!hallucinating) {
-        await message('You feel a draft.', state, env);
+        await message(youFeel('a draft.', state), state, env);
         return;
     }
     const reactions = ['enlisting', 'marching', 'protesting', 'fleeing'];
@@ -2228,7 +2228,7 @@ export async function draft_message(unexpected, env) {
     let index = random.rn1(2, 1 - alignment);
     if ((state.u?.ualign?.record ?? 0) < 4)
         index += random.rn1(3, alignment - 1);
-    await message(`You feel like ${reactions[index]}.`, state, env);
+    await message(youFeel(`like ${reactions[index]}.`, state), state, env);
 }
 
 // C ref: dig.c mdig_tunnel() (1413-1490). This is the monster movement arm,

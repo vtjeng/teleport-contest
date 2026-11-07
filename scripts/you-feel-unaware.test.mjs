@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { draft_message } from '../js/dig.js';
 import { dog_starve } from '../js/dogmove.js';
 import { pluslvl } from '../js/exper.js';
 import { intervene } from '../js/wizard.js';
@@ -70,4 +71,17 @@ test('wizard.c intervene() dreams the nervousness of a sleeping hero', async () 
         message: async (line) => { lines.push(line); },
     });
     assert.deepEqual(lines, ['You dream that you feel vaguely nervous.']);
+});
+
+test('dig.c draft_message(FALSE) dreams a draft from a digging monster', async () => {
+    // dig.c:1451 mdig_tunnel() calls draft_message(FALSE) when a monster
+    // digs through a secret corridor, with no Unaware guard (unlike the
+    // TRUE call at dig.c:1443). dig.c:1527 is the You_feel() line.
+    const state = asleep({ u: { uprops: {} } }); // Not hallucinating.
+    const lines = [];
+    await draft_message(false, {
+        state,
+        message: async (line) => { lines.push(line); },
+    });
+    assert.deepEqual(lines, ['You dream that you feel a draft.']);
 });
