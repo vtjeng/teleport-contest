@@ -1080,7 +1080,7 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     );
     assert.match(
         JS_MB_HIT,
-        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)\s*map_invisible\(mdef\.mx, mdef\.my, state\);/u,
+        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\) \{\s*if \(state === game\) map_invisible\(mdef\.mx, mdef\.my, state\);\s*else map_invisible_planning\(mdef\.mx, mdef\.my, state\);/u,
     );
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
     assert.match(
@@ -1273,6 +1273,73 @@ test('Magicbane planning keeps bonus, special, and cancellation effects injected
         assert.equal(result.state.u.uen, 1);
         assert.equal(result.state.disp.botl, true);
     }
+});
+
+test('Magicbane planning probes the hero without painting the live map',
+    async () => {
+    // artifact.c artifact_hit() calls Mb_hit() for a dieroll up to
+    // MB_MAX_DIEROLL (8). With spe 0, scare_dieroll is MB_MAX_DIEROLL / 2,
+    // so a dieroll of 6 keeps the default probe index, and rn2() answering
+    // 0 to the stun gate `max(spe, 0) < rn2(11)` leaves it there. A probe on
+    // a defender the attacker cannot spot calls display.c map_invisible();
+    // a planning clone must write only its own map memory there (here the
+    // hero's square, which map_invisible() leaves alone), never the live
+    // terminal.
+    const state = stateFor('Val', 'lawful');
+    state.flags.verbose = true;
+    state.disp = {};
+    state.u = {
+        uprops: [],
+        ulycn: NON_PM,
+        ustuck: null,
+        umonnum: PM_WIZARD,
+        umonster: PM_WIZARD,
+        uen: 2,
+        uenmax: 3,
+        uenpeak: 3,
+        ux: 4,
+        uy: 5,
+    };
+    state.youmonst = { data: {}, mx: 4, my: 5, minvent: null };
+    state.mons = [];
+    init_artifacts(state);
+    const attacker = { data: {}, mx: 5, my: 5, mhp: 10, mhpmax: 10 };
+    const draws = [];
+    const messages = [];
+    const damage = { value: 3 };
+    const special = await artifact_hit(
+        attacker,
+        state.youmonst,
+        { oartifact: ART_MAGICBANE, spe: 0 },
+        damage,
+        6,
+        state,
+        {
+            planning: true,
+            random: {
+                rn2: (bound) => {
+                    draws.push(`rn2(${bound})`);
+                    return 0;
+                },
+                rnd: (bound) => {
+                    draws.push(`rnd(${bound})`);
+                    return 1;
+                },
+            },
+            message: async (text) => { messages.push(text); },
+        },
+    );
+    assert.equal(special, true);
+    // rn2() answering 0 to the closing `do_confuse = !rn2(12)` gate adds
+    // the confusion message.
+    assert.deepEqual(messages, [
+        'The magic-absorbing blade probes you!',
+        'You are confused.',
+    ]);
+    // spec_dbon()'s d4 bonus, the stun gate, the probe's own d4 and the
+    // confusion gate, each scripted to 1 or 0: 3 + 1 + 1 damage.
+    assert.deepEqual(draws, ['rnd(4)', 'rn2(11)', 'rnd(4)', 'rn2(12)']);
+    assert.equal(damage.value, 5);
 });
 
 test('Magicbane monster cancellation uses injected resistance randomness',

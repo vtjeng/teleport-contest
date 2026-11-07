@@ -239,7 +239,8 @@ import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import {
-    canspotmon, glyph_at, glyph_is_trap, map_invisible, newsym, shieldeff,
+    canspotmon, glyph_at, glyph_is_trap, map_invisible, map_invisible_planning,
+    newsym, shieldeff,
     see_monsters,
 } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
@@ -1836,8 +1837,12 @@ export async function Mb_hit(
             state, env);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
-        if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state))
-            map_invisible(mdef.mx, mdef.my, state);
+        // A planning clone keeps display.c map_invisible()'s memory write
+        // and leaves the live paint to the replayed turn.
+        if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
+            if (state === game) map_invisible(mdef.mx, mdef.my, state);
+            else map_invisible_planning(mdef.mx, mdef.my, state);
+        }
     }
 
     /* now perform special effects */

@@ -357,7 +357,8 @@ import { more_experienced } from './exper.js';
 import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    cmap_to_glyph, map_glyphinfo, map_invisible, newsym, shieldeff, tmp_at,
+    cmap_to_glyph, map_glyphinfo, map_invisible, map_invisible_planning, newsym,
+    shieldeff, tmp_at,
 } from './display.js';
 import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
 import { placebc, set_bc } from './ball.js';
@@ -2408,8 +2409,12 @@ export async function drop_boulder_on_monster(
                     + `${donameFresh(rock, state)}!`,
                 state,
             );
-            if (monster.minvis && !canspotmon(monster, state))
-                map_invisible(monster.mx, monster.my, state);
+            // A planning clone keeps display.c map_invisible()'s memory
+            // write and leaves the live paint to the replayed turn.
+            if (monster.minvis && !canspotmon(monster, state)) {
+                if (state === game) map_invisible(monster.mx, monster.my, state);
+                else map_invisible_planning(monster.mx, monster.my, state);
+            }
         } else if (engulfing_u(monster, state)) {
             const line = youHear(
                 `something hit ${s_suffix(mon_nam(monster, state))} `
