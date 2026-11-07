@@ -43,3 +43,20 @@ test('vault.c invault() and gd_move() read Blind, which lenses defeat', () => {
     }
     assert.doesNotMatch(js, /function \w*Blind\w*\(/u, 'vault.js keeps no blindness copy');
 });
+
+test('priest.c intemple() and priest_talk() read Hallucination, which resistance defeats', () => {
+    // Hallucination is HHallucination && !Halluc_resistance (youprop.h:120).
+    // priest.js tested HHallucination alone, so a hallucinating hero holding
+    // Grayswandir got a random currency for the priest's ale money, and in
+    // the Sanctum the intoning priest's name kept "of Moloch". A recorded
+    // game would need a temple and its priest within a short recipe.
+    const c = read('nethack-c/upstream/src/priest.c');
+    const js = read('js/priest.js');
+    for (const name of ['intemple', 'priest_talk']) {
+        assert.equal(count(cBody(c, name), /\bHallucination\b/gu), 1, `C ${name}() reads Hallucination`);
+        assert.equal(count(cBody(c, name), /\bHHallucination\b/gu), 0);
+        assert.equal(count(jsBody(js, name), /\bHallucination\(state\.u\)/gu), 1,
+            `priest.js ${name}() calls youprop.js Hallucination()`);
+    }
+    assert.doesNotMatch(js, /function \w*Halluc\w*\(/u, 'priest.js keeps no hallucination copy');
+});

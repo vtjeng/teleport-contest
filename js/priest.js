@@ -123,8 +123,7 @@ import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
-    Deaf, HHallucination,
-    Hallucination, Invis,
+    Deaf, Hallucination, Invis,
 } from './youprop.js';
 
 // C ref: priest.c local constants.
@@ -838,10 +837,6 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
 }
 
 
-// C ref: youprop.h:157 Hallucination.
-function HallucinatingIgnoringResistance(state) {
-    return Boolean(HHallucination(state.u));
-}
 
 // C ref: priest.c intemple(int roomno). Called when the hero enters a TEMPLE
 // room.
@@ -870,7 +865,7 @@ export async function intemple(roomno, env = {}) {
         if (can_speak && !Deaf(state.u)
             && state.moves >= (epri_p.intone_time ?? 0)) {
             const save_priest = priest.ispriest;
-            if (sanctum && !HallucinatingIgnoringResistance(state))
+            if (sanctum && !Hallucination(state.u))
                 priest.ispriest = 0;
             const who = canseemon(priest, state)
                 ? Monnam(priest, state)
@@ -1058,7 +1053,7 @@ export async function priest_talk(priest, state = game, env = {}) {
         if (coaligned && !strayed) {
             const pmoney = money_cnt(priest.minvent);
             if (pmoney > 0) {
-                const bits = HallucinatingIgnoringResistance(state)
+                const bits = Hallucination(state.u)
                     ? currency(pmoney, state)
                     : pmoney === 1 ? 'bit' : 'bits';
                 await message(
