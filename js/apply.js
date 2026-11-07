@@ -3051,10 +3051,14 @@ export async function jump(magic = 0, state = game, env = {}) {
             return ECMD_TIME;
         }
         if (magic) {
-            await ttyPline('You writhe a little in the grasp of your captor!', state);
+            await ttyPline(
+                `You writhe a little in the grasp of ${mon_nam(captor, state)}!`,
+                state,
+            );
             return ECMD_TIME;
         }
-        await ttyPline('You cannot escape from your captor!', state);
+        await ttyPline(`You cannot escape from ${mon_nam(captor, state)}!`,
+            state);
         return ECMD_OK;
     }
     if (jumpPropertyActive(state, LEVITATION)
