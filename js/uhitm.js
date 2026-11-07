@@ -1796,7 +1796,8 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
 // loop for a polymorphed hero striking a monster. Its caller has already set
 // gb.bhitpos and gn.notonhead, just as do_attack() does before hitum().
 export async function hmonas(mon, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnz };
+    // As in do_attack(), rnl() is reached through a split pudding's mintrap().
+    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnl, rnz };
     const attackEnv = { ...env, state, random };
     const message = requireAttackOperation(attackEnv, 'message');
     const sums = new Array(NATTK).fill(M_ATTK_MISS);
@@ -2194,7 +2195,9 @@ export async function hmonas(mon, state = game, env = {}) {
 // C ref: uhitm.c do_attack() (448-583). A step into a monster's square either
 // declines so hack.c can displace, or consumes the attempted attack.
 export async function do_attack(monster, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnz };
+    // rnl() is reached through hmon_hitmon_splitmon()'s trap.c mintrap() for
+    // the half of a pudding that lands on a trap.
+    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnl, rnz };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('do_attack random injection requires rn2');
     const message = env.message ?? ttyPline;

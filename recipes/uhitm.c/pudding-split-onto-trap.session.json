@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uhitm.c hmon_hitmon_splitmon() clone landing on a trap. A debug-mode dwarven Valkyrie steps north, then around the eight squares about her starting square, wishing for a squeaky board on each, and returns to the middle. She wields her dagger and creates a brown pudding, which appears to the south on one of the boards, and hits it until it divides; the new half lands on a neighbouring board, and the split calls trap.c mintrap(), which squeaks the board.",
+  "segments": [
+    {
+      "seed": 73311847,
+      "datetime": "20750217093000",
+      "nethackrc": "OPTIONS=name:Thora,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u001bk\u0017squeaky board\nl\u0017squeaky board\nj\u0017squeaky board\nj\u0017squeaky board\nh\u0017squeaky board\nh\u0017squeaky board\nk\u0017squeaky board\nk\u0017squeaky board\nnwb\u001b\u0007brown pudding\nFj\u001bFj\u001bFj\u001bFj\u001b"
+    }
+  ]
+}
