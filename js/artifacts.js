@@ -2891,12 +2891,7 @@ export async function arti_speak(obj, state = game, env = {}) {
 
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn2 };
-    const rumor = getrumor(bcsign(obj), true, {
-        ...env, state, random,
-        exercise: env.exercise ?? ((index, increase) => exercise(
-            index, increase, state, { rn2: random.rn2.bind(random) },
-        )),
-    });
+    const rumor = getrumor(bcsign(obj), true, { ...env, state, random });
     const line = rumor || 'NetHack rumors file closed for renovation.';
     await message(`${Tobjnam(obj, 'whisper', state)}:`, state);
     // sndprocs.h compiles SetVoice to an empty macro in the recorder's
