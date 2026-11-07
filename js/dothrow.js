@@ -423,7 +423,7 @@ import {
 } from './do_name.js';
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
-import { verbalize } from './pline.js';
+import { verbalize, youFeel } from './pline.js';
 import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { coreRandom, d, rn2, rnd } from './rng.js';
@@ -596,7 +596,7 @@ export async function hurtle(
     // A planning copy of a monster's knockback must print nothing live.
     const message = planning ? async () => {} : ttyPline;
     if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
-        await message('You feel a tug from the iron ball.', state);
+        await message(youFeel('a tug from the iron ball.', state), state);
         nomul(0, state);
         return;
     }
@@ -917,7 +917,7 @@ export async function hurtle_step(arg, x, y) {
     let mayPass = true;
 
     if (!isok(x, y)) {
-        await message('You feel the spirits holding you back.', state);
+        await message(youFeel('the spirits holding you back.', state), state);
         return false;
     }
     if (!await in_out_region(x, y, { state })) return false;

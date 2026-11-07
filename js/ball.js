@@ -89,6 +89,7 @@ import { setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
+import { youFeel } from './pline.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;
@@ -719,7 +720,7 @@ async function dragBallTail(
     if (chainInWater || (chainTrap && (is_pit(chainTrap.ttyp)
         || is_hole(chainTrap.ttyp)))) {
         if (Levitation(state)) {
-            await ttyPline('You feel a tug from the iron ball.', state);
+            await ttyPline(youFeel('a tug from the iron ball.', state), state);
             if (chainTrap) chainTrap.tseen = true;
         } else {
             await ttyPline('You are jerked back by the iron ball!', state);
