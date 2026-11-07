@@ -102,7 +102,7 @@ import { depth, level_difficulty, on_level } from './dungeon.js';
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
 import { stop_occupation } from './allmain.js';
-import { eating_glob, set_tin_variety } from './eat.js';
+import { eaten_stat, eating_glob, set_tin_variety } from './eat.js';
 // makesingular() is used by sanity_check_worn() for class name formatting.
 // fruit.js imports nothing from this file; the edge is acyclic.
 import { makeplural, makesingular } from './fruit.js';
@@ -454,7 +454,7 @@ export class UnsupportedObjectOperationError extends Error {
 // source-ordered RNG and id changes are intentionally retained).
 //
 //   monster(index, env) -> monster record
-//   eatenStat(weight, obj, env) -> adjusted weight
+//   eatenStat(weight, obj, env) -> adjusted weight (default eat.c eaten_stat)
 //   artifactCount(env) -> existing artifact count
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
 //   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
@@ -1753,6 +1753,12 @@ function monsterRecord(obj, env) {
     return monster;
 }
 
+// C ref: mkobj.c weight() calls eat.c eaten_stat() directly for partly
+// eaten food; a caller's eatenStat hook remains a test seam.
+function eatenStat(env) {
+    return env.hooks.eatenStat ?? eaten_stat;
+}
+
 // C ref: mkobj.c weight(). Monster-dependent food/statue calculations use a
 // narrow lookup seam until the monster catalog is ported; ordinary startup
 // objects, coins, and nested containers are complete here.
@@ -1792,16 +1798,11 @@ export function weight(obj, env = {}) {
     if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM) {
         const monster = monsterRecord(obj, normalized);
         wt = Math.min(obj.quan * Math.trunc(monster.cwt), LARGEST_INT);
-        if (obj.oeaten) {
-            const eatenStat = requiredHook(normalized, 'eatenStat', obj);
-            wt = eatenStat(wt, obj, normalized);
-        }
+        if (obj.oeaten) wt = eatenStat(normalized)(wt, obj, normalized);
         return Math.trunc(wt);
     }
-    if (obj.oclass === FOOD_CLASS && obj.oeaten) {
-        const eatenStat = requiredHook(normalized, 'eatenStat', obj);
-        return Math.trunc(eatenStat(obj.quan * wt, obj, normalized));
-    }
+    if (obj.oclass === FOOD_CLASS && obj.oeaten)
+        return Math.trunc(eatenStat(normalized)(obj.quan * wt, obj, normalized));
     if (obj.oclass === COIN_CLASS)
         return Math.max(Math.trunc((obj.quan + 50) / 100), 1);
     if (obj.otyp === HEAVY_IRON_BALL && obj.owt)
@@ -1828,12 +1829,8 @@ export function preflightWeight(obj, env = {}) {
             preflightWeight(contents, normalized);
         return;
     }
-    if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM) {
+    if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM)
         monsterRecord(obj, normalized);
-        if (obj.oeaten) requiredHook(normalized, 'eatenStat', obj);
-    } else if (obj.oclass === FOOD_CLASS && obj.oeaten) {
-        requiredHook(normalized, 'eatenStat', obj);
-    }
 }
 
 // C ref: mkobj.c treefruits[] (1978-1980).

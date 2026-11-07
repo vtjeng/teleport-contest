@@ -27,7 +27,7 @@ import { game } from './gstate.js';
 import {
     digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri, strsubst, upstart, } from './hacklib.js';
 import {
-    consume_oeaten, eaten_stat, obj_nutrition, set_tin_variety, tin_variety_txt, } from './eat.js';
+    consume_oeaten, obj_nutrition, set_tin_variety, tin_variety_txt, } from './eat.js';
 import {
     delete_contents, hands_obj, obj_extract_self, obfree, } from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
@@ -1937,13 +1937,6 @@ export function readobjnam_postparse3(d, env) {
 export function readobjnam(bp, no_wish, env = {}) {
     const normalized = wishEnv(env);
     const { state } = normalized;
-    normalized.hooks = {
-        ...normalized.hooks,
-        // objnam.c finishes a partly-eaten wished food with weight(), whose
-        // eaten_stat callback is the direct return-valued eat.c dependency.
-        eatenStat: normalized.hooks.eatenStat
-            ?? ((base, obj, objectEnv) => eaten_stat(base, obj, objectEnv)),
-    };
     const random = wishRandom(normalized);
     const d = readobjnam_init(bp, state);
 

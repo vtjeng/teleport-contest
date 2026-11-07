@@ -230,7 +230,6 @@ import { get_obj_location, obj_is_burning } from './light.js';
 import { snuff_lit } from './apply_splash_lit.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { eaten_stat } from './eat.js';
 import { courtmon } from './mkroom.js';
 import { remove_worn_item } from './steal.js';
 import { hornoplenty } from './mkobj_hornoplenty.js';
@@ -3297,7 +3296,7 @@ async function in_container(obj, state) {
     });
     if (addition && typeof addition.then === 'function') await addition;
     state.gc.current_container.owt = weight(
-        state.gc.current_container, { state, hooks: { eatenStat: eaten_stat } });
+        state.gc.current_container, { state });
 
     // Gold needs this, and freeinv() may cause the encumbrance to disappear
     // from the status, so always update immediately (C: 2710).
