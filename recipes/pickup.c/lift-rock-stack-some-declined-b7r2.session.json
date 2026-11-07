@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent pickup.c carry_count() stack witness, chosen for this run (seed, clock and dwarf Valkyrie identity are new). Wish a newt corpse and drop it, then wish 300 rocks, which slip to the floor on top of it. Step east and back with autopickup and !dropped_nopick. carry_count() lifts only some of the rocks, n declines lift_object()s overload question (result 0), and pickup() continues to the corpse, which it lifts.",
+  "segments": [
+    {
+      "seed": 1176334,
+      "datetime": "20460623084500",
+      "nethackrc": "OPTIONS=name:RockLift,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,autopickup,!dropped_nopick,!acoustics\n",
+      "moves": "#wizwish\nnewt corpse\nde#wizwish\n300 rocks\nlh n "
+    }
+  ]
+}

@@ -1016,76 +1016,24 @@ function preflightPickupObjects(selected, state) {
     // the hero already is.
     const exceedsCarryCapacity = selected.length > 0
         && inv_weight(state) + addedWeight >= 2 * weight_cap(state);
-    const selectedObject = selected.length === 1 ? selected[0] : null;
-    const object = selectedObject?.obj;
-    // pickup.c:carry_count() returns zero for one ordinary, non-gold object
-    // when max_capacity() + obj->owt >= 0. Let that exact source path run so
-    // it can print its refusal. Special lift_object() branches stay with the
-    // existing preflight guards.
-    const sourceZeroLift = exceedsCarryCapacity
-        && selected.length === 1
-        && actionable.length === 1
-        && object.where === OBJ_FLOOR
-        && object.quan === 1
-        && selectedObject.count === 1
-        && object.oclass !== COIN_CLASS
-        && object.otyp !== LOADSTONE
-        && !(object.otyp === BOULDER
-            && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
-        && !object.oartifact
-        && object.otyp !== CORPSE
-        && object.otyp !== SCR_SCARE_MONSTER;
-    // For a heavy stack C does not reject in pickup(); it reaches
-    // pickup_object() -> lift_object() -> carry_count(), which can reduce the
-    // requested quantity before lift_object() asks its burden question. Keep
-    // inventory planning behind those source-owned decisions.
-    const sourcePartialStackLift = exceedsCarryCapacity
-        && selected.length === 1
-        && actionable.length === 1
-        && object.where === OBJ_FLOOR
-        && object.quan > 1
-        // C carry_count weighs the requested quantity even when it is one
-        // item from a larger floor stack.
-        && selectedObject.count >= 1
-        && object.oclass !== COIN_CLASS
-        && object.otyp !== LOADSTONE
-        && !(object.otyp === BOULDER
-            && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
-        && !object.oartifact
-        && object.otyp !== CORPSE
-        && object.otyp !== SCR_SCARE_MONSTER;
-    // Gold has its own carry_count rounding and may admit fewer coins than
-    // requested. A single ordinary floor coin row must reach that live
-    // decision before any addinv projection is built.
-    const sourceCoinLift = exceedsCarryCapacity
-        && selected.length === 1
-        && actionable.length === 1
-        && object.where === OBJ_FLOOR
-        && object.oclass === COIN_CLASS;
-    // pickup.c:750-798 has no aggregate-capacity rejection for a selected
-    // list. It calls pickup_object() once per row, in menu order, so each
-    // lift_object()/carry_count() decision sees the inventory left by the
-    // preceding row. If the aggregate reaches the maximum capacity, don't
-    // build addinv plans from that aggregate projection; defer every row to
-    // the live source-ordered path. Special objects and gold retain their
-    // separate admission handling rather than entering this multi-row gate.
-    const sourceMultiSelectionCapacityBoundary = exceedsCarryCapacity
-        && selected.length > 1
-        && actionable.length === selected.length
-        && sourceOrderedIndex < 0
-        && selected.every(({ obj }) =>
-            obj.oclass !== COIN_CLASS
-            && obj.otyp !== LOADSTONE
-            && !(obj.otyp === BOULDER
-                && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
-            && !obj.oartifact
-            && obj.otyp !== CORPSE
-            && obj.otyp !== SCR_SCARE_MONSTER);
-    if (exceedsCarryCapacity && !sourceZeroLift && !sourcePartialStackLift && !sourceCoinLift
-        && !sourceMultiSelectionCapacityBoundary) {
-        throw new UnsupportedPickupError(
-            'pickup() requiring a partial or failed lift',
-        );
+    const env = pickupObjectEnv(state);
+    if (exceedsCarryCapacity) {
+        // pickup.c has no aggregate-capacity rejection for a selection. Each
+        // row reaches pickup_object() -> lift_object() -> carry_count() in
+        // menu order and sees the inventory the preceding rows left.
+        // carry_count() may lift every object, some of a stack or of gold,
+        // or none ("There is ... here, but you cannot lift any more."), and
+        // pickup()'s loop stops at the first row that lifts none. Plans built
+        // from this aggregate projection would describe rows that the live
+        // decision reduces or refuses, so every row takes the live path.
+        // Which objects stay on the floor is known only after those
+        // decisions, so movement admission treats every selected object as
+        // possibly remaining.
+        return {
+            addPlans: selected.map(() => null),
+            env,
+            unliftable: selected.map(({ obj }) => obj),
+        };
     }
     // pickup.c:1757-1758 is `if (prev_encumbr < flags.pickup_burden)`, the
     // max() below. options.c optfn_pickup_burden() writes that field and
@@ -1098,21 +1046,8 @@ function preflightPickupObjects(selected, state) {
     // before pick_obj() reaches addinv(). Leave the addinv plan empty here so
     // the accepted answer can build it at that source position; a declined
     // lift must not reach inventory planning at all.
-    const deferAddinvForBurdenPrompt = sourcePartialStackLift || sourceCoinLift
-        || sourceMultiSelectionCapacityBoundary
-        || (!sourceZeroLift
-            && calc_capacity(addedWeight, state) > promptLimit);
-
-    const env = pickupObjectEnv(state);
-    if (sourceZeroLift || deferAddinvForBurdenPrompt) {
-        // pickup_object() either stops in carry_count() or asks lift_object()
-        // before pick_obj() creates its addinv plan.
-        return {
-            addPlans: selected.map(() => null),
-            env,
-            unliftable: sourceZeroLift ? [object] : [],
-        };
-    }
+    if (calc_capacity(addedWeight, state) > promptLimit)
+        return { addPlans: selected.map(() => null), env, unliftable: [] };
     const computedPlans = preflight_addinv_sequence(
         actionable.map(({ obj }) => obj),
         env,
@@ -3080,9 +3015,15 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
                             : slightloadpfx;
                 const savequan = obj.quan;
                 obj.quan = count;
-                const qbuf = `${pfx} `
-                    + `${!container ? 'lifting' : 'removing'} `
-                    + `${donameFresh(obj, state)}.  Continue?`;
+                const qbuf = safe_qbuf(
+                    `${pfx} ${!container ? 'lifting' : 'removing'} `,
+                    '.  Continue?',
+                    obj,
+                    (candidate) => donameFresh(candidate, state),
+                    (candidate) => ansimpleoname(candidate, state),
+                    something,
+                    state,
+                );
                 obj.quan = savequan;
                 const ch = await ynq(qbuf, state);
                 if (ch === 'q') result = -1;

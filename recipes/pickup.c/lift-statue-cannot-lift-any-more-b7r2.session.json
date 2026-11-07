@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent pickup.c lift_object()/carry_count() witness, chosen for this run (seed, clock and elf Wizard identity are new). Wish a newt corpse and drop it, then wish a statue of a giant, which slips to the floor on top of the corpse. Step east and back with autopickup and !dropped_nopick so autopick() selects both objects. carry_count() lifts none of the statue with a nonempty pack (\"There is ... here, but you cannot lift any more.\"), lift_object() returns -1, and pickup() stops before the corpse; check_here() then lists the pile.",
+  "segments": [
+    {
+      "seed": 7740126,
+      "datetime": "20460212093000",
+      "nethackrc": "OPTIONS=name:Lifter,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,autopickup,!dropped_nopick,!acoustics\n",
+      "moves": "#wizwish\nnewt corpse\ndp#wizwish\nstatue of a giant\nlh  "
+    }
+  ]
+}

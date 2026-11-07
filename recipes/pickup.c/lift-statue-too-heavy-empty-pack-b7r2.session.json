@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent pickup.c carry_count() witness for its empty-inventory message, chosen for this run (seed, clock and gnome Wizard identity are new). Wish a newt corpse, take off the cloak and drop everything, then wish a statue of a giant, which slips to the floor on top of the pile. Step north and back with autopickup and !dropped_nopick. With no inventory and no gold carry_count() prints \"but it is too heavy for you to lift\" and pickup() stops at the statue.",
+  "segments": [
+    {
+      "seed": 6082519,
+      "datetime": "20460904201000",
+      "nethackrc": "OPTIONS=name:BareHands,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,autopickup,!dropped_nopick,!acoustics\n",
+      "moves": "#wizwish\nnewt corpse\nTDAa\n             #wizwish\nstatue of a giant\nkj  "
+    }
+  ]
+}
