@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent steal.c witness: a human Caveman in debug mode reads a wished-for scroll of punishment, takes off his armor, wakes a summoned water nymph with a tin whistle and drops everything. With nothing to steal, steal() has the punished hero's nymph take the chain, and worn_item_removal() writes 'the iron chain (attached to you)', not 'your iron chain'.",
+  "segments": [
+    {
+      "seed": 70224519,
+      "datetime": "20410622101500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!tips,pettype:none\n",
+      "moves": "\u0017scroll of punishment\nrf T\u0017tin whistle\n\u0007water nymph\nagDAa\n    ms"
+    }
+  ]
+}
