@@ -5038,7 +5038,14 @@ export function mongone(monster, env = {}) {
     // preserve C's order by continuing inventory and detach only after that
     // redraw/cooldown promise settles.
     const finishAfterSpecialDrops = () => {
-        discard_minvent(monster, false, { ...env, state });
+        // discard_minvent() answers a promise only when a wielded light
+        // source's "stops shining" message must finish before m_detach().
+        const discarded = discard_minvent(monster, false, { ...env, state });
+        if (discarded && typeof discarded.then === 'function')
+            return discarded.then(detachMonster);
+        return detachMonster();
+    };
+    const detachMonster = () => {
 
         const unsupported = (branch) => {
             if (branch === 'unhiding a mimic')

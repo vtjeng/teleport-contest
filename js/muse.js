@@ -739,7 +739,8 @@ async function mon_escape(mtmp, vismon, state, env) {
         await pline_mon(mtmp,
             `${capitalizedMonsterName(mtmp, state)} escapes the dungeon!`,
             state);
-    mongone(mtmp, env);
+    // mongone() answers a promise when the departure must print first.
+    await mongone(mtmp, env);
     return 2;
 }
 

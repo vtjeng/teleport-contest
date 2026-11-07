@@ -993,6 +993,39 @@ test('m_detach keeps inventory when the monster merely goes away',
         assert.equal(game.level.objects[x][y], null, 'nothing on the floor');
     });
 
+test('mongone() puts out a wielded Sunsword before it frees it', async () => {
+    // mkobj.c discard_minvent() -> worn.c extract_from_minvent() ->
+    // weapon.c mwepgone() -> setmnotwielded(): a lit light-emitting artifact
+    // ends its light and, for a monster the hero can see, says so before
+    // obfree() deletes the object and m_detach() runs.
+    const { mongone } = await import('../js/mon.js');
+    const { ART_SUNSWORD, artifact_exists } = await import('../js/artifacts.js');
+    const { LONG_SWORD } = await import('../js/objects.js');
+    const { ONAME_NO_FLAGS, W_WEP } = await import('../js/const.js');
+    const { begin_burn } = await import('../js/timeout.js');
+    const { canseemon } = await import('../js/display.js');
+    await hero();
+    const mon = spawn(PM_GOBLIN);
+    assert.ok(canseemon(mon, game), 'the hero sees the goblin');
+    const sword = mksobj(LONG_SWORD, true, false, { state: game });
+    artifact_exists(sword, 'Sunsword', true, ONAME_NO_FLAGS, game);
+    sword.oartifact = ART_SUNSWORD;
+    sword.oextra = { ...(sword.oextra ?? {}), oname: 'Sunsword' };
+    add_to_minv(mon, sword, { state: game });
+    mon.mw = sword;
+    sword.owornmask = W_WEP;
+    begin_burn(sword, false, objectGenerationEnv({ state: game }));
+    assert.ok(sword.lamplit);
+    const lines = [];
+    await mongone(mon, { state: game, message: async (text) => {
+        lines.push(text);
+    } });
+    assert.equal(sword.lamplit, false, 'end_burn() put the light out');
+    assert.equal(game.level.monsters[mon.mx]?.[mon.my] ?? null, null);
+    assert.match(lines.join(' '),
+        /Sunsword in the goblin's hand stops shining\./u);
+});
+
 test('m_detach updates Wizard bookkeeping before either removal path',
     async () => {
         const sourceStart = MON_C.indexOf("'mtmp' is going away; remove effects");
