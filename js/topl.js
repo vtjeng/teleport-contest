@@ -559,11 +559,11 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
         state._ttyRestoreHistory = null;
         for (const entry of prior) {
             remember_topl(state);
-            setTopline(entry, state);
+            setTopline(entry, state, false);
         }
         for (const entry of current) {
             remember_topl(state);
-            setTopline(entry, state);
+            setTopline(entry, state, false);
         }
         state._ttyRestoreSnapshot = null;
         state._ttyRestoreInitialized = false;
@@ -573,17 +573,18 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
         if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE)
             state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
         remember_topl(state);
-        setTopline(String(message), state);
+        setTopline(String(message), state, true);
         return;
     }
     (state._ttyRestoreHistory ??= []).push(String(message));
 }
 
-function setTopline(text, state) {
-    // topl.c:706 and :717 Strcpy() the message into gt.toplines; this keeps
-    // the port's earlier update_topl() layout until the following commits
-    // correct it.
-    setToplinesViaUpdateTopl(text, state);
+// topl.c:706 and :717 Strcpy() the message into gt.toplines.  A caller's
+// message (`direct`) holds no update_topl() newlines, so ^P wraps it at the
+// terminal edge.  A restored message keeps the port's update_topl() layout.
+function setTopline(text, state, direct) {
+    if (direct) setToplinesDirectly(text, state);
+    else setToplinesViaUpdateTopl(text, state);
     if (state.nhDisplay) state.nhDisplay.topMessage = text;
 }
 

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_putmsghistory() (topl.c:704-706) and tty_doprev_message() (topl.c:117-131): a lawful Valkyrie in debug mode level-teleports to the quest home level, where questpgr.c com_pager_core() shows the 'firsttime' text and puts its 85-column synopsis into message history with putmsghistory(). Strcpy() writes it to gt.toplines without update_topl() newlines, so ^P's redotoplin() wraps it at the terminal edge, splitting 'present' after 'pre'.",
+ "segments": [
+  {
+   "seed": 7720413,
+   "datetime": "20280304154500",
+   "nethackrc": "OPTIONS=name:Seeker,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": " \u0016?\n>y  \u0010\u0010\u0010\u0010"
+  }
+ ]
+}
