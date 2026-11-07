@@ -9,10 +9,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { fig_transform } from '../js/apply.js';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 
 import {
-    ANTIMAGIC, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
+    ANTIMAGIC, BLINDED, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
     OBJ_FLOOR, POTHIT_MONST_THROW, ROOMOFFSET,
 } from '../js/const.js';
 import { draft_message } from '../js/dig.js';
@@ -20,15 +21,16 @@ import { dog_starve } from '../js/dogmove.js';
 import { hurtle } from '../js/dothrow.js';
 import { pluslvl } from '../js/exper.js';
 import { game } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { demon_talk } from '../js/minion.js';
 import { elemental_clog } from '../js/mon.js';
 import { mon_poly } from '../js/mhitm.js';
 import {
-    PM_HORNED_DEVIL, PM_HUMAN_ZOMBIE, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
+    PM_HORNED_DEVIL, PM_HUMAN_ZOMBIE, PM_JACKAL, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
-import { POT_POLYMORPH } from '../js/objects.js';
+import { FIGURINE, POT_POLYMORPH } from '../js/objects.js';
 import { polymon } from '../js/polyself.js';
 import { potionhit } from '../js/potion.js';
 import { intemple } from '../js/priest.js';
@@ -297,4 +299,23 @@ test('potion.c potionhit() dreams a polymorph potion broken on a sleeper', async
     await assert.rejects(potionhit(state.youmonst, potion, POTHIT_MONST_THROW,
         { state, message }), STOP);
     assert.equal(lines.at(-1), 'You dream that you feel a little strange.');
+});
+
+test('apply.c fig_transform() dreams a figurine leaving a sleeper\'s pack', async () => {
+    // A figurine's FIG_TRANSFORM timer fires on its turn whether or not
+    // the hero is awake. A carried figurine and a blind hero take
+    // apply.c's You_feel("something %s from your pack!").
+    const state = await sleepingGame();
+    // mkobj.c's figurine branch reaches a residual hook; this test picks
+    // the species itself, so the hook has nothing to do.
+    const figurine = addinv(mksobj(FIGURINE, false, false,
+        { state, hooks: { monsterObject: () => {} } }), { state });
+    figurine.corpsenm = PM_JACKAL; // Any species that can stand here.
+    state.u.uprops[BLINDED].intrinsic = 50; // Any blindness timeout.
+    const lines = [];
+    await fig_transform(figurine, state.moves, {
+        state,
+        message: async (line) => { lines.push(line); },
+    });
+    assert.deepEqual(lines, ['You dream that you feel something drop from your pack!']);
 });

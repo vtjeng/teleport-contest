@@ -3767,8 +3767,8 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
         case OBJ_INVENT:
             if (heroIsBlind(state) || suppressSee) {
                 await message(
-                    `You feel something ${locomotion(monster.data, 'drop')} `
-                        + 'from your pack!',
+                    youFeel(`something ${locomotion(monster.data, 'drop')} `
+                        + 'from your pack!', state),
                     state,
                 );
             } else {
