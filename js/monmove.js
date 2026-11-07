@@ -1150,7 +1150,9 @@ async function watch_on_duty(mtmp, rawEnv = {}) {
             if (IS_DOOR(here?.typ)
                 && (doorMask(here) & D_LOCKED)) {
                 if (couldsee(mtmp.mx, mtmp.my, state)) {
-                    if ((here.looted ?? 0) & D_WARNED) {
+                    // rm.h: looted overlays flags, and D_WARNED equals
+                    // D_TRAPPED, so the warning also traps the door.
+                    if (here.flags & D_WARNED) {
                         await mon_yells(
                             mtmp,
                             "Halt, thief!  You're under arrest!",
@@ -1163,7 +1165,7 @@ async function watch_on_duty(mtmp, rawEnv = {}) {
                             'Hey, stop picking that lock!',
                             env,
                         );
-                        here.looted = (here.looted ?? 0) | D_WARNED;
+                        here.flags |= D_WARNED;
                     }
                     // stop_occupation() lives in allmain.js which
                     // imports from monmove.js; a lazy import avoids the

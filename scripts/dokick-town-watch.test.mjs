@@ -39,7 +39,7 @@ test('generated Minetown door kick warns, then arrests on repeat', async () => {
     const door = await replay(firstKick);
     assert.match(game._ttyToplines, /Hey, stop damaging that door!/u);
     assert.ok((door.flags & D_LOCKED) !== 0);
-    assert.ok((door.looted & D_WARNED) !== 0);
+    assert.ok((door.flags & D_WARNED) !== 0, "rm.h looted overlays flags");
     assert.ok([...function* () {
         for (let mon = game.level.monlist; mon; mon = mon.nmon)
             if (is_watch(mon.data) && couldsee(mon.mx, mon.my, game)) yield mon;

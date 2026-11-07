@@ -6,7 +6,7 @@ import { NO_COLOR } from './terminal.js';
 
 // C ref: rm.h `#define doormask flags`. C keeps one door mask per square,
 // in struct rm's `flags`, and so does makeLocation(): there is no separate
-// `doormask` field, and scripts/door-mask-field.test.mjs rejects one. A
+// `doormask` field, and scripts/rm-flags-overlay.test.mjs rejects one. A
 // missing location reads as D_NODOOR.
 export function rm_doormask(location) {
     return location?.flags ?? 0;
@@ -22,8 +22,8 @@ export function makeLocation() {
         // C ref: rm.h struct rm `flags`. rm.h's doormask, altarmask, ladder,
         // drawbridgemask, looted, icedpool and emptygrave are macros over
         // this field, so a door's state (D_NODOOR, D_CLOSED, ...) lives
-        // here and nowhere else; scripts/door-mask-field.test.mjs rejects
-        // a separate `doormask` property.
+        // here and nowhere else; scripts/rm-flags-overlay.test.mjs rejects
+        // a separate `doormask` or `looted` property.
         flags: 0,
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?

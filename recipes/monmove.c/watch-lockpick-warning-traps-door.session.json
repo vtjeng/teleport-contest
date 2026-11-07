@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61411,
+      "datetime": "20251104093000",
+      "nethackrc": "OPTIONS=name:Picker,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "A gnomish Healer (so the Mines' gnomes stay peaceful) level-teleports to Minetown in debug mode, wishes for a credit card and a lock pick, steps beside a locked door that is not trapped, and creates a peaceful watchman. The watchman sees the credit card at work and yells (monmove.c watch_on_duty), setting D_WARNED in rm.looted, which rm.h overlays on flags, where D_WARNED equals D_TRAPPED. Picking the lock again with the lock pick succeeds, and lock.c picklock() then sets off the door trap: 'KABOOM!!  The door was booby-trapped!'",
+      "moves": "\u0016?\n w\u0017credit card\n\u0017lock pick\nb\u0007peaceful watchman\nakjy\n\naljy\n"
+    }
+  ]
+}
