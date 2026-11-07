@@ -1511,7 +1511,7 @@ export function warning_of(monster, state = game) {
 }
 
 function warningGlyphInfo(monster, state) {
-    const warningLevel = _propertyActiveUnblocked(state.u, HALLUC)
+    const warningLevel = heroHallucinating(state)
         ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
         : Math.min(
             Math.trunc((monster.m_lev ?? 0) / 4),

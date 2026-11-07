@@ -10775,3 +10775,19 @@ test('a status field that shrinks redraws over a map glyph on its columns',
     await flush_screen(1);
     assert.equal(statusRow().slice(column, column + 5), 'St:18');
 });
+
+// display.c display_warning() picks a random warning level only while
+// Hallucination, which youprop.h defines as HHallucination without
+// Halluc_resistance. A hero whose resistance kept a black light's blast from
+// taking effect still has the timeout set, and C shows warning_of(mon).
+test('display_warning() reads Hallucination with its resistance', () => {
+    const c = readFileSync('nethack-c/upstream/src/display.c', 'utf8');
+    assert.match(c,
+        /int wl = Hallucination \? rn2_on_display_rng\(WARNCOUNT - 1\) \+ 1\s*: warning_of\(mon\);/u);
+    const js = readFileSync('js/display.js', 'utf8');
+    const body = js.match(/function warningGlyphInfo\(monster, state\) \{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(body, 'js/display.js warningGlyphInfo() exists');
+    assert.match(body, /const warningLevel = heroHallucinating\(state\)/u);
+    const helper = js.match(/function heroHallucinating\(state\) \{([\s\S]*?)\n\}/u)?.[1];
+    assert.match(helper, /!_propertyActive\(state\.u, HALLUC_RES\)/u);
+});
