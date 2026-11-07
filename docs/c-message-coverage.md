@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3979 | 89 |
-| diagnostic | 723 | 170 | 553 |
+| diagnostic | 723 | 184 | 539 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4152 | 759 |
+| total | 4911 | 4166 | 745 |
 
 ## Missing by C file
 
@@ -42,7 +42,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/bones.c | yes | 1 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
 | src/cfgfiles.c | yes | 6 | 0 | 2 |
-| src/cmd.c | yes | 0 | 4 | 0 |
+| src/cmd.c | yes | 0 | 3 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
 | src/decl.c | no | 1 | 0 | 0 |
 | src/detect.c | yes | 0 | 1 | 0 |
@@ -65,8 +65,8 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/hack.c | yes | 0 | 4 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
 | src/insight.c | yes | 0 | 3 | 0 |
-| src/invent.c | yes | 2 | 18 | 0 |
-| src/light.c | yes | 0 | 23 | 0 |
+| src/invent.c | yes | 2 | 8 | 0 |
+| src/light.c | yes | 0 | 21 | 0 |
 | src/lock.c | yes | 0 | 2 | 0 |
 | src/mail.c | no | 1 | 0 | 1 |
 | src/makemon.c | yes | 3 | 7 | 4 |
@@ -102,7 +102,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rect.c | yes | 0 | 2 | 0 |
 | src/region.c | yes | 0 | 2 | 0 |
 | src/report.c | no | 1 | 0 | 0 |
-| src/restore.c | yes | 6 | 8 | 1 |
+| src/restore.c | yes | 6 | 7 | 1 |
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
 | src/rumors.c | yes | 0 | 2 | 0 |
@@ -544,9 +544,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `get_count()`
   - 5066 impossible: `get_count: cmdcount_nht`
 
-- `yn_function()`
-  - 5574 impossible: `yn_function() returned '`
-
 ### src/dbridge.c
 
 - `create_drawbridge()`
@@ -829,24 +826,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `merged()`
   - 896 impossible: `merging strangely worn items (`
 
-- `addinv_core1()`
-  - 966 impossible: `already have amulet?`
-  - 971 impossible: `already have candelabrum?`
-  - 976 impossible: `already have silver bell?`
-  - 981 impossible: `already have the book?`
-  - 987 impossible: `already have quest artifact?`
-
 - `addinv_core0()`
   - 1065 panic: `addinv: obj not free`
   - 1104 panic: `addinv: null obj after quiver merge otyp=`
   - 1112 panic: `addinv: null obj after merge otyp=`
-
-- `freeinv_core()`
-  - 1363 impossible: `don't have amulet?`
-  - 1367 impossible: `don't have candelabrum?`
-  - 1371 impossible: `don't have silver bell?`
-  - 1375 impossible: `don't have the book?`
-  - 1380 impossible: `don't have quest artifact?`
 
 - `getobj()`
   - 1868 impossible: `getobj: inventory overflow`
@@ -877,9 +860,7 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 457 impossible: `save_light_sources: bad type (`
 
 - `relink_light_sources()`
-  - 544 panic: `relink_light_sources: no id mapping`
   - 555 panic: `relink_light_sources: can't find`
-  - 558 panic: `relink_light_sources: bad type (`
 
 - `maybe_write_ls()`
   - 578 impossible: `maybe_write_ls: no id! [range=`
@@ -1440,9 +1421,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `dorecover()`
   - 911 impossible: `restgamestate: lost ball & chain`
-
-- `getlev()`
-  - 1283 panic: `getlev: need portal but none found`
 
 - `restore_gamelog()`
   - 1401 panic: `restore_gamelog: msg too big (`
