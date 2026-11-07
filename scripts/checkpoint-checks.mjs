@@ -102,9 +102,10 @@ export function checkpointCommands() {
         informational: true,
         summarize: summarizeDuplicateSymbols,
     });
-    // Informational: compares JS constant values against C #define values.
-    // A mismatch is a copy error worth investigating, but conditional #ifdef
-    // values produce false positives, so the check is informational.
+    // Informational here: compiles every js/ integer constant against the
+    // recorder's C headers (scripts/check-c-constants.mjs). The same check
+    // fails `npm test` through check-c-constants.test.mjs, so this line only
+    // puts its summary in the checkpoint output.
     commands.push({
         label: 'constants vs C headers (check:constants)',
         group: 'sources',
