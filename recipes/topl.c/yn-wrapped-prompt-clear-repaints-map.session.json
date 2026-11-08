@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "tty_yn_function()'s clean_up clears WIN_MESSAGE when the prompt wrapped (cw->cury nonzero); tty_clear_nhwindow() then runs docorner(1, cury + 1, 0), which repaints the map row the prompt's second line covered. Minetown (debug-mode level teleport menu) has walls on map row 0, the first screen row below the message line. Eating from a square with a long-named food ration stack on top of two apples asks first about the rations, a prompt that wraps; 'n' moves on to the apples' one-line prompt, which leaves the repaired walls visible. Independent seed, date and character.",
+  "segments": [
+    {
+      "seed": 20261186,
+      "datetime": "20400915101500",
+      "nethackrc": "OPTIONS=name:Wren,role:Valkyrie,race:human,gender:female,align:neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " \u0016?\n>w\u0006\u0017food ration named Provisions for the long walk to Minetown\n  \u00172 uncursed apples\nde dd ennn  "
+    }
+  ]
+}

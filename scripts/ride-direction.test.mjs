@@ -723,8 +723,11 @@ test('an answered wrapped unrestricted prompt is cleared by tty cleanup',
         await yn_function('x'.repeat(display.cols - 1), null, '\0', false, game);
         assert.equal(game._pending_message, '');
         assert.equal(display.toplin, TOPLINE_EMPTY);
+        // tty_clear_nhwindow() homes the cursor, then docorner(1, 2, 0)
+        // moves it to column 0 of each cleared row with tty_curs(); it is
+        // left on row 1, the last row docorner() cleared (wintty.c).
         assert.equal(display.cursorCol, 0);
-        assert.equal(display.cursorRow, 0);
+        assert.equal(display.cursorRow, 1);
         assert.ok(display.grid[0].every(({ ch }) => ch === ' '));
     } finally {
         display.readKey = readKey;

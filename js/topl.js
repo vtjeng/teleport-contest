@@ -621,12 +621,13 @@ function setTopline(message, state) {
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_MESSAGE arm (1047-1058), as
-// topl.c tty_yn_function() calls it after a Ctrl-P recall (topl.c:441, 455).
+// topl.c tty_yn_function() calls it after a Ctrl-P recall (topl.c:441, 455)
+// and in clean_up after a wrapped prompt (topl.c:547).
 // It does nothing once the message window is empty: a full or combination
 // history window has already cleared it before drawing, so the map under the
 // dismissed window stays as that window's repair left it. Otherwise it clears
 // the top line and repairs any wrapped rows below it with docorner().
-async function clearMessageWindowAfterRecall(state) {
+async function clearMessageWindow(state) {
     const display = state.nhDisplay;
     if (display.toplin === TOPLINE_EMPTY) return;
     const cw = messageWindow(state);
@@ -638,15 +639,6 @@ async function clearMessageWindowAfterRecall(state) {
     }
     if (cw) cw.curx = cw.cury = 0;
     display.toplin = TOPLINE_EMPTY;
-}
-
-// C ref: wintty.c tty_clear_nhwindow(WIN_MESSAGE), used by
-// topl.c tty_yn_function()'s clean_up for a wrapped prompt.
-function clearMessageWindow(display) {
-    const lastRow = Math.max(0, display.cursorRow);
-    for (let row = 0; row <= lastRow && row < display.rows; ++row)
-        display.clearRow(row);
-    display.setCursor(0, 0);
 }
 
 // C ref: win/tty/topl.c tty_yn_function() (363-550).  Two arms.  With
@@ -756,7 +748,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                     display.inread = 0;
                     await tty_doprev_message(state);
                     display.inread = savedInread;
-                    await clearMessageWindowAfterRecall(state);
+                    await clearMessageWindow(state);
                     // topl.c:442 redraws the prompt with addtopl(), which
                     // leaves gt.toplines empty.
                     show_topl(prompt, state);
@@ -770,7 +762,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 q = 0;
                 continue;
             } else if (doprev) {
-                await clearMessageWindowAfterRecall(state);
+                await clearMessageWindow(state);
                 show_topl(prompt, state);
                 setToplinesDirectly('', state);
                 display.toplin = TOPLINE_NEED_MORE;
@@ -864,16 +856,16 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // the next message treating that line as one awaiting --More--, exactly
     // as topl.c update_topl():262 does.
     //
-    // topl.c:547 clears WIN_MESSAGE when cury is nonzero. display.cursorRow
-    // tracks that same wrapped-prompt state, so retain the source cleanup for
-    // long prompts before deciding whether the answered line remains pending.
-    if (display.cursorRow > 0) {
-        clearMessageWindow(display);
+    // topl.c:544-548 sets TOPLINE_NON_EMPTY, then clears WIN_MESSAGE when
+    // the prompt wrapped (cw->cury nonzero). That clear is
+    // tty_clear_nhwindow(WIN_MESSAGE), whose docorner() repaints the map
+    // rows the prompt covered.
+    display.toplin = TOPLINE_NON_EMPTY;
+    if (messageWindow(state)?.cury) {
+        await clearMessageWindow(state);
         state._pending_message = '';
-        display.toplin = TOPLINE_EMPTY;
     } else {
         state._pending_message = prompt;
-        display.toplin = TOPLINE_NON_EMPTY;
     }
     display.inread = Math.max(0, display.inread - 1);
     if (display.intr) --display.intr;
