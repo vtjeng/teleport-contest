@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "C ref: save.c dosave0():111-124 in explore mode. Segment 1 saves. Segment 2 restores, keeps the save file at unixmain.c's \"Do you want to keep the save file?\", and saves again; dosave0() finds the old file and the answer y to \"Overwrite the old file?\" goes on to save. Segment 3 restores the new file, declines to keep it, and pages back through the message history. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 70245118,
+      "datetime": "20330907164402",
+      "nethackrc": "OPTIONS=name:Odran,role:Healer,race:gnome,gender:male,align:neutral,playmode:explore,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\nsSy"
+    },
+    {
+      "seed": 70245118,
+      "datetime": "20330907164402",
+      "nethackrc": "OPTIONS=name:Odran,role:Healer,race:gnome,gender:male,align:neutral,playmode:explore,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n ysSy y"
+    },
+    {
+      "seed": 70245118,
+      "datetime": "20330907164402",
+      "nethackrc": "OPTIONS=name:Odran,role:Healer,race:gnome,gender:male,align:neutral,playmode:explore,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n n\u0010\u0010\u0010\u0010s"
+    }
+  ]
+}

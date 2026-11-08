@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "C ref: save.c dosave0():111-124, the old save file. Segment 1 saves a debug-mode game. Segment 2 restores it and answers y to unixmain.c's \"Do you want to keep the save file?\", so the file stays; the next save finds it, and the answer n to \"Overwrite the old file?\" keeps it and returns to the game through dosave()'s docrt(). ^P then shows the messages the declined save filed. A second save answers y and overwrites the file. Segment 3 restores the overwritten file, declines to keep it, and pages back through the restored message history. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 51927733,
+      "datetime": "20410322093015",
+      "nethackrc": "OPTIONS=name:Brenna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\nssSy"
+    },
+    {
+      "seed": 51927733,
+      "datetime": "20410322093015",
+      "nethackrc": "OPTIONS=name:Brenna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\nysSy n\u0010\u0010\u0010sSy y"
+    },
+    {
+      "seed": 51927733,
+      "datetime": "20410322093015",
+      "nethackrc": "OPTIONS=name:Brenna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\nn\u0010\u0010\u0010\u0010\u0010s"
+    }
+  ]
+}

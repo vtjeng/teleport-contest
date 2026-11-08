@@ -51,7 +51,8 @@ import {
 import { forget_temple_entry } from './priest.js';
 import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
-import { vfsWriteFile } from './storage.js';
+import { vfsReadFile, vfsWriteFile } from './storage.js';
+import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_exit_nhwindows } from './wintty.js';
 import { save_waterlevel } from './mkmaze.js';
@@ -358,10 +359,11 @@ export async function dosave(state = game) {
             // C ref: save.c:65 nh_terminate(EXIT_SUCCESS), which captures
             // the farewell screen and does not return.
             await nh_terminate(state);
+        } else {
+            // C ref: save.c:66-67. dosave0() returns 0 when the player
+            // declines to overwrite an old save file; the game goes on.
+            await docrt();
         }
-        // C's else arm calls docrt() for a failed save. dosave0() below
-        // always succeeds in the JS port (VFS writes do not fail in the
-        // contest harness), so this arm is unreachable.
     }
     return ECMD_OK;
 }
@@ -387,6 +389,25 @@ export async function dosave0(state = game) {
     // mhitu.c gulpmu() took off the floor, back on the map under the
     // engulfer, so the saved level holds them as floor objects.
     await done_object_cleanup(state);
+
+    // C ref: save.c:100-101. program_state.something_worth_saving is always
+    // set in the port, and gs.SAVEF is the fixed SAVE_FILE_PATH.
+
+    // C ref: save.c:111-124. An old save file exists when a debug or explore
+    // mode restore kept it (unixmain.c:266-273 restores its permissions);
+    // otherwise dorecover() or the keep-save question deleted it. Declining
+    // to overwrite leaves the old file in place and saves nothing.
+    // nh_uncompress(), nh_sfconvert() and nh_compress() have no VFS
+    // counterpart.
+    if (vfsReadFile(SAVE_FILE_PATH) != null) {
+        clearTtyMessageWindow(state);
+        // pline.c There() adds only the prefix "There ".
+        await ttyPline('There seems to be an old save file.', state);
+        if ((await yn_function('Overwrite the old file?', 'yn', 'n', true,
+            state)) === 'n') {
+            return 0;
+        }
+    }
 
     // C ref: save.c:142-145. Undo date-dependent luck adjustments made at
     // startup time in moveloop_preamble(). The session exercises the
