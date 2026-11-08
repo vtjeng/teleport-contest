@@ -238,9 +238,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const speak = env.verbalize ?? verbalize;
-    // newsym() paints the live game; a monster turn's planning pass
-    // (monmove.c dochug() on a planning copy) leaves that to the live pass.
-    const redraw = env.planning ? () => {} : newsym;
+    const redraw = newsym;
     const deaf = Deaf(state.u);
 
     if (is_art(state.uwep, ART_EXCALIBUR)
@@ -384,8 +382,8 @@ export async function bribe(mtmp, prompt, state = game, env = {}) {
 
 // C ref: minion.c monster_census() (40-57).  The census walks the live level
 // chain, ignoring dead monsters and guards parked at <0,0>. A spotted census
-// uses the canonical sensing predicate by default; callers can inject a
-// clone-local predicate so planning never consults live display state.
+// uses the canonical sensing predicate by default; callers can inject their
+// own predicate.
 export function monster_census(spotted = false, env = {}) {
     const state = env?.state ?? (env?.level ? env : game);
     const canSpot = env?.canSpotMonster ?? env?.canspotmon ?? canspotmon;
@@ -489,13 +487,11 @@ function summonRandom(rawEnv = {}) {
 // C ref: minion.c msummon() (59-190).  The caller owns the monster's action
 // state, while this function owns selector RNG, minion extension state, and
 // the census delta.  It is async because makemon_runtime() awaits the runtime
-// tails; that keeps the source order visible to summonmu() and planning.
+// tails; that keeps the source order visible to summonmu().
 export async function msummon(mon = null, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = summonRandom(rawEnv);
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const seeMonster = rawEnv.canSeeMonster ?? canseemon;
     const env = {
         ...rawEnv,
@@ -607,9 +603,9 @@ export async function msummon(mon = null, rawEnv = {}) {
         }
         if (created.data.mlet === M.S_ANGEL && !Blind(state.u)) {
             hasTransientLight = true;
-            if (!env.planning && typeof env.showTransientLight === 'function') {
+            if (typeof env.showTransientLight === 'function') {
                 await env.showTransientLight(created.mx, created.my, state, env);
-            } else if (!env.planning) {
+            } else {
                 await show_transient_light(
                     null,
                     created.mx,
@@ -628,7 +624,7 @@ export async function msummon(mon = null, rawEnv = {}) {
             );
         }
     }
-    if (hasTransientLight && !env.planning)
+    if (hasTransientLight)
         await transient_light_cleanup(state, transientLightEnv(state));
     return result ? monster_census(false, { state }) - census : 0;
 }
