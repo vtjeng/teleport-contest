@@ -1820,7 +1820,11 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
 
     reconstrain_map(state);
     state.u.uprops[DETECT_MONSTERS].extrinsic = saveEDetectMons;
-    if (vizRow) vizRow[ux] = saveViz;
+    // C restores through gv.viz_array as it stands now: browse_map() and
+    // flush_screen() can run vision_recalc(), which swaps the bitmap, so the
+    // row captured above may no longer be the live one.
+    const liveVizRow = state.viz_array?.[uy];
+    if (liveVizRow) liveVizRow[ux] = saveViz;
 
     // Replace stale detected-monster glyphs only after constraints have been
     // restored, then let normal vision redraw currently visible monsters.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Timed clairvoyance (allmain.c seer_turn; a Wizard's cornuthaum makes him Clairvoyant) while engulfed. do_vicinity_map() marks the hero's square IN_SIGHT so the engulfer shows, and its 'You sense your surroundings.' pline runs vision_recalc(), which swaps gv.viz_array, because the lit lamp left on the floor makes movemon() set vision_full_recalc every turn. C then restores viz_array[u.uy][u.ux] in the live bitmap, so the engulfer is unseen again. The very next command is a melee hit with a +5 dwarvish mattock, before any further vision_recalc(); hmon_hitmon_msg_hit() then ends 'You hit the ochre jelly' with '.' because canseemon() is false, though the damage is above exclam()'s 4. Independent seed, date and character; #levelchange keeps the hero alive inside the jelly.",
+  "segments": [
+    {
+      "seed": 20261182,
+      "datetime": "20390514101500",
+      "nethackrc": "OPTIONS=name:Gulped,role:Wizard,race:elf,gender=female,align:chaotic,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!tips\n",
+      "moves": " #levelchange\n14\n\u001b\u0017uncursed cornuthaum\n\u0017uncursed oil lamp\nWqardr\u0017+5 dwarvish mattock\nws\u0007ochre jelly\nms ms ms ms ms ms ms ms ms ms ms ms ms ms \u001bFh Fh Fh "
+    }
+  ]
+}
