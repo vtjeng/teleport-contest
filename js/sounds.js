@@ -828,7 +828,7 @@ export async function beg(mtmp, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
-        ?? (rawEnv.planning ? () => {} : map_invisible);
+        ?? map_invisible;
     if (helpless(mtmp)
         || !(carnivorous(mtmp.data) || herbivorous(mtmp.data))) {
         return;
@@ -955,7 +955,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
-        ?? (rawEnv.planning ? () => {} : map_invisible);
+        ?? map_invisible;
     const ptr = mtmp.data;
     if (Deaf(state.u)) return ECMD_OK;
     if (is_silent(ptr) && !mtmp.isshk) return ECMD_OK;
