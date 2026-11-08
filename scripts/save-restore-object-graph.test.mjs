@@ -143,3 +143,32 @@ test('restobjchn restores nexthere so a saved floor pile stays walkable', () => 
     assert.equal(level.objlist.nexthere, level.objlist.nobj);
     assert.equal(level.objlist.nobj.nexthere, null);
 });
+
+test('savefruitchn writes non-negative fruits in order and loadfruitchn reverses them', async () => {
+    const { loadfruitchn } = await import('../js/restore.js');
+    const { savefruitchn } = await import('../js/save.js');
+    // A chain as fruitadd() builds it, newest first: fid 3 'cloudberry',
+    // fid -2 'kumquat' (negated by bones.c savebones() because no object on
+    // the level names it) and fid 1 'slime mold'. The fids and names are
+    // arbitrary; only their signs and order matter.
+    const slime = { fname: 'slime mold', fid: 1, nextf: null };
+    const kumquat = { fname: 'kumquat', fid: -2, nextf: slime };
+    const cloudberry = { fname: 'cloudberry', fid: 3, nextf: kumquat };
+    const saved = savefruitchn({ gf: { ffruit: cloudberry } });
+    // save.c savefruitchn(): `if (f1->fid >= 0 ...) Sfo_fruit(...)` in chain
+    // order, so the negated kumquat is left out.
+    assert.deepEqual(saved, [
+        { fname: 'cloudberry', fid: 3 },
+        { fname: 'slime mold', fid: 1 },
+    ]);
+    // restore.c loadfruitchn(): `fnext->nextf = flist; flist = fnext;` for
+    // each fruit read, so the last one written heads the chain.
+    const restored = loadfruitchn(saved);
+    assert.deepEqual(
+        [restored.fname, restored.fid, restored.nextf.fname, restored.nextf.fid],
+        ['slime mold', 1, 'cloudberry', 3],
+    );
+    assert.equal(restored.nextf.nextf, null);
+    // An empty chain (save.c writes only the zero terminator) loads as Null.
+    assert.equal(loadfruitchn([]), null);
+});

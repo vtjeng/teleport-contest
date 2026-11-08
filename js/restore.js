@@ -398,6 +398,10 @@ export async function dorestore(state = game) {
         state.svp ??= {};
         state.svp.pl_fruit = snapshot.pl_fruit;
     }
+    // C ref: restore.c restgamestate():716-717. The fruits initoptions()
+    // made for this process give way to the saved chain.
+    state.gf ??= {};
+    state.gf.ffruit = loadfruitchn(snapshot.ffruit);
 
     // Game subsystems
     // C ref: restore.c restgamestate():708-710 reads svs.spl_book[].
@@ -621,6 +625,15 @@ export async function dorestore(state = game) {
 
     restore_msghistory(snapshot.msghistory, state);
     return true;
+}
+
+// C ref: restore.c loadfruitchn() (467-484). Each fruit save.js
+// savefruitchn() wrote is pushed onto the front of the new chain, so the
+// chain comes back in reverse order.
+export function loadfruitchn(saved) {
+    let flist = null;
+    for (const { fname, fid } of saved) flist = { fname, fid, nextf: flist };
+    return flist;
 }
 
 // C ref: restore.c find_lev_obj() (71-106): the no_charge part of its

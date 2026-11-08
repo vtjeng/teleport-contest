@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 70219,
+   "datetime": "20430205160500",
+   "nethackrc": "OPTIONS=name:Odile,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " O:fruit\ncloudberry\n\u001b\u00172 cloudberries\nSy",
+   "comment": "A debug Tourist with the default fruit sets the fruit option to 'cloudberry' with O (options.c, fruit.c fruitadd() gives it fid 2 ahead of 'slime mold'), wishes for 2 cloudberries (slime molds whose spe is fid 2), and saves. save.c savegamestate() writes svp.pl_fruit and then savefruitchn() writes the fruit chain."
+  },
+  {
+   "seed": 70243,
+   "datetime": "20430206110000",
+   "nethackrc": "OPTIONS=name:Odile,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " yi",
+   "comment": "The restored Tourist lists her inventory. restore.c restgamestate() drops the fruits this process's initoptions() made and loadfruitchn() reads back the saved chain, so 'o' is still '2 cloudberries'. Before the fix the port kept only this process's 'slime mold' and listed '2 slime molds'."
+  }
+ ]
+}

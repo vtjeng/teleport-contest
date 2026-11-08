@@ -118,6 +118,7 @@ import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import {
     ghostfruit, reset_oattached_mids, rest_stairs, rest_traps, restdamage,
 } from './restore.js';
+import { savefruitchn } from './save.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -924,12 +925,9 @@ function serializeBonesLevel(state) {
         return tc;
     });
 
-    // C ref: save.c savefruitchn() (951-971), which savebones() calls
-    // before savelev(): the fruits goodfruit() marked, in chain order.
-    const fruitChain = [];
-    for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
-        if (f.fid >= 0) fruitChain.push({ fname: f.fname, fid: f.fid });
-    }
+    // C ref: save.c savefruitchn(), which savebones() calls before
+    // savelev(): the fruits goodfruit() marked, in chain order.
+    const fruitChain = savefruitchn(state);
 
     // C ref: engrave.c save_engravings() (1551-1580), which savelev_core()
     // calls after the object chains: every engraving with text, in chain

@@ -621,8 +621,10 @@ function serializeGameState(state) {
         bases: state.svb?.bases,
         // Discovery log: which object types the hero has identified.
         disco: state.svd?.disco,
-        // Fruit list: custom fruit names from option parsing and gameplay.
+        // C ref: save.c savegamestate():323-324 writes svp.pl_fruit, then
+        // savefruitchn() writes the fruit chain.
         pl_fruit: state.svp?.pl_fruit,
+        ffruit: savefruitchn(state),
         // Game subsystems
         // C ref: save.c savegamestate():317-319 writes svs.spl_book[].
         spl_book: state.svs?.spl_book,
@@ -670,6 +672,17 @@ function serializeGameState(state) {
     // its ledger number.
     snapshot.otherLevels = save_other_levels(state);
     return snapshot;
+}
+
+// C ref: save.c savefruitchn() (951-971): every fruit whose fid is not
+// negative, in chain order. savebones() has negated the fid of each fruit no
+// object on the bones level names. restore.js loadfruitchn() reads it back.
+export function savefruitchn(state) {
+    const saved = [];
+    for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
+        if (f.fid >= 0) saved.push({ fname: f.fname, fid: f.fid });
+    }
+    return saved;
 }
 
 // C ref: save.c save_bc() (696-722), with the gl.looseball and gl.loosechain
