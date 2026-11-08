@@ -239,7 +239,6 @@ import { impact_drop } from './dokick.js';
 import {
     near_capacity, calc_capacity, check_capacity, inv_cnt, inv_weight, weight_cap,
     test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
-    HeroDeathPlanningError,
     nomul, unmul, losehp, You_can_move_again,
     u_locomotion,
     movobj,
@@ -375,19 +374,11 @@ export async function instapetrify(str, state = game, env = {}) {
     if (Stone_resistance(state)) return;
     if (poly_when_stoned(state.youmonst.data, state)
         && await polymon(PM_STONE_GOLEM, state, env)) return;
-    const urgentMessage = env.urgentMessage
-        ?? (env.planning ? env.message ?? (async () => {}) : ttyUrgentPline);
+    const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     await urgentMessage('You turn to stone...', state, env);
     state.killer ??= { name: '' };
     state.killer.format = KILLED_BY;
     if (str !== state.killer.name) state.killer.name = str ?? '';
-    // A planning armor callback cannot enter end.c's live terminal/recovery
-    // sequence. The existing preflight handoff carries this death kind too.
-    if (env.planning) {
-        const error = new HeroDeathPlanningError(state.killer.name, KILLED_BY, env);
-        error.how = STONING;
-        throw error;
-    }
     await done(STONING, state, env);
 }
 
@@ -1887,8 +1878,7 @@ export async function fire_damage_chain(
 ) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? (await import('./rng.js'));
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const hooks = {
         ...(rawEnv.hooks ?? {}),
         extractExternalObject:
@@ -2294,8 +2284,7 @@ export async function climb_pit(state = game) {
 
 // C ref: trap.c trapname() (7100-7155). The display RNG chooses the name;
 // only the extra role/rank entry also spends a core rn2(3). The display draw
-// uses `state`'s own stream unless the caller injects one, so a monster-turn
-// planning clone advances its copy rather than the live game's. `state` has
+// uses `state`'s own stream unless the caller injects one. `state` has
 // no default, and scripts/trapname-state.test.mjs requires every caller in
 // js/ to pass it. The display stream is its own function, never part of a
 // random set (scripts/random-source.mjs).
@@ -2566,10 +2555,9 @@ export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEn
         }
         stackobj(otmp, env);
     }
-    if (!env.planning)
-        (env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state);
+    (env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state);
     if (state.u.utrap && state.u.ux === ttmp.tx && state.u.uy === ttmp.ty)
-        await reset_utrap(!env.planning, state);
+        await reset_utrap(true, state);
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
     if (mtmp && mtmp.mtrapped) mtmp.mtrapped = 0;
     deltrap(ttmp, state);
