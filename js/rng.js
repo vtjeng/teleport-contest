@@ -263,7 +263,7 @@ export function cloneIsaacContext(context) {
         || !Array.isArray(context.m)
         || !Array.isArray(context.r)) {
         throw new TypeError(
-            'RNG planning requires an initialized ISAAC context',
+            'cloneIsaacContext() requires an initialized ISAAC context',
         );
     }
     return {

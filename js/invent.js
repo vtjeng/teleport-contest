@@ -4473,7 +4473,7 @@ function projectAddinv(obj, projectedEnv) {
         projectedResult: target,
         // pickup.c lift_object() applies the 52-slot limit one object at a
         // time, after merge_choice(), and excludes gold.  Expose that exact
-        // projected fact to pickup's atomic floor-transaction planner.
+        // projected fact to pickup's floor-transaction preflight.
         addedOrdinarySlot: target === obj && obj.oclass !== COIN_CLASS,
     };
 }

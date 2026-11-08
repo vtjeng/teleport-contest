@@ -1727,7 +1727,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
         // late refusal there would leave those writes behind, so preflight the
         // complete automatic-pickup transaction at the projected destination
         // before do_attack() spends its source-ordered rn2(7). The pickup
-        // planner refreshes gw.wc; clone that write owner and the projected
+        // preflight refreshes gw.wc; clone that write owner and the projected
         // hero coordinates while sharing the read-only level and inventory.
         const projected = {
             ...state,
