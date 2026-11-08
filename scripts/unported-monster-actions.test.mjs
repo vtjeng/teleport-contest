@@ -10,21 +10,17 @@ import {
     BLINDED,
     COLD_RES,
     BURN,
-    BURN_OBJECT,
     CONFLICT,
     COULD_SEE,
     CLOUD,
     CORR,
     D_BROKEN,
     D_CLOSED,
-    DIED,
     DRAWBRIDGE_DOWN,
     D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
-    D_TRAPPED,
     DUST,
-    DRAIN_RES,
     DOOR,
     FIRE_RES,
     FIRE_TRAP,
@@ -37,14 +33,11 @@ import {
     LANDMINE,
     CQ_CANNED,
     IN_SIGHT,
-    I_SPECIAL,
     LADDER,
     LAVAPOOL,
-    LS_MONSTER,
     LS_OBJECT,
     M_AP_OBJECT,
     M_SEEN_COLD,
-    KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
     MM_ADJACENTOK,
@@ -57,20 +50,16 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NORMAL_SPEED,
-    NOT_HUNGRY,
-    OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MIGRATING,
     OBJ_DELETED,
     OBJ_MINVENT,
     PLNMSG_HIDE_UNDER,
     PIT,
-    POISON_RES,
     POOL,
     ROOM,
     ROLLING_BOULDER_TRAP,
     RLOC_MSG,
-    SATIATED,
     SINK,
     STAIRS,
     STONE,
@@ -81,11 +70,9 @@ import {
     STEALTH,
     THRONE,
     TIMER_OBJECT,
-    UNCHANGING,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARMS,
-    WEB,
     W_WEP,
     W_RINGR,
     Upolyd,
@@ -94,58 +81,42 @@ import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
-import { new_light_source } from '../js/light.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initworm } from '../js/worm.js';
 import {
     AD_PHYS,
     AT_GAZE,
     AT_NONE,
-    AT_WEAP,
     PM_COBRA,
     PM_DEATH,
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
-    PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
     PM_GIANT_ANT,
-    PM_HOMUNCULUS,
-    PM_ACID_BLOB,
     PM_ALIGNED_CLERIC,
-    PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
     PM_ASMODEUS,
     PM_GNOME,
     PM_HILL_GIANT,
-    PM_GRID_BUG,
     PM_GREMLIN,
-    PM_HUMAN,
     PM_HEZROU,
     PM_IRON_GOLEM,
     PM_KILLER_BEE,
-    PM_KITTEN,
-    PM_LICHEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
-    PM_LITTLE_DOG,
     PM_MAIL_DAEMON,
+    PM_LITTLE_DOG,
     PM_MASTER_LICH,
-    PM_ORC_SHAMAN,
     PM_PONY,
     PM_RUST_MONSTER,
-    PM_QUANTUM_MECHANIC,
     PM_VAMPIRE_BAT,
     PM_VAMPIRE,
-    PM_TENGU,
-    PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
-    PM_WOOD_NYMPH,
     PM_VROCK,
-    PM_WERERAT,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     AT_CLAW,
@@ -157,9 +128,6 @@ import {
     SPECIAL_PM,
 } from '../js/monsters.js';
 import {
-    preflightSimpleMonsterActions,
-    preflightElapsedTurnTail,
-    planningState,
     moveSimpleOrdinary,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
@@ -169,7 +137,6 @@ import {
     cloneu,
     mattacku,
     mdamageu as damageHeroFromMonster,
-    MonsterDeathPlanningError,
 } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newmonhp, set_malign } from '../js/makemon.js';
@@ -185,7 +152,7 @@ import { use_offensive } from '../js/muse.js';
 import { capitalizedMonsterName, mon_nam } from '../js/do_name.js';
 import { encumber_msg } from '../js/pickup.js';
 import { cmdq_add_key } from '../js/cmd.js';
-import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_STING, ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ARROW,
     BOULDER,
@@ -196,10 +163,7 @@ import {
     EGG,
     FOOD_RATION,
     LONG_SWORD,
-    ORCISH_HELM,
-    POT_HEALING,
     ROCK,
-    RUNESWORD,
     SHIELD_OF_REFLECTION,
     SKELETON_KEY,
     SCR_SCARE_MONSTER,
@@ -210,33 +174,41 @@ import {
     WAN_COLD,
     WAN_FIRE,
 } from '../js/objects.js';
-import { m_avoid_kicked_loc, m_move, set_apparxy } from '../js/monmove.js';
+import {
+    m_avoid_kicked_loc,
+    m_everyturn_effect,
+    set_apparxy,
+} from '../js/monmove.js';
 import {
     hideunder,
     minliquid,
+    movemon,
     movemon_singlemon,
     normal_shape,
 } from '../js/mon.js';
+import { canseemon, newsym } from '../js/display.js';
+import { ttyPline } from '../js/tty_message.js';
 import { cancel_monst } from '../js/zap.js';
-import { set_ulycn } from '../js/were.js';
-import { newegd } from '../js/vault.js';
-import { clear_bypasses } from '../js/worn.js';
+import { clear_bypasses, m_dowear } from '../js/worn.js';
 import {
+    create_gas_cloud,
     create_region,
     inside_region,
 } from '../js/region.js';
 
 import {
+    block_point,
+    cansee,
     clear_path,
+    does_block,
+    m_canseeu,
     recalc_block_point,
-    vision_reset,
+    unblock_point,
     vision_recalc,
+    vision_reset,
 } from '../js/vision.js';
-import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
-import { freezeLiveState } from './planning-isolation-test-support.mjs';
-import { canseemon } from '..//js/display.js';
-import { coreRandom, cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { coreRandom, cloneIsaacContext, createCoreRandom, initRng } from '../js/rng.js';
 
 // C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
 // AT_NONE describe an unused slot without shortening that fixed array.
@@ -252,10 +224,6 @@ function sourceInertAttacks() {
 const DATETIME = '20260725120000';
 const REGION_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/region.c', import.meta.url),
-    'utf8',
-);
-const HACK_SOURCE = readFileSync(
-    new URL('../nethack-c/upstream/src/hack.c', import.meta.url),
     'utf8',
 );
 const DOGMOVE_SOURCE = readFileSync(
@@ -302,47 +270,6 @@ function deferred() {
     let resolve;
     const promise = new Promise((accept) => { resolve = accept; });
     return { promise, resolve };
-}
-
-function monsterSnapshot() {
-    const monsters = [];
-    for (let monster = game.level.monlist;
-        monster;
-        monster = monster.nmon) {
-        const copy = {
-            ...monster,
-            data: monster.data?.pmidx ?? null,
-            minvent: linkedObjects(monster.minvent, 'nobj'),
-        };
-        delete copy.nmon;
-        monsters.push(structuredClone(copy));
-    }
-    return monsters;
-}
-
-function preflightSnapshot() {
-    return {
-        gg: { ...game.gg },
-        monsters: monsterSnapshot(),
-        rng: rngSnapshot(),
-        hero: {
-            movement: game.u.umovement,
-            x: game.u.ux,
-            y: game.u.uy,
-        },
-    };
-}
-
-function linkedObjects(head, link) {
-    const objects = [];
-    for (let object = head; object; object = object[link]) {
-        const copy = { ...object };
-        delete copy[link];
-        delete copy.nexthere;
-        delete copy.cobj;
-        objects.push(structuredClone(copy));
-    }
-    return objects;
 }
 
 function clearCoordinateGrid(grid) {
@@ -402,22 +329,6 @@ for (const hit of [true, false]) {
         assert.ok(MONMOVE_SOURCE.includes('mstatus = mattackm(mtmp, mtmp2);'));
     });
 }
-
-test('ordinary monster combat planning suppresses messages and invisible markers', async () => {
-    const target = await prepareSelectedAction({ pmidx: PM_GIANT_RAT });
-    target.monster.mconf = true;
-    const defender = ordinaryMonster(PM_GIANT_RAT, target.destinationX,
-        target.heroY, { m_id: 9002, mhp: 100, mhpmax: 100, movement: 0 });
-    target.monster.nmon = defender;
-    game.level.monsters[defender.mx][defender.my] = defender;
-    game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-    game.viz_array[target.heroY][target.destinationX] &= ~IN_SIGHT;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const messages = [...game.nhDisplay.messages];
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.deepEqual([...game.nhDisplay.messages], messages);
-});
 
 function floorObject(x, y, id = 9101, otyp = ROCK) {
     const type = game.objects[otyp];
@@ -553,8 +464,69 @@ function observedCoreRandom(state) {
     return { draws, random };
 }
 
-function directMattackuEnv(state, random, messages, planning = false) {
-    const message = planning ? async () => {} : async text => {
+// One live movemon() scan over the level, bound the way js/allmain.js
+// moveElapsedTurnMonster() and the live arm of regionEffectEnv() bind it. It
+// covers the parts of a monster turn that runSimpleMonsterAction() does not:
+// mon.c movemon_singlemon()'s every-turn effect and liquid check, and
+// movemon()'s dmonsfree() tail. Restrap, Conflict combat and the deferred
+// level change are left out because no fixture here reaches them.
+async function runLiveMonsterScan() {
+    const regionEnv = {
+        blockPoint: (x, y) => block_point(x, y, game),
+        unblockPoint: (x, y) => unblock_point(x, y, game),
+        doesBlock: (x, y, location) => does_block(x, y, location, game),
+        canSee: (x, y) => cansee(x, y, game),
+        newsym: (x, y) => newsym(x, y),
+        message: (text) => ttyPline(text, game),
+    };
+    game.context.mon_moving = true;
+    try {
+        return await movemon({
+            state: game,
+            moveSingleMonster: (monster, env) => movemon_singlemon(monster, {
+                ...env,
+                everyTurnEffect: (subject, subjectEnv) => m_everyturn_effect(
+                    subject,
+                    {
+                        ...subjectEnv,
+                        createGasCloud: (x, y, size, damage, effectEnv) =>
+                            create_gas_cloud(x, y, size, damage, {
+                                ...effectEnv,
+                                ...regionEnv,
+                            }),
+                    },
+                ),
+                visionRecalc: vision_recalc,
+                clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
+                minLiquid: (subject, subjectEnv) => minliquid(subject, {
+                    ...subjectEnv,
+                    canSee: (x, y) => cansee(x, y, game),
+                    message: ttyPline,
+                }),
+                dowear: (subject, creation, subjectEnv) =>
+                    m_dowear(subject, creation, subjectEnv),
+                restrap: () => assert.fail('no fixture here is a hider'),
+                canSeeMonster: (subject) => canseemon(subject, game),
+                hideUnder: (subject, subjectEnv) => hideunder(subject, {
+                    ...subjectEnv,
+                    redraw: (x, y) => newsym(x, y),
+                }),
+                canSeeHero: (subject) => m_canseeu(subject, game),
+                canSeeSquare: (x, y) => cansee(x, y, game),
+                fightMonster: () => assert.fail('no fixture here has Conflict'),
+                dochugwAction: (subject, _chug, subjectEnv) =>
+                    runSimpleMonsterAction(subject, subjectEnv),
+            }),
+            clearBypasses: (env) => clear_bypasses(env),
+            deferredGoto: () => assert.fail('no fixture here changes level'),
+        });
+    } finally {
+        game.context.mon_moving = false;
+    }
+}
+
+function directMattackuEnv(state, random, messages) {
+    const message = async text => {
         messages.push(text);
     };
     const unsupported = reason => {
@@ -569,7 +541,6 @@ function directMattackuEnv(state, random, messages, planning = false) {
     return {
         state,
         random,
-        planning,
         message,
         unsupported,
         useOffensiveItem: use_offensive,
@@ -581,7 +552,7 @@ function directMattackuEnv(state, random, messages, planning = false) {
                 state: spellState,
                 random: spellEnv.random ?? random,
                 losehp: loseSpellHp,
-                encumberMessage: planning ? async () => {} : encumber_msg,
+                encumberMessage: encumber_msg,
                 monsterName: monster =>
                     capitalizedMonsterName(monster, spellState),
                 monnam: monster => mon_nam(monster, spellState, spellEnv),
@@ -663,10 +634,6 @@ test('initialized adjacent Asmodeus reaches AD_COLD through real mattacku',
         const randomStateBefore = rngSnapshot();
         const { draws, random } = observedCoreRandom(game);
         const messages = [];
-        const clone = planningState(game);
-        clone.coreCtx = cloneIsaacContext(game.coreCtx);
-        const { random: cloneRandom } = observedCoreRandom(clone);
-        const cloneActor = clone.level.monlist;
         let actionError;
         let actionResult;
         try {
@@ -740,132 +707,96 @@ test('initialized adjacent Asmodeus reaches AD_COLD through real mattacku',
         assert.ok(messages.slice(0, frostIndex).some(text =>
             /It hits!/u.test(text)),
         'the real prior claw attack must remain before AD_COLD');
-
-        const afterLive = completeSecondTurnSnapshot(game, target.replay);
-        let cloneError;
-        try {
-            await mattacku(
-                cloneActor,
-                directMattackuEnv(clone, cloneRandom, [], true),
-            );
-        } catch (error) {
-            cloneError = error;
-        }
-        assert.equal(cloneError, undefined,
-            'the real planning clone must complete the same attack arm');
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            afterLive,
-            'clone action must not change live hero, monster, RNG, queue, or output',
-        );
     });
 
 // monmove.c:538/564/499: a non-brave adjacent gremlin fears artifact light.
-// The clone shares the source decision but must never paint/read live output.
-for (const planning of [false, true]) {
-    test(`Sunsword flight forwards canonical ${planning ? 'planning' : 'live'} operations`, async () => {
-        const target = await prepareSelectedAction({ adjacentHero: true, pmidx: PM_GREMLIN });
-        game.uwep = newObject({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD, lamplit: true });
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        const live = preflightSnapshot();
-        const state = planning ? planningState(game) : game;
-        const monster = state.level.monlist;
-        const messages = [];
-        const draws = [];
-        const random = {
-            // Nonzero rn2(5) is !bravegremlin; rn2(7) selects rnd(10).
-            // Nonzero rn2(10) selects the painful-light message over speech.
-            rn2(bound) { draws.push(['rn2', bound]); return 1; },
-            rnd(bound) { draws.push(['rnd', bound]); return 9; },
-            d(number, sides) { draws.push(['d', number, sides]); return number; },
-        };
-        await runSimpleMonsterAction(monster, {
-            state, random, planning, message: async text => { messages.push(text); },
-        });
-        assert.deepEqual(draws.slice(0, 4), [['rn2', 5], ['rn2', 7], ['rnd', 10], ['rn2', 10]]);
-        assert.equal(monster.mflee, true);
-        assert.equal(monster.mfleetim, 9);
-        if (planning) {
-            assert.deepEqual(messages, []);
-            assert.deepEqual(preflightSnapshot(), live);
-        } else {
-            assert.deepEqual(messages, ['The gremlin flees from the painful light of Sunsword.']);
-        }
-        assert.ok(MONMOVE_SOURCE.includes('monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);'));
+test('Sunsword flight forwards canonical live operations', async () => {
+    const target = await prepareSelectedAction({ adjacentHero: true, pmidx: PM_GREMLIN });
+    game.uwep = newObject({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD, lamplit: true });
+    game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+    const monster = game.level.monlist;
+    const messages = [];
+    const draws = [];
+    const random = {
+        // Nonzero rn2(5) is !bravegremlin; rn2(7) selects rnd(10).
+        // Nonzero rn2(10) selects the painful-light message over speech.
+        rn2(bound) { draws.push(['rn2', bound]); return 1; },
+        rnd(bound) { draws.push(['rnd', bound]); return 9; },
+        d(number, sides) { draws.push(['d', number, sides]); return number; },
+    };
+    await runSimpleMonsterAction(monster, {
+        state: game, random, message: async text => { messages.push(text); },
     });
-}
+    assert.deepEqual(draws.slice(0, 4), [['rn2', 5], ['rn2', 7], ['rnd', 10], ['rn2', 10]]);
+    assert.equal(monster.mflee, true);
+    assert.equal(monster.mfleetim, 9);
+    assert.deepEqual(messages, ['The gremlin flees from the painful light of Sunsword.']);
+    assert.ok(MONMOVE_SOURCE.includes('monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);'));
+});
 
 test('Vrock fear creates its gas cloud through the monster action adapter', async () => {
-    for (const planning of [false, true]) {
-        const target = await prepareSelectedAction({
-            adjacentHero: true,
-            pmidx: PM_VROCK,
-        });
-        // Empty attacks keep the case on monmove.c:distfleeck() and
-        // monflee() after the cloud instead of opening combat input.
-        target.monster.data = {
-            ...target.monster.data,
-            mattk: sourceInertAttacks(),
-        };
-        const heroX = target.monsterX + 1;
-        // The C scare predicate sees this scroll under the hero; its object id
-        // is arbitrary because only otyp and coordinates select the branch.
-        installObject(target, floorObject(
-            heroX,
-            target.heroY,
-            9101,
-            SCR_SCARE_MONSTER,
-        ));
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+    const target = await prepareSelectedAction({
+        adjacentHero: true,
+        pmidx: PM_VROCK,
+    });
+    // Empty attacks keep the case on monmove.c:distfleeck() and
+    // monflee() after the cloud instead of opening combat input.
+    target.monster.data = {
+        ...target.monster.data,
+        mattk: sourceInertAttacks(),
+    };
+    const heroX = target.monsterX + 1;
+    // The C scare predicate sees this scroll under the hero; its object id
+    // is arbitrary because only otyp and coordinates select the branch.
+    installObject(target, floorObject(
+        heroX,
+        target.heroY,
+        9101,
+        SCR_SCARE_MONSTER,
+    ));
+    game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
 
-        const state = planning ? planningState(game) : game;
-        const monster = state.level.monlist;
-        const draws = [];
-        const messages = [];
-        const random = {
-            // These choices take distfleeck's non-brave, 10-turn flight path;
-            // rn2(25) then selects the source Vrock cloud-cooldown value.
-            rn2(bound) {
-                draws.push(['rn2', bound]);
-                return Math.min(1, bound - 1);
-            },
-            rnd(bound) {
-                draws.push(['rnd', bound]);
-                return 5;
-            },
-            d(number) {
-                return number;
-            },
-        };
-        await runSimpleMonsterAction(monster, {
-            state,
-            random,
-            planning,
-            message: async text => { messages.push(text); },
-        });
+    const monster = game.level.monlist;
+    const draws = [];
+    const messages = [];
+    const random = {
+        // These choices take distfleeck's non-brave, 10-turn flight path;
+        // rn2(25) then selects the source Vrock cloud-cooldown value.
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            return Math.min(1, bound - 1);
+        },
+        rnd(bound) {
+            draws.push(['rnd', bound]);
+            return 5;
+        },
+        d(number) {
+            return number;
+        },
+    };
+    await runSimpleMonsterAction(monster, {
+        state: game,
+        random,
+        message: async text => { messages.push(text); },
+    });
 
-        assert.deepEqual(draws.slice(0, 5), [
-            ['rn2', 5],
-            ['rn2', 7],
-            ['rnd', 10],
-            ['rn2', 25],
-            ['rn2', 4],
-        ]);
-        assert.equal(monster.mspec_used, 76);
-        assert.equal(monster.mflee, true);
-        const gasCloud = state.level.regions.find(region => region.arg === 8);
-        assert.ok(gasCloud, 'the source damage-8 cloud enters the level region list');
-        assert.ok(gasCloud.rects.some(rect => (
-            heroX >= rect.lx && heroX <= rect.hx
-            && target.heroY >= rect.ly && target.heroY <= rect.hy
-        )), 'the adjacent hero square is included in the cloud');
-        if (planning) {
-            assert.deepEqual(messages, []);
-        } else {
-            assert.ok(messages.some(text => /turns to flee/u.test(text)));
-            assert.ok(messages.some(text => /enveloped in a cloud of noxious gas/u.test(text)));
-        }
-    }
+    assert.deepEqual(draws.slice(0, 5), [
+        ['rn2', 5],
+        ['rn2', 7],
+        ['rnd', 10],
+        ['rn2', 25],
+        ['rn2', 4],
+    ]);
+    assert.equal(monster.mspec_used, 76);
+    assert.equal(monster.mflee, true);
+    const gasCloud = game.level.regions.find(region => region.arg === 8);
+    assert.ok(gasCloud, 'the source damage-8 cloud enters the level region list');
+    assert.ok(gasCloud.rects.some(rect => (
+        heroX >= rect.lx && heroX <= rect.hx
+        && target.heroY >= rect.ly && target.heroY <= rect.hy
+    )), 'the adjacent hero square is included in the cloud');
+    assert.ok(messages.some(text => /turns to flee/u.test(text)));
+    assert.ok(messages.some(text => /enveloped in a cloud of noxious gas/u.test(text)));
 });
 
 async function prepareStartingPetAction(pmidx) {
@@ -899,28 +830,6 @@ function installObject(target, object) {
     target.object = object;
 }
 
-// An acid blob is the defender because it is the cheapest monster whose
-// passive attack mhitm.c passivemm() refuses: its one slot is
-// ATTK(AT_NONE, AD_ACID, 1, 8) (monsters.h:137-140). `petHp` lifts the pet
-// over dogmove.c:1122's `max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp` balk,
-// which mondata.c max_passive_dmg() scores as 8 per melee attack the pet has,
-// so the pet swings instead of walking away.
-function installPetDefender(target, petHp) {
-    target.monster.mhp = petHp;
-    target.monster.mhpmax = petHp;
-    const defender = ordinaryMonster(
-        PM_ACID_BLOB,
-        target.destinationX,
-        target.heroY,
-        {
-            m_id: 9002,
-            movement: 0,
-        },
-    );
-    target.monster.nmon = defender;
-    game.level.monsters[target.destinationX][target.heroY] = defender;
-}
-
 test('complete retry snapshot includes every audited scheduler root',
     async () => {
         const target = await prepareSelectedAction();
@@ -951,7 +860,7 @@ test('complete retry snapshot includes every audited scheduler root',
         );
     });
 
-test('planned bypass cleanup clones every non-level object owner', async () => {
+test('clear_bypasses clears every non-level object owner', async () => {
     await prepareSelectedAction();
     const migrating = floorObject(4, 4, 9301);
     migrating.where = OBJ_MIGRATING;
@@ -976,27 +885,13 @@ test('planned bypass cleanup clones every non-level object owner', async () => {
     game.u.uchain = chain;
     game.context.bypasses = true;
 
-    const planned = planningState(game);
-    assert.notStrictEqual(planned.gm.migrating_objs, migrating);
-    assert.notStrictEqual(planned.go.objs_deleted, deleted);
-    assert.notStrictEqual(planned.gm.mydogs, dog);
-    assert.notStrictEqual(planned.gm.mydogs.minvent, dog.minvent);
-    assert.notStrictEqual(planned.uball, ball);
-    assert.notStrictEqual(planned.uchain, chain);
-
-    clear_bypasses(planned);
-    assert.equal(planned.gm.migrating_objs.bypass, false);
-    assert.equal(planned.go.objs_deleted.bypass, false);
-    assert.equal(planned.gm.mydogs.minvent.bypass, false);
-    assert.equal(planned.uball.bypass, false);
-    assert.equal(planned.uchain.bypass, false);
-    assert.equal(planned.context.bypasses, false);
-    assert.equal(migrating.bypass, true);
-    assert.equal(deleted.bypass, true);
-    assert.equal(dog.minvent.bypass, true);
-    assert.equal(ball.bypass, true);
-    assert.equal(chain.bypass, true);
-    assert.equal(game.context.bypasses, true);
+    clear_bypasses(game);
+    assert.equal(migrating.bypass, false);
+    assert.equal(deleted.bypass, false);
+    assert.equal(dog.minvent.bypass, false);
+    assert.equal(ball.bypass, false);
+    assert.equal(chain.bypass, false);
+    assert.equal(game.context.bypasses, false);
 });
 
 test('complete retry snapshot detects each deferred output owner',
@@ -1052,10 +947,8 @@ test('complete retry snapshot detects each deferred output owner',
                     state.gw.wc += 1;
                 },
             },
-            // The five owners below are the globals planningState() clones.
-            // Without them the snapshot cannot see a planned round that left
-            // a timer, a light source, or a birth count behind, which is
-            // exactly what the stop tests use it to prove.
+            // Without the five owners below the snapshot cannot see a monster
+            // turn that left a timer, a light source, or a birth count behind.
             {
                 name: 'timer queue',
                 mutate: ({ state }) => {
@@ -1156,193 +1049,11 @@ test('complete retry snapshot detects each deferred output owner',
         }
     });
 
-test('multi-round planning isolates every monster-generation global',
-    async () => {
-        const target = await prepareSelectedAction();
-        const tailMonster = ordinaryMonster(
-            PM_GNOME,
-            target.monsterX,
-            target.heroY + 1,
-            {
-                m_id: target.monster.m_id + 1,
-                movement: 0,
-            },
-        );
-        game.level.at(tailMonster.mx, tailMonster.my).typ = ROOM;
-        target.monster.nmon = tailMonster;
-        game.level.monsters[tailMonster.mx][tailMonster.my] = tailMonster;
-        const lightObject = { o_id: 9801 };
-        const tailLight = {
-            flags: 0,
-            id: tailMonster,
-            next: null,
-            range: 1,
-            type: 1,
-            x: tailMonster.mx,
-            y: tailMonster.my,
-        };
-        const objectLight = {
-            flags: 0,
-            id: lightObject,
-            next: tailLight,
-            range: 1,
-            type: 0,
-            x: 4,
-            y: 5,
-        };
-        const liveLight = {
-            flags: 0,
-            id: target.monster,
-            next: objectLight,
-            range: 1,
-            type: 1,
-            x: target.monster.mx,
-            y: target.monster.my,
-        };
-        game.gl.light_base = liveLight;
-        const liveVitals = structuredClone(game.mvitals);
-        const liveFlags = structuredClone(game.flags);
-        let reachedRound = false;
-
-        // js/gstate.js makes `game` throw while planning; compare with the live
-        // object captured here.
-        const live = game;
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                reachedRound = true;
-                assert.notStrictEqual(planned.mvitals, live.mvitals);
-                assert.strictEqual(planned.svm.mvitals, planned.mvitals);
-                assert.notStrictEqual(planned.flags, live.flags);
-                assert.notStrictEqual(planned.gl, live.gl);
-                const plannedHead = planned.gl.light_base;
-                const plannedObject = plannedHead.next;
-                const plannedTail = plannedObject.next;
-                assert.notStrictEqual(plannedHead, liveLight);
-                assert.notStrictEqual(plannedObject, objectLight);
-                assert.notStrictEqual(plannedTail, tailLight);
-                assert.strictEqual(
-                    plannedHead.id,
-                    planned.level.monlist,
-                );
-                assert.strictEqual(plannedObject.id, lightObject);
-                assert.strictEqual(
-                    plannedTail.id,
-                    planned.level.monlist.nmon,
-                );
-                assert.strictEqual(plannedTail.next, null);
-                plannedObject.range = 99;
-                plannedTail.x = 77;
-                planned.mvitals[PM_GNOME].born =
-                    (planned.mvitals[PM_GNOME].born ?? 0) + 1;
-                planned.flags.made_fruit = !planned.flags.made_fruit;
-                planned.gl.light_base = {
-                    flags: 0,
-                    id: planned.level.monlist,
-                    next: planned.gl.light_base,
-                    range: 1,
-                    type: 1,
-                    x: 1,
-                    y: 1,
-                };
-                return true;
-            },
-        });
-
-        assert.equal(reachedRound, true);
-        assert.deepEqual(game.mvitals, liveVitals);
-        assert.strictEqual(game.svm.mvitals, game.mvitals);
-        assert.deepEqual(game.flags, liveFlags);
-        assert.strictEqual(game.gl.light_base, liveLight);
-        assert.strictEqual(game.gl.light_base.id, target.monster);
-        assert.strictEqual(game.gl.light_base.next, objectLight);
-        assert.equal(objectLight.range, 1);
-        assert.strictEqual(objectLight.next, tailLight);
-        assert.equal(tailLight.x, tailMonster.mx);
-        assert.strictEqual(tailLight.id, tailMonster);
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    planned.mvitals[PM_GNOME].born =
-                        (planned.mvitals[PM_GNOME].born ?? 0) + 1;
-                    planned.flags.made_fruit = true;
-                    planned.gl.light_base = null;
-                    throw new UnsupportedSimpleMonsterActionError(
-                        'a later planned generation result',
-                    );
-                },
-            }),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a later planned generation result'
-            ),
-        );
-        assert.deepEqual(game.mvitals, liveVitals);
-        assert.deepEqual(game.flags, liveFlags);
-        assert.strictEqual(game.gl.light_base, liveLight);
-    });
-
-test('a planned hallucinated hit keeps the live display RNG unchanged',
-    async () => {
-        const target = await prepareSelectedAction({ adjacentHero: true });
-        game.viz_array[target.heroY][target.monsterX] |=
-            COULD_SEE | IN_SIGHT;
-        // mhitu.c hitmu() tests `tmp > rnd(20)`. Thirty makes the staged
-        // adjacent attack hit for every roll and reach hitmsg().
-        target.monster.m_lev = 30;
-        // hitmsg() names a visible hallucinated monster through Monnam(),
-        // which consumes rnd.c's display RNG. Planning must use the cloned
-        // display context because C performs only the later live scan.
-        game.u.uprops[HALLUC].intrinsic = 1;
-        const displayBefore = structuredClone(game.displayCtx);
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(game.displayCtx, displayBefore);
-    });
-
-test('planningState gives hero monster form changes their own owner',
-    async () => {
-    await prepareSelectedAction({ adjacentHero: true });
-    const liveForm = game.youmonst.data;
-    // Range 1 is the light.c minimum and makes the source owner, rather than
-    // its radius, the behavior under test.
-    new_light_source(game.u.ux, game.u.uy, 1, LS_MONSTER, game.youmonst, game);
-    const planned = planningState(game);
-
-    assert.notStrictEqual(planned.youmonst, game.youmonst);
-    assert.strictEqual(planned.gl.light_base.id, planned.youmonst);
-    assert.strictEqual(game.gl.light_base.id, game.youmonst);
-    planned.youmonst.data = game.mons[PM_CHAMELEON];
-    planned.youmonst.mcan = 1;
-
-    assert.equal(game.youmonst.data, liveForm);
-    assert.notEqual(game.youmonst.mcan, 1);
-});
-
-test('planningState gives botl.c gu.update_all its own owner', async () => {
-    await prepareSelectedAction({ adjacentHero: true });
-    // A settled game has no full status resend pending; false is the value
-    // bot() leaves behind.
-    game.gu = { update_all: false };
-    const planned = planningState(game);
-
-    // were.c set_ulycn() is how a planned lycanthrope bite reaches
-    // polyself.c set_uasmon() and botl.c status_initialize(REASSESS_ONLY),
-    // which raises gu.update_all. PM_WERERAT is the infecting form.
-    set_ulycn(PM_WERERAT, planned);
-
-    assert.equal(planned.gu.update_all, true);
-    assert.equal(game.gu.update_all, false);
-});
-
-test('planned cancellation routes chameleon redraws through its injected seam',
+test('cancellation routes chameleon redraws through its injected seam',
     async () => {
     const target = await prepareSelectedAction({ pmidx: PM_GNOME });
     target.monster.cham = PM_CHAMELEON;
-    const liveForm = target.monster.data;
-    const planned = planningState(game);
-    const clone = planned.level.monlist;
+    const monster = target.monster;
     const redraws = [];
     const random = {
         rn2: (bound) => bound - 1,
@@ -1355,31 +1066,28 @@ test('planned cancellation routes chameleon redraws through its injected seam',
     };
 
     assert.equal(await cancel_monst(
-        clone,
+        monster,
         null,
         true,
         false,
         false,
-        planned,
+        game,
         {
-            planning: true,
             random,
             message: async () => {},
             redraw: (x, y) => { redraws.push([x, y]); },
         },
     ), true);
 
-    assert.equal(clone.cham, NON_PM);
-    assert.equal(clone.data, planned.mons[PM_CHAMELEON]);
+    assert.equal(monster.cham, NON_PM);
+    assert.equal(monster.data, game.mons[PM_CHAMELEON]);
     assert.deepEqual(redraws, [
-        [clone.mx, clone.my], // newcham() redraws the changed form.
-        [clone.mx, clone.my], // normal_shape() redraws after clearing cham.
+        [monster.mx, monster.my], // newcham() redraws the changed form.
+        [monster.mx, monster.my], // normal_shape() redraws after clearing cham.
     ]);
-    assert.equal(target.monster.data, liveForm);
-    assert.equal(target.monster.cham, PM_CHAMELEON);
 });
 
-test('planned normal_shape routes mimic redraw through its injected seam',
+test('normal_shape routes mimic redraw through its injected seam',
     async () => {
     const target = await prepareSelectedAction({ pmidx: PM_GNOME });
     target.monster.cham = NON_PM;
@@ -1387,234 +1095,24 @@ test('planned normal_shape routes mimic redraw through its injected seam',
     // A wax candle is a valid object appearance; its identity is immaterial
     // because seemimic() clears the disguise before the redraw.
     target.monster.mappearance = WAX_CANDLE;
-    const planned = planningState(game);
-    const clone = planned.level.monlist;
+    const monster = target.monster;
     const redraws = [];
 
-    await normal_shape(clone, planned, {
-        planning: true,
+    await normal_shape(monster, game, {
         redraw: (x, y) => { redraws.push([x, y]); },
     });
 
-    assert.equal(clone.m_ap_type, 0);
-    assert.equal(clone.mappearance, 0);
-    assert.equal(clone.msleeping, 1);
-    assert.deepEqual(redraws, [[clone.mx, clone.my]]);
-    assert.equal(target.monster.m_ap_type, M_AP_OBJECT);
-    assert.equal(target.monster.mappearance, WAX_CANDLE);
+    assert.equal(monster.m_ap_type, 0);
+    assert.equal(monster.mappearance, 0);
+    assert.equal(monster.msleeping, 1);
+    assert.deepEqual(redraws, [[monster.mx, monster.my]]);
 });
 
-test('planned Stormbringer monster action reports its attacker at fatal drain',
-    async () => {
-    const target = await prepareSelectedAction({
-        adjacentHero: true,
-        pmidx: PM_GNOME,
-    });
-    const attacks = sourceInertAttacks();
-    attacks[0] = { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 1 };
-    target.monster.data = { ...target.monster.data, mattk: attacks };
-    target.monster.m_lev = 30;
-    const weapon = newObject({
-        ...monsterObject(RUNESWORD, 9212),
-        oartifact: ART_STORMBRINGER,
-        owornmask: W_WEP,
-    });
-    weapon.ocarry = target.monster;
-    target.monster.minvent = weapon;
-    target.monster.mw = weapon;
-    game.artiexist[ART_STORMBRINGER].exists = 1;
-    game.u.ulevel = 1;
-    game.u.uexp = 123;
-    game.u.uprops[DRAIN_RES].intrinsic = 0;
-    game.u.uprops[DRAIN_RES].extrinsic = 0;
-    game.u.uprops[DRAIN_RES].blocked = 0;
-    const planned = planningState(game);
-    const random = {
-        rn2: () => 1,
-        rnd: () => 1,
-        d: (number) => number,
-        rn1: (_range, base) => base,
-        rne: () => 1,
-        rnl: () => 1,
-        rnz: (value) => value,
-    };
-
-    const caught = await runSimpleMonsterAction(planned.level.monlist, {
-        state: planned,
-        planning: true,
-        random,
-    }).then(() => null, (error) => error);
-
-    assert.ok(caught instanceof MonsterDeathPlanningError,
-        caught?.stack ?? String(caught));
-    assert.equal(caught.monsterId, target.monster.m_id);
-    assert.equal(game.u.ulevel, 1);
-    assert.equal(game.u.uexp, 123);
-});
-
-test('planned lethal poison stops before polymorph rehumanization',
-    async () => {
-        // hack.c losehp():4268-4274 subtracts u.mh before rehumanize(). A
-        // monster-turn planning clone must stop at that same lethal boundary;
-        // rehumanize() can call done() for an Unchanging form, whose terminal
-        // query belongs to the live replay and must not consume its input.
-        const target = await prepareSelectedAction({ adjacentHero: true });
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        const moccasin = game.mons[PM_WATER_MOCCASIN];
-        target.monster.data = {
-            ...moccasin,
-            // Keep hitmu() from entering mhitu.c mdamageu(), whose separate
-            // polymorphed-hero arm is outside this fixture. The AD_DRST arm
-            // still reaches the production monsterMissileEnv poisoned seam.
-            mattk: moccasin.mattk.map((attack, index) => index === 0
-                ? { ...attack, damn: 0, damd: 0 } : attack),
-        };
-        target.monster.mnum = PM_WATER_MOCCASIN;
-        target.monster.m_lev = 5;
-        game.u.umonnum = PM_GRID_BUG;
-        game.u.umonster = PM_HUMAN;
-        game.u.mh = 1;
-        game.u.mhmax = 1;
-        game.youmonst.data = game.mons[PM_GRID_BUG];
-        game.u.uprops[UNCHANGING] = {
-            intrinsic: 1,
-            extrinsic: 0,
-            blocked: 0,
-        };
-        // Keep the magic-negation inventory arm out of this fixture. The
-        // source poison path then reaches the planning death boundary with
-        // the same attack draws as the live turn.
-        game.invent = null;
-        game.u.uprops[POISON_RES] = {
-            intrinsic: 0,
-            extrinsic: 0,
-            blocked: 0,
-        };
-        const planned = planningState(game);
-        const inputBefore = game.nhDisplay.inputQueueLength;
-        const draws = [];
-        const random = {
-            rn2: (bound) => {
-                draws.push(`rn2(${bound})`);
-                return bound === 8 ? 0 : bound === 10 ? 9
-                    : bound === 30 ? 6 : 1;
-            },
-            rnd: (bound) => { draws.push(`rnd(${bound})`); return 1; },
-            d: (n, sides) => {
-                draws.push(`d(${n},${sides})`);
-                return n;
-            },
-            rn1: (_n, base) => { draws.push(`rn1(${base})`); return base; },
-            rne: (bound) => { draws.push(`rne(${bound})`); return 1; },
-            rnl: (bound) => { draws.push(`rnl(${bound})`); return 1; },
-            rnz: (bound) => { draws.push(`rnz(${bound})`); return bound; },
-        };
-
-        let thrown;
-        try {
-            await runSimpleMonsterAction(planned.level.monlist, {
-                state: planned,
-                planning: true,
-                random,
-            });
-        } catch (error) {
-            thrown = error;
-        }
-        assert.ok(thrown instanceof MonsterDeathPlanningError);
-        assert.equal(thrown.monsterId, target.monster.m_id);
-        assert.deepEqual(draws, [
-            'rn2(5)', 'rnd(20)', 'd(0,0)', 'rn2(10)', 'rn2(8)',
-            'rn2(30)', 'rn1(6)',
-        ]);
-        assert.equal(planned.u.mh, -5);
-        assert.equal(game.u.mh, 1);
-        assert.equal(game.program_state.gameover ?? false, false);
-        assert.equal(game.nhDisplay.inputQueueLength, inputBefore);
-    });
-
-test('planned region death hands off to both live elapsed continuations',
-    async () => {
-        assert.match(
-            HACK_SOURCE,
-            /u\.uhp -= n;[\s\S]*?svk\.killer\.format = k_format;[\s\S]*?urgent_pline\("You die\.\.\."\);[\s\S]*?done\(DIED\)/,
-        );
-        // This fixed independent seed and date supply reproducible production
-        // planning state without reusing a recorded session.
-        const replay = await runSegment({
-            seed: 34019027,
-            datetime: '20430212143307',
-            nethackrc: 'OPTIONS=name:RegionHandoff,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.u.umovement = 0;
-        // One HP and a two-point hit enter losehp's ordinary lethal branch;
-        // the stale killer record proves preflight writes only its copy.
-        game.u.uhp = 1;
-        game.u.uhpmax = 10;
-        game.killer = { name: 'old cause', format: KILLED_BY_AN };
-        game.iflags.showdamage = false;
-        const queueLength = game.nhDisplay.inputQueueLength;
-        const topline = game._ttyToplines;
-        const randomBefore = rngSnapshot();
-        const rngLogLengthBefore = replay.getRngLog().length;
-
-        const simplePlan = await preflightSimpleMonsterActions(game, {
-            // Skipping ration consumption isolates the supplied round callback.
-            consumeHeroRation: false,
-            advanceRound: async (planned) => {
-                await losehp(2, 'gas cloud', KILLED_BY_AN, planned, {
-                    planning: true,
-                });
-            },
-        });
-        assert.deepEqual(simplePlan.heroDeath, {
-            monsterId: null,
-            how: DIED,
-            killerName: 'gas cloud',
-            killerFormat: KILLED_BY_AN,
-            fromMonster: false,
-        });
-
-        const tailPlan = await preflightElapsedTurnTail(
-            game,
-            async (planned) => losehp(
-                2,
-                'gas cloud',
-                KILLED_BY_AN,
-                planned,
-                { planning: true },
-            ),
-        );
-        assert.deepEqual(tailPlan.heroDeath, {
-            how: DIED,
-            killerName: 'gas cloud',
-            killerFormat: KILLED_BY_AN,
-            fromMonster: false,
-        });
-        assert.equal(game.u.uhp, 1);
-        assert.deepEqual(game.killer, {
-            name: 'old cause',
-            format: KILLED_BY_AN,
-        });
-        assert.equal(game.nhDisplay.inputQueueLength, queueLength);
-        assert.equal(game._ttyToplines, topline);
-        assert.deepEqual(rngSnapshot(), randomBefore);
-        assert.equal(game.program_state.gameover ?? false, false);
-        assert.equal(replay.getRngLog().length, rngLogLengthBefore);
-    });
-
-test('a planned hallucinated pickup uses only the cloned display RNG',
+test('a hallucinated pickup names the monster through the display RNG',
     async () => {
         // mon.c mpickstuff():1893-1901 calls Monnam() only inside the visible,
         // verbose message arm. Under Hallucination, do_name.c x_monnam()
         // replaces the species through rndmonnam(), consuming the display RNG.
-        // The JavaScript preflight repeats this monster turn on a clone before
-        // the live pass, so its Monnam() draw must use that clone's display
-        // context rather than advancing the one C reaches only once.
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
         installObject(target, floorObject(
             target.destinationX,
@@ -1625,14 +1123,8 @@ test('a planned hallucinated pickup uses only the cloned display RNG',
         game.viz_array[target.heroY][target.destinationX] |=
             COULD_SEE | IN_SIGHT;
         game.u.uprops[HALLUC].intrinsic = 1;
-        const displayBefore = structuredClone(game.displayCtx);
 
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(game.displayCtx, displayBefore);
-
-        // Prove that the planned path above really reached the naming arm:
-        // replaying it live prints the pickup and spends the display draw.
+        // The live pass prints the pickup and spends the display draw.
         const messages = [];
         let displayDraws = 0;
         await runSimpleMonsterAction(target.monster, {
@@ -1659,199 +1151,7 @@ test('a planned hallucinated pickup uses only the cloned display RNG',
         assert.equal(displayDraws, 11);
     });
 
-// mon.c movemon() sets vision_full_recalc whenever a light source is present,
-// and movemon_singlemon() rebuilds viz_array for the next ration-spending
-// monster. The scan after an allocation crosses that same tail, so this case
-// takes the source-ordered second scan and checks every vision owner that the
-// planning clone must isolate from the live game.
-test('a scan after a planned allocation isolates the light-source rebuild',
-    async () => {
-        const target = await prepareSelectedAction();
-        game.gl.light_base = {
-            flags: 0,
-            id: target.monster,
-            next: null,
-            // light.c do_light_sources() walks every square in this radius;
-            // one is the smallest nonzero range that exercises that loop.
-            range: 1,
-            type: LS_MONSTER,
-            x: target.monsterX,
-            y: target.heroY,
-        };
-        game.u.umovement = 0;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const vision = visionSnapshot();
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        let rounds = 0;
-        let planned = null;
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(state) {
-                planned = state;
-                // The second allocation ends the fixture after the rebuilt
-                // scan. The first grants one normal movement ration so the
-                // next movemon_singlemon() consumes vision_full_recalc.
-                if (++rounds > 1) return true;
-                for (let monster = state.level.monlist;
-                    monster;
-                    monster = monster.nmon) {
-                    monster.movement = NORMAL_SPEED;
-                }
-                return false;
-            },
-        });
-        assert.equal(rounds, 2);
-        assert.ok(planned?._visionBuffers);
-        assert.strictEqual(
-            planned.viz_array,
-            planned._visionBuffers.rows[planned.active_buf],
-        );
-        assert.notStrictEqual(planned.level.locations, game.level.locations);
-        assert.notStrictEqual(
-            planned.level.at(target.monsterX, target.heroY),
-            game.level.at(target.monsterX, target.heroY),
-        );
-        assert.notStrictEqual(planned.gl.light_base, game.gl.light_base);
-        assert.notStrictEqual(planned.gl.light_base.id, target.monster);
-        assert.equal(planned.gl.light_base.id, planned.level.monlist);
-        assert.notEqual(planned.gl.light_base.flags, 0);
-        guard.assertNoLeak(assert);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual(visionSnapshot(), vision);
-    });
-
-test('fog upkeep is planned atomically before the movement-ration gate',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-        target.monster.movement = 0;
-        game.level.regions = [];
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-
-        // mon.c runs m_everyturn_effect() before its movement-ration test.
-        // Planning creates the one-square vapor on the cloned level and spends
-        // its cloned TTL draw, then discards both while restoring the shared
-        // vision index. Repeating the plan must leave the live turn retryable.
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `attempt ${attempt}`,
-            );
-            assert.deepEqual(rngSnapshot(), beforeRandom);
-            assert.deepEqual(game.level.regions, []);
-        }
-    });
-
-test('planned fog leaves its cloned vapor without changing live state',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-        target.monster.movement = NORMAL_SPEED;
-        game.u.umovement = 0;
-        recalc_block_point(target.monsterX, target.heroY, game);
-        const pathBefore = clear_path(
-            target.monsterX - 1,
-            target.heroY,
-            target.monsterX + 1,
-            target.heroY,
-        );
-        assert.equal(pathBefore, 1);
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-        let planned = null;
-
-        // m_everyturn_effect() first creates one harmless vapor square around
-        // the fog. m_move() then leaves it through m_in_out_region(), which
-        // removes the cached ID before relocation. The next allocation hook
-        // exposes the discarded clone after both writes.
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(state) {
-                planned = state;
-                return true;
-            },
-        });
-        const plannedFog = planned?.level.monlist;
-        assert.deepEqual(
-            [plannedFog?.mx, plannedFog?.my],
-            [target.destinationX, target.heroY],
-        );
-        assert.equal(planned.level.regions.length, 1);
-        assert.deepEqual(planned.level.regions[0].monsters, []);
-        assert.deepEqual(planned.level.regions[0].bounding_box, {
-            lx: target.monsterX,
-            ly: target.heroY,
-            hx: target.monsterX,
-            hy: target.heroY,
-        });
-        assert.deepEqual(planned.level.regions[0].rects, [{
-            lx: target.monsterX,
-            ly: target.heroY,
-            hx: target.monsterX,
-            hy: target.heroY,
-        }]);
-        assert.equal(planned.level.regions[0].ttl, 5);
-        assert.equal(planned.level.regions[0].visible, true);
-        assert.equal(planned.level.regions[0].expire_f, 'expire_gas_cloud');
-        assert.equal(planned.level.regions[0].inside_f, 'inside_gas_cloud');
-        assert.equal(planned.level.regions[0].arg, 0);
-        assert.equal(planned.level.regions[0].attach_2_u, false);
-        assert.equal(planned.level.regions[0].attach_2_m, 0);
-        assert.equal(planned.level.regions[0].can_enter_f, null);
-        assert.equal(planned.level.regions[0].enter_f, null);
-        assert.equal(planned.level.regions[0].can_leave_f, null);
-        assert.equal(planned.level.regions[0].leave_f, null);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual(rngSnapshot(), beforeRandom);
-        assert.deepEqual(game.level.regions, []);
-        assert.equal(clear_path(
-            target.monsterX - 1,
-            target.heroY,
-            target.monsterX + 1,
-            target.heroY,
-        ), pathBefore);
-    });
-
-test('a planned ranged announcement discards a fog-region leave', async () => {
-    const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-    target.monster.movement = NORMAL_SPEED;
-    // Preserve fog identity for m_everyturn_effect(), but borrow the gnome's
-    // weapon attack so dochug() reaches its already-named post-move refusal.
-    target.monster.data = {
-        ...game.mons[PM_GNOME],
-        pmidx: PM_FOG_CLOUD,
-    };
-    // The real object union keeps ocarry and v aliased for clone remapping.
-    const dagger = newObject(monsterObject(DAGGER));
-    dagger.owornmask = W_WEP;
-    target.monster.minvent = dagger;
-    dagger.ocarry = target.monster;
-    target.monster.mw = dagger;
-    target.monster.weapon_check = NEED_WEAPON;
-    // The sentinel proves that monshoot() writes only the planning clone's
-    // m_shot record before the injected missile-flight refusal.
-    const liveShot = { marker: 'live m_shot sentinel' };
-    game.m_shot = liveShot;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const beforeRandom = rngSnapshot();
-
-    await preflightSimpleMonsterActions(game);
-
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-    assert.deepEqual(game.level.regions, []);
-    assert.equal(game.m_shot, liveShot);
-    assert.deepEqual(game.m_shot, { marker: 'live m_shot sentinel' });
-});
-
-test('a ranged attacker preflights and then spends its turn wielding a bow',
+test('a ranged attacker spends its turn wielding a bow',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
         const arrow = monsterObject(ARROW);
@@ -1870,15 +1170,6 @@ test('a ranged attacker preflights and then spends its turn wielding a bow',
         game._pending_message = '';
         game.nhDisplay.toplines = '';
         game.nhDisplay.toplin = 0;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual(rngSnapshot(), beforeRandom);
         assert.equal(target.monster.mw, null);
         assert.equal(bow.owornmask ?? 0, 0);
 
@@ -1912,14 +1203,6 @@ test('a ranged attacker replaces a non-welded current weapon before flight',
         game.nhDisplay.toplines = '';
         game.nhDisplay.toplin = 0;
 
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual(rngSnapshot(), beforeRandom);
         assert.equal(target.monster.mw, dagger);
         assert.equal(dagger.owornmask, W_WEP);
         assert.equal(bow.owornmask ?? 0, 0);
@@ -1935,43 +1218,61 @@ test('a ranged attacker replaces a non-welded current weapon before flight',
         );
     });
 
-test('a ranged attacker preflights a welded switch without mutating live state',
+test('live fog leaves its vapor behind after one monster scan',
     async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-        const arrow = monsterObject(ARROW, 9211);
-        const bow = monsterObject(BOW, 9212);
-        const dagger = monsterObject(DAGGER, 9213);
-        dagger.cursed = true;
-        dagger.owornmask = W_WEP;
-        // The C object union stores minvent ownership in v/ocarry. This plain
-        // fixture object does not install newObject()'s ocarry alias, so set
-        // the underlying C owner field that the planning clone remaps.
-        dagger.v = target.monster;
-        arrow.nobj = bow;
-        bow.nobj = dagger;
-        target.monster.minvent = arrow;
-        target.monster.mw = dagger;
-        target.monster.weapon_check = NEED_WEAPON;
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        target.monster.movement = NORMAL_SPEED;
+        game.u.umovement = 0;
+        recalc_block_point(target.monsterX, target.heroY, game);
+        assert.equal(clear_path(
+            target.monsterX - 1,
+            target.heroY,
+            target.monsterX + 1,
+            target.heroY,
+        ), 1);
+        // The vapor and the fog's leaving it may print or repaint; these
+        // acknowledgements answer any --More-- the turn raises.
+        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await preflightSimpleMonsterActions(game);
+        // m_everyturn_effect() first creates one harmless vapor square around
+        // the fog. m_move() then leaves it through m_in_out_region(), which
+        // removes the cached ID before relocation.
+        await runLiveMonsterScan();
+
+        const fog = game.level.monlist;
         assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
+            [fog?.mx, fog?.my],
+            [target.destinationX, target.heroY],
         );
-        assert.deepEqual(rngSnapshot(), beforeRandom);
-        assert.equal(target.monster.mw, dagger);
-        assert.equal(dagger.owornmask, W_WEP);
-
-        // The recorded v17 range exercises the live refusal message; this
-        // fixture pins only that planning admits the branch without changing
-        // the live weapon or its curse knowledge.
+        assert.equal(game.level.regions.length, 1);
+        const vapor = game.level.regions[0];
+        assert.deepEqual(vapor.monsters, []);
+        assert.deepEqual(vapor.bounding_box, {
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        });
+        assert.deepEqual(vapor.rects, [{
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        }]);
+        assert.equal(vapor.ttl, 5);
+        assert.equal(vapor.visible, true);
+        assert.equal(vapor.expire_f, 'expire_gas_cloud');
+        assert.equal(vapor.inside_f, 'inside_gas_cloud');
+        assert.equal(vapor.arg, 0);
+        assert.equal(vapor.attach_2_u, false);
+        assert.equal(vapor.attach_2_m, 0);
+        assert.equal(vapor.can_enter_f, null);
+        assert.equal(vapor.enter_f, null);
+        assert.equal(vapor.can_leave_f, null);
+        assert.equal(vapor.leave_f, null);
     });
 
-test('fog-region transition callbacks remain fail-closed and inert',
+test('fog-region transition callbacks remain fail-closed',
     async () => {
         for (const [field, kind] of [
             ['can_enter_f', 'numeric'],
@@ -2005,11 +1306,10 @@ test('fog-region transition callbacks remain fail-closed and inert',
             game.level.regions = [vapor];
             const membersBefore = [...vapor.monsters];
             const positionBefore = [target.monster.mx, target.monster.my];
-            const randomBefore = rngSnapshot();
             const messagesBefore = [...game.nhDisplay.messages];
 
             await assert.rejects(
-                preflightSimpleMonsterActions(game),
+                runSimpleMonsterAction(target.monster, { state: game }),
                 (error) => error instanceof UnsupportedSimpleMonsterActionError
                     && error.reason === 'a region transition',
                 field,
@@ -2021,7 +1321,6 @@ test('fog-region transition callbacks remain fail-closed and inert',
                 positionBefore,
                 field,
             );
-            assert.deepEqual(rngSnapshot(), randomBefore, field);
             assert.deepEqual(game.nhDisplay.messages, messagesBefore, field);
         }
     });
@@ -2071,14 +1370,6 @@ test('callback-free harmless gas transitions follow region.c for entries and exi
                 leave_f: -1,
             });
             game.level.regions = [vapor];
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                enters ? 'entry planning is atomic' : 'exit planning is atomic',
-            );
 
             await runSimpleMonsterAction(target.monster, { state: game });
             assert.deepEqual(
@@ -2110,16 +1401,6 @@ test('Hezrou postmove gas creates a region at its pre-move square', async () => 
         visible: true,
     });
     game.level.regions = [vapor];
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    // The planning clone must execute monmove.c:m_postmove_effect()'s
-    // create_gas_cloud call with clone-safe vision hooks, then discard it.
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-        'postmove gas planning leaves live turn state untouched',
-    );
 
     await runSimpleMonsterAction(target.monster, { state: game });
     const stench = game.level.regions.find((region) => region.arg === 8
@@ -2131,75 +1412,6 @@ test('Hezrou postmove gas creates a region at its pre-move square', async () => 
         'add_region caches the monster present at cloud creation',
     );
 });
-
-test('fog movement admits callback-free harmful gas transitions', async () => {
-    for (const enters of [true, false]) {
-        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-        target.monster.movement = NORMAL_SPEED;
-        const vapor = create_region([{
-            lx: enters ? target.destinationX : target.monsterX,
-            ly: target.heroY,
-            hx: enters ? target.destinationX : target.monsterX,
-            hy: target.heroY,
-        }]);
-        Object.assign(vapor, {
-            // inside_gas_cloud() runs during region upkeep; m_in_out_region()
-            // only changes membership because all four transition callbacks
-            // are unset.
-            arg: 1,
-            inside_f: 'inside_gas_cloud',
-            monsters: enters ? [] : [target.monster.m_id],
-            visible: true,
-        });
-        game.level.regions = [vapor];
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            enters ? 'entry' : 'exit',
-        );
-    }
-});
-
-test('planned fog upkeep skips closed doors and existing visible regions',
-    async () => {
-        for (const setup of [
-            (target) => {
-                const square = game.level.at(target.monsterX, target.heroY);
-                square.typ = DOOR;
-                square.flags = D_CLOSED;
-            },
-            (target) => {
-                game.level.regions = [Object.assign(
-                    create_region([{
-                        lx: target.monsterX,
-                        ly: target.heroY,
-                        hx: target.monsterX,
-                        hy: target.heroY,
-                    }]),
-                    { visible: true },
-                )];
-            },
-        ]) {
-            const target = await prepareSelectedAction({
-                pmidx: PM_FOG_CLOUD,
-            });
-            target.monster.movement = 0;
-            setup(target);
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            const beforeRandom = rngSnapshot();
-
-            await preflightSimpleMonsterActions(game);
-
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-            );
-            assert.deepEqual(rngSnapshot(), beforeRandom);
-        }
-    });
 
 test('minliquid preserves source ordering for lava survivors', async () => {
     const target = await prepareSelectedAction();
@@ -2239,23 +1451,12 @@ test('a live lava survivor relocates through rloc() without a caller seam',
     async () => {
         // mon.c minliquid_core() calls teleport.c rloc() directly; dothrow.c
         // mhurtle() is a live caller that supplies no relocation of its own.
-        // A planning clone still has to bring a silent one.
         const target = await prepareSelectedAction();
         game.level.at(target.monsterX, target.heroY).typ = LAVAPOOL;
         target.monster.mintrinsics = 1 << (FIRE_RES - 1);
         target.monster.mhp = 2;
         game.context.mon_moving = true;
         try {
-            await assert.rejects(
-                () => minliquid(target.monster, {
-                    state: game,
-                    planning: true,
-                    canSee: () => false,
-                    fireDamageChain: () => {},
-                }),
-                /monster liquid effects require relocateMonster/u,
-            );
-            target.monster.mhp = 2;
             const result = await minliquid(target.monster, {
                 state: game,
                 canSee: () => false,
@@ -2558,47 +1759,32 @@ test('hideunder reports a visible monster hiding under an object', async () => {
 });
 
 // C ref: monmove.c:733-734. An awake monster calls wipe_engr_at() before
-// movement. The planning clone must reproduce the erosion so later source
-// branches see the same engraving, while keeping the live engraving untouched
-// until the real monster pass.
-test('simple preflight erodes a current-square dust engraving on the clone',
+// movement, so later source branches see the eroded engraving.
+test('simple monster action erodes a current-square dust engraving',
     async () => {
         const target = await prepareSelectedAction();
         installCurrentSquareEngraving(target);
         const originalText = game.head_engr.engr_txt[0];
-        let plannedText = null;
 
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                plannedText = planned.head_engr?.engr_txt[0] ?? null;
-                return true;
-            },
-        });
+        await runSimpleMonsterAction(target.monster, { state: game });
 
-        assert.notEqual(plannedText, originalText);
-        assert.equal(game.head_engr.engr_txt[0], originalText);
+        assert.notEqual(game.head_engr?.engr_txt[0] ?? null, originalText);
     });
 
-// C ref: mon.c minliquid_core():987-1009. The source-specific liquid arms
-// now execute in the planning clone, spending their own draws while leaving
-// the live game and its RNG untouched.
-test('simple preflight admits and clones a gremlin in water', async () => {
+// C ref: mon.c minliquid_core():987-1009. A gremlin in water reaches the
+// source-specific liquid arm during the live monster scan.
+test('a gremlin in water survives its live liquid check', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_GREMLIN });
     game.level.at(target.monsterX, target.heroY).typ = POOL;
     target.monster.mhp = target.monster.mhpmax = 4;
-    const before = preflightSnapshot();
-    let plannedGremlin;
+    // A visible split or move may print; these answer any --More--.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            plannedGremlin = [...monsterSnapshots(planned)].find(
-                (monster) => monster.data?.pmidx === PM_GREMLIN,
-            );
-            return true;
-        },
-    });
-    assert.deepEqual(preflightSnapshot(), before);
-    assert.ok(plannedGremlin);
+    await runLiveMonsterScan();
+
+    assert.ok(monsterSnapshots(game).find(
+        (monster) => monster.data?.pmidx === PM_GREMLIN,
+    ));
 });
 
 function monsterSnapshots(state) {
@@ -2623,7 +1809,6 @@ test('minliquid splits a gremlin and dries a fountain in source order',
     try {
         const result = await minliquid(target.monster, {
             state: game,
-            planning: true,
             random: { ...coreRandom,
             rn2(bound) {
                 calls.push(bound);
@@ -2738,20 +1923,14 @@ test('minliquid uses mondied for a lethal iron golem outside monster movement',
 });
 
 // C mhitu.c:2616-2640 calls the ordinary makemon() runtime shape even when
-// this helper is reached outside level generation.  The planning clone must
-// therefore use makemon_runtime's asynchronous continuation while keeping
-// its hero HP, random stream, and output separate from the live state.
-test('cloneu uses runtime creation on an initialized planning state',
+// this helper is reached outside level generation, so cloneu() uses
+// makemon_runtime's asynchronous continuation.
+test('cloneu uses runtime creation outside level generation',
     async () => {
     await prepareSelectedAction();
     assert.equal(game.in_mklev, false);
     game.u.mh = 9;
     game.u.mhmax = 12;
-    const beforeHp = game.u.mh;
-    const beforeRandom = rngSnapshot();
-    const beforeTopline = game._ttyToplines;
-    const beforeMonsters = monsterSnapshot();
-    const planned = planningState(game);
     const calls = [];
     const messages = [];
     const random = {
@@ -2777,9 +1956,8 @@ test('cloneu uses runtime creation on an initialized planning state',
         },
     };
 
-    const clone = await cloneu(planned, {
-        state: planned,
-        planning: true,
+    const clone = await cloneu(game, {
+        state: game,
         random,
         message: async (line) => messages.push(line),
         norepMessage: async (line) => messages.push(line),
@@ -2788,13 +1966,9 @@ test('cloneu uses runtime creation on an initialized planning state',
     assert.equal(clone.mcloned, true);
     assert.equal(clone.mhpmax, 12);
     assert.equal(clone.mhp, 4);
-    assert.equal(planned.u.mh, 5);
+    assert.equal(game.u.mh, 5);
     assert.ok(calls.length > 0, 'runtime creation consumed its injected RNG');
     assert.deepEqual(messages, []);
-    assert.equal(game.u.mh, beforeHp);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-    assert.equal(game._ttyToplines, beforeTopline);
-    assert.deepEqual(monsterSnapshot(), beforeMonsters);
 });
 
 // C ref: mon.c minliquid_core():1111-1119. A stranded eel spends
@@ -2820,7 +1994,7 @@ test('minliquid hurts a stranded eel and refreshes fleeing', async () => {
     assert.equal(target.monster.mfleetim, 2);
 });
 
-test('simple preflight admits engravings that source wipe leaves intact',
+test('simple monster action leaves engravings that source wipe skips intact',
     async () => {
         const cases = [
             {
@@ -2840,16 +2014,14 @@ test('simple preflight admits engravings that source wipe leaves intact',
         for (const actionCase of cases) {
             const target = await prepareSelectedAction();
             installCurrentSquareEngraving(target, actionCase.engraving);
-            const before = completeSecondTurnSnapshot(game, target.replay);
+            const textBefore = [...game.head_engr.engr_txt];
 
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await preflightSimpleMonsterActions(game);
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-            }
+            await runSimpleMonsterAction(target.monster, { state: game });
+            assert.deepEqual(
+                game.head_engr?.engr_txt,
+                textBefore,
+                actionCase.name,
+            );
         }
     });
 
@@ -2877,10 +2049,7 @@ test('simple movement admits every IS_ROOM square', async () => {
             admitted.heroY,
         );
         location.typ = terrain;
-        const before = preflightSnapshot();
 
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(preflightSnapshot(), before, label);
         await runSimpleMonsterAction(admitted.monster, { state: game });
         assert.deepEqual(
             [admitted.monster.mx, admitted.monster.my],
@@ -2892,16 +2061,13 @@ test('simple movement admits every IS_ROOM square', async () => {
 
 // C ref: mon.c:mfndpos() filters iron bars through ALLOW_BARS, then
 // monmove.c:postmov() lets an eligible rust monster dissolve the selected
-// square. The clone preflight must pass the already-filtered candidate on.
+// square.
 test('simple movement admits a rust monster destination at iron bars', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_RUST_MONSTER });
     const bars = game.level.at(target.destinationX, target.heroY);
     bars.typ = IRONBARS;
     bars.flags = 0;
-    const before = preflightSnapshot();
 
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
     await runSimpleMonsterAction(target.monster, { state: game });
     assert.deepEqual(
         [target.monster.mx, target.monster.my],
@@ -2940,12 +2106,6 @@ test('ordinary movement avoids the square the hero most recently kicked',
             true,
         );
 
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            [target.monster.mx, target.monster.my],
-            [target.monsterX, target.heroY],
-        );
-
         await runSimpleMonsterAction(target.monster, { state: game });
         assert.deepEqual(
             [target.monster.mx, target.monster.my],
@@ -2977,11 +2137,7 @@ test('simple movement admits pool and lava destinations for a floater',
             game.level.at(
                 admitted.destinationX, admitted.heroY,
             ).typ = terrain;
-            const before = preflightSnapshot();
 
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(preflightSnapshot(), before,
-                `${label} floater preflight`);
             await runSimpleMonsterAction(admitted.monster, { state: game });
             assert.deepEqual(
                 [admitted.monster.mx, admitted.monster.my],
@@ -2999,10 +2155,7 @@ test('simple movement admits a swimmer into a moat', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
     game.level.at(target.monsterX, target.heroY).typ = POOL;
     game.level.at(target.destinationX, target.heroY).typ = MOAT;
-    const before = preflightSnapshot();
 
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
     await runSimpleMonsterAction(target.monster, { state: game });
     assert.deepEqual(
         [target.monster.mx, target.monster.my],
@@ -3011,16 +2164,12 @@ test('simple movement admits a swimmer into a moat', async () => {
 });
 
 // C mon.c mfndpos() tries water first for a stranded eel; only a scan
-// with no candidates retries land. The selected destination already passed
-// that source-owned scan before the preflight admission callback sees it.
+// with no candidates retries land.
 for (const [label, destination] of [['return to water', MOAT], ['land fallback', ROOM]]) {
     test('stranded eel movement admits ' + label, async () => {
         const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
         game.level.at(target.monsterX, target.heroY).typ = ROOM;
         game.level.at(target.destinationX, target.heroY).typ = destination;
-        const before = preflightSnapshot();
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(preflightSnapshot(), before);
         await runSimpleMonsterAction(target.monster, { state: game });
         assert.deepEqual([target.monster.mx, target.monster.my],
             [target.destinationX, target.heroY]);
@@ -3028,8 +2177,8 @@ for (const [label, destination] of [['return to water', MOAT], ['land fallback',
 }
 
 // C ref: mon.c mfndpos() :2160-2163. ALLOW_WALL plus may_passwall() admits
-// an obstructed square for a wall-walking monster; the movement preflight must
-// pass that candidate through to postmov() rather than classify it as terrain.
+// an obstructed square for a wall-walking monster; movement must pass that
+// candidate through to postmov() rather than classify it as terrain.
 test('simple movement admits a passwall wall candidate', async () => {
     const target = await prepareSelectedAction({
         pmidx: PM_EARTH_ELEMENTAL,
@@ -3037,10 +2186,7 @@ test('simple movement admits a passwall wall candidate', async () => {
     const wall = game.level.at(target.destinationX, target.heroY);
     wall.typ = STONE;
     wall.flags = 0;
-    const before = preflightSnapshot();
 
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
     await runSimpleMonsterAction(target.monster, { state: game });
     assert.deepEqual(
         [target.monster.mx, target.monster.my],
@@ -3051,9 +2197,8 @@ test('simple movement admits a passwall wall candidate', async () => {
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
 // move on a doorless, broken or open doorway reaches no arm of that block, so
 // the move completes with the doormask, the map and the message window
-// untouched. Locked and trapped masks enter their source branches and are
-// planned without refusing the turn.
-test('simple movement admits inert and trapped doorway masks', async () => {
+// untouched.
+test('simple movement admits inert doorway masks', async () => {
     for (const representation of ['flags']) {
         for (const mask of [D_NODOOR, D_BROKEN, D_ISOPEN]) {
             const doorway = await prepareSelectedAction();
@@ -3065,10 +2210,7 @@ test('simple movement admits inert and trapped doorway masks', async () => {
             location.flags = 0;
             location[representation] = mask;
             const label = `${representation} mask ${mask}`;
-            const before = preflightSnapshot();
 
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(preflightSnapshot(), before, label);
             await runSimpleMonsterAction(doorway.monster, { state: game });
             assert.deepEqual(
                 [doorway.monster.mx, doorway.monster.my],
@@ -3077,45 +2219,6 @@ test('simple movement admits inert and trapped doorway masks', async () => {
             );
             assert.equal(location.typ, DOOR, label);
             assert.equal(location[representation], mask, label);
-        }
-
-        for (const mask of [
-            D_LOCKED,
-            D_ISOPEN | D_TRAPPED,
-            D_CLOSED | D_TRAPPED,
-        ]) {
-            const activeDoor = await prepareSelectedAction({
-                pmidx: PM_GNOME,
-            });
-            const activeLocation = game.level.at(
-                activeDoor.destinationX,
-                activeDoor.heroY,
-            );
-            activeLocation.typ = DOOR;
-            activeLocation.flags = 0;
-            activeLocation[representation] = mask;
-            const activeBefore = completeSecondTurnSnapshot(
-                game,
-                activeDoor.replay,
-            );
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                if (mask === D_LOCKED) {
-                    // This gnome has no unlocking tool, so mfndpos() does not
-                    // select the locked square and no excluded action is due.
-                    await preflightSimpleMonsterActions(game);
-                } else {
-                    // mfndpos() admits a trapped doorway when the gnome can
-                    // open it; postmov() checks and handles the trap before
-                    // changing the doormask.
-                    await preflightSimpleMonsterActions(game);
-                }
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, activeDoor.replay),
-                    activeBefore,
-                    `${representation} mask ${mask}, attempt ${attempt + 1}`,
-                );
-            }
         }
     }
 });
@@ -3145,38 +2248,12 @@ function doorLetsLightThrough(target) {
     );
 }
 
-// A live-vision snapshot the cloned scan must not disturb. viz_array is a
-// buffer the scan could swap as well as overwrite, so this pins the object as
-// well as its contents, and seenv is the per-square memory vision_recalc()
-// accumulates.
-function visionSnapshot() {
-    return {
-        buffer: game.viz_array,
-        active: game.active_buf,
-        rows: game.viz_array.map((row) => [...row]),
-        seenv: game.level.locations.map(
-            (column) => column.map((cell) => [cell.seenv ?? 0, cell.waslit ?? 0]),
-        ),
-        cell: game.level.at(8, 10),
-    };
-}
-
 // C ref: monmove.c postmov():1576-1592 through UnblockDoor at 1526-1536. The
 // gnome has hands, so mon_allowflags() gives it OPENDOOR and mfndpos() offers
 // it the closed square. The hero stands three squares away with a clear line,
 // so this is the arm that names the monster.
 test('simple movement opens a closed door and names the opener', async () => {
     const target = await prepareClosedDoorArrival();
-    assert.equal(doorLetsLightThrough(target), 0);
-    const before = preflightSnapshot();
-    const vision = visionSnapshot();
-
-    // The cloned scan opens the door on its own terrain grid and its own
-    // COULD_SEE buffers, and returns the shared transparency index it borrowed.
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
-    assert.deepEqual(visionSnapshot(), vision);
-    assert.equal(target.location.flags, D_CLOSED);
     assert.equal(doorLetsLightThrough(target), 0);
 
     const messages = [];
@@ -3194,17 +2271,12 @@ test('simple movement opens a closed door and names the opener', async () => {
 });
 
 for (const mask of [D_CLOSED, D_LOCKED]) {
-    test('amorphous passage keeps door mask ' + mask + ' and live planning state', async () => {
+    test('amorphous passage keeps door mask ' + mask, async () => {
         const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
         const location = game.level.at(target.destinationX, target.heroY);
         location.typ = DOOR;
         location.flags = mask;
         recalc_block_point(target.destinationX, target.heroY, game);
-        const before = preflightSnapshot();
-        const vision = visionSnapshot();
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(preflightSnapshot(), before);
-        assert.deepEqual(visionSnapshot(), vision);
         await runSimpleMonsterAction(target.monster, { state: game });
         assert.deepEqual([target.monster.mx, target.monster.my],
             [target.destinationX, target.heroY]);
@@ -3232,17 +2304,8 @@ for (const [label, pmidx, carriesKey, message] of [
     ['Rider', PM_DEATH, false, 'Death unlocks and opens a door.'],
     ['key-bearing gnome', PM_GNOME, true, 'The gnome unlocks and opens a door.'],
 ]) {
-    test(label + ' unlocks a door after isolated planning', async () => {
+    test(label + ' unlocks a door', async () => {
         const target = await prepareUnlockingArrival(pmidx, carriesKey);
-        const before = preflightSnapshot();
-        const vision = visionSnapshot();
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(preflightSnapshot(), before);
-            assert.deepEqual(visionSnapshot(), vision);
-            assert.equal(target.location.flags, D_LOCKED);
-            assert.equal(doorLetsLightThrough(target), 0);
-        }
         const messages = [];
         await runSimpleMonsterAction(target.monster, {
             state: game,
@@ -3253,15 +2316,6 @@ for (const [label, pmidx, carriesKey, message] of [
         assert.equal(target.location.flags, D_ISOPEN);
         assert.equal(doorLetsLightThrough(target), 1);
         assert.deepEqual(messages, [message]);
-    });
-
-    test(label + ' unlocking writes nothing to frozen live state', async () => {
-        const target = await prepareUnlockingArrival(pmidx, carriesKey);
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-        await preflightSimpleMonsterActions(game);
-        guard.assertNoLeak(assert);
-        assert.equal(target.location.flags, D_LOCKED);
     });
 }
 
@@ -3275,20 +2329,10 @@ async function prepareVampireDoorArrival() {
     return { ...target, location };
 }
 
-test('vampire door passage changes form only in the live action', async () => {
+test('vampire door passage changes form', async () => {
     const target = await prepareVampireDoorArrival();
     // monmove.c vamp_shift() displays WIN_MESSAGE after the live change.
-    // Planning must leave its single acknowledgement for the live action.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
-    const before = preflightSnapshot();
-    const vision = visionSnapshot();
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(preflightSnapshot(), before);
-        assert.deepEqual(visionSnapshot(), vision);
-        assert.equal(target.monster.data, game.mons[PM_VAMPIRE]);
-        assert.equal(game.nhDisplay.inputQueueLength, 1);
-    }
     await runSimpleMonsterAction(target.monster, { state: game });
     assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.deepEqual([target.monster.mx, target.monster.my],
@@ -3299,17 +2343,7 @@ test('vampire door passage changes form only in the live action', async () => {
     assert.equal(doorLetsLightThrough(target), 0);
 });
 
-test('planned vampire door form change writes nothing to frozen live state', async () => {
-    const target = await prepareVampireDoorArrival();
-    const guard = freezeLiveState(game);
-    assertDetectorReachedTheGraph(guard);
-    await preflightSimpleMonsterActions(game);
-    guard.assertNoLeak(assert);
-    assert.equal(target.monster.data, game.mons[PM_VAMPIRE]);
-    assert.equal(target.location.flags, D_LOCKED);
-});
-
-test('giant locked-door planning preserves live terrain and vision before smashing', async () => {
+test('a giant smashes a locked door', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_HILL_GIANT });
     // Initialize the bulk-edited fixture map before source point updates.
     vision_reset(game);
@@ -3317,15 +2351,6 @@ test('giant locked-door planning preserves live terrain and vision before smashi
     location.typ = DOOR;
     location.flags = D_LOCKED;
     recalc_block_point(target.destinationX, target.heroY, game);
-    const before = preflightSnapshot();
-    const vision = visionSnapshot();
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(preflightSnapshot(), before);
-        assert.deepEqual(visionSnapshot(), vision);
-        assert.equal(location.flags, D_LOCKED);
-        assert.equal(doorLetsLightThrough(target), 0);
-    }
     const messages = [];
     await runSimpleMonsterAction(target.monster, {
         state: game,
@@ -3344,10 +2369,6 @@ test('giant locked-door planning preserves live terrain and vision before smashi
 test('simple movement reports a door a blind hero only hears', async () => {
     const target = await prepareClosedDoorArrival();
     game.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    const vision = visionSnapshot();
-
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(visionSnapshot(), vision);
 
     const messages = [];
     await runSimpleMonsterAction(target.monster, {
@@ -3357,42 +2378,6 @@ test('simple movement reports a door a blind hero only hears', async () => {
     assert.equal(target.location.flags, D_ISOPEN);
     assert.deepEqual(messages, ['You hear a door open.']);
 });
-
-test('simple preflight plans a starting-dog action without live mutation',
-    async () => {
-        await runSegment({
-            seed: 2026072201,
-            datetime: DATETIME,
-            nethackrc: 'OPTIONS=name:Pet2026072201,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:dog',
-            moves: '.',
-        });
-        const before = preflightSnapshot();
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(preflightSnapshot(), before);
-    });
-
-test('simple preflight retries a lost-sight pet goal scan without mutation',
-    async () => {
-        const target = await prepareStartingPetAction(PM_KITTEN);
-        const { monster } = target;
-        game.viz_array[monster.my][monster.mx] &= ~COULD_SEE;
-        game.track = { utcnt: 0, utpnt: 0, utrack: [] };
-        monster.mextra.edog.ogoal = { x: 0, y: 0 };
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `attempt ${attempt + 1}`,
-            );
-        }
-    });
 
 test('simple wake output completes before sleep state and action progress',
     async () => {
@@ -3435,20 +2420,13 @@ test('simple wake output completes before sleep state and action progress',
         assert.equal(settled, true);
     });
 
-test('simple postmov plans notice state and awaits live notice before redraw',
+test('simple postmov awaits the live notice before redraw',
     async () => {
         const target = await prepareSelectedAction();
         game.a11y.mon_notices = true;
         game.a11y.mon_notices_blocked = 0;
         game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
         target.monster.mspotted = false;
-
-        await preflightSimpleMonsterActions(game);
-        assert.equal(
-            target.monster.mspotted,
-            false,
-            'clone-only planning cannot change live notice state',
-        );
 
         const output = deferred();
         const events = [];
@@ -3559,410 +2537,6 @@ test('simple no-move notice completes before the adapter returns', async () => {
     assert.equal(settled, true);
 });
 
-test('simple preflight preserves parked-guard source ordering', async () => {
-    for (const due of [true, false]) {
-        const target = await prepareSelectedAction();
-        clearCoordinateGrid(game.level.monsters);
-        target.monster.isgd = true;
-        // makemon() gives every guard its vault.c egd record (MM_EGD); the
-        // guard belongs to the hero's level.
-        newegd(target.monster);
-        target.monster.mextra.egd.gdlevel = { ...game.u.uz };
-        target.monster.mx = 0;
-        target.monster.my = 0;
-        // moves=2 makes mlstmv=1 due and mlstmv=2 already handled.
-        target.monster.mlstmv = due ? 1 : 2;
-        target.monster.movement = NORMAL_SPEED - 1;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            // mon.c movemon_singlemon() hands a due parked guard to
-            // gd_move(), where the dry run stops so the live scan runs it;
-            // an inert one is never handed over. Neither touches live state.
-            const plan = await preflightSimpleMonsterActions(game);
-            assert.equal(
-                plan.inputBoundary?.operation,
-                due ? 'vault.c gd_move' : undefined,
-                `${due ? 'due' : 'inert'} guard boundary, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `${due ? 'due' : 'inert'} guard, attempt ${attempt + 1}`,
-            );
-        }
-    }
-});
-
-test('simple preflight rejects each remaining excluded action atomically',
-    async () => {
-        const cases = [
-            {
-                name: 'callback-bearing region transition',
-                reason: 'a region transition',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    const region = create_region([{
-                        lx: target.destinationX,
-                        ly: target.heroY,
-                        hx: target.destinationX,
-                        hy: target.heroY,
-                    }]);
-                    // m_in_out_region() must refuse this still-unported
-                    // enter callback before changing cached membership.
-                    region.enter_f = 'unported_enter_callback';
-                    game.level.regions.push(region);
-                    return target;
-                },
-            },
-            // Rust-monster consumption is now handled in postmov(); its
-            // former item-search refusal is covered by the live consumption
-            // tests rather than this excluded-action matrix.
-        ];
-
-        for (const actionCase of cases) {
-            const target = await actionCase.prepare();
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === actionCase.reason
-                    ),
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-            }
-        }
-    });
-
-test('simple preflight admits the source monster-displacement handoff',
-    async () => {
-        const target = await prepareSelectedAction({
-            pmidx: PM_DISPLACER_BEAST,
-        });
-        const defender = ordinaryMonster(
-            PM_GIANT_RAT,
-            target.destinationX,
-            target.heroY,
-            {
-                m_id: 9002,
-                movement: 0,
-            },
-        );
-        target.monster.nmon = defender;
-        game.level.monsters[target.destinationX][target.heroY] = defender;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-    });
-
-test('simple preflight handles each turn-preamble state on its own',
-    async () => {
-        // allmain.c moveloop_core() runs `if (svc.context.bypasses)
-        // clear_bypasses();` at 193 and resolves a deferred level transition
-        // before the monster loop. The planning clone owns every object list,
-        // so it performs that cleanup without changing the live context;
-        // the deferred level transition is returned as a marker for allmain.
-        //
-        // The guard used to carry a third term reading game.occupation, a
-        // field nothing in js/ assigns. C gates nothing here on go.occupation
-        // -- allmain.c names it only at 332, 485-506 and 684-689, all later in
-        // the turn -- so dropping it stops nothing that C stops; monmove.c
-        // dochugw() owns the per-monster occupation test instead.
-        const bypass = await prepareSelectedAction();
-        game.context.bypasses = true;
-        const bypassBefore = completeSecondTurnSnapshot(game, bypass.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.equal(game.context.bypasses, true);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, bypass.replay),
-            bypassBefore,
-        );
-        game.context.bypasses = false;
-
-        await prepareSelectedAction();
-        game.u.utotype = 1;
-        const deferredPlan = await preflightSimpleMonsterActions(game);
-        assert.equal(deferredPlan.deferredGoto, true);
-        game.u.utotype = 0;
-
-        // With neither pending the same scan runs to completion, which is what
-        // makes the marker above attributable to the state it set.
-        const clean = await prepareSelectedAction();
-        const before = completeSecondTurnSnapshot(game, clean.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, clean.replay),
-            before,
-        );
-    });
-
-// trap.c mintrap()'s whole held-monster arm is reached by monmove.c:m_move
-// at :1734. Preflight does not reject a held pit or a stale no-trap hold.
-test('simple preflight admits every held mintrap path', async () => {
-    for (const [label, ttyp] of [
-        ['bear trap', BEAR_TRAP], ['web', WEB], ['pit', PIT],
-        ['fire trap', FIRE_TRAP], ['no trap', null],
-    ]) {
-        const held = await prepareSelectedAction();
-        held.monster.mtrapped = true;
-        if (ttyp !== null) game.level.traps.push({
-            tx: held.monsterX, ty: held.heroY, ttyp, tseen: true,
-        });
-        const before = completeSecondTurnSnapshot(game, held.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(completeSecondTurnSnapshot(game, held.replay),
-                before, `${label}, attempt ${attempt + 1}`);
-        }
-    }
-});
-
-// monmove.c m_move()'s mtrapped prologue hands mintrap() a `redraw` and a
-// `message`, and js/monmove.js replaces both with no-ops while the planning
-// clone runs. Neither replacement has a default behind it: the planning scan
-// passes m_move() an env of `{ state, random, planning }` alone, so dropping
-// either guard falls through to js/display.js newsym() and js/tty_message.js
-// ttyPline().
-//
-// newsym() reads the module-level `game` rather than the state it is called
-// about, and display.c:1014-1023 -- js/display.js:2112-2114 -- writes tseen
-// straight onto whatever trap holds a visible monster there. So a clone that
-// repaints does not merely paint the live screen: it maps the live trap, on a
-// turn the scan may still refuse.
-//
-// The reveal is the half a case can reach without controlling the escape roll:
-// trap.c:3742-3749 calls seetrap() on any turn a hero comes upon an obviously
-// held monster, whatever rn2(40) then answers.
-test('a planned trap reveal writes nothing to the live display', async () => {
-    const target = await prepareSelectedAction();
-    target.monster.mtrapped = true;
-    // trap.c:3742 wants cansee() at the monster's square and display.h
-    // canseemon() wants it in sight as well as seen, so both bits are set;
-    // prepareSelectedAction() leaves only COULD_SEE.
-    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
-    game.level.traps.push({
-        // Unmapped, which is the conjunct that opens C:3742. The sibling case
-        // above uses tseen true, so it never reaches seetrap() at all.
-        tx: target.monsterX,
-        ty: target.heroY,
-        ttyp: BEAR_TRAP,
-        tseen: false,
-    });
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    let planned = null;
-
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(state) {
-            planned = state;
-            return true;
-        },
-    });
-
-    // seetrap() writes tseen and then repaints, so a clone whose trap came
-    // back mapped is a clone that reached the repaint. Without this the case
-    // would pass on a scan that never got near the prologue.
-    assert.equal(planned?.level.traps[0].tseen, true, 'the clone mapped it');
-    assert.equal(game.level.traps[0].tseen, false, 'the live map did not');
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-});
-
-// The escape line is the other half of the same prologue, and no scan can
-// reach it: trap.c:3751 opens on `!rn2(40)` and preflightSimpleMonsterActions()
-// draws from a clone of the game's own PRNG, which a test cannot answer for.
-// So this drives m_move() itself, with planning set and the escape roll
-// injected.
-//
-// It supplies a message of its own, which the planning scan does not. The
-// guard reads `env.planning ? no-op : (rawEnv.message ?? ttyPline)`, so either
-// shape shows it dropped; a recorder shows it as the call that was made, where
-// the ttyPline() default surfaces instead as the input-queue error of a
-// --More-- nobody answers. The redraw half of the same prologue is the reveal
-// case above, which supplies no redraw and watches newsym() map the live trap.
-test('a planned escape line writes nothing to the live display', async () => {
-    const target = await prepareSelectedAction();
-    target.monster.mtrapped = true;
-    // The prologue's next gate. One turn of meating left ends m_move() at
-    // monmove.c:1743 with MMOVE_DONE, before set_apparxy() and mfndpos() draw
-    // anything more, so the injected random below answers the escape roll
-    // alone.
-    target.monster.meating = 1;
-    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
-    game.level.traps.push({
-        tx: target.monsterX,
-        ty: target.heroY,
-        ttyp: BEAR_TRAP,
-        // Mapped already, which shuts C:3742's first conjunct: this case is
-        // about the line at :3768-3769, not about the reveal above.
-        tseen: true,
-    });
-    // C:3766 writes nothing for a monster the hero cannot watch, so a fixture
-    // that failed this would assert the silence of a turn that was silent
-    // anyway.
-    assert.equal(canseemon(target.monster, game), true);
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const written = [];
-
-    const status = await m_move(target.monster, {
-        state: game,
-        planning: true,
-        message: async (line) => { written.push(line); },
-        // mintrap() proves the whole set trapeffect_selector() can dispatch
-        // to before its first write, so all five are supplied even though the
-        // held arm draws only rn2. 0 is the one answer trap.c:3751 frees the
-        // monster on; every other value keeps it held and never reaches the
-        // line. The other four fail loudly, so a fixture that started drawing
-        // them could not pass quietly.
-        random: {
-            rn2: () => 0,
-            rn1: () => assert.fail('the held arm draws rn2 alone'),
-            rnd: () => assert.fail('the held arm draws rn2 alone'),
-            rne: () => assert.fail('the held arm draws rn2 alone'),
-            rnl: () => assert.fail('the held arm draws rn2 alone'),
-        },
-        finishEating: () => {},
-        movePet: () => assert.fail('an ordinary monster is not a pet'),
-        resistsTrapEffect: () => false,
-        unsupported: (reason) => assert.fail(reason),
-    });
-
-    assert.equal(status, MMOVE_DONE, 'the prologue ran and the meal ended');
-    // The escape arm is what prints, so this is what shows the case arrived at
-    // the message rather than stopping short of it.
-    assert.equal(target.monster.mtrapped, false, 'trap.c:3775');
-    assert.deepEqual(written, [], 'the escape line at trap.c:3768-3769');
-    // The recorder above is what decides the guard; this is the net under it,
-    // for anything else the planned prologue might put on the live screen.
-    // Only the display half is compared, because the escape is a real write to
-    // the monster this case hands m_move() and the rest of the snapshot
-    // records it.
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay).display,
-        before.display,
-    );
-});
-
-test('simple preflight admits source-inert monster inventory', async () => {
-    const target = await prepareSelectedAction();
-    target.monster.data = {
-        ...game.mons[PM_ORC_SHAMAN],
-        mattk: sourceInertAttacks(),
-    };
-    target.monster.mnum = PM_ORC_SHAMAN;
-    target.monster.minvent = monsterObject(
-        POT_HEALING,
-    );
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `inert inventory, attempt ${attempt + 1}`,
-        );
-    }
-});
-
-test('simple preflight admits selected healing (use_defensive is ported)',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-        // One of five hit points is below muse.c's one-fifth threshold,
-        // so find_defensive() selects the healing potion.
-        target.monster.mhp = 1;
-        target.monster.mhpmax = 5;
-        target.monster.minvent = monsterObject(POT_HEALING);
-
-        // use_defensive() is now ported, so the planning pass succeeds.
-        await preflightSimpleMonsterActions(game);
-    });
-
-test('simple preflight admits inert AT_WEAP capability and inventory',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-        target.monster.minvent = monsterObject(POT_HEALING);
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `inert AT_WEAP inventory, attempt ${attempt + 1}`,
-            );
-        }
-    });
-
-test('simple preflight ignores an unselected rock during item search',
-    async () => {
-        // js/monmove.js:2229 drops a rock before mon_would_take_item() runs,
-        // which is monmove.c:1413-1414. The skip therefore never consults the
-        // species, so this case shows only that a rock selects nothing and
-        // draws nothing. That the same fixture does reach a wanted object is
-        // what 'simple item search refuses an artifact it cannot touch' below
-        // asserts, with the same gnome and the same blinding.
-        const target = await prepareSelectedAction({
-            pmidx: PM_GNOME,
-        });
-        target.monster.mcansee = false;
-        game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-        installObject(
-            target,
-            floorObject(target.monsterX, target.heroY),
-        );
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-    });
-
-// C ref: mon.c can_touch_safely():1971 asks artifact.c touch_artifact() about
-// every item a monster considers. The production m_move() adapter now uses
-// artifact.c's synchronous monster arm, which applies the source restriction
-// predicate without the hero blast or a planning refusal.
-test('simple item search admits a touchable artifact', async () => {
-    // A gnome is M2_COLLECT, so mon_would_take_item() claims a weapon and
-    // m_search_items() asks can_carry() -> can_touch_safely() about it. Sting
-    // is artilist.h:138, the elven dagger; obj->oartifact reaches the source
-    // artifact gate, so any artifact of a wanted class would do.
-    const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-    // A blind monster off the hero's line runs the item search; the sighted
-    // fixture keeps approach == 1 and skips it.
-    target.monster.mcansee = false;
-    game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-    const sting = floorObject(
-        target.monsterX,
-        target.heroY,
-        9101,
-        ELVEN_DAGGER,
-    );
-    sting.oartifact = ART_STING;
-    installObject(target, sting);
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `attempt ${attempt + 1}`,
-        );
-    }
-});
-
 test('monster retaliation completes artifact selection and new welding',
     async () => {
         await prepareSelectedAction();
@@ -4001,7 +2575,6 @@ test('monster retaliation completes artifact selection and new welding',
             if (row.name === 'artifact')
                 game.artiexist[ART_STING].exists = 1;
             const result = await wieldMonsterItemAgainstMonster(monster, {
-                planning: true,
                 state: game,
             });
             assert.equal(result, 1, row.name);
@@ -4010,39 +2583,7 @@ test('monster retaliation completes artifact selection and new welding',
         }
     });
 
-test('a pet fetching a touchable artifact uses the source gate', async () => {
-    // The same fixture as the planned-pickup case below, with the dagger made
-    // an artifact: dog_invent() reads the pet's own square, finds no food in
-    // a weapon, and asks can_carry() -> can_touch_safely() whether to fetch.
-    const target = await prepareStartingPetAction(PM_PONY);
-    target.monster.mextra.edog.apport = 20;
-    const sting = floorObject(
-        target.monsterX,
-        target.heroY,
-        9101,
-        ELVEN_DAGGER,
-    );
-    sting.oartifact = ART_STING;
-    installObject(target, sting);
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `attempt ${attempt + 1}`,
-        );
-        assert.equal(
-            game.level.objects[target.monsterX][target.heroY],
-            sting,
-            `attempt ${attempt + 1}`,
-        );
-        assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
-    }
-});
-
-test('planned pet landmine scatter interrupts the selected clone', async () => {
+test('pet landmine scatter interrupts the hero', async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     // Keep the hero one square beyond the mine. The real scatter path can
     // then reach the hero with one eastward rock step.
@@ -4061,7 +2602,7 @@ test('planned pet landmine scatter interrupts the selected clone', async () => {
     installObject(target, rock);
 
     // Preserve an actual unfinished meal and canned command so C's
-    // stop_occupation effects are visible on both state owners.
+    // stop_occupation effects are visible.
     const occupation = eatfood;
     game.go.occupation = occupation;
     game.go.occtxt = 'eating';
@@ -4089,13 +2630,11 @@ test('planned pet landmine scatter interrupts the selected clone', async () => {
     // Keep the source hit on the real path while avoiding the unrelated
     // post-hit encumbrance message that thitu's current adapter omits.
     game.moves = 0;
-    const liveMeal = { ...game.context.victual };
-    const liveCanned = structuredClone(game.command_queue[0]);
-    const liveHp = game.u.uhp;
-    const planned = planningState(game);
-    assert.notStrictEqual(planned.context.victual.piece, ration);
-    assert.strictEqual(planned.context.victual.piece, planned.invent);
-    const plannedPony = planned.level.monlist;
+    // The live explosion and rock-hit messages each wait at --More--; eight
+    // acknowledgements leave headroom over the lines this turn prints.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const hpBefore = game.u.uhp;
+    const pony = target.monster;
     const draws = [];
     const random = { ...coreRandom,
         rn2(bound) {
@@ -4115,41 +2654,32 @@ test('planned pet landmine scatter interrupts the selected clone', async () => {
         d(number) { draws.push(['d', number]); return number; },
     };
 
-    await runSimpleMonsterAction(plannedPony, {
-        state: planned,
-        planning: true,
+    await runSimpleMonsterAction(pony, {
+        state: game,
         random,
     });
 
-    assert.ok(planned.u.uhp < liveHp, JSON.stringify({
+    assert.ok(game.u.uhp < hpBefore, JSON.stringify({
         message: 'real rock scatter hits the hero',
-        plannedHp: planned.u.uhp,
-        liveHp,
-        pony: { x: plannedPony.mx, y: plannedPony.my, mhp: plannedPony.mhp },
-        trap: planned.level.traps.map(({ tx, ty, ttyp }) => ({ tx, ty, ttyp })),
-        rock: planned.level.objects[target.destinationX][target.heroY]?.otyp,
+        hp: game.u.uhp,
+        hpBefore,
+        pony: { x: pony.mx, y: pony.my, mhp: pony.mhp },
+        trap: game.level.traps.map(({ tx, ty, ttyp }) => ({ tx, ty, ttyp })),
+        rock: game.level.objects[target.destinationX][target.heroY]?.otyp,
         draws,
     }));
     assert.deepEqual({
-        plannedOccupation: planned.go.occupation ?? null,
-        plannedCanned: planned.command_queue[0],
-        liveOccupationIsOriginal: game.go.occupation === occupation,
-        liveMeal: game.context.victual,
-        liveCanned: game.command_queue[0],
-        liveHp: game.u.uhp,
+        occupation: game.go.occupation ?? null,
+        canned: game.command_queue[0],
     }, {
-        plannedOccupation: null,
-        plannedCanned: [],
-        liveOccupationIsOriginal: true,
-        liveMeal,
-        liveCanned,
-        liveHp,
-    }, 'scatter interruption belongs only to the selected planning state');
+        occupation: null,
+        canned: [],
+    }, 'scatter interruption stops the occupation and canned command');
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 1301));
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 8));
 });
 
-test('planned pony rolling trap uses clone RNG for real hero collision', async () => {
+test('pony rolling trap hits the hero with a real boulder', async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     const pony = target.monster;
     const oldX = pony.mx, oldY = pony.my;
@@ -4185,20 +2715,16 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
     const boulder = floorObject(2, 10, 9450, BOULDER);
     installObject(target, boulder);
 
+    // An arbitrary fixed seed makes the core draws below reproducible.
     initRng(3612346);
-    enableRngLog();
-    const liveRngBefore = rngSnapshot();
-    const liveHpBefore = game.u.uhp;
-    const liveMessagesBefore = [...game.nhDisplay.messages];
-    const liveHadRootBhitpos = Object.hasOwn(game, 'bhitpos');
-    const liveCanonicalBhitposBefore = game.gb?.bhitpos
+    const hpBefore = game.u.uhp;
+    // The hero takes a rolling-boulder hit whose messages wait at --More--.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const initialCanonicalBhitpos = game.gb?.bhitpos
         ? { ...game.gb.bhitpos } : null;
-    const planned = planningState(game);
-    const initialCanonicalBhitpos = planned.gb?.bhitpos
-        ? { ...planned.gb.bhitpos } : null;
     let firstLaunchDropSpot = null;
-    let launchplace = planned.launchplace;
-    Object.defineProperty(planned, 'launchplace', {
+    let launchplace = game.launchplace;
+    Object.defineProperty(game, 'launchplace', {
         configurable: true,
         get: () => launchplace,
         set(value) {
@@ -4207,8 +2733,7 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
             launchplace = value;
         },
     });
-    const clonedCore = cloneIsaacContext(planned.coreCtx);
-    const standardRandom = createCoreRandom(clonedCore, planned);
+    const standardRandom = createCoreRandom(game.coreCtx, game);
     const draws = [];
     const random = new Proxy(standardRandom, {
         get(owner, name) {
@@ -4225,149 +2750,67 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
 
     let actionError = null;
     try {
-        await runSimpleMonsterAction(planned.level.monlist, {
-            state: planned, planning: true, random,
-        });
+        await runSimpleMonsterAction(pony, { state: game, random });
     } catch (error) {
         actionError = error;
+    } finally {
+        // Restore a plain data property so later cases see an ordinary game.
+        delete game.launchplace;
+        game.launchplace = launchplace;
     }
 
-    assert.deepEqual({ x: planned.level.monlist.mx, y: planned.level.monlist.my },
+    assert.deepEqual({ x: pony.mx, y: pony.my },
         { x: 8, y: 10 }, 'the real pet step selects the unseen trap center');
-    assert.ok(planned.u.uhp < liveHpBefore, JSON.stringify({
-        message: 'actual rolling boulder hits the planned hero',
-        plannedHp: planned.u.uhp,
-        liveHpBefore,
-        pony: { x: planned.level.monlist.mx, y: planned.level.monlist.my },
+    assert.ok(game.u.uhp < hpBefore, JSON.stringify({
+        message: 'actual rolling boulder hits the hero',
+        hp: game.u.uhp,
+        hpBefore,
+        pony: { x: pony.mx, y: pony.my },
         draws,
-        liveLog: getRngLog(),
     }));
     assert.ok(draws.some(([name, bound]) => name === 'rnd' && bound === 20),
         JSON.stringify(draws));
-    assert.deepEqual(rngSnapshot(), liveRngBefore, JSON.stringify({
-        message: 'planning must not advance the live core RNG',
-        actionError: actionError?.message ?? null,
-        liveLog: getRngLog(),
-        cloneDraws: draws,
-        plannedHp: planned.u.uhp,
-        liveContextSame: game.coreCtx === clonedCore,
-        liveRemaining: game.coreCtx.n,
-        clonedRemaining: clonedCore.n,
-    }));
     assert.equal(actionError, null, JSON.stringify({
         blocker: actionError?.stack ?? null,
-        cloneDraws: draws,
-        plannedHp: planned.u.uhp,
-        liveHp: game.u.uhp,
-        liveLog: getRngLog(),
-        liveBhitpos: game.bhitpos ?? null,
-        plannedBhitpos: planned.bhitpos ?? null,
-        plannedGbBhitpos: planned.gb?.bhitpos ?? null,
-        pony: { x: planned.level.monlist.mx, y: planned.level.monlist.my },
+        draws,
+        hp: game.u.uhp,
+        bhitpos: game.bhitpos ?? null,
+        gbBhitpos: game.gb?.bhitpos ?? null,
+        pony: { x: pony.mx, y: pony.my },
     }));
     assert.ok(draws.some(([name, bound]) => name === 'rn2' && bound === 2),
         JSON.stringify(draws));
     assert.deepEqual(firstLaunchDropSpot, { x: 2, y: 10 },
         'the initial in-flight placement marker uses the launch origin');
-    assert.deepEqual(planned.gb.bhitpos, { x: 14, y: 10 }, JSON.stringify({
+    assert.deepEqual(game.gb.bhitpos, { x: 14, y: 10 }, JSON.stringify({
         initialCanonicalBhitpos,
-        finalCanonicalBhitpos: planned.gb.bhitpos,
-        rootBhitpos: planned.bhitpos ?? null,
+        finalCanonicalBhitpos: game.gb.bhitpos,
+        rootBhitpos: game.bhitpos ?? null,
     }));
-    assert.equal(Object.hasOwn(planned, 'bhitpos'), false,
+    assert.equal(Object.hasOwn(game, 'bhitpos'), false,
         'launch position stays on the canonical gb owner');
-    assert.equal(Object.hasOwn(game, 'bhitpos'), liveHadRootBhitpos,
-        'planning does not create a root hit-position alias on the live game');
-    assert.deepEqual(game.gb?.bhitpos ?? null, liveCanonicalBhitposBefore,
-        'planning leaves the live canonical hit position unchanged');
     const boulderLocations = [];
-    for (let object = planned.level.objlist; object; object = object.nobj) {
+    for (let object = game.level.objlist; object; object = object.nobj) {
         if (object.otyp === BOULDER)
             boulderLocations.push({ x: object.ox, y: object.oy, where: object.where });
     }
     assert.deepEqual(boulderLocations, [{ x: 14, y: 10, where: 1 }],
         'one launched boulder is placed at the canonical endpoint');
-    assert.deepEqual(getRngLog(), [], 'planning must not append live RNG log entries');
-    assert.equal(game.u.uhp, liveHpBefore, 'planned damage stays on clone');
-    assert.deepEqual([...game.nhDisplay.messages], liveMessagesBefore,
-        'planned collision emits no live output');
-});
-
-// C ref: dogmove.c:466-470. dog_invent()'s carry arm hands an AT_WEAP pet
-// straight to weapon.c mon_wield_item() once mpickobj() has taken the object;
-// the artifact branch now uses touch_artifact()'s synchronous monster gate.
-//
-// The arm needs a fabricated pet. assertSimpleActionState() admits a tame
-// monster only when its species is one of the three starting pets, and none of
-// those three has AT_WEAP: include/monsters.h:228-234 and :381-388 give the
-// little dog and the kitten a lone AT_BITE, and :1002-1009 gives the pony
-// AT_KICK and AT_BITE. So this fixture puts an AT_WEAP attack in the pony's
-// first free mattk slot, which is where a permonst entry with three attacks
-// carries it, and leaves the kick and the bite in place.
-test('a pet picking a weapon up uses the source weapon helper on the clone', async () => {
-    const target = await prepareStartingPetAction(PM_PONY);
-    target.monster.mextra.edog.apport = 20;
-    const attacks = [...target.monster.data.mattk];
-    // ATTK(AT_WEAP, AD_PHYS, 1, 6): this fabricated pony entry makes the
-    // otherwise species-unreachable dog_invent wield caller testable; damage
-    // is never rolled in the carry-and-wield arm.
-    attacks[2] = { aatyp: AT_WEAP, adtyp: 0, damn: 1, damd: 6 };
-    target.monster.data = { ...target.monster.data, mattk: attacks };
-    // C ref: dogmove.c:467. NEED_WEAPON is the second half of the gate, and
-    // monst.js starts a monster at NO_WEAPON_WANTED.
-    target.monster.weapon_check = NEED_WEAPON;
-    const dagger = floorObject(
-        target.monsterX,
-        target.heroY,
-        9101,
-        DAGGER,
-    );
-    installObject(target, dagger);
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `attempt ${attempt + 1}`,
-        );
-        // mpickobj() and mon_wield_item() run only on the planning clone, so
-        // the live floor object, pack and weapon check remain untouched.
-        assert.equal(
-            game.level.objects[target.monsterX][target.heroY],
-            dagger,
-            `attempt ${attempt + 1}`,
-        );
-        assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
-        // C sets NEED_HTH_WEAPON immediately before the call, on the clone.
-        // A live pony still asking for a weapon proves the write was isolated
-        // and that the refusal did not come from some earlier gate.
-        assert.equal(
-            target.monster.weapon_check,
-            NEED_WEAPON,
-            `attempt ${attempt + 1}`,
-        );
-    }
 });
 
 // dog_hunger's source weak and starvation thresholds are strictly greater
-// than hungrytime + 500 / +750; the cloned turn must own their HP changes.
+// than hungrytime + 500 / +750.
 for (const arm of [
     { name: 'weakness', moves: 1501, maximum: 8, penalty: 0 },
     { name: 'weakness with zero maximum', moves: 1501, maximum: 2, penalty: 0 },
     { name: 'starvation', moves: 1751, maximum: 8, penalty: 5 },
 ]) {
-    test('a pet reaching dog_hunger ' + arm.name + ' plans on the clone', async () => {
+    test('a pet reaching dog_hunger ' + arm.name, async () => {
         const target = await prepareStartingPetAction(PM_PONY);
         game.moves = arm.moves;
         target.monster.mhp = target.monster.mhpmax = arm.maximum;
         target.monster.mextra.edog.mhpmax_penalty = arm.penalty;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-        // The live hunger/starvation message may dismiss the startup line;
-        // the clone pass above must consume none of these acknowledgements.
+        // The live hunger/starvation message may dismiss the startup line.
         for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
         await runSimpleMonsterAction(target.monster, { state: game });
         if (!arm.penalty) {
@@ -4382,187 +2825,36 @@ for (const arm of [
     });
 }
 
-// C ref: monmove.c dochugw() (223-235). It interrupts an occupation only for a
-// monster the hero has not already seen, so the fixture hides the source square
-// from sight and reveals the destination: alreadySawMonster is taken before
-// dochug() runs and canspotmon() again afterwards, and both read viz_array
-// through the monster's own coordinates.
-async function prepareOccupationInterruption() {
+// trap.c:3742-3749 calls seetrap() on any turn a hero comes upon an obviously
+// held monster, whatever the rn2(40) escape roll then answers. monmove.c
+// m_move()'s mtrapped prologue reaches it through mintrap().
+test('a held monster in sight reveals its unmapped trap', async () => {
     const target = await prepareSelectedAction();
-    // COULD_SEE alone keeps the aligned approach prepareSelectedAction()
-    // documents while leaving cansee() false, which is what canspotmon() reads.
-    game.viz_array[target.heroY][target.monsterX] = COULD_SEE;
-    game.viz_array[target.heroY][target.destinationX] = COULD_SEE | IN_SIGHT;
-    return target;
-}
-
-// Everything stop_occupation()'s two operations can write. completeSecondTurn
-// Snapshot() cannot serve here: it structuredClone()s state.go, and an
-// installed occupation is a function. The last three fields are bot()'s own
-// bookkeeping, which it stamps on the live game whether or not the rows it
-// writes differ from the rows already there.
-function liveDisplaySnapshot() {
-    return {
-        disp: structuredClone(game.disp),
-        cursor: [
-            game.nhDisplay.cursorCol,
-            game.nhDisplay.cursorRow,
-            game.nhDisplay.cursorVisible,
-        ],
-        grid: structuredClone(game.nhDisplay.grid),
-        messages: [...game.nhDisplay.messages],
-        pending: game._pending_message,
-        topMessage: game.nhDisplay.topMessage,
-        toplin: game.nhDisplay.toplin,
-        toplines: game.nhDisplay.toplines,
-        ttyToplines: game._ttyToplines,
-        renderedStatusLayouts: structuredClone(
-            game._renderedStatusLayouts ?? null,
-        ),
-        statusOptionalFieldSnapshot:
-            game._statusOptionalFieldSnapshot ?? null,
-    };
-}
-
-// js/display.js bot() (3606-3610), the port of botl.c bot(), clears all three
-// of these, and allmain.c stop_occupation() sets only botl back. The other two are therefore the live
-// game's record of whether a status refresh ran, and a status line already
-// marked dirty is the ordinary mid-turn state.
-function markStatusLineDirty() {
-    game.disp.botl = true;
-    game.disp.botlx = true;
-    game.disp.time_botl = true;
-}
-
-// The planning pass replays the same turn against the live display afterwards,
-// so neither operation stop_occupation() receives may write during planning.
-// bot() is the dangerous one: js/display.js:3586 takes no state and writes the
-// module-global game's status rows whatever state the occupation runs on.
-//
-// Two arms of stop_occupation() reach the two operations, and each case below
-// takes one. An unfinished occupation reaches `message` through its own
-// "You stop %s." line; a meal whose last bite is taken reaches `statusRefresh`
-// through maybe_finished_meal() -> eatfood() -> done_eating() -> newuhs(), the
-// only consumer of that operation on this path.
-test('a planning interruption of an occupation writes nothing', async () => {
-    const { monster } = await prepareOccupationInterruption();
-    // cmd.c set_occupation() writes both fields; the callback is never invoked
-    // here, because dochugw() stops the occupation rather than running it.
-    game.go.occupation = () => 0;
-    game.go.occtxt = 'digging';
-    markStatusLineDirty();
-    const before = liveDisplaySnapshot();
-
-    await runSimpleMonsterAction(monster, { state: game, planning: true });
-
-    assert.equal(game.go.occupation, null);
-    assert.deepEqual(liveDisplaySnapshot(), before);
-});
-
-test('a planning interruption of a finished meal writes nothing', async () => {
-    const { monster } = await prepareOccupationInterruption();
-    const ration = newObject({
-        otyp: FOOD_RATION,
-        oclass: game.objects[FOOD_RATION].oc_class,
-        o_id: 9301,
-        quan: 1,
-        owt: game.objects[FOOD_RATION].oc_weight,
-        oeaten: 400,
-        where: OBJ_INVENT,
-        nobj: game.invent,
+    target.monster.mtrapped = true;
+    // trap.c:3742 wants cansee() at the monster's square and display.h
+    // canseemon() wants it in sight as well as seen, so both bits are set;
+    // prepareSelectedAction() leaves only COULD_SEE.
+    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+    game.level.traps.push({
+        // Unmapped, which is the conjunct that opens C:3742.
+        tx: target.monsterX,
+        ty: target.heroY,
+        ttyp: BEAR_TRAP,
+        tseen: false,
     });
-    game.invent = ration;
-    game.go.occupation = eatfood;
-    game.go.occtxt = 'eating the food ration';
-    // js/eat.js maybe_finished_meal():825 needs usedtime at reqtime, and
-    // js/eat.js eatfood():1225 increments past it before calling
-    // done_eating(). Their C anchors are eat.c maybe_finished_meal()
-    // (3877-3889) and eat.c eatfood().
-    game.context.victual = {
-        ...game.context.victual,
-        piece: ration,
-        o_id: ration.o_id,
-        usedtime: 5,
-        reqtime: 5,
-        eating: 1,
-    };
-    game.nomovemsg = "You're finally finished.";
-    // eat.c newuhs():879 resolves statusRefresh only when the status moves.
-    // 900 nutrition is NOT_HUNGRY, and the hero starts the turn SATIATED.
-    game.u.uhunger = 900;
-    game.u.uhs = SATIATED;
-    markStatusLineDirty();
-    const before = liveDisplaySnapshot();
+    // An escape on the rn2(40) roll prints a line; these answer its --More--.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    await runSimpleMonsterAction(monster, { state: game, planning: true });
+    await runLiveMonsterScan();
 
-    assert.equal(game.go.occupation, null);
-    // The meal really finished on this state, so the operation that would have
-    // written was reached rather than skipped.
-    assert.equal(game.context.victual.piece, null);
-    assert.equal(game.u.uhs, NOT_HUNGRY);
-    assert.deepEqual(liveDisplaySnapshot(), before);
+    assert.equal(game.level.traps[0].tseen, true, 'seetrap() mapped it');
 });
-
-// The planning pass dry-runs the turn on a clone with its own copy of the core
-// ISAAC context. A finished floor meal ends through done_eating() -> useupf()
-// -> delobj() -> zap.c obj_resists(), whose rn2(100) C draws once, in the live
-// turn; reached through the clone it must come from the clone's context
-// (js/rng.js withPlanningCoreContext()), or the live stream gains a draw C
-// never makes. recordings/eat.c/dochugw-finishes-floor-meal shows the C order.
-test('a planned finished floor meal draws nothing from the live RNG',
-    async () => {
-        const target = await prepareOccupationInterruption();
-        const corpse = newObject({
-            otyp: CORPSE,
-            corpsenm: PM_LICHEN,
-            oclass: game.objects[CORPSE].oc_class,
-            o_id: 9302,
-            quan: 1,
-            // monst.c lichen cwt, which mkobj.c weight() gives a corpse.
-            owt: game.mons[PM_LICHEN].cwt,
-            where: OBJ_FLOOR,
-            ox: game.u.ux,
-            oy: game.u.uy,
-        });
-        installObject(target, corpse);
-        game.go.occupation = eatfood;
-        game.go.occtxt = 'eating the lichen corpse';
-        // eat.c maybe_finished_meal() finishes the meal only once usedtime
-        // has reached reqtime: the last bite is taken, done_eating() is next.
-        // 3 is eatcorpse()'s reqtime for a lichen, 3 + (cwt >> 6).
-        game.context.victual = {
-            ...game.context.victual,
-            piece: corpse,
-            o_id: corpse.o_id,
-            usedtime: 3,
-            reqtime: 3,
-            eating: 1,
-        };
-        enableRngLog();
-        const before = rngSnapshot();
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(rngSnapshot(), before);
-        assert.deepEqual(getRngLog(), []);
-        // The live meal is untouched: only the clone finished it.
-        assert.equal(game.go.occupation, eatfood);
-        assert.equal(game.level.objects[game.u.ux][game.u.uy], corpse);
-    });
 
 test('simple monster movement continues through an ignored object',
     async () => {
         const target = await prepareSelectedAction();
         const rock = floorObject(target.destinationX, target.heroY);
         installObject(target, rock);
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
 
         const result = await runSimpleMonsterAction(target.monster, {
             state: game,
@@ -4894,7 +3186,7 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
         /mattackm: \(attacker, target, attackEnv\) => mattackm\([\s\S]*?\.\.\.monsterMissileEnv\(attacker, attackEnv\)/u);
 });
 
-test('a tame hatched species with edog state reaches dog_move planning',
+test('a tame hatched species with edog state reaches dog_move',
     async () => {
         // The v20 hatch case produces a tame giant ant. C's m_move() dispatches
         // every tame monster to dog_move(), while dog_move() requires an edog
@@ -4913,16 +3205,10 @@ test('a tame hatched species with edog state reaches dog_move planning',
         assert.equal(monster.data.pmidx, PM_GIANT_ANT);
         assert.ok(monster.mextra?.edog);
 
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            'planning the newly tame species leaves live state and RNG unchanged',
-        );
+        await runSimpleMonsterAction(monster, { state: game });
     });
 
-test('a mounted leashed pony passes preflight and live action guards', async () => {
+test('a mounted leashed pony passes live action guards', async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     const { monster: steed } = target;
     // C's mounted steed occupies the hero's square; the generic action helper
@@ -4936,42 +3222,18 @@ test('a mounted leashed pony passes preflight and live action guards', async () 
     // monster turn, which is the exact state this exception must admit.
     steed.mleashed = true;
 
-    const planned = planningState(game);
-    assert.notEqual(planned.u.usteed, steed);
-    assert.equal(planned.u.usteed, planned.level.monlist);
-    assert.equal(
-        planned.level.monsters[steed.mx][steed.my],
-        planned.u.usteed,
-    );
-    assert.equal(planned.u.usteed.mleashed, true);
-
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-        'the clone-only steed preflight leaves live output, RNG, and state unchanged',
-    );
-
     const result = await runSimpleMonsterAction(steed, { state: game });
     assert.equal(result, MMOVE_NOTHING);
     assert.deepEqual([steed.mx, steed.my], [game.u.ux, game.u.uy]);
 });
 
-test('an ordinary leashed starting pet plans without changing live state',
+test('an ordinary leashed starting pet keeps its leash through dog_move',
     async () => {
         const target = await prepareStartingPetAction(PM_LITTLE_DOG);
         // C dog_goal gives a leashed, unmounted dog the hero's coordinates;
         // its movement uses dog_move's distance limit rather than a refusal.
         target.monster.mleashed = true;
         game.u.usteed = null;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            'a successful clone scan leaves the ordinary leashed dog unchanged',
-        );
         await runSimpleMonsterAction(target.monster, { state: game });
         assert.equal(target.monster.mleashed, true);
     });
@@ -4992,14 +3254,6 @@ test('simple ordinary monster and starting pet can land in a corridor',
         for (const movementCase of cases) {
             const target = await movementCase.prepare();
             game.level.at(target.destinationX, target.heroY).typ = CORR;
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                movementCase.name,
-            );
 
             const result = await runSimpleMonsterAction(target.monster, {
                 state: game,
@@ -5018,67 +3272,7 @@ test('simple ordinary monster and starting pet can land in a corridor',
         }
     });
 
-test('a starting pony targets at range and later sleep planning stays isolated',
-    async () => {
-    const target = await prepareStartingPetAction(PM_PONY);
-    const { monster: pony } = target;
-    const defender = ordinaryMonster(
-        PM_GIANT_RAT,
-        target.monsterX,
-        target.heroY - 2,
-        { m_id: 9002, movement: 0 },
-    );
-    // The later attacker uses the homunculus's AT_BITE/AD_SLEE slot. Its
-    // high level makes the hit deterministic and leaves this test independent
-    // of hitmu's newly admitted hidden-attacker feedback.
-    const laterAttacker = ordinaryMonster(
-        PM_HOMUNCULUS,
-        game.u.ux,
-        game.u.uy - 1,
-        { m_id: 9003, m_lev: 100 },
-    );
-    pony.nmon = defender;
-    defender.nmon = laterAttacker;
-    game.level.monsters[defender.mx][defender.my] = defender;
-    game.level.monsters[laterAttacker.mx][laterAttacker.my] = laterAttacker;
-    for (let y = defender.my; y <= pony.my; ++y)
-        game.level.at(pony.mx, y).typ = ROOM;
-    game.level.at(laterAttacker.mx, laterAttacker.my).typ = ROOM;
-    game.viz_array[pony.my][pony.mx] |= IN_SIGHT;
-    game.viz_array[defender.my][defender.mx] |= IN_SIGHT;
-
-    // Distinct sentinels make each omitted planning clone observable. The
-    // pony writes all four owners during its distant miss; the later ordinary
-    // monster completes the supported AD_SLEE path against the clone.
-    (game.gb ??= {}).bhitpos = { x: 1, y: 2 };
-    (game.gn ??= {}).notonhead = true;
-    (game.gs ??= {}).skipdrin = true;
-    (game.gv ??= {}).vis = false;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const combatBefore = structuredClone({
-        gb: game.gb,
-        gn: game.gn,
-        gs: game.gs,
-        gv: game.gv,
-    });
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `sleep planning attempt ${attempt + 1}`,
-        );
-        assert.deepEqual({
-            gb: game.gb,
-            gn: game.gn,
-            gs: game.gs,
-            gv: game.gv,
-        }, combatBefore);
-    }
-});
-
-test('simple preflight separates each altered monster state before movement',
+test('a tame minion refuses its unported movement',
     async () => {
         // A tame minion eating dog still throws. Non-tame EMIN roamers now
         // use ordinary m_move(), but guardian-pet movement remains outside
@@ -5087,7 +3281,7 @@ test('simple preflight separates each altered monster state before movement',
         target.monster.isminion = true;
         target.monster.meating = 1;
         await assert.rejects(
-            preflightSimpleMonsterActions(game),
+            runSimpleMonsterAction(target.monster, { state: game }),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
                 && error.reason === 'tame minion movement',
             'minion eating dog',
@@ -5131,250 +3325,16 @@ test('non-tame EMIN roamers use ordinary movement and avoid known fire traps',
         }
     });
 
-test('simple preflight plans starting-pet passive effects without live writes',
-    async () => {
-        const cases = [
-            {
-                name: 'dog passive acid response',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(
-                        PM_LITTLE_DOG,
-                    );
-                    // One AT_BITE, so the balk sits at 8 hit points.
-                    installPetDefender(target, 12);
-                    return target;
-                },
-            },
-            {
-                // mon_allowflags() gives tame pets ALLOW_M, so an occupied
-                // square reaches combat before mfndpos() can classify it as
-                // ALLOW_MDISP. Keep that source precedence explicit instead
-                // of fabricating an unreachable pet displacement callback.
-                name: 'pony occupied-square displacement precedence',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(PM_PONY);
-                    // AT_KICK and AT_BITE double the balk to 16.
-                    installPetDefender(target, 20);
-                    return target;
-                },
-            },
-        ];
-
-        for (const actionCase of cases) {
-            const target = await actionCase.prepare();
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            await assert.doesNotReject(
-                preflightSimpleMonsterActions(game),
-                actionCase.name,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                actionCase.name,
-            );
-        }
-    });
-
-// The planning clone's `gf` entry, over decl.h gf.far_noise. mhitm.c noises()
-// writes it beside gn.noisetime whenever a fight the hero cannot see reaches
-// it, and the two rate-limit "You hear some noises." to one line per ten moves
-// at each distance band. A dry run that raised the live flag and left the live
-// timestamp alone would silence the line the live pass owes.
-test('a dry run leaves the noise rate limit alone', async () => {
-    const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-    // The acid passive runs in the planning clone, so this verifies that its
-    // noise-rate writes do not leak into the live state.
-    installPetDefender(target, 12);
-    // Neither combatant's square carries IN_SIGHT, so mattackm() leaves gv.vis
-    // clear and the blow reaches noises() instead of a named line. The fight
-    // is beside the hero, so the near band is what noises() records; the
-    // sentinel is the other band, which is what a live write would replace.
-    game.gf = { far_noise: true };
-    (game.gn ??= {}).noisetime = 0;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    await assert.doesNotReject(preflightSimpleMonsterActions(game));
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.deepEqual(game.gf, { far_noise: true });
-    assert.equal(game.gn.noisetime, 0);
-});
-
-// C ref: dogmove.c dog_move():1298-1312, which prints through pline.c
-// pline_mon(). This scan runs the same turn against a clone, and the live
-// movemon() adapter runs it again afterwards, so the scan's env.message is a
-// no-op: a printing scan would put the line on the top line twice. Before the
-// report was ported this setup refused with `pet cursed-object feedback`, and
-// the refusal is what this replaces.
-test('a planned cursed step prints nothing and leaves the live state alone',
-    async () => {
-        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-        // A rock is the cheapest floor object that dogfood() rejects, so the
-        // pet steps onto the pile reluctantly rather than eating it.
-        const object = floorObject(
-            target.destinationX,
-            target.heroY,
-            9101,
-            ROCK,
-        );
-        object.cursed = true;
-        installObject(target, object);
-        // canseemon() before and after the step, which is what dogmove.c:1298
-        // tests, needs both squares lit and in sight.
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const messagesBefore = [...game.nhDisplay.messages];
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual([...game.nhDisplay.messages], messagesBefore);
-    });
-
-test('a planned monster attack writes nothing to the live display',
-    async () => {
-        // mattacku() gates three display operations on env.planning: the
-        // pline_mon() every message goes through, the newsym() that reveals a
-        // striking eel, and the bot() its damage asks for. The scan runs each
-        // monster turn twice, once here against the clone and then live, so a
-        // guard that stopped working would print and repaint every monster
-        // attack twice over, with the development score green unless a
-        // recorded session happened to show the second copy.
-        //
-        // This case decides two of the three. A grid bug is no eel, so the
-        // newsym() gate is out of its reach; what decides that one is
-        // 'mattacku reveals an eel the moment it strikes' in
-        // scripts/mhitu.test.mjs, which runs one fixture with the flag off and
-        // then on.
-        const target = await prepareSelectedAction({
-            adjacentHero: true,
-            pmidx: PM_GRID_BUG,
-        });
-        // A grid bug's {AT_BITE, AD_ELEC, 1d1} is the one landed melee attack
-        // the port carries through to the hero's hit points, so this is the
-        // widest the planned output gets: hitmsg(), "You get zapped!" or "You
-        // avoid harm.", and mdamageu()'s status write.
-        target.monster.m_lev = 0;
-        // display.h canseemon() wants the attacker's square in sight, and
-        // hitmu() refuses an attacker the hero cannot spot before it reaches
-        // any of the three operations.
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        // AC_VALUE() of a positive armor class is itself, so a differential of
-        // 30 beats every rnd(20) and the plan lands its blow whatever the
-        // cloned PRNG answers.
-        game.u.uac = 20;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        await preflightSimpleMonsterActions(game);
-
-        // The snapshot carries the terminal grid, the message list, the
-        // cursor and disp, which is every surface those three operations
-        // reach.
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-    });
-
-test('a planned pet pickup leaves the live object graph untouched',
-    async () => {
-        // The planning scan runs dog_invent()'s carry arm for real, and it
-        // splits stacks, unlinks floor objects and rewrites monster
-        // inventories. Every one of those has to land on the clone.
-        const target = await prepareStartingPetAction(PM_PONY);
-        target.monster.mextra.edog.apport = 20;
-        const dagger = floorObject(
-            target.monsterX,
-            target.heroY,
-            9101,
-            DAGGER,
-        );
-        installObject(target, dagger);
-        // A second pile ahead of the dagger in the level list: removing the
-        // dagger has to find its predecessor among the cloned objects.
-        const rock = floorObject(target.destinationX, target.heroY, 9102);
-        game.level.objects[rock.ox][rock.oy] = rock;
-        rock.nobj = dagger;
-        game.level.objlist = rock;
-        // A lit square, so the carry arm names the dagger and prints.
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        // Naming the dagger runs xname() -> observe_object() ->
-        // discover_object(), which writes objects[otyp].oc_encountered and
-        // svd.disco[], and find_artifact() writes artiexist[].found.
-        // completeSecondTurnSnapshot() covers none of those three, so the
-        // planning pass leaked into the live ledger without any oracle
-        // noticing. Reset the type first, or an already-encountered dagger
-        // makes the write a no-op and the assertion vacuous.
-        // distant_name() only reaches doname() -> xname() -> observe_object()
-        // on its near branch; objnam.c:355 computes neardist from
-        // u.xray_range, so without this the far branch formats a bare type
-        // name, writes no discovery, and the assertion below is vacuous.
-        game.u.xray_range = 3;
-        game.objects[DAGGER].oc_encountered = 0;
-        const discoveryBefore = JSON.stringify({
-            encountered: game.objects.map((entry) => entry.oc_encountered ?? 0),
-            disco: game.svd?.disco ?? [],
-            artifacts: (game.artiexist ?? []).map((entry) => entry.found ?? 0),
-        });
-        // The artifact third of that oracle is vacuous and cannot be armed
-        // from here. find_artifact() (js/artifacts.js:452-462) is the only
-        // writer of artiexist[].found, it is reached only through xname() on
-        // an object whose oartifact is set, and giving this fixture a real
-        // artifact makes the pet path refuse first: can_carry() reaches
-        // can_touch_safely(), which m_move()'s env answers with a refusal.
-        // The pet case in the artifact pair earlier in this file is that
-        // fixture, with the dagger given an oartifact.
-        // So no admitted planning round reaches find_artifact() today, and
-        // planningState()'s artiexist clone is unexercised: replacing it with
-        // the live array leaves this whole file green. It is kept anyway,
-        // because the arm beside it leaked exactly this way, and the choice is
-        // recorded rather than left to look pinned.
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.equal(
-                JSON.stringify({
-                    encountered: game.objects
-                        .map((entry) => entry.oc_encountered ?? 0),
-                    disco: game.svd?.disco ?? [],
-                    artifacts: (game.artiexist ?? [])
-                        .map((entry) => entry.found ?? 0),
-                }),
-                discoveryBefore,
-                `discovery ledger, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `attempt ${attempt + 1}`,
-            );
-            assert.equal(
-                game.level.objects[target.monsterX][target.heroY],
-                dagger,
-                `attempt ${attempt + 1}`,
-            );
-            assert.equal(dagger.where, OBJ_FLOOR);
-            assert.equal(target.monster.minvent, null);
-        }
-    });
-
-test('a planned monster pickup leaves a live carried stack untouched',
+test('a monster pickup merges into a carried stack',
     async () => {
         // mpickstuff() hands the floor stack to mpickobj() -> add_to_minv(),
         // whose merge loop adds the quantity to a matching stack the monster
-        // already carries and frees the floor object. That write lands on an
-        // object the level list never reaches, so the planning clone has to
-        // root itself at every monster's minvent as well as at objlist.
+        // already carries and frees the floor object.
         // A gnome is M2_COLLECT but not M2_GREEDY, so food is a class it
         // takes and gold is not.
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
         // Both stacks go through newObject(), because mergable() compares
-        // every flag it finds and the clone is built with newObject()'s
-        // defaults: a sparse literal would differ from its own copy and the
+        // every flag it finds: two sparse literals could differ and the
         // merge this test is about would never happen.
         const carried = newObject({
             ...monsterObject(FOOD_RATION, 9201),
@@ -5393,29 +3353,7 @@ test('a planned monster pickup leaves a live carried stack untouched',
             quan: 4,
         });
         installObject(target, pile);
-        const before = completeSecondTurnSnapshot(game, target.replay);
 
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `attempt ${attempt + 1}`,
-            );
-            assert.equal(target.monster.minvent, carried);
-            assert.equal(carried.quan, 6, `attempt ${attempt + 1}`);
-            assert.equal(carried.ocarry, target.monster);
-            assert.equal(
-                game.level.objects[target.destinationX][target.heroY],
-                pile,
-            );
-            assert.equal(pile.quan, 4, `attempt ${attempt + 1}`);
-            assert.equal(pile.where, OBJ_FLOOR);
-        }
-
-        // Everything the plan rehearsed then happens for real, which is what
-        // keeps the assertions above from passing on a monster that never
-        // reached mpickstuff() at all.
         target.monster.weapon_check = NEED_HTH_WEAPON;
         await runSimpleMonsterAction(target.monster, {
             state: game,
@@ -5435,93 +3373,14 @@ test('a planned monster pickup leaves a live carried stack untouched',
         assert.equal(target.monster.weapon_check, NEED_HTH_WEAPON);
     });
 
-test('a flagged monster is scanned and only a real change stops it',
-    async () => {
-        // C ref: mon.c movemon_singlemon():1268-1281. check_gear_next_turn()
-        // sets I_SPECIAL after every pickup, so the bit alone cannot be a
-        // boundary: C reruns m_dowear() and, when nothing is worth putting on,
-        // carries straight into the monster's ordinary move.
-        for (const wearable of [false, true]) {
-            const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-            target.monster.misc_worn_check |= I_SPECIAL;
-            // The arm is entered only for a peaceful or tame monster or one
-            // that believes the hero is more than three squares away; the
-            // fixture places the remembered hero exactly at 3.
-            target.monster.mux = target.monster.mx + 4;
-            target.monster.muy = target.monster.my;
-            if (wearable) {
-                // newObject() again: ocarry shares obj.v with nexthere, and a
-                // plain literal would keep them as two unrelated fields.
-                const helm = newObject(monsterObject(ORCISH_HELM, 9201));
-                helm.ocarry = target.monster;
-                target.monster.minvent = helm;
-            }
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                // worn.c m_dowear() is source-complete.  A planning pass
-                // dresses only its clone, so even a real wearable change
-                // remains side-effect-free for the live state.
-                await preflightSimpleMonsterActions(game);
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `wearable=${wearable}, attempt ${attempt + 1}`,
-                );
-                if (wearable)
-                    assert.equal(target.monster.minvent.owornmask, 0);
-            }
-        }
-    });
-
-test('the planning clone gives each monster its own pack and weapon',
-    async () => {
-        // Cloning inventories is only half the job: a monster also points at
-        // its wielded object through MON_WEP(), and every carried object
-        // points back at its carrier through ocarry. Both live in obj.v's
-        // union, so both have to be remapped or the clone would name live
-        // objects from cloned monsters and vice versa.
-        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-        const dagger = newObject({
-            ...monsterObject(DAGGER, 9201),
-            owornmask: W_WEP,
-        });
-        dagger.ocarry = target.monster;
-        target.monster.minvent = dagger;
-        target.monster.mw = dagger;
-        // Below its ration, so the scan returns before acting and the round
-        // reaches the upkeep hook that hands the cloned state back.
-        target.monster.movement = 0;
-        game.u.umovement = 0;
-        let planned = null;
-
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(state) {
-                planned = state;
-                return true;
-            },
-        });
-
-        const clone = planned.level.monlist;
-        assert.notEqual(clone, target.monster);
-        assert.notEqual(clone.minvent, dagger);
-        assert.equal(clone.minvent.o_id, dagger.o_id);
-        assert.equal(clone.mw, clone.minvent);
-        assert.equal(clone.minvent.ocarry, clone);
-        // The live monster keeps its own pointers into live objects.
-        assert.equal(target.monster.minvent, dagger);
-        assert.equal(target.monster.mw, dagger);
-        assert.equal(dagger.ocarry, target.monster);
-    });
-
-test('an in-range gazing monster reaches gazemu through the planned scan', async () => {
+test('an in-range gazing monster reaches gazemu', async () => {
     // C ref: monmove.c:965-975 with mhitu.c mattacku(). A monster that only
     // believes it is near the hero still reaches mattacku(), where the range2
     // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
     // A gazing monster now reaches whole mhitu.c:gazemu. AD_TYP 255 is an
     // intentionally out-of-domain synthetic value with no switch arm, so the
     // C default calls discarded pline.c:impossible and returns M_ATTK_MISS;
-    // this checks the planner no longer refuses at the former gazemu stub.
+    // this checks the action no longer refuses at the former gazemu stub.
     const target = await prepareSelectedAction();
     // The fixture leaves exactly one legal step. Closing it makes
     // mfndpos() find no candidate, so m_move() returns MMOVE_NOMOVES and
@@ -5538,697 +3397,12 @@ test('an in-range gazing monster reaches gazemu through the planned scan', async
     // target; its one die of two sides is not rolled by that branch.
     mattk[0] = { aatyp: AT_GAZE, adtyp: 255, damn: 1, damd: 2 };
     target.monster.data = { ...target.monster.data, mattk };
-    const before = completeSecondTurnSnapshot(game, target.replay);
 
     game.unported = new Set();
-    await preflightSimpleMonsterActions(game);
+    await runSimpleMonsterAction(target.monster, { state: game });
     assert.ok(game.unported.has('pline.c impossible'),
         'gazemu records its discarded diagnostic at the source default');
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-        'planning keeps the live game and RNG unchanged',
-    );
 });
-
-test('the planning clone keeps the object catalog answering its aliases',
-    async () => {
-        // objects[] entries carry eight aliases that share a backing field and
-        // are defined non-enumerable, so a spread copy answers undefined for
-        // every one. m_dowear() reads oc_armcat and a_ac from the planning
-        // state and select_hwep() reads oc_skill and oc_bimanual, so a
-        // stripped copy sends the dry run down a different branch from the
-        // live pass it is meant to rehearse.
-        const target = await prepareSelectedAction();
-        target.monster.movement = 0;
-        game.u.umovement = 0;
-        let planned = null;
-
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(state) {
-                planned = state;
-                return true;
-            },
-        });
-
-        assert.notEqual(planned.objects, game.objects);
-        const aliases = [
-            'oc_armcat', 'a_ac', 'oc_bimanual', 'oc_skill',
-            'oc_bulky', 'oc_hitbon', 'a_can', 'oc_level',
-        ];
-        for (const alias of aliases) {
-            assert.equal(
-                planned.objects[ORCISH_HELM][alias],
-                game.objects[ORCISH_HELM][alias],
-                alias,
-            );
-            assert.notEqual(
-                planned.objects[ORCISH_HELM][alias],
-                undefined,
-                alias,
-            );
-        }
-        // Still a copy: the discovery ledger the clone writes stays there.
-        planned.objects[ORCISH_HELM].oc_encountered = 1;
-        assert.equal(game.objects[ORCISH_HELM].oc_encountered, 0);
-    });
-
-test('planning brackets only the monster scan with context.mon_moving',
-    async () => {
-        const target = await prepareSelectedAction();
-        // Below its ration, so the scan reaches m_everyturn_effect() and
-        // returns without acting, leaving the round free to reach upkeep.
-        target.monster.movement = 0;
-        game.u.umovement = 0;
-        let rounds = 0;
-
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                ++rounds;
-                // allmain.c clears context.mon_moving after the monster loop
-                // and before the once-per-turn block, and the live loop does
-                // the same in its finally. The plan must agree, or a planned
-                // round would take mon_moving-gated branches the live round
-                // does not.
-                assert.equal(planned.context.mon_moving, false);
-                return true;
-            },
-        });
-        assert.equal(rounds, 1);
-        // The live state owns its own flag and must be untouched.
-        assert.notEqual(game.context.mon_moving, true);
-    });
-
-test('planning frees a dead monster before the next allocation', async () => {
-    const target = await prepareSelectedAction();
-    game.u.umovement = 0;
-    target.monster.mhp = 0;
-    // xkilled() has already queued this dead monster for the C movemon()
-    // tail. The planning clone must consume the same purge count without
-    // unlinking the live list or advancing the live ISAAC state.
-    game.iflags.purge_monsters = 1;
-    const liveMonster = game.level.monlist;
-    const beforeRandom = rngSnapshot();
-    let plannedMonster;
-    await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        advanceRound(planned) {
-            plannedMonster = planned.level.monlist;
-            return true;
-        },
-    });
-    assert.equal(plannedMonster, null);
-    assert.equal(game.level.monlist, liveMonster);
-    assert.equal(game.iflags.purge_monsters, 1);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-});
-
-test('planning propagates a stopped scan before a second upkeep', async () => {
-    const target = await prepareSelectedAction();
-    const tailMonster = ordinaryMonster(
-        PM_GNOME,
-        target.monsterX,
-        target.heroY + 1,
-        {
-            m_id: target.monster.m_id + 1,
-            movement: 0,
-        },
-    );
-    game.level.at(tailMonster.mx, tailMonster.my).typ = ROOM;
-    target.monster.movement = 0;
-    target.monster.nmon = tailMonster;
-    game.level.monsters[tailMonster.mx][tailMonster.my] = tailMonster;
-    game.u.umovement = 0;
-
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const beforeRandom = rngSnapshot();
-    let upkeepRounds = 0;
-    const plan = await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        advanceRound(planned) {
-            ++upkeepRounds;
-            assert.equal(
-                upkeepRounds,
-                1,
-                'a stopped cloned movemon scan cannot enter another upkeep',
-            );
-            // movemon_singlemon() returns TRUE at its source level-exit gate.
-            // The planning owner reports that deferred transition to allmain;
-            // the live pass performs it before planning the destination suffix.
-            planned.u.utotype = 1;
-        },
-    });
-
-    assert.equal(upkeepRounds, 1);
-    assert.equal(plan.deferredGoto, true);
-    assert.equal(plan.upkeepCount, 1);
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-});
-
-test('planning detects a deferred transition after an empty monster scan', async () => {
-    await prepareSelectedAction();
-    game.level.monlist = null;
-    game.u.utotype = 1;
-    const beforeRandom = rngSnapshot();
-    const plan = await preflightSimpleMonsterActions(game, {
-        advanceRound() {
-            assert.fail('movemon defers the level change before upkeep');
-        },
-    });
-    // mon.c movemon checks utotype after iteration even when no callback
-    // returns TRUE. The same tail handles departure set by the final actor.
-    assert.equal(plan.deferredGoto, true);
-    assert.equal(plan.upkeepCount, 0);
-    assert.equal(game.u.utotype, 1);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-});
-
-test('planning after a completed scan reaches upkeep before destination monsters', async () => {
-    const target = await prepareSelectedAction();
-    target.monster.movement = NORMAL_SPEED;
-    game.u.umovement = 0;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const beforeRandom = rngSnapshot();
-    const plan = await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        afterMonsterScan: true,
-        advanceRound(planned) {
-            // deferred_goto ends movemon with FALSE. allmain.c enters the
-            // allocation gate without spending a destination monster's ration.
-            assert.equal(planned.level.monlist.movement, NORMAL_SPEED);
-            assert.equal(planned.u.umovement, 0);
-            assert.equal(planned.context.mon_moving, false);
-            return true;
-        },
-    });
-    assert.equal(plan.upkeepCount, 1);
-    assert.equal(plan.deferredGoto, false);
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.deepEqual(rngSnapshot(), beforeRandom);
-});
-
-test('planning rescans while a monster outruns the hero', async () => {
-    const target = await prepareSelectedAction();
-    // Two rations for the monster, none for the hero: mon.c sets
-    // somebody_can_move on the first scan because movement is still at least
-    // NORMAL_SPEED after the debit, so the inner loop must run a second scan
-    // before any once-per-turn upkeep is considered.
-    target.monster.movement = NORMAL_SPEED * 2;
-    game.u.umovement = 0;
-    let rounds = 0;
-
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            ++rounds;
-            // Both rations are spent by the time upkeep is reached.
-            assert.ok(planned.level.monlist.movement < NORMAL_SPEED);
-            return true;
-        },
-    });
-    assert.equal(rounds, 1);
-    // The live monster keeps both rations: the scan ran only on the clone.
-    assert.equal(target.monster.movement, NORMAL_SPEED * 2);
-});
-
-test('planning reaches Conflict resistance before monster combat',
-    async () => {
-        const target = await prepareSelectedAction();
-        // This enters movemon_singlemon()'s final Conflict arm rather than
-        // stopping in assertSimpleScanState(). A level this high makes
-        // mondata.c resist_conflict()'s `min(19, ...)` result negative, so
-        // every rnd(20) resists and the test stays on this slice's side of
-        // fightm()'s next monster-versus-monster boundary.
-        target.monster.m_lev = 100;
-        game.level.regions = [];
-        game.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-        try {
-            const result = await preflightSimpleMonsterActions(game);
-            assert.equal(result.heroDeath, null);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-            );
-            assert.deepEqual(rngSnapshot(), beforeRandom);
-        } finally {
-            game.u.uprops[CONFLICT] = { intrinsic: 0, extrinsic: 0 };
-        }
-    });
-
-// Audit rows 5, 13, and 14: planningState() clones the timer queue head and
-// the timer_id counter so a monster generated during a dry run cannot leave an
-// orphan timer behind, but the isolation test above never reaches
-// finishElapsedTurn, so nothing exercised that clone. A planning round that
-// starts a timer must leave the live queue and counter untouched, on every
-// retry.
-test('planning rounds cannot reach the live timer queue', async () => {
-    const target = await prepareSelectedAction();
-    target.monster.movement = 0;
-    game.u.umovement = 0;
-    game.level.regions = [];
-
-    const liveTimerBase = game.gt.timer_base;
-    const liveTimerId = game.svt.timer_id;
-    const beforeRandom = rngSnapshot();
-    const before = completeSecondTurnSnapshot(game, target.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    // What makemon() -> m_initinv() -> begin_burn() does for a
-                    // gnome carrying a lit candle, without needing that draw.
-                    start_timer(
-                        50,
-                        TIMER_OBJECT,
-                        BURN_OBJECT,
-                        { age: 200 },
-                        planned,
-                    );
-                    assert.notStrictEqual(
-                        planned.gt.timer_base,
-                        liveTimerBase,
-                    );
-                    assert.equal(planned.svt.timer_id, liveTimerId + 1);
-                    throw new UnsupportedSimpleMonsterActionError(
-                        'after a planned timer',
-                    );
-                },
-            }),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'after a planned timer'
-            ),
-            `attempt ${attempt}`,
-        );
-        assert.strictEqual(
-            game.gt.timer_base,
-            liveTimerBase,
-            `attempt ${attempt}`,
-        );
-        assert.equal(game.svt.timer_id, liveTimerId, `attempt ${attempt}`);
-        assert.deepEqual(rngSnapshot(), beforeRandom, `attempt ${attempt}`);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `attempt ${attempt}`,
-        );
-    }
-});
-
-// planningState() remaps both list heads through the monster map and the
-// object map. Only the monster half was covered: a light source or a burn
-// timer keyed on a live floor object kept pointing at that object inside the
-// clone, so a planned round would read and write live state through it.
-test('the planning clone remaps a light source and a timer onto the copy',
-    async () => {
-        const target = await prepareSelectedAction();
-        target.monster.movement = 0;
-        game.u.umovement = 0;
-        game.level.regions = [];
-
-        // light.c keys an object light source on the object itself, and
-        // timeout.c's BURN_OBJECT timer holds the same object as its argument,
-        // so one lit candle on the floor exercises both maps at once.
-        const candle = floorObject(
-            target.monsterX,
-            target.heroY,
-            9403, // A live object id distinct from every other fixture's.
-            WAX_CANDLE,
-        );
-        candle.lamplit = true;
-        installObject(target, candle);
-        // Range 1 is the smallest new_light_source() accepts for an object.
-        new_light_source(candle.ox, candle.oy, 1, LS_OBJECT, candle, game);
-        // 50 turns is the same arbitrary timeout the queue-isolation test
-        // above uses; nothing here reads it.
-        start_timer(50, TIMER_OBJECT, BURN_OBJECT, candle, game);
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    const copy = planned.level.objects[candle.ox][candle.oy];
-                    assert.notStrictEqual(copy, candle);
-                    assert.strictEqual(planned.gl.light_base.id, copy);
-                    assert.strictEqual(planned.gt.timer_base.arg, copy);
-                    throw new UnsupportedSimpleMonsterActionError(
-                        'after the clone check',
-                    );
-                },
-            }),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'after the clone check'
-            ),
-        );
-    });
-
-// The planned starting-pet pickup reaches distant_name() for a lit floor
-// candle. objnam.c:doname_base now owns that timer-sensitive name; the dry
-// run must still leave the live state and ISAAC stream untouched.
-test('a planned pickup names a lit candle on the planning clone',
-    async () => {
-        const target = await prepareStartingPetAction(PM_PONY);
-        target.monster.mextra.edog.apport = 20;
-        const candle = floorObject(
-            target.monsterX,
-            target.heroY,
-            9301,
-            WAX_CANDLE,
-        );
-        candle.lamplit = true;
-        installObject(target, candle);
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        // distant_name()'s near branch is the one that formats through
-        // doname(); the far branch never reaches preflightObjectName().
-        game.u.xray_range = 3;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const beforeRandom = rngSnapshot();
-
-        const plan = await preflightSimpleMonsterActions(game);
-
-        assert.equal(typeof plan.upkeepCount, 'number');
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.deepEqual(rngSnapshot(), beforeRandom);
-    });
-
-// The transparency-index restore in preflightSimpleMonsterActions()'s finally
-// calls recalc_block_point(), and rebuildVisionPoint() sets vision_full_recalc
-// whenever the change touches the hero's current vision. That is the normal
-// case for a door in a lit room, and it made the dry run leave a flag set that
-// the live scan then consumes as a vision_recalc(0) C never performs.
-//
-// prepareClosedDoorArrival() cannot show it: its viz_array entry at the door is
-// 0, so rebuildVisionPoint() takes the other branch. This case puts the door
-// inside the hero's vision first, which is what the leak needs.
-test('a planned door opening leaves vision_full_recalc as it found it',
-    async () => {
-        const target = await prepareClosedDoorArrival();
-        // Clear the square between hero and door, then recompute so the live
-        // vision genuinely covers the door.
-        for (let x = target.heroX + 1; x < target.destinationX; ++x) {
-            const between = game.level.at(x, target.heroY);
-            between.typ = ROOM;
-            between.flags = 0;
-            recalc_block_point(x, target.heroY, game);
-        }
-        vision_recalc(0);
-        assert.notEqual(
-            game.viz_array[target.heroY][target.destinationX] & COULD_SEE,
-            0,
-            'the fixture must put the door inside the hero vision',
-        );
-
-        game.vision_full_recalc = 0;
-        await preflightSimpleMonsterActions(game);
-
-        assert.equal(game.vision_full_recalc, 0);
-    });
-
-// The cases below share one detector rather than one assertion each.
-// freezeLiveState() deep-freezes everything the dry run can reach in the live
-// game, so a field planningState() forgot to copy throws a TypeError at the
-// line that writes it. They exist because the field list has no source of
-// truth to check against: nine recorded defects were all found by symptom,
-// after the fact, and two of them were introduced by the fix for a previous
-// one. See scripts/planning-isolation-test-support.mjs for its three
-// exclusions and the one thing it cannot see at all. Each case asserts a floor
-// on the objects frozen, so a walk that reached almost nothing cannot pass as a
-// clean run, and each calls guard.assertNoLeak() afterwards, which covers the
-// typed-array grids -- state.viz_array among them -- that cannot be frozen.
-//
-// Each case ends with the game frozen for good, so none may run a live pass
-// afterwards.
-
-// Every case calls this. freezeLiveState() reports what it reached, and a
-// walk that reached almost nothing would let every case below pass without
-// testing anything -- a failure that looks exactly like success.
-function assertDetectorReachedTheGraph(guard) {
-    assert.ok(guard.frozen > 1000, `froze only ${guard.frozen} objects`);
-    assert.ok(guard.views > 0, `snapshotted only ${guard.views} typed arrays`);
-}
-
-test('a planned ordinary move writes nothing to frozen live state',
-    async () => {
-        const target = await prepareSelectedAction();
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await preflightSimpleMonsterActions(game);
-
-        guard.assertNoLeak(assert);
-        assert.equal(target.monster.mx, target.monsterX);
-    });
-
-test('a planned door opening writes nothing to frozen live state',
-    async () => {
-        // The widest of the three: postmov()'s UnblockDoor arm runs
-        // vision_recalc() against the planned map, and the scan's finally
-        // re-derives the borrowed transparency index from the live one. The
-        // live root is left writable precisely so that restore can write its
-        // three fields; everything it reaches below the root is frozen.
-        const target = await prepareClosedDoorArrival();
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await preflightSimpleMonsterActions(game);
-
-        guard.assertNoLeak(assert);
-        assert.equal(target.location.flags, D_CLOSED);
-        assert.equal(doorLetsLightThrough(target), 0);
-    });
-
-test('a planned fog-region leave writes nothing to frozen live state',
-    async () => {
-    const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-    target.monster.movement = NORMAL_SPEED;
-    game.level.regions = [];
-    // prepareSelectedAction() constructs its corridor directly. Bring the
-    // borrowed transparency index into step with that map before freezing it,
-    // as a running game's map-changing owners do.
-    recalc_block_point(target.monsterX, target.heroY, game);
-    const guard = freezeLiveState(game);
-    assertDetectorReachedTheGraph(guard);
-
-    await preflightSimpleMonsterActions(game);
-
-    guard.assertNoLeak(assert);
-    assert.deepEqual(game.level.regions, []);
-});
-
-test('a planned pet pickup writes nothing to frozen live state',
-    async () => {
-        // dog_invent()'s carry arm splits stacks, unlinks floor objects,
-        // rewrites monster inventories and names the object, which reaches
-        // discover_object(). It is the path that produced the discovery-ledger
-        // defect and the dropped catalog aliases, so it is the one most worth
-        // freezing. The fixture matches the untouched-graph test above,
-        // including xray_range, which is what puts distant_name() on the near
-        // branch that names and therefore discovers; without it the carry arm
-        // formats a bare type name and the case proves nothing.
-        const target = await prepareStartingPetAction(PM_PONY);
-        target.monster.mextra.edog.apport = 20;
-        const dagger = floorObject(
-            target.monsterX,
-            target.heroY,
-            9101,
-            DAGGER,
-        );
-        installObject(target, dagger);
-        const rock = floorObject(target.destinationX, target.heroY, 9102);
-        game.level.objects[rock.ox][rock.oy] = rock;
-        rock.nobj = dagger;
-        game.level.objlist = rock;
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        game.u.xray_range = 3;
-        game.objects[DAGGER].oc_encountered = 0;
-        const discoBefore = JSON.stringify(game.svd.disco);
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await preflightSimpleMonsterActions(game);
-
-        guard.assertNoLeak(assert);
-
-        // The freeze is the detector; these pin that the case still reaches
-        // the arm, so a fixture that stops refusing early cannot pass quietly.
-        assert.equal(game.objects[DAGGER].oc_encountered, 0);
-        assert.equal(JSON.stringify(game.svd.disco), discoBefore);
-        assert.equal(dagger.where, OBJ_FLOOR);
-        assert.equal(game.level.objlist, rock);
-    });
-
-test('a planned arrow trap writes nothing to frozen live state', async () => {
-    // trap.c trapeffect_arrow_trap() writes the trap's `once` bit, mksobj()
-    // reads and advances context.ident through next_ident(), and a missed
-    // dart is linked into the floor grid and the level object list. None of
-    // those is reached by the pickup cases above, which move objects that
-    // already exist.
-    const target = await prepareSelectedAction();
-    game.level.traps = [{
-        tx: target.destinationX,
-        ty: target.heroY,
-        ttyp: ARROW_TRAP,
-        tseen: false,
-        once: false,
-        madeby_u: false,
-        tnote: 0,
-        vl: {},
-        launch: { x: -1, y: -1 },
-        dst: { dnum: -1, dlevel: -1 },
-        teledest: { x: 0, y: 0 },
-        conjoined: 0,
-    }];
-    const identBefore = game.context.ident;
-    const guard = freezeLiveState(game);
-    assertDetectorReachedTheGraph(guard);
-
-    await preflightSimpleMonsterActions(game);
-
-    guard.assertNoLeak(assert);
-    // The freeze is the detector; these pin that the case still reaches the
-    // arm, so a fixture that stops refusing early cannot pass quietly.
-    assert.equal(game.level.traps[0].once, false);
-    assert.equal(game.context.ident, identBefore);
-    assert.equal(game.level.objlist, null);
-    assert.equal(game.level.objects[target.destinationX][target.heroY], null);
-});
-
-test('a planned unspottable defender leaves frozen live state unmarked',
-    async () => {
-        // mhitm.c pre_mm_attack():67-68 writes GLYPH_INVISIBLE into the
-        // defender's square through display.c map_invisible(), which also
-        // paints through show_glyph_cell(). Both halves land on the live game:
-        // the clone's level cells are the live ones, and show_glyph_cell()
-        // takes no state at all. So the scan binds the marker seam to a no-op
-        // the way it binds `redraw`, and the live replay of the same turn
-        // writes both.
-        //
-        // The pet's square is in sight and the acid blob's is not, so
-        // mattackm():355-357 sets gv.vis from the attacker's half alone and
-        // the defender fails canspotmon() -- the one combination that reaches
-        // the arm. The completed passive lets planning finish, while the
-        // clone-only invisible marker must leave the live map untouched.
-        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-        installPetDefender(target, 12);
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await assert.doesNotReject(preflightSimpleMonsterActions(game));
-
-        guard.assertNoLeak(assert);
-    });
-
-test('a planned distant pet pickup writes nothing to frozen live state',
-    async () => {
-        // The same carry arm on distant_name()'s far branch, which is the
-        // only reader of gd. objnam.c computes neardist from u.xray_range, so
-        // the case above -- which sets it, to reach discover_object() --
-        // returns before the counter is touched; the two branches cannot be
-        // armed at once. gd.distantname is raised around the name and lowered
-        // in a finally, so a shared gd is balanced and shows nothing by
-        // inspection. It leaks only once gd exists, which it does from the
-        // first live distant_name() onwards: absent in a fresh game, present
-        // in a played one. Seeding it is what makes that state reachable here.
-        const target = await prepareStartingPetAction(PM_PONY);
-        target.monster.mextra.edog.apport = 20;
-        const dagger = floorObject(
-            target.monsterX,
-            target.heroY,
-            9101,
-            DAGGER,
-        );
-        installObject(target, dagger);
-        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        game.gd = { distantname: 0 };
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await preflightSimpleMonsterActions(game);
-
-        guard.assertNoLeak(assert);
-        assert.equal(game.gd.distantname, 0);
-        assert.equal(dagger.where, OBJ_FLOOR);
-    });
-
-test('a planned monster blow writes nothing to frozen live state',
-    async () => {
-        // mhitu.c mattacku()'s hit path, which none of the cases above
-        // reaches: each stages a distant monster or a pet, and only an
-        // adjacent hostile swings. The blow writes decl.h:457-458's gh pair
-        // through hitmsg(), u.uhp and disp.botl through mdamageu(), and
-        // go.occupation, multi and the canned command queue through
-        // allmain.c stop_occupation().
-        //
-        // Seeding gh is what makes the leak reachable, as it is for gd in the
-        // case above. hitmsgState()'s `state.gh ??= {}` creates the pair on
-        // the clone's own root when the live game has none, so a first-ever
-        // blow writes nothing shared whether or not planningState() copies the
-        // field; gh is absent in a fresh game and present in a played one.
-        const target = await prepareSelectedAction({ adjacentHero: true });
-        // hitmu() refuses an attacker the hero cannot spot before it reaches
-        // any of those writes, and display.h canseemon() wants the attacker's
-        // square in sight as well as seen.
-        game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
-        // mhitu.c:806's `tmp > rnd(20)`, where tmp carries the attacker's
-        // level. Thirty puts the differential past every roll, so the plan
-        // lands the bite whatever the cloned PRNG answers.
-        target.monster.m_lev = 30;
-        // The pair hitmsg() would leave behind after this monster's own first
-        // slot, which is the state a played game arrives with.
-        game.gh = {
-            hitmsg_mid: target.monster.m_id,
-            hitmsg_prev: target.monster.data.mattk[0],
-        };
-        const ghBefore = { ...game.gh };
-        const uhpBefore = game.u.uhp;
-        const botlBefore = game.disp.botl;
-        const guard = freezeLiveState(game);
-        assertDetectorReachedTheGraph(guard);
-
-        await preflightSimpleMonsterActions(game);
-
-        guard.assertNoLeak(assert);
-        // The freeze is the detector, and it is also what shows the case
-        // arrives: dropping gh from planningState() makes the plan throw a
-        // TypeError inside hitmsgState(), which it can only do by reaching
-        // hitmsg(). These three restate the fields the blow writes, so a leak
-        // onto one of freezeLiveState()'s declared exclusions still shows.
-        assert.deepEqual(game.gh, ghBefore);
-        assert.equal(game.u.uhp, uhpBefore);
-        assert.equal(game.disp.botl, botlBefore);
-    });
-
-// C ref: monmove.c dochug() processes every M1_TPORT monster through the
-// normal Phase Two path. The port narrows its species guard to PM_TENGU on
-// teleport-permitted levels (teleport-in-nature at monmove.c:1841-1849) and PM_LEPRECHAUN
-// (leppie_avoidance at monmove.c:1874), whose species-specific code is not
-// yet ported. Genetic engineer, quantum mechanic, and nymphs have no
-// species-specific branch in the movement path and enter dochug() normally.
-test('species guard admits M1_TPORT monsters without species-specific code',
-    async () => {
-        // Each of these species has M1_TPORT but no unported species-specific
-        // movement code: genetic engineer (AT_CLAW/AD_POLY), quantum mechanic
-        // (AT_CLAW/AD_TLPT), and wood nymph (AT_CLAW/AD_SITM+AD_SEDU). Their
-        // attack damage types are caught by later per-attack guards (mhitm or
-        // mhitu), not by assertSimpleActionState().
-        for (const pmidx of [
-            PM_GENETIC_ENGINEER,
-            PM_QUANTUM_MECHANIC,
-            PM_WOOD_NYMPH,
-        ]) {
-            const target = await prepareSelectedAction({ pmidx });
-            const before = preflightSnapshot();
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(preflightSnapshot(), before, `pmidx ${pmidx}`);
-        }
-    });
 
 // C ref: monmove.c dochug():745-750. Water nymphs have M1_TPORT but no
 // species-specific movement arm, so an already fleeing one reaches rloc()
@@ -6281,23 +3455,9 @@ test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
     target.monster.msleeping = true;
     game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-    const before = completeSecondTurnSnapshot(game, target.replay);
     const rngBefore = target.replay.getRngLog().length;
     const screensBefore = target.replay.getScreens().length;
     const events = [];
-
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            const leprechaun = planned.level.monlist;
-            assert.equal(leprechaun.movement, 0);
-            assert.equal(leprechaun.msleeping, true);
-            return true;
-        },
-    });
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-    );
 
     await movemon_singlemon(target.monster, {
         state: game,
@@ -6337,147 +3497,37 @@ test('visible sleeping leprechaun reaches the Stealth disturb gate', async () =>
     // The nonzero intrinsic is C's active Stealth property representation.
     game.u.uprops[STEALTH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     assert.ok(game.viz_array[target.heroY][target.monsterX] & COULD_SEE);
-    const before = completeSecondTurnSnapshot(game, target.replay);
     const rngBefore = target.replay.getRngLog().length;
     const screensBefore = target.replay.getScreens().length;
-    let inspectedPlannedSleeper = false;
 
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            const leprechaun = planned.level.monlist;
-            assert.equal(leprechaun.msleeping, true);
-            assert.equal(leprechaun.movement, 0);
-            inspectedPlannedSleeper = true;
-            return true;
-        },
+    await movemon_singlemon(target.monster, {
+        state: game,
+        everyTurnEffect: () => {},
+        visionRecalc: () => {},
+        clearBypasses: () => {},
+        minLiquid: () => false,
+        dowear: () => {},
+        restrap: () => false,
+        canSeeMonster: () => true,
+        hideUnder: () => false,
+        canSeeHero: () => false,
+        canSeeSquare: () => false,
+        fightMonster: () => false,
+        dochugwAction: (monster, _chug, env) =>
+            runSimpleMonsterAction(monster, env),
     });
 
-    assert.equal(inspectedPlannedSleeper, true);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-        'the clone-only wake gate leaves live game state unchanged',
-    );
+    assert.equal(target.monster.msleeping, true);
+    assert.equal(target.monster.movement, 0);
     assert.equal(target.replay.getRngLog().length, rngBefore);
     assert.equal(target.replay.getScreens().length, screensBefore);
-});
-
-// C ref: monmove.c:341-358 and :726-731. Unseen, distant and Stealth cases
-// return before wakeup RNG. A nearby visible bee reaches the wakeup roll;
-// planning must preserve live state in both paths.
-test('sleeping killer bee planning isolates wakeup and no-op states', async () => {
-    const cases = [
-        { label: 'unseen within wake range', distant: false, visible: false },
-        { label: 'visible beyond wake range', distant: true, visible: true },
-    ];
-    for (const testCase of cases) {
-        const target = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
-        target.monster.msleeping = true;
-        if (testCase.distant) {
-            // Keep couldsee() true while making mdistu() exceed 100, as in
-            // the fixed seed's (32,15) versus (44,14) state.
-            game.level.monsters[target.monsterX][target.heroY] = null;
-            target.monster.mx = 1;
-            target.monster.my = 1;
-            game.level.monsters[1][1] = target.monster;
-            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-            game.viz_array[1][1] |= COULD_SEE;
-        } else {
-            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-        }
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        const rngBefore = target.replay.getRngLog().length;
-        const screensBefore = target.replay.getScreens().length;
-
-        await preflightSimpleMonsterActions(game);
-
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            testCase.label,
-        );
-        assert.equal(
-            target.replay.getRngLog().length,
-            rngBefore,
-            `${testCase.label}: no wakeup RNG`,
-        );
-        assert.equal(
-            target.replay.getScreens().length,
-            screensBefore,
-            `${testCase.label}: no display work`,
-        );
-        assert.equal(target.monster.msleeping, true, testCase.label);
-    }
-
-    const stealth = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
-    stealth.monster.msleeping = true;
-    game.u.uprops[STEALTH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    game.viz_array[stealth.heroY][stealth.monsterX] |= COULD_SEE;
-    const stealthBefore = completeSecondTurnSnapshot(game, stealth.replay);
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, stealth.replay),
-        stealthBefore,
-        'Stealth prevents a killer bee wake before any RNG',
-    );
-    assert.equal(stealth.monster.msleeping, true);
-
-    const visible = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
-    visible.monster.msleeping = true;
-    game.viz_array[visible.heroY][visible.monsterX] |= COULD_SEE;
-    const visibleBefore = completeSecondTurnSnapshot(game, visible.replay);
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, visible.replay),
-        visibleBefore,
-        'visible bee wakeup planning leaves live state and RNG unchanged',
-    );
-});
-
-// C ref: monmove.c dochug() checks the bee's square for royal jelly in
-// PHASE THREE, then continues to ordinary movement and attacks when the
-// conditional bee_eat_jelly() call does not consume the move. The planning
-// preflight must not reject an awake bee before this source gate runs.
-test('awake killer bees reach the source jelly gate during preflight', async () => {
-    const target = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
-    const { monster } = target;
-    monster.msleeping = false;
-    monster.mtame = 0;
-    monster.mpeaceful = false;
-    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
-    assert.equal(monster.mcanmove, true);
-    assert.equal(monster.data?.pmidx, PM_KILLER_BEE);
-    assert.equal(
-        game.level.objects[target.monsterX][target.heroY],
-        null,
-        'this ordinary route has no floor jelly under the bee',
-    );
-
-    const dochug = MONMOVE_SOURCE.indexOf('dochug(struct monst *mtmp)');
-    const beeGate = MONMOVE_SOURCE.indexOf(
-        'if (mdat == &mons[PM_KILLER_BEE]', dochug,
-    );
-    const phaseFour = MONMOVE_SOURCE.indexOf('PHASE FOUR: Standard Attacks', beeGate);
-    assert.ok(dochug >= 0 && beeGate > dochug && phaseFour > beeGate);
-    assert.match(
-        MONMOVE_SOURCE.slice(beeGate, phaseFour),
-        /sobj_at\(LUMP_OF_ROYAL_JELLY, mtmp->mx, mtmp->my\)[\s\S]*?bee_eat_jelly\(mtmp, otmp\)\) >= 0/u,
-    );
-
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-        'awake-bee action planning leaves the live game unchanged',
-    );
 });
 
 // This is the production entry point for the same branch, rather than a
 // direct helper fixture.  The independently selected D:10 arrival creates a
 // beehive; its bees are mobile but asleep and remain beyond mdistu 100 from
-// the arrival square.  The closing wait must therefore complete the live and
-// planning scans without reaching the bee_eat_jelly special-action boundary.
+// the arrival square.  The closing wait must therefore complete the live
+// scan without reaching the bee_eat_jelly special-action boundary.
 test('a D:10 beehive wait reaches sleeping-bee disturb through production',
     async () => {
         let boundary = null;
@@ -6513,9 +3563,8 @@ test('a D:10 beehive wait reaches sleeping-bee disturb through production',
     });
 
 // C ref: monmove.c dochug() (726-731, 782). A sleeping covetous monster
-// outside couldsee() returns from disturb() before tactics(), so the planning
-// clone and live pass must both leave its state and the PRNG unchanged. The
-// Wizard of Yendor is used because monsters.h marks it M3_COVETOUS.
+// outside couldsee() returns from disturb() before tactics(), so the live
+// pass must leave its state and the PRNG unchanged. The Wizard of Yendor is used because monsters.h marks it M3_COVETOUS.
 test('sleeping out-of-sight covetous monster takes the disturb no-op',
     async () => {
         const target = await prepareSelectedAction({
@@ -6523,23 +3572,9 @@ test('sleeping out-of-sight covetous monster takes the disturb no-op',
         });
         target.monster.msleeping = true;
         game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-        const before = completeSecondTurnSnapshot(game, target.replay);
         const rngBefore = target.replay.getRngLog().length;
         const screensBefore = target.replay.getScreens().length;
         const events = [];
-
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                const wizard = planned.level.monlist;
-                assert.equal(wizard.movement, 0);
-                assert.equal(wizard.msleeping, true);
-                return true;
-            },
-        });
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
 
         await movemon_singlemon(target.monster, {
             state: game,
@@ -6572,31 +3607,16 @@ test('sleeping out-of-sight covetous monster takes the disturb no-op',
 
 // C ref: monmove.c dochug():726-731 and m_move():1769. A sleeping long worm
 // outside couldsee() returns before the unported wormno movement branch, so
-// the planning clone and live pass must leave its state and PRNG unchanged.
+// the live pass must leave its state and PRNG unchanged.
 test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
     target.monster.msleeping = true;
     // A positive worm number identifies the long-worm movement state in C.
     target.monster.wormno = 1;
     game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-    const before = completeSecondTurnSnapshot(game, target.replay);
     const rngBefore = target.replay.getRngLog().length;
     const screensBefore = target.replay.getScreens().length;
     const events = [];
-
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            const worm = planned.level.monlist;
-            assert.equal(worm.movement, 0);
-            assert.equal(worm.msleeping, true);
-            assert.equal(worm.wormno, 1);
-            return true;
-        },
-    });
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-    );
 
     await movemon_singlemon(target.monster, {
         state: game,
@@ -6628,44 +3648,13 @@ test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
 
-// C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
-// long worm reaches m_move()'s ordinary not_special path. worm_move() updates
-// its tail after relocation; the independent worm_nomove() branch remains a
-// named gap, but m_move itself must not refuse this source path.
-test('awake or visible long worms use the ordinary movement path', async () => {
-    for (const testCase of [
-        // Awake removes dochug()'s early disturb() return.
-        { label: 'awake out of sight', sleeping: false, visible: false },
-        // couldsee() lets disturb() potentially wake a sleeping worm.
-        { label: 'sleeping in sight', sleeping: true, visible: true },
-    ]) {
-        const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
-        target.monster.msleeping = testCase.sleeping;
-        // A positive worm number identifies the long-worm movement state in C.
-        target.monster.wormno = 1;
-        game.level.worms = Array(MAX_NUM_WORMS).fill(null);
-        initworm(target.monster, 0, { state: game });
-        if (testCase.visible)
-            game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
-        else
-            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        await preflightSimpleMonsterActions(game);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            testCase.label,
-        );
-    }
-});
-
 // C: monmove.c m_move()/postmov() -> trap.c mintrap() ->
 // trapeffect_arrow_trap() -> thitm() -> mon.c monkilled(). The first real
 // movement places a source-valid tail and establishes the next growtime; the
 // fixture then represents an ordinary already-injured (but living) worm at
-// HP 1 before the one fresh arrow trap. The selected action itself uses the
-// production planning clone and the normal monster-action provider.
-test('a planned long worm dies through a fresh arrow trap and releases its tail', async () => {
+// HP 1 before the one fresh arrow trap. The selected action uses the normal
+// monster-action provider.
+test('a long worm dies through a fresh arrow trap and releases its tail', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
     const sourceWorm = target.monster;
     sourceWorm.cham = NON_PM;
@@ -6685,37 +3674,31 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
     initworm(sourceWorm, 1, { state: game });
     game.viz_array[target.heroY][sourceX] |= COULD_SEE;
 
-    const planned = planningState(game);
-    const worm = planned.level.monlist;
-    const liveGuard = freezeLiveState(game);
-    const random = createCoreRandom(
-        cloneIsaacContext(planned.coreCtx),
-        planned,
-    );
+    const worm = sourceWorm;
+    const random = createCoreRandom(cloneIsaacContext(game.coreCtx), game);
     assert.equal(worm.data.pmidx, PM_LONG_WORM);
     assert.ok(worm.mhpmax > 1, 'retain the source-derived maximum HP');
 
     // This first production action is the ordinary prior movement that
     // creates a real visible segment and a future growth deadline.
     await runSimpleMonsterAction(worm, {
-        state: planned,
-        planning: true,
+        state: game,
         random,
     });
     assert.equal(worm.mx, target.monsterX, 'worm moved through m_move');
-    assert.ok(planned.level.worms[1].growtime > planned.moves,
+    assert.ok(game.level.worms[1].growtime > game.moves,
         'prior worm_move established future growtime');
-    const tail = planned.level.worms[1].segments[1];
+    const tail = game.level.worms[1].segments[1];
     assert.deepEqual(tail, { x: sourceX, y: target.heroY });
 
     // The selected route starts from an ordinary injured HP-1 worm, keeps its
     // source-derived max HP, and retains the future growth deadline so the
     // action's worm_move cannot heal it before the arrow trap.
     worm.mhp = 1;
-    planned.level.at(target.destinationX + 1, target.heroY).typ = STONE;
-    planned.level.at(target.destinationX + 1, target.heroY).flags =
+    game.level.at(target.destinationX + 1, target.heroY).typ = STONE;
+    game.level.at(target.destinationX + 1, target.heroY).flags =
         W_NONDIGGABLE | W_NONPASSWALL;
-    planned.level.traps = [{
+    game.level.traps = [{
         tx: target.destinationX,
         ty: target.heroY,
         ttyp: ARROW_TRAP,
@@ -6733,33 +3716,31 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
     const routeBefore = {
         mx: worm.mx,
         mhp: worm.mhp,
-        growtime: planned.level.worms[1].growtime,
-        tail: planned.level.worms[1].segments.map((segment) => ({ ...segment })),
+        growtime: game.level.worms[1].growtime,
+        tail: game.level.worms[1].segments.map((segment) => ({ ...segment })),
     };
     assert.equal(routeBefore.mhp, 1);
-    assert.equal(planned.level.traps[0].once, false);
+    assert.equal(game.level.traps[0].once, false);
     await runSimpleMonsterAction(worm, {
-        state: planned,
-        planning: true,
+        state: game,
         random,
     });
-    liveGuard.assertNoLeak(assert);
     assert.equal(worm.mx, routeBefore.mx + 1,
         'arrow trap was reached through a real closer move');
     assert.equal(worm.mhp, 0, 'real arrow damage completed death');
     assert.equal(worm.wormno, 0, 'death releases the active worm number');
-    assert.equal(planned.svm.mvitals[PM_LONG_WORM].died, deathsBefore + 1,
+    assert.equal(game.svm.mvitals[PM_LONG_WORM].died, deathsBefore + 1,
         'ordinary makemon form is counted as a long-worm death');
-    assert.equal(planned.level.worms[1], null,
+    assert.equal(game.level.worms[1], null,
         'death cleanup releases the segment slot');
     assert.notEqual(worm.mstate & MON_DETACH, 0,
         'death completed the source detach path');
     for (const x of [sourceX, target.monsterX, target.destinationX])
-        assert.equal(planned.level.monsters[x][target.heroY], null,
+        assert.equal(game.level.monsters[x][target.heroY], null,
             `worm segment at ${x},${target.heroY} was removed`);
-    assert.equal(planned.level.traps[0].once, true,
+    assert.equal(game.level.traps[0].once, true,
         'the real arrow trap fired');
-    const corpse = planned.level.objects[routeBefore.mx + 1][target.heroY];
+    const corpse = game.level.objects[routeBefore.mx + 1][target.heroY];
     assert.equal(corpse?.otyp, CORPSE, 'real arrow death leaves a corpse');
     assert.equal(corpse.corpsenm, PM_LONG_WORM,
         'corpse preserves the ordinary long-worm species');
@@ -6781,24 +3762,9 @@ test('waiting covetous monster takes the early dochug no-op', async () => {
     // Keep m_canseeu() false so dochug() preserves STRAT_WAITFORU through its
     // source waitmask check instead of clearing it at monmove.c:710-712.
     game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-    const before = completeSecondTurnSnapshot(game, target.replay);
     const rngBefore = target.replay.getRngLog().length;
     const screensBefore = target.replay.getScreens().length;
     const events = [];
-
-    await preflightSimpleMonsterActions(game, {
-        advanceRound(planned) {
-            const wizard = planned.level.monlist;
-            assert.equal(wizard.movement, 0);
-            assert.equal(wizard.msleeping, false);
-            assert.equal(wizard.mstrategy, STRAT_WAITFORU);
-            return true;
-        },
-    });
-    assert.deepEqual(
-        completeSecondTurnSnapshot(game, target.replay),
-        before,
-    );
 
     await movemon_singlemon(target.monster, {
         state: game,
@@ -6831,65 +3797,34 @@ test('waiting covetous monster takes the early dochug no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and :782. The awake/out-of-sight case
-// reaches wizard.c tactics(), which recomputes a stale strategy and goal on
-// the planning clone. A visible sleeping monster remains on the earlier
-// disturb/wait path; both cases must leave the live retry state unchanged.
-test('covetous planning retries safely and recomputes awake tactics state', async () => {
-    for (const testCase of [
-        // Awake removes the early disturb() return; clearing COULD_SEE checks
-        // that sleeping is required in addition to being out of sight.
-        { label: 'awake out of sight', sleeping: false, visible: false },
-        // A visible sleeping monster can be disturbed, so it must not enter
-        // the simplified action path even before the random wake check.
-        { label: 'sleeping in sight', sleeping: true, visible: true },
-    ]) {
-        const target = await prepareSelectedAction({
-            pmidx: PM_WIZARD_OF_YENDOR,
-        });
-        target.monster.msleeping = testCase.sleeping;
-        if (testCase.visible)
-            game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
-        else
-            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
-        if (!testCase.sleeping && !testCase.visible) {
-            // wizard.c tactics() calls strategy(), whose target_on() calls
-            // clear stale goal coordinates when this full-health Wizard has
-            // no covetous artifact target in the initialized fixture.
-            target.monster.mstrategy = STRAT_PLAYER | STRAT_GOAL;
-            target.monster.mgoal = {
-                x: target.monsterX,
-                y: target.heroY,
-            };
-        }
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            let plannedTacticsState = null;
-            const result = await preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    const wizard = planned.level.monlist;
-                    plannedTacticsState = {
-                        mstrategy: wizard.mstrategy,
-                        mgoal: { ...wizard.mgoal },
-                    };
-                    return true;
-                },
-            });
-            assert.equal(result.heroDeath, null,
-                `${testCase.label}, attempt ${attempt + 1}`);
-            if (!testCase.sleeping && !testCase.visible) {
-                assert.deepEqual(
-                    plannedTacticsState,
-                    { mstrategy: STRAT_NONE, mgoal: { x: 0, y: 0 } },
-                    `${testCase.label} recomputes stale tactics state`,
-                );
-            }
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
-        }
-    }
+// reaches wizard.c tactics(), which recomputes a stale strategy and goal.
+test('an awake covetous monster recomputes stale tactics state', async () => {
+    const target = await prepareSelectedAction({
+        pmidx: PM_WIZARD_OF_YENDOR,
+    });
+    // Awake removes the early disturb() return; clearing COULD_SEE keeps the
+    // monster out of sight.
+    target.monster.msleeping = false;
+    game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+    // wizard.c tactics() calls strategy(), whose target_on() calls
+    // clear stale goal coordinates when this full-health Wizard has
+    // no covetous artifact target in the initialized fixture.
+    target.monster.mstrategy = STRAT_PLAYER | STRAT_GOAL;
+    target.monster.mgoal = {
+        x: target.monsterX,
+        y: target.heroY,
+    };
+
+    await runSimpleMonsterAction(target.monster, { state: game });
+
+    assert.deepEqual(
+        {
+            mstrategy: target.monster.mstrategy,
+            mgoal: { ...target.monster.mgoal },
+        },
+        { mstrategy: STRAT_NONE, mgoal: { x: 0, y: 0 } },
+        'awake out of sight recomputes stale tactics state',
+    );
 });
 
 // C ref: monmove.c dochug() -> wizard.c tactics() STRAT_GROUND.  This is the
@@ -6935,11 +3870,10 @@ test('covetous floor-artifact pickup uses the production extraction adapter',
     });
 
 // C ref: monmove.c dochug() -> wizard.c tactics() -> mon.c mnexto() with
-// RLOC_MSG. This uses the public monster-turn planner rather than calling
-// rloc_to_flag() directly: the planned Wizard must move on its clone, while
-// the live position, display context, and display RNG remain untouched until
-// the ordinary live replay.
-test('planned covetous relocation isolates flagged naming and position',
+// RLOC_MSG. This uses the public monster action rather than calling
+// rloc_to_flag() directly, so the Wizard's flagged relocation runs through
+// dochug().
+test('covetous relocation moves the Wizard through dochug',
     async () => {
         const target = await prepareSelectedAction({
             pmidx: PM_WIZARD_OF_YENDOR,
@@ -6956,112 +3890,42 @@ test('planned covetous relocation isolates flagged naming and position',
         target.monster.msleeping = false;
         target.monster.mcansee = true;
         game.u.uprops[HALLUC].intrinsic = 1;
-        const livePosition = [target.monster.mx, target.monster.my];
-        const liveDisplay = structuredClone(game.displayCtx);
-        const liveRng = rngSnapshot();
-        let plannedMonster;
-        const live = game;
+        const startPosition = [target.monster.mx, target.monster.my];
 
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                plannedMonster = planned.level.monlist;
-                assert.notDeepEqual(
-                    [plannedMonster.mx, plannedMonster.my],
-                    livePosition,
-                );
-                assert.notStrictEqual(planned.displayCtx, live.displayCtx);
-                return true;
-            },
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: async () => {},
+            redraw: () => {},
         });
 
-        assert.deepEqual([target.monster.mx, target.monster.my], livePosition);
-        assert.deepEqual(game.displayCtx, liveDisplay);
-        assert.deepEqual(rngSnapshot(), liveRng);
-        assert.ok(plannedMonster);
+        assert.notDeepEqual(
+            [target.monster.mx, target.monster.my],
+            startPosition,
+        );
     });
 
-test('awake leprechaun planning reaches canonical actions without changing live state',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
-        target.monster.msleeping = false;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `attempt ${attempt + 1}`,
-            );
-        }
-    });
-
-// C ref: monmove.c m_move():1840-1849 and teleport.c tele_restrict(). The
-// natural-teleport roll runs before tele_restrict(), which rejects a Tengu on
-// a no-teleport level and lets ordinary movement continue. The clone-only
-// preflight must run that path without changing the live game, screen, or
-// PRNG context.
-test('Tengu on a no-teleport level reaches ordinary movement', async () => {
-    const target = await prepareSelectedAction({ pmidx: PM_TENGU });
-    game.level.flags.noteleport = true;
-    const before = completeSecondTurnSnapshot(game, target.replay);
-    const rngBefore = target.replay.getRngLog().length;
-    const screensBefore = target.replay.getScreens().length;
-
-    await preflightSimpleMonsterActions(game);
-
-    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
-    assert.equal(target.replay.getRngLog().length, rngBefore);
-    assert.equal(target.replay.getScreens().length, screensBefore);
-    assert.equal(target.monster.movement, NORMAL_SPEED);
-});
-
-// C ref: monmove.c m_move():1829-1837. The clone scan reaches the mail
-// daemon's verbalize plus mongone() path, but both display seams must remain
-// on the planning state. dmonsfree() removes the clone victim before the
-// planner's public round callback; the live victim and retryable output stay
-// untouched for the real pass.
-test('public planned mail-daemon action isolates message and redraw',
+// C ref: monmove.c m_move():1829-1837. The mail daemon's verbalize plus
+// mongone() path ends its existence, and movemon()'s dmonsfree() tail then
+// unlinks it from the level list.
+test('a live mail-daemon action leaves through mongone',
     async () => {
         const target = await prepareSelectedAction({
             pmidx: PM_MAIL_DAEMON,
         });
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        let cloneVictimPurged = false;
-        let callbackState = null;
+        // verbalize() prints the daemon's farewell; these answer its --More--.
+        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await preflightSimpleMonsterActions(game, {
-            advanceRound(planned) {
-                callbackState = {
-                    hasList: Boolean(planned.level.monlist),
-                    purge: planned.iflags?.purge_monsters ?? null,
-                    movement: planned.u.umovement,
-                };
-                // dmonsfree() resets purge_monsters after unlinking the
-                // dead clone, so the empty list is the post-cleanup marker.
-                cloneVictimPurged = !planned.level.monlist;
-                // The callback stands in for allmain.c's next allocation;
-                // stop after observing the completed clone scan rather than
-                // asking the fixture to synthesize another round.
-                return true;
-            },
-        });
+        await runLiveMonsterScan();
 
-        assert.equal(cloneVictimPurged, true,
-            `the public planner reached mongone on its clone: ${
-                JSON.stringify(callbackState)}`);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
-        assert.equal(target.monster.mhp, 5,
-            'the live mail daemon remains for the real movement pass');
+        assert.equal(game.level.monlist, null,
+            'dmonsfree() unlinked the departed mail daemon');
     });
 
 // C ref: monmove.c gelcube_digests():424-434 and dochug():867-879. Empty and
 // ineligible inventories continue into ordinary dochug(); an eligible organic
-// object is digested on the planner's cloned state and consumes the move.
-test('gelatinous cube digestion runs during isolated preflight',
+// object is digested and consumes the move.
+test('gelatinous cube digestion runs during the monster action',
     async () => {
         for (const testCase of [
             // No inventory makes gelcube_digests return -1 without a draw.
@@ -7084,53 +3948,24 @@ test('gelatinous cube digestion runs during isolated preflight',
                 pmidx: PM_GELATINOUS_CUBE,
             });
             if (testCase.otyp !== null) {
-                const object = monsterObject(testCase.otyp);
-                // obj_extract_self() follows ocarry when gelcube_digests
-                // removes an eligible object from the monster's inventory.
-                object.v = target.monster;
+                // newObject() aliases ocarry over obj.v, which a plain literal
+                // lacks. obj_extract_self() follows ocarry when
+                // gelcube_digests removes an eligible object from the
+                // monster's inventory.
+                const object = newObject(monsterObject(testCase.otyp));
+                object.ocarry = target.monster;
                 if (testCase.corpsenm !== undefined)
                     object.corpsenm = testCase.corpsenm;
                 target.monster.minvent = object;
-                const planned = planningState(game);
-                assert.equal(
-                    planned.level.monlist.minvent.ocarry,
-                    planned.level.monlist,
-                    'the planning clone remaps the carried object to its cube',
-                );
             }
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            const rngBefore = target.replay.getRngLog().length;
-            const screensBefore = target.replay.getScreens().length;
-            let plannedCube = null;
 
-            await preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    plannedCube = planned.level.monlist;
-                    return true;
-                },
-            });
+            await runSimpleMonsterAction(target.monster, { state: game });
             if (testCase.otyp === FOOD_RATION || testCase.otyp === EGG) {
-                assert.ok(plannedCube, 'the scan reached cloned turn upkeep');
                 assert.equal(
-                    plannedCube.minvent,
+                    target.monster.minvent,
                     null,
-                    'C digestion removes the ration from the planning cube',
+                    `${testCase.label}: C digestion removes the object from the cube`,
                 );
             }
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                testCase.label,
-            );
-            assert.equal(
-                target.replay.getRngLog().length,
-                rngBefore,
-                `${testCase.label}: planning RNG stays cloned`,
-            );
-            assert.equal(
-                target.replay.getScreens().length,
-                screensBefore,
-                `${testCase.label}: planning display stays silent`,
-            );
         }
     });
