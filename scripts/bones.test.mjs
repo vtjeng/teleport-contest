@@ -17,7 +17,9 @@ import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { bless, mksobj_at } from '../js/obj.js';
 import { AMULET_OF_YENDOR, FAKE_AMULET_OF_YENDOR } from '../js/objects.js';
-import { InMemoryStorage, setStorageForTesting, vfsReadFile } from '../js/storage.js';
+import {
+    InMemoryStorage, setStorageForTesting, vfsReadFile, vfsWriteFile,
+} from '../js/storage.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
@@ -498,4 +500,75 @@ test('sanitize_name maps bytes as bones.c sanitize_name() does', () => {
         ),
         [0xc3, 0x2e],
     );
+});
+
+test('savebones and the ghostly getlev clear object bypass bits', async () => {
+    // bones.c:416 savebones() starts with clear_bypasses(), and restore.c
+    // restobjchn():281-282 clears each restored object's bypass bit, bones
+    // file or not.
+    const cBones = await readFile(
+        new URL('../nethack-c/upstream/src/bones.c', import.meta.url), 'utf8',
+    );
+    assert.match(cBones, /caller has already checked `can_make_bones\(\)' \*\/\s*clear_bypasses\(\);/u);
+    const cRestore = await readFile(
+        new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8',
+    );
+    assert.match(cRestore, /if \(otmp->bypass\)\s*otmp->bypass = 0;\s*if \(!ghostly\)/u);
+    // The seed, date and character are arbitrary; the debug Wizard dies on
+    // the first level she is given.
+    await runSegment({
+        seed: 5520417,
+        datetime: '20530119081500',
+        nethackrc: 'OPTIONS=name:BonesBypass,role:Wizard,race:human,'
+            + 'gender:female,align:neutral,playmode:debug\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+            + '!autopickup,!acoustics,!debug_mongen\n',
+        moves: '',
+    });
+    const storage = new InMemoryStorage();
+    setStorageForTesting(storage);
+    try {
+        game.killer = { name: 'died', format: KILLED_BY_AN };
+        game.flags.bones = true;
+        game.discover = false;
+        game.u.uswallow = 0;
+        game.u.usteed = null;
+        game.u.ugrave_arise = NON_PM;
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg',
+            'uarmf', 'uarmu', 'uleft', 'uright', 'uwep', 'uswapwep',
+            'uquiver', 'uamul', 'ublindf', 'uball', 'uchain'])
+            game[slot] = null;
+        game.u.twoweap = false;
+        // A floor object left bypassed, as a loop through
+        // nxt_unbypassed_obj() would leave it on the turn the hero dies.
+        // Two squares east of the hero is only a square other than hers.
+        const amulet = mksobj_at(FAKE_AMULET_OF_YENDOR, game.u.ux + 2, game.u.uy,
+            true, false, objectGenerationEnv({ state: game }));
+        amulet.bypass = true;
+        game.context.bypasses = true;
+        assert.ok(can_make_bones(game));
+        await savebones(DIED, getnow(game), null, game);
+        assert.equal(game.context.bypasses, false);
+
+        const path = set_bonesfile_name(game.u.uz, game).file;
+        const savedData = JSON.parse(vfsReadFile(path));
+        const saved = savedData.floorObjects.find((obj) => obj.o_id === amulet.o_id);
+        assert.ok(saved, 'the bones file holds the floor object');
+        assert.equal(Boolean(saved.bypass), false);
+
+        // A bones file whose object still carries the bit loses it on load.
+        saved.bypass = true;
+        assert.equal(vfsWriteFile(path, JSON.stringify(savedData)), true);
+        assert.equal(await getbones(game), true);
+        let restored = 0;
+        for (let obj = game.level.objlist; obj; obj = obj.nobj) {
+            if (obj.otyp !== FAKE_AMULET_OF_YENDOR) continue;
+            restored += 1;
+            assert.equal(Boolean(obj.bypass), false);
+        }
+        assert.equal(restored, 1);
+    } finally {
+        setStorageForTesting(null);
+    }
 });

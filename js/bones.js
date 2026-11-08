@@ -48,7 +48,7 @@ import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { newsym } from './display.js';
-import { m_dowear } from './worn.js';
+import { clear_bypasses, m_dowear } from './worn.js';
 import {
     In_hell,
     Is_botlevel,
@@ -580,7 +580,9 @@ function newebones(mtmp) {
 export async function savebones(how, when, corpse, state) {
     // caller has already checked can_make_bones()
 
-    // C: clear_bypasses() -- bypass flags have no gameplay effect in the port.
+    // C ref: bones.c:416. Clears every object's bypass bit, the bypass
+    // marker of a long worm made by polymorph, and context.bypasses.
+    clear_bypasses(state);
 
     // Check for existing bones file
     const existing = open_bonesfile(state.u.uz, state);
@@ -1035,8 +1037,9 @@ function age_is_relative(otmp) {
 // object read from a bones file, in chain order: a fresh identity from
 // next_ident() (254-259), then, unless the chain is frozen, the age moved
 // from the dead hero's clock to this one's (266-267), then the contents,
-// which are frozen inside an ice box (271-278). A slime mold also has its
-// fruit renumbered by ghostfruit() (260-261) before its age moves.
+// which are frozen inside an ice box (271-278), then the bypass bit cleared
+// (281-282). A slime mold also has its fruit renumbered by ghostfruit()
+// (260-261) before its age moves.
 // `ghost` carries getlev()'s state for the whole file: `omoves`, the turn the
 // bones level was saved on (svo.omoves); `idMap`, C's add_id_mapping() table,
 // which maps each saved id to the restored object; and `oldfruit`, the dead
@@ -1051,6 +1054,7 @@ function restobjchn_ghostly(ochain, frozen, ghost, state) {
             otmp.age = state.moves - ghost.omoves + otmp.age;
         if (otmp.cobj)
             restobjchn_ghostly(otmp.cobj, otmp.otyp === ICE_BOX, ghost, state);
+        if (otmp.bypass) otmp.bypass = false;
     }
 }
 
