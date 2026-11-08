@@ -74,7 +74,6 @@ import {
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_PIECE,
     MAGIC_LAMP,
-    OIL_LAMP,
     ORCISH_DAGGER,
     ORCISH_HELM,
     SPEED_BOOTS,
@@ -582,6 +581,27 @@ test('snuff_light_source() puts out only a burning non-artifact source on the sq
     snuff_light_source(CARRIER_X, CARRIER_Y, swordState);
     assert.equal(sunsword.lamplit, true);
     assert.equal(swordState.gl.light_base.id, sunsword);
+});
+
+test('an explicitly disabled billing owner stops before pickup mutation', () => {
+    const carrier = monster({
+        mtame: true,
+        data: { mattk: [{ aatyp: AT_ENGL }] },
+    });
+    const billed = object({
+        unpaid: true,
+        how_lost: LOST_THROWN,
+    });
+    const gameState = state({ gt: { thrownobj: billed } });
+    assert.throws(
+        () => mpickobj(carrier, billed, { state: gameState,
+            hooks: { findObjectOwner: null } }),
+        (error) => error instanceof UnsupportedMonsterPickupOperationError
+            && error.operation === 'findObjectOwner',
+    );
+    assert.equal(gameState.gt.thrownobj, billed);
+    assert.equal(billed.no_charge, true);
+    assert.equal(billed.where, OBJ_FREE);
 });
 
 // ── steal.c relobj() and mdrop_obj() ──
