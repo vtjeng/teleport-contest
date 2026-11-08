@@ -279,14 +279,6 @@ function teleportEnv(env = {}) {
 
 function teleportInput(env, operation, fallback) {
     if (typeof env[operation] === 'function') return env[operation];
-    if (env.planning) {
-        if (typeof env.requestPlanningInput !== 'function') {
-            throw new TypeError(
-                `planned teleport requires a ${operation} boundary`,
-            );
-        }
-        return (...args) => env.requestPlanningInput(operation, ...args);
-    }
     return fallback;
 }
 
@@ -753,8 +745,8 @@ export async function mlevel_tele_trap(
             'monster level teleport requires a destination level',
         );
     }
-    // C calls dog.c migrate_to_level() directly. Monster-turn callers bind
-    // their planning-aware adapter; any other caller, such as a fountain
+    // C calls dog.c migrate_to_level() directly. Monster-turn callers may bind
+    // their own adapter; any other caller, such as a fountain
     // monster that lands on a level teleporter, gets the source function.
     const migrateToLevel = env.migrateToLevel ?? migrate_to_level;
     const seeTrap = inSight
@@ -1838,15 +1830,6 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     if (state !== game && typeof env.redraw !== 'function') {
         throw new TypeError('teleds on a non-live state requires a redraw callback');
     }
-    // C teleds() owns the vision rebuild before input-capable Water arrival,
-    // drowning and inventory damage. Replay the whole call on live state:
-    // its vision buffers must not be written by the private planning pass.
-    if (env.planning && on_level(state.u?.uz, state.water_level)
-        && is_pool(nux, nuy, state)) {
-        if (typeof env.requestPlanningInput !== 'function')
-            throw new TypeError('planned Water teleport requires a replay boundary');
-        env.requestPlanningInput('teleport.c teleds');
-    }
     const redraw = env.redraw ?? newsym;
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
@@ -1947,10 +1930,9 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     }
 
     /* must set u.ux, u.uy after drag_ball() */
-    // see_nearby_objects()'s newsym_force() paints the live map; the planning
-    // clone keeps its discovery writes and draws nothing.
+    // see_nearby_objects()'s newsym_force() draws through this call's redraw.
     u_on_newpos(nux, nuy, state, {
-        seeNearbyObjectsOptions: { redraw: env.planning ? () => {} : redraw },
+        seeNearbyObjectsOptions: { redraw },
     });
     await fill_pit(u.ux0, u.uy0, state, env);
     if (ball_active && state.uchain?.where === OBJ_FREE)
