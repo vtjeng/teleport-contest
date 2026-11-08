@@ -167,7 +167,7 @@ import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
 import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import {
-    HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
+    check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
@@ -415,9 +415,7 @@ function preflightNutritionRing(ring, state) {
 }
 
 // The operations eat.c reaches through globals -- pline(), end_running() and
-// bot() -- and this port injects, because the elapsed-turn caller substitutes
-// silent versions of all three when it dry-runs a turn on a cloned state.
-// Resolving by name means a caller that omits one fails here rather than
+// bot() -- and this port injects. Resolving by name means a caller that omits one fails here rather than
 // silently skipping the output C produces.
 function requireEatOperation(env, name) {
     const operation = env[name];
@@ -464,8 +462,7 @@ export function is_edible(obj, state = game) {
 }
 
 // Pure admission for eat.c:gethungry(). gethungry() reuses the returned
-// source inputs at its actual source-ordered call site, and a dry run of the
-// once-per-turn block reads requiresLiveState to stop before it.
+// source inputs at its actual source-ordered call site.
 export function preflightGetHungry(state = game, env = {}) {
     const u = state.u;
     if (!u || !Number.isSafeInteger(u.uhunger)) {
@@ -522,15 +519,12 @@ export function preflightGetHungry(state = game, env = {}) {
     const evenLoss = ordinaryLoss + hungerLoss + conflictLoss + accessoryLoss;
     // An Unaware hero pays `ordinaryLoss` only when rn2(10) comes up 0, so
     // this over-states the loss for nine turns in ten. That is the safe
-    // direction: the upper bound identifies hunger effects that must run live
-    // before planning the remaining upkeep from their result.
+    // direction for the admission checks below.
     const maximumReachableLoss = Math.max(oddLoss, evenLoss);
     const earliestStatus = hungerStatus(
         u.uhunger - maximumReachableLoss,
     );
     const mayChangeStatus = earliestStatus !== u.uhs;
-    const requiresLiveState = earliestStatus === FAINTING
-        || (mayChangeStatus && (u.umonnum !== u.umonster ? u.mh : u.uhp) < 1);
     // newuhs()'s `newhs >= WEAK && u.uhs < WEAK` arm writes ATEMP(A_STR), and
     // its WEAK message reads the role and the race. Widening `<` to `<=` here
     // is equivalent for every well-formed state: it only adds the case where
@@ -564,7 +558,6 @@ export function preflightGetHungry(state = game, env = {}) {
         hungerLoss,
         ordinaryLoss,
         regenerationLoss,
-        requiresLiveState,
         skipped: false,
         slowDigestion,
         unaware,
@@ -685,7 +678,7 @@ export function vegetarian(monster) {
 
 // C ref: eat.c eating_conducts() (576-599). The helper is used by mind-flayer
 // brain attacks as well as the existing food paths. Its caller supplies the
-// message environment so planning clones keep Monk conduct feedback private.
+// message environment for Monk conduct feedback.
 export async function eating_conducts(pd, state = game, env = {}) {
     const u = state.u;
     u.uconduct ??= {};
@@ -727,8 +720,7 @@ export async function eating_conducts(pd, state = game, env = {}) {
 // effects here.
 export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
     const effectEnv = { ...env, random, message };
     const pd = mdef.data;
     let giveNutrit = false;
@@ -808,11 +800,6 @@ export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {
             state.killer ??= {};
             state.killer.name = `unwisely ate the brain of ${pmname(pd, Mgender(mdef, state))}`;
             state.killer.format = NO_KILLER_PREFIX;
-            if (env.planning) {
-                if (typeof env.planningDeath !== 'function')
-                    throw new TypeError('eat_brains requires planningDeath for fatal planned Rider ingestion');
-                throw env.planningDeath(state.youmonst, DIED);
-            }
             await done(DIED, state, effectEnv);
             if (state.program_state?.gameover) return result;
             await exercise(A_WIS, false, state, random);
@@ -839,11 +826,6 @@ export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {
                 state.killer ??= {};
                 state.killer.name = 'brainlessness';
                 state.killer.format = KILLED_BY;
-                if (env.planning) {
-                    if (typeof env.planningDeath !== 'function')
-                        throw new TypeError('eat_brains requires planningDeath for fatal planned brain loss');
-                    throw env.planningDeath(magr, DIED);
-                }
                 await done(DIED, state, { ...effectEnv, fromMonster: true });
                 if (state.program_state?.gameover) return result;
                 await message('Unfortunately your brain is still gone.',
@@ -857,11 +839,6 @@ export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {
             state.killer ??= {};
             state.killer.name = 'brainlessness';
             state.killer.format = KILLED_BY;
-            if (env.planning) {
-                if (typeof env.planningDeath !== 'function')
-                    throw new TypeError('eat_brains requires planningDeath for fatal planned brain loss');
-                throw env.planningDeath(magr, DIED);
-            }
             await done(DIED, state, { ...effectEnv, fromMonster: true });
             if (state.program_state?.gameover) return result;
             state.u.acurr.a[A_INT] = (state.urace.attrmin[A_INT] ?? 0) + 2;
@@ -1763,7 +1740,7 @@ export async function cant_finish_meal(corpse, state = game, env = {}) {
     const { stop_occupation } = await import('./allmain.js');
     const mealEnv = {
         ...env,
-        message: env.message ?? (env.planning ? async () => {} : ttyPline),
+        message: env.message ?? ttyPline,
         endRunning: env.endRunning ?? endRunning,
     };
     await stop_occupation(state, mealEnv);
@@ -1798,9 +1775,7 @@ export async function unfaint(state = game, env = {}) {
 // rather than one bite. C keeps the pair in function statics; this port keeps
 // them on the game state, so a new game starts with neither set.
 //
-// `env` supplies message(), endRunning() and statusRefresh(), because the
-// elapsed-turn caller substitutes silent versions of all three when it is
-// dry-running a turn on a cloned state.
+// `env` supplies message(), endRunning() and statusRefresh().
 export async function newuhs(incr, state = game, env = {}) {
     const u = state.u;
     let newhs = hungerStatus(u.uhunger);
@@ -1856,11 +1831,6 @@ export async function newuhs(incr, state = game, env = {}) {
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = 'starvation';
-            if (env.planning) {
-                const boundary = new HeroDeathPlanningError('starvation', KILLED_BY);
-                boundary.how = STARVING;
-                throw boundary;
-            }
             await done(STARVING, state, env);
             return;
         }
@@ -1902,11 +1872,6 @@ export async function newuhs(incr, state = game, env = {}) {
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = 'exhaustion';
-            if (env.planning) {
-                const boundary = new HeroDeathPlanningError('exhaustion', KILLED_BY);
-                boundary.how = STARVING;
-                throw boundary;
-            }
             await done(STARVING, state, env);
             return;
         }
@@ -1952,12 +1917,11 @@ export async function morehungry(num, state, env = {}) {
     // fill missing hunger operations while retaining every supplied callback.
     await newuhs(true, state, {
         ...env,
-        message: env.message ?? (env.planning ? async () => {} : ttyPline),
-        statusRefresh: env.statusRefresh
-            ?? (env.planning ? async () => {} : async () => {
-                const { bot } = await import('./display.js');
-                return bot(state);
-            }),
+        message: env.message ?? ttyPline,
+        statusRefresh: env.statusRefresh ?? (async () => {
+            const { bot } = await import('./display.js');
+            return bot(state);
+        }),
         endRunning: env.endRunning ?? endRunning,
     });
 }
@@ -2205,8 +2169,7 @@ async function maybe_cannibal(pm, allowmsg, state, env = {}) {
     const u = state.u;
     const fptr = state.mons[pm]; /* food type */
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
 
     /* when poly'd into a mind flayer, multiple tentacle hits in one
        turn cause multiple digestion checks to occur; avoid giving
@@ -2548,8 +2511,7 @@ async function givit(type, ptr, state, env = {}) {
                 state,
             );
             addOutside();
-            if (Blind(state.u)) await see_monsters(state, { ...env,
-                redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
+            if (Blind(state.u)) await see_monsters(state, { ...env });
         }
         break;
     case ACID_RES:
@@ -2616,8 +2578,7 @@ export function eatmdone(state = game, env = {}) {
     }
     if (state.youmonst.m_ap_type) {
         state.youmonst.m_ap_type = M_AP_NOTHING;
-        if (!env.planning)
-            (env.redraw ?? newsym)(state.u.ux, state.u.uy, state);
+        (env.redraw ?? newsym)(state.u.ux, state.u.uy, state);
     }
     return 0;
 }
@@ -2651,10 +2612,10 @@ export function eatmupdate(state = game, env = {}) {
         state.nomovemsg = state.eatmbuf;
         state.youmonst.mappearance = altapp;
 
-        // newsym() updates the live map. Planning callers inject a silent
-        // redraw, and isolated states without a redraw must not repaint game.
+        // newsym() updates the live map. Isolated states without a redraw
+        // must not repaint game.
         const redraw = env.redraw
-            ?? (env.planning || state !== game ? null : newsym);
+            ?? (state !== game ? null : newsym);
         redraw?.(state.u.ux, state.u.uy, state);
     }
 }
@@ -2662,8 +2623,6 @@ export function eatmupdate(state = game, env = {}) {
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
 // corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
 async function cpostfx(pm, state, env = {}) {
-    // A planning clone finishes a meal through stop_occupation() and passes
-    // its own random source and a silent message operation.
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     let tmp = 0;
@@ -2931,8 +2890,7 @@ export async function Finish_digestion(state = game, env = {}) {
 // C ref: eat.c violated_vegetarian() (1375-1384). Both callers -- doeat()'s
 // FLESH arm and eatcorpse() -- reach it for any food that is not vegetarian.
 async function violated_vegetarian(state, env = {}) {
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
     state.u.uconduct.unvegetarian++;
     if (state.urole.mnum === PM_MONK) {
         await message(youFeel('guilty.', state), state, env);
@@ -3494,14 +3452,12 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
 // installs at the end of start_eating(). allmain.c moveloop_core() runs it once
 // a turn and clears go.occupation when it answers 0.
 //
-// `env` carries the display operations that differ for the live game and an
-// atomic planning clone; every other operation is this file's own.
+// `env` carries the caller's display operations; every other operation is
+// this file's own.
 export async function eatfood(state = game, env = {}) {
     const meal = victual(state);
-    // A planning clone reaches this through stop_occupation() ->
-    // maybe_finished_meal() and supplies its own random source; the meal's
-    // ending (done_eating() -> useupf() -> delobj() -> obj_resists(), and
-    // cpostfx()) must draw from that clone rather than the live RNG.
+    // A caller-supplied random source also reaches the meal's ending
+    // (done_eating() -> useupf() -> delobj() -> obj_resists(), and cpostfx()).
     const eatEnv = {
         ...eatOperations(state, env.statusRefresh, env.message),
         ...(env.random ? { random: env.random } : {}),
@@ -3633,8 +3589,7 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
     //     newly in range and one already visible nearby skips it;
     //   - monmove.c dochugw():223-235, a hostile spottable monster newly
     //     inside (BOLT_LIM + 1) * (BOLT_LIM + 1), reached both from
-    //     makemon()'s runtime tail and from the live and planning monster
-    //     scans. It prints the same line and runs no reset_eat(). Its radius
+    //     makemon()'s runtime tail and from the monster scan. It prints the same line and runs no reset_eat(). Its radius
     //     is nine where hack.c monster_nearby() scans the eight adjacent
     //     squares alone, so when it does fire it fires earlier;
     //   - teleport.c rloc_to_core():1761-1762, whose whole tail js/teleport.js
@@ -3960,8 +3915,7 @@ async function eataccessory(otmp, state, env) {
         switch (typ) {
         case RIN_SEE_INVISIBLE: {
             set_mimic_blocking(state);
-            await see_monsters(state, { ...env,
-                redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
+            await see_monsters(state, { ...env });
             const invisible = Boolean(
                 Invis(state.u),
             );
@@ -4185,8 +4139,7 @@ async function eatspecial(state, env) {
 // C ref: eat.c doeat_nonfood() (2734-2813).  This is the return-valued
 // dependency of doeat(): a compatible polymorphed form gets exactly one turn
 // of nutrition, conduct updates, poisoned-weapon handling and then the common
-// eatspecial() tail.  Callers pass the same operation seams as ordinary food
-// so death and status output cannot escape a planning clone.
+// eatspecial() tail.  Callers pass the same operation seams as ordinary food.
 export async function doeat_nonfood(otmp, state = game, env = {}) {
     const u = state.u;
     const meal = victual(state);
