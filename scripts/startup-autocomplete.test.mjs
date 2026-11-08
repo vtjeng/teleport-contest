@@ -73,6 +73,7 @@ test('empty elements return but an empty negated name is invalid', () => {
     const invalid = parseNethackrc('AUTOCOMPLETE=!\n');
     assert.deepEqual(invalid.startupEvents, [{
         text: "Bad autocomplete: invalid extended command ''.",
+        raw_printf: true,
         wait: true,
     }]);
     assert.equal(invalid.configErrorFrame.num_errors, 0);
@@ -88,10 +89,12 @@ test('command names match exactly and case-sensitively', () => {
     assert.deepEqual(parsed.startupEvents, [
         {
             text: "Bad autocomplete: invalid extended command 'Apply'.",
+            raw_printf: true,
             wait: true,
         },
         {
             text: "Bad autocomplete: invalid extended command 'app'.",
+            raw_printf: true,
             wait: true,
         },
     ]);
@@ -104,6 +107,7 @@ test('command names match exactly and case-sensitively', () => {
     );
     assert.deepEqual(separatorOrder.startupEvents, [{
         text: "Bad autocomplete: invalid extended command 'apply:terrain'.",
+        raw_printf: true,
         wait: true,
     }]);
     assert.equal(bits(separatorOrder, 'apply'), 0);

@@ -40,6 +40,7 @@ import {
     clearTtyMessageWindow,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
+    TOPLINE_NON_EMPTY,
     ttyCustomPline,
     ttyPline,
 } from '../js/tty_message.js';
@@ -161,6 +162,27 @@ test('save snapshots read oldest first and restore puts prior-session lines firs
     const win = state.wintty.wins[state.wintty.messageWindow];
     assert.deepEqual(win.data.slice(0, 3), [
         'prior one', 'prior two', 'current session',
+    ]);
+});
+
+// topl.c:695-696: each restored message lowers TOPLINE_NEED_MORE, so the
+// "Restoring save file..." that unixmain.c main() pline()s just before
+// dorecover() does not stop for --More-- in cls().  It goes back into history
+// after the restored lines.  The two messages stand for any saved history.
+test('restoring history lowers a pending More and refiles the restore notice', () => {
+    const state = historyState();
+    state._ttyToplines = 'Restoring save file...';
+    state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+
+    tty_putmsghistory('saved one', true, state);
+    assert.equal(state.nhDisplay.toplin, TOPLINE_NON_EMPTY);
+    tty_putmsghistory('saved two', true, state);
+    tty_putmsghistory(null, true, state);
+
+    remember_topl(state);
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    assert.deepEqual(win.data.slice(0, 3), [
+        'saved one', 'saved two', 'Restoring save file...',
     ]);
 });
 

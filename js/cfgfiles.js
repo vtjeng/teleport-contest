@@ -394,7 +394,7 @@ export function get_uchars(
 export function cnf_line_BOULDER(result, bufp) {
     const parsed = [undefined];
     get_uchars(bufp, parsed, true, 1, 'BOULDER', (text) => {
-        result.startupEvents.push({ text, wait: true });
+        result.startupEvents.push({ text, raw_printf: true, wait: true });
     });
     if (parsed[0] !== undefined) {
         result.symbolOperations.push({
@@ -425,7 +425,7 @@ export function cnf_line_WARNINGS(result, bufp, assignWarnings) {
     // input's unwritten gw tail unspecified.
     const parsed = Array(WARNCOUNT).fill(0);
     get_uchars(bufp, parsed, false, WARNCOUNT, 'WARNINGS', (text) => {
-        result.startupEvents.push({ text, wait: true });
+        result.startupEvents.push({ text, raw_printf: true, wait: true });
     });
     assignWarnings(result, parsed);
     return true;

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 918377,
+      "datetime": "20300227171200",
+      "nethackrc": "OPTIONS=name:Bramble,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nAUTOCOMPLETE=frobnicate\n",
+      "moves": "\nssSy"
+    },
+    {
+      "seed": 918378,
+      "datetime": "20300227180400",
+      "nethackrc": "OPTIONS=name:Bramble,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nAUTOCOMPLETE=frobnicate\n",
+      "moves": "\n\n\u0010\u0010\u0010s"
+    }
+  ],
+  "comment": "cmd.c parseautocomplete() reports the unknown extended command with raw_printf() and waits, and raw_printf() counts it in ge.early_raw_messages (pline.c:557, :580). On the restore, sys/unix/unixmain.c main() (255-262) therefore writes 'Restoring save file...' with raw_print(), so it stays below the configuration error rather than on the top line, and restore.c dorecover() (933-940) waits once more before docrt() erases the screen. raw_print() files nothing in the message history, so ^P after the restore recalls the welcome back and then the first segment's messages, with no 'Restoring save file...' among them."
+}

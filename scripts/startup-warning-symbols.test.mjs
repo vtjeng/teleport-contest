@@ -151,7 +151,9 @@ test('direct WARNINGS syntax errors wait immediately and discard a partial',
         );
         assert.equal(result.gw.warnsyms[0], 65);
         assert.deepEqual(result.startupEvents, [{
-            text: 'Syntax error in WARNINGS', wait: true,
+            text: 'Syntax error in WARNINGS',
+            // raw_printf() wrote it, so it counts in ge.early_raw_messages.
+            raw_printf: true, wait: true,
         }]);
 
         assert.deepEqual(

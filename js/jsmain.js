@@ -449,8 +449,16 @@ export class NethackGame {
         // raw syntax error and waits immediately, so each event carries its
         // own boundary when the source has one.
         const configErrors = config_error_done(opts.configErrorFrame, g);
+        // decl.c g_init_e zero-initializes ge.early_raw_messages. pline.c
+        // raw_printf() adds to it until program_state.beyond_savefile_load is
+        // set, which no configuration output can follow; the restore branch
+        // below and restore.c dorecover() read it.
+        g.ge = { early_raw_messages: 0 };
         for (const event of opts.startupEvents) {
             tty_raw_print(g, event.text);
+            // raw_printf() and its vraw_printf() each add one (pline.c:557,
+            // :580); the readers test only for zero.
+            if (event.raw_printf) g.ge.early_raw_messages += 2;
             if (event.wait) await tty_wait_synch(g);
         }
         if (configErrors) await tty_wait_synch(g);
@@ -564,7 +572,23 @@ export class NethackGame {
         // exists, it calls restgame() -> dorecover() (restore.c:789-951)
         // which restores the game state, redraws the map, and prints
         // welcome(FALSE). moveloop(TRUE) then follows with resuming=true.
-        if (await dorestore(g)) {
+        //
+        // unixmain.c:242 restore_saved_game() answers whether a save file
+        // could be opened; the one VFS save path stands in for its search.
+        const haveSaveFile = vfsReadFile(SAVE_FILE_PATH) != null;
+        if (haveSaveFile) {
+            // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
+            // its text on the screen, so the notice is raw output too rather
+            // than a top-line message. pline() also files it in the message
+            // history, where tty_putmsghistory() keeps it after the restored
+            // messages. mark_synch() is tty_mark_synch(), an fflush() with no
+            // JS counterpart.
+            if (g.ge.early_raw_messages)
+                tty_raw_print(g, 'Restoring save file...');
+            else
+                await ttyPline('Restoring save file...', g);
+        }
+        if (haveSaveFile && await dorestore(g)) {
             // Restore succeeded. The new segment's datetime and recorder
             // state override whatever the save carried, so moveloop_preamble
             // picks up the current segment's calendar.
@@ -581,6 +605,14 @@ export class NethackGame {
             // C ref: dorecover():931 program_state.restoring = 0 (before
             // docrt). Set up display for the restored game.
             g.program_state.restoring = 0;
+
+            // C ref: dorecover():933-940. Before docrt() erases the screen,
+            // a raw configuration message waits for the player to see it.
+            if (g.ge.early_raw_messages
+                && !g.program_state.beyond_savefile_load) {
+                g.ge.early_raw_messages = 0;
+                await tty_wait_synch(g);
+            }
             g.program_state.beyond_savefile_load = 1;
             g.program_state.in_moveloop = 1;
 

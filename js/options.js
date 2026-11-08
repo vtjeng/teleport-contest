@@ -727,8 +727,11 @@ function defaultResult() {
         extcmdFlags: initialExtcmdFlags(),
         // Raw output produced while the rc file is being parsed, in source
         // order. optfn_boolean() and config_error_add() emit print-only
-        // events. A wait marks cfgfiles.c get_uchars()'s immediate
-        // wait_synch(); config_error_done() supplies the final wait separately.
+        // events. A wait marks the immediate wait_synch() after a raw_printf()
+        // in cfgfiles.c get_uchars() or cmd.c parseautocomplete();
+        // config_error_done() supplies the final wait separately. raw_printf
+        // marks an event that pline.c raw_printf() wrote, which counts in
+        // ge.early_raw_messages; pline()'s early raw_print() does not.
         startupEvents,
         // options.c's file static starts true; unsupported idlecheckpoint is
         // its only configuration-time writer.
@@ -7031,7 +7034,9 @@ export function parseNethackrc(rc, random = rn2) {
                 normalizedValue,
                 true,
                 result,
-                (text) => result.startupEvents.push({ text, wait: true }),
+                (text) => result.startupEvents.push({
+                    text, raw_printf: true, wait: true,
+                }),
             );
             continue;
         }

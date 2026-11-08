@@ -58,7 +58,9 @@ test('cnf_line_BOULDER reports success after queuing its raw wait', () => {
     assert.equal(cnf_line_BOULDER(result, 'x'), true);
     assert.deepEqual(result, {
         startupEvents: [{
-            text: 'Syntax error in BOULDER', wait: true,
+            text: 'Syntax error in BOULDER',
+            // raw_printf() wrote it, so it counts in ge.early_raw_messages.
+            raw_printf: true, wait: true,
         }],
         symbolOperations: [],
     });
@@ -111,6 +113,7 @@ test('legacy boulder syntax errors are immediate raw waits, not config errors',
         assert.deepEqual(parsed.configErrorFrame.output, []);
         assert.deepEqual(parsed.startupEvents, [{
             text: 'Syntax error in BOULDER',
+            raw_printf: true,
             wait: true,
         }]);
         assert.deepEqual(parsed.symbolOperations, [{

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640213,
+      "datetime": "20310412093000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,msg_window:full\n",
+      "moves": " ssSy"
+    },
+    {
+      "seed": 640214,
+      "datetime": "20310412101500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,msg_window:full\n",
+      "moves": "\u0010 s"
+    }
+  ],
+  "comment": "sys/unix/unixmain.c main() (255-262) prints 'Restoring save file...' with pline() before dorecover() when no configuration raw_printf() ran. In normal play the restore asks nothing, so the first key after the welcome-back line is ^P, and msg_window:full lists the whole history: the first segment's messages, which win/tty/topl.c tty_putmsghistory() restores first, then 'Restoring save file...', then the welcome back."
+}

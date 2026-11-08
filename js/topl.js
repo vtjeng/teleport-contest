@@ -576,6 +576,13 @@ export function tty_getmsghistory(init = true, state = game) {
     }
     return next;
 }
+// topl.c:676-726.  _ttyRestoreInitialized is the function's static `initd`
+// and _ttyRestoreSnapshot the snapshot_mesgs it fills.  The first restored
+// message moves the messages issued this session, such as unixmain.c's
+// "Restoring save file...", out of the history, and the null call puts them
+// back after the restored ones.  Each message also lowers a top line still
+// awaiting --More-- to TOPLINE_NON_EMPTY, so cls() in dorecover() does not
+// stop for "Restoring save file...".
 export function tty_putmsghistory(message, restoring = false, state = game) {
     const cw = messageWindow(state);
     if (!cw) return;
@@ -583,30 +590,19 @@ export function tty_putmsghistory(message, restoring = false, state = game) {
         state._ttyRestoreSnapshot = snapshot(state, true);
         state._ttyRestoreInitialized = true;
     }
-    if (message == null) {
-        const prior = state._ttyRestoreHistory ?? [];
-        const current = state._ttyRestoreSnapshot ?? [];
-        state._ttyRestoreHistory = null;
-        for (const entry of prior) {
-            remember_topl(state);
-            setTopline(entry, state);
-        }
-        for (const entry of current) {
+    if (message != null) {
+        if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE)
+            state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
+        remember_topl(state);
+        setTopline(String(message), state);
+    } else if (state._ttyRestoreSnapshot) {
+        for (const entry of state._ttyRestoreSnapshot) {
             remember_topl(state);
             setTopline(entry, state);
         }
         state._ttyRestoreSnapshot = null;
         state._ttyRestoreInitialized = false;
-        return;
     }
-    if (!restoring) {
-        if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE)
-            state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
-        remember_topl(state);
-        setTopline(String(message), state);
-        return;
-    }
-    (state._ttyRestoreHistory ??= []).push(String(message));
 }
 
 // topl.c:706 and :717 Strcpy() the message into gt.toplines.  A caller's

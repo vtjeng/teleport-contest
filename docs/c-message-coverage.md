@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3979 | 89 |
+| gameplay | 4068 | 3980 | 88 |
 | diagnostic | 723 | 184 | 539 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4166 | 745 |
+| total | 4911 | 4167 | 744 |
 
 ## Missing by C file
 
@@ -137,7 +137,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 12 | 1 |
 | sys/share/ioctl.c | no | 2 | 0 | 0 |
-| sys/unix/unixmain.c | yes | 1 | 0 | 0 |
 | sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
 | win/tty/wintty.c | yes | 0 | 5 | 1 |
@@ -402,11 +401,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `dosuspend()`
   - 167 Norep: `Suspend command not available.`
   - 194 pline: `I don't think your shell has job control.`
-
-### sys/unix/unixmain.c
-
-- `main()`
-  - 261 pline: `Restoring save file...`
 
 ### sys/unix/unixunix.c
 
