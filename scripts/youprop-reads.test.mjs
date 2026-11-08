@@ -77,3 +77,16 @@ test('the scan ignores writes, unrouted slots, comments and keys', () => {
         'const blind = Blind(state.u);', // the shared macro
     ].join('\n')), []);
 });
+
+test('the scan follows a function that hands a computed index on', () => {
+    assert.deepEqual(lines([
+        'const prop = (index) => u.uprops?.[index] ?? {};', // 1: a computed reader
+        'const H = (index) => Number(prop(index).intrinsic ?? 0);', // 2: wraps it
+        'const timed = (p) => { const v = H(p); return v & TIMEOUT; };', // 3: wraps the wrapper
+        'if (H(BLINDED)) a();', // 4
+        'if (timed(DEAF)) b();', // 5
+        'function form(u, index) { prop(index).intrinsic |= FROMFORM; }', // 6: writes, reads nothing
+        'form(u, INVIS);', // 7: so this is a write
+        'if (H(FAST)) c();', // 8: FAST is not routed
+    ].join('\n')), ['4 reads BLINDED through H()', '5 reads DEAF through timed()']);
+});

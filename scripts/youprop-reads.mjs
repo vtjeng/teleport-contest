@@ -134,9 +134,12 @@ export function routedNames(root = PROJECT_ROOT, routed = ROUTED_PROPERTIES,
 }
 
 // Functions in `code` (declarations and arrow functions, at any depth) whose
-// bodies index u.uprops[] by something other than a named slot.
+// bodies index u.uprops[] by something other than a named slot, or hand a
+// computed index on to such a function, as `(index) => prop(index).intrinsic`
+// does with `prop = (index) => u.uprops[index]`.
 function computedReaders(code) {
     const readers = new Set();
+    const definitions = [];
     const definition = /(?:function\s+([A-Za-z_$][\w$]*)\s*\(|(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:\([^()]*\)|[A-Za-z_$][\w$]*)\s*=>)/gu;
     for (const match of code.matchAll(definition)) {
         const name = match[1] ?? match[2];
@@ -146,9 +149,34 @@ function computedReaders(code) {
         const end = brace ? closing(code, start + brace[0].length - 1)
             : code.indexOf('\n', start);
         const body = code.slice(start, end);
+        definitions.push({ name, body });
         for (const use of body.matchAll(/(?<![\w$])uprops(?![\w$])/gu)) {
             const { index, write } = access(body, use.index);
             if (index !== null && !write && !/^[A-Z_][A-Z0-9_]*$/u.test(index)) readers.add(name);
+        }
+    }
+    let grew = true;
+    while (grew) {
+        grew = false;
+        for (const { name, body } of definitions) {
+            if (readers.has(name)) continue;
+            for (const reader of readers) {
+                const call = new RegExp(`(?<![\\w$.])${reader.replace(/\$/gu, '\\$')}\\(`, 'gu');
+                const passes = [...body.matchAll(call)].some((match) => {
+                    const open = match.index + match[0].length - 1;
+                    const close = closing(body, open);
+                    const rest = body.slice(close + 1);
+                    const field = FIELD.exec(rest);
+                    if (field && ASSIGNMENT.test(rest.slice(field[0].length))) return false;
+                    return body.slice(open + 1, close).split(',')
+                        .some((arg) => IDENT.test(arg.trim()) && !/^[A-Z_][A-Z0-9_]*$/u.test(arg.trim()));
+                });
+                if (passes) {
+                    readers.add(name);
+                    grew = true;
+                    break;
+                }
+            }
         }
     }
     return readers;

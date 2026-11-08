@@ -640,9 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Deaf, HBlinded, HDeaf,
-    HHallucination, Halluc_resistance, Hallucination, Invis, Maybe_Half_Phys,
-    See_invisible,
+    BBlinded, Blind, BlindedTimeout, Deaf, HBlinded, HConfusion, HDeaf,
+    HHallucination, HStun, Halluc_resistance, Hallucination, Invis,
+    Maybe_Half_Phys, See_invisible, Sick, Vomiting,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -3497,10 +3497,8 @@ export async function use_candle(obj, state = game, env = {}) {
 export async function use_unicorn_horn(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const intrinsic = (property) => state.u?.uprops?.[property]?.intrinsic ?? 0;
-    const timedTrouble = (property) => {
-        const value = intrinsic(property);
-        return value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0;
-    };
+    // C ref: apply.c TimedTrouble(P), which takes the property's value.
+    const timedTrouble = (value) => (value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0);
     const hallucinating = () => Hallucination(state.u);
     const deaf = () => Deaf(state.u);
 
@@ -3576,8 +3574,8 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
     }
 
     const troubles = [];
-    if (timedTrouble(SICK)) troubles.push(SICK);
-    if (timedTrouble(BLINDED) > (state.u?.ucreamed ?? 0)
+    if (timedTrouble(Sick(state.u))) troubles.push(SICK);
+    if (timedTrouble(HBlinded(state.u)) > (state.u?.ucreamed ?? 0)
         && !(state.u?.uswallow
             && attacktype_fordmg(
                 state.u?.ustuck?.data,
@@ -3586,11 +3584,11 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             ))) {
         troubles.push(BLINDED);
     }
-    if (timedTrouble(HALLUC)) troubles.push(HALLUC);
-    if (timedTrouble(VOMITING)) troubles.push(VOMITING);
-    if (timedTrouble(CONFUSION)) troubles.push(CONFUSION);
-    if (timedTrouble(STUNNED)) troubles.push(STUNNED);
-    if (timedTrouble(DEAF)) troubles.push(DEAF);
+    if (timedTrouble(HHallucination(state.u))) troubles.push(HALLUC);
+    if (timedTrouble(Vomiting(state.u))) troubles.push(VOMITING);
+    if (timedTrouble(HConfusion(state.u))) troubles.push(CONFUSION);
+    if (timedTrouble(HStun(state.u))) troubles.push(STUNNED);
+    if (timedTrouble(HDeaf(state.u))) troubles.push(DEAF);
 
     if (!troubles.length) {
         await message(nothing_happens, state);
