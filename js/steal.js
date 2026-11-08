@@ -599,8 +599,7 @@ export async function steal(
 ) {
     // C's worn_item_removal() uses ordinary pline(), while the final theft
     // line uses urgent_pline(). Keep the two display operations separate so
-    // callers can silence both during planning without changing live message
-    // attributes or the --More-- boundary.
+    // each keeps its own message attributes and --More-- boundary.
     const message = env.message ?? ttyPline;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const randomSet = env.random ?? coreRandom;
@@ -618,7 +617,7 @@ export async function steal(
     if (!monnear(mtmp, state.u.ux, state.u.uy, state)) return 0;
 
     // x_monnam() draws core RNG for the unseen someone/something choice and
-    // the display stream for a hallucinated species, so a planning caller's
+    // the display stream for a hallucinated species, so the caller's
     // streams must reach both.
     const nameEnv = {
         random,

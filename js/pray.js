@@ -1975,8 +1975,7 @@ export async function prayer_done(state = game) {
 // C ref: pray.c maybe_turn_mon_iter() (2347-2405). `iter_mons()` invokes this
 // callback for living, on-map monsters; the asynchronous owners below keep
 // that same cached-next traversal in doturn().
-function turnDefaultMessage(text, state, env = {}) {
-    if (env.planning) return undefined;
+function turnDefaultMessage(text, state) {
     return ttyPline(text, state);
 }
 

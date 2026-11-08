@@ -468,8 +468,7 @@ export class UnsupportedObjectOperationError extends Error {
 
 // Each alias reads and writes `this[source]`, so every object can share one
 // descriptor. A fresh getter and setter per object would give each object its
-// own V8 hidden class, and every copy of an object, which the monster-action
-// dry run makes of every object on each turn, would take a slow path.
+// own V8 hidden class, and every copy of an object would take a slow path.
 const OBJ_ALIAS_DESCRIPTORS = Object.fromEntries(Object.entries({
     on_ice: 'recharged',
     orotten: 'oeroded',
@@ -612,8 +611,8 @@ export function objectType(objOrType, state = game) {
     return type;
 }
 
-// C ref: rnd.c. A non-global state (a planning clone) reads rne()'s level and
-// rnl()'s Luck from its own hero.
+// C ref: rnd.c. A non-global state reads rne()'s level and rnl()'s Luck from
+// its own hero.
 function sourceRandom(env) {
     const injected = env?.random;
     if (injected == null) return coreRandomFor(env?.state ?? game);

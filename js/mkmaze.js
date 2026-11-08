@@ -744,7 +744,8 @@ export function bad_location(x, y, nlx, nly, nhx, nhy, state = game) {
 // do.c goto_level() zeroes before every arrival. js/do.js renders that clearing
 // as `state.updest = {}`, so an unset field arrives here as undefined where C
 // would read 0; `?? 0` restores C's value before any comparison sees it.
-// Planning options form one lockstep protocol: `planPositionOnly` traverses
+// The position-only options form one lockstep protocol, which js/do.js
+// place_random_arrival() uses to admit an arrival: `planPositionOnly` traverses
 // candidates with `randomOneBased`, calls the required `preflightPosition`
 // for the selected square instead of committing it, and must leave every
 // selection input unchanged so the caller can replay the traversal live.
@@ -817,8 +818,9 @@ export async function place_lregion(
 // `oneshot` is TRUE when there is no other square to try: either the region is
 // a single square, or the 200 random tries are spent and the deterministic
 // sweep is running. Only then does C disturb what is already on the square,
-// and only the live pass may disturb what is there. The planning pass checks
-// the same destination with a removable trap omitted from a private view;
+// and only the committing pass may disturb what is there. The
+// planPositionOnly pass checks the same destination with a removable trap
+// omitted from a private view;
 // relocation is a live effect after selection, not another selection draw.
 async function put_lregion_here(
     x, y,

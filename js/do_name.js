@@ -1537,9 +1537,8 @@ export function rndghostname(env = {}) {
         : String(state.plname ?? '');
 }
 
-// rnd.c keeps one display stream per game. A monster-action planning clone
-// owns a copy of it (planningState() clones displayCtx), so a name built
-// against that clone must draw from the clone's copy, not the live game's.
+// rnd.c keeps one display stream per game. A name built against a state
+// draws from that state's display stream.
 function stateDisplayRandom(state) {
     return (bound) => rn2_on_display_rng(bound, state);
 }
