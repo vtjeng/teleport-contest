@@ -56,7 +56,12 @@ import {
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { light_globals_init, new_light_source } from '../js/light.js';
+import {
+    light_globals_init,
+    new_light_source,
+    snuff_light_source,
+} from '../js/light.js';
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
@@ -68,6 +73,7 @@ import {
     FOOD_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_PIECE,
+    MAGIC_LAMP,
     OIL_LAMP,
     ORCISH_DAGGER,
     ORCISH_HELM,
@@ -82,6 +88,9 @@ import {
 
 const STEAL_C = readFileSync(
     new URL('../nethack-c/upstream/src/steal.c', import.meta.url), 'utf8',
+);
+const LIGHT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/light.c', import.meta.url), 'utf8',
 );
 
 test('worn armor removal preserves the environment for petrifying protection loss', () => {
@@ -503,13 +512,21 @@ test('engulfing pickup reports before transfer and snuffs afterward', () => {
     const carrier = monster({
         data: { mattk: [{ aatyp: AT_ENGL }] },
     });
+    // A magic lamp burns without a timer, so end_burn() takes its untimed
+    // arm and the fixture needs only the light source itself.
+    // spe 1 is a magic lamp with its djinni, which ignitable() requires.
     const lamp = object({
-        otyp: OIL_LAMP,
+        otyp: MAGIC_LAMP,
+        spe: 1,
         lamplit: true,
     });
     const gameState = state();
     gameState.u.uswallow = true;
     gameState.u.ustuck = carrier;
+    light_globals_init(gameState);
+    // The lamp's source sits on the carrier's square, where
+    // snuff_light_source(mtmp->mx, mtmp->my) looks for it.
+    new_light_source(CARRIER_X, CARRIER_Y, 1, LS_OBJECT, lamp, gameState);
     const events = [];
 
     assert.equal(mpickobj(carrier, lamp, {
@@ -520,46 +537,51 @@ test('engulfing pickup reports before transfer and snuffs afterward', () => {
                 events.push('report');
                 assert.equal(obj.no_charge, true);
                 assert.equal(obj.where, OBJ_FREE);
-            },
-            snuffLightSource(x, y) {
-                events.push('snuff');
-                assert.deepEqual([x, y], [CARRIER_X, CARRIER_Y]);
-                assert.equal(lamp.where, OBJ_MINVENT);
-                assert.equal(lamp.ocarry, carrier);
+                assert.equal(obj.lamplit, true);
             },
         },
     }), false);
-    assert.deepEqual(events, ['report', 'snuff']);
+    assert.deepEqual(events, ['report']);
+    assert.equal(lamp.where, OBJ_MINVENT);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(gameState.gl.light_base, null);
 });
 
-test('an explicitly disabled billing owner and missing light owner stop before pickup mutation', () => {
+test('snuff_light_source() puts out only a burning non-artifact source on the square', () => {
+    assert.match(LIGHT_C,
+        /snuff_light_source\(coordxy x, coordxy y\)[\s\S]*?ls->type == LS_OBJECT && ls->x == x && ls->y == y[\s\S]*?if \(artifact_light\(obj\)\)\s*continue;\s*end_burn\(obj, obj->otyp != MAGIC_LAMP\);[\s\S]*?return;/u);
     const carrier = monster({
         mtame: true,
         data: { mattk: [{ aatyp: AT_ENGL }] },
     });
-    const billed = object({
-        unpaid: true,
-        how_lost: LOST_THROWN,
-    });
-    const gameState = state({ gt: { thrownobj: billed } });
-    assert.throws(
-        () => mpickobj(carrier, billed, { state: gameState,
-            hooks: { findObjectOwner: null } }),
-        (error) => error instanceof UnsupportedMonsterPickupOperationError
-            && error.operation === 'findObjectOwner',
-    );
-    assert.equal(gameState.gt.thrownobj, billed);
-    assert.equal(billed.no_charge, true);
-    assert.equal(billed.where, OBJ_FREE);
+    // spe 1: a magic lamp with its djinni, which ignitable() requires.
+    const lamp = object({ otyp: MAGIC_LAMP, spe: 1, lamplit: true });
+    // A second lit lamp one square east must keep burning: the search
+    // matches the carrier's coordinates exactly.
+    const neighbour = object({ otyp: MAGIC_LAMP, spe: 1, lamplit: true });
+    const gameState = state();
+    light_globals_init(gameState);
+    new_light_source(CARRIER_X + 1, CARRIER_Y, 1, LS_OBJECT, neighbour,
+        gameState);
+    new_light_source(CARRIER_X, CARRIER_Y, 1, LS_OBJECT, lamp, gameState);
 
-    const lamp = object({ otyp: OIL_LAMP, lamplit: true });
-    assert.throws(
-        () => mpickobj(carrier, lamp, { state: state() }),
-        (error) => error instanceof UnsupportedMonsterPickupOperationError
-            && error.operation === 'snuffLightSource',
-    );
-    assert.equal(lamp.no_charge, true);
-    assert.equal(lamp.where, OBJ_FREE);
+    assert.equal(mpickobj(carrier, lamp, { state: gameState }), false);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(neighbour.lamplit, true);
+    assert.equal(gameState.gl.light_base.id, neighbour);
+    assert.equal(gameState.gl.light_base.next, null);
+
+    // Sunsword is the one burning object the search skips; nothing else on
+    // the square is lit, so the call changes nothing.
+    const sunsword = object({ otyp: ORCISH_DAGGER, oartifact: ART_SUNSWORD,
+        lamplit: true });
+    const swordState = state();
+    light_globals_init(swordState);
+    new_light_source(CARRIER_X, CARRIER_Y, 1, LS_OBJECT, sunsword,
+        swordState);
+    snuff_light_source(CARRIER_X, CARRIER_Y, swordState);
+    assert.equal(sunsword.lamplit, true);
+    assert.equal(swordState.gl.light_base.id, sunsword);
 });
 
 // ── steal.c relobj() and mdrop_obj() ──

@@ -37,6 +37,7 @@ import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
     CANDELABRUM_OF_INVOCATION,
     GOLD_DRAGON_SCALE_MAIL,
+    MAGIC_LAMP,
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
@@ -64,6 +65,24 @@ export function light_globals_init(state = game) {
 // C ref: light.c any_light_source().
 export function any_light_source(state = game) {
     return Boolean(state.gl?.light_base);
+}
+
+// C ref: light.c snuff_light_source() (728-760). Extinguishes the first
+// burning object source whose recorded position is (x,y), leaving artifact
+// light (Sunsword) alone. end_burn() unlinks that source, so C returns at
+// once rather than following the stale next pointer.
+export function snuff_light_source(x, y, state) {
+    for (let ls = lightGlobals(state).light_base; ls; ls = ls.next) {
+        if (ls.type === LS_OBJECT && ls.x === x && ls.y === y) {
+            const obj = ls.id;
+            if (obj_is_burning(obj)) {
+                if (artifact_light(obj))
+                    continue;
+                end_burn(obj, obj.otyp !== MAGIC_LAMP, { state });
+                return;
+            }
+        }
+    }
 }
 
 // C ref: light.c obj_is_burning(). Only lit, fuel-burning sources and artifact

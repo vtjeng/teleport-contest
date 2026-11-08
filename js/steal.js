@@ -70,7 +70,7 @@ import {
     preflight_carry_obj_effects,
     stackobj,
 } from './invent.js';
-import { obj_sheds_light } from './light.js';
+import { obj_sheds_light, snuff_light_source } from './light.js';
 import {
     attacktype,
     can_teleport,
@@ -106,6 +106,7 @@ import {
     TOOL_CLASS,
 } from './objects.js';
 import {
+    Tobjnam,
     armor_simple_name,
     distant_name,
     donameFresh,
@@ -210,9 +211,6 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
 
     const snuff = obj_sheds_light(obj)
         && attacktype(monster?.data, AT_ENGL);
-    const snuffLightSource = snuff
-        ? requiredPickupOperation(env, 'snuffLightSource', obj)
-        : null;
     const reportObjectGoesOut = snuff
         && env.state.u?.uswallow
         && env.state.u?.ustuck === monster
@@ -240,7 +238,6 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
         findObjectOwner,
         subFromBill,
         snuff,
-        snuffLightSource,
         reportObjectGoesOut,
         canSeeMonster,
         carryEffects,
@@ -311,15 +308,27 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     carry_obj_effects(obj, env, plan.carryEffects);
     const freed = add_to_minv(monster, obj, env);
     if (plan.snuff)
-        plan.snuffLightSource(monster.mx, monster.my, env);
+        snuff_light_source(monster.mx, monster.my, env.state);
     return freed;
 }
 
+// C ref: steal.c mpickobj():649-650, the message an engulfer gives when it
+// takes a burning object while the hero, who can see, is inside it.
+async function reportObjectGoesOut(obj, env) {
+    await ttyPline(`${Tobjnam(obj, 'go', env.state)} out.`, env.state);
+}
+
 // Runtime counterpart of steal.c:mpickobj(). It retains the source-ordered
-// pickup effects, but waits for a runtime inventory merge before the
-// post-transfer snuff and before returning the source boolean.
-export function mpickobjRuntime(monster, obj, rawEnv = {}, prepared = null) {
-    const plan = checkedPickupPlan(monster, obj, rawEnv, prepared);
+// pickup effects, prints mpickobj()'s own "goes out" message, and waits for a
+// runtime inventory merge before the post-transfer snuff and before returning
+// the source boolean.
+export async function mpickobjRuntime(
+    monster, obj, rawEnv = {}, prepared = null,
+) {
+    const plan = checkedPickupPlan(monster, obj, {
+        ...rawEnv,
+        hooks: { reportObjectGoesOut, ...(rawEnv.hooks ?? {}) },
+    }, prepared);
     const { env } = plan;
     if (plan.outcome === 'missing') {
         reportImpossible(
@@ -352,7 +361,7 @@ export function mpickobjRuntime(monster, obj, rawEnv = {}, prepared = null) {
     }
 
     if (plan.reportObjectGoesOut)
-        plan.reportObjectGoesOut(obj, env);
+        await plan.reportObjectGoesOut(obj, env);
 
     obj.no_charge = false;
     if (!monster.mtame) {
@@ -367,15 +376,10 @@ export function mpickobjRuntime(monster, obj, rawEnv = {}, prepared = null) {
     }
 
     carry_obj_effects(obj, env, plan.carryEffects);
-    const transferred = addToMinvRuntime(monster, obj, env);
-    const afterTransfer = (freed) => {
-        if (plan.snuff)
-            plan.snuffLightSource(monster.mx, monster.my, env);
-        return freed;
-    };
-    return typeof transferred?.then === 'function'
-        ? Promise.resolve(transferred).then(afterTransfer)
-        : afterTransfer(transferred);
+    const freed = await addToMinvRuntime(monster, obj, env);
+    if (plan.snuff)
+        snuff_light_source(monster.mx, monster.my, env.state);
+    return freed;
 }
 
 // C ref: steal.c remove_worn_item() (213-290). Strips a worn item from the

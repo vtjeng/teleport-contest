@@ -2229,8 +2229,8 @@ export async function dropz(obj, with_impact, env = {}) {
                 },
             };
             if (!await engulfer_digests_food(obj, state, digestionEnv)) {
-                const { mpickobj } = await import('./steal.js');
-                mpickobj(state.u.ustuck, obj, { state });
+                const { mpickobjRuntime } = await import('./steal.js');
+                await mpickobjRuntime(state.u.ustuck, obj, { state });
             }
         }
         await encumber_msg(state);

@@ -441,7 +441,7 @@ import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon, passive_obj } from './uhitm.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { m_in_air, minliquid, seemimic, setmangry, wake_nearto, wakeup } from './mon.js';
-import { mpickobj, remove_worn_item } from './steal.js';
+import { mpickobj, mpickobjRuntime, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { finish_quest } from './quest.js';
@@ -2354,9 +2354,9 @@ function throwit_return(clearObject, state) {
 // deliberately discarded by C; mpickobj() owns the object transfer and the
 // transit slot.  The iron ball is the one object which stays attached rather
 // than entering the engulfer's inventory.
-function swallowThrownObject(obj, state) {
+async function swallowThrownObject(obj, state) {
     if (obj !== state.uball) {
-        mpickobj(state.u.ustuck, obj, { state });
+        await mpickobjRuntime(state.u.ustuck, obj, { state });
         throwit_return(false, state);
     } else {
         throwit_return(true, state);
@@ -2721,7 +2721,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         return;
     }
     if (u.uswallow && !state.iflags.returning_missile) {
-        swallowThrownObject(obj, state);
+        await swallowThrownObject(obj, state);
         return;
     }
 
@@ -2778,7 +2778,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                     if (state.program_state?.gameover) return;
                 }
                 if (u.uswallow) {
-                    swallowThrownObject(obj, state);
+                    await swallowThrownObject(obj, state);
                     return;
                 }
                 if (!await ship_object(obj, u.ux, u.uy, false, { state }))
@@ -2790,7 +2790,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
         await ttyPline(`${Tobjnam(obj, 'fail', state)} to return!`, state);
         if (u.uswallow) {
-            swallowThrownObject(obj, state);
+            await swallowThrownObject(obj, state);
             return;
         }
     }

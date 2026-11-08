@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5260117,
+      "datetime": "20410612094500",
+      "nethackrc": "OPTIONS=name:Lampwick,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "comment": "Independent engulfer pickup of burning objects: a level-14 lawful Valkyrie wishes for a lit oil lamp and a lit magic lamp, is engulfed by an ochre jelly (gulpmu() puts both out), relights each, drops the oil lamp and throws the magic lamp inside it. Each reaches steal.c mpickobj()'s engulfer branch, which prints \"The lamp goes out.\" and calls light.c snuff_light_source(): the oil lamp through end_burn()'s burn timer (do.c dropz()), the magic lamp through its untimed arm (dothrow.c swallowit()).",
+      "moves": "#levelchange\n14\n             \u0017lit oil lamp\n\u0017lit magic lamp\n#wizgenesis\nochre jelly\nmsmsmsmsmsmsms  afdf agtgh"
+    }
+  ]
+}
