@@ -1187,8 +1187,8 @@ export function redraw_cmd(c, state = game) {
 export function confdir(force_impairment, state = game, { random = null } = {}) {
     if (force_impairment || u_maybe_impaired(state)) {
         const kmax = NODIAG(state.u.umonnum) ? N_DIRS / 2 : N_DIRS;
-        // cmd.c confdir() uses the active game RNG. Planners can supply their
-        // cloned RNG while ordinary callers keep the existing live owner.
+        // cmd.c confdir() uses the active game RNG. Callers can supply their
+        // own RNG while ordinary callers keep the existing live owner.
         const k = dirs_ord[random ? random.rn2(kmax) : rn2(kmax)];
         state.u.dx = xdir[k];
         state.u.dy = ydir[k];
