@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6620481,
+      "datetime": "20380714103000",
+      "nethackrc": "OPTIONS=name:Relic,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00164\n\u0017Candelabrum of Invocation\n\u00173 wax candles\n\u0017Bell of Opening\n\u0017Book of the Dead\nafyae  dhdgdel\u0017wand of death\nzi.  yqy",
+      "comment": "Independent bones with the invocation items: a debug Valkyrie on D:4 wishes for the Candelabrum, 3 wax candles, the Bell of Opening and the Book of the Dead, attaches and lights the candles, drops the three relics, steps east and dies to a wand of death, saving bones. bones.c resetobjs() ends the Candelabrum's burn and turns it into 3 cursed wax candles, the Bell into a cursed bell and the Book into cursed blank paper."
+    },
+    {
+      "seed": 6620503,
+      "datetime": "20380723091500",
+      "nethackrc": "OPTIONS=name:Heir,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00164\nyy\u0017blessed potion of object detection\nqf  ",
+      "comment": "A Samurai loads those bones on D:4 and quaffs blessed object detection: the relic pile shows the wax candles' white glyph."
+    }
+  ]
+}

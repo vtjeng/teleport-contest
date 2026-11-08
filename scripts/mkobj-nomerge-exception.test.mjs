@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { nomerge_exception } from '../js/obj.js';
+import { is_mines_prize, is_soko_prize, nomerge_exception } from '../js/obj.js';
 
 // -- Prize objects return true ------------------------------------------------
 
@@ -67,4 +67,20 @@ test('nomerge_exception returns true when obj matches both prizes', () => {
     const state = { context: { achieveo: { mines_prize_oid: 5, soko_prize_oid: 5 } } };
     const obj = { o_id: 5 };
     assert.equal(nomerge_exception(obj, state), true);
+});
+
+// -- The obj.h macros themselves ----------------------------------------------
+
+test('is_mines_prize and is_soko_prize each compare one achieveo id', () => {
+    // Prize ids 42 and 99 are arbitrary distinct o_ids; each macro must match
+    // only its own field, so object 42 is the Mines prize and not Sokoban's.
+    const state = { context: { achieveo: { mines_prize_oid: 42, soko_prize_oid: 99 } } };
+    assert.equal(is_mines_prize({ o_id: 42 }, state), true);
+    assert.equal(is_soko_prize({ o_id: 42 }, state), false);
+    assert.equal(is_soko_prize({ o_id: 99 }, state), true);
+    assert.equal(is_mines_prize({ o_id: 99 }, state), false);
+    // An unset (zero) id matches no object, since o_ids start at 1.
+    const unset = { context: { achieveo: { mines_prize_oid: 0, soko_prize_oid: 0 } } };
+    assert.equal(is_mines_prize({ o_id: 1 }, unset), false);
+    assert.equal(is_soko_prize({ o_id: 1 }, unset), false);
 });

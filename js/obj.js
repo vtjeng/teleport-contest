@@ -3590,18 +3590,22 @@ export function insane_obj_bits(obj, mon, state = game) {
     }
 }
 
+// C ref: obj.h is_mines_prize() and is_soko_prize(). The prize object's
+// o_id lives in svc.context.achieveo (this port's state.context.achieveo);
+// an unset id is zero, which no object's o_id equals.
+export function is_mines_prize(obj, state) {
+    return obj.o_id === (state.context?.achieveo?.mines_prize_oid ?? 0);
+}
+
+export function is_soko_prize(obj, state) {
+    return obj.o_id === (state.context?.achieveo?.soko_prize_oid ?? 0);
+}
+
 // C ref: mkobj.c nomerge_exception() (3280-3288). Returns true for objects
 // that use the nomerge flag persistently (special prize objects for
 // achievement tracking). Pure function.
 export function nomerge_exception(obj, state = game) {
-    // C: is_mines_prize(obj) || is_soko_prize(obj)
-    const tracking = state.context?.achieveo;
-    if (!tracking) return false;
-    if (tracking.mines_prize_oid && obj.o_id === tracking.mines_prize_oid)
-        return true;
-    if (tracking.soko_prize_oid && obj.o_id === tracking.soko_prize_oid)
-        return true;
-    return false;
+    return is_mines_prize(obj, state) || is_soko_prize(obj, state);
 }
 
 // C ref: mkobj.c insane_object() (3314-3346). Central diagnostic reporter

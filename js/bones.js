@@ -69,6 +69,7 @@ import {
     is_unicorn,
     is_undead,
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
+    unique_corpstat,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
@@ -94,6 +95,10 @@ import {
     place_object,
     weight,
     curse,
+    free_omonst,
+    is_mines_prize,
+    is_soko_prize,
+    set_corpsenm,
 } from './obj.js';
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { block_point } from './vision.js';
@@ -114,7 +119,12 @@ import {
     EGG,
     MUMMY_WRAPPING,
     AMULET_OF_YENDOR,
+    BELL,
+    BELL_OF_OPENING,
     FAKE_AMULET_OF_YENDOR,
+    SCR_MAIL,
+    SPE_BLANK_PAPER,
+    SPE_BOOK_OF_THE_DEAD,
     SLIME_MOLD,
     SPE_NOVEL,
     STATUE,
@@ -130,6 +140,7 @@ import {
 import {
     MS_LEADER,
     MS_NEMESIS,
+    PM_DOPPELGANGER,
     PM_GHOST,
     PM_MEDUSA,
     PM_ORACLE,
@@ -138,7 +149,7 @@ import {
 } from './monsters.js';
 import { peace_minded, propagate, set_malign } from './makemon.js';
 import { coreRandom, rn2 } from './rng.js';
-import { unpunish } from './read.js';
+import { cant_revive, unpunish } from './read.js';
 import { fix_shop_damage } from './shk.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
@@ -335,14 +346,62 @@ function resetobjs(ochain, restore, state) {
 
             if (otmp.otyp === SLIME_MOLD) {
                 goodfruit(otmp.spe, state);
+            } else if (otmp.otyp === SCR_MAIL) {
+                // bones.c:131-135 (MAIL_STRUCTURES). 0: delivered in-game
+                // by an external event; 1: from bones or wishing; 2:
+                // written with a marker.
+                if (otmp.spe === 0)
+                    otmp.spe = 1;
             } else if (otmp.otyp === EGG) {
                 otmp.spe = 0; // not "laid by you" in next game
             } else if (otmp.otyp === TIN) {
-                // make tins of unique monster's meat empty (simplified)
+                // Tins of a unique monster's meat become empty.
+                if (ismnum(otmp.corpsenm)
+                    && unique_corpstat(state.mons[otmp.corpsenm]))
+                    otmp.corpsenm = NON_PM;
+            } else if (otmp.otyp === CORPSE || otmp.otyp === STATUE) {
+                // bones.c:147-165. Discard the incarnation details of
+                // uniques, shopkeepers (revival false), temple priests and
+                // vault guards so that the corpse or statue cannot revive
+                // them; a unique's corpse turns into a doppelganger's now.
+                if (otmp.oextra?.omonst) {
+                    const revived = cant_revive(
+                        otmp.corpsenm, false, null, state,
+                    );
+                    if (revived.changed) {
+                        free_omonst(otmp);
+                        if (revived.mtype === PM_DOPPELGANGER
+                            && otmp.otyp === CORPSE)
+                            set_corpsenm(otmp, revived.mtype, { state });
+                    }
+                }
+            } else if (is_mines_prize(otmp, state)
+                       || is_soko_prize(otmp, state)) {
+                // Achievement tracking, in case the prize left its own
+                // (always no-bones) level.
+                otmp.nomerge = 0;
             } else if (otmp.otyp === AMULET_OF_YENDOR) {
                 // C ref: bones.c:170-174. A bones level never keeps the
                 // unique real Amulet; the replacement is cursed.
                 otmp.otyp = FAKE_AMULET_OF_YENDOR;
+                curse(otmp, { state });
+            } else if (otmp.otyp === CANDELABRUM_OF_INVOCATION) {
+                // bones.c:175-184. The Candelabrum becomes its candles,
+                // assumed used.
+                if (otmp.lamplit)
+                    end_burn(otmp, true, { state });
+                otmp.otyp = WAX_CANDLE;
+                otmp.age = 50;
+                if (otmp.spe > 0)
+                    otmp.quan = otmp.spe;
+                otmp.spe = 0;
+                otmp.owt = weight(otmp, { state });
+                curse(otmp, { state });
+            } else if (otmp.otyp === BELL_OF_OPENING) {
+                otmp.otyp = BELL;
+                curse(otmp, { state });
+            } else if (otmp.otyp === SPE_BOOK_OF_THE_DEAD) {
+                otmp.otyp = SPE_BLANK_PAPER;
                 curse(otmp, { state });
             }
         }
