@@ -426,8 +426,6 @@ import {
 import { container_impact_dmg, ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
-    Flying,
-    Levitation,
     drown,
     instapetrify,
     minstapetrify,
@@ -481,7 +479,8 @@ import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Confusion, Deaf, HBlinded, Hallucination, Maybe_Half_Phys, Stunned,
+    Blind, Confusion, Deaf, Flying, HBlinded, Hallucination, Levitation,
+    Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -1032,7 +1031,7 @@ export async function hurtle_step(arg, x, y) {
 
     if (is_pool(x, y, state) && !state.u.uinwater) {
         if (state.level.at(x, y).typ === WATER
-            || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
+            || !(Levitation(state.u) || Flying(state.u) || heroWwalking(state))) {
             state.multi = 0;
             await drown(state);
             return false;
@@ -2656,7 +2655,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         throwit_return(true, state);
         return;
     } else if (obj.otyp === BOOMERANG && !u.uinwater) {
-        if (Is_airlevel(u.uz, state) || Levitation(state))
+        if (Is_airlevel(u.uz, state) || Levitation(state.u))
             await hurtle(-u.dx, -u.dy, 1, true, state);
         mon = await boomhit(
             obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
@@ -2700,7 +2699,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             }
         }
 
-        if (Is_airlevel(u.uz, state) || Levitation(state)) {
+        if (Is_airlevel(u.uz, state) || Levitation(state.u)) {
             urange -= range;
             if (urange < 1) urange = 1;
             range -= urange;
@@ -2723,7 +2722,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         );
         obj = pobj.obj;
         setThrownObject(state, obj);
-        if (Is_airlevel(u.uz, state) || Levitation(state))
+        if (Is_airlevel(u.uz, state) || Levitation(state.u))
             await hurtle(-u.dx, -u.dy, urange, true, state);
         if (!obj) {
             if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
@@ -2773,10 +2772,10 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                     await ttyPline(
                         Blind(state.u)
                             ? `Something lands ${
-                                Levitation(state) ? 'beneath' : 'at'} your ${
+                                Levitation(state.u) ? 'beneath' : 'at'} your ${
                                 makeplural(body_part(FOOT, state.youmonst))}.`
                             : `${Tobjnam(obj, 'return', state)} back to you, `
-                                + `landing ${Levitation(state) ? 'beneath' : 'at'} `
+                                + `landing ${Levitation(state.u) ? 'beneath' : 'at'} `
                                 + `your ${makeplural(body_part(FOOT, state.youmonst))}.`, state,
                     );
                 } else {

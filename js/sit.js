@@ -37,7 +37,6 @@ import {
     KILLED_BY,
     KILLED_BY_AN,
     LADDER,
-    LEVITATION,
     ROOM,
     POISON_RES,
     PROTECTION,
@@ -113,7 +112,6 @@ import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 
 import {
-    Flying,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,
@@ -128,16 +126,9 @@ import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, Deaf, ETelepat, HBlinded, HConfusion, HSee_invisible, HTelepat,
-    Half_physical_damage, Hallucination, See_invisible,
+    Blind, Deaf, ETelepat, Flying, HBlinded, HConfusion, HSee_invisible,
+    HTelepat, Half_physical_damage, Hallucination, Levitation, See_invisible,
 } from './youprop.js';
-
-
-// youprop.h:240 Levitation, including its blocking term.
-function Levitation(state) {
-    const value = state.u?.uprops?.[LEVITATION];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 
 function Underwater(state) {
@@ -782,7 +773,7 @@ export async function dosit(state = game, rawEnv = {}) {
     const { can_reach_floor } = await import('./engrave.js');
     if (!can_reach_floor(false, state)) {
         if (u.uswallow) await message('There are no seats in here!', state);
-        else if (Levitation(state)) await message('You tumble in place.', state);
+        else if (Levitation(state.u)) await message('You tumble in place.', state);
         else await message('You are sitting on air.', state);
         return ECMD_OK;
     } else if (u.ustuck && !sticks(species)) {
@@ -893,7 +884,7 @@ export async function dosit(state = game, rawEnv = {}) {
                 ++u.utrap;
             }
         } else {
-            await message(`${Flying(state) ? 'You land' : 'You sit down'}.`, state);
+            await message(`${Flying(state.u) ? 'You land' : 'You sit down'}.`, state);
             // C sit.c:dosit discards dotrap()'s return value after the
             // sitting message; preserve that call's state, output, and RNG.
             const { dotrap } = await import('./trap_effects.js');

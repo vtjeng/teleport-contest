@@ -292,8 +292,8 @@ import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
-    BBlinded, BInvis, Blind, EBlinded, HBlinded, HConfusion, HStun,
-    Hallucination, Maybe_Half_Phys,
+    BBlinded, BInvis, Blind, EBlinded, ELevitation, HBlinded, HConfusion,
+    HLevitation, HStun, Hallucination, Levitation, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -827,12 +827,6 @@ function Hate_silver(state) {
         || hates_silver(state.youmonst?.data);
 }
 
-// C ref: youprop.h:240. Levitation property (intrinsic or extrinsic, not
-// blocked).
-function Levitation(state) {
-    const value = state.u?.uprops?.[LEVITATION];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 export async function touch_artifact(obj, monster, env = game) {
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
@@ -2810,22 +2804,20 @@ export function finesse_ahriman(obj, state = game) {
     const oart = get_artifact(obj, state);
     if (oart === state.artilist[ART_NONARTIFACT]) return false;
 
-    const levProp = state.u.uprops?.[LEVITATION]
-        ?? { intrinsic: 0, extrinsic: 0 };
     // Not levitating, or not an artifact that confers levitation via invoke
-    if (!(levProp.intrinsic || levProp.extrinsic)
+    if (!(HLevitation(state.u) || ELevitation(state.u))
         || oart.inv_prop !== LEVITATION
-        || !(levProp.extrinsic & W_ARTI))
+        || !(ELevitation(state.u) & W_ARTI))
         return false;
 
     // Probe: clear I_SPECIAL|TIMEOUT and W_ARTI, check if still levitating
-    const saveIntrinsic = levProp.intrinsic;
-    const saveExtrinsic = levProp.extrinsic;
-    levProp.intrinsic &= ~(I_SPECIAL | TIMEOUT);
-    levProp.extrinsic &= ~W_ARTI;
-    const result = !(levProp.intrinsic || levProp.extrinsic);
-    levProp.intrinsic = saveIntrinsic;
-    levProp.extrinsic = saveExtrinsic;
+    const saveIntrinsic = HLevitation(state.u);
+    const saveExtrinsic = ELevitation(state.u);
+    state.u.uprops[LEVITATION].intrinsic &= ~(I_SPECIAL | TIMEOUT);
+    state.u.uprops[LEVITATION].extrinsic &= ~W_ARTI;
+    const result = !(HLevitation(state.u) || ELevitation(state.u));
+    state.u.uprops[LEVITATION].intrinsic = saveIntrinsic;
+    state.u.uprops[LEVITATION].extrinsic = saveExtrinsic;
     return result;
 }
 
@@ -3134,7 +3126,7 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
 
     /* if we still have it and caller wants us to drop it, do so now */
     if (loseit && obj) {
-        if (Levitation(state)) {
+        if (Levitation(state.u)) {
             await freeinv(obj, { state });
             await hitfloor(obj, true, state, rawEnv);
         } else {

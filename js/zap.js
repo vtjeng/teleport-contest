@@ -201,7 +201,7 @@ import {
     closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 
 import { acid_damage, burnarmor } from './trap_erode_obj.js';
-import { deltrap, Levitation } from './trap.js';
+import { deltrap } from './trap.js';
 import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
@@ -251,7 +251,7 @@ import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 import { canseemon, canspotmon } from './display.js';
 import { setuwep } from './wield.js';
 import {
-    BInvis, Blind, Deaf, EInvis, HInvis, HStun, Hallucination,
+    BInvis, Blind, Deaf, EInvis, HInvis, HStun, Hallucination, Levitation,
     Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
@@ -6544,7 +6544,7 @@ export async function zap_updown(obj, state = game,
                     await ttyPline(nothing_happens, state, rawEnv);
                 } else {
                     await ttyPline(
-                        `Blood ${is_lava(x, y, state) ? 'boils' : 'pools'} ${Levitation(state) ? 'beneath' : 'at'} your ${makeplural(body_part(FOOT, state.youmonst))}.`,
+                        `Blood ${is_lava(x, y, state) ? 'boils' : 'pools'} ${Levitation(state.u) ? 'beneath' : 'at'} your ${makeplural(body_part(FOOT, state.youmonst))}.`,
                         state,
                         rawEnv,
                     );

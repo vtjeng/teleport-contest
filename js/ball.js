@@ -70,7 +70,6 @@ import {
 import {
     deltrap,
     fill_pit,
-    Levitation,
     reset_utrap,
     t_at,
 } from './trap.js';
@@ -88,7 +87,7 @@ import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
-import { Blind, Maybe_Half_Phys } from './youprop.js';
+import { Blind, Levitation, Maybe_Half_Phys } from './youprop.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;
@@ -714,7 +713,7 @@ async function dragBallTail(
             || state.level.at(ball.ox, ball.oy).typ === POOL);
     if (chainInWater || (chainTrap && (is_pit(chainTrap.ttyp)
         || is_hole(chainTrap.ttyp)))) {
-        if (Levitation(state)) {
+        if (Levitation(state.u)) {
             await ttyPline(youFeel('a tug from the iron ball.', state), state);
             if (chainTrap) chainTrap.tseen = true;
         } else {
@@ -835,7 +834,7 @@ export async function drop_ball(x, y, state = game) {
 
     u.ux0 = u.ux;
     u.uy0 = u.uy;
-    if (!Levitation(state) && !m_at(x, y, state) && !u.utrap
+    if (!Levitation(state.u) && !m_at(x, y, state) && !u.utrap
         && (is_pool(x, y, state)
             || ((trap = t_at(x, y, state))
                 && (is_pit(trap.ttyp) || is_hole(trap.ttyp))))) {

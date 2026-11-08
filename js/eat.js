@@ -209,8 +209,6 @@ import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
     b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at,
-    Flying,
-    Levitation,
 } from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
@@ -220,9 +218,9 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    BInvis, Blind, Deaf, EInvis, ESee_invisible, HBlinded, HConfusion,
+    BInvis, Blind, Deaf, EInvis, ESee_invisible, Flying, HBlinded, HConfusion,
     HHallucination, HInvis, HSee_invisible, HStun, Hallucination, Invis,
-    Unaware,
+    Levitation, Unaware,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -1450,7 +1448,7 @@ async function rottenfood(obj, state) {
         if (!Blind(state.u)) {
             what = 'goes';
             where = 'dark';
-        } else if (Levitation(state)
+        } else if (Levitation(state.u)
                    || Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state)) {
             what = 'you lose control of';
             where = 'yourself';
@@ -1816,7 +1814,7 @@ export async function newuhs(incr, state = game, env = {}) {
                 state.nomovemsg = 'You regain consciousness.';
                 state.afternmv = unfaint;
                 newhs = FAINTED;
-                if (!Levitation(state)) {
+                if (!Levitation(state.u)) {
                     await selftouch('Falling, you', state, env);
                     if (state.program_state?.gameover) return;
                 }
@@ -3689,7 +3687,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
     if (!skipfloor
         && !(is_pool_or_lava(u.ux, u.uy, state)
             && (walking || is_clinger(uptr)
-                || (Flying(state) && !breathlessHero)))) {
+                || (Flying(state.u) && !breathlessHero)))) {
 
         if (feeding && metallivorous(uptr)) {
             const trap = t_at(u.ux, u.uy, state);
@@ -3946,7 +3944,7 @@ async function eataccessory(otmp, state, env) {
             break;
         case RIN_LEVITATION:
             prop.intrinsic = oldprop;
-            if (!Levitation(state)) {
+            if (!Levitation(state.u)) {
                 await float_up(state);
                 incr_itimeout(prop, d(10, 20));
                 discover_object(typ, true, true, true, state);

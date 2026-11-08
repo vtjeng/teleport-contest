@@ -351,8 +351,6 @@ import { makeplural } from './fruit.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import {
-    Flying,
-    Levitation,
     deltrap,
     fall_through,
     fill_pit,
@@ -412,8 +410,8 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Deaf, EInvis, HConfusion, HInvis, Half_physical_damage,
-    Hallucination, Invis, Maybe_Half_Phys, See_invisible,
+    Blind, Deaf, EInvis, Flying, HConfusion, HInvis, Half_physical_damage,
+    Hallucination, Invis, Levitation, Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -488,8 +486,8 @@ export function check_in_air(monster, trflags, state = game) {
     const is_you = monster === state.youmonst;
     const plunged = (trflags & (TOOKPLUNGE | VIASITTING)) !== 0;
     return (trflags & HURTLING) !== 0
-        || (is_you ? Levitation(state) : is_floater(monster.data))
-        || ((is_you ? Flying(state) : is_flyer(monster.data)) && !plunged);
+        || (is_you ? Levitation(state.u) : is_floater(monster.data))
+        || ((is_you ? Flying(state.u) : is_flyer(monster.data)) && !plunged);
 }
 
 // C ref: trap.c m_easy_escape_pit(). A pit fiend or any huge-or-larger
@@ -597,9 +595,9 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
     const message = requireTrapOperation(env, 'message');
 
     const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
-        || (Flying(state) && (trflags & VIASITTING) !== 0);
+        || (Flying(state.u) && (trflags & VIASITTING) !== 0);
     if (monster === state.youmonst) {
-        if ((Levitation(state) || Flying(state)) && !forcetrap) {
+        if ((Levitation(state.u) || Flying(state.u)) && !forcetrap) {
             if (!Blind(state.u)) {
                 seetrap(trap, env);
                 await message(
@@ -1272,7 +1270,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
 
     const dmg = random.d(2, 4);
 
-    if ((Levitation(state) || Flying(state)) && !forcetrap)
+    if ((Levitation(state.u) || Flying(state.u)) && !forcetrap)
         return Trap_Effect_Finished;
     feeltrap(trap, env);
     const you = state.youmonst.data;
@@ -1527,8 +1525,8 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
 
         // KMH -- You can't escape the Sokoban level traps.
         const sokoban = Boolean(state.level?.flags?.sokoban_rules);
-        if (!sokoban && (Levitation(state)
-            || (Flying(state) && !plunged && !viasitting)))
+        if (!sokoban && (Levitation(state.u)
+            || (Flying(state.u) && !plunged && !viasitting)))
             return Trap_Effect_Finished;
 
         feeltrap(trap, env);
@@ -1578,7 +1576,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                 const between = !random.rn2(5) ? ' between the pits' : '';
                 await message(`You stumble over debris${between}.`, state, env);
             } else {
-                verbbuf = !plunged ? 'fall' : (Flying(state) ? 'dive' : 'plunge');
+                verbbuf = !plunged ? 'fall' : (Flying(state.u) ? 'dive' : 'plunge');
             }
             if (verbbuf)
                 await message(`You ${verbbuf} into ${a_your[trap.madeby_u ? 1 : 0]} pit!`, state, env);
@@ -1650,7 +1648,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                         return Trap_Effect_Finished;
                 }
             } else if (!conjPit && !deliberate
-                && !(plunged && (Flying(state) || is_clinger(state.youmonst.data)))) {
+                && !(plunged && (Flying(state.u) || is_clinger(state.youmonst.data)))) {
                 await losehp(
                     Maybe_Half_Phys(random.rnd(adjPit ? 3 : 6), state.u),
                     plunged ? 'deliberately plunged into a pit' : 'fell into a pit',
@@ -3732,7 +3730,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             || (trflags & FAILEDUNTRAP) !== 0;
         const forcebungle = (trflags & FORCEBUNGLE) !== 0;
 
-        if ((Levitation(state) || Flying(state)) && !forcetrap) {
+        if ((Levitation(state.u) || Flying(state.u)) && !forcetrap) {
             if (!alreadySeen && random.rn2(3))
                 return Trap_Effect_Finished;
             feeltrap(trap, env);

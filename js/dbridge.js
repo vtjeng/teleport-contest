@@ -31,7 +31,7 @@ import { m_at, place_monster, remove_monster } from './monst.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { BOULDER, IRON_CHAIN } from './objects.js';
 import { update_monster_region } from './region.js';
-import { deltrap, drown, Flying, Levitation, lava_effects, t_at } from './trap.js';
+import { deltrap, drown, lava_effects, t_at } from './trap.js';
 import { revive_nasty, spoteffects } from './hack.js';
 import { enexto, teleds } from './teleport.js';
 import {
@@ -42,7 +42,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 import {
-    Confusion, Deaf, Hallucination, Stunned, Unaware,
+    Confusion, Deaf, Flying, Hallucination, Levitation, Stunned, Unaware,
 } from './youprop.js';
 
 // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
@@ -457,11 +457,11 @@ export function e_survives_at(entity, x, y, state = game) {
             || heroProperty(MAGICAL_BREATHING, state)
             || amphibious(state.youmonst?.data)
             || breathless(state.youmonst?.data)
-            || Flying(state) || Levitation(state)))
+            || Flying(state.u) || Levitation(state.u)))
             || is_swimmer(entity.edata) || is_flyer(entity.edata) || is_floater(entity.edata);
     }
     if (is_lava(x, y, state))
-        return (is_u(entity, state) && (Levitation(state) || Flying(state)))
+        return (is_u(entity, state) && (Levitation(state.u) || Flying(state.u)))
             || likes_lava(entity.edata) || is_flyer(entity.edata);
     if (is_db_wall(x, y, state))
         return is_u(entity, state) ? heroPassesWalls(state) : passes_walls(entity.edata);
@@ -480,7 +480,7 @@ function e_missed(entity, chunks, state, random) {
         && (is_u(entity, state) ? !Unaware(state) : !helpless(entity.emon))) {
         misses = 5;
     } else if (is_floater(entity.edata)
-        || (is_u(entity, state) && Levitation(state))) {
+        || (is_u(entity, state) && Levitation(state.u))) {
         misses = 3;
     } else if (chunks && is_pool(entity.ex, entity.ey, state)) {
         misses = 2;

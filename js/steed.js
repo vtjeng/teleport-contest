@@ -23,13 +23,11 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
-    FLYING,
     FUMBLING,
     GLIB,
     has_mgivenname,
     KILLED_BY_AN,
     LEG,
-    LEVITATION,
     MAXULEV,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -60,9 +58,7 @@ import {
     Upolyd,
     VIBRATING_SQUARE,
     WOUNDED_LEGS,
-    W_ARTI,
     W_SADDLE,
-    I_SPECIAL,
     TIMEOUT,
     helpless,
 } from './const.js';
@@ -174,7 +170,8 @@ import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
-    Blind, Blind_telepat, Confusion, Hallucination, Maybe_Half_Phys, Stunned,
+    Blind, Blind_telepat, Confusion, Flying, Hallucination, Lev_at_will,
+    Levitation, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
@@ -294,31 +291,6 @@ function Stealth(state) {
                    && !stealth.blocked);
 }
 
-// youprop.h:253 Flying. The steed term is what makes a hero on a flying steed
-// count as airborne; a pony is not a flyer, so it contributes nothing here.
-function Flying(state) {
-    const flying = state.u.uprops[FLYING];
-    return Boolean((flying.intrinsic || flying.extrinsic
-                    || (state.u.usteed && is_flyer(state.u.usteed.data)))
-                   && !flying.blocked);
-}
-
-// youprop.h:240 and :242. Levitation subtracts a blocking term; Lev_at_will
-// asks whether the levitation is one the hero can switch off at will, which is
-// true only for an intrinsic flagged I_SPECIAL or an artifact extrinsic with
-// nothing else contributing.
-function Levitation(state) {
-    const value = state.u?.uprops?.[LEVITATION];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
-
-function Lev_at_will(state) {
-    const intrinsic = state.u?.uprops?.[LEVITATION]?.intrinsic ?? 0;
-    const extrinsic = state.u?.uprops?.[LEVITATION]?.extrinsic ?? 0;
-    return ((intrinsic & I_SPECIAL) !== 0 || (extrinsic & W_ARTI) !== 0)
-        && (intrinsic & ~(I_SPECIAL | TIMEOUT)) === 0
-        && (extrinsic & ~W_ARTI) === 0;
-}
 
 // C ref: steed.c can_ride() (168-174).
 export function can_ride(mtmp, state = game) {
@@ -588,8 +560,8 @@ export async function mount_steed(mtmp, force, state = game) {
     }
 
     /* Is the player impaired? */
-    if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation(state)
-        && !Lev_at_will(state)) {
+    if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation(state.u)
+        && !Lev_at_will(state.u)) {
         await ttyPline(
             `You cannot reach ${mon_nam(mtmp, state)}.`, state,
         );
@@ -616,7 +588,7 @@ export async function mount_steed(mtmp, force, state = game) {
             || otmp.cursed
             || otmp.greased
             || (u.ulevel + mtmp.mtame < rnd(MAXULEV / 2 + 5)))) {
-        if (Levitation(state)) {
+        if (Levitation(state.u)) {
             await ttyPline(
                 `${Monnam(mtmp, state)} slips away from you.`,
                 state,
@@ -641,7 +613,7 @@ export async function mount_steed(mtmp, force, state = game) {
     /* Success */
     await maybewakesteed(mtmp, state);
     if (!force) {
-        if (Levitation(state) && !is_floater(ptr) && !is_flyer(ptr)) {
+        if (Levitation(state.u) && !is_floater(ptr) && !is_flyer(ptr)) {
             /* Must have Lev_at_will at this point: the guard above rejects
                every other levitating hero. */
             await ttyPline(
@@ -650,7 +622,7 @@ export async function mount_steed(mtmp, force, state = game) {
             );
         }
         await ttyPline(`You mount ${mon_nam(mtmp, state)}.`, state);
-        if (Flying(state)) {
+        if (Flying(state.u)) {
             await ttyPline(
                 `You and ${mon_nam(mtmp, state)} take flight `
                 + 'together.',
@@ -874,8 +846,8 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
     // C ref: steed.c:591-597. Clear the steed while querying the hero's own
     // flight, levitation, and fall verb; restore it before the reason switch.
     u.usteed = null;
-    const ufly = Flying(state);
-    const ulev = Levitation(state);
+    const ufly = Flying(state.u);
+    const ulev = Levitation(state.u);
     let verb = u_locomotion('fall', state);
     u.usteed = mtmp;
 

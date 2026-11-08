@@ -227,7 +227,7 @@ import {
     burn_away_slime, fall_asleep, obj_stop_timers,
 } from './timeout.js';
 import { explode, explode_oil } from './explode.js';
-import { float_up, Levitation } from './trap.js';
+import { float_up } from './trap.js';
 import { rider_cant_reach } from './steed.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
@@ -319,12 +319,12 @@ import { is_pool } from './dbridge.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
 import {
-    BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
-    Blindfolded, Confusion, Deaf, Detect_monsters, EBlinded,
+    BBlinded, BInvis, BLevitation, Blind, Blind_telepat, Blinded,
+    BlindedTimeout, Blindfolded, Confusion, Deaf, Detect_monsters, EBlinded,
     EHalluc_resistance, EWarn_of_mon, HBlinded, HConfusion, HDeaf,
     HDetect_monsters, HHallucination, HInvis, HSee_invisible, HStun,
-    Halluc_resistance, Hallucination, Infravision, Invis, Maybe_Half_Phys,
-    PermaBlind, See_invisible, Unaware,
+    Halluc_resistance, Hallucination, Infravision, Invis, Levitation,
+    Maybe_Half_Phys, PermaBlind, See_invisible, Unaware,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -1607,7 +1607,7 @@ async function peffect_paralysis(otmp, state = game) {
     }
 
     const hero = state.u;
-    if (Levitation(state)
+    if (Levitation(state.u)
         || Is_airlevel(hero.uz, state)
         || Is_waterlevel(hero.uz, state)) {
         await ttyPline('You are motionlessly suspended.', state);
@@ -1753,21 +1753,20 @@ async function peffect_polymorph(otmp, state = game) {
 // spells use the same property timeout, cursed ceiling impact, and sink effect.
 async function peffect_levitation(otmp, state) {
     const { u } = state;
-    const levitation = u.uprops[LEVITATION];
     state.gp ??= {};
     state.gp.potion_nothing ??= 0;
 
-    if (!Levitation(state) && !levitation.blocked) {
+    if (!Levitation(state.u) && !BLevitation(u)) {
         // Give float_up() a live intrinsic before it reports the rise.
-        set_itimeout(levitation, 1);
+        set_itimeout(u.uprops[LEVITATION], 1);
         await float_up(state);
     } else {
         state.gp.potion_nothing++;
     }
 
     if (otmp.cursed) {
-        levitation.intrinsic &= ~I_SPECIAL;
-        if (levitation.blocked) {
+        u.uprops[LEVITATION].intrinsic &= ~I_SPECIAL;
+        if (BLevitation(u)) {
             // BLevitation means the rise is still blocked.
         } else if (stairway_at(u.ux, u.uy, state)?.up) {
             await doup(state);
@@ -1790,13 +1789,13 @@ async function peffect_levitation(otmp, state) {
             state.gp.potion_nothing = 0;
         }
     } else if (otmp.blessed) {
-        incr_itimeout(levitation, rn1(50, 250));
-        levitation.intrinsic |= I_SPECIAL;
+        incr_itimeout(u.uprops[LEVITATION], rn1(50, 250));
+        u.uprops[LEVITATION].intrinsic |= I_SPECIAL;
     } else {
-        incr_itimeout(levitation, rn1(140, 10));
+        incr_itimeout(u.uprops[LEVITATION], rn1(140, 10));
     }
 
-    if (Levitation(state)
+    if (Levitation(state.u)
         && IS_SINK(state.level.at(u.ux, u.uy).typ))
         await spoteffects(false, state);
     float_vs_flight(state);
@@ -3273,7 +3272,7 @@ export async function dodip(state = game, rawEnv = {}) {
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the ' + pooltype + '?';
             if (await y_n(prompt, state) === 'y') {
-                if (Levitation(state)) {
+                if (Levitation(state.u)) {
                     await floating_above(pooltype, state, env);
                 } else if (hero.usteed
                     && !is_swimmer(hero.usteed.data)

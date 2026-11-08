@@ -701,8 +701,6 @@ import {
 import {
     fill_pit,
     t_at,
-    Flying,
-    Levitation,
 } from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -723,8 +721,8 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, Deaf, HTelepat, Hallucination, Maybe_Half_Phys,
-    Unaware,
+    Blind, Blind_telepat, Deaf, Flying, HTelepat, Hallucination, Levitation,
+    Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -2328,7 +2326,7 @@ export async function minliquid_core(monster, env = {}) {
     // C's steed exception is a hero property, not a monster species branch,
     // and it is needed before the liquid-specific tests below.
     if (monster === state.u?.usteed
-        && (Flying(state) || Levitation(state))
+        && (Flying(state.u) || Levitation(state.u))
         && !waterwall) {
         return 0;
     }

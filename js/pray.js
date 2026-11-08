@@ -285,8 +285,6 @@ import { randrole } from './role_init.js';
 import { aggravate } from './wizard.js';
 import {
     animate_statue,
-    Flying,
-    Levitation,
     reset_utrap,
     rescued_from_terrain,
 } from './trap.js';
@@ -354,8 +352,9 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, HBlinded,
-    HConfusion, HDeaf, HHallucination, HStun, Hallucination,
+    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, Flying,
+    HBlinded, HConfusion, HDeaf, HHallucination, HStun, Hallucination,
+    Levitation,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -541,7 +540,7 @@ export async function dosacrifice(state = game) {
 
     if (!on_altar(state) || u.uswallow) {
         await ttyPline(
-            `You are not ${Levitation(state) || Flying(state) ? 'over' : 'on'} an altar.`,
+            `You are not ${Levitation(state.u) || Flying(state.u) ? 'over' : 'on'} an altar.`,
             state,
         );
         return ECMD_OK;
@@ -1181,7 +1180,7 @@ async function at_your_feet(str, state) {
     } else {
         await ttyPline(
             `${str} ${vtense(str, blind ? 'land' : 'appear')} `
-                + `${Levitation(state) ? 'beneath' : 'at'} your `
+                + `${Levitation(state.u) ? 'beneath' : 'at'} your `
                 + `${makeplural(body_part(FOOT, state.youmonst))}!`,
             state,
         );

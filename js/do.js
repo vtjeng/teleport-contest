@@ -379,8 +379,6 @@ import {
     deltrap,
     fill_pit,
     maketrap,
-    Flying,
-    Levitation,
     clamp_hole_destination,
     float_down,
     minstapetrify,
@@ -408,7 +406,8 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    Blind, Deaf, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
+    BLevitation, Blind, Deaf, EBlinded, ELevitation, Flying, HBlinded,
+    HLevitation, Hallucination, Levitation, Maybe_Half_Phys,
 } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
@@ -1097,7 +1096,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
         }
         if (is_pool(x, y, state)) {
             const blind = Blind(state.u);
-            const floating = Levitation(state) || Flying(state);
+            const floating = Levitation(state.u) || Flying(state.u);
             if ((blind || floating) && !Deaf(state.u)
                 && u_at(x, y, state)) {
                 if (!state.u?.uinwater) {
@@ -1738,8 +1737,7 @@ async function drop(obj, state = game) {
             const { finesse_ahriman } = await import('./artifacts.js');
             const levhack = finesse_ahriman(obj, state);
             if (levhack) {
-                const levitation = state.u.uprops[LEVITATION];
-                levitation.extrinsic = W_ART;
+                state.u.uprops[LEVITATION].extrinsic = W_ART;
             }
             if (state.flags.verbose)
                 await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
@@ -2200,7 +2198,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
             normalized.state, normalized);
     }
     stackobj(obj, normalized);
-    if (Blind(normalized.state.u) && Levitation(normalized.state)) {
+    if (Blind(normalized.state.u) && Levitation(normalized.state.u)) {
         // display.c map_object() refuses any state but the module-global
         // game, because its draw half paints that game whatever state it is
         // handed.
@@ -2376,9 +2374,8 @@ export async function dodown(state = game, env = {}) {
     // do.c:1154-1201. HLevitation and ELevitation are the intrinsic and
     // extrinsic masks in youprop.h. Controlled levitation clears only the
     // special timeout and artifact sources before the ordinary floating arm.
-    const levitation = u.uprops?.[LEVITATION] ?? {};
-    const hlevitation = levitation.intrinsic ?? 0;
-    const elevitation = levitation.extrinsic ?? 0;
+    const hlevitation = HLevitation(u);
+    const elevitation = ELevitation(u);
     if (hlevitation || elevitation) {
         if ((hlevitation & I_SPECIAL) || (elevitation & W_ARTI)) {
             if (elevitation & W_ARTI) {
@@ -2392,7 +2389,7 @@ export async function dodown(state = game, env = {}) {
             }
             if (await float_down(I_SPECIAL | TIMEOUT, W_ARTI, state))
                 return ECMD_TIME;
-            if (!levitation.intrinsic && !levitation.extrinsic) {
+            if (!HLevitation(u) && !ELevitation(u)) {
                 await ttyPline('Your latent levitation ceases.', state);
                 return ECMD_TIME;
             }
@@ -2400,7 +2397,7 @@ export async function dodown(state = game, env = {}) {
 
         // do.c:1180-1190 checks the displayed cmap glyph only when the hero
         // is blind and levitation is not blocked; unknown stairs stay hidden.
-        if (!levitation.blocked && Blind(state.u)) {
+        if (!BLevitation(u) && Blind(state.u)) {
             const glyph = state.level?.at(u.ux, u.uy)?.glyph;
             if (stairs_down)
                 stairs_down = glyph_to_cmap(glyph) === S_dnstair;
@@ -2433,7 +2430,7 @@ export async function dodown(state = game, env = {}) {
     if (Upolyd(u) && ceiling_hider(state.mons?.[u.umonnum])
         && u.uundetected) {
         u.uundetected = 0;
-        if (Flying(state)) {
+        if (Flying(state.u)) {
             await ttyPline('You fly out of hiding.', state);
         } else {
             await ttyPline(
@@ -2971,12 +2968,12 @@ export async function goto_level(
         }
         // do.c:1758-1764. A punished, non-levitating hero announces the
         // extra effort even when verbose mode is off.
-        const greatEffort = Punished(state) && !Levitation(state);
+        const greatEffort = Punished(state) && !Levitation(state.u);
         if (state.flags?.verbose || greatEffort) {
             await ttyPline(
                 `${greatEffort ? 'With great effort, you' : 'You'} `
                     + `${u_locomotion('climb', state)} up${
-                    Flying(state) && state.ga?.at_ladder
+                    Flying(state.u) && state.ga?.at_ladder
                         ? ' along' : ''} the ${
                     state.ga?.at_ladder ? 'ladder' : 'stairs'
                 }.`,
@@ -2998,7 +2995,7 @@ export async function goto_level(
         }
         if (!u.dz) {
             /* stayed on same level? (no transit effects) */
-        } else if (Flying(state)) {
+        } else if (Flying(state.u)) {
             // do.c:1776. Flying descends without the falling branch; the
             // ladder wording includes the source's "along" preposition.
             if (state.flags?.verbose) {

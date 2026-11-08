@@ -159,7 +159,7 @@ import { an, donameFresh, the, vtense, xname, Yname2 } from './objnam.js';
 import {
     candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
-    big_to_little, breathless, cantvomit, emits_light, is_flyer, is_rider, is_silent,
+    big_to_little, breathless, cantvomit, emits_light, is_rider, is_silent,
     is_were, locomotion, name_to_mon, mhe, nolimbs, touch_petrifies,
     type_is_pname, little_to_big,
 } from './mondata.js';
@@ -218,8 +218,9 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Deaf, HConfusion, HDeaf, HStun, Hallucination, Invis,
-    See_invisible, Unaware, Warn_of_mon,
+    Blind, Deaf, ELevitation, Flying, HConfusion, HDeaf, HFlying, HLevitation,
+    HStun, Hallucination, Invis, Levitation, See_invisible, Unaware,
+    Warn_of_mon,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -750,13 +751,6 @@ function unportedDueTimerReason(state, env) {
     return null;
 }
 
-function heroPropertyActive(state, propertyIndex) {
-    const property = state.u?.uprops?.[propertyIndex];
-    return Boolean(property?.intrinsic || property?.extrinsic)
-        && !property?.blocked;
-}
-
-
 
 // C ref: timeout.c slip_or_trip() (1222-1341). This is called only after the
 // Fumbling property has been decremented, so FROMOUTSIDE and ice-only checks
@@ -1064,9 +1058,9 @@ export async function sickness_dialogue(state = game, env = {}) {
 // The final descent message belongs to float_down(), not this countdown.
 export async function levitation_dialogue(state = game, env = {}) {
     const u = state.u;
-    const timeout = u.uprops[LEVITATION].intrinsic & TIMEOUT;
+    const timeout = HLevitation(u) & TIMEOUT;
     const i = Math.trunc((timeout - 1) / 2);
-    if (u.uprops[LEVITATION].extrinsic) return;
+    if (ELevitation(u)) return;
     if (!ACCESSIBLE(state.level.at(u.ux, u.uy).typ)
         && !is_pool_or_lava(u.ux, u.uy, state)) return;
 
@@ -1387,11 +1381,6 @@ function propertySource(state, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-function Flying(state) {
-    return Boolean(propertySource(state, FLYING)
-        || (state.u?.usteed && is_flyer(state.u.usteed.data)))
-        && !state.u?.uprops?.[FLYING]?.blocked;
-}
 
 // C ref: timeout.c nh_timeout() (669-945). Every expiry follows the common
 // decrement and delayed-killer lookup, including properties with no case.
@@ -1402,7 +1391,7 @@ async function decrement_property_timeouts(state, env) {
     // timeout.c:735-790 call stop_occupation() and fall_asleep(), whose
     // "You stop %s." line needs the same message() as this function's own.
     const occupationEnv = { ...env, message };
-    const wasFlying = Flying(state);
+    const wasFlying = Flying(state.u);
     const encumberMessage = (subject) => encumber_msg(subject, { message });
     for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
         const property = u.uprops[index];
@@ -1540,12 +1529,12 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case LEVITATION:
-            if ((u.uprops[FLYING].intrinsic & TIMEOUT) === 1)
+            if ((HFlying(u) & TIMEOUT) === 1)
                 set_itimeout(u.uprops[FLYING], 0);
             await float_down(I_SPECIAL | TIMEOUT, 0, state);
             break;
         case FLYING:
-            if (wasFlying && !Flying(state)) {
+            if (wasFlying && !Flying(state.u)) {
                 state.disp ??= {};
                 state.disp.botl = true;
                 await message('You land.', state);
@@ -1626,7 +1615,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case FUMBLING:
-            if (u.umoved && !(heroPropertyActive(state, LEVITATION) || Flying(state))) {
+            if (u.umoved && !(Levitation(state.u) || Flying(state.u))) {
                 await slip_or_trip(state, { ...env, random, message });
                 nomul(-2, state);
                 state.multi_reason = 'fumbling';
@@ -1705,7 +1694,7 @@ export async function nh_timeout(state = game, env = {}) {
                 })),
         });
     }
-    if (u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT)
+    if (HLevitation(u) & TIMEOUT)
         await levitation_dialogue(state, displayEnv);
     if (u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT)
         await phaze_dialogue(state, displayEnv);

@@ -59,8 +59,6 @@ import {
     TEMPLE,
     SLT_ENCUMBER,
     STRAT_APPEARMSG,
-    FLYING,
-    LEVITATION,
     SWIMMING,
     MAGICAL_BREATHING,
     TELEDS_ALLOW_DRAG,
@@ -164,7 +162,6 @@ import {
     is_dlord,
     is_dprince,
     amphibious,
-    is_flyer,
     is_rider,
     is_silent,
     is_swimmer,
@@ -241,7 +238,7 @@ import {
 import { note_unported } from './unported.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { morehungry } from './eat.js';
-import { clamp_hole_destination, deltrap, fill_pit, Flying, reset_utrap,
+import { clamp_hole_destination, deltrap, fill_pit, reset_utrap,
     t_at, unconscious }
     from './trap.js';
 import { mintrap } from './trap_effects.js';
@@ -253,7 +250,8 @@ import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blinded, Confusion, HConfusion, HStun, Hallucination, Stunned,
+    BFlying, Blind, Blinded, Confusion, EFlying, Flying, HConfusion, HFlying,
+    HStun, Hallucination, Levitation, Stunned,
 } from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
@@ -914,25 +912,18 @@ function propertyPresent(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function propertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
-
 // These are teleport.c goodpos()'s direct hero macro expressions. Keep them
 // here so every goodpos caller gets the same C checks without injected hooks.
 function heroCanOccupyPool(x, y, state) {
     const steed = state.u?.usteed;
-    const flying = state.u?.uprops?.[FLYING] ?? {};
     return propertyPresent(state, SWIMMING)
         || Boolean(steed && is_swimmer(steed.data))
         || propertyPresent(state, MAGICAL_BREATHING)
         || amphibious(state.youmonst?.data)
         || (!inWaterLevel(state)
             && !is_waterwall(x, y, state)
-            && (propertyActive(state, LEVITATION)
-                || Boolean((flying.intrinsic || flying.extrinsic
-                    || (steed && is_flyer(steed.data))) && !flying.blocked)
+            && (Levitation(state.u)
+                || Flying(state.u)
                 || propertyPresent(state, WWALKING)));
 }
 
@@ -942,11 +933,9 @@ function heroCanOccupyLava(state) {
     const boots = state.uarmf;
     const waterWalking = propertyPresent(state, WWALKING)
         && !inWaterLevel(state);
-    const flying = state.u?.uprops?.[FLYING] ?? {};
     const steed = state.u?.usteed;
-    return Boolean(propertyActive(state, LEVITATION)
-        || Boolean((flying.intrinsic || flying.extrinsic
-            || (steed && is_flyer(steed.data))) && !flying.blocked)
+    return Boolean(Levitation(state.u)
+        || Flying(state.u)
         || (propertyPresent(state, FIRE_RES) && waterWalking
             && boots && boots.oerodeproof)
         || (Upolyd(state.u) && likes_lava(state.youmonst?.data)));
@@ -1411,7 +1400,7 @@ export async function teleok(x, y, trapok, state = game, rawEnv = {}) {
         else if (trap.ttyp === VIBRATING_SQUARE)
             trapok = true;
         else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
-            && (Levitation_prop(state) || Flying_prop(state)))
+            && (Levitation(state.u) || Flying_prop(state)))
             trapok = true;
         if (!trapok)
             return false;
@@ -1425,14 +1414,9 @@ export async function teleok(x, y, trapok, state = game, rawEnv = {}) {
     return true;
 }
 
-function Levitation_prop(state) {
-    const p = state.u?.uprops?.[LEVITATION];
-    return Boolean((p?.intrinsic || p?.extrinsic) && !p?.blocked);
-}
 
 function Flying_prop(state) {
-    const p = state.u?.uprops?.[FLYING];
-    return Boolean((p?.intrinsic || p?.extrinsic) && !p?.blocked);
+    return Boolean((HFlying(state.u) || EFlying(state.u)) && !BFlying(state.u));
 }
 
 function Teleport_control_prop(state) {
@@ -2505,9 +2489,9 @@ export async function level_tele(state = game) {
         }
         if (killer.name) {
             // The heaven destination is already fatal and remains pending.
-        } else if (Levitation_prop(state)) {
+        } else if (Levitation(state.u)) {
             escape_by_flying = 'float gently down to earth';
-        } else if (Flying(state)) {
+        } else if (Flying(state.u)) {
             escape_by_flying = 'fly down to the ground';
         } else {
             await ttyPline('Unfortunately, you don\'t know how to fly.', state);

@@ -51,7 +51,7 @@ import { in_rooms } from './rooms.js';
 import { add_damage } from './shk.js';
 import { set_levltyp } from './terrain.js';
 import {
-    Flying, Levitation, maketrap, reset_utrap, set_utrap,
+    maketrap, reset_utrap, set_utrap,
     selftouch, t_at,
 } from './trap.js';
 import { mselftouch } from './trap_effects.js';
@@ -64,8 +64,8 @@ import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, Confusion, Deaf, HConfusion, HStun, Hallucination, Maybe_Half_Phys,
-    Stunned,
+    Blind, Confusion, Deaf, Flying, HConfusion, HStun, Hallucination,
+    Levitation, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 function property(state, index) {
@@ -328,7 +328,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
             await message('Your chain breaks!', state);
             await reset_utrap(true, state);
         }
-        if (Levitation(state) || Flying(state) || is_clinger(state.youmonst.data)) {
+        if (Levitation(state.u) || Flying(state.u) || is_clinger(state.youmonst.data)) {
             if (!tuPit) {
                 await message('A chasm opens up under you!', state);
                 await message("You don't fall in!", state);

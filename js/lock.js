@@ -150,7 +150,6 @@ import {
     t_at,
     could_untrap,
     untrap,
-    Levitation,
 } from './trap.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { maybe_absorb_item } from './steal.js';
@@ -164,7 +163,7 @@ import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BBlinded, Blind, Confusion, Deaf, HBlinded, Stunned, Unaware,
+    BBlinded, Blind, Confusion, Deaf, HBlinded, Levitation, Stunned, Unaware,
 } from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -765,7 +764,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
 
     if (u_at(cc.x, cc.y, state)) {
         if (u.dz < 0 && !autounlock) {
-            await message(`There isn't any sort of lock up ${Levitation(state) ? 'here' : 'there'}.`, state);
+            await message(`There isn't any sort of lock up ${Levitation(state.u) ? 'here' : 'there'}.`, state);
             return PICKLOCK_LEARNED_SOMETHING;
         } else if (is_lava(u.ux, u.uy, state)) {
             await message(`Doing that would probably melt ${yname(pick, state)}.`, state);

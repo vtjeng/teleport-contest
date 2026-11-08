@@ -668,8 +668,6 @@ import {
 import { findgold, mpickobj, steal, stealgold, stealamulet } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
-    Flying,
-    Levitation,
     instapetrify,
     minstapetrify,
     unconscious,
@@ -702,9 +700,9 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded,
+    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded, Flying,
     HBlinded, HConfusion, HStun, Half_physical_damage, Hallucination,
-    Invisible, Maybe_Half_Phys, See_invisible, Stunned,
+    Invisible, Levitation, Maybe_Half_Phys, See_invisible, Stunned,
 } from './youprop.js';
 
 function propertyPresent(hero, index) {
@@ -5476,7 +5474,7 @@ export async function mhitm_ad_legs(
         const monsterName = Monnam(magr, state, env);
         const leg = body_part(LEG, state.youmonst);
 
-        if ((state.u?.usteed || Levitation(state) || Flying(state))
+        if ((state.u?.usteed || Levitation(state.u) || Flying(state.u))
             && !is_flyer(magr.data)) {
             await message(
                 `${monsterName} tries to reach your ${sidestr} ${leg}!`,
@@ -7803,7 +7801,7 @@ export function m_is_steadfast(mon, state = game) {
     const isHero = mon === state.youmonst;
     const weapon = isHero ? state.uwep : mon?.mw;
     const flying = isHero
-        ? Flying(state) || Levitation(state)
+        ? Flying(state.u) || Levitation(state.u)
         : is_flyer(mon?.data) || is_floater(mon?.data);
     if (flying
         || Is_airlevel(state.u?.uz, state)

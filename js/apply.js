@@ -113,7 +113,6 @@ import {
     D_ISOPEN,
     DISP_BEAM,
     DISP_END,
-    FLYING,
     FORCEBUNGLE,
     INTRINSIC,
     INVIS_BEAM,
@@ -139,7 +138,6 @@ import {
     STUNNED,
     JUMPING,
     LEG,
-    LEVITATION,
     LEFT_SIDE,
     PASSES_WALLS,
     RIGHT_SIDE,
@@ -531,7 +529,6 @@ import {
     deltrap,
     fill_pit,
     instapetrify,
-    Levitation,
     maketrap,
     reset_utrap,
     t_at,
@@ -640,9 +637,10 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, HBlinded, HConfusion,
-    HDeaf, HHallucination, HStun, Halluc_resistance, Hallucination, Invis,
-    Maybe_Half_Phys, See_invisible, Sick, Stunned, Vomiting,
+    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, Flying, HBlinded,
+    HConfusion, HDeaf, HHallucination, HStun, Halluc_resistance,
+    Hallucination, Invis, Levitation, Maybe_Half_Phys, See_invisible, Sick,
+    Stunned, Vomiting,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -850,7 +848,7 @@ export async function use_whip(obj, state = game, env = {}) {
             }
             return ECMD_TIME;
         }
-        if (Levitation(state) || u.usteed || applyPropertyActive(FLYING, state)) {
+        if (Levitation(state.u) || u.usteed || Flying(state.u)) {
             let object = state.level.objects?.[u.ux]?.[u.uy] ?? null;
             if (object?.otyp === CORPSE
                 && [PM_HORSE, little_to_big(PM_HORSE), big_to_little(PM_HORSE)]
@@ -1966,7 +1964,7 @@ export async function use_trap(obj, state = game, env = {}) {
             ? 'while swallowed' : 'while engulfed';
     else if (state.u.uinwater)
         what = 'underwater';
-    else if (Levitation(state))
+    else if (Levitation(state.u))
         what = 'while levitating';
     else if (is_pool(state.u.ux, state.u.uy, state))
         what = 'in water';
@@ -2787,11 +2785,6 @@ function jumpProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function jumpPropertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
-
 // C ref: dothrow.c walk_path() (656-753).
 function jumpWalkPath(source, destination, callback, argument, state) {
     let dx = destination.x - source.x;
@@ -3031,7 +3024,7 @@ export async function jump(magic = 0, state = game, env = {}) {
             state);
         return ECMD_OK;
     }
-    if (jumpPropertyActive(state, LEVITATION)
+    if (Levitation(state.u)
         || Is_airlevel(state.u.uz, state) || Is_waterlevel(state.u.uz, state)) {
         if (magic) {
             await ttyPline('You flail around a little.', state);
@@ -3118,7 +3111,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         }
         if (trap) {
             await ttyPline(
-                `You jump up and ${jumpPropertyActive(state, FLYING) ? 'fly' : 'come'} back down.`,
+                `You jump up and ${Flying(state.u) ? 'fly' : 'come'} back down.`,
                 state,
             );
             await dotrap(trap, FORCETRAP | TOOKPLUNGE, state);

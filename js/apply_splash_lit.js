@@ -30,7 +30,9 @@ import { end_burn } from './timeout.js';
 import { consume_msg_xy, set_msg_xy } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
-import { Blind, Deaf } from './youprop.js';
+import {
+    Blind, Deaf, Flying, Levitation,
+} from './youprop.js';
 
 function splashOperation(env, name, fallback) {
     const operation = env[name] ?? fallback;
@@ -161,14 +163,13 @@ export async function splash_lit(obj, env = {}) {
         let snuff = true;
         const poolAt = splashOperation(context, 'poolAt', is_pool);
         if (obj.where === OBJ_INVENT) {
-            const { Flying, Levitation } = await import('./trap.js');
             useeit = !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
             uhearit = !Deaf(state.u);
             /* underwater light sources aren't allowed but if hero is just
                entering water, Underwater won't be set yet */
             const wwalk = state.u.uprops?.[WWALKING];
             dunk = poolAt(state.u.ux, state.u.uy, state)
-                && ((!Levitation(state) && !Flying(state)
+                && ((!Levitation(state.u) && !Flying(state.u)
                         && !((wwalk?.intrinsic || wwalk?.extrinsic)
                             && !onWaterLevel(state)))
                     || onWaterLevel(state));

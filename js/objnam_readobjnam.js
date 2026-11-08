@@ -43,7 +43,7 @@ import { erosion_matters } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { coreRandom } from './rng.js';
 import {
-    Flying, Levitation, maketrap, reset_utrap, trapname } from './trap.js';
+    maketrap, reset_utrap, trapname } from './trap.js';
 import { begin_burn, start_timer } from './timeout.js';
 import { body_part } from './polyself.js';
 import { ttyPline } from './tty_message.js';
@@ -165,7 +165,7 @@ import {
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
 } from './objects.js';
-import { EHalluc_resistance } from './youprop.js';
+import { EHalluc_resistance, Flying, Levitation } from './youprop.js';
 
 // C ref: objnam.c's TIN_UNDEFINED, TIN_EMPTY and TIN_SPINACH (3928-3930),
 // the values readobjnam_init() and readobjnam_preparse() give d.contents.
@@ -633,7 +633,7 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         if (!isDbridge) {
             await message('A ' + (lev.typ === LAVAPOOL ? 'pool' : 'wall')
                 + ' of molten lava.');
-            if (!(Levitation(state) || Flying(state)) || lev.typ === LAVAWALL) {
+            if (!(Levitation(state.u) || Flying(state.u)) || lev.typ === LAVAWALL) {
                 const { pooleffects } = await import('./hack.js');
                 await pooleffects(false, state, env);
             }

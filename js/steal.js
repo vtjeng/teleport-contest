@@ -126,7 +126,7 @@ import { messageAt } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import {
-    Flying, Levitation, minstapetrify, openholdingtrap, unconscious,
+    minstapetrify, openholdingtrap, unconscious,
 } from './trap.js';
 import { is_fainted, maybe_finished_meal } from './eat.js';
 import {
@@ -151,7 +151,7 @@ import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
 import { body_part, mbodypart } from './polyself.js';
-import { Blind } from './youprop.js';
+import { Blind, Flying, Levitation } from './youprop.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -1346,7 +1346,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
         if (what.startsWith('rear ')) what = what.slice(5);
         await message(
             `${Monnam(mtmp, state, env)} quickly snatches some gold from `
-                + `${Levitation(state) || Flying(state) ? 'beneath' : 'between'} `
+                + `${Levitation(state.u) || Flying(state.u) ? 'beneath' : 'between'} `
                 + `${whose} ${what}!`,
             state,
             env,

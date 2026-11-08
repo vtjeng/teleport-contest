@@ -277,7 +277,8 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, Hallucination, Invis, See_invisible, Stunned,
+    Blind, Confusion, EFlying, ELevitation, Flying, HFlying, HLevitation,
+    Hallucination, Invis, Levitation, See_invisible, Stunned,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -296,22 +297,6 @@ function uprop(state, index) {
     if (!property)
         throw new Error(`hero property ${index} is not initialized`);
     return property;
-}
-
-// youprop.h:253 Flying. A flying steed carries the hero through the air, so
-// the steed term belongs inside the macro rather than at its call sites.
-function Flying(state) {
-    const flying = uprop(state, FLYING);
-    return Boolean((flying.intrinsic || flying.extrinsic
-                    || (state.u.usteed && is_flyer(state.u.usteed.data)))
-                   && !flying.blocked);
-}
-
-// youprop.h:242 Levitation.
-function Levitation(state) {
-    const levitation = uprop(state, LEVITATION);
-    return Boolean((levitation.intrinsic || levitation.extrinsic)
-                   && !levitation.blocked);
 }
 
 
@@ -367,19 +352,17 @@ function DEADMONSTER(mon) {
 // I_SPECIAL bit of the corresponding blocked mask.
 export function float_vs_flight(state = game) {
     const u = state.u;
-    const flying = uprop(state, FLYING);
-    const levitation = uprop(state, LEVITATION);
     const stuck_in_floor = Boolean(u.utrap && u.utraptype !== TT_PIT);
 
-    if ((levitation.intrinsic || levitation.extrinsic)
-        || ((flying.intrinsic || flying.extrinsic) && stuck_in_floor))
-        flying.blocked |= I_SPECIAL;
+    if ((HLevitation(u) || ELevitation(u))
+        || ((HFlying(u) || EFlying(u)) && stuck_in_floor))
+        u.uprops[FLYING].blocked |= I_SPECIAL;
     else
-        flying.blocked &= ~I_SPECIAL;
-    if ((levitation.intrinsic || levitation.extrinsic) && stuck_in_floor)
-        levitation.blocked |= I_SPECIAL;
+        u.uprops[FLYING].blocked &= ~I_SPECIAL;
+    if ((HLevitation(u) || ELevitation(u)) && stuck_in_floor)
+        u.uprops[LEVITATION].blocked |= I_SPECIAL;
     else
-        levitation.blocked &= ~I_SPECIAL;
+        u.uprops[LEVITATION].blocked &= ~I_SPECIAL;
 
     steed_vs_stealth(state);
 
@@ -392,7 +375,7 @@ export function float_vs_flight(state = game) {
 // BStealth term of youprop.h:210's Stealth macro.
 export function steed_vs_stealth(state = game) {
     const stealth = uprop(state, STEALTH);
-    if (state.u.usteed && !Flying(state) && !Levitation(state))
+    if (state.u.usteed && !Flying(state.u) && !Levitation(state.u))
         stealth.blocked |= FROMOUTSIDE;
     else
         stealth.blocked &= ~FROMOUTSIDE;
@@ -1208,8 +1191,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     // a changed form can leave the hero in liquid or underwater without a
     // compatible movement property.
     const inPoolOrLava = is_pool_or_lava(u.ux, u.uy, state);
-    const inPoolHazard = !Levitation(state) && !u.ustuck
-        && !Flying(state) && inPoolOrLava;
+    const inPoolHazard = !Levitation(state.u) && !u.ustuck
+        && !Flying(state.u) && inPoolOrLava;
     const swimming = u.uprops[SWIMMING];
     const isSwimming = swimming.intrinsic || swimming.extrinsic
         || (u.usteed && is_swimmer(u.usteed.data));
@@ -1409,7 +1392,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
     }
     await check_strangling(true, state);
 
-    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
+    if (!Levitation(state.u) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
         await spoteffects(true, state);
 
     await see_monsters(state, { ...rawEnv, redraw });
@@ -2045,7 +2028,7 @@ export function mbodypart(monster, part) {
 // points left dies. C does not use polyman()'s return value.
 export async function rehumanize(state = game, rawEnv = {}) {
     const u = state.u;
-    const was_flying = Flying(state);
+    const was_flying = Flying(state.u);
     const message = rawEnv.message ?? ttyPline;
     const displayRandom = rawEnv.displayRandom
         ?? (state.displayCtx
@@ -2105,7 +2088,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
     state.vision_full_recalc = 1;
     await encumber_msg(state, { message });
     update_inventory(env);
-    if (was_flying && !Flying(state) && u.usteed)
+    if (was_flying && !Flying(state.u) && u.usteed)
         await message(
             `You and ${monsterCommonName(u.usteed, state, 0, env)} return gently `
             + `to the ${surface(u.ux, u.uy, state)}.`, state, env,
@@ -2227,7 +2210,7 @@ export async function dospinweb(state = game) {
     /* [at the time this was written, it was not possible to be both a
        webmaker and a flyer, but with the advent of amulet of flying that
        became a possibility; at present hero can spin a web while flying] */
-    if (Levitation(state) || reject_terrain) {
+    if (Levitation(state.u) || reject_terrain) {
         await ttyPline(
             `You must be on ${reject_terrain ? 'solid' : 'the'} ground `
             + 'to spin a web.',
@@ -2564,7 +2547,7 @@ export async function dogaze(state = game) {
 export async function dohide(state = game) {
     const u = state.u;
     const ismimic = state.youmonst.data.mlet === M.S_MIMIC;
-    const on_ceiling = is_clinger(state.youmonst.data) || Flying(state);
+    const on_ceiling = is_clinger(state.youmonst.data) || Flying(state.u);
 
     /* can't hide while being held (or holding) or while trapped
        (except for floor hiders [trapper or mimic] in pits) */
@@ -2644,7 +2627,7 @@ export async function dohide(state = game) {
         u.uundetected = 0;
         return ECMD_OK;
     }
-    if ((is_hider(state.youmonst.data) && !Flying(state)) /* floor hider */
+    if ((is_hider(state.youmonst.data) && !Flying(state.u)) /* floor hider */
         && (Is_airlevel(u.uz, state) || Is_waterlevel(u.uz, state))) {
         await ttyPline('There is nowhere to hide beneath you.', state);
         u.uundetected = 0;

@@ -7,7 +7,6 @@ import test from 'node:test';
 
 import {
     ALLOWED_READS,
-    ROUTED_PROPERTIES,
     findings,
     routedNames,
     staleEntries,
@@ -34,10 +33,12 @@ test('the routed names follow the routed slots', () => {
     // reaches HALLUC and HALLUC_RES through other routed macros.
     for (const name of ['Blind', 'HBlinded', 'Deaf', 'Hallucination', 'Invisible', 'Unaware'])
         assert.ok(NAMES.has(name), name);
-    // FAST and LEVITATION are not routed yet, so their macros are not listed.
-    assert.equal(ROUTED_PROPERTIES.includes('FAST'), false);
-    for (const name of ['Fast', 'HFast', 'Levitation', 'Lev_at_will'])
-        assert.equal(NAMES.has(name), false, name);
+    // With only BLINDED routed, Blind is listed but neither Levitation nor
+    // Hallucination, whose slots are left out.
+    const blindOnly = routedNames(undefined, ['BLINDED'], []);
+    assert.ok(blindOnly.has('Blind'));
+    for (const name of ['Levitation', 'Lev_at_will', 'Hallucination', 'Unaware'])
+        assert.equal(blindOnly.has(name), false, name);
 });
 
 test('the scan finds each way of reading a routed slot', () => {

@@ -238,8 +238,6 @@ import {
     delfloortrap,
     uteetering_at_seen_pit,
     uescaped_shaft,
-    Flying,
-    Levitation,
 } from './trap.js';
 import { feeltrap, seetrap } from './trap_effects.js';
 import { bimanual } from './worn.js';
@@ -297,8 +295,7 @@ import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
 import {
-    Blind, Deaf,
-    Hallucination, Maybe_Half_Phys, Unaware,
+    Blind, Deaf, Flying, Hallucination, Levitation, Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
 
@@ -322,7 +319,7 @@ export function pick_can_reach(pick, x, y, state = game) {
         return bimanual(pick, state);
     }
 
-    if (bimanual(pick, state) || Flying(state)) return true;
+    if (bimanual(pick, state) || Flying(state.u)) return true;
     return !targetInPit;
 }
 
@@ -1083,7 +1080,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
     } else if (u.uinwater) {
         await message(`Turbulence torpedoes your ${verbing} attempts.`, state);
     } else if (u.dz < 0) {
-        if (Levitation(state)) {
+        if (Levitation(state.u)) {
             await message("You don't have enough leverage.", state);
         } else {
             await message(`You can't reach the ${ceiling(u.ux, u.uy, state)}.`, state);
@@ -1501,7 +1498,7 @@ export async function digactualhole(
     const madebyObject = madeby === null;
     const herosFault = madebyU || madebyObject;
     const atHero = u_at(x, y, state);
-    let wontFall = Levitation(state) || Flying(state);
+    let wontFall = Levitation(state.u) || Flying(state.u);
     let oldAlignment = A_NONE;
 
     if (atHero && state.u.utrap) {
@@ -1565,7 +1562,7 @@ export async function digactualhole(
         else add_damage(x, y, herosFault ? SHOP_PIT_COST : 0, state);
         if (madebyU) await wake_nearby(false, env);
         await switch_terrain(state, rawEnv);
-        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (Levitation(state.u) || Flying(state.u)) wontFall = true;
         if (atHero) {
             if (!wontFall) {
                 set_utrap(random.rn1(4, 2), TT_PIT, state);
@@ -1585,7 +1582,7 @@ export async function digactualhole(
         }
     } else if (atHero) {
         await switch_terrain(state, rawEnv);
-        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (Levitation(state.u) || Flying(state.u)) wontFall = true;
         if (!state.u.ustuck && !wontFall
             && !(await next_to_u(state, rawEnv))) {
             await message('You are jerked back by your pet!', state, rawEnv);

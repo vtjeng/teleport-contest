@@ -28,7 +28,6 @@ import {
     IS_FOUNTAIN,
     KILLED_BY,
     KILLED_BY_AN,
-    LEVITATION,
     MM_NOMSG,
     POLY_NOFLAGS,
     M_SEEN_FIRE,
@@ -127,8 +126,7 @@ import { somegold } from './steal.js';
 import { Glib } from './wield.js';
 import { Fire_resistance } from './zap.js';
 import {
-    Blind, Deaf,
-    Hallucination, Invisible,
+    Blind, Deaf, Hallucination, Invisible, Levitation,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -141,11 +139,6 @@ export class UnsupportedFountainError extends Error {
     }
 }
 
-// C ref: youprop.h:240 Levitation. Local because each file defines its own.
-function Levitation(state) {
-    const value = state.u?.uprops?.[LEVITATION];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 // C ref: youprop.h:48 Poison_resistance. Unlike Levitation it has no blocked
 // term, so a source of poison resistance is never suppressed.
@@ -604,7 +597,7 @@ export async function drinkfountain(state = game, env = {}) {
     const fate = random.rnd(30);
 
     // C ref: fountain.c:249-252. Levitation prevents drinking.
-    if (Levitation(state)) {
+    if (Levitation(state.u)) {
         await floating_above('fountain', state, env);
         return;
     }
@@ -917,7 +910,7 @@ export async function dipfountain(obj, state = game, env = {}) {
     const is_hands = (obj === hands_obj);
 
     // C ref: fountain.c:399-402. Levitation prevents dipping.
-    if (Levitation(state)) {
+    if (Levitation(state.u)) {
         await floating_above('fountain', state, env);
         return;
     }
@@ -1308,7 +1301,7 @@ export async function drinksink(state = game, env = {}) {
     const hallucination = Hallucination(state.u);
     const liquidEnv = { state, displayRandom: env.displayRandom };
 
-    if (Levitation(state)) {
+    if (Levitation(state.u)) {
         await floating_above('sink', state, env);
         return;
     }

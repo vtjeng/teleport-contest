@@ -101,7 +101,6 @@ import {
     I_SPECIAL,
     INFRAVISION,
     INTRINSIC,
-    LEVITATION,
     LEFT_HANDED,
     LEFT_RING,
     LEG,
@@ -195,7 +194,6 @@ import {
     has_head,
     has_horns,
     humanoid,
-    is_flyer,
     is_clinger,
     is_swimmer,
     nohands,
@@ -209,8 +207,6 @@ import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, PM_WIZARD, S_CENTAUR } from './mo
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
-    Flying,
-    Levitation,
     drown,
     float_down,
     float_up,
@@ -411,9 +407,9 @@ import {
 import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
-    BInvis, Blind, EDetect_monsters, EInvis, ESee_invisible, ETelepat,
-    HDetect_monsters, HInvis, HSee_invisible, HTelepat, Hallucination, Invis,
-    See_invisible,
+    BInvis, BLevitation, Blind, EDetect_monsters, EInvis, ESee_invisible,
+    ETelepat, Flying, HDetect_monsters, HInvis, HLevitation, HSee_invisible,
+    HTelepat, Hallucination, Invis, Levitation, See_invisible,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -985,11 +981,11 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
     }
     case RIN_LEVITATION:
         if (!maskedOldprop
-            && !state.u.uprops[LEVITATION].intrinsic
-            && !(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
+            && !HLevitation(state.u)
+            && !(BLevitation(state.u) & FROMOUTSIDE)) {
             await float_up(state);
             learnring(obj, true, state);
-            if (Levitation(state)) await spoteffects(false, state, env);
+            if (Levitation(state.u)) await spoteffects(false, state, env);
         } else {
             float_vs_flight(state);
         }
@@ -1102,9 +1098,9 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         break;
     }
     case RIN_LEVITATION:
-        if (!(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
+        if (!(BLevitation(state.u) & FROMOUTSIDE)) {
             await float_down(0, 0, state);
-            if (!Levitation(state))
+            if (!Levitation(state.u))
                 learnring(obj, true, state);
         } else {
             float_vs_flight(state);
@@ -1245,19 +1241,14 @@ async function Amulet_on(obj, state = game) {
         float_vs_flight(state); /* block flying if levitating */
 
         // youprop.h:253 Flying macro
-        const flyProp = state.u.uprops[FLYING];
-        const heroFlying = () => Boolean(
-            (flyProp.intrinsic || flyProp.extrinsic
-             || (state.u.usteed && is_flyer(state.u.usteed.data)))
-            && !flyProp.blocked,
-        );
+        const heroFlying = () => Flying(state.u);
 
         if (heroFlying()) {
             /* to determine whether this flight is new we temporarily
                remove the amulet's contribution */
-            flyProp.extrinsic &= ~W_AMUL;
+            state.u.uprops[FLYING].extrinsic &= ~W_AMUL;
             const already_flying = heroFlying();
-            flyProp.extrinsic |= W_AMUL;
+            state.u.uprops[FLYING].extrinsic |= W_AMUL;
 
             if (!already_flying) {
                 discover_object(AMULET_OF_FLYING, true, true, true, state);
@@ -1371,7 +1362,7 @@ export async function Amulet_off(state = game, env = {}) {
         break;
     }
     case AMULET_OF_FLYING: {
-        const wasFlying = Flying(state);
+        const wasFlying = Flying(state.u);
 
         // Remove the source before recomputing flight; C deliberately calls
         // float_vs_flight() before reading the new Flying value.
@@ -1380,7 +1371,7 @@ export async function Amulet_off(state = game, env = {}) {
         earlyOffMessage = true;
 
         float_vs_flight(state);
-        if (wasFlying && !Flying(state)) {
+        if (wasFlying && !Flying(state.u)) {
             state.disp.botl = true;
             const isOverWaterOrAir = is_pool_or_lava(
                 state.u.ux,
@@ -1801,14 +1792,13 @@ export async function Boots_on(state) {
         if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT))
             incr_itimeout(fumbling, rnd(20));
     } else if (otyp === LEVITATION_BOOTS) {
-        const levitation = state.u.uprops[LEVITATION];
-        if (!oldprop && !levitation.intrinsic
-            && !(levitation.blocked & FROMOUTSIDE)) {
+        if (!oldprop && !HLevitation(state.u)
+            && !(BLevitation(state.u) & FROMOUTSIDE)) {
             state.uarmf.known = true;
             state.disp.botl = true;
             discover_object(otyp, true, true, true, state);
             await float_up(state);
-            if (Levitation(state)) await spoteffects(false, state);
+            if (Levitation(state.u)) await spoteffects(false, state);
         } else {
             float_vs_flight(state);
         }
@@ -1870,17 +1860,8 @@ export async function Boots_off(state = game, rawEnv = {}) {
         break;
     }
     case WATER_WALKING_BOOTS: {
-        const levitation = state.u?.uprops?.[LEVITATION] ?? {};
-        const flying = state.u?.uprops?.[FLYING] ?? {};
-        const hasLevitation = Boolean(
-            (levitation.intrinsic || levitation.extrinsic)
-            && !levitation.blocked,
-        );
-        const hasFlying = Boolean(
-            (flying.intrinsic || flying.extrinsic
-                || (state.u?.usteed && is_flyer(state.u.usteed.data)))
-            && !flying.blocked,
-        );
+        const hasLevitation = Levitation(state.u);
+        const hasFlying = Flying(state.u);
         const { is_pool } = await import('./dbridge.js');
         const { is_lava } = await import('./dbridge.js');
         if ((is_pool(state.u.ux, state.u.uy, state)
@@ -1910,12 +1891,11 @@ export async function Boots_off(state = game, rawEnv = {}) {
         break;
     }
     case LEVITATION_BOOTS: {
-        const levitation = state.u?.uprops?.[LEVITATION] ?? {};
         // C tests HLevitation here, deliberately ignoring ELevitation. The
         // blocked bit is checked separately for its FROMOUTSIDE case, so a
         // blocked intrinsic source still takes the float_vs_flight() arm.
-        const hasIntrinsicLevitation = Boolean(levitation.intrinsic);
-        const fromOutside = Boolean(levitation.blocked & FROMOUTSIDE);
+        const hasIntrinsicLevitation = Boolean(HLevitation(state.u));
+        const fromOutside = Boolean(BLevitation(state.u) & FROMOUTSIDE);
         const cancelled = takeoff.cancelled_don;
         if (!oldprop && !hasIntrinsicLevitation && !fromOutside && !cancelled) {
             if (!state.iflags?.in_lava_effects) {
@@ -2011,7 +1991,7 @@ async function toggle_stealth(obj, oldprop, on, state = game, rawEnv = {}) {
         if (on) {
             const message = !is_boots(obj, state)
                 ? 'You move very quietly.'
-                : Levitation(state) || Flying(state)
+                : Levitation(state.u) || Flying(state.u)
                     ? 'You float imperceptibly.'
                     : 'You walk very quietly.';
             await env.message(message, state, env);

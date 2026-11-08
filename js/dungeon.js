@@ -28,7 +28,6 @@ import {
     CORR,
     DELPHI,
     DOOR,
-    FLYING,
     ICE,
     IS_AIR,
     IS_ALTAR,
@@ -38,7 +37,6 @@ import {
     IS_ROOM,
     IS_WALL,
     LAVAPOOL,
-    LEVITATION,
     LR_DOWNTELE,
     LR_UPTELE,
     MAGIC_PORTAL,
@@ -111,7 +109,9 @@ import { ttyPline } from './tty_message.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { tty_clear_map_window } from './wintty.js';
-import { Blind, Hallucination } from './youprop.js';
+import {
+    Blind, Flying, Hallucination, Levitation,
+} from './youprop.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1254,21 +1254,7 @@ export class UnsupportedEarthSenseError extends Error {
     }
 }
 
-// C ref: youprop.h Levitation (240) and Flying (253-255). Both are read once,
-// by earth_sense() below. C's Flying carries a third term,
-// `u.usteed && is_flyer(u.usteed->data)`, which earth_sense() cannot observe:
-// its own `u.usteed` test returns one operand earlier.
-function heroLevitating(state) {
-    const levitation = state.u?.uprops?.[LEVITATION];
-    return Boolean((levitation?.intrinsic || levitation?.extrinsic)
-        && !levitation?.blocked);
-}
 
-function heroFlying(state) {
-    const flying = state.u?.uprops?.[FLYING];
-    return Boolean((flying?.intrinsic || flying?.extrinsic)
-        && !flying?.blocked);
-}
 
 // C ref: dungeon.c earth_sense() (1543-1565). A dwarf standing on ROOM or
 // CORR terrain senses a buried object at her square unless mounted, flying,
@@ -1279,7 +1265,7 @@ function heroFlying(state) {
 function earth_sense(state, { message = null } = {}) {
     const hero = state.u;
     if (state.urace?.mnum !== PM_DWARF) return;
-    if (hero.usteed || heroFlying(state) || heroLevitating(state)
+    if (hero.usteed || Flying(state.u) || Levitation(state.u)
         || Upolyd(hero)) return;
     const typ = state.level?.at(hero.ux, hero.uy)?.typ;
     if (typ !== CORR && typ !== ROOM) return;
@@ -2616,7 +2602,7 @@ export function recalc_mapseen(state = game) {
     }
 
     // Record the hero's own square when it can be felt (not levitating).
-    if (!heroLevitating(state))
+    if (!Levitation(state.u))
         update_lastseentyp(u.ux, u.uy, state);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y)

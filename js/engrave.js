@@ -16,12 +16,10 @@ import {
     ECMD_OK,
     ENGRAVE,
     ENGR_BLOOD,
-    FLYING,
     GETOBJ_DOWNPLAY,
     GETOBJ_SUGGEST,
     HEADSTONE,
     ICE,
-    LEVITATION,
     LL_CONDUCT,
     MARK,
     N_ENGRAVE,
@@ -82,7 +80,7 @@ import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
 import {
-    Blind, Confusion, Deaf, Hallucination, Stunned,
+    Blind, Confusion, Deaf, Flying, Hallucination, Levitation, Stunned,
 } from './youprop.js';
 
 const RUBOUTS = new Map([
@@ -199,13 +197,6 @@ export function make_engr_at(
     };
     state.head_engr = engraving;
     return engraving;
-}
-
-function propertyActiveUnblocked(hero, propertyIndex) {
-    const property = hero?.uprops?.[propertyIndex];
-    return Boolean(property
-        && ((property.intrinsic ?? 0) || (property.extrinsic ?? 0))
-        && !(property.blocked ?? 0));
 }
 
 
@@ -1125,15 +1116,6 @@ function ceilingHider(species) {
             || Boolean(species.mflags1 & M1_FLY));
 }
 
-function heroFlying(state) {
-    const hero = state.u;
-    const property = hero?.uprops?.[FLYING] ?? {};
-    return Boolean(
-        property.intrinsic
-            || property.extrinsic
-            || (hero?.usteed?.data?.mflags1 & M1_FLY),
-    ) && !property.blocked;
-}
 
 // C ref: engrave.c can_reach_floor(), mondata.c sticks(), and trap.c
 // uteetering_at_seen_pit()/uescaped_shaft().
@@ -1147,7 +1129,7 @@ export function can_reach_floor(checkPit = true, state = game) {
     }
 
     const holderSpecies = hero.ustuck?.data;
-    const levitating = propertyActiveUnblocked(hero, LEVITATION);
+    const levitating = Levitation(hero);
     if (hero.uswallow
         || (holderSpecies && !sticks(species)
             && hasAttackType(holderSpecies, AT_HUGS))
@@ -1160,7 +1142,7 @@ export function can_reach_floor(checkPit = true, state = game) {
     const ridingSkill = hero.weapon_skills?.[P_RIDING]?.skill ?? 0;
     if (hero.usteed && ridingSkill < P_BASIC) return false;
     if (hero.uundetected && ceilingHider(species)) return false;
-    if (heroFlying(state) || species.msize >= MZ_HUGE) return true;
+    if (Flying(state.u) || species.msize >= MZ_HUGE) return true;
 
     if (checkPit) {
         const trap = t_at(hero.ux, hero.uy, state);

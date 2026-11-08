@@ -228,7 +228,6 @@ import {
     WARN_UNDEAD,
     W_AMUL,
     W_ARMOR,
-    W_ARTI,
     W_RING,
     W_SADDLE,
     W_TOOL,
@@ -286,7 +285,6 @@ import {
     is_male,
     is_female,
     is_neuter,
-    is_flyer,
     is_swimmer,
     dmgtype,
     dmgtype_fromattack,
@@ -375,19 +373,19 @@ import { RIGHT_HANDED } from './u_init.js';
 import {
     t_at,
     trapname,
-    Flying,
 } from './trap.js';
 import { digests } from './dothrow.js';
 import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
-    BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, BlindedTimeout,
-    Blindfolded, Blindfolded_only, Blnd_resist, Clairvoyant, Deaf,
-    Detect_monsters, EBlinded, EClairvoyant, EInvis, HBlinded, HClairvoyant,
-    HConfusion, HDetect_monsters, HInvis, HStun, Half_physical_damage,
-    Halluc_resistance, Hallucination, Infravision, Invis, Searching,
-    See_invisible, Undead_warning, Warn_of_mon, Warning,
+    BBlinded, BClairvoyant, BFlying, BInvis, BLevitation, Blind,
+    Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
+    Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant, EInvis,
+    Flying, HBlinded, HClairvoyant, HConfusion, HDetect_monsters, HInvis,
+    HStun, Half_physical_damage, Halluc_resistance, Hallucination,
+    Infravision, Invis, Lev_at_will, Levitation, Searching, See_invisible,
+    Undead_warning, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -1194,10 +1192,8 @@ function status_enlightenment(mode, final, state, lines) {
     const E = (index) => Number(prop(index).extrinsic ?? 0);
     const B = (index) => Number(prop(index).blocked ?? 0);
     const active = (index) => Boolean(H(index) || E(index));
-    const levitation = active(LEVITATION) && !B(LEVITATION);
-    const flying = active(FLYING)
-        || Boolean(u.usteed && is_flyer(u.usteed.data));
-    const actualFlying = flying && !B(FLYING);
+    const levitation = Levitation(u);
+    const actualFlying = Flying(u);
     const blind = Blind(u);
     const blindfoldedOnly = Blindfolded_only(u);
     const hallucinating = Hallucination(u);
@@ -1236,10 +1232,7 @@ function status_enlightenment(mode, final, state, lines) {
     if (levitation) {
         // Lev_at_will is HLevitation with only I_SPECIAL/TIMEOUT or an
         // artifact W_ARTI.  The state carries the same source bits.
-        const atWill = (((H(LEVITATION) & I_SPECIAL) !== 0)
-            || ((E(LEVITATION) & W_ARTI) !== 0))
-            && (H(LEVITATION) & ~(I_SPECIAL | TIMEOUT)) === 0
-            && (E(LEVITATION) & ~W_ARTI) === 0;
+        const atWill = Lev_at_will(u);
         if (atWill && magic)
             you_are(lines, final, 'levitating, at will', '');
         else
@@ -1470,9 +1463,8 @@ export async function attributes_enlightenment(final, state, lines) {
     const invisible = Invis(u) && !seeInvisible;
     const veryFast = Boolean((h(FAST) & ~INTRINSIC) || e(FAST));
     const clairvoyant = Clairvoyant(u);
-    const flying = Boolean((active(FLYING)
-        || (u.usteed && is_flyer(u.usteed.data))) && !b(FLYING));
-    const levitation = activeUnblocked(LEVITATION);
+    const flying = Flying(u);
+    const levitation = Levitation(u);
     const walking = activeUnblocked(WWALKING) && !Is_waterlevel(u.uz, state);
     const swimming = Boolean(active(SWIMMING)
         || (u.usteed && is_swimmer(u.usteed.data)));
@@ -1703,27 +1695,33 @@ export async function attributes_enlightenment(final, state, lines) {
     if (active(TELEPORT_CONTROL))
         you_have(lines, final, 'teleport control',
             from_what(TELEPORT_CONTROL, state));
-    if (b(LEVITATION)) {
-        const trapped = Boolean(b(LEVITATION) & I_SPECIAL);
-        const terrain = Boolean(b(LEVITATION) & FROMOUTSIDE);
-        if (active(LEVITATION)) {
+    if (BLevitation(u)) { /* levitation is blocked */
+        const saveBLev = BLevitation(u);
+        u.uprops[LEVITATION].blocked = 0;
+        if (Levitation(u)) {
+            const trapped = Boolean(saveBLev & I_SPECIAL);
+            const terrain = Boolean(saveBLev & FROMOUTSIDE);
             const suffix = `${trapped ? ' if not trapped' : ''}`
                 + `${trapped && terrain ? ' and' : ''}`
                 + `${terrain ? ' if surroundings permitted' : ''}`;
             enl_msg(lines, final, You_, 'would levitate', 'would have levitated',
                 suffix, '');
         }
+        u.uprops[LEVITATION].blocked = saveBLev;
     }
-    if (b(FLYING)) {
-        if (active(FLYING) || (u.usteed && is_flyer(u.usteed.data))) {
-            const suffix = levitation ? ' if you weren\'t levitating'
-                : b(FLYING) === I_SPECIAL ? ' if you weren\'t trapped'
-                    : b(FLYING) === FROMOUTSIDE
+    if (BFlying(u)) { /* flight is blocked */
+        const saveBFly = BFlying(u);
+        u.uprops[FLYING].blocked = 0;
+        if (Flying(u)) {
+            const suffix = Levitation(u) ? ' if you weren\'t levitating'
+                : saveBFly === I_SPECIAL ? ' if you weren\'t trapped'
+                    : saveBFly === FROMOUTSIDE
                         ? ' if surroundings permitted'
                         : ' if circumstances permitted';
             enl_msg(lines, final, You_, 'would fly', 'would have flown',
                 suffix, '');
         }
+        u.uprops[FLYING].blocked = saveBFly;
     }
     if (is_clinger(state.youmonst?.data)) {
         const hasLid = has_ceiling(u.uz, state);
@@ -1984,7 +1982,7 @@ export function youhiding(via_enlghtmt, msgflag, state = game, lines = [], env =
             const obj = state.level.objects[u.ux][u.uy];
             if (obj)
                 description += ' underneath ' + ansimpleoname(obj, state);
-        } else if (is_clinger(species) || Flying(state)) {
+        } else if (is_clinger(species) || Flying(state.u)) {
             description += ' on the ' + ceiling(u.ux, u.uy, state);
         } else if (u.utrap && u.utraptype === TT_PIT) {
             const trap = t_at(u.ux, u.uy, state);

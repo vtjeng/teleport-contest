@@ -61,11 +61,10 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BOLT_LIM, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, GLIB, INTRINSIC, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
-    HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
-    LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
+    HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
     SLIMED, STONED, STR18, STRANGLED, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
     DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
@@ -120,7 +119,7 @@ import {
 } from './terminal.js';
 import { rankOf, roles } from './roles.js';
 import { pmname } from './do_name.js';
-import { is_flyer, monsndx, sticks } from './mondata.js';
+import { monsndx, sticks } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     dist2,
@@ -325,9 +324,9 @@ import {
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 import {
-    Blind, Confusion, Deaf, Detect_monsters, ETelepat, HHallucination,
+    Blind, Confusion, Deaf, Detect_monsters, ETelepat, Flying, HHallucination,
     HTelepat, Halluc_resistance, Hallucination, Infravision, Invis,
-    See_invisible, Stunned, Warn_of_mon, Warning,
+    Levitation, See_invisible, Stunned, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -4965,10 +4964,6 @@ function _propertyIntrinsic(u, index) {
     return Boolean(u.uprops?.[index]?.intrinsic);
 }
 
-function _propertyActiveUnblocked(u, index) {
-    return _propertyActive(u, index) && !u.uprops?.[index]?.blocked;
-}
-
 // C ref: display.h canseeself(), senseself(), and canspotself() (164-176).
 // newsym() must map the hero's square underneath an invisible hero when no
 // source lets the hero perceive that square; display_self() is only legal in
@@ -5171,10 +5166,7 @@ export function statusConditionActive(option, u) {
     // module-private, reachable only through can_reach_floor() and
     // mount_steed().
     case 'fly':
-        return Boolean((u.uprops?.[FLYING]?.intrinsic
-                        || u.uprops?.[FLYING]?.extrinsic
-                        || (u.usteed && is_flyer(u.usteed.data)))
-                       && !u.uprops?.[FLYING]?.blocked);
+        return Flying(u);
     case 'foodpois':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
@@ -5213,7 +5205,7 @@ export function statusConditionActive(option, u) {
         const selected = lava ? 'lava' : tethered ? 'tethered' : 'trap';
         return (option === 'inlava' ? 'lava' : option) === selected;
     }
-    case 'levitate': return _propertyActiveUnblocked(u, LEVITATION);
+    case 'levitate': return Levitation(u);
     case 'ride': return Boolean(u.usteed);
     case 'slime': return _propertyIntrinsic(u, SLIMED);
     // botl.c:1207 and youprop.h:112 use intrinsic Glib only.

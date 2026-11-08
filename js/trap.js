@@ -56,7 +56,6 @@ import {
     SLIMED,
     FIRE_TRAP,
     FINGER,
-    FLYING,
     FORCETRAP,
     FREE_ACTION,
     FUMBLING,
@@ -168,7 +167,6 @@ import {
     WT_TOOMUCH_DIAGONAL,
     XKILL_NOMSG,
     W_SADDLE,
-    W_ARTI,
     ZAP_POS,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
@@ -352,8 +350,9 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    Blind, Confusion, HHallucination, HStun, Halluc_resistance, Hallucination,
-    Maybe_Half_Phys, Stunned,
+    BFlying, BLevitation, Blind, Confusion, EFlying, Flying, HFlying,
+    HHallucination, HStun, Halluc_resistance, Hallucination, Lev_at_will,
+    Levitation, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
@@ -670,7 +669,7 @@ export async function fall_through(td, ftflags, state = game) {
 
     // Sokoban's special fall rule overrides levitation, but a blind,
     // levitating hero elsewhere gets no message and no other side effect.
-    if (Blind(state.u) && Levitation(state) && !state.level?.flags?.sokoban_rules)
+    if (Blind(state.u) && Levitation(state.u) && !state.level?.flags?.sokoban_rules)
         return;
 
     const nextLevel = dunlev(u.uz) + 1;
@@ -692,10 +691,10 @@ export async function fall_through(td, ftflags, state = game) {
 
     if (state.level?.flags?.sokoban_rules && Can_fall_thru(u.uz, state)) {
         // Sokoban's holes cannot be escaped; proceed to the fall checks below.
-    } else if (Levitation(state) || u.ustuck
+    } else if (Levitation(state.u) || u.ustuck
         || (!Can_fall_thru(u.uz, state)
             && !state.level.at(u.ux, u.uy).candig)
-        || ((Flying(state) || is_clinger(state.youmonst.data)
+        || ((Flying(state.u) || is_clinger(state.youmonst.data)
             || (ceiling_hider(state.youmonst.data) && u.uundetected))
             && !plunged)) {
         dontFall = "don't fall in.";
@@ -715,11 +714,11 @@ export async function fall_through(td, ftflags, state = game) {
         return;
     }
 
-    if ((Flying(state) || is_clinger(state.youmonst.data))
+    if ((Flying(state.u) || is_clinger(state.youmonst.data))
         && plunged && td && trap) {
-        if (Flying(state)) controlledFlight = true;
+        if (Flying(state.u)) controlledFlight = true;
         await ttyPline(
-            `You ${Flying(state) ? 'swoop' : 'deliberately drop'} down `
+            `You ${Flying(state.u) ? 'swoop' : 'deliberately drop'} down `
                 + (trap.ttyp === TRAPDOOR
                     ? 'through the trap door!'
                     : 'into the gaping hole!'),
@@ -754,7 +753,7 @@ export async function fall_through(td, ftflags, state = game) {
         : null;
     schedule_goto(
         destination,
-        Flying(state) ? UTOTYPE_NONE : UTOTYPE_FALLING,
+        Flying(state.u) ? UTOTYPE_NONE : UTOTYPE_FALLING,
         null,
         postMessage,
         state,
@@ -1200,24 +1199,6 @@ export function count_traps(ttyp, state = game) {
 
 // ── Hero trap state and the descent out of levitation (C ref: trap.c) ──
 
-// youprop.h:242 Levitation and :253 Flying, spelled out here for the same
-// reason every other file in this port spells them out: the macros read three
-// fields of one property and Flying adds a steed term. They are exported for
-// js/trap_effects.js alone, which holds the rest of trap.c's port and needs
-// the same two macros in dotrap() and trapeffect_bear_trap(); a second copy
-// there would be a second copy inside one C file.
-export function Levitation(state) {
-    const levitation = state.u.uprops[LEVITATION];
-    return Boolean((levitation.intrinsic || levitation.extrinsic)
-                   && !levitation.blocked);
-}
-
-export function Flying(state) {
-    const flying = state.u.uprops[FLYING];
-    return Boolean((flying.intrinsic || flying.extrinsic
-                    || (state.u.usteed && is_flyer(state.u.usteed.data)))
-                   && !flying.blocked);
-}
 
 function activeHeroProperty(state, property) {
     const value = state.u?.uprops?.[property] ?? {};
@@ -1261,7 +1242,7 @@ function heroAmphibious(state) {
 // C ref: trap.c back_on_ground() (4976-5011).
 export async function back_on_ground(rescued, state = game, env = {}) {
     const { u } = state;
-    let preposition = Levitation(state) || Flying(state) ? 'over' : 'on';
+    let preposition = Levitation(state.u) || Flying(state.u) ? 'over' : 'on';
     let surf = surface(u.ux, u.uy, state);
     if (is_ice(u.ux, u.uy, state)) {
         surf = ice_descr(u.ux, u.uy, state);
@@ -1848,7 +1829,7 @@ export async function sink_into_lava(state = game) {
             // Only life-saving gets here; try to get away from lava.
             await reset_utrap(true, state);
             // Levitation or flight have become unblocked, otherwise teleport.
-            if (!Levitation(state) && !Flying(state)) {
+            if (!Levitation(state.u) && !Flying(state.u)) {
                 const { safe_teleds } = await import('./teleport.js');
                 await safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT, state);
             }
@@ -1945,16 +1926,16 @@ export function set_utrap(tim, typ, state = game) {
 // float_up(); resumed flight reports that the hero can fly. `msg=false`
 // returns synchronously because the C branch has no output in that case.
 export function reset_utrap(msg, state = game) {
-    const was_Lev = Levitation(state);
-    const was_Fly = Flying(state);
+    const was_Lev = Levitation(state.u);
+    const was_Fly = Flying(state.u);
 
     set_utrap(0, 0, state);
 
     if (!msg) return;
 
     return (async () => {
-        if (!was_Lev && Levitation(state)) await float_up(state);
-        if (!was_Fly && Flying(state)) await ttyPline('You can fly.', state);
+        if (!was_Lev && Levitation(state.u)) await float_up(state);
+        if (!was_Fly && Flying(state.u)) await ttyPline('You can fly.', state);
     })();
 }
 
@@ -2032,12 +2013,8 @@ export async function float_up(state = game) {
 
     if (u.usteed && !is_floater(u.usteed.data)
         && !is_flyer(u.usteed.data)) {
-        const levitation = u.uprops[LEVITATION] ?? {};
         const levAtWill = Boolean(
-            ((levitation.intrinsic & I_SPECIAL)
-                || (levitation.extrinsic & W_ARTI))
-                && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))
-                && !(levitation.extrinsic & ~W_ARTI),
+            Lev_at_will(u),
         );
         if (levAtWill) {
             await ttyPline(`${Monnam(u.usteed, state)} magically floats up!`, state);
@@ -2046,7 +2023,7 @@ export async function float_up(state = game) {
             await dismount_steed(DISMOUNT_GENERIC, state);
         }
     }
-    if (Flying(state))
+    if (Flying(state.u))
         await ttyPline('You are no longer able to control your flight.', state);
     float_vs_flight(state);
     await encumber_msg(state);
@@ -2076,16 +2053,15 @@ export function fill_pit(x, y, state = game, rawEnv = {}) {
 // punishment, terrain, trap activation, and the final pickup in source order.
 export async function float_down(hmask, emask, state = game) {
     const u = state.u;
-    const levitation = u.uprops[LEVITATION];
 
-    levitation.intrinsic &= ~hmask;
-    levitation.extrinsic &= ~emask;
-    if (Levitation(state))
+    u.uprops[LEVITATION].intrinsic &= ~hmask;
+    u.uprops[LEVITATION].extrinsic &= ~emask;
+    if (Levitation(state.u))
         return 0; /* maybe another ring/potion/boots */
-    if (levitation.blocked) {
+    if (BLevitation(u)) {
         // The BLevitation arm gives terrain- or trap-specific feedback and
         // returns before every side effect below it.
-        const trapped = levitation.blocked === I_SPECIAL;
+        const trapped = BLevitation(u) === I_SPECIAL;
         float_vs_flight(state);
         if (trapped && u.utrap) {
             const reason = u.utraptype === TT_BEARTRAP ? "trap's jaws"
@@ -2103,9 +2079,9 @@ export async function float_down(hmask, emask, state = game) {
     state.disp ??= {};
     state.disp.botl = true;
     nomul(0, state); /* stop running or resting */
-    if (u.uprops[FLYING].blocked) {
+    if (BFlying(u)) {
         float_vs_flight(state);
-        if (Flying(state)) {
+        if (Flying(state.u)) {
             await ttyPline('You have stopped levitating and are now flying.', state);
             await encumber_msg(state);
             return 1;
@@ -2139,7 +2115,7 @@ export async function float_down(hmask, emask, state = game) {
     }
 
     let noMsg = false;
-    if (!Flying(state)) {
+    if (!Flying(state.u)) {
         if (u.ustuck) {
             if (sticks(state.youmonst?.data)) {
                 await ttyPline(
@@ -2252,7 +2228,7 @@ export async function climb_pit(state = game) {
         await displayPendingTtyMessageWindow(state);
         clearTtyMessageWindow(state);
         await ttyPline(`You free your ${body_part(LEG, state.youmonst)}.`, state);
-    } else if ((Flying(state) || is_clinger(state.youmonst.data))
+    } else if ((Flying(state.u) || is_clinger(state.youmonst.data))
         && !state.level?.flags?.sokoban_rules) {
         await ttyPline(
             `You ${u_locomotion('climb', state)} from the ${pitname}.`,
@@ -2263,7 +2239,7 @@ export async function climb_pit(state = game) {
         state.vision_full_recalc = 1;
     } else if (!(--u.utrap) || m_easy_escape_pit(state.youmonst, state)) {
         await reset_utrap(false, state);
-        const escape = state.level?.flags?.sokoban_rules && Levitation(state)
+        const escape = state.level?.flags?.sokoban_rules && Levitation(state.u)
             ? 'struggle against the air currents and float'
             : u.usteed ? 'ride' : 'crawl';
         await ttyPline(`You ${escape} to the edge of the ${pitname}.`, state);
@@ -2344,8 +2320,9 @@ export function immune_to_trap(mon, ttype, state = game) {
             || (is_clinger(pm) && has_ceiling(state.u.uz, state))) {
             return TRAP_CLEARLY_IMMUNE;
         }
-        if (isYou && (heroProperty(state, LEVITATION)
-            || heroProperty(state, FLYING))) return TRAP_CLEARLY_IMMUNE;
+        if (isYou && (Levitation(state.u)
+            || Boolean((HFlying(state.u) || EFlying(state.u))
+                && !BFlying(state.u)))) return TRAP_CLEARLY_IMMUNE;
         return TRAP_NOT_IMMUNE;
     case SLP_GAS_TRAP:
         if (breathless(pm)) return TRAP_CLEARLY_IMMUNE;
