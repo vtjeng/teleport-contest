@@ -32,7 +32,6 @@ import {
     POLY_NOFLAGS,
     M_SEEN_FIRE,
     MAGICENLIGHTENMENT,
-    POISON_RES,
     PICK_NONE,
     POOL,
     ROOM,
@@ -123,9 +122,9 @@ import {
 } from './objects.js';
 import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
-import { Fire_resistance } from './zap.js';
 import {
-    Blind, Deaf, Glib, Hallucination, Invisible, Levitation,
+    Blind, Deaf, Fire_resistance, Glib, Hallucination, Invisible, Levitation,
+    Poison_resistance,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -136,14 +135,6 @@ export class UnsupportedFountainError extends Error {
         this.name = 'UnsupportedFountainError';
         this.reason = reason;
     }
-}
-
-
-// C ref: youprop.h:48 Poison_resistance. Unlike Levitation it has no blocked
-// term, so a source of poison resistance is never suppressed.
-function Poison_resistance(state) {
-    const value = state.u?.uprops?.[POISON_RES];
-    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 
@@ -722,7 +713,7 @@ export async function drinkfountain(state = game, env = {}) {
             {
                 const { losehp } = await import('./hack.js');
                 const { encumber_msg } = await import('./pickup.js');
-                if (Poison_resistance(state)) {
+                if (Poison_resistance(state.u)) {
                     await message(
                         'Perhaps it is runoff from the nearby '
                             + `${fruitname(false, state)} farm.`,
@@ -1314,7 +1305,7 @@ export async function drinksink(state = game, env = {}) {
         break;
     case 2:
         await message(`You take a sip of scalding hot ${hliquid('water', liquidEnv)}.`, state);
-        if (Fire_resistance(state)) {
+        if (Fire_resistance(state.u)) {
             await message('It seems quite tasty.', state);
             monstseesu(M_SEEN_FIRE, state);
         } else {

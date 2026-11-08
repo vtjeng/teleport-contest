@@ -535,7 +535,7 @@ test('cprefx consumes the source golem transformation return before stoning', ()
     const jsEnd = EAT_JS.indexOf('// C ref: eat.c fix_petrification()', jsStart);
     const js = EAT_JS.slice(jsStart, jsEnd);
     assert.match(c, /!Stone_resistance[\s\S]*?!\(poly_when_stoned\(gy\.youmonst\.data\)[\s\S]*?&& polymon\(PM_STONE_GOLEM\)\)/u);
-    assert.match(js, /!propertyActive\(state, STONE_RES\)[\s\S]*?!\(poly_when_stoned\(state\.youmonst\.data, state\)[\s\S]*?&& await polymon\(PM_STONE_GOLEM, state, env\)\)/u);
+    assert.match(js, /!Stone_resistance\(state\.u\)[\s\S]*?!\(poly_when_stoned\(state\.youmonst\.data, state\)[\s\S]*?&& await polymon\(PM_STONE_GOLEM, state, env\)\)/u);
     const fatalTails = [
         [c, ['use_up_tin(', 'killer.name', 'killer.format', 'turn to stone.',
             'done(STONING)', 'victual.eating = 0', 'return;']],

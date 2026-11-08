@@ -64,7 +64,6 @@ import {
     ART_SNICKERSNEE,
     artifact_light,
     set_artifact_intrinsic,
-    Stone_resistance,
 } from './artifacts.js';
 import { cancel_doff } from './do_wear.js';
 import { game } from './gstate.js';
@@ -181,7 +180,7 @@ import {
     Yname2,
 } from './objnam.js';
 import { canseemon } from './display.js';
-import { ETelepat, See_invisible } from './youprop.js';
+import { ETelepat, See_invisible, Stone_resistance } from './youprop.js';
 
 const WORN_SLOTS = Object.freeze([
     Object.freeze({ mask: W_ARM, field: 'uarm' }),
@@ -1474,7 +1473,7 @@ async function mon_break_armor_effects(monster, polyspot, env, pronoun, possessi
             `You can no longer ride ${mon_nam(monster, state)}.`, state, env,
         );
         const steed = state.u.usteed;
-        if (touch_petrifies(steed.data) && !Stone_resistance(state)
+        if (touch_petrifies(steed.data) && !Stone_resistance(state.u)
             && random.rnl(3)) {
             await message(`You touch ${mon_nam(steed, state)}.`, state, env);
             note_unported('trap.c instapetrify');

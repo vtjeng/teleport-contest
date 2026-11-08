@@ -41,7 +41,6 @@ import {
     is_art,
     restrict_name,
     retouch_object,
-    Stone_resistance,
 } from './artifacts.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
 import { acurr, exercise } from './attrib.js';
@@ -145,7 +144,9 @@ import {
     setnotworn,
     setworn,
 } from './worn.js';
-import { Blind, Glib, Hallucination } from './youprop.js';
+import {
+    Blind, Glib, Hallucination, Stone_resistance,
+} from './youprop.js';
 
 // C ref: wield.c setuwep() (100-137). Slot changes and status invalidation
 // precede artifact-light shutdown; finish unweapon only after the live message.
@@ -368,7 +369,7 @@ export function welded(obj, state = game, env = {}) {
 export async function cant_wield_corpse(obj, state = game, env = {}) {
     if (state.uarmg || obj.otyp !== CORPSE
         || !touch_petrifies(state.mons[obj.corpsenm])
-        || Stone_resistance(state)) return false;
+        || Stone_resistance(state.u)) return false;
 
     await ttyPline(
         `You wield ${corpse_xname(obj, null, CXN_PFX_THE, state)} in your bare ${makeplural(body_part(HAND, state.youmonst))}.`,

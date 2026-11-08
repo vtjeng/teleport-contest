@@ -47,7 +47,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ARM, A_WIS, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, UNCHANGING, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, vision_clears, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -251,9 +251,10 @@ import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 import { canseemon, canspotmon } from './display.js';
 import { setuwep } from './wield.js';
 import {
-    BInvis, Blind, Deaf, EInvis, Fumbling, HInvis, HStun, Hallucination,
-    Levitation, Maybe_Half_Phys, Passes_walls, Stoned, Stunned,
-    Teleport_control,
+    Acid_resistance, Antimagic, BInvis, Blind, Cold_resistance, Deaf,
+    Disint_resistance, Drain_resistance, EInvis, Fire_resistance, Fumbling,
+    HInvis, HStun, Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
+    Shock_resistance, Sleep_resistance, Stoned, Stunned, Teleport_control,
 } from './youprop.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
@@ -264,7 +265,6 @@ export class UnsupportedZapError extends Error {
         this.branch = branch;
     }
 }
-
 
 
 function bhitTransientLightEnv(state, random, rawEnv = {}) {
@@ -991,8 +991,7 @@ export async function dozap(state = game) {
 // C ref: youprop.h:36 Sleep_resistance, which is the plain "either source"
 // spelling: unlike Blind it has no blocking term.
 function heroResistsSleep(state) {
-    const resistance = state.u?.uprops?.[SLEEP_RES];
-    return Boolean(resistance?.intrinsic || resistance?.extrinsic);
+    return Sleep_resistance(state.u);
 }
 
 // C ref: zap.c boxlock_invent() (2687-2701). The boxlock() result is
@@ -1173,7 +1172,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
         learn_it = true;
-        if (heroHasProperty(state, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('Boing!', state);
             monstseesu(M_SEEN_MAGR, state);
@@ -1191,7 +1190,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case WAN_LIGHTNING:
         learn_it = true;
         orig_dmg = d(12, 6);
-        if (!heroHasProperty(state, SHOCK_RES)) {
+        if (!Shock_resistance(state.u)) {
             await ttyPline('You shock yourself!', state);
             damage = orig_dmg;
             await exercise(A_CON, false, state, random, {
@@ -1222,7 +1221,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case FIRE_HORN:
         learn_it = true;
         orig_dmg = d(12, 6);
-        if (heroHasProperty(state, FIRE_RES)) {
+        if (Fire_resistance(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline(youFeel('rather warm.', state), state);
             monstseesu(M_SEEN_FIRE, state);
@@ -1246,7 +1245,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case FROST_HORN:
         learn_it = true;
         orig_dmg = d(12, 6);
-        if (heroHasProperty(state, COLD_RES)) {
+        if (Cold_resistance(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline(youFeel('a little chill.', state), state);
             monstseesu(M_SEEN_COLD, state);
@@ -1262,7 +1261,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case WAN_MAGIC_MISSILE:
     case SPE_MAGIC_MISSILE:
         learn_it = true;
-        if (heroHasProperty(state, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('The missiles bounce!', state);
             monstseesu(M_SEEN_MAGR, state);
@@ -1289,7 +1288,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         break;
 
     case SPE_DRAIN_LIFE:
-        if (!heroHasProperty(state, DRAIN_RES)) {
+        if (!Drain_resistance(state.u)) {
             learn_it = true;
             await losexp('life drainage', state);
         }
@@ -4585,21 +4584,6 @@ export function zaptype(type) {
 }
 
 
-// C ref: youprop.h:28 Fire_resistance and :381 Reflecting, both the plain
-// "either source" spelling. Fire_resistance is exported because
-// js/zap_destroy_items.js maybe_destroy_item() reads it too, at zap.c:5834.
-export function Fire_resistance(state) {
-    const property = state.u?.uprops?.[FIRE_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
-// C ref: youprop.h:32 Cold_resistance = (HCold_resistance || ECold_resistance).
-// Exported because peffect_oil() in js/potion.js reads it.
-export function Cold_resistance(state) {
-    const property = state.u?.uprops?.[COLD_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
 function Reflecting(state) {
     const property = state.u?.uprops?.[REFLECTING];
     return Boolean(property?.intrinsic || property?.extrinsic);
@@ -4885,7 +4869,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
 
     switch (abstyp % 10) {
     case ZT_MAGIC_MISSILE:
-        if (heroHasProperty(state, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(sx, sy, state);
             await message('The missiles bounce off!', state, env);
             monstseesu(M_SEEN_MAGR, state);
@@ -4897,7 +4881,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
         break;
     case ZT_FIRE:
         orig_dam = random.d(nd, 6);
-        if (Fire_resistance(state)) {
+        if (Fire_resistance(state.u)) {
             await shieldeff(sx, sy, state);
             await message("You don't feel hot!", state, env);
             monstseesu(M_SEEN_FIRE, state);
@@ -4916,7 +4900,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
         break;
     case ZT_COLD:
         orig_dam = random.d(nd, 6);
-        if (Cold_resistance(state)) {
+        if (Cold_resistance(state.u)) {
             await shieldeff(sx, sy, state);
             await message("You don't feel cold.", state, env);
             monstseesu(M_SEEN_COLD, state);
@@ -4929,7 +4913,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             await destroy_items(state.youmonst, AD_COLD, orig_dam, env);
         break;
     case ZT_SLEEP:
-        if (heroHasProperty(state, SLEEP_RES)) {
+        if (Sleep_resistance(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await message("You don't feel sleepy.", state, env);
             monstseesu(M_SEEN_SLEEP, state);
@@ -4942,7 +4926,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
         if (abstyp === (20 + ZT_DEATH)) {
             const protectedInventory = inventory_resistance_check(AD_DISN,
                 state, random);
-            if (heroHasProperty(state, DISINT_RES)) {
+            if (Disint_resistance(state.u)) {
                 await message('You are not disintegrated.', state, env);
                 monstseesu(M_SEEN_DISINT, state);
                 break;
@@ -4965,7 +4949,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             await shieldeff(sx, sy, state);
             await message('You seem unaffected.', state, env);
             break;
-        } else if (heroHasProperty(state, ANTIMAGIC)) {
+        } else if (Antimagic(state.u)) {
             await shieldeff(sx, sy, state);
             monstseesu(M_SEEN_MAGR, state);
             await message("You aren't affected.", state, env);
@@ -4980,7 +4964,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
         return; /* lifesaved */
     case ZT_LIGHTNING:
         orig_dam = random.d(nd, 6);
-        if (heroHasProperty(state, SHOCK_RES)) {
+        if (Shock_resistance(state.u)) {
             await shieldeff(sx, sy, state);
             await message("You aren't affected.", state, env);
             monstseesu(M_SEEN_ELEC, state);
@@ -5011,7 +4995,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             state,
             displayRandom: env.displayRandom,
         });
-        if (heroHasProperty(state, ACID_RES)) {
+        if (Acid_resistance(state.u)) {
             await message(`The ${acid} doesn't hurt.`, state, env);
             monstseesu(M_SEEN_ACID, state);
         } else {
@@ -6745,6 +6729,5 @@ export async function cancel_monst(
 // Local helpers for cancel_monst to avoid importing from artifacts.js
 // (which would create a tighter circular dependency).
 function Antimagic_cancel(state) {
-    const p = state.u?.uprops?.[ANTIMAGIC];
-    return Boolean(p?.intrinsic || p?.extrinsic);
+    return Antimagic(state.u);
 }

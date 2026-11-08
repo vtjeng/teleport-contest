@@ -13,7 +13,6 @@ import {
     A_STR,
     A_WIS,
     ALTAR,
-    ANTIMAGIC,
     BOLT_LIM,
     CC_INCL_CENTER,
     CC_NO_FLAGS,
@@ -72,7 +71,6 @@ import {
     VIBRATING_SQUARE,
     VIASITTING,
     WATER,
-    FIRE_RES,
     W_NONPASSWALL,
     ZAP_POS,
     In_quest,
@@ -243,9 +241,10 @@ import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Amphibious, Blind, Blinded, Confusion, ETeleportation, Flying, HConfusion,
-    HStun, HTeleportation, Hallucination, Levitation, Passes_walls, Stunned,
-    Swimming, Teleport_control, Teleportation, Wwalking,
+    Amphibious, Antimagic, Blind, Blinded, Confusion, ETeleportation,
+    Fire_resistance, Flying, HConfusion, HStun, HTeleportation, Hallucination,
+    Levitation, Passes_walls, Stunned, Swimming, Teleport_control,
+    Teleportation, Wwalking,
 } from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
@@ -901,11 +900,6 @@ export function goodpos_onscary(x, y, species, env = {}) {
     return Boolean(sengr_at('Elbereth', x, y, true, state));
 }
 
-function propertyPresent(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
 // These are teleport.c goodpos()'s direct hero macro expressions. Keep them
 // here so every goodpos caller gets the same C checks without injected hooks.
 function heroCanOccupyPool(x, y, state) {
@@ -925,7 +919,7 @@ function heroCanOccupyLava(state) {
     const waterWalking = Wwalking(state);
     return Boolean(Levitation(state.u)
         || Flying(state.u)
-        || (propertyPresent(state, FIRE_RES) && waterWalking
+        || (Fire_resistance(state.u) && waterWalking
             && boots && boots.oerodeproof)
         || (Upolyd(state.u) && likes_lava(state.youmonst?.data)));
 }
@@ -1931,8 +1925,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
 // youprop.h:57 defines Antimagic as the intrinsic or the extrinsic, with no
 // blocking term.
 function Antimagic_prop(state) {
-    const p = state.u?.uprops?.[ANTIMAGIC];
-    return Boolean(p?.intrinsic || p?.extrinsic);
+    return Antimagic(state.u);
 }
 
 // C's `static boolean in_tele_trap` inside tele_trap(), teleport.c:1494. A

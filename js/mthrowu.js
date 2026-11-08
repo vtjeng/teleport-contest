@@ -62,7 +62,6 @@ import {
     P_SPEAR,
     BRK_BY_HERO,
     BRK_MELEE,
-    SLEEP_RES,
     SLT_ENCUMBER,
     STONE_RES,
     TIMEOUT,
@@ -243,7 +242,7 @@ import {
     mwepgone,
     select_rwep,
 } from './weapon.js';
-import { spec_abon, Stone_resistance } from './artifacts.js';
+import { spec_abon } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mwelded } from './wield.js';
@@ -273,8 +272,9 @@ import {
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
 import {
-    Blind, Confusion, Deaf, Fumbling, HBlinded, Hallucination,
-    Maybe_Half_Phys, Stoned, Stunned,
+    Acid_resistance, Blind, Confusion, Deaf, Fumbling, HBlinded,
+    Hallucination, Maybe_Half_Phys, Sleep_resistance, Stone_resistance,
+    Stoned, Stunned,
 } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
@@ -311,17 +311,6 @@ export function rnd_hallublast(random = coreRandom) {
     return hallublasts[random.rn2(hallublasts.length)];
 }
 
-// ---- Module-local hero-property helpers ----
-// Each C port file defines these locally; see the pattern in js/mcastu.js.
-function heroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
-
-function Sleep_resistance(state) {
-    return heroProperty(state, SLEEP_RES);
-}
 
 // C ref: mondata.h mdistu(). Distance-squared from the hero to a monster.
 function mdistu(mon, state) {
@@ -481,11 +470,6 @@ function requireRangedOperation(env, name) {
 
 function refuseRanged(env, reason) {
     return requireRangedOperation(env, 'unsupported')(reason);
-}
-
-function propertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
@@ -1155,7 +1139,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             }
             if (hit && singleobj.otyp === EGG) {
                 if (!Stoned(state.u)
-                    && !Stone_resistance(state)
+                    && !Stone_resistance(state.u)
                     && !(poly_when_stoned(state.youmonst.data, state)
                          && await polymon(PM_STONE_GOLEM, state))) {
                     await make_stoned(5, null, KILLED_BY, '', state);
@@ -1640,7 +1624,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                  * cunning; don't breath if the target fell asleep. */
                 if (!utarget || !random.rn2(3))
                     mtmp.mspec_used = 8 + random.rn2(18);
-                if (utarget && typ === AD_SLEE && !Sleep_resistance(state))
+                if (utarget && typ === AD_SLEE && !Sleep_resistance(state.u))
                     mtmp.mspec_used += random.rnd(20);
 
                 /* If this is a pet, it'll get hungry. Minions and
@@ -1982,7 +1966,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
     else
         await message(`You are hit by ${onm}${exclam(dam)}`, state);
 
-    if (is_acid && propertyActive(state, ACID_RES)) {
+    if (is_acid && Acid_resistance(state.u)) {
         // C ref: mthrowu.c:123-125. The resistance ledger is maintained by
         // mondata.c monstseesu(); the acid-resistance property is the same
         // intrinsic-or-extrinsic test used by youprop.h Acid_resistance.

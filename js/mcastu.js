@@ -9,8 +9,6 @@
 
 import {
     A_DEX,
-    ANTIMAGIC,
-    COLD_RES,
     BZ_M_SPELL,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
@@ -19,7 +17,6 @@ import {
     KILLED_BY,
     Upolyd,
     DISPLACED,
-    FIRE_RES,
     FREE_ACTION,
     HALF_SPDAM,
     HEAD,
@@ -34,7 +31,6 @@ import {
     MFAST,
     MM_ANGRY,
     MM_NOMSG,
-    SHOCK_RES,
     TIMEOUT,
     u_at,
     ismnum,
@@ -112,9 +108,10 @@ import {
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
-    Blind, Blinded, Confusion, Deaf, Detect_monsters, HConfusion,
-    HHallucination, HStun, Half_physical_damage, Halluc_resistance,
-    Hallucination, Invis, See_invisible, Unaware,
+    Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
+    Detect_monsters, Fire_resistance, HConfusion, HHallucination, HStun,
+    Half_physical_damage, Halluc_resistance, Hallucination, Invis,
+    See_invisible, Shock_resistance, Unaware,
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -180,14 +177,14 @@ export async function mcast_death_touch(mtmp, env = {}) {
     await message(`Oh no, ${mhe(mtmp, effectEnv)}'s using the touch of death!`, state, effectEnv);
     if (nonliving(state.youmonst.data) || is_demon(state.youmonst.data)) {
         await message('You seem no deader than before.', state, effectEnv);
-    } else if (!heroProperty(state, ANTIMAGIC) && random.rn2(mtmp.m_lev) > 12) {
+    } else if (!Antimagic(state.u) && random.rn2(mtmp.m_lev) > 12) {
         if (Hallucination(state.u))
             await message('You have an out of body experience.', state, effectEnv);
         else
             await touch_of_death(mtmp, effectEnv);
         monstunseesu(M_SEEN_MAGR, state);
     } else {
-        if (heroProperty(state, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             monstseesu(M_SEEN_MAGR, state);
         }
@@ -319,7 +316,7 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
 
     switch (spellnum) {
     case MCAST_DEATH_TOUCH:
-        if ((heroProperty(state, ANTIMAGIC) || Hallucination(state.u))
+        if ((Antimagic(state.u) || Hallucination(state.u))
             && !random.rn2(2))
             return true;
         break;
@@ -580,7 +577,7 @@ export async function castmu(
     case AD_MAGM:
         if (message)
             await message('You are hit by a shower of missiles!', state, env);
-        if (heroProperty(state, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             if (message)
                 await message('The missiles bounce off!', state, env);
@@ -598,7 +595,7 @@ export async function castmu(
     case AD_COLD:
         if (message)
             await message("You're covered in frost.", state, env);
-        if (heroProperty(state, COLD_RES)) {
+        if (Cold_resistance(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             if (message)
                 await message('But you resist the effects.', state, env);
@@ -631,7 +628,7 @@ async function mcast_psi_bolt(dmg, env = {}) {
     const state = env.state ?? game;
     const message = env.message;
 
-    if (heroProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         dmg = Math.trunc((dmg + 1) / 2);
@@ -666,7 +663,7 @@ async function mcast_open_wounds(dmg, env = {}) {
     const state = env.state ?? game;
     const message = env.message;
 
-    if (heroProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         dmg = Math.trunc((dmg + 1) / 2);
@@ -729,7 +726,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     if (typeof message === 'function')
         await message('A pillar of fire strikes all around you!', state);
     const origDmg = dmg = random.d(8, 6);
-    if (heroProperty(state, FIRE_RES)) {
+    if (Fire_resistance(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_FIRE, state);
         dmg = 0;
@@ -768,7 +765,7 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         ? await env.ureflects('It bounces off your %s%s.', '', state, env)
         : await ureflects('It bounces off your %s%s.', '', state, env);
     const origDmg = dmg = random.d(8, 6);
-    if (reflects || heroProperty(state, SHOCK_RES)) {
+    if (reflects || Shock_resistance(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         dmg = 0;
         if (reflects) {
@@ -803,7 +800,7 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
 // C ref: mcastu.c mcast_paralyze() (746-769).
 async function mcast_paralyze(mtmp, env = {}) {
     const state = env.state ?? game;
-    const antimagic = heroProperty(state, ANTIMAGIC);
+    const antimagic = Antimagic(state.u);
     // youprop.h:383 Free_action is the extrinsic field alone.
     const freeAction = Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
     let dmg = 0;
@@ -995,7 +992,7 @@ async function mcast_stun_you(dmg, env = {}) {
     const message = env.message ?? ttyPline;
     const hStun = HStun(state.u);
 
-    if (heroProperty(state, ANTIMAGIC)
+    if (Antimagic(state.u)
         || state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
@@ -1025,7 +1022,7 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
 
-    if (heroProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         await message(youFeel('momentarily weakened.', state), state, rawEnv);
@@ -1057,7 +1054,7 @@ export async function mcast_destroy_armor(rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
 
-    if (heroProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         await message('A field of force surrounds you!', state, rawEnv);
@@ -1252,7 +1249,7 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
 
-    if (heroProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         await message(youFeel('momentarily dizzy.', state), state);

@@ -22,7 +22,6 @@ import {
     ANIMATE_SHATTER,
     ANIMATE_SPELL,
     ANTI_MAGIC,
-    ANTIMAGIC,
     ARM,
     ARROW_TRAP,
     BEAR_TRAP,
@@ -116,7 +115,6 @@ import {
     RUST_TRAP,
     SCORR,
     SDOOR,
-    SHOCK_RES,
     SHOPBASE,
     SHOP_HOLE_COST,
     SLEEP_RES,
@@ -179,7 +177,7 @@ import {
     ydir,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './artifacts.js';
+import { is_art, ART_STING, attacks, has_magic_key } from './artifacts.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { buried_ball, unearth_objs } from './dig.js';
@@ -343,10 +341,12 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    BFlying, BLevitation, Blind, Breathless, Confusion, Flying, Fumbling,
-    HHallucination, HStun, Halluc_resistance, Hallucination, Lev_at_will,
-    Levitation, Maybe_Half_Phys, Passes_walls, Slimed, Stunned, Swimming,
-    Teleport_control, Teleportation, Wwalking,
+    Antimagic, BFlying, BLevitation, Blind, Breathless, Confusion,
+    Fire_resistance, Flying, Fumbling, HHallucination, HStun,
+    Halluc_resistance, Hallucination, Lev_at_will, Levitation,
+    Maybe_Half_Phys, Passes_walls, Shock_resistance, Sleep_resistance, Slimed,
+    Stone_resistance, Stunned, Swimming, Teleport_control, Teleportation,
+    Wwalking,
 } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
@@ -362,7 +362,7 @@ export function sokoban_guilt(state = game) {
 // protection-loss callers; other source callers retain their named gaps, so
 // this helper is not established complete across its wider entry points.
 export async function instapetrify(str, state = game, env = {}) {
-    if (Stone_resistance(state)) return;
+    if (Stone_resistance(state.u)) return;
     if (poly_when_stoned(state.youmonst.data, state)
         && await polymon(PM_STONE_GOLEM, state, env)) return;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
@@ -405,14 +405,14 @@ export async function selftouch(arg, state = game, env = {}) {
     const touchCorpse = async (object, unwield) => {
         if (object?.otyp !== CORPSE
             || !touch_petrifies(state.mons?.[object.corpsenm])
-            || Stone_resistance(state)) return;
+            || Stone_resistance(state.u)) return;
 
         const corpsePmname = obj_pmname(object, state);
         await ttyPline(`${arg} touch the ${corpsePmname} corpse.`, state);
         await instapetrify(`${an(corpsePmname)} corpse`, state, env);
         // C unwields only after instapetrify() returns from lifesaving. A
         // resistant hero or one wearing gloves can keep the corpse equipped.
-        if (!state.uarmg && !Stone_resistance(state))
+        if (!state.uarmg && !Stone_resistance(state.u))
             await unwield({ state, ...env });
     };
 
@@ -1194,14 +1194,6 @@ export function count_traps(ttyp, state = game) {
 // ── Hero trap state and the descent out of levitation (C ref: trap.c) ──
 
 
-// youprop.h's Fire_resistance and Wwalking are plain intrinsic/extrinsic
-// properties. Wwalking is additionally disabled on the Plane of Water; it
-// does not use the blocked field (that field belongs to Levitation/Flying).
-function heroLavaProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
 function heroLavaWalking(state) {
     return Wwalking(state);
 }
@@ -1577,7 +1569,7 @@ export async function lava_effects(state = game) {
     await burn_away_slime(state);
     if (likes_lava(state.youmonst?.data)) return false;
 
-    let fireResistant = heroLavaProperty(state, FIRE_RES);
+    let fireResistant = Fire_resistance(state.u);
     let waterWalking = heroLavaWalking(state);
     let survives = fireResistant || (waterWalking && damage < u.uhp);
     let protectedId = 0;
@@ -1631,7 +1623,7 @@ export async function lava_effects(state = game) {
     // Boots_off() may remove the only source of either property. C evaluates
     // these macros again after that callback, while the initial usurvive test
     // intentionally retains the pre-removal values.
-    fireResistant = heroLavaProperty(state, FIRE_RES);
+    fireResistant = Fire_resistance(state.u);
     waterWalking = heroLavaWalking(state);
     if (!fireResistant) {
         if (waterWalking) {
@@ -1736,7 +1728,7 @@ export async function lava_effects(state = game) {
         state.iflags.in_lava_effects--;
 
         if (burnPass === 2) {
-            if (!heroLavaProperty(state, FIRE_RES))
+            if (!Fire_resistance(state.u))
                 set_itimeout(state.u.uprops[FIRE_RES], 5);
             if (!heroLavaWalking(state))
                 set_itimeout(state.u.uprops[WWALKING], 5);
@@ -1798,7 +1790,7 @@ export async function sink_into_lava(state = game) {
     } else if (!is_lava(u.ux, u.uy, state)) {
         reset_utrap(false, state); // this shouldn't happen either
     } else if (!u.uinvulnerable) {
-        if (!heroLavaProperty(state, FIRE_RES))
+        if (!Fire_resistance(state.u))
             u.uhp = Math.trunc((u.uhp + 2) / 3);
 
         u.utrap -= (1 << 8);
@@ -2269,11 +2261,6 @@ export function trapname(ttyp, override, state, random = coreRandom,
     return CMAP_EXPLANATIONS[trap_to_defsym(ttyp)];
 }
 
-function heroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
-
 // C ref: trap.c immune_to_trap() (2783-2942). This is a pure classification:
 // hidden immunity still asks the hero for confirmation, while clearly visible
 // immunity suppresses the prompt.
@@ -2313,7 +2300,7 @@ export function immune_to_trap(mon, ttype, state = game) {
         if (breathless(pm)) return TRAP_CLEARLY_IMMUNE;
         if (!isYou && Resists_Elem(mon, SLEEP_RES, state))
             return TRAP_CLEARLY_IMMUNE;
-        if (isYou && heroProperty(state, SLEEP_RES))
+        if (isYou && Sleep_resistance(state.u))
             return TRAP_HIDDEN_IMMUNE;
         return TRAP_NOT_IMMUNE;
     case LEVEL_TELEP:
@@ -2335,7 +2322,7 @@ export function immune_to_trap(mon, ttype, state = game) {
         return TRAP_NOT_IMMUNE;
     case ANTI_MAGIC:
         if (isYou) {
-            if (heroProperty(state, ANTIMAGIC)) return TRAP_NOT_IMMUNE;
+            if (Antimagic(state.u)) return TRAP_NOT_IMMUNE;
             if (!state.u.uenmax) return TRAP_HIDDEN_IMMUNE;
         } else if (!resists_magm(mon, state)
             && (mon.mcan || (!attacktype(pm, AT_MAGC)
@@ -2358,7 +2345,7 @@ export function immune_to_trap(mon, ttype, state = game) {
         // monster magic traps have the same harmful part as fire traps
     case FIRE_TRAP: {
         const fireproof = isYou
-            ? heroProperty(state, FIRE_RES)
+            ? Fire_resistance(state.u)
             : Resists_Elem(mon, FIRE_RES, state);
         if (!fireproof) return TRAP_NOT_IMMUNE;
         for (let obj = isYou ? state.invent : mon.minvent;
@@ -2814,7 +2801,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
 
     /* is it a cockatrice?... */
     if (touch_petrifies(mtmp.data) && !state.uarmg
-        && !Stone_resistance(state)) {
+        && !Stone_resistance(state.u)) {
         const mtmp_pmname = mon_pmname(mtmp, state);
 
         await ttyPline(`You grab the trapped ${mtmp_pmname} using your bare ${makeplural(body_part(HAND, state.youmonst))}.`, state);
@@ -3557,12 +3544,6 @@ const blindgas = Object.freeze([
     'humid', 'odorless', 'pungent', 'chilling', 'acrid', 'biting',
 ]);
 
-// Local helper: Shock_resistance. C ref: youprop.h Shock_resistance.
-function Shock_resistance(state) {
-    const p = state.u?.uprops?.[SHOCK_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
-
 
 // C ref: trap.c chest_trap() (6294-6501). Handles a trapped chest:
 // explosions, poison gas, paralysis, etc. Called from disarm_box (trap.c)
@@ -3770,7 +3751,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             let dmg = d(4, 4);
             const orig_dmg = dmg;
             await ttyPline('You are jolted by a surge of electricity!', state);
-            if (Shock_resistance(state)) {
+            if (Shock_resistance(state.u)) {
                 // C trap.c:chest_trap -- animate before the resistance message.
                 await shieldeff(u.ux, u.uy, state);
                 await ttyPline("You don't seem to be affected.", state);

@@ -287,13 +287,11 @@ import {
     is_rider,
     lays_eggs,
     type_is_pname,
-    defended,
 } from './mondata.js';
 import {
     AD_ACID,
     AD_COLD,
     AD_DGST,
-    AD_DISE,
     AD_DISN,
     AD_ELEC,
     AD_FIRE,
@@ -370,16 +368,20 @@ import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
-    BBlinded, BClairvoyant, BFlying, BInvis, BLevitation, Blind,
-    Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
-    Breathless, Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant,
-    EInvis, EWounded_legs, Flying, Fumbling, Glib, HBlinded, HClairvoyant,
-    HConfusion, HDetect_monsters, HInvis, HSleepy, HStun,
+    Acid_resistance, Antimagic, BBlinded, BClairvoyant, BFlying, BInvis,
+    BLevitation, Blind, Blind_telepat, BlindedTimeout, Blindfolded,
+    Blindfolded_only, Blnd_resist, Breathless, Clairvoyant, Cold_resistance,
+    Deaf, Detect_monsters, Disint_resistance, Drain_resistance, EBlinded,
+    EClairvoyant, EInvis, EWounded_legs, Fire_resistance,
+    Flying, Fumbling, Glib, HBlinded, HClairvoyant, HConfusion,
+    HDetect_monsters, HInvis, HSleepy, HStun,
     Half_physical_damage, Halluc_resistance, Hallucination, Hunger,
-    Infravision, Invis, Jumping, Lev_at_will, Levitation, Passes_walls,
-    Searching, See_invisible, Sick, Sleepy, Slimed, Stoned, Strangled,
-    Swimming, Teleport_control, Teleportation, Undead_warning, Vomiting,
-    Warn_of_mon, Warning, Wounded_legs, Wwalking,
+    Infravision, Invis, Invulnerable, Jumping, Lev_at_will, Levitation,
+    Passes_walls, Poison_resistance, Searching, See_invisible,
+    Shock_resistance, Sick, Sick_resistance, Sleep_resistance, Sleepy, Slimed,
+    Stone_resistance, Stoned, Strangled, Swimming, Teleport_control,
+    Teleportation, Undead_warning, Vomiting, Warn_of_mon, Warning,
+    Wounded_legs, Wwalking,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -438,30 +440,6 @@ const attrname = Object.freeze([
     'strength', 'intelligence', 'wisdom',
     'dexterity', 'constitution', 'charisma',
 ]);
-
-// C ref: youprop.h. This asks only whether a property is present as an
-// intrinsic or an extrinsic. Several macros read more than those two fields,
-// so a new output path must check youprop.h before reusing this helper rather
-// than assuming the answers agree:
-//
-// - Two macros read a term that makes them TRUE where this helper is FALSE:
-//   `Deaf` (youprop.h:125) also reads u.uroleplay.deaf, and `Flying`
-//   (youprop.h:253) also reads `u.usteed && is_flyer(u.usteed->data)`. Only
-//   these two can let a condition slip past a guard built on this helper.
-// - Every other macro's extra terms only remove TRUEs, so this helper is a
-//   superset of the macro. `Blind` (:103), `Hallucination` (:120),
-//   `Levitation` (:240) and `Wwalking` (:260) each subtract a blocking term;
-//   `Fixed_abil` (:385) is the extrinsic alone; and Stunned, Confusion, Sick,
-//   Stoned, Strangled, Vomiting, Glib and Slimed are the intrinsic alone.
-//
-// A guard that only has to notice an unported condition may use the superset
-// deliberately, because refusing early is safe. A guard whose answer selects
-// between two ported outputs may not, and neither may a guard for one of the
-// two macros in the first bullet.
-function hasProperty(state, propidx) {
-    const property = state.u.uprops?.[propidx];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // C ref: insight.c enlght_combatinc() (160-199).  Status and attributes use
 // the same magnitude buckets, including the defensive two-thirds scaling and
@@ -1513,44 +1491,44 @@ export async function attributes_enlightenment(final, state, lines) {
             ` ${u.ualign.record}`, '');
     }
 
-    if (h(INVULNERABLE))
+    if (Invulnerable(u))
         you_are(lines, final, 'invulnerable', from_what(INVULNERABLE, state));
-    if (hasProperty(state, ANTIMAGIC)) {
+    if (Antimagic(state.u)) {
         you_are(lines, final, 'magic-protected', from_what(ANTIMAGIC, state));
     }
-    if (activeUnblocked(FIRE_RES))
+    if (Fire_resistance(u))
         you_are(lines, final, 'fire resistant', from_what(FIRE_RES, state));
     item_resistance_message(AD_FIRE, ' protected from fire');
-    if (activeUnblocked(COLD_RES))
+    if (Cold_resistance(u))
         you_are(lines, final, 'cold resistant', from_what(COLD_RES, state));
     item_resistance_message(AD_COLD, ' protected from cold');
-    if (activeUnblocked(SLEEP_RES))
+    if (Sleep_resistance(u))
         you_are(lines, final, 'sleep resistant', from_what(SLEEP_RES, state));
-    if (activeUnblocked(DISINT_RES))
+    if (Disint_resistance(u))
         you_are(lines, final, 'disintegration resistant',
             from_what(DISINT_RES, state));
     item_resistance_message(AD_DISN, ' protected from disintegration');
-    if (activeUnblocked(SHOCK_RES))
+    if (Shock_resistance(u))
         you_are(lines, final, 'shock resistant', from_what(SHOCK_RES, state));
     item_resistance_message(AD_ELEC, ' protected from electric shocks');
-    if (hasProperty(state, POISON_RES))
+    if (Poison_resistance(state.u))
         you_are(lines, final, 'poison resistant',
             from_what(POISON_RES, state));
-    if (activeUnblocked(ACID_RES)) {
+    if (Acid_resistance(u)) {
         const description = `${temp_resist(ACID_RES, state) ? 'temporarily ' : ''}`
             + 'acid resistant';
         you_are(lines, final, description, from_what(ACID_RES, state));
     }
     item_resistance_message(AD_ACID, ' protected from acid');
-    if (activeUnblocked(DRAIN_RES))
+    if (Drain_resistance(u))
         you_are(lines, final, 'level-drain resistant',
             from_what(DRAIN_RES, state));
     // youprop.h:69 widens Sick_resistance with defended(&gy.youmonst,
     // AD_DISE): green dragon scales, or the hero polymorphed into a green
     // dragon, which mondata.c defended() treats as wearing them.
-    if (activeUnblocked(SICK_RES) || defended(state.youmonst, AD_DISE, state))
+    if (Sick_resistance(state))
         you_are(lines, final, 'immune to sickness', from_what(SICK_RES, state));
-    if (activeUnblocked(STONE_RES)) {
+    if (Stone_resistance(u)) {
         const description = `${temp_resist(STONE_RES, state) ? 'temporarily ' : ''}`
             + 'petrification resistant';
         you_are(lines, final, description, from_what(STONE_RES, state));

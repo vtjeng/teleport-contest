@@ -71,13 +71,13 @@ import {
     WAND_CLASS,
 } from './objects.js';
 import { ttyPline } from './tty_message.js';
-import { Fire_resistance, inventory_resistance_check } from './zap.js';
+import { inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
 import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
 import { note_unported } from './unported.js';
-import { Blind } from './youprop.js';
+import { Blind, Fire_resistance, Shock_resistance } from './youprop.js';
 
 // C ref: zap.c destroyable() (5612-5650), translated whole. "Return TRUE if obj
 // is eligible to pass to maybe_destroy_item given the type of elemental damage
@@ -230,7 +230,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         xresist = (obj.oclass !== POTION_CLASS
                    && obj.otyp !== GLOB_OF_GREEN_SLIME
                    && (u_carry
-                       ? Fire_resistance(state)
+                       ? Fire_resistance(state.u)
                        : Resists_Elem(carrier, FIRE_RES, state)));
         if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
             skip = true;
@@ -285,8 +285,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         // monster branch skips the same source call because C never makes it.
         xresist = obj.oclass !== RING_CLASS
             && (u_carry
-                ? Boolean(state.u?.uprops?.[SHOCK_RES]?.intrinsic
-                    || state.u?.uprops?.[SHOCK_RES]?.extrinsic)
+                ? Shock_resistance(state.u)
                 : Resists_Elem(carrier, SHOCK_RES, state));
         quan = Math.trunc(obj.quan);
         if (obj.oclass === RING_CLASS) {

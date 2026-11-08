@@ -17,7 +17,6 @@
 // split the same file for the same reason.
 
 import {
-    ANTIMAGIC,
     ANTI_MAGIC,
     ARROW_TRAP,
     UNCHANGING,
@@ -34,7 +33,6 @@ import {
     COST_DRAIN,
     DART_TRAP,
     DEAF,
-    DRAIN_RES,
     DISP_END,
     DISP_FLASH,
     DISMOUNT_POLY,
@@ -372,7 +370,7 @@ import {
     rloco,
     tele_trap,
 } from './teleport.js';
-import { Fire_resistance, fracture_rock, poly_obj, resist } from './zap.js';
+import { fracture_rock, poly_obj, resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -408,9 +406,10 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Deaf, EFumbling, EInvis, Flying, HConfusion, HFumbling, HInvis,
-    Half_physical_damage, Hallucination, Invis, Levitation, Maybe_Half_Phys,
-    Passes_walls, See_invisible,
+    Antimagic, Blind, Deaf, EDrain_resistance, EFumbling, EInvis,
+    ESleep_resistance, Fire_resistance, Flying, HConfusion, HDrain_resistance,
+    HFumbling, HInvis, HSleep_resistance, Half_physical_damage, Hallucination,
+    Invis, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -1344,8 +1343,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
 
     if (mtmp === state.youmonst) {
         seetrap(trap, env);
-        const resistance = state.u?.uprops?.[SLEEP_RES];
-        if (resistance?.intrinsic || resistance?.extrinsic
+        if (HSleep_resistance(state.u) || ESleep_resistance(state.u)
             || breathless(state.youmonst.data)) {
             await message('You are enveloped in a cloud of gas!', state, env);
             monstseesu(M_SEEN_SLEEP, state);
@@ -2121,7 +2119,7 @@ export async function dofiretrap(box, rawEnv = {}) {
             state,
             env,
         );
-        if (Fire_resistance(state)) {
+        if (Fire_resistance(state.u)) {
             await message('You are uninjured.', state, env);
         } else {
             await losehp(random.rnd(3), 'boiling water', KILLED_BY, state, env);
@@ -2136,7 +2134,7 @@ export async function dofiretrap(box, rawEnv = {}) {
         env,
     );
 
-    if (Fire_resistance(state)) {
+    if (Fire_resistance(state.u)) {
         await shieldeff(u.ux, u.uy, state);
         monstseesu(M_SEEN_FIRE, state);
         num = random.rn2(2);
@@ -2179,8 +2177,7 @@ export async function dofiretrap(box, rawEnv = {}) {
         }
         if (u.uhpmax < uhpmin) {
             setuhpmax(Math.min(oldUhpmax, uhpmin), false, state);
-            const drainResistance = u.uprops?.[DRAIN_RES];
-            if (!drainResistance?.intrinsic && !drainResistance?.extrinsic)
+            if (!HDrain_resistance(u) && !EDrain_resistance(u))
                 await losexp(null, state, env);
         }
         if (u.uhp > u.uhpmax) {
@@ -3114,8 +3111,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
 }
 
 function antimagicTrapHero(state) {
-    const property = state.u?.uprops?.[ANTIMAGIC];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Antimagic(state.u);
 }
 
 function unchangingTrapHero(state) {

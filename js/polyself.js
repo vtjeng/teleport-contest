@@ -156,7 +156,7 @@ import {
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
-    amorphous, attacktype, attacktype_fordmg, breakarm, can_be_strangled, can_breathe, could_twoweap, dmgtype, dmgtype_fromattack, emits_light, has_head, has_horns, hides_under, humanoid, infravision, is_animal, is_bat, is_clinger, is_floater, is_flyer, is_hider, is_female, is_male, is_neuter, is_placeholder, is_swimmer, is_vampire, is_vampshifter, is_mind_flayer, is_unicorn, is_were, is_whirly, lays_eggs, eggs_in_water, likes_lava, mindless, Resists_Elem, nohands, nonliving, unsolid, passes_walls, perceives, pm_invisible, poly_when_stoned, polyok, regenerates, resists_drli, sliparm, slithy, sticks, strongmonst, telepathic, touch_petrifies, valid_vampshiftform, verysmall, webmaker, weirdnonliving, can_teleport, control_teleport, defended, your_race, flaming, name_to_monclass, name_to_monplus, num_horns, type_is_pname, } from './mondata.js';
+    amorphous, attacktype, attacktype_fordmg, breakarm, can_be_strangled, can_breathe, could_twoweap, dmgtype, dmgtype_fromattack, emits_light, has_head, has_horns, hides_under, humanoid, infravision, is_animal, is_bat, is_clinger, is_floater, is_flyer, is_hider, is_female, is_male, is_neuter, is_placeholder, is_swimmer, is_vampire, is_vampshifter, is_mind_flayer, is_unicorn, is_were, is_whirly, lays_eggs, eggs_in_water, likes_lava, mindless, Resists_Elem, nohands, nonliving, unsolid, passes_walls, perceives, pm_invisible, poly_when_stoned, polyok, regenerates, resists_drli, sliparm, slithy, sticks, strongmonst, telepathic, touch_petrifies, valid_vampshiftform, verysmall, webmaker, weirdnonliving, can_teleport, control_teleport, your_race, flaming, name_to_monclass, name_to_monplus, num_horns, type_is_pname, } from './mondata.js';
 import { character_race, genders } from './roles.js';
 import {
     capitalizedMonsterName, hliquid, l_monnam, Monnam, mon_nam,
@@ -274,10 +274,10 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, EFlying, ELevitation, Flying,
-    HFlying, HLevitation, Hallucination, Invis,
-    Levitation, Passes_walls, See_invisible, Sick, Slimed, Stoned, Strangled,
-    Stunned, Swimming,
+    Blind, Confusion, EFlying, ELevitation, Flying, HFlying,
+    HLevitation, Hallucination, Invis, Levitation,
+    Passes_walls, See_invisible, Sick, Sick_resistance, Slimed,
+    Stone_resistance, Stoned, Strangled, Stunned, Swimming,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -304,10 +304,6 @@ function uprop(state, index) {
 function intrinsicOrExtrinsic(state, index) {
     const property = uprop(state, index);
     return Boolean(property.intrinsic || property.extrinsic);
-}
-
-function Stone_resistance(state) {
-    return intrinsicOrExtrinsic(state, STONE_RES);
 }
 
 
@@ -1050,15 +1046,11 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 
     // polyself.c:838-841 and youprop.h:69-70. Sick_resistance includes the
     // form's property plus defended()'s AD_DISE suit check.
-    if (Stone_resistance(state) && Stoned(u)) {
+    if (Stone_resistance(state.u) && Stoned(u)) {
         await make_stoned(0, null, 0, null, state);
         await message('You no longer seem to be petrifying.', state, env);
     }
-    const sicknessResistance = u.uprops[SICK_RES];
-    const sickResistant = Boolean(
-        sicknessResistance.intrinsic || sicknessResistance.extrinsic
-        || defended(state.youmonst, M.AD_DISE, state),
-    );
+    const sickResistant = Sick_resistance(state);
     if (sickResistant && Sick(u)) {
         await make_sick(0, null, false, SICK_ALL, state, env);
         await message('You no longer feel sick.', state, env);
@@ -1170,7 +1162,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     }
 
     if (u.usteed) {
-        if (touch_petrifies(u.usteed.data) && !Stone_resistance(state)
+        if (touch_petrifies(u.usteed.data) && !Stone_resistance(state.u)
             && random.rnl(3)) {
             await message(
                 `No longer petrify-resistant, you touch ${mon_nam(u.usteed, state, env)}.`,
@@ -2592,7 +2584,7 @@ export async function dohide(state = game) {
              otmp = otmp.nexthere)
             ct += otmp.quan;
         /* otmp will be Null iff the entire pile consists of 'trice corpses */
-        if (!otmp && !Stone_resistance(state)) {
+        if (!otmp && !Stone_resistance(state.u)) {
             let corpse_name = cxname(otop, state);
 
             /* for the plural case, we'll say "cockatrice corpses" or

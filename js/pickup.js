@@ -91,7 +91,6 @@ import {
     SHOPBASE,
     SLT_ENCUMBER,
     STONE,
-    STONE_RES,
     TIMEOUT,
     OMONST,
     SELL_NORMAL,
@@ -296,7 +295,8 @@ import {
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
 import {
-    Blind, Confusion, HFumbling, Hallucination, Maybe_Half_Phys, Stunned,
+    Blind, Confusion, HFumbling, Hallucination, Maybe_Half_Phys,
+    Stone_resistance, Stunned,
 } from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
@@ -392,11 +392,6 @@ export function find_justpicked(olist) {
     for (let obj = olist; obj; obj = obj.nobj)
         if (obj.pickup_prev) return obj;
     return null;
-}
-
-function heroHasProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 // C ref: pickup.c deferred_decor() (337-350). The flag is deliberately stored
@@ -550,7 +545,7 @@ export function u_safe_from_fatal_corpse(obj, tests, state = game) {
         || ((tests & st_corpse) && obj.otyp !== CORPSE)
         || ((tests & st_petrifies)
             && !touch_petrifies(state.mons[obj.corpsenm]))
-        || ((tests & st_resists) && heroHasProperty(state, STONE_RES)),
+        || ((tests & st_resists) && Stone_resistance(state.u)),
     );
 }
 

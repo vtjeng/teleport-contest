@@ -103,7 +103,6 @@ import {
     ART_SNICKERSNEE,
     ART_STORMBRINGER,
     ART_VORPAL_BLADE,
-    Stone_resistance,
     is_art,
     protects,
 } from './artifacts.js';
@@ -277,7 +276,7 @@ import {
     mhitm_knockback,
     erode_armor,
 } from './uhitm.js';
-import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
+import { drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole, setworn, which_armor, find_mac } from './worn.js';
@@ -314,9 +313,11 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Deaf, Detect_monsters, EMagical_breathing, HConfusion,
-    HHallucination, HMagical_breathing, HStun, Half_physical_damage,
-    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Sick, Unaware,
+    Blind, Blinded, Cold_resistance, Deaf, Detect_monsters, EAcid_resistance,
+    EMagical_breathing, EShock_resistance, Fire_resistance, HAcid_resistance,
+    HConfusion, HHallucination, HMagical_breathing, HShock_resistance, HStun,
+    Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
+    See_invisible, Sick, Stone_resistance, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -1499,7 +1500,7 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
     } else if (indx === 0 && attk.aatyp === M.AT_TUCH
                && attk.adtyp === M.AD_COLD
                && (udefend
-                   ? Cold_resistance(state)
+                   ? Cold_resistance(state.u)
                    : Resists_Elem(mdef, COLD_RES, state))
                && mdef.data !== state.mons[M.PM_SHADE]) {
         attk = copyAttack(attk);
@@ -2180,13 +2181,13 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     // select the hallucination-only acid-engulf message.
     const hallucinating = Hallucination(u);
     const acidResistant = Boolean(
-        prop(ACID_RES).intrinsic || prop(ACID_RES).extrinsic,
+        HAcid_resistance(u) || EAcid_resistance(u),
     );
     const shockResistant = Boolean(
-        prop(SHOCK_RES).intrinsic || prop(SHOCK_RES).extrinsic,
+        HShock_resistance(u) || EShock_resistance(u),
     );
-    const coldResistant = Cold_resistance(state);
-    const fireResistant = Fire_resistance(state);
+    const coldResistant = Cold_resistance(state.u);
+    const fireResistant = Fire_resistance(state.u);
     const isBlinded = () => Blinded(u);
     const encumberMessage = rawEnv.encumberMessage
         ?? ((subject) => encumber_msg(subject, {
@@ -2977,7 +2978,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         }
         if (canseemon(monster, state)
             && couldsee(monster.mx, monster.my, state)
-            && !Stone_resistance(state)
+            && !Stone_resistance(state.u)
             && !Unaware(state)) {
             await message(
                 `You meet ${monsterPossessive(monster, state)} gaze.`,
@@ -3106,7 +3107,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                     monster.mx, monster.my, state,
                 ), state, env);
                 await mattackuStopOccupation(env);
-                if (Fire_resistance(state)) {
+                if (Fire_resistance(state.u)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
                     await message("The fire doesn't feel hot!", state, env);
                     monstseesu(M_SEEN_FIRE, state);

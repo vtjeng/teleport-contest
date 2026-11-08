@@ -7,14 +7,11 @@
 import {
     AGGRAVATE_MONSTER,
     A_CON,
-    ACID_RES,
-    DRAIN_RES,
     POLY_NOFLAGS,
     UTOTYPE_NONE,
     A_MAX,
     A_STR,
     A_WIS,
-    ANTIMAGIC,
     COLD_RES,
     CONFUSION,
     DRAWBRIDGE_DOWN,
@@ -42,7 +39,6 @@ import {
     PROTECTION,
     SEE_INVIS,
     SICK_ALL,
-    SHOCK_RES,
     SPIKED_PIT,
     STAIRS,
     TT_BEARTRAP,
@@ -125,9 +121,10 @@ import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, Deaf, ETelepat, Flying, HBlinded, HConfusion, HSee_invisible,
-    HTelepat, Half_physical_damage, Hallucination, Levitation, See_invisible,
-    Slimed,
+    Antimagic, Blind, Cold_resistance, Deaf, Drain_resistance,
+    EAcid_resistance, ETelepat, Fire_resistance, Flying, HAcid_resistance,
+    HBlinded, HConfusion, HSee_invisible, HTelepat, Half_physical_damage,
+    Hallucination, Levitation, See_invisible, Shock_resistance, Slimed,
 } from './youprop.js';
 
 
@@ -142,15 +139,6 @@ function Is_waterlevel(state) {
         && level.dnum === here.dnum && level.dlevel === here.dlevel);
 }
 
-function Fire_resistance(state) {
-    const value = state.u?.uprops?.[FIRE_RES];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
-function Cold_resistance(state) {
-    const value = state.u?.uprops?.[COLD_RES];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 function sit_message(what) {
     return `You sit on the ${what}.`;
@@ -237,8 +225,7 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
     }
     case 5: {
         await message('Sitting on the throne was a terrible experience.', state, env);
-        const resistance = u.uprops[DRAIN_RES];
-        if (!(resistance.intrinsic || resistance.extrinsic)) {
+        if (!(Drain_resistance(u))) {
             const { losexp } = await import('./exper.js');
             await losexp('a bad experience sitting on a throne', state, env);
             if (state.program_state?.gameover) return; // C done(DIED) never returns.
@@ -307,9 +294,8 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
         break;
     case 12: {
         await message('The throne is covered in acid!', state, env);
-        const resistance = u.uprops[ACID_RES];
         const { losehp } = await import('./hack.js');
-        await losehp(random.rnd(resistance.intrinsic || resistance.extrinsic ? 16 : 80),
+        await losehp(random.rnd(HAcid_resistance(u) || EAcid_resistance(u) ? 16 : 80),
             'acidic chair', KILLED_BY_AN, state, env);
         if (state.program_state?.gameover) return; // No exercise after C done(DIED).
         await sit_exercise(A_CON, state, random);
@@ -390,8 +376,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             break;
         }
         case 3: {
-            const shock = u.uprops?.[SHOCK_RES];
-            const shockResistant = Boolean(shock?.intrinsic || shock?.extrinsic);
+            const shockResistant = Shock_resistance(u);
             await message(
                 `A${shockResistant ? 'n' : ' massive'} electric shock shoots through your body!`,
                 state,
@@ -924,11 +909,11 @@ export async function dosit(state = game, rawEnv = {}) {
         }
         await message(`${The(hliquid('lava', { ...rawEnv, state }), state)} burns you!`, state);
         const { losehp } = await import('./hack.js');
-        await losehp(random.d(Fire_resistance(state) ? 2 : 10, 10),
+        await losehp(random.d(Fire_resistance(state.u) ? 2 : 10, 10),
             'sitting on lava', KILLED_BY, state, rawEnv);
     } else if (is_ice(u.ux, u.uy, state)) {
         await message(sit_message(CMAP_EXPLANATIONS[S_ice]), state);
-        if (!Cold_resistance(state))
+        if (!Cold_resistance(state.u))
             await message(`${The(CMAP_EXPLANATIONS[S_ice], state)} feels cold.`, state);
     } else if (typ === DRAWBRIDGE_DOWN) {
         await message(sit_message('drawbridge'), state);
@@ -958,8 +943,7 @@ export async function rndcurse(state = game, rawEnv = {}) {
         await message('You feel a malignant aura surround the magic-absorbing blade.', state);
         return;
     }
-    const antimagic = state.u.uprops?.[ANTIMAGIC];
-    if (antimagic?.intrinsic || antimagic?.extrinsic)
+    if (Antimagic(state.u))
         await shieldeff(state.u.ux, state.u.uy, state);
     await message('You feel a malignant aura surround you.', state);
     let nobj = 0;
@@ -968,11 +952,10 @@ export async function rndcurse(state = game, rawEnv = {}) {
         ++nobj;
     }
     // C reads these macros again after the aura output and inventory count.
-    const countAntimagic = state.u.uprops?.[ANTIMAGIC];
     const halfSpell = state.u.uprops?.[HALF_SPDAM];
-    const Antimagic = Boolean(countAntimagic?.intrinsic || countAntimagic?.extrinsic);
-    const Half_spell_damage = Boolean(halfSpell?.intrinsic || halfSpell?.extrinsic);
-    let cnt = random.rnd(Math.trunc(6 / (Number(Antimagic) + Number(Half_spell_damage) + 1)));
+    const antimagic = Antimagic(state.u);
+    const halfSpellDamage = Boolean(halfSpell?.intrinsic || halfSpell?.extrinsic);
+    let cnt = random.rnd(Math.trunc(6 / (Number(antimagic) + Number(halfSpellDamage) + 1)));
     if (nobj) {
         for (; cnt > 0; --cnt) {
             let onum = random.rnd(nobj);

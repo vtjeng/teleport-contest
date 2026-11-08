@@ -51,7 +51,6 @@ import {
     FACE,
     F_LOOTED,
     FOUNTAIN,
-    FIRE_RES,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
     GRAVE,
@@ -405,9 +404,9 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BLevitation, Blind, Deaf, EBlinded, ELevitation, EWounded_legs, Flying,
-    Fumbling, HBlinded, HLevitation, HWounded_legs, Hallucination, Levitation,
-    Maybe_Half_Phys, Wounded_legs,
+    BLevitation, Blind, Deaf, EBlinded, ELevitation, EWounded_legs,
+    Fire_resistance, Flying, Fumbling, HBlinded, HLevitation, HWounded_legs,
+    Hallucination, Levitation, Maybe_Half_Phys, Wounded_legs,
 } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
@@ -932,8 +931,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
             state.vision_full_recalc = 1;
             await message('You find yourself on dry land again!', state);
         } else if (lava && next2u(rx, ry, state)) {
-            const fireResistant = Boolean(state.u?.uprops?.[FIRE_RES]?.intrinsic
-                || state.u?.uprops?.[FIRE_RES]?.extrinsic);
+            const fireResistant = Fire_resistance(state.u);
             await message(
                 `You are hit by molten ${hliquid('lava', {
                     state,

@@ -7,7 +7,6 @@
 import {
     A_STR,
     ACID_RES,
-    ANTIMAGIC,
     COLD_RES,
     DISINT_RES,
     DISP_BEAM,
@@ -20,7 +19,6 @@ import {
     EXPL_NOXIOUS,
     EXPL_WET,
     FIRE_RES,
-    INVULNERABLE,
     IS_SINK,
     LARGEST_INT,
     KILLED_BY,
@@ -198,7 +196,11 @@ import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 import { canspotmon } from './display.js';
-import { Deaf, Hallucination, Maybe_Half_Phys } from './youprop.js';
+import {
+    Acid_resistance, Antimagic, Cold_resistance, Deaf, Disint_resistance,
+    Fire_resistance, Hallucination, Invulnerable, Maybe_Half_Phys,
+    Poison_resistance, Shock_resistance,
+} from './youprop.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].
@@ -246,11 +248,6 @@ export function explosion_to_glyph(expltype, cmap, state = game) {
     return map_glyphinfo(cmap - S_expl_tl + offset, state);
 }
 
-function propertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
 
 
 function monsterResists(monster, adtyp, olet, state) {
@@ -280,16 +277,16 @@ export function explosionmask(monster, adtyp, olet, state = game) {
     if (monster === state.youmonst) {
         switch (adtyp) {
         case AD_PHYS: return EXPL_NONE;
-        case AD_MAGM: return propertyActive(state, ANTIMAGIC) ? EXPL_HERO : EXPL_NONE;
-        case AD_FIRE: return propertyActive(state, FIRE_RES) ? EXPL_HERO : EXPL_NONE;
-        case AD_COLD: return propertyActive(state, COLD_RES) ? EXPL_HERO : EXPL_NONE;
+        case AD_MAGM: return Antimagic(state.u) ? EXPL_HERO : EXPL_NONE;
+        case AD_FIRE: return Fire_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
+        case AD_COLD: return Cold_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         case AD_DISN:
             return (olet === WAND_CLASS
                 ? (nonliving(monster.data) || is_demon(monster.data))
-                : propertyActive(state, DISINT_RES)) ? EXPL_HERO : EXPL_NONE;
-        case AD_ELEC: return propertyActive(state, SHOCK_RES) ? EXPL_HERO : EXPL_NONE;
-        case AD_DRST: return propertyActive(state, POISON_RES) ? EXPL_HERO : EXPL_NONE;
-        case AD_ACID: return propertyActive(state, ACID_RES) ? EXPL_HERO : EXPL_NONE;
+                : Disint_resistance(state.u)) ? EXPL_HERO : EXPL_NONE;
+        case AD_ELEC: return Shock_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
+        case AD_DRST: return Poison_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
+        case AD_ACID: return Acid_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         default:
             note_unported(`explode.c explosionmask() for adtyp ${adtyp}`);
             return EXPL_NONE;
@@ -675,7 +672,7 @@ export async function explode(
             state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
         }
         if (adtyp === AD_FIRE) await burn_away_slime(state, env);
-        if (propertyActive(state, INVULNERABLE)) {
+        if (Invulnerable(state.u)) {
             damu = 0;
             await messageLine('You are unharmed!', state, env);
         } else if (adtyp === AD_PHYS || adtyp === AD_ACID) {

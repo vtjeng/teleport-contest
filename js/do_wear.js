@@ -165,7 +165,7 @@ import {
     set_occupation,
     yn_function,
 } from './cmd.js';
-import { artifact_light, retouch_object, Stone_resistance } from './artifacts.js';
+import { artifact_light, retouch_object } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { set_bc } from './ball.js';
@@ -409,7 +409,7 @@ import {
     ESee_invisible, ESleepy, ESwimming, ETelepat, Flying, Glib,
     HDetect_monsters, HFumbling, HInvis, HLevitation, HMagical_breathing,
     HSee_invisible, HSleepy, HSwimming, HTelepat, Hallucination, Invis,
-    Levitation, See_invisible, Slimed, Strangled,
+    Levitation, See_invisible, Slimed, Stone_resistance, Strangled,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -2454,7 +2454,7 @@ export async function wielding_corpse(
     if (!obj || obj.otyp !== CORPSE || state.uarmg) return;
     if (obj !== state.uwep && (obj !== state.uswapwep || !state.u.twoweap))
         return;
-    if (touch_petrifies(state.mons[obj.corpsenm]) && !Stone_resistance(state)) {
+    if (touch_petrifies(state.mons[obj.corpsenm]) && !Stone_resistance(state.u)) {
         const env = wearOperationEnv(rawEnv);
         await env.message(
             `You ${how && is_gloves(how, state) ? 'now wield' : 'are wielding'} `
@@ -2475,7 +2475,7 @@ export async function wielding_corpse(
         if (state.program_state?.gameover) return;
         // Life-saving can return without restoring resistance. A successful
         // stone-golem transformation instead keeps the corpse wielded.
-        if (!Stone_resistance(state))
+        if (!Stone_resistance(state.u))
             await remove_worn_item(obj, false, state, env);
     }
 }

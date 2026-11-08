@@ -1060,7 +1060,7 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
         'the complete JavaScript Mb_hit source unit is available');
     assert.match(
         JS_ARTIFACT_SOURCE,
-        /import \{\s*cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn,\s*lightdamage, probe_monster,\s*\} from '\.\/zap\.js';/u,
+        /import \{\s*cancel_monst, resist, flashburn,\s*lightdamage, probe_monster,\s*\} from '\.\/zap\.js';/u,
         'Mb_hit imports the existing zap.c implementation',
     );
     assert.match(

@@ -41,7 +41,6 @@ import {
     P_UNSKILLED,
     SLT_ENCUMBER,
     STEALTH,
-    STONE_RES,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -168,16 +167,9 @@ import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
     Blind, Blind_telepat, Confusion, Flying, Fumbling, Glib, HWounded_legs,
-    Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stunned,
-    Wounded_legs,
+    Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stone_resistance,
+    Stunned, Wounded_legs,
 } from './youprop.js';
-
-// youprop.h property spellings this file needs. Each names the exact macro it
-// stands for, because the terms differ from macro to macro.
-function propertyActive(state, index) {
-    const value = state.u?.uprops?.[index];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // youprop.h:77. The punishing ball is the whole test.
 export function Punished(state) {
@@ -345,7 +337,7 @@ export async function use_saddle(otmp, state = game, env = {}) {
 
     const species = mtmp.data;
     if (touch_petrifies(species) && !state.uarmg
-        && !propertyActive(state, STONE_RES)) {
+        && !Stone_resistance(state.u)) {
         await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
         if (!(poly_when_stoned(state.youmonst.data, state)
             && await polymon(PM_STONE_GOLEM, state))) {
@@ -506,7 +498,7 @@ export async function mount_steed(mtmp, force, state = game) {
     }
 
     const ptr = mtmp.data;
-    if (touch_petrifies(ptr) && !propertyActive(state, STONE_RES)) {
+    if (touch_petrifies(ptr) && !Stone_resistance(state.u)) {
         await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
         // trap.c:instapetrify is a void callee; its death/poly effect is unported.
         note_unported('trap.c instapetrify');

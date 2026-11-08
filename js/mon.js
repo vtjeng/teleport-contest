@@ -720,9 +720,9 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, Deaf, EMagical_breathing, Flying,
-    HMagical_breathing, HTelepat, Hallucination, Levitation, Maybe_Half_Phys,
-    Unaware,
+    Blind, Blind_telepat, Deaf, EMagical_breathing, EPoison_resistance,
+    Flying, HMagical_breathing, HPoison_resistance, HTelepat, Hallucination,
+    Levitation, Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -1211,12 +1211,11 @@ export function m_poisongas_ok(mtmp, state = game) {
         || attacktype_fordmg(species, AT_BREA, AD_RBRE)) {
         return M_POISONGAS_OK;
     }
-    const poisonResistance = state.u?.uprops?.[POISON_RES];
     if (isYou && (state.u?.uinvulnerable
         || HMagical_breathing(state.u) || EMagical_breathing(state.u)
         || state.u?.uinwater)) return M_POISONGAS_OK;
     if (isYou
-        ? poisonResistance?.intrinsic || poisonResistance?.extrinsic
+        ? HPoison_resistance(state.u) || EPoison_resistance(state.u)
         : Resists_Elem(mtmp, POISON_RES, state)) {
         return M_POISONGAS_MINOR;
     }

@@ -117,7 +117,6 @@ import {
     Never_mind,
     quitchars,
     silly_thing_to,
-    STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
     CXN_ARTICLE,
     CXN_PFX_THE,
@@ -389,7 +388,9 @@ import {
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
 import { welded } from './wield.js';
-import { Blind, Fumbling, Hallucination } from './youprop.js';
+import {
+    Blind, Fumbling, Hallucination, Stone_resistance,
+} from './youprop.js';
 
 // invent.c owns reroll_menu(); the startup module holds its complete menu
 // implementation so the startup dependency graph stays acyclic. Re-export
@@ -2321,7 +2322,7 @@ export function sobj_at(otyp, x, y, state = game) {
 export function will_feel_cockatrice(otmp, force_touch, state = game) {
     return Boolean((Blind(state.u) || force_touch)
         && !state.uarmg
-        && !Stone_resistance(state)
+        && !Stone_resistance(state.u)
         && otmp.otyp === CORPSE
         && touch_petrifies(state.mons[otmp.corpsenm]));
 }
@@ -2347,14 +2348,6 @@ export async function feel_cockatrice(
     await instapetrify(killer, state);
 }
 
-// C ref: youprop.h:65 Stone_resistance, which is
-// (HStone_resistance || EStone_resistance) and carries no `blocked` term --
-// unlike Blind() at :103, which does. js/pickup.js reads the same macro for
-// u_safe_from_fatal_corpse()'s st_resists arm, so the two must agree.
-function Stone_resistance(state) {
-    const property = state.u?.uprops?.[STONE_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // Mutation-free admission for look_here() through its first complete result.
 // `objects` projects the floor chain after an automatic pickup without

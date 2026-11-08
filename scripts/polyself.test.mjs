@@ -116,7 +116,7 @@ test('dohide petrifies after reporting an all-cockatrice floor pile', () => {
     const jsEnd = JS_SOURCE.indexOf('// ---------- dopoly', jsStart);
     const jsFunction = JS_SOURCE.slice(jsStart, jsEnd);
     assert.match(jsFunction,
-        /if \(!otmp && !Stone_resistance\(state\)\)[\s\S]*?Hiding under \$\{corpse_name\}\$\{plur\(ct\)\} is a fatal mistake\.\.\.[\s\S]*?await instapetrify\([\s\S]*?hiding under \$\{corpse_name\}\$\{plur\(ct\)\}[\s\S]*?u\.uundetected = 0;[\s\S]*?return ECMD_TIME;/u);
+        /if \(!otmp && !Stone_resistance\(state\.u\)\)[\s\S]*?Hiding under \$\{corpse_name\}\$\{plur\(ct\)\} is a fatal mistake\.\.\.[\s\S]*?await instapetrify\([\s\S]*?hiding under \$\{corpse_name\}\$\{plur\(ct\)\}[\s\S]*?u\.uundetected = 0;[\s\S]*?return ECMD_TIME;/u);
     assert.doesNotMatch(jsFunction, /note_unported\('trap\.c instapetrify'\)/u);
 });
 const C_START = C_SOURCE.indexOf('polyself(int psflags)');
@@ -175,7 +175,7 @@ test('polymon cures sickness after the new form grants resistance', () => {
     assert.match(C_POLYMON_FUNCTION,
         /if \(Sick_resistance && Sick\) \{\s*make_sick\(0L, \(char \*\) 0, FALSE, SICK_ALL\);\s*You\("no longer feel sick\."\);/u);
     assert.match(JS_POLYMON_FUNCTION,
-        /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && Sick\(u\)\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
+        /const sickResistant = Sick_resistance\(state\);\s*if \(sickResistant && Sick\(u\)\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
 });
 
 test('polymon self-touches after losing glove protection', () => {

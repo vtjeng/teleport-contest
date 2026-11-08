@@ -13,7 +13,6 @@
 
 import {
     ACID_RES,
-    ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
     BZ_M_WAND,
@@ -247,8 +246,8 @@ import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Deaf, HBlinded, Hallucination, See_invisible, Teleport_control,
-    Unaware,
+    Blind, Deaf, EAntimagic, HAntimagic, HBlinded, Hallucination,
+    See_invisible, Teleport_control, Unaware,
 } from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
@@ -2240,8 +2239,8 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
         if (hits_you) {
             // Antimagic: youprop.h:57, intrinsic or extrinsic.
             const hasAntimagic = Boolean(
-                state.u?.uprops?.[ANTIMAGIC]?.intrinsic
-                || state.u?.uprops?.[ANTIMAGIC]?.extrinsic,
+                HAntimagic(state.u)
+                || EAntimagic(state.u),
             );
             if (hasAntimagic) {
                 monstseesu(M_SEEN_MAGR, state);

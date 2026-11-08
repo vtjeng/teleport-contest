@@ -40,7 +40,6 @@ import {
     ANIMATE_SPELL,
     ALTAR,
     AM_CHAOTIC,
-    ANTIMAGIC,
     AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
@@ -348,9 +347,11 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, Flying, Glib,
-    HBlinded, HConfusion, HDeaf, HHallucination, HStun, Hallucination,
-    Levitation, Passes_walls, Sick, Slimed, Stoned, Strangled, Wounded_legs,
+    Antimagic, Blind, Blinded, BlindedTimeout, Blindfolded, Deaf,
+    Disint_resistance, EBlinded, EDisint_resistance, Flying, Glib, HBlinded,
+    HConfusion, HDeaf, HHallucination, HStun, Hallucination, Levitation,
+    Passes_walls, Shock_resistance, Sick, Slimed, Stoned, Strangled,
+    Wounded_legs,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -2770,8 +2771,7 @@ async function god_zaps_you(resp_god, state) {
             }
             monstseesu(M_SEEN_REFL, state);
         } else {
-            const shockResistance = u.uprops?.[SHOCK_RES];
-            if (shockResistance?.intrinsic || shockResistance?.extrinsic) {
+            if (Shock_resistance(u)) {
                 await shieldeff(u.ux, u.uy, state);
                 await ttyPline('It seems not to affect you.', state);
                 monstseesu(M_SEEN_ELEC, state);
@@ -2810,7 +2810,7 @@ async function god_zaps_you(resp_god, state) {
         // do_wear.c disintegrate_arm() owns the source object-resistance roll
         // and all object/equipment effects. C discards its return value.
         const reflectionExtrinsic = u.uprops?.[REFLECTING]?.extrinsic ?? 0;
-        const disintExtrinsic = u.uprops?.[DISINT_RES]?.extrinsic ?? 0;
+        const disintExtrinsic = EDisint_resistance(u);
         if (state.uarms
             && !(reflectionExtrinsic & W_ARMS)
             && !(disintExtrinsic & W_ARMS)) {
@@ -2830,8 +2830,7 @@ async function god_zaps_you(resp_god, state) {
         if (state.uarmu && !state.uarm && !state.uarmc)
             await disintegrate_arm(state.uarmu, { state });
 
-        const disintResistance = u.uprops?.[DISINT_RES];
-        if (!(disintResistance?.intrinsic || disintResistance?.extrinsic)) {
+        if (!(Disint_resistance(u))) {
             await fry_by_god(resp_god, true, state);
             if (state.program_state?.gameover) return;
             monstunseesu(M_SEEN_DISINT, state);
@@ -2998,9 +2997,8 @@ export async function angrygods(resp_god, state = game) {
     case 5:
         await godvoice(resp_god, 'Thou hast angered me.', state);
         {
-            const antimagic = u.uprops?.[ANTIMAGIC];
             if (!Blind(state.u)
-                && !(antimagic?.intrinsic || antimagic?.extrinsic)) {
+                && !(Antimagic(u))) {
                 const aura = an(hcolor('black', state));
                 await ttyPline(
                     `${aura[0].toUpperCase()}${aura.slice(1)} glow surrounds you.`,

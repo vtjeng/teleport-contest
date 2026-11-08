@@ -46,7 +46,7 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // youprop.h's vision and invisibility, hallucination, deafness,
-// half-physical-damage, troubles, and transportation slots.
+// half-physical-damage, resistance, trouble and transportation slots.
 export const ROUTED_PROPERTIES = Object.freeze([
     'BLINDED', 'BLND_RES', 'SEE_INVIS', 'TELEPAT', 'WARNING', 'WARN_OF_MON',
     'WARN_UNDEAD', 'SEARCHING', 'CLAIRVOYANT', 'INFRAVISION',
@@ -54,7 +54,10 @@ export const ROUTED_PROPERTIES = Object.freeze([
     'STUNNED', 'CONFUSION', 'LEVITATION', 'FLYING', 'JUMPING', 'TELEPORT',
     'TELEPORT_CONTROL', 'WWALKING', 'SWIMMING', 'MAGICAL_BREATHING',
     'PASSES_WALLS', 'SICK', 'STONED', 'STRANGLED', 'VOMITING', 'GLIB',
-    'SLIMED', 'FUMBLING', 'WOUNDED_LEGS', 'SLEEPY', 'HUNGER',
+    'SLIMED', 'FUMBLING', 'WOUNDED_LEGS', 'SLEEPY', 'HUNGER', 'FIRE_RES',
+    'COLD_RES', 'SLEEP_RES', 'DISINT_RES', 'SHOCK_RES', 'POISON_RES',
+    'ACID_RES', 'STONE_RES', 'DRAIN_RES', 'SICK_RES', 'INVULNERABLE',
+    'ANTIMAGIC',
 ]);
 
 // youprop.h macros that read no u.uprops[] slot.
@@ -67,6 +70,10 @@ export const ALLOWED_READS = [
         reason: 'pray.c pleased() (1132-1146) tests `HTelepat & INTRINSIC` only to '
             + 'decide whether to set HTelepat |= FROMOUTSIDE; grant() reads and sets '
             + 'the intrinsic field of the slot it is given, as C does for each gift' },
+    { file: 'js/mondata.js', text: '!Resists_Elem(magr, ',
+        reason: 'mondata.c Resists_Elem() (129-197) reads u.uprops[propindx] when its '
+            + 'monster is the hero; mondata.js ports that function and calls it as '
+            + 'mondata.c max_passive_dmg() calls it for its attacker' },
 ];
 
 const ASSIGNMENT = /^\s*(?:=(?!=)|\|=|&=|\^=|\+=|-=|\*=|\?\?=|\+\+|--)/u;

@@ -40,7 +40,6 @@ import {
     A_CHAOTIC,
     LL_CONDUCT,
     ACID_RES,
-    ANTIMAGIC,
     A_CON,
     A_DEX,
     A_INT,
@@ -123,8 +122,6 @@ import {
     M_SEEN_SLEEP,
     SICK,
     SICK_ALL,
-    SLEEP_RES,
-    SICK_RES,
     SLIMED,
     STUNNED,
     STONED,
@@ -182,8 +179,7 @@ import { clone_mon, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
     breathless, dmgtype, has_head, haseyes, is_human, is_silent,
-    is_vampshifter, is_were, likes_fire, mon_hates_blessings, stagger,
-    defended, Resists_Elem,
+    is_vampshifter, is_were, likes_fire, mon_hates_blessings, stagger, Resists_Elem,
 } from './mondata.js';
 import {
     AD_ACID, AD_DISE, AD_PEST,
@@ -236,8 +232,6 @@ import { cansee, vision_recalc } from './vision.js';
 import {
     bhitm, do_enlightenment_effect, makewish,
     resist,
-    Cold_resistance,
-    Fire_resistance,
 } from './zap.js';
 import {
     OBJ_DESCR,
@@ -317,14 +311,14 @@ import { is_pool } from './dbridge.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
 import {
-    BBlinded, BInvis, BLevitation, Blind, Blind_telepat, Blinded,
-    BlindedTimeout, Blindfolded, Confusion, Deaf, Detect_monsters, EBlinded,
-    EHalluc_resistance, EWarn_of_mon, Glib, HBlinded,
+    Acid_resistance, Antimagic, BBlinded, BInvis, BLevitation, Blind,
+    Blind_telepat, Blinded, BlindedTimeout, Blindfolded, Cold_resistance,
+    Confusion, Deaf, Detect_monsters, EBlinded, EHalluc_resistance, EWarn_of_mon, Fire_resistance, Glib, HBlinded,
     HConfusion, HDeaf, HDetect_monsters, HHallucination, HInvis,
     HSee_invisible, HStun, Halluc_resistance, Hallucination,
     Infravision, Invis, Levitation, Maybe_Half_Phys, PermaBlind,
-    See_invisible, Sick, Slimed, Stoned, Strangled, Unaware, Vomiting,
-    Wounded_legs,
+    Poison_resistance, See_invisible, Sick, Sick_resistance, Sleep_resistance,
+    Slimed, Stoned, Strangled, Unaware, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -619,9 +613,7 @@ export async function make_sick(
     const encumberMessage = env.encumberMessage ?? encumber_msg;
 
     if (xtime > 0) {
-        const resistance = u.uprops[SICK_RES];
-        if (resistance.intrinsic || resistance.extrinsic
-            || defended(state.youmonst, AD_DISE, state)) {
+        if (Sick_resistance(state)) {
             return;
         }
         if (!old) {
@@ -1328,8 +1320,7 @@ async function peffect_blindness(otmp, state = game) {
 // ---------------------------------------------------------------------------
 
 function poisonResistance(state) {
-    const property = state.u?.uprops?.[POISON_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Poison_resistance(state.u);
 }
 
 function fixedAbilities(state) {
@@ -1451,8 +1442,8 @@ async function peffect_oil(otmp, state = game) {
                 `You burn your ${body_part(FACE, state.youmonst)}.`, state);
             // C ref: 1276. Fire damage; vulnerable = !Fire_resistance ||
             // Cold_resistance (cold-blooded heroes take extra fire damage).
-            const vulnerable = !Fire_resistance(state)
-                || Cold_resistance(state);
+            const vulnerable = !Fire_resistance(state.u)
+                || Cold_resistance(state.u);
             await losehp(d(vulnerable ? 4 : 2, 4),
                 'quaffing a burning potion of oil',
                 KILLED_BY, state);
@@ -1619,7 +1610,7 @@ async function peffect_paralysis(otmp, state = game) {
 // after nearby monsters forget it. Keep the source's message, observation,
 // duration draw, and fall_asleep() order.
 async function peffect_sleeping(otmp, state = game, env = {}) {
-    if (Sleep_resistance(state) || Free_action(state)) {
+    if (Sleep_resistance(state.u) || Free_action(state)) {
         monstseesu(M_SEEN_SLEEP, state);
         await ttyPline('You yawn.', state);
     } else {
@@ -1786,7 +1777,7 @@ async function peffect_levitation(otmp, state) {
 // C ref: potion.c peffect_acid() (1297-1315). A quaffed acid potion can also
 // cure petrification after applying its own acid damage.
 async function peffect_acid(otmp, state = game) {
-    if (Acid_resistance(state)) {
+    if (Acid_resistance(state.u)) {
         await ttyPline(
             `This tastes ${Hallucination(state.u) ? 'tangy' : 'sour'}.`, state,
         );
@@ -2292,16 +2283,6 @@ export async function toggle_blindness(state = game, env = {}) {
 }
 
 
-// C ref: youprop.h:36 Sleep_resistance and :215 Free_action. Both are the
-// plain "either source" spelling, with no blocking term.
-function eitherSource(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
-function Sleep_resistance(state) {
-    return eitherSource(state, SLEEP_RES);
-}
 
 // youprop.h:383 Free_action reads the extrinsic field alone; an intrinsic
 // FREE_ACTION (wizard-mode #wizintrinsic) does not count.
@@ -2309,10 +2290,6 @@ function Free_action(state) {
     return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
 }
 
-// C ref: youprop.h:132 Acid_resistance, the plain "either source" spelling.
-function Acid_resistance(state) {
-    return eitherSource(state, ACID_RES);
-}
 
 // C ref: youprop.h:405 Half_gas_damage, "wrap it round your head to ward off
 // noxious fumes [we require it to be damp or wet]". It is the one property
@@ -2524,12 +2501,11 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             );
             if (!(state.u.uprops[UNCHANGING]?.intrinsic
                 || state.u.uprops[UNCHANGING]?.extrinsic)
-                && !(state.u.uprops[ANTIMAGIC]?.intrinsic
-                    || state.u.uprops[ANTIMAGIC]?.extrinsic))
+                && !(Antimagic(state.u)))
                 await polyself(POLY_NOFLAGS, state, env);
             break;
         case POT_ACID:
-            if (!Acid_resistance(state)) {
+            if (!Acid_resistance(state.u)) {
                 await message(`This burns${obj.blessed ? ' a little'
                     : obj.cursed ? ' a lot' : ''}!`, state);
                 await losehp(
@@ -2935,7 +2911,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         break;
     case POT_SLEEPING:
         kn++;
-        if (!Free_action(state) && !Sleep_resistance(state)) {
+        if (!Free_action(state) && !Sleep_resistance(state.u)) {
             await message(youFeel('rather tired.', state), state);
             nomul(-random.rnd(5), state);
             state.multi_reason = 'sleeping off a magical draught';

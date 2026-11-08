@@ -140,7 +140,7 @@ import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
     Confusion, EBlinded, EWounded_legs, Fumbling, HBlinded, HBlnd_resist,
     HClairvoyant, HHallucination, HWounded_legs, Halluc_resistance,
-    Hallucination, Sick, Stunned, Vomiting, Wounded_legs,
+    Hallucination, Poison_resistance, Sick, Stunned, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
@@ -1634,8 +1634,7 @@ export async function poisoned(
     }
 
     // Poison resistance blocks the effect entirely.
-    const poisonRes = state.u?.uprops?.[POISON_RES];
-    if (poisonRes?.intrinsic || poisonRes?.extrinsic) {
+    if (Poison_resistance(state.u)) {
         if (blast) await shieldeff(state.u.ux, state.u.uy, state);
         await message('The poison doesn\'t seem to affect you.', state);
         return;

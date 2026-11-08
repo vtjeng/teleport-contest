@@ -341,7 +341,7 @@ import {
     trap_detect,
 } from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
-import { Fire_resistance, lightdamage, resist } from './zap.js';
+import { lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
@@ -435,8 +435,8 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, Confusion, Deaf, ESee_invisible, HConfusion, HSee_invisible, HStun,
-    Hallucination, Invis, Maybe_Half_Phys,
+    Blind, Confusion, Deaf, ESee_invisible, Fire_resistance, HConfusion,
+    HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -2585,7 +2585,7 @@ export async function seffect_fire(scroll, state = game) {
                 `A little ${hliquid('water', { state })} around you vaporizes.`,
                 state,
             );
-        } else if (Fire_resistance(state)) {
+        } else if (Fire_resistance(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             monstseesu(M_SEEN_FIRE, state);
             const hands = makeplural(body_part(HAND, state.youmonst));

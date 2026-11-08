@@ -77,7 +77,6 @@ import {
     OBJ_MINVENT,
     RANGE_LEVEL,
     PASSES_WALLS,
-    POISON_RES,
     POISONING,
     PLNMSG_OK_DONT_DIE,
     PROT_FROM_SHAPE_CHANGERS,
@@ -89,7 +88,6 @@ import {
     SICK,
     SICK_ALL,
     SICK_NONVOMITABLE,
-    SLEEP_RES,
     SLEEPY,
     SEE_INVIS,
     SUPPRESS_SADDLE,
@@ -126,7 +124,7 @@ import {
 import { surface } from './dungeon.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
-import { Stone_resistance, artifact_light } from './artifacts.js';
+import { artifact_light } from './artifacts.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
 import { canseemon, newsym, see_monsters, set_mimic_blocking, vobj_at } from './display.js';
 import {
@@ -218,11 +216,13 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Breathless, Deaf, EFumbling, ELevitation, EPasses_walls, Flying,
-    Fumbling, HConfusion, HDeaf, HFlying, HFumbling, HLevitation,
-    HMagical_breathing, HPasses_walls, HSleepy, HStun, Hallucination, Invis,
-    Levitation, Passes_walls, See_invisible, Sick, Sleepy, Slimed, Stoned,
-    Strangled, Unaware, Vomiting, Warn_of_mon, Wounded_legs, Wwalking,
+    Acid_resistance, Blind, Breathless, Deaf, EFumbling, ELevitation,
+    EPasses_walls, Fire_resistance, Flying, Fumbling, HConfusion, HDeaf,
+    HFlying, HFumbling, HLevitation, HMagical_breathing, HPasses_walls,
+    HSleepy, HStun, Hallucination, Invis, Levitation, Passes_walls,
+    Poison_resistance, See_invisible, Sick, Sleep_resistance, Sleepy, Slimed,
+    Stone_resistance, Stoned, Strangled, Unaware, Vomiting, Warn_of_mon,
+    Wounded_legs, Wwalking,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -804,7 +804,7 @@ export async function slip_or_trip(state = game, env = {}) {
 
         if (!state.uarmf && object.otyp === CORPSE
             && touch_petrifies(state.mons[object.corpsenm])
-            && !Stone_resistance(state)) {
+            && !Stone_resistance(state.u)) {
             state.killer ??= {};
             state.killer.name = `tripping over ${an(
                 state.mons[object.corpsenm].pmnames[NEUTRAL],
@@ -1511,7 +1511,7 @@ async function decrement_property_timeouts(state, env) {
             if (!Hallucination(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case SLEEPY:
-            if (unconscious(state) || propertySource(state, SLEEP_RES)) {
+            if (unconscious(state) || Sleep_resistance(state.u)) {
                 incr_itimeout(property, random.rnd(100));
             } else if (Sleepy(state.u)) {
                 await message('You fall asleep.', state);
@@ -1534,7 +1534,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case ACID_RES:
-            if (!propertySource(state, ACID_RES)) {
+            if (!Acid_resistance(state.u)) {
                 if (eating_dangerous_corpse(ACID_RES, state)) {
                     set_itimeout(property, 1);
                     break;
@@ -1544,7 +1544,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case STONE_RES:
-            if (!propertySource(state, STONE_RES)) {
+            if (!Stone_resistance(state.u)) {
                 if (eating_dangerous_corpse(STONE_RES, state)) {
                     set_itimeout(property, 1);
                     break;
@@ -1556,7 +1556,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case FIRE_RES:
-            if (!propertySource(state, FIRE_RES))
+            if (!Fire_resistance(state.u))
                 await message('Your temporary ability to survive burning has ended.', state);
             break;
         case WWALKING:
@@ -1591,7 +1591,7 @@ async function decrement_property_timeouts(state, env) {
         case MAGICAL_BREATHING:
             if (!(Breathless(state))
                 && region_danger(state)) {
-                await message(`You cough${propertySource(state, POISON_RES) ? '.' : ' and spit blood!'}`, state);
+                await message(`You cough${Poison_resistance(state.u) ? '.' : ' and spit blood!'}`, state);
             }
             break;
         case STRANGLED:

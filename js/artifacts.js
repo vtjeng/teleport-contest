@@ -263,7 +263,7 @@ import {
     monsterCommonName,
 } from './do_name.js';
 import {
-    cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn,
+    cancel_monst, resist, flashburn,
     lightdamage, probe_monster,
 } from './zap.js';
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
@@ -290,9 +290,10 @@ import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
-    BBlinded, BInvis, Blind, EBlinded, ELevitation, HBlinded, HConfusion,
-    HLevitation, HStun, Hallucination, Levitation, Maybe_Half_Phys, Sick,
-    Slimed,
+    Antimagic, BBlinded, BInvis, Blind, Cold_resistance, Drain_resistance,
+    EBlinded, ELevitation, Fire_resistance, HBlinded, HConfusion, HLevitation,
+    HStun, Hallucination, Levitation, Maybe_Half_Phys, Poison_resistance,
+    Shock_resistance, Sick, Slimed, Stone_resistance,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -814,11 +815,6 @@ function artifactTouchRestrictions(artifact, monster, yours, state, index) {
 // to inflict its own additional damage.
 let touch_blasted = false;
 
-// C ref: youprop.h:57. Antimagic is the intrinsic or the extrinsic.
-function Antimagic(state) {
-    const p = state.u?.uprops?.[ANTIMAGIC];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
 
 // C ref: youprop.h:401. Hate_silver: lycanthrope or silver-hating species.
 function Hate_silver(state) {
@@ -857,7 +853,7 @@ export async function touch_artifact(obj, monster, env = game) {
             `You are blasted by ${s_suffix(the(xnameFresh(obj, state), state))} power!`,
             state);
         touch_blasted = true;
-        let dmg = d(Antimagic(state) ? 2 : 4, selfWilled ? 10 : 4);
+        let dmg = d(Antimagic(state.u) ? 2 : 4, selfWilled ? 10 : 4);
         /* add half (maybe quarter) of the usual silver damage bonus */
         if (state.objects[obj.otyp].oc_material === SILVER
             && Hate_silver(state)) {
@@ -1562,24 +1558,6 @@ export function arti_immune(obj, dtyp, state = game) {
 // special attacks apply against mtmp. The full version handles all five
 // DBONUS categories plus the SPFX_ATTK resistance checks.
 
-// Hero resistance helpers (youprop.h patterns). Fire_resistance and
-// Cold_resistance are imported from zap.js; the rest follow the same pattern.
-function Shock_resistance(state) {
-    const p = state.u?.uprops?.[SHOCK_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
-function Poison_resistance(state) {
-    const p = state.u?.uprops?.[POISON_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
-function Drain_resistance(state) {
-    const p = state.u?.uprops?.[DRAIN_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
-export function Stone_resistance(state) {
-    const p = state.u?.uprops?.[STONE_RES];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
 
 function spec_applies(weap, mtmp, state = game, env = {}) {
     if (!(weap.spfx & (SPFX_DBONUS | SPFX_ATTK)))
@@ -1611,26 +1589,26 @@ function spec_applies(weap, mtmp, state = game, env = {}) {
 
         switch (weap.attk.adtyp) {
         case AD_FIRE:
-            return !(yours ? Fire_resistance(state)
+            return !(yours ? Fire_resistance(state.u)
                            : Resists_Elem(mtmp, FIRE_RES, state));
         case AD_COLD:
-            return !(yours ? Cold_resistance(state)
+            return !(yours ? Cold_resistance(state.u)
                            : Resists_Elem(mtmp, COLD_RES, state));
         case AD_ELEC:
-            return !(yours ? Shock_resistance(state)
+            return !(yours ? Shock_resistance(state.u)
                            : Resists_Elem(mtmp, SHOCK_RES, state));
         case AD_MAGM:
         case AD_STUN:
-            return !(yours ? Antimagic(state)
+            return !(yours ? Antimagic(state.u)
                            : ((env.random?.rn2 ?? rn2)(100) < ptr.mr));
         case AD_DRST:
-            return !(yours ? Poison_resistance(state)
+            return !(yours ? Poison_resistance(state.u)
                            : Resists_Elem(mtmp, POISON_RES, state));
         case AD_DRLI:
-            return !(yours ? Drain_resistance(state)
+            return !(yours ? Drain_resistance(state.u)
                            : resists_drli(mtmp, state));
         case AD_STON:
-            return !(yours ? Stone_resistance(state)
+            return !(yours ? Stone_resistance(state.u)
                            : Resists_Elem(mtmp, STONE_RES, state));
         default:
             throw new Error('Weird weapon special attack.');
@@ -1864,7 +1842,7 @@ export async function Mb_hit(
     }
     case MB_INDEX_SCARE:
         if (youdefend) {
-            if (Antimagic(state)) {
+            if (Antimagic(state.u)) {
                 resisted = true;
             } else {
                 nomul(-3, state);

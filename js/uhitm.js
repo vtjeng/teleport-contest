@@ -34,14 +34,12 @@ import {
     A_STR,
     A_WIS,
     ACID_RES,
-    ANTIMAGIC,
     ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
     BUFSZ,
     COLD_RES,
     DIED,
-    DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
     DISMOUNT_KNOCKED,
@@ -118,8 +116,6 @@ import {
     OBJ_FREE,
     PROT_FROM_SHAPE_CHANGERS,
     SICK_ALL,
-    SICK_RES,
-    SLEEP_RES,
     SLIMED,
     SLOW_DIGESTION,
     STOMACH,
@@ -672,7 +668,7 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    Cold_resistance, Fire_resistance, drain_item, exclam, hit, resist,
+    drain_item, exclam, hit, resist,
 } from './zap.js';
 import {
     Finish_digestion, eating_conducts, eat_brains, is_fainted, morehungry,
@@ -694,11 +690,14 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded,
-    EFumbling, EMagical_breathing, ESwimming, Flying, HBlinded, HConfusion,
-    HFumbling, HMagical_breathing, HStun, HSwimming, Half_physical_damage,
-    Hallucination, Invisible, Levitation, Maybe_Half_Phys, See_invisible,
-    Sick, Slimed, Stoned, Stunned, Teleport_control,
+    Acid_resistance, Antimagic, Blind, Blind_telepat, Cold_resistance,
+    Confusion, Deaf, Detect_monsters, Drain_resistance, EBlinded, EFumbling,
+    EMagical_breathing, ESwimming, Fire_resistance, Flying,
+    HBlinded, HConfusion, HFumbling, HMagical_breathing,
+    HStun, HSwimming, Half_physical_damage, Hallucination, Invisible,
+    Levitation, Maybe_Half_Phys, See_invisible, Shock_resistance, Sick,
+    Sick_resistance, Sleep_resistance, Slimed, Stone_resistance, Stoned,
+    Stunned, Teleport_control,
 } from './youprop.js';
 
 function propertyPresent(hero, index) {
@@ -1381,14 +1380,11 @@ export function heroSick(state) {
 }
 
 export function heroSickResistance(state) {
-    const property = state.u?.uprops?.[SICK_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic
-        || defended(state.youmonst, AD_DISE, state));
+    return Sick_resistance(state);
 }
 
 export function heroStoneResistance(state) {
-    const property = state.u?.uprops?.[STONE_RES];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Stone_resistance(state.u);
 }
 
 
@@ -4397,7 +4393,7 @@ export async function mhitm_ad_fire(
                 await rehumanize(state, env);
                 return;
             }
-            if (Fire_resistance(state)) {
+            if (Fire_resistance(state.u)) {
                 await message("The fire doesn't feel hot!", state, env);
                 monstseesu(M_SEEN_FIRE, state);
                 mhm.damage = 0;
@@ -4523,7 +4519,7 @@ export async function mhitm_ad_cold(
         await hitmsg(magr, mattk, state, env);
         if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
             await message("You're covered in frost!", state);
-            if (Cold_resistance(state)) {
+            if (Cold_resistance(state.u)) {
                 await message("The frost doesn't seem cold!", state);
                 monstseesu(M_SEEN_COLD, state);
                 mhm.damage = 0;
@@ -4598,7 +4594,7 @@ export async function mhitm_ad_elec(
         await hitmsg(magr, mattk, state, env);
         if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
             await message('You get zapped!', state);
-            if (propertyPresent(state.u, SHOCK_RES)) {
+            if (Shock_resistance(state.u)) {
                 await message("The zap doesn't shock you!", state);
                 monstseesu(M_SEEN_ELEC, state);
                 mhm.damage = 0;
@@ -4660,7 +4656,7 @@ export async function mhitm_ad_acid(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, effectEnv);
         if (!magr.mcan && !random.rn2(3)) {
-            if (propertyPresent(state.u, ACID_RES)) {
+            if (Acid_resistance(state.u)) {
                 await message(
                     `You're covered in ${hliquid('acid', effectEnv)}, `
                         + 'but it seems harmless.',
@@ -5284,7 +5280,7 @@ export async function do_stone_u(mtmp, state = game, env = {}) {
         (Stoned(state.u)) & TIMEOUT,
     );
     if (!stoned
-        && !propertyPresent(state.u, STONE_RES)
+        && !Stone_resistance(state.u)
         && !(poly_when_stoned(state.youmonst?.data, state)
             && await polymon(PM_STONE_GOLEM, state, env))) {
         let kformat = KILLED_BY_AN;
@@ -6286,8 +6282,7 @@ export async function mhitm_ad_slee(
             && !await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, effectEnv,
             )) {
-            const sleepResistance = state.u?.uprops?.[SLEEP_RES];
-            if (sleepResistance?.intrinsic || sleepResistance?.extrinsic) {
+            if (Sleep_resistance(state.u)) {
                 monstseesu(M_SEEN_SLEEP, state);
                 return;
             }
@@ -6587,7 +6582,7 @@ export async function mhitm_ad_drli(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, effectEnv);
         if (!random.rn2(3)
-            && !propertyPresent(state.u, DRAIN_RES)
+            && !Drain_resistance(state.u)
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, effectEnv,
             ))) {
@@ -6828,14 +6823,14 @@ export async function mhitm_ad_deth(
         }
 
         const roll = random.rn2(20);
-        if (roll >= 17 && !propertyPresent(state.u, ANTIMAGIC)) {
+        if (roll >= 17 && !Antimagic(state.u)) {
             await touch_of_death(magr, { ...env, state, random, message });
             mhm.damage = 0;
             return;
         }
 
         if (roll <= 4) {
-            if (propertyPresent(state.u, ANTIMAGIC))
+            if (Antimagic(state.u))
                 await shieldeff(state.u.ux, state.u.uy, state);
             await message("Lucky for you, it didn't work!", state, env);
             mhm.damage = 0;
@@ -8055,7 +8050,7 @@ export async function passive(
                     effectEnv,
                 );
             }
-            if (!propertyPresent(state.u, ACID_RES)) {
+            if (!Acid_resistance(state.u)) {
                 await mdamageu(mon, tmp, state, effectEnv);
                 // A lethal splash reaches done() through mdamageu(), and C's
                 // really_done() never returns. The port's end.js returns
@@ -8101,7 +8096,7 @@ export async function passive(
                 || (protector === W_ARMH && !state.uarmh)
                 || (protector === (W_ARMC | W_ARMG)
                     && (!state.uarmc || !state.uarmg))) {
-                if (!propertyPresent(state.u, STONE_RES)
+                if (!Stone_resistance(state.u)
                     && !(poly_when_stoned(state.youmonst.data, state)
                         && await polymon(PM_STONE_GOLEM, state, effectEnv))) {
                     await done_in_by(mon, STONING, state);
@@ -8132,7 +8127,7 @@ export async function passive(
         }
         break;
     case AD_MAGM:
-        if (propertyPresent(state.u, ANTIMAGIC)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             monstseesu(M_SEEN_MAGR, state);
             await effectEnv.message(
@@ -8237,7 +8232,7 @@ export async function passive(
             break;
         case AD_COLD:
             if (monnear(mon, state.u.ux, state.u.uy, state)) {
-                if (Cold_resistance(state)) {
+                if (Cold_resistance(state.u)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
                     await effectEnv.message(youFeel('a mild chill.', state), state,
                         effectEnv);
@@ -8266,7 +8261,7 @@ export async function passive(
             break;
         case AD_FIRE:
             if (monnear(mon, state.u.ux, state.u.uy, state)) {
-                if (Fire_resistance(state)) {
+                if (Fire_resistance(state.u)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
                     await effectEnv.message(youFeel('mildly warm.', state), state,
                         effectEnv);
@@ -8281,7 +8276,7 @@ export async function passive(
             }
             break;
         case AD_ELEC:
-            if (propertyPresent(state.u, SHOCK_RES)) {
+            if (Shock_resistance(state.u)) {
                 await shieldeff(state.u.ux, state.u.uy, state);
                 await effectEnv.message(youFeel('a mild tingle.', state), state,
                     effectEnv);

@@ -623,7 +623,6 @@ import { u_wipe_engr } from './engrave.js';
 import { select_menu } from './windows.js';
 import {
     ART_SNICKERSNEE,
-    Stone_resistance,
     arti_speak,
     retouch_object,
 } from './artifacts.js';
@@ -633,7 +632,8 @@ import {
     Flying, Fumbling, Glib, HBlinded, HConfusion, HDeaf, HFumbling,
     HHallucination, HJumping, HStun, Halluc_resistance, Hallucination, Invis,
     Jumping, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible, Sick,
-    Slimed, Stoned, Strangled, Stunned, Vomiting, Wounded_legs,
+    Slimed, Stone_resistance, Stoned, Strangled, Stunned, Vomiting,
+    Wounded_legs,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -963,7 +963,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                     const species = state.mons?.[object.corpsenm];
                     const petrifies = object.otyp === CORPSE
                         && touch_petrifies(species) && !state.uarmg
-                        && !Stone_resistance(state);
+                        && !Stone_resistance(state.u);
                     if (petrifies) {
                         const canTransform = poly_when_stoned(state.youmonst.data, state);
                         const saved = canTransform
@@ -1754,7 +1754,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     if (!species)
         throw new RangeError(`tinning kit: invalid corpse species ${corpse.corpsenm}`);
 
-    if (touch_petrifies(species) && !Stone_resistance(state) && !state.uarmg) {
+    if (touch_petrifies(species) && !Stone_resistance(state.u) && !state.uarmg) {
         const corpseName = an(cxname(corpse, state), state);
         let kbuf = '';
         if (poly_when_stoned(state.youmonst.data, state)) {

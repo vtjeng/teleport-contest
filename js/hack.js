@@ -531,12 +531,12 @@ import {
     vision_recalc,
 } from './vision.js';
 import { canspotmon, mon_visible, sensemon } from './display.js';
-import { Cold_resistance } from './zap.js';
 import {
-    Amphibious, BFlying, BLevitation, Blind, Breathless, Confusion, Deaf,
-    EFlying, ELevitation, EWounded_legs, Flying, Fumbling, HFlying, HFumbling,
-    HLevitation, Half_physical_damage, Hallucination, Levitation,
-    Maybe_Half_Phys, Passes_walls, Stunned, Swimming, Warning, Wwalking,
+    Amphibious, BFlying, BLevitation, Blind, Breathless, Cold_resistance,
+    Confusion, Deaf, EFire_resistance, EFlying, ELevitation, EWounded_legs,
+    Flying, Fumbling, HFire_resistance, HFlying, HFumbling, HLevitation,
+    Half_physical_damage, Hallucination, Levitation, Maybe_Half_Phys,
+    Passes_walls, Stunned, Swimming, Warning, Wwalking,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -879,10 +879,6 @@ function propertyActiveUnblocked(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
         && !value?.blocked;
-}
-
-function propertyIntrinsic(state, property) {
-    return Boolean(state.u?.uprops?.[property]?.intrinsic);
 }
 
 // C ref: hack.c u_maybe_impaired() (2417-2421). youprop.h:81 and :84 define
@@ -3528,7 +3524,7 @@ export function slippery_ice_fumbling(state = game) {
             || Flying(state.u) || is_floater(skater.data)
             || is_clinger(skater.data) || is_whirly(skater.data)) {
             onIce = false;
-        } else if (!rn2(Cold_resistance(state) ? 3 : 2)) {
+        } else if (!rn2(Cold_resistance(state.u) ? 3 : 2)) {
             state.u.uprops[FUMBLING].intrinsic |= FROMOUTSIDE;
             state.u.uprops[FUMBLING].intrinsic &= ~TIMEOUT;
             state.u.uprops[FUMBLING].intrinsic += 1;
@@ -3604,8 +3600,8 @@ function known_wwalking(state) {
 // C ref: hack.c Known_lwalking.
 function known_lwalking(state) {
     return known_wwalking(state)
-        && (propertyIntrinsic(state, FIRE_RES)
-            || Boolean(state.u?.uprops?.[FIRE_RES]?.extrinsic))
+        && (Boolean(HFire_resistance(state.u))
+            || Boolean(EFire_resistance(state.u)))
         && Boolean(state.uarmf.oerodeproof)
         && Boolean(state.uarmf.rknown);
 }

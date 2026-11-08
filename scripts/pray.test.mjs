@@ -1436,7 +1436,7 @@ test('god_zaps_you() follows pray.c defenses, armor order, and caller order', ()
     const jsAngryBody = PRAY_JS.slice(jsAngry);
     assert.ok(jsStart >= 0 && jsFry > jsStart && jsAngry > jsFry);
     assert.match(jsZap, /Resists_Elem\(u\.ustuck, SHOCK_RES, state\)/u);
-    assert.match(jsZap, /M_SEEN_REFL[\s\S]*shockResistance/u);
+    assert.match(jsZap, /M_SEEN_REFL[\s\S]*Shock_resistance\(u\)/u);
     assert.match(jsZap, /disintegrate_arm\(state\.uarms[\s\S]*disintegrate_arm\(state\.uarmc[\s\S]*disintegrate_arm\(state\.uarm,/u);
     assert.match(jsZap, /disintegrate_arm\(state\.uarmu/u);
     assert.match(jsZap, /summon_minion\(resp_god, false, state\);[\s\S]*summon_minion\(resp_god, false, state\);[\s\S]*summon_minion\(resp_god, false, state\);/u);

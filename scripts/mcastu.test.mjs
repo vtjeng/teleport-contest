@@ -1984,7 +1984,7 @@ test('weakening spell source and dispatcher preserve branch and caller order', (
     const cIndices = cPoints.map(point => cBody.indexOf(point));
     assert.ok(cIndices.every((index, i) => index >= 0
         && (!i || cIndices[i - 1] < index)));
-    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)/u);
+    assert.match(jsBody, /if \(Antimagic\(state\.u\)\)/u);
     assert.match(jsBody, /dmg = mtmp\.m_lev - 6;[\s\S]*if \(dmg < 1\)/u);
     assert.match(jsBody, /await losestr\([\s\S]*death_inflicted_by\('strength loss', mtmp, state\)[\s\S]*KILLED_BY/u);
     assert.match(jsBody, /state\.killer\.name = '';[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
@@ -2217,7 +2217,7 @@ test('mcast_destroy_armor follows the consumed destroy_arm result and source ord
     const cIndices = cPoints.map(point => cBody.indexOf(point));
     assert.ok(cIndices.every((index, i) => index >= 0
         && (!i || cIndices[i - 1] < index)));
-    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)[\s\S]*await shieldeff[\s\S]*monstseesu\(M_SEEN_MAGR, state\)[\s\S]*A field of force surrounds you!/u);
+    assert.match(jsBody, /if \(Antimagic\(state\.u\)\)[\s\S]*await shieldeff[\s\S]*monstseesu\(M_SEEN_MAGR, state\)[\s\S]*A field of force surrounds you!/u);
     assert.match(jsBody, /await destroy_arm\(state, random,\s*\{[\s\S]*?message,[\s\S]*?\}\)[\s\S]*Your skin itches\.[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
     assert.match(js, /case MCAST_DESTRY_ARMR:\s*await mcast_destroy_armor\(env\);\s*break;/u);
 

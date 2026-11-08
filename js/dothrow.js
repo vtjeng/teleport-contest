@@ -130,7 +130,6 @@ import {
     P_SPEAR,
     SLT_ENCUMBER,
     SHOPBASE,
-    STONE_RES,
     STONING,
     STRAT_WAITMASK,
     STR19,
@@ -478,19 +477,9 @@ import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
     Blind, Confusion, Deaf, EWwalking, Flying, Fumbling, HBlinded,
-    Hallucination, Levitation, Maybe_Half_Phys, Passes_walls, Stunned,
-    Wwalking,
+    Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
+    Stone_resistance, Stunned, Wwalking,
 } from './youprop.js';
-
-// C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
-// Stone_resistance (65). Each is the union of the intrinsic and extrinsic
-// halves of one property; none of the four has a blocking source. Defined here
-// beside their callers -- the multishot gate and the bare-handed corpse gate --
-// the way js/wield.js keeps Glib beside can_twoweapon().
-function propertyHeld(state, property) {
-    const held = state.u?.uprops?.[property];
-    return Boolean(held?.intrinsic || held?.extrinsic);
-}
 
 
 // A branch of dothrow.c this port has not translated. js/cmd.js
@@ -605,11 +594,6 @@ export async function hurtle(
     const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
     const walkRange = { range, state, random, displayRandom };
     await walk_path(source, destination, hurtle_step, walkRange);
-}
-
-function propertyPresent(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 
@@ -1218,7 +1202,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
 
         switch (otyp) {
         case EGG:
-            if (petrifier && !propertyPresent(state, STONE_RES)
+            if (petrifier && !Stone_resistance(state.u)
                 && !(poly_when_stoned(state.youmonst.data, state)
                     && await polymon(PM_STONE_GOLEM, state))) {
                 // A visor may still save the hero from the egg's petrifying
@@ -1341,7 +1325,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             // harmless; the helmet has stopped it from passing through.
             // (The petrifier case is explicitly not harmless in C.)
             harmless = false;
-        } else if (petrifier && !propertyPresent(state, STONE_RES)
+        } else if (petrifier && !Stone_resistance(state.u)
             && !(poly_when_stoned(state.youmonst.data, state)
                 && await polymon(PM_STONE_GOLEM, state))) {
             await toss_up_petrify(obj, state, rawEnv);
@@ -2120,7 +2104,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
     u_wipe_engr(2, { state });
     if (!state.uarmg && obj.otyp === CORPSE
         && touch_petrifies(state.mons[obj.corpsenm])
-        && !propertyHeld(state, STONE_RES)) {
+        && !Stone_resistance(state.u)) {
         await ttyPline(
             `You throw ${corpse_xname(obj, null, CXN_PFX_THE, state)} `
                 + `with your bare ${makeplural(body_part(HAND, state.youmonst))}.`,

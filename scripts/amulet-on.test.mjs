@@ -301,7 +301,7 @@ test('Amulet_on pins complete C call order and dependency ownership', () => {
         js.indexOf('export async function Amulet_off('));
     assert.match(c, /remove_worn_item\(amul, FALSE\);\s*setworn\(amul, W_AMUL\);/u);
     assert.match(body, /await remove_worn_item\(obj, false, state\);\s*await setworn/u);
-    assert.match(body, /extrinsic &= ~W_AMUL;\s*const was_in_poison_gas = region_danger\(state\);\s*breathing\.extrinsic \|= W_AMUL;/u);
+    assert.match(body, /uprops\[MAGICAL_BREATHING\]\.extrinsic &= ~W_AMUL;\s*const was_in_poison_gas = region_danger\(state\);\s*state\.u\.uprops\[MAGICAL_BREATHING\]\.extrinsic \|= W_AMUL;/u);
     assert.match(body, /livelog_newform\(false, orig_sex, new_sex, state\);\s*await ttyPline\('The amulet disintegrates!', state\);\s*if \(call_it\)\s*await trycall\(state\.uamul, state\);\s*await useup/u);
     assert.doesNotMatch(body, /UnsupportedAccessoryOnError|note_unported/u);
     assert.match(js, /if \(!obj \? state\.uamul : obj === state\.uamul\)\s*await Amulet_on\(state\.uamul, state\);/u);

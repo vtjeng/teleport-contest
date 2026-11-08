@@ -19,7 +19,6 @@ import {
     HEAD,
     ACH_INVK,
     ACH_NOVL,
-    ANTIMAGIC,
     CMDQ_KEY,
     CLOUD, IS_TREE,
     ERODE_CORRODE,
@@ -51,9 +50,7 @@ import {
     P_UNSKILLED,
     PICK_NONE,
     PICK_ONE,
-    POISON_RES,
     quitchars,
-    SLEEP_RES,
     SPINE,
     TIMEOUT,
     uhim,
@@ -204,8 +201,9 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 import {
-    BClairvoyant, Blind, BlindedTimeout, Confusion, HConfusion, HStun,
-    Hallucination, Maybe_Half_Phys, Sick, Slimed, Stunned,
+    Antimagic, BClairvoyant, Blind, BlindedTimeout, Confusion, HConfusion,
+    HStun, Hallucination, Maybe_Half_Phys, Poison_resistance, Sick,
+    Sleep_resistance, Slimed, Stunned,
 } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -417,11 +415,6 @@ function spellStudyDelay(type) {
     return 0;
 }
 
-function spellPropertyActive(property, state) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
-
 function randomSource(env = {}) {
     const random = env.random ?? coreRandom;
     if (typeof random.rn1 !== 'function'
@@ -480,7 +473,7 @@ export async function cursed_book(book, state = game, env = {}) {
         } else {
             const wasInUse = book.in_use;
             book.in_use = false;
-            const resistant = spellPropertyActive(POISON_RES, state);
+            const resistant = Poison_resistance(state.u);
             const strengthDamage = resistant
                 ? random.rn1(2, 1) : random.rn1(4, 3);
             const poisonDamage = random.rnd(resistant ? 6 : 10);
@@ -510,7 +503,7 @@ export async function cursed_book(book, state = game, env = {}) {
             break;
         }
     case 6: {
-        if (spellPropertyActive(ANTIMAGIC, state)) {
+        if (Antimagic(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await message(
                 'The book radiates explosive energy, but you are unharmed!',
@@ -897,7 +890,7 @@ export async function study_book(spellbook, state = game, env = {}) {
     state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
     const spbook = state.context.spbook;
 
-    if (!confused && !spellPropertyActive(SLEEP_RES, state)
+    if (!confused && !Sleep_resistance(state.u)
         && OBJ_DESCR(type, state) === 'dull') {
         let dullbook = random.rnd(25) - acurr(state, A_WIS);
         if (spbook.delay && spellbook === spbook.book)

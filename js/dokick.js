@@ -21,7 +21,7 @@ import { isok } from './cmd_isok.js';
 import { getdir, yn_function } from './cmd.js';
 import {
     TT_PIT, TT_WEB, TT_BEARTRAP,
-    A_CHA, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
+    A_CHA, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
     A_LAWFUL,
     A_WIS,
     CORR,
@@ -230,7 +230,7 @@ import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
     Blind, Deaf, Fumbling, Hallucination, Levitation, Maybe_Half_Phys,
-    Passes_walls, Wounded_legs,
+    Passes_walls, Stone_resistance, Wounded_legs,
 } from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
@@ -642,10 +642,9 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         await message('Your clumsy kick missed.', state, env);
         return 1;
     }
-    const stone = u.uprops[STONE_RES];
     if (!state.uarmf && object().otyp === CORPSE
         && touch_petrifies(state.mons[object().corpsenm])
-        && !(stone.intrinsic || stone.extrinsic)) {
+        && !(Stone_resistance(u))) {
         await message(`You kick ${corpse_xname(object(), null, CXN_PFX_THE, state)} with your bare ${makeplural(body_part(FOOT, state.youmonst))}.`, state, env);
         if (!(poly_when_stoned(state.youmonst.data, state)
             && await polymon(PM_STONE_GOLEM, state, env))) {

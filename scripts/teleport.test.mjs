@@ -998,7 +998,7 @@ test('goodpos wires C-owned scary, air, and exclusion checks directly', () => {
     assert.match(cGoodpos,
         /Fire_resistance && Wwalking && uarmf\s*&& uarmf->oerodeproof/u);
     assert.match(jsGoodpos,
-        /propertyPresent\(state, FIRE_RES\) && waterWalking[\s\S]*?boots && boots\.oerodeproof/u);
+        /Fire_resistance\(state\.u\) && waterWalking[\s\S]*?boots && boots\.oerodeproof/u);
     assert.doesNotMatch(jsGoodpos,
         /heroCanOccupy(?:Pool|Lava).*hook|isExclusionZone|normalized\.onscary/u);
 });
