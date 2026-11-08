@@ -85,7 +85,7 @@ import { isok } from './cmd_isok.js';
 import { acurr, acurrstr, poisoned } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { calc_capacity, end_running, nomul, rounddiv } from './hack.js';
+import { calc_capacity, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
     add_to_minv,
@@ -891,8 +891,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         && Boolean(arw?.tethered);
 
     // Resolve every injected owner before the source-ordered inventory
-    // extraction. The planning pass also executes the complete path on cloned
-    // state, but a missing live adapter must still fail before mutation.
+    // extraction, so a missing adapter fails before mutation.
     const canSeeMonster = requireRangedOperation(env, 'canSeeMonster');
     const canSeeSquare = requireRangedOperation(env, 'canSeeSquare');
     const monsterAt = requireRangedOperation(env, 'monsterAt');
@@ -1284,10 +1283,10 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     const env = { ...rawEnv, state, random };
     // C's three newsym() calls repaint the live map. newsym() paints the
     // module-global game whatever state it is handed, so a foreign state
-    // (a planning clone) draws only through a redraw operation it supplies.
+    // (such as a hand-built test state) draws only through a redraw
+    // operation it supplies.
     const redraw = env.newsym ?? (state === game ? newsym : () => {});
-    // C uses one process-wide throttle. Each game and speculative clone
-    // must own its value so planning cannot claim the live return message.
+    // C uses one process-wide throttle; the port keeps it on each game state.
     const returnDoNotAnnoy = state._returnDoNotAnnoy ?? 0;
     const impaired = (magr.mconf || magr.mstun || magr.mblinded);
     let notcaught = false;
@@ -1626,8 +1625,6 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                 state.gb.buzzer = mtmp;
                 // C discards dobuzz()'s return value, but the call itself owns
                 // the beam walk, damage, messages, and all of its RNG draws.
-                // Keep the attack environment available so the planning clone
-                // can route output through its silent message seam.
                 await dobuzz(
                     -20 - BZ_OFS_AD(typ),
                     mattk.damn,
@@ -2027,22 +2024,9 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
             await message('It burns!', state);
             monstunseesu(M_SEEN_ACID, state);
         }
-        if (env.planning && dam >= state.u.uhp
-            && typeof env.planningDeath === 'function') {
-            // losehp() would enter end.c done() on the clone. Reproduce its
-            // state writes, then hand the monster identity to the live pass.
-            end_running(true, state);
-            state.disp ??= {};
-            state.disp.botl = true;
-            state.u.uhp -= dam;
-            throw env.planningDeath();
-        }
-        // A planning pass stops at losehp()'s planning boundary instead
-        // of running rehumanize() for a polymorphed hero on the copy.
         await losehp(dam, knm, kprefix, state, {
             fromMonster: Boolean(env.fromMonster),
             message,
-            planning: env.planning,
         });
         // C losehp() enters end.c really_done() on lethal damage, whose
         // NORETURN path never reaches exercise(A_STR, FALSE).
