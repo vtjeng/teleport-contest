@@ -25,7 +25,6 @@ import {
     ECMD_OK,
     ECMD_TIME,
     SHOPBASE,
-    CONFUSION,
     DIED,
     KILLED_BY,
     GP_ALLOW_U,
@@ -62,7 +61,6 @@ import {
     STRAT_APPEARMSG,
     FLYING,
     LEVITATION,
-    STUNNED,
     SWIMMING,
     MAGICAL_BREATHING,
     TELEDS_ALLOW_DRAG,
@@ -254,7 +252,9 @@ import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Blind, Blinded, Hallucination } from './youprop.js';
+import {
+    Blind, Blinded, Confusion, HConfusion, HStun, Hallucination, Stunned,
+} from './youprop.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -1441,7 +1441,7 @@ function Teleport_control_prop(state) {
 }
 
 function Stunned_prop(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+    return Boolean(Stunned(state.u));
 }
 
 // C ref: teleport.c safe_teleds() (717-770). After forty random safe squares,
@@ -1741,11 +1741,7 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
                 && !formCanTeleport)) {
             const { known_spell, spe_Fresh, spe_Unknown } = await import('./spell.js');
             const knownSpell = known_spell(SPE_TELEPORT_AWAY, state);
-            const confused = Boolean(
-                state.u?.uprops?.[CONFUSION]?.intrinsic
-                || state.u?.uprops?.[CONFUSION]?.extrinsic,
-            );
-            castIt = knownSpell >= spe_Fresh && !confused;
+            castIt = knownSpell >= spe_Fresh && !Confusion(state.u);
             if (!castIt) {
                 const reason = !hasTeleportation
                     ? (knownSpell !== spe_Unknown
@@ -2031,7 +2027,7 @@ export async function domagicportal(trap, state = game) {
         totype = UTOTYPE_PORTAL;
         stunmsg = Stunned_prop(state)
             ? 'You feel dizzier.' : 'You feel slightly dizzy.';
-        const stun = u.uprops[STUNNED]?.intrinsic ?? 0;
+        const stun = HStun(u);
         await make_stunned((stun & TIMEOUT) + 3, false, state);
     }
     schedule_goto(trap.dst, totype, stunmsg, null, state);
@@ -2127,23 +2123,18 @@ export async function level_tele_trap(
         );
     } else {
         await message(
-            youFeel(`${Confusion(state) ? 'even more ' : ''}disoriented.`, state),
+            youFeel(`${Confusion(state.u) ? 'even more ' : ''}disoriented.`, state),
             state,
             env,
         );
     }
 
     if (!Teleport_control_prop(state)) {
-        const confusion = state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0;
+        const confusion = HConfusion(state.u);
         await make_confused((confusion & TIMEOUT) + 3, false, state, env);
     }
 }
 
-// youprop.h:83-84 defines Confusion as the bare intrinsic field, with neither
-// an extrinsic nor a blocked term.
-function Confusion(state) {
-    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
-}
 
 // The comparison recorder's atoi() reaches strtol() and then stores the
 // result in a signed int. Match that concrete LP64 ABI: ASCII whitespace,
@@ -2371,7 +2362,7 @@ export async function level_tele(state = game) {
                 }
                 // C evaluates this before Escape, so confused Escape still
                 // consumes rnl(5) and can become a random teleport.
-                if (Confusion(state) && rnl(5)) {
+                if (Confusion(state.u) && rnl(5)) {
                     await ttyPline('Oops...', state);
                     random_levtport = true;
                     break;

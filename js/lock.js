@@ -10,7 +10,6 @@ import {
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     COST_BRKLCK,
-    CONFUSION,
     CQ_CANNED,
     D_BROKEN,
     D_CLOSED,
@@ -39,7 +38,6 @@ import {
     P_FLAIL,
     P_LANCE,
     PASSES_WALLS,
-    STUNNED,
     TT_PIT,
     SDOOR,
     u_at,
@@ -166,7 +164,7 @@ import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BBlinded, Blind, Deaf, HBlinded, Unaware,
+    BBlinded, Blind, Confusion, Deaf, HBlinded, Stunned, Unaware,
 } from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -1126,7 +1124,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     // lock.c:825-826. When choosing a direction is impaired, use a turn
     // regardless of whether a door is successfully targeted.
     let res = ECMD_OK;
-    if (Confusion(state) || Stunned(state))
+    if (Confusion(state.u) || Stunned(state.u))
         res = ECMD_TIME;
 
     // lock.c:828-829.
@@ -1508,15 +1506,6 @@ function Passes_walls(state) {
     return Boolean(passes?.intrinsic || passes?.extrinsic);
 }
 
-// C ref: youprop.h:83-84 Confusion, the bare intrinsic field.
-function Confusion(state) {
-    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
-}
-
-// C ref: youprop.h:81 Stunned, the bare intrinsic field.
-function Stunned(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
-}
 
 // C ref: lock.c doclose() (957-1051), the #close command handler. Prompts for
 // a direction, checks preconditions, and attempts to close the door.
@@ -1575,7 +1564,7 @@ export async function doclose(state = game) {
     // lock.c:992-993. Unreachable in this port: getdir() calls confdir(), which
     // throws for a confused or stunned hero. Written out so the branch exists
     // when confdir is ported.
-    if (Confusion(state) || Stunned(state))
+    if (Confusion(state.u) || Stunned(state.u))
         res = ECMD_TIME;
 
     const door = state.level.at(x, y);

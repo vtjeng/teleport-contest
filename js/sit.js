@@ -128,7 +128,7 @@ import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, Deaf, ETelepat, HBlinded, HSee_invisible, HTelepat,
+    Blind, Deaf, ETelepat, HBlinded, HConfusion, HSee_invisible, HTelepat,
     Half_physical_damage, Hallucination, See_invisible,
 } from './youprop.js';
 
@@ -291,17 +291,16 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
         break;
     }
     case 10: {
-        const confusion = u.uprops[CONFUSION];
-        const savedConfusion = confusion.intrinsic;
+        const savedConfusion = HConfusion(u);
         const fakeSpellbook = newObject({
             otyp: SPE_REMOVE_CURSE, oclass: SPBOOK_CLASS, blessed: true,
         });
-        confusion.intrinsic = 1;
+        u.uprops[CONFUSION].intrinsic = 1;
         try {
             const { seffects } = await import('./read.js');
             await seffects(fakeSpellbook, state, env);
         } finally {
-            confusion.intrinsic = savedConfusion;
+            u.uprops[CONFUSION].intrinsic = savedConfusion;
         }
         break;
     }
@@ -532,7 +531,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             if (luck < 0 || (seeInvisible & INTRINSIC)) {
                 if (state.level?.flags?.nommap) {
                     await message('A terrible drone fills your head!', state);
-                    const confusion = u.uprops?.[CONFUSION]?.intrinsic ?? 0;
+                    const confusion = HConfusion(u);
                     const { make_confused } = await import('./potion.js');
                     await make_confused(
                         (confusion & TIMEOUT) + random.rnd(30),
@@ -592,7 +591,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
         }
         case 13: {
             await message('Your mind turns into a pretzel!', state);
-            const confusion = u.uprops?.[CONFUSION]?.intrinsic ?? 0;
+            const confusion = HConfusion(u);
             const { make_confused } = await import('./potion.js');
             await make_confused(
                 (confusion & TIMEOUT) + random.rn1(7, 16),

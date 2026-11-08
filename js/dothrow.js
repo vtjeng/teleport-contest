@@ -47,7 +47,6 @@ import {
     BRK_KNOWN2BREAK,
     BRK_KNOWN2NOTBREAK,
     BRK_KNOWN_OUTCOME,
-    CONFUSION,
     CXN_PFX_THE,
     CQ_CANNED,
     D_ISOPEN,
@@ -137,7 +136,6 @@ import {
     STONING,
     STRAT_WAITMASK,
     STR19,
-    STUNNED,
     TT_BURIEDBALL,
     THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
@@ -483,7 +481,7 @@ import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Deaf, HBlinded, Hallucination, Maybe_Half_Phys,
+    Blind, Confusion, Deaf, HBlinded, Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -1267,7 +1265,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             if (otyp === BLINDING_VENOM && !Blind(state.u))
                 await message('It blinds you!', state, rawEnv);
             u.ucreamed = (u.ucreamed ?? 0) + blindinc;
-            const blindedTimeout = (HBlinded(u))
+            const blindedTimeout = HBlinded(u)
                 & TIMEOUT;
             await make_blinded(blindedTimeout + blindinc, false, state,
                 rawEnv);
@@ -2164,8 +2162,8 @@ export async function throw_obj(obj, shotlimit, state = game) {
             ? matching_launcher(obj, state.uwep, state)
             /* otherwise any stackable (non-ammo) weapon */
             : obj.oclass === WEAPON_CLASS)
-        && !(propertyHeld(state, CONFUSION)
-            || propertyHeld(state, STUNNED))) {
+        && !(Boolean(Confusion(state.u))
+            || Boolean(Stunned(state.u)))) {
         /* some roles don't get a volley bonus until becoming expert */
         const role = state.urole.mnum;
         const weakmultishot = (role === PM_WIZARD || role === PM_CLERIC
@@ -2568,8 +2566,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     const u = state.u;
 
     const arw = autoreturn_weapon(obj);
-    let impaired = propertyHeld(state, CONFUSION)
-        || propertyHeld(state, STUNNED)
+    let impaired = Boolean(Confusion(state.u))
+        || Boolean(Stunned(state.u))
         || Blind(state.u)
         || Hallucination(state.u)
         || propertyHeld(state, FUMBLING);

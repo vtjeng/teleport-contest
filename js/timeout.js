@@ -218,8 +218,8 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Deaf, HDeaf, Hallucination, Invis, See_invisible, Unaware,
-    Warn_of_mon,
+    Blind, Deaf, HConfusion, HDeaf, HStun, Hallucination, Invis,
+    See_invisible, Unaware, Warn_of_mon,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -1168,13 +1168,13 @@ async function vomiting_dialogue(state, env = {}) {
         break;
     case 11:
         text = vomitingTexts[1];
-        if (state.u.uprops?.[CONFUSION]?.intrinsic)
+        if (HConfusion(state.u))
             text = text.replace(' confused', ' more confused');
         break;
     case 6: {
         // C computes the current timeout before the d(2,4) passed to the
         // source helper, then continues with the Popeye/occupation branch.
-        const stunTimeout = ((state.u.uprops?.[STUNNED]?.intrinsic ?? 0)
+        const stunTimeout = (HStun(state.u)
             & TIMEOUT) + random.d(2, 4);
         await make_stunned(stunTimeout, false, state, { ...env, random, message });
         if (!Popeye(VOMITING, state))
@@ -1183,7 +1183,7 @@ async function vomiting_dialogue(state, env = {}) {
     }
     // FALLTHROUGH
     case 9: {
-        const confusionTimeout = (state.u.uprops?.[CONFUSION]?.intrinsic ?? 0)
+        const confusionTimeout = HConfusion(state.u)
             & TIMEOUT;
         await make_confused(
             confusionTimeout + random.d(2, 4), false, state, env,
@@ -1193,7 +1193,7 @@ async function vomiting_dialogue(state, env = {}) {
     }
     case 8:
         text = vomitingTexts[2];
-        if ((state.u.uprops?.[STUNNED]?.intrinsic ?? 0)
+        if (HStun(state.u)
             && text.includes(' think')) {
             text = text.replace("can't seem to ", "can't ");
         }

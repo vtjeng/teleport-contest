@@ -1,11 +1,11 @@
 // dbridge.c — drawbridge terrain, entity, and transition functions.
 import {
-    BURNING, CONFUSION, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA,
+    BURNING, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA,
     DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST, DBWALL, DOOR,
     DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, ICE, ICED_MOAT,
     IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL,
     MAGICAL_BREATHING, MOAT, NO_KILLER_PREFIX, OBJ_AT, PASSES_WALLS,
-    POOL, ROOM, STUNNED, SWIMMING, WATER, WWALKING, Is_waterlevel,
+    POOL, ROOM, SWIMMING, WATER, WWALKING, Is_waterlevel,
     W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOCORPSE, XKILL_NOCONDUCT,
     XKILL_NOMSG, TELEDS_NO_FLAGS, helpless, u_at,
 } from './const.js';
@@ -41,7 +41,9 @@ import { mksobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
-import { Deaf, Hallucination, Unaware } from './youprop.js';
+import {
+    Confusion, Deaf, Hallucination, Stunned, Unaware,
+} from './youprop.js';
 
 // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
 // field is the live JavaScript owner of drawbridgemask on map records.
@@ -397,8 +399,8 @@ function heroProperty(index, state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 function heroPassesWalls(state) { return heroProperty(PASSES_WALLS, state); }
-function heroConfused(state) { return heroProperty(CONFUSION, state); }
-function heroStunned(state) { return heroProperty(STUNNED, state); }
+function heroConfused(state) { return Boolean(Confusion(state.u)); }
+function heroStunned(state) { return Boolean(Stunned(state.u)); }
 function heroFumbling(state) { return heroProperty(FUMBLING, state); }
 function entityCanSee(entity, state) {
     return is_u(entity, state) || canseemon(entity.emon, state);

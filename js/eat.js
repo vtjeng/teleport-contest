@@ -23,7 +23,6 @@ import {
     COST_OPEN,
     IS_ALTAR,
     COLD_RES,
-    CONFUSION,
     CONFLICT,
     COST_BITE,
     DIED,
@@ -106,7 +105,6 @@ import {
     SLT_ENCUMBER,
     SPINACH_TIN,
     STOMACH,
-    STUNNED,
     STONED,
     STONING,
     STONE_RES,
@@ -222,8 +220,9 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    BInvis, Blind, Deaf, EInvis, ESee_invisible, HBlinded, HHallucination,
-    HInvis, HSee_invisible, Hallucination, Invis, Unaware,
+    BInvis, Blind, Deaf, EInvis, ESee_invisible, HBlinded, HConfusion,
+    HHallucination, HInvis, HSee_invisible, HStun, Hallucination, Invis,
+    Unaware,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -1430,7 +1429,7 @@ async function rottenfood(obj, state) {
                 state,
             );
         await make_confused(
-            (hungerProperty(state, CONFUSION).intrinsic & 0x00FFFFFF)
+            (HConfusion(state.u) & 0x00FFFFFF)
                 + d(2, 4),
             false,
             state,
@@ -1438,7 +1437,7 @@ async function rottenfood(obj, state) {
     } else if (!rn2(4) && !Blind(state.u)) {
         // Blindness arm.  The hero is not Blind, but BlindedTimeout might
         // be nonzero if blindness is being overridden by Eyes of the Overworld.
-        const blindedTimeout = (HBlinded(state.u)) & 0x00FFFFFF;
+        const blindedTimeout = HBlinded(state.u) & 0x00FFFFFF;
         await ttyPline('Everything suddenly goes dark.', state);
         await make_blinded(blindedTimeout + d(2, 10), false, state);
         if (!Blind(state.u))
@@ -2671,11 +2670,11 @@ async function cpostfx(pm, state, env = {}) {
         newsym(state.u.ux, state.u.uy);
         // C falls through to the shared yellow-light/giant-bat stun arm.
         await make_stunned(
-            (state.u.uprops[STUNNED].intrinsic & TIMEOUT) + 30,
+            (HStun(state.u) & TIMEOUT) + 30,
             false, state, env,
         );
         await make_stunned(
-            (state.u.uprops[STUNNED].intrinsic & TIMEOUT) + 30,
+            (HStun(state.u) & TIMEOUT) + 30,
             false, state, env,
         );
         break;
@@ -2684,13 +2683,13 @@ async function cpostfx(pm, state, env = {}) {
     case PM_GIANT_BAT:
         // This call changes HStun before the second fallthrough call below.
         await make_stunned(
-            (state.u.uprops[STUNNED].intrinsic & TIMEOUT) + 30,
+            (HStun(state.u) & TIMEOUT) + 30,
             false, state, env,
         );
         // FALLTHROUGH
     case PM_BAT:
         await make_stunned(
-            (state.u.uprops[STUNNED].intrinsic & TIMEOUT) + 30,
+            (HStun(state.u) & TIMEOUT) + 30,
             false, state, env,
         );
         break;
@@ -2762,11 +2761,9 @@ async function cpostfx(pm, state, env = {}) {
         break;
     }
     case PM_LIZARD: {
-        const stun = state.u.uprops[STUNNED];
-        const confusion = state.u.uprops[CONFUSION];
-        if ((stun.intrinsic & TIMEOUT) > 2)
+        if ((HStun(state.u) & TIMEOUT) > 2)
             await make_stunned(2, false, state, env);
-        if ((confusion.intrinsic & TIMEOUT) > 2)
+        if ((HConfusion(state.u) & TIMEOUT) > 2)
             await make_confused(2, false, state);
         check_intrinsics = true; // might convey temporary stoning resistance
         break;
@@ -4320,7 +4317,7 @@ export async function doeat(state = game, env = {}) {
         );
         otmp.oerodeproof = 0;
         // eat.c evaluates the timeout and draws before the source helper.
-        const stunTimeout = (state.u.uprops[STUNNED].intrinsic & TIMEOUT)
+        const stunTimeout = (HStun(state.u) & TIMEOUT)
             + rn2(10);
         await make_stunned(stunTimeout, true, state, eatEnv);
         if (welded(otmp, state)

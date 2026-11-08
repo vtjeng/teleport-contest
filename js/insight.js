@@ -91,7 +91,6 @@ import {
     CLAIRVOYANT,
     COLD_RES,
     CONFLICT,
-    CONFUSION,
     DEAF,
     DISINT_RES,
     DISPLACED,
@@ -202,7 +201,6 @@ import {
     STR18,
     STRANGLED,
     STRAT_WAITMASK,
-    STUNNED,
     TT_BURIEDBALL,
     TT_INFLOOR,
     TT_LAVA,
@@ -386,10 +384,10 @@ import { count_wsegs, wseg_at } from './worm.js';
 import {
     BBlinded, BClairvoyant, BInvis, Blind, Blind_telepat, BlindedTimeout,
     Blindfolded, Blindfolded_only, Blnd_resist, Clairvoyant, Deaf,
-    Detect_monsters, EBlinded, EClairvoyant, EInvis,
-    HBlinded, HClairvoyant, HDetect_monsters, HInvis, Half_physical_damage, Halluc_resistance,
-    Hallucination, Infravision, Invis, Searching, See_invisible,
-    Undead_warning, Warn_of_mon, Warning,
+    Detect_monsters, EBlinded, EClairvoyant, EInvis, HBlinded, HClairvoyant,
+    HConfusion, HDetect_monsters, HInvis, HStun, Half_physical_damage,
+    Halluc_resistance, Hallucination, Infravision, Invis, Searching,
+    See_invisible, Undead_warning, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -1300,8 +1298,8 @@ function status_enlightenment(mode, final, state, lines) {
         }
     }
     if (H(VOMITING)) you_are(lines, final, 'nauseated', '');
-    if (H(STUNNED)) you_are(lines, final, 'stunned', '');
-    if (H(CONFUSION)) you_are(lines, final, 'confused', '');
+    if (HStun(u)) you_are(lines, final, 'stunned', '');
+    if (HConfusion(u)) you_are(lines, final, 'confused', '');
     if (hallucinating) you_are(lines, final, 'hallucinating', '');
     if (blind) {
         buf = ((HBlinded(u) & FROMOUTSIDE) ? 'permanently'
@@ -3191,7 +3189,7 @@ export async function ustatusline(state = game) {
     if (properties[SLIMED]?.intrinsic) info += ', becoming slimy';
     if (properties[STRANGLED]?.intrinsic) info += ', being strangled';
     if (properties[VOMITING]?.intrinsic) info += ', nauseated';
-    if (properties[CONFUSION]?.intrinsic) info += ', confused';
+    if (HConfusion(u)) info += ', confused';
     if (Blind(u)) {
         info += ', blind';
         if (u.ucreamed) {
@@ -3201,7 +3199,7 @@ export async function ustatusline(state = game) {
             info += ' by sticky goop';
         }
     }
-    if (properties[STUNNED]?.intrinsic) info += ', stunned';
+    if (HStun(u)) info += ', stunned';
     if ((properties[WOUNDED_LEGS]?.intrinsic
          || properties[WOUNDED_LEGS]?.extrinsic) && !u.usteed) {
         const legs = Number(properties[WOUNDED_LEGS]?.extrinsic ?? 0)

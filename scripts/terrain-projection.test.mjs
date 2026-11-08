@@ -117,7 +117,7 @@ test('projection impairment uses the exact youprop.h intrinsic macros', () => {
     const implementation = JS_SOURCE.slice(JS_SOURCE.indexOf('export async function reveal_terrain('),
         JS_SOURCE.indexOf('function glyphIsTrap('));
     assert.match(implementation, /const hallucination = Hallucination\(state\.u\);/u);
-    assert.match(implementation, /properties\[STUNNED\]\?\.intrinsic/u);
-    assert.match(implementation, /properties\[CONFUSION\]\?\.intrinsic/u);
+    assert.match(implementation, /Stunned\(state\.u\)/u);
+    assert.match(implementation, /Confusion\(state\.u\)/u);
     assert.doesNotMatch(implementation, /propertyActiveUnblocked|hallucinating\(state\)/u);
 });

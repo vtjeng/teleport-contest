@@ -1083,8 +1083,8 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
     assert.match(
         JS_ARTIFACT_SOURCE,
-        /^\s*STUNNED,\s*$/mu,
-        'Mb_hit binds the property index used for the hero stun timeout',
+        /^import \{[^}]*\bHStun\b[^}]*\} from '\.\/youprop\.js';$/mu,
+        'Mb_hit imports the youprop.h stun macro',
     );
     assert.match(
         C_MB_HIT,
@@ -1093,8 +1093,8 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     );
     assert.match(
         JS_MB_HIT,
-        /\(state\.u\?\.uprops\?\.\[STUNNED\]\?\.intrinsic \?\? 0\) & TIMEOUT/u,
-        'JavaScript reads the corresponding STUNNED property',
+        /HStun\(state\.u\) & TIMEOUT/u,
+        'JavaScript reads the corresponding HStun macro',
     );
     assert.match(
         C_MB_HIT,
@@ -1108,7 +1108,7 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     );
     assert.match(
         JS_MB_HIT,
-        /CONFUSION[\s\S]*await make_confused\(confusionTimeout, false, state, env\)/u,
+        /HConfusion\(state\.u\) & TIMEOUT[\s\S]*await make_confused\(confusionTimeout, false, state, env\)/u,
         'JavaScript applies the same source-ordered timeout update',
     );
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]timeout\.c make_confused/u);
@@ -1266,7 +1266,10 @@ test('Magicbane probes the hero through the injected operations',
     state.flags.verbose = true;
     state.disp = {};
     state.u = {
-        uprops: [],
+        // u_init.c gives every hero a zeroed slot for each property;
+        // Mb_hit's make_confused() and make_stunned() write theirs.
+        uprops: Array.from({ length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
         ulycn: NON_PM,
         ustuck: null,
         umonnum: PM_WIZARD,

@@ -412,8 +412,8 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Deaf, EInvis, HInvis, Half_physical_damage, Hallucination, Invis,
-    Maybe_Half_Phys, See_invisible,
+    Blind, Deaf, EInvis, HConfusion, HInvis, Half_physical_damage,
+    Hallucination, Invis, Maybe_Half_Phys, See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -1926,8 +1926,7 @@ async function domagictrap(env) {
             }
             break;
         case 20: { /* uncurse stuff */
-            const confusion = state.u.uprops?.[CONFUSION];
-            const savedConfusion = confusion?.intrinsic ?? 0;
+            const savedConfusion = HConfusion(state.u);
             const confusionProperty = (state.u.uprops ??= {})[CONFUSION]
                 ??= { intrinsic: 0, extrinsic: 0 };
             const pseudo = newObject({

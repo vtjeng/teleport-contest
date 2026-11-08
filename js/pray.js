@@ -49,7 +49,6 @@ import {
     AGGRAVATE_MONSTER,
     ACH_TUNE,
     BOLT_LIM,
-    CONFUSION,
     DIED,
     ESCAPED,
     ASCENDED,
@@ -108,7 +107,6 @@ import {
     STONED,
     STRANGLED,
     STOMACH,
-    STUNNED,
     TELEDS_NO_FLAGS,
     TELL,
     TIMEOUT,
@@ -356,8 +354,8 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded,
-    HBlinded, HDeaf, HHallucination, Hallucination,
+    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, HBlinded,
+    HConfusion, HDeaf, HHallucination, HStun, Hallucination,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -548,7 +546,7 @@ export async function dosacrifice(state = game) {
         );
         return ECMD_OK;
     }
-    if (intrinsic(state, CONFUSION) || intrinsic(state, STUNNED)) {
+    if (HConfusion(state.u) || HStun(state.u)) {
         await ttyPline('You are too impaired to perform the rite.', state);
         return ECMD_OK;
     }
@@ -1343,8 +1341,8 @@ export function in_trouble(state = game) {
         && !state.u.usteed)
         return TROUBLE_WOUNDED_LEGS;
     if (state.u.uhs >= HUNGRY) return TROUBLE_HUNGRY;
-    if (intrinsic(state, STUNNED) & TIMEOUT) return TROUBLE_STUNNED;
-    if (intrinsic(state, CONFUSION) & TIMEOUT) return TROUBLE_CONFUSED;
+    if (HStun(state.u) & TIMEOUT) return TROUBLE_STUNNED;
+    if (HConfusion(state.u) & TIMEOUT) return TROUBLE_CONFUSED;
     if (HHallucination(state.u) & TIMEOUT) return TROUBLE_HALLUCINATION;
     return 0;
 }
@@ -2030,7 +2028,7 @@ export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
                 && state.u.ulevel > (MAXULEV / 2)))) return;
 
     mtmp.msleeping = false;
-    if (intrinsic(state, CONFUSION)) {
+    if (HConfusion(state.u)) {
         const messageCount = state.turn_undead_msg_cnt ?? 0;
         state.turn_undead_msg_cnt = messageCount + 1;
         if (!messageCount) {

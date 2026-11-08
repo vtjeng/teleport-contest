@@ -29,7 +29,6 @@ import {
     WORN_TYPES,
     W_WEAPONS,
     CHOOSE_ALL,
-    CONFUSION,
     CXN_ARTICLE,
     CXN_SINGULAR,
     ECMD_OK,
@@ -94,7 +93,6 @@ import {
     SLT_ENCUMBER,
     STONE,
     STONE_RES,
-    STUNNED,
     TIMEOUT,
     OMONST,
     SELL_NORMAL,
@@ -299,7 +297,7 @@ import {
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
 import {
-    Blind, Hallucination, Maybe_Half_Phys,
+    Blind, Confusion, Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
@@ -2558,10 +2556,10 @@ async function mbag_item_gone(held, item, silent, state) {
 // C ref: pickup.c:2202-2209. The Confusion branch calls reverse_loot(),
 // which has unported inventory and shop interactions.
 function ConfusionProp(state) {
-    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+    return Boolean(Confusion(state.u));
 }
 function StunnedProp(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+    return Boolean(Stunned(state.u));
 }
 
 // C ref: pickup.c:67-70.  Encumbrance feedback prefixes used by

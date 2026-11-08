@@ -21,7 +21,6 @@ import {
     ACH_NOVL,
     ANTIMAGIC,
     CMDQ_KEY,
-    CONFUSION,
     CLOUD, IS_TREE,
     ERODE_CORRODE,
     EF_GREASE,
@@ -58,7 +57,6 @@ import {
     SICK,
     SLIMED,
     SPINE,
-    STUNNED,
     TIMEOUT,
     uhim,
 } from './const.js';
@@ -208,7 +206,8 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 import {
-    BClairvoyant, Blind, BlindedTimeout, Hallucination, Maybe_Half_Phys,
+    BClairvoyant, Blind, BlindedTimeout, Confusion, HConfusion, HStun,
+    Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -394,7 +393,7 @@ export async function losespells(
     }
 
     let toForget = random.rn2(count + 1);
-    if (spellPropertyActive(CONFUSION, state)) {
+    if (Confusion(state.u)) {
         const confusedRoll = random.rn2(count + 1);
         if (confusedRoll > toForget) toForget = confusedRoll;
     }
@@ -464,7 +463,7 @@ export async function cursed_book(book, state = game, env = {}) {
     }
     case 4: {
         await message('These runes were just too much to comprehend.', state);
-        const prior = timeout[CONFUSION]?.intrinsic ?? 0;
+        const prior = HConfusion(state.u);
         await make_confused(
             (prior & TIMEOUT) + random.rn1(7, 16), false, state,
             { message },
@@ -798,7 +797,7 @@ export async function learn(state = game, env = {}) {
         && random.rn2(2)) {
         spbook.delay++;
     }
-    if (spellPropertyActive(CONFUSION, state)) {
+    if (Confusion(state.u)) {
         await confused_book(book, state, { ...env, random });
         spbook.book = null;
         spbook.o_id = 0;
@@ -893,7 +892,7 @@ export async function study_book(spellbook, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const prompt = env.prompt;
     const booktype = spellbook.otyp;
-    const confused = spellPropertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const type = objectType(booktype, state);
     const level = Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
     state.context ??= {};
@@ -1470,7 +1469,7 @@ function spell_idx(otyp, state = game) {
 // C ref: spell.c rejectcasting() (687-708). Checks that the hero can cast at
 // all: not stunned, can chant, has a free hand (or wields a quarterstaff).
 async function rejectcasting(state, { message }) {
-    if (Boolean(state.u?.uprops?.[STUNNED]?.intrinsic)) {
+    if (Stunned(state.u)) {
         await message('You are too impaired to cast a spell.', state);
         return true;
     } else if (!can_chant(state.youmonst, state)) {
@@ -1586,8 +1585,8 @@ export async function cast_protection(state = game, env = {}) {
 export async function spell_backfire(spell, state = game, env = {}) {
     const random = randomSource(env);
     const duration = (spellev(spell, state) + 1) * 3;
-    const oldStun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
-    const oldConf = (state.u.uprops[CONFUSION]?.intrinsic ?? 0) & TIMEOUT;
+    const oldStun = HStun(state.u) & TIMEOUT;
+    const oldConf = HConfusion(state.u) & TIMEOUT;
     state.disp ??= {};
     switch (random.rn2(10)) {
     case 0: case 1: case 2: case 3:
@@ -1616,7 +1615,7 @@ export async function spelleffects_check(spell, state = game, env = {}) {
     const random = randomSource(env);
     let res = ECMD_OK;
     const confused = Boolean(
-        state.u?.uprops?.[CONFUSION]?.intrinsic,
+        HConfusion(state.u),
     );
     let energy = 0;
 

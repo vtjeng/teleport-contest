@@ -18,7 +18,6 @@ import {
     MAGICAL_BREATHING,
     COLD_RES,
     CONFLICT,
-    CONFUSION,
     DISMOUNT_ENGULFED,
     DISPLACED,
     DIED,
@@ -51,7 +50,6 @@ import {
     P_WHIP,
     RLOC_NOMSG,
     STONING,
-    STUNNED,
     SHOCK_RES,
     SLOW_DIGESTION,
     SICK,
@@ -318,8 +316,9 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Deaf, Detect_monsters, HHallucination, Half_physical_damage, Hallucination,
-    Invis, Maybe_Half_Phys, See_invisible, Unaware,
+    Blind, Blinded, Deaf, Detect_monsters, HConfusion, HHallucination, HStun,
+    Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
+    See_invisible, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -2834,7 +2833,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
             await mondead(mtmp, state, rawEnv);
             killAgr = false;
             const changed = await make_hallucinated(
-                (HHallucination(state.u)) + tmp,
+                HHallucination(state.u) + tmp,
                 false,
                 0,
                 state,
@@ -3009,10 +3008,9 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 const confusion = draw('d', 3, 4);
                 monster.mspec_used = (monster.mspec_used ?? 0)
                     + confusion + draw('rn2', 6);
-                const property = state.u?.uprops?.[CONFUSION];
                 // include/youprop.h:84 defines Confusion as HConfusion only;
                 // an extrinsic property does not suppress this source message.
-                if (!property?.intrinsic) {
+                if (!HConfusion(state.u)) {
                     await message(messageAt(
                         `${monsterPossessive(monster, state, true, env)} gaze `
                         + 'confuses you!',
@@ -3024,7 +3022,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                     );
                 }
                 await make_confused(
-                    (state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0)
+                    HConfusion(state.u)
                         + confusion,
                     false,
                     state,
@@ -3050,9 +3048,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                         monster.mx, monster.my, state), state,
                     env,
                 );
-                const property = state.u?.uprops?.[STUNNED];
                 await make_stunned(
-                    ((property?.intrinsic ?? 0) & TIMEOUT) + stun,
+                    (HStun(state.u) & TIMEOUT) + stun,
                     true,
                     state,
                     env,
@@ -3087,7 +3084,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 if (!Blind(state.u)) {
                     await message(`Your ${vision_clears}`, state, env);
                 } else {
-                    const oldStun = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
+                    const oldStun = HStun(state.u)
                         & TIMEOUT;
                     await make_stunned(
                         Math.max(oldStun, draw('rnd', 3)), true, state, env,

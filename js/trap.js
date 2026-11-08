@@ -26,7 +26,6 @@ import {
     ARM,
     ARROW_TRAP,
     BEAR_TRAP,
-    CONFUSION,
     CORR,
     DIR_180,
     DIR_ERR,
@@ -135,7 +134,6 @@ import {
     STONE,
     STONE_RES,
     STONING,
-    STUNNED,
     SWIMMING,
     TELEPORT,
     TELEPORT_CONTROL,
@@ -354,8 +352,8 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    Blind, HHallucination,
-    Halluc_resistance, Hallucination, Maybe_Half_Phys,
+    Blind, Confusion, HHallucination, HStun, Halluc_resistance, Hallucination,
+    Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
@@ -2428,12 +2426,6 @@ export function immune_to_trap(mon, ttype, state = game) {
 // C ref: decl.c c_common_strings.c_the_your, indexed by madeby_u.
 const the_your = ['the', 'your'];
 
-function Confusion(state) {
-    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
-}
-function Stunned(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
-}
 function Fumbling(state) {
     return Boolean(state.u?.uprops?.[FUMBLING]?.intrinsic
                    || state.u?.uprops?.[FUMBLING]?.extrinsic);
@@ -2508,11 +2500,11 @@ function untrap_prob(ttmp, state = game) {
             chance = 7; /* 5.0: used to be 30 */
         }
     }
-    if (Confusion(state) || Hallucination(state.u))
+    if (Confusion(state.u) || Hallucination(state.u))
         chance++;
     if (Blind(state.u))
         chance++;
-    if (Stunned(state))
+    if (Stunned(state.u))
         chance += 2;
     if (Fumbling(state))
         chance *= 2;
@@ -2976,7 +2968,7 @@ export async function untrap(force, rx, ry, container, state = game) {
     const u = state.u;
     let x, y;
     let ttmp;
-    const confused = Confusion(state) || Hallucination(state.u);
+    const confused = Confusion(state.u) || Hallucination(state.u);
     let trap_skipped = false;
     let autounlock_door = false;
     let boxcnt = 0;
@@ -3668,7 +3660,7 @@ export async function b_trapped(item, bodypart, state = game, env = {}) {
     await exercise(A_STR, false, state, random, exerciseEnv);
     if (bodypart !== NO_PART)
         await exercise(A_CON, false, state, random, exerciseEnv);
-    await make_stunned((state.u.uprops[STUNNED].intrinsic & TIMEOUT) + dmg,
+    await make_stunned((HStun(state.u) & TIMEOUT) + dmg,
         true, state, { ...env, message });
 }
 
@@ -3862,7 +3854,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 `A cloud of ${gascolor} gas billows from ${the(xnameFresh(obj, state), state)}.`,
                 state,
             );
-            if (!Stunned(state)) {
+            if (!Stunned(state.u)) {
                 if (Hallucination(state.u)) {
                     await ttyPline('What a groovy feeling!', state);
                 } else {
@@ -3876,11 +3868,11 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 }
             }
             const stunTimeout = (
-                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+                HStun(state.u) & TIMEOUT
             ) + rn1(7, 16);
             await make_stunned(stunTimeout, false, state);
             await make_hallucinated(
-                ((HHallucination(state.u)) & TIMEOUT)
+                (HHallucination(state.u) & TIMEOUT)
                     + rn1(5, 16),
                 false, 0, state,
             );

@@ -61,12 +61,12 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BOLT_LIM, CONFUSION, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, FLYING, GLIB, INTRINSIC, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
-    SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
+    SLIMED, STONED, STR18, STRANGLED, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
     DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
     P_SHORT_SWORD, P_SABER,
@@ -325,9 +325,9 @@ import {
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 import {
-    Blind, Deaf, Detect_monsters, ETelepat, HHallucination, HTelepat,
-    Halluc_resistance, Hallucination, Infravision, Invis, See_invisible,
-    Warn_of_mon, Warning,
+    Blind, Confusion, Deaf, Detect_monsters, ETelepat, HHallucination,
+    HTelepat, Halluc_resistance, Hallucination, Infravision, Invis,
+    See_invisible, Stunned, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -428,7 +428,7 @@ export function knowninvisible(mon, state = game) {
             || Detect_monsters(state.u)))
         return true;
     return !Blind(state.u)
-        && Boolean((HTelepat(state.u)) & ~INTRINSIC)
+        && Boolean(HTelepat(state.u) & ~INTRINSIC)
         && dist2(mx, my, state.u?.ux, state.u?.uy) <= BOLT_LIM * BOLT_LIM;
 }
 
@@ -5154,7 +5154,7 @@ export function statusConditionActive(option, u) {
     case 'unconscious': return botl_incapacitated_conditions(game, u)[option];
     case 'barehanded': return !game.uarmg && !game.uwep;
     case 'blind': return Blind(u);
-    case 'conf': return _propertyIntrinsic(u, CONFUSION);
+    case 'conf': return Boolean(Confusion(u));
     case 'deaf': return Deaf(u);
     // youprop.h:253's Flying counts a flying steed as carrying the hero, and
     // botl.c:1194 reads the whole macro. No steed this port can reach flies,
@@ -5220,7 +5220,7 @@ export function statusConditionActive(option, u) {
     case 'slip': return _propertyIntrinsic(u, GLIB);
     case 'stone': return _propertyIntrinsic(u, STONED);
     case 'strngl': return _propertyIntrinsic(u, STRANGLED);
-    case 'stun': return _propertyIntrinsic(u, STUNNED);
+    case 'stun': return Boolean(Stunned(u));
     // botl.c:1203 uses Underwater, defined as u.uinwater in youprop.h.
     case 'submerged': return Boolean(u.uinwater);
     case 'termill':

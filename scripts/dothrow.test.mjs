@@ -2290,13 +2290,14 @@ test('throw_obj() opens the multishot block only for a stack it can volley',
         assert.equal(draws()[0], 'rnd(2)');
         assert.ok(five.quan < 5, 'the volley left the stack alone');
 
-        // :168, `!(Confusion || Stunned)`. Either alone shuts the block, and
-        // each is the union of an intrinsic and an extrinsic half. All four
-        // are aimed down: cmd.c confdir() refuses a stunned hero outright and
-        // spends an rn2(5) on a confused one, and getdir() reaches it only
-        // for an answer that left u.dz clear.
+        // :168, `!(Confusion || Stunned)`. Either alone shuts the block;
+        // youprop.h:81-84 defines each as its intrinsic field alone, which
+        // scripts/youprop.test.mjs pins. Both are aimed down: cmd.c
+        // confdir() refuses a stunned hero outright and spends an rn2(5) on
+        // a confused one, and getdir() reaches it only for an answer that
+        // left u.dz clear.
         for (const property of [CONFUSION, STUNNED]) {
-            for (const half of ['intrinsic', 'extrinsic']) {
+            for (const half of ['intrinsic']) {
                 const impaired = arena();
                 // P_EXPERT rather than P_SKILLED so the argument an open
                 // block would pass rnd() is 3, which no split can be mistaken

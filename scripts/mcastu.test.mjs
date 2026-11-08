@@ -34,6 +34,7 @@ import {
     TELEPAT,
     TIMEOUT,
     ROOM,
+    LAST_PROP,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
 import { GameMap } from '../js/game.js';
@@ -101,7 +102,13 @@ function makeState(overrides = {}) {
     level.at(4, 5).typ = ROOM;
     if (overrides.level) Object.assign(level, overrides.level);
     return {
-        u: { ux: 4, uy: 5, uprops: {} },
+        // u_init.c gives every hero a zeroed u.uprops[] slot for each
+        // property; make_confused() and make_stunned() write theirs.
+        u: {
+            ux: 4, uy: 5,
+            uprops: Array.from({ length: LAST_PROP + 1 },
+                () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
+        },
         level,
         moves: 100,
         youmonst: { data: { mlet: 0 } },

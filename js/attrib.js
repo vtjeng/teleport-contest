@@ -22,7 +22,6 @@ import {
     BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
-    CONFUSION,
     DEAF,
     DIED,
     DRAIN_RES,
@@ -65,7 +64,6 @@ import {
     STR18,
     STR19,
     STRANGLED,
-    STUNNED,
     TELEPORT_CONTROL,
     TIMEOUT,
     Upolyd,
@@ -144,8 +142,8 @@ import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
-    EBlinded, HBlinded, HBlnd_resist, HClairvoyant, HHallucination,
-    Halluc_resistance, Hallucination,
+    Confusion, EBlinded, HBlinded, HBlnd_resist, HClairvoyant, HHallucination,
+    Halluc_resistance, Hallucination, Stunned,
 } from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
@@ -392,7 +390,7 @@ export function is_innate(propidx, state = game) {
         return INNATE_ROLE;
     if ((propidx === BLINDED && !haseyes(state.youmonst?.data))
         || (propidx === BLND_RES
-            && ((HBlnd_resist(u)) & FROMFORM) !== 0))
+            && (HBlnd_resist(u) & FROMFORM) !== 0))
         return INNATE_FORM;
     return INNATE_NONE;
 }
@@ -490,12 +488,12 @@ export function from_what(propidx, state = game) {
             break;
         }
         case INVIS:
-            if ((BInvis(u)) & W_ARMC)
+            if (BInvis(u) & W_ARMC)
                 return ` because of ${ysimple_name(state.uarmc, state)}`; // mummy wrapping
             break;
         case CLAIRVOYANT:
             if (state.wizard
-                && ((BClairvoyant(u)) & W_ARMH))
+                && (BClairvoyant(u) & W_ARMH))
                 return ` because of ${ysimple_name(state.uarmh, state)}`; // cornuthaum
             break;
         }
@@ -1085,7 +1083,7 @@ export async function exerper(state = game, env = {}) {
     }
 
     if (moves % 5 === 0) {
-        if (Boolean(HClairvoyant(hero))
+        if (HClairvoyant(hero)
             && !BClairvoyant(hero)) {
             await exerciseWithEnvironment(A_WIS, true, state, normalized);
         }
@@ -1097,12 +1095,12 @@ export async function exerper(state = game, env = {}) {
         }
         const hallucinating = Boolean(HHallucination(hero))
             && !Halluc_resistance(hero);
-        if (intrinsicPropertyPresent(hero, CONFUSION) || hallucinating) {
+        if (Confusion(hero) || hallucinating) {
             await exerciseWithEnvironment(A_WIS, false, state, normalized);
         }
         if ((propertyPresent(hero, WOUNDED_LEGS) && !hero.usteed)
             || propertyPresent(hero, FUMBLING)
-            || intrinsicPropertyPresent(hero, STUNNED)) {
+            || Boolean(Stunned(hero))) {
             await exerciseWithEnvironment(A_DEX, false, state, normalized);
         }
     }

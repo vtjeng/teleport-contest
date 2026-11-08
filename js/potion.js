@@ -320,10 +320,11 @@ import { erode_obj } from './trap_erode_obj.js';
 import { obj_unpolyable, poly_obj } from './zap.js';
 import {
     BBlinded, BInvis, Blind, Blind_telepat, Blinded, BlindedTimeout,
-    Blindfolded, Deaf, Detect_monsters, EBlinded, EHalluc_resistance,
-    EWarn_of_mon, HBlinded, HDeaf, HDetect_monsters,
-    HHallucination, HInvis, HSee_invisible, Halluc_resistance, Hallucination,
-    Infravision, Invis, Maybe_Half_Phys, PermaBlind, See_invisible, Unaware,
+    Blindfolded, Confusion, Deaf, Detect_monsters, EBlinded,
+    EHalluc_resistance, EWarn_of_mon, HBlinded, HConfusion, HDeaf,
+    HDetect_monsters, HHallucination, HInvis, HSee_invisible, HStun,
+    Halluc_resistance, Hallucination, Infravision, Invis, Maybe_Half_Phys,
+    PermaBlind, See_invisible, Unaware,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -835,11 +836,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
 // report a cleared condition when requested, and mark the status line only
 // when confusion starts or ends.
 export async function make_confused(xtime, talk, state = game, env = {}) {
-    const prop = state.u.uprops[CONFUSION] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    const old = prop.intrinsic;
+    const old = HConfusion(state.u);
 
     if (Unaware(state)) talk = false;
 
@@ -852,18 +849,14 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
     if ((xtime && !old) || (!xtime && old))
         state.disp.botl = true;
 
-    set_itimeout(prop, xtime);
+    set_itimeout(state.u.uprops[CONFUSION], xtime);
 }
 
 // C ref: potion.c make_stunned() (107-131). HStun is one packed intrinsic
 // value; the transition tests use its full value, while set_itimeout changes
 // only the timeout bits at the end of the source sequence.
 export async function make_stunned(xtime, talk, state = game, env = {}) {
-    const prop = state.u.uprops[STUNNED] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    const old = prop.intrinsic;
+    const old = HStun(state.u);
     const message = env.message ?? ttyPline;
 
     if (Unaware(state)) talk = false;
@@ -889,7 +882,7 @@ export async function make_stunned(xtime, talk, state = game, env = {}) {
         state.disp.botl = true;
     }
 
-    set_itimeout(prop, xtime);
+    set_itimeout(state.u.uprops[STUNNED], xtime);
 }
 
 // C ref: potion.c make_hallucinated() (369-442). The ordinary transition
@@ -1167,7 +1160,7 @@ async function peffect_booze(otmp, state = game) {
     if (!otmp.blessed) {
         // C reads u.uhs before adding the potion's nutrition.
         await make_confused(itimeout_incr(
-            state.u.uprops[CONFUSION].intrinsic,
+            HConfusion(state.u),
             d(2 + state.u.uhs, 8),
         ), false, state);
     }
@@ -1218,12 +1211,8 @@ async function peffect_enlightenment(otmp, state = game, env = {}) {
 // ---------------------------------------------------------------------------
 
 async function peffect_confusion(otmp, state = game) {
-    const prop = state.u.uprops[CONFUSION] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
 
-    if (!prop.intrinsic) {
+    if (!HConfusion(state.u)) {
         if (Hallucination(state.u)) {
             await ttyPline('What a trippy feeling!', state);
             state.gp.potion_unkn++;
@@ -1235,7 +1224,7 @@ async function peffect_confusion(otmp, state = game) {
     }
     await make_confused(
         itimeout_incr(
-            prop.intrinsic,
+            HConfusion(state.u),
             rn1(7, 16 - 8 * bcsign(otmp)),
         ),
         false,
@@ -2929,11 +2918,10 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_CONFUSION:
     case POT_BOOZE:
         {
-            const confusion = state.u.uprops[CONFUSION];
-            if (!(confusion.intrinsic || confusion.extrinsic))
+            if (!Confusion(state.u))
                 await message(youFeel('somewhat dizzy.', state), state);
             await make_confused(
-                itimeout_incr(confusion.intrinsic, random.rnd(5)),
+                itimeout_incr(HConfusion(state.u), random.rnd(5)),
                 false,
                 state,
                 { ...env, random, message },

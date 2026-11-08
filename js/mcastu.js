@@ -14,7 +14,6 @@ import {
     BZ_M_SPELL,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
-    CONFUSION,
     DIED,
     EYE,
     KILLED_BY,
@@ -36,7 +35,6 @@ import {
     MM_ANGRY,
     MM_NOMSG,
     SHOCK_RES,
-    STUNNED,
     TIMEOUT,
     u_at,
     ismnum,
@@ -114,9 +112,9 @@ import {
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
-    Blind, Blinded, Deaf, Detect_monsters, HHallucination,
-    Half_physical_damage, Halluc_resistance, Hallucination, Invis,
-    See_invisible, Unaware,
+    Blind, Blinded, Confusion, Deaf, Detect_monsters, HConfusion,
+    HHallucination, HStun, Half_physical_damage, Halluc_resistance,
+    Hallucination, Invis, See_invisible, Unaware,
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -995,7 +993,7 @@ async function mcast_stun_you(dmg, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
-    const hStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
+    const hStun = HStun(state.u);
 
     if (heroProperty(state, ANTIMAGIC)
         || state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
@@ -1252,7 +1250,6 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
 // the spell adds the caster level to packed HConfusion before selecting feedback.
 async function mcast_confuse_you(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const confusion = state.u?.uprops?.[CONFUSION];
     const message = rawEnv.message ?? ttyPline;
 
     if (heroProperty(state, ANTIMAGIC)) {
@@ -1263,14 +1260,14 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
     }
 
     // HConfusion is the raw intrinsic field, not its low TIMEOUT bits.
-    const oldConfusion = Boolean(confusion?.intrinsic);
+    const oldConfusion = Boolean(Confusion(state.u));
     let damage = mtmp.m_lev;
     if (heroProperty(state, HALF_SPDAM))
         damage = Math.trunc((damage + 1) / 2);
 
     const effectEnv = { ...rawEnv, message };
     await make_confused(
-        (confusion?.intrinsic ?? 0) + damage,
+        HConfusion(state.u) + damage,
         true,
         state,
         effectEnv,

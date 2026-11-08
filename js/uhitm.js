@@ -40,7 +40,6 @@ import {
     ARTICLE_YOUR,
     BUFSZ,
     COLD_RES,
-    CONFUSION,
     DIED,
     DRAIN_RES,
     DISP_ALWAYS,
@@ -135,7 +134,6 @@ import {
     SUPPRESS_SADDLE,
     STONED,
     STONING,
-    STUNNED,
     TIMEOUT,
     MAGICAL_BREATHING,
     POOL,
@@ -704,13 +702,10 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Deaf, Detect_monsters, EBlinded, HBlinded, Half_physical_damage, Hallucination, Invisible, Maybe_Half_Phys,
-    See_invisible,
+    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded,
+    HBlinded, HConfusion, HStun, Half_physical_damage, Hallucination,
+    Invisible, Maybe_Half_Phys, See_invisible, Stunned,
 } from './youprop.js';
-
-function intrinsicProperty(hero, index) {
-    return Boolean(hero?.uprops?.[index]?.intrinsic);
-}
 
 function propertyPresent(hero, index) {
     const property = hero?.uprops?.[index];
@@ -967,9 +962,9 @@ export function is_safemon(monster, state = game) {
         state.flags?.safe_dog
         && monster?.mpeaceful
         && canspotmon(monster, state)
-        && !intrinsicProperty(hero, CONFUSION)
+        && !Confusion(hero)
         && !Hallucination(state.u)
-        && !intrinsicProperty(hero, STUNNED),
+        && !Stunned(hero),
     );
 }
 
@@ -1168,7 +1163,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     if (!canspotmon(mtmp, state)
         && !glyph_is_warning(glyph)
         && !glyph_is_invisible(glyph)
-        && !(!(Blind(state.u)) && mtmp.mundetected
+        && !(!Blind(state.u) && mtmp.mundetected
             && hides_under(mtmp.data))) {
         await message(
             `Wait!  There's ${something} there you can't see!`,
@@ -1251,9 +1246,9 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     }
 
     if (state.flags?.confirm && mtmp.mpeaceful
-        && !intrinsicProperty(state.u, CONFUSION)
+        && !Confusion(state.u)
         && !Hallucination(state.u)
-        && !intrinsicProperty(state.u, STUNNED)) {
+        && !Stunned(state.u)) {
         if (is_art(wep, ART_STORMBRINGER)) {
             state.go ??= {};
             state.go.override_confirmation = true;
@@ -3437,7 +3432,7 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
 function joust(mon, obj, state, random, env) {
     if (state.u?.uprops?.[FUMBLING]?.intrinsic
         || state.u?.uprops?.[FUMBLING]?.extrinsic
-        || state.u?.uprops?.[STUNNED]?.intrinsic)
+        || HStun(state.u))
         return 0;
     if (obj !== state.uwep
         && (obj !== state.uswapwep || !state.u.twoweap))
@@ -4035,7 +4030,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
 
     let gold = findgold(mdef.minvent);
     if (ustealo) {
-        if (Boolean(gender(mdef)) === Boolean(state.u.mfemale)
+        if (gender(mdef) === Boolean(state.u.mfemale)
             && state.youmonst.data.mlet === S_NYMPH) {
             await message(
                 `You charm ${mon_nam(mdef, state, env)}.  ${upstart(mhe(mdef, nameEnv))} gladly hands over ${gold ? 'most of ' : ''}${mhis(mdef, nameEnv)} possessions.`,
@@ -5254,7 +5249,7 @@ export async function mhitm_ad_blnd(
         if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
             if (!Blind(state.u))
                 await message(`${Monnam(magr, state, env)} blinds you!`, state);
-            const blindedTimeout = (HBlinded(state.u))
+            const blindedTimeout = HBlinded(state.u)
                 & TIMEOUT;
             await make_blinded(blindedTimeout + mhm.damage, false, state, env);
             // The source immediately checks Blind again. Eyes of the
@@ -5424,7 +5419,7 @@ export async function mhitm_ad_stun(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
         if (!magr.mcan && !random.rn2(4)) {
-            const currentStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
+            const currentStun = HStun(state.u);
             await make_stunned(
                 (currentStun & TIMEOUT) + mhm.damage,
                 true,
@@ -6666,7 +6661,7 @@ export async function mhitm_ad_conf(
         await hitmsg(magr, mattk, state, env);
         if (!magr.mcan && !random.rn2(4) && !magr.mspec_used) {
             magr.mspec_used = magr.mspec_used + (mhm.damage + random.rn2(6));
-            const confusion = state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0;
+            const confusion = HConfusion(state.u);
             await message(
                 confusion
                     ? 'You are getting even more confused.'
@@ -7279,7 +7274,7 @@ export async function mhitm_ad_tlpt(
         } else {
             if (state.flags?.verbose) {
                 const controlled = propertyPresent(state.u, TELEPORT_CONTROL)
-                    && !intrinsicProperty(state.u, STUNNED)
+                    && !Stunned(state.u)
                     && !unconscious(state);
                 await (env.message ?? ttyPline)(
                     `Your position suddenly seems ${controlled ? '' : 'very '}`
@@ -7973,7 +7968,7 @@ export async function mhitm_knockback(
             flags.value |= M_ATTK_HIT;
         }
         set_apparxy(magr, { ...env, state });
-        if (!state.u?.uprops?.[STUNNED]?.intrinsic
+        if (!HStun(state.u)
             && !rng.rn2(4)) {
             await make_stunned(
                 knockdistance + 1, true, state, { ...env, message },
@@ -8274,7 +8269,7 @@ export async function passive(
             }
             break;
         case AD_STUN:
-            if (!intrinsicProperty(state.u, STUNNED))
+            if (!Stunned(state.u))
                 await make_stunned(tmp, true, state, effectEnv);
             break;
         case AD_FIRE:

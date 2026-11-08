@@ -23,7 +23,6 @@ import {
     BOLT_LIM,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
-    CONFUSION,
     DISP_TETHER,
     DISP_END,
     DISP_FLASH,
@@ -68,7 +67,6 @@ import {
     SLT_ENCUMBER,
     STONE_RES,
     STONED,
-    STUNNED,
     TIMEOUT,
     W_NONDIGGABLE,
     W_WEP,
@@ -277,7 +275,7 @@ import {
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
 import {
-    Blind, Deaf, HBlinded, Hallucination, Maybe_Half_Phys,
+    Blind, Confusion, Deaf, HBlinded, Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
@@ -500,8 +498,8 @@ async function u_catch_thrown_obj(obj, env) {
     const catchChance = 100 - acurr(state, A_DEX)
         - ((role === PM_MONK || role === PM_ROGUE) ? 20 : 0);
     if (!Blind(state.u)
-        && !propertyActive(state, CONFUSION)
-        && !propertyActive(state, STUNNED)
+        && !Confusion(state.u)
+        && !Stunned(state.u)
         && !propertyActive(state, FUMBLING)
         && obj.oclass !== VENOM_CLASS
         && !nohands(state.youmonst.data)

@@ -15,7 +15,6 @@ import {
     ARTICLE_YOUR,
     COLD_RES,
     CLOUD,
-    CONFUSION,
     CONFLICT,
     COLNO,
     CORR,
@@ -132,7 +131,6 @@ import {
     STAIRS,
     STEALTH,
     STONE,
-    STUNNED,
     SWIMMING,
     TELEPORT,
     TELEP_TRAP,
@@ -545,8 +543,8 @@ import {
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
-    Blind, Deaf, Half_physical_damage, Hallucination, Maybe_Half_Phys,
-    Warning,
+    Blind, Confusion, Deaf, Half_physical_damage, Hallucination,
+    Maybe_Half_Phys, Stunned, Warning,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -901,8 +899,8 @@ function propertyIntrinsic(state, property) {
 // blocked term. rn2(5) is drawn only for a confused hero, so an unimpaired one
 // costs no randomness.
 export function u_maybe_impaired(state = game) {
-    return Boolean(propertyIntrinsic(state, STUNNED)
-        || (propertyIntrinsic(state, CONFUSION) && !rn2(5)));
+    return Boolean(Stunned(state.u)
+        || (Boolean(Confusion(state.u)) && !rn2(5)));
 }
 
 // C ref: youprop.h's plain `HFoo || EFoo` property macros, such as
@@ -2811,8 +2809,8 @@ export async function test_move(
                     );
                 }
                 if (state.flags?.autoopen && !run
-                    && !propertyIntrinsic(state, CONFUSION)
-                    && !propertyIntrinsic(state, STUNNED)
+                    && !Confusion(state.u)
+                    && !Stunned(state.u)
                     && !propertyPresent(state, FUMBLING)) {
                     const openEnv = { message };
                     if (env.random) openEnv.random = env.random;
@@ -2830,7 +2828,7 @@ export async function test_move(
                         ? 1 : 0;
                 } else if (x === ux || y === uy) {
                     if (Blind(state.u)
-                        || propertyIntrinsic(state, STUNNED)
+                        || Boolean(Stunned(state.u))
                         || acurr(state, A_DEX) < 10
                         || propertyPresent(state, FUMBLING)) {
                         if (state.u.usteed) {
@@ -3402,8 +3400,8 @@ function swim_move_danger_result(x, y, state) {
         return SWIM_DANGER_CONTINUE;
     }
 
-    const stunned = propertyIntrinsic(state, STUNNED);
-    const confused = propertyIntrinsic(state, CONFUSION);
+    const stunned = Boolean(Stunned(state.u));
+    const confused = Boolean(Confusion(state.u));
     if (newtyp !== u_simple_floortyp(state.u.ux, state.u.uy, state)
         && !stunned && !confused && state.level.at(x, y).seenv
         && (is_pool(x, y, state) || is_lava(x, y, state) || liquidWall)
@@ -3709,8 +3707,8 @@ function region_damage(region) {
 export async function avoid_trap_andor_region(x, y, state = game) {
     const paranoia = Math.trunc(state.flags?.paranoia_bits ?? 0);
     const paranoidTrap = Boolean(paranoia & PARANOID_TRAP);
-    const impaired = propertyIntrinsic(state, STUNNED)
-        || propertyIntrinsic(state, CONFUSION);
+    const impaired = Boolean(Stunned(state.u))
+        || Boolean(Confusion(state.u));
     if (paranoidTrap && !Blind(state.u) && !impaired
         && !Hallucination(state.u)
         && (!state.context.nopick || state.context.run)) {

@@ -11,7 +11,6 @@ import {
     ARTICLE_A,
     ARTICLE_YOUR,
     BOTH_SIDES,
-    CONFUSION,
     DIR_ERR,
     DISMOUNT_BONES,
     DISMOUNT_BYCHOICE,
@@ -47,7 +46,6 @@ import {
     SLT_ENCUMBER,
     STEALTH,
     STONE_RES,
-    STUNNED,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -176,7 +174,7 @@ import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
-    Blind, Blind_telepat, Hallucination, Maybe_Half_Phys,
+    Blind, Blind_telepat, Confusion, Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
@@ -428,7 +426,7 @@ export async function use_saddle(otmp, state = game, env = {}) {
         chance -= 20;
         break;
     }
-    if (propertyActive(state, CONFUSION)
+    if (Confusion(state.u)
         || propertyActive(state, FUMBLING)
         || propertyIntrinsic(state, GLIB)) {
         chance -= 20;
@@ -611,7 +609,7 @@ export async function mount_steed(mtmp, force, state = game) {
     // reach this line: the guard above returns for it whenever `force` is
     // FALSE. A forced debug mount bypasses this entire impairment disjunction.
     if (!force
-        && (propertyIntrinsic(state, CONFUSION)
+        && (Boolean(Confusion(state.u))
             || propertyActive(state, FUMBLING)
             || propertyIntrinsic(state, GLIB)
             || propertyActive(state, WOUNDED_LEGS)
@@ -795,8 +793,8 @@ async function landing_spot(reason, forceit, state = game, random = coreRandom) 
      *       avoids boulders but allows known traps;
      * i==2: other, allow traps and boulders.
      */
-    const impaird = propertyIntrinsic(state, STUNNED)
-        || propertyIntrinsic(state, CONFUSION)
+    const impaird = Boolean(Stunned(state.u))
+        || Boolean(Confusion(state.u))
         || propertyActive(state, FUMBLING);
     let viable = 0;
     let found = false;

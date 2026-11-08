@@ -640,9 +640,9 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Deaf, HBlinded, HConfusion, HDeaf,
-    HHallucination, HStun, Halluc_resistance, Hallucination, Invis,
-    Maybe_Half_Phys, See_invisible, Sick, Vomiting,
+    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, HBlinded, HConfusion,
+    HDeaf, HHallucination, HStun, Halluc_resistance, Hallucination, Invis,
+    Maybe_Half_Phys, See_invisible, Sick, Stunned, Vomiting,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -651,11 +651,11 @@ function applyPropertyActive(property, state = game) {
 }
 
 function applyIsConfused(state) {
-    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+    return Boolean(Confusion(state.u));
 }
 
 function applyIsStunned(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+    return Boolean(Stunned(state.u));
 }
 
 
@@ -1944,7 +1944,7 @@ function trapSettingFumbling(state) {
 }
 
 function trapSettingStunned(state) {
-    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+    return Boolean(Stunned(state.u));
 }
 
 // C ref: apply.c use_trap() (2821-2911). The caller has already selected a
@@ -3526,14 +3526,14 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             );
             break;
         case 2:
-            if (!intrinsic(CONFUSION)) {
+            if (!HConfusion(state.u)) {
                 await message(
                     `You suddenly feel ${hallucinating() ? 'trippy' : 'confused'}.`,
                     state,
                 );
             }
             await make_confused(
-                (intrinsic(CONFUSION) & TIMEOUT) + lcount,
+                (HConfusion(state.u) & TIMEOUT) + lcount,
                 true,
                 state,
                 env,
@@ -3541,7 +3541,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             break;
         case 3:
             await make_stunned(
-                (intrinsic(STUNNED) & TIMEOUT) + lcount,
+                (HStun(state.u) & TIMEOUT) + lcount,
                 true, state, env,
             );
             break;
@@ -4150,7 +4150,7 @@ export async function use_mirror(obj, state = game, env = {}) {
         } else if (u.umonnum === PM_UMBER_HULK) {
             await ttyPline("Huh?  That doesn't look like you!", state);
             await make_confused(
-                (state.u.uprops[CONFUSION]?.intrinsic ?? 0)
+                HConfusion(state.u)
                     + random.d(3, 4),
                 false,
                 state,
@@ -5422,10 +5422,10 @@ export function unfixable_trouble_count(isHorn = false, state = game) {
 
     if (intrinsic(SICK)
         && (!isHorn || (intrinsic(SICK) & ~TIMEOUT) !== 0)) count++;
-    if (intrinsic(STUNNED)
-        && (!isHorn || (intrinsic(STUNNED) & ~TIMEOUT) !== 0)) count++;
-    if (intrinsic(CONFUSION)
-        && (!isHorn || (intrinsic(CONFUSION) & ~TIMEOUT) !== 0)) count++;
+    if (HStun(state.u)
+        && (!isHorn || (HStun(state.u) & ~TIMEOUT) !== 0)) count++;
+    if (HConfusion(state.u)
+        && (!isHorn || (HConfusion(state.u) & ~TIMEOUT) !== 0)) count++;
 
     const hallucination = HHallucination(state.u);
     if (hallucination && !Halluc_resistance(state.u)

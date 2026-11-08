@@ -11,7 +11,6 @@ import {
     ANTIMAGIC,
     BLND_RES,
     COLD_RES,
-    CONFUSION,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
@@ -62,7 +61,6 @@ import {
     SICK,
     SICK_ALL,
     SLIMED,
-    STUNNED,
     STEALTH,
     STONE_RES,
     TELEPORT_CONTROL,
@@ -294,7 +292,8 @@ import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
-    BBlinded, BInvis, Blind, EBlinded, HBlinded, Hallucination, Maybe_Half_Phys,
+    BBlinded, BInvis, Blind, EBlinded, HBlinded, HConfusion, HStun,
+    Hallucination, Maybe_Half_Phys,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -1923,7 +1922,7 @@ export async function Mb_hit(
     if (do_stun) {
         if (youdefend) {
             const stunTimeout = (
-                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+                HStun(state.u) & TIMEOUT
             ) + 3;
             await make_stunned(stunTimeout, false, state, env);
         } else {
@@ -1939,7 +1938,7 @@ export async function Mb_hit(
     if (do_confuse) {
         if (youdefend) {
             const confusionTimeout = (
-                (state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0) & TIMEOUT
+                HConfusion(state.u) & TIMEOUT
             ) + 4;
             await make_confused(confusionTimeout, false, state, env);
         } else {
@@ -3015,8 +3014,8 @@ export async function Sting_effects(orc_count, state = game, env = {}) {
         const oldstr = glow_strength(warn_cnt);
         const newstr = glow_strength(orc_count);
 
-        const blind = (HBlinded(state.u)) !== 0
-            || (EBlinded(state.u)) !== 0;
+        const blind = HBlinded(state.u) !== 0
+            || EBlinded(state.u) !== 0;
 
         if (orc_count === -1 && warn_cnt > 0) {
             await message(

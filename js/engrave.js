@@ -11,7 +11,6 @@ import {
     BUFSZ,
     CLOUD,
     COLNO,
-    CONFUSION,
     DUST,
     ECMD_FAIL,
     ECMD_OK,
@@ -30,7 +29,6 @@ import {
     P_BASIC,
     P_RIDING,
     ROWNO,
-    STUNNED,
     IS_AIR,
     IS_FOUNTAIN,
     IS_ALTAR,
@@ -83,7 +81,9 @@ import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
-import { Blind, Deaf, Hallucination } from './youprop.js';
+import {
+    Blind, Confusion, Deaf, Hallucination, Stunned,
+} from './youprop.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -1078,9 +1078,9 @@ export async function doengrave(state = game, env = {}) {
         const damage = (de.type === DUST || de.type === ENGR_BLOOD)
             && !env.random.rn2(25)
             || Blind(state.u) && !env.random.rn2(11)
-            || propertyActiveUnblocked(state.u, CONFUSION)
+            || Boolean(Confusion(state.u))
                 && !env.random.rn2(7)
-            || propertyActiveUnblocked(state.u, STUNNED)
+            || Boolean(Stunned(state.u))
                 && !env.random.rn2(4)
             || Hallucination(state.u)
                 && !env.random.rn2(2);

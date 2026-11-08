@@ -4,7 +4,7 @@
 
 import {
     NEUTRAL, NO_MM_FLAGS, NON_PM, PARANOID_WERECHANGE,
-    POLYMORPH_CONTROL, PROT_FROM_SHAPE_CHANGERS, STUNNED, UNCHANGING,
+    POLYMORPH_CONTROL, PROT_FROM_SHAPE_CHANGERS, UNCHANGING,
 } from './const.js';
 import { tamedog } from './dog.js';
 import { game } from './gstate.js';
@@ -37,7 +37,7 @@ import { an } from './objnam.js';
 import { youFeel } from './pline.js';
 import { is_were } from './mondata.js';
 import { ttyPline } from './tty_message.js';
-import { Unaware } from './youprop.js';
+import { Stunned, Unaware } from './youprop.js';
 
 // C ref: were.c you_were() (192-212). Controlled changes ask before testing
 // nearby monsters; an uncontrolled change is suppressed by that test.
@@ -45,7 +45,7 @@ export async function you_were(state = game, env = {}) {
     const active = (property) => Boolean(state.u.uprops[property].intrinsic
         || state.u.uprops[property].extrinsic);
     const controllable_poly = active(POLYMORPH_CONTROL)
-        && !(active(STUNNED) || Unaware(state));
+        && !(Boolean(Stunned(state.u)) || Unaware(state));
     if (active(UNCHANGING) || state.u.umonnum === state.u.ulycn)
         return;
     if (controllable_poly) {
@@ -68,7 +68,7 @@ export async function you_unwere(purify, state = game, env = {}) {
     const active = (property) => Boolean(state.u.uprops[property].intrinsic
         || state.u.uprops[property].extrinsic);
     const controllable_poly = active(POLYMORPH_CONTROL)
-        && !(active(STUNNED) || Unaware(state));
+        && !(Boolean(Stunned(state.u)) || Unaware(state));
     const message = env.message ?? ttyPline;
     if (purify) {
         await message(youFeel('purified.', state), state);

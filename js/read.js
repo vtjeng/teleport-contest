@@ -79,7 +79,6 @@ import {
     W_CHAIN,
     W_ARMH,
     W_ARM,
-    STUNNED,
     TIMEOUT,
     W_SADDLE,
     TT_BURIEDBALL,
@@ -436,8 +435,8 @@ import {
     HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
 } from './read_text_data.js';
 import {
-    Blind, Deaf, ESee_invisible, HSee_invisible, Hallucination, Invis,
-    Maybe_Half_Phys,
+    Blind, Confusion, Deaf, ESee_invisible, HConfusion, HSee_invisible, HStun,
+    Hallucination, Invis, Maybe_Half_Phys,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -788,7 +787,7 @@ export async function seffect_charging(scroll, state = game) {
     const otyp = scroll.otyp;
     const blessed = Boolean(scroll.blessed);
     const cursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const alreadyKnown = scroll.oclass === SPBOOK_CLASS
         || objectType(otyp, state).oc_name_known;
 
@@ -880,11 +879,7 @@ function propertyActive(property, state) {
 export async function seffect_confuse_monster(sobj, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
-    const confusion = state.u.uprops[CONFUSION] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    const hconfusion = confusion.intrinsic ?? 0;
+    const hconfusion = HConfusion(state.u);
     const sblessed = Boolean(sobj.blessed);
     const scursed = Boolean(sobj.cursed);
     const confused = hconfusion !== 0;
@@ -969,7 +964,7 @@ export async function seffect_confuse_monster(sobj, state = game, env = {}) {
 // whether visible monsters flee, and emits sound feedback only for a scroll
 // or an empty non-pet count. Spell callers share this effect through seffects().
 export async function seffect_scare_monster(sobj, state = game) {
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     let count = 0;
 
     for (let mtmp = state.level?.monlist ?? state.fmon;
@@ -1051,7 +1046,7 @@ async function maybe_tame(monster, scroll, state) {
 // source-owned effect through seffects().
 export async function seffect_taming(scroll, state = game) {
     state.gk ??= {};
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     let candidates;
     let results;
     let visResults;
@@ -1146,7 +1141,7 @@ export async function seffect_punishment(scroll, state = game) {
     if (scroll?.otyp !== SCR_PUNISHMENT || scroll.oclass !== SCROLL_CLASS)
         throw new UnsupportedReadError('the selected punishment-scroll branch');
     state.gk.known = true;
-    if (scroll.blessed || propertyActive(CONFUSION, state)) {
+    if (scroll.blessed || Boolean(Confusion(state.u))) {
         await ttyPline(youFeel('guilty.', state), state);
         return;
     }
@@ -1390,7 +1385,7 @@ export async function doread(state = game) {
         }
     }
 
-    let confused = propertyActive(CONFUSION, state);
+    let confused = Boolean(Confusion(state.u));
     if (otyp === SCR_MAIL) {
         confused = false;
         state.u.uconduct ??= {};
@@ -1484,7 +1479,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     const sobj = scroll;
     const sblessed = Boolean(sobj.blessed);
     const scursed = Boolean(sobj.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const effectEnv = { ...env, state, message };
@@ -1696,7 +1691,7 @@ export async function seffect_destroy_armor(
     const exerciseEnv = { encumberMessage: encumber_msg };
     const otmp = some_armor(state.youmonst, state, random);
     const scursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
 
     if (confused) {
         if (!otmp) {
@@ -1725,7 +1720,7 @@ export async function seffect_destroy_armor(
                 otmp.spe--;
                 adj_abon(otmp, -1, state, { random });
             }
-            const stun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
+            const stun = HStun(state.u) & TIMEOUT;
             const duration = stun + random.rn1(10, 10);
             await make_stunned(duration, true, state, rawEnv);
         } else if (await disintegrate_arm(otmp, { state, random })) {
@@ -1805,7 +1800,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
     const otyp = scroll.otyp;
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
-    const confused = Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+    const confused = Boolean(Confusion(state.u));
     const hallucination = Hallucination(state.u);
     const random = env.random ?? coreRandom;
 
@@ -1918,7 +1913,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
 // path; confused or cursed scrolls retain the level_tele() branch.
 export async function seffect_teleportation(scroll, state = game) {
     const scursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     if (confused || scursed) {
         await level_tele(state);
         /* gives "materialize on different/same level!" message, must
@@ -1956,7 +1951,7 @@ export async function seffect_identify(scroll, state = game) {
     const isScroll = scroll.oclass === SCROLL_CLASS;
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const alreadyKnown = scroll.oclass === SPBOOK_CLASS
         || objectType(otyp, state).oc_name_known;
 
@@ -2158,7 +2153,7 @@ export async function seffect_light(scroll, state = game) {
     state.gk ??= {};
     const blessed = Boolean(scroll.blessed);
     const cursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
 
     if (!confused) {
         if (!Blind(state.u)) state.gk.known = true;
@@ -2206,11 +2201,7 @@ export async function seffect_magic_mapping(
     const isScroll = scroll.oclass === SCROLL_CLASS;
     const sblessed = Boolean(scroll.blessed);
     const scursed = Boolean(scroll.cursed);
-    const confusion = state.u.uprops[CONFUSION] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    const hconfusion = confusion.intrinsic ?? 0;
+    const hconfusion = HConfusion(state.u);
     const confused = hconfusion !== 0;
 
     if (isScroll) {
@@ -2258,13 +2249,13 @@ export async function seffect_magic_mapping(
 
     await ttyPline('A map coalesces in your mind!', state);
     const temporaryConfusion = scursed && !confused;
-    if (temporaryConfusion) confusion.intrinsic = 1;
+    if (temporaryConfusion) state.u.uprops[CONFUSION].intrinsic = 1;
     notice_mon_off(state);
     try {
         await do_mapping(state, { random });
     } finally {
         notice_mon_on(state);
-        if (temporaryConfusion) confusion.intrinsic = 0;
+        if (temporaryConfusion) state.u.uprops[CONFUSION].intrinsic = 0;
     }
     if (temporaryConfusion)
         await ttyPline("Unfortunately, you can't grasp the details.", state);
@@ -2438,7 +2429,7 @@ export async function drop_boulder_on_monster(
 export async function seffect_earth(scroll, state = game) {
     const blessed = Boolean(scroll?.blessed);
     const cursed = Boolean(scroll?.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const level = state.u?.uz;
     const inEndgame = level?.dnum != null
         && level.dnum === state.astral_level?.dnum;
@@ -2578,7 +2569,7 @@ export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
 export async function seffect_fire(scroll, state = game) {
     const otyp = scroll.otyp;
     const sblessed = Boolean(scroll.blessed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const alreadyKnown = scroll.oclass === SPBOOK_CLASS
         || objectType(scroll, state).oc_name_known;
     const cc = { x: state.u.ux, y: state.u.uy };
@@ -3054,7 +3045,7 @@ export async function seffect_genocide(scroll, state = game) {
         await do_class_genocide(state);
     } else {
         const how = Number(!cursed)
-            | (propertyActive(CONFUSION, state) ? 2 : 0);
+            | (Boolean(Confusion(state.u)) ? 2 : 0);
         await do_genocide(how, state);
     }
 }
@@ -3076,7 +3067,7 @@ export async function seffect_stinking_cloud(scroll, state = game) {
 // detection for confusion or a cursed scroll and otherwise selects gold;
 // each helper's 1 result means its strange-feeling path consumed `sobj`.
 async function seffect_gold_detection(scroll, state = game) {
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const consumed = (confused || scroll.cursed)
         ? await trap_detect(scroll, state)
         : await gold_detect(scroll, state);
@@ -3153,7 +3144,7 @@ async function seffect_create_monster(scroll, state = game,
     random = coreRandom) {
     const blessed = Boolean(scroll.blessed);
     const cursed = Boolean(scroll.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const count = 1
         + ((confused || cursed) ? 12 : 0)
         + ((blessed || random.rn2(73)) ? 0 : random.rnd(4));
@@ -3208,7 +3199,7 @@ export async function seffects(scroll, state = game, env = {}) {
     if (objectType(scroll, state).oc_magic)
         await exercise(A_WIS, true, state, random);
 
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     switch (scroll.otyp) {
     case SCR_MAIL:
         await seffect_mail(scroll, state, env);
@@ -3315,7 +3306,7 @@ export async function seffect_enchant_weapon(scroll, state = game) {
     const sobj = scroll;
     const sblessed = Boolean(sobj.blessed);
     const scursed = Boolean(sobj.cursed);
-    const confused = propertyActive(CONFUSION, state);
+    const confused = Boolean(Confusion(state.u));
     const uwep = state.uwep;
 
     // Confusion turns a weapon enchantment into the source rustproofing

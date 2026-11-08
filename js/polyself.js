@@ -26,7 +26,6 @@ import {
     BZ_OFS_AD,
     BZ_U_BREATH,
     COLD_RES,
-    CONFUSION,
     DART_TRAP,
     DIED,
     DISINT_RES,
@@ -278,7 +277,7 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Hallucination, Invis, See_invisible,
+    Blind, Confusion, Hallucination, Invis, See_invisible, Stunned,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -315,11 +314,6 @@ function Levitation(state) {
                    && !levitation.blocked);
 }
 
-
-// youprop.h:84 Confusion is HConfusion alone.
-function Confusion(state) {
-    return Boolean(uprop(state, CONFUSION).intrinsic);
-}
 
 // youprop.h:65 Stone_resistance, :152 See_invisible, :368 Polymorph_control
 // and :372 Unchanging: intrinsic or extrinsic, with no block term.
@@ -1653,7 +1647,7 @@ export async function polyself(psflags, state = game, env = {}) {
     const isvamp = Boolean(is_vampire(state.youmonst.data)
                            || is_vampshifter(state.youmonst));
     let controllable_poly = Polymorph_control(state)
-        && !(Boolean(uprop(state, STUNNED).intrinsic)
+        && !(Boolean(Stunned(state.u))
              || (Math.trunc(state.multi ?? 0) < 0
                  && (unconscious(state) || u.uhs === FAINTED)));
 
@@ -2446,13 +2440,13 @@ export async function dogaze(state = game) {
                 looked--;
                 continue;
             } else if (state.flags.safe_dog && mtmp.mtame
-                       && !Confusion(state)) {
+                       && !Confusion(state.u)) {
                 await ttyPline(
                     `You avoid gazing at ${y_monnam(mtmp, state)}.`, state,
                 );
             } else {
                 if (state.flags.confirm && mtmp.mpeaceful
-                    && !Confusion(state)) {
+                    && !Confusion(state.u)) {
                     const qbuf = `Really ${(adtyp === M.AD_CONF)
                         ? 'confuse' : 'attack'} `
                         + `${mon_nam(mtmp, state)}?`;
