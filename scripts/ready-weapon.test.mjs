@@ -6,6 +6,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { expectTerminated } from './expect-terminated.mjs';
+
 import {
     KILLED_BY,
     ECMD_FAIL,
@@ -16,12 +18,10 @@ import {
     LAST_PROP,
     OBJ_INVENT,
     RIGHT_HANDED,
-    STONING,
     W_ARMS,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
-import { HeroDeathPlanningError } from '../js/hack.js';
 import {
     PM_GRID_BUG,
     PM_COCKATRICE,
@@ -53,6 +53,8 @@ import {
     ready_weapon,
 } from '../js/wield.js';
 import { GameDisplay } from '../js/game_display.js';
+import { game } from '../js/gstate.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import { roles } from '../js/roles.js';
@@ -372,20 +374,37 @@ test('cant_wield_corpse reads the source stone resistance even when blocked', as
     state.u.uprops[STONE_RES].intrinsic = 0;
     state.uarmg = {}; // C's first disjunct prevents unsafe bare-hand handling
     assert.equal(await cant_wield_corpse(corpse, state), false);
-    state.uarmg = null;
+
+    // Without gloves or resistance, trap.c instapetrify() calls
+    // done(STONING), which needs a real game: an independent Samurai start,
+    // whose kit has no gloves.
+    await runSegment({ seed: 52906113, datetime: '20520917113000',
+        nethackrc: 'OPTIONS=name:BareHands,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: ' ' });
+    assert.ok(!game.uarmg);
+    const live = object(game, CORPSE, { corpsenm: PM_COCKATRICE });
+    // Record every screen the game waits on, declining each disclosure
+    // question and dismissing each --More--, so the farewell is kept.
+    const display = game.nhDisplay;
+    const screens = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        screens.push(screen);
+        return (/\[yn/u.test(screen.split('\n')[0]) ? 'n' : ' ').charCodeAt(0);
+    };
     const urgentMessages = [];
-    await assert.rejects(cant_wield_corpse(corpse, state, {
-        planning: true,
-        message: async line => urgentMessages.push(line),
-    }), error => {
-        assert.ok(error instanceof HeroDeathPlanningError);
-        assert.equal(error.how, STONING);
-        assert.equal(error.killerFormat, KILLED_BY);
-        assert.match(error.killerName, /^wielding .* bare-handed$/u);
-        return true;
-    });
-    assert.equal(drain(state), 'You wield the cockatrice corpse in your bare hands.');
+    await expectTerminated(() => cant_wield_corpse(live, game, {
+        urgentMessage: async line => urgentMessages.push(line),
+    }), 'bare-handed cockatrice wielding ends the game');
+    // wield.c writes its line with You(), so it opens the terminal's top line.
+    assert.ok(screens[0]?.startsWith(
+        'You wield the cockatrice corpse in your bare hands.'), screens[0]);
     assert.deepEqual(urgentMessages, ['You turn to stone...']);
-    assert.equal(state.killer.format, KILLED_BY);
-    assert.equal(state.uwep, null); // ready_weapon does not install unsafe corpse
+    // end.c ends[STONING] is "turned to stone" in the farewell.
+    assert.match([...screens, display.serialize()].join('\n'),
+        /You turned to stone in The Dungeons of Doom/u);
+    assert.equal(game.killer.format, KILLED_BY);
+    assert.match(game.killer.name, /^wielding .* bare-handed$/u);
+    // ready_weapon does not install unsafe corpse; the Samurai keeps her katana.
+    assert.notEqual(game.uwep, live);
 });

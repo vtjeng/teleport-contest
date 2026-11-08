@@ -2,13 +2,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { expectTerminated } from './expect-terminated.mjs';
+
 import { wielding_corpse } from '../js/do_wear.js';
 import { instapetrify } from '../js/trap.js';
-import { HeroDeathPlanningError } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
-import { CXN_ARTICLE, KILLED_BY, LAST_PROP, STONING, STONE_RES } from '../js/const.js';
+import { CXN_ARTICLE, KILLED_BY, LAST_PROP, OBJ_INVENT, STONE_RES } from '../js/const.js';
+import { newObject } from '../js/obj.js';
 import {
     CORPSE, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY,
     YELLOW_DRAGON_SCALES, objects_globals_init,
@@ -39,6 +41,36 @@ function fixture() {
     const env = { message: async line => lines.push(line),
         urgentMessage: async line => lines.push(line) };
     return { state, lines, env };
+}
+
+// trap.c instapetrify() ends in done(STONING), which needs a real game: an
+// independent Wizard start, whose kit has no gloves, wielding a cockatrice
+// corpse. Every screen the game waits on is recorded, declining each
+// disclosure question and dismissing each --More--, so the farewell is kept.
+async function liveFixture() {
+    await runSegment({ seed: 52906127, datetime: '20520917114500',
+        nethackrc: 'OPTIONS=name:Stonewall,role:Wizard,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: ' ' });
+    const state = game;
+    assert.ok(!state.uarmg);
+    state.uwep = newObject({
+        otyp: CORPSE, oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_COCKATRICE, quan: 1, dknown: 1, where: OBJ_INVENT,
+    });
+    const display = state.nhDisplay;
+    const screens = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        screens.push(screen);
+        return (/\[yn/u.test(screen.split('\n')[0]) ? 'n' : ' ').charCodeAt(0);
+    };
+    // end.c ends[STONING] is "turned to stone" in the farewell.
+    const farewell = () => assert.match([...screens, display.serialize()].join('\n'),
+        /You turned to stone in The Dungeons of Doom/u);
+    const lines = [];
+    const env = { message: async line => lines.push(line),
+        urgentMessage: async line => lines.push(line) };
+    return { state, lines, env, farewell };
 }
 
 test('wielding_corpse preserves each source early return', async () => {
@@ -76,7 +108,7 @@ test('protection-loss messages and killer naming follow the whole C helper', asy
             'are wielding', 'removing yellow dragon scales'],
         [null, false, 'are wielding', 'resistance timing out'],
     ]) {
-        const { state, lines, env } = fixture();
+        const { state, lines, env, farewell } = await liveFixture();
         // Known type names exercise gloves_simple_name/simpleonames rather
         // than the randomly assigned undiscovered armor descriptions.
         if (how) {
@@ -84,13 +116,10 @@ test('protection-loss messages and killer naming follow the whole C helper', asy
             how.oclass = state.objects[how.otyp].oc_class;
             how.quan = 1; // A single protective armor object, as at the C caller.
         }
-        await assert.rejects(wielding_corpse(state.uwep, how, voluntary, state, { ...env, planning: true }), error => {
-            assert.ok(error instanceof HeroDeathPlanningError, error.stack);
-            assert.equal(error.how, STONING);
-            assert.equal(error.killerFormat, KILLED_BY);
-            assert.equal(error.killerName, `${cause} while wielding a cockatrice corpse`);
-            return true;
-        });
+        await expectTerminated(() => wielding_corpse(state.uwep, how, voluntary, state, env),
+            `${cause} ends the game`);
+        farewell();
+        assert.equal(state.killer.format, KILLED_BY);
         assert.deepEqual(lines, [`You ${verb} a cockatrice corpse in your bare hands.`,
             'You turn to stone...']);
         assert.equal(state.killer.name, `${cause} while wielding a cockatrice corpse`);
@@ -117,15 +146,16 @@ test('Gloves_off captures voluntary state before cleanup and awaits both corpse 
 });
 
 test('the hypothetical active alternate corpse follows the source slot condition', async () => {
-    const { state, env } = fixture();
+    const { state, env, farewell } = await liveFixture();
     const corpse = state.uwep;
     state.uwep = null;
     state.uswapwep = corpse;
     // Ordinary two-weapon admission rejects corpses. This artificial state
     // pins the C guard's fallback without calling it a reachable entry point.
     state.u.twoweap = true;
-    await assert.rejects(wielding_corpse(corpse, null, false, state, { ...env, planning: true }),
-        error => error instanceof HeroDeathPlanningError && error.how === STONING);
+    await expectTerminated(() => wielding_corpse(corpse, null, false, state, env),
+        'the active alternate corpse ends the game');
+    farewell();
 });
 
 test('recorded recovery clears the corpse weapon while stone-golem recovery retains it', async () => {
