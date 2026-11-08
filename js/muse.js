@@ -1558,13 +1558,13 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                 discover_object(otmp.otyp, true, true, true, state);
         } else if (vismon && !mtmp.minvis) {
             /* cursed potion; mon tried to make itself invisible but failed */
-            await pline_mon(mtmp,
+            await ttyPline(
                 `${capitalizedMonsterName(mtmp, state)} briefly seems to be transparent.`,
                 state);
         } else if (!vismon && canseemon(mtmp, state)) {
             /* cursed potion; this won't happen because a monster will only
                drink a potion of invisibility when not already invisible */
-            await pline_mon(mtmp,
+            await ttyPline(
                 `${capitalizedMonsterName(mtmp, state)} suddenly appears!`,
                 state);
         }
@@ -1775,10 +1775,11 @@ async function you_aggravate(mtmp, state) {
     // C: #ifdef CLIPPING cliparound() -- not applicable to the JS renderer
     show_glyph_cell(mtmp.mx, mtmp.my, map_monster_glyph_info(mtmp, state));
     display_self(state);
-    await ttyPline(messageAt(
+    // C's You_feel() records no location.
+    await ttyPline(
         youFeel(`aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
             state),
-        mtmp.mx, mtmp.my, state), state);
+        state);
     // C: display_nhwindow(WIN_MAP, TRUE) -- flush the map display
     await flush_screen(1);
     await docrt({ state });
@@ -3380,7 +3381,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
 
         if (mon.mx === trap.tx && mon.my === trap.ty) {
             if (vis)
-                await pline_mon(mon,
+                await (actionEnv.message ?? ttyPline)(
                     `${Mnam} triggers ${trap.tseen ? 'the' : 'a'} fire trap!`,
                     state,
                     actionEnv,
@@ -3393,7 +3394,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
                 worm_move(mon, { ...actionEnv, state });
             redraw(mon.mx, mon.my, state);
             if (vis)
-                await pline_mon(mon,
+                await (actionEnv.message ?? ttyPline)(
                     `${Mnam} ${vtense('mon', locomotion(mon.data, 'move'))} ${is_floater(mon.data) ? 'over' : 'onto'} ${trap.tseen ? 'the' : 'a'} fire trap!`,
                     state,
                     actionEnv,
@@ -3424,8 +3425,8 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         await mreadmsg(mon, obj, state, actionEnv);
         if (mon.mconf) {
             if (cansee(mon.mx, mon.my, state))
-                await pline_mon(mon, 'Oh, what a pretty fire!', state,
-                    actionEnv);
+                await (actionEnv.message ?? ttyPline)('Oh, what a pretty fire!',
+                    state, actionEnv);
             if (vis) {
                 await trycall(obj, state);
             }
@@ -3460,7 +3461,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         if (vis) {
             if (!Unaware(state))
                 observe_object(obj, state); /* hero is watching mon drink obj */
-            await pline_mon(mon,
+            await (actionEnv.message ?? ttyPline)(
                 `${saw_lit ? upstart(mhe(mon, actionEnv)) : capitalizedMonsterName(mon, state, actionEnv)} quaffs a burning ${simpleonames(obj, state)}`,
                 state,
                 actionEnv,
