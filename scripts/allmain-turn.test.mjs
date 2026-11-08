@@ -41,7 +41,6 @@ import {
     M_SEEN_POISON,
     MOD_ENCUMBER,
     NORMAL_SPEED,
-    NON_PM,
     NOT_HUNGRY,
     NO_SPELL,
     OBJ_DELETED,
