@@ -573,7 +573,9 @@ export async function do_mgivenname(state = game) {
         return;
     }
 
-    const monnambuf = monsterCommonName(monster, state);
+    // do_name.c:249-251, the special case like lookat()'s: a named
+    // monster is "the <species> called <name>".
+    const monnambuf = distant_monnam(monster, ARTICLE_THE, null, state);
     const buf = await name_from_player(
         `What do you want to call ${monnambuf}?`,
         has_mgivenname(monster) ? monster.mextra?.mgivenname : null,

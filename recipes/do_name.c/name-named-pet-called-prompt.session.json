@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3058127,
+      "datetime": "20360210140500",
+      "nethackrc": "OPTIONS=name:Namer,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "#name\nmm.Kuro\n#name\nmm.\u001b",
+      "comment": "Independent #name of a named pet: a Samurai names her little dog Hachi as Kuro, then opens the prompt again and cancels. do_name.c do_mgivenname() asks with distant_monnam(), whose x_monnam(called=TRUE) gives \"the little dog called Hachi\"."
+    }
+  ]
+}
