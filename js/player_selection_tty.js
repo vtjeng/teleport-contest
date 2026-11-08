@@ -44,6 +44,7 @@ import {
     menuTitleStyle,
     resetRoleFilteringTty,
 } from './tty_menu.js';
+import { tty_yn_function } from './topl.js';
 import { select_menu } from './windows.js';
 import { ttyPlayerNameAndSuffix } from './tty_startup.js';
 
@@ -426,14 +427,6 @@ export function buildPlayerSelectionMenuSpec(
     throw new Error(`selection status '${context.status}' has no tty menu`);
 }
 
-function renderInitialQuestion(state, prompt) {
-    const display = state.nhDisplay;
-    if (!display) throw new Error('player selection requires tty display');
-    display.clearRow(0);
-    display.putstr(0, 0, prompt, NO_COLOR);
-    display.setCursor(prompt.length, 0);
-}
-
 async function waitForSelectionMore(state, message) {
     const display = state.nhDisplay;
     const more = '--More--';
@@ -505,11 +498,14 @@ export async function ttyPlayerSelectionImpl(state = game, random) {
     try {
         for (;;) {
             if (context.status === 'prompt') {
-                renderInitialQuestion(state, context.prompt);
-                const response = await nhgetch(state);
-                // topl.c tty_yn_function() leaves the answered prompt as
-                // TOPLINE_NON_EMPTY, so the menu that follows clears it.
-                state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
+                // role.c genl_player_setup() trims the prompt's trailing
+                // space and asks with yn_function(prompt, NULL, '\0'), which
+                // accepts any key; tty_yn_function() appends the space again
+                // and writes the prompt through the message window, so a
+                // prompt reaching the last column wraps as topl_putsym() does.
+                const response = await tty_yn_function(
+                    context.prompt.trim(), null, '\0', state,
+                );
                 context = answer_initial_player_selection(
                     state, context, response, random,
                 );

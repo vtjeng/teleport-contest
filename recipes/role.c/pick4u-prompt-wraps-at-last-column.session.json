@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "genl_player_setup() asks 'Shall I pick ... for you? [ynaq]' with yn_function(prompt, NULL, '\\0'); tty_yn_function() appends a space and writes the prompt through update_topl(), whose topl_putsym() never writes the last column. With only role:Priest the prompt is 79 characters, so the appended space wraps to row 1 and leaves the cursor there. 'x' is not an answer and asks again; 'a' picks the rest and starts. A second segment names a human Caveman, whose 80-character prompt puts its closing bracket on row 1.",
+  "segments": [
+    {
+      "seed": 20261183,
+      "datetime": "20400802143000",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "xa"
+    },
+    {
+      "seed": 20261184,
+      "datetime": "20400803091500",
+      "nethackrc": "OPTIONS=name:Brokk,role:Caveman,race:human,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "xa"
+    }
+  ]
+}
