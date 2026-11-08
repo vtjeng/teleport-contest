@@ -349,9 +349,9 @@ import { Punished } from './steed.js';
 import {
     Antimagic, Blind, Blinded, BlindedTimeout, Blindfolded, Deaf,
     Disint_resistance, EBlinded, EDisint_resistance, Flying, Glib, HBlinded,
-    HConfusion, HDeaf, HHallucination, HStun, Hallucination, Levitation,
-    Passes_walls, Shock_resistance, Sick, Slimed, Stoned, Strangled,
-    Wounded_legs,
+    HConfusion, HDeaf, HFast, HHallucination, HStealth, HStun, HTelepat,
+    Hallucination, Levitation, Passes_walls, Shock_resistance, Sick,
+    Slimed, Stoned, Strangled, Wounded_legs,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -2666,18 +2666,17 @@ export async function pleased(g_align, state = game) {
                 'Thou hast pleased me with thy progress,',
                 state,
             );
-            const grant = (property, label) => {
-                const prop = u.uprops[property];
-                prop.intrinsic ??= 0;
-                if (!(prop.intrinsic & INTRINSIC)) {
-                    prop.intrinsic |= FROMOUTSIDE;
+            // Each gift tests its H macro and sets that intrinsic field.
+            const grant = (heroIntrinsic, property, label) => {
+                if (!(heroIntrinsic(u) & INTRINSIC)) {
+                    u.uprops[property].intrinsic |= FROMOUTSIDE;
                     return label;
                 }
                 return null;
             };
-            const gift = grant(TELEPAT, 'Telepathy')
-                ?? grant(FAST, 'Speed')
-                ?? grant(STEALTH, 'Stealth');
+            const gift = grant(HTelepat, TELEPAT, 'Telepathy')
+                ?? grant(HFast, FAST, 'Speed')
+                ?? grant(HStealth, STEALTH, 'Stealth');
             if (gift) {
                 await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
                 if (gift === 'Telepathy' && Blind(state.u)) await see_monsters(state);

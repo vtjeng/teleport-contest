@@ -40,7 +40,6 @@ import {
     P_SKILLED,
     P_UNSKILLED,
     SLT_ENCUMBER,
-    STEALTH,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -167,8 +166,8 @@ import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
     Blind, Blind_telepat, Confusion, Flying, Fumbling, Glib, HWounded_legs,
-    Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stone_resistance,
-    Stunned, Wounded_legs,
+    Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stealth,
+    Stone_resistance, Stunned, Wounded_legs,
 } from './youprop.js';
 
 // youprop.h:77. The punishing ball is the whole test.
@@ -268,13 +267,6 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
     return saddle;
 }
 
-// youprop.h:210 Stealth. BStealth is written by polyself.c
-// steed_vs_stealth(), which this file calls on both sides of a ride.
-function Stealth(state) {
-    const stealth = state.u.uprops[STEALTH];
-    return Boolean((stealth.intrinsic || stealth.extrinsic)
-                   && !stealth.blocked);
-}
 
 
 // C ref: steed.c can_ride() (168-174).
@@ -620,10 +612,10 @@ export async function mount_steed(mtmp, force, state = game) {
         state.unweapon = false;
     u.usteed = mtmp;
     {
-        const was_stealthy = Stealth(state);
+        const was_stealthy = Stealth(state.u);
 
         steed_vs_stealth(state);
-        if (was_stealthy && !Stealth(state))
+        if (was_stealthy && !Stealth(state.u))
             await ttyPline("You aren't stealthy anymore.", state);
     }
     remove_monster(mtmp.mx, mtmp.my, state);
@@ -931,10 +923,10 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
     u.usteed = null;
     u.ugallop = 0;
     {
-        const was_stealthy = Stealth(state);
+        const was_stealthy = Stealth(state.u);
 
         steed_vs_stealth(state);
-        if (Stealth(state) && !was_stealthy)
+        if (Stealth(state.u) && !was_stealthy)
             await ttyPline('You seem less noisy now.', state);
     }
 

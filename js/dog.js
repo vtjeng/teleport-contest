@@ -10,8 +10,6 @@
 
 import {
     A_CHA,
-    AGGRAVATE_MONSTER,
-    CONFLICT,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
@@ -186,7 +184,8 @@ import {
     stairway_find, stairway_find_dir, stairway_find_from,
 } from './stairs.js';
 import {
-    BBlinded, Blind_telepat, EBlinded, HBlinded, Hallucination,
+    Aggravate_monster, BBlinded, Blind_telepat, Conflict, EBlinded, HBlinded,
+    Hallucination,
 } from './youprop.js';
 
 export { christen_monst } from './do_name.js';
@@ -321,10 +320,6 @@ export async function make_familiar(otmp, x, y, quietly = false, env = {}) {
     return monster;
 }
 
-function propertyActive(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 
 
@@ -1539,18 +1534,6 @@ export function discard_migrations(state = game, rawEnv = {}) {
     }
 }
 
-// C ref: youprop.h:214 Aggravate_monster and :218 Conflict, each `(H... ||
-// E...)` over one hero property. Neither has a blocking term: youprop.h gives
-// `blocked` aliases to BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
-// FLYING alone. Both are read once here, in abuse_dog()'s halving test.
-function Aggravate_monster(state) {
-    return propertyActive(state.u, AGGRAVATE_MONSTER);
-}
-
-function Conflict(state) {
-    return propertyActive(state.u, CONFLICT);
-}
-
 // C ref: dog.c wary_dog() (1292-1360). Saved traits retain the pet's
 // history; revival reassesses tameness before clearing a surviving pet's slate.
 export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
@@ -1631,7 +1614,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
 export async function abuse_dog(mtmp, state = game, random = coreRandom) {
     if (!mtmp.mtame) return;
 
-    if (Aggravate_monster(state) || Conflict(state))
+    if (Aggravate_monster(state.u) || Conflict(state.u))
         mtmp.mtame = Math.trunc(mtmp.mtame / 2);
     else
         mtmp.mtame--;

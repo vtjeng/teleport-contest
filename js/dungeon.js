@@ -8,7 +8,6 @@ import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
 import {
-    AGGRAVATE_MONSTER,
     ALTAR,
     AM_MASK,
     Amask2align,
@@ -110,7 +109,7 @@ import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { tty_clear_map_window } from './wintty.js';
 import {
-    Blind, Flying, Hallucination, Levitation,
+    Blind, EAggravate_monster, Flying, Hallucination, Levitation,
 } from './youprop.js';
 
 export const BR_STAIR = 0;
@@ -903,7 +902,7 @@ export function level_difficulty(state = game) {
             result += 2 * (dungeon.entry_lev - level.dlevel + 1);
         }
     }
-    if (state.u.uprops?.[AGGRAVATE_MONSTER]?.extrinsic)
+    if (EAggravate_monster(state.u))
         result = result > 25 ? 50 : result * 2;
     return result;
 }

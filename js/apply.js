@@ -46,7 +46,6 @@ import {
     CQ_CANNED,
     CORR,
     CONFUSION,
-    CONFLICT,
     COST_DSTROY,
     COST_SPLAT,
     DEAF,
@@ -628,8 +627,8 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, EFumbling, EJumping,
-    Flying, Fumbling, Glib, HBlinded, HConfusion, HDeaf, HFumbling,
+    BBlinded, Blind, BlindedTimeout, Conflict, Confusion, Deaf, EFumbling,
+    EJumping, Flying, Fumbling, Glib, HBlinded, HConfusion, HDeaf, HFumbling,
     HHallucination, HJumping, HStun, Halluc_resistance, Hallucination, Invis,
     Jumping, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible, Sick,
     Slimed, Stone_resistance, Stoned, Strangled, Stunned, Vomiting,
@@ -2772,10 +2771,6 @@ const JUMP_HORZ = 1;
 const JUMP_VERT = 2;
 const JUMP_DIAG = 3;
 
-function jumpProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: dothrow.c walk_path() (656-753).
 function jumpWalkPath(source, destination, callback, argument, state) {
@@ -2999,7 +2994,7 @@ export async function jump(magic = 0, state = game, env = {}) {
     }
     if (state.u.ustuck) {
         const captor = state.u.ustuck;
-        if (captor.mtame && !jumpProperty(state, CONFLICT) && !captor.mconf) {
+        if (captor.mtame && !Conflict(state.u) && !captor.mconf) {
             set_ustuck(null, state);
             await ttyPline(`You pull free from ${mon_nam(captor, state)}.`, state);
             return ECMD_TIME;

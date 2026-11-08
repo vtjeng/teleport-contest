@@ -116,7 +116,6 @@ import {
     st_corpse,
     st_petrifies,
     TIMEOUT,
-    STEALTH,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_SADDLE,
     TT_BEARTRAP,
@@ -405,11 +404,12 @@ import {
 import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
-    BInvis, BLevitation, Blind, EDetect_monsters, EInvis, EMagical_breathing,
-    ESee_invisible, ESleepy, ESwimming, ETelepat, Flying, Glib,
-    HDetect_monsters, HFumbling, HInvis, HLevitation, HMagical_breathing,
-    HSee_invisible, HSleepy, HSwimming, HTelepat, Hallucination, Invis,
-    Levitation, See_invisible, Slimed, Stone_resistance, Strangled,
+    BInvis, BLevitation, BStealth, Blind, EDetect_monsters, EInvis,
+    EMagical_breathing, ESee_invisible, ESleepy, EStealth, ESwimming,
+    ETelepat, Flying, Glib, HDetect_monsters, HDisplaced, HFumbling,
+    HInvis, HLevitation, HMagical_breathing, HSee_invisible, HSleepy,
+    HStealth, HSwimming, HTelepat, Hallucination, Invis, Levitation,
+    See_invisible, Slimed, Stone_resistance, Strangled,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -1058,7 +1058,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
     case RIN_STEALTH:
         await toggle_stealth(
             obj,
-            (state.u.uprops[STEALTH]?.extrinsic ?? 0) & ~mask,
+            EStealth(state.u) & ~mask,
             false,
             state,
         );
@@ -1931,7 +1931,6 @@ export async function toggle_displacement(
     if ((on && state.initial_don) || cancelledDon)
         return 0;
 
-    const displacement = state.u.uprops[DISPLACED];
     const blind = Blind(state.u);
     const invisible = Boolean(
         Invis(state.u)
@@ -1946,8 +1945,8 @@ export async function toggle_displacement(
     );
 
     if (!oldprop
-        && !displacement?.intrinsic
-        && !displacement?.blocked
+        && !HDisplaced(state.u)
+        && !state.u.uprops[DISPLACED]?.blocked
         && ((!blind && !state.u.uswallow && !invisible)
             || unblindTelepat
             || (blindTelepat && blind)
@@ -1975,8 +1974,7 @@ async function toggle_stealth(obj, oldprop, on, state = game, rawEnv = {}) {
     if (on ? state.initial_don : takeoffContext(state).cancelled_don)
         return;
 
-    const stealth = state.u.uprops[STEALTH];
-    if (!oldprop && !stealth.intrinsic && !stealth.blocked) {
+    if (!oldprop && !HStealth(state.u) && !BStealth(state.u)) {
         if (obj.otyp === RIN_STEALTH)
             learnring(obj, true, state);
         else

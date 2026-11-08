@@ -23,8 +23,6 @@ import {
     ARTICLE_YOUR,
     A_WIS,
     CLAIRVOYANT,
-    CONFLICT,
-    DISPLACED,
     DRY,
     EPRI,
     FROMOUTSIDE,
@@ -123,7 +121,7 @@ import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
-    Deaf, Hallucination, Invis,
+    Conflict, Deaf, Displaced, Hallucination, Invis,
 } from './youprop.js';
 
 // C ref: priest.c local constants.
@@ -744,13 +742,11 @@ export async function pri_move(priest, env = {}) {
 
     let avoid = true;
 
-    const conflict = state.u.uprops?.[CONFLICT];
-    if (!priest.mpeaceful || ((conflict?.intrinsic || conflict?.extrinsic)
+    if (!priest.mpeaceful || (Conflict(state.u)
         && !resist_conflict(priest, state, random))) {
         if (monnear(priest, state.u.ux, state.u.uy, state)) {
             // priest.c:199-203 completes its discarded attack before returning.
-            const displaced = state.u.uprops?.[DISPLACED];
-            if (displaced?.intrinsic || displaced?.extrinsic) {
+            if (Displaced(state.u)) {
                 await (env.message ?? ttyPline)(
                     `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
                     state, env,

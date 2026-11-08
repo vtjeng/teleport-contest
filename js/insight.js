@@ -368,18 +368,18 @@ import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
 import { count_wsegs, wseg_at } from './worm.js';
 import {
-    Acid_resistance, Antimagic, BBlinded, BClairvoyant, BFlying, BInvis,
-    BLevitation, Blind, Blind_telepat, BlindedTimeout, Blindfolded,
-    Blindfolded_only, Blnd_resist, Breathless, Clairvoyant, Cold_resistance,
-    Deaf, Detect_monsters, Disint_resistance, Drain_resistance, EBlinded,
-    EClairvoyant, EInvis, EWounded_legs, Fire_resistance,
-    Flying, Fumbling, Glib, HBlinded, HClairvoyant, HConfusion,
-    HDetect_monsters, HInvis, HSleepy, HStun,
-    Half_physical_damage, Halluc_resistance, Hallucination, Hunger,
-    Infravision, Invis, Invulnerable, Jumping, Lev_at_will, Levitation,
-    Passes_walls, Poison_resistance, Searching, See_invisible,
+    Acid_resistance, Adornment, Aggravate_monster, Antimagic, BBlinded,
+    BClairvoyant, BFlying, BInvis, BLevitation, BStealth, Blind,
+    Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
+    Breathless, Clairvoyant, Cold_resistance, Conflict, Deaf, Detect_monsters,
+    Disint_resistance, Displaced, Drain_resistance, EBlinded, EClairvoyant,
+    EInvis, EStealth, EWounded_legs, Fire_resistance, Flying, Fumbling, Glib,
+    HBlinded, HClairvoyant, HConfusion, HDetect_monsters, HInvis, HSleepy,
+    HStealth, HStun, Half_physical_damage, Halluc_resistance, Hallucination,
+    Hunger, Infravision, Invis, Invulnerable, Jumping, Lev_at_will,
+    Levitation, Passes_walls, Poison_resistance, Searching, See_invisible,
     Shock_resistance, Sick, Sick_resistance, Sleep_resistance, Sleepy, Slimed,
-    Stone_resistance, Stoned, Strangled, Swimming, Teleport_control,
+    Stealth, Stone_resistance, Stoned, Strangled, Swimming, Teleport_control,
     Teleportation, Undead_warning, Vomiting, Warn_of_mon, Warning,
     Wounded_legs, Wwalking,
 } from './youprop.js';
@@ -1625,7 +1625,7 @@ export async function attributes_enlightenment(final, state, lines) {
             description, '');
     }
 
-    const adorn = e(ADORNED);
+    const adorn = Adornment(u);
     if (adorn) {
         let ringBonus = 0;
         if (state.uleft?.otyp === RIN_ADORNMENT) ringBonus += state.uleft.spe ?? 0;
@@ -1641,20 +1641,20 @@ export async function attributes_enlightenment(final, state, lines) {
         you_are(lines, final, 'invisible to others', from_what(INVIS, state));
     else if (BInvis(u) && Boolean(HInvis(u) || EInvis(u)))
         you_are(lines, final, 'visible', from_what(-INVIS, state));
-    if (active(DISPLACED))
+    if (Displaced(u))
         you_are(lines, final, 'displaced', from_what(DISPLACED, state));
-    if (activeUnblocked(STEALTH))
+    if (Stealth(u))
         you_are(lines, final, 'stealthy',
             from_what(STEALTH, state));
-    else if (b(STEALTH) && active(STEALTH)) {
-        const suffix = b(STEALTH) === FROMOUTSIDE ? ' if not mounted' : '';
+    else if (BStealth(u) && (HStealth(u) || EStealth(u))) {
+        const suffix = BStealth(u) === FROMOUTSIDE ? ' if not mounted' : '';
         enl_msg(lines, final, You_, 'would be', 'would have been',
             ` stealthy${suffix}`, '');
     }
-    if (active(AGGRAVATE_MONSTER))
+    if (Aggravate_monster(u))
         enl_msg(lines, final, 'You aggravate', '', 'd', ' monsters',
             from_what(AGGRAVATE_MONSTER, state));
-    if (active(CONFLICT))
+    if (Conflict(u))
         enl_msg(lines, final, 'You cause', '', 'd', ' conflict',
             from_what(CONFLICT, state));
 

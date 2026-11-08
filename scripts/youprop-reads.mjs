@@ -46,7 +46,8 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // youprop.h's vision and invisibility, hallucination, deafness,
-// half-physical-damage, resistance, trouble and transportation slots.
+// half-physical-damage, resistance, trouble, transportation and appearance
+// slots.
 export const ROUTED_PROPERTIES = Object.freeze([
     'BLINDED', 'BLND_RES', 'SEE_INVIS', 'TELEPAT', 'WARNING', 'WARN_OF_MON',
     'WARN_UNDEAD', 'SEARCHING', 'CLAIRVOYANT', 'INFRAVISION',
@@ -57,7 +58,8 @@ export const ROUTED_PROPERTIES = Object.freeze([
     'SLIMED', 'FUMBLING', 'WOUNDED_LEGS', 'SLEEPY', 'HUNGER', 'FIRE_RES',
     'COLD_RES', 'SLEEP_RES', 'DISINT_RES', 'SHOCK_RES', 'POISON_RES',
     'ACID_RES', 'STONE_RES', 'DRAIN_RES', 'SICK_RES', 'INVULNERABLE',
-    'ANTIMAGIC',
+    'ANTIMAGIC', 'ADORNED', 'DISPLACED', 'STEALTH', 'AGGRAVATE_MONSTER',
+    'CONFLICT',
 ]);
 
 // youprop.h macros that read no u.uprops[] slot.
@@ -66,10 +68,9 @@ export const ROUTED_PSEUDO_MACROS = Object.freeze(['Unaware', 'Maybe_Half_Phys']
 // Each entry allows the findings in `file` whose source line contains
 // `text`. `reason` says why the line is not a property test.
 export const ALLOWED_READS = [
-    { file: 'js/pray.js', text: "grant(TELEPAT, 'Telepathy')",
-        reason: 'pray.c pleased() (1132-1146) tests `HTelepat & INTRINSIC` only to '
-            + 'decide whether to set HTelepat |= FROMOUTSIDE; grant() reads and sets '
-            + 'the intrinsic field of the slot it is given, as C does for each gift' },
+    { file: 'js/do_wear.js', text: '!state.u.uprops[DISPLACED]?.blocked',
+        reason: 'do_wear.c toggle_displacement() (157-159) reads '
+            + 'u.uprops[DISPLACED].blocked itself; youprop.h defines no BDisplaced' },
     { file: 'js/mondata.js', text: '!Resists_Elem(magr, ',
         reason: 'mondata.c Resists_Elem() (129-197) reads u.uprops[propindx] when its '
             + 'monster is the hero; mondata.js ports that function and calls it as '

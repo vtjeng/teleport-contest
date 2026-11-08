@@ -31,9 +31,7 @@ import {
     COST_CONTENTS,
     COST_SINGLEOBJ,
     CONTAINED_TOO,
-    CONFLICT,
     DISINT_RES,
-    DISPLACED,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -305,8 +303,8 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
 import {
-    Blind, Deaf, EDetect_monsters, ETelepat, HDetect_monsters, HTelepat,
-    Invis, Passes_walls,
+    Blind, Conflict, Deaf, Displaced, EDetect_monsters, ETelepat,
+    HDetect_monsters, HTelepat, Invis, Passes_walls,
 } from './youprop.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
@@ -3927,10 +3925,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
     const udist = dist2(omx, omy, hero?.ux ?? 0, hero?.uy ?? 0);
     if (udist < 3 && (shkp.data !== state.mons[PM_GRID_BUG]
         || omx === hero.ux || omy === hero.uy)) {
-        const conflict = state.u?.uprops?.[CONFLICT];
-        const conflictActive = Boolean(
-            conflict?.intrinsic || conflict?.extrinsic,
-        );
+        const conflictActive = Conflict(state.u);
         const random = env.random ?? coreRandom;
         if (!shkp.mpeaceful
             || (conflictActive
@@ -3939,8 +3934,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             // Only this impure arm needs a promise; peaceful movement stays
             // synchronous and m_move awaits either mover result.
             return (async () => {
-                const displaced = hero.uprops?.[DISPLACED];
-                if (displaced?.intrinsic || displaced?.extrinsic) {
+                if (Displaced(hero)) {
                     await (env.message ?? ttyPline)(
                         `Your displaced image doesn't fool ${shkname(shkp, state)}!`,
                         state, env,

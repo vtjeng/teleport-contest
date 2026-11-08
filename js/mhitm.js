@@ -21,7 +21,6 @@ import {
     XKILL_GIVEMSG,
     XKILL_NOCORPSE,
     COLD_RES,
-    CONFLICT,
     ERODE_CORRODE,
     ERODE_BURN,
     ERODE_NONE,
@@ -237,7 +236,7 @@ import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import { simpleonames, xnameFresh } from './objnam.js';
 import { strsubst } from './hacklib.js';
 import {
-    Blind, Deaf, Passes_walls, Unaware,
+    Blind, Conflict, Deaf, Passes_walls, Unaware,
 } from './youprop.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
@@ -353,15 +352,6 @@ function attackEnv(rawEnv) {
     return { ...rawEnv, state, random };
 }
 
-// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`, over the hero's
-// CONFLICT property. Two disjuncts and no blocking term: youprop.h gives a
-// `blocked` alias to BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
-// FLYING alone, so no C path sets it for CONFLICT. mhitm.c reads Conflict
-// once, in the cockatrice-instinct test at 436.
-function Conflict(state) {
-    const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
-}
 
 
 // C ref: mhitm.c noises() (26-38). What the hero hears when a fight he cannot
@@ -854,7 +844,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             /* Monsters won't attack cockatrices physically if they
              * have a weapon instead. This instinct doesn't work for
              * players, or under conflict or confusion. */
-            if (!magr.mconf && !Conflict(state) && mwep
+            if (!magr.mconf && !Conflict(state.u) && mwep
                 && mattk.aatyp !== AT_WEAP && touch_petrifies(mdef.data)) {
                 strike = 0;
                 break;

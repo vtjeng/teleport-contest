@@ -8,7 +8,6 @@ import {
     A_NONE,
     A_NEUTRAL,
     ARTICLE_A,
-    CONFLICT,
     EXACT_NAME,
     G_GONE,
     LL_UMONST,
@@ -66,16 +65,12 @@ import {
 } from './objects.js';
 import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
-import { Blind, Deaf } from './youprop.js';
+import { Blind, Conflict, Deaf } from './youprop.js';
 
 function guardianRandom(state, rawEnv = {}) {
     return rawEnv.random ?? state.random ?? coreRandom;
 }
 
-function conflictActive(state) {
-    const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
-}
 
 // C ref: minion.c lose_guardian_angel(). The source discards mk_roamer's
 // result while creating replacement hostile angels in source order.
@@ -116,7 +111,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     await Hear_again(state, env);
-    if (conflictActive(state)) {
+    if (Conflict(state.u)) {
         if (!Deaf(state.u)) await message('A voice booms:', state);
         else await message(youFeel('a booming voice:', state), state);
         set_voice(null, 0, 80, voice_deity, state);

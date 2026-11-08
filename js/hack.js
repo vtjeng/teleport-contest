@@ -15,7 +15,6 @@ import {
     ARTICLE_YOUR,
     COLD_RES,
     CLOUD,
-    CONFLICT,
     COLNO,
     CORR,
     DB_ICE,
@@ -533,10 +532,11 @@ import {
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import {
     Amphibious, BFlying, BLevitation, Blind, Breathless, Cold_resistance,
-    Confusion, Deaf, EFire_resistance, EFlying, ELevitation, EWounded_legs,
-    Flying, Fumbling, HFire_resistance, HFlying, HFumbling, HLevitation,
-    Half_physical_damage, Hallucination, Levitation, Maybe_Half_Phys,
-    Passes_walls, Stunned, Swimming, Warning, Wwalking,
+    Conflict, Confusion, Deaf, EFire_resistance, EFlying, ELevitation,
+    EWounded_legs, Flying, Fumbling, HFire_resistance, HFlying, HFumbling,
+    HLevitation, Half_physical_damage, Hallucination, Levitation,
+    Maybe_Half_Phys, Passes_walls, Stealth, Stunned, Swimming, Warning,
+    Wwalking,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -890,12 +890,6 @@ export function u_maybe_impaired(state = game) {
         || (Boolean(Confusion(state.u)) && !rn2(5)));
 }
 
-// C ref: youprop.h's plain `HFoo || EFoo` property macros, such as
-// Passes_walls and Fumbling, which carry no blocked term.
-function propertyPresent(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 
 // C ref: hack.c in_town() (3562-3585). A Mine Town level with subrooms uses
@@ -3787,7 +3781,7 @@ export async function escape_from_sticky_mon(x, y, state = game) {
             u.ustuck.msleeping = 0;
         }
         if (roll >= 3
-            && (propertyPresent(state, CONFLICT)
+            && (Conflict(state.u)
                 || u.ustuck.mconf || !u.ustuck.mtame)) {
             await ttyPline(
                 `You cannot escape from ${y_monnam(u.ustuck, state)}!`, state,
@@ -5252,7 +5246,7 @@ export async function domove_swap_with_pet(
 export function hero_tread_disturbs_buried_zombies(state = game) {
     return !Levitation(state.u)
         && !Flying(state.u)
-        && !propertyActiveUnblocked(state, STEALTH)
+        && !Stealth(state.u)
         && (state.youmonst?.data?.cwt ?? 0) >= (WT_ELF / 2);
 }
 

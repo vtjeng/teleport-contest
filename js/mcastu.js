@@ -16,7 +16,6 @@ import {
     EYE,
     KILLED_BY,
     Upolyd,
-    DISPLACED,
     FREE_ACTION,
     HALF_SPDAM,
     HEAD,
@@ -109,8 +108,8 @@ import {
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
     Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
-    Detect_monsters, Fire_resistance, HConfusion, HHallucination, HStun,
-    Half_physical_damage, Halluc_resistance, Hallucination, Invis,
+    Detect_monsters, Displaced, Fire_resistance, HConfusion, HHallucination,
+    HStun, Half_physical_damage, Halluc_resistance, Hallucination, Invis,
     See_invisible, Shock_resistance, Unaware,
 } from './youprop.js';
 
@@ -272,12 +271,6 @@ function heroProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-// Some properties have a blocked alias (Invis, Blind, etc.) -- this tests
-// for the unblocked-active form.
-function activeHeroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
-}
 
 
 function requireCastmuOperation(env, name) {
@@ -412,7 +405,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
                 && state.youmonst?.mappearance === STRANGE_OBJECT)
             || state.u?.uundetected) {
             point_msg = 'and curses in your general direction';
-        } else if (activeHeroProperty(state, DISPLACED)
+        } else if (Displaced(state.u)
                 && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
             point_msg = 'and curses at your displaced image';
         } else {
@@ -538,7 +531,7 @@ export async function castmu(
                     && !perceives(mtmp.data)
                     && !u_at(mtmp.mux, mtmp.muy, state)) {
                 target = ' at a spot near you';
-            } else if (activeHeroProperty(state, DISPLACED)
+            } else if (Displaced(state.u)
                     && !u_at(mtmp.mux, mtmp.muy, state)) {
                 target = ' at your displaced image';
             } else {
@@ -872,7 +865,7 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
             `${mappear} ${one ? 'at' : 'around'} a spot near you!`,
             state,
         );
-    } else if (activeHeroProperty(state, DISPLACED) && displaced) {
+    } else if (Displaced(state.u) && displaced) {
         await message(
             `${mappear} ${one ? 'by' : 'around'} your displaced image!`,
             state,
@@ -973,7 +966,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
         && !perceives(mtmp.data)
         && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
         line = `${Monnam(mtmp, state, env)} summons ${what} around a spot near you!`;
-    } else if (activeHeroProperty(state, DISPLACED)
+    } else if (Displaced(state.u)
         && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy)) {
         line = `${Monnam(mtmp, state, env)} summons ${what} around your displaced image!`;
     } else {

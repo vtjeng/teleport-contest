@@ -28,7 +28,6 @@ import {
     SHARED,
     SHARED_PLUS,
     SHOPBASE,
-    STEALTH,
     SWAMP,
     TEMPLE,
     THRONE,
@@ -52,7 +51,7 @@ import { Hello } from './role_init.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
-import { Blind } from './youprop.js';
+import { Blind, Stealth } from './youprop.js';
 
 const ROOM_STRING_SIZE = 5;
 
@@ -389,11 +388,7 @@ export async function check_special_room(
             }
 
             if ([COURT, SWAMP, MORGUE, ZOO].includes(resetType)) {
-                const stealth = state.u?.uprops?.[STEALTH];
-                const stealthy = Boolean(
-                    (stealth?.intrinsic || stealth?.extrinsic)
-                    && !stealth?.blocked,
-                );
+                const stealthy = Stealth(state.u);
                 for (let monster = state.level.monlist;
                     monster;
                     monster = monster.nmon) {

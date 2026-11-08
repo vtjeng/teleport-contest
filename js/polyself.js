@@ -274,10 +274,10 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, EFlying, ELevitation, Flying, HFlying,
-    HLevitation, Hallucination, Invis, Levitation,
-    Passes_walls, See_invisible, Sick, Sick_resistance, Slimed,
-    Stone_resistance, Stoned, Strangled, Stunned, Swimming,
+    Blind, Confusion, EFlying, ELevitation, Flying, HFlying, HLevitation,
+    Hallucination, Invis, Levitation, Passes_walls, See_invisible, Sick,
+    Sick_resistance, Slimed, Stone_resistance, Stoned, Strangled, Stunned,
+    Swimming,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -369,11 +369,10 @@ export function float_vs_flight(state = game) {
 // hero and steed fly. This is the only writer of uprops[STEALTH].blocked, the
 // BStealth term of youprop.h:210's Stealth macro.
 export function steed_vs_stealth(state = game) {
-    const stealth = uprop(state, STEALTH);
     if (state.u.usteed && !Flying(state.u) && !Levitation(state.u))
-        stealth.blocked |= FROMOUTSIDE;
+        state.u.uprops[STEALTH].blocked |= FROMOUTSIDE;
     else
-        stealth.blocked &= ~FROMOUTSIDE;
+        state.u.uprops[STEALTH].blocked &= ~FROMOUTSIDE;
 }
 
 // ---------- polysense --------------------------------------------------

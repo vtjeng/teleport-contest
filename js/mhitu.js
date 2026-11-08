@@ -16,9 +16,7 @@ import {
     AC_VALUE,
     BLINDED,
     COLD_RES,
-    CONFLICT,
     DISMOUNT_ENGULFED,
-    DISPLACED,
     DIED,
     ERODE_CORRODE,
     FIRE_RES,
@@ -313,11 +311,12 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Cold_resistance, Deaf, Detect_monsters, EAcid_resistance,
-    EMagical_breathing, EShock_resistance, Fire_resistance, HAcid_resistance,
-    HConfusion, HHallucination, HMagical_breathing, HShock_resistance, HStun,
-    Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
-    See_invisible, Sick, Stone_resistance, Unaware,
+    Blind, Blinded, Cold_resistance, Conflict, Deaf, Detect_monsters,
+    Displaced, EAcid_resistance, EMagical_breathing, EShock_resistance,
+    Fire_resistance, HAcid_resistance, HConfusion, HHallucination,
+    HMagical_breathing, HShock_resistance, HStun, Half_physical_damage,
+    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Sick,
+    Stone_resistance, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -550,15 +549,6 @@ function requireMattackuOperation(env, name) {
 }
 
 
-// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`. Two disjuncts and
-// no blocking term, which is why it cannot share activeHeroProperty() above:
-// youprop.h gives a `blocked` alias to BLINDED, CLAIRVOYANT, INVIS, STEALTH,
-// LEVITATION and FLYING alone, so no C path sets one for CONFLICT. mhitu.c
-// reads Conflict once, in mattacku()'s cockatrice-instinct test at 803.
-function Conflict(state) {
-    const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
-}
 
 // C ref: hack.h distu() and mdistu(). mdistu() is distu() applied to a
 // monster's own square, with no long-worm handling of its own.
@@ -587,10 +577,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const invisibleHero = Invis(state.u)
         && !perceives(mtmp.data);
     const unotseen = !mtmp.mcansee || invisibleHero;
-    const unotthere = Boolean(
-        state.u?.uprops?.[DISPLACED]?.intrinsic
-        || state.u?.uprops?.[DISPLACED]?.extrinsic,
-    );
+    const unotthere = Displaced(state.u);
     const usubmerged = Boolean(state.u?.uinwater);
 
     // C's impossible() diagnostic is not a gameplay message. This path means
@@ -1835,7 +1822,7 @@ export async function mattacku(monster, rawEnv = {}) {
             if (mattk.aatyp === M.AT_KICK && mtrapped_in_pit(monster, state))
                 continue;
             if (!range2 && (!monster.mw /* MON_WEP() */ || monster.mconf
-                            || Conflict(state)
+                            || Conflict(state.u)
                             || !touch_petrifies(state.youmonst.data))) {
                 if (foundyou) {
                     j = random.rnd(20 + i);

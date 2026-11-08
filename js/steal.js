@@ -3,8 +3,6 @@
 // mdrop_obj(), relobj(), steal(), worn_item_removal() and remove_worn_item().
 
 import {
-    ADORNED,
-    CONFLICT,
     FOOT,
     HAND,
     LEFT_HANDED,
@@ -151,7 +149,9 @@ import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
 import { body_part, mbodypart } from './polyself.js';
-import { Blind, Flying, Levitation } from './youprop.js';
+import {
+    Adornment, Blind, Conflict, Flying, Levitation,
+} from './youprop.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -687,7 +687,7 @@ export async function steal(
     if (monkey_business || state.uarmg) {
         // skip ring special cases
     } else {
-        const adornment = state.u.uprops?.[ADORNED]?.extrinsic ?? 0;
+        const adornment = Adornment(state.u);
         if (adornment & LEFT_RING) {
             otmp = state.uleft;
             goGotobj = true;
@@ -879,9 +879,8 @@ export async function steal(
     if (objnambuf) objnambuf.value = yname(otmp, state);
 
     // set mavenge so knights won't suffer alignment penalty
-    const conflict = state.u.uprops?.[CONFLICT];
     const punished = Boolean(state.uball);
-    if (!(conflict?.intrinsic || conflict?.extrinsic)
+    if (!Conflict(state.u)
         && !(was_punished && !punished))
         mtmp.mavenge = 1;
 

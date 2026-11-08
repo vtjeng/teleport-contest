@@ -9,7 +9,6 @@ import {
     BARRACKS,
     BEEHIVE,
     BOLT_LIM,
-    CONFLICT,
     COURT,
     ECMD_CANCEL,
     ECMD_OK,
@@ -218,7 +217,7 @@ import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    Blind, Deaf, Hallucination, Invis, Strangled,
+    Blind, Conflict, Deaf, Hallucination, Invis, Strangled,
 } from './youprop.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
@@ -1716,8 +1715,7 @@ export async function tiphat(state = game, rawEnv = {}) {
         }
     } else {
         mtmp.mstrategy &= ~STRAT_WAITMASK;
-        const conflict = state.u?.uprops?.[CONFLICT];
-        const conflictActive = Boolean(conflict?.intrinsic || conflict?.extrinsic);
+        const conflictActive = Conflict(state.u);
         if (vismon && humanoid(mtmp.data) && mtmp.mpeaceful
             && !conflictActive) {
             const wornHelmet = which_armor(mtmp, W_ARMH, state);

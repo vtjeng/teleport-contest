@@ -39,7 +39,6 @@ import {
     BUSTDOOR,
     COLNO,
     COULD_SEE,
-    CONFLICT,
     CORPSTAT_BURIED,
     CORPSTAT_FEMALE,
     CORPSTAT_HISTORIC,
@@ -720,9 +719,9 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, Deaf, EMagical_breathing, EPoison_resistance,
-    Flying, HMagical_breathing, HPoison_resistance, HTelepat, Hallucination,
-    Levitation, Maybe_Half_Phys, Unaware,
+    Blind, Blind_telepat, Conflict, Deaf, EMagical_breathing,
+    EPoison_resistance, Flying, HMagical_breathing, HPoison_resistance,
+    HTelepat, Hallucination, Levitation, Maybe_Half_Phys, Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -862,10 +861,6 @@ function activeMonsterOperations(env) {
     };
 }
 
-function conflictActive(state) {
-    const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
-}
 
 // C ref: monst.h:255 mon_offmap(). A monster whose mstate has left MON_FLOOR
 // is detached, migrating, or in limbo, and is no longer on this level's map.
@@ -1398,7 +1393,7 @@ export async function movemon_singlemon(monster, env = {}) {
         }
     }
 
-    if (conflictActive(state) && !monster.iswiz
+    if (Conflict(state.u) && !monster.iswiz
         && operations.canSeeHero(monster, normalized)) {
         if (operations.canSeeSquare(monster.mx, monster.my, normalized)
             && dist2(
@@ -2105,7 +2100,7 @@ export function mon_allowflags(monster, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const species = monster.data;
-    const conflict = conflictActive(state);
+    const conflict = Conflict(state.u);
     const canOpen = !(nohands(species) || verysmall(species));
     const canUnlock = (canOpen && monhaskey(monster, true, state))
         || monster.iswiz || is_rider(species);

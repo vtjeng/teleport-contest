@@ -27,7 +27,6 @@
 import {
     ACCESSIBLE,
     ACCFOOD,
-    AGGRAVATE_MONSTER,
     ALLOW_ALL,
     ALLOW_BARS,
     ARM,
@@ -49,14 +48,12 @@ import {
     BOLT_LIM,
     BUSTDOOR,
     COLNO,
-    CONFLICT,
     CORR,
     DART_TRAP,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
     DB_UNDER,
-    DISPLACED,
     Upolyd,
     engulfing_u,
     DOOR,
@@ -142,7 +139,6 @@ import {
     SQSRCHRADIUS,
     STAIRS,
     STATUE_TRAP,
-    STEALTH,
     STONE,
     STONE_RES,
     STRAT_ARRIVE,
@@ -470,7 +466,8 @@ import * as M from './monsters.js';
 import * as O from './objects.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind_telepat, Deaf, Hallucination, Invis, Unaware,
+    Aggravate_monster, Blind_telepat, Conflict, Deaf, Displaced,
+    Hallucination, Invis, Stealth, Unaware,
 } from './youprop.js';
 
 
@@ -595,7 +592,7 @@ export function m_avoid_kicked_loc(monster, x, y, state = game) {
         && monster.mcansee
         && !monster.mconf
         && !monster.mstun
-        && !propertyActive(state, CONFLICT)
+        && !Conflict(state.u)
         && isok(kicked?.x, kicked?.y)
         && x === kicked.x
         && y === kicked.y
@@ -611,7 +608,7 @@ export function m_avoid_soko_push_loc(monster, x, y, state = game) {
         || (!monster.mpeaceful && !monster.mtame)
         || monster.mconf
         || monster.mstun
-        || propertyActive(state, CONFLICT)
+        || Conflict(state.u)
         || dist2(x, y, state.u.ux, state.u.uy) !== 4) {
         return false;
     }
@@ -755,7 +752,7 @@ async function mind_blast(mtmp, env = {}) {
     }
     await message('A wave of psychic energy pours over you!', state, env);
     if (mtmp.mpeaceful
-        && (!propertyActive(state, CONFLICT) || resist_conflict(mtmp, state, random))) {
+        && (!Conflict(state.u) || resist_conflict(mtmp, state, random))) {
         await message('It feels quite soothing.', state, env);
     } else if (!state.u?.uinvulnerable) {
         const m_sen = sensemon(mtmp, state);
@@ -1498,7 +1495,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 );
                 let displacedX = nx;
                 let displacedY = ny;
-                if (propertyActive(state, DISPLACED) && monsterSeesHero
+                if (Displaced(state.u) && monsterSeesHero
                     && monster.mux === nx && monster.muy === ny) {
                     displacedX = state.u.ux;
                     displacedY = state.u.uy;
@@ -1842,7 +1839,7 @@ export function onscary(x, y, monster, state = game) {
     if (sobj_at(SCR_SCARE_MONSTER, x, y, state)) return true;
 
     const engraving = sengr_at('Elbereth', x, y, true, state);
-    const imageAtSquare = propertyActive(state, DISPLACED)
+    const imageAtSquare = Displaced(state.u)
         && monster.mux === x && monster.muy === y;
     return Boolean(engraving
         && ((state.u?.ux === x && state.u?.uy === y)
@@ -2167,7 +2164,7 @@ export async function disturb(monster, env = {}) {
         || dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 100) {
         return 0;
     }
-    const stealthyHero = propertyActive(state, STEALTH, true);
+    const stealthyHero = Stealth(state.u);
     if (stealthyHero && !isSpecies(monster, PM_ETTIN, state)) return 0;
     if (typeof env.wakeMessage !== 'function')
         throw new TypeError('disturb requires a wakeMessage operation');
@@ -2178,7 +2175,7 @@ export async function disturb(monster, env = {}) {
         || monster.data?.mlet === S_LEPRECHAUN;
     if (hardToWake && random.rn2(50)) return 0;
 
-    const readilyAwakened = propertyActive(state, AGGRAVATE_MONSTER)
+    const readilyAwakened = Aggravate_monster(state.u)
         || monster.data?.mlet === S_DOG
         || monster.data?.mlet === S_HUMAN;
     if (!readilyAwakened) {
@@ -2271,7 +2268,7 @@ export function set_apparxy(monster, env = {}) {
 
     const notseen = !monster.mcansee
         || (Invis(state.u) && !perceives(monster.data));
-    const notthere = propertyActive(state, DISPLACED)
+    const notthere = Displaced(state.u)
         && !isSpecies(monster, PM_DISPLACER_BEAST, state);
     let displacement;
     if (u.uinwater) {
@@ -2330,14 +2327,9 @@ export function set_apparxy(monster, env = {}) {
     monster.muy = my;
 }
 
+
 // ---- monmove.c dochug(), ordinary-monster path, and its pre-move
 // ---- AT_WEAP weapon gate ----
-function activeProperty(state, property, blockedMatters = true) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        && (!blockedMatters || !value?.blocked);
-}
-
 function requireDochugOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
@@ -2349,7 +2341,7 @@ function requireDochugOperation(env, name) {
 // wield state remain owned by weapon.js through the injected operation.
 export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    if ((monster.mpeaceful && !activeProperty(state, CONFLICT, false))
+    if ((monster.mpeaceful && !Conflict(state.u))
         || !range.inrange
         || dist2(
             monster.mx,
@@ -2534,7 +2526,7 @@ export async function dochug(monster, rawEnv = {}) {
     // behind the current boundary but wired for completeness.
     if (monster === state.u?.ustuck
         && monster.mpeaceful && !monster.mconf
-        && !activeProperty(state, CONFLICT, false)) {
+        && !Conflict(state.u)) {
         await release_hero(monster, env);
         return 0;
     }
@@ -2655,7 +2647,7 @@ export async function dochug(monster, rawEnv = {}) {
         || (monster.data.mlet === S_LEPRECHAUN && !findgold(state.invent)
             && (findgold(monster.minvent) || random.rn2(2)))
         || (is_wanderer(monster.data) && !random.rn2(4))
-        || (activeProperty(state, CONFLICT, false) && !monster.iswiz)
+        || (Conflict(state.u) && !monster.iswiz)
         || (!monster.mcansee && !random.rn2(4))
         || monster.mpeaceful;
     let status = MMOVE_NOTHING;
@@ -2730,7 +2722,7 @@ export async function dochug(monster, rawEnv = {}) {
     // only thinks it is near.
     if (status !== MMOVE_DONE
         && (!monster.mpeaceful
-            || (activeProperty(state, CONFLICT, false)
+            || (Conflict(state.u)
                 && !resist_conflict(monster, state, random)))) {
         if (((range.inrange && !range.scared) || panicattk)
             && !noattacks(monster.data)
@@ -4000,7 +3992,7 @@ export async function m_move(monster, rawEnv = {}) {
     // pet and a monster that finished an item search both carry the value the
     // capability block set.
     if (canTunnel && needspick(monster.data)
-        && (!monster.mpeaceful || propertyActive(state, CONFLICT))
+        && (!monster.mpeaceful || Conflict(state.u))
         && dist2(monster.mx, monster.my, monster.mux, monster.muy) <= 8) {
         canTunnel = false;
     }

@@ -14,7 +14,6 @@ import {
     APPORT,
     CADAVER,
     COLNO,
-    CONFLICT,
     COST_CONTENTS,
     COST_DEGRD,
     D_CLOSED,
@@ -207,7 +206,7 @@ import { pline_mon, youFeel } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
-import { Deaf, Hallucination } from './youprop.js';
+import { Conflict, Deaf, Hallucination } from './youprop.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -270,16 +269,6 @@ function petMoveOperation(rawEnv, name) {
     return operation;
 }
 
-// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`. Two disjuncts and
-// no blocking term. youprop.h gives a `blocked` alias to six properties only
-// -- BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and FLYING, at :90,
-// :181, :197, :209, :239 and :252 -- and CONFLICT is not among them, so no C
-// path writes the field. dog_move() reads Conflict at dogmove.c:1017, :1046,
-// :1122 and :1127; js/mon.js:392 keeps the same two-disjunct copy.
-function conflictActive(state) {
-    const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
-}
 
 
 
@@ -1342,7 +1331,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
     if (monster === state.u.usteed) {
         const resistConflict = env.resistConflict
             ?? ((subject) => resist_conflict(subject, state, random));
-        if (conflictActive(state) && !resistConflict(monster, env)) {
+        if (Conflict(state.u) && !resistConflict(monster, env)) {
             if (env.dismountSteed) await env.dismountSteed(DISMOUNT_THROWN, env);
             else {
                 // steed.js imports finish_meating from this module, so load
@@ -1428,7 +1417,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
         env,
     );
     if (approach === -2) return MMOVE_NOTHING;
-    if (conflictActive(state)) {
+    if (Conflict(state.u)) {
         const resistConflict = env.resistConflict
             ?? ((subject) => resist_conflict(subject, state, random));
         if (!resistConflict(monster, env) && !edog) {
@@ -1484,13 +1473,13 @@ export async function dog_move(monster, after, rawEnv = {}) {
                 + Math.trunc(5 * monster.mhp / monster.mhpmax) - 2;
             if (occupant.m_lev >= balk
                 || (occupant.mtame && monster.mtame
-                    && !conflictActive(state))
+                    && !Conflict(state.u))
                 || max_passive_dmg(occupant, monster, state) >= monster.mhp
                 || ((monster.mhp * 4 < monster.mhpmax
                     || occupant.data?.msound === MS_GUARDIAN
                     || occupant.data?.msound === MS_LEADER)
                     && occupant.mpeaceful
-                    && !conflictActive(state))) {
+                    && !Conflict(state.u))) {
                 continue;
             }
             const hazardousTarget = (

@@ -23,7 +23,6 @@ import {
     COST_OPEN,
     IS_ALTAR,
     COLD_RES,
-    CONFLICT,
     COST_BITE,
     DIED,
     DISMOUNT_FELL,
@@ -213,13 +212,13 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    Acid_resistance, BInvis, Blind, Breathless, Deaf, EInvis,
-    EMagical_breathing, ESee_invisible, EWwalking, Flying, Glib, HBlinded,
-    HConfusion, HHallucination, HInvis, HMagical_breathing, HSee_invisible,
-    HSleep_resistance, HSleepy, HStun, HWwalking, Hallucination, Hunger,
-    Invis, Levitation, Poison_resistance, Sick, Sick_resistance,
-    Sleep_resistance, Slimed, Stone_resistance, Stoned, Strangled, Unaware,
-    Vomiting,
+    Acid_resistance, BInvis, Blind, Breathless, Deaf, Displaced, EConflict,
+    EInvis, EMagical_breathing, ESee_invisible, EWwalking, Flying, Glib,
+    HBlinded, HConflict, HConfusion, HHallucination, HInvis,
+    HMagical_breathing, HSee_invisible, HSleep_resistance, HSleepy, HStun,
+    HWwalking, Hallucination, Hunger, Invis, Levitation, Poison_resistance,
+    Sick, Sick_resistance, Sleep_resistance, Slimed, Stone_resistance, Stoned,
+    Strangled, Unaware, Vomiting,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -492,9 +491,8 @@ export function preflightGetHungry(state = game, env = {}) {
     const oddLoss = ordinaryLoss + regenerationLoss
         + (capacity > SLT_ENCUMBER ? 1 : 0);
     const hungerLoss = Hunger(state.u) ? 1 : 0;
-    const conflict = hungerProperty(state, CONFLICT);
-    const conflictLoss = conflict.intrinsic
-        || (Math.trunc(conflict.extrinsic ?? 0) & ~W_ARTI) ? 1 : 0;
+    const conflictLoss = HConflict(state.u)
+        || (EConflict(state.u) & ~W_ARTI) ? 1 : 0;
     const accessoryLoss = Math.max(
         slowDigestion
             && state.uright?.otyp !== RIN_SLOW_DIGESTION
@@ -2186,7 +2184,7 @@ async function maybe_cannibal(pm, allowmsg, state, env = {}) {
                     env,
                 );
             }
-            hungerProperty(state, AGGRAVATE_MONSTER).intrinsic |= FROMOUTSIDE;
+            state.u.uprops[AGGRAVATE_MONSTER].intrinsic |= FROMOUTSIDE;
             change_luck(-random.rn1(4, 2), state); /* -5..-2 */
             return true;
         }
@@ -2236,7 +2234,7 @@ export async function cprefx(pm, state = game, env = {}) {
                     + ' was a bad idea.', state),
                 state,
             );
-            hungerProperty(state, AGGRAVATE_MONSTER).intrinsic |= FROMOUTSIDE;
+            state.u.uprops[AGGRAVATE_MONSTER].intrinsic |= FROMOUTSIDE;
         }
         break;
     case PM_LIZARD:
@@ -2784,10 +2782,9 @@ async function cpostfx(pm, state, env = {}) {
         }
         break;
     case PM_DISPLACER_BEAST: {
-        const displaced = state.u.uprops[DISPLACED];
-        if (!propertyActive(state, DISPLACED))
+        if (!Displaced(state.u))
             await toggle_displacement(null, 0, true, state);
-        incr_itimeout(displaced, random.d(6, 6));
+        incr_itimeout(state.u.uprops[DISPLACED], random.d(6, 6));
         break;
     }
     case PM_DISENCHANTER:

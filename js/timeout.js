@@ -216,9 +216,9 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Acid_resistance, Blind, Breathless, Deaf, EFumbling, ELevitation,
-    EPasses_walls, Fire_resistance, Flying, Fumbling, HConfusion, HDeaf,
-    HFlying, HFumbling, HLevitation, HMagical_breathing, HPasses_walls,
+    Acid_resistance, Blind, Breathless, Deaf, Displaced, EFumbling,
+    ELevitation, EPasses_walls, Fire_resistance, Flying, Fumbling, HConfusion,
+    HDeaf, HFlying, HFumbling, HLevitation, HMagical_breathing, HPasses_walls,
     HSleepy, HStun, Hallucination, Invis, Levitation, Passes_walls,
     Poison_resistance, See_invisible, Sick, Sleep_resistance, Sleepy, Slimed,
     Stone_resistance, Stoned, Strangled, Unaware, Vomiting, Warn_of_mon,
@@ -1564,7 +1564,7 @@ async function decrement_property_timeouts(state, env) {
                 await message('Your temporary ability to walk on liquid has ended.', state);
             break;
         case DISPLACED:
-            if (!propertySource(state, DISPLACED))
+            if (!Displaced(state.u))
                 await toggle_displacement(null, 0, false, state);
             break;
         case WARN_OF_MON:
