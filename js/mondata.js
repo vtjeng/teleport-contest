@@ -201,7 +201,7 @@ export function is_floater(species) {
 }
 export function is_clinger(species) { return flag1(species, M.M1_CLING); }
 // C ref: mondata.h:23-24 grounded(). The macro reads the global u.uz, which
-// this port takes from the caller's state so that the planning clone answers
+// this port takes from the caller's state so that a hand-built state answers
 // for its own hero; has_ceiling() takes the same state, so the endgame
 // topology it compares against is the caller's too.
 export function grounded(species, state = game) {
