@@ -214,14 +214,14 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Acid_resistance, Blind, Breathless, Deaf, Displaced, EFumbling,
-    ELevitation, EPasses_walls, Fast, Fire_resistance, Flying, Fumbling,
-    HConfusion, HDeaf, HFlying, HFumbling, HLevitation, HMagical_breathing,
-    HPasses_walls, HSleepy, HStun, Hallucination, Invis, Levitation,
-    Passes_walls, Poison_resistance, Protection_from_shape_changers,
-    See_invisible, Sick, Sleep_resistance, Sleepy, Slimed, Stone_resistance,
-    Stoned, Strangled, Unaware, Unchanging, Very_fast, Vomiting, Warn_of_mon,
-    Wounded_legs, Wwalking,
+    Acid_resistance, BInvis, Blind, Breathless, Confusion, Deaf, Displaced,
+    EFumbling, ELevitation, EPasses_walls, Fast, Fire_resistance, Flying,
+    Fumbling, HConfusion, HDeaf, HFlying, HFumbling, HLevitation,
+    HMagical_breathing, HPasses_walls, HSleepy, HStun, Hallucination, Invis,
+    Levitation, Passes_walls, Poison_resistance,
+    Protection_from_shape_changers, See_invisible, Sick, Sleep_resistance,
+    Sleepy, Slimed, Stone_resistance, Stoned, Strangled, Stunned, Unaware,
+    Unchanging, Very_fast, Vomiting, Warn_of_mon, Wounded_legs, Wwalking,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -1456,12 +1456,12 @@ async function decrement_property_timeouts(state, env) {
         case CONFUSION:
             set_itimeout(property, 1);
             await make_confused(0, true, state, env);
-            if (!property.intrinsic) await stop_occupation(state, occupationEnv);
+            if (!Confusion(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case STUNNED:
             set_itimeout(property, 1);
             await make_stunned(0, true, state, env);
-            if (!property.intrinsic) await stop_occupation(state, occupationEnv);
+            if (!Stunned(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case BLINDED: {
             const wasBlind = Blind(state.u);
@@ -1480,7 +1480,7 @@ async function decrement_property_timeouts(state, env) {
             break;
         case INVIS:
             (env.newsym ?? newsym)(u.ux, u.uy, state);
-            if (!Invis(state.u) && !property.blocked
+            if (!Invis(state.u) && !BInvis(state.u)
                 && !Blind(state.u)) {
                 await message(!See_invisible(state.u)
                     ? 'You are no longer invisible.'
