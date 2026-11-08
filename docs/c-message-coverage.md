@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3980 | 88 |
+| gameplay | 4068 | 3982 | 86 |
 | diagnostic | 723 | 184 | 539 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4167 | 744 |
+| total | 4911 | 4169 | 742 |
 
 ## Missing by C file
 
@@ -106,7 +106,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
 | src/rumors.c | yes | 0 | 2 | 0 |
-| src/save.c | yes | 4 | 2 | 1 |
+| src/save.c | yes | 2 | 2 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
 | src/sfstruct.c | no | 0 | 6 | 0 |
 | src/shk.c | yes | 0 | 31 | 1 |
@@ -338,8 +338,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 ### src/save.c
 
 - `dosave0()`
-  - 117 There: `seems to be an old save file.`
-  - 118 yn_function: `Overwrite the old file?`
   - 130 pline: `Cannot open save file.`
 
 - `tricked_fileremoved()`
