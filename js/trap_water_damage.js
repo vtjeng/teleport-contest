@@ -540,7 +540,10 @@ export async function water_damage(obj, description, force, env = {}) {
     const { SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS } =
         objects;
     if (obj.oclass === SCROLL_CLASS) {
-        if (obj.otyp === objects.SCR_BLANK_PAPER) return ER_NOTHING;
+        // global.h:430 defines MAIL_STRUCTURES unconditionally, so a
+        // scroll of mail is spared as blank paper is.
+        if (obj.otyp === objects.SCR_BLANK_PAPER
+            || obj.otyp === objects.SCR_MAIL) return ER_NOTHING;
         if (in_invent)
             await message(`Your ${description} ${vtense(description, 'fade')}.`, state);
         obj.otyp = objects.SCR_BLANK_PAPER;

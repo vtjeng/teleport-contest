@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "water_damage() returns ER_NOTHING for a scroll of mail as for blank paper: global.h:430 defines MAIL_STRUCTURES unconditionally, so trap.c's SCR_MAIL test is compiled in. A Tourist in debug mode wishes for a scroll of mail and a fountain and dips the scroll twice; dipfountain() then skips its rn2(2) early return and goes straight to rnd(30). Independent seed, date and character.",
+  "segments": [
+    {
+      "seed": 20261187,
+      "datetime": "20410203084500",
+      "nethackrc": "OPTIONS=name:Posy,role:Tourist,race:human,gender:female,align:neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " \u0017scroll of mail\n\u0017fountain\n#dip\nny  #dip\nny  "
+    }
+  ]
+}
