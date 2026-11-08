@@ -8939,15 +8939,11 @@ export async function reset_needed_visuals(state) {
             reglyph_darkroom(state);
         }
         // display.c docrt_flags() brackets its repaint with vision_recalc(2)
-        // and vision_recalc(0); js/display.js docrt() leaves that bracket to
-        // each caller because they do not all want the same one.  This caller
-        // wants both: the map on screen was drawn under the old option values
-        // and every square has to be reconsidered.
-        // js/display.js docrt() and bot() paint the module-level game, so
-        // passing `state` here is what refuses a state that is not it.
-        vision_recalc(2, { state });
+        // and vision_recalc(0) itself, as js/display.js docrt() does, so C's
+        // bare docrt() call is the whole repaint. A second bracket here
+        // would redraw the hero's square twice more, and while hallucinating
+        // each redraw of an object there takes a display-RNG draw.
         await docrt();
-        vision_recalc(0, { state });
     }
     if (go.opt_need_promptstyle) adjust_menu_promptstyle(state);
     if (state.disp?.botl || state.disp?.botlx) await bot();
