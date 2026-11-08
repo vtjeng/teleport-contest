@@ -119,7 +119,7 @@ import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import {
     ghostfruit, reset_oattached_mids, rest_stairs, rest_traps, restdamage,
 } from './restore.js';
-import { savefruitchn } from './save.js';
+import { savefruitchn, savemonchn } from './save.js';
 import { dismount_steed } from './steed.js';
 import {
     BOW,
@@ -782,6 +782,10 @@ export async function savebones(how, when, corpse, state) {
     // Serialize the level to VFS storage as bones.
     // C writes binary data via store_version, Sfo_char, savefruitchn, savelev.
     // The port writes a JSON snapshot.
+    // C ref: save.c savelev_core() writes fmon through savemonchn(), which
+    // makes every priest forget the hero's temple entries (priest.c
+    // forget_temple_entry()) before savemon() writes it.
+    savemonchn(state.level.monlist, state);
     const bonesData = serializeBonesLevel(state);
     // Strip functions from the serialized output. The cloneObjChain and
     // cloneMon helpers above already break object-graph cycles (ocontainer,

@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 91207,
+   "datetime": "20431002120000",
+   "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u0016?\n>w\u0017scroll of magic mapping\nre\u001b\u0014_l.  \u0017wand of death\nzf.  yqy",
+   "comment": "A debug neutral Valkyrie level-teleports to Minetown, maps it and teleports beside the altar: priest.c intemple() intones and sets the priest's intone_time about 2,500 turns ahead (d(10,500)). She dies there to a wished wand of death and saves bones. bones.c savebones() writes the level with savelev(), whose savemonchn() calls priest.c forget_temple_entry() for the priest."
+  },
+  {
+   "seed": 91233,
+   "datetime": "20431004150000",
+   "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u0016?\n>wyy\u0017scroll of magic mapping\nre\u001b\u0014_h.  ",
+   "comment": "A lawful dwarvish Valkyrie gets the Minetown bones and teleports into the temple beside the altar. The priest has forgotten the dead hero's entry, so intemple() intones again and rolls d(10,500). Before the fix the port's bones kept the old intone_time, so the priest stayed silent and rolled only the entry message's random calls."
+  }
+ ]
+}
