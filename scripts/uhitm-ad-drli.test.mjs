@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     DRAIN_RES,
+    KILLED_BY,
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -237,6 +238,9 @@ test('fatal monster-to-hero drain ends the game through losexp', async () => {
     // exper.c:223-224 prints the level-loss line before done(DIED) whenever a
     // drainer is named, so the fatal level-one drain says goodbye too.
     assert.deepEqual(messages, ['The orc touches you!', 'Goodbye level 1.']);
+    // uhitm.c:2484 names "life drainage" as the drainer, and exper.c
+    // losexp():233-236 makes it a KILLED_BY killer before done(DIED).
+    assert.deepEqual(state.killer, { format: KILLED_BY, name: 'life drainage' });
 });
 
 test('nonfatal drain runs losexp, and a failed gate drains nothing', async () => {

@@ -7,13 +7,57 @@ import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { PM_HUMAN, PM_ACID_BLOB } from '../js/monsters.js';
+import {
+    G_NOGEN,
+    LOW_PM,
+    M2_PNAME,
+    PM_ACID_BLOB,
+    PM_HUMAN,
+    SPECIAL_PM,
+} from '../js/monsters.js';
 import { mattackm } from '../js/mhitm.js';
 import { wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
-import { ROOM, HALLUC, DETECT_MONSTERS, BLINDED, SEE_INVIS } from '../js/const.js';
+import { ROOM, HALLUC, DETECT_MONSTERS, BLINDED, SEE_INVIS, NEUTRAL } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.js';
 import { canseemon } from '../js/display.js';
+import { rn2_on_display_rng } from '../js/rng.js';
+
+// do_name.c hliquids[] (1479-1489), read from the C source with its
+// commented-out entry removed.
+const HLIQUIDS = [...fs.readFileSync(
+    new URL('../nethack-c/upstream/src/do_name.c', import.meta.url), 'utf8',
+).match(/hliquids\[\] = \{([\s\S]*?)\};/)[1]
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .matchAll(/"([^"]*)"/g)].map((match) => match[1]);
+
+// do_name.c rndmonnam():1399-1408, replayed on holder.displayCtx. It returns
+// the name the C draws settle on. A bogus name (index >= SPECIAL_PM) reads
+// the bogusmon file, which this replay does not, so it fails instead.
+function replayRndmonnam(holder) {
+    let index;
+    do {
+        index = rn2_on_display_rng(SPECIAL_PM + 100 - LOW_PM, holder) + LOW_PM;
+    } while (index < SPECIAL_PM
+        && ((game.mons[index].mflags2 & M2_PNAME)
+            || (game.mons[index].geno & G_NOGEN)));
+    assert.ok(index < SPECIAL_PM, 'the replay covers real species names');
+    // pmname(): an absent gendered name falls back to the neutral one.
+    const names = game.mons[index].pmnames;
+    return names[rn2_on_display_rng(2, holder)] ?? names[NEUTRAL];
+}
+
+// hacklib.c s_suffix():345-359 for a monster name.
+function possessive(name) {
+    return name.endsWith('s') ? `${name}'` : `${name}'s`;
+}
+
+// do_name.c hliquid():1495-1508 with liquidpref "acid": the default joins
+// the choices as the last index.
+function replayHliquid(holder) {
+    const index = rn2_on_display_rng(HLIQUIDS.length + 1, holder);
+    return index < HLIQUIDS.length ? HLIQUIDS[index] : 'acid';
+}
 
 for (const hallu of [false, true]) for (const detected of [false, true]) {
     test(`passive acid feedback Hallu=${hallu} Detect=${detected}`, async () => {
@@ -62,8 +106,26 @@ for (const hallu of [false, true]) for (const detected of [false, true]) {
             ? "The human is splashed by the invisible acid blob's acid!"
             : 'The human is splashed by its acid!');
         assert.match(lines[1], /is splashed by /);
-        if (hallu) assert.notDeepEqual(state.displayCtx, live);
-        else assert.deepEqual(state.displayCtx, live);
+        // The hallucinated names come from the display stream. Each Monnam()
+        // or mon_nam() of a monster the hero can spot is one rndmonnam();
+        // mon_nam() of an unspotted one is "it" and draws nothing. In order:
+        // mhitm.c hitmm()'s "<agr> hits <def>.", then mhitm.c:1334-1337's
+        // Monnam(magr), s_suffix(mon_nam(mdef)) and hliquid("acid").
+        const expected = { displayCtx: structuredClone(live) };
+        if (hallu) {
+            const hitter = replayRndmonnam(expected);
+            const hit = detected ? replayRndmonnam(expected) : null;
+            const splashed = replayRndmonnam(expected);
+            const splasher = detected ? replayRndmonnam(expected) : null;
+            const liquid = replayHliquid(expected);
+            assert.equal(lines[0], detected
+                ? `The ${hitter} hits the invisible ${hit}.`
+                : `The ${hitter} hits it.`);
+            assert.equal(lines[1], detected
+                ? `The ${splashed} is splashed by the invisible ${possessive(splasher)} ${liquid}!`
+                : `The ${splashed} is splashed by its ${liquid}!`);
+        }
+        assert.deepEqual(state.displayCtx, expected.displayCtx);
     });
 }
 

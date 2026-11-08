@@ -32,6 +32,7 @@ import {
     FROMOUTSIDE,
     FROM_RACE,
     INFRAVISION,
+    KILLED_BY,
     LAST_PROP,
     MAXULEV,
     N_ACH,
@@ -72,10 +73,12 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
 } from '../js/monsters.js';
+import { rehumanize } from '../js/polyself.js';
 import { add_weapon_skill, lose_weapon_skill } from '../js/weapon.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { scanLevelArgument } from '../js/wizcmds.js';
 import { loadLevelChangeRecipe } from './run-level-change.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 import { GameDisplay } from '../js/game_display.js';
 import { NethackGame } from '../js/jsmain.js';
 import { goto_level } from '../js/do.js';
@@ -993,6 +996,57 @@ test('losing level two retains the experience just below level two', async () =>
     assert.equal(state.u.ulevel, 1);
     assert.equal(state.u.uexp, 19);
     assert.deepEqual(messages, ['Goodbye level 2.']);
+});
+
+// C ref: polyself.c rehumanize():1394-1403. A hero whose u.uhp is already
+// below 1 when the polymorph ends returns to the original form through
+// polyman() and then dies of it.
+test('rehumanize kills a hero whose original form has no HP left',
+    async () => {
+    await runSegment({
+        // This arbitrary startup supplies the complete state polyman() owns.
+        // It is not debug mode, so end.c done() asks no "Die?" question, and
+        // it names the hero so startup asks no "Who are you?".
+        seed: 8820254,
+        datetime: '20310203040507',
+        nethackrc: 'OPTIONS=name:Unhealthy,role:Archeologist,race:human,'
+            + 'gender:female,align:neutral\n'
+            + 'OPTIONS=pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '.',
+    });
+    game.u.macurr = { a: [...game.u.acurr.a] };
+    game.u.mamax = { a: [...game.u.amax.a] };
+    game.u.mfemale = game.flags.female;
+    game.u.umonnum = PM_GNOME;
+    game.u.umonster = PM_HUMAN;
+    game.u.mh = 0;
+    game.u.mhmax = 1;
+    // The one state rehumanize() checks after polyman(): polyself.c:1394.
+    game.u.uhp = 0;
+    game.youmonst.data = game.mons[PM_GNOME];
+    // Spaces dismiss each --More-- and take the default disclosure answers
+    // of end.c done().
+    for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const messages = [];
+
+    await expectTerminated(
+        () => rehumanize(game, {
+            message: async (text) => { messages.push(text); },
+        }),
+        'the unhealthy original form dies',
+    );
+
+    // polyman() (polyself.c:210-213) restores u.umonster and its data.
+    assert.equal(game.u.umonnum, PM_HUMAN);
+    assert.strictEqual(game.youmonst.data, game.mons[PM_HUMAN]);
+    assert.deepEqual(messages, [
+        'Your old form was not healthy enough to survive.',
+    ]);
+    // gu.urace.adj is "human" for a human hero.
+    assert.deepEqual(game.killer, {
+        format: KILLED_BY,
+        name: 'reverting to unhealthy human form',
+    });
 });
 
 test('adjabil uses the dreaming prefix for a fainted hero losing an ability',
