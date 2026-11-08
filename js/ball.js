@@ -137,8 +137,8 @@ export function set_bc(already_blind, state = game, rawEnv = {}) {
     const chain = state.uchain;
     const ball_on_floor = !carried(ball);
     const env = { ...rawEnv, state };
-    // newsym owns the live display. Planning callers forward their redraw
-    // seam, as toggle_blindness does; a foreign state never paints live tty.
+    // newsym owns the live display. Callers may forward their redraw seam, as
+    // toggle_blindness does; a foreign state never paints live tty.
     const redraw = rawEnv.redraw ?? (state === game ? newsym : () => {});
 
     state.u.bc_order = bc_order(state);
@@ -233,8 +233,7 @@ export async function placebc(state = game, rawEnv = {}) {
         note_unported('pline.c impossible');
         return;
     }
-    const redraw = rawEnv.redraw
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const redraw = rawEnv.redraw ?? newsym;
     await placebc_core(state, { ...rawEnv, redraw });
 }
 
@@ -336,7 +335,7 @@ export async function ballfall(state = game, rawEnv = {}) {
     await ballrelease(true, state);
     if (getsHit) {
         let damage = random.rn1(7, 25);
-        const message = rawEnv.message ?? (rawEnv.planning ? async () => {} : ttyPline);
+        const message = rawEnv.message ?? ttyPline;
         await message(`The iron ball falls on your ${body_part(HEAD, state.youmonst)}.`, state);
         if (state.uarmh) {
             if (hard_helmet(state.uarmh, state)) {

@@ -947,15 +947,15 @@ export function select_hwep(monster, env = {}) {
 async function endMonsterArtifactLight(monster, obj, normalized) {
     // C setmnotwielded() owns end_burn(FALSE), rather than requiring a caller
     // hook.  objectGenerationEnv supplies the canonical light deletion and
-    // timer cleanup owners for live and planning clones alike.
+    // timer cleanup owners.
     const { end_burn } = await import('./timeout.js');
     const { objectGenerationEnv } = await import('./object_generation.js');
     end_burn(obj, false, objectGenerationEnv(normalized));
 
-    // Planning clones suppress all presentation.  Runtime callers use the
-    // same visibility test C canseemon(mon) does, after the light is stopped.
+    // Use the same visibility test C canseemon(mon) does, after the light is
+    // stopped.
     const seeMonster = normalized.canseemon ?? canseemon;
-    if (normalized.planning || !seeMonster(monster, normalized.state)) return;
+    if (!seeMonster(monster, normalized.state)) return;
     const message = normalized.message ?? ttyPline;
     await message(
         `${The(xnameFresh(obj, normalized.state), normalized.state)} in `
@@ -1136,8 +1136,7 @@ export async function mon_wield_item(monster, env = {}) {
                     : mbodypart(monster, HAND);
                 const welded = `${otense(current, 'are', state)} welded to `
                     + `${mhis(monster, namingEnv)} ${hand}`;
-                const message = normalized.message
-                    ?? (normalized.planning ? async () => {} : ttyPline);
+                const message = normalized.message ?? ttyPline;
 
                 if (obj.otyp === PICK_AXE) {
                     await message(
@@ -1179,8 +1178,7 @@ export async function mon_wield_item(monster, env = {}) {
         monster.mw = obj;
         await setmnotwielded(monster, current, normalized);
         monster.weapon_check = NEED_WEAPON;
-        const message = normalized.message
-            ?? (normalized.planning ? async () => {} : ttyPline);
+        const message = normalized.message ?? ttyPline;
 
         if (canseemon(monster, state)) {
             await message(

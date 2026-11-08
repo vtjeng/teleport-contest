@@ -3727,11 +3727,11 @@ async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
 }
 
 // C ref: shk.c litter_newsyms() (4712-4720). Redraw only squares to which
-// litter was moved, through repair_damage()'s redraw.
-function litter_newsyms(litter, x, y, redraw = newsym) {
+// litter was moved.
+function litter_newsyms(litter, x, y) {
     for (let i = 0; i < 9; ++i) {
         if (litter[i] & LITTER_UPDATE)
-            redraw(x + litterHoriz(i), y + litterVert(i));
+            newsym(x + litterHoriz(i), y + litterVert(i));
     }
 }
 
@@ -3739,10 +3739,7 @@ function litter_newsyms(litter, x, y, redraw = newsym) {
 // and returns one as soon as the terrain is restored for an off-level repair.
 async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     if (!repairable_damage(damage, shkp, state)) return 0;
-    const message = shopRepairMessage(env);
-    // A shopkeeper's move in a monster turn's planning pass repairs only the
-    // planning copy; the live pass repaints the squares.
-    const redraw = env.planning ? () => {} : newsym;
+    const message = ttyPline;
 
     const { x, y } = damage.place;
     const seeit = cansee(x, y, state);
@@ -3804,7 +3801,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
 
         deltrap(trap, state);
         del_engr_at(x, y, state);
-        if (seeit) redraw(x, y);
+        if (seeit) newsym(x, y);
         if (!catchup) disposition = 3;
     }
 
@@ -3830,19 +3827,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         await litter_scatter(litter, x, y, shkp, state, env);
     del_engr_at(x, y, state);
 
-    if (seeit) redraw(x, y);
-    // block_point() rebuilds vision.c's module-wide transparency index. A
-    // planning clone borrows that index, so mark the borrow first; the
-    // planning wrapper restores it afterwards. Otherwise the dry run's
-    // repair blocks sight on the live map before the live repair runs.
-    if (env.planning) {
-        if (typeof env.admitPlannedVisionChange !== 'function') {
-            throw new TypeError(
-                'planned shop repair requires admitPlannedVisionChange',
-            );
-        }
-        env.admitPlannedVisionChange(x, y, state);
-    }
+    if (seeit) newsym(x, y);
     block_point(x, y, state);
     if (catchup) return 1;
 
@@ -3853,14 +3838,14 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         } else if (IS_DOOR(damage.typ)) {
             await message('Suddenly, the shop door reappears!', state, env);
         }
-        redraw(x, y);
+        newsym(x, y);
     } else if (IS_WALL(damage.typ)) {
         if (inside_shop(state.u.ux, state.u.uy, state)
             === shkp.mextra.eshk.shoproom) {
             await message(youFeel('more claustrophobic than before.', state),
                 state, env);
         } else if (!Deaf(state.u) && !randomFor(env).rn2(10)) {
-            await (env.planning ? message : ttyNorep)(
+            await ttyNorep(
                 'The dungeon acoustics noticeably change.', state, env);
         }
     }
@@ -3869,17 +3854,11 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     if (stopPicking)
         await stop_occupation(state, {
             ...env,
-            message: env.planning ? message : (env.message ?? ttyPline),
+            message: env.message ?? ttyPline,
         });
-    litter_newsyms(litter, x, y, redraw);
+    litter_newsyms(litter, x, y);
     if (disposition < 3) disposition = 2;
     return disposition;
-}
-
-// The once-per-turn planning pass runs shk_move() on a cloned state; its
-// repair messages must neither draw nor wait for --More-- on the live terminal.
-function shopRepairMessage(env) {
-    return env.planning ? async () => {} : ttyPline;
 }
 
 function randomFor(env) {
@@ -3891,7 +3870,7 @@ function randomFor(env) {
 async function shk_fixes_damage(shkp, state, env = {}) {
     const damage = find_damage(shkp, state);
     if (!damage) return;
-    const message = shopRepairMessage(env);
+    const message = ttyPline;
 
     const closeby = dist2(shkp.mx, shkp.my, state.u.ux, state.u.uy)
         <= Math.trunc(BOLT_LIM / 2) ** 2;
@@ -3964,11 +3943,10 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             return (async () => {
                 const displaced = hero.uprops?.[DISPLACED];
                 if (displaced?.intrinsic || displaced?.extrinsic) {
-                    if (!env.planning)
-                        await (env.message ?? ttyPline)(
-                            `Your displaced image doesn't fool ${shkname(shkp, state)}!`,
-                            state, env,
-                        );
+                    await (env.message ?? ttyPline)(
+                        `Your displaced image doesn't fool ${shkname(shkp, state)}!`,
+                        state, env,
+                    );
                 }
                 await (env.attackHero ?? mattacku)(shkp, env);
                 return 0;

@@ -1034,9 +1034,9 @@ export function set_mimic_sym(monster, normalized) {
     }
 
     // C's tail re-evaluates the square only after the disguise and any
-    // species overlay have consumed all their randomness. Runtime monster
-    // planning supplies clone-owned hooks here because vision.c's compact
-    // transparency index is shared outside the game-state object.
+    // species overlay have consumed all their randomness. Callers may supply
+    // their own hooks here because vision.c's compact transparency index is
+    // shared outside the game-state object.
     const doesBlock = normalized.hooks?.doesBlock
         ?? ((bx, by, cell, env) => does_block(
             bx,
@@ -3402,7 +3402,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const message = env.message === undefined ? ttyPline : env.message;
     const norepMessage = env.norepMessage === undefined
-        ? env.planning ? message : ttyNorep
+        ? ttyNorep
         : env.norepMessage;
     if (typeof message !== 'function' || typeof norepMessage !== 'function') {
         throw new TypeError('makemon_runtime requires message operations');

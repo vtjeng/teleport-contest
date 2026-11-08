@@ -344,8 +344,7 @@ export async function u_slow_down(
 export async function u_slip_free(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message ?? (rawEnv.planning ? async () => {}
-        : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
 
     if (mattk.aatyp === M.AT_ENGL) return false;
 
@@ -413,8 +412,7 @@ export function Protection_from_shape_changers(state) {
 }
 
 // C ref: mhitu.c summonmu() (956-1030). The caller supplies the same random
-// owner it uses for the rest of the attack; this matters when mattacku() is
-// evaluating the turn on its planning clone.
+// owner it uses for the rest of the attack.
 export async function summonmu(monster, youseeit, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
@@ -538,12 +536,6 @@ export async function cloneu(rawState = game, rawEnv = {}) {
         // marker lets makemon_create.js admit that source caller outside
         // level generation without widening the generic runtime allowlist.
         _cloneu: true,
-        ...(rawEnv.planning
-            ? {
-                message: rawEnv.message ?? (async () => {}),
-                norepMessage: rawEnv.norepMessage ?? (async () => {}),
-            }
-            : {}),
     };
     let monster = await makemon_runtime(
         state.youmonst.data,
@@ -600,8 +592,7 @@ export function m_next2u(monster, state) {
 // C ref: mhitu.c wildmiss() (176-262). A monster can attack the wrong square
 // when it cannot see, when the hero is displaced, or while the hero is
 // underwater. The caller supplies the ordinary gameplay random source; the
-// display and message seams remain injectable so the planning pass can spend
-// gameplay draws without painting the live terminal.
+// display and message seams remain injectable.
 export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
@@ -640,10 +631,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
 
     if (unotseen) {
         if (!compat) {
-            // C consumes this draw even during planning, but the planning pass
-            // must not evaluate display-only naming or write a line.
             const outcome = random.rn2(3);
-            if (rawEnv.planning) return;
             const name = capitalizedMonsterName(mtmp, state, rawEnv);
             const swings = mattk.aatyp === M.AT_BITE ? 'snaps'
                 : mattk.aatyp === M.AT_KICK ? 'kicks'
@@ -661,7 +649,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
                     ? `${name} attacks a spot beside you.`
                     : `${name} strikes at ${target}!`;
             await message(messageAt(text, mtmp.mx, mtmp.my, state), state);
-        } else if (!rawEnv.planning) {
+        } else {
             const name = capitalizedMonsterName(mtmp, state, rawEnv);
             await message(
                 messageAt(`${name} tries to touch you and misses!`,
@@ -675,7 +663,6 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     // The displacement message is intentionally emitted even while blind;
     // at this point cansee() has established that the monster's own square is
     // visible. Underwater is reached only when the preceding reason is off.
-    if (rawEnv.planning) return;
     const name = capitalizedMonsterName(mtmp, state, rawEnv);
     let text;
     if (unotthere) {
@@ -795,11 +782,9 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
 // through the same source-ordered armor slots.
 export async function doseduce(mon, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const urgentMessage = rawEnv.urgentMessage
-        ?? (rawEnv.message ? rawEnv.message
-            : rawEnv.planning ? async () => {} : ttyUrgentPline);
+        ?? (rawEnv.message ? rawEnv.message : ttyUrgentPline);
     const encumberMessage = rawEnv.encumberMessage
         ?? ((currentState) => encumber_msg(currentState, { message }));
     const effectEnv = {
@@ -841,15 +826,6 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 + 'of response.',
         );
         return 0;
-    }
-
-    // The rest of doseduce() can ask y_n() questions in mayberem() and the
-    // ring offers, and its outcome draws follow those answers. Stop a
-    // planning clone at this boundary so the live pass asks them.
-    if (rawEnv.planning) {
-        if (typeof rawEnv.requestPlanningInput !== 'function')
-            throw new TypeError('planned doseduce requires an input boundary');
-        rawEnv.requestPlanningInput('mhitu.c doseduce');
     }
 
     const seewho = canseemon(mon, state);
@@ -1240,8 +1216,8 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
 // the real function for dochugw()'s interruption and once to a refusal for a
 // pet's hunger -- and neither binding is meant for these two call sites.
 //
-// What the env does own is the pair of display operations that differ between
-// the live game and the atomic planning clone, so those are forwarded.
+// What the env does own is the pair of display operations, so those are
+// forwarded.
 function mattackuStopOccupation(env) {
     return stop_occupation(env.state, {
         message: env.message,
@@ -1594,8 +1570,7 @@ export function mtrapped_in_pit(mtmp, state = game) {
 
 // C ref: mhitu.c mattacku() (491–951). Returns an attacker-death flag.
 // All dispatch branches use the canonical combat/relocation owners and retain
-// those owners' documented admission limits. Planning uses the same state and
-// RNG order with silent display operations. Long-worm relocation updates its
+// those owners' documented admission limits. Long-worm relocation updates its
 // tail before the hero's destination is checked, as in C.
 export async function mattacku(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
@@ -1608,33 +1583,20 @@ export async function mattacku(monster, rawEnv = {}) {
         );
     }
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
-    // pline_mon(), newsym() and bot(). The planning scan replays the same turn
-    // against the live display afterwards, so a dry run must produce none of
-    // the three.
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? ttyPline);
+    // pline_mon(), newsym() and bot().
+    const message = rawEnv.message ?? ttyPline;
     // mhitu.c's steal() chain calls ordinary pline() for the worn-item
-    // preface and urgent_pline() for the final theft line. Planning must keep
-    // both operations silent; a live attack gets the urgent terminal boundary.
-    const urgentMessage = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.urgentMessage ?? ttyUrgentPline);
-    const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? newsym);
-    const statusRefresh = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.statusRefresh ?? (() => bot()));
+    // preface and urgent_pline() for the final theft line; a live attack
+    // gets the urgent terminal boundary.
+    const urgentMessage = rawEnv.urgentMessage ?? ttyUrgentPline;
+    const redraw = rawEnv.redraw ?? newsym;
+    const statusRefresh = rawEnv.statusRefresh ?? (() => bot());
     // map_invisible() writes map memory and then paints through
-    // show_glyph_cell(), both against the module-global game. The planning
-    // scan replays the same turn live afterwards, so a dry run must write
-    // neither half; the live replay writes both.
-    const markInvisible = rawEnv.planning
-        ? () => {}
-        : (rawEnv.markInvisible ?? map_invisible);
-    // C keeps cosmetic choices on the display stream.  Planning owns a
-    // cloned display context; live callers use the game's display context.
-    // Supplying this explicitly prevents hliquid() in passiveum() from
-    // falling back to the attacker's gameplay random source.
+    // show_glyph_cell(), both against the module-global game.
+    const markInvisible = rawEnv.markInvisible ?? map_invisible;
+    // C keeps cosmetic choices on the display stream; live callers use the
+    // game's display context. Supplying this explicitly prevents hliquid() in
+    // passiveum() from falling back to the attacker's gameplay random source.
     const displayRandom = rawEnv.displayRandom
         ?? (state.displayCtx
             ? (bound) => rn2_on_display_rng(bound, state)
@@ -1642,7 +1604,6 @@ export async function mattacku(monster, rawEnv = {}) {
     const env = {
         ...rawEnv, state, message, urgentMessage, redraw, statusRefresh,
         markInvisible, displayRandom,
-        planningDeath: (subject) => new MonsterDeathPlanningError(subject),
     };
     let mdat = monster.data;
     const initial = calc_mattacku_vars(monster, env);
@@ -1947,7 +1908,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         || (!monster.mspec_used
                             && ((j = random.rnd(20 + i)), tmp > j));
                     if (engulfing) {
-                        if (!env.planning) await flush_screen(1);
+                        await flush_screen(1);
                         sum[i] = await gulpmu(monster, mattk, env);
                     } else {
                         await missmu(monster, tmp === j, mattk, env);
@@ -2148,11 +2109,9 @@ export async function expels(mtmp, rawEnv = {}) {
     await unstuck(mtmp, state, { ...rawEnv, state });
 
     // teleport.c rloc_to_core() owns the old and new monster-square redraws.
-    // Keep the operation seam explicit so a planning clone cannot paint the
-    // live map while mnexto() performs that relocation.
-    const redraw = rawEnv.planning
-        ? () => {}
-        : (rawEnv.newsym ?? rawEnv.redraw ?? newsym);
+    // Keep the caller's operation seam explicit while mnexto() performs that
+    // relocation.
+    const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
     await mnexto(mtmp, RLOC_NOMSG, {
         ...rawEnv,
         state,
@@ -2162,21 +2121,17 @@ export async function expels(mtmp, rawEnv = {}) {
     // mhitu.c redraws only the hero's former stomach square after mnexto().
     // The relocation core has already painted the monster's old and new
     // squares; repeating the destination paint changes the TTY trace.
-    if (!rawEnv.planning) {
-        redraw(state.u.ux, state.u.uy);
-    }
+    redraw(state.u.ux, state.u.uy);
     // mhitu.c:302-304. um_dist() is Chebyshev distance, and the message is
     // emitted only when mnexto() had to leave the monster beyond a neighboring
     // square (for example through a controlled relocation seam).
-    if (!rawEnv.planning
-        && distmin(mtmp.mx, mtmp.my, state.u.ux, state.u.uy) > 1) {
+    if (distmin(mtmp.mx, mtmp.my, state.u.ux, state.u.uy) > 1) {
         await (rawEnv.message ?? ttyPline)(
             'Brrooaa...  You land hard at some distance.', state,
         );
     }
-    // Keep the planning clone's display seam attached through the terrain
-    // transition.  switch_terrain() is reached through spoteffects(), and a
-    // missing environment here would let a clone write live TTY output.
+    // Keep the caller's display seam attached through the terrain
+    // transition; switch_terrain() is reached through spoteffects().
     await spoteffects(true, state, rawEnv);
 }
 
@@ -2294,7 +2249,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         mtmp.mtrapped = false;
         place_monster(mtmp, u.ux, u.uy, state);
         set_ustuck(mtmp, state);
-        if (!rawEnv.planning) redraw(mtmp.mx, mtmp.my);
+        redraw(mtmp.mx, mtmp.my);
 
         if (u.usteed) {
             const steedName = mon_nam(u.usteed, state, rawEnv);
@@ -2313,9 +2268,6 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
                 state,
                 random,
             });
-        } else if (rawEnv.planning) {
-            // Planning suppresses only the display operation. Source state
-            // transitions and game-RNG draws below still run on the clone.
         } else {
             const injectedSpotOwner = rawEnv.canSpotMonster
                 ?? rawEnv.canSeeMonster;
@@ -2373,10 +2325,8 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
 
         // display_nhwindow(WIN_MESSAGE, FALSE) waits for pending --More-- and
         // clears it before vision and the swallow timer are updated.
-        if (!rawEnv.planning) {
-            await displayPendingTtyMessageWindow(state);
-        }
-        vision_recalc(2, { state, redraw: rawEnv.planning ? () => {} : redraw });
+        await displayPendingTtyMessageWindow(state);
+        vision_recalc(2, { state, redraw });
         u.uswallow = 1;
 
         if (mattk.adtyp === M.AD_DGST) {
@@ -2387,7 +2337,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             timTmp = random.rnd(mtmp.m_lev + 10 / 2);
         }
         u.uswldtim = Math.max(2, timTmp);
-        if (!rawEnv.planning) await swallowed(1, state);
+        await swallowed(1, state);
         if (!flaming(mtmp.data)) {
             for (let object = state.invent; object;) {
                 const next = object.nobj;
@@ -2657,9 +2607,8 @@ export function magic_negation(mon, state = game) {
 
 // C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
 //
-// Every reachable surviving exit answers M_ATTK_HIT. Lethal planning damage
-// raises MonsterDeathPlanningError before live rehumanize() or done_in_by().
-// A completed live end-game boundary unwinds the monster pass.
+// Every reachable surviving exit answers M_ATTK_HIT. A completed end-game
+// boundary unwinds the monster pass.
 //
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
@@ -2857,14 +2806,8 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
     case M.AD_FIRE:
     case M.AD_ELEC:
         // C's second damage roll, attacker removal and blast belong to
-        // mon_explodes(). Only the live pass may enter terminal death input.
-        await mon_explodes(mtmp, mattk, state, {
-            ...rawEnv,
-            ...(rawEnv.planning ? {
-                planningDeath: (how = DIED) =>
-                    new MonsterDeathPlanningError(mtmp, how),
-            } : {}),
-        });
+        // mon_explodes().
+        await mon_explodes(mtmp, mattk, state, { ...rawEnv });
         if (state.program_state?.gameover) return M_ATTK_AGR_DIED;
         if (mtmp.mhp > 0) killAgr = false;
         break;
@@ -2938,11 +2881,8 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
 export async function gazemu(monster, attack, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const urgentMessage = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.urgentMessage ?? ttyUrgentPline);
+    const message = rawEnv.message ?? ttyPline;
+    const urgentMessage = rawEnv.urgentMessage ?? ttyUrgentPline;
     const env = {
         ...rawEnv,
         state,
@@ -3069,8 +3009,6 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = pmname(monster.data, gender(monster));
-            if (rawEnv.planning)
-                throw new MonsterDeathPlanningError(monster, STONING);
             await done(STONING, state, { ...env, fromMonster: true });
         }
         break;
@@ -3238,7 +3176,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
 // rehumanize(), while an ordinary hero uses u.uhp/uhpmax and done_in_by().
 // showdamage() runs before the matching cap, exactly as in C.
 export async function mdamageu(mtmp, n, state, env = {}) {
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
 
     if (n < 0) {
         // C discards the diagnostic's result and continues with zero damage.
@@ -3255,12 +3193,6 @@ export async function mdamageu(mtmp, n, state, env = {}) {
         if (state.u.mh > state.u.mhmax)
             state.u.mh = state.u.mhmax;
         if (state.u.mh < 1) {
-            // rehumanize() owns the live polyself.c transition. A planning
-            // clone cannot run it: polyman/newsym and a possible done() would
-            // write the live terminal or consume input. Hand the exact C
-            // lethal boundary back to the live replay instead.
-            if (env.planning)
-                throw new MonsterDeathPlanningError(mtmp);
             await rehumanize(state, env);
         }
         return;
@@ -3273,13 +3205,8 @@ export async function mdamageu(mtmp, n, state, env = {}) {
         state.u.uhp = state.u.uhpmax;
     if (state.u.uhp < 1) {
         // C ref: mhitu.c:1924-1925. done_in_by() prints "You die...", builds
-        // the killer string, and calls done(). The planning clone cannot run
-        // that input-bearing NORETURN path, so it stops at this boundary.
-        if (env.planning) {
-            throw new MonsterDeathPlanningError(mtmp);
-        } else {
-            await done_in_by(mtmp, DIED, state);
-        }
+        // the killer string, and calls done().
+        await done_in_by(mtmp, DIED, state);
     }
 }
 
@@ -3336,8 +3263,7 @@ export function ranged_attk_available(mtmp, rawEnv = {}) {
 // drain_item, and shieldeff. Their surrounding source branches still consume
 // the conditional draws before recording the discarded call.
 async function assess_dmg(mtmp, tmp, state, env) {
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     mtmp.mhp -= tmp;
     if (mtmp.mhp <= 0) {
         await message(
@@ -3357,8 +3283,7 @@ async function assess_dmg(mtmp, tmp, state, env) {
 
 async function passiveum(olduasmon, mtmp, mattk, state, env) {
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     let i;
     let oldu_mattk = null;
 

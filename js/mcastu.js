@@ -43,7 +43,7 @@ import {
     vision_clears,
 } from './const.js';
 import { game } from './gstate.js';
-import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
+import { losehp, nomul } from './hack.js';
 import { acurr, adjuhploss, losestr, minuhpmax, setuhpmax } from './attrib.js';
 import { done } from './end.js';
 import { sgn, upstart } from './hacklib.js';
@@ -120,32 +120,22 @@ import {
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
-// and the monster spell share this HP/killer path. Terminal death/recovery
-// runs live; planning uses the established handoff before reading input.
+// and the monster spell share this HP/killer path.
 export async function touch_of_death(mtmp, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     let dmg = 50 + random.d(8, 6);
     const drain = Math.trunc(dmg / 2);
     await message(youFeel('drained...', state), state, env);
     const kbuf = death_inflicted_by('the touch of death', mtmp, state);
     if (Upolyd(state.u)) {
         state.u.mh = 0;
-        await (env.rehumanize ?? rehumanize)(state, {
-            ...env, message,
-            planningDeath: typeof env.planningDeath === 'function'
-                ? () => env.planningDeath(mtmp) : undefined,
-        });
+        await (env.rehumanize ?? rehumanize)(state, { ...env, message });
     } else if (drain >= state.u.uhpmax) {
         state.killer ??= {};
         state.killer.format = KILLED_BY;
         state.killer.name = kbuf;
-        if (env.planning) {
-            if (typeof env.planningDeath === 'function')
-                throw env.planningDeath(mtmp);
-            throw new HeroDeathPlanningError(kbuf, KILLED_BY, { fromMonster: true });
-        }
         await (env.done ?? done)(DIED, state, env);
     } else {
         const olduhp = state.u.uhp;
@@ -186,7 +176,7 @@ export function death_inflicted_by(deathreason, monster, state = game) {
 export async function mcast_death_touch(mtmp, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const effectEnv = { ...env, state, random, message,
         canSpotMonster: env.canSpotMonster ?? canspotmon };
     await message(`Oh no, ${mhe(mtmp, effectEnv)}'s using the touch of death!`, state, effectEnv);
@@ -412,8 +402,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const message = env.message;
-    const norepMessage = env.planning ? async () => {}
-        : (env.norepMessage ?? ttyNorep);
+    const norepMessage = env.norepMessage ?? ttyNorep;
 
     if (canseemon(mtmp, state)
         && couldsee(mtmp.mx, mtmp.my, state)) {
@@ -751,14 +740,13 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     }
     if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
     await burn_away_slime(state, env);
-    // C's item effects mutate the same hero clone and may print through their
-    // own fallback operations.  Planning passes an explicit silent message
-    // operation so those fallbacks cannot write to the live terminal.
+    // C's item effects mutate the hero and may print through their own
+    // fallback operations.
     const effectEnv = {
         ...env,
         state,
         random,
-        message: env.message ?? (env.planning ? async () => {} : undefined),
+        message: env.message,
     };
     await burnarmor(state.youmonst, effectEnv);
     await destroy_items(state.youmonst, AD_FIRE, origDmg, effectEnv);
@@ -799,14 +787,14 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         ...env,
         state,
         random,
-        message: env.message ?? (env.planning ? async () => {} : undefined),
+        message: env.message,
     };
     await destroy_items(state.youmonst, AD_ELEC, origDmg, effectEnv);
     await mon_spell_hits_spot(
         mtmp, AD_ELEC, state.u.ux, state.u.uy, effectEnv,
     );
     // mcastu.c evaluates rnd(100) before the canonical zap.c flashburn call.
-    // Keep that draw on the injected gameplay RNG, including in planning.
+    // Keep that draw on the injected gameplay RNG.
     if (typeof random.rnd !== 'function')
         throw new TypeError('mcast_lightning requires the rnd operation');
     const duration = random.rnd(100);
@@ -846,8 +834,7 @@ async function mcast_paralyze(mtmp, env = {}) {
 async function mcast_clone_wiz(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (mtmp?.iswiz && state.context?.no_of_wizards === 1) {
-        const message = rawEnv.message
-            ?? (rawEnv.planning ? async () => {} : ttyPline);
+        const message = rawEnv.message ?? ttyPline;
         await message('Double Trouble...', state, rawEnv);
         await clonewiz(state, rawEnv);
     } else {
@@ -864,10 +851,7 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
     const count = await summonNasty(mtmp, { ...rawEnv, state });
     if (!count) return count;
 
-    // A planning summon keeps every message clone-local just like the
-    // creation tail in nasty(); ordinary callers retain the live tty sink.
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     if (mtmp?.iswiz) {
         const line = `Destroy the thief, my pet${count === 1 ? '' : 's'}!`;
         if (typeof rawEnv.verbalize === 'function') {
@@ -911,8 +895,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const chooseClass = env.mkclass ?? mkclass;
     const census = env.monsterCensus ?? monster_census;
     const nextTo = env.enexto ?? enexto;
@@ -1011,8 +994,7 @@ export async function mcast_insects(mtmp, rawEnv = {}) {
 async function mcast_stun_you(dmg, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const hStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
 
     if (heroProperty(state, ANTIMAGIC)
@@ -1043,8 +1025,7 @@ async function mcast_stun_you(dmg, env = {}) {
 export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
 
     if (heroProperty(state, ANTIMAGIC)) {
         await shieldeff(state.u.ux, state.u.uy, state);
@@ -1076,8 +1057,7 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
 export async function mcast_destroy_armor(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
 
     if (heroProperty(state, ANTIMAGIC)) {
         await shieldeff(state.u.ux, state.u.uy, state);
@@ -1238,8 +1218,7 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
         return;
     }
 
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     if (canseemon(mtmp, state)) {
         // C pline_mon() formats the source name with Monnam() and adds map
         // coordinates when accessiblemsg is enabled.
@@ -1260,6 +1239,8 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
 
     mon_set_minvis(mtmp, false, state, rawEnv);
 
+    // map_invisible() paints the global game, so a foreign state (such as a
+    // test's hand-built state) keeps only its memory write.
     if (cansee(mtmp.mx, mtmp.my, state) && !canspotmon(mtmp, state)) {
         if (state === game) map_invisible(mtmp.mx, mtmp.my, state);
         else map_invisible_planning(mtmp.mx, mtmp.my, state);
@@ -1272,8 +1253,7 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
 async function mcast_confuse_you(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const confusion = state.u?.uprops?.[CONFUSION];
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
 
     if (heroProperty(state, ANTIMAGIC)) {
         await shieldeff(state.u.ux, state.u.uy, state);

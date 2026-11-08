@@ -272,7 +272,6 @@ import {
     hitmsg,
     m_next2u,
     magic_negation,
-    MonsterDeathPlanningError,
     mpoisons_subj,
     mtrapped_in_pit,
     mdamageu,
@@ -384,7 +383,6 @@ import {
     youHear,
 } from './monmove.js';
 import {
-    isolatePlannedVision,
     moveSimpleOrdinary,
 } from './unported_monster_actions.js';
 import { m_at } from './monst.js';
@@ -2426,9 +2424,7 @@ export async function known_hitum(
                     canSeeMonster: env.canSeeMonster
                         ?? ((subject) => canseemon(subject, state)),
                     fleeMessage: env.fleeMessage ?? monfleeMessage,
-                    message: env.message ?? (env.planning
-                        ? async () => {}
-                        : undefined),
+                    message: env.message,
                     ...(env.createGasCloud === undefined ? {}
                         : { createGasCloud: env.createGasCloud }),
                 });
@@ -4116,16 +4112,13 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // C ref: teleport.c rloc() with RLOC_MSG. The rloc env threads the
         // display and movement hooks that preflightOrdinaryRloc() requires
         // alongside the attack env's message function.
-        // Controlled relocation must retain the planner input boundary so
-        // getpos is replayed live after the theft message.
-        // rloc_to_core()'s two newsym() calls use the attack's redraw hook:
-        // a planning scan suppresses it, and a hallucinated monster glyph
-        // drawn there would otherwise advance the live display RNG.
+        // rloc_to_core()'s two newsym() calls use the attack's redraw hook
+        // when the caller supplies one.
         const rlocEnv = {
             ...env,
             state,
             random: env.random,
-            newsym: env.redraw ?? (env.planning ? () => {} : newsym),
+            newsym: env.redraw ?? newsym,
             onscary: (x, y, mon, normEnv) =>
                 onscary(x, y, mon, normEnv.state),
             setApparxy: set_apparxy,
@@ -4241,15 +4234,6 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             // removed from the still-mounted steed and takes the fall path.
             if (typeof env.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_POLY, state, env);
-            } else if (env.planning) {
-                // The dismount prints, moves the hero and changes later
-                // monster choices. Stop the planning clone here so its owner
-                // replays this theft live, then replans from that state.
-                if (typeof env.requestPlanningInput !== 'function')
-                    throw new TypeError(
-                        'planned saddle theft requires a replay boundary',
-                    );
-                env.requestPlanningInput('steed.c dismount_steed DISMOUNT_POLY');
             } else {
                 await dismount_steed(DISMOUNT_POLY, state, env);
             }
@@ -4303,13 +4287,12 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             && !(await tele_restrict(magr, state, { ...env, message }))) {
             const couldspot = canspotmon(magr, state);
             mhm.hitflags = M_ATTK_AGR_DONE;
-            // rloc_to_core() redraws through rlocEnv.newsym, which a
-            // monster turn's planning pass silences.
+            // rloc_to_core() redraws through rlocEnv.newsym.
             const rlocEnv = {
                 ...env,
                 state,
                 random,
-                newsym: env.planning ? () => {} : newsym,
+                newsym,
                 onscary: (x, y, mon, normalized) =>
                     onscary(x, y, mon, normalized.state),
                 setApparxy: set_apparxy,
@@ -4851,7 +4834,7 @@ export async function do_stone_mon(
     env = {},
 ) {
     const pd = mdef.data;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const { munstone } = await import('./muse.js');
 
     // C's munstone() result jumps to post_stone; ordinary petrification
@@ -4963,8 +4946,7 @@ export async function mhitm_ad_phys(
                     mhm.hitflags |= M_ATTK_MISS;
                 } else {
                     set_ustuck(magr, state);
-                    const message = env.message ?? (env.planning
-                        ? async () => {} : ttyPline);
+                    const message = env.message ?? ttyPline;
                     await message(
                         messageAt(
                             `${Monnam(magr, state, env)} grabs you!`,
@@ -4981,8 +4963,7 @@ export async function mhitm_ad_phys(
                 await exercise(A_STR, false, state, random, {
                     encumberMessage: mhitmEncumberMessage(env),
                 });
-                const message = env.message ?? (env.planning
-                    ? async () => {} : ttyPline);
+                const message = env.message ?? ttyPline;
                 await message(
                     pa === state.mons[PM_ROPE_GOLEM]
                         ? 'You are being choked.' : 'You are being crushed.',
@@ -5173,12 +5154,10 @@ export async function mhitm_ad_phys(
 }
 
 // attrib.c exercise() ends with encumber_msg() for Strength and
-// Constitution. A planning clone of a monster's turn must not print its
-// burden line on the live terminal, so the default reporter uses the
-// caller's message operation, which is silent while planning.
+// Constitution. The default reporter uses the caller's message operation.
 function mhitmEncumberMessage(env) {
     return env.encumberMessage ?? ((subject) => encumber_msg(subject, {
-        message: env.message ?? (env.planning ? async () => {} : ttyPline),
+        message: env.message ?? ttyPline,
     }));
 }
 
@@ -5192,9 +5171,8 @@ function mhitmEncumberMessage(env) {
 //
 // A shade defender that takes no damage is reported through the supplied
 // message operation, then its square is marked and its msleeping is cleared.
-// The message operation may suspend for live TTY input or a planning clone
-// (whose default is a no-op), so every caller awaits this source result before
-// consuming its TRUE pass-through answer.
+// The message operation may suspend for live TTY input, so every caller awaits
+// this source result before consuming its TRUE pass-through answer.
 export async function shade_miss(
     magr,
     mdef,
@@ -5211,8 +5189,7 @@ export async function shade_miss(
 
     const youagr = magr === state.youmonst;
     const youdef = mdef === state.youmonst;
-    const message = env.message
-        ?? (env.planning ? () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const visible = youdef
         || cansee(mdef.mx, mdef.my, state)
         || sensemon(mdef, state)
@@ -5248,9 +5225,8 @@ export async function shade_miss(
 // C ref: uhitm.c mhitm_ad_blnd() (2958-3008). Apply one landed blinding
 // attack in source order: hero versus monster, monster versus hero, then
 // monster versus monster. `make_blinded()` remains the sole owner of the
-// hero's timed blindness transition; passing the attack environment through
-// it keeps the planning clone's status and vision state separate from the
-// live game.
+// hero's timed blindness transition; the attack environment is passed
+// through it.
 export async function mhitm_ad_blnd(
     magr,
     mattk,
@@ -5873,8 +5849,7 @@ export async function mhitm_ad_drin(
     env = {},
 ) {
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
     const effectEnv = {
         ...env,
         state,
@@ -6074,8 +6049,7 @@ export async function mhitm_ad_stck(
 // body armor is checked before its shirt; AD_DRIN alone selects the helmet.
 export async function m_slips_free(mdef, mattk, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
     let obj;
 
     if (mattk.adtyp === AD_DRIN) {
@@ -6110,8 +6084,7 @@ export async function m_slips_free(mdef, mattk, state = game, env = {}) {
 }
 
 // C ref: uhitm.c mhitm_ad_wrap() (3337-3426). Preserve the damage mutation,
-// three combat orientations, and the fatal held-in-water path. Planning must
-// return to the live pass before end.c done() can touch terminal state.
+// three combat orientations, and the fatal held-in-water path.
 export async function mhitm_ad_wrap(
     magr,
     mattk,
@@ -6121,10 +6094,8 @@ export async function mhitm_ad_wrap(
     env = {},
 ) {
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
-    const urgentMessage = env.urgentMessage
-        ?? (env.planning ? async () => {} : ttyUrgentPline);
+    const message = env.message ?? ttyPline;
+    const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const pa = magr.data;
     const pd = mdef.data;
     const coil = slithy(pa)
@@ -6239,14 +6210,6 @@ export async function mhitm_ad_wrap(
                     state.killer.format = KILLED_BY_AN;
                     state.killer.name = `${moat ? 'moat' : 'pool of water'} by `
                         + an(pmname(magr.data, Mgender(magr, state)));
-                    if (env.planning) {
-                        if (typeof env.planningDeath !== 'function') {
-                            throw new TypeError(
-                                'mhitm_ad_wrap requires planningDeath for fatal planned drowning',
-                            );
-                        }
-                        throw env.planningDeath(magr);
-                    }
                     await done(DROWNING, state, { ...env, fromMonster: true });
                 } else if (mattk.aatyp === AT_HUGS) {
                     await message('You are being crushed.', state, env);
@@ -6388,8 +6351,7 @@ export async function mhitm_ad_slim(
     env = {},
 ) {
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {}
-        : ttyPline);
+    const message = env.message ?? ttyPline;
     const effectEnv = { ...env, state, random, message };
     const negated = await mhitm_mgc_atk_negated(
         magr, mdef, false, state, effectEnv,
@@ -6494,8 +6456,7 @@ export async function mhitm_ad_ench(
     if (magr === state.youmonst || mdef !== state.youmonst) return;
 
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const operationEnv = { ...env, random, message };
     const negated = await mhitm_mgc_atk_negated(
         magr, mdef, false, state, operationEnv,
@@ -6643,18 +6604,6 @@ export async function mhitm_ad_drli(
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, effectEnv,
             ))) {
-            if (env.planning && state.u.ulevel <= 1) {
-                if (typeof env.planningDeath !== 'function') {
-                    throw new TypeError(
-                        'mhitm_ad_drli requires planningDeath for a fatal planned life drain',
-                    );
-                }
-                // exper.c losexp() reaches end.c done(DIED) for a fatal
-                // level-one drain. Planning runs against a clone, but done()
-                // still paints the live status and enters terminal recovery;
-                // hand the attacker to the live pass before that boundary.
-                throw env.planningDeath(magr);
-            }
             await losexp('life drainage', state, effectEnv);
         }
     } else {
@@ -7217,8 +7166,8 @@ export async function mhitm_ad_sgld(
 ) {
     const pa = magr.data;
     const pd = mdef.data;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
-    const redraw = env.planning ? () => {} : (env.redraw ?? env.newsym ?? newsym);
+    const message = env.message ?? ttyPline;
+    const redraw = env.redraw ?? env.newsym ?? newsym;
     const random = env.random ?? coreRandom;
 
     if (magr === state.youmonst) {
@@ -7853,9 +7802,8 @@ export async function missum(
 }
 
 // C ref: uhitm.c m_is_steadfast() (5218-5245). This is a pure equipment and
-// terrain predicate shared by the three mhitm_knockback callers. It must read
-// the caller's state, so planning clones cannot accidentally inspect the live
-// hero's level or inventory.
+// terrain predicate shared by the three mhitm_knockback callers. It reads the
+// caller's state rather than the live game's.
 export function m_is_steadfast(mon, state = game) {
     const isHero = mon === state.youmonst;
     const weapon = isHero ? state.uwep : mon?.mw;
@@ -7877,8 +7825,7 @@ export function m_is_steadfast(mon, state = game) {
 
 // C ref: uhitm.c mhitm_knockback() (5247-5420). The boolean answers whether
 // the knockback arm was accepted; `hitflags.value` carries the independent
-// attacker/defender death bits. Planned attacks record dismount as unported
-// rather than applying it to the cloned state; live knockback calls the steed
+// attacker/defender death bits. Knockback dismounts the hero through the steed
 // owner.
 export async function mhitm_knockback(
     magr,
@@ -8015,29 +7962,13 @@ export async function mhitm_knockback(
             state.u.dy = dy;
             if (typeof env?.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_KNOCKED, state, env);
-            } else if (env?.planning) {
-                // A dismount changes the hero's location, steed occupancy,
-                // injury and later monster choices. The clone cannot skip it
-                // and keep planning the rest of this scan. Ask its owner to
-                // replay the attack live, then replan from that state.
-                if (typeof env.requestPlanningInput === 'function')
-                    env.requestPlanningInput('steed.c dismount_steed DISMOUNT_KNOCKED');
-                throw new Error('planned steed knockback needs a live handoff');
             } else {
                 await dismount_steed(DISMOUNT_KNOCKED, state);
             }
         } else {
             await hurtle(dx, dy, knockdistance, false, state, {
-                planning: Boolean(env?.planning),
                 random: rng,
                 displayRandom: env?.displayRandom,
-                planningDeath: env?.planning
-                    && typeof env.planningDeath === 'function'
-                    ? () => env.planningDeath(magr)
-                    : null,
-                requestPlanningInput: env?.requestPlanningInput,
-                isolateVision: env?.planning
-                    ? isolatePlannedVision : null,
             });
             flags.value |= M_ATTK_HIT;
         }
@@ -8084,8 +8015,7 @@ export async function passive(
         ...env,
         state,
         random,
-        message: env.message
-            ?? (env.planning ? async () => {} : ttyPline),
+        message: env.message ?? ttyPline,
     };
     const ptr = mon.data;
     let i = 0;
@@ -8187,14 +8117,6 @@ export async function passive(
                 if (!propertyPresent(state.u, STONE_RES)
                     && !(poly_when_stoned(state.youmonst.data, state)
                         && await polymon(PM_STONE_GOLEM, state, effectEnv))) {
-                    // done_in_by() is a terminal, input-bearing operation.
-                    // Planning stops at this source boundary and replays it
-                    // with the real actor on the live state.
-                    if (env.planning) {
-                        if (typeof env.planningDeath === 'function')
-                            throw env.planningDeath(mon, STONING);
-                        throw new MonsterDeathPlanningError(mon, STONING);
-                    }
                     await done_in_by(mon, STONING, state);
                     return M_ATTK_DEF_DIED;
                 }
@@ -8445,8 +8367,7 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
         }
         if (drained && carried(obj)
             && (obj.known || obj.oclass === ARMOR_CLASS)) {
-            const message = env.message
-                ?? (env.planning ? async () => {} : ttyPline);
+            const message = env.message ?? ttyPline;
             await message(
                 `${Yobjnam2(obj, 'seem', state)} less effective.`,
                 state,
