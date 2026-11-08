@@ -740,7 +740,7 @@ export function bad_location(x, y, nlx, nly, nhx, nhy, state = game) {
 // as `state.updest = {}`, so an unset field arrives here as undefined where C
 // would read 0; `?? 0` restores C's value before any comparison sees it.
 // The position-only options form one lockstep protocol, which js/do.js
-// place_random_arrival() uses to admit an arrival: `planPositionOnly` traverses
+// place_random_arrival() uses to admit an arrival: `preflightOnly` traverses
 // candidates with `randomOneBased`, calls the required `preflightPosition`
 // for the selected square instead of committing it, and must leave every
 // selection input unchanged so the caller can replay the traversal live.
@@ -814,7 +814,7 @@ export async function place_lregion(
 // a single square, or the 200 random tries are spent and the deterministic
 // sweep is running. Only then does C disturb what is already on the square,
 // and only the committing pass may disturb what is there. The
-// planPositionOnly pass checks the same destination with a removable trap
+// preflightOnly pass checks the same destination with a removable trap
 // omitted from a private view;
 // relocation is a live effect after selection, not another selection draw.
 async function put_lregion_here(
@@ -836,7 +836,7 @@ async function put_lregion_here(
            avoid failure due to a misplaced trap. */
         const trap = t_at(x, y, state);
         if (trap && !undestroyable_trap(trap.ttyp)) {
-            if (options.planPositionOnly) {
+            if (options.preflightOnly) {
                 // Only trap membership changes candidate viability. Preserve
                 // the live trap, monster flags and map while admitting pickup
                 // against the square as it will be after live removal.
@@ -868,16 +868,16 @@ async function put_lregion_here(
         if (mtmp) {
             /* move the monster if no choice, or just try again */
             if (!oneshot) return false;
-            if (!options.planPositionOnly) {
+            if (!options.preflightOnly) {
                 // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
                 if (!await rloc(mtmp, RLOC_NOMSG, { state }))
                     await m_into_limbo(mtmp, state);
             }
         }
-        if (options.planPositionOnly) {
+        if (options.preflightOnly) {
             if (typeof options.preflightPosition !== 'function') {
                 throw new TypeError(
-                    'planned region placement requires a position preflight',
+                    'a preflight-only placement requires a position preflight',
                 );
             }
             options.preflightPosition(x, y, placementState);

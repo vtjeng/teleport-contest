@@ -669,10 +669,10 @@ export async function place_random_arrival(
         message = ttyPline,
         switchTerrain = switch_terrain,
         place = u_on_rndspot,
-        // The default placement operation is called first in planning mode
-        // and then live. It must honor planPositionOnly without live effects;
-        // inject a distinct planPlace when an alternate place operation cannot.
-        planPlace = place,
+        // The default placement operation is called first as a preflight and
+        // then live. It must honor preflightOnly without live effects; inject
+        // a distinct preflightPlace when an alternate place operation cannot.
+        preflightPlace = place,
     } = {},
 ) {
     const earthSenseMessages = [];
@@ -705,20 +705,20 @@ export async function place_random_arrival(
         // this projected state and cannot default to the live game.
         preflight_projected_random_arrival_pickup(projected);
     };
-    // Atomic arrival admission is a lockstep dry-run/replay protocol. The dry
+    // Arrival admission runs the placement twice, in lockstep. The preflight
     // pass must follow exactly the candidate-selection control flow of the
     // live pass, using only the cloned core RNG and mutation-free preflight.
     // Its callbacks must not change any live selection input. Only after that
     // pass succeeds may the identical traversal consume the live RNG and
     // commit its selected coordinate.
-    if (planPlace) {
-        const plannedRandom = createCoreRandom(
+    if (preflightPlace) {
+        const preflightRandom = createCoreRandom(
             cloneIsaacContext(state.coreCtx ?? game.coreCtx),
             state,
         );
-        await planPlace(upflag, state, {
-            planPositionOnly: true,
-            randomOneBased: plannedRandom.rn1,
+        await preflightPlace(upflag, state, {
+            preflightOnly: true,
+            randomOneBased: preflightRandom.rn1,
             preflightPosition: preflightArrival,
         });
     }

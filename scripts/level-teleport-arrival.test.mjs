@@ -510,7 +510,7 @@ test('random arrival prints earth sense before switching terrain', async () => {
     const integrationEvents = [];
     await place_random_arrival(0, state, {
         place: (_upflag, _state, options) => {
-            if (options.planPositionOnly) {
+            if (options.preflightOnly) {
                 options.preflightPosition(10, 8, _state);
                 return;
             }
@@ -580,23 +580,23 @@ test('live placement preflights before changing any position owner', () => {
     }, before);
 });
 
-test('plan-only random placement requires its position preflight', async () => {
+test('preflight-only random placement requires its position preflight', async () => {
     const state = placementState();
     state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
     state.level.at(10, 8).typ = ROOM;
     const before = [state.u.ux, state.u.uy];
 
     await assert.rejects(
-        () => u_on_rndspot(0, state, { planPositionOnly: true }),
+        () => u_on_rndspot(0, state, { preflightOnly: true }),
         {
             name: 'TypeError',
-            message: 'planned region placement requires a position preflight',
+            message: 'a preflight-only placement requires a position preflight',
         },
     );
     assert.deepEqual([state.u.ux, state.u.uy], before);
 });
 
-test('random-arrival planning never applies live placement effects',
+test('the random-arrival preflight never applies live placement effects',
     async () => {
         const state = placementState();
         initRng(9450611);
@@ -604,7 +604,7 @@ test('random-arrival planning never applies live placement effects',
         state.level.at(10, 8).typ = ROOM;
         // The caller-supplied completion proves only the committed placement
         // gets as far as the deferred switch seam; the live terrain helper is
-        // intentionally not invoked by this planning path.
+        // intentionally not invoked by the preflight pass.
         state.u.uprops[LEVITATION].blocked = 1;
         const events = [];
 

@@ -10,7 +10,7 @@ import {compareSessionOutputs, formatReport, runJsSession} from './diff-fresh.mj
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
 
 for (const refuse of [false, true]) {
-    test(`forced placement planning preserves live owners when preflight ${refuse ? 'refuses' : 'accepts'}`, async () => {
+    test(`a forced placement preflight preserves live owners when preflight ${refuse ? 'refuses' : 'accepts'}`, async () => {
         const level = new GameMap();
         level.at(10, 8).typ = ROOM;
         const trap = Object.freeze({tx: 10, ty: 8, ttyp: ARROW_TRAP});
@@ -25,7 +25,7 @@ for (const refuse of [false, true]) {
         const refusal = new Error('pickup refused');
         const run = () => place_lregion(10, 8, 10, 8, 0, 0, 0, 0,
             LR_DOWNTELE, null, state, {
-                planPositionOnly: true,
+                preflightOnly: true,
                 randomOneBased: (_count, offset) => offset,
                 preflightPosition(x, y, projected) {
                     checked = true;
@@ -42,11 +42,11 @@ for (const refuse of [false, true]) {
         assert.equal(monster.mtrapped, true);
         assert.equal(level.traps[0], trap);
         assert.deepEqual(state.u, {ux: 1, uy: 1});
-        assert.deepEqual(getRngLog(), before, 'planning consumes no live relocation RNG');
+        assert.deepEqual(getRngLog(), before, 'the preflight consumes no live relocation RNG');
     });
 }
 
-test('forced planning cannot remove an undestroyable portal', async () => {
+test('a forced placement preflight cannot remove an undestroyable portal', async () => {
     const level = new GameMap();
     level.at(10, 8).typ = ROOM;
     const trap = Object.freeze({tx: 10, ty: 8, ttyp: MAGIC_PORTAL});
@@ -54,7 +54,7 @@ test('forced planning cannot remove an undestroyable portal', async () => {
     const state = {level, u: {ux: 1, uy: 1}};
     await assert.rejects(() => place_lregion(10, 8, 10, 8, 0, 0, 0, 0,
         LR_DOWNTELE, null, state, {
-            planPositionOnly: true,
+            preflightOnly: true,
             randomOneBased: (_count, offset) => offset,
             preflightPosition() { assert.fail('portal is not a viable arrival square'); },
         }), /Couldn't place lregion/);

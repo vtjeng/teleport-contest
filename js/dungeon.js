@@ -1186,7 +1186,7 @@ export function u_on_newpos(
 
 // C ref: dungeon.c u_on_rndspot() (1604-1638). Live mode places the hero at a
 // random spot in the arrival region a level change left behind. With
-// planPositionOnly, do.js place_random_arrival() repeats the same candidate
+// preflightOnly, do.js place_random_arrival() repeats the same candidate
 // selection with the supplied RNG and calls the required preflight without
 // changing position or terrain.
 //
@@ -1203,7 +1203,7 @@ export async function u_on_rndspot(
         earthSenseMessage = null,
         deferSwitchTerrain = false,
         preflightPosition = null,
-        planPositionOnly = false,
+        preflightOnly = false,
         randomOneBased = null,
     } = {},
 ) {
@@ -1213,7 +1213,7 @@ export async function u_on_rndspot(
 
     /*
      * Select a random location within the relevant region. Live placement
-     * reaches u_on_newpos(); planPositionOnly reaches preflightPosition.
+     * reaches u_on_newpos(); preflightOnly reaches preflightPosition.
      * Unspecified region (.lx == 0) defaults to entire level.
      */
     if (was_in_W_tower && On_W_tower_level(state.u.uz, state))
@@ -1222,7 +1222,7 @@ export async function u_on_rndspot(
                       0, 0, 0, 0, LR_DOWNTELE, null, state,
                       {
                           earthSenseMessage, preflightPosition,
-                          planPositionOnly, randomOneBased,
+                          preflightOnly, randomOneBased,
                       });
     else if (up)
         await place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
@@ -1230,7 +1230,7 @@ export async function u_on_rndspot(
                       LR_UPTELE, null, state,
                       {
                           earthSenseMessage, preflightPosition,
-                          planPositionOnly, randomOneBased,
+                          preflightOnly, randomOneBased,
                       });
     else
         await place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
@@ -1238,11 +1238,11 @@ export async function u_on_rndspot(
                       LR_DOWNTELE, null, state,
                       {
                           earthSenseMessage, preflightPosition,
-                          planPositionOnly, randomOneBased,
+                          preflightOnly, randomOneBased,
                       });
 
     /* might have just left solid rock and unblocked levitation */
-    if (!deferSwitchTerrain && !planPositionOnly) await switch_terrain(state);
+    if (!deferSwitchTerrain && !preflightOnly) await switch_terrain(state);
 }
 
 export class UnsupportedEarthSenseError extends Error {
