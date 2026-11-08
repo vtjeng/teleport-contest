@@ -2168,11 +2168,13 @@ export async function repopulate_perminvent(state = game, hooks = {}) {
 
 // C ref: invent.c display_used_invlets() (3467-3525). The menu lists every
 // occupied inventory letter except avoidlet, preserving class headings when
-// sortpack is enabled and returning the selected letter or null on cancel.
+// sortpack is enabled. It returns the selected letter, '\0' when the menu
+// was closed with nothing picked or there is no inventory, and '\x1b' when
+// it was cancelled.
 export async function display_used_invlets(
     avoidlet = '\0', state = game, hooks = {},
 ) {
-    if (!inventoryHead(state)) return null;
+    if (!inventoryHead(state)) return '\0';
     const items = [];
     const classes = state.flags.sortpack ? state.flags.inv_order : [null];
     for (const oclass of classes) {
@@ -2197,7 +2199,10 @@ export async function display_used_invlets(
         title: 'Inventory letters used:',
         items: rows,
         how,
-        cancelValue: null,
+        // C: ret = !n ? '\0' : '\033' when nothing was picked; n < 0
+        // (Escape) is the cancel.
+        emptyValue: '\0',
+        cancelValue: '\x1b',
     }));
     return menu(items, state, PICK_ONE);
 }
@@ -5623,7 +5628,7 @@ async function doorganize_core(obj, state = game, hooks = {}) {
                 state,
                 hooks,
             );
-            if (!displayed) continue;
+            if (displayed === '\0') continue;
             letValue = displayed;
             if (letValue === '\x1b') {
                 if (splitting) await mergedRuntime(splitting, obj, { state, hooks });
