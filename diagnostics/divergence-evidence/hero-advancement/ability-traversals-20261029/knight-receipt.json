@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "knight",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "knight",
+    "/tmp/hero-ability-knight-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:17:52.161245+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/knight.json": "a61a01deaa32806d257bc639fc37855dbc8ef43cab45d30cc3948209e23670da"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/worker.json"
+  ]
+}

@@ -1,0 +1,494 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-depleted-energy-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-recorder-build-activated-20261029"
+  ],
+  "provenance": {
+    "jsSha": "e2d85fff23ed92836eee08cd03f21d41809c8751",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/spell.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    },
+    {
+      "side": "JS",
+      "path": "js/spell.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "e2d85fff23ed92836eee08cd03f21d41809c8751"
+    }
+  ],
+  "hypothesis": "Stored level energy increments must apply correctly to spent energy, including exact-zero and negative-current clamps.",
+  "expectedBehavior": "Failed ordinary casts spend7 energy without effects; gain adds6; losses subtract6 then12, clamping a negative current value to0.",
+  "observedBehavior": "Five full C/JS matches. Exact-zero path12-12=0; underflow path5-12 clamps to0. HP is unchanged by failed casts.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Public failed casts followed by wizard-assisted ordinary level gain/loss; source-built recorder.",
+    "limitations": [
+      "Natural energy expenditure, but wizard-assisted level changes rather than natural XP gain/drain.",
+      "No successful spell effect, object use, combat, or spell practice exercised.",
+      "C internal energy peak and increment arrays are not directly observed; terminal transitions and source bind the subtraction. JS runtime fields are separately asserted.",
+      "No depleted HP or reduced-maximum history qualification."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/result.json"
+    ],
+    "reason": "Public failed casts followed by wizard-assisted ordinary level gain/loss; source-built recorder."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "baseline",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+        "baseline",
+        "/tmp/hero-depleted-baseline-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/baseline.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+        "control",
+        "/tmp/hero-depleted-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+        "target",
+        "/tmp/hero-depleted-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target-receipt.json"
+    },
+    {
+      "id": "underflow-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+        "underflow-control",
+        "/tmp/hero-depleted-underflow-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/underflow-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control-receipt.json"
+    },
+    {
+      "id": "underflow-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+        "underflow-target",
+        "/tmp/hero-depleted-underflow-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/underflow-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/README.md",
+      "sha256": "3e5761a3756fa34666362afaa73fba364f836aa7ace5f5583fc9eb3a99aab1e1",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/js-output.json.gz",
+      "sha256": "2f71de0e2d33fca7b23fba88e85bc3249299d59c2419077f33b4127d46e41c41",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recipe.session.json",
+      "sha256": "d09a05c3210cf48e00dc7929368204f269a6d080582be9bb0a1d983964c1a100",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recorded.session.json.gz",
+      "sha256": "201f1fddf6ade15b4a54a8d3d69e194453b45674e29a2238fb3642defc0d402f",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recorder.json",
+      "sha256": "3b7c22619cac7c14b1928193b236682270e7b0be9a9f8f044d46b500489e7b2e",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/result.json",
+      "sha256": "547bfea15a403206d65875251a545de4cd142a125ddd4b3e5008b3f5973ea542",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/worker.json",
+      "sha256": "08a4b1b80d7c85713168f773702d8ef342fcdb13a0996d61cacf29aa60c26250",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline-receipt.json",
+      "sha256": "a8cd034e255861bc69dbf72e7444aac82f68116857dade5896cc6250fe703927",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/js-output.json.gz",
+      "sha256": "e89f98586f3a16488b93ee0aaf0b23faca6e88e367372aae22ad81ae83e177e8",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/recipe.session.json",
+      "sha256": "a75d51d30428326d10b7a445e8bef55e758161ba89db4f49068786d9482228bc",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/recorded.session.json.gz",
+      "sha256": "3ef7e05587796b0e73a43efece17ee208457fb16a7af1396a0b30026bc06fab6",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/recorder.json",
+      "sha256": "ad55f73e413cf1f771b05d56ee9aba8b2b09fc26920b67888bb8fa5d98affe66",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/result.json",
+      "sha256": "2f031951d37a51ce5b35c427ad3f4cbfe86dc77de05f70088fb7fcbf1346346b",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control/worker.json",
+      "sha256": "9a049de1af45ecec30a4bb3a8200c297652c90032c51b85076cf465b4aa578a0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/control-receipt.json",
+      "sha256": "5322b32c8cff74a63ad7cf5c0898f3546f269f50fe911e0c0379a9a85b0f38c4",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/baseline.json",
+      "sha256": "cf088a6c6733fa996168b2b1310db05a55480a01f47ffaf49e3fae0e53b7b6ec",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/control.json",
+      "sha256": "23155bb81b3f1903795fa67eae58481fc7d10f166c3b58ccb7d2719ecb0074b6",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/target.json",
+      "sha256": "1af20ec690bc90cd5083a6249d418fdc4e671d921145873a949759188c7708f0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/underflow-control.json",
+      "sha256": "8a6db304401a6c1b991d78b543af1bb52e822ca74c14fa57f0ae15c36668dd38",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/underflow-target.json",
+      "sha256": "6fc64c8deb3fb60725372e5beb0ed7585699debbf8866f0d96d7b6bf4d1e5acb",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/js-output.json.gz",
+      "sha256": "4aac63f6e5668d5a6862daad907dba29b085190c29f89ee7fd8bee2271a886d2",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/recipe.session.json",
+      "sha256": "cda4b726c0d92ee460df5f8a38a8b67a105a9d51123163374d2f27e47ba9e082",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/recorded.session.json.gz",
+      "sha256": "b4f0e9ac3d553c7854f7a4cef77667e39e2a21a74a300447887d663a382a0ca3",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/recorder.json",
+      "sha256": "e17b4204dca3ef894b2d0724ee8c6e6af49ce2b76deeac731804cd1b5f6758cc",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/result.json",
+      "sha256": "8cdac430fd128b70f29721fc283f6a1fb39247baefa21990575436da4f8b4eb3",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target/worker.json",
+      "sha256": "d32207397d97ef85fe9421d33d2a75e4bbe2766ddba3da0aa414d207f46fb73a",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/target-receipt.json",
+      "sha256": "12a3411726621cdc15fdfffb72afcfda91b09c84e11641fe77d2ed771d6a4f53",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/js-output.json.gz",
+      "sha256": "81896e326876956d4e559a5dc6d44285c81707ef017279a0bc9226a320b129c4",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recipe.session.json",
+      "sha256": "260a12f79f3702e6c7019c270d59c85e7e8e145444558b55e7f6b6921658381e",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recorded.session.json.gz",
+      "sha256": "9ca4e2ca9ec1ae4cc1d38755d8dffe44bd0b6b05958c84abce1057a5454ac47f",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recorder.json",
+      "sha256": "961f3a4b887302688d9014449f88c5165d6163a0f26f95451f63eac66a93614c",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/result.json",
+      "sha256": "ba291533bd4ab83c505e3335dba519dc1bc74110faf041601615ad62c09ee641",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/worker.json",
+      "sha256": "8f0faf334f10a58d36e5c7b16c5596a99c1cce97667a02df2b0cc9f14d04e7aa",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control-receipt.json",
+      "sha256": "365fd9f07d4d2c57aea754403775d2e599f94e727faa37f311f760bfd9d43139",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/js-output.json.gz",
+      "sha256": "d8c7ae5cdad203f141d4e1d1c41a599f70b6de945b6e228b0ffb1b1eef66bc58",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/recipe.session.json",
+      "sha256": "f675a885f952dcfb0b34888b3b55bb80f551e2db66d465c2e7c8bad219f56870",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/recorded.session.json.gz",
+      "sha256": "73de1e064aa90e8d6814c4fdf269c6fcbb3c6277c22efb5e40d3cf216c135a80",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/recorder.json",
+      "sha256": "14a63aed47bfc19eabc8904e947f0a11734759ab2652fff6a5c5a0933de63a3e",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/result.json",
+      "sha256": "39f411df0dbe70bc6432a60de4101a0868e14d46707ceb5a31c0bf22a796f93c",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target/worker.json",
+      "sha256": "99ecf0a20c2cda36086ffdf6f17c098aceef78819f99567de370271d83594039",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-target-receipt.json",
+      "sha256": "5c3caabe6bf41e11f569ca6c4cb4b3bce30187d15a5e67b1fe46e271ab0faa25",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/verification.txt",
+      "sha256": "c5d1a795f74f6aa55fc376d25eebeb1ed8d938d1b229764bcf21d8720d18ce26",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/verify.mjs",
+      "sha256": "754f14f5d531dede1de820553d51b8aa74fbd52dc1d9d3b34695f900acf62712",
+      "role": "recording, receipt or verification artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/jsmain.js",
+      "sha256": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "js/spell.js",
+      "sha256": "32607d2b069ffceaa3e5eaf68bb072e8a6468f9dc0734a557c91a9a18c93ff6a",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/spell.c",
+      "sha256": "db3d0148ecfe49c89d56381b028606c02c65a7657489006efdc81f239f38181c",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or recorder build provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or recorder build provenance"
+    }
+  ]
+}

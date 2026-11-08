@@ -1,0 +1,38 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "runs": {
+    "control": {
+      "binarySha256": "e36d414ef68c15ba3f1298d48983ee75c5976a3bc8184a7596cc093768c91e26",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-I.",
+        "/tmp/hero-skill-oracle-K7wKq0/oracle.c",
+        "-o",
+        "/tmp/hero-skill-oracle-K7wKq0/oracle"
+      ],
+      "elapsedSeconds": 0.07200098037719727,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    },
+    "target": {
+      "binarySha256": "75631cd95250f5ca95028460277c8742d2355442a33c6e9a93778d0d52e9f689",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-I.",
+        "/tmp/hero-skill-oracle-cLLqNa/oracle.c",
+        "-o",
+        "/tmp/hero-skill-oracle-cLLqNa/oracle"
+      ],
+      "elapsedSeconds": 0.09600114822387695,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    }
+  }
+}

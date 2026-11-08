@@ -1,0 +1,4 @@
+{"name":"control","states":[[12,12,7,7,1,0],[20,20,19,19,2,20],[18,20,19,19,2,20]],"damage":[2],"woundedBranchDraws":[2],"jsSavedHPIncrement":8,"fullParity":true}
+{"name":"target","states":[[12,12,7,7,1,0],[20,20,19,19,2,20],[18,20,19,19,2,20],[20,22,31,31,3,40],[18,20,19,19,2,39],[10,12,7,7,1,19]],"damage":[2],"woundedBranchDraws":[2],"jsSavedHPIncrement":8,"fullParity":true}
+{"name":"floor-control","states":[[12,12,7,7,1,0],[20,20,19,19,2,20],[18,20,19,19,2,20],[14,20,19,19,2,20],[10,20,19,19,2,20],[5,20,19,19,2,20]],"damage":[2,4,5,5],"woundedBranchDraws":[2,1,1,2],"jsSavedHPIncrement":8,"fullParity":true}
+{"name":"floor-target","states":[[12,12,7,7,1,0],[20,20,19,19,2,20],[18,20,19,19,2,20],[14,20,19,19,2,20],[10,20,19,19,2,20],[5,20,19,19,2,20],[1,12,7,7,1,19]],"damage":[2,4,5,5],"woundedBranchDraws":[2,1,1,2],"jsSavedHPIncrement":8,"fullParity":true}

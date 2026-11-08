@@ -1,0 +1,2 @@
+{"role":"control","sleep":[false],"experienceStealth":[false],"xp":["3/40"]}
+{"role":"target","sleep":[false,true,true,false,true],"experienceStealth":[false,false,true,false,true],"xp":["3/40","4/80","7/640","3/79","7/640"]}

@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-integration-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-threshold-clamps-20261029",
+    "hero-advancement-boundaries-20261029"
+  ],
+  "provenance": {
+    "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/weapon.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/do.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/weapon.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/do.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/wizcmds.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    }
+  ],
+  "hypothesis": "Actual incremental XP awards and spent-skill level-loss integration remain untested by the restricted arithmetic oracle.",
+  "expectedBehavior": "Complete C/JS parity and explicit reached-state assertions for Tourist threshold points and Knight skill/ability transitions.",
+  "observedBehavior": "Five final recordings match completely. Tourist remains level 1 at 19 XP and gains level 2 at 20/21; Knight spent skill refunds and speed messages match. Separate exploratory Wizard control has unresolved level-generation RNG mismatch.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Debug-assisted public-input incremental sightseeing and skill refund/ability/resource ordering; no internal injection or stubs.",
+    "limitations": [
+      "Debug setup does not establish ordinary walking/practice histories.",
+      "Preinstalled C recorder lacks retained build attestation.",
+      "Hidden-state parity outside observed screens/RNG is not certified."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/integration-20261029/verification.txt"
+    ],
+    "reason": "Recorded commands invoke production XP/ability/skill paths with full C/JS comparison; debug setup and ordinary natural-play exposure are distinguished."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Ongoing authorized ordinary hero advancement audit after PR #109.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "below",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "below",
+        "/tmp/hero-integration-final-below-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/below.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below-receipt.json"
+    },
+    {
+      "id": "equal",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "equal",
+        "/tmp/hero-integration-final-equal-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/equal.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal-receipt.json"
+    },
+    {
+      "id": "above",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "above",
+        "/tmp/hero-integration-final-above-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/above.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above-receipt.json"
+    },
+    {
+      "id": "skill-spent-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "skill-spent-control",
+        "/tmp/hero-integration-final-skill-spent-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-spent-control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control-receipt.json"
+    },
+    {
+      "id": "skill-refund",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "skill-refund",
+        "/tmp/hero-integration-skill-refund-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-refund.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/README.md",
+      "sha256": "cec2aef1e961f25a5c6de2f4440cad9754a4355b725cb095a3ce59abdee7d2a4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/js-output.json.gz",
+      "sha256": "5ab4b48d0748acd1c448ba37c57a5c327c5b05098218495df9db7d2ecd997122",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/recipe.session.json",
+      "sha256": "946d8fc6741c3f51f126b0fcbbeae3517fb8f2826434f4281bf0150b60673930",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/recorded.session.json.gz",
+      "sha256": "1b118b644552b89ab79455b9f276058f69b87d2a5f06dcd8f98f969d9cd87af5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/recorder.json",
+      "sha256": "f8ffd27ca4a2e3078588ee767123f8c984626a1cdce2b5e736b83352fb356e82",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/result.json",
+      "sha256": "37073952aa189b98e6c06b4be33445b8571724564ece33129b4f92752a3d2b5d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above/worker.json",
+      "sha256": "e21d19031ef8245625c54a0a6f86ac8e612c9e8e00caaa19e59af8d7be99616f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/above-receipt.json",
+      "sha256": "6e3c41e15b583a62fe49c2566ac8b1e9950f7618f631a1cfedba72ce3c0abd19",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/js-output.json.gz",
+      "sha256": "64a31fdac84f617c9f74112b8dcacb22a5fe9d4c2058c06efeed95fa970c0b2e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/recipe.session.json",
+      "sha256": "3c0bc0c3c6e750a274e74c95612893be5b9b0ab531298eb49fd6140311db3b2c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/recorded.session.json.gz",
+      "sha256": "df86008c154a4d15f2301fec630c199d36321e4c1c2707ddcb23f9b179cd6422",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/recorder.json",
+      "sha256": "a641934f285dff0c2b283a33bb0e863ea6811c036377a17a701eee52236a0a23",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/result.json",
+      "sha256": "a5902ef1c623f565714cbce541e769d8b7f2d509849fefbe4f6fa08bf9370c66",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/worker.json",
+      "sha256": "b348ffcf247b44888628b79a260b78ebaeebcdcd5625721868ae3f042be3258e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below-receipt.json",
+      "sha256": "373028c6ae01cb03b2a18c6cf80c63925c5c04391bc0f9588697454b38986d09",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/environment.json",
+      "sha256": "72eae41b57d6a940b584176ec444383d9c01d7be9899cae1c565f621db2fc01d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/js-output.json.gz",
+      "sha256": "a561e4ba549427ea16ac04ab80360df9f48e649362ce3646e8a899af0603ef3e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recipe.session.json",
+      "sha256": "807bd65fe23667549b60952a589816b84e31598852bf9b1e699536e815277af2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recorded.session.json.gz",
+      "sha256": "5dc6ed083432c01172364418cc1937da61588c794c1e6d1dbeaee70b0aa868fc",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recorder.json",
+      "sha256": "41e7212697ee200881580139f161acd05173c67254e412c21c20f43d8257ff0d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/result.json",
+      "sha256": "9d61fc9113808fe19683f7d789b06f21fa1df8e6e13215fa9744ecd2738363ea",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/worker.json",
+      "sha256": "c685964307263e73022c17fd8a166ca01b399af45e90d0e4a91a33a92e717740",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal-receipt.json",
+      "sha256": "4fd820c641acb45223c337c5e5c24509abb0be38df079ddc2b60ebfb2be37180",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/focused-tests.txt",
+      "sha256": "c13a060008e6517aa5c055b2229b42229a19dcac959e2ca917e240ef71a3218c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/above.json",
+      "sha256": "d343e4e8b940eeed4673ffc195cba87b28d19744b2b430bf1d0787a783048252",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/below.json",
+      "sha256": "70fea33fa5f96bcecaad2db5a772bf74c715be0637e1580575a7c5cdc98fbc49",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/control.json",
+      "sha256": "38cffb10b9696b1ae61e7ece127c20f1960988e1f51c22d968e48c64c19c44a6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/equal.json",
+      "sha256": "a37084144b50dbfd20b05a31f49d3faf4ff1667933663c8998fd23a77e8f3428",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-refund.json",
+      "sha256": "d5759a79de7895000c74536de4f9bb0c9cd9a7f02493286469f0fcc397e087d4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-setup.json",
+      "sha256": "f30e10a1167c716feb97128a7fe524f07e40260d8d3f62b56c4705acac6f9a29",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-spent-control.json",
+      "sha256": "8527f43875609b40e40277e6a1544f5b959baf8eb34e9d39b98a45823f625bba",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/js-output.json.gz",
+      "sha256": "347b9edc66b62ed8e190c909dfa905d3619ecd468f4d7bb55092d67acf3133d5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recipe.session.json",
+      "sha256": "8e4fabb2a9559ea32a4658b5be6833aa5488c08898716b6cb027ba1b784eed3d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recorded.session.json.gz",
+      "sha256": "33bb46715c5d1bf430a9f286c1f57e679f0235a01db31c370a5a6711b03eae72",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/recorder.json",
+      "sha256": "124251b1d045867130731ced625412ed14864c464b7a4427430f250ba3ba4aa8",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/result.json",
+      "sha256": "302dbf54e66ed3b271b60cbc6f23f90d644b5730ab98907cc22665a9659077e6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund/worker.json",
+      "sha256": "36e90245da3c9cf2da2527a4221f6d593d41951ba9feecfb86d5cb4329291e71",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-refund-receipt.json",
+      "sha256": "730c3ad585514b75f4095ecb341a23a07d8982cb0501b9d8aaa69f8e440cfded",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/js-output.json.gz",
+      "sha256": "c16c2216c2841e3abeb39de847908074d24867043fda34682ae91e14074c5f9f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recipe.session.json",
+      "sha256": "9da9c7fd59167391600934f02f29d1ac628220106e75b4aef783bdfeb7c25b36",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recorded.session.json.gz",
+      "sha256": "897d312c08241acd4f261af44fcba8f4788bf737932a8afe1f3ca0bb4a3373a0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recorder.json",
+      "sha256": "0f18431a944ecfb96674101ccbb39a11504a2aab37e4cbdd5d3f0e36a7fcd87e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/result.json",
+      "sha256": "b2352a3418360bce7ae215770adc730bbbcc2c406f8a23169ac8e4c348830bd7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/worker.json",
+      "sha256": "fc5a6f4a47f2883b8c299c878f50d6e2007ee1485760eb7cce8bbf687387bf7b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control-receipt.json",
+      "sha256": "d4aa3cf3cc2f67ecf49aba32fad9743367438e6c29f4042d09a037d9410ea5d1",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/verification.txt",
+      "sha256": "c3c4a136465ebfcf722f1102a3226d467e7240e424ff3cafefe10096b4a3bbbe",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/verify.mjs",
+      "sha256": "7024fca82c2c63cd67358db87a0856b869adf5859481948e7bfb62a1ad6247fc",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/js-output.json.gz",
+      "sha256": "761c3ce42d5f2d99470f6158c66481b4b2c05f2831605efbefaad39a432d58c6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/recipe.session.json",
+      "sha256": "e577e6b01611ad98aae0f31ecd0aa01ceebba536f3b5ba11699703c92e8ecb78",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/recorded.session.json.gz",
+      "sha256": "ee6fab63c81bb4172433d7f600b85ff48034436f31224a03a299cd696307b269",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/recorder.json",
+      "sha256": "cd03321d8e95dd4f385936c6a08bd433b4ea7e5db792da876d6ef4fae667e8c3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/result.json",
+      "sha256": "89673ac0191b305421a70fb20eae79a134d22ba45334a4de9f3333094060f131",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/wizard-control-blocker/worker.json",
+      "sha256": "f7b50496f555ed3562367d24beae0484b6fe593f86ca716fc99d82d0dc04e010",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/weapon.c",
+      "sha256": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "sha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "js/weapon.js",
+      "sha256": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/recorder-prompt-plan.mjs",
+      "sha256": "17454f8fb06adf124b17ffa1abf6b21d6445da816685e44faaea75565aa0633b",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/level-change.test.mjs",
+      "sha256": "d109251b95e7bdff9554cccea4da6451fab060fed99a556ebc312501e5db7a42",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/level-arrival.test.mjs",
+      "sha256": "2106e33b97f8eb20c3a704a3b8362cacb2c61945905b766d37e65be3a8dc7f2d",
+      "role": "pinned source or tooling"
+    },
+    {
+      "path": "scripts/enhance-command.test.mjs",
+      "sha256": "b83029e91cf31b9661888b1f16e7e3430db247c95d7d4938cc4bfbdffe0ddb4c",
+      "role": "pinned source or tooling"
+    }
+  ]
+}

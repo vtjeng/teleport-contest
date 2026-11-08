@@ -1,0 +1,38 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "runs": {
+    "control": {
+      "binarySha256": "6af62953af918f4e29df43b5aa61829522b03df07e40e860b90cf65c12954c9f",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-I.",
+        "/tmp/hero-hilite-gate-ob7VYV/oracle.c",
+        "-o",
+        "/tmp/hero-hilite-gate-ob7VYV/oracle"
+      ],
+      "elapsedSeconds": 0.18000268936157227,
+      "scope": "generated source to result; elapsed not active compute"
+    },
+    "target": {
+      "binarySha256": "a01aeacedf69b1b3b5a150db9c56830494161b4b3d67676e2fc7826baee776b1",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-I.",
+        "/tmp/hero-hilite-gate-oHG6gj/oracle.c",
+        "-o",
+        "/tmp/hero-hilite-gate-oHG6gj/oracle"
+      ],
+      "elapsedSeconds": 1.6280231475830078,
+      "scope": "generated source to result; elapsed not active compute"
+    }
+  }
+}

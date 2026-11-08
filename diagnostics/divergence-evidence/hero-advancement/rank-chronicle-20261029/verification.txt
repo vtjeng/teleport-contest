@@ -1,0 +1,2 @@
+{"role":"control","events":["wizard the neutral male human Wizard entered the dungeon","gained experience level 2","attained the rank of Conjurer (level 3)"]}
+{"role":"target","events":["wizard the neutral male human Wizard entered the dungeon","gained experience level 2","attained the rank of Conjurer (level 3)","lost experience level 3","regained experience level 3"]}

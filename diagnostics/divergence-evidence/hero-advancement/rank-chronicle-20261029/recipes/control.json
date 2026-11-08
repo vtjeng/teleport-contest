@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160371,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:RankAudit,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,showexp\n",
+      "moves": "#levelchange\n3\n                                   #chronicle\n                         "
+    }
+  ]
+}

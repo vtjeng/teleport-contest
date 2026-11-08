@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-max-resource-caps-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-attribute-boundaries-20261029"
+  ],
+  "provenance": {
+    "jsSha": "1d2ad76f770232281a6e5abaeeb539f2da479509",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/role.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "1d2ad76f770232281a6e5abaeeb539f2da479509"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "1d2ad76f770232281a6e5abaeeb539f2da479509"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "1d2ad76f770232281a6e5abaeeb539f2da479509"
+    }
+  ],
+  "hypothesis": "MAXULEV throttles must apply after raw arithmetic without writing a saved level increment.",
+  "expectedBehavior": "HP/energy caps match at thresholds and preserve increment slots at level30.",
+  "observedBehavior": "130 targets plus two numeric controls match; no new semantic divergence.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Fresh compiled complete C newhp/newpw/enermod with constructed ordinary human Wizard maxima and bounded RNG.",
+    "limitations": [
+      "API-only states; no permitted public level30-gain trigger qualified.",
+      "Explicit ACURR/RNG adapter; extreme char-narrowing values outside matrix untested.",
+      "No implication for separate full-recorder provenance."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/summary.json",
+      "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/summary.json"
+    ],
+    "reason": "Fresh compiled complete C newhp/newpw/enermod with constructed ordinary human Wizard maxima and bounded RNG."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/run.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/driver.c",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/parse-c.mjs",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/run.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/driver.c",
+        "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/parse-c.mjs",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/README.md",
+      "sha256": "5947919b5cd46e86029ad19caa6b6847dc929ea55b06966316a58cf66ca3e36c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/c-output.jsonl.gz",
+      "sha256": "b88cc99f0ec59c9fedb9ea2c23705f7f9601f5f824db70f92b20411a6e44cf20",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/c-progression.json",
+      "sha256": "1012e5a95597f683ebb0a19af70a4cb183c4e81b93344e8fffb89778e2172535",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/input.txt.gz",
+      "sha256": "9dd6b2b7dc7cdffa9eaed817de02912dcad8c6137fff7e7d7ba572391fd44038",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/js-output.jsonl.gz",
+      "sha256": "b88cc99f0ec59c9fedb9ea2c23705f7f9601f5f824db70f92b20411a6e44cf20",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/matrix.json.gz",
+      "sha256": "22c25425b8e90d998dea8436fe1122d11ba9d0f48e2d63d869b84f5862e44b42",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/oracle.c",
+      "sha256": "aeea6ff3e5178f2f00ec1e17a46eb98b517786ff03f629456947b1db55fd83bf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/source-bindings.json",
+      "sha256": "0c317c09ab41804e7b9cd3a15f30eb92db6b3421c2904f85a0cba203331f3597",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control/summary.json",
+      "sha256": "ccb1d9e45abc5da11b2648efbf787807291079d2ece0814183e245e0340c007d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/control-receipt.json",
+      "sha256": "406a752a01b9cd35fe8d8b6bf40bb1bbfb87e42a7cc0e451c68c9da19ec4d25b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/driver.c",
+      "sha256": "f18e485b115d1832692e9c37d0cf71e18ccedfa93c403034b625b0097a5bd638",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/environment.json",
+      "sha256": "7b5dd617840ec93f38cc2e8881123506f7de9f35943535de2c71840de7088359",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/focused-tests.txt",
+      "sha256": "3f46819f3b0e1733f8c7acef6c4660ed7a6eee00f6465b07993636b2efe3c7de",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/parse-c.mjs",
+      "sha256": "0dde714d7c80e7f361f67be4bdd366ca88df99ab44b3c58e604192ba706b119d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/run.mjs",
+      "sha256": "16a049aa76dd48da5f4ec8ae0ec2b3b7e9b2996c48f8a53854089ae362e7adb0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/shim.h",
+      "sha256": "31b2885d320112d0a9627e20956a9d0f3c4528e246884d3bc147013079c53926",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/c-output.jsonl.gz",
+      "sha256": "74d01a6e67222d8aaee635a0918709d2bc6feeb652e36ad4aa57c65719bee4b1",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/c-progression.json",
+      "sha256": "1012e5a95597f683ebb0a19af70a4cb183c4e81b93344e8fffb89778e2172535",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/input.txt.gz",
+      "sha256": "5b31a367f29cf1fe041766425fbe9978437cade0a73d32445340cbdfe32fdb6a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/js-output.jsonl.gz",
+      "sha256": "74d01a6e67222d8aaee635a0918709d2bc6feeb652e36ad4aa57c65719bee4b1",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/matrix.json.gz",
+      "sha256": "8014eef4168bf61b7dbb91424fa737aada1cb26a7cac99a657ed52b47c3e7af9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/oracle.c",
+      "sha256": "aeea6ff3e5178f2f00ec1e17a46eb98b517786ff03f629456947b1db55fd83bf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/source-bindings.json",
+      "sha256": "0c317c09ab41804e7b9cd3a15f30eb92db6b3421c2904f85a0cba203331f3597",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target/summary.json",
+      "sha256": "d52a2aa693f34f3e0c56bd5ac8047848b347c05e24bf04d8b52aba1f75212337",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/max-resource-caps-20261029/target-receipt.json",
+      "sha256": "a7105a8ee54fbd6e3d0939eb6e72be6d473d8a6201620a9851b38f6a95599f80",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "audit artifact or pinned dependency"
+    }
+  ]
+}

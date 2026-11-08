@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/run.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:08:46.942420+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "371ae44cad7f9a68b23e96116609c8e2527a74cd81199289c6b60b8cdf5493d3",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/shim.h": "79dd7180ec55300ed9e2d5c499fe40b0c39470c32adf733b621980f7db426146",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/driver.c": "8eeb556f2fb2b7997eca8d9fb50d197da03739043f243e114cf655671b0763d0",
+    "nethack-c/upstream/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/upstream/src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/c-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/compiler.json",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/input.txt.gz",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/js-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/matrix.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/mismatches.json",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/oracle.c",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/source-bindings.json",
+    "diagnostics/divergence-evidence/hero-advancement/score-gates-20261029/control/summary.json"
+  ]
+}
