@@ -1515,19 +1515,6 @@ test('m_dowear preserves eager hallucinated naming for unchanged slots',
 
     assert.deepEqual(calls, Array.from({ length: 7 }, () => [430, 2]).flat());
 
-    calls.length = 0;
-    await m_dowear(monster, false, {
-        state,
-        displayRandom,
-        planning: true,
-        message: async () => {},
-    });
-    assert.deepEqual(
-        calls,
-        Array.from({ length: 7 }, () => [430, 2]).flat(),
-        'planning preserves C name-selection order on the clone',
-    );
-
     // Creation suppresses wearing messages, but C still copies each name.
     calls.length = 0;
     await m_dowear(monster, true, { state, displayRandom });
@@ -1795,10 +1782,9 @@ test('runtime speed boots update FAST before the admitted wear return',
     assert.equal(monster.mspeed, MFAST);
 });
 
-test('planning m_dowear preserves runtime delay while suppressing output',
+test('m_dowear keeps the runtime delay after a non-creation wear',
     async () => {
-        // C m_dowear_type() keeps the non-creation delay and mcanmove writes
-        // even when the planning clone suppresses its presentation calls.
+        // C m_dowear_type() writes the non-creation delay and mcanmove.
         const state = initialLevelState();
         state.in_mklev = false;
         const monster = newMonster({
@@ -1814,19 +1800,15 @@ test('planning m_dowear preserves runtime delay while suppressing output',
             random: FIXED_OBJECT_ID_RANDOM,
         });
         add_to_minv(monster, boots, { state });
-        let messages = 0;
-
         await m_dowear(monster, false, {
             state,
-            planning: true,
-            message: async () => { ++messages; },
+            message: async () => {},
         });
 
         assert.equal(boots.owornmask, W_ARMF);
         assert.equal(monster.misc_worn_check, W_ARMF);
         assert.equal(monster.mfrozen, state.objects[SPEED_BOOTS].oc_delay);
         assert.equal(monster.mcanmove, false);
-        assert.equal(messages, 0);
     });
 
 test('update_mon_extrinsics forwards the runtime silence flag', async () => {
@@ -3873,7 +3855,7 @@ test('runtime creation validates output owners before RNG or state', async () =>
     }
 });
 
-test('planning runtime creation keeps Norep on the planning message owner',
+test('runtime creation sends a visible appearance through norepMessage',
     async () => {
         const state = initialLevelState();
         state.in_mklev = false;
@@ -3889,12 +3871,12 @@ test('planning runtime creation keeps Norep on the planning message owner',
         await makemon_runtime(state.mons[PM_GHOST], x, y, NO_MINVENT, {
             state,
             random: recordingRandom().random,
-            planning: true,
-            message: async (line) => messages.push(line),
+            message: async () => assert.fail('the appearance uses Norep'),
+            norepMessage: async (line) => messages.push(line),
         });
 
         // PM_GHOST is Murphy's ghost in this fixture, so the visible runtime
-        // appearance pins the fallback to the supplied planning callback.
+        // appearance names it through makemon.c's Norep() call.
         assert.deepEqual(messages, ["Murphy's ghost suddenly appears close by!"]);
     });
 

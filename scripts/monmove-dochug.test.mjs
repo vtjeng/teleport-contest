@@ -237,51 +237,6 @@ test('dochug consumes demon_talk result in the adjacent peaceful bribe branch',
         ]);
     });
 
-test('planned demon bribe reads an empty offer without consuming live keys',
-    async () => {
-        // moveloop_core() preflights on a clone that shares nhDisplay's input
-        // queue. The planning seam must model a refusal without calling the
-        // live getlin reader, while preserving dochug()'s consumed return.
-        const state = makeState();
-        monst_globals_init(state);
-        state.u.ux = 10;
-        state.u.uy = 10;
-        state.u.uswallow = false;
-        const events = [];
-        let keyReads = 0;
-        state.nhDisplay = {
-            readKey: async () => {
-                ++keyReads;
-                return 's'.charCodeAt(0);
-            },
-        };
-        const monster = makeMonster({
-            data: state.mons[PM_ASMODEUS],
-            mpeaceful: true,
-            mtame: 0,
-            mx: 9,
-            my: 10,
-            mux: 10,
-            muy: 10,
-        });
-        const env = {
-            ...baseEnv(state, events),
-            planning: true,
-            distanceAndFear: () => ({
-                inrange: false, nearby: true, scared: false,
-            }),
-            demonTalk: async (_candidate, _owner, context) => {
-                assert.equal(context.planning, true);
-                assert.equal(typeof context.getlin, 'function');
-                assert.equal(await context.getlin('How much?'), '');
-                return 1;
-            },
-        };
-
-        assert.equal(await dochug(monster, env), 1);
-        assert.equal(keyReads, 0);
-    });
-
 test('dochug direct demon_talk import handles the source zero-demand result',
     async () => {
         // C ref: monmove.c:823-824 -> minion.c:demon_talk(). This exercises
@@ -1613,13 +1568,13 @@ test('dochug updates quest status before the frozen-monster return', async () =>
 
 // C monmove.c:913-915 ends the action before distfleeck when an escape
 // inside m_move() migrated the monster out of the active level.
-for (const planning of [false, true]) for (const migrated of [false, true]) {
-    test(`dochug off-map escape planning=${planning} migrated=${migrated}`, async () => {
+for (const migrated of [false, true]) {
+    test(`dochug off-map escape migrated=${migrated}`, async () => {
         const state = makeState(), events = [];
         const monster = makeMonster();
         let ranges = 0;
         const result = await dochug(monster, {
-            ...baseEnv(state, events), planning,
+            ...baseEnv(state, events),
             distanceAndFear: () => {
                 ranges++;
                 return { inrange: true, nearby: false, scared: false };
@@ -1682,55 +1637,6 @@ test('dochug releases a confused holder immediately after it wanders away',
             'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
         ]);
     });
-
-test('planning dochug releases only the planning clone holder', async () => {
-    const live = makeState();
-    monst_globals_init(live);
-    live.u.ux = 23;
-    live.u.uy = 7;
-    const liveHolder = makeMonster({
-        data: live.mons[PM_OWLBEAR], mconf: true, mx: 24, my: 6,
-    });
-    live.u.ustuck = liveHolder;
-
-    const planned = makeState();
-    monst_globals_init(planned);
-    planned.u.ux = 23;
-    planned.u.uy = 7;
-    const plannedHolder = makeMonster({
-        data: planned.mons[PM_OWLBEAR], mconf: true, mx: 24, my: 6,
-    });
-    planned.u.ustuck = plannedHolder;
-    const events = [];
-
-    await dochug(plannedHolder, {
-        ...baseEnv(planned, events), planning: true,
-        random: {
-            rn2(bound) {
-                events.push(`rn2(${bound})`);
-                return 1;
-            },
-            rnd(bound) {
-                events.push(`rnd(${bound})`);
-                return 1;
-            },
-        },
-        distanceAndFear: () => ({ inrange: true, nearby: true, scared: false }),
-        castUndirectedSpell: () => false,
-        moveMonster(candidate) {
-            candidate.my = 5;
-            return MMOVE_MOVED;
-        },
-    });
-
-    assert.equal(planned.u.ustuck, null);
-    assert.equal(plannedHolder.mspec_used, 1);
-    assert.equal(live.u.ustuck, liveHolder);
-    assert.equal(liveHolder.mspec_used, undefined);
-    assert.deepEqual(events, [
-        'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
-    ]);
-});
 
 test('dochug retains a confused holder after an adjacent move',
     async () => {

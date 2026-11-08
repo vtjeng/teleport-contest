@@ -1088,7 +1088,7 @@ test('dog_move production branch calls the minion guardian owner', () => {
     assert.match(DOGMOVE_JS_SOURCE,
         /import \{ lose_guardian_angel \} from '\.\/minion\.js';/u);
     assert.match(DOGMOVE_JS_SOURCE,
-        /else if \(!env\.planning\)\s+await lose_guardian_angel\(monster, state, env\);/u);
+        /await lose_guardian_angel\(monster, state, env\);/u);
     assert.doesNotMatch(DOGMOVE_JS_SOURCE,
         /note_unported\('minion\.c lose_guardian_angel'\)/u);
 });

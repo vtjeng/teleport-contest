@@ -59,10 +59,9 @@ import {
 } from '../js/artifacts.js';
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
-    ENERGY_REGENERATION, FLYING, TELEPAT,
-    BLINDED, HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
+    ENERGY_REGENERATION, TELEPAT,
+    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
     OBJ_MINVENT, SLIMED,
-    UNCHANGING,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
 import {
@@ -71,7 +70,6 @@ import {
     M2_DEMON,
     M3_COVETOUS,
     PM_ELF,
-    PM_CLAY_GOLEM,
     PM_KITTEN,
     PM_ORC,
     PM_WEREWOLF,
@@ -933,7 +931,7 @@ test('Grayswandir suppresses hallucination without clearing its timeout', async 
     state.u.uprops[HALLUC].intrinsic = 100; // Nonzero source timeout.
     const messages = [];
     await set_artifact_intrinsic({ oartifact: ART_GRAYSWANDIR }, true,
-        W_WEP, state, { planning: true, message: async text => messages.push(text) });
+        W_WEP, state, { message: async text => messages.push(text) });
     assert.equal(state.u.uprops[HALLUC_RES].extrinsic, W_WEP);
     assert.equal(state.u.uprops[HALLUC].intrinsic, 100);
     assert.deepEqual(messages, ['Everything looks SO boring now.']);
@@ -1080,7 +1078,7 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     );
     assert.match(
         JS_MB_HIT,
-        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\) \{\s*if \(state === game\) map_invisible\(mdef\.mx, mdef\.my, state\);\s*else map_invisible_planning\(mdef\.mx, mdef\.my, state\);/u,
+        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)[\s\S]*?map_invisible\(mdef\.mx, mdef\.my, state\);/u,
     );
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
     assert.match(
@@ -1129,11 +1127,11 @@ function artiState() {
     return state;
 }
 
-test('artifact_hit uses the planned damage, random, and message environment',
+test('artifact_hit uses the injected damage, random, and message environment',
     async () => {
     // artifact.c:1447-1726. Fire Brand's AD_FIRE branch adds max(tmp, 1),
     // prints the fiery-blade message for the hero defender, then draws rn2(4)
-    // for carried-item damage. The clone call must use its injected operations.
+    // for carried-item damage. The call must use its injected operations.
     const state = stateFor('Val', 'lawful');
     state.u = { uprops: [], ulycn: -1, ustuck: null };
     state.youmonst = {
@@ -1145,15 +1143,13 @@ test('artifact_hit uses the planned damage, random, and message environment',
     initRng(112);
     enableRngLog();
     const weapon = { oartifact: ART_FIRE_BRAND, otyp: LONG_SWORD };
-    const globalBefore = getRngLog().length;
-    const makeEnv = (planning) => {
+    const makeEnv = () => {
         const events = [];
         const bounds = [];
         return {
             events,
             bounds,
             env: {
-                planning,
                 random: {
                     rnd: (bound) => {
                         bounds.push(`rnd(${bound})`);
@@ -1171,41 +1167,27 @@ test('artifact_hit uses the planned damage, random, and message environment',
         };
     };
 
-    const planned = makeEnv(true);
-    const plannedDamage = { value: 3 };
-    const plannedSpecial = await artifact_hit(
-        null, state.youmonst, weapon, plannedDamage, 10, state, planned.env,
-    );
-    assert.equal(plannedSpecial, true);
-    assert.equal(plannedDamage.value, 6);
-    assert.deepEqual(planned.bounds, ['rn2(4)']);
-    assert.deepEqual(planned.events, [[
-        'The fiery blade burns you!', state,
-    ]]);
-    assert.equal(getRngLog().length, globalBefore,
-        'planning uses only the injected random stream');
-
-    const live = makeEnv(false);
+    const live = makeEnv();
     const liveDamage = { value: 3 };
     const liveSpecial = await artifact_hit(
         null, state.youmonst, weapon, liveDamage, 10, state, live.env,
     );
     assert.equal(liveSpecial, true);
-    assert.equal(liveDamage.value, plannedDamage.value);
+    assert.equal(liveDamage.value, 6);
     assert.deepEqual(live.bounds, ['rn2(4)']);
     assert.deepEqual(live.events, [[
         'The fiery blade burns you!', state,
     ]]);
 });
 
-test('Magicbane planning keeps bonus, special, and cancellation effects injected',
+test('Magicbane keeps bonus, special, and cancellation effects injected',
     async () => {
     // artifact.c spec_dbon() and Mb_hit(): a natural 1 selects cancellation.
     // A zero-enchantment Magicbane whose bonus applies spends one bonus d4,
     // the stun gate, four cumulative special d4 rolls, and the final
     // confusion gate.  cancel_monst() then drains one point from each hero
     // energy maximum/current value without touching the live RNG or terminal.
-    async function run(planning) {
+    async function run() {
         const state = stateFor('Val', 'lawful');
         state.flags.verbose = true;
         state.disp = {};
@@ -1239,7 +1221,6 @@ test('Magicbane planning keeps bonus, special, and cancellation effects injected
             1,
             state,
             {
-                planning,
                 random: {
                     rn2: (bound) => {
                         draws.push(`rn2(${bound})`);
@@ -1257,34 +1238,30 @@ test('Magicbane planning keeps bonus, special, and cancellation effects injected
         return { damage: damage.value, draws, messages, special, state };
     }
 
-    for (const planning of [true, false]) {
-        const result = await run(planning);
-        assert.equal(result.special, true);
-        assert.equal(result.damage, 8);
-        assert.deepEqual(result.draws, [
-            'rnd(4)', 'rn2(11)', 'rnd(4)', 'rnd(4)', 'rnd(4)', 'rnd(4)',
-            'rn2(12)',
-        ]);
-        assert.deepEqual(result.messages, [
-            'The magic-absorbing blade cancels you!',
-            'You lose magical energy!',
-        ]);
-        assert.equal(result.state.u.uenmax, 2);
-        assert.equal(result.state.u.uen, 1);
-        assert.equal(result.state.disp.botl, true);
-    }
+    const result = await run();
+    assert.equal(result.special, true);
+    assert.equal(result.damage, 8);
+    assert.deepEqual(result.draws, [
+        'rnd(4)', 'rn2(11)', 'rnd(4)', 'rnd(4)', 'rnd(4)', 'rnd(4)',
+        'rn2(12)',
+    ]);
+    assert.deepEqual(result.messages, [
+        'The magic-absorbing blade cancels you!',
+        'You lose magical energy!',
+    ]);
+    assert.equal(result.state.u.uenmax, 2);
+    assert.equal(result.state.u.uen, 1);
+    assert.equal(result.state.disp.botl, true);
 });
 
-test('Magicbane planning probes the hero without painting the live map',
+test('Magicbane probes the hero through the injected operations',
     async () => {
     // artifact.c artifact_hit() calls Mb_hit() for a dieroll up to
     // MB_MAX_DIEROLL (8). With spe 0, scare_dieroll is MB_MAX_DIEROLL / 2,
     // so a dieroll of 6 keeps the default probe index, and rn2() answering
     // 0 to the stun gate `max(spe, 0) < rn2(11)` leaves it there. A probe on
-    // a defender the attacker cannot spot calls display.c map_invisible();
-    // a planning clone must write only its own map memory there (here the
-    // hero's square, which map_invisible() leaves alone), never the live
-    // terminal.
+    // a defender the attacker cannot spot calls display.c map_invisible(),
+    // which leaves the hero's square alone.
     const state = stateFor('Val', 'lawful');
     state.flags.verbose = true;
     state.disp = {};
@@ -1315,7 +1292,6 @@ test('Magicbane planning probes the hero without painting the live map',
         6,
         state,
         {
-            planning: true,
             random: {
                 rn2: (bound) => {
                     draws.push(`rn2(${bound})`);
@@ -1389,7 +1365,7 @@ test('Magicbane monster cancellation uses injected resistance randomness',
         damage,
         1,
         state,
-        { planning: true, random, message: async () => {} },
+        { random, message: async () => {} },
     );
 
     assert.equal(special, true);
@@ -1400,126 +1376,6 @@ test('Magicbane monster cancellation uses injected resistance randomness',
         'rnd(4)', 'rnd(4)', 'rnd(4)', 'rnd(4)',
         'rn2(105)', 'rn2(12)',
     ]);
-});
-
-test('Magicbane planned clay-golem cancellation keeps the attacker on death',
-    async () => {
-    const state = stateFor('Val', 'lawful');
-    state.flags.verbose = false;
-    state.disp = {};
-    state.u = {
-        uprops: [], ulycn: NON_PM, ustuck: null,
-        umonnum: PM_CLAY_GOLEM, umonster: PM_WIZARD,
-        mh: 8, mhmax: 8, uen: 2, uenmax: 3, uenpeak: 3, ux: 4, uy: 5,
-    };
-    state.u.uprops[UNCHANGING] = {
-        intrinsic: 1, extrinsic: 0, blocked: 0,
-    };
-    state.u.uprops[FLYING] = {
-        intrinsic: 0, extrinsic: 0, blocked: 0,
-    };
-    state.mons = [];
-    state.mons[PM_CLAY_GOLEM] = {
-        pmidx: PM_CLAY_GOLEM, mflags2: 0, mresists: 0,
-    };
-    state.youmonst = {
-        data: state.mons[PM_CLAY_GOLEM], mx: 4, my: 5, minvent: null,
-    };
-    init_artifacts(state);
-    const attacker = {
-        m_id: 11204, data: {}, mx: 5, my: 5, mhp: 10, mhpmax: 10,
-    };
-    const boundary = new Error('planned clay-golem cancellation death');
-    let deathSubject = null;
-    const damage = { value: 3 };
-    const caught = await artifact_hit(
-        attacker,
-        state.youmonst,
-        { oartifact: ART_MAGICBANE, oclass: WEAPON_CLASS, spe: 0 },
-        damage,
-        1,
-        state,
-        {
-            planning: true,
-            random: { rn2: () => 1, rnd: () => 1 },
-            message: async () => {},
-            planningDeath(subject) {
-                deathSubject = subject;
-                return boundary;
-            },
-        },
-    ).then(() => null, (error) => error);
-
-    assert.equal(caught, boundary);
-    assert.equal(deathSubject, attacker);
-    assert.equal(state.u.mh, 0);
-    assert.equal(state.killer.name, 'killed while stuck in creature form');
-});
-
-test('Stormbringer planning hands fatal level-one drain back with its attacker',
-    async () => {
-    // artifact.c:1713 calls losexp("life drainage") after its feedback.
-    // exper.c then reaches non-returning done(DIED) at level one.  The combat
-    // planner needs the monster identity so it can replay that exact attack on
-    // live state; a string-only killer would lose the source of the blow.
-    const state = stateFor('Val', 'lawful');
-    state.flags.verbose = true;
-    state.disp = {};
-    state.u = {
-        uprops: [],
-        ulycn: NON_PM,
-        ustuck: null,
-        umonnum: PM_WIZARD,
-        umonster: PM_WIZARD,
-        ulevel: 1,
-        uexp: 123,
-        uhp: 12,
-        uhpmax: 12,
-        ux: 4,
-        uy: 5,
-    };
-    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    state.youmonst = { data: { mflags2: 0 }, mx: 4, my: 5 };
-    state.mons = [];
-    init_artifacts(state);
-    const attacker = {
-        // A stable nonzero ID lets the planning boundary identify this exact
-        // attacker without relying on a generated monster fixture.
-        m_id: 11203,
-        data: {},
-        mx: 5,
-        my: 5,
-        mhp: 10,
-        mhpmax: 10,
-    };
-    const boundary = new Error('planned Stormbringer death');
-    const messages = [];
-    let deathSubject = null;
-    const damage = { value: 3 };
-    const caught = await artifact_hit(
-        attacker,
-        state.youmonst,
-        { oartifact: ART_STORMBRINGER, spe: 0 },
-        damage,
-        10,
-        state,
-        {
-            planning: true,
-            random: { rn2: () => 1, rnd: () => 1 },
-            message: async (text) => { messages.push(text); },
-            planningDeath: (subject) => {
-                deathSubject = subject;
-                return boundary;
-            },
-        },
-    ).then(() => null, (error) => error);
-
-    assert.equal(caught, boundary);
-    assert.equal(deathSubject, attacker);
-    assert.equal(messages[0], 'You feel an unholy blade drain your life!');
-    assert.match(messages[1], / level 1\.$/u);
-    assert.equal(state.u.ulevel, 1);
-    assert.equal(state.u.uexp, 123);
 });
 
 test('artifact_hit burns away Slimed when the fire destruction roll misses',
@@ -1566,12 +1422,12 @@ test('artifact_hit burns away Slimed when the fire destruction roll misses',
     ]);
 });
 
-test('artifact_hit forwards planned item destruction and ignition operations',
+test('artifact_hit forwards injected item destruction and ignition operations',
     async () => {
     // artifact.c:1507-1514 enters the inventory effects on rn2(4)==0.
     // One scroll pins destroy_items()'s random stream and one unlit oil lamp
     // pins ignite_items()'s begin-burn operation after the scroll is removed.
-    async function runItemEffects(planning) {
+    async function runItemEffects() {
         const state = stateFor('Val', 'lawful');
         objects_globals_init(state);
         state.u = { uprops: [], ulycn: NON_PM, ustuck: null };
@@ -1631,7 +1487,6 @@ test('artifact_hit forwards planned item destruction and ignition operations',
             10,
             state,
             {
-                planning,
                 random: {
                     rn2: (bound) => {
                         draws.push(`rn2(${bound})`);
@@ -1653,18 +1508,16 @@ test('artifact_hit forwards planned item destruction and ignition operations',
         return { burned, damage, defender, draws, lamp, special };
     }
 
-    for (const planning of [true, false]) {
-        const result = await runItemEffects(planning);
-        assert.equal(result.special, false);
-        assert.equal(result.damage.value, 7);
-        assert.equal(result.defender.minvent, result.lamp,
-            'the injected destruction path removes the scroll');
-        assert.deepEqual(result.burned, [result.lamp]);
-        assert.equal(result.lamp.lamplit, true);
-        assert.deepEqual(result.draws, [
-            'rn2(4)', 'rn2(5)', 'rn2(3)',
-        ]);
-    }
+    const result = await runItemEffects();
+    assert.equal(result.special, false);
+    assert.equal(result.damage.value, 7);
+    assert.equal(result.defender.minvent, result.lamp,
+        'the injected destruction path removes the scroll');
+    assert.deepEqual(result.burned, [result.lamp]);
+    assert.equal(result.lamp.lamplit, true);
+    assert.deepEqual(result.draws, [
+        'rn2(4)', 'rn2(5)', 'rn2(3)',
+    ]);
 });
 
 test('attacks() returns true when the artifact attack type matches', () => {

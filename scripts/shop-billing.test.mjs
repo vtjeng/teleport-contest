@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LAVAPOOL, LL_ACHIEVE,
-    MON_MIGRATING,
-    NORMAL_SPEED, OBJ_BURIED, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
-    OBJ_FREE, OBJ_INVENT, OBJ_MINVENT, OBJ_ONBILL, ROOM, ROOMOFFSET,
+    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LL_ACHIEVE,
+    OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
+    OBJ_FREE, OBJ_INVENT, OBJ_ONBILL, ROOM, ROOMOFFSET,
     SHOPBASE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -16,7 +15,6 @@ import { hero_breaks } from '../js/dothrow.js';
 import { burn_floor_objects } from '../js/zap_destroy_items.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
-    PM_GIANT_RAT,
     PM_KEYSTONE_KOP,
     PM_KOP_KAPTAIN,
     PM_KOP_LIEUTENANT,
@@ -25,7 +23,6 @@ import {
     PM_TOURIST,
     AD_PHYS, AT_CLAW,
 } from '../js/monsters.js';
-import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
 import {
     bill_dummy_object, mksobj_at, newObject, place_object,
@@ -45,7 +42,6 @@ import { addtobill, alter_cost, billable, contained_cost, costly_gold,
     from '../js/shk.js';
 import { saleable } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 
 const KOPS = new Set([
     PM_KEYSTONE_KOP,
@@ -706,138 +702,25 @@ test('unpaid naming uses total billed contents and suppresses prices when reques
     assert.equal(dart.where, OBJ_ONBILL);
 });
 
-test('monster planning owns bill state and keeps ordinary naming RNG-neutral', async () => {
+test('ordinary naming of a billed object is RNG-neutral and setpaid clears the bill', async () => {
     const { state, keeper, eshk, env } = await shop();
     const dart = object(state, DART, { quan: 3 });
     await addtobill(dart, true, false, true, state, env);
     await addinv_runtime(dart, env);
     const used = object(state, FOOD_RATION);
     await addtobill(used, false, true, true, state, env);
-    keeper.movement = 0; // No monster allocation before the custom turn boundary.
-    state.u.umovement = 0;
     state.u.uprops[HALLUC].intrinsic = 10;
-    const displayRngBefore = structuredClone(state.displayCtx);
-    const billBefore = structuredClone(eshk.bill_p);
-    let reached = false;
-    await preflightSimpleMonsterActions(state, {
-        async advanceRound(planned) {
-            reached = true;
-            const plannedKeeper = planned.level.monlist;
-            const plannedShop = plannedKeeper.mextra.eshk;
-            assert.notEqual(plannedKeeper, keeper);
-            assert.equal(planned.level.rooms[0].resident, plannedKeeper);
-            assert.notEqual(plannedShop, eshk);
-            assert.notEqual(plannedShop.bill, eshk.bill);
-            assert.equal(plannedShop.bill_p, plannedShop.bill);
-            assert.notEqual(plannedShop.bill_p[0], eshk.bill_p[0]);
-            assert.notEqual(planned.gb.billobjs, used);
-            assert.equal(planned.gb.billobjs.o_id, used.o_id);
-            const displayBeforeName = structuredClone(planned.displayCtx);
-            donameFresh(planned.invent, planned);
-            // objnam.c:doname_base does not call invent.c:currency or draw
-            // either random stream. The currency ROLL_FROM draw belongs to
-            // invent.c:xprname and uses gameplay rn2, so this ordinary name
-            // must leave the planner's display stream unchanged.
-            assert.notEqual(planned.displayCtx, state.displayCtx);
-            assert.deepEqual(planned.displayCtx, displayBeforeName);
-            subfrombill(planned.invent, plannedKeeper, planned, { ...env, state: planned });
-            setpaid(plannedKeeper, planned);
-            assert.equal(planned.gb.billobjs, null);
-            assert.equal(plannedShop.billct, 0);
-            return true;
-        },
-    });
-    assert.equal(reached, true);
-    assert.equal(state.level.rooms[0].resident, keeper);
     assert.equal(state.gb.billobjs, used);
-    assert.equal(used.where, OBJ_ONBILL);
-    assert.equal(dart.unpaid, 1);
     assert.equal(eshk.billct, 2);
-    assert.deepEqual(eshk.bill_p, billBefore);
-    assert.deepEqual(state.displayCtx, displayRngBefore);
-});
-
-test('planned shopkeeper death cannot settle live buried or migrating objects', async () => {
-    const { state } = await shop();
-    for (const column of state.level.monsters) column.fill(null);
-    for (const column of state.level.objects) column.fill(null);
-    state.level.objlist = null;
-    state.level.traps = [];
-    state.level.regions = [];
-    state.u.umovement = 0;
-    state.u.utotype = 0;
-    state.u.ustuck = state.u.usteed = null;
-    state.context.bypasses = false;
-    if (state.context.victual) state.context.victual.piece = null;
-    if (state.context.tin) state.context.tin.tin = null;
-    state.go ??= {};
-    state.go.occupation = null;
-    state.head_engr = null;
-    for (const row of state.viz_array) row.fill(0);
-
-    // A small interior shop, away from map edges. Fatal lava exercises the
-    // real movemon/minliquid/mondead path without combat or injected callbacks.
-    state.u.ux = state.u.ux0 = 10;
-    state.u.uy = state.u.uy0 = 10;
-    const room = state.level.rooms[0];
-    Object.assign(room, { lx: 7, hx: 10, ly: 9, hy: 11, rtype: SHOPBASE });
-    for (let x = room.lx; x <= room.hx; ++x)
-        for (let y = room.ly; y <= room.hy; ++y)
-            Object.assign(state.level.at(x, y), {
-                typ: ROOM, roomno: ROOMOFFSET, edge: false,
-            });
-    state.level.at(8, 10).typ = LAVAPOOL;
-    const keeper = newMonster({ data: state.mons[PM_SHOPKEEPER],
-        mnum: PM_SHOPKEEPER, m_id: state.context.ident++, mx: 8, my: 10,
-        // Five HP ensures lava is fatal; one ration admits a monster action.
-        mhp: 5, mhpmax: 5, movement: NORMAL_SPEED,
-        m_lev: state.mons[PM_SHOPKEEPER].mlevel, mcanmove: true, mcansee: true,
-        isshk: true, mpeaceful: true, minvent: null,
-        // mon.c logdeadmon omits a second live-log entry for revived keepers.
-        // A first death would stop at the existing unported live-log branch.
-        mrevived: true });
-    const buried = object(state, DART, {
-        unpaid: 1, no_charge: true, where: OBJ_BURIED, ox: 9, oy: 10,
-    });
-    const migrant = newMonster({ data: state.mons[PM_GIANT_RAT],
-        mnum: PM_GIANT_RAT, m_id: state.context.ident++,
-        // Migrating monsters are off-map; their carried objects remain billed.
-        mx: 0, my: 0, mstate: MON_MIGRATING, mhp: 5, mhpmax: 5 });
-    const carried = object(state, DART, {
-        unpaid: 1, where: OBJ_MINVENT, ocarry: migrant,
-    });
-    migrant.minvent = carried;
-    // One bill entry per dart, using the source base price of two zorkmids.
-    const bill = [buried, carried].map(obj => ({
-        bo_id: obj.o_id, bquan: obj.quan, price: 2, useup: false,
-    }));
-    keeper.mextra = { eshk: { shoproom: ROOMOFFSET, shoptype: SHOPBASE,
-        shoplevel: { ...state.u.uz }, shk: { x: 7, y: 10 }, shd: { x: 7, y: 9 },
-        bill, bill_p: bill, billct: bill.length, credit: 0, debit: 0, loan: 0,
-        surcharge: false, shknam: 'Testkeeper' } };
-    room.resident = keeper;
-    state.level.monlist = keeper;
-    state.level.monsters[8][10] = keeper;
-    state.level.buriedobjlist = buried;
-    state.gm ??= {};
-    state.gm.migrating_mons = migrant;
-    state.gb ??= {};
-    state.gb.billobjs = null;
-    const shops = [...state.u.ushops];
-    const billBefore = structuredClone(bill);
-
-    const result = await preflightSimpleMonsterActions(state);
-
-    assert.equal(result.upkeepCount, 1); // The admitted monster ration completed.
-    assert.equal(buried.unpaid, 1);
-    assert.equal(buried.no_charge, true);
-    assert.equal(carried.unpaid, 1);
-    assert.deepEqual(state.u.ushops, shops);
-    assert.equal(state.level.buriedobjlist, buried);
-    assert.equal(state.gm.migrating_mons, migrant);
-    assert.equal(carried.ocarry, migrant);
-    assert.equal(migrant.minvent, carried);
-    assert.equal(room.resident, keeper);
-    assert.equal(keeper.mhp, 5);
-    assert.deepEqual(bill, billBefore);
+    const displayBeforeName = structuredClone(state.displayCtx);
+    donameFresh(state.invent, state);
+    // objnam.c:doname_base does not call invent.c:currency or draw
+    // either random stream. The currency ROLL_FROM draw belongs to
+    // invent.c:xprname and uses gameplay rn2, so this ordinary name
+    // must leave the display stream unchanged.
+    assert.deepEqual(state.displayCtx, displayBeforeName);
+    subfrombill(state.invent, keeper, state, env);
+    setpaid(keeper, state);
+    assert.equal(state.gb.billobjs, null);
+    assert.equal(eshk.billct, 0);
 });

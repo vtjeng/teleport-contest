@@ -1298,7 +1298,7 @@ function earthSenseState(typ, buriedAt) {
     return state;
 }
 
-test('u_on_newpos keeps its live redraw default and lets planned recoil stay silent', () => {
+test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_objects', () => {
     const cSource = readFileSync(
         new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
         'utf8',
@@ -1323,22 +1323,12 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
         new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url),
         'utf8',
     );
-    const uhitmSource = readFileSync(
-        new URL('../js/uhitm.js', import.meta.url),
-        'utf8',
-    );
     assert.match(dungeonSource,
         /seeNearbyObjects = see_nearby_objects/u);
     assert.match(dungeonSource,
         /seeNearbyObjectsOptions = undefined/u);
     assert.match(dungeonSource,
         /seeNearbyObjects\(state, seeNearbyObjectsOptions\);/u);
-    assert.match(dothrowSource,
-        /seeNearbyObjectsOptions: planning \? \{ redraw \} : undefined/u);
-    // hurtle_step()'s planning redraw is silent, so the clone's
-    // see_nearby_objects() repaint never reaches the live terminal.
-    assert.match(dothrowSource,
-        /const redraw = planning \? \(\) => \{\} : newsym;/u);
     const displaySource = readFileSync(
         new URL('../js/display.js', import.meta.url),
         'utf8',
@@ -1349,8 +1339,6 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
         /observe_object\(object, state\);\s*\/\/ operate on remembered glyph rather than current one\s*if \(glyph_is_generic_object\([\s\S]*?\)\) redrawCell\(ix, iy, state\);/u);
     assert.match(displaySource,
         /if \(state !== game && typeof redraw !== 'function'\)\s*\{\s*throw new TypeError/u);
-    assert.match(uhitmSource,
-        /planning: Boolean\(env\?\.planning\)/u);
 
     const cHurtleStart = cDothrowSource.indexOf(
         'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
@@ -1373,20 +1361,18 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
     assert.ok(jsHurtleStart >= 0 && jsHurtleEnd > jsHurtleStart);
     const jsHurtle = dothrowSource.slice(jsHurtleStart, jsHurtleEnd);
     const jsOrder = [
-        'u_on_newpos(x, y, state,',
+        'u_on_newpos(x, y, state',
         'redraw(oldX, oldY);',
-        'arg.isolateVision(state);',
         'vision_recalc(1, { state, redraw });',
         'await flush(1);',
-        'await switch_terrain(state, { planning, message });',
+        'await switch_terrain(state,',
         'await check_special_room(false, state,',
         'if (is_pool(x, y, state)',
         'const trap = t_at(x, y, state);',
     ].map((source) => jsHurtle.indexOf(source));
     assert.ok(jsOrder.every((position) => position >= 0));
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
-    assert.match(jsHurtle,
-        /if \(planning\) \{[\s\S]*?arg\.requestPlanningInput\('trap\.c drown via hurtle'\);[\s\S]*?throw new Error\('planned hurtle into pool needs a live handoff'\);\s*\} else \{\s*await drown\(state\);\s*\}\s*return false;/u);
+    assert.match(jsHurtle, /await drown\(state\);[\s\S]*?return false;/u);
 
     const live = resetGame();
     live.u = {
@@ -1403,18 +1389,18 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
     assert.equal(u_on_newpos(5, 4, live), undefined);
     assert.deepEqual([live.u.ux, live.u.uy], [5, 4]);
 
-    const planned = earthSenseState(STONE, null);
-    planned.u.uz = { dnum: 0, dlevel: 1 };
-    planned.u.uz0 = { dnum: 0, dlevel: 1 };
+    const injected = earthSenseState(STONE, null);
+    injected.u.uz = { dnum: 0, dlevel: 1 };
+    injected.u.uz0 = { dnum: 0, dlevel: 1 };
     let redrawCalls = 0;
-    assert.equal(u_on_newpos(5, 4, planned, {
+    assert.equal(u_on_newpos(5, 4, injected, {
         seeNearbyObjects: (target) => {
-            assert.equal(target, planned);
+            assert.equal(target, injected);
             redrawCalls++;
         },
     }), undefined);
     assert.equal(redrawCalls, 1);
-    assert.deepEqual([planned.u.ux, planned.u.uy], [5, 4]);
+    assert.deepEqual([injected.u.ux, injected.u.uy], [5, 4]);
 });
 
 test('earth_sense refuses only the state its notice would speak for', () => {

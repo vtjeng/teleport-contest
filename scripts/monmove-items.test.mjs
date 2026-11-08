@@ -341,7 +341,7 @@ test('postmov object selection preserves inert object and shop draws', () => {
 
 test('postmov redraws invisible worm tails after eligible object handling only',
     async () => {
-        async function run(status, mcanmove = true, planning = false) {
+        async function run(status, mcanmove = true) {
             const state = makeState();
             const worm = makeMonster(state, PM_PURPLE_WORM, {
                 mx: 10,
@@ -361,7 +361,6 @@ test('postmov redraws invisible worm tails after eligible object handling only',
                 worm, 9, 10, status, 0, false, false, false,
                 {
                     state,
-                    planning,
                     couldReachItem: () => false,
                     message: async () => {},
                     norepMessage: async () => {},
@@ -395,10 +394,6 @@ test('postmov redraws invisible worm tails after eligible object handling only',
         const immobile = await run(MMOVE_MOVED, false);
         assert.deepEqual(immobile.redraws.slice(-1), [[9, 10]],
             'mcanmove false retains the old-square redraw but skips object and tail refresh');
-
-        const planned = await run(MMOVE_MOVED, true, true);
-        assert.deepEqual(planned.redraws, [],
-            'postmov planning keeps its caller-owned repaint noop');
 
         // Exercise the same source caller through a real selected pickup: the
         // object leaves the floor before postmov returns its MMOVE_DONE result

@@ -10,8 +10,6 @@ import {ROOM, WATER, HALLUC, BLINDED, COULD_SEE} from '../js/const.js';
 import {init_vision_globals, vision_reset, vision_recalc, block_point,
     unblock_point, recalc_block_point, clear_path, transparencyIndexViews} from '../js/vision.js';
 import {light_globals_init} from '../js/light.js';
-import {admitPlannedVisionChange, preflightElapsedTurnTail,
-    preflightSimpleMonsterActions} from '../js/unported_monster_actions.js';
 
 async function setup(hallu, blind) {
     await runSegment({seed:8432148,datetime:'20270324100000',nethackrc:'OPTIONS=name:PointVision,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n',moves:' '});
@@ -48,34 +46,6 @@ for(const hallu of [false,true])for(const blind of [false,true]) {
         vision_reset(game);
         assert.equal(clear_path(5,7,10,7),0);
     });
-    for(const tail of [false,true])for(const fail of [false,true]) {
-        test(`borrow exact vision index Hallu=${hallu} Blind=${blind} tail=${tail} fail=${fail}`,async()=>{
-            await setup(hallu,blind);
-            game.level.at(7,7).typ=WATER;
-            unblock_point(7,7,game);
-            block_point(8,8,game);
-            const before={index:index(),core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),grid:structuredClone(game.nhDisplay.grid),hp:game.u.uhp,flag:game.vision_full_recalc};
-            const sentinel=new Error('planned boundary');
-            let calls=0;
-            const callback=async planned=>{
-                calls++;
-                admitPlannedVisionChange(7,7,planned);block_point(7,7,planned);
-                admitPlannedVisionChange(8,8,planned);unblock_point(8,8,planned);
-                vision_recalc(0,{state:planned,redraw(){}});
-                assert.equal(clear_path(5,7,10,7),0);
-                if(fail)throw sentinel;
-                return true;
-            };
-            const run=()=>tail?preflightElapsedTurnTail(game,callback):preflightSimpleMonsterActions(game,{consumeHeroRation:false,advanceRound:callback});
-            if(fail)await assert.rejects(run,error=>error===sentinel);else await run();
-            assert.equal(calls,1);
-            assert.deepEqual(index(),before.index);
-            assert.deepEqual(game.coreCtx,before.core);assert.deepEqual(game.displayCtx,before.display);
-            assert.deepEqual(game.nhDisplay.grid,before.grid);assert.equal(game.u.uhp,before.hp);
-            assert.equal(game.vision_full_recalc,before.flag);
-            assert.equal(clear_path(5,7,10,7),1);
-        });
-    }
 }
 for(const hallu of [false,true])for(const blind of [false,true]) {
     test(`ordinary obstruction refresh control Hallu=${hallu} Blind=${blind}`,async()=>{

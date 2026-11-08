@@ -71,30 +71,28 @@ test('newcham remains synchronous during level construction without armor effect
 });
 
 for (const equipped of [false, true]) {
-    for (const planning of [false, true]) {
-        test('unchanged monster armor evaluates entry pronouns synchronously: equipped=' + equipped + ', planning=' + planning, () => {
-            const state = levelConstructionState();
-            state.u.uprops[HALLUC] = { intrinsic: 8 };
-            const monster = newMonster({ data: state.mons[M.PM_VAMPIRE_LEADER],
-                mnum: M.PM_VAMPIRE_LEADER, mx: 4, my: 4, mhp: 30, mhpmax: 30 });
-            const armor = equipped ? newObject({ otyp: LEATHER_ARMOR,
-                oclass: ARMOR_CLASS, owornmask: W_ARM, where: OBJ_MINVENT,
-                ocarry: monster }) : null;
-            monster.minvent = armor;
-            monster.misc_worn_check = equipped ? W_ARM : 0;
-            const draws = [];
-            const values = [0, 1];
-            const result = mon_break_armor(monster, false, { state, planning,
-                random: { rn2(n) { draws.push(n); assert.equal(n, 4);
-                    assert.ok(values.length); return values.shift(); } },
-                message: () => assert.fail('unchanged equipment emits no message') });
-            assert.equal(result, undefined, 'the construction fast path remains synchronous');
-            assert.deepEqual(draws, [4, 4]);
-            assert.deepEqual(values, []);
-            assert.equal(monster.minvent, armor);
-            if (armor) assert.equal(armor.owornmask, W_ARM);
-        });
-    }
+    test('unchanged monster armor evaluates entry pronouns synchronously: equipped=' + equipped, () => {
+        const state = levelConstructionState();
+        state.u.uprops[HALLUC] = { intrinsic: 8 };
+        const monster = newMonster({ data: state.mons[M.PM_VAMPIRE_LEADER],
+            mnum: M.PM_VAMPIRE_LEADER, mx: 4, my: 4, mhp: 30, mhpmax: 30 });
+        const armor = equipped ? newObject({ otyp: LEATHER_ARMOR,
+            oclass: ARMOR_CLASS, owornmask: W_ARM, where: OBJ_MINVENT,
+            ocarry: monster }) : null;
+        monster.minvent = armor;
+        monster.misc_worn_check = equipped ? W_ARM : 0;
+        const draws = [];
+        const values = [0, 1];
+        const result = mon_break_armor(monster, false, { state,
+            random: { rn2(n) { draws.push(n); assert.equal(n, 4);
+                assert.ok(values.length); return values.shift(); } },
+            message: () => assert.fail('unchanged equipment emits no message') });
+        assert.equal(result, undefined, 'the construction fast path remains synchronous');
+        assert.deepEqual(draws, [4, 4]);
+        assert.deepEqual(values, []);
+        assert.equal(monster.minvent, armor);
+        if (armor) assert.equal(armor.owornmask, W_ARM);
+    });
 }
 
 for (const overrideVisibility of [false, true]) {

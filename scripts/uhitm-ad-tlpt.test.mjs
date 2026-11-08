@@ -5,12 +5,10 @@ import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import {
     AD_TLPT,
     AT_TUCH,
     PM_HIGH_CLERIC,
-    PM_QUANTUM_MECHANIC,
 } from '../js/monsters.js';
 import { TELEPAT } from '../js/const.js';
 import { canseemon, canspotmon } from '../js/display.js';
@@ -212,56 +210,3 @@ test('AD_TLPT dispatcher reaches the whole handler', async () => {
     assert.equal(messages.length, 1);
     assert.match(messages[0], / is not affected\.$/u);
 });
-
-test('the production monster planner stops before controlled teleport input',
-    async () => {
-        await runSegment({
-            seed: 781026443,
-            datetime: '21121210072545',
-            nethackrc: [
-                'OPTIONS=name:A98TeleportPlan,role:Wizard,race:human,gender:male,align:neutral',
-                'OPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait',
-                '',
-            ].join('\n'),
-            moves: '',
-        });
-        const state = game;
-        for (const column of state.level.monsters) column.fill(null);
-        state.level.monlist = null;
-
-        const x = state.u.ux + 1;
-        const y = state.u.uy;
-        const attacker = newMonster({
-            data: state.mons[PM_QUANTUM_MECHANIC],
-            mnum: PM_QUANTUM_MECHANIC,
-            m_id: 9003,
-            mx: x,
-            my: y,
-            mhp: 30,
-            mhpmax: 30,
-            m_lev: 40,
-            movement: 12,
-            mcanmove: true,
-            mcansee: true,
-            mpeaceful: false,
-            mtame: 0,
-        });
-        place_monster(attacker, x, y, state);
-        state.level.monlist = attacker;
-        state.u.umovement = 12;
-        // Keep a real queued key available. The production preflight must
-        // stop before getpos() reads it from the clone's shared display.
-        state.nhDisplay.pushKey('.'.charCodeAt(0));
-        const screen = state.nhDisplay.serialize();
-        const heroPosition = [state.u.ux, state.u.uy];
-        const attackerMovement = attacker.movement;
-
-        const plan = await preflightSimpleMonsterActions(state);
-
-        assert.deepEqual(plan.inputBoundary, { operation: 'getpos' });
-        assert.equal(state.nhDisplay.inputQueueLength, 1);
-        assert.equal(state.nhDisplay.serialize(), screen);
-        assert.equal(state.u.umovement, 12);
-        assert.equal(attacker.movement, attackerMovement);
-        assert.deepEqual([state.u.ux, state.u.uy], heroPosition);
-    });

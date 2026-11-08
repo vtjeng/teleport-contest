@@ -309,37 +309,35 @@ test('monster transfer precedes pending theft feedback and teleport follows it',
     assert.equal(hit.done, false, 'C does not set the independent done flag');
 });
 
-for (const planning of [false, true]) {
-    test(`monster theft relocates in source RNG order (${planning ? 'planning' : 'live'})`, async () => {
-        const { monster, env } = await fixture();
-        const attacker = monster(PM_LEPRECHAUN); const target = monster(PM_DWARF);
-        // Separate live coordinate-index entries, with an independently chosen
-        // free ordinary-room destination (8,8). C rloc draws x then y.
-        target.mx += 1;
-        const destination = [8, 8];
-        for (const [x, y] of [[attacker.mx, attacker.my], [target.mx, target.my], destination])
-            game.level.at(x, y).typ = ROOM;
-        game.level.monlist = attacker; attacker.nmon = target;
-        place_monster(attacker, attacker.mx, attacker.my, game);
-        place_monster(target, target.mx, target.my, game);
-        game.level.flags.noteleport = false;
-        game.gv.vis = false; // Suppress branch feedback; isolate relocation output.
-        const incoming = await gold(target); const hit = mhm();
-        const draws = []; const redraws = [];
-        await mhitm_adtyping(attacker, mattk, target, hit, game, {
-            ...env, planning, redraw: (...args) => { redraws.push(args); },
-            random: { ...coreRandom, ...env.random,
-                rnd: bound => { draws.push(['rnd', bound]); return destination[0]; },
-                rn2: bound => { draws.push(['rn2', bound]); return destination[1]; } },
-        });
-        assert.deepEqual(draws, [['rnd', COLNO - 1], ['rn2', ROWNO]]);
-        assert.deepEqual([attacker.mx, attacker.my], destination);
-        assert.equal(incoming.ocarry, attacker);
-        assert.equal(hit.hitflags, M_ATTK_AGR_DONE);
-        assert.equal(hit.done, false);
-        assert.equal(redraws.length, planning ? 0 : 2, 'departure and arrival redraws are live only');
+test('monster theft relocates in source RNG order', async () => {
+    const { monster, env } = await fixture();
+    const attacker = monster(PM_LEPRECHAUN); const target = monster(PM_DWARF);
+    // Separate live coordinate-index entries, with an independently chosen
+    // free ordinary-room destination (8,8). C rloc draws x then y.
+    target.mx += 1;
+    const destination = [8, 8];
+    for (const [x, y] of [[attacker.mx, attacker.my], [target.mx, target.my], destination])
+        game.level.at(x, y).typ = ROOM;
+    game.level.monlist = attacker; attacker.nmon = target;
+    place_monster(attacker, attacker.mx, attacker.my, game);
+    place_monster(target, target.mx, target.my, game);
+    game.level.flags.noteleport = false;
+    game.gv.vis = false; // Suppress branch feedback; isolate relocation output.
+    const incoming = await gold(target); const hit = mhm();
+    const draws = []; const redraws = [];
+    await mhitm_adtyping(attacker, mattk, target, hit, game, {
+        ...env, redraw: (...args) => { redraws.push(args); },
+        random: { ...coreRandom, ...env.random,
+            rnd: bound => { draws.push(['rnd', bound]); return destination[0]; },
+            rn2: bound => { draws.push(['rn2', bound]); return destination[1]; } },
     });
-}
+    assert.deepEqual(draws, [['rnd', COLNO - 1], ['rn2', ROWNO]]);
+    assert.deepEqual([attacker.mx, attacker.my], destination);
+    assert.equal(incoming.ocarry, attacker);
+    assert.equal(hit.hitflags, M_ATTK_AGR_DONE);
+    assert.equal(hit.done, false);
+    assert.equal(redraws.length, 2, 'departure and arrival redraws');
+});
 
 test('source pins all direction branches and the inventory/relocation order', () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8');

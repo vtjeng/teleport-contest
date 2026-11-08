@@ -32,11 +32,9 @@ import {
     FROMOUTSIDE,
     FROM_RACE,
     INFRAVISION,
-    KILLED_BY,
     LAST_PROP,
     MAXULEV,
     N_ACH,
-    NO_KILLER_PREFIX,
     P_QUARTERSTAFF,
     POISON_RES,
     SEARCHING,
@@ -46,7 +44,6 @@ import {
     STEALTH,
     TELEPORT_CONTROL,
     TIMEOUT,
-    UNCHANGING,
     WARNING,
 } from '../js/const.js';
 import { xlev_to_rank } from '../js/display.js';
@@ -75,7 +72,6 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
 } from '../js/monsters.js';
-import { rehumanize } from '../js/polyself.js';
 import { add_weapon_skill, lose_weapon_skill } from '../js/weapon.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { scanLevelArgument } from '../js/wizcmds.js';
@@ -997,105 +993,6 @@ test('losing level two retains the experience just below level two', async () =>
     assert.equal(state.u.ulevel, 1);
     assert.equal(state.u.uexp, 19);
     assert.deepEqual(messages, ['Goodbye level 2.']);
-});
-
-test('fatal planned level-one drain stops at the injected death boundary',
-    async () => {
-    // exper.c:losexp sets the killer after its level-loss message, then calls
-    // non-returning done(DIED).  Planning must preserve that order while
-    // handing control back before end.c touches the live terminal or asks for
-    // input.  The unchanged level and experience prove the post-done tail did
-    // not run on the clone.
-    const state = heroState();
-    state.youmonst = { data: { pmidx: PM_HUMAN } };
-    state.u.uexp = 123;
-    const messages = [];
-    const boundary = new Error('planned level-one life-drain death');
-    const caught = await losexp('life drainage', state, {
-        planning: true,
-        message: async (text) => { messages.push(text); },
-        planningDeath: () => boundary,
-    }).then(() => null, (error) => error);
-
-    assert.equal(caught, boundary);
-    assert.deepEqual(messages, ['Goodbye level 1.']);
-    assert.deepEqual(state.killer, {
-        format: KILLED_BY,
-        name: 'life drainage',
-    });
-    assert.equal(state.u.ulevel, 1);
-    assert.equal(state.u.uexp, 123);
-});
-
-test('planned level loss carries its death boundary through rehumanize',
-    async () => {
-    const state = heroState();
-    state.u.ulevel = 2;
-    state.u.ulevelmax = 2;
-    state.u.uexp = 40;
-    state.u.umonnum = PM_GNOME;
-    state.u.umonster = PM_HUMAN;
-    state.u.mh = 1;
-    state.u.mhmax = 1;
-    state.u.uprops[UNCHANGING].intrinsic = 1;
-    state.youmonst = {
-        data: { pmidx: PM_GNOME, mflags2: 0, mlevel: 1, mlet: 'G' },
-        m_lev: 1,
-    };
-    const boundary = new Error('planned polymorph drain death');
-    const caught = await losexp('#levelchange', state, {
-        planning: true,
-        random: { rnd: () => 1, rn2: () => 1 },
-        message: async () => {},
-        planningDeath: () => boundary,
-    }).then(() => null, (error) => error);
-
-    assert.equal(caught, boundary);
-    assert.equal(state.u.mh, 0);
-    assert.deepEqual(state.killer, {
-        format: NO_KILLER_PREFIX,
-        name: 'killed while stuck in creature form',
-    });
-});
-
-test('planned rehumanize reaches the unhealthy original-form death boundary',
-    async () => {
-    await runSegment({
-        // This arbitrary startup supplies the complete state polyman() owns.
-        seed: 8820254,
-        datetime: '20310203040507',
-        nethackrc: 'OPTIONS=role:Archeologist,race:human,gender:female,align:neutral\n'
-            + 'OPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n',
-        moves: '.',
-    });
-    game.u.macurr = { a: [...game.u.acurr.a] };
-    game.u.mamax = { a: [...game.u.amax.a] };
-    game.u.mfemale = game.flags.female;
-    game.u.umonnum = PM_GNOME;
-    game.u.umonster = PM_HUMAN;
-    game.u.mh = 0;
-    game.u.mhmax = 1;
-    game.u.uhp = 0;
-    game.youmonst.data = game.mons[PM_GNOME];
-    const messages = [];
-    const boundary = new Error('planned unhealthy original-form death');
-
-    const caught = await rehumanize(game, {
-        planning: true,
-        message: async (text) => { messages.push(text); },
-        planningDeath: () => boundary,
-    }).then(() => null, (error) => error);
-
-    assert.equal(caught, boundary);
-    assert.equal(game.u.umonnum, PM_HUMAN);
-    assert.strictEqual(game.youmonst.data, game.mons[PM_HUMAN]);
-    assert.deepEqual(messages, [
-        'Your old form was not healthy enough to survive.',
-    ]);
-    assert.deepEqual(game.killer, {
-        format: KILLED_BY,
-        name: 'reverting to unhealthy human form',
-    });
 });
 
 test('adjabil uses the dreaming prefix for a fainted hero losing an ability',

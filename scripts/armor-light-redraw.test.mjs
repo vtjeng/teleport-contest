@@ -12,7 +12,6 @@ import { newObject } from '../js/obj.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.js';
 import { m_dowear } from '../js/worn.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -34,35 +33,28 @@ async function darkRoom() {
     monster.minvent = armor;
 }
 for (const creation of [true, false]) {
-    for (const planning of [false, true]) {
-        for (const explicit of [false, true]) {
-            test(`monster armor light redraw: creation=${creation}, planning=${planning}, explicit=${explicit}`, async () => {
-                await darkRoom();
-                const liveLocations = structuredClone(game.level.locations);
-                const coreBefore = structuredClone(game.coreCtx);
-                const state = planning ? planningState(game) : game;
-                const monster = state.level.monlist;
-                const target = state.level.at(9, 7);
-                assert.notEqual(target.disp_ch, '.');
-                const calls = [];
-                const env = { state, planning, message: async () => {} };
-                if (explicit) env.redraw = (x, y) => { calls.push([x, y]); };
-                await m_dowear(monster, creation, env);
-                assert.equal(monster.minvent.lamplit, true);
-                assert.notEqual(target.seenv, 0, 'armor light reveals the floor');
-                if (!planning && !explicit) {
-                    assert.equal(target.disp_ch, '.', 'live default redraw records the floor glyph');
-                } else {
-                    assert.notEqual(target.disp_ch, '.', 'the supplied or non-global owner controls painting');
-                }
-                if (explicit) assert.ok(calls.some(([x, y]) => x === 9 && y === 7));
-                if (planning) {
-                    assert.deepEqual(game.level.locations, liveLocations);
-                    assert.equal(game.gl.light_base, null);
-                }
-                assert.deepEqual(game.coreCtx, coreBefore);
-            });
-        }
+    for (const explicit of [false, true]) {
+        test(`monster armor light redraw: creation=${creation}, explicit=${explicit}`, async () => {
+            await darkRoom();
+            const coreBefore = structuredClone(game.coreCtx);
+            const state = game;
+            const monster = state.level.monlist;
+            const target = state.level.at(9, 7);
+            assert.notEqual(target.disp_ch, '.');
+            const calls = [];
+            const env = { state, message: async () => {} };
+            if (explicit) env.redraw = (x, y) => { calls.push([x, y]); };
+            await m_dowear(monster, creation, env);
+            assert.equal(monster.minvent.lamplit, true);
+            assert.notEqual(target.seenv, 0, 'armor light reveals the floor');
+            if (!explicit) {
+                assert.equal(target.disp_ch, '.', 'live default redraw records the floor glyph');
+            } else {
+                assert.notEqual(target.disp_ch, '.', 'the supplied owner controls painting');
+            }
+            if (explicit) assert.ok(calls.some(([x, y]) => x === 9 && y === 7));
+            assert.deepEqual(game.coreCtx, coreBefore);
+        });
     }
 }
 for (const name of ['light', 'monochrome', 'before-control']) {

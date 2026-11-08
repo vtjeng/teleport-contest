@@ -136,20 +136,3 @@ test('nh_timeout awaits the region warning before decrement and preserves occupa
     assert.equal(state.go.occupation, occupation);
     assert.equal(state.multi, 7);
 });
-
-test('region warning planning defaults to silence and retains the caller message operation', async () => {
-    const state = await hero();
-    const before = state.nhDisplay.serialize();
-    await timeout.region_dialogue(state, { planning: true, random: noRandom });
-    assert.equal(state.nhDisplay.serialize(), before);
-    const messages = [];
-    await timeout.region_dialogue(state, { planning: true,
-        message: async text => messages.push(text), random: noRandom,
-    });
-    assert.deepEqual(messages, [regionTexts[0]]);
-    assert.equal(timeout.nh_timeout_requires_live_state(state), false,
-        'region dialogue has no occupation or input side effect to hand off');
-    await timeout.nh_timeout(state, { planning: true, random: noRandom });
-    assert.equal(state.nhDisplay.serialize(), before);
-    assert.equal(state.u.uprops[MAGICAL_BREATHING].intrinsic, 4);
-});

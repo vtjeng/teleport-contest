@@ -8,7 +8,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { PM_FIRE_GIANT } from '../js/monsters.js';
 import { mhitm_knockback } from '../js/uhitm.js';
-import { planningState } from '../js/unported_monster_actions.js';
 
 // The admitted v64 prefix creates and mounts a saddled pony via actual game
 // commands. A giant is then created by the normal runtime constructor.
@@ -32,24 +31,16 @@ async function mountedAttackState() {
     const giant = await makemon_runtime(game.mons[PM_FIRE_GIANT],
         game.u.ux, game.u.uy - 1, 0, { state: game });
     assert.ok(giant);
-    const planned = planningState(game);
-    let plannedGiant = planned.level.monlist;
-    while (plannedGiant && plannedGiant.m_id !== giant.m_id)
-        plannedGiant = plannedGiant.nmon;
-    assert.ok(plannedGiant);
-    assert.ok(planned.u.usteed);
-    return { planned, plannedGiant, giant };
+    return giant;
 }
 
-for(const planning of [true,false])for(const knock of [true,false])test(`mounted planning=${planning} knock=${knock}`,async()=>{
- const {planned,plannedGiant,giant}=await mountedAttackState();
- const state=planning?planned:game;const attacker=planning?plannedGiant:giant;
+for(const knock of [true,false])test(`mounted knock=${knock}`,async()=>{
+ const attacker=await mountedAttackState();const state=game;
  for(let i=0;i<40;i++)game.nhDisplay.pushKey(32);
- const rolls=[1,knock?0:1,0,0,1],bounds=[];let handoff=false,error=null;
- try{await mhitm_knockback(attacker,state.youmonst,attacker.data.mattk[0],{value:M_ATTK_HIT},false,state,{state,planning,message:async()=>{},requestPlanningInput(){handoff=true;throw Error('live handoff');}},{rn2:n=>{bounds.push(n);assert.ok(rolls.length);return rolls.shift();}});}catch(e){error=e.message;}
- assert.equal(handoff,planning&&knock);
- assert.equal(error,planning&&knock?'live handoff':null);
- assert.equal(!!state.u.usteed,planning||!knock);
- assert.equal(!!game.u.usteed,planning||!knock);
- assert.deepEqual(bounds,knock?(planning?[3,6,2,2]:[3,6,2,2,4]):[3,6]);
+ const rolls=[1,knock?0:1,0,0,1],bounds=[];let error=null;
+ try{await mhitm_knockback(attacker,state.youmonst,attacker.data.mattk[0],{value:M_ATTK_HIT},false,state,{state,message:async()=>{}},{rn2:n=>{bounds.push(n);assert.ok(rolls.length);return rolls.shift();}});}catch(e){error=e.message;}
+ assert.equal(error,null);
+ assert.equal(!!state.u.usteed,!knock);
+ assert.equal(!!game.u.usteed,!knock);
+ assert.deepEqual(bounds,knock?[3,6,2,2,4]:[3,6]);
 });

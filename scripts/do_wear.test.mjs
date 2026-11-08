@@ -54,21 +54,3 @@ test('destroy_arm forwards ordinary erosion messages through its operation',
         assert.equal(cloak.where, OBJ_DELETED,
             'the source deletion removed the cloak');
     });
-
-test('destroy_arm keeps planning erosion output on the silent operation',
-    async () => {
-        const cloak = await equippedReadyToDestroy(981111, 'DestroyArmPlanning');
-        const screenBefore = game.nhDisplay.serialize();
-        const pendingBefore = game._pending_message;
-        const random = destroyArmorRandom();
-
-        assert.equal(await destroy_arm(game, random, {
-            planning: true,
-            message: async () => {},
-        }), true);
-
-        assert.deepEqual(random.draws, [4, 2, 100]);
-        assert.equal(cloak.where, OBJ_DELETED);
-        assert.equal(game.nhDisplay.serialize(), screenBefore);
-        assert.equal(game._pending_message, pendingBefore);
-    });

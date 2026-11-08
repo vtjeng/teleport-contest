@@ -4,7 +4,7 @@ import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace
 import assert from 'node:assert/strict';import test from 'node:test';
 import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {newMonster,place_monster} from '../js/monst.js';import {PM_KOBOLD_SHAMAN,PM_HUMAN,AD_CLRC,AD_SPEL,AT_MAGC} from '../js/monsters.js';
-import {castmu} from '../js/mcastu.js';import {planningState} from '../js/unported_monster_actions.js';
+import {castmu} from '../js/mcastu.js';
 import {ROOM,HALLUC,HALLUC_RES,CONFUSION,STUNNED,ANTIMAGIC,FREE_ACTION,HALF_SPDAM,NOT_HUNGRY,FAINTED,STRAT_WAITFORU,A_STR} from '../js/const.js';
 import {light_globals_init} from '../js/light.js';import {vision_reset,vision_recalc,init_vision_globals} from '../js/vision.js';
 const cases=[
@@ -35,16 +35,13 @@ for(const c of cases)for(const awareness of ['awake','paralyzed','sleeping','fai
  game.u.uprops[CONFUSION].intrinsic=c.old??0;game.u.uprops[STUNNED].intrinsic=c.oldStun??0;
  game.multi=awareness==='awake'?0:-4;game.u.usleep=awareness==='sleeping'?1:0;game.u.uhs=awareness==='fainted'?FAINTED:NOT_HUNGRY;game.u.uhunger=awareness==='fainted'?-10:900;game.nomovemsg=awareness==='sleeping'?'You wake up.':null;
  light_globals_init(game);init_vision_globals();vision_reset(game);vision_recalc(0);
- const outcomes=[];
- for(const planning of [true,false]){
   game.multi=awareness==='awake'?0:-4;game.u.usleep=awareness==='sleeping'?1:0;game.u.uhs=awareness==='fainted'?FAINTED:NOT_HUNGRY;game.u.uhunger=awareness==='fainted'?-10:900;game.nomovemsg=awareness==='sleeping'?'You wake up.':null;
-  const state=planning?planningState(game):game;
-  if(planning){game.multi=awareness==='awake'?-4:0;game.u.usleep=awareness==='awake'?1:0;game.u.uhs=NOT_HUNGRY;game.u.uhunger=900;game.nomovemsg=awareness==='awake'?'You wake up.':null;}
-  const before={u:structuredClone(game.u),context:structuredClone(game.context),core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),grid:structuredClone(game.nhDisplay.grid),disp:structuredClone(game.disp),multi:game.multi,nomovemsg:game.nomovemsg,monsters:structuredClone(game.level.monlist)};
+  const state=game;
+  const before={core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),grid:structuredClone(game.nhDisplay.grid)};
   const lines=[],draws=[];let count=0,encumbrance=0;
   const random={rn2:n=>{draws.push(['rn2',n]);return count++===0?c.spell:50;},d:(n,s)=>{draws.push(['d',n,s]);return n;},rnd:n=>{draws.push(['rnd',n]);return 1;}};
   const agr=state.level.monlist,hp=state.u.uhp,str=state.u.acurr.a[A_STR];
-  const result=await castmu(agr,{aatyp:AT_MAGC,adtyp:c.cleric?AD_CLRC:AD_SPEL,damn:1,damd:6},!c.aggravate,!c.aggravate,{state,planning,random,monsterName:()=> 'The caster',losehp:async()=>{throw Error('unexpected strength-overflow HP loss');},encumberMessage:async()=>{encumbrance++;},message:async line=>lines.push(line),unsupported:r=>{throw Error(r);}});
+  const result=await castmu(agr,{aatyp:AT_MAGC,adtyp:c.cleric?AD_CLRC:AD_SPEL,damn:1,damd:6},!c.aggravate,!c.aggravate,{state,random,monsterName:()=> 'The caster',losehp:async()=>{throw Error('unexpected strength-overflow HP loss');},encumberMessage:async()=>{encumbrance++;},message:async line=>lines.push(line),unsupported:r=>{throw Error(r);}});
   assert.equal(result,1);assert.equal(encumbrance,c.weaken?1:0);assert.equal(state.u.uhp,hp);assert.equal(agr.mspec_used,2);
   const dreaming=awareness==='sleeping'||awareness==='fainted';
   if(c.suffix)assert(lines.includes(`You ${dreaming?'dream that you feel':'feel'} ${c.suffix}`),JSON.stringify(lines));
@@ -56,11 +53,6 @@ for(const c of cases)for(const awareness of ['awake','paralyzed','sleeping','fai
   if(c.aggravate)assert.equal(agr.nmon.msleeping,false);
   assert.deepEqual(draws,[['rn2',15],['rn2',150],...(c.aggravate?[]:[['d',8,6]]),...(c.weaken?[['rnd',9]]:c.curse?[['rnd',6]]:[])]);
   assert.deepEqual(game.coreCtx,before.core);assert.deepEqual(game.displayCtx,before.display);assert.deepEqual(game.nhDisplay.grid,before.grid);
-  if(planning){assert.deepEqual(game.u,before.u);assert.deepEqual(game.context,before.context);assert.deepEqual(game.disp,before.disp);assert.equal(game.multi,before.multi);assert.equal(game.nomovemsg,before.nomovemsg);assert.deepEqual(game.level.monlist,before.monsters);}
-  const u=structuredClone(state.u);if(u.uball===undefined)delete u.uball;if(u.uchain===undefined)delete u.uchain;
-  outcomes.push({lines,draws,u,disp:structuredClone(state.disp),multi:state.multi,nomovemsg:state.nomovemsg,monsters:structuredClone(state.level.monlist)});
- }
- assert.deepEqual(outcomes[0],outcomes[1]);
 });
 
 for(const name of ['normal','monochrome','before-control'])test('monster spell sensation '+name+' matches independent C',async()=>{const root=createScoringWorkspace(process.cwd(),[]);try{const c=JSON.parse(fs.readFileSync(new URL('../recordings/mcastu.c/mcast-feel-prefix-'+name+'.session.json',import.meta.url)));const r=compareSessionOutputs(c,await runJsSession(c,root));assert.equal(r.passed,true,formatReport(r));}finally{removeScoringWorkspace(root);}});

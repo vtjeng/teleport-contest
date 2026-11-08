@@ -178,7 +178,6 @@ test('see_monsters repaints a live worm head then each tail without touching dea
     };
     see_monsters(state, {
         redraw,
-        planning: true,
         newsym: inherited,
         hooks: { newsym: inherited },
     });
@@ -192,7 +191,7 @@ test('see_monsters repaints a live worm head then each tail without touching dea
         'inherited display hooks cannot override the selected repaint');
     const beforeDeferred = calls.length;
     state.gd = { defer_see_monsters: true };
-    see_monsters(state, { redraw, planning: true });
+    see_monsters(state, { redraw });
     assert.equal(calls.length, beforeDeferred,
         'gd.defer_see_monsters suppresses the whole head-and-tail repaint');
 });

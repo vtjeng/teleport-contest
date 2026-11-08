@@ -97,7 +97,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { does_block, vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
 import { canspotmon, GLYPH_INVISIBLE } from '../js/display.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -554,7 +553,7 @@ test('walk_path() follows the source Bresenham cells and rewinds on failure', as
     assert.deepEqual(destination, { x: 4, y: 3 });
 });
 
-test('hurtle_step() maps an unseen collision on the planned level only', async () => {
+test('hurtle_step() maps an unseen collision in live play', async () => {
     const sourceStart = DOTHROW_C.indexOf(
         'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
     );
@@ -597,26 +596,6 @@ test('hurtle_step() maps an unseen collision on the planned level only', async (
         const liveCell = state.level.at(x, y);
         liveCell.remembered_glyph = undefined;
         const originalDisplay = liveCell.disp_ch;
-        const planned = planningState(state);
-        const plannedMonster = planned.level.monsters[x][y];
-        assert.ok(plannedMonster);
-        assert.notStrictEqual(plannedMonster, monster);
-        assert.equal(canspotmon(plannedMonster, planned), false);
-
-        assert.equal(await hurtle_step({
-            state: planned,
-            planning: true,
-            range: HURTLE_FIXTURE_COLLISION_RANGE,
-        }, x, y), false);
-        assert.equal(
-            planned.level.at(x, y).remembered_glyph?.glyph,
-            GLYPH_INVISIBLE,
-            'the planning clone keeps C map memory for the unseen monster',
-        );
-        assert.equal(liveCell.remembered_glyph, undefined,
-            'the planning pass does not write live map memory');
-        assert.equal(liveCell.disp_ch, originalDisplay,
-            'the planning pass does not paint the live display');
 
         // The live collision message is a stop message; dismiss its More so
         // the callback can finish its source-order effects.
@@ -748,10 +727,6 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.doesNotMatch(jsHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsHurtle,
         /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
-    // C's newsym() calls go through `redraw`, which is newsym() in live play
-    // and draws nothing in a monster turn's planning pass.
-    assert.match(jsMHurtle,
-        /const redraw = env\.planning \? \(\) => \{\} : newsym;/u);
     assert.match(jsMHurtle,
         /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
     assert.match(jsMHurtle,
@@ -868,10 +843,6 @@ test('hurtle() installs source multi state and walks normalized recoil', async (
         /nomul\(-range\);[\s\S]*?gm\.multi_reason = "moving through the air";[\s\S]*?gn\.nomovemsg = "";/u);
     assert.match(cFunction,
         /endmultishot\(TRUE\);[\s\S]*?uc\.x = u\.ux;[\s\S]*?cc\.x = u\.ux \+ \(dx \* range\);[\s\S]*?walk_path\(&uc, &cc, hurtle_step,[\s\S]*?&range\)/u);
-    assert.match(DOTHROW_JS,
-        /export async function hurtle\([\s\S]*?isolateVision = null/u);
-    assert.match(DOTHROW_JS,
-        /if \(planning\) \{\s*if \(typeof arg\?\.isolateVision !== 'function'\)[\s\S]*?arg\.isolateVision\(state\);\s*\}\s*vision_recalc\(1, \{ state, redraw \}\);/u);
 
     // This fixed startup input reaches the first command boundary and gives
     // hurtle_step() the initialized global display that its C redraw uses.

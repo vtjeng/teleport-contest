@@ -7,7 +7,7 @@ import { experience } from '../js/exper.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { coreRandom, cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
+import { coreRandom, enableRngLog, getRngLog } from '../js/rng.js';
 import { add_to_minv } from '../js/invent.js';
 import {
     adj_erinys,
@@ -111,7 +111,6 @@ import {
     PM_NEWT,
     PM_OWLBEAR,
     PM_PAPER_GOLEM,
-    PM_IXOTH,
     PM_PONY,
     PM_SEWER_RAT,
     PM_QUASIT,
@@ -152,7 +151,6 @@ import { RIDE_COMMAND, loadRideDismountRecipe }
     from './run-ride-dismount.mjs';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { canspotmon } from '..//js/display.js';
 
 const MON_C = readFileSync(
@@ -1788,7 +1786,7 @@ test('ordinary corpse creation logs the canonical rnz wrapper', async () => {
     assert.equal(game.level.objects[mon.mx][mon.my].otyp, CORPSE);
 });
 
-test('corpse creation honors caller rnz and isolates a planning RNG', async () => {
+test('corpse creation honors caller rnz', async () => {
     await hero();
     const mon = spawn(PM_OWLBEAR, { mhp: 0 });
     const liveRandom = structuredClone(game.coreCtx);
@@ -1796,21 +1794,6 @@ test('corpse creation honors caller rnz and isolates a planning RNG', async () =
     await mondied(mon, game, env);
     assert.equal(env.bounds.filter((entry) => entry === 'rnz(10)').length, 1);
     assert.deepEqual(game.coreCtx, liveRandom, 'explicit family overrides defaults');
-
-    const next = spawn(PM_OWLBEAR, { mhp: 0 });
-    const planned = planningState(game);
-    const context = cloneIsaacContext(game.coreCtx);
-    const before = structuredClone(context);
-    enableRngLog();
-    await mondied(planned.level.monlist, planned, {
-        planning: true,
-        unsupported: killEnv().unsupported,
-        random: createCoreRandom(context, planned),
-    });
-    assert.notDeepEqual(context, before, 'corpse generation consumes clone draws');
-    assert.deepEqual(game.coreCtx, liveRandom, 'the live RNG remains untouched');
-    assert.deepEqual(getRngLog(), [], 'planning produces no live recorder entries');
-    assert.equal(game.level.monsters[next.mx][next.my], next);
 });
 
 // mon.c xkilled():3514-3522 and 3528-3541, the two arms whose guards read a
@@ -2183,114 +2166,6 @@ test('mondead forgets the invisible-monster marker on its square', async () => {
     assert.equal(
         game.level.at(second.mx, second.my).remembered_glyph?.glyph, before,
     );
-});
-
-// The clear rewrites map memory before m_detach() repaints the square. A
-// once-per-turn planning clone must own level.locations so mondead() can run
-// the same source operation without changing the live marker.
-test('a planned kill forgets only its clone-owned invisible marker',
-    async () => {
-    await hero();
-
-    const mon = spawn(PM_GOBLIN);
-    const { mx, my } = mon;
-    map_invisible(mx, my, game);
-    const liveLocation = game.level.at(mx, my);
-
-    const planned = planningState(game);
-    const plannedMon = planned.level.monlist;
-    const plannedLocation = planned.level.at(mx, my);
-    const beforeRandom = structuredClone(game.coreCtx);
-    assert.notStrictEqual(plannedLocation, game.level.at(mx, my));
-    assert.equal(
-        glyph_is_invisible(plannedLocation.remembered_glyph?.glyph),
-        true,
-        'the clone starts with the marker',
-    );
-    await mondead(plannedMon, planned, { ...killEnv(), planning: true });
-
-    assert.equal(
-        glyph_is_invisible(plannedLocation.remembered_glyph?.glyph),
-        false,
-        'the plan clears its own marker',
-    );
-    assert.equal(
-        glyph_is_invisible(game.level.at(mx, my).remembered_glyph?.glyph),
-        true,
-        'the live marker survives preflight',
-    );
-    assert.equal(game.level.monsters[mx][my], mon, 'live monster survives');
-    assert.equal(planned.level.monsters[mx][my], null, 'clone detaches');
-    assert.deepEqual(game.coreCtx, beforeRandom, 'marker cleanup draws nothing');
-});
-
-test('a planned dead-steed detach stops for live replay', async () => {
-    await hero();
-    const steed = spawn(PM_PONY);
-    game.u.usteed = steed;
-
-    const liveCore = structuredClone(game.coreCtx);
-    const liveLog = [...getRngLog()];
-    const planned = planningState(game);
-    const plannedSteed = planned.u.usteed;
-    let requestedOperation;
-    const boundary = new Error('planning requests live monster replay');
-
-    // mon.c m_detach() calls dismount_steed() after leaving the monster map.
-    // Its float_down()/drown() tail can print and damage the hero's inventory,
-    // so the clone must stop there for the source-ordered live scan to replay.
-    // This square has no boulder over a pit, so fill_pit() has no asynchronous
-    // floor effect and the planning boundary throws synchronously.
-    assert.throws(
-        () => m_detach(plannedSteed, plannedSteed.data, false, planned, {
-            ...killEnv(),
-            planning: true,
-            requestPlanningInput(operation) {
-                requestedOperation = operation;
-                throw boundary;
-            },
-        }),
-        (error) => error === boundary,
-    );
-
-    assert.equal(requestedOperation, 'steed.c dismount_steed');
-    assert.deepEqual(game.coreCtx, liveCore, 'preflight leaves live RNG intact');
-    assert.deepEqual(getRngLog(), liveLog, 'preflight adds no live RNG entries');
-    assert.strictEqual(game.u.usteed, steed, 'the live rider remains mounted');
-    assert.strictEqual(planned.u.usteed, plannedSteed,
-        'the planning clone stops before generic dismount side effects');
-});
-
-test('a planned nemesis death stops for live replay', async () => {
-    await hero();
-    const nemesis = spawn(PM_IXOTH);
-    const liveCore = structuredClone(game.coreCtx);
-    const liveLog = [...getRngLog()];
-    const planned = planningState(game);
-    const plannedNemesis = m_at(nemesis.mx, nemesis.my, planned);
-    let requestedOperation;
-    const boundary = new Error('planning requests live monster replay');
-
-    // mon.c m_detach():2769-2773 calls quest.c nemdead(), whose pager waits
-    // for a key in a text window, so the clone must stop before it.
-    await assert.rejects(
-        async () => m_detach(plannedNemesis, plannedNemesis.data, true,
-            planned, {
-                ...killEnv(),
-                planning: true,
-                requestPlanningInput(operation) {
-                    requestedOperation = operation;
-                    throw boundary;
-                },
-            }),
-        (error) => error === boundary,
-    );
-
-    assert.equal(requestedOperation, 'quest.c nemdead');
-    assert.deepEqual(game.coreCtx, liveCore, 'preflight leaves live RNG intact');
-    assert.deepEqual(getRngLog(), liveLog, 'preflight adds no live RNG entries');
-    assert.equal(game.svq.quest_status.killed_nemesis ?? false, false,
-        'the live quest state is untouched');
 });
 
 // mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()

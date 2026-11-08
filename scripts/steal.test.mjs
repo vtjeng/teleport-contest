@@ -86,7 +86,7 @@ const STEAL_C = readFileSync(
 
 test('worn armor removal preserves the environment for petrifying protection loss', () => {
     // steal.c remove_worn_item calls the armor callbacks at the same point;
-    // their async JS adapters also need the existing planning/message seams.
+    // their async JS adapters also need the existing message seams.
     const source = readFileSync(new URL('../js/steal.js', import.meta.url), 'utf8');
     const removal = source.slice(source.indexOf('export async function remove_worn_item('),
         source.indexOf('// C ref:', source.indexOf('export async function remove_worn_item(') + 1));
@@ -96,7 +96,7 @@ test('worn armor removal preserves the environment for petrifying protection los
     assert.match(removal, /await Gloves_off\(state, env\)/u);
 });
 
-test('worn blindfold removal keeps its source-ordered planning message callback',
+test('worn blindfold removal keeps its source-ordered message callback',
     async () => {
         const source = readFileSync(
             new URL('../js/steal.js', import.meta.url), 'utf8',
@@ -124,16 +124,15 @@ test('worn blindfold removal keeps its source-ordered planning message callback'
             owornmask: W_TOOL,
         });
         gameState.ublindf = blindfold;
-        let plannedMessageCalls = 0;
+        let messageCalls = 0;
 
         await remove_worn_item(blindfold, true, gameState, {
-            planning: true,
-            message: async () => { plannedMessageCalls += 1; },
+            message: async () => { messageCalls += 1; },
         });
 
-        // The planning adapter supplied by mattacku is silent; losing it here
-        // would let Blindf_off() write through ttyPline() into this display.
-        assert.equal(plannedMessageCalls, 1);
+        // Losing the caller's message operation here would let Blindf_off()
+        // write through ttyPline() into this display.
+        assert.equal(messageCalls, 1);
         assert.equal(gameState._pending_message, undefined);
         assert.equal(gameState.nhDisplay.grid[0][0].ch, ' ');
     });

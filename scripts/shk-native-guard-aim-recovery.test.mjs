@@ -45,8 +45,8 @@ async function setup(carryPick) {
     return keeper;
 }
 
-for (const invisible of [true, false]) for (const planning of [true, false]) {
-    test(`native peaceful guard invisible=${invisible} planning=${planning}`, async () => {
+for (const invisible of [true, false]) {
+    test(`native peaceful guard invisible=${invisible}`, async () => {
         const keeper = await setup(false);
         // Discard the completed startup message before the potion announcement.
         game._pending_message = ''; game._ttyToplines = '';
@@ -54,7 +54,7 @@ for (const invisible of [true, false]) for (const planning of [true, false]) {
         if (invisible) await peffects(mksobj(POT_INVISIBILITY, false, false, {state: game}), game);
         assert.equal(Boolean(game.u.uprops[INVIS].intrinsic), invisible);
         assert.ok(keeper.mpeaceful);
-        const result = await shk_move(keeper, game, {planning});
+        const result = await shk_move(keeper, game, {});
         assert.equal(result, invisible ? 1 : 0);
         assert.equal(keeper.mx, invisible ? 3 : 4);
     });

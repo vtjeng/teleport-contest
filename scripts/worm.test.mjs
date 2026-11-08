@@ -229,31 +229,24 @@ test('create_worm_tail makes num_segs plus one zeroed linked-list nodes', () => 
 });
 
 // worm.c save_worm() clears every wheads[]/wtails[]/wgrowtime[] slot when a
-// level is freed, so a freshly made level has all MAX_NUM_WORMS slots empty.
-// js/unported_monster_actions.js planningState() copies `level.worms` when it
-// clones the level; a level that lacked the array handed the clone an
-// undefined slot table, and the first long worm made during a planned turn
-// (mon.c newcham() 5451-5453 or makemon()) refused there.
-test('a new GameMap level owns empty worm slots that a level clone keeps', () => {
+// level is freed, so a freshly made level has all MAX_NUM_WORMS slots empty,
+// ready for the first long worm made on it (mon.c newcham() 5451-5453 or
+// makemon()).
+test('a new GameMap level owns empty worm slots that initworm fills', () => {
     const level = new GameMap();
     assert.ok(Object.hasOwn(level, 'worms'));
     assert.deepEqual(level.worms, Array(MAX_NUM_WORMS).fill(null));
 
-    // The same own-property copy planningState() makes.
-    const clone = Object.assign(Object.create(GameMap.prototype), level, {
-        worms: level.worms.map((record) => record),
-    });
-    const state = { level: clone };
+    const state = { level };
     // Slot 0 is reserved, so get_wormno() hands out slot 1 first.
     assert.equal(get_wormno(state), 1);
     // rn2(5) may answer 0 segments; the list then holds only the hidden head
     // node at the worm's own square, here (4, 5).
     initworm({ wormno: 1, mx: 4, my: 5 }, 0, { state });
-    assert.deepEqual(clone.worms[1], {
+    assert.deepEqual(level.worms[1], {
         segments: [{ x: 4, y: 5 }],
         growtime: 0,
     });
-    assert.equal(level.worms[1], null, 'the clone owns its own slot table');
 });
 
 test('initworm owns its default and injected level state and resets its clock',
@@ -277,26 +270,26 @@ test('initworm owns its default and injected level state and resets its clock',
         else game.level = originalLevel;
     }
 
-    const planning = wormState();
-    const cloneWorm = { wormno: 1, mx: 8, my: 9 };
-    initworm(cloneWorm, 1, { state: planning, planning: true });
-    const segments = planning.level.worms[1].segments;
+    const injected = wormState();
+    const injectedWorm = { wormno: 1, mx: 8, my: 9 };
+    initworm(injectedWorm, 1, { state: injected });
+    const segments = injected.level.worms[1].segments;
     segments[0] = { x: 7, y: 9 };
     segments[1] = { x: 8, y: 9 };
-    planning.level.monsters[7][9] = cloneWorm;
+    injected.level.monsters[7][9] = injectedWorm;
     const redraws = [];
 
-    remove_worm(cloneWorm, {
-        state: planning,
-        planning: true,
+    remove_worm(injectedWorm, {
+        state: injected,
         newsym: (x, y) => redraws.push([x, y]),
     });
 
     assert.deepEqual(segments.map(({ x }) => x), [0, 0]);
-    assert.equal(planning.level.monsters[7][9], null);
-    assert.deepEqual(redraws, []);
+    assert.equal(injected.level.monsters[7][9], null);
+    // worm.c remove_worm() 719-722 calls newsym() for each on-map segment.
+    assert.deepEqual(redraws, [[7, 9], [8, 9]]);
     assert.equal(game.level, originalLevel,
-        'planning cleanup does not take ownership of the live level');
+        'injected-state cleanup does not take ownership of the live level');
 });
 
 test('wseg_at counts from the hidden head toward the tail only on worm occupancy', () => {

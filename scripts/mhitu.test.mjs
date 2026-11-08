@@ -5,9 +5,6 @@ import test from 'node:test';
 import {
     A_STR,
     BEAR_TRAP,
-    BURNING,
-    UNCHANGING,
-    DIED,
     BLINDED,
     HALLUC,
     COLD_RES,
@@ -38,13 +35,11 @@ import {
     REFLECTING,
     PROT_FROM_SHAPE_CHANGERS,
     FROMOUTSIDE,
-    ROOM,
     RIGHT_SIDE,
     SHOCK_RES,
     SPIKED_PIT,
     STRAT_WAITFORU,
     STUNNED,
-    STONE,
     SICK,
     TIMEOUT,
     TT_PIT,
@@ -68,7 +63,7 @@ import {
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
-import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
+import { near_capacity, weight_cap } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
@@ -82,7 +77,6 @@ import {
     mattacku,
     mdamageu,
     mpoisons_subj,
-    MonsterDeathPlanningError,
     mswings_verb,
     mtrapped_in_pit,
     Protection_from_shape_changers,
@@ -214,7 +208,6 @@ import {
     mhitm_ad_phys,
 } from '../js/uhitm.js';
 import {
-    planningState,
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
@@ -1067,49 +1060,15 @@ function physHitBounds(toHitBound, damn, damd) {
     return [`rnd(${toHitBound})`, `d(${damn},${damd})`, 'rn2(3)', 'rn2(6)'];
 }
 
-test('mattacku keeps planned theft callbacks silent', async () => {
-    // mhitu.c:mattacku() hands the AD_SEDU hit to uhitm.c:mhitm_ad_sedu(),
-    // which reaches steal.c:steal(). Planning replays that complete path on
-    // a clone, so both the ordinary worn-item line and urgent theft line must
-    // be suppressed even when callers provide output callbacks.
-    const state = await meleeHero();
-    state.level.flags.noteleport = true;
-    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, 0, {
-        female: true,
-    });
-    const planned = meleeEnv(state, [1], {
-        planning: true,
-        rn2: bound => bound === 9 ? 0 : 1,
-        message: async text => planned.lines.push(text),
-        urgentMessage: async text => planned.urgent.push(text),
-    });
-    planned.urgent = [];
-    const weapon = state.uwep;
-    assert.ok(weapon);
-    assert.equal(await mattacku(nymph, planned.env), false);
-    assert.deepEqual(planned.lines, []);
-    assert.deepEqual(planned.urgent, []);
-    assert.deepEqual(planned.bounds, [
-        'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
-    ]);
-    assert.equal(
-        planned.bounds.filter(bound => bound === 'rn2(9)').length,
-        1,
-    );
-    assert.equal(state.uwep, null);
-    assert.equal(nymph.minvent, weapon);
-});
-
-test('planned hallucinated restriction uses display RNG without leaking gameplay RNG',
+test('hallucinated restriction uses display RNG without leaking gameplay RNG',
     async () => {
     // do_name.c:rndmonnam() uses the display stream for each hallucinated
     // name: steal.c:365 steal()'s Some_Monnam(), steal.c:329
     // worn_item_removal()'s Some_Monnam() for the wielded spear, and
     // teleport.c tele_restrict()'s blocked message. Each name draws a species
     // (SPECIAL_PM + BOGUSMONSIZE - LOW_PM) and then pmname()'s gender (2).
-    // Passing the full attack env keeps planning's display clone on that
-    // stream and leaves its gameplay draws in the source order mattacku()
-    // established.
+    // Passing the full attack env keeps those names on that stream and
+    // leaves the gameplay draws in the source order mattacku() established.
     const state = await meleeHero();
     state.level.flags.noteleport = true;
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -1117,27 +1076,22 @@ test('planned hallucinated restriction uses display RNG without leaking gameplay
         female: true,
     });
     const displayBounds = [];
-    const planned = meleeEnv(state, [1], {
-        planning: true,
+    const attack = meleeEnv(state, [1], {
         rn2: bound => bound === 9 ? 0 : 1,
         displayRandom: bound => {
             displayBounds.push(bound);
             return 0;
         },
-        message: async text => planned.lines.push(text),
-        urgentMessage: async text => planned.urgent.push(text),
+        urgentMessage: async () => {},
     });
-    planned.urgent = [];
 
-    assert.equal(await mattacku(nymph, planned.env), false);
-    assert.deepEqual(planned.lines, []);
-    assert.deepEqual(planned.urgent, []);
+    assert.equal(await mattacku(nymph, attack.env), false);
     assert.deepEqual(displayBounds, [
         SPECIAL_PM + 100 - LOW_PM, 2, // steal() Monnambuf
         SPECIAL_PM + 100 - LOW_PM, 2, // worn_item_removal()
         SPECIAL_PM + 100 - LOW_PM, 2, // tele_restrict()
     ]);
-    assert.deepEqual(planned.bounds, [
+    assert.deepEqual(attack.bounds, [
         'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
     ]);
 });
@@ -1350,7 +1304,7 @@ test('gulpmu wires the source engulfed dismount with its random owner', () => {
 
     const jsStart = MHITU_JS.indexOf('if (u.usteed) {',
         MHITU_JS.indexOf('async function gulpmu('));
-    const jsEnd = MHITU_JS.indexOf('} else if (rawEnv.planning)', jsStart);
+    const jsEnd = MHITU_JS.indexOf('} else', jsStart);
     const jsBranch = MHITU_JS.slice(jsStart, jsEnd);
     assert.ok(jsStart >= 0 && jsEnd > jsStart,
         'JS gulpmu must contain the mounted-engulfer branch');
@@ -1693,12 +1647,11 @@ test('mattacku reveals a sticky mimic and binds the discovering monster', async 
     assert.deepEqual(result.bounds, []);
 });
 
-test('mattacku object-disguise recovery mutates only its planning clone', async () => {
+test('mattacku object-disguise recovery clears the impersonation', async () => {
     // mhitu.c:682–706 calls unmul, whose eatmdone callback clears the disguise.
     const { M_AP_OBJECT, M_AP_NOTHING } = await import('../js/const.js');
     const { GOLD_PIECE } = await import('../js/objects.js');
     const { eatmdone } = await import('../js/eat.js');
-    const { planningState } = await import('../js/unported_monster_actions.js');
     const state = await meleeHero();
     state.youmonst.m_ap_type = M_AP_OBJECT;
     state.youmonst.mappearance = GOLD_PIECE;
@@ -1707,21 +1660,12 @@ test('mattacku object-disguise recovery mutates only its planning clone', async 
     state.nomovemsg = state.eatmbuf;
     state.afternmv = eatmdone;
     const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
-    const clone = planningState(state);
-    const attempt = meleeEnv(clone, [], {
-        planning: true,
-        redraw: () => assert.fail('a planned recovery must not redraw'),
-    });
-    assert.equal(await mattacku(clone.level.monlist, attempt.env), false);
-    assert.equal(clone.multi, 0);
-    assert.equal(clone.afternmv, null);
-    assert.equal(clone.eatmbuf, null);
-    assert.equal(clone.youmonst.m_ap_type, M_AP_NOTHING);
-    assert.deepEqual(attempt.lines, []);
-    assert.equal(state.multi, -5);
-    assert.equal(state.afternmv, eatmdone);
-    assert.equal(state.youmonst.m_ap_type, M_AP_OBJECT);
-    assert.equal(state.eatmbuf, 'You appear to be yourself again.');
+    const attempt = meleeEnv(state, []);
+    assert.equal(await mattacku(rat, attempt.env), false);
+    assert.equal(state.multi, 0);
+    assert.equal(state.afternmv, null);
+    assert.equal(state.eatmbuf, null);
+    assert.equal(state.youmonst.m_ap_type, M_AP_NOTHING);
     assert.equal(rat.mhp, 10, 'discovery did not make an ordinary attack');
 });
 
@@ -2516,21 +2460,6 @@ test('mattacku reveals striking eels and names a seen invisible miss', async () 
     assert.equal(eel.minvis, false);
     assert.deepEqual(painted, [[eel.mx, eel.my]]);
 
-    // The same site under a planning clone. js/unported_monster_actions.js
-    // replays every monster turn twice, once against the clone and then live,
-    // so mattacku() binds newsym() to a no-op while env.planning is set; an
-    // ungated call would repaint each striking eel's square twice. This is
-    // the only newsym() mattacku() reaches, and the clone is where the
-    // suppression has to hold, so the same fixture runs again with the flag
-    // on. Clearing minvis is state rather than display, and still happens.
-    eel.minvis = true;
-    const planned = meleeEnv(state, [20, 21], {
-        planning: true,
-        redraw: () => assert.fail('a planned reveal repaints nothing'),
-    });
-    assert.equal(await mattacku(eel, planned.env), false);
-    assert.equal(eel.minvis, false);
-
     // A visible eel has nothing to reveal, and neither has an invisible
     // non-eel: both terms are needed.
     const rat = meleeAttacker(state, PM_SEWER_RAT, -1, 0,
@@ -2706,68 +2635,6 @@ test('getmattk separates the two damage types its holder guard names',
     assert.equal(vortexSub.damd, 6);
 });
 
-test('planned expulsion keeps terrain transition output off the live stream',
-    async () => {
-    // mhitu.c:302-306 calls spoteffects() after relocation.  The planning
-    // clone must replay that input-capable arrival live, without writing
-    // terrain or floor-observation output while planning the release.
-    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
-    const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
-        m_lev: 5,
-        mhp: 20,
-        mhpmax: 20,
-    });
-    const current = state.level.at(state.u.ux, state.u.uy);
-    const previous = state.level.at(state.u.ux - 1, state.u.uy);
-    assert.ok(current);
-    assert.ok(previous);
-    current.typ = STONE;
-    previous.typ = ROOM;
-    state.iflags.terrain_typ = ROOM;
-    state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    state.u.uswallow = 1;
-    state.u.ustuck = vortex;
-    state.u.uswldtim = 0;
-
-    const planned = meleeEnv(state, []);
-    const liveMessage = state.nhDisplay.topMessage;
-    const plannedPainted = [];
-    const boundary = new Error('arrival replay');
-    let operation;
-    await assert.rejects(() => expels(vortex, {
-        ...planned.env,
-        planning: true,
-        requestPlanningInput: name => { operation = name; throw boundary; },
-        newsym: (x, y) => plannedPainted.push([x, y]),
-    }), error => error === boundary);
-    assert.equal(operation, 'hack.c spoteffects');
-    assert.deepEqual(planned.lines, []);
-    assert.deepEqual(plannedPainted, []);
-    assert.equal(state.nhDisplay.topMessage, liveMessage);
-
-    // Keep the same planning display seam on a direct terrain transition as
-    // the expels() caller does. The release prefix completed before its
-    // arrival handoff; a direct non-pickup call still proves the state transition
-    // still occurs while its message remains suppressed.
-    state.u.ux0 = state.u.ux - 1;
-    state.u.uy0 = state.u.uy;
-    const postExpelCurrent = state.level.at(state.u.ux, state.u.uy);
-    const postExpelPrevious = state.level.at(state.u.ux0, state.u.uy0);
-    assert.ok(postExpelCurrent);
-    assert.ok(postExpelPrevious);
-    postExpelCurrent.typ = STONE;
-    postExpelPrevious.typ = ROOM;
-    state.iflags.terrain_typ = ROOM;
-    state.u.uprops[FLYING].blocked = 0;
-    await spoteffects(false, state, {
-        planning: true,
-        message: async text => planned.lines.push(text),
-    });
-    assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
-    assert.deepEqual(planned.lines, []);
-    assert.equal(state.nhDisplay.topMessage, liveMessage);
-});
-
 test('expels TRUE formats the C message arm before its shared release transition',
     async () => {
     const cases = [
@@ -2796,16 +2663,14 @@ test('expels TRUE formats the C message arm before its shared release transition
         state.u.ustuck = monster;
         state.u.uswldtim = 2;
         const output = meleeEnv(state, []);
+        // The live release redraws through docrt(), which dismisses any
+        // pending message with a key; spaces answer each prompt.
+        for (let i = 0; i < 10; i++) state.nhDisplay.pushKey(32);
 
-        const boundary = new Error('arrival replay');
-        let operation;
-        await assert.rejects(() => expels(monster, {
+        await expels(monster, {
             ...output.env,
             expulsionMessage: true,
-            planning: true,
-            requestPlanningInput: name => { operation = name; throw boundary; },
-        }), error => error === boundary);
-        assert.equal(operation, 'hack.c spoteffects');
+        });
 
         if (expected instanceof RegExp)
             assert.match(output.lines[0], expected, `PM ${pmidx}`);
@@ -2894,11 +2759,10 @@ test('mdamageu updates the ordinary hit-point pool and caps it after showing dam
     assert.deepEqual(noDamage.lines, []);
 });
 
-test('mdamageu uses the polymorphed hit-point pool and stops before live rehumanize in planning',
+test('mdamageu uses the polymorphed hit-point pool',
     async () => {
     // mhitu.c:1910-1917. Upolyd selects u.mh/mhmax, leaving normal hit
-    // points untouched; a planning clone stops at the source lethal boundary
-    // instead of calling the input-bearing rehumanize() operation.
+    // points untouched.
     const state = heroState({ mnum: PM_RUST_MONSTER });
     state.u.umonster = PM_HUMAN;
     state.u.umonnum = PM_RUST_MONSTER;
@@ -2920,21 +2784,6 @@ test('mdamageu uses the polymorphed hit-point pool and stops before live rehuman
     await mdamageu({ m_id: 6102 }, 1, state, capped.env);
     assert.equal(state.u.mh, 10);
     assert.deepEqual(capped.lines, ['[HP -1, 11 left]']);
-
-    state.u.mh = 1;
-    const lethal = meleeEnv(state, [], { planning: true });
-    await assert.rejects(
-        () => mdamageu({ m_id: 6102 }, 1, state, {
-            ...lethal.env,
-            planning: true,
-        }),
-        (error) => error instanceof MonsterDeathPlanningError
-            && error.monsterId === 6102,
-    );
-    assert.equal(state.u.mh, 0);
-    assert.equal(state.u.uhp, 23);
-    assert.equal(state.u.umonnum, PM_RUST_MONSTER);
-    assert.deepEqual(lethal.lines, ['[HP -1, 0 left]']);
 });
 
 // hitmsg() reads a monster, an attack record and the two gh fields; the env
@@ -3590,15 +3439,14 @@ test('mhitm_ad_legs preserves all three source arms and guard order', async () =
         ['The goblin scratches your right boot!']);
     assert.equal(scratch.damage, 0);
 
-    // planningState() owns the wounded-legs and attribute records.  Start a
-    // fresh, previously unwounded clone with inventory just below the next
-    // uninjured half-capacity threshold.  The first leg wound subtracts 100
-    // capacity and therefore crosses that burden threshold, exercising the
-    // injected encumber_msg() seam without writing the live terminal.
+    // Start a fresh, previously unwounded hero with inventory just below the
+    // next uninjured half-capacity threshold.  The first leg wound subtracts
+    // 100 capacity and therefore crosses that burden threshold, exercising
+    // the encumber_msg() message through the injected message operation.
     const burdenState = await meleeHero();
     const burdenGoblin = meleeAttacker(burdenState, PM_GOBLIN, -1, 0);
     const uninjuredCapacity = weight_cap(burdenState);
-    // Keep the uninjured clone slightly encumbered, then make the 100-unit
+    // Keep the uninjured hero slightly encumbered, then make the 100-unit
     // wounded-leg reduction cross C's next half-capacity threshold.
     burdenState.invent = {
         owt: uninjuredCapacity + Math.floor(uninjuredCapacity / 2) - 1,
@@ -3611,42 +3459,23 @@ test('mhitm_ad_legs preserves all three source arms and guard order', async () =
     assert.equal(burdenState.u.uprops[WOUNDED_LEGS].intrinsic, 0);
     assert.equal(burdenState.u.uprops[WOUNDED_LEGS].extrinsic, 0);
     assert.equal(near_capacity(burdenState), 1);
-    const liveDex = burdenState.u.atemp[3];
-    const liveWounded = {
-        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
-        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
-    };
-    const liveTopline = burdenState._ttyToplines ?? '';
-    const liveBotl = burdenState.disp?.botl;
-    const plannedState = planningState(burdenState);
-    let plannedGoblin = plannedState.level.monlist;
-    while (plannedGoblin && plannedGoblin.m_id !== burdenGoblin.m_id)
-        plannedGoblin = plannedGoblin.nmon;
-    assert.ok(plannedGoblin);
-    const plannedLines = [];
-    const planned = meleeEnv(plannedState, [7], {
-        planning: true,
-        message: async (text) => { plannedLines.push(text); },
+    const startDex = burdenState.u.atemp[3];
+    const burdenLines = [];
+    const burden = meleeEnv(burdenState, [7], {
+        message: async (text) => { burdenLines.push(text); },
     });
     await mhitm_ad_legs(
-        plannedGoblin,
+        burdenGoblin,
         attack,
-        plannedState.youmonst,
+        burdenState.youmonst,
         physMhm(5),
-        plannedState,
-        planned.env,
+        burdenState,
+        burden.env,
     );
-    assert.equal(burdenState.u.atemp[3], liveDex);
-    assert.deepEqual({
-        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
-        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
-    }, liveWounded);
-    assert.equal(burdenState._ttyToplines ?? '', liveTopline);
-    assert.equal(burdenState.disp?.botl, liveBotl);
-    assert.equal(plannedState.u.atemp[3], liveDex - 1);
-    assert.equal(plannedState.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
-    assert.equal(near_capacity(plannedState), 2);
-    assert.deepEqual(plannedLines, [
+    assert.equal(burdenState.u.atemp[3], startDex - 1);
+    assert.equal(burdenState.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
+    assert.equal(near_capacity(burdenState), 2);
+    assert.deepEqual(burdenLines, [
         'The goblin pricks your right leg!',
         'You rebalance your load.  Movement is difficult.',
     ]);
@@ -4080,25 +3909,16 @@ test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
     assert.equal(elsewhere.damage, 9);
 });
 
-test('mdamageu stops at the hero\'s death and not one hit point above it',
+test('mdamageu and hitmu keep a hero at one hit point alive',
     async () => {
-    // mhitu.c:1922-1925. done_in_by() sets up the killer and calls done();
-    // done() calls bot() on the module-level game and paranoid_query() reads
-    // input, so it cannot run on the planning pass's clone. The planning pass
-    // raises its internal death signal here, carrying the attacker identity.
+    // mhitu.c:1922-1925. A blow that leaves the hero at one hit point does
+    // not reach done_in_by().
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
     state.u.uhp = 2;
-    const survived = meleeEnv(state, [1], { planning: true });
+    const survived = meleeEnv(state, [1]);
     assert.equal(await mattacku(bug, survived.env), false);
     assert.equal(state.u.uhp, 1);
-
-    await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
-        (error) => error instanceof MonsterDeathPlanningError
-            && error.message === 'the hero dying of a monster attack'
-            && error.monsterId === bug.m_id,
-    );
 
     // mhitu.c:1199-1202 asks the same question before the blow lands, and one
     // hit point is above its boundary too: a thwarted bite leaves the hero
@@ -4111,29 +3931,6 @@ test('mdamageu stops at the hero\'s death and not one hit point above it',
     assert.deepEqual(spared.lines, ['The grid bug bites!', 'You avoid harm.']);
     assert.equal(state.u.uhp, 1);
     state.invent = state.invent.nobj;
-});
-
-test('planning pass stops at a lethal blow for the live death handler',
-    async () => {
-    // When a planned monster blow drops u.uhp below one, the live turn must
-    // enter end.c done_in_by()/done() with the actual terminal and input
-    // state. A clone cannot run that asynchronous death handler or simulate
-    // its life-saving query, so it stops at the source death boundary.
-    //
-    // C ref: mhitu.c mdamageu():1902-1927 and end.c done_in_by().
-    const state = await meleeHero();
-    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
-    state.u.uhp = 1;
-    state.wizard = true;
-    state.u.uhp = 1;
-    await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
-        (error) => error instanceof MonsterDeathPlanningError
-            && error.message === 'the hero dying of a monster attack'
-            && error.monsterId === bug.m_id,
-    );
-    assert.equal(state.u.uhp, 0);
-    assert.equal(state.u.umortality ?? 0, 0);
 });
 
 test('a thwarted bite leaves the status line alone and a landed one marks it',
@@ -4721,7 +4518,7 @@ test('elemental explmu calls the canonical explosion after its first damage roll
         const radius = emits_light(sphere.data);
         if (radius) new_light_source(sphere.mx, sphere.my, radius, LS_MONSTER, sphere, state);
         const attack = sphere.data.mattk[0];
-        const result = meleeEnv(state, [], { planning: true });
+        const result = meleeEnv(state, []);
         assert.equal(await explmu(sphere, attack, true, result.env), M_ATTK_AGR_DIED);
         assert.deepEqual(result.bounds.slice(0, 2), [
             'd(4,6)', 'd(4,6)', // monst.c gives each elemental sphere a 4d6 AT_EXPL attack.
@@ -4731,35 +4528,6 @@ test('elemental explmu calls the canonical explosion after its first damage roll
         assert.equal(state.u.uhp, 196); // The injected source lower-bound d(4,6) result is 4.
         assert.ok(result.lines.includes('Boom!'));
         assert.equal(state.killer.name, ''); // mon_explodes clears its temporary killer on return.
-    }
-});
-
-// A lethal clone must hand off before end.c:done paints the shared terminal
-// or reads input. Its signal preserves the attacker and the source death kind.
-test('elemental explosion planning preserves attacker and fire death reason', async () => {
-    for (const [species, how] of [[PM_FLAMING_SPHERE, BURNING], [PM_FREEZING_SPHERE, DIED]]) {
-        const state = await meleeHero(MELEE_DATETIME, 'Wizard'); // Wizard has no starting elemental resistance.
-        state.invent = null;
-        for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
-        state.context.mon_moving = true;
-        state.u.uhp = 1; // The canonical sphere minimum damage of 4 is lethal.
-        const sphere = meleeAttacker(state, species, 1, 0);
-        const radius = emits_light(sphere.data);
-        if (radius) new_light_source(sphere.mx, sphere.my, radius, LS_MONSTER, sphere, state);
-        const planned = planningState(state);
-        const plannedSphere = planned.level.monsters[sphere.mx][sphere.my];
-        const screen = state.nhDisplay.serialize();
-        const priorRead = state.nhDisplay.readKey;
-        state.nhDisplay.readKey = () => { throw new Error('planning read live input'); };
-        try {
-            await assert.rejects(() => explmu(plannedSphere, plannedSphere.data.mattk[0], true,
-                meleeEnv(planned, [], { planning: true }).env),
-                error => error instanceof MonsterDeathPlanningError
-                    && error.monsterId === sphere.m_id && error.how === how);
-        } finally { state.nhDisplay.readKey = priorRead; }
-        assert.equal(state.u.uhp, 1);
-        assert.equal(sphere.mhp, 10); // Only the planned attacker is detached.
-        assert.equal(state.nhDisplay.serialize(), screen);
     }
 });
 
@@ -4805,7 +4573,7 @@ test('elemental explmu keeps cancellation and unfound-target source order', asyn
     state.u.uhp = state.u.uhpmax = 200; // Survive the source four-die sphere blast.
     const sphere = meleeAttacker(state, PM_FLAMING_SPHERE, 1, 0, { mcan: true });
     new_light_source(sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, state);
-    const result = meleeEnv(state, [], { planning: true });
+    const result = meleeEnv(state, []);
     assert.equal(await explmu(sphere, sphere.data.mattk[0], false, result.env), M_ATTK_MISS);
     assert.deepEqual(result.bounds, []);
     assert.deepEqual(result.lines, []);
@@ -4814,31 +4582,6 @@ test('elemental explmu keeps cancellation and unfound-target source order', asyn
     assert.equal(await explmu(sphere, sphere.data.mattk[0], false, result.env), M_ATTK_AGR_DIED);
     assert.ok(result.lines[0].includes('explodes at a spot in thin air!'));
     assert.equal(state.u.uhp, 196); // Location, rather than ufound, controls actual blast damage.
-});
-
-// C explode.c calls rehumanize before its ordinary done arm. polyself.c's
-// fatal unchanging reversion requires the same clone death handoff.
-test('elemental planning forwards the fatal form-reversion environment', async () => {
-    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
-    state.invent = null;
-    for (const slot of ['uwep', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
-    state.context.mon_moving = true;
-    state.u.umonnum = PM_GRID_BUG; // A polymorphed form without fire resistance.
-    state.youmonst.data = state.mons[PM_GRID_BUG];
-    state.u.mh = 1; state.u.mhmax = 10; // The minimum sphere blast kills the form.
-    state.u.uprops[UNCHANGING].intrinsic = 1; // Source prevents reversion and reaches DIED.
-    const sphere = meleeAttacker(state, PM_FLAMING_SPHERE, 1, 0);
-    new_light_source(sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, state);
-    const planned = planningState(state);
-    const plannedSphere = planned.level.monsters[sphere.mx][sphere.my];
-    const screen = state.nhDisplay.serialize();
-    await assert.rejects(explmu(plannedSphere, plannedSphere.data.mattk[0], true,
-        meleeEnv(planned, [], { planning: true }).env),
-        error => error instanceof MonsterDeathPlanningError
-            && error.monsterId === sphere.m_id && error.how === DIED);
-    assert.equal(state.u.mh, 1);
-    assert.equal(sphere.mhp, 10);
-    assert.equal(state.nhDisplay.serialize(), screen);
 });
 
 test('mattacku keeps the C attack-roll variable outside the slot loop', () => {

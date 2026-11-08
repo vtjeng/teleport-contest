@@ -28,7 +28,6 @@ import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { STATUE } from '../js/objects.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { planningState } from '../js/unported_monster_actions.js';
 
 const DATETIME = '20260214031500';
 const RC = [
@@ -173,26 +172,24 @@ test('monstone preserves an explicit random provider for statue creation',
         assert.ok(golem.mstate & MON_DETACH);
     });
 
-test('planned vamp_stone uses the clone redraw seam', async () => {
+test('vamp_stone repaints the reverted vampire through the caller redraw seam', async () => {
     await hero(7710045);
     const shifted = placeFixture(fixture(PM_JACKAL, {
         cham: PM_VAMPIRE,
         mhp: 8,
         mhpmax: 8,
     }));
-    const planned = planningState(game);
-    const plannedShifted = planned.level.monsters[shifted.mx][shifted.my];
     const redraws = [];
-    await vamp_stone(plannedShifted, planned, {
-        state: planned,
-        planning: true,
+    // vamp_stone() shows the lapidifying message with display_nhwindow(),
+    // which waits for a key on the live game.
+    for (let i = 0; i < 10; i++) game.nhDisplay.pushKey(32);
+    await vamp_stone(shifted, game, {
+        state: game,
         message: async () => {},
         redraw: (x, y) => redraws.push([x, y]),
     });
     assert.deepEqual(redraws, [[shifted.mx, shifted.my]]);
-    assert.equal(shifted.data, game.mons[PM_JACKAL]);
-    assert.equal(shifted.cham, PM_VAMPIRE);
-    assert.equal(plannedShifted.data, game.mons[PM_VAMPIRE]);
+    assert.equal(shifted.data, game.mons[PM_VAMPIRE]);
 });
 
 test('m_into_limbo records limbo migration destination and source map state',

@@ -607,16 +607,16 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
     });
 
-test('castmu curses clone inventory through the planning environment', async () => {
+test('castmu curses the supplied state inventory', async () => {
     // mcastu.c:831-835. Spell level10 selects curse items; the level11
     // caster passes its fumble gate99, then the curse selects the sole item.
     const random = scriptedRandom([10, 99], 6, 1);
     const item = newObject({ otyp: DAGGER, oclass: WEAPON_CLASS, quan: 1 });
     const state = makeState({ invent: item });
     const result = await castmu(makeCaster({ m_lev: 11 }), AD_SPEL_ATTACK,
-        true, true, { state, random, planning: true, unsupported: refuse });
+        true, true, { state, random, unsupported: refuse });
     assert.equal(result, M_ATTK_HIT);
-    assert.equal(item.cursed, true, 'planned curse changes the supplied clone');
+    assert.equal(item.cursed, true, 'the curse changes the supplied inventory');
     assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(6)', 'rnd(1)']);
 });
 
@@ -775,7 +775,7 @@ test('cursetxt: a hero mimicking a strange object gets the general-direction lin
 
 // The unseen arm: with IN_SIGHT clear at (5,5) canseemon() is false, and
 // moves=100 satisfies !(moves % 4) without an rn2(4) draw.
-async function mumbledCurse(u, { planning = false, injectNorep = true } = {}) {
+async function mumbledCurse(u) {
     const state = makeState({ u });
     state.viz_array[5][5] = COULD_SEE;
     const messages = [];
@@ -784,10 +784,8 @@ async function mumbledCurse(u, { planning = false, injectNorep = true } = {}) {
     const env = {
         state, random, unsupported: refuse,
         message: (m) => messages.push(m),
-        planning,
+        norepMessage: (m) => norepMessages.push(m),
     };
-    if (injectNorep)
-        env.norepMessage = (m) => norepMessages.push(m);
     await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, env);
     assert.deepEqual(random.draws, ['rn2(7)']);
     return { messages, norepMessages };
@@ -805,13 +803,6 @@ test('cursetxt: the deaf roleplay option silences the mumbled curse', async () =
     assert.deepEqual(await mumbledCurse({
         ux: 4, uy: 5, uprops: {}, uroleplay: { deaf: true },
     }), { messages: [], norepMessages: [] });
-});
-
-test('cursetxt: planned unseen curses use a silent Norep operation', async () => {
-    assert.deepEqual(await mumbledCurse(
-        { ux: 4, uy: 5, uprops: {} },
-        { planning: true, injectNorep: false },
-    ), { messages: [], norepMessages: [] });
 });
 
 test('castmu awaits the spell announcement before damage work', async () => {
@@ -1779,7 +1770,6 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
         // lets the effect resolve and exercise its invisible-memory update.
         const result = await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
-            planning: true,
             random,
             unsupported: refuse,
             monsterName: () => 'The Archon',
@@ -1796,8 +1786,7 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
             'The Archon casts a spell!',
             'The Archon suddenly disappears!',
         ]);
-        assert.deepEqual(gaps, [],
-            'the planning clone draws nothing and records no gap');
+        assert.deepEqual(gaps, [], 'the spell records no gap');
     });
 
 test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
@@ -1814,7 +1803,6 @@ test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
         // resolve MCAST_DISAPPEAR at the visible (5,5) square.
         await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
-            planning: true,
             random: scriptedRandom([4, 45]),
             unsupported: refuse,
             monsterName: () => 'The Archon',
@@ -1845,7 +1833,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
     // selects MCAST_DISAPPEAR and rn2(200)=45 passes the fumble gate.
     await castmu(caster, AD_SPEL_ATTACK, false, false, {
         state,
-        planning: true,
         random: scriptedRandom([4, 45]),
         unsupported: refuse,
         message: async (text) => messages.push(text),
@@ -1871,7 +1858,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
     const accessibleMessages = [];
     await castmu(accessibleCaster, AD_SPEL_ATTACK, false, false, {
         state: accessibleState,
-        planning: true,
         random: scriptedRandom([4, 45]),
         unsupported: refuse,
         message: async (text) => accessibleMessages.push(text),
@@ -1883,8 +1869,7 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         '(east): The kobold shaman suddenly disappears!',
         'messageAt uses pline_mon coordinates when accessiblemsg is enabled',
     );
-    assert.deepEqual(gaps, [],
-        'the planning clone draws nothing and records no gap');
+    assert.deepEqual(gaps, [], 'the spell records no gap');
 });
 
 test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
@@ -2044,32 +2029,16 @@ test('Death touch direct-death return clears the killer only after recovery', as
     assert.equal(state.killer.name, '');
 });
 
-test('Death touch planning stops before the direct-death terminal callback', async () => {
-    // The same equality boundary as the live recovery test, on a separate
-    // state. The existing planner callback identifies the attacking monster.
-    const state = deathTouchState(37, 37), caster = makeCaster();
-    const stop = new Error('planned death boundary');
-    let announced = false;
-    await assert.rejects(touch_of_death(caster, { state, planning: true,
-        random: { d: () => 24 }, message: async text => { announced = text === 'You feel drained...'; },
-        planningDeath: monster => { assert.equal(monster, caster); return stop; },
-        done: () => assert.fail('planning must not read live recovery input'),
-    }), error => error === stop);
-    assert.equal(announced, true);
-    assert.equal(state.killer.name, 'the touch of death inflicted by a kobold shaman');
-});
-
 test('Death touch polymorphed arm sets mh to zero before rehumanize', async () => {
     const state = deathTouchState(200);
     // Different form indices select Upolyd; the human HP pool is unchanged.
     state.u.umonnum = 1; state.u.mh = 40;
     const events = [];
-    await touch_of_death(makeCaster(), { state, planning: true,
+    await touch_of_death(makeCaster(), { state,
         random: { d: () => 24 }, message: async () => {},
-        rehumanize: async (owner, env) => {
+        rehumanize: async (owner) => {
             assert.equal(owner, state);
             assert.equal(owner.u.mh, 0);
-            assert.equal(env.planning, true);
             events.push('rehumanize');
         },
         done: () => assert.fail('the polymorphed arm delegates death to rehumanize'),
