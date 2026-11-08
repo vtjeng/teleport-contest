@@ -2546,21 +2546,6 @@ function distressRandom(env = {}) {
 
 
 
-function distressSpeciesName(monster) {
-    const names = monster.data?.pmnames ?? [];
-    return names[monster.female ? 1 : 0] ?? names[2] ?? 'monster';
-}
-
-function distressMonnam(monster) {
-    const assigned = monster.mextra?.mgivenname;
-    if (assigned) {
-        const text = String(assigned);
-        return text ? text[0].toUpperCase() + text.slice(1) : text;
-    }
-    const article = monster.mtame ? 'Your' : 'The';
-    return `${article} ${distressSpeciesName(monster)}`;
-}
-
 function normalizedDistressEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = distressRandom(rawEnv);
@@ -3617,7 +3602,7 @@ async function announceNewWere(monster, target, normalized) {
     if (normalized.canSeeMonster(monster, normalized)
         && !Hallucination(normalized.state.u)) {
         await normalized.message(
-            `${distressMonnam(monster)} changes into a ${newWereTargetName(target)}.`,
+            `${Monnam(monster, normalized.state, normalized)} changes into a ${newWereTargetName(target)}.`,
             normalized.state,
             normalized,
         );

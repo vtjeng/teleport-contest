@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "new_were() announces the change with Monnam(), which is mon_nam() raised to a capital: ARTICLE_THE, so a tame werecreature is 'The werewolf', not 'Your werewolf' (only y_monnam() uses ARTICLE_YOUR for pets). A scroll of taming tames the wolf-form werewolf created beside the hero (is_human() blocks taming only the @ form); were_change() then turns it human with its 1/30 chance while the hero searches. Independent seed, date and character.",
+  "segments": [
+    {
+      "seed": 20261185,
+      "datetime": "20400611133000",
+      "nethackrc": "OPTIONS=name:Lupa,role:Valkyrie,race:human,gender:female,align:neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " #levelchange\n14\n\u001b\u0007werewolf\n\u0017uncursed scroll of taming\nrems ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms "
+    }
+  ]
+}
