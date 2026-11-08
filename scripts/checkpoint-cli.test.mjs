@@ -61,10 +61,16 @@ cp.spawnSync = function(command, args, options) {
             break;
         }
     }
-    // Empty output is enough for each summary parser; nonzero status still
-    // exercises the CLI's normal failed-check path without running game tests.
+    // Empty output is enough for each summary parser except browser
+    // playability, which fails without the runner's verdict, so that check
+    // gets a passing one. Nonzero status still exercises the CLI's normal
+    // failed-check path without running game tests.
+    const playability = (args ?? []).includes('frozen/playability_runner.mjs');
     return { status: process.env.CHECKPOINT_FIXTURE_CHECK_FAILURE ? 1 : 0,
-        stdout: '', stderr: '' };
+        stdout: playability
+            ? '__PLAYABILITY_JSON__\\n{"sessions":44,"failures":0,"overall_ms_per_move":1,"playable":true}\\n'
+            : '',
+        stderr: '' };
 };
 syncBuiltinESMExports();
 `);
