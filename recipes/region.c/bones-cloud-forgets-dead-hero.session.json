@@ -1,0 +1,20 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61207,
+      "datetime": "20390914083000",
+      "nethackrc": "OPTIONS=name:Galen,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0017cursed scroll of stinking cloud\n\u0017wand of death\n\u0007dwarf\nrk  y. zl.  yqy",
+      "comment": "A debug gnomish Healer level-teleports to D:3, wishes for a cursed scroll of stinking cloud and a wand of death, creates a dwarf beside her, centres the cloud on the dwarf ('It coughs!  It gets angry!': the cloud is the hero's fault) and dies to the wand on the next turn, saving bones with the cloud still on the level."
+    },
+    {
+      "seed": 61283,
+      "datetime": "20390916174500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy msmsmsmsmsmsmsmsmsms",
+      "comment": "A Samurai loads the bones on D:3 and forces ten searches. region.c rest_regions() reads a bones file with `ghostly` set and clears heros_fault, so when the dwarf dies in the cloud out of sight C calls monkilled() and prints nothing; a cloud that kept the dead hero's fault would call killed() and print 'You kill it!'."
+    }
+  ],
+  "comment": "region.c rest_regions(), ghostly arm: a gas cloud loaded from bones no longer pertains to the dead hero. The seeds, clocks, characters and inputs were chosen for this case."
+}

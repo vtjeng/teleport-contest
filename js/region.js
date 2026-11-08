@@ -1173,6 +1173,58 @@ export function rest_saved_level_regions(level, savedMoves, moves) {
     }
 }
 
+// C ref: region.c rest_regions() (797-890) for a bones file, which
+// bones.c getbones() reads through getlev() (restore.c 1225), where
+// `ghostly` is set. The timestamp is taken as 0, so no region loses any
+// time; the flags that pertained to the dead hero are cleared from every
+// region (864-867); then, last region first, a region whose time has run
+// out is removed and every other region's monster list is remapped to the
+// restored monsters' new ids (883-889). The removal draws nothing:
+// getbones() runs inside mklev(), where newsym() is suppressed
+// (display.c _suppress_map_output()), and the arrival resets vision.
+// `idMap` is restore.c's id mapping table: each saved id maps to the
+// restored monster or object.
+export function rest_ghostly_regions(level, idMap) {
+    if (!level) return;
+    rest_region_capacity(level);
+    const regions = level.regions;
+    for (const region of regions) {
+        // C ref: region.h clear_hero_inside() and clear_heros_fault().
+        region.hero_inside = false;
+        region.heros_fault = false;
+    }
+    for (let index = regions.length - 1; index >= 0; --index) {
+        const region = regions[index];
+        if (region.ttl === 0) {
+            regions[index] = regions.at(-1);
+            regions.pop();
+            region.ttl = -2;
+        } else if (region.monsters.length > 0) {
+            reset_region_mids(region, idMap);
+        }
+    }
+}
+
+// C ref: region.c reset_region_mids() (927-944). Each monster id saved in
+// a bones region becomes the restored monster's new id; an id with no
+// mapping is dropped by moving the list's last id into its slot.
+// max_monst, C's allocation, is unchanged.
+export function reset_region_mids(region, idMap) {
+    const midList = region.monsters;
+    let i = 0;
+    let n = midList.length;
+    while (i < n) {
+        const restored = idMap.get(midList[i]);
+        if (!restored) {
+            midList[i] = midList[--n];
+        } else {
+            midList[i] = restored.m_id ?? restored.o_id;
+            ++i;
+        }
+    }
+    midList.length = n;
+}
+
 // C ref: region.c region_stats() (899-922). Preserve sizeof(NhRegion)
 // in the capacity term even though the allocated array contains pointers.
 export function region_stats(headerFormat, state = game) {

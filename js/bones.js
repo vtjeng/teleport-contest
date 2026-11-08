@@ -1,7 +1,7 @@
 // Bones-file creation and retrieval.
 // C ref: src/bones.c.
 
-import { rest_region_capacity } from './region.js';
+import { rest_ghostly_regions } from './region.js';
 // resetobjs()'s restoring arm.
 import { artifact_exists, exist_artifact } from './artifacts.js';
 import { ONAME, OBJ_CONTAINED, OBJ_FLOOR, ONAME_BONES, SHOPBASE } from './const.js';
@@ -1357,7 +1357,9 @@ async function restoreBonesLevel(bonesData, state) {
     rest_engravings((bonesData.engravings ?? []).map((saved) =>
         ({ ...saved, engr_txt: [...saved.engr_txt] })), state);
 
-    rest_region_capacity(level);
+    // C ref: restore.c getlev():1225 rest_regions() with `ghostly` set,
+    // once the monster chain has filled the id mapping table.
+    rest_ghostly_regions(level, idMap);
 
     // C restore.c getlev() (1177-1195), the placement half of its monster
     // loop: rest_rooms() cleared every room's resident pointer, so each

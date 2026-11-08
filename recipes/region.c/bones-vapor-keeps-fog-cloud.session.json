@@ -1,0 +1,20 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71903,
+      "datetime": "20410302101500",
+      "nethackrc": "OPTIONS=name:Mist,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0017wand of death\n\u0007fog cloud\nmsmszj.  yqy",
+      "comment": "A debug elven Priestess level-teleports to D:3, wishes for a wand of death, creates a fog cloud beside her, waits two turns while it leaves a vapor cloud on its own square, and dies to the wand, saving bones. The saved vapor region lists the fog cloud's monster id."
+    },
+    {
+      "seed": 71933,
+      "datetime": "20410305193000",
+      "nethackrc": "OPTIONS=name:Bran,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy \u0006\u0014>Hjj.msmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsms",
+      "comment": "A Barbarian loads the bones on D:3, maps the level with ^F, teleports with ^T to the room's down staircase and eight squares left and two down, and forces 25 searches. region.c rest_regions() calls reset_region_mids(), so the vapor's list names the restored fog cloud's new id and inside_gas_cloud() adds five turns to the vapor while the fog cloud stays in it; 'You see a gas cloud dissipate.' comes only after the fog cloud has left. With the dead hero's ids the vapor ages from the start and dissipates about ten searches earlier."
+    }
+  ],
+  "comment": "region.c rest_regions(), ghostly arm: reset_region_mids() maps the monster ids of a region loaded from bones to the restored monsters. The seeds, clocks, characters and inputs were chosen for this case."
+}
