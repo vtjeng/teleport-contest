@@ -839,14 +839,14 @@ test('setuwep ends an old artifact light only when that weapon burns', async () 
 
 });
 
-test('mon_set_minvis preserves blocked state and draws nothing on a bare clone',
+test('mon_set_minvis preserves blocked state and skips both redraws when blocked',
     () => {
-        const gaps = [];
-        const env = { noteUnported: (name) => gaps.push(name) };
-        // A clone level holding one tail segment and the hidden head node, so
-        // see_wsegs() walks a real tail and must stay silent on it.
-        const clone = { level: { worms: [] } };
-        clone.level.worms[1] = { segments: [{ x: 4, y: 5 }, { x: 5, y: 5 }] };
+        const calls = [];
+        const env = { redraw: (x, y) => calls.push([x, y]) };
+        // A level holding one tail segment and the hidden head node, so
+        // see_wsegs() walks a real tail.
+        const state = { level: { worms: [] } };
+        state.level.worms[1] = { segments: [{ x: 4, y: 5 }, { x: 5, y: 5 }] };
         const worm = {
             perminvis: 0,
             minvis: 0,
@@ -856,33 +856,31 @@ test('mon_set_minvis preserves blocked state and draws nothing on a bare clone',
             my: 5,
         };
 
-        // worn.c stores permanent invisibility before copying it to minvis.
-        // newsym() and see_wsegs() repaint only the live map, so a clone
-        // with no redraw operation of its own neither paints nor records a
-        // gap.
-        mon_set_minvis(worm, false, clone, env);
+        // worn.c stores permanent invisibility before copying it to minvis,
+        // then redraws the head square and the tail.
+        mon_set_minvis(worm, false, state, env);
         assert.equal(worm.perminvis, 1);
         assert.equal(worm.minvis, 1);
-        assert.deepEqual(gaps, []);
+        assert.deepEqual(calls, [[5, 5], [4, 5]]);
 
         const blocked = {
             perminvis: 1,
             minvis: 0,
             invis_blkd: true,
-            wormno: 0,
+            wormno: 1,
             mx: 5,
             my: 5,
         };
-        gaps.length = 0;
-        mon_set_minvis(blocked, true, {}, env);
+        calls.length = 0;
+        mon_set_minvis(blocked, true, state, env);
         assert.equal(blocked.perminvis, 0);
         assert.equal(blocked.minvis, 0,
             'invis_blkd prevents copying perminvis into current minvis');
-        assert.deepEqual(gaps, [],
+        assert.deepEqual(calls, [],
             'blocked invisibility skips both redraw calls');
     });
 
-test('mon_set_minvis redraws a clone worm head then each tail through its explicit callback',
+test('mon_set_minvis redraws a worm head then each tail through its explicit callback',
     () => {
         const state = { level: { worms: [] } };
         const worm = {
@@ -900,7 +898,7 @@ test('mon_set_minvis redraws a clone worm head then each tail through its explic
         ] };
         const calls = [];
         const inherited = () => assert.fail(
-            'the selected worn repaint must own clone worm tails',
+            'the selected worn repaint must own the worm tails',
         );
 
         mon_set_minvis(worm, false, state, {
