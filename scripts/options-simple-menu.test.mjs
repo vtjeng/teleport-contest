@@ -361,7 +361,7 @@ test('the simple menu breaks its pages after the Behavior section',
             items: dosetSimpleMenuItems(state, menuHelpers()),
             title: 'Options',
         };
-        const first = ttyMenuLayout(state.nhDisplay, spec, 0);
+        const first = ttyMenuLayout(state, spec, 0);
         assert.equal(first.pageCount, 2);
         assert.equal(first.footerText, '(1 of 2)');
         // Two lead lines plus the whole of page one.
@@ -369,7 +369,7 @@ test('the simple menu breaks its pages after the Behavior section',
         assert.equal(
             first.lines.at(-1).text, 'p - pushweapon              [ ]',
         );
-        const second = ttyMenuLayout(state.nhDisplay, spec, 1);
+        const second = ttyMenuLayout(state, spec, 1);
         assert.equal(second.lines.length, STOCK_PAGE_TWO.length);
         assert.equal(second.lines.at(-1).text, 'p - time                    [ ]');
     });

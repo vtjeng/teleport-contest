@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6620914,
+      "datetime": "20350308154210",
+      "nethackrc": "OPTIONS=name:Underlay,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!menu_overlay\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " #herecmdmenu\n\u001b"
+    },
+    {
+      "seed": 6620915,
+      "datetime": "20350309102233",
+      "nethackrc": "OPTIONS=name:Underlay,role:Barbarian,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!menu_overlay\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " #herecmdmenu\n\u001b"
+    }
+  ],
+  "comment": "Independent cmd.c there_cmd_menu() witness for wintty.c tty_display_nhwindow()'s !iflags.menu_overlay arm: with menu_overlay off, the NHW_MENU window that #herecmdmenu opens clears the screen and starts at column 0 instead of overlaying the map's right half. An elven Priest on the up stairs gets a menu with 'Cast a spell'; an orcish Barbarian on another seed and date gets the same menu without it. Seeds, dates, characters and inputs were chosen independently of every recorded session."
+}

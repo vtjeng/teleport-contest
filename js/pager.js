@@ -1965,7 +1965,7 @@ export async function do_look(mode, clickCc = null, state = game) {
                     cancelValue: null,
                     overlay: state.iflags?.menu_overlay !== false,
                 };
-                inventoryRepairLayout = ttyMenuLayout(state.nhDisplay, spec);
+                inventoryRepairLayout = ttyMenuLayout(state, spec);
                 return select_menu(state, spec);
             },
         });

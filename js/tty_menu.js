@@ -76,6 +76,16 @@ const MENU_SEARCH = ':';
 // group accelerator for gold that is not on the current page.
 const GOLD_SYM = '$';
 
+// C's iflags.menu_overlay, which wintty.c tty_display_nhwindow() reads for
+// every NHW_MENU and NHW_TEXT window it shows: when the option is off, the
+// window clears the screen and starts at column 0 instead of overlaying the
+// map. The option belongs to the game, not to the window, so every tty
+// layout reads it here from the state it draws for; no caller passes it.
+// scripts/menu-overlay-source.test.mjs fails when other code reads it.
+export function menuOverlay(state) {
+    return state.iflags?.menu_overlay !== false;
+}
+
 export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
     return {
@@ -652,7 +662,8 @@ function assignMenuAccelerators(spec, pageSize) {
     }
 }
 
-export function ttyMenuLayout(display, spec, pageIndex = 0) {
+export function ttyMenuLayout(state, spec, pageIndex = 0) {
+    const display = state.nhDisplay;
     // tty_end_menu() limits each page to the smaller of 52 accelerators or
     // all terminal rows except the dmore() footer.
     const pageSize = Math.min(52, Math.max(1, display.rows - 1));
@@ -703,7 +714,7 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
     let offx = Math.min(82, Math.floor(display.cols / 2),
         display.cols - maxcol - 1);
     if (offx < 0) offx = 0;
-    const fullScreen = spec.overlay === false || maxrow >= display.rows
+    const fullScreen = !menuOverlay(state) || maxrow >= display.rows
         || offx === 0;
     if (fullScreen) offx = 0;
 
@@ -732,7 +743,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
     previous = null) {
     const display = state.nhDisplay;
     if (!display) throw new Error('tty menu requires an initialized display');
-    const layout = ttyMenuLayout(display, spec, pageIndex);
+    const layout = ttyMenuLayout(state, spec, pageIndex);
     const restoredRows = Math.min(display.rows, layout.maxrow + 1);
     const visibleRows = Math.min(display.rows, layout.maxrow);
     if (!layout.fullScreen) {

@@ -45,7 +45,7 @@ function rowText(state, row) {
 test('the 24x80 role filter menu has the source page boundaries', () => {
     const state = menuState();
     const spec = buildRoleFilterMenuSpec(state);
-    const first = ttyMenuLayout(state.nhDisplay, spec);
+    const first = ttyMenuLayout(state, spec);
 
     // tty_end_menu() reserves one of 24 rows for dmore(), leaving 23 menu
     // lines. The source filter's race section ends exactly on page one.
@@ -67,7 +67,7 @@ test('the 24x80 role filter menu has the source page boundaries', () => {
         [9, 23],
     );
 
-    const second = ttyMenuLayout(state.nhDisplay, spec, 1);
+    const second = ttyMenuLayout(state, spec, 1);
     assert.equal(second.lines.length, 9);
     assert.equal(second.footerRow, 9);
     assert.equal(second.footerText, '(2 of 2)');

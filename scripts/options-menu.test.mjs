@@ -1208,7 +1208,7 @@ test('tty_end_menu() restarts its accelerators on every page', async () => {
     };
     // A 24-row terminal gives tty_end_menu() lmax == 23, and the prompt plus
     // its blank separator occupy the first two of those lines.
-    const layout = ttyMenuLayout(state.nhDisplay, spec, 0);
+    const layout = ttyMenuLayout(state, spec, 0);
     assert.equal(layout.pageSize, 23);
     assert.equal(layout.pageCount, 7);
     // Page 1 holds the title, the blank, the five help lines, the Booleans
@@ -1216,7 +1216,7 @@ test('tty_end_menu() restarts its accelerators on every page', async () => {
     // letter goes to the first modifiable boolean at its last row.
     assert.equal(layout.lines[22].text, 'a - accessiblemsg           [false]');
     // Page 2 restarts at 'a' rather than continuing from 'b'.
-    const second = ttyMenuLayout(state.nhDisplay, spec, 1);
+    const second = ttyMenuLayout(state, spec, 1);
     assert.equal(second.lines[0].text, 'a - acoustics               [false]');
     assert.equal(second.lines[22].text, 'w - goldX                   [false]');
     // The '?' entry keeps the selector its caller supplied.

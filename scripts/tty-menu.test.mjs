@@ -574,7 +574,7 @@ test('NHW_MENU text restores partial and full byte-window regions', async () => 
 
 test('narrow tty menus overlay the right half and restore it on dismissal', async () => {
     const state = menuState();
-    const layout = ttyMenuLayout(state.nhDisplay, confirmation);
+    const layout = ttyMenuLayout(state, confirmation);
     assert.deepEqual(
         [layout.firstColumn, layout.startColumn, layout.footerRow],
         [40, 41, 7],
@@ -598,7 +598,7 @@ test('narrow tty menus overlay the right half and restore it on dismissal', asyn
 test('corner rendering reserves the extra docorner row until dismissal', async () => {
     const state = menuState();
     const spec = confirmation;
-    const layout = ttyMenuLayout(state.nhDisplay, spec);
+    const layout = ttyMenuLayout(state, spec);
     assert.equal(layout.fullScreen, false);
 
     // process_menu_window() clears item and footer rows, while the later
@@ -628,7 +628,7 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
             title: 'Inventory actions',
             lines: Array.from({ length: 20 }, (_, index) => `action ${index}`),
         };
-        const layout = ttyMenuLayout(state.nhDisplay, spec);
+        const layout = ttyMenuLayout(state, spec);
         assert.equal(layout.fullScreen, false);
         assert.ok(layout.maxrow + 1
             > state.nhDisplay.rows - status_window_rows());
@@ -724,7 +724,7 @@ test('corner dismissal marks bottom damage when docorner ends at status origin',
             title: 'Inventory actions',
             lines: Array.from({ length: 18 }, (_, index) => `action ${index}`),
         };
-        const layout = ttyMenuLayout(state.nhDisplay, spec);
+        const layout = ttyMenuLayout(state, spec);
         assert.equal(layout.maxrow + 1, statusRow);
         assert.equal(layout.fullScreen, false);
 
@@ -1077,8 +1077,11 @@ test('a full-screen menu clears the acknowledged top line', async () => {
     // One space dismisses the pending-message More; 'y' answers the menu.
     const state = menuState(' y');
     await ttyPline('A pending message.', state);
+    // wintty.c tty_display_nhwindow() shows a menu full-screen when
+    // iflags.menu_overlay is off, however short the menu is.
+    state.iflags.menu_overlay = false;
 
-    await selectTtyMenu(state, { ...confirmation, overlay: false });
+    await selectTtyMenu(state, confirmation);
 
     assert.equal(rowText(state, 0), '');
     assert.deepEqual(
@@ -1396,7 +1399,7 @@ test('tty_end_menu assigns a fresh accelerator run to every page', () => {
     items.splice(3, 0, 'a plain line');
     const spec = { title: 'Pick some', items, overlay: false };
 
-    const layout = ttyMenuLayout(state.nhDisplay, spec, 0);
+    const layout = ttyMenuLayout(state, spec, 0);
     assert.equal(layout.pageSize, 23);
     assert.equal(layout.pageCount, 2);
     // The first item sits at line index 2 and takes 'a'.
@@ -1418,7 +1421,7 @@ test('tty_end_menu assigns a fresh accelerator run to every page', () => {
         { text: 'help', value: 90, selector: '?' },
         { text: 'first', value: 1 },
     ];
-    ttyMenuLayout(state.nhDisplay, { title: 'x', items: explicit, overlay: false });
+    ttyMenuLayout(state, { title: 'x', items: explicit, overlay: false });
     assert.equal(explicit[0].selector, '?');
     assert.equal(explicit[1].selector, 'a');
 });
@@ -1444,7 +1447,7 @@ test('tty_end_menu cuts an over-wide stored line at cols - 2', () => {
         overlay: false,
     };
 
-    const layout = ttyMenuLayout(state.nhDisplay, spec);
+    const layout = ttyMenuLayout(state, spec);
     assert.deepEqual(layout.lines.map((line) => line.text.length),
         [cols - 3, cols - 2, cols - 2, cols - 2]);
     // The kept prefix is the head of the original line, not a re-fill.
@@ -1468,7 +1471,7 @@ test('tty_end_menu measures and cuts a stored menu line in bytes', () => {
     const state = menuState();
     const cols = state.nhDisplay.cols;
     const storedLine = (text) => ttyMenuLayout(
-        state.nhDisplay, { lines: [text] },
+        state, { lines: [text] },
     );
 
     // Twenty two-byte characters store 40 bytes, so `len` is 42 and offx is
