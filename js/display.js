@@ -2478,15 +2478,19 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         const petSymbol = configuredPetOverride(state);
         if (petSymbol) symbol = petSymbol;
     }
+    // display.c map_glyphinfo() tweaks only the ordinary, non-polymorphed
+    // hero glyph. A steed/ridden glyph and a polymorphed hero retain the
+    // stored monster color, while showrace uses the human hero color. C
+    // writes the tweak over the glyph map's color after reset_glyphmap(), so
+    // a symset whose nocolor removed every other color (the Rogue level's)
+    // does not remove it; it is applied after glyphPresentation() below.
+    let heroColor = null;
     if (isYou) {
-        // display.c map_glyphinfo() tweaks only the ordinary, non-polymorphed
-        // hero glyph. A steed/ridden glyph and a polymorphed hero retain the
-        // stored monster color, while showrace uses the human hero color.
         const heroGlyph = hero_glyph_info(state).glyph;
         if (glyph === heroGlyph && !Upolyd(state.u)
             && state.iflags?.wc_color !== false) {
-            if (rogueColor) color = CLR_YELLOW;
-            else if (state.flags?.showrace) color = HI_DOMESTIC;
+            if (rogueColor) heroColor = CLR_YELLOW;
+            else if (state.flags?.showrace) heroColor = HI_DOMESTIC;
         }
         glyphflags |= MG_HERO;
         if (accessibilityOverridesEnabled(state)
@@ -2519,12 +2523,16 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         unicode: symbolUnicode,
     };
 
+    const customization = numeric_glyph_customization(glyph, state);
     const presentation = glyphPresentation(
         symbol,
         color,
         state,
-        numeric_glyph_customization(glyph, state),
+        customization,
     );
+    // A glyph customization's color still takes precedence, as before.
+    if (heroColor !== null && customization?.basicColor == null)
+        presentation.color = heroColor;
     const attr = print_glyph_attr(glyphflags, state);
     if (attr) presentation.attr = attr;
     // The glyph number itself, which is what C stores in levl[x][y].glyph.
