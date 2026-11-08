@@ -30,6 +30,7 @@ import {
     OBJ_INVENT,
     POISON_RES,
     PROT_FROM_SHAPE_CHANGERS,
+    POOL,
     ROOM,
     SINK,
     STAIRS,
@@ -53,6 +54,7 @@ import {
 import { poisoned as applyPoison } from '../js/attrib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
@@ -1369,6 +1371,59 @@ test('mhitm_ad_wrap dispatches the slippery source arm', async () => {
     game.youmonst.data = originalForm;
     game.gn.notonhead = false;
 
+});
+
+// uhitm.c:3388-3401. A monster already holding the hero drowns her when it
+// stands in a pool and she has none of Swimming, Amphibious and Breathless:
+// an urgent line, a KILLED_BY_AN killer naming the water, and done(DROWNING).
+test('an already-held python drowns the hero on a pool square', async () => {
+    await runSegment({
+        // Seed 8806414 starts a human hero, who neither swims nor breathes
+        // water.
+        seed: 8806414, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const python = {
+        data: game.mons[PM_PYTHON], m_id: 93142,
+        mx: game.u.ux, my: game.u.uy, mcan: false, mhp: 20, mhpmax: 20,
+        nmon: null, minvent: null,
+    };
+    game.level.monlist = python;
+    game.u.ustuck = python;
+    // POOL rather than MOAT, so uhitm.c:3391's moat test names the pool.
+    game.level.at(game.u.ux, game.u.uy).typ = POOL;
+    // The python's third slot is its AT_HUGS/AD_WRAP squeeze.
+    const squeeze = python.data.mattk[2];
+    assert.equal(squeeze.adtyp, AD_WRAP);
+    const urgent = [];
+    const bounds = [];
+    // Spaces dismiss each --More-- and take the default disclosure answers
+    // of end.c done().
+    for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await expectTerminated(() => mhitm_adtyping(
+        python,
+        squeeze,
+        game.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        {
+            random: { rn2: (bound) => {
+                bounds.push(bound);
+                return 1;
+            } },
+            message: async () => assert.fail('C uses urgent_pline for drowning'),
+            urgentMessage: async (line) => { urgent.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    ), 'the held hero drowns');
+
+    // u.ustuck == magr skips uhitm.c:3379's rn2(10) grab roll.
+    assert.deepEqual(bounds, []);
+    assert.deepEqual(urgent, ['The python drowns you...']);
+    assert.deepEqual(game.killer, {
+        format: KILLED_BY_AN,
+        name: 'pool of water by a python',
+    });
 });
 
 test('mhitm_ad_wrap locates both monster-to-hero brush messages', async () => {
