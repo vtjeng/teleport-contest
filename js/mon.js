@@ -1646,7 +1646,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
         } else if (state.flags?.verbose) {
             const heard = youHear('a crunching sound.', state);
             if (heard !== null)
-                await monsterMessage(heard, null, state, rawEnv);
+                await plainMessage(heard, state, rawEnv);
         }
         mtmp.meating = Math.trunc(obj.owt / 2) + 1;
         await m_consume_obj(mtmp, obj, { ...rawEnv, state, random });
@@ -1737,13 +1737,13 @@ export async function meatobj(mtmp, rawEnv = {}) {
                     );
                 if (obj.oclass === SCROLL_CLASS
                     && objdescr_is(obj, 'YUM YUM', state)) {
-                    await monsterMessage(`Yum${obj.blessed ? '!' : '.'}`, null, state, rawEnv);
+                    await plainMessage(`Yum${obj.blessed ? '!' : '.'}`, state, rawEnv);
                 }
             } else {
                 if (state.flags?.verbose) {
                     const heard = youHear('a slurping sound.', state);
                     if (heard !== null)
-                        await monsterMessage(heard, null, state, rawEnv);
+                        await plainMessage(heard, state, rawEnv);
                 }
             }
             await m_consume_obj(mtmp, obj, { ...rawEnv, state });
@@ -1755,14 +1755,14 @@ export async function meatobj(mtmp, rawEnv = {}) {
     if (engulfed && state.flags?.verbose) {
         // C prints the engulf line with pline1(), which has no location.
         if (cansee(mtmp.mx, mtmp.my, state) && messageText)
-            await monsterMessage(messageText, null, state, rawEnv);
+            await plainMessage(messageText, state, rawEnv);
         else {
             const heard = youHear(
                 `${engulfed === 1 ? 'a' : 'several'} slurping sound${engulfed === 1 ? '' : 's'}.`,
                 state,
             );
             if (heard !== null)
-                await monsterMessage(heard, null, state, rawEnv);
+                await plainMessage(heard, state, rawEnv);
         }
     }
     return count || engulfed ? 1 : 0;
@@ -1804,7 +1804,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
             if (state.flags?.verbose) {
                 const heard = youHear('a masticating sound.', state);
                 if (heard !== null)
-                    await monsterMessage(heard, null, state, rawEnv);
+                    await plainMessage(heard, state, rawEnv);
             }
         }
         await m_consume_obj(mtmp, obj, { ...rawEnv, state });
@@ -1896,10 +1896,15 @@ function isOrganic(obj, state) {
     return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
 }
 
+// C pline_mon(): the line records the monster's square for accessiblemsg.
 async function monsterMessage(text, monster, state, env) {
     const message = env.message ?? ttyPline;
-    const output = monster ? messageAt(text, monster.mx, monster.my, state) : text;
-    await message(output, state, env);
+    await message(messageAt(text, monster.mx, monster.my, state), state, env);
+}
+
+// C pline() and You_hear(): no location.
+async function plainMessage(text, state, env) {
+    await (env.message ?? ttyPline)(text, state, env);
 }
 
 // C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit
