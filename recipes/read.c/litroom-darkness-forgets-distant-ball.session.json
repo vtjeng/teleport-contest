@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "read.c litroom():2577-2578 and 2614-2616. A punished hero who can see reads a cursed scroll of light. litroom() lifts the ball and chain with move_bc(1, ...) before darkening the area and puts them back with move_bc(0, ...) after vision_recalc(2), so a ball two squares away, out of sight in the dark, is no longer remembered. A gnomish Wizard, with seed, date and inputs chosen independently of batch 8.",
+  "segments": [
+    {
+      "seed": 7730415,
+      "datetime": "20360422190811",
+      "nethackrc": "OPTIONS=name:Darkling,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": ".\u0017cursed scroll of punishment\nro \u0017cursed scroll of light\nllrp ..h:"
+    }
+  ]
+}

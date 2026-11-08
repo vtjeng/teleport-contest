@@ -349,7 +349,7 @@ import {
     shieldeff, tmp_at,
 } from './display.js';
 import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
-import { placebc, set_bc } from './ball.js';
+import { move_bc, placebc, set_bc } from './ball.js';
 import { y_n } from './cmd.js';
 import { sokoban_guilt } from './trap.js';
 import {
@@ -434,7 +434,8 @@ import {
 } from './read_text_data.js';
 import {
     Blind, Confusion, Deaf, ESee_invisible, Fire_resistance, HConfusion,
-    HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys, Unchanging,
+    HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys, Punished,
+    Unchanging,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -2069,6 +2070,12 @@ export async function litroom(on, object, state) {
     }
 
     if (noOp) return;
+    // Darkening while punished and able to see lifts the ball and chain so
+    // that the vision pass below forgets them if they are out of sight.
+    if (Punished(state) && !on && !Blind(state.u)) {
+        move_bc(1, 0, state.uball.ox, state.uball.oy,
+            state.uchain.ox, state.uchain.oy, state);
+    }
 
     if (Is_rogue_level(state.u?.uz, state)) {
         const roomNumber = (state.level.at(state.u.ux, state.u.uy)?.roomno ?? 0)
@@ -2100,6 +2107,11 @@ export async function litroom(on, object, state) {
             state,
             redraw: (x, y) => newsym(x, y),
         });
+        // Put the ball and chain back.
+        if (Punished(state) && !on) {
+            move_bc(0, 0, state.uball.ox, state.uball.oy,
+                state.uchain.ox, state.uchain.oy, state);
+        }
     }
     state.vision_full_recalc = 1;
 
