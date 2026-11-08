@@ -102,7 +102,7 @@ import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import {
-    ghostfruit, reset_oattached_mids, rest_push_each, rest_traps, restdamage,
+    ghostfruit, reset_oattached_mids, rest_traps, restdamage,
 } from './restore.js';
 import {
     BOW,
@@ -1270,12 +1270,8 @@ async function restoreBonesLevel(bonesData, state) {
     // chains. save_engravings() writes head_engr in chain order and
     // rest_engravings() pushes each one it reads, so the restored chain is
     // reversed; it then strips leading spaces and stamps engr_time.
-    state.head_engr = null;
-    rest_push_each(bonesData.engravings ?? [], (saved) => {
-        state.head_engr = { ...saved, engr_txt: [...saved.engr_txt],
-            nxt_engr: state.head_engr };
-    });
-    rest_engravings(state);
+    rest_engravings((bonesData.engravings ?? []).map((saved) =>
+        ({ ...saved, engr_txt: [...saved.engr_txt] })), state);
 
     rest_region_capacity(level);
 

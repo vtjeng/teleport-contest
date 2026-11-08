@@ -79,6 +79,7 @@ import { livelog_printf, youSee } from './pline.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
+import { rest_push_each } from './restore.js';
 import {
     Blind, Confusion, Deaf, Flying, Hallucination, Levitation, Stunned,
 } from './youprop.js';
@@ -1390,14 +1391,20 @@ export function save_engravings(state = game) {
     }
 }
 
-// C ref: engrave.c rest_engravings() (1584-1619), the per-engraving tail. A
-// level file holds each text buffer from its start, leading spaces included
-// (save_engravings() writes it that way); reading it back skips those spaces
-// again for the actual and remembered texts and marks the engraving finished
-// at the current turn. The port keeps the chain in memory, so the buffer is
-// the text with actual_text_offset spaces in front of it.
-export function rest_engravings(state = game) {
-    for (let ep = state.head_engr ?? null; ep; ep = ep.nxt_engr) {
+// C ref: engrave.c rest_engravings() (1584-1619). Each engraving read is
+// pushed onto head_engr, so the chain comes back in the reverse of the order
+// save_engravings() wrote it; `saved` is that chain, or an array of its
+// engravings, head first. A level file holds each text buffer from its
+// start, leading spaces included (save_engravings() writes it that way);
+// reading it back skips those spaces again for the actual and remembered
+// texts and marks the engraving finished at the current turn. The port
+// keeps the chain in memory, so the buffer is the text with
+// actual_text_offset spaces in front of it.
+export function rest_engravings(saved, state = game) {
+    state.head_engr = null;
+    rest_push_each(saved, (ep) => {
+        ep.nxt_engr = state.head_engr;
+        state.head_engr = ep;
         const buffer = ' '.repeat(ep.actual_text_offset ?? 0)
             + (ep.engr_txt[0] ?? '');
         const text = buffer.replace(/^ +/u, '');
@@ -1406,7 +1413,7 @@ export function rest_engravings(state = game) {
         if (typeof ep.engr_txt[1] === 'string')
             ep.engr_txt[1] = ep.engr_txt[1].replace(/^ +/u, '');
         ep.engr_time = state.moves;
-    }
+    }, 'nxt_engr');
 }
 
 // C ref: engrave.c sanitize_engravings() (1498-1505). While loading bones,

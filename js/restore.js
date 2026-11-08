@@ -333,11 +333,9 @@ export async function dorestore(state = game) {
         state);
     state.gm.migrating_mons = restmonchn(snapshot.migrating_mons ?? null,
         state);
-    if (snapshot.head_engr != null) {
-        state.head_engr = snapshot.head_engr;
-        // restore.c getlev():1174 rest_engravings() for the hero's level.
-        rest_engravings(state);
-    }
+    // C ref: restore.c getlev():1174 rest_engravings(), which dorecover()
+    // reaches for the hero's level.
+    rest_engravings(snapshot.head_engr ?? null, state);
 
     // C has a static artifact catalog; JS rebuilds its per-game catalog
     // before restore.c's artifact tracking fixups and setuwep call.
@@ -888,9 +886,8 @@ export async function getlev(ledger, state = game) {
     // reverses the stairway list, which makemon_rnd_goodpos()'s stair
     // fallback walks in order.
     rest_stairs(snapshot.stairs, state);
-    state.head_engr = snapshot.head_engr;
-    // restore.c getlev():1174 rest_engravings().
-    rest_engravings(state);
+    // C ref: restore.c getlev():1174 rest_engravings().
+    rest_engravings(snapshot.head_engr, state);
     if (snapshot.smeq) state.smeq = snapshot.smeq;
     state.updest = snapshot.updest ?? {};
     state.dndest = snapshot.dndest ?? {};
