@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "getdir() turns a queued CMDQ_DIR into a key through gc.Cmd.dirchars, which reset_commands() sets to ndir ('47896321><') under number_pad. #therecmdmenu toward the starting room's door queues doopen with the direction north; with number_pad:1 that must become '8', not the vi-key 'k' (the kick command under number_pad), or getdir() rejects it. Independent seed, date and character.",
+  "segments": [
+    {
+      "seed": 20261188,
+      "datetime": "20400420161000",
+      "nethackrc": "OPTIONS=name:Hilde,role:Valkyrie,race:human,gender:female,align:neutral,number_pad:1,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " 888#therecmdmenu\n8a  "
+    }
+  ]
+}

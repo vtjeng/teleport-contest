@@ -82,6 +82,8 @@ import {
     mcmd_addmenu,
     reset_cmd_vars,
     reset_commands,
+    cmd_dirchars,
+    cmd_alphadirchars,
     spkey_name,
     UnsupportedHeroCommandBoundaryError,
     dolookaround_floodfill_findroom,
@@ -293,8 +295,8 @@ test('special keys, autocomplete options, mouse locks, and source reset state', 
     state.iflags.num_pad = true;
     state.iflags.num_pad_mode = 2;
     reset_commands(false, state);
-    assert.equal(state.dirchars, '41236987><');
-    assert.equal(state.alphadirchars, 'hykulnjb><');
+    assert.equal(cmd_dirchars(state), '41236987><');
+    assert.equal(cmd_alphadirchars(state), 'hykulnjb><');
     assert.equal(state.extcmd_char, '#'.charCodeAt(0));
     assert.equal(state.serialno, 1);
 });

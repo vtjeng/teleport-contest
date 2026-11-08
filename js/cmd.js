@@ -1616,6 +1616,23 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
     return 1;
 }
 
+// C ref: cmd.c reset_commands():3433-3436, which points gc.Cmd.dirchars at
+// sdir, sdir_swap_yz, ndir or ndir_phone_layout and gc.Cmd.alphadirchars at
+// sdir or its yz-swapped copy. The binding model holds the number_pad state
+// those choices read, so both strings are derived from it here rather than
+// stored beside it.
+export function cmd_dirchars(state = game) {
+    const model = commandBindings(state);
+    return !model.numPad
+        ? (model.swapYZ ? 'hzkulnjb><' : 'hykulnjb><')
+        : (model.phone ? '41236987><' : '47896321><');
+}
+
+export function cmd_alphadirchars(state = game) {
+    const model = commandBindings(state);
+    return model.numPad ? 'hykulnjb><' : cmd_dirchars(state);
+}
+
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
@@ -1635,8 +1652,7 @@ export async function getdir(s, state = game) {
         const index = queued.dz
             ? (queued.dz > 0 ? 8 : 9)
             : xytodir(queued.dx, queued.dy);
-        const directionChars = state.dirchars ?? 'hykulnjb><';
-        dirsym = directionChars.charCodeAt(index);
+        dirsym = cmd_dirchars(state).charCodeAt(index);
     } else if (queued?.typ === CMDQ_KEY) {
         dirsym = queued.key;
     } else if (queued) {
@@ -4348,11 +4364,6 @@ export function reset_commands(initial = false, state = game) {
         resetCommandBindingModel(model, numberPad, mode);
     }
     if (updated) state.serialno = (state.serialno ?? 0) + 1;
-    const direction = !model.numPad
-        ? (model.swapYZ ? 'hzkulnjb><' : 'hykulnjb><')
-        : (model.phone ? '41236987><' : '47896321><');
-    state.dirchars = direction;
-    state.alphadirchars = model.numPad ? 'hykulnjb><' : direction;
     update_rest_on_space(state);
     state.extcmd_char = cmd_from_func(doextcmd, state);
 }
