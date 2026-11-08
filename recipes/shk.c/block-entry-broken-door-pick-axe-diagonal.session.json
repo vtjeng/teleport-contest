@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51127,
+      "datetime": "20361114093000",
+      "nethackrc": "OPTIONS=name:Doorward,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "\u00164\n\u0014  HHHHhhhhhh.#wizwish\npick-axe\nh #wizwish\nbroken door\nbs"
+    }
+  ],
+  "comment": "shk.c block_entry(): a Samurai carrying a wished pick-axe stands on the broken door of a Dlvl 4 general store whose shopkeeper is at home, then steps diagonally into the shop. The shop is room index 0, so its room number is 3, and C's IS_SHOP(roomno) at shk.c:5837 reads svr.rooms[3], an ordinary room: block_entry() returns FALSE and the hero walks in without \"blocks your way!\". ^V 4 reaches the level, ^T places the hero east of the door (the two spaces dismiss the prompt's --More-- and the getpos tip), the pick-axe is wished before stepping onto the door so the shopkeeper returns home to block it, and #wizwish \"broken door\" sets D_BROKEN on the hero's doorway. The final s lets the shopkeeper react to the hero inside."
+}

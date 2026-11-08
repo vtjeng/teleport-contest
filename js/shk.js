@@ -862,10 +862,19 @@ export async function u_left_shop(
 
 // C ref: shk.c block_door() (5791-5821). The caller supplies the message
 // operation because the C helper prints before returning TRUE.
+//
+// C tests IS_SHOP(roomno) with the room number, not roomno - ROOMOFFSET as
+// the other IS_SHOP() callers do, so it reads svr.rooms[index + 3]: another
+// room, a subroom, or a slot past the level's last room. The shopkeeper
+// blocks only when that slot holds a shop, which on most levels it does not.
+// A slot past the last live room keeps whatever an earlier level of the same
+// process wrote there; this port does not keep those leftovers, and
+// mapseen_room() reads such a slot as no room for every caller.
 export async function block_door(x, y, state = game, { message = ttyPline } = {}) {
     const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
-    if (roomno < ROOMOFFSET || !IS_DOOR(state.level?.at(x, y)?.typ)
-        || roomno !== state.u?.ushops?.[0]) return false;
+    if (roomno < 0 || !IS_SHOP(roomno, state)) return false;
+    if (!IS_DOOR(state.level?.at(x, y)?.typ)) return false;
+    if (roomno !== (state.u?.ushops?.[0] ?? 0)) return false;
     const shopkeeper = shop_keeper(roomno, state);
     const extension = shopkeeper?.mextra?.eshk;
     if (!shopkeeper || !inhishop(shopkeeper, state) || !extension
@@ -890,6 +899,8 @@ export async function block_entry(x, y, state = game, { message = ttyPline } = {
     const sourceMask = source?.flags ?? 0;
     if (!IS_DOOR(source?.typ) || sourceMask !== D_BROKEN) return false;
     const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    // shk.c:5837 passes the room number to IS_SHOP() too; see block_door().
+    if (roomno < 0 || !IS_SHOP(roomno, state)) return false;
     const shopkeeper = shop_keeper(roomno, state);
     const extension = shopkeeper?.mextra?.eshk;
     if (!shopkeeper || !inhishop(shopkeeper, state) || !extension

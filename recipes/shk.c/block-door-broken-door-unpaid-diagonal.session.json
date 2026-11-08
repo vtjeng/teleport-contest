@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72358,
+      "datetime": "20370305211500",
+      "nethackrc": "OPTIONS=name:Ledgerkeep,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "\u00163\n\u0014  HHHHhhk.h #wizwish\nbroken door\nbh, lus"
+    }
+  ],
+  "comment": "shk.c block_door(): a dwarvish Valkyrie with no digging tool breaks the doorway of a Dlvl 3 general store by #wizwish, steps diagonally in, picks up a food ration so the bill is not empty, and steps diagonally back onto the broken door with the shopkeeper at home. The shop is room index 0, so C's IS_SHOP(roomno) at shk.c:5796 reads svr.rooms[3], an ordinary room: block_door() returns FALSE, test_move() admits the diagonal step, and the shopkeeper says \"Please pay before leaving.\" instead of blocking. The final s passes one turn on the doorway."
+}
