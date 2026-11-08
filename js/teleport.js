@@ -249,8 +249,7 @@ import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import {
-    BFlying, Blind, Blinded, Confusion, EFlying, Flying, HConfusion, HFlying,
+import { Blind, Blinded, Confusion, Flying, HConfusion,
     HStun, Hallucination, Levitation, Stunned,
 } from './youprop.js';
 
@@ -1400,7 +1399,7 @@ export async function teleok(x, y, trapok, state = game, rawEnv = {}) {
         else if (trap.ttyp === VIBRATING_SQUARE)
             trapok = true;
         else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
-            && (Levitation(state.u) || Flying_prop(state)))
+            && (Levitation(state.u) || Flying(state.u)))
             trapok = true;
         if (!trapok)
             return false;
@@ -1414,10 +1413,6 @@ export async function teleok(x, y, trapok, state = game, rawEnv = {}) {
     return true;
 }
 
-
-function Flying_prop(state) {
-    return Boolean((HFlying(state.u) || EFlying(state.u)) && !BFlying(state.u));
-}
 
 function Teleport_control_prop(state) {
     const p = state.u?.uprops?.[TELEPORT_CONTROL];
