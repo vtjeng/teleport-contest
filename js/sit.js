@@ -23,7 +23,6 @@ import {
     FAST,
     FROMOUTSIDE,
     FOUNTAIN,
-    HALF_SPDAM,
     HEAD,
     INTRINSIC,
     INVIS,
@@ -124,7 +123,8 @@ import {
     Antimagic, Blind, Cold_resistance, Deaf, Drain_resistance,
     EAcid_resistance, ETelepat, Fire_resistance, Flying, HAcid_resistance,
     HBlinded, HConfusion, HSee_invisible, HTelepat, Half_physical_damage,
-    Hallucination, Levitation, See_invisible, Shock_resistance, Slimed,
+    Half_spell_damage, Hallucination, Levitation, See_invisible,
+    Shock_resistance, Slimed,
 } from './youprop.js';
 
 
@@ -952,9 +952,8 @@ export async function rndcurse(state = game, rawEnv = {}) {
         ++nobj;
     }
     // C reads these macros again after the aura output and inventory count.
-    const halfSpell = state.u.uprops?.[HALF_SPDAM];
     const antimagic = Antimagic(state.u);
-    const halfSpellDamage = Boolean(halfSpell?.intrinsic || halfSpell?.extrinsic);
+    const halfSpellDamage = Half_spell_damage(state.u);
     let cnt = random.rnd(Math.trunc(6 / (Number(antimagic) + Number(halfSpellDamage) + 1)));
     if (nobj) {
         for (; cnt > 0; --cnt) {

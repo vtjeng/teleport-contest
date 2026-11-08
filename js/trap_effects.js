@@ -19,7 +19,6 @@
 import {
     ANTI_MAGIC,
     ARROW_TRAP,
-    UNCHANGING,
     ARTICLE_NONE,
     ARTICLE_THE,
     A_CHA,
@@ -49,7 +48,6 @@ import {
     FORCETRAP,
     FROMOUTSIDE,
     HEAD,
-    HALF_SPDAM,
     HOLE,
     HURTLING,
     IS_STWALL,
@@ -408,8 +406,9 @@ import { Punished } from './steed.js';
 import {
     Antimagic, Blind, Deaf, EDrain_resistance, EFumbling, EInvis,
     ESleep_resistance, Fire_resistance, Flying, HConfusion, HDrain_resistance,
-    HFumbling, HInvis, HSleep_resistance, Half_physical_damage, Hallucination,
-    Invis, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible,
+    HFumbling, HInvis, HSleep_resistance, Half_physical_damage,
+    Half_spell_damage, Hallucination, Invis, Levitation, Maybe_Half_Phys,
+    Passes_walls, See_invisible, Unchanging,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -2427,9 +2426,8 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
         if (antimagicTrapHero(state)) {
             let damage = random.rnd(4);
             const hp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
-            const halfSpell = state.u?.uprops?.[HALF_SPDAM];
             if (Half_physical_damage(state.u)
-                || halfSpell?.intrinsic || halfSpell?.extrinsic) {
+                || Half_spell_damage(state.u)) {
                 damage += random.rnd(4);
             }
             if (state.uwep && is_art(state.uwep, ART_MAGICBANE))
@@ -3114,10 +3112,6 @@ function antimagicTrapHero(state) {
     return Antimagic(state.u);
 }
 
-function unchangingTrapHero(state) {
-    const property = state.u?.uprops?.[UNCHANGING];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // C ref: trap.c trapeffect_poly_trap() (2453-2525). The monster arm's
 // polymorph resistance result is consumed here; C discards newcham()'s
@@ -3161,7 +3155,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
                 ...env, hooks: { ...env.hooks, message },
             });
         } else if (antimagicTrapHero(state)
-            || unchangingTrapHero(state)) {
+            || Unchanging(state.u)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await message(plineYouFeel('momentarily different.', state), state, env);
         } else {

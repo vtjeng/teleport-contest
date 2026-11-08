@@ -7,8 +7,7 @@ import {
     DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, GRAVE, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
-    SUPPRESS_SADDLE, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
-    UNCHANGING, Upolyd, has_mgivenname, is_pit, plur, u_at,
+    SUPPRESS_SADDLE, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG, Upolyd, has_mgivenname, is_pit, plur, u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { acurr, exercise } from './attrib.js';
@@ -65,13 +64,9 @@ import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
 import {
     Blind, Confusion, Deaf, Flying, Fumbling, HConfusion, HStun,
-    Hallucination, Levitation, Maybe_Half_Phys, Stunned,
+    Hallucination, Levitation, Maybe_Half_Phys, Stunned, Unchanging,
 } from './youprop.js';
 
-function property(state, index) {
-    const p = state.u.uprops[index];
-    return Boolean(p?.intrinsic || p?.extrinsic);
-}
 
 // C ref: music.c awaken_scare() (45-60). The waiting arm excludes scare
 // checks, including their resistance draw, even when the sound is scary.
@@ -500,7 +495,7 @@ const beats = ['stepper', 'one drop', 'slow two', 'triple stroke roll',
 // Return the string and C's boolean out-parameter together.
 export function improvised_notes(state = game, random = coreRandom) {
     state.context ??= {};
-    if (!(property(state, UNCHANGING) && state.context.jingle)) {
+    if (!(Unchanging(state.u) && state.context.jingle)) {
         const count = random.rnd(5); // C char jingle[6], excluding its NUL.
         let notes = '';
         for (let i = 0; i < count; i++) notes += 'ABCDEFG'[random.rn2(7)];

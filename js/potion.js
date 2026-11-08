@@ -96,8 +96,6 @@ import {
     KILLED_BY,
     KILLED_BY_AN,
     BOLT_LIM,
-    FIXED_ABIL,
-    FREE_ACTION,
     G_GONE,
     HEAD,
     LEG,
@@ -117,7 +115,6 @@ import {
     POTHIT_HERO_THROW,
     POTHIT_OTHER_THROW,
     PLNMSG_OBJ_GLOWS,
-    PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
     M_SEEN_SLEEP,
     SICK,
@@ -132,7 +129,6 @@ import {
     SHOPBASE,
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
-    UNCHANGING,
     Upolyd,
     VOMITING,
     W_SADDLE,
@@ -313,12 +309,14 @@ import { obj_unpolyable, poly_obj } from './zap.js';
 import {
     Acid_resistance, Antimagic, BBlinded, BInvis, BLevitation, Blind,
     Blind_telepat, Blinded, BlindedTimeout, Blindfolded, Cold_resistance,
-    Confusion, Deaf, Detect_monsters, EBlinded, EHalluc_resistance, EWarn_of_mon, Fire_resistance, Glib, HBlinded,
-    HConfusion, HDeaf, HDetect_monsters, HHallucination, HInvis,
-    HSee_invisible, HStun, Halluc_resistance, Hallucination,
+    Confusion, Deaf, Detect_monsters, EBlinded, EHalluc_resistance,
+    EWarn_of_mon, Fast, Fire_resistance, Fixed_abil, Free_action, Glib,
+    HBlinded, HConfusion, HDeaf, HDetect_monsters, HFast, HHallucination,
+    HInvis, HSee_invisible, HStun, Halluc_resistance, Hallucination,
     Infravision, Invis, Levitation, Maybe_Half_Phys, PermaBlind,
-    Poison_resistance, See_invisible, Sick, Sick_resistance, Sleep_resistance,
-    Slimed, Stoned, Strangled, Unaware, Vomiting, Wounded_legs,
+    Poison_resistance, Protection_from_shape_changers, See_invisible, Sick,
+    Sick_resistance, Sleep_resistance, Slimed, Stoned, Strangled, Unaware,
+    Unchanging, Very_fast, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
@@ -1223,7 +1221,7 @@ async function peffect_gain_ability(otmp, state = game, env = {}) {
     if (otmp.cursed) {
         await message('Ulch!  That potion tasted foul!', state);
         state.gp.potion_unkn++;
-    } else if (fixedAbilities(state)) {
+    } else if (Fixed_abil(state.u)) {
         state.gp.potion_nothing++;
     } else {
         let index = -1;
@@ -1248,25 +1246,17 @@ async function peffect_gain_ability(otmp, state = game, env = {}) {
 // print the speed-change message.
 export async function speed_up(duration, state = game) {
     const hero = state.u;
-    const prop = hero.uprops[FAST] ??= { intrinsic: 0, extrinsic: 0 };
 
-    // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast).
-    // True when the hero has a timed speed (non-intrinsic timeout bits) or
-    // extrinsic speed (speed boots, etc.).
-    const Very_fast = Boolean((prop.intrinsic & ~INTRINSIC) || prop.extrinsic);
-    // C ref: youprop.h:376 Fast = (HFast || EFast).
-    const Fast = Boolean(prop.intrinsic || prop.extrinsic);
-
-    if (!Very_fast)
+    if (!Very_fast(hero))
         await ttyPline(
-            `You are suddenly moving ${Fast ? '' : 'much '}faster.`, state);
+            `You are suddenly moving ${Fast(hero) ? '' : 'much '}faster.`, state);
     else
         await ttyPline(
             `Your ${makeplural(body_part(LEG, state.youmonst))} get new energy.`,
             state);
 
     await exercise(A_DEX, true, state);
-    incr_itimeout(prop, duration);
+    incr_itimeout(hero.uprops[FAST], duration);
 }
 
 // C ref: potion.c peffect_speed() (1052-1070). Handle the POT_SPEED and
@@ -1274,7 +1264,6 @@ export async function speed_up(duration, state = game) {
 async function peffect_speed(otmp, state = game) {
     const is_speed = (otmp.otyp === POT_SPEED);
     const hero = state.u;
-    const prop = hero.uprops[FAST] ??= { intrinsic: 0, extrinsic: 0 };
 
     // C ref: 1057-1061. Skip when mounted; heal_legs() would heal the steed's
     // legs instead. Fail-closed: u.usteed is not ported.
@@ -1290,9 +1279,9 @@ async function peffect_speed(otmp, state = game) {
 
     // C ref: 1066-1069. Non-cursed potion grants permanent intrinsic speed.
     if (is_speed && !otmp.cursed
-        && !(prop.intrinsic & INTRINSIC)) {
+        && !(HFast(hero) & INTRINSIC)) {
         await ttyPline('Your quickness feels very natural.', state);
-        prop.intrinsic |= FROMOUTSIDE;
+        hero.uprops[FAST].intrinsic |= FROMOUTSIDE;
     }
 }
 
@@ -1323,9 +1312,6 @@ function poisonResistance(state) {
     return Poison_resistance(state.u);
 }
 
-function fixedAbilities(state) {
-    return Boolean(state.u?.uprops?.[FIXED_ABIL]?.extrinsic);
-}
 
 // C callers use the same message, random, and encumbrance operations for the
 // potion effect and the attribute helpers it calls. In particular,
@@ -1380,7 +1366,7 @@ async function peffect_sickness(otmp, state = game, env = {}) {
                 + (otmp.fromsink
                     ? 'contaminated tap water'
                     : 'contaminated potion');
-            if (!fixedAbilities(state)) {
+            if (!Fixed_abil(state.u)) {
                 await poisontell(typ, false, state, env);
                 await adjattrib(
                     typ,
@@ -1577,7 +1563,7 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
 // spends the source-ordered rn1() duration, stores the interruption reason
 // and completion message for unmul(), and exercises Dexterity downward.
 async function peffect_paralysis(otmp, state = game) {
-    if (Free_action(state)) {
+    if (Free_action(state.u)) {
         await ttyPline('You stiffen momentarily.', state);
         return;
     }
@@ -1610,7 +1596,7 @@ async function peffect_paralysis(otmp, state = game) {
 // after nearby monsters forget it. Keep the source's message, observation,
 // duration draw, and fall_asleep() order.
 async function peffect_sleeping(otmp, state = game, env = {}) {
-    if (Sleep_resistance(state.u) || Free_action(state)) {
+    if (Sleep_resistance(state.u) || Free_action(state.u)) {
         monstseesu(M_SEEN_SLEEP, state);
         await ttyPline('You yawn.', state);
     } else {
@@ -1697,8 +1683,7 @@ async function peffect_polymorph(otmp, state = game) {
         state,
     );
 
-    const unchanging = state.u.uprops[UNCHANGING];
-    if (unchanging.intrinsic || unchanging.extrinsic)
+    if (Unchanging(state.u))
         return;
 
     if (!otmp.blessed || state.u.umonnum !== state.u.umonster) {
@@ -2284,11 +2269,6 @@ export async function toggle_blindness(state = game, env = {}) {
 
 
 
-// youprop.h:383 Free_action reads the extrinsic field alone; an intrinsic
-// FREE_ACTION (wizard-mode #wizintrinsic) does not count.
-function Free_action(state) {
-    return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
-}
 
 
 // C ref: youprop.h:405 Half_gas_damage, "wrap it round your head to ward off
@@ -2499,8 +2479,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                 youFeel(`a little ${Hallucination(state.u) ? 'normal' : 'strange'}.`, state),
                 state,
             );
-            if (!(state.u.uprops[UNCHANGING]?.intrinsic
-                || state.u.uprops[UNCHANGING]?.extrinsic)
+            if (!Unchanging(state.u)
                 && !(Antimagic(state.u)))
                 await polyself(POLY_NOFLAGS, state, env);
             break;
@@ -2653,8 +2632,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                         await message(`${Monnam(mon, state, env)} looks healthier.`, state);
                     await healmon(mon, random.d(2, 6), 0);
                     if (is_were(mon.data) && is_human(mon.data)
-                        && !(state.u.uprops[PROT_FROM_SHAPE_CHANGERS]?.intrinsic
-                            || state.u.uprops[PROT_FROM_SHAPE_CHANGERS]?.extrinsic)) {
+                        && !Protection_from_shape_changers(state.u)) {
                         await new_were(mon, env);
                     }
                 }
@@ -2899,7 +2877,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         break;
     case POT_PARALYSIS:
         kn++;
-        if (!Free_action(state)) {
+        if (!Free_action(state.u)) {
             await message('Something seems to be holding you.', state);
             nomul(-random.rnd(5), state);
             state.multi_reason = 'frozen by a potion';
@@ -2911,7 +2889,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         break;
     case POT_SLEEPING:
         kn++;
-        if (!Free_action(state) && !Sleep_resistance(state.u)) {
+        if (!Free_action(state.u) && !Sleep_resistance(state.u)) {
             await message(youFeel('rather tired.', state), state);
             nomul(-random.rnd(5), state);
             state.multi_reason = 'sleeping off a magical draught';
@@ -2924,10 +2902,9 @@ export async function potionbreathe(obj, state = game, env = {}) {
         break;
     case POT_SPEED:
         {
-            const fast = state.u.uprops[FAST];
-            if (!(fast.intrinsic || fast.extrinsic))
+            if (!Fast(state.u))
                 await message('Your knees seem more flexible now.', state);
-            incr_itimeout(fast, random.rnd(5));
+            incr_itimeout(state.u.uprops[FAST], random.rnd(5));
             await exercise(A_DEX, true, state, random);
         }
         break;

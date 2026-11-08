@@ -121,7 +121,7 @@ import { canseemon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
-    Conflict, Deaf, Displaced, Hallucination, Invis,
+    Conflict, Deaf, Displaced, HProtection, Hallucination, Invis,
 } from './youprop.js';
 
 // C ref: priest.c local constants.
@@ -1137,9 +1137,8 @@ export async function priest_talk(priest, state = game, env = {}) {
         // compares against 2*suggested, not suggested*quan.
         let origUblessed = Math.trunc(u.ublessed ?? 0);
         u.uprops ??= [];
-        const protection = u.uprops[PROTECTION] ??= { intrinsic: 0 };
-        if (!(protection.intrinsic & INTRINSIC)) {
-            protection.intrinsic |= FROMOUTSIDE;
+        if (!(HProtection(u) & INTRINSIC)) {
+            u.uprops[PROTECTION].intrinsic |= FROMOUTSIDE;
             origUblessed = -1;
         }
 

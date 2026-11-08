@@ -79,7 +79,6 @@ import {
     M_SEEN_FIRE,
     M_SEEN_MAGR,
     M_SEEN_SLEEP,
-    FAST,
     MON_EXPLODE,
     MSLOW,
     NATTK,
@@ -114,10 +113,8 @@ import {
     M_AP_OBJECT,
     M_AP_NOTHING,
     OBJ_FREE,
-    PROT_FROM_SHAPE_CHANGERS,
     SICK_ALL,
     SLIMED,
-    SLOW_DIGESTION,
     STOMACH,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
@@ -130,13 +127,11 @@ import {
     TIMEOUT,
     POOL,
     FIRE_RES,
-    FREE_ACTION,
     TEST_MOVE,
     LEG,
     LOW_PM,
     LEFT_SIDE,
     RIGHT_SIDE,
-    UNCHANGING,
     W_ARM,
     W_ARMC,
     W_ARMF,
@@ -263,7 +258,6 @@ import {
     mpoisons_subj,
     mtrapped_in_pit,
     mdamageu,
-    Protection_from_shape_changers,
     u_slow_down,
     u_slip_free,
 } from './mhitu.js';
@@ -692,18 +686,15 @@ import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
     Acid_resistance, Antimagic, Blind, Blind_telepat, Cold_resistance,
     Confusion, Deaf, Detect_monsters, Drain_resistance, EBlinded, EFumbling,
-    EMagical_breathing, ESwimming, Fire_resistance, Flying,
-    HBlinded, HConfusion, HFumbling, HMagical_breathing,
-    HStun, HSwimming, Half_physical_damage, Hallucination, Invisible,
-    Levitation, Maybe_Half_Phys, See_invisible, Shock_resistance, Sick,
-    Sick_resistance, Sleep_resistance, Slimed, Stone_resistance, Stoned,
-    Stunned, Teleport_control,
+    EMagical_breathing, ESwimming, Fire_resistance, Flying, Free_action,
+    HBlinded, HConfusion, HFast, HFumbling, HMagical_breathing, HStun,
+    HSwimming, Half_physical_damage, Hallucination, Invisible, Levitation,
+    Maybe_Half_Phys, Protection_from_shape_changers, See_invisible,
+    Shock_resistance, Sick, Sick_resistance, Sleep_resistance, Slimed,
+    Slow_digestion, Stone_resistance, Stoned, Stunned, Teleport_control,
+    Unchanging,
 } from './youprop.js';
 
-function propertyPresent(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 
 // C ref: uhitm.c erode_armor() (126-183). Rust, acid and decay effects keep
@@ -1166,7 +1157,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         // An unseen mimic is treated as though the hero stumbled onto a
         // visible mimic, including the source's adjacent-sticking check.
         if (M_AP_TYPE(mtmp)
-            && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
+            && !Protection_from_shape_changers(state.u)
             && !state.u.ustuck && !mtmp.mflee
             && dmgtype(mtmp.data, AD_STCK)
             && m_next2u(mtmp, state)) {
@@ -1179,7 +1170,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
 
     // 254-266: a mimicking target the hero cannot sense.
     if (M_AP_TYPE(mtmp)
-        && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
+        && !Protection_from_shape_changers(state.u)
         && !glyph_is_warning(glyph)
         && !sensemon(mtmp, state)) {
         if (glyph_is_invisible(glyph)) {
@@ -1389,13 +1380,11 @@ export function heroStoneResistance(state) {
 
 
 export function heroSlowDigestion(state) {
-    const property = state.u?.uprops?.[SLOW_DIGESTION];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Slow_digestion(state.u);
 }
 
 export function heroUnchanging(state) {
-    const property = state.u?.uprops?.[UNCHANGING];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Unchanging(state.u);
 }
 
 export function heroHatesSilver(state) {
@@ -5750,7 +5739,7 @@ export async function mhitm_ad_plys(
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, { ...env, random, message },
             ))) {
-            if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+            if (Free_action(state.u)) {
                 await message('You momentarily stiffen.', state, env);
             } else {
                 if (Blind(state.u)) {
@@ -5798,7 +5787,7 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, env);
         if (!random.rn2(4) && state.u.ulycn === NON_PM
-            && !Protection_from_shape_changers(state)
+            && !Protection_from_shape_changers(state.u)
             && !defends(AD_WERE, state.uwep, state)
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, { ...env, random },
@@ -5855,7 +5844,7 @@ export async function mhitm_ad_drin(
                 state, effectEnv);
             state.gs.skipdrin = true;
             mhm.damage = 0;
-            if (!propertyPresent(state.u, UNCHANGING)
+            if (!Unchanging(state.u)
                 && pd === state.mons?.[PM_GREEN_SLIME]
                 && !Slimed(state.u)) {
                 await message(
@@ -6507,7 +6496,7 @@ export async function mhitm_ad_slow(
     } else if (mdef === state.youmonst) {
         await hitmsg(magr, mattk, state, effectEnv);
         if (!negated
-            && state.u?.uprops?.[FAST]?.intrinsic
+            && HFast(state.u)
             && !random.rn2(4)) {
             await u_slow_down(state, effectEnv);
         }
@@ -8187,7 +8176,7 @@ export async function passive(
                             state,
                             effectEnv,
                         );
-                    } else if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+                    } else if (Free_action(state.u)) {
                         await effectEnv.message(
                             `You momentarily stiffen under ${s_suffix(mon_nam(mon, state, effectEnv))} gaze!`,
                             state,
@@ -8215,7 +8204,7 @@ export async function passive(
                     );
                     if (!random.rn2(500)) change_luck(-1, state);
                 }
-            } else if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+            } else if (Free_action(state.u)) {
                 await effectEnv.message('You momentarily stiffen.', state,
                     effectEnv);
             } else {

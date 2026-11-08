@@ -39,7 +39,6 @@ import {
     D_CLOSED,
     ESHK,
     EYE,
-    FAST,
     G_GONE,
     HEAD,
     helpless,
@@ -303,7 +302,7 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
 import {
-    Blind, Conflict, Deaf, Displaced, EDetect_monsters, ETelepat,
+    Blind, Conflict, Deaf, Displaced, EDetect_monsters, ETelepat, Fast,
     HDetect_monsters, HTelepat, Invis, Passes_walls,
 } from './youprop.js';
 
@@ -2904,11 +2903,6 @@ function noitPronoun(shopkeeper, field, state, random) {
     return gender[field];
 }
 
-// C ref: youprop.h:376 Fast = (HFast || EFast).
-function heroIsFast(state) {
-    const value = state.u?.uprops?.[FAST];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: shk.c u_entered_shop() (751-917). The source's void helper is
 // exposed as a boolean for the existing JavaScript callers; every non-empty
@@ -3136,7 +3130,7 @@ export async function u_entered_shop(
             }
             shouldBlock = true;
         } else {
-            shouldBlock = heroIsFast(state)
+            shouldBlock = Fast(state.u)
                 && Boolean(
                     sobj_at(PICK_AXE, state.u.ux, state.u.uy, state)
                     || sobj_at(
@@ -4011,8 +4005,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                     carrying(PICK_AXE, state)
                     || carrying(DWARVISH_MATTOCK, state),
                 );
-                const fast = hero.uprops?.[FAST];
-                if (fast?.intrinsic || fast?.extrinsic) {
+                if (Fast(hero)) {
                     badinv = badinv || Boolean(
                         sobj_at(PICK_AXE, hero.ux, hero.uy, state)
                         || sobj_at(DWARVISH_MATTOCK, hero.ux, hero.uy, state),

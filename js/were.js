@@ -4,7 +4,6 @@
 
 import {
     NEUTRAL, NO_MM_FLAGS, NON_PM, PARANOID_WERECHANGE,
-    POLYMORPH_CONTROL, PROT_FROM_SHAPE_CHANGERS, UNCHANGING,
 } from './const.js';
 import { tamedog } from './dog.js';
 import { game } from './gstate.js';
@@ -37,16 +36,17 @@ import { an } from './objnam.js';
 import { youFeel } from './pline.js';
 import { is_were } from './mondata.js';
 import { ttyPline } from './tty_message.js';
-import { Stunned, Unaware } from './youprop.js';
+import {
+    Polymorph_control, Protection_from_shape_changers, Stunned, Unaware,
+    Unchanging,
+} from './youprop.js';
 
 // C ref: were.c you_were() (192-212). Controlled changes ask before testing
 // nearby monsters; an uncontrolled change is suppressed by that test.
 export async function you_were(state = game, env = {}) {
-    const active = (property) => Boolean(state.u.uprops[property].intrinsic
-        || state.u.uprops[property].extrinsic);
-    const controllable_poly = active(POLYMORPH_CONTROL)
+    const controllable_poly = Polymorph_control(state.u)
         && !(Boolean(Stunned(state.u)) || Unaware(state));
-    if (active(UNCHANGING) || state.u.umonnum === state.u.ulycn)
+    if (Unchanging(state.u) || state.u.umonnum === state.u.ulycn)
         return;
     if (controllable_poly) {
         const beast = state.mons[state.u.ulycn].pmnames[NEUTRAL].slice(4);
@@ -65,9 +65,7 @@ export async function you_were(state = game, env = {}) {
 // before deciding whether to leave beast form; Unchanging blocks only that
 // form change. A retained beast gets a fallback timer only when none remains.
 export async function you_unwere(purify, state = game, env = {}) {
-    const active = (property) => Boolean(state.u.uprops[property].intrinsic
-        || state.u.uprops[property].extrinsic);
-    const controllable_poly = active(POLYMORPH_CONTROL)
+    const controllable_poly = Polymorph_control(state.u)
         && !(Boolean(Stunned(state.u)) || Unaware(state));
     const message = env.message ?? ttyPline;
     if (purify) {
@@ -75,7 +73,7 @@ export async function you_unwere(purify, state = game, env = {}) {
         set_ulycn(NON_PM, state);
     }
     let leaveBeast = false;
-    if (!active(UNCHANGING) && is_were(state.youmonst.data)
+    if (!Unchanging(state.u) && is_were(state.youmonst.data)
         && !monster_nearby(state)) {
         if (controllable_poly) {
             leaveBeast = !await paranoid_query(
@@ -100,11 +98,6 @@ export function set_ulycn(which, state = game) {
     set_uasmon(state);
 }
 
-// youprop.h:376 Protection_from_shape_changers, intrinsic or extrinsic.
-function Protection_from_shape_changers(state) {
-    const property = state.u.uprops[PROT_FROM_SHAPE_CHANGERS];
-    return Boolean(property.intrinsic || property.extrinsic);
-}
 
 // C ref: were.c were_summon() (142-188). "create monsters of the appropriate
 // type for the lycanthrope `ptr`". C returns the total created and writes
@@ -128,7 +121,7 @@ export async function were_summon(
     }
 
     visible.value = 0;
-    if (Protection_from_shape_changers(state) && !yours)
+    if (Protection_from_shape_changers(state.u) && !yours)
         return 0;
     for (let i = draws.rnd(5); i > 0; i--) {
         let typ;

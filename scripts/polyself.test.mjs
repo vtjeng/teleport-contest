@@ -564,7 +564,7 @@ test('polyself keeps the C early guards, selector, and final gate in order', () 
     assert.match(C_FUNCTION, /if \(Unchanging\)[\s\S]*rn2\(20\)/u);
     assert.match(C_FUNCTION, /name_to_mon\(buf, &gvariant\)[\s\S]*name_to_monclass/u);
     assert.match(C_FUNCTION, /do \{[\s\S]*rn1\(SPECIAL_PM - LOW_PM, LOW_PM\)/u);
-    assert.match(JS_FUNCTION, /if \(Unchanging\(state\)\)[\s\S]*rn2\(20\)/u);
+    assert.match(JS_FUNCTION, /if \(Unchanging\(state\.u\)\)[\s\S]*rn2\(20\)/u);
     assert.match(JS_FUNCTION, /name_to_monplus\(buf[\s\S]*name_to_monclass/u);
     assert.match(JS_FUNCTION, /rn1\(M\.SPECIAL_PM - M\.LOW_PM, M\.LOW_PM\)/u);
     assert.match(JS_FUNCTION, /were_beastie\(mntmp\)[\s\S]*counter_were/u);

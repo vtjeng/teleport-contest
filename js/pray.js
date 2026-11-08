@@ -58,7 +58,6 @@ import {
     EXT_ENCUMBER,
     FAST,
     FOOT,
-    FIXED_ABIL,
     FROMOUTSIDE,
     HUNGRY,
     HVY_ENCUMBER,
@@ -89,7 +88,6 @@ import {
     PASSES_WALLS,
     PLNMSG_OBJ_GLOWS,
     PROTECTION,
-    REFLECTING,
     ROOM,
     SCORR,
     SDOOR,
@@ -111,7 +109,6 @@ import {
     something,
     TT_BURIEDBALL,
     TT_LAVA,
-    UNCHANGING,
     Upolyd,
     WEAK,
     W_SADDLE,
@@ -348,10 +345,11 @@ import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
     Antimagic, Blind, Blinded, BlindedTimeout, Blindfolded, Deaf,
-    Disint_resistance, EBlinded, EDisint_resistance, Flying, Glib, HBlinded,
-    HConfusion, HDeaf, HFast, HHallucination, HStealth, HStun, HTelepat,
-    Hallucination, Levitation, Passes_walls, Shock_resistance, Sick,
-    Slimed, Stoned, Strangled, Wounded_legs,
+    Disint_resistance, EBlinded, EDisint_resistance, EReflecting, Fixed_abil,
+    Flying, Glib, HBlinded, HConfusion, HDeaf, HFast, HHallucination,
+    HProtection, HStealth, HStun, HTelepat, Hallucination, Levitation,
+    Passes_walls, Reflecting, Shock_resistance, Sick, Slimed,
+    Stoned, Strangled, Unchanging, Wounded_legs,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -1185,21 +1183,7 @@ async function at_your_feet(str, state) {
 }
 
 
-// The intrinsic half of a youprop.h macro. Every trouble test below that reads
-// one names it here rather than reaching into u.uprops, so a stray `.extrinsic`
-// cannot creep into a test C writes as intrinsic-only.
-function intrinsic(state, propidx) {
-    return Math.trunc(state.u.uprops?.[propidx]?.intrinsic ?? 0);
-}
 
-function extrinsic(state, propidx) {
-    return Math.trunc(state.u.uprops?.[propidx]?.extrinsic ?? 0);
-}
-
-// C ref: youprop.h:372 Unchanging (HUnchanging || EUnchanging).
-function Unchanging(state) {
-    return Boolean(intrinsic(state, UNCHANGING) || extrinsic(state, UNCHANGING));
-}
 
 // C ref: pray.c critically_low_hp() (116-156). "critically low hit points if
 // hp <= 5 or hp <= maxhp/N for some N".
@@ -1281,7 +1265,7 @@ export function in_trouble(state = game) {
     if (Sick(state.u)) return TROUBLE_SICK;
     if (state.u.uhs >= WEAK) return TROUBLE_STARVING;
     if (region_danger(state)) return TROUBLE_REGION;
-    if ((!Upolyd(state.u) || Unchanging(state))
+    if ((!Upolyd(state.u) || Unchanging(state.u))
         && critically_low_hp(false, state))
         return TROUBLE_HIT;
     if (ismnum(state.u.ulycn)) return TROUBLE_LYCANTHROPE;
@@ -1299,7 +1283,7 @@ export function in_trouble(state = game) {
            otherwise "fix all troubles" would get stuck in a loop */
         if (welded(state.uwep, state)) return TROUBLE_UNUSEABLE_HANDS;
         if (Upolyd(state.u) && nohands(state.youmonst?.data)
-            && (!Unchanging(state)
+            && (!Unchanging(state.u)
                 || ((otmp = unchanger(state)) !== null && otmp.cursed)))
             return TROUBLE_UNUSEABLE_HANDS;
     }
@@ -1527,7 +1511,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         state.u.acurr.a[A_STR] = state.u.amax.a[A_STR];
         state.disp ??= {};
         state.disp.botl = true;
-        if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
+        if (Fixed_abil(state.u)) {
             if ((otmp = stuck_ring(
                 state.uleft, RIN_SUSTAIN_ABILITY, state,
             ))) {
@@ -1568,7 +1552,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
             break;
         }
         if (Upolyd(state.u) && nohands(state.youmonst?.data)) {
-            if (!Unchanging(state)) {
+            if (!Unchanging(state.u)) {
                 await ttyPline('Your shape becomes uncertain.', state);
                 await rehumanize(state);
             } else if ((otmp = unchanger(state)) && otmp.cursed) {
@@ -2681,10 +2665,8 @@ export async function pleased(g_align, state = game) {
                 await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
                 if (gift === 'Telepathy' && Blind(state.u)) await see_monsters(state);
             } else {
-                const prop = u.uprops[PROTECTION];
-                prop.intrinsic ??= 0;
-                if (!(prop.intrinsic & INTRINSIC)) {
-                    prop.intrinsic |= FROMOUTSIDE;
+                if (!(HProtection(u) & INTRINSIC)) {
+                    u.uprops[PROTECTION].intrinsic |= FROMOUTSIDE;
                     if (!u.ublessed) u.ublessed = rn1(3, 2);
                 } else {
                     u.ublessed++;
@@ -2760,8 +2742,7 @@ async function god_zaps_you(resp_god, state) {
         }
     } else {
         await ttyPline('Suddenly, a bolt of lightning strikes you!', state);
-        const reflecting = u.uprops?.[REFLECTING];
-        if (reflecting?.intrinsic || reflecting?.extrinsic) {
+        if (Reflecting(u)) {
             await shieldeff(u.ux, u.uy, state);
             if (Blind(state.u)) {
                 await ttyPline("For some reason you're unaffected.", state);
@@ -2808,7 +2789,7 @@ async function god_zaps_you(resp_god, state) {
 
         // do_wear.c disintegrate_arm() owns the source object-resistance roll
         // and all object/equipment effects. C discards its return value.
-        const reflectionExtrinsic = u.uprops?.[REFLECTING]?.extrinsic ?? 0;
+        const reflectionExtrinsic = EReflecting(u);
         const disintExtrinsic = EDisint_resistance(u);
         if (state.uarms
             && !(reflectionExtrinsic & W_ARMS)

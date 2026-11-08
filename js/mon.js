@@ -128,7 +128,6 @@ import {
     OPENDOOR,
     POISON_RES,
     POOL,
-    PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
     RLOC_NOMSG,
     ROOM,
@@ -721,7 +720,8 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import {
     Blind, Blind_telepat, Conflict, Deaf, EMagical_breathing,
     EPoison_resistance, Flying, HMagical_breathing, HPoison_resistance,
-    HTelepat, Hallucination, Levitation, Maybe_Half_Phys, Unaware,
+    HTelepat, Hallucination, Levitation, Maybe_Half_Phys,
+    Protection_from_shape_changers, Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -1099,8 +1099,7 @@ export function sanity_check_single_mon(
                 env,
             );
         else if (msg !== 'migr'
-            && (state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS]?.intrinsic
-                || state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS]?.extrinsic)) {
+            && Protection_from_shape_changers(state.u)) {
             sanityImpossible(
                 `mimic${isMimic ? '' : 'ker'} concealed as ${what}`
                 + ` despite Prot-from-shape-changers ${msg}`,
@@ -1271,11 +1270,7 @@ export function pm_to_cham(mndx, state = game) {
 // The forced-revert arm delegates to normal_shape(), which also preserves the
 // cancellation bit when newcham() clears it.
 export function restore_cham(monster, state = game, rawEnv = {}) {
-    const shapeChangerProtection
-        = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
-    if (shapeChangerProtection?.intrinsic
-        || shapeChangerProtection?.extrinsic
-        || monster.mcan) {
+    if (Protection_from_shape_changers(state.u) || monster.mcan) {
         return normal_shape(monster, state, rawEnv);
     }
     if (monster.cham === NON_PM)
@@ -2553,10 +2548,6 @@ function distressRandom(env = {}) {
     return random;
 }
 
-function distressPropertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 
 
@@ -3041,7 +3032,7 @@ function* apply_newcham_steps(
     }
 
     if (monster.cham === NON_PM && target.mlet === S_VAMPIRE
-        && !distressPropertyActive(state, PROT_FROM_SHAPE_CHANGERS)) {
+        && !Protection_from_shape_changers(state.u)) {
         monster.cham = pm_to_cham(monsndx(target), state);
     }
 
@@ -3146,10 +3137,7 @@ function newchamSourceGate(monster, state) {
     if (monster.cham !== NON_PM) return true;
     if (is_rider(olddata)) return false;
     if (mbirth_limit(monsndx(olddata)) < MAXMONNO) return false;
-    if (monster.mcan && !distressPropertyActive(
-        state,
-        PROT_FROM_SHAPE_CHANGERS,
-    )) {
+    if (monster.mcan && !Protection_from_shape_changers(state.u)) {
         monster.cham = pm_to_cham(monsndx(olddata), state);
         if (monster.cham !== NON_PM) monster.mcan = false;
     }
@@ -3590,7 +3578,7 @@ export function counter_were(mndx) {
 
 function preflightNewWere(monster, normalized) {
     const { state } = normalized;
-    if (distressPropertyActive(state, PROT_FROM_SHAPE_CHANGERS)
+    if (Protection_from_shape_changers(state.u)
         && is_human(monster.data)) {
         return null;
     }
@@ -4242,10 +4230,7 @@ export async function were_change(monster, rawEnv = {}) {
             'were_change requires initialized gw.were_changes',
         );
     }
-    const protection = distressPropertyActive(
-        state,
-        PROT_FROM_SHAPE_CHANGERS,
-    );
+    const protection = Protection_from_shape_changers(state.u);
     const humanForm = is_human(monster.data);
     if (humanForm && protection) return false;
 

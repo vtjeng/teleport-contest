@@ -30,7 +30,6 @@ import {
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
     NON_PM,
-    PROT_FROM_SHAPE_CHANGERS,
     In_mines,
     ismnum,
     BOOL_RANDOM,
@@ -209,6 +208,7 @@ import {
     start_timer,
     stop_timer,
 } from './timeout.js';
+import { Protection_from_shape_changers } from './youprop.js';
 
 // Keep source-order loops synchronous for the ordinary construction path, but
 // continue them after a Promise when a shape-changing monster or object
@@ -534,12 +534,6 @@ function createPostprocessTrap(specification, env) {
     }
 }
 
-// C ref: youprop.h Protection_from_shape_changers, the bare intrinsic OR
-// extrinsic bits without the `blocked` mask.
-function Protection_from_shape_changers(state) {
-    const value = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
@@ -661,7 +655,7 @@ function createMonsterBody(m, croom, env) {
         && ((mtmp.data.mlet === S_MIMIC)
             /* shapechanger (chameleons, et al, and vampires) */
             || (ismnum(mtmp.cham) && m.appear === M_AP_MONSTER))
-        && !Protection_from_shape_changers(state)) {
+        && !Protection_from_shape_changers(state.u)) {
         switch (m.appear) {
         case M_AP_FURNITURE: {
             // C: scan defsyms[] for the exact furniture explanation. The

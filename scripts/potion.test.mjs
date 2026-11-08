@@ -2371,7 +2371,7 @@ test('potionhit preserves the C polymorph message and squared vapor distance',
     assert.match(jsBody,
         /distance = isyou \? 0 : dist2\(\s*mon\.mx, mon\.my, state\.u\.ux, state\.u\.uy,/u);
     assert.match(jsBody,
-        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\.u\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\.u\)[\s\S]*?if \(!Unchanging\(state\.u\)\s*&& !\(?Antimagic\(state\.u\)/u);
 });
 
 test('potionhit wires lit oil through both C target arms', () => {

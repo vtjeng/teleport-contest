@@ -77,7 +77,6 @@ import {
     SHOPBASE,
     P_POLEARMS,
     PIT,
-    PROT_FROM_SHAPE_CHANGERS,
     STRAT_APPEARMSG,
     STRAT_CLOSE,
     STRAT_WAITFORU,
@@ -597,7 +596,7 @@ import {
     which_armor,
 } from './worn.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { Blind, See_invisible } from './youprop.js';
+import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -854,7 +853,7 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
 // mcorpsenm overlay established here remain intact.
 export function set_mimic_sym(monster, normalized) {
     const { random, state } = normalized;
-    if (!monster || heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) return;
+    if (!monster || Protection_from_shape_changers(state.u)) return;
     const x = monster.mx;
     const y = monster.my;
     const object = state.level.objects?.[x]?.[y];
@@ -1604,7 +1603,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !hatchEggCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
-        && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
+        && !Protection_from_shape_changers(state.u)) {
         if (isRogueLevel(state)) {
             throw new UnsupportedMonsterCreationError(
                 'initial chameleon on the rogue level',
@@ -2448,10 +2447,6 @@ export function rnd_defensive_item(monster, normalized) {
     }
 }
 
-function heroHasProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: muse.c rnd_misc_item(). No inventory-enabled shape-changer in this
 // initial-generation slice is a vampire shifter.
@@ -3245,7 +3240,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     monster.cham = NON_PM;
     const naturalShape = pm_to_cham(mndx, state);
     let initialShape = false;
-    if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
+    if (!Protection_from_shape_changers(state.u)
         && naturalShape !== NON_PM) {
         monster.cham = naturalShape;
         // C ref: makemon.c:1361. Vlad stays in his normal form so he

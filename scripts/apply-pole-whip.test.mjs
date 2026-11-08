@@ -271,7 +271,7 @@ test('use_whip imports the source helper for an undiscovered mimic', () => {
     assert.match(jsSource,
         /import \{[\s\S]*?stumble_onto_mimic[\s\S]*?\} from '\.\/uhitm\.js';/u);
     assert.match(jsWhipattack,
-        /if \(M_AP_TYPE\(monster\) && !applyPropertyActive\(PROT_FROM_SHAPE_CHANGERS, state\)\s*&& !sensemon\(monster, state\)\)\s*\{\s*await stumble_onto_mimic\(monster, state\);\s*doSnap = false;/u);
+        /if \(M_AP_TYPE\(monster\) && !Protection_from_shape_changers\(state\.u\)\s*&& !sensemon\(monster, state\)\)\s*\{\s*await stumble_onto_mimic\(monster, state\);\s*doSnap = false;/u);
     assert.match(uhitmSource,
         /export async function stumble_onto_mimic\(/u);
 });

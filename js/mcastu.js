@@ -16,8 +16,6 @@ import {
     EYE,
     KILLED_BY,
     Upolyd,
-    FREE_ACTION,
-    HALF_SPDAM,
     HEAD,
     M_AP_OBJECT,
     M_ATTK_HIT,
@@ -108,9 +106,10 @@ import {
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
     Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
-    Detect_monsters, Displaced, Fire_resistance, HConfusion, HHallucination,
-    HStun, Half_physical_damage, Halluc_resistance, Hallucination, Invis,
-    See_invisible, Shock_resistance, Unaware,
+    Detect_monsters, Displaced, Fire_resistance, Free_action, HConfusion,
+    HHallucination, HStun, Half_physical_damage, Half_spell_damage,
+    Halluc_resistance, Hallucination, Invis, See_invisible, Shock_resistance,
+    Unaware,
 } from './youprop.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
@@ -262,14 +261,6 @@ const mon_wizard_spells = [
     MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH,
 ];
 
-// ---- Property helpers (youprop.h macros) ----
-// Most C macros test (intrinsic | extrinsic) and respect a blocked alias only
-// for the few properties that have one.  The helpers here follow the same
-// structure, mirroring monmove.js and mhitu.js.
-function heroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 
 
@@ -556,7 +547,7 @@ export async function castmu(
     } else {
         dmg = random.d(Math.trunc(ml / 2) + 1, 6);
     }
-    if (heroProperty(state, HALF_SPDAM))
+    if (Half_spell_damage(state.u))
         dmg = Math.trunc((dmg + 1) / 2);
 
     const ret = M_ATTK_HIT;
@@ -726,7 +717,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     } else {
         monstunseesu(M_SEEN_FIRE, state);
     }
-    if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    if (Half_spell_damage(state.u)) dmg = Math.trunc((dmg + 1) / 2);
     await burn_away_slime(state, env);
     // C's item effects mutate the hero and may print through their own
     // fallback operations.
@@ -770,7 +761,7 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
     } else {
         monstunseesu(M_SEEN_ELEC | M_SEEN_REFL, state);
     }
-    if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    if (Half_spell_damage(state.u)) dmg = Math.trunc((dmg + 1) / 2);
     const effectEnv = {
         ...env,
         state,
@@ -795,7 +786,7 @@ async function mcast_paralyze(mtmp, env = {}) {
     const state = env.state ?? game;
     const antimagic = Antimagic(state.u);
     // youprop.h:383 Free_action is the extrinsic field alone.
-    const freeAction = Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
+    const freeAction = Free_action(state.u);
     let dmg = 0;
     if (antimagic || freeAction) {
         await shieldeff(state.u.ux, state.u.uy, state);
@@ -807,7 +798,7 @@ async function mcast_paralyze(mtmp, env = {}) {
         if ((state.multi ?? 0) >= 0 && typeof env.message === 'function')
             await env.message('You are frozen in place!', state);
         dmg = 4 + (mtmp.m_lev ?? 0);
-        if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+        if (Half_spell_damage(state.u)) dmg = Math.trunc((dmg + 1) / 2);
         monstunseesu(M_SEEN_MAGR, state);
     }
     nomul(-dmg, state);
@@ -986,7 +977,7 @@ async function mcast_stun_you(dmg, env = {}) {
     const hStun = HStun(state.u);
 
     if (Antimagic(state.u)
-        || state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+        || Free_action(state.u)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         if (!hStun)
@@ -999,7 +990,7 @@ async function mcast_stun_you(dmg, env = {}) {
             env,
         );
         dmg = random.d(acurr(state, A_DEX) < 12 ? 6 : 4, 4);
-        if (heroProperty(state, HALF_SPDAM))
+        if (Half_spell_damage(state.u))
             dmg = Math.trunc((dmg + 1) / 2);
         await make_stunned((hStun & TIMEOUT) + dmg, false, state,
             { ...env, message });
@@ -1025,7 +1016,7 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     await message('You suddenly feel weaker!', state, rawEnv);
     dmg = mtmp.m_lev - 6;
     if (dmg < 1) dmg = 1;
-    if (heroProperty(state, HALF_SPDAM))
+    if (Half_spell_damage(state.u))
         dmg = Math.trunc((dmg + 1) / 2);
     await losestr(
         random.rnd(dmg),
@@ -1185,7 +1176,7 @@ async function mcast_blind_you(env = {}) {
         if (numEyes !== 1) eyes = makeplural(eyes);
 
         await message(`Scales cover your ${eyes}!`, state);
-        await make_blinded(heroProperty(state, HALF_SPDAM) ? 100 : 200,
+        await make_blinded(Half_spell_damage(state.u) ? 100 : 200,
             false, state, { ...env, message });
         if (!Blind(state.u))
             await message(`Your ${vision_clears}`, state);
@@ -1252,7 +1243,7 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
     // HConfusion is the raw intrinsic field, not its low TIMEOUT bits.
     const oldConfusion = Boolean(Confusion(state.u));
     let damage = mtmp.m_lev;
-    if (heroProperty(state, HALF_SPDAM))
+    if (Half_spell_damage(state.u))
         damage = Math.trunc((damage + 1) / 2);
 
     const effectEnv = { ...rawEnv, message };

@@ -67,7 +67,6 @@ import {
     D_WARNED,
     FIRE_TRAP,
     G_GENOD,
-    HALF_SPDAM,
     HEAD,
     HOLE,
     ICE,
@@ -123,7 +122,6 @@ import {
     PIT,
     POISON_RES,
     POLY_TRAP,
-    PROT_FROM_SHAPE_CHANGERS,
     P_AXE,
     P_PICK_AXE,
     ROCKTRAP,
@@ -467,7 +465,8 @@ import * as O from './objects.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
     Aggravate_monster, Blind_telepat, Conflict, Deaf, Displaced,
-    Hallucination, Invis, Stealth, Unaware,
+    Half_spell_damage, Hallucination, Invis, Protection_from_shape_changers,
+    Stealth, Unaware,
 } from './youprop.js';
 
 
@@ -487,16 +486,6 @@ function movementEnv(env = {}) {
     };
 }
 
-// `blockedMatters` spells the `&& !B<prop>` conjunct that youprop.h writes for
-// six properties only: BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
-// FLYING, at :90, :181, :197, :209, :239 and :252. Every other macro is bare
-// intrinsic-or-extrinsic -- Displaced at :204, Conflict at :218 -- and passing
-// the flag for one of those would test a field no C path sets.
-function propertyActive(state, property, blockedMatters = false) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        && (!blockedMatters || !value?.blocked);
-}
 
 function doorMask(location) {
     // rm.h's doormask is struct rm's `flags`.
@@ -776,8 +765,7 @@ async function mind_blast(mtmp, env = {}) {
             await message(`It locks on to your ${source}!`, state, env);
             let dmg = random.rnd(15);
             // C ref: youprop.h Half_spell_damage
-            const halfSpdam = state.u?.uprops?.[HALF_SPDAM];
-            if (halfSpdam?.intrinsic || halfSpdam?.extrinsic)
+            if (Half_spell_damage(state.u))
                 dmg = Math.trunc((dmg + 1) / 2);
             await losehp(dmg, 'psychic blast', KILLED_BY_AN, state, env);
         }
@@ -1762,7 +1750,7 @@ export { is_vampshifter };
 export function can_fog(monster, state = game) {
     return !(state.mvitals?.[PM_FOG_CLOUD]?.mvflags & G_GENOD)
         && is_vampshifter(monster)
-        && !propertyActive(state, PROT_FROM_SHAPE_CHANGERS)
+        && !Protection_from_shape_changers(state.u)
         && !stuff_prevents_passage(monster, state);
 }
 

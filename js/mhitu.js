@@ -42,13 +42,10 @@ import {
     NO_MINVENT,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
-    PROTECTION,
-    PROT_FROM_SHAPE_CHANGERS,
     P_WHIP,
     RLOC_NOMSG,
     STONING,
     SHOCK_RES,
-    SLOW_DIGESTION,
     SICK_NONVOMITABLE,
     STONE_RES,
     IS_WATERWALL,
@@ -70,7 +67,6 @@ import {
     Upolyd,
     is_pit,
     u_at,
-    REFLECTING,
     KILLED_BY,
     HAND,
     HAIR,
@@ -312,11 +308,12 @@ import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
     Blind, Blinded, Cold_resistance, Conflict, Deaf, Detect_monsters,
-    Displaced, EAcid_resistance, EMagical_breathing, EShock_resistance,
-    Fire_resistance, HAcid_resistance, HConfusion, HHallucination,
-    HMagical_breathing, HShock_resistance, HStun, Half_physical_damage,
-    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Sick,
-    Stone_resistance, Unaware,
+    Displaced, EAcid_resistance, EMagical_breathing, EProtection,
+    EShock_resistance, Fast, Fire_resistance, HAcid_resistance, HConfusion,
+    HHallucination, HMagical_breathing, HProtection, HShock_resistance, HStun,
+    Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
+    Protection_from_shape_changers, Reflecting, See_invisible, Sick,
+    Slow_digestion, Stone_resistance, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -326,10 +323,8 @@ export async function u_slow_down(
     state = game,
     { message = ttyPline, random = coreRandom } = {},
 ) {
-    const fast = state.u?.uprops?.[FAST];
-    if (!fast) return;
-    fast.intrinsic = 0;
-    if (!(fast.extrinsic ?? 0))
+    state.u.uprops[FAST].intrinsic = 0;
+    if (!Fast(state.u))
         await message('You slow down.', state);
     else
         await message('Your quickness feels less natural.', state);
@@ -389,11 +384,6 @@ export function unseenWereSummonMessage(numseen, genericWere, deaf) {
     return `${upstart(nounPhrase)}${deaf ? ' from nowhere' : ''}!`;
 }
 
-// C expands youprop.h:Protection_from_shape_changers in mhitu.c and were.c.
-export function Protection_from_shape_changers(state) {
-    const property = state.u.uprops[PROT_FROM_SHAPE_CHANGERS];
-    return Boolean(property.intrinsic || property.extrinsic);
-}
 
 // C ref: mhitu.c summonmu() (956-1030). The caller supplies the same random
 // owner it uses for the rest of the attack.
@@ -416,7 +406,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
     if (!is_were(mdat)) return;
 
     if (is_human(mdat)) {
-        if (!Protection_from_shape_changers(state)
+        if (!Protection_from_shape_changers(state.u)
             && !random.rn2(5 - (night(state) ? 2 : 0))) {
             await new_were(monster, {
                 ...rawEnv,
@@ -428,7 +418,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
                     ?? ((x, y) => newsym(x, y)),
             });
         }
-    } else if (Protection_from_shape_changers(state)
+    } else if (Protection_from_shape_changers(state.u)
         || !random.rn2(30)) {
         await new_were(monster, {
             ...rawEnv,
@@ -2155,10 +2145,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const urgentMessage = rawEnv.urgentMessage ?? ttyUrgentPline;
     const redraw = rawEnv.redraw ?? newsym;
     const statusRefresh = rawEnv.statusRefresh ?? (() => bot(state));
-    const prop = (index) => u.uprops?.[index] ?? {};
-    const slowDigestion = Boolean(
-        prop(SLOW_DIGESTION).intrinsic || prop(SLOW_DIGESTION).extrinsic,
-    );
+    const slowDigestion = Slow_digestion(u);
     const magicalBreathing = Boolean(
         HMagical_breathing(u)
             || EMagical_breathing(u),
@@ -2527,7 +2514,7 @@ export function magic_negation(mon, state = game) {
     let mc = 0;
     let via_amul = false;
     let gotprot = isYou
-        ? Boolean(u.uprops?.[PROTECTION]?.extrinsic)
+        ? EProtection(u) !== 0
         : mon.data === state.mons[M.PM_HIGH_CLERIC];
     const inventory = isYou ? state.invent : mon.minvent;
 
@@ -2565,7 +2552,7 @@ export function magic_negation(mon, state = game) {
     } else if (mc < 1) {
         /* intrinsic Protection is weaker (play balance; obtaining divine
            protection is too easy); it confers minimum mc 1 instead of 0 */
-        if ((isYou && ((u.uprops?.[PROTECTION]?.intrinsic
+        if ((isYou && ((HProtection(u)
                         && u.ublessed > 0) || u.uspellprot))
             /* aligned priests and angels have innate intrinsic Protection */
             // Indexed without a guard on purpose: an absent catalog would make
@@ -2885,8 +2872,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
     }
 
     const isMedusa = monster.data === state.mons?.[M.PM_MEDUSA];
-    const reflecting = state.u?.uprops?.[REFLECTING];
-    const reflectable = Boolean(reflecting?.intrinsic || reflecting?.extrinsic)
+    const reflectable = Reflecting(state.u)
         && couldsee(monster.mx, monster.my, state)
         && isMedusa;
     const hallucination = () => {

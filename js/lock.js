@@ -163,7 +163,7 @@ import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import {
     BBlinded, Blind, Confusion, Deaf, HBlinded, Levitation, Passes_walls,
-    Stunned, Unaware,
+    Protection_from_shape_changers, Stunned, Unaware,
 } from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -1241,7 +1241,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
 export async function stumble_on_door_mimic(x, y, state = game) {
     const mtmp = m_at(x, y, state);
     if (mtmp && is_door_mappear(mtmp)
-        && !Protection_from_shape_changers(state)) {
+        && !Protection_from_shape_changers(state.u)) {
         await stumble_onto_mimic(mtmp, state, { state, pline: ttyPline });
         return true;
     }
@@ -1255,13 +1255,6 @@ function is_door_mappear(mtmp) {
         && (mtmp.mappearance === S_hcdoor || mtmp.mappearance === S_vcdoor);
 }
 
-// C ref: youprop.h:287 Protection_from_shape_changers, the bare intrinsic OR
-// extrinsic. The constant 65 is prop.h PROT_FROM_SHAPE_CHANGERS.
-function Protection_from_shape_changers(state) {
-    const PROT_FROM_SHAPE_CHANGERS = 65;
-    const prop = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
-    return Boolean(prop?.intrinsic || prop?.extrinsic);
-}
 
 // C ref: lock.c obstructed() (926-953). A non-furniture monster blocks the
 // ray; object mimics continue through C's objhere label to OBJ_AT.

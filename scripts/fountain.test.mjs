@@ -926,7 +926,7 @@ test('drinksink invokes polyself after toxic waste and creates its stench cloud'
     const jsSource = await readFile(
         new URL('../js/fountain.js', import.meta.url), 'utf8');
     assert.match(jsSource,
-        /case 10:\s+await message\(`This \$\{hliquid\('water', liquidEnv\)\} contains toxic wastes!`, state\);\s+if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+        /case 10:\s+await message\(`This \$\{hliquid\('water', liquidEnv\)\} contains toxic wastes!`, state\);\s+if \(!Unchanging\(state\.u\)\)/u);
     assert.match(jsSource,
         /await message\('You undergo a freakish metamorphosis!', state\);\s+\/\/ fountain\.c discards polyself\(\)'s return; its state and RNG\s+\/\/ effects still happen here in the original call order\.\s+await polyself\(POLY_NOFLAGS, state, env\);/u);
     await startedGame();

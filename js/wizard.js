@@ -11,7 +11,6 @@ import {
     Is_rogue_level,
     Is_astralevel,
     NO_MM_FLAGS,
-    PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
     STRAT_APPEARMSG,
     STRAT_GOAL,
@@ -88,7 +87,7 @@ import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { verbalize, youFeel } from './pline.js';
-import { Blind, Deaf } from './youprop.js';
+import { Blind, Deaf, Protection_from_shape_changers } from './youprop.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
 const WIZARD_APPEARANCES = Object.freeze([
@@ -241,8 +240,7 @@ export async function clonewiz(state = game, rawEnv = {}) {
         add_to_minv(monster, fake, env);
     }
 
-    const property = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
-    if (!(property?.intrinsic || property?.extrinsic)) {
+    if (!Protection_from_shape_changers(state.u)) {
         monster.m_ap_type = M_AP_MONSTER;
         monster.mappearance = WIZARD_APPEARANCES[
             random.rn2(WIZARD_APPEARANCES.length)

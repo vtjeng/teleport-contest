@@ -47,7 +47,6 @@ import {
     HATCH_EGG,
     HALLUC,
     GLIB,
-    INTRINSIC,
     INVIS,
     I_SPECIAL,
     Is_waterlevel,
@@ -106,7 +105,6 @@ import {
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
     TURNED_SLIME,
-    UNCHANGING,
     Upolyd,
     VOMITING,
     WARN_OF_MON,
@@ -217,11 +215,12 @@ import { coreRandom,
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     Acid_resistance, Blind, Breathless, Deaf, Displaced, EFumbling,
-    ELevitation, EPasses_walls, Fire_resistance, Flying, Fumbling, HConfusion,
-    HDeaf, HFlying, HFumbling, HLevitation, HMagical_breathing, HPasses_walls,
-    HSleepy, HStun, Hallucination, Invis, Levitation, Passes_walls,
-    Poison_resistance, See_invisible, Sick, Sleep_resistance, Sleepy, Slimed,
-    Stone_resistance, Stoned, Strangled, Unaware, Vomiting, Warn_of_mon,
+    ELevitation, EPasses_walls, Fast, Fire_resistance, Flying, Fumbling,
+    HConfusion, HDeaf, HFlying, HFumbling, HLevitation, HMagical_breathing,
+    HPasses_walls, HSleepy, HStun, Hallucination, Invis, Levitation,
+    Passes_walls, Poison_resistance, Protection_from_shape_changers,
+    See_invisible, Sick, Sleep_resistance, Sleepy, Slimed, Stone_resistance,
+    Stoned, Strangled, Unaware, Unchanging, Very_fast, Vomiting, Warn_of_mon,
     Wounded_legs, Wwalking,
 } from './youprop.js';
 
@@ -1367,11 +1366,6 @@ export async function done_timeout(how, which, state = game, env = {}) {
     state.disp.botl = true;
 }
 
-// youprop.h: source-only properties do not consult their blocked field.
-function propertySource(state, index) {
-    const property = state.u?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 
 // C ref: timeout.c nh_timeout() (669-945). Every expiry follows the common
@@ -1449,10 +1443,10 @@ async function decrement_property_timeouts(state, env) {
             u.usick_type = 0;
             break;
         case FAST:
-            if (!((property.intrinsic & ~INTRINSIC) || property.extrinsic)) {
+            if (!Very_fast(state.u)) {
                 await message(
                     youFeel(
-                        `yourself slow down${propertySource(state, FAST) ? ' a bit' : ''}.`,
+                        `yourself slow down${Fast(state.u) ? ' a bit' : ''}.`,
                         state,
                     ),
                     state,
@@ -1632,7 +1626,7 @@ async function decrement_property_timeouts(state, env) {
             make_glib(0, state, env);
             break;
         case PROT_FROM_SHAPE_CHANGERS:
-            if (!propertySource(state, PROT_FROM_SHAPE_CHANGERS))
+            if (!Protection_from_shape_changers(state.u))
                 restartcham(state, { ...env, state });
             break;
         }
@@ -1694,7 +1688,7 @@ export async function nh_timeout(state = game, env = {}) {
     if (HSleepy(u) & TIMEOUT)
         await sleep_dialogue(state, env);
     if (u.mtimedone && !--u.mtimedone) {
-        if (propertySource(state, UNCHANGING))
+        if (Unchanging(state.u))
             u.mtimedone = random.rnd(100 * state.youmonst.data.mlevel + 1);
         else if (is_were(state.youmonst.data)) {
             await you_unwere(false, state, { ...displayEnv, random, message });

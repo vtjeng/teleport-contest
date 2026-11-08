@@ -72,7 +72,6 @@ import {
     LEAVESTATUE,
     KILLED_BY,
     KILLED_BY_AN,
-    LIFESAVED,
     MAGICENLIGHTENMENT,
     M_AP_MONSTER,
     M_AP_TYPE,
@@ -221,7 +220,9 @@ import {
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
 import { tty_exit_nhwindows } from './wintty.js';
-import { Blind, Hallucination, Sick } from './youprop.js';
+import {
+    Blind, Hallucination, Lifesaved, Sick,
+} from './youprop.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -265,12 +266,6 @@ function nowrap_add(a, b) {
     return sum <= Number.MAX_SAFE_INTEGER ? sum : Number.MAX_SAFE_INTEGER;
 }
 
-// C ref: youprop.h:387 Lifesaved, the extrinsic alone. The amulet of life
-// saving is the only item that confers it; do_wear.c Amulet_on() supplies the
-// worn-slot state that makes this property active.
-function Lifesaved(state) {
-    return Boolean(state.u?.uprops?.[LIFESAVED]?.extrinsic);
-}
 
 // C ref: flag.h:560 ParanoidDie, over flag.h:85 PARANOID_DIE.
 //
@@ -772,7 +767,7 @@ export async function done(how, state = game, source = {}) {
             state.disp.botl = true;
         }
     }
-    if (Lifesaved(state) && how <= GENOCIDED) {
+    if (Lifesaved(state.u) && how <= GENOCIDED) {
         // end.c:1082-1103. Keep discovery, the four messages, object
         // consumption, constitution adjustment, and savelife() in C order.
         await ttyPline('But wait...', state);

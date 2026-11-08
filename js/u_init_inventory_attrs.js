@@ -7,11 +7,9 @@ import {
     AC_MAX,
     A_CON,
     A_STR,
-    FIXED_ABIL,
     FROMOUTSIDE,
     INTRINSIC,
     JUMPING,
-    PROTECTION,
     P_DAGGER,
 } from './const.js';
 import { acurr, init_attr, vary_init_attr } from './attrib.js';
@@ -56,6 +54,7 @@ import {
     STARTING_INVENTORY_TABLES,
     rollElfStartingInstrument,
 } from './u_init_inventory_data.js';
+import { Fixed_abil, HProtection } from './youprop.js';
 
 const {
     Archeologist,
@@ -355,7 +354,7 @@ export { initial_inv_weight, initial_weight_cap };
 
 function adjustCarryAttribute(index, state) {
     const u = state.u;
-    if (u.uprops?.[FIXED_ABIL]?.extrinsic) return false;
+    if (Fixed_abil(u)) return false;
     const base = u.acurr.a;
     const maximum = u.amax.a;
     const old = acurr(state, index);
@@ -452,7 +451,7 @@ export function find_ac(state = game) {
     if (state.uright?.otyp === O.RIN_PROTECTION)
         armorClass -= Math.trunc(state.uright.spe ?? 0);
     if (state.uamul?.otyp === O.AMULET_OF_GUARDING) armorClass -= 2;
-    if ((u.uprops?.[PROTECTION]?.intrinsic ?? 0) & INTRINSIC)
+    if (HProtection(u) & INTRINSIC)
         armorClass -= Math.trunc(u.ublessed ?? 0);
     armorClass -= Math.trunc(u.uspellprot ?? 0);
 

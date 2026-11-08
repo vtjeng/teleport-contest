@@ -5,11 +5,9 @@ import {
     A_CON,
     A_INT,
     A_WIS,
-    ENERGY_REGENERATION,
     Is_waterlevel,
     MAXULEV,
     MOD_ENCUMBER,
-    REGENERATION,
     Upolyd,
 } from './const.js';
 import {
@@ -21,18 +19,15 @@ import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rehumanize } from './polyself.js';
 import { coreRandom } from './rng.js';
 import {
-    Breathless, EMagical_breathing, Half_physical_damage, Sleepy,
+    Breathless, EMagical_breathing, Energy_regeneration, Half_physical_damage,
+    Regeneration, Sleepy,
 } from './youprop.js';
 
 
-function propertyActive(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 
 function canRegenerate(hero) {
-    return propertyActive(hero, REGENERATION)
+    return Regeneration(hero)
         || (Sleepy(hero) && Boolean(hero.usleep));
 }
 
@@ -79,7 +74,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
                    && !Breathless(state)) {
             /* eel out of water loses hp, similar to monster eels;
                as hp gets lower, rate of further loss slows down */
-            if (hero.mh > 1 && !propertyActive(hero, REGENERATION)
+            if (hero.mh > 1 && !Regeneration(hero)
                 && random.rn2(hero.mh) > random.rn2(8)
                 && (!Half_physical_damage(hero)
                     || !(state.moves % 2)))
@@ -123,7 +118,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
 export async function regen_pw(wtcap, state = game, env = {}) {
     const hero = state.u;
     if ((hero.uen ?? 0) >= (hero.uenmax ?? 0)) return false;
-    const energyRegeneration = propertyActive(hero, ENERGY_REGENERATION);
+    const energyRegeneration = Energy_regeneration(hero);
     const divisor = Math.trunc(
         (MAXULEV + 8 - (hero.ulevel ?? 0))
         * (state.urole?.mnum === PM_WIZARD ? 3 : 4)

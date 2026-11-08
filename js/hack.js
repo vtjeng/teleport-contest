@@ -177,14 +177,12 @@ import {
     Trap_Moved_Mon,
     OVERLOADED,
     P_UNSKILLED,
-    PROT_FROM_SHAPE_CHANGERS,
     helpless,
     is_pit,
     u_at,
     xdir,
     ydir,
     dirs_ord,
-    UNCHANGING,
     Ugender,
 } from './const.js';
 import { ART_STING, ART_STORMBRINGER, attacks } from './artifacts.js';
@@ -535,8 +533,8 @@ import {
     Conflict, Confusion, Deaf, EFire_resistance, EFlying, ELevitation,
     EWounded_legs, Flying, Fumbling, HFire_resistance, HFlying, HFumbling,
     HLevitation, Half_physical_damage, Hallucination, Levitation,
-    Maybe_Half_Phys, Passes_walls, Stealth, Stunned, Swimming, Warning,
-    Wwalking,
+    Maybe_Half_Phys, Passes_walls, Protection_from_shape_changers, Stealth,
+    Stunned, Swimming, Unchanging, Warning, Wwalking,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -875,11 +873,6 @@ export function rounddiv(x, y) {
     return divsgn * r;
 }
 
-function propertyActiveUnblocked(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        && !value?.blocked;
-}
 
 // C ref: hack.c u_maybe_impaired() (2417-2421). youprop.h:81 and :84 define
 // both Stunned and Confusion as the bare intrinsic field, with no extrinsic or
@@ -1204,12 +1197,6 @@ export async function u_rooted(state = game) {
     return false;
 }
 
-// youprop.h:372 Unchanging, intrinsic or extrinsic; losehp() reads it to
-// decide whether a polymorphed hero wails at low hit points.
-function Unchanging(state) {
-    const unchanging = state.u?.uprops?.[UNCHANGING];
-    return Boolean(unchanging?.intrinsic || unchanging?.extrinsic);
-}
 
 // C ref: hack.c maybe_wail() (4210-4243). svm.moves is the turn counter and
 // gw.wailmsg the turn the last wail was printed on, so the first 50 turns of a
@@ -1294,7 +1281,7 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         if (state.u.mh < 1) {
             await rehumanize(state);
         } else if (n > 0 && state.u.mh * 10 < state.u.mhmax
-            && Unchanging(state)) {
+            && Unchanging(state.u)) {
             await maybe_wail(state, env);
         }
         return;
@@ -3420,7 +3407,7 @@ export async function domove_bump_mon(mtmp, glyph, state = game) {
         && (canspotmon(mtmp, state) || glyph_is_invisible(glyph)
             || glyph_is_warning(glyph))) {
         if ((mtmp.m_ap_type ?? 0)
-            && !propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS)
+            && !Protection_from_shape_changers(state.u)
             && !sensemon(mtmp, state)) {
             await stumble_onto_mimic(mtmp, state);
         } else if (mtmp.mpeaceful && !Hallucination(state.u)) {
@@ -3811,7 +3798,7 @@ export function runStopsBeforeMonster(monster, run, state) {
     const seen = !Blind(state.u)
         && mon_visible(monster, state)
         && ((appearance !== M_AP_FURNITURE && appearance !== M_AP_OBJECT)
-            || propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS));
+            || Protection_from_shape_changers(state.u));
     return seen || sensemon(monster, state);
 }
 

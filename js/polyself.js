@@ -43,7 +43,6 @@ import {
     FIRE_TRAP,
     FLYING,
     FOOT,
-    FREE_ACTION,
     FROMFORM,
     FROM_RACE,
     FROMOUTSIDE,
@@ -98,8 +97,6 @@ import {
     POLY_REVERT,
     POLY_TRAP,
     POLYMORPH,
-    POLYMORPH_CONTROL,
-    PROT_FROM_SHAPE_CHANGERS,
     REFLECTING,
     REGENERATION,
     ROCKTRAP,
@@ -135,7 +132,6 @@ import {
     TT_LAVA,
     TT_PIT,
     TT_WEB,
-    UNCHANGING,
     Ugender,
     Upolyd,
     VIBRATING_SQUARE,
@@ -274,10 +270,11 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, EFlying, ELevitation, Flying, HFlying, HLevitation,
-    Hallucination, Invis, Levitation, Passes_walls, See_invisible, Sick,
+    Blind, Confusion, EFlying, ELevitation, Flying, Free_action, HFlying,
+    HLevitation, Hallucination, Invis, Levitation, Passes_walls,
+    Polymorph_control, Protection_from_shape_changers, See_invisible, Sick,
     Sick_resistance, Slimed, Stone_resistance, Stoned, Strangled, Stunned,
-    Swimming,
+    Swimming, Unchanging,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -291,34 +288,12 @@ export class UnsupportedPolyselfError extends Error {
     }
 }
 
-function uprop(state, index) {
-    const property = state.u?.uprops?.[index];
-    if (!property)
-        throw new Error(`hero property ${index} is not initialized`);
-    return property;
-}
 
 
-// youprop.h:65 Stone_resistance, :152 See_invisible, :368 Polymorph_control
-// and :372 Unchanging: intrinsic or extrinsic, with no block term.
-function intrinsicOrExtrinsic(state, index) {
-    const property = uprop(state, index);
-    return Boolean(property.intrinsic || property.extrinsic);
-}
 
 
-function Polymorph_control(state) {
-    return intrinsicOrExtrinsic(state, POLYMORPH_CONTROL);
-}
 
-function Unchanging(state) {
-    return intrinsicOrExtrinsic(state, UNCHANGING);
-}
 
-// youprop.h:383 Free_action reads the extrinsic field alone.
-function Free_action(state) {
-    return Boolean(uprop(state, FREE_ACTION).extrinsic);
-}
 
 // monst.h:272 resists_fire(mon) is Resists_Elem(mon, FIRE_RES), whose
 // monster arm mondata.js ports as Resists_Elem().
@@ -457,8 +432,7 @@ export function set_uasmon(state = game) {
     state.youmonst.m_id = 1;
 
     // C checks the active property before assigning a vampire's shift base.
-    const shapeProtection = state.u.uprops[PROT_FROM_SHAPE_CHANGERS];
-    if (shapeProtection.intrinsic || shapeProtection.extrinsic)
+    if (Protection_from_shape_changers(state.u))
         state.youmonst.cham = NON_PM;
     else if (is_vampire(state.youmonst.data))
         state.youmonst.cham = state.youmonst.mnum;
@@ -1538,7 +1512,7 @@ export async function newman(state = game, env = {}) {
         if (Stoned(u))
             await make_stoned(0, null, 0, null, state);
         if (u.uhp <= 0) {
-            if (Polymorph_control(state)) { /* even when Stunned || Unaware */
+            if (Polymorph_control(state.u)) { /* even when Stunned || Unaware */
                 if (u.uhp <= 0)
                     u.uhp = 1;
             } else {
@@ -1614,19 +1588,19 @@ export async function polyself(psflags, state = game, env = {}) {
     const iswere = ismnum(u.ulycn);
     const isvamp = Boolean(is_vampire(state.youmonst.data)
                            || is_vampshifter(state.youmonst));
-    let controllable_poly = Polymorph_control(state)
+    let controllable_poly = Polymorph_control(state.u)
         && !(Boolean(Stunned(state.u))
              || (Math.trunc(state.multi ?? 0) < 0
                  && (unconscious(state) || u.uhs === FAINTED)));
 
-    if (Unchanging(state)) {
+    if (Unchanging(state.u)) {
         await ttyPline('You fail to transform!', state);
         return;
     }
 
     // Being stunned or unaware does not negate the force-control aspect of
     // polymorph control.  The shock draw occurs before old_light is captured.
-    if (!Polymorph_control(state) && !forcecontrol && !draconian && !iswere
+    if (!Polymorph_control(state.u) && !forcecontrol && !draconian && !iswere
         && !isvamp && rn2(20) > acurr(state, A_CON)) {
         await ttyPline('You shudder for a moment.', state);
         await losehp(rnd(30), 'system shock', KILLED_BY_AN, state);
@@ -2025,7 +1999,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
     };
 
     /* You can't revert back while unchanging */
-    if (Unchanging(state)) {
+    if (Unchanging(state.u)) {
         if (u.mh < 1) {
             state.killer ??= {};
             state.killer.format = NO_KILLER_PREFIX;
@@ -2479,7 +2453,7 @@ export async function dogaze(state = game) {
                     continue;
 
                 if (mtmp.data.pmidx === M.PM_FLOATING_EYE && !mtmp.mcan) {
-                    if (!Free_action(state)) {
+                    if (!Free_action(state.u)) {
                         await ttyPline(
                             'You are frozen by '
                             + `${s_suffix(mon_nam(mtmp, state))} gaze!`,

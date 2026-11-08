@@ -100,7 +100,6 @@ import {
     HEAD,
     I_SPECIAL,
     INFRAVISION,
-    INTRINSIC,
     LEFT_HANDED,
     LEFT_RING,
     LEG,
@@ -123,7 +122,6 @@ import {
     TT_INFLOOR,
     TT_LAVA,
     Upolyd,
-    UNCHANGING,
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
@@ -406,10 +404,10 @@ import { is_pool_or_lava } from './dbridge.js';
 import {
     BInvis, BLevitation, BStealth, Blind, EDetect_monsters, EInvis,
     EMagical_breathing, ESee_invisible, ESleepy, EStealth, ESwimming,
-    ETelepat, Flying, Glib, HDetect_monsters, HDisplaced, HFumbling,
-    HInvis, HLevitation, HMagical_breathing, HSee_invisible, HSleepy,
-    HStealth, HSwimming, HTelepat, Hallucination, Invis, Levitation,
-    See_invisible, Slimed, Stone_resistance, Strangled,
+    ETelepat, Fast, Flying, Glib, HDetect_monsters, HDisplaced, HFast,
+    HFumbling, HInvis, HLevitation, HMagical_breathing, HSee_invisible,
+    HSleepy, HStealth, HSwimming, HTelepat, Hallucination, Invis, Levitation,
+    See_invisible, Slimed, Stone_resistance, Strangled, Unchanging, Very_fast,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -1188,8 +1186,7 @@ async function Amulet_on(obj, state = game) {
     case AMULET_OF_CHANGE: {
         let call_it = false;
         const orig_sex = poly_gender(state);
-        const unchanging = state.u.uprops[UNCHANGING];
-        if (!(unchanging.intrinsic || unchanging.extrinsic))
+        if (!Unchanging(state.u))
             change_sex(state);
         const new_sex = poly_gender(state);
         if (new_sex !== orig_sex)
@@ -1536,25 +1533,16 @@ async function dragon_armor_handling(
     case BLUE_DRAGON_SCALES:
     case BLUE_DRAGON_SCALE_MAIL:
         if (puton) {
-            // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast).
-            const fast = state.u.uprops[FAST];
-            const Very_fast = Boolean(
-                (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
-            // C ref: youprop.h:376 Fast = (HFast || EFast).
-            const Fast = Boolean(fast.intrinsic || fast.extrinsic);
-            if (!Very_fast)
+            if (!Very_fast(state.u))
                 await message(
-                    `You speed up${Fast ? ' a bit more' : ''}.`, state, env);
-            fast.extrinsic |= W_ARM;
+                    `You speed up${Fast(state.u) ? ' a bit more' : ''}.`, state, env);
+            state.u.uprops[FAST].extrinsic |= W_ARM;
         } else {
-            const fast = state.u.uprops[FAST];
             // C clears EFast before evaluating Very_fast.  This matters when
             // blue armor is the only fast source: removal must print the
             // slowdown message after its W_ARM bit is gone.
-            fast.extrinsic &= ~W_ARM;
-            const veryFast = Boolean(
-                (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
-            if (!veryFast && !takeoffContext(state).cancelled_don)
+            state.u.uprops[FAST].extrinsic &= ~W_ARM;
+            if (!Very_fast(state.u) && !takeoffContext(state).cancelled_don)
                 await message('You slow down.', state, env);
         }
         break;
@@ -1769,12 +1757,11 @@ export async function Boots_on(state) {
             state.gw.wasinwater = 0;
         }
     } else if (otyp === SPEED_BOOTS) {
-        const fast = state.u.uprops[FAST];
 
-        if (!oldprop && !(fast.intrinsic & TIMEOUT)) {
+        if (!oldprop && !(HFast(state.u) & TIMEOUT)) {
             discover_object(otyp, true, true, true, state);
             await ttyPline(
-                youFeel(`yourself speed up${fast.intrinsic
+                youFeel(`yourself speed up${HFast(state.u)
                     ? ' a bit more' : ''}.`, state),
                 state,
             );
@@ -1834,19 +1821,16 @@ export async function Boots_off(state = game, rawEnv = {}) {
 
     switch (otyp) {
     case SPEED_BOOTS: {
-        const fast = state.u?.uprops?.[FAST] ?? {};
         // youprop.h Very_fast preserves non-role/race/outside intrinsic
         // sources. Removing these boots still prints the slowdown when a
         // separate non-intrinsic source has not made the hero Very_fast.
-        const veryFast = Boolean(
-            (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
-        if (!veryFast && !takeoff.cancelled_don) {
+        if (!Very_fast(state.u) && !takeoff.cancelled_don) {
             discover_object(otyp, true, true, true, state);
             // C You_feel(): "You dream that you feel" while Unaware, as when
             // a polymorph into a form too small to carry the pack has left
             // the hero unable to move.
             await env.message(
-                youFeel(`yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
+                youFeel(`yourself slow down${Fast(state.u) ? ' a bit' : ''}.`,
                     state),
                 state,
                 env,

@@ -15,20 +15,16 @@ import {
     CQ_REPEAT,
     LL_ACHIEVE,
     EXT_ENCUMBER,
-    FAST,
     HVY_ENCUMBER,
-    INTRINSIC,
     MOD_ENCUMBER,
     NO_MM_FLAGS,
     NORMAL_SPEED,
     NON_PM,
-    POLYMORPH,
     POLY_NOFLAGS,
     RLOC_NOMSG,
     RUN_TPORT,
     SLT_ENCUMBER,
     TT_LAVA,
-    UNCHANGING,
     UNENCUMBERED,
     Upolyd,
     ismnum,
@@ -192,8 +188,9 @@ import { canseemon } from './display.js';
 import { amulet, intervene } from './wizard.js';
 import { rndcurse } from './sit.js';
 import {
-    BClairvoyant, Blind, EClairvoyant, ETelepat, Glib, HClairvoyant,
-    Hallucination, Searching, Teleportation, Warn_of_mon, Warning,
+    BClairvoyant, Blind, EClairvoyant, ETelepat, Fast, Glib, HClairvoyant,
+    Hallucination, Polymorph, Searching, Teleportation, Unchanging, Very_fast,
+    Warn_of_mon, Warning,
 } from './youprop.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -341,12 +338,9 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
         if (!Number.isInteger(state.youmonst?.data?.mmove))
             throw new Error('u_calc_moveamt requires initialized hero form');
         moveamt = state.youmonst.data.mmove;
-        const speed = u.uprops?.[FAST] ?? {};
-        const intrinsic = Math.trunc(speed.intrinsic ?? 0);
-        const extrinsic = Math.trunc(speed.extrinsic ?? 0);
-        if ((intrinsic & ~INTRINSIC) || extrinsic) {
+        if (Very_fast(u)) {
             if (random(3) !== 0) moveamt += NORMAL_SPEED;
-        } else if (intrinsic || extrinsic) {
+        } else if (Fast(u)) {
             if (random(3) === 0) moveamt += NORMAL_SPEED;
         }
     }
@@ -613,10 +607,6 @@ async function runUnmulAtTurnBoundary(state) {
     }
 }
 
-function propertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 function elapsedTurnBoundary(reason) {
     throw new UnsupportedTurnBoundaryError(
@@ -918,17 +908,17 @@ export async function finishElapsedTurn(state, random) {
         // serializer intentionally omits this transient field, as C's static is
         // reset when a saved game is restored.
         state.mvl_change ??= 0;
-        if ((state.mvl_change === 1 && !propertyActive(state, POLYMORPH))
+        if ((state.mvl_change === 1 && !Polymorph(state.u))
             || (state.mvl_change === 2 && state.u.ulycn === NON_PM)) {
             state.mvl_change = 0;
         }
-        if (propertyActive(state, POLYMORPH) && !random.rn2(100)) {
+        if (Polymorph(state.u) && !random.rn2(100)) {
             state.mvl_change = 1;
         } else if (ismnum(state.u.ulycn) && !Upolyd(state.u)
             && !random.rn2(80 - (20 * Number(night(state))))) {
             state.mvl_change = 2;
         }
-        if (state.mvl_change && !propertyActive(state, UNCHANGING)
+        if (state.mvl_change && !Unchanging(state.u)
             && (state.multi ?? 0) >= 0) {
             await stop_occupation(state, { message: ttyPline });
             if (state.mvl_change === 1) {

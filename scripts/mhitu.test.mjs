@@ -79,13 +79,13 @@ import {
     mpoisons_subj,
     mswings_verb,
     mtrapped_in_pit,
-    Protection_from_shape_changers,
     ranged_attk_available,
     expels,
     gulp_blnd_check,
     unseenWereSummonMessage,
 } from '../js/mhitu.js';
 import { emits_light, sticks, thick_skinned } from '../js/mondata.js';
+import { Protection_from_shape_changers } from '../js/youprop.js';
 import { new_light_source } from '../js/light.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import { make_blinded } from '../js/potion.js';
@@ -287,12 +287,12 @@ test('Protection_from_shape_changers matches the intrinsic/extrinsic macro', () 
 
     // C's || makes two zero flags false; each nonzero source flag is true on
     // its own, so test intrinsic and extrinsic ownership separately.
-    assert.equal(Protection_from_shape_changers(state), false);
+    assert.equal(Protection_from_shape_changers(state.u), false);
     property.intrinsic = 1;
-    assert.equal(Protection_from_shape_changers(state), true);
+    assert.equal(Protection_from_shape_changers(state.u), true);
     property.intrinsic = 0;
     property.extrinsic = 1;
-    assert.equal(Protection_from_shape_changers(state), true);
+    assert.equal(Protection_from_shape_changers(state.u), true);
 });
 
 test('unseen summon text follows singular, plural and Deaf C branches', () => {

@@ -31,7 +31,6 @@ import {
     FAINTING,
     FAST,
     FIRE_RES,
-    FIXED_ABIL,
     FROMEXPER,
     FROMFORM,
     FROMOUTSIDE,
@@ -52,7 +51,6 @@ import {
     NUM_ATTRS,
     POISON_RES,
     POISONING,
-    REGENERATION,
     SATIATED,
     SEARCHING,
     SEE_INVIS,
@@ -138,9 +136,10 @@ import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
-    Confusion, EBlinded, EWounded_legs, Fumbling, HBlinded, HBlnd_resist,
-    HClairvoyant, HHallucination, HWounded_legs, Halluc_resistance,
-    Hallucination, Poison_resistance, Sick, Stunned, Vomiting, Wounded_legs,
+    Confusion, EBlinded, EFast, EWounded_legs, Fixed_abil, Fumbling, HBlinded,
+    HBlnd_resist, HClairvoyant, HFast, HHallucination, HRegeneration,
+    HWounded_legs, Halluc_resistance, Hallucination, Poison_resistance, Sick,
+    Stunned, Very_fast, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
@@ -370,10 +369,7 @@ export function is_innate(propidx, state = game) {
     // innately() would report INNATE_FORM for this; caller wants specificity
     if (propidx === DRAIN_RES && ismnum(u.ulycn))
         return INNATE_LYCN;
-    // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast)
-    const propFast = u.uprops?.[FAST] ?? {};
-    if (propidx === FAST
-        && ((propFast.intrinsic & ~INTRINSIC) || propFast.extrinsic))
+    if (propidx === FAST && Very_fast(u))
         return INNATE_NONE; // can't become very fast innately
     const innateness = innately(
         propidx, u.uprops?.[propidx]?.intrinsic ?? 0, state,
@@ -431,19 +427,14 @@ export function from_what(propidx, state = game) {
         if (innateness === INNATE_FORM)
             return ' from your creature form';
 
-        // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast)
-        const propFast = u.uprops?.[FAST] ?? {};
-        const HFast = propFast.intrinsic ?? 0;
-        const EFast = propFast.extrinsic ?? 0;
-        const Very_fast = (HFast & ~INTRINSIC) || EFast;
-        if (propidx === FAST && Very_fast) {
+        if (propidx === FAST && Very_fast(u)) {
             let source;
-            if ((HFast & TIMEOUT) !== 0)
+            if ((HFast(u) & TIMEOUT) !== 0)
                 source = 'a potion or spell';
-            else if ((EFast & W_ARMF) !== 0 && state.uarmf?.dknown
+            else if ((EFast(u) & W_ARMF) !== 0 && state.uarmf?.dknown
                      && objectType(state.uarmf, state).oc_name_known)
                 source = ysimple_name(state.uarmf, state); // speed boots
-            else if (EFast)
+            else if (EFast(u))
                 source = 'worn equipment';
             else
                 source = something;
@@ -991,9 +982,6 @@ export function exercise_nonphysical(
     return exerciseAttribute(index, increase, state, random).adjustment;
 }
 
-function intrinsicPropertyPresent(hero, index) {
-    return Boolean(hero?.uprops?.[index]?.intrinsic);
-}
 
 function requiredOperation(env, name) {
     const operation = env[name];
@@ -1079,7 +1067,7 @@ export async function exerper(state = game, env = {}) {
             && !BClairvoyant(hero)) {
             await exerciseWithEnvironment(A_WIS, true, state, normalized);
         }
-        if (intrinsicPropertyPresent(hero, REGENERATION))
+        if (HRegeneration(hero))
             await exerciseWithEnvironment(A_STR, true, state, normalized);
         if (Sick(hero)
             || Boolean(Vomiting(hero))) {
@@ -1123,7 +1111,7 @@ export async function adjattrib(
     // Callers pass C's TRUE/FALSE as booleans and its -1 as a number;
     // msgflg is the integer C compares.
     const msgflg = Number(messageMode);
-    if (state.u?.uprops?.[FIXED_ABIL]?.extrinsic || !increment) return false;
+    if (Fixed_abil(state.u) || !increment) return false;
 
     if ((index === A_INT || index === A_WIS)
         && state.uarmh?.otyp === DUNCE_CAP) {

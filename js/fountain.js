@@ -40,7 +40,6 @@ import {
     something,
     TT_INFLOOR,
     TT_LAVA,
-    UNCHANGING,
     LL_ARTIFACT,
     ONAME_VIA_DIP,
     ONAME_KNOW_ARTI,
@@ -124,7 +123,7 @@ import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
 import {
     Blind, Deaf, Fire_resistance, Glib, Hallucination, Invisible, Levitation,
-    Poison_resistance,
+    Poison_resistance, Unchanging,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -1393,8 +1392,7 @@ export async function drinksink(state = game, env = {}) {
     }
     case 10:
         await message(`This ${hliquid('water', liquidEnv)} contains toxic wastes!`, state);
-        if (!(state.u.uprops[UNCHANGING]?.intrinsic
-            || state.u.uprops[UNCHANGING]?.extrinsic)) {
+        if (!Unchanging(state.u)) {
             await message('You undergo a freakish metamorphosis!', state);
             // fountain.c discards polyself()'s return; its state and RNG
             // effects still happen here in the original call order.

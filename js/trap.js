@@ -55,7 +55,6 @@ import {
     FIRE_TRAP,
     FINGER,
     FORCETRAP,
-    FREE_ACTION,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
@@ -76,7 +75,6 @@ import {
     Is_waterlevel,
     LADDER,
     LEG,
-    LIFESAVED,
     LANDMINE,
     LEVEL_TELEP,
     LEVITATION,
@@ -342,11 +340,11 @@ import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     Antimagic, BFlying, BLevitation, Blind, Breathless, Confusion,
-    Fire_resistance, Flying, Fumbling, HHallucination, HStun,
-    Halluc_resistance, Hallucination, Lev_at_will, Levitation,
-    Maybe_Half_Phys, Passes_walls, Shock_resistance, Sleep_resistance, Slimed,
-    Stone_resistance, Stunned, Swimming, Teleport_control, Teleportation,
-    Wwalking,
+    Fire_resistance, Flying, Free_action, Fumbling, HHallucination, HStun,
+    Halluc_resistance, Hallucination, Lev_at_will, Levitation, Lifesaved,
+    Maybe_Half_Phys, Passes_walls, Shock_resistance,
+    Sleep_resistance, Slimed, Stone_resistance, Stunned, Swimming,
+    Teleport_control, Teleportation, Wwalking,
 } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
@@ -1653,9 +1651,7 @@ export async function lava_effects(state = game) {
             );
         }
 
-        survives = Boolean(
-            state.u?.uprops?.[LIFESAVED]?.extrinsic,
-        ) || Boolean(state.discover);
+        survives = Boolean(Lifesaved(state.u)) || Boolean(state.discover);
         if (state.wizard) survives = true;
         state.iflags.in_lava_effects++;
 
@@ -2375,10 +2371,6 @@ export function immune_to_trap(mon, ttype, state = game) {
 // C ref: decl.c c_common_strings.c_the_your, indexed by madeby_u.
 const the_your = ['the', 'your'];
 
-// youprop.h:383 Free_action reads the extrinsic field alone.
-function Free_action(state) {
-    return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
-}
 // C ref: obj.h u_wield_art(art) => is_art(uwep, art).
 function u_wield_art(art, state) {
     return is_art(state.uwep, art);
@@ -3770,7 +3762,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         }
         case 5: case 4: case 3:
             // Paralysis.
-            if (!Free_action(state)) {
+            if (!Free_action(state.u)) {
                 await ttyPline('Suddenly you are frozen in place!', state);
                 nomul(-d(5, 6), state);
                 state.multi_reason = 'frozen by a trap';

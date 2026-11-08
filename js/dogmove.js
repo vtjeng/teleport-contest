@@ -44,7 +44,6 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     N_DIRS,
-    PROT_FROM_SHAPE_CHANGERS,
     ROWNO,
     STONE_RES,
     UNDEF,
@@ -206,7 +205,9 @@ import { pline_mon, youFeel } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
-import { Conflict, Deaf, Hallucination } from './youprop.js';
+import {
+    Conflict, Deaf, Hallucination, Protection_from_shape_changers,
+} from './youprop.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -668,17 +669,13 @@ const QUICK_MIMIC_CHOICES = Object.freeze([
     Object.freeze([0, 0, TRIPE_RATION, M_AP_OBJECT]),
 ]);
 
-function activeHeroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: dogmove.c quickmimic() (1481-1530). The source table and retry loop
 // are complete; leashes are released after the changed appearance is drawn.
 export async function quickmimic(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const wasLeashed = mtmp.mleashed;
-    if (activeHeroProperty(state, PROT_FROM_SHAPE_CHANGERS)
+    if (Protection_from_shape_changers(state.u)
         || !mtmp.meating) return;
     if (mtmp === state.u?.usteed) {
         // C dismounts the original monster before it changes the appearance.

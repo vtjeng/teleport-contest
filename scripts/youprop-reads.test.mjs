@@ -7,6 +7,7 @@ import test from 'node:test';
 
 import {
     ALLOWED_READS,
+    ROUTED_PROPERTIES,
     findings,
     routedNames,
     staleEntries,
@@ -14,7 +15,11 @@ import {
 } from './youprop-reads.mjs';
 
 const NAMES = routedNames();
-const lines = (source) => findings(source, 'js/x.js', NAMES).map(({ line, kind }) => `${line} ${kind}`);
+const lines = (source, routed = ROUTED_PROPERTIES) => findings(source, 'js/x.js', NAMES, routed)
+    .map(({ line, kind }) => `${line} ${kind}`);
+// Every prop.h slot is routed now, so the tests of an unrouted slot route
+// all but FAST.
+const ALL_BUT_FAST = ROUTED_PROPERTIES.filter((slot) => slot !== 'FAST');
 
 test('js/ reads routed hero properties only through youprop.js', () => {
     assert.deepEqual(unlistedFindings().map(({ file, line, kind }) => `${file}:${line}: ${kind}`), []);
@@ -76,7 +81,7 @@ test('the scan ignores writes, unrouted slots, comments and keys', () => {
         "const s = 'u.uprops[DEAF]';",
         'const copy = { ...u, uprops: u.uprops.map((p) => ({ ...p })) };',
         'const blind = Blind(state.u);', // the shared macro
-    ].join('\n')), []);
+    ].join('\n'), ALL_BUT_FAST), []);
 });
 
 test('the scan follows a function that hands a computed index on', () => {
@@ -89,5 +94,5 @@ test('the scan follows a function that hands a computed index on', () => {
         'function form(u, index) { prop(index).intrinsic |= FROMFORM; }', // 6: writes, reads nothing
         'form(u, INVIS);', // 7: so this is a write
         'if (H(FAST)) c();', // 8: FAST is not routed
-    ].join('\n')), ['4 reads BLINDED through H()', '5 reads DEAF through timed()']);
+    ].join('\n'), ALL_BUT_FAST), ['4 reads BLINDED through H()', '5 reads DEAF through timed()']);
 });

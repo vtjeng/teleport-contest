@@ -135,7 +135,6 @@ import {
     LEFT_SIDE,
     LEG,
     LEVITATION,
-    LIFESAVED,
     LL_ACHIEVE,
     LL_ARTIFACT,
     LL_DIVINEGIFT,
@@ -177,7 +176,6 @@ import {
     POLYMORPH,
     POLYMORPH_CONTROL,
     PROT_FROM_SHAPE_CHANGERS,
-    PROTECTION,
     REFLECTING,
     REGENERATION,
     SEARCHING,
@@ -373,15 +371,18 @@ import {
     Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
     Breathless, Clairvoyant, Cold_resistance, Conflict, Deaf, Detect_monsters,
     Disint_resistance, Displaced, Drain_resistance, EBlinded, EClairvoyant,
-    EInvis, EStealth, EWounded_legs, Fire_resistance, Flying, Fumbling, Glib,
-    HBlinded, HClairvoyant, HConfusion, HDetect_monsters, HInvis, HSleepy,
-    HStealth, HStun, Half_physical_damage, Halluc_resistance, Hallucination,
+    EInvis, EStealth, EWounded_legs, Fast, Fire_resistance, Fixed_abil,
+    Flying, Free_action, Fumbling, Glib, HBlinded, HClairvoyant, HConfusion,
+    HDetect_monsters, HInvis, HProtection, HSleepy, HStealth, HStun,
+    Half_physical_damage, Half_spell_damage, Halluc_resistance, Hallucination,
     Hunger, Infravision, Invis, Invulnerable, Jumping, Lev_at_will,
-    Levitation, Passes_walls, Poison_resistance, Searching, See_invisible,
-    Shock_resistance, Sick, Sick_resistance, Sleep_resistance, Sleepy, Slimed,
+    Levitation, Lifesaved, Passes_walls, Poison_resistance, Polymorph,
+    Polymorph_control, Protection, Protection_from_shape_changers, Reflecting,
+    Regeneration, Searching, See_invisible, Shock_resistance, Sick,
+    Sick_resistance, Sleep_resistance, Sleepy, Slimed, Slow_digestion,
     Stealth, Stone_resistance, Stoned, Strangled, Swimming, Teleport_control,
-    Teleportation, Undead_warning, Vomiting, Warn_of_mon, Warning,
-    Wounded_legs, Wwalking,
+    Teleportation, Unchanging, Undead_warning, Very_fast, Vomiting,
+    Warn_of_mon, Warning, Wounded_legs, Wwalking,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -892,7 +893,7 @@ function one_characteristic(mode, final, attrindx, state, lines) {
     // something keeping a ring of sustain ability on.
     if (Upolyd(state.u)) {
         hide_innate_value = true;
-    } else if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
+    } else if (Fixed_abil(state.u)) {
         if (stuck_ring(state.uleft, RIN_SUSTAIN_ABILITY, state)
             || stuck_ring(state.uright, RIN_SUSTAIN_ABILITY, state))
             hide_innate_value = true;
@@ -1433,7 +1434,6 @@ export async function attributes_enlightenment(final, state, lines) {
     const blind = Blind(u);
     const seeInvisible = See_invisible(u);
     const invisible = Invis(u) && !seeInvisible;
-    const veryFast = Boolean((h(FAST) & ~INTRINSIC) || e(FAST));
     const clairvoyant = Clairvoyant(u);
     const flying = Flying(u);
     const levitation = Levitation(u);
@@ -1720,10 +1720,10 @@ export async function attributes_enlightenment(final, state, lines) {
         you_can(lines, final, 'walk through walls',
             from_what(PASSES_WALLS, state));
 
-    if (active(REGENERATION))
+    if (Regeneration(u))
         enl_msg(lines, final, 'You regenerate', '', 'd', '',
             from_what(REGENERATION, state));
-    if (active(SLOW_DIGESTION))
+    if (Slow_digestion(u))
         you_have(lines, final, 'slower digestion',
             from_what(SLOW_DIGESTION, state));
     if (u.uhitinc) {
@@ -1740,14 +1740,14 @@ export async function attributes_enlightenment(final, state, lines) {
     }
     if (u.udaminc)
         you_have(lines, final, combatinc('damage', u.udaminc), '');
-    if (u.uspellprot || active(PROTECTION)) {
+    if (u.uspellprot || Protection(u)) {
         let protection = u.uspellprot ?? 0;
         if (state.uleft?.otyp === RIN_PROTECTION)
             protection += state.uleft.spe ?? 0;
         if (state.uright?.otyp === RIN_PROTECTION)
             protection += state.uright.spe ?? 0;
         if (state.uamul?.otyp === AMULET_OF_GUARDING) protection += 2;
-        if (h(PROTECTION) & INTRINSIC) protection += u.ublessed ?? 0;
+        if (HProtection(u) & INTRINSIC) protection += u.ublessed ?? 0;
         if (protection)
             you_have(lines, final, combatinc('defense', protection), '');
     }
@@ -1764,7 +1764,7 @@ export async function attributes_enlightenment(final, state, lines) {
     if (Half_physical_damage(u))
         enl_msg(lines, final, You_, 'take', 'took',
             ` ${enlght_halfdmg(HALF_PHDAM)}`, from_what(HALF_PHDAM, state));
-    if (active(HALF_SPDAM))
+    if (Half_spell_damage(u))
         enl_msg(lines, final, You_, 'take', 'took',
             ` ${enlght_halfdmg(HALF_SPDAM)}`, from_what(HALF_SPDAM, state));
     if (state.ublindf && is_wet_towel(state.ublindf))
@@ -1781,16 +1781,16 @@ export async function attributes_enlightenment(final, state, lines) {
         if (castAdj)
             enl_msg(lines, final, 'Your spell casting ', 'is', 'was', castAdj, '');
     }
-    if (active(PROT_FROM_SHAPE_CHANGERS))
+    if (Protection_from_shape_changers(u))
         you_are(lines, final, 'protected from shape changers',
             from_what(PROT_FROM_SHAPE_CHANGERS, state));
-    if (active(UNCHANGING)) {
+    if (Unchanging(u)) {
         if (!Upolyd(u))
             you_can(lines, final, 'not change from your current form',
                 from_what(UNCHANGING, state));
         let periodic;
         let pastPeriodic;
-        if (active(POLYMORPH)) {
+        if (Polymorph(u)) {
             periodic = 'polymorph';
             pastPeriodic = 'have polymorphed';
         } else if (ismnum(u.ulycn)) {
@@ -1801,16 +1801,16 @@ export async function attributes_enlightenment(final, state, lines) {
             enl_msg(lines, final, You_, `would ${periodic} periodically`,
                 `would ${pastPeriodic} periodically`,
                 ' if not locked into your current form', '');
-    } else if (active(POLYMORPH)) {
+    } else if (Polymorph(u)) {
         you_are(lines, final, 'polymorphing periodically',
             from_what(POLYMORPH, state));
     }
-    if (active(POLYMORPH_CONTROL))
+    if (Polymorph_control(u))
         you_have(lines, final, 'polymorph control',
             from_what(POLYMORPH_CONTROL, state));
     if (Upolyd(u) && u.umonnum !== u.ulycn
         && !(final === ENL_GAMEOVERDEAD && u.umonnum === PM_GREEN_SLIME
-            && !active(UNCHANGING))) {
+            && !Unchanging(u))) {
         let description;
         const currentForm = state.youmonst?.data;
         const vampireShift = is_vampshifter(state.youmonst)
@@ -1838,31 +1838,31 @@ export async function attributes_enlightenment(final, state, lines) {
         }
         you_are(lines, final, description, '');
     }
-    if (active(UNCHANGING) && Upolyd(u))
+    if (Unchanging(u) && Upolyd(u))
         you_can(lines, final, 'not change from your current form',
             from_what(UNCHANGING, state));
     if (u.ulycn >= LOW_PM || hates_silver(state.youmonst?.data))
         you_are(lines, final, 'harmed by silver', '');
 
-    if (active(FAST))
-        you_are(lines, final, veryFast ? 'very fast' : 'fast',
+    if (Fast(u))
+        you_are(lines, final, Very_fast(u) ? 'very fast' : 'fast',
             from_what(FAST, state));
 
     // C ref: insight.c:1900. Reflection is reported after movement speed and
     // retains the wizard-mode source suffix from attrib.c from_what().
-    if (active(REFLECTING))
+    if (Reflecting(u))
         you_have(lines, final, 'reflection',
             from_what(REFLECTING, state));
 
     // C ref: insight.c:1902-1906. These capability lines retain their source
     // wording where from_what() has one and preserve C's order.
-    if (e(FREE_ACTION))
+    if (Free_action(u))
         you_have(lines, final, 'free action',
             from_what(FREE_ACTION, state));
-    if (e(FIXED_ABIL))
+    if (Fixed_abil(u))
         you_have(lines, final, 'fixed abilities',
             from_what(FIXED_ABIL, state));
-    if (e(LIFESAVED))
+    if (Lifesaved(u))
         enl_msg(lines, final, 'Your life ', 'will be', 'would have been',
             ' saved', '');
 
@@ -3177,12 +3177,8 @@ export async function ustatusline(state = game) {
     if (Glib(u))
         info += `, slippery ${fingers_or_gloves(true, state)}`;
     if (u.utrap) info += ', trapped';
-    const fastIntrinsic = Number(properties[FAST]?.intrinsic ?? 0);
-    const fastExtrinsic = Number(properties[FAST]?.extrinsic ?? 0);
-    if (fastIntrinsic || fastExtrinsic) {
-        const veryFast = Boolean((fastIntrinsic & ~INTRINSIC) || fastExtrinsic);
-        info += veryFast ? ', very fast' : ', fast';
-    }
+    if (Fast(u))
+        info += Very_fast(u) ? ', very fast' : ', fast';
     if (u.uundetected) info += ', concealed';
     else if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
         info += ', disguised';

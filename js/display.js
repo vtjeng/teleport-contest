@@ -93,7 +93,6 @@ import {
     M_AP_TYPMASK, MON_STILL_ARRIVING,
     SYM_BOULDER, SYM_INVISIBLE, SYM_NOTHING, SYM_UNEXPLORED,
     SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNCOUNT,
-    PROT_FROM_SHAPE_CHANGERS,
     def_warnsyms,
 } from './const.js';
 import {
@@ -325,8 +324,8 @@ import { see_wsegs, worm_known } from './worm.js';
 import {
     Blind, Confusion, Deaf, Detect_monsters, ETelepat, Flying, Glib,
     HHallucination, HTelepat, Halluc_resistance, Hallucination, Infravision,
-    Invis, Levitation, See_invisible, Sick, Slimed, Stoned, Strangled,
-    Stunned, Warn_of_mon, Warning, Wounded_legs,
+    Invis, Levitation, Protection_from_shape_changers, See_invisible, Sick,
+    Slimed, Stoned, Strangled, Stunned, Warn_of_mon, Warning, Wounded_legs,
 } from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -1426,7 +1425,7 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
         & M_AP_TYPMASK;
     const monMimic = appearanceType !== M_AP_NOTHING;
     const sensed = monMimic && (
-        _propertyActive(state.u, PROT_FROM_SHAPE_CHANGERS)
+        Protection_from_shape_changers(state.u)
         || sensemon(monster, state)
     );
 
@@ -4955,10 +4954,6 @@ const ENC_STAT_FORMS = Object.freeze([
     Object.freeze(['', 'Brd', 'Strs', 'Strn', 'Ovtx', 'Ovld']),
 ]);
 
-function _propertyActive(u, index) {
-    const property = u.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 
 // C ref: display.h canseeself(), senseself(), and canspotself() (164-176).
 // newsym() must map the hero's square underneath an invisible hero when no

@@ -55,7 +55,6 @@ import {
     ECMD_TIME,
     FIG_TRANSFORM,
     FLASHED_LIGHT,
-    FREE_ACTION,
     FM_FMON,
     FEMALE,
     FACE,
@@ -129,7 +128,6 @@ import {
     P_RIDING,
     STOMACH,
     STONE,
-    PROT_FROM_SHAPE_CHANGERS,
     STUNNED,
     LEG,
     LEFT_SIDE,
@@ -628,17 +626,13 @@ import {
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
     BBlinded, Blind, BlindedTimeout, Conflict, Confusion, Deaf, EFumbling,
-    EJumping, Flying, Fumbling, Glib, HBlinded, HConfusion, HDeaf, HFumbling,
-    HHallucination, HJumping, HStun, Halluc_resistance, Hallucination, Invis,
-    Jumping, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible, Sick,
-    Slimed, Stone_resistance, Stoned, Strangled, Stunned, Vomiting,
-    Wounded_legs,
+    EJumping, Flying, Free_action, Fumbling, Glib, HBlinded, HConfusion,
+    HDeaf, HFumbling, HHallucination, HJumping, HStun, Halluc_resistance,
+    Hallucination, Invis, Jumping, Levitation, Maybe_Half_Phys, Passes_walls,
+    Protection_from_shape_changers, See_invisible, Sick, Slimed,
+    Stone_resistance, Stoned, Strangled, Stunned, Vomiting, Wounded_legs,
 } from './youprop.js';
 
-function applyPropertyActive(property, state = game) {
-    const value = state.u?.uprops?.[property];
-    return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
-}
 
 function applyIsConfused(state) {
     return Boolean(Confusion(state.u));
@@ -1013,7 +1007,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
             }
         } else {
             let doSnap = true;
-            if (M_AP_TYPE(monster) && !applyPropertyActive(PROT_FROM_SHAPE_CHANGERS, state)
+            if (M_AP_TYPE(monster) && !Protection_from_shape_changers(state.u)
                 && !sensemon(monster, state)) {
                 await stumble_onto_mimic(monster, state);
                 doSnap = false;
@@ -4109,7 +4103,7 @@ export async function use_mirror(obj, state = game, env = {}) {
             );
         } else if (u.umonnum === PM_FLOATING_EYE) {
             // youprop.h:383 Free_action is the extrinsic field alone.
-            if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+            if (Free_action(state.u)) {
                 await ttyPline('You stiffen momentarily under your gaze.', state);
             } else {
                 const hallucinating = Hallucination(state.u);

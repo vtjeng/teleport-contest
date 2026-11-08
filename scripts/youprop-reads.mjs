@@ -46,8 +46,8 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // youprop.h's vision and invisibility, hallucination, deafness,
-// half-physical-damage, resistance, trouble, transportation and appearance
-// slots.
+// half-physical-damage, resistance, trouble, transportation, appearance and
+// physical-attribute slots: every u.uprops[] slot prop.h defines.
 export const ROUTED_PROPERTIES = Object.freeze([
     'BLINDED', 'BLND_RES', 'SEE_INVIS', 'TELEPAT', 'WARNING', 'WARN_OF_MON',
     'WARN_UNDEAD', 'SEARCHING', 'CLAIRVOYANT', 'INFRAVISION',
@@ -59,7 +59,10 @@ export const ROUTED_PROPERTIES = Object.freeze([
     'COLD_RES', 'SLEEP_RES', 'DISINT_RES', 'SHOCK_RES', 'POISON_RES',
     'ACID_RES', 'STONE_RES', 'DRAIN_RES', 'SICK_RES', 'INVULNERABLE',
     'ANTIMAGIC', 'ADORNED', 'DISPLACED', 'STEALTH', 'AGGRAVATE_MONSTER',
-    'CONFLICT',
+    'CONFLICT', 'SLOW_DIGESTION', 'HALF_SPDAM', 'REGENERATION',
+    'ENERGY_REGENERATION', 'PROTECTION', 'PROT_FROM_SHAPE_CHANGERS',
+    'POLYMORPH', 'POLYMORPH_CONTROL', 'UNCHANGING', 'FAST', 'REFLECTING',
+    'FREE_ACTION', 'FIXED_ABIL', 'LIFESAVED',
 ]);
 
 // youprop.h macros that read no u.uprops[] slot.

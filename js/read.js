@@ -17,7 +17,6 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
-    UNCHANGING,
     DISP_BEAM,
     DISP_END,
     EXPL_FIERY,
@@ -436,7 +435,7 @@ import {
 } from './read_text_data.js';
 import {
     Blind, Confusion, Deaf, ESee_invisible, Fire_resistance, HConfusion,
-    HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys,
+    HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys, Unchanging,
 } from './youprop.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
@@ -868,10 +867,6 @@ export async function wand_explode(obj, charge, state = game) {
     );
 }
 
-function propertyActive(property, state) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-}
 
 // C ref: read.c seffect_confuse_monster() (1399-1451). `Confusion` is
 // HConfusion, so this effect tests and updates only the intrinsic timeout;
@@ -2793,7 +2788,7 @@ export async function do_class_genocide(state = game, env = {}) {
                 }
                 if (Upolyd(state.u) && i === state.u.umonnum) {
                     state.u.mh = -1;
-                    if (propertyActive(UNCHANGING, state)) {
+                    if (Unchanging(state.u)) {
                         if (!feelDead) {
                             await ttyUrgentPline('You die.', state);
                             feelDead = true;
@@ -2935,7 +2930,7 @@ export async function do_genocide(how, state = game) {
                 }
                 continue;
             }
-            if (propertyActive(UNCHANGING, state)
+            if (Unchanging(state.u)
                 && ptr === state.youmonst.data) ++killPlayer;
             break;
         }

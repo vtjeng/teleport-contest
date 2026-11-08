@@ -30,7 +30,6 @@ import {
     FORCETRAP,
     HAND,
     G_GONE,
-    HALF_SPDAM,
     HOLE,
     IS_AIR,
     IS_DOOR,
@@ -70,7 +69,6 @@ import {
     PIT,
     PLNMSG_enum,
     POLY_TRAP,
-    REFLECTING,
     RLOC_MSG,
     SCORR,
     SDOOR,
@@ -246,8 +244,9 @@ import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Deaf, EAntimagic, HAntimagic, HBlinded, Hallucination,
-    See_invisible, Teleport_control, Unaware,
+    Blind, Deaf, EAntimagic, EReflecting, HAntimagic, HBlinded,
+    Half_spell_damage, Hallucination, See_invisible, Teleport_control,
+    Unaware,
 } from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
@@ -2254,12 +2253,7 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                 monstunseesu(M_SEEN_MAGR, state);
                 await message('The wand hits you!', state);
                 let tmp = random.d(2, 12);
-                // Half_spell_damage: youprop.h:293-295.
-                const halfSpellDam = Boolean(
-                    state.u?.uprops?.[HALF_SPDAM]?.intrinsic
-                    || state.u?.uprops?.[HALF_SPDAM]?.extrinsic,
-                );
-                if (halfSpellDam)
+                if (Half_spell_damage(state.u))
                     tmp = Math.trunc((tmp + 1) / 2);
                 await losehp(tmp, 'wand', KILLED_BY_AN, state, {
                     ...rawEnv,
@@ -3127,7 +3121,7 @@ export async function ureflects(fmt, str, state = game, rawEnv = {}) {
         ...rawEnv,
         state,
     };
-    const extrinsic = state.u?.uprops?.[REFLECTING]?.extrinsic ?? 0;
+    const extrinsic = EReflecting(state.u);
     /* Check from outermost to innermost objects */
     if (extrinsic & W_ARMS) {
         if (fmt != null && str != null) {
