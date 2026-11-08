@@ -133,6 +133,10 @@ test('monster ownership naming uses the supplied display RNG',async()=>{
  const draws=[];let i=0;const random=bound=>{draws.push(bound);return i++%2===0?PM_LICHEN-LOW_PM:0;};
  await burn_object(f.obj,game.moves,{...f.env,displayRandom:random});
  assert.equal(draws.length,4,'Shk_Your and Yname2 each name the hallucinated owner');
+ // timeout.c burn_object():1479-1486 at age 50 calls see_lamp_flicker() with
+ // " considerably", whose OBJ_MINVENT arm (timeout.c:1350) prints Yname2();
+ // the injected rndmonnam() draws name the owner a lichen.
+ assert.deepEqual(f.messages,["The lichen's lamp flickers considerably."]);
  assert.deepEqual(game.displayCtx,displayBefore);assert.deepEqual(game.coreCtx,mainBefore);
  assert.equal(f.obj.age,25);assert.equal(f.obj.timed,1);
 });
