@@ -11,7 +11,7 @@ import {
     SEARCHING,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { projected_capacity } from '../js/hack.js';
+import { near_capacity } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
@@ -92,23 +92,6 @@ test('the matrix decides one interrupt_multi term per segment', () => {
     assert.equal(new Set(names).size, SEGMENTS.length);
 });
 
-test('the matrix covers both elapsed-turn planning shapes', async () => {
-    // js/allmain.js advanceElapsedTurn() dry-runs the whole once-per-turn block
-    // on a cloned state only when projected_capacity() is positive, and returns
-    // straight after random monster generation otherwise. So regen_hp() runs
-    // twice on a turn of the first shape and once on a turn of the second, and
-    // interrupt_multi() has to stay silent on the planning pass. Both shapes
-    // need a segment, and the trap is what creates the first: its
-    // WT_WOUNDEDLEG_REDUCT costs the Knight a carrying-capacity threshold.
-    const burdened = [];
-    for (const segment of SEGMENTS) {
-        await runSegment(segmentBeforeCount(segment));
-        burdened.push(projected_capacity(game) > 0);
-    }
-    assert.ok(burdened.includes(true), 'a burdened hero plans the whole turn');
-    assert.ok(burdened.includes(false), 'an unburdened hero plans less');
-});
-
 test('a topped-up hero ends the count and says so once', async () => {
     for (const segment of SEGMENTS) {
         const label = `${segment.seed} ${segment.moves}`;
@@ -155,7 +138,7 @@ test('a topped-up hero ends the count and says so once', async () => {
 test('a burdened top-up announces once', async () => {
     // The Knight is the one segment whose trap leaves the hero Burdened.
     await startShortCount(SEGMENTS[0]);
-    assert.ok(projected_capacity(game) > 0,
+    assert.ok(near_capacity(game) > 0,
         'the Knight\'s trap leaves the hero Burdened');
     armFullHealthTurn();
     // A Ranger or an Archeologist carries SEARCHING from experience level 1;
@@ -178,9 +161,9 @@ test('a burdened top-up announces once', async () => {
 // occupations that each end in a top-up reach the comparison, because a count
 // of nine echoes nothing between them.
 test('a repeated top-up line is suppressed', async () => {
-    // An unburdened hero: projected_capacity() is zero.
+    // An unburdened hero: near_capacity() is zero.
     await startShortCount(SEGMENTS[3]);
-    assert.equal(projected_capacity(game), 0);
+    assert.equal(near_capacity(game), 0);
     armFullHealthTurn();
     // gp.prevmsg as an identical earlier top-up left it.
     game._ttyPreviousMessage = 'You are in full health.';
