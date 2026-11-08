@@ -80,7 +80,7 @@ import { ok_to_quest } from './quest.js';
 import { mksobj_at } from './obj.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
-    check_capacity, HeroDeathPlanningError, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
+    check_capacity, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
     dist2, encodeUtf8ByteString, lcase, mungspaces, s_suffix, strncmpi,
     strsubst, truncateByteString, upstart,
@@ -578,8 +578,6 @@ export function revive_egg(obj, state = game, env = {}) {
 export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
-    // A planned monster action passes a silent message operation; the live
-    // pass prints through the same one.
     const message = env.message ?? ttyPline;
     if (corpse?.otyp !== CORPSE) return null;
 
@@ -590,8 +588,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         || (corpse.where === OBJ_BURIED && is_reviver(originalSpecies));
     await cant_finish_meal(corpse, state, {
         ...env,
-        statusRefresh: env.statusRefresh ?? (env.planning
-            ? async () => {} : () => bot(state)),
+        statusRefresh: env.statusRefresh ?? (() => bot(state)),
     });
     let container = null;
     let containerNesting = 0;
@@ -820,8 +817,8 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
 // already discovered takes observe_object() alone, which is the arm the Healer
 // takes, because u_init.c ini_inv_use_obj() discovered her wand of sleep as it
 // handed the wand over.
-// `env.random` carries a planning caller's cloned stream to the Wisdom
-// exercise that discover_object() draws for a newly learned wand.
+// `env.random` carries the caller's stream to the Wisdom exercise that
+// discover_object() draws for a newly learned wand.
 export function learnwand(obj, state = game, env = {}) {
     if (obj.oclass !== SPBOOK_CLASS) {
         /* if type already discovered, treat this item has having been seen
@@ -1066,8 +1063,7 @@ function probe_objchain(head, state = game) {
 export async function unturn_dead(monster, state = game, rawEnv = {}) {
     const isHero = monster === state.youmonst;
     const youSeeIt = isHero || canseemon(monster, state);
-    // A monster's zap reaches here from muse.c mbhitm(); its planning pass
-    // supplies a silent message operation that the live pass replaces.
+    // A monster's zap reaches here from muse.c mbhitm().
     const message = rawEnv.message ?? ttyPline;
     let object = isHero ? state.invent : monster.minvent;
     let revivedCount = 0;
@@ -2825,18 +2821,7 @@ export async function stone_to_flesh_obj(obj, state = game,
 export async function fracture_rock(obj, state = game, random = coreRandom, rawEnv = {}) {
     const objectEnv = zapObjectEnv(state, random, rawEnv);
     const redraw = rawEnv.redraw ?? rawEnv.newsym
-        ?? (!rawEnv.planning && state === game ? newsym : () => {});
-    // The dry run borrows vision.c's shared obstruction index. Capture it
-    // before changing the floor object, so both the index and cloned map
-    // memory are restored even when a later source operation refuses.
-    if (rawEnv.planning && state !== game && obj.where === OBJ_FLOOR) {
-        if (typeof rawEnv.admitPlannedVisionChange !== 'function') {
-            throw new TypeError(
-                'planned floor fracture requires admitPlannedVisionChange',
-            );
-        }
-        rawEnv.admitPlannedVisionChange(obj.ox, obj.oy, state);
-    }
+        ?? (state === game ? newsym : () => {});
 
     const byHero = !state.context?.mon_moving;
     const location = get_obj_location(obj, 0, state);
@@ -3049,12 +3034,10 @@ export function blank_novel(obj, env = {}) {
 
 // C ref: zap.c drain_item() (1382-1455). Drain one positive enchantment or
 // charge and update the hero-side bonuses tied to rings and armor. `state`,
-// `random`, status refresh and inventory output stay with this invocation so
-// a planning clone never writes through the live game.
+// `random`, status refresh and inventory output stay with this invocation.
 export function drain_item(obj, byYou, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const statusRefresh = rawEnv.statusRefresh
-        ?? (rawEnv.planning ? () => {} : () => bot());
+    const statusRefresh = rawEnv.statusRefresh ?? (() => bot());
     if (!obj
         || (!state.objects?.[obj.otyp]?.oc_charged
             && obj.oclass !== WEAPON_CLASS
@@ -3134,7 +3117,7 @@ export async function bhito(obj, wand, state = game,
     let learn_it = false;
     let maybelearnit = false;
     const message = rawEnv.message ?? ttyPline;
-    // A monster's planning pass of muse.c mbhit() supplies its own newsym().
+    // A monster's muse.c mbhit() may supply its own newsym().
     const redraw = rawEnv.newsym ?? newsym;
 
     if (obj === wand) return 0;
@@ -4888,17 +4871,11 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
 // after done() even when life-saving or wizard recovery lets play continue.
 export async function zhitu(type, nd, fltxt, sx, sy, state = game,
                             random = coreRandom, rawEnv = {}) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const encumberMessage = (subject) => encumber_msg(subject, { message });
     const exerciseEnv = { ...env, encumberMessage };
-    // Armor-off callbacks can ask for input (levitation loss, selftouch,
-    // occupations). The existing monster input boundary lets the live scan
-    // own those calls, then replans the remainder from its resulting state.
     const disintegrate = async (armor) => {
-        if (env.planning)
-            env.requestPlanningInput('do_wear.c disintegrate_arm');
         await disintegrate_arm(armor, env);
     };
     let dam = 0;
@@ -4998,9 +4975,6 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
         state.killer.format = KILLED_BY_AN;
         state.killer.name = fltxt ?? '';
         state.u.ugrave_arise = type === -(20 + ZT_DEATH) ? -3 : NON_PM;
-        if (env.planning)
-            throw new HeroDeathPlanningError(state.killer.name,
-                state.killer.format, { fromMonster: type < 0 });
         await done(DIED, state, { fromMonster: type < 0 });
         return; /* lifesaved */
     case ZT_LIGHTNING:
@@ -5029,9 +5003,6 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             done: (how, subject) => done(how, subject, {
                 fromMonster: type < 0,
             }),
-            planningDeath: () => new HeroDeathPlanningError(
-                state.killer.name, state.killer.format,
-                { fromMonster: type < 0 }),
         });
         break;
     case ZT_ACID: {
@@ -5070,13 +5041,11 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
 // field. Level timer arguments retain C's packed `(x << 16) | y` coordinate.
 export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const message = env.planning ? async () => {}
-        : (env.message ?? ttyPline);
-    const norepMessage = env.planning ? async () => {}
-        : (env.norepMessage ?? ttyNorep);
+    const message = env.message ?? ttyPline;
+    const norepMessage = env.norepMessage ?? ttyNorep;
     const canSee = env.canSee ?? ((cx, cy) => cansee(cx, cy, state));
     const redraw = env.newsym ?? env.redraw
-        ?? (env.planning ? (() => {}) : ((cx, cy) => newsym(cx, cy, state)));
+        ?? ((cx, cy) => newsym(cx, cy, state));
     const lev = state.level.at(x, y);
 
     if (lev.typ === DRAWBRIDGE_UP || lev.typ === DRAWBRIDGE_DOWN) {
@@ -5184,21 +5153,6 @@ export async function melt_ice_away(arg, _timeout, rawEnv = {}) {
     }
 }
 
-// add_region() rebuilds vision.c's module-wide transparency index for a
-// cloud's points. A planning clone borrows that index, so mark the borrow
-// before the first block_point(); the planning wrapper then restores the
-// index from the live level. Without this, a dry-run cloud stays blocking on
-// the live map and hides squares the real cloud does not.
-function admitPlannedCloud(x, y, state, env, what) {
-    if (!env.planning) return;
-    if (typeof env.admitPlannedVisionChange !== 'function') {
-        throw new TypeError(
-            `planned ${what} requires admitPlannedVisionChange`,
-        );
-    }
-    env.admitPlannedVisionChange(x, y, state);
-}
-
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
 // {wand|spell|breath} info", "extra output if shop door is destroyed",
 // "ignore any monster here", and "supplied when breaking a wand; or POT_OIL
@@ -5225,15 +5179,12 @@ export async function zap_over_floor(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state, random };
-    const message = env.planning ? async () => {}
-        : (env.message ?? ttyPline);
-    const norepMessage = env.planning ? async () => {}
-        : (env.norepMessage ?? ttyNorep);
-    const redrawAt = env.planning ? () => {}
-        : (env.newsym ?? newsym);
+    const message = env.message ?? ttyPline;
+    const norepMessage = env.norepMessage ?? ttyNorep;
+    const redrawAt = env.newsym ?? newsym;
     // hliquid() consumes the display stream. Keep the core random source in
-    // `random` out of this environment when a planning caller omits an
-    // explicit displayRandom callback.
+    // `random` out of this environment when a caller omits an explicit
+    // displayRandom callback.
     const liquid = (preferred) => hliquid(preferred, {
         state,
         displayRandom: env.displayRandom,
@@ -5274,10 +5225,9 @@ export async function zap_over_floor(
                 : type >= 0 ? 'That seemed remarkably uneventful.' : null;
 
             // C ref: zap.c:5186. create_gas_cloud() is an existing region
-            // owner; this caller supplies its live and planning operations so
-            // the source's BFS draws and visible-region update are preserved.
+            // owner; this caller supplies its operations so the source's BFS
+            // draws and visible-region update are preserved.
             if (!onWaterLevel) {
-                admitPlannedCloud(x, y, state, env, 'steam cloud');
                 await create_gas_cloud(x, y, random.rnd(5), 0, {
                     ...env,
                     blockPoint: env.blockPoint
@@ -5336,7 +5286,6 @@ export async function zap_over_floor(
                 }
             }
         } else if (IS_FOUNTAIN(lev.typ)) {
-            admitPlannedCloud(x, y, state, env, 'fountain steam');
             await create_gas_cloud(x, y, random.rnd(3), 0, {
                 ...env,
                 blockPoint: env.blockPoint
@@ -5421,7 +5370,7 @@ export async function zap_over_floor(
                         await set_uinwater(false, state);
                         state.u.uundetected = 0;
                         if (typeof env.docrt === 'function') await env.docrt(state);
-                        else if (!env.planning && state === game) await docrt();
+                        else if (state === game) await docrt();
                         state.vision_full_recalc = true;
                     } else if (state.u.utrap
                                && state.u.utraptype === TT_LAVA) {
@@ -5467,7 +5416,6 @@ export async function zap_over_floor(
         // Poison gas with range one is the green dragon/iron golem breath
         // arm.  Wall squares are deliberately ignored by C's ZAP_POS test.
         if (ZAP_POS(lev.typ)) {
-            admitPlannedCloud(x, y, state, env, 'poison gas');
             await create_gas_cloud(x, y, 1, 8, {
                 ...env,
                 allowPositiveDamage: true,
@@ -5641,8 +5589,7 @@ export async function zap_over_floor(
     }
     if (!ignoremon) {
         const mon = m_at(x, y, state);
-        // wakeup() prints and redraws through this function's operations,
-        // which a monster turn's planning pass silences.
+        // wakeup() prints and redraws through this function's operations.
         if (mon) {
             await wakeup(mon, type >= 0, {
                 ...env, message, redraw: redrawAt,
@@ -5769,8 +5716,7 @@ async function buzzmonst(
     random,
     env,
 ) {
-    const message = env.planning ? async () => {}
-        : (env.message ?? ttyPline);
+    const message = env.message ?? ttyPline;
     state.gn ??= {};
     state.gn.notonhead = (mon.mx !== state.gb.bhitpos.x
         || mon.my !== state.gb.bhitpos.y);
@@ -5879,8 +5825,7 @@ async function buzzmonst(
             // slept_monst() releases a sleeping grabber.
             await slept_monst(mon, { ...env, message });
         }
-        // wake_msg() prints through this function's message operation,
-        // which a monster turn's planning pass silences.
+        // wake_msg() prints through this function's message operation.
         if (damgtype !== ZT_SLEEP)
             await wakeup(mon, type >= 0, { ...env, state, random, message });
     }
@@ -5913,19 +5858,15 @@ export async function dobuzz(
     random = coreRandom,
     rawEnv = {},
 ) {
-    const message = rawEnv.planning ? async () => {}
-        : (rawEnv.message ?? ttyPline);
-    // C runs the beam once. The planning pass must carry its silent output
-    // owner into nested hit()/miss() calls as well as this function's lines.
+    const message = rawEnv.message ?? ttyPline;
+    // Carry the output owner into nested hit()/miss() calls as well as this
+    // function's lines.
     const env = { ...rawEnv, state, random, message };
-    const redraw = env.planning ? () => {}
-        : (env.redraw ?? newsym);
-    const markInvisible = env.planning ? () => {}
-        : (env.markInvisible ?? map_invisible);
-    const unmarkInvisible = env.planning ? () => {}
-        : (env.unmarkInvisible ?? unmap_invisible);
-    const drawBeam = env.planning ? async () => {} : tmp_at;
-    const delayOutput = env.planning ? async () => {} : nh_delay_output;
+    const redraw = env.redraw ?? newsym;
+    const markInvisible = env.markInvisible ?? map_invisible;
+    const unmarkInvisible = env.unmarkInvisible ?? unmap_invisible;
+    const drawBeam = tmp_at;
+    const delayOutput = nh_delay_output;
     const fltyp = zaptype(type);
     const damgtype = fltyp % 10;
     const spellType = type >= 10 && type < 20
@@ -6106,8 +6047,7 @@ export async function dobuzz(
                     );
                     if (Reflecting(state)) {
                         if (!Blind(state.u)) {
-                            // Printed through dobuzz()'s message operation,
-                            // which a planned breath silences.
+                            // Printed through dobuzz()'s message operation.
                             await ureflects(
                                 'But %s reflects from your %s!', 'it', state,
                                 { message },
@@ -6155,7 +6095,7 @@ export async function dobuzz(
                             { ...env, message });
                     }
                     // stop_occupation() prints through dobuzz()'s message
-                    // operation, which a planned breath silences.
+                    // operation.
                     await stop_occupation(state, { message });
                     nomul(0, state);
                 }
@@ -6721,8 +6661,7 @@ export async function cancel_monst(
 ) {
     const env = { ...rawEnv, state };
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const youdefend = (mdef === state.youmonst);
 
     // Resistance check
