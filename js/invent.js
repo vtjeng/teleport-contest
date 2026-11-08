@@ -3647,8 +3647,6 @@ function preflightObfree(obj, merge, env) {
         && obj.otyp === FIGURINE;
     if (obj.timed && !timerStopsDuringFreeinv)
         requiredHook(env, 'stopObjectTimers', obj);
-    if (obj.lamplit && !merge)
-        requiredHook(env, 'deleteObjectLightSource', obj);
     if (isContainer(obj)) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj) requiredHook(env, 'resetPick', obj);

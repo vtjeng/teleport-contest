@@ -97,6 +97,7 @@ import {
     SCR_MAGIC_MAPPING,
     LEASH,
     LEATHER_GLOVES,
+    MAGIC_LAMP,
     SLIME_MOLD,
     TOOL_CLASS,
     SHURIKEN,
@@ -1299,32 +1300,51 @@ test('dealloc_obj preflights the timer seam before mutation', () => {
     assert.equal(obj.where, OBJ_FREE);
 });
 
-test('dealloc_obj rechecks light ownership after timer cleanup', () => {
+test('dealloc_obj deletes a light that survives timer cleanup', () => {
+    // mkobj.c dealloc_obj():2777-2780 calls del_light_source() itself, with
+    // no hook; it rechecks obj_sheds_light() only after obj_stop_timers().
+    const state = {};
+    light_globals_init(state);
     const lamp = newObject({
         lamplit: true,
-        oextra: { oname: 'Lit' },
         otyp: OIL_LAMP,
         timed: 1,
         where: OBJ_FREE,
     });
+    // An arbitrary in-map square and a lamp's radius 3 (timeout.c
+    // begin_burn()'s default): the position and radius are not under test.
+    new_light_source(10, 5, 3, LS_OBJECT, lamp, state);
+    state.vision_full_recalc = 0;
     let stopped = 0;
-    assert.throws(
-        () => dealloc_obj(lamp, {
-            state: {},
-            hooks: {
-                stopObjectTimers(obj) {
-                    ++stopped;
-                    obj.timed = 0;
-                },
+    dealloc_obj(lamp, {
+        state,
+        hooks: {
+            stopObjectTimers(obj) {
+                ++stopped;
+                obj.timed = 0;
             },
-        }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'deleteObjectLightSource',
-    );
+        },
+    });
     assert.equal(stopped, 1);
-    assert.equal(lamp.timed, 0);
-    assert.equal(lamp.lamplit, true);
-    assert.equal(lamp.where, OBJ_FREE);
+    assert.equal(state.gl.light_base, null);
+    assert.equal(state.vision_full_recalc, 1);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(lamp.where, OBJ_DELETED);
+
+    // A lit magic lamp has no burn timer, so only the light call runs. obj.h
+    // ignitable() counts a magic lamp only while its djinni remains (spe 1).
+    const magic = newObject({
+        lamplit: true,
+        otyp: MAGIC_LAMP,
+        spe: 1,
+        timed: 0,
+        where: OBJ_FREE,
+    });
+    new_light_source(10, 5, 3, LS_OBJECT, magic, state);
+    dealloc_obj(magic, { state });
+    assert.equal(state.gl.light_base, null);
+    assert.equal(magic.lamplit, false);
+    assert.equal(magic.where, OBJ_DELETED);
 });
 
 test('dealloc_obj clears the boulder chain union before deletion', () => {

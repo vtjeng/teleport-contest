@@ -27,6 +27,7 @@ import {
     ICE,
     LARGEST_INT,
     LOST_NONE,
+    LS_OBJECT,
     MAX_OIL_IN_FLASK,
     MIGR_TO_SPECIES,
     NOBJ_STATES,
@@ -129,6 +130,7 @@ import { book_cursed } from './spell.js';
 import { set_moreluck } from './attrib.js';
 import {
     arti_light_radius,
+    del_light_source,
     obj_adjust_light_radius,
     get_obj_location,
     obj_sheds_light,
@@ -465,6 +467,7 @@ export class UnsupportedObjectOperationError extends Error {
 //   isPermanentlyPoisoned(obj, env) -> boolean (default permapoisoned())
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
+//     (default light.c del_light_source())
 
 // Each alias reads and writes `this[source]`, so every object can share one
 // descriptor. A fresh getter and setter per object would give each object its
@@ -1140,14 +1143,13 @@ export function dealloc_obj(obj, env = {}) {
             throw new Error('stopObjectTimers must clear obj.timed');
     }
     // A burn timer can own and remove the light source, so recheck after all
-    // object timers have stopped, matching dealloc_obj()'s source order.
+    // object timers have stopped, matching dealloc_obj()'s source order. An
+    // untimed light (a magic lamp, or a lit artifact) reaches C's direct
+    // del_light_source() call here; the optional hook is a test seam.
     if (obj_sheds_light(obj)) {
-        const deleteLight = requiredHook(
-            normalized,
-            'deleteObjectLightSource',
-            obj,
-        );
-        deleteLight(obj, normalized);
+        if (typeof normalized.hooks.deleteObjectLightSource === 'function')
+            normalized.hooks.deleteObjectLightSource(obj, normalized);
+        else del_light_source(LS_OBJECT, obj, normalized.state);
         obj.lamplit = false;
     }
 

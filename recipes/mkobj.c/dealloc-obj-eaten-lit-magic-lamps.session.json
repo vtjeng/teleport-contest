@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mkobj.c dealloc_obj():2777-2780. A lit magic lamp has no burn timer, so freeing one reaches dealloc_obj()'s direct del_light_source() call. A human Samurai wishes for two lit magic lamps, drops the second, polymorphs into a xorn and eats both: the carried one (eatspecial() -> useup() -> obfree()) and then the one on the floor (useupf() -> delobj() -> obfree()). Seed, date, character and inputs chosen independently of batch 8.",
+  "segments": [
+    {
+      "seed": 5512093,
+      "datetime": "20371203141522",
+      "nethackrc": "OPTIONS=name:Lampeater,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": ".\u0017lit magic lamp\n\u0017lit magic lamp\ndg#polyself\nxorn\nenfey..i\u001b"
+    }
+  ]
+}

@@ -904,10 +904,12 @@ test('delete_contents extracts and frees each child before returning', () => {
 test('delete_contents preflights every sibling before changing ownership', () => {
     const state = initializedState();
     const sack = instance(SACK, state);
-    const candle = instance(TALLOW_CANDLE, state, { lamplit: true });
+    // A timed egg needs the stopObjectTimers hook, which this env omits.
+    // Any real species works; only the refusal before mutation is tested.
+    const egg = instance(EGG, state, { corpsenm: TEST_SPECIES, timed: 1 });
     const apple = instance(APPLE, state);
     addinv(sack, { state });
-    add_to_container(sack, candle, { state });
+    add_to_container(sack, egg, { state });
     add_to_container(sack, apple, { state });
     sack.owt = weight(sack, { state });
     const originalWeight = sack.owt;
@@ -915,16 +917,16 @@ test('delete_contents preflights every sibling before changing ownership', () =>
     assert.throws(
         () => delete_contents(sack, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'deleteObjectLightSource',
+            && error.operation === 'stopObjectTimers',
     );
 
     assert.equal(sack.cobj, apple);
-    assert.equal(apple.nobj, candle);
+    assert.equal(apple.nobj, egg);
     assert.equal(apple.where, OBJ_CONTAINED);
-    assert.equal(candle.where, OBJ_CONTAINED);
+    assert.equal(egg.where, OBJ_CONTAINED);
     assert.equal(apple.ocontainer, sack);
-    assert.equal(candle.ocontainer, sack);
-    assert.equal(candle.lamplit, true);
+    assert.equal(egg.ocontainer, sack);
+    assert.equal(egg.timed, 1);
     assert.equal(sack.owt, originalWeight);
 });
 
@@ -932,11 +934,13 @@ test('delete_contents preflights the whole nested graph before mutation', () => 
     const state = initializedState();
     const outer = instance(SACK, state);
     const inner = instance(BAG_OF_HOLDING, state);
-    const candle = instance(TALLOW_CANDLE, state, { lamplit: true });
+    // A timed egg needs the stopObjectTimers hook, which this env omits.
+    // Any real species works; only the refusal before mutation is tested.
+    const egg = instance(EGG, state, { corpsenm: TEST_SPECIES, timed: 1 });
     const apple = instance(APPLE, state);
     addinv(outer, { state });
     add_to_container(outer, inner, { state });
-    add_to_container(inner, candle, {
+    add_to_container(inner, egg, {
         state,
         hooks: { objectNoLongerHeld() {} },
     });
@@ -949,19 +953,19 @@ test('delete_contents preflights the whole nested graph before mutation', () => 
     assert.throws(
         () => delete_contents(outer, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'deleteObjectLightSource',
+            && error.operation === 'stopObjectTimers',
     );
 
     assert.equal(outer.cobj, apple);
     assert.equal(apple.nobj, inner);
-    assert.equal(inner.cobj, candle);
+    assert.equal(inner.cobj, egg);
     assert.equal(apple.where, OBJ_CONTAINED);
     assert.equal(inner.where, OBJ_CONTAINED);
-    assert.equal(candle.where, OBJ_CONTAINED);
+    assert.equal(egg.where, OBJ_CONTAINED);
     assert.equal(apple.ocontainer, outer);
     assert.equal(inner.ocontainer, outer);
-    assert.equal(candle.ocontainer, inner);
-    assert.equal(candle.lamplit, true);
+    assert.equal(egg.ocontainer, inner);
+    assert.equal(egg.timed, 1);
     assert.equal(inner.owt, originalInnerWeight);
     assert.equal(outer.owt, originalOuterWeight);
 });
