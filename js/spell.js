@@ -162,7 +162,6 @@ import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { aggravate } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
-    TOPLINE_NEED_MORE,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -557,15 +556,7 @@ export async function confused_book(book, state = game, env = {}) {
             'Being confused you have difficulties in controlling your actions.',
             state,
         );
-        if (env.planning && state.nhDisplay?.toplin === TOPLINE_NEED_MORE) {
-            if (typeof env.requestPlanningInput !== 'function')
-                throw new TypeError(
-                    'planned confused_book requires a display input handoff',
-                );
-            await env.requestPlanningInput('windows.c display_nhwindow');
-        } else {
-            await displayPendingTtyMessageWindow(state);
-        }
+        await displayPendingTtyMessageWindow(state);
         await message('You accidentally tear the spellbook to pieces.', state);
         await trycall(book, state, { ...env, random, message });
         await useup(book, { state, hooks: {} });
@@ -764,8 +755,8 @@ function deadbookMakemonEnv(state, random, env) {
         random,
         _deadbook: true,
         // C's makemon appearance uses Norep(), including repeated species
-        // within the swarm. Keep custom planning sinks silent while using
-        // the ordinary live Norep owner rather than the Book's pline sink.
+        // within the swarm. A custom message sink also receives the Norep
+        // lines; the ordinary pline owner maps to the ttyNorep owner.
         norepMessage: env.norepMessage
             ?? (env.message === ttyPline ? ttyNorep : env.message),
     };
