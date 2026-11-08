@@ -8,7 +8,8 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { finishElapsedTurn } from '../js/allmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_CHAMELEON } from '../js/monsters.js';
-import { BLINDED, HALLUC, DETECT_MONSTERS, ROOM } from '../js/const.js';
+import { A_DEX, BLINDED, HALLUC, DETECT_MONSTERS, ROOM } from '../js/const.js';
+import { acurr } from '../js/attrib.js';
 import { vision_recalc } from '../js/vision.js';
 
 for (const [hallucinating, detected] of [[true, true]]) {
@@ -40,12 +41,30 @@ for (const [hallucinating, detected] of [[true, true]]) {
             d: (n, size) => { draws.push(['d', n, size]); return n; },
             rne: () => 1, rnl: bound => bound - 1, rnz: value => value,
         };
-        await finishElapsedTurn(state, random, { randomMonsterOnly: true });
+        // The rest of the turn draws only twice on this state; these are its
+        // preconditions. regen_hp() runs only below full HP; regen_pw() on
+        // move 2 waits for moves % ((MAXULEV + 8 - 1) * 3 / 6), 18 for a
+        // level-1 Wizard (allmain.c regen_pw()); a starting Wizard has no
+        // Teleportation, Polymorph, lycanthropy or Searching; and dosounds()
+        // draws only for the level features below (sounds.c).
+        assert.equal(state.moves, 1);
+        assert.equal(state.u.ulevel, 1);
+        assert.equal(state.u.uhp, state.u.uhpmax);
+        for (const feature of ['nfountains', 'nsinks', 'has_court', 'has_swamp',
+            'has_vault', 'has_beehive', 'has_morgue', 'has_barracks', 'has_zoo',
+            'has_shop', 'has_temple'])
+            assert.ok(!state.level.flags?.[feature], feature);
+        const dexterity = acurr(state, A_DEX);
+        await finishElapsedTurn(state, random);
         assert.deepEqual(draws, [
             ['rn2', 6], ['rn2', 10], ['rn2', 3], ['rn1', 330, 0],
             ['rn2', 10], ['d', 1, 8],
             ...(hallucinating ? [['rn2', 4], ['rn2', 4]] : []),
             ['rn2', 12], ['rn2', 70],
+            // eat.c gethungry(): accessorytime = rn2(20).
+            ['rn2', 20],
+            // allmain.c:360: !rn2(40 + ACURR(A_DEX) * 3) gates u_wipe_engr().
+            ['rn2', 40 + dexterity * 3],
         ]);
         assert.notStrictEqual(state.level.monlist.data, state.mons[PM_CHAMELEON]);
         assert.equal(state.level.monlist.mspec_used, 3);
