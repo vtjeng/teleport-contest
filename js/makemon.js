@@ -224,10 +224,9 @@ function uncommon(index, state) {
 // The statics live on game state as `align_shift_static`, which
 // js/gstate.js resetGame() replaces for each runSegment(); a C process
 // starts each segment with the statics at their initial values too. A
-// lookup replaces the record rather than writing into it, so a planning
-// dry run (js/unported_monster_actions.js planningState(), which shares
-// unnamed root fields with the live state by reference) updates only its
-// own root and the live record stays as the live pass will find it.
+// lookup replaces the record rather than writing into it, so a state that
+// shares unnamed root fields with another by reference updates only its own
+// root.
 const ALIGN_SHIFT_INITIAL = Object.freeze({ oldmoves: 0, lev: null });
 
 export function align_shift(monster, state) {
@@ -422,9 +421,7 @@ export async function grow_up(mtmp, victim, env = {}) {
         set_mon_data(mtmp, ptr, state);
         if (mtmp.cham === oldtype && is_shapeshifter(ptr))
             mtmp.cham = newtype;
-        // newsym() paints the live game; a monster turn's planning pass
-        // leaves the redraw to the live pass.
-        if (!env.planning) newsym(mtmp.mx, mtmp.my);
+        newsym(mtmp.mx, mtmp.my);
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
         mtmp.female = Boolean(fem);
         if (mtmp.mleashed) update_inventory({ state });
@@ -446,15 +443,13 @@ export async function grow_up(mtmp, victim, env = {}) {
 // and similar effects. The clone gets half the parent's current HP; the parent
 // keeps the extra point when HP is odd. Returns the clone or null on failure.
 // Async because the tamedog path (for cloning a tame monster) is async.
-// rawEnv carries the planning RNG and redraw seam when a clone is made during
-// an isolated monster turn; ordinary callers retain the live defaults.
+// rawEnv may supply the RNG and redraw operations; callers that omit them
+// retain the live defaults.
 export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const redraw = typeof rawEnv.redraw === 'function'
         ? rawEnv.redraw
-        : rawEnv.planning
-            ? () => {}
-            : (xx, yy) => newsym(xx, yy, state);
+        : (xx, yy) => newsym(xx, yy, state);
     const mndx = monsndx(mon.data);
 
     /* may be too weak or have been extinguished for population control */
@@ -498,8 +493,7 @@ export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
     m2.nmon = state.level.monlist;
     state.level.monlist = m2;
     // C next_ident() consumes the shared identity RNG.  Keep that draw on
-    // the caller's stream when a planning clone is made; falling back to the
-    // module-global wrapper would advance the live game during preflight.
+    // the caller's stream rather than the module-global wrapper.
     m2.m_id = next_ident({ state, random });
     m2.mx = mmx;
     m2.my = mmy;
