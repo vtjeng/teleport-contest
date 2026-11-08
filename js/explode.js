@@ -56,7 +56,6 @@ import { isok } from './cmd_isok.js';
 import { exercise } from './attrib.js';
 import {
     curs_on_u,
-    HeroDeathPlanningError,
     losehp,
     nomul,
     nh_delay_output,
@@ -138,7 +137,6 @@ import {
     cmap_to_glyph,
     map_glyphinfo,
     map_invisible,
-    map_invisible_planning,
     newsym,
     show_glyph_cell,
     tmp_at,
@@ -505,14 +503,10 @@ export async function explode(
             if (monster) mask |= explosionmask(monster, adtyp, olet, state);
             masks[i][j] = mask;
 
-            // A planning pass writes only its own map memory; the live pass
-            // repaints these squares.
             if (monster && cansee(xx, yy, state) && !canspotmon(monster, state)) {
-                if (env.planning) map_invisible_planning(xx, yy, state);
-                else map_invisible(xx, yy, state);
+                map_invisible(xx, yy, state);
             } else if (!monster) {
-                unmap_invisible(xx, yy, state,
-                    env.planning ? () => {} : newsym);
+                unmap_invisible(xx, yy, state, newsym);
             }
             if (cansee(xx, yy, state)) visible = true;
             if (mask & (EXPL_MON | EXPL_HERO)) anyShield = true;
@@ -520,48 +514,43 @@ export async function explode(
     }
 
     if (visible) {
-        // The planning clone shares the live terminal. Keep C's visible
-        // classification and all later blast mechanics, but do not paint
-        // animation frames through that shared display while planning.
-        if (!env.planning) {
-            let starting = true;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if (masks[i][j] === EXPL_SKIP) continue;
-                    const xx = x + i - 1;
-                    const yy = y + j - 1;
-                    await tmp_at(starting ? DISP_BEAM : DISP_CHANGE,
-                        explosion_to_glyph(expltype, explosion[i][j], state), state);
-                    await tmp_at(xx, yy, state);
-                    starting = false;
-                }
+        let starting = true;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (masks[i][j] === EXPL_SKIP) continue;
+                const xx = x + i - 1;
+                const yy = y + j - 1;
+                await tmp_at(starting ? DISP_BEAM : DISP_CHANGE,
+                    explosion_to_glyph(expltype, explosion[i][j], state), state);
+                await tmp_at(xx, yy, state);
+                starting = false;
             }
-            await curs_on_u(state);
-            if (anyShield && state.flags?.sparkle) {
-                for (const shield of shieldStatic) {
-                    for (let i = 0; i < 3; i++) {
-                        for (let j = 0; j < 3; j++) {
-                            if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
-                            show_glyph_cell(x + i - 1, y + j - 1,
-                                map_glyphinfo(cmap_to_glyph(shield, state), state));
-                        }
-                    }
-                    await curs_on_u(state);
-                    await nh_delay_output(state);
-                }
+        }
+        await curs_on_u(state);
+        if (anyShield && state.flags?.sparkle) {
+            for (const shield of shieldStatic) {
                 for (let i = 0; i < 3; i++) {
                     for (let j = 0; j < 3; j++) {
                         if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
                         show_glyph_cell(x + i - 1, y + j - 1,
-                            explosion_to_glyph(expltype, explosion[i][j], state));
+                            map_glyphinfo(cmap_to_glyph(shield, state), state));
                     }
                 }
-            } else {
-                await nh_delay_output(state);
+                await curs_on_u(state);
                 await nh_delay_output(state);
             }
-            await tmp_at(DISP_END, 0, state);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
+                    show_glyph_cell(x + i - 1, y + j - 1,
+                        explosion_to_glyph(expltype, explosion[i][j], state));
+                }
+            }
+        } else {
+            await nh_delay_output(state);
+            await nh_delay_output(state);
         }
+        await tmp_at(DISP_END, 0, state);
     } else {
         if (olet === MON_EXPLODE || olet === TRAP_EXPLODE) {
             str = 'explosion';
@@ -751,18 +740,6 @@ export async function explode(
                     || lastMessage === PLNMSG_TOWER_OF_FLAME
                     ? 'It is fatal.' : `The ${str} is fatal.`, state, env);
                 const how = adtyp === AD_FIRE ? BURNING : DIED;
-                // done() paints and reads from the live terminal. The typed
-                // planning signal preserves this source death for live replay.
-                if (env.planning) {
-                    if (typeof env.planningDeath === 'function')
-                        throw env.planningDeath(how);
-                    const death = new HeroDeathPlanningError(
-                        state.killer.name, state.killer.format,
-                        { fromMonster: Boolean(state.context?.mon_moving) },
-                    );
-                    death.how = how;
-                    throw death;
-                }
                 await done(how, state, env);
                 if (state.program_state?.gameover) return;
             }
@@ -770,7 +747,7 @@ export async function explode(
         await exercise(A_STR, false, state, random, {
             encumberMessage: env.encumberMessage
                 ?? ((subject) => encumber_msg(subject, {
-                    message: env.planning ? async () => {} : env.message,
+                    message: env.message,
                 })),
         });
     }
@@ -1002,7 +979,7 @@ export async function scatter(
                     exercise(index, increase, subject, random, {
                         encumberMessage: env.encumberMessage
                             ?? ((hero) => encumber_msg(hero, {
-                                message: env.planning ? async () => {} : message,
+                                message,
                             })),
                     })),
             },
