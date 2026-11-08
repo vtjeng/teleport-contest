@@ -9,9 +9,9 @@
 // functions.
 //
 // Each function takes the hero struct its caller holds (`state.u`), as
-// Upolyd() in js/const.js does, so a planning clone's call reads the clone's
-// hero. The few macros that also read other globals (gy.youmonst, gm.multi,
-// gu.uball, ublindf, u.uz's level) take the game state instead and say so.
+// Upolyd() in js/const.js does. The few macros that also read other globals
+// (gy.youmonst, gm.multi, gu.uball, ublindf, u.uz's level) take the game
+// state instead and say so.
 // The H, E and B accessors return the field's value, 0 when the hero has no
 // slot for it; the combined macros return a boolean, as C's || and && give
 // 0 or 1. Passing the game state where the hero is expected, or the hero

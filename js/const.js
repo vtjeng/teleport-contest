@@ -3061,7 +3061,7 @@ export function u_at(x, y, state = game) {
 }
 // C ref: rm.h:500 OBJ_AT(). The optional state argument matches u_at() above:
 // dig.c rot_corpse() asks this question about the state its timer is running
-// against, which on a planned turn is the clone rather than the live game.
+// against.
 export function OBJ_AT(x, y, state = game) {
     return Boolean(state?.level?.objects?.[x]?.[y]);
 }
@@ -3104,8 +3104,7 @@ export function ismnum(pm) {
 
 // ── Level classification predicates (C: dungeon.h macros) ──
 // Each reads the dungeon topology (C's svd.dungeon_topology, fixed for a game)
-// from `state`. A planning clone shares the live topology, but a plan must
-// still pass its own state: js/gstate.js makes `game` throw while planning.
+// from `state`.
 export function In_quest(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.quest_dnum; }
 export function In_endgame(uz, state = game) { const lev = uz ?? state?.u?.uz; const al = state?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
 export function Is_astralevel(uz, state = game) { return In_endgame(uz, state) && (uz ?? state?.u?.uz)?.dlevel === 1; }

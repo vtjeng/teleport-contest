@@ -14,56 +14,28 @@ function initialGameState() {
 export let game = initialGameState();
 
 export function resetGame() {
-    if (liveGameDuringPlanning)
-        throw new PlanningLiveGameError('resetGame() reached while planning');
     game = initialGameState();
     return game;
 }
 
-// A planning pass (js/unported_monster_actions.js
-// preflightSimpleMonsterActions() and preflightElapsedTurnTail()) rehearses a
-// turn on a planningState() clone and must not read or write the live game.
-// Thousands of functions take their state as a parameter defaulting to
-// `game`, or read `game` directly, so a planning call that forgets to pass
-// the clone would otherwise reach the live game silently. While js/rng.js
-// withPlanningCoreContext() runs a plan, `game` instead names a guard over
-// the live game that catches every use, naming the property and the
-// function that reached it. Identity tests (`state === game`) do not touch
-// the guard and stay false for the clone, as they are for the live game's
-// copy outside planning. scripts/planning-live-game-guard.test.mjs checks the
-// guard.
-//
-// What the guard does with a use depends on the entry point. By default it
-// records the use and lets it through to the live game, as it did before the
-// guard existed, so a path no test reached cannot stop a game the judge
-// drives: runSegment(), and the browser play path that its playability runner
+// js/youprop.js reports a property macro given the game state in place of the
+// hero, or the reverse, through recordLiveGameUse(). What happens to a report
+// depends on the entry point. By default it is recorded and the caller carries
+// on, so a path no test reached cannot stop a game the judge drives:
+// runSegment(), and the browser play path that its playability runner
 // (frozen/playability_runner.mjs) drives through NethackGame and
 // moveloop_core() directly. runSegment() reports what was recorded to the
 // local scorers, which fail that game. runSegmentStrict(), which every local
 // replay tool uses, and the unit suite (scripts/strict-live-game-uses.mjs,
-// preloaded by scripts/run-test-suite.mjs) select throwing instead, so a use
-// fails there at the line that made it.
-//
-// js/youprop.js applies the same policy to a property macro given the game
-// state in place of the hero, or the reverse: recordLiveGameUse() throws in
-// local runs and, under runSegment(), records a `youpropArgument` use beside
-// the planning uses, so the same reporter fails the game.
-export class PlanningLiveGameError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'PlanningLiveGameError';
-    }
-}
-
-let liveGameDuringPlanning = null;
+// preloaded by scripts/run-test-suite.mjs) select throwing instead, so a
+// report fails there at the line that made it.
 let recordPlanningUses = true;
 // One entry per distinct message, in first-use order: { kind, detail, count }.
-// `kind` is 'planningLiveGame' for the guard below and 'youpropArgument' for
-// js/youprop.js.
+// `kind` is 'youpropArgument' for js/youprop.js.
 const planningUses = new Map();
 
 // Select recording (true) or throwing (false); returns the previous mode.
-// Recording is the default; see the comment above PlanningLiveGameError.
+// Recording is the default; see the comment above.
 export function setPlanningUseRecording(record) {
     const previous = recordPlanningUses;
     recordPlanningUses = Boolean(record);
@@ -79,18 +51,6 @@ export function resetPlanningLiveGameUses() {
     planningUses.clear();
 }
 
-// Lines 0-2 of the stack are the message, planningUse() and the trap below;
-// line 3 is the function that used `game`, and lines 4-7 its callers, one of
-// which is usually the call that did not pass the clone.
-function framesOf(stack) {
-    const frame = (line) => (line ?? '').trim().replace(/^at /u, '')
-        .replace(/file:\/\/\S*\/js\//u, '').replace(/[()]/gu, '');
-    const lines = String(stack ?? '').split('\n');
-    const user = frame(lines[3]) || 'an unknown function';
-    const callers = lines.slice(4, 8).map(frame).filter(Boolean);
-    return callers.length ? `${user}, called from ${callers.join(' < ')}` : user;
-}
-
 // When throwing is selected, throw makeError(detail); otherwise record one
 // use of `kind`, so that runSegment() reports it, and return so that the
 // caller can carry on.
@@ -99,49 +59,4 @@ export function recordLiveGameUse(kind, detail, makeError) {
     const use = planningUses.get(detail);
     if (use) use.count++;
     else planningUses.set(detail, { kind, detail, count: 1 });
-}
-
-function planningUse(operation, property) {
-    const name = typeof property === 'symbol' ? property.toString() : String(property);
-    const where = framesOf(new Error().stack);
-    const detail = `planning pass reached the live game: ${operation} game.${name} in ${where}`;
-    recordLiveGameUse('planningLiveGame', detail, (message) => new PlanningLiveGameError(message));
-}
-
-// Each trap reports the use, which throws when throwing is selected, and
-// then performs it on the live game.
-// The one exception is reading game.mockStorage: js/storage.js, which the
-// scorer replaces with its own copy, finds the virtual file system there and
-// cannot be handed the dry run's state. Those files (the record file read by
-// topten.c get_rnd_toptenentry(), for one) are external storage, as C's file
-// system is, not game state.
-const planningGuardHandler = {
-    get: (target, property) => {
-        if (property !== 'mockStorage') planningUse('read', property);
-        return Reflect.get(target, property, target);
-    },
-    set: (target, property, value) => { planningUse('write', property); return Reflect.set(target, property, value, target); },
-    has: (target, property) => { planningUse('test', property); return Reflect.has(target, property); },
-    deleteProperty: (target, property) => { planningUse('delete', property); return Reflect.deleteProperty(target, property); },
-    defineProperty: (target, property, descriptor) => { planningUse('define', property); return Reflect.defineProperty(target, property, descriptor); },
-    ownKeys: (target) => { planningUse('list', '<keys>'); return Reflect.ownKeys(target); },
-    getOwnPropertyDescriptor: (target, property) => { planningUse('describe', property); return Reflect.getOwnPropertyDescriptor(target, property); },
-    getPrototypeOf: (target) => { planningUse('prototype of', '<game>'); return Reflect.getPrototypeOf(target); },
-    setPrototypeOf: (target, prototype) => { planningUse('set prototype of', '<game>'); return Reflect.setPrototypeOf(target, prototype); },
-    isExtensible: (target) => { planningUse('test extensibility of', '<game>'); return Reflect.isExtensible(target); },
-    preventExtensions: (target) => { planningUse('freeze', '<game>'); return Reflect.preventExtensions(target); },
-};
-
-// Run `run` with `game` replaced by the guard, restoring the live game on
-// every exit. Only js/rng.js withPlanningCoreContext() calls this.
-export async function withLiveGameGuarded(run) {
-    if (liveGameDuringPlanning) return run();
-    liveGameDuringPlanning = game;
-    game = new Proxy(liveGameDuringPlanning, planningGuardHandler);
-    try {
-        return await run();
-    } finally {
-        game = liveGameDuringPlanning;
-        liveGameDuringPlanning = null;
-    }
 }

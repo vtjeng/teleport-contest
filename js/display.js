@@ -316,7 +316,7 @@ import {
     S_EEL,
     monsterClassSymbol,
 } from './monsters.js';
-import { planningContextInstalled, rn2_on_display_rng } from './rng.js';
+import { rn2_on_display_rng } from './rng.js';
 import {
     emitGlyphUpdateNotices,
     glyphGnewSinceNotice,
@@ -2842,9 +2842,6 @@ export function back_to_glyph(x, y, state = game) {
 
 // ── show_glyph_cell ──
 export function show_glyph_cell(x, y, glyph) {
-    // The live glyph buffer, like newsym() below: a planned paint is dropped,
-    // and the live pass paints the square when it plays the turn.
-    if (planningContextInstalled()) return;
     if (!glyph || typeof glyph !== 'object'
         || !Object.hasOwn(glyph, 'dec')) {
         throw new TypeError(
@@ -2940,11 +2937,11 @@ const SHIELD_STATIC_CMAP = Object.freeze([
 // C ref: display.c shieldeff() (1110-1122). Put one shield-static cmap glyph
 // at the target, flush it, and wait once per source array entry, then redraw
 // the remembered location. This is only terminal animation: it uses no RNG
-// and changes no game state. As with flash_glyph_at(), planning clones must
-// not paint the live game's display buffer.
+// and changes no game state. As with flash_glyph_at(), a state other than the
+// game's paints nothing, since the display buffer is the game's.
 export async function shieldeff(x, y, state = game) {
     if (!state.flags?.sparkle || !cansee(x, y, state)) return;
-    if (state !== game || state.program_state?.planning) return;
+    if (state !== game) return;
 
     for (const cmap of SHIELD_STATIC_CMAP) {
         const glyph = cmap_to_glyph(cmap, state);
@@ -2982,10 +2979,10 @@ export async function flash_glyph_at(
             ? unexploredGlyphInfo(state)
             : map_glyphinfo(back_to_glyph(x, y, state), state);
 
-    // display.c's animation is a window-port side effect. Planning clones
-    // still resolve the two glyphs in source order, but cannot paint the live
-    // terminal or consume animation hooks owned by the live game.
-    if (state !== game || state.program_state?.planning) return;
+    // display.c's animation is a window-port side effect. Another state
+    // still resolves the two glyphs in source order, but cannot paint the
+    // terminal or consume animation hooks owned by the game.
+    if (state !== game) return;
 
     const total = repeatCount * 2;
     for (let i = 0; i < total; ++i) {
@@ -3017,9 +3014,8 @@ function unexploredGlyphInfo(state) {
 // erase/clear operations change the transient buffer, not remembered map cells.
 export async function under_water(mode, state = game) {
     if (Is_waterlevel(state.u.uz, state) || state.u.uswallow) return;
-    // Display owners use the live singleton. Planning clones leave terminal
-    // output and input to the live pass, as shieldeff() does.
-    if (state !== game || state.program_state?.planning) return;
+    // Display owners use the game singleton, as shieldeff() does.
+    if (state !== game) return;
     const previous = state._underWater ??= { x: 0, y: 0, dela: false };
     if (mode === 1 || previous.dela) {
         await cls();
@@ -3610,8 +3606,7 @@ export function map_invisible_planning(x, y, state) {
  * live state, while scripts/detect.test.mjs drives dosearch0() through a
  * hand-built state whose memory half is exactly what that test reads. The
  * repaint is covered separately, against the live game, in
- * scripts/display-symbols.test.mjs. A monster's planning pass (js/explode.js
- * explode()) passes its own `redraw`, so the live square is not repainted.
+ * scripts/display-symbols.test.mjs.
  */
 export function unmap_invisible(x, y, state = game, redraw = newsym) {
     if (!isok(x, y)) return false;
@@ -3770,8 +3765,7 @@ export function unmap_object(x, y, state = game) {
  * C's newsym_force() is newsym() plus the glyph buffer's dirty bookkeeping.
  * js/display.js flush_screen() repaints from game.level rather than from a
  * dirty range, so newsym() alone carries the whole live effect here. A
- * planned clone supplies a silent redraw callback, so it still observes the
- * object but never paints the live terminal.
+ * caller with another state supplies its own redraw callback.
  *
  * The default redraw below is newsym(), which takes no state and reads the
  * module-global `game`. Keep the foreign-state guard unless a caller supplies
@@ -3825,12 +3819,6 @@ function observeNearbyObject(object, x, y, state) {
 // which need the persistent map glyph must reread
 // level.at(x, y).remembered_glyph afterward.
 export function newsym(x, y) {
-    // newsym() takes no state: it always repaints the live game's square. A
-    // planning clone (js/unported_monster_actions.js planningState()) dry-runs
-    // a turn that the live pass then runs again, and the live pass repaints
-    // every square it changes, so a planned repaint is dropped here, as
-    // js/tty_message.js drops a planned message.
-    if (planningContextInstalled()) return;
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppressMapOutput()) return;
@@ -4182,13 +4170,10 @@ export function newsym(x, y) {
 // ── see_monsters ──
 // C ref: display.c mimic_light_blocking() and set_mimic_blocking().  The
 // caller has already changed See_invisible before this traversal starts.
-// A planning clone passes admitPointChange, which it calls before each
-// block_point() or unblock_point() rewrites the shared obstruction index.
-export function set_mimic_blocking(state = game, { admitPointChange = null } = {}) {
+export function set_mimic_blocking(state = game) {
     const canSeeInvisible = See_invisible(state.u);
     iter_mons((monster) => {
         if (!monster.minvis || !is_lightblocker_mappear(monster)) return;
-        admitPointChange?.(monster.mx, monster.my, state);
         if (canSeeInvisible)
             block_point(monster.mx, monster.my, state);
         else
@@ -4198,17 +4183,18 @@ export function set_mimic_blocking(state = game, { admitPointChange = null } = {
 
 // C ref: display.c see_monsters() (1486-1529). Redraws every monster on the
 // level after something changed what the hero can perceive. `redraw` is an
-// optional caller-owned seam for planning clones: newsym() still draws the
-// live game, while a clone can supply a silent or state-local repaint. The
-// monster-list state changes (meverseen and warning count) always belong to
-// the state passed by the caller.
+// optional caller-owned seam: newsym() draws the game, while a caller with
+// another state supplies its own repaint. The monster-list state changes
+// (meverseen and warning count) always belong to the state passed by the
+// caller.
 //
 export function see_monsters(state = game, env = {}) {
     if (state.gd?.defer_see_monsters) return;
     const { redraw = null } = env;
     if (state !== game && typeof redraw !== 'function') {
         throw new TypeError(
-            'see_monsters() on a clone requires a redraw callback',
+            'see_monsters() on a state other than the game requires a '
+                + 'redraw callback',
         );
     }
     const repaint = redraw ?? newsym;
@@ -4262,8 +4248,6 @@ export function see_monsters(state = game, env = {}) {
             // call.
             return Sting_effects(new_warn_obj_cnt, state, {
                 ...env,
-                ...(env.planning && !env.message
-                    ? { message: async () => {} } : {}),
             }).then(() => {
                 state.warn_obj_cnt = new_warn_obj_cnt;
                 finish();
@@ -4285,14 +4269,13 @@ export function newsymReportsOffMap(x, y) {
 
 // The port's newsym() is synchronous and cannot wait at the --More-- that
 // impossible() reaches, so callers that can meet an off-map square raise the
-// report through this helper. A planning clone prints nothing.
+// report through this helper.
 export function newsymOffMapImpossible(x, y, state = game, env = {}) {
-    const message = env.message ?? (env.planning ? async () => {} : undefined);
     return impossible(`newsym: attempting screen update for <${x},${y}>`,
         state, {
             ...env,
-            message,
-            urgentMessage: env.planning ? message : env.urgentMessage,
+            message: env.message,
+            urgentMessage: env.urgentMessage,
         });
 }
 
@@ -4343,8 +4326,6 @@ async function redraw_map(cursorOnHero = false) {
 // restore defers see_monsters(). Callers can supply equivalent vision callbacks;
 // overlayMonsters=false lets a caller perform its own final monster overlay.
 export async function docrt(options = {}) {
-    // A planned redraw is dropped, as in newsym().
-    if (planningContextInstalled()) return;
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
     game.program_state.in_docrt = true;
@@ -7360,8 +7341,6 @@ function suppressMapOutput(state = game) {
 }
 
 export async function flush_screen(mode) {
-    // A planned redraw is dropped, as in newsym().
-    if (planningContextInstalled()) return;
     if (suppressMapOutput()) return;
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
@@ -7409,8 +7388,6 @@ export async function flush_screen(mode) {
 
 // ── cls ──
 export async function cls() {
-    // A planned redraw is dropped, as in newsym().
-    if (planningContextInstalled()) return;
     // C's static in_cls protects reentrant message/display callbacks.
     if (game._inCls) return;
     game._inCls = true;
@@ -7496,8 +7473,6 @@ export async function cls() {
 // during the "You die..." --More-- sequence would show HP:0 instead of the
 // pre-damage value that C's incremental terminal leaves on screen.
 export async function bot({ initialTtyRefresh = false } = {}) {
-    // A planned redraw is dropped, as in newsym().
-    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
@@ -7588,8 +7563,6 @@ export async function bot({ initialTtyRefresh = false } = {}) {
 // cleared, exactly as bot() does above; suppress_map_output() covers the save,
 // restore and hangup states this port does not enter.
 export async function timebot() {
-    // A planned redraw is dropped, as in newsym().
-    if (planningContextInstalled()) return;
     if (game.gb?.bot_disabled === true)
         return;
     if (game.flags?.time && game.iflags?.status_updates !== false) {

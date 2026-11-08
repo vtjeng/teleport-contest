@@ -70,7 +70,7 @@ export function loadMonsterLightVisionRecipe() {
         version: 5,
         segments: [
             // Both objects take the ordinary single-object wish path but leave
-            // different inventory shapes for planningState() to clone.
+            // different inventory shapes.
             segment('food ration'),
             segment('rock'),
         ],

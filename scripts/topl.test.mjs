@@ -65,9 +65,6 @@ const QUESTPGR_C = readFileSync(
 const QUESTPGR_JS = readFileSync(
     new URL('../js/questpgr.js', import.meta.url), 'utf8',
 );
-const MONSTER_ACTIONS_JS = readFileSync(
-    new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8',
-);
 
 function historyState() {
     const state = {
@@ -86,8 +83,6 @@ test('quest pager sends synopsis history only through the live output route', ()
         /ttyDisplay->toplin == TOPLINE_NEED_MORE\)[\s\S]*?ttyDisplay->toplin = TOPLINE_NON_EMPTY/u);
     assert.match(QUESTPGR_JS, /await output\.history\?\.\(converted, state\)/u);
     assert.equal(typeof QUEST_PAGER_OUTPUT.history, 'function');
-    assert.match(MONSTER_ACTIONS_JS,
-        /const SILENT_QUEST_PAGER = Object\.freeze\(\{\s*pline:\s*async \(\) => \{\},\s*window:\s*async \(\) => \{\},\s*\}\)/u);
 });
 
 test('remember_topl advances the C message ring and respects its lock', () => {

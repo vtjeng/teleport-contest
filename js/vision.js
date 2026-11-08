@@ -2,7 +2,6 @@ import { queueVisionMonsterNotices } from './startup_a11y.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
-import { installedPlanningState } from './rng.js';
 import { on_level } from './dungeon.js';
 import { do_light_sources } from './light.js';
 import { is_pool } from './dbridge.js';
@@ -98,10 +97,10 @@ const liveVisionBuffers = makeVisionBuffers();
 
 // The live COULD_SEE pair has no per-state form and is not reachable from the
 // game state: only rows[0] is, through game.viz_array. The spare row set and
-// both rmin/rmax pairs are exactly what vision_recalc() writes, so a planning
-// round that leaked into them would be invisible to any check that walks the
-// state. scripts/planning-isolation-test-support.mjs snapshots what this
-// returns for that reason. Read-only: callers must not mutate the arrays.
+// both rmin/rmax pairs are exactly what vision_recalc() writes, so a write
+// into them would be invisible to any check that walks the state; tests that
+// must show a call left them alone snapshot what this returns. Read-only:
+// callers must not mutate the arrays.
 export function liveVisionBufferViews() {
     return [
         ...liveVisionBuffers.rows[0],
@@ -114,10 +113,9 @@ export function liveVisionBufferViews() {
 // vision.c's transparency index, the other structure that has no per-state
 // form and no path from the game state: viz_clear and the two pointer grids
 // are module-level and are read by the quadrant walks, which take no state.
-// A planning clone borrows the index rather than copying it, so a leak into
-// these arrays would be invisible to a check that walks the state.
-// scripts/planning-isolation-test-support.mjs snapshots what this returns for
-// that reason. Read-only: callers must not mutate the arrays.
+// A write into these arrays would be invisible to a check that walks the
+// state, so tests that must show a call left them alone snapshot what this
+// returns. Read-only: callers must not mutate the arrays.
 export function transparencyIndexViews() {
     return [...viz_clear, ...left_ptrs, ...right_ptrs];
 }
@@ -203,24 +201,9 @@ export function does_block(x, y, _location = null, state = game) {
     return blocksVisionAt(x, y, state);
 }
 
-// A planning clone (any state other than the live game) borrows the
-// module-wide transparency index. Every write to that index passes through
-// here or vision_reset(), so the borrow is recorded at the write itself
-// rather than by each of the hundred-odd block_point() callers: the
-// preflight wrappers in unported_monster_actions.js restore the snapshot when
-// _plannedVisionChange is set. A planned explosion that burns a door away
-// otherwise leaves the live hero seeing through the door the real
-// explosion has not yet reached.
-function borrowTransparencyIndex(x, y, state) {
-    if (state === game) return;
-    state._plannedTransparencyIndex ??= snapshotTransparencyIndex();
-    state._plannedVisionChange ??= { x, y };
-}
-
 // C vision.c block_point/unblock_point explicitly change one obstruction.
 // Rebuilding from does_block would erase forced openings such as Water bubbles.
 function updateVisionPoint(x, y, state, blocked) {
-    borrowTransparencyIndex(x, y, state);
     if (blocked) fill_point(y, x);
     else dig_point(y, x);
     if (state.viz_array?.[y]?.[x]) state.vision_full_recalc = 1;
@@ -346,23 +329,12 @@ function rebuildTransparencyRow(y) {
 // Only vision_reset derives all obstructions from the map.
 function rebuildTransparencyIndex(state) {
     if (!state.level) return;
-    borrowTransparencyIndex(0, 0, state);
     for (let y = 0; y < ROWNO; y++) {
         viz_clear[y][0] = 0;
         for (let x = 1; x < COLNO; x++)
             viz_clear[y][x] = blocksVisionAt(x, y, state) ? 0 : 1;
         rebuildTransparencyRow(y);
     }
-}
-
-// A planning pass borrows the module index. Preserve its exact contents,
-// including source-owned openings which differ from does_block().
-export function snapshotTransparencyIndex() {
-    return transparencyIndexViews().map(row => row.slice());
-}
-
-export function restoreTransparencyIndex(snapshot) {
-    transparencyIndexViews().forEach((row, index) => row.set(snapshot[index]));
 }
 
 // C vision_reset publishes readiness only after rebuilding its level index.
@@ -709,12 +681,8 @@ export function do_clear_area(
         throw new RangeError(`do_clear_area: illegal range ${range}`);
 
     if (scol !== state.u.ux || srow !== state.u.uy) {
-        // The live level owns the index. While planning, `game` throws
-        // (js/gstate.js); the planning clone records the live level it
-        // borrows from, so compare with that.
-        const planning = installedPlanningState();
-        const owner = planning
-            ? planning.level?._visionTransparencyOwner : game.level;
+        // The game's level owns the index.
+        const owner = game.level;
         if (state !== game
             && state.level?._visionTransparencyOwner !== owner) {
             throw new Error(
@@ -805,9 +773,7 @@ export async function do_clear_area_async(
 
 // C ref: vision_recalc(control).  `env` names three of the things C reaches
 // through globals: the game state, its pair of COULD_SEE buffers, and
-// display.c's redraw.  js/unported_monster_actions.js supplies all three so
-// that its cloned monster scan can recompute vision for the map it planned
-// without touching the live view or painting a frame.
+// display.c's redraw.
 //
 // A fourth remains shared and is not in `env`: the transparency index
 // viz_clear/left_ptrs/right_ptrs, declared as module constants above, read
@@ -816,10 +782,7 @@ export async function do_clear_area_async(
 // from whichever map it is handed.  A caller working on a state other than
 // `game` therefore has to rebuild the index from its own map before this call
 // and from the live map afterwards, or it computes the live map's sight lines
-// and writes them into the planned state.  js/unported_monster_actions.js is
-// the one caller that does: admitDoorOpening() rebuilds it from the planned
-// map, and the finally at :879-896 rebuilds it from the live one, both through
-// recalc_block_point(), which rebuilds only the transparency index.
+// and writes them into the other state.
 //
 // `env.redraw` defaults to newsym, which ignores its state argument and paints
 // the module-level `game`, so a caller whose state is not `game` must supply
@@ -883,9 +846,8 @@ export function vision_recalc(control = 0, env = {}) {
         || !state.iflags?.vision_inited) return;
 
     // Swap to unused buffer. vision.c's cs_rows pair belongs to the one
-    // running game; a planning clone that reaches vision_recalc() (blindness
-    // from a planned venom splash, a planned engulf) writes a pair of its own,
-    // or it would overwrite the live view and its spare buffer.
+    // running game; another state that reaches vision_recalc() writes a pair
+    // of its own, or it would overwrite the game's view and its spare buffer.
     if (state !== game) state._visionBuffers ??= makeVisionBuffers();
     const buffers = visionBuffers(state);
     const spare = state.active_buf === 0 ? 1 : 0;
@@ -1180,9 +1142,8 @@ export function m_canseeu(mon, state = game) {
 // together with this source owner's MATCH_WARN_OF_MON() predicate. The
 // bitmask is consumed by pager.c:look_at_monster() to explain why a displayed
 // monster is known.
-// C ref: vision.c howmonseen(). The state argument preserves the focused
-// clone contract used by the display/pager callers; no live singleton is
-// consulted while inspecting a planning state.
+// C ref: vision.c howmonseen(). The state argument is the one the display
+// and pager callers inspect; the global game is not consulted.
 export function howmonseen(mon, state = game) {
     if (!mon) return 0;
     const useemon = canseemon(mon, state);

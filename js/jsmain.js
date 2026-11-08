@@ -826,15 +826,10 @@ export function segmentIterationLimit(movesLength) {
 // the violations to the reporter below; runSegmentStrict() throws after the
 // segment, with the game attached as `segmentGame` for diagnosis.
 //
-// Live-game access during a dry run (js/gstate.js) differs the same way.
-// runSegmentStrict() selects throwing, so it throws PlanningLiveGameError like
-// any crash. runSegment() keeps the default, recording: the use goes through
-// to the live game, so the scored run keeps the behaviour it had before the
-// guard; the uses are kept as game.planningLiveGameUses and passed to the
-// reporter below. A youprop.js
-// macro given the wrong argument is handled the same way (js/gstate.js
-// recordLiveGameUse()): it throws under runSegmentStrict() and is recorded,
-// with the answer recovered, under runSegment().
+// A js/youprop.js macro given the wrong argument differs the same way
+// (js/gstate.js recordLiveGameUse()): it throws under runSegmentStrict(), and
+// under runSegment() it is recorded, with the answer recovered; the uses are
+// kept as game.planningLiveGameUses and passed to the reporter below.
 export async function runSegment(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
     resetPlanningLiveGameUses();
@@ -898,8 +893,8 @@ export function setTerminationViolationReporter(reporter) {
     terminationViolationReporter = reporter;
 }
 
-// The same, for the planning passes' uses of `game` that runSegment()
-// recorded in a segment (js/gstate.js): one call per segment that has any,
+// The same, for the js/youprop.js argument uses that runSegment() recorded in
+// a segment (js/gstate.js): one call per segment that has any,
 // with an array of { kind, detail, count }. The judge never registers one.
 let planningLiveGameReporter = null;
 export function setPlanningLiveGameReporter(reporter) {

@@ -142,8 +142,8 @@ import {
     vision_recalc,
     vision_reset,
 } from './vision.js';
-import { coreRandom,
-    createCoreRandom,
+import {
+    coreRandom,
     rn2,
     isTerminated,
     raceTermination,
@@ -152,7 +152,6 @@ import { dosounds } from './sounds.js';
 import {
     gethungry,
     maybe_finished_meal,
-    preflightGetHungry,
     reset_eat,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
@@ -165,9 +164,6 @@ import {
     set_apparxy,
 } from './monmove.js';
 import {
-    admitPlannedVisionChange,
-    isolatePlannedVision,
-    MonsterInputPlanningBoundaryError,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
@@ -181,7 +177,6 @@ import {
     UnsupportedHeroTimeoutBoundaryError,
     nh_timeout,
     do_storms,
-    nh_timeout_requires_live_state,
 } from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
 import {
@@ -385,17 +380,17 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
 // activity: makemon()'s and monmove.c dochugw()'s newly threatening monster,
 // and moveloop_core()'s own monster_nearby() test after a turn of the activity.
 //
-// `env` carries the display operations that differ between the live game and an
-// atomic planning clone. It is not only forwarded: maybe_finished_meal() passes
-// it on to eatfood(), which owns the finished meal's object and message
-// lifecycle, but this function also writes the `You stop %s.` line itself, so
+// `env` carries the caller's display operations. It is not only forwarded:
+// maybe_finished_meal() passes it on to eatfood(), which owns the finished
+// meal's object and message lifecycle, but this function also writes the
+// `You stop %s.` line itself, so
 // `message` is required whenever an occupation is installed. It is resolved by
 // name rather than read directly because the two ways of getting it wrong fail
 // in opposite directions: on this arm a missing `message` would be a bare
 // TypeError, which js/jsmain.js does not convert, so the segment is discarded
 // rather than ended; on the finished-meal arm it would fall through to
-// eatOperations()'s `message = ttyPline` default and quietly write to the live
-// terminal during a planning clone.
+// eatOperations()'s `message = ttyPline` default and quietly write to the
+// terminal.
 function requireOccupationOperation(env, name) {
     const operation = env?.[name];
     if (typeof operation !== 'function')
@@ -408,7 +403,7 @@ export async function stop_occupation(state = game, env = {}) {
         const message = requireOccupationOperation(env, 'message');
         // A meal that finishes here reaches eat.c newuhs(), whose bot() call
         // C makes directly. Callers pass only their message seam; refresh
-        // the live status line, and keep a planning clone's silent.
+        // the status line for the game, and stay silent for any other state.
         const mealEnv = {
             ...env,
             statusRefresh: env.statusRefresh
@@ -655,10 +650,9 @@ function elapsedTurnBoundary(reason) {
 // left to spend and answers 0, which is what clears it. A counted `s`
 // therefore searches one last time after the line prints.
 //
-// `norepMessage` is Norep()'s owner. finishElapsedTurn() substitutes a silent
-// one while it dry-runs a burdened turn on the clone, as it does for every
-// other line that block can write. Resolving it before nomul(0) keeps a caller
-// that omitted the seam from ending the count and then failing on the line.
+// `norepMessage` is Norep()'s owner. Resolving it before nomul(0) keeps a
+// caller that omitted the seam from ending the count and then failing on the
+// line.
 export async function interrupt_multi(message, state, env = {}) {
     if (!((state.multi ?? 0) > 0)
         || state.context.travel || state.context.run) {
@@ -674,35 +668,12 @@ export async function interrupt_multi(message, state, env = {}) {
     if (printing) await env.norepMessage(message, state);
 }
 
-function regionEffectEnv(state, random, { planning = false } = {}) {
-    // C's run_regions() mutates the active level even while the elapsed-turn
-    // preflight is running.  A planned turn owns a cloned level, so preserve
-    // those mutations there while suppressing only the terminal operations;
-    // drawing or printing from the clone would consume live output/input
-    // before the real pass replays the same callbacks.
-    const silentDisplay = async () => {};
+function regionEffectEnv(state, random) {
     return {
         state,
         random,
-        planning,
-        // Region callbacks name coughing monsters even on a silent dry run.
-        // Own those cosmetic draws on the same cloned level as their effects.
-        displayRandom: planning ? (bound) => {
-            if (!state.displayCtx) {
-                throw new TypeError(
-                    'planned region naming requires initialized display RNG',
-                );
-            }
-            return createCoreRandom(state.displayCtx, state).rn2(bound);
-        } : undefined,
-        blockPoint: (x, y) => {
-            if (planning) admitPlannedVisionChange(x, y, state);
-            return block_point(x, y, state);
-        },
-        unblockPoint: (x, y) => {
-            if (planning) admitPlannedVisionChange(x, y, state);
-            return unblock_point(x, y, state);
-        },
+        blockPoint: (x, y) => block_point(x, y, state),
+        unblockPoint: (x, y) => unblock_point(x, y, state),
         doesBlock: (x, y, location) => does_block(
             x,
             y,
@@ -710,15 +681,13 @@ function regionEffectEnv(state, random, { planning = false } = {}) {
             state,
         ),
         canSee: (x, y) => cansee(x, y, state),
-        newsym: planning ? () => {} : (x, y) => newsym(x, y),
-        message: planning ? silentDisplay : (message) => ttyPline(message, state),
+        newsym: (x, y) => newsym(x, y),
+        message: (message) => ttyPline(message, state),
     };
 }
 
 async function runEveryTurnEffectWithRegionHooks(monster, env) {
-    const regionEnv = regionEffectEnv(env.state, env.random, {
-        planning: env.planning,
-    });
+    const regionEnv = regionEffectEnv(env.state, env.random);
     await m_everyturn_effect(monster, {
         ...env,
         createGasCloud: (x, y, size, damage, effectEnv) =>
@@ -734,14 +703,13 @@ function elapsedTurnMinLiquid(monster, env) {
         ...env,
         state: env.state,
         canSee: (x, y) => cansee(x, y, env.state),
-        message: env.planning ? async () => {} : ttyPline,
+        message: ttyPline,
         unsupported: unavailableElapsedTurnOperation(
             'monster liquid effect',
         ),
         // minliquid() uses rloc()'s result to decide whether its liquid
         // effect is finished. Keep the relocation on the elapsed-turn state
-        // and provide the complete teleport.c hook set for both the planning
-        // and live passes.
+        // and provide the complete teleport.c hook set.
         relocateMonster: (subject, flags, relocationEnv) => rloc(
             subject,
             flags,
@@ -749,10 +717,8 @@ function elapsedTurnMinLiquid(monster, env) {
                 ...relocationEnv,
                 state: env.state,
                 random: relocationEnv.random ?? env.random,
-                message: env.planning ? async () => {} : ttyPline,
-                newsym: env.planning
-                    ? () => {}
-                    : (x, y) => newsym(x, y, env.state),
+                message: ttyPline,
+                newsym: (x, y) => newsym(x, y, env.state),
                 onscary: (x, y, target) => onscary(
                     x,
                     y,
@@ -781,32 +747,17 @@ function elapsedTurnMinLiquid(monster, env) {
         ),
         hooks: {
             ...(env.hooks ?? {}),
-            newsym: env.planning ? () => {} : (x, y) => newsym(x, y),
+            newsym: (x, y) => newsym(x, y),
         },
     });
 }
 
-export async function finishElapsedTurn(
-    state,
-    random,
-    { planning = false, randomMonsterOnly = false } = {},
-) {
-    // Every message and status seam this block hands a callee is one of these
-    // three, so the planning and live arms are chosen once rather than per
-    // callee. Three further values follow the same rule at their single call
-    // site: mcalcdistress()'s redrawSquare and visionRecalc below, and the
-    // regionEnv that run_regions() consumes. The dry run works on a clone
-    // whose state is discarded: a line it writes paints text the live pass
-    // never wrote, ttyPline() on a turn whose clone still carries a pending
-    // message reaches dismissPendingTtyMessage() and consumes a key the
-    // segment still needs, and bot() reads the live game rather than the
-    // clone. scripts/allmain-turn.test.mjs's 'a planned timeout writes no line
-    // and reads no key' pins turnMessage through do.c heal_legs(), which
-    // nh_timeout() reaches below.
-    const silentDisplay = async () => {};
-    const turnMessage = planning ? silentDisplay : ttyPline;
-    const turnNorep = planning ? silentDisplay : ttyNorep;
-    const turnStatusRefresh = planning ? silentDisplay : () => bot();
+// C ref: allmain.c moveloop_core(), the once-per-turn block that runs when
+// both the hero and the monsters are out of movement. C's done() does not
+// return; the JavaScript end-game path returns so the recorder can capture
+// its last screen, so this stops wherever the game has ended. A wizard or
+// life-saving recovery leaves gameover clear, and the upkeep carries on.
+export async function finishElapsedTurn(state, random) {
     // C ref: allmain.c moveloop_core()'s mvl_wtcap, taken once after the
     // monster loop. C reuses this snapshot only for u_calc_moveamt(),
     // regen_hp(), regen_pw(), and the overexertion check, and substitutes
@@ -814,40 +765,17 @@ export async function finishElapsedTurn(
     // gethungry() and attrib.c exerper() each call near_capacity() themselves,
     // so they get a live evaluator below rather than this value, which
     // nh_timeout() and the hunger transition can already have invalidated.
-    const wtcap = near_capacity(state);
-    // Shape-change upkeep names monsters before random births and timers.
-    // All planned naming callers share this clone-owned cosmetic stream.
-    const planningDisplayRandom = planning
-        ? state.displayCtx
-            ? createCoreRandom(state.displayCtx, state).rn2
-            : () => {
-                throw new TypeError(
-                    'planned monster naming requires initialized display RNG',
-                );
-            }
-        : undefined;
+    let wtcap = near_capacity(state);
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
         state,
         random,
-        displayRandom: planningDisplayRandom,
-        planning,
-        message: turnMessage,
-        redrawSquare: planning ? () => {} : newsym,
-        visionRecalc: planning ? () => {} : vision_recalc,
+        message: ttyPline,
+        redrawSquare: newsym,
+        visionRecalc: vision_recalc,
         minLiquid: elapsedTurnMinLiquid,
         decideToShapeshift: decide_to_shapeshift,
         wereChange: were_change,
-        admitPlannedVisionChange: planning
-            ? (x, y) => admitPlannedVisionChange(x, y, state)
-            : undefined,
-        // m_calcdistress() can change a swallowed monster's form. Its
-        // expels() -> spoteffects(true) continuation may ask for input after
-        // relocating the hero. Stop the clone at that source boundary and
-        // replay the complete upkeep live before planning any continuation.
-        requestPlanningInput: planning
-            ? operation => { throw new MonsterInputPlanningBoundaryError(operation); }
-            : undefined,
     });
 
     for (let monster = state.level.monlist;
@@ -865,35 +793,12 @@ export async function finishElapsedTurn(
             random.rn2,
         )) << 16) >> 16;
     }
-    // A random mimic can be born during this cloned allocation. makemon.c
-    // set_mimic_sym() rebuilds vision after choosing a blocking disguise, so
-    // run that tail against the cloned monster map and mark the borrowed
-    // transparency index for preflightSimpleMonsterActions() to restore.
-    const planningCreationVisionHooks = planning ? {
-        doesBlock: (x, y, location, normalized) => does_block(
-            x,
-            y,
-            location,
-            normalized.state,
-        ),
-        blockPoint: (x, y, normalized) => {
-            admitPlannedVisionChange(x, y, normalized.state);
-            block_point(x, y, normalized.state);
-        },
-    } : null;
     await maybe_generate_rnd_mon(state, {
         random,
-        displayRandom: planningDisplayRandom,
-        hooks: planningCreationVisionHooks,
-        message: turnMessage,
-        norepMessage: turnNorep,
-        statusRefresh: turnStatusRefresh,
+        message: ttyPline,
+        norepMessage: ttyNorep,
+        statusRefresh: () => bot(),
     });
-    // planSimpleMonsterTurn() treats a truthy advanceRound result as "this
-    // single unburdened allocation is fully preflighted" and must not plan a
-    // second allocation that the live hero will not need.
-    if (randomMonsterOnly && !Glib(state)
-        && !nh_timeout_requires_live_state(state)) return true;
     u_calc_moveamt(wtcap, state, random.rn2);
     settrack(state);
 
@@ -907,7 +812,7 @@ export async function finishElapsedTurn(
         // inside nh_terminate() after topten has painted. Printing the pline
         // and capturing a frame here would invent a boundary no C run
         // produces, so stop after the dismissal C performs first.
-        if (!planning && state._pending_message)
+        if (state._pending_message)
             await dismissPendingTtyMessage(state);
         elapsedTurnBoundary('game end through done(ESCAPED)');
     }
@@ -918,28 +823,22 @@ export async function finishElapsedTurn(
     }
 
     // C ref: allmain.c moveloop_core() calls glibr() after the once-per-turn
-    // hook and before nh_timeout(). The planning copy mutates only its cloned
-    // game state and suppresses display hooks until the live replay. do.c
-    // dropz() reaches two of those hooks: newsym() on the landing square and,
-    // while Blind and Levitation, map_object(obj, 0) just before it. Both
-    // paint the module-global game whatever state they are handed, and
-    // map_object() refuses the clone outright, so the dry run binds both to
-    // no-ops.
+    // hook and before nh_timeout(). do.c dropz() reaches two display hooks:
+    // newsym() on the landing square and, while Blind and Levitation,
+    // map_object(obj, 0) just before it.
     if (Glib(state)) {
-        const silentDisplay = async () => {};
-        const turnMessage = planning ? silentDisplay : ttyPline;
         await glibr(state, {
-            message: turnMessage,
+            message: ttyPline,
             canletgo,
             dropx: (object) => dropx(object, {
                 state,
                 hooks: {
                     encumberMessage: (targetState) => encumber_msg(
                         targetState,
-                        { message: turnMessage },
+                        { message: ttyPline },
                     ),
-                    newsym: planning ? () => {} : newsym,
-                    mapObject: planning ? () => {} : map_object,
+                    newsym,
+                    mapObject: map_object,
                 },
             }),
         });
@@ -950,63 +849,28 @@ export async function finishElapsedTurn(
     // for one). advanceElapsedTurn() converts that refusal around its call to
     // this function, so the segment ends on its last matching screen instead
     // of being discarded whole.
-    const liveTimeout = nh_timeout_requires_live_state(state);
-    if (planning && liveTimeout) return { beforeTimeout: true };
     await nh_timeout(state, {
-        planning,
         random,
-        // timeout.c slip_or_trip() can hurtle a fumbling hero; the clone's
-        // dothrow.c hurtle_step() vision_recalc() needs its own buffers.
-        isolateVision: planning ? isolatePlannedVision : null,
-        // Hallucinated level-timer callbacks may format a melted waterbody.
-        // Keep that display draw on the same clone used by monster planning.
-        displayRandom: planningDisplayRandom,
-        message: turnMessage,
-        norepMessage: turnNorep,
-        statusRefresh: turnStatusRefresh,
-        // dig.c rot_corpse() redraws the square it cleared. The dry run works
-        // on a clone whose objects are copies, so its rotting is discarded
-        // with the clone -- but newsym() paints the live map whatever state it
-        // is handed, so the clone must draw nothing.
-        newsym: planning ? () => {} : newsym,
+        message: ttyPline,
+        norepMessage: ttyNorep,
+        statusRefresh: () => bot(),
+        // dig.c rot_corpse() redraws the square it cleared.
+        newsym,
         // timeout.c hatch_egg() can create a monster during an occupation.
-        // makemon.c's dochugw() then interrupts that occupation. Use the
-        // timeout's own state and message seam so a dry run changes only its
-        // planning clone and the live pass writes the actual interruption.
+        // makemon.c's dochugw() then interrupts that occupation, through the
+        // timeout's own state and message seam.
         hooks: {
             stopOccupation: (_monster, hookEnv) => stop_occupation(
                 hookEnv.state, hookEnv,
             ),
         },
     });
-    // C's fatal timeout never reaches the remaining upkeep. JS's end-game
-    // owner returns so the recorder can retain its final capture.
-    if (state.program_state?.gameover) return { gameover: true };
-    return finishElapsedTurnAfterTimeout(state, random, wtcap, { planning });
-}
+    if (state.program_state?.gameover) return;
 
-// C ref: allmain.c moveloop_core(), immediately after nh_timeout through
-// negative-multi release. wtcap is the allocation's earlier mvl_wtcap, not a
-// fresh capacity calculation after a timeout changes equipment or form.
-async function finishElapsedTurnAfterTimeout(
-    state, random, wtcap, { planning = false } = {},
-) {
-    const silentDisplay = async () => {};
-    const turnMessage = planning ? silentDisplay : ttyPline;
-    const turnNorep = planning ? silentDisplay : ttyNorep;
-    const turnStatusRefresh = planning ? silentDisplay : () => bot();
     // C allmain.c calls run_regions() immediately after nh_timeout() on every
-    // turn. Planned elapsed turns use the same source-ordered callbacks on
-    // their cloned level; regionEffectEnv silences only the clone's drawing
-    // and messages so the live pass remains the first terminal write.
-    const regionEnv = regionEffectEnv(state, random, { planning });
-    await run_regions(regionEnv);
-    // C's done() does not return after finalizing the game. The JavaScript
-    // end-game path returns so the recorder can capture its last screen; stop
-    // the elapsed-turn tail at the same point after a live region callback.
-    // A wizard or life-saving recovery leaves gameover clear, so C's remaining
-    // callback and upkeep still run on the live state.
-    if (state.program_state?.gameover) return { gameover: true };
+    // turn.
+    await run_regions(regionEffectEnv(state, random));
+    if (state.program_state?.gameover) return;
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
     // Both regenerators reach allmain.c interrupt_multi() on the turn they top
@@ -1015,7 +879,7 @@ async function finishElapsedTurnAfterTimeout(
     const regenEnv = {
         random,
         interruptMulti: interrupt_multi,
-        norepMessage: turnNorep,
+        norepMessage: ttyNorep,
     };
     // C ref: allmain.c substitutes UNENCUMBERED for an invulnerable hero
     // instead of healing, and the two consumers below then read the
@@ -1024,52 +888,38 @@ async function finishElapsedTurnAfterTimeout(
     else await regen_hp(wtcap, state, regenEnv);
     // C ref: allmain.c's "moving around while encumbered is hard work" block,
     // between regen_hp() and regen_pw(). The gate is allmain.c's; what it
-    // guards is hack.c overexert_hp(). Its fainting arm runs against the
-    // planning clone with the same RNG and silent output, then live in this
-    // source order before energy regeneration and the immobility countdown.
+    // guards is hack.c overexert_hp().
     if (wtcap > MOD_ENCUMBER && state.u.umoved
         && !(wtcap < EXT_ENCUMBER
             ? state.moves % 30
             : state.moves % 10)) {
         await overexert_hp(state, {
             random,
-            message: turnMessage,
-            statusRefresh: turnStatusRefresh,
+            message: ttyPline,
+            statusRefresh: () => bot(),
             encumberMessage: (subject) => encumber_msg(
-                subject, { message: turnMessage },
+                subject, { message: ttyPline },
             ),
         });
     }
     await regen_pw(wtcap, state, regenEnv);
 
-    // C allmain.c:307-320. A periodic teleport may read a destination and
-    // change the map owning the remaining upkeep. A dry run stops before it.
-    if (!state.u.uinvulnerable && propertyActive(state, TELEPORT)
-        && !random.rn2(85)) {
-        if (planning) return { beforeTeleport: true };
-        const oldUx = state.u.ux;
-        const oldUy = state.u.uy;
-        await tele(state, { random, message: turnMessage });
-        if (state.program_state?.gameover) return { gameover: true };
-        if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
-            if (!(await next_to_u(state, { random, message: turnMessage })))
-                await check_leash(oldUx, oldUy, { state, random, message: turnMessage });
-            cmdq_clear(CQ_CANNED, state);
-            cmdq_clear(CQ_REPEAT, state);
-        }
-    }
-    return finishElapsedTurnAfterTeleport(state, random, { planning });
-}
-
-// C allmain.c moveloop_core(), immediately after periodic teleportation.
-// The live destination determines delayed changes and the remaining upkeep.
-async function finishElapsedTurnAfterTeleport(state, random, { planning = false } = {}) {
-    const turnMessage = planning ? async () => {} : ttyPline;
     if (!state.u.uinvulnerable) {
+        // C allmain.c:307-320, periodic teleportation.
+        if (propertyActive(state, TELEPORT) && !random.rn2(85)) {
+            const oldUx = state.u.ux;
+            const oldUy = state.u.uy;
+            await tele(state, { random, message: ttyPline });
+            if (state.program_state?.gameover) return;
+            if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
+                if (!(await next_to_u(state, { random, message: ttyPline })))
+                    await check_leash(oldUx, oldUy, { state, random, message: ttyPline });
+                cmdq_clear(CQ_CANNED, state);
+                cmdq_clear(CQ_REPEAT, state);
+            }
+        }
         // C ref: allmain.c moveloop_core():322-339. `mvl_change` is a C static,
-        // so keep its per-game, nonsaved value on the game object. planningState()
-        // shallow-copies top-level scalars, giving the dry run its own pending
-        // value without changing the monster-action planning contract. The save
+        // so keep its per-game, nonsaved value on the game object. The save
         // serializer intentionally omits this transient field, as C's static is
         // reset when a saved game is restored.
         state.mvl_change ??= 0;
@@ -1085,49 +935,29 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
         }
         if (state.mvl_change && !propertyActive(state, UNCHANGING)
             && (state.multi ?? 0) >= 0) {
-            // Both transitions can read input and change the active form.
-            // A dry run stops before occupation or transformation effects.
-            if (planning) return { beforeChange: true };
-            await stop_occupation(state, { message: turnMessage });
+            await stop_occupation(state, { message: ttyPline });
             if (state.mvl_change === 1) {
                 await polyself(POLY_NOFLAGS, state);
             } else {
-                await you_were(state, { random, message: turnMessage });
+                await you_were(state, { random, message: ttyPline });
             }
-            if (state.program_state?.gameover) return { gameover: true };
+            if (state.program_state?.gameover) return;
             state.mvl_change = 0;
         }
     }
 
-    return finishElapsedTurnAfterChange(state, random, { planning });
-}
-
-// C allmain.c moveloop_core(), after delayed changes. A new monster form
-// owns the remaining search, warning, hunger and movement-allocation checks.
-async function finishElapsedTurnAfterChange(state, random, { planning = false } = {}) {
     // C allmain.c:342-346. Search can reveal terrain, display a found trap,
-    // or animate a statue. A dry run stops before it rather than letting the
-    // clone consume input.
+    // or animate a statue.
     if (Searching(state.u)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {
-        if (planning) return { beforeSearch: true };
         await automatic_search({ state, random });
-        if (state.program_state?.gameover) return { gameover: true };
+        if (state.program_state?.gameover) return;
     }
-    return finishElapsedTurnAfterSearch(state, random, { planning });
-}
-
-// C allmain.c moveloop_core(), after automatic searching and before warning.
-async function finishElapsedTurnAfterSearch(state, random, { planning = false } = {}) {
-    const turnMessage = planning ? async () => {} : ttyPline;
-    const searchEnv = {
-        state, random, planning,
-        newSym: planning ? () => {} : (x, y) => newsym(x, y),
-    };
     if (Warning(state.u)) {
         await warnreveal({
-            ...searchEnv,
+            state, random,
+            newSym: (x, y) => newsym(x, y),
         });
     }
     // C ref: allmain.c:347-350. A were change this turn (were.c new_were()
@@ -1139,38 +969,20 @@ async function finishElapsedTurnAfterSearch(state, random, { planning = false } 
     await mkot_trap_warn(state);
     await dosounds(state, {
         random: random.rn2,
-        pline: turnMessage,
+        pline: ttyPline,
     });
-    // C allmain.c:353. Storm rays and thunder can change the live hero,
-    // monsters, and movement state; a dry run stops before them.
+    // C allmain.c:353. Storm rays and thunder can change the hero, monsters,
+    // and movement state.
     const stormy = Boolean(state.level.flags.stormy);
-    if (planning && stormy) return { beforeStorms: true };
     await do_storms(state);
-    if (stormy && state.program_state?.gameover) return { gameover: true };
-    return finishElapsedTurnAfterStorms(state, random, { planning });
-}
-
-// C allmain.c:354, after storms and before hunger.
-async function finishElapsedTurnAfterStorms(state, random, { planning = false } = {}) {
-    const turnMessage = planning ? async () => {} : ttyPline;
-    const turnStatusRefresh = planning ? async () => {} : () => bot();
-    const hungerEnv = {
-        random, planning,
+    if (stormy && state.program_state?.gameover) return;
+    await gethungry(state, {
+        random,
         // C reads capacity before newuhs can change temporary strength.
         nearCapacity: () => near_capacity(state),
-        message: turnMessage, endRunning, statusRefresh: turnStatusRefresh,
-    };
-    if (planning && preflightGetHungry(state, hungerEnv).requiresLiveState)
-        return { beforeHunger: true };
-    await gethungry(state, hungerEnv);
-    if (state.program_state?.gameover) return { gameover: true };
-    return finishElapsedTurnAfterHunger(state, random, { planning });
-}
-
-// C ref: allmain.c moveloop_core(), upkeep after gethungry(). Fainting and
-// done(STARVING) run live before this tail is planned from their real result.
-async function finishElapsedTurnAfterHunger(state, random, { planning = false } = {}) {
-    const turnMessage = planning ? async () => {} : ttyPline;
+        message: ttyPline, endRunning, statusRefresh: () => bot(),
+    });
+    if (state.program_state?.gameover) return;
     age_spells(state);
     // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()
     // and engraving wear.
@@ -1180,44 +992,33 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         // gethungry() has run. A WEAK transition lowers weight_cap() through
         // ATEMP(A_STR), so the snapshot above can be a whole band too low.
         nearCapacity: () => near_capacity(state),
-        // encumber_msg()'s own default message is ttyPline, so naming the
-        // seam changes nothing on the live pass and silences the dry run.
         encumberMessage: (subject) => encumber_msg(
             subject,
-            { message: turnMessage },
+            { message: ttyPline },
         ),
-        message: turnMessage,
+        message: ttyPline,
     });
-    const vault = await invault(state, {
+    await invault(state, {
         random,
-        planning,
-        message: turnMessage,
+        message: ttyPline,
         makemon_runtime,
         stopOccupation: (hookEnv = { state }) => stop_occupation(
-            hookEnv.state, { ...hookEnv, message: turnMessage },
+            hookEnv.state, { ...hookEnv, message: ttyPline },
         ),
         unmul: (msg) => unmul(msg, state),
     });
-    if (vault?.beforeInput) return { beforeVaultInput: true };
-    return finishElapsedTurnAfterVault(state, random, { planning });
-}
-
-// C ref: allmain.c moveloop_core(), upkeep after vault.c invault().
-async function finishElapsedTurnAfterVault(state, random, { planning = false } = {}) {
-    const turnMessage = planning ? async () => {} : ttyPline;
     if (state.u.uhave?.amulet)
-        await amulet(state, { random, message: turnMessage });
+        await amulet(state, { random, message: ttyPline });
     maybeWipeHeroEngraving(state, random);
 
     // C allmain.c:361-367. A due intervention can curse inventory, summon
-    // monsters, or resurrect the Wizard. A dry run stops before those effects.
+    // monsters, or resurrect the Wizard.
     if (state.u.uevent?.udemigod && !state.u.uinvulnerable) {
         if (state.u.udg_cnt) state.u.udg_cnt--;
         if (!state.u.udg_cnt) {
-            if (planning) return { beforeIntervention: true };
             await intervene(state, {
                 random,
-                message: turnMessage,
+                message: ttyPline,
                 rndcurse,
                 makemon: makemon_runtime,
                 monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
@@ -1232,40 +1033,27 @@ async function finishElapsedTurnAfterVault(state, random, { planning = false } =
                 },
             });
             state.u.udg_cnt = random.rn1(200, 50);
-            if (state.program_state?.gameover) return { gameover: true };
+            if (state.program_state?.gameover) return;
         }
     }
-    return finishElapsedTurnAfterIntervention(state, { planning });
-}
 
-// C allmain.c:374-388, after the demigod intervention countdown.
-async function finishElapsedTurnAfterIntervention(state, { planning = false } = {}) {
     // C allmain.c:374-377. These owners move terrain and occupants, update
-    // shared vision, and can emit messages. A dry run stops before them.
+    // shared vision, and can emit messages.
     const bubbles = on_level(state.u.uz, state.water_level)
         || on_level(state.u.uz, state.air_level);
     if (bubbles || state.level.flags.fumaroles) {
-        if (planning) return { beforeLevelEffects: true };
         if (bubbles) await movebubbles(state);
         else await fumaroles(state);
-        if (state.program_state?.gameover) return { gameover: true };
+        if (state.program_state?.gameover) return;
     }
-    return finishElapsedTurnAfterLevelEffects(state, { planning });
-}
 
-// C allmain.c:379-388, after the elemental level's per-turn effects.
-async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = {}) {
-    // "when immobile, count is in turns": nomul() with a negative value buys
-    // that many turns during which moveloop_core() reads no key, and this is
-    // what spends them. runmode_delay_output() draws one animation frame per
-    // turn, exactly as it does for a run.
+    // C allmain.c:379-388. "when immobile, count is in turns": nomul() with a
+    // negative value buys that many turns during which moveloop_core() reads
+    // no key, and this is what spends them. runmode_delay_output() draws one
+    // animation frame per turn, exactly as it does for a run.
     if ((state.multi ?? 0) < 0) {
-        // A dry run counts elapsed turns on the clone, but leaves animation,
-        // the release message and arbitrary afternmv callbacks alone, and a
-        // due unmul ends it.
-        if (!planning) await runmode_delay_output(state);
+        await runmode_delay_output(state);
         if (++state.multi === 0) { /* finished yet? */
-            if (planning) return { beforeUnmul: true };
             await runUnmulAtTurnBoundary(state);
             /* if unmul caused a level change, take it now */
             if (state.u.utotype)
@@ -1273,7 +1061,6 @@ async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = 
         }
     }
 }
-
 
 function unavailableElapsedTurnOperation(operation) {
     return () => {
@@ -1336,11 +1123,9 @@ async function moveElapsedTurnMonster(monster, env) {
             creation,
             subjectEnv,
         ),
-        // C ref: mon.c restrap(). The planning scan binds the same
-        // set_mimic_sym() implementation, so the two passes take the same
-        // branches and spend the same draws. This live binding also preserves
-        // makemon.c set_mimic_sym()'s final visibility-blocking update against
-        // the live monster map.
+        // C ref: mon.c restrap(). This binding preserves makemon.c
+        // set_mimic_sym()'s final visibility-blocking update against the
+        // monster map.
         restrap: (subject, subjectEnv) => restrap(subject, {
             ...subjectEnv,
             setMimicSym: (mimic, mimicEnv) => set_mimic_sym(mimic, {
@@ -1363,9 +1148,8 @@ async function moveElapsedTurnMonster(monster, env) {
         }),
         canSeeMonster: (subject) => canseemon(subject, env.state),
         // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
-        // The planning scan binds the same function, so the two passes take
-        // the same branches. This live binding is the one that owes the
-        // newsym() C calls when the eel's mundetected changes.
+        // This binding owes the newsym() C calls when the eel's mundetected
+        // changes.
         hideUnder: (subject, subjectEnv) => hideunder(subject, {
             ...subjectEnv,
             redraw: (x, y) => newsym(x, y),

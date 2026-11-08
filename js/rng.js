@@ -2,7 +2,7 @@
 // C ref: rnd.c — independent core and display RNG contexts.
 
 import { isaac64_init, isaac64_next_uint64 } from './isaac64.js';
-import { game, withLiveGameGuarded } from './gstate.js';
+import { game } from './gstate.js';
 
 let _rngLog = [];
 let _rngLogEnabled = false;
@@ -245,8 +245,7 @@ function rnzFrom(context, state, i, log) {
 }
 
 // Build the same rnd.c wrapper family over a caller-owned core context. The
-// simple-turn planner uses this with a cloned ISAAC context; live wrappers
-// below use the global context and add recorder logging.
+// wrappers below use the global context and add recorder logging.
 export function createCoreRandom(context, state = game) {
     return {
         d: (n, x) => dFrom(context, n, x),
@@ -274,59 +273,16 @@ export function cloneIsaacContext(context) {
     };
 }
 
-// A planning clone (js/unported_monster_actions.js
-// preflightSimpleMonsterActions()) dry-runs a turn before the live pass runs
-// it. It injects a random source over its own copy of the core ISAAC context,
-// but a callee that reaches the module-level wrappers below instead -- a
-// default `{ rn2 }` argument, or an env rebuilt without `random` -- would
-// otherwise advance the live stream and log a call C never makes. While a
-// planning context is installed, the wrappers draw from it, unlogged, so
-// such a draw lands in the clone's sequence where the clone's own draws are.
-// The planning clone itself is installed beside its context: rnl() reads the
-// hero's Luck and rne() and rnz() the hero's level, which on a planned turn
-// are the clone's. While the context is installed, js/gstate.js's `game`
-// throws on every use (withLiveGameGuarded()), so a callee that forgot to
-// pass the clone fails at the line that reached the live game.
-let _planningCtx = null;
-let _planningState = null;
-
-export async function withPlanningCoreContext(context, state, run) {
-    if (!context || !state || typeof run !== 'function')
-        throw new TypeError('withPlanningCoreContext requires a context, the planning state and a function');
-    const previous = _planningCtx;
-    const previousState = _planningState;
-    _planningCtx = context;
-    _planningState = state;
-    try {
-        return await withLiveGameGuarded(run);
-    } finally {
-        _planningCtx = previous;
-        _planningState = previousState;
-    }
-}
-
-// True while a planning clone's core context is installed. done() and
-// nh_terminate() (js/end.js) refuse to end the live game from a rehearsal.
-export function planningContextInstalled() {
-    return _planningCtx !== null;
-}
-
-// The planning clone the installed context belongs to, or null. For callers
-// that take no state, such as note_unported() (js/unported.js).
-export function installedPlanningState() {
-    return _planningState;
-}
-
 function liveCtx() {
-    return _planningCtx ?? game.coreCtx;
+    return game.coreCtx;
 }
 
 function liveState() {
-    return _planningState ?? game;
+    return game;
 }
 
 function liveLog() {
-    return _planningCtx ? undefined : logResult;
+    return logResult;
 }
 
 // C ref: rn2(x) — random number 0..x-1
@@ -384,13 +340,12 @@ export const lua_d = d;
 
 // C ref: rnd.c. C has one core generator, and any function can call any of
 // its wrappers, so the port passes this one complete set wherever a function
-// takes an injected `random` and the caller has none of its own. While a
-// planning clone is installed, each wrapper draws from the clone's stream.
+// takes an injected `random` and the caller has none of its own.
 // scripts/random-source.test.mjs rejects any other hand-built set in js/.
 export const coreRandom = Object.freeze({ d, rn1, rn2, rnd, rne, rnl, rnz });
 
-// The same live set for a hero other than `game`'s, such as a planning
-// clone's: rnl() reads that hero's Luck and rne() and rnz() its level.
+// The same live set for a hero other than `game`'s: rnl() reads that hero's
+// Luck and rne() and rnz() its level.
 export function coreRandomFor(state) {
     if (state === game) return coreRandom;
     return Object.freeze({

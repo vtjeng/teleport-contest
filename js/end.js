@@ -216,7 +216,6 @@ import {
     isTerminated,
     markTerminated,
     neverSettles,
-    planningContextInstalled,
     recordTerminationViolation,
     settleTerminationNotice,
 } from './rng.js';
@@ -708,7 +707,6 @@ function lifeSavingInventoryEnv(state, source = {}) {
 // done() continues into really_done(), preserving the source call for every
 // killer format and end reason.
 export async function done(how, state = game, source = {}) {
-    refuseTerminationWhilePlanning('done()');
     state.killer ??= { name: '', format: KILLED_BY_AN };
     const killer = state.killer;
     const programState = state.program_state;
@@ -739,9 +737,7 @@ export async function done(how, state = game, source = {}) {
     } else {
         /* otherwise force full status update */
         state.disp.botlx = true;
-        // bot() paints the canonical game for live hero and monster damage.
-        // Monster planning stops at mdamageu's lethal boundary before it can
-        // reach this terminal operation from a clone.
+        // bot() paints the canonical game for hero and monster damage.
         await bot();
     }
 
@@ -1613,15 +1609,6 @@ async function really_done(how, state) {
     await nh_terminate(state);
 }
 
-// done() and nh_terminate() end the live game. A planning clone rehearsing
-// a monster turn (js/rng.js withPlanningCoreContext()) must stop before
-// either; reaching one is a port defect, reported as an ordinary crash
-// rather than ending a game the live pass may not end.
-function refuseTerminationWhilePlanning(name) {
-    if (planningContextInstalled())
-        throw new Error(`${name} reached while a planning context is installed`);
-}
-
 // C ref: end.c nh_terminate() (1672-1702) with recorder patch 006, which
 // makes the final input-boundary capture right after in_moveloop = 0. C exits
 // the process; the port cannot, because the judge's runSegment() must return.
@@ -1637,7 +1624,6 @@ function refuseTerminationWhilePlanning(name) {
 // called. Setting gameover after the capture stands in for the process
 // exiting; playSegment() reads it as its stop signal.
 export async function nh_terminate(state = game) {
-    refuseTerminationWhilePlanning('nh_terminate()');
     if (isTerminated()) {
         // A second call can come only from a chain some caller discarded,
         // which kept running after the first. It takes no second capture.
