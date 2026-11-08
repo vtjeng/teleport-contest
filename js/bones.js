@@ -746,8 +746,9 @@ export async function savebones(how, when, corpse, state) {
                     loc.waslit = 0;
                     loc.glyph = GLYPH_UNEXPLORED_OFF;
                     loc.remembered_glyph = undefined;
-                    if (state.lastseentyp?.[x])
-                        state.lastseentyp[x][y] = 0;
+                    // C's svl.lastseentyp is the port's state.level.lastseentyp.
+                    if (state.level.lastseentyp)
+                        state.level.lastseentyp[x][y] = 0;
                 }
             }
         }

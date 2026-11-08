@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 51807,
+   "datetime": "20420611083000",
+   "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u00164\n\u0006\u000f\u001bs\u0017wand of death\nzf.  yqy",
+   "comment": "A debug Samurai level-teleports to D:4, maps it with ^F (detect.c do_mapping() reaches display.c map_background(), whose update_lastseentyp() records the far room's fountain), waits a turn so she does not die on move 1, and dies to a wished wand of death zapped at herself, saving bones. bones.c savebones() zeroes svl.lastseentyp for every square, which the port keeps in state.level.lastseentyp."
+  },
+  {
+   "seed": 51877,
+   "datetime": "20420613194500",
+   "nethackrc": "OPTIONS=name:Hideo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u00164\nyy\u000f",
+   "comment": "A second Samurai level-teleports to D:4 and gets the bones, arriving in the grave's room, far from the fountain. ^O's overview (dungeon.c recalc_mapseen() and count_feat_lastseentyp()) lists only the grave: the fountain the dead hero mapped is forgotten. Before the fix the port also listed 'A fountain.'."
+  }
+ ]
+}
