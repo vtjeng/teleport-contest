@@ -408,6 +408,17 @@ export async function dosave0(state = game) {
     // savegamestate() then saves, through save_dungeon()'s level_info.
     level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
 
+    // C ref: save.c:168 savelev() writes fmon through savemonchn(), and
+    // savegamestate():307 writes gm.migrating_mons the same way. Both
+    // writes reset every priest's temple-entry counters
+    // (priest.c forget_temple_entry()), so a restored game gives a fresh
+    // intone and entry message on the next temple entry. The rest of those
+    // savemonchn() calls has no counterpart in the snapshot below.
+    for (const chain of [state.level?.monlist, state.gm?.migrating_mons]) {
+        for (let mtmp = chain; mtmp; mtmp = mtmp.nmon)
+            if (mtmp.ispriest) forget_temple_entry(mtmp);
+    }
+
     // C ref: save.c:168-169 savelev() + savegamestate(). The port serializes
     // the game state as a JSON snapshot to VFS storage. The binary format
     // C uses (struct-by-struct with Sfo_ macros) is replaced by a single

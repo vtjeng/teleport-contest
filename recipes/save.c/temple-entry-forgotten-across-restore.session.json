@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7311902,
+      "datetime": "20390305151500",
+      "nethackrc": "OPTIONS=name:Votary,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "\u0016?\n>w\u0017scroll of magic mapping\nrm\u001b\u0014_l.  Sy",
+      "comment": "Independent save inside a tended temple: a neutral gnomish Healer level-teleports to Minetown, maps it, teleports beside the altar (intemple() intones and sets the priest's intone_time about 2,500 turns ahead) and saves. save.c savelev()'s savemonchn() calls priest.c forget_temple_entry() for the priest, so after the restore in segment 2 a teleport out of the temple and back gives a fresh intone and entry message."
+    },
+    {
+      "seed": 7311903,
+      "datetime": "20390305163000",
+      "nethackrc": "OPTIONS=name:Votary,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " n\u0014<.\u0014_l.  "
+    }
+  ]
+}
