@@ -1620,7 +1620,10 @@ export async function mattacku(monster, rawEnv = {}) {
                 && !is_pool(u.ux, u.uy, state))) {
                 place_monster(monster, monster.mx, monster.my, state);
                 redraw(u.ux, u.uy, state);
-                await message(`${Monnam(monster, state, env)} draws back as you drop!`, state, env);
+                await message(messageAt(
+                    `${Monnam(monster, state, env)} draws back as you drop!`,
+                    monster.mx, monster.my, state,
+                ), state, env);
                 return false;
             }
             redraw(monster.mx, monster.my, state);
@@ -1878,17 +1881,15 @@ export async function mattacku(monster, rawEnv = {}) {
                         await missmu(monster, tmp === j, mattk, env);
                     }
                 } else if (digests(mdat)) {
-                    await message(
+                    await message(messageAt(
                         `${Monnam(monster, state, env)} gulps some air!`,
-                        state,
-                        env,
-                    );
+                        monster.mx, monster.my, state,
+                    ), state, env);
                 } else if (youseeit) {
-                    await message(
+                    await message(messageAt(
                         `${Monnam(monster, state, env)} lunges forward and recoils!`,
-                        state,
-                        env,
-                    );
+                        monster.mx, monster.my, state,
+                    ), state, env);
                 } else {
                     if (is_whirly(mdat))
                         note_unported('sound.c rushing-wind sound effect');
