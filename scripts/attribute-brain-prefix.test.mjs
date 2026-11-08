@@ -10,21 +10,16 @@ import test from 'node:test';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {adjattrib} from '../js/attrib.js';
-import {planningState} from '../js/unported_monster_actions.js';
 import {A_INT,A_WIS,FAINTED,NOT_HUNGRY,M_ATTK_HIT} from '../js/const.js';
 for(const awareness of ['awake','paralyzed','sleeping','fainted'])for(const increment of [-2,2])test(`attribute sensation ${awareness} delta=${increment}`,async()=>{
- for(const planning of [true,false]){
   await runSegment({seed:8432095,datetime:'20270219100000',nethackrc:'OPTIONS=name:AttributeFeel,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n',moves:' '});
   game.multi=awareness==='awake'?0:-4;game.u.usleep=awareness==='sleeping'?1:0;game.u.uhs=awareness==='fainted'?FAINTED:NOT_HUNGRY;game.u.uhunger=awareness==='fainted'?-10:900;
   game.u.acurr.a[A_INT]=12;game.u.amax.a[A_INT]=12;game.u.aexe[A_INT]=3;game.u.atemp[A_INT]=0;game.u.abon[A_INT]=0;
-  const state=planning?planningState(game):game;
-  if(planning){game.multi=0;game.u.usleep=0;game.u.uhs=NOT_HUNGRY;game.u.uhunger=900;}
+  const state=game;
   const core=structuredClone(game.coreCtx),display=structuredClone(game.displayCtx),hp=state.u.uhp;
   const lines=[];assert.equal(await adjattrib(A_INT,increment,0,state,{message:async line=>{assert.equal(state.u.acurr.a[A_INT],12+increment);assert.equal(state.u.aexe[A_INT],0);lines.push(line);}}),true);
   assert.deepEqual(lines,[`You ${awareness==='sleeping'||awareness==='fainted'?'dream that you feel':'feel'} very ${increment>0?'smart':'stupid'}!`]);
   assert.equal(state.u.acurr.a[A_INT],12+increment);assert.equal(state.u.amax.a[A_INT],increment>0?14:12);assert.equal(state.u.uhp,hp);assert.deepEqual(game.coreCtx,core);assert.deepEqual(game.displayCtx,display);
-  if(planning){assert.equal(game.u.acurr.a[A_INT],12);assert.equal(game.u.amax.a[A_INT],12);assert.equal(game.u.aexe[A_INT],3);assert.equal(game.multi,0);assert.equal(game.u.usleep,0);}
- }
 });
 
 for(const awareness of ['awake','paralyzed','sleeping','fainted'])test(`brain recovery sensation after real death refusal ${awareness}`,async()=>{

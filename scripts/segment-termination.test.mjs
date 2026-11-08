@@ -1,14 +1,13 @@
 // js/end.js nh_terminate() and the segment termination state in js/rng.js:
 // the final capture, suspension, the runtime guard on what runs after
-// termination, the planning refusal, and how the entry points and reporters
-// in js/jsmain.js treat a terminated segment.
+// termination, and how the entry points and reporters in js/jsmain.js
+// treat a terminated segment.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { moveloop_core } from '../js/allmain.js';
-import { DIED } from '../js/const.js';
-import { done, nh_terminate } from '../js/end.js';
+import { nh_terminate } from '../js/end.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { nhgetch } from '../js/input.js';
@@ -18,7 +17,6 @@ import {
     setTerminationViolationReporter,
 } from '../js/jsmain.js';
 import {
-    cloneIsaacContext,
     enableRngLog,
     getRngLog,
     initRng,
@@ -32,7 +30,6 @@ import {
     settleTerminationNotice,
     terminationNotice,
     terminationViolations,
-    withPlanningCoreContext,
 } from '../js/rng.js';
 import { expectTerminated } from './expect-terminated.mjs';
 
@@ -152,20 +149,6 @@ test('a body that rejects after the notice won is recorded as a violation', asyn
     assert.deepEqual(terminationViolations(),
         [{ kind: 'rejection', detail: 'TypeError: stray body' }]);
     resetTermination();
-});
-
-test('done() and nh_terminate() refuse to end the game from a planning clone', async () => {
-    resetTermination();
-    initRng(20261105);
-    const state = { program_state: {} };
-    const context = cloneIsaacContext(game.coreCtx);
-    await assert.rejects(withPlanningCoreContext(context, state, () => nh_terminate(state)),
-        /nh_terminate\(\) reached while a planning context is installed/u);
-    await assert.rejects(withPlanningCoreContext(context, state, () => done(DIED, state)),
-        /done\(\) reached while a planning context is installed/u);
-    assert.equal(isTerminated(), false);
-    assert.deepEqual(state.program_state, {});
-    assert.equal(await settlesSoon(terminationNotice()), false, 'the notice did not settle');
 });
 
 test('a stray chain through a first-time import finishes within the drain', async () => {

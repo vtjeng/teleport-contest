@@ -301,52 +301,6 @@ test('mongone waits for grddead before disappearing a vault guard', async () => 
 
 // ── gd_move() early exits ──
 
-// The port's dry run cannot run gd_move() silently: past the on_level() test
-// (vault.c:898-899) it can draw "Move along!"'s rn2(10) and repaint live
-// squares. The planning pass therefore stops at the planning boundary before
-// any draw or state change, and the live scan runs the guard.
-// recordings/vault.c/strained-gnome-guard-move-along records the C turn whose
-// allocation count depends on those draws.
-test('gd_move stops the planning pass before drawing or touching state', async () => {
-    await startedGame();
-    const grd = makeGuard(10, 10);
-    const origFcend = grd.mextra.egd.fcend;
-    const boundaries = [];
-    await assert.rejects(
-        gd_move(grd, {
-            state: game,
-            planning: true,
-            // No draw may precede the boundary.
-            random: fixedRng([]),
-            message: messageCollector(),
-            requestPlanningInput(operation) {
-                boundaries.push(operation);
-                throw new Error('planning boundary');
-            },
-        }),
-        /planning boundary/,
-    );
-    assert.deepEqual(boundaries, ['vault.c gd_move']);
-    assert.equal(grd.mextra.egd.fcend, origFcend,
-        'planning pass must not modify the guard\'s egd');
-});
-
-// A guard on another level returns -1 before the boundary, so the dry run
-// carries on with m_move()'s ordinary movement as C does.
-test('gd_move on another level returns -1 on the planning pass too', async () => {
-    await startedGame();
-    const grd = makeGuard(10, 10);
-    grd.mextra.egd.gdlevel = { dnum: 99, dlevel: 99 };
-    const result = await gd_move(grd, {
-        state: game,
-        planning: true,
-        requestPlanningInput() {
-            assert.fail('a guard on another level needs no boundary');
-        },
-    });
-    assert.equal(result, -1);
-});
-
 // vault.c:898-899: guard on a different dungeon level returns -1 so that
 // m_move falls through to normal movement.
 test('gd_move returns -1 when guard is on a different level', async () => {

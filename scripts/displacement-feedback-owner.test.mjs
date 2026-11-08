@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN, PM_COCKATRICE } from '../js/monsters.js';
 import { BLINDED, HALLUC, DETECT_MONSTERS, SEE_INVIS, ROOM } from '../js/const.js';
@@ -14,7 +13,7 @@ import { rn2_on_display_rng } from '../js/rng.js';
 import { mdisplacem } from '../js/mhitm.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
-for(const planning of [false,true])for(const hallucinating of [false,true])for(const detected of [false,true])for(const invisible of [false,true]){test(`displacement petrification names planning=${planning} Hallu=${hallucinating} Detect=${detected} invisible=${invisible}`,async()=>{
+for(const hallucinating of [false,true])for(const detected of [false,true])for(const invisible of [false,true]){test(`displacement petrification names Hallu=${hallucinating} Detect=${detected} invisible=${invisible}`,async()=>{
 
             await runSegment({ seed: 8432199, datetime: '20261214120000',
                 nethackrc: 'OPTIONS=name:CombatNameOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
@@ -33,21 +32,19 @@ for(const planning of [false,true])for(const hallucinating of [false,true])for(c
             attacker.nmon = defender; game.level.monlist = attacker;
             place_monster(attacker, 6, 7, game); place_monster(defender, 7, 7, game);
 light_globals_init(game); init_vision_globals(); vision_reset(game); vision_recalc(0);
-const state=planning?planningState(game):game,agr=state.level.monlist,def=agr.nmon,cosmetic=[],messages=[];
-const before=structuredClone(game.displayCtx), coreBefore=structuredClone(game.coreCtx);
-const result=await mdisplacem(agr,def,false,{state,planning,unsupported:reason=>{throw Error('unexpected '+reason);},random:{rn2:n=>1,rnd:n=>n,rn1:(n,b)=>b,rne:()=>1,rnz:n=>n,d:(n,s)=>n},displayRandom:n=>{cosmetic.push(n);rn2_on_display_rng(n,state);return 0;},message:async s=>messages.push(s)});
+const state=game,agr=state.level.monlist,def=agr.nmon,cosmetic=[],messages=[];
+const coreBefore=structuredClone(game.coreCtx);
+const result=await mdisplacem(agr,def,false,{state,unsupported:reason=>{throw Error('unexpected '+reason);},random:{rn2:n=>1,rnd:n=>n,rn1:(n,b)=>b,rne:()=>1,rnz:n=>n,d:(n,s)=>n},displayRandom:n=>{cosmetic.push(n);rn2_on_display_rng(n,state);return 0;},message:async s=>messages.push(s)});
 assert.equal(result,4);
 assert.equal(state.gv.vis,!invisible||detected);
-assert.equal(messages.length,planning?0:(!invisible||detected?2:1));
+assert.equal(messages.length,!invisible||detected?2:1);
 assert.equal(cosmetic.length,hallucinating?(!invisible||detected?6:2):0);
-if(hallucinating&&!planning) assert.match(messages.at(-1),/^The giant ant turns to stone!$/u);
-if(planning)assert.deepEqual(game.displayCtx,before,'planning must not consume live cosmetic RNG');
+if(hallucinating) assert.match(messages.at(-1),/^The giant ant turns to stone!$/u);
 assert.ok(agr.mhp<1);
 assert.deepEqual(game.coreCtx,coreBefore,'injected operations must not consume live core RNG');
-if(planning)assert.equal(attacker.mhp,20,'planning must preserve the live monster');
 });}
 
-// C mhitm.c:232-237 formats feedback before monstone, including planning calls.
+// C mhitm.c:232-237 formats feedback before monstone.
 for (const name of ['normal', 'monochrome', 'before-control', 'ordinary-control']) {
     test(`displacement feedback ${name} matches independent C`, async () => {
         const root = createScoringWorkspace(process.cwd(), []);

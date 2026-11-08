@@ -1888,7 +1888,7 @@ test('shop-edge should_block runs one real direct keeper action before return',
         game.level.monsters[keeper.mx][keeper.my] = keeper;
     });
 
-test('shop-entry direct action preserves planning state and supplied RNG',
+test('shop-entry direct action uses the supplied RNG',
     async () => {
         await runSegment({
             seed: 7621001,
@@ -1901,28 +1901,22 @@ test('shop-entry direct action preserves planning state and supplied RNG',
             ].join('\n'),
             moves: '.\x165\n.',
         });
-        const { planningState } =
-            await import('../js/unported_monster_actions.js');
         const room = game.level.rooms.find(
             (candidate) => candidate?.rtype >= SHOPBASE,
         );
         assert.ok(room?.resident);
-        const liveKeeper = room.resident;
-        const liveMconf = liveKeeper.mconf;
-        const planned = planningState(game);
-        const plannedRoom = planned.level.rooms[room.roomnoidx];
-        const keeper = plannedRoom.resident;
+        const keeper = room.resident;
         assert.ok(keeper);
         const roomno = room.roomnoidx + ROOMOFFSET;
         const door = keeper.mextra.eshk.shd;
-        assert.ok(planned.level.at(door.x, door.y)?.edge);
+        assert.ok(game.level.at(door.x, door.y)?.edge);
         const outside = [
             [door.x - 1, door.y], [door.x + 1, door.y],
             [door.x, door.y - 1], [door.x, door.y + 1],
-        ].find(([x, y]) => planned.level.at(x, y)
-            && planned.level.at(x, y).roomno !== roomno
-            && !in_rooms(x, y, SHOPBASE, planned).length
-            && accessible(x, y, planned));
+        ].find(([x, y]) => game.level.at(x, y)
+            && game.level.at(x, y).roomno !== roomno
+            && !in_rooms(x, y, SHOPBASE, game).length
+            && accessible(x, y, game));
         assert.ok(outside);
 
         keeper.mcanmove = true;
@@ -1936,22 +1930,22 @@ test('shop-entry direct action preserves planning state and supplied RNG',
         keeper.mextra.eshk.following = false;
         keeper.mextra.eshk.surcharge = false;
         keeper.mextra.eshk.visitct = 1;
-        keeper.mextra.eshk.customer = planned.plname;
+        keeper.mextra.eshk.customer = game.plname;
         for (const field of [
             'urooms', 'urooms0', 'uentered',
             'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
-        ]) planned.u[field]?.fill(0);
-        planned.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: planned.invent };
-        planned.u.ux = outside[0];
-        planned.u.uy = outside[1];
-        move_update(false, planned);
-        planned.u.ux0 = outside[0];
-        planned.u.uy0 = outside[1];
-        planned.u.ux = door.x;
-        planned.u.uy = door.y;
+        ]) game.u[field]?.fill(0);
+        game.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: game.invent };
+        game.u.ux = outside[0];
+        game.u.uy = outside[1];
+        move_update(false, game);
+        game.u.ux0 = outside[0];
+        game.u.uy0 = outside[1];
+        game.u.ux = door.x;
+        game.u.uy = door.y;
 
         const coreRandom = createCoreRandom(
-            cloneIsaacContext(game.coreCtx), planned,
+            cloneIsaacContext(game.coreCtx), game,
         );
         const actionDraws = [];
         const actionRandom = {
@@ -1963,20 +1957,18 @@ test('shop-entry direct action preserves planning state and supplied RNG',
         };
         const messages = [];
         const liveCoreBefore = structuredClone(game.coreCtx);
-        await check_special_room(false, planned, {
+        await check_special_room(false, game, {
             message: async (line) => messages.push(line),
             random: rn2Set(() => 0),
-            actionEnv: { planning: true, random: actionRandom },
+            actionEnv: { random: actionRandom },
         });
 
         assert.ok(actionDraws.includes(50),
             'the real direct dochug uses the supplied action RNG');
         assert.equal(keeper.mconf, 0,
-            'the real direct action changed only the planned keeper');
-        assert.equal(liveKeeper.mconf, liveMconf,
-            'the live keeper remains unchanged');
+            'the real direct action changed the keeper');
         assert.deepEqual(game.coreCtx, liveCoreBefore,
-            'the planning action does not advance live core RNG');
+            'the supplied action RNG leaves the global core RNG alone');
         assert.ok(messages.some((line) => /pick-axe/u.test(line)));
     });
 

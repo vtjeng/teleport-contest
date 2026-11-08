@@ -21,7 +21,6 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { remove_worn_item } from '../js/steal.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { setworn } from '../js/worn.js';
 import {
     AMULET_CLASS,
@@ -203,21 +202,18 @@ test('Amulet_off flying updates status, runs spot effects, and learns the type',
     assert.equal(amulet.owornmask & W_AMUL, 0);
 });
 
-test('Amulet_off flying classifies planes from its supplied state', async () => {
+test('Amulet_off flying classifies the Plane of Water from its supplied state', async () => {
     await initialize();
-    const state = planningState(game);
+    const state = game;
     const amulet = makeAmulet(AMULET_OF_FLYING);
-    // Use an isolated level identity so the singleton game topology cannot
-    // accidentally make this supplied-state water-plane check pass.
-    const waterPlane = { dnum: 987, dlevel: 1 };
-    state.u.uz = { ...waterPlane };
-    state.water_level = { ...waterPlane };
-    state.air_level = { dnum: 987, dlevel: 2 };
+    // Place the hero on the dungeon's own Plane of Water, whose identity the
+    // status line can also describe.
+    state.u.uz = { ...state.water_level };
     state._pending_message = '';
     state.unported = new Set();
 
     // The amulet is the only flight source; removing it must use the plane
-    // fields belonging to `state`, even though global game has another level.
+    // fields belonging to `state`.
     setworn(amulet, W_AMUL, setwornEnv(state));
     state.u.uprops[FLYING].intrinsic = 0;
     state.u.uprops[FLYING].extrinsic = W_AMUL;
@@ -257,15 +253,15 @@ test('remove_worn_item awaits Amulet_off and restores the in_use field',
     assert.equal(game.unported.has('do_wear.c Amulet_off'), false);
 });
 
-test('remove_worn_item forwards planning message and redraw callbacks to Amulet_off',
+test('remove_worn_item forwards message and redraw callbacks to Amulet_off',
     async () => {
     await initialize();
-    const state = planningState(game);
+    const state = game;
     const amulet = makeAmulet(AMULET_OF_ESP);
     const messages = [];
     const redraws = [];
     // C's verbose off_msg() (do_wear.c:68-72) runs inside the theft removal;
-    // the planning caller must supply its silent message and map callbacks.
+    // a caller may supply its own message and map callbacks.
     state.flags.verbose = true;
     setworn(amulet, W_AMUL, setwornEnv(state));
 
@@ -286,8 +282,8 @@ test('remove_worn_item forwards planning message and redraw callbacks to Amulet_
     assert.ok(redraws.length > 0,
         'C see_monsters() redraws after the ESP source is removed');
     assert.equal(state.uamul, null,
-        'Amulet_off clears the supplied clone before its callbacks finish');
+        'Amulet_off clears the supplied state before its callbacks finish');
     assert.equal(amulet.owornmask & W_AMUL, 0);
     assert.equal(game._pending_message, '',
-        'the callback keeps planning output off the live game');
+        'the callback keeps the message off the TTY');
 });

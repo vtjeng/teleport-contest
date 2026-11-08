@@ -13,7 +13,6 @@ import {PM_GNOME,PM_LICHEN,LOW_PM} from '../js/monsters.js';
 import {newObject,place_object,weight} from '../js/obj.js';
 import {BRASS_LANTERN,CANDELABRUM_OF_INVOCATION,OIL_LAMP,POT_OIL,TALLOW_CANDLE,WAX_CANDLE} from '../js/objects.js';
 import {burn_object,lantern_message,peek_timer,run_timers,see_lamp_flicker,start_timer} from '../js/timeout.js';
-import {planningState} from '../js/unported_monster_actions.js';
 
 async function fixture(otyp,age,where=OBJ_INVENT,quantity=1){
  // Independent source setup uses the Samurai's five-item initial inventory.
@@ -128,14 +127,13 @@ test('hallucinated carried lantern follows dimming with the batteries message',a
  assert.deepEqual(f.messages,['Your lantern is getting dim.','Batteries have not been invented yet.']);
 });
 
-test('monster ownership naming uses the supplied display RNG during planning',async()=>{
+test('monster ownership naming uses the supplied display RNG',async()=>{
  const f=await fixture(OIL_LAMP,50,OBJ_MINVENT);game.u.uprops[HALLUC].intrinsic=50;
  const displayBefore=structuredClone(game.displayCtx);const mainBefore=structuredClone(game.coreCtx);
  const draws=[];let i=0;const random=bound=>{draws.push(bound);return i++%2===0?PM_LICHEN-LOW_PM:0;};
- await burn_object(f.obj,game.moves,{...f.env,planning:true,displayRandom:random});
+ await burn_object(f.obj,game.moves,{...f.env,displayRandom:random});
  assert.equal(draws.length,4,'Shk_Your and Yname2 each name the hallucinated owner');
  assert.deepEqual(game.displayCtx,displayBefore);assert.deepEqual(game.coreCtx,mainBefore);
- assert.deepEqual(f.messages,[]);assert.deepEqual(f.redraws,[]);assert.deepEqual(f.inventory,[]);
  assert.equal(f.obj.age,25);assert.equal(f.obj.timed,1);
 });
 
@@ -145,22 +143,6 @@ test('oil potion burnout consumes carried and floor objects, with visible feedba
   assert.deepEqual(f.messages,[where===OBJ_INVENT?'Your potion of oil has burnt away.':
    'You see a burning potion of oil go out.']);assertDark(f.obj);assert.equal(f.obj.where,OBJ_DELETED);
  }
-});
-
-test('planning timer consumption changes only its cloned object and light graph',async()=>{
- const f=await fixture(TALLOW_CANDLE,0,OBJ_FLOOR);
- start_timer(0,TIMER_OBJECT,BURN_OBJECT,f.obj,game);
- const clone=planningState(game);
- let copied;for(let obj=clone.level.objlist;obj;obj=obj.nobj)
-  if(obj.o_id===f.obj.o_id)copied=obj;
- assert.ok(copied);assert.notEqual(copied,f.obj);
- await run_timers(clone,{planning:true,
-  message:()=>{throw new Error('planning wrote a live message');},
-  newsym:()=>{throw new Error('planning redrew the live map');}});
- assert.equal(copied.where,OBJ_DELETED);assert.equal(copied.timed,0);
- assert.equal(copied.lamplit,false);assert.equal(clone.gl.light_base,null);
- assert.equal(f.obj.where,OBJ_FLOOR);assert.equal(f.obj.timed,1);
- assert.equal(f.obj.lamplit,true);assert.ok(game.gl.light_base);
 });
 
 test('migrating candle and oil expiry clear the destination mask before extraction',async()=>{

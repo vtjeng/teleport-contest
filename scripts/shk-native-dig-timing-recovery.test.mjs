@@ -49,8 +49,8 @@ import {use_pick_axe2,dig,is_digging} from '../js/dig.js';
 import {clearTtyMessageWindow} from '../js/tty_message.js';
 // C dig.c:holetime and shk.c:shk_move. Every effort value comes from dig();
 // no injected effort 230, occupation callback, or shopkeeper identity.
-for(const late of [false,true])for(const planning of [false,true])
- test(`native digging late=${late} planning=${planning}`,async()=>{
+for(const late of [false,true])
+ test(`native digging late=${late}`,async()=>{
   const keeper=await setup(false);
   clearTtyMessageWindow(game);
   for(let i=0;i<100;i++)game.nhDisplay.pushKey(32);
@@ -73,7 +73,7 @@ for(const late of [false,true])for(const planning of [false,true])
   const time=Math.trunc((250-game.context.digging.effort)/20);
   const distance=(keeper.mx-game.u.ux)**2+(keeper.my-game.u.uy)**2;
   assert.equal(time*time<=distance,late);
-  const result=await shk_move(keeper,game,{planning});
+  const result=await shk_move(keeper,game);
   assert.equal(result,late?1:0);
   assert.deepEqual([keeper.mx,keeper.my],late?[5,7]:[4,6]);
  });

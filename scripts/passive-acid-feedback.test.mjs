@@ -9,12 +9,11 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN, PM_ACID_BLOB } from '../js/monsters.js';
 import { mattackm } from '../js/mhitm.js';
-import { planningState, wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
+import { wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
 import { ROOM, HALLUC, DETECT_MONSTERS, BLINDED, SEE_INVIS } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.js';
 import { canseemon } from '../js/display.js';
-import { rn2_on_display_rng } from '../js/rng.js';
 
 for (const hallu of [false, true]) for (const detected of [false, true]) {
     test(`passive acid feedback Hallu=${hallu} Detect=${detected}`, async () => {
@@ -37,48 +36,34 @@ for (const hallu of [false, true]) for (const detected of [false, true]) {
         place_monster(attacker, 6, 7, game); place_monster(defender, 7, 7, game);
         game.gb.bhitpos = { x: 7, y: 7 };
         light_globals_init(game); init_vision_globals(); vision_reset(game); vision_recalc(0);
-        const observations = [];
-        for (const planning of [true, false]) {
-            const state = planning ? planningState(game) : game;
-            const agr = state.level.monlist, def = agr.nmon;
-            const draws = [], lines = [], cosmetic = [];
-            const core = structuredClone(game.coreCtx), live = structuredClone(game.displayCtx);
-            const context = structuredClone(game.context);
-            const result = await mattackm(agr, def, {
-                state, planning,
-                random: {
-                    rnd: n => { draws.push(['rnd', n]); return 1; },
-                    d: (n, sides) => { draws.push(['d', n, sides]); return n; },
-                    rn2: n => { draws.push(['rn2', n]); return n === 2 ? 0 : 1; },
-                },
-                // Conflict planning supplies its clone owner; live Conflict uses
-                // the canonical display fallback, with no displayRandom field.
-                ...(planning ? { displayRandom: n => { cosmetic.push(n); return rn2_on_display_rng(n, state); } } : {}),
-                canSeeMonster: monster => canseemon(monster, state),
-                message: async line => lines.push(line),
-                wieldMonsterItemAgainstMonster,
-                unsupported: reason => { throw new Error(reason); },
-            });
-            assert.equal(result, 1);
-            assert.deepEqual(draws, [['rnd', 20], ['d', 1, 6], ['rn2', 3], ['rn2', 6],
-                ['d', 1, 8], ['rn2', 2], ['rn2', 30], ['rn2', 6]]);
-            assert.equal(agr.mhp, 19); assert.equal(def.mhp, 19);
-            assert.deepEqual(game.coreCtx, core); assert.deepEqual(game.context, context);
-            if (!hallu) assert.equal(lines[1], detected
-                ? "The human is splashed by the invisible acid blob's acid!"
-                : 'The human is splashed by its acid!');
-            assert.match(lines[1], /is splashed by /);
-            if (planning) {
-                assert.equal(attacker.mhp, 20); assert.equal(defender.mhp, 20);
-                assert.deepEqual(game.displayCtx, live);
-                assert.deepEqual(cosmetic, hallu
-                    ? (detected ? [430, 2, 430, 430, 2, 430, 2, 430, 2, 41] : [430, 2, 430, 2, 41]) : []);
-            }
-            if (hallu) assert.notDeepEqual(state.displayCtx, live);
-            else assert.deepEqual(state.displayCtx, live);
-            observations.push({ lines, display: structuredClone(state.displayCtx) });
-        }
-        assert.deepEqual(observations[0], observations[1]);
+        const state = game;
+        const agr = state.level.monlist, def = agr.nmon;
+        const draws = [], lines = [];
+        const core = structuredClone(game.coreCtx), live = structuredClone(game.displayCtx);
+        const context = structuredClone(game.context);
+        const result = await mattackm(agr, def, {
+            state,
+            random: {
+                rnd: n => { draws.push(['rnd', n]); return 1; },
+                d: (n, sides) => { draws.push(['d', n, sides]); return n; },
+                rn2: n => { draws.push(['rn2', n]); return n === 2 ? 0 : 1; },
+            },
+            canSeeMonster: monster => canseemon(monster, state),
+            message: async line => lines.push(line),
+            wieldMonsterItemAgainstMonster,
+            unsupported: reason => { throw new Error(reason); },
+        });
+        assert.equal(result, 1);
+        assert.deepEqual(draws, [['rnd', 20], ['d', 1, 6], ['rn2', 3], ['rn2', 6],
+            ['d', 1, 8], ['rn2', 2], ['rn2', 30], ['rn2', 6]]);
+        assert.equal(agr.mhp, 19); assert.equal(def.mhp, 19);
+        assert.deepEqual(game.coreCtx, core); assert.deepEqual(game.context, context);
+        if (!hallu) assert.equal(lines[1], detected
+            ? "The human is splashed by the invisible acid blob's acid!"
+            : 'The human is splashed by its acid!');
+        assert.match(lines[1], /is splashed by /);
+        if (hallu) assert.notDeepEqual(state.displayCtx, live);
+        else assert.deepEqual(state.displayCtx, live);
     });
 }
 

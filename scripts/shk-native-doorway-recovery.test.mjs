@@ -44,12 +44,12 @@ async function setup(carryPick) {
     return keeper;
 }
 
-for (const planning of [true, false]) for (const carryPick of [true, false]) {
-    test(`planning=${planning} ${carryPick ? 'target' : 'control'}: a pick away from the door does not move the guard`, async () => {
+for (const carryPick of [true, false]) {
+    test(`${carryPick ? 'target' : 'control'}: a pick away from the door does not move the guard`, async () => {
         const keeper = await setup(carryPick);
         // C shk.c:4961-4970 checks carrying(PICK_AXE) only when uondoor.
         // Away from the door it explicitly resets badinv to FALSE.
-        const result = await shk_move(keeper, game, { planning });
+        const result = await shk_move(keeper, game);
         assert.equal(result, 0);
         assert.deepEqual([keeper.mx, keeper.my], [4, 6]);
     });
@@ -61,7 +61,7 @@ test('control: a pick at the shop door still holds the guard in place', async ()
     await rloc_to(keeper, 3, 6, {state: game});
     // C shk.c:4965-4966 returns early for a guard at the guard square
     // watching the hero carry a pickaxe on the doorway.
-    const result = await shk_move(keeper, game, { planning: true });
+    const result = await shk_move(keeper, game);
     assert.equal(result, 0);
     assert.deepEqual([keeper.mx, keeper.my], [3, 6]);
 });

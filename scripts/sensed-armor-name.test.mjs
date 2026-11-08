@@ -5,7 +5,6 @@ import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { rn2_on_display_rng } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_MASTER_LICH } from '../js/monsters.js';
@@ -14,9 +13,9 @@ import { vision_recalc } from '../js/vision.js';
 import { canspotmon, canseemon } from '../js/display.js';
 import { m_dowear } from '../js/worn.js';
 
-for (const planning of [true, false]) for (const hallucinating of [true, false])
+for (const hallucinating of [true, false])
     for (const seeInvisible of [true, false]) {
-        test(`armor name snapshot planning=${planning} hallucinating=${hallucinating} seeInvisible=${seeInvisible}`, async () => {
+        test(`armor name snapshot hallucinating=${hallucinating} seeInvisible=${seeInvisible}`, async () => {
             await runSegment({ seed: 8432195, datetime: '20261206120000',
                 nethackrc: 'OPTIONS=name:ArmorNameProbe,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
             for (const column of game.level.monsters) column.fill(null);
@@ -29,15 +28,15 @@ for (const planning of [true, false]) for (const hallucinating of [true, false])
                 m_id: 9500, m_lev: 17, mhp: 90, mhpmax: 100, mcanmove: true, minvis: true });
             game.level.monlist = monster; place_monster(monster, x, y, game);
             vision_recalc(0, { state: game });
-            const state = planning ? planningState(game) : game;
+            const state = game;
             const subject = state.level.monlist;
             assert.equal(canseemon(subject, state), false);
             assert.equal(canspotmon(subject, state), true);
-            const ownDisplay = structuredClone(state.displayCtx), liveDisplay = structuredClone(game.displayCtx);
+            const ownDisplay = structuredClone(state.displayCtx);
             const core = structuredClone(game.coreCtx), context = structuredClone(game.context);
             const draws = [];
             await m_dowear(subject, false, {
-                state, planning,
+                state,
                 canSeeMonster: m => canseemon(m, state),
                 displayRandom: bound => {
                     draws.push(bound); rn2_on_display_rng(bound, state);
@@ -54,7 +53,6 @@ for (const planning of [true, false]) for (const hallucinating of [true, false])
             assert.equal(subject.misc_worn_check, 0);
             assert.deepEqual(game.coreCtx, core);
             assert.deepEqual(game.context, context);
-            if (planning) assert.deepEqual(game.displayCtx, liveDisplay);
         });
     }
 

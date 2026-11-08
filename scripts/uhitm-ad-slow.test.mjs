@@ -6,8 +6,6 @@ import { FAST, MFAST, MSLOW, STRAT_WAITFORU } from '../js/const.js';
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
-import { getRngLog } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_SLOW,
@@ -266,73 +264,6 @@ test('monster-to-monster AD_SLOW changes speed and clears STRAT_WAITFORU', async
     assert.equal(defender.permspeed, MSLOW);
     assert.equal(defender.mspeed, MSLOW);
     assert.equal(defender.mstrategy & STRAT_WAITFORU, 0);
-});
-
-
-test('planned monster AD_SLOW routes u_slow_down output away from the shared live TTY', async () => {
-    // This distinct seed initializes a normal Wizard game; the scripted draws below select the
-    // C path through mhitm_mgc_atk_negated and the one-in-four HFast slowdown.
-    const state = await startGame(170916);
-    const liveAttacker = addMonster(state, PM_SKELETON, 98106);
-    state.u.uprops[FAST].intrinsic = 1;
-    state.u.uprops[FAST].extrinsic = 0;
-    // These keys let a direct ttyPline fallback finish if the regression returns; the seam must
-    // leave both queued keys untouched during the planned pass.
-    state.nhDisplay.pushKey(13);
-    state.nhDisplay.pushKey(13);
-    const planned = planningState(state);
-    const attacker = planned.level.monlist;
-    assert.equal(attacker.m_id, liveAttacker.m_id);
-    assert.strictEqual(planned.nhDisplay, state.nhDisplay,
-        'planningState shares the display, so output must use the supplied operation');
-
-    const liveDisplay = state.nhDisplay;
-    const displayBefore = {
-        screen: liveDisplay.serialize(),
-        cursor: [liveDisplay.cursorCol, liveDisplay.cursorRow],
-        topMessage: liveDisplay.topMessage,
-        toplines: liveDisplay.toplines,
-        toplin: liveDisplay.toplin,
-        messages: [...liveDisplay.messages],
-        inputQueueLength: liveDisplay.inputQueueLength,
-        waitEpoch: liveDisplay.waitEpoch,
-        pending: state._pending_message,
-    };
-    const liveRngBefore = [...getRngLog()];
-    const draws = scriptedDraws([[10, 9], [4, 0], [2, 0]]);
-    const events = [];
-
-    await mhitm_ad_slow(
-        attacker,
-        { aatyp: AT_TUCH, adtyp: AD_SLOW },
-        planned.youmonst,
-        mhm(),
-        planned,
-        attackEnvironment(draws.random, events),
-    );
-
-    draws.assertFinished();
-    assert.deepEqual(draws.calls, ['rn2(10)=9', 'rn2(4)=0', 'rn2(2)=0']);
-    assert.deepEqual(getRngLog(), liveRngBefore,
-        'planning uses the cloned random source and does not advance live RNG');
-    assert.deepEqual(events, [
-        'The skeleton touches you!',
-        'You slow down.',
-    ]);
-    assert.equal(planned.u.uprops[FAST].intrinsic, 0);
-    assert.equal(state.u.uprops[FAST].intrinsic, 1,
-        'the planning clone owns the cleared intrinsic speed state');
-    assert.deepEqual({
-        screen: liveDisplay.serialize(),
-        cursor: [liveDisplay.cursorCol, liveDisplay.cursorRow],
-        topMessage: liveDisplay.topMessage,
-        toplines: liveDisplay.toplines,
-        toplin: liveDisplay.toplin,
-        messages: [...liveDisplay.messages],
-        inputQueueLength: liveDisplay.inputQueueLength,
-        waitEpoch: liveDisplay.waitEpoch,
-        pending: state._pending_message,
-    }, displayBefore);
 });
 
 

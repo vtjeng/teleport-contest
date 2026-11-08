@@ -89,7 +89,7 @@ test('restoration suppresses HALRES feedback while preserving its timer', async 
     state.u.uprops[HALLUC].intrinsic = 7; // Active timeout tests mask-only path.
     const said = [];
     await set_artifact_intrinsic({oartifact: ART_GRAYSWANDIR}, true, W_WEP,
-        state, {planning: true, message: async text => said.push(text)});
+        state, {message: async text => said.push(text)});
     assert.equal(state.u.uprops[HALLUC_RES].extrinsic, W_WEP);
     assert.equal(state.u.uprops[HALLUC].intrinsic, 7);
     assert.deepEqual(said, []);
@@ -176,18 +176,4 @@ test('synchronous slot families cannot suspend on current artifact types', () =>
     const rows = fs.readFileSync('nethack-c/upstream/include/artilist.h','utf8');
     for (const type of excluded) assert.doesNotMatch(rows,
         new RegExp(`A\\("[^"\\n]*", ${type},`, 'u'));
-});
-
-// Planner clones preserve warning counts while omitting terminal feedback.
-test('planning warning refresh completes its source tail without a message seam', async () => {
-    const state = subject();
-    state.uwep = {oartifact: ART_STING, otyp: ELVEN_DAGGER, quan: 1};
-    state.u.uprops[WARN_OF_MON].extrinsic = W_WEP;
-    state.context.warntype.obj = M2_ORC;
-    state.level.monlist = orc(); // One source-qualified warning monster.
-    const painted = [];
-    await see_monsters(state, {planning: true,
-        redraw: (x,y) => painted.push([x,y])});
-    assert.equal(state.warn_obj_cnt, 1);
-    assert.deepEqual(painted, [[4,3], [2,3]]); // Monster, then hero.
 });

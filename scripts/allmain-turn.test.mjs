@@ -20,14 +20,12 @@ import {
     COULD_SEE,
     CLAIRVOYANT,
     COLNO,
-    DETECT_MONSTERS,
     DUST,
     EXT_ENCUMBER,
     FAST,
     FAINTED,
     FLYING,
     FROMOUTSIDE,
-    G_GENOD,
     HOLE,
     HVY_ENCUMBER,
     HUNGRY,
@@ -38,10 +36,8 @@ import {
     KILLED_BY_AN,
     LEFT_SIDE,
     LEVITATION,
-    LS_MONSTER,
     M_AP_MONSTER,
     M_AP_OBJECT,
-    M_AP_TYPMASK,
     M_SEEN_POISON,
     MOD_ENCUMBER,
     NORMAL_SPEED,
@@ -62,14 +58,12 @@ import {
     SEARCHING,
     TELEPORT,
     POLYMORPH,
-    POLYMORPH_CONTROL,
     DOOR,
     SLT_ENCUMBER,
     SV0,
     TIMER_OBJECT,
     TIMER_LEVEL,
     MELT_ICE_AWAY,
-    TEMP_LIT,
     WEAK,
     WOUNDED_LEGS,
     W_ARMF,
@@ -91,11 +85,9 @@ import {
 } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { set_uasmon } from '../js/polyself.js';
-import { new_light_source } from '../js/light.js';
 import {
     createCoreRandom,
     getRngLog,
-    initRng,
     rn1,
     rn2,
     rnd,
@@ -124,7 +116,6 @@ import {
     TOOL_CLASS,
 } from '../js/objects.js';
 import {
-    create_gas_cloud,
     create_region,
     inside_gas_cloud,
 } from '../js/region.js';
@@ -133,18 +124,9 @@ import {
     place_object,
 } from '../js/obj.js';
 import { add_to_buried } from '../js/invent.js';
-import { UnsupportedShopError } from '../js/shk.js';
-import {
-    planningState,
-    preflightSimpleMonsterActions,
-} from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
-    block_point,
     cansee,
-    clear_path,
-    does_block,
-    transparencyIndexViews,
     vision_recalc,
 } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
@@ -156,13 +138,11 @@ import {
     chunkRecipe,
     RECORDER_SEGMENT_LIMIT,
 } from './run-first-command-closure.mjs';
-import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { loadEatOccupationRecipe } from './run-eat-occupation.mjs';
 import {
     loadMonsterDeathPlanningRecipe,
 } from './run-monster-death-planning.mjs';
 import { loadStatusRefreshRecipe } from './run-status-refresh.mjs';
-import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import {
     loadDelayedActionRecipes,
@@ -173,22 +153,6 @@ import { expectTerminated } from './expect-terminated.mjs';
 const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const C_ATTRIB = readFileSync('nethack-c/upstream/src/attrib.c', 'utf8');
-const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
-
-// The dry run js/allmain.js advanceElapsedTurn() once ran before every
-// elapsed turn: the monster scan and, for a burdened hero, the whole
-// once-per-turn block on a planningState() clone. No game path runs it any
-// more. The cases that check the planning branches it reached drive it here
-// directly, with the arguments advanceElapsedTurn() passed.
-function dryRunElapsedTurn(state) {
-    const randomMonsterOnly = projected_capacity(state) <= 0;
-    return preflightSimpleMonsterActions(state, {
-        advanceRound: (planned, random) => finishElapsedTurn(planned, random, {
-            planning: true,
-            randomMonsterOnly,
-        }),
-    });
-}
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -498,61 +462,6 @@ test('random creation finishes a complete meal only for an actual threat',
         );
     });
 
-test('a planned random threat finishes only the cloned complete meal',
-    async () => {
-        const segment = loadEatOccupationRecipe().segments.find(
-            (entry) => entry.seed === 5820011,
-        );
-        assert.ok(segment);
-        await runSegment({ ...segment, moves: '.' });
-        game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
-        await doeat(game, { statusRefresh: async () => {} });
-        game.context.victual.usedtime = game.context.victual.reqtime;
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.u.umovement = 0;
-
-        const livePiece = game.context.victual.piece;
-        const liveInventory = game.invent;
-        const liveOccupation = game.go.occupation;
-        const liveQuantity = livePiece.quan;
-        const liveUsedTime = game.context.victual.usedtime;
-        const liveRequiredTime = game.context.victual.reqtime;
-        let reachedRound = false;
-        await preflightSimpleMonsterActions(game, {
-            async advanceRound(planned) {
-                reachedRound = true;
-                assert.notStrictEqual(planned.invent, liveInventory);
-                assert.notStrictEqual(planned.context.victual.piece, livePiece);
-                assert.ok((() => {
-                    for (let obj = planned.invent; obj; obj = obj.nobj) {
-                        if (obj === planned.context.victual.piece) return true;
-                    }
-                    return false;
-                })(), 'the cloned victual piece must remain on cloned inventory');
-                await maybe_generate_rnd_mon(planned, {
-                    random: { rn2: () => 0 },
-                    message: async () => {},
-                    statusRefresh: async () => {},
-                    async makemon(_ptr, _x, _y, _flags, runtimeEnv) {
-                        await runtimeEnv.hooks.stopOccupation({}, runtimeEnv);
-                        return {};
-                    },
-                });
-                assert.equal(planned.go.occupation, null);
-                assert.equal(planned.context.victual.piece, null);
-                return true;
-            },
-        });
-        assert.equal(reachedRound, true);
-        assert.strictEqual(game.go.occupation, liveOccupation);
-        assert.strictEqual(game.invent, liveInventory);
-        assert.strictEqual(game.context.victual.piece, livePiece);
-        assert.equal(livePiece.quan, liveQuantity);
-        assert.equal(game.context.victual.usedtime, liveUsedTime);
-        assert.equal(game.context.victual.reqtime, liveRequiredTime);
-    });
-
 test('runtime interruption preserves stop_occupation status invalidation',
     async () => {
         const state = randomMonsterTurnState();
@@ -747,84 +656,6 @@ test('temporary status expiry accounting runs at the hero action boundary',
     });
     assert.equal(checkedAfterEncumbrance, true);
     assert.equal(state.disp.botl, true);
-});
-
-test('planned hero action isolates status banks and cloned rule identity',
-    async () => {
-    const segment = loadEatOccupationRecipe().segments.find(
-        (entry) => entry.seed === 5820011,
-    );
-    assert.ok(segment);
-    await runSegment({ ...segment, moves: '.' });
-    const state = game;
-    const xpField = 13; // include/botl.h BL_XP
-    const rule = { behavior: 'changed', marker: 'planner-status-rule' };
-    const banks = () => [Array(27).fill(null), Array(27).fill(null)];
-    state.moves = 9;
-    state.iflags = {
-        ...state.iflags,
-        hilite_delta: 3,
-        status_hilites: [rule],
-    };
-    state.gb = {
-        ...state.gb,
-        status_hilite_rule: banks(),
-        status_hilite_value: banks(),
-        status_hilite_compare_value: banks(),
-        status_hilite_percent: banks(),
-        status_hilite_text: banks(),
-        status_hilite_type: banks(),
-        status_hilite_times: [Array(27).fill(0), Array(27).fill(0)],
-        status_hilite_chg_banks: [Array(27).fill(false), Array(27).fill(false)],
-    };
-    state.gb.status_hilite_chg = state.gb.status_hilite_chg_banks[0];
-    state.gb.status_hilite_rule[0][xpField] = rule;
-    state.gb.status_hilite_rule[1][xpField] = rule;
-    state.gb.status_hilite_chg[xpField] = true;
-    state.gb.status_hilite_value[0][xpField] = 17;
-    state.gb.status_hilite_value[1][xpField] = 11;
-    state.disp = { botl: false };
-    state.context.seer_turn = 100000;
-    state.context.next_attrib_check = 100000;
-    state.u.umoved = true;
-
-    const liveBanks = Object.fromEntries([
-        'status_hilite_rule',
-        'status_hilite_value',
-        'status_hilite_compare_value',
-        'status_hilite_percent',
-        'status_hilite_text',
-        'status_hilite_type',
-        'status_hilite_times',
-        'status_hilite_chg_banks',
-    ].map((name) => [name, structuredClone(state.gb[name])]));
-    const planned = planningState(state);
-    const plannedRule = planned.iflags.status_hilites[0];
-    assert.notEqual(plannedRule, rule);
-    assert.equal(planned.gb.status_hilite_rule[0][xpField], plannedRule);
-    assert.equal(planned.gb.status_hilite_rule[1][xpField], plannedRule);
-    assert.equal(planned.gb.status_hilite_chg,
-        planned.gb.status_hilite_chg_banks[0]);
-    for (const name of Object.keys(liveBanks)) {
-        assert.notEqual(planned.gb[name], state.gb[name], `${name} outer bank`);
-        assert.notEqual(planned.gb[name][0], state.gb[name][0], `${name} row 0`);
-        assert.notEqual(planned.gb[name][1], state.gb[name][1], `${name} row 1`);
-    }
-
-    await finishHeroTimeEffects(planned, {
-        encumberMessage: async () => {},
-        random: { rn1: () => 15 },
-    });
-
-    assert.equal(planned.gb.status_hilite_times[0][xpField], 12);
-    assert.equal(planned.gb.status_hilite_times[1][xpField], 12);
-    assert.equal(planned.gb.status_hilite_chg[xpField], false);
-    assert.equal(planned.disp.botl, true);
-    for (const [name, snapshot] of Object.entries(liveBanks))
-        assert.deepEqual(state.gb[name], snapshot, `${name} live bank`);
-    assert.equal(state.gb.status_hilite_chg, state.gb.status_hilite_chg_banks[0]);
-    assert.equal(state.gb.status_hilite_chg[xpField], true);
-    assert.equal(state.disp.botl, false);
 });
 
 test('hero time effects validate due clairvoyance owners atomically',
@@ -1033,7 +864,7 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
 });
 
-test('elapsed-turn planning resumes after a live deferred goto', async () => {
+test('the elapsed turn resumes after a live deferred goto', async () => {
     await runSegment(firstTurnInput({
         seed: 2026092301,
         datetime: '20260923120000',
@@ -1181,7 +1012,7 @@ test('a burdened delayed callback runs once before remaining allocations',
             assert.equal(state.afternmv, null, 'unmul clears before invoking');
             assert.equal(state.multi, 0, 'unmul has finished the countdown');
             callbacks++;
-            rnd(137); // Distinct bound makes an accidental dry-run draw visible.
+            rnd(137); // Distinct bound makes this callback's draw identifiable.
             state.invent = null;
             state.uarm = null;
             // Avoid an unrelated encumber_msg() --More-- after removing load.
@@ -1206,7 +1037,7 @@ test('a burdened delayed callback runs once before remaining allocations',
             .filter((entry) => entry.startsWith('rnd(137)')).length, 1);
     });
 
-test('delayed-action planning resumes at the outer movement gate', async () => {
+test('a delayed action resumes at the outer movement gate', async () => {
     // Burdened cases use heavy encumbrance's 3-point allocation; the separate
     // unburdened row gets 12. The retained-ration row starts at 21, pays 12,
     // and reaches exactly 12 in one turn.
@@ -1365,7 +1196,7 @@ test('live timeout handoff preserves allocation and tail counts', async () => {
     }
 });
 
-test('planned region upkeep is replayed on the live tail', async () => {
+test('region upkeep runs on the live tail', async () => {
     const replay = await runSegment(firstTurnInput({
         seed: 8440101, datetime: '20320415101723', name: 'TimeoutPrefix',
         role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
@@ -1463,7 +1294,7 @@ test('wizard recovery from fatal gas continues the elapsed-turn tail',
         assert.equal(game.program_state.gameover ?? false, false);
     });
 
-test('planned fatal polymorph gas rehumanizes and completes the live turn',
+test('fatal polymorph gas rehumanizes and completes the live turn',
     async () => {
         // Independent startup inputs give a poison-susceptible jackal form
         // without borrowing a recorded session's character or commands.
@@ -1496,16 +1327,15 @@ test('planned fatal polymorph gas rehumanizes and completes the live turn',
         game.u.uprops[POISON_RES] = {
             intrinsic: 0, extrinsic: 0, blocked: 0,
         };
-        // A single unit above the form's capacity selects the full planning
-        // path instead of the unencumbered random-monster-only shortcut. The
-        // human form has greater capacity, so its next grant completes the
+        // A single unit above the form's capacity slightly burdens the jackal.
+        // The human form has greater capacity, so its next grant completes the
         // second allocation. Empty equipment keeps rehumanization ordinary.
         game.invent = {
             oclass: TOOL_CLASS, otyp: SACK,
             owt: weight_cap(game) + 1, nobj: null,
         };
         assert.equal(near_capacity(game), SLT_ENCUMBER,
-            'the caller must plan beyond the random-monster shortcut');
+            'the jackal form is slightly burdened');
         const region = create_region([{
             lx: game.u.ux, ly: game.u.uy, hx: game.u.ux, hy: game.u.uy,
         }]);
@@ -1523,14 +1353,6 @@ test('planned fatal polymorph gas rehumanizes and completes the live turn',
         clearTtyMessageWindow(game);
 
         const movesBefore = game.moves;
-        const plan = await preflightSimpleMonsterActions(game, {
-            advanceRound: (planned, random) =>
-                finishElapsedTurn(planned, random, { planning: true }),
-        });
-        assert.equal(plan.heroDeath?.killerName, 'gas cloud',
-            'lethal clone damage hands off at the source gas callback');
-        assert.equal(game.u.mh, 1, 'planning leaves the live form alive');
-        assert.equal(region.ttl, 5, 'planning leaves the live region intact');
         // Spaces dismiss the gas/reversion messages and supply the next wait
         // command after moveloop_core has completed both elapsed allocations.
         for (let index = 0; index < 8; ++index)
@@ -1614,143 +1436,10 @@ test('fatal gas skips poison-belief updates after final gameover',
             'C does not return to monstunseesu after final done(DIED)');
     });
 
-test('planned visible vapor expiry restores live vision on success and failure',
-    async () => {
-        for (const refuseAfterExpiry of [false, true]) {
-            const replay = await runSegment({
-                seed: 8440102,
-                datetime: '20320415101723',
-                nethackrc: 'OPTIONS=name:RegionIsolation,role:Healer,'
-                    + 'race:human,gender:female,align:neutral,!legacy,'
-                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
-                moves: '',
-            });
-            for (const column of game.level.monsters) column.fill(null);
-            game.level.monlist = null;
-            game.level.regions = [];
-            game.head_engr = null;
-            game.invent = {
-                oclass: TOOL_CLASS,
-                otyp: SACK,
-                owt: weight_cap(game) * 2,
-                nobj: null,
-            };
-            game.go.oldcap = near_capacity(game);
-            game.u.umovement = 0;
-            game.context.move = 1;
-            game.context.seer_turn = 100000;
-            game.context.next_attrib_check = 100000;
-
-            // Create the same harmless visible vapor that region.c creates at
-            // runtime, then make its expiration due on the projected turn.
-            // The clone must remove it and clear its visual block while the
-            // retryable live state keeps the region and shared index.
-            let cloudRandomCalls = 0;
-            const cloud = await create_gas_cloud(
-                game.u.ux,
-                game.u.uy,
-                1,
-                0,
-                {
-                    state: game,
-                    random: {
-                        rn2: (bound) => {
-                            assert.equal(bound, 3);
-                            cloudRandomCalls += 1;
-                            assert.equal(cloudRandomCalls, 1);
-                            return 2;
-                        },
-                    },
-                    blockPoint: (x, y) => block_point(x, y, game),
-                    canSee: (x, y) => cansee(x, y, game),
-                    newsym: () => {},
-                    message: async () => {},
-                },
-            );
-            assert.equal(cloudRandomCalls, 1);
-            cloud.ttl = 0;
-
-            const before = completeSecondTurnSnapshot(game, replay);
-            const sharedIndexBefore = transparencyIndexViews().map(
-                (view) => [...view],
-            );
-            const activeBufferBefore = game.active_buf;
-            const visionBefore = game.viz_array;
-            const guard = freezeLiveState(game);
-            let plannedCloudState = null;
-
-            const run = preflightSimpleMonsterActions(game, {
-                consumeHeroRation: false,
-                advanceRound: async (planned, planningRandom) => {
-                    await finishElapsedTurn(
-                        planned,
-                        planningRandom,
-                        { planning: true },
-                    );
-                    plannedCloudState = {
-                        count: planned.level.regions.length,
-                        ttl: planned.level.regions[0]?.ttl ?? null,
-                        plannedVisionChange: planned._plannedVisionChange,
-                    };
-                    if (refuseAfterExpiry) {
-                        const unsupportedRegion = create_region([{
-                            lx: planned.u.ux,
-                            ly: planned.u.uy,
-                            hx: planned.u.ux,
-                            hy: planned.u.uy,
-                        }]);
-                        unsupportedRegion.inside_f =
-                            'unported-region-callback';
-                        planned.level.regions.push(unsupportedRegion);
-                        await finishElapsedTurn(
-                            planned,
-                            planningRandom,
-                            { planning: true },
-                        );
-                    }
-                    return true;
-                },
-            });
-            if (refuseAfterExpiry) {
-                await assert.rejects(
-                    run,
-                    /unsupported region callback unported-region-callback/u,
-                );
-            } else {
-                await run;
-            }
-
-            guard.assertNoLeak(assert);
-            assert.deepEqual(plannedCloudState, {
-                count: 0,
-                ttl: null,
-                plannedVisionChange: {
-                    x: game.u.ux,
-                    y: game.u.uy,
-                },
-            });
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, replay),
-                before,
-                refuseAfterExpiry
-                    ? 'later planning refusal leaves live state unchanged'
-                    : 'successful planning leaves live state unchanged',
-            );
-            assert.equal(game.level.regions.includes(cloud), true);
-            assert.equal(cloud.ttl, 0);
-            assert.equal(game.active_buf, activeBufferBefore);
-            assert.strictEqual(game.viz_array, visionBefore);
-            assert.deepEqual(
-                transparencyIndexViews().map((view) => [...view]),
-                sharedIndexBefore,
-            );
-        }
-    });
-
-test('polymorph timeout isolates live callbacks and preserves the capacity snapshot', async () => {
+test('polymorph timeout runs its callback once and preserves the capacity snapshot', async () => {
     // polyman releases a mimicked appearance through unmul. The callback may
-    // change inventory, request a transition, or finish the game; none runs
-    // against the clone. Weight affects this allocation before that callback.
+    // change inventory, request a transition, or finish the game. Weight
+    // affects this allocation before that callback.
     for (const ending of ['continue', 'gameover']) {
         const replay = await runSegment(firstTurnInput({
             seed: 8440101, datetime: '20320415101723', name: 'TimeoutForm',
@@ -1798,15 +1487,6 @@ test('polymorph timeout isolates live callbacks and preserves the capacity snaps
         const hpBefore = game.u.uhp;
         const movesBefore = game.moves;
         const rngBefore = replay.getRngLog().length;
-        const snapshot = completeSecondTurnSnapshot(game, replay);
-        const plan = await preflightSimpleMonsterActions(game, {
-            consumeHeroRation: false,
-            advanceRound: (planned, random) =>
-                finishElapsedTurn(planned, random, { planning: true }),
-        });
-        assert.equal(plan.beforeTimeout, true);
-        assert.equal(callbacks, 0);
-        assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot);
         await finishElapsedTurn(game, { rn1, rn2, rnd });
         assert.equal(callbacks, 1);
         assert.equal(game.u.umonnum, game.u.umonster);
@@ -1820,28 +1500,6 @@ test('polymorph timeout isolates live callbacks and preserves the capacity snaps
         assert.equal(draws.filter((entry) => entry.startsWith('rnd(137)')).length, 1);
         assert.equal(draws.some((entry) => entry.startsWith('rn2(100)')), false);
     }
-});
-
-test('hunger planning hands off before faint effects without changing live state or RNG', async () => {
-    const { preflightSimpleMonsterActions } = await import('../js/unported_monster_actions.js');
-    const replay = await runSegment({
-        seed: 15840111, datetime: '20520418110000',
-        nethackrc: 'OPTIONS=name:PlannedFaint,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
-        moves: '',
-    });
-    for (const column of game.level.monsters) column.fill(null);
-    game.level.monlist = null;
-    game.u.uhunger = 1; // Worst reachable ordinary loss crosses zero.
-    game.u.uhs = WEAK;
-    game.u.umovement = NORMAL_SPEED;
-    game.context.seer_turn = 100000; // Unrelated periodic map work stays outside this turn.
-    const before = completeSecondTurnSnapshot(game, replay);
-    const plan = await preflightSimpleMonsterActions(game, {
-        advanceRound: (subject, random) => finishElapsedTurn(subject, random, { planning: true }),
-    });
-    assert.equal(plan.beforeHunger, true);
-    assert.equal(plan.beforeUnmul, false, 'no faint duration was installed on the clone');
-    assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
 });
 
 test('elapsed hunger reaches source fainting and the live wakeup tail', async () => {
@@ -1947,9 +1605,6 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         game.level.monlist = null;
         clearTtyMessageWindow(game);
         await ttyPline('A prior message.', game);
-        const terminalScreenCount = replay.getScreens().length;
-        const terminalCursorCount = replay.getCursors().length;
-        const waitEpoch = game.nhDisplay.waitEpoch;
         game.context.move = 1;
         game.u.umovement = NORMAL_SPEED;
         game.moves = 999999999;
@@ -1981,19 +1636,7 @@ test('the billionth turn capitulates before hero sequence and upkeep',
             && /done\(ESCAPED\)/u.test(error.message)
         );
 
-        // The hero is burdened, so the dry run runs the whole once-per-turn
-        // block on its clone and reaches the limit there. It changes nothing
-        // live: moves does not even reach 1,000,000,000 and no key is consumed.
-        await assert.rejects(() => dryRunElapsedTurn(game), reachesLimit);
-        assert.equal(game.moves, 999999999);
-        assert.equal(game.hero_seq, priorHeroSequence);
-        assert.equal(game.u.uhunger, priorHunger);
-        assert.equal(game.nhDisplay.waitEpoch, waitEpoch);
-        assert.equal(replay.getScreens().length, terminalScreenCount);
-        assert.equal(replay.getCursors().length, terminalCursorCount);
-        assert.equal(game._pending_message, 'A prior message.');
-
-        // The live turn stops at the same limit.
+        // The live turn stops at the limit.
         await assert.rejects(() => moveloop_core(), reachesLimit);
         // allmain.c increments svm.moves before it tests the limit, and sets
         // gh.hero_seq only after the test.
@@ -2501,76 +2144,7 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
     assert.equal(dismissalSegments, 1);
 });
 
-// Automatic discovery runs live after a nonmutating planning handoff.
-test('burdened multi-cycle upkeep hands automatic search to the live turn',
-    async () => {
-        for (const [name, install] of [
-            [
-                'automatic search',
-                () => {
-                    // FROMOUTSIDE rather than a small integer: the low bits
-                    // of intrinsic are nh_timeout()'s property countdown, and
-                    // a countdown of 1 would stop the turn earlier.
-                    game.u.uprops[SEARCHING] = {
-                        intrinsic: FROMOUTSIDE,
-                        extrinsic: 0,
-                        blocked: 0,
-                    };
-                    game.level.flags.noautosearch = false;
-                    game.multi = 0;
-                },
-            ],
-        ]) {
-            const replay = await runSegment({
-                seed: 2026072807,
-                datetime: '20260728120000',
-                nethackrc: 'OPTIONS=name:BurdenedUpkeep,role:Healer,'
-                    + 'race:human,gender:female,align:neutral,!legacy,'
-                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
-                moves: '',
-            });
-            for (const column of game.level.monsters) column.fill(null);
-            game.level.monlist = null;
-            game.level.regions = [];
-            // A burdened hero is what makes advanceElapsedTurn supply
-            // advanceRound, so finishElapsedTurn runs on the clone first.
-            game.invent = {
-                oclass: TOOL_CLASS,
-                otyp: SACK,
-                owt: weight_cap(game) + 5,
-                nobj: null,
-            };
-            assert.ok(projected_capacity(game) > 0, name);
-            install();
-
-            game.context.move = 1;
-            game.u.umovement = 0;
-            // Siblings compare a complete snapshot rather than a few
-            // scalars, because a stop that leaves any live state or the PRNG
-            // moved is not retryable even when moves and hunger happen to
-            // match.
-            const before = completeSecondTurnSnapshot(game, replay);
-            const beforeRng = getRngLog().length;
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                game.context.move = 1;
-                const plan = await preflightSimpleMonsterActions(game, {
-                    advanceRound: (planned, random) =>
-                        finishElapsedTurn(planned, random, { planning: true }),
-                });
-                assert.equal(plan.beforeSearch, true, `${name}, attempt ${attempt}`);
-                // The dry run hands off before any live state moves.
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, replay),
-                    before,
-                    `${name}, attempt ${attempt}`,
-                );
-                assert.equal(getRngLog().length, beforeRng, name);
-            }
-        }
-    });
-
-test('active strangling hands planning off before the timeout and its later RNG',
+test('active strangling reaches the live timeout and its later RNG',
     async () => {
         assert.match(C_ALLMAIN,
             /if \(Glib\)\s+glibr\(\);\s+nh_timeout\(\);\s+run_regions\(\);/u);
@@ -2578,8 +2152,6 @@ test('active strangling hands planning off before the timeout and its later RNG'
             /if \(Strangled\)\s+choke_dialogue\(\);/u);
         assert.match(C_ATTRIB,
             /AEXE\(i\) \+= \(inc_or_dec\) \? \(rn2\(19\) > ACURR\(i\)\) : -rn2\(2\);/u);
-        assert.match(JS_ALLMAIN,
-            /const liveTimeout = nh_timeout_requires_live_state\(state\);\s+if \(planning && liveTimeout\) return \{ beforeTimeout: true \};/u);
 
         await runSegment({
             // This independent bootstrap supplies a human whose map is
@@ -2596,16 +2168,14 @@ test('active strangling hands planning off before the timeout and its later RNG'
         game.level.monlist = null;
         game.level.regions = [];
         game.head_engr = null;
-        // A burdened hero makes advanceElapsedTurn() run the once-per-turn
-        // plan that calls finishElapsedTurn() before its live replay.
+        // A burdened hero, twice over capacity.
         game.invent = {
             oclass: TOOL_CLASS,
             otyp: SACK,
             owt: weight_cap(game) * 2,
             nobj: null,
         };
-        assert.ok(projected_capacity(game) > 0,
-            'the fixture must take the complete elapsed-turn planning path');
+        assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
         // do_wear.c sets Strangled to 6 when an amulet starts the effect. This
         // active count is above one and outside choke_dialogue's five text rows.
         game.u.uprops[STRANGLED] = {
@@ -2622,9 +2192,8 @@ test('active strangling hands planning off before the timeout and its later RNG'
         game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
-        // The named unported region callback is a barrier after nh_timeout. If
-        // the dry run misses the strangling handoff, it fails here before live
-        // timeout; the correct handoff reaches it after the live draw.
+        // The named unported region callback is a barrier after nh_timeout:
+        // the live turn reaches it after the timeout's draw.
         const unsupportedRegion = create_region([{
             lx: game.u.ux,
             ly: game.u.uy,
@@ -2653,23 +2222,13 @@ test('active strangling hands planning off before the timeout and its later RNG'
 
 // C ref: allmain.c moveloop_core()'s once-per-turn nh_timeout() call.
 // timeout.c:774-776 reaches do.c heal_legs(0) when a WOUNDED_LEGS countdown
-// runs out, and that function writes a line. finishElapsedTurn() hands the
-// owner a silent message() while it is dry running the turn on the clone, and
-// that choice had no oracle: the clone's own _ttyToplines is a copy, and
-// the shared display is repainted with the same text by the live pass a moment
-// later, so passing ttyPline() there left the whole suite green.
-//
-// This case removes both cover stories at once. The plan stops at the region
-// upkeep immediately below nh_timeout(), so no live pass follows
-// to repaint what a printing dry run left behind. And the turn begins with the
-// arrival message still pending, which is what an ordinary turn looks like:
-// cmd.c parse() clears the physical row after reading its key and leaves the
-// pending message for the next writer. A clone that printed would find that
-// message occupying the top line, and topl.c update_topl() answers a message
-// too long to share by calling more(), which reads a key from the display and
-// the input queue the clone shares with the live game.
-test('a planned timeout writes no line and reads no key', async () => {
-    const replay = await runSegment({
+// runs out, and that function writes a line. The turn begins with the arrival
+// message still pending, which is what an ordinary turn looks like: cmd.c
+// parse() clears the physical row after reading its key and leaves the pending
+// message for the next writer. topl.c update_topl() answers a message too long
+// to share the top line by calling more(), which reads a key.
+test('an expiring wounded-legs timeout writes its line after a More prompt', async () => {
+    await runSegment({
         // Independently chosen; nothing below depends on the map this seed
         // generates beyond the hero having somewhere to stand.
         seed: 2026081502,
@@ -2683,9 +2242,7 @@ test('a planned timeout writes no line and reads no key', async () => {
     game.level.monlist = null;
     game.level.regions = [];
     game.head_engr = null;
-    // A burdened hero is what makes the dry run supply advanceRound, so the
-    // clone runs the whole once-per-turn block and reaches nh_timeout. An
-    // unburdened clone returns straight after random monster generation.
+    // A burdened hero, five units over capacity.
     game.invent = {
         oclass: TOOL_CLASS,
         otyp: SACK,
@@ -2710,48 +2267,16 @@ test('a planned timeout writes no line and reads no key', async () => {
     // The clairvoyance and attribute cadences belong to later turns.
     game.context.seer_turn = 100000;
     game.context.next_attrib_check = 100000;
-    // An explicitly unported callback remains a source boundary after
-    // nh_timeout; a callback-free region is now executed during planning.
-    const unsupportedRegion = create_region([{
-        lx: game.u.ux,
-        ly: game.u.uy,
-        hx: game.u.ux,
-        hy: game.u.uy,
-    }]);
-    unsupportedRegion.inside_f = 'unported-region-callback';
-    game.level.regions.push(unsupportedRegion);
     game.u.umovement = 0;
     game.context.move = 1;
-    // The single key the live turn below spends on that More prompt. The plan
-    // must leave it in the queue.
+    // The single key the turn spends on that More prompt.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    const before = completeSecondTurnSnapshot(game, replay);
-    const beforeRng = getRngLog().length;
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            () => dryRunElapsedTurn(game),
-            (error) => /unsupported region callback unported-region-callback/u
-                .test(error.message),
-            `attempt ${attempt}`,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, replay),
-            before,
-            `attempt ${attempt}`,
-        );
-        assert.equal(getRngLog().length, beforeRng, `attempt ${attempt}`);
-    }
-
-    // The snapshot is the detector; this is what shows the case arrives. With
-    // the region gone the live game takes the same turn for real: heal_legs() clears both halves of the property,
-    // gives the Dexterity point back, and writes its line. The queue emptying
-    // here is also what proves the line costs a key: topl.c update_topl()
-    // cannot share a row with the pending arrival message, so it calls more()
-    // first, and a clone that printed the same line would have spent this same
-    // key above. The turn then stops where rhack() asks for the next command.
-    game.level.regions = [];
-    game.context.move = 1;
+    // heal_legs() clears both halves of the property, gives the Dexterity
+    // point back, and writes its line. The queue emptying here is what proves
+    // the line costs a key: topl.c update_topl() cannot share a row with the
+    // pending arrival message, so it calls more() first. The turn then stops
+    // where rhack() asks for the next command.
     await assert.rejects(() => moveloop_core(), /Input queue empty/u);
     assert.deepEqual(game.u.uprops[WOUNDED_LEGS], {
         intrinsic: 0,
@@ -2767,9 +2292,9 @@ test('a planned timeout writes no line and reads no key', async () => {
     assert.equal(game.nhDisplay.terminal._inputQueue.length, 0);
 });
 
-test('a planned corpse rot touches neither the live map nor the live queue',
+test('a due corpse rot redraws the hero square and drains the timer queue',
     async () => {
-        const replay = await runSegment({
+        await runSegment({
             // Independently chosen; nothing below depends on the map beyond
             // the hero having somewhere to stand.
             seed: 2026081711,
@@ -2783,9 +2308,7 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         game.level.monlist = null;
         game.level.regions = [];
         game.head_engr = null;
-        // A burdened hero is what makes the dry run supply advanceRound, so
-        // the clone runs the whole once-per-turn block and reaches
-        // run_timers() at the end of nh_timeout.
+        // A burdened hero, five units over capacity.
         game.invent = {
             oclass: TOOL_CLASS,
             otyp: SACK,
@@ -2800,10 +2323,7 @@ test('a planned corpse rot touches neither the live map nor the live queue',
 
         // The corpse lies on the hero's own square, so cansee() is true there
         // and newsym() takes its visible arm -- the one that writes
-        // loc.waslit. That write is the leak this case watches for: newsym()
-        // reads the module-global game rather than the state run_timers() was
-        // handed, so a planned rot that drew through the live seam would
-        // repaint a square the live turn has not reached yet.
+        // loc.waslit.
         // An orc, not a lichen: mkobj.c start_corpse_timeout() (1402-1404)
         // returns before scheduling for PM_LIZARD and PM_LICHEN, "lizards and
         // lichen don't rot or revive", so no lichen corpse ever carries a
@@ -2825,42 +2345,10 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         const square = game.level.at(game.u.ux, game.u.uy);
         square.waslit = !square.lit;
 
-        // Keep the unsupported callback as the source boundary; a valid
-        // region now runs on the projected and live tails alike.
-        const unsupportedRegion = create_region([{
-            lx: game.u.ux,
-            ly: game.u.uy,
-            hx: game.u.ux,
-            hy: game.u.uy,
-        }]);
-        unsupportedRegion.inside_f = 'unported-region-callback';
-        game.level.regions.push(unsupportedRegion);
         game.u.umovement = 0;
         game.context.move = 1;
 
-        const before = completeSecondTurnSnapshot(game, replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                () => dryRunElapsedTurn(game),
-                (error) => /unsupported region callback unported-region-callback/u
-                    .test(error.message),
-                `attempt ${attempt}`,
-            );
-            // world.locations and timers.queue are both in the snapshot, so
-            // this one comparison covers the redraw and the drain alike.
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, replay),
-                before,
-                `attempt ${attempt}`,
-            );
-            assert.equal(corpse.where, OBJ_FLOOR, `attempt ${attempt}`);
-            assert.equal(square.waslit, !square.lit, `attempt ${attempt}`);
-        }
-
-        // With the region gone the live pass takes the turn for real, and the
-        // same corpse leaves the floor.
-        game.level.regions = [];
-        game.context.move = 1;
+        // The turn rots the corpse, which leaves the floor.
         await assert.rejects(() => moveloop_core(), /Input queue empty/u);
         assert.equal(corpse.where, OBJ_DELETED);
         assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
@@ -2868,14 +2356,8 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         assert.equal(square.waslit, Boolean(square.lit));
     });
 
-test('planned ice boulder timer draws water names only from clone display RNG',
+test('a due ice boulder timer melts the ice and names water from the display RNG',
     async () => {
-        const jsTimeoutCall = JS_ALLMAIN.indexOf('await nh_timeout(state, {');
-        const jsTimeoutEnd = JS_ALLMAIN.indexOf('\n    });', jsTimeoutCall);
-        assert.ok(jsTimeoutCall >= 0 && jsTimeoutEnd > jsTimeoutCall);
-        assert.match(JS_ALLMAIN.slice(jsTimeoutCall, jsTimeoutEnd),
-            /displayRandom: planningDisplayRandom/u);
-
         await runSegment({
             seed: 2026100301,
             datetime: '20431003101700',
@@ -2886,6 +2368,11 @@ test('planned ice boulder timer draws water names only from clone display RNG',
         });
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
+        // Retire the welcome line; the spaces dismiss the --More-- prompts
+        // between melt_ice()'s and boulder_hits_pool()'s messages.
+        clearTtyMessageWindow(game);
+        for (let index = 0; index < 4; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
         const x = game.u.ux + 3;
         const y = game.u.uy;
         const location = game.level.at(x, y);
@@ -2914,20 +2401,14 @@ test('planned ice boulder timer draws water names only from clone display RNG',
             game,
         );
 
-        const liveDisplayBefore = structuredClone(game.displayCtx);
-        const planned = planningState(game);
-        const cloneDisplayBefore = structuredClone(planned.displayCtx);
-        const random = createCoreRandom(planned.coreCtx, planned);
-        await finishElapsedTurn(planned, random, { planning: true });
+        const displayBefore = structuredClone(game.displayCtx);
+        const random = createCoreRandom(game.coreCtx, game);
+        await finishElapsedTurn(game, random);
 
-        assert.deepEqual(game.displayCtx, liveDisplayBefore,
-            'planning leaves the live cosmetic ISAAC context unchanged');
-        assert.notDeepEqual(planned.displayCtx, cloneDisplayBefore,
-            'the due hallucinated waterbody name consumes the clone stream');
-        assert.notEqual(planned.level.at(x, y).typ, ICE,
-            'the due MELT_ICE_AWAY callback ran on the planning clone');
-        assert.equal(location.typ, ICE,
-            'the callback does not melt the live level during planning');
+        assert.notDeepEqual(game.displayCtx, displayBefore,
+            'the due hallucinated waterbody name consumes the display stream');
+        assert.notEqual(location.typ, ICE,
+            'the due MELT_ICE_AWAY callback ran');
     });
 
 // The status seam of the same nh_timeout() call, which the case
@@ -2936,19 +2417,13 @@ test('planned ice boulder timer draws water names only from clone display RNG',
 // only through eat.c maybe_finished_meal(), which runs eatfood() when
 // go.occupation is eatfood and the meal has served its whole time. So one turn
 // shape decides this seam alone: a meal that finishes on the same turn a
-// WOUNDED_LEGS countdown runs out. No recording can close it either, because
-// the clone and the live pass paint the same rows a moment apart; the plan has
-// to stop between them, which is what the region below is for.
-//
-// display.c bot() takes no state. It repaints the live status rows and clears
-// the live dirty flags whichever state called it, so a clone that refreshed
-// here would spend disp.botl on a turn the live game has not taken.
-test('a planned finished meal refreshes no status line', async () => {
+// WOUNDED_LEGS countdown runs out.
+test('a meal finished by an expiring timeout refreshes the status line', async () => {
     const segment = loadEatOccupationRecipe().segments.find(
         (entry) => entry.seed === 5820011,
     );
     assert.ok(segment);
-    const replay = await runSegment({ ...segment, moves: '.' });
+    await runSegment({ ...segment, moves: '.' });
     // 'd' is this Valkyrie's food ration. The command installs the real
     // victual and the real eatfood() occupation.
     game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
@@ -2970,10 +2445,8 @@ test('a planned finished meal refreshes no status line', async () => {
     for (const column of game.level.monsters) column.fill(null);
     game.level.monlist = null;
     game.head_engr = null;
-    // A burdened hero is what makes the dry run supply advanceRound, so the
-    // clone runs the whole once-per-turn block and reaches nh_timeout. An
-    // unburdened clone returns straight after random monster generation.
-    // The long sword is the one carried object the meal does not consume.
+    // A burdened hero, five units over capacity. The long sword is the one
+    // carried object the meal does not consume.
     const ballast = game.invent;
     assert.notEqual(ballast, game.context.victual.piece);
     ballast.owt = weight_cap(game) + 5;
@@ -2994,46 +2467,15 @@ test('a planned finished meal refreshes no status line', async () => {
     // The clairvoyance and attribute cadences belong to later turns.
     game.context.seer_turn = 100000;
     game.context.next_attrib_check = 100000;
-    // Keep the unsupported callback as the source boundary; a valid region
-    // now runs on the projected and live tails alike.
-    const unsupportedRegion = create_region([{
-        lx: game.u.ux,
-        ly: game.u.uy,
-        hx: game.u.ux,
-        hy: game.u.uy,
-    }]);
-    unsupportedRegion.inside_f = 'unported-region-callback';
-    game.level.regions.push(unsupportedRegion);
     game.u.umovement = 0;
     game.context.move = 1;
     // The command that just ran left the status line dirty, which is the
     // ordinary state of a turn: moveloop_core() runs its own bot() after the
-    // elapsed block, not before it. A clone that refreshed would clear this.
+    // elapsed block, not before it.
     assert.equal(game.disp.botl, true);
 
-    const before = completeSecondTurnSnapshot(game, replay);
-    const beforeRng = getRngLog().length;
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            () => dryRunElapsedTurn(game),
-            (error) => /unsupported region callback unported-region-callback/u
-                .test(error.message),
-            `attempt ${attempt}`,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, replay),
-            before,
-            `attempt ${attempt}`,
-        );
-        assert.equal(getRngLog().length, beforeRng, `attempt ${attempt}`);
-    }
-
-    // The snapshot is the detector; this is what shows the case arrives. With
-    // the region gone the live game takes the same turn for real: the countdown expires, stop_occupation() finishes the
-    // meal, and newuhs() refreshes the status line for the hunger change the
-    // whole meal made.
-    game.level.regions = [];
-    game.context.move = 1;
+    // The countdown expires, stop_occupation() finishes the meal, and newuhs()
+    // refreshes the status line for the hunger change the whole meal made.
     await assert.rejects(() => moveloop_core(), /Input queue empty/u);
     assert.equal(game.go.occupation, null);
     assert.equal(game.context.victual.piece, null);
@@ -3041,205 +2483,6 @@ test('a planned finished meal refreshes no status line', async () => {
     assert.equal(game.saved_hs, false);
     assert.equal(game.u.uprops[WOUNDED_LEGS].intrinsic, 0);
 });
-
-test('a planned blocking mimic birth restores live vision on every exit',
-    async () => {
-        for (const refuseAfterConsumer of [false, true]) {
-            await runSegment({
-                seed: 1,
-                datetime: '20260804120000',
-                nethackrc: 'OPTIONS=name:PlannedBlocker,role:Healer,'
-                    + 'race:human,gender:female,align:neutral,!legacy,'
-                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
-                moves: '',
-            });
-            for (const column of game.level.monsters) column.fill(null);
-            game.level.monlist = null;
-            game.level.regions = [];
-            game.head_engr = null;
-            game.u.ulevel = 15;
-            game.u.uevent.udemigod = true;
-            // wizdeadorgone() always starts a 50..299 turn countdown. Keep
-            // this vision fixture away from the intervention expiry turn.
-            game.u.udg_cnt = 200;
-            game.u.uhave.amulet = true;
-            game.context.seer_turn = 100000;
-            game.context.next_attrib_check = 100000;
-            game.u.umovement = 0;
-            game.invent = {
-                oclass: TOOL_CLASS,
-                otyp: SACK,
-                owt: weight_cap(game) * 2,
-                nobj: null,
-            };
-            game.go.oldcap = near_capacity(game);
-            assert.ok(projected_capacity(game) > 0,
-                'the fixture must need multiple movement allocations');
-
-            // This speed-12 monster reaches a ration on the allocation after
-            // the mimic is born. Its real light source makes movemon() request
-            // vision_recalc(), which must use the buffers installed before
-            // set_mimic_sym() borrows the module transparency index.
-            const lightBearer = newMonster({
-                data: game.mons[PM_JACKAL],
-                mnum: PM_JACKAL,
-                cham: NON_PM,
-                m_id: 9501,
-                m_lev: game.mons[PM_JACKAL].mlevel,
-                mhp: 5,
-                mhpmax: 5,
-                mcanmove: 0,
-                mcansee: true,
-                movement: 0,
-                mux: game.u.ux,
-                muy: game.u.uy,
-            });
-            place_monster(lightBearer, 38, 17, game);
-            lightBearer.nmon = game.level.monlist;
-            game.level.monlist = lightBearer;
-            new_light_source(
-                lightBearer.mx,
-                lightBearer.my,
-                2,
-                LS_MONSTER,
-                lightBearer,
-                game,
-            );
-            const liveVisionFullRecalc = game.vision_full_recalc;
-            assert.equal(liveVisionFullRecalc, 1);
-
-            // Keep rndmonst()'s reservoir focused on the source behavior under
-            // test. Seed 7585's independent stream, after the first clone scan,
-            // enters the generation gate, places the small mimic at <39,17>,
-            // and chooses ROCK_CLASS then BOULDER for its disguise.
-            for (let i = 0; i < game.mvitals.length; ++i) {
-                if (i !== PM_SMALL_MIMIC)
-                    game.mvitals[i].mvflags |= G_GENOD;
-            }
-            initRng(7585);
-            const rngBefore = {
-                core: structuredClone(game.coreCtx),
-                display: structuredClone(game.displayCtx),
-            };
-            const liveActiveBuffer = game.active_buf;
-            assert.equal(transparencyIndexViews()[17][39], 1);
-            assert.equal(clear_path(38, 17, 40, 17), 1);
-            const guard = freezeLiveState(game);
-            let allocation = 0;
-            let plannedBirth = null;
-            let plannedConsumer = null;
-            let plannedRngSentinel = null;
-            const run = preflightSimpleMonsterActions(game, {
-                async advanceRound(planned, planningRandom) {
-                    ++allocation;
-                    if (allocation === 1) {
-                        const answer = await finishElapsedTurn(
-                            planned,
-                            planningRandom,
-                            {
-                                planning: true,
-                                randomMonsterOnly: false,
-                            },
-                        );
-                        const mimic = planned.level.monlist;
-                        plannedBirth = {
-                            mnum: mimic.mnum,
-                            x: mimic.mx,
-                            y: mimic.my,
-                            m_ap_type: mimic.m_ap_type & M_AP_TYPMASK,
-                            mappearance: mimic.mappearance,
-                            ownsBuffers: Boolean(planned._visionBuffers),
-                            marked: planned._plannedVisionChange,
-                            index: transparencyIndexViews()[17][39],
-                            clearPath: clear_path(38, 17, 40, 17),
-                        };
-                        return answer;
-                    }
-
-                    // Between the callbacks the light-bearer's newly earned
-                    // ration consumed vision_full_recalc. The light reaches
-                    // its own square but not <40,17>, because clear_path()
-                    // reads the boulder mimic from the borrowed clone index.
-                    plannedConsumer = {
-                        activeBuffer: planned.active_buf,
-                        ownsCurrentView: planned.viz_array
-                            === planned._visionBuffers.rows[planned.active_buf],
-                        sourceLit: planned.viz_array[17][38] & TEMP_LIT,
-                        behindMimicLit: planned.viz_array[17][40] & TEMP_LIT,
-                        index: transparencyIndexViews()[17][39],
-                        clearPath: clear_path(38, 17, 40, 17),
-                    };
-                    plannedRngSentinel = [
-                        planningRandom.rn2(1000000),
-                        planningRandom.rn2(1000000),
-                        planningRandom.rn2(1000000),
-                    ];
-                    if (!refuseAfterConsumer) return true;
-
-                    // A genuine later planning refusal exercises the same
-                    // finally cleanup after both the index borrow and its
-                    // clone-buffer consumer have completed.
-                    const unsupportedRegion = create_region([{
-                        lx: planned.u.ux,
-                        ly: planned.u.uy,
-                        hx: planned.u.ux,
-                        hy: planned.u.uy,
-                    }]);
-                    unsupportedRegion.inside_f = 'unported-region-callback';
-                    planned.level.regions.push(unsupportedRegion);
-                    return finishElapsedTurn(planned, planningRandom, {
-                        planning: true,
-                        randomMonsterOnly: false,
-                    });
-                },
-            });
-            if (refuseAfterConsumer) {
-                await assert.rejects(
-                    run,
-                    (error) => /unsupported region callback unported-region-callback/u
-                        .test(error.message),
-                );
-            } else {
-                await run;
-            }
-            guard.assertNoLeak(assert);
-            assert.ok(guard.frozen > 1000,
-                `froze only ${guard.frozen} objects`);
-            assert.ok(guard.views > 0,
-                `snapshotted only ${guard.views} typed arrays`);
-
-            assert.equal(allocation, 2);
-            assert.deepEqual(plannedBirth, {
-                mnum: PM_SMALL_MIMIC,
-                x: 39,
-                y: 17,
-                m_ap_type: M_AP_OBJECT,
-                mappearance: BOULDER,
-                ownsBuffers: true,
-                marked: { x: 39, y: 17 },
-                index: 0,
-                clearPath: 0,
-            });
-            assert.deepEqual(plannedConsumer, {
-                activeBuffer: liveActiveBuffer === 0 ? 1 : 0,
-                ownsCurrentView: true,
-                sourceLit: TEMP_LIT,
-                behindMimicLit: 0,
-                index: 0,
-                clearPath: 0,
-            });
-            assert.deepEqual(plannedRngSentinel, [935476, 917390, 516939]);
-            assert.equal(game.level.monlist, lightBearer);
-            assert.equal(lightBearer.movement, 0);
-            assert.equal(game.level.monsters[39][17], null);
-            assert.equal(transparencyIndexViews()[17][39], 1);
-            assert.equal(clear_path(38, 17, 40, 17), 1);
-            assert.equal(does_block(39, 17, null, game), false);
-            assert.equal(game.vision_full_recalc, liveVisionFullRecalc);
-            assert.deepEqual(game.coreCtx, rngBefore.core);
-            assert.deepEqual(game.displayCtx, rngBefore.display);
-        }
-    });
 
 // allmain.c:164-167 calls makemon(NULL, 0, 0, NO_MM_FLAGS). Its
 // rndmonst reservoir uses (level_difficulty() + u.ulevel) / 2, without
@@ -3271,9 +2514,7 @@ test('a natural Aleax spawn completes the previously refused runtime prefix',
             moves: `.#levelchange\n30\n${' '.repeat(29)}${'s'.repeat(20)}`,
         }, { onBoundary: (error) => { boundary = error; } });
 
-        // What makes advanceElapsedTurn() supply the shortened planning round:
-        // a burdened hero would get the full one, which covers this call for a
-        // different reason.
+        // The recorded input leaves the hero unburdened.
         assert.equal(projected_capacity(game), 0);
         assert.equal(boundary, null);
         // Fresh C recording of this unchanged regression input:
@@ -3379,11 +2620,11 @@ async function prepareFetchingPet(buildObject) {
 
 // C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
 // through splitobj(), names the result through distant_name(), and hands it to
-// mpickobj(), all from inside the monster scan the elapsed turn dry runs. An
-// unpaid-bill refusal reaches the planning boundary list after naming is
-// supported; if its class is missing there, it escapes runSegment() and
-// discards the matching prefix instead of stopping on the last screen.
-test('a refused planned pickup becomes a turn boundary, not a hard failure',
+// mpickobj(), all from inside the elapsed turn's monster scan. An unpaid-bill
+// refusal must become a turn boundary after naming is supported; otherwise it
+// escapes runSegment() and discards the matching prefix instead of stopping on
+// the last screen.
+test('a refused pet pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
             [
@@ -3397,38 +2638,12 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
                     fetchedFloorObject(x, y, DAGGER, 9302),
                     { quan: 2, owt: 20, unpaid: true },
                 ),
-                UnsupportedShopError,
+                'shop handling requires onbill() reporting a stray unpaid item',
             ],
         ]) {
-            const replay = await prepareFetchingPet(buildObject);
+            await prepareFetchingPet(buildObject);
 
-            // The dry run raises the refusal and changes nothing, however
-            // often it runs.
-            const before = completeSecondTurnSnapshot(game, replay);
-            const beforeRng = getRngLog().length;
-            let raw = null;
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                raw = null;
-                try {
-                    await preflightSimpleMonsterActions(game);
-                } catch (error) {
-                    raw = error;
-                }
-                assert.ok(raw instanceof refusal,
-                    `${name}, attempt ${attempt}, raised ${raw}`);
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, replay),
-                    before,
-                    `${name}, attempt ${attempt}`,
-                );
-                assert.equal(
-                    getRngLog().length,
-                    beforeRng,
-                    `${name}, attempt ${attempt}`,
-                );
-            }
-
-            // The live turn reaches the same refusal, and the coordinator
+            // The live turn reaches the shk.c refusal, and the coordinator
             // that owns the conversion turns it into a boundary. On the way
             // the live pet's dog_invent() prints, and topl.c update_topl()
             // first dismisses the setup's pending message with --More--,
@@ -3439,69 +2654,11 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
                 () => moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedTurnBoundaryError
-                    && error.message === raw.message
+                    && error.message === refusal
                 ),
                 name,
             );
         }
-    });
-
-test('a planned hallucinated appearance advances only cloned display state',
-    async () => {
-        const replay = await runSegment({
-            // Independently selected for the first planned rn2(70) to enter
-            // maybe_generate_rnd_mon().  Detect monsters makes any successful
-            // placement nameable regardless of its random coordinate.
-            seed: 2026080005,
-            datetime: '20260728120000',
-            nethackrc: 'OPTIONS=name:PlannedDisplayRng,role:Healer,'
-                + 'race:human,gender:female,align:neutral,!legacy,'
-                + '!tutorial,!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.head_engr = null;
-        game.invent = {
-            oclass: TOOL_CLASS,
-            otyp: SACK,
-            owt: weight_cap(game) + 5,
-            nobj: null,
-        };
-        assert.ok(projected_capacity(game) > 0);
-        game.u.uprops[HALLUC] = {
-            intrinsic: FROMOUTSIDE,
-            extrinsic: 0,
-            blocked: 0,
-        };
-        game.u.uprops[DETECT_MONSTERS] = {
-            intrinsic: FROMOUTSIDE,
-            extrinsic: 0,
-            blocked: 0,
-        };
-        const unsupportedRegion = create_region([{
-            lx: game.u.ux,
-            ly: game.u.uy,
-            hx: game.u.ux,
-            hy: game.u.uy,
-        }]);
-        unsupportedRegion.inside_f = 'unported-region-callback';
-        game.level.regions = [unsupportedRegion];
-        game.context.seer_turn = 100000;
-        game.context.next_attrib_check = 100000;
-        game.u.umovement = 0;
-        game.context.move = 1;
-
-        const before = completeSecondTurnSnapshot(game, replay);
-        await assert.rejects(
-            () => dryRunElapsedTurn(game),
-            (error) => /unsupported region callback unported-region-callback/u
-                .test(error.message),
-        );
-        // The planned constructor reached redraw and hallucinated Amonnam
-        // before the unported callback refusal. All state, both RNG streams,
-        // terminal output, and queued input remain live and retryable.
-        assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
     });
 
 test('the billionth turn capitulates for an unburdened hero too',
@@ -3822,93 +2979,6 @@ test('interrupt_multi refuses to end a count it cannot announce', async () => {
     assert.equal(state.u.usleep, 3);
 });
 
-// The four freeze cases in scripts/unported-monster-actions.test.mjs call the
-// preflight directly, so none of them supplies advanceRound and none reaches
-// the once-per-turn planning round. That round runs the whole of
-// finishElapsedTurn() on the clone -- hunger, region upkeep, monster
-// generation, timeouts -- and is the largest single surface the clone has to
-// isolate. The blocking-mimic case above reaches it directly; this case also
-// pins its production coordinator. A burdened hero makes projected_capacity()
-// positive, which is what makes advanceElapsedTurn() supply advanceRound.
-//
-// The assertion is about where the turn's first live write happens rather than
-// whether one happens. Under a total freeze the live pass must fail -- it is
-// supposed to write -- so what distinguishes an isolated planning round from a
-// leaking one is whether that first failure lands after the preflight returned
-// or inside it.
-//
-// Asserting the frame's module is not enough to say that, and an earlier
-// version of this case did. finishElapsedTurn() runs on the clone from inside
-// preflightSimpleMonsterActions() and lives in js/allmain.js itself, so a leak
-// written by the planning round reports the same module as the live pass it is
-// meant to be distinguished from. What separates them is the call stack:
-// a throw from the planning round carries a preflightSimpleMonsterActions
-// frame, and a throw from the live pass does not.
-test('a planned once-per-turn round writes nothing to frozen live state',
-    async () => {
-        await runSegment({
-            seed: 2026072301,
-            datetime: '20260723120000',
-            nethackrc: 'OPTIONS=name:FrozenUpkeep,role:Healer,'
-                + 'race:human,gender:female,align:neutral,!legacy,'
-                + '!tutorial,!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.level.regions = [];
-        game.head_engr = null;
-        game.invent = {
-            oclass: TOOL_CLASS,
-            otyp: SACK,
-            owt: weight_cap(game) * 2,
-            nobj: null,
-        };
-        // encumber_msg() prints only on a change, and its message would need a
-        // More dismissal unrelated to this case.
-        game.go = { oldcap: near_capacity(game) };
-        game.context.move = 1;
-        game.u.umovement = 0;
-        game.context.seer_turn = 100000;
-        game.context.next_attrib_check = 100000;
-        game.nhDisplay.pushKey('.'.charCodeAt(0));
-        // The precondition the whole case rests on. advanceElapsedTurn()
-        // supplies advanceRound only when this is positive; if the fixture
-        // ever stopped burdening the hero, the planning round would not run at
-        // all and every assertion below would still pass.
-        assert.ok(
-            projected_capacity(game) > 0,
-            'the fixture must burden the hero',
-        );
-        const guard = freezeLiveState(game);
-
-        let caught = null;
-        try {
-            await moveloop_core();
-        } catch (error) {
-            caught = error;
-        }
-
-        // The typed-array grids cannot be frozen, so the snapshot is the only
-        // thing covering them. Every case in
-        // scripts/unported-monster-actions.test.mjs calls this; leaving it out
-        // here left the once-per-turn round -- the widest surface of the five
-        // -- as the one case with no vision-grid coverage.
-        guard.assertNoLeak(assert);
-
-        assert.ok(caught instanceof TypeError, `threw ${caught}`);
-        assert.doesNotMatch(
-            caught.stack,
-            /preflightSimpleMonsterActions/u,
-            'the planning round wrote to frozen live state',
-        );
-        // Not a second discriminator: a planning-round throw carries an
-        // advanceElapsedTurn frame too, since the preflight is called from
-        // inside it. This only rules out the turn dying somewhere earlier than
-        // the elapsed-turn coordinator entirely.
-        assert.match(caught.stack, /advanceElapsedTurn/u);
-    });
-
 // The last terminal row, which is the second of the two status lines.
 function statusRow() {
     const display = game.nhDisplay;
@@ -4126,7 +3196,7 @@ test('a hero the monster scan kills reaches no once-per-turn upkeep',
         // windows, after which really_done() reaches nh_terminate(), which
         // never returns -- matching C's NORETURN done_in_by(). moveloop_core()
         // returns once the termination notice settles, so the live movement
-        // gate never runs against a preflight that planned no upkeep.
+        // gate never runs.
         for (const key of 'm.  q  ') game.nhDisplay.pushKey(key.charCodeAt(0));
         await moveloop_core();
         await expectTerminated(() => moveloop_core());
@@ -4260,13 +3330,6 @@ test('wererat infection gets its daytime allmain change roll before dosounds',
             'the nonzero chance result leaves no delayed change pending');
         assert.equal(game.unported?.has('were.c you_were'), false,
             'rn2(80)=50 does not dispatch the later were transformation');
-
-        const planned = planningState(game);
-        assert.equal(planned.mvl_change, game.mvl_change,
-            'the C static is copied into an elapsed-turn planning clone');
-        planned.mvl_change = 2;
-        assert.equal(game.mvl_change, 0,
-            'a planned pending change does not mutate the live game');
     });
 
 // allmain.c:200-201 resumes a saved wish before context.move's elapsed-turn
@@ -4292,85 +3355,6 @@ test('moveloop_core resumes a pending wish before reading the next command', asy
     assert.equal(game.context.resume_wish, 0);
     assert.equal(prompts[0], 'For what do you wish?');
     assert.equal(game.u.uconduct.wishes, 0); // Explicit nothing retains wishless conduct.
-});
-
-test('periodic teleport planning stops before live input and preserves the live game', async () => {
-    const replay = await runSegment(firstTurnInput({
-        seed: 2026102207, datetime: '20261022120000', name: 'TeleportPlan',
-        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
-    }));
-    for (const column of game.level.monsters) column.fill(null);
-    game.level.monlist = null;
-    game.level.regions = [];
-    clearTtyMessageWindow(game);
-    game.u.uprops[TELEPORT] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
-    game.u.umovement = 0;
-    game.context.seer_turn = 100000;
-    game.context.next_attrib_check = 100000;
-    const snapshot = completeSecondTurnSnapshot(game, replay);
-    const plan = await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        advanceRound: (planned, random) => finishElapsedTurn(planned, {
-            ...random,
-            rn2: bound => bound === 85 ? 0 : random.rn2(bound),
-        }, { planning: true }),
-    });
-    assert.equal(plan.beforeTeleport, true);
-    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
-        'planning must not read a destination, spend live RNG, or change the live map');
-});
-
-test('delayed polymorph planning preserves live state before the form change', async () => {
-    const replay = await runSegment(firstTurnInput({
-        seed: 2026102209, datetime: '20261022120000', name: 'PolymorphPlan',
-        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
-    }));
-    for (const column of game.level.monsters) column.fill(null);
-    game.level.monlist = null;
-    game.level.regions = [];
-    clearTtyMessageWindow(game);
-    game.u.uprops[POLYMORPH] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
-    game.u.umovement = 0;
-    game.context.seer_turn = 100000;
-    game.context.next_attrib_check = 100000;
-    const snapshot = completeSecondTurnSnapshot(game, replay);
-    const plan = await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        advanceRound: (planned, random) => finishElapsedTurn(planned, {
-            ...random,
-            rn2: bound => bound === 100 ? 0 : random.rn2(bound),
-        }, { planning: true }),
-    });
-    assert.equal(plan.beforeChange, true);
-    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
-        'planning must not spend live RNG, announce a change, or change the live form');
-});
-
-test('controlled delayed lycanthropy planning preserves live state before input', async () => {
-    const replay = await runSegment(firstTurnInput({
-        seed: 2026102211, datetime: '20261022120000', name: 'LycanthropyPlan',
-        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
-    }));
-    for (const column of game.level.monsters) column.fill(null);
-    game.level.monlist = null;
-    game.level.regions = [];
-    clearTtyMessageWindow(game);
-    game.u.ulycn = PM_WERERAT;
-    game.u.uprops[POLYMORPH_CONTROL] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
-    game.u.umovement = 0;
-    game.context.seer_turn = 100000;
-    game.context.next_attrib_check = 100000;
-    const snapshot = completeSecondTurnSnapshot(game, replay);
-    const plan = await preflightSimpleMonsterActions(game, {
-        consumeHeroRation: false,
-        advanceRound: (planned, random) => finishElapsedTurn(planned, {
-            ...random,
-            rn2: bound => bound === 80 ? 0 : random.rn2(bound),
-        }, { planning: true }),
-    });
-    assert.equal(plan.beforeChange, true);
-    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
-        'planning must not read confirmation, spend live RNG, or change the live form');
 });
 
 // allmain.c:233-234 adds mcalcmove() to struct monst's `short movement`

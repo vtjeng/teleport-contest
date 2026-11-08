@@ -76,7 +76,6 @@ import {
     GLYPH_ZAP_OFF,
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { GameMap } from '../js/game.js';
 import { assign_level } from '../js/dungeon.js';
 import { dismissPendingTtyMessage } from '../js/tty_message.js';
@@ -124,7 +123,6 @@ import {
     WAND_CLASS,
 } from '../js/objects.js';
 import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
-import { HeroDeathPlanningError } from '../js/hack.js';
 import { coreRandom, d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
@@ -1065,43 +1063,6 @@ test('a downward ray kills the hero and stops on the death More', async () => {
     // zap.c:4588 hands losehp() KILLED_BY_AN, which decides the article
     // end.c done() puts in front of that string.
     assert.equal(game.killer.format, KILLED_BY_AN);
-});
-
-test('a planned monster fire death crosses the existing live handoff', async () => {
-    // zap.c dobuzz():4852-4961 and zhitu():4588. The clone pass must consume
-    // the same range, hit, damage, and burnarmor draws, then raise the
-    // caller's planningDeath signal before losehp() can enter urgent_pline()
-    // or done() against the planning state. Calling dobuzz() with a one-HP
-    // hero isolates this source boundary from the outer monster scheduler.
-    await runSegment({
-        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
-    });
-    game.u.uhp = 1;
-    const calls = [];
-    const random = {
-        d: (...args) => { calls.push(['d', ...args]); return args[0]; },
-        rn1: (...args) => { calls.push(['rn1', ...args]); return args[1]; },
-        rn2: (bound) => { calls.push(['rn2', bound]); return 1; },
-        rnd: (bound) => { calls.push(['rnd', bound]); return bound; },
-        rnl: (bound) => { calls.push(['rnl', bound]); return 1; },
-        rnz: (value) => { calls.push(['rnz', value]); return value; },
-    };
-    await assert.rejects(
-        () => dobuzz(
-            -21, 6, game.u.ux, game.u.uy, 0, 0,
-            true, false, false, game, random,
-            {
-                planning: true,
-            },
-        ),
-        HeroDeathPlanningError,
-    );
-    assert.equal(game.u.uhp, -5,
-        'the clone records the same lethal damage before handing off');
-    assert.deepEqual(calls, [
-        ['rn1', 7, 7], ['rn2', 20], ['d', 6, 6],
-        ['rn2', 5], ['rn2', 3], ['rn2', 3],
-    ]);
 });
 
 test('burnarmor rolls again for a slot the hero has nothing in', async () => {
@@ -2232,39 +2193,6 @@ test('flash_mon uses ordinary mon_to_glyph for tame and hallucinated monsters',
         }
     });
 
-test('flash_mon leaves the live display alone for a planning clone', async () => {
-    await runSegment({
-        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
-    });
-    const monster = game.level.monlist;
-    assert.ok(monster, 'the debug-wished ray fixture has a monster');
-    const clone = {
-        ...game,
-        program_state: { ...game.program_state, planning: true },
-        viz_array: game.viz_array.map((row) => [...row]),
-    };
-    const x = monster.mx;
-    const y = monster.my;
-    const liveViz = game.viz_array[y][x];
-    const cloneViz = clone.viz_array[y][x];
-    const liveGlyph = game.level.at(x, y).disp_glyph?.glyph;
-    let frames = 0;
-    game._animationFrameHook = () => { frames += 1; };
-    try {
-        await flash_mon(monster, clone);
-        assert.equal(frames, 0,
-            'planning flash_mon() does not paint the live animation buffer');
-        assert.equal(clone.viz_array[y][x], cloneViz,
-            'planning flash_mon() restores the clone vision byte');
-        assert.equal(game.viz_array[y][x], liveViz,
-            'planning flash_mon() does not mutate live vision');
-        assert.equal(game.level.at(x, y).disp_glyph?.glyph, liveGlyph,
-            'planning flash_mon() skips the live newsym() tail');
-    } finally {
-        game._animationFrameHook = null;
-    }
-});
-
 test('flash_glyph_at() uses remembered terrain when hero memory is enabled',
     async () => {
         const x = game.u.ux + 1;
@@ -2901,39 +2829,30 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
     }
 });
 
-// C zap.c dobuzz() runs its hit/miss path once, during the actual action.
-// A speculative monster pass still computes the beam on its clone, but nested
-// helpers must inherit the silent message owner rather than the live TTY.
-for (const planning of [true, false]) {
-    for (const forcedMiss of [true, false]) {
-        test(`beam nested ${forcedMiss ? 'miss' : 'hit'} keeps ${planning ? 'planning' : 'live'} output ownership`, async () => {
-            await aimedWand(1, 0, 0);
-            const state = planning ? planningState(game) : game;
-            const monster = state.level.monlist;
-            assert.ok(monster);
-            const x = state.u.ux + 1, y = state.u.uy;
-            state.level.at(x, y).typ = ROOM;
-            relocate_monster(monster, x, y, state);
-            state.viz_array[y][x] |= IN_SIGHT;
-            monster.mw = null;
-            monster.mhp = monster.mhpmax = 100;
-            const lines = [];
-            const before = game._ttyToplines;
-            await dobuzz(0, 1, state.u.ux, state.u.uy, 1, 0,
-                true, true, forcedMiss, state,
-                {...straightThrough(), rn1: () => 1,
-                    rn2: bound => bound - 1},
-                {planning, message: async text => lines.push(text)});
-            if (planning) {
-                assert.deepEqual(lines, []);
-                assert.equal(game._ttyToplines, before);
-            } else {
-                assert.equal(lines.length, 1);
-                assert.match(lines[0], forcedMiss ? /magic missile misses/u
-                    : /magic missile hits/u);
-            }
-        });
-    }
+// C zap.c dobuzz() runs its hit/miss path once, during the actual action;
+// nested helpers report through the caller's message owner.
+for (const forcedMiss of [true, false]) {
+    test(`beam nested ${forcedMiss ? 'miss' : 'hit'} keeps live output ownership`, async () => {
+        await aimedWand(1, 0, 0);
+        const state = game;
+        const monster = state.level.monlist;
+        assert.ok(monster);
+        const x = state.u.ux + 1, y = state.u.uy;
+        state.level.at(x, y).typ = ROOM;
+        relocate_monster(monster, x, y, state);
+        state.viz_array[y][x] |= IN_SIGHT;
+        monster.mw = null;
+        monster.mhp = monster.mhpmax = 100;
+        const lines = [];
+        await dobuzz(0, 1, state.u.ux, state.u.uy, 1, 0,
+            true, true, forcedMiss, state,
+            {...straightThrough(), rn1: () => 1,
+                rn2: bound => bound - 1},
+            {message: async text => lines.push(text)});
+        assert.equal(lines.length, 1);
+        assert.match(lines[0], forcedMiss ? /magic missile misses/u
+            : /magic missile hits/u);
+    });
 }
 
 // zap.c dobuzz():4955-4957 reports a miss nobody asked to hear (saymiss is

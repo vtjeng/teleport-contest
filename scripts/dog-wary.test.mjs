@@ -184,13 +184,3 @@ test('a life-saved steed turning feral throws its rider', async () => {
     assert.equal(game.u.usteed, null, 'C dismounts a feral steed as thrown');
     assert.ok(game.u.uhp < 100, 'thrown dismount inflicts riding accident damage');
 });
-
-test('wary_dog planning suppresses live redraw and message defaults', async () => {
-    const f=fixture({edog:{killed_by_u:1},draws:[[1,0]]});
-    delete f.env.message;
-    delete f.env.redraw;
-    f.env.planning=true;
-    await dog.wary_dog(f.monster,false,f.env);
-    assert.deepEqual(f.events,[['rn2',1]]);
-    assert.equal(f.monster.mtame,0);
-});

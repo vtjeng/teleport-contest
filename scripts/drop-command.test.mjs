@@ -44,7 +44,6 @@ import {
 import { game } from '../js/gstate.js';
 import { ship_object } from '../js/dokick.js';
 import { glibr } from '../js/do_wear.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { addinv, any_obj_ok, freeinv } from '../js/invent.js';
 import { addtobill, costly_spot, onbill, shop_keeper } from '../js/shk.js';
@@ -1423,33 +1422,14 @@ test('a dry throne admits a carried object and a wielded weapon', async () => {
 });
 
 // allmain.c calls glibr before timeout, and do_wear.c clears uwep before
-// dropx. Use the canonical helper on the planning copy and the live state.
-test('slippery fingers drop onto a throne without changing the live planning source', async () => {
+// dropx. Use the canonical helper on the live state.
+test('slippery fingers drop onto a throne', async () => {
     const state = await startedGame();
     state.u.ux++; // A non-stairway square isolates the throne admission.
     const { ux, uy } = state.u;
     state.level.at(ux, uy).typ = THRONE;
     const weapon = state.uwep;
-    const planned = planningState(state);
-    const plannedWeapon = planned.uwep;
     const rngBefore = getRngLog().length;
-    const topLine = state._ttyToplines;
-    const silent = async () => {};
-    await glibr(planned, {
-        message: silent, canletgo,
-        dropx: obj => dropx(obj, {
-            state: planned,
-            hooks: { encumberMessage: silent, newsym: () => {},
-                extractExternalObject: remove_object },
-        }),
-    });
-    assert.equal(planned.uwep, null);
-    assert.equal(plannedWeapon.where, OBJ_FLOOR);
-    assert.ok(pileAt(planned, ux, uy).includes(plannedWeapon));
-    assert.strictEqual(state.uwep, weapon);
-    assert.equal(weapon.where, OBJ_INVENT);
-    assert.equal(state._ttyToplines, topLine);
-    assert.equal(getRngLog().length, rngBefore);
     await glibr(state, {
         canletgo, dropx: obj => dropx(obj, dropCommandEnv(state)),
     });

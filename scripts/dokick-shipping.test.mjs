@@ -246,7 +246,7 @@ test('ship_object reports pile impact before migration', async () => {
     const obj = mksobj(DAGGER, false, false, { state });
     obj.dknown = true;
     const messages = [];
-    assert.equal(await ship_object(obj, x, y, false, { state, planning: true,
+    assert.equal(await ship_object(obj, x, y, false, { state,
         random: { rn2: () => 1 }, message: (text) => { messages.push(text); } }), true);
     assert.deepEqual(messages,
         ['The dagger hits another object and falls down the ladder.']);

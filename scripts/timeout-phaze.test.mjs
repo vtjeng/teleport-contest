@@ -4,7 +4,7 @@ import test from 'node:test';
 import { FROMOUTSIDE, PASSES_WALLS, TIMEOUT, W_RINGL } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { nh_timeout, nh_timeout_requires_live_state, phaze_dialogue } from '../js/timeout.js';
+import { nh_timeout, phaze_dialogue } from '../js/timeout.js';
 
 async function hero() {
     // Independent Monk setup supplies the source clock, display and occupation state.
@@ -33,8 +33,6 @@ test('phaze dialogue selects ordinary messages only at source timeouts five and 
             : timeout === 3 ? ['You are feeling rather flabby.'] : []);
         assert.equal(state.u.uprops[PASSES_WALLS].intrinsic, timeout,
             'the helper leaves timeout decrement to its caller');
-        assert.equal(nh_timeout_requires_live_state(state), false,
-            'this output-only helper does not require levitation-style occupation handoff');
     }
 });
 
@@ -85,18 +83,14 @@ test('nh_timeout awaits the ordinary warning before decrement without cancelling
     assert.equal(state.multi, 7);
 });
 
-test('phaze planning defaults to silence and uses the supplied ordinary message callback', async () => {
+test('phaze uses the supplied ordinary message callback', async () => {
     const state = await hero();
     state.u.uprops[PASSES_WALLS].intrinsic = 5; // Would print the ordinary bloated warning live.
     const before = state.nhDisplay.serialize();
-    await phaze_dialogue(state, { planning: true, random: noRandom });
-    assert.equal(state.nhDisplay.serialize(), before,
-        'the default planning callback leaves the live GameDisplay unchanged');
     const events = [];
-    await nh_timeout(state, { planning: true,
+    await nh_timeout(state, {
         message: async text => { events.push(text); } });
-    assert.deepEqual(events, ['You start to feel bloated.'],
-        'allmain supplies silentDisplay through this same ordinary callback');
+    assert.deepEqual(events, ['You start to feel bloated.']);
     assert.equal(state.nhDisplay.serialize(), before);
     assert.equal(state.u.uprops[PASSES_WALLS].intrinsic & TIMEOUT, 4);
 });

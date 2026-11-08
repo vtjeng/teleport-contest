@@ -8,7 +8,6 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_SUGGEST,
-    A_INT,
     A_STR,
     HALLUC_RES,
     M_AP_OBJECT,
@@ -69,7 +68,6 @@ import {
 import { tinnable } from '../js/apply.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -183,26 +181,19 @@ test('eat_brains preserves source order and the three-valued result', async () =
     assert.match(messages[0], /brain is unharmed\./u);
 });
 
-test('brain conduct and cannibal output use the supplied planning environment', async () => {
-    // A second independent seed keeps the planning fixture separate from the
+test('brain conduct and cannibal output use the supplied environment', async () => {
+    // A second independent seed keeps this fixture separate from the
     // preceding direct source behavior check.
     await runSegment({
         seed: 7711141, datetime: '20300102030405',
         nethackrc: 'OPTIONS=name:BrainEnv,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: '',
     });
-    const clone = planningState(game);
-    const before = {
-        hunger: game.u.uhunger,
-        intelligence: game.u.acurr.a[A_INT],
-        toplines: game._ttyToplines,
-        queue: game.nhDisplay.inputQueueLength,
-    };
     const monster = {
-        data: clone.mons[PM_HUMAN],
-        m_id: 991103, // Unique fixture identity for this planning-only target.
-        mx: clone.u.ux + 1,
-        my: clone.u.uy,
+        data: game.mons[PM_HUMAN],
+        m_id: 991103, // Unique fixture identity for this off-map target.
+        mx: game.u.ux + 1,
+        my: game.u.uy,
         mhp: 20, // Survive the source brain-damage amount.
         mhpmax: 20,
         minvent: null,
@@ -221,32 +212,25 @@ test('brain conduct and cannibal output use the supplied planning environment', 
         },
     };
     const damage = { value: 3 };
-    await eat_brains(clone.youmonst, monster, false, damage, clone, {
-        planning: true,
+    await eat_brains(game.youmonst, monster, false, damage, game, {
         random,
         message: async (line) => { messages.push(line); },
     });
     assert.ok(messages.some((line) => line.includes('You cannibal!')));
     assert.ok(draws.includes('rn1(4,2)'),
-        'maybe_cannibal receives the supplied cloned random source');
-    assert.equal(game.u.uhunger, before.hunger);
-    assert.equal(game.u.acurr.a[A_INT], before.intelligence);
-    assert.equal(game._ttyToplines, before.toplines);
-    assert.equal(game.nhDisplay.inputQueueLength, before.queue);
+        'maybe_cannibal receives the supplied random source');
 
-    const monk = planningState(game);
+    const monk = game;
     monk.urole.mnum = PM_MONK;
     monk.u.uconduct = { food: 0, unvegan: 0, unvegetarian: 0 };
     const guilt = [];
     await eating_conducts(monk.mons[PM_NEWT], monk, {
-        planning: true,
         message: async (line) => { guilt.push(line); },
     });
     assert.deepEqual(guilt, ['You feel guilty.']);
     assert.equal(monk.u.uconduct.food, 1);
     assert.equal(monk.u.uconduct.unvegan, 1);
     assert.equal(monk.u.uconduct.unvegetarian, 1);
-    assert.equal(game._ttyToplines, before.toplines);
 });
 
 test('Finish_digestion runs pending corpse effects and clears C state', async () => {
@@ -1233,7 +1217,7 @@ test('eatmdone releases only its message and resets any active disguise', async 
 
 test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () => {
     assert.match(EAT_C, /eatmdone\(void\)[\s\S]*gn\.nomovemsg == ge\.eatmbuf[\s\S]*ge\.eatmbuf = 0;[\s\S]*if \(U_AP_TYPE\)[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(u\.ux, u\.uy\);[\s\S]*return 0;/u);
-    assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*if \(!env\.planning\)[\s\S]*env\.redraw \?\? newsym[\s\S]*return 0;/u);
+    assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*env\.redraw \?\? newsym[\s\S]*return 0;/u);
     assert.match(EAT_JS, /if \(state\.eatmbuf\) eatmdone\(state\);/u);
     assert.match(EAT_JS, /state\.afternmv = eatmdone;/u);
     assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);

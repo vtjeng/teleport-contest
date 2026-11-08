@@ -1,8 +1,6 @@
 // dothrow.c hurtle() (1078-1126) prints "You feel a tug from the iron
 // ball.", "You are anchored by the ...", or the hurtle line before moving
-// the hero. A monster's knockback reaches it from the port's planning copy
-// of the monster turn, which must print nothing on the live terminal; the
-// live replay of the same turn prints the line once.
+// the hero.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -31,16 +29,9 @@ async function punishedHero() {
     return game;
 }
 
-test('a planned knockback of a punished hero prints nothing live', async () => {
-    const state = await punishedHero();
-    const liveTop = state.nhDisplay.topMessage;
-    // dx = 1, dy = 0 and range 2 are any knockback; the ball stops it first.
-    await hurtle(1, 0, 2, false, state, { planning: true });
-    assert.equal(state.nhDisplay.topMessage, liveTop);
-});
-
 test('the live knockback of a punished hero feels the tug', async () => {
     const state = await punishedHero();
+    // dx = 1, dy = 0 and range 2 are any knockback; the ball stops it first.
     await hurtle(1, 0, 2, false, state);
     assert.equal(state.nhDisplay.topMessage,
         'You feel a tug from the iron ball.');
