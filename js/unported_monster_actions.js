@@ -1,12 +1,11 @@
 // The fail-closed boundary for monster actions. This file holds no port; the
 // ports of monmove.c and dogmove.c live in js/monmove.js and js/dogmove.js.
 //
-// Every action is first dry-run against a cloned ISAAC context and cloned
-// monster state. If the dry run selects a branch that is not ported yet, it
-// throws before the live game or its PRNG has changed, so the replay stops on
-// the last matching screen instead of diverging. runSimpleMonsterAction()
-// executes one already-preflighted action and is shared by the clone-only
-// planning pass and the live movemon() adapter.
+// runSimpleMonsterAction() executes one monster action for the live
+// movemon() adapter in js/allmain.js. preflightSimpleMonsterActions() and
+// preflightElapsedTurnTail() dry-run a turn against a cloned ISAAC context
+// and cloned monster state; no game path calls them, and only unit tests
+// still drive them.
 //
 // Delete this file once ported coverage makes the boundary unnecessary.
 
@@ -1777,7 +1776,7 @@ function simpleMonsterActionOperations(env, state) {
     };
 }
 
-// Execute one already-preflighted direct monster action. C calls dochug()
+// Execute one direct monster action. C calls dochug()
 // directly from shk.c u_entered_shop(), without dochugw()'s interruption step.
 export async function runDirectMonsterAction(monster, rawEnv = {}) {
     const { env, state } = simpleMonsterActionEnvironment(rawEnv);
@@ -1787,8 +1786,8 @@ export async function runDirectMonsterAction(monster, rawEnv = {}) {
     });
 }
 
-// Execute one already-preflighted monster action. The same function is used
-// by the clone-only planning pass and the live movemon() adapter.
+// Execute one monster action. The same function is used by the clone-only
+// planning pass and the live movemon() adapter.
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     const { env, state } = simpleMonsterActionEnvironment(rawEnv);
     assertSimpleActionState(monster, state);
@@ -1971,7 +1970,7 @@ async function planSimpleMonsterScan(monster, env) {
 
 // Dry-run every action scan against cloned coordinates and a cloned ISAAC
 // context. Any excluded selected path throws while the live game and PRNG
-// remain unchanged and retryable.
+// remain unchanged and retryable. No game path calls this; unit tests do.
 export async function preflightSimpleMonsterActions(
     state = game,
     {
@@ -2088,6 +2087,7 @@ export async function preflightSimpleMonsterActions(
 }
 
 // Resume validation inside an already allocated turn, after a live timeout.
+// No game path calls this; unit tests do.
 // This deliberately does not enter planSimpleMonsterTurn: that would rerun
 // monster actions and cannot preserve this allocation's source position.
 export async function preflightElapsedTurnTail(state, advanceTail) {

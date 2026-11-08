@@ -379,11 +379,10 @@ function currentMove(state) {
     return Math.trunc(state.moves ?? 0);
 }
 
-// The site is part of the message because two callers raise this class over
-// the same field. preflight_nh_timeout_elapsed_turn() guards an elapsed turn;
-// run_timers() guards the drain itself, which goto_level() reaches on arrival
-// and nh_timeout() reaches at its tail. A log line naming only the timer would
-// not say which of the three stopped, and boundary triage reads that line.
+// The site is part of the message because run_timers() raises this class for
+// more than one caller: goto_level() reaches the drain on arrival and
+// nh_timeout() reaches it at its tail. A log line naming only the timer would
+// not say which stopped, and boundary triage reads that line.
 export class UnsupportedHeroTimeoutBoundaryError extends Error {
     constructor(reason, site = 'elapsed-turn nh_timeout') {
         super(`${site} requires ${reason}`);
@@ -907,21 +906,6 @@ export async function slip_or_trip(state = game, env = {}) {
             await dismount_steed(DISMOUNT_FELL, state, { random });
         }
     }
-}
-
-// Object-timer admission remains owned by run_timers(). Hero clocks and
-// property expiry are implemented by nh_timeout below, not by this preflight.
-export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
-    const u = state.u ?? {};
-    // timeout.c:621-622 returns for an invulnerable hero, and everything this
-    // function validates sits below that return: the mtimedone, ucreamed,
-    // usptime and ugallop arms at 641-667, the property countdown at 670-671,
-    // and run_timers() at 947, nh_timeout()'s last statement. So none of that
-    // state is read on such a turn and none of it needs to be admitted.
-    // nh_timeout() makes the same return, in C's position.
-    if (u.uinvulnerable) return;
-    const reason = unportedDueTimerReason(state, timerFireEnv(state, env));
-    if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
 }
 
 // C ref: timeout.c burn_away_slime() (446-453). Fire cures green slime, and

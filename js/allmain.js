@@ -2,8 +2,9 @@
 // C ref: allmain.c — newgame, moveloop, moveloop_core.
 //
 // The implemented command boundary uses one source-derived elapsed-turn path.
-// Unsupported command and monster branches stop before live state changes;
-// UUID, notice, and glyph-map setup remain to be ported.
+// Unsupported command branches stop before live state changes, and an
+// unsupported branch of the elapsed turn stops the segment where the turn
+// reaches it; UUID, notice, and glyph-map setup remain to be ported.
 
 import { getnow, night } from './calendar.js';
 import { game } from './gstate.js';
@@ -100,7 +101,6 @@ import {
     nomul,
     pooleffects,
     overexert_hp,
-    projected_capacity,
     runmode_delay_output,
     unmul,
 } from './hack.js';
@@ -167,8 +167,6 @@ import {
 import {
     admitPlannedVisionChange,
     isolatePlannedVision,
-    preflightElapsedTurnTail,
-    preflightSimpleMonsterActions,
     MonsterInputPlanningBoundaryError,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
@@ -184,7 +182,6 @@ import {
     nh_timeout,
     do_storms,
     nh_timeout_requires_live_state,
-    preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
 import {
@@ -792,7 +789,7 @@ function elapsedTurnMinLiquid(monster, env) {
 export async function finishElapsedTurn(
     state,
     random,
-    { planning = false, randomMonsterOnly = false, timeoutHandoff = false } = {},
+    { planning = false, randomMonsterOnly = false } = {},
 ) {
     // Every message and status seam this block hands a callee is one of these
     // three, so the planning and live arms are chosen once rather than per
@@ -948,21 +945,11 @@ export async function finishElapsedTurn(
         });
     }
 
-    // The timer queue's refusal is decided twice before this call: here on the
-    // dry run, and again by the preflight_nh_timeout_elapsed_turn() call in
-    // advanceElapsedTurn(), against the turn being entered. Neither verdict
-    // survives the live monster scan that runs between them. mon.c
-    // mpickstuff() is ported, and its corpse filter (js/monmove.js, over
-    // mon.c:1875-1880) lets an M1_COLLECT monster take an acidic or petrifying
-    // corpse off the floor; the corpse's ROT_CORPSE element stays in the queue
-    // at the same expiry, because js/obj.js calls obj_timer_checks() only for
-    // a nonzero `timed` and that function acts only on ice. So a turn the
-    // preflight admitted can reach the drain with the corpse at OBJ_MINVENT,
-    // which run_timers() refuses.
-    //
-    // advanceElapsedTurn() converts that refusal around its call to this
-    // function, so the segment ends on its last matching screen instead of
-    // being discarded whole.
+    // run_timers() refuses a due timer the port cannot run (a ROT_CORPSE
+    // element whose corpse an M1_COLLECT monster has carried to OBJ_MINVENT,
+    // for one). advanceElapsedTurn() converts that refusal around its call to
+    // this function, so the segment ends on its last matching screen instead
+    // of being discarded whole.
     const liveTimeout = nh_timeout_requires_live_state(state);
     if (planning && liveTimeout) return { beforeTimeout: true };
     await nh_timeout(state, {
@@ -994,22 +981,7 @@ export async function finishElapsedTurn(
     });
     // C's fatal timeout never reaches the remaining upkeep. JS's end-game
     // owner returns so the recorder can retain its final capture.
-    if (state.program_state?.gameover) return { afterTimeout: liveTimeout };
-    // The dry run can stop here even when a live-only monster item action
-    // changes the ensuing timeout. Its tail was never planned, so retain
-    // that handoff and validate the tail against the actual post-timeout state.
-    if (liveTimeout || timeoutHandoff) {
-        const tailPlan = await preflightElapsedTurnTail(
-            state,
-            (planned, planningRandom) => finishElapsedTurnAfterTimeout(
-                planned, planningRandom, wtcap, { planning: true },
-            ),
-        );
-        const result = await finishElapsedTurnAfterTimeout(state, random, wtcap);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn timeout tail disagreed with live delayed action');
-        return { ...result, afterTimeout: true };
-    }
+    if (state.program_state?.gameover) return { gameover: true };
     return finishElapsedTurnAfterTimeout(state, random, wtcap, { planning });
 }
 
@@ -1071,29 +1043,20 @@ async function finishElapsedTurnAfterTimeout(
     await regen_pw(wtcap, state, regenEnv);
 
     // C allmain.c:307-320. A periodic teleport may read a destination and
-    // change the map owning the remaining upkeep. Stop the clone before that
-    // call, run it live, then plan the tail from the actual destination.
+    // change the map owning the remaining upkeep. A dry run stops before it.
     if (!state.u.uinvulnerable && propertyActive(state, TELEPORT)
         && !random.rn2(85)) {
         if (planning) return { beforeTeleport: true };
         const oldUx = state.u.ux;
         const oldUy = state.u.uy;
         await tele(state, { random, message: turnMessage });
-        if (state.program_state?.gameover) return { afterTeleport: true };
+        if (state.program_state?.gameover) return { gameover: true };
         if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
             if (!(await next_to_u(state, { random, message: turnMessage })))
                 await check_leash(oldUx, oldUy, { state, random, message: turnMessage });
             cmdq_clear(CQ_CANNED, state);
             cmdq_clear(CQ_REPEAT, state);
         }
-        const tailPlan = await preflightElapsedTurnTail(state,
-            (planned, planningRandom) => finishElapsedTurnAfterTeleport(
-                planned, planningRandom, { planning: true },
-            ));
-        const result = await finishElapsedTurnAfterTeleport(state, random);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn teleport tail disagreed with live delayed action');
-        return { ...result, afterTeleport: true };
     }
     return finishElapsedTurnAfterTeleport(state, random, { planning });
 }
@@ -1123,7 +1086,7 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
         if (state.mvl_change && !propertyActive(state, UNCHANGING)
             && (state.multi ?? 0) >= 0) {
             // Both transitions can read input and change the active form.
-            // The clone stops before occupation or transformation effects.
+            // A dry run stops before occupation or transformation effects.
             if (planning) return { beforeChange: true };
             await stop_occupation(state, { message: turnMessage });
             if (state.mvl_change === 1) {
@@ -1131,18 +1094,9 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
             } else {
                 await you_were(state, { random, message: turnMessage });
             }
-            if (state.program_state?.gameover) return { afterChange: true };
+            if (state.program_state?.gameover) return { gameover: true };
             state.mvl_change = 0;
-            const tailPlan = await preflightElapsedTurnTail(state,
-                (planned, planningRandom) => finishElapsedTurnAfterChange(
-                    planned, planningRandom, { planning: true },
-                ));
-            const result = await finishElapsedTurnAfterChange(state, random);
-            if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-                throw new Error('elapsed-turn shape-change tail disagreed with live delayed action');
-            return { ...result, afterChange: true };
         }
-
     }
 
     return finishElapsedTurnAfterChange(state, random, { planning });
@@ -1152,22 +1106,14 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
 // owns the remaining search, warning, hunger and movement-allocation checks.
 async function finishElapsedTurnAfterChange(state, random, { planning = false } = {}) {
     // C allmain.c:342-346. Search can reveal terrain, display a found trap,
-    // or animate a statue. Run those effects live and plan remaining upkeep
-    // from the resulting map rather than letting the clone consume input.
+    // or animate a statue. A dry run stops before it rather than letting the
+    // clone consume input.
     if (Searching(state.u)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {
         if (planning) return { beforeSearch: true };
         await automatic_search({ state, random });
-        if (state.program_state?.gameover) return { afterSearch: true };
-        const tailPlan = await preflightElapsedTurnTail(state,
-            (planned, planningRandom) => finishElapsedTurnAfterSearch(
-                planned, planningRandom, { planning: true },
-            ));
-        const result = await finishElapsedTurnAfterSearch(state, random);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn search tail disagreed with live delayed action');
-        return { ...result, afterSearch: true };
+        if (state.program_state?.gameover) return { gameover: true };
     }
     return finishElapsedTurnAfterSearch(state, random, { planning });
 }
@@ -1196,21 +1142,11 @@ async function finishElapsedTurnAfterSearch(state, random, { planning = false } 
         pline: turnMessage,
     });
     // C allmain.c:353. Storm rays and thunder can change the live hero,
-    // monsters, and movement state; plan hunger only after they settle.
-    const liveStorms = Boolean(state.level.flags.stormy);
-    if (planning && liveStorms) return { beforeStorms: true };
+    // monsters, and movement state; a dry run stops before them.
+    const stormy = Boolean(state.level.flags.stormy);
+    if (planning && stormy) return { beforeStorms: true };
     await do_storms(state);
-    if (liveStorms) {
-        if (state.program_state?.gameover) return { afterStorms: true };
-        const tailPlan = await preflightElapsedTurnTail(state,
-            (planned, planningRandom) => finishElapsedTurnAfterStorms(
-                planned, planningRandom, { planning: true },
-            ));
-        const result = await finishElapsedTurnAfterStorms(state, random);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn storms disagreed with live delayed action');
-        return { ...result, afterStorms: true };
-    }
+    if (stormy && state.program_state?.gameover) return { gameover: true };
     return finishElapsedTurnAfterStorms(state, random, { planning });
 }
 
@@ -1224,20 +1160,10 @@ async function finishElapsedTurnAfterStorms(state, random, { planning = false } 
         nearCapacity: () => near_capacity(state),
         message: turnMessage, endRunning, statusRefresh: turnStatusRefresh,
     };
-    const liveHunger = preflightGetHungry(state, hungerEnv).requiresLiveState;
-    if (planning && liveHunger) return { beforeHunger: true };
+    if (planning && preflightGetHungry(state, hungerEnv).requiresLiveState)
+        return { beforeHunger: true };
     await gethungry(state, hungerEnv);
-    if (state.program_state?.gameover) return { afterHunger: liveHunger };
-    if (liveHunger) {
-        const tailPlan = await preflightElapsedTurnTail(state,
-            (planned, planningRandom) => finishElapsedTurnAfterHunger(
-                planned, planningRandom, { planning: true },
-            ));
-        const result = await finishElapsedTurnAfterHunger(state, random);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn hunger tail disagreed with live delayed action');
-        return { ...result, afterHunger: true };
-    }
+    if (state.program_state?.gameover) return { gameover: true };
     return finishElapsedTurnAfterHunger(state, random, { planning });
 }
 
@@ -1273,10 +1199,7 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         unmul: (msg) => unmul(msg, state),
     });
     if (vault?.beforeInput) return { beforeVaultInput: true };
-    const result = await finishElapsedTurnAfterVault(state, random, { planning });
-    // The dry run stopped at the guard's question, so the live pass plans the
-    // rest of this turn's allocations again once the answer is in.
-    return vault?.afterInput ? { ...result, afterVaultInput: true } : result;
+    return finishElapsedTurnAfterVault(state, random, { planning });
 }
 
 // C ref: allmain.c moveloop_core(), upkeep after vault.c invault().
@@ -1287,8 +1210,7 @@ async function finishElapsedTurnAfterVault(state, random, { planning = false } =
     maybeWipeHeroEngraving(state, random);
 
     // C allmain.c:361-367. A due intervention can curse inventory, summon
-    // monsters, or resurrect the Wizard. Stop the cloned round before those
-    // effects, then plan the remaining level-effect tail from the live state.
+    // monsters, or resurrect the Wizard. A dry run stops before those effects.
     if (state.u.uevent?.udemigod && !state.u.uinvulnerable) {
         if (state.u.udg_cnt) state.u.udg_cnt--;
         if (!state.u.udg_cnt) {
@@ -1310,15 +1232,7 @@ async function finishElapsedTurnAfterVault(state, random, { planning = false } =
                 },
             });
             state.u.udg_cnt = random.rn1(200, 50);
-            if (state.program_state?.gameover)
-                return { afterIntervention: true };
-            const tailPlan = await preflightElapsedTurnTail(state,
-                planned => finishElapsedTurnAfterIntervention(planned,
-                    { planning: true }));
-            const result = await finishElapsedTurnAfterIntervention(state);
-            if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-                throw new Error('elapsed-turn intervention tail disagreed with live delayed action');
-            return { ...result, afterIntervention: true };
+            if (state.program_state?.gameover) return { gameover: true };
         }
     }
     return finishElapsedTurnAfterIntervention(state, { planning });
@@ -1327,21 +1241,14 @@ async function finishElapsedTurnAfterVault(state, random, { planning = false } =
 // C allmain.c:374-388, after the demigod intervention countdown.
 async function finishElapsedTurnAfterIntervention(state, { planning = false } = {}) {
     // C allmain.c:374-377. These owners move terrain and occupants, update
-    // shared vision, and can emit messages. Stop the speculative pass before
-    // them, then validate the remaining upkeep from their live result.
+    // shared vision, and can emit messages. A dry run stops before them.
     const bubbles = on_level(state.u.uz, state.water_level)
         || on_level(state.u.uz, state.air_level);
     if (bubbles || state.level.flags.fumaroles) {
         if (planning) return { beforeLevelEffects: true };
         if (bubbles) await movebubbles(state);
         else await fumaroles(state);
-        if (state.program_state?.gameover) return { afterLevelEffects: true };
-        const tailPlan = await preflightElapsedTurnTail(state,
-            planned => finishElapsedTurnAfterLevelEffects(planned, { planning: true }));
-        const result = await finishElapsedTurnAfterLevelEffects(state);
-        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
-            throw new Error('elapsed-turn level effects disagreed with live delayed action');
-        return { ...result, afterLevelEffects: true };
+        if (state.program_state?.gameover) return { gameover: true };
     }
     return finishElapsedTurnAfterLevelEffects(state, { planning });
 }
@@ -1353,11 +1260,9 @@ async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = 
     // what spends them. runmode_delay_output() draws one animation frame per
     // turn, exactly as it does for a run.
     if ((state.multi ?? 0) < 0) {
-        // Count elapsed turns on the clone, but leave animation, the release
-        // message and arbitrary afternmv callbacks to the live pass. A due
-        // unmul ends this plan: after replaying the validated prefix, the
-        // coordinator plans any remaining movement from the callback's real
-        // result, including changes to burden, speed or the level.
+        // A dry run counts elapsed turns on the clone, but leaves animation,
+        // the release message and arbitrary afternmv callbacks alone, and a
+        // due unmul ends it.
         if (!planning) await runmode_delay_output(state);
         if (++state.multi === 0) { /* finished yet? */
             if (planning) return { beforeUnmul: true };
@@ -1365,7 +1270,6 @@ async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = 
             /* if unmul caused a level change, take it now */
             if (state.u.utotype)
                 await runDeferredGotoAtTurnBoundary(state);
-            return { afterUnmul: true };
         }
     }
 }
@@ -1379,15 +1283,16 @@ function unavailableElapsedTurnOperation(operation) {
     };
 }
 
-// The refusal classes the cloned once-per-turn round can raise that must be
-// converted to UnsupportedTurnBoundaryError, so the segment stops on its last
-// matching screen rather than throwing out of runSegment(). The clone also
-// raises UnsupportedTurnBoundaryError directly, from finishElapsedTurn()'s own
-// stops and from the operations unavailableElapsedTurnOperation() covers;
-// those pass through the catch below unchanged because js/jsmain.js already
-// treats that class as a segment boundary. A refusal class that is neither in
-// this list nor already an UnsupportedTurnBoundaryError escapes runSegment()
-// as a hard failure, so a newly invented one belongs here.
+// The refusal classes the monster scan and the once-per-turn round can raise
+// that advanceElapsedTurn() converts to UnsupportedTurnBoundaryError, so the
+// segment stops on its last matching screen rather than throwing out of
+// runSegment(). The turn also raises UnsupportedTurnBoundaryError directly,
+// from finishElapsedTurn()'s own stops and from the operations
+// unavailableElapsedTurnOperation() covers; those pass through the catches
+// unchanged because js/jsmain.js already treats that class as a segment
+// boundary. A refusal class that is neither in this list nor already an
+// UnsupportedTurnBoundaryError escapes runSegment() as a hard failure, so a
+// newly invented one belongs here.
 // Resolve classes when called, after the mutually importing game owners
 // have initialized. A module-scope array could read these bindings before
 // their declarations execute.
@@ -1488,127 +1393,13 @@ async function moveElapsedTurnMonster(monster, env) {
     return stop;
 }
 
-// Validate a movement prefix without running a due unmul callback. Resuming
-// after that callback must not debit another hero ration.
-async function planElapsedTurn(state, {
-    consumeHeroRation = true,
-    afterMonsterScan = false,
-} = {}) {
-    const initialCapacity = projected_capacity(state);
-    let preflight;
-    try {
-        preflight = await preflightSimpleMonsterActions(state, {
-            consumeHeroRation,
-            afterMonsterScan,
-            advanceRound: (planned, planningRandom) => finishElapsedTurn(
-                planned,
-                planningRandom,
-                {
-                    planning: true,
-                    randomMonsterOnly: initialCapacity <= 0,
-                },
-            ),
-        });
-    } catch (error) {
-        // The planning round runs the whole once-per-turn block on the clone,
-        // so any owner it reaches can refuse: monster distress, the timeout
-        // preflight and random monster generation all
-        // raise their own class. js/jsmain.js breaks the segment only for the
-        // three boundary types, so a class that is neither converted here nor
-        // already one of those escapes as a hard failure and discards the
-        // matching prefix instead of stopping on it.
-        if (!elapsedTurnPlanningRefusals().some(
-            (type) => error instanceof type,
-        )) {
-            throw error;
-        }
-        const boundary = new UnsupportedTurnBoundaryError(error.message);
-        boundary.reason = error.reason;
-        throw boundary;
-    }
-    // A planned lethal loss is returned as heroDeath rather than caught
-    // above. Its presence is the atomic handoff: the live scan below
-    // intentionally replays the source path, where done() can resolve death
-    // through life-saving or wizard recovery on the real state.
-    // C reaches hunger and timeout work only after the current monster scans
-    // leave both sides without a movement ration.  The cloned scan above
-    // determines that gate without changing live state, so unsupported upkeep
-    // can still stop atomically without rejecting a fast hero who retains a
-    // ration and does not allocate a new turn.
-    const reachesTurnLimit = preflight.runsOncePerTurnUpkeep
-        && (state.moves || 1) + 1 >= 1000000000;
-    // The turn C would finish with done(ESCAPED) is refused here, beside the
-    // other preflight boundaries, so both capacity paths stop identically. A
-    // burdened hero's full dry run also reaches the limit inside
-    // finishElapsedTurn; an unburdened hero's shortened dry run returns before
-    // it, and letting the live pass discover the limit would leave moves at
-    // the wrap value with an ISAAC draw already spent.
-    if (reachesTurnLimit)
-        elapsedTurnBoundary('game end through done(ESCAPED)');
-    if (preflight.runsOncePerTurnUpkeep && !preflight.beforeTimeout) {
-        preflightGetHungry(state, {
-            nearCapacity: () => initialCapacity,
-            message: ttyPline, endRunning, statusRefresh: () => bot(),
-        });
-        try {
-            // C runs the per-turn timeouts against the turn it is entering.
-            preflight_nh_timeout_elapsed_turn({
-                ...state,
-                moves: (state.moves || 1) + 1,
-            }, { newsym });
-        } catch (error) {
-            if (!(error instanceof UnsupportedHeroTimeoutBoundaryError))
-                throw error;
-            const boundary = new UnsupportedTurnBoundaryError(error.message);
-            boundary.reason = error.reason;
-            throw boundary;
-        }
-    }
-    return { ...preflight, initialCapacity };
-}
-
-// C ref: allmain.c moveloop_core(), elapsed turn. Monster movement can require
-// multiple complete list scans while the hero lacks a ration. A fast hero's
-// retained ration ends the scan even when a fast pet could act again;
-// once-per-turn upkeep waits until both sides are out. This serves the first
-// elapsed command and every subsequent elapsed command.
+// C ref: allmain.c moveloop_core(), the `if (svc.context.move)` block.
+// Monster movement can require multiple complete list scans while the hero
+// lacks a ration. A fast hero's retained ration ends the scan even when a fast
+// pet could act again; once-per-turn upkeep waits until both sides are out.
+// This serves the first elapsed command and every subsequent elapsed command.
 async function advanceElapsedTurn(state) {
-    let preflight = await planElapsedTurn(state);
     const random = coreRandom;
-
-    // A lethal monster action stops the planning clone before movemon() has
-    // returned its scan result. The live pass must replay that action first,
-    // including any life-saving recovery, then plan the continuation from the
-    // post-scan state. Keep this separate from the movement gate: the
-    // preflight's false gate is only the result of the early planning exit.
-    let pendingDeathReplan = Boolean(preflight.heroDeath);
-    // The cloned scan stops before a monster asks the player for a choice.
-    // Replay that source path live, then plan from the answer's actual state.
-    let pendingInputReplan = Boolean(preflight.inputBoundary);
-    let upkeepCount = 0;
-    const replanContinuation = async ({ afterMonsterScan = false } = {}) => {
-        const completedUpkeeps = upkeepCount;
-        const resumed = await planElapsedTurn(state, {
-            consumeHeroRation: false,
-            afterMonsterScan,
-        });
-        preflight = {
-            ...resumed,
-            // preflightSimpleMonsterActions() reports only the suffix it was
-            // able to scan. The live side has already completed the prefix;
-            // rebase the expected count so the final source gate compares the
-            // same complete allocation sequence on both sides. The resumed
-            // plan's own capacity decides whether it planned every allocation
-            // (randomMonsterOnly above stops an unburdened plan after the
-            // first), so it, not the first plan's, gates that comparison: a
-            // hero who polymorphs mid-scan out of a burden into a slow form
-            // needs further allocations that the resumed plan never counted.
-            initialCapacity: resumed.initialCapacity,
-            upkeepCount: completedUpkeeps + resumed.upkeepCount,
-        };
-        pendingDeathReplan = Boolean(resumed.heroDeath);
-        pendingInputReplan = Boolean(resumed.inputBoundary);
-    };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
     // still cannot move; the inner one runs monsters until either they are out
@@ -1622,7 +1413,6 @@ async function advanceElapsedTurn(state) {
         let monstersCanMove;
         try {
             do {
-                let completedDeferredGoto = false;
                 monstersCanMove = await movemon({
                     state,
                     random,
@@ -1630,16 +1420,10 @@ async function advanceElapsedTurn(state) {
                     clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
                     // C ref: mon.c movemon():1343-1347. quest.c expulsion()
                     // schedules the hero's departure from inside the monster
-                    // scan, so movemon()'s own tail performs it. The dry run
-                    // deliberately stops short of it: generating a level
-                    // against the cloned ISAAC context would cost as much as
-                    // the live transition and answer nothing the live pass
-                    // does not, so this transition is the one part of the
-                    // turn whose refusals surface live.
-                    deferredGoto: async (env) => {
-                        await runDeferredGotoAtTurnBoundary(env.state);
-                        completedDeferredGoto = true;
-                    },
+                    // scan, so movemon()'s own tail performs it.
+                    deferredGoto: (env) => runDeferredGotoAtTurnBoundary(
+                        env.state,
+                    ),
                 });
                 // C's terminal death path eventually longjmps out through
                 // really_done(), but done_in_by() itself returns after a
@@ -1647,52 +1431,23 @@ async function advanceElapsedTurn(state) {
                 // the terminal end-game display so replay can capture its
                 // final window; stop only after that completed gameover path.
                 if (state.program_state?.gameover) return;
-                if (completedDeferredGoto || preflight.deferredGoto) {
-                    // Resume at the live scan's source gate. A transition can
-                    // be scheduled by its last actor; a wizard's answer to the
-                    // quest alignment prompt can also avert the transition
-                    // projected by the silent plan. In either case, use the
-                    // live result to decide whether another scan is due.
-                    await replanContinuation({
-                        afterMonsterScan: !monstersCanMove
-                            || state.u.umovement >= NORMAL_SPEED,
-                    });
-                } else if (pendingInputReplan) {
-                    // This live pass completed the scan that contains the
-                    // input request, so later monsters used the actual choice.
-                    // Resume at the next scan or at the completed-scan upkeep
-                    // gate, preserving the source's movement-ration order.
-                    await replanContinuation({
-                        afterMonsterScan: !monstersCanMove
-                            || state.u.umovement >= NORMAL_SPEED,
-                    });
-                } else if (pendingDeathReplan
-                    && monstersCanMove
-                    && state.u.umovement < NORMAL_SPEED) {
-                    // The live scan replayed the lethal action and completed
-                    // any recovery. Plan the next scan from that state.
-                    await replanContinuation();
-                }
                 if (state.u.umovement >= NORMAL_SPEED) break;
             } while (monstersCanMove);
         } catch (error) {
             // A supported monster prefix can print before its next operation
-            // refuses. Preserve that output through the gameplay boundary,
-            // just as the preflight conversion above preserves an atomic
-            // refusal before the live pass starts. The normal lethal monster
-            // arm reaches done_in_by() here; its existing end.c boundary is
-            // converted only after the real killer and death entry are set.
-            // Below that entry, end.c really_done() settles with the level's
-            // shopkeepers, vault guard and priests through paybill(), paygd()
-            // and clearpriests(), whose unported arms raise the last three
-            // classes; the planning pass never runs really_done(), so this
-            // catch is the only one between them and js/jsmain.js.
+            // refuses. Preserve that output through the gameplay boundary.
+            // The normal lethal monster arm reaches done_in_by() here; its
+            // existing end.c boundary is converted only after the real killer
+            // and death entry are set. Below that entry, end.c really_done()
+            // settles with the level's shopkeepers, vault guard and priests
+            // through paybill(), paygd() and clearpriests(), whose unported
+            // arms raise UnsupportedEndOfGameError, UnsupportedShopError and
+            // UnsupportedVaultGuardError. The scan also reaches every owner
+            // elapsedTurnPlanningRefusals() names.
             const liveScanRefusals = [
-                UnsupportedSimpleMonsterActionError,
+                ...elapsedTurnPlanningRefusals(),
                 UnsupportedEndOfGameError,
-                UnsupportedShopError,
                 UnsupportedVaultGuardError,
-            UnsupportedMonsterCreationError,
             ];
             if (!liveScanRefusals.some((type) => error instanceof type))
                 throw error;
@@ -1703,43 +1458,11 @@ async function advanceElapsedTurn(state) {
             state.context.mon_moving = false;
         }
 
-        const runsOncePerTurnUpkeep =
-            !monstersCanMove && state.u.umovement < NORMAL_SPEED;
-        if (!pendingDeathReplan && !pendingInputReplan
-            && runsOncePerTurnUpkeep !== preflight.runsOncePerTurnUpkeep) {
-            throw new Error(
-                'elapsed-turn preflight disagreed with the live movement gate',
-            );
-        }
-        if (runsOncePerTurnUpkeep) {
-            ++upkeepCount;
-            let afterUnmul;
-            let afterTimeout;
-            let afterHunger;
-            let afterIntervention;
-            let afterTeleport;
-            let afterSearch;
-            let afterChange;
-            let afterLevelEffects;
-            let afterStorms;
-            let afterVaultInput;
+        if (!monstersCanMove && state.u.umovement < NORMAL_SPEED) {
             try {
-                const result = await finishElapsedTurn(state, random, {
-                    timeoutHandoff: preflight.beforeTimeout
-                        && upkeepCount === preflight.upkeepCount,
-                });
-                afterUnmul = result?.afterUnmul;
-                afterTimeout = result?.afterTimeout;
-                afterHunger = result?.afterHunger;
-                afterIntervention = result?.afterIntervention;
-                afterTeleport = result?.afterTeleport;
-                afterSearch = result?.afterSearch;
-                afterChange = result?.afterChange;
-                afterLevelEffects = result?.afterLevelEffects;
-                afterStorms = result?.afterStorms;
-                afterVaultInput = result?.afterVaultInput;
+                await finishElapsedTurn(state, random);
             } catch (error) {
-                // A live-only timeout and its fresh tail can reach existing
+                // A timeout or a later upkeep owner can reach existing
                 // command or upkeep refusals after the prefix has completed.
                 // Preserve that prefix through the normal gameplay boundary;
                 // unexpected errors, including TypeErrors, still escape.
@@ -1754,72 +1477,8 @@ async function advanceElapsedTurn(state) {
                 throw boundary;
             }
             if (state.program_state?.gameover) return;
-            if (preflight.beforeUnmul
-                && upkeepCount === preflight.upkeepCount && !afterUnmul) {
-                throw new Error(
-                    'elapsed-turn preflight disagreed with live delayed action',
-                );
-            }
-            if (preflight.beforeTimeout
-                && upkeepCount === preflight.upkeepCount && !afterTimeout) {
-                throw new Error(
-                    'elapsed-turn preflight disagreed with live timeout',
-                );
-            }
-            if (preflight.beforeTeleport
-                && upkeepCount === preflight.upkeepCount && !afterTeleport) {
-                throw new Error('elapsed-turn preflight disagreed with live teleport');
-            }
-            if (preflight.beforeSearch
-                && upkeepCount === preflight.upkeepCount && !afterSearch) {
-                throw new Error('elapsed-turn preflight disagreed with live search');
-            }
-            if (preflight.beforeChange
-                && upkeepCount === preflight.upkeepCount && !afterChange) {
-                throw new Error('elapsed-turn preflight disagreed with live shape change');
-            }
-            if (preflight.beforeHunger
-                && upkeepCount === preflight.upkeepCount && !afterHunger) {
-                throw new Error('elapsed-turn preflight disagreed with live hunger');
-            }
-            if (preflight.beforeIntervention
-                && upkeepCount === preflight.upkeepCount && !afterIntervention) {
-                throw new Error('elapsed-turn preflight disagreed with live intervention');
-            }
-            if (preflight.beforeLevelEffects
-                && upkeepCount === preflight.upkeepCount && !afterLevelEffects) {
-                throw new Error('elapsed-turn preflight disagreed with live level effects');
-            }
-            if (preflight.beforeStorms
-                && upkeepCount === preflight.upkeepCount && !afterStorms) {
-                throw new Error('elapsed-turn preflight disagreed with live storms');
-            }
-            if (preflight.beforeVaultInput
-                && upkeepCount === preflight.upkeepCount && !afterVaultInput) {
-                throw new Error('elapsed-turn preflight disagreed with live vault guard question');
-            }
-            if (!pendingDeathReplan
-                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterIntervention || afterTeleport || afterSearch || afterChange || afterVaultInput)
-                && state.u.umovement < NORMAL_SPEED) {
-                preflight = await planElapsedTurn(state, {
-                    consumeHeroRation: false,
-                });
-                pendingDeathReplan = Boolean(preflight.heroDeath);
-                pendingInputReplan = Boolean(preflight.inputBoundary);
-                upkeepCount = 0;
-            }
-            if (pendingDeathReplan && state.u.umovement < NORMAL_SPEED) {
-                await replanContinuation();
-            }
         }
     } while (state.u.umovement < NORMAL_SPEED);
-    if (!pendingDeathReplan && !pendingInputReplan
-        && preflight.initialCapacity > 0
-        && upkeepCount !== preflight.upkeepCount) {
-        throw new Error(
-            'elapsed-turn preflight disagreed with live allocation count',
-        );
-    }
 
     // C runs the once-per-hero-action block outside both loops.
     await finishHeroTimeEffects(state, {

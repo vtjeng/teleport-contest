@@ -6,8 +6,6 @@
 // here through frozen/ps_test_runner.mjs as local scoring reaches it, the
 // macro reads state.u instead, so the replay still matches the recording,
 // and runScorer() attaches the recorded use, which fails the recording.
-// scripts/planning-live-game-report.test.mjs checks the same path for a
-// planning pass's use of the live game.
 
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';

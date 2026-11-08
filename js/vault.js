@@ -1235,11 +1235,8 @@ export async function invault(state, env = {}) {
         nomul(0, state);
     }
 
-    // The dry run of the elapsed-turn tail stops at the guard's question:
-    // getlin() reads keys, so the question and every effect after it belong
-    // to the live pass alone. The live pass reports { afterInput: true } from
-    // every exit past the question, so its caller can plan the rest of the
-    // turn from the answer's actual state.
+    // A dry run stops at the guard's question: getlin() reads keys, so the
+    // question and every effect after it belong to the live game alone.
     if (env.planning) return { beforeInput: true };
 
     let buf = '';
@@ -1274,7 +1271,7 @@ export async function invault(state, env = {}) {
                 );
             }
             await mongone(guard, { state });
-            return { afterInput: true };
+            return;
         }
         const guardEnv = { ...env, state, random, message };
         await setmangry(guard, false, guardEnv);
@@ -1291,7 +1288,7 @@ export async function invault(state, env = {}) {
             guard.weapon_check = NEED_HTH_WEAPON;
             await mon_wield_item(guard, guardEnv);
         }
-        return { afterInput: true };
+        return;
     }
 
     if (Deaf(state.u)) {
@@ -1366,7 +1363,6 @@ export async function invault(state, env = {}) {
     unblock_point(x, y, state);
     EGD(guard).fcend = 1;
     EGD(guard).warncnt = 1;
-    return { afterInput: true };
 }
 
 // C ref: vault.c paygd() (1204-1247), called before end.c disclosure.

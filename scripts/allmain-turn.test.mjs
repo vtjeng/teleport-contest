@@ -175,6 +175,21 @@ const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const C_ATTRIB = readFileSync('nethack-c/upstream/src/attrib.c', 'utf8');
 const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
 
+// The dry run js/allmain.js advanceElapsedTurn() once ran before every
+// elapsed turn: the monster scan and, for a burdened hero, the whole
+// once-per-turn block on a planningState() clone. No game path runs it any
+// more. The cases that check the planning branches it reached drive it here
+// directly, with the arguments advanceElapsedTurn() passed.
+function dryRunElapsedTurn(state) {
+    const randomMonsterOnly = projected_capacity(state) <= 0;
+    return preflightSimpleMonsterActions(state, {
+        advanceRound: (planned, random) => finishElapsedTurn(planned, random, {
+            planning: true,
+            randomMonsterOnly,
+        }),
+    });
+}
+
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
     uprops[FAST] = { intrinsic: 0, extrinsic: 0 };
@@ -1961,27 +1976,32 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         // allmain.c reaches done(ESCAPED) here, which is not ported. The turn
         // must stop rather than invent the disclosure, summary, and topten
         // frames that C's nh_terminate() capture would show.
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && /done\(ESCAPED\)/u.test(error.message)
-            ),
+        const reachesLimit = (error) => (
+            error instanceof UnsupportedTurnBoundaryError
+            && /done\(ESCAPED\)/u.test(error.message)
         );
 
-        // The hero is burdened, so advanceElapsedTurn supplies advanceRound
-        // and the dry run reaches the limit first. The rejection is therefore
-        // atomic: the live turn never starts, so moves does not even reach
-        // 1,000,000,000 and no key is consumed.
+        // The hero is burdened, so the dry run runs the whole once-per-turn
+        // block on its clone and reaches the limit there. It changes nothing
+        // live: moves does not even reach 1,000,000,000 and no key is consumed.
+        await assert.rejects(() => dryRunElapsedTurn(game), reachesLimit);
         assert.equal(game.moves, 999999999);
         assert.equal(game.hero_seq, priorHeroSequence);
         assert.equal(game.u.uhunger, priorHunger);
         assert.equal(game.nhDisplay.waitEpoch, waitEpoch);
         assert.equal(replay.getScreens().length, terminalScreenCount);
         assert.equal(replay.getCursors().length, terminalCursorCount);
+        assert.equal(game._pending_message, 'A prior message.');
+
+        // The live turn stops at the same limit.
+        await assert.rejects(() => moveloop_core(), reachesLimit);
+        // allmain.c increments svm.moves before it tests the limit, and sets
+        // gh.hero_seq only after the test.
+        assert.equal(game.moves, 1000000000);
+        assert.equal(game.hero_seq, priorHeroSequence);
+        assert.equal(game.u.uhunger, priorHunger);
         // "The dungeon capitulates." is urgent_pline() output belonging to the
         // unported branch, so it must never reach the topline.
-        assert.equal(game._pending_message, 'A prior message.');
         assert.notEqual(
             game.nhDisplay.toplines,
             'The dungeon capitulates.',
@@ -2663,9 +2683,9 @@ test('a planned timeout writes no line and reads no key', async () => {
     game.level.monlist = null;
     game.level.regions = [];
     game.head_engr = null;
-    // A burdened hero is what makes advanceElapsedTurn() supply advanceRound,
-    // so the clone runs the whole once-per-turn block and reaches nh_timeout.
-    // An unburdened clone returns straight after random monster generation.
+    // A burdened hero is what makes the dry run supply advanceRound, so the
+    // clone runs the whole once-per-turn block and reaches nh_timeout. An
+    // unburdened clone returns straight after random monster generation.
     game.invent = {
         oclass: TOOL_CLASS,
         otyp: SACK,
@@ -2709,9 +2729,8 @@ test('a planned timeout writes no line and reads no key', async () => {
     const before = completeSecondTurnSnapshot(game, replay);
     const beforeRng = getRngLog().length;
     for (let attempt = 0; attempt < 2; ++attempt) {
-        game.context.move = 1;
         await assert.rejects(
-            () => moveloop_core(),
+            () => dryRunElapsedTurn(game),
             (error) => /unsupported region callback unported-region-callback/u
                 .test(error.message),
             `attempt ${attempt}`,
@@ -2725,8 +2744,7 @@ test('a planned timeout writes no line and reads no key', async () => {
     }
 
     // The snapshot is the detector; this is what shows the case arrives. With
-    // the region gone the plan runs to the end and the live pass takes the
-    // same turn for real: heal_legs() clears both halves of the property,
+    // the region gone the live game takes the same turn for real: heal_legs() clears both halves of the property,
     // gives the Dexterity point back, and writes its line. The queue emptying
     // here is also what proves the line costs a key: topl.c update_topl()
     // cannot share a row with the pending arrival message, so it calls more()
@@ -2765,9 +2783,9 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         game.level.monlist = null;
         game.level.regions = [];
         game.head_engr = null;
-        // A burdened hero is what makes advanceElapsedTurn() supply
-        // advanceRound, so the clone runs the whole once-per-turn block and
-        // reaches run_timers() at the end of nh_timeout.
+        // A burdened hero is what makes the dry run supply advanceRound, so
+        // the clone runs the whole once-per-turn block and reaches
+        // run_timers() at the end of nh_timeout.
         game.invent = {
             oclass: TOOL_CLASS,
             otyp: SACK,
@@ -2822,9 +2840,8 @@ test('a planned corpse rot touches neither the live map nor the live queue',
 
         const before = completeSecondTurnSnapshot(game, replay);
         for (let attempt = 0; attempt < 2; ++attempt) {
-            game.context.move = 1;
             await assert.rejects(
-                () => moveloop_core(),
+                () => dryRunElapsedTurn(game),
                 (error) => /unsupported region callback unported-region-callback/u
                     .test(error.message),
                 `attempt ${attempt}`,
@@ -2953,9 +2970,9 @@ test('a planned finished meal refreshes no status line', async () => {
     for (const column of game.level.monsters) column.fill(null);
     game.level.monlist = null;
     game.head_engr = null;
-    // A burdened hero is what makes advanceElapsedTurn() supply advanceRound,
-    // so the clone runs the whole once-per-turn block and reaches nh_timeout.
-    // An unburdened clone returns straight after random monster generation.
+    // A burdened hero is what makes the dry run supply advanceRound, so the
+    // clone runs the whole once-per-turn block and reaches nh_timeout. An
+    // unburdened clone returns straight after random monster generation.
     // The long sword is the one carried object the meal does not consume.
     const ballast = game.invent;
     assert.notEqual(ballast, game.context.victual.piece);
@@ -2997,11 +3014,10 @@ test('a planned finished meal refreshes no status line', async () => {
     const before = completeSecondTurnSnapshot(game, replay);
     const beforeRng = getRngLog().length;
     for (let attempt = 0; attempt < 2; ++attempt) {
-        game.context.move = 1;
         await assert.rejects(
-            () => moveloop_core(),
-                (error) => /unsupported region callback unported-region-callback/u
-                    .test(error.message),
+            () => dryRunElapsedTurn(game),
+            (error) => /unsupported region callback unported-region-callback/u
+                .test(error.message),
             `attempt ${attempt}`,
         );
         assert.deepEqual(
@@ -3013,8 +3029,7 @@ test('a planned finished meal refreshes no status line', async () => {
     }
 
     // The snapshot is the detector; this is what shows the case arrives. With
-    // the region gone the plan runs to the end and the live pass takes the same
-    // turn for real: the countdown expires, stop_occupation() finishes the
+    // the region gone the live game takes the same turn for real: the countdown expires, stop_occupation() finishes the
     // meal, and newuhs() refreshes the status line for the hunger change the
     // whole meal made.
     game.level.regions = [];
@@ -3387,28 +3402,20 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
         ]) {
             const replay = await prepareFetchingPet(buildObject);
 
-            let raw = null;
-            try {
-                await preflightSimpleMonsterActions(game);
-            } catch (error) {
-                raw = error;
-            }
-            assert.ok(raw instanceof refusal, `${name} raised ${raw}`);
-
-            // The dry run above changed nothing, so the same turn can be taken
-            // again through the coordinator that owns the conversion.
+            // The dry run raises the refusal and changes nothing, however
+            // often it runs.
             const before = completeSecondTurnSnapshot(game, replay);
             const beforeRng = getRngLog().length;
+            let raw = null;
             for (let attempt = 0; attempt < 2; ++attempt) {
-                game.context.move = 1;
-                await assert.rejects(
-                    () => moveloop_core(),
-                    (error) => (
-                        error instanceof UnsupportedTurnBoundaryError
-                        && error.message === raw.message
-                    ),
-                    `${name}, attempt ${attempt}`,
-                );
+                raw = null;
+                try {
+                    await preflightSimpleMonsterActions(game);
+                } catch (error) {
+                    raw = error;
+                }
+                assert.ok(raw instanceof refusal,
+                    `${name}, attempt ${attempt}, raised ${raw}`);
                 assert.deepEqual(
                     completeSecondTurnSnapshot(game, replay),
                     before,
@@ -3420,6 +3427,22 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
                     `${name}, attempt ${attempt}`,
                 );
             }
+
+            // The live turn reaches the same refusal, and the coordinator
+            // that owns the conversion turns it into a boundary. On the way
+            // the live pet's dog_invent() prints, and topl.c update_topl()
+            // first dismisses the setup's pending message with --More--,
+            // which reads this key.
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+            game.context.move = 1;
+            await assert.rejects(
+                () => moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedTurnBoundaryError
+                    && error.message === raw.message
+                ),
+                name,
+            );
         }
     });
 
@@ -3471,7 +3494,7 @@ test('a planned hallucinated appearance advances only cloned display state',
 
         const before = completeSecondTurnSnapshot(game, replay);
         await assert.rejects(
-            () => moveloop_core(),
+            () => dryRunElapsedTurn(game),
             (error) => /unsupported region callback unported-region-callback/u
                 .test(error.message),
         );
@@ -3481,7 +3504,7 @@ test('a planned hallucinated appearance advances only cloned display state',
         assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
     });
 
-test('the billionth turn stops atomically for an unburdened hero too',
+test('the billionth turn capitulates for an unburdened hero too',
     () => withSerializedGrids(async () => {
         const replay = await runSegment({
             seed: 2026072301,
@@ -3496,47 +3519,36 @@ test('the billionth turn stops atomically for an unburdened hero too',
         clearTtyMessageWindow(game);
         await ttyPline('A prior message.', game);
 
-        // No burden, so advanceElapsedTurn supplies no advanceRound and the
-        // dry run never reaches finishElapsedTurn. The stop must still be
-        // atomic, or the segment is left with moves past the wrap value and
-        // the ISAAC stream advanced, which no retry can reproduce.
+        // No burden. The unburdened hero reaches the same limit at the same
+        // point of allmain.c as the burdened one.
         assert.equal(projected_capacity(game), 0);
         game.context.move = 1;
         game.u.umovement = NORMAL_SPEED;
         game.moves = 999999999;
         game.hero_seq = game.moves * 8;
         const before = {
-            moves: game.moves,
             heroSeq: game.hero_seq,
             hunger: game.u.uhunger,
-            pending: game._pending_message,
-            waitEpoch: game.nhDisplay.waitEpoch,
-            screens: replay.getScreens().length,
-            cursors: replay.getCursors().length,
-            rng: getRngLog().length,
         };
+        // allmain.c's display_nhwindow(WIN_MESSAGE, TRUE) before the limit
+        // dismisses the prior message with --More--, which reads this key.
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            game.context.move = 1;
-            await assert.rejects(
-                () => moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedTurnBoundaryError
-                    && /done\(ESCAPED\)/u.test(error.message)
-                ),
-                `attempt ${attempt}`,
-            );
-            assert.deepEqual({
-                moves: game.moves,
-                heroSeq: game.hero_seq,
-                hunger: game.u.uhunger,
-                pending: game._pending_message,
-                waitEpoch: game.nhDisplay.waitEpoch,
-                screens: replay.getScreens().length,
-                cursors: replay.getCursors().length,
-                rng: getRngLog().length,
-            }, before, `attempt ${attempt}`);
-        }
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedTurnBoundaryError
+                && /done\(ESCAPED\)/u.test(error.message)
+            ),
+        );
+        // allmain.c increments svm.moves before it tests the limit, and sets
+        // gh.hero_seq and runs the hunger upkeep only after the test.
+        assert.equal(game.moves, 1000000000);
+        assert.deepEqual({
+            heroSeq: game.hero_seq,
+            hunger: game.u.uhunger,
+        }, before);
+        assert.notEqual(game.nhDisplay.toplines, 'The dungeon capitulates.');
     }));
 
 // Audit rows 3 and 11: the switch from moveloop_core()'s mvl_wtcap snapshot to

@@ -463,9 +463,9 @@ export function is_edible(obj, state = game) {
     return obj.oclass === FOOD_CLASS;
 }
 
-// Pure admission for eat.c:gethungry(). allmain.c uses this before changing
-// any elapsed-turn state; gethungry() reuses the returned source inputs at its
-// actual source-ordered call site.
+// Pure admission for eat.c:gethungry(). gethungry() reuses the returned
+// source inputs at its actual source-ordered call site, and a dry run of the
+// once-per-turn block reads requiresLiveState to stop before it.
 export function preflightGetHungry(state = game, env = {}) {
     const u = state.u;
     if (!u || !Number.isSafeInteger(u.uhunger)) {
