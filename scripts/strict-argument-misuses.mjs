@@ -3,6 +3,6 @@
 // default and lets the caller carry on, so that no entry point the judge
 // drives can stop on it; tests select throwing instead, so a use fails the
 // test that made it.
-import { setPlanningUseRecording } from '../js/gstate.js';
+import { setArgumentMisuseRecording } from '../js/gstate.js';
 
-setPlanningUseRecording(false);
+setArgumentMisuseRecording(false);

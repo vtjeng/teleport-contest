@@ -24,10 +24,10 @@ if (args.length === 3) {
 process.exitCode = await new Promise((resolve, reject) => {
     let failed = false;
     // Every test file selects throwing for a js/youprop.js macro given the
-    // wrong argument (scripts/strict-live-game-uses.mjs), so a use fails the
+    // wrong argument (scripts/strict-argument-misuses.mjs), so a use fails the
     // test that made it instead of being recorded and let through, as
     // js/gstate.js does by default for the judge's entry points.
-    const execArgv = ['--import', new URL('./strict-live-game-uses.mjs', import.meta.url).href];
+    const execArgv = ['--import', new URL('./strict-argument-misuses.mjs', import.meta.url).href];
     run({ files, concurrency: true, shard, execArgv })
         .on('test:fail', (event) => { if (failsSuite(event)) failed = true; })
         .compose(process.stdout.isTTY ? new spec() : tap)

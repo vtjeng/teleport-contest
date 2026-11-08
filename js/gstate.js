@@ -19,44 +19,44 @@ export function resetGame() {
 }
 
 // js/youprop.js reports a property macro given the game state in place of the
-// hero, or the reverse, through recordLiveGameUse(). What happens to a report
-// depends on the entry point. By default it is recorded and the caller carries
-// on, so a path no test reached cannot stop a game the judge drives:
+// hero, or the reverse, through recordArgumentMisuse(). What happens to a
+// report depends on the entry point. By default it is recorded and the caller
+// carries on, so a path no test reached cannot stop a game the judge drives:
 // runSegment(), and the browser play path that its playability runner
 // (frozen/playability_runner.mjs) drives through NethackGame and
 // moveloop_core() directly. runSegment() reports what was recorded to the
 // local scorers, which fail that game. runSegmentStrict(), which every local
-// replay tool uses, and the unit suite (scripts/strict-live-game-uses.mjs,
+// replay tool uses, and the unit suite (scripts/strict-argument-misuses.mjs,
 // preloaded by scripts/run-test-suite.mjs) select throwing instead, so a
 // report fails there at the line that made it.
-let recordPlanningUses = true;
+let recordingArgumentMisuses = true;
 // One entry per distinct message, in first-use order: { kind, detail, count }.
 // `kind` is 'youpropArgument' for js/youprop.js.
-const planningUses = new Map();
+const misuseLog = new Map();
 
 // Select recording (true) or throwing (false); returns the previous mode.
 // Recording is the default; see the comment above.
-export function setPlanningUseRecording(record) {
-    const previous = recordPlanningUses;
-    recordPlanningUses = Boolean(record);
+export function setArgumentMisuseRecording(record) {
+    const previous = recordingArgumentMisuses;
+    recordingArgumentMisuses = Boolean(record);
     return previous;
 }
 
 // The uses recorded since the last reset, as { kind, detail, count }.
-export function planningLiveGameUses() {
-    return [...planningUses.values()].map((use) => ({ ...use }));
+export function recordedArgumentMisuses() {
+    return [...misuseLog.values()].map((use) => ({ ...use }));
 }
 
-export function resetPlanningLiveGameUses() {
-    planningUses.clear();
+export function resetArgumentMisuses() {
+    misuseLog.clear();
 }
 
 // When throwing is selected, throw makeError(detail); otherwise record one
 // use of `kind`, so that runSegment() reports it, and return so that the
 // caller can carry on.
-export function recordLiveGameUse(kind, detail, makeError) {
-    if (!recordPlanningUses) throw makeError(detail);
-    const use = planningUses.get(detail);
+export function recordArgumentMisuse(kind, detail, makeError) {
+    if (!recordingArgumentMisuses) throw makeError(detail);
+    const use = misuseLog.get(detail);
     if (use) use.count++;
-    else planningUses.set(detail, { kind, detail, count: 1 });
+    else misuseLog.set(detail, { kind, detail, count: 1 });
 }

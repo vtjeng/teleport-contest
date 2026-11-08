@@ -15,7 +15,7 @@
 // The H, E and B accessors return the field's value, 0 when the hero has no
 // slot for it; the combined macros return a boolean, as C's || and && give
 // 0 or 1. Passing the game state where the hero is expected, or the hero
-// where the state is expected, follows js/gstate.js recordLiveGameUse(): it
+// where the state is expected, follows js/gstate.js recordArgumentMisuse(): it
 // throws in local runs, while the judge's runSegment() records a
 // `youpropArgument` use, which fails the game in local scoring, and the macro
 // answers from the argument it should have had (the state's hero, or the
@@ -37,7 +37,7 @@ import {
     WARN_OF_MON, WARN_UNDEAD, WOUNDED_LEGS, WWALKING, W_ARTI,
 } from './const.js';
 import { is_fainted } from './eat.js';
-import { game, recordLiveGameUse } from './gstate.js';
+import { game, recordArgumentMisuse } from './gstate.js';
 import {
     amphibious, breathless, defended, hates_silver, is_flyer, is_swimmer,
 } from './mondata.js';
@@ -64,7 +64,7 @@ function wrongArgument(problem) {
         .filter((frame) => !INTERNAL.has(frame.name)).at(-1)?.name ?? 'a macro';
     const caller = outside < 0 ? 'an unknown caller'
         : `${frames[outside].name} (${frames[outside].file})`;
-    recordLiveGameUse('youpropArgument', `youprop.js ${macro}() was given ${problem}, in ${caller}`,
+    recordArgumentMisuse('youpropArgument', `youprop.js ${macro}() was given ${problem}, in ${caller}`,
         (detail) => new TypeError(detail));
 }
 

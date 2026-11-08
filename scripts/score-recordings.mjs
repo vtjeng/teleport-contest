@@ -76,7 +76,7 @@ export function summarizeRecordings(bundle) {
     for (const result of bundle.results) {
         totals.recordings += 1;
         if (result.passed && !result.terminationViolations?.length
-            && !result.planningLiveGameUses?.length) totals.passing += 1;
+            && !result.argumentMisuses?.length) totals.passing += 1;
         else totals.failing.push(result.session);
         const screens = result.metrics?.screens ?? {};
         const rng = result.metrics?.rngCalls ?? {};

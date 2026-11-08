@@ -384,17 +384,17 @@ export function compareScoreToBaseline(stdout) {
         .map(({ session }) => session);
     // And js/youprop.js macros given the wrong argument, which the judge's
     // runSegment() records instead of throwing (js/gstate.js).
-    const planning = (results ?? [])
-        .filter(({ planningLiveGameUses }) => planningLiveGameUses?.length)
+    const misusing = (results ?? [])
+        .filter(({ argumentMisuses }) => argumentMisuses?.length)
         .map(({ session }) => session);
     const failed = comparison.drops.length > 0 || comparison.missing.length > 0;
-    if (!failed && !violating.length && !planning.length) return { passed: true };
+    if (!failed && !violating.length && !misusing.length) return { passed: true };
     const details = [];
     if (failed) details.push(describeDrops(comparison));
     if (violating.length)
         details.push(`termination violations: ${violating.join(', ')}`);
-    if (planning.length)
-        details.push(`youprop.js argument uses: ${planning.join(', ')}`);
+    if (misusing.length)
+        details.push(`youprop.js argument uses: ${misusing.join(', ')}`);
     return { passed: false, detail: details.join('; ') };
 }
 

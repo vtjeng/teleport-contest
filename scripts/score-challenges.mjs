@@ -48,9 +48,9 @@ export function measuredCases(root, manifest, bundle) {
         // A js/youprop.js macro given the wrong argument, which the judge's
         // runSegment() records instead of throwing (js/gstate.js), fails the
         // case as the crash it is under every local runner.
-        const planningUses = result.planningLiveGameUses ?? [];
+        const misuses = result.argumentMisuses ?? [];
         return { id: entry.id, recordingSha256: entry.recordingSha256,
-            passed: result.passed && !planningUses.length,
+            passed: result.passed && !misuses.length,
             metrics: { screens: result.metrics.screens, rng: result.metrics.rngCalls, cursors: result.metrics.cursors },
             error: result.error ?? null,
             // A crash the judge's runSegment() ended the segment on, and what
@@ -58,7 +58,7 @@ export function measuredCases(root, manifest, bundle) {
             ...(result.segmentErrors ? { segmentErrors: result.segmentErrors } : {}),
             ...(result.terminationViolations
                 ? { terminationViolations: result.terminationViolations } : {}),
-            ...(planningUses.length ? { planningLiveGameUses: planningUses } : {}) };
+            ...(misuses.length ? { argumentMisuses: misuses } : {}) };
     });
 }
 

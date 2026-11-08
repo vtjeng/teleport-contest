@@ -81,18 +81,18 @@ test('summarizeRecordings fails a matching recording that reports a termination 
         failing: ['end.c__quit.session.json'] });
 });
 
-test('summarizeRecordings fails a matching recording with a recorded live-game use', () => {
+test('summarizeRecordings fails a matching recording with a recorded argument misuse', () => {
     // The judge's runSegment() records a js/youprop.js macro given the wrong
     // argument instead of throwing (js/gstate.js), so the replay matches;
-    // runScorer() attaches the use as planningLiveGameUses. The stand-in's
+    // runScorer() attaches the use as argumentMisuses. The stand-in's
     // kind and detail are opaque to the summary.
     const bundle = { results: [
-        { session: 'mon.c__planned.session.json', passed: true,
-            planningLiveGameUses: [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 1 }],
+        { session: 'mon.c__misusing.session.json', passed: true,
+            argumentMisuses: [{ kind: 'youpropArgument', detail: 'read game.u in u_at', count: 1 }],
             metrics: { screens: { matched: 7, total: 7 },
                 rngCalls: { matched: 40, total: 40 } } },
     ] };
     assert.deepEqual(summarizeRecordings(bundle), { recordings: 1, passing: 0, screens: 7,
         screensTotal: 7, rng: 40, rngTotal: 40,
-        failing: ['mon.c__planned.session.json'] });
+        failing: ['mon.c__misusing.session.json'] });
 });

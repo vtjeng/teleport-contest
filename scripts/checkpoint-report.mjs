@@ -97,7 +97,7 @@ export function summarizeSynthetic(evaluations, invalidReferences = []) {
         for (const c of evaluation.cases) {
             const result = { batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error,
                 segmentErrors: c.segmentErrors, terminationViolations: c.terminationViolations,
-                planningLiveGameUses: c.planningLiveGameUses };
+                argumentMisuses: c.argumentMisuses };
             const key = `${evaluation.batch}/${c.id}`;
             const entry = listed.get(key);
             let excluded = false;
@@ -150,8 +150,8 @@ const crashText = (c) => (c.segmentErrors?.length
     + (c.terminationViolations?.length
         ? `; ran after termination: ${c.terminationViolations
             .map(({ kind, detail }) => `${kind}: ${detail}`).join('; ')}` : '')
-    + (c.planningLiveGameUses?.length
-        ? `; youprop.js argument uses: ${c.planningLiveGameUses
+    + (c.argumentMisuses?.length
+        ? `; youprop.js argument uses: ${c.argumentMisuses
             .map(({ detail, count }) => `${detail} (${count}x)`).join('; ')}` : '');
 const LIST_PROBLEMS = {
     matches: () => 'listed as an invalid reference but now matches; remove its entry',

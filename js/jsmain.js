@@ -11,10 +11,10 @@
 
 import {
     game,
-    planningLiveGameUses,
+    recordedArgumentMisuses,
     resetGame,
-    resetPlanningLiveGameUses,
-    setPlanningUseRecording,
+    resetArgumentMisuses,
+    setArgumentMisuseRecording,
 } from './gstate.js';
 import {
     MAX_COMMAND_COUNT,
@@ -827,13 +827,13 @@ export function segmentIterationLimit(movesLength) {
 // segment, with the game attached as `segmentGame` for diagnosis.
 //
 // A js/youprop.js macro given the wrong argument differs the same way
-// (js/gstate.js recordLiveGameUse()): it throws under runSegmentStrict(), and
-// under runSegment() it is recorded, with the answer recovered; the uses are
-// kept as game.planningLiveGameUses and passed to the reporter below.
+// (js/gstate.js recordArgumentMisuse()): it throws under runSegmentStrict(),
+// and under runSegment() it is recorded, with the answer recovered; the uses
+// are kept as game.argumentMisuses and passed to the reporter below.
 export async function runSegment(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
-    resetPlanningLiveGameUses();
-    const previousRecording = setPlanningUseRecording(true);
+    resetArgumentMisuses();
+    const previousRecording = setArgumentMisuseRecording(true);
     try {
         await playSegment(nhGame, input, options);
     } catch (error) {
@@ -845,24 +845,24 @@ export async function runSegment(input, options = {}) {
         options.onError?.(error);
         segmentErrorReporter?.(nhGame.segmentError);
     } finally {
-        setPlanningUseRecording(previousRecording);
+        setArgumentMisuseRecording(previousRecording);
     }
     nhGame.terminationViolations = terminationViolations();
     if (nhGame.terminationViolations.length)
         terminationViolationReporter?.(nhGame.terminationViolations);
-    nhGame.planningLiveGameUses = planningLiveGameUses();
-    if (nhGame.planningLiveGameUses.length)
-        planningLiveGameReporter?.(nhGame.planningLiveGameUses);
+    nhGame.argumentMisuses = recordedArgumentMisuses();
+    if (nhGame.argumentMisuses.length)
+        argumentMisuseReporter?.(nhGame.argumentMisuses);
     return nhGame;
 }
 
 export async function runSegmentStrict(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
-    const previousRecording = setPlanningUseRecording(false);
+    const previousRecording = setArgumentMisuseRecording(false);
     try {
         await playSegment(nhGame, input, options);
     } finally {
-        setPlanningUseRecording(previousRecording);
+        setArgumentMisuseRecording(previousRecording);
     }
     nhGame.terminationViolations = terminationViolations();
     if (nhGame.terminationViolations.length) {
@@ -896,9 +896,9 @@ export function setTerminationViolationReporter(reporter) {
 // The same, for the js/youprop.js argument uses that runSegment() recorded in
 // a segment (js/gstate.js): one call per segment that has any,
 // with an array of { kind, detail, count }. The judge never registers one.
-let planningLiveGameReporter = null;
-export function setPlanningLiveGameReporter(reporter) {
-    planningLiveGameReporter = reporter;
+let argumentMisuseReporter = null;
+export function setArgumentMisuseReporter(reporter) {
+    argumentMisuseReporter = reporter;
 }
 
 function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {

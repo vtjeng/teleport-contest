@@ -16,7 +16,7 @@ import * as C from '../js/const.js';
 import { M1_AMPHIBIOUS, M1_BREATHLESS, M1_FLY, M1_SWIM } from '../js/monsters.js';
 import { TOWEL } from '../js/objects.js';
 import {
-    game, planningLiveGameUses, resetPlanningLiveGameUses, setPlanningUseRecording,
+    game, recordedArgumentMisuses, resetArgumentMisuses, setArgumentMisuseRecording,
 } from '../js/gstate.js';
 import * as Y from '../js/youprop.js';
 
@@ -310,16 +310,16 @@ test('locally, a hero macro given the game state, or a state macro given the her
 // and the browser play path that frozen/playability_runner.mjs drives
 // through NethackGame and moveloop_core() directly. js/gstate.js therefore
 // records by default. This file runs with throwing selected
-// (scripts/strict-live-game-uses.mjs), so the default is checked in a fresh
+// (scripts/strict-argument-misuses.mjs), so the default is checked in a fresh
 // process that loads js/gstate.js without that preload.
-test('without a selection, recordLiveGameUse() records a use rather than throwing', async () => {
+test('without a selection, recordArgumentMisuse() records a use rather than throwing', async () => {
     const { spawnSync } = await import('node:child_process');
     const gstate = new URL('../js/gstate.js', import.meta.url).href;
     const script = `
         const g = await import(${JSON.stringify(gstate)});
         // Any kind and detail: the check is only that the call returns.
-        g.recordLiveGameUse('youpropArgument', 'probe', (detail) => new Error(detail));
-        process.stdout.write(JSON.stringify(g.planningLiveGameUses()));
+        g.recordArgumentMisuse('youpropArgument', 'probe', (detail) => new Error(detail));
+        process.stdout.write(JSON.stringify(g.recordedArgumentMisuses()));
     `;
     const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8' });
     assert.equal(child.status, 0, child.stderr);
@@ -330,11 +330,11 @@ test('without a selection, recordLiveGameUse() records a use rather than throwin
 // (runSegment() passes it to the local scorers, which fail the game), and
 // the macro answers from the argument it should have had.
 function recording(t) {
-    const previous = setPlanningUseRecording(true);
-    resetPlanningLiveGameUses();
+    const previous = setArgumentMisuseRecording(true);
+    resetArgumentMisuses();
     t.after(() => {
-        setPlanningUseRecording(previous);
-        resetPlanningLiveGameUses();
+        setArgumentMisuseRecording(previous);
+        resetArgumentMisuses();
     });
 }
 
@@ -345,7 +345,7 @@ test('when recording, a hero macro given the state records the use and reads sta
     assert.equal(Y.Blind(state), true);
     // The roleplay term is read from the recovered hero too.
     assert.equal(Y.Deaf({ u: hero({ uroleplay: { deaf: true } }) }), true);
-    const uses = planningLiveGameUses();
+    const uses = recordedArgumentMisuses();
     assert.deepEqual(uses.map(({ kind }) => kind), ['youpropArgument', 'youpropArgument']);
     assert.match(uses[0].detail, /^youprop\.js Blind\(\) was given the game state in place of the hero \(state\.u\), in /u);
     // Blind reads HBlinded, which is set, so it skips EBlinded, then
@@ -363,7 +363,7 @@ test('when recording, a state macro given the hero records the use and reads the
     // is true for it, while the hero handed in is awake.
     Object.assign(game, { u: hero({ usleep: 1 }), multi: -3 });
     assert.equal(Y.Unaware(hero()), true);
-    const [use] = planningLiveGameUses();
+    const [use] = recordedArgumentMisuses();
     assert.equal(use.kind, 'youpropArgument');
     assert.match(use.detail, /^youprop\.js Unaware\(\) was given the hero in place of the game state, in /u);
 });

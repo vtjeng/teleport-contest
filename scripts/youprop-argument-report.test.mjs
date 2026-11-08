@@ -56,12 +56,12 @@ test('the judge\'s runSegment() records the misuse, answers for state.u, and the
     assert.equal(result.passed, true);
     assert.equal(result.error, null);
     assert.equal(result.segmentErrors, undefined);
-    assert.equal(result.planningLiveGameUses.length, 1, JSON.stringify(result.planningLiveGameUses));
-    const [use] = result.planningLiveGameUses;
+    assert.equal(result.argumentMisuses.length, 1, JSON.stringify(result.argumentMisuses));
+    const [use] = result.argumentMisuses;
     assert.equal(use.kind, 'youpropArgument');
     assert.match(use.detail,
         /^youprop\.js Blind\(\) was given the game state in place of the hero \(state\.u\), in moveloop_core_body \(allmain\.js\)$/u);
     assert.ok(use.count > 0);
-    assert.match(child.stderr, /^ {2}PLANNING: argument\.session\.json \(youprop\.js Blind\(\) /mu);
+    assert.match(child.stderr, /^ {2}ARGUMENT MISUSE: argument\.session\.json \(youprop\.js Blind\(\) /mu);
     assert.deepEqual(summarizeRecordings({ results: [result] }).failing, [SESSION]);
 });

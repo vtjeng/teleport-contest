@@ -11,8 +11,8 @@
 // that appends one JSON line per crash to
 // $TELEPORT_SEGMENT_ERROR_DIR/<session file name>.jsonl, and one per
 // violation to <session file name>.violations.jsonl beside it, and one per
-// recorded js/youprop.js argument use (js/gstate.js recordLiveGameUse()) to
-// <session file name>.planning.jsonl. It changes no
+// recorded js/youprop.js argument use (js/gstate.js recordArgumentMisuse()) to
+// <session file name>.argument-misuses.jsonl. It changes no
 // game state and no score; any other process it is loaded into is left alone.
 import { appendFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -28,7 +28,7 @@ if (sessionArg && errorDir) {
     const runnerPath = process.argv[1];
     const jsmain = resolve(dirname(runnerPath), '..', 'js', 'jsmain.js');
     const {
-        setPlanningLiveGameReporter,
+        setArgumentMisuseReporter,
         setSegmentErrorReporter,
         setTerminationViolationReporter,
     } = await import(pathToFileURL(jsmain).href);
@@ -42,9 +42,9 @@ if (sessionArg && errorDir) {
         appendFileSync(violationLog, violations
             .map(({ kind, detail }) => `${JSON.stringify({ kind, detail })}\n`).join(''));
     });
-    const planningLog = join(errorDir, `${session}.planning.jsonl`);
-    setPlanningLiveGameReporter((uses) => {
-        appendFileSync(planningLog, uses
+    const argumentMisuseLog = join(errorDir, `${session}.argument-misuses.jsonl`);
+    setArgumentMisuseReporter((uses) => {
+        appendFileSync(argumentMisuseLog, uses
             .map(({ kind, detail, count }) => `${JSON.stringify({ kind, detail, count })}\n`).join(''));
     });
 }

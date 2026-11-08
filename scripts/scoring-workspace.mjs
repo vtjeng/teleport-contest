@@ -86,8 +86,8 @@ function batchCount(sizes) {
 // and `error` field as the judge reports it. It records the termination
 // violations runSegment() reports the same way, attached as
 // `terminationViolations`, and the js/youprop.js argument uses
-// (js/gstate.js recordLiveGameUse()), which runSegment() records instead of
-// throwing, attached as `planningLiveGameUses`.
+// (js/gstate.js recordArgumentMisuse()), which runSegment() records instead of
+// throwing, attached as `argumentMisuses`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
 
 export function runScorer(targetRoot) {
@@ -138,11 +138,11 @@ export function withSegmentErrors(child, errorDir) {
             const named = result.terminationViolations.map(({ kind, detail }) => `${kind}: ${detail}`);
             lines.push(`  VIOLATION: ${result.session} (${named.join('; ')})\n`);
         }
-        const planningLog = join(errorDir, `${result.session}.planning.jsonl`);
-        if (existsSync(planningLog)) {
-            result.planningLiveGameUses = readLog(planningLog);
-            const named = result.planningLiveGameUses.map(({ detail, count }) => `${detail} (${count}x)`);
-            lines.push(`  PLANNING: ${result.session} (${named.join('; ')})\n`);
+        const argumentMisuseLog = join(errorDir, `${result.session}.argument-misuses.jsonl`);
+        if (existsSync(argumentMisuseLog)) {
+            result.argumentMisuses = readLog(argumentMisuseLog);
+            const named = result.argumentMisuses.map(({ detail, count }) => `${detail} (${count}x)`);
+            lines.push(`  ARGUMENT MISUSE: ${result.session} (${named.join('; ')})\n`);
         }
     }
     if (!lines.length) return child;
