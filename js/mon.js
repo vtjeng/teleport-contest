@@ -1434,9 +1434,9 @@ export async function meatbox(mon, obj, rawEnv = {}) {
             distant_name(obj, xnameFresh, state),
             state,
         ));
-        await monsterMessage(
+        // C prints this with plain pline().
+        await plainMessage(
             `${contents} contents spill out onto the ${surface(x, y, state)}.`,
-            mon,
             state,
             rawEnv,
         );
@@ -2171,16 +2171,19 @@ function liquidCanSeeMonster(monster, env) {
         : canseemon(monster, state);
 }
 
+// C pline_mon(): the line records the monster's square for accessiblemsg.
 async function liquidMessage(text, monster, env) {
+    const state = env.state ?? game;
+    await liquidPlainMessage(messageAt(text, monster.mx, monster.my, state), env);
+}
+
+// C pline() and You(): no location.
+async function liquidPlainMessage(text, env) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
     if (typeof message !== 'function')
         throw new TypeError('monster liquid effects require message');
-    await message(
-        messageAt(text, monster.mx, monster.my, state),
-        state,
-        env,
-    );
+    await message(text, state, env);
 }
 
 async function liquidTeleportRestricted(monster, env) {
@@ -2438,22 +2441,28 @@ export async function minliquid_core(monster, env = {}) {
             }
 
             if (liquidCanSee(monster, env)) {
-                await liquidMessage(
-                    state.context?.mon_moving
-                        ? capitalizedMonsterName(monster, state, namingEnv)
-                            + ' drowns.'
-                        : 'You drown '
+                if (state.context?.mon_moving) {
+                    await liquidMessage(
+                        capitalizedMonsterName(monster, state, namingEnv)
+                            + ' drowns.',
+                        monster,
+                        env,
+                    );
+                } else {
+                    // C prints this with You(), which records no location.
+                    await liquidPlainMessage(
+                        'You drown '
                             + monsterCommonName(monster, state, 0, namingEnv) + '.',
-                    monster,
-                    env,
-                );
+                        env,
+                    );
+                }
             }
             if (engulfing_u(monster, state)) {
-                await liquidMessage(
+                // C prints this with plain pline().
+                await liquidPlainMessage(
                     capitalizedMonsterName(monster, state, namingEnv)
                         + ' sinks as ' + hliquid('water', namingEnv)
                         + ' rushes in and flushes you out.',
-                    monster,
                     env,
                 );
             }
@@ -5575,11 +5584,10 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     case PM_BLACK_UNICORN:
         if (mtmp.mrevived && random.rn2(2)) {
             if (canseemon(mtmp, state)) {
-                await message(
+                await message(messageAt(
                     `${s_suffix(Monnam(mtmp, state))} recently regrown horn crumbles to dust.`,
-                    state,
-                    env,
-                );
+                    mtmp.mx, mtmp.my, state,
+                ), state, env);
             }
         } else {
             obj = mksobj_at(UNICORN_HORN, x, y, true, false, objectEnv);
