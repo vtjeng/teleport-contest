@@ -2275,13 +2275,9 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
     if (Resists_Elem(mtmp, FIRE_RES, state)) {
         if (inSight) {
             await shieldeff(mtmp.mx, mtmp.my, state);
+            // C prints this with plain pline().
             await message(
-                messageAt(
-                    `${capitalizedMonsterName(mtmp, state, env)} is uninjured.`,
-                    mtmp.mx,
-                    mtmp.my,
-                    state,
-                ),
+                `${capitalizedMonsterName(mtmp, state, env)} is uninjured.`,
                 state,
                 env,
             );

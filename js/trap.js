@@ -231,6 +231,7 @@ import {
 import { goodpos } from './teleport.js';
 import { ordin, sgn, upstart } from './hacklib.js';
 import { livelog_printf, youFeel } from './pline.js';
+import { messageAt } from './startup_a11y.js';
 import {
     stackobj,
     getobj,
@@ -384,9 +385,9 @@ export async function minstapetrify(mon, byplayer, state = game, env = {}) {
 
     await mon_adjust_speed(mon, -3, null, state, env);
     if (cansee(mon.mx, mon.my, state))
-        await (env.message ?? ttyPline)(
-            `${Monnam(mon, state, env)} turns to stone.`, state, env,
-        );
+        await (env.message ?? ttyPline)(messageAt(
+            `${Monnam(mon, state, env)} turns to stone.`, mon.mx, mon.my, state,
+        ), state, env);
     if (byplayer) {
         state.gs.stoned = true;
         await xkilled(mon, XKILL_NOMSG, state, env);
@@ -3477,10 +3478,11 @@ export async function animate_statue(
             state,
         );
     } else {
-        await message(
+        // C calls set_msg_xy(x, y) before this You().
+        await message(messageAt(
             `You find ${spotted ? a_monnam(monster, { ...objectEnv, state, random }) : something} posing as a statue.`,
-            state,
-        );
+            x, y, state,
+        ), state);
         if (!spotted && Blind(state.u))
             map_invisible(x, y, state);
         const { stop_occupation } = await import('./allmain.js');
