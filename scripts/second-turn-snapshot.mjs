@@ -140,9 +140,8 @@ export function completeSecondTurnSnapshot(state, replay) {
         gw: structuredClone(state.gw),
         hero: structuredClone(state.u),
         iflags: structuredClone(state.iflags),
-        // Every global the planning clone isolates belongs here; a stop that
-        // leaks one of them into the live game is not retryable, and the
-        // snapshot is what the stop tests compare.
+        // Every global a turn can change belongs here: the stop tests compare
+        // this snapshot to show what a stop left changed.
         lightSources: lightSourceSnapshot(state),
         monsterVitals: structuredClone(state.mvitals ?? null),
         input: {

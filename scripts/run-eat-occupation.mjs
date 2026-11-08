@@ -257,8 +257,7 @@ export function loadOccupationInterruptRecipe() {
             // forces the --More-- the trailing space answers.
             stopSegment(3100246,
                 `${EAT_KEY}${VALKYRIE_FOOD_RATION}${DISMISS_MORE}`),
-            // dochugw()'s own stop, which the elapsed turn runs twice: once
-            // against the planning clone and once live.
+            // dochugw()'s own stop.
             stopSegment(3101719, `${EAT_KEY}${VALKYRIE_FOOD_RATION}`),
             // The same dochugw() stop with two quiet waits after it, so the
             // turns that follow an abandoned meal are compared as well. A

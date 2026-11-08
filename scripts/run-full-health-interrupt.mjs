@@ -156,10 +156,8 @@ export function loadFullHealthInterruptRecipe() {
                 }),
                 moves: 'hh  40s',
             },
-            // Unburdened heroes, whose planning round returns before
-            // regen_hp() and leaves the live pass as the only caller.
-            // cmd.c:1846-1847's searching row spends the count through
-            // detect.c dosearch().
+            // Unburdened heroes. cmd.c:1846-1847's searching row spends the
+            // count through detect.c dosearch().
             countAfterBearTrap({
                 seed: 627, name: 'Kenshin', role: 'Samurai', gender: 'male',
                 align: 'lawful', walk: 'n', count: '40s',

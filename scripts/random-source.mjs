@@ -11,7 +11,8 @@
 // one crashed: unstuck() needs rnd() and mintrap() needs rnl(). js/rng.js
 // therefore holds the only definitions of a random set: `coreRandom`, the
 // live game's complete set, and createCoreRandom(), the same complete set
-// over a planning clone's copy of the core stream. The display RNG
+// over a copy of the core stream, such as the one js/do.js
+// place_random_arrival() clones for its preflight. The display RNG
 // (rnd.c rn2_on_display_rng()) is a separate stream that the port passes as
 // a single function, not as part of a random set.
 //
