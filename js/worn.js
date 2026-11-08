@@ -487,8 +487,8 @@ export function which_armor(monster, mask, state = game) {
 // blocked, then the occupied square is redrawn.
 //
 // newsym() paints the module-global game whatever state it is handed, so a
-// foreign state (a planning clone) repaints only through a redraw operation
-// it supplies; without one, the clone's discarded repaint draws nothing.
+// foreign state (such as a test's hand-built state) repaints only through a
+// redraw operation it supplies; without one, the repaint draws nothing.
 export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {}) {
     monster.perminvis = cursedPotion ? 0 : 1;
     if (!monster.invis_blkd) {
@@ -504,8 +504,7 @@ export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {})
 // C ref: worn.c mon_adjust_speed() (488-578). The adjustment changes only
 // permanent speed; active speed is then recalculated from any equipped FAST
 // object. The message and learnwand hooks keep this source-shaped helper
-// usable by tests without changing the production defaults. Speculative
-// callers retain their display owner and suppress fallback terminal output.
+// usable by tests without changing the production defaults.
 export async function mon_adjust_speed(
     monster,
     adjust,
@@ -580,7 +579,7 @@ export async function mon_adjust_speed(
         text = `${Monnam(monster, state, rawEnv)} seems to be moving ${howMuch}slower.`;
     }
 
-    const message = rawEnv.message ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     if (text != null)
         await message(messageAt(text, monster.mx, monster.my, state), state);
     if (obj != null)
@@ -590,10 +589,8 @@ export async function mon_adjust_speed(
 // C refs: worn.c update_mon_extrinsics() (579-712), m_dowear() (757-797),
 // and m_dowear_type() (799-1002).  Monster equipment belongs to worn.c even
 // though level creation historically kept a narrow copy in makemon_create.js.
-// Creation stays synchronous; planning follows the runtime state and ordering
-// on a clone while suppressing presentation; live reassessment returns a
-// promise so its messages and speed recalculation finish before movemon
-// continues.
+// Creation stays synchronous; live reassessment returns a promise so its
+// messages and speed recalculation finish before movemon continues.
 
 function monsterArmorEnv(rawEnv = {}) {
     if (rawEnv && rawEnv.state) {
@@ -940,9 +937,8 @@ function m_dowear_type(
             ...env, state: env.state, silent: true,
         });
         // C restores owornmask before end_burn(), since artifact_light()
-        // reads it, then clears the mask again.  This applies to creation and
-        // planning too; objectGenerationEnv supplies the canonical light
-        // deletion hook for both live and cloned states.
+        // reads it, then clears the mask again.  This applies to creation
+        // too; objectGenerationEnv supplies the canonical light deletion hook.
         old.owornmask = oldMask;
         if (old.lamplit && artifact_light(old)) {
             end_burn(old, false, objectGenerationEnv({
@@ -977,7 +973,7 @@ export function m_dowear(monster, creation = false, rawEnv = {}) {
         ...rawEnv,
         state,
         creation,
-        silent: rawEnv.silent ?? Boolean(creation || rawEnv.planning),
+        silent: rawEnv.silent ?? Boolean(creation),
     };
     const species = monster.data;
     const flags = species.mflags1 ?? 0;
@@ -1047,7 +1043,7 @@ export async function extract_from_minvent(
             );
         } else {
             // C runs end_burn(FALSE) while owornmask still contains W_ARM;
-            // retain that ordering for live and planning monster inventories.
+            // retain that ordering.
             end_burn(obj, false, objectGenerationEnv(normalized));
         }
     }
@@ -1101,8 +1097,7 @@ export async function extract_from_minvent(
 // C ref: worn.c m_lose_armor() (1038-1051). Remove worn monster armor,
 // place it at the monster's square, mark polymorph drops for bypass, then
 // redraw the occupied square in source order. newsym() paints the live game,
-// so a planning clone (were.c new_were() reached from a planned turn's
-// mcalcdistress()) redraws only through a caller's env.newsym.
+// so a foreign state redraws only through a caller's env.newsym.
 async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
     const { state } = env;
