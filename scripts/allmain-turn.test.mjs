@@ -80,7 +80,6 @@ import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import {
     near_capacity,
-    projected_capacity,
     weight_cap,
 } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -1739,7 +1738,7 @@ test('hunger weakness drives the next live multi-allocation path', async () => {
         owt: carriedWeight,
         nobj: null,
     };
-    assert.equal(projected_capacity(game), 0);
+    assert.equal(near_capacity(game), 0);
     game.go = { oldcap: 0 };
     game.context.move = 1;
     game.context.seer_turn = 100000;
@@ -1753,9 +1752,10 @@ test('hunger weakness drives the next live multi-allocation path', async () => {
     await moveloop_core();
     assert.equal(game.u.uhs, WEAK);
     assert.equal(game.u.atemp[0], -1);
-    assert.equal(projected_capacity(game), 1);
     assert.equal(game.go.oldcap, 1);
+    // Read the turn's gw.wc before near_capacity() rewrites it.
     assert.equal(game.gw.wc, weakCapacity);
+    assert.equal(near_capacity(game), 1);
     assert.equal(game.moves, priorMoves + 1);
     assert.equal(game.u.uhunger, priorHunger - 1);
     assert.equal(
@@ -2175,7 +2175,7 @@ test('active strangling reaches the live timeout and its later RNG',
             owt: weight_cap(game) * 2,
             nobj: null,
         };
-        assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
+        assert.ok(near_capacity(game) > 0, 'the fixture must burden the hero');
         // do_wear.c sets Strangled to 6 when an amulet starts the effect. This
         // active count is above one and outside choke_dialogue's five text rows.
         game.u.uprops[STRANGLED] = {
@@ -2249,7 +2249,7 @@ test('an expiring wounded-legs timeout writes its line after a More prompt', asy
         owt: weight_cap(game) + 5,
         nobj: null,
     };
-    assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
+    assert.ok(near_capacity(game) > 0, 'the fixture must burden the hero');
     // do.c set_wounded_legs() leaves the recovery countdown in the intrinsic
     // field and the wounded side in the extrinsic one. A countdown of 1 is the
     // turn timeout.c's per-property loop takes to zero, and heal_legs() then
@@ -2315,7 +2315,7 @@ test('a due corpse rot redraws the hero square and drains the timer queue',
             owt: weight_cap(game) + 5,
             nobj: null,
         };
-        assert.ok(projected_capacity(game) > 0,
+        assert.ok(near_capacity(game) > 0,
             'the fixture must burden the hero');
         game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
         game.context.seer_turn = 100000;
@@ -2450,7 +2450,7 @@ test('a meal finished by an expiring timeout refreshes the status line', async (
     const ballast = game.invent;
     assert.notEqual(ballast, game.context.victual.piece);
     ballast.owt = weight_cap(game) + 5;
-    assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
+    assert.ok(near_capacity(game) > 0, 'the fixture must burden the hero');
     // encumber_msg() prints only on a change, and its line would need a More
     // dismissal of its own that has nothing to do with this case.
     game.go.oldcap = near_capacity(game);
@@ -2515,7 +2515,7 @@ test('a natural Aleax spawn completes the previously refused runtime prefix',
         }, { onBoundary: (error) => { boundary = error; } });
 
         // The recorded input leaves the hero unburdened.
-        assert.equal(projected_capacity(game), 0);
+        assert.equal(near_capacity(game), 0);
         assert.equal(boundary, null);
         // Fresh C recording of this unchanged regression input:
         // recordings/makemon.c/natural-spawn-aleax-regression.session.json.
@@ -2678,7 +2678,7 @@ test('the billionth turn capitulates for an unburdened hero too',
 
         // No burden. The unburdened hero reaches the same limit at the same
         // point of allmain.c as the burdened one.
-        assert.equal(projected_capacity(game), 0);
+        assert.equal(near_capacity(game), 0);
         game.context.move = 1;
         game.u.umovement = NORMAL_SPEED;
         game.moves = 999999999;
@@ -2748,7 +2748,7 @@ test('exerper sees the capacity the weakness transition produced', async () => {
         owt: 800,
         nobj: null,
     };
-    assert.equal(projected_capacity(game), 1);
+    assert.equal(near_capacity(game), 1);
     game.go = { oldcap: 1 };
     // exerper()'s encumbrance cadence runs when the turn it enters is a
     // multiple of ten.

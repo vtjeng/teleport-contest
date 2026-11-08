@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
     FROMOUTSIDE, G_GENOD, I_SPECIAL, KILLED_BY, NO_KILLER_PREFIX,
-    POISONING, SICK, SLIMED, STONED, STRANGLED,
+    POISONING, SICK, SLIMED,
 } from '../js/const.js';
 import { delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
@@ -137,16 +137,3 @@ test('slime expiry changes form before fatal disclosure and retains its default 
     assert.equal(NO_KILLER_PREFIX, 2);
 });
 
-test('fatal slime expiry requires live state before decrement while later ticks remain plannable', async () => {
-    const state = await hero();
-    for (const which of [SICK, STONED, STRANGLED, SLIMED]) {
-        state.u.uprops[which].intrinsic = 1;
-        assert.equal(timeout.nh_timeout_requires_live_state(state), true);
-        state.u.uinvulnerable = true;
-        assert.equal(timeout.nh_timeout_requires_live_state(state), false);
-        state.u.uinvulnerable = false;
-        state.u.uprops[which].intrinsic = 0;
-    }
-    state.u.uprops[SLIMED].intrinsic = 2;
-    assert.equal(timeout.nh_timeout_requires_live_state(state), false);
-});

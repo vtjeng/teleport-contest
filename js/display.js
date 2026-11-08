@@ -3557,9 +3557,8 @@ export function glyph_is_invisible(glyph) {
  *
  * The two halves land in different places: the memory write goes to the
  * `state` handed in, and show_glyph_cell() below takes no state and paints the
- * module-global `game`. A live call therefore keeps the foreign-state guard,
- * while the explicit map_invisible_planning() seam below retains the source
- * memory write for a planning clone without painting the live terminal.
+ * module-global `game`. map_invisible() therefore refuses any other state,
+ * and map_invisible_planning() below makes the memory write alone for one.
  */
 function mapInvisibleMemory(x, y, state) {
     if (x === state.u?.ux && y === state.u?.uy) return;
@@ -3580,14 +3579,15 @@ export function map_invisible(x, y, state = game) {
     show_glyph_cell(x, y, map_glyphinfo(GLYPH_INVISIBLE, state));
 }
 
-// C ref: display.c map_invisible()'s levl[].glyph write. The C call also
-// paints the live window, so planningState() uses this explicit seam to keep
-// the memory mutation on its cloned location grid while suppressing that
-// live-only display half.
+// C ref: display.c map_invisible()'s levl[].glyph write alone, for a state
+// other than the game, such as a unit test's hand-built state. The C call
+// also paints the window, which belongs to the game, so this skips that half.
+// js/artifacts.js Mb_hit() and js/mcastu.js mcast_disappear() call it when
+// they are handed such a state.
 export function map_invisible_planning(x, y, state) {
     if (!state || state === game) {
         throw new TypeError(
-            'map_invisible_planning() requires a foreign planning state',
+            'map_invisible_planning() requires a state other than the game',
         );
     }
     mapInvisibleMemory(x, y, state);

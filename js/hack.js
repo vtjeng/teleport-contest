@@ -857,41 +857,11 @@ export async function overexertion(state = game) {
     return (state.multi ?? 0) < 0;
 }
 
-// near_capacity() without the cache write. hack.c's inv_weight() assigns
-// gw.wc as a side effect, and calc_capacity() then reads it, so calling
-// near_capacity() early would refresh the live cache before the elapsed-turn
-// admission pass has decided whether the turn may run at all. This returns the
-// same number for the same state and leaves state.gw.wc untouched; the
-// cache-writing call stays at allmain.c's source-ordered point, after monster
-// actions are admitted. Use near_capacity() anywhere C calls it, and this only
-// where the read must not be observable.
-export function projected_capacity(state = game) {
-    const capacity = weight_cap(state);
-    return capacity_from_excess(
-        inventory_weight(state) - capacity,
-        capacity,
-    );
-}
-
 export class UnsupportedHeroMoveBoundaryError extends Error {
     constructor(reason) {
         super(`unsupported hero move: ${reason}`);
         this.name = 'UnsupportedHeroMoveBoundaryError';
         this.reason = reason;
-    }
-}
-
-// A planned hit-point loss has crossed the active HP pool's lethal boundary.
-// The live replay owns end.c done() and polyself.c rehumanize(), which decide
-// whether life-saving, wizard recovery, or an ordinary death follows.
-export class HeroDeathPlanningError extends Error {
-    constructor(knam, k_format, { fromMonster = false } = {}) {
-        super('planned lethal hero hit-point loss');
-        this.name = 'HeroDeathPlanningError';
-        this.how = DIED;
-        this.killerName = knam ?? '';
-        this.killerFormat = k_format;
-        this.fromMonster = Boolean(fromMonster);
     }
 }
 

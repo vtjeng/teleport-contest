@@ -383,19 +383,6 @@ export async function u_slip_free(mtmp, mattk, rawEnv = {}) {
     return false;
 }
 
-// Planning cannot call end.c done_in_by() on its cloned state: the ordinary
-// death entry updates the live terminal and then asks for input. This signal
-// carries the source DIED result across the atomic planning/live seam; it is
-// consumed by unported_monster_actions.js and is never a gameplay boundary.
-export class MonsterDeathPlanningError extends Error {
-    constructor(monster, how = DIED) {
-        super('the hero dying of a monster attack');
-        this.name = 'MonsterDeathPlanningError';
-        this.monsterId = monster.m_id;
-        this.how = how;
-    }
-}
-
 // mhitu.c:summonmu() uses an() for one visible helper but makeplural() for
 // several; Deaf changes only the final source suffix.
 export function unseenWereSummonMessage(numseen, genericWere, deaf) {

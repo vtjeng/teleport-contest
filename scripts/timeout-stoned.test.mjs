@@ -10,7 +10,7 @@ import { You_can_move_again } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FOG_CLOUD, PM_LIZARD, PM_NEWT } from '../js/monsters.js';
 import { TIN } from '../js/objects.js';
-import { nh_timeout, nh_timeout_requires_live_state, stoned_dialogue } from '../js/timeout.js';
+import { nh_timeout, stoned_dialogue } from '../js/timeout.js';
 
 async function hero(timeout) {
     // Independent initialized Wizard supplies command, occupation and attribute state.
@@ -40,8 +40,6 @@ test('stoned dialogue prints every source warning before unconditional Dexterity
             ['rn2', 2]]);
         assert.equal(state.u.aexe[A_DEX], -1);
         assert.equal(state.u.uprops[STONED].intrinsic, timeout);
-        assert.equal(nh_timeout_requires_live_state(state), timeout !== 0,
-            'every nonzero source Stoned value requires live dialogue effects');
     }
 });
 
@@ -70,10 +68,6 @@ test('five-turn warning awaits output before clearing intrinsic speed, positive 
     assert.equal(state.multi, 0);
     assert.equal(state.u.aexe[A_DEX], -1);
     assert.equal(state.u.uprops[STONED].intrinsic, 4);
-    state.u.uprops[STONED].intrinsic = FROMOUTSIDE; // C calls on raw Stoned, even masked zero.
-    assert.equal(nh_timeout_requires_live_state(state), true);
-    state.u.uinvulnerable = true;
-    assert.equal(nh_timeout_requires_live_state(state), false);
 });
 
 test('stage four retains curing tin occupation but cancels other occupations', async () => {

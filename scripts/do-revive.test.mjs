@@ -16,8 +16,7 @@ import { cansee } from '../js/vision.js';
 import { is_displacer, is_reviver, is_rider } from '../js/mondata.js';
 import { newObject } from '../js/obj.js';
 import { CORPSE, LARGE_BOX } from '../js/objects.js';
-import { nh_timeout_requires_live_state, peek_timer, start_timer,
-    run_timers } from '../js/timeout.js';
+import { peek_timer, start_timer, run_timers } from '../js/timeout.js';
 
 async function lockedCorpse(species = PM_TROLL) {
     // An ordinary Wizard setup supplies canonical object, monster, and map
@@ -136,17 +135,6 @@ test('REVIVE_MON dispatch decrements ownership before a failed callback reschedu
         assert.equal(game.gt.timer_base.func_index, ROT_CORPSE);
         assert.equal(peek_timer(ROT_CORPSE, body, game), 110);
         draws.done();
-    });
-
-test('only a due revival timer requests the established live timeout handoff',
-    async () => {
-        const body = await lockedCorpse();
-        start_timer(1, TIMER_OBJECT, REVIVE_MON, body, game);
-        assert.equal(nh_timeout_requires_live_state(game), false);
-        ++game.moves; // make this object callback due
-        assert.equal(nh_timeout_requires_live_state(game), true);
-        game.u.uinvulnerable = true; // C nh_timeout exits before run_timers
-        assert.equal(nh_timeout_requires_live_state(game), false);
     });
 
 // C recordings establish production dispatch; these state assertions also pin

@@ -2203,9 +2203,8 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
     if (Blind(normalized.state.u) && Levitation(normalized.state)) {
         // display.c map_object() refuses any state but the module-global
         // game, because its draw half paints that game whatever state it is
-        // handed. A caller on another state supplies this hook; every game
-        // caller takes map_object() itself.
-        (normalized.hooks.mapObject ?? map_object)(obj, 0, normalized.state);
+        // handed.
+        map_object(obj, 0, normalized.state);
     }
     requiredDropHook(normalized, 'newsym')(
         normalized.state.u.ux,

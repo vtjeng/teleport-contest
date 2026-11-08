@@ -8,7 +8,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
-    levitation_dialogue, nh_timeout, nh_timeout_requires_live_state,
+    levitation_dialogue, nh_timeout,
 } from '../js/timeout.js';
 
 async function hero() {
@@ -39,9 +39,6 @@ test('levitation dialogue selects only the source five- and three-turn warnings'
                 : []);
         assert.equal(state.u.uprops[LEVITATION].intrinsic, FROMOUTSIDE | timeout,
             'dialogue does not decrement the packed intrinsic itself');
-        assert.equal(nh_timeout_requires_live_state(state),
-            timeout === 1 || timeout === 3 || timeout === 5,
-            'source warnings and final expiry use the live handoff');
     }
 });
 
@@ -67,7 +64,7 @@ test('levitation dialogue uses pool/lava surfaces except on the Plane of Water',
     assert.deepEqual(env.events, [['urgent', 'You wobble unsteadily in the air.']]);
 });
 
-test('extrinsic levitation and inaccessible non-liquid terrain suppress warnings and handoff', async () => {
+test('extrinsic levitation and inaccessible non-liquid terrain suppress warnings', async () => {
     const state = await hero();
     const property = state.u.uprops[LEVITATION];
     property.intrinsic = 5; // The ordinary warning would otherwise be active.
@@ -75,23 +72,11 @@ test('extrinsic levitation and inaccessible non-liquid terrain suppress warnings
     let env = messages();
     await levitation_dialogue(state, env);
     assert.deepEqual(env.events, []);
-    assert.equal(nh_timeout_requires_live_state(state), false);
     property.extrinsic = 0;
     state.level.at(state.u.ux, state.u.uy).typ = STONE;
     env = messages();
     await levitation_dialogue(state, env);
     assert.deepEqual(env.events, []);
-    assert.equal(nh_timeout_requires_live_state(state), false);
-    state.level.at(state.u.ux, state.u.uy).typ = ROOM;
-    for (const timeout of [3, 5]) {
-        property.intrinsic = timeout; // Both emitted warnings cancel occupation live.
-        assert.equal(nh_timeout_requires_live_state(state), true);
-    }
-    property.blocked = FROMOUTSIDE; // C reads HLevitation and ELevitation, not blocked.
-    assert.equal(nh_timeout_requires_live_state(state), true);
-    state.u.uinvulnerable = true;
-    assert.equal(nh_timeout_requires_live_state(state), false,
-        'nh_timeout returns for invulnerability before any dialogue');
 });
 
 test('nh_timeout awaits warning and occupation cancellation before decrement', async () => {

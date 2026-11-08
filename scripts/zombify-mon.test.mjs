@@ -11,7 +11,7 @@ import {G_GENOD, W_WEP, OBJ_MIGRATING, OBJ_MINVENT, OBJ_CONTAINED, OBJ_DELETED, 
     TIMER_OBJECT, ZOMBIFY_MON} from '../js/const.js';
 import {PM_HUMAN, PM_HUMAN_ZOMBIE, PM_LICHEN} from '../js/monsters.js';
 import {newObject, place_object, weight} from '../js/obj.js';
-import {nh_timeout_requires_live_state, peek_timer, run_timers, start_timer} from '../js/timeout.js';
+import {peek_timer, run_timers, start_timer} from '../js/timeout.js';
 
 async function initializedState() {
     // Independent ordinary startup supplies canonical object/monster catalogs.
@@ -71,7 +71,6 @@ test('no zombie form or a genocided zombie form dispatches canonical floor rot w
             corpsenm:species,age:10,quan:1,where:OBJ_FREE});
         place_object(body,state.u.ux,state.u.uy,{state});
         start_timer(0,TIMER_OBJECT,ZOMBIFY_MON,body,state);
-        assert.equal(nh_timeout_requires_live_state(state),true);
         const redrawn=[];
         await run_timers(state,{newsym:(x,y)=>redrawn.push([x,y]),
             random:{rn2:()=>assert.fail('rot fallback has no random draw')}});
@@ -92,7 +91,6 @@ test('no-form carried corpse rots with its canonical message and inventory remov
     state.invent=body;
     state.flags.verbose=true;
     start_timer(0,TIMER_OBJECT,ZOMBIFY_MON,body,state);
-    assert.equal(nh_timeout_requires_live_state(state),true);
     const lines=[];
     await run_timers(state,{message:async line=>lines.push(line),newsym:()=>assert.fail('inventory rot does not redraw the floor')});
     assert.deepEqual(lines,['Your lichen corpse rots away.']);
@@ -161,12 +159,3 @@ test('rot_corpse preserves C location cleanup and final redraw order',()=>{
     assert.match(source,/corpse_xname[\s\S]*remove_worn_item[\s\S]*stop_occupation[\s\S]*setmnotwielded[\s\S]*owornmask = 0L[\s\S]*rot_organic[\s\S]*mundetected = 0[\s\S]*newsym[\s\S]*update_inventory/);
 });
 
-test('ordinary carried corpse rot runs live before the planned monster tail', async()=>{
-    const state=await initializedState();
-    const body=newObject({otyp:CORPSE,oclass:state.objects[CORPSE].oc_class,
-        corpsenm:PM_LICHEN,quan:1,where:OBJ_INVENT});
-    state.invent=body;
-    // A direct ROT_CORPSE expiry shares the new inventory cleanup entry.
-    start_timer(0,TIMER_OBJECT,ROT_CORPSE,body,state);
-    assert.equal(nh_timeout_requires_live_state(state),true);
-});

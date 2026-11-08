@@ -1393,51 +1393,6 @@ function Flying(state) {
         && !state.u?.uprops?.[FLYING]?.blocked;
 }
 
-// These existing callees can draw, prompt, change maps or invoke arbitrary
-// callbacks. The elapsed-turn planner stops before ordinary expiry handlers
-// reach one, runs them live, then validates the remaining allocation from the
-// resulting state. timeout.c calls choke_dialogue() for every nonzero
-// Strangled value and vomiting_dialogue() for every nonzero Vomiting value;
-// each helper exercises an attribute, so either active value must use the
-// same live handoff before nh_timeout().
-// This is an execution handoff, not a refused source path.
-export function nh_timeout_requires_live_state(state = game) {
-    const u = state.u;
-    if (u.uinvulnerable) return false;
-    // These callbacks can revive a monster and remove its corpse.
-    // ZOMBIFY_MON can also fall back to rot_corpse, removing the corpse and
-    // redrawing its square. Both effects must run live before planning the
-    // elapsed turn's monster tail. Carried ROT_CORPSE also names the corpse
-    // and can remove worn gear or interrupt an occupation, so run it live.
-    for (let timer = state.gt?.timer_base;
-        timer && timer.timeout <= state.moves; timer = timer.next) {
-        if (timer.kind === TIMER_OBJECT
-            && (timer.func_index === REVIVE_MON || timer.func_index === ZOMBIFY_MON
-                || (timer.func_index === ROT_CORPSE && timer.arg.where === OBJ_INVENT)))
-            return true;
-    }
-    if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)) return true;
-    if (u.uprops?.[STONED]?.intrinsic) return true;
-    if (u.uprops?.[STRANGLED]?.intrinsic) return true;
-    if (u.uprops?.[VOMITING]?.intrinsic) return true;
-    // Warnings at five and three turns stop occupations after displaying
-    // their message. Run that source effect live before planning the tail.
-    const levitation = u.uprops?.[LEVITATION];
-    const levitationTimeout = levitation?.intrinsic & TIMEOUT;
-    if ((levitationTimeout === 5 || levitationTimeout === 3)
-        && !levitation.extrinsic
-        && (ACCESSIBLE(state.level.at(u.ux, u.uy).typ)
-            || is_pool_or_lava(u.ux, u.uy, state))) return true;
-    for (const index of [
-        STONED, SICK, SLIMED, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
-        FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
-        PROT_FROM_SHAPE_CHANGERS, STONE_RES,
-    ]) {
-        if ((u.uprops?.[index]?.intrinsic & TIMEOUT) === 1) return true;
-    }
-    return false;
-}
-
 // C ref: timeout.c nh_timeout() (669-945). Every expiry follows the common
 // decrement and delayed-killer lookup, including properties with no case.
 async function decrement_property_timeouts(state, env) {

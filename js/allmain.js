@@ -111,7 +111,6 @@ import {
     bot,
     flush_screen,
     map_invisible,
-    map_object,
     newsym,
     see_monsters,
     see_objects,
@@ -823,9 +822,8 @@ export async function finishElapsedTurn(state, random) {
     }
 
     // C ref: allmain.c moveloop_core() calls glibr() after the once-per-turn
-    // hook and before nh_timeout(). do.c dropz() reaches two display hooks:
-    // newsym() on the landing square and, while Blind and Levitation,
-    // map_object(obj, 0) just before it.
+    // hook and before nh_timeout(). do.c dropz() redraws the landing square
+    // through the newsym hook.
     if (Glib(state)) {
         await glibr(state, {
             message: ttyPline,
@@ -838,7 +836,6 @@ export async function finishElapsedTurn(state, random) {
                         { message: ttyPline },
                     ),
                     newsym,
-                    mapObject: map_object,
                 },
             }),
         });
