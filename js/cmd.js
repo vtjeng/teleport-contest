@@ -743,12 +743,18 @@ export function key2txt(c) {
     return visctrl(byte);
 }
 
-// C ref: cmd.c yn_menuable_resp(). JavaScript compares the five source
-// strings by value because it has no C pointer identity. An omitted
-// window_inited flag represents the initialized browser window; an explicit
-// false keeps the C pre-window behavior.
-function yn_menuable_resp(resp, state) {
-    return Boolean(state.iflags?.query_menu)
+// C ref: cmd.c yn_menuable_resp(). C compares `resp` with the five decl.c
+// arrays by pointer, so a caller that passes a string literal or a local copy
+// with the same characters is not menuable. JavaScript has no string
+// identity: it compares by value, and a caller whose C passes such a copy
+// says so with yn_function()'s `sharedResp: false`. In upstream C only
+// insight.c list_vanquished() (Strcpy(allow_yn, ynaqchars)) and
+// list_genocided() (the literal "ynaq") pass a copy equal to one of the five.
+// An omitted window_inited flag represents the initialized browser window; an
+// explicit false keeps the C pre-window behavior.
+function yn_menuable_resp(resp, state, sharedResp = true) {
+    return sharedResp
+        && Boolean(state.iflags?.query_menu)
         && state.iflags?.window_inited !== false
         && [ynchars, ynqchars, ynaqchars, rightleftchars, hidespinchars]
             .includes(resp);
@@ -773,8 +779,8 @@ function yn_func_menu_opt(win, key, text, def) {
 // C ref: cmd.c yn_function_menu(). Returns null when the response set cannot
 // use a menu, otherwise the selected response as a one-character string.
 // Escape and an empty selection return the C default response.
-async function yn_function_menu(query, resp, def, state = game) {
-    if (!yn_menuable_resp(resp, state)) return null;
+async function yn_function_menu(query, resp, def, state = game, sharedResp = true) {
+    if (!yn_menuable_resp(resp, state, sharedResp)) return null;
 
     const items = [];
     if (resp === rightleftchars) {
@@ -832,7 +838,11 @@ async function yn_function_menu(query, resp, def, state = game) {
 // include/flag.h enum debug_fuzzer_states: fuzzer_impossible_continue.
 const FUZZER_IMPOSSIBLE_CONTINUE = 2;
 
-export async function yn_function(query, resp, def, addcmdq, state = game) {
+// `sharedResp: false` marks a `resp` that C passes as a literal or local copy
+// rather than one of decl.c's shared arrays (see yn_menuable_resp()).
+export async function yn_function(
+    query, resp, def, addcmdq, state = game, { sharedResp = true } = {},
+) {
     state.iflags ??= {};
     // "most recent pline is clobbered". Nothing in the port reads last_msg
     // back yet; js/invent.js is its other writer.
@@ -870,7 +880,8 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     if (!fromQueue && res === undefined) {
         // A queued CMDQ_USER_INPUT asks for a fresh answer through the same
         // menu-capable path as an ordinary prompt, after its marker is popped.
-        const menuResult = await yn_function_menu(query, resp, def, state);
+        const menuResult = await yn_function_menu(
+            query, resp, def, state, sharedResp);
         res = menuResult === null
             ? await tty_yn_function(query, resp, def, state)
             : menuResult;
