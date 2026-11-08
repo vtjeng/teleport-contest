@@ -66,13 +66,10 @@ A **gap** is a call to an unported C function that the port records with
 `note_unported()` and skips. `AGENTS.md`, "Port whole source units and wire their callers",
 states when a call may be skipped.
 
-The **dry run** runs the monsters' turn on a copy of the game before each real
-turn; the code calls it planning or preflight (`preflightSimpleMonsterActions()`
-in `js/unported_monster_actions.js`). If it selects monster code that is not
-ported, the segment stops before the turn starts rather than partway through
-it, with the live game and its random numbers unchanged, so a dry run must never
-read or change the live game; live-game access during a dry run throws
-`PlanningLiveGameError` in local runs.
+The **dry run** was a run of the monsters' turn on a copy of the game before
+each real turn. The game no longer runs it; until stage 2 removes the rest of
+its code, only unit tests drive that code, which calls it planning or preflight
+(`preflightSimpleMonsterActions()` in `js/unported_monster_actions.js`).
 
 A **mismatch** is the first step at which a session's replay stops matching
 its recording: on the random-number log, on the screen, or at a refusal the
