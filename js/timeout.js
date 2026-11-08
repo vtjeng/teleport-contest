@@ -2528,7 +2528,10 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
 
     const age = Math.trunc(obj.age ?? 0);
     if (age === 0 && !isMagicLamp && !isArtifactLight) return;
-    if (age < 0)
+    // Only fuel is checked. A magic lamp's age is its creation turn, which
+    // restore.c getlev() shifts by the bones clock difference and can leave
+    // negative; begin_burn() never reads it.
+    if (age < 0 && !isMagicLamp && !isArtifactLight)
         throw new RangeError(`begin_burn: invalid candle age ${obj.age}`);
 
     let turns = 0;

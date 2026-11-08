@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recipe for timeout.c begin_burn() on a magic lamp whose age is negative. Segment 1 wishes for a magic lamp on turn 1, waits 300 turns, drops it on Dlvl 5's up stairs and dies there, saving bones. Segment 2 is a new game that arrives on Dlvl 5 on turn 1, so restore.c getlev() shifts the lamp's age (its creation turn; age_is_relative() excludes magic lamps) to about -300. Applying the cursed lamp flickers out four times and then lights it; begin_burn() ignores a magic lamp's age. New seeds and dates chosen before comparison.",
+  "segments": [
+    {
+      "seed": 31877402,
+      "datetime": "20520611200000",
+      "nethackrc": "OPTIONS=name:Lampwick,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time,bones\n",
+      "moves": " \u0017magic lamp\n300s\u00165\n\u0017scroll of magic mapping\n rj\u0014  <.di\u0017wand of death\nzk.  ynnnny  "
+    },
+    {
+      "seed": 6640219,
+      "datetime": "20520612090000",
+      "nethackrc": "OPTIONS=name:Lampwick,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time,bones\n",
+      "moves": " \u00165\nyy\u0017scroll of magic mapping\nri\u0014  <l.#wizkill\n<. \u001bh,h\najajajajaj"
+    }
+  ]
+}
