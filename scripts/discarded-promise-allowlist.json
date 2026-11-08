@@ -77,8 +77,8 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/bones.js | resetobjs | curse": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "count": 4,
+      "reason": "curse() returns a promise only while the hero studies the book or for a lit object whose light radius changes. resetobjs() runs after death, so no study is active, and the Amulet, the Bell, the Book and the Candelabrum (its burn ended first) are not lit."
     },
     "js/bury.js | bury_an_obj | obj_extract_self": {
       "count": 1,
