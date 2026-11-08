@@ -826,11 +826,12 @@ export function segmentIterationLimit(movesLength) {
 // the violations to the reporter below; runSegmentStrict() throws after the
 // segment, with the game attached as `segmentGame` for diagnosis.
 //
-// A planning pass's use of `game` (js/gstate.js) differs the same way. Under
-// runSegmentStrict() it throws PlanningLiveGameError like any crash. Under
-// runSegment() it is recorded and goes through to the live game, so the
-// scored run keeps the behaviour it had before the guard; the uses are kept
-// as game.planningLiveGameUses and passed to the reporter below. A youprop.js
+// Live-game access during a dry run (js/gstate.js) differs the same way.
+// runSegmentStrict() selects throwing, so it throws PlanningLiveGameError like
+// any crash. runSegment() keeps the default, recording: the use goes through
+// to the live game, so the scored run keeps the behaviour it had before the
+// guard; the uses are kept as game.planningLiveGameUses and passed to the
+// reporter below. A youprop.js
 // macro given the wrong argument is handled the same way (js/gstate.js
 // recordLiveGameUse()): it throws under runSegmentStrict() and is recorded,
 // with the answer recovered, under runSegment().
@@ -862,7 +863,12 @@ export async function runSegment(input, options = {}) {
 
 export async function runSegmentStrict(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
-    await playSegment(nhGame, input, options);
+    const previousRecording = setPlanningUseRecording(false);
+    try {
+        await playSegment(nhGame, input, options);
+    } finally {
+        setPlanningUseRecording(previousRecording);
+    }
     nhGame.terminationViolations = terminationViolations();
     if (nhGame.terminationViolations.length) {
         const error = new Error('the segment terminated, then '

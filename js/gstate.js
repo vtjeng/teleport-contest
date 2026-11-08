@@ -34,13 +34,16 @@ export function resetGame() {
 // guard; scripts/planning-leak-check.mjs checks the effects that do not go
 // through `game` (the shared terminal, newsym(), the ISAAC streams).
 //
-// What the guard does with a use depends on the entry point, as a crash does
-// (js/jsmain.js, before runSegment()). By default, and so under
-// runSegmentStrict() and every local tool, it throws PlanningLiveGameError.
-// The judge's runSegment() selects recording instead: the use is recorded
-// and goes through to the live game, as it did before the guard existed, so
-// a path no test reached costs the scored game nothing, and runSegment()
-// reports what was recorded to the local scorers, which fail that game.
+// What the guard does with a use depends on the entry point. By default it
+// records the use and lets it through to the live game, as it did before the
+// guard existed, so a path no test reached cannot stop a game the judge
+// drives: runSegment(), and the browser play path that its playability runner
+// (frozen/playability_runner.mjs) drives through NethackGame and
+// moveloop_core() directly. runSegment() reports what was recorded to the
+// local scorers, which fail that game. runSegmentStrict(), which every local
+// replay tool uses, and the unit suite (scripts/strict-live-game-uses.mjs,
+// preloaded by scripts/run-test-suite.mjs) select throwing instead, so a use
+// fails there at the line that made it.
 //
 // js/youprop.js applies the same policy to a property macro given the game
 // state in place of the hero, or the reverse: recordLiveGameUse() throws in
@@ -54,14 +57,14 @@ export class PlanningLiveGameError extends Error {
 }
 
 let liveGameDuringPlanning = null;
-let recordPlanningUses = false;
+let recordPlanningUses = true;
 // One entry per distinct message, in first-use order: { kind, detail, count }.
 // `kind` is 'planningLiveGame' for the guard below and 'youpropArgument' for
 // js/youprop.js.
 const planningUses = new Map();
 
 // Select recording (true) or throwing (false); returns the previous mode.
-// Only js/jsmain.js runSegment() selects recording.
+// Recording is the default; see the comment above PlanningLiveGameError.
 export function setPlanningUseRecording(record) {
     const previous = recordPlanningUses;
     recordPlanningUses = Boolean(record);
@@ -89,7 +92,7 @@ function framesOf(stack) {
     return callers.length ? `${user}, called from ${callers.join(' < ')}` : user;
 }
 
-// Unless recording is selected, throw makeError(detail); otherwise record one
+// When throwing is selected, throw makeError(detail); otherwise record one
 // use of `kind`, so that runSegment() reports it, and return so that the
 // caller can carry on.
 export function recordLiveGameUse(kind, detail, makeError) {
@@ -106,7 +109,7 @@ function planningUse(operation, property) {
     recordLiveGameUse('planningLiveGame', detail, (message) => new PlanningLiveGameError(message));
 }
 
-// Each trap reports the use, which throws unless recording is selected, and
+// Each trap reports the use, which throws when throwing is selected, and
 // then performs it on the live game.
 // The one exception is reading game.mockStorage: js/storage.js, which the
 // scorer replaces with its own copy, finds the virtual file system there and

@@ -23,7 +23,12 @@ if (args.length === 3) {
 // terminal and TAP otherwise.
 process.exitCode = await new Promise((resolve, reject) => {
     let failed = false;
-    run({ files, concurrency: true, shard })
+    // Every test file selects throwing for live-game access during a dry run
+    // (scripts/strict-live-game-uses.mjs), so a use fails the test that made
+    // it instead of being recorded and let through, as js/gstate.js does by
+    // default for the judge's entry points.
+    const execArgv = ['--import', new URL('./strict-live-game-uses.mjs', import.meta.url).href];
+    run({ files, concurrency: true, shard, execArgv })
         .on('test:fail', (event) => { if (failsSuite(event)) failed = true; })
         .compose(process.stdout.isTTY ? new spec() : tap)
         .on('error', reject)
