@@ -49,7 +49,7 @@ import {
     free_exclusions, ledger_no, level_info, maxledgerno, save_exclusions,
 } from './dungeon.js';
 import { forget_temple_entry } from './priest.js';
-import { save_timers } from './timeout.js';
+import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -580,10 +580,12 @@ function serializeGameState(state) {
         // C savegamestate() writes global timers and light sources before the
         // inventory chains. Keep timer/light object arguments aliased to those
         // saved objects so callbacks such as end_burn() find their source.
-        timer_base: state.gt?.timer_base,
-        // C ref: save.c savelev_core():539 save_light_sources(RANGE_LEVEL)
-        // writes the hero's level's light sources, in chain order, and
-        // savegamestate():297 save_light_sources(RANGE_GLOBAL) the rest.
+        // C ref: save.c savelev_core():539-540 save_timers(RANGE_LEVEL) and
+        // save_light_sources(RANGE_LEVEL) write the hero's level's timers and
+        // light sources, in chain order, and savegamestate():296-297 write
+        // the rest with RANGE_GLOBAL.
+        level_timers: maybe_write_timer(RANGE_LEVEL, state),
+        timers: maybe_write_timer(RANGE_GLOBAL, state),
         level_lights: light_sources_in_range(RANGE_LEVEL, state),
         lights: light_sources_in_range(RANGE_GLOBAL, state),
         // C ref: save.c savegamestate():316 Sfo_q_score(&svq.quest_status).

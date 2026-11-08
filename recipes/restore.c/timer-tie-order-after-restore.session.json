@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3058816,
+      "datetime": "20410913074211",
+      "nethackrc": "OPTIONS=name:Chandler,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u0017lit blessed wax candle\n\u0017lit cursed wax candle\n#timeout\n Sy"
+    },
+    {
+      "seed": 3058817,
+      "datetime": "20410913081133",
+      "nethackrc": "OPTIONS=name:Chandler,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!acoustics,playmode:debug\n",
+      "moves": " n#timeout\n "
+    }
+  ],
+  "comment": "Independent restore.c dorecover() and timeout.c restore_timers() witness: a debug gnomish Healer wishes for a lit blessed and a lit cursed wax candle on the same turn, so their burn timers share a timeout and insert_timer() puts the second ahead of the first; the different curse states keep the candles from merging into one stack and one timer. #timeout lists the queue, and the hero saves. Restoring reads the timers back in queue order and inserts each ahead of any timer with the same timeout, so #timeout lists the tied timers in reverse."
+}

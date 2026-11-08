@@ -315,12 +315,17 @@ export async function dorestore(state = game) {
     // C restore.c:restgamestate restores global timers and lights before the
     // inventory chains. parseSnapshot() has already reconnected their object
     // arguments to the same saved inventory objects.
-    if (Object.hasOwn(snapshot, 'timer_base')) {
-        state.gt ??= {};
-        state.gt.timer_base = snapshot.timer_base;
-    }
-    // C ref: restore.c restgamestate():654 restore_light_sources() pushes
-    // the global sources, then dorecover()'s last getlev():1131 pushes the
+    // C ref: restore.c restgamestate():654 restore_timers(RANGE_GLOBAL)
+    // inserts each global timer into the queue, then dorecover()'s last
+    // getlev():1144 inserts the hero's level's. insert_timer() puts a timer
+    // ahead of any with the same timeout, so timers that tie come back in
+    // reverse, and the hero level's ahead of global ones they tie with.
+    state.gt ??= {};
+    state.gt.timer_base = null;
+    restore_timers(snapshot.timers ?? [], state);
+    restore_timers(snapshot.level_timers ?? [], state);
+    // C ref: restore.c restgamestate():655 restore_light_sources() pushes
+    // the global sources, then dorecover()'s last getlev():1145 pushes the
     // hero's level's in front of them, so each group comes back reversed.
     // (The hero's level's sources that dorecover()'s first getlev() read
     // were freed again by restlevelfile().)
@@ -924,7 +929,7 @@ export async function getlev(ledger, state = game) {
     // chains now.
     if (snapshot.timers?.length) restore_timers(snapshot.timers, state);
 
-    // C ref: restore.c getlev():1131 restore_light_sources() pushes each
+    // C ref: restore.c getlev():1145 restore_light_sources() pushes each
     // saved source in front of the global ones.
     restore_light_sources(snapshot.lights, state);
 
