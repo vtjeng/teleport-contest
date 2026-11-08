@@ -2975,7 +2975,7 @@ export async function dojump(state = game, env = {}) {
 // C ref: apply.c jump() (1988-2163).
 export async function jump(magic = 0, state = game, env = {}) {
     // apply.c's morehungry calls reach newuhs's pline/end_running/bot.
-    // Preserve supplied operations when this caller uses a cloned state.
+    // Preserve operations the caller supplies.
     const hungerEnv = {
         ...env,
         message: env.message ?? ttyPline,

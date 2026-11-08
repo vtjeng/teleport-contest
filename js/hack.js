@@ -1285,13 +1285,10 @@ async function maybe_wail(state, env = {}) {
 // C ref: hack.c showdamage() (4245-4253). options.c leaves iflags.showdamage
 // off, so an ordinary game prints nothing here.
 //
-// `message` exists because mhitu.c mdamageu() calls this from inside a monster
-// turn, and js/unported_monster_actions.js runs every monster turn twice: once
-// against a clone, to find out whether it can be replayed, and then live. With
-// `showdamage` on, the default would write the clone's line to the live
-// terminal. losehp() takes the same seam for its one monster-turn caller,
-// potion.c potionhit(); every other caller runs on the hero's own turn and
-// leaves it unset.
+// `message` is the caller's message seam: mhitu.c mdamageu() calls this from
+// inside a monster turn and passes its own. losehp() takes the same seam for
+// its one monster-turn caller, potion.c potionhit(); every other caller runs
+// on the hero's own turn and leaves it unset.
 export async function showdamage(dmg, state, env = {}) {
     if (!state.iflags?.showdamage || !dmg) return;
     const message = env.message ?? ttyPline;

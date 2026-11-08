@@ -1285,9 +1285,9 @@ async function Amulet_on(obj, state = game) {
 // source before effects that depend on the remaining worn properties.
 export async function Amulet_off(state = game, env = {}) {
     const amul = state.uamul;
-    // mhitu.c:mattacku supplies silent messages and redraw seams while it
-    // plans monster turns on a cloned state. Keep those caller-owned effects
-    // through the Amulet_of_ESP theft path as well as direct player removal.
+    // mhitu.c:mattacku can supply its own message and redraw seams. Keep
+    // those caller-owned effects through the Amulet_of_ESP theft path as well
+    // as direct player removal.
     const message = env.message ?? ttyPline;
     let makeKnown = false;
     let earlyOffMessage = false;

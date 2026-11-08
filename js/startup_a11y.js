@@ -1476,8 +1476,8 @@ export function collectMonsterMovementMessage(
         : close
             ? distance <= oldDistance ? ' closer' : ' further away'
             : ' in the distance';
-    // C Monnam draws from the active cosmetic stream. The port's quiet plans
-    // must retain their clone's owner.
+    // C Monnam draws from the active cosmetic stream, that of the state the
+    // message is about.
     return messageAt(
         `${capitalizedMonsterName(monster, state, {
             displayRandom: bound => rn2_on_display_rng(bound, state),

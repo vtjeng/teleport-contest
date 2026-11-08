@@ -74,11 +74,7 @@
 //
 // The Knight is the exception and is deliberate. Seed 405 is the walk-in
 // scripts/run-hero-bear-trap.mjs already records, and it is the one hero here
-// that the trap leaves Burdened. js/allmain.js advanceElapsedTurn() dry-runs
-// the whole once-per-turn block on a cloned state for a burdened hero and
-// returns early for an unburdened one, so that segment is the only one whose
-// regen_hp() runs twice per turn and whose interrupt_multi() has to stay silent
-// on the first pass.
+// that the trap leaves Burdened.
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
