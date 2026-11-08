@@ -108,8 +108,16 @@ function planningUse(operation, property) {
 
 // Each trap reports the use, which throws unless recording is selected, and
 // then performs it on the live game.
+// The one exception is reading game.mockStorage: js/storage.js, which the
+// scorer replaces with its own copy, finds the virtual file system there and
+// cannot be handed the dry run's state. Those files (the record file read by
+// topten.c get_rnd_toptenentry(), for one) are external storage, as C's file
+// system is, not game state.
 const planningGuardHandler = {
-    get: (target, property) => { planningUse('read', property); return Reflect.get(target, property, target); },
+    get: (target, property) => {
+        if (property !== 'mockStorage') planningUse('read', property);
+        return Reflect.get(target, property, target);
+    },
     set: (target, property, value) => { planningUse('write', property); return Reflect.set(target, property, value, target); },
     has: (target, property) => { planningUse('test', property); return Reflect.has(target, property); },
     deleteProperty: (target, property) => { planningUse('delete', property); return Reflect.deleteProperty(target, property); },

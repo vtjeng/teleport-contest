@@ -195,3 +195,23 @@ test('every planning clone runs inside withPlanningCoreContext()', () => {
     assert.deepEqual(findings, []);
     assert.ok(planners >= 2, 'both planners were found');
 });
+
+// js/storage.js, which the scorer replaces with its own copy and so cannot
+// take the dry run's state, finds the virtual file system through
+// game.mockStorage. The record file it reads is external storage, as C's file
+// system is, so a dry run may read it: topten.c get_rnd_toptenentry(), reached
+// from mon.c select_newcham_form() through tt_doppel() when a doppelganger
+// picks a form during the monsters' turn, stopped the judge's playability run
+// on seed0361-archeologist-tour before this was allowed.
+test('a dry run may read the virtual file system through js/storage.js', async () => {
+    const { planned, context } = planningFixture();
+    // Any path and contents: the test checks only that the read reaches the
+    // live game's storage without being reported.
+    const files = new Map([['vfs:/record', 'stored record line']]);
+    game.mockStorage = { getItem: (key) => files.get(key) ?? null };
+    const { vfsReadFile } = await import('../js/storage.js');
+    resetPlanningLiveGameUses();
+    const read = await withPlanningCoreContext(context, planned, () => vfsReadFile('/record'));
+    assert.equal(read, 'stored record line');
+    assert.deepEqual(planningLiveGameUses(), []);
+});
