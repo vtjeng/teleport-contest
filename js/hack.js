@@ -464,7 +464,12 @@ import {
     subfrombill,
     UnsupportedShopError,
 } from './shk.js';
-import { collectMonsterNoticeMessage, collectMonsterNoticeMessages, messageAt } from './startup_a11y.js';
+import {
+    collectMonsterNoticeMessage,
+    collectMonsterNoticeMessages,
+    emitGlyphUpdateNotices,
+    messageAt,
+} from './startup_a11y.js';
 import { exercise_steed, rider_cant_reach, stucksteed } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
 import { use_skill, uwep_skill_type, weapon_descr } from './weapon.js';
@@ -4616,7 +4621,12 @@ async function domove_core(state = game) {
 // makes the patched tty capture one animation frame and return immediately
 // whenever NETHACK_NO_DELAY is set, which is how every recording runs, so the
 // frame capture is the whole of its observable behavior.
+//
+// display.c show_glyph() prints a mention_map notice through pline_xy() at
+// once; the port queues it. Every notice queued before this delay was on the
+// screen when C captured the frame, so drain the queue first.
 export async function nh_delay_output(state = game) {
+    await emitGlyphUpdateNotices(state, { pline: ttyPline });
     await state._animationFrameHook?.();
 }
 
@@ -4644,6 +4654,8 @@ export async function runmode_delay_output(state = game) {
             state.disp ??= {};
             // moveloop_core() suppresses time_botl while running.
             state.disp.time_botl = Boolean(state.flags.time);
+            // C printed this move's show_glyph() notices before curs_on_u().
+            await emitGlyphUpdateNotices(state, { pline: ttyPline });
             await curs_on_u(state);
             await nh_delay_output(state);
             if (state.flags.runmode === RUN_CRAWL) {
