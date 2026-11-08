@@ -1307,9 +1307,7 @@ async function obstructed(x, y, quietly, state = game, rawEnv = {}) {
 export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
     const door = state.level.at(x, y);
     const message = rawEnv.message ?? ttyPline;
-    // A monster's planning pass supplies its own newsym(), so the door it
-    // would change is not repainted, nor hallucinatory glyphs drawn, on
-    // the live display.
+    // A caller may supply its own newsym() for the door square.
     const redraw = rawEnv.newsym ?? newsym;
     const mysterywand = obj.oclass === WAND_CLASS && !obj.dknown;
     let result = true;
