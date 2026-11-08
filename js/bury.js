@@ -129,11 +129,10 @@ function punishedObject(state, name) {
 export async function bury_an_obj(obj, rawEnv = {}) {
     const base = burialEnvironment(rawEnv);
     const { random, state } = base;
-    const redraw = base.planning ? (() => {})
-        : (base.newsym ?? base.redraw
-            ?? (base.hooks?.newsym
-                ? ((x, y) => base.hooks.newsym(x, y, base))
-                : ((x, y) => newsym(x, y, state))));
+    const redraw = base.newsym ?? base.redraw
+        ?? (base.hooks?.newsym
+            ? ((x, y) => base.hooks.newsym(x, y, base))
+            : ((x, y) => newsym(x, y, state)));
     const env = objectGenerationEnv({
         ...base,
         redraw,
@@ -151,8 +150,7 @@ export async function bury_an_obj(obj, rawEnv = {}) {
     if (obj === punishedObject(state, 'uball')) {
         unpunish(state, env);
         set_utrap(random.rn1(50, 20), TT_BURIEDBALL, state);
-        if (!env.planning)
-            await (env.message ?? ttyPline)('The iron ball gets buried!', state, env);
+        await (env.message ?? ttyPline)('The iron ball gets buried!', state, env);
     }
 
     const next = obj.nexthere;
