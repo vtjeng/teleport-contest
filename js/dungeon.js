@@ -757,8 +757,7 @@ export function Can_rise_up(x, y, lev, state = game) {
 //
 // dungeon.h:141 In_endgame() and :114 Is_earthlevel() are spelled out against
 // `state`: every other topology predicate in this file is state-scoped, and
-// grounded() is called with the planning clone in
-// js/unported_monster_actions.js, which carries its own hero.
+// grounded() may pass a state other than the module-global game.
 export function has_ceiling(level, state = game) {
     const inEndgame = level?.dnum != null
         && level.dnum === state.astral_level?.dnum;
@@ -1187,9 +1186,10 @@ export function u_on_newpos(
 }
 
 // C ref: dungeon.c u_on_rndspot() (1604-1638). Live mode places the hero at a
-// random spot in the arrival region a level change left behind. Planning mode
-// repeats the same candidate selection with the supplied RNG and calls the
-// required preflight without changing position or terrain.
+// random spot in the arrival region a level change left behind. With
+// planPositionOnly, do.js place_random_arrival() repeats the same candidate
+// selection with the supplied RNG and calls the required preflight without
+// changing position or terrain.
 //
 // `upflag` packs two bits, as C's own `int up = (upflag & 1),
 // was_in_W_tower = (upflag & 2)` shows.
