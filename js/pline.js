@@ -123,7 +123,7 @@ export async function impossible(text, state = game, env = {}) {
 
 // C appends to gg.gamelog and preserves insertion order. The C allocator
 // stores the supplied turn separately from the message; retaining that shape
-// keeps save/restore and planning clones source-visible.
+// keeps save/restore source-visible.
 export function gamelog_add(glflags, gltime, text, state = game) {
     state.gamelog ??= [];
     state.gamelog.push({
