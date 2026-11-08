@@ -80,8 +80,8 @@ import {
 } from './run-hero-death.mjs';
 import {
     MONSTER_DEATH_CASE,
-    loadMonsterDeathPlanningRecipe,
-} from './run-monster-death-planning.mjs';
+    loadMonsterDeathRecipe,
+} from './run-monster-death.mjs';
 import {
     MOUNTED_DEATH_CASE,
     loadMountedDeathRecipe,
@@ -1334,7 +1334,7 @@ test('done_in_by uses STONING message and killer for a stoning death',
 // stands adjacent and the hero holds two hit points, as the recipe's comment
 // on its `m.m.` tail states.
 async function gameBeforeLethalMonsterTurn() {
-    const [segment] = loadMonsterDeathPlanningRecipe().segments;
+    const [segment] = loadMonsterDeathRecipe().segments;
     assert.ok(MONSTER_DEATH_CASE.moves.endsWith('m.'));
     await runSegment({ ...segment, moves: segment.moves.slice(0, -2) });
     assert.equal(game.u.uhp, 2, 'the first m. left two hit points');

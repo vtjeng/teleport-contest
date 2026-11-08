@@ -48,7 +48,7 @@ function nethackrc() {
     ].join('\n');
 }
 
-export function loadMonsterDeathPlanningRecipe() {
+export function loadMonsterDeathRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: [{
@@ -57,11 +57,11 @@ export function loadMonsterDeathPlanningRecipe() {
             nethackrc: nethackrc(),
             moves: MONSTER_DEATH_CASE.moves,
         }],
-    }, 'monster death planning recipe');
+    }, 'monster death recipe');
 }
 
 function caseFor(segment) {
-    const expected = loadMonsterDeathPlanningRecipe().segments[0];
+    const expected = loadMonsterDeathRecipe().segments[0];
     if (segment.seed !== expected.seed
         || segment.datetime !== expected.datetime
         || segment.nethackrc !== expected.nethackrc
@@ -74,8 +74,8 @@ function caseFor(segment) {
 // runFreshMatrix() uses the strict recipe above for the C/JS differential.
 // This extra key is intentionally not part of that recipe: C spends it
 // dismissing "You die..." and enters end.c disclosure, one source boundary
-// beyond the original planning slice.
-export async function verifyMonsterDeathPlanningSegment(segment) {
+// beyond the recipe.
+export async function verifyMonsterDeathSegment(segment) {
     const entry = caseFor(segment);
     await runSegment({
         ...segment,
@@ -95,15 +95,15 @@ export async function verifyMonsterDeathPlanningSegment(segment) {
     });
 }
 
-export async function runMonsterDeathPlanningMatrix() {
+export async function runMonsterDeathMatrix() {
     return runFreshMatrix({
         entries: [{
-            label: 'monster death planning and live DIED propagation',
-            recipe: loadMonsterDeathPlanningRecipe(),
+            label: 'monster death and live DIED propagation',
+            recipe: loadMonsterDeathRecipe(),
         }],
-        summaryLabel: 'MONSTER DEATH PLANNING',
-        verifySegment: verifyMonsterDeathPlanningSegment,
+        summaryLabel: 'MONSTER DEATH',
+        verifySegment: verifyMonsterDeathSegment,
     });
 }
 
-runMatrixCli(import.meta.url, runMonsterDeathPlanningMatrix, 'monster death planning');
+runMatrixCli(import.meta.url, runMonsterDeathMatrix, 'monster death');

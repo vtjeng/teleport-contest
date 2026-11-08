@@ -138,8 +138,8 @@ import {
 } from './run-first-command-closure.mjs';
 import { loadEatOccupationRecipe } from './run-eat-occupation.mjs';
 import {
-    loadMonsterDeathPlanningRecipe,
-} from './run-monster-death-planning.mjs';
+    loadMonsterDeathRecipe,
+} from './run-monster-death.mjs';
 import { loadStatusRefreshRecipe } from './run-status-refresh.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import {
@@ -3159,7 +3159,7 @@ test('the status-refresh matrix covers all three arms of the gate', () => {
 // scan, above the return under test.
 test('a hero the monster scan kills reaches no once-per-turn upkeep',
     async () => {
-        const [segment] = loadMonsterDeathPlanningRecipe().segments;
+        const [segment] = loadMonsterDeathRecipe().segments;
         // Drop the final `m.`: the recipe's tail is the command whose elapsed
         // turn the demon's killing blow lands in, so the game stops with the
         // demon adjacent and the hero at the two hit points the recipe names.
