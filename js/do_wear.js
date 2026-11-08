@@ -416,18 +416,15 @@ import {
     See_invisible,
 } from './youprop.js';
 
-// The armor callbacks can run during a planning polymorph.  Keep the live
-// defaults in one place while allowing that caller to supply its message and
-// repaint seams; C's callbacks do not own the terminal or a second game.
+// Keep the armor callbacks' live defaults in one place while allowing a
+// caller to supply its message and repaint operations; C's callbacks do not
+// own the terminal or a second game.
 function wearOperationEnv(rawEnv = {}) {
-    const planning = Boolean(rawEnv.planning);
     const hooks = { ...(rawEnv.hooks ?? {}) };
-    if (planning && typeof hooks.updateInventory !== 'function')
-        hooks.updateInventory = () => {};
     return {
         ...rawEnv,
-        message: rawEnv.message ?? (planning ? async () => {} : ttyPline),
-        redraw: rawEnv.redraw ?? (planning ? () => {} : newsym),
+        message: rawEnv.message ?? ttyPline,
+        redraw: rawEnv.redraw ?? newsym,
         hooks,
     };
 }
@@ -762,8 +759,7 @@ export function cancel_don(state = game) {
 // interrupted delay before choosing the armor-removal duration. C clears the
 // pending callback before unmul(), so completion cannot run a donning/doffing
 // action that was canceled by the theft.
-// env.message carries the caller's message operation to unmul(), so a
-// planning steal() prints nothing.
+// env.message carries the caller's message operation to unmul().
 export async function stop_donning(stolenobj, state = game, env = {}) {
     let otmp = null;
     for (let obj = state.invent; obj; obj = obj.nobj) {
@@ -1834,18 +1830,10 @@ export async function Boots_on(state) {
 // call, so burning water-walking boots clear their slot without recursively
 // applying the landing effect.
 //
-// A planning caller (steal.c remove_worn_item() during a monster's dry run)
-// passes its env: the messages go through env.message, and either landing arm
-// stops the dry run through env.requestPlanningInput(), so the live pass
-// replays the source call, which can print, trigger a trap and ask for input.
+// A caller such as steal.c remove_worn_item() passes its env, and the
+// messages go through env.message.
 export async function Boots_off(state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
-    const requestLiveReplay = (operation) => {
-        if (!env.planning) return;
-        if (typeof env.requestPlanningInput !== 'function')
-            throw new TypeError(`planned ${operation} requires a replay boundary`);
-        env.requestPlanningInput(operation);
-    };
     const otmp = state.uarmf;
     if (!otmp) return 0;
     const otyp = otmp.otyp;
@@ -1904,7 +1892,6 @@ export async function Boots_off(state = game, rawEnv = {}) {
             && !state.iflags?.in_lava_effects) {
             // C learns fireproofed/water-walking boots before spoteffects can
             // drown the hero, which may itself return after a relocation.
-            requestLiveReplay('hack.c spoteffects');
             discover_object(otyp, true, true, true, state);
             const { spoteffects } = await import('./hack.js');
             await spoteffects(true, state);
@@ -1932,7 +1919,6 @@ export async function Boots_off(state = game, rawEnv = {}) {
         const cancelled = takeoff.cancelled_don;
         if (!oldprop && !hasIntrinsicLevitation && !fromOutside && !cancelled) {
             if (!state.iflags?.in_lava_effects) {
-                requestLiveReplay('trap.c float_down');
                 const { float_down } = await import('./trap.js');
                 await float_down(0, 0, state);
             }
@@ -1994,9 +1980,7 @@ export async function toggle_displacement(
             || detectMonsters)) {
         if (obj)
             // C's discover_object() performs the Wisdom exercise in this
-            // branch.  Carry the caller's planning random/hooks through so
-            // an armor callback cannot spend the live stream while a clone
-            // is being evaluated.
+            // branch.  Carry the caller's random/hooks through.
             discover_object(obj.otyp, true, true, true, state, env);
         await env.message(
             youFeel(`that monsters${on ? '' : ' no longer'} have difficulty `
@@ -2151,7 +2135,7 @@ async function Cloak_on(state, rawEnv = {}) {
 // C ref: do_wear.c Cloak_off() (382-431). C computes `oldprop` at 385 for
 // toggle_stealth(), toggle_displacement() and the invisibility arm, and runs
 // its switch after setworn(). The ordinary and polymorph paths retain source
-// order; both cloak helpers use the caller's planning seams.
+// order; both cloak helpers use the caller's message and repaint operations.
 export async function Cloak_off(state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const { message, redraw } = env;
@@ -3187,7 +3171,7 @@ export async function glibr(state = game, env = {}) {
             object.quan = savedQuantity;
         }
         // setuwep()'s "stops shining" notice goes through glibr()'s message
-        // operation, which a planned turn silences.
+        // operation.
         await setuwep(null, { ...setwornEnv(state), message });
         cmdq_clear(CQ_CANNED, state);
         if (await canLetGo(object, '', state)) await drop(object);
@@ -4208,8 +4192,7 @@ export async function destroy_arm(
     random = coreRandom,
     rawEnv = {},
 ) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const hits = random.rn2(4) + 1;
     const armors = [
         state.uarm,
