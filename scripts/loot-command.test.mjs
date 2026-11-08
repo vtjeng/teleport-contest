@@ -193,7 +193,7 @@ test('doloot_core handles blind floor cockatrice before container selection', ()
     const cFeelStart = inventC.indexOf('feel_cockatrice(struct obj *otmp, boolean force_touch)');
     const cFeelEnd = inventC.indexOf("\n/* 'obj' is being placed on the floor", cFeelStart);
     const jsFeelStart = inventJs.indexOf('export async function feel_cockatrice(');
-    const jsFeelEnd = inventJs.indexOf('\n// C ref: youprop.h:65 Stone_resistance', jsFeelStart);
+    const jsFeelEnd = inventJs.indexOf('\n// Mutation-free admission for look_here()', jsFeelStart);
     const cLoot = pickupC.slice(cStart, cEnd);
     const jsLoot = pickupJs.slice(jsStart, jsEnd);
     const cFeel = inventC.slice(cFeelStart, cFeelEnd);
