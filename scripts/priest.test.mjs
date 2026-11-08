@@ -52,6 +52,28 @@ test('reset_hostility turns a non-coaligned minion angel hostile', () => {
     assert.equal(angel.malign, 5);
 });
 
+test('priest.c intemple() gates sanctum on the high cleric and spots the ghost as C does', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('intemple(int roomno)');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\n}\n', cStart);
+    const intempleC = PRIEST_C_SOURCE.slice(cStart, cEnd);
+    // C: the high-cleric test guards both the Sanctum and the endgame arm.
+    assert.match(intempleC,
+        /sanctum = \(priest->data == &mons\[PM_HIGH_CLERIC\]\s*&& \(Is_sanctum\(&u\.uz\) \|\| In_endgame\(&u\.uz\)\)\);/u);
+    // C: a blind hero without telepathy only senses the ghost.
+    assert.match(intempleC,
+        /if \(canspotmon\(mtmp\)\)\s*pline\("A%s ghost appears next to you%c"[\s\S]*?else\s*You\("sense a presence close by!"\);/u);
+
+    const start = PRIEST_JS_SOURCE.indexOf('export async function intemple(');
+    const end = PRIEST_JS_SOURCE.indexOf(
+        '// C ref: priest.c priest_talk()', start,
+    );
+    const intempleSource = PRIEST_JS_SOURCE.slice(start, end);
+    assert.match(intempleSource,
+        /const sanctum = priest\.data === state\.mons\[PM_HIGH_CLERIC\]\s*&& \(\(state\.sanctum_level\s*&& on_level\(u\.uz, state\.sanctum_level\)\)\s*\|\| In_endgame\(u\.uz, state\)\);/u);
+    assert.match(intempleSource,
+        /if \(canspotmon\(mtmp, state\)\) \{\s*await message\(\s*`A\$\{ngen < 5/u);
+});
+
 test('priest.c intemple uses Monnam after suppressing the priest title', () => {
     const cStart = PRIEST_C_SOURCE.indexOf('intemple(int roomno)');
     const cEnd = PRIEST_C_SOURCE.indexOf('\n}\n', cStart);

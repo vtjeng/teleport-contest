@@ -31,6 +31,7 @@ import {
     IS_ALTAR,
     IS_DOOR,
     IS_ROOM,
+    In_endgame,
     Is_astralevel,
     INTRINSIC,
     LL_CONDUCT,
@@ -117,7 +118,7 @@ import { note_unported } from './unported.js';
 
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
-import { canseemon } from './display.js';
+import { canseemon, canspotmon } from './display.js';
 import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 import {
@@ -851,11 +852,10 @@ export async function intemple(roomno, env = {}) {
 
         const epri_p = EPRI(priest);
         const shrined = has_shrine(priest, state);
-        const sanctum = (priest.data === state.mons[PM_HIGH_CLERIC]
-            && (state.sanctum_level
+        const sanctum = priest.data === state.mons[PM_HIGH_CLERIC]
+            && ((state.sanctum_level
                     && on_level(u.uz, state.sanctum_level))
-                || (state.astral_level
-                    && u.uz?.dnum === state.astral_level.dnum));
+                || In_endgame(u.uz, state));
         const can_speak = !helpless(priest);
         if (can_speak && !Deaf(state.u)
             && state.moves >= (epri_p.intone_time ?? 0)) {
@@ -950,8 +950,7 @@ export async function intemple(roomno, env = {}) {
         );
         if (mtmp) {
             const ngen = state.mvitals[PM_GHOST].born;
-            const visible = !mtmp.minvis;
-            if (visible) {
+            if (canspotmon(mtmp, state)) {
                 await message(
                     `A${ngen < 5 ? 'n enormous' : ''} ghost appears next to you${ngen < 10 ? '!' : '.'}`,
                     state,
