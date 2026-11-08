@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4115,
+      "datetime": "20400101120000",
+      "nethackrc": "OPTIONS=name:Seeker,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00162\n\u0006",
+      "comment": "A debug Valkyrie level-teleports to D:2, whose shop is an irregular themed room with a locked door at its north-west corner. shknam.c stock_room() asks shk.c inside_shop() which side of the door the shop lies on; the walls inside the room's bounding box are not part of the shop, so the 'Closed for inventory' engraving goes on the corridor east of the door. ^F maps the level and draws it with the corridor engraving symbol."
+    }
+  ],
+  "comment": "shknam.c stock_room(): the 'Closed for inventory' square outside a locked door of an irregular shop. The seed, found by searching for such a shop, the clock, character and inputs were chosen for this case."
+}

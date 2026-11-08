@@ -57,6 +57,8 @@ import { coreRandom, rn2 } from './rng.js';
 import { newsym } from './display.js';
 import { note_unported } from './unported.js';
 import { rloc } from './teleport.js';
+import { in_rooms } from './rooms.js';
+import { inside_shop } from './shk.js';
 import {
     SHTYPES,
     shkgeneral,
@@ -505,11 +507,6 @@ function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
     else mkobj_at(atype, sx, sy, true, normalized);
 }
 
-function insideShop(sroom, x, y) {
-    return x >= sroom.lx && x <= sroom.hx
-        && y >= sroom.ly && y <= sroom.hy;
-}
-
 function redrawDoor(x, y, normalized) {
     if (typeof normalized.hooks?.newsym === 'function') {
         normalized.hooks.newsym(x, y, normalized);
@@ -549,16 +546,21 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
         if (doorMask() === D_LOCKED) {
             let x = firstDoor.x;
             let y = firstDoor.y;
-            if (insideShop(sroom, x + 1, y)) --x;
-            else if (insideShop(sroom, x - 1, y)) ++x;
-            if (insideShop(sroom, x, y + 1)) --y;
-            else if (insideShop(sroom, x, y - 1)) ++y;
+            // shk.c inside_shop() reads the map's room numbers, so the
+            // walls of an irregular shop, inside its bounding box, are not
+            // inside it.
+            if (inside_shop(x + 1, y, state)) --x;
+            else if (inside_shop(x - 1, y, state)) ++x;
+            if (inside_shop(x, y + 1, state)) --y;
+            else if (inside_shop(x, y - 1, state)) ++y;
             make_engr_at(
                 x, y, 'Closed for inventory', null, 0, DUST, normalized,
             );
             const outside = state.level.at(x, y);
-            if (outside.typ !== CORR && outside.typ !== ROOM)
-                outside.typ = ROOM;
+            if (outside.typ !== CORR && outside.typ !== ROOM) {
+                outside.typ = (Is_special(state.u.uz, state)
+                    || in_rooms(x, y, 0, state).length) ? ROOM : CORR;
+            }
         }
 
         const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
