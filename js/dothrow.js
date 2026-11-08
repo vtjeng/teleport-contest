@@ -192,7 +192,6 @@ import {
     glyph_is_invisible,
     glyph_is_monster,
     map_invisible,
-    map_invisible_planning,
     newsym,
     obj_to_glyph,
     tmp_at,
@@ -566,17 +565,12 @@ export async function walk_path(source, destination, checkProc, arg) {
 export async function hurtle(
     dx, dy, range, verbose, state = game,
     {
-        planning = false,
         random = null,
-        planningDeath = null,
-        requestPlanningInput = null,
-        isolateVision = null,
         displayRandom = null,
     } = {},
 ) {
     const u = state.u;
-    // A planning copy of a monster's knockback must print nothing live.
-    const message = planning ? async () => {} : ttyPline;
+    const message = ttyPline;
     if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
         await message(youFeel('a tug from the iron ball.', state), state);
         nomul(0, state);
@@ -613,11 +607,7 @@ export async function hurtle(
 
     const source = { x: u.ux, y: u.uy };
     const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
-    const walkRange = {
-        range, state, planning: Boolean(planning), random, planningDeath,
-        requestPlanningInput,
-        isolateVision, displayRandom,
-    };
+    const walkRange = { range, state, random, displayRandom };
     await walk_path(source, destination, hurtle_step, walkRange);
 }
 
@@ -721,9 +711,8 @@ export async function mhurtle_step(arg, x, y) {
     if (!monster || !state.level)
         throw new TypeError('mhurtle_step requires a monster and level');
     if (!isok(x, y)) return false;
-    // Speculative movement keeps map/physics effects without live presentation.
-    const redraw = env.planning ? () => {} : newsym;
-    const message = env.planning ? async () => {} : ttyPline;
+    const redraw = newsym;
+    const message = ttyPline;
 
     if (will_hurtle(monster, x, y, state, env)
         && await m_in_out_region(monster, x, y, { ...env, state })) {
@@ -741,10 +730,8 @@ export async function mhurtle_step(arg, x, y) {
             redraw(state.u.ux0, state.u.uy0);
             vision_recalc(0, { state });
         }
-        if (!env.planning) {
-            await flush_screen(1);
-            await nh_delay_output(state);
-        }
+        await flush_screen(1);
+        await nh_delay_output(state);
         set_apparxy(monster, { ...env, state, random: env.random });
         if (IS_WATERWALL(state.level.at(x, y).typ)) return false;
         const result = await mintrap(
@@ -791,8 +778,8 @@ export async function mhurtle_step(arg, x, y) {
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, {
             ...env,
-            message: env.planning ? message : (env.message
-                ?? ((line, target) => ttyPline(line, target ?? state))),
+            message: env.message
+                ?? ((line, target) => ttyPline(line, target ?? state)),
         });
         if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
@@ -876,8 +863,8 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
                 mhurtleTrapEnvironment(movementEnv, state),
             );
         } else {
-            // A caller's minLiquid owner carries the elapsed-turn or planning
-            // seams for relocation and output, as dochug()'s own call does.
+            // A caller's minLiquid owner carries its own relocation and
+            // output seams, as dochug()'s own call does.
             await (movementEnv.minLiquid ?? minliquid)(monster, movementEnv);
         }
     }
@@ -888,12 +875,11 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
 // range and nearby state in source order; its boolean controls walk_path().
 export async function hurtle_step(arg, x, y) {
     const state = arg?.state ?? game;
-    const planning = Boolean(arg?.planning);
     const random = arg?.random ?? coreRandom;
-    const message = planning ? async () => {} : ttyPline;
-    const norepMessage = planning ? async () => {} : ttyNorep;
-    const redraw = planning ? () => {} : newsym;
-    const flush = planning ? async () => {} : flush_screen;
+    const message = ttyPline;
+    const norepMessage = ttyNorep;
+    const redraw = newsym;
+    const flush = flush_screen;
     const pointer = rangePointer(arg);
     const range = () => Math.trunc(pointer.range ?? 0);
     let mayPass = true;
@@ -957,11 +943,7 @@ export async function hurtle_step(arg, x, y) {
                 why,
                 KILLED_BY,
                 state,
-                planning ? {
-                    planning: true,
-                    message,
-                    planningDeath: arg?.planningDeath,
-                } : {},
+                {},
             );
             await wake_nearto(x, y, 10, { state, random, message });
             return false;
@@ -988,13 +970,8 @@ export async function hurtle_step(arg, x, y) {
             await message(`You bump into ${mnam}.`, state);
         }
         await wakeup(mon, false, { state, random, message });
-        if (!canspotmon(mon, state)) {
-            // C's map write belongs to the planned level, but map_invisible()
-            // also paints the module-global display. Keep that live half out
-            // of this cloned-state pass.
-            if (planning) map_invisible_planning(mon.mx, mon.my, state);
-            else map_invisible(mon.mx, mon.my, state);
-        }
+        if (!canspotmon(mon, state))
+            map_invisible(mon.mx, mon.my, state);
         await setmangry(mon, false, { state, random, message });
         if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
             && !state.uarmc) {
@@ -1004,8 +981,6 @@ export async function hurtle_step(arg, x, y) {
                 ...arg?.env,
                 random,
                 message,
-                planning,
-                planningDeath: arg?.planningDeath,
             });
         }
         if (touch_petrifies(state.youmonst?.data)
@@ -1045,24 +1020,13 @@ export async function hurtle_step(arg, x, y) {
     const oldX = state.u.ux;
     const oldY = state.u.uy;
     // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
-    // newsym_force() redraw. The planning clone keeps those discovery writes
-    // and draws through its silent redraw; the live pass repaints.
-    u_on_newpos(x, y, state, {
-        seeNearbyObjectsOptions: planning ? { redraw } : undefined,
-    });
+    // newsym_force() redraw.
+    u_on_newpos(x, y, state);
     redraw(oldX, oldY);
-    if (planning) {
-        if (typeof arg?.isolateVision !== 'function') {
-            throw new TypeError(
-                'planned hurtle requires clone-owned vision buffers',
-            );
-        }
-        arg.isolateVision(state);
-    }
     vision_recalc(1, { state, redraw });
     await flush(1);
     if (ltyp !== state.level.at(oldX, oldY).typ)
-        await switch_terrain(state, { planning, message });
+        await switch_terrain(state, { message });
     await check_special_room(false, state, {
         message,
         random,
@@ -1072,16 +1036,7 @@ export async function hurtle_step(arg, x, y) {
         if (state.level.at(x, y).typ === WATER
             || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
             state.multi = 0;
-            if (planning) {
-                // C calls drown() after moving into the pool. It can kill,
-                // save or relocate the hero, so the clone cannot continue
-                // later monster decisions without replaying this effect live.
-                if (typeof arg?.requestPlanningInput === 'function')
-                    arg.requestPlanningInput('trap.c drown via hurtle');
-                throw new Error('planned hurtle into pool needs a live handoff');
-            } else {
-                await drown(state);
-            }
+            await drown(state);
             return false;
         }
         if (!Is_waterlevel(state.u.uz, state) && !stoppingShort) {
@@ -1101,27 +1056,23 @@ export async function hurtle_step(arg, x, y) {
             // landing trap after this callback has stopped one square short.
         } else if (trap.ttyp === MAGIC_PORTAL) {
             await dotrap(trap, NO_TRAP_FLAGS, state, {
-                planning, random, message, redraw,
-                planningDeath: arg?.planningDeath,
+                random, message, redraw,
             });
             return false;
         } else if (trap.ttyp === VIBRATING_SQUARE) {
             await message('The ground vibrates as you pass it.', state);
             await dotrap(trap, NO_TRAP_FLAGS, state, {
-                planning, random, message, redraw,
-                planningDeath: arg?.planningDeath,
+                random, message, redraw,
             });
         } else if (trap.ttyp === FIRE_TRAP) {
             await dotrap(trap, NO_TRAP_FLAGS, state, {
-                planning, random, message, redraw,
-                planningDeath: arg?.planningDeath,
+                random, message, redraw,
             });
         } else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
             && state.level.flags?.sokoban_rules) {
             if (!viaJumping)
                 await dotrap(trap, NO_TRAP_FLAGS, state, {
-                    planning, random, message, redraw,
-                    planningDeath: arg?.planningDeath,
+                    random, message, redraw,
                 });
             pointer.range = 0;
             return true;
@@ -1134,7 +1085,7 @@ export async function hurtle_step(arg, x, y) {
     }
     pointer.range = Math.max(0, range() - 1);
     if (range() !== 0)
-        await (planning ? async () => {} : nh_delay_output)(state);
+        await nh_delay_output(state);
     return true;
 }
 
@@ -1652,7 +1603,7 @@ async function check_shop_obj(obj, x, y, broken, state = game, rawEnv = {}) {
 export async function release_camera_demon(obj, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
-    const message = env.planning ? async () => {} : (env.message ?? ttyPline);
+    const message = env.message ?? ttyPline;
     if (!random.rn2(3)) {
         const species = random.rn2(3) ? PM_HOMUNCULUS : PM_IMP;
         const monster = await makemon_runtime(state.mons[species], x, y,
@@ -2957,7 +2908,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     // hmon(), whose kill path reaches mon.c xkilled()'s treasure drop and
     // mkobj.c mkobj(). C draws all of those from the one global RNG.
     const random = env.random ?? coreRandom;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     // Existing partial owners may still report an unported discarded or
     // impossible branch. Keep this source function running so such a gap
     // cannot replace a source arm with a new throw or consume extra RNG.
