@@ -85,7 +85,7 @@ test('create_particular hides eels only on pool terrain', () => {
         /import \{ is_pool \} from '\.\/dbridge\.js';/u);
 });
 
-test('read.c set_lit delegates burning-source checks to obj_is_burning', () => {
+test('read.c set_lit snuffs through light.c snuff_light_source', () => {
     const cSetLitStart = READ_C.indexOf('set_lit(coordxy x, coordxy y, genericptr_t val)');
     const cSetLitEnd = READ_C.indexOf('\n}\n', cSetLitStart);
     assert.ok(cSetLitStart >= 0 && cSetLitEnd > cSetLitStart);
@@ -104,10 +104,17 @@ test('read.c set_lit delegates burning-source checks to obj_is_burning', () => {
     const jsSetLitEnd = JS_READ.indexOf('\n}\n', jsSetLitStart);
     assert.ok(jsSetLitStart >= 0 && jsSetLitEnd > jsSetLitStart);
     const jsSetLit = JS_READ.slice(jsSetLitStart, jsSetLitEnd);
-    assert.match(jsSetLit, /obj_is_burning\(source\.id\)/u);
-    assert.ok(jsSetLit.indexOf('obj_is_burning(source.id)')
-        < jsSetLit.indexOf('artifact_light(source.id)'));
-    assert.doesNotMatch(jsSetLit, /source\.id\?\.lamplit/u);
+    assert.match(jsSetLit, /snuff_light_source\(x, y, state\)/u);
+    assert.doesNotMatch(jsSetLit, /del_light_source/u);
+
+    const jsSnuff = JS_LIGHT.slice(
+        JS_LIGHT.indexOf('export function snuff_light_source('),
+        JS_LIGHT.indexOf('\n}\n', JS_LIGHT.indexOf('export function snuff_light_source(')),
+    );
+    assert.ok(jsSnuff.indexOf('obj_is_burning(obj)')
+        < jsSnuff.indexOf('artifact_light(obj)'));
+    assert.match(jsSnuff, /end_burn\(obj, obj\.otyp !== MAGIC_LAMP/u);
+    assert.match(jsSnuff, /return;/u);
 
     const jsBurning = JS_LIGHT.slice(
         JS_LIGHT.indexOf('export function obj_is_burning('),

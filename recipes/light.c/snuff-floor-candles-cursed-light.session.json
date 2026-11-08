@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recipe for light.c snuff_light_source() through read.c set_lit(). A lit wax candle and then a lit tallow candle are dropped on the hero's square and a cursed scroll of light darkens it. C snuffs only the newest source on the square (the tallow candle) through end_burn(), which also stops its burn timer and clears lamplit; the wax candle stays lit. The look lists both. New seed and date chosen before comparison.",
+  "segments": [
+    {
+      "seed": 40917263,
+      "datetime": "20710308093000",
+      "nethackrc": "OPTIONS=name:Snuffer,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed wax candle\nag\u0017uncursed tallow candle\nahdgdh\u0017cursed scroll of light\nri : "
+    }
+  ]
+}

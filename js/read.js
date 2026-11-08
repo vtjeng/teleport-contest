@@ -64,7 +64,6 @@ import {
     NO_MM_FLAGS,
     ROWNO,
     ROOMOFFSET,
-    LS_OBJECT,
     thats_enough_tries,
     SPE_LIM,
     A_STR,
@@ -378,7 +377,7 @@ import {
     is_art,
 } from './artifacts.js';
 import {
-    arti_light_radius, del_light_source, obj_is_burning,
+    arti_light_radius, snuff_light_source,
 } from './light.js';
 import { digests, light_hits_gremlin } from './uhitm.js';
 import {
@@ -1984,8 +1983,7 @@ export async function seffect_identify(scroll, state = game) {
 
 // C ref: read.c set_lit() (2471-2488).  The callback keeps the permanent
 // terrain lighting in level.map and records gremlins for litroom()'s delayed
-// light damage.  Mobile object sources are removed by the same coordinate
-// check as light.c snuff_light_source().
+// light damage.
 function set_lit(x, y, lit, state, gremlins) {
     if (!isok(x, y)) return;
     const location = state.level?.at(x, y);
@@ -1998,22 +1996,7 @@ function set_lit(x, y, lit, state, gremlins) {
         return;
     }
     location.lit = false;
-    // C's snuff_light_source() only removes an object source and leaves
-    // artifact light alone.  Deleting through light.js preserves its list
-    // ownership and vision invalidation contract.
-    for (let source = state.gl?.light_base ?? null; source;) {
-        const next = source.next;
-        if (source.type === LS_OBJECT && source.x === x && source.y === y
-            && source.id && obj_is_burning(source.id)
-            && !artifact_light(source.id)) {
-            try {
-                del_light_source(source.type, source.id, state);
-            } catch {
-                // A stale source is already equivalent to C's absent source.
-            }
-        }
-        source = next;
-    }
+    snuff_light_source(x, y, state);
 }
 
 // C ref: read.c litroom() (2491-2634), for the light-scroll call.  The map
