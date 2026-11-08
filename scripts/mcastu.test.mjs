@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { expectTerminated } from './expect-terminated.mjs';
+
 import {
     A_STR,
     ANTIMAGIC,
@@ -35,6 +37,8 @@ import {
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_destroy_armor, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
@@ -2027,6 +2031,43 @@ test('Death touch direct-death return clears the killer only after recovery', as
     assert.deepEqual(calls, ['You feel drained...', DIED]);
     assert.equal(state.u.uhpmax, 37);
     assert.equal(state.killer.name, '');
+});
+
+test('Death touch names its killer before the real done(DIED)', async () => {
+    // mcastu.c touch_of_death() copies kbuf into svk.killer.name, then calls
+    // done(DIED), which ends the game; the name is cleared only on return.
+    // An independent Healer start supplies the real game done() needs.
+    await runSegment({ seed: 52906141, datetime: '20520918081500',
+        nethackrc: 'OPTIONS=name:Drained,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: ' ' });
+    // Damage74 drains37, exactly the maximum37: C uses >= for direct done.
+    game.u.uhp = game.u.uhpmax = 37;
+    const caster = makeCaster({ data: game.mons[PM_KOBOLD_SHAMAN] });
+    // Record the killer and every screen the game waits on, declining each
+    // disclosure question and dismissing each --More--, so the farewell is
+    // kept.
+    const display = game.nhDisplay;
+    const screens = [];
+    const killers = [];
+    display.onEmptyQueue = () => {
+        killers.push({ ...game.killer });
+        const screen = display.serialize();
+        screens.push(screen);
+        return (/\[yn/u.test(screen.split('\n')[0]) ? 'n' : ' ').charCodeAt(0);
+    };
+    const messages = [];
+    await expectTerminated(() => touch_of_death(caster, { state: game,
+        random: { d: () => 24 }, message: async text => messages.push(text) }),
+    'the direct-death arm ends the game');
+    assert.deepEqual(messages, ['You feel drained...']);
+    // done() waits for its first key with the killer already set.
+    assert.deepEqual(killers[0], { ...killers[0], format: KILLED_BY,
+        name: 'the touch of death inflicted by a kobold shaman' });
+    assert.equal(game.killer.name, 'the touch of death inflicted by a kobold shaman');
+    // end.c ends[DIED] is "died" in the farewell.
+    assert.match([...screens, display.serialize()].join('\n'),
+        /You died in The Dungeons of Doom/u);
+    assert.equal(game.u.uhpmax, 37, 'the direct-death arm skips setuhpmax()');
 });
 
 test('Death touch polymorphed arm sets mh to zero before rehumanize', async () => {
