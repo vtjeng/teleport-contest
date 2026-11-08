@@ -387,9 +387,12 @@ test('the natural pet-swap arrival replay pins the TTY handoff',
         // unchanged. One more blank top-line cell keeps color 7 because the
         // corner menu that follows finds the top line TOPLINE_EMPTY, and
         // tty_clear_nhwindow(WIN_MESSAGE) then leaves the line alone.
+        // Since the "Shall I pick ..." question goes through
+        // tty_yn_function(), six more blank cells on screen 10 store color 7
+        // instead of 8; the judge-format screens still match the C recording.
         assert.equal(
             digest(replay.getScreens()),
-            '528f6246441fa100399a3a0c3206659ab37e11c75c80c4dbf634580b2294694e',
+            'da303c8ac10aaa40d9c0989ac32d0a8cef40fc04e87197aef551b1799b528f0b',
         );
         assert.equal(
             digest(replay.getCursors()),
