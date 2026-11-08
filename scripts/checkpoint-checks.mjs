@@ -37,6 +37,25 @@ const GENERATED_CHECKS = [
 // final exit status and summary instead of failing with an incomplete log.
 const CHECKPOINT_CAPTURE_MAX_BUFFER = 64 * 1024 * 1024;
 
+// frozen/playability_runner.mjs prints __PLAYABILITY_JSON__ and then its
+// verdict as JSON; a missing or unreadable verdict fails the check.
+export function summarizePlayability(result) {
+    const marker = '__PLAYABILITY_JSON__';
+    const at = (result.stdout ?? '').lastIndexOf(marker);
+    let verdict = null;
+    try {
+        if (at >= 0) verdict = JSON.parse(result.stdout.slice(at + marker.length));
+    } catch { verdict = null; }
+    if (!verdict) return { passed: false, detail: 'no playability verdict' };
+    const failures = ((result.stderr ?? '').match(/^ {2}FAIL: .*$/gmu) ?? []).map((line) => line.trim());
+    return {
+        passed: result.status === 0 && verdict.playable === true,
+        detail: `${verdict.playable ? 'playable' : 'NOT playable'}: ${verdict.sessions} sessions, `
+            + `${verdict.failures} failed, ${verdict.overall_ms_per_move} ms per key`
+            + (failures.length ? `; ${failures.join('; ')}` : ''),
+    };
+}
+
 export function checkpointCommands() {
     const commands = [];
     commands.push({
@@ -190,6 +209,20 @@ export function checkpointCommands() {
             passed: result.status === 0,
             detail: result.stdout.trim().split('\n').at(-1) ?? '',
         }),
+    });
+    // The judge's own playability check, unmodified from frozen/: it plays the
+    // 44 fixed sessions through NethackGame and moveloop_core() one key at a
+    // time, as the browser play page does, not through runSegment(), and
+    // reports the port unplayable if any session throws or play averages
+    // 5 ms per key or more. 701bf5fd passed every other check here and failed
+    // this one at the judge.
+    commands.push({
+        label: 'browser playability',
+        group: 'scan',
+        command: process.execPath,
+        args: ['frozen/playability_runner.mjs', 'sessions', 'sessions/holdout'],
+        capture: true,
+        summarize: (result) => summarizePlayability(result),
     });
     return commands;
 }

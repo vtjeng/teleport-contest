@@ -5,6 +5,7 @@ import { basename, dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import {
+    summarizePlayability,
     checkpointCommands,
     bookkeepingCommands,
     compareScoreToBaseline,
@@ -128,6 +129,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'session scan',
             'end-of-input over-read',
             'planning leaks',
+            'browser playability',
         ],
     );
 });
@@ -506,4 +508,25 @@ test('hosted failure artifacts retain assertions outside the displayed tail', (t
     const retained = readFileSync(results[0].logPath, 'utf8');
     assert.ok(retained.includes(diagnostic));
     assert.ok(retained.includes(lines.at(-1)));
+});
+
+// The verdict layout below is what frozen/playability_runner.mjs prints; the
+// values are arbitrary except `playable`, `failures` and the FAIL line, which
+// select the branch each case checks.
+test('browser playability passes only on a playable verdict', () => {
+    const stdout = (playable, failures) => `__PLAYABILITY_JSON__\n${JSON.stringify({
+        sessions: 43 + failures, failures, overall_ms_per_move: 2.3, playable,
+    })}\n`;
+    assert.deepEqual(summarizePlayability({ status: 0, stdout: stdout(true, 0), stderr: '' }),
+        { passed: true, detail: 'playable: 43 sessions, 0 failed, 2.3 ms per key' });
+    const failed = summarizePlayability({
+        status: 0,
+        stdout: stdout(false, 1),
+        stderr: '  FAIL: seed0361-archeologist-tour.session.json — planning pass reached the live game\n',
+    });
+    assert.equal(failed.passed, false);
+    assert.match(failed.detail, /^NOT playable: 44 sessions, 1 failed, .*FAIL: seed0361-archeologist-tour/u);
+    // A runner that crashed before printing its verdict fails the check.
+    assert.deepEqual(summarizePlayability({ status: 1, stdout: '', stderr: 'boom' }),
+        { passed: false, detail: 'no playability verdict' });
 });
