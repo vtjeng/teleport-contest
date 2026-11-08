@@ -560,7 +560,7 @@ export async function kick_monster(mon, x, y, state = game) {
 // mpickobj consumes it. The TRUE result prevents that caller placing it again.
 export async function ghitm(monster, gold, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     let messageGiven = false;
     if (!likes_gold(monster.data) && !monster.isshk && !monster.ispriest
@@ -652,9 +652,8 @@ export async function kick_object(x, y, kickName, state = game, rawEnv = {}) {
 // a whole stack before splitobj; the returned Boolean controls dokick's ouch.
 export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
-    const redraw = rawEnv.planning ? () => {}
-        : (rawEnv.redraw ?? ((px, py) => newsym(px, py, state)));
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? ((px, py) => newsym(px, py, state));
     const env = objectGenerationEnv({ ...rawEnv, state, random, message, redraw });
     const u = state.u;
     const object = () => state.gk.kickedobj;
@@ -716,7 +715,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     let costly = Boolean(keeper && (costly_spot(x, y, state)
         || (costly_adjacent(keeper, x, y, state) && object().unpaid)));
     const kickLine = `You kick ${!isGold ? singular(object(), donameFresh, state) : donameFresh(object(), state)}.`;
-    await (rawEnv.planning ? message : (rawEnv.norepMessage ?? rawEnv.message ?? ttyNorep))(kickLine, state, env);
+    await (rawEnv.norepMessage ?? rawEnv.message ?? ttyNorep)(kickLine, state, env);
     if (IS_OBSTRUCTED(state.level.at(x, y).typ) || closed_door(x, y, state)) {
         if ((!martial(state) && random.rn2(20) > acurr(state, A_DEX))
             || IS_OBSTRUCTED(state.level.at(u.ux, u.uy).typ)
@@ -1777,7 +1776,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     if (obj.otyp === BOULDER) obj.otrapped = 0;
     if (impact) {
         await impact_drop(obj, x, y, 0, env);
-        if (!env.planning) newsym(x, y);
+        newsym(x, y);
     }
     return true;
 }
