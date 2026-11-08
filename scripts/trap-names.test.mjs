@@ -52,21 +52,24 @@ test('trapname preserves display/core RNG order and override/resistance gates', 
     assert.deepEqual(calls, []);
 });
 
-test('trapname draws a hallucinated name from its own state\'s display stream',
+test('trapname draws a hallucinated name from the display stream by default',
     async () => {
-        // unported_monster_actions.js planningState() gives a monster-turn
-        // dry run its own copy of rnd.c's display stream; a name built there
-        // must leave the live stream where it was.
+        // trap.c trapname() picks the hallucinated index with
+        // rn2_on_display_rng(), so the default draw advances rnd.c's display
+        // stream, leaves the core stream alone, and repeats from the same
+        // display state.
         await runSegment({ seed: 6614907, datetime: '20381102170500', moves: '',
             nethackrc: 'OPTIONS=name:Moss,role:Priest,race:human,gender:male,align:lawful\n'
                 + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n' });
         game.u.uprops[HALLUC].intrinsic = 30; // A nonzero hallucination timeout.
         game.u.uprops[HALLUC_RES].intrinsic = 0;
         game.u.uprops[HALLUC_RES].extrinsic = 0;
-        const planned = { ...game, displayCtx: cloneIsaacContext(game.displayCtx) };
-        const liveBefore = cloneIsaacContext(game.displayCtx);
-        const name = trapname(WEB, false, planned);
-        // The live stream, untouched, reproduces the clone's draw.
-        assert.deepEqual(game.displayCtx, liveBefore);
+        const displayBefore = cloneIsaacContext(game.displayCtx);
+        const coreBefore = cloneIsaacContext(game.coreCtx);
+        const name = trapname(WEB, false, game);
+        assert.notDeepEqual(game.displayCtx, displayBefore);
+        assert.deepEqual(game.coreCtx, coreBefore);
+        // The same display state reproduces the draw.
+        game.displayCtx = cloneIsaacContext(displayBefore);
         assert.equal(trapname(WEB, false, game), name);
     });
