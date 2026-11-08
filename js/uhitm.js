@@ -4162,12 +4162,14 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             if (is_anml && stolenName.value && canseemon(magr, state)) {
                 // uhitm.c:mhitm_ad_sedu() reports the stolen name before
                 // monflee(), using the same caller-filled buffer as steal().
-                await message(
+                // C: pline_mon(magr, ...), so accessiblemsg prefixes the
+                // thief's square.
+                await message(messageAt(
                     `${Monnam(magr, state, env)} tries to `
                         + `${locomotion(magr.data, 'run')} away with `
                         + `${stolenName.value}.`,
-                    state,
-                );
+                    magr.mx, magr.my, state,
+                ), state);
             }
             await monflee(magr, 0, false, false, { ...env, state, random });
             mhm.hitflags = M_ATTK_AGR_DONE;

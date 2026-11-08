@@ -326,7 +326,9 @@ async function precheck(mon, obj, state, env = {}, selection = null) {
                     }
                 } else {
                     if (vis) {
-                        await pline_mon(mon,
+                        // C uses plain pline() here, unlike the djinni's
+                        // pline_mon(), so accessiblemsg adds no location.
+                        await ttyPline(
                             `As ${monsterCommonName(mon, state)} opens `
                             + `the bottle, an enormous `
                             + `${Hallucination(state.u)
@@ -1541,14 +1543,14 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         const nambuf = monsterCommonName(mtmp, state);
         mon_set_minvis(mtmp, Boolean(otmp.cursed), state);
         if (vismon && mtmp.minvis) { /* was seen, now invisible */
+            // C prints both lines with plain pline(), so accessiblemsg
+            // adds no location prefix.
             if (canspotmon(mtmp, state)) {
-                await ttyPline(messageAt(
+                await ttyPline(
                     `${upstart(s_suffix(nambuf))} body takes on a ${Hallucination(state.u) ? 'normal' : 'strange'} transparency.`,
-                    mtmp.mx, mtmp.my, state), state);
+                    state);
             } else {
-                await ttyPline(messageAt(
-                    `Suddenly you cannot see ${nambuf}.`,
-                    mtmp.mx, mtmp.my, state), state);
+                await ttyPline(`Suddenly you cannot see ${nambuf}.`, state);
                 if (vis)
                     mapInvisibleAt(mtmp.mx, mtmp.my, state);
             }

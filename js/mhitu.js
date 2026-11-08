@@ -1743,7 +1743,9 @@ export async function mattacku(monster, rawEnv = {}) {
 
     if (u.uinvulnerable) {
         if (monster === u.ustuck) {
-            await message(`${Monnam(monster, state, env)} loosens its grip slightly.`, state, env);
+            // C: pline_mon(mtmp, ...), prefixed under accessiblemsg.
+            await message(messageAt(`${Monnam(monster, state, env)} loosens its grip slightly.`,
+                monster.mx, monster.my, state), state, env);
         } else if (!range2) {
             await message(initial.youseeit || sensemon(monster, state)
                 ? `${Monnam(monster, state, env)} starts to attack you, but pulls back.`

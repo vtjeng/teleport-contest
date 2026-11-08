@@ -1753,8 +1753,9 @@ export async function meatobj(mtmp, rawEnv = {}) {
         obj = nextObj;
     }
     if (engulfed && state.flags?.verbose) {
+        // C prints the engulf line with pline1(), which has no location.
         if (cansee(mtmp.mx, mtmp.my, state) && messageText)
-            await monsterMessage(messageText, mtmp, state, rawEnv);
+            await monsterMessage(messageText, null, state, rawEnv);
         else {
             const heard = youHear(
                 `${engulfed === 1 ? 'a' : 'several'} slurping sound${engulfed === 1 ? '' : 's'}.`,
