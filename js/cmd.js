@@ -226,7 +226,7 @@ import { initialExtcmdFlags, parseautocomplete } from './cmd_autocomplete.js';
 import {
     tty_get_ext_cmd,
 } from './getline.js';
-import { tty_yn_function } from './topl.js';
+import { tty_putmsghistory, tty_yn_function } from './topl.js';
 import { game } from './gstate.js';
 import { getnow } from './calendar.js';
 import { getpos, getpos_menu } from './getpos.js';
@@ -1832,9 +1832,8 @@ export async function get_count(
     const resultCount = countOut && typeof countOut === 'object'
         ? countOut.value ?? 0 : committedCount;
     if (historicmsg || (conditionalmsg && resultCount !== first)) {
-        const historyLine = `Count: ${resultCount} ${key2txt(key)}`;
-        state.messageHistory ??= [];
-        state.messageHistory.push(historyLine);
+        // C: putmsghistory(qbuf, FALSE), the tty port's message history.
+        tty_putmsghistory(`Count: ${resultCount} ${key2txt(key)}`, false, state);
     }
     return { key, count: resultCount };
 }
