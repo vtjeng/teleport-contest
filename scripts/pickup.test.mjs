@@ -1425,7 +1425,7 @@ test('pickup reports the C carry_count refusal at maximum-capacity equality',
         );
     });
 
-test('pickup defers planning through the source partial-stack lift path', async () => {
+test('pickup defers its addinv preflight through the source partial-stack lift path', async () => {
     const cSource = await readFile(
         new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
         'utf8',
