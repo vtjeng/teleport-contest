@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs } from './diff-fresh.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-timeouts.mjs';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
+    ACCESSIBLE,
     ACID_RES,
     A_CON,
     A_DEX,
@@ -13,6 +15,7 @@ import {
     BURN_OBJECT,
     CONFUSION,
     COLD_RES,
+    DOOR,
     ECMD_OK,
     DEAF,
     FAINTED,
@@ -27,6 +30,7 @@ import {
     HATCH_EGG,
     HALLUC,
     ICE,
+    I_SPECIAL,
     ICED_POOL,
     INVULNERABLE,
     LAST_PROP,
@@ -79,7 +83,7 @@ import {
 import { wipeoff } from '../js/do.js';
 import { eatfood } from '../js/eat.js';
 import * as eatModule from '../js/eat.js';
-import { initRng } from '../js/rng.js';
+import { coreRandom, initRng } from '../js/rng.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
 import {
@@ -95,6 +99,7 @@ import {
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
+    PM_PONY,
     PM_TROLL,
     PM_GREEN_SLIME,
     LOW_PM,
@@ -149,6 +154,8 @@ import {
     timeout_globals_init,
 } from '../js/timeout.js';
 import { Blind } from '../js/youprop.js';
+import { mount_steed } from '../js/steed.js';
+import { m_at } from '../js/monst.js';
 
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const C_EAT = readFileSync('nethack-c/upstream/src/eat.c', 'utf8');
@@ -243,6 +250,54 @@ function monsterTimerState(moves = 1) {
     const state = timerState(moves);
     monst_globals_init(state);
     return state;
+}
+
+// A fatal expiry (timeout.c done_timeout(), slimed_to_death()) and a riding
+// accident (steed.c dismount_steed()) need a real game rather than a stand-in
+// state. Each call starts a fresh one from an independent seed and options.
+async function startTimeoutGame(role, align, seed) {
+    await runSegment({ seed, datetime: '20520803141500',
+        nethackrc: `OPTIONS=name:Timeout,role:${role},race:human,gender:female,align:${align},!legacy,!tutorial,!splash_screen,!acoustics`,
+        moves: ' ' });
+    // Spaces dismiss each --More-- that done() or dismount_steed() raises.
+    for (let index = 0; index < 32; index++) game.nhDisplay.pushKey(32);
+    return game;
+}
+
+// A real mounted hero: u_init.c gives a Knight a saddled pony, which
+// mount_steed(force) puts under her.
+async function mountedKnight(seed) {
+    const state = await startTimeoutGame('Knight', 'lawful', seed);
+    let pony = null;
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.mtame && mtmp.data === state.mons[PM_PONY]) pony = mtmp;
+    assert.ok(pony, 'the Knight starts with her pony');
+    assert.equal(await mount_steed(pony, true, state), true);
+    assert.equal(state.u.usteed, pony);
+    // 100 hit points outlast dismount_steed()'s rn1(10, 10) riding accident.
+    state.u.uhp = state.u.uhpmax = 100;
+    return state;
+}
+
+// steed.c landing_spot() tries the eight neighbours in xytodir() order W, NW,
+// N, NE, E, SE, S, SW. With the hero and every neighbour on accessible
+// non-door terrain and no neighbour holding a monster, each is viable
+// (accessible(), !MON_AT(), test_move()); W sets the first candidate at
+// distance 1, and N, E and S tie it, each drawing rn2(viable) with viable 3,
+// 5 and 7 (`!rn2(viable)`).
+const OPEN_LANDING_DRAWS = [3, 5, 7];
+function assertOpenLanding(state) {
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+            const x = state.u.ux + dx;
+            const y = state.u.uy + dy;
+            const { typ } = state.level.at(x, y);
+            assert.ok(ACCESSIBLE(typ) && typ !== DOOR,
+                `(${x},${y}) is open floor, not a door test_move() limits`);
+            if (dx || dy)
+                assert.equal(m_at(x, y, state), null, `(${x},${y}) has no monster`);
+        }
+    }
 }
 
 function propertyTimeoutState() {
@@ -429,7 +484,8 @@ test('timeout.c releases delayed killers when STONED or fatal SICK expires', asy
     assert.match(JS_TIMEOUT, /case STONED:[\s\S]*?dealloc_killer\(killer, state\);/u);
     assert.match(JS_TIMEOUT, /case SICK:[\s\S]*?dealloc_killer\(killer, state\);/u);
 
-    const state = propertyTimeoutState();
+    // The expiry calls done_timeout(STONING, STONED), which ends the game.
+    const state = await startTimeoutGame('Healer', 'neutral', 61730231);
     state.u.uprops[STONED].intrinsic = 1;
     state.killer = {
         name: '',
@@ -438,10 +494,10 @@ test('timeout.c releases delayed killers when STONED or fatal SICK expires', asy
     };
     // stoned_dialogue exercises Dexterity once before the one-turn expiry.
     const draws = [];
-    await nh_timeout(state, { planning: true, random: { rn2(bound) {
+    await expectTerminated(() => nh_timeout(state, { random: { rn2(bound) {
         draws.push(bound);
         return 1;
-    } } });
+    } } }), 'STONED expiry calls done(STONING)');
     assert.deepEqual(draws, [2]);
     assert.equal(state.killer.name, 'cockatrice');
     assert.equal(state.killer.format, 7);
@@ -454,17 +510,27 @@ test('VOMITING expiry clears the clock through potion.c make_vomiting', async ()
     assert.match(JS_TIMEOUT,
         /case VOMITING:\s*await make_vomiting\(0, true, state, env\);/u);
 
-    const state = propertyTimeoutState();
     // C decrements this one-turn timeout to zero before invoking the helper.
-    state.u.uprops[VOMITING].intrinsic = 1;
+    // nh_timeout() first runs vomiting_dialogue() case 0 for Vomiting=1.
+    const state = vomitingTimeoutState(1);
+    const random = vomitingRandom();
     const messages = [];
     await nh_timeout(state, {
-        planning: true,
-        message: async (line) => messages.push(line),
+        random: random.random,
+        message: async (line) => {
+            messages.push(line);
+            // Between this line and the expiry, eat.c vomit() and
+            // exercise(A_CON) leave disp.botl alone, so clearing it here
+            // leaves make_vomiting() as the only source of the final value.
+            state.disp.botl = false;
+        },
     });
     assert.equal(state.u.uprops[VOMITING].intrinsic, 0);
     assert.equal(state.disp.botl, true);
-    assert.deepEqual(messages, [],
+    // timeout.c vomiting_dialogue() case 0 prints "You vomit!"; potion.c
+    // make_vomiting() would add "You feel much less nauseated now." only
+    // when old != 0.
+    assert.deepEqual(messages, ['You vomit!'],
         'the helper observes old == 0 after the caller decrements expiry');
 });
 
@@ -800,14 +866,16 @@ test('ordinary mounted fumbling keeps the four source messages in order',
         ];
 
         for (const [result, expected] of cases) {
-            // A minimal mounted object has no minvent saddle, selecting the
-            // source's non-cursed-or-absent-saddle branch.
-            const state = plainFumblingState();
-            state.u.usteed = {};
+            // The Knight's starting saddle is uncursed, selecting the
+            // source's non-cursed-or-absent-saddle branch. This independent
+            // seed leaves the mounted hero in open floor; each arm gets a
+            // fresh game, because the dismount ends the ride.
+            const state = await mountedKnight(48213307);
+            assert.ok(!state.u.usteed.minvent?.cursed, "the saddle is not cursed");
+            assertOpenLanding(state);
             const messages = [];
             const draws = [];
             await slip_or_trip(state, {
-                planning: true,
                 random: {
                     rn2(bound) {
                         draws.push(bound);
@@ -817,8 +885,15 @@ test('ordinary mounted fumbling keeps the four source messages in order',
                 message: async (text) => messages.push(text),
             });
             // `result` is the corresponding timeout.c rn2(4) switch arm.
+            // dismount_steed() writes its own line to the terminal, so the
+            // supplied callback holds only slip_or_trip()'s.
             assert.deepEqual(messages, [expected], `rn2(4)=${result}`);
-            assert.deepEqual(draws, [4], `rn2(4)=${result}`);
+            // slip_or_trip() draws rn2(4) once; the trailing
+            // dismount_steed(DISMOUNT_FELL) passes the same random to
+            // landing_spot(), and its riding-accident damage uses core rn1.
+            assert.deepEqual(draws, [4, ...OPEN_LANDING_DRAWS], `rn2(4)=${result}`);
+            assert.equal(state.u.usteed, null,
+                `rn2(4)=${result}: timeout.c dismount_steed(DISMOUNT_FELL)`);
         }
     });
 
@@ -889,7 +964,6 @@ test('stationary fumbling expiry clears outside and only draws extension',
 
 test('fumbling expiry preserves its caller across object, ice, and rider branches', async () => {
     const cases = [
-        ['while mounted', (state) => { state.u.usteed = {}; }],
         ['while levitating', (state) => {
             state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 1 };
         }],
@@ -925,9 +999,6 @@ test('fumbling expiry preserves its caller across object, ice, and rider branche
         const state = plainFumblingState();
         mutate(state);
         await nh_timeout(state, {
-            // This fixture uses a placeholder steed, so exercise timeout's
-            // clone-safe dispatch without invoking riding accident effects.
-            planning: true,
             random: { rn2: () => 0, rnd: () => 5 },
             message: async () => {},
         });
@@ -936,6 +1007,21 @@ test('fumbling expiry preserves its caller across object, ice, and rider branche
             label === 'while levitating' || label === 'while flying' ? 0 : -2,
             label);
     }
+
+    // The rider branch ends in dismount_steed(DISMOUNT_FELL), which needs a
+    // real steed. The same one-turn Fumbling clock with an extrinsic source
+    // expires after a move.
+    const state = await mountedKnight(48213307);
+    state.u.umoved = true;
+    state.u.uprops[FUMBLING].intrinsic = 1;
+    state.u.uprops[FUMBLING].extrinsic = 1;
+    await nh_timeout(state, {
+        random: { rn2: () => 0, rnd: () => 5 },
+        message: async () => {},
+    });
+    assert.equal(state.u.uprops[FUMBLING].intrinsic, 5, 'while mounted');
+    assert.equal(state.multi, -2, 'while mounted');
+    assert.equal(state.u.usteed, null, 'while mounted: the rider falls off');
 });
 
 test('fumbling expiry catches deferred decoration through pickup owner', async () => {
@@ -3117,8 +3203,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
             };
             const urgentMessages = [];
             await nh_timeout(state, {
-                planning: true,
-                random,
+                    random,
                 message: async (line) => events.push(`message ${line}`),
                 urgentMessage: async (line) => {
                     events.push(`urgent ${line}`);
@@ -3137,7 +3222,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
             assert.equal(state.u.uprops[SLIMED].intrinsic, countdown - 1,
                 'nh_timeout decrements the active timeout after the helper');
             assert.equal(state._pending_message, '',
-                'the planning clone receives no terminal output');
+                'every line goes to the supplied callbacks, none to the terminal');
         }
 
         // EBlinded from a worn blindfold is enough for C Blind even when
@@ -3151,7 +3236,6 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         const blindMessages = [];
         const blindDraws = [];
         await nh_timeout(blindfolded, {
-            planning: true,
             random: {
                 rn2(bound) {
                     assert.equal(bound, 2,
@@ -3183,7 +3267,6 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         };
         const noLimbsMessages = [];
         await nh_timeout(noLimbs, {
-            planning: true,
             random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
             message: async () => {},
             urgentMessage: async (line) => noLimbsMessages.push(line),
@@ -3203,7 +3286,6 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         limbs.go = { occupation: reading, occtxt: 'reading' };
         const limbEvents = [];
         await nh_timeout(limbs, {
-            planning: true,
             random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
             message: async (line) => limbEvents.push(line),
             urgentMessage: async () => {},
@@ -3219,7 +3301,6 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         // Timeout 2 is below C's five-turn floor; nh_timeout then decrements it.
         deaf.u.uprops[DEAF].intrinsic = FROMOUTSIDE | 2;
         await nh_timeout(deaf, {
-            planning: true,
             random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
             urgentMessage: async () => {},
             message: async () => {},
@@ -3232,7 +3313,6 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         // A live petrification timeout is cleared while FROMOUTSIDE survives.
         stoned.u.uprops[STONED].intrinsic = FROMOUTSIDE | 8;
         await nh_timeout(stoned, {
-            planning: true,
             random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
             urgentMessage: async () => {},
             message: async () => {},
@@ -3241,24 +3321,34 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
 
         // At the last Slimed tick C updates the self glyph before its final
         // dialogue. Hallucination selects rndmonnam on display RNG; the DEX
-        // exercise remains on the gameplay stream afterward.
-        const final = slimeTimeoutState(1);
+        // exercise remains on the gameplay stream afterward. The expiry then
+        // calls slimed_to_death(), whose polymon() and done(TURNED_SLIME)
+        // need a real game.
+        const final = await startTimeoutGame('Healer', 'neutral', 61730233);
+        final.u.uprops[SLIMED].intrinsic = 1;
         // C's final tick has i=0: it reveals the self glyph and hallucinates.
         final.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+        const dexterityExercise = final.u.aexe[A_DEX];
         const events = [];
         let displayDraw = 0;
         const coreCalls = [];
-        await nh_timeout(final, {
-            planning: true,
-            random: {
-                rn2(bound) {
-                    coreCalls.push(bound);
-                    assert.equal(bound, 2);
-                    return 1;
-                },
-                rnd: () => 1,
-                d: () => 1,
-            },
+        // The first rn2 is slime_dialogue()'s exercise(A_DEX, FALSE), whose
+        // rn2(2)=1 is C's decrement branch; later draws use the core stream.
+        let firstDraw = true;
+        const recorded = (name) => (...args) => {
+            coreCalls.push([name, ...args]);
+            if (name === 'rn2' && firstDraw) {
+                firstDraw = false;
+                return 1;
+            }
+            return coreRandom[name](...args);
+        };
+        const random = Object.fromEntries(
+            ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnl', 'rnz']
+                .map((name) => [name, recorded(name)]),
+        );
+        await expectTerminated(() => nh_timeout(final, {
+            random,
             displayRandom(bound) {
                 const expected = displayDraw === 0
                     ? (SPECIAL_PM + 100 - LOW_PM) : 2;
@@ -3270,21 +3360,38 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
                 return displayDraw === 1 ? PM_GNOME - LOW_PM : 0;
             },
             newsym(x, y, state) {
-                events.push(['newsym', x, y, state]);
+                // polymon() later resets the mimicry (polyself.c), so read it
+                // when slime_dialogue() redraws the hero.
+                events.push(['newsym', x, y, state,
+                    state.youmonst.m_ap_type, state.youmonst.mappearance]);
             },
             urgentMessage: async (line) => events.push(['urgent', line]),
-            message: async () => {},
-        });
-        assert.deepEqual(events, [
-            ['newsym', 10, 10, final],
+            message: async (line) => events.push(['message', line]),
+        }), 'the final Slimed tick calls done(TURNED_SLIME)');
+        // slime_dialogue() redraws and speaks before the expiry, whose first
+        // line is polymon()'s You("%s %s!", "turn into", ...) (polyself.c).
+        // The armour and encumbrance lines after it depend on the Healer's
+        // kit and are not checked here.
+        assert.deepEqual(events.slice(0, 3), [
+            ['newsym', final.u.ux, final.u.uy, final,
+                M_AP_MONSTER, PM_GREEN_SLIME],
             ['urgent', 'You have become a gnome.'],
+            ['message', 'You turn into a green slime!'],
         ]);
         assert.equal(displayDraw, 2);
-        assert.deepEqual(coreCalls, [2]);
-        assert.equal(final.youmonst.m_ap_type, M_AP_MONSTER);
-        assert.equal(final.youmonst.mappearance, PM_GREEN_SLIME);
-        assert.equal(final.u.aexe[A_DEX], -1);
-        assert.equal(final.u.uprops[SLIMED].intrinsic, 0);
+        // slime_dialogue() draws only exercise(A_DEX, FALSE)'s rn2(2) before
+        // the expiry. polymon() then draws exercise(A_CON, FALSE)'s rn2(2)
+        // and exercise(A_WIS, TRUE)'s rn2(19) (polyself.c:758-759 through
+        // attrib.c exercise()), u.mtimedone = rn1(500, 500) (polyself.c:813)
+        // and u.mhmax = d(mlvl, 8) for the level-6 green slime
+        // (polyself.c:868).
+        assert.deepEqual(coreCalls, [
+            ['rn2', 2], ['rn2', 2], ['rn2', 19], ['rn1', 500, 500], ['d', 6, 8],
+        ]);
+        assert.equal(final.u.aexe[A_DEX], dexterityExercise - 1);
+        // done_timeout() sets I_SPECIAL before done(); the game ends there,
+        // so it is never cleared.
+        assert.equal(final.u.uprops[SLIMED].intrinsic, I_SPECIAL);
     });
 
 test('vomiting crossing HUNGRY retains callbacks and fills missing endRunning', async () => {
