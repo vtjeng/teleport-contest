@@ -1668,6 +1668,23 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
                     && is_pick(state.uwep, state))))) {
         return;
     }
+    // A safe monster on iron bars that the hero cannot pass. The same
+    // obstacle arm's IRONBARS branch (hack.c:1023-1036) returns FALSE for
+    // DO_MOVE, with "You cannot pass through the bars." only under
+    // mention_walls, so domove_core() stops before the swap. A rusting,
+    // corroding or metal-eating hero may chew through instead, and a hero
+    // who passes bars falls through; both stay refused below.
+    if (destination && destination.typ === IRONBARS
+        && !(Passes_walls(state.u)
+            && may_passwall(x, y, state))
+        && (state.u?.uinwater
+            || (!dmgtype(state.youmonst?.data, AD_RUST)
+                && !dmgtype(state.youmonst?.data, AD_CORR)
+                && !metallivorous(state.youmonst?.data)
+                && !Passes_walls(state.u)
+                && !passes_bars(state.youmonst?.data)))) {
+        return;
+    }
     // C records a pony on wished ICE and CLOUD, a little dog in both an
     // intact open doorway and a kicked-broken doorway, and a tame water
     // elemental in a pool. test_move() admits those destinations and

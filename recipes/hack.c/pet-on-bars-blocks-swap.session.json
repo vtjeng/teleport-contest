@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50417,
+      "datetime": "20370708160000",
+      "nethackrc": "OPTIONS=name:Brakka,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u0017iron bars\nh\u0007tame sewer rat\nsslllss",
+      "comment": "A debug dwarvish Valkyrie wishes for iron bars on her own square, steps west off them and creates a tame sewer rat, which passes between the bars and stands on them after two searches. She then moves east into the rat three times. uhitm.c do_attack() draws rn2(7) for each safe-pet displacement, then hack.c test_move()'s IRONBARS arm returns FALSE because a dwarf cannot pass bars, so domove_core() stops before domove_swap_with_pet(), no message is printed and no time passes."
+    }
+  ],
+  "comment": "hack.c test_move(): iron bars under a pet stop a displacement after do_attack()'s draw. The seed, clock, character and inputs were chosen for this case."
+}
