@@ -308,6 +308,8 @@ test('make_hallucinated forwards every display seam in source order',
     });
     assert.deepEqual(events.map(([kind]) => kind),
         ['monsters', 'objects', 'traps', 'message']);
+    // potion.c:381-383 for a nonzero xtime and a hero who can see.
+    assert.equal(events[3][1], 'Oh wow!  Everything looks so cosmic!');
     assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
     assert.equal(game.disp.botl, true);
     assert.equal(events[0][1], game);
