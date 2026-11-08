@@ -847,9 +847,8 @@ export async function touch_artifact(obj, monster, env = game) {
 
     const artifact = state.artilist[index];
     const yours = monster === state.youmonst;
-    // A caller passes either the game state or an env carrying it. An env's
-    // message and losehp() operations let a planning clone run this hero arm
-    // without writing to the live message window.
+    // A caller passes either the game state or an env carrying it. An env may
+    // supply this hero arm's message and losehp() operations.
     const effectEnv = env === state ? {} : env;
     const message = effectEnv.message ?? ttyPline;
     /* all quest artifacts are self-willed; if this ever changes, `badclass'
@@ -901,8 +900,8 @@ export async function touch_artifact(obj, monster, env = game) {
 // The seam every monster-side C caller of touch_artifact() reaches: mon.c
 // can_touch_safely() in js/weapon.js, and mon.c meatmetal()/meatobj() through
 // js/mon.js. Ordinary objects are touchable without an operation. Artifact
-// callers may still inject a planning or focused-test predicate, while live
-// monster callers use the synchronous monster_touch_artifact() owner below.
+// callers may still inject a focused-test predicate, while live monster
+// callers use the synchronous monster_touch_artifact() owner below.
 export function artifactTouchable(obj, monster, env) {
     if (!obj.oartifact) return true;
     if (typeof env?.touchArtifact === 'function')
@@ -1069,7 +1068,6 @@ function* set_artifact_intrinsic_steps(otmp, on, wp_mask, state, rawEnv) {
         ...rawEnv,
         state: normalized,
         redraw: rawEnv.redraw ?? (normalized === game ? newsym : () => {}),
-        ...(rawEnv.planning && !rawEnv.message ? { message: async () => {} } : {}),
     };
     const dtyp = wp_mask !== W_ART ? oart.defn.adtyp : oart.cary.adtyp;
     let property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
@@ -1776,18 +1774,9 @@ const fakename = ['mon', 'you'];
 export async function Mb_hit(
     magr, mdef, mb, dmgptr, dieroll, vis, hittee, state = game, rawEnv = {},
 ) {
-    const env = typeof rawEnv.planningDeath === 'function'
-        ? {
-            ...rawEnv,
-            state,
-            // Cancellation can fatally rehumanize the hero. Preserve the
-            // attacking monster at that non-returning planning boundary.
-            planningDeath: () => rawEnv.planningDeath(magr),
-        }
-        : { ...rawEnv, state };
+    const env = { ...rawEnv, state };
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const youattack = (magr === state.youmonst);
     const youdefend = (mdef === state.youmonst);
     let resisted = false;
@@ -1833,8 +1822,8 @@ export async function Mb_hit(
             state, env);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
-        // A planning clone keeps display.c map_invisible()'s memory write
-        // and leaves the live paint to the replayed turn.
+        // map_invisible() paints the global game, so a foreign state (such
+        // as a test's hand-built state) keeps only its memory write.
         if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
             if (state === game) map_invisible(mdef.mx, mdef.my, state);
             else map_invisible_planning(mdef.mx, mdef.my, state);
@@ -2013,8 +2002,7 @@ export async function artifact_hit(
     // source gets the whole core set C calls.
     const random = env.random ?? coreRandom;
     const effectEnv = { ...env, state, random };
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const youattack = (magr === state.youmonst);
     const youdefend = (mdef === state.youmonst);
     const vis = (!youattack && magr && cansee(magr.mx, magr.my, state))
@@ -2326,13 +2314,7 @@ export async function artifact_hit(
                         state);
                 }
             }
-            const losexpEnv = typeof effectEnv.planningDeath === 'function'
-                ? {
-                    ...effectEnv,
-                    planningDeath: () => effectEnv.planningDeath(magr),
-                }
-                : effectEnv;
-            await losexp('life drainage', state, losexpEnv);
+            await losexp('life drainage', state, effectEnv);
             if (magr && magr.mhp < magr.mhpmax) {
                 healmon(magr, Math.trunc((Math.abs(oldhpmax - state.u.uhpmax) + 1) / 2), 0);
             }
@@ -3021,10 +3003,8 @@ export function glow_verb(count, ingsfx) {
 // C ref: artifact.c Sting_effects() (2465-2502). Warning glow for Sting,
 // Orcrist, and Grimtooth.
 export async function Sting_effects(orc_count, state = game, env = {}) {
-    // `uwep` is a game-level equipment pointer in decl.h. Planning clones
-    // remap that pointer at their top level, so do not read the stale nested
-    // shape here. A caller-owned message seam keeps the source call usable
-    // without painting a planning clone onto the live terminal.
+    // `uwep` is a game-level equipment pointer in decl.h, read from the
+    // state's top level. A caller may supply its own message operation.
     const uwep = state.uwep;
     const message = env.message ?? ttyPline;
     if (uwep
@@ -3224,18 +3204,6 @@ async function untouchable(obj, drop_untouchable, state = game, rawEnv = {}) {
 // and carried objects after a form or alignment change. The per-game field
 // represents C's static recursion counter; nested calls share it across awaits.
 export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
-    // The touch tests print, can blast the hero to death in done(), and
-    // unwield or drop equipment. Stop a planning clone here so its owner
-    // replays this source path live, then replans from that state. With an
-    // empty pack and no steed every scan below finds nothing, and the call
-    // has no observable effect, so a plan may continue through it.
-    if (rawEnv.planning && (state.invent || state.u.usteed)) {
-        if (typeof rawEnv.requestPlanningInput !== 'function')
-            throw new TypeError(
-                'planned retouch_equipment requires a replay boundary',
-            );
-        return rawEnv.requestPlanningInput('artifact.c retouch_equipment');
-    }
     const had_gloves = Boolean(state.uarmg);
     const had_rings = Number(Boolean(state.uleft)) + Number(Boolean(state.uright));
     const retouchEnv = { ...rawEnv, state };
