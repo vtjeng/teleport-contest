@@ -123,10 +123,9 @@ import {
 } from './objects.js';
 import { canspotmon } from './display.js';
 import { somegold } from './steal.js';
-import { Glib } from './wield.js';
 import { Fire_resistance } from './zap.js';
 import {
-    Blind, Deaf, Hallucination, Invisible, Levitation,
+    Blind, Deaf, Glib, Hallucination, Invisible, Levitation,
 } from './youprop.js';
 
 // ── Fail-closed error ──
@@ -1111,13 +1110,13 @@ export async function wash_hands(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const hands = makeplural(body_part(HAND, state.youmonst));
     let res = ER_NOTHING;
-    const wasGlib = Glib(state);
+    const wasGlib = Glib(state.u);
 
     await message(
         `You wash your ${state.uarmg ? 'gloved ' : ''}${hands} in the ${hliquid('water', env)}.`,
         state);
 
-    if (Glib(state)) {
+    if (Glib(state.u)) {
         const { make_glib } = await import('./potion.js');
         make_glib(0, state);
         // C ref: fountain.c:568 calls do_wear.c:fingers_or_gloves(TRUE).
@@ -1167,7 +1166,7 @@ export async function dipsink(obj, state = game, env = {}) {
 
     if (!random.rn2(not_looted_yet ? 25 : 15)) {
         await breaksink(x, y, state, { ...env, message });
-        if (Glib(state) && is_hands) {
+        if (Glib(state.u) && is_hands) {
             await message(
                 `Your ${fingers_or_gloves(true, state)} are still slippery.`,
                 state,

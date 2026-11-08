@@ -3050,7 +3050,7 @@ test('sickness_dialogue matches the complete source branch',
         assert.match(C_TIMEOUT,
             /if \(Sick\)\s+sickness_dialogue\(\);/u);
         assert.match(JS_TIMEOUT,
-            /if \(u\.uprops\?\.\[SICK\]\?\.intrinsic\)\s*\{\s*const sicknessMessage = env\.message[\s\S]*?await sickness_dialogue\(state,\s*\{\s*\.\.\.displayEnv,\s*state,\s*random,\s*message: sicknessMessage,[\s\S]*?urgentMessage: env\.urgentMessage[\s\S]*?encumberMessage: env\.encumberMessage/u);
+            /if \(Sick\(u\)\)\s*\{\s*const sicknessMessage = env\.message[\s\S]*?await sickness_dialogue\(state,\s*\{\s*\.\.\.displayEnv,\s*state,\s*random,\s*message: sicknessMessage,[\s\S]*?urgentMessage: env\.urgentMessage[\s\S]*?encumberMessage: env\.encumberMessage/u);
     });
 
 test('choke_dialogue uses the display RNG when NH_BLUE is hallucinated',
@@ -3160,7 +3160,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         const jsBody = JS_TIMEOUT.slice(jsStart, jsEnd);
         assert.ok(jsStart >= 0 && jsEnd > jsStart);
         assert.ok(jsBody.includes(
-            'const timeout = Math.trunc(u.uprops?.[SLIMED]?.intrinsic ?? 0) & TIMEOUT;',
+            'const timeout = Math.trunc(Slimed(u)) & TIMEOUT;',
         ));
         assert.ok(jsBody.includes('const index = Math.trunc(timeout / 2);'));
         assert.ok(jsBody.includes('(env.newsym ?? newsym)(u.ux, u.uy, state);'));
@@ -3171,7 +3171,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         assert.match(jsBody,
             /case 3:[\s\S]*?u\.uprops\[FAST\]\.intrinsic = 0;[\s\S]*?Popeye\(SLIMED, state\)[\s\S]*?case 2:[\s\S]*?set_itimeout\(u\.uprops\[DEAF\], 5\);[\s\S]*?case 1:[\s\S]*?make_stoned\(0, null, KILLED_BY_AN, null, state\)[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
         assert.match(JS_TIMEOUT,
-            /if \(u\.uprops\?\.\[SLIMED\]\?\.intrinsic\)\s*\{[\s\S]*?await slime_dialogue\(state,[\s\S]*?urgentMessage:[\s\S]*?\}\);/u);
+            /if \(Slimed\(u\)\)\s*\{[\s\S]*?await slime_dialogue\(state,[\s\S]*?urgentMessage:[\s\S]*?\}\);/u);
         assert.doesNotMatch(JS_TIMEOUT,
             /note_unported\('timeout\.c slime_dialogue'\)/u);
 

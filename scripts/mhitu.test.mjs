@@ -240,7 +240,7 @@ test('diseasemu divides the complete Sick intrinsic before make_sick clamps it',
         assert.match(MHITU_C,
             /make_sick\(Sick \? Sick \/ 3L \+ 1L : \(long\) rn1\(ACURR\(A_CON\), 20\),/u);
         assert.match(MHITU_JS,
-            /const sick = state\.u\?\.uprops\?\.\[SICK\]\?\.intrinsic \?\? 0;/u);
+            /const sick = Sick\(state\.u\);/u);
 
         const state = await meleeHero();
         const outside = FROMOUTSIDE | 9;

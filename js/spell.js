@@ -54,8 +54,6 @@ import {
     POISON_RES,
     quitchars,
     SLEEP_RES,
-    SICK,
-    SLIMED,
     SPINE,
     TIMEOUT,
     uhim,
@@ -207,7 +205,7 @@ import { mkinvokearea } from './mklev.js';
 import { S_goodpos } from './symbols.js';
 import {
     BClairvoyant, Blind, BlindedTimeout, Confusion, HConfusion, HStun,
-    Hallucination, Maybe_Half_Phys, Stunned,
+    Hallucination, Maybe_Half_Phys, Sick, Slimed, Stunned,
 } from './youprop.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
@@ -1759,8 +1757,8 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         await healup(0, 0, false, true, state, env);
         break;
     case SPE_CURE_SICKNESS: {
-        const wasSick = Boolean(state.u.uprops[SICK].intrinsic);
-        const wasSlimed = Boolean(state.u.uprops[SLIMED].intrinsic);
+        const wasSick = Boolean(Sick(state.u));
+        const wasSlimed = Boolean(Slimed(state.u));
         await healup(0, 0, true, false, state, env);
         const message = env.message ?? ttyPline;
         if (wasSick || !wasSlimed) {

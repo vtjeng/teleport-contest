@@ -79,7 +79,6 @@ import {
     SDOOR,
     SOUND_TRIGGER_VERBAL,
     STONE,
-    STRANGLED,
     STRAT_WAITMASK,
     VAULT,
     W_ARMH,
@@ -219,7 +218,7 @@ import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    Blind, Deaf, Hallucination, Invis,
+    Blind, Deaf, Hallucination, Invis, Strangled,
 } from './youprop.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
@@ -1442,7 +1441,7 @@ async function dochat(state) {
         );
         return ECMD_OK;
     }
-    if (u.uprops[STRANGLED].intrinsic) { /* youprop.h:110 Strangled */
+    if (Strangled(u)) { /* youprop.h:110 Strangled */
         await ttyPline("You can't speak.  You're choking!", state);
         return ECMD_OK;
     }

@@ -68,7 +68,6 @@ import {
     EYE,
     FACE,
     FIRE_TRAP,
-    FUMBLING,
     FOOT,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
@@ -478,8 +477,9 @@ import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Confusion, Deaf, EWwalking, Flying, HBlinded, Hallucination,
-    Levitation, Maybe_Half_Phys, Passes_walls, Stunned, Wwalking,
+    Blind, Confusion, Deaf, EWwalking, Flying, Fumbling, HBlinded,
+    Hallucination, Levitation, Maybe_Half_Phys, Passes_walls, Stunned,
+    Wwalking,
 } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -2162,7 +2162,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
             || (role === PM_HEALER && skill !== P_KNIFE)
             || (role === PM_TOURIST && skill !== -P_DART)
             /* poor dexterity also inhibits multishot */
-            || propertyHeld(state, FUMBLING)
+            || Fumbling(state.u)
             || acurr(state, A_DEX) <= 6);
 
         /* Bonus if the player is proficient in this weapon... */
@@ -2562,7 +2562,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         || Boolean(Stunned(state.u))
         || Blind(state.u)
         || Hallucination(state.u)
-        || propertyHeld(state, FUMBLING);
+        || Fumbling(state.u);
     const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
 
     state.gn ??= {};

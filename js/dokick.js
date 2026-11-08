@@ -70,7 +70,6 @@ import {
     LA_DOWN,
     LADDER,
     LAVAWALL,
-    FUMBLING,
     M_ATTK_DEF_DIED,
     M_ATTK_MISS,
     M_AP_TYPE,
@@ -99,7 +98,6 @@ import {
     STAIRS,
     T_LOOTED,
     Upolyd,
-    WOUNDED_LEGS,
     W_ARMF,
     M_AP_MONSTER,
     NO_TRAP_FLAGS,
@@ -231,7 +229,8 @@ import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    Blind, Deaf, Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
+    Blind, Deaf, Fumbling, Hallucination, Levitation, Maybe_Half_Phys,
+    Passes_walls, Wounded_legs,
 } from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
@@ -258,14 +257,6 @@ export class UnsupportedKickError extends Error {
 }
 
 
-// youprop.h:138 Wounded_legs, a plain OR with no blocked term: the intrinsic
-// holds the recovery timeout and the extrinsic holds the side bits.
-function Wounded_legs(state) {
-    const wounded = state.u.uprops[WOUNDED_LEGS];
-    return Boolean(wounded.intrinsic || wounded.extrinsic);
-}
-
-
 // C ref: dokick.c:8-10, the martial() macro over is_bigfoot() at :7. A Samurai
 // or a Monk answers TRUE from martial_bonus() without either later term being
 // read, which is what keeps kick_dumb()'s rn2(3) out of the stream for them.
@@ -275,12 +266,6 @@ function martial(state) {
         || state.uarmf?.otyp === KICKING_BOOTS;
 }
 
-// youprop.h:129 Fumbling. Both intrinsic and extrinsic sources count, with
-// no blocked term.
-function Fumbling(state) {
-    const fumbling = state.u?.uprops?.[FUMBLING];
-    return Boolean(fumbling?.intrinsic || fumbling?.extrinsic);
-}
 
 function kickEnvironment(state) {
     state.context ??= {};
@@ -498,7 +483,7 @@ export async function kick_monster(mon, x, y, state = game) {
     }
 
     if (!bypassClumsiness) {
-        if (Fumbling(state)) clumsy = true;
+        if (Fumbling(state.u)) clumsy = true;
         else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
                  && acurr(state, A_DEX) < rnd(25)) clumsy = true;
     }
@@ -653,7 +638,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
             return 1;
         }
     }
-    if (Fumbling(state) && !random.rn2(3)) {
+    if (Fumbling(state.u) && !random.rn2(3)) {
         await message('Your clumsy kick missed.', state, env);
         return 1;
     }
@@ -1281,7 +1266,7 @@ export async function dokick(state = game) {
             return ECMD_TIME;
         }
         return ECMD_OK;
-    } else if (Wounded_legs(state)) {
+    } else if (Wounded_legs(state.u)) {
         await legs_in_no_shape('kicking', false, state);
         no_kick = true;
     } else if (near_capacity(state) > SLT_ENCUMBER) {

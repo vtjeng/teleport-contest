@@ -541,7 +541,7 @@ test('newman refreshes hunger and clears stoning', async () => {
     assert.match(body, /if \(Stoned\)\s*make_stoned\(0L, \(char \*\) 0, 0, \(char \*\) 0\)/u);
     assert.equal((body.match(/newuhs\(FALSE\)/gu) ?? []).length, 2);
     const js = readFileSync(new URL('../js/polyself.js', import.meta.url), 'utf8');
-    assert.match(js, /if \(u\.uprops\[STONED\]\.intrinsic\)\s*await make_stoned\(0, null, 0, null, state\)/u);
+    assert.match(js, /if \(Stoned\(u\)\)\s*await make_stoned\(0, null, 0, null, state\)/u);
     await runSegment({ seed: 15129021, datetime: '20681223171100', moves: '',
         nethackrc: 'OPTIONS=name:HungerCallbacks,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n' });
     // Enough levels to avoid newman's -2 lower bound reaching death.

@@ -50,7 +50,6 @@ import {
     FORCEBUNGLE,
     FORCETRAP,
     FROMOUTSIDE,
-    FUMBLING,
     HEAD,
     HALF_SPDAM,
     HOLE,
@@ -409,9 +408,9 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Deaf, EInvis, Flying, HConfusion, HInvis, Half_physical_damage,
-    Hallucination, Invis, Levitation, Maybe_Half_Phys, Passes_walls,
-    See_invisible,
+    Blind, Deaf, EFumbling, EInvis, Flying, HConfusion, HFumbling, HInvis,
+    Half_physical_damage, Hallucination, Invis, Levitation, Maybe_Half_Phys,
+    Passes_walls, See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -4128,8 +4127,7 @@ export async function dotrap(trap, trflags, state = game, rawEnv = {}) {
             }
             return;
         }
-        const fumbling = u.uprops?.[FUMBLING];
-        const isFumbling = fumbling?.intrinsic || fumbling?.extrinsic;
+        const isFumbling = HFumbling(u) || EFumbling(u);
         if (already_seen && !isFumbling && !undestroyable_trap(ttype)
             && ttype !== ANTI_MAGIC && !(flags & FORCEBUNGLE)
             && !plunged && !conjPit && !adjPit

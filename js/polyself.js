@@ -109,11 +109,9 @@ import {
     SHOCK_RES,
     SHOPBASE,
     SHOP_WEB_COST,
-    SICK,
     SICK_ALL,
     SICK_RES,
     SLEEP_RES,
-    SLIMED,
     SLP_GAS_TRAP,
     SPIKED_PIT,
     SQKY_BOARD,
@@ -121,7 +119,6 @@ import {
     STEALTH,
     STOMACH,
     STONE_RES,
-    STONED,
     STONING,
     STRANGLED,
     STUNNED,
@@ -277,9 +274,10 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, EFlying, ELevitation, EPasses_walls, ESwimming, Flying,
-    HFlying, HLevitation, HPasses_walls, HSwimming, Hallucination, Invis,
-    Levitation, See_invisible, Stunned,
+    Blind, Confusion, EFlying, ELevitation, Flying,
+    HFlying, HLevitation, Hallucination, Invis,
+    Levitation, Passes_walls, See_invisible, Sick, Slimed, Stoned, Strangled,
+    Stunned, Swimming,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -423,7 +421,7 @@ async function check_strangling(on, state, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     if (on) {
         // maybe resume strangling
-        const was_strangled = (u.uprops[STRANGLED].intrinsic !== 0);
+        const was_strangled = (Strangled(u) !== 0);
         if (state.uamul && state.uamul.otyp === AMULET_OF_STRANGULATION
             && can_be_strangled(state.youmonst, state)) {
             u.uprops[STRANGLED].intrinsic = 6;
@@ -441,7 +439,7 @@ async function check_strangling(on, state, rawEnv = {}) {
         }
     } else {
         // maybe block strangling
-        if (u.uprops[STRANGLED].intrinsic
+        if (Strangled(u)
             && !can_be_strangled(state.youmonst, state)) {
             u.uprops[STRANGLED].intrinsic = 0;
             state.disp ??= {};
@@ -1026,7 +1024,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     // polyself.c:823-828. poly_when_stoned() already checks that the stone
     // golem is not genocided; make_stoned() clears the delayed killer after
     // the form-change line and emits this second line in source order.
-    if (u.uprops[STONED].intrinsic
+    if (Stoned(u)
         && poly_when_stoned(mdat, state)) {
         mntmp = M.PM_STONE_GOLEM;
         mdat = state.mons[mntmp];
@@ -1052,7 +1050,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 
     // polyself.c:838-841 and youprop.h:69-70. Sick_resistance includes the
     // form's property plus defended()'s AD_DISE suit check.
-    if (Stone_resistance(state) && u.uprops[STONED].intrinsic) {
+    if (Stone_resistance(state) && Stoned(u)) {
         await make_stoned(0, null, 0, null, state);
         await message('You no longer seem to be petrifying.', state, env);
     }
@@ -1061,11 +1059,11 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         sicknessResistance.intrinsic || sicknessResistance.extrinsic
         || defended(state.youmonst, M.AD_DISE, state),
     );
-    if (sickResistant && u.uprops[SICK].intrinsic) {
+    if (sickResistant && Sick(u)) {
         await make_sick(0, null, false, SICK_ALL, state, env);
         await message('You no longer feel sick.', state, env);
     }
-    if (u.uprops[SLIMED].intrinsic) {
+    if (Slimed(u)) {
         if (flaming(state.youmonst.data)) {
             await make_slimed(0, 'The slime burns away!', state, env);
         } else if (mntmp === M.PM_GREEN_SLIME) {
@@ -1194,16 +1192,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     const inPoolOrLava = is_pool_or_lava(u.ux, u.uy, state);
     const inPoolHazard = !Levitation(state.u) && !u.ustuck
         && !Flying(state.u) && inPoolOrLava;
-    const isSwimming = HSwimming(u) || ESwimming(u)
-        || (u.usteed && is_swimmer(u.usteed.data));
-    const unsafeUnderwater = u.uinwater && !isSwimming;
+    const unsafeUnderwater = u.uinwater && !Swimming(u);
     if ((inPoolHazard || unsafeUnderwater) && !wasExpelled)
         await spoteffects(true, state, env);
     if (state.program_state?.gameover) return 1;
 
-    const passesWalls = HPasses_walls(u)
-        || EPasses_walls(u);
-    if (passesWalls && u.utrap
+    if (Passes_walls(u) && u.utrap
         && (u.utraptype === TT_INFLOOR
             || u.utraptype === TT_BURIEDBALL)) {
         if (u.utraptype === TT_INFLOOR) {
@@ -1548,9 +1542,9 @@ export async function newman(state = game, env = {}) {
         /* [should alignment record be tweaked too?] */
 
         u.uhunger = rn1(500, 500);
-        if (u.uprops[SICK].intrinsic)
+        if (Sick(u))
             await make_sick(0, null, false, SICK_ALL, state);
-        if (u.uprops[STONED].intrinsic)
+        if (Stoned(u))
             await make_stoned(0, null, 0, null, state);
         if (u.uhp <= 0) {
             if (Polymorph_control(state)) { /* even when Stunned || Unaware */
@@ -1596,7 +1590,7 @@ export async function newman(state = game, env = {}) {
     else
         livelog_newform(true, oldgend, newgend, state);
 
-    if (u.uprops[SLIMED].intrinsic) {
+    if (Slimed(u)) {
         await ttyPline(
             'Your body transforms, but there is still slime on you.', state,
         );
@@ -2104,7 +2098,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
 // ubreatheu() (self-targeted) or ubuzz() (directional breath).
 export async function dobreathe(state = game) {
     // polyself.c:1425-1428 Strangled guard
-    if (state.u.uprops[STRANGLED].intrinsic) {
+    if (Strangled(state.u)) {
         await ttyPline("You can't breathe.  Sorry.", state);
         return ECMD_OK;
     }

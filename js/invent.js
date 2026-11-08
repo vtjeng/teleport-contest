@@ -40,7 +40,6 @@ import {
     ECMD_CANCEL,
     ECMD_FAIL,
     FINGERTIP,
-    FUMBLING,
     GOLD_SYM,
     HAND,
     st_all,
@@ -390,7 +389,7 @@ import {
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
 import { welded } from './wield.js';
-import { Blind, Hallucination } from './youprop.js';
+import { Blind, Fumbling, Hallucination } from './youprop.js';
 
 // invent.c owns reroll_menu(); the startup module holds its complete menu
 // implementation so the startup dependency graph stays acyclic. Re-export
@@ -3487,13 +3486,6 @@ function oname(obj) {
     return hasTextExtra(obj, 'oname') ? String(obj.oextra.oname) : '';
 }
 
-// C's `Fumbling`, which reads u.uprops[FUMBLING] the way the property macros
-// in youprop.h do.  Nothing in this port raises it.
-function propertyPresent(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
 
 function isCleric(state) {
     return state.urole?.filecode === 'Pri';
@@ -4932,7 +4924,7 @@ export async function hold_another_object(
             obj.oerodeproof = oerode;
         }
     }
-    if (propertyPresent(state, FUMBLING)) {
+    if (Fumbling(state.u)) {
         obj.nomerge = 1;
         obj = await addinvCore0Runtime(obj, normalized, null, false);
         await gotoDrop(obj, drop_fmt, drop_arg, normalized);

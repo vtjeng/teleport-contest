@@ -47,7 +47,7 @@ test('use_unicorn_horn routes existing Vomiting through eat.c:vomit', () => {
     );
     assert.match(cCase, /if \(Vomiting\)\s+vomit\(\);/u);
     assert.match(jsCase,
-        /if \(intrinsic\(VOMITING\)\)\s+await vomit\(state, \{ \.\.\.env, message \}\);/u);
+        /if \(Vomiting\(state\.u\)\)\s+await vomit\(state, \{ \.\.\.env, message \}\);/u);
 });
 
 test('shuffle_int_array follows rnd.c draw and swap order', () => {

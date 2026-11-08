@@ -68,8 +68,7 @@ import {
 import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import { getlin } from './windows.js';
-import { Glib } from './wield.js';
-import { Blind, Hallucination } from './youprop.js';
+import { Blind, Glib, Hallucination } from './youprop.js';
 
 // C ref: write.c cost() (12-57). Returns the base ink cost for a scroll or
 // spellbook type. The table values are copied verbatim from the C source.
@@ -136,7 +135,7 @@ export async function dowrite(pen, state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline('You need hands to be able to write!', state);
         return ECMD_OK;
-    } else if (Glib(state)) {
+    } else if (Glib(state.u)) {
         // C: pline("%s from your %s.", Tobjnam(pen, "slip"),
         // fingers_or_gloves(FALSE)); dropx(pen); return ECMD_TIME.
         // apply.c supplies the do_wear.c and do.c operations here to avoid a

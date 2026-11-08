@@ -110,7 +110,7 @@ test('dosit calls dotrap with VIASITTING after its sitting message', () => {
     assert.ok(jsStart >= 0 && jsEnd > jsStart);
     const jsDosit = JS_SIT.slice(jsStart, jsEnd);
     const jsSitMessage = jsDosit.indexOf(
-        "await message(`${Flying(state) ? 'You land' : 'You sit down'}.`, state);",
+        "await message(`${Flying(state.u) ? 'You land' : 'You sit down'}.`, state);",
     );
     const jsDotrap = jsDosit.indexOf(
         'await dotrap(trap, VIASITTING, state, rawEnv);', jsSitMessage,
@@ -150,7 +150,7 @@ test('sit.c dosit awaits burn_away_slime in both lava branches', () => {
     const jsTrappedOrder = [
         'if (u.utraptype === TT_LAVA)',
         "await message(`You sit in the ${hliquid('lava', { ...rawEnv, state })}!`, state);",
-        'if (u.uprops?.[SLIMED]?.intrinsic)\n                    await burn_away_slime(state, rawEnv);',
+        'if (Slimed(u))\n                    await burn_away_slime(state, rawEnv);',
         'u.utrap += random.rnd(4);',
         "await losehp(random.d(2, 10), 'sitting in lava', KILLED_BY,",
     ].map((text) => jsSit.indexOf(text));

@@ -105,5 +105,5 @@ test('phaze source text and timeout caller retain the complete C function contra
     assert.doesNotMatch(source, /stop_occupation|rn2|rnd|urgent_pline/u);
     assert.match(c, /if \(HPasses_walls & TIMEOUT\)\s+phaze_dialogue\(\);/u);
     assert.doesNotMatch(js, /note_unported\('timeout.c phaze_dialogue'\)/u);
-    assert.match(js, /if \(u\.uprops\?\.\[PASSES_WALLS\]\?\.intrinsic & TIMEOUT\)\s+await phaze_dialogue\(state, displayEnv\);/u);
+    assert.match(js, /if \(HPasses_walls\(u\) & TIMEOUT\)\s+await phaze_dialogue\(state, displayEnv\);/u);
 });

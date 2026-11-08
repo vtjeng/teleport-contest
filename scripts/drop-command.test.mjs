@@ -1511,7 +1511,7 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     assert.ok(!preflight.includes('!can_reach_floor'));
     // The map is display.c map_object(), called directly or through the
     // optional mapObject hook that falls back to it.
-    assert.match(js, /stackobj\(obj, normalized\);\s*if \(Blind\(normalized\.state\.u\) && Levitation\(normalized\.state\)\) \{[^}]*(?:\(normalized\.hooks\.mapObject \?\? map_object\)|map_object)\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
+    assert.match(js, /stackobj\(obj, normalized\);\s*if \(Blind\(normalized\.state\.u\) && Levitation\(normalized\.state\.u\)\) \{[^}]*(?:\(normalized\.hooks\.mapObject \?\? map_object\)|map_object)\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
 });
 
 // The boulder pit/hole arm precedes the hero pit-edge/shaft arm in C.

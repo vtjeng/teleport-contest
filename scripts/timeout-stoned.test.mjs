@@ -147,5 +147,5 @@ test('stoned source caller runs before decrements and the obsolete gap is remove
     assert.match(c, /if \(Wounded_legs && !u\.usteed\)\s+heal_legs\(2\);/u);
     assert.match(c, /exercise\(A_DEX, FALSE\);/u);
     assert.doesNotMatch(js, /note_unported\('timeout.c stoned_dialogue'\)/u);
-    assert.match(js, /if \(u\.uprops\?\.\[STONED\]\?\.intrinsic\)\s+await stoned_dialogue/u);
+    assert.match(js, /if \(Stoned\(u\)\)\s+await stoned_dialogue/u);
 });

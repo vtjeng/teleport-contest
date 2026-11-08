@@ -4,7 +4,7 @@
 import {
     ACH_TUNE, A_DEX, A_WIS, ALTAR, AM_MASK, AM_SANCTUM, Amask2align,
     ARTICLE_THE, COLNO, D_NODOOR, DEAF, DOOR,
-    DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE, IS_DRAWBRIDGE, KILLED_BY,
+    DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, GRAVE, IS_DRAWBRIDGE, KILLED_BY,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
@@ -64,8 +64,8 @@ import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 import { canseemon } from './display.js';
 import { youFeel } from './pline.js';
 import {
-    Blind, Confusion, Deaf, Flying, HConfusion, HStun, Hallucination,
-    Levitation, Maybe_Half_Phys, Stunned,
+    Blind, Confusion, Deaf, Flying, Fumbling, HConfusion, HStun,
+    Hallucination, Levitation, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 function property(state, index) {
@@ -340,7 +340,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
                 'fell into a chasm', NO_KILLER_PREFIX, state, env);
             await selftouch('Falling, you', state, env);
         } else if (u.utrap && u.utraptype === TT_PIT) {
-            const fumbling = property(state, FUMBLING);
+            const fumbling = Fumbling(state.u);
             const keepFooting = (!fumbling || !random.rn2(5))
                 && (!random.rnl(state.urole?.mnum === PM_ARCHEOLOGIST ? 3 : 9)
                     || (acurr(state, A_DEX) > 7 && random.rn2(5)));

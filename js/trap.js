@@ -53,12 +53,10 @@ import {
     AS_OK,
     FAILEDUNTRAP,
     FIRE_RES,
-    SLIMED,
     FIRE_TRAP,
     FINGER,
     FORCETRAP,
     FREE_ACTION,
-    FUMBLING,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
@@ -345,9 +343,9 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    BFlying, BLevitation, Blind, Breathless, Confusion, Flying,
+    BFlying, BLevitation, Blind, Breathless, Confusion, Flying, Fumbling,
     HHallucination, HStun, Halluc_resistance, Hallucination, Lev_at_will,
-    Levitation, Maybe_Half_Phys, Passes_walls, Stunned, Swimming,
+    Levitation, Maybe_Half_Phys, Passes_walls, Slimed, Stunned, Swimming,
     Teleport_control, Teleportation, Wwalking,
 } from './youprop.js';
 
@@ -1824,7 +1822,7 @@ export async function sink_into_lava(state = game) {
         } else if (!u.umoved) {
             // Slime cannot finish while in lava, but may come close before
             // the lava burns it away.
-            const slimed = Math.trunc(u.uprops[SLIMED].intrinsic ?? 0);
+            const slimed = Math.trunc(Slimed(u));
             if (slimed && rnd(10 - 1) >= (slimed & TIMEOUT)) {
                 await ttyPline(sink_deeper, state);
                 await burn_away_slime(state);
@@ -2390,10 +2388,6 @@ export function immune_to_trap(mon, ttype, state = game) {
 // C ref: decl.c c_common_strings.c_the_your, indexed by madeby_u.
 const the_your = ['the', 'your'];
 
-function Fumbling(state) {
-    return Boolean(state.u?.uprops?.[FUMBLING]?.intrinsic
-                   || state.u?.uprops?.[FUMBLING]?.extrinsic);
-}
 // youprop.h:383 Free_action reads the extrinsic field alone.
 function Free_action(state) {
     return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
@@ -2466,7 +2460,7 @@ function untrap_prob(ttmp, state = game) {
         chance++;
     if (Stunned(state.u))
         chance += 2;
-    if (Fumbling(state))
+    if (Fumbling(state.u))
         chance *= 2;
     /* Your own traps are better known than others. */
     if (ttmp.madeby_u)
@@ -2881,7 +2875,7 @@ async function disarm_box(box, force, confused, state = game) {
         const ch = acurr(state, A_DEX) + state.u.ulevel;
         let effective_ch = ch;
         if (state.urole?.mnum === PM_ROGUE) effective_ch *= 2;
-        if (!force && (confused || Fumbling(state)
+        if (!force && (confused || Fumbling(state.u)
                        || rnd(75 + Math.trunc(level_difficulty(state) / 2))
                           > effective_ch)) {
             await chest_trap(box, FINGER, true, state);
@@ -3119,7 +3113,7 @@ export async function untrap(force, rx, ry, container, state = game) {
             const ch = 15 + (state.urole?.mnum === PM_ROGUE
                 ? u.ulevel * 3 : u.ulevel);
             await exercise(A_DEX, true, state);
-            if (!force && (confused || Fumbling(state)
+            if (!force && (confused || Fumbling(state.u)
                            || rnd(75 + Math.trunc(level_difficulty(state) / 2))
                               > ch)) {
                 await ttyPline('You set it off!', state);

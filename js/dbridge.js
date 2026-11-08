@@ -2,7 +2,7 @@
 import {
     BURNING, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA,
     DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST, DBWALL, DOOR,
-    DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, ICE, ICED_MOAT,
+    DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, ICE, ICED_MOAT,
     IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL, MOAT, NO_KILLER_PREFIX, OBJ_AT,
     POOL, ROOM, WATER,
     W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOCORPSE, XKILL_NOCONDUCT,
@@ -40,7 +40,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 import {
-    Amphibious, Confusion, Deaf, Flying, Hallucination, Levitation,
+    Amphibious, Confusion, Deaf, Flying, Fumbling, Hallucination, Levitation,
     Passes_walls, Stunned, Swimming, Unaware, Wwalking,
 } from './youprop.js';
 
@@ -393,14 +393,10 @@ function occupants(state) {
 // set_entity() (304-342). C's go.occupants is transient state for one
 // transition; it is initialized when captured and cleared by nokiller().
 function is_u(entity, state) { return entity?.emon === state.youmonst; }
-function heroProperty(index, state) {
-    const property = state.u?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
 function heroPassesWalls(state) { return Passes_walls(state.u); }
 function heroConfused(state) { return Boolean(Confusion(state.u)); }
 function heroStunned(state) { return Boolean(Stunned(state.u)); }
-function heroFumbling(state) { return heroProperty(FUMBLING, state); }
+function heroFumbling(state) { return Fumbling(state.u); }
 function entityCanSee(entity, state) {
     return is_u(entity, state) || canseemon(entity.emon, state);
 }

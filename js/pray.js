@@ -95,16 +95,13 @@ import {
     SCORR,
     SDOOR,
     SEE_INVIS,
-    SICK,
     SICK_ALL,
     FIRE_RES,
     COLD_RES,
     SLEEP_RES,
     SHOCK_RES,
     POISON_RES,
-    SLIMED,
     STRAT_APPEARMSG,
-    STONED,
     STRANGLED,
     STOMACH,
     TELEDS_NO_FLAGS,
@@ -118,7 +115,6 @@ import {
     UNCHANGING,
     Upolyd,
     WEAK,
-    WOUNDED_LEGS,
     W_SADDLE,
     W_ARM,
     W_ARMC,
@@ -319,7 +315,7 @@ import {
     spe_Unknown,
     spelleffects,
 } from './spell.js';
-import { welded, Glib } from './wield.js';
+import { welded } from './wield.js';
 import { bimanual, setnotworn, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
@@ -352,9 +348,9 @@ import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, Flying,
+    Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, Flying, Glib,
     HBlinded, HConfusion, HDeaf, HHallucination, HStun, Hallucination,
-    Levitation, Passes_walls,
+    Levitation, Passes_walls, Sick, Slimed, Stoned, Strangled, Wounded_legs,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -1277,11 +1273,11 @@ export function in_trouble(state = game) {
     /*
      * major troubles
      */
-    if (intrinsic(state, STONED)) return TROUBLE_STONED;
-    if (intrinsic(state, SLIMED)) return TROUBLE_SLIMED;
-    if (intrinsic(state, STRANGLED)) return TROUBLE_STRANGLED;
+    if (Stoned(state.u)) return TROUBLE_STONED;
+    if (Slimed(state.u)) return TROUBLE_SLIMED;
+    if (Strangled(state.u)) return TROUBLE_STRANGLED;
     if (state.u.utrap && state.u.utraptype === TT_LAVA) return TROUBLE_LAVA;
-    if (intrinsic(state, SICK)) return TROUBLE_SICK;
+    if (Sick(state.u)) return TROUBLE_SICK;
     if (state.u.uhs >= WEAK) return TROUBLE_STARVING;
     if (region_danger(state)) return TROUBLE_REGION;
     if ((!Upolyd(state.u) || Unchanging(state))
@@ -1336,7 +1332,7 @@ export function in_trouble(state = game) {
 
     for (let i = 0; i < A_MAX; i++)
         if (state.u.acurr.a[i] < state.u.amax.a[i]) return TROUBLE_POISONED;
-    if ((intrinsic(state, WOUNDED_LEGS) || extrinsic(state, WOUNDED_LEGS))
+    if ((Wounded_legs(state.u))
         && !state.u.usteed)
         return TROUBLE_WOUNDED_LEGS;
     if (state.u.uhs >= HUNGRY) return TROUBLE_HUNGRY;
@@ -1418,7 +1414,7 @@ export async function fix_curse_trouble(otmp, what = null, state = game) {
         return;
     }
 
-    if (otmp === state.uarmg && Glib(state)) {
+    if (otmp === state.uarmg && Glib(state.u)) {
         make_glib(0, state);
         await ttyPline(
             `Your ${gloves_simple_name(state.uarmg, state)} are no longer slippery.`,
@@ -2114,7 +2110,7 @@ export async function doturn(state = game, env = {}) {
     const Gname = halu_gname(state.u.ualign.type, state);
     if (!can_chant(state.youmonst, state)) {
         await message(
-            `You are ${intrinsic(state, STRANGLED)
+            `You are ${Strangled(state.u)
                 ? 'not able to call' : 'incapable of calling'} upon ${Gname}`
                 + ' to turn aside evilness.', state, env,
         );

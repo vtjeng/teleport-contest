@@ -97,8 +97,7 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { note_unported } from './unported.js';
-import { Glib } from './wield.js';
-import { Blind, EWarn_of_mon } from './youprop.js';
+import { Blind, EWarn_of_mon, Glib } from './youprop.js';
 
 // C ref: objnam.c erosion_matters() (1195-1215). Keep this predicate in the
 // source-owned objnam module so its callers share the same implementation.
@@ -1229,7 +1228,7 @@ function wornClassSuffix(obj, type, state, body, bufferOffset) {
         body = concatNameBody(body, ` (${phrase})`, 0, bufferOffset);
         // objnam.c:1404-1406 appends after the just-written closing paren
         // through Concat; :1410-1414 uses ConcatF to replace the next paren.
-        if (obj === state.uarmg && Glib(state) && body.endsWith(')'))
+        if (obj === state.uarmg && Glib(state.u) && body.endsWith(')'))
             body = concatNameBody(body, '; slippery)', 1, bufferOffset);
         if (!Blind(state.u) && obj.lamplit && artifact_light(obj)
             && body.endsWith(')')) {

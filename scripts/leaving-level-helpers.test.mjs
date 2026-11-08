@@ -19,6 +19,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     ROOM,
+    LAST_PROP,
 } from '../js/const.js';
 import { next_to_u } from '../js/apply_next_to_u.js';
 import {
@@ -73,7 +74,10 @@ function heroState() {
             uz: { dnum: 0, dlevel: 4 },
             uinwater: false,
             usteed: null,
-            uprops: [],
+            // u_init.c gives every hero a zeroed slot for each property;
+            // switch_terrain() writes BLevitation and BFlying.
+            uprops: Array.from({ length: LAST_PROP + 1 },
+                () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
             urooms: new Array(ROOM_BUFFER_SIZE).fill(0),
             urooms0: new Array(ROOM_BUFFER_SIZE).fill(0),
             uentered: new Array(ROOM_BUFFER_SIZE).fill(0),

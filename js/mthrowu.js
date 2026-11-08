@@ -29,7 +29,6 @@ import {
     EYE,
     EDOG,
     FOOT,
-    FUMBLING,
     IRONBARS,
     IS_OBSTRUCTED,
     IS_SINK,
@@ -66,7 +65,6 @@ import {
     SLEEP_RES,
     SLT_ENCUMBER,
     STONE_RES,
-    STONED,
     TIMEOUT,
     W_NONDIGGABLE,
     W_WEP,
@@ -275,7 +273,8 @@ import {
 import { snuff_candle } from './apply_splash_lit.js';
 import { canseemon, canspotmon, newsym } from './display.js';
 import {
-    Blind, Confusion, Deaf, HBlinded, Hallucination, Maybe_Half_Phys, Stunned,
+    Blind, Confusion, Deaf, Fumbling, HBlinded, Hallucination,
+    Maybe_Half_Phys, Stoned, Stunned,
 } from './youprop.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
@@ -500,7 +499,7 @@ async function u_catch_thrown_obj(obj, env) {
     if (!Blind(state.u)
         && !Confusion(state.u)
         && !Stunned(state.u)
-        && !propertyActive(state, FUMBLING)
+        && !Fumbling(state.u)
         && obj.oclass !== VENOM_CLASS
         && !nohands(state.youmonst.data)
         && freehand(state)
@@ -1155,8 +1154,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 }
             }
             if (hit && singleobj.otyp === EGG) {
-                const stoned = state.u.uprops?.[STONED];
-                if (!stoned?.intrinsic
+                if (!Stoned(state.u)
                     && !Stone_resistance(state)
                     && !(poly_when_stoned(state.youmonst.data, state)
                          && await polymon(PM_STONE_GOLEM, state))) {

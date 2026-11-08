@@ -63,9 +63,7 @@ import {
     FOOT,
     G_GONE,
     HEAD,
-    FUMBLING,
     FORCETRAP,
-    GLIB,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
@@ -132,8 +130,6 @@ import {
     P_RIDING,
     STOMACH,
     STONE,
-    STONED,
-    STRANGLED,
     PROT_FROM_SHAPE_CHANGERS,
     STUNNED,
     LEG,
@@ -144,7 +140,6 @@ import {
     SICK,
     SICK_ALL,
     SICK_NONVOMITABLE,
-    SLIMED,
     MONSEEN_INFRAVIS,
     MONSEEN_NORMAL,
     MONSEEN_SEEINVIS,
@@ -168,7 +163,6 @@ import {
     WEAK,
     MAXULEV,
     MAX_SPELL_STUDY,
-    WOUNDED_LEGS,
     VOMITING,
     NO_KILLER_PREFIX,
     Is_airlevel,
@@ -635,10 +629,11 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, EJumping, Flying,
-    HBlinded, HConfusion, HDeaf, HHallucination, HJumping, HStun,
-    Halluc_resistance, Hallucination, Invis, Jumping, Levitation,
-    Maybe_Half_Phys, Passes_walls, See_invisible, Sick, Stunned, Vomiting,
+    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, EFumbling, EJumping,
+    Flying, Fumbling, Glib, HBlinded, HConfusion, HDeaf, HFumbling,
+    HHallucination, HJumping, HStun, Halluc_resistance, Hallucination, Invis,
+    Jumping, Levitation, Maybe_Half_Phys, Passes_walls, See_invisible, Sick,
+    Slimed, Stoned, Strangled, Stunned, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -656,11 +651,11 @@ function applyIsStunned(state) {
 
 
 function applyIsFumbling(state) {
-    return applyPropertyActive(FUMBLING, state);
+    return Fumbling(state.u);
 }
 
 function applyIsGlib(state) {
-    return applyPropertyActive(GLIB, state);
+    return Boolean(Glib(state.u));
 }
 
 function polearmContext(state) {
@@ -1935,8 +1930,7 @@ export function reset_trapset(state = game) {
 }
 
 function trapSettingFumbling(state) {
-    const property = state.u?.uprops?.[FUMBLING];
-    return Boolean(property?.intrinsic || property?.extrinsic);
+    return Fumbling(state.u);
 }
 
 function trapSettingStunned(state) {
@@ -3038,7 +3032,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         await ttyPline('You lack the strength to jump!', state);
         return ECMD_OK;
     }
-    if (!magic && jumpProperty(state, WOUNDED_LEGS)) {
+    if (!magic && Wounded_legs(state.u)) {
         await legs_in_no_shape('jumping', Boolean(state.u.usteed), state);
         return ECMD_OK;
     }
@@ -3176,7 +3170,7 @@ export async function use_lamp(obj, state = game, env = {}) {
                 `The lamp spills and covers your ${fingers_or_gloves(true, state)} with oil.`,
                 state,
             );
-            const glib = state.u?.uprops?.[GLIB]?.intrinsic ?? 0;
+            const glib = Glib(state.u);
             make_glib((glib & TIMEOUT) + d(2, 10), state, env);
         } else if (!Blind(state.u)) {
             await ttyPline(
@@ -3496,7 +3490,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
         const lcount = rn1(90, 10);
         switch (Math.trunc(rn2(13) / 2)) {
         case 0: {
-            const sickTimeout = intrinsic(SICK) & TIMEOUT;
+            const sickTimeout = Sick(state.u) & TIMEOUT;
             // C evaluates the timeout (and its conditional RNG) before xname.
             const sicknessDuration = sickTimeout
                 ? Math.trunc(sickTimeout / 3) + 1
@@ -3536,7 +3530,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             );
             break;
         case 4:
-            if (intrinsic(VOMITING))
+            if (Vomiting(state.u))
                 await vomit(state, { ...env, message });
             else
                 await make_vomiting(14, false, state, env);
@@ -4147,7 +4141,7 @@ export async function use_mirror(obj, state = game, env = {}) {
             );
         } else if (Hallucination(state.u)) {
             await ttyPline(`You look ${hcolor(null, state)}.`, state);
-        } else if (state.u.uprops[SICK]?.intrinsic) {
+        } else if (Sick(state.u)) {
             await ttyPline('You look peaked.', state);
         } else if (u.uhs >= WEAK) {
             await ttyPline('You look undernourished.', state);
@@ -4346,7 +4340,7 @@ export async function use_towel(obj, state = game, env = {}) {
         let old;
         switch (random.rn2(3)) {
         case 2:
-            old = (u.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+            old = (Glib(u)) & TIMEOUT;
             make_glib(old + random.rn1(10, 3), state, env);
             await message(
                 `Your ${makeplural(body_part(HAND, state.youmonst))} `
@@ -4397,7 +4391,7 @@ export async function use_towel(obj, state = game, env = {}) {
         }
     }
 
-    if (u.uprops?.[GLIB]?.intrinsic) {
+    if (Glib(u)) {
         make_glib(0, state, env);
         await message(
             `You wipe off your ${!state.uarmg
@@ -5195,9 +5189,8 @@ export async function flip_coin(obj, state = game, env = {}) {
         await message('It tumbles away.', state);
         loseCoin = true;
     } else {
-        const glib = state.u?.uprops?.[GLIB]?.intrinsic;
-        const fumbling = state.u?.uprops?.[FUMBLING];
-        if (glib || fumbling?.intrinsic || fumbling?.extrinsic
+        const glib = Glib(state.u);
+        if (glib || HFumbling(state.u) || EFumbling(state.u)
             || (acurr(state, A_DEX) < 10
                 && !drawRn2(acurr(state, A_DEX)))) {
             await message(
@@ -5363,7 +5356,7 @@ export async function use_grease(obj, state = game, env = {}) {
             return ECMD_OK;
 
         await consume_obj_charge(obj, true, { ...env, state });
-        const oldglib = (state.u?.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+        const oldglib = (Glib(state.u)) & TIMEOUT;
         if (target !== hands_obj) {
             await ttyPline(
                 `You cover ${yname(target, state)} with a thick layer of grease.`,
@@ -5403,15 +5396,15 @@ export function unfixable_trouble_count(isHorn = false, state = game) {
     const intrinsic = (index) => prop(index).intrinsic ?? 0;
     let count = 0;
 
-    if (intrinsic(STONED)) count++;
-    if (intrinsic(SLIMED)) count++;
-    if (intrinsic(STRANGLED)) count++;
+    if (Stoned(state.u)) count++;
+    if (Slimed(state.u)) count++;
+    if (Strangled(state.u)) count++;
     if ((u.atemp?.[A_DEX] ?? 0) < 0
-        && (intrinsic(WOUNDED_LEGS) || prop(WOUNDED_LEGS).extrinsic)) count++;
+        && (Wounded_legs(state.u))) count++;
     if ((u.atemp?.[A_STR] ?? 0) < 0 && (u.uhs ?? 0) >= WEAK) count++;
 
-    if (intrinsic(SICK)
-        && (!isHorn || (intrinsic(SICK) & ~TIMEOUT) !== 0)) count++;
+    if (Sick(state.u)
+        && (!isHorn || (Sick(state.u) & ~TIMEOUT) !== 0)) count++;
     if (HStun(state.u)
         && (!isHorn || (HStun(state.u) & ~TIMEOUT) !== 0)) count++;
     if (HConfusion(state.u)
@@ -5421,8 +5414,8 @@ export function unfixable_trouble_count(isHorn = false, state = game) {
     if (hallucination && !Halluc_resistance(state.u)
         && (!isHorn || (hallucination & ~TIMEOUT) !== 0)) count++;
 
-    if (intrinsic(VOMITING)
-        && (!isHorn || (intrinsic(VOMITING) & ~TIMEOUT) !== 0)) count++;
+    if (Vomiting(state.u)
+        && (!isHorn || (Vomiting(state.u) & ~TIMEOUT) !== 0)) count++;
 
     if (Deaf(u) && (!isHorn || (HDeaf(u) & ~TIMEOUT) !== 0)) count++;
 

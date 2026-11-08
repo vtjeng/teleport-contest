@@ -190,7 +190,7 @@ test('gethungry faint runs real corpse selftouch and stops the fatal status tail
     const { bot } = await import('../js/display.js');
     const { ttyPline } = await import('../js/tty_message.js');
     const { Stone_resistance } = await import('../js/artifacts.js');
-    const { Levitation } = await import('../js/trap.js');
+    const { Levitation } = await import('../js/youprop.js');
     const { getRngLog } = await import('../js/rng.js');
     const { CORPSE, LEATHER_GLOVES } = await import('../js/objects.js');
     const { PM_COCKATRICE } = await import('../js/monsters.js');
@@ -235,7 +235,7 @@ test('gethungry faint runs real corpse selftouch and stops the fatal status tail
         sourceWeight: weight(corpse, { state: game }),
         glovesWorn: game.uarmg === gloves,
         stoneResistance: Stone_resistance(game),
-        levitation: Levitation(game),
+        levitation: Levitation(game.u),
         readyWeaponResult,
         displayEpoch: display.waitEpoch,
         inputQueueLength: display.inputQueueLength,

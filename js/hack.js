@@ -159,7 +159,6 @@ import {
     VIBRATING_SQUARE,
     WATER,
     WEB,
-    WOUNDED_LEGS,
     W_ARTI,
     W_ARMF,
     W_NONDIGGABLE,
@@ -535,9 +534,9 @@ import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
     Amphibious, BFlying, BLevitation, Blind, Breathless, Confusion, Deaf,
-    EFlying, ELevitation, Flying, HFlying, HLevitation,
-    Half_physical_damage, Hallucination, Levitation, Maybe_Half_Phys,
-    Passes_walls, Stunned, Swimming, Warning, Wwalking,
+    EFlying, ELevitation, EWounded_legs, Flying, Fumbling, HFlying, HFumbling,
+    HLevitation, Half_physical_damage, Hallucination, Levitation,
+    Maybe_Half_Phys, Passes_walls, Stunned, Swimming, Warning, Wwalking,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -719,7 +718,7 @@ export function weight_cap(state = game) {
     } else {
         capacity = Math.min(capacity, MAX_CARR_CAP);
         if (!Flying(state.u)) {
-            const sides = state.u.uprops[WOUNDED_LEGS].extrinsic;
+            const sides = EWounded_legs(state.u);
             if (sides & LEFT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
             if (sides & RIGHT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
         }
@@ -2801,7 +2800,7 @@ export async function test_move(
                 if (state.flags?.autoopen && !run
                     && !Confusion(state.u)
                     && !Stunned(state.u)
-                    && !propertyPresent(state, FUMBLING)) {
+                    && !Fumbling(state.u)) {
                     const openEnv = { message };
                     if (env.random) openEnv.random = env.random;
                     const result = await doopen_indir(x, y, state, openEnv);
@@ -2820,7 +2819,7 @@ export async function test_move(
                     if (Blind(state.u)
                         || Boolean(Stunned(state.u))
                         || acurr(state, A_DEX) < 10
-                        || propertyPresent(state, FUMBLING)) {
+                        || Fumbling(state.u)) {
                         if (state.u.usteed) {
                             await message(
                                 "You can't lead "
@@ -3520,9 +3519,6 @@ export async function water_turbulence(x, y, state = game) {
 
 // C ref: hack.c slippery_ice_fumbling() (2396-2413).
 export function slippery_ice_fumbling(state = game) {
-    state.u.uprops[FUMBLING] ??= {
-        intrinsic: 0, extrinsic: 0, blocked: 0,
-    };
     let onIce = !Levitation(state.u)
         && state.level?.at(state.u.ux, state.u.uy)?.typ === ICE;
     const skater = state.u.usteed ?? state.youmonst;
@@ -3533,13 +3529,12 @@ export function slippery_ice_fumbling(state = game) {
             || is_clinger(skater.data) || is_whirly(skater.data)) {
             onIce = false;
         } else if (!rn2(Cold_resistance(state) ? 3 : 2)) {
-            const fumbling = state.u.uprops[FUMBLING];
-            fumbling.intrinsic |= FROMOUTSIDE;
-            fumbling.intrinsic &= ~TIMEOUT;
-            fumbling.intrinsic += 1;
+            state.u.uprops[FUMBLING].intrinsic |= FROMOUTSIDE;
+            state.u.uprops[FUMBLING].intrinsic &= ~TIMEOUT;
+            state.u.uprops[FUMBLING].intrinsic += 1;
         }
     }
-    if (!onIce && (state.u.uprops[FUMBLING].intrinsic & FROMOUTSIDE))
+    if (!onIce && (HFumbling(state.u) & FROMOUTSIDE))
         state.u.uprops[FUMBLING].intrinsic &= ~FROMOUTSIDE;
 }
 

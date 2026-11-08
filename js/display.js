@@ -61,11 +61,10 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BOLT_LIM, GLIB, INTRINSIC, WOUNDED_LEGS,
+    ACCESSIBLE, BOLT_LIM, INTRINSIC,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
-    HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
-    SLIMED, STONED, STR18, STRANGLED, OBJ_FLOOR,
+    HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF, NOT_HUNGRY, SICK_NONVOMITABLE, SICK_VOMITABLE, STR18, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
     DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
     P_SHORT_SWORD, P_SABER,
@@ -324,9 +323,10 @@ import {
 } from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 import {
-    Blind, Confusion, Deaf, Detect_monsters, ETelepat, Flying, HHallucination,
-    HTelepat, Halluc_resistance, Hallucination, Infravision, Invis,
-    Levitation, See_invisible, Stunned, Warn_of_mon, Warning,
+    Blind, Confusion, Deaf, Detect_monsters, ETelepat, Flying, Glib,
+    HHallucination, HTelepat, Halluc_resistance, Hallucination, Infravision,
+    Invis, Levitation, See_invisible, Sick, Slimed, Stoned, Strangled,
+    Stunned, Warn_of_mon, Warning, Wounded_legs,
 } from './youprop.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -4960,10 +4960,6 @@ function _propertyActive(u, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-function _propertyIntrinsic(u, index) {
-    return Boolean(u.uprops?.[index]?.intrinsic);
-}
-
 // C ref: display.h canseeself(), senseself(), and canspotself() (164-176).
 // newsym() must map the hero's square underneath an invisible hero when no
 // source lets the hero perceive that square; display_self() is only legal in
@@ -5168,7 +5164,7 @@ export function statusConditionActive(option, u) {
     case 'fly':
         return Flying(u);
     case 'foodpois':
-        return _propertyIntrinsic(u, SICK)
+        return Boolean(Sick(u))
             && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
     // botl.c:1195 reads the remaining confuse-monster hand charges.
     case 'glowhands': return Boolean(u.umconf);
@@ -5207,20 +5203,20 @@ export function statusConditionActive(option, u) {
     }
     case 'levitate': return Levitation(u);
     case 'ride': return Boolean(u.usteed);
-    case 'slime': return _propertyIntrinsic(u, SLIMED);
+    case 'slime': return Boolean(Slimed(u));
     // botl.c:1207 and youprop.h:112 use intrinsic Glib only.
-    case 'slip': return _propertyIntrinsic(u, GLIB);
-    case 'stone': return _propertyIntrinsic(u, STONED);
-    case 'strngl': return _propertyIntrinsic(u, STRANGLED);
+    case 'slip': return Boolean(Glib(u));
+    case 'stone': return Boolean(Stoned(u));
+    case 'strngl': return Boolean(Strangled(u));
     case 'stun': return Boolean(Stunned(u));
     // botl.c:1203 uses Underwater, defined as u.uinwater in youprop.h.
     case 'submerged': return Boolean(u.uinwater);
     case 'termill':
-        return _propertyIntrinsic(u, SICK)
+        return Boolean(Sick(u))
             && Boolean((u.usick_type ?? 0) & SICK_NONVOMITABLE);
     // botl.c:1208 and youprop.h:138 include both timeout and side bits,
     // including a ridden steed's wounds stored in the same hero property.
-    case 'woundedlegs': return _propertyActive(u, WOUNDED_LEGS);
+    case 'woundedlegs': return Wounded_legs(u);
     default: return false;
     }
 }

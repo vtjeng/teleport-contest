@@ -46,14 +46,15 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // youprop.h's vision and invisibility, hallucination, deafness,
-// half-physical-damage, stun and confusion, and transportation slots.
+// half-physical-damage, troubles, and transportation slots.
 export const ROUTED_PROPERTIES = Object.freeze([
     'BLINDED', 'BLND_RES', 'SEE_INVIS', 'TELEPAT', 'WARNING', 'WARN_OF_MON',
     'WARN_UNDEAD', 'SEARCHING', 'CLAIRVOYANT', 'INFRAVISION',
     'DETECT_MONSTERS', 'INVIS', 'HALLUC', 'HALLUC_RES', 'DEAF', 'HALF_PHDAM',
     'STUNNED', 'CONFUSION', 'LEVITATION', 'FLYING', 'JUMPING', 'TELEPORT',
     'TELEPORT_CONTROL', 'WWALKING', 'SWIMMING', 'MAGICAL_BREATHING',
-    'PASSES_WALLS',
+    'PASSES_WALLS', 'SICK', 'STONED', 'STRANGLED', 'VOMITING', 'GLIB',
+    'SLIMED', 'FUMBLING', 'WOUNDED_LEGS', 'SLEEPY', 'HUNGER',
 ]);
 
 // youprop.h macros that read no u.uprops[] slot.

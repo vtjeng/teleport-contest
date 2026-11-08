@@ -59,7 +59,6 @@ import {
     N_DIRS,
     FOOT,
     NO_PART,
-    FUMBLING,
     FORCETRAP,
     F_WARNED,
     DIGTYP_DOOR,
@@ -295,7 +294,8 @@ import { canseemon } from './display.js';
 import { expels } from './mhitu.js';
 import { body_part, mbodypart } from './polyself.js';
 import {
-    Blind, Deaf, Flying, Hallucination, Levitation, Maybe_Half_Phys, Unaware,
+    Blind, Deaf, Flying, Fumbling, Hallucination, Levitation, Maybe_Half_Phys,
+    Unaware,
 } from './youprop.js';
 
 
@@ -624,8 +624,7 @@ export async function dig(state = game, rawEnv = {}) {
         return 0;
     }
 
-    const fumbling = Boolean(u.uprops?.[FUMBLING]?.intrinsic
-        || u.uprops?.[FUMBLING]?.extrinsic);
+    const fumbling = Fumbling(u);
     if (fumbling && !random.rn2(3)) {
         switch (random.rn2(3)) {
         case 0:

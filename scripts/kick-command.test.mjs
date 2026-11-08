@@ -890,11 +890,11 @@ test('mounted yes/no answers compare the C answer character',()=>{
 test('dokick keeps the source guard, swallowed, wake and target dispatch order',()=>{
     const js=readFileSync(new URL('../js/dokick.js',import.meta.url),'utf8');
     const body=js.slice(js.indexOf('export async function dokick'),js.indexOf('// C ref: dokick.c drop_to'));
-    const ordered=['nolimbs(species)','verysmall(species)','u.usteed','Wounded_legs(state)',
+    const ordered=['nolimbs(species)','verysmall(species)','u.usteed','Wounded_legs(state.u)',
         'near_capacity(state)','species?.mlet === S_LIZARD','u.uinwater && !rn2(2)',
         'else if (u.utrap)','sobj_at(BOULDER, u.ux, u.uy','if (no_kick)',
         'getdir(null, state)','state.gk.kickedloc','KICKING_BOOTS','if (u.uswallow)',
-        'Levitation(state)','maybe_kick_monster','wake_nearby','u_wipe_engr',
+        'Levitation(state.u)','maybe_kick_monster','wake_nearby','u_wipe_engr',
         "await kick_ouch(x, y, '', state)",'await kick_monster','unmap_invisible',
         'is_pool(x, y, state)','await kick_object','await kick_door'];
     let offset=0;

@@ -82,7 +82,7 @@ test('polymon imports and calls the source poly_when_stoned predicate', () => {
     assert.match(cFunction,
         /if \(Stoned && poly_when_stoned\(&mons\[mntmp\]\)\)\s*\{\s*\/\* poly_when_stoned already checked stone golem genocide \*\//u);
     assert.match(jsFunction,
-        /if \(u\.uprops\[STONED\]\.intrinsic\s*&& poly_when_stoned\(mdat, state\)\)\s*\{[\s\S]{0,100}mntmp = M\.PM_STONE_GOLEM;/u);
+        /if \(Stoned\(u\)\s*&& poly_when_stoned\(mdat, state\)\)\s*\{[\s\S]{0,100}mntmp = M\.PM_STONE_GOLEM;/u);
     assert.match(JS_SOURCE,
         /import \{[^}]*\bpoly_when_stoned\b[^}]*\} from '\.\/mondata\.js';/su);
 });
@@ -175,7 +175,7 @@ test('polymon cures sickness after the new form grants resistance', () => {
     assert.match(C_POLYMON_FUNCTION,
         /if \(Sick_resistance && Sick\) \{\s*make_sick\(0L, \(char \*\) 0, FALSE, SICK_ALL\);\s*You\("no longer feel sick\."\);/u);
     assert.match(JS_POLYMON_FUNCTION,
-        /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && u\.uprops\[SICK\]\.intrinsic\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
+        /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && Sick\(u\)\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
 });
 
 test('polymon self-touches after losing glove protection', () => {

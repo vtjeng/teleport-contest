@@ -51,7 +51,6 @@ import {
     FACE,
     F_LOOTED,
     FOUNTAIN,
-    FUMBLING,
     FIRE_RES,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
@@ -406,8 +405,9 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BLevitation, Blind, Deaf, EBlinded, ELevitation, Flying, HBlinded,
-    HLevitation, Hallucination, Levitation, Maybe_Half_Phys,
+    BLevitation, Blind, Deaf, EBlinded, ELevitation, EWounded_legs, Flying,
+    Fumbling, HBlinded, HLevitation, HWounded_legs, Hallucination, Levitation,
+    Maybe_Half_Phys, Wounded_legs,
 } from './youprop.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
@@ -803,17 +803,6 @@ export async function deferred_goto(state = game, rawEnv = {}) {
     u.utotype = UTOTYPE_NONE;
     state.gd.dfr_pre_msg = null;
     state.gd.dfr_post_msg = null;
-}
-
-// Renders youprop.h's `(HProperty || EProperty)` shape only. That is not what
-// every property macro says, so a caller must read the macro it wants before
-// reusing this: Flying (youprop.h:253-255) is
-// `((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) && !BFlying)`,
-// with a steed term and a blocker this helper models neither.
-// js/worn.js setworn() is the port's only writer of an extrinsic property.
-function heroPropertyActive(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
 // C ref: do.c familiar_level_msg() (1448-1476). Displays a random "deja vu"
@@ -3006,7 +2995,7 @@ export async function goto_level(
                 );
             }
         } else if (near_capacity(state) > UNENCUMBERED
-                   || Punished(state) || heroPropertyActive(u, FUMBLING)) {
+                   || Punished(state) || Fumbling(u)) {
             // do.c:1783-1797. Punishment drags the ball and chain before the
             // ordinary fall damage or steed dismount.
             await ttyPline(
@@ -3366,8 +3355,7 @@ export async function legs_in_no_shape(
         return;
     }
 
-    const wounded = state.u.uprops[WOUNDED_LEGS];
-    const wl = (wounded.extrinsic ?? 0) & BOTH_SIDES;
+    const wl = (EWounded_legs(state.u)) & BOTH_SIDES;
     let bp = body_part(LEG, state.youmonst);
     if (wl === BOTH_SIDES) bp = makeplural(bp);
     const side = wl === LEFT_SIDE
@@ -3396,21 +3384,20 @@ export async function legs_in_no_shape(
 // caller's, not this function's.
 export async function set_wounded_legs(side, timex, state = game, env = {}) {
     const u = state.u;
-    const wounded = u.uprops[WOUNDED_LEGS];
-    const already = Boolean(wounded.intrinsic || wounded.extrinsic);
+    const already = Wounded_legs(u);
 
     state.disp ??= {};
     state.disp.botl = true;
     if (!already) --u.atemp[A_DEX];
 
-    if (!already || (wounded.intrinsic & TIMEOUT) < timex) {
+    if (!already || (HWounded_legs(u) & TIMEOUT) < timex) {
         // prop.h set_itimeout(): overwrite the timeout field and keep the
         // source bits above it.
-        wounded.intrinsic = (wounded.intrinsic & ~TIMEOUT) | timex;
+        u.uprops[WOUNDED_LEGS].intrinsic = (HWounded_legs(u) & ~TIMEOUT) | timex;
     }
     // C ref: do.c:2442-2445. Bitwise-OR rather than assignment, so a second
     // wound to the other leg does not heal the first.
-    wounded.extrinsic |= side;
+    u.uprops[WOUNDED_LEGS].extrinsic |= side;
     // uhitm.c passes through the attack message sink when a leg wound changes
     // burden.  Keep the optional seam here; other callers retain ttyPline by
     // default.
@@ -3430,8 +3417,7 @@ export async function set_wounded_legs(side, timex, state = game, env = {}) {
 // raised in between keeps the gain. Across one wound the two cancel exactly.
 export async function heal_legs(state = game, { how = 0, message = ttyPline } = {}) {
     const u = state.u;
-    const wounded = u.uprops[WOUNDED_LEGS];
-    if (!wounded.intrinsic && !wounded.extrinsic) return;
+    if (!HWounded_legs(u) && !EWounded_legs(u)) return;
 
     state.disp ??= {};
     state.disp.botl = true;
@@ -3441,13 +3427,13 @@ export async function heal_legs(state = game, { how = 0, message = ttyPline } = 
     // nothing is said about the hero's own legs.
     if (!u.usteed && how !== 2) {
         let legs = body_part(LEG, state.youmonst);
-        if ((wounded.extrinsic & BOTH_SIDES) === BOTH_SIDES)
+        if ((EWounded_legs(u) & BOTH_SIDES) === BOTH_SIDES)
             legs = makeplural(legs);
         await message(`Your ${legs} ${vtense(legs, 'feel')} better.`, state);
     }
 
-    wounded.intrinsic = 0;
-    wounded.extrinsic = 0;
+    u.uprops[WOUNDED_LEGS].intrinsic = 0;
+    u.uprops[WOUNDED_LEGS].extrinsic = 0;
 
     // C ref: do.c:2473-2484. Wounded legs cost carrying capacity, so healing
     // them can lift an encumbrance the hero has been carrying.

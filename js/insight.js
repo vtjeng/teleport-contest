@@ -114,7 +114,6 @@ import {
     G_EXTINCT,
     G_GENOD,
     G_GONE,
-    GLIB,
     HALF_PHDAM,
     HALF_SPDAM,
     HALLUC_RES,
@@ -184,19 +183,16 @@ import {
     SEARCHING,
     SEE_INVIS,
     SHOCK_RES,
-    SICK,
     SICK_NONVOMITABLE,
     SICK_RES,
     SICK_VOMITABLE,
     SLEEP_RES,
     SLEEPY,
-    SLIMED,
     TIMEOUT,
     SLOW_DIGESTION,
     SLT_ENCUMBER,
     STEALTH,
     STONE_RES,
-    STONED,
     STR18,
     STRANGLED,
     STRAT_WAITMASK,
@@ -214,7 +210,6 @@ import {
     UNCHANGING,
     UNENCUMBERED,
     Upolyd,
-    VOMITING,
     VANQ_ALPHA_MIX,
     VANQ_ALPHA_SEP,
     VANQ_COUNT_H_L,
@@ -231,7 +226,6 @@ import {
     W_SADDLE,
     W_TOOL,
     WARNING,
-    WOUNDED_LEGS,
     WWALKING,
     ARTICLE_THE,
 } from './const.js';
@@ -379,11 +373,13 @@ import {
     BBlinded, BClairvoyant, BFlying, BInvis, BLevitation, Blind,
     Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
     Breathless, Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant,
-    EInvis, Flying, HBlinded, HClairvoyant, HConfusion, HDetect_monsters,
-    HInvis, HStun, Half_physical_damage, Halluc_resistance, Hallucination,
+    EInvis, EWounded_legs, Flying, Fumbling, Glib, HBlinded, HClairvoyant,
+    HConfusion, HDetect_monsters, HInvis, HSleepy, HStun,
+    Half_physical_damage, Halluc_resistance, Hallucination, Hunger,
     Infravision, Invis, Jumping, Lev_at_will, Levitation, Passes_walls,
-    Searching, See_invisible, Swimming, Teleport_control, Teleportation,
-    Undead_warning, Warn_of_mon, Warning, Wwalking,
+    Searching, See_invisible, Sick, Sleepy, Slimed, Stoned, Strangled,
+    Swimming, Teleport_control, Teleportation, Undead_warning, Vomiting,
+    Warn_of_mon, Warning, Wounded_legs, Wwalking,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -1196,11 +1192,11 @@ function status_enlightenment(mode, final, state, lines) {
     const blindfoldedOnly = Blindfolded_only(u);
     const hallucinating = Hallucination(u);
     const deaf = Deaf(u);
-    const woundedLegs = Boolean(H(WOUNDED_LEGS) || E(WOUNDED_LEGS));
-    const glib = Boolean(H(GLIB));
-    const fumbling = Boolean(H(FUMBLING) || E(FUMBLING));
-    const sleepy = Boolean(H(SLEEPY) || E(SLEEPY));
-    const hunger = Boolean(H(HUNGER) || E(HUNGER));
+    const woundedLegs = Wounded_legs(u);
+    const glib = Boolean(Glib(u));
+    const fumbling = Fumbling(u);
+    const sleepy = Sleepy(u);
+    const hunger = Hunger(u);
     const magic = Boolean(mode & MAGICENLIGHTENMENT);
     const riding = Boolean(u.usteed
         && !(final === ENL_GAMEOVERDEAD
@@ -1256,28 +1252,28 @@ function status_enlightenment(mode, final, state, lines) {
         || M_AP_TYPE(state.youmonst) !== M_AP_NOTHING))
         youhiding(true, final, state, lines);
 
-    if (H(STONED)) {
-        if (final && (H(STONED) & I_SPECIAL))
+    if (Stoned(u)) {
+        if (final && (Stoned(u) & I_SPECIAL))
             enlght_out(lines, ' You turned into stone.');
         else you_are(lines, final, 'turning to stone', '');
     }
-    if (H(SLIMED)) {
-        if (final && (H(SLIMED) & I_SPECIAL))
+    if (Slimed(u)) {
+        if (final && (Slimed(u) & I_SPECIAL))
             enlght_out(lines, ' You turned into slime.');
         else you_are(lines, final, 'turning into slime', '');
     }
-    if (H(STRANGLED)) {
+    if (Strangled(u)) {
         if (u.uburied) you_are(lines, final, 'buried', '');
-        else if (final && (H(STRANGLED) & I_SPECIAL))
+        else if (final && (Strangled(u) & I_SPECIAL))
             enlght_out(lines, ' You died from strangulation.');
         else {
             buf = 'being strangled';
-            if (state.wizard) buf += ' (' + (H(STRANGLED) & TIMEOUT) + ')';
+            if (state.wizard) buf += ' (' + (Strangled(u) & TIMEOUT) + ')';
             you_are(lines, final, buf, from_what(STRANGLED, state));
         }
     }
-    if (H(SICK)) {
-        if (final && (H(SICK) & I_SPECIAL)) {
+    if (Sick(u)) {
+        if (final && (Sick(u) & I_SPECIAL)) {
             const kind = (u.usick_type & SICK_NONVOMITABLE)
                 ? 'terminal illness' : 'food poisoning';
             enlght_out(lines, ' ' + You_ + 'died from ' + kind + '.');
@@ -1288,7 +1284,7 @@ function status_enlightenment(mode, final, state, lines) {
                 you_are(lines, final, 'terminally sick from food poisoning', '');
         }
     }
-    if (H(VOMITING)) you_are(lines, final, 'nauseated', '');
+    if (Vomiting(u)) you_are(lines, final, 'nauseated', '');
     if (HStun(u)) you_are(lines, final, 'stunned', '');
     if (HConfusion(u)) you_are(lines, final, 'confused', '');
     if (hallucinating) you_are(lines, final, 'hallucinating', '');
@@ -1354,7 +1350,7 @@ function status_enlightenment(mode, final, state, lines) {
                 + simpleonames(saddle, state), '');
     }
     if (woundedLegs) {
-        const side = E(WOUNDED_LEGS) & BOTH_SIDES;
+        const side = EWounded_legs(u) & BOTH_SIDES;
         let bp = u.usteed ? mbodypart(u.usteed, LEG)
             : body_part(LEG, state.youmonst);
         let article = 'a ';
@@ -1373,7 +1369,7 @@ function status_enlightenment(mode, final, state, lines) {
     }
     if (glib) {
         buf = 'slippery ' + fingers_or_gloves(true, state);
-        if (state.wizard) buf += ' (' + (H(GLIB) & TIMEOUT) + ')';
+        if (state.wizard) buf += ' (' + (Glib(u) & TIMEOUT) + ')';
         you_have(lines, final, buf, '');
     }
     if (fumbling && (magic || cause_known(FUMBLING, state)))
@@ -1381,7 +1377,7 @@ function status_enlightenment(mode, final, state, lines) {
             from_what(FUMBLING, state));
     if (sleepy && (magic || cause_known(SLEEPY, state))) {
         buf = from_what(SLEEPY, state);
-        if (state.wizard) buf += ' (' + (H(SLEEPY) & TIMEOUT) + ')';
+        if (state.wizard) buf += ' (' + (HSleepy(u) & TIMEOUT) + ')';
         enl_msg(lines, final, You_, 'fall', 'fell', ' asleep uncontrollably', buf);
     }
     if (hunger && (magic || cause_known(HUNGER, state)))
@@ -3133,12 +3129,11 @@ export async function mstatusline(mtmp, state = game) {
     }
     if (mtmp === state.u.usteed) {
         info += ', carrying you';
-        const woundedLegs = state.u.uprops?.[WOUNDED_LEGS] ?? {};
-        if (woundedLegs.intrinsic || woundedLegs.extrinsic) {
+        if (Wounded_legs(state.u)) {
             // youprop.h:136-138 keeps the timeout and worn-ring sides in the
             // same property; the status line masks EWounded_legs and names
             // both legs only when both C side bits are set.
-            const legs = Number(woundedLegs.extrinsic ?? 0) & BOTH_SIDES;
+            const legs = Number(EWounded_legs(state.u)) & BOTH_SIDES;
             let what = mbodypart(mtmp, LEG);
             if (legs === BOTH_SIDES) what = makeplural(what);
             info += `, injured ${what}`;
@@ -3169,7 +3164,7 @@ export async function ustatusline(state = game) {
     let info = '';
 
     const properties = u.uprops ?? [];
-    if (properties[SICK]?.intrinsic) {
+    if (Sick(u)) {
         info += ', dying from';
         const vomitable = Boolean(u.usick_type & SICK_VOMITABLE);
         const nonvomitable = Boolean(u.usick_type & SICK_NONVOMITABLE);
@@ -3179,10 +3174,10 @@ export async function ustatusline(state = game) {
             info += ' illness';
         }
     }
-    if (properties[STONED]?.intrinsic) info += ', solidifying';
-    if (properties[SLIMED]?.intrinsic) info += ', becoming slimy';
-    if (properties[STRANGLED]?.intrinsic) info += ', being strangled';
-    if (properties[VOMITING]?.intrinsic) info += ', nauseated';
+    if (Stoned(u)) info += ', solidifying';
+    if (Slimed(u)) info += ', becoming slimy';
+    if (Strangled(u)) info += ', being strangled';
+    if (Vomiting(u)) info += ', nauseated';
     if (HConfusion(u)) info += ', confused';
     if (Blind(u)) {
         info += ', blind';
@@ -3194,15 +3189,14 @@ export async function ustatusline(state = game) {
         }
     }
     if (HStun(u)) info += ', stunned';
-    if ((properties[WOUNDED_LEGS]?.intrinsic
-         || properties[WOUNDED_LEGS]?.extrinsic) && !u.usteed) {
-        const legs = Number(properties[WOUNDED_LEGS]?.extrinsic ?? 0)
+    if ((Wounded_legs(u)) && !u.usteed) {
+        const legs = Number(EWounded_legs(u))
             & BOTH_SIDES;
         let what = body_part(LEG, state.youmonst);
         if (legs === BOTH_SIDES) what = makeplural(what);
         info += `, injured ${what}`;
     }
-    if (properties[GLIB]?.intrinsic)
+    if (Glib(u))
         info += `, slippery ${fingers_or_gloves(true, state)}`;
     if (u.utrap) info += ', trapped';
     const fastIntrinsic = Number(properties[FAST]?.intrinsic ?? 0);

@@ -58,9 +58,7 @@ import {
     REGENERATION,
     SEARCHING,
     SHOCK_RES,
-    SICK,
     SICK_ALL,
-    SLIMED,
     STEALTH,
     STONE_RES,
     TELEPORT_CONTROL,
@@ -293,7 +291,8 @@ import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
     BBlinded, BInvis, Blind, EBlinded, ELevitation, HBlinded, HConfusion,
-    HLevitation, HStun, Hallucination, Levitation, Maybe_Half_Phys,
+    HLevitation, HStun, Hallucination, Levitation, Maybe_Half_Phys, Sick,
+    Slimed,
 } from './youprop.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
@@ -1975,9 +1974,6 @@ export async function Mb_hit(
 // C ref: artifact.c FATAL_DAMAGE_MODIFIER (63). Local to artifact.c.
 const FATAL_DAMAGE_MODIFIER = 200;
 
-function Slimed(state) {
-    return Boolean(state.u?.uprops?.[SLIMED]?.intrinsic);
-}
 
 // C ref: artifact.c artifact_hit() (1447-1726). The main artifact combat
 // handler. Returns true when it did something special (in which case the
@@ -2039,7 +2035,7 @@ export async function artifact_hit(
                 dmgptr.value += itemdmg; /* item destruction dmg */
             await ignite_items(mdef.minvent, effectEnv);
         }
-        if (youdefend && Slimed(state))
+        if (youdefend && Slimed(state.u))
             await burn_away_slime(state, effectEnv);
         return realizes_damage;
     }
@@ -2368,8 +2364,8 @@ export async function invoke_healing(obj, state) {
     // C: Sick = u.uprops[SICK].intrinsic, Slimed = u.uprops[SLIMED].intrinsic,
     // BlindedTimeout = u.uprops[BLINDED].intrinsic & TIMEOUT.
     const blindedTimeout = HBlinded(u) & TIMEOUT;
-    const sick = (u.uprops?.[SICK]?.intrinsic ?? 0) !== 0;
-    const slimed = (u.uprops?.[SLIMED]?.intrinsic ?? 0) !== 0;
+    const sick = (Sick(u)) !== 0;
+    const slimed = (Slimed(u)) !== 0;
     const hBlinded = HBlinded(u);
     // youprop.h:92 Blinded is a boolean, distinct from BlindedTimeout.
     const blinded = Boolean(hBlinded) && !BBlinded(u);

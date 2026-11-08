@@ -23,8 +23,6 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
-    FUMBLING,
-    GLIB,
     has_mgivenname,
     KILLED_BY_AN,
     LEG,
@@ -57,7 +55,6 @@ import {
     TT_WEB,
     Upolyd,
     VIBRATING_SQUARE,
-    WOUNDED_LEGS,
     W_SADDLE,
     TIMEOUT,
     helpless,
@@ -170,8 +167,9 @@ import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
-    Blind, Blind_telepat, Confusion, Flying, Hallucination, Lev_at_will,
-    Levitation, Maybe_Half_Phys, Stunned,
+    Blind, Blind_telepat, Confusion, Flying, Fumbling, Glib, HWounded_legs,
+    Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stunned,
+    Wounded_legs,
 } from './youprop.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
@@ -179,11 +177,6 @@ import {
 function propertyActive(state, index) {
     const value = state.u?.uprops?.[index];
     return Boolean(value?.intrinsic || value?.extrinsic);
-}
-
-// youprop.h:84 and :112 define Confusion and Glib as the bare intrinsic field.
-function propertyIntrinsic(state, index) {
-    return Boolean(state.u?.uprops?.[index]?.intrinsic);
 }
 
 // youprop.h:77. The punishing ball is the whole test.
@@ -399,8 +392,8 @@ export async function use_saddle(otmp, state = game, env = {}) {
         break;
     }
     if (Confusion(state.u)
-        || propertyActive(state, FUMBLING)
-        || propertyIntrinsic(state, GLIB)) {
+        || Fumbling(state.u)
+        || Boolean(Glib(state.u))) {
         chance -= 20;
     } else if (state.uarmg && objdescr_is(state.uarmg, 'riding gloves', state)) {
         chance += 10;
@@ -443,11 +436,11 @@ export async function mount_steed(mtmp, force, state = game) {
         await ttyPline('Maybe you should find a designated driver.', state);
         return false;
     }
-    if (propertyActive(state, WOUNDED_LEGS)) {
+    if (Wounded_legs(state.u)) {
         await legs_in_no_shape('riding', false, state);
         // C intentionally derives the prompt plural from HWounded_legs,
         // the intrinsic timeout, rather than the extrinsic side bits.
-        const plural = ((u.uprops[WOUNDED_LEGS].intrinsic & BOTH_SIDES)
+        const plural = ((HWounded_legs(u) & BOTH_SIDES)
             === BOTH_SIDES) ? 's' : '';
         if (force && state.wizard
             && await y_n(`Heal your leg${plural}?`, state) === 'y') {
@@ -582,9 +575,9 @@ export async function mount_steed(mtmp, force, state = game) {
     // FALSE. A forced debug mount bypasses this entire impairment disjunction.
     if (!force
         && (Boolean(Confusion(state.u))
-            || propertyActive(state, FUMBLING)
-            || propertyIntrinsic(state, GLIB)
-            || propertyActive(state, WOUNDED_LEGS)
+            || Fumbling(state.u)
+            || Boolean(Glib(state.u))
+            || Wounded_legs(state.u)
             || otmp.cursed
             || otmp.greased
             || (u.ulevel + mtmp.mtame < rnd(MAXULEV / 2 + 5)))) {
@@ -767,7 +760,7 @@ async function landing_spot(reason, forceit, state = game, random = coreRandom) 
      */
     const impaird = Boolean(Stunned(state.u))
         || Boolean(Confusion(state.u))
-        || propertyActive(state, FUMBLING);
+        || Fumbling(state.u);
     let viable = 0;
     let found = false;
     let i = (reason === DISMOUNT_BYCHOICE && !impaird) ? 0
@@ -835,7 +828,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dismount_steed random injection requires rn2');
     const save_utrap = u.utrap;
-    let repair_leg_damage = propertyActive(state, WOUNDED_LEGS);
+    let repair_leg_damage = Wounded_legs(state.u);
     // The initializers run before the `!u.usteed` sanity check, so
     // landing_spot() reads a hero who is still mounted.
     let have_spot = await landing_spot(reason, 0, state, random);
@@ -872,7 +865,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
                 Maybe_Half_Phys(rn1(10, 10), state.u),
                 'riding accident', KILLED_BY_AN, state,
             );
-            const wounded = state.u.uprops[WOUNDED_LEGS].intrinsic & TIMEOUT;
+            const wounded = HWounded_legs(state.u) & TIMEOUT;
             await set_wounded_legs(
                 BOTH_SIDES, wounded + rn1(5, 5), state,
             );

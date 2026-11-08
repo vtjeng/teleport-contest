@@ -128,7 +128,7 @@ test('polymon preserves its C return and post-form branch order', () => {
         /if \(u\.utrap && \(u\.utraptype == TT_WEB \|\| u\.utraptype == TT_BEARTRAP\)[\s\S]*?reset_utrap\(TRUE\)/u);
     assert.match(c, /return 1;/u);
     assert.match(js,
-        /if \(u\.uprops\[STONED\]\.intrinsic[\s\S]*?poly_when_stoned\(mdat, state\)[\s\S]*?mntmp = M\.PM_STONE_GOLEM;[\s\S]*?make_stoned/u);
+        /if \(Stoned\(u\)[\s\S]*?poly_when_stoned\(mdat, state\)[\s\S]*?mntmp = M\.PM_STONE_GOLEM;[\s\S]*?make_stoned/u);
     assert.match(js, /if \(wasHidingUnder\)\s*hideunder\(state\.youmonst, env\)/u);
     assert.match(js,
         /if \(u\.uswallow\)[\s\S]*?await expels\(engulfer[\s\S]*?wasExpelled = true/u);
@@ -146,9 +146,9 @@ test('polymon preserves its C return and post-form branch order', () => {
     assert.match(YOU_PROP_H,
         /#define Passes_walls \(HPasses_walls \|\| EPasses_walls\)/u);
     assert.match(js,
-        /const swimming = u\.uprops\[SWIMMING\];\s*const isSwimming = swimming\.intrinsic \|\| swimming\.extrinsic\s*\|\| \(u\.usteed && is_swimmer\(u\.usteed\.data\)\);\s*const unsafeUnderwater = u\.uinwater && !isSwimming/u);
+        /const unsafeUnderwater = u\.uinwater && !Swimming\(u\)/u);
     assert.match(js,
-        /const passesWalls = u\.uprops\[PASSES_WALLS\]\.intrinsic\s*\|\| u\.uprops\[PASSES_WALLS\]\.extrinsic/u);
+        /if \(Passes_walls\(u\) && u\.utrap/u);
     const passiveJs = exportedFunctionFrom(
         UHITM_JS, 'export async function passive(',
     );

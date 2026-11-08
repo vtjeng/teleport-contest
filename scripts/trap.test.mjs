@@ -617,9 +617,9 @@ test('climb_pit keeps the complete source branch and caller order', () => {
     const jsOrder = [
         'if (!u.utrap || u.utraptype !== TT_PIT)',
         'trapname(PIT, false, state)',
-        'if (Passes_walls(state))',
+        'if (Passes_walls(state.u))',
         'else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy, state))',
-        'else if ((Flying(state) || is_clinger(state.youmonst.data))',
+        'else if ((Flying(state.u) || is_clinger(state.youmonst.data))',
         '&& !state.level?.flags?.sokoban_rules)',
         'else if (!(--u.utrap) || m_easy_escape_pit(state.youmonst, state))',
         'else if (u.dz || state.flags?.verbose)',

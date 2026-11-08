@@ -47,7 +47,6 @@ import {
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     FEEL_COCKATRICE,
-    FUMBLING,
     HAND,
     HVY_ENCUMBER,
     ICE,
@@ -297,7 +296,7 @@ import {
 } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
 import {
-    Blind, Confusion, Hallucination, Maybe_Half_Phys, Stunned,
+    Blind, Confusion, HFumbling, Hallucination, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
@@ -424,7 +423,7 @@ function describeDecorPlan(x, y, state = game) {
     const location = state.level?.at(x, y);
     const ltyp = surface_typ(location);
     const previous = state.iflags?.prev_decor ?? STONE;
-    const fumbling = Number(state.u?.uprops?.[FUMBLING]?.intrinsic ?? 0);
+    const fumbling = Number(HFumbling(state.u));
     if ((fumbling & TIMEOUT) === 1
         && !state.iflags?.defer_decor
         && !state.decor_fumble_override) {

@@ -10,7 +10,6 @@ import {
     MAXULEV,
     MOD_ENCUMBER,
     REGENERATION,
-    SLEEPY,
     Upolyd,
 } from './const.js';
 import {
@@ -21,7 +20,9 @@ import { game } from './gstate.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rehumanize } from './polyself.js';
 import { coreRandom } from './rng.js';
-import { Breathless, EMagical_breathing, Half_physical_damage } from './youprop.js';
+import {
+    Breathless, EMagical_breathing, Half_physical_damage, Sleepy,
+} from './youprop.js';
 
 
 function propertyActive(hero, index) {
@@ -32,7 +33,7 @@ function propertyActive(hero, index) {
 
 function canRegenerate(hero) {
     return propertyActive(hero, REGENERATION)
-        || (propertyActive(hero, SLEEPY) && Boolean(hero.usleep));
+        || (Sleepy(hero) && Boolean(hero.usleep));
 }
 
 // allmain.c regen_hp() and regen_pw() call interrupt_multi() unconditionally
@@ -103,7 +104,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
     let heal = ((hero.ulevel ?? 0) + acurr(state, A_CON))
         > random.rn2(100) ? 1 : 0;
     if (regeneration) heal++;
-    if (propertyActive(hero, SLEEPY) && hero.usleep) heal++;
+    if (Sleepy(hero) && hero.usleep) heal++;
     if (!heal) return false;
 
     hero.uhp = Math.min(hero.uhp + heal, hero.uhpmax);

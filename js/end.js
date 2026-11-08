@@ -85,7 +85,6 @@ import {
     PLNMSG_OK_DONT_DIE,
     QUIT,
     OBJ_FREE,
-    SICK,
     SICK_ALL,
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
@@ -222,7 +221,7 @@ import {
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
 import { tty_exit_nhwindows } from './wintty.js';
-import { Blind, Hallucination } from './youprop.js';
+import { Blind, Hallucination, Sick } from './youprop.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -316,7 +315,7 @@ async function savelife(how, state = game) {
 
     // cure impending doom of sickness hero won't have time to fix
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.
-    if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
+    if (((Sick(u)) & TIMEOUT) === 1) {
         await make_sick(0, null, false, SICK_ALL, state);
     }
 

@@ -109,7 +109,6 @@ import {
     PARANOID_REMOVE,
     RIGHT_RING,
     SICK_RES,
-    SLIMED,
     SLEEPY,
     SLOW_DIGESTION,
     STONE_RES,
@@ -393,7 +392,7 @@ import { youFeel } from './pline.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
-import { empty_handed, setuwep, Glib, welded } from './wield.js';
+import { empty_handed, setuwep, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
 import {
     bimanual,
@@ -407,9 +406,10 @@ import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
     BInvis, BLevitation, Blind, EDetect_monsters, EInvis, EMagical_breathing,
-    ESee_invisible, ESwimming, ETelepat, Flying, HDetect_monsters, HInvis,
-    HLevitation, HMagical_breathing, HSee_invisible, HSwimming, HTelepat,
-    Hallucination, Invis, Levitation, See_invisible,
+    ESee_invisible, ESleepy, ESwimming, ETelepat, Flying, Glib,
+    HDetect_monsters, HFumbling, HInvis, HLevitation, HMagical_breathing,
+    HSee_invisible, HSleepy, HSwimming, HTelepat, Hallucination, Invis,
+    Levitation, See_invisible, Slimed, Strangled,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -1182,7 +1182,7 @@ async function Amulet_on(obj, state = game) {
         break;
     }
     case AMULET_OF_UNCHANGING:
-        if (state.u.uprops[SLIMED].intrinsic)
+        if (Slimed(state.u))
             await make_slimed(0, null, state);
         break;
     case AMULET_OF_CHANGE: {
@@ -1215,7 +1215,7 @@ async function Amulet_on(obj, state = game) {
     case AMULET_OF_STRANGULATION:
         /* note: might already be Strangled (via #wizintrinsic) */
         if (can_be_strangled(state.youmonst, state)
-            && !state.u.uprops[STRANGLED].intrinsic) {
+            && !Strangled(state.u)) {
             discover_object(AMULET_OF_STRANGULATION, true, true, true, state);
             state.u.uprops[STRANGLED].intrinsic = 6;
             state.disp.botl = true;
@@ -1226,13 +1226,13 @@ async function Amulet_on(obj, state = game) {
         break;
     case AMULET_OF_RESTFUL_SLEEP: {
         const newnap = rnd(98) + 2;
-        const oldnap = state.u.uprops[SLEEPY].intrinsic & TIMEOUT;
+        const oldnap = HSleepy(state.u) & TIMEOUT;
 
         if (newnap < oldnap || oldnap === 0)
             /* avoid clobbering FROMOUTSIDE bit, which might have
                gotten set by previously eating one of these amulets */
             state.u.uprops[SLEEPY].intrinsic
-                = (state.u.uprops[SLEEPY].intrinsic & ~TIMEOUT) | newnap;
+                = (HSleepy(state.u) & ~TIMEOUT) | newnap;
         break;
     }
     case AMULET_OF_FLYING: {
@@ -1335,7 +1335,7 @@ export async function Amulet_off(state = game, env = {}) {
         await off_msg(amul, state, message);
         earlyOffMessage = true;
 
-        if (state.u.uprops[STRANGLED].intrinsic) {
+        if (Strangled(state.u)) {
             state.u.uprops[STRANGLED].intrinsic = 0;
             state.disp.botl = true;
             if (HMagical_breathing(state.u) || EMagical_breathing(state.u)
@@ -1353,9 +1353,8 @@ export async function Amulet_off(state = game, env = {}) {
     }
     case AMULET_OF_RESTFUL_SLEEP: {
         await setworn(null, W_AMUL, setwornEnv(state));
-        const sleepy = state.u.uprops[SLEEPY];
-        if (!sleepy.extrinsic && !(sleepy.intrinsic & ~TIMEOUT))
-            sleepy.intrinsic &= ~TIMEOUT;
+        if (!ESleepy(state.u) && !(HSleepy(state.u) & ~TIMEOUT))
+            state.u.uprops[SLEEPY].intrinsic &= ~TIMEOUT;
         break;
     }
     case AMULET_OF_FLYING: {
@@ -1785,9 +1784,8 @@ export async function Boots_on(state) {
     } else if (otyp === FUMBLE_BOOTS) {
         // HFumbling is the intrinsic field of FUMBLING. C masks the footwear
         // source from oldprop before checking for another source or timeout.
-        const fumbling = state.u.uprops[FUMBLING];
-        if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT))
-            incr_itimeout(fumbling, rnd(20));
+        if (!oldprop && !(HFumbling(state.u) & ~TIMEOUT))
+            incr_itimeout(state.u.uprops[FUMBLING], rnd(20));
     } else if (otyp === LEVITATION_BOOTS) {
         if (!oldprop && !HLevitation(state.u)
             && !(BLevitation(state.u) & FROMOUTSIDE)) {
@@ -1880,10 +1878,9 @@ export async function Boots_off(state = game, rawEnv = {}) {
         await toggle_stealth(otmp, oldprop, false, state, env);
         break;
     case FUMBLE_BOOTS: {
-        const fumbling = state.u?.uprops?.[FUMBLING] ?? {};
-        if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT)) {
-            fumbling.intrinsic = 0;
-            fumbling.extrinsic = 0;
+        if (!oldprop && !(HFumbling(state.u) & ~TIMEOUT)) {
+            state.u.uprops[FUMBLING].intrinsic = 0;
+            state.u.uprops[FUMBLING].extrinsic = 0;
         }
         break;
     }
@@ -2422,7 +2419,7 @@ function Gloves_on(state) {
         // HFumbling is the intrinsic field of FUMBLING. incr_itimeout()
         // preserves non-timeout source flags, matching potion.c.
         if (!oldprop
-            && !((state.u.uprops[FUMBLING]?.intrinsic ?? 0) & ~TIMEOUT)) {
+            && !((HFumbling(state.u)) & ~TIMEOUT)) {
             incr_itimeout(state.u.uprops[FUMBLING], rnd(20));
         }
         break;
@@ -2501,10 +2498,9 @@ export async function Gloves_off(state = game, rawEnv = {}) {
     case LEATHER_GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING: {
-        const fumbling = state.u.uprops[FUMBLING];
-        if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT)) {
-            fumbling.intrinsic = 0;
-            fumbling.extrinsic = 0;
+        if (!oldprop && !(HFumbling(state.u) & ~TIMEOUT)) {
+            state.u.uprops[FUMBLING].intrinsic = 0;
+            state.u.uprops[FUMBLING].extrinsic = 0;
         }
         break;
     }
@@ -2525,7 +2521,7 @@ export async function Gloves_off(state = game, rawEnv = {}) {
     takeoff.cancelled_don = false;
     await encumber_msg(state, env);
 
-    if (Glib(state)) make_glib(0, state);
+    if (Glib(state.u)) make_glib(0, state);
     if (state.uwep?.otyp === CORPSE)
         await wielding_corpse(state.uwep, gloves, on_purpose, state, env);
     if (state.u.twoweap && state.uswapwep?.otyp === CORPSE)
@@ -2925,7 +2921,7 @@ export async function canwearobj(otmp, noisy, state = game) {
                 );
             }
             err++;
-        } else if (Glib(state)) {
+        } else if (Glib(state.u)) {
             /* prevent slippery bare fingers from transferring to
                gloved fingers */
             if (noisy) {
@@ -3166,7 +3162,7 @@ export async function cursed(otmp, state = game) {
             || otmp.otyp === LENSES || otmp.quan > 1;
 
         /* might be trying again after applying grease to hands */
-        if (Glib(state) && otmp.bknown
+        if (Glib(state.u) && otmp.bknown
             /* for weapon, we'll only get here via 'A )' */
             && (state.uarmg
                 ? otmp === state.uwep
@@ -3219,7 +3215,7 @@ export function stuck_ring(ring, otyp, state = game) {
         if (ring.cursed) return ring;
         /* normally outermost layer is processed first, but slippery gloves
            wears off quickly so uncurse ring itself before handling those */
-        if (state.uarmg && Glib(state)) return state.uarmg;
+        if (state.uarmg && Glib(state.u)) return state.uarmg;
     }
     /* either no ring or not right type or nothing prevents its removal */
     return null;
@@ -3289,12 +3285,12 @@ export async function select_off(otmp, state = game) {
             buf = `free a weapon ${body_part(HAND, state.youmonst)}`;
             why = state.uwep;
         } else if (state.uarmg
-            && (state.uarmg.cursed || Glib(state))) {
-            buf = `take off your ${Glib(state) ? 'slippery ' : ''}`
+            && (state.uarmg.cursed || Glib(state.u))) {
+            buf = `take off your ${Glib(state.u) ? 'slippery ' : ''}`
                 + gloves_simple_name(state.uarmg, state);
             // C points at cg.zeroobj whenever Glib blocks removal. Its
             // bknown write cannot affect the worn glove in that branch.
-            why = Glib(state) ? { bknown: false } : state.uarmg;
+            why = Glib(state.u) ? { bknown: false } : state.uarmg;
         }
         if (why) {
             await ttyPline(`You cannot ${buf} to remove the ring.`, state);
@@ -3313,7 +3309,7 @@ export async function select_off(otmp, state = game) {
             );
             set_bknown(state.uwep, 1, { state });
             return 0;
-        } else if (Glib(state)) {
+        } else if (Glib(state.u)) {
             // do_wear.c:2736-2740. The inline comment in C says this is a
             // simplified Shk_Your(): unpaid items say "The", own items "Your".
             await ttyPline(
@@ -3574,7 +3570,7 @@ async function accessory_or_armor_on(obj, state = game) {
                     }
                 } while (!done);
             }
-            if (state.uarmg && Glib(state)) {
+            if (state.uarmg && Glib(state.u)) {
                 await ttyPline(
                     `Your ${gloves_simple_name(state.uarmg, state)} are too `
                     + 'slippery to remove, so you cannot put on the ring.',

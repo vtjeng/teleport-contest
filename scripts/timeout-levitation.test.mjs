@@ -116,5 +116,5 @@ test('levitation dialogue and production caller preserve the complete C branch',
     assert.match(c, /urgent_pline\(s, danger \? "over" : "in",\s+danger \? surface\(u\.ux, u\.uy\) : "air"\);/u);
     assert.match(c, /pline1\(s\);\s+stop_occupation\(\);/u);
     assert.doesNotMatch(js, /note_unported\('timeout.c levitation_dialogue'\)/u);
-    assert.match(js, /if \(u\.uprops\?\.\[LEVITATION\]\?\.intrinsic & TIMEOUT\)\s+await levitation_dialogue/u);
+    assert.match(js, /if \(HLevitation\(u\) & TIMEOUT\)\s+await levitation_dialogue/u);
 });

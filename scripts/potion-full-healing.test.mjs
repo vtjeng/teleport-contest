@@ -54,8 +54,7 @@ test('full-healing effect keeps the C helper and dispatch order', () => {
         'await make_hallucinated(0, true, 0, state, env);',
         'await exercise(A_STR, true, state, random, { encumberMessage });',
         'await exercise(A_CON, true, state, random, { encumberMessage });',
-        'const wounded = state.u.uprops[WOUNDED_LEGS];',
-        'if ((wounded.intrinsic || wounded.extrinsic)',
+        'if ((Wounded_legs(state.u))',
         'await heal_legs(state, { message });',
     ];
     const positions = (source, needles) => needles.map((needle) => {
@@ -76,7 +75,7 @@ test('full-healing effect keeps the C helper and dispatch order', () => {
     assert.match(c,
         /if \(Wounded_legs && \(otmp->blessed \|\| \(!otmp->cursed && !u\.usteed\)\)\)\s*heal_legs\(0\);/u);
     assert.match(js,
-        /if \(\(wounded\.intrinsic \|\| wounded\.extrinsic\)\s*&& \(otmp\.blessed \|\| \(!otmp\.cursed && !state\.u\.usteed\)\)\) \{\s*await heal_legs\(state, \{ message \}\);/u);
+        /if \(\(Wounded_legs\(state\.u\)\)\s*&& \(otmp\.blessed \|\| \(!otmp\.cursed && !state\.u\.usteed\)\)\) \{\s*await heal_legs\(state, \{ message \}\);/u);
 
     const cDispatch = C_SOURCE.slice(
         C_SOURCE.indexOf('case POT_FULL_HEALING:', C_SOURCE.indexOf('peffects(struct obj *otmp)')),

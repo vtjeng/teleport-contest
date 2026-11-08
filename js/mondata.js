@@ -30,7 +30,6 @@ import {
     MS_BURBLE,
     MS_BUZZ,
     MS_SILENT,
-    STRANGLED,
     NATTK,
     NEUTRAL,
     NO_TRAP,
@@ -114,7 +113,8 @@ export function set_mon_data(monster, species, state = game) {
 }
 import { which_armor } from './worn.js';
 import {
-    Blind, Blnd_resist, Breathless, EBlinded, Hallucination, Unaware,
+    Blind, Blnd_resist, Breathless, EBlinded, Hallucination, Strangled,
+    Unaware,
 } from './youprop.js';
 
 function hasAttackType(species, attackType) {
@@ -814,7 +814,7 @@ export function can_blow(monster, state = game) {
         return false;
     }
     if (monster === state.youmonst
-        && Boolean(state.u?.uprops?.[STRANGLED]?.intrinsic)) {
+        && Boolean(Strangled(state.u))) {
         return false;
     }
     return true;
@@ -1557,7 +1557,7 @@ export function is_silent(species) {
 // speaks by buzzing or burbling.
 export function can_chant(mon, state = game) {
     if (mon === state.youmonst
-        && Boolean(state.u?.uprops?.[STRANGLED]?.intrinsic))
+        && Boolean(Strangled(state.u)))
         return false;
     if (is_silent(mon.data) || !has_head(mon.data))
         return false;

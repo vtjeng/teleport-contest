@@ -56,7 +56,6 @@ import {
     EF_VERBOSE,
     ER_NOTHING,
     FACE,
-    FUMBLING,
     HMON_APPLIED,
     HMON_MELEE,
     HMON_KICKED,
@@ -118,7 +117,6 @@ import {
     M_AP_NOTHING,
     OBJ_FREE,
     PROT_FROM_SHAPE_CHANGERS,
-    SICK,
     SICK_ALL,
     SICK_RES,
     SLEEP_RES,
@@ -132,7 +130,6 @@ import {
     SUPPRESS_IT,
     SUPPRESS_NAME,
     SUPPRESS_SADDLE,
-    STONED,
     STONING,
     TIMEOUT,
     POOL,
@@ -698,10 +695,10 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
     Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded,
-    EMagical_breathing, ESwimming, Flying, HBlinded, HConfusion,
-    HMagical_breathing, HStun, HSwimming, Half_physical_damage, Hallucination,
-    Invisible, Levitation, Maybe_Half_Phys, See_invisible, Stunned,
-    Teleport_control,
+    EFumbling, EMagical_breathing, ESwimming, Flying, HBlinded, HConfusion,
+    HFumbling, HMagical_breathing, HStun, HSwimming, Half_physical_damage,
+    Hallucination, Invisible, Levitation, Maybe_Half_Phys, See_invisible,
+    Sick, Slimed, Stoned, Stunned, Teleport_control,
 } from './youprop.js';
 
 function propertyPresent(hero, index) {
@@ -1380,7 +1377,7 @@ export async function find_roll_to_hit(
 }
 
 export function heroSick(state) {
-    return Boolean(state.u?.uprops?.[SICK]?.intrinsic);
+    return Boolean(Sick(state.u));
 }
 
 export function heroSickResistance(state) {
@@ -3427,8 +3424,8 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
 // C ref: uhitm.c joust() (2098-2133). The -1/0/1 result selects the mounted
 // lance branch in hmon_hitmon_weapon_melee(); its RNG order is observable.
 function joust(mon, obj, state, random, env) {
-    if (state.u?.uprops?.[FUMBLING]?.intrinsic
-        || state.u?.uprops?.[FUMBLING]?.extrinsic
+    if (HFumbling(state.u)
+        || EFumbling(state.u)
         || HStun(state.u))
         return 0;
     if (obj !== state.uwep
@@ -4981,7 +4978,7 @@ export async function mhitm_ad_phys(
                     env,
                 );
                 const stoned = Boolean(
-                    (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+                    (Stoned(state.u)) & TIMEOUT,
                 );
                 if (!stoned && await do_stone_u(magr, state, env)) {
                     mhm.hitflags = M_ATTK_HIT;
@@ -5284,7 +5281,7 @@ export async function mhitm_ad_blnd(
 // helper returns TRUE.
 export async function do_stone_u(mtmp, state = game, env = {}) {
     const stoned = Boolean(
-        (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+        (Stoned(state.u)) & TIMEOUT,
     );
     if (!stoned
         && !propertyPresent(state.u, STONE_RES)
@@ -5864,7 +5861,7 @@ export async function mhitm_ad_drin(
             mhm.damage = 0;
             if (!propertyPresent(state.u, UNCHANGING)
                 && pd === state.mons?.[PM_GREEN_SLIME]
-                && !state.u.uprops?.[SLIMED]?.intrinsic) {
+                && !Slimed(state.u)) {
                 await message(
                     "You suck in some slime and don't feel very well.",
                     state,
@@ -6391,7 +6388,7 @@ export async function mhitm_ad_slim(
             || pd === state.mons?.[PM_GREEN_SLIME]) {
             await message('You are unaffected.', state, effectEnv);
             mhm.damage = 0;
-        } else if (!(state.u?.uprops?.[SLIMED]?.intrinsic ?? 0)) {
+        } else if (!(Slimed(state.u))) {
             await message("You don't feel very well.", state, effectEnv);
             await make_slimed(10, null, state, effectEnv);
             delayed_killer(

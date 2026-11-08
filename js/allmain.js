@@ -191,10 +191,9 @@ import { clear_bypasses } from './worn.js';
 import { canseemon } from './display.js';
 import { amulet, intervene } from './wizard.js';
 import { rndcurse } from './sit.js';
-import { Glib } from './wield.js';
 import {
-    BClairvoyant, Blind, EClairvoyant, ETelepat, HClairvoyant, Hallucination,
-    Searching, Teleportation, Warn_of_mon, Warning,
+    BClairvoyant, Blind, EClairvoyant, ETelepat, Glib, HClairvoyant,
+    Hallucination, Searching, Teleportation, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -823,7 +822,7 @@ export async function finishElapsedTurn(state, random) {
     // C ref: allmain.c moveloop_core() calls glibr() after the once-per-turn
     // hook and before nh_timeout(). do.c dropz() redraws the landing square
     // through the newsym hook.
-    if (Glib(state)) {
+    if (Glib(state.u)) {
         await glibr(state, {
             message: ttyPline,
             canletgo,

@@ -43,7 +43,6 @@ import {
     SEE_INVIS,
     SICK_ALL,
     SHOCK_RES,
-    SLIMED,
     SPIKED_PIT,
     STAIRS,
     TT_BEARTRAP,
@@ -128,6 +127,7 @@ import { youFeel } from './pline.js';
 import {
     Blind, Deaf, ETelepat, Flying, HBlinded, HConfusion, HSee_invisible,
     HTelepat, Half_physical_damage, Hallucination, Levitation, See_invisible,
+    Slimed,
 } from './youprop.js';
 
 
@@ -872,7 +872,7 @@ export async function dosit(state = game, rawEnv = {}) {
                 u.utrap += random.rn1(10, 5);
             } else if (u.utraptype === TT_LAVA) {
                 await message(`You sit in the ${hliquid('lava', { ...rawEnv, state })}!`, state);
-                if (u.uprops?.[SLIMED]?.intrinsic)
+                if (Slimed(u))
                     await burn_away_slime(state, rawEnv);
                 u.utrap += random.rnd(4);
                 const { losehp } = await import('./hack.js');

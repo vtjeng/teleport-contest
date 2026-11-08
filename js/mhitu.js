@@ -51,7 +51,6 @@ import {
     STONING,
     SHOCK_RES,
     SLOW_DIGESTION,
-    SICK,
     SICK_NONVOMITABLE,
     STONE_RES,
     IS_WATERWALL,
@@ -317,7 +316,7 @@ import { worm_move } from './worm.js';
 import {
     Blind, Blinded, Deaf, Detect_monsters, EMagical_breathing, HConfusion,
     HHallucination, HMagical_breathing, HStun, Half_physical_damage,
-    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Unaware,
+    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Sick, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -2136,7 +2135,7 @@ export async function diseasemu(mdat, rawEnv = {}) {
 
     // C's Sick macro is the whole packed intrinsic, not only its timeout
     // field; make_sick() clamps the resulting duration through itimeout().
-    const sick = state.u?.uprops?.[SICK]?.intrinsic ?? 0;
+    const sick = Sick(state.u);
     const duration = sick
         ? Math.trunc(sick / 3) + 1
         : random.rn1(acurr(state, A_CON), 20);

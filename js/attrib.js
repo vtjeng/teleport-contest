@@ -36,7 +36,6 @@ import {
     FROMFORM,
     FROMOUTSIDE,
     FROM_RACE,
-    FUMBLING,
     HUNGRY,
     HVY_ENCUMBER,
     INFRAVISION,
@@ -58,7 +57,6 @@ import {
     SEARCHING,
     SEE_INVIS,
     SHOCK_RES,
-    SICK,
     SLEEP_RES,
     STEALTH,
     STR18,
@@ -67,13 +65,11 @@ import {
     TELEPORT_CONTROL,
     TIMEOUT,
     Upolyd,
-    VOMITING,
     W_ARMC,
     W_ARMF,
     W_ARMH,
     WARNING,
     WEAK,
-    WOUNDED_LEGS,
     Is_astralevel,
     ismnum,
     something,
@@ -142,8 +138,9 @@ import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
-    Confusion, EBlinded, HBlinded, HBlnd_resist, HClairvoyant, HHallucination,
-    Halluc_resistance, Hallucination, Stunned,
+    Confusion, EBlinded, EWounded_legs, Fumbling, HBlinded, HBlnd_resist,
+    HClairvoyant, HHallucination, HWounded_legs, Halluc_resistance,
+    Hallucination, Sick, Stunned, Vomiting, Wounded_legs,
 } from './youprop.js';
 
 const EXERCISE_LIMIT = 50;
@@ -994,11 +991,6 @@ export function exercise_nonphysical(
     return exerciseAttribute(index, increase, state, random).adjustment;
 }
 
-function propertyPresent(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
 function intrinsicPropertyPresent(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
 }
@@ -1089,8 +1081,8 @@ export async function exerper(state = game, env = {}) {
         }
         if (intrinsicPropertyPresent(hero, REGENERATION))
             await exerciseWithEnvironment(A_STR, true, state, normalized);
-        if (intrinsicPropertyPresent(hero, SICK)
-            || intrinsicPropertyPresent(hero, VOMITING)) {
+        if (Sick(hero)
+            || Boolean(Vomiting(hero))) {
             await exerciseWithEnvironment(A_CON, false, state, normalized);
         }
         const hallucinating = Boolean(HHallucination(hero))
@@ -1098,8 +1090,8 @@ export async function exerper(state = game, env = {}) {
         if (Confusion(hero) || hallucinating) {
             await exerciseWithEnvironment(A_WIS, false, state, normalized);
         }
-        if ((propertyPresent(hero, WOUNDED_LEGS) && !hero.usteed)
-            || propertyPresent(hero, FUMBLING)
+        if ((Wounded_legs(hero) && !hero.usteed)
+            || Fumbling(hero)
             || Boolean(Stunned(hero))) {
             await exerciseWithEnvironment(A_DEX, false, state, normalized);
         }
@@ -1434,8 +1426,8 @@ export async function restore_attrib(state = game, env = {}) {
     const u = state.u;
     const attrs = attributeArrays(u);
     for (let i = 0; i < NUM_ATTRS; i++) {
-        const woundedLegs = u.uprops?.[WOUNDED_LEGS]?.intrinsic
-            || u.uprops?.[WOUNDED_LEGS]?.extrinsic;
+        const woundedLegs = HWounded_legs(u)
+            || EWounded_legs(u);
         const equilibrium = ((i === A_STR && u.uhs >= WEAK)
             || (i === A_DEX && woundedLegs)) ? -1 : 0;
         if (attrs.temp[i] !== equilibrium && attrs.time[i] !== 0) {

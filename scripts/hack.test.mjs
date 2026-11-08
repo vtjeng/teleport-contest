@@ -296,7 +296,7 @@ test('weight_cap defers Boots_on levitation and restores blocked masks', () => {
     assert.ok(jsStart >= 0 && jsEnd > jsStart);
     const jsWeightCap = HACK_JS_SOURCE.slice(jsStart, jsEnd);
     assert.match(jsWeightCap,
-        /state\.afternmv === Boots_on[\s\S]*?levitation\.extrinsic &= ~W_ARMF;\s*float_vs_flight\(state\);[\s\S]*?levitation\.blocked &= ~I_SPECIAL;[\s\S]*?heroIsFlying\(state\)[\s\S]*?saveELevitation[\s\S]*?saveBLevitation[\s\S]*?float_vs_flight\(state\);/u);
+        /state\.afternmv === Boots_on[\s\S]*?state\.u\.uprops\[LEVITATION\]\.extrinsic &= ~W_ARMF;\s*float_vs_flight\(state\);[\s\S]*?state\.u\.uprops\[LEVITATION\]\.blocked &= ~I_SPECIAL;[\s\S]*?Flying\(state\.u\)[\s\S]*?saveELevitation[\s\S]*?saveBLevitation[\s\S]*?float_vs_flight\(state\);/u);
 
     function capacityState() {
         const state = resetGame();
