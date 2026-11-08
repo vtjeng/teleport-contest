@@ -314,7 +314,15 @@ const LSF_NEEDS_FIXUP = 0x2;
 // write_ls() would write for each source of the given range. Camera flashes,
 // which have no object, never exist in the port (see save_light_sources()).
 export function maybe_write_ls(range, state = game) {
-    const records = [];
+    return light_sources_in_range(range, state).map(write_ls);
+}
+
+// The sources maybe_write_ls() (570-601) writes for `range`, in chain order,
+// as live sources rather than records: a whole-game save keeps them in the
+// snapshot as they are, the hero's level's from savelev_core() and the rest
+// from savegamestate().
+export function light_sources_in_range(range, state = game) {
+    const sources = [];
     for (let ls = lightGlobals(state).light_base; ls; ls = ls.next) {
         let isGlobal;
         if (ls.type === LS_OBJECT)
@@ -323,9 +331,9 @@ export function maybe_write_ls(range, state = game) {
             isGlobal = !(ls.id.mx > 0);
         else
             throw new Error(`maybe_write_ls: bad type ${ls.type}`);
-        if (isGlobal !== (range === RANGE_LEVEL)) records.push(write_ls(ls));
+        if (isGlobal !== (range === RANGE_LEVEL)) sources.push(ls);
     }
-    return records;
+    return sources;
 }
 
 // C ref: light.c write_ls() (633-703). The object or monster pointer is

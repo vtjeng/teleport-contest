@@ -37,12 +37,12 @@
 // while the cycle remains.
 import { yn_function } from './cmd.js';
 import {
-    BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
+    BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_GLOBAL, RANGE_LEVEL, VISITED,
 } from './const.js';
 import { game } from './gstate.js';
 import { done_object_cleanup, nh_terminate } from './end.js';
 import { nomul } from './hack.js';
-import { save_light_sources } from './light.js';
+import { light_sources_in_range, save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -581,7 +581,11 @@ function serializeGameState(state) {
         // inventory chains. Keep timer/light object arguments aliased to those
         // saved objects so callbacks such as end_burn() find their source.
         timer_base: state.gt?.timer_base,
-        light_base: state.gl?.light_base,
+        // C ref: save.c savelev_core():539 save_light_sources(RANGE_LEVEL)
+        // writes the hero's level's light sources, in chain order, and
+        // savegamestate():297 save_light_sources(RANGE_GLOBAL) the rest.
+        level_lights: light_sources_in_range(RANGE_LEVEL, state),
+        lights: light_sources_in_range(RANGE_GLOBAL, state),
         // C ref: save.c savegamestate():316 Sfo_q_score(&svq.quest_status).
         quest_status: state.svq.quest_status,
         // Hero identity and timing

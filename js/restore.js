@@ -67,6 +67,7 @@ import {
     time_from_yyyymmddhhmmss,
 } from './calendar.js';
 import { rest_engravings } from './engrave.js';
+import { restore_light_sources } from './light.js';
 import { add_worn_property } from './worn.js';
 import { coreRandom, rnd } from './rng.js';
 import {
@@ -318,10 +319,15 @@ export async function dorestore(state = game) {
         state.gt ??= {};
         state.gt.timer_base = snapshot.timer_base;
     }
-    if (Object.hasOwn(snapshot, 'light_base')) {
-        state.gl ??= {};
-        state.gl.light_base = snapshot.light_base;
-    }
+    // C ref: restore.c restgamestate():654 restore_light_sources() pushes
+    // the global sources, then dorecover()'s last getlev():1131 pushes the
+    // hero's level's in front of them, so each group comes back reversed.
+    // (The hero's level's sources that dorecover()'s first getlev() read
+    // were freed again by restlevelfile().)
+    state.gl ??= {};
+    state.gl.light_base = null;
+    restore_light_sources(snapshot.lights, state);
+    restore_light_sources(snapshot.level_lights, state);
 
     // Inventory and objects
     // C ref: restore.c restgamestate():657 gi.invent = restobjchn(nhfp, FALSE).
@@ -918,18 +924,9 @@ export async function getlev(ledger, state = game) {
     // chains now.
     if (snapshot.timers?.length) restore_timers(snapshot.timers, state);
 
-    if (snapshot.lights?.length) {
-        // Prepend the saved level-local lights to the current light chain.
-        const lightHead = snapshot.lights[0];
-        let lightTail = lightHead;
-        for (let i = 1; i < snapshot.lights.length; i++) {
-            lightTail.next = snapshot.lights[i];
-            lightTail = snapshot.lights[i];
-        }
-        state.gl ??= {};
-        lightTail.next = state.gl.light_base ?? null;
-        state.gl.light_base = lightHead;
-    }
+    // C ref: restore.c getlev():1131 restore_light_sources() pushes each
+    // saved source in front of the global ones.
+    restore_light_sources(snapshot.lights, state);
 
     // ── Monster catch-up ──
     //

@@ -69,11 +69,11 @@ test('save and restore preserve C floor chains and global timers/lights', () => 
     assert.match(jsSave,
         /vfsWriteFile\(SAVE_FILE_PATH, serializeSnapshot\(snapshot\)\)/u);
     assert.match(jsSave, /timer_base: state\.gt\?\.timer_base/u);
-    assert.match(jsSave, /light_base: state\.gl\?\.light_base/u);
+    assert.match(jsSave, /lights: light_sources_in_range\(RANGE_GLOBAL, state\)/u);
     assert.match(jsRestore, /const snapshot = parseSnapshot\(raw\)/u);
     assert.ok(jsRestore.indexOf('state.gt.timer_base = snapshot.timer_base')
         < jsRestore.indexOf('state.invent = restobjchn(snapshot.invent, state)'));
-    assert.ok(jsRestore.indexOf('state.gl.light_base = snapshot.light_base')
+    assert.ok(jsRestore.indexOf('restore_light_sources(snapshot.lights, state)')
         < jsRestore.indexOf('state.invent = restobjchn(snapshot.invent, state)'));
 });
 

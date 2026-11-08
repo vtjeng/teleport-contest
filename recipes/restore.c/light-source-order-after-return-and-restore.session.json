@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7740125,
+      "datetime": "20330304121507",
+      "nethackrc": "OPTIONS=name:Lamplighter,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017lit oil lamp\n\u0017lit wax candle\n\u0017lit oil lamp\ndjhdkh#lightsources\n \u00162\n\u001b\u00161\n\u001b#lightsources\n Sy"
+    },
+    {
+      "seed": 7740126,
+      "datetime": "20330304131507",
+      "nethackrc": "OPTIONS=name:Lamplighter,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!acoustics,playmode:debug\n",
+      "moves": " n#lightsources\n "
+    }
+  ],
+  "comment": "Independent restore.c getlev() and light.c restore_light_sources() witness: a debug Priestess wishes for a lit oil lamp, a lit wax candle and a second lit oil lamp without spending a turn, drops the first lamp and the candle on adjacent squares and keeps the second lamp. #lightsources lists the newest source first. After ^V2 and ^V1 return her to the first level, getlev() pushes each saved floor source in front of the carried lamp, so the two floor sources are listed in reverse. She then saves; after the restore, restgamestate() pushes the carried lamp and the hero level's getlev() pushes the floor sources in front of it, which reverses the floor sources again."
+}
