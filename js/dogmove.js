@@ -338,8 +338,8 @@ function nearestVisibleGoal(monster, state, clearArea) {
 
 // C ref: dogmove.c droppables(). Return the first carried object this pet
 // does not reserve as its wielded weapon or one preferred utility tool.
-// `env.state` is the state the caller plays on; a planned pet move passes the
-// planning clone, so which_armor() must read that, not the live game.
+// `env.state` is the state the caller plays on, so which_armor() must read
+// that, not the global game.
 export function droppables(monster, env = {}) {
     const species = monster.data;
     const weapon = monster.mw;
@@ -660,9 +660,6 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
                 // mon.c:m_consume_obj discards this result. Leashed pets now
                 // follow quickmimic's source-ordered dismount and appearance
                 // path whether the pet is ordinary or currently the steed.
-                // The monster-turn planner replays this caller to predict the
-                // move. Keep the live steed and TTY untouched until execution.
-                if (subject === state.u.usteed && env.planning) return;
                 await quickmimic(subject, env);
             },
         });
@@ -812,8 +809,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_invent random injection requires rn2');
     const operationEnv = { ...rawEnv, state, random };
-    // pline_xy() and newsym() on the carry arm. A planning scan overrides both
-    // with no-ops, because it re-runs the same turn against the live display.
+    // pline_xy() and newsym() on the carry arm; a caller may override both.
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? newsym;
     const findDroppable = inventoryOperation(
@@ -1348,7 +1344,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ?? ((subject) => resist_conflict(subject, state, random));
         if (conflictActive(state) && !resistConflict(monster, env)) {
             if (env.dismountSteed) await env.dismountSteed(DISMOUNT_THROWN, env);
-            else if (!env.planning) {
+            else {
                 // steed.js imports finish_meating from this module, so load
                 // its canonical dismount only when this source arm is reached.
                 const { dismount_steed } = await import('./steed.js');
@@ -1437,8 +1433,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ?? ((subject) => resist_conflict(subject, state, random));
         if (!resistConflict(monster, env) && !edog) {
             if (env.loseGuardianAngel) await env.loseGuardianAngel(monster, env);
-            else if (!env.planning)
-                await lose_guardian_angel(monster, state, env);
+            else await lose_guardian_angel(monster, state, env);
             return MMOVE_DIED;
         }
     }
