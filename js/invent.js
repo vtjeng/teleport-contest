@@ -3899,16 +3899,6 @@ export function merged(otmp, obj, env = {}) {
 // introduce an observable scheduling boundary.
 export function mergedRuntime(otmp, obj, env = {}) {
     const normalized = mergedEnv(env);
-    if (normalized.planning && obj?.globby
-        && preflightMerged(otmp, obj, normalized, 'runtime')) {
-        if (typeof normalized.requestPlanningInput !== 'function')
-            throw new TypeError(
-                'planned glob merge requires a message input handoff',
-            );
-        return normalized.requestPlanningInput(
-            'mkobj.c pudding_merge_message', otmp, obj, normalized,
-        );
-    }
     const plan = beginMerged(otmp, obj, normalized, 'runtime');
     if (!plan) return false;
     if (plan.globby) {
@@ -4185,14 +4175,12 @@ function addinv_core1(obj, env, facts) {
         .then(() => addinv_core1_effects(obj, env, facts));
 }
 
-// pline.c impossible() through the inventory environment's message seam. A
-// planning clone prints nothing.
+// pline.c impossible() through the inventory environment's message seam.
 function inventoryImpossible(text, env) {
-    const silent = env.planning ? async () => {} : undefined;
-    const message = env.hooks?.message ?? env.message ?? silent;
+    const message = env.hooks?.message ?? env.message;
     return impossible(text, env.state, {
         message,
-        urgentMessage: env.planning ? message : env.urgentMessage,
+        urgentMessage: env.urgentMessage,
     });
 }
 
