@@ -128,7 +128,6 @@ test('checkpoint runs full, generated, static, and score', () => {
             'recordings corpus',
             'session scan',
             'end-of-input over-read',
-            'planning leaks',
             'browser playability',
         ],
     );

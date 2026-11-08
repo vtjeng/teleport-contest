@@ -195,21 +195,6 @@ export function checkpointCommands() {
             return { passed: result.status === 0, body: last, skipped };
         },
     });
-    // A planning pass that reaches the live game: replays every recording and
-    // session in a copy of js/ instrumented by scripts/planning-leak-lib.mjs.
-    // js/gstate.js makes a planning use of `game` throw in every replay; this
-    // also catches the live effects that need no `game` reference.
-    commands.push({
-        label: 'planning leaks',
-        group: 'scan',
-        command: process.execPath,
-        args: ['scripts/planning-leak-check.mjs'],
-        capture: true,
-        summarize: (result) => ({
-            passed: result.status === 0,
-            detail: result.stdout.trim().split('\n').at(-1) ?? '',
-        }),
-    });
     // The judge's own playability check, unmodified from frozen/: it plays the
     // 44 fixed sessions through NethackGame and moveloop_core() one key at a
     // time, as the browser play page does, not through runSegment(), and

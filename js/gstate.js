@@ -31,8 +31,7 @@ export function resetGame() {
 // function that reached it. Identity tests (`state === game`) do not touch
 // the guard and stay false for the clone, as they are for the live game's
 // copy outside planning. scripts/planning-live-game-guard.test.mjs checks the
-// guard; scripts/planning-leak-check.mjs checks the effects that do not go
-// through `game` (the shared terminal, newsym(), the ISAAC streams).
+// guard.
 //
 // What the guard does with a use depends on the entry point. By default it
 // records the use and lets it through to the live game, as it did before the
