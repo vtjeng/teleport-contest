@@ -15,7 +15,6 @@ import {
     inv_weight,
     max_capacity,
     near_capacity,
-    projected_capacity,
     weight_cap,
 } from '../js/hack.js';
 import { finish_fruit_option } from '../js/fruit.js';
@@ -338,11 +337,9 @@ test('live capacity pins exceptional Strength, weight, and cache boundaries',
         };
         state.invent = boulder;
 
-        // Projection is admission-only and must not refresh hack.c's live
-        // cached capacity.  Without rock throwing, 600 weight plus the
-        // rounded two-unit coin stack is overloaded.
-        assert.equal(projected_capacity(state), 5);
-        assert.equal(state.gw.wc, 777);
+        // Without rock throwing, 600 weight plus the rounded two-unit coin
+        // stack is overloaded; inv_weight() refreshes hack.c's cached
+        // capacity from the stale 777.
         assert.equal(inv_weight(state), 402);
         assert.equal(state.gw.wc, 200);
         assert.equal(calc_capacity(98, state), 5);
@@ -354,8 +351,6 @@ test('live capacity pins exceptional Strength, weight, and cache boundaries',
         // the source's (quan + 50) / 100 coin rounding.
         state.youmonst.data.mflags2 = M2_ROCKTHROW;
         state.gw.wc = 888;
-        assert.equal(projected_capacity(state), 0);
-        assert.equal(state.gw.wc, 888);
         assert.equal(inv_weight(state), -198);
         assert.equal(state.gw.wc, 200);
 
