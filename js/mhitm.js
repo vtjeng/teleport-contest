@@ -1457,10 +1457,10 @@ async function gazemm(magr, mdef, mattk, env) {
                 return M_ATTK_MISS;
             }
             if (canseemon(magr, state)) {
-                await message(
+                await message(messageAt(
                     `${Monnam(magr, state, env)} is turned to stone!`,
-                    state,
-                );
+                    magr.mx, magr.my, state,
+                ), state);
             }
             await monstone(magr, state, env);
             if (magr.mhp >= 1) return M_ATTK_MISS;
@@ -1503,9 +1503,10 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
                 return M_ATTK_HIT;
             }
             if (state.gv?.vis && canspotmon(magr, state)) {
-                await requireAttackOperation(env, 'message')(
-                    `${Monnam(magr, state, { displayRandom: env.displayRandom })} turns to stone!`, state,
-                );
+                await requireAttackOperation(env, 'message')(messageAt(
+                    `${Monnam(magr, state, { displayRandom: env.displayRandom })} turns to stone!`,
+                    magr.mx, magr.my, state,
+                ), state);
             }
             await monstone(magr, state, env);
             if (magr.mhp >= 1) return M_ATTK_HIT;
