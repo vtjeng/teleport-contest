@@ -18,6 +18,7 @@ import {
     CORR,
     DETECT_MONSTERS,
     IN_SIGHT,
+    LS_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MMOVE_DONE,
@@ -26,21 +27,31 @@ import {
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    TEMP_LIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { new_light_source } from '../js/light.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
 import { postmov } from '../js/monmove.js';
 import { restrap } from '../js/mon.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     PM_GIANT_EEL,
+    PM_JACKAL,
     PM_ROCK_PIERCER,
     PM_SMALL_MIMIC,
     PM_TRAPPER,
     PM_WATER_MOCCASIN,
 } from '../js/monsters.js';
-import { STRANGE_OBJECT } from '../js/objects.js';
+import { BOULDER, STRANGE_OBJECT } from '../js/objects.js';
+import { coreRandom, getRngLog, initRng } from '../js/rng.js';
+import {
+    clear_path,
+    does_block,
+    transparencyIndexViews,
+    vision_recalc,
+} from '../js/vision.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
@@ -484,6 +495,63 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
             assert.deepEqual(game.nhDisplay.messages, messagesBefore, term);
         }
         game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
+    });
+
+// makemon.c set_mimic_sym() ends with `if (does_block(mx, my, ...))
+// block_point(mx, my)` (makemon.c:2547-2548), so a mimic that restrap()
+// (mon.c:4678-4685) re-disguises as a boulder becomes opaque at once, and the
+// next vision recalculation stops a neighbouring light at it.
+test('restrap re-disguising a mimic as a boulder blocks its square',
+    async () => {
+        await hero();
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        // A jackal carrying a radius-2 light stands just west of the mimic,
+        // so the square east of the mimic is lit through it until it blocks.
+        const lightBearer = hiderAt(PM_JACKAL, far(), { mcanmove: 0 });
+        const awake = hiderAt(PM_SMALL_MIMIC, far());
+        assert.equal(lightBearer.mx, awake.mx - 1);
+        assert.equal(lightBearer.my, awake.my);
+        new_light_source(lightBearer.mx, lightBearer.my, 2, LS_MONSTER,
+            lightBearer, game);
+        const behind = [awake.mx + 1, awake.my];
+        assert.equal(does_block(awake.mx, awake.my, null, game), false);
+        assert.equal(transparencyIndexViews()[awake.my][awake.mx], 1);
+        assert.equal(
+            clear_path(lightBearer.mx, lightBearer.my, ...behind), 1);
+
+        // An independent stream whose first draws take restrap() into
+        // set_mimic_sym()'s boulder arm; the assertion below names each.
+        initRng(511);
+        const rngBefore = getRngLog().length;
+        assert.equal(restrap(awake, {
+            state: game,
+            random: coreRandom,
+            setMimicSym: set_mimic_sym,
+        }), true);
+        assert.deepEqual(getRngLog().slice(rngBefore), [
+            'rn2(3)=0', // mon.c:4664 restrap() roll
+            'rn2(17)=12', // makemon.c:2487 ROLL_FROM(syms): ROCK_CLASS
+            // mkobj.c:289-292 over ROCK_CLASS: BOULDER's oc_prob is 100 of
+            // 1000 (objects.h:1619), so 91 selects it.
+            'rnd(1000)=91',
+            'rnd(2)=1', // mkobj.c:521 next_ident() for the temporary object
+        ]);
+
+        assert.equal(awake.m_ap_type & M_AP_TYPMASK, M_AP_OBJECT);
+        assert.equal(awake.mappearance, BOULDER);
+        assert.equal(does_block(awake.mx, awake.my, null, game), true);
+        assert.equal(transparencyIndexViews()[awake.my][awake.mx], 0);
+        assert.equal(
+            clear_path(lightBearer.mx, lightBearer.my, ...behind), 0);
+
+        // mon.c movemon_singlemon() recalculates vision after each monster
+        // when gv.vision_full_recalc is set; do it here directly.
+        vision_recalc(0);
+        assert.equal(
+            game.viz_array[lightBearer.my][lightBearer.mx] & TEMP_LIT,
+            TEMP_LIT);
+        assert.equal(game.viz_array[behind[1]][behind[0]] & TEMP_LIT, 0);
     });
 
 test('a costly listen re-disguises its revealed mimic through the sentinel',
