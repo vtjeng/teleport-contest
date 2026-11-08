@@ -413,18 +413,15 @@ async function getbones() {
     const {
         getbones: loadBones,
         no_bones_level,
-        deleteBonesFile,
     } = await import('./bones.js');
+    const { delete_bonesfile, open_bonesfile } = await import('./files_bones.js');
 
     if (no_bones_level(state.u.uz, state)) return false;
 
     const { yn_function } = await import('./cmd.js');
 
-    // Check if bones exist before any prompts. C opens the file here; the
-    // port checks VFS directly.
-    const { vfsReadFile } = await import('./storage.js');
-    const path = `bones_D${state.u.uz.dnum}.${state.u.uz.dlevel}`;
-    if (!vfsReadFile(path)) return false;
+    // Check if bones exist before any prompts, as C's open_bonesfile().
+    if (!open_bonesfile(state.u.uz, state)) return false;
 
     // Wizard mode: ask whether to load the bones.
     if (state.wizard) {
@@ -458,7 +455,7 @@ async function getbones() {
         delete state._bonesRestorePrompt;
     }
 
-    return deleteBonesFile(state.u.uz) ? ok : false;
+    return delete_bonesfile(state.u.uz, state) ? ok : false;
 }
 
 // C ref: allmain.c l_nhcore_init()

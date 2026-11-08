@@ -12,6 +12,7 @@ import {
     PIT,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
+import { set_bonesfile_name } from '../js/files_bones.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { bless, mksobj_at } from '../js/obj.js';
@@ -162,7 +163,7 @@ test('savebones reveals holes and hides other traps for the next hero',
 
             await savebones(DIED, getnow(game), null, game);
 
-            const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+            const path = set_bonesfile_name(game.u.uz, game).file;
             const saved = JSON.parse(vfsReadFile(path));
             assert.deepEqual(saved.traps.map(({ ttyp, tseen, madeby_u }) =>
                 ({ ttyp, tseen, madeby_u })), [
@@ -311,7 +312,7 @@ test('savebones converts a real floor Amulet to its fake cursed bones form', asy
         assert.equal(amulet.blessed, true);
         assert.equal(amulet.cursed, false);
 
-        const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+        const path = set_bonesfile_name(game.u.uz, game).file;
         assert.equal(vfsReadFile(path), null, 'private VFS starts without a bones file');
         const snapshot = () => ({
             id: amulet.o_id,
@@ -440,7 +441,7 @@ test('savebones removes numeric quest leaders and nemeses before serialization',
             msound: monster.data.msound, mhp: monster.mhp,
             mx: monster.mx, my: monster.my, minvent: monster.minvent,
         }));
-        const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+        const path = set_bonesfile_name(game.u.uz, game).file;
         assert.equal(vfsReadFile(path), null);
         await savebones(DIED, getnow(game), null, game);
         const savedText = vfsReadFile(path);

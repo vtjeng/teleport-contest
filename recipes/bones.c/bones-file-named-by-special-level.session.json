@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent files.c set_bonesfile_name() witness: a bones file is named for a special level's boneid, not its level number. A debug human Valkyrie level-teleports to level 8, which this seed makes the Oracle, wishes for a wand of death, zaps herself and saves bones there (bonD0.O). A second game on another seed and clock, whose Oracle is level 5, goes to the ordinary level 8 (bonD0.8: no bones, so no prompt), then to level 5, where getbones() finds the Oracle's file and asks 'Get bones?' and 'Unlink bones?'. The seeds were chosen for their Oracle depths; the inputs are otherwise minimal.",
+  "segments": [
+    {
+      "seed": 5150101,
+      "datetime": "20370401120000",
+      "nethackrc": "OPTIONS=name:Ada,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00168\n\u0017wand of death\nze.  y qy"
+    },
+    {
+      "seed": 5150102,
+      "datetime": "20370403091500",
+      "nethackrc": "OPTIONS=name:Taro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00168\n:\u00165\nyy:s"
+    }
+  ]
+}

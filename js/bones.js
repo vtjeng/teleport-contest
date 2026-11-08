@@ -151,7 +151,7 @@ import { peace_minded, propagate, set_malign } from './makemon.js';
 import { coreRandom, rn2 } from './rng.js';
 import { cant_revive, unpunish } from './read.js';
 import { fix_shop_damage } from './shk.js';
-import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
+import { delete_bonesfile, open_bonesfile, write_bonesfile } from './files_bones.js';
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
@@ -203,27 +203,9 @@ export function can_make_bones(state = game, rawEnv = {}) {
 
 // ── Bones file I/O ──
 //
-// C uses binary level files via open_bonesfile / create_bonesfile /
-// commit_bonesfile / delete_bonesfile / compress_bonesfile.
-// The JS port stores bones as a JSON snapshot in VFS storage, keyed by a
-// level identifier.
-
-function bonesFilePath(uz) {
-    // C ref: files.c set_bonesfile_name(). The bonesid encodes dungeon number
-    // and level: "D0.3" for main dungeon level 3, etc.
-    return `bones_D${uz.dnum}.${uz.dlevel}`;
-}
-
-function openBonesFile(uz) {
-    const path = bonesFilePath(uz);
-    const data = vfsReadFile(path);
-    return data != null ? { path, data } : null;
-}
-
-export function deleteBonesFile(uz) {
-    const path = bonesFilePath(uz);
-    return vfsDeleteFile(path);
-}
+// C reads and writes binary level files through files.c open_bonesfile(),
+// create_bonesfile(), commit_bonesfile() and delete_bonesfile(). The port
+// keeps a JSON snapshot under the name files.js set_bonesfile_name() gives.
 
 // ── Bones helper functions ──
 
@@ -557,7 +539,7 @@ export async function savebones(how, when, corpse, state) {
     // C: clear_bypasses() -- bypass flags have no gameplay effect in the port.
 
     // Check for existing bones file
-    const existing = openBonesFile(state.u.uz);
+    const existing = open_bonesfile(state.u.uz, state);
     if (existing) {
         // C ref: bones.c:419-430. The prompt belongs to savebones(), after
         // it opens the current level's bones file. A declined replacement
@@ -566,7 +548,7 @@ export async function savebones(how, when, corpse, state) {
             if (await y_n(
                 'Bones file already exists.  Replace it?', state,
             ) === 'y') {
-                if (!deleteBonesFile(state.u.uz)) {
+                if (!delete_bonesfile(state.u.uz, state)) {
 
                     await ttyPline('Cannot unlink old bones.', state);
                     return;
@@ -752,7 +734,6 @@ export async function savebones(how, when, corpse, state) {
     // C writes binary data via store_version, Sfo_char, savefruitchn, savelev.
     // The port writes a JSON snapshot.
     const bonesData = serializeBonesLevel(state);
-    const path = bonesFilePath(state.u.uz);
     // Strip functions from the serialized output. The cloneObjChain and
     // cloneMon helpers above already break object-graph cycles (ocontainer,
     // ocarry, nmon); shared references (e.g. mons[] data entries) are
@@ -761,7 +742,7 @@ export async function savebones(how, when, corpse, state) {
         if (typeof val === 'function') return undefined;
         return val;
     };
-    vfsWriteFile(path, JSON.stringify(bonesData, safeReplacer));
+    write_bonesfile(state.u.uz, JSON.stringify(bonesData, safeReplacer), state);
 }
 
 // Serialize the current level state into a JSON-safe object for bones
@@ -1095,7 +1076,7 @@ export async function ghostly_getlev_monsters(state) {
 // handles the preliminary eligibility checks (discover, flags.bones, rn2(3),
 // no_bones_level) and the wizard-mode "Get bones?" prompt before calling.
 export async function getbones(state = game) {
-    const bonesFile = openBonesFile(state.u.uz);
+    const bonesFile = open_bonesfile(state.u.uz, state);
     if (!bonesFile) return false;
 
     // C: validate() check. The port does not version-check bones files; a
