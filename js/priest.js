@@ -621,7 +621,7 @@ export async function move_special(
 ) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
-    const redraw = env.planning ? () => {} : (env.redraw ?? newsym);
+    const redraw = env.redraw ?? newsym;
 
     if (omx === ggx && omy === ggy) return 0;
     if (mtmp.mconf) {
@@ -751,11 +751,10 @@ export async function pri_move(priest, env = {}) {
             // priest.c:199-203 completes its discarded attack before returning.
             const displaced = state.u.uprops?.[DISPLACED];
             if (displaced?.intrinsic || displaced?.extrinsic) {
-                if (!env.planning)
-                    await (env.message ?? ttyPline)(
-                        `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
-                        state, env,
-                    );
+                await (env.message ?? ttyPline)(
+                    `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
+                    state, env,
+                );
             }
             await (env.attackHero ?? mattacku)(priest, { ...env, state });
             return 0;
