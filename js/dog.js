@@ -1047,8 +1047,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
                 note_unported('dog.c migrate_to_level');
             }
         } else if (mtmp.mleashed) {
-            const message = env.message ?? (env.planning ? async () => {}
-                : ttyPline);
+            const message = env.message ?? ttyPline;
             await message(
                 `${s_suffix(Monnam(mtmp, state, env))} leash goes slack.`,
                 state,
@@ -1558,9 +1557,8 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
     const env = dogEnv(rawEnv);
     const { state, random } = env;
     const quietly = was_dead;
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
-    const redraw = env.redraw ?? (env.planning ? () => {}
-        : (x, y) => newsym(x, y, state));
+    const message = env.message ?? ttyPline;
+    const redraw = env.redraw ?? ((x, y) => newsym(x, y, state));
     finish_meating(mtmp, { ...env, redraw });
     if (!mtmp.mtame) return;
     const edog = !mtmp.isminion ? EDOG(mtmp) : null;

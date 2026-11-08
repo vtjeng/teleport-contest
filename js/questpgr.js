@@ -294,16 +294,14 @@ export function convertLine(line, state) {
     return out;
 }
 
-// The two window-port entry points questpgr.c uses. A caller that must stay
-// silent -- the monster-movement dry run in js/unported_monster_actions.js
-// replaces both, so the shuffle and the %-code conversion still run while
-// nothing reaches the terminal and nothing waits for a key.
+// The two window-port entry points questpgr.c uses. A caller may replace
+// them through its `output` argument; the shuffle and the %-code conversion
+// run whichever output receives the text.
 export const QUEST_PAGER_OUTPUT = Object.freeze({
     pline: ttyPline,
     window: displayTtyTextWindow,
-    // C com_pager_core() writes synopsis history only on the live pager path.
-    // The monster-turn planner supplies a silent output without this callback,
-    // so speculative conversations cannot mutate the live TTY history/window.
+    // C com_pager_core() writes synopsis history only on the pager path. An
+    // output without this callback skips the history write.
     history: async (message, state) => {
         const { tty_putmsghistory } = await import('./topl.js');
         tty_putmsghistory(message, false, state);

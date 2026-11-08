@@ -1357,7 +1357,6 @@ export function get_mleash(monster, state = game) {
 export async function check_leash(x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    // allmain's planning pass injects its cloned stream.
     const random = rawEnv.random ?? coreRandom;
 
     for (let leash = state.invent; leash; leash = leash.nobj) {
@@ -5113,10 +5112,10 @@ export async function doapply(state = game, env = {}) {
                     ...(env.hooks ?? {}),
                     encumberMessage: env.hooks?.encumberMessage
                         ?? ((targetState) => encumber_msg(targetState, {
-                            message: env.planning ? async () => {} : ttyPline,
+                            message: ttyPline,
                         })),
                     newsym: env.hooks?.newsym
-                        ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+                        ?? ((x, y) => newsym(x, y)),
                 },
             }),
         });
@@ -5231,10 +5230,10 @@ export async function flip_coin(obj, state = game, env = {}) {
                 ...(env.hooks ?? {}),
                 encumberMessage: env.hooks?.encumberMessage
                     ?? ((targetState) => encumber_msg(targetState, {
-                        message: env.planning ? async () => {} : ttyPline,
+                        message: ttyPline,
                     })),
                 newsym: env.hooks?.newsym
-                    ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+                    ?? ((x, y) => newsym(x, y)),
             },
         });
         return ECMD_TIME;

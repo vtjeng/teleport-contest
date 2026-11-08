@@ -348,7 +348,7 @@ import { more_experienced } from './exper.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    cmap_to_glyph, map_glyphinfo, map_invisible, map_invisible_planning, newsym,
+    cmap_to_glyph, map_glyphinfo, map_invisible, newsym,
     shieldeff, tmp_at,
 } from './display.js';
 import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
@@ -2282,12 +2282,8 @@ export async function drop_boulder_on_player(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    // Earth actions also run against a cloned state during monster-turn
-    // preflight. Keep their messages on that caller's output path and prevent
-    // the clone from repainting the live display through display.js:newsym().
     const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? rawEnv.newsym
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const redraw = rawEnv.redraw ?? rawEnv.newsym ?? newsym;
     const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
 
@@ -2353,11 +2349,8 @@ export async function drop_boulder_on_monster(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    // Match drop_boulder_on_player(): planning changes stay on the cloned
-    // state and must not repaint the live map or message window.
     const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? rawEnv.newsym
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const redraw = rawEnv.redraw ?? rawEnv.newsym ?? newsym;
     const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
     const rock = mksobj(confused ? ROCK : BOULDER, false, false, env);
@@ -2377,12 +2370,8 @@ export async function drop_boulder_on_monster(
                     + `${donameFresh(rock, state)}!`,
                 state,
             );
-            // A planning clone keeps display.c map_invisible()'s memory
-            // write and leaves the live paint to the replayed turn.
-            if (monster.minvis && !canspotmon(monster, state)) {
-                if (state === game) map_invisible(monster.mx, monster.my, state);
-                else map_invisible_planning(monster.mx, monster.my, state);
-            }
+            if (monster.minvis && !canspotmon(monster, state))
+                map_invisible(monster.mx, monster.my, state);
         } else if (engulfing_u(monster, state)) {
             const line = youHear(
                 `something hit ${s_suffix(mon_nam(monster, state))} `

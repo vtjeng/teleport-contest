@@ -114,11 +114,10 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
-import { end_running, losehp, nomul } from './hack.js';
+import { losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import {
     cls, display_self, docrt, flush_screen, map_invisible,
-    map_invisible_planning,
     map_monster_glyph_info, newsym, show_glyph_cell,
     shieldeff,
 } from './display.js';
@@ -224,7 +223,6 @@ import { makeplural } from './fruit.js';
 import { s_suffix, upstart } from './hacklib.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { doorlock } from './lock.js';
 import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
@@ -257,14 +255,9 @@ import {
 // their source enum names.
 const AT_GAZE = 15;
 
-// C ref: display.c map_invisible(), as every muse.c call site uses it. The
-// elapsed-turn preflight runs a monster's item use against a planning clone
-// (unported_monster_actions.js planningState()), whose location grid is its
-// own copy. That dry run keeps C's map-memory write on the clone without
-// painting the live terminal; the live replay of the same turn paints it.
+// C ref: display.c map_invisible(), as every muse.c call site uses it.
 function mapInvisibleAt(x, y, state) {
-    if (state === game) map_invisible(x, y, state);
-    else map_invisible_planning(x, y, state);
+    map_invisible(x, y, state);
 }
 
 // C ref: muse.c:1272-1290, the offensive half of the MUSE_* action codes.
@@ -1643,8 +1636,8 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         const vistrapspot = cansee(t.tx, t.ty, state);
         if (vis || vistrapspot) {
             // C seetrap() redraws with newsym(); preserve an injected owner
-            // for focused/planning callers, and bind the live fallback to
-            // this action's state.
+            // for focused callers, and bind the live fallback to this
+            // action's state.
             seetrap(t, {
                 ...env,
                 state,
@@ -2232,8 +2225,8 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
 // to stop, but C always returns 0 here. Exported for focused coverage of its
 // static C callback branches.
 export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
-    // mattacku() can be dry-run against a cloned PRNG.  Keep every draw made
-    // by this callback on that stream; direct callers retain the live RNG.
+    // Keep every draw made by this callback on the caller's random stream;
+    // direct callers retain the live RNG.
     const random = rawEnv.random ?? coreRandom;
     const discoveryEnv = { ...rawEnv, random };
     const message = rawEnv.message ?? ttyPline;
@@ -2274,14 +2267,6 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                 );
                 if (halfSpellDam)
                     tmp = Math.trunc((tmp + 1) / 2);
-                if (rawEnv.planning && state.u.uhp - tmp < 1
-                    && typeof rawEnv.planningDeath === 'function') {
-                    end_running(true, state);
-                    state.disp ??= {};
-                    state.disp.botl = true;
-                    state.u.uhp -= tmp;
-                    throw rawEnv.planningDeath(mtmp);
-                }
                 await losehp(tmp, 'wand', KILLED_BY_AN, state, {
                     ...rawEnv,
                     fromMonster: true,
@@ -2320,8 +2305,8 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     case O.WAN_TELEPORTATION:
         if (hits_you) {
             // C muse.c mbhitm() calls tele() on the active turn. Retain
-            // the planning input boundary, cloned RNG and display owners;
-            // monster missile callers name their redraw operation newsym.
+            // the caller's RNG and display owners; monster missile callers
+            // name their redraw operation newsym.
             await tele(state, {
                 ...rawEnv,
                 random,
@@ -2859,9 +2844,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         const isCursed = Boolean(otmp.cursed);
         const isBlessed = Boolean(otmp.blessed);
 
-        // The elapsed-turn preflight executes this action against a planning
-        // clone. Pass its message owner through every Earth message so the
-        // dry run cannot write to the shared live TTY.
+        // Pass the caller's message owner through every Earth message.
         await mreadmsg(mtmp, otmp, state, env);
         const message = env.message ?? ttyPline;
         if (canseemon(mtmp, state)) {
@@ -3082,7 +3065,7 @@ export function searches_for_item(monster, obj, state = game) {
 //
 // arti_reflects(MON_WEP(mon)) checks whether a wielded artifact weapon
 // reflects. Its boolean return is used here exactly as in C; callers may pass
-// a planning message/display environment so naming stays on the clone.
+// their own message/display environment.
 function formatReflectionMessage(format, values) {
     let nextValue = 0;
     return format.replace(/%%|%s/gu, (placeholder) => {
@@ -3093,8 +3076,7 @@ function formatReflectionMessage(format, values) {
 
 export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     const objectEnv = { ...rawEnv, state };
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const reflectMessage = (kind) => formatReflectionMessage(str, [
         s_suffix(monsterCommonName(mon, state, 0, rawEnv)),
         kind,
@@ -3146,8 +3128,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
 
 /* C ref: muse.c 2836-2871 ureflects() */
 export async function ureflects(fmt, str, state = game, rawEnv = {}) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const objectEnv = {
         ...rawEnv,
         state,
@@ -3366,9 +3347,8 @@ export async function munslime(mon, by_you, state = game, env = {}) {
    selected by munslime() to burn away incipient slime. */
 async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
-    const redraw = env.planning || state !== game
+    const message = env.message ?? ttyPline;
+    const redraw = state !== game
         ? () => {}
         : env.redraw ?? ((x, y) => newsym(x, y));
     const actionEnv = {
@@ -3388,9 +3368,8 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
     };
     actionEnv.hooks = {
         ...(env.hooks ?? {}),
-        updateInventory: env.planning
-            ? () => {}
-            : env.hooks?.updateInventory ?? state.hooks?.updateInventory,
+        updateInventory: env.hooks?.updateInventory
+            ?? state.hooks?.updateInventory,
     };
     const otyp = obj.otyp;
     let dmg = 0;
@@ -3458,17 +3437,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
                 await pline_mon(mon, 'Oh, what a pretty fire!', state,
                     actionEnv);
             if (vis) {
-                const type = objectType(obj, state);
-                if (actionEnv.planning && obj.dknown
-                    && !type.oc_name_known && !type.oc_uname) {
-                    // The live trycall() asks for an object name. The cloned
-                    // pass has no player input; that discarded docall result
-                    // cannot affect combat, movement, or randomness, and the
-                    // clone is discarded before the live action prompts.
-                    note_unported('do_name.c docall');
-                } else {
-                    await trycall(obj, state);
-                }
+                await trycall(obj, state);
             }
             await m_useup(mon, obj, actionEnv);
             vis = false;    /* skip makeknown() below */

@@ -50,8 +50,7 @@ function canRegenerate(hero) {
 // happens to have multi <= 0.
 //
 // `norepMessage` travels with the call because interrupt_multi() prints
-// through it, and the elapsed turn substitutes a silent owner while it dry-runs
-// a burdened turn on a cloned state.
+// through it.
 async function reachedFull(kind, state, env) {
     if (typeof env.interruptMulti !== 'function') {
         throw new TypeError(

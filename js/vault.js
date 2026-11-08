@@ -50,7 +50,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
-    map_invisible, map_invisible_planning, map_location, newsym, unset_seenv, xy_set_wall_state,
+    map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
 import { verbalize, youHear, youSee } from './pline.js';
@@ -565,18 +565,6 @@ export async function gd_move(grd, env = {}) {
 
     if (!on_level(egrd.gdlevel, state.u.uz))
         return -1;
-
-    // Everything below can draw (the "Move along!" rn2(10), rloc(),
-    // gd_mv_monaway()), dig and restore the fake corridor, and repaint
-    // squares through newsym(), which always draws the live map. The dry run
-    // cannot do that silently, and skipping it would leave the plan's random
-    // draws behind the live pass's for the rest of the turn. Stop the dry run
-    // here: js/allmain.js replays this scan live and plans the rest from it.
-    if (env.planning) {
-        if (typeof env.requestPlanningInput !== 'function')
-            throw new TypeError('planned gd_move requires a planning boundary');
-        env.requestPlanningInput('vault.c gd_move');
-    }
 
     if (semi_dead || !grd.mx || egrd.gddone) {
         egrd.gddone = 1;
@@ -1181,13 +1169,12 @@ export async function invault(state, env = {}) {
         await message(
             `Suddenly one of the Vault's ${makeplural(pmname(guard.data, gender(guard)))} enters!`,
         );
-        // newsym() paints the live game, which a planning copy leaves to
-        // the live pass, as map_invisible() below does.
+        // newsym() paints the global game; a hand-built state has no
+        // display to repaint.
         if (state === game) newsym(guard.mx, guard.my);
     } else {
         await message('Someone else has entered the Vault.');
-        if (state === game) map_invisible(guard.mx, guard.my, state);
-        else map_invisible_planning(guard.mx, guard.my, state);
+        map_invisible(guard.mx, guard.my, state);
     }
 
     if (u.uswallow) {
@@ -1234,10 +1221,6 @@ export async function invault(state, env = {}) {
     if (state.multi > 0) {
         nomul(0, state);
     }
-
-    // A dry run stops at the guard's question: getlin() reads keys, so the
-    // question and every effect after it belong to the live game alone.
-    if (env.planning) return { beforeInput: true };
 
     let buf = '';
     let trycount = 5;

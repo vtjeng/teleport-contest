@@ -878,9 +878,8 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
         : IS_WATERWALL(location?.typ) ? chance < 5
             : lava ? chance === 0 : chance !== 0;
     const message = rawEnv.message ?? ttyPline;
-    // newsym() paints the live game whatever state it is given, so a
-    // planning copy (a monster's planned death drop reaching flooreffects())
-    // redraws only through a caller's newsym.
+    // newsym() paints the global game whatever state it is given, so a
+    // hand-built state redraws only through a caller's newsym.
     const redraw = rawEnv.newsym ?? (state === game ? newsym : () => {});
 
     if (fillsUp) {
@@ -956,14 +955,12 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
             );
             await burn_away_slime(state, rawEnv);
             const damage = random.d(fireResistant ? 1 : 3, 6);
-            // A planned monster throw stops at a lethal hit, before done();
-            // the live pass repeats the throw and owns the death.
             await losehp(
                 Maybe_Half_Phys(damage, state.u),
                 'molten lava',
                 KILLED_BY,
                 state,
-                rawEnv.planning ? { planning: true, message } : {},
+                {},
             );
         } else if (!fillsUp && state.flags?.verbose !== false
             && (pushing ? !Blind(state.u) : cansee(rx, ry, state))) {
@@ -1052,8 +1049,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         'squished under a boulder',
                         NO_KILLER_PREFIX,
                         state,
-                        rawEnv.planning
-                            ? { planning: true, message: rawEnv.message } : {},
+                        {},
                     );
                     // C jumps to deletedwithboulder after squishing the hero,
                     // skipping the later generic pit-filling message.
@@ -1224,14 +1220,6 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
 export async function trycall(obj, state = game, env = {}) {
     const type = objectType(obj, state);
     if (!type.oc_name_known && !type.oc_uname) {
-        // docall() returns before output/input for an unseen object. A
-        // planning clone otherwise stops before its flush_screen/getlin so
-        // the live pass can replay every source-earlier message and draw.
-        if (env.planning && obj.dknown) {
-            if (typeof env.requestPlanningInput !== 'function')
-                throw new TypeError('planned trycall requires an input handoff');
-            return env.requestPlanningInput('do.c trycall');
-        }
         await docall(obj, state);
     }
 }
@@ -1933,7 +1921,7 @@ export function preflight_dropx(obj, env = {}) {
     // do.c boulder_hits_pool never fills a Water-level pool. Underwater
     // drops skip its splash/wakeup arm and consume the boulder through the
     // existing live owner. Surface/private liquid effects stay excluded.
-    const submergedWaterBoulder = state === game && !normalized.planning
+    const submergedWaterBoulder = state === game
         && obj.otyp === BOULDER && u.uinwater
         && on_level(u.uz, state.water_level)
         && is_pool(u.ux, u.uy, state);
@@ -2080,7 +2068,7 @@ function consumeDropAdmission(obj, env, admission) {
 // and before dropy(), so the altar message and BUC knowledge precede placement.
 export async function doaltarobj(obj, state = game, env = {}) {
     // A monster's drop reaches this through flooreffects() with the caller's
-    // message seam, which a planning clone keeps off the live terminal.
+    // message seam.
     const message = env.message ?? ttyPline;
     if (Blind(state.u)) return;
 
@@ -2215,10 +2203,8 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
     if (Blind(normalized.state.u) && Levitation(normalized.state)) {
         // display.c map_object() refuses any state but the module-global
         // game, because its draw half paints that game whatever state it is
-        // handed. The once-per-turn planning clone therefore binds this
-        // operation to a no-op beside newsym below (js/allmain.js
-        // finishElapsedTurn()); every live caller takes map_object() itself,
-        // so only a dry run needs to supply the hook.
+        // handed. A caller on another state supplies this hook; every game
+        // caller takes map_object() itself.
         (normalized.hooks.mapObject ?? map_object)(obj, 0, normalized.state);
     }
     requiredDropHook(normalized, 'newsym')(
@@ -3094,8 +3080,7 @@ export async function goto_level(
     await kill_genocided_monsters(state);
     // "Expire all timers that have gone off while away. Must be after
     // migrating monsters and objects are delivered."
-    // The arrival is never a dry run, so a rotting floor corpse draws through
-    // the live newsym().
+    // A rotting floor corpse draws through the live newsym().
     await run_timers(state, {
         newsym,
         message: ttyPline,
@@ -3431,8 +3416,8 @@ export async function set_wounded_legs(side, timex, state = game, env = {}) {
     // wound to the other leg does not heal the first.
     wounded.extrinsic |= side;
     // uhitm.c passes through the attack message sink when a leg wound changes
-    // burden.  Keep the optional seam here so planning attacks cannot write to
-    // the live terminal; older callers retain ttyPline by default.
+    // burden.  Keep the optional seam here; other callers retain ttyPline by
+    // default.
     await encumber_msg(state, { message: env.message ?? ttyPline });
 }
 

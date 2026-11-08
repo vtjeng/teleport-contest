@@ -525,9 +525,8 @@ export async function dryup(x, y, isyou, state = game, env = {}) {
         ?? ((tx, ty) => cansee(tx, ty, state));
     const glyphAt = env.glyphAt ?? env.glyph_at
         ?? ((tx, ty) => glyph_at(tx, ty, state));
-    const redraw = env.planning ? () => {}
-        : (env.redraw ?? env.newsym
-            ?? ((tx, ty) => newsym(tx, ty, state)));
+    const redraw = env.redraw ?? env.newsym
+        ?? ((tx, ty) => newsym(tx, ty, state));
 
     if (IS_FOUNTAIN(state.level.at(x, y).typ)
         && (!random.rn2(3)
