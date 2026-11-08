@@ -99,7 +99,6 @@ import {
     glyph_to_mon,
     feel_location,
     map_invisible,
-    map_invisible_planning,
     warning_of,
     glyph_to_cmap,
     glyph_to_obj,
@@ -1929,24 +1928,18 @@ function defaultSearchDisplay(x, y, env) {
     newsym(x, y);
 }
 
-// C ref: detect.c mfind0()'s map_invisible() call.  The display owner keeps
-// both the live and clone memory writes; the explicit planning seam selects
-// its no-paint half for a cloned level.
+// C ref: detect.c mfind0()'s map_invisible() call.
 function defaultMapInvisible(x, y, env) {
-    if (env.state === game) {
-        map_invisible(x, y, env.state);
-        return;
-    }
-    map_invisible_planning(x, y, env.state);
+    map_invisible(x, y, env.state);
 }
 
 async function silentSearchMessage() {}
 
 async function defaultDisplayPendingTtyMessageWindow(env) {
-    // display_nhwindow(WIN_MESSAGE, FALSE) is a live TTY operation. A search
-    // planning clone owns its message state but must neither consume live
-    // input nor retire the live message window.
-    if (env.planning || env.state !== game) return;
+    // display_nhwindow(WIN_MESSAGE, FALSE) is a live TTY operation. A state
+    // other than game must neither consume live input nor retire the live
+    // message window.
+    if (env.state !== game) return;
     await displayPendingTtyMessageWindow(env.state);
 }
 
@@ -2124,8 +2117,7 @@ function normalizeSearchEnv(rawEnv = {}) {
         ),
         norepMessage: operation(
             'norepMessage',
-            state === game && !rawEnv.planning
-                ? ttyNorep : silentSearchMessage,
+            state === game ? ttyNorep : silentSearchMessage,
         ),
         exerciseWisdom: operation(
             'exerciseWisdom',
@@ -2134,13 +2126,12 @@ function normalizeSearchEnv(rawEnv = {}) {
         // detect.c calls nomul(0) at 2048, 2058 and 2080, which js/hack.js
         // owns along with the end_running(TRUE) inside it.
         nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
-        // The live fallback is the coordinate-aware pline path. A planning
-        // clone gets a silent operation without becoming an injected caller,
-        // so preflightTrap() keeps its source wait contract unchanged.
+        // The live fallback is the coordinate-aware pline path. A state other
+        // than game gets a silent operation without becoming an injected
+        // caller, so preflightTrap() keeps its source wait contract unchanged.
         message: operation(
             'message',
-            state === game && !rawEnv.planning
-                ? defaultSearchMessage : silentSearchMessage,
+            state === game ? defaultSearchMessage : silentSearchMessage,
         ),
         displayPendingTtyMessageWindow: operation(
             'displayPendingTtyMessageWindow',
