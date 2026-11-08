@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of corner-menu-dismissal-erases-message-tail: a Valkyrie steps off the stairs and drops two items, so look_here()'s menu is narrow and its docorner() repair starts right of \"Can't find dungeon feature '_'.\"; the whole message survives the dismissal. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 40613,
+      "datetime": "20381109071244",
+      "nethackrc": "OPTIONS=name:Clipper,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!verbose\n",
+      "moves": "lldbdd\u0014_. "
+    }
+  ]
+}

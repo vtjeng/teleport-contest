@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "wintty.c erase_menu_or_text() repairs a corner menu with docorner(offx, maxrow + 1, 0), whose cl_end() starts at column offx - 1. In wizard-mode ^T, getpos.c reports an absent fountain with \"Can't find dungeon feature '{'.\"; picking the hero's own square then teleports onto a pile, and look_here()'s menu opens beside that acknowledged message without clearing it. Dismissing the menu erases the message's final period, which no later flush restores. Seed, date, Samurai and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7719,
+      "datetime": "20410322153007",
+      "nethackrc": "OPTIONS=name:Corner,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,!verbose\n",
+      "moves": "db dc \u0014{.  "
+    }
+  ]
+}

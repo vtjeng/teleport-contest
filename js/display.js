@@ -6832,6 +6832,38 @@ function mapViewport(rows, statusRowCount, state = game) {
     return { height, top };
 }
 
+// _buildScreenOutput() repaints row 0 from _pending_message, and the wrapped
+// rows of a show_topl() layout from _pendingMessageLayout, at every flush.
+// C keeps no such copy: once docorner()'s cl_end() erases a message cell, only
+// a later message or a full redraw writes it again. Drop the cells that
+// cl_end() erases on rows 0..ymax-1, from `column` rightwards, so the next
+// flush does not restore them. gt.toplines (state._ttyToplines) is a separate
+// C value and keeps the whole message for Ctrl-P and line sharing.
+//
+// A corner menu's dismissal is the case this changes: tty_display_nhwindow()
+// leaves an already acknowledged (TOPLINE_EMPTY) message on row 0 beside the
+// menu, and erase_menu_or_text()'s docorner(offx, ...) erases it from
+// column offx - 1, one column left of the menu's leading blank.
+function clipProjectedMessage(column, ymax, state) {
+    const msg = state._pending_message;
+    if (!msg || ymax <= 0) return;
+    const layout = state._pendingMessageLayout;
+    const rows = layout?.text === msg ? layout.rows : [msg];
+    const clipped = rows.map((text, row) =>
+        (row < ymax ? text.slice(0, column) : text));
+    if (clipped.every((text, row) => text === rows[row])) return;
+    if (column === 0) delete state._ttyMixedFirstCell;
+    // A row emptied before the last row keeps its place in the layout, so
+    // the rows after it stay on their physical lines.
+    while (clipped.length > 1 && clipped.at(-1) === '') clipped.pop();
+    const text = clipped.join('');
+    state._pending_message = text;
+    if (layout?.text === msg) {
+        if (text) state._pendingMessageLayout = { text, rows: clipped };
+        else delete state._pendingMessageLayout;
+    }
+}
+
 // C ref: win/tty/wintty.c docorner()'s ordinary map-window path and
 // display.c row_refresh(). More can overwrite the top map rows with its
 // wrapped prompt. Once it is dismissed, C clears each physical row and
@@ -6863,6 +6895,7 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             || unexplored.rgb !== undefined);
 
     const firstStatusRow = display.rows - statusRowCount;
+    clipProjectedMessage(Math.max(0, xmin - 1), lastRow, state);
     for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
