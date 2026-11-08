@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5517203,
+      "datetime": "20340719081522",
+      "nethackrc": "OPTIONS=name:PortalOrder,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,!tips\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " y\u001b\u001b\u00162\n\u001b\u00161\n\u001b#wizwhere\n   \u001b"
+    },
+    {
+      "seed": 3390761,
+      "datetime": "20311125170944",
+      "nethackrc": "OPTIONS=name:StairReturn,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,!tips\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " y\u001b\u001b\u00162\n\u001b_<.<\u001b#wizwhere\n   \u001b"
+    }
+  ],
+  "comment": "Independent restore.c getlev() 1149-1163 witness: getlev() pushes each saved trap onto the front of gf.ftrap, so a level the hero returns to has its trap chain reversed. A debug Samurai enters the tutorial, level-teleports to tut-2 and back, and runs #wizwhere; dungeon.c print_dungeon() reports the first MAGIC_PORTAL on the chain, which tut-1.lua's six portals make visible: (7,7) after the return, while a freshly made level's chain starts with the last portal created, at (69,5). The second game, a dwarven Valkyrie on another seed and date, returns to tut-1 by climbing tut-2's up stairs instead, a different goto_level() arrival through the same getlev(). Seeds, dates, characters and inputs were chosen independently of every recorded session."
+}

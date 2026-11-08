@@ -312,3 +312,28 @@ test('restore sets a worn object\'s extrinsic property bit', async () => {
     assert.equal(game.uarmc?.owornmask & W_ARMC, W_ARMC);
     assert.equal(game.u.uprops[DISPLACED].extrinsic & W_ARMC, W_ARMC);
 });
+
+// restore.c getlev() (1149-1163), which dorecover() calls for the hero's
+// level, pushes each trap savetrapchn() wrote onto the front of gf.ftrap,
+// so the restored chain is the reverse of the saved one. No recorded play
+// shows the order after a whole-game restore: only the tutorial has two
+// portals, and the tutorial refuses to save.
+test('restore reverses the hero level\'s trap chain', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
+    assert.match(source, /trap->ntrap = gf\.ftrap;\s*gf\.ftrap = trap;/u);
+    const storage = new InMemoryStorage();
+    const nethackrc = 'OPTIONS=name:Trapper,role:Archeologist,race:dwarf,'
+        + 'gender:male,align:lawful,!tutorial,!legacy,pettype:none';
+    // Seed 7240101 is the first seed tried whose first level has two traps
+    // (a bear trap and a trap door), the fewest that show an
+    // order; the datetime is arbitrary.
+    await runSegment({ seed: 7240101, datetime: '20330611091500', nethackrc,
+        moves: ' Sy', storage });
+    const saved = JSON.parse(storage.getItem('vfs:nhsave')).level.traps
+        .map(({ tx, ty }) => `${tx},${ty}`);
+    assert.equal(saved.length, 2);
+    await runSegment({ seed: 7240102, datetime: '20330611100000', nethackrc,
+        moves: ' ', storage });
+    assert.deepEqual(game.level.traps.map(({ tx, ty }) => `${tx},${ty}`),
+        [...saved].reverse());
+});

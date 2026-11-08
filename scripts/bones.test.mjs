@@ -3,7 +3,8 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
-    can_make_bones, ghostly_getlev_monsters, sanitize_name, savebones,
+    can_make_bones, getbones, ghostly_getlev_monsters, sanitize_name,
+    savebones,
 } from '../js/bones.js';
 import {
     DIED, HOLE, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
@@ -172,6 +173,56 @@ test('savebones reveals holes and hides other traps for the next hero',
             setStorageForTesting(null);
         }
     });
+
+// restore.c getlev() (1149-1163), which getbones() calls, pushes each trap
+// savetrapchn() wrote onto the front of gf.ftrap, so the next hero's chain
+// is the reverse of the dead hero's. No cheap recorded play shows the order:
+// only the tutorial has more than one portal, and it makes no bones.
+test('getbones reverses the bones level\'s trap chain', async () => {
+    const source = await readFile(new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
+    assert.match(source, /trap->ntrap = gf\.ftrap;\s*gf\.ftrap = trap;/u);
+    // The seed, date and character are arbitrary; the debug Wizard dies on
+    // the first level she is given.
+    await runSegment({
+        seed: 4471902,
+        datetime: '20520824163000',
+        nethackrc: 'OPTIONS=name:BonesOrder,role:Wizard,race:elf,'
+            + 'gender:male,align:chaotic,playmode:debug\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+            + '!autopickup,!acoustics,!debug_mongen\n',
+        moves: '',
+    });
+    setStorageForTesting(new InMemoryStorage());
+    try {
+        game.killer = { name: 'died', format: KILLED_BY_AN };
+        game.flags.bones = true;
+        game.discover = false;
+        game.u.uswallow = 0;
+        game.u.usteed = null;
+        game.uball = null;
+        game.u.ugrave_arise = NON_PM;
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg',
+            'uarmf', 'uarmu', 'uleft', 'uright', 'uwep', 'uswapwep',
+            'uquiver', 'uamul', 'ublindf', 'uball', 'uchain'])
+            game[slot] = null;
+        game.u.twoweap = false;
+        // Two holes, which savebones() keeps seen, at squares chosen only to
+        // differ; the chain head is the first entry.
+        game.level.traps = [
+            { ttyp: HOLE, tx: 10, ty: 10, tseen: true, madeby_u: false },
+            { ttyp: HOLE, tx: 12, ty: 10, tseen: true, madeby_u: false },
+        ];
+        assert.ok(can_make_bones(game));
+        await savebones(DIED, getnow(game), null, game);
+
+        assert.equal(await getbones(game), true);
+        assert.deepEqual(game.level.traps.map(({ tx, ty }) => [tx, ty]),
+            [[12, 10], [10, 10]]);
+    } finally {
+        setStorageForTesting(null);
+    }
+});
 
 test('savebones converts a real floor Amulet to its fake cursed bones form', async () => {
     const runner = await runSegment({

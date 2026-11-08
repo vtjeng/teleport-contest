@@ -101,7 +101,7 @@ import { place_wsegs } from './worm.js';
 import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
-import { ghostfruit, reset_oattached_mids } from './restore.js';
+import { ghostfruit, reset_oattached_mids, rest_traps } from './restore.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -1104,6 +1104,9 @@ async function restoreBonesLevel(bonesData, state) {
             return this.locations?.[x]?.[y] || null;
         },
     };
+    // C ref: restore.c getlev():1149-1163, reached through getbones(): the
+    // restored trap chain is the reverse of the one savebones() wrote.
+    rest_traps(level);
 
     // Rebuild object chains from flat arrays. Returns the head of a linked
     // list (via nobj). For each object, also links container contents (cobj)

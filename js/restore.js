@@ -158,6 +158,18 @@ function rest_stairs(saved, state) {
     }
 }
 
+// C ref: restore.c getlev() 1149-1163. getlev() reads each trap that
+// savetrapchn() wrote, head first, and pushes it onto the front of
+// gf.ftrap, so the restored chain is the reverse of the one savelev()
+// wrote. level.traps holds the gf.ftrap chain head first (trap.js
+// maketrap() unshifts), so a restore reverses it in place. #wizwhere's
+// portal report and every other gf.ftrap walk read this order. The
+// snapshot keeps trap->dst absolute, so C's relative-to-absolute
+// conversion has no counterpart.
+export function rest_traps(level) {
+    level?.traps?.reverse();
+}
+
 // The worn-slot table mirrors js/worn.js WORN_SLOTS so that restore can
 // rebuild game-level equipment pointers from each object's owornmask
 // without importing setworn() and its side effects.
@@ -226,6 +238,10 @@ export async function dorestore(state = game) {
     // Level and dungeon state
     state.level = snapshot.level;
     restoreLevelAt(state.level);
+    // C ref: restore.c getlev():1149-1163, which dorecover() reaches for the
+    // hero's level. The other levels' chains are reversed twice, once by
+    // dosave0()'s getlev() and once by dorecover()'s, so they keep their order.
+    rest_traps(state.level);
     // C ref: restore.c getlev():1225 rest_regions(). The game state and the
     // regions were saved on the same turn, so only regions whose time had
     // already run out are discarded.
@@ -846,6 +862,8 @@ export async function getlev(ledger, state = game) {
     state.dndest = snapshot.dndest ?? {};
 
     restoreLevelAt(state.level);
+    // C ref: restore.c getlev():1149-1163.
+    rest_traps(state.level);
 
     // C ref: restore.c:1110 svo.omoves = svm.moves - elapsed. The elapsed time
     // is how many game turns passed since the hero left this level. The snapshot
