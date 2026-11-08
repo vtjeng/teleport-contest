@@ -168,7 +168,7 @@ export function rest_push_each(saved, push, link = 'next') {
 // as in C. stairway_add() clears u_traversed, so the saved value is copied
 // back afterwards. The snapshot keeps tolev absolute, so C's conversion from
 // a relative dlevel has no counterpart.
-function rest_stairs(saved, state) {
+export function rest_stairs(saved, state) {
     stairway_free_all(state);
     rest_push_each(saved, (stway) => {
         stairway_add(stway.sx, stway.sy, stway.up, stway.isladder,

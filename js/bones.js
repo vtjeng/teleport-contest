@@ -102,7 +102,7 @@ import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import {
-    ghostfruit, reset_oattached_mids, rest_traps, restdamage,
+    ghostfruit, reset_oattached_mids, rest_stairs, rest_traps, restdamage,
 } from './restore.js';
 import {
     BOW,
@@ -1219,27 +1219,12 @@ async function restoreBonesLevel(bonesData, state) {
         }
     });
 
-    // C restore.c:rest_stairs() rebuilds gs.stairs before the caller places
-    // the hero. Rebuild the chain separately from level.upstair/dnstair;
-    // those coordinates describe terrain, while stairway_find_dir() needs
-    // the destination-bearing nodes.
-    let stairHead = null;
-    let stairTail = null;
-    for (const saved of bonesData.stairs ?? []) {
-        const stair = {
-            sx: saved.sx,
-            sy: saved.sy,
-            up: saved.up,
-            isladder: saved.isladder,
-            tolev: saved.tolev ? { ...saved.tolev } : null,
-            u_traversed: saved.u_traversed,
-            next: null,
-        };
-        if (stairTail) stairTail.next = stair;
-        else stairHead = stair;
-        stairTail = stair;
-    }
-    state.stairs = stairHead;
+    // C ref: restore.c getlev():1113 rest_stairs() rebuilds gs.stairs before
+    // the caller places the hero, separately from level.upstair/dnstair:
+    // those coordinates describe terrain, while stairway_find_dir() needs the
+    // destination-bearing nodes. Each saved stairway is pushed, so the list
+    // comes back reversed.
+    rest_stairs(bonesData.stairs ?? [], state);
     // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
     // right after the stairs. The Wizard's Tower levels keep their tower
     // boundary in dndest, which dungeon.c In_W_tower() requires.

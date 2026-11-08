@@ -175,12 +175,19 @@ test('savebones reveals holes and hides other traps for the next hero',
     });
 
 // restore.c getlev() (1149-1163), which getbones() calls, pushes each trap
-// savetrapchn() wrote onto the front of gf.ftrap, so the next hero's chain
-// is the reverse of the dead hero's. No cheap recorded play shows the order:
-// only the tutorial has more than one portal, and it makes no bones.
-test('getbones reverses the bones level\'s trap chain', async () => {
+// savetrapchn() wrote onto the front of gf.ftrap, and rest_stairs() adds each
+// stairway save_stairs() wrote with stairs.c stairway_add(), which pushes it
+// onto gs.stairs, so the next hero's chains are the reverse of the dead
+// hero's. No cheap recorded play shows the order: only the tutorial has more
+// than one portal, and it makes no bones; the stairway order shows only when
+// makemon.c makemon_rnd_goodpos() falls back to the stairs on a level with
+// no other free square.
+test('getbones reverses the bones level\'s trap and stairway chains', async () => {
     const source = await readFile(new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
     assert.match(source, /trap->ntrap = gf\.ftrap;\s*gf\.ftrap = trap;/u);
+    assert.match(source, /stairway_add\(stway\.sx, stway\.sy, stway\.up, stway\.isladder,/u);
+    const stairsSource = await readFile(new URL('../nethack-c/upstream/src/stairs.c', import.meta.url), 'utf8');
+    assert.match(stairsSource, /tmp->next = gs\.stairs;\s*gs\.stairs = tmp;/u);
     // The seed, date and character are arbitrary; the debug Wizard dies on
     // the first level she is given.
     await runSegment({
@@ -213,12 +220,21 @@ test('getbones reverses the bones level\'s trap chain', async () => {
             { ttyp: HOLE, tx: 10, ty: 10, tseen: true, madeby_u: false },
             { ttyp: HOLE, tx: 12, ty: 10, tseen: true, madeby_u: false },
         ];
+        // The first level's up and down stairs, in the dead hero's order.
+        const stairSquares = () => {
+            const squares = [];
+            for (let st = game.stairs; st; st = st.next) squares.push([st.sx, st.sy]);
+            return squares;
+        };
+        const deadHeroStairs = stairSquares();
+        assert.equal(deadHeroStairs.length, 2);
         assert.ok(can_make_bones(game));
         await savebones(DIED, getnow(game), null, game);
 
         assert.equal(await getbones(game), true);
         assert.deepEqual(game.level.traps.map(({ tx, ty }) => [tx, ty]),
             [[12, 10], [10, 10]]);
+        assert.deepEqual(stairSquares(), [...deadHeroStairs].reverse());
     } finally {
         setStorageForTesting(null);
     }
