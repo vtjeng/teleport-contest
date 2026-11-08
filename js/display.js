@@ -3556,7 +3556,7 @@ export function glyph_is_invisible(glyph) {
  * The two halves land in different places: the memory write goes to the
  * `state` handed in, and show_glyph_cell() below takes no state and paints the
  * module-global `game`. map_invisible() therefore refuses any other state,
- * and map_invisible_planning() below makes the memory write alone for one.
+ * and map_invisible_memory_only() below makes the memory write alone for one.
  */
 function mapInvisibleMemory(x, y, state) {
     if (x === state.u?.ux && y === state.u?.uy) return;
@@ -3582,10 +3582,10 @@ export function map_invisible(x, y, state = game) {
 // also paints the window, which belongs to the game, so this skips that half.
 // js/artifacts.js Mb_hit() and js/mcastu.js mcast_disappear() call it when
 // they are handed such a state.
-export function map_invisible_planning(x, y, state) {
+export function map_invisible_memory_only(x, y, state) {
     if (!state || state === game) {
         throw new TypeError(
-            'map_invisible_planning() requires a state other than the game',
+            'map_invisible_memory_only() requires a state other than the game',
         );
     }
     mapInvisibleMemory(x, y, state);

@@ -45,7 +45,7 @@ import {
     canspotmon,
     canseemon,
     map_invisible,
-    map_invisible_planning,
+    map_invisible_memory_only,
     shieldeff,
     tp_sensemon,
 } from './display.js';
@@ -1222,7 +1222,7 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
     // test's hand-built state) keeps only its memory write.
     if (cansee(mtmp.mx, mtmp.my, state) && !canspotmon(mtmp, state)) {
         if (state === game) map_invisible(mtmp.mx, mtmp.my, state);
-        else map_invisible_planning(mtmp.mx, mtmp.my, state);
+        else map_invisible_memory_only(mtmp.mx, mtmp.my, state);
     }
 }
 

@@ -233,8 +233,8 @@ import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import {
-    canspotmon, glyph_at, glyph_is_trap, map_invisible, map_invisible_planning,
-    newsym, shieldeff,
+    canspotmon, glyph_at, glyph_is_trap, map_invisible,
+    map_invisible_memory_only, newsym, shieldeff,
     see_monsters,
 } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
@@ -1796,7 +1796,7 @@ export async function Mb_hit(
         // as a test's hand-built state) keeps only its memory write.
         if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
             if (state === game) map_invisible(mdef.mx, mdef.my, state);
-            else map_invisible_planning(mdef.mx, mdef.my, state);
+            else map_invisible_memory_only(mdef.mx, mdef.my, state);
         }
     }
 
