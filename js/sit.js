@@ -962,8 +962,7 @@ export async function rndcurse(state = game, rawEnv = {}) {
     // curse() and unbless() reach mkobj.c weight() for a bag of holding,
     // whose object environment requires the whole random set.
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const objectEnv = objectGenerationEnv({ ...rawEnv, state, random, message });
     if (is_art(state.uwep, ART_MAGICBANE) && random.rn2(20)) {
         await message('You feel a malignant aura surround the magic-absorbing blade.', state);
@@ -1062,21 +1061,9 @@ export async function attrcurse(state = game, rawEnv = {}) {
         } else if (propertyId === SEE_INVIS) {
             if (!See_invisible(u)) {
                 const { newsym, see_monsters, set_mimic_blocking } = await import('./display.js');
-                // A planning clone borrows vision.c's shared obstruction
-                // index, so it admits each point set_mimic_blocking()
-                // changes; see_monsters() and the hero's newsym() repaint
-                // through the caller's redraw seam.
-                if (rawEnv.planning
-                    && typeof rawEnv.admitPlannedVisionChange !== 'function') {
-                    throw new TypeError(
-                        'planned attrcurse requires admitPlannedVisionChange',
-                    );
-                }
-                set_mimic_blocking(state, {
-                    admitPointChange: rawEnv.planning
-                        ? rawEnv.admitPlannedVisionChange
-                        : null,
-                });
+                // see_monsters() and the hero's newsym() repaint through
+                // the caller's redraw seam.
+                set_mimic_blocking(state);
                 await see_monsters(state, { ...rawEnv, message });
                 (rawEnv.redraw ?? newsym)(u.ux, u.uy, state);
             }
