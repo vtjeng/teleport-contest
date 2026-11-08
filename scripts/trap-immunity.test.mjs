@@ -81,3 +81,19 @@ test('immune_to_trap keeps harmless terrain hero-visible', () => {
         TRAP_CLEARLY_IMMUNE,
     );
 });
+
+test('immune_to_trap counts a flying steed as Flying', () => {
+    // trap.c:2825 reads `is_you && (Levitation || Flying)`, and youprop.h:253
+    // counts a flying steed as carrying the hero. A grounded hero riding a
+    // flyer (M1_FLY, as a dragon is) is clearly immune to a pit; the same
+    // hero on a grounded steed (mflags1 0, as a pony) is not.
+    const riding = immunityState();
+    riding.u.usteed = { data: { mflags1: M1_FLY } };
+    assert.equal(immune_to_trap(riding.youmonst, PIT, riding), TRAP_CLEARLY_IMMUNE);
+    riding.u.usteed = { data: { mflags1: 0 } };
+    assert.equal(immune_to_trap(riding.youmonst, PIT, riding), TRAP_NOT_IMMUNE);
+    // BFlying blocks the steed's flight too (youprop.h:253's `&& !BFlying`).
+    riding.u.usteed = { data: { mflags1: M1_FLY } };
+    riding.u.uprops[FLYING].blocked = 1; // any nonzero blocked bit
+    assert.equal(immune_to_trap(riding.youmonst, PIT, riding), TRAP_NOT_IMMUNE);
+});

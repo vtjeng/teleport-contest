@@ -350,7 +350,7 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    BFlying, BLevitation, Blind, Confusion, EFlying, Flying, HFlying,
+    BFlying, BLevitation, Blind, Confusion, Flying,
     HHallucination, HStun, Halluc_resistance, Hallucination, Lev_at_will,
     Levitation, Maybe_Half_Phys, Stunned,
 } from './youprop.js';
@@ -2320,9 +2320,8 @@ export function immune_to_trap(mon, ttype, state = game) {
             || (is_clinger(pm) && has_ceiling(state.u.uz, state))) {
             return TRAP_CLEARLY_IMMUNE;
         }
-        if (isYou && (Levitation(state.u)
-            || Boolean((HFlying(state.u) || EFlying(state.u))
-                && !BFlying(state.u)))) return TRAP_CLEARLY_IMMUNE;
+        if (isYou && (Levitation(state.u) || Flying(state.u)))
+            return TRAP_CLEARLY_IMMUNE;
         return TRAP_NOT_IMMUNE;
     case SLP_GAS_TRAP:
         if (breathless(pm)) return TRAP_CLEARLY_IMMUNE;

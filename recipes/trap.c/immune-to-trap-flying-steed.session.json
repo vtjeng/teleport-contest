@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48213,
+      "datetime": "20370314091522",
+      "nethackrc": "OPTIONS=name:SteedPit,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup,paranoid_confirmation:trap\n",
+      "moves": "#levelchange\n30\n\u001b\u0007tame saddled red dragon\n#ride\nby\u0017pit\n\u0005hls"
+    }
+  ],
+  "comment": "trap.c immune_to_trap() reads `is_you && (Levitation || Flying)`, and youprop.h's Flying counts a flying steed. A level-30 debug-mode Knight rides a created saddled red dragon, wishes a pit under itself, reveals it with ^E, steps off and back. With paranoid_confirmation:trap, hack.c asks \"Really ... that pit?\" only when the hero is not clearly immune, so C flies over the pit without a prompt."
+}
