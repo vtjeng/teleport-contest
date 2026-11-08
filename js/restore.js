@@ -534,6 +534,9 @@ export async function dorestore(state = game) {
         await restore_cham(mtmp, state);
     }
 
+    // C ref: restore.c getlev():1224 restdamage(), after the monster loop.
+    restdamage(state.level.damagelist ?? null, state.level);
+
     // C ref: restore.c getlev():1226 rest_bubbles(), after the hero's
     // level's monsters and regions, rebuilds the Plane of Water's or Air's
     // bubbles through mkmaze.c restore_waterlevel(); the snapshot has none
@@ -983,6 +986,9 @@ export async function getlev(ledger, state = game) {
             hide_monst(mtmp, state);
         }
     }
+
+    // C ref: restore.c getlev():1224 restdamage(), after the monster loop.
+    restdamage(state.level.damagelist ?? null, state.level);
 
     // C ref: restore.c getlev():1225 rest_regions(), after restdamage() and
     // before rest_bubbles(). savelev() wrote the region timestamp from the
