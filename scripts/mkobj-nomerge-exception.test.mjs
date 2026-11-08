@@ -79,8 +79,11 @@ test('is_mines_prize and is_soko_prize each compare one achieveo id', () => {
     assert.equal(is_soko_prize({ o_id: 42 }, state), false);
     assert.equal(is_soko_prize({ o_id: 99 }, state), true);
     assert.equal(is_mines_prize({ o_id: 99 }, state), false);
-    // An unset (zero) id matches no object, since o_ids start at 1.
+    // An unset (zero) id matches no object, not even an unnumbered one
+    // whose o_id is still newObject()'s zero.
     const unset = { context: { achieveo: { mines_prize_oid: 0, soko_prize_oid: 0 } } };
     assert.equal(is_mines_prize({ o_id: 1 }, unset), false);
     assert.equal(is_soko_prize({ o_id: 1 }, unset), false);
+    assert.equal(is_mines_prize({ o_id: 0 }, unset), false);
+    assert.equal(is_soko_prize({ o_id: 0 }, unset), false);
 });

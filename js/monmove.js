@@ -357,6 +357,8 @@ import {
     g_at,
     isCandle,
     isContainer,
+    is_mines_prize,
+    is_soko_prize,
     objectType,
     splitobj,
 } from './obj.js';
@@ -1953,7 +1955,7 @@ async function gelcube_digests(mtmp, env = {}) {
     let otmp = mtmp.minvent;
     while (otmp) {
         if (isOrganic(otmp, state) && !otmp.oartifact
-            && !isMinesPrize(otmp, state) && !isSokoPrize(otmp, state))
+            && !is_mines_prize(otmp, state) && !is_soko_prize(otmp, state))
             break;
         otmp = otmp.nobj;
     }
@@ -1975,16 +1977,6 @@ async function gelcube_digests(mtmp, env = {}) {
 // C ref: objclass.h is_organic(). material <= WOOD.
 function isOrganic(obj, state) {
     return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
-}
-
-// C ref: obj.h is_mines_prize(). Compares o_id with the achieveo field.
-function isMinesPrize(obj, state) {
-    return obj.o_id === (state.svc?.context?.achieveo?.mines_prize_oid ?? -1);
-}
-
-// C ref: obj.h is_soko_prize(). Compares o_id with the achieveo field.
-function isSokoPrize(obj, state) {
-    return obj.o_id === (state.svc?.context?.achieveo?.soko_prize_oid ?? -1);
 }
 
 // C ref: monmove.c monflee(). fleeMessage owns the exact naming and terminal

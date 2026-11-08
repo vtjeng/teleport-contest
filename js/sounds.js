@@ -1346,7 +1346,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     }
     case MS_RIDER:
         if (ptr === state.mons?.[PM_DEATH]
-            && !state.svc?.context?.tribute?.Deathnotice
+            && !state.context?.tribute?.Deathnotice
             && u_have_novel(state)) {
             const book = u_have_novel(state);
             const title = noveltitle(book.novelidx, { random: coreRandom });
@@ -1356,10 +1356,8 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
                 && title.title.toLowerCase() !== 'the wee free men') {
                 verbalMsg += '  I may have been misquoted there.';
             }
-            state.svc ??= {};
-            state.svc.context ??= {};
-            state.svc.context.tribute ??= {};
-            state.svc.context.tribute.Deathnotice = 1;
+            state.context.tribute ??= {};
+            state.context.tribute.Deathnotice = 1;
         } else if (ptr === state.mons?.[PM_DEATH] && random.rn2(3)) {
             const quote = { value: '' };
             if (await Death_quote(quote, BUFSZ, state))

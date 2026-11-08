@@ -612,7 +612,7 @@ export function sortloot_descr(otyp, state = game) {
         dknown: true,
         known: Boolean(type.oc_name_known || !type.oc_uses_known),
         corpsenm: -1, // NON_PM suppresses statue and figurine details.
-        spe: otyp === SLIME_MOLD ? state.svc?.context?.current_fruit : 0,
+        spe: otyp === SLIME_MOLD ? state.context?.current_fruit : 0,
     };
     const sortItem = { obj: null, str: null };
     _getobjInternals.loot_classify(sortItem, obj, state);

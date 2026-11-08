@@ -150,7 +150,9 @@ import {
 } from './monmove.js';
 import { bee_eat_jelly } from './monmove.js';
 import { may_dig } from './hack.js';
-import { costly_alteration, splitobj } from './obj.js';
+import {
+    costly_alteration, is_mines_prize, is_soko_prize, splitobj,
+} from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     an, distant_name, donameFresh, vtense, xnameFresh,
@@ -246,21 +248,12 @@ function inventoryOperation(rawEnv, name, fallback) {
     return operation;
 }
 
-function isPrize(obj, state) {
-    const tracking = state.context?.achieveo;
-    if (!tracking) return false;
-    return (Boolean(tracking.mines_prize_oid)
-            && obj.o_id === tracking.mines_prize_oid)
-        || (Boolean(tracking.soko_prize_oid)
-            && obj.o_id === tracking.soko_prize_oid);
-}
-
 function cannotFetch(obj, state) {
     return obj.oclass === BALL_CLASS
         || obj.oclass === CHAIN_CLASS
         || obj.oclass === ROCK_CLASS
         || obj.otyp === SCR_MAIL
-        || isPrize(obj, state);
+        || is_mines_prize(obj, state) || is_soko_prize(obj, state);
 }
 
 function petMoveOperation(rawEnv, name) {

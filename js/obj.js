@@ -3591,14 +3591,18 @@ export function insane_obj_bits(obj, mon, state = game) {
 }
 
 // C ref: obj.h is_mines_prize() and is_soko_prize(). The prize object's
-// o_id lives in svc.context.achieveo (this port's state.context.achieveo);
-// an unset id is zero, which no object's o_id equals.
+// o_id lives in svc.context.achieveo (this port's state.context.achieveo).
+// An unset id is zero. Every object mksobj() numbers has an o_id of at least
+// 1, so C never matches an unset id; the explicit test keeps an unnumbered
+// object (o_id 0) from matching here either.
 export function is_mines_prize(obj, state) {
-    return obj.o_id === (state.context?.achieveo?.mines_prize_oid ?? 0);
+    const id = state.context?.achieveo?.mines_prize_oid ?? 0;
+    return id !== 0 && obj.o_id === id;
 }
 
 export function is_soko_prize(obj, state) {
-    return obj.o_id === (state.context?.achieveo?.soko_prize_oid ?? 0);
+    const id = state.context?.achieveo?.soko_prize_oid ?? 0;
+    return id !== 0 && obj.o_id === id;
 }
 
 // C ref: mkobj.c nomerge_exception() (3280-3288). Returns true for objects

@@ -338,8 +338,8 @@ async function restfakecorr(grd, state, env) {
 // C ref: vault.c parkguard() (154-171). Move the guard (dead or alive) to the
 // off-map coordinate (0,0) until the temporary corridor is removed.
 function parkguard(grd, state) {
-    if (state.svc?.context?.polearm?.hitmon === grd)
-        state.svc.context.polearm.hitmon = null;
+    if (state.context?.polearm?.hitmon === grd)
+        state.context.polearm.hitmon = null;
     if (grd.mx) {
         remove_monster(grd.mx, grd.my, state);
         newsym(grd.mx, grd.my);

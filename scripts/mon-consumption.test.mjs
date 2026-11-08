@@ -185,6 +185,30 @@ test('meatobj gates hidden slurping messages by C verbosity, acoustics, and deaf
     }
 });
 
+test('meatobj leaves the Mines and Sokoban prizes alone, as mon.c meatobj() does', async () => {
+    // mon.c:1554 skips is_mines_prize() and is_soko_prize() objects. Ids 41
+    // and 42 are arbitrary distinct o_ids recorded as the two prizes; the
+    // glob is the only edible thing on the square, so a cube that ignored
+    // the prize test would engulf one of them instead and return 1 earlier.
+    for (const field of ['mines_prize_oid', 'soko_prize_oid']) {
+        const state = makeState();
+        state.context.achieveo[field] = 41;
+        const cube = monster(state, PM_GELATINOUS_CUBE);
+        // The prize sits on top of the pile, so meatobj() reaches it first.
+        const glob = floorObject(state, GLOB_OF_GREEN_SLIME, { o_id: 42 });
+        const prize = floorObject(state, CORPSE, { o_id: 41, corpsenm: 0 });
+        assert.equal(state.level.objects[5][5], prize);
+
+        assert.equal(await meatobj(cube, {
+            state,
+            random: random(),
+            message: async () => {},
+        }), 1);
+        assert.equal(prize.where, OBJ_FLOOR);
+        assert.equal(cube.minvent, glob);
+    }
+});
+
 test('meatmetal consumes the first acceptable metallic object', async () => {
     const state = makeState();
     const mole = monster(state, PM_ROCK_MOLE);

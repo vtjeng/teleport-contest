@@ -608,6 +608,8 @@ import {
     Dragon_scales_to_pm,
     Is_dragon_mail,
     Is_dragon_scales,
+    is_mines_prize,
+    is_soko_prize,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
@@ -1673,7 +1675,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
     let obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my] ?? null;
     while (obj) {
         const nextObj = obj.nexthere;
-        if (isMinesPrize(obj, state) || isSokoPrize(obj, state)) {
+        if (is_mines_prize(obj, state) || is_soko_prize(obj, state)) {
             obj = nextObj;
             continue;
         }
@@ -1891,14 +1893,6 @@ export function mpickgold(mtmp, rawEnv = {}) {
 
 function isOrganic(obj, state) {
     return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
-}
-
-function isMinesPrize(obj, state) {
-    return obj.o_id === (state.svc?.context?.achieveo?.mines_prize_oid ?? -1);
-}
-
-function isSokoPrize(obj, state) {
-    return obj.o_id === (state.svc?.context?.achieveo?.soko_prize_oid ?? -1);
 }
 
 async function monsterMessage(text, monster, state, env) {

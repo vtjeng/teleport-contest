@@ -193,7 +193,7 @@ test('sortloot_descr formats invent.c loot_classify ordering fields', () => {
     objects_globals_init(state);
     init_objects(state, () => 0);
     state.flags = { inv_order: '$")[%?+!=/(*`0_', sortpack: false };
-    state.svc = { context: { current_fruit: 0 } };
+    state.context = { current_fruit: 0 };
     assert.equal(sortloot_descr(POT_WATER, state), '05012 ');
 });
 
