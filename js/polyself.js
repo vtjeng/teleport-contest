@@ -442,8 +442,7 @@ function polysense(state) {
 // polymorphing into or out of a form immune to it.
 async function check_strangling(on, state, rawEnv = {}) {
     const u = state.u;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     if (on) {
         // maybe resume strangling
         const was_strangled = (u.uprops[STRANGLED].intrinsic !== 0);
@@ -647,8 +646,7 @@ export function uasmon_maxStr(state = game) {
 export async function skinback(silently, state = game, rawEnv = {}) {
     if (state.uskin) {
         if (!silently) {
-            const message = rawEnv.message
-                ?? (rawEnv.planning ? async () => {} : ttyPline);
+            const message = rawEnv.message ?? ttyPline;
             await message('Your skin returns to its original form.', state,
                 rawEnv);
         }
@@ -664,10 +662,8 @@ export async function skinback(silently, state = game, rawEnv = {}) {
 // C ref: polyself.c dropp() (1122-1154). Drop an item from inventory,
 // checking that it is still there (emergency_disrobe might have removed it).
 async function dropp(obj, state, rawEnv = {}) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const redraw = rawEnv.redraw
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
     let otmp = state.invent;
     while (otmp) {
         if (otmp === obj) {
@@ -694,8 +690,7 @@ async function dropp(obj, state, rawEnv = {}) {
 // drops each object only after its worn slot has been updated.
 async function break_armor(state, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     let otmp;
     const uptr = state.youmonst.data;
@@ -887,10 +882,8 @@ async function break_armor(state, rawEnv = {}) {
 // wielded weapon.  For the gnome case, cantwield is false (humanoid
 // hands), so this falls through to the untwoweapon check.
 async function drop_weapon(alone, state, rawEnv = {}) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const redraw = rawEnv.redraw
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
     if (state.uwep) {
         // alone=0 when called from break_armor alongside glove removal;
         // alone=1 when called directly from polymon.
@@ -963,10 +956,8 @@ async function drop_weapon(alone, state, rawEnv = {}) {
 // property cleanup, escape from holders/terrain, and the command hints.
 export async function polymon(mntmp, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const redraw = rawEnv.redraw
-        ?? (rawEnv.planning ? () => {} : newsym);
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
     const env = { ...rawEnv, state, random, message, redraw };
     const u = state.u;
     let mdat = state.mons[mntmp];
@@ -1233,23 +1224,6 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         await spoteffects(true, state, env);
     if (state.program_state?.gameover) return 1;
 
-    async function resetTrapWithMessage() {
-        if (!rawEnv.planning) {
-            await reset_utrap(true, state);
-            return;
-        }
-        const wasLevitation = Levitation(state);
-        const wasFlight = Flying(state);
-        reset_utrap(false, state);
-        // trap.c reset_utrap()'s only discarded continuation here is
-        // float_up(), which can write terminal output and perform pickup or
-        // terrain effects. Keep that boundary explicit on planning clones.
-        if (!wasLevitation && Levitation(state))
-            note_unported('trap.c float_up after polymon trap release');
-        else if (!wasFlight && Flying(state))
-            await message('You can fly.', state, env);
-    }
-
     const passesWalls = u.uprops[PASSES_WALLS].intrinsic
         || u.uprops[PASSES_WALLS].extrinsic;
     if (passesWalls && u.utrap
@@ -1262,12 +1236,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
                 state, env);
             await buried_ball_to_freedom(state, env);
         }
-        await resetTrapWithMessage();
+        await reset_utrap(true, state);
     } else if (likes_lava(state.youmonst.data)
         && u.utrap && u.utraptype === TT_LAVA) {
         await message(`The ${hliquid('lava', env)} now feels soothing.`,
             state, env);
-        await resetTrapWithMessage();
+        await reset_utrap(true, state);
     }
 
     const newForm = state.youmonst.data;
@@ -1289,11 +1263,11 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
                 && u.utraptype === TT_BEARTRAP))) {
         await message(`You are no longer stuck in the ${u.utraptype === TT_WEB
             ? 'web' : 'bear trap'}.`, state, env);
-        await resetTrapWithMessage();
+        await reset_utrap(true, state);
     }
     if (webmaker(newForm) && u.utrap && u.utraptype === TT_WEB) {
         await message('You orient yourself on the web.', state, env);
-        await resetTrapWithMessage();
+        await reset_utrap(true, state);
     }
 
     await check_strangling(true, state, env); // maybe start strangling
@@ -1373,13 +1347,10 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
     // C polyman() always uses urgent_pline() for the form-change line.  The
     // urgent tty arm clears WIN_STOP left by an Escape at an earlier More;
     // ordinary pline() would retain the stop and let a later map flush repaint
-    // the stale pending spell message.  Planning remains silent, and an
-    // explicitly supplied urgent seam keeps clone tests independent of TTY.
-    const message = rawEnv.planning
-        ? (async () => {})
-        : (rawEnv.urgentMessage ?? ttyUrgentPline);
-    const redraw = rawEnv.redraw
-        ?? (rawEnv.planning ? () => {} : newsym);
+    // the stale pending spell message.  An explicitly supplied urgent seam
+    // keeps tests independent of TTY.
+    const message = rawEnv.urgentMessage ?? ttyUrgentPline;
+    const redraw = rawEnv.redraw ?? newsym;
     const sticking = Boolean(sticks(state.youmonst.data) && u.ustuck
                              && !u.uswallow);
     const was_mimicking = (M_AP_TYPE(state.youmonst) !== M_AP_NOTHING);
@@ -1444,8 +1415,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
     }
     await check_strangling(true, state);
 
-    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state)
-        && !rawEnv.planning)
+    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
         await spoteffects(true, state);
 
     await see_monsters(state, { ...rawEnv, redraw });
@@ -1524,11 +1494,11 @@ export function livelog_newform(viapoly, oldgend, newgend, state = game) {
 // live log; only the former is owned here. The `dead` flag stands for C's `goto dead`
 // into the middle of the u.uhp <= 0 arm.
 export async function newman(state = game, env = {}) {
-    // C's newuhs(FALSE) refreshes hunger through bot(). Planning callers
-    // supply their own status operation, or suppress that live redraw.
+    // C's newuhs(FALSE) refreshes hunger through bot(). A caller may supply
+    // its own status operation.
     const hungerEnv = {
         ...env,
-        statusRefresh: env.statusRefresh ?? (env.planning ? () => {} : () => bot()),
+        statusRefresh: env.statusRefresh ?? (() => bot()),
     };
     const u = state.u;
     let i, oldgend;
@@ -2082,16 +2052,14 @@ export function mbodypart(monster, part) {
 export async function rehumanize(state = game, rawEnv = {}) {
     const u = state.u;
     const was_flying = Flying(state);
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const displayRandom = rawEnv.displayRandom
         ?? (state.displayCtx
             ? (bound) => rn2_on_display_rng(bound, state)
             : () => 0);
     const env = {
         ...rawEnv, state, message, displayRandom,
-        redraw: rawEnv.redraw
-            ?? (rawEnv.planning ? () => {} : newsym),
+        redraw: rawEnv.redraw ?? newsym,
     };
 
     /* You can't revert back while unchanging */
@@ -2100,14 +2068,6 @@ export async function rehumanize(state = game, rawEnv = {}) {
             state.killer ??= {};
             state.killer.format = NO_KILLER_PREFIX;
             state.killer.name = 'killed while stuck in creature form';
-            if (env.planning) {
-                if (typeof env.planningDeath !== 'function') {
-                    throw new TypeError(
-                        'rehumanize requires planningDeath for a fatal planned reversion',
-                    );
-                }
-                throw env.planningDeath();
-            }
             await done(DIED, state);
             /* can get to here if declining to die in explore or wizard
                mode; since we're wearing an amulet of unchanging we can't
@@ -2142,14 +2102,6 @@ export async function rehumanize(state = game, rawEnv = {}) {
         state.killer ??= {};
         state.killer.name = `reverting to unhealthy ${state.urace.adj} form`;
         state.killer.format = KILLED_BY;
-        if (env.planning) {
-            if (typeof env.planningDeath !== 'function') {
-                throw new TypeError(
-                    'rehumanize requires planningDeath for a fatal planned reversion',
-                );
-            }
-            throw env.planningDeath();
-        }
         await done(DIED, state);
     }
     nomul(0, state);
@@ -2812,8 +2764,7 @@ export async function uunstick(state = game, rawEnv = {}) {
         throw new Error('impossible: uunstick: no ustuck?');
     }
     set_ustuck(null, state); /* before pline() */
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     await message(
         `${capitalizedMonsterName(mtmp, state)} is no longer in your clutches.`,
         state,
@@ -2835,7 +2786,7 @@ export function poly_gender(state = game) {
 // heals from electricity and one in iron golem form from fire, up to the
 // form's maximum.
 export async function ugolemeffects(damtype, dam, state = game, env = {}) {
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
     const u = state.u;
     let heal = 0;
