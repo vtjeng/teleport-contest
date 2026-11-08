@@ -75,7 +75,7 @@ import { makemon } from './makemon_create.js';
 import { elemental_clog, m_into_limbo, mnearto, mnexto } from './mon.js';
 import { mkstairs, place_branch, walkfrom, wallification } from './mklev.js';
 import { mktrap, occupied } from './mktrap.js';
-import { is_orc, is_swimmer } from './mondata.js';
+import { is_orc } from './mondata.js';
 import { m_at, remove_monster } from './monst.js';
 import {
     dealloc_obj,
@@ -149,7 +149,9 @@ import { objectGenerationEnv } from './object_generation.js';
 import { rloc } from './teleport.js';
 import { remove_worm } from './worm.js';
 import { onscary, set_apparxy } from './monmove.js';
-import { Deaf, ESwimming, HSwimming } from './youprop.js';
+import {
+    Deaf, Swimming,
+} from './youprop.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
 // water, secret doors, and iron bars in addition to ordinary wall types.
@@ -583,15 +585,10 @@ export async function movebubbles(state = game, random = rn2) {
     state.vision_full_recalc = 1;
 }
 
-function heroSwimming(state) {
-    return Boolean(HSwimming(state.u) || ESwimming(state.u))
-        || is_swimmer(state.youmonst?.data);
-}
-
 // C ref: mkmaze.c water_friction() (1687-1720).
 export async function water_friction(state = game, random = rn2) {
     const hero = state.u;
-    if (heroSwimming(state) && random(4)) return;
+    if (Swimming(state.u) && random(4)) return;
     let affected = false;
     if (hero.dx && !random(!hero.dy ? 3 : 6)) {
         let dy;

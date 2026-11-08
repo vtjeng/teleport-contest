@@ -535,7 +535,7 @@ import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
     Amphibious, BFlying, BLevitation, Blind, Breathless, Confusion, Deaf,
-    EFlying, ELevitation, ESwimming, Flying, HFlying, HLevitation, HSwimming,
+    EFlying, ELevitation, Flying, HFlying, HLevitation,
     Half_physical_damage, Hallucination, Levitation, Maybe_Half_Phys,
     Passes_walls, Stunned, Swimming, Warning, Wwalking,
 } from './youprop.js';
@@ -3498,8 +3498,7 @@ export async function air_turbulence(state = game) {
 // an object because C mutates its two pointer parameters.
 export async function water_turbulence(x, y, state = game) {
     if (state.u.uinwater) {
-        const wtmod = Boolean(HSwimming(state.u) || ESwimming(state.u))
-            ? MOD_ENCUMBER : SLT_ENCUMBER;
+        const wtmod = Swimming(state.u) ? MOD_ENCUMBER : SLT_ENCUMBER;
         await water_friction(state);
         if (!state.u.dx && !state.u.dy) {
             nomul(0, state);

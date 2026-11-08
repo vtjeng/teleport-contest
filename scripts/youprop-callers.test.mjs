@@ -124,3 +124,34 @@ test('artifact.c finesse_ahriman() reads Levitation, which BLevitation defeats',
     assert.equal(finesse_ahriman(heart, state), false);
     assert.equal(state.u.uprops[LEVITATION].extrinsic, W_ARTI, 'the probe restores the slot');
 });
+
+test('mkmaze.c water_friction() and hack.c water_turbulence() read Swimming, which a swimming steed gives', async () => {
+    // Swimming is HSwimming || ESwimming || (u.usteed && is_swimmer(steed))
+    // (youprop.h:264-267). Both C functions read it once. mkmaze.js tested
+    // the hero's own form instead of the steed and hack.js left the steed
+    // out, which differ only for a hero riding a swimmer on the Plane of
+    // Water; no short recipe reaches the endgame.
+    const water = cBody(read('nethack-c/upstream/src/mkmaze.c'), 'water_friction');
+    assert.equal(count(water, /\bSwimming\b/gu), 1);
+    const turbulence = cBody(read('nethack-c/upstream/src/hack.c'), 'water_turbulence');
+    assert.equal(count(turbulence, /\bSwimming\b/gu), 1);
+    assert.equal(count(jsBody(read('js/hack.js'), 'water_turbulence'), /\bSwimming\(state\.u\)/gu), 1);
+
+    const { LAST_PROP } = await import('../js/const.js');
+    const { M1_SWIM } = await import('../js/monsters.js');
+    const { water_friction } = await import('../js/mkmaze.js');
+    // A grounded hero (mflags1 0) on a swimming steed, standing still: C's
+    // `Swimming && rn2(4)` draws once and returns on a nonzero draw.
+    const state = {
+        u: {
+            ux: 10, uy: 10, dx: 0, dy: 0,
+            usteed: { data: { mflags1: M1_SWIM } },
+            uprops: Array.from({ length: LAST_PROP + 1 },
+                () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
+        },
+        youmonst: { data: { mflags1: 0 } },
+    };
+    const draws = [];
+    await water_friction(state, (n) => { draws.push(n); return 1; });
+    assert.deepEqual(draws, [4]);
+});
