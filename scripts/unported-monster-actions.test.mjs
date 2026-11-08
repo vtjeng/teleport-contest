@@ -16,6 +16,7 @@ import {
     CORR,
     D_BROKEN,
     D_CLOSED,
+    DRAIN_RES,
     DRAWBRIDGE_DOWN,
     D_ISOPEN,
     D_LOCKED,
@@ -38,10 +39,12 @@ import {
     LS_OBJECT,
     M_AP_OBJECT,
     M_SEEN_COLD,
+    KILLED_BY,
     MMOVE_DONE,
     MMOVE_NOTHING,
     MM_ADJACENTOK,
     MM_NOMSG,
+    NO_KILLER_PREFIX,
     NO_MINVENT,
     MAX_NUM_WORMS,
     MON_DETACH,
@@ -55,6 +58,7 @@ import {
     OBJ_DELETED,
     OBJ_MINVENT,
     PLNMSG_HIDE_UNDER,
+    POISON_RES,
     PIT,
     POOL,
     ROOM,
@@ -70,6 +74,7 @@ import {
     STEALTH,
     THRONE,
     TIMER_OBJECT,
+    UNCHANGING,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARMS,
@@ -87,6 +92,7 @@ import {
     AD_PHYS,
     AT_GAZE,
     AT_NONE,
+    AT_WEAP,
     PM_COBRA,
     PM_DEATH,
     PM_CAVE_SPIDER,
@@ -103,6 +109,8 @@ import {
     PM_GNOME,
     PM_HILL_GIANT,
     PM_GREMLIN,
+    PM_GRID_BUG,
+    PM_HUMAN,
     PM_HEZROU,
     PM_IRON_GOLEM,
     PM_KILLER_BEE,
@@ -117,6 +125,8 @@ import {
     PM_VAMPIRE,
     PM_WATER_NYMPH,
     PM_VROCK,
+    PM_WATER_MOCCASIN,
+    PM_WERERAT,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     AT_CLAW,
@@ -152,7 +162,7 @@ import { use_offensive } from '../js/muse.js';
 import { capitalizedMonsterName, mon_nam } from '../js/do_name.js';
 import { encumber_msg } from '../js/pickup.js';
 import { cmdq_add_key } from '../js/cmd.js';
-import { ART_STING, ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ARROW,
     BOULDER,
@@ -164,6 +174,7 @@ import {
     FOOD_RATION,
     LONG_SWORD,
     ROCK,
+    RUNESWORD,
     SHIELD_OF_REFLECTION,
     SKELETON_KEY,
     SCR_SCARE_MONSTER,
@@ -177,6 +188,7 @@ import {
 import {
     m_avoid_kicked_loc,
     m_everyturn_effect,
+    m_move,
     set_apparxy,
 } from '../js/monmove.js';
 import {
@@ -208,6 +220,9 @@ import {
     vision_reset,
 } from '../js/vision.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
+import { set_ulycn } from '../js/were.js';
+import { free_msghistory_snapshot, msghistory_snapshot } from '../js/topl.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, initRng } from '../js/rng.js';
 
 // C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
@@ -255,6 +270,21 @@ const MUSE_SOURCE = readFileSync(
     'utf8',
 );
 
+// were.c set_ulycn():232-237 calls polyself.c set_uasmon(), whose
+// status_initialize(REASSESS_ONLY) (polyself.c:123) raises gu.update_all
+// (botl.c:1718).
+test('set_ulycn raises the full status resend', async () => {
+    await prepareSelectedAction();
+    // A settled game has no full status resend pending; false is the value
+    // bot() leaves behind.
+    game.gu.update_all = false;
+
+    set_ulycn(PM_WERERAT, game);
+
+    assert.equal(game.u.ulycn, PM_WERERAT);
+    assert.equal(game.gu.update_all, true);
+});
+
 function rngSnapshot() {
     return {
         a: game.coreCtx.a,
@@ -264,6 +294,14 @@ function rngSnapshot() {
         m: [...game.coreCtx.m],
         r: [...game.coreCtx.r],
     };
+}
+
+// The live TTY message history, oldest first, as topl.c
+// msghistory_snapshot() returns it, released again for later writes.
+function messageHistory() {
+    const history = msghistory_snapshot(false, game);
+    free_msghistory_snapshot(false, game);
+    return history;
 }
 
 function deferred() {
@@ -1108,6 +1146,151 @@ test('normal_shape routes mimic redraw through its injected seam',
     assert.deepEqual(redraws, [[monster.mx, monster.my]]);
 });
 
+// C ref: uhitm.c mhitm_ad_drst():3149-3165 sends a monster's poisonous bite
+// to attrib.c poisoned(); its rn2(30) > 5 arm (attrib.c:384-391) takes
+// rn1(10,6) HP through hack.c losehp():4267-4272, which takes it out of u.mh
+// for a polymorphed hero and calls rehumanize(). Under Unchanging,
+// polyself.c rehumanize():1372-1376 names the killer and calls done(DIED).
+test('lethal poison kills a polymorphed Unchanging hero through rehumanize',
+    async () => {
+        const target = await prepareSelectedAction({ adjacentHero: true });
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const moccasin = game.mons[PM_WATER_MOCCASIN];
+        target.monster.data = {
+            ...moccasin,
+            // A 0d0 bite keeps hitmu() from entering mhitu.c mdamageu(),
+            // whose polymorphed-hero arm is outside this fixture; the AD_DRST
+            // arm still reaches poisoned().
+            mattk: moccasin.mattk.map((attack, index) => index === 0
+                ? { ...attack, damn: 0, damd: 0 } : attack),
+        };
+        target.monster.mnum = PM_WATER_MOCCASIN;
+        target.monster.m_lev = 5;
+        // A grid bug with 1 HP: any poison damage is lethal to the form.
+        game.u.umonnum = PM_GRID_BUG;
+        game.u.umonster = PM_HUMAN;
+        game.u.mh = 1;
+        game.u.mhmax = 1;
+        game.youmonst.data = game.mons[PM_GRID_BUG];
+        game.u.uprops[UNCHANGING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        // No inventory keeps magic negation (uhitm.c:87) at armpro 0, and no
+        // Poison_resistance keeps attrib.c:338 from stopping the poison.
+        game.invent = null;
+        game.u.uprops[POISON_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        const draws = [];
+        const random = {
+            rn2: (bound) => {
+                draws.push(`rn2(${bound})`);
+                // rn2(8)=0 passes uhitm.c:3160 `!rn2(8)`; rn2(10)=9 keeps
+                // the MC check at uhitm.c:87 from negating; rn2(30)=6 takes
+                // attrib.c:384's `i > 5` HP-damage arm.
+                return bound === 8 ? 0 : bound === 10 ? 9
+                    : bound === 30 ? 6 : 1;
+            },
+            // rnd(20)=1 is below the to-hit total at mhitu.c:806.
+            rnd: (bound) => { draws.push(`rnd(${bound})`); return 1; },
+            d: (n, sides) => { draws.push(`d(${n},${sides})`); return n; },
+            // rn1(10,6) answers its base, 6 HP, against u.mh = 1.
+            rn1: (_n, base) => { draws.push(`rn1(${base})`); return base; },
+            rne: (bound) => { draws.push(`rne(${bound})`); return 1; },
+            rnl: (bound) => { draws.push(`rnl(${bound})`); return 1; },
+            rnz: (bound) => { draws.push(`rnz(${bound})`); return bound; },
+        };
+
+        // Spaces dismiss each --More-- and take the default disclosure
+        // answers of end.c done().
+        for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await expectTerminated(
+            () => runSimpleMonsterAction(game.level.monlist, {
+                state: game,
+                random,
+            }),
+            'the poisoned Unchanging form dies',
+        );
+        const history = messageHistory();
+
+        assert.deepEqual(draws, [
+            'rn2(5)', // monmove.c:538 distfleeck() bravegremlin
+            'rnd(20)', // mhitu.c:806 to-hit
+            'd(0,0)', // mhitu.c:1187 base damage of the 0d0 bite
+            'rn2(10)', // uhitm.c:87 magic-cancellation check
+            'rn2(8)', // uhitm.c:3160 poison chance
+            'rn2(30)', // attrib.c:366 poisoned() severity, fatal = 30
+            'rn1(6)', // attrib.c:388 rn1(10, 6) HP loss
+        ]);
+        // mhitu.c hitmsg() for AT_BITE, then attrib.c poisoned():333-336
+        // for a reason without "poison" in it.
+        assert.ok(history.includes('The water moccasin bites!  '
+            + "The water moccasin's bite was poisoned!"), history.join('\n'));
+        assert.deepEqual(game.killer, {
+            format: NO_KILLER_PREFIX,
+            name: 'killed while stuck in creature form',
+        });
+        // end.c done():1071-1076 forces u.uhp and u.mh to zero.
+        assert.equal(game.u.mh, 0);
+    });
+
+// C ref: artifact.c artifact_hit():1694-1713, the youdefend arm of
+// Stormbringer's drain, calls exper.c losexp("life drainage"), which at
+// level 1 sets a KILLED_BY killer and calls done(DIED) (exper.c:233-237).
+test('a monster Stormbringer hit drains a level-one hero to death',
+    async () => {
+    const target = await prepareSelectedAction({
+        adjacentHero: true,
+        pmidx: PM_GNOME,
+    });
+    const attacks = sourceInertAttacks();
+    attacks[0] = { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 1 };
+    target.monster.data = { ...target.monster.data, mattk: attacks };
+    target.monster.m_lev = 30;
+    const weapon = newObject({
+        ...monsterObject(RUNESWORD, 9212),
+        oartifact: ART_STORMBRINGER,
+        owornmask: W_WEP,
+    });
+    weapon.ocarry = target.monster;
+    target.monster.minvent = weapon;
+    target.monster.mw = weapon;
+    game.artiexist[ART_STORMBRINGER].exists = 1;
+    game.u.ulevel = 1;
+    game.u.uexp = 123;
+    game.u.uprops[DRAIN_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const random = {
+        // The drain itself rolls nothing (artifact.c:1645); 1 keeps the
+        // monster turn's other rn2 gates off their rare branches.
+        rn2: () => 1,
+        rnd: () => 1,
+        d: (number) => number,
+        rn1: (_range, base) => base,
+        rne: () => 1,
+        rnl: () => 1,
+        rnz: (value) => value,
+    };
+
+    // Spaces dismiss each --More-- and take the default disclosure answers
+    // of end.c done().
+    for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await expectTerminated(
+        () => runSimpleMonsterAction(game.level.monlist, {
+            state: game,
+            random,
+        }),
+        'the level-one drain ends the game',
+    );
+    const history = messageHistory();
+
+    // artifact.c:1707-1709 for a hero who can see, then exper.c:223-224
+    // before done(DIED).
+    const goodbye = history.indexOf('Goodbye level 1.');
+    assert.ok(goodbye > 0, history.join('\n'));
+    assert.ok(history[goodbye - 1].endsWith(
+        'The black blade drains your life!'), history[goodbye - 1]);
+    assert.deepEqual(game.killer, {
+        format: KILLED_BY,
+        name: 'life drainage',
+    });
+});
+
 test('a hallucinated pickup names the monster through the display RNG',
     async () => {
         // mon.c mpickstuff():1893-1901 calls Monnam() only inside the visible,
@@ -1230,9 +1413,8 @@ test('live fog leaves its vapor behind after one monster scan',
             target.monsterX + 1,
             target.heroY,
         ), 1);
-        // The vapor and the fog's leaving it may print or repaint; these
-        // acknowledgements answer any --More-- the turn raises.
-        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        // No key is queued: a harmless vapor and an unseen fog print nothing
+        // in C, so any --More-- fails the case on the empty input queue.
 
         // m_everyturn_effect() first creates one harmless vapor square around
         // the fog. m_move() then leaves it through m_in_out_region(), which
@@ -1777,8 +1959,9 @@ test('a gremlin in water survives its live liquid check', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_GREMLIN });
     game.level.at(target.monsterX, target.heroY).typ = POOL;
     target.monster.mhp = target.monster.mhpmax = 4;
-    // A visible split or move may print; these answer any --More--.
-    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // No key is queued: the gremlin is out of sight (COULD_SEE without
+    // IN_SIGHT), so mon.c minliquid_core() and split_mon() print nothing,
+    // and any --More-- fails the case on the empty input queue.
 
     await runLiveMonsterScan();
 
@@ -2630,9 +2813,15 @@ test('pet landmine scatter interrupts the hero', async () => {
     // Keep the source hit on the real path while avoiding the unrelated
     // post-hit encumbrance message that thitu's current adapter omits.
     game.moves = 0;
-    // The live explosion and rock-hit messages each wait at --More--; eight
-    // acknowledgements leave headroom over the lines this turn prints.
-    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // win/tty/topl.c update_topl():262-275 joins a message to the top line
+    // only while both fit with room for --More-- (n0 + strlen + 3 < CO - 8,
+    // 72 columns); otherwise more() waits for a key. Three waits: before
+    // trap.c:2632's "Kaablamm!  You hear an explosion in the distance!" (the
+    // startup welcome fills the line), before "You are hit by a rock."
+    // (mthrowu.c thitu(); 22 + 49 + 3 >= 72), which "You stop eating."
+    // (allmain.c:688) then joins, and before mon.c:3101's "You have a sad
+    // feeling for a moment, then it passes." (52 + 40 + 3 >= 72).
+    for (let i = 0; i < 3; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
     const hpBefore = game.u.uhp;
     const pony = target.monster;
     const draws = [];
@@ -2677,6 +2866,7 @@ test('pet landmine scatter interrupts the hero', async () => {
     }, 'scatter interruption stops the occupation and canned command');
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 1301));
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 8));
+    assert.equal(game.nhDisplay.inputQueueLength, 0, 'three --More-- waits');
 });
 
 test('pony rolling trap hits the hero with a real boulder', async () => {
@@ -2718,8 +2908,10 @@ test('pony rolling trap hits the hero with a real boulder', async () => {
     // An arbitrary fixed seed makes the core draws below reproducible.
     initRng(3612346);
     const hpBefore = game.u.uhp;
-    // The hero takes a rolling-boulder hit whose messages wait at --More--.
-    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // One --More-- (win/tty/topl.c update_topl():262-275): trap.c:3328's
+    // "You hear rumbling in the distance." cannot join the startup welcome,
+    // and "You are hit by a boulder!" then fits beside it (25 + 34 + 3 < 72).
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     const initialCanonicalBhitpos = game.gb?.bhitpos
         ? { ...game.gb.bhitpos } : null;
     let firstLaunchDropSpot = null;
@@ -2796,6 +2988,7 @@ test('pony rolling trap hits the hero with a real boulder', async () => {
     }
     assert.deepEqual(boulderLocations, [{ x: 14, y: 10, where: 1 }],
         'one launched boulder is placed at the canonical endpoint');
+    assert.equal(game.nhDisplay.inputQueueLength, 0, 'one --More-- wait');
 });
 
 // dog_hunger's source weak and starvation thresholds are strictly greater
@@ -2842,12 +3035,61 @@ test('a held monster in sight reveals its unmapped trap', async () => {
         ttyp: BEAR_TRAP,
         tseen: false,
     });
-    // An escape on the rn2(40) roll prints a line; these answer its --More--.
-    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
-
     await runLiveMonsterScan();
 
     assert.equal(game.level.traps[0].tseen, true, 'seetrap() mapped it');
+    // Nothing waited for a key; see the escape case below for the line an
+    // rn2(40) escape prints.
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
+
+// The escape line is the other half of the same prologue. trap.c:3751 frees a
+// held monster on `!rn2(40)`, and :3766-3769 tell a hero who can see it, so
+// this drives m_move() itself with that roll answered.
+test('a held monster in sight pulls free of its bear trap', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.mtrapped = true;
+    // The prologue's next gate. One turn of meating left ends m_move() at
+    // monmove.c:1745-1749 with MMOVE_DONE, before set_apparxy() and mfndpos()
+    // draw anything more, so the injected random below answers the escape
+    // roll alone.
+    target.monster.meating = 1;
+    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+    game.level.traps.push({
+        tx: target.monsterX,
+        ty: target.heroY,
+        ttyp: BEAR_TRAP,
+        // Mapped already, which shuts trap.c:3742's first conjunct: this case
+        // is about the line at :3768-3769, not about the reveal above.
+        tseen: true,
+    });
+    // trap.c:3766 writes nothing for a monster the hero cannot watch.
+    assert.equal(canseemon(target.monster, game), true);
+    const written = [];
+
+    const status = await m_move(target.monster, {
+        state: game,
+        message: async (line) => { written.push(line); },
+        // The held arm draws rn2 alone; 0 is the one answer trap.c:3751 frees
+        // the monster on. The other four fail loudly, so a fixture that
+        // started drawing them could not pass quietly.
+        random: {
+            rn2: () => 0,
+            rn1: () => assert.fail('the held arm draws rn2 alone'),
+            rnd: () => assert.fail('the held arm draws rn2 alone'),
+            rne: () => assert.fail('the held arm draws rn2 alone'),
+            rnl: () => assert.fail('the held arm draws rn2 alone'),
+        },
+        finishEating: () => {},
+        movePet: () => assert.fail('an ordinary monster is not a pet'),
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    assert.equal(status, MMOVE_DONE, 'monmove.c:1749, still eating');
+    assert.equal(target.monster.mtrapped, false, 'trap.c:3775');
+    assert.deepEqual(written,
+        ['The giant rat pulls free of the bear trap.'], 'trap.c:3768-3769');
 });
 
 test('simple monster movement continues through an ignored object',
@@ -3891,17 +4133,39 @@ test('covetous relocation moves the Wizard through dochug',
         target.monster.mcansee = true;
         game.u.uprops[HALLUC].intrinsic = 1;
         const startPosition = [target.monster.mx, target.monster.my];
+        // The live core stream, except that rn2(5) answers 0. That answer
+        // opens wizard.c tactics():412's STRAT_NONE `!rn2(5)` harass arm,
+        // which calls mon.c mnexto(); the other rn2(5), monmove.c:538's
+        // bravegremlin, matters only to a gremlin.
+        const { draws, random: core } = observedCoreRandom(game);
+        const random = {
+            ...core,
+            rn2: (bound) => {
+                if (bound !== 5) return core.rn2(bound);
+                draws.push({ name: 'rn2', args: [5], value: 0 });
+                return 0;
+            },
+        };
 
         await runSimpleMonsterAction(target.monster, {
             state: game,
+            random,
             message: async () => {},
             redraw: () => {},
         });
 
+        assert.ok(draws.some(({ name, args }) => name === 'rn2' && args[0] === 5));
         assert.notDeepEqual(
             [target.monster.mx, target.monster.my],
             startPosition,
         );
+        // mon.c mnexto():3966 places it through enexto() around the hero,
+        // whose nearest ring is the adjacent squares.
+        assert.equal(Math.max(
+            Math.abs(target.monster.mx - game.u.ux),
+            Math.abs(target.monster.my - game.u.uy),
+        ), 1, `the Wizard is beside the hero at ${target.monster.mx},`
+            + `${target.monster.my}`);
     });
 
 // C ref: monmove.c m_move():1829-1837. The mail daemon's verbalize plus
@@ -3913,13 +4177,16 @@ test('a live mail-daemon action leaves through mongone',
             pmidx: PM_MAIL_DAEMON,
         });
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
-        // verbalize() prints the daemon's farewell; these answer its --More--.
-        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        // monmove.c:1833's verbalize("I'm late!") cannot join the startup
+        // welcome on the top line (win/tty/topl.c update_topl():262-275), so
+        // one --More-- waits for a key.
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
 
         await runLiveMonsterScan();
 
         assert.equal(game.level.monlist, null,
             'dmonsfree() unlinked the departed mail daemon');
+        assert.equal(game.nhDisplay.inputQueueLength, 0, 'one --More-- wait');
     });
 
 // C ref: monmove.c gelcube_digests():424-434 and dochug():867-879. Empty and
