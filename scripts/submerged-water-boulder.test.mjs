@@ -6,12 +6,12 @@ import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {GameMap} from '../js/game.js';
-import {POOL,MOAT,WATER,ROOM,HALLUC,BLINDED,FROMOUTSIDE,
-    MAGICAL_BREATHING,MAGIC_PORTAL,OBJ_DELETED,OBJ_FLOOR} from '../js/const.js';
+import {POOL,MOAT,WATER,LAVAPOOL,ROOM,HALLUC,BLINDED,FROMOUTSIDE,
+    MAGICAL_BREATHING,MAGIC_PORTAL,OBJ_DELETED,OBJ_FLOOR,OBJ_INVENT} from '../js/const.js';
 import {BOULDER,FOOD_RATION} from '../js/objects.js';
 import {mksobj,place_object,weight} from '../js/obj.js';
 import {addinv} from '../js/invent.js';
-import {dropx,dropCommandEnv} from '../js/do.js';
+import {dropx,dropCommandEnv,preflight_dropx} from '../js/do.js';
 import {getRngLog,rn2} from '../js/rng.js';
 import {ttyPline} from '../js/tty_message.js';
 import {init_vision_globals,vision_reset,vision_recalc,
@@ -79,6 +79,24 @@ for(const hallu of [false,true])for(const blind of [false,true]){
             assert.deepEqual(outcomes[0],outcomes[1]);
         });
     }
+    // preflight_dropx() is dropx()'s live admission guard (js/do.js); these pin
+    // the port's refusal boundary for the shapes it does not yet drop.
+    const excluded=[
+        ['surface Water boulder',{underwater:false}],
+        ['ordinary pool boulder',{water:false}],
+        ['Water lava boulder',{terrain:LAVAPOOL}],
+        ['Water non-boulder',{kind:FOOD_RATION}],
+    ];
+    for(const [name,extra]of excluded)test(`excluded ${name} Hallu=${hallu} blind=${blind}`,async()=>{
+        const {obj}=await setup({hallu,blind,...extra}),before=snapshot();
+        assert.throws(()=>preflight_dropx(obj,dropCommandEnv(game)),/unsupported drop/u);
+        assert.equal(obj.where,OBJ_INVENT);assert.deepEqual(snapshot(),before);
+    });
+    test(`ordinary lava admission stays unchanged Hallu=${hallu} blind=${blind}`,async()=>{
+        const {obj}=await setup({hallu,blind,water:false,terrain:LAVAPOOL,underwater:false}),before=snapshot();
+        assert.doesNotThrow(()=>preflight_dropx(obj,dropCommandEnv(game)));
+        assert.deepEqual(snapshot(),before);
+    });
 }
 
 for(const name of ['normal','monochrome','before-control','ordinary-control'])test(`Submerged Water boulder ${name} matches independent C`,async()=>{
