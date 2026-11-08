@@ -1,18 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { COLNO, ROWNO, TELEPORT_CONTROL } from '../js/const.js';
+import { COLNO, ROWNO } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mbhitm } from '../js/muse.js';
 import { mksobj } from '../js/obj.js';
 import { WAN_TELEPORTATION } from '../js/objects.js';
 import { goodpos } from '../js/teleport.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
-async function plannedHero() {
+async function hero() {
     await runSegment({
         seed: 8420310,
         datetime: '20261024100000',
@@ -20,40 +19,29 @@ async function plannedHero() {
         moves: '',
     });
     const wand = mksobj(WAN_TELEPORTATION, false, false, { state: game });
-    const planned = planningState(game);
-    planned.gz = { ...(planned.gz ?? {}), zap_oseen: false };
-    return { planned, wand };
+    game.gz = { ...(game.gz ?? {}), zap_oseen: false };
+    return { wand };
 }
 
-test('monster teleport wand preserves clone RNG, message and missile redraw owners', async () => {
-    const { planned, wand } = await plannedHero();
-    planned.u.uhave.amulet = true;
-    const livePosition = [game.u.ux, game.u.uy];
-    const liveCore = structuredClone(game.coreCtx);
-    const liveScreen = game.nhDisplay.serialize();
-    const terrain = planned.level.at(planned.u.ux, planned.u.uy).typ;
+test('monster teleport wand uses the caller RNG, message and missile redraw owners', async () => {
+    const { wand } = await hero();
+    game.u.uhave.amulet = true;
+    const terrain = game.level.at(game.u.ux, game.u.uy).typ;
     let destination;
     for (let x = 1; x < COLNO && !destination; x++) {
         for (let y = 0; y < ROWNO; y++) {
-            if ((x === planned.u.ux && y === planned.u.uy)
-                || planned.level.at(x, y).typ !== terrain
-                || planned.level.monsters[x][y]
-                || planned.level.traps.some(t => t.tx === x && t.ty === y)
-                || !goodpos(x, y, planned.youmonst, 0, { state: planned })) continue;
+            if ((x === game.u.ux && y === game.u.uy)
+                || game.level.at(x, y).typ !== terrain
+                || game.level.monsters[x][y]
+                || game.level.traps.some(t => t.tx === x && t.ty === y)
+                || !goodpos(x, y, game.youmonst, 0, { state: game })) continue;
             destination = { x, y };
             break;
         }
     }
     assert.ok(destination);
     const calls = [], redraws = [], messages = [];
-    const boundary = new Error('arrival replay');
-    const operations = [];
-    await assert.rejects(() => mbhitm(planned.youmonst, wand, planned, {
-        planning: true,
-        requestPlanningInput(operation) {
-            operations.push(operation);
-            throw boundary;
-        },
+    await mbhitm(game.youmonst, wand, game, {
         random: {
             rn2(bound) {
                 calls.push(['rn2', bound]);
@@ -68,38 +56,11 @@ test('monster teleport wand preserves clone RNG, message and missile redraw owne
         message: async line => messages.push(line),
         newsym: (x, y) => redraws.push([x, y]),
         displayRandom: () => 0,
-    }), error => error === boundary);
-    assert.deepEqual(operations, ['hack.c spoteffects']);
+    });
     assert.deepEqual(calls.slice(0, 3), [['rn2', 3], ['rnd', COLNO - 1], ['rn2', ROWNO]]);
-    assert.deepEqual([planned.u.ux, planned.u.uy], [destination.x, destination.y]);
+    assert.deepEqual([game.u.ux, game.u.uy], [destination.x, destination.y]);
     assert.ok(redraws.length > 0);
     assert.ok(messages.some(line => line.startsWith('You materialize')));
-    assert.deepEqual([game.u.ux, game.u.uy], livePosition);
-    assert.deepEqual(game.coreCtx, liveCore);
-    assert.equal(game.nhDisplay.serialize(), liveScreen);
-});
-
-test('controlled monster teleport hands player input back to the live turn', async () => {
-    const { planned, wand } = await plannedHero();
-    planned.u.uprops[TELEPORT_CONTROL].intrinsic = 1;
-    const liveCore = structuredClone(game.coreCtx);
-    const liveScreen = game.nhDisplay.serialize();
-    const position = [planned.u.ux, planned.u.uy];
-    const boundary = new Error('planned teleport input');
-    const operations = [];
-    await assert.rejects(mbhitm(planned.youmonst, wand, planned, {
-        planning: true,
-        message: async () => {},
-        newsym: () => assert.fail('no relocation before destination input'),
-        requestPlanningInput(operation) {
-            operations.push(operation);
-            throw boundary;
-        },
-    }), error => error === boundary);
-    assert.deepEqual(operations, ['getpos']);
-    assert.deepEqual([planned.u.ux, planned.u.uy], position);
-    assert.deepEqual(game.coreCtx, liveCore);
-    assert.equal(game.nhDisplay.serialize(), liveScreen);
 });
 
 for (const name of ['controlled', 'monochrome', 'uncontrolled', 'before-control', 'command-control', 'monster-chain']) {

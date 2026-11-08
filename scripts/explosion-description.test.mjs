@@ -9,7 +9,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster, m_at } from '../js/monst.js';
 import { PM_FLAMING_SPHERE, AT_EXPL, AD_FIRE, NON_PM } from '../js/monsters.js';
 import { mon_explodes } from '../js/explode.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { ROOM, HALLUC, DEAF, BLINDED, FIRE_RES, LS_MONSTER } from '../js/const.js';
 import { emits_light } from '../js/mondata.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
@@ -38,44 +37,34 @@ for (const hallu of [false, true]) for (const liveDefault of [false, true]) {
         light_globals_init(game);
         new_light_source(sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, game);
         init_vision_globals(); vision_reset(game); vision_recalc(0);
-        const observations = [];
-        for (const planning of [true, false]) {
-            const state = planning ? planningState(game) : game;
-            const monster = state.level.monlist, lines = [], draws = [], cosmetic = [];
-            const core = structuredClone(game.coreCtx), live = structuredClone(game.displayCtx);
-            const context = structuredClone(game.context);
-            const attack = monster.data.mattk.find(a => a.aatyp === AT_EXPL && a.adtyp === AD_FIRE);
-            assert.ok(attack);
-            await mon_explodes(monster, attack, state, {
-                state, planning,
-                random: {
-                    d: (n, sides) => { draws.push(['d', n, sides]); return n; },
-                    // Torso choice terminates C burnarmor() even without armor;
-                    // repeatedly choosing an empty helmet would retry forever.
-                    rn2: n => { draws.push(['rn2', n]); assert.ok(draws.length < 30); return n === 5 ? 1 : 0; },
-                    rnd: n => { draws.push(['rnd', n]); return 1; },
-                    rn1: (n, base) => { draws.push(['rn1', n, base]); return base; },
-                    rne: n => { draws.push(['rne', n]); return 1; },
-                },
-                ...(planning || !liveDefault ? { displayRandom: n => { cosmetic.push(n); return rn2_on_display_rng(n, state); } } : {}),
-                message: async line => lines.push(line),
-                unsupported: reason => { throw new Error(reason); },
-            });
-            assert.deepEqual(draws, [['d', 4, 6], ['rn2', 5], ['rn2', 5], ['rn2', 2]]);
-            assert.deepEqual(lines, [`You are caught in the ${hallu ? 'owlpug' : 'flaming sphere'}'s explosion!`]);
-            assert.deepEqual(cosmetic, hallu && (planning || !liveDefault) ? [430, 7640] : []);
-            assert.equal(state.u.uhp, 96); assert.equal(monster.mhp, 0);
-            assert.equal(monster.data, state.mons[PM_FLAMING_SPHERE]);
-            assert.equal(m_at(6, 7, state), null); assert.equal(state.gl.light_base, null);
-            assert.equal(state.killer.name, '');
-            assert.deepEqual(game.coreCtx, core); assert.deepEqual(game.context, context);
-            if (planning) {
-                assert.deepEqual(game.displayCtx, live); assert.equal(game.u.uhp, 100);
-                assert.equal(sphere.mhp, 20); assert.equal(game.gl.light_base.id, sphere);
-            }
-            observations.push({ lines, display: structuredClone(state.displayCtx) });
-        }
-        assert.deepEqual(observations[0], observations[1]);
+        const monster = game.level.monlist, lines = [], draws = [], cosmetic = [];
+        const core = structuredClone(game.coreCtx);
+        const context = structuredClone(game.context);
+        const attack = monster.data.mattk.find(a => a.aatyp === AT_EXPL && a.adtyp === AD_FIRE);
+        assert.ok(attack);
+        await mon_explodes(monster, attack, game, {
+            state: game,
+            random: {
+                d: (n, sides) => { draws.push(['d', n, sides]); return n; },
+                // Torso choice terminates C burnarmor() even without armor;
+                // repeatedly choosing an empty helmet would retry forever.
+                rn2: n => { draws.push(['rn2', n]); assert.ok(draws.length < 30); return n === 5 ? 1 : 0; },
+                rnd: n => { draws.push(['rnd', n]); return 1; },
+                rn1: (n, base) => { draws.push(['rn1', n, base]); return base; },
+                rne: n => { draws.push(['rne', n]); return 1; },
+            },
+            ...(!liveDefault ? { displayRandom: n => { cosmetic.push(n); return rn2_on_display_rng(n, game); } } : {}),
+            message: async line => lines.push(line),
+            unsupported: reason => { throw new Error(reason); },
+        });
+        assert.deepEqual(draws, [['d', 4, 6], ['rn2', 5], ['rn2', 5], ['rn2', 2]]);
+        assert.deepEqual(lines, [`You are caught in the ${hallu ? 'owlpug' : 'flaming sphere'}'s explosion!`]);
+        assert.deepEqual(cosmetic, hallu && !liveDefault ? [430, 7640] : []);
+        assert.equal(game.u.uhp, 96); assert.equal(monster.mhp, 0);
+        assert.equal(monster.data, game.mons[PM_FLAMING_SPHERE]);
+        assert.equal(m_at(6, 7, game), null); assert.equal(game.gl.light_base, null);
+        assert.equal(game.killer.name, '');
+        assert.deepEqual(game.coreCtx, core); assert.deepEqual(game.context, context);
     });
 }
 

@@ -233,10 +233,9 @@ function scorerOutput(sessions) {
         'human-readable scorer output',
         `__RESULTS_JSON__${JSON.stringify({
             results: Object.entries(sessions).map(
-                ([session, { screens, rngCalls, cursors, terminationViolations, planningLiveGameUses }]) => ({
+                ([session, { screens, rngCalls, cursors, terminationViolations }]) => ({
                     session,
                     ...(terminationViolations ? { terminationViolations } : {}),
-                    ...(planningLiveGameUses ? { planningLiveGameUses } : {}),
                     metrics: {
                         screens: { matched: screens },
                         rngCalls: { matched: rngCalls },
@@ -288,20 +287,6 @@ test('the score check fails a session that reports a termination violation', () 
     assert.deepEqual(compareScoreToBaseline(scorerOutput(run)), {
         passed: false,
         detail: `termination violations: ${first}`,
-    });
-});
-
-test('the score check fails a session whose planning pass used the live game', () => {
-    // Every score meets the ratchet, so only the planning use runScorer()
-    // attached can fail the check: the judge's runSegment() records it
-    // instead of throwing (js/gstate.js). The stand-in is one read.
-    const baseline = readBaseline();
-    const [first] = Object.keys(baseline);
-    const run = baselineRun(baseline);
-    run[first].planningLiveGameUses = [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 1 }];
-    assert.deepEqual(compareScoreToBaseline(scorerOutput(run)), {
-        passed: false,
-        detail: `planning uses of the live game: ${first}`,
     });
 });
 
@@ -521,7 +506,7 @@ test('browser playability passes only on a playable verdict', () => {
     const failed = summarizePlayability({
         status: 0,
         stdout: stdout(false, 1),
-        stderr: '  FAIL: seed0361-archeologist-tour.session.json — planning pass reached the live game\n',
+        stderr: '  FAIL: seed0361-archeologist-tour.session.json — game refused input\n',
     });
     assert.equal(failed.passed, false);
     assert.match(failed.detail, /^NOT playable: 44 sessions, 1 failed, .*FAIL: seed0361-archeologist-tour/u);

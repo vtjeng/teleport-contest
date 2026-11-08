@@ -82,7 +82,6 @@ import {
     monster_glyph_info,
     newsym,
     object_glyph_info,
-    map_invisible_planning,
     objnum_to_glyph,
     remembered_glyph_from_presentation,
     trap_glyph_info,
@@ -168,7 +167,6 @@ test('do_vicinity_map preserves the C reveal, browse, restore and redraw order',
         assert.equal(typeof do_vicinity_map, 'function');
     });
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     CHEST,
@@ -2120,32 +2118,6 @@ test('warnreveal uses the live default message and WIN_MESSAGE boundary',
         new RegExp(`<${x},${y}>: Your danger sense causes you to take a second look close by\\.--More--`),
     );
     assert.equal(monster.mundetected, 0);
-});
-
-test('planning map_invisible writes cloned memory without painting live state',
-    async () => {
-    await runSegment({
-        seed: 2026091701,
-        datetime: '20260917090000',
-        nethackrc: 'OPTIONS=name:MapMemory,role:Wizard,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: ' ',
-    });
-    const x = game.u.ux + 1;
-    const y = game.u.uy;
-    const liveLocation = game.level.at(x, y);
-    const liveMemory = liveLocation.remembered_glyph;
-    const liveDisplay = liveLocation.disp_ch;
-    const clone = planningState(game);
-
-    // display.c map_invisible() writes levl[].glyph even when its screen half
-    // is suppressed by the planning seam. The clone owns a copied location
-    // grid, so the live marker and presentation must remain unchanged.
-    map_invisible_planning(x, y, clone);
-    assert.equal(clone.level.at(x, y).remembered_glyph.glyph,
-        GLYPH_INVISIBLE);
-    assert.equal(liveLocation.remembered_glyph, liveMemory);
-    assert.equal(liveLocation.disp_ch, liveDisplay);
 });
 
 test('M_AP_TYPE masks off the display-known flag', () => {

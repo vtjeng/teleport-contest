@@ -9,13 +9,13 @@ import {newMonster} from '../js/monst.js';
 import {PM_KITTEN} from '../js/monsters.js';
 import {HALLUC,MFAST,IN_SIGHT,COULD_SEE} from '../js/const.js';
 import {mon_adjust_speed} from '../js/worn.js';
-for(const planning of [false,true])for(const hallu of [false,true])for(const adjust of [-3,-1,1])test(`speed presentation owner planning=${planning} hallu=${hallu} adjust=${adjust}`,async()=>{
+for(const hallu of [false,true])for(const adjust of [-3,-1,1])test(`speed presentation owner hallu=${hallu} adjust=${adjust}`,async()=>{
  await runSegment({seed:8432276,datetime:'20270707100000',nethackrc:'OPTIONS=name:SpeedOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n',moves:' '});
  game.u.uprops[HALLUC].intrinsic=hallu?800:0;game.flags.verbose=true;
  const x=game.u.ux,y=game.u.uy;game.viz_array[y][x]=IN_SIGHT|COULD_SEE;
  const mon=newMonster({data:game.mons[PM_KITTEN],mnum:PM_KITTEN,mx:x,my:y,mspeed:adjust===1?0:MFAST,permspeed:adjust===1?0:MFAST});
  const core=structuredClone(game.coreCtx),display=structuredClone(game.displayCtx),draws=[],messages=[];
- await mon_adjust_speed(mon,adjust,null,game,{planning,canseemon:()=>true,displayRandom:n=>{draws.push(n);return 0;},message:text=>messages.push(text)});
+ await mon_adjust_speed(mon,adjust,null,game,{canseemon:()=>true,displayRandom:n=>{draws.push(n);return 0;},message:text=>messages.push(text)});
  assert.equal(mon.permspeed,adjust===1?MFAST:adjust===-1?0:0);assert.equal(mon.mspeed,mon.permspeed);
  assert.deepEqual(game.coreCtx,core);assert.deepEqual(game.displayCtx,display,'active display source must be the supplied owner');
  assert.equal(messages.length,1);assert.equal(draws.length,hallu?2:0);

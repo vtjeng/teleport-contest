@@ -13,25 +13,12 @@ import { Helmet_off } from '../js/do_wear.js';
 import { mksobj } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { HELM_OF_TELEPATHY } from '../js/objects.js';
-import { hurtle, hurtle_step } from '../js/dothrow.js';
-import {
-    isolatePlannedVision,
-    planningState,
-    preflightElapsedTurnTail,
-} from '../js/unported_monster_actions.js';
-import {
-    block_point,
-    does_block,
-    liveVisionBufferViews,
-    transparencyIndexViews,
-    unblock_point,
-    vision_recalc,
-    vision_reset,
-} from '../js/vision.js';
+import { hurtle_step } from '../js/dothrow.js';
+import { vision_recalc } from '../js/vision.js';
 
 const DATETIME = '20260930120000';
 
-test('planned weapon forgetting owns the advancement history and skill records', async () => {
+test('weapon forgetting shifts the advancement history and drains the skill record', async () => {
     const cSource = readFileSync(
         new URL('../nethack-c/upstream/src/weapon.c', import.meta.url), 'utf8',
     );
@@ -50,22 +37,16 @@ test('planned weapon forgetting owns the advancement history and skill records',
     game.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
     // weapon.c's skilled -> basic drain clamps practice into [20, 80).
     game.u.weapon_skills[P_DAGGER].advance = 100;
-    const before = structuredClone(game.u);
-    const planned = planningState(game);
     const draws = [];
-    await drain_weapon_skill(1, planned, {
+    await drain_weapon_skill(1, game, {
         random: { rn2(bound) { draws.push(bound); return 0; } },
         message: async () => {},
     });
     assert.deepEqual(draws, [2, 60], 'history selection precedes practice loss');
-    assert.deepEqual(game.u, before, 'planning never drains live hero skills');
-    assert.notStrictEqual(planned.u.skill_record, game.u.skill_record);
-    assert.notStrictEqual(planned.u.weapon_skills, game.u.weapon_skills);
-    assert.notStrictEqual(planned.u.weapon_skills[P_DAGGER], game.u.weapon_skills[P_DAGGER]);
-    assert.equal(planned.u.skills_advanced, 1); // One source history entry was removed.
-    assert.equal(planned.u.skill_record[0], P_QUARTERSTAFF);
-    assert.equal(planned.u.weapon_skills[P_DAGGER].skill, P_BASIC);
-    assert.equal(planned.u.weapon_skills[P_DAGGER].advance, 20); // Zero draw chooses the source lower bound.
+    assert.equal(game.u.skills_advanced, 1); // One source history entry was removed.
+    assert.equal(game.u.skill_record[0], P_QUARTERSTAFF);
+    assert.equal(game.u.weapon_skills[P_DAGGER].skill, P_BASIC);
+    assert.equal(game.u.weapon_skills[P_DAGGER].advance, 20); // Zero draw chooses the source lower bound.
 });
 
 // The level's monster list is fmon's linked list.
@@ -75,7 +56,7 @@ function tameMonster(state) {
     return null;
 }
 
-test('a planned hallucinated monster name draws from the clone display RNG', async () => {
+test('a hallucinated monster name draws from the display RNG', async () => {
     const cSource = readFileSync(
         new URL('../nethack-c/upstream/src/do_name.c', import.meta.url), 'utf8',
     );
@@ -94,16 +75,12 @@ test('a planned hallucinated monster name draws from the clone display RNG', asy
     game.u.uprops[HALLUC].intrinsic = 50;
     const kitten = tameMonster(game);
     assert.ok(kitten, 'startup places the kitten');
-    const liveBefore = cloneIsaacContext(game.displayCtx);
-    const planned = planningState(game);
-    const plannedKitten = tameMonster(planned);
+    const before = cloneIsaacContext(game.displayCtx);
     // trap.c trapeffect_sqky_board() names the monster with mon_nam() and no
-    // display-random hook, as the monster-turn planning scan calls it.
-    monsterCommonName(plannedKitten, planned);
-    assert.deepEqual(game.displayCtx, liveBefore,
-        'planning leaves the live display stream untouched');
-    assert.notDeepEqual(planned.displayCtx, liveBefore,
-        'the planned name advances the clone display stream');
+    // display-random hook.
+    monsterCommonName(kitten, game);
+    assert.notDeepEqual(game.displayCtx, before,
+        'the name advances the display stream');
 });
 
 function mapMemory(state) {
@@ -113,21 +90,9 @@ function mapMemory(state) {
     })));
 }
 
-test('planned hurtle recalculations own both vision buffers and map memory', async () => {
+test('hurtle recalculations update map memory and one hurtle step moves the hero', async () => {
     const cSource = readFileSync(
         new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url),
-        'utf8',
-    );
-    const jsHurtle = readFileSync(
-        new URL('../js/dothrow.js', import.meta.url),
-        'utf8',
-    );
-    const jsHmon = readFileSync(
-        new URL('../js/uhitm.js', import.meta.url),
-        'utf8',
-    );
-    const jsPlanning = readFileSync(
-        new URL('../js/unported_monster_actions.js', import.meta.url),
         'utf8',
     );
     const cStart = cSource.indexOf(
@@ -138,40 +103,23 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
         'the complete C hurtle_step source is available');
     assert.match(cSource.slice(cStart, cEnd),
         /u_on_newpos\(x, y\);[\s\S]*?newsym\(ox, oy\);[\s\S]*?vision_recalc\(1\);/u);
-    assert.match(jsHurtle,
-        /arg\.isolateVision\(state\);\s*\}\s*vision_recalc\(1, \{ state, redraw \}\);/u);
-    assert.match(jsHmon,
-        /isolateVision: env\?\.planning\s*\?\s*isolatePlannedVision\s*:\s*null/u);
-    assert.match(jsPlanning,
-        /export function isolatePlannedVision\(state\)[\s\S]*?state\._visionBuffers = makeVisionBuffers\(\);/u);
 
-    resetGame();
     // This fixed startup seed initializes the same map and vision owners that
-    // a hero-defender replay uses; the test then moves only the planned clone.
-    const replay = await runSegment({
-        seed: 2026093001,
-        datetime: DATETIME,
-        nethackrc: 'OPTIONS=name:VisionCopy,role:Valkyrie,race:human,'
-            + 'gender:female,align:lawful\n'
-            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
-        moves: '',
-    });
+    // a hero-defender replay uses. Each half of the test starts from it.
+    const start = async () => {
+        resetGame();
+        await runSegment({
+            seed: 2026093001,
+            datetime: DATETIME,
+            nethackrc: 'OPTIONS=name:VisionCopy,role:Valkyrie,race:human,'
+                + 'gender:female,align:lawful\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+            moves: '',
+        });
+    };
 
-    const planned = planningState(game);
-    assert.equal(planned._visionBuffers, undefined,
-        'the existing vision owner isolates its buffers lazily');
-    const originalView = game.viz_array;
-    const liveBuffers = liveVisionBufferViews().map((view) => view.slice());
-    const liveVision = game.viz_array.map((row) => row.slice());
-    const liveMemory = mapMemory(game);
-    const initialCloneMemory = planned.level.locations;
-    assert.notStrictEqual(initialCloneMemory, game.level.locations);
-    assert.notStrictEqual(
-        initialCloneMemory[game.u.ux][game.u.uy],
-        game.level.locations[game.u.ux][game.u.uy],
-        'planningState already gives the clone its own map-memory cells',
-    );
-
+    await start();
+    const startMemory = mapMemory(game);
     const roomCells = [];
     for (let x = 1; x < COLNO - 1; ++x) {
         for (let y = 1; y < ROWNO - 1; ++y) {
@@ -191,33 +139,23 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
         && (destinations[0].x !== destinations[1].x
             || destinations[0].y !== destinations[1].y),
     'the initialized level supplies two distinct floor destinations');
-
-    isolatePlannedVision(planned);
     for (const destination of destinations) {
         // Each destination is selected from this fixed initialized map so the
-        // two calls exercise successive swaps of the planned buffer pair.
-        planned.u.ux = destination.x;
-        planned.u.uy = destination.y;
-        vision_recalc(1, { state: planned, redraw: () => {} });
-        assert.notStrictEqual(planned.viz_array, originalView,
-            'vision_recalc writes the clone-owned pair');
+        // two calls exercise successive swaps of the buffer pair.
+        game.u.ux = destination.x;
+        game.u.uy = destination.y;
+        vision_recalc(1, { state: game, redraw: () => {} });
     }
-
-    const cloneMemoryChanged = planned.level.locations.some(
+    const memoryChanged = game.level.locations.some(
         (column, x) => column.some((location, y) => (
-            location.seenv !== liveMemory[x][y].seenv
-            || location.waslit !== liveMemory[x][y].waslit
+            location.seenv !== startMemory[x][y].seenv
+            || location.waslit !== startMemory[x][y].waslit
         )),
     );
-    assert.ok(cloneMemoryChanged,
-        'successive recalculations update clone-owned seenv or waslit cells');
-    assert.deepEqual(liveVisionBufferViews(), liveBuffers,
-        'the planned pair never writes live rows, spare rows, rmin or rmax');
-    assert.deepEqual(game.viz_array, liveVision,
-        'the live COULD_SEE array remains unchanged');
-    assert.deepEqual(mapMemory(game), liveMemory,
-        'the planned vision map-memory writes stay on the clone');
+    assert.ok(memoryChanged,
+        'successive recalculations update seenv or waslit cells');
 
+    await start();
     const movement = [
         { x: game.u.ux + 1, y: game.u.uy },
         { x: game.u.ux - 1, y: game.u.uy },
@@ -231,13 +169,6 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
     ));
     assert.ok(movement,
         'the initialized starting square has an adjacent unoccupied floor step');
-    const plannedStep = planningState(game);
-    const stepLiveVision = game.viz_array.map((row) => row.slice());
-    const stepLiveBuffers = liveVisionBufferViews().map((view) => view.slice());
-    const stepLiveMemory = mapMemory(game);
-    const stepLiveScreens = replay.getScreens().slice();
-    const stepLiveCursors = replay.getCursors().map((cursor) => [...cursor]);
-    const stepLiveRng = replay.getRngLog().slice();
     const stepRandom = {
         d: () => 1,
         rn1: () => 1,
@@ -246,133 +177,17 @@ test('planned hurtle recalculations own both vision buffers and map memory', asy
         rne: () => 1,
         rnl: () => 1,
     };
-    const step = {
-        state: plannedStep,
-        range: 1,
-        planning: true,
-        random: stepRandom,
-        isolateVision: isolatePlannedVision,
-    };
+    const step = { state: game, range: 1, random: stepRandom };
     assert.equal(await hurtle_step(step, movement.x, movement.y), true);
-    assert.deepEqual([plannedStep.u.ux, plannedStep.u.uy],
-        [movement.x, movement.y], 'the actual planner callback moves its clone');
+    assert.deepEqual([game.u.ux, game.u.uy],
+        [movement.x, movement.y], 'the callback moves the hero');
     assert.equal(step.range, 0, 'the source callback consumes one range square');
-    assert.ok(plannedStep._visionBuffers,
-        'the production planned callback allocates clone-owned vision first');
-    assert.deepEqual(game.viz_array, stepLiveVision,
-        'planned hurtle movement leaves live vision unchanged');
-    assert.deepEqual(liveVisionBufferViews(), stepLiveBuffers,
-        'planned hurtle movement does not write live current or spare buffers');
-    assert.deepEqual(mapMemory(game), stepLiveMemory,
-        'planned hurtle movement leaves live map memory unchanged');
-    assert.deepEqual(replay.getScreens(), stepLiveScreens,
-        'planned hurtle movement emits no live terminal output');
-    assert.deepEqual(replay.getCursors(), stepLiveCursors,
-        'planned hurtle movement leaves the live cursor unchanged');
-    assert.deepEqual(replay.getRngLog(), stepLiveRng,
-        'planned hurtle movement consumes no live RNG');
-});
-
-test('vision_recalc on a planning clone never writes the live buffer pair', async () => {
-    // Planned venom that blinds the hero reaches potion.c toggle_blindness()
-    // -> vision_recalc(0), and a planned engulf reaches mhitu.c gulpmu() ->
-    // vision_recalc(2), on a clone no vision owner isolated first. Whichever
-    // buffer the live game holds, those calls must leave it alone.
-    resetGame();
-    // Independent fixed startup; only its initialized vision state is used.
-    await runSegment({
-        seed: 2026110601,
-        datetime: DATETIME,
-        nethackrc: 'OPTIONS=name:VisionPair,role:Priest,race:human,'
-            + 'gender:male,align:neutral\n'
-            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
-        moves: '',
-    });
-    // Two live parities: the first loop pass uses the startup buffer, the
-    // second flips the live pair with one more live vision_recalc(0).
-    for (const parity of [0, 1]) {
-        if (parity) vision_recalc(0);
-        const liveBuffers = liveVisionBufferViews().map((view) => view.slice());
-        const liveView = game.viz_array;
-        const liveRows = liveView.map((row) => row.slice());
-        const planned = planningState(game);
-        // Both control values the unisolated callers pass, each twice, so
-        // the clone swaps through both halves of whatever pair it uses.
-        for (const control of [0, 0, 2, 2])
-            vision_recalc(control, { state: planned, redraw: () => {} });
-        assert.deepEqual(liveVisionBufferViews(), liveBuffers,
-            `parity ${parity}: live rows, spare rows, rmin and rmax unchanged`);
-        assert.strictEqual(game.viz_array, liveView);
-        assert.deepEqual(game.viz_array, liveRows,
-            `parity ${parity}: the live COULD_SEE array is unchanged`);
-    }
-});
-
-test('a plan that changes obstructions leaves the live transparency index', async () => {
-    // zap.c zap_over_floor() burns a closed door away and calls
-    // recalc_block_point(); a planned flaming-sphere explosion reached that
-    // with no caller-side admission, and the live hero then saw through the
-    // door before the real explosion arrived. block_point(), unblock_point()
-    // and vision_reset() are the only writers of the module-wide index, so a
-    // plan that calls them directly, with no admitPlannedVisionChange(), must
-    // still leave the live index as it found it.
-    resetGame();
-    // Independent fixed startup; only its level and vision index are used.
-    await runSegment({
-        seed: 2026110602,
-        datetime: DATETIME,
-        nethackrc: 'OPTIONS=name:IndexCopy,role:Samurai,race:human,'
-            + 'gender:male,align:lawful\n'
-            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
-        moves: '',
-    });
-    const live = transparencyIndexViews().map((row) => row.slice());
-    // The hero's square is clear; the first blocked square on the hero's
-    // row, scanning from column 1, is stone or wall.
-    const clear = { x: game.u.ux, y: game.u.uy };
-    let blockedX = 1;
-    while (!does_block(blockedX, clear.y)) blockedX++;
-    let changedInside = false;
-    await preflightElapsedTurnTail(game, async (planned) => {
-        // vision_reset() first: it rebuilds the index from the clone's map,
-        // which still matches the live map, so running it last would hide a
-        // missing restore.
-        vision_reset(planned);
-        block_point(clear.x, clear.y, planned);
-        unblock_point(blockedX, clear.y, planned);
-        changedInside = transparencyIndexViews()
-            .some((row, index) => row.some((v, i) => v !== live[index][i]));
-        return {};
-    });
-    assert.ok(changedInside, 'the plan did change the borrowed index');
-    assert.deepEqual(transparencyIndexViews().map((row) => row.slice()), live,
-        'viz_clear and both pointer grids are restored after the plan');
-});
-
-test('a planned hurtle prints nothing on the live terminal', async () => {
-    await runSegment({
-        // An independent startup gives the live display and message window.
-        seed: 128070402, datetime: DATETIME,
-        nethackrc: 'OPTIONS=name:Tugged,role:Wizard,race:human,gender:male,align:neutral\n'
-            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
-        moves: '',
-    });
-    const planned = planningState(game);
-    // steed.c Punished() reads uball; one on the floor takes hurtle()'s
-    // first arm.
-    planned.uball = { where: 0 };
-    const topLine = () => game.nhDisplay.grid[0].map((cell) => cell.ch).join('');
-    const before = topLine();
-    const pending = game._pending_message;
-    await hurtle(1, 0, 1, false, planned, { planning: true });
-    assert.equal(topLine(), before);
-    assert.equal(game._pending_message, pending);
 });
 
 // steal.c remove_worn_item() reaches do_wear.c Helmet_off(), whose helm of
-// telepathy arm calls see_monsters(). On a planning clone that call needs the
-// caller's silent redraw seam, which Helmet_off() now forwards.
-test('a planned helm of telepathy removal repaints through the caller seam', async () => {
+// telepathy arm calls see_monsters(). Helmet_off() forwards the caller's
+// redraw seam to that call.
+test('a helm of telepathy removal repaints through the caller seam', async () => {
     await runSegment({
         // An independent Valkyrie startup gives a live level and hero.
         seed: 128070403, datetime: DATETIME,
@@ -380,13 +195,12 @@ test('a planned helm of telepathy removal repaints through the caller seam', asy
             + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
         moves: '',
     });
-    const planned = planningState(game);
     const helm = mksobj(HELM_OF_TELEPATHY, false, false,
-        objectGenerationEnv({ state: planned }));
+        objectGenerationEnv({ state: game }));
     helm.owornmask = W_ARMH;
-    planned.uarmh = helm;
+    game.uarmh = helm;
     let repaints = 0;
-    await Helmet_off(planned, { redraw: () => { repaints += 1; } });
-    assert.equal(planned.uarmh, null);
+    await Helmet_off(game, { redraw: () => { repaints += 1; } });
+    assert.equal(game.uarmh, null);
     assert.ok(repaints > 0, 'see_monsters() repainted through the seam');
 });

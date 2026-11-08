@@ -7,10 +7,8 @@ import { game } from '../js/gstate.js';
 import { set_uasmon } from '../js/polyself.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { monster_nearby } from '../js/hack.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { PM_GOBLIN, PM_WERERAT } from '../js/monsters.js';
 import { NON_PM, POLYMORPH_CONTROL, STUNNED, UNCHANGING } from '../js/const.js';
-import { nh_timeout_requires_live_state } from '../js/timeout.js';
 
 const cSource = readFileSync(new URL('../nethack-c/upstream/src/were.c', import.meta.url), 'utf8');
 let restoreReadKey;
@@ -77,24 +75,6 @@ test('controlled beast retention uses canonical query; decline or stun rehumaniz
     }
 });
 
-test('only a reached controlled query requests planning input', async () => {
-    await initialized(true);
-    game.u.uprops[POLYMORPH_CONTROL].intrinsic = 1;
-    const env = { ...quiet, planning: true, requestPlanningInput: (name) => { throw new Error(name); } };
-    await assert.rejects(were.you_unwere(false, game, env), /you_unwere/u);
-    game.u.uprops[UNCHANGING].intrinsic = 1;
-    game.u.mtimedone = 200; // Positive timer makes the retained branch draw-free.
-    await were.you_unwere(false, game, env);
-});
-
-test('were-form expiry hands off to live state before planning the monster tail', async () => {
-    await initialized(true);
-    game.u.mtimedone = 1; // nh_timeout's decrement reaches you_unwere(false).
-    assert.equal(nh_timeout_requires_live_state(game), true);
-    game.u.uinvulnerable = true; // C skips the timeout effect while protected.
-    assert.equal(nh_timeout_requires_live_state(game), false);
-});
-
 // were.c:222 tests nearby hostile monsters before asking a controlled hero.
 test('nearby hostile blocks both rehumanize and the controlled query', async () => {
     await initialized(true);
@@ -108,28 +88,4 @@ test('nearby hostile blocks both rehumanize and the controlled query', async () 
     await were.you_unwere(false, game, { ...quiet, random: { rn1: (_range, base) => base } });
     assert.equal(game.u.umonnum, PM_WERERAT);
     assert.equal(game.u.mtimedone, 200); // Source retained-form fallback.
-});
-
-test('planned human purification changes only cloned canonical state', async () => {
-    await initialized();
-    const planned = planningState(game);
-    const before = game.nhDisplay.serialize();
-    await were.you_unwere(true, planned, { planning: true,
-        random: { rn1: () => assert.fail('human purification drew RNG') } });
-    assert.equal(planned.u.ulycn, NON_PM);
-    assert.equal(game.u.ulycn, PM_WERERAT);
-    assert.equal(game.nhDisplay.serialize(), before);
-});
-
-test('planned retained-beast fallback uses clone-owned RNG and clock', async () => {
-    await initialized(true);
-    game.u.uprops[UNCHANGING].intrinsic = 1;
-    const planned = planningState(game);
-    const draws = [];
-    await were.you_unwere(false, planned, { planning: true, random: {
-        rn1: (range, base) => { draws.push([range, base]); return base; },
-    } });
-    assert.deepEqual(draws, [[200, 200]]); // were.c:227's exact fallback.
-    assert.equal(planned.u.mtimedone, 200);
-    assert.equal(game.u.mtimedone, 0);
 });

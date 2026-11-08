@@ -16,7 +16,7 @@ import {
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, IN_SIGHT, I_SPECIAL, LEVITATION, NOT_HUNGRY,
+    HALLUC_RES, INVIS, I_SPECIAL, LEVITATION, NOT_HUNGRY,
     MM_ADJACENTOK, MM_NOMSG, MON_DETACH, NO_MINVENT, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, POTHIT_OTHER_THROW, SEE_INVIS,
     ROWNO, SATIATED, SICK, SLEEP_RES, W_AMUL, WEAK, STRAT_APPEARMSG,
@@ -30,7 +30,7 @@ import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { PM_GOBLIN, PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
-import { m_at, newMonster } from '../js/monst.js';
+import { m_at } from '../js/monst.js';
 import { makemon_runtime, m_dowear } from '../js/makemon_create.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
@@ -38,7 +38,6 @@ import { discover_object } from '../js/o_init.js';
 import { add_to_minv, addinv } from '../js/invent.js';
 import { dipfountain, dipsink } from '../js/fountain.js';
 import { inaccessible_equipment } from '../js/do_wear.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
 import { cansee } from '../js/vision.js';
@@ -286,18 +285,16 @@ test('burn_away_slime awaits the active cure and leaves inactive state alone',
         assert.equal(messages.length, 1);
     });
 
-test('make_hallucinated forwards every planning display seam in source order',
+test('make_hallucinated forwards every display seam in source order',
     async () => {
     await startedGame(8460002, 'HallucinationDisplaySeams');
     clearTopline();
-    const planned = planningState(game);
-    planned.u.uprops[HALLUC].intrinsic = 0;
-    planned.u.uprops[HALLUC_RES].intrinsic = 0;
-    planned.u.uprops[HALLUC_RES].extrinsic = 0;
-    planned.u.uswallow = false;
+    game.u.uprops[HALLUC].intrinsic = 0;
+    game.u.uprops[HALLUC_RES].intrinsic = 0;
+    game.u.uprops[HALLUC_RES].extrinsic = 0;
+    game.u.uswallow = false;
     const events = [];
-    await make_hallucinated(12, true, 0, planned, {
-        planning: true,
+    await make_hallucinated(12, true, 0, game, {
         message: async (line) => events.push(['message', line]),
         seeMonsters: (state, env) => {
             events.push(['monsters', state, env.redraw]);
@@ -311,47 +308,13 @@ test('make_hallucinated forwards every planning display seam in source order',
     });
     assert.deepEqual(events.map(([kind]) => kind),
         ['monsters', 'objects', 'traps', 'message']);
-    assert.equal(planned.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
-    assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
-    assert.equal(planned.disp.botl, true);
-    assert.equal(events[0][1], planned);
+    assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
+    assert.equal(game.disp.botl, true);
+    assert.equal(events[0][1], game);
     assert.equal(typeof events[0][2], 'function');
     assert.equal(typeof events[1][2], 'function');
     assert.equal(typeof events[2][2], 'function');
-    assert.equal(game._pending_message ?? '', '',
-        'planning feedback does not paint the live TTY');
 });
-
-test('make_hallucinated keeps explicit planning on the live state silent',
-    async () => {
-    await startedGame(8460003, 'HallucinationLivePlanning');
-    clearTopline();
-    const hallucination = game.u.uprops[HALLUC];
-    const resistance = game.u.uprops[HALLUC_RES];
-    hallucination.intrinsic = 0;
-    resistance.intrinsic = 0;
-    resistance.extrinsic = 0;
-    game.iflags.perm_invent = true;
-    game.program_state.in_moveloop = true;
-    const messages = [];
-
-    // An explicit planning flag must win over state === game for display
-    // fallbacks.  The permanent-inventory preflight still needs a planning
-    // hook, but no live map, trap, swallow, or inventory output may run.
-    await make_hallucinated(12, true, 0, game, {
-        planning: true,
-        message: async (line) => messages.push(line),
-    });
-    assert.equal(hallucination.intrinsic & TIMEOUT, 12);
-    assert.deepEqual(messages, ['Oh wow!  Everything looks so cosmic!']);
-    assert.equal(game._pending_message ?? '', '');
-    assert.equal(game._ttyToplines ?? '', '');
-
-    // Restore the property through the same planning boundary so this test
-    // leaves the next started game with the source's original state.
-    await make_hallucinated(0, false, 0, game, { planning: true });
-    game.iflags.perm_invent = false;
-    });
 
 test('make_hallucinated reports clearing an active timeout under resistance',
     async () => {
@@ -422,21 +385,19 @@ test('make_hallucinated change detection uses extrinsic resistance only',
         // This independent seed supplies a fresh initialized hero; the
         // property values below select the intrinsic-only resistance case.
         await startedGame(8460005, 'HallucinationIntrinsicResistance');
-        const planned = planningState(game);
-        planned.u.uprops[HALLUC].intrinsic = 0;
+        game.u.uprops[HALLUC].intrinsic = 0;
         // FROMOUTSIDE is an intrinsic resistance bit. C tests only the
         // extrinsic EHalluc_resistance macro when reporting a timeout change.
-        planned.u.uprops[HALLUC_RES].intrinsic = FROMOUTSIDE;
-        planned.u.uprops[HALLUC_RES].extrinsic = 0;
-        const changed = await make_hallucinated(12, false, 0, planned, {
-            planning: true,
+        game.u.uprops[HALLUC_RES].intrinsic = FROMOUTSIDE;
+        game.u.uprops[HALLUC_RES].extrinsic = 0;
+        const changed = await make_hallucinated(12, false, 0, game, {
             seeMonsters: () => {},
             seeObjects: () => {},
             seeTraps: () => {},
         });
         assert.equal(changed, true);
-        assert.equal(planned.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
-        assert.equal(planned.u.uprops[HALLUC_RES].intrinsic, FROMOUTSIDE);
+        assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
+        assert.equal(game.u.uprops[HALLUC_RES].intrinsic, FROMOUTSIDE);
     });
 
 test('make_blinded uses injected vision state for planned blindness', async () => {
@@ -2219,10 +2180,8 @@ test('potionhit burns an unresistant hero with the acid it crashes',
 });
 
 // hack.c losehp() prints through showdamage() (4245-4253) and maybe_wail()
-// (4210-4243). A monster's hurled potion reaches potionhit() from a turn that
-// js/unported_monster_actions.js first runs against a planning clone, whose
-// `message` is silent; those two lines must take that seam, as the crash and
-// evaporation lines do, or the clone's copy lands on the live terminal.
+// (4210-4243). A monster's hurled potion reaches potionhit(); those two lines
+// must take its `message` seam, as the crash and evaporation lines do.
 test('potionhit routes the showdamage line through its message seam',
     async () => {
     await startedGame(771023, 'PotionShowDamage');
@@ -2584,10 +2543,7 @@ test('an unidentified potion sends the naming tail to docall', async () => {
     await docall({ ...obj, dknown: true }, game);
 });
 
-test('planned potion naming hands input to the live pass before docall', async () => {
-    // Independent startup merely supplies canonical objects/discovery state.
-    // Fruit juice is a vapor no-op whose unknown type reaches C's naming tail.
-    await startedGame(14029001, 'PlannedPotionCall');
+test('potion naming gates follow do.c trycall and do_name.c docall', () => {
     const source = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
     const start = source.indexOf('trycall(struct obj *obj)');
     const end = source.indexOf('/* Transforms the sink', start);
@@ -2598,85 +2554,6 @@ test('planned potion naming hands input to the live pass before docall', async (
     const callStart = callSource.indexOf('docall(struct obj *obj)');
     assert.match(callSource.slice(callStart, callStart + 450),
         /if \(!obj->dknown\)\s*return;/u);
-    const obj = vaporPotion(POT_FRUIT_JUICE);
-    game.objects[obj.otyp].oc_name_known = 0;
-    game.objects[obj.otyp].oc_uname = null;
-    clearTopline();
-    game.nhDisplay.toplin = 0; // No old message needs acknowledgment.
-    const screen = game.nhDisplay.serialize();
-    const disco = [...game.svd.disco];
-    const marker = new Error('planned naming input');
-    const env = {
-        planning: true,
-        message: async () => {},
-        requestPlanningInput(operation) {
-            assert.equal(operation, 'do.c trycall');
-            throw marker;
-        },
-    };
-    const planned = planningState(game);
-    // Every gate before docall's getlin preserves C's suppression: already
-    // identified, already called, or unseen objects require no handoff.
-    for (const [known, called, seen] of [
-        [1, null, true], [0, 'fizzy', true], [0, null, false],
-    ]) {
-        planned.objects[obj.otyp].oc_name_known = known;
-        planned.objects[obj.otyp].oc_uname = called;
-        await trycall({ ...obj, dknown: seen }, planned, env);
-    }
-    planned.objects[obj.otyp].oc_name_known = 0;
-    planned.objects[obj.otyp].oc_uname = null;
-    await assert.rejects(() => trycall(obj, planned, env), e => e === marker);
-    const vapor = { ...obj, in_use: false };
-    await assert.rejects(() => potionbreathe(vapor, planned, env), e => e === marker);
-    assert.equal(vapor.in_use, false,
-        'potionbreathe restores its source in_use guard before naming');
-    assert.equal(game.nhDisplay.serialize(), screen);
-    assert.equal(game.objects[obj.otyp].oc_uname, null);
-    assert.deepEqual(game.svd.disco, disco);
-    assert.equal(planned.objects[obj.otyp].oc_uname, null);
-});
-
-test('planned distant potion hits hand naming input to the live pass', async () => {
-    await startedGame(14029002, 'PlannedPotionHit');
-    const obj = vaporPotion(POT_FRUIT_JUICE);
-    game.objects[obj.otyp].oc_name_known = 0;
-    game.objects[obj.otyp].oc_uname = null;
-    const liveScreen = game.nhDisplay.serialize();
-    const liveDisco = [...game.svd.disco];
-    const liveRngLength = getRngLog().length;
-    const planned = planningState(game);
-    const x = planned.u.ux > 2 ? planned.u.ux - 2 : planned.u.ux + 2;
-    const y = planned.u.uy;
-    planned.viz_array[y][x] |= IN_SIGHT;
-    const target = newMonster({
-        data: planned.mons[PM_GRID_BUG],
-        mnum: PM_GRID_BUG,
-        mx: x,
-        my: y,
-        mhp: 4,
-        mhpmax: 4,
-    });
-    const marker = new Error('planned potionhit naming input');
-    const env = {
-        planning: true,
-        state: planned,
-        message: async () => {},
-        random: { rn2: bound => Math.max(0, bound - 1) },
-        requestPlanningInput(operation) {
-            assert.equal(operation, 'do.c trycall');
-            throw marker;
-        },
-    };
-    await assert.rejects(
-        () => potionhit(target, { ...obj }, POTHIT_MONST_THROW, env),
-        error => error === marker,
-    );
-    assert.equal(game.nhDisplay.serialize(), liveScreen);
-    assert.equal(game.objects[obj.otyp].oc_uname, null);
-    assert.deepEqual(game.svd.disco, liveDisco);
-    assert.equal(getRngLog().length, liveRngLength);
-    assert.equal(planned.objects[obj.otyp].oc_uname, null);
 });
 
 test('a potion whose vapors are not seen prints nothing and is not learned',

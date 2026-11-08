@@ -210,7 +210,7 @@ test('shk_move moves an indebted shopkeeper toward its guard', async () => {
     // m_at() is part of move_special()'s initialized-level contract.
     state.level.monsters[shkp.mx][shkp.my] = shkp;
 
-    assert.equal(await shk_move(shkp, state, { planning: true }), 1);
+    assert.equal(await shk_move(shkp, state), 1);
     assert.deepEqual([shkp.mx, shkp.my], [9, 9]);
     assert.equal(state.level.monsters[10][10], null);
     assert.equal(state.level.monsters[9][9], shkp);

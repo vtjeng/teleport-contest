@@ -110,14 +110,6 @@ test('camera breakobj awaits release while the source camera still exists',async
  assert.equal(game.unported.has('dothrow.c release_camera_demon'),false);
 });
 
-test('planning camera release preserves state changes with silent message callbacks',async()=>{
- const camera=await fixture();let messages=0;
- await release_camera_demon(camera,game.u.ux,game.u.uy,{state:game,planning:true,
-  random:forcedSelection(1,[]),message:async()=>{++messages;}});
- assert.equal(messages,0);assert.equal(created().data.pmidx,PM_HOMUNCULUS);
- assert.equal(Boolean(created().mpeaceful),true);
-});
-
 test('camera caller removes the source gap and retains release before deletion',()=>{
  const js=readFileSync(new URL('../js/dothrow.js',import.meta.url),'utf8');
  assert.doesNotMatch(js,/note_unported\('dothrow.c release_camera_demon'\)/u);

@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { return_from_mtoss } from '../js/mthrowu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
@@ -25,7 +24,7 @@ async function invoke(state, lines) {
     let draws = 0;
     await return_from_mtoss(monster, object, true, state, { rn2: bound => {
         assert.equal(bound, 100); ++draws; return 1;
-    } }, { planning: state !== game,
+    } }, {
         message: async text => { lines.push(text); },
         temporaryDisplay: async () => {}, newsym: () => {},
     });
@@ -34,15 +33,12 @@ async function invoke(state, lines) {
     assert.equal(monster.mw, object);
 }
 
-test('planned aklys return cannot claim the live message throttle', async () => {
+test('aklys return claims the message throttle', async () => {
     await init(); game.moves = 10;
-    const planned = planningState(game), plannedLines = [], liveLines = [];
-    await invoke(planned, plannedLines);
-    assert.equal(game._returnDoNotAnnoy, undefined);
+    const liveLines = [];
     await invoke(game, liveLines);
     assert.equal(liveLines.length, 1);
     assert.match(liveLines[0], /returns to/);
-    assert.equal(planned._returnDoNotAnnoy, 10);
     assert.equal(game._returnDoNotAnnoy, 10);
 });
 test('return message is suppressed at exactly500 turns and allowed at501', async () => {

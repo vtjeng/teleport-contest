@@ -67,13 +67,9 @@ test('Armor_on skips an already lit known suit without duplicate light or feedba
     assert.equal(game.gl.light_base,source);assert.deepEqual(events,[]);
 });
 
-test('Armor_on handles the source null slot and silent planning environment',async()=>{
+test('Armor_on handles the source null slot',async()=>{
     await setup(GOLD_DRAGON_SCALE_MAIL);game.uarm=null;
     assert.equal(await Armor_on(game),0); // C do_wear.c:889–890 defensive return.
-    const obj=await setup(GOLD_DRAGON_SCALE_MAIL);
-    const tty=game._ttyToplines;
-    assert.equal(await Armor_on(game,{planning:true}),0);
-    assert.equal(obj.lamplit,true);assert.equal(game._ttyToplines,tty);
 });
 
 test('Armor_on and wearing admission preserve the full C callback order',()=>{

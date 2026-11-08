@@ -57,10 +57,7 @@ test('Earth boulder deaths use the source monster-kill paths', () => {
     'kill cleanup remains before the source-ordered nearby-monster wakeup');
     assert.match(jsFunction,
         /const\s+message\s*=\s*rawEnv\.message\s*\?\?\s*ttyPline/u,
-    'monster-turn planning routes Earth messages through its silent owner');
-    assert.match(jsFunction,
-        /const\s+redraw\s*=\s*rawEnv\.redraw\s*\?\?\s*rawEnv\.newsym\s*\?\?\s*\(rawEnv\.planning\s*\?\s*\(\)\s*=>\s*\{\}\s*:\s*newsym\)/u,
-    'planned boulder placement cannot repaint the live global map');
+    'Earth messages route through the caller\'s message owner');
     assert.match(jsFunction,
         /else\s*\{\s*await message\([\s\S]*?await mondied\(monster, state, env\);/u,
     'non-player boulder deaths complete the C mondied lifecycle');
@@ -69,7 +66,7 @@ test('Earth boulder deaths use the source monster-kill paths', () => {
     'death cleanup remains before C’s nearby-monster wakeup');
 });
 
-test('Earth boulder planning keeps messages and redraws off the live display', () => {
+test('Earth boulder messages use the caller\'s message owner', () => {
     for (const name of ['drop_boulder_on_player', 'drop_boulder_on_monster']) {
         const cFunction = readSource.match(
             new RegExp(`(?:boolean|void)\\s+${name}\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\n\\}`, 'u'),
@@ -82,8 +79,5 @@ test('Earth boulder planning keeps messages and redraws off the live display', (
         assert.match(jsFunction,
             /const\s+message\s*=\s*rawEnv\.message\s*\?\?\s*ttyPline/u,
         `${name} uses the caller's source-message owner`);
-        assert.match(jsFunction,
-            /const\s+redraw\s*=\s*rawEnv\.redraw\s*\?\?\s*rawEnv\.newsym\s*\?\?\s*\(rawEnv\.planning\s*\?\s*\(\)\s*=>\s*\{\}\s*:\s*newsym\)/u,
-        `${name} suppresses live map redraw during clone planning`);
     }
 });

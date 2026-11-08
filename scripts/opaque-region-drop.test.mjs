@@ -11,12 +11,11 @@ import {QUARTERSTAFF,FOOD_RATION} from '../js/objects.js';
 import {mksobj} from '../js/obj.js';
 import {addinv} from '../js/invent.js';
 import {setuwep} from '../js/wield.js';
-import {dropx,dropCommandEnv,preflight_dropx} from '../js/do.js';
+import {dropx,dropCommandEnv} from '../js/do.js';
 import {create_gas_cloud,visible_region_at} from '../js/region.js';
 import {newsym} from '../js/display.js';
 import {block_point,cansee,init_vision_globals,vision_reset,vision_recalc} from '../js/vision.js';
 import {light_globals_init} from '../js/light.js';
-import {planningState} from '../js/unported_monster_actions.js';
 
 for(const hallu of [false,true])for(const blind of [false,true])for(const coverage of ['none','outside','at-drop'])for(const weapon of [false,true]){
  test(`opaque region drop Hallu=${hallu} blind=${blind} coverage=${coverage} weapon=${weapon}`,async()=>{
@@ -32,10 +31,7 @@ for(const hallu of [false,true])for(const blind of [false,true])for(const covera
    if(coverage!=='none')await create_gas_cloud(coverage==='at-drop'?5:11,7,1,3,{state:game,blockPoint:block_point,canSee:cansee,newsym,message:async()=>{}});
    vision_recalc(0);
    assert.equal(Boolean(visible_region_at(5,7,game)),coverage==='at-drop');
-   const originalWeapon=game.uwep,quantity=obj.quan,weight=obj.owt,beforeCore=structuredClone(game.coreCtx),beforeDisplay=structuredClone(game.displayCtx),beforeGrid=structuredClone(game.nhDisplay.grid),beforeRegions=structuredClone(game.level.regions),beforeHP=game.u.uhp;
-   const clone=planningState(game);let privateObj=clone.invent;while(privateObj&&privateObj.o_id!==obj.o_id)privateObj=privateObj.nobj;assert.ok(privateObj);
-   assert.doesNotThrow(()=>preflight_dropx(privateObj,dropCommandEnv(clone)));
-   assert.equal(privateObj.where,OBJ_INVENT);assert.equal(obj.where,OBJ_INVENT);assert.equal(game.uwep,originalWeapon);assert.deepEqual(game.coreCtx,beforeCore);assert.deepEqual(game.displayCtx,beforeDisplay);assert.deepEqual(game.nhDisplay.grid,beforeGrid);assert.deepEqual(game.level.regions,beforeRegions);
+   const originalWeapon=game.uwep,quantity=obj.quan,weight=obj.owt,beforeCore=structuredClone(game.coreCtx),beforeRegions=structuredClone(game.level.regions),beforeHP=game.u.uhp;
    const events=[];const env=dropCommandEnv(game,delegated?{hooks:{newsym:(x,y,state)=>{assert.equal(state,game);assert.equal(obj.where,OBJ_FLOOR);assert.equal(game.level.objects[x][y],obj);if(weapon)assert.equal(game.uwep,null);assert.equal(Boolean(visible_region_at(x,y,game)),coverage==='at-drop');events.push([x,y]);newsym(x,y,state);}}}:{});
    await dropx(obj,env);
    assert.equal(obj.where,OBJ_FLOOR);assert.equal(obj.ox,5);assert.equal(obj.oy,7);assert.equal(obj.quan,quantity);assert.equal(obj.owt,weight);assert.equal(game.level.objects[5][7],obj);assert.equal(game.level.objlist,obj);let inPack=false;for(let item=game.invent;item;item=item.nobj)if(item===obj)inPack=true;assert.equal(inPack,false);

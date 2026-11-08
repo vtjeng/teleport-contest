@@ -316,15 +316,6 @@ test('worker infrastructure failure cannot masquerade as a measured zero', t => 
     assert.equal(measured.passed, true);
     assert.deepEqual(measured.terminationViolations, [{ kind: 'rng', detail: 'rn2(4)=2' }]);
     assert.equal(Object.hasOwn(measuredCases(root, input, complete)[0], 'terminationViolations'), false);
-    // A planning pass's use of the live game, which the judge's runSegment()
-    // records instead of throwing (js/gstate.js), fails the case and is kept.
-    const uses = [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 2 }];
-    const planned = { results: [{ ...complete.results[0], passed: true, error: null,
-        planningLiveGameUses: uses }] };
-    const [measuredPlan] = measuredCases(root, input, planned);
-    assert.equal(measuredPlan.passed, false);
-    assert.deepEqual(measuredPlan.planningLiveGameUses, uses);
-    assert.equal(Object.hasOwn(measuredCases(root, input, complete)[0], 'planningLiveGameUses'), false);
 });
 
 test('removing a previously measured case cannot improve the expanding set by omission', t => {

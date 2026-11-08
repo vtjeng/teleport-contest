@@ -116,16 +116,6 @@ test('system shock deducts incoming damage plus rounded half maximum HP once', a
     assert.equal(target.mhp,8);assert.equal(attacker.mspec_used,0);
 });
 
-test('planning requests the existing live replay boundary without changing either actor', async () => {
-    const state=await start();const attacker=monster(state,PM_GENETIC_ENGINEER);
-    const marker=new Error('planning input marker');const effect=environment();
-    await assert.rejects(mon_poly(attacker,state.youmonst,1,state,{...effect.env,planning:true,
-        requestPlanningInput(operation){assert.equal(operation,'mon_poly');throw marker;}}),error=>error===marker);
-    effect.done();assert.deepEqual(effect.draws,[]);assert.deepEqual(effect.lines,[]);
-    assert.equal(attacker.mspec_used,0);
-});
-
-
 test('general magic resistance keeps incoming damage and skips system shock', async () => {
     const state=await start();const attacker=monster(state,PM_NEWT);
     const target=monster(state,PM_GENETIC_ENGINEER,{mx:1,my:1});

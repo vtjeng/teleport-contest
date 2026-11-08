@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { HeroDeathPlanningError } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import {
     adtyp_to_expltype,
@@ -19,7 +18,6 @@ import {
     SCATTER_VIS_EFFECTS,
 } from '../js/explode.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import {
     AD_COLD,
     AD_DRST,
@@ -84,6 +82,7 @@ import { zap_over_floor } from '../js/zap.js';
 import { getRngLog } from '../js/rng.js';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { ttyPline } from '../js/tty_message.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 // explode.c:446 uses You_hear for the unseen blast. Even with zero damage,
 // the sound is omitted when the hero disables acoustics; didmsg still
@@ -162,7 +161,7 @@ test('magical shield frames map C cmap indices through cmap_to_glyph', async () 
         .flat().map((ch) => ({ ch, color: HI_ZAP, attr: 0, decgfx: 0 })));
 });
 
-test('planned visible explosions apply clone mechanics without painting', async () => {
+test('visible explosions apply their mechanics and keep the Boom message', async () => {
     // This seed and fixed date create an ordinary visible map; neither value
     // drives the explosion result, which depends on visibility and this fixture.
     await runSegment({
@@ -171,15 +170,15 @@ test('planned visible explosions apply clone mechanics without painting', async 
         // These identity and option values avoid startup effects; the test
         // installs its own target and requires a visible square.
         nethackrc: [
-            'OPTIONS=name:PlannedBlast,role:Wizard,race:human,gender:female,align:chaotic',
+            'OPTIONS=name:VisibleBlast,role:Wizard,race:human,gender:female,align:chaotic',
             'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
             '',
         ].join('\n'),
         moves: '', // No elapsed turns; the fixture supplies the only blast target.
     });
 
-    // A newt with 30 HP survives the one-point blast, exposing damage on the
-    // planning clone without making death cleanup part of this display test.
+    // A newt with 30 HP survives the one-point blast, exposing damage without
+    // making death cleanup part of this display test.
     const target = newMonster({
         data: game.mons[PM_NEWT],
         cham: NON_PM,
@@ -197,59 +196,39 @@ test('planned visible explosions apply clone mechanics without painting', async 
     target.nmon = game.level.monlist;
     game.level.monlist = target;
 
-    const planned = planningState(game);
-    const plannedTarget = planned.level.monsters[target.mx][target.my];
-    const liveHitPoints = target.mhp;
-    const liveScreen = game.nhDisplay.serialize();
-    let animationFrames = 0;
+    const startHitPoints = target.mhp;
     const messages = [];
-    const previousHook = game._animationFrameHook;
-    game._animationFrameHook = () => {
-        previousHook?.();
-        animationFrames++;
-    };
-    try {
-        // The center is the hero square, which makes the C `visible` branch
-        // true; type 1 selects AD_FIRE and dam 1 keeps the nearby actors alive.
-        // Fixed-one helper results make any incidental damage checks deterministic.
-        await explode(
-            game.u.ux,
-            game.u.uy,
-            1,
-            1,
-            MON_EXPLODE,
-            EXPL_FIERY,
-            planned,
-            {
-                planning: true,
-                message: async (line) => messages.push(line),
-                random: {
-                    d: () => 1,
-                    rn1: (_range, base) => base,
-                    rn2: () => 1,
-                    rnd: () => 1,
-                    rnl: () => 1,
-                    rne: () => 1,
-                },
+    // The center is the hero square, which makes the C `visible` branch
+    // true; type 1 selects AD_FIRE and dam 1 keeps the nearby actors alive.
+    // Fixed-one helper results make any incidental damage checks deterministic.
+    await explode(
+        game.u.ux,
+        game.u.uy,
+        1,
+        1,
+        MON_EXPLODE,
+        EXPL_FIERY,
+        game,
+        {
+            message: async (line) => messages.push(line),
+            random: {
+                d: () => 1,
+                rn1: (_range, base) => base,
+                rn2: () => 1,
+                rnd: () => 1,
+                rnl: () => 1,
+                rne: () => 1,
             },
-        );
-    } finally {
-        game._animationFrameHook = previousHook;
-    }
+        },
+    );
 
-    assert.ok(plannedTarget.mhp < liveHitPoints,
-        'explode.c damage still changes the planned monster');
-    assert.equal(target.mhp, liveHitPoints,
-        'planning does not apply explosion damage to the live monster');
+    assert.ok(target.mhp < startHitPoints,
+        'explode.c damage changes the monster');
     // explode.c keeps the visible-branch Boom message while omitting only
     // the blast line used when no square in the mask can be seen.
     assert.ok(messages.includes('Boom!'), JSON.stringify(messages));
     assert.equal(messages.includes('You hear a blast.'), false,
-        'the visible classification remains active during planning');
-    assert.equal(animationFrames, 0,
-        'planning skips visible animation callbacks that draw on the live display');
-    assert.equal(game.nhDisplay.serialize(), liveScreen,
-        'planning leaves the live terminal screen unchanged');
+        'the visible classification remains active');
 });
 
 test('scatter flags preserve explode.c hack.h bit assignments', () => {
@@ -1176,9 +1155,9 @@ test('role reduction leaves non-wand and monster damage unchanged', async () => 
 
 // C explode.c forwards elemental floor effects before ugolemeffects, and
 // uses BURNING only for AD_FIRE at done(). These fixtures isolate the seams.
-test('planned elemental floor and golem effects keep clone RNG and terminal ownership', async () => {
+test('elemental floor and golem effects use the caller RNG and message owner', async () => {
     await runSegment({ seed: 7710146, datetime: '20360214031700',
-        nethackrc: 'OPTIONS=name:BlastClone,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+        nethackrc: 'OPTIONS=name:BlastFloor,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
         moves: '' }); // Independent initialization; no production turns before the fixture.
     game.invent = null;
     for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu']) game[slot] = null;
@@ -1191,49 +1170,49 @@ test('planned elemental floor and golem effects keep clone RNG and terminal owne
     game.context.mon_moving = true;
     const web = { tx: game.u.ux, ty: game.u.uy, ttyp: WEB, tseen: true };
     game.level.traps = [web]; // zap_over_floor's visible fire branch removes this web.
-    const planned = planningState(game);
-    const screen = game.nhDisplay.serialize();
-    const rngBefore = getRngLog().length;
+    // Spaces dismiss each --More-- the live display raises.
+    for (let index = 0; index < 16; index++) game.nhDisplay.pushKey(32);
     const draws = [];
     const lines = [];
-    await explode(planned.u.ux, planned.u.uy, -21, 6, MON_EXPLODE, EXPL_FIERY, planned, {
-        planning: true,
+    await explode(game.u.ux, game.u.uy, -21, 6, MON_EXPLODE, EXPL_FIERY, game, {
         message: async line => lines.push(line),
         random: { rn2: bound => { draws.push(bound); return 1; } },
     });
-    assert.equal(planned.level.traps.length, 0);
-    assert.equal(game.level.traps[0], web);
-    assert.equal(planned.u.mh, 16); // The canonical golem helper heals by the full fire damage.
-    assert.equal(game.u.mh, 10);
+    assert.equal(game.level.traps.length, 0);
+    assert.equal(game.u.mh, 16); // The canonical golem helper heals by the full fire damage.
     assert.deepEqual(draws, [5, 5]); // burnarmor/destroy_items draw; exercise skips physical stats while polymorphed.
     assert.ok(lines.includes('Strangely, you feel better than before.'));
-    assert.equal(getRngLog().length, rngBefore);
-    assert.equal(game.nhDisplay.serialize(), screen);
 });
 
-test('fatal planned explosion uses source death constants without a live done call', async () => {
+test('fatal explosion uses source death constants', async () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/explode.c', import.meta.url), 'utf8');
     assert.match(c, /done\(\(adtyp == AD_FIRE\) \? BURNING : DIED\)/);
     for (const [type, how] of [[-21, BURNING], [-22, DIED]]) {
         await runSegment({ seed: 7710147, datetime: '20360214031800',
-            nethackrc: 'OPTIONS=name:FatalClone,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+            nethackrc: 'OPTIONS=name:FatalBlast,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
             moves: '' }); // Same ordinary initialization; type selects only source fire/cold.
         game.invent = null;
         for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu']) game[slot] = null;
         for (const column of game.level.monsters) column.fill(null);
         game.u.uhp = 1; // Two points of source blast damage are lethal.
         game.context.mon_moving = true;
-        const planned = planningState(game);
-        const screen = game.nhDisplay.serialize();
-        const readKey = game.nhDisplay.readKey;
-        game.nhDisplay.readKey = () => { throw new Error('planned done reads live terminal'); };
-        try {
-            await assert.rejects(explode(planned.u.ux, planned.u.uy, type, 2,
-                MON_EXPLODE, EXPL_FIERY, planned, {
-                    planning: true, message: async () => {}, random: { rn2: () => 1 },
-                }), error => error instanceof HeroDeathPlanningError && error.how === how);
-        } finally { game.nhDisplay.readKey = readKey; }
-        assert.equal(game.u.uhp, 1);
-        assert.equal(game.nhDisplay.serialize(), screen);
+        // Record every screen the game waits on, declining each disclosure
+        // question and dismissing each --More--, so the farewell is kept.
+        const display = game.nhDisplay;
+        const screens = [];
+        display.onEmptyQueue = () => {
+            const screen = display.serialize();
+            screens.push(screen);
+            return (/\[yn/u.test(screen.split('\n')[0]) ? 'n' : ' ').charCodeAt(0);
+        };
+        await expectTerminated(() => explode(game.u.ux, game.u.uy, type, 2,
+            MON_EXPLODE, EXPL_FIERY, game, {
+                message: async () => {}, random: { rn2: () => 1 },
+            }), `explosion type ${type} ends the game`);
+        // end.c's farewell names the death kind: ends[BURNING] is "burned"
+        // and ends[DIED] is "died".
+        const verb = how === BURNING ? 'burned' : 'died';
+        assert.match([...screens, display.serialize()].join('\n'),
+            new RegExp(`You ${verb} in The Dungeons of Doom`, 'u'), `type ${type}`);
     }
 });

@@ -80,21 +80,24 @@ test('unfaint losing coin flip keeps timed deafness and never worsens recovered 
 test('starvation gate preserves rounded RNG bound, constitution threshold and fatal source order', async () => {
     const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
-    const { planningState } = await import('../js/unported_monster_actions.js');
     const { acurr } = await import('../js/attrib.js');
-    const { A_CON, KILLED_BY, STARVED, STARVING } = await import('../js/const.js');
-    const { HeroDeathPlanningError } = await import('../js/hack.js');
+    const { A_CON, KILLED_BY, STARVED } = await import('../js/const.js');
     // Independent startup makes the canonical ACURR property/attribute state.
-    await runSegment({ seed: 15840107, datetime: '20520418094500',
-        nethackrc: 'OPTIONS=name:FaintThreshold,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics', moves: ' ' });
-    const { game } = gstate;
-    const limit = -(100 + 10 * acurr(game, A_CON));
+    // Each nutrition gets a fresh game, because the fatal one ends it.
+    const start = async () => {
+        await runSegment({ seed: 15840107, datetime: '20520418094500',
+            nethackrc: 'OPTIONS=name:FaintThreshold,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics', moves: ' ' });
+        return gstate.game;
+    };
+    const limit = -(100 + 10 * acurr(await start(), A_CON));
     for (const nutrition of [limit, limit - 1]) {
-        const state = planningState(game);
+        const state = await start();
+        // Spaces dismiss any --More-- the fatal arm's done() raises.
+        for (let index = 0; index < 16; index++) state.nhDisplay.pushKey(32);
         state.u.uhunger = nutrition;
         state.u.uhs = FAINTING;
         const calls = [];
-        const env = { planning: true,
+        const env = {
             random: { rn2: (bound) => { calls.push(['rn2', bound]); return 0; } },
             statusRefresh: async () => calls.push(['bot', state.u.uhs]),
             message: async (text) => calls.push(['message', text]),
@@ -103,26 +106,32 @@ test('starvation gate preserves rounded RNG bound, constitution threshold and fa
             await newuhs(true, state, env);
             assert.equal(state.u.uhs, FAINTING, 'strict less-than excludes the threshold');
         } else {
-            await assert.rejects(newuhs(true, state, env), (error) =>
-                error instanceof HeroDeathPlanningError && error.how === STARVING);
+            await expectTerminated(() => newuhs(true, state, env), 'starvation ends the game');
             assert.deepEqual(calls.slice(1), [['bot', STARVED], ['message', 'You die from starvation.']]);
             assert.deepEqual(state.killer, { ...state.killer, format: KILLED_BY, name: 'starvation' });
         }
         assert.deepEqual(calls[0], ['rn2', 20 - Math.sign(nutrition) * Math.trunc((Math.abs(nutrition) + 5) / 10)]);
-        assert.equal(game.u.uhs, NOT_HUNGRY, 'planning never changes live startup status');
     }
 });
 
 test('exhaustion uses the active HP pool and stops non-food occupations after hunger feedback', async () => {
-    const { HeroDeathPlanningError } = await import('../js/hack.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
     const { HUNGRY, NOT_HUNGRY } = await import('../js/const.js');
-    const state = hero(100, NOT_HUNGRY); // HUNGRY begins below 150 nutrition.
+    // An independent Healer start; the fatal arm's done() needs a real game.
+    await runSegment({ seed: 15840109, datetime: '20520418094500',
+        nethackrc: 'OPTIONS=name:Exhaustion,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics', moves: ' ' });
+    const { game } = gstate;
+    // Spaces dismiss any --More-- that done() raises.
+    for (let index = 0; index < 16; index++) game.nhDisplay.pushKey(32);
+    const state = game;
+    state.u.uhunger = 100; state.u.uhs = NOT_HUNGRY; // HUNGRY begins below 150 nutrition.
     state.u.umonnum = 1; state.u.umonster = 0; // Polymorph uses mh, not human HP.
     state.u.mh = 0; state.u.uhp = 10;
     state.go.occupation = async () => 0;
     state.go.occtxt = 'searching';
     const messages = [];
-    await assert.rejects(newuhs(true, state, { ...operations([], messages), planning: true }), HeroDeathPlanningError);
+    await expectTerminated(() => newuhs(true, state, operations([], messages)), 'exhaustion ends the game');
     assert.deepEqual(messages, ['You feel hungry.', 'You stop searching.', 'You die from hunger and exhaustion.']);
     assert.equal(state.go.occupation, null);
     assert.equal(state.u.uhs, HUNGRY);
@@ -148,17 +157,18 @@ test('successful faint gate postpones starvation even below the fatal nutrition 
     }
 });
 
-test('morehungry fills planning hunger operations without changing supplied RNG or callbacks', async () => {
+test('morehungry fills hunger operations without changing supplied RNG or callbacks', async () => {
     const { morehungry } = await import('../js/eat.js');
     const { HUNGRY } = await import('../js/const.js');
     const state = hero(151, NOT_HUNGRY); // One point crosses the source <=150 boundary.
     state.context.run = 1;
     const random = { rn2: () => assert.fail('HUNGRY uses no gate draw') };
-    await morehungry(1, state, { planning: true, random });
+    // Silent message and status owners; endRunning keeps its default.
+    await morehungry(1, state, { random, message: async () => {}, statusRefresh: async () => {} });
     assert.equal(state.u.uhs, HUNGRY);
     assert.equal(state.context.run, 0);
     const second = hero(151, NOT_HUNGRY), events = [];
-    const env = { planning: true, random,
+    const env = { random,
         message: async text => events.push(['message', text]),
         endRunning: s => events.push(['run', s === second]),
         statusRefresh: s => events.push(['bot', s === second]),

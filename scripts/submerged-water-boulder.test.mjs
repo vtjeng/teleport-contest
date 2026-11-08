@@ -6,13 +6,12 @@ import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {GameMap} from '../js/game.js';
-import {POOL,MOAT,WATER,LAVAPOOL,ROOM,HALLUC,BLINDED,FROMOUTSIDE,
-    MAGICAL_BREATHING,MAGIC_PORTAL,OBJ_DELETED,OBJ_FLOOR,OBJ_INVENT} from '../js/const.js';
+import {POOL,MOAT,WATER,ROOM,HALLUC,BLINDED,FROMOUTSIDE,
+    MAGICAL_BREATHING,MAGIC_PORTAL,OBJ_DELETED,OBJ_FLOOR} from '../js/const.js';
 import {BOULDER,FOOD_RATION} from '../js/objects.js';
 import {mksobj,place_object,weight} from '../js/obj.js';
 import {addinv} from '../js/invent.js';
-import {dropx,dropCommandEnv,preflight_dropx} from '../js/do.js';
-import {planningState} from '../js/unported_monster_actions.js';
+import {dropx,dropCommandEnv} from '../js/do.js';
 import {getRngLog,rn2} from '../js/rng.js';
 import {ttyPline} from '../js/tty_message.js';
 import {init_vision_globals,vision_reset,vision_recalc,
@@ -80,31 +79,6 @@ for(const hallu of [false,true])for(const blind of [false,true]){
             assert.deepEqual(outcomes[0],outcomes[1]);
         });
     }
-    const excluded=[
-        ['surface Water boulder',{underwater:false},false],
-        ['ordinary pool boulder',{water:false},false],
-        ['Water lava boulder',{terrain:LAVAPOOL},false],
-        ['Water non-boulder',{kind:FOOD_RATION},false],
-        ['planning against live state',{},true],
-    ];
-    for(const [name,extra,planning]of excluded)test(`excluded ${name} Hallu=${hallu} blind=${blind}`,async()=>{
-        const {obj}=await setup({hallu,blind,...extra}),before=snapshot();
-        assert.throws(()=>preflight_dropx(obj,dropCommandEnv(game,{planning})),/unsupported drop/u);
-        assert.equal(obj.where,OBJ_INVENT);assert.deepEqual(snapshot(),before);
-    });
-    test(`private submerged boulder remains refused before effects Hallu=${hallu} blind=${blind}`,async()=>{
-        const {obj}=await setup({hallu,blind}),before=snapshot(),copy=planningState(game);
-        let copied=copy.invent;while(copied&&copied.o_id!==obj.o_id)copied=copied.nobj;assert(copied);
-        const cloneBefore=structuredClone({u:copy.u,invent:copy.invent,world:copy.level.locations,floor:copy.level.objlist});
-        assert.throws(()=>preflight_dropx(copied,dropCommandEnv(copy)),/special-level display/u);
-        assert.deepEqual({u:copy.u,invent:copy.invent,world:copy.level.locations,floor:copy.level.objlist},cloneBefore);
-        assert.deepEqual(snapshot(),before);
-    });
-    test(`ordinary lava admission stays unchanged Hallu=${hallu} blind=${blind}`,async()=>{
-        const {obj}=await setup({hallu,blind,water:false,terrain:LAVAPOOL,underwater:false}),before=snapshot();
-        assert.doesNotThrow(()=>preflight_dropx(obj,dropCommandEnv(game)));
-        assert.deepEqual(snapshot(),before);
-    });
 }
 
 for(const name of ['normal','monochrome','before-control','ordinary-control'])test(`Submerged Water boulder ${name} matches independent C`,async()=>{

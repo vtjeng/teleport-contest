@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { finishElapsedTurn, moveloop_core } from '../js/allmain.js';
+import { moveloop_core } from '../js/allmain.js';
 import { rhack } from '../js/cmd.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import {
@@ -13,12 +13,10 @@ import {
 import { game } from '../js/gstate.js';
 import { projected_capacity } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
     loadFullHealthInterruptRecipe,
 } from './run-full-health-interrupt.mjs';
-import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 
 // The segments the matrix in scripts/run-full-health-interrupt.mjs recorded
 // against the C reference, replayed here so that a unit assertion and its
@@ -154,46 +152,18 @@ test('a topped-up hero ends the count and says so once', async () => {
     }
 });
 
-// js/allmain.js finishElapsedTurn() gives the regenerators a Norep() owner
-// that is silent while it dry-runs a burdened turn on a cloned state, the way
-// it silences every other line that block can write. The clone's state is
-// discarded but its GameDisplay is the live one, so a live owner here would
-// leave the top line, its logical copy and TOPLINE_NEED_MORE behind on a turn
-// the live game has not taken -- and would do it before the live pass writes
-// the same line, so the finished turn looks identical and only the stopped one
-// shows the difference.
-test('a planned top-up announces nothing', async () => {
-    // The Knight is the one segment whose trap leaves the hero Burdened, so it
-    // is the one whose clone runs the whole once-per-turn block rather than
-    // returning after random monster generation.
-    const replay = await startShortCount(SEGMENTS[0]);
+test('a burdened top-up announces once', async () => {
+    // The Knight is the one segment whose trap leaves the hero Burdened.
+    await startShortCount(SEGMENTS[0]);
     assert.ok(projected_capacity(game) > 0,
-        'the clone must plan the whole turn');
-    assert.equal(game.level.regions.length, 0,
-        'a region would stop the plan before regen_hp()');
+        'the Knight\'s trap leaves the hero Burdened');
     armFullHealthTurn();
-    // The first planning stop after the two regenerators. A Ranger or an
-    // Archeologist carries SEARCHING from experience level 1; this Knight is
-    // given it so the plan stops between regen_pw() and the rest of the turn.
+    // A Ranger or an Archeologist carries SEARCHING from experience level 1;
+    // this Knight is given it so the turn also runs the automatic search.
     game.u.uprops[SEARCHING].intrinsic = FROMOUTSIDE;
 
-    const before = completeSecondTurnSnapshot(game, replay);
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        game.context.move = 1;
-        const plan = await preflightSimpleMonsterActions(game, {
-            advanceRound: (planned, random) =>
-                finishElapsedTurn(planned, random, { planning: true }),
-        });
-        assert.equal(plan.beforeSearch, true, `attempt ${attempt}`);
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, replay),
-            before,
-            `attempt ${attempt}`,
-        );
-    }
-
-    // The live turn now completes the supported search handoff: the hero
-    // tops up, the count ends, and the line reaches the real top row.
+    // The live turn completes the search: the hero tops up, the count ends,
+    // and the line reaches the real top row.
     game.context.move = 1;
     await moveloop_core();
     assert.equal(game.u.uhp, game.u.uhpmax);
@@ -208,8 +178,7 @@ test('a planned top-up announces nothing', async () => {
 // occupations that each end in a top-up reach the comparison, because a count
 // of nine echoes nothing between them.
 test('a repeated top-up line is suppressed', async () => {
-    // An unburdened hero, so the live pass is the only caller and the silent
-    // planning owner cannot account for the silence below.
+    // An unburdened hero: projected_capacity() is zero.
     await startShortCount(SEGMENTS[3]);
     assert.equal(projected_capacity(game), 0);
     armFullHealthTurn();

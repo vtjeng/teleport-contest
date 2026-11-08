@@ -4,7 +4,6 @@ import test from 'node:test';
 import {
     A_DEX,
     BOTH_SIDES,
-    CQ_CANNED,
     LEFT_SIDE,
     RIGHT_SIDE,
     SLT_ENCUMBER,
@@ -20,9 +19,6 @@ import { near_capacity } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { nh_timeout } from '../js/timeout.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import {
-    preflightSimpleMonsterActions,
-} from '../js/unported_monster_actions.js';
 import { loadWoundedLegsRecipe } from './run-wounded-legs.mjs';
 
 // The keys every segment is allowed to spend: five compass directions for the
@@ -308,9 +304,7 @@ test('the expiring timeout interrupts what the hero was doing', async () => {
 });
 
 // The seam nh_timeout() threads through to heal_legs() and
-// encumber_msg(). The elapsed turn is dry run on a cloned state before it is
-// run live, and that pass has to write nothing; the env is how it stays
-// silent. Both halves are asserted here, because a seam that ignores its
+// encumber_msg(). Both halves are asserted here, because a seam that ignores its
 // argument and a seam that has no default are the same mistake seen from
 // either side.
 test('the elapsed turn writes its recovery line through the seam it is given',
@@ -348,13 +342,10 @@ test('the elapsed turn writes its recovery line through the seam it is given',
         assert.equal(game.u.atemp[A_DEX], 0);
     });
 
-test('the planning round heals the clone and leaves the live hero alone',
+test('a burdened hero heals its wound and reports the lighter load',
     async () => {
-        // The burdened Knight, one key short of its recovery, taken through
-        // js/unported_monster_actions.js preflightSimpleMonsterActions() --
-        // the production dry run. Its advanceRound is where allmain.c's
-        // once-per-turn block runs on the clone, and the silent pair supplied
-        // here is the one the live call site passes when planning.
+        // The burdened Knight, one key short of its recovery. nh_timeout()
+        // runs with a recording message owner.
         const [knight] = loadWoundedLegsRecipe().segments;
         await runSegment({ ...knight, moves: knight.moves.slice(0, 11) });
         clearTtyMessageWindow(game);
@@ -368,99 +359,21 @@ test('the planning round heals the clone and leaves the live hero alone',
         game.u.atemp[A_DEX] = -1;
 
         const recorded = [];
-        let reachedRound = false;
-        const inspected = new Error('planning round inspected');
-
-        await assert.rejects(
-            () => preflightSimpleMonsterActions(game, {
-                async advanceRound(planned) {
-                    reachedRound = true;
-                    await nh_timeout(planned, {
-                        message: async (text) => { recorded.push(text); },
-                        statusRefresh: () => {},
-                    });
-                    const clone = planned.u.uprops[WOUNDED_LEGS];
-                    // The same state changes the live pass will make.
-                    assert.equal(clone.intrinsic & TIMEOUT, 0);
-                    assert.equal(clone.extrinsic, 0);
-                    assert.equal(planned.u.atemp[A_DEX], 0);
-                    // A burdened hero crosses back to UNENCUMBERED as the
-                    // wound heals, so encumber_msg() adds its own line behind
-                    // heal_legs()'s. ttyPline() would join the two on one top
-                    // line; the recorder keeps them as written.
-                    assert.deepEqual(recorded, [
-                        'Your leg feels better.',
-                        'Your movements are now unencumbered.',
-                    ]);
-                    throw inspected;
-                },
-            }),
-            (error) => error === inspected,
-        );
-
-        assert.ok(reachedRound, 'the planning round must have run');
-        // Nothing the round computed reached the live game.
-        assert.equal(game._ttyToplines, '');
-        assert.equal(live.intrinsic, 1);
-        assert.ok(live.extrinsic);
-        assert.equal(game.u.atemp[A_DEX], -1);
-    });
-
-test('the planning clone leaves the live canned command queue alone',
-    async () => {
-        // The interruption above is why this case exists. stop_occupation()
-        // reaches cmdq_clear(CQ_CANNED) through nomul(0) and again
-        // unconditionally at allmain.c:352, and cmdq_clear() empties the array
-        // in place. Every other route into stop_occupation() from the dry run
-        // is gated on an active occupation; this one is gated on nothing, so
-        // it fires on any turn a wounded-legs timeout expires -- which is a
-        // burdened hero's ordinary turn.
-        //
-        // planningState() isolates state by naming fields, so a field nobody
-        // named is shared. If command_queue is shared, the dry run discards a
-        // canned sequence the live game had pending. It stays invisible in a
-        // replay because the live pass then repeats the same clear.
-        const wounded = await unwoundedHeroOnLevelOne();
-        wounded.intrinsic = 1;
-        wounded.extrinsic = LEFT_SIDE;
-        // cmd.c cmdq_add_ec() pushes rows like these; only their identity
-        // matters here, so the queue is loaded directly. The live game has
-        // already materialized command_queue by this point, through
-        // rhack()'s own cmdq_pop(), so the clone's `??=` cannot give
-        // itself a private one.
-        const canned = [{ ec_name: 'swap' }, { ec_name: 'fire' }];
-        assert.ok(game.command_queue, 'the live queue must already exist');
-        game.command_queue[CQ_CANNED].push(...canned);
-        let reachedRound = false;
-        // The planning round is aborted once it has been inspected: a full
-        // round on this fixture goes on to plan the whole level and does not
-        // return, and everything this case is about has already happened by
-        // the time the round begins.
-        const inspected = new Error('planning round inspected');
-        // js/gstate.js makes `game` throw while planning; compare with the
-        // live object captured here.
-        const live = game;
-
-        await assert.rejects(
-            () => preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    reachedRound = true;
-                    // The clone must hold its own queues. cmdq_clear() empties
-                    // an array in place, so a shared one is a live write
-                    // however the dry run reaches it, and by this point the
-                    // clone has already cleared its own copy.
-                    assert.notStrictEqual(planned.command_queue,
-                        live.command_queue);
-                    assert.notStrictEqual(planned.command_queue[CQ_CANNED],
-                        live.command_queue[CQ_CANNED]);
-                    throw inspected;
-                },
-            }),
-            (error) => error === inspected,
-        );
-
-        assert.ok(reachedRound, 'the planning round must have run');
-        assert.deepEqual(game.command_queue[CQ_CANNED], canned);
+        await nh_timeout(game, {
+            message: async (text) => { recorded.push(text); },
+            statusRefresh: () => {},
+        });
+        assert.equal(live.intrinsic & TIMEOUT, 0);
+        assert.equal(live.extrinsic, 0);
+        assert.equal(game.u.atemp[A_DEX], 0);
+        // A burdened hero crosses back to UNENCUMBERED as the wound heals, so
+        // encumber_msg() adds its own line behind heal_legs()'s. ttyPline()
+        // would join the two on one top line; the recorder keeps them as
+        // written.
+        assert.deepEqual(recorded, [
+            'Your leg feels better.',
+            'Your movements are now unencumbered.',
+        ]);
     });
 
 test('heal_legs modes one and two clear wounds without encumbrance feedback', async () => {

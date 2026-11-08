@@ -5,12 +5,8 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { zhitu, ubreatheu, zap_over_floor } from '../js/zap.js';
 import {
-    admitPlannedVisionChange, planningState, preflightSimpleMonsterActions,
-} from '../js/unported_monster_actions.js';
-import { HeroDeathPlanningError } from '../js/hack.js';
-import {
     ACID_RES, ANTIMAGIC, COLD_RES, DISINT_RES, FIRE_RES, FROMOUTSIDE,
-    DIED, KILLED_BY_AN, POISON_RES, SHOCK_RES,
+    KILLED_BY_AN, POISON_RES, SHOCK_RES,
     SLEEP_RES, W_ARM, ROOM, OBJ_INVENT,
 } from '../js/const.js';
 import { PM_FLESH_GOLEM, PM_IRON_GOLEM, PM_HUMAN, NON_PM, AD_DRST, PM_BLACK_DRAGON } from '../js/monsters.js';
@@ -20,6 +16,7 @@ import { mksobj } from '../js/obj.js';
 import { KATANA, SHORT_SWORD, TOWEL, POT_BOOZE } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import { block_point } from '../js/vision.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 async function hero() {
     // Independent Wizard startup supplies canonical property, attribute,
@@ -47,7 +44,25 @@ function scripted({ dice = 7, gate = 1, poison = 9 } = {}) {
     };
 }
 
-const quiet = { planning: true, message: async () => {}, statusRefresh: () => {} };
+const quiet = { message: async () => {}, statusRefresh: () => {} };
+
+// The debug-mode start makes end.c done() ask "Die?". Answer the prompt on
+// the top line when the game reads a key: 'y' accepts death, 'n' declines
+// each disclosure question, and a space dismisses each --More--. The status
+// row at the first key read is the one done() repainted on entry, before it
+// forces hit points to zero.
+function answerDeath(state) {
+    const display = state.nhDisplay;
+    const death = { firstStatus: null };
+    display.onEmptyQueue = () => {
+        const rows = display.serialize().split('\n');
+        death.firstStatus ??= rows.at(-1);
+        const top = rows[0];
+        const key = /Die\?/u.test(top) ? 'y' : /\[yn/u.test(top) ? 'n' : ' ';
+        return key.charCodeAt(0);
+    };
+    return death;
+}
 
 test('zhitu translates every beam type and shared losehp tail in source order', async () => {
     // ZT enum is missile, fire, cold, sleep, death, lightning, poison, acid.
@@ -155,17 +170,15 @@ test('fatal death rays hand off exact killer and grave state without losehp', as
     for (const type of [4, -34, 24, -24]) {
         const state = await hero();
         state.uarmc = state.uarmu = state.uarm = state.uarms = null;
+        const death = answerDeath(state);
         const random = scripted();
-        await assert.rejects(() => zhitu(type, 2, 'death ray', 1, 1,
-            state, random, quiet), (error) => {
-            assert.ok(error instanceof HeroDeathPlanningError);
-            assert.equal(error.killerName, 'death ray');
-            assert.equal(error.killerFormat, KILLED_BY_AN);
-            assert.equal(error.fromMonster, type < 0);
-            return true;
-        });
+        await expectTerminated(() => zhitu(type, 2, 'death ray', 1, 1,
+            state, random, quiet), `death ray ${type} ends the game`);
+        assert.equal(state.killer.name, 'death ray');
+        assert.equal(state.killer.format, KILLED_BY_AN);
         assert.equal(state.u.ugrave_arise, type === -24 ? -3 : NON_PM);
-        assert.equal(state.u.uhp, 100);
+        // done() saw the hero's full 100 hit points.
+        assert.match(death.firstStatus, /HP:100\(100\)/u, `death ray ${type}`);
         assert.deepEqual(random.calls, []);
     }
 });
@@ -179,24 +192,7 @@ test('disintegration tests inventory protection before personal resistance', asy
     assert.equal(state.u.uhp, 100);
 });
 
-test('unprotected disintegration armor removal crosses the live input seam', async () => {
-    const state = await hero();
-    // Shield takes priority even with a suit and cloak; no inner slot runs.
-    state.uarms = { o_id: 116 };
-    state.uarm = { o_id: 117 };
-    const boundary = new Error('live armor removal');
-    const operations = [];
-    await assert.rejects(() => zhitu(-24, 2, 'blast', 1, 1, state, scripted(), {
-        ...quiet, requestPlanningInput: (operation) => {
-            operations.push(operation); throw boundary;
-        },
-    }), (error) => error === boundary);
-    assert.deepEqual(operations, ['do_wear.c disintegrate_arm']);
-    assert.equal(state.uarms.o_id, 116);
-    assert.equal(state.killer?.name ?? '', '');
-});
-
-test('golem healing on resistant fire/lightning uses clone-owned RNG', async () => {
+test('golem healing on resistant fire/lightning uses the caller RNG', async () => {
     for (const [type, property, form] of [
         [1, FIRE_RES, PM_IRON_GOLEM], [5, SHOCK_RES, PM_FLESH_GOLEM],
     ]) {
@@ -210,7 +206,7 @@ test('golem healing on resistant fire/lightning uses clone-owned RNG', async () 
         const before = getRngLog().slice();
         await zhitu(type, 2, 'ray', 1, 1, state, scripted(), quiet);
         assert.equal(state.u.mh, type === 1 ? 27 : 22);
-        assert.deepEqual(getRngLog(), before, 'planning touches no live RNG');
+        assert.deepEqual(getRngLog(), before, 'the supplied RNG owns every draw');
     }
 });
 
@@ -224,39 +220,6 @@ test('poison blast halves HP loss only for a worn wet towel', async () => {
 });
 
 
-test('production elapsed preflight carries direct ray death without live writes', async () => {
-    const state = await hero();
-    for (const column of state.level.monsters) column.fill(null);
-    state.level.monlist = null;
-    state.u.umovement = 0;
-    state.uarmc = state.uarmu = state.uarm = state.uarms = null;
-    state.killer = { name: 'previous cause', format: KILLED_BY_AN };
-    const snapshot = {
-        killer: { ...state.killer }, grave: state.u.ugrave_arise,
-        hp: state.u.uhp, queue: state.nhDisplay.inputQueueLength,
-        grid: structuredClone(state.nhDisplay.grid),
-    };
-    enableRngLog();
-    const rngBefore = getRngLog().slice();
-    const result = await preflightSimpleMonsterActions(state, {
-        consumeHeroRation: false,
-        advanceRound: async (planned, random) => {
-            await zhitu(-24, 2, 'blast of disintegration', planned.u.ux,
-                planned.u.uy, planned, random, quiet);
-        },
-    });
-    assert.deepEqual(result.heroDeath, {
-        monsterId: null, how: DIED, killerName: 'blast of disintegration',
-        killerFormat: KILLED_BY_AN, fromMonster: true,
-    });
-    assert.deepEqual(state.killer, snapshot.killer);
-    assert.equal(state.u.ugrave_arise, snapshot.grave);
-    assert.equal(state.u.uhp, snapshot.hp);
-    assert.equal(state.nhDisplay.inputQueueLength, snapshot.queue);
-    assert.deepEqual(state.nhDisplay.grid, snapshot.grid);
-    assert.deepEqual(getRngLog(), rngBefore);
-});
-
 test('ubreatheu forwards its caller environment into poison gas', async () => {
     const state = await hero();
     const random = scripted();
@@ -266,45 +229,38 @@ test('ubreatheu forwards its caller environment into poison gas', async () => {
 });
 
 
-test('monster breath reaches planned direct death through dobuzz and zhitu', async () => {
+test('monster breath reaches direct death through dobuzz and zhitu', async () => {
     const state = await hero();
     state.uarmc = state.uarmu = state.uarm = state.uarms = null;
     for (const column of state.level.monsters) column.fill(null);
     state.level.monlist = null;
     state.u.umovement = 0;
+    answerDeath(state);
     const random = scripted();
-    const oldKiller = structuredClone(state.killer);
-    const result = await preflightSimpleMonsterActions(state, {
-        consumeHeroRation: false,
-        advanceRound: async (planned) => {
-            // Three squares separate attacker and hero: a genuine directed
-            // beam traverses floor before zap_hit() selects the hero.
-            const dragon = newMonster({ data: planned.mons[PM_BLACK_DRAGON],
-                mnum: PM_BLACK_DRAGON, m_id: 116,
-                mx: planned.u.ux - 3, my: planned.u.uy,
-                mux: planned.u.ux, muy: planned.u.uy,
-                mcansee: true, mcanmove: true, m_lev: 15,
-                mhp: 80, mhpmax: 80,
-            });
-            for (let x = dragon.mx; x <= planned.u.ux; ++x) {
-                planned.level.at(x, dragon.my).typ = ROOM;
-                planned.level.at(x, dragon.my).flags = 0;
-            }
-            await breamm(dragon, dragon.data.mattk[0], planned.youmonst, {
-                state: planned, random, ...quiet,
-            });
-        },
+    // Three squares separate attacker and hero: a genuine directed
+    // beam traverses floor before zap_hit() selects the hero.
+    const dragon = newMonster({ data: state.mons[PM_BLACK_DRAGON],
+        mnum: PM_BLACK_DRAGON, m_id: 116,
+        mx: state.u.ux - 3, my: state.u.uy,
+        mux: state.u.ux, muy: state.u.uy,
+        mcansee: true, mcanmove: true, m_lev: 15,
+        mhp: 80, mhpmax: 80,
     });
-    assert.equal(result.heroDeath?.killerName, 'blast of disintegration');
-    assert.equal(result.heroDeath?.fromMonster, true);
+    for (let x = dragon.mx; x <= state.u.ux; ++x) {
+        state.level.at(x, dragon.my).typ = ROOM;
+        state.level.at(x, dragon.my).flags = 0;
+    }
+    await expectTerminated(() => breamm(dragon, dragon.data.mattk[0], state.youmonst, {
+        state, random, ...quiet,
+    }), 'the disintegration breath ends the game');
+    assert.equal(state.killer.name, 'blast of disintegration');
     // linedup()'s boulder fallback draws rn2(2) before the breath gate.
     assert.deepEqual(random.calls, [['rn2', 2], ['rn2', 3],
         ['rn1', 7, 7], ['rn2', 20]]);
-    assert.deepEqual(state.killer, oldKiller);
 });
 
 
-test('a cold ray shattered-potion death retains the planner environment', async () => {
+test('a cold ray shattered-potion death retains the caller environment', async () => {
     const state = await hero();
     // Cold resistance suppresses ray damage, but C still applies rnd(4)
     // shattered-potion damage. One HP and rnd(4)=1 make this fatal.
@@ -314,13 +270,11 @@ test('a cold ray shattered-potion death retains the planner environment', async 
     state.invent.quan = 1;
     state.invent.where = OBJ_INVENT;
     state.invent.nobj = null;
+    answerDeath(state);
     const random = scripted({ gate: 0, dice: 5 });
-    await assert.rejects(() => zhitu(2, 1, 'bolt of cold', 1, 1,
-        state, random, quiet), (error) => {
-        assert.ok(error instanceof HeroDeathPlanningError, error.stack);
-        assert.equal(error.killerName, 'shattered potion');
-        return true;
-    });
+    await expectTerminated(() => zhitu(2, 1, 'bolt of cold', 1, 1,
+        state, random, quiet), 'the shattered potion ends the game');
+    assert.equal(state.killer.name, 'shattered potion');
     assert.equal(state.u.uhp, 0);
     assert.deepEqual(random.calls, [
         ['d', 1, 6], ['rn2', 3], ['rn2', 5], ['rnd', 4], ['rn2', 3],
@@ -328,36 +282,29 @@ test('a cold ray shattered-potion death retains the planner environment', async 
 });
 
 
-test('planned monster poison clouds admit the borrowed vision change before region activation', async () => {
+test('monster poison clouds block vision as their region activates', async () => {
     const state = await hero();
-    const planned = planningState(state);
-    const liveRegionCount = state.level.regions?.length ?? 0;
-    const originalRegionCount = planned.level.regions?.length ?? 0;
-    const x = planned.u.ux - 1;
-    const y = planned.u.uy;
-    let blockPointSawAdmission = false;
+    const originalRegionCount = state.level.regions?.length ?? 0;
+    const x = state.u.ux - 1;
+    const y = state.u.uy;
+    let blockPointCalled = false;
     // A room tile and type 6 are chosen because zap.c names damage type 6
     // ZT_POISON_GAS and the C arm accepts ordinary room squares.
-    planned.level.at(x, y).typ = ROOM;
+    state.level.at(x, y).typ = ROOM;
     await zap_over_floor(
-        x, y, 6, { value: false }, true, 0, planned, scripted(),
+        x, y, 6, { value: false }, true, 0, state, scripted(),
         {
             ...quiet,
-            admitPlannedVisionChange,
             blockPoint: (cloudX, cloudY, owner) => {
                 // The one-square cloud calls block_point while its region
-                // activates; the borrowed index must already be marked.
-                assert.deepEqual(owner._plannedVisionChange, { x, y });
-                blockPointSawAdmission = true;
+                // activates.
+                blockPointCalled = true;
                 block_point(cloudX, cloudY, owner);
             },
             canSee: () => false,
             newsym: () => {},
         },
     );
-    assert.equal(blockPointSawAdmission, true);
-    assert.deepEqual(planned._plannedVisionChange, { x, y });
-    // The planned cloud remains on the clone; the real level is replayed later.
-    assert.equal(planned.level.regions?.length ?? 0, originalRegionCount + 1);
-    assert.equal(state.level.regions?.length ?? 0, liveRegionCount);
+    assert.equal(blockPointCalled, true);
+    assert.equal(state.level.regions?.length ?? 0, originalRegionCount + 1);
 });

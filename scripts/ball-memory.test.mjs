@@ -126,7 +126,7 @@ test('already blind or swallowed setup reads hero memory without extraction/redr
 
 test('set_bc on a foreign state preserves live floor and display state', () => {
     const state = fixture(); const before = game.level;
-    const { redraw } = redrawRecorder(state); set_bc(0, state, { planning: true, redraw });
+    const { redraw } = redrawRecorder(state); set_bc(0, state, { redraw });
     assert.equal(game.level, before);
     assert.equal(state.u.bglyph, CORRIDOR_MEMORY);
 });

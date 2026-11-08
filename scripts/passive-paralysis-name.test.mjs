@@ -9,7 +9,7 @@ import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {newMonster,place_monster} from '../js/monst.js';
 import {PM_HUMAN,PM_ANGEL,PM_GELATINOUS_CUBE,PM_FLOATING_EYE} from '../js/monsters.js';
 import {mattackm} from '../js/mhitm.js';
-import {planningState,wieldMonsterItemAgainstMonster} from '../js/unported_monster_actions.js';
+import {wieldMonsterItemAgainstMonster} from '../js/unported_monster_actions.js';
 import {ROOM,HALLUC,DETECT_MONSTERS,BLINDED,SEE_INVIS,STRAT_WAITFORU,A_LAWFUL,OBJ_MINVENT,W_ARMS} from '../js/const.js';
 import {light_globals_init} from '../js/light.js';
 import {vision_reset,vision_recalc,init_vision_globals} from '../js/vision.js';
@@ -41,30 +41,28 @@ async function exercise({kind,hallu,detected,invisible,angel,reflect=false,blind
  if(reflect){const shield=newObject({otyp:SHIELD_OF_REFLECTION,oclass:game.objects[SHIELD_OF_REFLECTION].oc_class,quan:1,where:OBJ_MINVENT,owornmask:W_ARMS,ocarry:attacker});attacker.minvent=shield;attacker.misc_worn_check=W_ARMS;}
  attacker.nmon=defender;game.level.monlist=attacker;place_monster(attacker,6,7,game);place_monster(defender,7,7,game);game.gb.bhitpos={x:7,y:7};
  light_globals_init(game);init_vision_globals();vision_reset(game);vision_recalc(0);
- const outcomes=[];
- for(const planning of [true,false]){
-  const state=planning?planningState(game):game,agr=state.level.monlist,def=agr.nmon;
-  assert.equal(canseemon(agr,state),!invisible&&!blind);
-  const before={core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),context:structuredClone(game.context),grid:structuredClone(game.nhDisplay.grid),hp:[attacker.mhp,defender.mhp],frozen:attacker.mfrozen};
-  const draws=[],lines=[];let passiveDisplayBefore;
-  const result=await mattackm(agr,def,{state,planning,random:{rnd:n=>{draws.push(['rnd',n]);return 1;},d:(n,s)=>{draws.push(['d',n,s]);if(s===(kind==='cube'?4:70))passiveDisplayBefore=structuredClone(state.displayCtx);return n;},rn2:n=>{draws.push(['rn2',n]);return 1;}},...(planning?{displayRandom:n=>rn2_on_display_rng(n,state)}:{}),canSeeMonster:m=>canseemon(m,state),message:async line=>{lines.push(line);},wieldMonsterItemAgainstMonster,unsupported:r=>{throw Error(r);}});
-  assert.equal(result,1);assert.equal(agr.mcanmove,reflect);if(reflect){assert.equal(agr.mfrozen,0);assert.equal(agr.meating,5);}else{assert(agr.mfrozen>0);assert.equal(agr.meating,0);assert.equal(agr.mstrategy&STRAT_WAITFORU,0);}assert.equal(agr.mhp,40);assert(def.mhp<40);
-  assert(!draws.some(x=>x[0]==='rn2'&&[430,13].includes(x[1])),'cosmetic names must not use gameplay random');
-  if(invisible||blind){
-   if(!blind)assert.equal(lines.length,1,'unseen attacker has only active-hit feedback');
-   assert(!lines.some(x=>x.includes('is frozen by')));assert(passiveDisplayBefore);
-   const ref=planningState(state);ref.displayCtx=structuredClone(passiveDisplayBefore);const names={displayRandom:n=>rn2_on_display_rng(n,ref)};
+ const agr=game.level.monlist,def=agr.nmon;
+ assert.equal(canseemon(agr,game),!invisible&&!blind);
+ const before={core:structuredClone(game.coreCtx),context:structuredClone(game.context),grid:structuredClone(game.nhDisplay.grid)};
+ const draws=[],lines=[];let passiveDisplayBefore;
+ const result=await mattackm(agr,def,{state:game,random:{rnd:n=>{draws.push(['rnd',n]);return 1;},d:(n,s)=>{draws.push(['d',n,s]);if(s===(kind==='cube'?4:70))passiveDisplayBefore=structuredClone(game.displayCtx);return n;},rn2:n=>{draws.push(['rn2',n]);return 1;}},canSeeMonster:m=>canseemon(m,game),message:async line=>{lines.push(line);},wieldMonsterItemAgainstMonster,unsupported:r=>{throw Error(r);}});
+ assert.equal(result,1);assert.equal(agr.mcanmove,reflect);if(reflect){assert.equal(agr.mfrozen,0);assert.equal(agr.meating,5);}else{assert(agr.mfrozen>0);assert.equal(agr.meating,0);assert.equal(agr.mstrategy&STRAT_WAITFORU,0);}assert.equal(agr.mhp,40);assert(def.mhp<40);
+ assert(!draws.some(x=>x[0]==='rn2'&&[430,13].includes(x[1])),'cosmetic names must not use gameplay random');
+ if(invisible||blind){
+  if(!blind)assert.equal(lines.length,1,'unseen attacker has only active-hit feedback');
+  assert(!lines.some(x=>x.includes('is frozen by')));assert(passiveDisplayBefore);
+  // Replay the names on a copy of the display stream taken at the passive
+  // roll, then compare it with the stream the attack actually left.
+  const liveDisplay=game.displayCtx;let refDisplay;game.displayCtx=structuredClone(passiveDisplayBefore);const names={displayRandom:n=>rn2_on_display_rng(n,game)};
+  try{
    // C computes the floating-eye format first, then the attacker name;
    // the cube arm computes only the attacker before its visibility check.
-   if(kind==='eye')Monnam(ref.level.monlist.nmon,ref,names);
-   if(!reflect)Monnam(ref.level.monlist,ref,names);
-   assert.deepEqual(state.displayCtx,ref.displayCtx,'C unconditional name evaluation sequence');
-  }else assert.match(lines.at(-1),reflect?/ gaze is reflected by .* shield\.$/:kind==='eye'?/ is frozen by .* gaze!$/:/ is frozen by .*\.$/);
-  assert.deepEqual(game.coreCtx,before.core);assert.deepEqual(game.context,before.context);assert.deepEqual(game.nhDisplay.grid,before.grid);
-  if(planning){assert.deepEqual(game.displayCtx,before.display);assert.deepEqual([attacker.mhp,defender.mhp],before.hp);assert.equal(attacker.mfrozen,before.frozen);}
-  outcomes.push({lines,draws,display:structuredClone(state.displayCtx),hp:[agr.mhp,def.mhp],frozen:agr.mfrozen,mcanmove:agr.mcanmove,meating:agr.meating,strategy:agr.mstrategy});
- }
- assert.deepEqual(outcomes[0],outcomes[1]);
+   if(kind==='eye')Monnam(def,game,names);
+   if(!reflect)Monnam(agr,game,names);
+  }finally{refDisplay=game.displayCtx;game.displayCtx=liveDisplay;}
+  assert.deepEqual(game.displayCtx,refDisplay,'C unconditional name evaluation sequence');
+ }else assert.match(lines.at(-1),reflect?/ gaze is reflected by .* shield\.$/:kind==='eye'?/ is frozen by .* gaze!$/:/ is frozen by .*\.$/);
+ assert.deepEqual(game.coreCtx,before.core);assert.deepEqual(game.context,before.context);assert.deepEqual(game.nhDisplay.grid,before.grid);
 }
 
 for(const name of ['normal','monochrome','before-control'])test('passive paralysis names '+name+' matches independent C',async()=>{const root=createScoringWorkspace(process.cwd(),[]);try{const c=JSON.parse(fs.readFileSync(new URL('../recordings/mhitm.c/passive-paralysis-name-'+name+'.session.json',import.meta.url)));const r=compareSessionOutputs(c,await runJsSession(c,root));assert.equal(r.passed,true,formatReport(r));}finally{removeScoringWorkspace(root);}});

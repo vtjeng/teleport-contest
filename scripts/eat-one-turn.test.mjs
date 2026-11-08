@@ -71,7 +71,7 @@ import {
     obj_nutrition,
     zero_victual,
 } from '../js/eat.js';
-import { HeroDeathPlanningError, inv_cnt, rounddiv } from '../js/hack.js';
+import { inv_cnt, rounddiv } from '../js/hack.js';
 import { useup } from '../js/invent.js';
 import {
     APPLE,
@@ -435,15 +435,6 @@ test('newuhs announces the hunger status it settles on', async () => {
         assert.deepEqual(messages, [expected], `${uhunger} from ${uhs}`);
     }
 
-    // Starvation/exhaustion planning identifies the live done() handoff.
-    const dying = state();
-    dying.u.uhunger = 1200;
-    dying.u.uhp = 0;
-    await assert.rejects(
-        () => newuhs(false, dying, { ...newuhsEnv(), planning: true }),
-        HeroDeathPlanningError,
-    );
-    assert.equal(dying.u.uhs, SATIATED);
     // One hit point is alive: C tests `< 1`.
     const barely = state();
     barely.u.uhunger = 1200;

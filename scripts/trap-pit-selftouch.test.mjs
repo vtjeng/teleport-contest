@@ -8,6 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_TRAP = readFileSync(
     new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
@@ -37,8 +38,8 @@ test('ordinary pit damage awaits the C selftouch caller afterward', async () => 
         moves: '',
     });
     game.level.traps = [];
-    // Space dismisses the fall/selftouch lines so the planned stoning reaches
-    // its explicit planning boundary instead of waiting for a real player.
+    // Space dismisses the fall/selftouch lines and done()'s prompts so the
+    // stoning ends the game instead of waiting for a real player.
     game.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
     const corpse = {
         otyp: CORPSE,
@@ -60,7 +61,6 @@ test('ordinary pit damage awaits the C selftouch caller afterward', async () => 
     };
     const env = {
         state: game,
-        planning: true,
         random: {
             rn1: (bound, from) => {
                 bounds.push(`rn1(${bound},${from})`);
@@ -74,14 +74,9 @@ test('ordinary pit damage awaits the C selftouch caller afterward', async () => 
         unsupported: (reason) => { throw new Error(reason); },
     };
 
-    await assert.rejects(
-        trapeffect_selector(game.youmonst, trap, 0, env),
-        (error) => {
-            assert.equal(error.name, 'HeroDeathPlanningError', error.stack);
-            // selftouch() passes an(corpsePmname) to instapetrify().
-            assert.equal(error.killerName, 'a cockatrice corpse');
-            return true;
-        },
-    );
+    await expectTerminated(() => trapeffect_selector(game.youmonst, trap, 0, env),
+        'the cockatrice corpse stones the hero');
+    // selftouch() passes an(corpsePmname) to instapetrify().
+    assert.equal(game.killer.name, 'a cockatrice corpse');
     assert.ok(bounds.includes('rnd(6)'), 'the C ordinary-pit damage roll ran first');
 });

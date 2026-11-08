@@ -29,7 +29,6 @@ import {
     DOOR,
     OBJ_INVENT,
     POISON_RES,
-    POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     SINK,
@@ -132,7 +131,6 @@ import {
     loadPetSwapArrivalRecipe,
 } from './run-pet-swap-arrival-autopickup.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
-import { planningState } from '../js/unported_monster_actions.js';
 
 const DATETIME = '20300102030405';
 const UHITM_C = readFileSync(
@@ -1241,20 +1239,18 @@ test('incoming AD_DRIN awaits spell and skill forgetting in source order', async
             + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
         moves: '',
     });
-    const liveBefore = structuredClone(game.u.weapon_skills);
-    const state = planningState(game);
     // A dunce cap bypasses eat_brains but still reaches the Int/forgetting tail.
-    state.uarmh = mksobj(DUNCE_CAP, false, false, { state });
-    state.svs.spl_book[2].sp_id = NO_SPELL; // Two starting Wizard spells make rn2(3) the loss-count draw.
-    state.context.spbook = { book: { o_id: 128 }, o_id: 128 }; // Interrupted study must be cleared without mutating live context.
-    state.u.skills_advanced = 2; // Two advances exercise history shifting as well as grade loss.
-    state.u.skill_record = [P_DAGGER, P_QUARTERSTAFF];
-    state.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
-    state.u.weapon_skills[P_DAGGER].advance = 100; // Above C's basic training threshold.
-    state.gs.skipdrin = false;
+    game.uarmh = mksobj(DUNCE_CAP, false, false, { state: game });
+    game.svs.spl_book[2].sp_id = NO_SPELL; // Two starting Wizard spells make rn2(3) the loss-count draw.
+    game.context.spbook = { book: { o_id: 128 }, o_id: 128 }; // Interrupted study must be cleared.
+    game.u.skills_advanced = 2; // Two advances exercise history shifting as well as grade loss.
+    game.u.skill_record = [P_DAGGER, P_QUARTERSTAFF];
+    game.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
+    game.u.weapon_skills[P_DAGGER].advance = 100; // Above C's basic training threshold.
+    game.gs.skipdrin = false;
     const flayer = {
-        data: state.mons[PM_MIND_FLAYER], m_id: 128403, // Distinct adjacent attacker identity.
-        mx: state.u.ux + 1, my: state.u.uy, mhp: 20, mhpmax: 20,
+        data: game.mons[PM_MIND_FLAYER], m_id: 128403, // Distinct adjacent attacker identity.
+        mx: game.u.ux + 1, my: game.u.uy, mhp: 20, mhpmax: 20,
         minvent: null, mextra: {}, mcan: false,
     };
     const events = [];
@@ -1268,8 +1264,8 @@ test('incoming AD_DRIN awaits spell and skill forgetting in source order', async
     };
     const messages = [];
     await mhitm_adtyping(flayer, { aatyp: AT_TENT, adtyp: AD_DRIN },
-        state.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
-        state, { planning: true, random, unsupported: reason => assert.fail(reason), message: async line => {
+        game.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
+        game, { random, unsupported: reason => assert.fail(reason), message: async line => {
             await Promise.resolve(); // Exercise the ordinary awaited feedback callback.
             messages.push(line);
             if (line.includes('training')) events.push('skill message');
@@ -1279,33 +1275,31 @@ test('incoming AD_DRIN awaits spell and skill forgetting in source order', async
         'rn2(2)', 'rn2(2)', 'rn2(1)', 'rn2(2)',
         'rn2(5)', 'rnd(2)', 'rn2(2)', 'rn2(60)', 'skill message',
     ]);
-    assert.equal(state.context.spbook.book, null);
-    assert.equal(state.context.spbook.o_id, 0);
-    assert.equal(state.svs.spl_book[0].sp_know, 0);
-    assert.equal(state.svs.spl_book[1].sp_know, 0);
-    assert.equal(state.u.skills_advanced, 1);
-    assert.equal(state.u.weapon_skills[P_DAGGER].skill, P_BASIC);
-    assert.equal(state.u.weapon_skills[P_DAGGER].advance, 20); // Zero practice draw uses the lower bound.
+    assert.equal(game.context.spbook.book, null);
+    assert.equal(game.context.spbook.o_id, 0);
+    assert.equal(game.svs.spl_book[0].sp_know, 0);
+    assert.equal(game.svs.spl_book[1].sp_know, 0);
+    assert.equal(game.u.skills_advanced, 1);
+    assert.equal(game.u.weapon_skills[P_DAGGER].skill, P_BASIC);
+    assert.equal(game.u.weapon_skills[P_DAGGER].advance, 20); // Zero practice draw uses the lower bound.
     assert.ok(messages.includes('You forget some of your training in dagger.'));
     assert.ok(messages.includes('Your cap constricts briefly, then relaxes again.'),
         'C adjattrib(A_INT, -rnd(2), FALSE) reports the worn dunce cap');
-    assert.equal(state.gs.skipdrin, true);
-    assert.deepEqual(game.u.weapon_skills, liveBefore, 'the dispatch mutates only planned skill records');
+    assert.equal(game.gs.skipdrin, true);
 
     // A failed spell gate must leave the study owner alone; a successful
     // skill gate sets skipdrin only after its awaited training feedback.
-    state.context.spbook = { book: { o_id: 129 }, o_id: 129 }; // Separate interrupted-study witness.
-    state.u.skills_advanced = 1; // One recorded dagger advance remains to drain.
-    state.u.skill_record = [P_DAGGER];
-    state.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
-    state.u.weapon_skills[P_DAGGER].advance = 20; // Below the basic threshold: no practice-clamp draw.
-    state.gs.skipdrin = false;
+    game.context.spbook = { book: { o_id: 129 }, o_id: 129 }; // Separate interrupted-study witness.
+    game.u.skills_advanced = 1; // One recorded dagger advance remains to drain.
+    game.u.skill_record = [P_DAGGER];
+    game.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
+    game.u.weapon_skills[P_DAGGER].advance = 20; // Below the basic threshold: no practice-clamp draw.
+    game.gs.skipdrin = false;
     events.length = 0;
     let forgettingGates = 0;
     await mhitm_adtyping(flayer, { aatyp: AT_TENT, adtyp: AD_DRIN },
-        state.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
-        state, {
-            planning: true,
+        game.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
+        game, {
             unsupported: reason => assert.fail(reason),
             random: { ...random, rn2(bound) {
                 events.push(`rn2(${bound})`);
@@ -1314,7 +1308,7 @@ test('incoming AD_DRIN awaits spell and skill forgetting in source order', async
             } },
             message: async line => {
                 if (line.includes('training')) {
-                    assert.equal(state.gs.skipdrin, false);
+                    assert.equal(game.gs.skipdrin, false);
                     await Promise.resolve();
                     events.push('skill message');
                 }
@@ -1323,12 +1317,11 @@ test('incoming AD_DRIN awaits spell and skill forgetting in source order', async
     assert.deepEqual(events, [
         'rn2(8)', 'rnd(2)', 'rn2(5)', 'rn2(5)', 'rnd(2)', 'rn2(1)', 'skill message',
     ]);
-    assert.equal(state.context.spbook.o_id, 129, 'the failed spell gate does not discard study');
-    assert.equal(state.gs.skipdrin, true);
-    assert.deepEqual(game.u.weapon_skills, liveBefore);
+    assert.equal(game.context.spbook.o_id, 129, 'the failed spell gate does not discard study');
+    assert.equal(game.gs.skipdrin, true);
 });
 
-test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async () => {
+test('mhitm_ad_wrap dispatches the slippery source arm', async () => {
     // uhitm.c:3337-3426. The giant eel's second slot is AT_TUCH/AD_WRAP;
     // C's head/body flag selects the unheld wrap roll, then its worn-cloak
     // branch makes the greased item protect the target and wear off.
@@ -1376,48 +1369,6 @@ test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async
     game.youmonst.data = originalForm;
     game.gn.notonhead = false;
 
-    // C's already-held monster-versus-hero arm drowns only on a pool cell
-    // without the hero's source protection. Planning must stop at its supplied
-    // death marker before done(DROWNING) can enter live terminal recovery.
-    const python = {
-        data: game.mons[PM_PYTHON], m_id: 93142,
-        mx: game.u.ux, my: game.u.uy, mcan: false, mhp: 20, mhpmax: 20,
-        nmon: null, minvent: null,
-    };
-    game.level.monlist = python;
-    const plan = planningState(game);
-    const plannedPython = plan.level.monlist;
-    plan.u.ustuck = plannedPython;
-    plan.level.at(plan.u.ux, plan.u.uy).typ = POOL;
-    const marker = new Error('planned drowning boundary');
-    const urgent = [];
-    const plannedBounds = [];
-    const liveKiller = game.killer;
-    await assert.rejects(mhitm_adtyping(
-        plannedPython,
-        plannedPython.data.mattk[2],
-        plan.youmonst,
-        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
-        plan,
-        {
-            planning: true,
-            random: { rn2: (bound) => {
-                plannedBounds.push(bound);
-                return 1;
-            } },
-            message: async () => assert.fail('C uses urgent_pline for drowning'),
-            urgentMessage: async (line) => { urgent.push(line); },
-            planningDeath: () => marker,
-            unsupported: (reason) => assert.fail(reason),
-        },
-    ), (error) => error === marker);
-    assert.deepEqual(plannedBounds, []);
-    assert.deepEqual(urgent, ['The python drowns you...']);
-    assert.equal(plan.killer.format, KILLED_BY_AN);
-    assert.equal(plan.killer.name, 'pool of water by a python');
-    assert.equal(game.killer, liveKiller);
-    assert.equal(game.u.ustuck, null);
-    assert.notEqual(game.level.at(game.u.ux, game.u.uy).typ, POOL);
 });
 
 test('mhitm_ad_wrap locates both monster-to-hero brush messages', async () => {
