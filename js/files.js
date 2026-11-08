@@ -100,9 +100,11 @@ export function choose_passage(passagecnt, oid, state = game, random = coreRando
     if (typeof random.rn2 !== 'function')
         throw new TypeError('choose_passage random source requires rn2');
 
-    state.svc ??= {};
-    state.svc.context ??= {};
-    const novel = state.svc.context.novel ??= {
+    // svc.context.novel is this port's state.context.novel, which the save
+    // file carries with the rest of svc.context. C zeroes it at startup;
+    // the first reading creates the zeroed record here.
+    state.context ??= {};
+    const novel = state.context.novel ??= {
         id: 0,
         count: 0,
         pasg: Array(MAXPASSAGES).fill(0),

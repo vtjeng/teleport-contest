@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4417730,
+      "datetime": "20350924201000",
+      "nethackrc": "OPTIONS=name:Reader,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "\u0017novel\nrn\u001brn\u001bSy",
+      "comment": "Independent novel reading across a save: a debug Tourist wishes for a novel (Moving Pictures, 16 passages), reads it twice and saves. files.c choose_passage() keeps the unread passages in svc.context.novel, which the save file carries, so the read after the restore draws rn2(14) from the same 14 remaining passages."
+    },
+    {
+      "seed": 4417731,
+      "datetime": "20350925090000",
+      "nethackrc": "OPTIONS=name:Reader,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": " nrn\u001b"
+    }
+  ]
+}

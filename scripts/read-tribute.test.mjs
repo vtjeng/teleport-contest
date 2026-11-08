@@ -20,8 +20,8 @@ test('choose_passage selects without replacement, then resets its history', () =
         choose_passage(3, 17, state, random),
     ], [3, 2, 1, 3]);
     assert.deepEqual(bounds, [3, 2, 1, 3]);
-    assert.equal(state.svc.context.novel.id, 17);
-    assert.equal(state.svc.context.novel.count, 2);
+    assert.equal(state.context.novel.id, 17);
+    assert.equal(state.context.novel.count, 2);
 });
 
 test('Death_quote uses its fixed id and bounds the C output buffer', async () => {
@@ -43,8 +43,8 @@ test('Death_quote uses its fixed id and bounds the C output buffer', async () =>
     assert.deepEqual(bounds, [
         ...Array.from({ length: 31 }, (_, index) => 31 - index), 30,
     ]);
-    assert.equal(state.svc.context.novel.id, 1);
-    assert.equal(state.svc.context.novel.count, 29);
+    assert.equal(state.context.novel.id, 1);
+    assert.equal(state.context.novel.count, 29);
 });
 
 test('read_tribute clears an output buffer when its title is absent', async () => {
