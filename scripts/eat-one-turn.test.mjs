@@ -51,6 +51,7 @@ import {
     OBJ_DELETED,
     OBJ_INVENT,
     ROOM,
+    KILLED_BY,
     SATIATED,
     SICK,
     SICK_VOMITABLE,
@@ -110,6 +111,8 @@ import { singular, xnameFresh } from '../js/objnam.js';
 import { getRngLog } from '../js/rng.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { expectTerminated } from './expect-terminated.mjs';
+import { bot } from '../js/display.js';
 import {
     loadEatOneTurnOptionsRecipe,
     loadEatOneTurnRecipe,
@@ -441,6 +444,46 @@ test('newuhs announces the hunger status it settles on', async () => {
     barely.u.uhp = 1;
     await newuhs(false, barely, newuhsEnv());
     assert.equal(barely.u.uhs, SATIATED);
+});
+
+// C ref: eat.c newuhs():3502-3509. Whatever status the hero settles on,
+// newuhs() stores it and refreshes the status line before its HP test, and a
+// hero with no HP left then dies of exhaustion.
+test('newuhs kills a hero with no HP left once the status settles',
+    async () => {
+    await runSegment({
+        // An arbitrary started game, not debug mode, so end.c done() asks no
+        // "Die?" question.
+        seed: 7316045,
+        datetime: '20260301090000',
+        nethackrc: 'OPTIONS=name:Exhausted,role:Healer,race:human,'
+            + 'gender:female,align:neutral,pettype:none,!legacy,!tutorial,'
+            + '!splash_screen\n',
+        moves: '',
+    });
+    // 1200 is above the 1000 satiation threshold (eat.c:3374), so the
+    // status changes from NOT_HUNGRY to SATIATED, an arm with no message.
+    game.u.uhunger = 1200;
+    game.u.uhs = NOT_HUNGRY;
+    game.u.uhp = 0;
+    const messages = [];
+    // Spaces dismiss each --More-- and take the default disclosure answers
+    // of end.c done().
+    for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await expectTerminated(
+        () => newuhs(false, game, {
+            message: async (text) => { messages.push(text); },
+            endRunning: () => assert.fail('the SATIATED arm does not stop running'),
+            // eat.c:3504's bot().
+            statusRefresh: () => bot(),
+        }),
+        'the exhausted hero dies',
+    );
+
+    assert.equal(game.u.uhs, SATIATED);
+    assert.deepEqual(messages, ['You die from hunger and exhaustion.']);
+    assert.deepEqual(game.killer, { format: KILLED_BY, name: 'exhaustion' });
 });
 
 // C ref: eat.c newuhs()'s WEAK arm, whose wording depends on the role and the
