@@ -2919,7 +2919,7 @@ function restoreParsedCommand(pending, state) {
 // only for the boundary classes it lists, so a class a command handler can
 // raise that is missing from this list escapes as a hard failure and discards
 // the segment's matching prefix instead of stopping on it.
-// js/allmain.js elapsedTurnPlanningRefusals() is the same list for the turn
+// js/allmain.js elapsedTurnRefusals() is the same list for the turn
 // loop; a class both paths can reach belongs in both.
 // js/moveloop_preamble.js runMoveloopPreambleAtStartupBoundary() reads this
 // list too, for the one stretch of a segment that runs above both: the
@@ -3026,7 +3026,7 @@ export function failClosedCommandRefusals() {
         // wish heavy or numerous enough to push near_capacity() past
         // flags.pickup_burden reaches the drop arm: a boulder does it on any
         // hero. js/allmain.js
-        // elapsedTurnPlanningRefusals() already lists the class, and the note
+        // elapsedTurnRefusals() already lists the class, and the note
         // above says a class several paths can reach belongs in each.
         UnsupportedObjectOperationError,
         // sounds.c dochat() reaches this for a shop's merchandise, for a

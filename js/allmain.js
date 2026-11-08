@@ -1068,7 +1068,7 @@ function unavailableElapsedTurnOperation(operation) {
 // Resolve classes when called, after the mutually importing game owners
 // have initialized. A module-scope array could read these bindings before
 // their declarations execute.
-function elapsedTurnPlanningRefusals() {
+function elapsedTurnRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
         UnsupportedHeroTimeoutBoundaryError,
@@ -1212,9 +1212,9 @@ async function advanceElapsedTurn(state) {
             // through paybill(), paygd() and clearpriests(), whose unported
             // arms raise UnsupportedEndOfGameError, UnsupportedShopError and
             // UnsupportedVaultGuardError. The scan also reaches every owner
-            // elapsedTurnPlanningRefusals() names.
+            // elapsedTurnRefusals() names.
             const liveScanRefusals = [
-                ...elapsedTurnPlanningRefusals(),
+                ...elapsedTurnRefusals(),
                 UnsupportedEndOfGameError,
                 UnsupportedVaultGuardError,
             ];
@@ -1235,7 +1235,7 @@ async function advanceElapsedTurn(state) {
                 // command or upkeep refusals after the prefix has completed.
                 // Preserve that prefix through the normal gameplay boundary;
                 // unexpected errors, including TypeErrors, still escape.
-                if (![...elapsedTurnPlanningRefusals(), ...failClosedCommandRefusals()].some(
+                if (![...elapsedTurnRefusals(), ...failClosedCommandRefusals()].some(
                     (type) => error instanceof type,
                 ))
                     throw error;

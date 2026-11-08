@@ -3638,8 +3638,9 @@ export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     // The full operation set, matching actionRandom()'s. mintrap() needs rnl
     // as well as rn2, and a fallback narrower than the call graph raises a
-    // bare TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert, so
-    // it would escape runSegment() and discard the segment rather than stop it.
+    // bare TypeError that js/allmain.js elapsedTurnRefusals() does not
+    // convert, so it would escape runSegment() and discard the segment rather
+    // than stop it.
     const random = rawEnv.random ?? coreRandom;
     const resistsTrapEffect = requireMoveOperation(
         rawEnv,
