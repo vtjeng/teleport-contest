@@ -580,8 +580,7 @@ export function known_vibrating_square_at(x, y, state) {
 
 // C ref: getpos.c cmp_coord_distu() (312-330). qsort() uses the hero's
 // current square as the primary key, then source y/x order as tie breakers.
-// The helper is pure; callers pass the state explicitly so planned maps do
-// not accidentally sort against the live hero.
+// The helper is pure; callers pass the state explicitly.
 export function cmp_coord_distu(a, b, state = game) {
     const distance = (coord) => Math.max(
         Math.abs((state.u?.ux ?? 0) - coord.x),

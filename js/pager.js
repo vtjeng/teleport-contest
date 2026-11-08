@@ -1149,8 +1149,7 @@ function descriptionDisplayCharacter(glyphInfo) {
 
 // C ref: pager.c waterbody_name() (560-612). `SURFACE_AT()` is the shared
 // dungeon owner, so a raised drawbridge is named for what lies beneath it.
-// The optional environment carries the display RNG used by hliquid(); this
-// keeps hallucinated descriptions in planning clones off the live stream.
+// The optional environment carries the display RNG used by hliquid().
 export function waterbody_name(x, y, state = game, env = {}) {
     if (!isok(x, y)) return 'drink';
     const loc = state.level?.at?.(x, y);
