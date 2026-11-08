@@ -101,7 +101,9 @@ import { place_wsegs } from './worm.js';
 import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
-import { ghostfruit, reset_oattached_mids, rest_traps } from './restore.js';
+import {
+    ghostfruit, reset_oattached_mids, rest_push_each, rest_traps, restdamage,
+} from './restore.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -1268,11 +1270,11 @@ async function restoreBonesLevel(bonesData, state) {
     // chains. save_engravings() writes head_engr in chain order and
     // rest_engravings() pushes each one it reads, so the restored chain is
     // reversed; it then strips leading spaces and stamps engr_time.
-    let engravings = null;
-    for (const saved of bonesData.engravings ?? [])
-        engravings = { ...saved, engr_txt: [...saved.engr_txt],
-            nxt_engr: engravings };
-    state.head_engr = engravings;
+    state.head_engr = null;
+    rest_push_each(bonesData.engravings ?? [], (saved) => {
+        state.head_engr = { ...saved, engr_txt: [...saved.engr_txt],
+            nxt_engr: state.head_engr };
+    });
     rest_engravings(state);
 
     rest_region_capacity(level);
@@ -1316,17 +1318,8 @@ async function restoreBonesLevel(bonesData, state) {
     relink_light_sources(idMap, state);
 
     // C ref: restore.c restdamage() (153-179), which getlev() calls after
-    // its monster loop: each record read is pushed, so the list comes back
-    // reversed, and a bones file's times move to this game's clock.
-    level.damagelist = null;
-    for (const saved of bonesData.damage ?? []) {
-        level.damagelist = {
-            ...saved,
-            place: { ...saved.place },
-            when: saved.when + (state.moves - omoves),
-            next: level.damagelist,
-        };
-    }
+    // its monster loop.
+    restdamage(bonesData.damage ?? [], level, state.moves - omoves);
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first

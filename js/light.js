@@ -43,6 +43,7 @@ import {
 // js/timeout.js imports this file; both sides use the other's exports only
 // inside function bodies, so the cycle resolves.
 import { end_burn, obj_is_local } from './timeout.js';
+import { rest_push_each } from './restore.js';
 
 export class UnsupportedLightOperationError extends Error {
     constructor(operation) {
@@ -348,9 +349,10 @@ function write_ls(ls) {
 // order, ahead of the sources already in the chain.
 export function restore_light_sources(records, state = game) {
     const globals = lightGlobals(state);
-    for (const record of records ?? []) {
-        globals.light_base = { ...record, next: globals.light_base };
-    }
+    rest_push_each(records ?? [], (ls) => {
+        ls.next = globals.light_base;
+        globals.light_base = ls;
+    });
 }
 
 // C ref: light.c relink_light_sources() (516-567), its ghostly arm: each

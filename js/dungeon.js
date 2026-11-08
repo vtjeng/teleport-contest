@@ -111,6 +111,7 @@ import { tty_clear_map_window } from './wintty.js';
 import {
     Blind, EAggravate_monster, Flying, Hallucination, Levitation,
 } from './youprop.js';
+import { rest_push_each } from './restore.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -2289,11 +2290,11 @@ export function save_exclusions(state = game) {
 // C ref: dungeon.c load_exclusions() (2616-2634). getlev() pushes each saved
 // zone onto the head of sve.exclusion_zones, so a restored list is reversed.
 export function load_exclusions(saved, state = game) {
-    for (const { zonetype, lx, ly, hx, hy } of saved ?? []) {
+    rest_push_each(saved ?? [], ({ zonetype, lx, ly, hx, hy }) => {
         state.exclusion_zones = {
             zonetype, lx, ly, hx, hy, next: state.exclusion_zones ?? null,
         };
-    }
+    });
 }
 
 // C ref: dungeon.c find_mapseen() (2638-2649).

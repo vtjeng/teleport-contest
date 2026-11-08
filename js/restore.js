@@ -142,6 +142,25 @@ export async function restore_menu(_bannerwin = null, state = game) {
     return choice < 0 ? -1 : 0;
 }
 
+// The readers getlev() calls for most of a level's lists link each record
+// they read onto the front of the live list: the trap loop (restore.c
+// 1149-1163), rest_stairs() through stairway_add(), restore_light_sources()
+// (light.c 478-495), rest_engravings() (engrave.c 1584-1619), restdamage()
+// (restore.c 153-179) and load_exclusions() (dungeon.c 2616-2634). Each
+// saver wrote its list head first, so every one of these lists comes back in
+// reverse, ahead of anything already on it. Every port of those readers
+// hands its saved records to this function, in the order the saver wrote
+// them, and links each one with `push`; scripts/restore-pushed-lists.test.mjs
+// fails when a restore path sets one of these lists without its reader.
+// `saved` is an array, or a chain linked through its `link` field; the chain
+// is listed before `push` relinks any record.
+export function rest_push_each(saved, push, link = 'next') {
+    const records = [];
+    if (Array.isArray(saved)) records.push(...saved);
+    else for (let record = saved; record; record = record[link]) records.push(record);
+    for (const record of records) push(record);
+}
+
 // C ref: restore.c rest_stairs(). Frees the current list, then adds each
 // saved stairway in the order save_stairs() wrote it, head first. Because
 // stairway_add() pushes onto the head, the restored list is in reverse order,
@@ -150,24 +169,39 @@ export async function restore_menu(_bannerwin = null, state = game) {
 // a relative dlevel has no counterpart.
 function rest_stairs(saved, state) {
     stairway_free_all(state);
-    for (let stway = saved; stway; stway = stway.next) {
+    rest_push_each(saved, (stway) => {
         stairway_add(stway.sx, stway.sy, stway.up, stway.isladder,
             stway.tolev);
         const newst = stairway_at(stway.sx, stway.sy, state);
         if (newst) newst.u_traversed = stway.u_traversed;
-    }
+    });
 }
 
 // C ref: restore.c getlev() 1149-1163. getlev() reads each trap that
 // savetrapchn() wrote, head first, and pushes it onto the front of
 // gf.ftrap, so the restored chain is the reverse of the one savelev()
 // wrote. level.traps holds the gf.ftrap chain head first (trap.js
-// maketrap() unshifts), so a restore reverses it in place. #wizwhere's
-// portal report and every other gf.ftrap walk read this order. The
-// snapshot keeps trap->dst absolute, so C's relative-to-absolute
-// conversion has no counterpart.
+// maketrap() unshifts). #wizwhere's portal report and every other gf.ftrap
+// walk read this order. The snapshot keeps trap->dst absolute, so C's
+// relative-to-absolute conversion has no counterpart.
 export function rest_traps(level) {
-    level?.traps?.reverse();
+    if (!level?.traps) return;
+    const saved = level.traps;
+    level.traps = [];
+    rest_push_each(saved, (trap) => level.traps.unshift(trap));
+}
+
+// C ref: restore.c restdamage() (153-179). Each pending shop repair read is
+// pushed onto svl.level.damagelist, so the list comes back in the reverse of
+// the order savedamage() wrote it. A bones file's times move to this game's
+// clock: `adjust` is svm.moves - svo.omoves for a bones file and 0 otherwise.
+export function restdamage(saved, level, adjust = 0) {
+    level.damagelist = null;
+    rest_push_each(saved, (dam) => {
+        dam.when += adjust;
+        dam.next = level.damagelist;
+        level.damagelist = dam;
+    });
 }
 
 // The worn-slot table mirrors js/worn.js WORN_SLOTS so that restore can
