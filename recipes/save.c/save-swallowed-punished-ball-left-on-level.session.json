@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 61403,
+   "datetime": "20420917141000",
+   "nethackrc": "OPTIONS=name:Ansgar,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u00163\n\u0017cursed scroll of punishment\nri \u0007hostile dust vortex\nmsms Sy",
+   "comment": "A debug Priest level-teleports to D:3, reads a wished cursed scroll of punishment and creates a hostile dust vortex, which engulfs him (mhitu.c gulpmu() takes the ball and chain off the map). He saves while engulfed: save.c dosave0()'s done_object_cleanup() puts the free ball and chain on the floor under the vortex, so savelev() writes them with the level and save_bc() has nothing dangling to write."
+  },
+  {
+   "seed": 61427,
+   "datetime": "20420918093000",
+   "nethackrc": "OPTIONS=name:Ansgar,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " y\u00165\nll\u00163\n   ;.",
+   "comment": "The restored Priest is still engulfed, with the ball and chain on the floor (restore.c find_lev_obj() gives back uball and uchain). He level-teleports to D:5: goto_level()'s unplacebc() leaves them on the floor while he is swallowed, and savelev()'s saveobjchn() frees them with D:3 and clears uball and uchain, so he arrives unpunished and walks freely. Back on D:3, find_lev_obj() re-attaches them and goto_level()'s placebc() reports 'bc already placed?' through impossible(); farlook then shows him chained to the far-off ball. Before the fix the port kept him punished after the teleport and crashed in move_bc() on the first step."
+  }
+ ]
+}

@@ -86,7 +86,7 @@ import { setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
-import { youFeel } from './pline.js';
+import { impossible, youFeel } from './pline.js';
 import { Blind, Levitation, Maybe_Half_Phys } from './youprop.js';
 
 const BCPOS_DIFFER = 0;
@@ -229,7 +229,10 @@ export async function placebc(state = game, rawEnv = {}) {
     if (!check_restriction(0, state)) return;
     const chain = state.uchain;
     if (chain && chain.where !== OBJ_FREE) {
-        note_unported('pline.c impossible');
+        // A hero who left a level swallowed, with the ball and chain on its
+        // floor, gets them back from find_lev_obj() on returning, so
+        // goto_level()'s placebc() finds the chain already placed.
+        await impossible('bc already placed?', state);
         return;
     }
     const redraw = rawEnv.redraw ?? newsym;

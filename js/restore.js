@@ -68,7 +68,7 @@ import {
 } from './calendar.js';
 import { rest_engravings } from './engrave.js';
 import { restore_light_sources } from './light.js';
-import { add_worn_property } from './worn.js';
+import { add_worn_property, setworn } from './worn.js';
 import { coreRandom, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
@@ -348,10 +348,19 @@ export async function dorestore(state = game) {
     restore_light_sources(snapshot.level_lights, state);
 
     // Inventory and objects
-    // C ref: restore.c restgamestate():657 gi.invent = restobjchn(nhfp, FALSE).
-    // The dangling ball-and-chain that follows it in C is not in the
-    // snapshot; restgamestate():671-672 then restores the migrating chains.
+    // C ref: restore.c restgamestate():657 gi.invent = restobjchn(nhfp, FALSE),
+    // then (659-670) the dangling ball and chain that save.c save_bc() wrote,
+    // each left free and unlinked for rebuildEquipmentPointers() to give
+    // back its uball or uchain pointer; restgamestate():671-672 then
+    // restores the migrating chains.
     state.invent = restobjchn(snapshot.invent, state);
+    const bcObjs = [];
+    for (let bc_obj = restobjchn(snapshot.bc_objs ?? null, state); bc_obj;) {
+        const nobj = bc_obj.nobj;
+        bc_obj.nobj = null;
+        bcObjs.push(bc_obj);
+        bc_obj = nobj;
+    }
     state.gm ??= {};
     state.gm.migrating_objs = restobjchn(snapshot.migrating_objs ?? null,
         state);
@@ -536,7 +545,9 @@ export async function dorestore(state = game) {
     // C ref: restore.c getlev():1158-1173 fobj = restobjchn(nhfp, FALSE),
     // find_lev_obj(), then the buried chain and gb.billobjs.
     state.level.objlist = restobjchn(state.level.objlist, state);
-    find_lev_obj(state.level.objlist);
+    // Its ball and chain fixup runs in rebuildEquipmentPointers(), which
+    // first clears every slot that newgame left.
+    find_lev_obj(state.level.objlist, state, false);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
     state.gb ??= {};
     state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
@@ -574,7 +585,7 @@ export async function dorestore(state = game) {
     state.gd.defer_see_monsters = true;
 
     // Rebuild equipment pointers from inventory owornmask bits.
-    rebuildEquipmentPointers(state);
+    rebuildEquipmentPointers(state, bcObjs);
 
     // C ref: restore.c:694-700 clears the reconstructed primary pointer so
     // setuwep reinitializes it, then conservatively treats digging tools
@@ -612,7 +623,7 @@ export async function dorestore(state = game) {
     return true;
 }
 
-// C ref: restore.c find_lev_obj() (71-106), the no_charge part of its
+// C ref: restore.c find_lev_obj() (71-106): the no_charge part of its
 // place_object() call for each floor object (mkobj.c:2355-2358): an object
 // keeps no_charge only on a costly spot or one costly_adjacent() to its
 // owner. getlev() has just run rest_rooms(), which zeroes every room's
@@ -621,9 +632,15 @@ export async function dorestore(state = game) {
 // no_charge across a save and restore or a return to its level. Contained
 // and buried objects are not placed and keep theirs. The snapshot keeps the
 // level.objects grid, so the rest of find_lev_obj()'s rebuild has no work.
-function find_lev_obj(objlist) {
-    for (let otmp = objlist; otmp; otmp = otmp.nobj)
+// On the hero's level (`heroLevel`; restore.c:101 tests u.uz.dlevel, which
+// is 0 while dorecover() reads the other levels), a ball or chain on the
+// floor gets its uball or uchain pointer back through setworn() (102-104).
+function find_lev_obj(objlist, state, heroLevel) {
+    for (let otmp = objlist; otmp; otmp = otmp.nobj) {
         if (otmp.no_charge) otmp.no_charge = 0;
+        if (heroLevel && (otmp.owornmask & (W_BALL | W_CHAIN)))
+            setworn(otmp, otmp.owornmask, { state });
+    }
 }
 
 // C ref: restore.c dorecover():859-877 with getlev() (1046-1311) under
@@ -647,7 +664,7 @@ function rest_other_levels(levels, state) {
         restoreLevelAt(level);
         level.monlist = restmonchn(level.monlist, state);
         level.objlist = restobjchn(level.objlist, state);
-        find_lev_obj(level.objlist);
+        find_lev_obj(level.objlist, state, false);
         level.buriedobjlist = restobjchn(level.buriedobjlist, state);
         saved.billobjs = restobjchn(saved.billobjs ?? null, state);
         savemonchn(level.monlist, state);
@@ -848,10 +865,16 @@ function setWornPointers(obj, state) {
     }
 }
 
-function rebuildEquipmentPointers(state) {
+function rebuildEquipmentPointers(state, bcObjs) {
     // Clear all equipment slots first.
     for (const { field } of WORN_SLOTS) {
         state[field] = null;
+    }
+
+    // C ref: restore.c restgamestate():662-669, setworn() for the dangling
+    // ball and chain, before the inventory's. Neither confers a property.
+    for (const obj of bcObjs) {
+        if (obj.owornmask) setWornPointers(obj, state);
     }
 
     // C ref: restore.c restgamestate():685-687, setworn() for each worn
@@ -969,7 +992,7 @@ export async function getlev(ledger, state = game) {
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon)
         if (mtmp.minvent) mtmp.minvent = restobjchn(mtmp.minvent, state);
     state.level.objlist = restobjchn(state.level.objlist, state);
-    find_lev_obj(state.level.objlist);
+    find_lev_obj(state.level.objlist, state, true);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
     state.gb ??= {};
     state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);

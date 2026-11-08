@@ -37,7 +37,8 @@
 // while the cycle remains.
 import { yn_function } from './cmd.js';
 import {
-    BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_GLOBAL, RANGE_LEVEL, VISITED,
+    BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, OBJ_FREE, RANGE_GLOBAL,
+    RANGE_LEVEL, VISITED, W_BALL, W_CHAIN,
 } from './const.js';
 import { game } from './gstate.js';
 import { done_object_cleanup, nh_terminate } from './end.js';
@@ -60,6 +61,7 @@ import { rest_saved_level_regions } from './region.js';
 import { save_oracles } from './rumors.js';
 import { tty_getmsghistory } from './topl.js';
 import { yyyymmddhhmmss } from './calendar.js';
+import { setworn } from './worn.js';
 
 // ── Level-local timer and light source capture ──
 //
@@ -109,10 +111,11 @@ function captureLocalLights(state) {
 // only. Before an object is freed with the level it belongs to, a svc.context
 // pointer that names it -- victual.piece, tin.tin or spbook.book -- is set
 // to Null and its o_id kept, so that restobjchn() can recover the pointer
-// when the level is read back (restore.c 283-290). Container contents
-// recurse first (774-775). The write and the free have no counterpart: the
-// port keeps the objects alive in the level snapshot, and nothing walks them
-// from another level.
+// when the level is read back (restore.c 283-290), and a ball or chain on the
+// chain clears uball or uchain through setworn() (790-793). Container
+// contents recurse first (774-775). The write and the free have no
+// counterpart: the port keeps the objects alive in the level snapshot, and
+// nothing walks them from another level.
 export function saveobjchn(first, state) {
     const context = state.context;
     for (let otmp = first; otmp; otmp = otmp.nobj) {
@@ -128,6 +131,19 @@ export function saveobjchn(first, state) {
         if (context?.spbook?.book === otmp) {
             context.spbook.o_id = otmp.o_id;
             context.spbook.book = null;
+        }
+        // goto_level()'s unplacebc() takes the ball and chain off the floor
+        // before savelev(), except while the hero is swallowed (ball.c
+        // unplacebc_core()); then they stay with the level and the hero
+        // leaves it unpunished. C's level file keeps the saved owornmask,
+        // which find_lev_obj() hands back to setworn() when the hero
+        // returns; the port's snapshot holds this object, so it keeps the
+        // mask that setworn() clears from it.
+        const bcMask = otmp.owornmask & (W_BALL | W_CHAIN);
+        if (bcMask) {
+            const savedMask = otmp.owornmask;
+            setworn(null, bcMask, { state });
+            otmp.owornmask = savedMask;
         }
     }
 }
@@ -577,6 +593,9 @@ function serializeGameState(state) {
         tune: state.tune,
         // Inventory and objects
         invent: state.invent,
+        // C ref: save.c savegamestate():303-304 save_bc(), right after the
+        // inventory.
+        bc_objs: save_bc(state),
         // C ref: save.c savegamestate():306-307 saveobjchn(gm.migrating_objs)
         // and savemonchn(gm.migrating_mons), right after the inventory and
         // any dangling ball and chain.
@@ -651,6 +670,30 @@ function serializeGameState(state) {
     // its ledger number.
     snapshot.otherLevels = save_other_levels(state);
     return snapshot;
+}
+
+// C ref: save.c save_bc() (696-722), with the gl.looseball and gl.loosechain
+// that dosave0():166-167 sets just before savelev(): a ball or chain that is
+// free while the hero is swallowed (hack.h BALL_IN_MON and CHAIN_IN_MON) is
+// written in its own chain, ball first. dosave0()'s done_object_cleanup() has
+// already put a free chain and its ball on the floor, so the chain is
+// normally empty. restore.js dorestore() reads it back.
+function save_bc(state) {
+    const swallowed = Boolean(state.u?.uswallow);
+    const looseball = swallowed && state.uball?.where === OBJ_FREE
+        ? state.uball : null;
+    const loosechain = swallowed && state.uchain?.where === OBJ_FREE
+        ? state.uchain : null;
+    let bc_objs = null;
+    if (loosechain) {
+        loosechain.nobj = bc_objs;
+        bc_objs = loosechain;
+    }
+    if (looseball) {
+        looseball.nobj = bc_objs;
+        bc_objs = looseball;
+    }
+    return bc_objs;
 }
 
 // C ref: dungeon.c save_dungeon():172-176. `count = maxledgerno()` and the
