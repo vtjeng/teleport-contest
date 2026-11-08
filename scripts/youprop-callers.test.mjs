@@ -155,3 +155,18 @@ test('mkmaze.c water_friction() and hack.c water_turbulence() read Swimming, whi
     await water_friction(state, (n) => { draws.push(n); return 1; });
     assert.deepEqual(draws, [4]);
 });
+
+test('vault.c invault() reads Strangled, the intrinsic timeout alone', () => {
+    // Strangled is u.uprops[STRANGLED].intrinsic (youprop.h:110). An amulet of
+    // strangulation also sets the extrinsic field through setworn(), and
+    // Amulet_on() starts the intrinsic timeout only for a hero who can be
+    // strangled. vault.js tested both fields, so a breathless or headless
+    // hero wearing the amulet could not answer the guard. A recorded game
+    // would need such a form, the amulet and a vault guard.
+    const c = cBody(read('nethack-c/upstream/src/vault.c'), 'invault');
+    assert.equal(count(c, /\bStrangled\b/gu), 1, 'C invault() reads Strangled');
+    const js = read('js/vault.js');
+    assert.equal(count(jsBody(js, 'invault'), /\bStrangled\(state\.u\)/gu), 1,
+        'vault.js invault() calls youprop.js Strangled()');
+    assert.doesNotMatch(js, /function Strangled\(/u, 'vault.js keeps no Strangled copy');
+});

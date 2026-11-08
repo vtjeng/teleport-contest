@@ -41,7 +41,6 @@ import {
     ROWNO,
     SCORR,
     STONE,
-    STRANGLED,
     TLCORNER,
     TRCORNER,
     VAULT,
@@ -102,7 +101,7 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
-import { Blind, Deaf } from './youprop.js';
+import { Blind, Deaf, Strangled } from './youprop.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -1034,13 +1033,6 @@ function find_guard_dest(guard, state) {
     return null;
 }
 
-function propertyActive(hero, index) {
-    const property = hero?.uprops?.[index];
-    return Boolean(property?.intrinsic || property?.extrinsic);
-}
-function Strangled(state) {
-    return propertyActive(state.u, STRANGLED);
-}
 // C ref: vault.c invault() (317-629). Called once per turn from moveloop when
 // the hero is in a vault. After VAULT_GUARD_TIME turns, creates a guard who
 // asks the hero's name and demands any gold be dropped.
@@ -1202,7 +1194,7 @@ export async function invault(state, env = {}) {
         await mongone(guard, { state, random });
         return;
     }
-    if (Strangled(state) || is_silent(state.youmonst?.data ?? u.umonster)
+    if (Strangled(state.u) || is_silent(state.youmonst?.data ?? u.umonster)
         || state.multi < 0) {
         if (Deaf(state.u)) {
             await message(`${noit_Monnam(guard, state)} huffs and turns to leave.`);
