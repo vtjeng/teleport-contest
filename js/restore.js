@@ -166,13 +166,15 @@ export function rest_push_each(saved, push, link = 'next') {
 // saved stairway in the order save_stairs() wrote it, head first. Because
 // stairway_add() pushes onto the head, the restored list is in reverse order,
 // as in C. stairway_add() clears u_traversed, so the saved value is copied
-// back afterwards. The snapshot keeps tolev absolute, so C's conversion from
-// a relative dlevel has no counterpart.
-export function rest_stairs(saved, state) {
+// back afterwards. C saves a same-dungeon tolev relative to the level
+// (save.c save_stairs()). The port's own level snapshots keep it absolute;
+// a bones snapshot keeps it relative, and its reader passes `relativeTo`,
+// the restoring game's u.uz, for C's conversion back to absolute.
+export function rest_stairs(saved, state, relativeTo = null) {
     stairway_free_all(state);
     rest_push_each(saved, (stway) => {
         stairway_add(stway.sx, stway.sy, stway.up, stway.isladder,
-            stway.tolev);
+            absolute_dest(stway.tolev, relativeTo));
         const newst = stairway_at(stway.sx, stway.sy, state);
         if (newst) newst.u_traversed = stway.u_traversed;
     });
@@ -183,13 +185,24 @@ export function rest_stairs(saved, state) {
 // gf.ftrap, so the restored chain is the reverse of the one savelev()
 // wrote. level.traps holds the gf.ftrap chain head first (trap.js
 // maketrap() unshifts). #wizwhere's portal report and every other gf.ftrap
-// walk read this order. The snapshot keeps trap->dst absolute, so C's
-// relative-to-absolute conversion has no counterpart.
-export function rest_traps(level) {
+// walk read this order. C saves a same-dungeon trap->dst relative to the
+// level (save.c savetrapchn()); as for rest_stairs(), only a bones snapshot
+// keeps it relative and passes `relativeTo`.
+export function rest_traps(level, relativeTo = null) {
     if (!level?.traps) return;
     const saved = level.traps;
     level.traps = [];
-    rest_push_each(saved, (trap) => level.traps.unshift(trap));
+    rest_push_each(saved, (trap) => {
+        if (trap.dst) trap.dst = absolute_dest(trap.dst, relativeTo);
+        level.traps.unshift(trap);
+    });
+}
+
+// C ref: restore.c rest_stairs() (972-976) and getlev() (1154-1158): a
+// destination in the restoring hero's dungeon is relative; add u.uz.dlevel.
+function absolute_dest(dest, relativeTo) {
+    if (!dest || !relativeTo || dest.dnum !== relativeTo.dnum) return dest;
+    return { ...dest, dlevel: dest.dlevel + relativeTo.dlevel };
 }
 
 // C ref: restore.c restdamage() (153-179). Each pending shop repair read is

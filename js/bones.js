@@ -745,6 +745,16 @@ export async function savebones(how, when, corpse, state) {
     write_bonesfile(state.u.uz, JSON.stringify(bonesData, safeReplacer), state);
 }
 
+// C ref: save.c save_stairs() and savetrapchn(): a destination level in the
+// hero's dungeon is saved as an offset from u.uz; restore.c rest_stairs()
+// and getlev() add the restoring game's u.uz.dlevel back. Other dungeons'
+// destinations, and an unset trap's dnum -1, stay absolute.
+function relative_dest(dest, state) {
+    return dest.dnum === state.u.uz.dnum
+        ? { ...dest, dlevel: dest.dlevel - state.u.uz.dlevel }
+        : { ...dest };
+}
+
 // Serialize the current level state into a JSON-safe object for bones
 // storage. Each entity (monster, object) is cloned without circular
 // references. C savelev() writes fmon in linked-list order, while floor and
@@ -769,6 +779,10 @@ function serializeBonesLevel(state) {
     // C savelev() writes gs.stairs separately from the level terrain. Keep
     // the complete linked list because newgame() calls u_on_upstairs() after
     // getbones(), and that lookup reads gs.stairs rather than level.upstair.
+    // C ref: save.c save_stairs() (665-693): a destination in this dungeon
+    // is written relative to the level, so the stairs of a special level
+    // that another game places at a different depth still lead one level up
+    // or down.
     const stairs = [];
     for (let stair = state.stairs; stair; stair = stair.next) {
         stairs.push({
@@ -776,7 +790,7 @@ function serializeBonesLevel(state) {
             sy: stair.sy,
             up: stair.up,
             isladder: stair.isladder,
-            tolev: stair.tolev ? { ...stair.tolev } : null,
+            tolev: stair.tolev ? relative_dest(stair.tolev, state) : null,
             u_traversed: stair.u_traversed,
         });
     }
@@ -856,12 +870,15 @@ function serializeBonesLevel(state) {
         }
     }
 
-    // Strip functions from traps
+    // Strip functions from traps. C ref: save.c savetrapchn() (918-944)
+    // writes a hole's or trap door's destination in this dungeon relative to
+    // the level, as save_stairs() does.
     const traps = (level.traps ?? []).map((t) => {
         const tc = { ...t };
         for (const k of Object.keys(tc)) {
             if (typeof tc[k] === 'function') delete tc[k];
         }
+        if (tc.dst) tc.dst = relative_dest(tc.dst, state);
         return tc;
     });
 
@@ -1147,8 +1164,9 @@ async function restoreBonesLevel(bonesData, state) {
         },
     };
     // C ref: restore.c getlev():1149-1163, reached through getbones(): the
-    // restored trap chain is the reverse of the one savebones() wrote.
-    rest_traps(level);
+    // restored trap chain is the reverse of the one savebones() wrote, and
+    // its destinations are relative to the level.
+    rest_traps(level, state.u.uz);
 
     // Rebuild object chains from flat arrays. Returns the head of a linked
     // list (via nobj). For each object, also links container contents (cobj)
@@ -1264,7 +1282,7 @@ async function restoreBonesLevel(bonesData, state) {
     // those coordinates describe terrain, while stairway_find_dir() needs the
     // destination-bearing nodes. Each saved stairway is pushed, so the list
     // comes back reversed.
-    rest_stairs(bonesData.stairs ?? [], state);
+    rest_stairs(bonesData.stairs ?? [], state, state.u.uz);
     // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
     // right after the stairs. The Wizard's Tower levels keep their tower
     // boundary in dndest, which dungeon.c In_W_tower() requires.

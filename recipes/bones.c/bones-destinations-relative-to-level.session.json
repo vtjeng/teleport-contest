@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent witness for save.c save_stairs() and savetrapchn() with restore.c rest_stairs() and getlev(): a bones file keeps same-dungeon stair and trap destinations relative to its level. A debug human Valkyrie level-teleports to level 8, which this seed makes the Oracle, maps it, teleports beside the up staircase, wishes for a trap door there, steps east and dies by a wand of death, saving bones. A second game on another seed and clock, whose Oracle is level 5, loads them on level 5, teleports to the down staircase and descends to level 6 (not 9), climbs back, teleports to the up staircase, steps onto the trap door and falls to level 6. The seeds were chosen for their Oracle depths.",
+  "segments": [
+    {
+      "seed": 5150101,
+      "datetime": "20370401120000",
+      "nethackrc": "OPTIONS=name:Ada,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00168\n\u0006\u0014 \u001b<l.\u0017trap door\nl\u0017wand of death\nze.  y qy"
+    },
+    {
+      "seed": 5150102,
+      "datetime": "20370403091500",
+      "nethackrc": "OPTIONS=name:Taro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00165\nyy\u0006\u0014 \u001b>. > :< \u0014<.ly :"
+    }
+  ]
+}
