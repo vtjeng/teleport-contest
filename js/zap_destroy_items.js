@@ -210,8 +210,7 @@ function destroyedItemName(u_carry, carrier, obj, cnt, quan, state, displayRando
 // ported. Monster carriers never call recharge() in C.
 async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     const { state, random } = env;
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     const u_carry = carrier === state.youmonst;
     const vis = !u_carry && canseemon(carrier, state);
 
@@ -319,20 +318,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     if (chargeIt) {
         // C only calls read.c:recharge() for the hero; monster-carried charged
         // rings still take the same early return without a recharge call.
-        if (u_carry) {
-            // recharge() draws from the live RNG and writes messages and
-            // inventory directly, so a planning clone stops at this boundary
-            // and leaves the call to the live pass.
-            if (env.planning) {
-                if (typeof env.requestPlanningInput !== 'function') {
-                    throw new TypeError(
-                        'planned read.c recharge requires a planning boundary',
-                    );
-                }
-                env.requestPlanningInput('read.c recharge');
-            }
-            await recharge(obj, 0, state);
-        }
+        if (u_carry) await recharge(obj, 0, state);
         return dmg;
     }
 
@@ -403,7 +389,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // termination in the JavaScript replay harness.
                 if (state.program_state?.gameover) return dmg;
                 // The encumbrance line goes through the same message
-                // operation, so a planning pass prints nothing.
+                // operation.
                 await exercise(A_STR, false, state, random, {
                     encumberMessage: env.encumberMessage
                         ?? ((hero) => encumber_msg(hero, { message })),
@@ -528,8 +514,7 @@ export async function burn_floor_objects(
         );
     }
 
-    const message = env.message
-        ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     let count = 0;
     for (let obj = env.state.level.objects[x][y]; obj;) {
         const next = obj.nexthere;
