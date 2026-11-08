@@ -2206,7 +2206,7 @@ export function remove_achievement(achidx, state = game) {
 
 // C ref: insight.c's shared vanquished-list data and UniqCritterIndx macro
 // (2776-2781).  The list is state-owned: mvitals and mons are read from the
-// state passed by the caller so a planning clone never consults the live game.
+// state passed by the caller.
 export function monsterVitals(state) {
     return state.svm?.mvitals ?? state.mvitals ?? [];
 }

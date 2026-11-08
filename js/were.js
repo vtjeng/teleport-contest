@@ -69,7 +69,7 @@ export async function you_unwere(purify, state = game, env = {}) {
         || state.u.uprops[property].extrinsic);
     const controllable_poly = active(POLYMORPH_CONTROL)
         && !(active(STUNNED) || Unaware(state));
-    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const message = env.message ?? ttyPline;
     if (purify) {
         await message(youFeel('purified.', state), state);
         set_ulycn(NON_PM, state);
@@ -78,13 +78,6 @@ export async function you_unwere(purify, state = game, env = {}) {
     if (!active(UNCHANGING) && is_were(state.youmonst.data)
         && !monster_nearby(state)) {
         if (controllable_poly) {
-            // Canonical paranoid_query reads live input. Defer only when C
-            // actually reaches that query, preserving the preceding gates.
-            if (env.planning) {
-                if (typeof env.requestPlanningInput !== 'function')
-                    throw new TypeError('planned you_unwere requires an input boundary');
-                env.requestPlanningInput('you_unwere');
-            }
             leaveBeast = !await paranoid_query(
                 Boolean(state.flags.paranoia_bits & PARANOID_WERECHANGE),
                 'Remain in beast form?', state,

@@ -294,7 +294,7 @@ import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { livelog_printf, youFeel } from './pline.js';
 import {
-    GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
+    GLYPH_INVISIBLE, map_invisible, unmap_object,
 } from './display.js';
 import {
     healmon, killed, mongone, monkilled, new_were, wake_nearto, wakeup,
@@ -710,8 +710,6 @@ export async function self_invis_message(state = game, env = {}) {
 // When talk is true and the state changes, prints "You can hear again." or
 // "You are unable to hear anything."  The rottenfood fainting callback
 // (Hear_again) calls make_deaf(0, false), clearing the timer silently.
-// `env.message` lets elapsed-turn planning run this source call without
-// writing the clone's message to the live terminal.
 export async function make_deaf(xtime, talk, state = game, env = {}) {
     // Nothing sets HDeaf's non-timeout bits, so the whole field C reads as
     // `old` is its timeout.
@@ -739,9 +737,8 @@ export async function make_deaf(xtime, talk, state = game, env = {}) {
 
 // C ref: potion.c make_blinded() (261-331). The temporary timeout is probed
 // before committing it because Eyes of the Overworld can keep Blind false even
-// while HBlinded changes. Message calls use the caller's seam so planning
-// clones do not write to the live terminal; toggle_blindness() remains the
-// canonical owner of the full vision rebuild.
+// while HBlinded changes. Message calls use the caller's seam;
+// toggle_blindness() remains the canonical owner of the full vision rebuild.
 export async function make_blinded(xtime, talk, state = game, env = {}) {
     const old = BlindedTimeout(state.u);
 
@@ -901,37 +898,21 @@ export async function make_stunned(xtime, talk, state = game, env = {}) {
 export async function make_hallucinated(
     xtime, talk, mask = 0, state = game, rawEnv = {},
 ) {
-    const planning = Boolean(rawEnv.planning);
-    const message = rawEnv.message
-        ?? (planning ? async () => {} : ttyPline);
-    const redraw = rawEnv.redraw
-        ?? (planning ? () => {} : newsym);
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
     // Object and trap repainting is display-only.  Their existing owners are
-    // live-game helpers; a planning clone supplies optional seams when it
-    // needs to observe these writes, and otherwise discards the repaint just
-    // as the clone discards every other terminal update.
+    // live-game helpers; a state other than the live game supplies optional
+    // seams when it needs to observe these writes, and otherwise discards
+    // the repaint.
     const seeObjects = rawEnv.seeObjects
-        ?? (!planning && state === game ? see_objects : () => {});
+        ?? (state === game ? see_objects : () => {});
     const seeTraps = rawEnv.seeTraps
-        ?? (!planning && state === game ? see_traps : () => {});
-    // A planning clone still needs see_monsters() to update its own map
-    // memory.  An explicit planning call against the live game is the one
-    // case where the display fallback must stay silent.
+        ?? (state === game ? see_traps : () => {});
     const seeMonsters = rawEnv.seeMonsters
-        ?? (planning && state === game
-            ? () => {}
-            : (subject) => see_monsters(subject, { ...rawEnv, message, redraw }));
+        ?? ((subject) => see_monsters(subject, { ...rawEnv, message, redraw }));
     const swallow = rawEnv.swallowed
-        ?? (!planning && state === game ? swallowed : async () => {});
-    const hooks = {
-        ...(rawEnv.hooks ?? {}),
-        // invent.c requires an updateInventory seam for an active
-        // permanent-inventory window.  Planning has no live window to paint,
-        // but it still must pass that source preflight without refusal; a
-        // caller-provided hook remains authoritative.
-        ...(planning && typeof rawEnv.hooks?.updateInventory !== 'function'
-            ? { updateInventory: () => {} } : {}),
-    };
+        ?? (state === game ? swallowed : async () => {});
+    const hooks = { ...(rawEnv.hooks ?? {}) };
     const env = { ...rawEnv, state, message, redraw, hooks };
     if (Unaware(state)) talk = false;
     const old = HHallucination(state.u) & TIMEOUT;
@@ -1617,8 +1598,7 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     else
         incr_itimeout(state.u.uprops[SEE_INVIS], random.rn1(100, 750));
     set_mimic_blocking(state);
-    await see_monsters(state, { ...env, message,
-        redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
+    await see_monsters(state, { ...env, message });
     newsym(state.u.ux, state.u.uy);
     if (msg && !Blind(state.u)) {
         await message(
@@ -2301,7 +2281,7 @@ export async function dodrink(state = game) {
 // (telepathy, infravision, or Sting-glow) depend on the blind/sighted split.
 //
 // The Sting_effects(-1) result is discarded by C.  The implemented artifact
-// owner accepts the message seam below so planning clones stay silent.
+// owner accepts the message seam below.
 export async function toggle_blindness(state = game, env = {}) {
     const hero = state.u;
 
@@ -2311,9 +2291,10 @@ export async function toggle_blindness(state = game, env = {}) {
 
     state.disp.botl = true;               // status conditions need update
     state.vision_full_recalc = 1;          // vision has changed
-    // vision_recalc() and see_monsters() can operate on a planning clone when
-    // their caller gives them the clone's redraw seam. The fallback is silent
-    // for a non-live state because newsym() is the live display owner.
+    // vision_recalc() and see_monsters() can operate on a state other than
+    // the live game when their caller gives them that state's redraw seam.
+    // The fallback is silent for a non-live state because newsym() is the
+    // live display owner.
     const redraw = env.redraw ?? (state === game ? undefined : () => {});
     const visionRecalc = env.visionRecalc
         ?? ((control) => vision_recalc(control, { state, redraw }));
@@ -2326,7 +2307,7 @@ export async function toggle_blindness(state = game, env = {}) {
 
     // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
     // message to match the new blindness state. Its result is discarded; the
-    // async owner accepts a silent clone message seam.
+    // async owner accepts a silent message seam for a non-live state.
     if (Stinging) {
         await Sting_effects(-1, state, {
             message: env.message ?? (state === game ? undefined : async () => {}),
@@ -2666,10 +2647,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             mon_set_minvis(mon, cursedPotion, state);
             if (sawit && !canspotmon(mon, state)) {
                 if (cansee(mon.mx, mon.my, state))
-                    (env.planning && state !== game
-                        ? map_invisible_planning : map_invisible)(
-                        mon.mx, mon.my, state,
-                    );
+                    map_invisible(mon.mx, mon.my, state);
             } else if (sawit && cursedPotion) {
                 await message(`${Monnam(mon, state, env)} briefly seems to be transparent.`, state);
             } else if (!sawit && canspotmon(mon, state)) {
@@ -2845,8 +2823,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
     let cureblind = false;
     const already_in_use = obj.in_use;
     const random = env.random ?? coreRandom;
-    // potionhit() can call this inside a monster planning clone, which must
-    // send feedback through its own message operation.
+    // Feedback goes through the caller's message operation when it has one.
     const message = env.message ?? ttyPline;
 
     /* potion of unholy water might be wielded; prevent

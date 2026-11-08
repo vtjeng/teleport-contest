@@ -2183,7 +2183,7 @@ function setTerrain(location, typ, flags = 0) {
 export async function draft_message(unexpected, env) {
     const state = env.state;
     const random = env.random ?? coreRandom;
-    const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
+    const message = env.message ?? (async () => {});
     const hallucinating = Hallucination(state.u);
     if (unexpected) {
         if (!hallucinating) {
@@ -2215,10 +2215,8 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const objectEnv = objectGenerationEnv({ ...rawEnv, state, random });
-    const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? (() => {}));
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? (async () => {}));
+    const redraw = rawEnv.redraw ?? (() => {});
+    const message = rawEnv.message ?? (async () => {});
     const recalcBlockPoint = rawEnv.recalcBlockPoint ?? recalc_block_point;
     const unblockPoint = rawEnv.unblockPoint ?? unblock_point;
     const x = monster.mx;
@@ -2319,8 +2317,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
 // the chain that had followed a ball.
 export async function bury_objs(x, y, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const redraw = env.planning ? (() => {})
-        : (env.newsym ?? env.redraw ?? ((px, py) => newsym(px, py, state)));
+    const redraw = env.newsym ?? env.redraw ?? ((px, py) => newsym(px, py, state));
     const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
     const costly = keeper && costly_spot(x, y, state);
     let loss = 0;
@@ -2335,7 +2332,7 @@ export async function bury_objs(x, y, state = game, rawEnv = {}) {
     del_engr_at(x, y, state);
     redraw(x, y, state);
     maybe_unhide_at(x, y, state, env);
-    if (costly && loss && !env.planning) {
+    if (costly && loss) {
         await (env.message ?? ttyPline)(
             `You owe ${shkname(keeper, state)} ${loss} ${currency(loss, state)} for burying merchandise.`,
             state, env,
@@ -2358,21 +2355,18 @@ export async function wiz_debug_cmd_bury(state = game, env = {}) {
         }
     }
     const difference = before - after;
-    if (!env.planning) {
-        await (env.message ?? ttyPline)(
-            before === 0 ? 'No objects here or adjacent to bury.'
-                : difference === 0 ? 'No objects buried.'
-                    : `${difference} object${difference === 1 ? '' : 's'} buried.`,
-            state, env,
-        );
-    }
+    await (env.message ?? ttyPline)(
+        before === 0 ? 'No objects here or adjacent to bury.'
+            : difference === 0 ? 'No objects buried.'
+                : `${difference} object${difference === 1 ? '' : 's'} buried.`,
+        state, env,
+    );
     return ECMD_OK;
 }
 
 // The environment dig.c's rotting hands its callees. `state` and `hooks` are
 // what invent.c obj_extract_self() and obfree() read; the caller supplies
-// hooks.newsym, because a planned turn runs this over a discarded clone and
-// must draw nothing on the live map.
+// hooks.newsym.
 //
 // obj_extract_self()'s OBJ_FLOOR arm dispatches to mkobj.c remove_object() in
 // C. The port injects that owner, and rotting can mean no other one, so the
@@ -2434,7 +2428,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
         if (state.flags.verbose) {
             const cname = corpse_xname(obj, null, CXN_NO_PFX, state);
             const wielded = obj === state.uwep;
-            const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+            const message = env.message ?? ttyPline;
             await message('Your ' + (wielded ? 'wielded ' : '') + cname
                 + ' ' + otense(obj, 'rot', state) + ' away' + (wielded ? '!' : '.'));
         }
@@ -2445,8 +2439,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
             // dig.c:2165.
             await stop_occupation(state, {
                 ...env,
-                message: env.message
-                    ?? (env.planning ? async () => {} : ttyPline),
+                message: env.message ?? ttyPline,
             });
         }
     } else if (obj.where === OBJ_MINVENT) {

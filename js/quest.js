@@ -59,9 +59,7 @@ import { Deaf } from './youprop.js';
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
 // stream, and the refusal. Each caller owns the refusal class, so that #chat
 // and monster movement report an unported arm the way the rest of their own
-// subsystem does. The monster-movement dry run replaces the pager output, the
-// message and the prompt as well, because it must stay silent and must never
-// wait for a key.
+// subsystem does.
 function questConversation(env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
@@ -381,8 +379,8 @@ async function chat_with_leader(mtmp, ops) {
             qs.got_quest = true;
             // C's first assignment records the leader's source-owned name in
             // the chronicle after the assignment state change. Thread the
-            // conversation environment through noit_mon_nam() so a planning
-            // caller retains its private display/random owners.
+            // conversation environment through noit_mon_nam() so the caller's
+            // display and random owners apply.
             livelog_printf(
                 LL_ACHIEVE,
                 `${noit_mon_nam(mtmp, state, ops)} has granted access `

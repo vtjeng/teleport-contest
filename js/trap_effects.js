@@ -417,8 +417,7 @@ import {
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
-// mintrap() supplies live defaults for state-only production callers; planning
-// callers replace message/redraw and RNG with clone-local operations. Every
+// mintrap() supplies live defaults for state-only production callers. Every
 // supplied environment is checked here so an invalid operation fails before
 // it is used.
 function requireTrapOperation(env, name) {
@@ -434,9 +433,9 @@ function requireTrapOperation(env, name) {
 const a_your = Object.freeze(['a', 'your']);
 const A_Your = Object.freeze(['A', 'Your']);
 
-// Live dotrap() uses its ordinary owners. The planned hurtle caller can pass
-// clone-local RNG, message and redraw operations without changing other trap
-// callers; `unsupported` keeps the same movement-catch boundary.
+// Live dotrap() uses its ordinary owners. A caller can pass its own RNG,
+// message and redraw operations without changing other trap callers;
+// `unsupported` keeps the same movement-catch boundary.
 function heroTrapEnv(state, rawEnv = {}) {
     return {
         ...rawEnv,
@@ -506,9 +505,7 @@ export function fixed_tele_trap(trap) {
         && isok(trap.teledest?.x, trap.teledest?.y);
 }
 
-// C ref: trap.c seetrap(). The redraw is injected because the planning clone
-// paints nothing; the tseen write is real in both passes, which is why
-// planningState() clones the level's trap list.
+// C ref: trap.c seetrap(). The redraw is injected by the caller.
 export function seetrap(trap, env) {
     const redraw = requireTrapOperation(env, 'redraw');
     if (!trap.tseen) {
@@ -787,7 +784,6 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        // The caller's redraw is silent in a monster turn's planning pass.
         requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my, state);
         return Trap_Is_Gone;
     }
@@ -1196,8 +1192,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
 // the --More--, and only then evaluates thitm()'s argument at 1554, so the
 // draw lands in the keystroke that dismissed the message and not in the one
 // that moved the monster. The port reaches the same order by awaiting the
-// message seam, which suspends in the live pass and returns at once in the
-// cloned planning pass, leaving the draw at the same position in both.
+// message seam.
 async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
@@ -2235,7 +2230,7 @@ export async function dofiretrap(box, rawEnv = {}) {
 // (1738-1819) is also the return-valued callee of trapeffect_magic_trap(); its
 // hero arm delegates to dofiretrap() and returns Trap_Effect_Finished.
 async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
-    // Both names use the active display owner, including speculative turns.
+    // Both names use the active display owner.
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
@@ -2594,24 +2589,19 @@ export function force_launch_placement(state = game) {
 // and placed, 2 if launched and used up.
 //
 // This port covers the rolling path shared by the hero and monster arms. The
-// display and message operations are injected so mintrap() can first replay
-// the same motion against its planning clone without painting or printing.
+// display and message operations can be injected by the caller.
 export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
     const env = {
         ...rawEnv,
         state,
         random: rawEnv.random ?? coreRandom,
     };
-    const planning = Boolean(env.planning);
     const message = env.message ?? ((line, target) =>
         ttyPline(line, target ?? state));
     const redraw = env.redraw ?? ((x, y) => newsym(x, y, state));
-    const delayOutput = env.delayOutput
-        ?? (planning ? async () => {} : nh_delay_output);
-    const temporaryDisplay = env.temporaryDisplay
-        ?? (planning ? async () => {} : tmp_at);
-    const cursorOnHero = env.cursorOnHero
-        ?? (planning ? async () => {} : curs_on_u);
+    const delayOutput = env.delayOutput ?? nh_delay_output;
+    const temporaryDisplay = env.temporaryDisplay ?? tmp_at;
+    const cursorOnHero = env.cursorOnHero ?? curs_on_u;
     const youSee = env.youSee ?? plineYouSee;
     const youHear = env.youHear ?? plineYouHear;
 
@@ -2653,12 +2643,8 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     }
 
     let singleobj;
-    // The vision hooks read objectEnv.planning: a planned launch must borrow
-    // the module-wide transparency index (admitPlannedVisionChange) before
-    // lifting the boulder, or the live pass inherits the unblocked square.
     const objectEnv = {
         state,
-        planning,
         hooks: objectHooks,
     };
     if (otmp.quan === 1) {
@@ -2738,18 +2724,16 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
             delaycnt = 1;
         if (!cansee(x, y, state))
             await cursorOnHero(state);
-        if (!planning) {
-            await temporaryDisplay(DISP_FLASH, obj_to_glyph(singleobj, state,
-                rn2_on_display_rng), state);
-            await temporaryDisplay(x, y, state);
-        }
+        await temporaryDisplay(DISP_FLASH, obj_to_glyph(singleobj, state,
+            rn2_on_display_rng), state);
+        await temporaryDisplay(x, y, state);
     }
     // Mark a spot for bones files to prevent loss of object mid-flight.
     launch_drop_spot(singleobj, x, y, state);
 
     // Set the object in motion
     while (dist-- > 0 && !used_up) {
-        if (!planning) await temporaryDisplay(x, y, state);
+        await temporaryDisplay(x, y, state);
         let tmp = delaycnt;
 
         // Delay only if hero sees it
@@ -2852,17 +2836,12 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     Maybe_Half_Phys(dam, state.u),
                     singleobj, null, state, {
                         message,
-                        // thitu() passes losehp() its planning flag.
                         losehp: (d, r, k, s, hpEnv) => losehp(d, r, k, s, hpEnv),
                         exercise: (a, b) => exercise(a, b, state, env.random, {
                             encumberMessage: (subject) =>
                                 encumber_msg(subject, { message }),
                         }),
                         random: env.random,
-                        // A planned boulder that kills the hero stops at
-                        // losehp()'s planning boundary; the live pass then
-                        // replays the death on the real state.
-                        planning,
                     });
             // C's done() does not return: a fatal boulder ends the game
             // inside thitu(), before stop_occupation(). really_done() has
@@ -2968,7 +2947,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     x2 = x;
                     y2 = y;
                     // flooreffects() repaints through env.newsym; hand it
-                    // this caller's redraw, which a planning pass silences.
+                    // this caller's redraw.
                     if (await flooreffects(singleobj, x2, y2, 'fall', {
                         ...env,
                         newsym: env.newsym ?? redraw,
@@ -3058,7 +3037,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
             }
         }
     } // while dist > 0
-    if (!planning) await temporaryDisplay(DISP_END, 0, state);
+    await temporaryDisplay(DISP_END, 0, state);
     launch_drop_spot(null, 0, 0, state);
     if (!used_up) {
         singleobj.otrapped = 0;
@@ -3630,8 +3609,8 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
         {
             ...env,
             random,
-            // explode.c scatter() reads `newsym`; the planning env exposes
-            // the same redraw operation under that seam.
+            // explode.c scatter() reads `newsym`; expose the caller's redraw
+            // operation under that seam.
             newsym: env.newsym ?? env.redraw
                 ?? ((rx, ry) => newsym(rx, ry, state)),
         },
@@ -4203,9 +4182,9 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         return Trap_Effect_Finished;
     }
     // State-only production callers (muse.c and trap.c open/close traps) use
-    // the ordinary source owners. Planning callers supply their own complete
-    // random set and output operations; preserve those without filling missing
-    // random operations from the live stream.
+    // the ordinary source owners. A caller that supplies its own complete
+    // random set and output operations keeps them; missing random operations
+    // are not filled from the live stream.
     const defaults = heroTrapEnv(state);
     const env = {
         ...defaults,
@@ -4230,8 +4209,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     // in the arm matters, because the arm runs after
     // mon_learns_traps() has written mtrapseen on the victim and every
     // onlooker, and after the rn2(4) and rnl(5) gates may have drawn -- so a
-    // late proof would refuse with state already changed, and with a bare
-    // TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert.
+    // late proof would refuse with state already changed.
     const random = env.random;
     const tt = trap.ttyp;
     const randomNames = ['rn1', 'rn2', 'rnd', 'rne', 'rnl'];
