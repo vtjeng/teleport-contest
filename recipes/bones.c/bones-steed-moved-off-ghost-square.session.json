@@ -1,0 +1,19 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 80411,
+   "datetime": "20430611090000",
+   "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,!autopickup\n",
+   "moves": "#ride\nhy\u00164\ns\u0017wand of death\nzi.  yqy",
+   "comment": "A debug Knight rides his saddled pony (#ride, forcing the mount), level-teleports to D:4 mounted, and dies to a wished wand of death zapped at himself, saving bones. bones.c savebones() calls steed.c dismount_steed(DISMOUNT_BONES), which puts the pony on the hero's square and then moves it to an adjacent one with enexto() and rloc_to(), making room for the ghost."
+  },
+  {
+   "seed": 80437,
+   "datetime": "20430613170000",
+   "nethackrc": "OPTIONS=name:Enid,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+   "moves": " \u00164\nyy \u0017blessed potion of monster detection\nqe",
+   "comment": "A Valkyrie level-teleports to D:4, gets the bones, and quaffs a wished blessed potion of monster detection: the pony stands next to the ghost's square. Before the fix the port skipped the dismount, so the pony stayed on the ghost's square and the enexto() random calls were missing."
+  }
+ ]
+}

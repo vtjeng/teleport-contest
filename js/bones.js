@@ -19,6 +19,7 @@ import {
     COLNO,
     DEFUNCT_MONSTER,
     DELPHI,
+    DISMOUNT_BONES,
     EBONES,
     HOLE,
     LEAVESTATUE,
@@ -119,6 +120,7 @@ import {
     ghostfruit, reset_oattached_mids, rest_stairs, rest_traps, restdamage,
 } from './restore.js';
 import { savefruitchn } from './save.js';
+import { dismount_steed } from './steed.js';
 import {
     BOW,
     ELVEN_BOW,
@@ -610,8 +612,10 @@ export async function savebones(how, when, corpse, state) {
     // C: if (Punished) unpunish(); Punished is uball != null.
     if (state.uball) unpunish(state);
 
-    // C: if (u.usteed) dismount_steed(DISMOUNT_BONES);
-    // The port has no mount state in the exercised path; skip.
+    // C ref: bones.c:441-444. Dismount before the dead monsters are
+    // discarded; DISMOUNT_BONES moves the steed off the hero's square to
+    // make room for the ghost.
+    if (state.u.usteed) await dismount_steed(DISMOUNT_BONES, state);
 
     await iter_mons_async((mtmp) => remove_mon_from_bones(mtmp, state), state);
     dmonsfree(state);
