@@ -26,11 +26,6 @@ import {
     FOOT,
     NOSE,
     NO_PART,
-    GPCOORDS_COMFULL,
-    GPCOORDS_COMPASS,
-    GPCOORDS_MAP,
-    GPCOORDS_NONE,
-    GPCOORDS_SCREEN,
     IN_SIGHT,
     KILLED_BY_AN,
     LAVAPOOL,
@@ -71,6 +66,7 @@ import {
     u_at,
     vision_clears,
 } from './const.js';
+import { messageAt } from './startup_a11y.js';
 import { isok } from './cmd_isok.js';
 import { SPFX_SEARCH } from './artifacts.js';
 import {
@@ -1844,52 +1840,9 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     if (refresh) await docrt();
 }
 
-
-function compassDescription(x, y, state, full) {
-    const dx = x - state.u.ux;
-    const dy = y - state.u.uy;
-    if (!dx && !dy) return '(here)';
-    if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
-        const vertical = dy < 0 ? 'north' : dy > 0 ? 'south' : '';
-        const horizontal = dx < 0 ? 'west' : dx > 0 ? 'east' : '';
-        return `(${vertical}${horizontal})`;
-    }
-
-    const parts = [];
-    if (dy) {
-        const direction = dy < 0 ? (full ? 'north' : 'n')
-            : (full ? 'south' : 's');
-        parts.push(`${Math.abs(dy)}${direction}`);
-    }
-    if (dx) {
-        const direction = dx < 0 ? (full ? 'west' : 'w')
-            : (full ? 'east' : 'e');
-        parts.push(`${Math.abs(dx)}${direction}`);
-    }
-    return `(${parts.join(',')})`;
-}
-
-// C ref: getpos.c coord_desc(), as used by pline.c for set_msg_xy().
-function coordinateDescription(x, y, state) {
-    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
-    const mode = configured === GPCOORDS_NONE
-        ? GPCOORDS_COMFULL : configured;
-    if (mode === GPCOORDS_COMPASS)
-        return compassDescription(x, y, state, false);
-    if (mode === GPCOORDS_COMFULL)
-        return compassDescription(x, y, state, true);
-    if (mode === GPCOORDS_MAP) return `<${x},${y}>`;
-    if (mode === GPCOORDS_SCREEN) {
-        return `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`;
-    }
-    return '';
-}
-
+// C's set_msg_xy(x, y) before the search's You() and You_feel() lines.
 export async function defaultSearchMessage(text, x, y, env) {
-    const rendered = env.state.a11y?.accessiblemsg
-        ? `${coordinateDescription(x, y, env.state)}: ${text}`
-        : text;
-    await ttyPline(rendered, env.state);
+    await ttyPline(messageAt(text, x, y, env.state), env.state);
 }
 
 function defaultVisionMutation(x, y, env) {
