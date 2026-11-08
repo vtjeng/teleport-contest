@@ -170,7 +170,7 @@ test('knowninvisible requires unblinded non-INTRINSIC HTelepat within bolt range
     assert.equal(knowninvisible(monster, state), false);
 });
 
-test('planned nearby-object observation mutates only its supplied state', () => {
+test('nearby-object observation of a foreign state mutates only that state', () => {
     const cDisplay = readFileSync(
         new URL('../nethack-c/upstream/src/display.c', import.meta.url),
         'utf8',
@@ -202,7 +202,7 @@ test('planned nearby-object observation mutates only its supplied state', () => 
 
     const { state, object } = nearbyObjectState();
     // With no explicit redraw owner, a foreign state remains guarded before
-    // C's observation writes; only the planning caller can opt into a seam.
+    // C's observation writes; only a caller that supplies a redraw can opt in.
     assert.throws(
         () => see_nearby_objects(state),
         /redraws the global game/u,
@@ -227,7 +227,7 @@ test('planned nearby-object observation mutates only its supplied state', () => 
         discovered: true,
     }]);
     assert.equal(game.objects?.[POT_HEALING]?.oc_encountered, undefined,
-        'clone discovery does not write through to the live game');
+        'foreign-state discovery does not write through to the live game');
 });
 
 test('docrt redraws the hero through vision while monster overlays are deferred', async () => {

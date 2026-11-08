@@ -373,7 +373,7 @@ test('loot, disarm, and tip preserve their discarded-result chest_trap calls', (
     assert.match(JS_PICKUP, /await chest_trap\(box, HAND, false, state\);/u);
 });
 
-test('dotrap forwards planner owners and keeps C-discarded selector return', () => {
+test('dotrap forwards caller owners and keeps C-discarded selector return', () => {
     const cDotrap = cFunction(
         C_TRAP,
         'dotrap(struct trap *trap, unsigned trflags)',
@@ -478,7 +478,7 @@ test('mkroll_launch redraws the launch square through the default capability', (
         'the default capability routes the C redraw to the active game state');
 });
 
-test('trapeffect_hole reads tail count from the supplied planning state',
+test('trapeffect_hole reads tail count from the supplied state',
     async () => {
         const savedLevel = game.level;
         const liveWormSlots = Array(MAX_NUM_WORMS).fill(null);
@@ -536,7 +536,7 @@ test('trapeffect_hole reads tail count from the supplied planning state',
                 growtime: 0,
             };
             assert.equal(count_wsegs(worm, state), 6,
-                'the planning clone has six visible segments');
+                'the supplied state has six visible segments');
             assert.equal(count_wsegs(worm, game), 4,
                 'the live singleton independently has four visible segments');
             assert.equal(state.mons[PM_LONG_WORM].msize, MZ_HUGE - 1,

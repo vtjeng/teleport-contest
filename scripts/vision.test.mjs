@@ -179,8 +179,7 @@ test('borrowed transparency rebuilding preserves live publication and display bo
         vision_full_recalc: 0,
         _viz_rmin: [1], _viz_rmax: [1] }; // Existing display bounds remain owned.
     const minimum = state._viz_rmin, maximum = state._viz_rmax;
-    // An unseen point updates only the derived transparency index. Planning
-    // cleanup performs this same rebuild against immutable live iflags.
+    // An unseen point updates only the derived transparency index.
     recalc_block_point(1, 1, state);
     assert.equal(state.iflags.vision_inited, true);
     assert.equal(state.vision_full_recalc, 0);

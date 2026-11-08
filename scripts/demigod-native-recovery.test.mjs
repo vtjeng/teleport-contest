@@ -50,7 +50,7 @@ test('fifty elapsed turns reach intervention without injecting timer or demigod 
 });
 
 for (const elapsed of [0, 49]) {
-    test(`planned/live input after ${elapsed} elapsed turns consumes timer once`, async () => {
+    test(`input after ${elapsed} elapsed turns consumes timer once`, async () => {
         await initializedAfterDeath(true);
         const initialMoves = game.moves;
         for (let i = 0; i < 300; i++) game.nhDisplay.pushKey('.'.charCodeAt(0));

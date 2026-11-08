@@ -21,7 +21,7 @@ function fixture(x = CENTER, y = CENTER) {
         // Eyes grants radius 3; ordinary night vision is radius 1.
         xray_range: 3, nv_range: 1, uprops: {}, uswallow: 0 },
         program_state: {}, context: {}, flags: {}, iflags: {},
-        // Planning clones provide this existing canonical buffer pair.
+        // A foreign state provides this existing canonical buffer pair.
         _visionBuffers: makeVisionBuffers() };
     vision_reset(state);
     state.viz_array = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));

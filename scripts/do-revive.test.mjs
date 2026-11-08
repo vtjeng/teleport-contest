@@ -229,7 +229,7 @@ test('monster-held corpse reports its saved carrier after m_useup removes it',
 test('hero-caused revival prints its glow through the caller message operation',
     async () => {
         // bhito() reaches zap.c:revive(obj, TRUE) from a monster's
-        // undead-turning zap too; its planned pass passes a silent message
+        // undead-turning zap too; that caller passes a silent message
         // operation, so the glow line must go through that operation.
         const body = await lockedCorpse();
         const carrier = carrierAt(visibleFloor());

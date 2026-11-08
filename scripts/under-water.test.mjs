@@ -82,7 +82,7 @@ test('limited update erases old square in y/x order then draws in x/y order', as
         [4, 6], [5, 6], [6, 6], [9, 9], [9, 10], [11, 11]]);
 });
 
-test('swallowed, Water Plane and planning paths leave live display untouched', async () => {
+test('swallowed, Water Plane and foreign-state paths leave live display untouched', async () => {
     setup();
     mark(20, 10);
     game.u.uswallow = true; // Source swallowing precedence.
@@ -94,7 +94,7 @@ test('swallowed, Water Plane and planning paths leave live display untouched', a
     assert.equal(game._underWater, undefined);
     game.water_level = null;
     await under_water(1, { ...game, u: { ...game.u } });
-    assert.equal(game._underWater, undefined, 'clone never touches live display');
+    assert.equal(game._underWater, undefined, 'a foreign state never touches the live display');
     assert.equal(game.level.at(20, 10).disp_ch, '.');
     await under_water(2);
     setup(); // New game resets source static position and pending flag.

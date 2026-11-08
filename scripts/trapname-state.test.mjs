@@ -1,11 +1,11 @@
 // js/trap.js trapname() draws from the display RNG of the `state` it is
 // given (trap.c trapname() calls rn2_on_display_rng() while the hero
-// hallucinates). A monster-turn planning clone must advance its own copy of
+// hallucinates). A state other than the game must advance its own copy of
 // that stream, so trapname() has no `state = game` default and every caller
 // passes the state it holds. A caller that left `state` out once spent the
-// live game's display RNG from a planned knockback's hurtle_step(), which
-// shifted every later hallucinated name. This test fails when a call leaves
-// `state` out again.
+// live game's display RNG from a knockback's hurtle_step() on a copy of the
+// game, which shifted every later hallucinated name. This test fails when a
+// call leaves `state` out again.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';

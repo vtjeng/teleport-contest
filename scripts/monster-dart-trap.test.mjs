@@ -111,8 +111,8 @@ test('every matrix segment fires a dart trap and replays to its last key',
         }
     });
 
-// mintrap() supplies omitted operations from its live environment. A planning
-// caller can still override them, so reject an invalid override before the
+// mintrap() supplies omitted operations from its live environment. A caller
+// can still override them, so reject an invalid override before the
 // first mtrapseen write or rnl(5) draw.
 test('mintrap refuses an invalid owner before it writes mtrapseen', async () => {
     const owners = ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'];

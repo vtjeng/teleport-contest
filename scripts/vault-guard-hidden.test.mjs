@@ -8,8 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { findgd } from '../js/vault.js';
 
 // C vault.c invault handles object disguise and hiding before silence or
-// interrogation. Blind mimic forms also exercise its invisible-marker path
-// during both the turn-planning pass and the actual displayed turn.
+// interrogation. Blind mimic forms also exercise its invisible-marker path.
 for (const kind of ['mimic', 'deaf-mimic', 'hidden']) {
     test(`guard leaves the ${kind} hero without interrogation`, async () => {
         const recipe = JSON.parse(readFileSync(new URL(

@@ -68,9 +68,9 @@ test('coreRandom holds every core rnd.c function and no display one', () => {
 test('createCoreRandom() returns the same complete set over a cloned stream', () => {
     rng.initRng(42); // any seed: the test compares two draws from one state
     const clone = rng.cloneIsaacContext(game.coreCtx);
-    const planned = rng.createCoreRandom(clone, game);
-    assert.deepEqual(Object.keys(planned).sort(), [...CORE_NAMES].sort());
+    const cloned = rng.createCoreRandom(clone, game);
+    assert.deepEqual(Object.keys(cloned).sort(), [...CORE_NAMES].sort());
     // The clone starts where the live stream is, so its first rn2(1000)
     // equals the live one; 1000 makes an accidental match unlikely.
-    assert.equal(planned.rn2(1000), rng.rn2(1000));
+    assert.equal(cloned.rn2(1000), rng.rn2(1000));
 });

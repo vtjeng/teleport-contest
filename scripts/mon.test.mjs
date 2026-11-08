@@ -1612,8 +1612,7 @@ test('movemon preserves the source snapshot when an action mutates fmon',
 
     // mon.c iter_mons_safe() visits the identities captured before the first
     // callback: the removed original remains in this scan and the inserted
-    // node waits for the next scan. The planning caller reuses this same
-    // production iterator against its clone.
+    // node waits for the next scan.
     assert.deepEqual(visited, ['first', 'removed', 'last']);
     assert.equal(state.level.monlist, inserted);
 });

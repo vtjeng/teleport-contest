@@ -409,7 +409,7 @@ test('the obstacle arm handles special movement before ordinary refusal',
             'You start chewing a hole in the rock.');
 
         // The injected result must replace still_chewing() at this same
-        // source branch while keeping its planning message silent.
+        // source branch while keeping the arm's wall message silent.
         const injectedTunneller = obstacleState();
         injectedTunneller.youmonst.data.mflags1 = M1_TUNNEL;
         const tunnelEvents = [];

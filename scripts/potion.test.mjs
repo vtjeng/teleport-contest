@@ -402,31 +402,31 @@ test('make_hallucinated change detection uses extrinsic resistance only',
         assert.equal(game.u.uprops[HALLUC_RES].intrinsic, FROMOUTSIDE);
     });
 
-test('make_blinded uses injected vision state for planned blindness', async () => {
+test('make_blinded uses injected vision state for blindness on another state', async () => {
     const live = {
         u: { uprops: [] },
         disp: { botl: false },
     };
     live.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    const planned = {
+    const foreign = {
         u: { uprops: [{}, ...live.u.uprops.slice(1)] },
         disp: { botl: false },
     };
-    planned.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    foreign.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     const visionCalls = [];
     const lines = [];
-    await make_blinded(4, false, planned, {
+    await make_blinded(4, false, foreign, {
         message: async (line) => lines.push(line),
         visionRecalc: (control, options) => {
             visionCalls.push([control, options.state, options.redraw]);
         },
     });
-    assert.equal(planned.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+    assert.equal(foreign.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
     assert.equal(live.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
     assert.deepEqual(lines, []);
     assert.equal(visionCalls.length, 1);
     assert.equal(visionCalls[0][0], 0);
-    assert.equal(visionCalls[0][1], planned);
+    assert.equal(visionCalls[0][1], foreign);
     assert.equal(typeof visionCalls[0][2], 'function');
 });
 
@@ -498,7 +498,7 @@ test('make_blinded preserves Your prefix for blindfold itch and twitch',
 
 test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
     async () => {
-    const planned = {
+    const foreign = {
         u: {
             ux: 4,
             uy: 4,
@@ -521,21 +521,21 @@ test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
         },
         warn_obj_cnt: 0,
     };
-    planned.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
-    planned.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
+    foreign.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+    foreign.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
     const redraws = [];
 
     // C display.c:1487-1522 updates meverseen and redraws each monster plus
     // the hero. The clone callback is deliberately state-aware and never
     // touches the live display owned by newsym().
-    await toggle_blindness(planned, {
+    await toggle_blindness(foreign, {
         visionRecalc: () => {},
         redraw: (x, y, state) => redraws.push([x, y, state]),
     });
     assert.deepEqual(redraws.map(([x, y]) => [x, y]), [[6, 4], [4, 4]]);
-    assert.ok(redraws.every(([, , state]) => state === planned));
-    assert.equal(planned.level.monlist.meverseen, undefined);
-    assert.equal(planned.disp.botl, true);
+    assert.ok(redraws.every(([, , state]) => state === foreign));
+    assert.equal(foreign.level.monlist.meverseen, undefined);
+    assert.equal(foreign.disp.botl, true);
 });
 
 test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {

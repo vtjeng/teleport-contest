@@ -521,7 +521,7 @@ test('u_maybe_impaired draws rn2(5) only for a confused hero', async () => {
     assert.equal(confdir(false, game), undefined);
 });
 
-test('confdir takes the planner-owned RNG while preserving live defaults', () => {
+test('confdir takes the caller-owned RNG while preserving live defaults', () => {
     const state = directionState();
     const draws = [];
     confdir(true, state, {

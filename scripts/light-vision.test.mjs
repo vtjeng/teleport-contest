@@ -532,7 +532,7 @@ test('vision_recalc against another state leaves the live view alone', () => {
     const liveActive = state.active_buf;
 
     // A wall the live map does not have, so the two views genuinely differ.
-    const plannedLevel = Object.assign(
+    const foreignLevel = Object.assign(
         Object.create(Object.getPrototypeOf(state.level)),
         state.level,
         {
@@ -541,17 +541,17 @@ test('vision_recalc against another state leaves the live view alone', () => {
             ),
         },
     );
-    plannedLevel.at(state.u.ux + 1, state.u.uy).typ = HWALL;
-    const planned = {
+    foreignLevel.at(state.u.ux + 1, state.u.uy).typ = HWALL;
+    const foreign = {
         ...state,
-        level: plannedLevel,
+        level: foreignLevel,
         _visionBuffers: makeVisionBuffers(),
     };
 
     let painted = 0;
-    recalc_block_point(state.u.ux + 1, state.u.uy, planned);
+    recalc_block_point(state.u.ux + 1, state.u.uy, foreign);
     for (let round = 0; round < 2; ++round)
-        vision_recalc(0, { state: planned, redraw: () => { painted += 1; } });
+        vision_recalc(0, { state: foreign, redraw: () => { painted += 1; } });
     recalc_block_point(state.u.ux + 1, state.u.uy, state);
 
     assert.ok(painted > 0);
@@ -561,7 +561,7 @@ test('vision_recalc against another state leaves the live view alone', () => {
     // The wall cost the clone the squares beyond it, which is the difference
     // that would have leaked into the live view.
     assert.notDeepEqual(
-        planned.viz_array.map((row) => [...row]),
+        foreign.viz_array.map((row) => [...row]),
         liveRows,
     );
 });
@@ -579,9 +579,9 @@ test('vision_recalc refuses another state with no painter', () => {
     vision_reset();
     vision_recalc(0);
 
-    const planned = { ...state, _visionBuffers: makeVisionBuffers() };
+    const foreign = { ...state, _visionBuffers: makeVisionBuffers() };
     assert.throws(
-        () => vision_recalc(0, { state: planned }),
+        () => vision_recalc(0, { state: foreign }),
         /vision_recalc on a state other than game requires a redraw/u,
     );
 });

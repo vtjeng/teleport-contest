@@ -876,10 +876,10 @@ test('quickmimic keeps C fallback for one logical glyph drawn two ways',
         ]);
     });
 
-test('a planned quickmimic leaves the shared live glyph buffer unchanged',
+test('a quickmimic on a copied monster leaves the shared live glyph buffer unchanged',
     async () => {
         const { monster, state } = quickState(true);
-        const plannedMonster = {
+        const copiedMonster = {
             ...monster,
             mextra: structuredClone(monster.mextra),
         };
@@ -889,7 +889,7 @@ test('a planned quickmimic leaves the shared live glyph buffer unchanged',
             'glyph',
         );
 
-        await quickmimic(plannedMonster, {
+        await quickmimic(copiedMonster, {
             state,
             random: { rn2: () => 0 },
             redraw: () => {},
@@ -903,7 +903,7 @@ test('a planned quickmimic leaves the shared live glyph buffer unchanged',
             liveDescriptor,
         );
         assert.equal(monster.m_ap_type, M_AP_NOTHING);
-        assert.equal(plannedMonster.m_ap_type, M_AP_MONSTER);
+        assert.equal(copiedMonster.m_ap_type, M_AP_MONSTER);
     });
 
 test('quickmimic retries five misses and falls back to tripe', async () => {

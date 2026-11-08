@@ -1200,7 +1200,7 @@ test('pickup projects merged-gold weight with carry_count rounding', async () =>
     floorGold.quan = 50;
     floorGold.owt = 1;
     // One unit below the absolute lift boundary distinguishes C's zero delta
-    // from the rejected full floor-stack weight used by the old planner.
+    // from the rejected full floor-stack weight an earlier port used.
     const filler = state.invent.nobj;
     filler.owt += 2 * weight_cap(state) - inv_weight(state) - 1;
     quiet(state);

@@ -118,7 +118,7 @@ test('monster wand strikes give resist the active kill RNG and environment',
 
 test('a told resistance prints "resists!" through the caller message operation',
     async () => {
-    // A monster's planned wand zap reaches zap.c:resist() with a silent
+    // A monster's wand zap can reach zap.c:resist() with a silent
     // message operation; shieldeff_mon() must use it rather than the live
     // top line. An independent Valkyrie game supplies the map and vision.
     await runSegment({

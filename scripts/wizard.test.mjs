@@ -553,7 +553,7 @@ test('nasty substitutes a random creation after selected creation fails', async 
     assert.equal(substitute.mspec_used, 1);
 });
 
-test('nasty substitute cap reads the supplied planning dungeon', async () => {
+test('nasty substitute cap reads the supplied dungeon', async () => {
     for (const endgame of [false, true]) {
         const state = nastyState(false);
         state.level = new GameMap();

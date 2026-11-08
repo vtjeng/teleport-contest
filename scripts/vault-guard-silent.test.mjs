@@ -28,7 +28,7 @@ for (const hearing of ['deaf', 'hearing']) {
 }
 
 for (const hearing of ['deaf', 'hearing']) {
-    test(`silent ${hearing} mimic cleanup preserves C RNG during burdened planning`, async () => {
+    test(`silent ${hearing} mimic cleanup preserves C RNG while burdened`, async () => {
         const recording = JSON.parse(readFileSync(new URL(
             `../recordings/vault.c/guard-silent-mimic-${hearing}.session.json`, import.meta.url,
         ), 'utf8')).segments[0];
@@ -44,7 +44,7 @@ for (const hearing of ['deaf', 'hearing']) {
         const actual = replayed.getRngLog();
         const first = expected.findIndex((entry, index) => actual[index] !== entry);
         assert.equal(first, -1, `first differing C RNG call: ${first}`);
-        assert.equal(actual.length, expected.length, 'no extra planning draws');
+        assert.equal(actual.length, expected.length, 'no extra RNG draws');
         assert.ok(is_silent(game.youmonst.data));
         assert.equal(findgd(game), null);
     });

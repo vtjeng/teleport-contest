@@ -2,7 +2,7 @@
 // Expectations are from pinned C switch/gate semantics and native catalog.
 // No new C constructor execution or matching gameplay recording is claimed.
 // Setup calls only runSegment, mklev, des.level_init and des.monster: no rooms,
-// injected monster flags, scripted RNG, movement planning or global newsym hook.
+// injected monster flags, scripted RNG or global newsym hook.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';

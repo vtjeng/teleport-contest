@@ -222,22 +222,22 @@ test('cloned and live core RNG wrappers share results and context order', () => 
         resetGame();
         game.u = { ...scenario.u };
         initRng(scenario.seed);
-        const plannedContext = isaac64_init(seedBytes(scenario.seed));
-        const planned = createCoreRandom(
-            plannedContext,
+        const freshContext = isaac64_init(seedBytes(scenario.seed));
+        const fresh = createCoreRandom(
+            freshContext,
             { u: { ...scenario.u } },
         );
 
         for (const [name, ...args] of calls) {
             assert.equal(
-                planned[name](...args),
+                fresh[name](...args),
                 live[name](...args),
                 `${name} with ${JSON.stringify(args)} at level `
                     + `${scenario.u.ulevel}, Luck `
                     + `${scenario.u.uluck + scenario.u.moreluck}`,
             );
         }
-        assert.deepEqual(plannedContext, game.coreCtx);
+        assert.deepEqual(freshContext, game.coreCtx);
     }
 });
 

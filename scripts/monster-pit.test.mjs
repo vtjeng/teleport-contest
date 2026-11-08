@@ -167,9 +167,9 @@ test('grounded excludes flyers, floaters and clingers under a ceiling',
 
         // dungeon.h:141 and :114 read astral_level and earth_level, which
         // every other predicate in js/dungeon.js takes from the caller's
-        // state. js/unported_monster_actions.js hands grounded() a planning
-        // clone, so a second state has to answer for its own topology rather
-        // than the singleton's. The dungeon numbers are arbitrary and only
+        // state. grounded() reads the state its caller passes, so a second
+        // state has to answer for its own topology rather than the
+        // singleton's. The dungeon numbers are arbitrary and only
         // have to differ from the singleton's, whose astral plane is a
         // different dnum.
         const otherEndgame = {

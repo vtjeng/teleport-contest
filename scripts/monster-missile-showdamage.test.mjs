@@ -5,7 +5,6 @@ import {compareSessionOutputs, formatReport, runJsSession} from './diff-fresh.mj
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
 
 // C mthrowu.c thitu routes missile damage through hack.c losehp/showdamage.
-// Full replays also catch an HP message leaking from the planning clone.
 for (const kind of ['hit', 'terse', 'off-control']) {
     test('monster missile showdamage ' + kind + ' matches live C', async () => {
         const root = createScoringWorkspace(process.cwd(), []);

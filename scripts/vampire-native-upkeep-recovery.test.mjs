@@ -11,7 +11,7 @@ test('vampire encounter prefix establishes swallowing through actual commands',a
  assert.equal(game.u.uswallow,1);
  assert.ok(game.u.ustuck);
 });
-test('vampire shape upkeep expels the hero through planned/live command processing',async()=>{
+test('vampire shape upkeep expels the hero through command processing',async()=>{
  const replay=await runSegment({...input,seed:98732041,moves:moves.slice(0,48)});
  assert.equal(replay.getScreens().length,49);
  assert.equal(game.u.uswallow,0);
