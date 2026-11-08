@@ -11,6 +11,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
 import { newMonster } from '../js/monst.js';
+import { PM_GIANT_ANT, monst_globals_init } from '../js/monsters.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     BOULDER, ROCK, ROCK_CLASS, STATUE, objects_globals_init,
@@ -42,7 +43,6 @@ for (const falls of [false, true]) {
             const result = await launch_obj(BOULDER, 10, 10, 12, 10,
                 ROLL, state, {
                     hooks,
-                    planning: true,
                     random: { rn2(bound) {
                         draws.push(bound);
                         return bound === 3 && !falls ? 1 : 0;
@@ -86,7 +86,6 @@ test('rolling boulder moves the next boulder after a collision', async () => {
 
     const result = await launch_obj(BOULDER, 10, 10, 12, 10, ROLL, state, {
         hooks,
-        planning: true,
         message: (line) => messages.push(line),
         redraw: () => {},
         disturbBuriedZombies: () => {},
@@ -128,7 +127,6 @@ for (const originalMask of [D_CLOSED, D_LOCKED]) {
         const result = await launch_obj(BOULDER, 10, 10, 12, 10,
             ROLL, state, {
                 hooks,
-                planning: true,
                 message: (line) => messages.push(line),
                 redraw: () => {},
             });
@@ -159,7 +157,6 @@ test('rolling boulder strikes iron bars and stops before them', async () => {
     const result = await launch_obj(BOULDER, 10, 10, 13, 10,
         ROLL, state, {
             hooks,
-            planning: true,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -181,7 +178,7 @@ test('rolling boulder strikes iron bars and stops before them', async () => {
 
 test('rolling boulder thump against a wall wakes only nearby sleepers',
     async () => {
-        // Planning uses an isolated state, distinct from the global game.
+        // An isolated state, distinct from the global game.
         const state = { ...resetGame() };
         state.level = new GameMap();
         state.u = { ux: 20, uy: 10 };
@@ -208,9 +205,12 @@ test('rolling boulder thump against a wall wakes only nearby sleepers',
         const result = await launch_obj(BOULDER, 10, 10, 14, 10,
             ROLL, state, {
                 hooks,
-                planning: true,
                 message: (line) => messages.push(line),
                 redraw: () => {},
+                // The stand-in state has no terminal for the flight display.
+                cursorOnHero: async () => {},
+                temporaryDisplay: async () => {},
+                delayOutput: async () => {},
                 canSeeMonster: () => false,
                 disturbBuriedZombies: () => {},
             });
@@ -240,14 +240,17 @@ for (const [objType, diggingX] of [[BOULDER, 10], [BOULDER, 9], [STATUE, 10]]) {
             quiet: true,
         };
         state.context = { digging };
-        const object = newObject({ otyp: objType, quan: 1 });
+        // The flight display draws a statue as its depicted species, so a
+        // statue needs that species and the monster catalog; any species does.
+        if (objType === STATUE) monst_globals_init(state);
+        const object = newObject({ otyp: objType, quan: 1,
+            ...(objType === STATUE ? { corpsenm: PM_GIANT_ANT } : {}) });
         const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
         place_object(object, 10, 10, { state, hooks });
 
         assert.equal(await launch_obj(objType, 10, 10, 11, 10,
             ROLL, state, {
                 hooks,
-                planning: true,
                 message: () => {},
                 redraw: () => {},
             }), 1);
@@ -285,7 +288,6 @@ test('a rolling boulder continues when a land mine does not fire', async () => {
     const result = await launch_obj(BOULDER, 10, 10, 12, 10,
         ROLL, state, {
             hooks,
-            planning: true,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -324,7 +326,6 @@ test('a firing land mine fractures and scatters the rolling boulder', async () =
     const result = await launch_obj(BOULDER, 10, 10, 12, 10,
         ROLL, state, {
             hooks,
-            planning: true,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -377,7 +378,6 @@ test('a rolling boulder teleports away and reveals its trap', async () => {
     const result = await launch_obj(BOULDER, 10, 10, 12, 10,
         ROLL, state, {
             hooks,
-            planning: true,
             random: {
                 rn1(bound, offset) {
                     draws.push(['rn1', bound, offset]);
@@ -428,7 +428,6 @@ for (const changesLevel of [false, true]) {
         const result = await launch_obj(BOULDER, 10, 10, 12, 10,
             ROLL, state, {
                 hooks,
-                planning: true,
                 random: {
                     rn2(bound) {
                         draws.push(bound);
@@ -458,49 +457,3 @@ for (const changesLevel of [false, true]) {
         }
     });
 }
-
-// trap.c launch_obj() -> mthrowu.c thitu() -> hack.c losehp(): in C a boulder
-// that kills the hero ends the game inside losehp(). A monster's step onto a
-// rolling boulder trap is dry-run first on the planning clone, where
-// losehp() must stop at its planning boundary (HeroDeathPlanningError) so the
-// live pass replays the death on the real state. thitu() hands losehp() its
-// planning flag through the losehp operation launch_obj() supplies.
-test('a planned rolling boulder that kills the hero stops at losehp()',
-    async () => {
-        const { runSegmentStrict } = await import('../js/jsmain.js');
-        const { HeroDeathPlanningError } = await import('../js/hack.js');
-        const gstate = await import('../js/gstate.js');
-        // Arbitrary seed and character; only an initialized hero matters.
-        await runSegmentStrict({
-            seed: 5520117,
-            datetime: '20261114093000',
-            nethackrc: 'OPTIONS=name:Pellucid,role:Valkyrie,race:human,'
-                + 'gender:female,align:neutral,!tutorial,pettype:none',
-            moves: '',
-        });
-        const state = gstate.game;
-        const { ux, uy } = state.u;
-        for (let x = ux - 2; x <= ux; x++) {
-            state.level.at(x, uy).typ = ROOM;
-            state.level.objects[x][uy] = null;
-            state.level.monsters[x][uy] = null;
-        }
-        const boulder = newObject({ otyp: BOULDER, quan: 1, o_id: 7001 });
-        const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
-        place_object(boulder, ux - 2, uy, { state, hooks });
-        // One hit point: any boulder damage (dmgval() is at least 1) is fatal.
-        state.u.uhp = 1;
-
-        await assert.rejects(launch_obj(BOULDER, ux - 2, uy, ux, uy, ROLL,
-            state, {
-                hooks,
-                planning: true,
-                // rnd(20) = 1 makes thitu()'s to-hit roll land.
-                random: { rn2: () => 0, rnd: () => 1, d: (n) => n },
-                message: () => {},
-                redraw: () => {},
-                disturbBuriedZombies: () => {},
-            }), HeroDeathPlanningError);
-        assert.ok(!state.program_state?.gameover,
-            'the clone-side death must not run done()');
-    });

@@ -17,8 +17,6 @@ import {
     DEAF,
     FAINTED,
     FAINTING,
-    DETECT_MONSTERS,
-    DISPLACED,
     FIG_TRANSFORM,
     FAST,
     FIRE_RES,
@@ -31,7 +29,6 @@ import {
     ICE,
     ICED_POOL,
     INVULNERABLE,
-    INVIS,
     LAST_PROP,
     LS_OBJECT,
     MAGICAL_BREATHING,
@@ -132,7 +129,6 @@ import {
     kill_egg,
     fall_asleep,
     nh_timeout,
-    nh_timeout_requires_live_state,
     obj_has_timer,
     obj_stop_timers,
     peek_timer,
@@ -163,7 +159,6 @@ const C_MONDATA_H = readFileSync('nethack-c/upstream/include/mondata.h', 'utf8')
 const C_YOUPROP_H = readFileSync('nethack-c/upstream/include/youprop.h', 'utf8');
 const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
-const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
 
 test('learn_egg_type normalizes baby species, preserves mvflags, then refreshes inventory', () => {
     // C maps baby crocodile eggs to adult crocodiles; G_EXTINCT is an existing
@@ -269,51 +264,6 @@ function propertyTimeoutState() {
     state.go = {};
     return state;
 }
-
-test('timeout planning hands live-only expiries off before touching their state', () => {
-    const state = propertyTimeoutState();
-    for (const property of [
-        BLINDED, HALLUC, INVIS, DETECT_MONSTERS, DISPLACED, LEVITATION,
-        FLYING, STONED,
-    ]) {
-        state.u.uprops[property].intrinsic = 2;
-        // Active stoning always exercises Dexterity and runs its stage effects live.
-        assert.equal(nh_timeout_requires_live_state(state), property === STONED,
-            `${property}: countdown`);
-        state.u.uprops[property].intrinsic = 1;
-        assert.equal(nh_timeout_requires_live_state(state), true, `${property}: expiry`);
-        state.u.uinvulnerable = true;
-        assert.equal(nh_timeout_requires_live_state(state), false, `${property}: invulnerable`);
-        state.u.uinvulnerable = false;
-        state.u.uprops[property].intrinsic = 0;
-    }
-    // timeout.c treats `Strangled` as any nonzero intrinsic value and calls
-    // choke_dialogue on each turn; the matched amulet case starts this clock at
-    // 6, so this active count must hand off before the planner reaches one.
-    state.u.uprops[STRANGLED].intrinsic = 6;
-    assert.equal(nh_timeout_requires_live_state(state), true,
-        'active strangling runs the whole dialogue/exercise call live');
-    // timeout.c calls vomiting_dialogue on every active countdown, not only
-    // when the property is one turn from expiry. Seven selects the d(2,4)
-    // fallthrough plus unconditional CON exercise on this source path.
-    state.u.uprops[VOMITING].intrinsic = 7;
-    assert.equal(nh_timeout_requires_live_state(state), true,
-        'any active vomiting dialogue and its RNG run on the live state');
-    state.u.uinvulnerable = true;
-    assert.equal(nh_timeout_requires_live_state(state), false,
-        'invulnerability still returns before the timeout handoff');
-    state.u.uinvulnerable = false;
-    state.u.uprops[VOMITING].intrinsic = 0;
-    // Clear the active countdown so the unrelated confusion checks below are
-    // isolated from the strangling branch.
-    state.u.uprops[STRANGLED].intrinsic = 0;
-    state.u.uprops[CONFUSION].intrinsic = 1;
-    assert.equal(nh_timeout_requires_live_state(state), false, 'confusion uses message seam');
-    state.u.mtimedone = 1;
-    assert.equal(nh_timeout_requires_live_state(state), true, 'form expiry is live');
-    state.u.uprops[UNCHANGING].extrinsic = 1;
-    assert.equal(nh_timeout_requires_live_state(state), false, 'extension uses supplied RNG');
-});
 
 function vomitingRandom() {
     const bounds = [];
@@ -466,26 +416,11 @@ test('vomiting_dialogue preserves case-six and case-zero call order', async () =
         'nh_timeout expires Vomiting only after the dialogue and exercise');
 });
 
-test('nh_timeout calls vomiting_dialogue before decrement and hands active values live', () => {
+test('timeout.c calls vomiting_dialogue before its decrement loop', () => {
     assert.match(C_TIMEOUT,
         /if \(Vomiting\)\s+vomiting_dialogue\(\);[\s\S]*?for \(upp = u\.uprops; upp < u\.uprops \+ SIZE\(u\.uprops\);/u);
-    assert.match(JS_TIMEOUT,
-        /if \(u\.uprops\?\.\[VOMITING\]\?\.intrinsic && !env\.planning\)\s+await vomiting_dialogue\(state, \{ \.\.\.env, random, message \}\);/u);
     assert.match(C_ALLMAIN,
         /nh_timeout\(\);\s*run_regions\(\);/u);
-    assert.match(JS_ALLMAIN,
-        /const liveTimeout = nh_timeout_requires_live_state\(state\);\s+if \(planning && liveTimeout\) return \{ beforeTimeout: true \};/u);
-
-    for (const countdown of [1, 7]) {
-        // One exercises C's final countdown and the other its case-six
-        // fallthrough while still active; both call the helper in timeout.c.
-        const state = vomitingTimeoutState(countdown);
-        assert.equal(nh_timeout_requires_live_state(state), true,
-            `Vomiting=${countdown} cannot be advanced on a planner clone`);
-        state.u.uinvulnerable = true;
-        assert.equal(nh_timeout_requires_live_state(state), false,
-            'nh_timeout returns before its dialogue while invulnerable');
-    }
 });
 
 test('timeout.c releases delayed killers when STONED or fatal SICK expires', async () => {
@@ -739,7 +674,6 @@ test('slip_or_trip keeps every plain-foot switch result on rn2(4)', async () => 
         const messages = [];
         const draws = [];
         await slip_or_trip(state, {
-            planning: true,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -764,7 +698,6 @@ test('blind and hallucinating floor-object descriptions follow C predicates', as
     };
     const blindMessages = [];
     await slip_or_trip(blind, {
-        planning: true,
         random: { rn2() { throw new Error('blind object trip draws no RNG'); } },
         message: async (text) => blindMessages.push(text),
     });
@@ -781,7 +714,6 @@ test('blind and hallucinating floor-object descriptions follow C predicates', as
         };
     const hallucinatingMessages = [];
     await slip_or_trip(hallucinatingState, {
-        planning: true,
         random: { rn2() { throw new Error('named item trip draws no RNG'); } },
         message: async (text) => hallucinatingMessages.push(text),
     });
@@ -843,7 +775,6 @@ test('ice-direction slip passes the cloned RNG through confdir', async () => {
     const results = [0, 1, 0, 3];
 
     await slip_or_trip(state, {
-        planning: true,
         random: {
             rn2(bound) {
                 draws.push(bound);
@@ -911,7 +842,7 @@ test('slip_or_trip mirrors the complete source-owned branch sequence', () => {
     );
     assert.match(jsFunction,
         /await import\('\.\/trap\.js'\)[\s\S]*?await instapetrify\(state\.killer\.name, state, env\)/u,
-        'the non-planning floor-corpse branch calls trap.c instapetrify',
+        'the floor-corpse branch calls trap.c instapetrify',
     );
     assert.equal(
         [...jsFunction.matchAll(/await dismount_steed\(DISMOUNT_FELL, state, \{ random \}\);/gu)].length,
@@ -2883,8 +2814,6 @@ test('timeout.c choke_dialogue is source-pinned and always exercises strength',
         assert.match(C_TIMEOUT,
             /if \(Breathless \|\| !rn2\(50\)\)[\s\S]*?exercise\(A_STR, FALSE\);/u);
         assert.match(C_TIMEOUT, /if \(Strangled\)\s+choke_dialogue\(\);/u);
-        assert.match(JS_TIMEOUT,
-            /if \(u\.uprops\?\.\[STRANGLED\]\?\.intrinsic && !env\.planning\)\s+await choke_dialogue/u);
     });
 
 test('timeout.c sickness_dialogue preserves countdown, poison wording, and exercise order',
@@ -2976,11 +2905,11 @@ test('timeout.c sickness_dialogue preserves countdown, poison wording, and exerc
         }
     });
 
-test('nh_timeout runs sickness exercise on planning clones without live output',
+test('nh_timeout runs sickness exercise on every countdown',
     async () => {
-        // Odd 3/5/7 countdowns enter each warning row. With no message
-        // operation supplied, preflight must still keep urgent_pline silent;
-        // even countdown 2 has no line but still exercises CON.
+        // Odd 3/5/7 countdowns enter each warning row, whose lines go to the
+        // supplied message operations; even countdown 2 has no line but still
+        // exercises CON.
         for (const countdown of [2, 3, 5, 7]) {
             const state = propertyTimeoutState();
             state.u.uprops[SICK].intrinsic = countdown;
@@ -2988,7 +2917,6 @@ test('nh_timeout runs sickness exercise on planning clones without live output',
             const coreDraws = [];
             const displayDraws = [];
             await nh_timeout(state, {
-                planning: true,
                 random: {
                     rn2(bound) {
                         coreDraws.push(bound);
@@ -3003,23 +2931,23 @@ test('nh_timeout runs sickness exercise on planning clones without live output',
                     displayDraws.push(bound);
                     return 0;
                 },
+                message: async () => {},
+                urgentMessage: async () => {},
                 encumberMessage: async () => {},
             });
 
             assert.deepEqual(coreDraws, [2],
-                `countdown ${countdown}: clone consumes exercise(A_CON, FALSE)`);
+                `countdown ${countdown}: consumes exercise(A_CON, FALSE)`);
             assert.deepEqual(displayDraws, [],
                 `countdown ${countdown}: no display RNG is consumed`);
-            assert.equal(state._pending_message, '',
-                `countdown ${countdown}: no urgent output reaches the clone TTY`);
             assert.equal(state.u.aexe[A_CON], -1,
-                `countdown ${countdown}: exercise mutates the supplied clone`);
+                `countdown ${countdown}: exercise mutates the supplied state`);
             assert.equal(state.u.uprops[SICK].intrinsic, countdown - 1,
                 `countdown ${countdown}: nh_timeout decrements after dialogue`);
         }
     });
 
-test('sickness_dialogue matches the complete source branch and remains live in preflight',
+test('sickness_dialogue matches the complete source branch',
     () => {
         const cStart = C_TIMEOUT.indexOf(
             'staticfn void\nsickness_dialogue(void)\n{',
@@ -3037,8 +2965,6 @@ test('sickness_dialogue matches the complete source branch and remains live in p
             /if \(Sick\)\s+sickness_dialogue\(\);/u);
         assert.match(JS_TIMEOUT,
             /if \(u\.uprops\?\.\[SICK\]\?\.intrinsic\)\s*\{\s*const sicknessMessage = env\.message[\s\S]*?await sickness_dialogue\(state,\s*\{\s*\.\.\.displayEnv,\s*state,\s*random,\s*message: sicknessMessage,[\s\S]*?urgentMessage: env\.urgentMessage[\s\S]*?encumberMessage: env\.encumberMessage/u);
-        assert.doesNotMatch(JS_TIMEOUT,
-            /if \(u\.uprops\?\.\[SICK\]\?\.intrinsic && !env\.planning\)/u);
     });
 
 test('choke_dialogue uses the display RNG when NH_BLUE is hallucinated',

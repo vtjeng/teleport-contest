@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState, wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
+import { wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { BLINDED, HALLUC, DETECT_MONSTERS, SEE_INVIS, ROOM, M_ATTK_MISS, OBJ_MINVENT, W_WEP } from '../js/const.js';
@@ -20,77 +20,70 @@ import { createScoringWorkspace, removeScoringWorkspace } from './scoring-worksp
 
 for (const armed of [false, true]) for (const hallucinating of [true, false]) for (const detected of [true, false]) {
     test(`visible combat feedback armed=${armed} Hallu=${hallucinating} Detect=${detected}`, async () => {
-        for (const planning of [true, false]) {
-            await runSegment({ seed: 8432199, datetime: '20261214120000',
-                nethackrc: 'OPTIONS=name:CombatNameOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
-            game.level = new GameMap(); game.head_engr = null;
-            for (let x = 2; x <= 20; ++x) for (let y = 2; y <= 15; ++y) {
-                game.level.at(x, y).typ = ROOM; game.level.at(x, y).lit = true;
-            }
-            game.u.ux = 5; game.u.uy = 7;
-            for (const [property, active] of [[BLINDED, false], [HALLUC, hallucinating], [DETECT_MONSTERS, detected], [SEE_INVIS, false]]) {
-                game.u.uprops[property].intrinsic = active ? 1000 : 0;
-                game.u.uprops[property].extrinsic = 0;
-            }
-            const make = (id, invisible) => newMonster({ data: game.mons[PM_HUMAN], mnum: PM_HUMAN,
-                m_id: id, m_lev: 1, mhp: 20, mhpmax: 20, mcanmove: true, mcansee: true, minvis: invisible });
-            const attacker = make(9900, false), defender = make(9901, true);
-            if (armed) {
-                const club = newObject({ otyp: CLUB, oclass: game.objects[CLUB].oc_class,
-                    material: game.objects[CLUB].oc_material, quan: 1, spe: 0,
-                    where: OBJ_MINVENT, ocarry: attacker, owornmask: W_WEP, dknown: true });
-                attacker.minvent = club; attacker.mw = club;
-                attacker.misc_worn_check = W_WEP;
-            }
-            attacker.nmon = defender; game.level.monlist = attacker;
-            place_monster(attacker, 6, 7, game); place_monster(defender, 7, 7, game);
-            // C fightm:141 sets the target square before calling mattackm.
-            game.gb.bhitpos = { x: 7, y: 7 };
-            light_globals_init(game); init_vision_globals(); vision_reset(game); vision_recalc(0);
-            const state = planning ? planningState(game) : game;
-            const agr = state.level.monlist, def = agr.nmon;
-            assert.equal(cansee(6, 7, state), true, 'mattackm visibility gate needs physical sight');
-            assert.equal(canseemon(agr, state), true);
-            assert.equal(canseemon(def, state), false);
-            assert.equal(canspotmon(def, state), detected);
-            const ownDisplay = structuredClone(state.displayCtx), liveDisplay = structuredClone(game.displayCtx);
-            const core = structuredClone(game.coreCtx), gv = structuredClone(game.gv);
-            const draws = [], cosmetic = [], messages = [];
-            const result = await mattackm(agr, def, {
-                state, planning,
-                random: {
-                    rnd: bound => { draws.push(['rnd', bound]); return bound; },
-                    rn2: bound => { draws.push(['rn2', bound]); return bound === 4 ? 1 : bound - 1; },
-                    d: (n, size) => { draws.push(['d', n, size]); return n; },
-                },
-                canSeeMonster: subject => canseemon(subject, state),
-                displayRandom: bound => { cosmetic.push(bound); rn2_on_display_rng(bound, state); return 0; },
-                message: async line => messages.push(line),
-                wieldMonsterItemAgainstMonster,
-            });
-            assert.equal(result, M_ATTK_MISS);
-            assert.equal(state.gv.vis, true, 'the real missmm branch was reached');
-            // C passivemm:1363 rolls its common gate after a surviving miss.
-            assert.deepEqual(draws, [...(armed && hallucinating ? [['rn2', 4]] : []), ['rnd', 20], ['rn2', 3]]);
-            const name = hallucinating ? 'giant ant' : 'human';
-            const target = detected ? 'the invisible ' + name : 'it';
-            assert.deepEqual(messages, [
-                ...(armed ? [`The ${name} swings ${hallucinating ? 'her' : 'his'} club at ${target}.`] : []),
-                `The ${name} misses ${target}.`,
-            ]);
-            const namesPerLine = detected ? [430, 2, 430, 2] : [430, 2];
-            assert.deepEqual(cosmetic, hallucinating
-                ? [...namesPerLine, ...(armed ? namesPerLine : [])] : []);
-            assert.deepEqual(game.coreCtx, core);
-            assert.equal(def.mhp, 20);
-            if (hallucinating) assert.notDeepEqual(state.displayCtx, ownDisplay);
-            else assert.deepEqual(state.displayCtx, ownDisplay);
-            if (planning) {
-                assert.deepEqual(game.displayCtx, liveDisplay);
-                assert.deepEqual(game.gv, gv);
-                assert.equal(defender.mhp, 20);
-            }
+        await runSegment({ seed: 8432199, datetime: '20261214120000',
+            nethackrc: 'OPTIONS=name:CombatNameOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
+        game.level = new GameMap(); game.head_engr = null;
+        for (let x = 2; x <= 20; ++x) for (let y = 2; y <= 15; ++y) {
+            game.level.at(x, y).typ = ROOM; game.level.at(x, y).lit = true;
         }
+        game.u.ux = 5; game.u.uy = 7;
+        for (const [property, active] of [[BLINDED, false], [HALLUC, hallucinating], [DETECT_MONSTERS, detected], [SEE_INVIS, false]]) {
+            game.u.uprops[property].intrinsic = active ? 1000 : 0;
+            game.u.uprops[property].extrinsic = 0;
+        }
+        const make = (id, invisible) => newMonster({ data: game.mons[PM_HUMAN], mnum: PM_HUMAN,
+            m_id: id, m_lev: 1, mhp: 20, mhpmax: 20, mcanmove: true, mcansee: true, minvis: invisible });
+        const attacker = make(9900, false), defender = make(9901, true);
+        if (armed) {
+            const club = newObject({ otyp: CLUB, oclass: game.objects[CLUB].oc_class,
+                material: game.objects[CLUB].oc_material, quan: 1, spe: 0,
+                where: OBJ_MINVENT, ocarry: attacker, owornmask: W_WEP, dknown: true });
+            attacker.minvent = club; attacker.mw = club;
+            attacker.misc_worn_check = W_WEP;
+        }
+        attacker.nmon = defender; game.level.monlist = attacker;
+        place_monster(attacker, 6, 7, game); place_monster(defender, 7, 7, game);
+        // C fightm:141 sets the target square before calling mattackm.
+        game.gb.bhitpos = { x: 7, y: 7 };
+        light_globals_init(game); init_vision_globals(); vision_reset(game); vision_recalc(0);
+        const state = game;
+        const agr = state.level.monlist, def = agr.nmon;
+        assert.equal(cansee(6, 7, state), true, 'mattackm visibility gate needs physical sight');
+        assert.equal(canseemon(agr, state), true);
+        assert.equal(canseemon(def, state), false);
+        assert.equal(canspotmon(def, state), detected);
+        const ownDisplay = structuredClone(state.displayCtx);
+        const core = structuredClone(game.coreCtx);
+        const draws = [], cosmetic = [], messages = [];
+        const result = await mattackm(agr, def, {
+            state,
+            random: {
+                rnd: bound => { draws.push(['rnd', bound]); return bound; },
+                rn2: bound => { draws.push(['rn2', bound]); return bound === 4 ? 1 : bound - 1; },
+                d: (n, size) => { draws.push(['d', n, size]); return n; },
+            },
+            canSeeMonster: subject => canseemon(subject, state),
+            displayRandom: bound => { cosmetic.push(bound); rn2_on_display_rng(bound, state); return 0; },
+            message: async line => messages.push(line),
+            wieldMonsterItemAgainstMonster,
+        });
+        assert.equal(result, M_ATTK_MISS);
+        assert.equal(state.gv.vis, true, 'the real missmm branch was reached');
+        // C passivemm:1363 rolls its common gate after a surviving miss.
+        assert.deepEqual(draws, [...(armed && hallucinating ? [['rn2', 4]] : []), ['rnd', 20], ['rn2', 3]]);
+        const name = hallucinating ? 'giant ant' : 'human';
+        const target = detected ? 'the invisible ' + name : 'it';
+        assert.deepEqual(messages, [
+            ...(armed ? [`The ${name} swings ${hallucinating ? 'her' : 'his'} club at ${target}.`] : []),
+            `The ${name} misses ${target}.`,
+        ]);
+        const namesPerLine = detected ? [430, 2, 430, 2] : [430, 2];
+        assert.deepEqual(cosmetic, hallucinating
+            ? [...namesPerLine, ...(armed ? namesPerLine : [])] : []);
+        assert.deepEqual(game.coreCtx, core);
+        assert.equal(def.mhp, 20);
+        if (hallucinating) assert.notDeepEqual(state.displayCtx, ownDisplay);
+        else assert.deepEqual(state.displayCtx, ownDisplay);
     });
 }
 

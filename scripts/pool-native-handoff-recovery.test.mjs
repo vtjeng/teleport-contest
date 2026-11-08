@@ -10,7 +10,6 @@ import { GameMap } from '../js/game.js';
 import { PM_FIRE_GIANT } from '../js/monsters.js';
 import { teleds } from '../js/teleport.js';
 import { mhitm_knockback } from '../js/uhitm.js';
-import { planningState } from '../js/unported_monster_actions.js';
 
 const C_DOTHROW = readFileSync('nethack-c/upstream/src/dothrow.c', 'utf8');
 
@@ -37,24 +36,18 @@ async function knockbackSetup(pool) {
         game.mons[PM_FIRE_GIANT], 42, 7, 0, { state: game },
     );
     assert.ok(giant);
-    const planned = planningState(game);
-    let plannedGiant = planned.level.monlist;
-    while (plannedGiant && plannedGiant.m_id !== giant.m_id)
-        plannedGiant = plannedGiant.nmon;
-    assert.ok(plannedGiant);
-    return { planned, plannedGiant, giant };
+    return giant;
 }
 
 assert.match(C_DOTHROW,/\(void\) drown\(\);/);
-for(const planning of [true,false])for(const pool of [true,false])test(`pool planning=${planning} pool=${pool}`,async()=>{
- const {planned,plannedGiant,giant}=await knockbackSetup(pool);
- const state=planning?planned:game,attacker=planning?plannedGiant:giant;
+for(const pool of [true,false])test(`fire giant knockback pool=${pool}`,async()=>{
+ const giant=await knockbackSetup(pool);
+ const state=game,attacker=giant;
  for(let i=0;i<100;i++)game.nhDisplay.pushKey(32);
- const rolls=[1,0,0,0,1],bounds=[];let handoff=false,error=null;
- try{await mhitm_knockback(attacker,state.youmonst,attacker.data.mattk[0],{value:M_ATTK_HIT},false,state,{state,planning,message:async()=>{},requestPlanningInput(){handoff=true;throw Error('live handoff');}},{rn2:n=>{bounds.push(n);assert.ok(rolls.length);return rolls.shift();}});}catch(e){error=e.message;}
- assert.equal(handoff,planning&&pool);
- assert.equal(error,planning&&pool?'live handoff':null);
- assert.deepEqual([game.u.ux,game.u.uy],planning?[43,6]:pool?[45,6]:[44,5]);
- assert.deepEqual(bounds,pool&&planning?[3,6,2,2]:[3,6,2,2,4]);
- if(!planning&&pool)assert.match(game._ttyToplines,/crawl out of the water/);
+ const rolls=[1,0,0,0,1],bounds=[];let error=null;
+ try{await mhitm_knockback(attacker,state.youmonst,attacker.data.mattk[0],{value:M_ATTK_HIT},false,state,{state,message:async()=>{}},{rn2:n=>{bounds.push(n);assert.ok(rolls.length);return rolls.shift();}});}catch(e){error=e.message;}
+ assert.equal(error,null);
+ assert.deepEqual([game.u.ux,game.u.uy],pool?[45,6]:[44,5]);
+ assert.deepEqual(bounds,[3,6,2,2,4]);
+ if(pool)assert.match(game._ttyToplines,/crawl out of the water/);
 });

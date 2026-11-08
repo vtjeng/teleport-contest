@@ -27,7 +27,6 @@ import {
     PM_RED_MOLD,
     S_FUNGUS,
 } from '../js/monsters.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { diseasemu } from '../js/mhitu.js';
 import {
     mhitm_ad_dise,
@@ -379,26 +378,17 @@ test('AD_PEST converts the monster-pair attack to AD_DISE behavior', async () =>
         'the source hero-attacker branch reaches no output before its gap');
 });
 
-test('diseasemu forwards planning state, RNG and silent encumber messages', async () => {
+test('diseasemu forwards state, RNG and encumber messages to its env', async () => {
     await startGame(9300106);
     game.moves = 5;
-    const liveBefore = {
-        sick: game.u.uprops[SICK].intrinsic,
-        type: game.u.usick_type,
-        exercise: game.u.aexe[A_CON],
-        botl: game.disp.botl,
-        oldcap: game.go.oldcap,
-        rngLog: getRngLog().slice(),
-    };
-    const clone = planningState(game);
-    clone.go.oldcap = 5;
+    const rngLog = getRngLog().slice();
+    game.go.oldcap = 5;
     const messages = [];
     const draws = [];
-    await diseasemu(clone.mons[PM_PESTILENCE], {
-        state: clone,
-        planning: true,
+    await diseasemu(game.mons[PM_PESTILENCE], {
+        state: game,
         message: async (line, subject) => {
-            assert.equal(subject, clone, 'the callback remains attached to clone state');
+            assert.equal(subject, game, 'the callback remains attached to the supplied state');
             messages.push(line);
         },
         random: {
@@ -413,16 +403,11 @@ test('diseasemu forwards planning state, RNG and silent encumber messages', asyn
         },
     });
 
-    assert.deepEqual(draws, [`rn1(${acurr(clone, A_CON)},20)`, 'rn2(2)']);
+    assert.deepEqual(draws, [`rn1(${acurr(game, A_CON)},20)`, 'rn2(2)']);
     assert.ok(messages.includes('You feel deathly sick.'));
     assert.ok(messages.some((line) => line.includes('movements')),
-        'the helper binds encumber_msg to the supplied silent message operation');
-    assert.equal(clone.u.uprops[SICK].intrinsic & TIMEOUT, 24);
-    assert.equal(game.u.uprops[SICK].intrinsic, liveBefore.sick);
-    assert.equal(game.u.usick_type, liveBefore.type);
-    assert.equal(game.u.aexe[A_CON], liveBefore.exercise);
-    assert.equal(game.disp.botl, liveBefore.botl);
-    assert.equal(game.go.oldcap, liveBefore.oldcap);
-    assert.deepEqual(getRngLog(), liveBefore.rngLog,
-        'the injected clone RNG does not advance the live game stream');
+        'the helper binds encumber_msg to the supplied message operation');
+    assert.equal(game.u.uprops[SICK].intrinsic & TIMEOUT, 24);
+    assert.deepEqual(getRngLog(), rngLog,
+        'the injected RNG does not advance the game stream');
 });

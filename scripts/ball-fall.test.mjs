@@ -142,17 +142,6 @@ test('ballfall half-physical damage rounds up after the helmet override',async()
     assert.equal(game.u.uhp,98); // (3+1)/2 =2 after hard-helmet replacement.
 });
 
-test('ballfall plans an uncarried pit impact without writing to live tty or HP',async()=>{
-    await fixture();
-    const planned={...game,u:{...game.u,uprops:game.u.uprops.map(p=>({...p}))},
-        context:{...game.context},disp:{...game.disp},uball:{...game.uball}};
-    const before=game.nhDisplay.serialize();const e=effects();
-    await ballOwner.ballfall(planned,{planning:true,random:e.env.random});
-    assert.equal(planned.u.uhp,72);assert.equal(game.u.uhp,100);
-    assert.equal(game.nhDisplay.serialize(),before);
-    assert.deepEqual(e.calls,[['rn2',5],['rn1',7,25]]);
-});
-
 test('ballfall uses the polymorphed source head anatomy',async()=>{
     await fixture();game.youmonst={...game.youmonst,data:game.mons[PM_FLOATING_EYE]};
     const e=effects();await ballOwner.ballfall(game,e.env);

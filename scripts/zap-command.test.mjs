@@ -329,7 +329,7 @@ test('self-cancellation runs cancel_item across the hero inventory chain', async
     assert.equal(game.u.abon[A_CHA], 0);
 });
 
-test('planned monster cancellation uses the injected resistance draw',
+test('monster cancellation uses the injected resistance draw',
     async () => {
     // zap.c:cancel_monst asks resist() before changing the defender.  A
     // guaranteed resistance through the supplied draw must leave mcan clear
@@ -352,7 +352,6 @@ test('planned monster cancellation uses the injected resistance draw',
         false,
         game,
         {
-            planning: true,
             random: {
                 rn2: (bound) => {
                     bounds.push(bound);

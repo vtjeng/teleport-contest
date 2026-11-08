@@ -110,10 +110,6 @@ import {
     UNSEEN_PET_FIGHT_QUIET_RC,
     UNSEEN_PET_FIGHT_RC,
 } from './run-unseen-pet-fight.mjs';
-import {
-    admitPlannedVisionChange,
-    planningState,
-} from '../js/unported_monster_actions.js';
 
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
@@ -377,62 +373,9 @@ test('mdisplacem consumes its miss roll and swaps occupied squares',
         assert.equal(messages.length, 1);
     });
 
-test('planned mdisplacem keeps live map, terminal, and RNG untouched',
-    async () => {
-        await hero(7710052);
-        const { ax, dx, y } = battlefield();
-        const attacker = fixture(PM_DISPLACER_BEAST, ax, y, { mhp: 12 });
-        const defender = fixture(PM_GIANT_RAT, dx, y, { mhp: 7 });
-        const planned = planningState(game);
-        const plannedAttacker = planned.level.monsters[ax][y];
-        const plannedDefender = planned.level.monsters[dx][y];
-        assert.equal(plannedAttacker.m_id, attacker.m_id);
-        assert.equal(plannedDefender.m_id, defender.m_id);
-        const beforeRng = {
-            a: game.coreCtx.a,
-            b: game.coreCtx.b,
-            c: game.coreCtx.c,
-            n: game.coreCtx.n,
-            m: [...game.coreCtx.m],
-            r: [...game.coreCtx.r],
-        };
-        const beforeTopline = game.nhDisplay.toplines;
-        const plannedRolls = scripted([1]);
-        const result = await mdisplacem(
-            plannedAttacker,
-            plannedDefender,
-            false,
-            {
-                state: planned,
-                planning: true,
-                random: plannedRolls.random,
-            },
-        );
-        assert.equal(result, M_ATTK_HIT);
-        assert.equal(plannedRolls.bounds.join(','), 'rn2(7)');
-        assert.equal(game.level.monsters[ax][y], attacker);
-        assert.equal(game.level.monsters[dx][y], defender);
-        assert.equal(attacker.mx, ax);
-        assert.equal(defender.mx, dx);
-        assert.equal(game.nhDisplay.toplines, beforeTopline);
-        assert.deepEqual(
-            {
-                a: game.coreCtx.a,
-                b: game.coreCtx.b,
-                c: game.coreCtx.c,
-                n: game.coreCtx.n,
-                m: [...game.coreCtx.m],
-                r: [...game.coreCtx.r],
-            },
-            beforeRng,
-        );
-    });
-
 // mhitm.c mdisplacem() reaches mon.c seemimic() before it swaps the two
-// squares.  A furniture mimic is a blocking appearance, so the planned
-// operation must register the borrowed transparency-index change on the
-// clone while keeping the live disguise, map, terminal, and RNG untouched.
-test('planned displacement isolates a blocking mimic reveal', async () => {
+// squares, so a furniture mimic loses its disguise.
+test('displacement reveals a blocking mimic', async () => {
     await hero(7710053);
     const { ax, dx, y } = battlefield();
     const attacker = fixture(PM_DISPLACER_BEAST, ax, y, { mhp: 12 });
@@ -442,84 +385,45 @@ test('planned displacement isolates a blocking mimic reveal', async () => {
         mhp: 7,
     });
     game.level.worms ??= Array(32).fill(null);
-    const planned = planningState(game);
-    const plannedAttacker = planned.level.monsters[ax][y];
-    const plannedDefender = planned.level.monsters[dx][y];
-    const beforeRng = {
-        a: game.coreCtx.a,
-        b: game.coreCtx.b,
-        c: game.coreCtx.c,
-        n: game.coreCtx.n,
-        m: [...game.coreCtx.m],
-        r: [...game.coreCtx.r],
-    };
-    const beforeTopline = game.nhDisplay.toplines;
-    const plannedRolls = scripted([1]);
+    const rolls = scripted([1]);
 
     assert.equal(await mdisplacem(
-        plannedAttacker,
-        plannedDefender,
+        attacker,
+        defender,
         false,
         {
-            state: planned,
-            planning: true,
-            random: plannedRolls.random,
-            admitPlannedVisionChange,
+            state: game,
+            random: rolls.random,
+            message: () => {},
             unsupported: () => {},
         },
     ), M_ATTK_HIT);
-    assert.equal(plannedDefender.m_ap_type, 0);
-    assert.ok(planned._plannedVisionChange,
-        'blocking mimic reveal registers planned vision change');
-    assert.equal(defender.m_ap_type, M_AP_FURNITURE);
-    assert.equal(game.level.monsters[ax][y], attacker);
-    assert.equal(game.level.monsters[dx][y], defender);
-    assert.equal(game.nhDisplay.toplines, beforeTopline);
-    assert.deepEqual(
-        {
-            a: game.coreCtx.a,
-            b: game.coreCtx.b,
-            c: game.coreCtx.c,
-            n: game.coreCtx.n,
-            m: [...game.coreCtx.m],
-            r: [...game.coreCtx.r],
-        },
-        beforeRng,
-    );
+    assert.equal(defender.m_ap_type, 0);
 });
 
-// The stoning and worm arms are both result-bearing mdisplacem branches. A
-// dry run must mutate only its clone: monstone() can detach the attacker and
-// place_worm_tail_randomly() rewrites level-owned segment coordinates.
-test('planned displacement isolates stoning and worm-tail cleanup', async () => {
+// The stoning and worm arms are both result-bearing mdisplacem branches:
+// monstone() kills the attacker and place_worm_tail_randomly() rewrites
+// level-owned segment coordinates.
+test('displacement runs stoning and worm-tail cleanup', async () => {
     await hero(7710054);
     const { ax, dx, y } = battlefield();
     const attacker = fixture(PM_DISPLACER_BEAST, ax, y, { mhp: 12 });
     const stoningTarget = fixture(PM_COCKATRICE, dx, y, { mhp: 7 });
-    const planned = planningState(game);
-    const plannedAttacker = planned.level.monsters[ax][y];
-    const plannedTarget = planned.level.monsters[dx][y];
-    const plannedRolls = scripted([1], 1);
-    const beforeTopline = game.nhDisplay.toplines;
+    const rolls = scripted([1], 1);
     const result = await mdisplacem(
-        plannedAttacker,
-        plannedTarget,
+        attacker,
+        stoningTarget,
         false,
         {
-            state: planned,
-            planning: true,
-            random: plannedRolls.random,
-            admitPlannedVisionChange,
+            state: game,
+            random: rolls.random,
+            message: () => {},
             unsupported: () => {},
         },
     );
     assert.equal(result, M_ATTK_AGR_DIED,
         'C returns M_ATTK_AGR_DIED after stoning');
-    assert.ok(plannedAttacker.mhp < 1);
-    assert.equal(attacker.mhp, 12);
-    assert.equal(game.level.monsters[ax][y], attacker);
-    assert.equal(game.level.monsters[dx][y], stoningTarget);
-    assert.equal(game.nhDisplay.toplines, beforeTopline);
+    assert.ok(attacker.mhp < 1);
 
     await hero(7710055);
     const wormBattlefield = battlefield();
@@ -537,29 +441,22 @@ test('planned displacement isolates stoning and worm-tail cleanup', async () => 
             { x: wormDx, y: wormY },
         ],
     };
-    const liveSegments = game.level.worms[1].segments.map((segment) => ({
+    const segmentsBefore = game.level.worms[1].segments.map((segment) => ({
         ...segment,
     }));
-    const wormPlan = planningState(game);
-    const plannedWorm = wormPlan.level.monsters[wormDx][wormY];
-    const plannedWormAttacker = wormPlan.level.monsters[wormAx][wormY];
     const wormRolls = scripted([1], 1);
     await mdisplacem(
-        plannedWormAttacker,
-        plannedWorm,
+        wormAttacker,
+        worm,
         false,
         {
-            state: wormPlan,
-            planning: true,
+            state: game,
             random: wormRolls.random,
-            admitPlannedVisionChange,
+            message: () => {},
             unsupported: () => {},
         },
     );
-    assert.deepEqual(game.level.worms[1].segments, liveSegments);
-    assert.notDeepEqual(wormPlan.level.worms[1].segments, liveSegments);
-    assert.equal(game.level.monsters[wormAx][wormY], wormAttacker);
-    assert.equal(game.level.monsters[wormDx][wormY], worm);
+    assert.notDeepEqual(game.level.worms[1].segments, segmentsBefore);
 });
 
 test('paralyze_monst copies the source frozen state and clears its wait plan',

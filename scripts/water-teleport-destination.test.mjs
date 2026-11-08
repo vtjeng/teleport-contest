@@ -12,7 +12,6 @@ import {AIR, ROOM, POOL, MOAT, WATER, LAVAPOOL, DOOR, D_CLOSED,
 import {requireSimpleHeroDestination} from '../js/hack.js';
 import {teleds} from '../js/teleport.js';
 import {newsym} from '../js/display.js';
-import {planningState} from '../js/unported_monster_actions.js';
 import {init_vision_globals, vision_reset, vision_recalc,
     transparencyIndexViews, liveVisionBufferViews} from '../js/vision.js';
 import {light_globals_init} from '../js/light.js';
@@ -56,20 +55,14 @@ function snapshot() {
 
 for (const hallu of [false,true]) for (const blind of [false,true]) {
     for (const terrain of [POOL,MOAT,WATER]) for (const water of [false,true]) {
-        test(`liquid destination preflight Hallu=${hallu} blind=${blind} water=${water} terrain=${terrain}`, async()=>{
+        test(`liquid teleport destination admitted Hallu=${hallu} blind=${blind} water=${water} terrain=${terrain}`, async()=>{
             await setup({hallu,blind,water,terrain});
             const before = snapshot();
-            const copy = planningState(game);
-            const cloneBefore = structuredClone({u:copy.u, context:copy.context,
-                world:copy.level.locations, invent:copy.invent});
             // teleds() admits a pool, moat or Water square on any level; the
             // off-Water-level arrival is pinned by the independent C recording
             // recordings/teleport.c/dragon-teleports-onto-pool.session.json.
-            for (const state of [copy,game])
-                assert.doesNotThrow(()=>requireSimpleHeroDestination(6,7,state));
+            assert.doesNotThrow(()=>requireSimpleHeroDestination(6,7,game));
             assert.deepEqual(snapshot(),before);
-            assert.deepEqual({u:copy.u,context:copy.context,world:copy.level.locations,
-                invent:copy.invent},cloneBefore);
         });
     }
     for (const terrain of [LAVAPOOL,DOOR]) {
@@ -97,37 +90,7 @@ for (const hallu of [false,true]) for (const blind of [false,true]) {
         }
         assert.deepEqual(outcomes[0],outcomes[1]);
     });
-    test(`planned Water arrival requests live replay before water effects Hallu=${hallu} blind=${blind}`, async()=>{
-        await setup({hallu,blind});
-        const before=snapshot();
-        const copy=planningState(game);
-        const stop=new Error('expected Water arrival replay');
-        const cloneBefore=structuredClone({u:copy.u,context:copy.context,world:copy.level.locations,invent:copy.invent});
-        const operations=[];
-        await assert.rejects(()=>teleds(6,7,TELEDS_TELEPORT,copy,{
-            planning:true,
-            redraw:()=>{},
-            message:async()=>{},
-            requestPlanningInput:operation=>{operations.push(operation);throw stop;},
-        }),error=>error===stop);
-        assert.deepEqual(operations,['teleport.c teleds']);
-        assert.deepEqual([copy.u.ux,copy.u.uy],[5,7]);
-        assert.deepEqual({u:copy.u,context:copy.context,world:copy.level.locations,invent:copy.invent},cloneBefore);
-        assert.equal(Boolean(copy.u.uinwater),false);
-        assert.deepEqual(snapshot(),before);
-    });
-
 }
-
-test('planned Water teleport requires an explicit replay owner before effects',async()=>{
-    await setup({hallu:true,blind:false});
-    const before=snapshot(),copy=planningState(game);
-    const cloneBefore=structuredClone({u:copy.u,context:copy.context,world:copy.level.locations,invent:copy.invent});
-    await assert.rejects(()=>teleds(6,7,TELEDS_TELEPORT,copy,{planning:true,redraw:()=>{}}),
-        /planned Water teleport requires a replay boundary/u);
-    assert.deepEqual({u:copy.u,context:copy.context,world:copy.level.locations,invent:copy.invent},cloneBefore);
-    assert.deepEqual(snapshot(),before);
-});
 
 for (const name of ['normal','monochrome','before-control','ordinary-control']) {
     test(`Water teleport destination ${name} matches independent C`,async()=>{

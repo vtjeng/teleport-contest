@@ -3464,8 +3464,7 @@ test('monster altar flooreffects calls the shared doaltarobj port', async () => 
         { length: 21 }, () => new Array(80).fill(0),
     );
     state.viz_array[5][10] |= IN_SIGHT;
-    // doaltarobj() prints through flooreffects()'s message seam, which a
-    // planned monster turn uses to keep the line off the live terminal.
+    // doaltarobj() prints through flooreffects()'s message seam.
     const messages = [];
 
     assert.equal(await flooreffects(obj, 10, 5, 'fall', {
@@ -3956,7 +3955,7 @@ test('useupall awaits artifact removal before extraction and deallocation', asyn
     // useupall() hands its own env to setnotworn() through setwornEnv(), so
     // the artifact glow's message owner arrives on that env.
     const pending = useupall(saber, {
-        state, planning: true, redraw: () => {}, message: async () => {
+        state, redraw: () => {}, message: async () => {
             entered();
             await new Promise(resolve => { release = resolve; });
         },
@@ -4130,41 +4129,4 @@ test('glob pickup projection has no live merge effects; runtime keeps its non-gl
     assert.deepEqual(inputFingerprint(legacyTarget), legacyBefore.target);
     assert.deepEqual(inputFingerprint(legacyIncoming), legacyBefore.incoming);
     assert.equal(legacyState.invent, legacyBefore.inventory);
-
-    const plannedState = initializedState();
-    timeout_globals_init(plannedState);
-    const plannedTarget = instance(GLOB_OF_GRAY_OOZE, plannedState, {
-        globby: true, owt: 20, where: OBJ_INVENT,
-    });
-    const plannedIncoming = instance(GLOB_OF_GRAY_OOZE, plannedState, {
-        globby: true, owt: 15, timed: 1, where: OBJ_FREE,
-    });
-    plannedState.invent = plannedTarget;
-    const plannedBefore = {
-        target: inputFingerprint(plannedTarget),
-        incoming: inputFingerprint(plannedIncoming),
-        inventory: plannedState.invent,
-    };
-    const inputBoundary = { operation: 'planning input boundary' };
-    const requestedInputs = [];
-    let plannedEffectCalls = 0;
-    const handedOff = mergedRuntime(plannedTarget, plannedIncoming, {
-        state: plannedState,
-        planning: true,
-        requestPlanningInput(operation) {
-            requestedInputs.push(operation);
-            return inputBoundary;
-        },
-        message() { plannedEffectCalls++; },
-        hooks: {
-            absorbGlob() { plannedEffectCalls++; },
-            message() { plannedEffectCalls++; },
-        },
-    });
-    assert.equal(handedOff, inputBoundary);
-    assert.deepEqual(requestedInputs, ['mkobj.c pudding_merge_message']);
-    assert.equal(plannedEffectCalls, 0);
-    assert.deepEqual(inputFingerprint(plannedTarget), plannedBefore.target);
-    assert.deepEqual(inputFingerprint(plannedIncoming), plannedBefore.incoming);
-    assert.equal(plannedState.invent, plannedBefore.inventory);
 });

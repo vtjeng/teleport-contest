@@ -842,7 +842,7 @@ test('setuwep ends an old artifact light only when that weapon burns', async () 
 test('mon_set_minvis preserves blocked state and draws nothing on a bare clone',
     () => {
         const gaps = [];
-        const planning = { noteUnported: (name) => gaps.push(name) };
+        const env = { noteUnported: (name) => gaps.push(name) };
         // A clone level holding one tail segment and the hidden head node, so
         // see_wsegs() walks a real tail and must stay silent on it.
         const clone = { level: { worms: [] } };
@@ -860,7 +860,7 @@ test('mon_set_minvis preserves blocked state and draws nothing on a bare clone',
         // newsym() and see_wsegs() repaint only the live map, so a clone
         // with no redraw operation of its own neither paints nor records a
         // gap.
-        mon_set_minvis(worm, false, clone, planning);
+        mon_set_minvis(worm, false, clone, env);
         assert.equal(worm.perminvis, 1);
         assert.equal(worm.minvis, 1);
         assert.deepEqual(gaps, []);
@@ -874,7 +874,7 @@ test('mon_set_minvis preserves blocked state and draws nothing on a bare clone',
             my: 5,
         };
         gaps.length = 0;
-        mon_set_minvis(blocked, true, {}, planning);
+        mon_set_minvis(blocked, true, {}, env);
         assert.equal(blocked.perminvis, 0);
         assert.equal(blocked.minvis, 0,
             'invis_blkd prevents copying perminvis into current minvis');
@@ -904,7 +904,6 @@ test('mon_set_minvis redraws a clone worm head then each tail through its explic
         );
 
         mon_set_minvis(worm, false, state, {
-            planning: true,
             redraw: (x, y, actualState) => calls.push([x, y, actualState]),
             newsym: inherited,
             hooks: { newsym: inherited },

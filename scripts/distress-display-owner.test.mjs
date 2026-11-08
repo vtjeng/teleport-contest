@@ -6,16 +6,13 @@ import { createScoringWorkspace, removeScoringWorkspace } from './scoring-worksp
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { finishElapsedTurn } from '../js/allmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_CHAMELEON } from '../js/monsters.js';
 import { BLINDED, HALLUC, DETECT_MONSTERS, ROOM } from '../js/const.js';
 import { vision_recalc } from '../js/vision.js';
 
-for (const [planning, hallucinating, detected] of [
-    [true, true, true], [true, false, true], [true, true, false], [false, true, true],
-]) {
-    test(`elapsed shape naming planning=${planning} hallucinating=${hallucinating} detected=${detected}`, async () => {
+for (const [hallucinating, detected] of [[true, true]]) {
+    test(`elapsed shape naming hallucinating=${hallucinating} detected=${detected}`, async () => {
         await runSegment({ seed: 8432193, datetime: '20261203120000',
             nethackrc: 'OPTIONS=name:DistressOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
         for (const column of game.level.monsters) column.fill(null);
@@ -29,12 +26,10 @@ for (const [planning, hallucinating, detected] of [
             mcansee: true, mcanmove: true, mspec_used: 0 });
         game.level.monlist = monster; place_monster(monster, x, y, game);
         vision_recalc(0, { state: game });
-        if (!planning) for (let i = 0; i < 20; i++) game.nhDisplay.pushKey(32);
-        const state = planning ? planningState(game) : game;
-        const liveDisplay = structuredClone(game.displayCtx);
+        for (let i = 0; i < 20; i++) game.nhDisplay.pushKey(32);
+        const state = game;
         const ownDisplay = structuredClone(state.displayCtx);
         const core = structuredClone(game.coreCtx);
-        const context = structuredClone(game.context);
         const draws = [];
         // Force C decide_to_shapeshift's 1/6 gate and select the first legal
         // fallback species; avoid random births so this tests the upkeep owner.
@@ -45,7 +40,7 @@ for (const [planning, hallucinating, detected] of [
             d: (n, size) => { draws.push(['d', n, size]); return n; },
             rne: () => 1, rnl: bound => bound - 1, rnz: value => value,
         };
-        await finishElapsedTurn(state, random, { planning, randomMonsterOnly: true });
+        await finishElapsedTurn(state, random, { randomMonsterOnly: true });
         assert.deepEqual(draws, [
             ['rn2', 6], ['rn2', 10], ['rn2', 3], ['rn1', 330, 0],
             ['rn2', 10], ['d', 1, 8],
@@ -58,12 +53,6 @@ for (const [planning, hallucinating, detected] of [
             assert.notDeepEqual(state.displayCtx, ownDisplay, 'source names consume their own cosmetic stream');
         else
             assert.deepEqual(state.displayCtx, ownDisplay, 'unseen or non-hallucinated names draw no cosmetic RNG');
-        if (planning) {
-            assert.deepEqual(game.displayCtx, liveDisplay);
-            assert.strictEqual(monster.data, game.mons[PM_CHAMELEON]);
-            assert.equal(monster.mspec_used, 0);
-            assert.deepEqual(game.context, context);
-        }
         assert.deepEqual(game.coreCtx, core);
     });
 }

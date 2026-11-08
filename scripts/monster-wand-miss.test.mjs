@@ -3,7 +3,6 @@ import test from 'node:test';
 import fs from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { BLINDED, HALLUC, DEAF, DETECT_MONSTERS, ROOM } from '../js/const.js';
@@ -16,9 +15,9 @@ import { canspotmon } from '../js/display.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
-for (const planning of [true, false]) for (const hallucinating of [true, false])
+for (const hallucinating of [true, false])
     for (const deaf of [true, false]) {
-        test(`monster wand miss planning=${planning} Hallu=${hallucinating} Deaf=${deaf}`, async () => {
+        test(`monster wand miss Hallu=${hallucinating} Deaf=${deaf}`, async () => {
             await runSegment({ seed: 8432198, datetime: '20261213120000',
                 nethackrc: 'OPTIONS=name:MissOwner,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
             for (const column of game.level.monsters) column.fill(null);
@@ -31,15 +30,14 @@ for (const planning of [true, false]) for (const hallucinating of [true, false])
                 m_id: 9800, m_lev: 1, mhp: 20, mhpmax: 20, mcanmove: true, minvis: true });
             game.level.monlist = monster; place_monster(monster, x, y, game);
             vision_recalc(0, { state: game });
-            const state = planning ? planningState(game) : game;
+            const state = game;
             const subject = state.level.monlist;
             state.gb.bhitpos = { x, y };
             assert.equal(canspotmon(subject, state), true);
-            const ownDisplay = structuredClone(state.displayCtx), liveDisplay = structuredClone(game.displayCtx);
+            const ownDisplay = structuredClone(state.displayCtx);
             const core = structuredClone(game.coreCtx), context = structuredClone(game.context);
             const messages = [], draws = [], cosmetic = [];
             await mbhitm(subject, newObject({ otyp: WAN_STRIKING, oclass: state.objects[WAN_STRIKING].oc_class }), state, {
-                planning,
                 random: { rnd: bound => { draws.push(['rnd', bound]); assert.equal(bound, 20); return 20; } },
                 message: async line => messages.push(line),
                 displayRandom: bound => { cosmetic.push(bound); rn2_on_display_rng(bound, state); return 0; },
@@ -52,10 +50,6 @@ for (const planning of [true, false]) for (const hallucinating of [true, false])
             else assert.deepEqual(state.displayCtx, ownDisplay);
             assert.deepEqual(game.coreCtx, core);
             assert.deepEqual(game.context, context);
-            if (planning) {
-                assert.deepEqual(game.displayCtx, liveDisplay);
-                assert.equal(monster.mhp, 20);
-            }
         });
     }
 

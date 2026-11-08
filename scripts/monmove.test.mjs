@@ -666,66 +666,63 @@ test('postmov admits the amorphous arm ahead of the door it could open',
 // the final old/new-square updates while using the sensed-only bit, so no
 // shape-change message is expected; the live window boundary still runs.
 test('postmov brackets a vampire fog shift with the source positions', async () => {
-    for (const planning of [false, true]) {
-        for (const seenFlags of [1, 2]) {
-            const { locations, state } = makeState();
-            const vampire = ordinaryMonster(state, {
-                data: state.mons[PM_VAMPIRE_LEADER],
-                mnum: PM_VAMPIRE_LEADER,
-                cham: PM_VAMPIRE_LEADER,
-                mx: 5,
-                my: 4,
-                mhp: 10,
-                mhpmax: 10,
-            });
-            state.dungeons[0] = {
-                depth_start: 1,
-                num_dunlevs: 1,
-                entry_lev: 1,
-                ledger_start: 0,
-                flags: { hellish: false },
-            };
-            state.branches = [{
-                end1: { dnum: 0, dlevel: 1 },
-                end2: { dnum: 0, dlevel: 1 },
-                end1_up: false,
-            }];
-            state.youmonst.data = state.mons[PM_HUMAN];
-            state.youmonst.mnum = PM_HUMAN;
-            state.level.monsters[5][4] = vampire;
-            locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
-            let displayed = 0;
-            const { env, redraws, messages } = postmovEnv(state, {
-                planning,
-                displayMessageWindow: async (currentState) => {
-                    assert.equal(currentState, state);
-                    assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
-                    assert.deepEqual([vampire.mx, vampire.my], [4, 4],
-                        'the source displays before restoring the new square');
-                    await Promise.resolve();
-                    displayed++;
+    for (const seenFlags of [1, 2]) {
+        const { locations, state } = makeState();
+        const vampire = ordinaryMonster(state, {
+            data: state.mons[PM_VAMPIRE_LEADER],
+            mnum: PM_VAMPIRE_LEADER,
+            cham: PM_VAMPIRE_LEADER,
+            mx: 5,
+            my: 4,
+            mhp: 10,
+            mhpmax: 10,
+        });
+        state.dungeons[0] = {
+            depth_start: 1,
+            num_dunlevs: 1,
+            entry_lev: 1,
+            ledger_start: 0,
+            flags: { hellish: false },
+        };
+        state.branches = [{
+            end1: { dnum: 0, dlevel: 1 },
+            end2: { dnum: 0, dlevel: 1 },
+            end1_up: false,
+        }];
+        state.youmonst.data = state.mons[PM_HUMAN];
+        state.youmonst.mnum = PM_HUMAN;
+        state.level.monsters[5][4] = vampire;
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        let displayed = 0;
+        const { env, redraws, messages } = postmovEnv(state, {
+            displayMessageWindow: async (currentState) => {
+                assert.equal(currentState, state);
+                assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
+                assert.deepEqual([vampire.mx, vampire.my], [4, 4],
+                    'the source displays before restoring the new square');
+                await Promise.resolve();
+                displayed++;
+            },
+            random: {
+                ...trapRandom(),
+                d(bound, sides) {
+                    assert.equal(bound, 2);
+                    assert.equal(sides, 8);
+                    return 1;
                 },
-                random: {
-                    ...trapRandom(),
-                    d(bound, sides) {
-                        assert.equal(bound, 2);
-                        assert.equal(sides, 8);
-                        return 1;
-                    },
-                },
-            });
+            },
+        });
 
-            assert.equal(
-                await postmov(vampire, 4, 4, MMOVE_MOVED, seenFlags, false, false, true, env),
-                MMOVE_MOVED,
-            );
-            assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
-            assert.deepEqual(redraws, planning ? [] : [
-                [5, 4], [4, 4], [4, 4], [5, 4], [4, 4], [5, 4],
-            ]);
-            assert.equal(displayed, planning ? 0 : 1);
-            if (seenFlags === 2) assert.deepEqual(messages, []);
-        }
+        assert.equal(
+            await postmov(vampire, 4, 4, MMOVE_MOVED, seenFlags, false, false, true, env),
+            MMOVE_MOVED,
+        );
+        assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
+        assert.deepEqual(redraws, [
+            [5, 4], [4, 4], [4, 4], [5, 4], [4, 4], [5, 4],
+        ]);
+        assert.equal(displayed, 1);
+        if (seenFlags === 2) assert.deepEqual(messages, []);
     }
 });
 
@@ -1468,9 +1465,6 @@ test('postmov reports passage between iron bars through the Norep owner', async 
     );
     assert.ok(result !== undefined);
     assert.deepEqual(repeatedMessages, ['The giant rat passes between the iron bars.']);
-    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true,
-        { ...env, planning: true });
-    assert.equal(repeatedMessages.length, 1, 'planning does not call live Norep');
 });
 
 // C ref: monmove.c:1650-1656. An engulfer drags the hero along, but only when
@@ -3460,7 +3454,6 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         minvis = 0,
         visible = true,
         cussDraw = 0,
-        planning = false,
         withSleeper = false,
     } = {}) {
         const { state } = makeState();
@@ -3505,7 +3498,6 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         initUnported();
         await dochug(monster, {
             state,
-            planning,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -3581,12 +3573,6 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
     const liveWake = await run({ withSleeper: true });
     assert.equal(liveWake.sleeping, false);
     assert.ok(liveWake.events.includes('message:The giant rat wakes up.'));
-    const plannedWake = await run({ planning: true, withSleeper: true });
-    assert.equal(plannedWake.sleeping, false, 'planning retains C wake effects');
-    assert.deepEqual(plannedWake.draws, liveWake.draws, 'same source RNG calls');
-    assert.deepEqual(plannedWake.events,
-        liveWake.events.filter(event => !event.startsWith('message:')),
-        'planning emits neither cuss nor wake messages');
 });
 
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
@@ -6396,51 +6382,46 @@ test('find_pmmonst returns null when no monster of that species exists', () => {
 });
 
 // C monmove.c mind_blast: the active level chain owns psychic targets.
-for (const planning of [false, true]) {
-    test('dochug psychic blast walks canonical targets and owns wake messages, planning=' + planning, async () => {
-        const { state } = makeState();
-        const actor = ordinaryMonster(state, { data: state.mons[PM_MIND_FLAYER],
-            mnum: PM_MIND_FLAYER, mx: 9, my: 10, mpeaceful: true,
-            mcanmove: true, mhp: 30, mhpmax: 30, mspec_used: 1 });
-        const target = ordinaryMonster(state, { mx: 8, my: 10, mpeaceful: false,
-            mhp: 20, mhpmax: 20, msleeping: true, meating: 4 });
-        const friend = ordinaryMonster(state, { mpeaceful: true, mhp: 20, mhpmax: 20 });
-        const mindlessTarget = ordinaryMonster(state, { data: state.mons[PM_IRON_GOLEM],
-            mnum: PM_IRON_GOLEM, mpeaceful: false, mhp: 20, mhpmax: 20 });
-        const dead = ordinaryMonster(state, { mpeaceful: false, mhp: 0 });
-        const second = ordinaryMonster(state, { mx: 7, my: 10, mpeaceful: false,
-            mhp: 20, mhpmax: 20 });
-        const chain = [actor, friend, mindlessTarget, dead, target, second];
-        chain.forEach((m, i) => { m.nmon = chain[i + 1] ?? null; });
-        state.level.monlist = actor;
-        assert.equal(Object.hasOwn(state, 'fmon'), false);
-        for (const m of chain) seeSquare(state, m.mx, m.my);
-        const messages = [], draws = [];
-        await dochug(actor, {
-            state, planning,
-            random: { rn2(n) { draws.push(['rn2', n]); return 0; },
-                rnd(n) { draws.push(['rnd', n]); return 3; } },
-            message: line => { messages.push(line); },
-            preflight() {}, usePreMoveItems: () => false,
-            moveMonster: () => MMOVE_DONE, attackHero() { assert.fail('peaceful actor attacks'); },
-            wakeMessage() {}, monFlee() {}, monsterCanSeeHero: () => true,
-            unsupported: reason => assert.fail(reason), castUndirectedSpell: () => false,
-            distanceAndFear: () => ({ nearby: true, inrange: true, scared: false }),
-            setApparentHero() {}, wipeEngraving() {}, wieldPreMoveWeapon: () => false,
-            redraw() {}, questStatCheck() {}, questTalk() {},
-        });
-        assert.equal(target.mhp, 17);
-        assert.equal(second.mhp, 17);
-        assert.equal(target.msleeping, 0);
-        assert.equal(target.meating, 0);
-        assert.equal(friend.mhp, 20);
-        assert.equal(mindlessTarget.mhp, 20);
-        assert.equal(dead.mhp, 0);
-        assert.deepEqual(draws, [['rn2', 20], ['rn2', 10], ['rnd', 15], ['rn2', 10], ['rnd', 15]]);
-        if (planning) assert.deepEqual(messages, []);
-        else {
-            assert.ok(messages.some(line => line.includes('wakes up')));
-            assert.equal(messages.filter(line => line.includes('It locks on to')).length, 2);
-        }
+test('dochug psychic blast walks canonical targets and owns wake messages', async () => {
+    const { state } = makeState();
+    const actor = ordinaryMonster(state, { data: state.mons[PM_MIND_FLAYER],
+        mnum: PM_MIND_FLAYER, mx: 9, my: 10, mpeaceful: true,
+        mcanmove: true, mhp: 30, mhpmax: 30, mspec_used: 1 });
+    const target = ordinaryMonster(state, { mx: 8, my: 10, mpeaceful: false,
+        mhp: 20, mhpmax: 20, msleeping: true, meating: 4 });
+    const friend = ordinaryMonster(state, { mpeaceful: true, mhp: 20, mhpmax: 20 });
+    const mindlessTarget = ordinaryMonster(state, { data: state.mons[PM_IRON_GOLEM],
+        mnum: PM_IRON_GOLEM, mpeaceful: false, mhp: 20, mhpmax: 20 });
+    const dead = ordinaryMonster(state, { mpeaceful: false, mhp: 0 });
+    const second = ordinaryMonster(state, { mx: 7, my: 10, mpeaceful: false,
+        mhp: 20, mhpmax: 20 });
+    const chain = [actor, friend, mindlessTarget, dead, target, second];
+    chain.forEach((m, i) => { m.nmon = chain[i + 1] ?? null; });
+    state.level.monlist = actor;
+    assert.equal(Object.hasOwn(state, 'fmon'), false);
+    for (const m of chain) seeSquare(state, m.mx, m.my);
+    const messages = [], draws = [];
+    await dochug(actor, {
+        state,
+        random: { rn2(n) { draws.push(['rn2', n]); return 0; },
+            rnd(n) { draws.push(['rnd', n]); return 3; } },
+        message: line => { messages.push(line); },
+        preflight() {}, usePreMoveItems: () => false,
+        moveMonster: () => MMOVE_DONE, attackHero() { assert.fail('peaceful actor attacks'); },
+        wakeMessage() {}, monFlee() {}, monsterCanSeeHero: () => true,
+        unsupported: reason => assert.fail(reason), castUndirectedSpell: () => false,
+        distanceAndFear: () => ({ nearby: true, inrange: true, scared: false }),
+        setApparentHero() {}, wipeEngraving() {}, wieldPreMoveWeapon: () => false,
+        redraw() {}, questStatCheck() {}, questTalk() {},
     });
-}
+    assert.equal(target.mhp, 17);
+    assert.equal(second.mhp, 17);
+    assert.equal(target.msleeping, 0);
+    assert.equal(target.meating, 0);
+    assert.equal(friend.mhp, 20);
+    assert.equal(mindlessTarget.mhp, 20);
+    assert.equal(dead.mhp, 0);
+    assert.deepEqual(draws, [['rn2', 20], ['rn2', 10], ['rnd', 15], ['rn2', 10], ['rnd', 15]]);
+    assert.ok(messages.some(line => line.includes('wakes up')));
+    assert.equal(messages.filter(line => line.includes('It locks on to')).length, 2);
+});

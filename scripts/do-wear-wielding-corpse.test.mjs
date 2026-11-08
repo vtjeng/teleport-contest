@@ -5,7 +5,6 @@ import test from 'node:test';
 import { wielding_corpse } from '../js/do_wear.js';
 import { instapetrify } from '../js/trap.js';
 import { HeroDeathPlanningError } from '../js/hack.js';
-import { nh_timeout_requires_live_state } from '../js/timeout.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
@@ -37,7 +36,7 @@ function fixture() {
         oextra: null, oartifact: 0, dknown: true,
     };
     const lines = [];
-    const env = { planning: true, message: async line => lines.push(line),
+    const env = { message: async line => lines.push(line),
         urgentMessage: async line => lines.push(line) };
     return { state, lines, env };
 }
@@ -85,7 +84,7 @@ test('protection-loss messages and killer naming follow the whole C helper', asy
             how.oclass = state.objects[how.otyp].oc_class;
             how.quan = 1; // A single protective armor object, as at the C caller.
         }
-        await assert.rejects(wielding_corpse(state.uwep, how, voluntary, state, env), error => {
+        await assert.rejects(wielding_corpse(state.uwep, how, voluntary, state, { ...env, planning: true }), error => {
             assert.ok(error instanceof HeroDeathPlanningError, error.stack);
             assert.equal(error.how, STONING);
             assert.equal(error.killerFormat, KILLED_BY);
@@ -108,16 +107,6 @@ test('supporting instapetrify honors resistance before output or killer changes'
     assert.equal(state.killer, undefined);
 });
 
-test('temporary stoning resistance expiry uses the existing live timeout handoff', () => {
-    const { state } = fixture();
-    // C decrements one remaining turn to zero before its wielding_corpse call.
-    state.u.uprops[STONE_RES].intrinsic = 1;
-    assert.equal(nh_timeout_requires_live_state(state), true);
-    // Earlier countdown turns cannot invoke the protection-loss callback.
-    state.u.uprops[STONE_RES].intrinsic = 2;
-    assert.equal(nh_timeout_requires_live_state(state), false);
-});
-
 test('Gloves_off captures voluntary state before cleanup and awaits both corpse calls', () => {
     assert.match(C_WEAR, /on_purpose = !svc\.context\.mon_moving && !uarmg->in_use/u);
     const glovesOff = JS_WEAR.slice(JS_WEAR.indexOf('export async function Gloves_off('),
@@ -135,7 +124,7 @@ test('the hypothetical active alternate corpse follows the source slot condition
     // Ordinary two-weapon admission rejects corpses. This artificial state
     // pins the C guard's fallback without calling it a reachable entry point.
     state.u.twoweap = true;
-    await assert.rejects(wielding_corpse(corpse, null, false, state, env),
+    await assert.rejects(wielding_corpse(corpse, null, false, state, { ...env, planning: true }),
         error => error instanceof HeroDeathPlanningError && error.how === STONING);
 });
 

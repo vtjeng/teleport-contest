@@ -144,7 +144,6 @@ test('golemeffects routes hallucinated monster names through display RNG',
         const iron = monster(PM_IRON_GOLEM, { mhp: 5, mhpmax: 20 });
         await golemeffects(iron, AD_FIRE, 3, {
             state: game,
-            planning: true,
             displayRandom: (bound) => {
                 displayBounds.push(bound);
                 return 0;
@@ -152,8 +151,8 @@ test('golemeffects routes hallucinated monster names through display RNG',
             message: async (text) => lines.push(text),
         });
         // do_name.c:rndmonnam() consumes the display candidate and gender
-        // draws; golemeffects must carry that stream through Monnam even on a
-        // planning clone, while the core attack RNG remains untouched.
+        // draws; golemeffects must carry that stream through Monnam, while
+        // the core attack RNG remains untouched.
         assert.deepEqual(displayBounds, [SPECIAL_PM + 100 - LOW_PM, 2]);
         assert.equal(lines.length, 1);
         assert.match(lines[0], /seems healthier\.$/u);

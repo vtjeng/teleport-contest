@@ -534,7 +534,7 @@ test('dragon HP formula: 4*mlvl + d(mlvl,4) outside the endgame', () => {
 
 // C newman:433,437 calls newuhs(FALSE) after assigning rn1(500,500)
 // hunger. The caller test also pins the make_stoned(0) cleanup at C:417-418.
-test('newman refreshes hunger and clears stoning for live and planning calls', async () => {
+test('newman refreshes hunger and clears stoning', async () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/polyself.c', import.meta.url), 'utf8');
     const body = c.slice(c.indexOf('newman(void)\n{'), c.indexOf('\nvoid\npolyself'));
     assert.match(body, /u\.uhunger = rn1\(500, 500\)/u);
@@ -542,56 +542,33 @@ test('newman refreshes hunger and clears stoning for live and planning calls', a
     assert.equal((body.match(/newuhs\(FALSE\)/gu) ?? []).length, 2);
     const js = readFileSync(new URL('../js/polyself.js', import.meta.url), 'utf8');
     assert.match(js, /if \(u\.uprops\[STONED\]\.intrinsic\)\s*await make_stoned\(0, null, 0, null, state\)/u);
-    for (const planning of [false, true]) {
-        await runSegment({ seed: 15129021, datetime: '20681223171100', moves: '',
-            nethackrc: 'OPTIONS=name:HungerCallbacks,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n' });
-        // Enough levels to avoid newman's -2 lower bound reaching death.
-        Object.assign(game.u, { ulevel: 3, ulevelmax: 3, uhp: 100, uhpmax: 100,
-            uen: 100, uenmax: 100, uhunger: 1100, uhs: SATIATED });
-        game.u.uhpinc.fill(0);
-        game.u.ueninc.fill(0);
-        // A five-turn timeout models the active petrification reached by the
-        // v63 Newman recording; the delayed killer must clear with it.
-        game.u.uprops[STONED].intrinsic = 5;
-        delayed_killer(STONED, 0, 'cockatrice egg', game);
-        game.nhDisplay.readKey = async () => 32;
-        initRng(15129021);
-        let refreshes = 0;
-        // A planned polyself() comes from a monster's turn, whose env
-        // (js/unported_monster_actions.js planSimpleMonsterScan()) carries a
-        // requestPlanningInput() that throws to end the dry run. newman()
-        // ends with retouch_equipment(2), which takes that boundary because
-        // the Ranger carries a pack; the hunger and stoning checks below
-        // precede it in C's newman().
-        const boundaries = [];
-        const plannedEnv = planning ? {
-            requestPlanningInput(operation) {
-                boundaries.push(operation);
-                throw new Error(`planning boundary: ${operation}`);
-            },
-        } : {};
-        const call = newman(game, { planning, ...plannedEnv, statusRefresh: state => {
-            assert.equal(state, game);
-            assert.equal(state.u.uhs, NOT_HUNGRY);
-            refreshes++;
-        } });
-        if (planning) {
-            await assert.rejects(call,
-                /planning boundary: artifact\.c retouch_equipment/u);
-            assert.deepEqual(boundaries, ['artifact.c retouch_equipment']);
-        } else {
-            await call;
-        }
-        assert.equal(refreshes, 1);
-        assert.ok(game.u.uhunger >= 500 && game.u.uhunger <= 999);
-        assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
-        assert.equal(find_delayed_killer(STONED, game), null);
-    }
+    await runSegment({ seed: 15129021, datetime: '20681223171100', moves: '',
+        nethackrc: 'OPTIONS=name:HungerCallbacks,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n' });
+    // Enough levels to avoid newman's -2 lower bound reaching death.
+    Object.assign(game.u, { ulevel: 3, ulevelmax: 3, uhp: 100, uhpmax: 100,
+        uen: 100, uenmax: 100, uhunger: 1100, uhs: SATIATED });
+    game.u.uhpinc.fill(0);
+    game.u.ueninc.fill(0);
+    // A five-turn timeout models the active petrification reached by the
+    // v63 Newman recording; the delayed killer must clear with it.
+    game.u.uprops[STONED].intrinsic = 5;
+    delayed_killer(STONED, 0, 'cockatrice egg', game);
+    game.nhDisplay.readKey = async () => 32;
+    initRng(15129021);
+    let refreshes = 0;
+    await newman(game, { statusRefresh: state => {
+        assert.equal(state, game);
+        assert.equal(state.u.uhs, NOT_HUNGRY);
+        refreshes++;
+    } });
+    assert.equal(refreshes, 1);
+    assert.ok(game.u.uhunger >= 500 && game.u.uhunger <= 999);
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+    assert.equal(find_delayed_killer(STONED, game), null);
 });
 
-test('polyself forwards both newman calls and planning supplies a silent hunger refresh', () => {
+test('polyself forwards both newman calls and its hunger refresh env', () => {
     const js = readFileSync(new URL('../js/polyself.js', import.meta.url), 'utf8');
     assert.equal((js.match(/await newman\(state, env\)/gu) ?? []).length, 2);
     assert.equal((js.match(/await newuhs\(false, state, hungerEnv\)/gu) ?? []).length, 2);
-    assert.match(js, /statusRefresh: env\.statusRefresh \?\? \(env\.planning \? \(\) => \{\} : \(\) => bot\(\)\)/u);
 });

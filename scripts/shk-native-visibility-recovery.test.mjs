@@ -45,8 +45,8 @@ async function setup(carryPick) {
     return keeper;
 }
 
-for (const visible of [true, false]) for (const planning of [true, false]) {
-    test(`angry native keeper visible=${visible} planning=${planning}`, async () => {
+for (const visible of [true, false]) {
+    test(`angry native keeper visible=${visible}`, async () => {
         const keeper = await setup(false);
         if (!visible) for (let y = 3; y <= 10; y++) game.level.at(7, y).typ = STONE;
         vision_reset(game); vision_recalc(0);
@@ -54,7 +54,7 @@ for (const visible of [true, false]) for (const planning of [true, false]) {
         await setmangry(keeper, false, {state: game, message: async () => {}});
         assert.equal(Boolean(keeper.mpeaceful), false);
         const before = keeper.mx;
-        const result = await shk_move(keeper, game, {planning});
+        const result = await shk_move(keeper, game, {});
         assert.equal(result, 1);
         assert.ok(visible ? keeper.mx > before : keeper.mx < before,
             'visible hero is pursued; obscured hero leaves guard position as goal');

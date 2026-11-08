@@ -18,21 +18,17 @@ import {
     CORR,
     DETECT_MONSTERS,
     IN_SIGHT,
-    LS_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MMOVE_DONE,
-    NORMAL_SPEED,
     NON_PM,
     PIT,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
-    TEMP_LIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { new_light_source } from '../js/light.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
 import { postmov } from '../js/monmove.js';
 import { restrap } from '../js/mon.js';
@@ -40,24 +36,12 @@ import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     PM_GIANT_EEL,
     PM_ROCK_PIERCER,
-    PM_JACKAL,
     PM_SMALL_MIMIC,
     PM_TRAPPER,
     PM_WATER_MOCCASIN,
 } from '../js/monsters.js';
-import { BOULDER, GOLD_PIECE, STRANGE_OBJECT } from '../js/objects.js';
-import { initRng } from '../js/rng.js';
-import {
-    preflightSimpleMonsterActions,
-    UnsupportedSimpleMonsterActionError,
-} from '../js/unported_monster_actions.js';
-import {
-    clear_path,
-    does_block,
-    transparencyIndexViews,
-} from '../js/vision.js';
+import { STRANGE_OBJECT } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
 
@@ -502,154 +486,6 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
         game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
     });
 
-test('planning a blocking redisguise restores live vision on every exit',
-    async () => {
-        for (const refuseAfterScan of [false, true]) {
-            await hero();
-            for (const column of game.level.monsters) column.fill(null);
-            game.level.monlist = null;
-            const lightBearer = hiderAt(PM_JACKAL, far(), {
-                mcanmove: 0,
-                movement: NORMAL_SPEED,
-            });
-            const awake = hiderAt(PM_SMALL_MIMIC, far(), {
-                movement: NORMAL_SPEED,
-            });
-            assert.equal(lightBearer.mx, awake.mx - 1);
-            assert.equal(lightBearer.my, awake.my);
-            new_light_source(
-                lightBearer.mx,
-                lightBearer.my,
-                2,
-                LS_MONSTER,
-                lightBearer,
-                game,
-            );
-            // The first scan must reach restrap() before any recalculation.
-            // set_mimic_sym() raises it again for the bearer's ration, after
-            // the mimic has become a blocker.
-            game.vision_full_recalc = 0;
-            const liveVisionFullRecalc = game.vision_full_recalc;
-            const liveVisionView = game.viz_array;
-            assert.equal(does_block(awake.mx, awake.my, null, game), false);
-            assert.equal(
-                transparencyIndexViews()[awake.my][awake.mx],
-                1,
-            );
-            assert.equal(
-                clear_path(
-                    lightBearer.mx,
-                    lightBearer.my,
-                    awake.mx + 1,
-                    awake.my,
-                ),
-                1,
-            );
-
-            // The first four draws from this independent stream are
-            // rn2(3)=0, rn2(17)=12, rnd(1000)=91, rnd(2)=1.  They take
-            // restrap() and set_mimic_sym()'s ROCK_CLASS arm to BOULDER.
-            initRng(511);
-            const rngBefore = {
-                core: structuredClone(game.coreCtx),
-                display: structuredClone(game.displayCtx),
-            };
-            const liveActiveBuffer = game.active_buf;
-            const guard = freezeLiveState(game);
-            let planned = null;
-            let plannedRngSentinel = null;
-            const run = preflightSimpleMonsterActions(game, {
-                advanceRound(planningState, planningRandom) {
-                    const plannedMimic = m_at(
-                        awake.mx,
-                        awake.my,
-                        planningState,
-                    );
-                    planned = {
-                        m_ap_type: plannedMimic.m_ap_type & M_AP_TYPMASK,
-                        mappearance: plannedMimic.mappearance,
-                        index: transparencyIndexViews()[awake.my][awake.mx],
-                        clearPath: clear_path(
-                            lightBearer.mx,
-                            lightBearer.my,
-                            awake.mx + 1,
-                            awake.my,
-                        ),
-                        activeBuffer: planningState.active_buf,
-                        ownsCurrentView: planningState.viz_array
-                            === planningState._visionBuffers.rows[
-                                planningState.active_buf
-                            ],
-                        sourceLit: planningState.viz_array[
-                            lightBearer.my
-                        ][lightBearer.mx] & TEMP_LIT,
-                        behindMimicLit: planningState.viz_array[
-                            awake.my
-                        ][awake.mx + 1] & TEMP_LIT,
-                        marked: planningState._plannedVisionChange,
-                    };
-                    plannedRngSentinel = [
-                        planningRandom.rn2(1000000),
-                        planningRandom.rn2(1000000),
-                        planningRandom.rn2(1000000),
-                    ];
-                    if (refuseAfterScan) {
-                        throw new UnsupportedSimpleMonsterActionError(
-                            'post-redisguise test refusal',
-                        );
-                    }
-                    return true;
-                },
-            });
-            if (refuseAfterScan) {
-                await assert.rejects(run, UnsupportedSimpleMonsterActionError);
-            } else {
-                await run;
-            }
-            guard.assertNoLeak(assert);
-            assert.ok(guard.frozen > 1000,
-                `froze only ${guard.frozen} objects`);
-            assert.ok(guard.views > 0,
-                `snapshotted only ${guard.views} typed arrays`);
-
-            assert.deepEqual(planned, {
-                m_ap_type: M_AP_OBJECT,
-                mappearance: BOULDER,
-                index: 0,
-                clearPath: 0,
-                activeBuffer: liveActiveBuffer === 0 ? 1 : 0,
-                ownsCurrentView: true,
-                sourceLit: TEMP_LIT,
-                behindMimicLit: 0,
-                marked: { x: awake.mx, y: awake.my },
-            });
-            assert.deepEqual(plannedRngSentinel, [
-                584456,
-                102362,
-                994105,
-            ]);
-            assert.equal(awake.m_ap_type & M_AP_TYPMASK, 0);
-            assert.equal(does_block(awake.mx, awake.my, null, game), false);
-            assert.equal(game.viz_array, liveVisionView);
-            assert.equal(game.vision_full_recalc, liveVisionFullRecalc);
-            assert.equal(
-                transparencyIndexViews()[awake.my][awake.mx],
-                1,
-            );
-            assert.equal(
-                clear_path(
-                    lightBearer.mx,
-                    lightBearer.my,
-                    awake.mx + 1,
-                    awake.my,
-                ),
-                1,
-            );
-            assert.deepEqual(game.coreCtx, rngBefore.core);
-            assert.deepEqual(game.displayCtx, rngBefore.display);
-        }
-    });
-
 test('a costly listen re-disguises its revealed mimic through the sentinel',
     async () => {
         const [input] = loadCostlyMimicRedisguiseRecipe().segments;
@@ -666,60 +502,6 @@ test('a costly listen re-disguises its revealed mimic through the sentinel',
         assert.equal(game.nhDisplay.inputQueueLength, 0);
         assert.equal(mimic.mnum, PM_SMALL_MIMIC);
         assert.equal(mimic.m_ap_type & M_AP_TYPMASK, M_AP_OBJECT);
-    });
-
-test('the costly-listen planning disguise changes only the cloned monster',
-    async () => {
-        const [recorded] = loadCostlyMimicRedisguiseRecipe().segments;
-        // Remove the message dismissal and wait which follow the second
-        // listen. The live game now holds an undisguised mimic immediately
-        // before moveloop_core() plans the costly turn.
-        assert.ok(recorded.moves.endsWith(' .'));
-        const input = { ...recorded, moves: recorded.moves.slice(0, -2) };
-        await runSegment(input);
-        const mimic = m_at(game.u.ux, game.u.uy + 1, game);
-        assert.equal(game.context.move, 1);
-        assert.equal(mimic.m_ap_type & M_AP_TYPMASK, 0);
-
-        const coreBefore = structuredClone(game.coreCtx);
-        const guard = freezeLiveState(game);
-        let plannedAppearance = null;
-        let plannedRngSentinel = null;
-        await preflightSimpleMonsterActions(game, {
-            // The callback runs after the cloned monster scans and receives
-            // their cloned ISAAC stream. Returning true stops before a second
-            // allocation round, which is outside this test's boundary.
-            advanceRound(planned, planningRandom) {
-                const plannedMimic = m_at(
-                    planned.u.ux,
-                    planned.u.uy + 1,
-                    planned,
-                );
-                plannedAppearance = {
-                    m_ap_type: plannedMimic.m_ap_type & M_AP_TYPMASK,
-                    mappearance: plannedMimic.mappearance,
-                };
-                plannedRngSentinel = [
-                    planningRandom.rn2(1000000),
-                    planningRandom.rn2(1000000),
-                    planningRandom.rn2(1000000),
-                ];
-                return true;
-            },
-        });
-        guard.assertNoLeak(assert);
-
-        // makemon.c set_mimic_sym()'s object-at-square arm gives this cloned
-        // mimic the floor gold piece's disguise. The fixed-seed sentinel pins
-        // the cloned stream after the whole planned scan; the live stream
-        // remains at its entry state.
-        assert.deepEqual(plannedAppearance, {
-            m_ap_type: M_AP_OBJECT,
-            mappearance: GOLD_PIECE,
-        });
-        assert.deepEqual(plannedRngSentinel, [590788, 802859, 924435]);
-        assert.equal(mimic.m_ap_type & M_AP_TYPMASK, 0);
-        assert.deepEqual(game.coreCtx, coreBefore);
     });
 
 test('the monster hiding matrix carries replay inputs only', () => {

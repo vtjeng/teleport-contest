@@ -36,7 +36,6 @@ import {
     ROWNO,
     SWIMMING,
     VAULT,
-    TELEPORT_CONTROL,
     TELEDS_TELEPORT,
     WWALKING,
     OBJ_FREE,
@@ -86,12 +85,10 @@ import {
     rloc_to_flag,
     scrolltele,
     stairway_find_forwiz,
-    tele,
     teleds,
     tele_restrict,
     u_teleport_mon,
 } from '../js/teleport.js';
-import { planningState } from '../js/unported_monster_actions.js';
 import { resetGame } from '../js/gstate.js';
 import {
     cloneIsaacContext,
@@ -345,205 +342,64 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.ok(jsGetpos < jsScrolltele.lastIndexOf('learnscroll(scroll, state)'));
 });
 
-test('planned teleport uses its cloned RNG and map redraw seams', async () => {
-    // This independently chosen initialized game supplies a real map; the
-    // cloned amulet forces C's rn2(3) gate before safe_teleds uses rnd/rn2.
-    // Each placement stops at its input-capable arrival replay boundary.
-    await runSegment({
-        seed: 29,
-        datetime: '20420101090000',
-        nethackrc: 'OPTIONS=name:PlannedTeleport,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
-        moves: '',
-        storage: new InMemoryStorage(),
-    });
-    const livePosition = { x: game.u.ux, y: game.u.uy };
-    const liveCoreContext = structuredClone(game.coreCtx);
-    const liveScreen = game.nhDisplay.serialize();
-    const planned = planningState(game);
-    planned.u.uhave.amulet = true;
-
-    const sourceType = planned.level.at(planned.u.ux, planned.u.uy).typ;
-    let destination = null;
-    for (let x = 1; x < COLNO && !destination; ++x) {
-        for (let y = 0; y < ROWNO; ++y) {
-            const location = planned.level.at(x, y);
-            if ((x === planned.u.ux && y === planned.u.uy)
-                || location.typ !== sourceType
-                || planned.level.monsters[x][y]
-                || planned.level.traps.some(
-                    (trap) => trap.tx === x && trap.ty === y,
-                )
-                || !goodpos(x, y, planned.youmonst, 0, { state: planned }))
-                continue;
-            destination = { x, y };
-            break;
-        }
-    }
-    assert.ok(destination, 'the map has a free same-terrain square');
-
-    const randomCalls = [];
-    const redrawCalls = [];
-    const messages = [];
-    const replayBoundary = new Error('arrival replay');
-    const replayOperations = [];
-    const requestPlanningInput = operation => {
-        replayOperations.push(operation);
-        assert.equal(operation, 'hack.c spoteffects');
-        throw replayBoundary;
-    };
-    await assert.rejects(() => tele(planned, {
-        state: planned,
-        planning: true,
-        requestPlanningInput,
-        random: {
-            rn2(bound) {
-                randomCalls.push(['rn2', bound]);
-                if (bound === 3) return 1; // Decline C's disorientation branch.
-                if (bound === ROWNO) return destination.y;
-                return 0;
-            },
-            rnd(bound) {
-                randomCalls.push(['rnd', bound]);
-                if (bound === COLNO - 1) return destination.x;
-                return 1;
-            },
-            d: () => 1,
-        },
-        message: async (line) => messages.push(line),
-        redraw: (x, y) => redrawCalls.push([x, y]),
-        displayRandom: () => 0,
-    }), error => error === replayBoundary);
-
-    assert.deepEqual(randomCalls.slice(0, 3), [
-        ['rn2', 3],
-        ['rnd', COLNO - 1],
-        ['rn2', ROWNO],
-    ]);
-    assert.deepEqual([planned.u.ux, planned.u.uy], [
-        destination.x, destination.y,
-    ]);
-    assert.deepEqual([game.u.ux, game.u.uy], [livePosition.x, livePosition.y]);
-    assert.deepEqual(game.coreCtx, liveCoreContext,
-        'the planning pass leaves live gameplay RNG unchanged');
-    assert.equal(game.nhDisplay.serialize(), liveScreen,
-        'the planning redraw seam does not paint the live terminal');
-    assert.ok(redrawCalls.length > 0,
-        'the cloned teleds path uses the caller-owned redraw seam');
-    assert.ok(messages.includes('You materialize in the same location!'),
-        'the clone message is captured by its caller-owned message seam');
-
-    // Controlled teleport takes getpos from the same planning environment.
-    planned.u.uprops[TELEPORT_CONTROL] = { intrinsic: 1, extrinsic: 0 };
-    const controlledMessages = [];
-    const selected = { ...livePosition };
-    let getposCalls = 0;
-    await assert.rejects(() => scrolltele(null, planned, {
-        state: planned,
-        planning: true,
-        requestPlanningInput,
-        random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
-        message: async (line) => controlledMessages.push(line),
-        getpos: async (coordinate) => {
-            getposCalls++;
-            coordinate.x = selected.x;
-            coordinate.y = selected.y;
-            return 0;
-        },
-        redraw: (x, y) => redrawCalls.push([x, y]),
-        displayRandom: () => 0,
-    }), error => error === replayBoundary);
-    assert.deepEqual(replayOperations, [
-        'hack.c spoteffects', 'hack.c spoteffects',
-    ]);
-    assert.equal(getposCalls, 1);
-    assert.ok(controlledMessages.some((line) =>
-        line.startsWith('Where do you want to be teleported?')));
-    assert.deepEqual([game.u.ux, game.u.uy], [livePosition.x, livePosition.y]);
-    assert.deepEqual(game.coreCtx, liveCoreContext);
-    assert.equal(game.nhDisplay.serialize(), liveScreen);
-});
-
-test('planning relocation records the discarded swallowed-map redraw gap',
+test('swallowed relocation forwards its action environment into shop entry',
     async () => {
-        await runSegment({
-            seed: 29,
-            datetime: '20420101090000',
-            nethackrc: 'OPTIONS=name:SwallowedRelocation,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
-            moves: '',
-            storage: new InMemoryStorage(),
-        });
-        const liveScreen = game.nhDisplay.serialize();
-        const priorUnported = new Set(game.unported ?? []);
-        const state = planningState(game);
-        const oldx = state.u.ux + 1;
-        const oldy = state.u.uy;
-        const monster = newMonster({
-            data: state.mons[PM_SEWER_RAT],
-            mnum: PM_SEWER_RAT,
-            m_id: 98765,
-            mx: oldx,
-            my: oldy,
-            mhp: 8,
-            mhpmax: 8,
-        });
-        place_monster(monster, oldx, oldy, state);
-        state.u.ustuck = monster;
-        state.u.uswallow = true;
-        let destination = null;
-        for (let x = 1; x < COLNO && !destination; ++x) {
-            for (let y = 0; y < ROWNO; ++y) {
-                if (goodpos(x, y, monster, 0, { state })
-                    && !(x === oldx && y === oldy)) {
-                    destination = { x, y };
-                    break;
-                }
-            }
-        }
-        assert.ok(destination);
-        const redraws = [];
-        const result = rloc_to(monster, destination.x, destination.y, {
-            state,
-            planning: true,
-            random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
-            redraw: (x, y) => redraws.push([x, y]),
-            message: async () => {},
-            setApparxy: () => {},
-        });
-        if (result && typeof result.then === 'function') await result;
+        // Each part starts from the same generated shop level.
+        const setup = async () => {
+            await runSegment({
+                seed: 7621001,
+                datetime: '20310417113000',
+                nethackrc: [
+                    'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+                    'OPTIONS=!legacy,!tutorial,!splash_screen',
+                    'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                    '',
+                ].join('\n'),
+                moves: '.\x165\n.',
+            });
+            const room = game.level.rooms.find(
+                (candidate) => candidate?.rtype >= SHOPBASE,
+            );
+            assert.ok(room?.resident, 'generated shop has its real keeper');
+            return room;
+        };
+        const swallowOutside = (door, roomno, wormId) => {
+            const outside = [
+                [door.x - 1, door.y], [door.x + 1, door.y],
+                [door.x, door.y - 1], [door.x, door.y + 1],
+            ].find(([x, y]) => game.level.at(x, y)
+                && game.level.at(x, y).roomno !== roomno
+                && goodpos(x, y, game.youmonst, 0, { state: game }));
+            assert.ok(outside, 'shop door has an unoccupied legal outside square');
+            for (const field of [
+                'urooms', 'urooms0', 'uentered',
+                'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
+            ]) game.u[field]?.fill(0);
+            game.u.ux = outside[0];
+            game.u.uy = outside[1];
+            move_update(false, game);
+            game.u.ux0 = outside[0];
+            game.u.uy0 = outside[1];
+            const worm = newMonster({
+                data: game.mons[PM_PURPLE_WORM],
+                mnum: PM_PURPLE_WORM,
+                m_id: wormId,
+                mx: outside[0],
+                my: outside[1],
+                mhp: 30,
+                mhpmax: 30,
+            });
+            place_monster(worm, outside[0], outside[1], game);
+            game.u.ustuck = worm;
+            game.u.uswallow = true;
+            return worm;
+        };
 
-        assert.equal(game.nhDisplay.serialize(), liveScreen,
-            'the clone does not call global docrt or paint the live display');
-        assert.ok(redraws.length > 0,
-            'the clone still performs its owned monster redraws');
-        assert.ok(game.unported.has('display.c docrt'),
-            'the discarded C redraw is named instead of running live docrt');
-        game.unported = priorUnported;
-    });
-
-test('swallowed relocation forwards planning action environment into shop entry',
-    async () => {
-        await runSegment({
-            seed: 7621001,
-            datetime: '20310417113000',
-            nethackrc: [
-                'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
-                'OPTIONS=!legacy,!tutorial,!splash_screen',
-                'OPTIONS=pettype:none,!acoustics,playmode:debug',
-                '',
-            ].join('\n'),
-            moves: '.\x165\n.',
-        });
-        const room = game.level.rooms.find(
-            (candidate) => candidate?.rtype >= SHOPBASE,
-        );
-        assert.ok(room?.resident, 'generated shop has its real keeper');
-        const liveKeeper = room.resident;
-        const liveMconf = liveKeeper.mconf;
-        const planned = planningState(game);
-        const keeper = planned.level.rooms[room.roomnoidx].resident;
+        let room = await setup();
+        const keeper = room.resident;
         const door = keeper.mextra.eshk.shd;
         const roomno = room.roomnoidx + ROOMOFFSET;
-        assert.ok(planned.level.at(door.x, door.y)?.edge);
+        assert.ok(game.level.at(door.x, door.y)?.edge);
 
         keeper.mcanmove = true;
         keeper.msleeping = false;
@@ -556,42 +412,12 @@ test('swallowed relocation forwards planning action environment into shop entry'
         keeper.mextra.eshk.following = false;
         keeper.mextra.eshk.surcharge = false;
         keeper.mextra.eshk.visitct = 1;
-        keeper.mextra.eshk.customer = planned.plname;
-        planned.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: planned.invent };
-
-        const outside = [
-            [door.x - 1, door.y], [door.x + 1, door.y],
-            [door.x, door.y - 1], [door.x, door.y + 1],
-        ].find(([x, y]) => planned.level.at(x, y)
-            && planned.level.at(x, y).roomno !== roomno
-            && goodpos(x, y, planned.youmonst, 0, { state: planned }));
-        assert.ok(outside, 'shop door has an unoccupied legal outside square');
-
-        for (const field of [
-            'urooms', 'urooms0', 'uentered',
-            'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
-        ]) planned.u[field]?.fill(0);
-        planned.u.ux = outside[0];
-        planned.u.uy = outside[1];
-        move_update(false, planned);
-        planned.u.ux0 = outside[0];
-        planned.u.uy0 = outside[1];
-
-        const worm = newMonster({
-            data: planned.mons[PM_PURPLE_WORM],
-            mnum: PM_PURPLE_WORM,
-            m_id: 98761,
-            mx: outside[0],
-            my: outside[1],
-            mhp: 30,
-            mhpmax: 30,
-        });
-        place_monster(worm, outside[0], outside[1], planned);
-        planned.u.ustuck = worm;
-        planned.u.uswallow = true;
+        keeper.mextra.eshk.customer = game.plname;
+        game.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: game.invent };
+        const worm = swallowOutside(door, roomno, 98761);
 
         const coreRandom = createCoreRandom(
-            cloneIsaacContext(game.coreCtx), planned,
+            cloneIsaacContext(game.coreCtx), game,
         );
         const actionDraws = [];
         const actionRandom = {
@@ -602,10 +428,9 @@ test('swallowed relocation forwards planning action environment into shop entry'
             },
         };
         const messages = [];
-        const liveCoreBefore = structuredClone(game.coreCtx);
+        const coreBefore = structuredClone(game.coreCtx);
         await rloc_to(worm, door.x, door.y, {
-            state: planned,
-            planning: true,
+            state: game,
             random: actionRandom,
             message: async (line) => messages.push(line),
             redraw: () => {},
@@ -615,42 +440,20 @@ test('swallowed relocation forwards planning action environment into shop entry'
         assert.deepEqual([worm.mx, worm.my], [door.x, door.y],
             'the actual swallowed relocation reaches the legal shop door');
         assert.ok(actionDraws.includes(50),
-            'the actual direct keeper action uses the supplied planning RNG');
+            'the actual direct keeper action uses the supplied RNG');
         assert.equal(keeper.mconf, 0,
             'the keeper prephase runs before swallowed-other movement refusal');
-        assert.equal(liveKeeper.mconf, liveMconf,
-            'the planning action leaves the live keeper unchanged');
-        assert.deepEqual(game.coreCtx, liveCoreBefore,
-            'the cloned keeper action does not advance live core RNG');
+        assert.deepEqual(game.coreCtx, coreBefore,
+            'the keeper action draws only from the supplied RNG');
         assert.ok(messages.some((line) => /pick-axe/u.test(line)));
 
-        const ordinary = planningState(game);
-        const ordinaryKeeper = ordinary.level.rooms[room.roomnoidx].resident;
+        room = await setup();
+        const ordinaryKeeper = room.resident;
         const ordinaryMconf = ordinaryKeeper.mconf;
-        const ordinaryWorm = newMonster({
-            data: ordinary.mons[PM_PURPLE_WORM],
-            mnum: PM_PURPLE_WORM,
-            m_id: 98762,
-            mx: outside[0],
-            my: outside[1],
-            mhp: 30,
-            mhpmax: 30,
-        });
-        for (const field of [
-            'urooms', 'urooms0', 'uentered',
-            'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
-        ]) ordinary.u[field]?.fill(0);
-        ordinary.u.ux = outside[0];
-        ordinary.u.uy = outside[1];
-        move_update(false, ordinary);
-        ordinary.u.ux0 = outside[0];
-        ordinary.u.uy0 = outside[1];
-        place_monster(ordinaryWorm, outside[0], outside[1], ordinary);
-        ordinary.u.ustuck = ordinaryWorm;
-        ordinary.u.uswallow = true;
-        ordinary.invent = null;
+        const ordinaryWorm = swallowOutside(door, roomno, 98762);
+        game.invent = null;
         const ordinaryCore = createCoreRandom(
-            cloneIsaacContext(game.coreCtx), ordinary,
+            cloneIsaacContext(game.coreCtx), game,
         );
         const ordinaryDraws = [];
         const ordinaryRandom = {
@@ -661,8 +464,7 @@ test('swallowed relocation forwards planning action environment into shop entry'
             },
         };
         await rloc_to(ordinaryWorm, door.x, door.y, {
-            state: ordinary,
-            planning: true,
+            state: game,
             random: ordinaryRandom,
             message: async () => {},
             redraw: () => {},
@@ -2201,7 +2003,7 @@ test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
         assert.equal(state.level.monsters[10][11], monster);
     });
 
-test('planned hallucinated flagged relocation uses its display RNG seam',
+test('hallucinated flagged relocation uses its display RNG seam',
     async () => {
         const state = positionState();
         setupVision(state);
@@ -2221,7 +2023,6 @@ test('planned hallucinated flagged relocation uses its display RNG seam',
         const displayBounds = [];
         const messages = [];
         await rloc_to_flag(monster, 11, 10, RLOC_MSG, {
-            planning: true,
             state,
             newsym: () => {},
             displayRandom: (bound) => {

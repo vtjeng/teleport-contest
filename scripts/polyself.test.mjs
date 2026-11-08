@@ -385,11 +385,10 @@ test('polymon uses makemon golemhp without a random HP roll', async () => {
     assert.equal(game.youmonst.data.pmidx, PM_STONE_GOLEM);
 });
 
-test('polymon forwards planning random, message, and redraw operations',
+test('polymon forwards injected random, message, and redraw operations',
     async () => {
-    // do_stone_u() reaches polymon() on the planning clone when a golem form
-    // is available.  Every impure operation in that transition must use the
-    // caller's seams, so a planning attack cannot draw or paint the live TTY.
+    // do_stone_u() reaches polymon() when a golem form is available.  Every
+    // impure operation in that transition must use the caller's seams.
     const recording = JSON.parse(readFileSync(
         new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
             import.meta.url),
@@ -430,13 +429,12 @@ test('polymon forwards planning random, message, and redraw operations',
         },
     };
     const env = {
-        planning: true,
         random,
         message: async (line) => { lines.push(line); },
         redraw: (x, y) => { redraws.push([x, y]); },
     };
-    // Establish a valid polymorphed hero first, then take the same
-    // do_stone_u() route that a planning monster attack uses.
+    // Establish a valid polymorphed hero first, then take the
+    // do_stone_u() route that a monster's stoning attack uses.
     await polymon(PM_IRON_GOLEM, game, env);
     draws.length = 0;
     lines.length = 0;
@@ -598,13 +596,13 @@ test('headless polymorph removes eyewear through Blindf_off before dropping it',
         'the source NULL call skips the usual removal message');
 });
 
-test('planned break_armor routes levitation-boot removal through the caller env',
+test('break_armor routes levitation-boot removal through the caller env',
     async () => {
     // polyself.c:1282-1293: a nohands form pushes the boots off and calls
     // Boots_off(), whose LEVITATION_BOOTS arm (do_wear.c:300-312) reaches
-    // float_down() when no other source keeps the hero aloft.  A planning
-    // polymon() must hand its env to Boots_off(), so the landing stops the dry
-    // run at requestPlanningInput() instead of printing on the live TTY.
+    // float_down() when no other source keeps the hero aloft.  polymon()
+    // must hand its env to Boots_off(), so the removal message reaches the
+    // caller's message operation instead of the TTY.
     const recording = JSON.parse(readFileSync(
         new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
             import.meta.url),
@@ -651,27 +649,19 @@ test('planned break_armor routes levitation-boot removal through the caller env'
         };
     }
     const lines = [];
-    const requests = [];
-    const stop = new Error('planning replay boundary');
     const env = {
-        planning: true,
         message: async (line) => { lines.push(line); },
         redraw: () => {},
-        requestPlanningInput: (operation) => {
-            requests.push(operation);
-            throw stop;
-        },
     };
+    // Dismiss any --More-- the live transition shows.
+    for (let i = 0; i < 40; i++) game.nhDisplay.pushKey(32);
     // Giant ant is M1_NOHANDS and MZ_TINY, so polyself.c:1282 takes the boots
     // arm and polyself.c:1287 picks the verysmall "slide" wording.
-    await assert.rejects(() => polymon(PM_GIANT_ANT, game, env),
-        (error) => error === stop);
-    assert.deepEqual(requests, ['trap.c float_down'],
-        'Boots_off asks the planner to replay float_down() live');
+    await polymon(PM_GIANT_ANT, game, env);
     assert.ok(lines.includes('Your boots slide off your feet!'),
-        'break_armor prints through the planning message seam');
+        'break_armor prints through the caller message seam');
     assert.deepEqual(liveLines, [],
-        'no planned message reaches the live TTY');
+        'no message bypasses the caller seam to reach the TTY');
     assert.equal(game.u.uprops[LEVITATION].extrinsic & W_ARMF, 0,
         'setworn() already cleared the boots\' levitation source');
 });
