@@ -91,3 +91,36 @@ test('pager.c and teleport.c read Blind and Blinded, with no roleplay term', () 
     assert.match(jsBody(teleport, 'scrolltele'),
         /if \(!Blinded\(state\.u\)\)\s*await make_blinded\(0, false, state\);/u);
 });
+
+test('artifact.c finesse_ahriman() reads Levitation, which BLevitation defeats', async () => {
+    // finesse_ahriman() (artifact.c:2244, 2257) returns FALSE unless the hero
+    // is Levitating, then probes whether dropping the Heart of Ahriman would
+    // end Levitation. Levitation is (HLevitation || ELevitation) &&
+    // !BLevitation (youprop.h:242). artifacts.js tested HLevitation ||
+    // ELevitation, so a hero whose invoked levitation was blocked (inside
+    // rock or water, or trapped in the floor) took do.c's levhack branch.
+    // A recorded game would need the Heart invoked while levitation is
+    // blocked and the floor out of reach.
+    const c = cBody(read('nethack-c/upstream/src/artifact.c'), 'finesse_ahriman');
+    assert.equal(count(c, /!Levitation\b/gu), 2, 'C reads Levitation twice');
+    const { LAST_PROP, LEVITATION, W_ARTI, FROMOUTSIDE } = await import('../js/const.js');
+    const { ART_HEART_OF_AHRIMAN, finesse_ahriman, init_artifacts } = await import('../js/artifacts.js');
+    const { roles } = await import('../js/roles.js');
+    // init_artifacts() reads the role (hack_artifacts); a Barbarian owns
+    // the Heart of Ahriman.
+    const state = {
+        flags: { initalign: 0 },
+        urole: { ...roles.find((role) => role.filecode === 'Bar') },
+        u: { uprops: Array.from({ length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })) },
+    };
+    init_artifacts(state);
+    const heart = { oartifact: ART_HEART_OF_AHRIMAN };
+    // Levitating only through the invoked Heart: dropping it ends Levitation.
+    state.u.uprops[LEVITATION].extrinsic = W_ARTI;
+    assert.equal(finesse_ahriman(heart, state), true);
+    // The same levitation blocked by terrain (FROMOUTSIDE): not Levitating.
+    state.u.uprops[LEVITATION].blocked = FROMOUTSIDE;
+    assert.equal(finesse_ahriman(heart, state), false);
+    assert.equal(state.u.uprops[LEVITATION].extrinsic, W_ARTI, 'the probe restores the slot');
+});

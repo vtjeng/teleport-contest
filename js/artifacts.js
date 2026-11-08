@@ -2805,7 +2805,7 @@ export function finesse_ahriman(obj, state = game) {
     if (oart === state.artilist[ART_NONARTIFACT]) return false;
 
     // Not levitating, or not an artifact that confers levitation via invoke
-    if (!(HLevitation(state.u) || ELevitation(state.u))
+    if (!Levitation(state.u)
         || oart.inv_prop !== LEVITATION
         || !(ELevitation(state.u) & W_ARTI))
         return false;
@@ -2815,7 +2815,7 @@ export function finesse_ahriman(obj, state = game) {
     const saveExtrinsic = ELevitation(state.u);
     state.u.uprops[LEVITATION].intrinsic &= ~(I_SPECIAL | TIMEOUT);
     state.u.uprops[LEVITATION].extrinsic &= ~W_ARTI;
-    const result = !(HLevitation(state.u) || ELevitation(state.u));
+    const result = !Levitation(state.u);
     state.u.uprops[LEVITATION].intrinsic = saveIntrinsic;
     state.u.uprops[LEVITATION].extrinsic = saveExtrinsic;
     return result;
