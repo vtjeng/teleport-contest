@@ -60,7 +60,6 @@ function wormEnvironment(rawEnv = {}) {
 }
 
 function redrawWormSquare(x, y, env) {
-    if (env.planning) return;
     if (typeof env.hooks?.newsym === 'function') {
         env.hooks.newsym(x, y, env);
     } else if (typeof env.newsym === 'function') {
@@ -73,7 +72,6 @@ function redrawWormSquare(x, y, env) {
 }
 
 async function wormMessage(line, env) {
-    if (env.planning) return;
     const message = env.message ?? (env.state === game ? ttyPline : null);
     if (typeof message === 'function')
         await message(line, env.state, env);
@@ -118,8 +116,8 @@ export function count_wsegs(monster, state = game) {
 // C ref: worm.c see_wsegs() (487-495). Repaint every visible tail node in
 // tail-to-head list order; the final stored node is the hidden head tracker.
 // The source loop neither filters occupancy nor changes the worm list/RNG.
-// newsym() paints the module-global game, so a foreign state (a planning
-// clone) repaints only through an operation it supplies, else draws nothing.
+// newsym() paints the module-global game, so a state other than game
+// repaints only through an operation it supplies, else draws nothing.
 export function see_wsegs(worm, rawEnv = {}) {
     const env = wormEnvironment(rawEnv);
     const state = env.state;
@@ -216,8 +214,8 @@ export function initworm(monster, segmentCount, rawEnv = {}) {
     head.x = monster.mx;
     head.y = monster.my;
     // worm.c also initializes wgrowtime[wnum] here; keep that level-local
-    // clock with the segment chain so save/restore and planning clones carry
-    // both values as one worm-slot record.
+    // clock with the segment chain so save/restore carries both values as
+    // one worm-slot record.
     slots[monster.wormno] = { segments, growtime: 0 };
 }
 
