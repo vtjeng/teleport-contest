@@ -814,8 +814,8 @@ export async function check_capacity(str, state = game) {
 // costs: one hit point, or consciousness when there is not one to spare.
 //
 // C selects the current form's HP for both the loss and fainting threshold.
-// Elapsed-turn planning supplies its cloned RNG and silent message owners;
-// the live combat caller uses the ordinary owners and awaits the sleep.
+// A caller may supply its RNG and message owners; the combat caller uses the
+// ordinary owners and awaits the sleep.
 export async function overexert_hp(state = game, env = {}) {
     const hp = Upolyd(state.u) ? 'mh' : 'uhp';
     if (state.u[hp] > 1) {
@@ -1192,7 +1192,7 @@ export const You_can_move_again = 'You can move again.';
 // unmul(), so this state-dependent message belongs here rather than being
 // treated as unreachable.
 export async function unmul(msg_override, state = game, env = {}) {
-    const message = env.planning ? async () => {} : (env.message ?? ttyPline);
+    const message = env.message ?? ttyPline;
     state.disp ??= {};
     state.disp.botl = true;
     state.multi = 0; /* caller will usually have done this already */
@@ -1335,34 +1335,27 @@ export async function showdamage(dmg, state, env = {}) {
 // back.
 //
 // `env.message` reaches showdamage() and maybe_wail(), the two lines this
-// prints short of death. A planned lethal loss stops after the source state
-// writes and before rehumanize(), urgent_pline(), or done(); those terminal
-// operations belong to the live replay.
+// prints short of death.
 export async function losehp(n, knam, k_format, state = game, env = {}) {
-    const effectEnv = env.planning && typeof env.message !== 'function'
-        ? { ...env, message: async () => {} }
-        : env;
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
     end_running(true, state);
     if (Upolyd(state.u)) {
         state.u.mh -= n;
-        await showdamage(n, state, effectEnv);
+        await showdamage(n, state, env);
         if (state.u.mhmax < state.u.mh)
             state.u.mhmax = state.u.mh;
         if (state.u.mh < 1) {
-            if (env.planning)
-                throw new HeroDeathPlanningError(knam, k_format, env);
             await rehumanize(state);
         } else if (n > 0 && state.u.mh * 10 < state.u.mhmax
             && Unchanging(state)) {
-            await maybe_wail(state, effectEnv);
+            await maybe_wail(state, env);
         }
         return;
     }
 
     state.u.uhp -= n;
-    await showdamage(n, state, effectEnv);
+    await showdamage(n, state, env);
     // Widening this comparison to >= would assign u.uhpmax to itself, so no
     // test can tell the two apart.
     if (state.u.uhp > state.u.uhpmax)
@@ -1378,8 +1371,6 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         // svk.killer.name itself. Assigning the same string is that same
         // no-op here.
         state.killer.name = knam ?? '';
-        if (env.planning)
-            throw new HeroDeathPlanningError(knam, k_format, env);
         // urgent_pline() rather than pline(): win/tty/topl.c update_topl():265
         // refuses to let a line starting "You die" share the top line with the
         // message before it, so this is the --More-- the player answers before
@@ -1392,7 +1383,7 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         // at.
         await done(DIED, state, env.fromMonster ? { fromMonster: true } : {});
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
-        await maybe_wail(state, effectEnv);
+        await maybe_wail(state, env);
     }
 }
 
@@ -1607,7 +1598,7 @@ export function requireSimpleHeroDestination(
     if (floorObject && !noPickMove) {
         // pickup.c pickup() runs after domove_core() commits the hero
         // position. A late refusal there would leave room-entry writes
-        // behind, so dry-run the complete automatic-pickup transaction at
+        // behind, so preflight the complete automatic-pickup transaction at
         // the projected destination before the move spends its rng calls.
         const projected = {
             ...state,
@@ -1800,7 +1791,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     if (state.level?.objects?.[x]?.[y]) {
         // pickup.c pickup() runs only after domove_swap_with_pet() has moved
         // both actors and domove_core() has committed the hero position. A
-        // late refusal there would leave those writes behind, so dry-run the
+        // late refusal there would leave those writes behind, so preflight the
         // complete automatic-pickup transaction at the projected destination
         // before do_attack() spends its source-ordered rn2(7). The pickup
         // planner refreshes gw.wc; clone that write owner and the projected
@@ -1867,7 +1858,7 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         //
         // The source-side refusal gates live in domove_swap_with_pet() and
         // therefore run only after do_attack() spends its safe-monster draw.
-        // This seam owns destination arrival effects that must be planned
+        // This seam owns destination arrival effects that must be checked
         // before that draw to keep an unsupported late operation atomic.
         requireSupportedDestinationMonster(destinationMonster, x, y, state);
     } else if (state.context?.forcefight) {
@@ -5089,8 +5080,7 @@ function domove_monster_trap_env(state, env = {}) {
         // hack.c:2198-2199 calls minliquid() after the swap and consumes the
         // rloc() result inside that source function. Supply the complete
         // teleport.c operation set so a liquid survivor can relocate before
-        // mintrap() runs, including the planning-safe seams when a caller
-        // provides them.
+        // mintrap() runs, including any seams a caller provides.
         relocateMonster: env.relocateMonster ?? (
             (subject, flags, relocationEnv) => rloc(
                 subject,
@@ -5336,9 +5326,7 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
 // blocks flight as well. C records the outside obstruction, calls float_up()
 // after the hero leaves it, restores flight, and updates the status line.
 export async function switch_terrain(state = game, rawEnv = {}) {
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const { u } = state;
     u.uprops ??= [];
     const lev = state.level?.at(u.ux, u.uy);
@@ -5401,9 +5389,7 @@ export async function set_uinwater(in_out, state = game, rawEnv = {}) {
 // moving. It returns true only when dismounting, drowning, or burning moves
 // the hero and the caller must skip the rest of its square effects.
 export async function pooleffects(newspot, state = game, rawEnv = {}) {
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const { u } = state;
     const levitating = propertyActiveUnblocked(state, LEVITATION);
     const flying = heroIsFlying(state);
@@ -5490,14 +5476,6 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
             return false;
         }
         if (is_lava(u.ux, u.uy, state)) {
-            // Lava effects own tactile display, worn-item destruction, death
-            // choices and possible relocation. Replay that input-capable
-            // source call live, then replan from its resulting state.
-            if (rawEnv.planning) {
-                if (typeof rawEnv.requestPlanningInput !== 'function')
-                    throw new TypeError('planned lava entry requires a replay boundary');
-                rawEnv.requestPlanningInput('trap.c lava_effects');
-            }
             if (await lava_effects(state)) return true;
         } else {
             const isWaterWall = is_waterwall(u.ux, u.uy, state);
@@ -5554,9 +5532,7 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
     // before beginning any square-arrival effects in that case.
     if (state.program_state?.gameover) return;
     const { u } = state;
-    const message = rawEnv.planning
-        ? async () => {}
-        : (rawEnv.message ?? ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const random = rawEnv.random ?? coreRandom;
     const staticState = spoteffectsStaticsFor(state);
     let trap = t_at(u.ux, u.uy, state);
@@ -5577,14 +5553,6 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
         return;
     }
     if (state.iflags?.in_lava_effects) return;
-
-    // Arrival can run input-capable liquid, room and trap effects before
-    // inspecting the floor. Commit the complete source call live, then replan.
-    if (pick && rawEnv.planning) {
-        if (typeof rawEnv.requestPlanningInput !== 'function')
-            throw new TypeError('planned arrival pickup requires a replay boundary');
-        rawEnv.requestPlanningInput('hack.c spoteffects');
-    }
 
     ++staticState.depth;
     staticState.terrain = location?.typ ?? STONE;
