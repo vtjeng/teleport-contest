@@ -650,7 +650,6 @@ export async function handle_tip(tip, state = game, env = {}) {
             how: PICK_NONE,
             items: lines,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }));
         await textWindow(GETPOS_TIP_LINES.map((text) => ({ text })));
     }

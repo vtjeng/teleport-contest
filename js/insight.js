@@ -2336,7 +2336,6 @@ export async function set_vanq_order(
         // value even when #genocided filtered its row from `items`.
         preselected: currentMode,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (selected === null || selected === undefined) return -1;
     state.flags.vanq_sortmode = Number(selected);

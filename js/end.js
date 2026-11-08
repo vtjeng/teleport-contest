@@ -913,7 +913,6 @@ async function disclose(how, taken, state) {
                         items,
                         how: PICK_ONE,
                         cancelValue: null,
-                        overlay: state.iflags?.menu_overlay !== false,
                     }),
             });
             await container_contents(state.invent, true, true, false, state);

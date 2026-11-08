@@ -390,7 +390,6 @@ test('tty menu overlay and heading options control selection rendering', () => {
     );
 
     const spec = buildPlayerSelectionMenuSpec(state, context, noRandom);
-    assert.equal(spec.overlay, false);
     assert.equal(spec.titleAttr, ATR_NONE);
     const rendered = renderTtyMenu(state, spec);
     assert.equal(rendered.layout.fullScreen, true);

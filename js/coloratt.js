@@ -351,9 +351,7 @@ async function queryMenu(state, spec, helpers) {
     // Symbol initialization reads color parsers through glyphs.js. Load the
     // window port only when a live query needs it, after symbols initialize.
     const { select_menu } = await import('./windows.js');
-    return select_menu(state, {
-        ...spec, overlay: state.iflags?.menu_overlay !== false,
-    });
+    return select_menu(state, spec);
 }
 function pickedValues(picks) {
     if (picks === null || picks === undefined) return null;

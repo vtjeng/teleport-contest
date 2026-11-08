@@ -2878,7 +2878,6 @@ function optionMenuSelect(state, spec, helpers) {
         return helpers.selectMenu(spec);
     return select_menu(state, {
         ...spec,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 }
 
@@ -4367,7 +4366,6 @@ async function handler_symset(state, optionName, helpers) {
             selectMenu: helpers?.selectMenu ?? ((spec) => select_menu(state, {
                 ...spec,
                 ...menuTitleStyle(state),
-                overlay: state.iflags?.menu_overlay !== false,
             })),
             message: helpers?.message
                 ?? ((message) => ttyPline(message, state)),

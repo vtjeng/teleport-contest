@@ -6185,7 +6185,6 @@ export async function do_enlightenment_effect(
         lines,
         how: PICK_NONE,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     await ttyPline('The feeling subsides.', state);
     await exercise(A_WIS, true, state, random);

@@ -215,7 +215,7 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
 
 test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     const state = menuState();
-    const layout = ttyMenuTextLayout(state.nhDisplay, [
+    const layout = ttyMenuTextLayout(state, [
         'Things that are here:',
         'a dart',
         'a food ration',
@@ -233,25 +233,26 @@ test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     );
 
     const terminalHeight = ttyMenuTextLayout(
-        state.nhDisplay,
+        state,
         Array.from({ length: 24 }, (_, index) => `line ${index}`),
     );
     assert.equal(terminalHeight.clearsScreen, true);
     assert.equal(terminalHeight.firstColumn, 0);
 
+    state.iflags.menu_overlay = false;
     const overlayDisabled = ttyMenuTextLayout(
-        state.nhDisplay,
+        state,
         ['Things that are here:', 'a dart'],
-        false,
     );
     assert.equal(overlayDisabled.clearsScreen, true);
     assert.equal(overlayDisabled.firstColumn, 0);
+    state.iflags.menu_overlay = true;
 
     // An over-wide line can force offx to zero while overlay remains enabled.
     // C skips the initial clear in that case, then docrt() performs the full
     // repair at dismissal. This separates clearsScreen from fullRepair.
     const fullRepairWithoutClear = ttyMenuTextLayout(
-        state.nhDisplay,
+        state,
         [`${'\u00e9'.repeat(38)} TAIL`],
     );
     assert.equal(fullRepairWithoutClear.clearsScreen, false);
@@ -295,7 +296,7 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     const state = menuState(' ');
     let boundary = null;
     state._preNhgetchHook = () => {
-        const layout = ttyMenuTextLayout(state.nhDisplay, [
+        const layout = ttyMenuTextLayout(state, [
             'Things that are here:',
             'a \u00e9X \u20acY \ud83d\ude00Z',
             '\u00e9X',
@@ -1421,7 +1422,7 @@ test('tty_end_menu assigns a fresh accelerator run to every page', () => {
         { text: 'help', value: 90, selector: '?' },
         { text: 'first', value: 1 },
     ];
-    ttyMenuLayout(state, { title: 'x', items: explicit, overlay: false });
+    ttyMenuLayout(state, { title: 'x', items: explicit });
     assert.equal(explicit[0].selector, '?');
     assert.equal(explicit[1].selector, 'a');
 });

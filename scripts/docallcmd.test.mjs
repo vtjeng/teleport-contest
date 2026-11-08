@@ -118,7 +118,7 @@ test('docallcmd uses auto-assigned selectors when lootabc is enabled',
 // tty_display_nhwindow() clears the screen when overlay is false.  With the
 // default (menu_overlay not set, i.e., undefined), the menu overlays the
 // right half and the title appears farther right.
-test('docallcmd passes overlay=false when menu_overlay is false',
+test('docallcmd shows its menu full-screen when menu_overlay is false',
     async () => {
         const state = menuState('\x1b');
         state.invent = null;

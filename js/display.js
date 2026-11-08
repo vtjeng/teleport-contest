@@ -7758,9 +7758,7 @@ export function conditionbitmask2str(mask) {
     return text && alias ? alias : text;
 }
 function hiliteMenu(state, spec, helpers) {
-    return helpers?.selectMenu ? helpers.selectMenu(spec) : select_menu(state, {
-        ...spec, overlay: state.iflags?.menu_overlay !== false,
-    });
+    return helpers?.selectMenu ? helpers.selectMenu(spec) : select_menu(state, spec);
 }
 function hilitePicks(selection) {
     if (selection == null) return null;

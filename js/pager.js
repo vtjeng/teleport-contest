@@ -1944,7 +1944,6 @@ export async function do_look(mode, clickCc = null, state = game) {
             title: 'What do you want to look at:',
             ...menuTitleStyle(state),
             items: menuLines(state),
-            overlay: state.iflags?.menu_overlay !== false,
         }));
     if (choice === null && !clicklook) return ECMD_OK;
     if (choice === 'i') {
@@ -1963,7 +1962,6 @@ export async function do_look(mode, clickCc = null, state = game) {
                         : item)),
                     how: PICK_ONE,
                     cancelValue: null,
-                    overlay: state.iflags?.menu_overlay !== false,
                 };
                 inventoryRepairLayout = ttyMenuLayout(state, spec);
                 return select_menu(state, spec);
@@ -2431,7 +2429,6 @@ export async function dohelp(state = game) {
         title: 'Select one item:',
         ...menuTitleStyle(state),
         items: helpMenuItems(state),
-        overlay: state.iflags?.menu_overlay !== false,
         cancelValue: null,
     });
     if (choice === null) return ECMD_OK;

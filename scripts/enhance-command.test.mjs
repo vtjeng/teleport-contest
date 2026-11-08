@@ -385,9 +385,9 @@ async function menuColumn(label) {
     return row.indexOf('Current skills:');
 }
 
-// wintty.c tty_display_nhwindow():1924-1925. js/cmd.js hands the window owner
-// `overlay: iflags.menu_overlay !== false`, and only a configuration file that
-// turns the option off separates the two branches: a listing short enough to
+// wintty.c tty_display_nhwindow():1924-1925. js/tty_menu.js menuOverlay()
+// reads iflags.menu_overlay, and only a configuration file that turns the
+// option off separates the two branches: a listing short enough to
 // leave maxrow under the terminal height opens beside the map with the option
 // on and covers it with the option off.
 test('an #enhance menu opens beside the map only while overlay is on',

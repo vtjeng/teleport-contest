@@ -1307,7 +1307,6 @@ async function spellMenu(items, how, prompt, state, selection = {}) {
             : item),
         how, title: prompt, ...style, ...selection,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 }
 

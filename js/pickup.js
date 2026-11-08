@@ -770,7 +770,6 @@ export async function query_objlist(
         // the same { value, count } rows as PICK_ANY.
         returnSelections: true,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (selected === null) {
         // select_menu() uses null for C's select_menu() == -1. The caller
@@ -908,7 +907,6 @@ export async function query_category(
     }
     const selected = await select_menu(state, {
         title, ...menuTitleStyle(state), items, how, returnCount: true, cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     let picks = selected === null ? [] : how === PICK_ANY ? selected
         : [selected];
@@ -2139,7 +2137,6 @@ async function in_or_out_menu(
         how: PICK_ONE,
         preselected: defaultChoice,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     return choice ?? defaultChoice;
 }
@@ -3635,7 +3632,6 @@ async function doloot_core(state) {
                 items,
                 how: PICK_ANY,
                 cancelValue: null,
-                overlay: state.iflags?.menu_overlay !== false,
             });
             const n = result ? result.length : 0;
             if (n > 0) {
@@ -3975,7 +3971,6 @@ async function tipcontainer_gettarget(box, state) {
         items,
         how: PICK_ONE,
         preselected: FLOOR_TARGET,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 
     // pickup.c:3936-3947. Interpret the result.
@@ -4296,7 +4291,6 @@ async function choose_tip_container_menu(state) {
         ...(state.invent ? { preselected: TIP_INVENTORY } : {}),
         cancelValue: TIP_MENU_CANCEL,
         emptyValue: TIP_MENU_EMPTY,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (result === TIP_MENU_CANCEL) return ECMD_CANCEL;
     if (result && result !== TIP_INVENTORY

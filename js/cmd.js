@@ -1494,7 +1494,7 @@ export async function doextlist(state = game) {
         const choice = await select_menu(state, {
             how: PICK_ONE, title: null,
             lines: extendedCommandListLines(state, { menumode, onelist, searchbuf }),
-            choices, overlay: state.iflags?.menu_overlay !== false,
+            choices,
             cancelValue: null,
         });
         let search = false;
@@ -2383,7 +2383,6 @@ export async function extcmd_via_menu(state = game) {
             title: `Extended Command: ${prefix}`,
             ...menuTitleStyle(state),
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         });
         if (selected === null || selected === undefined) {
             if (matchLevel) {
@@ -3132,7 +3131,6 @@ function inventoryMenuHooks(state) {
                 : item)),
             how: PICK_ONE,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
     };
 }
@@ -3200,7 +3198,6 @@ async function runAttributesCommand(key, state) {
             lines,
             how: PICK_NONE,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
     }));
 }
@@ -3267,7 +3264,6 @@ export async function doterrain(state = game) {
         // off and then the menu was committed; C still shows the known map.
         emptyValue: 1,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (which === null) return ECMD_OK;
     const subsets = {
@@ -3411,7 +3407,6 @@ async function runCastCommand(key, state) {
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
         // morehungry() -> newuhs() requires these hooks for hunger
         // status-change messages and status-line redraws.
@@ -3437,7 +3432,6 @@ async function runWizCastCommand(key, state) {
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
     }));
 }
@@ -3744,7 +3738,6 @@ async function runEnhanceCommand(key, state) {
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
         ask: (query) => y_n(query, state),
         message: ttyPline,
@@ -3784,7 +3777,6 @@ function optionCommandHelpers(state) {
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         }),
         // Not a window-port seam like `menu` above: count_bind_keys() below
         // is the complete port of the cmd.c function optfn_o_bind_keys()
@@ -4013,7 +4005,6 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
         title: key ? "Bind '" + key2txt(key) + "' to what command?"
             : 'Bind what command?',
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (selected == null) return;
 
@@ -4080,7 +4071,6 @@ export async function handler_rebind_keys(state = game) {
             how: PICK_ONE,
             title: 'Do what?',
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         });
         if (selected == null) return;
         if (selected === 1 || selected === 2)
@@ -4112,7 +4102,6 @@ export async function handler_change_autocompletions(state = game) {
         how: PICK_ANY,
         title: 'Which commands autocomplete?',
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (picks == null) return;
     // A PICK_ANY menu answers C's menu_item list as {value, count} entries;

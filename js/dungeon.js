@@ -1649,7 +1649,6 @@ export async function print_dungeon(state = game, { bymenu = true } = {}) {
         items,
         how: PICK_ONE,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 
     if (selected != null) {
@@ -1956,7 +1955,6 @@ export async function show_overview(why, reason = 0, state = game) {
         items: win.items,
         how: why !== -1 ? PICK_NONE : PICK_ONE,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (selected !== null && selected !== undefined) {
         const ledger = selected - 1;

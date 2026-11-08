@@ -2695,7 +2695,6 @@ async function arti_invoke(obj, state = game) {
                 lines,
                 how: PICK_NONE,
                 cancelValue: null,
-                overlay: state.iflags?.menu_overlay !== false,
             });
             res = ECMD_TIME;
             break;

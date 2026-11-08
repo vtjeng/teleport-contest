@@ -669,7 +669,6 @@ export async function drinkfountain(state = game, env = {}) {
                     lines,
                     how: PICK_NONE,
                     cancelValue: null,
-                    overlay: state.iflags?.menu_overlay !== false,
                 });
             }
             await exercise(A_WIS, true, state, random, {

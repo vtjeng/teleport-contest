@@ -1034,7 +1034,6 @@ async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
             lines,
             how: PICK_NONE,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         });
         await message('Your awareness re-normalizes.', state);
         await exercise(A_WIS, true, state, random, {

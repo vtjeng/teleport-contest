@@ -765,7 +765,6 @@ export async function itemactions(otmp, state = game, hooks = {}) {
         how: PICK_ONE,
         cancelValue: null,
         title,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 
     if (n != null) {

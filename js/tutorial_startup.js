@@ -55,7 +55,6 @@ export function buildTutorialMenuSpec(state = game, repeated = false) {
         // the menu with its extra diagnostic line.
         preselected: REPROMPT,
         cancelValue: false,
-        overlay: state.iflags?.menu_overlay !== false,
     };
 }
 

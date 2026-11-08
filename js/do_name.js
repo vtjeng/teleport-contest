@@ -678,7 +678,6 @@ export async function docallcmd(state) {
         items,
         how: PICK_ONE,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
 
     // C: if (select_menu > 0) ch = pick_list[0].item.a_char; else ch = 'q';

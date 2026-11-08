@@ -3,6 +3,7 @@
 // deliver_by_window(); win/tty/wintty.c process_text_window() and dmore().
 
 import { game } from './gstate.js';
+import { menuOverlay } from './tty_menu.js';
 import { nhgetch } from './input.js';
 import { convertLine, initializeQuestPagerLua } from './questpgr.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
@@ -91,7 +92,8 @@ export function legacyIntroductionLines(state = game) {
 // deliver_by_window() uses NHW_MENU without start_menu()/end_menu().  Its
 // buffered lines therefore flow through process_text_window(), not the menu
 // selection renderer in tty_menu.js.
-export function ttyLegacyLayout(display, lines, menuOverlay = true) {
+export function ttyLegacyLayout(state, lines) {
+    const display = state.nhDisplay;
     const maxrow = lines.length;
     const maxcol = Math.max(0, ...lines.map((line) => line.length + 1));
     let offx = Math.min(
@@ -100,7 +102,7 @@ export function ttyLegacyLayout(display, lines, menuOverlay = true) {
         display.cols - maxcol - 1,
     );
     if (offx < 0) offx = 0;
-    const fullScreen = maxrow >= display.rows || !menuOverlay;
+    const fullScreen = maxrow >= display.rows || !menuOverlay(state);
     if (fullScreen) offx = 0;
     return {
         offx,
@@ -141,11 +143,7 @@ export function renderTtyLegacyIntroduction(state = game) {
     if (!display)
         throw new Error('legacy introduction requires an initialized display');
     const lines = legacyIntroductionLines(state);
-    const layout = ttyLegacyLayout(
-        display,
-        lines,
-        state.iflags?.menu_overlay !== false,
-    );
+    const layout = ttyLegacyLayout(state, lines);
     if (layout.promptRow >= display.rows) {
         throw new Error('legacy introduction unexpectedly exceeds one tty page');
     }

@@ -441,7 +441,8 @@ export function ttyTextWindowData(lines, columns) {
 
 // C refs: tty_display_nhwindow(NHW_MENU) and process_text_window(). A menu
 // with cw->data follows the text-window line loop but retains menu geometry.
-export function ttyMenuTextLayout(display, rawLines, overlay = true) {
+export function ttyMenuTextLayout(state, rawLines) {
+    const display = state.nhDisplay;
     // C tty_putstr() stores each NHW_MENU row's attribute and color alongside
     // its compressed text; keep that metadata until process_text_window draws.
     const data = ttyTextWindowData(rawLines, display.cols);
@@ -455,7 +456,7 @@ export function ttyMenuTextLayout(display, rawLines, overlay = true) {
     // Under H2344_BROKEN, tty_display_nhwindow() clears only for a terminal-
     // height window or disabled overlays. An over-wide line can still make
     // offx zero; erase_menu_or_text() then requests docrt() at dismissal.
-    const clearsScreen = maxrow >= display.rows || !overlay;
+    const clearsScreen = maxrow >= display.rows || !menuOverlay(state);
     if (clearsScreen) offx = 0;
     return {
         firstColumn: offx,
@@ -510,11 +511,7 @@ export async function displayTtyMenuTextWindow(
     }
     if (display.toplin !== TOPLINE_EMPTY) clearTtyMessageWindow(state);
 
-    const layout = ttyMenuTextLayout(
-        display,
-        rawLines,
-        state.iflags?.menu_overlay !== false,
-    );
+    const layout = ttyMenuTextLayout(state, rawLines);
     const pageSize = Math.max(1, display.rows - 1);
     const pageCount = Math.max(1, Math.ceil(layout.lines.length / pageSize));
 
@@ -958,7 +955,7 @@ export async function displayTtyTextWindow(state = game, lines) {
     const snapshot = copyRegion(display, 0, display.rows);
     const baseCursor = [display.cursorCol, display.cursorRow];
 
-    if (maxrow >= display.rows || state.iflags?.menu_overlay === false) {
+    if (maxrow >= display.rows || !menuOverlay(state)) {
         display.clearScreen();
     } else {
         // A window short enough to overlay clears only the message window
@@ -1843,7 +1840,6 @@ export function buildRoleFilterMenuSpec(state = game) {
         ],
         how: PICK_ANY,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     };
 }
 

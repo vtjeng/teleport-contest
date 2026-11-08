@@ -1287,7 +1287,6 @@ test("the class menu's 'all classes' entry clears with the rest", async () => {
                     how,
                     title: prompt,
                     cancelValue: null,
-                    overlay: true,
                 }),
             },
         );

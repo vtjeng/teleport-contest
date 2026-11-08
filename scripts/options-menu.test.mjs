@@ -1204,7 +1204,6 @@ test('tty_end_menu() restarts its accelerators on every page', async () => {
     const spec = {
         title: 'Set what options?',
         items,
-        overlay: false,
     };
     // A 24-row terminal gives tty_end_menu() lmax == 23, and the prompt plus
     // its blank separator occupy the first two of those lines.

@@ -130,7 +130,6 @@ export function buildRerollMenuSpec(
         how: PICK_ONE,
         cancelValue: REPROMPT,
         emptyValue: REPROMPT,
-        overlay: state.iflags?.menu_overlay !== false,
     };
 }
 

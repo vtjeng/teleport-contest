@@ -383,7 +383,6 @@ function facetMenuSpec(state, context, random) {
         choices,
         preselected: randomChoice,
         cancelValue: quitChoice,
-        overlay: state.iflags?.menu_overlay !== false,
     };
 }
 
@@ -410,7 +409,6 @@ function confirmationMenuSpec(state) {
         choices,
         preselected: 'y',
         cancelValue: 'q',
-        overlay: state.iflags?.menu_overlay !== false,
     };
 }
 

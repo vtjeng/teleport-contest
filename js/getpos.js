@@ -853,7 +853,6 @@ export async function getpos_menu(ccp, gloc, state = game) {
         items,
         how: PICK_ONE,
         cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
     });
     if (selected === null || selected === undefined) return false;
     const point = locations[Number(selected)];

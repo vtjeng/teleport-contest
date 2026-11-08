@@ -1987,7 +1987,6 @@ async function menu_pick_pay_items(ibillct, ibill, state, env) {
     }
     const selected = await (env.selectMenu ?? select_menu)(state, {
         title: 'Pay for which items?', items, how: PICK_ANY, cancelValue: null,
-        overlay: state.iflags.menu_overlay !== false,
     });
     for (const choice of selected ?? []) ibill[choice.value - 1].queuedpay = true;
     return selected?.length ?? 0;

@@ -109,7 +109,7 @@ test('tty legacy page ignores invalid keys and restores its corner', async () =>
     assert.deepEqual(displayFrame(state), before);
 
     const lines = legacyIntroductionLines(state);
-    const layout = ttyLegacyLayout(state.nhDisplay, lines);
+    const layout = ttyLegacyLayout(state, lines);
     assert.equal(
         boundaries[0].grid[0]
             .slice(layout.textColumn, layout.textColumn + lines[0].length)
@@ -144,7 +144,7 @@ test('recorder capture leaves standout dmore attributes unset', async () => {
     const state = legacyState({ keys: ' ' });
     state.flags.standout = parseNethackrc('OPTIONS=standout').flags.standout;
     const layout = ttyLegacyLayout(
-        state.nhDisplay,
+        state,
         legacyIntroductionLines(state),
     );
     let promptAttrs;

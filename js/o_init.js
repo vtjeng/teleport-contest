@@ -721,7 +721,6 @@ export async function doclassdisco(state = game, {
             items,
             how: PICK_ONE,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         });
         selectedClass = selected ?? '\0';
     }
@@ -1004,7 +1003,6 @@ export async function rename_disco(state = game) {
             items,
             how: PICK_ONE,
             cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
         });
         const dis = selected ?? STRANGE_OBJECT;
         if (dis !== STRANGE_OBJECT) {
