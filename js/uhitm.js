@@ -908,18 +908,17 @@ export async function light_hits_gremlin(
     const random = rawEnv.random ?? coreRandom;
     const distance = dist2(state.u.ux, state.u.uy, monster.mx, monster.my);
     if (!Deaf(state.u) && distance <= 90) {
-        await ttyPline(
+        // C prints both lines with pline_mon().
+        await ttyPline(messageAt(
             `${Monnam(monster, state, rawEnv)} `
                 + `${damage > monster.mhp / 2 ? 'wails in agony' : 'cries out in pain'}!`,
-            state,
-            rawEnv,
-        );
+            monster.mx, monster.my, state,
+        ), state, rawEnv);
     } else if (canseemon(monster, state)) {
-        await ttyPline(
+        await ttyPline(messageAt(
             `${Monnam(monster, state, rawEnv)} recoils from the light!`,
-            state,
-            rawEnv,
-        );
+            monster.mx, monster.my, state,
+        ), state, rawEnv);
     }
     monster.mhp -= damage;
     await wake_nearto(monster.mx, monster.my, 30, {
@@ -4112,9 +4111,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                 : magr.minvent
                     ? 'brags about the goods some dungeon explorer provided'
                     : 'makes some remarks about how difficult theft is lately';
-            await message(
-                `${capitalizedMonsterName(magr, state)} ${bragMsg}.`, state,
-            );
+            await message(messageAt(
+                `${capitalizedMonsterName(magr, state)} ${bragMsg}.`,
+                magr.mx, magr.my, state,
+            ), state);
             if (!(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
             mhm.hitflags = M_ATTK_AGR_DONE;
@@ -4451,13 +4451,9 @@ export async function mhitm_ad_fire(
     if (Resists_Elem(mdef, FIRE_RES, state)
         || defended(mdef, AD_FIRE, state)) {
         if (state.gv?.vis && canseemon(mdef, state)) {
+            // C prints this with pline_The(), which records no location.
             await message(
-                messageAt(
-                    `The fire doesn't seem to burn ${mon_nam(mdef, state, env)}!`,
-                    mdef.mx,
-                    mdef.my,
-                    state,
-                ),
+                `The fire doesn't seem to burn ${mon_nam(mdef, state, env)}!`,
                 state,
                 env,
             );
@@ -4958,12 +4954,11 @@ export async function mhitm_ad_phys(
             if (petrifyingCorpse) {
                 mhm.damage = 1;
                 const message = requireAttackOperation(env, 'message');
-                await message(
+                await message(messageAt(
                     `${Monnam(magr, state, env)} hits you with the `
                     + `${pmname(state.mons[otmp.corpsenm], NEUTRAL)} corpse.`,
-                    state,
-                    env,
-                );
+                    magr.mx, magr.my, state,
+                ), state, env);
                 const stoned = Boolean(
                     (Stoned(state.u)) & TIMEOUT,
                 );
