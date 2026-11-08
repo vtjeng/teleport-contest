@@ -1600,9 +1600,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
 // C ref: mon.c meatmetal() (1463-1531).
 export async function meatmetal(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    // newsym() through the caller's redraw, which a planning scan of
-    // monmove.c postmov() replaces with a no-op so that hallucinatory
-    // glyphs do not draw from the live display RNG.
+    // newsym() through the caller's redraw.
     const redraw = rawEnv.redraw ?? newsym;
     const random = rawEnv.random ?? coreRandom;
     const visible = canseemon(mtmp, state);
@@ -1679,9 +1677,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
 // C ref: mon.c meatobj() (1533-1653).
 export async function meatobj(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    // newsym() through the caller's redraw, which a planning scan of
-    // monmove.c postmov() replaces with a no-op so that hallucinatory
-    // glyphs do not draw from the live display RNG.
+    // newsym() through the caller's redraw.
     const redraw = rawEnv.redraw ?? newsym;
     if (mtmp.mtame) return 0;
     const original = mtmp.data;
@@ -1786,9 +1782,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
 // C ref: mon.c meatcorpse() (1656-1723).
 export async function meatcorpse(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    // newsym() through the caller's redraw, which a planning scan of
-    // monmove.c postmov() replaces with a no-op so that hallucinatory
-    // glyphs do not draw from the live display RNG.
+    // newsym() through the caller's redraw.
     const redraw = rawEnv.redraw ?? newsym;
     if (mtmp.mtame) return 0;
     const original = mtmp.data;
@@ -1952,8 +1946,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
-    // pline_mon() and newsym(). A planning scan overrides both with no-ops,
-    // because it re-runs the same turn against the live display.
+    // pline_mon() and newsym(), through the caller's owners when supplied.
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? newsym;
     // splitobj(), remove_object() and add_to_minv() each reach owners that
@@ -2207,16 +2200,15 @@ async function liquidMessage(text, monster, env) {
 async function liquidTeleportRestricted(monster, env) {
     const state = env.state ?? game;
     // C minliquid_core() calls the canonical teleport.c tele_restrict()
-    // owner. Keep its raw environment so planning names/messages use the
-    // same seams as every other teleport restriction callsite.
+    // owner. Keep its raw environment so names/messages use the same seams
+    // as every other teleport restriction callsite.
     return tele_restrict(monster, state, env);
 }
 
 // C minliquid_core() calls teleport.c rloc() and deal_with_overcrowding()
-// directly. A live caller that supplies neither gets those owners; a planning
-// clone must bring its own silent relocation.
+// directly. A caller that supplies neither gets those owners.
 function liquidLiveOperation(env, name, owner) {
-    if (typeof env[name] === 'function' || env.planning)
+    if (typeof env[name] === 'function')
         return liquidOperation(env, name);
     return owner;
 }
@@ -2658,10 +2650,7 @@ function newchamEnv(rawEnv = {}) {
     const normalized = normalizedDistressEnv(rawEnv);
     return {
         ...normalized,
-        // The C monster scan has no dry-run display. Keep a planned shape
-        // change silent unless its caller supplies a planning message owner.
-        message: rawEnv.message
-            ?? (rawEnv.planning ? async () => {} : ttyPline),
+        message: rawEnv.message ?? ttyPline,
         hooks: rawEnv.hooks ?? {},
     };
 }
@@ -3119,8 +3108,7 @@ function* apply_newcham_steps(
                 continue;
             }
             // mkobj.c place_object() calls vision.c block_point() for a
-            // boulder; m_calcdistress() has already admitted a planned vision
-            // change at this square.
+            // boulder.
             place_object(object, monster.mx, monster.my, {
                 ...normalized,
                 state,
@@ -3572,18 +3560,12 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
                 ...shapeEnv,
                 state,
                 // Teleport reads newsym, while shape upkeep owns redrawSquare.
-                // Keep a planned door escape on that same silent map owner.
+                // Keep a door escape on that same map owner.
                 newsym: (x, y) => shapeRedraw(x, y, shapeEnv),
             });
         }
     }
     if (!change) return false;
-    // The clone can expel a swallowed hero while changing this monster's
-    // form.  mnexto()/spoteffects() then rebuild shared vision bookkeeping;
-    // isolate it before the planned mutation so the live pass still sees the
-    // original swallowed square when it makes the same shape decision.
-    if (normalized.planning && normalized.admitPlannedVisionChange)
-        normalized.admitPlannedVisionChange(monster.mx, monster.my, state);
     const changed = await newcham_distress(monster, target, shapeEnv);
     if (changed && is_vampshifter(monster)) {
         const species = monster.data;
@@ -3720,8 +3702,7 @@ export async function new_were(monster, rawEnv = {}) {
 async function m_respond_shrieker(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     if (!Deaf(state.u)) {
         await message(`${Monnam(monster, state)} shrieks.`, state, rawEnv);
         const stopOccupation = rawEnv.stopOccupation;
@@ -3788,8 +3769,7 @@ export async function m_respond(monster, rawEnv = {}) {
 // JavaScript equivalent of quest_info(MS_GUARDIAN), even after a shape change.
 export async function qst_guardians_respond(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const qGuardian = state.mons[quest_info(MS_GUARDIAN, state)];
     let gotMad = 0;
     for (let monster = state.level?.monlist ?? null;
@@ -3814,8 +3794,7 @@ export async function qst_guardians_respond(rawEnv = {}) {
 }
 
 function responseMessage(text, monster, state, rawEnv) {
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     return message(messageAt(text, monster.mx, monster.my, state), state, rawEnv);
 }
 
@@ -3850,8 +3829,7 @@ function responseFleeMessage(monster, detail, rawEnv) {
 export async function peacefuls_respond(attacked, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const attackedIndex = monsndx(attacked.data);
     for (let monster = state.level?.monlist ?? null;
         monster;
@@ -4034,21 +4012,20 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
     if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING) {
         // C ref: mon.c:4339-4343. Mimics come out of hiding, but a disguised
         // Wizard (M_AP_MONSTER) keeps his disguise.
-        // A monster turn's planning pass leaves the redraw to the live pass.
         if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_MONSTER) {
-            seemimic(monster, state,
-                rawEnv.planning ? { newsym: () => {} } : {});
+            seemimic(monster, state, {});
         }
     } else if (state.context?.forcefight && !state.context?.mon_moving
                && monster.mundetected) {
         monster.mundetected = 0;
         newsym(monster.mx, monster.my, state);
     }
-    // End the meal in this state; preflight must not repaint the live map.
+    // End the meal in this state; a state other than the live game must not
+    // repaint the live map.
     finish_meating(monster, {
         ...rawEnv,
         redraw: rawEnv.redraw
-            ?? (!rawEnv.planning && state === game ? newsym : () => {}),
+            ?? (state === game ? newsym : () => {}),
     });
     if (via_attack) {
         const was_peaceful = monster.mpeaceful;
@@ -4172,9 +4149,7 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
     const mcham = Number(mon.cham);
     const redrawSquare = rawEnv.redrawSquare
         ?? rawEnv.redraw
-        ?? (rawEnv.planning
-            ? () => {}
-            : (x, y) => newsym(x, y, state));
+        ?? ((x, y) => newsym(x, y, state));
     const finishMimic = () => {
         if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
             if (!mon.meating) {
@@ -4519,14 +4494,14 @@ export function unstuck(mtmp, state = game, env = {}) {
                 await place(state, {
                     ...env,
                     state,
-                    redraw: env.planning ? env.redraw ?? (() => {}) : env.redraw,
+                    redraw: env.redraw,
                 });
             }
             state.vision_full_recalc = 1;
             // display.c docrt_flags() first shuts down the old vision buffer.
-            // Keep that phase ahead of the map redraw; planning clones receive
-            // a local no-op redraw so the live terminal and vision buffers stay
-            // untouched.
+            // Keep that phase ahead of the map redraw; a state other than the
+            // live game receives a local no-op redraw so the live terminal and
+            // vision buffers stay untouched.
             const redraw = state === game
                 ? env.redraw
                 : env.redraw ?? (() => {});
@@ -4544,7 +4519,7 @@ export function unstuck(mtmp, state = game, env = {}) {
             state.program_state.in_docrt = false;
             if (typeof env.docrt === 'function') {
                 await env.docrt({ ...env, state, overlayMonsters: false });
-            } else if (!env.planning) {
+            } else {
                 // This caller already brackets the remembered-map redraw
                 // with C's vision phases; docrt must not repeat them.
                 await docrt({
@@ -4552,12 +4527,10 @@ export function unstuck(mtmp, state = game, env = {}) {
                     suspendVision: () => {},
                     restoreVision: () => {},
                 });
-            } else if (typeof env.redraw === 'function') {
-                await env.redraw(state);
             }
             // display.c restores vision and only then overlays monsters. The
-            // explicit redraw option is required for a planning clone because
-            // see_monsters() otherwise paints the live game map.
+            // explicit redraw option is required for a state other than the
+            // live game because see_monsters() otherwise paints the live map.
             // C runs both inside docrt_flags(), whose program_state.in_docrt
             // keeps show_glyph() from reporting mention_map glyph changes.
             // docrt() above has already cleared its own bracket, so restore it
@@ -4784,9 +4757,9 @@ export function mnearto(
     rlocflags,
     stateOrEnv = game,
 ) {
-    // Existing callers pass the bare game state.  Covetous tactics also runs
-    // on the planning clone, so it passes the full operation environment in
-    // this final position and keeps its redraw/message seams intact.
+    // Existing callers pass the bare game state.  Covetous tactics passes
+    // the full operation environment in this final position and keeps its
+    // redraw/message seams intact.
     const env = stateOrEnv?.state
         ? stateOrEnv
         : { state: stateOrEnv };
@@ -4854,9 +4827,7 @@ export function mnearto(
 // of mtmp from other data structures". `mptr` is mtmp->data as it stood before
 // the death, which mondead() saves before restoring a chameleon's true form.
 //
-// The planned-steed branch stops before asynchronous DISMOUNT_GENERIC work,
-// which cannot run against a planning clone. m_unleash(), thiefdead(),
-// shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag update follow
+// m_unleash(), thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag update follow
 // C order. The due_to_death branch awaits its
 // inventory drop; either death or departure can then await the generic steed
 // release so its caller observes the completed source-order effects.
@@ -4910,19 +4881,6 @@ export function m_detach(
 
         /* "hero is thrown from his steed when it dies or gets genocided" */
         if (mtmp === state.u.usteed) {
-            // A planned monster turn must replay the whole source-synchronous
-            // detach and dismount live. The tail reaches float_down()/drown(),
-            // whose water messages and hero inventory effects are not part of
-            // the clone-only monster scan. Stop before dismounting the clone
-            // rather than painting a planned fall or spending live RNG.
-            if (env.planning) {
-                if (typeof env.requestPlanningInput !== 'function') {
-                    throw new TypeError(
-                        'planned steed detach requires a replay boundary',
-                    );
-                }
-                env.requestPlanningInput('steed.c dismount_steed');
-            }
             // C's void call is synchronous. Return its promise here so mondead()
             // preserves the same order across JavaScript's async boundary.
             // Keep the monster pass's random source attached to the helper's
@@ -4944,17 +4902,6 @@ export function m_detach(
         if (due_to_death) {
             const finishDeathEffects = async () => {
                 if (mtmp.data.msound === MS_NEMESIS) {
-                    // nemdead() shows the quest text in a window that waits
-                    // for a key. Stop a planning clone here so its owner
-                    // replays the death live, as for a dying steed above.
-                    if (env.planning) {
-                        if (typeof env.requestPlanningInput !== 'function') {
-                            throw new TypeError(
-                                'planned nemesis death requires a replay boundary',
-                            );
-                        }
-                        env.requestPlanningInput('quest.c nemdead');
-                    }
                     // mon.c:2769-2773. nemdead() displays and records the
                     // role's quest message before stinky_nemesis() reads its
                     // unconverted text; only then can a cloud be created.
@@ -5276,7 +5223,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
             }
         }
     }
-    if (state === game && !env.planning) newsym(x, y);
+    if (state === game) newsym(x, y);
     return true;
 }
 
@@ -5358,8 +5305,6 @@ export async function anger_quest_guardians(mtmp, state = game, env = {}) {
 //   3147-3166  the Kop resurrection, whose rnd(5) controls makemon() at a
 //              staircase or random spot.
 //   3170-3171  unmap_object(), for a monster on a remembered invisible glyph.
-//              The JavaScript planning clone owns its level map-memory cells,
-//              so this source write runs in both planning and live passes;
 //              display.c's engraving refusal remains its own boundary.
 //
 // gd.disintegested and gv.vamp_rise_msg, which xkilled() sets around this
@@ -5392,14 +5337,8 @@ export async function mondead(mtmp, state = game, env = {}) {
             0,
             {
                 ...env, state, random, message,
-                blockPoint: env.blockPoint ?? ((x, y) => {
-                    if (env.planning && state !== game) {
-                        if (typeof env.admitPlannedVisionChange !== 'function')
-                            throw new TypeError('planned death cloud requires admitPlannedVisionChange');
-                        env.admitPlannedVisionChange(x, y, state);
-                    }
-                    return block_point(x, y, state);
-                }),
+                blockPoint: env.blockPoint
+                    ?? ((x, y) => block_point(x, y, state)),
                 canSee: env.canSee ?? ((x, y) => cansee(x, y, state)),
                 newsym: env.newsym ?? env.redraw
                     ?? (state === game ? newsym : () => {}),
@@ -5486,22 +5425,12 @@ export async function mondead(mtmp, state = game, env = {}) {
     if (glyph_is_invisible(
         state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
     )) {
-        /* The JavaScript dry-run state owns a map-memory copy; C has one
-           `levl` state and performs this write directly. planningState()
-           eagerly clones level.locations because this write does not pass
-           through a vision rebuild, so the source operation is safe during
-           preflight and the live marker remains available for replay. */
         unmap_object(mtmp.mx, mtmp.my, state);
     }
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of
-       current move, then dmonsfree() will get rid of it". relobj() redraws
-       after dropping a carried object; a planning clone must keep that
-       display operation on its own side just as unmap_object() above does. */
-    const detachEnv = env.planning
-        ? { ...env, redraw: () => {} }
-        : env;
-    await m_detach(mtmp, mptr, true, state, detachEnv);
+       current move, then dmonsfree() will get rid of it". */
+    await m_detach(mtmp, mptr, true, state, env);
 }
 
 // C ref: mon.c LEVEL_SPECIFIC_NOCORPSE() (44-47), the macro xkilled() tests at
@@ -5984,9 +5913,8 @@ export async function monstone(mdef, state = game, env = {}) {
     stackobj(statue, objectEnv);
     if (glyph_is_invisible(state.level.at(x, y).glyph))
         unmap_object(x, y, state);
-    // monstone() is also reached from mhitm.c's planning displacement pass.
-    // C's redraw is live-only there; the caller supplies a clone-safe no-op
-    // while retaining the ordinary newsym owner for a live state.
+    // A state other than the live game gets a no-op redraw; the live state
+    // keeps the ordinary newsym owner.
     const redraw = env.redraw ?? (state === game ? newsym : () => {});
     if (cansee(x, y, state)) redraw(x, y, state);
     if (engulfing_u(mdef, state)) wasinside = true;
@@ -6343,9 +6271,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         change_luck(-2, state);
         await message('You murderer!', state);
         if (Blind(state.u) && !Blind_telepat(state.u))
-            await see_monsters(state, { ...env,
-                ...(env.planning && !env.redraw ? { redraw: () => {} } : {}),
-            });
+            await see_monsters(state, { ...env });
     }
     if ((mtmp.mpeaceful && !random.rn2(2)) || mtmp.mtame)
         change_luck(-1, state);
@@ -6821,9 +6747,8 @@ export function restrap(monster, env = {}) {
 // visible-message arm. Other callers can see the monster, so this function
 // owns the message, PLNMSG_HIDE_UNDER last_msg, and gl.last_hider updates.
 //
-// `redraw` defaults to the newsym() C calls. The planning clone overrides it
-// with a no-op, so an omission repaints rather than silently skipping a
-// square the live display owes.
+// `redraw` defaults to the newsym() C calls, so an omission repaints rather
+// than silently skipping a square the live display owes.
 export async function hideunder(monster, env = {}) {
     const state = env.state ?? game;
     const is_u = monster === state.youmonst;
@@ -6852,7 +6777,7 @@ export async function hideunder(monster, env = {}) {
         // don't do so on the Plane of Water or when hero is also under water
         // unless some obstacle blocks line-of-sight". Is_waterlevel(&u.uz) and
         // Underwater (youprop.h:279, the bare u.uinwater field) are spelled
-        // out against `state` so a planning clone owns both.
+        // out against `state`.
         undetected = is_pool(x, y, state)
             && !on_level(state.u?.uz, state.water_level)
             && (!state.u?.uinwater || !couldsee(x, y, state));
@@ -6890,8 +6815,7 @@ export async function hideunder(monster, env = {}) {
         monster.mundetected = undetected ? 1 : 0;
         if (undetected && seenmon && seenobj) {
             if (!locomo) locomo = locomotion(monster.data, 'hide');
-            const message = env.message
-                ?? (env.planning ? async () => {} : ttyPline);
+            const message = env.message ?? ttyPline;
             state.msg_xy = { x, y };
             try {
                 await message(
@@ -7141,8 +7065,7 @@ export async function golemeffects(mon, damtype, dam, rawEnv = {}) {
 // clears sleep/freeze before changing peacefulness.
 export async function angry_guards(silent = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     let count = 0;
     let nearby = 0;
     let distant = 0;
@@ -7249,8 +7172,7 @@ export async function usmellmon(mdat, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (!mdat || !olfaction(state.youmonst?.data)) return false;
 
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     const mndx = monsndx(mdat);
     let nonspecific = false;
     let given = false;
@@ -7364,8 +7286,7 @@ export async function shieldeff_mon(mtmp, rawEnv = {}) {
     await shieldeff(mtmp.mx, mtmp.my, state);
     if (!cansee(mtmp.mx, mtmp.my, state)) return;
 
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const message = rawEnv.message ?? ttyPline;
     await message(
         messageAt(
             `${Monnam(mtmp, state, rawEnv)} resists!`,
@@ -7395,8 +7316,8 @@ export async function flash_mon(mtmp, state = game, env = {}) {
     const glyph = mon_to_glyph(mtmp, state, env.displayRandom);
     await flash_glyph_at(mx, my, glyph, count, state);
     state.viz_array[my][mx] = saveviz;
-    // newsym() is a live-game display owner. A planning clone still restores
+    // newsym() is a live-game display owner. Another state still restores
     // its temporary vision byte, but must not repaint the live game on return.
-    if (state === game && !state.program_state?.planning)
+    if (state === game)
         newsym(mx, my);
 }
