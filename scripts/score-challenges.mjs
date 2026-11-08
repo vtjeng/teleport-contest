@@ -45,7 +45,7 @@ export function measuredCases(root, manifest, bundle) {
         if (!result || !screensTotal || result.metrics?.screens?.total !== screensTotal
             || result.metrics?.cursors?.total !== screensTotal)
             throw new Error(`runner did not measure ${entry.id}: ${result?.error || 'incomplete output'}`);
-        // A planning pass's use of the live game, which the judge's
+        // A js/youprop.js macro given the wrong argument, which the judge's
         // runSegment() records instead of throwing (js/gstate.js), fails the
         // case as the crash it is under every local runner.
         const planningUses = result.planningLiveGameUses ?? [];

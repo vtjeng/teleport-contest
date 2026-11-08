@@ -151,7 +151,7 @@ const crashText = (c) => (c.segmentErrors?.length
         ? `; ran after termination: ${c.terminationViolations
             .map(({ kind, detail }) => `${kind}: ${detail}`).join('; ')}` : '')
     + (c.planningLiveGameUses?.length
-        ? `; planning used the live game: ${c.planningLiveGameUses
+        ? `; youprop.js argument uses: ${c.planningLiveGameUses
             .map(({ detail, count }) => `${detail} (${count}x)`).join('; ')}` : '');
 const LIST_PROBLEMS = {
     matches: () => 'listed as an invalid reference but now matches; remove its entry',

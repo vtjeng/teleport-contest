@@ -382,7 +382,7 @@ export function compareScoreToBaseline(stdout) {
     const violating = (results ?? [])
         .filter(({ terminationViolations }) => terminationViolations?.length)
         .map(({ session }) => session);
-    // And a planning pass's uses of the live game, which the judge's
+    // And js/youprop.js macros given the wrong argument, which the judge's
     // runSegment() records instead of throwing (js/gstate.js).
     const planning = (results ?? [])
         .filter(({ planningLiveGameUses }) => planningLiveGameUses?.length)
@@ -394,7 +394,7 @@ export function compareScoreToBaseline(stdout) {
     if (violating.length)
         details.push(`termination violations: ${violating.join(', ')}`);
     if (planning.length)
-        details.push(`planning uses of the live game: ${planning.join(', ')}`);
+        details.push(`youprop.js argument uses: ${planning.join(', ')}`);
     return { passed: false, detail: details.join('; ') };
 }
 

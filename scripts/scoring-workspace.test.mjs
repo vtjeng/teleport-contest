@@ -30,11 +30,12 @@ test('runner speed fits startup plus a per-move cost like the frozen runner', ()
     assert.equal(runnerSpeed([{ time: { ms: 5, moves: 1 } }]).label, '?');
 });
 
-test('runScorer() names a crash, a termination violation and a planning use the judge entry point reported', (t) => {
+test('runScorer() names a crash, a termination violation and a recorded live-game use the judge entry point reported', (t) => {
     // A stand-in workspace: its runner starts one worker per session, as
     // frozen/ps_test_runner.mjs does, and its runSegment() reports a crash for
     // crash.session.json only and a termination violation for
-    // stray.session.json only, and a planning pass's use of the live game for
+    // stray.session.json only, and a recorded live-game use (an opaque
+    // stand-in for a js/youprop.js argument use) for
     // planned.session.json only, as js/jsmain.js runSegment() reports each to
     // a registered reporter. Four sessions show that only the crashed one
     // gains segmentErrors, only the stray one terminationViolations, and only

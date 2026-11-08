@@ -85,9 +85,9 @@ function batchCount(sizes) {
 // results as `segmentErrors` and names them on stderr, leaving every score
 // and `error` field as the judge reports it. It records the termination
 // violations runSegment() reports the same way, attached as
-// `terminationViolations`, and a planning pass's uses of the live game
-// (js/gstate.js), which runSegment() records instead of throwing, attached as
-// `planningLiveGameUses`.
+// `terminationViolations`, and the js/youprop.js argument uses
+// (js/gstate.js recordLiveGameUse()), which runSegment() records instead of
+// throwing, attached as `planningLiveGameUses`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
 
 export function runScorer(targetRoot) {

@@ -306,6 +306,26 @@ test('locally, a hero macro given the game state, or a state macro given the her
     assert.equal(Y.HBlinded(undefined), 0);
 });
 
+// The judge's entry points must not stop on a misused macro: runSegment()
+// and the browser play path that frozen/playability_runner.mjs drives
+// through NethackGame and moveloop_core() directly. js/gstate.js therefore
+// records by default. This file runs with throwing selected
+// (scripts/strict-live-game-uses.mjs), so the default is checked in a fresh
+// process that loads js/gstate.js without that preload.
+test('without a selection, recordLiveGameUse() records a use rather than throwing', async () => {
+    const { spawnSync } = await import('node:child_process');
+    const gstate = new URL('../js/gstate.js', import.meta.url).href;
+    const script = `
+        const g = await import(${JSON.stringify(gstate)});
+        // Any kind and detail: the check is only that the call returns.
+        g.recordLiveGameUse('youpropArgument', 'probe', (detail) => new Error(detail));
+        process.stdout.write(JSON.stringify(g.planningLiveGameUses()));
+    `;
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8' });
+    assert.equal(child.status, 0, child.stderr);
+    assert.deepEqual(JSON.parse(child.stdout), [{ kind: 'youpropArgument', detail: 'probe', count: 1 }]);
+});
+
 // Under the judge's runSegment(), js/gstate.js records the misuse instead
 // (runSegment() passes it to the local scorers, which fail the game), and
 // the macro answers from the argument it should have had.

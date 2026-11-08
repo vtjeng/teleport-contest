@@ -67,8 +67,8 @@ export function flatName(relativePath) {
  * recording whose replay recorded a termination violation (scripts/
  * scoring-workspace.mjs runScorer() attaches them) fails even when the
  * judge's comparison passed: something ran after the game ended. So does one
- * whose planning pass used the live game, which the judge's runSegment()
- * records instead of throwing (js/gstate.js).
+ * that gave a js/youprop.js macro the wrong argument, which the judge's
+ * runSegment() records instead of throwing (js/gstate.js).
  */
 export function summarizeRecordings(bundle) {
     const totals = { recordings: 0, passing: 0, screens: 0, screensTotal: 0,

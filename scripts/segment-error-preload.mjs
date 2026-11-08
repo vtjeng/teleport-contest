@@ -11,7 +11,7 @@
 // that appends one JSON line per crash to
 // $TELEPORT_SEGMENT_ERROR_DIR/<session file name>.jsonl, and one per
 // violation to <session file name>.violations.jsonl beside it, and one per
-// planning use of the live game (js/gstate.js) to
+// recorded js/youprop.js argument use (js/gstate.js recordLiveGameUse()) to
 // <session file name>.planning.jsonl. It changes no
 // game state and no score; any other process it is loaded into is left alone.
 import { appendFileSync } from 'node:fs';

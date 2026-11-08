@@ -81,10 +81,11 @@ test('summarizeRecordings fails a matching recording that reports a termination 
         failing: ['end.c__quit.session.json'] });
 });
 
-test('summarizeRecordings fails a matching recording whose planning pass used the live game', () => {
-    // The judge's runSegment() records a planning pass's use of `game`
-    // instead of throwing (js/gstate.js), so the replay matches; runScorer()
-    // attaches the use as planningLiveGameUses. The stand-in is one read.
+test('summarizeRecordings fails a matching recording with a recorded live-game use', () => {
+    // The judge's runSegment() records a js/youprop.js macro given the wrong
+    // argument instead of throwing (js/gstate.js), so the replay matches;
+    // runScorer() attaches the use as planningLiveGameUses. The stand-in's
+    // kind and detail are opaque to the summary.
     const bundle = { results: [
         { session: 'mon.c__planned.session.json', passed: true,
             planningLiveGameUses: [{ kind: 'planningLiveGame', detail: 'read game.u in u_at', count: 1 }],
