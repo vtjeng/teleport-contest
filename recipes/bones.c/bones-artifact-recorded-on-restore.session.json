@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent witness for bones.c resetobjs()'s restoring arm. A debug dwarven Valkyrie level-teleports to level 8, which this seed makes the Oracle, maps it, teleports beside the up staircase, wishes for Mjollnir, drops it, steps east and dies by a wand of death, saving bones. A second game on another seed and clock, whose Oracle is level 6, loads the bones there, teleports to the up staircase, steps onto the hammer and wishes for Mjollnir. Restoring marked the bones copy as existing (artifact_exists()), so the wish gives a plain war hammer. The seeds were chosen for their Oracle depths.",
+  "segments": [
+    {
+      "seed": 5150103,
+      "datetime": "20380214081500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00168\n\u0006\u0014 \u001b<l.\u0017Mjollnir\ndel\u0017wand of death\nzf.  y qy"
+    },
+    {
+      "seed": 5150104,
+      "datetime": "20380216193000",
+      "nethackrc": "OPTIONS=name:Hiro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00166\nyy \u0006\u0014 \u001b<. l\u0017Mjollnir\n"
+    }
+  ]
+}

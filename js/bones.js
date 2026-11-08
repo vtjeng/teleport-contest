@@ -2,6 +2,15 @@
 // C ref: src/bones.c.
 
 import { rest_region_capacity } from './region.js';
+// resetobjs()'s restoring arm.
+import { artifact_exists, exist_artifact } from './artifacts.js';
+import { ONAME, OBJ_CONTAINED, OBJ_FLOOR, ONAME_BONES, SHOPBASE } from './const.js';
+import { safe_oname } from './do_name.js';
+import { get_obj_location } from './light.js';
+import { FOOD_CLASS } from './objects.js';
+import { is_quest_artifact } from './questpgr.js';
+import { in_rooms } from './rooms.js';
+import { inside_shop, tended_shop } from './shk.js';
 import {
     BR_NO_END1,
     BR_NO_END2,
@@ -289,18 +298,50 @@ function cloneBonesRooms(rooms) {
     } : room));
 }
 
-// C ref: bones.c resetobjs() (51-193), save path only (restore=false).
-// The restore=true path (bones.c:67-100) processes artifact migration,
-// gold-to-object conversion, and cancel-worn effects. Lines 702-706 call
-// resetobjs with restore=true, but those paths are no-ops here because the
-// restore logic is not ported.
-// Strips player knowledge and names from objects being saved as bones.
+// C ref: bones.c resetobjs() (51-193). Saving (restore=false) strips the
+// dead hero's knowledge and names from the objects. Restoring (bones.c
+// 65-100) does the artifact bookkeeping for the new game and marks partly
+// eaten food in a tended shop as not for sale.
 function resetobjs(ochain, restore, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
         if (otmp.cobj) resetobjs(otmp.cobj, restore, state);
         // in_use objects: C calls obj_extract_self and dealloc_obj. The port
         // skips extraction (no dealloc equivalent) and leaves them in place.
         // They should not appear in normal play at this point.
+
+        if (restore) {
+            // artifact bookkeeping needs to be done during restore; other
+            // fixups are done while saving
+            if (otmp.oartifact) {
+                if (exist_artifact(otmp.otyp, safe_oname(otmp), state)
+                    || is_quest_artifact(otmp, state)) {
+                    // prevent duplicate--revert to ordinary obj
+                    otmp.oartifact = 0;
+                    if (has_oname(otmp)) free_oname(otmp);
+                } else {
+                    artifact_exists(otmp, safe_oname(otmp), true,
+                        ONAME_BONES, state);
+                }
+            } else if (has_oname(otmp)) {
+                otmp.oextra.oname = sanitize_name(ONAME(otmp), state);
+            }
+            // 3.6.3: set no_charge for partly eaten food in shop; all other
+            // items become goods for sale if in a shop
+            if (otmp.oclass === FOOD_CLASS && otmp.oeaten) {
+                let top = otmp;
+                while (top.where === OBJ_CONTAINED) top = top.ocontainer;
+                const where = top.where === OBJ_FLOOR
+                    ? get_obj_location(top, 0, state) : null;
+                // in_rooms() gives C's string of room numbers as an array;
+                // its first element is C's *p. Can't use costly_spot()
+                // since its result depends upon the hero's location.
+                const rooms = where && inside_shop(where.x, where.y, state)
+                    ? in_rooms(where.x, where.y, SHOPBASE, state) : [];
+                otmp.no_charge = rooms[0]
+                    && tended_shop(mapseen_room(rooms[0] - ROOMOFFSET, state),
+                        state) ? 1 : 0;
+            }
+        }
 
         if (!restore) {
             // Saving path: strip player knowledge.
