@@ -135,10 +135,7 @@ import {
     STONED,
     STONING,
     TIMEOUT,
-    MAGICAL_BREATHING,
     POOL,
-    SWIMMING,
-    TELEPORT_CONTROL,
     FIRE_RES,
     FREE_ACTION,
     TEST_MOVE,
@@ -700,9 +697,11 @@ import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
-    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded, Flying,
-    HBlinded, HConfusion, HStun, Half_physical_damage, Hallucination,
+    Blind, Blind_telepat, Confusion, Deaf, Detect_monsters, EBlinded,
+    EMagical_breathing, ESwimming, Flying, HBlinded, HConfusion,
+    HMagical_breathing, HStun, HSwimming, Half_physical_damage, Hallucination,
     Invisible, Levitation, Maybe_Half_Phys, See_invisible, Stunned,
+    Teleport_control,
 } from './youprop.js';
 
 function propertyPresent(hero, index) {
@@ -6155,13 +6154,11 @@ export async function mhitm_ad_wrap(
     }
 
     if (mdef === state.youmonst) {
-        const breathing = u.uprops?.[MAGICAL_BREATHING];
         const magicalBreathing = Boolean(
-            breathing?.intrinsic || breathing?.extrinsic,
+            HMagical_breathing(u) || EMagical_breathing(u),
         );
-        const swimmingProperty = u.uprops?.[SWIMMING];
         const swimming = Boolean(
-            swimmingProperty?.intrinsic || swimmingProperty?.extrinsic
+            HSwimming(u) || ESwimming(u)
             || (u.usteed && is_swimmer(u.usteed.data)),
         );
         const amphibiousHero = magicalBreathing
@@ -7271,7 +7268,7 @@ export async function mhitm_ad_tlpt(
             await (env.message ?? ttyPline)('You are not affected.', state);
         } else {
             if (state.flags?.verbose) {
-                const controlled = propertyPresent(state.u, TELEPORT_CONTROL)
+                const controlled = Teleport_control(state.u)
                     && !Stunned(state.u)
                     && !unconscious(state);
                 await (env.message ?? ttyPline)(

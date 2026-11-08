@@ -220,7 +220,7 @@ test('level_tele_trap preserves the whole C effect order in both callers', () =>
     assert.match(jsTrapEffect,
         /if \(mtmp === state\.youmonst\)[\s\S]*seetrap\(trap, env\);\s*await level_tele_trap\(trap, trflags, state, env\);/u);
     assert.match(jsLevelTeleTrap,
-        /VIASITTING \| FORCETRAP[\s\S]*Antimagic_prop\(state\)[\s\S]*inEndgame\(state\)[\s\S]*deltrap\(trap, state\)[\s\S]*await level_tele\(state\)[\s\S]*Teleport_control_prop\(state\)[\s\S]*make_confused\(\(confusion & TIMEOUT\) \+ 3, false, state, env\)/u);
+        /VIASITTING \| FORCETRAP[\s\S]*Antimagic_prop\(state\)[\s\S]*inEndgame\(state\)[\s\S]*deltrap\(trap, state\)[\s\S]*await level_tele\(state\)[\s\S]*Teleport_control\(state\.u\)[\s\S]*make_confused\(\(confusion & TIMEOUT\) \+ 3, false, state, env\)/u);
 });
 
 function positionState() {
@@ -325,7 +325,7 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.match(jsScrolltele,
         /teleportInput\(env,\s*'y_n',\s*y_n\)[\s\S]*?askYesNo\('Override\?', state\) !== 'y'\)/u);
     assert.match(jsScrolltele,
-        /Teleport_control_prop\(state\)\s*\|\|\s*Boolean\(scroll\?\.blessed\)/u);
+        /Teleport_control\(state\.u\)\s*\|\|\s*Boolean\(scroll\?\.blessed\)/u);
 
     // C learns a controlled scroll after its prompt and before getpos(), then
     // keeps the ordinary fallback learnscroll after an invalid destination.

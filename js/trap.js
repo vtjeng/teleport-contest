@@ -86,7 +86,6 @@ import {
     LL_DUMP,
     LL_MINORAC,
     M_SEEN_FIRE,
-    MAGICAL_BREATHING,
     M_SEEN_ELEC,
     MAGIC_PORTAL,
     MAGIC_TRAP,
@@ -108,7 +107,6 @@ import {
     NO_TRAP,
     NO_TRAP_FLAGS,
     N_DIRS,
-    PASSES_WALLS,
     PIT,
     PLNMSG_BACK_ON_GROUND,
     POLY_TRAP,
@@ -133,9 +131,6 @@ import {
     STONE,
     STONE_RES,
     STONING,
-    SWIMMING,
-    TELEPORT,
-    TELEPORT_CONTROL,
     TELEP_TRAP,
     TELEDS_ALLOW_DRAG,
     TELEDS_TELEPORT,
@@ -269,7 +264,7 @@ import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     ceiling_hider, is_clinger, is_floater,
     is_animal, is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
-    bigmonst, is_swimmer, likes_lava, mindless, Resists_Elem,
+    bigmonst, likes_lava, mindless, Resists_Elem,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
     is_vampshifter, nonliving, hides_under, is_unicorn,
 } from './mondata.js';
@@ -350,9 +345,10 @@ import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    BFlying, BLevitation, Blind, Confusion, Flying,
+    BFlying, BLevitation, Blind, Breathless, Confusion, Flying,
     HHallucination, HStun, Halluc_resistance, Hallucination, Lev_at_will,
-    Levitation, Maybe_Half_Phys, Stunned,
+    Levitation, Maybe_Half_Phys, Passes_walls, Stunned, Swimming,
+    Teleport_control, Teleportation, Wwalking,
 } from './youprop.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
@@ -1200,11 +1196,6 @@ export function count_traps(ttyp, state = game) {
 // ── Hero trap state and the descent out of levitation (C ref: trap.c) ──
 
 
-function activeHeroProperty(state, property) {
-    const value = state.u?.uprops?.[property] ?? {};
-    return Boolean((value.intrinsic || value.extrinsic) && !value.blocked);
-}
-
 // youprop.h's Fire_resistance and Wwalking are plain intrinsic/extrinsic
 // properties. Wwalking is additionally disabled on the Plane of Water; it
 // does not use the blocked field (that field belongs to Levitation/Flying).
@@ -1214,8 +1205,7 @@ function heroLavaProperty(state, property) {
 }
 
 function heroLavaWalking(state) {
-    return heroLavaProperty(state, WWALKING)
-        && !Is_waterlevel(state.u?.uz, state);
+    return Wwalking(state);
 }
 
 // objclass.h is_organic(): material values through WOOD burn in lava.  Keep
@@ -1226,13 +1216,11 @@ function isOrganic(obj, state) {
 }
 
 function heroSwimming(state) {
-    return activeHeroProperty(state, SWIMMING)
-        || Boolean(state.u?.usteed && is_swimmer(state.u.usteed.data));
+    return Swimming(state.u);
 }
 
 function heroBreathless(state) {
-    return activeHeroProperty(state, MAGICAL_BREATHING)
-        || breathless(state.youmonst?.data);
+    return Breathless(state);
 }
 
 function heroAmphibious(state) {
@@ -1484,9 +1472,9 @@ export async function drown(state = game) {
         return false;
     }
 
-    const teleports = activeHeroProperty(state, TELEPORT)
+    const teleports = Teleportation(state.u)
         || can_teleport(state.youmonst?.data);
-    const teleportControl = activeHeroProperty(state, TELEPORT_CONTROL);
+    const teleportControl = Teleport_control(state.u);
     const unaware = Math.trunc(state.multi ?? 0) < 0
         && (unconscious(state) || is_fainted(state));
     if (teleports && !unaware
@@ -2215,7 +2203,7 @@ export async function climb_pit(state = game) {
     if (!u.utrap || u.utraptype !== TT_PIT) return;
 
     const pitname = trapname(PIT, false, state);
-    if (Passes_walls(state)) {
+    if (Passes_walls(state.u)) {
         await ttyPline(`You ascend from the ${pitname}.`, state);
         await reset_utrap(false, state);
         await fill_pit(u.ux, u.uy, state);
@@ -2405,10 +2393,6 @@ const the_your = ['the', 'your'];
 function Fumbling(state) {
     return Boolean(state.u?.uprops?.[FUMBLING]?.intrinsic
                    || state.u?.uprops?.[FUMBLING]?.extrinsic);
-}
-function Passes_walls(state) {
-    const p = state.u?.uprops?.[PASSES_WALLS];
-    return Boolean(p?.intrinsic || p?.extrinsic);
 }
 // youprop.h:383 Free_action reads the extrinsic field alone.
 function Free_action(state) {
@@ -2606,7 +2590,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
         return 0;
     }
     /* We might be forced to move onto the trap's location. */
-    if (sobj_at(BOULDER, ttmp.tx, ttmp.ty, state) && !Passes_walls(state)
+    if (sobj_at(BOULDER, ttmp.tx, ttmp.ty, state) && !Passes_walls(state.u)
         && !under_u) {
         await ttyPline('There is a boulder in your way.', state);
         return 0;

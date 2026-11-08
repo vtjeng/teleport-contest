@@ -70,7 +70,6 @@ import {
     INTRINSIC,
     KILLED_BY_AN,
     LL_KILLEDPET,
-    MAGICAL_BREATHING,
     MGIVENNAME,
     has_mcorpsenm,
     has_egd,
@@ -721,8 +720,9 @@ import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Blind_telepat, Deaf, Flying, HTelepat, Hallucination, Levitation,
-    Maybe_Half_Phys, Unaware,
+    Blind, Blind_telepat, Deaf, EMagical_breathing, Flying,
+    HMagical_breathing, HTelepat, Hallucination, Levitation, Maybe_Half_Phys,
+    Unaware,
 } from './youprop.js';
 
 function monsterTurnEnv(env = {}) {
@@ -1211,10 +1211,9 @@ export function m_poisongas_ok(mtmp, state = game) {
         || attacktype_fordmg(species, AT_BREA, AD_RBRE)) {
         return M_POISONGAS_OK;
     }
-    const magicalBreathing = state.u?.uprops?.[MAGICAL_BREATHING];
     const poisonResistance = state.u?.uprops?.[POISON_RES];
     if (isYou && (state.u?.uinvulnerable
-        || magicalBreathing?.intrinsic || magicalBreathing?.extrinsic
+        || HMagical_breathing(state.u) || EMagical_breathing(state.u)
         || state.u?.uinwater)) return M_POISONGAS_OK;
     if (isYou
         ? poisonResistance?.intrinsic || poisonResistance?.extrinsic

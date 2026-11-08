@@ -125,7 +125,6 @@ import {
     INTRINSIC,
     In_endgame,
     In_quest,
-    Is_waterlevel,
     INFRAVISION,
     INVIS,
     INVULNERABLE,
@@ -278,14 +277,12 @@ import { fingers_or_gloves, stuck_ring } from './do_wear.js';
 import { magic_negation } from './mhitu.js';
 import {
     amphibious,
-    breathless,
     hates_silver,
     hides_under,
     is_clinger,
     is_male,
     is_female,
     is_neuter,
-    is_swimmer,
     dmgtype,
     dmgtype_fromattack,
     haseyes,
@@ -381,11 +378,12 @@ import { count_wsegs, wseg_at } from './worm.js';
 import {
     BBlinded, BClairvoyant, BFlying, BInvis, BLevitation, Blind,
     Blind_telepat, BlindedTimeout, Blindfolded, Blindfolded_only, Blnd_resist,
-    Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant, EInvis,
-    Flying, HBlinded, HClairvoyant, HConfusion, HDetect_monsters, HInvis,
-    HStun, Half_physical_damage, Halluc_resistance, Hallucination,
-    Infravision, Invis, Lev_at_will, Levitation, Searching, See_invisible,
-    Undead_warning, Warn_of_mon, Warning,
+    Breathless, Clairvoyant, Deaf, Detect_monsters, EBlinded, EClairvoyant,
+    EInvis, Flying, HBlinded, HClairvoyant, HConfusion, HDetect_monsters,
+    HInvis, HStun, Half_physical_damage, Halluc_resistance, Hallucination,
+    Infravision, Invis, Jumping, Lev_at_will, Levitation, Passes_walls,
+    Searching, See_invisible, Swimming, Teleport_control, Teleportation,
+    Undead_warning, Warn_of_mon, Warning, Wwalking,
 } from './youprop.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
@@ -1178,7 +1176,7 @@ function weapon_insight(final, state, lines) {
 function walking_on_water(state, levitation, flying) {
     const { u } = state;
     return !u.uinwater && !levitation && !flying
-        && hasProperty(state, WWALKING) && !Is_waterlevel(u.uz, state)
+        && Wwalking(state)
         && is_pool_or_lava(u.ux, u.uy, state);
 }
 
@@ -1465,11 +1463,9 @@ export async function attributes_enlightenment(final, state, lines) {
     const clairvoyant = Clairvoyant(u);
     const flying = Flying(u);
     const levitation = Levitation(u);
-    const walking = activeUnblocked(WWALKING) && !Is_waterlevel(u.uz, state);
-    const swimming = Boolean(active(SWIMMING)
-        || (u.usteed && is_swimmer(u.usteed.data)));
-    const breathlessHero = activeUnblocked(MAGICAL_BREATHING)
-        || breathless(state.youmonst?.data);
+    const walking = Wwalking(state);
+    const swimming = Swimming(u);
+    const breathlessHero = Breathless(state);
     const amphibiousHero = breathlessHero
         || amphibious(state.youmonst?.data);
     const walking_on_water = !u.uinwater && !levitation && !flying
@@ -1688,11 +1684,11 @@ export async function attributes_enlightenment(final, state, lines) {
         enl_msg(lines, final, 'You cause', '', 'd', ' conflict',
             from_what(CONFLICT, state));
 
-    if (active(JUMPING))
+    if (Jumping(u))
         you_can(lines, final, 'jump', from_what(JUMPING, state));
-    if (active(TELEPORT))
+    if (Teleportation(u))
         you_can(lines, final, 'teleport', from_what(TELEPORT, state));
-    if (active(TELEPORT_CONTROL))
+    if (Teleport_control(u))
         you_have(lines, final, 'teleport control',
             from_what(TELEPORT_CONTROL, state));
     if (BLevitation(u)) { /* levitation is blocked */
@@ -1746,7 +1742,7 @@ export async function attributes_enlightenment(final, state, lines) {
     else if (amphibiousHero)
         you_can(lines, final, 'breathe water',
             from_what(MAGICAL_BREATHING, state));
-    if (active(PASSES_WALLS))
+    if (Passes_walls(u))
         you_can(lines, final, 'walk through walls',
             from_what(PASSES_WALLS, state));
 

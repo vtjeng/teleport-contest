@@ -136,10 +136,8 @@ import {
     STRANGLED,
     PROT_FROM_SHAPE_CHANGERS,
     STUNNED,
-    JUMPING,
     LEG,
     LEFT_SIDE,
-    PASSES_WALLS,
     RIGHT_SIDE,
     ROOM,
     SHOPBASE,
@@ -637,10 +635,10 @@ import {
 } from './artifacts.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, Flying, HBlinded,
-    HConfusion, HDeaf, HHallucination, HStun, Halluc_resistance,
-    Hallucination, Invis, Levitation, Maybe_Half_Phys, See_invisible, Sick,
-    Stunned, Vomiting,
+    BBlinded, Blind, BlindedTimeout, Confusion, Deaf, EJumping, Flying,
+    HBlinded, HConfusion, HDeaf, HHallucination, HJumping, HStun,
+    Halluc_resistance, Hallucination, Invis, Jumping, Levitation,
+    Maybe_Half_Phys, Passes_walls, See_invisible, Sick, Stunned, Vomiting,
 } from './youprop.js';
 
 function applyPropertyActive(property, state = game) {
@@ -2835,7 +2833,7 @@ function jumpWalkPath(source, destination, callback, argument, state) {
 
 // C ref: apply.c check_jump() (1860-1883).
 export function check_jump(trajectory, x, y, state = game) {
-    if (jumpProperty(state, PASSES_WALLS)) return true;
+    if (Passes_walls(state.u)) return true;
     const location = state.level.at(x, y);
     if (IS_STWALL(location.typ)) return false;
     if (IS_DOOR(location.typ)) {
@@ -2855,8 +2853,7 @@ export function check_jump(trajectory, x, y, state = game) {
 // C ref: apply.c is_valid_jump_pos() (1885-1954).
 export async function is_valid_jump_pos(x, y, magic, showmsg, state = game) {
     const distance = dist2(x, y, state.u.ux, state.u.uy);
-    const jumping = state.u?.uprops?.[JUMPING] ?? {};
-    if (!magic && !(jumping.intrinsic & ~INTRINSIC) && !jumping.extrinsic
+    if (!magic && !(HJumping(state.u) & ~INTRINSIC) && !EJumping(state.u)
         && distance !== 5) {
         if (showmsg) await ttyPline('Illegal move!', state);
         return false;
@@ -2878,13 +2875,13 @@ export async function is_valid_jump_pos(x, y, magic, showmsg, state = game) {
     const dy = y - state.u.uy;
     const ax = Math.abs(dx);
     const ay = Math.abs(dy);
-    const diagonal = (magic || jumpProperty(state, PASSES_WALLS) || (!dx && !dy))
+    const diagonal = (magic || Passes_walls(state.u) || (!dx && !dy))
         ? JUMP_ANY : !dy ? JUMP_HORZ : !dx ? JUMP_VERT : JUMP_DIAG;
     let flatX = ax;
     let flatY = ay;
     if (flatX >= 2 * flatY) flatY = 0;
     else if (flatY >= 2 * flatX) flatX = 0;
-    const trajectory = (magic || jumpProperty(state, PASSES_WALLS)
+    const trajectory = (magic || Passes_walls(state.u)
         || (!flatX && !flatY))
         ? JUMP_ANY : !flatY ? JUMP_HORZ : !flatX ? JUMP_VERT : JUMP_DIAG;
 
@@ -2911,7 +2908,7 @@ export async function is_valid_jump_pos(x, y, magic, showmsg, state = game) {
 export async function get_valid_jump_position(x, y, state = game) {
     return isok(x, y)
         && (ACCESSIBLE(state.level.at(x, y).typ)
-            || jumpProperty(state, PASSES_WALLS))
+            || Passes_walls(state.u))
         && await is_valid_jump_pos(
             x, y, state.gj?.jumping_is_magic ?? 0, false, state,
         );
@@ -2975,7 +2972,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         endRunning: env.endRunning ?? endRunning,
         statusRefresh: env.statusRefresh ?? (() => bot()),
     };
-    if (!magic && !jumpProperty(state, JUMPING)
+    if (!magic && !Jumping(state.u)
         && known_spell(SPE_JUMPING, state) >= spe_Fresh)
         return spelleffects(SPE_JUMPING, false, false, state, hungerEnv);
 
@@ -2984,7 +2981,7 @@ export async function jump(magic = 0, state = game, env = {}) {
         await ttyPline("You can't jump; you have no legs!", state);
         return ECMD_OK;
     }
-    if (!magic && !jumpProperty(state, JUMPING)) {
+    if (!magic && !Jumping(state.u)) {
         await ttyPline("You can't jump very far.", state);
         return ECMD_OK;
     }

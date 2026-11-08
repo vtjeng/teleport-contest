@@ -8,7 +8,6 @@ import {
     KILLED_BY,
     LARGEST_INT,
     LL_MINORAC,
-    MAGICAL_BREATHING,
     MAXULEV,
     NATTK,
     NORMAL_SPEED,
@@ -19,7 +18,7 @@ import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
 import { livelog_printf, youFeel } from './pline.js';
 import { achieve_rank, record_achievement } from './insight.js';
-import { amphibious, extra_nasty, resists_drli } from './mondata.js';
+import { extra_nasty, resists_drli } from './mondata.js';
 import {
     AD_BLND,
     AD_DRLI,
@@ -40,6 +39,7 @@ import { monhp_per_lvl } from './makemon.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { find_mac } from './worn.js';
+import { Amphibious } from './youprop.js';
 
 function advancementValue(advance, field) {
     return Math.trunc(advance?.[field] ?? 0);
@@ -189,15 +189,6 @@ export function newpw(state = game, random = coreRandom) {
     return energy;
 }
 
-// C ref: youprop.h Amphibious() (272-273). Upolyd() is constantly false in
-// this port, so gy.youmonst.data is the role's own species and amphibious()
-// answers for it directly.
-function Amphibious(state) {
-    const breathing = state.u?.uprops?.[MAGICAL_BREATHING];
-    return Boolean(breathing?.intrinsic)
-        || Boolean(breathing?.extrinsic)
-        || amphibious(state.youmonst?.data);
-}
 
 // C ref: exper.c experience() (84-166). The experience points one kill is
 // worth. It draws nothing, prints nothing and changes nothing: every term

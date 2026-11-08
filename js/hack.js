@@ -88,7 +88,6 @@ import {
     LEVITATION,
     LEVEL_TELEP,
     MAX_CARR_CAP,
-    MAGICAL_BREATHING,
     MAX_TYPE,
     MELT_ICE_AWAY,
     MIGR_RANDOM,
@@ -102,7 +101,6 @@ import {
     NEUTRAL,
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
-    PASSES_WALLS,
     PARANOID_CONFIRM,
     PARANOID_SWIM,
     PARANOID_TRAP,
@@ -131,7 +129,6 @@ import {
     STAIRS,
     STEALTH,
     STONE,
-    SWIMMING,
     TELEPORT,
     TELEP_TRAP,
     ROLLING_BOULDER_TRAP,
@@ -174,7 +171,6 @@ import {
     WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
     WT_WOUNDEDLEG_REDUCT,
-    WWALKING,
     ZOMBIFY_MON,
     SUPPRESS_SADDLE,
     Trap_Caught_Mon,
@@ -309,10 +305,7 @@ import {
     noattacks,
     noncorporeal,
     grounded,
-    amphibious,
-    breathless,
     ceiling_hider,
-    is_swimmer,
     metallivorous,
     Resists_Elem,
     dmgtype,
@@ -541,9 +534,10 @@ import {
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import { Cold_resistance } from './zap.js';
 import {
-    BFlying, BLevitation, Blind, Confusion, Deaf, EFlying, ELevitation,
-    Flying, HFlying, HLevitation, Half_physical_damage, Hallucination,
-    Levitation, Maybe_Half_Phys, Stunned, Warning,
+    Amphibious, BFlying, BLevitation, Blind, Breathless, Confusion, Deaf,
+    EFlying, ELevitation, ESwimming, Flying, HFlying, HLevitation, HSwimming,
+    Half_physical_damage, Hallucination, Levitation, Maybe_Half_Phys,
+    Passes_walls, Stunned, Swimming, Warning, Wwalking,
 } from './youprop.js';
 
 function reset_tmp_anything(state) {
@@ -1384,7 +1378,7 @@ function blocksMove(x, y, state) {
 // shopkeeper case still cannot be source-backed by this admission helper.
 function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
     return Boolean((x - ux) && (y - uy)
-        && !propertyPresent(state, PASSES_WALLS)
+        && !Passes_walls(state.u)
         && !doorless_door(state.level?.at(x, y), state));
 }
 
@@ -1393,7 +1387,7 @@ function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
 function blocksDiagonalDoorwayExit(ux, uy, x, y, state) {
     const source = state.level?.at(ux, uy);
     return Boolean((x - ux) && (y - uy)
-        && !propertyPresent(state, PASSES_WALLS)
+        && !Passes_walls(state.u)
         && IS_DOOR(source?.typ) && !doorless_door(source, state));
 }
 
@@ -1669,7 +1663,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // told the door is closed, and never reaches domove_swap_with_pet().
     // Those three falling-through arms stay refused below.
     if (destination && IS_DOOR(destination.typ) && closed_door(x, y, state)
-        && !propertyPresent(state, PASSES_WALLS)
+        && !Passes_walls(state.u)
         && !can_ooze(state.youmonst, state)
         && (state.u?.uinwater
             || !(tunnels(state.youmonst?.data)
@@ -1684,7 +1678,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // The tunnelling arm can fall through, and the autodig arm digs; both
     // stay refused below.
     if (destination && IS_OBSTRUCTED(destination.typ)
-        && !(propertyPresent(state, PASSES_WALLS)
+        && !(Passes_walls(state.u)
             && may_passwall(x, y, state))
         && (state.u?.uinwater
             || (!(tunnels(state.youmonst?.data)
@@ -1724,7 +1718,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // swap; the committed movement still runs the ordinary arrival effects.
     const passWallDestination = destination
         && (IS_OBSTRUCTED(destination.typ) || destination.typ === IRONBARS)
-        && propertyPresent(state, PASSES_WALLS)
+        && Passes_walls(state.u)
         && may_passwall(x, y, state);
     if (!ordinaryDestination && !passWallDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -1868,7 +1862,7 @@ function requiredMessageOperation(env, arm) {
 function could_move_onto_boulder(sx, sy, dx, dy, state) {
     const u = state.u;
     /* can if able to phaze through rock (must be poly'd, so not riding) */
-    if (propertyPresent(state, PASSES_WALLS)) return true;
+    if (Passes_walls(state.u)) return true;
     /* can't when riding */
     if (u.usteed) return false;
     /* can if a giant, unless doing so allows hero to pass into a
@@ -2702,7 +2696,7 @@ export async function test_move(
     const location = state.level?.at?.(x, y);
     if (!location) return false;
     const species = state.youmonst?.data;
-    const passesWalls = propertyPresent(state, PASSES_WALLS);
+    const passesWalls = Passes_walls(state.u);
     const run = state.context.run ?? 0;
     const message = env.message ?? ttyPline;
     // The C helper receives the boolean result of still_chewing() and the
@@ -3021,7 +3015,7 @@ export async function crawl_destination(x, y, state = game) {
     const { ux, uy } = state.u;
     if (x === ux || y === uy) return true;
     if (NODIAG(state.u.umonnum)) return false;
-    if (propertyPresent(state, PASSES_WALLS)) return true;
+    if (Passes_walls(state.u)) return true;
     const destination = state.level?.at(x, y);
     if (IS_DOOR(destination?.typ)
         && (!doorless_door(destination, state)
@@ -3169,7 +3163,7 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
                     }
 
                     const delayed = Boolean(
-                        (!propertyPresent(state, PASSES_WALLS)
+                        (!Passes_walls(state.u)
                             && !can_ooze(state.youmonst, state)
                             && closed_door(x, y, state))
                         || (sobj_at(BOULDER, x, y, state)
@@ -3504,7 +3498,7 @@ export async function air_turbulence(state = game) {
 // an object because C mutates its two pointer parameters.
 export async function water_turbulence(x, y, state = game) {
     if (state.u.uinwater) {
-        const wtmod = propertyPresent(state, SWIMMING)
+        const wtmod = Boolean(HSwimming(state.u) || ESwimming(state.u))
             ? MOD_ENCUMBER : SLT_ENCUMBER;
         await water_friction(state);
         if (!state.u.dx && !state.u.dy) {
@@ -4725,9 +4719,8 @@ export async function pickup_checks(state = game, env = {}) {
     }
     // youprop.h: Wwalking excludes the Water Plane; Breathless reads raw
     // magical-breathing sources, while Flying includes a steed and blocking.
-    const waterWalking = propertyPresent(state, WWALKING) && !Is_waterlevel(u.uz, state);
-    const breathlessHero = propertyPresent(state, MAGICAL_BREATHING)
-        || breathless(state.youmonst.data);
+    const waterWalking = Wwalking(state);
+    const breathlessHero = Breathless(state);
     const cannotDive = () => waterWalking || is_floater(state.youmonst.data)
         || is_clinger(state.youmonst.data) || (Flying(state.u) && !breathlessHero);
     if (is_pool(u.ux, u.uy, state)) {
@@ -5340,15 +5333,10 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     const { u } = state;
     const levitating = Levitation(state.u);
     const flying = Flying(state.u);
-    const waterWalking = propertyPresent(state, WWALKING)
-        && !Is_waterlevel(u.uz, state);
-    const swimming = propertyPresent(state, SWIMMING)
-        || Boolean(u.usteed && is_swimmer(u.usteed.data));
-    const hasMagicalBreathing = propertyPresent(state, MAGICAL_BREATHING);
-    const breathlessHero = hasMagicalBreathing
-        || breathless(state.youmonst?.data);
-    const amphibiousHero = hasMagicalBreathing
-        || amphibious(state.youmonst?.data);
+    const waterWalking = Wwalking(state);
+    const swimming = Swimming(state.u);
+    const breathlessHero = Breathless(state);
+    const amphibiousHero = Amphibious(state);
 
     if (u.uinwater) {
         let stillInWater = false;
@@ -5860,7 +5848,7 @@ export function bad_rock(species, x, y, state = game) {
 export function cant_squeeze_thru(mon, state = game) {
     const hero = mon === state.youmonst;
     const species = mon?.data;
-    if (hero ? propertyPresent(state, PASSES_WALLS) : passes_walls(species))
+    if (hero ? Passes_walls(state.u) : passes_walls(species))
         return 0;
 
     /* too big? */

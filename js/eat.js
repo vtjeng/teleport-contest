@@ -68,7 +68,6 @@ import {
     LL_CONDUCT,
     LAST_PROP,
     LIGHT_HEADED,
-    MAGICAL_BREATHING,
     M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -126,7 +125,6 @@ import {
     W_TOOL,
     W_WEP,
     W_NONDIGGABLE,
-    WWALKING,
     TT_BEARTRAP,
     BEAR_TRAP,
     NEUTRAL,
@@ -218,9 +216,10 @@ import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 import {
-    BInvis, Blind, Deaf, EInvis, ESee_invisible, Flying, HBlinded, HConfusion,
-    HHallucination, HInvis, HSee_invisible, HStun, Hallucination, Invis,
-    Levitation, Unaware,
+    BInvis, Blind, Breathless, Deaf, EInvis, EMagical_breathing,
+    ESee_invisible, EWwalking, Flying, HBlinded, HConfusion, HHallucination,
+    HInvis, HMagical_breathing, HSee_invisible, HStun, HWwalking,
+    Hallucination, Invis, Levitation, Unaware,
 } from './youprop.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -1954,8 +1953,7 @@ async function choke(food, state, env = {}) {
     // specifically the intrinsic property.
     const hunger = propertyActive(state, HUNGER);
     const strangled = Boolean(u.uprops?.[STRANGLED]?.intrinsic);
-    const breathlessHero = propertyActive(state, MAGICAL_BREATHING)
-        || breathless(state.youmonst?.data);
+    const breathlessHero = Breathless(state);
     if (breathlessHero || hunger
         || (!strangled && random.rn2(20) === 0)) {
         if (food?.otyp === AMULET_OF_STRANGULATION) {
@@ -3674,12 +3672,12 @@ export async function floorfood(verb, corpsecheck, state = game) {
     /* if we can't touch floor objects then use invent food only;
        same when 'm' prefix is used--for #eat, it means "skip floor food" */
     const walking = Boolean(
-        state.u?.uprops?.[WWALKING]?.intrinsic
-        || state.u?.uprops?.[WWALKING]?.extrinsic,
+        HWwalking(state.u)
+        || EWwalking(state.u),
     ) && !Is_waterlevel(u.uz, state);
     const breathlessHero = Boolean(
-        state.u?.uprops?.[MAGICAL_BREATHING]?.intrinsic
-        || state.u?.uprops?.[MAGICAL_BREATHING]?.extrinsic,
+        HMagical_breathing(state.u)
+        || EMagical_breathing(state.u),
     ) || breathless(uptr);
     const skipfloor = state.iflags.menu_requested
         || !can_reach_floor(true, state)

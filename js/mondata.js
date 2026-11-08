@@ -26,7 +26,6 @@ import {
     M_SEEN_POISON,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
-    MAGICAL_BREATHING,
     MALE,
     MS_BURBLE,
     MS_BUZZ,
@@ -115,7 +114,7 @@ export function set_mon_data(monster, species, state = game) {
 }
 import { which_armor } from './worn.js';
 import {
-    Blind, Blnd_resist, EBlinded, Hallucination, Unaware,
+    Blind, Blnd_resist, Breathless, EBlinded, Hallucination, Unaware,
 } from './youprop.js';
 
 function hasAttackType(species, attackType) {
@@ -1511,9 +1510,7 @@ export function can_be_strangled(mon, state = game) {
     if (mon === state.youmonst) {
         nobrainer = mindless(state.youmonst.data);
         // youprop.h:276 Breathless
-        const mb = state.u.uprops[MAGICAL_BREATHING];
-        nonbreathing = Boolean(mb.intrinsic || mb.extrinsic
-                               || breathless(state.youmonst.data));
+        nonbreathing = Breathless(state);
     } else {
         nobrainer = mindless(mon.data);
         const mamul = which_armor(mon, W_AMUL, state);

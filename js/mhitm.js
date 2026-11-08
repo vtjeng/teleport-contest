@@ -51,7 +51,6 @@ import {
     NC_SHOW_MSG,
     NATTK,
     NORMAL_SPEED,
-    PASSES_WALLS,
     SHOCK_RES,
     SLEEP_RES,
     STONE_RES,
@@ -237,7 +236,9 @@ import { mintrap } from './trap_effects.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import { simpleonames, xnameFresh } from './objnam.js';
 import { strsubst } from './hacklib.js';
-import { Blind, Deaf, Unaware } from './youprop.js';
+import {
+    Blind, Deaf, Passes_walls, Unaware,
+} from './youprop.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -1132,8 +1133,7 @@ export function engulf_target(magr, mdef, state = game) {
     const dy = defenderIsHero ? state.u?.uy : mdef?.my;
     const defenderLocation = state.level?.at(dx, dy);
     const defenderPassesWalls = defenderIsHero
-        ? Boolean(state.u?.uprops?.[PASSES_WALLS]?.intrinsic
-            || state.u?.uprops?.[PASSES_WALLS]?.extrinsic)
+        ? Passes_walls(state.u)
         : passes_walls(mdef?.data);
     if (!defenderPassesWalls
         && (!defenderLocation
@@ -1149,8 +1149,7 @@ export function engulf_target(magr, mdef, state = game) {
     const ay = attackerIsHero ? state.u?.uy : magr?.my;
     const attackerLocation = state.level?.at(ax, ay);
     const attackerPassesWalls = attackerIsHero
-        ? Boolean(state.u?.uprops?.[PASSES_WALLS]?.intrinsic
-            || state.u?.uprops?.[PASSES_WALLS]?.extrinsic)
+        ? Passes_walls(state.u)
         : passes_walls(magr?.data);
     if (!attackerPassesWalls
         && (!attackerLocation

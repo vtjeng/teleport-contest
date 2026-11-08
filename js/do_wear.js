@@ -114,7 +114,6 @@ import {
     SLOW_DIGESTION,
     STONE_RES,
     STRANGLED,
-    SWIMMING,
     st_corpse,
     st_petrifies,
     TIMEOUT,
@@ -407,9 +406,10 @@ import {
 import { shk_your } from './shk.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
-    BInvis, BLevitation, Blind, EDetect_monsters, EInvis, ESee_invisible,
-    ETelepat, Flying, HDetect_monsters, HInvis, HLevitation, HSee_invisible,
-    HTelepat, Hallucination, Invis, Levitation, See_invisible,
+    BInvis, BLevitation, Blind, EDetect_monsters, EInvis, EMagical_breathing,
+    ESee_invisible, ESwimming, ETelepat, Flying, HDetect_monsters, HInvis,
+    HLevitation, HMagical_breathing, HSee_invisible, HSwimming, HTelepat,
+    Hallucination, Invis, Levitation, See_invisible,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -1170,10 +1170,9 @@ async function Amulet_on(obj, state = game) {
         break;
     case AMULET_OF_MAGICAL_BREATHING: {
         // C tests gas danger before this amulet contributed breathing.
-        const breathing = state.u.uprops[MAGICAL_BREATHING];
-        breathing.extrinsic &= ~W_AMUL;
+        state.u.uprops[MAGICAL_BREATHING].extrinsic &= ~W_AMUL;
         const was_in_poison_gas = region_danger(state);
-        breathing.extrinsic |= W_AMUL;
+        state.u.uprops[MAGICAL_BREATHING].extrinsic |= W_AMUL;
         if (was_in_poison_gas) {
             discover_object(AMULET_OF_MAGICAL_BREATHING, true, true, true, state);
             await on_msg(state.uamul, state);
@@ -1311,9 +1310,8 @@ export async function Amulet_off(state = game, env = {}) {
 
         if (state.u.uinwater) {
             const you = state.youmonst.data;
-            const swimming = state.u.uprops[SWIMMING];
             if (!(is_swimmer(you) || amphibious(you) || breathless(you))
-                && !(swimming.intrinsic || swimming.extrinsic
+                && !(HSwimming(state.u) || ESwimming(state.u)
                     || (state.u.usteed
                         && is_swimmer(state.u.usteed.data)))) {
                 await message(
@@ -1340,8 +1338,7 @@ export async function Amulet_off(state = game, env = {}) {
         if (state.u.uprops[STRANGLED].intrinsic) {
             state.u.uprops[STRANGLED].intrinsic = 0;
             state.disp.botl = true;
-            const magicalBreathing = state.u.uprops[MAGICAL_BREATHING];
-            if (magicalBreathing.intrinsic || magicalBreathing.extrinsic
+            if (HMagical_breathing(state.u) || EMagical_breathing(state.u)
                 || breathless(state.youmonst.data)) {
                 await message(
                     `Your ${body_part(NECK, state.youmonst)} is no longer constricted!`,

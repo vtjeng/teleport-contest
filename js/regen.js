@@ -7,7 +7,6 @@ import {
     A_WIS,
     ENERGY_REGENERATION,
     Is_waterlevel,
-    MAGICAL_BREATHING,
     MAXULEV,
     MOD_ENCUMBER,
     REGENERATION,
@@ -19,11 +18,10 @@ import {
 } from './dbridge.js';
 import { acurr } from './attrib.js';
 import { game } from './gstate.js';
-import { breathless } from './mondata.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rehumanize } from './polyself.js';
 import { coreRandom } from './rng.js';
-import { Half_physical_damage } from './youprop.js';
+import { Breathless, EMagical_breathing, Half_physical_damage } from './youprop.js';
 
 
 function propertyActive(hero, index) {
@@ -31,12 +29,6 @@ function propertyActive(hero, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-// youprop.h:276 Breathless: magical breathing from either source, or a form
-// that does not breathe.
-function Breathless(state) {
-    return propertyActive(state.u, MAGICAL_BREATHING)
-        || breathless(state.youmonst?.data);
-}
 
 function canRegenerate(hero) {
     return propertyActive(hero, REGENERATION)
@@ -149,7 +141,7 @@ export async function regen_pw(wtcap, state = game, env = {}) {
         (acurr(state, A_WIS)
             + acurr(state, A_INT)) / 15,
     ) + 1;
-    if (hero.uprops?.[MAGICAL_BREATHING]?.extrinsic) upper += 2;
+    if (EMagical_breathing(hero)) upper += 2;
     hero.uen += random.rn1(upper, 1);
     if (hero.uen > hero.uenmax) hero.uen = hero.uenmax;
     state.disp ??= {};

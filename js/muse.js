@@ -99,7 +99,6 @@ import {
     W_SADDLE,
     W_WEP,
     N_DIRS,
-    TELEPORT_CONTROL,
     XKILL_NOCONDUCT,
     XKILL_NOMSG,
     ZAP_POS,
@@ -248,7 +247,8 @@ import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
-    Blind, Deaf, HBlinded, Hallucination, See_invisible, Unaware,
+    Blind, Deaf, HBlinded, Hallucination, See_invisible, Teleport_control,
+    Unaware,
 } from './youprop.js';
 
 // The generated catalog stores these values but does not currently export
@@ -298,11 +298,6 @@ function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u?.ux ?? 0, state.u?.uy ?? 0);
 }
 
-
-function activeHeroProperty(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic);
-}
 
 // C ref: muse.c precheck() (59-161). Preliminary checks before a monster uses
 // an item: milky/smoky potion occupants and cursed-wand backfire. Returns 0 if
@@ -2593,7 +2588,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
             select(MUSE_WAN_STRIKING, obj);
         if (has_offense === MUSE_WAN_TELEPORTATION) continue;
         if (otyp === O.WAN_TELEPORTATION && obj.spe > 0
-            && !activeHeroProperty(state, TELEPORT_CONTROL)
+            && !Teleport_control(state.u)
             && (!noteleport_level(mtmp, state)
                 || !mon_knows_traps(mtmp, TELEP_TRAP))
             && (onscary(u.ux, u.uy, mtmp, state)

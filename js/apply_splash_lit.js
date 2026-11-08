@@ -1,7 +1,7 @@
 // Light extinguishing and water splashes for hero- and monster-carried objects.
 // C refs: apply.c snuff_candle(), snuff_lit(), and splash_lit().
 
-import { OBJ_INVENT, OBJ_MINVENT, WWALKING } from './const.js';
+import { OBJ_INVENT, OBJ_MINVENT } from './const.js';
 import {
     is_pool,
 } from './dbridge.js';
@@ -31,7 +31,7 @@ import { consume_msg_xy, set_msg_xy } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import {
-    Blind, Deaf, Flying, Levitation,
+    Blind, Deaf, EWwalking, Flying, HWwalking, Levitation,
 } from './youprop.js';
 
 function splashOperation(env, name, fallback) {
@@ -167,10 +167,9 @@ export async function splash_lit(obj, env = {}) {
             uhearit = !Deaf(state.u);
             /* underwater light sources aren't allowed but if hero is just
                entering water, Underwater won't be set yet */
-            const wwalk = state.u.uprops?.[WWALKING];
             dunk = poolAt(state.u.ux, state.u.uy, state)
                 && ((!Levitation(state.u) && !Flying(state.u)
-                        && !((wwalk?.intrinsic || wwalk?.extrinsic)
+                        && !((HWwalking(state.u) || EWwalking(state.u))
                             && !onWaterLevel(state)))
                     || onWaterLevel(state));
             snuff = false;

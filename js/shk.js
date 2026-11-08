@@ -68,7 +68,6 @@ import {
     OBJ_MINVENT,
     OBJ_ONBILL,
     PICK_ANY,
-    PASSES_WALLS,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
     PL_NSIZ,
@@ -307,7 +306,7 @@ import { choose_stairs } from './wizard.js';
 import { setnotworn } from './worn.js';
 import {
     Blind, Deaf, EDetect_monsters, ETelepat, HDetect_monsters, HTelepat,
-    Invis,
+    Invis, Passes_walls,
 } from './youprop.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
@@ -3564,9 +3563,8 @@ export function repairable_damage(damage, shkp, state = game) {
     const { x, y } = damage.place;
     if ((state.moves ?? 0) - damage.when < REPAIR_DELAY) return false;
     if (!IS_ROOM(damage.typ)) {
-        const passwall = state.u?.uprops?.[PASSES_WALLS];
         if ((u_at(x, y, state)
-                && !(passwall?.intrinsic || passwall?.extrinsic))
+                && !Passes_walls(state.u))
             || (x === shkp.mx && y === shkp.my)) {
             return false;
         }

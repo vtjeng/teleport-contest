@@ -354,7 +354,7 @@ import { Punished } from './steed.js';
 import {
     Blind, Blinded, BlindedTimeout, Blindfolded, Deaf, EBlinded, Flying,
     HBlinded, HConfusion, HDeaf, HHallucination, HStun, Hallucination,
-    Levitation,
+    Levitation, Passes_walls,
 } from './youprop.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -1247,7 +1247,7 @@ export function critically_low_hp(only_if_injured, state = game) {
 export function stuck_in_wall(state = game) {
     let count = 0;
 
-    if (intrinsic(state, PASSES_WALLS) || extrinsic(state, PASSES_WALLS))
+    if (Passes_walls(state.u))
         return false;
     for (let i = -1; i <= 1; i++) {
         const x = state.u.ux + i;
@@ -1547,11 +1547,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         if (await safe_teleds(TELEDS_NO_FLAGS, state)) {
             await ttyPline('Your surroundings change.', state);
         } else {
-            const passesWalls = state.u.uprops[PASSES_WALLS] ??= {
-                intrinsic: 0,
-                extrinsic: 0,
-            };
-            set_itimeout(passesWalls, d(4, 4) + 4);
+            set_itimeout(state.u.uprops[PASSES_WALLS], d(4, 4) + 4);
             await ttyPline(youFeel('much slimmer.', state), state);
         }
         break;

@@ -79,7 +79,6 @@ import {
     M_SEEN_FIRE,
     PIT,
     CXN_PFX_THE,
-    PASSES_WALLS,
     POLY_NOFLAGS,
     POLY_TRAP,
     RIGHT_SIDE,
@@ -411,7 +410,8 @@ import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
     Blind, Deaf, EInvis, Flying, HConfusion, HInvis, Half_physical_damage,
-    Hallucination, Invis, Levitation, Maybe_Half_Phys, See_invisible,
+    Hallucination, Invis, Levitation, Maybe_Half_Phys, Passes_walls,
+    See_invisible,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.
@@ -2448,8 +2448,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
             }
             if (object) damage += random.rnd(4);
 
-            const passesWalls = state.u?.uprops?.[PASSES_WALLS];
-            if (passesWalls?.intrinsic || passesWalls?.extrinsic)
+            if (Passes_walls(state.u))
                 damage = Math.trunc((damage + 3) / 4);
 
             await message(

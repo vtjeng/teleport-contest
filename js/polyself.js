@@ -277,8 +277,9 @@ import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon } from './display.js';
 import {
-    Blind, Confusion, EFlying, ELevitation, Flying, HFlying, HLevitation,
-    Hallucination, Invis, Levitation, See_invisible, Stunned,
+    Blind, Confusion, EFlying, ELevitation, EPasses_walls, ESwimming, Flying,
+    HFlying, HLevitation, HPasses_walls, HSwimming, Hallucination, Invis,
+    Levitation, See_invisible, Stunned,
 } from './youprop.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
@@ -1193,16 +1194,15 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     const inPoolOrLava = is_pool_or_lava(u.ux, u.uy, state);
     const inPoolHazard = !Levitation(state.u) && !u.ustuck
         && !Flying(state.u) && inPoolOrLava;
-    const swimming = u.uprops[SWIMMING];
-    const isSwimming = swimming.intrinsic || swimming.extrinsic
+    const isSwimming = HSwimming(u) || ESwimming(u)
         || (u.usteed && is_swimmer(u.usteed.data));
     const unsafeUnderwater = u.uinwater && !isSwimming;
     if ((inPoolHazard || unsafeUnderwater) && !wasExpelled)
         await spoteffects(true, state, env);
     if (state.program_state?.gameover) return 1;
 
-    const passesWalls = u.uprops[PASSES_WALLS].intrinsic
-        || u.uprops[PASSES_WALLS].extrinsic;
+    const passesWalls = HPasses_walls(u)
+        || EPasses_walls(u);
     if (passesWalls && u.utrap
         && (u.utraptype === TT_INFLOOR
             || u.utraptype === TT_BURIEDBALL)) {

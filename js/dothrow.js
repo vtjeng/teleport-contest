@@ -99,7 +99,6 @@ import {
     Has_contents,
     HOLE,
     IS_ALTAR,
-    PASSES_WALLS,
     PIT,
     ZAP_POS,
     VIBRATING_SQUARE,
@@ -479,8 +478,8 @@ import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
 import { Punished } from './steed.js';
 import {
-    Blind, Confusion, Deaf, Flying, HBlinded, Hallucination, Levitation,
-    Maybe_Half_Phys, Stunned,
+    Blind, Confusion, Deaf, EWwalking, Flying, HBlinded, Hallucination,
+    Levitation, Maybe_Half_Phys, Passes_walls, Stunned, Wwalking,
 } from './youprop.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -613,13 +612,9 @@ function propertyPresent(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function heroWwalking(state) {
-    return !Is_waterlevel(state.u?.uz, state)
-        && propertyPresent(state, WWALKING);
-}
 
 function heroPassesWalls(state) {
-    return propertyPresent(state, PASSES_WALLS);
+    return Passes_walls(state.u);
 }
 
 function isMoat(x, y, state) {
@@ -649,14 +644,12 @@ function noitMhim(monster, state, random) {
 // before the callback returns to walk_path().
 export async function hurtle_jump(arg, x, y) {
     const state = arg?.state ?? game;
-    const walking = state.u?.uprops?.[WWALKING]
-        ?? (state.u.uprops[WWALKING] = { intrinsic: 0, extrinsic: 0, blocked: 0 });
-    const saved = walking.extrinsic;
-    walking.extrinsic |= I_SPECIAL;
+    const saved = EWwalking(state.u);
+    state.u.uprops[WWALKING].extrinsic |= I_SPECIAL;
     try {
         return await hurtle_step(arg, x, y);
     } finally {
-        walking.extrinsic = saved;
+        state.u.uprops[WWALKING].extrinsic = saved;
     }
 }
 
@@ -888,7 +881,7 @@ export async function hurtle_step(arg, x, y) {
     if (!await in_out_region(x, y, { state })) return false;
     if (range() === 0) return false;
 
-    const viaJumping = (state.u?.uprops?.[WWALKING]?.extrinsic ?? 0)
+    const viaJumping = (EWwalking(state.u))
         & I_SPECIAL;
     const stoppingShort = Boolean(viaJumping && range() < 2);
     const lev = state.level.at(x, y);
@@ -1031,7 +1024,7 @@ export async function hurtle_step(arg, x, y) {
 
     if (is_pool(x, y, state) && !state.u.uinwater) {
         if (state.level.at(x, y).typ === WATER
-            || !(Levitation(state.u) || Flying(state.u) || heroWwalking(state))) {
+            || !(Levitation(state.u) || Flying(state.u) || Wwalking(state))) {
             state.multi = 0;
             await drown(state);
             return false;

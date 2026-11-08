@@ -37,7 +37,6 @@ import {
     P_DAGGER,
     P_FLAIL,
     P_LANCE,
-    PASSES_WALLS,
     TT_PIT,
     SDOOR,
     u_at,
@@ -163,7 +162,8 @@ import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BBlinded, Blind, Confusion, Deaf, HBlinded, Levitation, Stunned, Unaware,
+    BBlinded, Blind, Confusion, Deaf, HBlinded, Levitation, Passes_walls,
+    Stunned, Unaware,
 } from './youprop.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -1499,13 +1499,6 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
 }
 
 
-// C ref: youprop.h:286 Passes_walls, the bare intrinsic OR extrinsic.
-function Passes_walls(state) {
-    const passes = state.u?.uprops?.[PASSES_WALLS];
-    return Boolean(passes?.intrinsic || passes?.extrinsic);
-}
-
-
 // C ref: lock.c doclose() (957-1051), the #close command handler. Prompts for
 // a direction, checks preconditions, and attempts to close the door.
 //
@@ -1542,7 +1535,7 @@ export async function doclose(state = game) {
 
     // lock.c:979-982. u_at checks whether the target is the hero's own square.
     // Passes_walls heroes can close from their own square.
-    if (u_at(x, y, state) && !Passes_walls(state)) {
+    if (u_at(x, y, state) && !Passes_walls(state.u)) {
         await ttyPline('You are in the way!', state);
         return ECMD_TIME;
     }

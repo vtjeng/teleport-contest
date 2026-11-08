@@ -27,7 +27,6 @@ import {
     RLOC_NOMSG,
     RUN_TPORT,
     SLT_ENCUMBER,
-    TELEPORT,
     TT_LAVA,
     UNCHANGING,
     UNENCUMBERED,
@@ -195,7 +194,7 @@ import { rndcurse } from './sit.js';
 import { Glib } from './wield.js';
 import {
     BClairvoyant, Blind, EClairvoyant, ETelepat, HClairvoyant, Hallucination,
-    Searching, Warn_of_mon, Warning,
+    Searching, Teleportation, Warn_of_mon, Warning,
 } from './youprop.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -903,7 +902,7 @@ export async function finishElapsedTurn(state, random) {
 
     if (!state.u.uinvulnerable) {
         // C allmain.c:307-320, periodic teleportation.
-        if (propertyActive(state, TELEPORT) && !random.rn2(85)) {
+        if (Teleportation(state.u) && !random.rn2(85)) {
             const oldUx = state.u.ux;
             const oldUy = state.u.uy;
             await tele(state, { random, message: ttyPline });
@@ -1372,7 +1371,7 @@ async function moveloop_core_body() {
             see_objects(g);
             see_traps(g);
             if (g.u.uswallow) await swallowed(false, g);
-        } else if (Boolean(ETelepat(g.u))
+        } else if (ETelepat(g.u)
             || Warning(g.u)
             || Warn_of_mon(g.u)
             || (g.level?.regions ?? []).some((region) => (

@@ -159,7 +159,7 @@ import { an, donameFresh, the, vtense, xname, Yname2 } from './objnam.js';
 import {
     candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
-    big_to_little, breathless, cantvomit, emits_light, is_rider, is_silent,
+    big_to_little, cantvomit, emits_light, is_rider, is_silent,
     is_were, locomotion, name_to_mon, mhe, nolimbs, touch_petrifies,
     type_is_pname, little_to_big,
 } from './mondata.js';
@@ -218,9 +218,10 @@ import { coreRandom,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    Blind, Deaf, ELevitation, Flying, HConfusion, HDeaf, HFlying, HLevitation,
-    HStun, Hallucination, Invis, Levitation, See_invisible, Unaware,
-    Warn_of_mon,
+    Blind, Breathless, Deaf, ELevitation, EPasses_walls, Flying, HConfusion,
+    HDeaf, HFlying, HLevitation, HMagical_breathing, HPasses_walls, HStun,
+    Hallucination, Invis, Levitation, Passes_walls, See_invisible, Unaware,
+    Warn_of_mon, Wwalking,
 } from './youprop.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -1106,10 +1107,7 @@ export async function choke_dialogue(state, env = {}) {
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const intrinsic = state.u?.uprops?.[STRANGLED]?.intrinsic ?? 0;
     const i = Math.trunc(intrinsic) & TIMEOUT;
-    // youprop.h:276 reads both magical-breathing sources or the current form;
-    // none of these source checks consults the property's blocked field.
-    const magicalBreathing = propertySource(state, MAGICAL_BREATHING);
-    const isBreathless = magicalBreathing || breathless(state.youmonst?.data);
+    const isBreathless = Breathless(state);
 
     if (i > 0 && i <= chokeTexts.length) {
         if (isBreathless || random.rn2(50) === 0) {
@@ -1326,10 +1324,9 @@ const phazeTexts = Object.freeze([
 ]);
 
 export async function phaze_dialogue(state = game, env = {}) {
-    const property = state.u.uprops[PASSES_WALLS];
-    const timeout = property.intrinsic & TIMEOUT;
+    const timeout = HPasses_walls(state.u) & TIMEOUT;
     const i = Math.trunc(timeout / 2);
-    if (property.extrinsic || (property.intrinsic & ~TIMEOUT)) return;
+    if (EPasses_walls(state.u) || (HPasses_walls(state.u) & ~TIMEOUT)) return;
     if (timeout % 2 && i > 0 && i <= phazeTexts.length) {
         const message = env.message ?? ttyPline;
         await message(phazeTexts[phazeTexts.length - i], state);
@@ -1343,17 +1340,15 @@ const regionTexts = Object.freeze([
 ]);
 
 export async function region_dialogue(state = game, env = {}) {
-    const property = state.u.uprops[MAGICAL_BREATHING];
-    const remaining = property.intrinsic & TIMEOUT;
+    const remaining = HMagical_breathing(state.u) & TIMEOUT;
     const i = Math.trunc(remaining / 2);
 
     // Test danger after removing only the timed breathing protection. Restore
     // it before returning or allowing the ordinary warning to wait for input.
-    property.intrinsic &= ~TIMEOUT;
-    const noNeedToBreathe = propertySource(state, MAGICAL_BREATHING)
-        || breathless(state.youmonst.data);
+    state.u.uprops[MAGICAL_BREATHING].intrinsic &= ~TIMEOUT;
+    const noNeedToBreathe = Breathless(state);
     const inPoisonGasCloud = region_danger(state);
-    property.intrinsic |= remaining;
+    state.u.uprops[MAGICAL_BREATHING].intrinsic |= remaining;
     if (noNeedToBreathe || !inPoisonGasCloud) return;
 
     if (remaining % 2 && i > 0 && i <= regionTexts.length) {
@@ -1568,7 +1563,7 @@ async function decrement_property_timeouts(state, env) {
                 await message('Your temporary ability to survive burning has ended.', state);
             break;
         case WWALKING:
-            if (!(propertySource(state, WWALKING) && !Is_waterlevel(u.uz, state)))
+            if (!(Wwalking(state)))
                 await message('Your temporary ability to walk on liquid has ended.', state);
             break;
         case DISPLACED:
@@ -1585,7 +1580,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case PASSES_WALLS:
-            if (!propertySource(state, PASSES_WALLS)) {
+            if (!Passes_walls(state.u)) {
                 if (stuck_in_wall(state)) {
                     await message(
                         youFeel('hemmed in again.', state),
@@ -1597,8 +1592,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case MAGICAL_BREATHING:
-            if (!(propertySource(state, MAGICAL_BREATHING)
-                    || breathless(state.youmonst.data))
+            if (!(Breathless(state))
                 && region_danger(state)) {
                 await message(`You cough${propertySource(state, POISON_RES) ? '.' : ' and spit blood!'}`, state);
             }
@@ -1696,9 +1690,9 @@ export async function nh_timeout(state = game, env = {}) {
     }
     if (HLevitation(u) & TIMEOUT)
         await levitation_dialogue(state, displayEnv);
-    if (u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT)
+    if (HPasses_walls(u) & TIMEOUT)
         await phaze_dialogue(state, displayEnv);
-    if (u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT)
+    if (HMagical_breathing(u) & TIMEOUT)
         await region_dialogue(state, displayEnv);
     if (u.uprops?.[SLEEPY]?.intrinsic & TIMEOUT)
         await sleep_dialogue(state, env);

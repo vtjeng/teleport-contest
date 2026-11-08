@@ -3,9 +3,8 @@ import {
     BURNING, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA,
     DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST, DBWALL, DOOR,
     DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, ICE, ICED_MOAT,
-    IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL,
-    MAGICAL_BREATHING, MOAT, NO_KILLER_PREFIX, OBJ_AT, PASSES_WALLS,
-    POOL, ROOM, SWIMMING, WATER, WWALKING, Is_waterlevel,
+    IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL, MOAT, NO_KILLER_PREFIX, OBJ_AT,
+    POOL, ROOM, WATER,
     W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOCORPSE, XKILL_NOCONDUCT,
     XKILL_NOMSG, TELEDS_NO_FLAGS, helpless, u_at,
 } from './const.js';
@@ -20,8 +19,7 @@ import { SCATTER_MAY_HIT, scatter } from './explode.js';
 import { del_engr_at } from './engrave.js';
 import { dist2 } from './hacklib.js';
 import { delallobj, obj_extract_self, sobj_at } from './invent.js';
-import {
-    amphibious, breathless, is_flyer, is_floater, is_swimmer, likes_lava,
+import { breathless, is_flyer, is_floater, is_swimmer, likes_lava,
     noncorporeal, passes_walls, mhe,
 } from './mondata.js';
 import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
@@ -42,7 +40,8 @@ import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 import {
-    Confusion, Deaf, Flying, Hallucination, Levitation, Stunned, Unaware,
+    Amphibious, Confusion, Deaf, Flying, Hallucination, Levitation,
+    Passes_walls, Stunned, Swimming, Unaware, Wwalking,
 } from './youprop.js';
 
 // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
@@ -398,7 +397,7 @@ function heroProperty(index, state) {
     const property = state.u?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
-function heroPassesWalls(state) { return heroProperty(PASSES_WALLS, state); }
+function heroPassesWalls(state) { return Passes_walls(state.u); }
 function heroConfused(state) { return Boolean(Confusion(state.u)); }
 function heroStunned(state) { return Boolean(Stunned(state.u)); }
 function heroFumbling(state) { return heroProperty(FUMBLING, state); }
@@ -451,11 +450,9 @@ export function e_survives_at(entity, x, y, state = game) {
     if (noncorporeal(entity.edata)) return true;
     if (is_pool(x, y, state)) {
         return (is_u(entity, state) && (
-            (heroProperty(WWALKING, state) && !Is_waterlevel(state.u?.uz, state))
-            || heroProperty(SWIMMING, state)
-            || Boolean(state.u?.usteed && is_swimmer(state.u.usteed.data))
-            || heroProperty(MAGICAL_BREATHING, state)
-            || amphibious(state.youmonst?.data)
+            (Wwalking(state))
+            || Swimming(state.u)
+            || Amphibious(state)
             || breathless(state.youmonst?.data)
             || Flying(state.u) || Levitation(state.u)))
             || is_swimmer(entity.edata) || is_flyer(entity.edata) || is_floater(entity.edata);

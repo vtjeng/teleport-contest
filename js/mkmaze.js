@@ -31,7 +31,6 @@ import {
     MKTRAP_MAZEFLAG,
     MM_NONAME,
     NO_MM_FLAGS,
-    SWIMMING,
     MON_BUBBLEMOVE,
     POOL,
     ROOM,
@@ -150,7 +149,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { rloc } from './teleport.js';
 import { remove_worm } from './worm.js';
 import { onscary, set_apparxy } from './monmove.js';
-import { Deaf } from './youprop.js';
+import { Deaf, ESwimming, HSwimming } from './youprop.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
 // water, secret doors, and iron bars in addition to ordinary wall types.
@@ -585,8 +584,7 @@ export async function movebubbles(state = game, random = rn2) {
 }
 
 function heroSwimming(state) {
-    const property = state.u?.uprops?.[SWIMMING];
-    return Boolean(property?.intrinsic || property?.extrinsic)
+    return Boolean(HSwimming(state.u) || ESwimming(state.u))
         || is_swimmer(state.youmonst?.data);
 }
 

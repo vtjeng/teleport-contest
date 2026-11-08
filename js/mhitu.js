@@ -15,7 +15,6 @@ import {
     ACID_RES,
     AC_VALUE,
     BLINDED,
-    MAGICAL_BREATHING,
     COLD_RES,
     CONFLICT,
     DISMOUNT_ENGULFED,
@@ -316,9 +315,9 @@ import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
 import { worm_move } from './worm.js';
 import {
-    Blind, Blinded, Deaf, Detect_monsters, HConfusion, HHallucination, HStun,
-    Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
-    See_invisible, Unaware,
+    Blind, Blinded, Deaf, Detect_monsters, EMagical_breathing, HConfusion,
+    HHallucination, HMagical_breathing, HStun, Half_physical_damage,
+    Hallucination, Invis, Maybe_Half_Phys, See_invisible, Unaware,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -2174,8 +2173,8 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         prop(SLOW_DIGESTION).intrinsic || prop(SLOW_DIGESTION).extrinsic,
     );
     const magicalBreathing = Boolean(
-        prop(MAGICAL_BREATHING).intrinsic
-            || prop(MAGICAL_BREATHING).extrinsic,
+        HMagical_breathing(u)
+            || EMagical_breathing(u),
     );
     // C's Hallucination macro reads the timed intrinsic only when effective
     // hallucination resistance is absent.  A suppressed timeout must not

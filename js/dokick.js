@@ -70,7 +70,6 @@ import {
     LA_DOWN,
     LADDER,
     LAVAWALL,
-    PASSES_WALLS,
     FUMBLING,
     M_ATTK_DEF_DIED,
     M_ATTK_MISS,
@@ -232,7 +231,7 @@ import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    Blind, Deaf, Hallucination, Levitation, Maybe_Half_Phys,
+    Blind, Deaf, Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
 } from './youprop.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
@@ -264,12 +263,6 @@ export class UnsupportedKickError extends Error {
 function Wounded_legs(state) {
     const wounded = state.u.uprops[WOUNDED_LEGS];
     return Boolean(wounded.intrinsic || wounded.extrinsic);
-}
-
-// youprop.h:286 Passes_walls, likewise a plain OR.
-function Passes_walls(state) {
-    const passes = state.u.uprops[PASSES_WALLS];
-    return Boolean(passes.intrinsic || passes.extrinsic);
 }
 
 
@@ -649,7 +642,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         || object() === state.uball || object() === state.uchain) return 0;
     const trap = t_at(x, y, state);
     if (trap) {
-        if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
+        if ((is_pit(trap.ttyp) && !Passes_walls(state.u)) || trap.ttyp === WEB) {
             if (!trap.tseen) await find_trap(trap, { ...rawEnv, state });
             const hallucination = Hallucination(u);
             await message(`You can't kick something that's in a ${hallucination ? 'tizzy' : trap.ttyp === WEB ? 'web' : 'pit'}!`, state, env);
@@ -1304,7 +1297,7 @@ export async function dokick(state = game) {
         no_kick = true;
         switch (u.utraptype) {
         case TT_PIT:
-            if (!Passes_walls(state))
+            if (!Passes_walls(state.u))
                 await ttyPline("There's not enough room to kick down here.", state);
             else
                 no_kick = false;
@@ -1316,7 +1309,7 @@ export async function dokick(state = game) {
         default:
             break;
         }
-    } else if (sobj_at(BOULDER, u.ux, u.uy, state) && !Passes_walls(state)) {
+    } else if (sobj_at(BOULDER, u.ux, u.uy, state) && !Passes_walls(state.u)) {
         await ttyPline("There's not enough room to kick in here.", state);
         no_kick = true;
     }
