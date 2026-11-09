@@ -17,7 +17,11 @@ import { redraw_map } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
-import { TOPLINE_EMPTY } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    TOPLINE_EMPTY,
+    TOPLINE_NEED_MORE,
+} from './tty_message.js';
 import {
     renderTtyStartupBanner,
     ttyAsknameImpl,
@@ -320,6 +324,19 @@ export function tty_cliparound(x, y, state = game) {
 // window's data").
 export async function cliparound(x, y, state = game) {
     if (tty_cliparound(x, y, state)) await redraw_map(true);
+}
+
+// C ref: wintty.c tty_display_nhwindow() (1855-1891), its NHW_MAP arm with
+// `blocking` TRUE: display_nhwindow(WIN_MAP, TRUE). end_glyphout() has no JS
+// state. An occupied topline is promoted to TOPLINE_NEED_MORE, and the message
+// window is then displayed, which waits at --More-- unless WIN_STOP is set.
+// The NHW_MESSAGE arm is tty_message.js displayPendingTtyMessageWindow(); the
+// nonblocking NHW_MAP arm is open-coded where it occurs (allmain.js and
+// tty_rawprint.js tty_wait_synch()).
+export async function tty_display_nhwindow_map_blocking(state = game) {
+    if (state.nhDisplay && state.nhDisplay.toplin !== TOPLINE_EMPTY)
+        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+    await displayPendingTtyMessageWindow(state);
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_MAP arm (1074-1088): set

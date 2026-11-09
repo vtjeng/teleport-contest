@@ -184,12 +184,8 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
 import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
-import {
-    displayPendingTtyMessageWindow,
-    TOPLINE_EMPTY,
-    TOPLINE_NEED_MORE,
-    ttyPline,
-} from './tty_message.js';
+import { ttyPline } from './tty_message.js';
+import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import {
     t_at,
 } from './trap.js';
@@ -746,13 +742,8 @@ export async function quickmimic(mtmp, rawEnv = {}) {
                 state,
             );
         }
-        const waitMap = rawEnv.waitMap ?? (async (waitState) => {
-            // C's tty_display_nhwindow(WIN_MAP, TRUE) first forces an occupied
-            // topline into NEED_MORE, then displays the message window.
-            if (waitState.nhDisplay?.toplin !== TOPLINE_EMPTY)
-                waitState.nhDisplay.toplin = TOPLINE_NEED_MORE;
-            await displayPendingTtyMessageWindow(waitState);
-        });
+        // display_nhwindow(WIN_MAP, TRUE).
+        const waitMap = rawEnv.waitMap ?? tty_display_nhwindow_map_blocking;
         await waitMap(state);
     }
 }

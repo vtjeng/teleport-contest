@@ -213,11 +213,10 @@ import { digests } from './dothrow.js';
 import {
     dismissPendingTtyMessage,
     displayPendingTtyMessageWindow,
-    TOPLINE_EMPTY,
-    TOPLINE_NEED_MORE,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
+import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import {
     cansee,
     do_clear_area_async,
@@ -1029,14 +1028,8 @@ export async function monster_detect(
     const message = env.message ?? ttyPline;
     const browse = env.browseMap ?? browse_map;
     const redisplay = env.mapRedisplay ?? map_redisplay;
-    const waitMap = env.waitMap ?? (async waitState => {
-        // C's tty_display_nhwindow(WIN_MAP, TRUE) promotes an occupied
-        // topline to --More--, then displays the message window.
-        if (waitState.nhDisplay
-            && waitState.nhDisplay.toplin !== TOPLINE_EMPTY)
-            waitState.nhDisplay.toplin = TOPLINE_NEED_MORE;
-        await displayPendingTtyMessageWindow(waitState);
-    });
+    // display_nhwindow(WIN_MAP, TRUE).
+    const waitMap = env.waitMap ?? tty_display_nhwindow_map_blocking;
 
     const swallowed = Boolean(state.u?.uswallow);
     await clearScreen();
