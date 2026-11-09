@@ -1706,10 +1706,10 @@ test('ledger_no() reads a dnum of -1 from the improvised jingle', () => {
     state.context = {};
     assert.equal(ledger_no(nowhere, state), -1);
     // One note, "C" (0x43): jingle[1] is the NUL, so 0x43 - 1 = 66.
-    state.context.jingle = 'C';
+    state.context.jingle = [0x43, 0, 0, 0, 0, 0];
     assert.equal(ledger_no(nowhere, state), 66);
     // Two notes, "CG": 0x4743 - 1 = 18242, which fits in an xint16.
-    state.context.jingle = 'CG';
+    state.context.jingle = [0x43, 0x47, 0, 0, 0, 0];
     assert.equal(ledger_no(nowhere, state), 18242);
     // A real dungeon number still reads the array: 3 + 0.
     assert.equal(ledger_no({ dnum: 0, dlevel: 3 }, state), 3);

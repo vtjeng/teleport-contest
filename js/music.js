@@ -490,19 +490,32 @@ export function generic_lvl_desc(state = game) {
 const beats = ['stepper', 'one drop', 'slow two', 'triple stroke roll',
     'double shuffle', 'half-time shuffle', 'second line', 'train'];
 
-// C ref: music.c improvised_notes() (733-753). context.jingle is C's
-// svc.context.jingle, saved/restored with the existing context object.
-// Return the string and C's boolean out-parameter together.
+// C ref: music.c improvised_notes() (733-753). state.context.jingle is C's
+// svc.context.jingle, char jingle[5 + 1], kept as its six byte values and
+// saved and restored with the context object. A tune ends at the NUL C
+// writes after it; a shorter tune leaves the bytes after that NUL from an
+// earlier, longer one, and js/dungeon_table.js reads all six. Return the
+// tune and C's boolean out-parameter together.
+const JINGLE_SIZE = 5 + 1;
+
+function jingle_tune(jingle) {
+    let tune = '';
+    for (let i = 0; i < JINGLE_SIZE && jingle?.[i]; i++)
+        tune += String.fromCharCode(jingle[i]);
+    return tune;
+}
+
 export function improvised_notes(state = game, random = coreRandom) {
     state.context ??= {};
-    if (!(Unchanging(state.u) && state.context.jingle)) {
-        const count = random.rnd(5); // C char jingle[6], excluding its NUL.
-        let notes = '';
-        for (let i = 0; i < count; i++) notes += 'ABCDEFG'[random.rn2(7)];
-        state.context.jingle = notes;
-        return { notes, same: false };
+    if (!(Unchanging(state.u) && state.context.jingle?.[0])) {
+        const jingle = state.context.jingle ??= Array(JINGLE_SIZE).fill(0);
+        const count = random.rnd(JINGLE_SIZE - 1);
+        for (let i = 0; i < count; i++)
+            jingle[i] = 'ABCDEFG'.charCodeAt(random.rn2(7));
+        jingle[count] = 0;
+        return { notes: jingle_tune(jingle), same: false };
     }
-    return { notes: state.context.jingle, same: true };
+    return { notes: jingle_tune(state.context.jingle), same: true };
 }
 
 // C ref: music.c do_improvisation() (503-730), every instrument arm.

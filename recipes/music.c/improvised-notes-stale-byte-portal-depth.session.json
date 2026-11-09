@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C witness for music.c improvised_notes() leaving the bytes after a shorter tune's NUL. The fourth improvised flute tune has five notes, the next two three, and the seventh one (\"E\"), so svc.context.jingle holds E, NUL, a stale note, NUL, the first five-note tune's last note E, NUL. A wished magic portal keeps maketrap()'s dst of {-1, -1}; svd.dungeons[-1].depth_start overlays jingle[4..5] plus padding, so after the hero steps back onto the portal the status line's depth() of dungeon -1 is 'E' (69) - 1 - 1 = 67, not -2. Input stops at builds_up()'s impossible(), before mklev() makes the level. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 4242022,
+      "datetime": "20590417093000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyaeyaeyaeyaeyaeyaeyl\u0017magic portal\nhly  "
+    }
+  ]
+}

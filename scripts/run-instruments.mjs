@@ -46,7 +46,7 @@ export async function verifyInstrumentSegment(segment) {
     assert.ok(instrument, 'apply must retain the instrument');
     if (instrument.otyp === LEATHER_DRUM && !segment.nethackrc.includes('OPTIONS=deaf'))
         assert.ok(game.u.uprops[DEAF].intrinsic & TIMEOUT, 'ordinary drum adds real deafness');
-    if (!segment.moves.includes('aen')) assert.ok(game.context.jingle, 'improvisation stores its tune');
+    if (!segment.moves.includes('aen')) assert.ok(game.context.jingle?.[0], 'improvisation stores its tune');
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 }
 export function runInstrumentMatrix() {

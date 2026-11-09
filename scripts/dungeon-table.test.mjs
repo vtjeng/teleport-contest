@@ -132,7 +132,7 @@ test('dungeon_at(-1) reads svc.context as the recorder build lays it out', () =>
                 total_seen_upclose: 0x0017767574737271,
                 total_photographed: 0x000f868584838281,
             },
-            jingle: '\x91\x92\x93\x94\x95\x96',
+            jingle: [0x91, 0x92, 0x93, 0x94, 0x95, 0x96],
         },
     };
     const d = dungeon_at(-1, state);
@@ -165,7 +165,7 @@ test('dungeon_at(-1) flag bits, sign extension and its one write', () => {
                 total_seen_upclose: 0xfe00000000,
                 total_photographed: 0x0000fffd0002ffff,
             },
-            jingle: 'C\0AB\xc8\0',
+            jingle: [0x43, 0, 0x41, 0x42, 0xc8, 0],
         },
     };
     const d = dungeon_at(-1, state);
@@ -190,7 +190,7 @@ test('dungeon_at(-1) flag bits, sign extension and its one write', () => {
 
 test('depth(), dunlevs_in_dungeon() and ledger_no() read dungeon -1 there', () => {
     const state = { dungeons: [{ ledger_start: 0, num_dunlevs: 29, depth_start: 1 }],
-        context: { jingle: 'C' } };
+        context: { jingle: [0x43, 0, 0, 0, 0, 0] } };
     const nowhere = { dnum: -1, dlevel: -1 };
     // depth_start is jingle[4..5] = 0: 0 + -1 - 1.
     assert.equal(depth(nowhere, state), -2);

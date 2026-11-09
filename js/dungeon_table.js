@@ -82,9 +82,8 @@ function dungeon_before_table(state) {
         BigInt(lifelist.total_seen_upclose ?? 0), true);
     view.setBigInt64(688 - SVC_START,
         BigInt(lifelist.total_photographed ?? 0), true);
-    const jingle = context.jingle ?? '';
-    for (let i = 0; i < 6 && i < jingle.length; i++)
-        view.setUint8(696 - SVC_START + i, jingle.charCodeAt(i));
+    for (let i = 0; i < 6; i++)
+        view.setUint8(696 - SVC_START + i, context.jingle?.[i] ?? 0);
 
     const cstring = (offset) => {
         let text = '';

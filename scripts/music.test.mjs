@@ -395,6 +395,20 @@ test('improvised_notes draws one to five notes, then preserves the saved jingle 
     assert.deepEqual(improvised_notes(restored, repeated.random), { notes: 'ACG', same: true });
 });
 
+test('improvised_notes leaves the bytes after a shorter tune\'s NUL', () => {
+    // music.c writes only jingle[0..count]: five notes (indices 0-4 spell
+    // ABCDE), then one note (index 6, G), leaves C, D and E behind the NUL.
+    const state = { u: { uprops: [] }, context: {} };
+    const five = scripted([['rnd', 5, 5], ['rn2', 7, 0], ['rn2', 7, 1],
+        ['rn2', 7, 2], ['rn2', 7, 3], ['rn2', 7, 4]]);
+    assert.deepEqual(improvised_notes(state, five.random), { notes: 'ABCDE', same: false });
+    five.finished();
+    const one = scripted([['rnd', 5, 1], ['rn2', 7, 6]]);
+    assert.deepEqual(improvised_notes(state, one.random), { notes: 'G', same: false });
+    one.finished();
+    assert.deepEqual(state.context.jingle, [0x47, 0, 0x43, 0x44, 0x45, 0]);
+});
+
 function monster(state, overrides = {}) {
     // Adjacent living grid bug: level1 fixes resistance defense, HP4 survives
     // a damage-free scare, and frozen8 makes wake-up reset observable.
@@ -802,7 +816,7 @@ test('a leather drum draws its tune before deafness and wisdom exercise', async 
     assert.equal(await do_improvisation(drum, state, { random: draws.random,
         message: line => messages.push(line) }), 2);
     draws.finished();
-    assert.equal(state.context.jingle, 'C');
+    assert.deepEqual(state.context.jingle, [0x43, 0, 0, 0, 0, 0]); // "C"
     assert.equal(state.u.uprops[DEAF].intrinsic & TIMEOUT, 34);
     assert.equal(state.u.aexe[A_WIS], oldExercise - 1);
     assert.deepEqual(messages, ['You start playing your drum.', 'You beat a deafening row!']);
