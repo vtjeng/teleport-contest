@@ -4603,7 +4603,8 @@ export function copy_mextra(mtmp2, mtmp1) {
     const source = mtmp1.mextra;
     mtmp2.mextra ??= {};
     const target = mtmp2.mextra;
-    if (source.mgivenname) target.mgivenname = String(source.mgivenname);
+    if (mtmp1.mextra.mgivenname)
+        mtmp2.mextra.mgivenname = String(mtmp1.mextra.mgivenname);
     for (const record of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
         if (source[record]) target[record] = structuredClone(source[record]);
     // mextra.h:234 has_mcorpsenm() is the record's presence plus a species
@@ -5825,7 +5826,7 @@ export async function monstone(mdef, state = game, env = {}) {
             objectEnv,
         );
         if (has_mgivenname(mdef))
-            statue = oname(statue, mdef.mextra?.mgivenname ?? mdef.mgivenname,
+            statue = oname(statue, MGIVENNAME(mdef),
                            ONAME_NO_FLAGS, { ...env, state });
         while (oldminvent) {
             const obj = oldminvent;

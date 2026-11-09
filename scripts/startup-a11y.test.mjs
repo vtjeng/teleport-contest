@@ -540,7 +540,7 @@ test('monster notices retain saddle adjectives except for given names', () => {
     assert.deepEqual(collectMonsterNoticeMessages(state), [
         'You see your saddled pony.',
     ]);
-    state.level.monlist = pony({ mgivenname: 'Shadowfax' });
+    state.level.monlist = pony({ mextra: { mgivenname: 'Shadowfax' } });
     assert.deepEqual(collectMonsterNoticeMessages(state), [
         'You see Shadowfax.',
     ]);

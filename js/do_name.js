@@ -60,6 +60,7 @@ import {
     Upolyd,
     engulfing_u,
     has_ebones,
+    MGIVENNAME,
     has_mgivenname,
     has_oname,
     helpless,
@@ -225,8 +226,7 @@ export function new_mgivenname(mon, lth) {
 
 export function free_mgivenname(mon) {
     if (has_mgivenname(mon)) {
-        if (mon.mextra) delete mon.mextra.mgivenname;
-        delete mon.mgivenname;
+        delete mon.mextra.mgivenname;
     }
 }
 
@@ -1368,9 +1368,7 @@ export function x_monnam(
     const has_adjectives = buf !== '';
 
     let name_at_start;
-    const givenName = has_mgivenname(monster)
-        ? (monster.mextra?.mgivenname ?? monster.mgivenname)
-        : '';
+    const givenName = MGIVENNAME(monster);
     if (do_hallu) {
         // do_name.c:949-955. The bogus name replaces the species outright,
         // after the adjectives already in the buffer. rndmonnam() spends the

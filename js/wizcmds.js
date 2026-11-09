@@ -1093,7 +1093,8 @@ export function size_monst(monster, incl_wsegs, state = game) {
     if (monster.mextra) {
         const extra = monster.mextra;
         size += memoryLayout.mextra;
-        if (extra.mgivenname != null) size += stringAllocation(extra.mgivenname);
+        if (monster.mextra.mgivenname != null)
+            size += stringAllocation(monster.mextra.mgivenname);
         for (const field of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
             if (extra[field]) size += memoryLayout[field];
     }

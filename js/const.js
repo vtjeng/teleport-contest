@@ -3016,8 +3016,11 @@ export function has_mcorpsenm(mtmp) {
 export function ONAME(obj) { return obj?.oextra?.oname || ''; }
 export function has_oname(obj) { return !!obj?.oextra?.oname; }
 export function OMONST(obj) { return obj?.oextra?.omonst; }
-export function MGIVENNAME(mtmp) { return mtmp?.mextra?.mgivenname || mtmp?.mgivenname || ''; }
-export function has_mgivenname(mtmp) { return !!(mtmp?.mextra?.mgivenname || mtmp?.mgivenname); }
+// C: mextra.h MGIVENNAME(mon) ((mon)->mextra->mgivenname) and has_mgivenname().
+// The name has one home, mextra.mgivenname; scripts/mgivenname-home.test.mjs
+// fails when game code reads or writes a monster's top-level mgivenname.
+export function MGIVENNAME(mtmp) { return mtmp?.mextra?.mgivenname || ''; }
+export function has_mgivenname(mtmp) { return !!mtmp?.mextra?.mgivenname; }
 
 // C ref: you.h:554 — #define Upolyd (u.umonnum != u.umonster). The macro reads
 // the two monster indexes, not the polymorph timer: polyself.c polyman()

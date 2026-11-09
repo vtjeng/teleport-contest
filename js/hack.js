@@ -185,6 +185,7 @@ import {
     ydir,
     dirs_ord,
     Ugender,
+    has_mgivenname,
 } from './const.js';
 import { ART_STING, ART_STORMBRINGER, attacks } from './artifacts.js';
 import { isok } from './cmd_isok.js';
@@ -5163,9 +5164,7 @@ export async function domove_swap_with_pet(
     newsym(x, y, state);
     newsym(oldX, oldY, state);
 
-    const hasGivenName = Boolean(
-        monster.mextra?.mgivenname || monster.mgivenname,
-    );
+    const hasGivenName = has_mgivenname(monster);
     const article = monster.mtame
         ? ARTICLE_YOUR
         : (!hasGivenName && !type_is_pname(monster.data))

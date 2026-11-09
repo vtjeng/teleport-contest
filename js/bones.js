@@ -40,6 +40,7 @@ import {
     RIGHT_HANDED,
     W_WEP,
     has_ebones,
+    has_mgivenname,
     has_oname,
     ismnum,
 } from './const.js';
@@ -1091,11 +1092,9 @@ async function find_lev_obj(state) {
 // arrival code begins iterating monsters.
 function purgeDefunctBonesMonsters(state) {
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-        // C ref: bones.c:717-718. MGIVENNAME() reads either home.
-        if (mtmp.mextra?.mgivenname)
+        // C ref: bones.c:717-718.
+        if (has_mgivenname(mtmp))
             mtmp.mextra.mgivenname = sanitize_name(mtmp.mextra.mgivenname, state);
-        else if (mtmp.mgivenname)
-            mtmp.mgivenname = sanitize_name(mtmp.mgivenname, state);
         if (mtmp.mhpmax === DEFUNCT_MONSTER) {
             mongone(mtmp, { state });
         } else {
