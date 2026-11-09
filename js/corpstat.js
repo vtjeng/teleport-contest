@@ -193,8 +193,13 @@ export function mkcorpstat(
     if (x === 0 && y === 0) {
         const obj = mksobj(objtype, init, false, env);
         return (async () => {
-            const { rloco } = await import('./teleport.js');
-            await rloco(obj, env);
+            // A test may stand in for rloco() through hooks.relocateObject.
+            if (typeof env.hooks.relocateObject === 'function') {
+                await env.hooks.relocateObject(obj, env);
+            } else {
+                const { rloco } = await import('./teleport.js');
+                await rloco(obj, env);
+            }
             return finish(obj);
         })();
     }

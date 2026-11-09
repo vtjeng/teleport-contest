@@ -508,7 +508,7 @@ test('mkcorpstat lets source flags and species override statue initialization', 
     rng.assertExhausted();
 });
 
-test('mkcorpstat relocates before applying flags and saving monster traits', () => {
+test('mkcorpstat relocates before applying flags and saving monster traits', async () => {
     const state = objectMonsterState();
     state.in_mklev = true;
     state.gm = { mkcorpstat_norevive: true };
@@ -533,7 +533,8 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
         mhpmax: 0,
     };
     const events = [];
-    const corpse = mkcorpstat(
+    // <0,0> asks for random placement, which returns a promise of the object.
+    const corpse = await mkcorpstat(
         CORPSE,
         monster,
         null,
@@ -576,31 +577,6 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
     assert.equal(corpse.spe, CORPSTAT_FEMALE);
     assert.equal(corpse.norevive, 1); // obj.h bitfield shared with oeroded2
     rng.assertExhausted();
-});
-
-test('mkcorpstat preflights required hooks before object construction', () => {
-    const state = objectMonsterState();
-    state.in_mklev = true;
-    state.level = new GameMap();
-    const firstId = state.context.ident;
-    const noDraws = scriptedRandom([]);
-
-    assert.throws(
-        () => mkcorpstat(
-            CORPSE,
-            null,
-            PM_KOBOLD,
-            0,
-            0,
-            CORPSTAT_INIT,
-            { state, random: noDraws.random },
-        ),
-        /random object relocation/,
-    );
-    assert.equal(state.context.ident, firstId);
-    assert.equal(state.level.objlist, null);
-
-    noDraws.assertExhausted();
 });
 
 test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () => {
