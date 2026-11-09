@@ -638,9 +638,17 @@ export function queueVisionMonsterNotices(state) {
     if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked) return;
     for (const message of collectMonsterNoticeMessages(state)) {
         const glyphFrame = takeNoticeGlyphFrame(state);
-        (state._glyphUpdateNotices ??= []).push({ message, glyphFrame });
+        (state._glyphUpdateNotices ??= []).push({
+            message,
+            glyphFrame,
+            youBuf: NOTICE_MON_YOU_BUF,
+        });
     }
 }
+
+// hack.c notice_mon() prints through You("%s %s.", ...), which leaves this
+// text in pline.c's gy.you_buf (js/tty_message.js reads it back).
+const NOTICE_MON_YOU_BUF = 'You %s %s.';
 
 export async function emitGlyphUpdateNotices(state, env = {}) {
     const pline = env.pline;
@@ -664,6 +672,7 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
             const notice = pending[index];
             if (index)
                 applyGlyphFrameChanges(state, notice.glyphFrame.changes, dirty);
+            if (notice.youBuf) (state.gy ??= {}).you_buf = notice.youBuf;
             await pline(notice.message, state);
             lastFlushedIndex = index;
             // ttyPline() normally performed this flush itself. Keep injected

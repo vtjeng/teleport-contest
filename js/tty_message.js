@@ -27,6 +27,7 @@ import {
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
+import { YOU_BUF_MESSAGES } from './you_buf_messages_data.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
@@ -360,8 +361,15 @@ async function ttyPlineCore(
     if (!state._emittingGlyphUpdateNotices) {
         await emitGlyphUpdateNotices(state, { pline: ttyPline });
     }
-    const normalizedMessage = normalizeVplineMessage(message);
-    const next = ttyByteText(normalizedMessage);
+    // pline.c You() and its siblings write "prefix + format" into
+    // gy.you_buf; vpline() prints a format without '%' from that buffer.
+    // state.gy.you_buf is that buffer's text, written only here and by
+    // startup_a11y.js emitGlyphUpdateNotices() for notice_mon(); C keeps it
+    // for the whole process, but no reader looks past the current message.
+    const fromYouBuf = YOU_BUF_MESSAGES.has(message);
+    if (fromYouBuf) (state.gy ??= {}).you_buf = message;
+    let normalizedMessage = normalizeVplineMessage(message);
+    let next = ttyByteText(normalizedMessage);
     const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
     const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
     let msgtype = MSGTYP_NORMAL;
@@ -389,6 +397,13 @@ async function ttyPlineCore(
         vision_recalc(0, { state });
         if (!state._emittingGlyphUpdateNotices)
             await emitGlyphUpdateNotices(state, { pline: ttyPline });
+        // A notice_mon() line among them was You("%s %s.", ...), which
+        // rewrote gy.you_buf under a line that still points at it; C then
+        // prints that format unexpanded.
+        if (fromYouBuf && state.gy.you_buf !== message) {
+            normalizedMessage = normalizeVplineMessage(state.gy.you_buf);
+            next = ttyByteText(normalizedMessage);
+        }
     }
     // A shown message replaces any show_topl() layout; the SUPPRESS_HISTORY
     // arm below records a fresh one.

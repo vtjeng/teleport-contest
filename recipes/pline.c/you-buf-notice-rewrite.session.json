@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70411,
+      "datetime": "20020611083000",
+      "nethackrc": "OPTIONS=name:Fog,role:Barbarian,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,spot_monsters,!tips,pettype:none\n",
+      "moves": " \u0007yellow mold\nlll\u0017scroll of stinking cloud\nre  . s s s s s s s  s"
+    }
+  ],
+  "comment": "pline.c vpline() with spot_monsters: the gas cloud hides a yellow mold until it thins. Messages raised while vision_full_recalc is set run vision_recalc() first, so notice_mon()'s 'You see a yellow mold.' prints before them; and a You()-family message without '%' is printed from gy.you_buf, which that notice has just rewritten, so C shows 'You %s %s.'."
+}
