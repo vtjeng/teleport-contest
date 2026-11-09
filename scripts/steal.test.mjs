@@ -53,7 +53,6 @@ import {
     steal,
     remove_worn_item,
     unresponsive,
-    UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
@@ -330,22 +329,49 @@ test('mpickobj preserves missing and attached-object return values', () => {
     const carrier = monster();
     const ball = object();
     const gameState = state({ uball: ball });
-    const impossible = [];
-    const env = {
-        state: gameState,
-        hooks: {
-            impossible(message) {
-                impossible.push(message);
+    const env = { state: gameState };
+
+    // steal.c mpickobj() reports both through impossible(), which the port
+    // records as a gap.
+    game.unported = new Set();
+    assert.equal(mpickobj(carrier, null, env), true);
+    assert.deepEqual([...game.unported], ['pline.c impossible']);
+    game.unported = new Set();
+    assert.equal(mpickobj(carrier, ball, env), false);
+    assert.deepEqual([...game.unported], ['pline.c impossible']);
+    assert.equal(carrier.minvent, null);
+    assert.equal(ball.where, OBJ_FREE);
+});
+
+// A level whose one shop room, at every square, is kept by a shopkeeper
+// billing `billed` for one unit at 5 zorkmids, for shk.c find_objowner() and
+// subfrombill() to find. Returns the shopkeeper.
+function shopWithBill(gameState, billed) {
+    const keeper = {
+        mhp: 10,
+        mcanmove: true,
+        isshk: true,
+        mpeaceful: true,
+        mx: 5,
+        my: 6,
+        nmon: null,
+        mextra: {
+            eshk: {
+                shoproom: ROOMOFFSET,
+                shoplevel: { dnum: 0, dlevel: 1 },
+                billct: 1,
+                bill_p: [{ bo_id: billed.o_id, price: 5, bquan: 1, useup: false }],
+                surcharge: false,
             },
         },
     };
-
-    assert.equal(mpickobj(carrier, null, env), true);
-    assert.equal(mpickobj(carrier, ball, env), false);
-    assert.equal(carrier.minvent, null);
-    assert.equal(ball.where, OBJ_FREE);
-    assert.equal(impossible.length, 2);
-});
+    gameState.level = {
+        monlist: keeper,
+        rooms: [{ rtype: SHOPBASE, resident: keeper }],
+        at: () => ({ roomno: ROOMOFFSET, edge: false }),
+    };
+    return keeper;
+}
 
 test('mpickobj clears only the first matching projectile owner', () => {
     const carrier = monster({ mtame: true });
@@ -366,39 +392,27 @@ test('mpickobj removes billing before unseen knowledge and ownership', () => {
     const events = [];
     const carrier = monster();
     const item = object({
+        o_id: 501,
+        quan: 1,
         unpaid: true,
         how_lost: LOST_THROWN,
         ox: FLOOR_X,
         oy: FLOOR_Y,
     });
     const gameState = state();
+    const keeper = shopWithBill(gameState, item);
     const env = {
         state: gameState,
         canSeeMonster() {
-            events.push('visibility');
+            // The bill entry is gone before the visibility test.
+            events.push(`visibility:${keeper.mextra.eshk.billct}`);
             return false;
-        },
-        hooks: {
-            findObjectOwner(obj, x, y) {
-                events.push(`owner:${x},${y}`);
-                assert.equal(obj, item);
-                return carrier;
-            },
-            subFromBill(obj, owner) {
-                events.push('bill');
-                assert.equal(obj, item);
-                assert.equal(owner, carrier);
-                obj.unpaid = false;
-            },
         },
     };
 
     assert.equal(mpickobj(carrier, item, env), false);
-    assert.deepEqual(events, [
-        `owner:${FLOOR_X},${FLOOR_Y}`,
-        'bill',
-        'visibility',
-    ]);
+    assert.deepEqual(events, ['visibility:0']);
+    assert.equal(item.unpaid, 0);
     assert.equal(item.no_charge, false);
     assert.equal(item.how_lost, LOST_STOLEN);
     assert.equal(item.known, true);
@@ -445,27 +459,17 @@ test('unseen non-pet pickup forgets dropped provenance', () => {
 
 test('mpickobj detects unpaid objects inside nested containers', () => {
     const carrier = monster({ mtame: true });
-    const unpaidContent = object({ unpaid: true });
-    const innerContainer = object({ cobj: unpaidContent });
-    const outerContainer = object({ cobj: innerContainer });
-    const calls = [];
+    const unpaidContent = object({ o_id: 502, quan: 1, unpaid: true });
+    const innerContainer = object({ o_id: 503, quan: 1, cobj: unpaidContent });
+    const outerContainer = object({ o_id: 504, quan: 1, cobj: innerContainer });
+    const gameState = state();
+    const keeper = shopWithBill(gameState, unpaidContent);
 
-    assert.equal(mpickobj(carrier, outerContainer, {
-        state: state(),
-        hooks: {
-            findObjectOwner() {
-                calls.push('owner');
-                return carrier;
-            },
-            subFromBill(obj) {
-                calls.push('bill');
-                assert.equal(obj, outerContainer);
-                unpaidContent.unpaid = false;
-            },
-        },
-    }), false);
-    assert.deepEqual(calls, ['owner', 'bill']);
-    assert.equal(unpaidContent.unpaid, false);
+    // The outer container is on no bill, so find_objowner() answers the
+    // room's keeper, and subfrombill() walks down to the billed content.
+    assert.equal(mpickobj(carrier, outerContainer, { state: gameState }), false);
+    assert.equal(unpaidContent.unpaid, 0);
+    assert.equal(keeper.mextra.eshk.billct, 0);
 });
 
 test('cursed figurine carrying effect runs before inventory transfer', () => {
@@ -581,27 +585,6 @@ test('snuff_light_source() puts out only a burning non-artifact source on the sq
     snuff_light_source(CARRIER_X, CARRIER_Y, swordState);
     assert.equal(sunsword.lamplit, true);
     assert.equal(swordState.gl.light_base.id, sunsword);
-});
-
-test('an explicitly disabled billing owner stops before pickup mutation', () => {
-    const carrier = monster({
-        mtame: true,
-        data: { mattk: [{ aatyp: AT_ENGL }] },
-    });
-    const billed = object({
-        unpaid: true,
-        how_lost: LOST_THROWN,
-    });
-    const gameState = state({ gt: { thrownobj: billed } });
-    assert.throws(
-        () => mpickobj(carrier, billed, { state: gameState,
-            hooks: { findObjectOwner: null } }),
-        (error) => error instanceof UnsupportedMonsterPickupOperationError
-            && error.operation === 'findObjectOwner',
-    );
-    assert.equal(gameState.gt.thrownobj, billed);
-    assert.equal(billed.no_charge, true);
-    assert.equal(billed.where, OBJ_FREE);
 });
 
 // ── steal.c relobj() and mdrop_obj() ──

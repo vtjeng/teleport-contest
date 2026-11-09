@@ -165,11 +165,7 @@ export class UnsupportedMonsterPickupOperationError extends Error {
 
 function pickupEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const hooks = {
-        findObjectOwner: (obj, x, y, env) => find_objowner(obj, x, y, env.state),
-        subFromBill: (obj, owner, env) => subfrombill(obj, owner, env.state, env),
-        ...(rawEnv.hooks ?? {}),
-    };
+    const hooks = { ...(rawEnv.hooks ?? {}) };
     const suppliedVisibility = rawEnv.canSeeMonster
         ?? hooks.canSeeMonster;
     const canSeeMonster = suppliedVisibility
@@ -187,11 +183,6 @@ function requiredPickupOperation(env, operation, obj) {
 }
 
 
-function reportImpossible(env, message, monster, obj) {
-    if (typeof env.hooks?.impossible === 'function')
-        env.hooks.impossible(message, monster, obj, env);
-}
-
 // Resolve every missing JavaScript subsystem boundary before a caller unlinks
 // the object from the floor. Pure source predicates may run here; all state
 // changes and output remain in mpickobj() order.
@@ -202,12 +193,6 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
         return { env, monster, obj, outcome: 'attached' };
 
     const billed = Boolean(obj.unpaid) || count_unpaid(obj.cobj) > 0;
-    const findObjectOwner = billed
-        ? requiredPickupOperation(env, 'findObjectOwner', obj)
-        : null;
-    const subFromBill = billed
-        ? requiredPickupOperation(env, 'subFromBill', obj)
-        : null;
 
     const snuff = obj_sheds_light(obj)
         && attacktype(monster?.data, AT_ENGL);
@@ -221,12 +206,6 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
     const canSeeMonster = monster?.mtame
         ? null
         : env.canSeeMonster;
-    if (!monster?.mtame && typeof canSeeMonster !== 'function') {
-        throw new UnsupportedMonsterPickupOperationError(
-            'canSeeMonster',
-            obj,
-        );
-    }
 
     const carryEffects = preflight_carry_obj_effects(obj, env);
     return {
@@ -235,8 +214,6 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
         obj,
         outcome: 'pickup',
         billed,
-        findObjectOwner,
-        subFromBill,
         snuff,
         reportObjectGoesOut,
         canSeeMonster,
@@ -261,21 +238,13 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     const plan = checkedPickupPlan(monster, obj, rawEnv, prepared);
     const { env } = plan;
     if (plan.outcome === 'missing') {
-        reportImpossible(
-            env,
-            'monster taking or picking up nothing',
-            monster,
-            obj,
-        );
+        /* impossible("monster (%s) taking or picking up nothing?") */
+        note_unported('pline.c impossible');
         return true;
     }
     if (plan.outcome === 'attached') {
-        reportImpossible(
-            env,
-            'monster taking or picking up attached punishment object',
-            monster,
-            obj,
-        );
+        /* impossible("monster (%s) taking or picking up attached %s (%s)?") */
+        note_unported('pline.c impossible');
         return false;
     }
 
@@ -286,8 +255,8 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     }
 
     if (plan.billed) {
-        const owner = plan.findObjectOwner(obj, obj.ox, obj.oy, env);
-        plan.subFromBill(obj, owner, env);
+        const owner = find_objowner(obj, obj.ox, obj.oy, env.state);
+        subfrombill(obj, owner, env.state, env);
     }
 
     if (plan.reportObjectGoesOut)
@@ -331,21 +300,13 @@ export async function mpickobjRuntime(
     }, prepared);
     const { env } = plan;
     if (plan.outcome === 'missing') {
-        reportImpossible(
-            env,
-            'monster taking or picking up nothing',
-            monster,
-            obj,
-        );
+        /* impossible("monster (%s) taking or picking up nothing?") */
+        note_unported('pline.c impossible');
         return true;
     }
     if (plan.outcome === 'attached') {
-        reportImpossible(
-            env,
-            'monster taking or picking up attached punishment object',
-            monster,
-            obj,
-        );
+        /* impossible("monster (%s) taking or picking up attached %s (%s)?") */
+        note_unported('pline.c impossible');
         return false;
     }
 
@@ -356,8 +317,8 @@ export async function mpickobjRuntime(
     }
 
     if (plan.billed) {
-        const owner = plan.findObjectOwner(obj, obj.ox, obj.oy, env);
-        plan.subFromBill(obj, owner, env);
+        const owner = find_objowner(obj, obj.ox, obj.oy, env.state);
+        subfrombill(obj, owner, env.state, env);
     }
 
     if (plan.reportObjectGoesOut)
