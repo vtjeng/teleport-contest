@@ -530,11 +530,13 @@ export function truncate_to_map(cx, cy, dx, dy) {
     return { x: cx + dx, y: cy + dy };
 }
 
-// C ref: getpos.c auto_describe() (640-662), under default getpos_coords.
+// C ref: getpos.c auto_describe() (640-662). getpos() calls it as the
+// cursor moves, and cmd.c doclicklook() for a #herecmdmenu or #therecmdmenu
+// "Look at map symbol".
 // custompline(SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U) replaces
 // the top line through tty_putstr()'s show_topl() arm, rather than sharing
 // it with an earlier message or stopping for --More-- after one.
-async function auto_describe(cx, cy, state) {
+export async function auto_describe(cx, cy, state = game) {
     const noTravelPath = state.iflags?.getloc_travelmode
         && !await is_valid_travelpt(cx, cy, state);
     try {

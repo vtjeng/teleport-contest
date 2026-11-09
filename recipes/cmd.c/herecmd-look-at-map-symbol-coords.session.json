@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 915377,
+      "datetime": "20400118090500",
+      "nethackrc": "OPTIONS=name:Mira,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_coord:compass\n",
+      "moves": "#polyself\nhill orc\n#herecmdmenu\nh."
+    }
+  ],
+  "comment": "cmd.c doclicklook() runs getpos.c auto_describe(), which appends coord_desc() for whatis_coord:compass, so #herecmdmenu's \"Look at map symbol\" on a polymorphed hero ends in \"(here)\"."
+}

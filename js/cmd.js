@@ -228,7 +228,7 @@ import {
 import { tty_putmsghistory, tty_yn_function } from './topl.js';
 import { game } from './gstate.js';
 import { getnow } from './calendar.js';
-import { getpos, getpos_menu } from './getpos.js';
+import { auto_describe, getpos, getpos_menu } from './getpos.js';
 import {
     dooverview,
     donamelevel,
@@ -306,7 +306,6 @@ import {
     dowhatdoes,
     dowhatdoes_core,
     doquickwhatis,
-    do_screen_description,
     dowhatis,
     UnsupportedWhatisError,
 } from './pager.js';
@@ -4880,13 +4879,12 @@ export async function domouseaction(state = game) {
 }
 
 // C ref: cmd.c doclicklook() (5381-5390), the internal command queued by the
-// map-symbol menu. pager.c owns the description text in this port.
+// map-symbol menu.
 export async function doclicklook(state = game) {
     const cc = state.clicklook_cc ?? { x: -1, y: -1 };
     if (!isok(cc.x, cc.y)) return ECMD_OK;
     state.context.move = 0;
-    const description = do_screen_description(cc, true, 0, state);
-    if (description?.found) await ttyPline(description.firstmatch, state);
+    await auto_describe(cc.x, cc.y, state);
     return ECMD_OK;
 }
 
