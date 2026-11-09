@@ -222,7 +222,7 @@ import {
     touch_petrifies,
 } from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
-import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
+import { mon_to_glyph, newsym, obj_to_glyph, suppress_map_output } from './display.js';
 import { impossible, livelog_printf } from './pline.js';
 import { fingers_or_gloves, setwornEnv } from './do_wear.js';
 import { visible_region_at } from './region.js';
@@ -2716,13 +2716,6 @@ function requiredHook(env, name, obj) {
 // inventoryComparisonDiscovered(target, env); live addinv supplies merged()'s
 // pline().
 
-function suppressMapOutput(state) {
-    return Boolean(state.in_mklev
-        || state.program_state?.saving
-        || state.program_state?.restoring
-        || state.program_state?.done_hup);
-}
-
 // C ref: invent.c count_contents() (3620-3651). Counts the items inside a
 // container. With everything=true the function counts every stack; with
 // everything=false it counts only unpaid items (checking costly_spot for
@@ -2932,7 +2925,7 @@ export async function learn_unseen_invent(state = game, env = {}) {
 export function update_inventory(env = {}) {
     const state = env.state ?? game;
     if (!state.program_state?.in_moveloop) return;
-    if (suppressMapOutput(state)) return;
+    if (suppress_map_output(state)) return;
     state.iflags ??= {};
     const saveSuppressPrice = state.iflags.suppress_price;
     state.iflags.suppress_price = 0;

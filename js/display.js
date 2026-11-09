@@ -3237,7 +3237,7 @@ export function feel_location(x, y, state = game) {
     }
     // display.c:703-717. Level construction, save and restore suppress map
     // output before any other tactile state is inspected.
-    if (suppressMapOutput(state)) return;
+    if (suppress_map_output(state)) return;
     if (!isok(x, y)) return;
     const location = state.level?.at(x, y);
     if (!location) return;
@@ -3830,7 +3830,7 @@ function observeNearbyObject(object, x, y, state) {
 export function newsym(x, y) {
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
-    if (suppressMapOutput()) return;
+    if (suppress_map_output()) return;
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
@@ -4323,7 +4323,7 @@ export async function doredraw() {
 // transient glyph buffer without reconstructing the remembered map or
 // consuming display RNG to regenerate monster glyphs.
 export async function redraw_map(cursorOnHero = false) {
-    if (!game.u?.ux || suppressMapOutput()
+    if (!game.u?.ux || suppress_map_output()
         || !on_level(game.u.uz0, game.u.uz)) return;
     await flush_screen(cursorOnHero ? 1 : 0);
 }
@@ -7339,7 +7339,9 @@ function _buildScreenOutput(cursorOnHero = true) {
 // again at do.c:1839 to release it. The second call falls past the guard below
 // and flushes.
 //
-function suppressMapOutput(state = game) {
+// C ref: display.c suppress_map_output() (715-718) and its macro
+// _suppress_map_output() (702-709).
+export function suppress_map_output(state = game) {
     // display.c _suppress_map_output() covers level construction, save,
     // restore, and hangup. Those phases must leave the buffered cells and the
     // terminal cursor untouched until their owning operation redraws them.
@@ -7352,7 +7354,7 @@ function suppressMapOutput(state = game) {
 }
 
 export async function flush_screen(mode) {
-    if (suppressMapOutput()) return;
+    if (suppress_map_output()) return;
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
     if (game.flushing) return;
@@ -7500,7 +7502,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     // when status updates are disabled, or while map output is suppressed,
     // but still clears its pending flags (unless bot_disabled returned above).
     if (!game.u || game.iflags?.status_updates === false
-        || suppressMapOutput()) {
+        || suppress_map_output()) {
         if (game.disp) {
             game.disp.botl = false;
             game.disp.botlx = false;
