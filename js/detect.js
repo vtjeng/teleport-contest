@@ -378,47 +378,6 @@ export function reveal_terrain_getglyph(
     return glyph;
 }
 
-// C ref: detect.c dump_map() (2294-2349), compiled only with DUMPLOG.
-// The minimal recorder disables DUMPLOG. Keep the row traversal and blank-row
-// suppression here; the inactive dump putstr output has no JS owner yet.
-export function dump_map(state = game) {
-    const subset = TER_MAP | TER_TRP | TER_OBJ | TER_MON;
-    const defaultSym = state.level.flags.arboreal ? S_tree : S_stone;
-    const defaultGlyph = cmap_to_glyph(defaultSym, state);
-    let skippedRows = 0;
-    let topRow = true;
-    for (let y = 0; y < ROWNO; ++y) {
-        let blankRow = true;
-        let lastNonblank = -1;
-        const row = [];
-        for (let x = 1; x < COLNO; ++x) {
-            const glyph = reveal_terrain_getglyph(
-                x, y, state.u.uswallow, defaultGlyph, subset, state,
-            );
-            const info = map_glyphinfo(glyph, state, { x, y, mgflags: 0 });
-            row[x - 1] = info.ch;
-            if (info.ch !== ' ') {
-                blankRow = false;
-                lastNonblank = x - 1;
-            }
-        }
-        if (!blankRow) {
-            row.length = lastNonblank + 1;
-            if (topRow) {
-                skippedRows = 0;
-                topRow = false;
-            }
-            for (let x = 0; x < skippedRows; ++x)
-                note_unported('windows.c putstr');
-            note_unported('windows.c putstr');
-            skippedRows = 0;
-        } else {
-            ++skippedRows;
-        }
-    }
-    if (skippedRows) note_unported('windows.c putstr');
-}
-
 // C ref: detect.c browse_map() (94-106). The temporary presentation is a
 // getpos() concern: TER_MAP has already replaced the visible glyphs, so this
 // function only supplies getpos() with the source's terrainmode and automatic
@@ -1335,8 +1294,9 @@ async function furniture_detect(state = game) {
 }
 
 // C ref: detect.c map_redisplay() (94-103). Restore the saved map constraints
-// before redrawing. docrt() expects its caller to supply C's vision phases;
-// the buried overlay remains a named void-callee gap.
+// before redrawing. docrt() expects its caller to supply C's vision phases.
+// C's last arm, `if (u.uburied) under_ground(2)`, is dead in C too: only
+// dig.c bury_you() sets u.uburied, and nothing calls bury_you().
 export async function map_redisplay(state = game) {
     if (state !== game)
         throw new TypeError('map_redisplay() redraws the global game');
@@ -1346,7 +1306,6 @@ export async function map_redisplay(state = game) {
         restoreVision: () => vision_recalc(0, { state }),
     });
     if (state.u.uinwater) await under_water(2, state);
-    if (state.u.uburied) note_unported('display.c under_ground');
 }
 
 // C ref: detect.c level_distance() (1142-1173). The two randomized threshold

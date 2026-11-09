@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { ANTI_MAGIC, COLNO, IN_SIGHT, M_AP_FURNITURE, POOL, ROOM, ROWNO, SVALL,
     TER_FULL, TER_MAP, TER_MON, TER_OBJ, TER_TRP } from '../js/const.js';
@@ -98,12 +98,21 @@ test('remembered topology copy restores the live cell after projection', () => {
     assert.notEqual(glyph(TER_MAP), cmap_to_glyph(S_room));
     assert.deepEqual(cell, saved);
 });
-test('whole projection pair and inactive dump_map preserve source traversal', () => {
+test('whole projection pair redraws through browse_map', () => {
+    // detect.c dump_map() is compiled only with DUMPLOG, which config.h and
+    // the recorder's linux-minimal hints leave undefined, so the port has no
+    // copy of it.
     assert.match(CONFIG, /\/\* #define DUMPLOG \*\//u);
     assert.match(C, /#ifdef DUMPLOG\s+void\s+dump_map\(void\)/u);
-    assert.match(C, /for \(y = 0; y < ROWNO; y\+\+\)[\s\S]*for \(x = 1; x < COLNO; x\+\+\)/u);
-    assert.match(JS_SOURCE, /export function dump_map[\s\S]*for \(let y = 0; y < ROWNO; \+\+y\)[\s\S]*for \(let x = 1; x < COLNO; \+\+x\)/u);
-    assert.match(JS_SOURCE, /if \(skippedRows\) note_unported\('windows\.c putstr'\)/u);
+    assert.doesNotMatch(JS_SOURCE, /function dump_map\b/u);
+    // map_redisplay()'s under_ground(2) arm needs u.uburied, which only
+    // dig.c bury_you() sets, and C never calls bury_you().
+    const srcDir = new URL('../nethack-c/upstream/src/', import.meta.url);
+    const buryYou = readdirSync(srcDir).filter((file) => file.endsWith('.c'))
+        .flatMap((file) => [...readFileSync(new URL(file, srcDir), 'utf8')
+            .matchAll(/\bbury_you\(/gu)].map(() => file));
+    assert.deepEqual(buryYou, ['dig.c']); // the definition alone
+    assert.doesNotMatch(JS_SOURCE, /under_ground'\)/u);
     assert.match(JS_SOURCE, /if \(unconstrain_map\(state\)\) \{\s*await docrt/u);
     assert.match(JS_SOURCE, /await browse_map\(whichSubset \| TER_MAP, 'anything of interest', state\)/u);
     assert.doesNotMatch(JS_SOURCE, /terrain projection subset is not ported|disoriented terrain projection/u);
