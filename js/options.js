@@ -1367,12 +1367,16 @@ function applyParsedCharacterOption(result, option, parsedOp) {
     const optionName = option.name.toLowerCase();
     const choice = CHARACTER_OPTIONS[optionName];
     const parsed = choice.parser(parsedOp);
+    // C ref: optfn_role(), optfn_race(), optfn_gender() and
+    // optfn_alignment() assign str2role() and its siblings' result to
+    // flags.init* before testing it, so an unknown value replaces an earlier
+    // valid one with ROLE_NONE and player selection asks for that facet.
+    result[choice.resultField] = parsed;
+    result.flags[choice.flagField] = parsed;
     if (parsed === ROLE_NONE) {
         configErrorAdd(result, `Unknown ${option.name} '${parsedOp}'`);
         return;
     }
-    result[choice.resultField] = parsed;
-    result.flags[choice.flagField] = parsed;
     const table = optionName === 'role' ? roles
         : optionName === 'race' ? races
             : optionName === 'gender' ? genders : aligns;

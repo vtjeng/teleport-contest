@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: a later unknown role value leaves flags.initrole ROLE_NONE, so player selection asks to pick the role",
+  "segments": [
+    {
+      "seed": 50318827,
+      "datetime": "20390614091512",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=role:Bogusrole\n",
+      "moves": "\ny       "
+    }
+  ]
+}

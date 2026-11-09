@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: a later unknown alignment value leaves flags.initalign ROLE_NONE; answering n opens the alignment menu",
+  "segments": [
+    {
+      "seed": 81402256,
+      "datetime": "20480222174401",
+      "nethackrc": "OPTIONS=name:Odric,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=align:crooked\n",
+      "moves": "\nncy      "
+    }
+  ]
+}
