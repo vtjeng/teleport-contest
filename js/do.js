@@ -3277,15 +3277,18 @@ export async function goto_level(
 export function save_currentstate(state = game) {
     if (!state.flags?.ins_chkpt) return;
     state.program_state ??= {};
-    state.program_state.in_checkpoint
-        = (state.program_state.in_checkpoint ?? 0) + 1;
+    // program_state.in_checkpoint is C's counter; the port leaves the key
+    // out while it is zero, so restore the value it had on entry.
+    const savedCheckpoint = state.program_state.in_checkpoint;
+    state.program_state.in_checkpoint = (savedCheckpoint ?? 0) + 1;
     try {
         if (state.iflags?.purge_monsters) dmonsfree(state);
         level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
         save_engravings(state);
         save_msghistory(state);
     } finally {
-        state.program_state.in_checkpoint -= 1;
+        if (savedCheckpoint === undefined) delete state.program_state.in_checkpoint;
+        else state.program_state.in_checkpoint = savedCheckpoint;
     }
 }
 
