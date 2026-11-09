@@ -415,21 +415,12 @@ async function ttyPlineCore(
             return false;
         }
     }
-    // C ref: pline.c vpline() (266-271). A recalculation another routine
-    // deferred -- options.c:5372's lit_corridor toggle sets the flag right
-    // after shutting vision down -- is spent by the next message rather than
-    // waiting for the move loop, so the map flushed below is the one the
-    // player is being told about. C brackets the call with in_pline = 0 so a
-    // message raised inside it counts as top level; this port keeps no
-    // in_pline counter to save and restore. The notices that recalculation
-    // raises (display.c show_glyph()'s mention_map line, vision.c
-    // notice_all_mons()) are printed by C inside vision_recalc(), so they
-    // precede this message: drain them here, as at entry above, before the
-    // top-line state below is read.
-    if (viaVpline && state === game && state.vision_full_recalc) {
-        vision_recalc(0, { state });
-        if (!state._emittingGlyphUpdateNotices)
-            await emitGlyphUpdateNotices(state, { pline: ttyPline });
+    // C ref: pline.c vpline() (266-271). C brackets the call with
+    // in_pline = 0 so a message raised inside it counts as top level; this
+    // port keeps no in_pline counter to save and restore. The notices it
+    // raises precede this message, so they are drained before the top-line
+    // state below is read.
+    if (viaVpline && await vplineVisionRecalc(pflags, state)) {
         // A notice_mon() line among them was You("%s %s.", ...), which
         // rewrote gy.you_buf under a line that still points at it; C then
         // prints that format unexpanded.
@@ -546,6 +537,30 @@ async function ttyPlineCore(
     // wintty.c clears the one-shot after the source-selected write path.
     if (urgentMessage && messageWin)
         messageWin.flags &= ~WIN_NOSTOP;
+    return true;
+}
+
+// C ref: pline.c vpline() (266-272). A recalculation another routine
+// deferred -- a new light source, options.c:5372's lit_corridor toggle --
+// is spent by the next message, before its map flush. The notices that
+// recalculation raises (display.c show_glyph()'s mention_map line, vision.c
+// notice_all_mons()) are plines nested inside this one, and C sets no
+// pline flags of their own: they read gp.pline_flags, which the outer
+// custompline(), Norep() or urgent_pline() set for its own line. A prompt's
+// OVERRIDE_MSGTYPE | SUPPRESS_HISTORY therefore sends each notice through
+// show_topl(), where the prompt then paints over it. `pflags` is the outer
+// message's flags. Every vpline() entry -- ttyPlineCore() and the prompts in
+// js/getline.js and js/topl.js -- recalculates through this function;
+// scripts/vpline-vision-recalc.test.mjs checks that they do. Answers whether
+// a recalculation ran.
+export async function vplineVisionRecalc(pflags, state = game) {
+    if (state !== game || !state.vision_full_recalc) return false;
+    vision_recalc(0, { state });
+    if (!state._emittingGlyphUpdateNotices) {
+        await emitGlyphUpdateNotices(state, {
+            pline: (line, noticeState) => ttyPlineCore(line, noticeState, pflags),
+        });
+    }
     return true;
 }
 

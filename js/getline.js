@@ -8,7 +8,12 @@
 // autocompletion arms below are the ones that write the expansion ahead of an
 // unmoved cursor and erase a stale expansion in place.
 
-import { BUFSZ, COLNO } from './const.js';
+import {
+    BUFSZ,
+    COLNO,
+    OVERRIDE_MSGTYPE,
+    SUPPRESS_HISTORY,
+} from './const.js';
 import {
     ECM_EXACTMATCH,
     ECM_IGNOREAC,
@@ -21,7 +26,6 @@ import {
 } from './cmd.js';
 import { docorner, flush_screen } from './display.js';
 import { game } from './gstate.js';
-import { vision_recalc } from './vision.js';
 import { mungspaces, visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
@@ -30,6 +34,7 @@ import {
     TOPLINE_NEED_MORE,
     dismissPendingTtyMessage,
     ttyPline,
+    vplineVisionRecalc,
 } from './tty_message.js';
 import {
     addtopl,
@@ -129,9 +134,10 @@ async function hooked_tty_getlin(query, hook, state) {
     let doprev = false;
     try {
         // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
-        // flushes the map first; remember_topl() moves the old line into
-        // history before show_topl() repaints.
-        if (state === game && state.vision_full_recalc) vision_recalc(0, { state });
+        // spends a deferred vision recalculation and flushes the map first;
+        // remember_topl() moves the old line into history before show_topl()
+        // repaints.
+        await vplineVisionRecalc(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state);
         if (state.u?.ux) await flush_screen(1);
         remember_topl(state);
         show_topl(`${query} `, state);
