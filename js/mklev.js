@@ -27,7 +27,6 @@ import {
     level_difficulty,
     on_level,
 } from './dungeon.js';
-import { UnsupportedLevelChangeError } from './do.js';
 import {
     antholemon,
     do_mkroom,
@@ -715,34 +714,15 @@ async function makelevel(specialLevelLoader = null) {
     oinit();
     clear_level_structures();
 
-    // C ref: mklev.c:1267-1270. Check for a special level and dispatch
-    // through makemaz() when one exists. This takes priority over both the
-    // explicit specialLevelLoader (tests) and the regular room path.
-    // Only dispatch when the port has a loader for this level's proto;
-    // unported special levels fall through to regular generation, which
-    // is wrong but preserves the session's later matched screens.
+    // C ref: mklev.c:1267-1270. A special level dispatches through
+    // makemaz(). This takes priority over both the explicit
+    // specialLevelLoader (tests) and the regular room path.
     if (!specialLevelLoader) {
         const slev = Is_special(g.u.uz, g);
         if (slev && slev.proto && !Is_rogue_level(g.u.uz, g)) {
-            await ensureSpecialLevelLoaders();
-            // Determine the resolved protofile the same way makemaz() will.
-            // For bigrm, slev.rndlevs is 13, so the proto is
-            // "bigrm-<rnd(13)>". We cannot call rnd() here because it
-            // would consume a random number before makemaz() does. Instead,
-            // check the base proto: if ANY variant exists, dispatch.
-            const hasLoader = slev.rndlevs
-                ? Object.keys(SPECIAL_LEVEL_LOADERS).some(
-                    (k) => k.startsWith(`${slev.proto}-`),
-                )
-                : Boolean(SPECIAL_LEVEL_LOADERS[slev.proto]);
-            if (hasLoader) {
-                await makemaz(slev.proto, slev, g);
-                await finishLevelGeneration();
-                return;
-            }
-            throw new UnsupportedLevelChangeError(
-                `makelevel: load_special() has no loader for special level "${slev.proto}"`,
-            );
+            await makemaz(slev.proto, slev, g);
+            await finishLevelGeneration();
+            return;
         }
     }
 
@@ -784,12 +764,9 @@ async function makelevel(specialLevelLoader = null) {
         const loc_lev = find_level(locaName, g);
         const fillName = `${filecode}-fil`
             + (g.u.uz.dlevel < loc_lev.dlevel.dlevel ? 'a' : 'b');
-        await ensureSpecialLevelLoaders();
-        if (SPECIAL_LEVEL_LOADERS[fillName]) {
-            await makemaz(fillName, null, g);
-            await finishLevelGeneration();
-            return;
-        }
+        await makemaz(fillName, null, g);
+        await finishLevelGeneration();
+        return;
     }
 
     // C ref: mklev.c:1295 — check for below-Medusa maze level
@@ -2026,6 +2003,15 @@ async function ensureSpecialLevelLoaders() {
         valStrtLoader(des, state, des[SPECIAL_LEVEL_LUA_GLOBALS]);
 }
 
+// The names of every level program the port can load, for the check that
+// they cover every level file in C's dat/ (scripts/special-level-loaders
+// .test.mjs): makemaz() relies on it, as C's makemaz() relies on the
+// install shipping every file dungeon.lua names.
+export async function specialLevelLoaderNames() {
+    await ensureSpecialLevelLoaders();
+    return Object.keys(SPECIAL_LEVEL_LOADERS);
+}
+
 // C ref: sp_lev.c load_special(). Initializes the level coder, runs the
 // level definition loader (the JS equivalent of load_lua), and applies
 // post-processing. Returns true when the level loaded, false when no
@@ -2101,10 +2087,9 @@ async function makemaz(proto, slev, state) {
             dmonsfree(state);
             return;
         }
-        // C: impossible("Couldn't load \"%s\" - making a maze.", protofile);
-        throw new UnsupportedLevelChangeError(
-            `makemaz: no loader for "${protofile}"`,
-        );
+        // C appends LEV_EXT to protofile before load_special().
+        await impossible(
+            `Couldn't load "${protofile}.lua" - making a maze.`, state);
     }
 
     // C ref: mkmaze.c:1197-1223. Procedural generation for unnamed mazes.

@@ -25,6 +25,15 @@ export const RULES = [
         files: ['mineralize.js'],
         pattern: /UnsupportedMineralizeContextError|requireInteger|\.level\?\.at\?\./gu,
     },
+    {
+        // mklev.c makelevel() calls makemaz() for every special level and
+        // quest filler without asking whether its program exists; makemaz()
+        // prints impossible() and makes a maze when one does not.
+        // scripts/special-level-loaders.test.mjs keeps every program loadable.
+        name: 'special-level loader pre-check',
+        files: ['mklev.js'],
+        pattern: /hasLoader|no loader for|SPECIAL_LEVEL_LOADERS\[fillName\]/gu,
+    },
 ];
 
 function stripComments(source) {
