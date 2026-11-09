@@ -12,6 +12,7 @@ import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {compareSessionOutputs, formatReport, runJsSession} from './diff-fresh.mjs';
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
+import {assertExceptionCount} from './exception-count.mjs';
 
 const root = new URL('../', import.meta.url);
 
@@ -39,3 +40,15 @@ const KNOWN_FAILURES = [
 
 for (const {name, recording} of KNOWN_FAILURES)
     test(name, {todo: true}, () => assertFullMatch(recording));
+
+// The list's length, pinned both ways: 1 on 9f7e42e6 (8 November 2026). A
+// listed case that starts to match still reports as a passing TODO rather
+// than failing, so only the length is pinned here.
+const KNOWN_FAILURE_COUNT = 1;
+
+test('KNOWN_FAILURES holds the pinned number of cases', () => {
+    assertExceptionCount(KNOWN_FAILURES.length, KNOWN_FAILURE_COUNT, {
+        what: 'KNOWN_FAILURES cases',
+        pin: 'KNOWN_FAILURE_COUNT in scripts/known-failures.test.mjs',
+    });
+});
