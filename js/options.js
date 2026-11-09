@@ -1689,15 +1689,17 @@ function optfn_fruit(result, request, negated, opts, op) {
     return optn_ok;
 }
 
+// `set` is 'primary' or 'rogue': the parser context's key, and PRIMARYSET or
+// ROGUESET in gs.symset[].
 function legacySymbolName(result, set) {
-    return result.gs?.symset?.[set]?.name
+    return result.gs?.symset?.[set === 'rogue' ? ROGUESET : PRIMARYSET]?.name
         ?? result.parserGlyphSetContext?.names?.[set]
         ?? null;
 }
 
 function selectLegacyPrimary(result, name) {
     const context = result.parserGlyphSetContext;
-    const current = legacySymbolName(result, PRIMARYSET);
+    const current = legacySymbolName(result, 'primary');
     if (current) return false;
     context.set = 'primary';
     if (!read_sym_file(name)) {

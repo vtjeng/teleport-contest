@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: optfn_DECgraphics() refuses when the primary symset already has a name, reporting 'Failure to load symbol set DECgraphics.'; the earlier symset stays",
+  "segments": [
+    {
+      "seed": 90271345,
+      "datetime": "20500417080912",
+      "nethackrc": "OPTIONS=name:Oswin,role:Ranger,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=symset:plain\nOPTIONS=DECgraphics\n",
+      "moves": "\nss   "
+    }
+  ]
+}
