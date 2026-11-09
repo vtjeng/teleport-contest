@@ -50,6 +50,12 @@ export const RULES = [
         files: ['mklev.js'],
         pattern: /unsupported room door/gu,
     },
+    {
+        // mkmaze.c put_lregion_here()'s switch has no default: every
+        // place_lregion() caller passes one of the seven LR_ types it handles.
+        name: 'region placement refusal',
+        pattern: /UnsupportedRegionPlacementError/gu,
+    },
 ];
 
 function stripComments(source) {

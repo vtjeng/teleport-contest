@@ -168,7 +168,6 @@ import {
     S_NYMPH,
 } from './monsters.js';
 import { dmonsfree, UnsupportedMonsterCreationError } from './makemon_create.js';
-import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import {
     docallcmd,
     mon_nam,
@@ -2997,7 +2996,6 @@ export function failClosedCommandRefusals() {
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
-        UnsupportedRegionPlacementError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.
