@@ -307,7 +307,6 @@ import {
     dowhatdoes_core,
     doquickwhatis,
     dowhatis,
-    UnsupportedWhatisError,
 } from './pager.js';
 import { dopay, UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
@@ -2937,7 +2936,6 @@ export function failClosedCommandRefusals() {
         // same two classes where a monster's attack reaches it.
         UnsupportedVaultGuardError,
         UnsupportedSearchError,
-        UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
         // The `f` command's files: wield.c the branches ready_weapon()

@@ -11,7 +11,6 @@ import test from 'node:test';
 
 import { HELP_TEXT_FILES } from '../js/help_data.js';
 import { contactLines, helpMenuItems } from '../js/pager.js';
-import { assertExceptionCount } from './exception-count.mjs';
 
 const JS_DIR = new URL('../js/', import.meta.url);
 
@@ -83,16 +82,4 @@ test('docontact() prints a configured SUPPORT line as C does', () => {
         contactLines({ sysopt: {} })[0],
         'To contact the NetHack development team directly,',
     );
-});
-
-test('pager.js keeps only its pinned refusal', () => {
-    assert.doesNotMatch(PAGER, /UnsupportedHelpError/u);
-    // pager.c look_engrs() with whatis_coord set to compass, full compass or
-    // screen is a visible site for a later port.
-    const throws = [...PAGER.matchAll(/throw new UnsupportedWhatisError\(/gu)];
-    assertExceptionCount(throws.length, 1, {
-        what: 'UnsupportedWhatisError throw sites in js/pager.js',
-        pin: 'the 1 in scripts/pager-dispatch-inputs.test.mjs',
-    });
-    assert.match(PAGER, /throw new UnsupportedWhatisError\('alternate list coordinates'\)/u);
 });

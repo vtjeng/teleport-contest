@@ -63,6 +63,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // timeout.c run_timers(): an object holding more than one due timer and
     // an unpaid shrinking glob, both of which C runs as usual
     'UnsupportedHeroTimeoutBoundaryError',
+    // pager.c look_engrs() in the compass, full compass and screen
+    // whatis_coord modes, now formatted with coord_desc()
+    'UnsupportedWhatisError',
 ];
 
 function stripComments(source) {

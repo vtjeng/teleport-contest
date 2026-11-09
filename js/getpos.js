@@ -539,28 +539,24 @@ export function truncate_to_map(cx, cy, dx, dy) {
 export async function auto_describe(cx, cy, state = game) {
     const noTravelPath = state.iflags?.getloc_travelmode
         && !await is_valid_travelpt(cx, cy, state);
-    try {
-        const description = do_screen_description(
-            { x: cx, y: cy }, true, 0, state,
+    const description = do_screen_description(
+        { x: cx, y: cy }, true, 0, state,
+    );
+    if (description.found) {
+        const invalidTarget = state.iflags?.autodescribe
+            && state.getpos_getvalid
+            && !await state.getpos_getvalid(cx, cy, state);
+        const coordinate = coord_desc(cx, cy, state);
+        await ttyCustomPline(
+            description.firstmatch
+            + (coordinate ? ` ${coordinate}` : '')
+            + (invalidTarget ? ' (invalid target)' : '')
+            + (noTravelPath ? ' (no travel path)' : ''),
+            SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U,
+            state,
         );
-        if (description.found) {
-            const invalidTarget = state.iflags?.autodescribe
-                && state.getpos_getvalid
-                && !await state.getpos_getvalid(cx, cy, state);
-            const coordinate = coord_desc(cx, cy, state);
-            await ttyCustomPline(
-                description.firstmatch
-                + (coordinate ? ` ${coordinate}` : '')
-                + (invalidTarget ? ' (invalid target)' : '')
-                + (noTravelPath ? ' (no travel path)' : ''),
-                SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U,
-                state,
-            );
-            cursorAt(cx, cy, state);
-            await flush_screen(0);
-        }
-    } catch (e) {
-        if (e.name !== 'UnsupportedWhatisError') throw e;
+        cursorAt(cx, cy, state);
+        await flush_screen(0);
     }
 }
 

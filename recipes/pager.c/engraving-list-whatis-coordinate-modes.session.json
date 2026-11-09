@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "pager.c look_engrs() formats each line's prefix with coord_desc() in the whatis_coord mode (2196-2214): '%12s' for compass and full compass, '%s' for screen. Segment 1 (compass) lists the engraving the hero stands on, which the hero's glyph obscures, then the same engraving from one step east. Segment 2 (full compass) lists nearby and all engravings from two steps away. Segment 3 (screen) drops an item on the engraving, so the line ends 'obscured by' the object, and lists all engravings.",
+  "segments": [
+    {
+      "seed": 61147,
+      "datetime": "20370221093000",
+      "nethackrc": "OPTIONS=name:Scriber,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_coord:compass\n",
+      "moves": "E- Elbereth\n/e l/e /E "
+    },
+    {
+      "seed": 61203,
+      "datetime": "20370305181500",
+      "nethackrc": "OPTIONS=name:Etcher,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_coord:full compass\n",
+      "moves": "E- Ad aerarium\nkk/e /E "
+    },
+    {
+      "seed": 61259,
+      "datetime": "20370412071200",
+      "nethackrc": "OPTIONS=name:Marker,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_coord:screen\n",
+      "moves": "E- x marks\ndajj/E "
+    }
+  ]
+}

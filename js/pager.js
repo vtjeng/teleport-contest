@@ -291,15 +291,6 @@ import { dungeon_at } from './dungeon_table.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
-export class UnsupportedWhatisError extends Error {
-    constructor(reason) {
-        super(`unsupported whatis: ${reason}`);
-        this.name = 'UnsupportedWhatisError';
-        this.reason = reason;
-    }
-}
-
-
 
 
 
@@ -818,12 +809,6 @@ export function look_region_nearby(nearby, state = game) {
     };
 }
 
-function trapOrEngravingMapCoordinate(x, y) {
-    // Unlike look_all(), pager.c look_traps() and look_engrs() do not append
-    // the single-digit-y alignment space before applying the width-eight pad.
-    return `<${x},${y}>`.padStart(8);
-}
-
 // C ref: pager.c look_all() (1979-2074). The source scans y-major, then
 // x-minor, and formats the explicit coordinate mode before decoding glyphs.
 export async function look_all(nearby, doMons, state = game) {
@@ -933,14 +918,6 @@ export function add_quoted_engraving(x, y, buffer, force, state = game) {
     }
     const unread = headstone ? 'whose headstone' : 'that';
     return `${buffer} ${unread} you haven't read`;
-}
-
-function assertDefaultListCoordinates(state) {
-    const coordinateMode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
-    if (coordinateMode !== GPCOORDS_NONE
-        && coordinateMode !== GPCOORDS_MAP) {
-        throw new UnsupportedWhatisError('alternate list coordinates');
-    }
 }
 
 function encodedGlyphCharacter(glyph, state) {
@@ -1059,10 +1036,12 @@ function isCmapEngraving(index) {
     return index === S_engroom || index === S_engrcorr;
 }
 
-// C ref: pager.c look_engrs(). The scan is y-major, then x-minor.
+// C ref: pager.c look_engrs() (2143-2228). The scan is y-major, then x-minor.
 export async function look_engrs(nearby, state = game) {
-    assertDefaultListCoordinates(state);
     const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
+    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    const mode = configured !== GPCOORDS_NONE
+        ? configured : GPCOORDS_MAP;
     const lines = [];
     for (let y = loY; y <= hiY; ++y) {
         for (let x = loX; x <= hiX; ++x) {
@@ -1112,11 +1091,14 @@ export async function look_engrs(nearby, state = game) {
                 lines.push({ text: '    ' });
             }
             const renderedSymbol = encodedGlyphCharacter(glyph, state);
-            const prefix = trapOrEngravingMapCoordinate(x, y);
+            /* prefix: "coords  C  " where 'C' is engrvng|grave symbol */
+            let prefix = coord_desc(x, y, state, mode);
+            if (mode !== GPCOORDS_SCREEN)
+                prefix = prefix.padStart(mode === GPCOORDS_MAP ? 8 : 12);
             const text = `${prefix}  ${decodedGlyphText(glyph, renderedSymbol, state)} ${description}`;
-            const glyphCells = [
-                textWindowGlyphCell(10, glyph, renderedSymbol, state),
-            ];
+            const glyphCells = [textWindowGlyphCell(
+                prefix.length + 2, glyph, renderedSymbol, state,
+            )];
             if (obscuring) {
                 glyphCells.push(textWindowGlyphCell(
                     text.length - obscuringText.length, obscuringGlyph,
