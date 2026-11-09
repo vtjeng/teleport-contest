@@ -47,6 +47,15 @@ export function findCompiler() {
     return null;
 }
 
+// For a check that needs a C compiler: returns the compiler's name, or throws.
+// A check never skips itself (AGENTS.md, "Fix a repeated defect at its
+// source"), and building the C recorder needs a compiler anyway.
+export function requireCompiler(why) {
+    const compiler = findCompiler();
+    if (!compiler) throw new Error(`no C compiler (clang, cc, or gcc) on PATH; ${why}`);
+    return compiler;
+}
+
 function git(cwd, args) {
     const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
     if (result.status !== 0)

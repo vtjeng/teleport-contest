@@ -12,7 +12,7 @@ import {
     renderReport,
     tokenizePreprocessed,
 } from './c-message-coverage.mjs';
-import { findCompiler } from './recorder-headers.mjs';
+import { requireCompiler } from './recorder-headers.mjs';
 
 test('longestFragment splits at printf conversions and trims spaces', () => {
     // pline.c-style format with %s, a width (%3d), and %%: the longest
@@ -70,12 +70,8 @@ test('jsStringsOf joins wrapped strings and expands string conditionals', () => 
     assert.ok(strings.includes(' falls!'));
 });
 
-test('docs/c-message-coverage.md matches the current C and JS sources', async (t) => {
-    const compiler = findCompiler();
-    if (!compiler) {
-        t.skip('no C compiler (clang, cc, or gcc) on PATH; the report needs the C preprocessor');
-        return;
-    }
+test('docs/c-message-coverage.md matches the current C and JS sources', async () => {
+    const compiler = requireCompiler('the report needs the C preprocessor');
     const expected = renderReport(await buildCoverage({ compiler, jobs: 2 }));
     assert.ok(readFileSync(REPORT_PATH, 'utf8') === expected,
         'docs/c-message-coverage.md is stale; run node scripts/c-message-coverage.mjs');

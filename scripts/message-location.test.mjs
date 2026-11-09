@@ -16,7 +16,7 @@ import {
     structConstants,
     substituteArguments,
 } from './message-location.mjs';
-import { findCompiler } from './recorder-headers.mjs';
+import { requireCompiler } from './recorder-headers.mjs';
 
 // Statuses counted as unpaired; 'not gameplay' (debug traces) is excluded on
 // purpose. 298 = 164 no JS text + 71 too little text + 30 format not a
@@ -24,11 +24,8 @@ import { findCompiler } from './recorder-headers.mjs';
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
 const UNPAIRED_CEILING = 298;
 
-test('every paired JS message makes its C site\'s location choice', async (t) => {
-    if (!findCompiler()) {
-        t.skip('no C compiler (clang, cc, or gcc) on PATH; the scan needs the C preprocessor');
-        return;
-    }
+test('every paired JS message makes its C site\'s location choice', async () => {
+    requireCompiler('the scan needs the C preprocessor');
     const { results, findings } = await scan();
     const tally = counts(results);
     console.log(JSON.stringify(tally));
