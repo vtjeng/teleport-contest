@@ -292,8 +292,15 @@ function coordinateDescription(x, y, state) {
     return '';
 }
 
+// C ref: pline.c vpline() (175-189) prefixes the location a message
+// recorded only when accessiblemsg is on and isok() accepts it, so a
+// location off the map, such as zap.c buzz()'s pline_dir() toward the
+// square beyond the map edge a bounced ray came from, or the (0, 0) that
+// pline_mon() records for the hero, prints no prefix. `forceLocation` is for
+// the callers that format a location with getpos.c coord_desc() themselves,
+// outside vpline().
 export function messageAt(text, x, y, state, forceLocation = false) {
-    if (forceLocation || state.a11y?.accessiblemsg) {
+    if (forceLocation || (state.a11y?.accessiblemsg && isok(x, y))) {
         return `${coordinateDescription(x, y, state)}: ${text}`;
     }
     return text;
