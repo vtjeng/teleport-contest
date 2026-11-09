@@ -395,13 +395,7 @@ export async function breakchestlock(box, destroyit, state = game) {
                 `You owe ${loss} ${currency(loss, state)} for objects destroyed.`,
                 state,
             );
-        delobj(box, {
-            state,
-            random: coreRandom,
-            hooks: {
-                resetPick: (_obj, env) => reset_pick(env.state),
-            },
-        });
+        delobj(box, { state, random: coreRandom });
         return;
     }
     /* bill for the box but not for its contents */

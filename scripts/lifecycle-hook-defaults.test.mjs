@@ -27,6 +27,7 @@ const DEFAULTED_HOOKS = [
     'monsterObject',
     'objectNoLongerHeld',
     'mergeWornMasks',
+    'resetPick',
 ];
 
 // Defaulted hooks whose name is also a flat operation of another owner:
@@ -197,6 +198,7 @@ test('every defaulted hook is still read where C calls its default', () => {
     assert.match(sources['invent.js'], /: obj_no_longer_held\(obj, env\)/u);
     assert.match(sources['obj.js'], /normalized\.hooks\.blockPoint\s*\?\?/u);
     assert.match(sources['obj.js'], /block_point\(bx, by, placeEnv\.state\)/u);
+    assert.match(sources['invent.js'], /if \(isContainer\(obj\)\) maybe_reset_pick\(obj, env\.state\);/u);
     assert.match(sources['invent.js'], /await encumber_msg\(state, \{\s*message: normalized\.hooks\.message \?\? ttyPline,/u);
 });
 
@@ -213,7 +215,6 @@ const REMAINING_REQUIRED_HOOKS = {
     // lack this one, and callers that reach scatter() with a boulder supply
     // it, so a default would change what those calls do.
     recalcBlockPoint: 1,
-    resetPick: 2, // lock.c reset_pick() from shk.c obfree()
 };
 
 test('the remaining required hooks are pinned', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c obfree() -> lock.c maybe_reset_pick() for a box whose lock picking was interrupted: a debug dwarven Valkyrie steps off the stairs, starts unlocking a wished locked large box with a credit card until a newt interrupts her, picks the box up, puts on a ring of levitation, wishes lava under herself and drops the box. trap.c lava_damage() burns it up (\"You see a locked large box hit lava and burn up!\") and delobj() frees it while it is still lock.c xlock.box.",
+  "segments": [
+    {
+      "seed": 8150442,
+      "datetime": "20510913071500",
+      "nethackrc": "OPTIONS=name:Brand,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "k\u0017locked large box\nda\u0017credit card\n\u0007newt\nab.y,\u0017uncursed ring of levitation\nPcl \u0017lava\nda  i"
+    }
+  ]
+}

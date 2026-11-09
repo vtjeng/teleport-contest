@@ -43,7 +43,6 @@ import {
     ENERGY_REGENERATION,
     HALF_SPDAM,
     OBJ_BURIED,
-    OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -107,6 +106,7 @@ import {
     merged,
     money_cnt,
     nxtobj,
+    obfree,
     obj_extract_self,
     obj_to_let,
     preflight_addinv,
@@ -900,77 +900,38 @@ test('delete_contents extracts and frees each child before returning', () => {
     assert.equal(apple.where, OBJ_DELETED);
 });
 
-test('delete_contents preflights every sibling before changing ownership', () => {
-    const state = initializedState();
-    const sack = instance(SACK, state);
-    // A box whose lock the hero is picking needs the resetPick hook
-    // (lock.c reset_pick()), which this env omits; only the refusal before
-    // mutation is tested.
-    const box = instance(LARGE_BOX, state);
-    state.xlock = { box };
-    const apple = instance(APPLE, state);
-    addinv(sack, { state });
-    add_to_container(sack, box, { state });
-    add_to_container(sack, apple, { state });
-    sack.owt = weight(sack, { state });
-    const originalWeight = sack.owt;
-
-    assert.throws(
-        () => delete_contents(sack, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'resetPick',
-    );
-
-    assert.equal(sack.cobj, apple);
-    assert.equal(apple.nobj, box);
-    assert.equal(apple.where, OBJ_CONTAINED);
-    assert.equal(box.where, OBJ_CONTAINED);
-    assert.equal(apple.ocontainer, sack);
-    assert.equal(box.ocontainer, sack);
-    assert.equal(state.xlock.box, box);
-    assert.equal(sack.owt, originalWeight);
-});
-
-test('delete_contents preflights the whole nested graph before mutation', () => {
+// shk.c obfree() (1201-1202) calls lock.c maybe_reset_pick() for every
+// container it frees, including one freed with its parent's contents, and
+// maybe_reset_pick() clears the lock-picking context only for its own box.
+test('freeing the box being picked resets the lock-picking context', () => {
     const state = initializedState();
     const outer = instance(SACK, state);
     const inner = instance(BAG_OF_HOLDING, state);
-    // A box whose lock the hero is picking needs the resetPick hook
-    // (lock.c reset_pick()), which this env omits; only the refusal before
-    // mutation is tested.
     const box = instance(LARGE_BOX, state);
-    state.xlock = { box };
-    const apple = instance(APPLE, state);
+    const unrelated = instance(LARGE_BOX, state);
+    // usedtime and chance are arbitrary nonzero progress that reset_pick()
+    // zeroes.
+    state.xlock = {
+        usedtime: 3, chance: 40, picktyp: 0, magic_key: false,
+        door: null, box,
+    };
     addinv(outer, { state });
     add_to_container(outer, inner, { state });
     add_to_container(inner, box, {
         state,
         hooks: { objectNoLongerHeld() {} },
     });
-    add_to_container(outer, apple, { state });
-    inner.owt = weight(inner, { state });
-    outer.owt = weight(outer, { state });
-    const originalInnerWeight = inner.owt;
-    const originalOuterWeight = outer.owt;
 
-    assert.throws(
-        () => delete_contents(outer, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'resetPick',
-    );
-
-    assert.equal(outer.cobj, apple);
-    assert.equal(apple.nobj, inner);
-    assert.equal(inner.cobj, box);
-    assert.equal(apple.where, OBJ_CONTAINED);
-    assert.equal(inner.where, OBJ_CONTAINED);
-    assert.equal(box.where, OBJ_CONTAINED);
-    assert.equal(apple.ocontainer, outer);
-    assert.equal(inner.ocontainer, outer);
-    assert.equal(box.ocontainer, inner);
+    obfree(unrelated, null, { state });
     assert.equal(state.xlock.box, box);
-    assert.equal(inner.owt, originalInnerWeight);
-    assert.equal(outer.owt, originalOuterWeight);
+    assert.equal(state.xlock.usedtime, 3);
+
+    delete_contents(outer, { state });
+    assert.equal(outer.cobj, null);
+    assert.equal(box.where, OBJ_DELETED);
+    assert.equal(state.xlock.box, null);
+    assert.equal(state.xlock.usedtime, 0);
+    assert.equal(state.xlock.chance, 0);
 });
 
 test('delete_contents recursively stops timers and removes object lights', () => {

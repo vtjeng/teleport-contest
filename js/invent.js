@@ -342,6 +342,7 @@ import {
     pudding_merge_message,
 } from './obj.js';
 import { get_obj_location, obj_merge_light_sources } from './light.js';
+import { maybe_reset_pick } from './lock.js';
 import {
     an,
     assertPricedObjectNameable,
@@ -2706,8 +2707,8 @@ function requiredHook(env, name, obj) {
 // Inventory effects: removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env).
 // Ownership/lifetime: objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
-// deleteObjectLightSource(obj, env), unleashObject(obj, env),
-// resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
+// deleteObjectLightSource(obj, env), unleashObject(obj, env).
+// obfreeShopBill(obj, merge, env) returns 'retained' when
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
 // entry, or 'unbilled' when normal deletion and price adjustment should run.
 // 'preserved' is obfree's diagnostic return when the merge target lacks a bill.
@@ -3617,24 +3618,6 @@ function oidPriceAdjustment(obj, oid, state) {
     return canVary && oid % 4 === 0 ? 1 : 0;
 }
 
-function preflightObfree(obj, merge, env) {
-    if (isContainer(obj)) {
-        const lock = env.state.xlock ?? env.state.context?.xlock;
-        if (lock?.box === obj) requiredHook(env, 'resetPick', obj);
-    }
-    for (let contents = obj.cobj; contents; contents = contents.nobj)
-        preflightObfree(contents, null, env);
-}
-
-// Dependency-only half of shk.c obfree().  Callers such as burial extract an
-// object before freeing it, so they must be able to resolve every downstream
-// lifecycle owner while the original floor chains are still intact.
-export function preflight_obfree(obj, merge = null, env = {}) {
-    const normalized = inventoryEnv(env);
-    preflightObfree(obj, merge, normalized);
-    return normalized;
-}
-
 function comparisonWillDiscover(otmp, obj, state) {
     const targetBknown = otmp.oclass === COIN_CLASS ? false : otmp.bknown;
     return Boolean(obj.known) !== Boolean(otmp.known)
@@ -3648,7 +3631,6 @@ function comparisonWillDiscover(otmp, obj, state) {
 // cleanup uses the same lifecycle operations as ordinary inventory objects.
 export function obfree(obj, merge = null, rawEnv = {}) {
     const env = inventoryEnv(rawEnv);
-    preflightObfree(obj, merge, env);
     if (obj.otyp === LEASH && obj.leashmon)
         o_unleash(obj, env);
 
@@ -3665,11 +3647,7 @@ export function obfree(obj, merge = null, rawEnv = {}) {
         env.state.context.spbook.o_id = 0;
     }
     if (obj.cobj) delete_contents(obj, env);
-    if (isContainer(obj)) {
-        const lock = env.state.xlock ?? env.state.context?.xlock;
-        if (lock?.box === obj)
-            requiredHook(env, 'resetPick', obj)(obj, env);
-    }
+    if (isContainer(obj)) maybe_reset_pick(obj, env.state);
     if (obj.otyp === BOULDER) obj.next_boulder = 0;
 
     let shopDisposition = null;
@@ -3916,7 +3894,6 @@ function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
         requiredHook(normalized, 'inventoryComparisonDiscovered', otmp);
     }
     preflightObjectExtraction(obj, normalized);
-    if (!obj.globby) preflightObfree(obj, otmp, normalized);
     if (otmp.oclass === COIN_CLASS || !isPudding(otmp))
         preflightWeight(otmp, normalized);
     return true;
@@ -3989,7 +3966,6 @@ export function delete_contents(container, env = {}) {
         current;
         current = current.nobj) {
         preflightObjectExtraction(current, normalized);
-        preflightObfree(current, null, normalized);
     }
     while (container?.cobj) {
         const current = container.cobj;
@@ -5107,7 +5083,6 @@ export function useupall(obj, env = {}) {
     if (obj.where !== OBJ_INVENT)
         throw new Error('useupall requires an inventory object');
     preflightFreeinvCore(obj, normalized);
-    preflightObfree(obj, null, normalized);
     const afterWear = () => {
         const extracted = freeinv(obj, normalized);
         const finish = () => { obfree(obj, null, normalized); };
@@ -5152,7 +5127,6 @@ export function resetInventory(env = {}) {
     const normalized = inventoryEnv(env);
     for (let obj = inventoryHead(normalized.state); obj; obj = obj.nobj) {
         preflightFreeinvCore(obj, normalized);
-        preflightObfree(obj, null, normalized);
     }
     normalized.state.lastinvnr = INVLET_BASIC - 1;
     while (inventoryHead(normalized.state))
