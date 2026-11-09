@@ -31,6 +31,8 @@ import {
 import { christen_monst } from './do_name.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
+import { displayTtyTextWindow } from './tty_menu.js';
+import { ATR_BOLD } from './terminal.js';
 import { coreRandom, rnd } from './rng.js';
 
 import { note_unported } from './unported.js';
@@ -288,13 +290,16 @@ function outheader(state) {
 }
 
 // C ref: topten.c:164-180 topten_print() / topten_print_bold().
-// iflags.toptenwin defaults to false, so we always use raw_print.
+// `state.toptenwin` stands for gt.toptenwin: the lines of the NHW_TEXT window
+// topten() creates when iflags.toptenwin is set, and null (WIN_ERR) otherwise.
 function topten_print(state, str) {
-    tty_raw_print(state, str);
+    if (!state.toptenwin) tty_raw_print(state, str);
+    else state.toptenwin.push({ text: str });
 }
 
 function topten_print_bold(state, str) {
-    tty_raw_print_bold(state, str);
+    if (!state.toptenwin) tty_raw_print_bold(state, str);
+    else state.toptenwin.push({ text: str, attr: ATR_BOLD });
 }
 
 // C ref: topten.c:945-1107 outentry(). Formats and prints one score entry.
@@ -450,11 +455,24 @@ function outentry(rank, t1, so, state) {
 // C ref: topten.c:628-926 topten(). Main entry point: creates a new entry,
 // reads the record file from VFS storage, inserts the entry, rewrites the
 // file, and displays the relevant portion of the high-score list.
-export function topten(how, when, state = game) {
+export async function topten(how, when, state = game) {
     if (state.program_state?.panicking) return;
 
-    // C: iflags.toptenwin defaults to false; skip NHW_TEXT window creation.
+    if (state.iflags?.toptenwin) state.toptenwin = [];
+    try {
+        toptenEntries(how, when, state);
+        // showwin: (topten.c:908-918)
+        if (!state.program_state?.stopprint && state.iflags?.toptenwin)
+            await displayTtyTextWindow(state, state.toptenwin);
+    } finally {
+        // destroywin: (topten.c:919-925)
+        state.toptenwin = null;
+    }
+}
 
+// topten.c:661-906, from the wizard/discover check to the last outentry().
+// Each `return` here is a `goto showwin` in C.
+function toptenEntries(how, when, state) {
     if (state.wizard || state.discover) {
         if (how !== PANICKED) {
             topten_print(state, '');

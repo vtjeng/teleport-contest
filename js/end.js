@@ -1564,14 +1564,19 @@ async function really_done(how, state) {
     if (!disclosureStopprint(state))
         await displayTtyTextWindow(state, textLines);
 
-    // C ref: end.c:1579-1583 exit_nhwindows + topten. iflags.toptenwin
-    // defaults to false, so the windows close before topten() raw-prints.
-    // exit_nhwindows() clears the screen and, when an earlier raw print has
-    // already put the recorder in raw mode, ends that raw line; otherwise
-    // topten's first tty_raw_print() enters raw mode at the top left.
-    if (haveWindows && !state.iflags?.toptenwin)
+    // C ref: end.c:1579-1583 exit_nhwindows + topten. Without toptenwin
+    // the windows close before topten() raw-prints. exit_nhwindows() clears
+    // the screen and, when an earlier raw print has already put the recorder
+    // in raw mode, ends that raw line; otherwise topten's first
+    // tty_raw_print() enters raw mode at the top left. With toptenwin they
+    // close after topten() has shown its window.
+    let windowsUp = haveWindows;
+    if (windowsUp && !state.iflags?.toptenwin) {
         tty_exit_nhwindows(null, state);
-    toptenDisplay(how, endtime, state);
+        windowsUp = false;
+    }
+    await toptenDisplay(how, endtime, state);
+    if (windowsUp) tty_exit_nhwindows(null, state);
 
     // C ref: end.c:1589-1591.  raw_print() is deliberately after topten;
     // use the canonical TTY owner so these two newline records are visible

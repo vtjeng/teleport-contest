@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: with toptenwin in normal play, topten() puts the score list, the hero's entry in bold, into its NHW_TEXT window",
+  "segments": [
+    {
+      "seed": 66017325,
+      "datetime": "20471023224108",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,toptenwin\n",
+      "moves": "#quit\nynnnnn  "
+    }
+  ]
+}

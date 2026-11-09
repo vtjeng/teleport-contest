@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: with toptenwin, topten() writes the wizard-mode notice into an NHW_TEXT window and shows it with --More-- before end.c closes the windows",
+  "segments": [
+    {
+      "seed": 58220461,
+      "datetime": "20490812191544",
+      "nethackrc": "OPTIONS=name:Rurik,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,toptenwin\n",
+      "moves": "\n#quit\nynnnnnn  "
+    }
+  ]
+}
