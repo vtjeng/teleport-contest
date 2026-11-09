@@ -467,10 +467,6 @@ function requireRangedOperation(env, name) {
     return operation;
 }
 
-function refuseRanged(env, reason) {
-    return requireRangedOperation(env, 'unsupported')(reason);
-}
-
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
 // result selected by an ordinary monster missile. A successful catch hands the
 // object to hold_another_object(), which remains a named boundary.

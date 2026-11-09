@@ -42,11 +42,8 @@ test('every operation region.js calls has its C default', () => {
         'blockPoint', 'canSee', 'doesBlock', 'message', 'newsym',
         'safeTeleds', 'unblockPoint',
     ]);
-    // The one env call that is not a region operation: unsupported(), an
-    // optional note_unported() listener guarded by a typeof test.
-    const others = new Set(['unsupported']);
     const missing = calledOperations(REGION_JS)
-        .filter((name) => !defaults.includes(name) && !others.has(name));
+        .filter((name) => !defaults.includes(name));
     assert.deepEqual(missing, []);
 });
 

@@ -486,7 +486,6 @@ export async function moveSimpleOrdinary(monster, env) {
         // their object consumers now use artifactTouchable()'s canonical
         // synchronous monster owner; its monster arm is only a pickup gate
         // and never applies the hero's blast or damage.
-        unsupported,
     });
 }
 
@@ -545,10 +544,6 @@ async function moveSimplePet(monster, after, env) {
         petRangedAttack: runPetRangedAttack,
         redraw: newsym,
         whimper,
-        // steal.c relobj() and mdrop_obj() and do.c flooreffects() reach the
-        // drop arm as ported functions with unported branches, so they refuse
-        // through the caller's boundary class the way m_move() does.
-        unsupported,
         // C dogmove.c dog_invent() equips weapon-using pets through
         // weapon.c mon_wield_item().
         wieldPickedItem: (subject, actionEnv) =>
@@ -569,7 +564,7 @@ function monsterMissileEnv(monster, env) {
             obj,
             target,
             actionEnv.state,
-            { random: actionEnv.random, unsupported },
+            { random: actionEnv.random },
         ),
         delayOutput: nh_delay_output,
         endMulti: (value, state) => nomul(value, state),
@@ -665,7 +660,6 @@ function monsterMissileEnv(monster, env) {
         temporaryDisplay: tmp_at,
         swingVerb: (obj, bash, actionEnv) => mswings_verb(obj, bash, actionEnv),
         throwMissile: m_throw,
-        unsupported,
     };
 }
 
@@ -685,7 +679,6 @@ async function useOffensiveItem(monster, env) {
                 encumberMessage: encumber_msg,
             },
         ),
-        unsupported,
     });
 }
 
@@ -701,8 +694,7 @@ async function throwRangedWeapon(monster, env) {
 }
 
 // Shared mattacku adapter for dochug, pet attacks and the special movers.
-// Supply the canonical combat operations used by its nested source owners;
-// their existing unsupported branches remain named at those owners.
+// Supply the canonical combat operations used by its nested source owners.
 function attackHeroWithMattacku(monster, env) {
     const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
@@ -716,6 +708,8 @@ function attackHeroWithMattacku(monster, env) {
         throwRangedWeapon,
         wieldMonsterItemAgainstMonster,
         useOffensiveItem,
+        // castmu()'s unported AD_FIRE arm refuses through this; mattacku()
+        // hands its env to castMonsterSpell below.
         unsupported,
         // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
         castMonsterSpell: (subject, mattk, thinkFound, actualFound, spellEnv) => {
@@ -775,10 +769,8 @@ export async function runPetRangedAttack(monster, forced, rawEnv = {}) {
                 ...attackEnv,
                 ...monsterMissileEnv(attacker, attackEnv),
                 wieldMonsterItemAgainstMonster,
-                unsupported,
             },
         ),
-        unsupported,
         message: rawEnv.message ?? ttyPline,
         markInvisible: map_invisible,
     });
@@ -884,9 +876,8 @@ function simpleMonsterActionOperations(env, state) {
                 }),
         monsterCanSeeHero: ordinaryMonsterCanSeeHero,
         moveMonster: moveSimpleOrdinary,
-                // muse.c find_offensive(), which dochug()'s post-move
-                // disjunction calls, refuses through this rather than
-                // answering TRUE.
+        // dochug() hands this to quest_talk() and, through
+        // castUndirectedSpell, to castmu()'s unported AD_FIRE arm.
         unsupported,
         // C ref: monmove.c dochug():794-799 runs muse.c use_defensive() or
         // use_misc() as soon as find_defensive() or find_misc() selects an

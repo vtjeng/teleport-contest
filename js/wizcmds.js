@@ -943,9 +943,6 @@ export async function wiz_kill(state = game, env = {}) {
     // In particular, rnz must retain its own recorder-visible wrapper entry.
     const killEnv = { ...env, state, message,
         random: env.random ?? coreRandom,
-        unsupported: env.unsupported
-            ?? (reason => note_unported(reason === "the death of the hero's steed"
-                ? 'steed.c dismount_steed' : `mon.c ${reason}`)),
     };
     const save_verbose = state.flags.verbose;
     const save_autodescribe = state.iflags.autodescribe;

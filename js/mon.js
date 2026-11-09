@@ -1456,11 +1456,7 @@ export async function meatbox(mon, obj, rawEnv = {}) {
             x,
             y,
             '',
-            {
-                ...objectGenerationEnv({ ...rawEnv, state }),
-                unsupported: rawEnv.unsupported
-                    ?? ((reason) => note_unported(`do.c flooreffects ${reason}`)),
-            },
+            objectGenerationEnv({ ...rawEnv, state }),
         )) {
             const placement = place_object(
                 child,
@@ -2794,12 +2790,6 @@ function shapeRedraw(x, y, normalized) {
     }
 }
 
-function shapeUnsupported(normalized, operation) {
-    if (typeof normalized.unsupported === 'function')
-        normalized.unsupported(operation);
-    else note_unported(operation);
-}
-
 function shapeObjectNext(obj) {
     return obj?.nobj ?? null;
 }
@@ -2994,10 +2984,7 @@ function* apply_newcham_steps(
                    || unsolid(target)) {
             // A12 owns the asynchronous cleanup contract; pass the complete
             // environment so its ball/chain and vision order remain intact.
-            yield unstuck(monster, state, {
-                ...normalized,
-                unsupported: (operation) => shapeUnsupported(normalized, operation),
-            });
+            yield unstuck(monster, state, { ...normalized });
         }
     }
 
@@ -3089,7 +3076,6 @@ function* apply_newcham_steps(
             const effect = floorEffects(object, monster.mx, monster.my, '', {
                 ...normalized,
                 state,
-                unsupported: (operation) => shapeUnsupported(normalized, operation),
             });
             if (effect && typeof effect.then === 'function') {
                 if (yield effect) {
@@ -4950,21 +4936,11 @@ export function mongone(monster, env = {}) {
         return detachMonster();
     };
     const detachMonster = () => {
-
-        const unsupported = (branch) => {
-            if (branch === 'unhiding a mimic')
-                note_unported('mon.c seemimic');
-            else if (branch === 'the quest leader\'s death')
-                note_unported('questpgr.c leaddead');
-            else
-                note_unported(`mon.c m_detach ${branch}`);
-        };
         // C passes due_to_death=false, so this stays synchronous after the
         // optional swallowed release; source-site failures reach the caller.
         return m_detach(monster, monster.data, false, state, {
             ...env,
             state,
-            unsupported,
         });
     };
     const finishRemoval = () => {
@@ -6007,15 +5983,8 @@ export async function killed(mtmp, state = game, env = {}) {
 // label's own work runs either way. The newsym() at 3642 is jumped over too,
 // so it belongs inside the guard rather than to cleanup.
 export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
-    // C callers do not supply JavaScript operations for ordinary kill
-    // processing. Keep the old refusal available only at the source branches
-    // that still lack an implementation; requiring it before testing those
-    // guards prevented every production caller from reaching the C path.
-    const unsupported = env.unsupported ?? (() => {
-        throw new TypeError('the monster kill path requires unsupported');
-    });
     const message = env.message ?? ttyPline;
-    env = { ...env, state, unsupported, message };
+    env = { ...env, state, message };
     const random = env.random ?? coreRandom;
     const x = mtmp.mx;
     const y = mtmp.my;
@@ -6958,11 +6927,6 @@ export async function kill_genocided_monsters(state = game, env = {}) {
         state,
         random: env.random ?? coreRandom,
         message: env.message ?? ttyPline,
-        // Preserve the existing death owner's unsupported-operation boundary.
-        // Ordinary deaths need no missing operation; special branches still
-        // require a caller-provided implementation or refusal.
-        unsupported: env.unsupported
-            ?? (reason => requiredKillOperation(env, 'unsupported')(reason)),
     };
     let next;
     for (let monster = state.level.monlist; monster; monster = next) {

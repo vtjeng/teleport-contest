@@ -200,11 +200,7 @@ async function placebc_core(state, rawEnv = {}) {
     }
 
     const redraw = rawEnv.redraw ?? newsym;
-    const effectEnv = {
-        ...rawEnv,
-        state,
-        unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
-    };
+    const effectEnv = { ...rawEnv, state };
 
     await flooreffects(chain, state.u.ux, state.u.uy, '', effectEnv);
 

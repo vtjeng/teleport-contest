@@ -350,16 +350,6 @@ import {
     Stoned, Strangled, Unchanging, Wounded_legs,
 } from './youprop.js';
 
-// Raised where pray.c reaches a branch this port has not translated.
-// js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
-// frame the command already matched instead of failing hard.
-export class UnsupportedPrayerError extends Error {
-    constructor(what) {
-        super(`prayer reached an unported branch: ${what}`);
-        this.name = 'UnsupportedPrayerError';
-    }
-}
-
 // C ref: pray.c TROUBLE_* (76-101). Positive values are serious trouble,
 // negative ones are comparative annoyances, and in_trouble() answers the worst
 // one it finds. can_pray() reads only the sign, but the values are what
@@ -2009,10 +1999,6 @@ export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
                         state,
                         random,
                         message: env.message ?? turnDefaultMessage,
-                        unsupported: env.unsupported
-                            ?? ((what) => {
-                                throw new UnsupportedPrayerError(what);
-                            }),
                     });
                 }
                 break;

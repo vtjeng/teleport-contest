@@ -2383,9 +2383,8 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'monsterCanSeeHero',
     );
-    // The item-selection branch below returns TRUE for a source-supported
-    // offense; dochug falls through to mattacku, which executes the selection
-    // through muse.c:use_offensive().
+    // quest_talk() and castmu()'s unported AD_FIRE arm (through
+    // castUndirectedSpell) refuse through this.
     const unsupported = requireDochugOperation(rawEnv, 'unsupported');
     // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
     // calls castmu(FALSE, FALSE) for each; the provider answers whether one
@@ -3186,7 +3185,6 @@ export async function postmov(
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
     const random = rawEnv.random ?? coreRandom;
-    const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     // pline() and newsym().
     const message = rawEnv.message ?? ttyPline;
     const norepMessage = rawEnv.norepMessage ?? ttyNorep;
@@ -3565,7 +3563,6 @@ export async function postmov(
             ...env,
             message,
             random,
-            unsupported,
         });
         // C ref: monmove.c:1692-1699.  A hides_under() species or an eel
         // re-hides after moving, drawing rn2(5) unless it is already hidden;
@@ -3638,7 +3635,6 @@ export async function m_move(monster, rawEnv = {}) {
     );
     const finishEating = requireMoveOperation(rawEnv, 'finishEating');
     const movePet = requireMoveOperation(rawEnv, 'movePet');
-    const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     const env = { ...rawEnv, state, random };
     let oldX = monster.mx;
     let oldY = monster.my;

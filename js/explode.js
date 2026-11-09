@@ -951,13 +951,7 @@ export async function scatter(
             x,
             y,
             verb,
-            {
-                ...lifecycle,
-                unsupported: (reason) => {
-                    note_unported(`do.c flooreffects: ${reason}`);
-                    throw new Error(`scatter floor effect is unported: ${reason}`);
-                },
-            },
+            { ...lifecycle },
         ));
     const isVisible = ops.canSee
         ?? ((x, y) => cansee(x, y, state));

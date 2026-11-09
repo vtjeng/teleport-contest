@@ -1544,7 +1544,6 @@ export async function mattacku(monster, rawEnv = {}) {
             'mattacku requires an rn2, rnd and d random source',
         );
     }
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     // pline_mon(), newsym() and bot().
     const message = rawEnv.message ?? ttyPline;
     // mhitu.c's steal() chain calls ordinary pline() for the worn-item

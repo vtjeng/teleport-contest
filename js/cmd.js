@@ -297,7 +297,6 @@ import {
     dosacrifice,
     dopray,
     doturn,
-    UnsupportedPrayerError,
 } from './pray.js';
 import { doversion, doextversion } from './version.js';
 import { kill_genocided_monsters } from './mon.js';
@@ -316,13 +315,9 @@ import {
 } from './pager.js';
 import { dopay, UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
-import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
+import { dofire, dothrow } from './dothrow.js';
 import { dosit } from './sit.js';
-import {
-    clear_kickedloc,
-    dokick,
-    UnsupportedKickError,
-} from './dokick.js';
+import { clear_kickedloc, dokick } from './dokick.js';
 import {
     docast,
     dowizcast,
@@ -3001,12 +2996,10 @@ export function failClosedCommandRefusals() {
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.
         UnsupportedReadError,
-        // The `f` command's three files. dothrow.c collects every branch of
-        // the throw itself, wield.c the ones ready_weapon() reaches when the
-        // swap-and-retry arm puts a launcher in the hero's hand, zap.c the
-        // ones bhit() meets along the missile's flight, and display.c the one
-        // transient-glyph style bhit() never opens.
-        UnsupportedThrowError,
+        // The `f` command's files: wield.c the branches ready_weapon()
+        // reaches when the swap-and-retry arm puts a launcher in the hero's
+        // hand, zap.c the ones bhit() meets along the missile's flight, and
+        // display.c the one transient-glyph style bhit() never opens.
         UnsupportedWieldError,
         UnsupportedBhitError,
         UnsupportedTransientDisplayError,
@@ -3071,20 +3064,6 @@ export function failClosedCommandRefusals() {
         // steed, and for a monster on the target square, all three of which
         // continue into a function this goal leaves unported.
         UnsupportedChatError,
-        // pray.c raises this from three functions. dopray() reaches
-        // failClosedCommand() through the '#pray' keystroke, at the wizard
-        // force-success prompt and at the pre-prayer invulnerability arm.
-        // prayer_done()'s unported arms and angrygods()'s cases 2 through 8
-        // and default run three turns later, from the ga.afternmv callback
-        // unmul() invokes, with rhack() off the stack; js/allmain.js
-        // runUnmulAtTurnBoundary() reads this same list to convert those at
-        // the turn boundary. Prune this entry only once all three functions
-        // have stopped raising the class, because dropping it early costs the
-        // turn-boundary conversion too.
-        UnsupportedPrayerError,
-        // dokick.c retains this for inherited kick_monster callbacks
-        // whose supporting owners still refuse their source branches.
-        UnsupportedKickError,
         // polyself.c polymon(), break_armor(), drop_weapon(), and polyself()
         // raise this for every form whose species-specific branches are not
         // ported: dragon HP, golem HP, breakarm armor paths, horned/headless

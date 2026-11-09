@@ -24,8 +24,7 @@
 // throwit() below follows the complete dothrow.c:1507-1849 source chain;
 // hitfloor() owns the shared landing path from dothrow.c:606-655.
 // Calls whose C result is explicitly discarded retain a named note_unported()
-// boundary; command functions outside this source span may still use the
-// UnsupportedThrowError refusal while their own ports are pending.
+// boundary.
 // #fire shares the source's autoquiver, launcher-selection, polearm and whip
 // helpers. The command-queue tail remains owned by js/cmd.js.
 
@@ -482,17 +481,6 @@ import {
 } from './youprop.js';
 
 
-// A branch of dothrow.c this port has not translated. js/cmd.js
-// failClosedCommandRefusals() lists it, so the segment keeps every frame the
-// command already matched instead of failing hard.
-export class UnsupportedThrowError extends Error {
-    constructor(what) {
-        super(`dothrow.c reached ${what}`);
-        this.name = 'UnsupportedThrowError';
-        this.what = what;
-    }
-}
-
 // C ref: dothrow.c walk_path() (656-735). The callback sees every map cell
 // after the starting coordinate. It can stop the traversal; in that case the
 // destination object is rewound to the last cell whose callback succeeded.
@@ -670,9 +658,6 @@ function mhurtleTrapEnvironment(rawEnv, state) {
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
         redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
-        unsupported: rawEnv.unsupported ?? ((reason) => {
-            throw new Error(`trap.c mintrap cannot run ${reason}`);
-        }),
     };
 }
 
@@ -2883,17 +2868,11 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     // mkobj.c mkobj(). C draws all of those from the one global RNG.
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
-    // Existing partial owners may still report an unported discarded or
-    // impossible branch. Keep this source function running so such a gap
-    // cannot replace a source arm with a new throw or consume extra RNG.
-    const unsupported = env.unsupported
-        ?? ((what) => note_unported(`dothrow.c ${what}`));
     const operationEnv = {
         ...env,
         state,
         random,
         message,
-        unsupported,
     };
     // attrib.c:exercise() takes the RNG object itself, not this surrounding
     // operation environment. Strength exercise also owns the trailing
@@ -3365,9 +3344,6 @@ async function throw_gold(obj, state = game) {
 
     if (await flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
         state,
-        unsupported: (what) => {
-            throw new UnsupportedThrowError(what);
-        },
     }))
         return ECMD_TIME;
     if (u.dz > 0) {

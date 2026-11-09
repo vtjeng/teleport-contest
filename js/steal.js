@@ -1199,7 +1199,6 @@ export function mdrop_special_objs(mon, rawEnv = {}) {
         ...rawEnv,
         state,
         random,
-        unsupported: rawEnv.unsupported ?? note_unported,
     };
     const dropNext = (obj) => {
         for (; obj;) {

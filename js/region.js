@@ -57,7 +57,6 @@ import { cansee, block_point, does_block, unblock_point } from './vision.js';
 import { newsym } from './display.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
-import { note_unported } from './unported.js';
 import {
     Blind, EMagical_breathing, HBlinded, HMagical_breathing, Maybe_Half_Phys,
     Poison_resistance,
@@ -468,19 +467,10 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
             return false;
         monster.mhp -= env.random.rnd(damage) + 5;
         if (monster.mhp < 1) {
-            const recordUnportedKillBranch = (reason) => {
-                note_unported(`mon.c ${reason}`);
-                if (typeof env.unsupported === 'function')
-                    return env.unsupported(reason);
-            };
-            const killEnv = {
-                ...env,
-                unsupported: recordUnportedKillBranch,
-            };
             if (region.heros_fault)
-                await killed(monster, state, killEnv);
+                await killed(monster, state, { ...env });
             else
-                await monkilled(monster, 'gas cloud', AD_DRST, state, killEnv);
+                await monkilled(monster, 'gas cloud', AD_DRST, state, { ...env });
             if (monster.mhp < 1) return true;
         }
     }

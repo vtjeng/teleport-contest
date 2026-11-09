@@ -3352,9 +3352,6 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         mInAir: env.mInAir ?? m_in_air,
         heroDeaf: env.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: env.youHear ?? youHear,
-        unsupported: env.unsupported ?? ((reason) => {
-            throw new TypeError(`unslime trap requires ${reason}`);
-        }),
         displayRandom: env.displayRandom
             ?? ((bound) => rn2_on_display_rng(bound, state)),
     };

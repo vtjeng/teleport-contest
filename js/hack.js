@@ -4340,9 +4340,6 @@ async function domove_core(state = game) {
                 message: ttyPline,
                 nearCapacity: near_capacity,
                 overexertion,
-                unsupported: (reason) => {
-                    throw new UnsupportedHeroMoveBoundaryError(reason);
-                },
             },
         );
         if (attack.used) {
@@ -5076,9 +5073,6 @@ function domove_monster_trap_env(state, env = {}) {
         // swallowing an exception.
         dealWithOvercrowding: env.dealWithOvercrowding
             ?? (() => note_unported('mon.c deal_with_overcrowding')),
-        unsupported: env.unsupported ?? ((reason) => {
-            throw new UnsupportedHeroMoveBoundaryError(reason);
-        }),
     };
     return trapEnv;
 }

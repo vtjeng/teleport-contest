@@ -2217,8 +2217,6 @@ export async function do_attack(monster, state = game, env = {}) {
         message,
         nearCapacity: env.nearCapacity
             ?? (() => near_capacity(state)),
-        unsupported: env.unsupported
-            ?? ((reason) => { throw new Error(`uhitm.c: ${reason}`); }),
     };
     if (await attack_checks(monster, state.uwep, state, attackEnv)) return true;
 
@@ -7510,9 +7508,6 @@ export async function mhitm_adtyping(
     state = game,
     env = {},
 ) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-    const unported = (name) => unsupported(`uhitm.c ${name}()`);
-
     switch (mattk.adtyp) {
     case AD_STUN:
         await mhitm_ad_stun(magr, mattk, mdef, mhm, state, env);
@@ -7649,7 +7644,6 @@ export async function damageum(
     state = game,
     env = {},
 ) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const message = requireAttackOperation(env, 'message');
     const random = env.random ?? coreRandom;
     const mhm = {
@@ -7685,7 +7679,6 @@ export async function damageum(
                     ...env,
                     random,
                     message,
-                    unsupported,
                 });
         } else if (!state.flags?.verbose) {
             await message('You destroy it!', state);
@@ -7694,14 +7687,12 @@ export async function damageum(
                     ...env,
                     random,
                     message,
-                    unsupported,
                 });
         } else if (mhm.damage) {
             await killed(mdef, state, {
                 ...env,
                 random,
                 message,
-                unsupported,
             });
         }
         return M_ATTK_DEF_DIED;

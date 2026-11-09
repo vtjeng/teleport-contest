@@ -246,16 +246,6 @@ export function clear_kickedloc(state = game) {
     state.gk.kickedloc = { x: 0, y: 0 };
 }
 
-// A branch of dokick.c this port has not translated. js/cmd.js
-// failClosedCommandRefusals() lists it, so the segment keeps every frame the
-// command already matched instead of failing hard.
-export class UnsupportedKickError extends Error {
-    constructor(what) {
-        super(`kicking reached an unported branch: ${what}`);
-        this.name = 'UnsupportedKickError';
-    }
-}
-
 
 // C ref: dokick.c:8-10, the martial() macro over is_bigfoot() at :7. A Samurai
 // or a Monk answers TRUE from martial_bonus() without either later term being
@@ -275,9 +265,6 @@ function kickEnvironment(state) {
         random,
         message: ttyPline,
         pline: ttyPline,
-        unsupported: (what) => {
-            throw new UnsupportedKickError(what);
-        },
         nearCapacity: near_capacity,
         encumberMessage: encumber_msg,
         redraw: (x, y) => newsym(x, y),

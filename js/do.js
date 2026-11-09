@@ -2117,12 +2117,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         normalized.state.u.ux,
         normalized.state.u.uy,
         'drop',
-        {
-            ...normalized,
-            unsupported: (reason) => {
-                throw new UnsupportedDropError(reason);
-            },
-        },
+        { ...normalized },
     )) {
         return;
     }

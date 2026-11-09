@@ -696,9 +696,6 @@ function elapsedTurnMinLiquid(monster, env) {
         state: env.state,
         canSee: (x, y) => cansee(x, y, env.state),
         message: ttyPline,
-        unsupported: unavailableElapsedTurnOperation(
-            'monster liquid effect',
-        ),
         // minliquid() uses rloc()'s result to decide whether its liquid
         // effect is finished. Keep the relocation on the elapsed-turn state
         // and provide the complete teleport.c hook set.
@@ -1052,20 +1049,11 @@ export async function finishElapsedTurn(state, random) {
     }
 }
 
-function unavailableElapsedTurnOperation(operation) {
-    return () => {
-        throw new UnsupportedTurnBoundaryError(
-            `elapsed turn reached ${operation}`,
-        );
-    };
-}
-
 // The refusal classes the monster scan and the once-per-turn round can raise
 // that advanceElapsedTurn() converts to UnsupportedTurnBoundaryError, so the
 // segment stops on its last matching screen rather than throwing out of
 // runSegment(). The turn also raises UnsupportedTurnBoundaryError directly,
-// from finishElapsedTurn()'s own stops and from the operations
-// unavailableElapsedTurnOperation() covers; those pass through the catches
+// from finishElapsedTurn()'s own stops; those pass through the catches
 // unchanged because js/jsmain.js already treats that class as a segment
 // boundary. A refusal class that is neither in this list nor already an
 // UnsupportedTurnBoundaryError escapes runSegment() as a hard failure, so a
@@ -1153,7 +1141,6 @@ async function moveElapsedTurnMonster(monster, env) {
             markInvisible: (x, y) => map_invisible(x, y, env.state),
             redraw: (x, y) => newsym(x, y),
             wieldMonsterItemAgainstMonster,
-            unsupported: unavailableElapsedTurnOperation('conflict combat'),
         }),
         dochugwAction: runElapsedTurnMonsterAction,
     });

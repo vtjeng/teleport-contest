@@ -1605,8 +1605,6 @@ export async function resist(mtmp, oclass, damage, tell, state = game,
                 state,
                 random: rawEnv.random ?? random,
                 message: rawEnv.message ?? ttyPline,
-                unsupported: rawEnv.unsupported
-                    ?? ((reason) => note_unported(`mon.c ${reason}`)),
             };
             if (state.m_using)
                 await monkilled(mtmp, '', AD_RBRE, state, killEnv);
@@ -5635,8 +5633,6 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
         state,
         random,
         message,
-        unsupported: env.unsupported
-            ?? ((reason) => note_unported(`mon.c ${reason}`)),
     };
     if (type < 0)
         await monkilled(mon, null, -AD_RBRE, state, killEnv);
@@ -5753,8 +5749,6 @@ async function buzzmonst(
             state,
             random,
             message,
-            unsupported: env.unsupported
-                ?? ((what) => note_unported(`mon.c ${what}`)),
         };
         if (type < 0) {
             /* killed by another monster */

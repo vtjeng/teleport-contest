@@ -428,8 +428,7 @@ const a_your = Object.freeze(['a', 'your']);
 const A_Your = Object.freeze(['A', 'Your']);
 
 // Live dotrap() uses its ordinary owners. A caller can pass its own RNG,
-// message and redraw operations without changing other trap callers;
-// `unsupported` keeps the same movement-catch boundary.
+// message and redraw operations without changing other trap callers.
 function heroTrapEnv(state, rawEnv = {}) {
     return {
         ...rawEnv,
@@ -438,10 +437,6 @@ function heroTrapEnv(state, rawEnv = {}) {
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
         redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
-        unsupported: rawEnv.unsupported
-            ?? ((reason) => {
-                throw new UnsupportedHeroMoveBoundaryError(reason);
-            }),
     };
 }
 
@@ -1502,7 +1497,6 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
-    const unsupported = requireTrapOperation(env, 'unsupported');
 
     if (mtmp === state.youmonst) {
         const plunged = (trflags & TOOKPLUNGE) !== 0;
@@ -1949,7 +1943,6 @@ async function domagictrap(env) {
 // helper below.
 async function trapeffect_hole(mtmp, trap, trflags, env) {
     const { state } = env;
-    const unsupported = requireTrapOperation(env, 'unsupported');
 
     if (mtmp === state.youmonst) {
         if (!Can_fall_thru(state.u?.uz, state)) {
@@ -4160,7 +4153,6 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         ...rawEnv,
         state,
     };
-    requireTrapOperation(env, 'unsupported');
     // Checked here rather than on entry because C makes no draw for a monster
     // standing on no trap, and postmov() calls this on every completed move.
     // Everything the admitted path can need is proven present here, before the

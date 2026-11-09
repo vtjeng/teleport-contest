@@ -4531,10 +4531,6 @@ export async function magic_whistled(obj, state = game, env = {}) {
                     mInAir: subject => m_in_air(subject, state),
                     heroDeaf: () => Deaf(state.u),
                     youHear,
-                    unsupported: name => {
-                        note_unported(`trap.c ${name}`);
-                        throw new Error(`magic_whistled needs trap.c ${name}`);
-                    },
                 });
                 if (result === Trap_Killed_Mon) change_luck(-1, state);
                 if (state.iflags.last_msg !== PLNMSG_enum) {
