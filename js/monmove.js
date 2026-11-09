@@ -3482,7 +3482,7 @@ export async function postmov(
             // A caller may supply its own swallowed() operation.
             state.u.ux0 = state.u.ux;
             state.u.uy0 = state.u.uy;
-            u_on_newpos(monster.mx, monster.my, state);
+            await u_on_newpos(monster.mx, monster.my, state);
             if (typeof rawEnv.swallowed === 'function') {
                 await rawEnv.swallowed(false, state, env);
             } else {

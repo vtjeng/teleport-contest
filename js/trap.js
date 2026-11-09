@@ -2526,7 +2526,7 @@ async function move_into_trap(ttmp, state = game) {
         /* move hero and update map */
         u.ux0 = u.ux;
         u.uy0 = u.uy;
-        u_on_newpos(x, y, state);
+        await u_on_newpos(x, y, state);
         u.umoved = true;
         newsym(u.ux0, u.uy0);
         vision_recalc(1, { state });

@@ -1191,17 +1191,19 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
 
         if (state.u?.ustuck === monster) {
             if (state.u.uswallow) {
-                u_on_newpos(monster.mx, monster.my, state);
-                const roomCheck = check_special_room(false, state, {
-                    message,
-                    random: env.random,
-                    actionEnv: { ...env, state, message },
-                });
-                return thenResult(roomCheck, () => thenResult(
-                    state === game
-                        ? docrt()
-                        : note_unported('display.c docrt'),
-                    finishPlacement,
+                const placed = u_on_newpos(monster.mx, monster.my, state);
+                return thenResult(placed, () => thenResult(
+                    check_special_room(false, state, {
+                        message,
+                        random: env.random,
+                        actionEnv: { ...env, state, message },
+                    }),
+                    () => thenResult(
+                        state === game
+                            ? docrt()
+                            : note_unported('display.c docrt'),
+                        finishPlacement,
+                    ),
                 ));
             }
             if (dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 2) {
@@ -1874,7 +1876,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
 
     /* must set u.ux, u.uy after drag_ball() */
     // see_nearby_objects()'s newsym_force() draws through this call's redraw.
-    u_on_newpos(nux, nuy, state, {
+    await u_on_newpos(nux, nuy, state, {
         seeNearbyObjectsOptions: { redraw },
     });
     await fill_pit(u.ux0, u.uy0, state, env);

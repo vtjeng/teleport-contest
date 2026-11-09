@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "dungeon.c u_on_newpos() ends with earth_sense(), whose You(\"sense something below your feet.\") a dwarf on ROOM or CORR prints when an object is buried under her. A dwarven Valkyrie drops her dagger, wishes for a pit and then a boulder, which fills the pit and buries the dagger (do.c flooreffects() bury_objs()), steps east, and teleports back with ^T (teleport.c teleds()), then steps off and on again (hack.c domove_core()). Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 6612075,
+      "datetime": "20360214081245",
+      "nethackrc": "OPTIONS=name:Brokk,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "ldb\u0017pit\n\u0017boulder\nl\u0014h. lh.."
+    }
+  ]
+}

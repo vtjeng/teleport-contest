@@ -87,7 +87,6 @@ import {
     room_discovered,
     surface,
     u_on_newpos,
-    UnsupportedEarthSenseError,
     assign_rnd_level,
     update_lastseentyp,
     update_mapseen_for,
@@ -1298,7 +1297,7 @@ function earthSenseState(typ, buriedAt) {
     return state;
 }
 
-test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_objects', () => {
+test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_objects', async () => {
     const cSource = readFileSync(
         new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
         'utf8',
@@ -1386,14 +1385,14 @@ test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_
     };
     live.urace = { mnum: PM_GNOME };
     live.level = new GameMap();
-    assert.equal(u_on_newpos(5, 4, live), undefined);
+    assert.equal(await u_on_newpos(5, 4, live), undefined);
     assert.deepEqual([live.u.ux, live.u.uy], [5, 4]);
 
     const injected = earthSenseState(STONE, null);
     injected.u.uz = { dnum: 0, dlevel: 1 };
     injected.u.uz0 = { dnum: 0, dlevel: 1 };
     let redrawCalls = 0;
-    assert.equal(u_on_newpos(5, 4, injected, {
+    assert.equal(await u_on_newpos(5, 4, injected, {
         seeNearbyObjects: (target) => {
             assert.equal(target, injected);
             redrawCalls++;
@@ -1403,67 +1402,70 @@ test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_
     assert.deepEqual([injected.u.ux, injected.u.uy], [5, 4]);
 });
 
-test('earth_sense refuses only the state its notice would speak for', () => {
+// The lines u_on_newpos()'s earth_sense() reports, collected through the
+// option a caller uses to print them at its own point.
+async function sensedAt(state) {
+    const lines = [];
+    await u_on_newpos(10, 10, state, {
+        earthSenseMessage: (line) => lines.push(line),
+    });
+    return lines;
+}
+
+const SENSED = ['You sense something below your feet.'];
+
+test('earth_sense speaks only for the state its notice describes', async () => {
     // ROOM and CORR are the two types the terrain gate admits, and each has to
     // reach the buried list on its own.
-    for (const typ of [ROOM, CORR]) {
-        assert.throws(
-            () => u_on_newpos(10, 10, earthSenseState(typ, [10, 10])),
-            UnsupportedEarthSenseError,
-        );
-    }
+    for (const typ of [ROOM, CORR])
+        assert.deepEqual(await sensedAt(earthSenseState(typ, [10, 10])), SENSED);
 
     // GRAVE is where this port's other burials land, and STONE is where most
     // of them do; both are rejected before the list is read.
-    for (const typ of [GRAVE, STONE]) {
-        u_on_newpos(10, 10, earthSenseState(typ, [10, 10]));
-    }
+    for (const typ of [GRAVE, STONE])
+        assert.deepEqual(await sensedAt(earthSenseState(typ, [10, 10])), []);
 
     // u_at() compares both coordinates, so a burial one square away in either
     // direction is not felt.
-    for (const buriedAt of [[11, 10], [10, 11], null]) {
-        u_on_newpos(10, 10, earthSenseState(ROOM, buriedAt));
-    }
+    for (const buriedAt of [[11, 10], [10, 11], null])
+        assert.deepEqual(await sensedAt(earthSenseState(ROOM, buriedAt)), []);
 
     // A second entry further down the list is still found: C walks nobj to the
     // end rather than testing the head.
     const listed = earthSenseState(ROOM, [11, 10]);
     listed.level.buriedobjlist.nobj = { otyp: 0, ox: 10, oy: 10, nobj: null };
-    assert.throws(() => u_on_newpos(10, 10, listed), UnsupportedEarthSenseError);
+    assert.deepEqual(await sensedAt(listed), SENSED);
 
     // Race_if(PM_DWARF) is the first gate and the only one no development
     // session can fail: PM_GNOME is the nearest neighbour in mons[].
     const gnome = earthSenseState(ROOM, [10, 10]);
     gnome.urace.mnum = PM_GNOME;
-    u_on_newpos(10, 10, gnome);
+    assert.deepEqual(await sensedAt(gnome), []);
 
     // The four states C returns on before reading the map, each on its own.
     const riding = earthSenseState(ROOM, [10, 10]);
     riding.u.usteed = { mx: 0, my: 0 };
-    u_on_newpos(10, 10, riding);
+    assert.deepEqual(await sensedAt(riding), []);
 
     for (const property of [FLYING, LEVITATION]) {
         const intrinsic = earthSenseState(ROOM, [10, 10]);
         intrinsic.u.uprops[property] = { intrinsic: 1 };
-        u_on_newpos(10, 10, intrinsic);
+        assert.deepEqual(await sensedAt(intrinsic), []);
 
         const extrinsic = earthSenseState(ROOM, [10, 10]);
         extrinsic.u.uprops[property] = { extrinsic: 1 };
-        u_on_newpos(10, 10, extrinsic);
+        assert.deepEqual(await sensedAt(extrinsic), []);
 
         // youprop.h:240 and :253-255 both subtract the blocked field, so a
         // blocked property does not suppress the notice.
         const blocked = earthSenseState(ROOM, [10, 10]);
         blocked.u.uprops[property] = { intrinsic: 1, blocked: 1 };
-        assert.throws(
-            () => u_on_newpos(10, 10, blocked),
-            UnsupportedEarthSenseError,
-        );
+        assert.deepEqual(await sensedAt(blocked), SENSED);
     }
 
     const polymorphed = earthSenseState(ROOM, [10, 10]);
     polymorphed.u.umonnum = polymorphed.u.umonster + 1;
-    u_on_newpos(10, 10, polymorphed);
+    assert.deepEqual(await sensedAt(polymorphed), []);
 });
 
 // 10,10 is interior, so isok() plays no part in any ceiling() result. `rtype`

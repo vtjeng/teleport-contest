@@ -111,7 +111,7 @@ export async function u_on_sstairs(upflag, state = game) {
     const stway = stairway_find_special_dir(upflag, state);
 
     if (stway)
-        u_on_newpos(stway.sx, stway.sy, state);
+        await u_on_newpos(stway.sx, stway.sy, state);
     else
         await u_on_rndspot(upflag, state);
 }
@@ -125,7 +125,7 @@ export async function u_on_dnstairs(state = game) {
     const stway = stairway_find_dir(false, state);
 
     if (stway)
-        u_on_newpos(stway.sx, stway.sy, state);
+        await u_on_newpos(stway.sx, stway.sy, state);
     else
         await u_on_sstairs(1, state); /* destination dnstairs implies moving up */
 }
@@ -137,7 +137,7 @@ export async function u_on_upstairs(state = game) {
     const stway = stairway_find_dir(true, state);
 
     if (stway)
-        u_on_newpos(stway.sx, stway.sy, state);
+        await u_on_newpos(stway.sx, stway.sy, state);
     else
         await u_on_sstairs(0, state); /* destination upstairs implies moving down */
 }

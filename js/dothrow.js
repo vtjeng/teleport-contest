@@ -700,7 +700,7 @@ export async function mhurtle_step(arg, x, y) {
         } else {
             state.u.ux0 = state.u.ux;
             state.u.uy0 = state.u.uy;
-            u_on_newpos(x, y, state);
+            await u_on_newpos(x, y, state);
             redraw(state.u.ux0, state.u.uy0);
             vision_recalc(0, { state });
         }
@@ -995,7 +995,7 @@ export async function hurtle_step(arg, x, y) {
     const oldY = state.u.uy;
     // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
     // newsym_force() redraw.
-    u_on_newpos(x, y, state);
+    await u_on_newpos(x, y, state);
     redraw(oldX, oldY);
     vision_recalc(1, { state, redraw });
     await flush(1);

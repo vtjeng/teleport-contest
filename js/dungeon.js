@@ -1137,7 +1137,10 @@ function dname_to_dnum(name, state) {
 
 // C ref: dungeon.c u_on_newpos() (1567-1601). The one place that writes the
 // hero's map position, and with it the ridden steed's, which always shares it.
-export function u_on_newpos(
+// Its last call, earth_sense(), can pline(), so the port is async and every
+// caller awaits it. A caller that must print the line later, at its own
+// source-ordered point, passes earthSenseMessage to collect it instead.
+export async function u_on_newpos(
     x,
     y,
     state = game,
@@ -1185,7 +1188,10 @@ export function u_on_newpos(
         // generic object(s) to redisplay them as specific objects
         seeNearbyObjects(state, seeNearbyObjectsOptions);
     }
-    earth_sense(state, { message: earthSenseMessage });
+    const line = earth_sense(state);
+    if (!line) return;
+    if (earthSenseMessage) earthSenseMessage(line);
+    else await ttyPline(line, state);
 }
 
 // C ref: dungeon.c u_on_rndspot() (1604-1638). Live mode places the hero at a
@@ -1249,41 +1255,27 @@ export async function u_on_rndspot(
     if (!deferSwitchTerrain && !preflightOnly) await switch_terrain(state);
 }
 
-export class UnsupportedEarthSenseError extends Error {
-    constructor(reason) {
-        super(`unsupported earth sense: ${reason}`);
-        this.name = 'UnsupportedEarthSenseError';
-        this.reason = reason;
-    }
-}
 
 
 
 // C ref: dungeon.c earth_sense() (1543-1565). A dwarf standing on ROOM or
 // CORR terrain senses a buried object at her square unless mounted, flying,
-// levitating, or polymorphed. The placement helpers are synchronous, so an
-// arrival caller supplies a message collector and prints the line at its
-// source-ordered async point. Other movement callers retain the explicit
-// boundary below until their message path is ported.
-function earth_sense(state, { message = null } = {}) {
+// levitating, or polymorphed. Returns the line C's You() prints, or null;
+// u_on_newpos() prints it. Upolyd returns early, so body_part(FOOT) is the
+// dwarf's own "foot" and makeplural() gives "feet".
+function earth_sense(state) {
     const hero = state.u;
-    if (state.urace?.mnum !== PM_DWARF) return;
+    if (state.urace?.mnum !== PM_DWARF) return null;
     if (hero.usteed || Flying(state.u) || Levitation(state.u)
-        || Upolyd(hero)) return;
+        || Upolyd(hero)) return null;
     const typ = state.level?.at(hero.ux, hero.uy)?.typ;
-    if (typ !== CORR && typ !== ROOM) return;
+    if (typ !== CORR && typ !== ROOM) return null;
 
     for (let obj = state.level?.buriedobjlist ?? null; obj; obj = obj.nobj) {
-        if (obj.ox === hero.ux && obj.oy === hero.uy) {
-            if (message) {
-                message('You sense something below your feet.');
-                return;
-            }
-            throw new UnsupportedEarthSenseError(
-                'the buried-object notice a dwarf feels underfoot',
-            );
-        }
+        if (obj.ox === hero.ux && obj.oy === hero.uy)
+            return 'You sense something below your feet.';
     }
+    return null;
 }
 
 

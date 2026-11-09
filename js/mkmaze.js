@@ -391,7 +391,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 const occupying = m_at(contents.x, contents.y, state);
                 const oldx = state.u.ux;
                 const oldy = state.u.uy;
-                u_on_newpos(contents.x, contents.y, state);
+                await u_on_newpos(contents.x, contents.y, state);
                 newsym(oldx, oldy);
                 if (occupying)
                     await mnexto(occupying, RLOC_NOMSG, { state });
@@ -882,7 +882,7 @@ async function put_lregion_here(
             }
             options.preflightPosition(x, y, placementState);
         } else {
-            u_on_newpos(x, y, state, options);
+            await u_on_newpos(x, y, state, options);
         }
         break;
     }

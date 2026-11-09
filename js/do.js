@@ -2922,7 +2922,7 @@ export async function goto_level(
             }
         } else {
             seetrap(ttrap, { redraw: (x, y) => newsym(x, y, state) });
-            u_on_newpos(ttrap.tx, ttrap.ty, state);
+            await u_on_newpos(ttrap.tx, ttrap.ty, state);
         }
     // do.c:1802-1810 places the hero at a random spot after a fall or a
     // level teleport.
@@ -2932,7 +2932,7 @@ export async function goto_level(
         // back to the level she came from).
         const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
         if (stway) {
-            u_on_newpos(stway.sx, stway.sy, state);
+            await u_on_newpos(stway.sx, stway.sy, state);
             stway.u_traversed = true;
         } else if (newdungeon) {
             // u_on_sstairs(1) places the hero on a branch staircase whose
@@ -2960,7 +2960,7 @@ export async function goto_level(
         // do.c:1765-1800. Descending at stairs.
         const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
         if (stway) {
-            u_on_newpos(stway.sx, stway.sy, state);
+            await u_on_newpos(stway.sx, stway.sy, state);
             stway.u_traversed = true;
         } else if (newdungeon) {
             // u_on_sstairs(0) places the hero on a branch staircase. A
@@ -3295,7 +3295,7 @@ export async function u_collide_m(mtmp, state = game) {
         ? enexto(state.u.ux, state.u.uy, state.youmonst?.data, { state })
         : null;
     if (cc && next2u(cc.x, cc.y, state)) {
-        u_on_newpos(cc.x, cc.y, state);
+        await u_on_newpos(cc.x, cc.y, state);
     } else {
         await mnexto(mtmp, RLOC_NOMSG, { state });
     }
