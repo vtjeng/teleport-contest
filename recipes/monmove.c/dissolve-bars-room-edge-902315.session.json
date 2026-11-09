@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 902315,
+      "datetime": "20470220080000",
+      "nethackrc": "OPTIONS=name:Rusty,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "_  d.\u0017iron bars\nl#polyself\nrust monster\n\u001bhhhl\u001b;h."
+    }
+  ],
+  "comment": "Wizard-mode orcish Barbarian travels to the nearest doorway, wishes iron bars onto it, steps back into the room, polymorphs into a rust monster and chews through the bars. monmove.c dissolve_bars() restores a DOOR (doorless) where the bars stood on a room's edge, so farlook names the square a doorway, not floor of a room."
+}
