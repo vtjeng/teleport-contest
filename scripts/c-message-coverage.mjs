@@ -172,7 +172,7 @@ export function messageKind(callee, debugTrace) {
 }
 
 // Return the index of the token matching the opener at `open`.
-function matchingClose(tokens, open, openChar, closeChar) {
+export function matchingClose(tokens, open, openChar, closeChar) {
     let depth = 0;
     for (let j = open; j < tokens.length; j++) {
         const t = tokens[j];
@@ -260,7 +260,7 @@ export function extractMessageCalls(tokens, sourceFile) {
 }
 
 // printf conversions: flags, width, precision, length modifier, conversion.
-const PRINTF_CONVERSION = /%[-+ #0']*(?:\*|\d+)?(?:\.(?:\*|\d+))?(?:hh|h|ll|l|L|z|j|t|q)?[diouxXeEfFgGaAcspn%]/gu;
+export const PRINTF_CONVERSION = /%[-+ #0']*(?:\*|\d+)?(?:\.(?:\*|\d+))?(?:hh|h|ll|l|L|z|j|t|q)?[diouxXeEfFgGaAcspn%]/gu;
 const CONTROL_CHARS = /[\x00-\x1f\x7f]+/gu;
 
 export function longestFragment(literal) {
@@ -310,37 +310,45 @@ async function mapLimited(items, limit, fn) {
 // Every message literal in the recorder's C sources, one entry per distinct
 // (file, function, fragment), in source order.
 export async function collectCMessages({ compiler, jobs = 2 } = {}) {
+    const entries = [];
+    let shortFragments = 0;
+    for (const { source, tokens } of await tokenizeMessageSources({ compiler, jobs })) {
+        const seen = new Set();
+        for (const call of extractMessageCalls(tokens, source)) {
+            for (const literal of call.literals) {
+                if (literal.text.length < MIN_LITERAL_LENGTH) continue;
+                const fragment = longestFragment(literal.text);
+                if (fragment.length < MIN_FRAGMENT_LENGTH) { shortFragments++; continue; }
+                const key = `${call.function}\0${fragment}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                entries.push({
+                    file: source,
+                    function: call.function ?? '(file scope)',
+                    line: literal.line,
+                    callee: call.callee,
+                    kind: call.kind,
+                    literal: literal.text,
+                    fragment,
+                });
+            }
+        }
+    }
+    return { entries, shortFragments };
+}
+
+// The preprocessed tokens of every file messageSources() names, as
+// `{ source, tokens }` in that order.
+export async function tokenizeMessageSources({ compiler, jobs = 2 } = {}) {
     const headers = prepareRecorderIncludes();
     try {
         const sources = messageSources();
         const texts = await mapLimited(sources, jobs,
             (source) => preprocess(compiler, headers.includeDir, source));
-        const entries = [];
-        let shortFragments = 0;
-        sources.forEach((source, index) => {
-            const tokens = tokenizePreprocessed(texts[index]);
-            const seen = new Set();
-            for (const call of extractMessageCalls(tokens, source)) {
-                for (const literal of call.literals) {
-                    if (literal.text.length < MIN_LITERAL_LENGTH) continue;
-                    const fragment = longestFragment(literal.text);
-                    if (fragment.length < MIN_FRAGMENT_LENGTH) { shortFragments++; continue; }
-                    const key = `${call.function}\0${fragment}`;
-                    if (seen.has(key)) continue;
-                    seen.add(key);
-                    entries.push({
-                        file: source,
-                        function: call.function ?? '(file scope)',
-                        line: literal.line,
-                        callee: call.callee,
-                        kind: call.kind,
-                        literal: literal.text,
-                        fragment,
-                    });
-                }
-            }
-        });
-        return { entries, shortFragments };
+        return sources.map((source, index) => ({
+            source,
+            tokens: tokenizePreprocessed(texts[index]),
+        }));
     } finally {
         headers.cleanup();
     }
@@ -374,7 +382,7 @@ function product(lefts, rights) {
     return lefts.flatMap((l) => rights.map((r) => joinRuns(l, r)));
 }
 
-function textAlternatives(node, lookup = () => null, seen = new Set()) {
+export function textAlternatives(node, lookup = () => null, seen = new Set()) {
     if (node.type === 'Literal' && typeof node.value === 'string') return [[node.value]];
     if (node.type === 'TemplateLiteral') {
         let alts = [[node.quasis[0].value.cooked ?? node.quasis[0].value.raw]];
@@ -405,10 +413,10 @@ function textAlternatives(node, lookup = () => null, seen = new Set()) {
     return HOLE;
 }
 
-const STRING_NODES = new Set(['Literal', 'TemplateLiteral', 'BinaryExpression', 'ConditionalExpression']);
-const FUNCTION_NODES = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression']);
+export const STRING_NODES = new Set(['Literal', 'TemplateLiteral', 'BinaryExpression', 'ConditionalExpression']);
+export const FUNCTION_NODES = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression']);
 
-function children(node) {
+export function children(node) {
     const out = [];
     for (const key of Object.keys(node)) {
         const child = node[key];
@@ -421,7 +429,7 @@ function children(node) {
 // For each function (and the module), the names it declares: a const with a
 // string-like initializer maps to that initializer, and any other
 // declaration, parameter, or repeat declaration maps to null.
-function declarationsByFunction(ast) {
+export function declarationsByFunction(ast) {
     const scopes = new Map();
     const declare = (scope, name, init) => {
         const names = scopes.get(scope);

@@ -48,6 +48,9 @@ export function youSee(line, state = game) {
 // position to the monster square, except for the hero monster at (0, 0), then
 // delegates to vpline(). messageAt() carries that location into accessible
 // output while the normal TTY path receives the unchanged formatted line.
+// A port of a C message gives it a location through this function,
+// consume_msg_xy() or messageAt() exactly where C's call records one;
+// scripts/message-location.mjs fails on a message that differs.
 export async function pline_mon(monster, line, state = game, env = {}) {
     const x = monster === state.youmonst ? 0 : monster.mx;
     const y = monster === state.youmonst ? 0 : monster.my;
