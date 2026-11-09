@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 610927,
+      "datetime": "20470503121212",
+      "nethackrc": "OPTIONS=name:Scribe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,msg_window:full,!checkpoint\n",
+      "moves": " \u00163\n\u0010"
+    }
+  ],
+  "comment": "The checkpoint-msghistory-610927 keys with the checkpoint option off: save_currentstate() writes nothing, so the history ring keeps its order and ^P lists the arrival message once, after the older ones."
+}

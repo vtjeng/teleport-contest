@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 610927,
+      "datetime": "20470503121212",
+      "nethackrc": "OPTIONS=name:Scribe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,msg_window:full\n",
+      "moves": " \u00163\n\u0010"
+    }
+  ],
+  "comment": "Wizard-mode Monk with msg_window:full level-teleports to Dlvl 3 and opens ^P. goto_level()'s checkpoint, do.c save_currentstate(), saves the message history: topl.c remember_topl() runs under program_state.in_checkpoint, so it copies the current top line into the ring's oldest slot without advancing the ring or clearing the top line. The full history window therefore starts and ends with \"You materialize on a different level!\"."
+}

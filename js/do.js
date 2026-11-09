@@ -355,7 +355,7 @@ import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
-import { savelev } from './save.js';
+import { save_msghistory, savelev } from './save.js';
 import { costly_spot, fix_shop_damage, sellobj, sellobj_state } from './shk.js';
 import {
     container_impact_dmg, impact_drop, obj_delivery, ship_object,
@@ -3264,16 +3264,29 @@ export async function goto_level(
 
 // C ref: do.c save_currentstate() (INSURANCE). The checkpoint writes the
 // current level and the game state to files so a crashed game can recover.
-// This port has no files, so only the in-memory effects of savelev() in
-// WRITING mode remain: savelev_core() purges dead monsters and marks the
-// level VISITED, and save_engravings() moves each engraving's text pointer
-// back to the start of its buffer. Called from allmain.c newgame() and
-// do.c goto_level() when the `checkpoint` option (flags.ins_chkpt) is set.
+// This port has no files, so only the in-memory effects remain, all of them
+// when the `checkpoint` option (flags.ins_chkpt) is set. savelev() in
+// WRITING mode: savelev_core() purges dead monsters and marks the level
+// VISITED, and save_engravings() moves each engraving's text pointer back to
+// the start of its buffer. save.c savestateinlock() -> savegamestate() ->
+// save_msghistory(): the window port's history snapshot calls topl.c
+// remember_topl(), which under program_state.in_checkpoint copies the
+// current top line into the ring's next slot without advancing the ring or
+// clearing the top line, so ^P can show that message twice. Called from
+// allmain.c newgame() and do.c goto_level().
 export function save_currentstate(state = game) {
     if (!state.flags?.ins_chkpt) return;
-    if (state.iflags?.purge_monsters) dmonsfree(state);
-    level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
-    save_engravings(state);
+    state.program_state ??= {};
+    state.program_state.in_checkpoint
+        = (state.program_state.in_checkpoint ?? 0) + 1;
+    try {
+        if (state.iflags?.purge_monsters) dmonsfree(state);
+        level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
+        save_engravings(state);
+        save_msghistory(state);
+    } finally {
+        state.program_state.in_checkpoint -= 1;
+    }
 }
 
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a
