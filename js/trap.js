@@ -326,7 +326,11 @@ import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import {
-    unblock_point, recalc_block_point, vision_recalc, cansee, couldsee,
+    unblock_point,
+    recalc_block_point,
+    cansee,
+    couldsee,
+    vision_recalc_async,
 } from './vision.js';
 import { welded, uwepgone, uswapwepgone } from './wield.js';
 import { bimanual, mon_adjust_speed } from './worn.js';
@@ -1445,7 +1449,7 @@ export async function drown(state = game) {
             unplacebc(state);
             await placebc(state);
         }
-        vision_recalc(2, { state });
+        await vision_recalc_async(2, { state });
         await set_uinwater(true, state);
         await under_water(1, state);
         state.vision_full_recalc = 1;
@@ -2520,7 +2524,7 @@ async function move_into_trap(ttmp, state = game) {
         await u_on_newpos(x, y, state);
         u.umoved = true;
         newsym(u.ux0, u.uy0);
-        vision_recalc(1, { state });
+        await vision_recalc_async(1, { state });
         // C ref: trap.c move_into_trap():5413, before move_bc() and spoteffects().
         await check_leash(u.ux0, u.uy0, { state });
         if (Punished(state))
@@ -3191,7 +3195,7 @@ export async function openholdingtrap(mon, state = game) {
         state.vision_full_recalc = 1;
         await reset_utrap(true, state);
         if (state.vision_full_recalc)
-            vision_recalc(0, { state });
+            await vision_recalc_async(0, { state });
     } else {
         // Non-hero path.
         if (!t || (t.ttyp !== BEAR_TRAP && t.ttyp !== WEB))

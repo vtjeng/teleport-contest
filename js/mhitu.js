@@ -271,7 +271,12 @@ import {
     erode_armor,
 } from './uhitm.js';
 import { drain_item } from './zap.js';
-import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
+import {
+    cansee,
+    couldsee,
+    m_canseeu,
+    vision_recalc_async,
+} from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole, setworn, which_armor, find_mac } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
@@ -2282,7 +2287,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         // display_nhwindow(WIN_MESSAGE, FALSE) waits for pending --More-- and
         // clears it before vision and the swallow timer are updated.
         await displayPendingTtyMessageWindow(state);
-        vision_recalc(2, { state, redraw });
+        await vision_recalc_async(2, { state, redraw });
         u.uswallow = 1;
 
         if (mattk.adtyp === M.AD_DGST) {

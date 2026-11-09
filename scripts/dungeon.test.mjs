@@ -1362,7 +1362,7 @@ test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_
     const jsOrder = [
         'u_on_newpos(x, y, state',
         'redraw(oldX, oldY);',
-        'vision_recalc(1, { state, redraw });',
+        'await vision_recalc_async(1, { state, redraw });',
         'await flush(1);',
         'await switch_terrain(state,',
         'await check_special_room(false, state,',

@@ -429,7 +429,7 @@ import {
     trapname,
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { cansee, vision_recalc } from './vision.js';
+import { cansee, vision_recalc_async } from './vision.js';
 import { setuwep, doquiver_core, welded, weldmsg } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
@@ -687,7 +687,7 @@ export async function mhurtle_step(arg, x, y) {
             state.u.uy0 = state.u.uy;
             await u_on_newpos(x, y, state);
             redraw(state.u.ux0, state.u.uy0);
-            vision_recalc(0, { state });
+            await vision_recalc_async(0, { state });
         }
         await flush_screen(1);
         await nh_delay_output(state);
@@ -982,7 +982,7 @@ export async function hurtle_step(arg, x, y) {
     // newsym_force() redraw.
     await u_on_newpos(x, y, state);
     redraw(oldX, oldY);
-    vision_recalc(1, { state, redraw });
+    await vision_recalc_async(1, { state, redraw });
     await flush(1);
     if (ltyp !== state.level.at(oldX, oldY).typ)
         await switch_terrain(state, { message });

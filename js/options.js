@@ -210,7 +210,7 @@ import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
 import { STATUS_CONDITIONS, STATUS_FIELDS } from './status_field_data.js';
 import { tty_preference_update } from './wintty.js';
-import { vision_recalc } from './vision.js';
+import { vision_recalc_async } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
 import { allopt, optionParserMetadata } from './optlist_data.js';
 import { configLineStatements } from './config_statement_data.js';
@@ -8145,7 +8145,7 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
          * All corridor squares seen via night vision or candles & lamps
          * change.  Update them by calling newsym() on them.
          */
-        vision_recalc(2, { state }); /* shut down vision */
+        await vision_recalc_async(2, { state }); /* shut down vision */
         state.vision_full_recalc = 1; /* delayed recalc */
         if (state.iflags.wc_color)
             state.go.opt_need_redraw = true; /* darkroom refresh */

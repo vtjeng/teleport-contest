@@ -528,6 +528,7 @@ import {
     couldsee,
     recalc_block_point,
     vision_recalc,
+    vision_recalc_async,
 } from './vision.js';
 import { canspotmon, mon_visible, sensemon } from './display.js';
 import {
@@ -4434,7 +4435,7 @@ async function domove_core(state = game) {
         u.umoved = true;
         newsym(oldx, oldy);
         // vision_recalc() redraws the hero; C has no second arrival newsym().
-        vision_recalc(1, { state });
+        await vision_recalc_async(1, { state });
         await invocation_message(state);
     }
     // C ref: hack.c domove_core():2976-2987. The attached objects return

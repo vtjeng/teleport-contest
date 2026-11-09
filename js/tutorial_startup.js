@@ -10,7 +10,7 @@ import { deferred_goto, schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
-import { vision_recalc } from './vision.js';
+import { vision_recalc_async } from './vision.js';
 
 const REPROMPT = Symbol('tutorial menu needs an explicit choice');
 
@@ -90,7 +90,7 @@ export async function maybe_do_tutorial(state = game) {
         schedule_goto(sp.dlevel, UTOTYPE_NONE, 'Entering the tutorial.',
             null, state);
         await deferred_goto(state);
-        vision_recalc(0, { state });
+        await vision_recalc_async(0, { state });
         await docrt();
         state.iflags.nofollowers = false;
     }

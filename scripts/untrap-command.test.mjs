@@ -97,7 +97,7 @@ test('failed untrap preserves C ball/chain and final-death ordering', () => {
     // The failed movement routes through check_leash before the chain and trap effects.
     assert.match(
         body,
-        /vision_recalc\(1, \{ state \}\);[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?move_bc\(0, bc\.value,[\s\S]*?await spoteffects\(true, state\)/u,
+        /await vision_recalc_async\(1, \{ state \}\);[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?move_bc\(0, bc\.value,[\s\S]*?await spoteffects\(true, state\)/u,
     );
     assert.doesNotMatch(body, /note_unported\('apply\.c check_leash'\)/u);
 });

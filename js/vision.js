@@ -1,4 +1,5 @@
 import { queueVisionMonsterNotices } from './startup_a11y.js';
+import { emitQueuedNotices } from './tty_message.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
@@ -752,7 +753,7 @@ export async function do_clear_area_async(
         return;
     }
 
-    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
+    if (state === game && game.vision_full_recalc) await vision_recalc_async(0, { state });
     // vision.c only bypasses couldsee() for a centered detection callback on
     // the air or water plane. Other async area effects keep normal visibility.
     const overrideVision = Boolean(rawEnv.detecting
@@ -827,6 +828,21 @@ function rogue_vision(next, rmin, rmax, state, redraw) {
             if (in_door && (zx === u.ux || zy === u.uy)) redraw(zx, zy);
         }
     }
+}
+
+// C ref: vision.c vision_recalc(). display.c show_glyph()'s mention_map
+// line and the closing notice_all_mons() print inside C's vision_recalc().
+// This port's vision_recalc() is synchronous, so it queues them
+// (js/startup_a11y.js), and they wait for the next message or window. An
+// async caller recalculates through this function instead, which prints them
+// before the caller goes on, as C has by then: otherwise a status change in
+// between, such as the hero's next turn or a regenerated hit point, would
+// reach the screen with them. scripts/vision-recalc-notices.test.mjs checks
+// that no async function calls vision_recalc() directly.
+export async function vision_recalc_async(control = 0, env = {}) {
+    vision_recalc(control, env);
+    const state = env.state ?? game;
+    if (state === game) await emitQueuedNotices(state);
 }
 
 export function vision_recalc(control = 0, env = {}) {

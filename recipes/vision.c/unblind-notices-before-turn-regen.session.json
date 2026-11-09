@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 287731,
+      "datetime": "20431109120000",
+      "nethackrc": "OPTIONS=name:Sunniva,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,spot_monsters\n",
+      "moves": "\u0017cursed potion of acid\n\u0017ring of regeneration\n\u0017cream pie\n\u0007brown mold\n\u0007brown mold\n\u0007brown mold\nag sssssssssssssssqe \u001bPfrssss  s"
+    }
+  ],
+  "comment": "potion.c toggle_blindness() calls vision_recalc(), whose notice_all_mons() prints \"You see a brown mold.\" for each mold at once. The cream pie's blindness times out in nh_timeout(); regen_hp() then heals the acid damage with the ring of regeneration later in the same turn, so the status line at the notices' --More-- still shows the hit points from before that turn's healing."
+}
