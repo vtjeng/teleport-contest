@@ -6,7 +6,6 @@
 import {
     artifactCount,
     isPermanentlyPoisoned,
-    makeArtifact,
 } from './artifacts.js';
 import { ONAME_LEVEL_DEF } from './const.js';
 import { oname } from './do_name.js';
@@ -33,7 +32,6 @@ export function objectGenerationHooks(overrides = {}) {
         // off a square calls vision.c recalc_block_point() there.
         recalcBlockPoint: (x, y, env) => recalc_block_point(x, y, env.state),
         isPermanentlyPoisoned,
-        makeArtifact,
         monsterObject,
         objectNoLongerHeld: obj_no_longer_held,
         nameObject: (obj, name, env) => oname(obj, name, ONAME_LEVEL_DEF, env),

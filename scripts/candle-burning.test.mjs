@@ -15,7 +15,6 @@ import {
 } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
-    UnsupportedLightOperationError,
     candle_light_range,
     del_light_source,
     light_globals_init,
@@ -371,11 +370,6 @@ test('unsupported burn and light paths fail before claiming ownership', () => {
     );
     assert.equal(state.gt.timer_base, null);
     assert.equal(state.gl.light_base, null);
-
-    assert.throws(
-        () => del_light_source(LS_NONE, {}, state),
-        (error) => error instanceof UnsupportedLightOperationError,
-    );
 });
 
 // With perm_invent set, the carried candle reaches begin_burn()'s

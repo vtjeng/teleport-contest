@@ -211,7 +211,8 @@ import {
 const TEST_SPECIES = PM_FOX;
 const LETTERS_PER_CASE = 26; // a-z or A-Z inventory slots
 const MINIMUM_HERO_ATTRIBUTE = 3; // makes a normal heavy ball exceed MOD_ENCUMBER
-// Construct corpse fixtures without invoking the monster seam before the test.
+// A stored corpse weight that weight() never returns; fixtures that do not
+// reweigh their corpse leave it in place.
 const PLACEHOLDER_CORPSE_WEIGHT = 1;
 const INVENT_C = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
@@ -1231,8 +1232,10 @@ test('merged extracts an absorbed floor object through remove_object', () => {
     assert.equal(target.nobj, null);
 });
 
-test('contained merges preflight the outer container weight chain', () => {
+test('a contained merge reweighs the outer container chain', () => {
     const state = initializedState();
+    // mkobj.c weight() reads the corpse's species from the monster catalog.
+    monst_globals_init(state);
     const sack = instance(SACK, state);
     const corpse = instance(CORPSE, state, {
         corpsenm: TEST_SPECIES,
@@ -1244,25 +1247,13 @@ test('contained merges preflight the outer container weight chain', () => {
     add_to_container(sack, corpse, { state });
     add_to_container(sack, incoming, { state });
 
-    assert.throws(
-        () => merged(target, incoming, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'monster weight lookup',
-    );
-    assert.equal(target.quan, 1);
-    assert.equal(incoming.where, OBJ_CONTAINED);
-
-    const corpseWeight = 100; // enables the sibling corpse weight calculation
-    assert.equal(merged(target, incoming, {
-        state,
-        hooks: { monster: () => ({ cwt: corpseWeight }) },
-    }), true);
+    assert.equal(merged(target, incoming, { state }), true);
     assert.equal(target.quan, 2);
     assert.equal(incoming.where, OBJ_DELETED);
     assert.equal(sack.cobj, corpse);
 });
 
-test('direct contained extraction preflights only post-removal weight', () => {
+test('direct contained extraction reweighs the container after removal', () => {
     const singleState = initializedState();
     const singleSack = instance(SACK, singleState);
     const departingCorpse = instance(CORPSE, singleState, {
@@ -1271,13 +1262,13 @@ test('direct contained extraction preflights only post-removal weight', () => {
     });
     addinv(singleSack, { state: singleState });
     add_to_container(singleSack, departingCorpse, { state: singleState });
-    // The removed corpse's unavailable monster weight is irrelevant once the
-    // sack is empty, so extraction must not require that seam.
     obj_extract_self(departingCorpse, { state: singleState });
     assert.equal(departingCorpse.where, OBJ_FREE);
     assert.equal(singleSack.cobj, null);
 
     const siblingState = initializedState();
+    // mkobj.c weight() reads the sibling corpse's species from the catalog.
+    monst_globals_init(siblingState);
     const siblingSack = instance(SACK, siblingState);
     const siblingCorpse = instance(CORPSE, siblingState, {
         corpsenm: TEST_SPECIES,
@@ -1287,13 +1278,9 @@ test('direct contained extraction preflights only post-removal weight', () => {
     addinv(siblingSack, { state: siblingState });
     add_to_container(siblingSack, siblingCorpse, { state: siblingState });
     add_to_container(siblingSack, departingApple, { state: siblingState });
-    assert.throws(
-        () => obj_extract_self(departingApple, { state: siblingState }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'monster weight lookup',
-    );
-    assert.equal(departingApple.where, OBJ_CONTAINED);
-    assert.equal(siblingSack.cobj, departingApple);
+    obj_extract_self(departingApple, { state: siblingState });
+    assert.equal(departingApple.where, OBJ_FREE);
+    assert.equal(siblingSack.cobj, siblingCorpse);
 });
 
 test('the object location names share the C union backing slot', () => {
@@ -1482,8 +1469,10 @@ test('runtime addinv keeps nonblocking source branches synchronous', async () =>
     assert.equal(explodingState.invent, null);
 });
 
-test('corpse weight dependencies are checked before merge mutation', () => {
+test('merging corpses weighs them by their species', () => {
     const state = initializedState();
+    // mkobj.c weight() reads the corpse's species from the monster catalog.
+    monst_globals_init(state);
     const target = instance(CORPSE, state, {
         corpsenm: TEST_SPECIES,
         owt: PLACEHOLDER_CORPSE_WEIGHT,
@@ -1493,23 +1482,9 @@ test('corpse weight dependencies are checked before merge mutation', () => {
         owt: PLACEHOLDER_CORPSE_WEIGHT,
     });
     addinv(target, { state });
-    assert.throws(
-        () => addinv(incoming, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'monster weight lookup',
-    );
-    assert.equal(target.quan, 1);
-    assert.equal(incoming.where, OBJ_FREE);
-
-    const corpseWeight = 100; // representative nonzero monster corpse weight
-    addinv(incoming, {
-        state,
-        hooks: {
-            monster: () => ({ cwt: corpseWeight }),
-        },
-    });
+    addinv(incoming, { state });
     assert.equal(target.quan, 2);
-    assert.equal(target.owt, 2 * corpseWeight);
+    assert.equal(target.owt, 2 * state.mons[TEST_SPECIES].cwt);
     assert.equal(incoming.where, OBJ_DELETED);
 });
 

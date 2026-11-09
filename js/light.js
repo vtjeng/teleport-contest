@@ -46,14 +46,6 @@ import {
 import { end_burn, obj_is_local } from './timeout.js';
 import { rest_push_each } from './restore.js';
 
-export class UnsupportedLightOperationError extends Error {
-    constructor(operation) {
-        super(`${operation} is not available`);
-        this.name = 'UnsupportedLightOperationError';
-        this.operation = operation;
-    }
-}
-
 // decl.c initializes gl.light_base for each game. Keep the source owner (`gl`)
 // separate from the flattened vision_full_recalc flag used by the current JS
 // vision port.
@@ -122,16 +114,10 @@ function lightGlobals(state) {
     return state.gl;
 }
 
-function requireMobileSource(type) {
-    if (type !== LS_OBJECT && type !== LS_MONSTER)
-        throw new UnsupportedLightOperationError(`light source type ${type}`);
-}
-
 // light.c:new_light_core(). The source prepends every light to gl.light_base
 // and marks vision for a full recalculation.
 export function new_light_source(x, y, range, type, id, state = game) {
     const globals = lightGlobals(state);
-    requireMobileSource(type);
     const radius = Math.trunc(range);
     // light.c:new_light_core() gives only a camera flash permission to use
     // radius zero, and that source has an LS_OBJECT union whose a_obj is null.
@@ -165,7 +151,6 @@ export function new_light_source(x, y, range, type, id, state = game) {
 // owner identity directly; save/restore fixup ids remain outside this subset.
 export function del_light_source(type, id, state = game) {
     const globals = lightGlobals(state);
-    requireMobileSource(type);
     let previous = null;
     let current = globals.light_base;
     while (current && (current.type !== type || current.id !== id)) {

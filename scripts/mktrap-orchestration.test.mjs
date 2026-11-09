@@ -51,7 +51,7 @@ import { init_objects } from '../js/o_init.js';
 import { wizterrainwish } from '../js/objnam_readobjnam.js';
 import { objectGenerationHooks } from '../js/object_generation.js';
 import {
-    curseFreeObject,
+    curse,
     dealloc_obj,
     mksobj,
     obj_no_longer_held,
@@ -439,7 +439,7 @@ test('cursing a generated bag updates its source-defined content weight', () => 
     });
     const neutralWeight = bag.owt;
 
-    curseFreeObject(bag, { state });
+    curse(bag, { state });
 
     assert.equal(bag.cursed, true);
     assert.ok(bag.owt > neutralWeight);

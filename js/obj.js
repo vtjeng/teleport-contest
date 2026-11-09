@@ -1629,32 +1629,6 @@ export function curse(obj, env = {}) {
     return completeCurse();
 }
 
-// C ref: mkobj.c curse() (1783-1820), narrowed to free objects. This covers
-// startup loadstones, objects generated for level features before they acquire
-// an owner, and the object readobjnam() builds for a wish. Carried, worn, lit,
-// or otherwise owned objects still need curse()'s full luck, equipment, timer,
-// light, occupation, and display side effects.
-//
-// Four of curse()'s arms cannot fire on a free object and are omitted rather
-// than guarded: the uwep and uswapwep tests at 1795-1801; confers_luck()'s
-// set_moreluck() at 1803, which carried() gates; attach_fig_transform_timeout()
-// at 1808-1810, which carried() or mcarried() gates; and spell.c:343
-// book_cursed(), which acts only on the book svc.context.spbook.book points at.
-export function curseFreeObject(obj, env = {}) {
-    if (obj.oclass === COIN_CLASS) return obj;
-    if (obj.where !== OBJ_FREE || obj.lamplit) {
-        throw new UnsupportedObjectOperationError(
-            'curse outside free-object generation',
-            obj,
-        );
-    }
-    obj.blessed = false;
-    obj.cursed = true;
-    if (obj.otyp === BAG_OF_HOLDING)
-        obj.owt = weight(obj, env);
-    return obj;
-}
-
 // C ref: mkobj.c uncurse() (1822-1840).
 export async function uncurse(obj, env = {}) {
     const state = env.state ?? game;
@@ -1703,24 +1677,13 @@ export function set_bknown(obj, onoff, env = {}) {
     }
 }
 
-function monsterRecord(obj, env) {
-    const lookup = env.hooks?.monster
-        ?? ((index) => env.state.mons?.[index]);
-    const monster = lookup(obj.corpsenm, env);
-    if (!monster)
-        throw new UnsupportedObjectOperationError('monster weight lookup', obj);
-    return monster;
-}
-
 // C ref: mkobj.c weight() calls eat.c eaten_stat() directly for partly
 // eaten food; a caller's eatenStat hook remains a test seam.
 function eatenStat(env) {
     return env.hooks.eatenStat ?? eaten_stat;
 }
 
-// C ref: mkobj.c weight(). Monster-dependent food/statue calculations use a
-// narrow lookup seam until the monster catalog is ported; ordinary startup
-// objects, coins, and nested containers are complete here.
+// C ref: mkobj.c weight().
 export function weight(obj, env = {}) {
     const normalized = objectEnv(env);
     const { state } = normalized;
@@ -1733,7 +1696,7 @@ export function weight(obj, env = {}) {
 
     if (isContainer(obj) || obj.otyp === STATUE) {
         if (obj.otyp === STATUE && obj.corpsenm !== NON_PM) {
-            const monster = monsterRecord(obj, normalized);
+            const monster = state.mons[obj.corpsenm];
             const size = Math.trunc(monster.msize);
             const minimum = (size + size + 1) * 100;
             wt = Math.trunc(3 * Math.trunc(monster.cwt) / 2);
@@ -1755,7 +1718,7 @@ export function weight(obj, env = {}) {
     }
 
     if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM) {
-        const monster = monsterRecord(obj, normalized);
+        const monster = state.mons[obj.corpsenm];
         wt = Math.min(obj.quan * Math.trunc(monster.cwt), LARGEST_INT);
         if (obj.oeaten) wt = eatenStat(normalized)(wt, obj, normalized);
         return Math.trunc(wt);
@@ -1771,9 +1734,9 @@ export function weight(obj, env = {}) {
     return wt ? wt * Math.trunc(obj.quan) : Math.trunc((obj.quan + 1) / 2);
 }
 
-// Validate integration dependencies which weight() would reach, without
-// applying an eaten-stat calculation. Callers use this before mutations that
-// would be difficult to roll back if a monster or food seam is unavailable.
+// Check the object type and quantity weight() would read, without applying
+// an eaten-stat calculation. Callers use this before mutations that would be
+// difficult to roll back if weight() then threw.
 export function preflightWeight(obj, env = {}) {
     const normalized = objectEnv(env);
     objectType(obj, normalized.state);
@@ -1782,14 +1745,9 @@ export function preflightWeight(obj, env = {}) {
     if (obj.globby) return;
 
     if (isContainer(obj) || obj.otyp === STATUE) {
-        if (obj.otyp === STATUE && obj.corpsenm !== NON_PM)
-            monsterRecord(obj, normalized);
         for (let contents = obj.cobj; contents; contents = contents.nobj)
             preflightWeight(contents, normalized);
-        return;
     }
-    if (obj.otyp === CORPSE && obj.corpsenm !== NON_PM)
-        monsterRecord(obj, normalized);
 }
 
 // C ref: mkobj.c treefruits[] (1978-1980).
@@ -1837,15 +1795,14 @@ function inHell(state) {
 function makeArtifact(obj, env, adjustSpe) {
     // C ref: mkobj.c mksobj_init() calls artifact.c mk_artifact() directly;
     // a caller's makeArtifact hook remains a test seam.
-    const result = (env.hooks.makeArtifact ?? mkArtifactAdapter)(obj, {
+    // mkobj.c:890, :1099: "mk_artifact() with otmp and A_NONE will never
+    // return NULL".
+    return (env.hooks.makeArtifact ?? mkArtifactAdapter)(obj, {
         adjustSpe,
         alignment: A_NONE,
         maxGiftValue: 99,
         env,
     });
-    if (!result)
-        throw new UnsupportedObjectOperationError('makeArtifact returned no object', obj);
-    return result;
 }
 
 function maybeGenerateArtifact(obj, artif, divisorBase, env) {
@@ -2051,8 +2008,6 @@ function initializeMonsterFood(obj, env) {
     case TIN:
         initializeTin(obj, env);
         break;
-    default:
-        throw new RangeError(`unsupported monster food ${obj.otyp}`);
     }
 }
 
@@ -2387,13 +2342,6 @@ export async function maybe_adjust_light(obj, old_range, env = {}) {
     }
 }
 
-function currentFruit(state, obj) {
-    const fruit = state.context?.current_fruit;
-    if (!Number.isInteger(fruit))
-        throw new UnsupportedObjectOperationError('current fruit initialization', obj);
-    return fruit;
-}
-
 // C ref: mkobj.c mksobj_init(). Implemented branches stay local; artifacts,
 // nonempty containers, statues, and figurines enter explicit subsystem seams
 // rather than consuming guessed RNG.
@@ -2428,7 +2376,7 @@ function mksobj_init(obj, artif = false, env = {}) {
             initializeMonsterFood(obj, normalized);
             break;
         case SLIME_MOLD:
-            obj.spe = currentFruit(state, obj);
+            obj.spe = state.context.current_fruit;
             state.flags ??= {};
             state.flags.made_fruit = true;
             break;
