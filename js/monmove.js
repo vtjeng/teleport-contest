@@ -2005,17 +2005,15 @@ export async function monfleeMessage(monster, detail, env = {}) {
         break;
     }
     case 'bright-light':
+        // C's verbalize(), which records no location.
         if (!state.flags.acoustics) return;
-        text = '"Bright light!"';
-        break;
+        return message('"Bright light!"', state, env);
     default:
         text = `${Monnam(monster, state)} turns to flee.`;
         break;
     }
-    // This arm is C's verbalize(), which has no monster-location argument.
-    // The others are pline_mon() messages and retain accessibility location.
-    return message(detail.kind === 'bright-light'
-        ? text : messageAt(text, monster.mx, monster.my, state), state, env);
+    // C's pline_mon().
+    return message(messageAt(text, monster.mx, monster.my, state), state, env);
 }
 
 export async function monflee(

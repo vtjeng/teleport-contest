@@ -293,10 +293,9 @@ import {
     temple_occupied,
 } from './priest.js';
 import { cansee, couldsee, does_block, unblock_point } from './vision.js';
-import { messageAt } from './startup_a11y.js';
 import { Monnam, a_monnam, mon_nam, oname } from './do_name.js';
 import { killed, mon_offmap, wake_nearby, xkilled } from './mon.js';
-import { monflee } from './monmove.js';
+import { monflee, monfleeMessage } from './monmove.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { dlord, summon_minion } from './minion.js';
@@ -1953,34 +1952,6 @@ function turnDefaultMessage(text, state) {
     return ttyPline(text, state);
 }
 
-// C ref: mon.c pline_mon() as reached by monmove.c monflee(). The detail kinds
-// are the ones monflee() selects after its source visibility and light tests.
-async function turnFleeMessage(monster, detail, env = {}) {
-    const state = env.state ?? game;
-    const name = Monnam(monster, state);
-    let text;
-    switch (detail.kind) {
-    case 'immobile-flinch':
-        text = `${name} seems to flinch.`;
-        break;
-    case 'frightened':
-        text = `${name} is frightened.`;
-        break;
-    case 'painful-light':
-        text = `${name} flees from the painful light of `
-            + '[its imagination?].';
-        break;
-    case 'bright-light':
-        text = '"Bright light!"';
-        break;
-    default:
-        text = `${name} turns to flee.`;
-        break;
-    }
-    const message = env.message ?? turnDefaultMessage;
-    return message(messageAt(text, monster.mx, monster.my, state), state, env);
-}
-
 // C ref: pray.c maybe_turn_mon_iter() (2347-2405). The two file-static C
 // values are state fields so a helper call observes the same values doturn()
 // installed. `killed()` and `monflee()` discard their C return values; a
@@ -2062,7 +2033,7 @@ export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
                 couldSee,
                 canSeeMonster: env.canSeeMonster
                     ?? ((monster) => canseemon(monster, state)),
-                fleeMessage: env.fleeMessage ?? turnFleeMessage,
+                fleeMessage: env.fleeMessage ?? monfleeMessage,
                 message: env.message ?? turnDefaultMessage,
             });
             break;

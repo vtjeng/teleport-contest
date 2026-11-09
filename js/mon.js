@@ -572,6 +572,7 @@ import {
     can_hide_under_obj,
     monnear,
     monflee,
+    monfleeMessage,
     monhaskey,
     onscary,
     youHear,
@@ -3116,7 +3117,7 @@ function* apply_newcham_steps(
                 state,
                 random,
                 canSeeMonster: normalized.canSeeMonster,
-                fleeMessage: normalized.fleeMessage ?? responseFleeMessage,
+                fleeMessage: normalized.fleeMessage ?? monfleeMessage,
             });
         }
     }
@@ -3662,7 +3663,7 @@ export async function new_were(monster, rawEnv = {}) {
             {
                 ...normalized,
                 canSeeMonster: normalized.canSeeMonster,
-                fleeMessage: normalized.fleeMessage ?? responseFleeMessage,
+                fleeMessage: normalized.fleeMessage ?? monfleeMessage,
             },
         );
     }
@@ -3771,31 +3772,6 @@ function responseMessage(text, monster, state, rawEnv) {
     return message(messageAt(text, monster.mx, monster.my, state), state, rawEnv);
 }
 
-function responseFleeMessage(monster, detail, rawEnv) {
-    const state = rawEnv.state ?? game;
-    const name = Monnam(monster, state);
-    let text;
-    switch (detail.kind) {
-    case 'immobile-flinch':
-        text = `${name} seems to flinch.`;
-        break;
-    case 'frightened':
-        text = `${name} is frightened.`;
-        break;
-    case 'painful-light':
-        text = `${name} flees from the painful light of `
-            + '[its imagination?].';
-        break;
-    case 'bright-light':
-        text = '"Bright light!"';
-        break;
-    default:
-        text = `${name} turns to flee.`;
-        break;
-    }
-    return responseMessage(text, monster, state, rawEnv);
-}
-
 // C ref: mon.c peacefuls_respond(). This is asynchronous because the port's
 // message and monster-noise owners are asynchronous; all source predicates,
 // draws, and state writes remain in C order.
@@ -3857,7 +3833,7 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
                             canSeeMonster: rawEnv.canSeeMonster
                                 ?? ((subject) => canseemon(subject, state)),
                             fleeMessage: rawEnv.fleeMessage
-                                ?? responseFleeMessage,
+                                ?? monfleeMessage,
                         });
                     if (exclaimed) {
                         if (state.flags?.verbose && !alreadyFleeing) {
@@ -3897,7 +3873,7 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
                         canSeeMonster: rawEnv.canSeeMonster
                             ?? ((subject) => canseemon(subject, state)),
                         fleeMessage: rawEnv.fleeMessage
-                            ?? responseFleeMessage,
+                            ?? monfleeMessage,
                     });
                 if (exclaimed && !alreadyFleeing)
                     await message('And then starts to flee.', state, rawEnv);
