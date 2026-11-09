@@ -5,7 +5,6 @@ import { game } from './gstate.js';
 import { isTerminated, neverSettles, recordTerminationViolation } from './rng.js';
 import { TOPLINE_NEED_MORE, TOPLINE_NON_EMPTY } from './tty_message.js';
 import { KEY_BINDINGS } from './terminal.js';
-import { resize_tty } from './wintty.js';
 
 // C ref: tty_nhgetch — read one key.
 // In replay mode, reads from the input queue.
@@ -32,10 +31,9 @@ export async function nhgetch(state = game) {
     // the next recorded input boundary.
     state._ttyMessageStopped = false;
 
-    // C ref: wintty.c tty_nhgetch() services a pending SIGWINCH before it
-    // increments getting_char and waits for the next byte.
-    if (state.program_state?.resize_pending)
-        resize_tty(state);
+    // C's tty_nhgetch() services a pending SIGWINCH here. Neither the
+    // recorder's fixed pty nor the 80x24 browser terminal is ever resized,
+    // so the port has no resize_tty().
 
     // Replay and browser input share the display-owned queue.
     const display = state?.nhDisplay;

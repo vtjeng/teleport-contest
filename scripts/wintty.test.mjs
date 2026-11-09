@@ -23,14 +23,12 @@ import {
     newclipping,
     print_vt_code,
     print_vt_soundcode_idx,
-    resize_tty,
     tty_create_nhwindow,
     tty_curs,
     tty_askname,
     tty_cliparound,
     tty_init_nhwindows,
     tty_preference_update,
-    winch_handler,
 } from '../js/wintty.js';
 import { initUnported } from '../js/unported.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
@@ -312,41 +310,22 @@ test('bail records unavailable cleanup and ends in nh_terminate', async () => {
     assert.equal(state.iflags.window_inited, false);
 });
 
-test('winch_handler increments pending work and services a waiting resize', () => {
-    const state = resetGame();
-    state.program_state = { getting_char: 0, resize_pending: 0 };
-    winch_handler(0, state);
-    assert.equal(state.program_state.resize_pending, 1);
-
-    state.wintty = {
-        LI: 24,
-        CO: 80,
-        ttyDisplay: { rows: 24, cols: 80 },
-        getwindowsz() {
-            this.LI = 22;
-            this.CO = 70;
-        },
-    };
-    state.iflags = { window_inited: false };
-    state.program_state.getting_char = 1;
-    winch_handler(0, state);
-    assert.equal(state.program_state.resize_pending, 0);
-    assert.equal(state.wintty.ttyDisplay.rows, 22);
-    assert.equal(state.wintty.ttyDisplay.cols, 70);
-});
-
-test('resize_tty preserves its early reset and records a missing ioctl query', () => {
-    // No browser API supplies C's ioctl(TIOCGWINSZ), so the resize request is
-    // consumed while the platform boundary remains visible in game.unported.
-    const state = resetGame();
-    initUnported();
-    state.wintty = { LI: 24, CO: 80, resize_mesg: 3 };
-    state.program_state = { resize_pending: 7 };
-    resize_tty(state);
-
-    assert.equal(state.program_state.resize_pending, 0);
-    assert.equal(state.wintty.resize_mesg, 0);
-    assert.deepEqual([...state.unported], ['ioctl.c getwindowsz']);
+// SIGWINCH never reaches the recorder's fixed pty or the 80x24 browser
+// terminal, so the port has no winch_handler() or resize_tty(), and it never
+// gives WIN_STATUS a window id, so new_status_window() has no arm for an
+// existing status window. The tty window port also takes no injected
+// operations: each C call it makes is either ported or noted.
+test('the tty window port has no resize path or injected operations', () => {
+    const strip = (source) => source
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/(^|[^:'"`\\])\/\/[^\n]*/gu, '$1');
+    const wintty = strip(readFileSync('js/wintty.js', 'utf8'));
+    const input = strip(readFileSync('js/input.js', 'utf8'));
+    for (const source of [wintty, input]) {
+        assert.doesNotMatch(source,
+            /winch_handler|resize_tty|resize_pending|getwindowsz|WIN_STATUS/u);
+    }
+    assert.doesNotMatch(wintty, /callTerminalOperation|\benv\.\w/u);
 });
 
 test('newclipping and tty_cliparound follow wintty.c clipping arithmetic', () => {
@@ -398,11 +377,8 @@ test('newclipping and tty_cliparound follow wintty.c clipping arithmetic', () =>
 });
 
 test('new_status_window clears the JavaScript status rows', () => {
-    // WIN_STATUS=4 represents an existing C window descriptor; the concrete
-    // value only exercises the destroy-before-recreate branch.
     const state = resetGame();
     initUnported();
-    state.wintty = { WIN_STATUS: 4 };
     state.disp = { botlx: false };
     // A cached two-row layout and style, as bot() leaves them; the window
     // clear must replace both.
@@ -413,7 +389,6 @@ test('new_status_window clears the JavaScript status rows', () => {
     state._renderedStatusStyles = [[], []];
     new_status_window(state);
 
-    assert.equal(state.wintty.WIN_STATUS, WIN_ERR);
     // wintty.c tty_clear_nhwindow() NHW_STATUS sets disp.botlx.
     assert.equal(state.disp.botlx, true);
     // Two blank rows: wc2_statuslines is unset, which StatusRows() reads as 2.
@@ -425,7 +400,6 @@ test('new_status_window clears the JavaScript status rows', () => {
     ]);
     assert.equal(state._renderedStatusStyles, null);
     assert.deepEqual([...state.unported], [
-        'wintty.c tty_destroy_nhwindow',
         'windows.c genl_status_finish',
         'wintty.c tty_status_init',
     ]);
