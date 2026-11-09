@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c run_timers() witness for a buried glob holding two timers. A levitating Valkyrie drops a wished glob into a wished pool, then fills the pool with a wished boulder; do.c boulder_hits_pool() calls bury_objs(), and dig.c bury_an_obj() gives the glob a ROT_ORGANIC timer beside its SHRINK_GLOB. Searching lets mkobj.c shrink_glob() fire on the buried glob. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 9183305,
+      "datetime": "20570302140000",
+      "nethackrc": "OPTIONS=name:Goop,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017uncursed ring of levitation\nPer \u0017pool\n\u0017glob of gray ooze\ndf\u0017boulder\n 40s30s"
+    }
+  ]
+}

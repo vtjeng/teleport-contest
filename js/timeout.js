@@ -82,6 +82,7 @@ import {
     REVIVE_MON,
     ROT_AGE,
     ROT_CORPSE,
+    ROT_ORGANIC,
     SHRINK_GLOB,
     SLIMED,
     SICK,
@@ -675,8 +676,13 @@ function unportedDueTimerReason(state, env) {
         // C rereads timer_base after every callback. Corpse deletion stops
         // residual object timers through obfree -> obj_stop_timers; conversion
         // cancels them through set_corpsenm. Both may change the queue head.
+        // A buried glob holds dig.c bury_an_obj()'s ROT_ORGANIC beside its
+        // SHRINK_GLOB. rot_organic() frees its object, and shrink_glob()
+        // either frees the glob or restarts its own timer a turn or more
+        // ahead, so neither touches another object's timer.
         if (timer.kind === TIMER_OBJECT
             && timer.func_index !== ZOMBIFY_MON && timer.func_index !== ROT_CORPSE
+            && timer.func_index !== ROT_ORGANIC && timer.func_index !== SHRINK_GLOB
             && Math.trunc(timer.arg?.timed ?? 0) !== 1)
             return 'the due object to hold only its own timer';
         const reason = entry.unported(timer.arg, env);
