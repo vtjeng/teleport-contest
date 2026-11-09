@@ -4380,31 +4380,16 @@ export function directionname(dir) {
         'south', 'southwest', 'down', 'up'][dir] ?? 'invalid';
 }
 
-function commandMenuResult(state, name, ...args) {
-    const callback = state[name];
-    if (typeof callback === 'function') return callback(...args);
-    if (!state?.u) {
-        throw new UnsupportedHeroCommandBoundaryError(`cmd.c ${name}()`);
-    }
-    if (name === 'hereCmdMenu') return here_cmd_menu(state);
-    if (name === 'thereCmdMenu') return there_cmd_menu(...args, state);
-    throw new UnsupportedHeroCommandBoundaryError(`cmd.c ${name}()`);
-}
-
-// C ref: cmd.c doherecmdmenu()/dotherecmdmenu() (4332-4374).  The menu
-// helpers model C's char result as either a JavaScript character string or a
-// numeric byte when a test/platform callback supplies the C-shaped value.
-// NUL means the menu was cancelled without spending a turn; ESC has the same
-// result, while every other nonzero byte is an action that takes time.
+// C ref: cmd.c doherecmdmenu()/dotherecmdmenu() (4332-4374), which take
+// time unless the menu's char result is NUL or ESC. there_cmd_menu() returns
+// '\0' or the ESC key code, and here_cmd_menu() always '\0', as in C.
 function commandMenuTakesTime(ch) {
-    if (!ch || ch === 0 || ch === '\0' || ch === ESC
-        || ch === String.fromCharCode(ESC)) return false;
-    return true;
+    return ch !== '\0' && ch !== ESC;
 }
 
 // C ref: cmd.c doherecmdmenu() (4328-4340).
 export async function doherecmdmenu(state = game) {
-    const ch = await commandMenuResult(state, 'hereCmdMenu');
+    const ch = await here_cmd_menu(state);
     return commandMenuTakesTime(ch) ? ECMD_TIME : ECMD_OK;
 }
 
@@ -4419,8 +4404,8 @@ export async function dotherecmdmenu(state = game) {
     const uy = state.u?.uy ?? 0;
     if (isok(x, y)) {
         const ch = x === ux && y === uy
-            ? await commandMenuResult(state, 'hereCmdMenu')
-            : await commandMenuResult(state, 'thereCmdMenu', x, y, state.iflags.getdir_click);
+            ? await here_cmd_menu(state)
+            : await there_cmd_menu(x, y, state.iflags.getdir_click, state);
         state.clicklook_cc.x = -1;
         state.clicklook_cc.y = -1;
         state.iflags.getdir_click = 0;
@@ -4431,10 +4416,8 @@ export async function dotherecmdmenu(state = game) {
     state.iflags.getdir_click = 0;
     if (!dir || !isok(ux + state.u.dx, uy + state.u.dy)) return ECMD_CANCEL;
     const ch = state.u.dx || state.u.dy
-        ? await commandMenuResult(
-            state, 'thereCmdMenu', ux + state.u.dx, uy + state.u.dy, click,
-        )
-        : await commandMenuResult(state, 'hereCmdMenu');
+        ? await there_cmd_menu(ux + state.u.dx, uy + state.u.dy, click, state)
+        : await here_cmd_menu(state);
     return commandMenuTakesTime(ch) ? ECMD_TIME : ECMD_OK;
 }
 
@@ -4514,19 +4497,17 @@ function next2u(x, y, state) {
         && dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }
 
-function commandEntryForHandler(handler) {
+// C queues a command function pointer; the port queues its extcmdlist row.
+// Every handler name queueHandler() is given names a row:
+// scripts/command-queue-handlers.test.mjs checks each literal and
+// MOVE_FUNCS name.
+export function commandEntryForHandler(handler) {
     if (handler === 'dotravel_target') return EXTCMD_BY_NAME.get('retravel');
-    return extcmdlist.find((entry) => entry.ef_funct === handler) ?? null;
+    return extcmdlist.find((entry) => entry.ef_funct === handler);
 }
 
 function queueHandler(handler, state) {
-    const entry = commandEntryForHandler(handler);
-    if (!entry) {
-        note_unported(`cmd.c command queue handler ${handler}`);
-        return false;
-    }
-    cmdq_add_ec(CQ_CANNED, entry, state);
-    return true;
+    cmdq_add_ec(CQ_CANNED, commandEntryForHandler(handler), state);
 }
 
 // C ref: cmd.c there_cmd_menu_self() (4435-4521).
@@ -4701,7 +4682,7 @@ export function act_on_act(act, dx, dy, state = game) {
         dy = sgn(dy);
     }
     const dir = xytodir(dx, dy);
-    const queueMove = () => queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+    const queueMove = () => queueHandler(MOVE_FUNCS[dir][MV_WALK], state);
     switch (action) {
     case MCMD.TRAVEL:
         state.iflags ??= {};
@@ -4803,7 +4784,7 @@ export async function there_cmd_menu(x, y, mod, state = game) {
     if (!K) {
         if (next2u(x, y, state)
             && await test_move(state.u.ux, state.u.uy, dx, dy, 1, state)) {
-            queueHandler(MOVE_FUNCS[xytodir(dx, dy)]?.[MV_WALK], state);
+            queueHandler(MOVE_FUNCS[xytodir(dx, dy)][MV_WALK], state);
         } else if (state.flags?.travelcmd) {
             state.iflags ??= {};
             state.iflags.travelcc = { x, y };
@@ -4889,9 +4870,9 @@ export async function domouseaction(state = game) {
                 if (dm & D_LOCKED) queueHandler('dokick', state);
                 else if (dm & D_CLOSED) queueHandler('doopen', state);
                 else if (typ <= SCORR) queueHandler('dosearch', state);
-                else queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+                else queueHandler(MOVE_FUNCS[dir][MV_WALK], state);
             } else if (typ <= SCORR) queueHandler('dosearch', state);
-            else queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+            else queueHandler(MOVE_FUNCS[dir][MV_WALK], state);
             return ECMD_OK;
         }
     } else {
@@ -4905,7 +4886,7 @@ export async function domouseaction(state = game) {
             return ECMD_OK;
         }
     }
-    queueHandler(MOVE_FUNCS[xytodir(x, y)]?.[MV_WALK], state);
+    queueHandler(MOVE_FUNCS[xytodir(x, y)][MV_WALK], state);
     return ECMD_OK;
 }
 
@@ -5390,22 +5371,9 @@ async function doextcmd(key, state, onSelectedEntry = null) {
 //
 // Only a row carrying occupation text arrives here, and extcmdlist[] gives
 // exactly two rows one: 's'/dosearch at cmd.c:1846-1847 and '.'/donull at
-// :1930-1931. Both handlers are ported, so the refusal below is unreachable
-// until upstream adds a third row and scripts/generate-extcmds.mjs copies it in.
-function timedOccupationFunction(row, key, state) {
-    switch (row.ef_funct) {
-    case 'dosearch':
-        return dosearch;
-    case 'donull':
-        return donull;
-    default:
-        resetCommandVars(state);
-        throw new UnsupportedHeroCommandBoundaryError(
-            `the counted command '${row.ef_txt}' has no ported occupation`,
-            key,
-        );
-    }
-}
+// :1930-1931. scripts/command-dispatch-tables.test.mjs fails if a third
+// appears.
+const TIMED_OCCUPATION_FUNCTIONS = Object.freeze({ dosearch, donull });
 
 // C ref: cmd.c rhack(). Every bound row is dispatched here, through the arm
 // that names it or through EXTCMD_FUNCTIONS; a row whose function the port
@@ -5606,7 +5574,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         const row = command !== null ? EXTCMD_BY_NAME.get(command) : null;
         if (row?.f_text && !state.go?.occupation && state.multi) {
             set_occupation(
-                timedOccupationFunction(row, key, state),
+                TIMED_OCCUPATION_FUNCTIONS[row.ef_funct],
                 row.f_text,
                 state.multi,
                 state,
@@ -6640,18 +6608,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             }
             return;
         }
-        if (command !== null) {
-            // A key an OPTIONS `bind` tied to a name extcmdlist[] lacks. C's
-            // bind_key() rejects that line and the key keeps its earlier
-            // binding; this port stores the name and cannot recover what C
-            // kept, so the byte is refused rather than guessed at.
-            resetCommandVars(state);
-            throw new UnsupportedHeroCommandBoundaryError(
-                `'${command}' names no extcmdlist[] row`,
-                key,
-            );
-        }
-
         // C ref: cmd.c rhack()'s bad-command path. SUPPRESS_HISTORY keeps
         // this feedback visible without adding it to Ctrl-P message history.
         cmdq_clear(CQ_CANNED, state);

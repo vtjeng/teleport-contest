@@ -85,12 +85,12 @@ import {
     cmd_dirchars,
     cmd_alphadirchars,
     spkey_name,
-    UnsupportedHeroCommandBoundaryError,
     dolookaround_floodfill_findroom,
     levltyp_to_name,
     u_have_seen_whole_selection,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
+import { runSegmentStrict } from '../js/jsmain.js';
 import { initialExtcmdFlags } from '../js/cmd_autocomplete.js';
 import { remove_achievement } from '../js/insight.js';
 import { toggle_bool_option } from '../js/options.js';
@@ -339,34 +339,35 @@ test('direction names, menu selectors, and command-menu result mapping follow C'
     });
     assert.deepEqual(menu, [{ value: 37, label: 'Look here' }]);
 
-    const here = {
-        iflags: {},
-        clicklook_cc: { x: 3, y: 4 },
-        u: { ux: 3, uy: 4 },
-        hereCmdMenu: () => 'x'.charCodeAt(0),
-    };
-    assert.equal(await doherecmdmenu(here), ECMD_TIME);
-    assert.equal(await dotherecmdmenu(here), ECMD_TIME);
-    assert.deepEqual(here.clicklook_cc, { x: -1, y: -1 });
+});
 
-    // cmd.c:4338-4339 and :4359/:4374 test the C char value.  The JS menu
-    // returns a one-character string, so cancellation must recognize both
-    // representations of NUL and ESC without spending a turn.
-    for (const cancelled of ['\0', 0, '\x1b', 0x1B]) {
-        const state = {
-            iflags: {},
-            clicklook_cc: { x: 3, y: 4 },
-            u: { ux: 3, uy: 4, dx: 0, dy: 0 },
-            hereCmdMenu: () => cancelled,
-        };
-        assert.equal(await doherecmdmenu(state), ECMD_OK);
-        assert.equal(await dotherecmdmenu(state), ECMD_OK);
-        assert.deepEqual(state.clicklook_cc, { x: -1, y: -1 });
-    }
-    await assert.rejects(
-        doherecmdmenu({}),
-        UnsupportedHeroCommandBoundaryError,
-    );
+test('a cancelled here or there command menu takes no time', async () => {
+    // A debug-free Healer start; the seed and date only need a playable
+    // level 1, whose stairs, inventory and spells give the here-menu rows.
+    await runSegmentStrict({
+        seed: 4242,
+        datetime: '20260101120000',
+        nethackrc: 'OPTIONS=name:Lysa,role:Healer,race:human,gender:female,'
+            + 'align:neutral,!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const escape = () => game.nhDisplay.pushKey(0x1B);
+    // cmd.c doherecmdmenu() (4334-4339): here_cmd_menu() returns '\0', so
+    // the command takes no time. The first ESC dismisses the welcome
+    // message's --More--, the second cancels the menu.
+    escape();
+    escape();
+    assert.equal(await doherecmdmenu(game), ECMD_OK);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+
+    // cmd.c dotherecmdmenu() (4352-4361): a stored click on the hero's own
+    // square opens the here menu and then clears the click.
+    game.clicklook_cc = { x: game.u.ux, y: game.u.uy };
+    escape();
+    assert.equal(await dotherecmdmenu(game), ECMD_OK);
+    assert.deepEqual(game.clicklook_cc, { x: -1, y: -1 });
+    assert.equal(game.iflags.getdir_click, 0);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
 test('levltyp_to_name follows the complete MAX_TYPE table', () => {
