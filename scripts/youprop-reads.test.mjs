@@ -10,9 +10,11 @@ import {
     ROUTED_PROPERTIES,
     findings,
     routedNames,
+    scanFiles,
     staleEntries,
     unlistedFindings,
 } from './youprop-reads.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
 
 const NAMES = routedNames();
 const lines = (source, routed = ROUTED_PROPERTIES) => findings(source, 'js/x.js', NAMES, routed)
@@ -27,6 +29,20 @@ test('js/ reads routed hero properties only through youprop.js', () => {
 
 test('every allow-list entry still matches a finding', () => {
     assert.deepEqual(staleEntries(), []);
+});
+
+test('the allow-list holds the pinned number of entries and reads', () => {
+    // 2 entries covering 5 reads on 9f7e42e6 (8 November 2026): do_wear.js's
+    // DISPLACED blocked read and mondata.js's four Resists_Elem() calls.
+    const PINS = { entries: 2, reads: 5 };
+    assertExceptionCount(ALLOWED_READS.length, PINS.entries, {
+        what: 'ALLOWED_READS entries',
+        pin: 'PINS.entries in scripts/youprop-reads.test.mjs',
+    });
+    assertExceptionCount(scanFiles().filter((finding) => finding.allowed).length, PINS.reads, {
+        what: 'allowed hero property reads',
+        pin: 'PINS.reads in scripts/youprop-reads.test.mjs',
+    });
 });
 
 test('every allow-list entry names the C code it mirrors', () => {
