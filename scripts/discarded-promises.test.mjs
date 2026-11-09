@@ -7,9 +7,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { readJsSources, scanDiscardedPromises } from './discarded-promises.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
 
 const ALLOWLIST = JSON.parse(readFileSync(
     new URL('./discarded-promise-allowlist.json', import.meta.url), 'utf8'));
+
+// The allowlist's size, pinned both ways so that neither a new entry nor a
+// raised count gets in unnoticed, and a removal lowers the pin. 289 entries
+// holding 372 discarded calls on 9f7e42e6 (8 November 2026).
+const ALLOWLIST_PINS = { entries: 289, calls: 372 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());
@@ -26,6 +32,18 @@ test('every discarded promise in js/ is on the allowlist with a reason', () => {
         if (typeof entry.reason !== 'string' || !entry.reason.trim())
             problems.push(`no reason: ${key}`);
     assert.deepEqual(problems, []);
+});
+
+test('the allowlist holds the pinned number of entries and calls', () => {
+    const entries = Object.values(ALLOWLIST.entries);
+    assertExceptionCount(entries.length, ALLOWLIST_PINS.entries, {
+        what: 'allowlist entries',
+        pin: 'ALLOWLIST_PINS.entries in scripts/discarded-promises.test.mjs',
+    });
+    assertExceptionCount(entries.reduce((n, entry) => n + entry.count, 0), ALLOWLIST_PINS.calls, {
+        what: 'allowed discarded calls',
+        pin: 'ALLOWLIST_PINS.calls in scripts/discarded-promises.test.mjs',
+    });
 });
 
 test('the scan finds discarded calls to async and promise-returning functions only', () => {
