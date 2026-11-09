@@ -176,7 +176,7 @@ test('POSIX ERE compile failures report libc-compatible diagnostics', () => {
 });
 
 // Each diagnostic below comes from a direct regcomp(REG_EXTENDED | REG_NOSUB)
-// probe against the same libc and C.UTF-8 environment the recorder inherits.
+// probe against the same libc, in the C locale the recorder runs in.
 test('the POSIX validator covers each libc diagnostic category it emits', () => {
     const failures = [
         ['[', 'Invalid regular expression'],
