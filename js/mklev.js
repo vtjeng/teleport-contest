@@ -7362,14 +7362,11 @@ export function create_door(dd, broom, random = rn2) {
 // C ref: sp_lev.c lspo_door(), restricted to its room-wall form. Lua's
 // random state resolution consumes and discards rnddoor() before create_door()
 // rolls the actual state; rnddoor() never yields the parser-only secret state.
+// Every caller passes a state and wall that the two tables name, as
+// themerms.lua's literals do.
 export function create_room_door(spec, broom, random = rn2) {
     const stateName = spec.state ?? 'random';
     const wallName = spec.wall ?? 'all';
-    if (!Object.hasOwn(ROOM_DOOR_STATE_MASKS, stateName))
-        throw new RangeError(`unsupported room door state ${JSON.stringify(stateName)}`);
-    if (!Object.hasOwn(ROOM_DOOR_WALL_MASKS, wallName))
-        throw new RangeError(`unsupported room door wall ${JSON.stringify(wallName)}`);
-
     const mask = ROOM_DOOR_STATE_MASKS[stateName];
     if (mask === -1) rnddoor(random);
     return create_door({

@@ -42,6 +42,14 @@ export const RULES = [
         files: ['mklev.js'],
         pattern: /themeroom_random_facade|THEMEROOM_RANDOM_METHODS|(?:raw)?[eE]nv\.randomFacade/gu,
     },
+    {
+        // sp_lev.c lspo_door() maps the state and wall names through
+        // get_table_option(); every create_room_door() caller passes a
+        // themerms.lua literal or shop wall that the tables hold.
+        name: 'room-door name refusal',
+        files: ['mklev.js'],
+        pattern: /unsupported room door/gu,
+    },
 ];
 
 function stripComments(source) {
