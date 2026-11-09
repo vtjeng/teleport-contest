@@ -1473,6 +1473,13 @@ async function mon_break_armor_effects(monster, polyspot, env, pronoun, possessi
             `You can no longer ride ${mon_nam(monster, state)}.`, state, env,
         );
         const steed = state.u.usteed;
+        // worn.c:1322-1331. Only cockatrices and chickatrices petrify by
+        // touch, and neither can be saddled, so the saddle block above has
+        // already called m_lose_armor(), whose update_mon_extrinsics()
+        // dismounted the hero (worn.c:706-707) before `noride` is tested.
+        // C never reaches this call; recordings/worn.c/
+        // steed-polymorphed-cockatrice-saddle-dismounts shows the path it
+        // takes instead.
         if (touch_petrifies(steed.data) && !Stone_resistance(state.u)
             && random.rnl(3)) {
             await message(`You touch ${mon_nam(steed, state)}.`, state, env);

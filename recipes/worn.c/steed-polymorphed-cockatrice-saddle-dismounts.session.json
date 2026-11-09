@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6120934,
+      "datetime": "20370721150300",
+      "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,monpolycontrol\n",
+      "moves": "\u0007tame saddled horse\n#ride\nyy\u0017wand of polymorph\nzi>cockatrice\n  n      ",
+      "comment": "A Knight rides a tame horse (wizard-mode forced mount) and zaps a wand of polymorph down at it, choosing a cockatrice under monpolycontrol. worn.c mon_break_armor() finds that a cockatrice cannot be saddled and removes the saddle; m_lose_armor() -> update_mon_extrinsics() dismounts the hero at once (worn.c:706-707), so the fall kills the hero, debug mode declines the death, and \"The cockatrice's saddle falls off.\" follows. By then u.usteed is null, so mon_break_armor()'s \"You can no longer ride\" arm and its instapetrify() call (worn.c:1322-1332) never run; this recording is the evidence. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}
