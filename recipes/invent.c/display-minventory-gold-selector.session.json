@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 552917,
+      "datetime": "20291103154500",
+      "nethackrc": "OPTIONS=name:Prober,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " \u0007sleeping leprechaun\n\u0017wand of probing\nzen  ",
+      "comment": "A wand of probing zapped at a sleeping leprechaun reaches invent.c display_minventory(); its query_objlist() rows give the leading gold stack the '$' selector and leave the scroll to the tty menu's own 'a'."
+    }
+  ]
+}

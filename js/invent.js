@@ -247,7 +247,7 @@ import { surface } from './dungeon.js';
 import { ice_descr, self_lookat } from './pager.js';
 import { digests } from './dothrow.js';
 import { can_reach_floor } from './engrave.js';
-import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
+import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, query_objlist_selector, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -5777,16 +5777,16 @@ export async function display_minventory(
         const allow = doAll ? () => true : worn_wield_only;
         // invent.c:5367-5370 passes INVORDER_SORT (and INCLUDE_HERO) as
         // query_objlist()'s qflags, which turns them into a sortloot() mode.
+        const qflags = INVORDER_SORT | (includeHero ? INCLUDE_HERO : 0);
         const sorted = sortloot(
             mon.minvent,
-            query_objlist_sortflags(
-                INVORDER_SORT | (includeHero ? INCLUDE_HERO : 0), state,
-            ),
+            query_objlist_sortflags(qflags, state),
             false,
             (obj) => allow(obj),
             state,
         );
         const items = [];
+        let first = true;
         const packOrder = [...(state.flags?.inv_order ?? [])];
         for (const packClass of packOrder) {
             let printedHeading = false;
@@ -5810,14 +5810,12 @@ export async function display_minventory(
                 const glyphInfo = obj_to_glyph(obj, state);
                 const label = doname_with_price(obj, state);
                 items.push({
-                    // query_objlist() passes zero here; the TTY menu assigns
-                    // selectors for PICK_ONE/PICK_ANY and ignores them for
-                    // PICK_NONE/MINV_NOLET.
-                    selector: undefined,
+                    selector: query_objlist_selector(obj, qflags, first),
                     label,
                     value: obj,
                     glyphInfo,
                 });
+                first = false;
             }
         }
         // Objects whose class is absent from inv_order remain reachable in C's
@@ -5828,11 +5826,12 @@ export async function display_minventory(
             const glyphInfo = obj_to_glyph(obj, state);
             const label = doname_with_price(obj, state);
             items.push({
-                selector: undefined,
+                selector: query_objlist_selector(obj, qflags, first),
                 label,
                 value: obj,
                 glyphInfo,
             });
+            first = false;
         }
         if (includeHero) {
             // pickup.c query_objlist():1151-1171 adds this after every monster

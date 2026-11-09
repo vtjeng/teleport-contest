@@ -622,6 +622,16 @@ export function query_objlist_sortflags(qflags, state = game) {
         | ((qflags & FEEL_COCKATRICE) ? SORTLOOT_PETRIFY : 0);
 }
 
+// C ref: pickup.c query_objlist() (1133-1135), the selector each object row
+// passes to add_menu(): its inventory letter under USE_INVLET, otherwise '$'
+// for gold when it is the first row listed, and otherwise none, so the tty
+// menu assigns a, b, c... itself. invent.c display_minventory(), which
+// js/invent.js lays out itself, uses it too.
+export function query_objlist_selector(obj, qflags, first) {
+    if (qflags & USE_INVLET) return obj.invlet;
+    return first && obj.oclass === COIN_CLASS ? '$' : undefined;
+}
+
 // C ref: pickup.c query_objlist() (1025-1215). The counting loop and both of
 // its early returns are followed by the bounded full-menu branch: sort the
 // floor pile, group rows by inventory order, and return whole-stack choices
@@ -747,9 +757,7 @@ export async function query_objlist(
                 // C passes a zero selector for ordinary rows, allowing the
                 // TTY menu to assign a,b,c... after headings; gold is the
                 // one non-inventory-letter row with its explicit '$'.
-                selector: (qflags & USE_INVLET)
-                    ? curr.invlet
-                    : (first && curr.oclass === COIN_CLASS ? '$' : undefined),
+                selector: query_objlist_selector(curr, qflags, first),
                 groupSelector,
                 // C always uses this naming mode, even without a shop quote.
                 // It also controls joining wizard weight into parentheses.
