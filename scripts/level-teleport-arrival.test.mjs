@@ -552,7 +552,7 @@ test('random arrival deferral suppresses switch_terrain after placement', async 
     assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
 });
 
-test('live placement preflights before changing any position owner', () => {
+test('live placement preflights before changing any position owner', async () => {
     const state = placementState();
     state.u.uundetected = true;
     state.u.usteed = { mx: 1, my: 1 };
@@ -563,8 +563,8 @@ test('live placement preflights before changing any position owner', () => {
     });
     const refusal = new Error('position refused');
 
-    assert.throws(
-        () => u_on_newpos(10, 8, state, {
+    await assert.rejects(
+        u_on_newpos(10, 8, state, {
             preflightPosition(x, y, callbackState) {
                 assert.deepEqual([x, y], [10, 8]);
                 assert.equal(callbackState, state);

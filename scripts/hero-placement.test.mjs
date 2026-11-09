@@ -185,10 +185,10 @@ test('u_on_newpos observes nothing when the hero changes level', () => {
     assert.equal(rock.dknown, false);
 });
 
-test('u_on_newpos rejects coordinates outside the playable map', () => {
+test('u_on_newpos rejects coordinates outside the playable map', async () => {
     const state = initializedState();
-    assert.throws(
-        () => u_on_newpos(0, 8, state),
+    await assert.rejects(
+        u_on_newpos(0, 8, state),
         /hero location is off map/,
     );
 });
