@@ -1517,8 +1517,6 @@ export function clear_bypasses(rawEnv = {}) {
     clearMonsterObjectLists(state.gm?.mydogs, state, false);
     if (state.uball) state.uball.bypass = false;
     if (state.uchain) state.uchain.bypass = false;
-    if (state.u?.uball) state.u.uball.bypass = false;
-    if (state.u?.uchain) state.u.uchain.bypass = false;
     state.context ??= {};
     state.context.bypasses = false;
 }

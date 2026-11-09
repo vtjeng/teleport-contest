@@ -578,11 +578,8 @@ export function self_lookat(state = game) {
             forceRegion: true,
         });
     }
-    const ball = state.uball || u.uball;
-    if (ball)
-        description += ', chained to ' + ansimpleoname(ball, state);
-    else if (state.uball || u.uball)
-        description += ', chained to nothing?';
+    if (state.uball)
+        description += ', chained to ' + ansimpleoname(state.uball, state);
     if (u.utrap)
         description += ', ' + trap_predicament(state, false, false);
     return description;

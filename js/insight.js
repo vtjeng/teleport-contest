@@ -1279,7 +1279,7 @@ function status_enlightenment(mode, final, state, lines) {
     }
     if (deaf) you_are(lines, final, 'deaf', from_what(DEAF, state));
 
-    const uball = state.uball ?? u.uball;
+    const uball = state.uball;
     if (uball)
         you_are(lines, final, 'chained to ' + ansimpleoname(uball, state), '');
     if (u.utrap) {
