@@ -550,6 +550,9 @@ function glyphNumberKind(glyph) {
     return null;
 }
 
+// display.c nul_gbuf's glyph, which cls() and level changes leave in gbuf.
+const NUL_GBUF_GLYPH = Object.freeze({ glyph: GLYPH_UNEXPLORED_OFF });
+
 // C ref: display.c show_glyph(). The caller invokes this after installing the
 // presentation, matching show_glyph()'s gbuf update before
 // do_screen_description() and pline_xy(). The first notice saves one complete
@@ -570,7 +573,11 @@ export function queueGlyphUpdateNotice(
         || program.gameover
         || program.in_getlev
         || program.stopprint
-        || (sameGlyphIdentity(previous, current) && !previousGnew)) {
+        // A cell with no presentation since cls() holds C's nul_gbuf: the
+        // unexplored glyph with gnew clear, so redrawing it unexplored (as
+        // under_water()'s limited update does) is no change.
+        || (sameGlyphIdentity(previous ?? NUL_GBUF_GLYPH, current)
+            && !previousGnew)) {
         return false;
     }
 

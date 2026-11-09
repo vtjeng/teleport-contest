@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50917,
+      "datetime": "20020611083000",
+      "nethackrc": "OPTIONS=name:Diver,role:Samurai,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,mention_map\n",
+      "moves": " \u001b\u0017amulet of magical breathing\nPf\u0017pool\nlmh   ss"
+    }
+  ],
+  "comment": "display.c show_glyph() with mention_map: under_water(1)'s cls() leaves nul_gbuf (unexplored, gnew clear), so the next turn's under_water(0) redraw of the old neighbourhood as unexplored is no glyph change and prints no notice."
+}
