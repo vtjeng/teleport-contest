@@ -2413,7 +2413,7 @@ test('gamelog_add and livelog_printf retain C event fields', () => {
     ]);
 });
 
-test('livelog_add honors sys.c LL_NONE while preserving the chronicle', () => {
+test('livelog_printf keeps the chronicle without a live-log sink', () => {
     const previous = {
         sysopt: game.sysopt,
         gamelog: game.gamelog,
@@ -2432,16 +2432,6 @@ test('livelog_add honors sys.c LL_NONE while preserving the chronicle', () => {
             text: 'tab\tvalue',
         }]);
         assert.equal(game.unported.has('files.c livelog_add'), false);
-
-        game.sysopt = { livelog: LL_ACHIEVE };
-        game.gamelog = [];
-        livelog_printf(LL_ACHIEVE, 'enabled\tvalue', game);
-        assert.deepEqual(game.gamelog, [{
-            turn: 31,
-            flags: LL_ACHIEVE,
-            text: 'enabled\tvalue',
-        }]);
-        assert.equal(game.unported.has('files.c livelog_add'), true);
     } finally {
         game.sysopt = previous.sysopt;
         game.gamelog = previous.gamelog;

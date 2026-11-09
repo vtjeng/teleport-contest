@@ -3,11 +3,10 @@
 
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
-import { LFILE_EXISTS, LL_NONE } from './const.js';
+import { LFILE_EXISTS } from './const.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
-import { note_unported } from './unported.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
 // at 207-210 is compiled only for WIN32 and MSDOS, so a UNIX build keeps a
@@ -59,16 +58,12 @@ export function delete_levelfile(ledger, state = game) {
     }
 }
 
-// C ref: files.c livelog_add() (3667-3719).  sys.c sys_early_init()
-// initializes sysopt.livelog to LL_NONE, and the recorder's sysconf leaves
-// the LIVELOG setting disabled.  The browser has no external sink, so an
-// enabled sink remains an explicit discarded-call gap while the default
-// configuration returns before attempting it.
-export function livelog_add(llType, _text, state = game) {
-    const liveLogMask = state.sysopt?.livelog ?? LL_NONE;
-    if (!(llType & liveLogMask)) return;
-    if (state === game) note_unported('files.c livelog_add');
-}
+// C ref: files.c livelog_add() (3667-3719).  C writes the LIVELOG file only
+// when sysopt.livelog selects the event type.  sys.c sys_early_init() sets
+// LL_NONE and the recorder's sysconf leaves LIVELOG disabled; sysconf is not
+// a session input, and jsmain.js set_playmode() is the only writer of
+// sysopt.livelog, so C always returns at that first test.
+export function livelog_add(_llType, _text, _state = game) {}
 
 const MAXPASSAGES = 30; // SIZE(svc.context.novel.pasg) in context.h.
 const SECTION = 1;

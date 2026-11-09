@@ -90,6 +90,13 @@ export const RULES = [
         name: 'Lua core call stand-in',
         pattern: /l_nhcore_call|l_nhcore_done|\.luacore\b/gu,
     },
+    {
+        // sysconf is not a session input: sysopt.livelog stays LL_NONE and
+        // sysopt.shellers unset, so files.c livelog_add() writes nothing and
+        // unixunix.c dosh() always reports the command unavailable.
+        name: 'sysconf-only branch',
+        pattern: /files\.c livelog_add|unixunix\.c child|sysopt\??\.shellers/gu,
+    },
 ];
 
 function stripComments(source) {

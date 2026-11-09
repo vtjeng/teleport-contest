@@ -23,8 +23,8 @@ test('check_user_string matches whole account names in a sysconf list', () => {
     // :714: the loop stops once fewer than pwlen characters remain, so a list
     // shorter than the name cannot match.
     assert.equal(check_user_string('ro', asRoot), false);
-    // The recorder's sysconf comments SHELLERS out; dosh() tests the empty
-    // string before calling here, but an empty list rejects on its own too.
+    // The recorder's sysconf comments SHELLERS out, so C's dosh() rejects
+    // before calling here; an empty list rejects on its own too.
     assert.equal(check_user_string('', asRoot), false);
     // :717-719: leading and interior whitespace is skipped, not matched.
     assert.equal(check_user_string('  games\troot ', asRoot), true);
