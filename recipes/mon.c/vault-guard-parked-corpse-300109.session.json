@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 300109,
+      "datetime": "20470716102030",
+      "nethackrc": "OPTIONS=name:Vaulter,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0014  hhkkkkkkkk.\u001bsae  l\u001bl\u001bael\u001bl\u001bael\u001bhh\u001bssssssssssssssssssssssssssss Indy\nss#wizkill\nll.   \u001b"
+    }
+  ],
+  "comment": "Wizard-mode Archeologist teleports into a closed vault, digs through its east wall and two squares of rock with the pick-axe, and waits inside. The guard's goal is the second dug square, so its fake corridor starts at the breach and then takes over the first dug square, recording that square's original terrain as CORR. #wizkill slays the guard there: vault.c grddead() cannot clear the corridor while the guard stands on it, parks the guard at <0,0> and then clears it, so mon.c make_corpse() runs at <0,0>. mkcorpstat() places the corpse with rloco(), and make_corpse()'s newsym(0, 0) reports the off-map square through impossible()."
+}

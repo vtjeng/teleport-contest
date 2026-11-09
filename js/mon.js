@@ -184,6 +184,8 @@ import {
     glyph_is_invisible,
     mon_to_glyph,
     newsym,
+    newsymOffMapImpossible,
+    newsymReportsOffMap,
     see_monsters,
     shieldeff,
     swallowed,
@@ -4374,6 +4376,18 @@ function killRedraw(x, y, env) {
     else if ((env.state ?? game) === game) newsym(x, y);
 }
 
+// make_corpse()'s newsym(x, y) calls. A dead vault guard that vault.c
+// parkguard() moved to <0,0> leaves x and y at 0, and display.c newsym()
+// reports column 0 through impossible() instead of drawing.
+async function corpseRedraw(x, y, env) {
+    if (typeof env.hooks?.newsym !== 'function'
+        && (env.state ?? game) === game && newsymReportsOffMap(x, y)) {
+        await newsymOffMapImpossible(x, y, env.state ?? game, env);
+        return;
+    }
+    killRedraw(x, y, env);
+}
+
 // C ref: mon.c zombie_maker() (362-380). "return True if mon is capable of
 // converting other monsters into zombies". mon.c:3620 passes &gy.youmonst, so
 // this answers for the hero as well as for a monster.
@@ -5592,7 +5606,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     case PM_VAMPIRE_LEADER:
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
-        obj = mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
+        obj = await mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
                          corpstatflags, objectEnv);
         obj.age -= (TAINT_AGE + 1);
         defaultOne = false;
@@ -5615,7 +5629,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     case PM_ETTIN_ZOMBIE:
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
-        obj = mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
+        obj = await mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
                          corpstatflags, objectEnv);
         obj.age -= (TAINT_AGE + 1);
         defaultOne = false;
@@ -5645,7 +5659,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         break;
     case PM_STONE_GOLEM:
         corpstatflags &= ~CORPSTAT_INIT;
-        obj = mkcorpstat(STATUE, null, mdat, x, y,
+        obj = await mkcorpstat(STATUE, null, mdat, x, y,
                          corpstatflags, objectEnv);
         defaultOne = false;
         break;
@@ -5715,7 +5729,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
             });
         }
         free_mgivenname(mtmp);
-        killRedraw(x, y, { ...env, state });
+        await corpseRedraw(x, y, { ...env, state });
         return obj;
     case NON_PM:
     case LEAVESTATUE:
@@ -5731,7 +5745,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     if (defaultOne) {
         if (state.svm.mvitals[mndx].mvflags & G_NOCORPSE) return null;
         corpstatflags |= CORPSTAT_INIT;
-        obj = mkcorpstat(
+        obj = await mkcorpstat(
             CORPSE,
             KEEPTRAITS(mtmp, state) ? mtmp : null,
             mdat,
@@ -5742,7 +5756,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         );
         if (burythem) {
             const { deallocated } = await bury_an_obj(obj, objectEnv);
-            killRedraw(x, y, { ...env, state });
+            await corpseRedraw(x, y, { ...env, state });
             return deallocated ? null : obj;
         }
     }
@@ -5756,9 +5770,9 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     if (Blind(state.u) && !sensemon(mtmp, state)) clear_dknown(obj, state);
 
     stackobj(obj, objectGenerationEnv(objectEnv));
-    killRedraw(x, y, { ...env, state });
+    await corpseRedraw(x, y, { ...env, state });
     if (obj.ox !== x || obj.oy !== y)
-        killRedraw(obj.ox, obj.oy, { ...env, state });
+        await corpseRedraw(obj.ox, obj.oy, { ...env, state });
     return obj;
 }
 

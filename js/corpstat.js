@@ -131,6 +131,12 @@ export function get_mtraits(obj, copyof, state = game) {
     return result;
 }
 
+// C ref: mkobj.c mkcorpstat() (2067-2124). Coordinates <0,0> ask for random
+// placement: C makes the object with mksobj() and calls teleport.c rloco()
+// before the rest of the function runs. rloco() is asynchronous here, so that
+// call shape returns a promise of the object; every other shape returns the
+// object itself. Only mon.c make_corpse() passes <0,0> (a dead vault guard
+// parked there by vault.c parkguard()), and it awaits the result.
 export function mkcorpstat(
     objtype,
     monster,
@@ -145,55 +151,54 @@ export function mkcorpstat(
     const env = corpstatEnv(rawEnv);
     const { state } = env;
     const init = Boolean(corpstatflags & CORPSTAT_INIT);
-    const relocate = x === 0 && y === 0
-        ? env.hooks.relocateObject : null;
-    if (x === 0 && y === 0 && typeof relocate !== 'function')
-        throw new Error('mkcorpstat requires random object relocation');
-    // The C helpers are always present.  Validate their JS equivalents and
-    // source arguments before mksobj() can consume RNG, allocate an id, arm a
-    // timer, or link the new object into a floor chain.
+    // Validate the species argument before mksobj() can consume RNG,
+    // allocate an id, arm a timer, or link the new object into a floor chain.
     let resolvedSpecies = species;
     if (monster && resolvedSpecies == null)
         resolvedSpecies = monsterSpecies(monster, state);
     if (resolvedSpecies != null)
         resolvedSpecies = speciesIndex(resolvedSpecies, state);
 
-    let obj;
-    if (x === 0 && y === 0) {
-        obj = mksobj(objtype, init, false, env);
-        relocate(obj, env);
-    } else {
-        obj = mksobj_at(objtype, x, y, init, false, env);
-    }
+    const finish = (obj) => {
+        obj.spe = corpstatflags & CORPSTAT_SPE_VAL;
+        /* decl.h:625 gm.mkcorpstat_norevive. js/uhitm.js hmon_hitmon()'s
+           Trollsbane arm is its only writer, and state.gm is its one home.
+           norevive shares oeroded2's 2-bit field, so store 0 or 1: mergable()
+           compares oeroded2 by value, and a boolean here would keep a statue
+           broken into rocks from stacking with other rocks. */
+        obj.norevive = state.gm?.mkcorpstat_norevive ? 1 : 0;
 
-    obj.spe = corpstatflags & CORPSTAT_SPE_VAL;
-    /* decl.h:625 gm.mkcorpstat_norevive. js/uhitm.js hmon_hitmon()'s
-       Trollsbane arm is its only writer, and state.gm is its one home.
-       norevive shares oeroded2's 2-bit field, so store 0 or 1: mergable()
-       compares oeroded2 by value, and a boolean here would keep a statue
-       broken into rocks from stacking with other rocks. */
-    obj.norevive = state.gm?.mkcorpstat_norevive ? 1 : 0;
-
-    if (monster) {
-        save_mtraits(obj, monster);
-        const record = state.mons[resolvedSpecies];
-        if (monster.mcan && !is_rider(record)) obj.norevive = 1;
-    }
-
-    if (resolvedSpecies != null) {
-        const oldSpecies = obj.corpsenm;
-        const newSpecies = resolvedSpecies;
-        obj.corpsenm = newSpecies;
-        obj.owt = weight(obj, env);
-        if (obj.otyp === CORPSE
-            && (state.gz?.zombify
-                || specialCorpse(oldSpecies, state)
-                || specialCorpse(newSpecies, state))) {
-            obj_stop_timers(obj, state, env);
-            start_corpse_timeout(obj, env);
+        if (monster) {
+            save_mtraits(obj, monster);
+            const record = state.mons[resolvedSpecies];
+            if (monster.mcan && !is_rider(record)) obj.norevive = 1;
         }
+
+        if (resolvedSpecies != null) {
+            const oldSpecies = obj.corpsenm;
+            const newSpecies = resolvedSpecies;
+            obj.corpsenm = newSpecies;
+            obj.owt = weight(obj, env);
+            if (obj.otyp === CORPSE
+                && (state.gz?.zombify
+                    || specialCorpse(oldSpecies, state)
+                    || specialCorpse(newSpecies, state))) {
+                obj_stop_timers(obj, state, env);
+                start_corpse_timeout(obj, env);
+            }
+        }
+        return obj;
+    };
+
+    if (x === 0 && y === 0) {
+        const obj = mksobj(objtype, init, false, env);
+        return (async () => {
+            const { rloco } = await import('./teleport.js');
+            await rloco(obj, env);
+            return finish(obj);
+        })();
     }
-    return obj;
+    return finish(mksobj_at(objtype, x, y, init, false, env));
 }
 
 // C ref: mkobj.c mk_named_object() (2253-2267).  Creates a new corpse or
