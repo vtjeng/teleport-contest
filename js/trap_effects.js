@@ -3514,13 +3514,9 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         break;
     }
     default: {
+        // C prints this arm with plain pline(), not pline_mon().
         if (inSight)
-            await message(messageAt(
-                `A gush of water hits ${mon_nam(mtmp, state)}!`,
-                mtmp.mx,
-                mtmp.my,
-                state,
-            ), state, env);
+            await message(`A gush of water hits ${mon_nam(mtmp, state)}!`, state, env);
         for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
             if (obj.lamplit
                 && (obj.owornmask & (W_WEP | W_SWAPWEP)) === 0) {
