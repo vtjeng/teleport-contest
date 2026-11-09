@@ -1,17 +1,15 @@
 // Source-pinned tests for cfgfiles.c's configuration-path helpers.
 
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     DEFAULT_CONFIGFILE,
     do_write_config_file,
-    fopen_config_file,
     get_configfile,
     get_default_configfile,
-    RECORDER_CONFIGFILE,
-    SET_IN_SYSCONF,
-    set_configfile_name,
+        set_configfile_name,
 } from '../js/cfgfiles.js';
 import { ECMD_OK } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
@@ -38,27 +36,6 @@ test('set_configfile_name stores a BUFSZ-1-byte path', () => {
     set_configfile_name(utf8Name, state);
     assert.equal(encodeUtf8ByteString(state.configfile).length, 255);
 });
-
-test('fopen_config_file preserves source path state and records skipped I/O',
-    () => {
-        const state = resetGame();
-
-        // cfgfiles.c returns before fopen() when a sysconf filename is empty.
-        state.configfile = '/previous/config';
-        assert.equal(fopen_config_file('', SET_IN_SYSCONF, state), null);
-        assert.equal(state.configfile, '/previous/config');
-        assert.deepEqual([...state.unported ?? []], []);
-
-        // The JavaScript segment already carries configuration text, so the
-        // requested path is observed for the failed attempt and the UNIX
-        // HOME/.nethackrc fallback is selected for the recorder environment.
-        assert.equal(
-            fopen_config_file('/home/player/custom.nethackrc', 1, state),
-            null,
-        );
-        assert.equal(state.configfile, RECORDER_CONFIGFILE);
-        assert.deepEqual([...state.unported], ['cfgfiles.c fopen']);
-    });
 
 test('do_write_config_file reports a missing configuration name', async () => {
     const state = { configfile: '' };
@@ -119,4 +96,25 @@ test('do_write_config_file records unavailable write after confirmation', async 
 
     assert.equal(result, ECMD_OK);
     assert.deepEqual([...state.unported], ['cfgfiles.c fopen']);
+});
+
+// cfgfiles.c do_write_config_file() calls pline(), wait_synch() and cmd.c
+// paranoid_query() itself, so js/cfgfiles.js makes them its defaults. Game code
+// must not refuse without the query or hand the function its own copies.
+test('do_write_config_file runs C\'s callees without injected copies', () => {
+    const jsDir = new URL('../js/', import.meta.url);
+    const read = (file) => readFileSync(new URL(file, jsDir), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/(^|[^:'"`\\])\/\/[^\n]*/gu, '$1');
+    const cfgfiles = read('cfgfiles.js');
+    assert.doesNotMatch(cfgfiles, /paranoid_query'\)|typeof query/u);
+    assert.match(cfgfiles,
+        /env\.query \?\? \(await import\('\.\/cmd\.js'\)\)\.paranoid_query/u);
+    const calls = [];
+    for (const file of readdirSync(jsDir).filter((f) => f.endsWith('.js'))) {
+        if (file === 'cfgfiles.js') continue;
+        for (const match of read(file).matchAll(/do_write_config_file\(([^)]*)\)/gu))
+            calls.push(`${file}: ${match[1]}`);
+    }
+    assert.deepEqual(calls, ['cmd.js: state']);
 });

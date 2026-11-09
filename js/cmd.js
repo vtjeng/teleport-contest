@@ -376,7 +376,6 @@ import {
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { tty_wait_synch } from './tty_rawprint.js';
 import { do_write_config_file } from './cfgfiles.js';
 import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
@@ -5301,11 +5300,7 @@ const EXTCMD_FUNCTIONS = new Map(Object.entries({
     dosave: (key, state) => dosave(state),
     // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
     // after the overwrite query and its file-write attempt.
-    do_write_config_file: (key, state) => do_write_config_file(state, {
-        message: ttyPline,
-        wait: tty_wait_synch,
-        query: paranoid_query,
-    }),
+    do_write_config_file: (key, state) => do_write_config_file(state),
     // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
     doforce: (key, state) => doforce(state),
     // C ref: wield.c doswapweapon(), the #swap command.

@@ -32,11 +32,6 @@ export const RECORDER_HOME =
     '/Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/results';
 export const RECORDER_CONFIGFILE = `${RECORDER_HOME}/${DEFAULT_CONFIGFILE}`;
 
-// C ref: global.h set_in_sysconf (581).  The JavaScript parser receives the
-// configuration text directly, so this value is used only when a source-shaped
-// fopen_config_file() caller identifies the system configuration path.
-export const SET_IN_SYSCONF = 0;
-
 const FEATURE_NOTICE_3_7_0 = Number(get_feature_notice_ver('3.7.0'));
 const OVERWRITE_PROMPT_FORMAT = 'Overwrite config file %.*s?';
 // C's sizeof overwrite_prompt includes its terminating NUL, and the extra two
@@ -63,10 +58,15 @@ export function get_configfile(state = game) {
 // scorer provide configuration as segment text, not as a host pathname.  This
 // function preserves the messages, waits, overwrite decision, and return code;
 // after the decision, the unavailable fopen()/fwrite() side is an explicit gap.
+// C calls pline(), wait_synch() and cmd.c paranoid_query() directly; `env`
+// overrides them only in tests.  They are imported at call time because
+// tty_message.js and cmd.js import options.js, which imports this module.
 export async function do_write_config_file(state = game, env = {}) {
-    const message = env.message ?? (async () => {});
-    const wait = env.wait ?? (async () => {});
-    const query = env.query ?? env.paranoidQuery;
+    const message = env.message
+        ?? (await import('./tty_message.js')).ttyPline;
+    const wait = env.wait
+        ?? (await import('./tty_rawprint.js')).tty_wait_synch;
+    const query = env.query ?? (await import('./cmd.js')).paranoid_query;
     const configfile = state?.configfile ?? '';
 
     if (!configfile) {
@@ -91,13 +91,6 @@ export async function do_write_config_file(state = game, env = {}) {
         configfile, OVERWRITE_FILENAME_LIMIT,
     );
     const prompt = `Overwrite config file ${filename}?`;
-    // cmd.c paranoid_query(TRUE, ...) is the source's input operation.  Keep
-    // it injectable so tests can exercise both answers without making this
-    // leaf import cmd.js (which would close options.js's import cycle).
-    if (typeof query !== 'function') {
-        note_unported('cmd.c paranoid_query');
-        return ECMD_OK;
-    }
     if (!await query(true, prompt, state)) return ECMD_OK;
 
     // C now opens configfile for writing and serializes all_options_strbuf().
@@ -111,38 +104,6 @@ export async function do_write_config_file(state = game, env = {}) {
 // BUFSZ-byte C buffer; truncate by UTF-8 bytes and leave one byte for NUL.
 export function set_configfile_name(fname, state = game) {
     state.configfile = truncateByteString(String(fname ?? ''), BUFSZ - 1);
-}
-
-// C ref: cfgfiles.c fopen_config_file() (223-370).  parseNethackrc() already
-// has the configuration text, so this source-shaped helper never reads a host
-// file.  It still follows the UNIX name-selection order and leaves the selected
-// name in state.configfile for diagnostics and option messages.
-export function fopen_config_file(filename, src, state = game) {
-    const supplied = filename != null && String(filename).length > 0;
-    if (src === SET_IN_SYSCONF) {
-        if (supplied) {
-            // fqname() would add the compiled system prefix. That prefix is
-            // not part of the text-backed segment input, so retain the name
-            // the caller supplied while recording the skipped open.
-            set_configfile_name(filename, state);
-            note_unported('cfgfiles.c fopen');
-        }
-        return null;
-    }
-
-    if (supplied) {
-        // The UNIX ~/ expansion depends on HOME, which the browser contract
-        // does not expose. Keep the source spelling in the diagnostic state.
-        set_configfile_name(filename, state);
-        note_unported('cfgfiles.c fopen');
-    }
-
-    // UNIX falls through to $HOME/.nethackrc. The segment supplies the
-    // configuration text independently, so there is no FILE* to return, but
-    // preserve the recorder's documented environment path for diagnostics.
-    set_configfile_name(RECORDER_CONFIGFILE, state);
-    note_unported('cfgfiles.c fopen');
-    return null;
 }
 
 // C ref: cfgfiles.c adjust_prefix() (441-459), compiled under
