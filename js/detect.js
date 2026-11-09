@@ -991,7 +991,7 @@ export async function object_detect(detector = null, objectClass = 0,
         `You detect the ${count ? 'presence' : 'absence'} of ${description}.`,
         state,
     );
-    if (!count) note_unported('detect.c display_nhwindow');
+    if (!count) await tty_display_nhwindow_map_blocking(state);
     else await browse_map(terrainType, 'object', state);
     await map_redisplay(state);
     return 0;

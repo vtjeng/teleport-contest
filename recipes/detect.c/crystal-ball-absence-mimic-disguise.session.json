@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4407718,
+      "datetime": "20290603100500",
+      "nethackrc": "OPTIONS=name:Oracle,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed crystal ball\n\u0007small mimic\nao \"  ",
+      "comment": "A Wizard wishes for a blessed crystal ball and creates a small mimic with wizard-mode ^G; on this seed set_mimic_sym() disguises it as an amulet beside the hero. Looking into the ball for '\"' finds no amulet: detect.c clear_stale_map() unmaps the remembered amulet glyph, so object_detect() prints \"You detect the absence of amulets.\" and calls display_nhwindow(WIN_MAP, TRUE) (detect.c:785-786). The seed was picked from eight consecutive seeds for an amulet disguise; the clock, character and keys were chosen for this path."
+    }
+  ]
+}

@@ -51,8 +51,10 @@ test('mcastu.js reads no impossible hook', () => {
     assert.deepEqual(findings(/\.impossible\b/gu, ['mcastu.js']), []);
 });
 
-test('no game code notes the message window display as unported', () => {
-    // windows.c display_nhwindow(WIN_MESSAGE) is ported as
-    // tty_message.js displayPendingTtyMessageWindow().
-    assert.deepEqual(findings(/note_unported\(\s*'windows\.c display_nhwindow'/gu), []);
+test('no game code notes a window display as unported', () => {
+    // display_nhwindow(WIN_MESSAGE, ...) is ported as tty_message.js
+    // displayPendingTtyMessageWindow(), and display_nhwindow(WIN_MAP, TRUE)
+    // as wintty.js tty_display_nhwindow_map_blocking(). Gap names have
+    // spelled the C file several ways, so match any.
+    assert.deepEqual(findings(/note_unported\(\s*'[^']*display_nhwindow/gu), []);
 });
