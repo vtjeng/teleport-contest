@@ -40,13 +40,10 @@ test('swallowed corpse digestion keeps C deletion timer ownership', () => {
     assert.match(cDigest, /minstapetrify\(u\.ustuck, TRUE\)/u);
     assert.match(cDigest, /delobj\(obj\)/u);
 
+    // delobj() -> dealloc_obj() stops the corpse's timers itself.
     assert.match(
         DO_JS,
-        /engulfer_digests_food\(obj, state, digestionEnv\)/u,
-    );
-    assert.match(
-        DO_JS,
-        /stopObjectTimers: normalized\.hooks\.stopObjectTimers\s*\?\?\s*\(\(item, hookEnv\) => obj_stop_timers\(/u,
+        /engulfer_digests_food\(obj, state, normalized\)/u,
     );
     assert.match(DO_JS, /await minstapetrify\(swallower, true, state, env\)/u);
     assert.match(

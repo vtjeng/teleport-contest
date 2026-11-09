@@ -371,7 +371,7 @@ import {
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, rloc, safe_teleds } from './teleport.js';
-import { burn_away_slime, obj_has_timer, obj_stop_timers, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
+import { burn_away_slime, obj_has_timer, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
     climb_pit,
     deltrap,
@@ -2216,19 +2216,8 @@ export async function dropz(obj, with_impact, env = {}) {
                 );
             }
             // C do.c:dropz() reaches invent.c:delobj() after a swallower
-            // digests a corpse. Keep the timer owner with that call so timed
-            // corpses release their ROT/REVIVE/SHRINK timers before freeing.
-            const digestionEnv = {
-                ...normalized,
-                hooks: {
-                    ...normalized.hooks,
-                    stopObjectTimers: normalized.hooks.stopObjectTimers
-                        ?? ((item, hookEnv) => obj_stop_timers(
-                            item, hookEnv.state ?? state, hookEnv,
-                        )),
-                },
-            };
-            if (!await engulfer_digests_food(obj, state, digestionEnv)) {
+            // digests a corpse.
+            if (!await engulfer_digests_food(obj, state, normalized)) {
                 const { mpickobjRuntime } = await import('./steal.js');
                 await mpickobjRuntime(state.u.ustuck, obj, { state });
             }

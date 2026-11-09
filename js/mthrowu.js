@@ -232,7 +232,6 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { coreRandom } from './rng.js';
-import { obj_stop_timers } from './timeout.js';
 import { note_unported } from './unported.js';
 import { cansee, clear_path, couldsee } from './vision.js';
 import {
@@ -538,17 +537,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
         || Boolean(ohit && obj.otyp === EGG);
     if (!broken) broken = Boolean(ohit && shouldMulch(obj, env));
     if (broken) {
-        // mkobj.c obfree() calls obj_stop_timers() for a timed object: a
-        // thrown egg carries its hatch timer.
-        delobj(obj, {
-            ...env,
-            hooks: {
-                stopObjectTimers: (timed, hookEnv) => obj_stop_timers(
-                    timed, hookEnv.state, hookEnv,
-                ),
-                ...env.hooks,
-            },
-        });
+        delobj(obj, env);
     } else {
         if (down_gate(x, y, state) !== -1)
             broken = await ship_object(obj, x, y, false, env);

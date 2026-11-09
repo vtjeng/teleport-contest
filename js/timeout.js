@@ -583,9 +583,6 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
             ...env,
             hooks: {
                 extractExternalObject: remove_object,
-                stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
-                    obj, hookEnv.state ?? state, hookEnv,
-                ),
                 ...(env.hooks ?? {}),
             },
         };
@@ -656,18 +653,13 @@ function unportedZombifyMonReason(body, env) {
 }
 
 // C ref: mkobj.c shrink_glob(). Build the full env for the timer callback,
-// injecting the extractExternalObject hook for floor-object removal and
-// stopObjectTimers for obfree()'s food-class cleanup. obj_stop_timers() is
-// already available in this module; remove_object is the owner of the
-// OBJ_FLOOR extraction.
+// injecting the extractExternalObject hook for floor-object removal;
+// remove_object is the owner of the OBJ_FLOOR extraction.
 function shrinkGlobCallback(arg, timeout, env) {
     const shrinkEnv = {
         ...env,
         hooks: {
             extractExternalObject: remove_object,
-            stopObjectTimers: (obj, hookEnv) => {
-                obj_stop_timers(obj, hookEnv.state ?? env.state, hookEnv);
-            },
             ...env.hooks,
         },
     };
@@ -680,9 +672,6 @@ async function figTransformCallback(arg, timeout, env) {
     const { fig_transform } = await import('./apply.js');
     const hooks = {
         extractExternalObject: remove_object,
-        stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
-            obj, hookEnv.state ?? env.state, hookEnv,
-        ),
         ...(env.hooks ?? {}),
     };
     if (hooks.updateInventory === undefined

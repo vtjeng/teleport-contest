@@ -171,7 +171,7 @@ import {
 import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, stackobjRuntime, update_inventory } from './invent.js';
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
-import { stop_timer, obj_stop_timers } from './timeout.js';
+import { stop_timer } from './timeout.js';
 import {
     add_damage, costly_spot, make_angry_shk, pay_for_damage,
     shop_keeper, shopdig, stolen_value,
@@ -2363,21 +2363,8 @@ export async function wiz_debug_cmd_bury(state = game, env = {}) {
 // The environment dig.c's rotting hands its callees. `state` and `hooks` are
 // what invent.c obj_extract_self() and obfree() read; the caller supplies
 // hooks.newsym.
-//
-// obj_extract_self()'s OBJ_FLOOR arm dispatches to mkobj.c remove_object() in
-// C. The port injects that owner, and rotting can mean no other one, so the
-// hook is filled in here rather than at each run_timers() call site.
 function rotEnv(env) {
-    return {
-        ...env,
-        state: env.state ?? game,
-        hooks: {
-            stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
-                obj, hookEnv.state, hookEnv,
-            ),
-            ...env.hooks,
-        },
-    };
+    return { ...env, state: env.state ?? game, hooks: env.hooks ?? {} };
 }
 
 // Corpses cannot contain objects in valid play. ROT_ORGANIC's generic

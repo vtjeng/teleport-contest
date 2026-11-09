@@ -1134,7 +1134,8 @@ export function dealloc_obj(obj, env = {}) {
         throw new Error('dealloc_obj: object is still linked');
 
     // C calls timeout.c obj_stop_timers() here; the optional hook is a test
-    // seam.
+    // seam, and scripts/lifecycle-hook-defaults.test.mjs keeps js/ from
+    // supplying it or deleteObjectLightSource.
     if (obj.timed) {
         const hook = normalized.hooks.stopObjectTimers;
         if (typeof hook === 'function') hook(obj, normalized);

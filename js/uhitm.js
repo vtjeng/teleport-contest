@@ -501,7 +501,6 @@ import {
 import {
     burn_away_slime,
     fall_asleep,
-    obj_stop_timers,
 } from './timeout.js';
 import { set_ulycn } from './were.js';
 import {
@@ -7403,18 +7402,7 @@ export async function mhitm_ad_dgst(
     const num = monsndx(pd);
     if (magr.mtame && !magr.isminion
         && !(state.svm.mvitals[num].mvflags & G_NOCORPSE)) {
-        // C dealloc_obj stops timers itself; its JS lifecycle hook is explicit.
-        const objectEnv = {
-            ...env,
-            state,
-            hooks: {
-                ...(env.hooks ?? {}),
-                stopObjectTimers: env.hooks?.stopObjectTimers
-                    ?? ((obj, hookEnv) => obj_stop_timers(
-                        obj, hookEnv.state ?? state, hookEnv,
-                    )),
-            },
-        };
+        const objectEnv = { ...env, state };
         const virtualcorpse = mksobj(CORPSE, false, false, objectEnv);
         set_corpsenm(virtualcorpse, num, objectEnv);
         let nutrit = dog_nutrition(magr, virtualcorpse, state);

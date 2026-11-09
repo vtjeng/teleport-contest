@@ -3406,7 +3406,7 @@ test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
     assert.equal(toplines(), '');
 });
 
-test('dopotion supplies source-ordered lifecycle hooks for lit oil cleanup',
+test('dopotion reaches source-ordered lifecycle cleanup for lit oil',
     async () => {
         const potionC = potionSource();
         const cDopotion = potionC.indexOf('dopotion(struct obj *otmp)');
@@ -3452,14 +3452,10 @@ test('dopotion supplies source-ordered lifecycle hooks for lit oil cleanup',
         const jsDopotionEnd = potionJs.indexOf('\n}', jsDopotion);
         assert.ok(jsDopotion >= 0 && jsDopotionEnd > jsDopotion);
         const jsBody = potionJs.slice(jsDopotion, jsDopotionEnd);
+        // dealloc_obj() stops the timers and deletes the light itself, so
+        // dopotion() passes its env through unchanged.
         assert.match(jsBody,
-            /\.\.\.\(env\.hooks \?\? \{\}\)/u);
-        assert.match(jsBody,
-            /stopObjectTimers:\s*env\.hooks\?\.stopObjectTimers\s*\?\?[\s\S]*?obj_stop_timers/u);
-        assert.match(jsBody,
-            /deleteObjectLightSource:\s*env\.hooks\?\.deleteObjectLightSource\s*\?\?[\s\S]*?del_light_source/u);
-        assert.match(jsBody,
-            /useup\(otmp,\s*\{\s*\.\.\.env,\s*state,\s*hooks\s*\}\)/u);
+            /useup\(otmp,\s*\{\s*\.\.\.env,\s*state\s*\}\)/u);
 
         // This fixed seed only supplies a reproducible game shell; the test
         // pins source behavior, not a seed-specific outcome. A fire-resistant

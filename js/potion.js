@@ -87,7 +87,6 @@ import {
     HAND,
     INTRINSIC,
     INVIS,
-    LS_OBJECT,
     IS_FOUNTAIN,
     IS_SINK,
     Is_airlevel,
@@ -163,7 +162,6 @@ import { unfixable_trouble_count } from './apply.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { set_bc } from './ball.js';
-import { del_light_source } from './light.js';
 import {
     endRunning, losehp, nomul, spoteffects, You_can_move_again,
 } from './hack.js';
@@ -214,7 +212,7 @@ import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
 import { cloneu } from './mhitu.js';
 import {
-    burn_away_slime, fall_asleep, obj_stop_timers,
+    burn_away_slime, fall_asleep,
 } from './timeout.js';
 import { explode, explode_oil } from './explode.js';
 import { float_up } from './trap.js';
@@ -2061,16 +2059,7 @@ export async function dopotion(otmp, state = game, env = {}) {
             await trycall(otmp, state);
         }
     }
-    const hooks = {
-        ...(env.hooks ?? {}),
-        stopObjectTimers: env.hooks?.stopObjectTimers
-            ?? ((obj, hookEnv) =>
-                obj_stop_timers(obj, hookEnv.state, hookEnv)),
-        deleteObjectLightSource: env.hooks?.deleteObjectLightSource
-            ?? ((obj, hookEnv) =>
-                del_light_source(LS_OBJECT, obj, hookEnv.state)),
-    };
-    await useup(otmp, { ...env, state, hooks });
+    await useup(otmp, { ...env, state });
     return ECMD_TIME;
 }
 
@@ -3048,15 +3037,6 @@ function drinkEnvironment(state, rawEnv = {}) {
                     'You learn more about your items by comparing them.',
                     state,
                 )),
-            // shk.c obfree() for a used-up potion: a lit potion of oil has a
-            // burn timer and a light source (timeout.c obj_stop_timers(),
-            // light.c del_light_source()).
-            stopObjectTimers: rawEnv.hooks?.stopObjectTimers
-                ?? ((obj, hookEnv) =>
-                    obj_stop_timers(obj, hookEnv.state, hookEnv)),
-            deleteObjectLightSource: rawEnv.hooks?.deleteObjectLightSource
-                ?? ((obj, hookEnv) =>
-                    del_light_source(LS_OBJECT, obj, hookEnv.state)),
         },
     };
 }

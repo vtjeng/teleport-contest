@@ -52,6 +52,7 @@ import { wizterrainwish } from '../js/objnam_readobjnam.js';
 import { objectGenerationHooks } from '../js/object_generation.js';
 import {
     curseFreeObject,
+    dealloc_obj,
     mksobj,
     obj_no_longer_held,
     place_object,
@@ -454,7 +455,9 @@ test('level object hooks can discard a timed land-mine possession', () => {
     start_timer(10, TIMER_OBJECT, HATCH_EGG, egg, state);
     const hooks = objectGenerationHooks();
 
-    hooks.stopObjectTimers(egg, { state, hooks });
+    // mkobj.c dealloc_obj() calls obj_stop_timers() itself, so the level
+    // object hooks need not supply it.
+    dealloc_obj(egg, { state, hooks });
 
     assert.equal(egg.timed, 0);
     assert.equal(state.gt.timer_base, null);

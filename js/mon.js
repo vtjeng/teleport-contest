@@ -677,7 +677,7 @@ import { corpse_intrinsic, should_givit } from './eat.js';
 import {
     extract_from_minvent, mon_adjust_speed, mon_set_minvis,
 } from './worn.js';
-import { end_burn, kill_egg, obj_stop_timers } from './timeout.js';
+import { end_burn, kill_egg } from './timeout.js';
 import { migrate_to_level, wary_dog } from './dog.js';
 import { m_useup } from './mthrowu.js';
 import { coreRandom, rn2 } from './rng.js';
@@ -6143,19 +6143,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                 && mdat.mlet !== S_KOP
                 /* "no items from cloned monsters" */
                 && !mtmp.mcloned) {
-                // shk.c obfree() stops the timers of a discarded corpse or
-                // egg (timeout.c obj_stop_timers()).
-                const dropEnv = {
-                    ...env,
-                    state,
-                    random,
-                    hooks: {
-                        stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
-                            obj, hookEnv.state, hookEnv,
-                        ),
-                        ...env.hooks,
-                    },
-                };
+                const dropEnv = { ...env, state, random };
                 const otmp = mkobj(RANDOM_CLASS, true,
                                    objectGenerationEnv(dropEnv));
                 /* "don't create large objects from small monsters" */

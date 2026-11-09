@@ -8,12 +8,10 @@ import {
     isPermanentlyPoisoned,
     makeArtifact,
 } from './artifacts.js';
-import { LS_OBJECT, ONAME_LEVEL_DEF } from './const.js';
+import { ONAME_LEVEL_DEF } from './const.js';
 import { oname } from './do_name.js';
-import { del_light_source } from './light.js';
 import { monsterObject } from './monster_object.js';
 import { obj_no_longer_held } from './obj.js';
-import { obj_stop_timers } from './timeout.js';
 import { block_point, recalc_block_point } from './vision.js';
 
 export function objectGenerationHooks(overrides = {}) {
@@ -34,17 +32,11 @@ export function objectGenerationHooks(overrides = {}) {
         // mkobj.c remove_object():2518 is the other half: lifting a boulder
         // off a square calls vision.c recalc_block_point() there.
         recalcBlockPoint: (x, y, env) => recalc_block_point(x, y, env.state),
-        deleteObjectLightSource: (obj, env) => {
-            del_light_source(LS_OBJECT, obj, env.state);
-        },
         isPermanentlyPoisoned,
         makeArtifact,
         monsterObject,
         objectNoLongerHeld: obj_no_longer_held,
         nameObject: (obj, name, env) => oname(obj, name, ONAME_LEVEL_DEF, env),
-        stopObjectTimers: (obj, env) => {
-            obj_stop_timers(obj, env.state, env);
-        },
         ...overrides,
     };
 }

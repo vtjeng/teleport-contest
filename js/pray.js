@@ -225,7 +225,6 @@ import {
     set_bknown,
     uncurse,
 } from './obj.js';
-import { obj_stop_timers } from './timeout.js';
 import { get_mtraits } from './corpstat.js';
 import {
     BOULDER,
@@ -652,15 +651,12 @@ async function consume_offering(otmp, state) {
 
     // pray.c consume_offering() reaches invent.c useup()/useupf(), then
     // shk.c obfree() for an inventory corpse or mkobj.c delobj() for a floor
-    // corpse. The former stops timeout.c object timers; the latter removes
-    // the object from the floor list before freeing it.
+    // corpse. The latter removes the object from the floor list before
+    // freeing it.
     const env = {
         state,
         hooks: {
             extractExternalObject: remove_object,
-            stopObjectTimers: (obj, hookEnv) => {
-                obj_stop_timers(obj, hookEnv.state, hookEnv);
-            },
         },
     };
     if (carried(otmp)) await useup(otmp, env);
@@ -878,9 +874,6 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         state,
         hooks: {
             extractExternalObject: remove_object,
-            stopObjectTimers: (obj, hookEnv) => {
-                obj_stop_timers(obj, hookEnv.state, hookEnv);
-            },
         },
     };
     if (carried(otmp)) await useup(otmp, useupEnv);

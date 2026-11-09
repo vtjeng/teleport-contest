@@ -196,7 +196,7 @@ import {
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
-import { fall_asleep, obj_stop_timers } from './timeout.js';
+import { fall_asleep } from './timeout.js';
 import {
     b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at,
 } from './trap.js';
@@ -3383,15 +3383,9 @@ export async function edibility_prompts(otmp, state = game, env = {}) {
 function eatOperations(state, statusRefresh, message = ttyPline) {
     return {
         state,
-        // C ref: timeout.c obj_stop_timers(), which done_eating() reaches
-        // through useup() -> obfree() for a corpse, whose ROT_CORPSE timer
-        // mkobj.c start_corpse_timeout() hung on it.
         // Billing a bite is a discarded-return mkobj.c call; the direct
         // costly_alteration() call owns its output and billing continuation.
         hooks: {
-            stopObjectTimers: (obj, hookEnv) => {
-                obj_stop_timers(obj, hookEnv.state, hookEnv);
-            },
             newsym,
             encumberMessage: encumber_msg,
         },

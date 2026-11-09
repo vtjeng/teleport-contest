@@ -3631,7 +3631,8 @@ export function merge_choice(objlist, obj, state = game) {
 }
 
 // C calls timeout.c obj_stop_timers() directly; the optional hook is a test
-// seam.
+// seam, and scripts/lifecycle-hook-defaults.test.mjs keeps js/ from
+// supplying it.
 function stopObjectTimers(obj, env) {
     const hook = env.hooks?.stopObjectTimers;
     if (typeof hook === 'function') hook(obj, env);
