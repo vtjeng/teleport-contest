@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c bhit() -> dbridge.c destroy_drawbridge() -> explode.c scatter() witness for the hero's own wand of striking. A debug-mode gnome Wizard level-teleports to the Castle (^V, ? menu, its castle entry), maps it, teleports (^T) to the open ground west of the moat on the drawbridge's row, and clears the moat's eels with a blessed genocide of class ';'. She wishes for a wand of striking, walks to the moat's edge, searches twelve turns and zaps the wand east. The bolt crosses the raised span and destroys the portcullis, and one of the iron chains that destroy_drawbridge() scatters hits her (\"You are hit by an iron chain.\"). This path matched before scatterOps too: zap.c's environment carries none of scatter()'s operation names. The search count was chosen by trying 0-14 searches for a chain that hits the hero without killing her.",
+  "segments": [
+    {
+      "seed": 6602417,
+      "datetime": "20530917104522",
+      "nethackrc": "OPTIONS=name:Moatside,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0016?\nj#wizmap\n\u0014  {Hhh.\u0017blessed scroll of genocide\nrn\n\n;\n\u001b\u0017wand of striking\nl\u001bl\u001bl\u001bl\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bzol\u001bms\u001b"
+    }
+  ]
+}

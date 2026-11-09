@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent explode.c scatter() witness for debris that hits the hero, reached from a monster's wand: muse.c mbhit() -> dbridge.c destroy_drawbridge() -> scatter(). A debug-mode gnome Wizard level-teleports to the Castle (^V, ? menu, its castle entry), maps it, teleports (^T) to the open ground west of the moat on the drawbridge's row, and clears the moat's eels with a blessed genocide of class ';'. She wishes for a wand of striking, walks three squares east, waits one turn, creates a hostile hill orc beside her, drops the wand and steps east to the moat's edge. The orc picks the wand up behind her and zaps it east: the bolt hits her (Boing!), crosses the raised span and strikes the portcullis. Of the five iron chains destroy_drawbridge() scatters, two start on the span and fly west at her, so scatter() rolls dmgval() and thitu() for each. Before scatterOps, scatter() called the stackobj() replacement that the muse.c caller had forwarded for m_throw() as the first chain landed, and threw a TypeError before any chain reached her; a chain that hits first reaches the forwarded dmgval() replacement instead, which threw the same way. The wait count was chosen by trying 0-24 waits for a chain that reaches the hero. A soldier's thrown potion opens a naming prompt after the zap; the last wait's keys go into it and the final ESC closes it.",
+  "segments": [
+    {
+      "seed": 6602417,
+      "datetime": "20530917104522",
+      "nethackrc": "OPTIONS=name:Moatside,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0016?\nj#wizmap\n\u0014  {Hhh.\u0017blessed scroll of genocide\nrn\n\n;\n\u001b\u0017wand of striking\nl\u001bl\u001bl\u001bs\u001b\u0007hostile hill orc\n\u001bdo\u001bl\u001bms\u001bms\u001b\u001b"
+    }
+  ]
+}
