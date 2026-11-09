@@ -15,6 +15,10 @@ import {
     resolveRoots,
     stringConstants,
 } from './check-fixed-datetime.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
+
+// Pinned count of unresolved datetime sites; see the repository test.
+const UNRESOLVED_SITES = 98;
 
 const CHECK_PATH = fileURLToPath(
     new URL('./check-fixed-datetime.mjs', import.meta.url));
@@ -165,13 +169,20 @@ test('the malformed fixtures are all refused, and the clean ones are not',
 
 test('every datetime in this repository reaches the fixed clock', async () => {
     const files = resolveRoots([]).flatMap(datetimeSourcesIn);
-    const { problems, checked } = await checkFiles(files);
+    const { problems, checked, unresolved } = await checkFiles(files);
 
     assert.deepEqual(problems, []);
     // A floor, not the exact count, so adding a test does not fail this. It
     // fails if the scan stops matching: the tree held 663 readable datetimes
     // when this check was written.
     assert.ok(checked > 600, `only ${checked} datetimes were read`);
+    // The sites whose value is an expression, such as a recorded segment's
+    // datetime, are the check's blind spot, so their count is pinned both
+    // ways: 98 on 9f7e42e6 (8 November 2026).
+    assertExceptionCount(unresolved, UNRESOLVED_SITES, {
+        what: 'datetime sites set from an expression the check cannot read',
+        pin: 'UNRESOLVED_SITES in scripts/check-fixed-datetime.test.mjs',
+    });
 });
 
 test('the check exits nonzero on a malformed datetime', () => {
