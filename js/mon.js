@@ -589,7 +589,7 @@ import {
     place_monster,
     remove_monster,
 } from './monst.js';
-import { livelog_printf, youFeel, youSee } from './pline.js';
+import { livelog_printf, pline_mon, youFeel, youSee } from './pline.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
@@ -5118,23 +5118,21 @@ export async function vamprises(mtmp, state = game, env = {}) {
     mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
 
     if (canspotmon(mtmp, state)) {
-        await message(
-            messageAt(
-                `${upstart(action)} ${x_monnam(
-                    mtmp,
-                    ARTICLE_A,
-                    null,
-                    SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
-                    false,
-                    state,
-                    env,
-                )}!`,
-                x,
-                y,
+        // pline_mon() reads the monster's square now: expels() above has
+        // moved an engulfing fog cloud next to the hero.
+        await pline_mon(
+            mtmp,
+            `${upstart(action)} ${x_monnam(
+                mtmp,
+                ARTICLE_A,
+                null,
+                SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
+                false,
                 state,
-            ),
+                env,
+            )}!`,
             state,
-            env,
+            { ...env, message },
         );
         state.gv ??= {};
         state.gv.vamp_rise_msg = true;
