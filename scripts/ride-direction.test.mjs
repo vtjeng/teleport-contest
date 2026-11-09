@@ -553,19 +553,25 @@ test('confdir takes the caller-owned RNG while preserving live defaults', () => 
     assert.deepEqual([gridBug.u.dx, gridBug.u.dy], [0, 1]);
 });
 
-test('yn_function stops on a query too long for QBUFSZ', async () => {
+test('yn_function truncates a query of QBUFSZ bytes or more', async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
-    // cmd.c:5484 truncates at `strlen(query) >= QBUFSZ` after paniclog().
-    await assert.rejects(
-        yn_function('x'.repeat(QBUFSZ), null, '\0', false, game),
-        /needs paniclog\(\)/u,
-    );
-    // One character short, the guard has to let the prompt open; the replay's
-    // input is spent, so the read behind it is what fails instead.
-    await assert.rejects(
-        yn_function('x'.repeat(QBUFSZ - 1), null, '\0', false, game),
-        (error) => !/needs paniclog\(\)/u.test(error.message),
-    );
+    cmdq_clear(CQ_REPEAT, game);
+    const shown = async (query) => {
+        game.nhDisplay.pushKey('y'.charCodeAt(0));
+        await yn_function(query, null, '\0', false, game);
+        return game._ttyPreviousMessage;
+    };
+    // cmd.c:5486-5491: at strlen(query) >= QBUFSZ (128) C keeps
+    // QBUFSZ-1-3 = 124 bytes and appends "..."; tty_yn_function() adds the
+    // trailing space of an unrestricted prompt.
+    assert.equal(await shown('x'.repeat(QBUFSZ)), `${'x'.repeat(124)}... `);
+    // One byte short, the query is shown whole.
+    assert.equal(await shown('x'.repeat(QBUFSZ - 1)),
+        `${'x'.repeat(QBUFSZ - 1)} `);
+    // strlen() counts bytes: 64 two-byte characters are 128 bytes though
+    // only 64 UTF-16 units, and 124 bytes keep 62 of them.
+    assert.equal(await shown('\u00e9'.repeat(64)),
+        `${'\u00e9'.repeat(62)}... `);
 });
 
 test('tty_yn_function parses counts and preserves case when the response requests it',
