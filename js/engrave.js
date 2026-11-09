@@ -19,7 +19,6 @@ import {
     GETOBJ_DOWNPLAY,
     GETOBJ_SUGGEST,
     HEADSTONE,
-    ICE,
     LL_CONDUCT,
     MARK,
     N_ENGRAVE,
@@ -1207,7 +1206,7 @@ export async function read_engr_at(
         throw new TypeError('read_engr_at requires a pline callback');
 
     const blind = Blind(state.u);
-    const onIce = state.level?.at(x, y)?.typ === ICE;
+    const onIce = is_ice(x, y, state);
     const tactileFloor = () => {
         if (!blind) return true;
         if (typeof canReachFloor !== 'function') {
@@ -1355,7 +1354,7 @@ export function wipe_engr_at(x, y, count, magical = false, env = {}) {
     if (!engraving || engraving.engr_type === HEADSTONE || engraving.nowipeout)
         return engraving;
 
-    const onIce = state.level?.at?.(x, y)?.typ === ICE;
+    const onIce = is_ice(x, y, state);
     if (engraving.engr_type === BURN && !onIce
         && !(magical && !random.rn2(2))) {
         return engraving;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77032,
+      "datetime": "20480203184512",
+      "nethackrc": "OPTIONS=name:Frostwriter,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\nj\u0014  lllllljjjjjjjj.\u0017wand of cold\nzelllll\u001bl\u001bE- Elbereth\nhl\u001b"
+    }
+  ],
+  "comment": "Wizard-mode Valkyrie on the Castle level. A wand of cold bridges the raised drawbridge's moat span with ice (DRAWBRIDGE_UP over DB_ICE). The hero writes Elbereth in the frost on the span, steps off and back on: read_engr_at() reads is_ice() and says the text is written in the frost. The cold-resistant Valkyrie also takes slippery_ice_fumbling()'s no-slip arm."
+}
