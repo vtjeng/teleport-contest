@@ -3086,17 +3086,9 @@ function* apply_newcham_steps(
                 object = next;
                 continue;
             }
-            // mkobj.c place_object() calls vision.c block_point() for a
-            // boulder.
             place_object(object, monster.mx, monster.my, {
                 ...normalized,
                 state,
-                hooks: {
-                    ...(normalized.hooks ?? {}),
-                    blockPoint: normalized.hooks?.blockPoint
-                        ?? ((x, y, objectEnv) =>
-                            block_point(x, y, objectEnv.state)),
-                },
             });
             object = next;
         }

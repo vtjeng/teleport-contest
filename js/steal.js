@@ -1056,8 +1056,7 @@ function extractionEnv(env) {
 // C ref: steal.c mdrop_obj() (814-846). Drop one object taken from a
 // (possibly dead) monster's inventory onto the square the monster stands on.
 export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
-    // place_object needs the canonical blockPoint owner for a boulder, and
-    // stackobj needs the same lifecycle owners when it merges a floor object.
+    // stackobj needs the lifecycle owners when it merges a floor object.
     const env = objectGenerationEnv(dropEnv(rawEnv));
     const { state } = env;
     const message = env.message ?? ttyPline;

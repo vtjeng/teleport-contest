@@ -390,7 +390,7 @@ import { glyph_to_cmap } from './glyphs.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { create_mplayers } from './mplayer.js';
-import { block_point, cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
+import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { setuwep, welded, weldmsg } from './wield.js';
 import { bimanual, bypass_objlist, nxt_unbypassed_obj, setuqwep, setuswapwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -2125,15 +2125,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         obj,
         normalized.state.u.ux,
         normalized.state.u.uy,
-        {
-            ...normalized,
-            hooks: {
-                // mkobj.c:place_object blocks vision for the landed boulder.
-                // Supply the source operation for every dropz caller.
-                blockPoint: (x, y, env) => block_point(x, y, env.state),
-                ...normalized.hooks,
-            },
-        },
+        normalized,
     );
     if (placement && typeof placement.then === 'function') await placement;
     if (withImpact) {

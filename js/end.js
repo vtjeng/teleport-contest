@@ -142,7 +142,6 @@ import {
     useup,
 } from './invent.js';
 import { bless, isContainer, mksobj, place_object } from './obj.js';
-import { block_point } from './vision.js';
 import { discover_object } from './o_init.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -1006,12 +1005,7 @@ export async function done_object_cleanup(state) {
         if (!obj || obj.where !== OBJ_FREE) return;
         // mkobj.c place_object() block_point()s a landed boulder, such as
         // one a giant threw at the hero.
-        place_object(obj, ox, oy, {
-            state,
-            hooks: {
-                blockPoint: (x, y, env) => block_point(x, y, env.state),
-            },
-        });
+        place_object(obj, ox, oy, { state });
         stackobj(obj, { state });
         for (const [container, field] of groups) {
             if (container?.[field] === obj) container[field] = null;

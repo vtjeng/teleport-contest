@@ -16,21 +16,9 @@ import { M2_HUMAN } from './monsters.js';
 import {
     SPBOOK_NO_NOVEL,
     mkobj,
-    obj_no_longer_held,
     set_corpsenm,
 } from './obj.js';
 import { FIGURINE, STATUE } from './objects.js';
-
-function withContainerOwnership(env) {
-    return {
-        ...env,
-        hooks: {
-            ...env.hooks,
-            objectNoLongerHeld: env.hooks?.objectNoLongerHeld
-                ?? ((obj, normalized) => obj_no_longer_held(obj, normalized)),
-        },
-    };
-}
 
 function initializeStatue(obj, env) {
     obj.corpsenm = rndmonnum(env);
@@ -39,14 +27,8 @@ function initializeStatue(obj, env) {
         throw new Error('statue initialization requires a complete monster catalog');
 
     const divisor = Math.trunc(level_difficulty(env.state) / 2) + 10;
-    if (monster.msize >= 1 && env.random.rn2(divisor) > 10) {
-        const normalized = withContainerOwnership(env);
-        add_to_container(
-            obj,
-            mkobj(SPBOOK_NO_NOVEL, false, normalized),
-            normalized,
-        );
-    }
+    if (monster.msize >= 1 && env.random.rn2(divisor) > 10)
+        add_to_container(obj, mkobj(SPBOOK_NO_NOVEL, false, env), env);
 }
 
 function initializeFigurine(obj, env) {

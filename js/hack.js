@@ -1894,18 +1894,18 @@ function could_move_onto_boulder(sx, sy, dx, dy, state) {
     return !state.invent || inv_weight(state) <= WT_SQUEEZABLE_INV * -1;
 }
 
-// remove_object() and place_object() reach vision.c recalc_block_point() and
-// block_point() through the object lifecycle's hook table rather than by
-// importing them, so that js/obj.js needs no import from js/vision.js. A
-// boulder is the only object type that asks for either.
+// remove_object() reaches vision.c recalc_block_point() for a boulder through
+// the object lifecycle's hook table. explode.js scatter() substitutes a no-op
+// only when its caller's hooks lack this one, and a boulder pushed onto a
+// land mine reaches scatter() with these hooks, so the copy stays until that
+// no-op goes.
 function boulderVisionEnv(state) {
     return {
         state,
-        // Both hooks take the lifecycle env as their third argument, not a
-        // state; passing block_point itself would hand vision_reset() an
-        // object with no `level` on it, which it answers by doing nothing.
+        // The hook takes the lifecycle env as its third argument, not a
+        // state; passing recalc_block_point itself would hand vision_reset()
+        // an object with no `level` on it, which it answers by doing nothing.
         hooks: {
-            blockPoint: (x, y, env) => block_point(x, y, env.state),
             recalcBlockPoint:
                 (x, y, env) => recalc_block_point(x, y, env.state),
         },

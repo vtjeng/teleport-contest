@@ -338,6 +338,7 @@ import {
     unknwn_contnr_contents,
     weight,
     obj_absorb,
+    obj_no_longer_held,
     pudding_merge_message,
 } from './obj.js';
 import { get_obj_location, obj_merge_light_sources } from './light.js';
@@ -3589,6 +3590,15 @@ export function merge_choice(objlist, obj, state = game) {
     return current ?? null;
 }
 
+// C ref: mkobj.c add_to_container() calls obj_no_longer_held() directly; a
+// caller's objectNoLongerHeld hook remains a test seam, and
+// scripts/lifecycle-hook-defaults.test.mjs keeps js/ from supplying it.
+function objectNoLongerHeld(obj, env) {
+    const hook = env.hooks?.objectNoLongerHeld;
+    return typeof hook === 'function'
+        ? hook(obj, env) : obj_no_longer_held(obj, env);
+}
+
 // C calls timeout.c obj_stop_timers() directly; the optional hook is a test
 // seam, and scripts/lifecycle-hook-defaults.test.mjs keeps js/ from
 // supplying it.
@@ -5020,9 +5030,7 @@ export function add_to_container(container, obj, env = {}) {
         return obj;
     };
     if (container.where !== OBJ_INVENT && container.where !== OBJ_MINVENT) {
-        const released = requiredHook(normalized, 'objectNoLongerHeld', obj)(
-            obj, normalized,
-        );
+        const released = objectNoLongerHeld(obj, normalized);
         return released && typeof released.then === 'function'
             ? released.then(attach) : attach();
     }
@@ -5066,9 +5074,7 @@ export function addToContainerRuntime(container, obj, env = {}) {
         return insert();
     };
     if (container.where !== OBJ_INVENT && container.where !== OBJ_MINVENT) {
-        const released = requiredHook(normalized, 'objectNoLongerHeld', obj)(
-            obj, normalized,
-        );
+        const released = objectNoLongerHeld(obj, normalized);
         return isThenable(released)
             ? Promise.resolve(released).then(() => scan(container.cobj ?? null))
             : scan(container.cobj ?? null);

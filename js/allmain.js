@@ -1116,11 +1116,6 @@ async function moveElapsedTurnMonster(monster, env) {
                         location,
                         normalized.state,
                     ),
-                    blockPoint: (x, y, normalized) => block_point(
-                        x,
-                        y,
-                        normalized.state,
-                    ),
                 },
             }),
         }),

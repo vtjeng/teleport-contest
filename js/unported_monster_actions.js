@@ -767,11 +767,8 @@ function simpleMonsterActionEnvironment(rawEnv = {}) {
         state,
         random,
         hooks: {
-            // C mthrowu.c drop_throw() and mon.c mpickstuff() place and
-            // remove boulders through mkobj.c.
-            blockPoint: (x, y, objectEnv) => {
-                block_point(x, y, objectEnv.state);
-            },
+            // C mthrowu.c drop_throw() and mon.c mpickstuff() remove
+            // boulders through mkobj.c remove_object().
             recalcBlockPoint: (x, y, objectEnv) => {
                 recalc_block_point(x, y, objectEnv.state);
             },

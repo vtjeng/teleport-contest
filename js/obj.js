@@ -229,7 +229,10 @@ import { encumber_msg } from './pickup.js';
 // inventory. steal.js imports from this file; both sides use the other's
 // exports only inside function bodies.
 import { remove_worn_item } from './steal.js';
-import { cansee } from './vision.js';
+import { block_point, cansee } from './vision.js';
+// monster_object.js imports this file; both sides use the other's exports
+// only inside function bodies.
+import { monsterObject } from './monster_object.js';
 // shrinking_glob_gone() needs setmnotwielded() for the OBJ_MINVENT path.
 // weapon.js imports from this file; both sides use the other's exports only
 // inside function bodies.
@@ -457,13 +460,12 @@ export class UnsupportedObjectOperationError extends Error {
 // fatal integration errors, not recoverable generation outcomes (earlier
 // source-ordered RNG and id changes are intentionally retained).
 //
-//   monster(index, env) -> monster record
 //   eatenStat(weight, obj, env) -> adjusted weight (default eat.c eaten_stat)
 //   artifactCount(env) -> existing artifact count (default nartifact_exist)
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
 //     (default artifact.c mk_artifact())
 //   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
-//     STATUE and FIGURINE branches
+//     STATUE and FIGURINE branches (default monster_object.js monsterObject())
 //   isPermanentlyPoisoned(obj, env) -> boolean (default permapoisoned())
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //     (default timeout.c obj_stop_timers())
@@ -1882,24 +1884,17 @@ function mkbox_cnts(box, env) {
         return;
     }
 
-    // Ensure add_to_container's hook requirements are met. These default
-    // to the direct implementations when the caller does not inject them.
-    const hooks = { ...env.hooks };
-    hooks.objectNoLongerHeld ??= (obj, hookEnv) =>
-        obj_no_longer_held(obj, hookEnv);
-    const enrichedEnv = { ...env, hooks };
-
     for (let i = count; i > 0; i--) {
         let otmp;
         if (box.otyp === ICE_BOX) {
-            otmp = mksobj(CORPSE, true, false, enrichedEnv);
+            otmp = mksobj(CORPSE, true, false, env);
             // Note: setting age to 0 is correct. Age has a different
             // from usual meaning for objects stored in ice boxes. -KAA
             otmp.age = 0;
             if (otmp.timed) {
-                stop_timer(ROT_CORPSE, otmp, state, enrichedEnv);
-                stop_timer(REVIVE_MON, otmp, state, enrichedEnv);
-                stop_timer(SHRINK_GLOB, otmp, state, enrichedEnv);
+                stop_timer(ROT_CORPSE, otmp, state, env);
+                stop_timer(REVIVE_MON, otmp, state, env);
+                stop_timer(SHRINK_GLOB, otmp, state, env);
             }
         } else {
             let tprob = random.rnd(100);
@@ -1911,20 +1906,20 @@ function mkbox_cnts(box, env) {
                     break;
                 }
             }
-            otmp = mkobj(selectedClass, false, enrichedEnv);
+            otmp = mkobj(selectedClass, false, env);
 
             // handle a couple of special cases
             if (otmp.oclass === COIN_CLASS) {
                 // 2.5 x level's usual amount; weight adjusted below
                 otmp.quan = random.rnd(level_difficulty(state) + 2)
                     * random.rnd(75);
-                otmp.owt = weight(otmp, enrichedEnv);
+                otmp.owt = weight(otmp, env);
             } else {
                 while (otmp.otyp === ROCK) {
                     otmp.otyp = rnd_class(
-                        DILITHIUM_CRYSTAL, LOADSTONE, enrichedEnv);
+                        DILITHIUM_CRYSTAL, LOADSTONE, env);
                     if (otmp.quan > 2) otmp.quan = 1;
-                    otmp.owt = weight(otmp, enrichedEnv);
+                    otmp.owt = weight(otmp, env);
                 }
             }
             if (box.otyp === BAG_OF_HOLDING) {
@@ -1933,21 +1928,25 @@ function mkbox_cnts(box, env) {
                     || otmp.otyp === BAG_OF_TRICKS) {
                     otmp.otyp = SACK;
                     otmp.spe = 0;
-                    otmp.owt = weight(otmp, enrichedEnv);
+                    otmp.owt = weight(otmp, env);
                 } else {
                     while (otmp.otyp === WAN_CANCELLATION)
                         otmp.otyp = rnd_class(
-                            WAN_LIGHT, WAN_LIGHTNING, enrichedEnv);
+                            WAN_LIGHT, WAN_LIGHTNING, env);
                 }
             }
         }
-        add_to_container(box, otmp, enrichedEnv);
+        add_to_container(box, otmp, env);
     }
     // caller will update box->owt
 }
 
+// C ref: mkobj.c mksobj_init() statue and figurine branches and mksobj()'s
+// corpse/statue/figurine finalization; a caller's monsterObject hook remains
+// a test seam, and scripts/lifecycle-hook-defaults.test.mjs keeps js/ from
+// supplying it.
 function initializeResidualMonsterObject(obj, phase, env) {
-    return requiredHook(env, 'monsterObject')(obj, phase, env);
+    return (env.hooks.monsterObject ?? monsterObject)(obj, phase, env);
 }
 
 function monsterVital(state, mnum) {
@@ -2869,12 +2868,14 @@ export function place_object(obj, x, y, env = {}) {
     if (obj.where !== OBJ_FREE)
         throw new Error(`place_object: object where=${obj.where}, expected free`);
     // C ref: mkobj.c place_object():2331-2334, `block_point(x, y)` for a
-    // boulder. Resolved before the writes below, as remove_object() resolves
-    // its mirror image, so a caller that cannot supply the vision owner leaves
-    // the object where it was rather than half-placed.
+    // boulder; a caller's blockPoint hook remains a test seam, and
+    // scripts/lifecycle-hook-defaults.test.mjs keeps js/ from supplying it.
+    // block_point() takes the state, not this lifecycle env: passed the env,
+    // vision_reset() would find no level on it and return in silence.
     const oldHead = floorObjectGrid(state)[x][y];
     const blockPoint = obj.otyp === BOULDER && oldHead?.otyp !== BOULDER
-        ? requiredHook(normalized, 'blockPoint', obj)
+        ? (normalized.hooks.blockPoint
+            ?? ((bx, by, placeEnv) => block_point(bx, by, placeEnv.state)))
         : null;
 
     const insert = () => {

@@ -429,7 +429,7 @@ import {
     trapname,
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { block_point, cansee, vision_recalc } from './vision.js';
+import { cansee, vision_recalc } from './vision.js';
 import { setuwep, doquiver_core, welded, weldmsg } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
@@ -2836,12 +2836,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         return;
     }
     clearThrownObject(state);
-    place_object(obj, bx, by, {
-        state,
-        hooks: {
-            blockPoint: (x, y, env) => block_point(x, y, env.state),
-        },
-    });
+    place_object(obj, bx, by, { state });
     if (!IS_SOFT(location.typ)) {
         // dothrow.c passes the hero's launch square, not the landing square.
         await container_impact_dmg(obj, state.u.ux, state.u.uy, { state });

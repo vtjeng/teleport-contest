@@ -383,7 +383,6 @@ import {
 import { note_unported } from './unported.js';
 import { dmgval, mwepgone } from './weapon.js';
 import {
-    block_point,
     cansee,
     clear_path,
     couldsee,
@@ -2589,12 +2588,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     // vision_full_recalc before the next C message flushes the map.
     const objectHooks = {
         ...(env.hooks ?? {}),
-        blockPoint: env.hooks?.blockPoint
-            ?? ((ox, oy, actionEnv) => block_point(
-                ox,
-                oy,
-                actionEnv?.state ?? state,
-            )),
         recalcBlockPoint: env.hooks?.recalcBlockPoint
             ?? ((ox, oy, actionEnv) => recalc_block_point(
                 ox,
@@ -2752,7 +2745,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                             ?? ((subject) => canseemon(subject, state)),
                         hooks: {
                             ...(env.hooks ?? {}),
-                            blockPoint: objectHooks.blockPoint,
                             recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     };
@@ -2784,13 +2776,11 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         ...actionEnv,
                         hooks: {
                             ...(actionEnv.hooks ?? {}),
-                            blockPoint: objectHooks.blockPoint,
                             recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     })),
                 hooks: {
                     ...(env.hooks ?? {}),
-                    blockPoint: objectHooks.blockPoint,
                     recalcBlockPoint: objectHooks.recalcBlockPoint,
                 },
             };

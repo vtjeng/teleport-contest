@@ -111,7 +111,6 @@ import {
     set_corpsenm,
 } from './obj.js';
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
-import { block_point } from './vision.js';
 import { place_wsegs } from './worm.js';
 import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
@@ -1079,12 +1078,7 @@ async function find_lev_obj(state) {
         otmp.where = OBJ_FREE;
         fobjtmp = otmp;
     }
-    const env = {
-        state,
-        hooks: {
-            blockPoint: (x, y, placeEnv) => block_point(x, y, placeEnv.state),
-        },
-    };
+    const env = { state };
     while ((otmp = fobjtmp) != null) {
         fobjtmp = otmp.nobj;
         await place_object(otmp, otmp.ox, otmp.oy, env);

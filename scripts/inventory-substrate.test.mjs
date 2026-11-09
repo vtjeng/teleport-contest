@@ -1295,15 +1295,15 @@ test('the object location names share the C union backing slot', () => {
 
 test('non-carried container insertion calls obj_no_longer_held before linking', () => {
     const state = initializedState();
+    // With no hook, add_to_container() runs mkobj.c obj_no_longer_held()
+    // itself, as C does.
+    const defaultSack = instance(SACK, state, { where: OBJ_FLOOR });
+    const defaultApple = instance(APPLE, state);
+    add_to_container(defaultSack, defaultApple, { state });
+    assert.equal(defaultApple.ocontainer, defaultSack);
+
     const floorSack = instance(SACK, state, { where: OBJ_FLOOR });
     const apple = instance(APPLE, state);
-    assert.throws(
-        () => add_to_container(floorSack, apple, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'objectNoLongerHeld',
-    );
-    assert.equal(apple.where, OBJ_FREE);
-
     let observedWhere;
     add_to_container(floorSack, apple, {
         state,

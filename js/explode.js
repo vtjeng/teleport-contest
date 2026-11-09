@@ -927,10 +927,9 @@ export async function scatter(
         random,
         hooks: {
             ...env.hooks,
-            // remove_object() and place_object() require the corresponding
-            // boulder vision hooks. Ordinary scatter callers never need this
-            // hook, but keeping it in the composed environment prevents a
-            // partial object mutation when a boulder path does.
+            // remove_object() requires the boulder vision hook. This no-op,
+            // used when the caller's hooks lack the hook, differs from C,
+            // whose remove_object() always calls recalc_block_point().
             recalcBlockPoint: env.hooks?.recalcBlockPoint
                 ?? (() => {}),
         },

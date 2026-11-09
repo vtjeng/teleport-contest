@@ -214,7 +214,7 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, g_at, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
+    carried, g_at, hasContents, isBox, isCandle, isContainer,
     is_pick, remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
     unbless,
 } from './obj.js';
@@ -3227,10 +3227,9 @@ async function in_container(obj, state) {
         await sellobj(obj, state.gc.current_container.ox,
             state.gc.current_container.oy, state);
     }
-    const addition = addToContainerRuntime(state.gc.current_container, obj, {
-        state,
-        hooks: { objectNoLongerHeld: obj_no_longer_held },
-    });
+    const addition = addToContainerRuntime(
+        state.gc.current_container, obj, { state },
+    );
     if (addition && typeof addition.then === 'function') await addition;
     state.gc.current_container.owt = weight(
         state.gc.current_container, { state });
