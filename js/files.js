@@ -6,6 +6,8 @@ import { game } from './gstate.js';
 import { LFILE_EXISTS } from './const.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces } from './hacklib.js';
 import { coreRandom } from './rng.js';
+import { DAT_LUA_FILES } from './dat_files.js';
+import { note_unported } from './unported.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
@@ -255,4 +257,57 @@ export async function Death_quote(buffer, bufsz, state = game, env = {}) {
     return await read_tribute(
         'Death', 'Death Quotes', 0, buffer, bufsz, 1, state, env,
     );
+}
+
+// The playground's files other than dat/'s Lua files (sys/unix/Makefile.top
+// DAT and VARDIR installs, plus the programs the recorder installs there), and
+// its save directory.
+const PLAYGROUND_NON_LUA_FILES = new Set([
+    'bogusmon', 'cmdhelp', 'data', 'engrave', 'epitaph', 'help', 'hh',
+    'history', 'keyhelp', 'license', 'livelog', 'logfile', 'nethack',
+    'opthelp', 'options', 'optmenu', 'oracles', 'perm', 'record', 'recover',
+    'rumors', 'save', 'symbols', 'sysconf', 'tribute', 'usagehlp', 'wizhelp',
+    'xlogfile',
+]);
+
+// Whether access(name, R_OK) can succeed with C's working directory in the
+// playground, or the $HOME fallback can open the name. True for a name the
+// port cannot rule out: a playground file or directory, a lock, level or
+// bones file the game itself writes there ("<lock>.<n>", "bonD0.<n>"), the
+// rc file the recorder's otherwise empty $HOME holds, and any name with a
+// directory part, which reaches the host filesystem.
+function wizkitFileMayExist(name) {
+    return name.includes('/') || name === '.' || name === '..'
+        || name === '.nethackrc' || /\.\d+$/u.test(name)
+        || DAT_LUA_FILES.has(name) || PLAYGROUND_NON_LUA_FILES.has(name);
+}
+
+// C ref: files.c fopen_wizkit_file() (2465-2530), UNIX arm. The WIZKIT
+// environment variable is not part of a session's input, and the recorder
+// does not set it. For a missing file access() fails with ENOENT (2); C
+// reports it and tries $HOME/<name>, which fails silently with ENOENT too.
+// The port opens no wizkit file: it cannot read one that exists.
+async function fopen_wizkit_file(state) {
+    const name = state.wizkit ?? '';
+    if (!name) return;
+    if (wizkitFileMayExist(name)) {
+        note_unported('files.c fopen_wizkit_file');
+        return;
+    }
+    const { tty_raw_print, tty_wait_synch } = await import('./tty_rawprint.js');
+    // pline.c raw_printf() and vraw_printf() each count the message until
+    // moveloop_preamble() sets beyond_savefile_load.
+    tty_raw_print(state, `Access to ${name} denied (2).`);
+    if (!state.program_state?.beyond_savefile_load) {
+        state.ge ??= { early_raw_messages: 0 };
+        state.ge.early_raw_messages += 2;
+    }
+    await tty_wait_synch(state);
+}
+
+// C ref: files.c read_wizkit() (2584-2601). No wizkit file opens in the
+// port, so parse_conf_file()'s wishes never run.
+export async function read_wizkit(state = game) {
+    if (!state.wizard) return;
+    await fopen_wizkit_file(state);
 }

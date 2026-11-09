@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() outside debug mode: cnf_line_WIZKIT() stores the name, but newgame() reads the kit only for a wizard, so C prints nothing for it. Variation of wizkit-missing-file: normal play mode, another role and seed.",
+  "segments": [
+    {
+      "seed": 71230437,
+      "datetime": "20641106174500",
+      "nethackrc": "OPTIONS=name:Kitted,role:Monk,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nWIZKIT=nokit\n",
+      "moves": "  i  "
+    }
+  ]
+}

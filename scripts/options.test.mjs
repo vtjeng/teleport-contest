@@ -4458,7 +4458,7 @@ test('the parser records the config statements it cannot interpret', () => {
     const unported = [
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir',
         'datadir',
-        'scoredir', 'lockdir', 'configdir', 'troubledir', 'wizkit',
+        'scoredir', 'lockdir', 'configdir', 'troubledir',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ];
     assert.deepEqual(
@@ -4505,7 +4505,9 @@ test('the unknown-config recipe retains its source branch matrix', () => {
     );
     assert.deepEqual(parsed[2].unportedConfigStatements, [
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
-        'scoredir', 'lockdir', 'configdir', 'troubledir', 'wizkit',
+        'scoredir', 'lockdir', 'configdir', 'troubledir',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ]);
+    // cnf_line_WIZKIT() stores the name; only debug mode reads it.
+    assert.equal(parsed[2].wizkit, 'x');
 });

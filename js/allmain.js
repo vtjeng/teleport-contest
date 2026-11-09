@@ -81,6 +81,8 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
+import { read_wizkit } from './files.js';
+import { obj_delivery } from './dokick.js';
 import { cmdq_clear, dolookaround, failClosedCommandRefusals, rhack } from './cmd.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { canletgo, deferred_goto, dropx, save_currentstate } from './do.js';
@@ -289,6 +291,12 @@ export async function newgame() {
     });
     finalize_startup_skills(g);
     find_ac(g);
+
+    // C ref: allmain.c newgame() (826-829).
+    if (g.wizard) {
+        await read_wizkit(g);
+        await obj_delivery(false, { state: g }); /* finish wizkit */
+    }
 
     // C ref: allmain.c newgame() -> com_pager("legacy").
     await ttyLegacyIntroduction(g);

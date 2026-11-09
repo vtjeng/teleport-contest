@@ -145,6 +145,7 @@ import {
     cnf_line_BOULDER,
     cnf_line_MENUCOLOR,
     cnf_line_WARNINGS,
+    cnf_line_WIZKIT,
     config_error_add,
     config_error_init,
     config_error_nextline,
@@ -753,6 +754,9 @@ function defaultResult() {
         // read state owned by one of their cnf_line_<NAME>() handlers checks
         // this list and refuses instead of using an invented default.
         unportedConfigStatements: [],
+        // C ref: gw.wizkit, set by cnf_line_WIZKIT() and read by
+        // files.c read_wizkit() once the new game's inventory exists.
+        wizkit: '',
         // C ref: cfgfiles.c config_error_data, the frame rcfile() (1943) opens
         // around the configuration read.  parseNethackrc() feeds it one line
         // at a time; js/jsmain.js closes it with config_error_done() and
@@ -6618,6 +6622,7 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     boulder: Object.freeze({ kind: 'legacy-boulder' }),
     menucolor: Object.freeze({ kind: 'menucolor' }),
     warnings: Object.freeze({ kind: 'warnings' }),
+    wizkit: Object.freeze({ kind: 'wizkit' }),
 });
 
 function configDelimiter(line) {
@@ -6986,6 +6991,10 @@ export function parseNethackrc(rc, random = rn2) {
         }
         if (statement.kind === 'warnings') {
             cnf_line_WARNINGS(result, normalizedValue, assign_warnings);
+            continue;
+        }
+        if (statement.kind === 'wizkit') {
+            cnf_line_WIZKIT(result, normalizedValue);
             continue;
         }
         if (statement.kind === 'autocomplete') {

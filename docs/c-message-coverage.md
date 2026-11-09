@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3990 | 78 |
-| diagnostic | 723 | 199 | 524 |
+| gameplay | 4068 | 3985 | 83 |
+| diagnostic | 723 | 198 | 525 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4192 | 719 |
+| total | 4911 | 4186 | 725 |
 
 ## Missing by C file
 
@@ -41,7 +41,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/ball.c | yes | 0 | 10 | 0 |
 | src/bones.c | yes | 1 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
-| src/cfgfiles.c | yes | 6 | 0 | 2 |
+| src/cfgfiles.c | yes | 5 | 0 | 2 |
 | src/cmd.c | yes | 0 | 3 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
 | src/decl.c | no | 1 | 0 | 0 |
@@ -57,10 +57,10 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dungeon.c | yes | 0 | 19 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 1 | 36 |
-| src/end.c | yes | 0 | 4 | 1 |
+| src/end.c | yes | 3 | 4 | 1 |
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
-| src/files.c | yes | 17 | 3 | 1 |
+| src/files.c | yes | 16 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
@@ -131,11 +131,11 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
-| src/wizcmds.c | yes | 0 | 6 | 0 |
+| src/wizcmds.c | yes | 3 | 7 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 11 | 1 |
-| sys/share/ioctl.c | yes | 1 | 0 | 0 |
+| sys/share/ioctl.c | no | 2 | 0 | 0 |
 | sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
 | win/tty/wintty.c | yes | 0 | 5 | 1 |
@@ -165,7 +165,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 206 pline: `An error occurred, wrote only partial data (`
 
 - `fopen_config_file()`
-  - 261 raw_printf: `Access to`
   - 271 raw_printf: `Couldn't open requested config file`
   - 365 raw_printf: `Couldn't open default config file`
 
@@ -190,6 +189,13 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `argcheck()`
   - 515 raw_printf: `version can only be extended with -`
 
+### src/end.c
+
+- `panic()`
+  - 433 raw_printf: `To report this error,`
+  - 436 raw_printf: `To report this error, contact`
+  - 439 raw_printf: `Report error to "`
+
 ### src/files.c
 
 - `commit_bonesfile()`
@@ -208,7 +214,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2428 raw_printf: `Can't remove fcntl lock on`
 
 - `fopen_wizkit_file()`
-  - 2487 raw_printf: `Access to`
   - 2497 raw_printf: `Couldn't open requested wizkit file`
   - 2526 raw_printf: `Couldn't open default gw.wizkit file`
 
@@ -374,9 +379,17 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `choose_windows()`
   - 296 raw_printf: `No window types supported?`
 
+### src/wizcmds.c
+
+- `wiz_fuzzer()`
+  - 552 pline: `The fuzz tester will make NetHack execute random keypresses.`
+  - 553 There: `is no conventional way out of this mode.`
+  - 557 yn_function: `Do you want to call panic() after impossible()?`
+
 ### sys/share/ioctl.c
 
 - `dosuspend()`
+  - 167 Norep: `Suspend command not available.`
   - 194 pline: `I don't think your shell has job control.`
 
 ### sys/unix/unixunix.c
@@ -1760,6 +1773,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `makemap_remove_mons()`
   - 147 impossible: `makemap_remove_mons: 'fmon' did not get emptied?`
+
+- `wiz_panic()`
+  - 543 panic: `Crash test (#panic).`
 
 - `you_sanity_check()`
   - 1408 impossible: `sanity_check: swallowed by nothing?`

@@ -432,6 +432,7 @@ export class NethackGame {
         g.catname = opts.catname ?? '';
         g.dogname = opts.dogname ?? '';
         g.horsename = opts.horsename ?? '';
+        g.wizkit = opts.wizkit ?? ''; // C ref: gw.wizkit
         g.gameplayBindings = opts.gameplayBindings.map((binding) => ({
             ...binding,
         }));

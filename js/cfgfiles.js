@@ -14,6 +14,7 @@ import {
     ECMD_OK,
     PREFIX_COUNT,
     WARNCOUNT,
+    WIZKIT_MAX,
 } from './const.js';
 import { add_menu_coloring } from './coloratt.js';
 import { get_feature_notice_ver } from './version.js';
@@ -390,4 +391,10 @@ export function cnf_line_WARNINGS(result, bufp, assignWarnings) {
     });
     assignWarnings(result, parsed);
     return true;
+}
+
+// C ref: cfgfiles.c cnf_line_WIZKIT(): strncpy(gw.wizkit, bufp,
+// WIZKIT_MAX - 1), so the name keeps at most 127 bytes.
+export function cnf_line_WIZKIT(result, bufp) {
+    result.wizkit = truncateByteString(bufp, WIZKIT_MAX - 1);
 }
