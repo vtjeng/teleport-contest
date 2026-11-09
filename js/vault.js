@@ -101,7 +101,7 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
-import { Blind, Deaf, Strangled } from './youprop.js';
+import { Blind, Deaf, Punished, Strangled } from './youprop.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -277,9 +277,8 @@ async function clear_fcorr(grd, forceshow, state, env) {
         }
         if ((state.u.ux === fcx && state.u.uy === fcy && grd.mhp >= 1)
             || (!forceshow && couldsee(fcx, fcy, state))
-            || (state.u.uprops?.punished?.intrinsic
-                && state.u.uball && !carried(state.u.uball)
-                && state.u.uball.ox === fcx && state.u.uball.oy === fcy)) {
+            || (Punished(state) && !carried(state.uball)
+                && state.uball.ox === fcx && state.uball.oy === fcy)) {
             return false;
         }
 

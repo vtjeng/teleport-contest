@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent witness for vault.c clear_fcorr()'s Punished arm: a punished Priest teleports into a level-1 vault, answers the guard, and follows its escort until the dragged heavy iron ball rests on the guard's doorway (fakecorr[0]). restfakecorr() must keep the corridor while the ball lies there, and the #wizkill of the unseen guard leaves it parked dead at <0,0> because both of grddead()'s clear_fcorr() calls stop at the ball.",
+  "segments": [
+    {
+      "seed": 91000,
+      "datetime": "20261109120000",
+      "nethackrc": "OPTIONS=name:Ballast,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " #wizwish\nscroll of punishment\nrj \u0014  LLLLlkk.  40s Ballast\rshhhjj#wizkill\nbh.\u001b\u001b\u001bssss"
+    }
+  ]
+}
