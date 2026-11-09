@@ -24,6 +24,8 @@ export const DELETED_REFUSAL_CLASSES = [
     // pickup.c query_objlist() with INCLUDE_HERO, which no caller passes, and
     // a pickup selection that is not on the floor or in an engulfer
     'UnsupportedPickupError',
+    // read.c seffect_*() self-checks: seffects() calls each from its own case
+    'UnsupportedReadError',
 ];
 
 function stripComments(source) {

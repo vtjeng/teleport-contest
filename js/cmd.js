@@ -347,10 +347,7 @@ import { doride, Punished } from './steed.js';
 import { done2, nh_terminate, UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
-import {
-    doread,
-    UnsupportedReadError,
-} from './read.js';
+import { doread } from './read.js';
 import {
     UnsupportedPolyselfError, dobreathe, dogaze, dohide, domindblast,
     dopoly, doremove, dospinweb, dospit, dosummon,
@@ -2975,10 +2972,6 @@ export function failClosedCommandRefusals() {
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
-        // read.c doread() raises this after getobj() returns an object and
-        // before pickup_prev or any reading effect changes state. Cancellation
-        // completes normally, so only selected objects reach this refusal.
-        UnsupportedReadError,
         // The `f` command's files: wield.c the branches ready_weapon()
         // reaches when the swap-and-retry arm puts a launcher in the hero's
         // hand, zap.c the ones bhit() meets along the missile's flight, and

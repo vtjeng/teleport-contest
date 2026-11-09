@@ -439,16 +439,6 @@ import {
     Unchanging,
 } from './youprop.js';
 
-// Retained for narrower effect-family branches that still fail closed. The
-// source-ordered doread() and seffects() dispatches use note_unported() for
-// whole void effect callees that have not been implemented yet.
-export class UnsupportedReadError extends Error {
-    constructor(branch) {
-        super(`reading requires ${branch}`);
-        this.name = 'UnsupportedReadError';
-        this.branch = branch;
-    }
-}
 
 // C refs: read.c erode_obj_text(), tshirt_text(), hawaiian_motif(),
 // hawaiian_design(), apron_text(), and candy_wrapper_text(). C fills caller
@@ -1134,8 +1124,6 @@ export async function punish(sobj, state = game, rawEnv = {}) {
 // as read, while blessed or confused scrolls stop after the guilt message and
 // leave the scroll for doread() to consume.
 export async function seffect_punishment(scroll, state = game) {
-    if (scroll?.otyp !== SCR_PUNISHMENT || scroll.oclass !== SCROLL_CLASS)
-        throw new UnsupportedReadError('the selected punishment-scroll branch');
     state.gk.known = true;
     if (scroll.blessed || Boolean(Confusion(state.u))) {
         await ttyPline(youFeel('guilty.', state), state);
@@ -1679,9 +1667,6 @@ export async function seffect_destroy_armor(
     state = game,
     rawEnv = {},
 ) {
-    if (scroll?.otyp !== SCR_DESTROY_ARMOR || scroll.oclass !== SCROLL_CLASS)
-        throw new UnsupportedReadError('the selected destroy-armor branch');
-
     state.gk ??= {};
     const random = rawEnv.random ?? coreRandom;
     const exerciseEnv = { encumberMessage: encumber_msg };
@@ -2138,8 +2123,6 @@ export async function litroom(on, object, state) {
 // confused scrolls surround the hero with cancelled tame yellow/black
 // lights, including the genocide fallback and visibility knowledge update.
 export async function seffect_light(scroll, state = game) {
-    if (scroll?.otyp !== SCR_LIGHT || scroll.oclass !== SCROLL_CLASS)
-        throw new UnsupportedReadError('the selected light-scroll branch');
     state.gk ??= {};
     const blessed = Boolean(scroll.blessed);
     const cursed = Boolean(scroll.cursed);

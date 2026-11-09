@@ -153,3 +153,13 @@ test('pickup admission refuses no caller-made selection', () => {
     assert.doesNotMatch(functionBody(code, 'preflightPickupObjects'),
         /\bthrow\b/u);
 });
+
+// read.c seffects() calls seffect_punishment(), seffect_destroy_armor() and
+// seffect_light() only from their own case labels, so none rechecks the
+// scroll's type.
+test('seffect_*() helpers do not recheck their scroll type', () => {
+    const code = jsCode('read.js');
+    for (const name of ['seffect_punishment', 'seffect_destroy_armor',
+        'seffect_light'])
+        assert.doesNotMatch(functionBody(code, name), /\bthrow\b/u, name);
+});
