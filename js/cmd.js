@@ -194,6 +194,7 @@ import {
 } from './objects.js';
 import { dotelecmd } from './teleport.js';
 import { reset_utrap, t_at, dountrap } from './trap.js';
+import { dobugreport } from './report.js';
 import { stairway_at } from './stairs.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { doeat } from './eat.js';
@@ -5042,6 +5043,7 @@ async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
 // report, and the game state; both are ignored by functions that need neither.
 const EXTCMD_FUNCTIONS = new Map(Object.entries({
     do_fight: (key, state) => do_fight(state),
+    dobugreport: (key, state) => dobugreport(state),
     do_reqmenu: (key, state) => do_reqmenu(state),
     doclose: (key, state) => doclose(state),
     dofire: (key, state) => dofire(state),

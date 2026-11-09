@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83310572,
+      "datetime": "20460914204408",
+      "nethackrc": "OPTIONS=name:BugReporter,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#bugreport\ns#bugreport\n"
+    }
+  ],
+  "comment": "Independent C runtime witness for report.c dobugreport() through the #bugreport extended command. The recorder build has no SYSCF, so sysopt.crashreporturl stays NULL, submit_web_report() returns FALSE and C prints its DEVTEAM_URL message without using a turn. A search separates the two commands."
+}
