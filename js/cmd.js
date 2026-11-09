@@ -1144,8 +1144,7 @@ export function key2extcmddesc(key, state = game) {
         return 'Prefix: for digits when preceding a command with a count';
     }
 
-    const command = commandForKey(model, byte);
-    const entry = command === null ? null : EXTCMD_BY_NAME.get(command);
+    const entry = boundExtcmd(bindingAt(model.bindings, byte));
     if (!entry?.ef_txt) return null;
     let result = `${entry.ef_desc} (#${entry.ef_txt})`;
     if (result.toLowerCase().startsWith('prefix:')
@@ -1233,12 +1232,13 @@ function show_direction_keys(lines, centerchar, nodiag, state = game) {
 }
 
 // C ref: cmd.c keylist_func_has_key() (2784-2797). The source compares the
-// extcmdlist row stored in each binding, so this port compares its unique
-// ef_txt rather than the handler name shared by aliases such as call/name.
+// extcmdlist row stored in each binding, so this port compares the bound row
+// rather than the handler name shared by aliases such as call/name; the
+// rest_on_space row is not extcmdlist's #wait.
 function keylist_func_has_key(entry, skipKeysUsed, model) {
     for (let key = 0; key < 256; ++key) {
         if (skipKeysUsed[key]) continue;
-        if (commandForKey(model, key) === entry.ef_txt) return true;
+        if (boundExtcmd(bindingAt(model.bindings, key)) === entry) return true;
     }
     return false;
 }
@@ -1249,14 +1249,12 @@ function keylist_func_has_key(entry, skipKeysUsed, model) {
 function keylist_putcmds(lines, docount, inclFlags, exclFlags, keysUsed,
     model) {
     const keysAlreadyUsed = Uint8Array.from(keysUsed);
-    const rowsByName = new Map(extcmdlist.map((entry) => [entry.ef_txt, entry]));
     let count = 0;
 
     for (let key = 0; key < 256; ++key) {
         if (keysUsed[key]) continue;
         if (key === 0x20 && !model.restOnSpace) continue;
-        const command = commandForKey(model, key);
-        const entry = command === null ? null : rowsByName.get(command);
+        const entry = boundExtcmd(bindingAt(model.bindings, key));
         if (!entry) continue;
         if ((inclFlags && !(entry.flags & inclFlags))
             || (exclFlags && (entry.flags & exclFlags))) {
@@ -3859,7 +3857,7 @@ export function extcmds_getentry(index) {
 
 function bindingCommand(binding) {
     if (!binding) return null;
-    const command = EXTCMD_BY_NAME.get(binding.command);
+    const command = boundExtcmd(binding);
     return command ? {
         ...binding,
         key: binding.key & 0xFF,
@@ -5026,6 +5024,22 @@ async function can_do_extcmd(entry, state) {
 const EXTCMD_BY_NAME = new Map(
     extcmdlist.map((entry) => [entry.ef_txt, entry]),
 );
+
+// C ref: cmd.c update_rest_on_space()'s static `restonspace`, cloned from
+// extcmdlist['.'] with its own key and description. command_bindings.js marks
+// the Space binding that holds it with `restBinding`.
+const RESTONSPACE = Object.freeze({
+    ...EXTCMD_BY_NAME.get('wait'),
+    key: 0x20,
+    ef_desc: "rest one move via 'rest_on_space' option",
+});
+
+// The ext_func_tab a Cmd_bind node holds: its `cmd` field.
+function boundExtcmd(binding) {
+    if (!binding) return null;
+    if (binding.restBinding) return RESTONSPACE;
+    return EXTCMD_BY_NAME.get(binding.command) ?? null;
+}
 
 // C ref: cmd.c ext_func_tab_from_func() (cmd.c:5766-5777), which cmdq_add_ec()
 // applies to the function pointer its caller names. This port names the row by

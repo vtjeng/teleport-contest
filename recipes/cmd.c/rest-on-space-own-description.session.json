@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: update_rest_on_space() binds Space to its own restonspace row, whose description the full key list ('?j') shows",
+  "segments": [
+    {
+      "seed": 17730594,
+      "datetime": "20530706143322",
+      "nethackrc": "OPTIONS=name:Ludo,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,rest_on_space\n",
+      "moves": "?j        \u001b"
+    }
+  ]
+}
