@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1051,
+      "datetime": "20470402153011",
+      "nethackrc": "OPTIONS=name:Bridgekeeper,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n>A  \u0014  hhhhhhhhhhhhhhhhhhhhhhjjjjj.k\u001b\u0007tame kitten\nj\u001bk\u001b"
+    }
+  ],
+  "comment": "Wizard-mode Valkyrie on the Val-goal quest level, whose southern drawbridge is lowered. A controlled teleport lands south of the span, the hero steps onto it and creates a tame kitten on its south (ROOM) side, swaps onto the kitten's square (the kitten moves onto the span), then swaps back. The final step is domove_swap_with_pet() with the destination monster on DRAWBRIDGE_DOWN, which test_move() admits as ordinary terrain."
+}

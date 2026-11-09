@@ -1696,6 +1696,11 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             || destination.typ === CORR
             || destination.typ === ICE
             || destination.typ === CLOUD
+            // A lowered drawbridge span is neither IS_OBSTRUCTED nor a DOOR,
+            // so test_move() admits it as it does for an ordinary step, and
+            // the arrival reaches the same owners requireSimpleHeroDestination()
+            // admits for it.
+            || destination.typ === DRAWBRIDGE_DOWN
             || destination.typ === POOL
             // A moat is a pool to is_pool(), test_move() and
             // swim_move_danger(); only waterbody_name() tells them apart.
