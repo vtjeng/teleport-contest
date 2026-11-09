@@ -1571,22 +1571,6 @@ export function collectMonsterNoticeMessages(state, compare = null) {
     return messages;
 }
 
-export async function emitStartupA11yNotices(state, env = {}) {
-    const pline = env.pline;
-    if (typeof pline !== 'function') {
-        throw new TypeError(
-            'emitStartupA11yNotices requires a pline callback',
-        );
-    }
-    let messages = [];
-    if (state.a11y?.glyph_updates) messages = collectLookaroundMessages(state);
-    else if (state.a11y?.mon_notices
-             && !state.a11y?.mon_notices_blocked)
-        messages = collectMonsterNoticeMessages(state);
-    for (const message of messages) await pline(message, state);
-    return messages;
-}
-
 export const _startupA11yInternals = Object.freeze({
     compassDescription,
     coordinateDescription,

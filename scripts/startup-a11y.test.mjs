@@ -52,7 +52,7 @@ import {
     PM_GHOST,
     monst_globals_init,
 } from '../js/monsters.js';
-import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages, describeMonster, emitStartupA11yNotices } from '../js/startup_a11y.js';
+import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages, describeMonster } from '../js/startup_a11y.js';
 import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
 import {
     S_corr,
@@ -733,25 +733,3 @@ test('lookaround object names retain grease and erosion modifier order', () => {
     }, state), 'a thoroughly cracked crystal plate mail');
 });
 
-test('mention_map takes precedence and emits each message in source order', async () => {
-    const state = startupState();
-    // A complete 7-by-3 room leaves only the room summary to emit.
-    for (let y = 5; y <= 7; ++y) {
-        for (let x = 10; x <= 16; ++x) {
-            state.level.at(x, y).typ = ROOM;
-            reveal(state, x, y);
-        }
-    }
-    state.a11y.glyph_updates = true;
-    state.a11y.mon_notices = true;
-    const emitted = [];
-    const returned = await emitStartupA11yNotices(state, {
-        pline: async (message, receivedState) => {
-            assert.equal(receivedState, state);
-            emitted.push(message);
-        },
-    });
-
-    assert.deepEqual(returned, ['You are in a rectangular 7 by 3 room.']);
-    assert.deepEqual(emitted, returned);
-});

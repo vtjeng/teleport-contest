@@ -83,7 +83,7 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
-import { cmdq_clear, failClosedCommandRefusals, rhack } from './cmd.js';
+import { cmdq_clear, dolookaround, failClosedCommandRefusals, rhack } from './cmd.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { canletgo, deferred_goto, dropx, save_currentstate } from './do.js';
 import { glibr } from './do_wear.js';
@@ -95,6 +95,7 @@ import {
     monster_nearby,
     near_capacity,
     nomul,
+    notice_all_mons,
     pooleffects,
     overexert_hp,
     runmode_delay_output,
@@ -123,7 +124,7 @@ import {
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
-import { emitGlyphUpdateNotices, emitStartupA11yNotices } from './startup_a11y.js';
+import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
 import { rloc, tele } from './teleport.js';
@@ -324,7 +325,10 @@ export async function newgame() {
         0,
         g.a11y.mon_notices_blocked - 1,
     );
-    await emitStartupA11yNotices(g, { pline: ttyPline });
+    // allmain.c:845-848. dolookaround() scans with getloc_filter set to
+    // GFILTER_VIEW, whatever whatis_filter the player chose.
+    if (g.a11y?.glyph_updates) await dolookaround(g);
+    else await notice_all_mons(true, g);
 }
 
 // C ref: allmain.c u_calc_moveamt(). Add the hero's next movement ration

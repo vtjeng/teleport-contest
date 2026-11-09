@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27713,
+      "datetime": "20040719101500",
+      "nethackrc": "OPTIONS=name:Looker,role:Ranger,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,mention_map,whatis_filter:area\n",
+      "moves": "     "
+    }
+  ],
+  "comment": "allmain.c welcome path: with mention_map, C runs cmd.c dolookaround(), which scans with getloc_filter set to GFILTER_VIEW; the player's whatis_filter:area does not hide the pet or the doorways from the startup lines."
+}
