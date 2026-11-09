@@ -7,7 +7,7 @@ import {
     classifyDiagnostics,
     declaredConstantNames,
 } from './check-c-constants.mjs';
-import { findCompiler } from './recorder-headers.mjs';
+import { compilerOrSkip } from './recorder-headers.mjs';
 
 test('declaredConstantNames takes upper-case exported consts only', () => {
     const source = [
@@ -41,11 +41,8 @@ test('classifyDiagnostics reads both clang and gcc wording', () => {
 });
 
 test('every js/ constant that names a C constant has its C value', async (t) => {
-    const compiler = findCompiler();
-    if (!compiler) {
-        t.skip('no C compiler (clang, cc, or gcc) on PATH; the check compiles _Static_assert lines');
-        return;
-    }
+    const compiler = compilerOrSkip(t, 'the check compiles _Static_assert lines');
+    if (!compiler) return;
     const { entries, importErrors } = await checkConstants({ compiler });
     assert.deepEqual(importErrors, []);
     const failing = entries

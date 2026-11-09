@@ -47,6 +47,19 @@ export function findCompiler() {
     return null;
 }
 
+// For a test that needs a C compiler: returns the compiler's name, or skips the
+// test and returns null when none is on PATH. In hosted Checkpoint (GitHub
+// Actions sets CI) it throws instead, so a missing compiler cannot turn the
+// check off there (AGENTS.md, "Fix a repeated defect at its source").
+export function compilerOrSkip(t, why) {
+    const compiler = findCompiler();
+    if (compiler) return compiler;
+    const message = `no C compiler (clang, cc, or gcc) on PATH; ${why}`;
+    if (process.env.CI) throw new Error(`${message} (hosted runs must not skip this check)`);
+    t.skip(message);
+    return null;
+}
+
 function git(cwd, args) {
     const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
     if (result.status !== 0)
