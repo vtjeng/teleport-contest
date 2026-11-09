@@ -8241,6 +8241,10 @@ export function optfn_pickup_types(
     const tbuf = oc_to_str(state.flags.pickup_types);
     state.flags.pickup_types = []; /* all */
     let op = string_for_opt(opts, compat || !initial, state);
+    // Outside a configuration read config_error_add() prints the report
+    // (config_erradd(), 1557-1562); configErrorAdd() collects it here and
+    // the prompted path below prints it once the class loop is done.
+    const liveConfigErrors = [];
 
     // options.c:3364-3389, shared after either explicit or prompted input.
     const finish = (symbols) => {
@@ -8254,15 +8258,17 @@ export function optfn_pickup_types(
         state.flags.pickup_types = parsed.types;
         if (parsed.badopt) {
             // C advances op to its terminating NUL before reporting it.
-            if (initial) configErrorAdd(
-                state, `Unknown ${allopt[optidx].name} parameter ''`,
+            configErrorAdd(
+                initial ? state : { liveConfigErrors },
+                `Unknown ${allopt[optidx].name} parameter ''`,
             );
-            else note_unported('cfgfiles.c config_error_add');
             return optn_err;
         }
         return optn_ok;
     };
 
+    // A value arrives only from a configuration statement, which is read
+    // with go.opt_initial set; doset() passes the bare option name.
     if (op !== '') return finish(op);
     if (compat || negated || initial) {
         state.flags.pickup = !negated;
@@ -8297,7 +8303,9 @@ export function optfn_pickup_types(
                 state, 'Autopickup what?', ocl, tbuf, helpers,
             );
         }
-        return finish(op);
+        const result = finish(op);
+        await plineConfigErrors(state, liveConfigErrors);
+        return result;
     })();
 }
 

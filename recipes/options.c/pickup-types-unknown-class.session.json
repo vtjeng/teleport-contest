@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c optfn_pickup_types() through the O command with menustyle:traditional: a bad class symbol at the New pickup_types prompt makes config_error_add() print \"Unknown pickup_types parameter ''.\" and wait_synch() (cfgfiles.c config_erradd(), 1557-1562). The second answer keeps the valid classes before and after the bad one, which the third O shows. Seed, date and Valkyrie chosen independently.",
+  "segments": [
+    {
+      "seed": 71230429,
+      "datetime": "20641105091200",
+      "nethackrc": "OPTIONS=name:PickTypes,role:Valkyrie,race:human,gender:female,align:neutral,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  Ooz\n    Oo$z!\n    O\u001b  "
+    }
+  ]
+}
