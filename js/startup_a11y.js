@@ -3,6 +3,7 @@
 // hack.c:notice_all_mons(); getpos.c:coord_desc(); display.c:show_glyph();
 // pager.c:do_screen_description(), look_at_monster(), object_from_map().
 
+import { game } from './gstate.js';
 import {
     ALTAR,
     AIR,
@@ -75,7 +76,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
 import {
-    canseemon, canspotmon, glyph_is_monster, suppress_map_output,
+    canseemon, canspotmon, flush_screen, glyph_is_monster, suppress_map_output,
 } from './display.js';
 import { GLYPH_NOTHING_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import {
@@ -618,6 +619,7 @@ export function queueGlyphUpdateNotice(
         glyphFrame,
     };
     (state._glyphUpdateNotices ??= []).push(notice);
+    state._flushAfterQueuedNotice = null;
     return true;
 }
 
@@ -646,6 +648,7 @@ export function queueVisionMonsterNotices(state) {
             glyphFrame,
             youBuf: NOTICE_MON_YOU_BUF,
         });
+        state._flushAfterQueuedNotice = null;
     }
 }
 
@@ -693,6 +696,12 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
         }
         state._emittingGlyphUpdateNotices = false;
     }
+    // The notices' own lines flushed the map as it stood when each arose.
+    // C then flushed the later map again before this point; do the same.
+    const flushMode = state._flushAfterQueuedNotice;
+    state._flushAfterQueuedNotice = null;
+    // flush_screen() draws the live game only.
+    if (flushMode != null && state === game) await flush_screen(flushMode);
     return pending.map((notice) => notice.message);
 }
 

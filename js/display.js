@@ -7362,6 +7362,10 @@ export async function flush_screen(mode) {
     // resetGame(), which also prevents a completed segment's reentrant flush
     // state from affecting the next runSegment().
     game.flushing = true;
+    // A flush while notices wait in the queue came after them in C; their
+    // late printing must repeat it (startup_a11y.js emitGlyphUpdateNotices).
+    if (game._glyphUpdateNotices?.length && !game._emittingGlyphUpdateNotices)
+        game._flushAfterQueuedNotice = mode;
     if (game.program_state?.done_hup) return;
     try {
         // C ref: display.c flush_screen() (2235-2239). The turn counter has
