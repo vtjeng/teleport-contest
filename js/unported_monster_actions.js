@@ -10,6 +10,7 @@ import {
     BURN,
     CORR,
     DOOR,
+    DRAWBRIDGE_UP,
     D_CLOSED,
     D_LOCKED,
     D_TRAPPED,
@@ -376,6 +377,12 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             // Keep that selected destination eligible so monmove.c:postmov()
             // can run its source-owned passage or bar-dissolution branch.
             || location.typ === IRONBARS
+            // A raised drawbridge's span over ice or floor. DRAWBRIDGE_UP is
+            // not IS_OBSTRUCTED, and mfndpos() has no drawbridge test, so it
+            // admits the square unless is_pool() or is_lava() reads moat or
+            // lava under the span, which liquidDestination below owns.
+            || (location.typ === DRAWBRIDGE_UP
+                && !destinationPool && !destinationLava)
             || inertDoorway
             || opensDoor
             || unlocksDoor

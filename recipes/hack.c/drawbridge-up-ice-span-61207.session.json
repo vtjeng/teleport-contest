@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61207,
+      "datetime": "20470614091530",
+      "nethackrc": "OPTIONS=name:Icebridge,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\nj\u0014  llllllk.\u0017wand of cold\nzflllll\u001bl\u001b\u0017tripe ration\ndg\u0007tame kitten\nhsssss"
+    }
+  ],
+  "comment": "Wizard-mode Samurai on the Castle level. A controlled teleport lands west of the raised drawbridge, and a wand of cold bridges its moat span with ice (DRAWBRIDGE_UP over DB_ICE). The hero walks onto the span, where slippery_ice_fumbling() reads is_ice(), drops a tripe ration, creates a tame kitten, and steps off west; the kitten's next move goes to the food on the span through mfndpos(), which admits a raised span that is not over moat or lava."
+}
