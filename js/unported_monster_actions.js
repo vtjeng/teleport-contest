@@ -137,9 +137,7 @@ import { encumber_msg } from './pickup.js';
 import { potionhit } from './potion.js';
 import {
     create_gas_cloud,
-    inside_region,
     m_in_out_region,
-    mon_in_region,
 } from './region.js';
 import { coreRandom } from './rng.js';
 
@@ -286,10 +284,6 @@ function digsDestination(location, x, y, env) {
     return may_dig(x, y, env.state);
 }
 
-function transitionCallbackUnset(callback) {
-    return callback == null || callback === -1;
-}
-
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
@@ -400,24 +394,6 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     // is where an unported trap type now stops the scan, which also covers a
     // monster standing still on one -- a case this destination check never
     // saw.
-    for (const region of state.level.regions) {
-        if (region.attach_2_m === monster.m_id) continue;
-        const currentlyInside = mon_in_region(region, monster);
-        const destinationInside = inside_region(region, x, y);
-        if (currentlyInside === destinationInside) continue;
-
-        // C region.c m_in_out_region() only invokes these four transition
-        // callbacks. The region's inside_f (including a damaging gas-cloud
-        // callback) belongs to run_regions(), not monster movement, so any
-        // region with no transition callbacks only needs its membership list
-        // updated by the already-ported m_in_out_region().
-        const callbackFreeTransition = transitionCallbackUnset(region.can_enter_f)
-            && transitionCallbackUnset(region.enter_f)
-            && transitionCallbackUnset(region.can_leave_f)
-            && transitionCallbackUnset(region.leave_f);
-        if (!callbackFreeTransition)
-            unsupported('a region transition');
-    }
     return m_in_out_region(monster, x, y, env);
 }
 

@@ -1454,59 +1454,6 @@ test('live fog leaves its vapor behind after one monster scan',
         assert.equal(vapor.leave_f, null);
     });
 
-test('fog-region transition callbacks remain fail-closed',
-    async () => {
-        for (const [field, kind] of [
-            ['can_enter_f', 'numeric'],
-            ['enter_f', 'function'],
-            ['can_leave_f', 'injected'],
-            ['leave_f', 'function'],
-        ]) {
-            const target = await prepareSelectedAction({
-                pmidx: PM_FOG_CLOUD,
-            });
-            target.monster.movement = NORMAL_SPEED;
-            const vapor = create_region([{
-                lx: target.monsterX,
-                ly: target.heroY,
-                hx: target.monsterX,
-                hy: target.heroY,
-            }]);
-            let calls = 0;
-            const callback = kind === 'numeric'
-                ? 0
-                : kind === 'function'
-                    ? () => { calls += 1; return true; }
-                    : 'must_not_run';
-            Object.assign(vapor, {
-                arg: 0,
-                inside_f: 'inside_gas_cloud',
-                monsters: [target.monster.m_id],
-                visible: true,
-                [field]: callback,
-            });
-            game.level.regions = [vapor];
-            const membersBefore = [...vapor.monsters];
-            const positionBefore = [target.monster.mx, target.monster.my];
-            const messagesBefore = [...game.nhDisplay.messages];
-
-            await assert.rejects(
-                runSimpleMonsterAction(target.monster, { state: game }),
-                (error) => error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a region transition',
-                field,
-            );
-            assert.equal(calls, 0, field);
-            assert.deepEqual(vapor.monsters, membersBefore, field);
-            assert.deepEqual(
-                [target.monster.mx, target.monster.my],
-                positionBefore,
-                field,
-            );
-            assert.deepEqual(game.nhDisplay.messages, messagesBefore, field);
-        }
-    });
-
 test('callback-free harmless gas transitions follow region.c for entries and exits',
     async () => {
         const start = REGION_SOURCE.indexOf(

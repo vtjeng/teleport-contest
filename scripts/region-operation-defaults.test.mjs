@@ -8,6 +8,10 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const REGION_JS = readFileSync(new URL('../js/region.js', import.meta.url), 'utf8');
+const MONSTER_ACTIONS_JS = readFileSync(
+    new URL('../js/unported_monster_actions.js', import.meta.url),
+    'utf8',
+);
 
 function defaultedOperations(source) {
     const table = source.match(/const REGION_OPERATIONS = \{([\s\S]*?)\n\};/u)?.[1];
@@ -26,14 +30,21 @@ function calledOperations(source) {
     return [...names].sort();
 }
 
-test('region.js never refuses for a missing operation', () => {
+test('region.js never refuses for a missing operation or callback', () => {
     assert.doesNotMatch(REGION_JS, /\brequiredOperation\b/u);
-    // The one remaining throw refuses an unported path, a runtime
-    // create_gas_cloud_selection(), not a missing operation.
-    const throws = [...REGION_JS.matchAll(
-        /throw new UnsupportedRegionOperationError\(\s*'([^']+)'/gu,
-    )].map((match) => match[1]);
-    assert.deepEqual(throws, ['runtime create_gas_cloud_selection']);
+    // region.c's callbacks[] holds only inside_gas_cloud and
+    // expire_gas_cloud, and create_gas_cloud_selection()'s one caller runs
+    // during level creation, so region.js has no refusal class or
+    // injected callback table.
+    assert.doesNotMatch(REGION_JS, /\bUnsupported\w*Error\b/u);
+    assert.doesNotMatch(REGION_JS, /\.callbacks\b|\bcallbacks:/u);
+});
+
+test('monster movement does not refuse a region transition', () => {
+    // C never sets a region's four transition callbacks, so a monster's move
+    // goes straight to m_in_out_region().
+    assert.doesNotMatch(MONSTER_ACTIONS_JS, /'a region transition'/u);
+    assert.doesNotMatch(MONSTER_ACTIONS_JS, /\b(?:can_)?(?:enter|leave)_f\b/u);
 });
 
 test('every operation region.js calls has its C default', () => {

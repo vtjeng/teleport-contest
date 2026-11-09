@@ -24,7 +24,6 @@ import {
 } from '../js/monsters.js';
 import { S_cloud, S_poisoncloud } from '../js/symbols.js';
 import {
-    UnsupportedRegionCallbackError,
     add_region,
     any_visible_region,
     create_gas_cloud,
@@ -706,7 +705,15 @@ test('run_regions uses the current blindness prefix for aggregate dissipation', 
     // This later array entry is outside the hero and only changes blindness
     // after the cloud has recorded one visible square.
     const laterBlindness = pointRegion(3, 3, {
-        expire_f: 'become_blind', ttl: 0, visible: false,
+        // A test function in the field; game regions hold only the two C
+        // callbacks.
+        expire_f() {
+            // The active intrinsic bit makes pline.c:You_see choose "sense".
+            state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+            return true;
+        },
+        ttl: 0,
+        visible: false,
     });
     // C expires regions from the array tail toward the front: count the visible
     // cloud first, then change blindness before run_regions calls You_see().
@@ -715,13 +722,6 @@ test('run_regions uses the current blindness prefix for aggregate dissipation', 
 
     await run_regions({
         state,
-        callbacks: {
-            become_blind() {
-                // The active intrinsic bit makes pline.c:You_see choose "sense".
-                state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
-                return true;
-            },
-        },
         doesBlock() { return false; },
         unblockPoint() {},
         canSee() { return true; },
@@ -776,33 +776,33 @@ test('in_out_region checks all permissions, then leaves, then enters', async () 
             return true;
         };
     }
+    // Test functions in the transition fields; C never sets them in play.
     const l1 = pointRegion(1, 1, {
-        can_leave_f: 'can_leave_l1',
+        can_leave_f: callbacks.can_leave_l1,
         hero_inside: true,
-        leave_f: 'leave_l1',
+        leave_f: callbacks.leave_l1,
         leave_msg: 'left one',
     });
     const l2 = pointRegion(1, 1, {
-        can_leave_f: 'can_leave_l2',
+        can_leave_f: callbacks.can_leave_l2,
         hero_inside: true,
-        leave_f: 'leave_l2',
+        leave_f: callbacks.leave_l2,
         leave_msg: 'left two',
     });
     const e1 = pointRegion(5, 5, {
-        can_enter_f: 'can_enter_e1',
-        enter_f: 'enter_e1',
+        can_enter_f: callbacks.can_enter_e1,
+        enter_f: callbacks.enter_e1,
         enter_msg: 'entered one',
     });
     const e2 = pointRegion(5, 5, {
-        can_enter_f: 'can_enter_e2',
-        enter_f: 'enter_e2',
+        can_enter_f: callbacks.can_enter_e2,
+        enter_f: callbacks.enter_e2,
         enter_msg: 'entered two',
     });
     state.level.regions = [l1, l2, e1, e2];
 
     assert.equal(await in_out_region(5, 5, {
         state,
-        callbacks,
         async message(text) {
             events.push(`message-${text}`);
         },
@@ -832,65 +832,34 @@ test('m_in_out_region preserves cached-ID leave-before-enter order', async () =>
     const state = regionState();
     const monster = newMonster({ m_id: 19, mhp: 3 });
     const events = [];
+    // Test functions in the transition fields; C never sets them in play.
     const leaving = pointRegion(1, 1, {
-        can_leave_f: 'can_leave',
-        leave_f: 'leave',
+        can_leave_f() {
+            events.push('can_leave');
+            return true;
+        },
+        leave_f() {
+            events.push('leave');
+        },
         monsters: [19, 20],
     });
     const entering = pointRegion(5, 5, {
-        can_enter_f: 'can_enter',
-        enter_f: 'enter',
+        can_enter_f() {
+            events.push('can_enter');
+            return true;
+        },
+        enter_f() {
+            events.push('enter');
+        },
         monsters: [21],
     });
     state.level.regions = [leaving, entering];
 
-    assert.equal(await m_in_out_region(monster, 5, 5, {
-        state,
-        callbacks: {
-            can_leave() {
-                events.push('can_leave');
-                return true;
-            },
-            can_enter() {
-                events.push('can_enter');
-                return true;
-            },
-            leave() {
-                events.push('leave');
-            },
-            enter() {
-                events.push('enter');
-            },
-        },
-    }), true);
+    assert.equal(await m_in_out_region(monster, 5, 5, { state }), true);
 
     assert.deepEqual(events, ['can_leave', 'can_enter', 'leave', 'enter']);
     assert.deepEqual(leaving.monsters, [20]);
     assert.deepEqual(entering.monsters, [21, 19]);
-});
-
-test('transition callback preflight keeps memberships atomic', async () => {
-    const state = regionState();
-    const leaving = pointRegion(1, 1, {
-        hero_inside: true,
-        leave_f: 'not_implemented',
-        leave_msg: 'must not print',
-    });
-    state.level.regions = [leaving];
-    let messages = 0;
-
-    await assert.rejects(
-        in_out_region(5, 5, {
-            state,
-            async message() {
-                ++messages;
-            },
-        }),
-        (error) => error instanceof UnsupportedRegionCallbackError
-            && error.callback === 'not_implemented',
-    );
-    assert.equal(leaving.hero_inside, true);
-    assert.equal(messages, 0);
 });
 
 // C ref: region.c region_danger() (1340-1362). pray.c in_trouble() asks it

@@ -2191,16 +2191,21 @@ test('active strangling reaches the live timeout and its later RNG',
         game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
-        // The named unported region callback is a barrier after nh_timeout:
-        // the live turn reaches it after the timeout's draw.
-        const unsupportedRegion = create_region([{
+        // A region whose inside callback throws is a barrier after
+        // nh_timeout: the live turn reaches run_regions() after the
+        // timeout's draw. Game regions hold only the two C callbacks; this
+        // test stores a function in the field.
+        const barrierRegion = create_region([{
             lx: game.u.ux,
             ly: game.u.uy,
             hx: game.u.ux,
             hy: game.u.uy,
         }]);
-        unsupportedRegion.inside_f = 'unported-region-callback';
-        game.level.regions.push(unsupportedRegion);
+        barrierRegion.hero_inside = true;
+        barrierRegion.inside_f = () => {
+            throw new Error('region barrier reached');
+        };
+        game.level.regions.push(barrierRegion);
         // No prior movement remains, so moveloop_core() must enter elapsed
         // upkeep when this consuming command starts.
         game.u.umovement = 0;
@@ -2209,7 +2214,7 @@ test('active strangling reaches the live timeout and its later RNG',
 
         await assert.rejects(
             () => moveloop_core(),
-            /unsupported region callback unported-region-callback/u,
+            /region barrier reached/u,
         );
 
         assert.equal(game.u.uprops[STRANGLED].intrinsic, 5,
