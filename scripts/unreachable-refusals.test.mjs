@@ -97,6 +97,16 @@ export const RULES = [
         name: 'sysconf-only branch',
         pattern: /files\.c livelog_add|unixunix\.c child|sysopt\??\.shellers/gu,
     },
+    {
+        // Refusals of arguments or states every caller rules out:
+        // should_query_disclose_option() gets a literal from "iavgco";
+        // findtravelpath() gets TRAVP_TRAVEL, TRAVP_GUESS or TRAVP_VALID;
+        // notice_all_mons() gets TRUE from every C and JS caller;
+        // set_ustuck() clears uswallow with ustuck; and every trap type has
+        // a mounted arm in dotrap().
+        name: 'constant-argument refusal',
+        pattern: /should_query_disclose_option\(\) category|non-ordinary travel path selection|notice_all_mons\(FALSE\)|swallowed hero without an engulfer|a steed in a trap/gu,
+    },
 ];
 
 function stripComments(source) {

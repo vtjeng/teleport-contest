@@ -3041,14 +3041,6 @@ function travelSquareVisible(x, y, state) {
 // endpoints while checking a proposed destination; and TRAVP_GUESS first
 // chooses a visible reachable point before restarting in TRAVP_TRAVEL.
 export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
-    if (mode !== TRAVP_TRAVEL
-        && mode !== TRAVP_GUESS
-        && mode !== TRAVP_VALID) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'non-ordinary travel path selection',
-        );
-    }
-
     if (!state.travelmap)
         state.travelmap = new Uint8Array(COLNO * ROWNO);
 
@@ -4204,11 +4196,7 @@ async function domove_core(state = game) {
         // move in the requested direction. The swallower owns the hero's
         // position, and the rest of domove_core() handles it as the target of
         // this command so uhitm.c can deliver the guaranteed swallowed hit.
-        if (!u.ustuck) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'swallowed hero without an engulfer',
-            );
-        }
+        // set_ustuck() clears uswallow with ustuck, so the engulfer exists.
         u.dx = 0;
         u.dy = 0;
         newx = u.ustuck.mx;
@@ -5672,13 +5660,10 @@ export function notice_mon_on(state = game) {
 // C ref: hack.c notice_all_mons() (1744-1782). Announces every monster the
 // hero can now spot, nearest first, after a notice_mon_off()/notice_mon_on()
 // pair suspended the per-monster notices.
+// Every C and JS caller passes reset TRUE (allmain.c, do.c, teleport.c,
+// vision.c); FALSE would differ only when nothing is spottable, by leaving
+// each monster's mspotted alone instead of clearing it.
 export async function notice_all_mons(reset, state = game, env = {}) {
-    if (!reset) {
-        // reset differs from TRUE only when nothing is spottable, where it
-        // leaves each monster's mspotted alone instead of clearing it.
-        // teleds() is the only ported caller and passes TRUE.
-        throw new UnsupportedHeroMoveBoundaryError('notice_all_mons(FALSE)');
-    }
     if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked) return;
     const message = env.message ?? ttyPline;
     for (const line of collectMonsterNoticeMessages(

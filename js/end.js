@@ -845,13 +845,10 @@ const DISCLOSURE_OPTIONS = 'iavgco';
 // C ref: end.c should_query_disclose_option() (475-515). The returned
 // `defquery` is the answer used when the option suppresses the prompt and the
 // default passed to yn_function() when it does not.
+// Every caller passes a literal from DISCLOSURE_OPTIONS, so C's bad-category
+// impossible() cannot run.
 function should_query_disclose_option(category, state) {
     const index = DISCLOSURE_OPTIONS.indexOf(category);
-    if (index < 0) {
-        throw new UnsupportedEndOfGameError(
-            `should_query_disclose_option() category ${category}`,
-        );
-    }
     const disclose = state.flags.end_disclose[index];
     switch (disclose) {
     case DISCLOSE_YES_WITHOUT_PROMPT:

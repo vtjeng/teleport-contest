@@ -3965,22 +3965,10 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // the move, and dotrap() calls it again as its first statement for any caller
 // that arrives another way.
 //
-// The stops, and what each of them needs:
-//   every type but ARROW_TRAP, BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
-//     ANTI_MAGIC, MAGIC_PORTAL,
-//     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
-//     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP, ROLLING_BOULDER_TRAP and
-//     VIBRATING_SQUARE -- its own trapeffect_*() arm;
-//   a fixed-destination teleport trap with a monster standing on the
-//     destination -- teleport.c:1516's rloc_to(), whose port covers only a
-//     monster that is not yet on the map;
-//   a mounted hero where the effect has no corresponding source arm --
-//     steedintrap() handles the arrow, dart, gas, magic, polymorph,
-//     landmine and pit arms; TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, HOLE and
-//     TRAPDOOR target the hero directly in their source effects too;
-//     ROCKTRAP, FIRE_TRAP, RUST_TRAP, ROLLING_BOULDER_TRAP and STATUE_TRAP
-//     still target the hero, ANTI_MAGIC acts directly on them, and
-//     VIBRATING_SQUARE calls feeltrap() for the hero;
+// Every trap type from ARROW_TRAP to VIBRATING_SQUARE has its trapeffect_*()
+// arm, mounted or not, so the one stop left is a trap of no known type, which
+// no game creates (C's trapeffect_selector() would print impossible() for
+// it). Some tests use it as a fixed refusal boundary.
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== ARROW_TRAP && trap.ttyp !== BEAR_TRAP
@@ -4000,28 +3988,6 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ROLLING_BOULDER_TRAP
         && trap.ttyp !== VIBRATING_SQUARE && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
-    if (state.u.usteed && trap.ttyp !== ARROW_TRAP
-        && trap.ttyp !== WEB
-        && trap.ttyp !== BEAR_TRAP
-        && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
-        && trap.ttyp !== FIRE_TRAP
-        && trap.ttyp !== ROCKTRAP
-        && trap.ttyp !== RUST_TRAP
-        && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
-        && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
-        && trap.ttyp !== SQKY_BOARD
-        && trap.ttyp !== VIBRATING_SQUARE
-        && trap.ttyp !== ROLLING_BOULDER_TRAP
-        && trap.ttyp !== STATUE_TRAP
-        && trap.ttyp !== TELEP_TRAP
-        && trap.ttyp !== LEVEL_TELEP
-        && trap.ttyp !== MAGIC_PORTAL
-        && !pitTrap && !is_hole(trap.ttyp)) {
-        // These mounted effects still need their source-specific steed arm.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'a steed in a trap',
-        );
-    }
 }
 
 // C ref: trap.c dotrap() (2995-3060). The hero's counterpart to mintrap():
