@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent muse.c mbhit() -> dbridge.c destroy_drawbridge() -> explode.c scatter() witness. A debug-mode gnome Wizard level-teleports to the Castle (^V, ? menu, its castle entry), maps it, and teleports (^T) to the open ground west of the moat on the drawbridge's row. A blessed genocide of class ';' clears the moat's eels. She wishes for a wand of striking, walks two squares east, creates a hostile hill orc beside her, drops the wand and steps east. The orc picks the wand up from the square behind her and zaps it east along the row: the bolt hits her (Boing!), crosses the raised span and strikes the portcullis, so destroy_drawbridge() drops the portcullis into the moat and scatters iron-chain debris, each through scatter() with SCATTER_MAY_HIT. Before the fix, scatter() read the monster-missile stackobj() operation that the muse.c caller had forwarded and threw a TypeError. The seed was chosen by trying seeds 6602417-6602422 for one where the orc picks up the wand.",
+  "segments": [
+    {
+      "seed": 6602417,
+      "datetime": "20530917104522",
+      "nethackrc": "OPTIONS=name:Moatside,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0016?\nj#wizmap\n\u0014  {Hhh.\u0017blessed scroll of genocide\nrn\n\n;\n\u001b\u0017wand of striking\nll\u001b\u0007hostile hill orc\n\u001bdo\u001bl\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}

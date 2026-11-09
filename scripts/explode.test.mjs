@@ -527,24 +527,26 @@ test('scatter preserves C direction, range, landing, and total order', async () 
     };
     const total = await scatter(5, 5, 3, 0, object, state, {
         random,
-        shopOrigin: false,
-        extractObject: (value) => { value.where = 0; },
-        placeObject: (value, x, y) => {
-            value.where = 1;
-            value.ox = x;
-            value.oy = y;
-            landed.push([x, y]);
+        scatterOps: {
+            shopOrigin: false,
+            extractObject: (value) => { value.where = 0; },
+            placeObject: (value, x, y) => {
+                value.where = 1;
+                value.ox = x;
+                value.oy = y;
+                landed.push([x, y]);
+            },
+            stackObject: () => {},
+            floorEffects: () => false,
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: () => null,
+            heroAt: () => false,
+            canSee: () => false,
+            newsym: () => {},
+            maybeUnhideAt: () => {},
         },
-        stackObject: () => {},
-        floorEffects: () => false,
-        terrainAt: () => 100,
-        closedDoor: () => false,
-        isSink: () => false,
-        monsterAt: () => null,
-        heroAt: () => false,
-        canSee: () => false,
-        newsym: () => {},
-        maybeUnhideAt: () => {},
     });
 
     assert.equal(total, 1);
@@ -595,20 +597,22 @@ test('scatter reaches the C egg destruction arm without a glass lookup', async (
                     return 1; // The egg branch, rather than chance, destroys it.
                 },
             },
-            shopOrigin: false,
-            monsterAt: () => null,
-            extractObject: () => {},
-            objectMaterial: () => {
-                effects.push('material');
-                return 0; // Non-glass allows C's following EGG test to run.
+            scatterOps: {
+                shopOrigin: false,
+                monsterAt: () => null,
+                extractObject: () => {},
+                objectMaterial: () => {
+                    effects.push('material');
+                    return 0; // Non-glass allows C's following EGG test to run.
+                },
+                breakObject: async (object) => {
+                    effects.push('break');
+                    broken.push(object);
+                    return true;
+                },
+                newsym: () => {},
+                maybeUnhideAt: () => {},
             },
-            breakObject: async (object) => {
-                effects.push('break');
-                broken.push(object);
-                return true;
-            },
-            newsym: () => {},
-            maybeUnhideAt: () => {},
         },
     );
 
@@ -653,23 +657,25 @@ test('scatter divides unsigned object weight before subtracting range', async ()
                     return 1; // One movement step keeps landing assertions small.
                 },
             },
-            shopOrigin: false,
-            extractObject: (value) => { value.where = 0; },
-            placeObject: (value, x, y) => {
-                value.where = 1;
-                value.ox = x;
-                value.oy = y;
+            scatterOps: {
+                shopOrigin: false,
+                extractObject: (value) => { value.where = 0; },
+                placeObject: (value, x, y) => {
+                    value.where = 1;
+                    value.ox = x;
+                    value.oy = y;
+                },
+                stackObject: () => {},
+                floorEffects: () => false,
+                terrainAt: () => 100,
+                closedDoor: () => false,
+                isSink: () => false,
+                monsterAt: () => null,
+                heroAt: () => false,
+                canSee: () => false,
+                newsym: () => {},
+                maybeUnhideAt: () => {},
             },
-            stackObject: () => {},
-            floorEffects: () => false,
-            terrainAt: () => 100,
-            closedDoor: () => false,
-            isSink: () => false,
-            monsterAt: () => null,
-            heroAt: () => false,
-            canSee: () => false,
-            newsym: () => {},
-            maybeUnhideAt: () => {},
         });
 
         assert.equal(total, 1);
@@ -708,18 +714,20 @@ test('scatter identifies source boulder and statue fracture branches', async () 
             state,
             {
                 random: { rn2: () => 1 },
-                shopOrigin: false,
-                extractObject: () => {},
-                placeObject: () => {},
-                objectAt: () => null,
-                fractureRock: async () => called.push('fractureRock'),
-                breakStatue: async () => called.push('breakStatue'),
-                soundEffect: async () => {},
+                scatterOps: {
+                    shopOrigin: false,
+                    extractObject: () => {},
+                    placeObject: () => {},
+                    objectAt: () => null,
+                    fractureRock: async () => called.push('fractureRock'),
+                    breakStatue: async () => called.push('breakStatue'),
+                    soundEffect: async () => {},
+                    canSee: () => false,
+                    monsterAt: () => null,
+                    newsym: () => {},
+                    maybeUnhideAt: () => {},
+                },
                 message: async (line) => messages.push(line),
-                canSee: () => false,
-                monsterAt: () => null,
-                newsym: () => {},
-                maybeUnhideAt: () => {},
             },
         );
 
@@ -760,32 +768,34 @@ test('scatter bills gold that leaves a shop after the source landing step', asyn
     const floorChecks = [];
     const total = await scatter(sx, sy, 4, 0, gold, state, {
         random: { rn2: () => 3, rnd: () => 1 },
-        shopOrigin: true,
-        shopkeeper: keeper,
-        inRooms: () => [1],
-        creditReport: async (...args) => reports.push(args),
-        costlySpot: (x, y) => x === sx && y === sy,
-        heroInShop: () => true,
-        extractObject: (object) => { object.where = 0; },
-        placeObject: (object, x, y) => {
-            object.where = 1;
-            object.ox = x;
-            object.oy = y;
+        scatterOps: {
+            shopOrigin: true,
+            shopkeeper: keeper,
+            inRooms: () => [1],
+            creditReport: async (...args) => reports.push(args),
+            costlySpot: (x, y) => x === sx && y === sy,
+            heroInShop: () => true,
+            extractObject: (object) => { object.where = 0; },
+            placeObject: (object, x, y) => {
+                object.where = 1;
+                object.ox = x;
+                object.oy = y;
+            },
+            stackObject: () => {},
+            floorEffects: async () => {
+                floorChecks.push(bills.length);
+                return false;
+            },
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: () => null,
+            heroAt: () => false,
+            canSee: () => false,
+            addToBill: async (...args) => bills.push(args),
+            newsym: () => {},
+            maybeUnhideAt: () => {},
         },
-        stackObject: () => {},
-        floorEffects: async () => {
-            floorChecks.push(bills.length);
-            return false;
-        },
-        terrainAt: () => 100,
-        closedDoor: () => false,
-        isSink: () => false,
-        monsterAt: () => null,
-        heroAt: () => false,
-        canSee: () => false,
-        addToBill: async (...args) => bills.push(args),
-        newsym: () => {},
-        maybeUnhideAt: () => {},
     });
 
     assert.equal(total, 1);
@@ -824,23 +834,25 @@ test('scatter gives a monster the source one-step hit boundary', async () => {
             rn2: () => 3,
             rnd: () => 1,
         },
-        shopOrigin: false,
-        extractObject: (value) => { value.where = 0; },
-        placeObject: () => {},
-        stackObject: () => {},
-        floorEffects: () => false,
-        terrainAt: () => 100,
-        closedDoor: () => false,
-        isSink: () => false,
-        monsterAt: (x, y) => x === 6 && y === 4 ? monster : null,
-        hitMonster: async (...args) => {
-            calls.push(args);
-            return false;
+        scatterOps: {
+            shopOrigin: false,
+            extractObject: (value) => { value.where = 0; },
+            placeObject: () => {},
+            stackObject: () => {},
+            floorEffects: () => false,
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: (x, y) => x === 6 && y === 4 ? monster : null,
+            hitMonster: async (...args) => {
+                calls.push(args);
+                return false;
+            },
+            heroAt: () => false,
+            canSee: () => false,
+            newsym: () => {},
+            maybeUnhideAt: () => {},
         },
-        heroAt: () => false,
-        canSee: () => false,
-        newsym: () => {},
-        maybeUnhideAt: () => {},
     });
 
     assert.equal(total, 1);
@@ -871,14 +883,16 @@ test('scatter uses the production object lifecycle on an ordinary floor', async 
             rn2: () => 3,
             rnd: () => 1,
         },
-        shopOrigin: false,
-        terrainAt: () => 100,
-        closedDoor: () => false,
-        isSink: () => false,
-        monsterAt: () => null,
-        heroAt: () => false,
-        canSee: () => false,
-        maybeUnhideAt: () => {},
+        scatterOps: {
+            shopOrigin: false,
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: () => null,
+            heroAt: () => false,
+            canSee: () => false,
+            maybeUnhideAt: () => {},
+        },
     });
 
     assert.equal(total, 1);
@@ -921,15 +935,17 @@ test('scatter interrupts an occupation when a flying object hits the hero',
             rock, game, {
                 random: { rn2: () => 3, rnd: () => 1 },
                 message: async (line) => messages.push(line),
-                damageValue: () => 1,
-                hitHero: async () => true,
-                shopOrigin: false,
-                terrainAt: () => 100,
-                closedDoor: () => false,
-                isSink: () => false,
-                monsterAt: () => null,
-                canSee: () => false,
-                maybeUnhideAt: () => {},
+                scatterOps: {
+                    damageValue: () => 1,
+                    hitHero: async () => true,
+                    shopOrigin: false,
+                    terrainAt: () => 100,
+                    closedDoor: () => false,
+                    isSink: () => false,
+                    monsterAt: () => null,
+                    canSee: () => false,
+                    maybeUnhideAt: () => {},
+                },
             });
 
         assert.deepEqual(game.gb.bhitpos, { x, y },

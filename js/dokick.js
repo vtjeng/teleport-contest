@@ -1150,11 +1150,13 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
                 ? `Some ${xname(treefruit, state)} fall from the tree!`
                 : `${An(xname(treefruit, state))} falls from the tree!`, state);
             const nfall = await scatter(x, y, 2, SCATTER_MAY_HIT, treefruit, state, {
-                stopOccupation: subject => stop_occupation(subject, { message: ttyPline }),
-                exercise: (attribute, increase, subject) => exercise(
-                    attribute, increase, subject, random,
-                    { encumberMessage: encumber_msg },
-                ),
+                scatterOps: {
+                    stopOccupation: subject => stop_occupation(subject, { message: ttyPline }),
+                    exercise: (attribute, increase, subject) => exercise(
+                        attribute, increase, subject, random,
+                        { encumberMessage: encumber_msg },
+                    ),
+                },
             });
             if (nfall !== nfruit) {
                 treefruit = mksobj(frtype, true, false, objects);

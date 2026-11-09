@@ -56,24 +56,26 @@ export async function runExplodeScatterSourceContract() {
                 return 2;
             },
         },
-        shopOrigin: false,
-        extractObject: (value) => { value.where = 0; },
-        placeObject: (value, px, py) => {
-            value.where = 1;
-            value.ox = px;
-            value.oy = py;
-            landed.push([px, py]);
+        scatterOps: {
+            shopOrigin: false,
+            extractObject: (value) => { value.where = 0; },
+            placeObject: (value, px, py) => {
+                value.where = 1;
+                value.ox = px;
+                value.oy = py;
+                landed.push([px, py]);
+            },
+            stackObject: () => {},
+            floorEffects: () => false,
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: () => null,
+            heroAt: () => false,
+            canSee: () => false,
+            newsym: () => {},
+            maybeUnhideAt: () => {},
         },
-        stackObject: () => {},
-        floorEffects: () => false,
-        terrainAt: () => 100,
-        closedDoor: () => false,
-        isSink: () => false,
-        monsterAt: () => null,
-        heroAt: () => false,
-        canSee: () => false,
-        newsym: () => {},
-        maybeUnhideAt: () => {},
     });
 
     assert.equal(total, 1);

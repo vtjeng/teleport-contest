@@ -2883,7 +2883,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         null, state, {
                             ...env,
                             hooks: objectHooks,
-                            newsym: env.newsym ?? redraw,
+                            scatterOps: { newsym: env.newsym ?? redraw },
                         });
                     if (cansee(x, y, state)) redraw(x, y);
                     used_up = true;
@@ -3590,10 +3590,12 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
         {
             ...env,
             random,
-            // explode.c scatter() reads `newsym`; expose the caller's redraw
-            // operation under that seam.
-            newsym: env.newsym ?? env.redraw
-                ?? ((rx, ry) => newsym(rx, ry, state)),
+            // Give explode.c scatter() the caller's redraw operation as its
+            // newsym() replacement.
+            scatterOps: {
+                newsym: env.newsym ?? env.redraw
+                    ?? ((rx, ry) => newsym(rx, ry, state)),
+            },
         },
     );
     del_engr_at(x, y, state);

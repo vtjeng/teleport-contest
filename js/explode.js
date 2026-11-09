@@ -823,6 +823,27 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
 // launch_obj(), and dbridge.c destroy_drawbridge(). Those callers are owned by
 // their source files' spans. They pass the SCATTER_* values exported above and
 // await this production entry point when their JavaScript ports land.
+//
+// C's scatter() calls its callees directly. A caller or a test may replace
+// them only through `rawEnv.scatterOps`, whose keys SCATTER_OPERATIONS lists.
+// Every other key of the environment belongs to the caller's own callees, and
+// scatter() reads only the shared `random`, `message` and `hooks` from it:
+// mthrowu.c's missile operations (js/unported_monster_actions.js
+// monsterMissileEnv()) use several of these names with another signature, and
+// a monster's wand of striking forwards them through muse.c mbhit() and
+// dbridge.c destroy_drawbridge(). scripts/scatter-operations.test.mjs fails
+// when scatter() reads any other key.
+export const SCATTER_OPERATIONS = Object.freeze([
+    'addToBill', 'breakObject', 'breakStatue', 'canSee', 'closedDoor',
+    'costlySpot', 'creditReport', 'damageValue', 'encumberMessage',
+    'exercise', 'extractObject', 'floorEffects', 'fractureRock', 'heroAt',
+    'heroInShop', 'hideUnder', 'hitHero', 'hitMonster', 'inRooms', 'isSink',
+    'losehp', 'maybeUnhideAt', 'monsterAt', 'newsym', 'nomul', 'objectAt',
+    'objectMaterial', 'placeObject', 'shopKeeper', 'shopOrigin', 'shopkeeper',
+    'soundEffect', 'splitObject', 'stackObject', 'stopOccupation',
+    'terrainAt', 'unpunish',
+]);
+
 export async function scatter(
     sx,
     sy,
@@ -832,7 +853,12 @@ export async function scatter(
     state = game,
     rawEnv = {},
 ) {
-    const env = { ...rawEnv, state };
+    const { scatterOps: ops = {}, ...forwarded } = rawEnv;
+    for (const name of Object.keys(ops)) {
+        if (!SCATTER_OPERATIONS.includes(name))
+            throw new TypeError(`scatter() has no operation ${name}`);
+    }
+    const env = { ...forwarded, state };
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     const individualObject = Boolean(obj);
@@ -856,13 +882,13 @@ export async function scatter(
         );
     }
 
-    const roomNumbers = env.inRooms
+    const roomNumbers = ops.inRooms
         ?? ((x, y) => in_rooms(x, y, SHOPBASE, state));
-    const costlySpot = env.costlySpot
+    const costlySpot = ops.costlySpot
         ?? ((x, y) => costly_spot(x, y, state));
-    const shopKeeper = env.shopKeeper
+    const shopKeeper = ops.shopKeeper
         ?? ((roomno) => shop_keeper(roomno, state));
-    const creditReport = env.creditReport
+    const creditReport = ops.creditReport
         ?? ((keeper, index, silent) => credit_report(
             keeper,
             index,
@@ -870,7 +896,7 @@ export async function scatter(
             state,
             { message },
         ));
-    const addToBill = env.addToBill
+    const addToBill = ops.addToBill
         ?? ((object, inInventory, dummy, silent) => addtobill(
             object,
             inInventory,
@@ -879,14 +905,14 @@ export async function scatter(
             state,
             { ...env, message },
         ));
-    const atShopWithHero = env.heroInShop
+    const atShopWithHero = ops.heroInShop
         ?? ((roomno) => {
             const rooms = state.u?.urooms ?? state.u?.ushops ?? '';
             return rooms.includes(String.fromCharCode(roomno));
         });
-    if (env.shopOrigin != null) {
-        shopOrigin = Boolean(env.shopOrigin);
-        shopkeeper = env.shopkeeper ?? null;
+    if (ops.shopOrigin != null) {
+        shopOrigin = Boolean(ops.shopOrigin);
+        shopkeeper = ops.shopkeeper ?? null;
     } else {
         const roomno = roomNumbers(sx, sy)?.[0] ?? 0;
         shopkeeper = shopKeeper(roomno);
@@ -909,17 +935,17 @@ export async function scatter(
                 ?? (() => {}),
         },
     });
-    const extractObject = env.extractObject
+    const extractObject = ops.extractObject
         ?? ((object) => obj_extract_self(object, lifecycle));
-    const splitObject = env.splitObject
+    const splitObject = ops.splitObject
         ?? ((object, quantity) => splitobj(object, quantity, lifecycle));
-    const placeObject = env.placeObject
+    const placeObject = ops.placeObject
         ?? ((object, x, y) => place_object(object, x, y, lifecycle));
-    const stackObject = env.stackObject
+    const stackObject = ops.stackObject
         ?? ((object) => stackobj(object, lifecycle));
-    const objectAt = env.objectAt
+    const objectAt = ops.objectAt
         ?? ((otyp, x, y) => sobj_at(otyp, x, y, state));
-    const floorEffects = env.floorEffects
+    const floorEffects = ops.floorEffects
         ?? ((object, x, y, verb) => flooreffects(
             object,
             x,
@@ -933,19 +959,19 @@ export async function scatter(
                 },
             },
         ));
-    const isVisible = env.canSee
+    const isVisible = ops.canSee
         ?? ((x, y) => cansee(x, y, state));
-    const getMonster = env.monsterAt
+    const getMonster = ops.monsterAt
         ?? ((x, y) => m_at(x, y, state));
-    const getHero = env.heroAt
+    const getHero = ops.heroAt
         ?? ((x, y) => u_at(x, y, state));
-    const isClosedDoor = env.closedDoor
+    const isClosedDoor = ops.closedDoor
         ?? ((x, y) => closed_door(x, y, state));
-    const isSink = env.isSink
+    const isSink = ops.isSink
         ?? ((typ) => IS_SINK(typ));
-    const terrainAt = env.terrainAt
+    const terrainAt = ops.terrainAt
         ?? ((x, y) => state.level?.at?.(x, y)?.typ);
-    const hitMonster = env.hitMonster
+    const hitMonster = ops.hitMonster
         ?? ((monster, object, range, verbose) => ohitmon(
             monster,
             object,
@@ -953,13 +979,13 @@ export async function scatter(
             verbose,
             { ...env, state, random, message },
         ));
-    const damageValue = env.damageValue
+    const damageValue = ops.damageValue
         ?? ((object, monster) => dmgval(object, monster, state, {
             ...env,
             state,
             random,
         }));
-    const hitHero = env.hitHero
+    const hitHero = ops.hitHero
         ?? ((hitValue, damage, object) => thitu(
             hitValue,
             damage,
@@ -971,47 +997,47 @@ export async function scatter(
                 state,
                 random,
                 message,
-                losehp: env.losehp ?? losehp,
-                exercise: env.exercise ?? ((index, increase, subject) =>
+                losehp: ops.losehp ?? losehp,
+                exercise: ops.exercise ?? ((index, increase, subject) =>
                     exercise(index, increase, subject, random, {
-                        encumberMessage: env.encumberMessage
+                        encumberMessage: ops.encumberMessage
                             ?? ((hero) => encumber_msg(hero, {
                                 message,
                             })),
                     })),
             },
         ));
-    const stopOccupation = env.stopOccupation
+    const stopOccupation = ops.stopOccupation
         ?? (async (subject, operationEnv) => {
             // allmain.js imports explosion handling; resolve its canonical
             // interruption only when a scattered object strikes the hero.
             const { stop_occupation } = await import('./allmain.js');
             await stop_occupation(subject, { ...operationEnv, message });
         });
-    const unpunish = env.unpunish;
-    const fractureRock = env.fractureRock
+    const unpunish = ops.unpunish;
+    const fractureRock = ops.fractureRock
         ?? ((object, operationEnv) => fracture_rock(
             object,
             state,
             random,
             { ...lifecycle, ...operationEnv, message },
         ));
-    const breakStatue = env.breakStatue
+    const breakStatue = ops.breakStatue
         ?? ((object, operationEnv) => zapBreakStatue(
             object,
             state,
             random,
             { ...lifecycle, ...operationEnv, message },
         ));
-    const breakObject = env.breakObject
+    const breakObject = ops.breakObject
         ?? ((object, x, y, operationEnv) => breaks(
             object,
             x,
             y,
             { ...lifecycle, ...operationEnv, message },
         ));
-    const redraw = env.newsym ?? ((x, y) => newsym(x, y));
-    const reveal = env.maybeUnhideAt
+    const redraw = ops.newsym ?? ((x, y) => newsym(x, y));
+    const reveal = ops.maybeUnhideAt
         ?? ((x, y) => maybe_unhide_at(x, y, state, env));
 
     // C's while condition is deliberately reread after every extraction. For
@@ -1026,7 +1052,7 @@ export async function scatter(
 
         if (otmp === state.uball || otmp === state.uchain) {
             const wasChain = otmp === state.uchain;
-            if (env.soundEffect) await env.soundEffect(
+            if (ops.soundEffect) await ops.soundEffect(
                 'se_chain_shatters',
                 25,
                 state,
@@ -1062,7 +1088,7 @@ export async function scatter(
                     await message(`${Tobjnam(scattered, 'break', state)} apart.`,
                         state, env);
                 } else {
-                    if (env.soundEffect) await env.soundEffect(
+                    if (ops.soundEffect) await ops.soundEffect(
                         'se_stone_breaking',
                         100,
                         state,
@@ -1085,7 +1111,7 @@ export async function scatter(
                     await message(`${Tobjnam(scattered, 'crumble', state)}.`,
                         state, env);
                 } else {
-                    if (env.soundEffect) await env.soundEffect(
+                    if (ops.soundEffect) await ops.soundEffect(
                         'se_stone_crumbling',
                         100,
                         state,
@@ -1100,7 +1126,7 @@ export async function scatter(
             usedUp = true;
         } else if ((scflags & SCATTER_MAY_DESTROY)
             && (!random.rn2(10)
-                || ((env.objectMaterial?.(scattered)
+                || ((ops.objectMaterial?.(scattered)
                     ?? objectType(scattered, state).oc_material) === GLASS
                     || scattered.otyp === EGG))) {
             usedUp = Boolean(await breakObject(scattered, sx, sy, env));
@@ -1158,8 +1184,8 @@ export async function scatter(
                 } else if (getHero(x, y)) {
                     if (scflags & SCATTER_MAY_HITYOU) {
                         if ((state.multi ?? state.gm?.multi ?? 0)
-                            && !env.nomul) nomul(0, state);
-                        else if (env.nomul) await env.nomul(0, state);
+                            && !ops.nomul) nomul(0, state);
+                        else if (ops.nomul) await ops.nomul(0, state);
                         const damage = await damageValue(chain.obj, state.youmonst);
                         const hitValue = 8 + chain.obj.spe
                             + (bigmonst(state.youmonst?.data) ? 1 : 0);
@@ -1224,7 +1250,7 @@ export async function scatter(
     const sourceMonster = getMonster(sx, sy);
     if (getHero(sx, sy) && state.u?.uundetected
         && hides_under(state.youmonst?.data)) {
-        if (env.hideUnder) await env.hideUnder(state.youmonst, env);
+        if (ops.hideUnder) await ops.hideUnder(state.youmonst, env);
         else hideunder(state.youmonst, { ...env, state });
     }
     if (sourceMonster?.mtrapped) sourceMonster.mtrapped = 0;
