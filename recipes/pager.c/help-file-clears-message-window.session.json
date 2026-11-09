@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 551207,
+      "datetime": "20440322100000",
+      "nethackrc": "OPTIONS=name:Odd,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,spot_monsters,!menu_overlay\n",
+      "moves": "\u0007brown mold\n?d\u001b?h\u001b"
+    }
+  ],
+  "comment": "win/tty wintty.c tty_display_file() begins with tty_clear_nhwindow(WIN_MESSAGE). Dismissing the full-screen help menu runs docrt(), whose vision_recalc() prints \"You see a brown mold.\" for the newly created mold; the history file then erases that line without --More--, and the notice appears again when the file's own window is dismissed. The second pick shows the help file the same way."
+}
