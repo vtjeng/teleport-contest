@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent witness for trap.c chest_trap()'s explosion arm with a punished hero: a Priest wishes for an unlocked trapped large box and drops it, reads a scroll of punishment, picks up the heavy iron ball so only the chain lies under the box, and loots the box. The explosion unpunishes the hero before it destroys the chain, so the hero walks away afterwards with the ball as an ordinary carried object.",
+  "segments": [
+    {
+      "seed": 60550,
+      "datetime": "20261120090000",
+      "nethackrc": "OPTIONS=name:Boxer,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " #wizwish\nunlocked trapped large box\n di#wizwish\nscroll of punishment\nrj ,b\n #loot\n   nllll"
+    }
+  ]
+}

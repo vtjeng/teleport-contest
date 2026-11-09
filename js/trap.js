@@ -162,6 +162,7 @@ import {
     CORPSTAT_HISTORIC,
     CORPSTAT_MALE,
     CORPSTAT_NONE,
+    OBJ_FLOOR,
     ONAME,
     has_oname,
     u_at,
@@ -3661,14 +3662,11 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             delete_contents(obj, { state });
 
             // Unpunish if ball or chain will be destroyed.
-            if (Punished(state)) {
-                const uchain = state.u.uchain;
-                const uball = state.u.uball;
-                if ((uchain && uchain.ox === ox && uchain.oy === oy)
-                    || (uball && uball.where === 1 /* OBJ_FLOOR */
-                        && uball.ox === ox && uball.oy === oy)) {
-                    unpunish(state);
-                }
+            if (Punished(state)
+                && ((state.uchain.ox === ox && state.uchain.oy === oy)
+                    || (state.uball.where === OBJ_FLOOR
+                        && state.uball.ox === ox && state.uball.oy === oy))) {
+                unpunish(state);
             }
 
             // Destroy everything at the spot.
