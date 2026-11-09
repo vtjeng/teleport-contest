@@ -320,7 +320,6 @@ import {
     docast,
     dowizcast,
     dovspell,
-    UnsupportedSpellCastError,
 } from './spell.js';
 import { enhance_weapon_skill } from './weapon.js';
 import {
@@ -2955,10 +2954,6 @@ function restoreParsedCommand(pending, state) {
 export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
-        // spell.c spelleffects_check() and spelleffects() raise this from
-        // the forgotten-spell, amulet-drain, and non-healing spell paths
-        // that this port has not reached.
-        UnsupportedSpellCastError,
         UnsupportedShopError,
         // end.c really_done() calls paybill() and paygd() on every death, so
         // a shopkeeper inherits() cannot settle with or a vault guard owed the

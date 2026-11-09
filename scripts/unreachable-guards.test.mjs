@@ -163,3 +163,13 @@ test('seffect_*() helpers do not recheck their scroll type', () => {
         'seffect_light'])
         assert.doesNotMatch(functionBody(code, name), /\bthrow\b/u, name);
 });
+
+// spell.c spelleffects() has a case for every spell a hero can learn (flame
+// and freeze sphere are #if 0 in objects.h; blank paper cannot be learned),
+// so its default arm is C's impossible(), obfree() and ECMD_OK.
+test('spelleffects()\'s default arm is C\'s impossible()', () => {
+    const body = functionBody(jsCode('spell.js'), 'spelleffects');
+    const defaultArm = body.slice(body.lastIndexOf('default:'));
+    assert.match(defaultArm, /^default:\s*await impossible\(`Unknown spell \$\{spell\} attempted\.`/u);
+    assert.doesNotMatch(defaultArm.slice(0, defaultArm.indexOf('}')), /\bthrow\b/u);
+});

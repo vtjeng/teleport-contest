@@ -26,6 +26,8 @@ export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedPickupError',
     // read.c seffect_*() self-checks: seffects() calls each from its own case
     'UnsupportedReadError',
+    // spell.c spelleffects()'s default arm: every learnable spell has a case
+    'UnsupportedSpellCastError',
 ];
 
 function stripComments(source) {

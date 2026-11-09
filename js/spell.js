@@ -158,7 +158,7 @@ import {
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel } from './pline.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
@@ -1928,10 +1928,10 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         break;
 
     default:
+        // spell.c:1591-1594. Every learnable spell has a case above.
+        await impossible(`Unknown spell ${spell} attempted.`, state);
         obfree(pseudo, null, { state });
-        throw new UnsupportedSpellCastError(
-            `spell type ${otyp} is not ported`,
-        );
+        return ECMD_OK;
     }
 
     /* gain skill for successful cast */
@@ -2144,13 +2144,4 @@ export async function dowizcast(state = game, env = {}) {
     if (selected !== null && selected !== undefined)
         return spelleffects(selected, false, true, state, env);
     return ECMD_OK;
-}
-
-// Thrown where spell.c reaches a casting branch this port has not reached.
-export class UnsupportedSpellCastError extends Error {
-    constructor(branch) {
-        super(`spell casting requires ${branch}`);
-        this.name = 'UnsupportedSpellCastError';
-        this.branch = branch;
-    }
 }
