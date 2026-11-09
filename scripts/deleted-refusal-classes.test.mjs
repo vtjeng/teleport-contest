@@ -17,6 +17,10 @@ const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedLightOperationError', // light.c new_light_source() type check
     'UnsupportedApplyError', // apply.c doapply() arms that all have cases
+    // do_wear.c impossible() arms for unknown boots, shield and shirt types,
+    // canwearobj()'s silly_thing() and cursed() without an object
+    'UnsupportedWearError',
+    'UnsupportedTakeOffError',
 ];
 
 function stripComments(source) {

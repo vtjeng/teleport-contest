@@ -70,7 +70,6 @@ import {
 import {
     Ring_off,
     Helmet_off,
-    UnsupportedWearError,
     _doWearInternals,
     adj_abon,
     canwearobj,
@@ -328,31 +327,6 @@ function inventoryLetter(invlet) {
 // obj.h macros below read.
 function species(pmidx) {
     return game.mons[pmidx];
-}
-
-// A validator for assert.rejects() and assert.throws() that pins the class of
-// a fail-closed boundary as well as the branch it names. The text alone --
-// all a bare RegExp compares -- reads the same on any Error at all, and the
-// class is what decides the outcome: js/cmd.js failClosedCommandRefusals()
-// lists UnsupportedWearError, and a class missing from that list escapes as a
-// hard failure that discards every frame the segment had already matched.
-// Nothing about the swap is hypothetical, either. The same switch that raises
-// the otyp refusals below throws a plain Error sixteen lines further down, for
-// C's panic() at do_wear.c:2392-2393.
-//
-// `branch` is the text the boundary names, matched inside the class's own
-// "<verb> reached an unported branch: " prefix, which is what an unanchored
-// RegExp over the same literal compared.
-function refusal(cls, branch) {
-    return (error) => {
-        assert.ok(error instanceof cls,
-            `expected ${cls.name}, got ${error?.constructor?.name}: `
-            + `${error?.message}`);
-        assert.ok(error.message.includes(branch),
-            `expected a message naming ${JSON.stringify(branch)}, got `
-            + `${JSON.stringify(error?.message)}`);
-        return true;
-    };
 }
 
 test('the wear command is admitted and shares its row with dowear', () => {
@@ -2898,29 +2872,35 @@ test('already_wearing picks its punctuation from the c_that_ string',
     assert.equal(takePendingTopLine(), 'You are already wearing a shield.');
 });
 
-test('Shield_on stops for a slot holding something that is not a shield',
+test('Shield_on notes impossible() and continues for a non-shield',
     async () => {
     // do_wear.c:722-723 reports impossible() for an otyp outside the nine
-    // is_shield() answers for. No ported path can arrive, because
-    // canwearobj() picks the callback by the same predicate.
+    // is_shield() answers for, then marks the item known as for a shield.
+    // No ported path can arrive, because canwearobj() picks the callback by
+    // the same predicate.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
-    game.uarms = armor(FEDORA, { owornmask: W_ARMS, dknown: 1 });
-    assert.throws(() => Shield_on(game),
-        refusal(UnsupportedWearError, 'Shield_on() for otyp 92'));
+    game.unported = new Set();
+    game.uarms = armor(FEDORA, { owornmask: W_ARMS, dknown: 1, known: false });
+    assert.equal(Shield_on(game), 0);
+    assert.equal(game.uarms.known, true);
+    assert.equal(game.unported.has('pline.c impossible'), true);
     game.uarms = null;
 });
 
-test('Shirt_on stops for a slot holding something that is not a shirt',
+test('Shirt_on notes impossible() and continues for a non-shirt',
     async () => {
     // do_wear.c:767-768 reports impossible() for an otyp outside the two
     // objects.h defines. No ported path can arrive, because canwearobj()
     // picks the callback by is_shirt(), which answers for exactly those two.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
-    game.uarmu = armor(FEDORA, { owornmask: W_ARMU, dknown: 1 });
-    assert.throws(() => Shirt_on(game),
-        refusal(UnsupportedWearError, 'Shirt_on() for otyp 92'));
+    game.unported = new Set();
+    game.uarmu = armor(FEDORA, { owornmask: W_ARMU, dknown: 1, known: false });
+    // do_wear.c:767-768's impossible() is discarded and the known write runs.
+    assert.equal(Shirt_on(game), 0);
+    assert.equal(game.uarmu.known, true);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 
     // Both shirts pass, and each sets the known bit. No recorded case reaches
     // that write: every shirt this port can hold arrives from u_init.c with

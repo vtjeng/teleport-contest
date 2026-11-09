@@ -990,13 +990,20 @@ test('greased fingers get their own refusal', async () => {
     game.u.uprops[GLIB].intrinsic = 0;
 });
 
-test('cursed() without an object stops', async () => {
-    // do_wear.c:1894-1897 reports impossible() and answers 0; no caller in
-    // this port can reach it, so the port stops instead of guessing.
-    await assert.rejects(
-        () => cursed(null, game),
-        /cursed\(\) without otmp/,
-    );
+test('cursed() without an object reports impossible() and answers 0',
+    async () => {
+    // do_wear.c:1894-1897. No caller reaches it: setworn() and setnotworn()
+    // clear an emptied slot's takeoff bit through cancel_doff().
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+    takePendingTopLine();
+    // One space for each --More-- between impossible()'s three lines.
+    for (let i = 0; i < 2; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await cursed(null, game), 0);
+    // pline.c impossible()'s last line, after "cursed without otmp" and
+    // "Program in disorder!".
+    assert.equal(takePendingTopLine(),
+        'Please report these messages to devteam@nethack.org.');
 });
 
 test('a covered piece is refused by armor_or_accessory_off', async () => {

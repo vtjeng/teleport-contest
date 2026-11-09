@@ -177,6 +177,7 @@ import {
     is_worn,
     wearing_armor,
     prinv,
+    silly_thing,
     update_inventory,
     useup,
 } from './invent.js';
@@ -385,7 +386,7 @@ import {
 } from './potion.js';
 import { coreRandom, rnd } from './rng.js';
 import { remove_worn_item } from './steal.js';
-import { youFeel } from './pline.js';
+import { impossible, youFeel } from './pline.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
@@ -421,24 +422,6 @@ function wearOperationEnv(rawEnv = {}) {
         redraw: rawEnv.redraw ?? newsym,
         hooks,
     };
-}
-
-// Raised where do_wear.c reaches a branch this port has not translated.
-// js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
-// frame the command already matched instead of failing hard.
-export class UnsupportedTakeOffError extends Error {
-    constructor(what) {
-        super(`take off reached an unported branch: ${what}`);
-        this.name = 'UnsupportedTakeOffError';
-    }
-}
-
-// Fail-closed boundary for the unported wearing branches of do_wear.c.
-export class UnsupportedWearError extends Error {
-    constructor(what) {
-        super(`wear reached an unported branch: ${what}`);
-        this.name = 'UnsupportedWearError';
-    }
 }
 
 // C ref: do_wear.c:10-15, the file's shared message fragments. C compares
@@ -1702,8 +1685,7 @@ async function Armor_gone(state, rawEnv = {}) {
 
 // The boots Boots_on() answers with a bare break, C's five labels at
 // do_wear.c:193-198. Two of them still change what the game does, and both do
-// it outside this switch, so each was checked on its own before being carried
-// rather than refused with the five arms that print, draw or call away.
+// it outside this switch.
 //
 // JUMPING_BOOTS has an oc_oprop of JUMPING (objects.h:712-714), so worn.c
 // setworn() raises EJumping one statement before this callback runs. C reads
@@ -1724,11 +1706,6 @@ async function Armor_gone(state, rawEnv = {}) {
 // dokick()'s avrg_attrib uncomputed because every arm that would read it is
 // refused.
 //
-const SUPPORTED_BOOTS_ON = new Set([
-    LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS, KICKING_BOOTS,
-    WATER_WALKING_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS,
-]);
-
 // C ref: do_wear.c Boots_on() (186-259), the ga.afternmv callback
 // accessory_or_armor_on() installs for the boots slot, and the call set_wear()
 // below makes for a hero who starts in boots. No role does, so that second
@@ -1785,7 +1762,7 @@ export async function Boots_on(state) {
             float_vs_flight(state);
         }
     } else {
-        throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
+        await impossible(`Unknown type of ${c_boots} (${otyp})`, state);
     }
     if (state.uarmf && !state.uarmf.known) {
         /* boots' +/- evident because of status line AC */
@@ -2532,11 +2509,8 @@ export async function Gloves_off(state = game, rawEnv = {}) {
 // later, a wished-for one in these recordings, arrives at known 0 with its
 // enchantment hidden. That is the one that witnesses this write.
 function Shield_on(state) {
-    if (!is_shield(state.uarms, state)) {
-        throw new UnsupportedWearError(
-            `Shield_on() for otyp ${state.uarms.otyp}`,
-        );
-    }
+    // C's impossible() for an unknown shield type is discarded.
+    if (!is_shield(state.uarms, state)) note_unported('pline.c impossible');
     if (!state.uarms.known) {
         /* shield's +/- evident because of status line AC */
         state.uarms.known = true;
@@ -2549,12 +2523,9 @@ function Shield_on(state) {
 // when taken off; C keeps a switch over all nine shield types so that a new
 // one would be noticed, and obj.h is_shield() answers for exactly those nine.
 export function Shield_off(state = game) {
-    if (!is_shield(state.uarms, state)) {
-        throw new UnsupportedTakeOffError(
-            `Shield_off() for otyp ${state.uarms.otyp}`,
-        );
-    }
     takeoffContext(state).mask &= ~W_ARMS;
+    // C's impossible() for an unknown shield type is discarded.
+    if (!is_shield(state.uarms, state)) note_unported('pline.c impossible');
     setworn(null, W_ARMS, setwornEnv(state));
     return 0;
 }
@@ -2573,8 +2544,9 @@ export function Shield_off(state = game) {
 function Shirt_on(state) {
     const otyp = state.uarmu.otyp;
 
+    // C's impossible() for an unknown shirt type is discarded.
     if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
-        throw new UnsupportedWearError(`Shirt_on() for otyp ${otyp}`);
+        note_unported('pline.c impossible');
     if (!state.uarmu.known) {
         /* shirt's +/- evident because of status line AC */
         state.uarmu.known = true;
@@ -2589,9 +2561,10 @@ function Shirt_on(state) {
 export function Shirt_off(state = game) {
     const otyp = state.uarmu.otyp;
 
-    if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
-        throw new UnsupportedTakeOffError(`Shirt_off() for otyp ${otyp}`);
     takeoffContext(state).mask &= ~W_ARMU;
+    // C's impossible() for an unknown shirt type is discarded.
+    if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
+        note_unported('pline.c impossible');
     setworn(null, W_ARMU, setwornEnv(state));
     return 0;
 }
@@ -2955,12 +2928,11 @@ export async function canwearobj(otmp, noisy, state = game) {
             err++;
         } else mask = W_ARM;
     } else {
-        // C's final else answers invent.c silly_thing("wear", otmp), which
-        // js/invent.js:592 also stops in front of. Nothing reaches it: both
-        // callers test oclass == ARMOR_CLASS before calling, and every
+        // Both callers test oclass == ARMOR_CLASS before calling, and every
         // ARMOR_CLASS row in objects.h carries one of the seven armor
-        // categories above.
-        throw new UnsupportedWearError('silly_thing()');
+        // categories above, so no game reaches this arm.
+        if (noisy) await silly_thing('wear', otmp, state);
+        err++;
     }
     return { ok: err === 0, mask };
 }
@@ -3136,7 +3108,12 @@ export async function glibr(state = game, env = {}) {
 // C ref: do_wear.c cursed() (1891-1917). Answers whether a worn item is
 // cursed and therefore stuck, printing the reason when it is.
 export async function cursed(otmp, state = game) {
-    if (!otmp) throw new UnsupportedTakeOffError('cursed() without otmp');
+    if (!otmp) {
+        // setworn() and setnotworn() clear an emptied slot's takeoff bit
+        // through cancel_doff(), so no caller passes null.
+        await impossible('cursed without otmp', state);
+        return 0;
+    }
 
     /* Curses, like chickens, come home to roost. */
     if (otmp === state.uwep ? welded(otmp, state) : Boolean(otmp.cursed)) {
@@ -3689,11 +3666,6 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Gloves_on;
             break;
         case W_ARMF:
-            if (!SUPPORTED_BOOTS_ON.has(obj.otyp)
-                && obj.otyp !== SPEED_BOOTS)
-                throw new UnsupportedWearError(
-                    `Boots_on() for otyp ${obj.otyp}`,
-                );
             afternmv = Boots_on;
             break;
         case W_ARMU:

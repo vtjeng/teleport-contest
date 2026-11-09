@@ -131,3 +131,15 @@ test('doapply()\'s default arm refuses no named object type', () => {
     const defaultArm = body.slice(body.lastIndexOf('default:'));
     assert.doesNotMatch(defaultArm, /\bthrow\b/u);
 });
+
+// do_wear.c answers an unknown boots, shield or shirt type with impossible()
+// and carries on (251, 723, 751, 768, 789), as cursed() does without an
+// object (1894-1897) and canwearobj() with silly_thing() (2198-2201). The
+// port follows; none of these functions may throw.
+test('do_wear.c impossible() arms continue as C does', () => {
+    const code = jsCode('do_wear.js');
+    for (const name of ['Boots_on', 'Shield_on', 'Shield_off', 'Shirt_on',
+        'Shirt_off', 'cursed', 'canwearobj'])
+        assert.doesNotMatch(functionBody(code, name), /\bthrow\b/u, name);
+    assert.doesNotMatch(code, /SUPPORTED_BOOTS_ON/u);
+});

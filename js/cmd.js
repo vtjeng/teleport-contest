@@ -146,7 +146,6 @@ import {
 import {
     doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
     reset_remarm, doddoremarm,
-    UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
 import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lock.js';
 import {
@@ -2976,19 +2975,6 @@ export function failClosedCommandRefusals() {
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
-        // do_wear.c dotakeoff() raises this for a piece of armor whose
-        // objects[].oc_delay is non-zero and for the slots whose <X>_off()
-        // is unported, in both cases before anything is drawn or removed.
-        UnsupportedTakeOffError,
-        // do_wear.c accessory_or_armor_on() raises this above setworn() for
-        // the quest helm, an artifact, armor held in a weapon slot, and the
-        // suit, helmet, glove and boot otyps whose <X>_on() reaches outside
-        // do_wear.c. Cloak_on() handles every valid cloak type. Also raised
-        // for the headless-polymorph eyewear arm, which needs ansimpleoname().
-        // No armor slot refuses wholesale: all seven reach a callback.
-        // set_wear() raises it too, from moveloop_preamble() rather than from
-        // a command, which is the raiser the startup reader above converts.
-        UnsupportedWearError,
         // read.c doread() raises this after getobj() returns an object and
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.

@@ -1398,7 +1398,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
 // C ref: invent.c silly_thing() (2094-2135). OBSOLETE_HANDLING is disabled in
 // the upstream build; the live body only has the Amulet exception and the
 // generic feedback string.
-async function silly_thing(word, otmp, state = game) {
+export async function silly_thing(word, otmp, state = game) {
     if (word === 'call'
         && (otmp?.otyp === AMULET_OF_YENDOR
             || (otmp?.otyp === FAKE_AMULET_OF_YENDOR && !otmp.known))) {
