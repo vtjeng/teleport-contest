@@ -264,7 +264,13 @@ import {
     menuTitleStyle,
     ttyMenuLayout,
 } from './tty_menu.js';
-import { displayPendingTtyMessageWindow, ttyPline, ttyPutmixed } from './tty_message.js';
+import {
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    ttyPline,
+    ttyPutmixed,
+} from './tty_message.js';
 import { doextversion } from './version.js';
 import {
     t_at,
@@ -2260,6 +2266,11 @@ export function setopt_cmd(state = game) {
 // the NHW_TEXT lines without filesystem access.
 // Every filename its callers pass is a HELP_TEXT_FILES key.
 async function display_file(filename, state) {
+    // tty_display_file() begins with tty_clear_nhwindow(WIN_MESSAGE), which
+    // erases a waiting line without --More--: the help menu's docrt() can
+    // just have printed a monster notice there.
+    await emitQueuedNotices(state);
+    clearTtyMessageWindow(state);
     const text = HELP_TEXT_FILES[filename];
     await displayTtyTextWindow(state, text.map((line) => ({ text: line })));
 }
