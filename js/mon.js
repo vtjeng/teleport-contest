@@ -1819,22 +1819,36 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
 // C ref: mon.c mon_give_prop() (1726-1775).
 export async function mon_give_prop(mtmp, prop, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const messages = new Map([
-        [FIRE_RES, '%s shivers slightly.'],
-        [COLD_RES, '%s looks quite warm.'],
-        [SLEEP_RES, '%s looks wide awake.'],
-        [DISINT_RES, '%s looks very firm.'],
-        [SHOCK_RES, '%s crackles with static electricity.'],
-        [POISON_RES, '%s looks healthy.'],
-    ]);
-    if (!messages.has(prop)) return;
+    let msg;
+    switch (prop) {
+    case FIRE_RES:
+        msg = '%s shivers slightly.';
+        break;
+    case COLD_RES:
+        msg = '%s looks quite warm.';
+        break;
+    case SLEEP_RES:
+        msg = '%s looks wide awake.';
+        break;
+    case DISINT_RES:
+        msg = '%s looks very firm.';
+        break;
+    case SHOCK_RES:
+        msg = '%s crackles with static electricity.';
+        break;
+    case POISON_RES:
+        msg = '%s looks healthy.';
+        break;
+    default:
+        return; /* can't give it */
+    }
     const intrinsic = 1 << (prop - FIRE_RES);
     const oldResistance = (mtmp.data?.mresists ?? 0) | (mtmp.mintrinsics ?? 0);
-    const message = oldResistance & intrinsic ? null : messages.get(prop);
+    if (oldResistance & intrinsic) msg = null;
     mtmp.mintrinsics = (mtmp.mintrinsics ?? 0) | intrinsic;
-    if (canseemon(mtmp, state) && message) {
+    if (canseemon(mtmp, state) && msg) {
         await monsterMessage(
-            message.replace('%s', capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })),
+            msg.replace('%s', capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })),
             mtmp,
             state,
             rawEnv,
