@@ -15,6 +15,7 @@ const ENTRY_POINTS = [
     ['js/getline.js', 'tty_getlin'],
     ['js/topl.js', 'tty_yn_function'],
     ['js/tty_message.js', 'ttyPlineCore'],
+    ['js/tty_message.js', 'displayPendingTtyMessageWindow'],
 ];
 
 function firstStatement(file, name) {

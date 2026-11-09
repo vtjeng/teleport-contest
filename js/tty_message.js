@@ -321,6 +321,7 @@ export async function tty_message_menu(
 // _pending_message: callers such as invent.c look_here() can have a stale
 // physical line with TOPLINE_NON_EMPTY and no input boundary to consume.
 export async function displayPendingTtyMessageWindow(state) {
+    await emitQueuedNotices(state);
     // wintty.c tty_display_nhwindow() returns first when cw->flags has
     // WIN_CANCELLED. wintty.h gives WIN_CANCELLED and WIN_STOP the same bit,
     // so after an Escape at --More-- the message window is neither waited on

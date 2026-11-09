@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 663104,
+      "datetime": "20420711203000",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,spot_monsters\n",
+      "moves": "\u0017cursed scroll of light\nre dadb\u0007tame brown mold\n\u0007brown mold\nh nkkkkkkk  "
+    }
+  ],
+  "comment": "invent.c look_here() calls display_nhwindow(WIN_MESSAGE, FALSE) before its \"Things that are here\" window. In a room the cursed scroll darkened, the hero finally swaps places with an immobile pet standing on the dropped pile (uhitm.c lets a sessile pet move one time in six). The \"You swap places\" line is still waiting when domove_core()'s vision_recalc() spots the hostile brown mold beside the pile and prints its notice; that display_nhwindow() then stops at --More-- after both."
+}
