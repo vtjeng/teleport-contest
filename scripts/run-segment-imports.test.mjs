@@ -9,6 +9,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { assertExceptionCount } from './exception-count.mjs';
+
 const root = new URL('../', import.meta.url);
 
 const JUDGE_CALLERS = new Map([
@@ -79,11 +81,14 @@ test('only the judge callers take the plain runSegment from js/jsmain.js', () =>
     assert.ok(files.length > 1000, `only ${files.length} tracked scripts listed`);
     const offenders = [];
     const seenJudgeCallers = new Set();
+    let judgeUses = 0;
     for (const path of files) {
         const uses = plainRunSegmentUses(readFileSync(new URL(path, root), 'utf8'));
         if (!uses.length) continue;
-        if (JUDGE_CALLERS.has(path)) seenJudgeCallers.add(path);
-        else offenders.push(`${path}: ${uses.join('; ')}`);
+        if (JUDGE_CALLERS.has(path)) {
+            seenJudgeCallers.add(path);
+            judgeUses += uses.length;
+        } else offenders.push(`${path}: ${uses.join('; ')}`);
     }
     assert.deepEqual(offenders, [],
         'import runSegmentStrict from js/jsmain.js (import { runSegmentStrict as runSegment }) '
@@ -91,4 +96,15 @@ test('only the judge callers take the plain runSegment from js/jsmain.js', () =>
     // An entry whose file no longer takes runSegment would let a later file
     // of that name do so unchecked.
     assert.deepEqual([...seenJudgeCallers].sort(), [...JUDGE_CALLERS.keys()].sort());
+    // On 9f7e42e6 (8 November 2026): 6 JUDGE_CALLERS taking runSegment
+    // 12 times, counting this file's own detector samples.
+    const PINS = { files: 6, uses: 12 };
+    assertExceptionCount(JUDGE_CALLERS.size, PINS.files, {
+        what: 'JUDGE_CALLERS files',
+        pin: 'PINS.files in scripts/run-segment-imports.test.mjs',
+    });
+    assertExceptionCount(judgeUses, PINS.uses, {
+        what: 'plain runSegment uses in JUDGE_CALLERS',
+        pin: 'PINS.uses in scripts/run-segment-imports.test.mjs',
+    });
 });
