@@ -55,6 +55,44 @@ test('only dungeon_at() indexes the dungeon table', () => {
         + 'dungeon_at() in js/dungeon_table.js');
 });
 
+// Tests of a dungeon number against -1 or below zero, which is how a second
+// model of svd.dungeons[-1] would start (do.js once had one: depth dlevel - 1,
+// no levels, ledger dlevel). Each allowed line names a different thing.
+const NEGATIVE_DNUM = /\bdnum\s*(?:<\s*0|<=\s*-1|[!=]==?\s*-1)|-1\s*[!=]==?\s*[\w.?]*\bdnum\b/u;
+const ALLOWED_NEGATIVE_DNUM = new Map([
+    // dungeon_at() itself.
+    ['dungeon_table.js', ['if (dnum === -1) return dungeon_before_table(state);']],
+    // gl.luathemes[-1], a different table.
+    ['mklev.js', ['if (dnum === -1) {']],
+    // dname_to_dnum()'s findIndex() found no dungeon of that name.
+    ['dungeon.js', ['if (dnum < 0) throw new Error(`dname_to_dnum: unknown dungeon ${dname}`);']],
+]);
+
+test('only dungeon_at() treats dungeon -1 apart', () => {
+    const findings = [];
+    for (const name of jsFiles()) {
+        const lines = readFileSync(join(JS_DIR, name), 'utf8').split('\n');
+        lines.forEach((line, index) => {
+            if (/^\s*(?:\/\/|\*)/u.test(line) || !NEGATIVE_DNUM.test(line)) return;
+            if (ALLOWED_NEGATIVE_DNUM.get(name)?.includes(line.trim())) return;
+            findings.push(`${name}:${index + 1}`);
+        });
+    }
+    assert.deepEqual(findings, [], 'read dungeon -1 through dungeon_at() '
+        + 'in js/dungeon_table.js');
+});
+
+test('the negative-dnum check finds the forms a separate model takes', () => {
+    // do.js's removed goto_depth(), and three other spellings.
+    for (const line of [
+        'return level.dnum < 0 ? level.dlevel - 1 : depth(level, state);',
+        'if (dnum !== -1) return state.dungeons[dnum].ledger_start;',
+        'if (lev.dnum == -1) return 0;',
+        'if (-1 === newlevel.dnum) return 0;',
+    ]) assert.ok(NEGATIVE_DNUM.test(line), line);
+    assert.ok(!NEGATIVE_DNUM.test('if (dnum >= 0) return 1;'));
+});
+
 test('the check finds each form of a direct index', () => {
     // One line per form the pattern must catch, and two it must skip.
     const source = [

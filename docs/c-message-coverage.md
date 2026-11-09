@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3983 | 85 |
-| diagnostic | 723 | 195 | 528 |
+| diagnostic | 723 | 198 | 525 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4181 | 730 |
+| total | 4911 | 4184 | 727 |
 
 ## Missing by C file
 
@@ -48,13 +48,13 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
 | src/display.c | yes | 0 | 15 | 0 |
-| src/do.c | yes | 1 | 6 | 0 |
+| src/do.c | yes | 1 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
 | src/dog.c | yes | 0 | 4 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
-| src/dungeon.c | yes | 0 | 20 | 7 |
+| src/dungeon.c | yes | 0 | 19 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 1 | 36 |
 | src/end.c | yes | 3 | 4 | 1 |
@@ -584,10 +584,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `u_collide_m()`
   - 1419 impossible: `steed is on map`
 
-- `goto_level()`
-  - 1696 impossible: `goto_level: returning to discarded level?`
-  - 1739 impossible: `goto_level: no corresponding portal!`
-
 - `revive_corpse()`
   - 2203 impossible: `reviving corpse from non-existent container`
   - 2240 impossible: `revive_corpse: lost corpse @`
@@ -685,9 +681,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1272 panic: `init_dungeons: too many dungeons`
   - 1281 panic: `] is not a lua table`
   - 1293 panic: `init_dungeon:  couldn't place levels`
-
-- `builds_up()`
-  - 1491 impossible: `builds_up: can't find branch for dungeon`
 
 - `dungeon_branch()`
   - 1883 panic: `dgn_entrance: can't find entrance to`

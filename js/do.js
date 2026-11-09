@@ -215,7 +215,7 @@ import { floating_above } from './fountain.js';
 import { artifact_has_invprop } from './artifacts.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
-import { livelog_printf, youFeel, youSee } from './pline.js';
+import { impossible, livelog_printf, youFeel, youSee } from './pline.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
@@ -2498,8 +2498,8 @@ export async function doup(state = game) {
 // the do.c owner so dungeon.c show_overview()/print_mapseen() sees one
 // source-ordered reached-depth value regardless of which caller performed the
 // assignment.
-export function updateDunlevReached(level, state = game) {
-    if (!builds_up(level, state)) {
+export function updateDunlevReached(level, state = game, env = {}) {
+    if (!builds_up(level, state, env)) {
         if (dunlev(level) > dunlev_reached(level, state))
             set_dunlev_reached(level, dunlev(level), state);
     } else if (dunlev_reached(level, state) === 0
@@ -2564,24 +2564,6 @@ async function final_level(state = game) {
     await gain_guardian_angel(state);
 }
 
-// A magic portal wished for in wizard mode (objnam.c, "to nowhere") keeps
-// trap.c maketrap()'s dst of {-1, -1}, and domagicportal() schedules it.
-// goto_level() then reads svd.dungeons[-1], the storage before the array,
-// in depth(), dunlevs_in_dungeon() and ledger_no(). The recorded C game
-// reaches done(ESCAPED), as it does when that slot reads as zeros, so these
-// three reads model it so: depth dlevel - 1, no levels, ledger dlevel.
-function goto_depth(level, state) {
-    return level.dnum < 0 ? level.dlevel - 1 : depth(level, state);
-}
-
-function goto_dunlevs(level, state) {
-    return level.dnum < 0 ? 0 : dunlevs_in_dungeon(level, state);
-}
-
-function goto_ledger(level, state) {
-    return level.dnum < 0 ? level.dlevel : ledger_no(level, state);
-}
-
 export async function goto_level(
     newlevel,
     at_stairs,
@@ -2590,11 +2572,11 @@ export async function goto_level(
     state = game,
 ) {
     const u = state.u;
-    let up = goto_depth(newlevel, state) < depth(u.uz, state);
+    let up = depth(newlevel, state) < depth(u.uz, state);
     const newdungeon = u.uz.dnum !== newlevel.dnum;
     // C computes this before clamping the destination or applying the
     // mysterious-force reassignment; the falling damage tail uses that value.
-    const dist = goto_depth(newlevel, state) - depth(u.uz, state);
+    const dist = depth(newlevel, state) - depth(u.uz, state);
     let leaving_tutorial = false;
     let do_fall_dmg = false;
     let new_ledger;
@@ -2602,8 +2584,8 @@ export async function goto_level(
     const prev_temperature = state.level.flags.temperature;
     const was_in_W_tower = In_W_tower(u.ux, u.uy, u.uz, state);
 
-    if (dunlev(newlevel) > goto_dunlevs(newlevel, state))
-        newlevel.dlevel = goto_dunlevs(newlevel, state);
+    if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel, state))
+        newlevel.dlevel = dunlevs_in_dungeon(newlevel, state);
     if (newdungeon) {
         // do.c:1504-1515. Endgame entry requires the Amulet. Wizard mode may
         // bypass the Earth plane, while ordinary entry is redirected there.
@@ -2621,7 +2603,7 @@ export async function goto_level(
             leaving_tutorial = true;
         }
     }
-    new_ledger = goto_ledger(newlevel, state);
+    new_ledger = ledger_no(newlevel, state);
     if (new_ledger <= 0) {
         // do.c:1518-1519. done(ESCAPED) owns the terminal disclosure and
         // returns only in this JavaScript port after marking gameover.
@@ -2786,7 +2768,12 @@ export async function goto_level(
     assign_level(u.uz, newlevel);
     assign_level(u.utolev, newlevel);
     u.utotype = UTOTYPE_NONE;
-    updateDunlevReached(u.uz, state);
+    // builds_up()'s impossible() for dungeon -1 prints here; nothing between
+    // it and the end of the reached-depth update draws or uses the RNG.
+    const impossibles = [];
+    updateDunlevReached(u.uz, state,
+        { impossible: (text) => impossibles.push(text) });
+    for (const text of impossibles) await impossible(text, state);
 
     stairway_free_all(state);
     // do.c:1688-1690 clears the default arrival areas a special level may
@@ -2800,9 +2787,8 @@ export async function goto_level(
     let familiar = false;
     if (!(level_info(new_ledger, state).flags & LFILE_EXISTS)) {
         if (level_info(new_ledger, state).flags & VISITED) {
-            // C's impossible() clears the flag and carries on; a level marked
-            // visited with no file behind it means the port lost a level.
-            note_unported('pline.c impossible');
+            await impossible('goto_level: returning to discarded level?',
+                state);
             level_info(new_ledger, state).flags &= ~VISITED;
         }
         await mklev();
@@ -2841,14 +2827,13 @@ export async function goto_level(
             (trap) => trap.ttyp === MAGIC_PORTAL,
         );
         if (!ttrap) {
-            // C's two no-portal arms differ only in the impossible() warning;
-            // both then place the hero at random.
             if (u.uevent?.qexpelled
                 && (on_level(u.uz0, state.qstart_level)
                     || on_level(u.uz, state.qstart_level))) {
                 await u_on_rndspot(0, state);
             } else {
-                note_unported('pline.c impossible');
+                // iflags.debug_fuzzer is never set in this port.
+                await impossible('goto_level: no corresponding portal!', state);
                 await u_on_rndspot(0, state);
             }
         } else {

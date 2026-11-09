@@ -4,6 +4,7 @@
 
 import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
+import { note_unported } from './unported.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
@@ -779,16 +780,23 @@ export function avoid_ceiling(level, state = game) {
     return inQuest || !has_ceiling(level, state);
 }
 
-export function builds_up(level, state = game) {
+// C ref: dungeon.c builds_up() (1477-1493). Only a level of dungeon -1 (see
+// js/dungeon_table.js) reaches the impossible() arm. impossible() is async in
+// this port and builds_up() is not, so a caller that can wait passes
+// env.impossible, which receives the message to print once builds_up()
+// returns; for any other caller the message is recorded as a gap.
+export function builds_up(level, state = game, env = {}) {
     const dungeon = dungeon_at(level.dnum, state);
     if (dungeon.num_dunlevs > 1)
         return dungeon.entry_lev === dungeon.num_dunlevs;
     const branch = state.branches.find(
         (candidate) => on_level(candidate.end2, level),
     );
-    if (!branch)
-        throw new Error(`builds_up: no branch for dungeon ${level.dnum}`);
-    return Boolean(branch.end1_up);
+    if (branch) return Boolean(branch.end1_up);
+    const text = `builds_up: can't find branch for dungeon ${level.dnum}`;
+    if (env.impossible) env.impossible(text);
+    else note_unported('pline.c impossible');
+    return false;
 }
 
 // C ref: dungeon.c next_level() (1496-1514), the '>' command's descent.
@@ -1004,6 +1012,10 @@ export function set_dunlev_reached(level, dlevel, state = game) {
 // first use with the same zero flags.
 export function level_info(ledgerNumber, state = game) {
     const ledger = Math.trunc(ledgerNumber);
+    // C does not check the ledger. A wished magic portal's destination,
+    // ledger_no() of {-1, -1}, is jingle[0..1] - 1 (js/dungeon_table.js), so
+    // a tune of two or more notes gives 16000 or more and C reads past
+    // svl.level_info[MAXLINFO] into svr.rooms[]. That read is not modelled.
     if (ledger < 0 || ledger > maxledgerno(state))
         throw new RangeError(`level_info: ledger ${ledger} out of range`);
     state.svl ??= {};

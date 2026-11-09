@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c:goto_level() witness for a wished magic portal to nowhere entered with a one-note improvised tune. The portal keeps maketrap()'s dst of {-1, -1}; svd.dungeons[-1] overlays svc.context, so ledger_no() reads jingle[0] (\"F\") - 1 = 69 instead of escaping, builds_up() finds no branch for dungeon -1 and calls impossible(), mklev() makes a plain-room level with no themed rooms (gl.luathemes[-1] is gl.light_base, empty), and goto_level() finds no portal there. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 4242017,
+      "datetime": "20590417093000",
+      "nethackrc": "OPTIONS=name:Brigid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyaeyh\u0017magic portal\nlh      s:"
+    }
+  ]
+}

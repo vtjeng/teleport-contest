@@ -666,6 +666,24 @@ function roomIsFillable(croom) {
         && croom.needfill === FILL_NORMAL);
 }
 
+// gl.luathemes[dnum], the Lua state holding a dungeon's themed rooms, which
+// mklev.c makerooms() loads from svd.dungeons[dnum].themerms and
+// themerooms_post_level_generate() reads; state._luathemes_loaded[dnum]
+// stands for a non-null one. At dnum -1 (a wished magic portal's destination,
+// js/dungeon_table.js) C reads the 8 bytes before gl.luathemes, which in the
+// recorder's build are gl.light_base: offsetof(gl, light_base) is 72 and
+// offsetof(gl, luathemes) 80 (.cache/lead/wt-dneg1-notes/layout/gl.c). An
+// empty light source list reads as no Lua state. A non-empty one would be
+// used as a lua_State, which this does not model.
+function luathemes_at(dnum, state) {
+    if (dnum === -1) {
+        if (state.gl?.light_base)
+            throw new Error('gl.luathemes[-1] reads gl.light_base as a Lua state');
+        return false;
+    }
+    return Boolean(state._luathemes_loaded?.[dnum]);
+}
+
 // C refs: nhlua.c nhl_init(); dat/nhlib.lua. Each dungeon branch retains its
 // own themed-room Lua state, including nhlib's shuffled alignment array.
 export function initialize_themeroom_branch(state = game, random = rn2) {
@@ -688,7 +706,7 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
 // not wallify its freshly loaded map a second time.
 function themerooms_post_level_generate(state = game) {
     const dnum = state.u?.uz?.dnum ?? 0;
-    if (!state._luathemes_loaded?.[dnum]) return;
+    if (!luathemes_at(dnum, state)) return;
     run_themeroom_postprocess({ state });
     wallification(1, 0, COLNO - 1, ROWNO - 1, state);
 }
@@ -779,8 +797,12 @@ async function makelevel(specialLevelLoader = null) {
     // Regular level generation
     // C ref: mklev.c:382-388 — load themerms.lua for themed rooms
     // nhlib.lua shuffle when loading themerms.lua (first level of branch)
+    // makerooms() loads the dungeon's themerms file into gl.luathemes the
+    // first time; only the Dungeons of Doom names one.
     const rogue = Is_rogue_level(g.u.uz, g);
-    if (!rogue) initialize_themeroom_branch(g, rn2);
+    if (!rogue && (luathemes_at(g.u.uz.dnum, g)
+                   || dungeon_at(g.u.uz.dnum, g).themerms))
+        initialize_themeroom_branch(g, rn2);
 
     if (rogue) {
         makeroguerooms(g);
@@ -953,7 +975,8 @@ function mk_knox_portal(x, y) {
 async function makerooms() {
     const g = game;
     let tried_vault = false;
-    const difficulty = level_difficulty(g);
+    const themes = luathemes_at(g.u.uz.dnum, g);
+    const difficulty = themes ? level_difficulty(g) : 0;
     let themeroom_tries = 0;
 
     while (g.level.nroom < (MAXNROFROOMS - 1) && rnd_rect()) {
@@ -964,6 +987,8 @@ async function makerooms() {
                 g.vault_y = g.level.rooms[g.level.nroom]?.ly ?? -1;
                 if (g.level.rooms[g.level.nroom]) g.level.rooms[g.level.nroom].hx = -1;
             }
+        } else if (!themes) {
+            if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1)) break;
         } else {
             // Themed room selection (reservoir sampling)
             g.in_mk_themerooms = true;
