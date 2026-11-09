@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: do_look() shows its explanation with putmixed(), which bypasses vpline() and so MSGTYPE; with an IBM symset the explanation starts with a high-bit byte",
+  "segments": [
+    {
+      "seed": 33950812,
+      "datetime": "20431205110726",
+      "nethackrc": "OPTIONS=name:Wendel,role:Caveman,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=symset:IBMGraphics_2\nMSGTYPE=hide \".*(floor|wall|doorway|corridor|dark part).*\"\nMSGTYPE=hide \"You see no objects here.\"\n",
+      "moves": ";lll.s;l.s;k.s  "
+    }
+  ]
+}

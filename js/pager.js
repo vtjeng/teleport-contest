@@ -2078,13 +2078,26 @@ export async function do_look(mode, clickCc = null, state = game) {
 
             const description = do_screen_description(cc, true, 0, state);
             const location = state.level?.at(cc.x, cc.y);
+            // do_screen_description()'s encglyph() prefix.
+            const prefix = map_glyphinfo(glyph_at(cc.x, cc.y, state), state);
+            // pager.c do_look() 1920-1923 shows every explanation with
+            // putmixed(), never pline(), so MSGTYPE never applies to it.
             if (location?.disp_decgfx) {
                 await ttyPutmixed(
                     `${location.disp_ch}${description.out.slice(1)}`,
                     description.out[0], state,
                 );
+            } else if ((prefix.ttychar & 0x80) && prefix.ch != null) {
+                // topl.c redotoplin() sends a mixed line's high-bit first
+                // byte through g_putch(), which recorder patch 006 captures
+                // with the high bit stripped: symbol_at()'s `ch` for an
+                // H_IBM byte. That byte is one cell wide.
+                await ttyPutmixed(
+                    `${prefix.ch}${description.out.slice(1)}`,
+                    prefix.ch, state,
+                );
             } else {
-                await ttyPline(description.out, state);
+                await ttyPutmixed(description.out, null, state);
             }
             // pager.c do_look() 1941-1954: a quick or once pick never reads
             // the data file; a verbose pick reads it without asking, and the

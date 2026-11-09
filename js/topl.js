@@ -296,6 +296,14 @@ export async function more(state = game) {
     }
 }
 
+// C ref: pline.c vpline() copies each message it shows into gp.prevmsg, for
+// a later Norep() or MSGTYPE=norep comparison. tty_putmixed() bypasses
+// vpline() and leaves it alone.
+function rememberPreviousMessage(state, context, message) {
+    if (context.viaVpline === false) return;
+    state._ttyPreviousMessage = context.normalizedMessage ?? message;
+}
+
 // C ref: win/tty/topl.c update_topl(). ttyPlineCore() handles vpline() and
 // tty_putstr() setup, then calls here for the complete topline transition.
 // The callbacks are the TTY rendering operations shared with tty_message.js;
@@ -325,7 +333,7 @@ export async function update_topl(message, state = game, context = {}) {
     // result because the pline layer also uses it when handling WIN_STOP.
     if (stoppedAtEntry && !deathComparisonReached) {
         rememberSuppressedMessage(state, next, columns);
-        state._ttyPreviousMessage = context.normalizedMessage ?? message;
+        rememberPreviousMessage(state, context, message);
         resetLastMessage();
         return;
     }
@@ -347,7 +355,7 @@ export async function update_topl(message, state = game, context = {}) {
                 next,
             );
         }
-        state._ttyPreviousMessage = context.normalizedMessage ?? message;
+        rememberPreviousMessage(state, context, message);
         resetLastMessage();
         if (msgtype === MSGTYP_STOP)
             await callbacks.displayPendingTtyMessageWindow?.(state);
@@ -368,7 +376,7 @@ export async function update_topl(message, state = game, context = {}) {
     if (deathComparisonReached) state._ttyMessageStopped = false;
     if (state._ttyToplines) remember_topl(state);
     rememberPendingMessage(state, next, mixedFirstCell);
-    state._ttyPreviousMessage = context.normalizedMessage ?? message;
+    rememberPreviousMessage(state, context, message);
     // C update_topl() ends every unsuppressed replacement with redotoplin(),
     // including after the more() above. Remembering it until the next map
     // flush would leave the old physical line visible to missile animation.

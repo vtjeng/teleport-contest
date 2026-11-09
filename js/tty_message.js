@@ -344,8 +344,12 @@ export async function displayPendingTtyMessageWindow(state) {
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
 // against gp.prevmsg before the window port sees it.
+//
+// `viaVpline` is false for tty_putmixed(), which reaches tty_putstr() and
+// update_topl() without vpline(): no MSGTYPE lookup, no vision or map flush,
+// no gp.prevmsg or iflags.last_msg update.
 async function ttyPlineCore(
-    message, state, pflags, mixedFirstCell = null, resetLastMessage = true,
+    message, state, pflags, mixedFirstCell = null, viaVpline = true,
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return;
@@ -361,7 +365,7 @@ async function ttyPlineCore(
     const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
     const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
     let msgtype = MSGTYP_NORMAL;
-    if (!(pflags & OVERRIDE_MSGTYPE)) {
+    if (viaVpline && !(pflags & OVERRIDE_MSGTYPE)) {
         msgtype = msgtype_type(normalizedMessage, noRepeat, state);
         if (!(pflags & URGENT_MESSAGE)
             && (msgtype === MSGTYP_NOSHOW
@@ -381,7 +385,7 @@ async function ttyPlineCore(
     // notice_all_mons()) are printed by C inside vision_recalc(), so they
     // precede this message: drain them here, as at entry above, before the
     // top-line state below is read.
-    if (state === game && state.vision_full_recalc) {
+    if (viaVpline && state === game && state.vision_full_recalc) {
         vision_recalc(0, { state });
         if (!state._emittingGlyphUpdateNotices)
             await emitGlyphUpdateNotices(state, { pline: ttyPline });
@@ -412,7 +416,7 @@ async function ttyPlineCore(
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
-    if (state === game && state.u?.ux)
+    if (viaVpline && state === game && state.u?.ux)
         await flush_screen((pflags & NO_CURS_ON_U) ? 0 : 1);
     // C wintty.c handles ATR_URGENT after vpline() has flushed the map but
     // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
@@ -455,8 +459,8 @@ async function ttyPlineCore(
         // remember_topl() emptied gt.toplines, and show_topl() does not
         // write it.
         setToplinesDirectly('', state);
-        state._ttyPreviousMessage = normalizedMessage;
-        if (resetLastMessage) {
+        if (viaVpline) state._ttyPreviousMessage = normalizedMessage;
+        if (viaVpline) {
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_UNKNOWN;
         }
@@ -479,8 +483,9 @@ async function ttyPlineCore(
         deathComparisonReached,
         columns,
         normalizedMessage,
+        viaVpline,
         resetLastMessage: () => {
-            if (resetLastMessage) {
+            if (viaVpline) {
                 state.iflags ??= {};
                 state.iflags.last_msg = PLNMSG_UNKNOWN;
             }
