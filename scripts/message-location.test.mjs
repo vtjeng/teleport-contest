@@ -18,6 +18,12 @@ import {
 } from './message-location.mjs';
 import { findCompiler } from './recorder-headers.mjs';
 
+// Statuses counted as unpaired; 'not gameplay' (debug traces) is excluded on
+// purpose. 298 = 164 no JS text + 71 too little text + 30 format not a
+// literal + 33 no JS function, on 2b9667a0 (8 November 2026).
+const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
+const UNPAIRED_CEILING = 298;
+
 test('every paired JS message makes its C site\'s location choice', async (t) => {
     if (!findCompiler()) {
         t.skip('no C compiler (clang, cc, or gcc) on PATH; the scan needs the C preprocessor');
@@ -33,7 +39,19 @@ test('every paired JS message makes its C site\'s location choice', async (t) =>
     // and 100 leave room for ordinary edits.
     assert.ok(tally.paired >= 4300, `only ${tally.paired} C sites paired by text`);
     assert.ok(tally['paired by form'] >= 100, `only ${tally['paired by form']} C sites paired by form`);
+    // The C message sites the scan cannot pair are its blind spot: a JS site
+    // there can choose the wrong pline variant unnoticed. The count may only
+    // fall. A port that adds an unpairable site must pair it instead (give the
+    // JS the C function's name or a `file.c function()` comment, and keep the
+    // C text literal); a change that pairs more sites must lower the ceiling
+    // to the new count in the same commit.
+    const unpaired = UNPAIRED_STATUSES.reduce((n, s) => n + (tally[s] ?? 0), 0);
+    assert.ok(unpaired <= UNPAIRED_CEILING,
+        `${unpaired} C message sites are unpaired, above the ceiling of ${UNPAIRED_CEILING}; pair the new ones`);
+    assert.ok(unpaired >= UNPAIRED_CEILING,
+        `${unpaired} C message sites are unpaired; lower UNPAIRED_CEILING in this file from ${UNPAIRED_CEILING} to ${unpaired}`);
 });
+
 
 // Hand-written preprocessor output for src/x.c. The line marker numbers the
 // line after it 1, so each call's line is its position in this list.
