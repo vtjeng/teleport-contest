@@ -71,7 +71,7 @@ test('dowrite provides hold_another_object inventory callbacks', () => {
     const jsEnd = WRITE_SOURCE.indexOf('\n}', jsStart) + 2;
     assert.ok(jsStart >= 0 && jsEnd > jsStart, 'js/write.js writeEnv range');
     assert.match(WRITE_SOURCE.slice(jsStart, jsEnd),
-        /encumberMessage: encumber_msg,[\s\S]*?inventoryComparisonDiscovered: \(\) => ttyPline\([\s\S]*?You learn more about your items by comparing them/u);
+        /encumberMessage: encumber_msg,/u);
     assert.match(WRITE_SOURCE,
         /await hold_another_object\([\s\S]*?writeEnv\(state\),\s*\);/u);
 });

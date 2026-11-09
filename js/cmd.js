@@ -3258,12 +3258,9 @@ async function runEngraveCommand(key, state) {
         monName: mon_nam,
         // engrave.c engrave() hands the dulled dagger split off a stack to
         // hold_another_object(), whose addinv() reaches pickup.c
-        // encumber_msg() and invent.c:941's comparison discovery message.
+        // encumber_msg().
         inventoryHooks: {
             encumberMessage: encumber_msg,
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.', state,
-            ),
         },
         ECMD_CANCEL,
         ECMD_OK,

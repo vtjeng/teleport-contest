@@ -2714,8 +2714,8 @@ function requiredHook(env, name, obj) {
 // Merge effects: absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
-// inventoryComparisonDiscovered(target, env); live addinv supplies merged()'s
-// pline().
+// inventoryComparisonDiscovered(target, env) stands in for merged()'s pline()
+// in the synchronous merged() only; mergedRuntime() prints it itself.
 
 // C ref: invent.c count_contents() (3620-3651). Counts the items inside a
 // container. With everything=true the function counts every stack; with
@@ -3883,11 +3883,13 @@ export function mergedRuntime(otmp, obj, env = {}) {
         })();
     }
     if (plan.comparisonDiscovered) {
-        const wait = requiredHook(
-            plan.normalized,
-            'inventoryComparisonDiscovered',
-            plan.target,
-        )(plan.target, plan.normalized);
+        // invent.c merged() 937-942 prints before obfree() runs.
+        const message = plan.normalized.message
+            ?? plan.normalized.hooks?.message ?? ttyPline;
+        const wait = message(
+            'You learn more about your items by comparing them.',
+            plan.normalized.state,
+        );
         if (isThenable(wait)) {
             return Promise.resolve(wait).then(() => finishMerged(plan));
         }
@@ -3905,7 +3907,8 @@ function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
         requiredHook(normalized, 'absorbGlob', obj);
     // Runtime and projection modes use the canonical owners statically
     // imported above; module linking guarantees both dependencies exist.
-    if (!obj.globby
+    // Only the synchronous merged() cannot print the comparison message.
+    if (globMode === 'sync' && !obj.globby
         && comparisonWillDiscover(otmp, obj, normalized.state)
         && otmp.where === OBJ_INVENT
         && obj.how_lost !== LOST_THROWN
@@ -4647,13 +4650,6 @@ async function addinvCore0Runtime(
     const liveEnv = {
         ...env,
         hooks: {
-            // C ref: invent.c merged():941. The live merge prints the
-            // comparison discovery through the same pline() owner, and
-            // mergedRuntime() awaits it before obfree().
-            inventoryComparisonDiscovered: (target, hookEnv) => message(
-                'You learn more about your items by comparing them.',
-                hookEnv.state,
-            ),
             ...(env.hooks ?? {}),
             message,
         },

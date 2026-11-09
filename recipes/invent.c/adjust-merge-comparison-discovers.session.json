@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c merged() comparison discovery (937-942) from #adjust and from a wish: a debug dwarven Valkyrie splits 2 daggers, identifies one with an uncursed scroll of identify, adjusts the identified stack onto the other (\"You learn more about your items by comparing them.\" before \"Merging:\"), then wishes for an unidentified dagger, which merges into the identified stack through hold_another_object() and prints the same message.",
+  "segments": [
+    {
+      "seed": 3184420,
+      "datetime": "20510706140000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u00172 daggers\n#adjust\n1ab\u0017uncursed scroll of identify\nrc b\n#adjust\nba \u0017dagger\ni"
+    }
+  ]
+}

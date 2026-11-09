@@ -928,10 +928,6 @@ function pickupObjectEnv(state) {
         state,
         hooks: {
             message: ttyPline,
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.',
-                state,
-            ),
         },
     });
 }

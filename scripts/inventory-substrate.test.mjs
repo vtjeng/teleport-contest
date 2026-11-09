@@ -622,10 +622,7 @@ test('addinv sequence projection carries source merge state forward', () => {
     });
     const plans = preflight_addinv_sequence(
         [first, second],
-        {
-            state,
-            hooks: { inventoryComparisonDiscovered: () => {} },
-        },
+        { state },
         { observeObjects: true },
     );
 
@@ -1389,7 +1386,7 @@ test('runtime comparison messages pause before object deletion and addinv tail',
     const pending = addinv_runtime(incoming, {
         state,
         hooks: {
-            inventoryComparisonDiscovered() {
+            message() {
                 ++comparisonCalls;
                 return messageGate;
             },
@@ -2595,12 +2592,12 @@ test('hold_another_object waits for the comparison message', async () => {
     const env = {
         state,
         hooks: {
-            message: (text) => lines.push(text),
-            encumberMessage: () => {},
-            inventoryComparisonDiscovered() {
+            message: (text) => {
+                if (text !== 'You learn more about your items by comparing them.') return lines.push(text);
                 ++comparisonCalls;
                 return messageGate;
             },
+            encumberMessage: () => {},
         },
     };
 
@@ -3984,7 +3981,7 @@ test('glob pickup projection has no live merge effects; runtime keeps its non-gl
     const wait = new Promise((resolve) => { resumeMessage = resolve; });
     const waiting = mergedRuntime(waitingTarget, waitingIncoming, {
         state: waitingState,
-        hooks: { inventoryComparisonDiscovered: () => wait },
+        hooks: { message: () => wait },
     });
     assert.equal(typeof waiting?.then, 'function');
     assert.equal(waitingIncoming.where, OBJ_FREE);

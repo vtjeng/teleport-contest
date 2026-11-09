@@ -2485,10 +2485,6 @@ export async function invoke_create_ammo(obj, state) {
     const env = dropCommandEnv(state, {
         hooks: {
             dropObject: dropx,
-            // invent.c:941 runs this before freeing an absorbed stack.
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.', state,
-            ),
         },
     });
     let otmp = mksobj(ARROW, true, false, env);

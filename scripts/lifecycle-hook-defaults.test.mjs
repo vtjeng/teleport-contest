@@ -203,7 +203,7 @@ const REMAINING_REQUIRED_HOOKS = {
     absorbGlob: 2, // mkobj.c obj_absorb() from invent.c merged()
     encumberMessage: 1, // pickup.c encumber_msg()
     endArtifactLight: 1, // light.c/artifact.c end of an artifact's light
-    inventoryComparisonDiscovered: 3, // invent.c merged()'s comparison pline()
+    inventoryComparisonDiscovered: 2, // the synchronous merged()'s comparison pline()
     mwepgone: 1, // weapon.c mwepgone()
     // vision.c recalc_block_point() for a lifted boulder. Not defaulted yet:
     // explode.js scatter() substitutes a no-op only when its caller's hooks

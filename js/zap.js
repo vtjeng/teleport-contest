@@ -1468,10 +1468,6 @@ export async function zapyourself(obj, ordinary, state = game) {
             state,
             hooks: {
                 message: ttyPline,
-                inventoryComparisonDiscovered: () => ttyPline(
-                    'You learn more about your items by comparing them.',
-                    state,
-                ),
             },
         };
         do {
@@ -2026,15 +2022,6 @@ export async function makewish(state = game) {
         hooks: {
             message: ttyPline,
             encumberMessage: encumber_msg,
-            // invent.c merged():933-942.  A wished-for object that merges
-            // into a stack the hero already carries settles any known,
-            // rknown or bknown the two disagreed on, and says so.  Only a
-            // random wish reaches this: a named one is spelled the same way
-            // twice, so the second copy agrees with the first.
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.',
-                state,
-            ),
             newsym,
             dropObject: dropx,
             dropy,

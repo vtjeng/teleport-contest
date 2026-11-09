@@ -498,14 +498,6 @@ async function u_catch_thrown_obj(obj, env) {
                     encumberMessage: env.hooks?.encumberMessage
                         ?? env.encumberMessage
                         ?? (subject => encumber_msg(subject, { message: env.message ?? ttyPline })),
-                    // invent.c merged() 941: the caught missile joins a
-                    // stack whose identity the hero learns by comparison.
-                    inventoryComparisonDiscovered:
-                        env.hooks?.inventoryComparisonDiscovered
-                        ?? (() => (env.message ?? ttyPline)(
-                            'You learn more about your items by comparing them.',
-                            state,
-                        )),
                 },
             });
         return true;

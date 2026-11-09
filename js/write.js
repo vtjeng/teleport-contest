@@ -527,9 +527,6 @@ function writeEnv(state) {
         state,
         hooks: {
             encumberMessage: encumber_msg,
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.', state,
-            ),
         },
     };
 }
