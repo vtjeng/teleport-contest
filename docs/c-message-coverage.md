@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3982 | 86 |
-| diagnostic | 723 | 194 | 529 |
+| gameplay | 4068 | 3983 | 85 |
+| diagnostic | 723 | 195 | 528 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4179 | 732 |
+| total | 4911 | 4181 | 730 |
 
 ## Missing by C file
 
@@ -96,12 +96,11 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/potion.c | yes | 0 | 1 | 0 |
 | src/pray.c | yes | 1 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
-| src/quest.c | yes | 0 | 2 | 0 |
+| src/quest.c | yes | 0 | 1 | 0 |
 | src/questpgr.c | yes | 0 | 6 | 0 |
 | src/read.c | yes | 0 | 1 | 0 |
 | src/rect.c | yes | 0 | 2 | 0 |
 | src/region.c | yes | 0 | 2 | 0 |
-| src/report.c | no | 1 | 0 | 0 |
 | src/restore.c | yes | 6 | 7 | 1 |
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
@@ -315,11 +314,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `offer_corpse()`
   - 2115 You: `.  A funny thing in a dungeon.`
-
-### src/report.c
-
-- `dobugreport()`
-  - 464 pline: `Unable to send bug report.  Please visit`
 
 ### src/restore.c
 
@@ -1343,9 +1337,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `expulsion()`
   - 214 impossible: `quest portal already gone?`
-
-- `quest_chat()`
-  - 490 impossible: `quest_chat: Unknown quest character`
 
 ### src/questpgr.c
 

@@ -19,10 +19,11 @@ import {
 import { requireCompiler } from './recorder-headers.mjs';
 
 // Statuses counted as unpaired; 'not gameplay' (debug traces) is excluded on
-// purpose. 298 = 164 no JS text + 71 too little text + 30 format not a
-// literal + 33 no JS function, on 2b9667a0 (8 November 2026).
+// purpose. 297 = 167 no JS text + 71 too little text + 30 format not a
+// literal + 29 no JS function, after report.c dobugreport() was ported
+// (9 November 2026).
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 298;
+const UNPAIRED_CEILING = 297;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');
