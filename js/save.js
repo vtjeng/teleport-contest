@@ -637,6 +637,9 @@ function serializeGameState(state) {
         // save_light_sources(RANGE_LEVEL) write the hero's level's timers and
         // light sources, in chain order, and savegamestate():296-297 write
         // the rest with RANGE_GLOBAL.
+        // C ref: timeout.c save_timers() writes svt.timer_id ahead of the
+        // RANGE_GLOBAL timers, so a restored game keeps numbering from it.
+        timer_id: state.svt.timer_id,
         level_timers: maybe_write_timer(RANGE_LEVEL, state),
         timers: maybe_write_timer(RANGE_GLOBAL, state),
         level_lights: light_sources_in_range(RANGE_LEVEL, state),

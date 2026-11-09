@@ -337,6 +337,9 @@ export async function dorestore(state = game) {
     // reverse, and the hero level's ahead of global ones they tie with.
     state.gt ??= {};
     state.gt.timer_base = null;
+    // C ref: timeout.c restore_timers() reads svt.timer_id first for
+    // RANGE_GLOBAL.
+    state.svt.timer_id = snapshot.timer_id;
     restore_timers(snapshot.timers ?? [], state);
     restore_timers(snapshot.level_timers ?? [], state);
     // C ref: restore.c restgamestate():655 restore_light_sources() pushes

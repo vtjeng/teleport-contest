@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent C runtime witness for timeout.c save_timers() and restore_timers() carrying svt.timer_id across a save. The first segment wishes for two corpses, whose rot timers take ids, and saves; the second restores, wishes for a kobold corpse and lists the queue with #timeout. C numbers the new rot timer 6, continuing from the saved counter rather than restarting at decl.c's 1.",
+  "segments": [
+    {
+      "seed": 40912877,
+      "datetime": "20460515143000",
+      "nethackrc": "OPTIONS=name:TimerSave,role:Priest,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizwish\nnewt corpse\n#wizwish\njackal corpse\nSy"
+    },
+    {
+      "seed": 40912878,
+      "datetime": "20460515150000",
+      "nethackrc": "OPTIONS=name:TimerSave,role:Priest,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\nn#wizwish\nkobold corpse\n#timeout\n"
+    }
+  ]
+}
