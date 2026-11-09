@@ -1948,15 +1948,10 @@ export function preflight_dropx(obj, env = {}) {
     // boulder arm for pits and holes and a separate arm for the hero at a
     // seen pit or shaft edge, which ships through the same ship_object().
     // Both are ported, so no trap refuses an ordinary drop here.
-    // do.c:flooreffects routes ordinary objects through trap.c:lava_damage or
-    // water_damage before floor placement. Boulder/pool has its separate
-    // boulder_hits_pool branch; only the live submerged Water case above is
-    // admitted here, without opening its surface or private-state effects.
-    const pool = is_pool(x, y, state);
-    const lava = is_lava(x, y, state);
-    const ordinaryLiquid = lava || (pool && obj.otyp !== BOULDER);
-    if ((pool || lava) && !ordinaryLiquid && !submergedWaterBoulder)
-        throw new UnsupportedDropError('liquid terrain');
+    // do.c:flooreffects sends a boulder on a pool, moat, water wall or lava
+    // through boulder_hits_pool() and every other object through
+    // trap.c:lava_damage() or water_damage() before floor placement. All
+    // three are ported, so no liquid square refuses a drop here.
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
     // pit or hole, and has no arm for the dry square type itself: room,
     // corridor, doorway, stairs, furniture, grave, ice, tree, iron bars,

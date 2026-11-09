@@ -1346,19 +1346,26 @@ test('dropping a boulder fills a pit and removes its trap', async () => {
     assert.match(getRngLog().at(-1), /^rn2\(100\)=\d+$/u);
 });
 
-test('a boulder at a pool remains outside ordinary drop admission', async () => {
+// do.c:flooreffects() hands a boulder on a pool to boulder_hits_pool(),
+// whose single rn2(10) fills ordinary water unless it returns 0 (do.c:66-68).
+test('dropping a boulder at a pool reaches boulder_hits_pool', async () => {
     const state = await startedGame();
     const { ux, uy } = state.u;
+    // POOL is ordinary water: not the Plane of Water, a water wall or lava.
     state.level.at(ux, uy).typ = POOL;
     const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
     const rngBefore = getRngLog().length;
-    assert.throws(() => preflight_dropx(boulder, dropCommandEnv(state)),
-        error => error instanceof UnsupportedDropError
-            && /liquid terrain/u.test(error.message));
-    assert.equal(boulder.where, OBJ_INVENT);
-    assert.ok(letters(state).includes(boulder.invlet));
-    assert.ok(!pileAt(state, ux, uy).includes(boulder));
-    assert.equal(getRngLog().length, rngBefore);
+    assert.doesNotThrow(() => preflight_dropx(boulder, dropCommandEnv(state)));
+
+    await dropx(boulder, dropCommandEnv(state));
+
+    assert.ok(!letters(state).includes(boulder.invlet));
+    assert.ok(!pileAt(state, ux, uy).includes(boulder),
+        'boulder_hits_pool() frees the boulder in either outcome');
+    const draw = getRngLog()[rngBefore];
+    assert.match(draw, /^rn2\(10\)=\d+$/u);
+    const fills = Number(draw.match(/=(\d+)$/u)[1]) !== 0;
+    assert.equal(state.level.at(ux, uy).typ, fills ? ROOM : POOL);
 });
 
 // dig.c calls dropx(uwep), so do.c dropz clears the primary slot after

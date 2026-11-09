@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c:boulder_hits_pool witness reached from invent.c:hold_another_object -> dropx -> dropz -> flooreffects. A levitating Samurai wishes a pool onto her own square, then wishes a boulder she cannot hold; it drops into the pool, whose rn2(10) decides whether it fills. A second pool and boulder repeat the draw. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5517203,
+      "datetime": "20520614093000",
+      "nethackrc": "OPTIONS=name:Plunk,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017uncursed ring of levitation\nPfr \u0017pool\n\u0017boulder\n h\u0017pool\n\u0017boulder\n h\u0017moat\n\u0017boulder\n ."
+    }
+  ]
+}
