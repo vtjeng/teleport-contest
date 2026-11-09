@@ -9,7 +9,6 @@ import {
     VAULT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { search_special } from '../js/mkroom.js';
 import { PM_KOBOLD } from '../js/monsters.js';
@@ -157,8 +156,8 @@ test('tele_trap()\'s one-shot arm deletes the trap and lands in the vault',
 test('a level that blocks teleportation wrenches instead of moving the hero',
     async () => {
         // teleport.c:1502-1505. noteleport_level() is the reachable third of
-        // that condition: In_endgame() needs the endgame dungeon and Antimagic
-        // is refused ahead of the move by preflight_dotrap().
+        // that condition: In_endgame() needs the endgame dungeon, and
+        // preflight_dotrap() admits an Antimagic hero to the shieldeff() arm.
         await runSegment(VAULT_NICHE_SEGMENT);
         const trap = teleportTraps().find((each) => each.once);
         const before = { x: game.u.ux, y: game.u.uy };
@@ -221,9 +220,9 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         assert.equal(preflight_dotrap(trap, game), undefined);
         game.u.uprops[ANTIMAGIC].intrinsic = 0;
 
-        // teleport.c:1516's rloc_to() moves the monster standing on a fixed
-        // destination out of the way, and this port's rloc_to() covers only a
-        // monster that is not yet on the map. The trap is made fixed-
+        // teleport.c:1512-1530: with a monster on a fixed destination,
+        // enexto() finds it a nearby spot, rloc_to() moves it there and
+        // teleds() puts the hero on the destination. The trap is made fixed-
         // destination for this case alone: no level generator writes
         // trap->teledest, sp_lev.c does.
         const spot = { x: game.u.ux + 1, y: game.u.uy };
@@ -235,11 +234,15 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         game.level.monlist = kobold;
         trap.once = 0;
         trap.teledest = { ...spot };
-        assert.throws(
-            () => preflight_dotrap(trap, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /teleport trap destination/u.test(error.message),
-        );
+        assert.equal(preflight_dotrap(trap, game), undefined);
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+
+        await tele_trap(trap, game);
+
+        assert.deepEqual([game.u.ux, game.u.uy], [spot.x, spot.y]);
+        assert.notDeepEqual([kobold.mx, kobold.my], [spot.x, spot.y]);
+        assert.equal(game.level.monsters[kobold.mx][kobold.my], kobold);
     });
 
 test('preflight_dotrap() admits a seen level teleporter to its C escape roll',

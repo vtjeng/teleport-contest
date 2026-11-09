@@ -2,28 +2,31 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
+import {moveloop_core} from '../js/allmain.js';
+import {commandKeyCode} from '../js/command_bindings.js';
 import {game} from '../js/gstate.js';
 import {m_at} from '../js/monst.js';
-import {t_at} from '../js/trap.js';
 import {G_UNIQ} from '../js/monsters.js';
-import {preflight_dotrap} from '../js/trap_effects.js';
-import {getRngLog} from '../js/rng.js';
 
-test('unique-species metadata is outside ordinary occupied admission',async()=>{
+// teleport.c tele_trap() moves any resident of a fixed destination with
+// enexto() and rloc_to(); it has no arm for a unique species. With the
+// destination's brown mold flagged unique, stepping onto the trap must end as
+// the recorded C game does for the ordinary mold: the hero on the destination
+// <62,4> and the mold at <61,5>.
+test('a unique resident of a fixed teleport destination is relocated like any other',async()=>{
  const recipe=JSON.parse(readFileSync(new URL('../recipes/teleport.c/post53-occupied-bounded-brown-mold-peaceful.session.json',import.meta.url)));
- const segment=recipe.segments[0];let boundary;
- await runSegment({...segment,moves:segment.moves.slice(0,-3)},{onBoundary:e=>boundary=e});
- assert.equal(boundary,undefined);
- const monster=m_at(62,4,game),trap=t_at(65,2,game),ordinaryData=monster.data;
- // Admission-only mutation. No unique species is constructed or relocated,
- // and no special response, inventory, departure or movement executes.
- const flaggedData={...ordinaryData,geno:ordinaryData.geno|G_UNIQ};
- monster.data=flaggedData;
- const core=structuredClone(game.coreCtx),display=structuredClone(game.displayCtx),log=getRngLog().slice();
- try{
-  assert.throws(()=>preflight_dotrap(trap,game),/a monster on a teleport trap destination/);
-  assert.deepEqual(game.coreCtx,core);assert.deepEqual(game.displayCtx,display);assert.deepEqual(getRngLog(),log);
-  assert.equal(monster.data,flaggedData);assert.equal(m_at(62,4,game),monster);
-  assert.deepEqual([game.u.ux,game.u.uy,monster.mx,monster.my],[64,2,62,4]);
- }finally{monster.data=ordinaryData;}
+ const segment=recipe.segments[0];
+ // The recipe ends 'l' (step onto the trap), 'y' (confirm) and '.' (wait).
+ assert.ok(segment.moves.endsWith('ly.'));
+ await runSegment({...segment,moves:segment.moves.slice(0,-3)});
+ const monster=m_at(62,4,game);
+ assert.deepEqual([game.u.ux,game.u.uy],[64,2]);
+ monster.data={...monster.data,geno:monster.data.geno|G_UNIQ};
+ game.nhDisplay.pushKey(commandKeyCode('l'));
+ game.nhDisplay.pushKey(commandKeyCode('y'));
+ await moveloop_core();
+ assert.deepEqual([game.u.ux,game.u.uy],[62,4]);
+ assert.equal(m_at(62,4,game),null);
+ assert.deepEqual([monster.mx,monster.my],[61,5]);
+ assert.equal(m_at(61,5,game),monster);
 });

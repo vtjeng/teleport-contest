@@ -49,6 +49,7 @@ import {
     D_NODOOR,
     DOOR,
     FAST,
+    NO_TRAP,
     TELEP_TRAP,
     FOUNTAIN,
     GETOBJ_EXCLUDE,
@@ -892,9 +893,9 @@ test('reqmenu movement skips look-here terrain guards with an object present',
         }
     });
 
-function installUnsupportedTeleportDestinationTrap(x, y) {
-    // Preserve generic refusal checks using the remaining fixed-destination
-    // relocation guard, with a real resident far from the movement under test.
+// A fixed-destination teleport trap at <x,y> whose destination, far from the
+// hero, holds a frozen newt. Returns the destination and the resident.
+function installOccupiedTeleportDestinationTrap(x, y) {
     let target;
     for (let px = 1; px < 79 && !target; ++px) {
         for (let py = 1; py < 20; ++py) {
@@ -916,6 +917,15 @@ function installUnsupportedTeleportDestinationTrap(x, y) {
     place_monster(resident, px, py, game);
     game.level.traps.push({ tx: x, ty: y, ttyp: TELEP_TRAP, tseen: true,
         once: false, teledest: { x: px, y: py } });
+    return { destination: [px, py], resident };
+}
+
+// trap.c dotrap() has no arm for a trap of no known type, so
+// preflight_dotrap() refuses it ('trap activation') before any effect. The
+// refusal-ownership tests below use it as their fixed boundary.
+function installUnsupportedTrap(x, y) {
+    game.level.traps.push({ tx: x, ty: y, ttyp: NO_TRAP, tseen: false,
+        once: false, teledest: { x: -1, y: -1 } });
 }
 
 function installFloorPile(x, y, count = 2, firstOverrides = {}) {
@@ -1255,52 +1265,27 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
     assert.equal(game.level.objects[x][y].dknown, true);
 });
 
-test('simple hero movement rejects spot effects before mutation', async () => {
-    const cases = [
-        // trap.c preflight_dotrap()'s remaining stop beyond the trap type
-        // is checked ahead of the move, because spoteffects() calls
-        // dotrap() after the hero has already stepped onto the square and
-        // pickup(1) has already described what is on it; refusing there would
-        // land after both.
-        {
-            // The fixed destination's existing resident still needs relocation.
-            name: 'occupied fixed teleport destination',
-            reason: 'a monster on a teleport trap destination',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                game.flags.paranoia_bits &= ~PARANOID_TRAP;
-                installUnsupportedTeleportDestinationTrap(x, y);
-            },
-        },
-    ];
+test('simple hero movement onto an occupied fixed teleport destination '
+    + 'relocates the resident', async () => {
+    // teleport.c tele_trap(): with a monster on a fixed destination, enexto()
+    // finds it a nearby spot, rloc_to() moves it there and teleds() puts the
+    // hero on the destination. No refusal stands between the step and that.
+    const target = await prepareHeroMoveAdmission();
+    game.flags.paranoia_bits &= ~PARANOID_TRAP;
+    const { destination: [dx, dy], resident }
+        = installOccupiedTeleportDestinationTrap(target.x, target.y);
 
-    for (const admissionCase of cases) {
-        const target = await prepareHeroMoveAdmission();
-        admissionCase.setup(target);
-        const destinationObject = game.level.objects[target.x][target.y];
-        const before = heroMoveAdmissionSnapshot(target.replay);
+    await domove(game);
 
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                domove(game),
-                (error) => (
-                    error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === admissionCase.reason
-                ),
-                `${admissionCase.name}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                heroMoveAdmissionSnapshot(target.replay),
-                before,
-                `${admissionCase.name}, attempt ${attempt + 1}`,
-            );
-            assert.equal(
-                game.level.objects[target.x][target.y],
-                destinationObject,
-                admissionCase.name,
-            );
-        }
-    }
+    assert.deepEqual([game.u.ux, game.u.uy], [dx, dy]);
+    assert.notEqual(game.level.monsters[dx][dy], resident);
+    assert.equal(game.level.monsters[resident.mx][resident.my], resident);
+    // enexto()'s first ring around the destination holds open ROOM squares
+    // on this level, so the resident lands one step away.
+    assert.equal(
+        Math.max(Math.abs(resident.mx - dx), Math.abs(resident.my - dy)),
+        1,
+    );
 });
 
 test('simple hero movement reaches an undetected monster destination', async () => {
@@ -1996,15 +1981,15 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        // An occupied fixed-teleport destination is refused before mutation;
-        // this keeps the queued-byte assertion independent of terrain.
+        // A trap of no known type is refused before mutation; this keeps the
+        // queued-byte assertion independent of terrain.
         east.typ = ROOM;
         east.flags = 0;
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         game.level.objects[start[0] + 1][start[1]] = null;
         game.level.traps = [];
-        installUnsupportedTeleportDestinationTrap(start[0] + 1, start[1]);
+        installUnsupportedTrap(start[0] + 1, start[1]);
         game.flags.paranoia_bits &= ~PARANOID_TRAP;
         game.level.regions = [];
         game.head_engr = null;
@@ -2016,7 +2001,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'a monster on a teleport trap destination'
+                    && error.reason === 'trap activation'
                 ),
             );
             assert.equal(
@@ -2063,7 +2048,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     const x = start[0] + 1;
     const y = start[1];
     const east = game.level.at(x, y);
-    // A seen fire trap is refused after the reqmenu prefix is parsed;
+    // A trap of no known type is refused after the reqmenu prefix is parsed;
     // this pins retry ownership without treating ICE as blocked terrain.
     east.typ = ROOM;
     east.flags = 0;
@@ -2071,7 +2056,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     game.level.monlist = null;
     const floorObject = installFloorPile(x, y, 1);
     game.level.traps = [];
-    installUnsupportedTeleportDestinationTrap(x, y);
+    installUnsupportedTrap(x, y);
     game.flags.paranoia_bits &= ~PARANOID_TRAP;
     game.level.regions = [];
     game.head_engr = null;
@@ -2085,7 +2070,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'a monster on a teleport trap destination'
+                && error.reason === 'trap activation'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -4820,11 +4805,11 @@ test('the run loop leaves a class outside the refusal list as it found it',
         // breaks the segment on it directly -- so the seam's own refusal has
         // to arrive with its own type, reason and message.
         const { first, second } = await prepareRunPastTheFirstStep();
-        // An occupied fixed teleport destination reaches the boundary after the run's
+        // A trap of no known type reaches the boundary after the run's
         // first step, exercising the same unconverted error class without
         // relying on the now-supported ICE arrival path.
         game.level.traps = [];
-        installUnsupportedTeleportDestinationTrap(second[0], second[1]);
+        installUnsupportedTrap(second[0], second[1]);
         game.flags.paranoia_bits &= ~PARANOID_TRAP;
         await takeFirstRunStep(first);
 
@@ -4835,7 +4820,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     error instanceof UnsupportedHeroMoveBoundaryError,
                     `${error.constructor.name} is not a hero move boundary`,
                 );
-                assert.equal(error.reason, 'a monster on a teleport trap destination');
+                assert.equal(error.reason, 'trap activation');
                 return true;
             },
         );

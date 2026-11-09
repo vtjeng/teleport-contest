@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent witness for teleport.c tele_trap()'s occupied fixed destination: a level-1 Teleportation hub sends the trap at <70,15> to <69,4>. The hero teleports beside that destination, drops a dagger, waits three turns and creates a sessile green mold, which lands on the destination; the hero then teleports beside the trap and steps onto it. enexto() moves the mold off the destination, rloc_to() places it, and teleds() lands the hero, with the dagger in the destination's first ring.",
+  "segments": [
+    {
+      "seed": 71175,
+      "datetime": "20261115140000",
+      "nethackrc": "OPTIONS=name:Hubert,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0014  LLlllK.dbsss#wizgenesis\ngreen mold\n\u0014 Jjjjh.lysss"
+    }
+  ]
+}

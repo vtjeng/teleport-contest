@@ -75,7 +75,10 @@ for(const name of [...cases,'brown-mold-retry','empty-control']){
  });
 }
 
-test('excluded-condition controls refuse without RNG or state writes',async()=>{
+// teleport.c tele_trap() relocates a fixed destination's resident under every
+// one of these conditions; trap.c dotrap() has no refusal for them. Each
+// control must pass admission without RNG or state writes.
+test('hero, monster and terrain conditions pass admission without RNG or state writes',async()=>{
  const {trap,monster}=await setup();
  const change=(object,key,value)=>()=>{
   const had=Object.hasOwn(object,key),old=object[key];object[key]=value;
@@ -111,7 +114,7 @@ test('excluded-condition controls refuse without RNG or state writes',async()=>{
  ];
  for(const [label,mutate] of controls){
   const restore=mutate(),before=snapshot();
-  try{assert.throws(()=>preflight_dotrap(trap,game),/a monster on a teleport trap destination/,label);assert.equal(snapshot(),before,label);}
+  try{assert.doesNotThrow(()=>preflight_dotrap(trap,game),label);assert.equal(snapshot(),before,label);}
   finally{restore();}
  }
  assert.equal(game.level.at(61,3).typ,ROOM);
