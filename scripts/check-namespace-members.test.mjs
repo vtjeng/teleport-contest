@@ -13,6 +13,7 @@ import {
     resolveRoots,
     sourceFilesIn,
 } from './check-namespace-members.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
 
 const CHECK_PATH = fileURLToPath(
     new URL('./check-namespace-members.mjs', import.meta.url));
@@ -183,7 +184,19 @@ test('the repository itself has no missing namespace member', async () => {
     // This is the gate `npm run check:namespace-members` runs. Keeping it in
     // the suite means a stray `M.AD_FOO` fails `npm test` too.
     const files = resolveRoots([]).flatMap(sourceFilesIn);
-    const { problems } = await checkFiles(files);
+    const { problems, notes, computed } = await checkFiles(files);
 
     assert.deepEqual(problems, []);
+    // What the scan could not verify, pinned both ways. On 9f7e42e6
+    // (8 November 2026): 8 namespace imports skipped, all of the acorn
+    // package from scripts/, and 30 computed member accesses.
+    const PINS = { skippedImports: 8, computedAccesses: 30 };
+    assertExceptionCount(notes.length, PINS.skippedImports, {
+        what: 'namespace imports the scan skipped',
+        pin: 'PINS.skippedImports in scripts/check-namespace-members.test.mjs',
+    });
+    assertExceptionCount(computed, PINS.computedAccesses, {
+        what: 'computed namespace member accesses left unchecked',
+        pin: 'PINS.computedAccesses in scripts/check-namespace-members.test.mjs',
+    });
 });
