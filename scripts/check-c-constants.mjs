@@ -385,7 +385,8 @@ function printReport({ entries, importErrors }) {
 async function main() {
     const compiler = findCompiler();
     if (!compiler) {
-        console.log('c-constants: no C compiler (clang, cc, or gcc) found, skipping');
+        console.log('c-constants: no C compiler (clang, cc, or gcc) found');
+        process.exitCode = 1;
         return;
     }
     const report = await checkConstants({ compiler });

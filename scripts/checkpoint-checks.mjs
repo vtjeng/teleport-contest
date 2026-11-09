@@ -132,11 +132,10 @@ export function checkpointCommands() {
         args: ['run', 'check:constants'],
         capture: true,
         informational: true,
-        summarize: (result) => {
-            const last = result.stdout.trim().split('\n').at(-1) ?? '';
-            const skipped = last.includes('skipping');
-            return { passed: result.status === 0, body: last, skipped };
-        },
+        summarize: (result) => ({
+            passed: result.status === 0,
+            body: result.stdout.trim().split('\n').at(-1) ?? '',
+        }),
     });
     // Informational: .agents/review.md schedules reviews on demand, and this
     // line puts the unreviewed debt in the one output every agent already
@@ -189,11 +188,10 @@ export function checkpointCommands() {
         command: process.execPath,
         args: ['scripts/check-overread.mjs'],
         capture: true,
-        summarize: (result) => {
-            const last = result.stdout.trim().split('\n').at(-1) ?? '';
-            const skipped = last.includes('skipping');
-            return { passed: result.status === 0, body: last, skipped };
-        },
+        summarize: (result) => ({
+            passed: result.status === 0,
+            body: result.stdout.trim().split('\n').at(-1) ?? '',
+        }),
     });
     // The judge's own playability check, unmodified from frozen/: it plays the
     // 44 fixed sessions through NethackGame and moveloop_core() one key at a

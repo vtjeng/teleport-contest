@@ -9,8 +9,9 @@
 // Animation differences alone do not establish an extra input read.
 //
 // Reads the scan cache (.cache/scan-cache.json) rather than replaying
-// sessions, so it runs in milliseconds. A stale cache (different HEAD)
-// prints a warning and exits 0.
+// sessions, so it runs in milliseconds. A missing, unreadable or stale
+// (different HEAD) cache fails the check, as a check must not skip itself;
+// run `node scripts/scan-sessions.mjs --json` first.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -47,20 +48,24 @@ export function checkOverReads(rows) {
 }
 
 function main() {
+    const fail = (message) => {
+        console.log(`overread: ${message}; run node scripts/scan-sessions.mjs --json first`);
+        process.exitCode = 1;
+    };
     if (!existsSync(SCAN_CACHE_PATH)) {
-        console.log('overread: no scan cache, skipping');
+        fail('no scan cache');
         return;
     }
     let cache;
     try {
         cache = JSON.parse(readFileSync(SCAN_CACHE_PATH, 'utf8'));
     } catch {
-        console.log('overread: scan cache unreadable, skipping');
+        fail('scan cache unreadable');
         return;
     }
     const head = repositoryHead();
     if (cache.sha !== head) {
-        console.log(`overread: scan cache is for ${cache.sha?.slice(0, 8)}, HEAD is ${head.slice(0, 8)}, skipping`);
+        fail(`scan cache is for ${cache.sha?.slice(0, 8)}, HEAD is ${head.slice(0, 8)}`);
         return;
     }
     const rows = cache.rows ?? [];
