@@ -908,8 +908,30 @@ export function level_difficulty(state = game) {
     return result;
 }
 
+// C ref: dungeon.c ledger_no() (1375-1379), which returns
+// (xint16) (lev->dlevel + svd.dungeons[lev->dnum].ledger_start).
 export function ledger_no(level, state = game) {
-    return level.dlevel + state.dungeons[level.dnum].ledger_start;
+    const ledger = level.dlevel + dungeon_ledger_start(level.dnum, state);
+    return (ledger << 16) >> 16; // the xint16 cast
+}
+
+// svd.dungeons[dnum].ledger_start as ledger_no() reads it. maketrap() gives
+// every trap a dst of {-1, -1}, and only a magic portal that mkportal() made
+// gets a real one; a portal made by a wish ("A magic portal to nowhere.")
+// keeps {-1, -1}. A monster that enters such a portal reaches
+// teleport.c mlevel_tele_trap(), which passes ledger_no(&trap->dst) to
+// migrate_to_level(), so C reads svd.dungeons[-1].ledger_start, outside the
+// array. In the recorder's build sizeof(dungeon) is 92 with ledger_start at
+// offset 84, and svc, whose struct context_info is 704 bytes, lies directly
+// before svd, so the read is the int at offset 696 of svc.context:
+// jingle[0..3], music.c improvised_notes()'s last tune, zero until a tune is
+// improvised. ledger_no()'s xint16 cast keeps only the low 16 bits of the
+// sum, which depend only on jingle[0] and jingle[1].
+function dungeon_ledger_start(dnum, state) {
+    if (dnum !== -1) return state.dungeons[dnum].ledger_start;
+    const jingle = state.context?.jingle ?? '';
+    const byte = (i) => (i < jingle.length ? jingle.charCodeAt(i) : 0);
+    return byte(0) | (byte(1) << 8);
 }
 
 // C refs: dungeon.c ledger_to_dnum() and ledger_to_dlev().

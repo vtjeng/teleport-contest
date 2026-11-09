@@ -1695,3 +1695,22 @@ test('surface names an animal engulfer with the C digests and enfolds rules', ()
         'nonesuch',
     );
 });
+
+test('ledger_no() reads a dnum of -1 from the improvised jingle', () => {
+    // dungeon.c ledger_no() with a wished magic portal's dst {-1, -1}: the
+    // recorder's build reads svd.dungeons[-1].ledger_start from
+    // svc.context.jingle[0..3], and the xint16 cast keeps the low 16 bits.
+    const state = { dungeons: [{ ledger_start: 0, num_dunlevs: 29 }] };
+    const nowhere = { dnum: -1, dlevel: -1 };
+    // No tune improvised yet: jingle is all NUL bytes, so 0 + -1.
+    state.context = {};
+    assert.equal(ledger_no(nowhere, state), -1);
+    // One note, "C" (0x43): jingle[1] is the NUL, so 0x43 - 1 = 66.
+    state.context.jingle = 'C';
+    assert.equal(ledger_no(nowhere, state), 66);
+    // Two notes, "CG": 0x4743 - 1 = 18242, which fits in an xint16.
+    state.context.jingle = 'CG';
+    assert.equal(ledger_no(nowhere, state), 18242);
+    // A real dungeon number still reads the array: 3 + 0.
+    assert.equal(ledger_no({ dnum: 0, dlevel: 3 }, state), 3);
+});

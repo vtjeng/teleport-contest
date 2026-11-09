@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 15573309,
+      "datetime": "20460203101530",
+      "nethackrc": "OPTIONS=name:PortalSwap,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\nl#wizwish\nmagic portal\naoy\u001baoy\u001baoy\u001baoy\u001baoy\u001blsss"
+    }
+  ],
+  "comment": "Independent C runtime witness for dungeon.c ledger_no() with a trap destination of {-1, -1}. A wished magic portal keeps maketrap()'s dst, so when the kitten walks onto it teleport.c mlevel_tele_trap() passes ledger_no() a dnum of -1 and C reads svd.dungeons[-1].ledger_start, which in the recorder's build is svc.context.jingle[0..3]. The fifth improvised flute tune of this seed has one note (rnd(5)=1 at music.c:742), the only length for which migrate_to_level() finds a real level instead of panicking; the kitten then \"disappears out of sight\" and play continues."
+}
