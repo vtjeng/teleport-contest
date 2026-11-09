@@ -370,6 +370,22 @@ async function ttyPlineCore(
             return;
         }
     }
+    // C ref: pline.c vpline() (266-271). A recalculation another routine
+    // deferred -- options.c:5372's lit_corridor toggle sets the flag right
+    // after shutting vision down -- is spent by the next message rather than
+    // waiting for the move loop, so the map flushed below is the one the
+    // player is being told about. C brackets the call with in_pline = 0 so a
+    // message raised inside it counts as top level; this port keeps no
+    // in_pline counter to save and restore. The notices that recalculation
+    // raises (display.c show_glyph()'s mention_map line, vision.c
+    // notice_all_mons()) are printed by C inside vision_recalc(), so they
+    // precede this message: drain them here, as at entry above, before the
+    // top-line state below is read.
+    if (state === game && state.vision_full_recalc) {
+        vision_recalc(0, { state });
+        if (!state._emittingGlyphUpdateNotices)
+            await emitGlyphUpdateNotices(state, { pline: ttyPline });
+    }
     // A shown message replaces any show_topl() layout; the SUPPRESS_HISTORY
     // arm below records a fresh one.
     delete state._pendingMessageLayout;
@@ -393,14 +409,6 @@ async function ttyPlineCore(
     const deathComparisonReached = deathMessage
         && (Boolean(current) || stoppedAtEntry)
         && fitsOnTtyTopline(priorTopline, next, columns);
-    // C ref: pline.c vpline() (266-271). A recalculation another routine
-    // deferred -- options.c:5372's lit_corridor toggle sets the flag right
-    // after shutting vision down -- is spent by the next message rather than
-    // waiting for the move loop, so the map flushed below is the one the
-    // player is being told about. C brackets the call with in_pline = 0 so a
-    // message raised inside it counts as top level; this port keeps no
-    // in_pline counter to save and restore.
-    if (state === game && state.vision_full_recalc) vision_recalc(0, { state });
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.

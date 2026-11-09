@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 771203,
+      "datetime": "20300614101500",
+      "nethackrc": "OPTIONS=name:Lamplighter,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,mention_map\n",
+      "moves": "\u001b\u001b\u001bll\u0017lit oil lamp\najnjjaj",
+      "comment": "mention_map with a wished-for lit oil lamp in a dark corridor: the lamp's light source leaves vision_full_recalc set, and pline.c vpline() runs vision_recalc() before printing 'j - a lamp (lit).', so the newly seen corridor's show_glyph() notice comes first. Variation: snuffing, walking on and relighting the lamp prints 'Your lamp is now on.' before the notice."
+    }
+  ]
+}
