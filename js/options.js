@@ -244,7 +244,6 @@ import { check_enhanced_colors, wc_color_name } from './coloratt.js';
 import {
     get_current_feature_ver,
     get_feature_notice_ver,
-    NETHACK_VERSION,
     status_version,
     VI_BRANCH,
     VI_NAME,
@@ -7539,6 +7538,18 @@ function msgtype_count(state) {
 // the raw text overwrites the parsed value rather than sitting beside it, and
 // showing the compiled-in default would misreport the session.  Every such
 // option's parsed form is a number, so a type test finds the raw string.
+// C ref: hack.h FEATURE_NOTICE_VER_MAJ, _MIN and _PATCH, formatted as
+// "%lu.%lu.%lu" by optfn_suppress_alert(get_val) and the live branch of
+// feature_alert_opts(). The major field is deliberately unmasked while minor
+// and patch retain one byte each. Arithmetic avoids JavaScript's signed
+// 32-bit bitwise conversion.
+function feature_notice_ver_string(packed) {
+    const major = Math.floor(packed / 0x01000000);
+    const minor = Math.floor(packed / 0x00010000) % 0x100;
+    const patch = Math.floor(packed / 0x00000100) % 0x100;
+    return `${major}.${minor}.${patch}`;
+}
+
 function requireParsedNumber(state, option) {
     const value = state.flags[option.name];
     if (typeof value !== 'number') {
@@ -7731,16 +7742,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     statuslines: (state) => (wc2_supported('statuslines')
         ? (state.iflags.wc2_statuslines < 3 ? '2' : '3') : 'unknown'),
     suppress_alert: (state, option) => {
-        // C ref: optfn_suppress_alert(get_val), including the macros whose
-        // major field is deliberately unmasked while minor and patch retain
-        // one byte each. Arithmetic avoids JavaScript's signed 32-bit
-        // bitwise conversion.
+        // C ref: optfn_suppress_alert(get_val).
         const packed = requireParsedNumber(state, option);
         if (packed === 0) return none;
-        const major = Math.floor(packed / 0x01000000);
-        const minor = Math.floor(packed / 0x00010000) % 0x100;
-        const patch = Math.floor(packed / 0x00000100) % 0x100;
-        return `${major}.${minor}.${patch}`;
+        return feature_notice_ver_string(packed);
     },
     symset: (state) => symsetValue(state, PRIMARYSET, true),
     // versinfo is the remaining option whose parsed home is its own field and
@@ -8624,7 +8629,8 @@ const OPTION_SET_HANDLERS = Object.freeze({
         }
         state.flags.suppress_alert = Number(version);
         await ttyPline(
-            `Feature change alerts disabled for NetHack ${NETHACK_VERSION}`
+            'Feature change alerts disabled for NetHack '
+            + `${feature_notice_ver_string(state.flags.suppress_alert)}`
             + ' features and prior.', state,
         );
         return optn_ok;

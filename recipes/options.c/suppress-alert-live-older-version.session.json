@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed live suppress_alert: the feedback names the version just set (3.4.3), not this build's",
+  "segments": [
+    {
+      "seed": 70412983,
+      "datetime": "20441003152207",
+      "nethackrc": "OPTIONS=name:Ilse,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n:suppress_alert\n\n3.4.3\n#optionsfull\n:suppress_alert\n\n2.9.9\n       "
+    }
+  ]
+}

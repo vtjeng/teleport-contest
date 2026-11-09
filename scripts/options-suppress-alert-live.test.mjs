@@ -7,6 +7,9 @@ import { createScoringWorkspace, removeScoringWorkspace } from './scoring-worksp
 
 for (const [name, message] of [
     ['valid-current', 'Feature change alerts disabled for NetHack 5.0.0 features and prior.'],
+    // An older version: the feedback names the value just stored, not this
+    // build's version (FEATURE_NOTICE_VER_* of flags.suppress_alert).
+    ['older-version', 'Feature change alerts disabled for NetHack 3.4.3 features and prior.'],
     ['future', "You can't disable new feature alerts for future versions."],
     ['empty', null],
     ['cancel', null],
