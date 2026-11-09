@@ -41,9 +41,7 @@ import {
     CQ_REPEAT,
     D_CLOSED,
     CROSSWALL,
-    DB_FLOOR,
     DBWALL,
-    DRAWBRIDGE_UP,
     DO_MOVE,
     DOMOVE_WALK,
     D_BROKEN,
@@ -1434,32 +1432,36 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
-        // Every door state is now an admitted walking destination: hack.c
-        // test_move() decides a doorway through testdiag and a closed door
-        // through its own arm, and the arrival path reads no door bit beyond
-        // what dfeature_at() and describe_decor() handle. The span of a
-        // raised drawbridge over plain floor (DB_FLOOR, so neither pool nor
-        // lava) is still refused by the walking destination seam, so it
-        // stands in as the retry fixture.
-        ...[
-            [
-                'raised drawbridge over floor',
-                DRAWBRIDGE_UP,
-                DB_FLOOR,
-                'test_move() door or special terrain movement',
-            ],
-        ].map(([name, typ, mask, reason]) => ({
-            name,
-            reason,
-            install: ({ destination }) => {
-                destination.typ = typ;
-                destination.flags = mask;
+        // Every terrain a walking hero can reach is now an admitted
+        // destination of the walking seam: hack.c test_move() decides doors
+        // through testdiag and its closed-door arm, and the span of a raised
+        // drawbridge over ice or floor is ordinary terrain. A pet standing in
+        // lava still stops the pet-displacement seam, which admits no lava
+        // destination, so it stands in as the retry fixture. The pet is
+        // asleep and frozen so that it cannot act while the command retries.
+        {
+            name: 'pet in lava',
+            reason: 'domove_swap_with_pet() door or special terrain movement',
+            install: ({ destination, x, y }) => {
+                destination.typ = LAVAPOOL;
+                destination.flags = 0;
+                const pet = newMonster({
+                    data: game.mons[PM_NEWT], mnum: PM_NEWT, m_id: 9921,
+                    mhp: 8, mhpmax: 8, mtame: 10, mpeaceful: true,
+                    msleeping: true, mcanmove: false, mfrozen: 1000,
+                    movement: 0,
+                });
+                pet.nmon = game.level.monlist;
+                game.level.monlist = pet;
+                place_monster(pet, x, y, game);
             },
-            remove: ({ destination }) => {
+            remove: ({ destination, x, y }) => {
+                game.level.monsters[x][y] = null;
+                game.level.monlist = game.level.monlist.nmon;
                 destination.typ = ROOM;
                 destination.flags = 0;
             },
-        })),
+        },
     ];
 
     for (const refusal of cases) {
