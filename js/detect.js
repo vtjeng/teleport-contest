@@ -1275,7 +1275,7 @@ async function furniture_detect(state = game) {
     if (!found) await ttyPline('There seems to be nothing of interest on this level.', state);
     else if (!revealed)
         await ttyPline('Your map already shows all relevant locations.', state);
-    if (!revealed) note_unported('detect.c display_nhwindow');
+    if (!revealed) await tty_display_nhwindow_map_blocking(state);
     else
         await browse_map(
             TER_DETECT | TER_MAP | TER_TRP | TER_OBJ | TER_MON,

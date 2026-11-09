@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8812450,
+      "datetime": "20340126201700",
+      "nethackrc": "OPTIONS=name:Scryer,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\nMSGTYPE=hide \"You peer into .*\"\nMSGTYPE=hide \"Your map already shows .*\"\n",
+      "moves": "\u0006j\u0017blessed crystal ball\nao {   ",
+      "comment": "A Wizard maps the level with wizard-mode ^F, steps off the up stairs, and looks into a wished blessed crystal ball for '{'. detect.c furniture_detect() finds every furniture square already shown, so it prints \"Your map already shows all relevant locations.\" and calls display_nhwindow(WIN_MAP, TRUE) (detect.c:1124-1125). MSGTYPE=hide hides that message and \"You peer into...\", which leaves the answered \"What do you look for?\" prompt as a TOPLINE_NON_EMPTY line. wintty.c tty_display_nhwindow()'s NHW_MAP arm promotes it to --More-- and waits; map_redisplay()'s cls() would not. Seed, clock, character, options and keys were chosen for this path."
+    }
+  ]
+}

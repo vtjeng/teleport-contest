@@ -2597,7 +2597,7 @@ test('furniture_detect browses map locations revealed by its scan', () => {
     );
     assert.match(
         implementation,
-        /if \(!revealed\) note_unported\('detect\.c display_nhwindow'\);\s*else\s*await browse_map\(\s*TER_DETECT \| TER_MAP \| TER_TRP \| TER_OBJ \| TER_MON,\s*'location',\s*state,\s*\);\s*await map_redisplay\(state\);/u,
+        /if \(!revealed\) await tty_display_nhwindow_map_blocking\(state\);\s*else\s*await browse_map\(\s*TER_DETECT \| TER_MAP \| TER_TRP \| TER_OBJ \| TER_MON,\s*'location',\s*state,\s*\);\s*await map_redisplay\(state\);/u,
     );
     assert.doesNotMatch(implementation, /note_unported\('detect\.c browse_map'\)/u);
     assert.match(
