@@ -124,13 +124,9 @@ import {
     RIGHT_SIDE,
     WOUNDED_LEGS,
     W_ACCESSORY,
-    W_BALL,
     W_ARMOR,
     W_SADDLE,
-    W_QUIVER,
-    W_SWAPWEP,
     WT_SPLASH_THRESHOLD,
-    W_WEP,
     W_ART,
     W_ARTI,
     I_SPECIAL,
@@ -1903,24 +1899,14 @@ export function preflight_dropx(obj, env = {}) {
         && (is_pool(u.ux, u.uy, state) || is_lava(u.ux, u.uy, state))
         && !submergedWaterBoulder)
         throw new UnsupportedDropError('special-level display');
-    // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
-    // extraction, shipping and altar handling. Admit only that primary mask.
-    // The carried iron ball keeps its W_BALL mask through freeinv(); dropz()
-    // places it and calls ball.c drop_ball() (do.c:833-834).
-    const ballMask = state.uball === obj ? W_BALL : 0;
-    const primaryWeapon = state.uwep === obj
-        && (obj.owornmask & ~ballMask) === W_WEP;
-    const secondaryWeapon = state.uswapwep === obj
-        && Boolean(obj.owornmask & W_SWAPWEP);
-    // worn.c:91-94 allows W_SWAPWEP and W_QUIVER on one object; do.c:814-818
-    // clears both equipment pointers when that object is dropped.
-    const allowedWornMask = (primaryWeapon ? W_WEP
-        : secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0) | ballMask;
-    if ((obj.owornmask & ~allowedWornMask) || (state.uwep === obj && !primaryWeapon)
-        || (state.uquiver === obj && !secondaryWeapon)
-        || (state.uswapwep === obj && !secondaryWeapon)) {
-        throw new UnsupportedDropError('a worn or attached object');
-    }
+    // do.c dropz() clears uwep, uquiver and uswapwep (do.c:810-818) and
+    // drop_ball() takes the carried iron ball (do.c:833-834). Every other
+    // worn object leaves its slot before a drop: drop() asks canletgo(),
+    // which refuses worn armor and accessories, and every other C caller
+    // takes the object off first (Ring_off() in do_wear.c glibr(),
+    // Blindf_off() in apply.c, remove_worn_item() in artifact.c
+    // retouch_object() and trap.c emergency_disrobe(), the Armor_gone() and
+    // Cloak_off() family in polyself.c break_armor()).
     // do.c:dropz() places an unpaid item before shk.c:sellobj(), which takes
     // it off the bill only on a costly square; elsewhere (the shop door, the
     // keeper's own spot, a shop its keeper has left) it stays unpaid on the
@@ -1950,38 +1936,19 @@ export function preflight_dropx(obj, env = {}) {
     // floor. Keep its text intact and let the ordinary placement/redraw run.
     // A visible region affects the canonical redraw, not floor placement.
     // invent.c stackobj() (4366-4375) hands this object to merged() (814-948)
-    // as the survivor and each pile member in turn as the object absorbed, and
-    // merged() reads lamplit and timed on that member at 851-854 and globby at
-    // 928. mergable() forces lamplit to match and returns early for a glob, but
-    // rejects a timer mismatch only for EGG and a revivable CORPSE. mergable()
-    // decides which members merged() can reach, so it is the gate here too.
+    // as the survivor and each pile member in turn as the object absorbed;
+    // merged() stops an absorbed member's light and timers (851-854). Of the
+    // lit or timed objects, mergable() admits only lit candles of a close
+    // age, corpses of a species that does not revive, and globs (which
+    // flooreffects() coalesces first). It refuses lit potions of oil, eggs
+    // with a hatch timer and revivable corpses, and lamps, figurines and
+    // other timed tools have no oc_merge. Only a lit candle's end_burn()
+    // has an admission of its own.
     for (let member = state.level.objects[x][y] ?? null; member;
         member = member.nexthere) {
-        if (!member.lamplit && !member.timed && !member.globby) continue;
-        if (!mergable(obj, member, normalized)) continue;
-        // A compatible floor glob consumes the incoming free glob in
-        // flooreffects; invent.c:stackobj never reaches that timed member.
-        if (obj.globby && member.globby) continue;
-        if (isCandle(member) && member.lamplit && !member.globby) {
-            // merged() extracts this older candle and end_burn() stops its
-            // burn before obj_stop_timers is considered. Validate that owner
-            // while the drop is still atomic; generic timed/glob paths below
-            // retain their separate lifecycle boundary.
+        if (isCandle(member) && member.lamplit && !member.globby
+            && mergable(obj, member, normalized))
             preflight_end_burn(member, true, normalized);
-            continue;
-        }
-        if (member.timed && obj.otyp === CORPSE
-            && member.otyp === CORPSE && !member.lamplit
-            && !member.globby) {
-            // invent.c:mergable() rejects timer mismatches for eggs and
-            // revivable corpses, but admits matching non-reviver corpses.
-            // stackobj() keeps the new drop and merged() stops the absorbed
-            // pile corpse's timer after extracting it.
-            continue;
-        }
-        throw new UnsupportedDropError(
-            'a lit, timed, or globby object in the floor pile',
-        );
     }
 
     return {

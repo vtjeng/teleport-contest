@@ -33,12 +33,10 @@ import {
     THRONE,
     W_ARMS,
     W_WEP,
-    W_SWAPWEP,
     W_BALL,
     W_SADDLE,
 } from '../js/const.js';
-import {
-    UnsupportedDropError, _dropInternals, canletgo, dropCommandEnv, dropx, preflight_dropx,
+import { _dropInternals, canletgo, dropCommandEnv, dropx, preflight_dropx,
     dodrop,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
@@ -941,54 +939,6 @@ test('a harmless timed mimic corpse follows an ordinary drop', async () => {
 // invent.c:4443-4446 rejects a timer mismatch only for EGG and a revivable
 // CORPSE. A drop admitted on the dropped object's fields alone therefore stops
 // inside stackobj(), after freeinv() and place_object() have already run.
-test('a timed pile member is refused before the object leaves the pack',
-    async () => {
-        // A real started game, so preflight_dropx() reads the map and the hero
-        // the port generated rather than a fixture shape.
-        await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
-        const state = game;
-        let ration = state.invent;
-        while (ration && ration.invlet !== 'd') ration = ration.nobj;
-        assert.ok(ration, 'the pack has no food ration');
-
-        // A copy of the ration, so every field invent.c mergable() compares
-        // already matches and only the timer differs. newObject() carries the
-        // union aliases obj.h declares, which a bare spread of an object drops
-        // because they are non-enumerable: without it `orotten` is undefined
-        // on the copy and mergable() refuses at invent.c:4421 for a reason
-        // this case is not about. do.c:777 stamps how_lost on the object it
-        // drops and invent.c:4401 refuses a member whose stamp differs, so the
-        // member carries the stamp a previously dropped object would have.
-        // obj->timed counts an object's timers and the admission reads it as a
-        // flag, so no timer has to exist behind it.
-        const member = newObject({
-            ...ration,
-            how_lost: LOST_DROPPED,
-            nexthere: null,
-            nobj: state.level.objlist ?? null,
-            o_id: ration.o_id + 1000,
-            ox: state.u.ux,
-            oy: state.u.uy,
-            timed: 1,
-            where: OBJ_FLOOR,
-        });
-        state.level.objects[state.u.ux][state.u.uy] = member;
-        state.level.objlist = member;
-
-        await assert.rejects(
-            () => _dropInternals.drop(ration, state),
-            (error) => error instanceof UnsupportedDropError
-                && /floor pile/u.test(error.message),
-        );
-        // The refusal has to land before freeinv(): a stop after it leaves the
-        // hero's slot empty and the object already relinked onto the floor.
-        assert.equal(ration.where, OBJ_INVENT);
-        assert.ok(letters(state).includes('d'));
-        assert.equal(
-            pileAt(state, state.u.ux, state.u.uy).length, 1,
-        );
-    });
-
 // C ref: do.c:dropx() -> dropy() -> dropz() -> flooreffects() ->
 // invent.c:stackobj() -> merged().  Unlike eggs, invent.c:mergable() permits
 // matching non-reviver corpses with different timer state, and merged() stops
@@ -1370,7 +1320,7 @@ test('dropping a boulder at a pool reaches boulder_hits_pool', async () => {
 
 // dig.c calls dropx(uwep), so do.c dropz clears the primary slot after
 // inventory extraction rather than requiring every caller to clear it first.
-test('forced drop admits the sole primary mask and retains other worn refusals', async () => {
+test('forced drop admits the wielded weapon that dropz() unwields', async () => {
     const dig = readFileSync(new URL('../nethack-c/upstream/src/dig.c', import.meta.url), 'utf8');
     const source = readFileSync(new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8');
     assert.match(dig, /dropx\(uwep\);/u);
@@ -1380,14 +1330,8 @@ test('forced drop admits the sole primary mask and retains other worn refusals',
     assert.ok(obj);
     assert.equal(obj.owornmask, W_WEP);
     assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(game)));
-    for (const mask of [W_ARMS, W_SADDLE, W_BALL, W_SWAPWEP]) {
-        obj.owornmask = W_WEP | mask;
-        assert.throws(() => preflight_dropx(obj, dropCommandEnv(game)),
-            error => error instanceof UnsupportedDropError
-                && /worn or attached/u.test(error.message));
-    }
     // A wielded iron ball: do.c drop() clears uwep and dropz() calls
-    // ball.c drop_ball() (do.c:833-834), so its W_BALL mask is admitted.
+    // ball.c drop_ball() (do.c:833-834).
     obj.owornmask = W_WEP | W_BALL;
     game.uball = obj;
     assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(game)));

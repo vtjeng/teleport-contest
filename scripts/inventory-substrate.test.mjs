@@ -3590,16 +3590,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.water_level = { ...state.u.uz };
                 state.level.at(10, 5).typ = WATER;
             }],
-            ['worn ball', /worn/u, ({ obj }) => { obj.owornmask = W_WEP; }],
-            ['wielded ball', /attached/u, ({ state, obj }) => {
-                state.uwep = obj;
-            }],
-            ['quivered ball', /attached/u, ({ state, obj }) => {
-                state.uquiver = obj;
-            }],
-            ['swap-wielded ball', /attached/u, ({ state, obj }) => {
-                state.uswapwep = obj;
-            }],
         ];
 
         for (const [name, reason, setup, otyp] of cases) {
