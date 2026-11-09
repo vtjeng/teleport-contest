@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { assertExceptionCount } from './exception-count.mjs';
 import { HALF_PHDAM } from '../js/const.js';
 import { Half_physical_damage, Maybe_Half_Phys } from '../js/youprop.js';
 
@@ -162,6 +163,24 @@ test('every allowed use is still present', () => {
         const code = codeOnly(readFileSync(join(JS_DIR, file), 'utf8'));
         for (const use of uses) assert.ok(code.includes(use), `${file}: ${use}`);
     }
+});
+
+test('the allowed uses hold the pinned number of entries and sites', () => {
+    // 9 texts matching 9 sites on 9f7e42e6 (8 November 2026). A text
+    // masks every site it occurs at, so the sites are counted apart.
+    const PINS = { entries: 9, sites: 9 };
+    const entries = Object.entries(ALLOWED_USES)
+        .flatMap(([file, uses]) => uses.map((use) => [file, use]));
+    assertExceptionCount(entries.length, PINS.entries, {
+        what: 'ALLOWED_USES texts',
+        pin: 'PINS.entries in scripts/half-physical-damage.test.mjs',
+    });
+    const sites = entries.reduce((n, [file, use]) =>
+        n + codeOnly(readFileSync(join(JS_DIR, file), 'utf8')).split(use).length - 1, 0);
+    assertExceptionCount(sites, PINS.sites, {
+        what: 'HALF_PHDAM sites that ALLOWED_USES excuses',
+        pin: 'PINS.sites in scripts/half-physical-damage.test.mjs',
+    });
 });
 
 test('the scan finds each form a site has used to bypass the definition', () => {
