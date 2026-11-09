@@ -26,6 +26,7 @@ const DEFAULTED_HOOKS = [
     'deleteObjectLightSource',
     'monsterObject',
     'objectNoLongerHeld',
+    'mergeWornMasks',
 ];
 
 // Defaulted hooks whose name is also a flat operation of another owner:
@@ -203,7 +204,6 @@ const REMAINING_REQUIRED_HOOKS = {
     encumberMessage: 1, // pickup.c encumber_msg()
     endArtifactLight: 1, // light.c/artifact.c end of an artifact's light
     inventoryComparisonDiscovered: 3, // invent.c merged()'s comparison pline()
-    mergeWornMasks: 2, // invent.c merged()'s setworn() of a worn stack
     mwepgone: 1, // weapon.c mwepgone()
     // vision.c recalc_block_point() for a lifted boulder. Not defaulted yet:
     // explode.js scatter() substitutes a no-op only when its caller's hooks

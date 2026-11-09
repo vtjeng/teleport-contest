@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c merged() worn-mask fixup (877-903) from #adjust: a debug orcish Rogue wishes 4 daggers, splits 2 to letter b, wields a and quivers b, then adjusts b onto a. The merged stack keeps W_WEP and the quiver empties (\"Merging: a - 4 daggers (wielded).\"); the inventory shows the result.",
+  "segments": [
+    {
+      "seed": 5528104,
+      "datetime": "20510903081200",
+      "nethackrc": "OPTIONS=name:Knives,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u00174 uncursed +0 daggers\n#adjust\n2abwaQb#adjust\nbai"
+    }
+  ]
+}

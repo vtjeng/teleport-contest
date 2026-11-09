@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c merged() worn-mask fixup (877-903), alternate-weapon variation: a debug human Samurai wishes 3 knives (shito), splits one to b, wields a, swaps it to the alternate slot with x, quivers b, then adjusts a onto b. The survivor b drops its quiver slot (setnotworn) and takes W_SWAPWEP; the inventory shows the result.",
+  "segments": [
+    {
+      "seed": 9031777,
+      "datetime": "20510412194500",
+      "nethackrc": "OPTIONS=name:Hamon,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " \u00173 uncursed +1 knives\n#adjust\n1abwaxQb#adjust\nabi"
+    }
+  ]
+}

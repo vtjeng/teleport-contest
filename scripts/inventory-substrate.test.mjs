@@ -1549,33 +1549,20 @@ test('glob absorption bypasses comparison and generic shop-free seams', () => {
     assert.equal(incoming.where, OBJ_DELETED);
 });
 
-test('worn merges require their canonical worn-mask cleanup seam', () => {
+test('a worn merge keeps the survivor in the strongest weapon slot', () => {
+    // invent.c merged() 877-903: a wielded stack absorbed into a carried
+    // stack moves W_WEP to the survivor and unwears the absorbed object.
     const wornState = initializedState();
     const target = instance(DART, wornState, { quan: 2 });
-    const incoming = instance(DART, wornState, {
-        owornmask: W_WEP,
-        quan: 1,
-    });
+    const incoming = instance(DART, wornState, { quan: 1 });
     addinv(target, { state: wornState });
-    assert.throws(
-        () => addinv(incoming, { state: wornState }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'mergeWornMasks',
-    );
-    assert.equal(target.quan, 2);
-    assert.equal(incoming.where, OBJ_FREE);
+    wornState.uwep = incoming;
+    incoming.owornmask = W_WEP;
 
-    addinv(incoming, {
-        state: wornState,
-        hooks: {
-            mergeWornMasks(survivor, absorbed) {
-                survivor.owornmask = W_WEP;
-                absorbed.owornmask = 0;
-            },
-        },
-    });
+    addinv(incoming, { state: wornState });
     assert.equal(target.quan, 3);
     assert.equal(target.owornmask, W_WEP);
+    assert.equal(wornState.uwep, target);
     assert.equal(incoming.where, OBJ_DELETED);
 });
 

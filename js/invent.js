@@ -371,7 +371,7 @@ import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
-import { bypass_objlist, nxt_unbypassed_loot, setnotworn, setuqwep } from './worn.js';
+import { bypass_objlist, nxt_unbypassed_loot, setnotworn, setuqwep, setworn } from './worn.js';
 import {
     inhishop,
     inside_shop,
@@ -2711,7 +2711,7 @@ function requiredHook(env, name, obj) {
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
 // entry, or 'unbilled' when normal deletion and price adjustment should run.
 // 'preserved' is obfree's diagnostic return when the merge target lacks a bill.
-// Merge effects: mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
+// Merge effects: absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
 // inventoryComparisonDiscovered(target, env); live addinv supplies merged()'s
@@ -3762,10 +3762,31 @@ function beginMerged(otmp, obj, env = {}, globMode = 'sync') {
         if (!isCleric(normalized.state)) discovered = true;
     }
 
+    // invent.c merged() 877-903: fixup for #adjust merging wielded or
+    // quivered stacks. The survivor keeps the strongest of the two slots
+    // (primary weapon, then alternate weapon, then quiver). Only weapon
+    // slots reach here: worn armor and accessories have no oc_merge, and
+    // two artifacts never merge, so setworn()'s effects stay synchronous.
     if (obj.owornmask && otmp.where === OBJ_INVENT) {
-        requiredHook(normalized, 'mergeWornMasks', obj)(otmp, obj, normalized);
-        if (obj.owornmask)
-            throw new Error('mergeWornMasks must clear incoming owornmask');
+        let wmask = otmp.owornmask | obj.owornmask;
+        if (wmask & W_WEP) {
+            wmask = W_WEP;
+        } else if (wmask & W_SWAPWEP) {
+            wmask = W_SWAPWEP;
+        } else if (wmask & W_QUIVER) {
+            wmask = W_QUIVER;
+        } else {
+            // C's impossible("merging strangely worn items (%lx)").
+            note_unported('pline.c impossible');
+            wmask = otmp.owornmask;
+        }
+        const wornEnv = setwornEnv(normalized.state, normalized);
+        const steps = [];
+        if (otmp.owornmask & ~wmask) steps.push(setnotworn(otmp, wornEnv));
+        steps.push(setworn(otmp, wmask, wornEnv));
+        steps.push(setnotworn(obj, wornEnv));
+        if (steps.some(isThenable))
+            throw new Error('merged() worn-mask fixup must not wait');
     }
     if (obj.bypass) otmp.bypass = true;
     if (obj.globby) {
@@ -3880,8 +3901,6 @@ export function mergedRuntime(otmp, obj, env = {}) {
 function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
     normalized = inventoryEnv(normalized);
     if (!mergable(otmp, obj, normalized)) return false;
-    if (obj.owornmask && otmp.where === OBJ_INVENT)
-        requiredHook(normalized, 'mergeWornMasks', obj);
     if (obj.globby && globMode === 'sync')
         requiredHook(normalized, 'absorbGlob', obj);
     // Runtime and projection modes use the canonical owners statically
