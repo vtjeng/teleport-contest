@@ -324,7 +324,6 @@ import {
     PM_UMBER_HULK,
     PM_URUK_HAI,
     PM_VAMPIRE,
-    PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_WARRIOR,
@@ -376,7 +375,6 @@ import {
     S_SNAKE,
     S_SPIDER,
     S_TROLL,
-    S_VAMPIRE,
     S_VORTEX,
     S_WRAITH,
     S_ZOMBIE,
@@ -597,26 +595,6 @@ import {
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
-const SUPPORTED_FLAGS = NO_MINVENT
-    | MM_NOWAIT
-    | MM_NOCOUNTBIRTH
-    | MM_IGNOREWATER
-    | MM_NOTAIL
-    | MM_NOMSG
-    | MM_NOEXCLAM
-    | MM_MINVIS
-    | MM_ANGRY
-    | MM_ASLEEP
-    | MM_EDOG
-    | MM_EGD
-    | MM_EPRI
-    | MM_EMIN
-    | MM_ESHK
-    | MM_ADJACENTOK
-    | MM_NOGRP
-    | MM_NONAME
-    | MM_MALE
-    | MM_FEMALE;
 const INITIAL_LEVEL_MONSTERS = new Set([
     PM_ALIGNED_CLERIC,
     PM_JACKAL,
@@ -1225,18 +1203,6 @@ function assertSupportedSpecies(species, env = {}) {
     }
 }
 
-// C makemon() accepts a null species at any explicit runtime coordinate and
-// lets rndmonst() choose the record. create_critters() uses NO_MM_FLAGS for
-// this shape; its in-water variant can pass an enexto() square away from the
-// hero. The call contract is derived only from C arguments and game state.
-function isRuntimeExplicitRandomCall(ptr, x, y, mmflags, state) {
-    return !state.in_mklev
-        && !ptr
-        && !(x === 0 && y === 0)
-        && isok(x, y)
-        && mmflags === NO_MM_FLAGS;
-}
-
 function preflightCreation(ptr, x, y, mmflags, normalized) {
     const { state } = normalized;
     const randomCoordinates = x === 0 && y === 0;
@@ -1249,11 +1215,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && mmflags === (MM_NOCOUNTBIRTH | MM_NOMSG);
     if (!Number.isInteger(mmflags) || mmflags < 0)
         throw new TypeError('makemon flags must be a nonnegative integer');
-    if (mmflags & ~SUPPORTED_FLAGS) {
-        throw new UnsupportedMonsterCreationError(
-            `mmflags 0x${(mmflags & ~SUPPORTED_FLAGS).toString(16)}`,
-        );
-    }
     const mainDungeonLevel = isMainDungeonLevel(state);
     // sp_lev.c's lspo_finalize_level() calls level_finalize_topology() before
     // filling special rooms.  That source path clears in_mklev, but its
@@ -1275,18 +1236,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     const runtimeRandomCall = !state.in_mklev
         && randomCoordinates
         && mmflags === 0;
-    // wizcmds.c uses makemon(ptr/null, 0, 0, MM_NOMSG). C makemon.c
-    // 1172-1179 passes either species shape through makemon_rnd_goodpos;
-    // MM_NOMSG changes only the later appearance message.
-    const runtimeRandomNoMsgCall = !state.in_mklev
-        && randomCoordinates
-        && mmflags === MM_NOMSG;
-    // makemon.c:create_critters() calls makemon(NULL, u.ux, u.uy,
-    // NO_MM_FLAGS); its in-water path supplies another valid explicit square.
-    // C relocates the hero-square request with enexto_core() before selection.
-    const runtimeExplicitRandomCall = isRuntimeExplicitRandomCall(
-        ptr, x, y, mmflags, state,
-    );
     // makemon.c:m_initgrp()/m_initsgrp()/m_initlgrp() recurse with MM_NOGRP.
     // The C call shape is valid on every runtime dungeon branch. m_initgrp()
     // passes its parent's mmflags through with MM_NOGRP added, so a group
@@ -1384,45 +1333,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
-    if (randomCoordinates && !state.in_mklev && !runtimeRandomCall
-        && !runtimeRandomNoMsgCall
-        && !statueInventoryCall) {
-        throw new UnsupportedMonsterCreationError(
-            'random coordinates outside mklev',
-        );
-    }
-    const startingPetCall = !state.in_mklev
-        && Boolean(ptr)
-        && STARTING_PETS.has(ptr.pmidx)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (MM_EDOG | NO_MINVENT);
-    // read.c seffect_light() creates a cancelled, inventoryless light pet
-    // with MM_NOMSG while confused.  It is a runtime call with the same
-    // continuation and post-creation dog initialization as a starting pet.
-    const confusedLightCall = !state.in_mklev
-        && (ptr?.pmidx === PM_YELLOW_LIGHT
-            || ptr?.pmidx === PM_BLACK_LIGHT)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (MM_EDOG | NO_MINVENT | MM_NOMSG);
-    const djinniBottleCall = !state.in_mklev
-        && ptr?.pmidx === PM_DJINNI
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === MM_NOMSG;
-    // fountain.c dowaterdemon(), dowatersnakes(), dowaternymph(), and drinksink()
-    // create these species near the hero with MM_NOMSG. Sewer rats and water
-    // elementals use the generic HP, inventory, and runtime-display branches.
-    const fountainCreatureCall = !state.in_mklev
-        && (ptr?.pmidx === PM_WATER_DEMON
-            || ptr?.pmidx === PM_WATER_MOCCASIN
-            || ptr?.pmidx === PM_WATER_NYMPH
-            || ptr?.pmidx === PM_SEWER_RAT
-            || ptr?.pmidx === PM_WATER_ELEMENTAL)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === MM_NOMSG;
     // read.c create_particular_creation():3315 names or selects a species and
     // places it on the hero's own square, so makemon() reaches the enexto()
     // arm below. The parser can add one gender bit and MM_MINVIS, or leave the
@@ -1441,11 +1351,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === NO_MINVENT;
-    // vault.c invault():407 creates a guard at a wall location with MM_EGD
-    // and MM_NOMSG.
-    const vaultGuardCall = !state.in_mklev
-        && ptr?.pmidx === PM_GUARD
-        && mmflags === (MM_EGD | MM_NOMSG);
     const revivalCall = !state.in_mklev
         && normalized.revival === true
         && Boolean(ptr)
@@ -1467,23 +1372,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(NO_MINVENT | MM_NOMSG | MM_ADJACENTOK
             | MM_NOCOUNTBIRTH | MM_MALE | MM_FEMALE));
-    // priest.c mk_roamer() requests an adjacent, silent, EMIN monster at an
-    // explicit coordinate. Its caller owns the runtime continuation because
-    // this helper is also used by final_level() after the level is built.
-    const roamerCall = !state.in_mklev
-        && normalized._mkRoamer === true
-        && ptr?.pmidx === PM_ANGEL
-        && !randomCoordinates
-        && isok(x, y)
-        && mmflags === (MM_ADJACENTOK | MM_EMIN | MM_NOMSG);
-    // zap.c stone_to_flesh_obj() animates a figurine with the same direct
-    // runtime creation shape, but without the statue's adjacent-square flag.
-    // Keep that source caller explicit so it gets the normal async tail.
-    const figurineAnimationCall = !state.in_mklev
-        && normalized._stoneFleshFigurine === true
-        && Boolean(ptr)
-        && !randomCoordinates
-        && mmflags === (NO_MINVENT | MM_NOMSG);
     // dog.c:make_familiar() calls makemon() with this exact inventoryless
     // pet shape, adding at most one figurine gender bit. The C callee has no
     // runtime species or ACCESSIBLE preflight; placement below handles the
@@ -1525,31 +1413,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && normalized._nasty === true
         && !randomCoordinates
         && (mmflags === MM_NOMSG || mmflags === NO_MM_FLAGS);
-    const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
-        || fountainCreatureCall
-        || runtimeRandomCall || runtimeRandomNoMsgCall
-        || runtimeExplicitRandomCall || runtimeGroupCall
-        || createParticularCall
-        || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
-        || figurineAnimationCall || explicitInventorylessHeroCall
-        || hatchEggCall || explicitCoordinateRuntimeCall
-        || cloneWizardCall || resurrectWizardCall || furiesCall || cloneuCall || minionSummonCall
-        || familiarCall || wereSummonCall || roamerCall
-        // sp_lev.c finalizes topology before filling special rooms.  Those
-        // explicit-coordinate calls still belong to level generation and
-        // use the dedicated special-room tail below, not ordinary runtime
-        // continuation admission.
-        || (explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall)
-        || explicitCoordinateNoMinventRuntimeCall
-        || (!state.in_mklev && statueInventoryCall)
-        || nastyCall;
-    if (runtimeCall
-        && (!normalized.runtimeContinuation
-            || typeof normalized.runtimeContinuation !== 'object')) {
-        throw new UnsupportedMonsterCreationError(
-            'runtime creation without its async tail owner',
-        );
-    }
     const shopkeeperCall = ((state.in_mklev || specialRoomCall)
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
@@ -1559,11 +1422,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // extension is copied before replmon(), rather than treating it as a
         // fresh shkinit() creation.
         || (revivalCall && ptr?.pmidx === PM_SHOPKEEPER);
-    if ((mmflags & MM_ESHK) && !shopkeeperCall) {
-        throw new UnsupportedMonsterCreationError(
-            'shopkeeper extension outside shkinit',
-        );
-    }
     // read.c:create_particular_creation() may force PM_SHOPKEEPER after its
     // cant_revive() prompt.  That source call has no MM_ESHK bit, so it creates
     // the ordinary monster record rather than a shop's extended data.
@@ -1577,24 +1435,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper creation outside shkinit',
         );
     }
-    if (!state.in_mklev && !runtimeCall && !specialRoomCall) {
-        throw new UnsupportedMonsterCreationError('outside mklev');
-    }
     if (specialRoomCall && !ptr) normalized._rndmonMklev = true;
-    if (state.in_mklev && (mmflags & MM_EDOG)) {
-        throw new UnsupportedMonsterCreationError(
-            'edog creation during mklev',
-        );
-    }
-    if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
-        && !runtimeRandomCall && !runtimeRandomNoMsgCall
-        && !runtimeExplicitRandomCall && !createParticularCall
-        // wizard.c nasty()'s substitute makemon(NULL, x, y, mmflags) has no
-        // MM_NOGRP, so C's makemon() may start a group; makemon_runtime()'s
-        // continuation runs m_initgrp_runtime() for it.
-        && !nastyCall) {
-        throw new UnsupportedMonsterCreationError('random monster groups');
-    }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
         throw new Error('makemon requires initialized monster globals');
     if (!state.context || !Number.isInteger(state.context.ident)
@@ -1658,11 +1499,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {
             assertSupportedSpecies(ptr, normalized);
-        }
-        if (state.mons[ptr.pmidx] !== ptr) {
-            throw new UnsupportedMonsterCreationError(
-                'monster record outside the mutable catalog',
-            );
         }
     }
 }
@@ -2908,21 +2744,11 @@ function isPlaceholderForm(mndx) {
 export function restore_waiting_vampire(monster, rawEnv = {}) {
     const normalized = creationEnv(rawEnv);
     const { state } = normalized;
-    const isVampireShifter = monster?.cham === PM_VAMPIRE
-        || monster?.cham === PM_VAMPIRE_LEADER;
-    const isSupportedShift = monster?.mnum === PM_VAMPIRE_BAT
-        || monster?.mnum === PM_FOG_CLOUD
-        || monster?.mnum === PM_WOLF;
-    if (!isVampireShifter || !isSupportedShift
-        || monster.data?.mlet === S_VAMPIRE) {
-        throw new UnsupportedMonsterCreationError(
-            'waiting-vampire reversion state',
-        );
-    }
+    // The caller has checked that the monster is a vampire or vampire lord
+    // shifted out of its S_VAMPIRE form; mon.c pickvampshape() made it a
+    // vampire bat, fog cloud or wolf.
     const mndx = monster.cham;
-    const target = state.mons?.[mndx];
-    if (!target || target.pmidx !== mndx)
-        throw new UnsupportedMonsterCreationError('waiting-vampire target');
+    const target = state.mons[mndx];
     if (state.mvitals[mndx].mvflags & G_GENOD) return false;
     if (monster.data === target) return false;
     // Explicit-target newcham is hybrid: synchronous for an ordinary
@@ -2938,13 +2764,6 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
 export async function newcham_revival(monster, target, rawEnv = {}) {
     const normalized = creationEnv(rawEnv);
     const { state } = normalized;
-    if (monster?.cham !== PM_DOPPELGANGER
-        || !target
-        || state.mons?.[target.pmidx] !== target) {
-        throw new UnsupportedMonsterCreationError(
-            'revival doppelganger shape change',
-        );
-    }
     if (state.mvitals[target.pmidx].mvflags & G_GENOD) return false;
     if (monster.data === target) return false;
     return await newcham(monster, target, normalized);
@@ -3342,13 +3161,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         // fill_special_room()'s marker, so it must skip only makemon_runtime's
         // continuation bookkeeping and still run C's post-creation tail.
         if (!state.in_mklev && !normalized._specialRoomFill) {
-            const continuation = normalized.runtimeContinuation;
-            if (!continuation || continuation.claimed) {
-                throw new UnsupportedMonsterCreationError(
-                    'runtime creation without an unused async continuation',
-                );
-            }
-            Object.assign(continuation, {
+            // makemon_runtime() and makemon_revival() supply a fresh
+            // continuation for every runtime call.
+            Object.assign(normalized.runtimeContinuation, {
                 claimed: true,
                 monster,
                 ptr,

@@ -260,16 +260,6 @@ test('self opening reads the canonical punishment ball', async () => {
     assert.equal(game.objects[WAN_OPENING].oc_name_known, 1);
 });
 
-test('stone-to-flesh figurines use the admitted runtime creation shape', () => {
-    // zap.c:2030-2042 calls makemon() directly for a figurine with exactly
-    // NO_MINVENT|MM_NOMSG. The marker is a source-caller fact, not a test
-    // fallback, so the async runtime owner can validate that shape.
-    assert.match(JS_SOURCE, /_stoneFleshFigurine: true/u);
-    const makemonSource = readFileSync('js/makemon_create.js', 'utf8');
-    assert.match(makemonSource, /figurineAnimationCall/u);
-    assert.match(makemonSource, /normalized\._stoneFleshFigurine/u);
-});
-
 test('stone-to-flesh keeps the source callback and statue dependency order', () => {
     const stoneStart = C_SOURCE.indexOf('stone_to_flesh_obj(struct obj *obj)');
     const stoneEnd = C_SOURCE.indexOf('\n}\n\n/*', stoneStart) + 2;

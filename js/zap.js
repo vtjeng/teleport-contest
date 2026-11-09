@@ -2690,7 +2690,7 @@ export async function stone_to_flesh_obj(obj, state = game,
                     ox,
                     oy,
                     NO_MINVENT | MM_NOMSG,
-                    { ...env, _stoneFleshFigurine: true },
+                    env,
                 );
                 if (monster) {
                     if (costly_spot(ox, oy, state)

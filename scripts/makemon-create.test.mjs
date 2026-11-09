@@ -29,7 +29,6 @@ import {
     MM_EMIN,
     MM_IGNOREWATER,
     MM_MALE,
-    MM_MINVIS,
     MM_NOCOUNTBIRTH,
     MM_NOEXCLAM,
     MM_NOGRP,
@@ -2953,132 +2952,6 @@ test('runtime appearance defaults to Norep when the caller supplies pline',
         );
     });
 
-test('direct runtime call shapes require an async tail owner before mutation',
-    () => {
-        for (const scenario of [
-            { name: 'random parent', ptr: null, x: 0, y: 0, flags: 0 },
-            {
-                name: 'group child', ptr: PM_NEWT,
-                x: MON_X, y: MON_Y, flags: MM_NOGRP,
-            },
-            {
-                name: 'primitive owner', ptr: PM_NEWT,
-                x: MON_X, y: MON_Y, flags: MM_NOGRP,
-                runtimeContinuation: 1,
-            },
-        ]) {
-            const state = initialLevelState();
-            state.in_mklev = false;
-            const random = scriptedRandom([]);
-            const ident = state.context.ident;
-            const ptr = scenario.ptr == null
-                ? null : state.mons[scenario.ptr];
-
-            assert.throws(
-                () => makemon(ptr, scenario.x, scenario.y, scenario.flags, {
-                    state,
-                    random: random.random,
-                    runtimeContinuation: scenario.runtimeContinuation,
-                }),
-                /runtime creation without its async tail owner/u,
-                scenario.name,
-            );
-            random.assertExhausted();
-            assert.equal(state.context.ident, ident, scenario.name);
-            assert.equal(state.level.monlist, null, scenario.name);
-            if (scenario.ptr != null) {
-                assert.equal(
-                    state.mvitals[scenario.ptr].born,
-                    0,
-                    scenario.name,
-                );
-            }
-        }
-    });
-
-// read.c create_particular_creation() supplies its runtime caller marker and
-// hero coordinates. Its source flag combinations must reach the async-tail
-// ownership check before any random draw or monster allocation.
-test('particular creation requires its runtime owner for source flag variants',
-    () => {
-        const heroSquare = { x: MON_X, y: MON_Y };
-        for (const scenario of [
-            { name: 'no gender', flags: MM_NOEXCLAM, admitted: true },
-            {
-                name: 'male name', flags: MM_NOEXCLAM | MM_MALE,
-                admitted: true,
-            },
-            {
-                name: 'female name', flags: MM_NOEXCLAM | MM_FEMALE,
-                admitted: true,
-            },
-            // Conflicting explicit gender and gendered names omit
-            // MM_NOEXCLAM; invisibility is independent of that choice.
-            {
-                name: 'male name conflict', flags: MM_MALE, admitted: true,
-            },
-            {
-                name: 'invisible female name conflict',
-                flags: MM_FEMALE | MM_MINVIS, admitted: true,
-            },
-            {
-                name: 'invisible without gender',
-                flags: MM_NOEXCLAM | MM_MINVIS, admitted: true,
-            },
-            {
-                // read.c:create_particular_creation() can restore PM_SHK
-                // after the wizard confirms cant_revive()'s substitution.
-                // C passes only MM_NOEXCLAM, without MM_ESHK.
-                name: 'forced shopkeeper Genesis',
-                mndx: PM_SHOPKEEPER,
-                flags: MM_NOEXCLAM,
-                admitted: true,
-            },
-            { name: 'unsupported angry flag', flags: MM_ANGRY,
-                admitted: false },
-            { name: 'missing caller marker', flags: MM_NOEXCLAM,
-                caller: false, admitted: false },
-            // create_particular_creation() always passes u.ux, u.uy.
-            {
-                name: 'east of the hero', flags: MM_NOEXCLAM,
-                x: MON_X + 1, admitted: false,
-            },
-            {
-                name: 'south of the hero', flags: MM_NOEXCLAM,
-                y: MON_Y + 1, admitted: false,
-            },
-            // mkclass()/rndmonst() may return null before makemon() performs
-            // its own random selection, with the same creation flags.
-            { name: 'no species', flags: MM_NOEXCLAM, ptr: null,
-                admitted: true },
-        ]) {
-            const state = initialLevelState();
-            state.in_mklev = false;
-            state.u.ux = heroSquare.x;
-            state.u.uy = heroSquare.y;
-            const random = scriptedRandom([]);
-            const ptr = scenario.ptr === null ? null
-                : state.mons[scenario.mndx ?? PM_NEWT];
-
-            assert.throws(
-                () => makemon(
-                    ptr,
-                    scenario.x ?? heroSquare.x,
-                    scenario.y ?? heroSquare.y,
-                    scenario.flags,
-                    { state, random: random.random,
-                        _createParticular: scenario.caller !== false },
-                ),
-                scenario.admitted
-                    ? /runtime creation without its async tail owner/u
-                    : /outside mklev/u,
-                scenario.name,
-            );
-            random.assertExhausted();
-            assert.equal(state.level.monlist, null, scenario.name);
-        }
-    });
-
 test('particular creation chooses a nearby square from inaccessible hero terrain', () => {
     for (const terrain of [SDOOR, STONE, ROOM]) {
         const state = initialLevelState();
@@ -3234,10 +3107,6 @@ test('timeout hatch uses its explicit enexto runtime creation contract',
             MAKEMON_JS_SOURCE,
             /const hatchEggCall = !state\.in_mklev[\s\S]*?normalized\._hatchEgg === true[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === \(NO_MINVENT \| MM_NOMSG\)/u,
         );
-        assert.match(
-            MAKEMON_JS_SOURCE,
-            /\|\| hatchEggCall \|\| explicitCoordinateRuntimeCall/u,
-        );
 
         const state = initialLevelState();
         state.in_mklev = false;
@@ -3311,16 +3180,6 @@ test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',
 
         const jsContract = /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u;
         assert.match(MAKEMON_JS_SOURCE, jsContract);
-        const runtimeCallStart = MAKEMON_JS_SOURCE.indexOf('const runtimeCall =');
-        const runtimeCallEnd = MAKEMON_JS_SOURCE.indexOf(';', runtimeCallStart);
-        assert.ok(runtimeCallStart >= 0 && runtimeCallEnd > runtimeCallStart);
-        const runtimeCallSource = MAKEMON_JS_SOURCE.slice(
-            runtimeCallStart, runtimeCallEnd,
-        );
-        assert.match(
-            runtimeCallSource,
-            /\(explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall\)/u,
-        );
 
         const state = initialLevelState();
         state.in_mklev = false;
@@ -3695,36 +3554,6 @@ test('were_summon creates each source-selected species through runtime makemon',
                 ],
                 `${helperNoun} source selector draw order`,
             );
-        }
-
-        // were_summon uses the hero square in C, but makemon's generic
-        // explicit NO_MM_FLAGS runtime contract also admits other valid
-        // coordinates. This source caller's wrong-flag variant remains
-        // unsupported and must stop before construction.
-        for (const [name, x, flags] of [
-            ['wrong flags', MON_X, MM_NOCOUNTBIRTH],
-        ]) {
-            const state = initialLevelState();
-            state.in_mklev = false;
-            state.u.ux = MON_X;
-            state.u.uy = MON_Y;
-            const random = recordingRandom();
-            await assert.rejects(
-                makemon_runtime(
-                    state.mons[PM_WOLF], x, MON_Y, flags,
-                    {
-                        state,
-                        random: random.random,
-                        message: async () => {},
-                        norepMessage: async () => {},
-                        _wereSummon: true,
-                    },
-                ),
-                /outside mklev/u,
-                name,
-            );
-            assert.deepEqual(random.calls, [], name);
-            assert.equal(state.level.monlist, null, name);
         }
 
         // polyself.c's were_summon call uses yours=TRUE, so the same runtime
@@ -7413,8 +7242,10 @@ test('special-level caller markers admit only their explicit shopkeeper and High
                 random: unmarkedShopkeeperRandom.random,
             },
         ),
+        // makemon.c gates neither shape; the port refuses every shopkeeper
+        // outside shkinit() that it does not yet create (row 390).
         (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === 'shopkeeper extension outside shkinit',
+            && error.operation === 'shopkeeper creation outside shkinit',
     );
     assert.deepEqual(unmarkedShopkeeperRandom.calls, []);
 
@@ -7433,8 +7264,10 @@ test('special-level caller markers admit only their explicit shopkeeper and High
                 _specialRoomFill: true,
             },
         ),
+        // makemon.c gates neither shape; the port refuses every shopkeeper
+        // outside shkinit() that it does not yet create (row 390).
         (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === 'shopkeeper extension outside shkinit',
+            && error.operation === 'shopkeeper creation outside shkinit',
     );
     assert.deepEqual(misflaggedShopkeeperRandom.calls, []);
 
@@ -7490,49 +7323,6 @@ test('special-level caller markers admit only their explicit shopkeeper and High
             && error.operation === `makemon() monster ${PM_HIGH_CLERIC}`,
     );
     assert.deepEqual(misflaggedHighClericRandom.calls, []);
-});
-
-test('explicit-coordinate runtime creation on a non-main-dungeon level fails before RNG or state', () => {
-    // During mklev, monster creation works on any dungeon branch -- Quest,
-    // Mines, Sokoban, etc. -- because the level template and rndmonst()
-    // place whatever species the level definition requests.  Outside mklev
-    // (runtime creation), this explicit-coordinate shape remains outside the
-    // currently admitted runtime call shapes. The random-coordinate shape is
-    // tested above and matches makemon(NULL, 0, 0, NO_MM_FLAGS).
-    const cases = [
-        {
-            name: 'another dungeon at local level one',
-            level: { dnum: 1, dlevel: 1 },
-        },
-        {
-            name: 'another dungeon at a deeper level',
-            level: { dnum: 2, dlevel: 3 },
-        },
-    ];
-
-    for (const scenario of cases) {
-        const state = initialLevelState();
-        state.in_mklev = false;
-        state.u.uz = scenario.level;
-        const random = scriptedRandom([]);
-
-        assert.throws(
-            () => makemon(
-                null,
-                MON_X,
-                MON_Y,
-                MM_NOGRP | NO_MINVENT,
-                { state, random: random.random },
-            ),
-            UnsupportedMonsterCreationError,
-            scenario.name,
-        );
-        random.assertExhausted();
-        assert.equal(state.level.monlist, null, scenario.name);
-        assert.equal(state.level.monsters[MON_X][MON_Y], null, scenario.name);
-        assert.equal(state.mvitals[PM_NEWT].born, 0, scenario.name);
-        assert.equal(state.context.ident, 2, scenario.name);
-    }
 });
 
 test('NO_MINVENT leaves migrating object queues untouched', () => {
@@ -7612,17 +7402,8 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
     const state = initialLevelState();
     const random = scriptedRandom([]);
 
-    // Random monster groups without MM_NOGRP are unsupported at runtime
-    // (outside mklev). During mklev, rndmonst-chosen species may form
-    // groups, so null-ptr without MM_NOGRP is a valid call shape there.
-    state.in_mklev = false;
-    assert.throws(
-        () => makemon(null, MON_X, MON_Y, 0, {
-            state,
-            random: random.random,
-        }),
-        UnsupportedMonsterCreationError,
-    );
+    // An initial chameleon on the Rogue level: C makes it and newcham()s it
+    // to an uppercase form, which the port does not carry yet.
     state.in_mklev = true;
     state.rogue_level = { ...state.u.uz };
     assert.throws(
@@ -8386,13 +8167,6 @@ test('explicit NO_MINVENT runtime coordinates follow C placement without invento
                 { ...env, random: rejectedRandom.random }), null);
             assert.deepEqual(rejectedRandom.calls, []);
         }
-        // Adding MM_ASLEEP is outside this narrowly admitted flag shape;
-        // keep the refusal drawless rather than inventing another contract.
-        const outside = recordingRandom();
-        await assert.rejects(makemon_runtime(state.mons[PM_GHOST], MON_X + 5, y,
-            NO_MINVENT | MM_ASLEEP, { ...env, random: outside.random }),
-            UnsupportedMonsterCreationError);
-        assert.deepEqual(outside.calls, []);
     }
 });
 
@@ -8479,12 +8253,6 @@ test('makemon runtime MM_NOMSG random coordinates preserve the source placement 
             [['rn1', COLNO - 3, 2], ['rn2', ROWNO]], 'placement precedes species/construction draws');
         assert.deepEqual(messages, [], 'MM_NOMSG suppresses appearance');
     }
-    const state = initialLevelState(); state.in_mklev = false;
-    const random = recordingRandom();
-    await assert.rejects(makemon_runtime(state.mons[PM_NEWT], 0, 0,
-        MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random,
-            message: async () => {}, norepMessage: async () => {} }), /random coordinates outside mklev/u);
-    assert.deepEqual(random.calls, [], 'other flag shapes retain their original refusal');
 });
 
 test('makemon admits migratemons random-coordinate MM_NOMSG calls on tutorial levels', async () => {
@@ -8521,11 +8289,6 @@ test('makemon admits migratemons random-coordinate MM_NOMSG calls on tutorial le
             [['rn1', COLNO - 3, 2], ['rn2', ROWNO]], 'source placement draws still precede species/construction');
         assert.deepEqual(messages, [], 'MM_NOMSG remains silent on tutorial levels');
 
-        random.calls.length = 0;
-        await assert.rejects(makemon_runtime(state.mons[PM_NEWT], 0, 0,
-            MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random }),
-        /random coordinates outside mklev/u);
-        assert.deepEqual(random.calls, [], 'other flag shapes keep the general refusal before RNG');
     }
 });
 
