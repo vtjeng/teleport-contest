@@ -197,7 +197,6 @@ import { dotelecmd } from './teleport.js';
 import { reset_utrap, t_at, dountrap } from './trap.js';
 import { dobugreport } from './report.js';
 import { stairway_at } from './stairs.js';
-import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { doeat } from './eat.js';
 import {
     can_reach_floor,
@@ -2967,10 +2966,6 @@ export function failClosedCommandRefusals() {
         // branches, and ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
-        // do.c goto_level()'s tail reaches this one from inside the `>`
-        // handler, so it ends the segment where it would otherwise discard
-        // the prefix: run_timers() fires timers that expired while away.
-        UnsupportedHeroTimeoutBoundaryError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.

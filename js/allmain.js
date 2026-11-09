@@ -169,7 +169,6 @@ import {
 } from './region.js';
 import { note_unported } from './unported.js';
 import {
-    UnsupportedHeroTimeoutBoundaryError,
     nh_timeout,
     do_storms,
 } from './timeout.js';
@@ -821,11 +820,6 @@ export async function finishElapsedTurn(state, random) {
         });
     }
 
-    // run_timers() refuses a due timer the port cannot run (a ROT_CORPSE
-    // element whose corpse an M1_COLLECT monster has carried to OBJ_MINVENT,
-    // for one). advanceElapsedTurn() converts that refusal around its call to
-    // this function, so the segment ends on its last matching screen instead
-    // of being discarded whole.
     await nh_timeout(state, {
         random,
         message: ttyPline,
@@ -1049,7 +1043,6 @@ export async function finishElapsedTurn(state, random) {
 function elapsedTurnRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
-        UnsupportedHeroTimeoutBoundaryError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
         // mpickstuff()'s -- call splitobj() and mpickobj() from inside the
         // monster scan, so these classes reach here from a path that used to

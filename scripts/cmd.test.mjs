@@ -4834,21 +4834,6 @@ test('ported hunger transitions no longer register a command refusal', () => {
         (type) => type.name === 'UnsupportedHungerTransitionError'), false);
 });
 
-// The '>' handler routes dodown() through failClosedCommand() (js/cmd.js), and
-// js/jsmain.js runSegment() breaks a segment only for the boundary classes
-// that wrapper produces. A class raised inside goto_level()'s tail that the
-// list omits escapes runSegment() as a hard throw, and the scorer records a
-// session error instead of keeping the screens the segment already matched.
-test('every class goto_level()\'s tail can raise converts at the command seam',
-    async () => {
-        const { UnsupportedHeroTimeoutBoundaryError } =
-            await import('../js/timeout.js');
-        const converted = failClosedCommandRefusals();
-
-        // do.c:1821 run_timers(), for timers due while the hero was away.
-        assert.ok(converted.includes(UnsupportedHeroTimeoutBoundaryError));
-    });
-
 // Keep the refusal classes recognizable at the command seam. The polymorphed
 // pluslvl() and setuhpmax() branches and ordinary level loss are implemented.
 test('experience and attribute refusal classes remain registered at the command seam',

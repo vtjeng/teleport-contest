@@ -182,12 +182,16 @@ test('refuelled non-threshold age restarts without an invented warning',async()=
  assert.deepEqual(f.messages,[]);
 });
 
-test('burn timer admission retains the one-object-timer boundary',async()=>{
+test('a due burn timer runs while its object holds another timer',async()=>{
+ // timeout.c run_timers() (2222-2241) runs every due timer in queue order,
+ // whatever else the object holds; the REVIVE_MON timer 50 turns out is an
+ // arbitrary second timer that must stay queued.
  const f=await fixture(TALLOW_CANDLE,75);start_timer(0,TIMER_OBJECT,BURN_OBJECT,f.obj,game);
- // A second future timer is outside the explicit existing drain contract.
- start_timer(50,TIMER_OBJECT,REVIVE_MON,f.obj,game);const head=game.gt.timer_base;
- await assert.rejects(run_timers(game,f.env),/the due object to hold only its own timer/u);
- assert.equal(game.gt.timer_base,head);assert.equal(f.obj.timed,2);assert.equal(f.obj.age,75);
+ start_timer(50,TIMER_OBJECT,REVIVE_MON,f.obj,game);
+ await run_timers(game,f.env);
+ assert.equal(peek_timer(REVIVE_MON,f.obj,game),game.moves+50);
+ assert.equal(peek_timer(BURN_OBJECT,f.obj,game) > game.moves,true);
+ assert.equal(f.obj.timed,2);
 });
 
 test('burn family declarations and source-owned dispatch cover the assigned functions',()=>{
@@ -195,5 +199,5 @@ test('burn family declarations and source-owned dispatch cover the assigned func
  assert.match(c,/see_lamp_flicker\(struct obj \*obj, const char \*tailer\)/u);
  assert.match(c,/TTAB\(burn_object, cleanup_burn, "burn_object"\)/u);
  const js=readFileSync(new URL('../js/timeout.js',import.meta.url),'utf8');
- assert.match(js,/name: 'burn_object', f: burn_object, unported: \(\) => null/u);
+ assert.match(js,/name: 'burn_object', f: burn_object \}/u);
 });

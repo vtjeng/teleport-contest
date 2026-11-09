@@ -37,7 +37,6 @@ import {
     DELPHI,
     FILL_NONE,
     FILL_NORMAL,
-    HATCH_EGG,
     LEPREHALL,
     MORGUE,
     OROOM,
@@ -118,7 +117,6 @@ import { stairway_add, stairway_find_from, stairway_free_all } from '../js/stair
 import {
     mon_is_local,
     obj_is_local,
-    run_timers,
     save_timers,
     start_timer,
     timeout_globals_init,
@@ -276,33 +274,6 @@ test('timer locality follows the four timer kinds', () => {
     // both local.
     assert.equal(state.gt.timer_base.kind, TIMER_GLOBAL);
     assert.equal(state.gt.timer_base.next, null);
-});
-
-test('run_timers names its site when it refuses a due prefix', async () => {
-    const state = dungeonState();
-    timeout_globals_init(state);
-    state.moves = 100;
-    // timed starts at 1 so that, once start_timer() adds the egg's own timer,
-    // the due object holds another timer too: run_timers() still refuses
-    // that prefix (timeout.c:2222-2241 runs each due timer in queue order).
-    start_timer(5, TIMER_OBJECT, HATCH_EGG,
-        { where: OBJ_INVENT, timed: 1 }, state);
-    // Scheduled for move 105, which is still ahead of the arrival turn.
-    await run_timers(state, { newsym: () => {} });
-    state.moves = 105;
-    // The message names goto_level()'s call, not nh_timeout()'s. Both raise
-    // this class over the same field, and boundary triage reads the line to
-    // decide which of the two stopped, so the site marker is asserted here and
-    // the nh_timeout wording is asserted in scripts/timeout.test.mjs. Neither
-    // assertion may be satisfied by the other's string.
-    await assert.rejects(
-        run_timers(state, {
-            newsym: () => {},
-            site: "goto_level()'s run_timers()",
-        }),
-        (error) => error.message === "goto_level()'s run_timers() requires "
-            + 'the due object to hold only its own timer',
-    );
 });
 
 test('save_light_sources releases exactly one range', () => {

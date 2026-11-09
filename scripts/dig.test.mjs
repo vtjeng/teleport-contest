@@ -64,7 +64,6 @@ import {
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
-    OBJ_INVENT,
     OROOM,
     POOL,
     MOAT,
@@ -95,7 +94,7 @@ import {
     adj_pit_checks, dig, dig_check, dig_typ, digactualhole, dighole,
     fillholetyp, is_digging,
     mdig_tunnel, pick_can_reach,
-    rot_corpse, unportedRotCorpseReason,
+    rot_corpse,
 } from '../js/dig.js';
 import { GameMap, rm_doormask } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -1171,39 +1170,6 @@ test('rot_corpse exposes a hider only once nothing is left to hide under',
                 row.why,
             );
         }
-    });
-
-test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
-    const state = rotState();
-    const seam = { state, hooks: { newsym: () => {} } };
-    const floor = floorCorpse(state, 12, 6);
-    assert.equal(unportedRotCorpseReason(floor, seam), null);
-
-    // dig.c:2158-2178 now dispatches carried, monster and migrating corpses.
-    const carried = newObject({ otyp: CORPSE, where: OBJ_INVENT });
-    assert.equal(unportedRotCorpseReason(carried, seam), null);
-
-    // Billing is owned by canonical obfree; the discarded hero hideunder
-    // call updates concealment without refusing corpse deletion.
-    const owed = floorCorpse(state, 14, 6);
-    owed.unpaid = true;
-    assert.equal(unportedRotCorpseReason(owed, seam), null);
-    const underfoot = floorCorpse(state, 20, 9);
-    state.u.ux = 20;
-    state.u.uy = 9;
-    state.u.uundetected = 1;
-    state.youmonst.data = state.mons[PM_CAVE_SPIDER];
-    assert.equal(unportedRotCorpseReason(underfoot, seam), null);
-});
-
-test('unportedRotCorpseReason demands the newsym seam it will draw through',
-    () => {
-        const state = rotState();
-        const corpse = floorCorpse(state, 15, 7);
-        assert.throws(
-            () => unportedRotCorpseReason(corpse, { state }),
-            /rot_corpse requires a newsym seam/u,
-        );
     });
 
 test('the corpse rot matrix rests long enough for a corpse to come due', () => {

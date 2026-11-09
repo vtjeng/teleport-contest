@@ -1713,39 +1713,6 @@ test('run_timers decrements the object timer count before calling its function',
         assert.equal(corpse.where, OBJ_DELETED);
     });
 
-test('run_timers refuses the whole due prefix before draining any of it', async () => {
-    const state = rottingState();
-    // The first element is drainable and the second is not, so a per-element
-    // check would delete the first corpse and then stop with the queue half
-    // drained. C cannot fail partway through run_timers(), so neither may this.
-    // The rotting corpse expires a turn before the reviving corpse, so the queue really
-    // does hold the drainable element ahead of the refused one; equal expiries
-    // would put the newest first and leave the refusal at the head, where even
-    // a head-only check would find it.
-    const corpse = rottingCorpse(state, 25, 6, -1);
-    const later = newObject({
-        o_id: nextTimerObjectId++,
-        oclass: state.objects[CORPSE].oc_class,
-        otyp: CORPSE,
-        quan: 1,
-    });
-    // The later corpse holds a second timer beside its due revival, which
-    // run_timers() still refuses (timeout.c:2222-2241).
-    later.timed = 1;
-    start_timer(0, TIMER_OBJECT, REVIVE_MON, later, state);
-    assert.equal(state.gt.timer_base.arg, corpse);
-    const queueBefore = queue(state).map((timer) => timer.tid);
-
-    await assert.rejects(
-        run_timers(state, { newsym: () => {} }),
-        /the due object to hold only its own timer/u,
-    );
-
-    assert.equal(corpse.where, OBJ_FLOOR);
-    assert.equal(corpse.timed, 1);
-    assert.deepEqual(queue(state).map((timer) => timer.tid), queueBefore);
-});
-
 test('run_timers corpse deletion cancels the residual revival timer', async () => {
     // C rereads the head after each callback. obfree stops the later timer;
     // it must never invoke revival on the deallocated corpse.

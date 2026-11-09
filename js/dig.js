@@ -2367,15 +2367,6 @@ function rotEnv(env) {
     return { ...env, state: env.state ?? game, hooks: env.hooks ?? {} };
 }
 
-// rot_corpse()'s admission for run_timers(). A corpse never holds objects
-// (no C or Lua path puts an object in one), so its contents need no check.
-export function unportedRotCorpseReason(obj, rawEnv = {}) {
-    const env = rotEnv(rawEnv);
-    if (obj.where === OBJ_FLOOR && typeof env.hooks.newsym !== 'function')
-        throw new TypeError('rot_corpse requires a newsym seam');
-    return null;
-}
-
 // C ref: dig.c rot_organic() (2125-2140). A rotting buried container releases
 // its contents back into the buried-object list at the same square before the
 // container itself is extracted and freed. bury_an_obj() owns each child's

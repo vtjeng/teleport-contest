@@ -81,7 +81,6 @@ import {
     REVIVE_MON,
     ROT_AGE,
     ROT_CORPSE,
-    ROT_ORGANIC,
     SHRINK_GLOB,
     SLIMED,
     SICK,
@@ -133,7 +132,7 @@ import { setwornEnv, toggle_displacement, wielding_corpse } from './do_wear.js';
 import {
     Popeye, eating_dangerous_corpse, morehungry, vomit, } from './eat.js';
 import { dealloc_killer, done, find_delayed_killer } from './end.js';
-import { rot_corpse, rot_organic, unportedRotCorpseReason } from './dig.js';
+import { rot_corpse, rot_organic } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
 import {
@@ -327,19 +326,6 @@ function validateTimer(kind, funcIndex) {
 
 function currentMove(state) {
     return Math.trunc(state.moves ?? 0);
-}
-
-// The site is part of the message because run_timers() raises this class for
-// more than one caller: goto_level() reaches the drain on arrival and
-// nh_timeout() reaches it at its tail. A log line naming only the timer would
-// not say which stopped, and boundary triage reads that line.
-export class UnsupportedHeroTimeoutBoundaryError extends Error {
-    constructor(reason, site = 'elapsed-turn nh_timeout') {
-        super(`${site} requires ${reason}`);
-        this.name = 'UnsupportedHeroTimeoutBoundaryError';
-        this.reason = reason;
-        this.site = site;
-    }
 }
 
 // C ref: timeout.c hatch_egg() (1017-1192). A due object timer owns the egg
@@ -552,26 +538,21 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
 
 // C ref: timeout.c timeout_funcs[] (1978-1990), "Table of timeout functions,
 // listed in order of enum timeout_types". Each row keeps the VERBOSE_TIMER
-// name C prints so a stop can say which function it refused. `f` is the ported
-// timeout_proc and `unported` the reason it cannot run yet.
+// name C prints beside `f`, the ported timeout_proc.
 //
 // C's second TTAB field, `cleanup`, is not here. Only BURN_OBJECT has one, and
 // stop_timer() already owns it through preflightTimerCleanup() above; nothing
 // run_timers() does consults it.
 const timeout_funcs = [
-    { name: 'rot_organic', f: rot_organic, unported: () => null },
-    { name: 'rot_corpse', f: rot_corpse, unported: unportedRotCorpseReason },
-    { name: 'revive_mon', f: reviveMonCallback, unported: () => null },
-    { name: 'zombify_mon', f: zombifyMonCallback, unported: unportedZombifyMonReason },
-    { name: 'burn_object', f: burn_object, unported: () => null },
-    { name: 'hatch_egg', f: hatch_egg, unported: () => null },
-    {
-        name: 'fig_transform',
-        f: figTransformCallback,
-        unported: () => null,
-    },
-    { name: 'shrink_glob', f: shrinkGlobCallback, unported: () => null },
-    { name: 'melt_ice_away', f: meltIceAwayCallback, unported: () => null },
+    { name: 'rot_organic', f: rot_organic },
+    { name: 'rot_corpse', f: rot_corpse },
+    { name: 'revive_mon', f: reviveMonCallback },
+    { name: 'zombify_mon', f: zombifyMonCallback },
+    { name: 'burn_object', f: burn_object },
+    { name: 'hatch_egg', f: hatch_egg },
+    { name: 'fig_transform', f: figTransformCallback },
+    { name: 'shrink_glob', f: shrinkGlobCallback },
+    { name: 'melt_ice_away', f: meltIceAwayCallback },
 ];
 if (timeout_funcs.length !== NUM_TIME_FUNCS)
     throw new Error('timeout_funcs must cover every timeout_types row');
@@ -588,15 +569,6 @@ async function reviveMonCallback(arg, timeout, env) {
 async function zombifyMonCallback(arg, timeout, env) {
     const { zombify_mon } = await import('./do.js');
     return zombify_mon(arg, timeout, env);
-}
-
-// The fallback uses rot_corpse's corpse validation before the due prefix is
-// unlinked. Its location cleanup and residual-timer removal are canonical.
-function unportedZombifyMonReason(body, env) {
-    const zmon = zombie_form(env.state.mons[body.corpsenm]);
-    if (zmon !== NON_PM && !(env.state.mvitals[zmon].mvflags & G_GENOD))
-        return null;
-    return unportedRotCorpseReason(body, env);
 }
 
 // C ref: mkobj.c shrink_glob(). Build the full env for the timer callback,
@@ -639,50 +611,6 @@ async function meltIceAwayCallback(arg, timeout, env) {
 function timerFireEnv(state, env) {
     return { ...env, state, hooks: { ...env.hooks, newsym: env.newsym } };
 }
-
-// The reason run_timers() cannot drain the queue's due prefix, or null when it
-// can.
-//
-// C ref: timeout.c run_timers() (2216-2240), read as a predicate over the same
-// prefix its `while (gt.timer_base && gt.timer_base->timeout <= svm.moves)`
-// walks. C cannot fail partway through that drain; this port can, because a
-// row of timeout_funcs[] may be unported or a ported one may meet a branch it
-// has not reached. Deciding the whole prefix first keeps the refusal atomic,
-// so a stopped turn leaves the queue as C would have left it.
-//
-// This is deliberately a bounded port of run_timers(), not a claim that every
-// due prefix is accepted: an unsupported later row still causes the whole
-// prefix to be refused before C's earlier supported callbacks could run. Once
-// admitted, the dispatch loop below rereads the queue after every callback;
-// melt_ice_away() can stop a level timer and object ice effects can adjust
-// object timers while processing the same square.
-function unportedDueTimerReason(state, env) {
-    for (let timer = state.gt?.timer_base;
-        timer && Math.trunc(timer.timeout) <= currentMove(state);
-        timer = timer.next) {
-        // C starts only TIMER_OBJECT timers and the TIMER_LEVEL
-        // MELT_ICE_AWAY timer (zap.c:5108, nhlua.c:1634), and every row of
-        // timeout_funcs[] is ported, so the kind and the function need no
-        // check here.
-        const entry = timeout_funcs[timer.func_index];
-        // C rereads timer_base after every callback. Corpse deletion stops
-        // residual object timers through obfree -> obj_stop_timers; conversion
-        // cancels them through set_corpsenm. Both may change the queue head.
-        // A buried glob holds dig.c bury_an_obj()'s ROT_ORGANIC beside its
-        // SHRINK_GLOB. rot_organic() frees its object, and shrink_glob()
-        // either frees the glob or restarts its own timer a turn or more
-        // ahead, so neither touches another object's timer.
-        if (timer.kind === TIMER_OBJECT
-            && timer.func_index !== ZOMBIFY_MON && timer.func_index !== ROT_CORPSE
-            && timer.func_index !== ROT_ORGANIC && timer.func_index !== SHRINK_GLOB
-            && Math.trunc(timer.arg?.timed ?? 0) !== 1)
-            return 'the due object to hold only its own timer';
-        const reason = entry.unported(timer.arg, env);
-        if (reason) return reason;
-    }
-    return null;
-}
-
 
 // C ref: timeout.c slip_or_trip() (1222-1341). This is called only after the
 // Fumbling property has been decremented, so FROMOUTSIDE and ice-only checks
@@ -1644,7 +1572,7 @@ export async function nh_timeout(state = game, env = {}) {
         await message(`${Monnam(u.usteed, state, displayEnv)} stops galloping.`, state);
     await decrement_property_timeouts(state, { ...env, random, message });
     if (state.program_state?.gameover) return;
-    await run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
+    await run_timers(state, env);
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to
@@ -2123,17 +2051,13 @@ export function restore_timers(timers, state = game) {
 //   drops the last reference and clears the link the same way stop_timer()
 //   and save_timers() above do.
 //
-// The refusal is decided over the whole due prefix before the loop starts, so
-// a turn the port cannot finish leaves the queue untouched.
+// An object may hold several timers (dig.c bury_an_obj() adds ROT_ORGANIC
+// beside a glob's SHRINK_GLOB or an egg's HATCH_EGG); rereading the head after
+// every callback keeps the rest of the queue in C's order when a callback
+// frees its object or restarts its own timer.
 export async function run_timers(state = game, env = {}) {
     timerGlobals(state);
     const fireEnv = timerFireEnv(state, env);
-    const reason = unportedDueTimerReason(state, fireEnv);
-    if (reason) {
-        throw new UnsupportedHeroTimeoutBoundaryError(
-            reason, env.site ?? 'run_timers()',
-        );
-    }
 
     while (state.gt.timer_base
            && Math.trunc(state.gt.timer_base.timeout) <= currentMove(state)) {

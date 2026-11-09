@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "timeout.c run_timers() with an object holding two timers: a debug gnomish Archeologist wishes a cockatrice egg (set_corpsenm() starts its HATCH_EGG timer), drops it and buries it with #wizbury, which adds dig.c bury_an_obj()'s ROT_ORGANIC. Searching reaches the hatch turn; hatch_egg() runs on the buried egg, which cannot hatch there (get_obj_location() fails for OBJ_BURIED).",
+  "segments": [
+    {
+      "seed": 2750148,
+      "datetime": "20510613190000",
+      "nethackrc": "OPTIONS=name:Digger,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait,time\n",
+      "moves": "\u0017cockatrice egg\nda#wizbury\n50s50s50s50s50s"
+    }
+  ]
+}

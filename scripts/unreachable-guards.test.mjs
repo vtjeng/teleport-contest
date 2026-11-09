@@ -93,27 +93,14 @@ test('object operations refuse only through requiredHook()', () => {
     assert.doesNotMatch(functionBody(code, 'initializeMonsterFood'), /default\s*:/u);
 });
 
-// run_timers()'s admission (timeout.c run_timers() 2216-2240) may refuse a
-// due prefix only for the reasons below. C starts only TIMER_OBJECT timers
-// and the TIMER_LEVEL MELT_ICE_AWAY timer, every timeout_funcs[] row is
-// ported, a corpse never holds objects, only start_glob_timeout() starts
-// SHRINK_GLOB, on a glob, and mkobj.c shrink_glob() treats an unpaid glob
-// like any other; so no reason may test the timer kind, a missing function,
-// a corpse's contents, a non-glob or an unpaid glob.
-const DUE_TIMER_REASONS = {
-    'timeout.js unportedDueTimerReason': ['the due object to hold only its own timer'],
-    'dig.js unportedRotCorpseReason': [],
-};
-
-test('run_timers() refuses a due prefix only for the pinned reasons', () => {
-    const found = {};
-    for (const key of Object.keys(DUE_TIMER_REASONS)) {
-        const [file, name] = key.split(' ');
-        found[key] = returnedStrings(functionBody(jsCode(file), name));
-    }
-    assert.deepEqual(found, DUE_TIMER_REASONS);
-    const admission = functionBody(jsCode('timeout.js'), 'unportedDueTimerReason');
-    assert.doesNotMatch(admission, /timer\.kind\s*!==|!\s*entry\.f\b/u);
+// timeout.c run_timers() (2216-2240) runs every due timer in queue order:
+// C starts only TIMER_OBJECT timers and the TIMER_LEVEL MELT_ICE_AWAY timer,
+// every timeout_funcs[] row is ported, an object may hold several timers and
+// mkobj.c shrink_glob() treats an unpaid glob like any other. So run_timers()
+// refuses nothing.
+test('run_timers() runs every due timer without a refusal', () => {
+    const body = functionBody(jsCode('timeout.js'), 'run_timers');
+    assert.doesNotMatch(body, /\bthrow\b|unported/u);
 });
 
 test('returnedStrings reads quoted and template returns', () => {
