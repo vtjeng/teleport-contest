@@ -395,7 +395,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
                 if (!coordinate || !(monster = await makemon_runtime(
                     state.mons[speciesIndex], coordinate.x, coordinate.y,
                     NO_MINVENT | MM_NOMSG,
-                    { ...env, _hatchEgg: true },
+                    env,
                 ))) {
                     break;
                 }

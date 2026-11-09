@@ -735,7 +735,6 @@ test('^G creates the giant eel the eel-concealment goal acts on', async () => {
     // The mirror of the case above. mklev() hides every eel it places, so
     // mon.c movemon_singlemon()'s S_EEL arm -- which requires !mundetected --
     // has no reachable subject until ^G builds one outside mklev.
-    // assertSupportedSpecies() therefore admits PM_GIANT_EEL by name.
     const boundaries = [];
     const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
     const { added } = await createdBy(

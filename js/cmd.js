@@ -168,7 +168,7 @@ import {
     PM_GREMLIN,
     S_NYMPH,
 } from './monsters.js';
-import { dmonsfree, UnsupportedMonsterCreationError } from './makemon_create.js';
+import { dmonsfree } from './makemon_create.js';
 import {
     docallcmd,
     mon_nam,
@@ -2982,13 +2982,10 @@ export function failClosedCommandRefusals() {
         // branches, and ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
-        // do.c goto_level()'s tail reaches the next two from inside the `>`
-        // handler, so each one ends the segment where it would otherwise
-        // discard the prefix: run_timers() fires timers that expired while
-        // away, and mklev() reaches makemon() when the shop it generates
-        // holds a mimic.
+        // do.c goto_level()'s tail reaches this one from inside the `>`
+        // handler, so it ends the segment where it would otherwise discard
+        // the prefix: run_timers() fires timers that expired while away.
         UnsupportedHeroTimeoutBoundaryError,
-        UnsupportedMonsterCreationError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.

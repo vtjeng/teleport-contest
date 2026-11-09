@@ -205,7 +205,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
     const needsMinion = mnum === M.PM_ANGEL
         || ![M.PM_SHOPKEEPER, M.PM_GUARD, M.PM_ALIGNED_CLERIC, M.PM_HIGH_CLERIC].includes(mnum);
     const mon = await makemon_runtime(state.mons[mnum], state.u.ux, state.u.uy,
-        MM_NOMSG | (needsMinion ? MM_EMIN : 0), { ...env, _summon_minion: true });
+        MM_NOMSG | (needsMinion ? MM_EMIN : 0), env);
     if (!mon) return;
     if (needsMinion) {
         mon.isminion = true;
@@ -586,7 +586,7 @@ export async function msummon(mon = null, rawEnv = {}) {
             state.u.ux,
             state.u.uy,
             MM_EMIN | MM_NOMSG,
-            { ...env, _msummon: true },
+            env,
         );
         if (!created) continue;
         result++;

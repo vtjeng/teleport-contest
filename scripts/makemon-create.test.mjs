@@ -91,7 +91,6 @@ import {
     racial_exception,
     startsPermanentlyInvisible,
     set_mimic_sym,
-    UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { summon_furies } from '../js/makemon.js';
 import { m_detach, mongone } from '../js/mon.js';
@@ -102,7 +101,7 @@ import {
     is_mercenary,
     is_ndemon,
 } from '../js/mondata.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { curse, mksobj, weight } from '../js/obj.js';
 import {
@@ -1014,7 +1013,7 @@ test('mklev sleeper species match the complete source predicate', () => {
     );
 });
 
-test('mkswamp admits its complete explicit initial-level pool species family', async () => {
+test('mkswamp creates every species of its explicit pool family', async () => {
     const cStart = MKROOM_C_SOURCE.indexOf('\nmkswamp(void)');
     const cEnd = MKROOM_C_SOURCE.indexOf('\nstaticfn coord *\nshrine_pos', cStart);
     assert.ok(cStart >= 0 && cEnd > cStart);
@@ -1022,32 +1021,8 @@ test('mkswamp admits its complete explicit initial-level pool species family', a
     assert.match(cMkswamp,
         /makemon\(rn2\(5\)\s*\?\s*&mons\[PM_GIANT_EEL\]\s*:\s*rn2\(2\)\s*\?\s*&mons\[PM_PIRANHA\]\s*:\s*&mons\[PM_ELECTRIC_EEL\]/u);
 
-    const jsMkswampStart = readFileSync('js/mkroom.js', 'utf8')
-        .indexOf('function mkswamp(');
-    const jsMkswampEnd = readFileSync('js/mkroom.js', 'utf8')
-        .indexOf('\n// C ref: mkroom.c nexttodoor()', jsMkswampStart);
-    assert.ok(jsMkswampStart >= 0 && jsMkswampEnd > jsMkswampStart);
-    const jsMkswamp = readFileSync('js/mkroom.js', 'utf8')
-        .slice(jsMkswampStart, jsMkswampEnd);
-    assert.match(jsMkswamp, /_mkswampPoolSpecies:\s*true/u);
-
     // This list follows the three source branches of mkswamp's ternary.
     for (const mndx of [PM_GIANT_EEL, PM_PIRANHA, PM_ELECTRIC_EEL]) {
-        const rejectedState = initialLevelState();
-        rejectedState.level.at(MON_X, MON_Y).typ = POOL;
-        const rejectedRandom = recordingRandom();
-        assert.throws(
-            () => makemon(
-                rejectedState.mons[mndx],
-                MON_X,
-                MON_Y,
-                NO_MM_FLAGS,
-                { state: rejectedState, random: rejectedRandom.random },
-            ),
-            (error) => error instanceof UnsupportedMonsterCreationError,
-            `unmarked initial-level species ${mndx} should remain gated`,
-        );
-
         const state = initialLevelState();
         state.level.at(MON_X, MON_Y).typ = POOL;
         const random = recordingRandom();
@@ -1056,51 +1031,28 @@ test('mkswamp admits its complete explicit initial-level pool species family', a
             MON_X,
             MON_Y,
             NO_MM_FLAGS,
-            {
-                state,
-                random: random.random,
-                _mkswampPoolSpecies: true,
-            },
+            { state, random: random.random },
         );
         assert.equal(eel.data, state.mons[mndx]);
         assert.equal(eel.mgenmklev, true);
         assert.equal(state.mvitals[mndx].born, 1);
     }
 
-    const runtimeState = initialLevelState();
-    runtimeState.in_mklev = false;
-    runtimeState.level.at(MON_X, MON_Y).typ = POOL;
-    const runtimeEel = await makemon_runtime(
-        runtimeState.mons[PM_GIANT_EEL],
-        MON_X,
-        MON_Y,
-        NO_MM_FLAGS,
-        { state: runtimeState, random: recordingRandom().random },
-    );
-    assert.equal(runtimeEel.data, runtimeState.mons[PM_GIANT_EEL]);
-
-    for (const mndx of [PM_PIRANHA, PM_ELECTRIC_EEL]) {
-        let unmarkedCalls;
-        for (const marked of [false, true]) {
-            const runtimeState = initialLevelState();
-            runtimeState.in_mklev = false;
-            runtimeState.level.at(MON_X, MON_Y).typ = POOL;
-            const random = recordingRandom();
-            // C admits the runtime species independently of mkswamp's
-            // marker; random placement must still find suitable terrain.
-            const eel = await makemon_runtime(runtimeState.mons[mndx],
-                0, 0, NO_MM_FLAGS, {
-                    state: runtimeState, random: random.random,
-                    _mkswampPoolSpecies: marked,
-                });
-            assert.ok(eel);
-            assert.equal(eel.data, runtimeState.mons[mndx]);
-            assert.equal(runtimeState.level.at(eel.mx, eel.my).typ, POOL);
-            assert.equal(eel.mgenmklev, false);
-            assert.equal(runtimeState.mvitals[mndx].born, 1);
-            if (marked) assert.deepEqual(random.calls, unmarkedCalls);
-            else unmarkedCalls = random.calls;
-        }
+    // Outside level creation the same species are made, and random
+    // placement must still find suitable terrain.
+    for (const mndx of [PM_GIANT_EEL, PM_PIRANHA, PM_ELECTRIC_EEL]) {
+        const runtimeState = initialLevelState();
+        runtimeState.in_mklev = false;
+        runtimeState.level.at(MON_X, MON_Y).typ = POOL;
+        const eel = await makemon_runtime(runtimeState.mons[mndx],
+            0, 0, NO_MM_FLAGS, {
+                state: runtimeState, random: recordingRandom().random,
+            });
+        assert.ok(eel);
+        assert.equal(eel.data, runtimeState.mons[mndx]);
+        assert.equal(runtimeState.level.at(eel.mx, eel.my).typ, POOL);
+        assert.equal(eel.mgenmklev, false);
+        assert.equal(runtimeState.mvitals[mndx].born, 1);
     }
 });
 
@@ -2967,7 +2919,7 @@ test('particular creation chooses a nearby square from inaccessible hero terrain
         const random = recordingRandom();
         const runtimeContinuation = { claimed: false };
         const monster = makemon(state.mons[PM_NEWT], MON_X, MON_Y, MM_NOEXCLAM, {
-            state, random: random.random, runtimeContinuation, _createParticular: true,
+            state, random: random.random, runtimeContinuation,
         });
         assert.ok(monster);
         assert.notDeepEqual([monster.mx, monster.my], [MON_X, MON_Y]);
@@ -3099,14 +3051,6 @@ test('timeout hatch uses its explicit enexto runtime creation contract',
             TIMEOUT_C_SOURCE,
             /makemon\(&mons\[mnum\],\s*cc\.x,\s*cc\.y,\s*NO_MINVENT\s*\|\s*MM_NOMSG\)/u,
         );
-        assert.match(
-            TIMEOUT_JS_SOURCE,
-            /makemon_runtime\([\s\S]*?NO_MINVENT\s*\|\s*MM_NOMSG,\s*\{\s*\.\.\.env,\s*_hatchEgg:\s*true\s*\}/u,
-        );
-        assert.match(
-            MAKEMON_JS_SOURCE,
-            /const hatchEggCall = !state\.in_mklev[\s\S]*?normalized\._hatchEgg === true[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === \(NO_MINVENT \| MM_NOMSG\)/u,
-        );
 
         const state = initialLevelState();
         state.in_mklev = false;
@@ -3121,7 +3065,6 @@ test('timeout hatch uses its explicit enexto runtime creation contract',
                 random: random.random,
                 message: async () => {},
                 norepMessage: async () => {},
-                _hatchEgg: true,
             },
         );
 
@@ -3177,9 +3120,6 @@ test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',
             cMakemon,
             /if \(!isok\(x, y\)\)[\s\S]*?return \(struct monst \*\) 0;[\s\S]*?if \(MON_AT\(x, y\)\) \{\s*if \(!\(mmflags & MM_ADJACENTOK\)\s*\|\| !enexto_core\([\s\S]*?\)\)\s*return \(struct monst \*\) 0;/u,
         );
-
-        const jsContract = /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u;
-        assert.match(MAKEMON_JS_SOURCE, jsContract);
 
         const state = initialLevelState();
         state.in_mklev = false;
@@ -3420,9 +3360,8 @@ test('create_critters runtime random selection accepts a branch-level C group',
 test('makemon accepts the generic explicit-coordinate MM_NOMSG runtime shape',
     async () => {
         // dig.c:dig() supplies the chosen elemental/xorn pointer, the opened
-        // target square, and MM_NOMSG. C has no species allowlist in makemon();
-        // this test exercises that generic argument contract instead of adding
-        // one-off entries to assertSupportedSpecies().
+        // target square, and MM_NOMSG. C has no species allowlist in makemon(),
+        // and neither does the port.
         for (const mndx of [PM_EARTH_ELEMENTAL, PM_XORN]) {
             const state = initialLevelState();
             state.in_mklev = false;
@@ -3460,10 +3399,6 @@ test('were_summon creates each source-selected species through runtime makemon',
         assert.match(
             WERE_C_SOURCE,
             /makemon\(&mons\[typ\],\s*u\.ux,\s*u\.uy,\s*NO_MM_FLAGS\)/u,
-        );
-        assert.match(
-            MAKEMON_JS_SOURCE,
-            /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u,
         );
         const cases = [
             [PM_WERERAT, PM_SEWER_RAT, [[3, 1]], 'rat'],
@@ -3644,7 +3579,6 @@ test('nasty runtime creation admits explicit species by the C pointer contract',
                     random: random.random,
                     message: async () => {},
                     norepMessage: async () => {},
-                    _nasty: true,
                 },
             );
 
@@ -5314,7 +5248,7 @@ test('Keystone Kops preserve C cream-pie and weapon gates in source order', () =
             MON_X,
             MON_Y,
             MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-            { state, random: random.random, _rndmonMklev: true },
+            { state, random: random.random },
         );
         const inventory = monsterInventory(monster);
         const loadout = inventory
@@ -5349,22 +5283,20 @@ test('Keystone Kops preserve C cream-pie and weapon gates in source order', () =
     }
 });
 
-test('rock trolls remain outside the ordinary D:5 reservoir before RNG', () => {
+// makemon.c makemon() has no species gate: a species beyond the levels
+// random generation reaches is made like any other.
+test('makemon() makes rock trolls, which C does not gate by species', () => {
     const state = initialLevelState();
     const random = recordingRandom();
-
-    assert.throws(
-        () => makemon(
-            state.mons[PM_ROCK_TROLL],
-            MON_X,
-            MON_Y,
-            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-            { state, random: random.random },
-        ),
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `makemon() monster ${PM_ROCK_TROLL}`,
+    const monster = makemon(
+        state.mons[PM_ROCK_TROLL],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
     );
-    assert.deepEqual(random.calls, []);
+    assert.equal(monster.data, state.mons[PM_ROCK_TROLL]);
+    assert.equal(m_at(MON_X, MON_Y, state), monster);
 });
 
 test('barrow wights construct knife then long sword before generic inventory',
@@ -5423,22 +5355,20 @@ test('barrow wights construct knife then long sword before generic inventory',
         );
     });
 
-test('Nazgul remain outside the ordinary D:5 reservoir before RNG', () => {
+// makemon.c makemon() has no species gate: a species beyond the levels
+// random generation reaches is made like any other.
+test('makemon() makes Nazgul, which C does not gate by species', () => {
     const state = initialLevelState();
     const random = recordingRandom();
-
-    assert.throws(
-        () => makemon(
-            state.mons[PM_NAZGUL],
-            MON_X,
-            MON_Y,
-            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-            { state, random: random.random },
-        ),
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `makemon() monster ${PM_NAZGUL}`,
+    const monster = makemon(
+        state.mons[PM_NAZGUL],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
     );
-    assert.deepEqual(random.calls, []);
+    assert.equal(monster.data, state.mons[PM_NAZGUL]);
+    assert.equal(m_at(MON_X, MON_Y, state), monster);
 });
 
 test('soldiers preserve both primary weapon arms and secondary knife gates',
@@ -5716,7 +5646,7 @@ test('soldier rations and rn2(13) preserve the generic-tail boundary', () => {
     );
 });
 
-test('soldier NO_MINVENT and unsupported mercenary siblings stay drawless',
+test('soldier NO_MINVENT stays drawless and a watchman is made',
     () => {
         const state = initialLevelState();
         const random = recordingRandom();
@@ -5740,18 +5670,17 @@ test('soldier NO_MINVENT and unsupported mercenary siblings stay drawless',
         const siblingState = initialLevelState();
         const siblingRandom = recordingRandom();
         assert.equal(is_mercenary(siblingState.mons[PM_WATCHMAN]), true);
-        assert.throws(
-            () => makemon(
-                siblingState.mons[PM_WATCHMAN],
-                MON_X,
-                MON_Y,
-                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-                { state: siblingState, random: siblingRandom.random },
-            ),
-            (error) => error instanceof UnsupportedMonsterCreationError
-                && error.operation === `makemon() monster ${PM_WATCHMAN}`,
+        // makemon.c has no species gate; m_initweap()'s mercenary arm arms
+        // the watchman.
+        const watchman = makemon(
+            siblingState.mons[PM_WATCHMAN],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state: siblingState, random: siblingRandom.random },
         );
-        assert.deepEqual(siblingRandom.calls, []);
+        assert.equal(watchman.data, siblingState.mons[PM_WATCHMAN]);
+        assert.ok(watchman.minvent);
     });
 
 test('runtime random soldier groups initialize members before parent inventory',
@@ -6047,7 +5976,7 @@ test('the giant gemstone predicate remains is_giant rather than the glyph alone'
         );
     });
 
-test('stone giant NO_MINVENT preserves unique admission boundaries',
+test('stone giant NO_MINVENT stays drawless and unique giants are made',
     () => {
         const suppressed = createPlannedStoneGiant({}, NO_MINVENT);
         assert.equal(suppressed.monster.minvent, null);
@@ -6060,29 +5989,22 @@ test('stone giant NO_MINVENT preserves unique admission boundaries',
             false,
         );
 
-        // Ettins share S_GIANT but not is_giant; the runtime Ettin test above
-        // covers their source-supported non-giant admission. Quest nemeses
-        // Cyclops and Lord Surtur are unique giants with separate lifecycles.
+        // The quest nemeses Cyclops and Lord Surtur are unique giants;
+        // makemon.c has no species gate, so both are made. NO_MINVENT keeps
+        // the nemesis Bell of Opening, which needs the artifact tables, out.
         for (const mndx of [PM_CYCLOPS, PM_LORD_SURTUR]) {
             const state = initialLevelState();
             const random = recordingRandom();
-            assert.throws(
-                () => makemon(
-                    state.mons[mndx],
-                    MON_X,
-                    MON_Y,
-                    MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-                    { state, random: random.random },
-                ),
-                (error) => error instanceof UnsupportedMonsterCreationError
-                    && error.operation === `makemon() monster ${mndx}`,
-                state.mons[mndx].pmnames[2],
+            const monster = makemon(
+                state.mons[mndx],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH | NO_MINVENT,
+                { state, random: random.random },
             );
-            assert.deepEqual(random.calls, [], state.mons[mndx].pmnames[2]);
-            assert.equal(state.level.monlist, null);
-            assert.equal(state.level.monsters[MON_X][MON_Y], null);
-            assert.equal(state.mvitals[mndx].born, 0);
-            assert.equal(state.context.ident, 2);
+            assert.equal(monster.data, state.mons[mndx],
+                state.mons[mndx].pmnames[2]);
+            assert.equal(state.level.monsters[MON_X][MON_Y], monster);
         }
     });
 
@@ -6492,7 +6414,7 @@ test('runtime random stone giant groups finish members before parent inventory',
 // C ref: makemon.c:180-185. Ettins (S_GIANT, pmidx PM_ETTIN) receive a CLUB
 // instead of BOULDER, and skip the heavy-weapon rn2(5) gate that other giants
 // use.  This arm fires only when rndmonst selects an ettin during level
-// generation (ettin difficulty 10 exceeds the D:5 reservoir ceiling of 9).
+// generation or an explicit caller names one.
 test('ettins receive CLUB instead of BOULDER and skip the heavy-weapon gate',
     () => {
         const state = initialLevelState();
@@ -6500,15 +6422,12 @@ test('ettins receive CLUB instead of BOULDER and skip the heavy-weapon gate',
         // the gem loop in m_initinv does not apply.
         assert.equal(is_giant(state.mons[PM_ETTIN]), false);
         const random = recordingRandom();
-        // _rndmonMklev bypasses assertSupportedSpecies, matching the path
-        // rndmonst takes during mklev for species outside the reservoir
-        // allowlist.
         const monster = makemon(
             state.mons[PM_ETTIN],
             MON_X,
             MON_Y,
             MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-            { state, random: random.random, _rndmonMklev: true },
+            { state, random: random.random },
         );
 
         assert.ok(monster, 'ettin should be created');
@@ -7163,7 +7082,7 @@ test('creation flags suppress their source draws and mutations', () => {
     assert.equal(state.mvitals[PM_GOBLIN].born, 0);
 });
 
-test('Mausoleum preflight admits every reachable species and rejects its boundaries', () => {
+test('makemon() makes every Mausoleum species and the undead beyond it', () => {
     const inclusiveRange = (first, last) => Array.from(
         { length: last - first + 1 },
         (_, index) => first + index,
@@ -7192,28 +7111,28 @@ test('Mausoleum preflight admits every reachable species and rejects its boundar
         assert.equal(monster.minvent, null, state.mons[mndx].pmnames[2]);
     }
 
+    // The Mausoleum's mkclass() cannot pick these, but makemon.c has no
+    // species gate, so an explicit request makes each of them.
     for (const mndx of [PM_MASTER_LICH, PM_ARCH_LICH, PM_SKELETON]) {
         const state = initialLevelState();
-        const random = scriptedRandom([]);
-        assert.throws(
-            () => makemon(
-                state.mons[mndx],
-                MON_X,
-                MON_Y,
-                MM_NOGRP | NO_MINVENT,
-                { state, random: random.random },
-            ),
-            UnsupportedMonsterCreationError,
-            state.mons[mndx].pmnames[2],
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_NOGRP | NO_MINVENT,
+            { state, random: random.random },
         );
-        random.assertExhausted();
+        assert.equal(monster.data, state.mons[mndx],
+            state.mons[mndx].pmnames[2]);
     }
 });
 
-test('special-level caller markers admit only their explicit shopkeeper and High Cleric shapes', async () => {
+// makemon.c gives a shopkeeper or a priest its extension only when the caller
+// passes MM_ESHK or MM_EPRI; it admits the species either way.
+test('shopkeepers and High Clerics get an extension only from their flag', async () => {
     const shopkeeperState = initialLevelState();
     shopkeeperState.in_mklev = false;
-    const shopkeeperRandom = recordingRandom();
     const shopkeeper = await makemon(
         shopkeeperState.mons[PM_SHOPKEEPER],
         MON_X,
@@ -7221,108 +7140,41 @@ test('special-level caller markers admit only their explicit shopkeeper and High
         MM_ESHK,
         {
             state: shopkeeperState,
-            random: shopkeeperRandom.random,
+            random: recordingRandom().random,
             _specialRoomFill: true,
         },
     );
     assert.equal(shopkeeper.data.pmidx, PM_SHOPKEEPER);
     assert.ok(shopkeeper.mextra.eshk);
 
-    const unmarkedShopkeeperState = initialLevelState();
-    unmarkedShopkeeperState.in_mklev = false;
-    const unmarkedShopkeeperRandom = recordingRandom();
-    assert.throws(
-        () => makemon(
-            unmarkedShopkeeperState.mons[PM_SHOPKEEPER],
-            MON_X,
-            MON_Y,
-            MM_ESHK,
-            {
-                state: unmarkedShopkeeperState,
-                random: unmarkedShopkeeperRandom.random,
-            },
-        ),
-        // makemon.c gates neither shape; the port refuses every shopkeeper
-        // outside shkinit() that it does not yet create (row 390).
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === 'shopkeeper creation outside shkinit',
+    // trap.c animate_statue()'s call for a statue of a shopkeeper.
+    const plainShopkeeperState = initialLevelState();
+    plainShopkeeperState.in_mklev = false;
+    const plainShopkeeper = await makemon_runtime(
+        plainShopkeeperState.mons[PM_SHOPKEEPER],
+        MON_X,
+        MON_Y,
+        NO_MINVENT | MM_NOMSG | MM_ADJACENTOK,
+        {
+            state: plainShopkeeperState,
+            random: recordingRandom().random,
+            hooks: { newsym: () => {} },
+        },
     );
-    assert.deepEqual(unmarkedShopkeeperRandom.calls, []);
-
-    const misflaggedShopkeeperState = initialLevelState();
-    misflaggedShopkeeperState.in_mklev = false;
-    const misflaggedShopkeeperRandom = recordingRandom();
-    assert.throws(
-        () => makemon(
-            misflaggedShopkeeperState.mons[PM_SHOPKEEPER],
-            MON_X,
-            MON_Y,
-            MM_ESHK | MM_NOMSG,
-            {
-                state: misflaggedShopkeeperState,
-                random: misflaggedShopkeeperRandom.random,
-                _specialRoomFill: true,
-            },
-        ),
-        // makemon.c gates neither shape; the port refuses every shopkeeper
-        // outside shkinit() that it does not yet create (row 390).
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === 'shopkeeper creation outside shkinit',
-    );
-    assert.deepEqual(misflaggedShopkeeperRandom.calls, []);
+    assert.equal(plainShopkeeper.data.pmidx, PM_SHOPKEEPER);
+    assert.equal(plainShopkeeper.mextra?.eshk, undefined);
+    assert.ok(!plainShopkeeper.isshk);
 
     const highClericState = initialLevelState();
-    const highClericRandom = recordingRandom();
     const highCleric = await makemon(
         highClericState.mons[PM_HIGH_CLERIC],
         MON_X,
         MON_Y,
         MM_EPRI,
-        {
-            state: highClericState,
-            random: highClericRandom.random,
-            _priestiniHighCleric: true,
-        },
+        { state: highClericState, random: recordingRandom().random },
     );
     assert.equal(highCleric.data.pmidx, PM_HIGH_CLERIC);
     assert.ok(highCleric.mextra.epri);
-
-    const unmarkedHighClericState = initialLevelState();
-    const unmarkedHighClericRandom = recordingRandom();
-    assert.throws(
-        () => makemon(
-            unmarkedHighClericState.mons[PM_HIGH_CLERIC],
-            MON_X,
-            MON_Y,
-            MM_EPRI,
-            {
-                state: unmarkedHighClericState,
-                random: unmarkedHighClericRandom.random,
-            },
-        ),
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `makemon() monster ${PM_HIGH_CLERIC}`,
-    );
-    assert.deepEqual(unmarkedHighClericRandom.calls, []);
-
-    const misflaggedHighClericState = initialLevelState();
-    const misflaggedHighClericRandom = recordingRandom();
-    assert.throws(
-        () => makemon(
-            misflaggedHighClericState.mons[PM_HIGH_CLERIC],
-            MON_X,
-            MON_Y,
-            MM_EPRI | MM_NOMSG,
-            {
-                state: misflaggedHighClericState,
-                random: misflaggedHighClericRandom.random,
-                _priestiniHighCleric: true,
-            },
-        ),
-        (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `makemon() monster ${PM_HIGH_CLERIC}`,
-    );
-    assert.deepEqual(misflaggedHighClericRandom.calls, []);
 });
 
 test('NO_MINVENT leaves migrating object queues untouched', () => {
@@ -7398,24 +7250,18 @@ test('inventory-enabled creation leaves waiting objects without a species destin
     }
 });
 
-test('unsupported creation modes fail before consuming RNG or state', () => {
+// makemon.c makes a chameleon on the Rogue level and newcham() gives it a
+// first form, as anywhere else.
+test('makemon() makes a chameleon on the Rogue level', () => {
     const state = initialLevelState();
-    const random = scriptedRandom([]);
-
-    // An initial chameleon on the Rogue level: C makes it and newcham()s it
-    // to an uppercase form, which the port does not carry yet.
     state.in_mklev = true;
     state.rogue_level = { ...state.u.uz };
-    assert.throws(
-        () => makemon(state.mons[PM_CHAMELEON], MON_X, MON_Y, MM_NOGRP, {
-            state,
-            random: random.random,
-        }),
-        UnsupportedMonsterCreationError,
-    );
-    random.assertExhausted();
-    assert.equal(state.level.monlist, null);
-    assert.equal(state.context.ident, 2);
+    const monster = makemon(state.mons[PM_CHAMELEON], MON_X, MON_Y, MM_NOGRP, {
+        state,
+        random: recordingRandom().random,
+    });
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(state.level.monsters[MON_X][MON_Y], monster);
 });
 
 test('source no-creation exits leave the square and identity untouched', () => {
@@ -8064,24 +7910,6 @@ test(
         assert.ok(cFunction.includes(
             'if (is_dprince(ptr) && ptr->msound == MS_BRIBE)',
         ));
-
-        const jsStart = MAKEMON_JS_SOURCE.indexOf(
-            'function assertSupportedSpecies(',
-        );
-        const jsEnd = MAKEMON_JS_SOURCE.indexOf(
-            'function preflightCreation(',
-            jsStart,
-        );
-        const jsAdmission = MAKEMON_JS_SOURCE.slice(jsStart, jsEnd);
-        const familyGate = [
-            '&& !(createParticular',
-            '&& is_dprince(species)',
-            '&& species.msound === MS_BRIBE',
-        ];
-        const positions = familyGate.map((token) => jsAdmission.indexOf(token));
-        assert.ok(positions.every((position) => position >= 0));
-        assert.ok(positions.every((position, index) => index === 0
-            || position > positions[index - 1]));
     },
 );
 
@@ -8129,8 +7957,6 @@ test('explicit NO_MINVENT runtime coordinates follow C placement without invento
     // makemon.c:1159 uses this flag only to suppress inventory; the ordinary
     // explicit coordinate and occupied-square branches precede creation.
     assert.match(MAKEMON_C_SOURCE, /allow_minvent = \(\(mmflags & NO_MINVENT\) == 0\)/u);
-    assert.match(MAKEMON_JS_SOURCE,
-        /const explicitCoordinateNoMinventRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MINVENT/u);
     for (const heroSquare of [false, true]) {
         const state = initialLevelState();
         state.in_mklev = false;
@@ -8175,10 +8001,6 @@ test('makemon admits the source quantum-cat silent adjacent call shape',
         assert.match(
             PICKUP_C_SOURCE,
             /makemon\(&mons\[PM_HOUSECAT\],\s*box->ox,\s*box->oy,\s*NO_MINVENT\s*\|\s*MM_ADJACENTOK\s*\|\s*MM_NOMSG\)/u,
-        );
-        assert.match(
-            MAKEMON_JS_SOURCE,
-            /const explicitCoordinateNoMinventRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?\(mmflags === NO_MINVENT\s*\|\| mmflags === \(NO_MINVENT \| MM_ADJACENTOK \| MM_NOMSG\)\)/u,
         );
 
         const state = initialLevelState();
@@ -8457,7 +8279,7 @@ test('msummon runtime shape completes horned-devil creation outside the initial 
     const random = recordingRandom();
     const monster = await makemon_runtime(state.mons[PM_HORNED_DEVIL],
         MON_X, MON_Y, MM_EMIN | MM_NOMSG, {state, random: random.random,
-            _msummon: true, message: async () => {},
+            message: async () => {},
             norepMessage: async () => {}, hooks: {newsym() {}}});
     assert.ok(monster);
     assert.equal(monster.mnum, PM_HORNED_DEVIL);
@@ -8467,23 +8289,3 @@ test('msummon runtime shape completes horned-devil creation outside the initial 
     assert.equal(state.mvitals[PM_HORNED_DEVIL].born, 1);
     assert.ok(random.calls.length > 0);
 });
-for (const [name, marker, offset, extraFlags] of [
-    ['missing caller marker', false, 0, 0],
-    ['outside hero coordinates', true, 1, 0],
-    ['different flag shape', true, 0, MM_EDOG],
-]) {
-    test('msummon admission preserves refusal for ' + name, async () => {
-        const state = initialLevelState();
-        state.in_mklev = false;
-        state.u.ux = MON_X;
-        state.u.uy = MON_Y;
-        const random = recordingRandom();
-        await assert.rejects(makemon_runtime(state.mons[PM_HORNED_DEVIL],
-            MON_X + offset, MON_Y, MM_EMIN | MM_NOMSG | extraFlags,
-            {state, random: random.random, _msummon: marker,
-                message: async () => {}, norepMessage: async () => {}}),
-            UnsupportedMonsterCreationError);
-        assert.deepEqual(random.calls, [], 'refusal precedes random draws');
-        assert.equal(state.level.monlist, null);
-    });
-}

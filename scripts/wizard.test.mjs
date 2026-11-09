@@ -128,7 +128,6 @@ test('clonewiz uses the source Wizard call shape and clears clone attitudes', as
     assert.equal(calls[0][1], state.mons[PM_WIZARD_OF_YENDOR]);
     assert.deepEqual(calls[0].slice(2, 5), [state.u.ux, state.u.uy, MM_NOWAIT]);
     assert.equal(calls[0][5].state, state);
-    assert.equal(calls[0][5]._cloneWizard, true);
     assert.deepEqual(
         [monster.msleeping, monster.mtame, monster.mpeaceful],
         [false, 0, false],
@@ -472,7 +471,7 @@ test('nasty creates a selected hostile monster in source order', async () => {
         monsterCensus: () => census,
         makemon: async (species, x, y, flags, env) => {
             calls.push({
-                species, x, y, flags, state: env.state, nasty: env._nasty,
+                species, x, y, flags, state: env.state,
             });
             ++census;
             return created;
@@ -490,7 +489,6 @@ test('nasty creates a selected hostile monster in source order', async () => {
         y: state.u.uy,
         flags: NO_MM_FLAGS,
         state,
-        nasty: true,
     }]);
     assert.deepEqual(malign, [[created, state]]);
     assert.equal(created.msleeping, false);

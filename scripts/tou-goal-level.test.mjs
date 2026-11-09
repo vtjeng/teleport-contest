@@ -27,7 +27,6 @@ const doJs = readFileSync('js/do.js', 'utf8');
 const allMainJs = readFileSync('js/allmain.js', 'utf8');
 const makeLevelJs = readFileSync('js/mklev.js', 'utf8');
 const shopkeeperJs = readFileSync('js/shknam.js', 'utf8');
-const monsterCreateJs = readFileSync('js/makemon_create.js', 'utf8');
 const questLevelsJs = readFileSync('js/quest_levels.js', 'utf8');
 
 const fullMap = { lx: 0, ly: 0, hx: 75, hy: 19 };
@@ -192,13 +191,11 @@ test('Tou-goal selection and natural quest-level caller trace matches upstream d
         /function fill_special_room|export function stock_room/u);
 });
 
-test('the diagnostic wiz_load_splua caller is separate and retains its shopkeeper gate', () => {
+test('the diagnostic wiz_load_splua caller is separate', () => {
     assert.match(wizardCommandsC,
         /wiz_load_splua\(void\)[\s\S]*?\(void\) load_special\(buf\);\s*lspo_finalize_level\(NULL\)/u);
     assert.match(wizardCommandsJs,
         /export async function wiz_load_splua\([\s\S]*?await \(env\.loadSpecial \?\? load_special\)\(buf, state, levelEnv\);\s*await \(env\.finalizeLevel \?\? lspo_finalize_level\)\(null, levelEnv\)/u);
     assert.match(shopkeeperC,
         /shkinit\(const struct shclass \*shp, struct mkroom \*sroom\)[\s\S]*?makemon\([^;]*MM_ESHK/u);
-    assert.match(monsterCreateJs,
-        /const shopkeeperCall = \(\(state\.in_mklev \|\| specialRoomCall\)[\s\S]*?ptr\?\.pmidx === PM_SHOPKEEPER && !shopkeeperCall[\s\S]*?'shopkeeper creation outside shkinit'/u);
 });

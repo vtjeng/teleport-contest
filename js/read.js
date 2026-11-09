@@ -3517,7 +3517,7 @@ async function create_particular_creation(d, state = game) {
 
         const mtmp = await makemon_runtime(
             whichpm, state.u.ux, state.u.uy, mmflags,
-            objectGenerationEnv({ state, _createParticular: true }),
+            objectGenerationEnv({ state }),
         );
         if (!mtmp) {
             if (d.monclass === MAXMCLASSES && !d.randmonst) break;

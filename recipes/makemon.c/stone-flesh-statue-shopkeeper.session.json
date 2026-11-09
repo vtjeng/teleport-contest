@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c makemon() admits PM_SHOPKEEPER without MM_ESHK. A gnomish Healer raised to experience level 9 casts stone to flesh at a wished statue of a shopkeeper on the next square; trap.c animate_statue() keeps the species (read.c cant_revive() spares a shopkeeper on revival) and calls makemon() with NO_MINVENT | MM_NOMSG | MM_ADJACENTOK, so C makes a shopkeeper that has no shop. Four searches let it act.",
+  "segments": [
+    {
+      "seed": 5582913,
+      "datetime": "20450622161540",
+      "nethackrc": "OPTIONS=name:Sculpt,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017statue of a shopkeeper\n\u00178 uncursed potions of gain level\nqmqmqmqmqmqmqmqmlZchssss"
+    }
+  ]
+}

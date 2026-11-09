@@ -54,7 +54,6 @@ import { encodeUtf8Text } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { money_cnt } from '../js/invent.js';
 import { GameDisplay } from '../js/game_display.js';
-import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { set_mon_data } from '../js/mondata.js';
 import { newObject } from '../js/obj.js';
@@ -1466,13 +1465,11 @@ test('a peaceful vault guard leaves the dead hero gold outside the vault',
 
 // The hero's own command reaches the same really_done() through losehp(), so
 // the classes it can raise there belong to failClosedCommand()'s list too.
-// mongone() raises the third for a departing shopkeeper or priest.
 test('the refusals really_done() raises below a killing blow end a command',
      () => {
     for (const Refusal of [
         UnsupportedShopError,
         UnsupportedVaultGuardError,
-        UnsupportedMonsterCreationError,
     ]) {
         assert.ok(
             failClosedCommandRefusals().some(

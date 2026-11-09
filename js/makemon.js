@@ -1277,7 +1277,7 @@ export async function summon_furies(limit, state = game, rawEnv = {}) {
         // C completes placement, inventory and output before testing the
         // birth limit again or returning to the alignment-change caller.
         await makemon_runtime(state.mons[PM_ERINYS], state.u.ux, state.u.uy,
-            MM_ADJACENTOK | MM_NOWAIT, { ...env, _summonFuries: true });
+            MM_ADJACENTOK | MM_NOWAIT, env);
         i++;
     }
 }

@@ -347,11 +347,7 @@ function mkswamp(state, random) {
                                 : state.mons[PM_ELECTRIC_EEL];
                         // C discards makemon()'s return and increments eelct
                         // even when creation finds no usable monster.
-                        makemon(species, sx, sy, 0, {
-                            state,
-                            random,
-                            _mkswampPoolSpecies: true,
-                        });
+                        makemon(species, sx, sy, 0, { state, random });
                         ++eelct;
                     }
                 } else if (!random.rn2(4)) {

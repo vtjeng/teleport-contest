@@ -227,7 +227,7 @@ export async function clonewiz(state = game, rawEnv = {}) {
         throw new Error('clonewiz requires the Wizard monster record');
 
     const env = {
-        ...rawEnv, state, random, _cloneWizard: true,
+        ...rawEnv, state, random,
     };
     const monster = await createMonster(
         species,
@@ -279,7 +279,7 @@ export async function resurrect(state = game, rawEnv = {}) {
 
     const monster = await createMonster(
         species, state.u.ux, state.u.uy, MM_NOWAIT,
-        { ...rawEnv, state, _resurrectWizard: true },
+        { ...rawEnv, state },
     );
     if (!monster) return null;
 
@@ -540,10 +540,6 @@ export async function nasty(summoner, rawEnv = {}) {
 
             const creationEnv = {
                 ...normalized,
-                // wizard.c nasty() is a distinct runtime makemon caller. The
-                // marker lets makemon_create.js admit its exact MM_NOMSG or
-                // NO_MM_FLAGS shape without widening ordinary runtime calls.
-                _nasty: true,
                 // MM_NOMSG creation still requires both runtime message
                 // operations; callers retain makemon_runtime defaults.
             };

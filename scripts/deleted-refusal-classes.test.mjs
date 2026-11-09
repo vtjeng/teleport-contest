@@ -52,6 +52,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // pager.c help inputs and options.c option-menu states no caller creates
     'UnsupportedHelpError',
     'UnsupportedOptionMenuError',
+    // makemon.c makemon(): the species allowlist, the shopkeeper outside
+    // shkinit() and the Rogue-level chameleon, which C makes
+    'UnsupportedMonsterCreationError',
 ];
 
 function stripComments(source) {

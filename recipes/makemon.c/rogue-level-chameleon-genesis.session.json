@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c makemon() makes a chameleon on the Rogue level and newcham() picks its first form, retrying for an uppercase letter (mon.c select_newcham_form()). A Samurai level-teleports to the Rogue level in debug mode and creates a chameleon with #wizgenesis; three searches let it act.",
+  "segments": [
+    {
+      "seed": 9036127,
+      "datetime": "20450918201205",
+      "nethackrc": "OPTIONS=name:Shifty,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizlevelport\nrogue\n\n\u0007chameleon\nsss"
+    }
+  ]
+}

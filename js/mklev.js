@@ -53,7 +53,7 @@ import {
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
-import { UnsupportedMonsterCreationError, makemon, dmonsfree, set_mimic_sym } from './makemon_create.js';
+import { makemon, dmonsfree, set_mimic_sym } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { make_grave } from './grave.js';
@@ -4667,13 +4667,7 @@ function createSpecialLevelApi(state) {
         hooks: {
             ...objectGenerationHooks(),
             makeMonster(species, x, y, mmflags, monEnv) {
-                try {
-                    return makemon(species, x, y, mmflags, monEnv);
-                } catch (e) {
-                    if (e instanceof UnsupportedMonsterCreationError)
-                        return null;
-                    throw e;
-                }
+                return makemon(species, x, y, mmflags, monEnv);
             },
         },
         frame,
@@ -4914,12 +4908,7 @@ function createSpecialLevelApi(state) {
         gold(...args) { return lspo_gold(args, env); },
 
         monster(...args) {
-            try {
-                return lspo_monster(args, coder.croom, env);
-            } catch (e) {
-                if (e instanceof UnsupportedMonsterCreationError) return null;
-                throw e;
-            }
+            return lspo_monster(args, coder.croom, env);
         },
 
         stair(...args) { return lspo_stair(args, env); },

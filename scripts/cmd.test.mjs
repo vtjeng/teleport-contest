@@ -5043,21 +5043,14 @@ test('ported hunger transitions no longer register a command refusal', () => {
 // that wrapper produces. A class raised inside goto_level()'s tail that the
 // list omits escapes runSegment() as a hard throw, and the scorer records a
 // session error instead of keeping the screens the segment already matched.
-// Each of these three is reached by a named site in that tail, so each is
-// asserted separately: one deepEqual over the whole list would also catch a
-// deletion, but would churn on every unrelated addition.
 test('every class goto_level()\'s tail can raise converts at the command seam',
     async () => {
         const { UnsupportedHeroTimeoutBoundaryError } =
             await import('../js/timeout.js');
-        const { UnsupportedMonsterCreationError } =
-            await import('../js/makemon_create.js');
         const converted = failClosedCommandRefusals();
 
         // do.c:1821 run_timers(), for timers due while the hero was away.
         assert.ok(converted.includes(UnsupportedHeroTimeoutBoundaryError));
-        // do.c:1699 mklev() -> makemon(), for a mimic inside a generated shop.
-        assert.ok(converted.includes(UnsupportedMonsterCreationError));
     });
 
 // Keep the refusal classes recognizable at the command seam. The polymorphed

@@ -55,7 +55,6 @@ import {
     m_dowear,
     makemon_runtime,
     set_mimic_sym,
-    UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
@@ -1060,7 +1059,6 @@ function elapsedTurnRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
         UnsupportedHeroTimeoutBoundaryError,
-        UnsupportedMonsterCreationError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
         // mpickstuff()'s -- call splitobj() and mpickobj() from inside the
         // monster scan, so these classes reach here from a path that used to

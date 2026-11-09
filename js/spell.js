@@ -743,7 +743,6 @@ function deadbookMakemonEnv(state, random, env) {
         ...env,
         state,
         random,
-        _deadbook: true,
         // C's makemon appearance uses Norep(), including repeated species
         // within the swarm. A custom message sink also receives the Norep
         // lines; the ordinary pline owner maps to the ttyNorep owner.

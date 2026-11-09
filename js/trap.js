@@ -904,7 +904,7 @@ function mk_trap_statue(x, y, env) {
         env,
     );
     const mmflags = MM_NOCOUNTBIRTH | MM_NOMSG;
-    const donorEnv = { ...env, _statueInventoryCreation: true };
+    const donorEnv = env;
     const finishDonor = (monster) => {
         if (!monster) return;
         const transfer = () => {
@@ -3324,7 +3324,6 @@ export async function animate_statue(
     const norepMessage = rawEnv.norepMessage ?? message;
     const objectEnv = objectGenerationEnv({
         ...rawEnv,
-        _animateStatue: true,
         state,
         random,
         message,

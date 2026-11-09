@@ -3124,7 +3124,7 @@ test('Spider nest puts a giant spider on each web the source asks for', () => {
     assert.equal(spider.data, state.mons[PM_GIANT_SPIDER]);
 });
 
-test('create_monster with no species passes MM_NOGRP so preflightCreation accepts it', () => {
+test('create_monster with no species reaches makemon()\'s rndmongen gate', () => {
     // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS (0).
     // A bare des.monster() call sets neither id nor class, so create_monster()
     // resolves species = null and makemon() must call rndmonst_adj() to
@@ -3155,15 +3155,13 @@ test('create_monster with no species passes MM_NOGRP so preflightCreation accept
         step('rn1', [2, 3], 3), // somey: hy - ly + 1 = 2, base = ly = 3
     ]);
 
-    // Must not throw UnsupportedMonsterCreationError('random monster groups').
     const monster = lspo_monster([], room, {
         state,
         random: random.random,
     });
 
     random.assertExhausted();
-    // makemon returns null because rndmongen is false, not because
-    // preflightCreation refused the call.
+    // makemon returns null because rndmongen is false.
     assert.equal(monster, null);
 });
 

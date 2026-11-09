@@ -1,11 +1,6 @@
-// Monster creation for initial levels and special-level templates across all
-// dungeon branches (main dungeon, Quest, Mines, Sokoban, etc.).  Covers
-// ordinary rooms, themed-room fills including Mausoleum, starting pets, and
-// Statuary's temporary monsters.
+// Monster creation, during level generation and in play.
 // C ref: makemon.c makemon(), m_initgrp(), m_initthrow(), m_initweap(),
-// m_initinv(), and mongets(); worn.c m_dowear(). Outside level generation
-// runtime admission follows source pointer/coordinate/flag contracts; other
-// species-specific branches remain explicitly bounded.
+// m_initinv(), and mongets(); worn.c m_dowear().
 
 import {
     ALL_TRAPS,
@@ -63,7 +58,6 @@ import {
     M_AP_OBJECT,
     M_SEEN_NOTHING,
     NO_MINVENT,
-    NO_MM_FLAGS,
     A_LAWFUL,
     EMIN,
     ONAME,
@@ -193,11 +187,7 @@ export {
 export { set_mon_data } from './mondata.js';
 import {
     AT_WEAP,
-    G_FREQ,
-    G_HELL,
     G_NOCORPSE,
-    G_NOGEN,
-    G_UNIQ,
     M1_AMORPHOUS,
     M1_ANIMAL,
     M1_MINDLESS,
@@ -226,39 +216,18 @@ import {
     PM_ATTENDANT,
     PM_BALROG,
     PM_BLACK_LIGHT,
-    PM_BLACK_UNICORN,
-    PM_CAVE_SPIDER,
-    PM_BUGBEAR,
-    PM_CENTIPEDE,
     PM_CROESUS,
-    PM_CHAMELEON,
     PM_CHIEFTAIN,
     PM_CLERIC,
     PM_MONK,
-    PM_COBRA,
-    PM_DEMILICH,
     PM_DISPATER,
-    PM_DWARF_RULER,
-    PM_DJINNI,
-    PM_DOPPELGANGER,
     PM_ELF,
     PM_ELVEN_MONARCH,
     PM_ETTIN,
-    PM_FOG_CLOUD,
-    PM_FOX,
     PM_FOREST_CENTAUR,
-    PM_GARTER_SNAKE,
     PM_GHOST,
-    PM_GNOME_RULER,
     PM_GIANT,
-    PM_GRAND_MASTER,
-    PM_GIANT_MUMMY,
-    PM_GIANT_MIMIC,
-    PM_GIANT_SPIDER,
-    PM_GIANT_ZOMBIE,
     PM_GOBLIN,
-    PM_GRAY_UNICORN,
-    PM_GRID_BUG,
     PM_GUIDE,
     PM_HIGH_CLERIC,
     PM_HOBBIT,
@@ -267,84 +236,46 @@ import {
     PM_HUMAN,
     PM_HUNTER,
     PM_ASMODEUS,
-    PM_HOBGOBLIN,
     PM_ICE_DEVIL,
-    PM_JACKAL,
-    PM_KOBOLD,
-    PM_KOBOLD_MUMMY,
-    PM_KOBOLD_ZOMBIE,
-    PM_KITTEN,
-    PM_KILLER_BEE,
-    PM_LARGE_MIMIC,
-    PM_LICH,
-    PM_LICHEN,
-    PM_LITTLE_DOG,
-    PM_ERINYS,
     PM_LONG_WORM,
     PM_RAVEN,
     PM_MANES,
     PM_MASTER_LICH,
-    PM_NALFESHNEE,
     PM_MINOTAUR,
     PM_GIANT_EEL,
-    PM_ELECTRIC_EEL,
     PM_GUARD,
-    PM_TRAPPER,
     PM_NAZGUL,
     PM_MORDOR_ORC,
-    PM_SMALL_MIMIC,
     PM_NEANDERTHAL,
-    PM_NEWT,
     PM_CAPTAIN,
     PM_LIEUTENANT,
     PM_NINJA,
-    PM_NURSE,
     PM_ORC,
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
     PM_ORCUS,
     PM_OGRE_LEADER,
     PM_PESTILENCE,
-    PM_PIRANHA,
     PM_OGRE_TYRANT,
     PM_PAGE,
-    PM_PONY,
-    PM_RED_DRAGON,
     PM_QUANTUM_MECHANIC,
-    PM_QUEEN_BEE,
     PM_ROSHI,
-    PM_SEWER_RAT,
     PM_SERGEANT,
     PM_SHOPKEEPER,
     PM_SOLDIER,
     PM_SALAMANDER,
-    PM_SNAKE,
     PM_STALKER,
     PM_STUDENT,
     PM_THUG,
-    PM_UMBER_HULK,
     PM_URUK_HAI,
-    PM_VAMPIRE,
-    PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_WARRIOR,
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
-    PM_WATER_DEMON,
-    PM_WATER_ELEMENTAL,
-    PM_WATER_MOCCASIN,
-    PM_WATER_NYMPH,
-    PM_WHITE_UNICORN,
-    PM_WOLF,
-    PM_WOOD_NYMPH,
-    PM_WRAITH,
     PM_WUMPUS,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
-    PM_YELLOW_LIGHT,
-    PM_YELLOW_MOLD,
     PM_YEENOGHU,
-    SPECIAL_PM,
     S_ANGEL,
     S_BAT,
     S_CENTAUR,
@@ -372,7 +303,6 @@ import {
     S_OGRE,
     S_ORC,
     S_QUANTMECH,
-    S_QUADRUPED,
     S_SNAKE,
     S_SPIDER,
     S_TROLL,
@@ -596,55 +526,6 @@ import {
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
-const INITIAL_LEVEL_MONSTERS = new Set([
-    PM_ALIGNED_CLERIC,
-    PM_JACKAL,
-    PM_FOX,
-    PM_KOBOLD,
-    PM_GOBLIN,
-    PM_SEWER_RAT,
-    PM_GRID_BUG,
-    PM_LICHEN,
-    PM_KOBOLD_ZOMBIE,
-    PM_NEWT,
-    PM_NURSE,
-    PM_FOG_CLOUD,
-    PM_WOOD_NYMPH,
-    PM_GHOST,
-    PM_SMALL_MIMIC,
-    PM_LARGE_MIMIC,
-    PM_GIANT_MIMIC,
-    PM_LITTLE_DOG,
-    PM_KITTEN,
-    PM_PONY,
-    PM_CAVE_SPIDER,
-    PM_CENTIPEDE,
-    PM_GIANT_SPIDER,
-    PM_GARTER_SNAKE,
-    PM_SNAKE,
-    PM_WHITE_UNICORN,
-    PM_GRAY_UNICORN,
-    PM_BLACK_UNICORN,
-    PM_YELLOW_LIGHT,
-    PM_BLACK_LIGHT,
-    PM_SHOPKEEPER,
-]);
-
-// mkroom.c:mkswamp() selects one of these three species directly instead
-// of asking mkclass() to choose a fungus or another common monster.
-const SWAMP_POOL_SPECIES = new Set([
-    PM_GIANT_EEL,
-    PM_PIRANHA,
-    PM_ELECTRIC_EEL,
-]);
-
-const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
-const TUTORIAL_LEVEL_MONSTERS = new Set([
-    PM_LICHEN,
-    PM_WOLF,
-    PM_YELLOW_MOLD,
-]);
-
 // include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
 // include/monflag.h creation-time predicates not yet exported by monsters.js.
@@ -671,14 +552,6 @@ const MIMIC_FURNITURE = Object.freeze([
     S_upstair, S_upstair, S_dnstair, S_dnstair,
     S_altar, S_grave, S_throne, S_sink,
 ]);
-
-export class UnsupportedMonsterCreationError extends Error {
-    constructor(operation) {
-        super(`unsupported initial-level monster creation: ${operation}`);
-        this.name = 'UnsupportedMonsterCreationError';
-        this.operation = operation;
-    }
-}
 
 // C ref: shknam.c neweshk(). makemon() calls this before assigning m_id, so
 // parentmid deliberately starts at zero just like the source structure.
@@ -726,20 +599,6 @@ export function creationEnv(env = {}) {
 
 export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
-}
-
-// dat/dungeon.lua names dungeon zero "The Dungeons of Doom", the main dungeon
-// the hero starts in and descends through.  During level generation (in_mklev)
-// monster creation works on any dungeon branch; the level template and
-// rndmonst() place whatever species the level definition requests.
-//
-// Outside mklev, runtime creation still uses the species allowlist below as a
-// safety net.  It applies to every runtime-created monster whether the caller
-// names the species or rndmonst() chooses it, so a runtime event that tries
-// to roll something the port has not verified stops on that species rather
-// than on its depth.
-function isMainDungeonLevel(state) {
-    return state.u?.uz?.dnum === 0;
 }
 
 function isArmed(species) {
@@ -1028,415 +887,11 @@ export function set_mimic_sym(monster, normalized) {
     }
 }
 
-// On the initial level, trap.c:rndmonnum_adj(3, 6) admits source difficulties
-// 3 through 7. The remaining predicates mirror rndmonst()'s viable reservoir.
-function isStatuaryReservoirSpecies(species) {
-    return species.pmidx >= 0
-        && species.pmidx < SPECIAL_PM
-        && species.difficulty >= 3
-        && species.difficulty <= 7
-        && Boolean(species.geno & G_FREQ)
-        && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
-}
-
-// The selected ordinary level-teleport boundary generates through D:5. Its
-// rndmonst() reservoir extends below and above the D:1 set but remains in the
-// common non-unique, non-hell generated band. Inventory initialization still
-// fail-closes by source weapon class when a later species needs a new branch.
-function isOrdinaryD5ReservoirSpecies(species) {
-    return species.pmidx >= 0
-        && species.pmidx < SPECIAL_PM
-        && species.difficulty >= 0
-        && species.difficulty <= 9
-        && Boolean(species.geno & G_FREQ)
-        && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
-}
-
-// dat/themerms.lua's Mausoleum chooses one of these four classes through
-// mkclass(..., G_NOGEN).  On D:1 the source can reach both ordinary liches,
-// every mummy, both non-unique vampires, and every generated zombie; the
-// zero-frequency skeleton and hell-only master liches remain unreachable.
-function isMausoleumSpecies(species) {
-    const mndx = species.pmidx;
-    return (mndx >= PM_LICH && mndx <= PM_DEMILICH)
-        || (mndx >= PM_KOBOLD_MUMMY && mndx <= PM_GIANT_MUMMY)
-        || (mndx >= PM_VAMPIRE && mndx <= PM_VAMPIRE_LEADER)
-        || (mndx >= PM_KOBOLD_ZOMBIE && mndx <= PM_GIANT_ZOMBIE);
-}
-
-function assertSupportedSpecies(species, env = {}) {
-    const createParticular = env._createParticular === true;
-    // mkroom.c:mkswamp() directly requests one of its three explicit pool
-    // species after changing its room square to POOL. C makemon() has no
-    // species allowlist on that initial-level call; tie the extra admission
-    // to that exact caller and level-generation state.
-    const mkswampPoolSpecies = env._mkswampPoolSpecies === true
-        && env.state?.in_mklev === true
-        && SWAMP_POOL_SPECIES.has(species?.pmidx);
-    // Runtime wizard genesis already admits giant eels outside level setup.
-    const runtimeGiantEel = env.state?.in_mklev !== true
-        && species?.pmidx === PM_GIANT_EEL;
-    // priest.c:priestini() explicitly requests the Astral sanctum High Cleric
-    // with MM_EPRI. C makemon() has no generated-species allowlist for that
-    // explicit call; keep this exception tied to the caller marker and species.
-    const priestHighCleric = env._priestiniHighCleric === true
-        && species?.pmidx === PM_HIGH_CLERIC;
-    const guardianRoamer = env._mkRoamer === true
-        && species?.pmidx === PM_ANGEL;
-    // The four throne-room rulers are the whole range of mkroom.c
-    // mk_zoo_thronemon() (mkroom.c:256-273): rnd(level_difficulty()) picks
-    // PM_OGRE_TYRANT above 9, PM_ELVEN_MONARCH above 5, PM_DWARF_RULER above
-    // 2, and PM_GNOME_RULER otherwise. The remaining entries are fill_zoo()'s
-    // COURT courtiers.
-    const courtSpecies = species
-        && (species.pmidx === PM_BUGBEAR
-            || species.pmidx === PM_DWARF_RULER
-            || species.pmidx === PM_GNOME_RULER
-            || species.pmidx === PM_OGRE_TYRANT
-            || species.pmidx === PM_ELVEN_MONARCH
-            || species.pmidx === PM_HOBGOBLIN
-            || species.mlet === S_KOBOLD
-            || species.mlet === S_GNOME
-            || species.mlet === S_ORC);
-    const beehiveSpecies = species
-        && (species.pmidx === PM_QUEEN_BEE
-            || species.pmidx === PM_KILLER_BEE);
-    const barracksSpecies = species
-        && (species.pmidx === PM_SOLDIER
-            || species.pmidx === PM_SERGEANT
-            || species.pmidx === PM_LIEUTENANT
-            || species.pmidx === PM_CAPTAIN);
-    const morgueSpecies = species
-        && species.pmidx === PM_WRAITH;
-    if (!species
-        || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
-            && !TUTORIAL_LEVEL_MONSTERS.has(species.pmidx)
-            && !isStatuaryReservoirSpecies(species)
-            && !isOrdinaryD5ReservoirSpecies(species)
-            && !isMausoleumSpecies(species)
-            && !courtSpecies
-            && !beehiveSpecies
-            && !barracksSpecies
-            && !morgueSpecies
-            // C makemon() uses the generic lifecycle for every quadruped.
-            // All seven are animals with no weapon initialization; m_initinv
-            // retains its ordinary RNG tail while defensive/misc item
-            // selection rejects animals. Runtime rndmonst() can select the
-            // larger members above the old D:5 reservoir ceiling.
-            && species.mlet !== S_QUADRUPED
-            // C makemon has no species gate for ordinary true giants.
-            // Their S_GIANT weapon and gem arms already share the canonical
-            // lifecycle; unique quest nemeses retain their separate boundary.
-            && !(species.mlet === S_GIANT && is_giant(species)
-                && !(species.geno & G_UNIQ))
-            // Ettins share S_GIANT but are not M2_GIANT. makemon.c:m_initweap
-            // has their complete CLUB branch, and m_initinv intentionally
-            // skips true-giant gems for them; admit this source-valid species
-            // when runtime rndmonst() selects it beyond the D:5 reservoir.
-            && species.pmidx !== PM_ETTIN
-            && species.pmidx !== PM_DJINNI
-            // read.c seffect_light() creates cancelled tame light monsters
-            // at the hero's square while a confused scroll is read.
-            && species.pmidx !== PM_YELLOW_LIGHT
-            && species.pmidx !== PM_BLACK_LIGHT
-            && species.pmidx !== PM_WATER_DEMON
-            && species.pmidx !== PM_WATER_ELEMENTAL
-            && species.pmidx !== PM_WATER_MOCCASIN
-            && species.pmidx !== PM_WATER_NYMPH
-            // mkswamp's direct ternary admits its complete pool family
-            // during initial-level creation. The caller marker only admits
-            // these species while in_mklev; giant eels also retain their
-            // separately supported runtime path below.
-            && (!SWAMP_POOL_SPECIES.has(species.pmidx)
-                || !(mkswampPoolSpecies
-                    || (species.pmidx === PM_GIANT_EEL && runtimeGiantEel)))
-            // read.c wiz_genesis() explicitly reaches makemon() for
-            // hell-only covetous species; the ordinary level reservoir does
-            // not, so keep master lich out of isMausoleumSpecies() while
-            // admitting its direct wizard-mode creation path.
-            && (species.pmidx !== PM_MASTER_LICH || !createParticular)
-            && species.pmidx !== PM_GUARD
-            // read.c create_particular_creation() can request a hidden
-            // hider directly.  PM_TRAPPER is the admitted source species
-            // whose M1_HIDE arm does not need a floor object or pool.
-            && species.pmidx !== PM_TRAPPER
-            && species.pmidx !== PM_UMBER_HULK
-            // Cobra is the lowest-difficulty AT_SPIT species (difficulty
-            // 10, just above the D:5 reservoir ceiling). wiz_genesis()
-            // creates it for the spitmu recipe that covers mthrowu.c's
-            // spit-venom entry point.
-            && species.pmidx !== PM_COBRA
-            // A doppelganger is a natural shapechanger. Its mon.c selector
-            // and bounded distress caller below are admitted for the
-            // inventoryless runtime branch.
-            && species.pmidx !== PM_DOPPELGANGER
-            // read.c create_particular_creation() passes an explicitly named
-            // red dragon to makemon() unchanged. Its ordinary S_DRAGON path
-            // has no creation-only helper or inventory branch, so the C
-            // makemon() body reaches the already-portable generic lifecycle.
-            && species.pmidx !== PM_RED_DRAGON
-            // read.c wiz_genesis() also reaches the generic runtime lifecycle
-            // for a force-confirmed Grand Master. Its clerical attack is
-            // exercised by mcastu.c; it does not take the aligned/high-cleric
-            // priest-minion initialization arm below.
-            && (species.pmidx !== PM_GRAND_MASTER || !createParticular)
-            // C makemon.c:1397-1403 accepts every demon prince whose sound is
-            // MS_BRIBE and gives it the shared peaceful/invisible state. The
-            // four source-defined princes can be named by read.c's explicit
-            // create_particular_creation() path; admit that family there, not
-            // only the Geryon recipe that exposed the preflight gap.
-            && !(createParticular
-                && is_dprince(species)
-                && species.msound === MS_BRIBE)
-            // minion.c creates PM_ANGEL through priest.c mk_roamer() when
-            // the Astral guardian appears; keep this exact runtime call out
-            // of the ordinary generated-species set.
-            && !guardianRoamer
-            && !priestHighCleric
-            // makemon.c:1147-1512 has no species admission gate. The
-            // minotaur's explicit m_initinv() arm is complete, so read.c's
-            // create_particular_creation() and sp_lev.c's fill_empty_maze()
-            // callers share this admission path.
-            && species.pmidx !== PM_MINOTAUR)) {
-        throw new UnsupportedMonsterCreationError(
-            `makemon() monster ${species?.pmidx ?? 'null'}`,
-        );
-    }
-}
-
-function preflightCreation(ptr, x, y, mmflags, normalized) {
-    const { state } = normalized;
-    const randomCoordinates = x === 0 && y === 0;
-    // trap.c mk_trap_statue() and sp_lev.c create_object() explicitly create
-    // temporary inventory donors at random locations. The source call has the
-    // same arguments during level creation and ordinary-play statue wishes.
-    const statueInventoryCall = normalized._statueInventoryCreation === true
-        && Boolean(ptr)
-        && randomCoordinates
-        && mmflags === (MM_NOCOUNTBIRTH | MM_NOMSG);
+// makemon() reads these globals unconditionally; a missing one is a broken
+// caller or test setup, not a game state.
+function requireCreationState(mmflags, state) {
     if (!Number.isInteger(mmflags) || mmflags < 0)
         throw new TypeError('makemon flags must be a nonnegative integer');
-    const mainDungeonLevel = isMainDungeonLevel(state);
-    // sp_lev.c's lspo_finalize_level() calls level_finalize_topology() before
-    // filling special rooms.  That source path clears in_mklev, but its
-    // fill_zoo() makemon calls are still level-generation calls, so admit the
-    // explicit marker without changing in_mklev-dependent initialization.
-    const specialRoomCall = normalized._specialRoomFill === true;
-    // priest.c:priestini()'s only species outside the main-dungeon allowlist
-    // is the sanctum High Cleric, passed at explicit coordinates with MM_EPRI.
-    // Normalize the marker against that whole source call shape before the
-    // species gate sees it; a stray marker cannot authorize another call.
-    normalized._priestiniHighCleric = state.in_mklev
-        && normalized._priestiniHighCleric === true
-        && ptr?.pmidx === PM_HIGH_CLERIC
-        && !randomCoordinates
-        && mmflags === MM_EPRI;
-    // C mon.c mondead() can recreate a Kop with its explicit species and
-    // (0, 0, NO_MM_FLAGS). makemon_rnd_goodpos() handles that shape as well
-    // as random species; the normal runtime tail owns construction.
-    const runtimeRandomCall = !state.in_mklev
-        && randomCoordinates
-        && mmflags === 0;
-    // makemon.c:m_initgrp()/m_initsgrp()/m_initlgrp() recurse with MM_NOGRP.
-    // The C call shape is valid on every runtime dungeon branch. m_initgrp()
-    // passes its parent's mmflags through with MM_NOGRP added, so a group
-    // started by wizard.c nasty()'s MM_NOMSG substitute keeps MM_NOMSG,
-    // which only suppresses the appearance message.
-    const runtimeGroupCall = !state.in_mklev
-        && !randomCoordinates
-        && Boolean(ptr)
-        && (mmflags & ~MM_NOMSG) === MM_NOGRP;
-    // were.c:were_summon() creates one of its source-selected compatible
-    // species at the hero square with NO_MM_FLAGS. makemon() relocates that
-    // request through enexto_core() before checking the destination, and C
-    // imposes no runtime species allowlist on this direct call.
-    const wereSummonCall = !state.in_mklev
-        && normalized._wereSummon === true
-        && Boolean(ptr)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === NO_MM_FLAGS;
-    // C makemon.c:1147-1200 accepts an explicit non-null species at every
-    // valid runtime coordinate with NO_MM_FLAGS. A request on the hero square
-    // is relocated through enexto_core(); another square is used directly,
-    // subject only to the source isok() and occupied-monster checks. C does
-    // not apply a species allowlist or goodpos() check to this call shape.
-    const explicitCoordinateNoFlagsRuntimeCall = !state.in_mklev
-        && Boolean(ptr)
-        && !randomCoordinates
-        && isok(x, y)
-        && mmflags === NO_MM_FLAGS;
-    // makemon.c summon_furies() creates Erinyes at the hero square with
-    // adjacent placement and no initial waiting strategy. Keep this caller's
-    // exact species/coordinate/flag contract on the full runtime lifecycle.
-    const furiesCall = !state.in_mklev
-        && normalized._summonFuries === true
-        && ptr === state.mons[PM_ERINYS]
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (MM_ADJACENTOK | MM_NOWAIT);
-    // wizard.c:clonewiz() creates a Wizard at the hero's square with
-    // MM_NOWAIT. makemon() relocates that request through enexto_core() and
-    // runs the normal runtime tail; the marker ties this species/flag shape
-    // to the source caller instead of widening generic runtime admission.
-    const cloneWizardCall = !state.in_mklev
-        && normalized._cloneWizard === true
-        && ptr?.pmidx === PM_WIZARD_OF_YENDOR
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === MM_NOWAIT;
-    // wizard.c:resurrect() makes the first returning Wizard through this
-    // same explicit runtime shape. Keep its caller identity separate from
-    // clonewiz() so neither marker admits unrelated Wizard creation.
-    const resurrectWizardCall = !state.in_mklev
-        && normalized._resurrectWizard === true
-        && ptr?.pmidx === PM_WIZARD_OF_YENDOR
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === MM_NOWAIT;
-    // mkroom.c mkundead() uses explicit-coordinate placement with
-    // NO_MINVENT. pickup.c observe_quantum_cat() adds MM_ADJACENTOK and
-    // MM_NOMSG for its housecat. Both C call shapes suppress inventory;
-    // the latter also permits an adjacent placement when the box square is
-    // occupied and suppresses the appearance message.
-    const explicitCoordinateNoMinventRuntimeCall = !state.in_mklev
-        && Boolean(ptr)
-        && !randomCoordinates
-        && isok(x, y)
-        && (mmflags === NO_MINVENT
-            || mmflags === (NO_MINVENT | MM_ADJACENTOK | MM_NOMSG));
-    // C makemon() accepts explicit, inventoryless creation at the hero's
-    // square on every runtime level. Its source-owned placement path first
-    // relocates to enexto_core(); admission is based only on those arguments
-    // and level state, not on which caller supplied them or which species is
-    // named.
-    const explicitInventorylessHeroCall = !state.in_mklev
-        && Boolean(ptr)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (NO_MINVENT | MM_NOMSG);
-    // timeout.c:hatch_egg() supplies an enexto() coordinate and the exact
-    // inventoryless, silent runtime flags. Its source caller has already
-    // selected the adjacent square, so this call uses makemon's direct
-    // explicit-coordinate placement without generic level preflights.
-    const hatchEggCall = !state.in_mklev
-        && normalized._hatchEgg === true
-        && Boolean(ptr)
-        && !randomCoordinates
-        && isok(x, y)
-        && mmflags === (NO_MINVENT | MM_NOMSG);
-    // C makemon() has no species admission rule for explicit runtime
-    // coordinates. dig.c uses MM_NOMSG; dokick.c adds MM_ANGRY for tree bees
-    // or one gender bit for a sink demon. These source flags share the same
-    // placement and async runtime tail.
-    const explicitCoordinateRuntimeCall = !state.in_mklev
-        && Boolean(ptr)
-        && !randomCoordinates
-        && Boolean(mmflags & MM_NOMSG)
-        && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
-    // read.c create_particular_creation():3315 names or selects a species and
-    // places it on the hero's own square, so makemon() reaches the enexto()
-    // arm below. The parser can add one gender bit and MM_MINVIS, or leave the
-    // species null for mkclass()/rndmonst() to select inside the same source
-    // call.
-    const createParticularCall = !state.in_mklev
-        && normalized._createParticular === true
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && !(mmflags & ~(MM_NOEXCLAM | MM_MINVIS | MM_MALE | MM_FEMALE));
-    // spell.c deadbook() tries these two explicitly named adversaries at the
-    // hero's square, with NO_MINVENT, and consumes the first makemon result.
-    const deadbookCall = !state.in_mklev
-        && normalized._deadbook === true
-        && (ptr?.pmidx === PM_MASTER_LICH || ptr?.pmidx === PM_NALFESHNEE)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === NO_MINVENT;
-    const revivalCall = !state.in_mklev
-        && normalized.revival === true
-        && Boolean(ptr)
-        && !randomCoordinates
-        && Boolean(mmflags & NO_MINVENT)
-        && Boolean(mmflags & MM_NOWAIT)
-        && Boolean(mmflags & MM_NOMSG)
-        && !(mmflags & ~(NO_MINVENT | MM_NOWAIT | MM_NOMSG
-            | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_ADJACENTOK
-            | MM_MALE | MM_FEMALE));
-    // trap.c animate_statue() uses NO_MINVENT|MM_NOMSG, adding adjacency
-    // for the spell and substituted-species branches. Ordinary statue traps
-    // and shattered statues omit it. All use the runtime creation tail.
-    const statueAnimationCall = !state.in_mklev
-        && normalized._animateStatue === true
-        && Boolean(ptr)
-        && !randomCoordinates
-        && Boolean(mmflags & NO_MINVENT)
-        && Boolean(mmflags & MM_NOMSG)
-        && !(mmflags & ~(NO_MINVENT | MM_NOMSG | MM_ADJACENTOK
-            | MM_NOCOUNTBIRTH | MM_MALE | MM_FEMALE));
-    // dog.c:make_familiar() calls makemon() with this exact inventoryless
-    // pet shape, adding at most one figurine gender bit. The C callee has no
-    // runtime species or ACCESSIBLE preflight; placement below handles the
-    // hero-square case with MM_IGNOREWATER passed to goodpos().
-    const familiarCall = !state.in_mklev
-        && Boolean(ptr)
-        && !randomCoordinates
-        && isok(x, y)
-        && (mmflags & (NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG))
-            === (NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG)
-        && !(mmflags & ~(NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG
-            | MM_MALE | MM_FEMALE));
-    // mhitu.c cloneu() creates a second hero-form monster during ordinary
-    // play, at the hero square, with the inventoryless dog flags.  It then
-    // completes clone initialization in the caller, so use the normal
-    // runtime async tail while keeping this caller's exact source shape
-    // separate from starting-pet creation.
-    const cloneuCall = !state.in_mklev
-        && normalized._cloneu === true
-        && ptr === state.youmonst?.data
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (NO_MINVENT | MM_EDOG | MM_NOMSG);
-    // minion.c msummon() and summon_minion() create an aligned minion at
-    // the hero square during monster turns and divine anger.  It uses MM_EMIN|MM_NOMSG and the async runtime
-    // tail just like the other explicit runtime callers; the marker keeps this
-    // admission tied to that source call instead of widening all MM_EMIN use.
-    const minionSummonCall = !state.in_mklev
-        && (normalized._msummon === true || normalized._summon_minion === true)
-        && Boolean(ptr)
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === (MM_EMIN | MM_NOMSG);
-    // wizard.c nasty() is called both by mcastu.c with a non-null summoner
-    // (MM_NOMSG at enexto(summoner->mux, summoner->muy)) and by the late-game
-    // harassment caller with NULL (NO_MM_FLAGS at the hero square). Keep its
-    // explicit marker separate from the minion MM_EMIN contract.
-    const nastyCall = !state.in_mklev
-        && normalized._nasty === true
-        && !randomCoordinates
-        && (mmflags === MM_NOMSG || mmflags === NO_MM_FLAGS);
-    const shopkeeperCall = ((state.in_mklev || specialRoomCall)
-        && ptr?.pmidx === PM_SHOPKEEPER
-        && !randomCoordinates
-        && mmflags === MM_ESHK)
-        // montraits() restores a saved shopkeeper through the ordinary
-        // revival shape, outside mklev.  C admits this because the saved
-        // extension is copied before replmon(), rather than treating it as a
-        // fresh shkinit() creation.
-        || (revivalCall && ptr?.pmidx === PM_SHOPKEEPER);
-    // read.c:create_particular_creation() may force PM_SHOPKEEPER after its
-    // cant_revive() prompt.  That source call has no MM_ESHK bit, so it creates
-    // the ordinary monster record rather than a shop's extended data.
-    if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
-        && !explicitInventorylessHeroCall && !hatchEggCall
-        && !explicitCoordinateRuntimeCall
-        && !createParticularCall
-        && !explicitCoordinateNoFlagsRuntimeCall
-        && !explicitCoordinateNoMinventRuntimeCall) {
-        throw new UnsupportedMonsterCreationError(
-            'shopkeeper creation outside shkinit',
-        );
-    }
-    if (specialRoomCall && !ptr) normalized._rndmonMklev = true;
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
         throw new Error('makemon requires initialized monster globals');
     if (!state.context || !Number.isInteger(state.context.ident)
@@ -1446,64 +901,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     if (!state.u?.ualign || !state.urace)
         throw new Error('makemon requires initialized hero alignment and race');
-    if (ptr?.pmidx === PM_CHAMELEON
-        && !explicitInventorylessHeroCall
-        && !hatchEggCall
-        && !explicitCoordinateNoFlagsRuntimeCall
-        && !explicitCoordinateNoMinventRuntimeCall
-        && !Protection_from_shape_changers(state.u)) {
-        if (isRogueLevel(state)) {
-            throw new UnsupportedMonsterCreationError(
-                'initial chameleon on the rogue level',
-            );
-        }
-        if (!state.gl || !Object.hasOwn(state.gl, 'light_base')) {
-            throw new Error(
-                'initial chameleon requires initialized light globals',
-            );
-        }
-    }
-    if (ptr) {
-        // C makemon has no species allowlist.  On non-main-dungeon levels
-        // (Quest, Mines, etc.) during mklev, skip the allowlist entirely
-        // because level templates place branch-native species the main
-        // dungeon never sees.  On the main dungeon during mklev, keep the
-        // allowlist for explicitly placed species but bypass it for
-        // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
-        // loop). Outside mklev, ordinary runtime callers keep the allowlist.
-        // C makemon() has no species allowlist for explicit runtime
-        // pointer/coordinate/flag shapes admitted above.
-        if (!revivalCall
-            && !runtimeRandomCall
-            && !statueInventoryCall
-            && !specialRoomCall
-            && !cloneuCall
-            && !cloneWizardCall && !resurrectWizardCall && !furiesCall
-            // C msummon() and summon_minion() both use this complete
-            // lifecycle without an initial-level species reservoir gate.
-            && !minionSummonCall
-            && !wereSummonCall
-            // trap.c animate_statue() creates whatever species the statue
-            // records in corpsenm, with NO_MINVENT, so no species-specific
-            // inventory arm runs.
-            && !statueAnimationCall
-            && !deadbookCall
-            && !runtimeGroupCall
-            && !createParticularCall
-            && !explicitInventorylessHeroCall
-            && !hatchEggCall
-            && !explicitCoordinateRuntimeCall
-            && !explicitCoordinateNoFlagsRuntimeCall
-            && !explicitCoordinateNoMinventRuntimeCall
-            && !familiarCall
-            && !nastyCall
-            && (!state.in_mklev || (isMainDungeonLevel(state)
-                && !normalized._rndmonMklev))) {
-            assertSupportedSpecies(ptr, normalized);
-        }
-    }
 }
-
 
 // C ref: makemon.c makemon_rnd_goodpos(). Level generation skips the
 // visibility pass and stair fallback. Runtime generation first avoids every
@@ -2844,27 +2242,16 @@ async function makemonOccupationCheck(monster, normalized) {
     });
 }
 
-// C ref: makemon.c makemon(). This implements the level-one, explicit-square
-// call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
-// Storeroom themed fills, dog.c:makedog(), plus the level-generation random
-// coordinate shape needed by temporary Statuary monsters. Outside mklev(), it
-// also admits runtime random-generation calls on every dungeon branch:
-// makemon(NULL, 0, 0, NO_MM_FLAGS), create_critters()'s null species at an
-// explicit coordinate, and their MM_NOGRP recursive group members. Other
-// source callers include read.c create_particular_creation()'s named species
-// on the hero's own square under MM_NOEXCLAM, and seffect_light()'s explicit
-// cancelled-light pet shape. The generic explicit-pointer NO_MM_FLAGS shape
-// relocates only a hero-square request; another valid coordinate is used
-// directly before the runtime tail.
-//
-// After supported-call validation, source no-creation outcomes return null:
-// generation is disabled, the square is occupied, selection has no candidate,
-// or the species is genocided. Unsupported modes throw
-// UnsupportedMonsterCreationError; invalid arguments or state fail validation.
+// C ref: makemon.c makemon() (1147-1512). Like C, it admits every species,
+// coordinate and flag combination; the result depends only on the arguments
+// and the level. It returns null where C returns NULL: generation is disabled,
+// no square is free, rndmonst() finds no candidate, or the species is
+// genocided. Outside level creation the synchronous body stops after
+// set_malign(); makemon_runtime() and makemon_revival() run the rest.
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     const { random, state } = normalized;
-    preflightCreation(ptr, x, y, mmflags, normalized);
+    requireCreationState(mmflags, state);
 
     if (state.iflags?.debug_mongen
         || (state.level.flags.rndmongen === false && !ptr)) {
@@ -2916,20 +2303,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const anymon = !ptr;
     if (anymon) {
         let attempts = 0;
-        // During mklev, rndmonst draws from the full reservoir, which includes
-        // species outside the allowlist.  On non-main-dungeon levels
-        // preflightCreation already skips the allowlist; on the main dungeon
-        // this flag bypasses it for rndmonst-selected species and their
-        // m_initgrp group members (which inherit the same env).
-        if (state.in_mklev) normalized._rndmonMklev = true;
         do {
             ptr = rndmonst(normalized);
             if (!ptr) return null;
-            // C makemon.c accepts rndmonst's reservoir choice for every
-            // admitted null-species call, including natural runtime spawns.
-            // Placement retries below and concrete initialization helpers
-            // own their source restrictions; the initial-level species
-            // allowlist does not constrain this selection branch.
         } while (++attempts <= 50
             && ((attempts === 1
                 && throws_rocks(ptr)

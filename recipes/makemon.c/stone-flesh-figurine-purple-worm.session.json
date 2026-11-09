@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c makemon() has no species gate: a Healer raised to experience level 9 with wished potions of gain level casts stone to flesh at a wished figurine of a purple worm on the next square. zap.c stone_to_flesh_obj() calls makemon(ptr, ox, oy, NO_MINVENT | MM_NOMSG) for a species outside every level-generation set, and C makes it. Two searches let the worm act.",
+  "segments": [
+    {
+      "seed": 7310477,
+      "datetime": "20450311093015",
+      "nethackrc": "OPTIONS=name:Figura,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017figurine of a purple worm\n\u00178 uncursed potions of gain level\nqlqlqlqlqlqlqlqldkhZclss"
+    }
+  ]
+}

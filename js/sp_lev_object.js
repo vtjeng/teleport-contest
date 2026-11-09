@@ -558,7 +558,7 @@ function populateMedusaStatue(obj, specification, env) {
             0,
             0,
             MM_NOCOUNTBIRTH | MM_NOMSG,
-            { ...env, _statueInventoryCreation: true },
+            env,
         );
         const next = (resolvedMonster) => {
             return finishMonster(resolvedMonster, attempts);

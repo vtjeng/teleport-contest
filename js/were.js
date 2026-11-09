@@ -154,7 +154,6 @@ export async function were_summon(
             ...runtimeEnv,
             state,
             ...(random ? { random } : {}),
-            _wereSummon: true,
         };
         const mtmp = await makemon_runtime(
             state.mons[typ], state.u.ux, state.u.uy,

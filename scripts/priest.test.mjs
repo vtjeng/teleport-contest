@@ -306,7 +306,7 @@ test('priest.c ghod_hitsu preserves boundary selection and response order', () =
     assert.match(PRIEST_JS_SOURCE, /await exercise\(A_WIS, false, state, rawEnv\.random\)/u);
 });
 
-test('priestini marks only its source sanctum High Cleric creation for makemon', () => {
+test('priestini creates its priest with MM_EPRI as C does', () => {
     const cStart = PRIEST_C_SOURCE.indexOf('\npriestini(');
     const cEnd = PRIEST_C_SOURCE.indexOf('\n/* get a monster\'s alignment', cStart);
     const cFunction = PRIEST_C_SOURCE.slice(cStart, cEnd);
@@ -321,11 +321,7 @@ test('priestini marks only its source sanctum High Cleric creation for makemon',
     assert.match(jsFunction, /sanctum \? PM_HIGH_CLERIC : PM_ALIGNED_CLERIC/u);
     assert.match(
         jsFunction,
-        /const priestEnv = \{ \.\.\.env, _priestiniHighCleric: Boolean\(sanctum\) \};/u,
-    );
-    assert.match(
-        jsFunction,
-        /makemon\(prim, px, py, MM_EPRI, priestEnv\)/u,
+        /makemon\(prim, px, py, MM_EPRI, env\)/u,
     );
     assert.equal(PM_HIGH_CLERIC, 276);
 });

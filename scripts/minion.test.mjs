@@ -167,7 +167,6 @@ test('msummon uses the runtime creation contract and preserves census delta',
         assert.equal(calls[0].x, 4);
         assert.equal(calls[0].y, 5);
         assert.equal(calls[0].flags, MM_EMIN | MM_NOMSG);
-        assert.equal(calls[0].env._msummon, true);
     });
 
 // C minion.c:11-14 chooses four elementals in this order; 198-255 owns
