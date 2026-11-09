@@ -28,6 +28,8 @@ export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedReadError',
     // spell.c spelleffects()'s default arm: every learnable spell has a case
     'UnsupportedSpellCastError',
+    // zap.c bhit()'s call-type check: every caller passes one of the six
+    'UnsupportedBhitError',
 ];
 
 function stripComments(source) {

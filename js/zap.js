@@ -2145,13 +2145,6 @@ export async function makewish(state = game) {
 // to decide what hits it: dothrow.c throwit() reaches the ported thitmonst()
 // through throwit_mon_hit():1492, while dothrow.c throw_gold():2712 reaches
 // dokick.c ghitm(). Kicked objects use the same gold and weapon hit owners.
-export class UnsupportedBhitError extends Error {
-    constructor(branch) {
-        super(`zap.c bhit() reached ${branch}`);
-        this.name = 'UnsupportedBhitError';
-        this.branch = branch;
-    }
-}
 
 // The following helpers are the IMMEDIATE-wand object arm from zap.c.  They
 // live here (rather than in obj.js) because zap.c owns the polymorph policy;
@@ -4182,9 +4175,6 @@ export async function bhit(
     // missile so a web or another early stop can cancel that return before
     // throwit() handles the landing tail.
     const wasReturning = state.iflags?.returning_missile === obj ? obj : null;
-    if (!physical && !zapped && !flashed && !invisBeam) {
-        throw new UnsupportedBhitError(`call type ${weapon}`);
-    }
     state.gb ??= {};
     state.gb.bhitpos = kicked
         ? { x: state.u.ux + ddx, y: state.u.uy + ddy }

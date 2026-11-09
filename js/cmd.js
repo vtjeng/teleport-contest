@@ -359,7 +359,6 @@ import {
 } from './wizcmds.js';
 import {
     dozap,
-    UnsupportedBhitError,
     UnsupportedZapError,
 } from './zap.js';
 import {
@@ -2969,10 +2968,9 @@ export function failClosedCommandRefusals() {
         UnsupportedLockError,
         // The `f` command's files: wield.c the branches ready_weapon()
         // reaches when the swap-and-retry arm puts a launcher in the hero's
-        // hand, zap.c the ones bhit() meets along the missile's flight, and
-        // display.c the one transient-glyph style bhit() never opens.
+        // hand, and display.c the one transient-glyph style bhit() never
+        // opens.
         UnsupportedWieldError,
-        UnsupportedBhitError,
         UnsupportedTransientDisplayError,
         // A killing blow reaches the next two classes.
         // UnsupportedEndOfGameError now has
