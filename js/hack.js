@@ -1692,6 +1692,13 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
                 && !passes_bars(state.youmonst?.data)))) {
         return;
     }
+    // A safe monster on known pool or lava that the hero is wary of.
+    // domove_core() asks swim_move_danger() at hack.c:2852, after
+    // test_move() and before the swap at 2922; its warning ("You avoid
+    // stepping into the molten lava.") ends the step, so the swap and the
+    // arrival never happen.
+    if (swim_move_danger_result(x, y, state) === SWIM_DANGER_AVOID)
+        return;
     // C records a pony on wished ICE and CLOUD, a little dog in both an
     // intact open doorway and a kicked-broken doorway, and a tame water
     // elemental in a pool. test_move() admits those destinations and

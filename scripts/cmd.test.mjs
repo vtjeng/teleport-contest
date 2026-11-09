@@ -1436,15 +1436,18 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         // destination of the walking seam: hack.c test_move() decides doors
         // through testdiag and its closed-door arm, and the span of a raised
         // drawbridge over ice or floor is ordinary terrain. A pet standing in
-        // lava still stops the pet-displacement seam, which admits no lava
-        // destination, so it stands in as the retry fixture. The pet is
-        // asleep and frozen so that it cannot act while the command retries.
+        // lava the hero has never seen still stops the pet-displacement seam,
+        // which admits no lava destination, so it stands in as the retry
+        // fixture; seen lava would end the step at swim_move_danger()'s
+        // warning instead. The pet is asleep and frozen so that it cannot act
+        // while the command retries.
         {
-            name: 'pet in lava',
+            name: 'pet in unseen lava',
             reason: 'domove_swap_with_pet() door or special terrain movement',
             install: ({ destination, x, y }) => {
                 destination.typ = LAVAPOOL;
                 destination.flags = 0;
+                destination.seenv = 0;
                 const pet = newMonster({
                     data: game.mons[PM_NEWT], mnum: PM_NEWT, m_id: 9921,
                     mhp: 8, mhpmax: 8, mtame: 10, mpeaceful: true,

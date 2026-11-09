@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c domove_core():2852 asks swim_move_danger() after test_move() and before domove_swap_with_pet() at 2922. A levitating human Valkyrie wishes for lava under herself, steps east and takes off the ring; a peaceful salamander created beside her lands on the lava. Stepping west onto it twice gives \"You avoid stepping into the molten lava.\" and no swap (paranoid_confirm:swim is on by default). Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 3101,
+      "datetime": "20350623111500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017blessed ring of levitation\nPer \u0017lava\n lRe \u0007peaceful salamander\nh..h"
+    }
+  ]
+}
