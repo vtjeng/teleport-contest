@@ -77,10 +77,11 @@ import {
     is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { acurr, acurrstr, poisoned } from './attrib.js';
+import { acurr, acurrstr, exercise as attribExercise, poisoned } from './attrib.js';
+import { stop_occupation } from './allmain.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { calc_capacity, nomul, rounddiv } from './hack.js';
+import { calc_capacity, losehp, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
     add_to_minv,
@@ -875,8 +876,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         'setMonsterNotWielded',
     );
     const damageValue = requireRangedOperation(env, 'damageValue');
-    const hitHero = requireRangedOperation(env, 'hitHero');
-    const stopOccupation = requireRangedOperation(env, 'stopOccupation');
     // drop_throw() uses these bound floor and inventory operations.
     requireRangedOperation(env, 'shouldMulch');
     requireRangedOperation(env, 'floorEffects');
@@ -1048,7 +1047,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 if (singleobj.otyp !== ACID_VENOM)
                     damage = Maybe_Half_Phys(damage, state.u);
             }
-            hit = Boolean(await hitHero(hitv, damage, singleobj, env));
+            hit = Boolean(await thitu(hitv, damage, singleobj, null, state, {
+                ...env,
+                fromMonster: true,
+            }));
             // C thitu() calls losehp(), whose lethal done() path is NORETURN.
             // The JavaScript end-game path returns after setting gameover so
             // the replay can capture its final screen. done_object_cleanup()
@@ -1058,33 +1060,15 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 return 0;
             if (hit && singleobj.opoisoned
                 && isPoisonable(singleobj, state)) {
-                if (typeof env.poisoned === 'function') {
-                    // The bound operation takes poisoned()'s arguments with the
-                    // environment last, as uhitm.c mhitm_ad_drst() calls it.
-                    await env.poisoned(
-                        xnameFresh(singleobj, state),
-                        A_STR,
-                        killer_xname(singleobj, state),
-                        (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
-                        true,
-                        env,
-                    );
-                } else if (typeof env.message === 'function'
-                           && typeof env.losehp === 'function'
-                           && typeof env.done === 'function'
-                           && typeof env.encumberMessage === 'function') {
-                    await poisoned(
-                        xnameFresh(singleobj, state),
-                        A_STR,
-                        killer_xname(singleobj, state),
-                        (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
-                        true,
-                        state,
-                        env,
-                    );
-                } else {
-                    note_unported('attrib.c poisoned');
-                }
+                await poisoned(
+                    xnameFresh(singleobj, state),
+                    A_STR,
+                    killer_xname(singleobj, state),
+                    (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
+                    true,
+                    state,
+                    env,
+                );
             }
             // Fatal poison damage reaches C's really_done() from poisoned();
             // JS returns with gameover set and must not settle the missile.
@@ -1130,7 +1114,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     await make_stoned(5, null, KILLED_BY, '', state);
                 }
             }
-            await stopOccupation(state, env);
+            await stop_occupation(state, { message, random });
             if (hit) {
                 if (!tethered_weapon) {
                     await drop_throw(
@@ -1246,6 +1230,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 // return goes wrong (weapon hits thrower or drops).
 export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = coreRandom, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
+    const message = env.message ?? ttyPline;
     // C's three newsym() calls repaint the live map. newsym() paints the
     // module-global game whatever state it is handed, so a foreign state
     // (such as a hand-built test state) draws only through a redraw
@@ -1292,14 +1277,12 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             /* Weapon returns successfully to the thrower's hand. */
             const moves = state.moves ?? state.svm?.moves ?? 0;
             if (!returnDoNotAnnoy || moves - returnDoNotAnnoy > 500) {
-                if (typeof env.message === 'function') {
-                    await env.message(
-                        `${Tobjnam(otmp, 'return', state)} to `
-                        + `${s_suffix(mon_nam(magr, state))} `
-                        + `${mbodypart(magr, HAND)}!`,
-                        state,
-                    );
-                }
+                await message(
+                    `${Tobjnam(otmp, 'return', state)} to `
+                    + `${s_suffix(mon_nam(magr, state))} `
+                    + `${mbodypart(magr, HAND)}!`,
+                    state,
+                );
                 state._returnDoNotAnnoy = moves;
             }
             if (otmp) {
@@ -1317,37 +1300,34 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             if (!dmg) {
                 /* Lands at feet. */
                 if (canseemon(magr, state)) {
-                    if (typeof env.message === 'function') {
-                        await env.message(
-                            `${Tobjnam(otmp, 'return', state)} back to `
-                            + `${mon_nam(magr, state)}, landing at `
-                            + `${mhis(magr, { state })} ${makeplural(mbodypart(magr, FOOT))}.`,
-                            state,
-                        );
-                    }
+                    await message(
+                        `${Tobjnam(otmp, 'return', state)} back to `
+                        + `${mon_nam(magr, state)}, landing at `
+                        + `${mhis(magr, { state })} ${makeplural(mbodypart(magr, FOOT))}.`,
+                        state,
+                    );
                 } else if (!Deaf(state.u)) {
                     const heard = youHear(
                         `Something land near ${mon_nam(magr, state)}.`, state);
-                    if (heard && typeof env.message === 'function')
-                        await env.message(heard, state);
+                    if (heard)
+                        await message(heard, state);
                 }
             } else {
                 /* Hits thrower's arm. */
                 dmg += random.rnd(3);
                 if (canseemon(magr, state)) {
-                    if (typeof env.message === 'function')
-                        await env.message(
-                            `${Tobjnam(otmp, 'fly', state)} back toward `
-                            + `${mon_nam(magr, state)}, hitting `
-                            + `${mhis(magr, { state })} ${body_part(ARM, state.youmonst)}!`,
-                            state,
-                        );
+                    await message(
+                        `${Tobjnam(otmp, 'fly', state)} back toward `
+                        + `${mon_nam(magr, state)}, hitting `
+                        + `${mhis(magr, { state })} ${body_part(ARM, state.youmonst)}!`,
+                        state,
+                    );
                 } else if (!Deaf(state.u)) {
                     const heard = youHear(
                         `something hit ${mon_nam(magr, state)} with a thud!`,
                         state);
-                    if (heard && typeof env.message === 'function')
-                        await env.message(heard, state);
+                    if (heard)
+                        await message(heard, state);
                 }
                 hits_thrower_flag = true;
             }
@@ -1359,7 +1339,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             await env.temporaryDisplay(DISP_END, 0, state);
         const heard = youHear('a loud snap!', state);
         if (heard)
-            await (env.message ?? ttyPline)(heard, state, env);
+            await message(heard, state, env);
         notcaught = true;
     }
     if (otmp) {
@@ -1390,8 +1370,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 if (is_pool(x, y, state)
                     || (is_lava(x, y, state) && !is_flammable(otmp, state))) {
                     note_unported('sound.c Soundeffect');
-                    if (typeof env.message === 'function')
-                        await env.message(weight(otmp, env) > 9 ? 'Splash!' : 'Plop!', state);
+                    await message(weight(otmp, env) > 9 ? 'Splash!' : 'Plop!', state);
                 }
             }
             if (obj_sheds_light(otmp)) {
@@ -1460,20 +1439,20 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
+    const message = env.message ?? ttyPline;
 
     if (mtmp.mcan) {
         if (!Deaf(state.u) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
             if (canspotmon(mtmp, state)) {
-                if (typeof env.message === 'function')
-                    await env.message(
-                        `A dry rattle comes from ${s_suffix(mon_nam(mtmp, state))} throat.`,
-                        state,
-                    );
+                await message(
+                    `A dry rattle comes from ${s_suffix(mon_nam(mtmp, state))} throat.`,
+                    state,
+                );
             } else {
                 note_unported('sound.c Soundeffect');
                 const heard = youHear('a dry rattle nearby.', state);
-                if (heard && typeof env.message === 'function')
-                    await env.message(heard, state);
+                if (heard)
+                    await message(heard, state);
             }
         }
         return M_ATTK_MISS;
@@ -1497,15 +1476,11 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
         }
         if (!random.rn2(BOLT_LIM - distmin(mtmp.mx, mtmp.my, tx, ty))) {
             if (canseemon(mtmp, state)) {
-                if (typeof env.message === 'function') {
-                    await env.message(
-                        `${capitalizedMonsterName(mtmp, state)} spits venom!`,
-                        state,
-                        env,
-                    );
-                } else {
-                    note_unported('pline.c pline'); /* "%s spits venom!" */
-                }
+                await message(
+                    `${capitalizedMonsterName(mtmp, state)} spits venom!`,
+                    state,
+                    env,
+                );
             }
             if (!utarg) {
                 state.gm ??= {};
@@ -1550,6 +1525,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
+    const message = env.message ?? ttyPline;
 
     const typ = get_atkdam_type(mattk.adtyp, random);
     const utarget = (mtarg === state.youmonst);
@@ -1558,13 +1534,12 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
         if (mtmp.mcan) {
             if (!Deaf(state.u)) {
                 if (canseemon(mtmp, state)) {
-                    if (typeof env.message === 'function')
-                        await env.message(`${Monnam(mtmp, state, { displayRandom: env.displayRandom })} coughs.`, state);
+                    await message(`${Monnam(mtmp, state, { displayRandom: env.displayRandom })} coughs.`, state);
                 } else {
                     note_unported('sound.c Soundeffect');
                     const heard = youHear('a cough.', state);
-                    if (heard && typeof env.message === 'function')
-                        await env.message(heard, state);
+                    if (heard)
+                        await message(heard, state);
                 }
             }
             return M_ATTK_MISS;
@@ -1578,9 +1553,8 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
 
         if (!mtmp.mspec_used && random.rn2(3)) {
             if (BZ_VALID_ADTYP(typ)) {
-                if (canseemon(mtmp, state)
-                    && typeof env.message === 'function') {
-                    await env.message(
+                if (canseemon(mtmp, state)) {
+                    await message(
                         `${Monnam(mtmp, state, { displayRandom: env.displayRandom })} breathes `
                         + `${breathwep_name(typ, state, random)}!`,
                         state,
@@ -1773,20 +1747,16 @@ export async function thrwmu(monster, rawEnv = {}) {
 
         if (canseemon(monster, state)) {
             const name = xnameFresh(selected, state);
-            const verb = typeof env.swingVerb === 'function'
-                ? env.swingVerb(selected, rang <= 2, env)
-                : null;
-            if (verb && typeof env.message === 'function') {
-                await pline_mon(
-                    monster,
-                    `${Monnam(monster, state)} ${verb} `
-                    + `${obj_is_pname(selected, state) ? the(name, state) : an(name)}.`,
-                    state,
-                    env,
-                );
-            } else {
-                note_unported('mhitu.c mswings_verb/pline_mon');
-            }
+            // mhitu.js imports this file, so load mswings_verb() at the call.
+            const { mswings_verb } = await import('./mhitu.js');
+            const verb = mswings_verb(selected, rang <= 2, env);
+            await pline_mon(
+                monster,
+                `${Monnam(monster, state)} ${verb} `
+                + `${obj_is_pname(selected, state) ? the(name, state) : an(name)}.`,
+                state,
+                env,
+            );
         }
 
         let damage = dmgval(selected, state.youmonst, state, env);
@@ -1800,24 +1770,22 @@ export async function thrwmu(monster, rawEnv = {}) {
         if (bigmonst(state.youmonst.data)) hitv++;
         hitv += 8 + selected.spe;
         if (damage < 1) damage = 1;
-        if (typeof env.hitHero === 'function') {
-            await env.hitHero(
-                hitv,
-                Maybe_Half_Phys(damage, state.u),
-                selected,
-                env,
-            );
-        } else {
-            note_unported('mthrowu.c thitu');
-        }
+        await thitu(
+            hitv,
+            Maybe_Half_Phys(damage, state.u),
+            selected,
+            null,
+            state,
+            { ...env, fromMonster: true },
+        );
         // C's fatal losehp() enters really_done() and never reaches
         // stop_occupation(); JS death handling returns with gameover set.
         if (state.program_state?.gameover)
             return 0;
-        if (typeof env.stopOccupation === 'function')
-            await env.stopOccupation(state, env);
-        else
-            note_unported('allmain.c stop_occupation');
+        await stop_occupation(state, {
+            message: env.message ?? ttyPline,
+            random,
+        });
         return 0;
     }
 
@@ -1890,20 +1858,20 @@ export async function breamu(mtmp, mattk, rawEnv = {}) {
 // dart; each is guarded so that a future caller who reaches them gets a clear
 // refusal rather than silent misbehavior.
 //
-// env.message is the async message owner (ttyPline or equivalent).
-// env.losehp and env.exercise are cycle-breaking injections from the caller.
-// env.random provides rnd(); the caller must supply it.
+// env.message is the message owner (ttyPline unless the caller supplies
+// one). C calls hack.c losehp() and attrib.c exercise() directly; so does
+// this port, and no caller supplies them (scripts/missile-callee-defaults.test.mjs).
 export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const message = env.message;
-    if (typeof message !== 'function')
-        throw new TypeError('thitu requires a message owner');
-    const losehp = env.losehp;
-    if (typeof losehp !== 'function')
-        throw new TypeError('thitu requires losehp');
-    const exercise = env.exercise;
-    if (typeof exercise !== 'function')
-        throw new TypeError('thitu requires exercise');
+    const message = env.message ?? ttyPline;
+    // attrib.c exercise() of A_CON or A_STR ends in pickup.c encumber_msg().
+    // pickup.js is loaded at the call to avoid a static import cycle.
+    const exercise = async (index, increase) => {
+        const { encumber_msg } = await import('./pickup.js');
+        return attribExercise(index, increase, state, random, {
+            encumberMessage: (subject) => encumber_msg(subject, { message }),
+        });
+    };
 
     const named = name != null;
     let onm, knm;
@@ -1985,7 +1953,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
             && ((state.u.ulycn ?? -1) >= LOW_PM
                 || hates_silver(state.youmonst.data))) {
             await message('The silver sears your flesh!', state);
-            await exercise(A_CON, false, state);
+            await exercise(A_CON, false);
         }
         if (is_acid) {
             await message('It burns!', state);
@@ -1999,7 +1967,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
         // NORETURN path never reaches exercise(A_STR, FALSE).
         if (state.program_state?.gameover)
             return 1;
-        await exercise(A_STR, false, state);
+        await exercise(A_STR, false);
     }
     return 1;
 }

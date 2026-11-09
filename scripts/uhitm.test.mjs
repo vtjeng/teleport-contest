@@ -51,10 +51,9 @@ import { game } from '../js/gstate.js';
 import {
     You_can_move_again,
 } from '../js/hack.js';
-import { poisoned as applyPoison } from '../js/attrib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
-import { expectTerminated } from './expect-terminated.mjs';
+import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
@@ -1982,22 +1981,6 @@ test('mhitm_ad_drst preserves the poison guard and resistance arm',
                         },
                     },
                     message: async (text) => { lines.push(text); },
-                    poisoned: (reason, typ, pkiller, fatal, thrownWeapon,
-                        actionEnv) => applyPoison(
-                        reason,
-                        typ,
-                        pkiller,
-                        fatal,
-                        thrownWeapon,
-                        game,
-                        {
-                            random: actionEnv.random,
-                            message: async (text) => { lines.push(text); },
-                            losehp: async () => {},
-                            done: async () => {},
-                            encumberMessage: async () => {},
-                        },
-                    ),
                     unsupported: (reason) => { throw new Error(reason); },
                 },
             );
@@ -2505,9 +2488,12 @@ test('mhitm_ad_drst uses the monster female bit for the poison killer name',
         mx: game.u.ux + 1,
         my: game.u.uy,
     };
-    const killerNames = [];
     const bounds = [];
-    await mhitm_ad_drst(
+    // attrib.c poisoned() records its killer name only on a death: one hit
+    // point dies to the instant-kill arm's 6 + d(4,6).
+    prepareQuietDeath(game);
+    game.u.uhp = 1;
+    await expectTerminated(() => mhitm_ad_drst(
         attacker,
         { aatyp: AT_WEAP, adtyp: AD_DRST },
         game.youmonst,
@@ -2515,19 +2501,23 @@ test('mhitm_ad_drst uses the monster female bit for the poison killer name',
         game,
         {
             random: {
+                // rn2(10)=9 keeps magic cancellation from negating the hit;
+                // rn2(8)=0 poisons, and poisoned()'s rn2(30)=0 (fatal 30,
+                // not thrown) is its instant-kill arm.
                 rn2: (bound) => {
                     bounds.push(`rn2(${bound})`);
                     return bound === 10 ? 9 : 0;
                 },
+                d: (count, sides) => {
+                    bounds.push(`d(${count},${sides})`);
+                    return count;
+                },
             },
             message: async () => {},
-            poisoned: (_reason, _attribute, pkiller) => {
-                killerNames.push(pkiller);
-            },
         },
-    );
-    assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)']);
-    assert.deepEqual(killerNames, ['dwarf lady']);
+    ));
+    assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)', 'rn2(30)', 'd(4,6)']);
+    assert.equal(game.killer.name, 'dwarf lady');
 });
 
 test('mhitm_mgc_atk_negated does not message a merely sensed defender',

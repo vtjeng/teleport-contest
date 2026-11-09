@@ -185,7 +185,6 @@ import {
     spot_checks,
     u_locomotion,
 } from './hack.js';
-import { done } from './end.js';
 import {
     SCATTER_MAY_DESTROY,
     SCATTER_MAY_FRACTURE,
@@ -731,16 +730,6 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             {
                 random,
                 message: (text, target) => message(text, target ?? state),
-                losehp: (amount, killer, format) =>
-                    losehp(amount, killer, format, state),
-                exercise: (index, increase) => exercise(
-                    index,
-                    increase,
-                    state,
-                    random,
-                    { encumberMessage: (subject) =>
-                        encumber_msg(subject, { message }) },
-                ),
             },
         )) {
             if (otmp) obfree(otmp, null, { state });
@@ -945,11 +934,6 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             {
                 random,
                 message: (text, target) => message(text, target ?? state),
-                losehp: (n, knam, k_format) => losehp(n, knam, k_format, state),
-                exercise: (index, increase) => exercise(
-                    index, increase, state, random,
-                    { encumberMessage: (subject) => encumber_msg(subject) },
-                ),
             },
         )) {
             if (otmp) {
@@ -964,10 +948,6 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
                         {
                             random,
                             message: (text) => message(text, state),
-                            losehp: (n, knam, k_format) =>
-                                losehp(n, knam, k_format, state),
-                            done: (how) => done(how, state),
-                            encumberMessage: (s) => encumber_msg(s),
                         },
                     );
                 }
@@ -1627,10 +1607,6 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                         poisonDamage, false, state, {
                             ...env,
                             message: (text) => message(text, state),
-                            losehp: (amount, killer, format) =>
-                                losehp(amount, killer, format, state),
-                            done: (how) => done(how, state),
-                            encumberMessage: (subject) => encumber_msg(subject),
                         });
                     if (state.program_state?.gameover)
                         return Trap_Effect_Finished;
@@ -2804,11 +2780,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     Maybe_Half_Phys(dam, state.u),
                     singleobj, null, state, {
                         message,
-                        losehp: (d, r, k, s, hpEnv) => losehp(d, r, k, s, hpEnv),
-                        exercise: (a, b) => exercise(a, b, state, env.random, {
-                            encumberMessage: (subject) =>
-                                encumber_msg(subject, { message }),
-                        }),
                         random: env.random,
                     });
             // C's done() does not return: a fatal boulder ends the game

@@ -422,17 +422,6 @@ export async function selftouch(arg, state = game, env = {}) {
         await touchCorpse(state.uswapwep, uswapwepgone);
 }
 
-// Env object for poisoned() calls inside chest_trap and other trap functions.
-function poisonedEnv(state) {
-    return {
-        random: coreRandom,
-        message: (text) => ttyPline(text, state),
-        losehp: (n, knam, k_format) => losehp(n, knam, k_format, state),
-        done: (how) => done(how, state),
-        encumberMessage: (s) => encumber_msg(s),
-    };
-}
-
 function trapEnv(env = {}) {
     return {
         ...env,
@@ -3715,7 +3704,10 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             );
             if (rn2(3))
                 await poisoned('gas cloud', A_STR, 'cloud of poison gas', 15,
-                    false, state, poisonedEnv(state));
+                    false, state, {
+                        random: coreRandom,
+                        message: (text) => ttyPline(text, state),
+                    });
             else
                 await create_gas_cloud(obj.ox, obj.oy, 1, 8, { state });
             await exercise(A_CON, false, state, coreRandom, exerciseEnv);
@@ -3727,7 +3719,10 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 state,
             );
             await poisoned('needle', A_CON, 'poisoned needle', 10, false,
-                state, poisonedEnv(state));
+                state, {
+                    random: coreRandom,
+                    message: (text) => ttyPline(text, state),
+                });
             await exercise(A_CON, false, state, coreRandom, exerciseEnv);
             break;
         case 12: case 11: case 10: case 9:

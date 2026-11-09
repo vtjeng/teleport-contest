@@ -359,15 +359,7 @@ export async function boomhit(
                 await thitu(
                     10 + (obj.spe ?? 0), Maybe_Half_Phys(damage, state.u),
                     obj, 'boomerang', state,
-                    {
-                        message: ttyPline,
-                        losehp,
-                        random: coreRandom,
-                        exercise: (index, increase, subject) => exercise(
-                            index, increase, subject, coreRandom,
-                            { encumberMessage: encumber_msg },
-                        ),
-                    },
+                    { message: ttyPline, random: coreRandom },
                 );
                 // C's accepted death enters done() and does not return.
                 if (state.program_state?.gameover) return null;
@@ -4939,17 +4931,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
             await destroy_items(state.youmonst, AD_ELEC, orig_dam, env);
         break;
     case ZT_POISON_GAS:
-        await poisoned('blast', A_DEX, 'poisoned blast', 15, false, state, {
-            ...env,
-            encumberMessage,
-            losehp: (loss, name, prefix, subject) =>
-                losehp(loss, name, prefix, subject, {
-                    ...env, fromMonster: type < 0,
-                }),
-            done: (how, subject) => done(how, subject, {
-                fromMonster: type < 0,
-            }),
-        });
+        await poisoned('blast', A_DEX, 'poisoned blast', 15, false, state, env);
         break;
     case ZT_ACID: {
         const acid = hliquid('acid', {

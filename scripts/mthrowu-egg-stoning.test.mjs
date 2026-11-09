@@ -37,10 +37,20 @@ for (const { type, hit, label } of [
         add_to_minv(mon, missile, { state: game });
         assert.equal(select_rwep(mon, { state: game }), missile,
             'C weapon.c selects eggs and Kops select cream pies');
-        const calls = [];
+        const rnds = [];
+        const messages = [];
+        // thitu(8, 0) hits when u.uac + 8 exceeds its rnd(20): 1 hits and
+        // 20 misses this Wizard. Every other draw takes its highest value.
+        assert.equal(game.u.uac + 8 > 1 && game.u.uac + 8 <= 20, true);
         await m_throw(mon, x, y, -1, 0, 1, missile, {
             state: game,
-            random: { rn2: bound => bound - 1, rnd: () => 1 },
+            random: {
+                rn2: bound => bound - 1,
+                rnd: (bound) => {
+                    rnds.push(bound);
+                    return bound === 20 && !hit ? 20 : 1;
+                },
+            },
             canSeeMonster: () => false,
             canSeeSquare: () => false,
             monsterAt: () => null,
@@ -52,19 +62,17 @@ for (const { type, hit, label } of [
             extractObject: obj => obj_extract_self(obj, { state: game }),
             setMonsterNotWielded: (monster, obj) => setmnotwielded(monster, obj, { state: game }),
             damageValue: () => assert.fail('C egg uses thitu(8, 0), not weapon damage'),
-            hitHero: (hitv, damage) => {
-                calls.push([hitv, damage]);
-                return hit;
-            },
-            stopOccupation: async () => {},
             shouldMulch: () => false,
             floorEffects: () => false,
             placeObject: (obj, px, py) => place_object(obj, px, py, { state: game }),
             passiveObject: async () => {},
             stackObject: obj => stackobj(obj, { state: game }),
-            message: async () => {},
+            message: async (text) => { messages.push(text); },
         });
-        assert.deepEqual(calls, [[8, 0]]);
+        // One thitu() roll and no weapon damage roll; a cream pie that hits
+        // then blinds for rnd(25) turns.
+        assert.deepEqual(rnds, type === CREAM_PIE && hit ? [20, 25] : [20]);
+        assert.equal(messages.some(line => line.startsWith('You are hit')), hit);
         assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT,
             type === EGG && hit ? 5 : 0);
         assert.equal(find_delayed_killer(STONED, game)?.format,

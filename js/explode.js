@@ -54,7 +54,6 @@ import { isok } from './cmd_isok.js';
 import { exercise } from './attrib.js';
 import {
     curs_on_u,
-    losehp,
     nomul,
     nh_delay_output,
 } from './hack.js';
@@ -835,10 +834,10 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
 // when scatter() reads any other key.
 export const SCATTER_OPERATIONS = Object.freeze([
     'addToBill', 'breakObject', 'breakStatue', 'canSee', 'closedDoor',
-    'costlySpot', 'creditReport', 'damageValue', 'encumberMessage',
-    'exercise', 'extractObject', 'floorEffects', 'fractureRock', 'heroAt',
-    'heroInShop', 'hideUnder', 'hitHero', 'hitMonster', 'inRooms', 'isSink',
-    'losehp', 'maybeUnhideAt', 'monsterAt', 'newsym', 'nomul', 'objectAt',
+    'costlySpot', 'creditReport', 'damageValue', 'extractObject',
+    'floorEffects', 'fractureRock', 'heroAt', 'heroInShop', 'hideUnder',
+    'hitHero', 'hitMonster', 'inRooms', 'isSink', 'maybeUnhideAt',
+    'monsterAt', 'newsym', 'nomul', 'objectAt',
     'objectMaterial', 'placeObject', 'shopKeeper', 'shopOrigin', 'shopkeeper',
     'soundEffect', 'splitObject', 'stackObject', 'stopOccupation',
     'terrainAt', 'unpunish',
@@ -985,20 +984,7 @@ export async function scatter(
             object,
             null,
             state,
-            {
-                ...env,
-                state,
-                random,
-                message,
-                losehp: ops.losehp ?? losehp,
-                exercise: ops.exercise ?? ((index, increase, subject) =>
-                    exercise(index, increase, subject, random, {
-                        encumberMessage: ops.encumberMessage
-                            ?? ((hero) => encumber_msg(hero, {
-                                message,
-                            })),
-                    })),
-            },
+            { ...env, state, random, message },
         ));
     const stopOccupation = ops.stopOccupation
         ?? (async (subject, operationEnv) => {

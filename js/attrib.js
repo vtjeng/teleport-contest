@@ -1595,18 +1595,32 @@ export function adjuhploss(loss, olduhp, state = game) {
 //   i > 5: HP damage only, more likely but less severe for thrown weapons.
 //   else: attribute loss only.
 //
-// Cycle avoidance: losehp() lives in hack.js and done() in end.js, both of
-// which import from this file. To avoid a circular dependency, both are
-// injected through env.losehp and env.done.
+// C calls hack.c losehp(), end.c done() and pickup.c encumber_msg() directly,
+// and so does this port; no caller supplies them
+// (scripts/missile-callee-defaults.test.mjs). hack.js, end.js and pickup.js
+// import this file, so they are loaded at the call. `env.message` is the
+// message owner, ttyPline unless the caller supplies one.
 export async function poisoned(
     reason, typ, pkiller, fatal, thrown_weapon,
-    state = game, env = {},
+    state = game, rawEnv = {},
 ) {
-    const random = env.random ?? coreRandom;
-    const message = requiredOperation(env, 'message');
-    const losehp = requiredOperation(env, 'losehp');
-    const done = requiredOperation(env, 'done');
-    const encumberMessage = requiredOperation(env, 'encumberMessage');
+    const random = rawEnv.random ?? coreRandom;
+    const message = rawEnv.message ?? ttyPline;
+    const losehp = async (n, knam, kFormat, subject) => {
+        const { losehp: hackLosehp } = await import('./hack.js');
+        return hackLosehp(n, knam, kFormat, subject, { message });
+    };
+    const done = async (how, subject) => {
+        const { done: endDone } = await import('./end.js');
+        return endDone(how, subject);
+    };
+    const encumberMessage = async (subject) => {
+        const { encumber_msg } = await import('./pickup.js');
+        return encumber_msg(subject, { message });
+    };
+    // adjattrib() and poisontell() take the message owner, and adjattrib()'s
+    // Strength and Constitution arm ends in encumber_msg().
+    const env = { ...rawEnv, message, encumberMessage };
     const blast = reason === 'blast';
 
     // Inform the player about being poisoned unless the reason already says

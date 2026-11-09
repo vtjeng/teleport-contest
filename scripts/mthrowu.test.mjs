@@ -36,12 +36,11 @@ import {
     W_NONDIGGABLE,
     W_WEP,
 } from '../js/const.js';
-import { acurr, exercise } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { ART_MAGICBANE, spec_abon } from '../js/artifacts.js';
 import { flooreffects } from '../js/do.js';
 import { omon_adj, should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
-import { losehp } from '../js/hack.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
@@ -87,7 +86,7 @@ import {
 import {
     blocking_terrain, breamm, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
-    drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, spitmm, thitu, thrwmu,
+    drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, spitmm, thrwmu,
 } from '../js/mthrowu.js';
 import { canseemon, canspotmon } from '../js/display.js';
 import { potionhit } from '../js/potion.js';
@@ -95,6 +94,7 @@ import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
 import { dmgval, select_rwep, setmnotwielded } from '../js/weapon.js';
 import { coreRandom } from '../js/rng.js';
+import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 
 const MTHROWU_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
@@ -138,6 +138,14 @@ async function hero() {
         seed: 7710044, datetime: DATETIME, nethackrc: RC, moves: '',
     });
     return game;
+}
+
+// An occupation for stop_occupation() to interrupt, so a test can see the
+// call: allmain.c stop_occupation() prints "You stop searching." and clears it.
+function startSearching(state) {
+    state.go ??= {};
+    state.go.occupation = () => 1;
+    state.go.occtxt = 'searching';
 }
 
 test('hit_bars consumes hero_breaks before deciding the projectile survives',
@@ -828,10 +836,10 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         state.u.uy0 = state.u.uy;
         state.gt ??= {};
         const hpBefore = state.u.uhp;
+        startSearching(state);
         const messages = [];
         const draws = [];
         const temporaryDisplay = [];
-        let stoppedOccupation = 0;
         let endedMulti = 0;
         const catchBound = 100 - acurr(state, A_DEX);
         const random = {
@@ -873,27 +881,6 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
                 setmnotwielded(monster, obj, { state }),
             damageValue: (obj, target) =>
                 dmgval(obj, target, state, { random }),
-            hitHero: (hitv, damage, obj) => thitu(
-                hitv,
-                damage,
-                obj,
-                null,
-                state,
-                {
-                    random,
-                    message: (text) => { messages.push(text); },
-                    losehp,
-                    exercise: (index, increase, exerciseState) => exercise(
-                        index,
-                        increase,
-                        exerciseState,
-                        random,
-                        { encumberMessage: async () => {} },
-                    ),
-                    unsupported: (reason) => assert.fail(reason),
-                },
-            ),
-            stopOccupation: async () => { stoppedOccupation++; },
             shouldMulch: (obj) => should_mulch_missile(obj, state, {
                 unsupported: (reason) => assert.fail(reason),
             }),
@@ -923,7 +910,9 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         assert.deepEqual(messages, [
             'The giant rat throws a crude dagger!',
             'You are hit by a crude dagger.',
+            'You stop searching.',
         ]);
+        assert.equal(state.go.occupation, null);
         assert.equal(state.u.uhp, hpBefore - 2);
         assert.equal(subject.mw, null);
         assert.equal(subject.minvent, null);
@@ -931,7 +920,6 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         assert.equal(dagger.ocarry, null);
         assert.equal(state.level.objects[state.u.ux][y], dagger);
         assert.equal(state.gt.thrownobj, null);
-        assert.equal(stoppedOccupation, 1);
         assert.equal(endedMulti, 1);
         assert.deepEqual(state.m_shot, { s: false, o: 0, n: 0, i: 0 });
         assert.deepEqual(draws, [
@@ -990,27 +978,6 @@ test('m_throw sends blinding venom through thitu and deletes it on a miss',
             damageValue: () => assert.fail(
                 'BLINDING_VENOM uses thitu(8, 0), not weapon damage',
             ),
-            hitHero: (hitv, damage, obj) => thitu(
-                hitv,
-                damage,
-                obj,
-                null,
-                state,
-                {
-                    random,
-                    message: (text) => { messages.push(text); },
-                    losehp,
-                    exercise: (index, increase, exerciseState) => exercise(
-                        index,
-                        increase,
-                        exerciseState,
-                        random,
-                        { encumberMessage: async () => {} },
-                    ),
-                    unsupported: (reason) => assert.fail(reason),
-                },
-            ),
-            stopOccupation: async () => {},
             shouldMulch: () => assert.fail('venom is deleted before mulching'),
             floorEffects: () => assert.fail('venom is never placed on floor'),
             placeObject: () => assert.fail('venom is never placed on floor'),
@@ -1056,7 +1023,7 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         const messages = [];
         const draws = [];
         const temporaryDisplayCalls = [];
-        let stoppedOccupation = 0;
+        startSearching(state);
         const catchBound = 100 - acurr(state, A_DEX);
         const random = {
             rn2: (bound) => {
@@ -1093,27 +1060,6 @@ test('m_throw miss lets the missile continue flying and drop at range end',
                 setmnotwielded(s, obj, { state }),
             damageValue: (obj, target) =>
                 dmgval(obj, target, state, { random }),
-            hitHero: (hitv, damage, obj) => thitu(
-                hitv,
-                damage,
-                obj,
-                null,
-                state,
-                {
-                    random,
-                    message: (text) => { messages.push(text); },
-                    losehp,
-                    exercise: (index, increase, exerciseState) => exercise(
-                        index,
-                        increase,
-                        exerciseState,
-                        random,
-                        { encumberMessage: async () => {} },
-                    ),
-                    unsupported: (reason) => assert.fail(reason),
-                },
-            ),
-            stopOccupation: async () => { stoppedOccupation++; },
             shouldMulch: (obj) => should_mulch_missile(obj, state, {
                 unsupported: (reason) => assert.fail(reason),
             }),
@@ -1126,6 +1072,7 @@ test('m_throw miss lets the missile continue flying and drop at range end',
             ),
             placeObject: (obj, x, atY) => place_object(obj, x, atY, { state }),
             passiveObject: () => {},
+            message: (text) => { messages.push(text); },
             stackObject: (obj) => stackobj(obj, {
                 state,
                 hooks: { extractExternalObject: remove_object },
@@ -1143,7 +1090,9 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         // Wait -- range is decremented by the while(range-- > 0) check.
         // Let's verify by inspecting the dagger's final position.
         assert.equal(dagger.where, OBJ_FLOOR);
-        assert.equal(stoppedOccupation, 1);
+        // m_throw() calls stop_occupation() after a miss as after a hit.
+        assert.equal(messages.at(-1), 'You stop searching.');
+        assert.equal(state.go.occupation, null);
         assert.equal(state.gt.thrownobj, null);
         assert.deepEqual(draws, [
             // Three intermediate squares each spend forcehit rn2(5).
@@ -1176,24 +1125,22 @@ test('m_throw stops after a lethal hit has settled the transit object',
         dagger.owornmask = W_WEP;
         subject.mw = dagger;
         clearRow(state, state.u.ux, subject.mx, y);
-        state.program_state.gameover = 0;
-        let stopOccupationCalls = 0;
+        prepareQuietDeath(state);
+        // One hit point and one point of damage: thitu()'s losehp() kills.
+        state.u.uhp = 1;
+        startSearching(state);
+        const notReached = (what) => () => assert.fail(`lethal hit must skip ${what}`);
 
-        const result = await m_throw(
-            subject,
-            subject.mx,
-            y,
-            -1,
-            0,
-            2,
-            dagger,
-            {
+        // C's lethal losehp() enters done() and never returns to m_throw().
+        await expectTerminated(() => m_throw(subject, subject.mx, y, -1, 0, 2,
+            dagger, {
                 state,
                 random: {
                     // Nonzero catches and a non-forced intermediate flight
-                    // keep the ordinary lethal-hit path selected.
+                    // keep the ordinary hit path selected; rnd(20)=1 hits.
                     rn2: () => 1,
-                    rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+                    rnd: (bound) => (bound === 20
+                        ? 1 : assert.fail(`unexpected rnd(${bound})`)),
                 },
                 canSeeMonster: () => true,
                 canSeeSquare: () => false,
@@ -1207,34 +1154,23 @@ test('m_throw stops after a lethal hit has settled the transit object',
                 setMonsterNotWielded: (monster, obj) =>
                     setmnotwielded(monster, obj, { state }),
                 damageValue: () => 1,
-                hitHero: async (_hitv, _damage, obj) => {
-                    // done_object_cleanup() has already placed this object
-                    // when C's lethal losehp() returns control to no caller.
-                    state.program_state.gameover = 1;
-                    place_object(obj, state.u.ux, state.u.uy, { state });
-                    stackobj(obj, {
-                        state,
-                        hooks: { extractExternalObject: remove_object },
-                    });
-                    state.gt.thrownobj = null;
-                    return true;
-                },
-                stopOccupation: async () => { stopOccupationCalls++; },
-                shouldMulch: () => assert.fail('lethal hit must skip drop_throw'),
-                floorEffects: () => assert.fail('lethal hit must skip drop_throw'),
-                placeObject: () => assert.fail('lethal hit must skip drop_throw'),
-                passiveObject: () => assert.fail('lethal hit must skip drop_throw'),
-                stackObject: () => assert.fail('lethal hit must skip drop_throw'),
+                shouldMulch: notReached('drop_throw'),
+                floorEffects: notReached('drop_throw'),
+                placeObject: notReached('drop_throw'),
+                passiveObject: notReached('drop_throw'),
+                stackObject: notReached('drop_throw'),
+                message: () => {},
                 unsupported: (reason) => assert.fail(reason),
-            },
-        );
+            }));
 
-        assert.equal(result, 0);
-        assert.equal(state.program_state.gameover, 1);
-        assert.equal(stopOccupationCalls, 0);
+        assert.equal(Boolean(state.program_state.gameover), true);
+        assert.equal(state.killer.name, killer_xname(dagger, state));
+        // done_object_cleanup() put the transit object on the hero's square
+        // for bones; no stop_occupation() ran after the death.
         assert.equal(dagger.where, OBJ_FLOOR);
         assert.equal(state.level.objects[state.u.ux][y], dagger);
         assert.equal(state.gt.thrownobj, null);
+        assert.equal(state.go.occtxt, 'searching');
     });
 
 test('m_throw stops after a fatal poison coating on a missile', async () => {
@@ -1257,11 +1193,27 @@ test('m_throw stops after a fatal poison coating on a missile', async () => {
     bow.owornmask = W_WEP;
     subject.mw = bow;
     clearRow(state, state.u.ux, subject.mx, y);
-    let poisonCalls = 0;
-    let stopCalls = 0;
-    await m_throw(subject, subject.mx, y, -1, 0, 2, arrow, {
+    prepareQuietDeath(state);
+    // The arrow's one point of damage leaves 4; poison's 6 + d(4,6) = 10
+    // (each d6 rolls 1) is deadly.
+    state.u.uhp = 5;
+    startSearching(state);
+    const messages = [];
+    const notReached = () => assert.fail('fatal poison cannot settle missile');
+    await expectTerminated(() => m_throw(subject, subject.mx, y, -1, 0, 2, arrow, {
         state,
-        random: { rn2: () => 1 },
+        random: {
+            // rn2(30) = 0 is attrib.c poisoned()'s instant-kill arm for a
+            // thrown weapon with fatal 10; every other rn2 (flight, catch,
+            // exercise) returns 1.
+            rn2: (bound) => (bound === 30 ? 0 : 1),
+            // rnd(20)=1 hits the hero.
+            rnd: (bound) => (bound === 20 ? 1 : assert.fail(`unexpected rnd(${bound})`)),
+            d: (count, sides) => {
+                assert.deepEqual([count, sides], [4, 6]);
+                return 4;
+            },
+        },
         canSeeMonster: () => true,
         canSeeSquare: () => false,
         monsterAt: () => null,
@@ -1273,20 +1225,17 @@ test('m_throw stops after a fatal poison coating on a missile', async () => {
         extractObject: (obj) => obj_extract_self(obj, { state }),
         setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
         damageValue: () => 1,
-        hitHero: () => true,
-        poisoned: () => {
-            poisonCalls++;
-            state.program_state.gameover = true;
-        },
-        stopOccupation: () => { stopCalls++; },
-        shouldMulch: () => assert.fail('fatal poison cannot settle missile'),
-        floorEffects: () => assert.fail('fatal poison cannot settle missile'),
-        placeObject: () => assert.fail('fatal poison cannot settle missile'),
-        passiveObject: () => assert.fail('fatal poison cannot settle missile'),
-        stackObject: () => assert.fail('fatal poison cannot settle missile'),
-    });
-    assert.equal(poisonCalls, 1);
-    assert.equal(stopCalls, 0);
+        shouldMulch: notReached,
+        floorEffects: notReached,
+        placeObject: notReached,
+        passiveObject: notReached,
+        stackObject: notReached,
+        message: (text) => { messages.push(text); },
+    }));
+    assert.equal(messages.includes('The poison was deadly...'), true);
+    assert.equal(Boolean(state.program_state.gameover), true);
+    // No stop_occupation() ran after the death.
+    assert.equal(state.go.occtxt, 'searching');
 });
 
 // C ref: mthrowu.c m_throw()'s POTION_CLASS arm (698-701), which hands the
@@ -1343,8 +1292,6 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
             setMonsterNotWielded: (monster, obj) =>
                 setmnotwielded(monster, obj, { state }),
             damageValue: () => assert.fail('a potion rolls no weapon damage'),
-            hitHero: () => assert.fail('a potion does not reach thitu()'),
-            stopOccupation: async () => {},
             shouldMulch: () => assert.fail('a potion never mulches'),
             floorEffects: () => assert.fail('a potion never lands'),
             placeObject: () => assert.fail('a potion is used up, not placed'),
@@ -1406,6 +1353,7 @@ test('a unicorn catches and rejects worthless glass thrown by a monster', async 
     clearRow(state, state.u.ux, subject.mx, y);
     const messages = [];
 
+    startSearching(state);
     await m_throw(subject, subject.mx, y, -1, 0, 2, glass, {
         state,
         random: { rn2: () => 1 },
@@ -1420,8 +1368,6 @@ test('a unicorn catches and rejects worthless glass thrown by a monster', async 
         extractObject: (obj) => obj_extract_self(obj, { state }),
         setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
         damageValue: () => assert.fail('a caught gem does not roll damage'),
-        hitHero: () => assert.fail('a caught gem does not reach thitu'),
-        stopOccupation: () => assert.fail('a caught gem does not stop occupation'),
         shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
         floorEffects: () => false,
         placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
@@ -1442,6 +1388,7 @@ test('a unicorn catches and rejects worthless glass thrown by a monster', async 
     ]);
     assert.equal(glass.where, OBJ_FLOOR);
     assert.equal(state.objects[WORTHLESS_WHITE_GLASS].oc_name_known, 1);
+    assert.notEqual(state.go.occupation, null, 'no stop_occupation()');
 });
 
 test('a unicorn accepts a real gem thrown by a monster', async () => {
@@ -1461,6 +1408,7 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
     clearRow(state, state.u.ux, subject.mx, y);
     const messages = [];
 
+    startSearching(state);
     await m_throw(subject, subject.mx, y, -1, 0, 2, gem, {
         state,
         random: { rn2: () => 1 },
@@ -1475,8 +1423,6 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
         extractObject: (obj) => obj_extract_self(obj, { state }),
         setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
         damageValue: () => assert.fail('a caught gem does not roll damage'),
-        hitHero: () => assert.fail('a caught gem does not reach thitu'),
-        stopOccupation: () => assert.fail('a caught gem does not stop occupation'),
         shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
         floorEffects: () => false,
         placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
@@ -1494,6 +1440,7 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
         "You accept the giant rat's gift in the spirit in which it was intended.");
     assert.match(messages[1], /^You catch: /u);
     assert.equal(gem.where, OBJ_INVENT);
+    assert.notEqual(state.go.occupation, null, 'no stop_occupation()');
 });
 
 test('a failed tethered return closes its display before the snap', async () => {
@@ -1533,8 +1480,6 @@ test('a failed tethered return closes its display before the snap', async () => 
             extractObject: (obj) => obj_extract_self(obj, { state }),
             setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
             damageValue: () => assert.fail('the aklys does not strike a target'),
-            hitHero: () => assert.fail('the aklys does not reach the hero'),
-            stopOccupation: () => {},
             shouldMulch: () => false,
             floorEffects: () => false,
             placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
@@ -1599,8 +1544,6 @@ test('unseen fumbled returns respect acoustics', async () => {
             extractObject: (obj) => obj_extract_self(obj, { state }),
             setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
             damageValue: () => assert.fail('the aklys does not strike a target'),
-            hitHero: () => assert.fail('the aklys does not reach the hero'),
-            stopOccupation: () => {},
             shouldMulch: () => false,
             floorEffects: () => false,
             placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
@@ -1713,6 +1656,7 @@ test('m_throw stops flight display after a fatal hurled potion', async () => {
     clearRow(state, state.u.ux, subject.mx, y);
     const display = [];
     let displaysAtDeath;
+    startSearching(state);
     const result = await m_throw(subject, subject.mx, y, -1, 0, 3, potion, {
         state,
         random: { rn2: () => 1 },
@@ -1728,8 +1672,6 @@ test('m_throw stops flight display after a fatal hurled potion', async () => {
         extractObject: (obj) => obj_extract_self(obj, { state }),
         setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
         damageValue: () => assert.fail('potion cannot roll weapon damage'),
-        hitHero: () => assert.fail('potion cannot reach thitu'),
-        stopOccupation: () => assert.fail('potion cannot stop occupation here'),
         shouldMulch: () => assert.fail('fatal potion cannot land'),
         floorEffects: () => assert.fail('fatal potion cannot land'),
         placeObject: () => assert.fail('fatal potion cannot land'),
@@ -1744,6 +1686,7 @@ test('m_throw stops flight display after a fatal hurled potion', async () => {
     assert.equal(result, 0);
     assert.ok(displaysAtDeath > 0);
     assert.equal(display.length, displaysAtDeath);
+    assert.notEqual(state.go.occupation, null, 'no stop_occupation()');
 });
 
 test('ordinary dagger naming and settlement helpers take their no-effect arms',
@@ -2360,6 +2303,7 @@ test('m_throw performs the source-ordered cursed missile misfire', async () => {
     const draws = [];
     let landed;
 
+    startSearching(state);
     await m_throw(subject, subject.mx, y, -1, 0, 1, dagger, {
         state,
         random: {
@@ -2383,8 +2327,6 @@ test('m_throw performs the source-ordered cursed missile misfire', async () => {
         extractObject: (obj) => obj_extract_self(obj, { state }),
         setMonsterNotWielded: () => {},
         damageValue: () => assert.fail('misfire path does not hit hero'),
-        hitHero: () => assert.fail('misfire path does not hit hero'),
-        stopOccupation: () => assert.fail('misfire path does not hit hero'),
         shouldMulch: () => false,
         floorEffects: () => false,
         placeObject: (_obj, x, atY) => { landed = [x, atY]; },
@@ -2396,6 +2338,7 @@ test('m_throw performs the source-ordered cursed missile misfire', async () => {
     assert.deepEqual(draws, [7, 3, 3, 5]);
     assert.deepEqual(landed, [subject.mx - 1, y]);
     assert.equal(state.gt.thrownobj, null);
+    assert.notEqual(state.go.occupation, null, 'no stop_occupation()');
 });
 
 test('thrwmu applies a wielded polearm without a line-up refusal', async () => {
@@ -2416,23 +2359,38 @@ test('thrwmu applies a wielded polearm without a line-up refusal', async () => {
     subject.weapon_check = NO_WEAPON_WANTED;
     clearRow(state, state.u.ux, subject.mx, y);
     setCouldSee(state, subject.mx, y, true);
-    let hit;
-    let stopped = false;
+    startSearching(state);
+    const hpBefore = state.u.uhp;
     const messages = [];
+    const draws = [];
 
     assert.equal(await thrwmu(subject, {
         state,
-        random: { rn2: () => assert.fail('polearm path should not roll rn2'), rnd: () => 1 },
+        random: {
+            // A halberd pierces and slashes, so mhitu.c mswings_verb() draws
+            // rn2(2); 0 picks the thrust. thitu()'s exercise(A_STR, FALSE)
+            // draws rn2(2) as well. No line-up check draws anything.
+            rn2: (bound) => {
+                draws.push(`rn2(${bound})`);
+                return bound === 2 ? 0 : assert.fail(`unexpected rn2(${bound})`);
+            },
+            // rnd() is the halberd's damage and thitu()'s rnd(20)=1 hit.
+            rnd: (bound) => {
+                draws.push(`rnd(${bound})`);
+                return 1;
+            },
+        },
         message: (text) => { messages.push(text); },
-        swingVerb: () => 'thrusts',
-        hitHero: (hitv, damage, obj) => { hit = [hitv, damage, obj]; },
-        stopOccupation: () => { stopped = true; },
     }), 0);
-    assert.equal(hit[2], polearm);
-    assert.equal(hit[0] > 0, true);
-    assert.equal(hit[1] > 0, true);
-    assert.equal(stopped, true);
-    assert.deepEqual(messages, ['The stone giant thrusts an angled poleaxe.']);
+    assert.deepEqual(messages, [
+        'The stone giant thrusts an angled poleaxe.',
+        'You are hit by an angled poleaxe.',
+        'You stop searching.',
+    ]);
+    assert.equal(state.u.uhp < hpBefore, true);
+    assert.equal(draws[0], 'rn2(2)');
+    assert.equal(draws.includes('rnd(20)'), true);
+    assert.equal(state.go.occupation, null);
 });
 
 test('a fatal polearm hit does not stop an occupation after game over', async () => {
@@ -2455,17 +2413,22 @@ test('a fatal polearm hit does not stop an occupation after game over', async ()
     subject.weapon_check = NO_WEAPON_WANTED;
     clearRow(state, state.u.ux, subject.mx, y);
     setCouldSee(state, subject.mx, y, true);
+    prepareQuietDeath(state);
+    state.u.uhp = 1;
+    startSearching(state);
 
-    let stopped = false;
-    await thrwmu(subject, {
+    await expectTerminated(() => thrwmu(subject, {
         state,
-        random: { rn2: () => assert.fail('unexpected rn2'), rnd: () => 1 },
+        // rn2(2)=0 is mswings_verb()'s thrust; rnd() = 1 is one point of
+        // damage and a hit.
+        random: {
+            rn2: (bound) => (bound === 2 ? 0 : assert.fail(`unexpected rn2(${bound})`)),
+            rnd: () => 1,
+        },
         message: () => {},
-        swingVerb: () => 'thrusts',
-        hitHero: () => { state.program_state.gameover = true; },
-        stopOccupation: () => { stopped = true; },
-    });
-    assert.equal(stopped, false);
+    }));
+    assert.equal(Boolean(state.program_state.gameover), true);
+    assert.equal(state.go.occtxt, 'searching');
 });
 
 test('breathwep_name follows fixed and hallucinated source tables', async () => {

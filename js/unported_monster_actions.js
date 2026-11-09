@@ -34,13 +34,11 @@ import {
     is_ice,
     is_lava,
 } from './dbridge.js';
-import { exercise, poisoned } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
 // import cycle. `stop_occupation` is a hoisted function declaration, which an
 // ES module cycle initializes before either module body runs; nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { done } from './end.js';
 import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
@@ -70,10 +68,9 @@ import { mattackm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
     mdamageu,
-    mswings_verb,
 } from './mhitu.js';
 import { buzzmu, castmu } from './mcastu.js';
-import { m_throw, thitu, thrwmu } from './mthrowu.js';
+import { m_throw, thrwmu } from './mthrowu.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 import {
@@ -552,41 +549,6 @@ function monsterMissileEnv(monster, env) {
             verb,
             actionEnv,
         ),
-        hitHero: (hitv, damage, obj, actionEnv) => {
-            return thitu(hitv, damage, obj, null, actionEnv.state, {
-                ...actionEnv,
-                exercise: (index, increase, state) => exercise(
-                    index,
-                    increase,
-                    state,
-                    actionEnv.random,
-                    { encumberMessage: encumber_msg },
-                ),
-                losehp,
-                fromMonster: true,
-            });
-        },
-        poisoned: (reason, typ, pkiller, fatal, thrownWeapon, actionEnv) =>
-            poisoned(
-                reason,
-                typ,
-                pkiller,
-                fatal,
-                thrownWeapon,
-                actionEnv.state,
-                {
-                    ...actionEnv,
-                    message: actionEnv.message ?? ttyPline,
-                    // attrib.c poisoned() reaches hack.c losehp() for its
-                    // ordinary HP-loss arm.
-                    losehp: async (n, knam, kFormat) => losehp(
-                        n, knam, kFormat, actionEnv.state,
-                        { message: actionEnv.message },
-                    ),
-                    done: (how) => done(how, actionEnv.state),
-                    encumberMessage: encumber_msg,
-                },
-            ),
         message: ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
         monsterName: (subject) => capitalizedMonsterName(
@@ -628,13 +590,7 @@ function monsterMissileEnv(monster, env) {
                 extractExternalObject: remove_object,
             },
         }),
-        stopOccupation: (state) => stop_occupation(state, {
-            message: ttyPline,
-            statusRefresh: () => bot(),
-            random: env.random,
-        }),
         temporaryDisplay: tmp_at,
-        swingVerb: (obj, bash, actionEnv) => mswings_verb(obj, bash, actionEnv),
         throwMissile: m_throw,
     };
 }

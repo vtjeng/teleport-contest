@@ -12,6 +12,7 @@
 // assertion here fails.
 import assert from 'node:assert/strict';
 
+import { DISCLOSE_NO_WITHOUT_PROMPT } from '../js/const.js';
 import {
     raceTermination,
     resetTermination,
@@ -28,4 +29,18 @@ export async function expectTerminated(fn, message = 'the call ended the game') 
     } finally {
         resetTermination();
     }
+}
+
+// Lets end.c done() finish a death in a started game without prompting, as
+// scripts/hero-death.test.mjs prepareFinalization() does: no window, no
+// disclosure questions, no inventory and no bones. The spaces answer the
+// --More-- that follows hack.c losehp()'s urgent "You die..." and any line
+// held before it.
+export function prepareQuietDeath(state) {
+    state.iflags.window_inited = false;
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    state.invent = null;
+    state.flags.bones = false;
+    state.moves = Math.max(state.moves, 2);
+    for (let i = 0; i < 10; ++i) state.nhDisplay.pushKey(' '.charCodeAt(0));
 }

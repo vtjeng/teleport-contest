@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    A_STR,
     BEAR_TRAP,
     BLINDED,
     HALLUC,
@@ -211,7 +210,7 @@ import {
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
-import { expectTerminated } from './expect-terminated.mjs';
+import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 import { coreRandom } from '../js/rng.js';
 
 const UHITM_C = readFileSync(
@@ -563,6 +562,11 @@ function meleeEnv(state, rolls, extra = {}) {
                 rnd: (bound) => {
                     bounds.push(`rnd(${bound})`);
                     return next.length ? next.shift() : 1;
+                },
+                // attrib.c poisoned()'s HP arm; the lowest value.
+                rn1: (x, y) => {
+                    bounds.push(`rn1(${x},${y})`);
+                    return y;
                 },
             },
             unsupported: (reason) => {
@@ -1495,19 +1499,19 @@ test('mattacku widens the to-hit die for each later attack', async () => {
     // first attack could not lose to still loses on the second. The ant's
     // AT_STNG does AD_DRST, so the landed sting stops on its own damage type
     // rather than on the AD_PHYS one its bite would have used.
-    const poisonCalls = [];
     const widened = meleeEnv(state, [20, 18], {
         // mhitm_ad_drst() first spends the magic-cancellation roll, then
         // spends the 1/8 poison-effect roll. Keep the former from negating
-        // the sting and capture the source's discarded-result poison call.
-        rn2: (bound) => bound === 8 ? 0 : 9,
-        poisoned: async (...args) => poisonCalls.push(args),
+        // the sting. attrib.c poisoned() then draws rn2(30), its fatal 30
+        // with no thrown-weapon bonus; 1 picks the attribute-loss arm, whose
+        // d(2,2) Strength loss is the "weaker" line.
+        rn2: (bound) => (bound === 8 ? 0 : bound === 30 ? 1 : 9),
     });
     assert.equal(await mattacku(ant, widened.env), false);
-    assert.equal(poisonCalls.length, 1);
-    assert.equal(poisonCalls[0][1], 0); // A_STR
-    assert.equal(poisonCalls[0][3], 30);
-    assert.equal(poisonCalls[0][4], false);
+    assert.equal(widened.bounds.includes('rn2(30)'), true);
+    assert.equal(widened.bounds.includes('d(2,2)'), true);
+    assert.equal(widened.lines.includes("The soldier ant's sting was poisoned!"), true);
+    assert.equal(widened.lines.at(-1), 'You feel weaker!');
 });
 
 test('mattacku spends a draw on a negative armor class before the roll',
@@ -1821,27 +1825,23 @@ test('mattacku carries the weapon attack roll into poison handling',
     goblin.minvent = dagger;
     goblin.mw = dagger;
     goblin.weapon_check = NO_WEAPON_WANTED;
-    const poisonCalls = [];
 
     // rnd(20)=5 both lands and meets the poison threshold. dmgval() then
-    // consumes rnd(4)=1 before the two source knockback gates.
-    const poisonedHit = meleeEnv(state, [5, 1], {
-        poisoned: async (...args) => poisonCalls.push(args),
-    });
+    // consumes rnd(4)=1. attrib.c poisoned() draws rn2(10), its fatal 10 with
+    // no thrown-weapon bonus; 1 picks the attribute-loss arm, whose d(2,2)
+    // Strength loss is the "weaker" line. The two source knockback gates
+    // follow.
+    const poisonedHit = meleeEnv(state, [5, 1]);
     assert.equal(await mattacku(goblin, poisonedHit.env), false);
     assert.deepEqual(poisonedHit.bounds, [
-        'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(3)', 'rn2(6)',
+        'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(10)', 'd(2,2)', 'rn2(3)', 'rn2(6)',
     ]);
     assert.deepEqual(poisonedHit.lines, [
         'The goblin thrusts his dagger.',
         'The goblin hits!',
+        "The goblin's weapon was poisoned!",
+        'You feel weaker!',
     ]);
-    assert.equal(poisonCalls.length, 1);
-    assert.equal(poisonCalls[0][0], "The goblin's weapon");
-    assert.equal(poisonCalls[0][1], A_STR);
-    assert.equal(poisonCalls[0][2], 'goblin');
-    assert.equal(poisonCalls[0][3], 10);
-    assert.equal(poisonCalls[0][4], false);
 });
 
 test('mattacku stops after poisoned weapon handling ends the game',
@@ -1858,20 +1858,22 @@ test('mattacku stops after poisoned weapon handling ends the game',
     goblin.minvent = dagger;
     goblin.mw = dagger;
     goblin.weapon_check = NO_WEAPON_WANTED;
-    let poisonCalls = 0;
+    prepareQuietDeath(state);
+    state.u.uhp = 5;
+    // rn2(10) = 0 is attrib.c poisoned()'s instant-kill arm; its loss of
+    // 6 + d(4,6) = 10 (meleeEnv's d() answers its count) is at least the
+    // hero's 5 hit points, so the poison is deadly.
     const lethalHit = meleeEnv(state, [5, 1], {
-        poisoned: async () => {
-            ++poisonCalls;
-            state.u.uhp = 0;
-            state.program_state.gameover = 1;
-        },
+        rn2: (bound) => (bound === 10 ? 0 : 1),
     });
 
-    assert.equal(await mattacku(goblin, lethalHit.env), 1);
-    assert.equal(poisonCalls, 1);
+    await expectTerminated(() => mattacku(goblin, lethalHit.env));
     assert.deepEqual(lethalHit.bounds, [
-        'rnd(20)', 'd(1,4)', 'rnd(4)',
+        'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(10)', 'd(4,6)',
     ]);
+    assert.equal(lethalHit.lines.includes('The poison was deadly...'), true);
+    assert.equal(state.killer.name, 'goblin');
+    assert.equal(Boolean(state.program_state.gameover), true);
 });
 
 test('a raw fatal weapon roll survives negative-AC mitigation', async () => {

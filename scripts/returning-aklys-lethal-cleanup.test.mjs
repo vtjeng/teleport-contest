@@ -72,7 +72,7 @@ for (const hp of [2, 3]) test(`${hp === 2 ? 'target' : 'control'}: returning akl
         observeObject: obj => observe_object(obj, game),
         extractObject: obj => obj_extract_self(obj, { state: game }),
         setMonsterNotWielded: (m, obj) => setmnotwielded(m, obj, { state: game }),
-        damageValue: unexpected, hitHero: unexpected, stopOccupation: unexpected,
+        damageValue: unexpected,
         shouldMulch: unexpected, floorEffects: unexpected,
         placeObject: (obj, x, y) => place_object(obj, x, y, { state: game }),
         passiveObject: unexpected, stackObject: obj => stackobj(obj, { state: game }),

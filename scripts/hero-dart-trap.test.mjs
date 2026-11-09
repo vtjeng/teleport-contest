@@ -20,6 +20,7 @@ import { thitu } from '../js/mthrowu.js';
 import { DART, WEAPON_CLASS } from '../js/objects.js';
 import { rn2, rnd } from '../js/rng.js';
 import { maketrap, t_at } from '../js/trap.js';
+import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 import {
     dotrap,
     preflight_dotrap,
@@ -130,6 +131,19 @@ async function heroState() {
     return game;
 }
 
+// A hero who has entered the dungeon, for the tests whose real hack.c
+// losehp(), end.c done() or pickup.c encumber_msg() needs the whole game.
+// The recipe's Healer resists poison, so a Valkyrie takes the part.
+async function startedHeroState() {
+    const segment = loadHeroBearTrapRecipe().segments[1];
+    await runSegment({
+        ...segment,
+        nethackrc: segment.nethackrc.replace('role:Healer', 'role:Valkyrie'),
+        moves: '',
+    });
+    return game;
+}
+
 async function wornOutMissileTrap(ttyp, expectedMessage) {
     // The empty seed-4 test fixture above has hero role data but has not
     // entered the dungeon. Use a real generated level for deltrap/newsym.
@@ -197,28 +211,22 @@ test('dart trap wear-out routes its soft click through You_hear', async () => {
     await wornOutMissileTrap(DART_TRAP, 'You hear a soft click.');
 });
 
-// Collects messages and exercises.
+// Collects messages and draws. thitu() calls hack.c losehp() and attrib.c
+// exercise() itself; rn2(2) = 1 makes exercise(A_STR, FALSE) lower AEXE.
 function thituEnv(rolls) {
     const messages = [];
-    const exercises = [];
-    const hpLosses = [];
     const queue = [...rolls];
     const rndArgs = [];
+    const rn2Args = [];
     return {
         random: {
             rnd: (n) => { rndArgs.push(n); return queue.shift() ?? 1; },
+            rn2: (n) => { rn2Args.push(n); return n === 2 ? 1 : 0; },
         },
         rndArgs,
+        rn2Args,
         message: async (text) => messages.push(text),
-        losehp: async (n, knam, k_format, _state, options) => {
-            hpLosses.push({ n, knam, k_format, options });
-            // Actually reduce HP so the caller can observe it.
-            game.u.uhp -= n;
-        },
-        exercise: async (index, increase) => exercises.push({ index, increase }),
         messages,
-        exercises,
-        hpLosses,
     };
 }
 
@@ -229,6 +237,7 @@ test('thitu miss: AC + tlev <= dieroll produces "almost hit" message',
         // AC + tlev = 10. dieroll = rnd(20) = 11 (from queue). 10 <= 11
         // means MISS. 10 <= 11 - 2 = 9 is FALSE, so "almost hit".
         state.u.uac = 3;
+        const hpBefore = state.u.uhp;
         const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
         const env = thituEnv([11]); // rnd(20)=11
         const result = await thitu(7, 3, obj, 'little dart', state, env);
@@ -240,8 +249,8 @@ test('thitu miss: AC + tlev <= dieroll produces "almost hit" message',
             'You are almost hit by a little dart.',
         );
         // No losehp or exercise on a miss.
-        assert.equal(env.hpLosses.length, 0);
-        assert.equal(env.exercises.length, 0);
+        assert.equal(state.u.uhp, hpBefore);
+        assert.deepEqual(env.rn2Args, []);
     });
 
 test('thitu miss: AC + tlev <= dieroll - 2 produces "[Name] misses you"',
@@ -264,48 +273,38 @@ test('thitu hit: AC + tlev > dieroll produces hit message and deals damage',
         state.u.uac = 3; // Knight starting AC (ring mail).
         // AC + tlev = 10. dieroll = 5. 10 <= 5 is FALSE (hit!).
         const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
+        const hpBefore = state.u.uhp;
+        const strengthExercise = state.u.aexe?.[A_STR] ?? 0;
         const env = thituEnv([5]); // rnd(20)=5
         const result = await thitu(7, 3, obj, 'little dart', state, env);
         assert.equal(result, 1, 'thitu returns 1 for a hit');
         // "You are hit by a little dart." (dam=3, exclam(3)=".")
         assert.equal(env.messages[0], 'You are hit by a little dart.');
-        // losehp is called with damage and killer.
-        assert.equal(env.hpLosses.length, 1);
-        assert.equal(env.hpLosses[0].n, 3);
-        assert.equal(env.hpLosses[0].knam, 'little dart');
-        assert.equal(env.hpLosses[0].k_format, KILLED_BY_AN);
-        // exercise(A_STR, FALSE) is called on hit.
-        assert.equal(env.exercises.length, 1);
-        assert.equal(env.exercises[0].index, A_STR);
-        assert.equal(env.exercises[0].increase, false);
+        // losehp() takes the damage.
+        assert.equal(state.u.uhp, hpBefore - 3);
+        // exercise(A_STR, FALSE) draws rn2(2) and lowers AEXE(A_STR).
+        assert.deepEqual(env.rn2Args, [2]);
+        assert.equal(state.u.aexe[A_STR], strengthExercise - 1);
     });
 
 test('thitu live lethal hit stops after losehp gameover',
     async () => {
-        const state = await heroState();
+        const state = await startedHeroState();
         state.u.uac = 3;
         state.u.uhp = 2;
         state.u.uhpmax = 2;
         const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
         const env = thituEnv([1]);
-        env.fromMonster = true;
-        const originalLosehp = env.losehp;
-        env.losehp = async (...args) => {
-            await originalLosehp(...args);
-            // C losehp() does not return from thitu() after really_done(); the
-            // JS death path sets gameover so thitu() can unwind to its caller.
-            state.program_state.gameover = true;
-        };
+        prepareQuietDeath(state);
 
-        const result = await thitu(7, 3, obj, 'little dart', state, env);
-        assert.equal(result, 1);
+        // C losehp() does not return from thitu() after really_done().
+        await expectTerminated(() => thitu(7, 3, obj, 'little dart', state, env));
         // mthrowu.c calls losehp() even when dam is lethal, but its NORETURN
         // death path prevents the following exercise() call.
-        assert.equal(state.u.uhp, -1);
-        assert.equal(env.hpLosses.length, 1);
-        assert.equal(env.hpLosses[0].n, 3);
-        assert.equal(env.hpLosses[0].options.fromMonster, true);
-        assert.equal(env.exercises.length, 0);
+        assert.equal(Boolean(state.program_state.gameover), true);
+        assert.equal(state.killer.name, 'little dart');
+        assert.equal(state.killer.format, KILLED_BY_AN);
+        assert.deepEqual(env.rn2Args, []);
     });
 
 test('thitu hit with high damage uses "!" and low damage uses "."',
@@ -352,9 +351,6 @@ test('poisoned() with poison resistance prints immunity message and returns',
         const env = {
             random: { rn2, d: () => 1, rnd },
             message: async (text) => messages.push(text),
-            losehp: async () => { throw new Error('should not call losehp'); },
-            done: async () => { throw new Error('should not call done'); },
-            encumberMessage: async () => {},
         };
         const hpBefore = state.u.uhp;
         await poisoned('dart', A_CON, 'little dart', 10, true, state, env);
@@ -369,22 +365,19 @@ test('poisoned() with poison resistance prints immunity message and returns',
 
 test('poisoned() with thrown_weapon=true and i>5 deals rnd(6) HP damage',
     async () => {
-        const state = await heroState();
+        const state = await startedHeroState();
         // Ensure no poison resistance. uprops may not exist after the short
         // segment; the optional chaining in poisoned() handles that.
         if (state.u.uprops?.[POISON_RES])
             state.u.uprops[POISON_RES].intrinsic = 0;
         const messages = [];
-        const hpLosses = [];
+        const hpBefore = state.u.uhp;
         // fatal=10, thrown_weapon=true: i = rn2(10 + 20) = rn2(30).
         // With rn2(30)=15 (>5), the HP damage branch runs. rnd(6)=3.
         const rn2Args = [];
         const env = {
             random: { rn2: (n) => { rn2Args.push(n); return 15; }, d: () => 1, rnd: () => 3 },
             message: async (text) => messages.push(text),
-            losehp: async (n, knam, k_format) => hpLosses.push({ n }),
-            done: async () => {},
-            encumberMessage: async () => {},
         };
         await poisoned('dart', A_CON, 'little dart', 10, true, state, env);
         // The reason "dart" does not contain "poison", so "The dart was
@@ -393,30 +386,29 @@ test('poisoned() with thrown_weapon=true and i>5 deals rnd(6) HP damage',
         // thrown_weapon=true, fatal=10: i = rn2(fatal + 20) = rn2(30).
         assert.deepStrictEqual(rn2Args, [30], 'rn2 called with fatal+20=30');
         // HP damage is rnd(6) = 3.
-        assert.equal(hpLosses.length, 1);
-        assert.equal(hpLosses[0].n, 3);
+        assert.equal(state.u.uhp, hpBefore - 3);
     });
 
-test('poisoned() stops its tail after injected HP damage finalizes death',
+test('poisoned() stops its tail after its HP damage finalizes death',
     async () => {
-        const state = await heroState();
-        const calls = [];
+        const state = await startedHeroState();
+        prepareQuietDeath(state);
+        // Three hit points die to the HP-damage arm's rnd(6) = 3.
+        state.u.uhp = 3;
+        const messages = [];
         const env = {
             // fatal=10 and thrown_weapon=true make rn2(30)=15 select the
             // ordinary HP-damage arm; rnd(6)=3 supplies that arm's loss.
             random: { rn2: () => 15, d: () => 1, rnd: () => 3 },
-            message: async () => {},
-            losehp: async () => {
-                calls.push('losehp');
-                state.u.uhp = 0;
-                state.program_state.gameover = true;
-            },
-            done: async () => calls.push('done'),
-            encumberMessage: async () => calls.push('encumber'),
+            message: async (text) => messages.push(text),
         };
 
-        await poisoned('dart', A_CON, 'little dart', 10, true, state, env);
-        assert.deepEqual(calls, ['losehp']);
+        // hack.c losehp() enters done() and never returns to poisoned(), so
+        // its own done(POISONING) and encumber_msg() tail do not run.
+        await expectTerminated(
+            () => poisoned('dart', A_CON, 'little dart', 10, true, state, env));
+        assert.equal(state.killer.name, 'little dart');
+        assert.deepEqual(messages, ['The dart was poisoned!']);
     });
 
 // ── poisontell tests ──

@@ -23,7 +23,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { upstart } from './hacklib.js';
-import { adjalign, adjattrib, exercise } from './attrib.js';
+import { adjalign, adjattrib, exercise, poisoned } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
 import { snuff_lit } from './apply_splash_lit.js';
 import {
@@ -4773,14 +4773,14 @@ export async function mhitm_ad_drst(
         if (!negated && !random.rn2(8)) {
             const reason = `${s_suffix(Monnam(magr, state, env))} `
                 + `${mpoisons_subj(magr, mattk, state)}`;
-            const poison = requireAttackOperation(env, 'poisoned');
-            await poison(
+            await poisoned(
                 reason,
                 mattk.adtyp === AD_DRDX ? A_DEX
                     : mattk.adtyp === AD_DRCO ? A_CON : A_STR,
                 pmname(magr.data, Mgender(magr, state)),
                 30,
                 false,
+                state,
                 env,
             );
         }
@@ -5033,12 +5033,13 @@ export async function mhitm_ad_phys(
             if (wasPoisoned && (env.dieroll ?? 0) <= 5) {
                 const reason = `${s_suffix(Monnam(magr, state, env))} `
                     + `${mpoisons_subj(magr, mattk, state)}`;
-                await requireAttackOperation(env, 'poisoned')(
+                await poisoned(
                     reason,
                     A_STR,
                     pmname(magr.data, Mgender(magr, state)),
                     10,
                     false,
+                    state,
                     { ...env, state, random },
                 );
             }
