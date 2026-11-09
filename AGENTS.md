@@ -264,9 +264,18 @@ caller can pass incomplete.
   each site, and add a check that fails if the defect returns, as
   `scripts/yn-answer-type.test.mjs` does. Add a recording for each site whose
   behavior changes.
+- If a check allows exceptions, record their count in its test and fail when
+  the count changes in either direction, as `scripts/message-location.test.mjs`
+  does. Lower the count when you remove exceptions; specify a reason for each
+  one you add.
+- A check must never skip itself. If it needs a tool, such as a C compiler,
+  it fails when the tool is missing.
 - If that change is too large for the current task, fix the one site, then ask
   the user whether to schedule the larger fix, giving the convention, the
   search and the count. A subagent gives these to the lead, which asks the user.
+
+When you finish a task, report what checks were added or explain why no new
+checks were needed.
 
 When the same kind of fix appears in two branches, or recurs across rounds,
 the lead runs the same search and, if three or more sites share the
