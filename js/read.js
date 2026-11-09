@@ -382,8 +382,12 @@ import {
 } from './light.js';
 import { digests, light_hits_gremlin } from './uhitm.js';
 import {
-    block_point, cansee, do_clear_area, does_block, unblock_point,
-    vision_recalc,
+    block_point,
+    cansee,
+    do_clear_area,
+    does_block,
+    unblock_point,
+    vision_recalc_async,
 } from './vision.js';
 
 import { m_at } from './monst.js';
@@ -2091,7 +2095,7 @@ export async function litroom(on, object, state) {
     }
 
     if (!Blind(state.u)) {
-        vision_recalc(2, {
+        await vision_recalc_async(2, {
             state,
             redraw: (x, y) => newsym(x, y),
         });
@@ -2109,7 +2113,7 @@ export async function litroom(on, object, state) {
         // read.c:litroom() cannot leave the full recalculation delayed when
         // gremlins were collected. Restore visibility before light_hits_gremlin
         // chooses the monster's name for its damage message.
-        vision_recalc(0, {
+        await vision_recalc_async(0, {
             state,
             redraw: (x, y) => newsym(x, y),
         });

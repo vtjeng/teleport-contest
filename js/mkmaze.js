@@ -131,8 +131,8 @@ import {
     block_point,
     cansee,
     recalc_block_point,
-    vision_recalc,
     unblock_point,
+    vision_recalc_async,
 } from './vision.js';
 import { cmap_to_glyph, newsym } from './display.js';
 import { S_air, S_cloud, S_water } from './symbols.js';
@@ -483,7 +483,7 @@ export async function movebubbles(state = game, random = rn2) {
     const airLevel = on_level(state.u?.uz, state.air_level);
     if (!waterLevel && !airLevel) return;
     if (!state.waterlevel_portal) set_wportal(state);
-    vision_recalc(2, { state });
+    await vision_recalc_async(2, { state });
     const bounds = airBubbleBounds(state);
     let bcpin = 0;
 

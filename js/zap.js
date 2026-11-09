@@ -209,7 +209,16 @@ import {
     that_is_a_mimic,
 } from './uhitm.js';
 import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
-import { block_point, cansee, couldsee, does_block, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
+import {
+    block_point,
+    cansee,
+    couldsee,
+    does_block,
+    recalc_block_point,
+    unblock_point,
+    vision_recalc,
+    vision_recalc_async,
+} from './vision.js';
 import {
     bimanual,
     bypass_obj,
@@ -2834,7 +2843,7 @@ export async function fracture_rock(obj, state = game, random = coreRandom, rawE
             unblock_point(ox, oy, state);
             // The ray may hit more objects after this square; make vision
             // reflect the now-nonblocking rock immediately.
-            vision_recalc(0, { ...objectEnv, redraw });
+            await vision_recalc_async(0, { ...objectEnv, redraw });
         }
         if (cansee(ox, oy, state)) redraw(ox, oy, state);
     }
@@ -4989,7 +4998,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
     const { unearth_objs } = await import('./dig.js');
     await unearth_objs(x, y, env);
     if (state.u?.uinwater) {
-        vision_recalc(1, { ...env, state, redraw });
+        await vision_recalc_async(1, { ...env, state, redraw });
     }
     redraw(x, y, state);
     if (canSee(x, y) || u_at(x, y, state)) {

@@ -134,8 +134,8 @@ import {
     init_vision_globals,
     m_canseeu,
     unblock_point,
-    vision_recalc,
     vision_reset,
+    vision_recalc_async,
 } from './vision.js';
 import {
     coreRandom,
@@ -266,7 +266,7 @@ export async function newgame() {
     // Initial display. C ref: allmain.c newgame() calls docrt() alone; the
     // explicit vision_recalc(0) and cls() are what js/display.js docrt()
     // leaves to its callers.
-    vision_recalc(0);
+    await vision_recalc_async(0);
     await cls();
     await docrt();
     // The first tty render and newgame()'s explicit BL_FLUSH retain the
@@ -760,7 +760,7 @@ export async function finishElapsedTurn(state, random) {
         random,
         message: ttyPline,
         redrawSquare: newsym,
-        visionRecalc: vision_recalc,
+        visionRecalc: vision_recalc_async,
         minLiquid: elapsedTurnMinLiquid,
         decideToShapeshift: decide_to_shapeshift,
         wereChange: were_change,
@@ -1074,7 +1074,7 @@ async function moveElapsedTurnMonster(monster, env) {
         // C ref: mon.c movemon_singlemon():1233-1239, a guard parked at <0,0>.
         guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
         everyTurnEffect: runEveryTurnEffectWithRegionHooks,
-        visionRecalc: vision_recalc,
+        visionRecalc: vision_recalc_async,
         clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
         minLiquid: elapsedTurnMinLiquid,
         // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
@@ -1313,7 +1313,7 @@ async function moveloop_core_body() {
     // reads that stale seenv: on the Plane of Water, movebubbles() resets the
     // bubbles' old cells to unseen water, so a rush can plunge into them.
     if (!hallucinating && (!g.context?.mv || blind) && g.vision_full_recalc) {
-        vision_recalc(0);
+        await vision_recalc_async(0);
         g.vision_full_recalc = 0;
     }
     // Close the elapsed turn's display work before status calculation and
@@ -1344,7 +1344,7 @@ async function moveloop_core_body() {
         // C ref: allmain.c:470-471. Recalculate after the sensing layers;
         // a blind hero's tactile repaint can itself consume display RNG.
         if (hallucinating && g.vision_full_recalc) {
-            vision_recalc(0);
+            await vision_recalc_async(0);
             g.vision_full_recalc = 0;
         }
     }
@@ -1462,7 +1462,7 @@ async function moveloop_core_body() {
     // the monster scan reads it. Without this the scan would take
     // movemon_singlemon()'s own recalculation arm on the turn the command
     // charged, which C reaches only when movemon()'s tail sets the flag.
-    if (g.vision_full_recalc) vision_recalc(0);
+    if (g.vision_full_recalc) await vision_recalc_async(0);
     // C ref: allmain.c moveloop_core():546, CLIPPING: after rhack() and
     // vision_recalc() so that the map is redrawn once with correct vision.
     await cliparound(g.u.ux, g.u.uy, g);
@@ -1494,7 +1494,7 @@ async function moveloop_core_body() {
 
 // C ref: allmain.c moveloop()
 export async function moveloop(resuming) {
-    vision_recalc(0);
+    await vision_recalc_async(0);
     await docrt();
     await flush_screen(1);
 

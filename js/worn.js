@@ -160,7 +160,7 @@ import {
 import { learnwand } from './zap.js';
 import { ttyPline } from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
-import { cansee, vision_recalc } from './vision.js';
+import { cansee, vision_recalc, vision_recalc_async } from './vision.js';
 import { arti_light_description } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
@@ -861,7 +861,7 @@ async function applyMonsterArmorRuntime(
     if (autocurse) await curse(best, { ...env, state });
     if (artifact_light(best) && !best.lamplit) {
         begin_burn(best, false, { ...env, state });
-        vision_recalc(1, {
+        await vision_recalc_async(1, {
             ...env,
             state,
             redraw: env.redraw ?? (state === game ? newsym : () => {}),

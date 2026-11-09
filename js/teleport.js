@@ -238,7 +238,7 @@ import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
-import { couldsee, vision_recalc } from './vision.js';
+import { couldsee, vision_recalc_async } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
     Amphibious, Antimagic, Blind, Blinded, Confusion, ETeleportation,
@@ -1881,7 +1881,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     state.vision_full_recalc = 1;
     nomul(0, state);
     notice_mon_off(state);
-    vision_recalc(0, { state, redraw }); /* vision before effects */
+    await vision_recalc_async(0, { state, redraw }); /* vision before effects */
 
     // C ref: teleport.c:545-547.
     if (is_teleport && state.flags?.verbose) {

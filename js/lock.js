@@ -155,7 +155,13 @@ import { maybe_absorb_item } from './steal.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { messageAt } from './startup_a11y.js';
-import { block_point, cansee, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
+import {
+    block_point,
+    cansee,
+    recalc_block_point,
+    unblock_point,
+    vision_recalc_async,
+} from './vision.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
@@ -1461,7 +1467,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                 }
             }
             if (state.vision_full_recalc)
-                vision_recalc(0, {
+                await vision_recalc_async(0, {
                     state,
                     redraw: (redrawX, redrawY) =>
                         redraw(redrawX, redrawY, state),

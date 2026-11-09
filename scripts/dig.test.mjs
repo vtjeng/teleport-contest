@@ -1599,7 +1599,7 @@ test('digging into a pit schedules the flattened vision recalculation', async ()
         cSource,
         /set_utrap\(rn1\(4, 2\), TT_PIT\);\s*gv\.vision_full_recalc = 1;/u,
     );
-    assert.match(mainSource, /if \(g\.vision_full_recalc\) vision_recalc\(0\);/u);
+    assert.match(mainSource, /if \(g\.vision_full_recalc\) await vision_recalc_async\(0\);/u);
 
     const recipe = JSON.parse(readFileSync(
         'recipes/vision.c/pit-sight-archeologist-independent-a19.session.json',

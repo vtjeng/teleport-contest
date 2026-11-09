@@ -717,7 +717,7 @@ import {
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
 import { mwepgone, possibly_unwield } from './weapon.js';
-import { block_point, cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
+import { block_point, cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc_async } from './vision.js';
 import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
@@ -4251,7 +4251,7 @@ function requiredDistressOperation(env, name) {
 // operation owners.
 export async function m_calcdistress(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc;
+    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc_async;
     const minLiquid = rawEnv.minLiquid ?? minliquid;
     const decideToShapeshift = rawEnv.decideToShapeshift
         ?? decide_to_shapeshift;
@@ -4457,7 +4457,7 @@ export function unstuck(mtmp, state = game, env = {}) {
             const redraw = state === game
                 ? env.redraw
                 : env.redraw ?? (() => {});
-            const visionRecalc = env.visionRecalc ?? vision_recalc;
+            const visionRecalc = env.visionRecalc ?? vision_recalc_async;
             const visionEnv = redraw
                 ? { ...env, state, redraw } : { ...env, state };
             // display.c docrt_flags() raises program_state.in_docrt before

@@ -33,7 +33,11 @@ import { deltrap, drown, lava_effects, t_at } from './trap.js';
 import { revive_nasty, spoteffects } from './hack.js';
 import { enexto, teleds } from './teleport.js';
 import {
-    block_point, cansee, does_block, unblock_point, vision_recalc,
+    block_point,
+    cansee,
+    does_block,
+    unblock_point,
+    vision_recalc_async,
 } from './vision.js';
 import { mksobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -303,7 +307,7 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
     newsym(x, y, state);
     newsym(x2, y2, state);
     if (!does_block(x2, y2, wall, state)) unblock_point(x2, y2, state);
-    vision_recalc(0, {
+    await vision_recalc_async(0, {
         ...env,
         state,
         redraw: env.redraw

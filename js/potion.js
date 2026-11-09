@@ -222,7 +222,7 @@ import {
     surface,
 } from './dungeon.js';
 import { stairway_at } from './stairs.js';
-import { cansee, vision_recalc } from './vision.js';
+import { cansee, vision_recalc_async } from './vision.js';
 import {
     bhitm, do_enlightenment_effect, makewish,
     resist,
@@ -2231,8 +2231,8 @@ export async function toggle_blindness(state = game, env = {}) {
     // live display owner.
     const redraw = env.redraw ?? (state === game ? undefined : () => {});
     const visionRecalc = env.visionRecalc
-        ?? ((control) => vision_recalc(control, { state, redraw }));
-    visionRecalc(0, { state, redraw });
+        ?? ((control) => vision_recalc_async(control, { state, redraw }));
+    await visionRecalc(0, { state, redraw });
 
     // C ref: potion.c:349. Blind_telepat = (HTelepat || ETelepat);
     // Infravision = (HInfravision || EInfravision).

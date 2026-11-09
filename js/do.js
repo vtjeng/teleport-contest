@@ -385,7 +385,12 @@ import { glyph_to_cmap } from './glyphs.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { create_mplayers } from './mplayer.js';
-import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
+import {
+    cansee,
+    recalc_block_point,
+    vision_reset,
+    vision_recalc_async,
+} from './vision.js';
 import { setuwep, welded, weldmsg } from './wield.js';
 import { bimanual, bypass_objlist, nxt_unbypassed_obj, setuqwep, setuswapwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -2725,7 +2730,7 @@ export async function goto_level(
     // stores the level itself.
     recalc_mapseen(state);
 
-    vision_recalc(2, { state });
+    await vision_recalc_async(2, { state });
 
     // do.c:1652-1664. Endgame and tutorial levels cannot be reached again;
     // savelev still performs the timer/light teardown, then the in-memory
