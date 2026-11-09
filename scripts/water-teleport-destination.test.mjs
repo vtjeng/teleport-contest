@@ -66,11 +66,13 @@ for (const hallu of [false,true]) for (const blind of [false,true]) {
         });
     }
     for (const terrain of [LAVAPOOL,DOOR]) {
-        test(`unqualified teleport destination remains refused Hallu=${hallu} blind=${blind} terrain=${terrain}`, async()=>{
+        // teleok() decides whether the hero may land here; the seam admits
+        // every terrain and changes nothing. recordings/teleport.c/
+        // wizard-teleport-onto-lava-levitating pins a lava arrival.
+        test(`lava or door teleport destination admitted Hallu=${hallu} blind=${blind} terrain=${terrain}`, async()=>{
             await setup({hallu,blind,terrain});
             const before = snapshot();
-            assert.throws(()=>requireSimpleHeroDestination(6,7,game),
-                /door or special terrain movement/u);
+            assert.doesNotThrow(()=>requireSimpleHeroDestination(6,7,game));
             assert.deepEqual(snapshot(),before);
         });
     }

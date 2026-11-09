@@ -1416,37 +1416,17 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
-        // Every terrain a walking hero can reach is now an admitted
-        // destination of the walking seam: hack.c test_move() decides doors
-        // through testdiag and its closed-door arm, and the span of a raised
-        // drawbridge over ice or floor is ordinary terrain. A pet standing in
-        // lava the hero has never seen still stops the pet-displacement seam,
-        // which admits no lava destination, so it stands in as the retry
-        // fixture; seen lava would end the step at swim_move_danger()'s
-        // warning instead. The pet is asleep and frozen so that it cannot act
-        // while the command retries.
+        // Every terrain a walking hero can reach, and every pet swap, is an
+        // admitted destination of the walking seam; hack.c test_move()
+        // decides doors through testdiag and its closed-door arm. A trap of
+        // no known type still stops the arrival preflight, so it stands in
+        // as the retry fixture.
         {
-            name: 'pet in unseen lava',
-            reason: 'domove_swap_with_pet() door or special terrain movement',
-            install: ({ destination, x, y }) => {
-                destination.typ = LAVAPOOL;
-                destination.flags = 0;
-                destination.seenv = 0;
-                const pet = newMonster({
-                    data: game.mons[PM_NEWT], mnum: PM_NEWT, m_id: 9921,
-                    mhp: 8, mhpmax: 8, mtame: 10, mpeaceful: true,
-                    msleeping: true, mcanmove: false, mfrozen: 1000,
-                    movement: 0,
-                });
-                pet.nmon = game.level.monlist;
-                game.level.monlist = pet;
-                place_monster(pet, x, y, game);
-            },
-            remove: ({ destination, x, y }) => {
-                game.level.monsters[x][y] = null;
-                game.level.monlist = game.level.monlist.nmon;
-                destination.typ = ROOM;
-                destination.flags = 0;
+            name: 'trap of no known type',
+            reason: 'trap activation',
+            install: ({ x, y }) => installUnsupportedTrap(x, y),
+            remove: () => {
+                game.level.traps = [];
             },
         },
     ];

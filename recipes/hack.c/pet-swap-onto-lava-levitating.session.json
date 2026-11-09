@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c domove_swap_with_pet() swaps a levitating hero with a pet standing on lava, and domove_core() finishes the arrival on the lava square. A Priest in debug mode puts on a wished ring of levitation, wishes for lava under itself, and creates a tame gas spore (a floater, so goodpos() lets it onto lava). The first step swaps the spore onto the lava; the step back swaps the hero onto it.",
+  "segments": [
+    {
+      "seed": 2209174,
+      "datetime": "20450610151020",
+      "nethackrc": "OPTIONS=name:Floaty,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017ring of levitation\nPil\n\u0017lava\n\u0007tame gas spore\nynss"
+    }
+  ]
+}

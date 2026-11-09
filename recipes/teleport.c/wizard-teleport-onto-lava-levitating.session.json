@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c teleds() puts a levitating hero on lava: teleok() accepts lava for a hero with Levitation, and spoteffects() finds nothing to do while the hero floats. An elven Wizard in debug mode puts on a wished ring of levitation, wishes for lava under itself, steps east, and uses ^T to choose the lava square.",
+  "segments": [
+    {
+      "seed": 3851266,
+      "datetime": "20450612090510",
+      "nethackrc": "OPTIONS=name:Jumper,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017ring of levitation\nPpl\n\u0017lava\nl\u0014 \nh.ss"
+    }
+  ]
+}

@@ -1125,11 +1125,12 @@ test('known lava warning passes the walking seam and stops before arrival',
         );
         assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
 
-        // teleport.c teleds() does not call swim_move_danger(), so the
-        // shared destination seam remains closed for a non-walking caller.
-        assert.throws(
+        // teleport.c teleds() does not call swim_move_danger(); teleok()
+        // owns whether the hero may land on lava, as the independent C
+        // recording recordings/teleport.c/wizard-teleport-onto-lava-levitating
+        // shows, so the shared seam admits it for that caller too.
+        assert.doesNotThrow(
             () => requireSimpleHeroDestination(11, 10, state),
-            /door or special terrain movement/u,
         );
     });
 
