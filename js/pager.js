@@ -97,6 +97,8 @@ import {
     MCORPSENM,
     is_pit,
     u_at,
+    H_UTF8,
+    PRIMARYSET,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -883,7 +885,7 @@ export async function look_all(nearby, doMons, state = game) {
             description = description.slice(0, BUFSZ - 1 - (prefix.length + 10 + 2));
             const symbol = encodedGlyphCharacter(glyph, state);
             lines.push({
-                text: `${prefix}${symbol}  ${description}`,
+                text: `${prefix}${decodedGlyphText(glyph, symbol, state)}  ${description}`,
                 glyphCells: [
                     textWindowGlyphCell(prefix.length, glyph, symbol, state),
                 ],
@@ -951,6 +953,22 @@ function textWindowGlyphCell(column, glyph, ch, state) {
     return { column, ch: dropped ? null : ch };
 }
 
+// C ref: windows.c decode_mixed(). A text-window line holds the one byte
+// gs.showsyms[] gives an encglyph() glyph. A high-bit byte (an IBMgraphics or
+// DECgraphics symbol) is carried as that raw byte, which
+// js/hacklib.js encodeUtf8ByteString() keeps one column wide, rather than as
+// its rendered character, whose UTF-8 form would take two or three columns
+// and shift the rest of the line. A UTF-8 symset writes the rendered form.
+function decodedGlyphText(glyph, rendered, state) {
+    const handling = state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling;
+    const byte = map_glyphinfo(glyph, state).ttychar;
+    if (handling !== H_UTF8 && Number.isInteger(byte) && (byte & 0x80) !== 0)
+        return String.fromCharCode(0xDC00 + byte);
+    return rendered;
+}
+
 function displayedGlyphCharacter(glyph, x, y, state) {
     const location = state.level?.at(x, y);
     if (location?.disp_browser_ch) return location.disp_browser_ch;
@@ -973,6 +991,7 @@ export async function look_traps(nearby, state = game) {
             let description = '';
             let obscuring = '';
             let obscuringGlyph = null;
+            let obscuringText = '';
             if (glyph_is_trap(glyph)) {
                 description = trap_description(
                     glyph_to_trap(glyph), x, y, state,
@@ -987,8 +1006,9 @@ export async function look_traps(nearby, state = game) {
                         glyph, x, y, state,
                     );
                     obscuringGlyph = glyph;
+                    obscuringText = decodedGlyphText(glyph, obscuring, state);
                     description = `${trapname(trap.ttyp, false, state)}, obscured by `
-                        + obscuring;
+                        + obscuringText;
                     glyph = trap_to_glyph(trap, state);
                 }
             }
@@ -1007,13 +1027,13 @@ export async function look_traps(nearby, state = game) {
                 coordinate = coordinate.padStart(
                     mode === GPCOORDS_MAP ? 8 : 12,
                 );
-            const text = `${coordinate}  ${symbol}  ${description}`;
+            const text = `${coordinate}  ${decodedGlyphText(glyph, symbol, state)}  ${description}`;
             const glyphCells = [textWindowGlyphCell(
                 coordinate.length + 2, glyph, symbol, state,
             )];
             if (obscuring) {
                 glyphCells.push(textWindowGlyphCell(
-                    text.length - obscuring.length, obscuringGlyph,
+                    text.length - obscuringText.length, obscuringGlyph,
                     obscuring, state,
                 ));
             }
@@ -1065,12 +1085,14 @@ export async function look_engrs(nearby, state = game) {
                 ? glyph_to_cmap(glyph) : null;
             let obscuring = '';
             let obscuringGlyph = null;
+            let obscuringText = '';
             if (!isCmapEngraving(symbol) && symbol !== S_grave) {
                 obscuring = displayedGlyphCharacter(
                     glyph, x, y, state,
                 );
                 obscuringGlyph = glyph;
-                description += `, obscured by ${obscuring}`;
+                obscuringText = decodedGlyphText(glyph, obscuring, state);
+                description += `, obscured by ${obscuringText}`;
                 glyph = headstone
                     ? cmap_to_glyph(S_grave, state)
                     : engraving_to_glyph(engraving, state);
@@ -1085,13 +1107,13 @@ export async function look_engrs(nearby, state = game) {
             }
             const renderedSymbol = encodedGlyphCharacter(glyph, state);
             const prefix = trapOrEngravingMapCoordinate(x, y);
-            const text = `${prefix}  ${renderedSymbol} ${description}`;
+            const text = `${prefix}  ${decodedGlyphText(glyph, renderedSymbol, state)} ${description}`;
             const glyphCells = [
                 textWindowGlyphCell(10, glyph, renderedSymbol, state),
             ];
             if (obscuring) {
                 glyphCells.push(textWindowGlyphCell(
-                    text.length - obscuring.length, obscuringGlyph,
+                    text.length - obscuringText.length, obscuringGlyph,
                     obscuring, state,
                 ));
             }
