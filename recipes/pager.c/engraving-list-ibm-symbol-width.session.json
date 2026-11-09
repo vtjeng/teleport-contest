@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 482913,
+      "datetime": "20390927161000",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,symset:IBMGraphics\n",
+      "moves": "E- Elbereth\n/e l/e "
+    }
+  ]
+}
