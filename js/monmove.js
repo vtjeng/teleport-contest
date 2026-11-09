@@ -3699,12 +3699,7 @@ export async function m_move(monster, rawEnv = {}) {
     if (monster.mtame && !monster.wormno) {
         // C: `return postmov(mtmp, ptr, omx, omy, dog_move(mtmp, after), ...)`.
         // dochug() is the only reachable caller and passes after == 0.
-        // postmov() opens, unlocks or digs the pet's chosen door with this
-        // m_move() can_tunnel and can_unlock, so the destination check in
-        // dog_move() reads the same values, as ordinary movement's does below.
-        const petStatus = await movePet(
-            monster, false, { ...env, canTunnel, canUnlock },
-        );
+        const petStatus = await movePet(monster, false, env);
         return await postMonsterMove(monster, oldX, oldY, petStatus, env);
     }
 
@@ -4114,10 +4109,7 @@ export async function m_move(monster, rawEnv = {}) {
         return MMOVE_DONE;
     }
     const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
-    // Carry the same capabilities postmov() reads when it unlocks a door or
-    // digs the square. Admission must use those captured values, rather than
-    // recomputing them after the intervening inventory actions.
-    if (!await mayCrossRegion(monster, nextX, nextY, { ...env, canTunnel, canUnlock }))
+    if (!await mayCrossRegion(monster, nextX, nextY, env))
         return MMOVE_DONE;
     if ((data.info[chosen] & ALLOW_ROCK) && m_can_break_boulder(monster)) {
         await m_break_boulder(monster, nextX, nextY, env);

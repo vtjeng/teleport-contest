@@ -8,31 +8,15 @@
 
 import {
     BURN,
-    CORR,
-    DOOR,
-    DRAWBRIDGE_UP,
-    D_CLOSED,
-    D_LOCKED,
-    D_TRAPPED,
     FIRE_RES,
     HEADSTONE,
-    IRONBARS,
-    IS_DOOR,
-    IS_OBSTRUCTED,
-    IS_ROOM,
-    IS_STWALL,
-    IS_TREE,
     SLEEP_RES,
-    SDOOR,
-    SCORR,
     SLP_GAS_TRAP,
     FIRE_TRAP,
     ANTI_MAGIC,
 } from './const.js';
 import {
-    is_pool,
     is_ice,
-    is_lava,
 } from './dbridge.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
 // import cycle. `stop_occupation` is a hoisted function declaration, which an
@@ -52,14 +36,11 @@ import {
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
 import { capitalizedMonsterName, mon_nam } from './do_name.js';
-import { on_level } from './dungeon.js';
 import { PM_ANGEL } from './monsters.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     losehp,
-    may_dig,
-    may_passwall,
     nh_delay_output,
     nomul,
 } from './hack.js';
@@ -74,22 +55,13 @@ import { m_throw, thrwmu } from './mthrowu.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 import {
-    m_in_air,
     wake_msg,
 } from './mon.js';
 import {
     defended,
-    amorphous,
-    is_giant,
-    is_swimmer,
-    likes_lava,
-    monsndx,
     Resists_Elem,
-    nohands,
-    passes_walls,
     perceives,
     resists_magm,
-    verysmall,
 } from './mondata.js';
 import {
     AD_CLRC,
@@ -98,12 +70,8 @@ import {
     AD_SLEE,
     AD_SPEL,
     AT_MAGC,
-    PM_FLOATING_EYE,
-    S_EEL,
 } from './monsters.js';
 import {
-    INERT_DOOR_MASKS,
-    can_fog,
     dochug,
     dochugw,
     m_avoid_kicked_loc,
@@ -178,16 +146,16 @@ function assertSimpleActionState(monster) {
     // STRAT_CLOSE needs no guard either: it always implies STRAT_WAITMASK, so
     // dochug() returns 0 from its early arm after at most a quest_talk(), and
     // js/quest.js refuses every conversation branch it does not carry.
-    if (monster.mfrozen)
-        unsupported('inconsistent frozen monster state');
+    //
+    // A moving monster has mfrozen 0: every writer of a nonzero mfrozen
+    // clears mcanmove, and every writer of mcanmove clears mfrozen.
     // trap.c mintrap() owns every held-trap escape, including pits,
     // metallivore effects, and clearing a stale mtrapped bit on no trap.
     if (monster.mtame && !monster.isminion) {
-        // C monmove.c:m_move() sends every tame non-minion with an edog
-        // extension through dogmove.c:dog_move(); that path is not limited to
-        // the three species selected as a new game starting pet.
-        if (!monster.mextra?.edog)
-            unsupported('a tame pet without dog state');
+        // C monmove.c:m_move() sends every tame non-minion through
+        // dogmove.c:dog_move(); that path is not limited to the three species
+        // selected as a new game starting pet. dog.c tamedog() and initedog()
+        // give every such monster its edog extension.
         // C dochug() calls disturb() before m_move() reaches dog_move().
         return;
     }
@@ -244,148 +212,13 @@ function resistsTrapEffect(monster, trapType, env) {
     return false;
 }
 
-// C ref: monmove.c postmov()'s `here->doormask == D_CLOSED && can_open` arm
-// (1576-1592), plus the block's own entry test at 1520-1522. mfndpos() admits
-// a trapped closed door when OPENDOOR is set; postmov() checks the trap before
-// its whole-mask D_CLOSED arm, so retain the D_TRAPPED bit here and let that
-// source-owned boundary run. can_open repeats mon.c mon_allowflags():2067; a
-// wall-walker or a monster whose m_move() can_tunnel is still set skips the
-// block instead, and digsDestination() admits the door mdig_tunnel() breaks.
-// can_tunnel is m_move()'s own copy: a hostile dwarf close to the hero has
-// lost it at monmove.c:1910-1914 and opens the door with its hands.
-function opensClosedDoor(monster, location, doorMask, canTunnel) {
-    const species = monster.data;
-    return location?.typ === DOOR
-        && (doorMask & D_CLOSED)
-        && !(doorMask & D_LOCKED)
-        && !(nohands(species) || verysmall(species))
-        && !passes_walls(species)
-        && !canTunnel;
-}
-
-// C ref: mon.c mfndpos()'s ALLOW_DIG arm (2196-2215) hands a tunneling monster
-// an obstructed square, and monmove.c postmov()'s `can_tunnel && may_dig()`
-// arm (1643-1645) then digs it with dig.c mdig_tunnel(). m_move() passes its
-// own can_tunnel here, which mon_allowflags() computed identically, so this
-// admits exactly the squares postmov() will dig.
-//
-// Admit ordinary doors as well as walls and trees: postmov() skips opening
-// a door when can_tunnel is true, then mdig_tunnel() breaks it.
-// mdig_tunnel first converts a secret door, then uses that same door arm.
-// Its secret-corridor arm also changes terrain and rebuilds vision.
-function digsDestination(location, x, y, env) {
-    if (!env.canTunnel || !location) return false;
-    if (location.typ !== DOOR && location.typ !== SDOOR && location.typ !== SCORR
-        && !IS_STWALL(location.typ) && !IS_TREE(location.typ, env.state))
-        return false;
-    return may_dig(x, y, env.state);
-}
-
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
-    const { state } = env;
-    const location = state.level.at(x, y);
-    const doorMask = location?.flags ?? 0;
-    // Every IS_ROOM type is ordinary terrain for a monster that is not
-    // covetous: mon.c mfndpos() admits typ >= ROOM directly, so this includes
-    // all furniture plus ICE, DRAWBRIDGE_DOWN, AIR and CLOUD. No terrain arm
-    // in monmove.c postmov() changes those destinations.
-    // monmove.c:274 onscary()'s vampire-fears-altar arm is ported in
-    // js/monmove.js; monmove.c:1233 holds_up_web() is ported in
-    // js/monmove.js and reached from maybe_spin_web(); and
-    // mon.c:973 minliquid_core()'s `infountain` feeds the gremlin split at
-    // :987, which unportedMinliquidReason() refuses on the square the monster
-    // ends up standing on rather than here, because C decides it there and
-    // makemon() can put a gremlin on a fountain with no move at all.
-    //
-    // No ordinary movement path changes a monster's level; every
-    // migrate_to_level() caller is item use (muse.c), digging (dig.c),
-    // teleportation (teleport.c), a shopkeeper (shk.c), or a wizard command.
-    // dogmove.c reads stairs only through dog_goal()'s On_stairs(u.ux, u.uy),
-    // which asks where the hero stands, not where the pet steps, and names no
-    // other furniture at all.
-    // A doorway a monster can stand in without acting on it, or a closed one
-    // it opens. INERT_DOOR_MASKS names the first set; js/monmove.js owns it
-    // beside the block that skips them.
-    const inertDoorway = location?.typ === DOOR
-        && INERT_DOOR_MASKS.has(doorMask);
-    const opensDoor = opensClosedDoor(
-        monster, location, doorMask, env.canTunnel,
-    );
-    // C mon.c mfndpos admits UNLOCKDOOR. m_move supplies the same captured
-    // can_unlock that its existing postmov door-opening branch consumes.
-    const unlocksDoor = location?.typ === DOOR
-        && (doorMask & D_LOCKED) && env.canUnlock;
-    // C mon.c mon_allowflags() gives giants BUSTDOOR, so mfndpos()
-    // selects locked doors for monmove.c postmov() to smash.
-    const breaksDoor = location?.typ === DOOR
-        && is_giant(monster.data) && (doorMask & D_LOCKED);
-    // C mon.c mfndpos() admits amorphous passage or a vampire that can_fog,
-    // unless engulfing the hero. That selection check already ran; postmov()
-    // changes the vampire's form before flowing under the intact door.
-    const flowsUnderDoor = location?.typ === DOOR
-        && (amorphous(monster.data) || can_fog(monster, state))
-        && (doorMask & (D_CLOSED | D_LOCKED));
-    // mon.c:mfndpos() sets `thrudoor` when ALLOW_WALL is present, so a
-    // wall-walker may follow its target through a closed doorway. postmov()
-    // skips the ordinary door-opening block for that monster.
-    const passWallDoorway = IS_DOOR(location?.typ)
-        && passes_walls(monster.data);
-    // mfndpos() admits an open or closed trapped door when it is otherwise
-    // passable; postmov() checks btrapped before its door-state arm.
-    const trappedDoor = location?.typ === DOOR
-        && (doorMask & D_TRAPPED)
-        && !(doorMask & D_LOCKED);
-    // C ref: mon.c mfndpos() :2166-2170. poolok and lavaok decide whether the
-    // monster can step onto pool and lava tiles. m_in_air() covers flyers,
-    // floaters, and ceiling-clinging clingers; is_swimmer() covers swimmers;
-    // likes_lava() covers fire elementals and salamanders. PM_FLOATING_EYE
-    // overrides lavaok to FALSE at :2169-2170. The pool test below is the
-    // source's `(poolok || is_pool(nx,ny) == wantpool)` predicate, including
-    // its second scan for an eel that starts on land.
-    const wantsPool = monster.data?.mlet === S_EEL;
-    const poolOkay = (!on_level(state.u?.uz, state.water_level)
-            && m_in_air(monster, state))
-        || (is_swimmer(monster.data) && !wantsPool);
-    // mfndpos() already selected this square. A stranded eel still prefers
-    // water; C retries land only when its first scan found no candidates.
-    // Land destinations are admitted below as ordinary terrain.
-    const lavaOkay = (m_in_air(monster, state) || likes_lava(monster.data))
-        && monsndx(monster.data) !== PM_FLOATING_EYE;
-    const passwallDestination = IS_OBSTRUCTED(location?.typ)
-        && passes_walls(monster.data)
-        && may_passwall(x, y, state);
-    const destinationPool = is_pool(x, y, state);
-    const destinationLava = is_lava(x, y, state);
-    const liquidDestination = (destinationPool || destinationLava)
-        && (poolOkay || destinationPool === wantsPool)
-        && (lavaOkay || !destinationLava);
-    const digsWall = digsDestination(location, x, y, env);
-    const ordinaryDestination = location
-        && (IS_ROOM(location.typ)
-            || location.typ === CORR
-            // C mon.c:mfndpos() already filtered IRONBARS through ALLOW_BARS
-            // and its diggability checks before m_move() offers this square.
-            // Keep that selected destination eligible so monmove.c:postmov()
-            // can run its source-owned passage or bar-dissolution branch.
-            || location.typ === IRONBARS
-            // A raised drawbridge's span over ice or floor. DRAWBRIDGE_UP is
-            // not IS_OBSTRUCTED, and mfndpos() has no drawbridge test, so it
-            // admits the square unless is_pool() or is_lava() reads moat or
-            // lava under the span, which liquidDestination below owns.
-            || (location.typ === DRAWBRIDGE_UP
-                && !destinationPool && !destinationLava)
-            || inertDoorway
-            || opensDoor
-            || unlocksDoor
-            || breaksDoor
-            || flowsUnderDoor
-            || passWallDoorway
-            || trappedDoor
-            || passwallDestination
-            || digsWall
-            || liquidDestination);
-    if (!ordinaryDestination)
-        unsupported('mfndpos() door or special terrain movement');
+    // mon.c mfndpos() chose this square, and m_move() and dog_move() pass
+    // the can_tunnel and can_unlock that postmov() acts on, so every terrain
+    // type mfndpos() can select has a source arm after the move: room,
+    // corridor and furniture squares, doors it opens, unlocks, busts, digs,
+    // flows under or walks through, walls and trees it digs or passes,
+    // pools and lava it can enter, iron bars and a raised drawbridge's span.
     // A trap on the destination is no longer refused here. C has no such gate:
     // monmove.c postmov() calls mintrap() after the move, and only there. That
     // is where an unported trap type now stops the scan, which also covers a
