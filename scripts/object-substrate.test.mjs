@@ -25,7 +25,6 @@ import {
     new_light_source,
 } from '../js/light.js';
 import {
-    UnsupportedObjectOperationError,
     ammo_and_launcher,
     blessorcurse,
     copy_oextra,
