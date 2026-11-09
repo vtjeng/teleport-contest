@@ -104,6 +104,7 @@ import {
     ydir,
     zdir,
     W_SADDLE,
+    has_mgivenname,
 } from './const.js';
 import { NO_COLOR } from './terminal.js';
 import {
@@ -4616,7 +4617,7 @@ export function there_cmd_menu_next2u(win, x, y, mod, act, state = game) {
         add(MCMD.MOVE_DIR, `Swap places with ${mon_nam(mtmp, state)}`);
         add(
             MCMD.NAME,
-            `${mtmp.mgivenname ? 'Rename' : 'Name'} ${mon_nam(mtmp, state)}`,
+            `${!has_mgivenname(mtmp) ? 'Name' : 'Rename'} ${mon_nam(mtmp, state)}`,
         );
     }
     if ((mtmp && !(mtmp.mpeaceful || mtmp.mtame))

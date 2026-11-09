@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27740319,
+      "datetime": "20460608173055",
+      "nethackrc": "OPTIONS=name:RenamePet,role:Wizard,race:orc,gender:male,align:chaotic,pettype:cat,catname:Mittens,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#therecmdmenu\nhcTabby\n#therecmdmenu\nh\u001b#therecmdmenu\nb\u001b"
+    }
+  ],
+  "comment": "Independent C runtime witness for cmd.c there_cmd_menu_next2u()'s naming row, which reads has_mgivenname(): #therecmdmenu toward a pet named by the catname option offers \"Rename Mittens\", the row renames it to Tabby and the next menu offers \"Rename Tabby\", and a peaceful goblin beside the orcish hero, which has no given name, offers \"Name the goblin\"."
+}
