@@ -112,7 +112,6 @@ import {
     dorub,
     reset_trapset,
     use_unicorn_horn,
-    UnsupportedApplyError,
 } from './apply.js';
 import { doinvoke } from './artifacts.js';
 import { ballrelease, placebc, unplacebc } from './ball.js';
@@ -2973,11 +2972,9 @@ export function failClosedCommandRefusals() {
         UnsupportedVaultGuardError,
         UnsupportedSearchError,
         UnsupportedDirectionBoundaryError,
-        UnsupportedApplyError,
         UnsupportedHelpError,
         UnsupportedWhatisError,
-        // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
-        // frame below UnsupportedApplyError rather than beside it.
+        // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
         // do_wear.c dotakeoff() raises this for a piece of armor whose
         // objects[].oc_delay is non-zero and for the slots whose <X>_off()

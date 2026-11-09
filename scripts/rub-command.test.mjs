@@ -3,10 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import {
-    DISPATCHED_COMMANDS,
-    failClosedCommandRefusals,
-} from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     CMDQ_EXTCMD,
     BLINDED,
@@ -36,7 +33,7 @@ import {
 } from '../js/objects.js';
 import { PM_DJINNI, PM_FLOATING_EYE } from '../js/monsters.js';
 import { djinni_from_bottle } from '../js/potion.js';
-import { dorub, rub_ok, UnsupportedApplyError } from '../js/apply.js';
+import { dorub, rub_ok } from '../js/apply.js';
 import { wield_tool } from '../js/wield.js';
 import {
     ESCAPE_KEY,
@@ -196,7 +193,6 @@ test('dorub wields an unwielded lamp and queues its continuation', async () => {
             { typ: CMDQ_KEY, command: undefined, key: lamp.invlet },
         ],
     );
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedApplyError));
 });
 
 for (const { label, rolls, message } of [

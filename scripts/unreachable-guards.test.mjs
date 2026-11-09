@@ -120,3 +120,14 @@ test('returnedStrings reads quoted and template returns', () => {
     const body = "{ if (a) return 'one'; if (b) return `two ${c}`; return null; }";
     assert.deepEqual(returnedStrings(body), ['one', 'two ${c}']);
 });
+
+// apply.c doapply() has a case label for every type it handles (4238-4402),
+// and the port has a case for each, so its default arm is C's own: poles,
+// picks and axes, then "Sorry, I don't know how to use that."
+test('doapply()\'s default arm refuses no named object type', () => {
+    const code = jsCode('apply.js');
+    assert.doesNotMatch(code, /DOAPPLY_UNPORTED_NAMED_ARMS/u);
+    const body = functionBody(code, 'doapply');
+    const defaultArm = body.slice(body.lastIndexOf('default:'));
+    assert.doesNotMatch(defaultArm, /\bthrow\b/u);
+});

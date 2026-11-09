@@ -7,7 +7,6 @@ import {
     apply_ok,
     doapply,
     its_dead,
-    UnsupportedApplyError,
 } from '../js/apply.js';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
@@ -1234,8 +1233,8 @@ async function heroWithEmptyWest() {
     return west;
 }
 
-// One listen west, answered from the Healer's stethoscope slot. Reports the
-// refusal's branch, or null when the listen ran through to its message.
+// One listen west, answered from the Healer's stethoscope slot. Returns null
+// once the listen has run through to its message.
 //
 // `dismissals` is one space per --More-- the listen will raise. A listen that
 // prints two messages needs one, because the second overflows the 80-column
@@ -1244,10 +1243,8 @@ async function heroWithEmptyWest() {
 async function listenWest(dismissals = 0) {
     for (const key of ['c', 'h', ...Array(dismissals).fill(' ')])
         game.nhDisplay.pushKey(key.charCodeAt(0));
-    return doapply(game).then(() => null, (error) => {
-        if (!(error instanceof UnsupportedApplyError)) throw error;
-        return error.branch;
-    });
+    await doapply(game);
+    return null;
 }
 
 // A corpse and a statue as mkobj.c leaves them on the floor. its_dead()'s

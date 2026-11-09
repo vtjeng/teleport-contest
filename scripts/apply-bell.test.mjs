@@ -20,7 +20,7 @@ test('use_bell preserves C branch order and its deferred common effects', () => 
     const cUseBell = cFunction(APPLY_C, 'use_bell(struct obj **optr)\n{');
     const jsUseBell = APPLY_JS.slice(
         APPLY_JS.indexOf('export async function use_bell('),
-        APPLY_JS.indexOf('\nconst DOAPPLY_UNPORTED_NAMED_ARMS',
+        APPLY_JS.indexOf('\n// C ref: apply.c beautiful()',
             APPLY_JS.indexOf('export async function use_bell(')),
     );
     assert.match(cUseBell,
@@ -63,7 +63,7 @@ test('the Bell awaits shared unpaid billing before spending a charge', () => {
     );
     const jsBell = APPLY_JS.slice(
         APPLY_JS.indexOf('export async function use_bell('),
-        APPLY_JS.indexOf('\nconst DOAPPLY_UNPORTED_NAMED_ARMS',
+        APPLY_JS.indexOf('\n// C ref: apply.c beautiful()',
             APPLY_JS.indexOf('export async function use_bell(')),
     );
     assert.match(cConsume,

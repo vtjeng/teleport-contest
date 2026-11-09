@@ -16,6 +16,7 @@ const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 
 export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedLightOperationError', // light.c new_light_source() type check
+    'UnsupportedApplyError', // apply.c doapply() arms that all have cases
 ];
 
 function stripComments(source) {

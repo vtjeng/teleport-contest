@@ -1617,15 +1617,6 @@ export async function use_grapple(obj, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// Thrown where apply.c reaches a tool or a branch this port has not ported.
-export class UnsupportedApplyError extends Error {
-    constructor(branch) {
-        super(`applying a tool requires ${branch}`);
-        this.name = 'UnsupportedApplyError';
-        this.branch = branch;
-    }
-}
-
 function cameraTransientLightEnv(state) {
     return {
         visionRecalc: (control) => vision_recalc(control, {
@@ -4034,14 +4025,6 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
     return ECMD_TIME;
 }
 
-const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
-    TOWEL,
-    FLINT,
-    LUCKSTONE,
-    LOADSTONE,
-    TOUCHSTONE,
-]);
-
 // C ref: apply.c beautiful() (1000-1017). Pure charisma/form-gender
 // description shared by the mirror and the name-command source owner.
 export function beautiful(state = game) {
@@ -5136,12 +5119,6 @@ export async function doapply(state = game, env = {}) {
         // BANANA also falls through here when not hallucinating. Those food
         // objects cannot be poles, picks, or axes because the source macros
         // admit only WEAPON_CLASS and TOOL_CLASS.
-        // The set above preserves each unported named switch arm rather than
-        // mistaking it for a generic refusal.
-        if (DOAPPLY_UNPORTED_NAMED_ARMS.has(obj.otyp))
-            throw new UnsupportedApplyError(
-                `doapply()'s arm for object type ${obj.otyp}`,
-            );
         if (is_pole(obj, state))
             return use_pole(obj, false, state);
         if (is_pick(obj, state) || is_axe(obj, state))

@@ -100,11 +100,6 @@ test('light_cocktail retains the complete C branch and helper order', () => {
 
     const cDoapply = cFunction(APPLY_C, 'doapply(void)\n{');
     assert.match(cDoapply, /case POT_OIL:\s+light_cocktail\(&obj\);\s+break;/u);
-    const namedArms = APPLY_JS.match(
-        /const DOAPPLY_UNPORTED_NAMED_ARMS = new Set\(\[([\s\S]*?)\]\);/u,
-    )?.[1];
-    assert.ok(namedArms, 'the remaining doapply refusal list is present');
-    assert.doesNotMatch(namedArms, /\bPOT_OIL\b/u);
     assert.match(
         APPLY_JS,
         /case POT_OIL:[\s\S]*?await light_cocktail\(objp, state, env\);\s+obj = objp\.obj;\s+return ECMD_TIME;/u,

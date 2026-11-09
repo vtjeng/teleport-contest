@@ -42,7 +42,7 @@ test('royal jelly helper preserves C split, prompt, egg effects, and cleanup ord
         APPLY_C, 'use_royal_jelly(struct obj **optr)\n{',
     );
     const jsStart = APPLY_JS.indexOf('// C ref: apply.c jelly_ok()');
-    const jsEnd = APPLY_JS.indexOf('\nconst DOAPPLY_UNPORTED_NAMED_ARMS', jsStart);
+    const jsEnd = APPLY_JS.indexOf('\n// C ref: apply.c beautiful()', jsStart);
     assert.ok(jsStart >= 0 && jsEnd > jsStart);
     const jsHelper = APPLY_JS.slice(jsStart, jsEnd);
 
