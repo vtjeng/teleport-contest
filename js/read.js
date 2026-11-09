@@ -1992,8 +1992,10 @@ function set_lit(x, y, lit, state, gremlins) {
     if (lit) {
         location.lit = true;
         const monster = m_at(x, y, state);
+        // C pushes each gremlin onto the front of its list, so litroom()
+        // hits the last one found first.
         if (monster?.data?.pmidx === PM_GREMLIN)
-            gremlins.push(monster);
+            gremlins.unshift(monster);
         return;
     }
     location.lit = false;
@@ -2126,11 +2128,8 @@ export async function litroom(on, object, state) {
             redraw: (x, y) => newsym(x, y),
         });
     }
-    for (const monster of gremlins) {
-        if (monster.mhp < 1) continue;
-        const damage = rnd(5);
-        await light_hits_gremlin(monster, damage, state);
-    }
+    for (const monster of gremlins)
+        await light_hits_gremlin(monster, rnd(5), state);
 }
 
 // C ref: read.c seffect_light() (1741-1785).  This is the complete source
