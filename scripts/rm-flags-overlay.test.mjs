@@ -14,6 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { assertExceptionCount } from './exception-count.mjs';
 import { makeLocation } from '../js/game.js';
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
@@ -40,10 +41,11 @@ const ALLOWED = {
 
 const FIELDS = ['doormask', 'looted', 'wall_info'];
 
-// Returns "file:line: text" for each code line that names the field. Line
-// comments and block-comment lines are skipped, because comments quote C's
-// `lev->doormask` and that is how the C source spells the field.
-function fieldFindings(field, name, source) {
+// Returns { line, text, allowed } for each code line that names the field,
+// `allowed` when an ALLOWED entry covers it. Line comments and block-comment
+// lines are skipped, because comments quote C's `lev->doormask` and that is
+// how the C source spells the field.
+function fieldSites(field, name, source) {
     const pattern = fieldPattern(field);
     const allowed = (ALLOWED[field] ?? []).filter((entry) => entry.file === name);
     const findings = [];
@@ -65,10 +67,16 @@ function fieldFindings(field, name, source) {
         const comment = code.indexOf('//');
         if (comment >= 0) code = code.slice(0, comment);
         if (!pattern.test(code)) return;
-        if (allowed.some((entry) => entry.line.test(line))) return;
-        findings.push(`${name}:${index + 1}: ${line.trim()}`);
+        findings.push({ line: index + 1, text: line.trim(),
+            allowed: allowed.some((entry) => entry.line.test(line)) });
     });
     return findings;
+}
+
+// Returns "file:line: text" for each site that no ALLOWED entry covers.
+function fieldFindings(field, name, source) {
+    return fieldSites(field, name, source).filter((site) => !site.allowed)
+        .map((site) => `${name}:${site.line}: ${site.text}`);
 }
 
 for (const field of FIELDS) {
@@ -81,6 +89,27 @@ for (const field of FIELDS) {
         assert.deepEqual(findings, []);
     });
 }
+
+test('ALLOWED holds the pinned number of entries and sites', () => {
+    // 2 entries covering 7 lines of js/objnam_readobjnam.js on 9f7e42e6
+    // (8 November 2026): its descriptor's `looted` key and six `d.looted`
+    // reads and writes.
+    const PINS = { entries: 2, sites: 7 };
+    assertExceptionCount(Object.values(ALLOWED).flat().length, PINS.entries, {
+        what: 'ALLOWED entries',
+        pin: 'PINS.entries in scripts/rm-flags-overlay.test.mjs',
+    });
+    const sites = readdirSync(JS_DIR).filter((name) => name.endsWith('.js'))
+        .flatMap((name) => {
+            const source = readFileSync(join(JS_DIR, name), 'utf8');
+            return FIELDS.flatMap((field) => fieldSites(field, name, source));
+        })
+        .filter((site) => site.allowed).length;
+    assertExceptionCount(sites, PINS.sites, {
+        what: 'field sites that ALLOWED excuses',
+        pin: 'PINS.sites in scripts/rm-flags-overlay.test.mjs',
+    });
+});
 
 test('the scan finds each way of naming the field and skips comments', () => {
     // Lines 1-4 each name the field; lines 5-10 only mention it in comments.
