@@ -11,6 +11,8 @@
 //   m_move() and dog_move() take every destination from mfndpos(), and with
 //   m_move()'s can_tunnel and can_unlock each terrain type mfndpos() can
 //   select has an arm.
+// - js/shk.js shk_move(): a shopkeeper without its eshk extension; every
+//   writer of isshk = true creates it first.
 //
 // This check fails when one of those refusals returns.
 
@@ -27,6 +29,7 @@ const REMOVED_REFUSALS = {
         'a tame pet without dog state',
         'mfndpos() door or special terrain movement',
     ],
+    'shk.js': ['shk_move without eshk extension'],
 };
 
 function stripComments(source) {

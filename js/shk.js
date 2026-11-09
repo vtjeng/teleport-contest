@@ -3916,10 +3916,7 @@ export async function fix_shop_damage(state = game, env = {}) {
 // -2 = died.
 export async function shk_move(shkp, state, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const eshkp = shkp.mextra?.eshk;
-    if (!eshkp) {
-        throw new UnsupportedShopError('shk_move without eshk extension');
-    }
+    const eshkp = shkp.mextra.eshk;
     const omx = shkp.mx;
     const omy = shkp.my;
 
