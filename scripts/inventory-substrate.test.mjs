@@ -51,7 +51,6 @@ import {
     OBJ_LUAFREE,
     OBJ_ONBILL,
     SHRINK_GLOB,
-    HOLE,
     PIT,
     TT_PIT,
     ROOM,
@@ -3528,21 +3527,20 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         // A shop level where the hero is NOT at a costly spot does not refuse
         // the drop -- sellobj() would be a no-op in C (shk.c:3938-3944).
         state.level.flags.has_shop = true;
-        // Use a trap to trigger the guard before mutation, since the hero is
-        // not at a costly spot and the narrowed shop guard is inert here. A
-        // seen hole remains behind the ship_object() boundary; a seen pit edge
-        // now reaches flooreffects()'s ported pit arm.
-        state.level.traps = [{ tx: 10, ty: 5, ttyp: HOLE, tseen: true }];
+        // An unpaid object away from a costly spot triggers the guard before
+        // mutation; every trap now reaches a ported flooreffects() or
+        // ship_object() arm.
+        ball.unpaid = true;
 
         assert.throws(
             () => preflight_dropx(ball, { state, hooks }),
-            /trap/u,
+            /unpaid/u,
         );
         assert.equal(state.invent, ball);
         assert.equal(ball.where, OBJ_INVENT);
         assert.equal(state.level.objects[10][5], null);
 
-        state.level.traps = [];
+        ball.unpaid = false;
         state.level.flags.has_shop = false;
         state.u.uprops[BLINDED].intrinsic = 1;
         assert.doesNotThrow(
@@ -3671,13 +3669,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.water_level = { ...state.u.uz };
                 state.level.at(10, 5).typ = WATER;
             }],
-            // Direct dropx has no reachability gate, but this trap still
-            // belongs to the unported shipping dependency.
-            ['seen hole floor', /trap/u, ({ state }) => {
-                state.level.traps.push({
-                    tx: 10, ty: 5, ttyp: HOLE, tseen: true,
-                });
-            }],
             ['worn ball', /worn/u, ({ obj }) => { obj.owornmask = W_WEP; }],
             ['wielded ball', /attached/u, ({ state, obj }) => {
                 state.uwep = obj;
@@ -3689,9 +3680,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.uswapwep = obj;
             }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
-            ['unseen hole effects', /trap/u, ({ state }) => {
-                state.level.traps.push({ tx: 10, ty: 5, ttyp: HOLE, tseen: false });
-            }],
             ['missing floor grid', /floor-object grid/u, ({ state }) => {
                 state.level.objects[10] = null;
             }],

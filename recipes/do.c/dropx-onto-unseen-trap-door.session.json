@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "do.c dropx() asks dokick.c ship_object(), whose down_gate() ships only through a seen hole or trap door, then dropz() -> flooreffects(), whose shaft arm needs the hero to have escaped a seen one. A human Valkyrie wishes for a trap door under herself, which she does not fall through, drops her dagger and a food ration on it (dodrop() -> dropx()), and wishes for a mastodon corpse too heavy to hold (\"Oops!\", invent.c hold_another_object() -> dropx()); each lands on the floor. Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 8823001,
+      "datetime": "20390318120000",
+      "nethackrc": "OPTIONS=name:Rurik,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "l\u0017trap door\n db dd \u0017mastodon corpse\n  ...."
+    }
+  ]
+}

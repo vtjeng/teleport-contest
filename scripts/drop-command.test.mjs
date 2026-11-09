@@ -1514,13 +1514,14 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     assert.match(js, /stackobj\(obj, normalized\);\s*if \(Blind\(normalized\.state\.u\) && Levitation\(normalized\.state\.u\)\) \{[^}]*(?:\(normalized\.hooks\.mapObject \?\? map_object\)|map_object)\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
 });
 
-// The boulder pit/hole arm precedes the hero pit-edge/shaft arm in C.
-test('inert boulder traps and pit edges pass while shafts stay bounded', async () => {
-    for (const [otyp, ttyp, seen, admitted] of [
-        [BOULDER, WEB, true, true], // Non-pit boulder traps are inert in flooreffects.
-        [RUBY, PIT, true, true], // Free hero on the known pit edge: message-only arm.
-        [RUBY, HOLE, true, false], // Shipping can consume the object.
-        [RUBY, HOLE, false, false], // Unseen shafts remain outside this fix too.
+// dokick.c ship_object() and do.c flooreffects()'s boulder and pit-edge or
+// shaft arms are all ported, so no trap refuses an ordinary drop.
+test('the drop preflight admits inert traps, pit edges and shafts', async () => {
+    for (const [otyp, ttyp, seen] of [
+        [BOULDER, WEB, true], // Non-pit boulder traps are inert in flooreffects.
+        [RUBY, PIT, true], // Free hero on the known pit edge: message-only arm.
+        [RUBY, HOLE, true], // Escaped shaft: ship_object() can consume the object.
+        [RUBY, HOLE, false], // Unseen: down_gate() refuses, ordinary placement.
     ]) {
         const state = await startedGame();
         const { ux, uy } = state.u;
@@ -1529,13 +1530,7 @@ test('inert boulder traps and pit edges pass while shafts stay bounded', async (
         state.level.traps.push({ tx: ux, ty: uy, ttyp, tseen: seen });
         const obj = addinv(mksobj(otyp, false, false, { state }), { state });
         const draws = getRngLog().length;
-        if (admitted) {
-            assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(state)));
-        } else {
-            assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
-                error => error instanceof UnsupportedDropError
-                    && /shipping or floor effects at a trap/u.test(error.message));
-        }
+        assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(state)));
         assert.equal(obj.where, OBJ_INVENT);
         assert.equal(getRngLog().length, draws);
     }
@@ -1549,9 +1544,10 @@ test('inert-trap admission uses the source pit-edge and shaft predicates', () =>
     assert.match(trapC, /!\(u\.utrap && u\.utraptype == TT_PIT\)/u);
     const js = readFileSync('js/do.js', 'utf8');
     const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
-    assert.match(preflight, /const boulderFillsTrap = obj\.otyp === BOULDER && trap[\s\S]*is_pit\(trap\.ttyp\) \|\| is_hole\(trap\.ttyp\)/u);
-    assert.match(preflight, /trap && !boulderFillsTrap[\s\S]*is_hole\(trap\.ttyp\)[\s\S]*uescaped_shaft\(trap, state\)/u);
-    // The pit-edge arm itself lives in flooreffects(); the preflight leaves it
-    // to that ported owner.
+    // The boulder, pit-edge and shaft arms live in flooreffects() and
+    // ship_object(); the preflight leaves every trap to those ported owners.
     assert.ok(!preflight.includes('uteetering_at_seen_pit('));
+    assert.ok(!preflight.includes('uescaped_shaft('));
+    assert.ok(!preflight.includes('t_at('));
+    assert.match(js, /if \(u_at\(x, y, state\) && trap\s*&& \(uteetering_at_seen_pit\(trap, state\)\s*\|\| uescaped_shaft\(trap, state\)\)\)/u);
 });

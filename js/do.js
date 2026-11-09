@@ -1944,24 +1944,11 @@ export function preflight_dropx(obj, env = {}) {
     // shk.c:sellobj() owns its shop checks after floor placement, including
     // the costly-spot test this preflight used to reject.
     // The remaining square effects are reached from dropz()'s flooreffects().
-    // do.c:dropx ships only at a down gate; flooreffects has a boulder arm for
-    // pits/holes and a separate arm for the hero at a seen pit/shaft edge.
-    // Other traps have no floor-effects arm for an ordinary drop.
-    const trap = t_at(x, y, state);
-    // do.c:flooreffects handles a boulder on a pit or hole before its later
-    // hero pit-edge/shaft arm. That branch consumes the boulder and removes
-    // the trap; other boulder traps are inert and reach ordinary placement.
-    // A hero teetering at a seen pit reaches flooreffects()'s pit arm
-    // (do.c:289-297), which only reports the object tumbling into the pit
-    // before ordinary placement. The hole and escaped-shaft arms ship the
-    // object through ship_object() and stay behind this boundary.
-    const boulderFillsTrap = obj.otyp === BOULDER && trap
-        && (is_pit(trap.ttyp) || is_hole(trap.ttyp));
-    if (trap && !boulderFillsTrap
-        && (is_hole(trap.ttyp)
-            || uescaped_shaft(trap, state))) {
-        throw new UnsupportedDropError('shipping or floor effects at a trap');
-    }
+    // do.c:dropx() asks dokick.c ship_object() first, which ships the object
+    // only at a seen hole or trap door (down_gate()); flooreffects() has a
+    // boulder arm for pits and holes and a separate arm for the hero at a
+    // seen pit or shaft edge, which ships through the same ship_object().
+    // Both are ported, so no trap refuses an ordinary drop here.
     // do.c:flooreffects routes ordinary objects through trap.c:lava_damage or
     // water_damage before floor placement. Boulder/pool has its separate
     // boulder_hits_pool branch; only the live submerged Water case above is
