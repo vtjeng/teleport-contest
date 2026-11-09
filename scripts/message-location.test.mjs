@@ -12,6 +12,8 @@ import {
     extractCSites,
     pairSites,
     scan,
+    stringConstants,
+    structConstants,
     substituteArguments,
 } from './message-location.mjs';
 import { findCompiler } from './recorder-headers.mjs';
@@ -25,10 +27,12 @@ test('every paired JS message makes its C site\'s location choice', async (t) =>
     const tally = counts(results);
     console.log(JSON.stringify(tally));
     assert.deepEqual(findings.map((f) => `${f.site.file}:${f.site.line} ${f.reason}`), []);
-    // 4276 C sites paired when the scan was written. A large drop means the
-    // pairing broke, for instance after a rename, and the scan would pass
-    // without checking those sites; 4000 leaves room for ordinary edits.
-    assert.ok(tally.paired >= 4000, `only ${tally.paired} C sites paired`);
+    // 4534 C sites paired by text and 121 by form when the scan was last
+    // extended. A large drop means the pairing broke, for instance after a
+    // rename, and the scan would pass without checking those sites; 4300
+    // and 100 leave room for ordinary edits.
+    assert.ok(tally.paired >= 4300, `only ${tally.paired} C sites paired by text`);
+    assert.ok(tally['paired by form'] >= 100, `only ${tally['paired by form']} C sites paired by form`);
 });
 
 // Hand-written preprocessor output for src/x.c. The line marker numbers the
@@ -139,5 +143,136 @@ test('pairSites reports a site that bypasses C\'s choice either way', () => {
         '2 C records a location; JS does not',
         '3 JS records a location; C does not',
         '4 JS records a location; C does not',
+    ]);
+});
+
+// Hand-written preprocessor output for src/y.c, whose message calls take
+// their text from constants and local variables. Sprintf() and pline1()
+// appear as the preprocessor expands them.
+const CONSTANT_C = [
+    '# 1 "src/y.c"',
+    'struct strs { const char *const s_one, *const s_two[2], *const s_three; };', // 1
+    'static const char *const A_gush = "A gush of water hits";', // 2
+    'void g(struct monst *m, int c) {', // 3
+    '    static const char use_it[] = "Use the command #%s to %s.";', // 4
+    '    const char *fmt;', // 5
+    '    char buf[256];', // 6
+    '    pline("%s %s!", A_gush, mon_nam(m));', // 7: a file constant as %s
+    '    pline(use_it, "pray", "live");', // 8: a function's constant as the format
+    '    if (c) fmt = "%s waves."; else fmt = "%s hides.";', // 9
+    '    pline_mon(m, fmt, Monnam(m));', // 10: each text assigned to fmt
+    '    ( void ) sprintf ( buf, "%s is %s.", Monnam(m), "sad" );', // 11
+    '    pline("%s", buf);', // 12: the format sprintf() wrote to buf
+    '    pline("%s", c_common.s_three);', // 13: a const struct's member
+    '}',
+    'const struct strs c_common = { "Nothing happens.", { "a", "b" }, "Never mind." };',
+].join('\n');
+
+test('extractCSites reads text from constants and local variables', () => {
+    const tokens = tokenizePreprocessed(CONSTANT_C);
+    // The struct's members are named in declaration order; the nested
+    // initializer of s_two is not text.
+    const shared = structConstants(tokens);
+    assert.deepEqual([...shared], [
+        ['c_common.s_one', 'Nothing happens.'],
+        ['c_common.s_three', 'Never mind.'],
+    ]);
+    const declared = stringConstants(tokens);
+    assert.deepEqual([...declared.file], [['A_gush', 'A gush of water hits']]);
+    // A static constant is not visible to other files.
+    assert.deepEqual([...declared.shared], []);
+    assert.deepEqual([...declared.local.values()].map((m) => [...m]),
+        [[['use_it', 'Use the command #%s to %s.']]]);
+    const sites = extractCSites(tokens, 'src/y.c', shared);
+    assert.deepEqual(sites.map((s) => [s.line, s.formats, s.texts]), [
+        [7, ['%s %s!'], ['%s %s!', 'A gush of water hits %s!']],
+        [8, ['Use the command #%s to %s.'],
+            ['Use the command #%s to %s.', 'Use the command #pray to live.']],
+        [10, ['%s waves.', '%s hides.'], ['%s waves.', '%s hides.']],
+        // sprintf()'s conversions stay conversions inside buf's text.
+        [12, ['%s'], ['%s', '%s is %s.', '%s is sad.']],
+        [13, ['%s'], ['%s', 'Never mind.']],
+    ]);
+});
+
+// thrwmu()'s polearm message: a located format with too few letters to
+// match by text, beside a plain one that a constant fills in.
+const SHORT_C = [
+    '# 1 "src/x.c"',
+    'static const char *const A_gush = "A gush of water hits";',
+    'void f(struct monst *m) {',
+    '    pline_mon(m, "%s %s %s.", Monnam(m), verb, an(onm));', // 3: located
+    '    pline("%s %s!", A_gush, mon_nam(m));', // 4: plain
+    '}',
+].join('\n');
+
+function shortFindings(jsSource, extraFiles = []) {
+    const cSites = extractCSites(tokenizePreprocessed(SHORT_C), 'src/x.c');
+    const { results, findings } = pairSites(cSites, [
+        { file: 'pline.js', source: 'export function pline_mon(mon, line) { return message(messageAt(line, mon.mx, mon.my)); }' },
+        ...extraFiles,
+        { file: 'x.js', source: jsSource },
+    ]);
+    return { statuses: results.map((r) => r.status), findings: findings.map((f) => `${f.site.line} ${f.reason}`) };
+}
+
+test('a short format pairs by form, and a constant fills in a %s', () => {
+    const good = shortFindings([
+        "import { pline_mon } from './pline.js';",
+        "import { gush } from './const.js';",
+        'export async function f(m, verb, name) {',
+        // A format passed on to another function, which only the short
+        // format's form matches; it prints nothing here, so it may be plain.
+        "    await mon_reflects(m, 'Your gaze is reflected by %s %s.');",
+        '    await pline_mon(m, `${Monnam(m)} ${verb} ${an(name)}.`);',
+        // An imported constant inside a template literal.
+        '    await message(`${gush} ${mon_nam(m)}!`);',
+        '}',
+    ].join('\n'), [{ file: 'const.js', source: "export const gush = 'A gush of water hits';" }]);
+    assert.deepEqual(good, { statuses: ['paired by form', 'paired'], findings: [] });
+
+    const bad = shortFindings([
+        "import { gush } from './const.js';",
+        'export async function f(m, verb, name) {',
+        // Plain where C's pline_mon() locates.
+        '    await message(`${Monnam(m)} ${verb} ${an(name)}.`);',
+        // Located where C's pline() does not.
+        '    await message(messageAt(`${gush} ${mon_nam(m)}!`, m.mx, m.my));',
+        '}',
+    ].join('\n'), [{ file: 'const.js', source: "export const gush = 'A gush of water hits';" }]);
+    assert.deepEqual(bad.findings, [
+        '3 C records a location; JS does not',
+        '4 JS records a location; C does not',
+    ]);
+});
+
+test('pairSites follows an imported constant and a format\'s .replace()', () => {
+    const cSites = extractCSites(tokenizePreprocessed([
+        '# 1 "src/x.c"',
+        'void f(struct monst *m) {',
+        '    pline("%s", nothing_happens_text);', // 2: plain, from decl.c
+        '    pline_mon(m, "%s looks healthy.", Monnam(m));', // 3: located
+        '}',
+    ].join('\n')), 'src/x.c', new Map([['nothing_happens_text', 'Nothing happens.']]));
+    const run = (body) => pairSites(cSites, [
+        { file: 'const.js', source: "export const nothing_happens = 'Nothing happens.';" },
+        { file: 'x.js', source: ["import { nothing_happens } from './const.js';", body].join('\n') },
+    ]).findings.map((f) => `${f.site.line} ${f.reason}`);
+    assert.deepEqual(run([
+        'export async function f(m) {',
+        '    await message(nothing_happens);',
+        "    let msg = '%s looks healthy.';",
+        "    await message(messageAt(msg.replace('%s', Monnam(m)), m.mx, m.my));",
+        '}',
+    ].join('\n')), []);
+    assert.deepEqual(run([
+        'export async function f(m) {',
+        '    await message(messageAt(nothing_happens, m.mx, m.my));',
+        "    let msg = '%s looks healthy.';",
+        "    await message(msg.replace('%s', Monnam(m)));",
+        '}',
+    ].join('\n')), [
+        '2 JS records a location; C does not',
+        '3 C records a location; JS does not',
     ]);
 });

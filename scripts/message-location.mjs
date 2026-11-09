@@ -16,35 +16,51 @@
 //
 // C side: the preprocessed sources (scripts/c-message-coverage.mjs) give
 // each call to a pline.c function, the function that contains it, and its
-// format argument's string literals. A call records a location when it is
+// format argument's text. A call records a location when it is
 // pline_mon() of a monster other than gy.youmonst, pline_xy() or pline_dir(),
 // or when it is the first message call after a set_msg_xy() or
-// set_msg_dir() in the same function, with no return, break, goto or continue
-// between them other than as the body of an if or else. A message call in another branch of the same if, else or
-// switch statement as that first one records it too, because only one of
-// the branches runs.
+// set_msg_dir() in the same function, with no return, break, goto or
+// continue between them other than as the body of an if or else. A message
+// call in another branch of the same if, else or switch statement as that
+// first one records it too, because only one of the branches runs.
+//
+// The text of a format, or of a %s argument, is a literal; a string
+// constant, as trap.c's A_gush_of_water_hits, cmd.c's unavailcmd[] or
+// decl.c's c_common_strings members (stringConstants(), structConstants());
+// or, for a local variable, each text the function assigns it, including
+// with strcpy() or sprintf() (localTexts()), as mcastu.c's `fmt`.
 //
 // JS side: each string expression in a JS function that corresponds to the
 // C function: by name, as AGENTS.md requires; by a helper named for part of
 // it, such as mon_break_armor_effects() for mon_break_armor(); or by a
-// "file.c function()" reference in a comment before or inside it. The
+// "file.c function()" reference in a comment before or inside it. A
+// reference to a string constant the module declares at its top level or
+// imports, as js/const.js nothing_happens, is a string expression too. The
 // expression pairs with a C site when its fixed text matches the C format
 // from end to end, where a conversion matches any text and the port may add
-// pline.c's "You " or "The " itself. A %s whose argument is a literal, or a
-// conditional between literals, also matches that literal, so "%s %s!"
-// with "wails" or "cries" pairs with `${name} wails!`. A format with fewer
-// than MIN_LETTERS letters outside its conversions is not paired.
+// pline.c's "You " or "The " itself. A %s whose argument has a known text
+// also matches that text, so "%s %s!" with "wails" or "cries" pairs with
+// `${name} wails!`.
+//
+// A format with fewer than MIN_LETTERS letters outside its conversions, as
+// thrwmu()'s "%s %s %s.", matches too much text to pair this way. It pairs
+// "by form" instead with the strings of its function that match it and that
+// no longer format matched; a format with no fixed text other than spaces,
+// as "%s", is not paired.
 //
 // The expression records a location when it reaches the text argument of a
 // location sink (SINKS, MEMBER_SINKS, or any JS function that passes one of
 // its parameters on to a sink) through conditionals, '+', template
-// literals, local variables, or a function's return value. A called name
-// resolves to the function its scope declares or the module it is imported
-// from.
+// literals, local variables, .replace(), or a function's return value. A
+// called name resolves to the function its scope declares or the module it
+// is imported from.
 //
 // A pair disagrees when no JS expression for a C site makes C's choice, or
-// when a JS expression makes a choice that none of its C sites makes. Every
-// C site the method cannot pair is counted by the reason it was not paired.
+// when a JS expression that a format matched by text makes a choice that
+// none of its C sites makes. A string that only formats paired by form
+// match may be no message at all, such as a format passed to
+// mon_reflects(), so the second rule does not apply to it. Every C site the
+// method cannot pair is counted by the reason it was not paired.
 //
 //   node scripts/message-location.mjs           print disagreements and counts
 //   node scripts/message-location.mjs --json    print every C site as JSON
@@ -96,6 +112,8 @@ export const SINKS = Object.freeze({ messageAt: 0, pline_mon: 1, consume_msg_xy:
 // env.message(text, x, y, env), whose default, defaultSearchMessage(),
 // prints messageAt(text, x, y).
 export const MEMBER_SINKS = Object.freeze({ 'detect.js': Object.freeze({ message: 0 }) });
+// String methods whose result holds the text they are called on.
+const STRING_METHODS = new Set(['replace', 'replaceAll']);
 
 // A format must hold this many letters outside its conversions to be
 // paired; "%s." or "%s %s!" matches too much of a function's text.
@@ -125,9 +143,123 @@ function callArguments(tokens, open, close) {
     return args;
 }
 
+// The string constants of one preprocessed file: each declarator of a
+// declaration that says const and initializes it with literals, as trap.c's
+// `static const char *const A_gush_of_water_hits = "A gush of water hits";`
+// or apply.c's `static const char whistle_str[] = "...", alt_whistle_str[]
+// = "...";`. `file` holds those outside functions, by name, and `shared` the
+// ones among them other files can see, which do not say static. Inside a
+// function only an array or a const pointer counts, since nothing can point
+// it at other text, as polyself.c's `static const char use_thec[] = "...";`;
+// `local` holds those by the index of their function's opening brace. A name
+// declared twice in one scope with different text is left out.
+export function stringConstants(tokens) {
+    const file = new Map();
+    const shared = new Map();
+    const local = new Map();
+    const add = (map, name, text) => map.set(name, map.has(name) && map.get(name) !== text ? null : text);
+    let depth = 0;
+    let functionStart = 0;
+    let isConst = false;
+    let isStatic = false;
+    for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i];
+        if (isPunct(t, '{') && depth++ === 0) functionStart = i;
+        else if (isPunct(t, '}')) depth = Math.max(0, depth - 1);
+        if (isPunct(t, ';') || isPunct(t, '{') || isPunct(t, '}')) {
+            isConst = isStatic = false;
+            continue;
+        }
+        if (isIdent(t, 'static')) isStatic = true;
+        if (isIdent(t, 'const') && !isPunct(tokens[i - 1], '*')) { isConst = true; continue; }
+        if (!isConst || t.type !== 'ident') continue;
+        let j = i + 1;
+        const array = isPunct(tokens[j], '[') && isPunct(tokens[j + 1], ']');
+        if (array) j += 2;
+        if (!isPunct(tokens[j], '=') || tokens[j + 1]?.type !== 'string') continue;
+        if (depth > 0 && !array && !(isIdent(tokens[i - 1], 'const') && isPunct(tokens[i - 2], '*'))) continue;
+        let text = '';
+        for (j++; tokens[j]?.type === 'string'; j++) text += decodeCString(tokens[j].value);
+        if (!isPunct(tokens[j], ',') && !isPunct(tokens[j], ';')) continue;
+        if (depth > 0) {
+            if (!local.has(functionStart)) local.set(functionStart, new Map());
+            add(local.get(functionStart), t.value, text);
+        } else {
+            add(file, t.value, text);
+            if (!isStatic) add(shared, t.value, text);
+        }
+        i = j - 1;
+    }
+    for (const map of [file, shared, ...local.values()])
+        for (const [name, text] of map) if (text === null) map.delete(name);
+    return { file, shared, local };
+}
+
+// The string members of each const struct a preprocessed file initializes,
+// by "variable.member": decl.c's `const struct c_common_strings
+// c_common_strings = { "Nothing happens.", ... }`, which decl.h names
+// nothing_happens and the rest, gives "c_common_strings.c_nothing_happens".
+// The members are named in the order the struct declares them.
+export function structConstants(tokens) {
+    const members = new Map(); // struct tag -> member names in order
+    const constants = new Map();
+    let depth = 0;
+    for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i];
+        if (isPunct(t, '{')) depth++;
+        else if (isPunct(t, '}')) depth = Math.max(0, depth - 1);
+        if (depth !== 0 || !isIdent(t, 'struct') || tokens[i + 1]?.type !== 'ident') continue;
+        const tag = tokens[i + 1].value;
+        if (isPunct(tokens[i + 2], '{')) {
+            const close = matchingClose(tokens, i + 2, '{', '}');
+            const names = [];
+            for (let j = i + 3, d = 0; j < close; j++) {
+                if (isPunct(tokens[j], '{')) d++;
+                else if (isPunct(tokens[j], '}')) d--;
+                else if (d === 0 && tokens[j].type === 'ident'
+                    && ['[', ',', ';'].some((v) => isPunct(tokens[j + 1], v))) names.push(tokens[j].value);
+            }
+            members.set(tag, names);
+            continue;
+        }
+        const variable = tokens[i + 2];
+        if (!isIdent(tokens[i - 1], 'const') || variable?.type !== 'ident'
+            || !isPunct(tokens[i + 3], '=') || !isPunct(tokens[i + 4], '{') || !members.has(tag)) continue;
+        const close = matchingClose(tokens, i + 4, '{', '}');
+        const args = callArguments(tokens, i + 4, close);
+        args.forEach(([a, b], k) => {
+            const run = tokens.slice(a, b);
+            const name = members.get(tag)[k];
+            if (name && run.length > 0 && run.every((r) => r.type === 'string'))
+                constants.set(`${variable.value}.${name}`, run.map((r) => decodeCString(r.value)).join(''));
+        });
+    }
+    return constants;
+}
+
+// The text at token j and the number of tokens it spans: a literal; an
+// identifier that names a string constant and is not called, indexed or
+// dereferenced; or a struct constant's member, as `c_common_strings .
+// c_nothing_happens`. Null for any other token.
+function literalText(tokens, j, sourceFile, constants) {
+    const t = tokens[j];
+    if (t.type === 'string') return t.value === sourceFile ? null : [decodeCString(t.value), 1];
+    if (t.type !== 'ident') return null;
+    const before = tokens[j - 1];
+    if (isPunct(before, '.') || (isPunct(before, '>') && isPunct(tokens[j - 2], '-'))) return null;
+    const next = tokens[j + 1];
+    if (isPunct(next, '.') && tokens[j + 2]?.type === 'ident') {
+        const member = `${t.value}.${tokens[j + 2].value}`;
+        return constants.has(member) && !isPunct(tokens[j + 3], '[') ? [constants.get(member), 3] : null;
+    }
+    if (!constants.has(t.value) || isPunct(next, '(') || isPunct(next, '[')
+        || (isPunct(next, '-') && isPunct(tokens[j + 2], '>'))) return null;
+    return [constants.get(t.value), 1];
+}
+
 // The format strings an argument can be: each run of adjacent literals
 // outside nested parentheses, so a ternary between literals gives both.
-function formatLiterals(tokens, [start, end], sourceFile) {
+function formatLiterals(tokens, [start, end], sourceFile, constants) {
     const literals = [];
     let run = null;
     let depth = 0;
@@ -135,8 +267,10 @@ function formatLiterals(tokens, [start, end], sourceFile) {
         const t = tokens[j];
         if (t.type === 'punct' && t.value === '(') depth++;
         if (t.type === 'punct' && t.value === ')') depth--;
-        if (t.type === 'string' && depth === 0 && t.value !== sourceFile) {
-            run = run === null ? decodeCString(t.value) : run + decodeCString(t.value);
+        const literal = depth === 0 ? literalText(tokens, j, sourceFile, constants) : null;
+        if (literal !== null) {
+            run = run === null ? literal[0] : run + literal[0];
+            j += literal[1] - 1;
         } else if (run !== null) {
             literals.push(run);
             run = null;
@@ -149,7 +283,11 @@ function formatLiterals(tokens, [start, end], sourceFile) {
 // The strings an argument can be when it is a literal or a conditional
 // between literals, as `cond ? "a" : "b"`; null for any other argument and
 // for a branch that is not a literal.
-function argumentStrings(tokens, [start, end], sourceFile) {
+//
+// A branch that is a single local variable stands for the texts the
+// function assigns it (see localTexts()); a text built by sprintf() is an
+// object { format }, whose conversions stay conversions.
+function argumentStrings(tokens, [start, end], sourceFile, constants, locals = null) {
     const branches = [];
     let from = start;
     let depth = 0;
@@ -164,12 +302,67 @@ function argumentStrings(tokens, [start, end], sourceFile) {
         }
     }
     branches.push([from, end]);
-    const strings = branches.map(([a, b]) => {
-        const run = tokens.slice(a, b);
-        return run.length > 0 && run.every((r) => r.type === 'string' && r.value !== sourceFile)
-            ? run.map((r) => decodeCString(r.value)).join('') : null;
+    const strings = branches.flatMap(([a, b]) => {
+        if (a >= b) return [null];
+        if (locals && b === a + 1 && tokens[a].type === 'ident') {
+            const assigned = locals(tokens[a].value);
+            if (assigned.length > 0) return assigned;
+        }
+        let text = '';
+        for (let j = a; j < b; j++) {
+            const literal = literalText(tokens, j, sourceFile, constants);
+            if (literal === null) return [null];
+            text += literal[0];
+            j += literal[1] - 1;
+        }
+        return [text];
     });
     return strings.some((text) => text !== null) ? strings : null;
+}
+
+// The texts one function assigns a local variable between `from` and `to`:
+// each `name = <literals>`, strcpy(name, <literals>) and sprintf(name,
+// <format>, ...), the last as an object { format } with its literal
+// arguments substituted. Other writes, such as strcat(), are not followed,
+// so a text found this way may be only part of what the variable holds;
+// patterns match a text from end to end, so such a text pairs with nothing.
+function localTexts(tokens, from, to, name, sourceFile, constants) {
+    const texts = [];
+    for (let j = from; j < to; j++) {
+        const t = tokens[j];
+        if (!isIdent(t, name)) continue;
+        const before = tokens[j - 1];
+        if (isPunct(before, '.') || isPunct(before, '>')) continue;
+        if (isPunct(tokens[j + 1], '=') && !isPunct(tokens[j + 2], '=')
+            && !(before?.type === 'punct' && '=!<>'.includes(before.value))) {
+            let end = j + 2;
+            for (let depth = 0; end < to; end++) {
+                const e = tokens[end];
+                if (e.type !== 'punct') continue;
+                if ('([{'.includes(e.value)) depth++;
+                else if (')]}'.includes(e.value)) depth--;
+                if (depth < 0 || (depth === 0 && (e.value === ';' || e.value === ','))) break;
+            }
+            const strings = argumentStrings(tokens, [j + 2, end], sourceFile, constants);
+            for (const text of strings ?? []) if (text !== null) texts.push(text);
+            continue;
+        }
+        const call = tokens[j - 2];
+        if (!isPunct(before, '(') || !isPunct(tokens[j + 1], ',') || call?.type !== 'ident') continue;
+        const close = matchingClose(tokens, j - 1, '(', ')');
+        const args = callArguments(tokens, j - 1, close);
+        if (call.value === 'strcpy' && args.length === 2) {
+            const strings = argumentStrings(tokens, args[1], sourceFile, constants);
+            for (const text of strings ?? []) if (text !== null) texts.push(text);
+        } else if (call.value === 'sprintf' && args.length >= 2) {
+            for (const format of formatLiterals(tokens, args[1], sourceFile, constants)) {
+                for (const text of substituteArguments(format, args.slice(2)
+                    .map((arg) => argumentStrings(tokens, arg, sourceFile, constants))))
+                    texts.push({ format: text });
+            }
+        }
+    }
+    return texts;
 }
 
 // A format with each %s whose argument is a literal, or a conditional
@@ -192,7 +385,8 @@ export function substituteArguments(format, argumentTexts) {
         const texts = m[0].endsWith('s') ? argumentTexts[argument] : null;
         argument++;
         if (!texts) { results = results.map((r) => r + m[0]); continue; }
-        const escaped = texts.map((text) => (text === null ? m[0] : text.replaceAll('%', '%%')));
+        const escaped = texts.map((text) => (text === null ? m[0]
+            : typeof text === 'object' ? text.format : text.replaceAll('%', '%%')));
         results = results.flatMap((r) => escaped.map((text) => r + text));
         if (results.length > MAX_TEXTS) return [format];
     }
@@ -228,10 +422,16 @@ function otherBranch(tokens, from, to) {
 
 // Every pline.c message call in one preprocessed file, with whether it
 // records a location. Only calls in `sourceFile` itself count.
-export function extractCSites(tokens, sourceFile) {
+//
+// `shared` holds string constants other files define, such as
+// structConstants() of decl.c.
+export function extractCSites(tokens, sourceFile, shared = new Map()) {
+    const declared = stringConstants(tokens);
+    const fileConstants = new Map([...shared, ...declared.file]);
     const sites = [];
     let depth = 0;
     let currentFunction = null;
+    let functionStart = 0;
     let pending = null; // index after a set_msg_xy() call not yet consumed
     let consumed = null; // the call that consumed it, for its other branches
     for (let i = 0; i < tokens.length; i++) {
@@ -240,6 +440,7 @@ export function extractCSites(tokens, sourceFile) {
             if (depth === 0) {
                 const prev = tokens[i - 1];
                 currentFunction = null;
+                functionStart = i;
                 if (isPunct(prev, ')')) {
                     let open = i - 1;
                     for (let d = 0; open >= 0; open--) {
@@ -290,7 +491,17 @@ export function extractCSites(tokens, sourceFile) {
                 .some((b) => isIdent(b, 'save_plnmsg'));
             const formatIndex = FORMAT_ARGUMENT[t.value];
             const formatArg = args[formatIndex];
-            const formats = formatArg ? formatLiterals(tokens, formatArg, sourceFile) : [];
+            const constants = new Map([...fileConstants, ...(declared.local.get(functionStart) ?? [])]);
+            const locals = (name) => localTexts(tokens, functionStart, i, name, sourceFile, constants);
+            // A format held in a local variable, as mcastu.c's `fmt`, is
+            // each text the function assigns it.
+            let formats = formatArg && formatArg[1] === formatArg[0] + 1
+                && tokens[formatArg[0]].type === 'ident'
+                ? [...new Set(locals(tokens[formatArg[0]].value)
+                    .map((text) => (typeof text === 'object' ? text.format : text)))]
+                : [];
+            if (formats.length === 0 && formatArg)
+                formats = formatLiterals(tokens, formatArg, sourceFile, constants);
             sites.push({
                 file: sourceFile,
                 function: currentFunction,
@@ -300,7 +511,8 @@ export function extractCSites(tokens, sourceFile) {
                 located,
                 formats,
                 texts: formats.flatMap((format) => substituteArguments(
-                    format, args.slice(formatIndex + 1).map((arg) => argumentStrings(tokens, arg, sourceFile)))),
+                    format, args.slice(formatIndex + 1)
+                    .map((arg) => argumentStrings(tokens, arg, sourceFile, constants, locals)))),
             });
         }
         // Calls in the arguments, such as a nested pline(), run first in C;
@@ -315,7 +527,11 @@ export function extractCSites(tokens, sourceFile) {
 // holds MIN_LETTERS letters outside its conversions. A conversion matches
 // any text, so the port may inline an argument C passes as %s; the port may
 // also build a prefix in a separate hole (a NUL in the JS text).
-export function sitePatterns(site) {
+//
+// With `short` set, the patterns are instead those of the texts that hold
+// fewer than MIN_LETTERS letters but some fixed text other than spaces, as
+// "%s %s %s." or "%s eats %s!".
+export function sitePatterns(site, short = false) {
     const patterns = [];
     for (const format of site.texts ?? site.formats) {
         const texts = [format];
@@ -323,18 +539,19 @@ export function sitePatterns(site) {
         if (site.callee === 'verbalize') texts.push(`"${format}"`);
         for (const text of texts) {
             let body = '';
-            let letters = 0;
+            let fixed = '';
             let last = 0;
             for (const m of text.matchAll(PRINTF_CONVERSION)) {
                 const literal = text.slice(last, m.index);
-                letters += (literal.match(/[A-Za-z]/gu) ?? []).length;
+                fixed += literal;
                 body += escapeRegExp(literal) + (m[0] === '%%' ? '%' : '[^]*?');
                 last = m.index + m[0].length;
             }
             const tail = text.slice(last);
-            letters += (tail.match(/[A-Za-z]/gu) ?? []).length;
+            fixed += tail;
             body += escapeRegExp(tail);
-            if (letters >= MIN_LETTERS)
+            const letters = (fixed.match(/[A-Za-z]/gu) ?? []).length;
+            if (short ? letters < MIN_LETTERS && /\S/u.test(fixed) : letters >= MIN_LETTERS)
                 patterns.push(new RegExp(`^(?:[^]*\\0)?${body}(?:\\0[^]*)?$`, 'u'));
         }
     }
@@ -365,11 +582,11 @@ function functionName(node, parent) {
 
 // One parsed JS file: its AST with parent links, its functions with the C
 // functions they correspond to, and its string expressions.
-function parseJs(file, source, cFunctions) {
-    const comments = [];
-    const ast = acorn.parse(source, {
-        ecmaVersion: 'latest', sourceType: 'module', onComment: comments,
-    });
+//
+// `imported(name)` gives the string initializer of a constant the file
+// imports, as js/const.js nothing_happens; a reference to such a constant,
+// or to one the file declares at its top level, is a string expression too.
+function parseJs(file, source, cFunctions, { ast, comments }, imported) {
     const parents = new Map();
     const functions = [];
     const strings = [];
@@ -430,17 +647,19 @@ function parseJs(file, source, cFunctions) {
             stack = [...stack, entry];
         }
         const isChain = node.type === 'BinaryExpression' && node.operator === '+';
-        if ((isChain || node.type === 'TemplateLiteral'
+        const lookup = (name) => {
+            for (let k = stack.length - 1; k >= 0; k--) {
+                const names = scopes.get(stack[k].node);
+                if (names.has(name)) return names.get(name);
+            }
+            const top = scopes.get(ast);
+            return top.has(name) ? top.get(name) : imported(name);
+        };
+        const moduleConstant = node.type === 'Identifier' && isValueReference(node, parent)
+            && !stack.some((entry) => scopes.get(entry.node).has(node.name)) && lookup(node.name) !== null;
+        if ((isChain || node.type === 'TemplateLiteral' || moduleConstant
             || (node.type === 'Literal' && typeof node.value === 'string'))
             && !insideString(node)) {
-            const lookup = (name) => {
-                for (let k = stack.length - 1; k >= 0; k--) {
-                    const names = scopes.get(stack[k].node);
-                    if (names.has(name)) return names.get(name);
-                }
-                const top = scopes.get(ast);
-                return top.has(name) ? top.get(name) : null;
-            };
             const keys = new Set(stack.flatMap((entry) => [...entry.keys]));
             if (keys.size > 0) {
                 const texts = textAlternatives(node, lookup).map((runs) => runs.join('\0'));
@@ -607,6 +826,15 @@ function locationAnalysis(parsed) {
                     if (p.operator !== '+') return NONE;
                     node = p;
                     continue;
+                case 'MemberExpression': {
+                    // text.replace('%s', name) holds the text, as a C
+                    // format with its argument.
+                    const call = parents.get(p);
+                    if (p.object !== node || p.computed || !STRING_METHODS.has(p.property.name)
+                        || call?.type !== 'CallExpression' || call.callee !== p) return NONE;
+                    node = call;
+                    continue;
+                }
                 case 'SequenceExpression':
                     if (p.expressions.at(-1) !== node) return NONE;
                     node = p;
@@ -657,8 +885,55 @@ function locationAnalysis(parsed) {
     return reaches;
 }
 
+// Whether an identifier reads a value, rather than naming a property, a
+// declaration or an import.
+function isValueReference(id, parent) {
+    if (!parent) return false;
+    if (parent.type === 'MemberExpression') return parent.object === id || parent.computed;
+    if (parent.type === 'Property') return parent.value === id;
+    if (parent.type === 'VariableDeclarator') return parent.init === id;
+    if (parent.type === 'AssignmentExpression') return parent.right === id;
+    if (FUNCTION_NODES.has(parent.type)) return parent.body === id;
+    return !['ImportSpecifier', 'ImportDefaultSpecifier', 'ImportNamespaceSpecifier',
+        'ExportSpecifier', 'LabeledStatement', 'BreakStatement', 'ContinueStatement',
+        'MethodDefinition', 'PropertyDefinition', 'ClassDeclaration', 'CatchClause',
+        'AssignmentPattern', 'RestElement', 'ArrayPattern', 'ObjectPattern'].includes(parent.type);
+}
+
 export function parseJsFiles(files, cFunctions) {
-    return files.map(({ file, source }) => parseJs(file, source, cFunctions));
+    const sources = files.map(({ file, source }) => {
+        const comments = [];
+        const ast = acorn.parse(source, {
+            ecmaVersion: 'latest', sourceType: 'module', onComment: comments,
+        });
+        return { file, source, ast, comments };
+    });
+    // Each file's exported string constants: `export const name = '...'`.
+    const exported = new Map();
+    for (const { file, ast } of sources) {
+        const names = new Map();
+        for (const statement of ast.body) {
+            const declaration = statement.type === 'ExportNamedDeclaration' ? statement.declaration : null;
+            if (declaration?.type !== 'VariableDeclaration' || declaration.kind !== 'const') continue;
+            for (const d of declaration.declarations) {
+                if (d.id.type === 'Identifier' && d.init?.type === 'Literal' && typeof d.init.value === 'string')
+                    names.set(d.id.name, d.init);
+            }
+        }
+        exported.set(file, names);
+    }
+    return sources.map(({ file, source, ast, comments }) => {
+        const imports = new Map();
+        for (const statement of ast.body) {
+            if (statement.type !== 'ImportDeclaration') continue;
+            const from = statement.source.value.replace(/^\.\//u, '');
+            for (const spec of statement.specifiers) {
+                const init = spec.type === 'ImportSpecifier' ? exported.get(from)?.get(spec.imported.name) : null;
+                if (init) imports.set(spec.local.name, init);
+            }
+        }
+        return parseJs(file, source, cFunctions, { ast, comments }, (name) => imports.get(name) ?? null);
+    });
 }
 
 function readJsFiles() {
@@ -717,14 +992,36 @@ export function pairSites(cSites, jsFiles) {
             matchedBy.get(s).push(result);
         }
     }
+    // A format with too little text pairs with the strings of its function
+    // that match its form and that no longer format matched.
+    const textPaired = new Set(matchedBy.keys());
+    for (const result of results) {
+        if (result.status !== 'too little text') continue;
+        const patterns = sitePatterns(result, true);
+        const key = `${result.file.split('/').pop()}\0${result.function}`;
+        if (patterns.length === 0 || !mappedKeys.has(key)) continue;
+        const candidates = (stringsByKey.get(key) ?? []).filter((s) => !textPaired.has(s)
+            && s.texts.some((text) => patterns.some((pattern) => pattern.test(text))));
+        if (candidates.length === 0) continue;
+        result.status = 'paired by form';
+        result.js = candidates;
+        for (const s of candidates) {
+            if (!matchedBy.has(s)) matchedBy.set(s, []);
+            matchedBy.get(s).push(result);
+        }
+    }
     const findings = [];
     for (const site of results) {
-        if (site.status !== 'paired') continue;
+        if (!site.status.startsWith('paired')) continue;
         if (site.js.some((s) => isLocated(s) === site.located)) continue;
         findings.push({ site, js: site.js, reason: site.located
             ? 'C records a location; JS does not' : 'JS records a location; C does not' });
     }
+    // A string that only short formats pair with may be one no C message
+    // call prints, such as a format passed to mon_reflects(), so only the
+    // rule above holds for those pairs.
     for (const [s, sites] of matchedBy) {
+        if (!textPaired.has(s)) continue;
         if (sites.some((site) => site.located === isLocated(s))) continue;
         if (findings.some((f) => f.js.includes(s))) continue;
         findings.push({ site: sites[0], js: [s], reason: isLocated(s)
@@ -736,8 +1033,16 @@ export function pairSites(cSites, jsFiles) {
 export async function scan({ compiler = findCompiler(), jobs = 2 } = {}) {
     if (!compiler) throw new Error('message-location: no C compiler (clang, cc, or gcc) found');
     const cSites = [];
-    for (const { source, tokens } of await tokenizeMessageSources({ compiler, jobs }))
-        cSites.push(...extractCSites(tokens, source));
+    const sources = await tokenizeMessageSources({ compiler, jobs });
+    // Constants another file defines, as cmd.c's unavailcmd[] or decl.c's
+    // c_common_strings; a name two files define differently is left out.
+    const shared = new Map();
+    for (const { tokens } of sources) {
+        for (const [name, text] of [...stringConstants(tokens).shared, ...structConstants(tokens)])
+            shared.set(name, shared.has(name) && shared.get(name) !== text ? null : text);
+    }
+    for (const [name, text] of shared) if (text === null) shared.delete(name);
+    for (const { source, tokens } of sources) cSites.push(...extractCSites(tokens, source, shared));
     return pairSites(cSites, readJsFiles());
 }
 
