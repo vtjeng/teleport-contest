@@ -349,11 +349,14 @@ export async function displayPendingTtyMessageWindow(state) {
 // `viaVpline` is false for tty_putmixed(), which reaches tty_putstr() and
 // update_topl() without vpline(): no MSGTYPE lookup, no vision or map flush,
 // no gp.prevmsg or iflags.last_msg update.
+//
+// Answers whether the message reached the window port: false when vpline()
+// returned before putmesg() (an empty format, or MSGTYPE hide or norep).
 async function ttyPlineCore(
     message, state, pflags, mixedFirstCell = null, viaVpline = true,
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
-    if (!message) return;
+    if (!message) return false;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
@@ -379,7 +382,7 @@ async function ttyPlineCore(
             && (msgtype === MSGTYP_NOSHOW
                 || (msgtype === MSGTYP_NOREP
                     && normalizedMessage === state._ttyPreviousMessage))) {
-            return;
+            return false;
         }
     }
     // C ref: pline.c vpline() (266-271). A recalculation another routine
@@ -481,7 +484,7 @@ async function ttyPlineCore(
         }
         if (urgentMessage && messageWin)
             messageWin.flags &= ~WIN_NOSTOP;
-        return;
+        return true;
     }
     if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
         sound_speak(normalizedMessage, state);
@@ -513,6 +516,7 @@ async function ttyPlineCore(
     // wintty.c clears the one-shot after the source-selected write path.
     if (urgentMessage && messageWin)
         messageWin.flags &= ~WIN_NOSTOP;
+    return true;
 }
 
 export async function ttyPline(message, state = game) {

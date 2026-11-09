@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83562,
+      "datetime": "20030214190000",
+      "nethackrc": "OPTIONS=name:Counter,role:Priest,race:elf,gender:female,align:chaotic,pettype:none,!legacy,!tutorial,!splash_screen\nMSGTYPE=norep \"Count: .*\"\n",
+      "moves": "12s12s"
+    }
+  ],
+  "comment": "cmd.c get_count(): the second 'Count: 12' equals gp.prevmsg, so MSGTYPE=norep makes vpline() return before flush_screen() and putmesg(); the top line stays blank and the cursor stays on the map."
+}

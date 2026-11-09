@@ -1849,9 +1849,13 @@ export async function get_count(
                 countMessage = `Count: ${count}`;
                 backspaced = false;
             }
-            await ttyCustomPline(countMessage, SUPPRESS_HISTORY, state);
-            await flush_screen(1);
-            state.nhDisplay?.setCursor(countMessage.length, 0);
+            // A MSGTYPE=hide or norep rule can swallow the line; vpline()
+            // then returns before its flush_screen() and putmesg(), and the
+            // cursor stays where it was.
+            if (await ttyCustomPline(countMessage, SUPPRESS_HISTORY, state)) {
+                await flush_screen(1);
+                state.nhDisplay?.setCursor(countMessage.length, 0);
+            }
         }
     }
 
