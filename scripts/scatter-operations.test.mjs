@@ -24,8 +24,15 @@ import {
     SCATTER_OPERATIONS,
     scatter,
 } from '../js/explode.js';
+import { assertExceptionCount } from './exception-count.mjs';
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
+
+// scatter() calls whose environment argument the caller check below cannot
+// read key by key, pinned both ways. 5 on 9f7e42e6 (8 November 2026): three
+// pass a variable (js/dbridge.js, js/dokick.js twice) and two spread one in
+// (js/trap_effects.js twice).
+const UNREAD_CALLS = 5;
 
 // The environment keys every owner in js/ gives the same meaning.
 const SHARED_KEYS = ['hooks', 'message', 'random'];
@@ -119,13 +126,20 @@ test('the environment check reports an operation read from env', () => {
 
 test('no caller passes a scatter() operation outside scatterOps', () => {
     const problems = [];
+    // Calls whose environment the scan cannot read key by key: one passed
+    // as a variable, or an object literal that spreads another object in.
+    let unread = 0;
     for (const name of readdirSync(JS_DIR).filter((f) => f.endsWith('.js'))) {
         walk(parse(join(JS_DIR, name)), (node) => {
             if (node.type !== 'CallExpression'
                 || node.callee.type !== 'Identifier'
                 || node.callee.name !== 'scatter') return;
             const env = node.arguments[6];
-            if (env?.type !== 'ObjectExpression') return;
+            if (env?.type !== 'ObjectExpression') {
+                if (env) unread++;
+                return;
+            }
+            if (env.properties.some((property) => property.type === 'SpreadElement')) unread++;
             for (const property of env.properties) {
                 const key = property.key?.name ?? property.key?.value;
                 if (property.type === 'Property' && SCATTER_OPERATIONS.includes(key))
@@ -134,6 +148,10 @@ test('no caller passes a scatter() operation outside scatterOps', () => {
         });
     }
     assert.deepEqual(problems, []);
+    assertExceptionCount(unread, UNREAD_CALLS, {
+        what: 'scatter() calls whose environment the scan cannot read',
+        pin: 'UNREAD_CALLS in scripts/scatter-operations.test.mjs',
+    });
 });
 
 test('scatter() refuses an operation it does not have', async () => {
