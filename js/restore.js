@@ -13,7 +13,7 @@
 import { push_front } from './hacklib.js';
 import { cliparound } from './wintty.js';
 import { rest_regions, rest_saved_level_regions } from './region.js';
-import { newsym } from './display.js';
+import { installLevel, newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import { restore_timers } from './timeout.js';
@@ -286,7 +286,7 @@ export async function dorestore(state = game) {
     state.urace = snapshot.urace;
 
     // Level and dungeon state
-    state.level = snapshot.level;
+    installLevel(snapshot.level, state);
     restoreLevelAt(state.level);
     // C ref: restore.c getlev():1149-1163, which dorecover() reaches for the
     // hero's level. The other levels' chains are reversed twice, once by
@@ -951,7 +951,7 @@ export async function getlev(ledger, state = game) {
     }
 
     // Restore the level, stairs, engravings, smeq, updest, dndest.
-    state.level = snapshot.level;
+    installLevel(snapshot.level, state);
     // C ref: restore.c getlev():1113 rest_stairs(). Each save and restore
     // reverses the stairway list, which makemon_rnd_goodpos()'s stair
     // fallback walks in order.

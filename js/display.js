@@ -7119,6 +7119,34 @@ function _clearRedrawnStatusOverlay(
 // there. They stay undefined until the first flush, cls() or docorner() that
 // reaches the cell. cls() and docorner()'s cl_end() blank them; `display`
 // also blanks the disp_* cell drawn from them for a UTF-8 glyph.
+// C keeps one glyph buffer, gg.gbuf, and one physical screen, and neither
+// belongs to a level: when goto_level() or #wizmakemap replaces the level,
+// both still hold the old level's cells until docrt()'s cls(). The port keeps
+// them in each location's disp_* and tty_* fields, so installLevel() carries
+// them from the departing level object to the arriving one. A show_glyph()
+// before that cls() -- an object rotting away in goto_level()'s run_timers()
+// -- then compares the new glyph with the old level's, as C does.
+// scripts/install-level.test.mjs fails when other code assigns the level.
+const SCREEN_BUFFER_FIELDS = Object.freeze([
+    'disp_ch', 'disp_color', 'disp_decgfx', 'disp_attr', 'disp_browser_ch',
+    'disp_browser_color', 'disp_browser_attr', 'disp_glyph', 'gnew',
+    'tty_ch', 'tty_color', 'tty_decgfx', 'tty_attr',
+]);
+
+export function installLevel(level, state) {
+    const departing = state.level;
+    state.level = level;
+    if (!departing?.at || !level?.at || departing === level) return;
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const from = departing.at(x, y);
+            const to = level.at(x, y);
+            if (!from || !to) continue;
+            for (const field of SCREEN_BUFFER_FIELDS) to[field] = from[field];
+        }
+    }
+}
+
 function clearTtyCell(loc, display = false) {
     loc.tty_ch = null;
     loc.tty_color = NO_COLOR;

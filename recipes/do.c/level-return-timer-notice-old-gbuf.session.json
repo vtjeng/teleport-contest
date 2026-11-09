@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 318845,
+      "datetime": "20450410150000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,mention_map\n",
+      "moves": "\u001b\u0017troll corpse\n\u001bdf\u00162\n\u001bssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\u001b\u00161\n  "
+    }
+  ],
+  "comment": "C keeps one glyph buffer for the screen, not one per level. Returning to level 1 after the troll corpse's timer has run out, goto_level()'s run_timers() newsym()s the corpse's square before docrt(); show_glyph() compares the remembered corpse with level 2's glyph still in the buffer, so mention_map announces it, and pager.c object_from_map() makes a stand-in corpse to name it."
+}
