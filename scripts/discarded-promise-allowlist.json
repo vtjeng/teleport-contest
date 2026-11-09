@@ -904,6 +904,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/sp_lev_object.js | applyObjectFields | oname": {
+      "count": 1,
+      "reason": "oname() returns a promise only for uwep or uswapwep; the level object it names here was just made and is neither."
+    },
     "js/sp_lev_object.js | blessorcurseSpecialObject | curseSpecialObject": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
