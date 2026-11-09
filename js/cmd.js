@@ -247,6 +247,7 @@ import {
     strstri,
     strsubst,
     truncateByteString,
+    encodeUtf8ByteString,
     appendLongDigit,
     upstart,
     visctrl,
@@ -444,18 +445,6 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
 // differs, and the message states it.
 export class UnsupportedHeroCommandBranchBoundaryError
     extends UnsupportedHeroCommandBoundaryError {}
-
-// A cmd.c getdir() or yn_function() path this port has not reached yet. Most
-// of these are raised after the prompt has painted and the answering key has
-// been read, so the segment keeps its matching prefix rather than the
-// keystroke; yn_function()'s two guards fire before anything paints.
-export class UnsupportedDirectionBoundaryError extends Error {
-    constructor(reason) {
-        super(`unsupported direction prompt: ${reason}`);
-        this.name = 'UnsupportedDirectionBoundaryError';
-        this.reason = reason;
-    }
-}
 
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
@@ -834,14 +823,11 @@ export async function yn_function(
     // back yet; js/invent.js is its other writer.
     state.iflags.last_msg = PLNMSG_UNKNOWN;
 
-    if (query.length >= QBUFSZ) {
-        // cmd.c:5486-5491 calls paniclog() and then truncates the query to
-        // QBUFSZ-4 characters plus "...". paniclog() writes a file, which game
-        // code may not do, and no ported caller passes a query anywhere near
-        // this long, so the port stops instead of guessing at the log.
-        throw new UnsupportedDirectionBoundaryError(
-            `a query of ${query.length} characters needs paniclog()`,
-        );
+    // cmd.c:5486-5491: the maximum acceptable length is QBUFSZ-1 bytes.
+    // paniclog() appends the query to a log file, which a game cannot see.
+    if (encodeUtf8ByteString(query).length >= QBUFSZ) {
+        note_unported('files.c paniclog');
+        query = `${truncateByteString(query, QBUFSZ - 1 - 3)}...`;
     }
     const queue = state.in_doagain ? CQ_REPEAT : CQ_CANNED;
     const queued = addcmdq ? cmdq_peek(queue, state) : null;
@@ -2958,7 +2944,6 @@ export function failClosedCommandRefusals() {
         // same two classes where a monster's attack reaches it.
         UnsupportedVaultGuardError,
         UnsupportedSearchError,
-        UnsupportedDirectionBoundaryError,
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
