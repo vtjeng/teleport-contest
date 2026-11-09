@@ -14,10 +14,12 @@ import {
     NUM_TIME_FUNCS,
 } from './const.js';
 
-// C ref: nhlua.c nhcore_call_names[]. The JS port has no Lua VM; a supplied
-// `state.gl.luacore` is therefore only the text-backed boundary object used
-// by source-pinned tests and future callers. It may contain an `nhcore`
-// object, but this module never creates or evaluates Lua code.
+// C ref: nhlua.c nhcore_call_names[]. The JS port has no Lua VM: the
+// nhcore.lua callbacks a game reaches (getpos_tip, enter_tutorial,
+// leave_tutorial) are ported directly, and nhcore.lua comments out the
+// start_new_game, restore_old_game, moveloop_turn and game_exit entries, so
+// nothing calls l_nhcore_call() or l_nhcore_done(). tutorial() keeps C's
+// availability array, which has one entry per name.
 const NHCORE_CALL_NAMES = Object.freeze([
     'start_new_game',
     'restore_old_game',
@@ -28,63 +30,8 @@ const NHCORE_CALL_NAMES = Object.freeze([
     'leave_tutorial',
 ]);
 
-function nhcoreState(state) {
-    return state?.gl ?? null;
-}
-
 function isLuaTable(value) {
     return value !== null && typeof value === 'object';
-}
-
-// C ref: nhlua.c l_nhcore_done(). Lua close and the private pattern state
-// remain explicit gaps because their return values are not used by the C
-// caller and the JS port deliberately has no Lua VM or filesystem-backed
-// pattern matcher.
-export function l_nhcore_done(state = game) {
-    const gl = nhcoreState(state);
-    if (gl?.luacore) {
-        note_unported('nhlua.c nhl_done');
-        // C clears gl.luacore after nhl_done(), even when Lua teardown is not
-        // available at this boundary.
-        gl.luacore = null;
-    }
-    note_unported('nhlua.c end_luapat');
-}
-
-// C ref: nhlua.c l_nhcore_call(). A text-backed core can expose the same
-// table shape for guard and availability tests. Calling the Lua function is
-// still an unported nhl_pcall_handle() operation, so do not execute a JS
-// function as a fabricated Lua VM substitute.
-export function l_nhcore_call(callidx, state = game) {
-    const gl = nhcoreState(state);
-    if (callidx < 0 || callidx >= NHCORE_CALL_NAMES.length
-        || !gl?.luacore)
-        return;
-
-    // l_nhcore_init() marks every entry available after loading nhcore.lua.
-    // A boundary object with luacore is the JS equivalent of that loaded
-    // state; keep the C static availability array beside the represented gl
-    // state so a missing callback stays unavailable until the next init.
-    const available = gl.nhcore_call_available
-        ??= Array(NHCORE_CALL_NAMES.length).fill(true);
-    if (!available[callidx]) return;
-
-    const nhcore = gl.luacore.nhcore;
-    if (!isLuaTable(nhcore)) {
-        // C closes the persistent state and clears gl.luacore when the
-        // global nhcore is not a table.
-        note_unported('nhlua.c nhl_done');
-        gl.luacore = null;
-        return;
-    }
-
-    const callback = nhcore[NHCORE_CALL_NAMES[callidx]];
-    if (typeof callback === 'function') {
-        note_unported('nhlua.c nhl_pcall_handle');
-    } else {
-        // C disables only this callback when the field is not a function.
-        available[callidx] = false;
-    }
 }
 
 // version.js loads this module during startup, before the inventory modules

@@ -83,6 +83,13 @@ export const RULES = [
         name: 'missing dat file arm',
         pattern: /couldnt_open_file|couldntOpenFile/gu,
     },
+    {
+        // nhlua.c l_nhcore_call() and l_nhcore_done() serve a persistent Lua
+        // core the port does not have: nhcore.lua's live callbacks are ported
+        // directly, and its other entries are commented out.
+        name: 'Lua core call stand-in',
+        pattern: /l_nhcore_call|l_nhcore_done|\.luacore\b/gu,
+    },
 ];
 
 function stripComments(source) {
