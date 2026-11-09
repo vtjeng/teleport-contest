@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c dropx() witness for a box whose lock picking was interrupted. A debug gnomish Healer drops a wished locked large box, wishes a credit card, creates a newt beside her and starts unlocking the box; the newt interrupts, leaving lock.c xlock.box set. She picks the box up and drops it again: C's drop is ordinary (\"You drop a locked large box.\"), since only obfree() or a level change resets xlock.box.",
+  "segments": [
+    {
+      "seed": 6620913,
+      "datetime": "20410825103000",
+      "nethackrc": "OPTIONS=name:Picker,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017locked large box\n dl\u0017credit card\n\u0007newt\nam.y,  dls"
+    }
+  ]
+}

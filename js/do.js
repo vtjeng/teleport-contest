@@ -1883,10 +1883,10 @@ export function preflight_dropx(obj, env = {}) {
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
     // below admits only a plain item returned to its shop's costly square,
-    // and the shop-level test refuses an unpaid merge target. Only the box
-    // whose lock the hero is picking is left.
-    if (state.xlock?.box === obj)
-        throw new UnsupportedDropError('the box whose lock is being picked');
+    // and the shop-level test refuses an unpaid merge target. A box whose
+    // lock picking was interrupted drops like any other: lock.c keeps
+    // xlock.box until obfree() or a level change resets it (lock.c 269-285),
+    // and a dropped box does not merge.
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
     // not test can_reach_floor(). Underwater drops still reach flooreffects;
     // its pool arm suppresses splash messages while Underwater is true.

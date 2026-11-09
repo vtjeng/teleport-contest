@@ -3589,11 +3589,6 @@ test('direct drop preflight admits a dry Water-level floor without changing owne
 test('ordinary drop preflight atomically refuses every excluded do.c tail',
     () => {
         const cases = [
-            // shk.c obfree()'s last operation: lock.c reset_pick(), for the
-            // box whose lock the hero is in the middle of picking.
-            ['box being picked', /lock is being picked/u, ({ state, obj }) => {
-                state.xlock = { box: obj };
-            }],
             ['water level liquid', /special-level/u, ({ state }) => {
                 state.water_level = { ...state.u.uz };
                 state.level.at(10, 5).typ = WATER;
