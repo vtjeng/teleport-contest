@@ -3462,15 +3462,12 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         // A shop level where the hero is NOT at a costly spot does not refuse
         // the drop -- sellobj() would be a no-op in C (shk.c:3938-3944).
         state.level.flags.has_shop = true;
-        // An unpaid object away from a costly spot triggers the guard before
-        // mutation; every trap now reaches a ported flooreffects() or
-        // ship_object() arm.
+        // An unpaid object away from a costly spot is admitted too: sellobj()
+        // returns before taking it off the bill, and it stays unpaid on the
+        // floor. Every trap reaches a ported flooreffects() or ship_object()
+        // arm.
         ball.unpaid = true;
-
-        assert.throws(
-            () => preflight_dropx(ball, { state, hooks }),
-            /unpaid/u,
-        );
+        assert.doesNotThrow(() => preflight_dropx(ball, { state, hooks }));
         assert.equal(state.invent, ball);
         assert.equal(ball.where, OBJ_INVENT);
         assert.equal(state.level.objects[10][5], null);
@@ -3603,7 +3600,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['swap-wielded ball', /attached/u, ({ state, obj }) => {
                 state.uswapwep = obj;
             }],
-            ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
         ];
 
         for (const [name, reason, setup, otyp] of cases) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c dropz() witness for an unpaid item dropped on a shop square that is not costly. On the D:5 general store of seed 8510310 (also used by the unpaid-container-return recipe), a debug Healer picks up a scroll for sale, teleports with ^T onto the shop's open door (a shop square for u.ushops, but not costly_spot()) and drops it there: shk.c sellobj() returns at its costly_spot() test, so C prints only \"You drop ... (unpaid, 53 zorkmids).\" and the scroll stays on the bill. She picks it up again and waits.",
+  "segments": [
+    {
+      "seed": 8510310,
+      "datetime": "20350108141619",
+      "nethackrc": "OPTIONS=name:Absent,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen,!tips\n",
+      "moves": "  \u00165\n   , \u0014 lljjj. dk  s,  s"
+    }
+  ]
+}

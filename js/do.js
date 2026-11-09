@@ -354,7 +354,7 @@ import { delete_levelfile } from './files.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { save_msghistory, savelev } from './save.js';
-import { costly_spot, fix_shop_damage, sellobj, sellobj_state } from './shk.js';
+import { fix_shop_damage, sellobj, sellobj_state } from './shk.js';
 import {
     container_impact_dmg, impact_drop, obj_delivery, ship_object,
 } from './dokick.js';
@@ -1921,13 +1921,10 @@ export function preflight_dropx(obj, env = {}) {
         || (state.uswapwep === obj && !secondaryWeapon)) {
         throw new UnsupportedDropError('a worn or attached object');
     }
-    // do.c:dropz() places a returned shop item before shk.c:sellobj()
-    // removes it from the bill. Admit that source path for an unpaid item,
-    // plain or a container (sellobj()'s dropped_container() and subfrombill()
-    // arms), on the resident keeper's costly square; retain the boundary for
-    // drops outside the shop.
-    if (obj.unpaid && !costly_spot(u.ux, u.uy, state))
-        throw new UnsupportedDropError('an unpaid object');
+    // do.c:dropz() places an unpaid item before shk.c:sellobj(), which takes
+    // it off the bill only on a costly square; elsewhere (the shop door, the
+    // keeper's own spot, a shop its keeper has left) it stays unpaid on the
+    // floor.
 
     const { ux: x, uy: y } = u;
     // shk.c:sellobj() owns its shop checks after floor placement, including
