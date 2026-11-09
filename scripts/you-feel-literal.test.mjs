@@ -6,7 +6,7 @@
 // what the scan finds in sources written for the test.
 
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -14,10 +14,13 @@ import test from 'node:test';
 import {
     ALLOWED_FILES,
     ALLOWED_LITERALS,
+    PROJECT_ROOT,
     feelLiterals,
+    scanFiles,
     staleEntries,
     unlistedLiterals,
 } from './you-feel-literal.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
 
 const lines = (source) => feelLiterals(source, 'js/x.js').map(({ line }) => line);
 
@@ -27,6 +30,24 @@ test('every hand-written "You feel" in js/ is a listed non-You_feel() site', () 
 
 test('every allow-list entry still matches a literal in js/', () => {
     assert.deepEqual(staleEntries(), []);
+});
+
+test('the allow-lists hold the pinned number of entries and literals', () => {
+    // On 9f7e42e6 (8 November 2026): 34 ALLOWED_LITERALS entries, each
+    // matching one literal, and one ALLOWED_FILES entry,
+    // js/quest_text_data.js, holding 14 "You feel" literals.
+    const PINS = { literalEntries: 34, literals: 34, fileEntries: 1, fileLiterals: 14 };
+    const pin = (key) => `PINS.${key} in scripts/you-feel-literal.test.mjs`;
+    assertExceptionCount(ALLOWED_LITERALS.length, PINS.literalEntries,
+        { what: 'ALLOWED_LITERALS entries', pin: pin('literalEntries') });
+    assertExceptionCount(scanFiles().filter((finding) => finding.allowed).length, PINS.literals,
+        { what: 'allowed "You feel" literals', pin: pin('literals') });
+    assertExceptionCount(ALLOWED_FILES.length, PINS.fileEntries,
+        { what: 'ALLOWED_FILES entries', pin: pin('fileEntries') });
+    const fileLiterals = ALLOWED_FILES.reduce((n, { file }) =>
+        n + feelLiterals(readFileSync(join(PROJECT_ROOT, file), 'utf8'), file).length, 0);
+    assertExceptionCount(fileLiterals, PINS.fileLiterals,
+        { what: '"You feel" literals in ALLOWED_FILES', pin: pin('fileLiterals') });
 });
 
 test('every allow-list entry names its C call', () => {
