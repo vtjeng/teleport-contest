@@ -10,11 +10,11 @@ import test from 'node:test';
 
 import { DAT_LUA_FILES } from '../js/dat_files.js';
 import { specialLevelLoaderNames } from '../js/mklev.js';
+import { LUA_LIBRARY_FILES } from '../js/nhlua.js';
 
-// The dat/ programs that are not levels: the dungeon layout, the core and
-// library scripts, the quest text and the themed-room generator. Each is run
-// by its own C caller, never by makemaz().
-const NOT_LEVELS = ['dungeon', 'nhcore', 'nhlib', 'quest', 'themerms'];
+// The dat/ programs that are not levels. Each is run by its own C caller,
+// never by makemaz(); nhl_loadlua() runs only their top level.
+const NOT_LEVELS = [...LUA_LIBRARY_FILES].map((file) => file.replace(/\.lua$/u, ''));
 
 function datPrograms() {
     return [...DAT_LUA_FILES].map((file) => file.replace(/\.lua$/u, '')).sort();

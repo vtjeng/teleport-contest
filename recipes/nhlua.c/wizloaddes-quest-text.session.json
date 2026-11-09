@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_loadlua() through sp_lev.c load_special(): #wizloaddes quest.lua runs a library file whose top level only defines the quest text, so only nhl_init()'s shuffle precedes load_special()'s post-processing of the current level. Variation of wizloaddes-nhlib: no second shuffle, another role and seed.",
+  "segments": [
+    {
+      "seed": 71230423,
+      "datetime": "20641104163005",
+      "nethackrc": "OPTIONS=name:DesQuest,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloaddes\nquest.lua\n                        "
+    }
+  ]
+}

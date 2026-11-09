@@ -77,6 +77,7 @@ import {
     luaL_checkoption,
     luaL_checkstring,
     luaL_typename,
+    nhl_loadlua,
 } from './nhlua.js';
 import {
     create_maze,
@@ -353,7 +354,6 @@ import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
 import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
-import { DAT_LUA_FILES } from './dat_files.js';
 import { dungeon_at } from './dungeon_table.js';
 
 const XLIM = 4;
@@ -2034,45 +2034,31 @@ export async function specialLevelLoaderNames() {
     return Object.keys(SPECIAL_LEVEL_LOADERS);
 }
 
-// C ref: sp_lev.c load_special(). Initializes the level coder, runs the
-// level definition loader (the JS equivalent of load_lua), and applies
-// post-processing. Returns true when the level loaded, false when no
-// loader exists for the given name.
+// C ref: sp_lev.c load_special(). Initializes the level coder, loads the
+// named dat/ file through load_lua() (a level program runs through its
+// loader, the JS form of its Lua), and applies post-processing. Returns false
+// when the file cannot be loaded.
 export async function load_special(name, state, callerEnv = null) {
     await ensureSpecialLevelLoaders();
-    // C's DLB filenames have .lua; the existing port registry uses the
-    // same program names without the extension. Preserve case and whitespace.
-    const loader = SPECIAL_LEVEL_LOADERS[name.endsWith('.lua') ? name.slice(0, -4) : name];
     // C creates gc.coder, including the file-scope SpLev_Map state, before
     // attempting load_lua(). Keep that state available to the caller's
-    // NULL-state finalizer even when the Lua program is not implemented.
+    // NULL-state finalizer even when the load fails.
     const specialLevelApi = createSpecialLevelApi(state);
     if (callerEnv) callerEnv.frame = specialLevelApi.frame;
-    // C ref: nhlua.c nhl_init(); dat/nhlib.lua. The Lua state shuffles
-    // its private alignment table before nhl_loadlua() opens the file.
-    const nhlInit = () => {
-        const align = ['law', 'neutral', 'chaos'];
-        shuffle_core_values(align, rn2);
-        state.specialLevelAlign = align;
-    };
-    if (!loader) {
-        // nhlua.c nhl_loadlua() (2198-2203): dlb_fopen() finds no file by a
-        // name outside dat/, and the load fails after impossible(). A path
-        // with a directory part could reach another file, and running a
-        // dat/ file that has no port here is not supported.
-        if (!name.includes('/') && !DAT_LUA_FILES.has(name)) {
-            nhlInit();
-            await impossible(`nhl_loadlua: Error opening (${name})`, state);
-            return false;
-        }
-        // wiz_load_splua discards this load result and continues.
-        note_unported('nhlua.c nhl_loadlua');
-        return false;
-    }
-
-    nhlInit();
-
-    await loader(specialLevelApi, state);
+    // C ref: nhlua.c load_lua(). nhl_init() loads nhlib.lua, which shuffles
+    // the Lua state's private alignment table, before nhl_loadlua() opens
+    // the file.
+    const align = ['law', 'neutral', 'chaos'];
+    shuffle_core_values(align, rn2);
+    const lua = { align };
+    const loaded = await nhl_loadlua(lua, name, state);
+    state.specialLevelAlign = lua.align;
+    if (!loaded) return false;
+    // A library file's top level leaves the coder as create_des_coder()
+    // made it, and load_special() post-processes the current level as it is.
+    // The port registers each level program under its name without ".lua".
+    if (loaded === 'level')
+        await SPECIAL_LEVEL_LOADERS[name.slice(0, -'.lua'.length)](specialLevelApi, state);
 
     // Post-processing: finish() covers link_doors_rooms,
     // remove_boundary_syms, map_cleanup, wallification, flip_level_rnd,
@@ -2102,14 +2088,13 @@ async function makemaz(proto, slev, state) {
     if (protofile) {
         check_ransacked(protofile, state);
         // C ref: mkmaze.c:1184-1193. load_special() runs the Lua level
-        // definition and applies post-processing.
-        if (await load_special(protofile, state)) {
+        // definition and applies post-processing. C appends LEV_EXT first.
+        if (await load_special(`${protofile}.lua`, state)) {
             // C ref: mkmaze.c:1191. Dead monsters created during level
             // loading are freed here.
             dmonsfree(state);
             return;
         }
-        // C appends LEV_EXT to protofile before load_special().
         await impossible(
             `Couldn't load "${protofile}.lua" - making a maze.`, state);
     }

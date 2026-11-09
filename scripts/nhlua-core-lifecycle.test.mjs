@@ -42,27 +42,34 @@ test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', asyn
     freshGame();
     game.iflags = { in_lua: false }; // C iflags exists before any command.
     const draws = [];
-    const result = load_lua('nhlib.lua', {}, game, { random(bound) {
+    const result = await load_lua('nhlib.lua', {}, game, { random(bound) {
         assert.equal(game.iflags.in_lua, true);
         draws.push(bound);
         return 0; // A valid draw in both the three- and two-entry shuffle.
     } });
-    assert.equal(result, undefined); // No fabricated consumed Lua-state/result.
+    assert.equal(result, true); // load_lua()'s ret: nhl_loadlua() succeeded.
     assert.deepEqual(draws, [3, 2, 3, 2]); // Implicit then explicit library load.
     assert.equal(game.iflags.in_lua, false);
     assert.deepEqual([...game.unported], ['nhlua.c nhlL_newstate', 'nhlua.c nhl_done']);
 });
 
-test('bounded load_lua initializes before a named arbitrary-program gap', async () => {
+test('bounded load_lua initializes before a level program it cannot run', async () => {
     const { load_lua } = await import('../js/nhlua.js');
     assert.equal(typeof load_lua, 'function');
-    freshGame();
-    game.iflags = { in_lua: false }; // Source-valid command state.
-    const draws = [];
-    load_lua('other.lua', {}, game, { random: bound => { draws.push(bound); return 0; } });
-    assert.deepEqual(draws, [3, 2]); // C initializes before requested-file lookup.
-    assert.equal(game.iflags.in_lua, false);
-    assert.deepEqual([...game.unported], [
-        'nhlua.c nhlL_newstate', 'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
-    ]);
+    // minefill.lua is a level program in dat/, which C runs without a coder;
+    // "kits/one.lua" has a directory part, so dlb_fopen() reaches the host
+    // filesystem. Both stay noted after nhl_init()'s shuffle.
+    for (const name of ['minefill.lua', 'kits/one.lua']) {
+        freshGame();
+        game.iflags = { in_lua: false }; // Source-valid command state.
+        const draws = [];
+        await load_lua(name, {}, game, {
+            random: bound => { draws.push(bound); return 0; },
+        });
+        assert.deepEqual(draws, [3, 2], name); // C initializes before lookup.
+        assert.equal(game.iflags.in_lua, false, name);
+        assert.deepEqual([...game.unported], [
+            'nhlua.c nhlL_newstate', 'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
+        ], name);
+    }
 });
