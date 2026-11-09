@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 530117,
+      "datetime": "20470922130415",
+      "nethackrc": "OPTIONS=name:Genocider,role:Priest,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u00175 blessed scrolls of genocide\nri  D\n\u001bri H\n\u001bri c\n\u001bri Y\n\u001bri X\n\u001bE- Elbereth\n\u001b\u0007arch-lich\n\u001bmsms\u001bms\u001b\u001b.\u001bms\u001b.\u001bms\u001b.\u001bms\u001b.\u001b\u001bn\u001bms\u001b.\u001bms\u001b\u001bn\u001bms\u001b\u001bn\u001bn\u001b\u001bn\u001bms\u001bn\u001bms\u001bn\u001bms\u001bn\u001bms\u001bn\u001bms\u001b\u001bn\u001bn\u001bms\u001bn\u001bms\u001bn\u001bms\u001bn\u001b\u001bn\u001bms\u001bn\u001b\u001bn\u001bnms\u001b\u001bn\u001bms\u001bn\u001bms\u001bn\u001b\u001bn\u001bn\u001bms\u001b\u001bn\u001b\u001bn\u001bms\u001bn\u001b\u001bnms\u001bn\u001bms\u001b\u001bn\u001bms\u001bn\u001bn\u001bms\u001bn\u001b\u001bn\u001bms\u001bms\u001bn\u001b"
+    }
+  ],
+  "comment": "Wizard-mode Priestess genocides the D, H, c, Y and X classes with blessed scrolls, which removes 14 of wizard.c's 44 nasties, writes Elbereth and creates an arch-lich. The remaining keys dismiss --More--, refuse wizard-mode deaths and force searches until the arch-lich's summon nasties spell picks a genocided species: makemon() refuses it, and nasty() asks makemon(NULL, x, y, MM_NOMSG) for a substitute, whose species starts a group through m_initgrp() with MM_NOMSG | MM_NOGRP. The keys were chosen by a script that answered the screen, not copied from any recorded game."
+}

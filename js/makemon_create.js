@@ -1289,11 +1289,14 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         ptr, x, y, mmflags, state,
     );
     // makemon.c:m_initgrp()/m_initsgrp()/m_initlgrp() recurse with MM_NOGRP.
-    // The C call shape is valid on every runtime dungeon branch.
+    // The C call shape is valid on every runtime dungeon branch. m_initgrp()
+    // passes its parent's mmflags through with MM_NOGRP added, so a group
+    // started by wizard.c nasty()'s MM_NOMSG substitute keeps MM_NOMSG,
+    // which only suppresses the appearance message.
     const runtimeGroupCall = !state.in_mklev
         && !randomCoordinates
         && Boolean(ptr)
-        && mmflags === MM_NOGRP;
+        && (mmflags & ~MM_NOMSG) === MM_NOGRP;
     // were.c:were_summon() creates one of its source-selected compatible
     // species at the hero square with NO_MM_FLAGS. makemon() relocates that
     // request through enexto_core() before checking the destination, and C
@@ -1586,7 +1589,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
         && !runtimeRandomCall && !runtimeRandomNoMsgCall
-        && !runtimeExplicitRandomCall && !createParticularCall) {
+        && !runtimeExplicitRandomCall && !createParticularCall
+        // wizard.c nasty()'s substitute makemon(NULL, x, y, mmflags) has no
+        // MM_NOGRP, so C's makemon() may start a group; makemon_runtime()'s
+        // continuation runs m_initgrp_runtime() for it.
+        && !nastyCall) {
         throw new UnsupportedMonsterCreationError('random monster groups');
     }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
