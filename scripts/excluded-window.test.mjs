@@ -14,6 +14,9 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
+
+import {assertExceptionCount} from './exception-count.mjs';
+
 const read = path => readFileSync(new URL(`../trial-monitor/${path}`, import.meta.url), 'utf8');
 const context = JSON.parse(read('restoration-context.json'));
 const root = new URL('../', import.meta.url);
@@ -98,8 +101,14 @@ const describe = run => `${run.path}:${run.first}-${run.last} sha256 ${digest(ru
 test('game code must not copy the excluded commits', () => {
   const added = windowLines();
   const paths = git('ls-files', '--', 'js/').trim().split('\n').filter(path => path.endsWith('.js'));
-  const copies = copiedRuns(paths.map(path => [path, currentSource(path)]), added).filter(run => !reviewed(run));
-  assert.deepEqual(copies.map(describe), []);
+  const runs = copiedRuns(paths.map(path => [path, currentSource(path)]), added);
+  assert.deepEqual(runs.filter(run => !reviewed(run)).map(describe), []);
+  // On 9f7e42e6 (8 November 2026): 1 REVIEWED_RUNS entry, matching 1 run.
+  const PINS = {entries:1, runs:1};
+  assertExceptionCount(REVIEWED_RUNS.length, PINS.entries,
+    {what:'REVIEWED_RUNS entries', pin:'PINS.entries in scripts/excluded-window.test.mjs'});
+  assertExceptionCount(runs.filter(reviewed).length, PINS.runs,
+    {what:'copied runs that REVIEWED_RUNS excuses', pin:'PINS.runs in scripts/excluded-window.test.mjs'});
 });
 
 test('copied-run check finds the window and ignores code shared with the base', () => {
