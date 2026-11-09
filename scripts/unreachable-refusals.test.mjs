@@ -77,6 +77,12 @@ export const RULES = [
         files: ['themeroom_fill.js'],
         pattern: /assertSupportedMonsterAppearance|special-level appearance type/gu,
     },
+    {
+        // rumors.c couldnt_open_file() runs only when a dat file is missing;
+        // js/random_text_data.js bundles every one, so the arm cannot run.
+        name: 'missing dat file arm',
+        pattern: /couldnt_open_file|couldntOpenFile/gu,
+    },
 ];
 
 function stripComments(source) {

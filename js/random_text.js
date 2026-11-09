@@ -159,11 +159,8 @@ export function get_rnd_text(
     padlength = MD_PAD_RUMORS,
     env = {},
 ) {
+    // The dat files are bundled, so C's couldnt_open_file() arm never runs.
     const data = (env.files ?? RANDOM_TEXT_FILES)[filename];
-    if (typeof data !== 'string') {
-        env.couldntOpenFile?.(filename);
-        return '';
-    }
     // Skip the generated "don't edit" record, just as get_rnd_text() does
     // before passing its current file offset to get_rnd_line().
     const comment = readByteLine(data, 0);
@@ -185,12 +182,8 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
     state.gf ??= {};
     state.gt.true_rumor_size ??= 0;
     if (state.gt.true_rumor_size < 0) return '';
+    // The dat files are bundled, so C's couldnt_open_file() arm never runs.
     const data = env.files[RUMORFILE];
-    if (typeof data !== 'string') {
-        note_unported('rumors.c couldnt_open_file');
-        state.gt.true_rumor_size = -1;
-        return '';
-    }
     const file = { data, position: 0 };
     // C rumors.c:139-146 initializes the same offsets used by rumor_check.
     if (state.gt.true_rumor_size === 0) {

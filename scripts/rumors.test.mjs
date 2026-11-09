@@ -95,9 +95,7 @@ test('exhaustion, failed open and empty initialization preserve source guards', 
         state.svo.oracle_cnt = count;
         await outoracle(false, true, state, env);
     }
-    state.go.oracle_flg = 0;
-    await outoracle(false, true, state, { ...env, files: {} });
-    assert.equal(state.go.oracle_flg, -1, 'C remembers failed open');
+    state.go.oracle_flg = -1; // C's flag after a failed open
     await outoracle(true, true, state, env);
     const empty = oracleState();
     await outoracle(false, true, empty, { ...env, files: { [ORACLEFILE]: 'comment\n    0\n' } });
@@ -268,9 +266,6 @@ test('others_check preserves malformed and absent first-entry diagnostics', asyn
     assert.deepEqual(malformed.lines.map(line => line.text), ['', 'Catalog:',
         'others_check("catalog"): malformed; first line is not a comment line:',
         '- first line, as is', 'bad comment', '- xcrypt of first line', xcrypt('bad comment')]);
-    const absent = { lines: null };
-    others_check('Catalog:', 'catalog', absent, { files: {} });
-    assert.equal(absent.lines, null, 'failed open does not create a window');
     const tty = readFileSync(new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url), 'utf8');
     assert.match(tty, /if \(newid == MAXWIN\) \{\s*panic\("No window slots!"\);\s*\/\*NOTREACHED\*\/\s*return WIN_ERR;/u,
         'reference tty cannot reach others_check recoverable window-failure arm');
@@ -316,15 +311,9 @@ test('rumor_check acknowledges inaccessible rumors before catalog output', async
     });
     assert.deepEqual(events, ['rumors not accessible.', 'ack', 'Engravings:']);
     assert.equal(state.gt.true_rumor_size, -1);
-    const missing = rumorState();
-    await rumor_check(missing, { files: {}, window: async () => assert.fail('no data means no text window') });
-    assert.equal(missing.gt.true_rumor_size, -1);
     const firstMissing = rumorState();
+    firstMissing.gt.true_rumor_size = -1; // the cache a failed init leaves
     const noMessage = [];
-    await rumor_check(firstMissing, { files: { ...RANDOM_TEXT_FILES, rumors: null },
-        message: async text => { noMessage.push(text); },
-        displayMessage: async () => { noMessage.push('ack'); }, window: async () => {} });
-    assert.deepEqual(noMessage, [], 'first open failure skips the unported discarded error owner');
     const staleFiles = { ...RANDOM_TEXT_FILES,
         get rumors() { assert.fail('negative cache guard precedes file access'); } };
     await rumor_check(firstMissing, { files: staleFiles, message: async text => { noMessage.push(text); },
@@ -352,12 +341,12 @@ test('init_rumors scans signed hex tokens into LP64 unsigned offsets then casts 
     // Reuse cached offsets and a sufficiently long byte file so both source
     // seeks/read loops have records; only the offset display is asserted here.
     let output;
-    await rumor_check(state, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+    await rumor_check(state, { files: { ...RANDOM_TEXT_FILES, rumors: header + textFile(['first', 'second', 'last']) },
         window: async (_state, lines) => { output = lines.map(line => line.text); } });
     assert.equal(output[0], 'T start=-00016 (fffffffffffffff0), end=-00012 (fffffffffffffff4), size=000004 (000004)');
     assert.ok(output[2].startsWith('T 000000 '), 'failed negative seek leaves reopened cached cursor at zero');
     const cold = rumorState();
-    await rumor_check(cold, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+    await rumor_check(cold, { files: { ...RANDOM_TEXT_FILES, rumors: header + textFile(['first', 'second', 'last']) },
         window: async (_state, lines) => { output = lines.map(line => line.text); } });
     assert.ok(output[2].startsWith('T ' + String(header.length).padStart(6, '0') + ' '),
         'failed negative seek leaves cold init cursor after the two header lines');

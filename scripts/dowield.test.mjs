@@ -247,8 +247,10 @@ test('arti_speak() returns ECMD_OK for a non-speaking artifact', async () => {
 
 test('arti_speak() uses the source empty-file fallback and ordered messages', async () => {
     // artifact.c:2289-2295 reads getrumor before naming the whisper and
-    // quoting the result. An unavailable rumors file selects its literal.
+    // quoting the result. An empty rumor selects its literal; getrumor()
+    // returns one once its negative cache says the rumors are unreadable.
     const state = makeArtifactState();
+    state.gt = { ...state.gt, true_rumor_size: -1 }; // rumors.c failed-init cache
     const keyIndex = state.artilist.findIndex((a) => a?.name === 'The Master Key of Thievery');
     state.artiexist[keyIndex].exists = 1; // source fixture has created this artifact
     state.artiexist[keyIndex].found = 1; // naming it need not run discovery
@@ -257,11 +259,10 @@ test('arti_speak() uses the source empty-file fallback and ordered messages', as
     const messages = [];
     const calls = [];
     assert.equal(await arti_speak(key, state, {
-        files: {},
         random: { rn2: (n) => { calls.push(n); return 0; } },
         message: async (line) => messages.push(line),
     }), ECMD_TIME);
-    assert.deepEqual(calls, []); // getrumor returns before RNG if no file.
+    assert.deepEqual(calls, []); // getrumor returns before RNG on that cache.
     assert.deepEqual(messages, [
         'The key whispers:', // un-named underlying skeleton key
         '"NetHack rumors file closed for renovation."',
