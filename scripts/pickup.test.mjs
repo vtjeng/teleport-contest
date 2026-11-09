@@ -20,7 +20,6 @@ import {
     HALLUC,
     HVY_ENCUMBER,
     ICE,
-    INCLUDE_HERO,
     INVORDER_SORT,
     LEFT_HANDED,
     LAST_PROP,
@@ -118,7 +117,6 @@ import {
     query_objlist,
     rider_corpse_revival,
     u_safe_from_fatal_corpse,
-    UnsupportedPickupError,
 } from '../js/pickup.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
@@ -981,71 +979,6 @@ test('pickup preflights every reachable addinv dependency before unlinking',
             assert.equal(state.invent === object, false, specimen.name);
         }
     });
-
-test('pickup preflights the whole pile before any state or floor mutation',
-    async () => {
-        // A fractional quantity fails the per-object shape preflight. This
-        // confirms that pickup backs out of the entire pile when one
-        // object's preflight fails after an earlier object has passed.
-        const state = await heroOnAnEmptySquare();
-        state.flags.pickup = true;
-        const failing = objectUnderHero(state);
-        failing.quan = 1.5;
-        const ordinary = objectUnderHero(state);
-        ordinary.dknown = false;
-        failing.dknown = false;
-        const previouslyCarried = state.invent;
-        previouslyCarried.pickup_prev = true;
-        quiet(state);
-
-        const ordinaryLinks = {
-            nobj: ordinary.nobj,
-            nexthere: ordinary.nexthere,
-        };
-        const failingLinks = {
-            nobj: failing.nobj,
-            nexthere: failing.nexthere,
-        };
-        const beforeToplines = state._ttyToplines;
-        const beforeLootReset = state.loot_reset_justpicked;
-
-        await assert.rejects(
-            () => pickup(1, state),
-            /malformed floor object/u,
-        );
-        assertStillOnBothFloorChains(state, ordinary, ordinaryLinks);
-        assert.equal(ordinary.nexthere, failing);
-        assert.equal(ordinary.nobj, failing);
-        assert.deepEqual({ nobj: failing.nobj, nexthere: failing.nexthere },
-            failingLinks);
-        assert.equal(ordinary.dknown, false);
-        assert.equal(failing.dknown, false);
-        assert.equal(state.invent, previouslyCarried);
-        assert.equal(previouslyCarried.pickup_prev, true);
-        assert.equal(state.loot_reset_justpicked, beforeLootReset);
-        assert.equal(state.gp.pickup_encumbrance, 0);
-        assert.equal(state._ttyToplines, beforeToplines);
-    });
-
-test('pickup validates each independent floor-object shape term', async () => {
-    const cases = [
-        ['floor ownership', (object) => { object.where = OBJ_FREE; }],
-        ['integer quantity', (object) => { object.quan = 1.5; }],
-        ['positive quantity', (object) => { object.quan = 0; }],
-    ];
-    for (const [name, prepare] of cases) {
-        const state = await heroOnAnEmptySquare();
-        state.flags.pickup = true;
-        const object = objectUnderHero(state);
-        prepare(object);
-        await assert.rejects(
-            () => pickup(1, state),
-            (error) => error instanceof UnsupportedPickupError
-                && /malformed floor object/u.test(error.message),
-            name,
-        );
-    }
-});
 
 test('pickup full-pack counting excludes coins and preserves exact 52 slots',
     async () => {
@@ -2044,12 +1977,6 @@ test('query_objlist walks an engulfer inventory through nobj', async () => {
     const state = await heroOnAnEmptySquare();
     const object = objectUnderHero(state);
     const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
-    // INCLUDE_HERO adds the swallowed hero as a fake extra entry.
-    await assert.rejects(
-        () => query_objlist(object, flags | INCLUDE_HERO, () => true, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /engulfed hero/u.test(error.message),
-    );
     // An engulfer's inventory is walked by nobj and can clear
     // AUTOSELECT_SINGLE for a worn item.  A non-worn item remains selectable.
     object.where = OBJ_MINVENT;

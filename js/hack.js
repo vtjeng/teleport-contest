@@ -410,9 +410,7 @@ import {
     autopick_testobj,
     pickup,
     loot_mon,
-    preflight_describe_decor_at,
     preflight_projected_random_arrival_pickup,
-    UnsupportedPickupError,
 } from './pickup.js';
 import {
     in_out_region,
@@ -1529,16 +1527,6 @@ export function requireSimpleHeroDestination(
     // pickup() do after the move, so a pushed boulder has already cleared its
     // square by the time this post-move seam reads objects.
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
-    if (state.flags?.mention_decor) {
-        try {
-            preflight_describe_decor_at(x, y, state);
-        } catch (error) {
-            if (!(error instanceof UnsupportedPickupError)) throw error;
-            throw new UnsupportedHeroMoveBoundaryError(
-                error.reason,
-            );
-        }
-    }
     if (floorObject && !noPickMove) {
         // pickup.c pickup() runs after domove_core() commits the hero
         // position. A late refusal there would leave room-entry writes
@@ -1554,8 +1542,7 @@ export function requireSimpleHeroDestination(
         } catch (error) {
             if (error instanceof UnsupportedShopError)
                 throw new UnsupportedHeroMoveBoundaryError(error.branch);
-            if (!(error instanceof UnsupportedPickupError)) throw error;
-            throw new UnsupportedHeroMoveBoundaryError(error.reason);
+            throw error;
         }
     }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
@@ -1750,16 +1737,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // doorway branches are now implemented by the pickup.c source owner.
     //
     // ROOM, CORR, furniture and doorway arrivals share describe_decor()'s
-    // source owner. Its preflight reads are mutation-free and run before the
-    // swap, while the committed pickup() call emits any feature message.
-    if (state.flags?.mention_decor) {
-        try {
-            preflight_describe_decor_at(x, y, state);
-        } catch (error) {
-            if (!(error instanceof UnsupportedPickupError)) throw error;
-            throw new UnsupportedHeroMoveBoundaryError(error.reason);
-        }
-    }
+    // source owner; the committed pickup() call emits any feature message.
 
     if (state.level?.objects?.[x]?.[y]) {
         // pickup.c pickup() runs only after domove_swap_with_pet() has moved
@@ -1774,12 +1752,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             gw: { ...(state.gw ?? {}) },
             u: { ...state.u, ux: x, uy: y },
         };
-        try {
-            preflight_projected_random_arrival_pickup(projected);
-        } catch (error) {
-            if (!(error instanceof UnsupportedPickupError)) throw error;
-            throw new UnsupportedHeroMoveBoundaryError(error.reason);
-        }
+        preflight_projected_random_arrival_pickup(projected);
     }
     // Engravings at either square are handled after committed movement by
     // domove()'s maybe_smudge_engr(), including its source-ordered RNG draws.

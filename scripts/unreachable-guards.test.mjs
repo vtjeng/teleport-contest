@@ -143,3 +143,13 @@ test('do_wear.c impossible() arms continue as C does', () => {
         assert.doesNotMatch(functionBody(code, name), /\bthrow\b/u, name);
     assert.doesNotMatch(code, /SUPPORTED_BOOTS_ON/u);
 });
+
+// No caller passes INCLUDE_HERO to pickup.c query_objlist(): invent.c
+// display_minventory() builds its own rows. Every pickup selection comes from
+// the floor pile or u.ustuck's inventory with a positive count.
+test('pickup admission refuses no caller-made selection', () => {
+    const code = jsCode('pickup.js');
+    assert.doesNotMatch(functionBody(code, 'query_objlist'), /INCLUDE_HERO/u);
+    assert.doesNotMatch(functionBody(code, 'preflightPickupObjects'),
+        /\bthrow\b/u);
+});

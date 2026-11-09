@@ -175,7 +175,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
-import { doloot, dotip, encumber_msg, UnsupportedPickupError } from './pickup.js';
+import { doloot, dotip, encumber_msg } from './pickup.js';
 import {
     dodrink,
     dodip,
@@ -3000,22 +3000,15 @@ export function failClosedCommandRefusals() {
         // branches, and ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
-        // do.c goto_level()'s tail reaches all four from inside the `>`
-        // handler, so each one ends the segment where it would otherwise
-        // discard the prefix: pickup(1) is goto_level()'s last statement,
-        // run_timers() fires timers that expired while away, mon_arrive()
-        // reaches rloc_to() placing a follower, and mklev() reaches makemon()
-        // when the shop it generates holds a mimic.
-        // The `,` command raises UnsupportedPickupError on a second path, and
-        // now the more frequent one: runPickupCommand() -> dopickup() reaches
-        // every refusal in pickup_checks() and pickup(). Retiring the
-        // goto_level() grouping above would leave that path escaping instead
-        // of ending the segment.
-        UnsupportedPickupError,
         // options.c doset() builds its whole menu before select_menu() draws
         // anything, so an unported option value stops with no output; its
         // pick loop stops after the player has committed a selection.
         UnsupportedOptionMenuError,
+        // do.c goto_level()'s tail reaches the next three from inside the `>`
+        // handler, so each one ends the segment where it would otherwise
+        // discard the prefix: run_timers() fires timers that expired while
+        // away, mon_arrive() reaches rloc_to() placing a follower, and mklev()
+        // reaches makemon() when the shop it generates holds a mimic.
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,

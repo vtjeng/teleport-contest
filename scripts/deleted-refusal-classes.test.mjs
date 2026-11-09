@@ -21,6 +21,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // canwearobj()'s silly_thing() and cursed() without an object
     'UnsupportedWearError',
     'UnsupportedTakeOffError',
+    // pickup.c query_objlist() with INCLUDE_HERO, which no caller passes, and
+    // a pickup selection that is not on the floor or in an engulfer
+    'UnsupportedPickupError',
 ];
 
 function stripComments(source) {
