@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3305187,
+      "datetime": "20310814161200",
+      "nethackrc": "OPTIONS=name:Skylark,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "#wizlevelport\ncastle\n#wizwish\namulet of flying\nPe#wizwish\ntrap door\n\u0006>   ",
+      "comment": "A flying hero on a seen Castle trap door presses '>'. do.c dodown() finds uescaped_shaft() true for any seen hole or trap door under the hero (do.c:1225-1228) and calls dotrap(trap, TOOKPLUNGE); trap.c fall_through() prints \"You swoop down through the trap door!\" and sends the hero to the Valley through find_hell(). The later goto_hell() arm of dodown() (do.c:1281-1282) therefore never runs; this recording is the evidence. The wished trap door starts unseen, and a flying hero passes over it without finding it, so wizard-mode ^F (wizcmds.c wiz_map()) marks it seen. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

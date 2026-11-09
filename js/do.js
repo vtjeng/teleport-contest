@@ -2418,9 +2418,12 @@ export async function dodown(state = game, env = {}) {
         );
     }
 
-    // do.c:1281-1291. The Stronghold gap is recorded because C discards
-    // goto_hell()'s result; other traps either use their assigned destination
-    // or descend through next_level() as a hole/trap door would.
+    // do.c:1281-1291. `trap` is non-null here only for a seen hole or trap
+    // door under the hero, and uescaped_shaft() above has already sent that
+    // case through dotrap(TOOKPLUNGE) and returned, so C never reaches the
+    // trap arms below. The Stronghold arm's goto_hell() is therefore left as
+    // a recorded gap; recordings/do.c/fly-through-castle-trap-door-valley
+    // shows C taking the dotrap() path instead.
     if (trap && state.stronghold_level
         && on_level(state.stronghold_level, u.uz)) {
         note_unported('dungeon.c goto_hell');
