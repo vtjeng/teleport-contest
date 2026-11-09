@@ -7,6 +7,7 @@ import {
     classifyDiagnostics,
     declaredConstantNames,
 } from './check-c-constants.mjs';
+import { assertExceptionCount } from './exception-count.mjs';
 import { requireCompiler } from './recorder-headers.mjs';
 
 test('declaredConstantNames takes upper-case exported consts only', () => {
@@ -53,4 +54,20 @@ test('every js/ constant that names a C constant has its C value', async () => {
     const stillMismatched = new Set(entries.filter((e) => e.result === 'mismatch').map((e) => e.name));
     assert.deepEqual([...KNOWN_MISMATCHES.keys()].filter((name) => !stillMismatched.has(name)), [],
         'remove these names from KNOWN_MISMATCHES; they now match C');
+    // On 9f7e42e6 (8 November 2026): 6 KNOWN_MISMATCHES entries, and 87
+    // js/ constants the check cannot compare: named after a C macro that the
+    // recorder's build leaves undefined or defines function-like (87), or
+    // after a C name that is not a constant (0). Port-only constants, which
+    // name nothing in C, are not counted.
+    const PINS = { known: 6, uncompared: 87 };
+    assertExceptionCount(KNOWN_MISMATCHES.size, PINS.known, {
+        what: 'KNOWN_MISMATCHES entries',
+        pin: 'PINS.known in scripts/check-c-constants.test.mjs',
+    });
+    assertExceptionCount(entries.filter((e) => e.result === 'variable'
+        || (e.result === 'undefined' && e.where)).length,
+        PINS.uncompared, {
+            what: 'js/ constants the check cannot compare with C',
+            pin: 'PINS.uncompared in scripts/check-c-constants.test.mjs',
+        });
 });
