@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 884213,
+      "datetime": "20470305071244",
+      "nethackrc": "OPTIONS=name:Popeye,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017blessed tin opener\n\u0017tin of spinach\nao p\u001by\u001b"
+    }
+  ],
+  "comment": "Wizard-mode Tourist wishes for a blessed tin opener and a tin of spinach and applies the opener to the tin. The blessed opener opens it at once, so start_tin() calls consume_tin() inside the apply command; the spinach's nutrition moves the hero from Not Hungry to Satiated, and newuhs() redraws the status line through bot()."
+}

@@ -5094,7 +5094,13 @@ export async function doapply(state = game, env = {}) {
         // apply.c:4364-4366 assigns this ECMD result before the common
         // artifact-speech tail; use_tin_opener() selects a tin and calls
         // start_tin() for the source opening effect.
-        const result = await use_tin_opener(obj, state, env);
+        // A tin opened at once reaches consume_tin() -> lesshungry() ->
+        // newuhs(), whose bot() redraws the status line when the hunger
+        // status changes.
+        const result = await use_tin_opener(obj, state, {
+            ...env,
+            statusRefresh: env.statusRefresh ?? (() => bot()),
+        });
         return obj?.oartifact ? result | await arti_speak(obj, state) : result;
     }
     case FIGURINE:
