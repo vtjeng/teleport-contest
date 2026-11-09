@@ -13,6 +13,7 @@ import {
     ROWNO,
     WIN_ERR,
 } from './const.js';
+import { redraw_map } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
@@ -50,10 +51,11 @@ function startupState(argcp, argv, state) {
 // source-shaped pair rather than a second copy of the dimensions.
 export function term_startup(state = game) {
     const display = state.nhDisplay;
-    return {
-        wid: display?.cols ?? 80,
-        hgt: display?.rows ?? 24,
-    };
+    const wid = display?.cols ?? 80;
+    const hgt = display?.rows ?? 24;
+    // termcap.c tty_startup() (CLIPPING).
+    if (wid < COLNO || hgt < ROWNO + 3) setclipped(state);
+    return { wid, hgt };
 }
 
 // C ref: win/tty/wintty.c tty_create_nhwindow() (850-895). The browser
@@ -404,7 +406,7 @@ export function resize_tty(state = game, env = {}) {
         );
     }
     if (mapActive) {
-        newclipping(mapx, mapy, state, env);
+        newclipping(mapx, mapy, state);
         callTerminalOperation(
             state,
             env.tty_curs,
@@ -420,35 +422,73 @@ export function resize_tty(state = game, env = {}) {
     }
 }
 
-// wintty.c:471-490.  CLIPPING is enabled by config.h.  Its two helper calls
-// are later in wintty.c and remain unported, so this function records them;
-// the wide-screen branch is complete because it owns those assignments.
-export function newclipping(x, y, state = game, env = {}) {
+// wintty.c:471-490.  CLIPPING is enabled by config.h.  tty_cliparound()'s
+// redraw_map(TRUE) is left to the caller's next flush: _buildScreenOutput()
+// repaints every map row of the clip window from the cells' displayed glyphs.
+export function newclipping(x, y, state = game) {
     const wt = winttyState(state);
     const display = ttyDisplay(state, wt);
     const cols = wt.CO ?? display?.cols ?? 0;
     const rows = wt.LI ?? display?.rows ?? 0;
-    const statusLines = state.iflags?.wc2_statuslines ?? 0;
-    if (cols < COLNO || rows < 1 + ROWNO + statusLines) {
-        callTerminalOperation(
-            state,
-            env.setclipped,
-            'wintty.c setclipped',
-            [state],
-        );
-        if (x) {
-            callTerminalOperation(
-                state,
-                env.tty_cliparound,
-                'wintty.c tty_cliparound',
-                [x, y, state],
-            );
-        }
+    if (cols < COLNO || rows < 1 + ROWNO + statusRows(state)) {
+        setclipped(state); /* sets clipping=TRUE */
+        if (x) tty_cliparound(x, y, state);
     } else {
         wt.clipping = false;
         wt.clipx = 0;
         wt.clipy = 0;
     }
+}
+
+// C ref: win/tty/wintty.c setclipped() (3808-3815).  wt.clipping, clipx,
+// clipy, clipxmax and clipymax are C's file-scope clipping state; they are
+// terminal state, so a new process (the next segment) starts unclipped.
+// display.js mapViewport() reads them to place the map's rows.
+export function setclipped(state = game) {
+    const wt = winttyState(state);
+    const display = ttyDisplay(state, wt);
+    wt.clipping = true;
+    wt.clipx = 0;
+    wt.clipy = 0;
+    wt.clipxmax = wt.CO ?? display?.cols ?? 0;
+    wt.clipymax = (wt.LI ?? display?.rows ?? 0) - 1 - statusRows(state);
+}
+
+// C ref: win/tty/wintty.c tty_cliparound() (3817-3843), without its closing
+// redraw_map(TRUE): it returns true where C makes that call, and the async
+// cliparound() below makes it.  A synchronous caller leaves the redraw to its
+// next flush, which repaints every map row of the moved clip window.
+export function tty_cliparound(x, y, state = game) {
+    const wt = winttyState(state);
+    const display = ttyDisplay(state, wt);
+    const oldx = wt.clipx;
+    const oldy = wt.clipy;
+    if (!wt.clipping) return false;
+    const co = wt.CO ?? display?.cols ?? 0;
+    const height = (wt.LI ?? display?.rows ?? 0) - 1 - statusRows(state);
+    if (x < wt.clipx + 5) {
+        wt.clipx = Math.max(0, x - 20);
+        wt.clipxmax = wt.clipx + co;
+    } else if (x > wt.clipxmax - 5) {
+        wt.clipxmax = Math.min(COLNO, wt.clipxmax + 20);
+        wt.clipx = wt.clipxmax - co;
+    }
+    if (y < wt.clipy + 2) {
+        wt.clipy = Math.max(0, y - Math.trunc((wt.clipymax - wt.clipy) / 2));
+        wt.clipymax = wt.clipy + height;
+    } else if (y > wt.clipymax - 2) {
+        wt.clipymax = Math.min(ROWNO,
+            wt.clipymax + Math.trunc((wt.clipymax - wt.clipy) / 2));
+        wt.clipy = wt.clipymax - height;
+    }
+    return wt.clipx !== oldx || wt.clipy !== oldy;
+}
+
+// C's cliparound() window-port call (winprocs.h) from an async caller:
+// tty_cliparound() with its redraw_map(TRUE) ("ask the core to resend the map
+// window's data").
+export async function cliparound(x, y, state = game) {
+    if (tty_cliparound(x, y, state)) await redraw_map(true);
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_MAP arm (1074-1088): set
@@ -478,8 +518,14 @@ function clear_status_window(state) {
     state._renderedStatusStyles = null;
     const display = state.nhDisplay;
     if (display?.grid) {
-        for (let row = display.rows - rows; row < display.rows; ++row)
+        const firstRow = display.rows - rows;
+        for (let row = firstRow; row < display.rows; ++row)
             display.clearRow(row);
+        // cl_end() also erases map glyphs that an unclipped map printed on a
+        // status row (display.js _statusMapOverlay()); they come back only
+        // when the map cell is printed again.
+        for (const [key, cell] of state._statusMapOverlay ?? [])
+            if (cell.row >= firstRow) state._statusMapOverlay.delete(key);
     }
     state.disp ??= {};
     state.disp.botlx = true;

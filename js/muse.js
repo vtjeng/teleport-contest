@@ -11,6 +11,7 @@
 // mon_reflects(), ureflects(), munstone(), mon_consume_unstone();
 // mondata.c can_blow().
 
+import { cliparound } from './wintty.js';
 import {
     ACID_RES,
     ARTICLE_A,
@@ -1772,7 +1773,7 @@ async function you_aggravate(mtmp, state) {
         `For some reason, ${s_suffix(monsterCommonName(mtmp, state, SUPPRESS_IT))} presence is known to you.`,
         state);
     await cls();
-    // C: #ifdef CLIPPING cliparound() -- not applicable to the JS renderer
+    await cliparound(mtmp.mx, mtmp.my, state); // CLIPPING
     show_glyph_cell(mtmp.mx, mtmp.my, map_monster_glyph_info(mtmp, state));
     display_self(state);
     // C's You_feel() records no location.

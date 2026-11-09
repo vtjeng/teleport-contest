@@ -10,6 +10,7 @@
 // reconstruction (docrt, bot) and the welcome-back message follow in the
 // caller (jsmain.js).
 
+import { cliparound } from './wintty.js';
 import { rest_regions, rest_saved_level_regions } from './region.js';
 import { newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
@@ -509,6 +510,8 @@ export async function dorestore(state = game) {
     } finally {
         state.program_state.restoring = wasRestoring;
     }
+    // restore.c:629 (CLIPPING).
+    await cliparound(state.u.ux, state.u.uy, state);
 
     // C ref: light.c relink_light_sources() -> find_mid(nid, FM_EVERYWHERE),
     // whose FM_YOU arm answers m_id 1 with &youmonst. A light emitted by the

@@ -4319,7 +4319,7 @@ export async function doredraw() {
 // C ref: display.c redraw_map() (1778-1810).  docrtRefresh resends the
 // transient glyph buffer without reconstructing the remembered map or
 // consuming display RNG to regenerate monster glyphs.
-async function redraw_map(cursorOnHero = false) {
+export async function redraw_map(cursorOnHero = false) {
     if (!game.u?.ux || suppressMapOutput()
         || !on_level(game.u.uz0, game.u.uz)) return;
     await flush_screen(cursorOnHero ? 1 : 0);
@@ -6810,34 +6810,18 @@ function _statusStyleRows(layouts) {
     });
 }
 
-function mapViewport(rows, statusRowCount, state = game) {
+function mapViewport(state = game) {
+    // win/tty/wintty.c tty_print_glyph() prints map row y only when
+    // clipy <= y < clipymax, on terminal row y - clipy + 1 (tty_curs()).
     // termcap.c tty_startup() calls setclipped() only for a terminal shorter
-    // than ROWNO + 3 rows. unixmain.c reads the rc file (initoptions()) before
-    // init_nhwindows(), so an rc 'statuslines:3' reaches
-    // tty_preference_update() while iflags.window_inited is still FALSE and
-    // never calls newclipping(). On a 24-row terminal the map is therefore
-    // never clipped: row ROWNO-1 lands on the first of three status rows,
-    // which bot() then writes over.
-    if (rows >= ROWNO + 3) return { height: ROWNO, top: 0 };
-    const height = Math.min(ROWNO, rows - 1 - statusRowCount);
-    if (height >= ROWNO) return { height: ROWNO, top: 0 };
-
-    // win/tty/wintty.c setclipped() and tty_cliparound(). Startup begins
-    // with clipy=0; one cliparound() follows initial hero placement.
-    let top = 0;
-    let bottom = height;
-    const heroY = state.u?.uy ?? 0;
-    if (heroY < top + 2) {
-        top = Math.max(0, heroY - Math.trunc((bottom - top) / 2));
-        bottom = top + height;
-    } else if (heroY > bottom - 2) {
-        bottom = Math.min(
-            ROWNO,
-            bottom + Math.trunc((bottom - top) / 2),
-        );
-        top = bottom - height;
-    }
-    return { height, top };
+    // than ROWNO + 3 rows, and tty_preference_update() calls newclipping()
+    // only for an in-game 'statuslines' change: unixmain.c reads the rc file
+    // before init_nhwindows(), while iflags.window_inited is still FALSE. So
+    // an rc 'statuslines:3' leaves a 24-row map unclipped, and row ROWNO-1
+    // lands on the first of three status rows, which bot() then writes over.
+    const wt = state.wintty;
+    if (!wt?.clipping) return { height: ROWNO, top: 0 };
+    return { height: wt.clipymax - wt.clipy, top: wt.clipy };
 }
 
 // _buildScreenOutput() repaints row 0 from _pending_message, and the wrapped
@@ -6887,7 +6871,7 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
     // and a map refresh must work in small TTY fixtures without inventory
     // state just as it does before the status window is initialized.
     const statusRowCount = state.iflags?.wc2_statuslines === 3 ? 3 : 2;
-    const viewport = mapViewport(display.rows, statusRowCount, state);
+    const viewport = mapViewport(state);
     const mapWindow = state.wintty?.wins?.[state.wintty.WIN_MAP];
     const mapOffy = mapWindow?.offy ?? 1;
     const lastRow = Math.min(ymax, display.rows);
@@ -7175,7 +7159,7 @@ function _buildScreenOutput(cursorOnHero = true) {
         ? display.grid.slice(display.rows - statusRows.length)
             .map((row) => row.map((cell) => ({ ...cell })))
         : null;
-    const viewport = mapViewport(display.rows, statusRows.length);
+    const viewport = mapViewport();
 
     // Render into the canonical terminal grid.
     if (display.grid) {

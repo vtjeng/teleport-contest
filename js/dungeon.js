@@ -107,7 +107,7 @@ import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
-import { tty_clear_map_window } from './wintty.js';
+import { tty_clear_map_window, tty_cliparound } from './wintty.js';
 import {
     Blind, EAggravate_monster, Flying, Hallucination, Levitation,
 } from './youprop.js';
@@ -1157,6 +1157,9 @@ export function u_on_newpos(
     const hero = state.u;
     hero.ux = x;
     hero.uy = y;
+    // CLIPPING cliparound(u.ux, u.uy); its redraw_map(TRUE) is left to the
+    // next flush (wintty.js tty_cliparound()).
+    tty_cliparound(hero.ux, hero.uy, state);
     hero.uundetected = false;
     if (hero.usteed) {
         hero.usteed.mx = x;

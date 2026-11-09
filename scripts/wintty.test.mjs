@@ -27,6 +27,7 @@ import {
     tty_create_nhwindow,
     tty_curs,
     tty_askname,
+    tty_cliparound,
     tty_init_nhwindows,
     tty_preference_update,
     winch_handler,
@@ -348,8 +349,12 @@ test('resize_tty preserves its early reset and records a missing ioctl query', (
     assert.deepEqual([...state.unported], ['ioctl.c getwindowsz']);
 });
 
-test('newclipping keeps the complete-screen branch local and gaps small-screen helpers', () => {
+test('newclipping and tty_cliparound follow wintty.c clipping arithmetic', () => {
     const state = resetGame();
+    initUnported();
+    // Two status lines on a 1 + ROWNO + 2 row terminal fill it exactly, so
+    // newclipping() takes its unclipped arm and resets a stale clip origin
+    // (9, 7 are arbitrary nonzero values).
     state.iflags = { wc2_statuslines: 2 };
     state.wintty = {
         LI: 1 + ROWNO + 2,
@@ -363,15 +368,33 @@ test('newclipping keeps the complete-screen branch local and gaps small-screen h
         [state.wintty.clipping, state.wintty.clipx, state.wintty.clipy],
         [false, 0, 0],
     );
+    // Unclipped, tty_cliparound() returns at once.
+    assert.equal(tty_cliparound(12, 19, state), false);
 
-    initUnported();
-    state.wintty.LI = ROWNO;
-    newclipping(0, 8, state);
+    // Three status lines on the same 24-row terminal need one row more, so
+    // setclipped() runs: clipxmax = CO, clipymax = LI - 1 - 3 = 20.  The
+    // hero at <12,8> is inside both margins, so the origin stays at 0,0.
+    state.iflags.wc2_statuslines = 3;
     newclipping(12, 8, state);
-    assert.deepEqual([...state.unported], [
-        'wintty.c setclipped',
-        'wintty.c tty_cliparound',
-    ]);
+    const clip = () => [state.wintty.clipping, state.wintty.clipx,
+        state.wintty.clipy, state.wintty.clipxmax, state.wintty.clipymax];
+    assert.deepEqual(clip(), [true, 0, 0, COLNO, 20]);
+    // y 19 > clipymax - 2: clipymax = min(ROWNO, 20 + 20/2) = 21 and
+    // clipy = 21 - 20 = 1; the origin moved, so C calls redraw_map().
+    assert.equal(tty_cliparound(12, 19, state), true);
+    assert.deepEqual(clip(), [true, 0, 1, COLNO, 21]);
+    // y 2 < clipy + 2: clipy = max(0, 2 - (21 - 1)/2) = 0, clipymax = 20.
+    assert.equal(tty_cliparound(12, 2, state), true);
+    assert.deepEqual(clip(), [true, 0, 0, COLNO, 20]);
+    // x 3 < clipx + 5 recomputes clipx = max(0, 3 - 20) = 0 on an 80-column
+    // terminal, so the origin does not move and no redraw follows.
+    assert.equal(tty_cliparound(3, 10, state), false);
+    assert.deepEqual(clip(), [true, 0, 0, COLNO, 20]);
+    // x 0 (no hero yet) sets the clip window without tty_cliparound().
+    state.wintty.clipy = 5;
+    newclipping(0, 19, state);
+    assert.deepEqual(clip(), [true, 0, 0, COLNO, 20]);
+    assert.deepEqual([...state.unported], []);
 });
 
 test('new_status_window clears the JavaScript status rows', () => {

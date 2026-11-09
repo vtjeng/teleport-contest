@@ -6,6 +6,7 @@
 // unsupported branch of the elapsed turn stops the segment where the turn
 // reaches it; UUID, notice, and glyph-map setup remain to be ported.
 
+import { cliparound } from './wintty.js';
 import { getnow, night } from './calendar.js';
 import { game } from './gstate.js';
 import {
@@ -1492,6 +1493,9 @@ async function moveloop_core_body() {
     // movemon_singlemon()'s own recalculation arm on the turn the command
     // charged, which C reaches only when movemon()'s tail sets the flag.
     if (g.vision_full_recalc) vision_recalc(0);
+    // C ref: allmain.c moveloop_core():546, CLIPPING: after rhack() and
+    // vision_recalc() so that the map is redrawn once with correct vision.
+    await cliparound(g.u.ux, g.u.uy, g);
     // C ref: allmain.c moveloop_core() (548-555). Outside non-teleport
     // running (domove() does it there), every seventh count step -- or, when
     // traveling, every seventh turn -- marks the status line dirty while a

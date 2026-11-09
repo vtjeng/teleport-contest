@@ -129,7 +129,7 @@ import {
 } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
-import { tty_create_nhwindow, tty_curs } from './wintty.js';
+import { cliparound, tty_create_nhwindow, tty_curs } from './wintty.js';
 import { select_menu } from './windows.js';
 import { NO_COLOR } from './terminal.js';
 
@@ -997,6 +997,7 @@ export async function getpos(ccp, force, goal, state = game) {
     state.gg ??= {};
     state.gg.getposx = cx;
     state.gg.getposy = cy;
+    await cliparound(cx, cy, state); // CLIPPING
     cursorAt(cx, cy, state);
     await flush_screen(0);
     // A tip or verbose-help pline after the caller dirtied valid positions
@@ -1106,6 +1107,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 cy = moved.y;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1120,6 +1122,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 await getpos_refresh(state);
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 showGoalMessage = true;
                 await flush_screen(0);
@@ -1145,6 +1148,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 showGoalMessage = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1165,6 +1169,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1186,6 +1191,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1202,6 +1208,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1217,6 +1224,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 cy = state.u.uy;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1232,6 +1240,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 messageGiven = true;
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 await flush_screen(0);
                 continue;
@@ -1246,6 +1255,7 @@ export async function getpos(ccp, force, goal, state = game) {
                     }
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
+                    await cliparound(cx, cy, state); // CLIPPING
                     cursorAt(cx, cy, state);
                     await flush_screen(0);
                     continue;
@@ -1266,6 +1276,7 @@ export async function getpos(ccp, force, goal, state = game) {
                     ({ x: cx, y: cy } = locations[gidx[cycle.gloc]]);
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
+                    await cliparound(cx, cy, state); // CLIPPING
                     cursorAt(cx, cy, state);
                     await flush_screen(0);
                 }
@@ -1289,6 +1300,7 @@ export async function getpos(ccp, force, goal, state = game) {
                     messageGiven = false;
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
+                    await cliparound(cx, cy, state); // CLIPPING
                     cursorAt(cx, cy, state);
                     await flush_screen(0);
                     continue;
@@ -1304,6 +1316,7 @@ export async function getpos(ccp, force, goal, state = game) {
                     messageGiven = true;
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
+                    await cliparound(cx, cy, state); // CLIPPING
                     cursorAt(cx, cy, state);
                     await flush_screen(0);
                     continue;
@@ -1324,6 +1337,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 }
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
+                await cliparound(cx, cy, state); // CLIPPING
                 cursorAt(cx, cy, state);
                 // C's nxtc label flushes the newly printed diagnostic before
                 // the next getpos input boundary captures the screen.
