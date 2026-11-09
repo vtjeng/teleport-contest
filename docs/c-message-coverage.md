@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3982 | 86 |
-| diagnostic | 723 | 184 | 539 |
+| diagnostic | 723 | 186 | 537 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4169 | 742 |
+| total | 4911 | 4171 | 740 |
 
 ## Missing by C file
 
@@ -38,7 +38,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/apply.c | yes | 1 | 7 | 0 |
 | src/artifact.c | no | 0 | 4 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
-| src/ball.c | yes | 0 | 12 | 0 |
+| src/ball.c | yes | 0 | 10 | 0 |
 | src/bones.c | yes | 1 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
 | src/cfgfiles.c | yes | 6 | 0 | 2 |
@@ -473,17 +473,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `placebc_core()`
   - 123 impossible: `Where are your ball and chain?`
 
-- `placebc()`
-  - 205 impossible: `bc already placed?`
-
 - `unplacebc()`
   - 215 impossible: `unplacebc denied, restriction in place`
 
 - `unplacebc_and_covet_placebc()`
   - 227 impossible: `unplacebc_and_covet_placebc denied, already restricted`
-
-- `lift_covet_and_placebc()`
-  - 250 impossible: `bc already placed?`
 
 - `bc_order()`
   - 369 impossible: `bc_order:  ball&chain not in same location!`

@@ -1147,6 +1147,14 @@
     "js/zap.js | zap_updown | hideunder": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/restore.js | find_lev_obj | setworn": {
+      "count": 1,
+      "reason": "A ball or chain is never an artifact, so setworn() has no set_artifact_intrinsic() step to wait for and returns synchronously."
+    },
+    "js/save.js | saveobjchn | setworn": {
+      "count": 1,
+      "reason": "A ball or chain is never an artifact, so setworn() has no set_artifact_intrinsic() step to wait for and returns synchronously."
     }
   }
 }
