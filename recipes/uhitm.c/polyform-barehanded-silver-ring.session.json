@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uhitm.c hmonas() witness for gt.twohits. A debug Valkyrie wishes for a silver ring, puts it on, unwields, polymorphs into a hill giant (one AT_WEAP attack) and punches a lemure (S_IMP, a silver-hater) bare-handed. hmonas() zeroes gt.twohits, so hmon_hitmon() passes W_RINGR|W_RINGL to weapon.c special_dmgval() and the ring sears the demon.",
+  "segments": [
+    {
+      "seed": 7203145,
+      "datetime": "20410314101500",
+      "nethackrc": "OPTIONS=name:Punchy,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017silver ring\nPerw-#polyself\nhill giant\n\u0007lemure\nFj Fj"
+    }
+  ]
+}

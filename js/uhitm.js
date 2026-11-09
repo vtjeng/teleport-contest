@@ -1758,7 +1758,7 @@ export async function hmonas(mon, state = game, env = {}) {
             || mattk.aatyp === AT_TUCH) multiClaw++;
     }
     multiClaw = multiClaw > 1;
-    state.gt.twohits = 0;
+    state.twohits = 0;
     state.gs.skipdrin = false;
 
     for (let i = 0; i < NATTK; i++) {
@@ -1828,7 +1828,7 @@ export async function hmonas(mon, state = game, env = {}) {
             mon_maybe_unparalyze(mon, random);
             const dieRoll = random.rnd(20);
             dhit = rollNeeded > dieRoll || state.u.uswallow;
-            if (multiWeapon) state.gt.twohits++;
+            if (multiWeapon) state.twohits++;
             const hit = { value: dhit };
             const monsterSurvived = await known_hitum(
                 mon, weapon, hit, rollNeeded, armorPenalty, mattk, dieRoll,
@@ -2121,7 +2121,7 @@ export async function hmonas(mon, state = game, env = {}) {
     }
 
     state.gv.vis = false;
-    state.gt.twohits = 0;
+    state.twohits = 0;
     return mon.mhp >= 1;
 }
 
@@ -3716,8 +3716,9 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     const hmd = {
         dmg: 0,
         thrown,
-        /* gt.twohits is turn-scoped state that hitum() owns; a ranged hit
-           reads 0 so it cannot take the two-weapon damage branches */
+        /* gt.twohits is turn-scoped state that hitum() and hmonas() set;
+           a ranged hit reads 0 so it cannot take the two-weapon damage
+           branches */
         twohits: thrown ? 0 : state.twohits,
         dieroll,
         mdat: mon.data,

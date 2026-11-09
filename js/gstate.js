@@ -5,6 +5,9 @@
 function initialGameState() {
     return {
         item_action_in_progress: false,
+        // C decl.c:762 initializes gt.twohits to 0. uhitm.c hitum() and
+        // hmonas() set it for each melee turn and hmon_hitmon() reads it.
+        twohits: 0,
         // C decl.c:init_svn initializes the saved NHUUID buffer to zero.
         // Native get_nhuuid() is inactive in the reference recorder build.
         svn: { nhuuid: '' },
