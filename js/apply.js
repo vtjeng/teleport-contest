@@ -3887,8 +3887,8 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
                         });
                         break;
                     case 2:
-                        state.gn.nomovemsg = '';
-                        state.gm.multi_reason = null;
+                        state.nomovemsg = '';
+                        state.multi_reason = null;
                         nomul(-random.rnd(2), state);
                         break;
                     }
@@ -4082,8 +4082,7 @@ export async function use_mirror(obj, state = game, env = {}) {
                     nomul(-random.rnd(MAXULEV + 6 - u.ulevel), state);
                     state.multi_reason = 'gazing into a mirror';
                 }
-                state.gn ??= {};
-                state.gn.nomovemsg = 0;
+                state.nomovemsg = null;
             }
         } else if (is_vampire(state.youmonst.data)
             || is_vampshifter(state.youmonst)) {

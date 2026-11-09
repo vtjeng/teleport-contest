@@ -5311,7 +5311,7 @@ export async function dounpaid(
 // C ref: invent.c this_type_only() (3793-3826). `state.gt.this_type` is the
 // JavaScript storage for the C global getobj context used by dotypeinv().
 export function this_type_only(obj, state = game) {
-    const thisType = state.gt?.this_type ?? state.this_type ?? 0;
+    const thisType = state.gt?.this_type ?? 0;
     let result = obj.oclass === thisType;
     if (thisType === 'P') {
         result = Boolean(obj.pickup_prev);

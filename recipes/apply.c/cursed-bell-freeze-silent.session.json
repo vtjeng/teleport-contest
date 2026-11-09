@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c use_bell() witness. A debug Valkyrie rings a cursed bell; the second ring summons a wood nymph, the bell resists shattering and rn2(3) picks case 2, which sets gn.nomovemsg to \"\" and freezes her for rnd(2) turns, so unmul() prints nothing when she recovers.",
+  "segments": [
+    {
+      "seed": 1104,
+      "datetime": "20410315120000",
+      "nethackrc": "OPTIONS=name:Ringer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017cursed bell\nae ae ae  "
+    }
+  ]
+}

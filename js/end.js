@@ -988,8 +988,7 @@ function finishInUseInventory(state) {
 }
 
 // C ref: end.c done_object_cleanup() (851-906). The C globals gt.thrownobj
-// and gk.kickedobj are represented by both the grouped state fields used by
-// monster throws and the legacy root fields used by hero throws in this port.
+// and gk.kickedobj live at state.gt.thrownobj and state.gk.kickedobj.
 export async function done_object_cleanup(state) {
     finishInUseInventory(state);
 
@@ -998,25 +997,17 @@ export async function done_object_cleanup(state) {
     const [ox, oy] = (!isok(ox0, oy0) || !accessible(ox0, oy0, state))
         ? [state.u.ux, state.u.uy]
         : [ox0, oy0];
-    const placeFreeTransitObject = (obj, groups) => {
+    const placeFreeTransitObject = (obj, container, field) => {
         if (!obj || obj.where !== OBJ_FREE) return;
         // mkobj.c place_object() block_point()s a landed boulder, such as
         // one a giant threw at the hero.
         place_object(obj, ox, oy, { state });
         stackobj(obj, { state });
-        for (const [container, field] of groups) {
-            if (container?.[field] === obj) container[field] = null;
-        }
+        if (container?.[field] === obj) container[field] = null;
     };
 
-    placeFreeTransitObject(
-        state.gt?.thrownobj ?? state.thrownobj,
-        [[state.gt, 'thrownobj'], [state, 'thrownobj']],
-    );
-    placeFreeTransitObject(
-        state.gk?.kickedobj ?? state.kickedobj,
-        [[state.gk, 'kickedobj'], [state, 'kickedobj']],
-    );
+    placeFreeTransitObject(state.gt?.thrownobj, state.gt, 'thrownobj');
+    placeFreeTransitObject(state.gk?.kickedobj, state.gk, 'kickedobj');
 
     const uchain = state.uchain;
     if (uchain && uchain.where === OBJ_FREE) {

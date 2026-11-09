@@ -2674,8 +2674,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         if (oseen)
             discover_object(otmp.otyp, true, true, true, state, env);
         state.m_using = true;
-        state.gc ??= {};
-        state.gc.current_wand = otmp;
+        state.current_wand = otmp;
         state.gb ??= {};
         state.gb.buzzer = mtmp;
         const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
@@ -2691,7 +2690,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
             env,
         );
         state.gb.buzzer = 0;
-        state.gc.current_wand = 0;
+        state.current_wand = null;
         state.m_using = false;
         mtmp.mwandexp = true;
         return mtmp.mhp < 1 ? 1 : 2;
@@ -2702,8 +2701,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         state.m_using = true;
         state.gb ??= {};
         state.gb.buzzer = mtmp;
-        state.gc ??= {};
-        state.gc.current_wand = otmp;
+        state.current_wand = otmp;
         const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
         await buzzFunction(
             BZ_M_WAND(BZ_OFS_AD(
@@ -2720,7 +2718,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
             env,
         );
         state.gb.buzzer = 0;
-        state.gc.current_wand = 0;
+        state.current_wand = null;
         state.m_using = false;
         mtmp.mwandexp = true;
         return mtmp.mhp < 1 ? 1 : 2;

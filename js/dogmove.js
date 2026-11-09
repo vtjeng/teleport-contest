@@ -1027,7 +1027,7 @@ export function dog_goal(
             if (On_stairs(hero.ux, hero.uy, state)) {
                 approach = 1;
             } else {
-                for (let obj = state.invent ?? state.gi?.invent ?? null;
+                for (let obj = state.invent ?? null;
                     obj;
                     obj = obj.nobj) {
                     if (dogfood(monster, obj, operationEnv) === DOGFOOD) {

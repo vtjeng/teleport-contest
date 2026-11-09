@@ -1478,7 +1478,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
     const insider = Boolean(heroShop)
         && Boolean(inside_shop(state.u.ux, state.u.uy, state))
         && roomno === heroShop;
-    const fromInventory = obj !== (state.gk?.kickedobj ?? state.kickedobj);
+    const fromInventory = obj !== state.gk?.kickedobj;
     let loss = 0;
     let weightChanged = false;
 

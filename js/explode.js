@@ -1162,7 +1162,7 @@ export async function scatter(
                     }
                 } else if (getHero(x, y)) {
                     if (scflags & SCATTER_MAY_HITYOU) {
-                        if ((state.multi ?? state.gm?.multi ?? 0)
+                        if (state.multi
                             && !ops.nomul) nomul(0, state);
                         else if (ops.nomul) await ops.nomul(0, state);
                         const damage = await damageValue(chain.obj, state.youmonst);

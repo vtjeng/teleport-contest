@@ -1374,8 +1374,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 }
             }
             if (obj_sheds_light(otmp)) {
-                state.gv = state.gv ?? {};
-                state.gv.vision_full_recalc = 1;
+                state.vision_full_recalc = 1;
             }
         }
     }

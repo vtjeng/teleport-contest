@@ -324,7 +324,7 @@ export async function make_familiar(otmp, x, y, quietly = false, env = {}) {
 
 
 function carryingType(state, otyp) {
-    for (let object = state.invent ?? state.gi?.invent ?? null;
+    for (let object = state.invent ?? null;
         object;
         object = object.nobj) {
         if (object.otyp === otyp) return true;

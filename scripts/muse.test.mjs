@@ -1983,7 +1983,7 @@ test('use_offensive runs a monster wand of death through the shared zap path',
     assert.equal(gnome.mwandexp, true);
     assert.equal(state.m_using, false);
     assert.equal(state.gb.buzzer, 0);
-    assert.equal(state.gc.current_wand, 0);
+    assert.equal(state.current_wand, null);
     assert.ok(messages.some((text) => text.includes('zaps')));
 });
 
@@ -2057,7 +2057,7 @@ test('use_offensive fires a monster fire wand and records its first-use state',
     assert.equal(state.objects[WAN_FIRE].oc_name_known, 1);
     assert.equal(gnome.mwandexp, true);
     assert.equal(state.m_using, false);
-    assert.equal(state.gc.current_wand, 0);
+    assert.equal(state.current_wand, null);
     assert.equal(state.gb.buzzer, 0);
     assert.ok(messages.some((text) => text.includes('zaps')));
     assert.ok(draws.length > 0,

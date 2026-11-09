@@ -356,7 +356,7 @@ export function normalizeCharacterFlags(state) {
 export function plnamesuffix(state) {
     const flags = normalizeCharacterFlags(state);
     const original = String(state.plname ?? '');
-    const plnamelen = state.gp?.plnamelen ?? state.plnamelen ?? 0;
+    const plnamelen = state.gp?.plnamelen ?? 0;
     const dash = original.indexOf('-', plnamelen);
     if (dash >= 0) {
         state.plname = original.slice(0, dash);

@@ -46,7 +46,7 @@ test('done_object_cleanup consumes in-use inventory and settles a free throw',
             quan: 1,
         });
         state.invent = active;
-        state.thrownobj = thrown;
+        state.gt = { thrownobj: thrown };
 
         await done_object_cleanup(state);
 
@@ -57,7 +57,7 @@ test('done_object_cleanup consumes in-use inventory and settles a free throw',
         assert.equal(thrown.oy, 2);
         assert.equal(state.level.objects[3][2], thrown);
         assert.equal(state.level.objlist, thrown);
-        assert.equal(state.thrownobj, null);
+        assert.equal(state.gt.thrownobj, null);
         assert.equal(state.iflags.perm_invent, false);
     });
 

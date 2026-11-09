@@ -1156,8 +1156,6 @@ export function dealloc_obj(obj, env = {}) {
         obj.lamplit = false;
     }
 
-    if (normalized.state.thrownobj === obj) normalized.state.thrownobj = null;
-    if (normalized.state.kickedobj === obj) normalized.state.kickedobj = null;
     if (normalized.state.gt?.thrownobj === obj)
         normalized.state.gt.thrownobj = null;
     if (normalized.state.gk?.kickedobj === obj)
@@ -3348,16 +3346,16 @@ export function obj_sanity_check(state = game) {
     }
 
     // C: objects temporarily freed from invent/floor lists (3008-3028)
-    const thrownobj = state.gt?.thrownobj ?? state.thrownobj ?? null;
+    const thrownobj = state.gt?.thrownobj ?? null;
     if (thrownobj)
         insane_object(thrownobj, ofmt3, 'thrownobj sanity', null, state);
-    const kickedobj = state.gk?.kickedobj ?? state.kickedobj ?? null;
+    const kickedobj = state.gk?.kickedobj ?? null;
     if (kickedobj)
         insane_object(kickedobj, ofmt3, 'kickedobj sanity', null, state);
     if (state.iflags?.returning_missile)
         insane_object(kickedobj, ofmt3, 'returning_missile sanity',
                       null, state);
-    const current_wand = state.gc?.current_wand ?? state.current_wand ?? null;
+    const current_wand = state.current_wand ?? null;
     if (current_wand)
         insane_object(current_wand, ofmt3, 'current_wand sanity',
                       null, state);

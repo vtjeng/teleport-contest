@@ -1215,14 +1215,10 @@ test('dealloc_obj clears global references and preserves Lua-held extras', () =>
         },
         gk: { kickedobj: ordinary },
         gt: { thrownobj: ordinary },
-        kickedobj: ordinary,
-        thrownobj: ordinary,
     };
     dealloc_obj(ordinary, { state });
     assert.equal(ordinary.where, OBJ_DELETED);
     assert.equal(ordinary.oextra, null);
-    assert.equal(state.thrownobj, null);
-    assert.equal(state.kickedobj, null);
     assert.equal(state.gt.thrownobj, null);
     assert.equal(state.gk.kickedobj, null);
     assert.deepEqual(state.context.tin, { tin: null, o_id: 0 });
