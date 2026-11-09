@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: with a UTF-8 symset, process_text_window() sends each legacy line's first byte through g_putch(), which recorder patch 006 captures one column right, where the second byte overwrites it",
+  "segments": [
+    {
+      "seed": 44120983,
+      "datetime": "20451117213004",
+      "nethackrc": "OPTIONS=name:Hiroko,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=symset:Enhanced1\n",
+      "moves": " ss    "
+    }
+  ]
+}

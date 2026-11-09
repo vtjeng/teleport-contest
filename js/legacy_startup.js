@@ -3,7 +3,7 @@
 // deliver_by_window(); win/tty/wintty.c process_text_window() and dmore().
 
 import { game } from './gstate.js';
-import { menuOverlay } from './tty_menu.js';
+import { menuOverlay, writeTextWindowLine } from './tty_menu.js';
 import { nhgetch } from './input.js';
 import { convertLine, initializeQuestPagerLua } from './questpgr.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
@@ -152,7 +152,9 @@ export function renderTtyLegacyIntroduction(state = game) {
     if (layout.fullScreen) display.clearScreen();
     for (let row = 0; row < lines.length; ++row) {
         clearFrom(display, layout.offx, row);
-        display.putstr(layout.textColumn, row, lines[row], NO_COLOR, 0);
+        writeTextWindowLine(
+            state, layout.textColumn, row, lines[row], NO_COLOR, 0,
+        );
     }
     clearFrom(display, layout.offx, layout.promptRow);
     display.putstr(

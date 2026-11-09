@@ -153,6 +153,19 @@ function writeStyledText(
     }
 }
 
+// C ref: wintty.c process_text_window() 1801-1833, one line of a window whose
+// text begins at `column`. For a text window drawn outside this file.
+export function writeTextWindowLine(state, column, row, text, color, attr) {
+    const display = state.nhDisplay;
+    writeStyledText(
+        display, column, row, text, color, attr,
+        // process_text_window() pre-increments curx and tests curx < cols
+        // before each byte.
+        display.cols - 1,
+        textWindowUtf8(state),
+    );
+}
+
 // C ref: wintty.c process_text_window() 1819-1820 and sym.h SYMHANDLING().
 // True when the active symbol set uses H_UTF8 handling, so every text-window
 // line's first byte goes through g_putch().
