@@ -773,9 +773,7 @@ test('float_down moves the chain with the punished ball before redrawing the old
 });
 
 
-test('drown calls reset_faint before testing the crawl movement gate', {
-    skip: !JS_TRAP.includes('await reset_faint(state)'),
-}, () => {
+test('drown calls reset_faint before testing the crawl movement gate', () => {
     const cDrown = cFunction(C_TRAP, 'drown(void)', '\ndrain_en(');
     const reset = cDrown.indexOf('if (is_fainted())\n        reset_faint();');
     const crawl = cDrown.indexOf('if (gm.multi >= 0 && gy.youmonst.data->mmove');

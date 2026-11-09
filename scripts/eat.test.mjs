@@ -1236,9 +1236,7 @@ test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () 
 });
 
 
-test('reset_faint ignores a different or null pending callback', {
-    skip: typeof eatModule.reset_faint !== 'function',
-}, async () => {
+test('reset_faint ignores a different or null pending callback', async () => {
     const wrong = async () => {};
     for (const callback of [wrong, null]) {
         const state = { multi: -9, afternmv: callback,
