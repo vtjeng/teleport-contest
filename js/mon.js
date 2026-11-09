@@ -6354,10 +6354,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                     state,
                     env,
                 );
-                if (state === game)
-                    await displayPendingTtyMessageWindow(state);
-                else
-                    note_unported('windows.c display_nhwindow');
+                await displayPendingTtyMessageWindow(state);
             }
             await newcham(mtmp, state.mons[mndx], { ...env, state });
             mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;

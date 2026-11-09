@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3982 | 86 |
-| diagnostic | 723 | 187 | 536 |
+| diagnostic | 723 | 186 | 537 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4172 | 739 |
+| total | 4911 | 4171 | 740 |
 
 ## Missing by C file
 
@@ -70,7 +70,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/lock.c | yes | 0 | 2 | 0 |
 | src/mail.c | no | 1 | 0 | 1 |
 | src/makemon.c | yes | 3 | 7 | 4 |
-| src/mcastu.c | yes | 1 | 7 | 1 |
+| src/mcastu.c | yes | 1 | 8 | 1 |
 | src/mhitu.c | yes | 1 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 12 | 2 |
@@ -908,6 +908,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `mcast_disappear()`
   - 500 impossible: `no reason for monster to cast disappear spell?`
+
+- `mcast_blind_you()`
+  - 742 impossible: `no reason for monster to cast blindness spell?`
 
 - `mcast_spell()`
   - 804 impossible: `) with negative dmg (`

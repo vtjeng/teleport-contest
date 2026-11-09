@@ -88,6 +88,14 @@ function makeCaster(overrides = {}) {
     };
 }
 
+// mcastu.js records its discarded impossible() arms with note_unported(),
+// which writes the global game.unported. The returned function lists what
+// was recorded since this call.
+function recordGaps() {
+    game.unported = new Set();
+    return () => [...game.unported];
+}
+
 // Minimal game state with viz_array that lets couldsee/cansee pass at (5, 5).
 // couldsee() reads viz_array[y][x] & COULD_SEE; cansee() reads IN_SIGHT.
 function makeState(overrides = {}) {
@@ -478,7 +486,6 @@ test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async ()
     const result = await castmu(makeCaster(), mattk, true, true, {
         state, random, unsupported: refuse,
         message: async (text) => events.push(`message:${text}`),
-        noteUnported: (name) => events.push(`gap:${name}`),
         mdamageu: async (...args) => {
             events.push('damage');
             damageArgs = args;
@@ -507,12 +514,11 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     const watcher = watcherAt(state, 6, 5, 0);
     const random = scriptedRandom([50], 8);
     const messages = [];
-    const gaps = [];
+    const gaps = recordGaps();
     const damageCalls = [];
     const result = await castmu(makeCaster(), mattk, true, true, {
         state, random, unsupported: refuse,
         message: async (text) => messages.push(text),
-        noteUnported: (name) => gaps.push(name),
         mdamageu: (...args) => damageCalls.push(args),
     });
 
@@ -521,7 +527,7 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     assert.ok(messages.includes('You are hit by a shower of missiles!'));
     assert.ok(messages.includes('The missiles bounce off!'));
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
-    assert.deepEqual(gaps, []);
+    assert.deepEqual(gaps(), []);
     assert.deepEqual(damageCalls, []);
 });
 
@@ -575,14 +581,13 @@ test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
                 mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG, nmon: null,
             };
             state.level = { monlist: waiting };
-            const refusals = [];
+            const refusals = recordGaps();
             const messages = [];
             const result = await castmu(
                 makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
                 {
                     state, random, message: (message) => messages.push(message),
                     unsupported: refuse,
-                    noteUnported: (what) => refusals.push(what),
                 },
             );
             // C mcastu.c:mcast_spell calls You_feel before aggravate().
@@ -593,7 +598,7 @@ test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
                 `${unaware ? 'You dream that you feel ' : 'You feel '}`
                     + 'that monsters are aware of your presence.',
             ]);
-            assert.deepEqual(refusals, []);
+            assert.deepEqual(refusals(), []);
             assert.equal(waiting.msleeping, false);
             assert.equal(waiting.mstrategy, 0);
         }
@@ -637,7 +642,7 @@ test('mcast_spell dispatches the summon branch and its production message',
         // summon spell; mcast_summon_mons consumes nasty() and emits the
         // source appearance line without passing a damage result onward.
         const random = scriptedRandom([15, 50]);
-        const gaps = [];
+        const gaps = recordGaps();
         const messages = [];
         const result = await castmu(
             makeCaster({ m_lev: 16 }), AD_SPEL_ATTACK, false, false,
@@ -646,7 +651,6 @@ test('mcast_spell dispatches the summon branch and its production message',
                 message: (text) => messages.push(text),
                 nasty: async () => 1,
                 unsupported: refuse,
-                noteUnported: (what) => gaps.push(what),
             },
         );
         assert.equal(result, M_ATTK_HIT);
@@ -655,7 +659,7 @@ test('mcast_spell dispatches the summon branch and its production message',
             'The kobold shaman casts a spell!',
             'A monster appears from nowhere!',
         ]);
-        assert.deepEqual(gaps, []);
+        assert.deepEqual(gaps(), []);
     });
 
 // C ref: mcastu.c:978 and youprop.h:92. MCAST_BLIND_YOU is useless under
@@ -668,14 +672,13 @@ test('mcast_spell dispatches the summon branch and its production message',
 async function blindYouEffect(blinded) {
     const state = makeState();
     state.u.uprops[BLINDED] = blinded;
-    const refusals = [];
+    const refusals = recordGaps();
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random: scriptedRandom([6, 50]), message: () => {},
         unsupported: refuse,
-        noteUnported: (what) => refusals.push(what),
         mdamageu: () => {},
     });
-    return refusals;
+    return refusals();
 }
 
 test('spell_would_be_useless: a blindfold does not make MCAST_BLIND_YOU useless',
@@ -714,14 +717,13 @@ test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
                 intrinsic: halfDamage ? 1 : 0, extrinsic: 0, blocked: 0,
             };
             const messages = [];
-            const gaps = [];
+            const gaps = recordGaps();
             const random = scriptedRandom([6, 50]);
             const visionCalls = [];
 
             await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
                 state, random,
                 message: (line) => messages.push(line),
-                noteUnported: (what) => gaps.push(what),
                 visionRecalc: (...args) => visionCalls.push(args),
                 unsupported: refuse,
                 mdamageu: () => assert.fail('blindness clears spell damage'),
@@ -735,7 +737,7 @@ test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
             if (clearsVision) assert.ok(scalesIndex < clearsIndex);
             assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, timeout);
             assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
-            assert.deepEqual(gaps, []);
+            assert.deepEqual(gaps(), []);
             assert.equal(visionCalls.length, blocked ? 0 : 1,
                 'make_blinded owns the visibility transition');
         }
@@ -1452,11 +1454,10 @@ test('geyser: production cleric cast applies its own physical damage', async () 
     const state = makeState({ level: { monlist: null } });
     const messages = [];
     let damage = null;
-    const gaps = [];
+    const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random, unsupported: refuse,
         message: (m) => messages.push(m),
-        noteUnported: (gap) => gaps.push(gap),
         mdamageu: (_mon, value) => { damage = value; },
     });
     assert.equal(damage, 6);
@@ -1464,7 +1465,7 @@ test('geyser: production cleric cast applies its own physical damage', async () 
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(5)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
     ]);
-    assert.deepEqual(gaps, []);
+    assert.deepEqual(gaps(), []);
 });
 
 test('fire pillar: production cleric cast applies fire damage and item effects', async () => {
@@ -1475,11 +1476,10 @@ test('fire pillar: production cleric cast applies fire damage and item effects',
     const state = makeState({ level: { monlist: null }, invent: null });
     const messages = [];
     let damage = null;
-    const gaps = [];
+    const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random, unsupported: refuse,
         message: (m) => messages.push(m),
-        noteUnported: (gap) => gaps.push(gap),
         mdamageu: (_mon, value) => { damage = value; },
     });
     assert.equal(damage, 6);
@@ -1488,7 +1488,7 @@ test('fire pillar: production cleric cast applies fire damage and item effects',
         'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
         'rn2(5)', 'rn2(5)',
     ]);
-    assert.deepEqual(gaps, []);
+    assert.deepEqual(gaps(), []);
 });
 
 test('lightning: production cast preserves rnd(100) before flashburn', async () => {
@@ -1504,11 +1504,10 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
     });
     const messages = [];
     let damage = null;
-    const gaps = [];
+    const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random, unsupported: refuse,
         message: (m) => messages.push(m),
-        noteUnported: (gap) => gaps.push(gap),
         mdamageu: (_mon, value) => { damage = value; },
     });
     assert.equal(damage, 6);
@@ -1516,7 +1515,10 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
     ]);
-    assert.deepEqual(gaps, []);
+    // The fixture's BLND_RES with no resisting artifact reaches mondata.c
+    // resists_blnd()'s impossible() through flashburn(); mcastu.c itself
+    // records no gap.
+    assert.deepEqual(gaps(), ['pline.c impossible']);
 });
 
 test('paralyze: production cleric cast applies nomul damage', async () => {
@@ -1552,16 +1554,15 @@ test('stun spell: free action uses the resistant branch without a stun roll',
             },
         });
         const messages = [];
-        const gaps = [];
+        const gaps = recordGaps();
         await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
             state, random, unsupported: refuse,
             message: (text) => messages.push(text),
-            noteUnported: (gap) => gaps.push(gap),
         });
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)', 'd(8,6)']);
         assert.ok(messages.includes('You feel momentarily disoriented.'));
         assert.equal(state.u.uprops[STUNNED].intrinsic, 1);
-        assert.deepEqual(gaps, []);
+        assert.deepEqual(gaps(), []);
     });
 
 test('stun spell: unresisted damage extends the timeout after its own roll',
@@ -1773,7 +1774,7 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
         const caster = makeCaster({ m_lev: 20, mx: 5, my: 5 });
         const random = scriptedRandom([4, 45]);
         const messages = [];
-        const gaps = [];
+        const gaps = recordGaps();
 
         // makeState and makeCaster place the hero at (4,5) and the monster at
         // visible square (5,5). In C's wizard list, spellval 4 selects
@@ -1785,7 +1786,6 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
             unsupported: refuse,
             monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
-            noteUnported: (name) => gaps.push(name),
         });
 
         assert.equal(result, M_ATTK_HIT);
@@ -1797,7 +1797,7 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
             'The Archon casts a spell!',
             'The Archon suddenly disappears!',
         ]);
-        assert.deepEqual(gaps, [], 'the spell records no gap');
+        assert.deepEqual(gaps(), [], 'the spell records no gap');
     });
 
 test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
@@ -1818,7 +1818,6 @@ test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
             unsupported: refuse,
             monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
-            noteUnported: () => {},
         });
 
         assert.equal(caster.minvis, 1);
@@ -1838,7 +1837,7 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         data: state.mons[PM_KOBOLD_SHAMAN],
     });
     const messages = [];
-    const gaps = [];
+    const gaps = recordGaps();
 
     // The visible square (5,5) is east of the hero at (4,5); spell value 4
     // selects MCAST_DISAPPEAR and rn2(200)=45 passes the fumble gate.
@@ -1847,7 +1846,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         random: scriptedRandom([4, 45]),
         unsupported: refuse,
         message: async (text) => messages.push(text),
-        noteUnported: (name) => gaps.push(name),
     });
 
     assert.equal(
@@ -1872,7 +1870,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         random: scriptedRandom([4, 45]),
         unsupported: refuse,
         message: async (text) => accessibleMessages.push(text),
-        noteUnported: () => {},
     });
 
     assert.equal(
@@ -1880,7 +1877,7 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         '(east): The kobold shaman suddenly disappears!',
         'messageAt uses pline_mon coordinates when accessiblemsg is enabled',
     );
-    assert.deepEqual(gaps, [], 'the spell records no gap');
+    assert.deepEqual(gaps(), [], 'the spell records no gap');
 });
 
 test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',

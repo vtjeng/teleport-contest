@@ -271,11 +271,6 @@ function requireCastmuOperation(env, name) {
     return operation;
 }
 
-function recordMcastGap(name, env = {}) {
-    if (typeof env.noteUnported === 'function') env.noteUnported(name);
-    else note_unported(name);
-}
-
 // ---- is_undirected_spell() ----
 // C ref: mcastu.c is_undirected_spell() (899-905).
 function is_undirected_spell(spellnum) {
@@ -817,7 +812,7 @@ async function mcast_clone_wiz(mtmp, rawEnv = {}) {
         await message('Double Trouble...', state, rawEnv);
         await clonewiz(state, rawEnv);
     } else {
-        recordMcastGap('mcastu.c impossible', rawEnv);
+        note_unported('mcastu.c impossible');
     }
 }
 
@@ -1066,11 +1061,11 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     const mdamageu = env.mdamageu;
 
     if (dmg < 0) {
-        recordMcastGap('mcastu.c impossible', env);
+        note_unported('mcastu.c impossible');
         return;
     }
     if (dmg === 0 && !is_undirected_spell(spellnum)) {
-        recordMcastGap('mcastu.c impossible', env);
+        note_unported('mcastu.c impossible');
         return;
     }
 
@@ -1147,7 +1142,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         await mcast_confuse_you(mtmp, env);
         break;
     default:
-        recordMcastGap('mcastu.c impossible', env);
+        note_unported('mcastu.c impossible');
         break;
     }
 
@@ -1181,9 +1176,8 @@ async function mcast_blind_you(env = {}) {
         if (!Blind(state.u))
             await message(`Your ${vision_clears}`, state);
     } else {
-        // C's impossible() is diagnostic only; callers that expose an
-        // impossible hook keep the report without changing gameplay state.
-        env.impossible?.('no reason for monster to cast blindness spell?');
+        // C: impossible("no reason for monster to cast blindness spell?").
+        note_unported('pline.c impossible');
     }
 }
 
@@ -1193,7 +1187,7 @@ async function mcast_blind_you(env = {}) {
 async function mcast_disappear(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (mtmp.minvis || mtmp.invis_blkd) {
-        recordMcastGap('pline.c impossible', rawEnv);
+        note_unported('pline.c impossible');
         return;
     }
 
