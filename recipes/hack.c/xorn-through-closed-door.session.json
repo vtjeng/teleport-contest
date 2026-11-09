@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c test_move() (1074-1093) lets a hero who passes walls through a closed door. A Caveman in debug mode polymorphs into a xorn with #polyself and walks west through the room's closed door and out into the corridor.",
+  "segments": [
+    {
+      "seed": 6620433,
+      "datetime": "20451104075530",
+      "nethackrc": "OPTIONS=name:Phaser,role:Caveman,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#polyself\nxorn\nhhhhhss"
+    }
+  ]
+}

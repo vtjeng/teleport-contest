@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A hero walks and teleports onto CLOUD terrain away from the Plane of Air: hack.c test_move() admits it like any square that is not obstructed, and teleport.c teleds() lands on it. A dwarven Archeologist in debug mode wishes for a cloud under itself, steps off and back on, then steps off again and uses ^T to choose the cloud.",
+  "segments": [
+    {
+      "seed": 3851297,
+      "datetime": "20450612090510",
+      "nethackrc": "OPTIONS=name:Nimbus,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017cloud\nhlh\u0014 \nl.ss"
+    }
+  ]
+}
