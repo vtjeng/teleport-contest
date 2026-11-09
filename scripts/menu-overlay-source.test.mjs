@@ -13,6 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { assertExceptionCount } from './exception-count.mjs';
 import { menuOverlay } from '../js/tty_menu.js';
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
@@ -49,6 +50,22 @@ test('only menuOverlay() reads menu_overlay, and no window takes an overlay flag
         }
         assert.deepEqual(findings, []);
     });
+
+test('NAMES_ONLY holds the pinned number of files and sites', () => {
+    // 2 files holding 2 sites on 9f7e42e6 (8 November 2026): the option
+    // table's menu_overlay row and the help text's line for it.
+    const PINS = { files: 2, sites: 2 };
+    assertExceptionCount(NAMES_ONLY.size, PINS.files, {
+        what: 'NAMES_ONLY files',
+        pin: 'PINS.files in scripts/menu-overlay-source.test.mjs',
+    });
+    const sites = [...NAMES_ONLY].reduce((n, file) =>
+        n + overlayBypasses(readFileSync(join(JS_DIR, file), 'utf8'), file).length, 0);
+    assertExceptionCount(sites, PINS.sites, {
+        what: 'menu_overlay sites in NAMES_ONLY files',
+        pin: 'PINS.sites in scripts/menu-overlay-source.test.mjs',
+    });
+});
 
 test('the scan finds a direct read and a spec flag', () => {
     // Each fixture is one of the two forms the per-caller plumbing took.
