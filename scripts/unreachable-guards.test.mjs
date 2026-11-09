@@ -92,3 +92,31 @@ test('object operations refuse only through requiredHook()', () => {
     // from those three case labels, so the switch needs no default.
     assert.doesNotMatch(functionBody(code, 'initializeMonsterFood'), /default\s*:/u);
 });
+
+// run_timers()'s admission (timeout.c run_timers() 2216-2240) may refuse a
+// due prefix only for the reasons below. C starts only TIMER_OBJECT timers
+// and the TIMER_LEVEL MELT_ICE_AWAY timer, every timeout_funcs[] row is
+// ported, a corpse never holds objects, and only start_glob_timeout() starts
+// SHRINK_GLOB, on a glob; so no reason may test the timer kind, a missing
+// function, a corpse's contents or a non-glob.
+const DUE_TIMER_REASONS = {
+    'timeout.js unportedDueTimerReason': ['the due object to hold only its own timer'],
+    'dig.js unportedRotCorpseReason': [],
+    'obj.js unportedShrinkGlobReason': ['shrink_glob for an unpaid glob'],
+};
+
+test('run_timers() refuses a due prefix only for the pinned reasons', () => {
+    const found = {};
+    for (const key of Object.keys(DUE_TIMER_REASONS)) {
+        const [file, name] = key.split(' ');
+        found[key] = returnedStrings(functionBody(jsCode(file), name));
+    }
+    assert.deepEqual(found, DUE_TIMER_REASONS);
+    const admission = functionBody(jsCode('timeout.js'), 'unportedDueTimerReason');
+    assert.doesNotMatch(admission, /timer\.kind\s*!==|!\s*entry\.f\b/u);
+});
+
+test('returnedStrings reads quoted and template returns', () => {
+    const body = "{ if (a) return 'one'; if (b) return `two ${c}`; return null; }";
+    assert.deepEqual(returnedStrings(body), ['one', 'two ${c}']);
+});

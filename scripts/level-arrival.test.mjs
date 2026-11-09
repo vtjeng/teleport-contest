@@ -37,13 +37,13 @@ import {
     DELPHI,
     FILL_NONE,
     FILL_NORMAL,
+    HATCH_EGG,
     LEPREHALL,
     MORGUE,
     OROOM,
     PROT_FROM_SHAPE_CHANGERS,
     RANGE_GLOBAL,
     RANGE_LEVEL,
-    ROT_ORGANIC,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
@@ -278,14 +278,15 @@ test('timer locality follows the four timer kinds', () => {
     assert.equal(state.gt.timer_base.next, null);
 });
 
-test('run_timers refuses an unsupported monster timer kind', async () => {
+test('run_timers names its site when it refuses a due prefix', async () => {
     const state = dungeonState();
     timeout_globals_init(state);
     state.moves = 100;
-    // timeout.c:timer_sanity_check() rejects TIMER_MONSTER elements as
-    // unexpected; run_timers() keeps this unsupported queue kind fail-closed.
-    start_timer(5, TIMER_MONSTER, ROT_ORGANIC,
-        { where: OBJ_INVENT, timed: 0 }, state);
+    // timed starts at 1 so that, once start_timer() adds the egg's own timer,
+    // the due object holds another timer too: run_timers() still refuses
+    // that prefix (timeout.c:2222-2241 runs each due timer in queue order).
+    start_timer(5, TIMER_OBJECT, HATCH_EGG,
+        { where: OBJ_INVENT, timed: 1 }, state);
     // Scheduled for move 105, which is still ahead of the arrival turn.
     await run_timers(state, { newsym: () => {} });
     state.moves = 105;
@@ -300,7 +301,7 @@ test('run_timers refuses an unsupported monster timer kind', async () => {
             site: "goto_level()'s run_timers()",
         }),
         (error) => error.message === "goto_level()'s run_timers() requires "
-            + `every due timer kind to have a supported handler, but kind ${TIMER_MONSTER} is due`,
+            + 'the due object to hold only its own timer',
     );
 });
 

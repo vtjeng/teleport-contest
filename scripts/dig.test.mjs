@@ -1183,14 +1183,6 @@ test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
     const carried = newObject({ otyp: CORPSE, where: OBJ_INVENT });
     assert.equal(unportedRotCorpseReason(carried, seam), null);
 
-    // rot_organic()'s contents loop at dig.c:2129-2136.
-    const holder = floorCorpse(state, 13, 6);
-    holder.cobj = newObject({ otyp: ROCK });
-    assert.match(
-        unportedRotCorpseReason(holder, seam),
-        /a rotting corpse to hold nothing/u,
-    );
-
     // Billing is owned by canonical obfree; the discarded hero hideunder
     // call updates concealment without refusing corpse deletion.
     const owed = floorCorpse(state, 14, 6);

@@ -51,7 +51,6 @@ import {
     REVIVE_MON,
     RIGHT_SIDE,
     ROT_CORPSE,
-    ROT_ORGANIC,
     ROOM,
     SHRINK_GLOB,
     STUNNED,
@@ -1730,13 +1729,16 @@ test('run_timers refuses the whole due prefix before draining any of it', async 
         otyp: CORPSE,
         quan: 1,
     });
-    start_timer(0, TIMER_MONSTER, ROT_ORGANIC, later, state);
+    // The later corpse holds a second timer beside its due revival, which
+    // run_timers() still refuses (timeout.c:2222-2241).
+    later.timed = 1;
+    start_timer(0, TIMER_OBJECT, REVIVE_MON, later, state);
     assert.equal(state.gt.timer_base.arg, corpse);
     const queueBefore = queue(state).map((timer) => timer.tid);
 
     await assert.rejects(
         run_timers(state, { newsym: () => {} }),
-        new RegExp(`every due timer kind to have a supported handler, but kind ${TIMER_MONSTER} is due`, 'u'),
+        /the due object to hold only its own timer/u,
     );
 
     assert.equal(corpse.where, OBJ_FLOOR);
@@ -1755,18 +1757,6 @@ test('run_timers corpse deletion cancels the residual revival timer', async () =
     assert.equal(corpse.where, OBJ_DELETED);
     assert.equal(corpse.timed, 0);
     assert.deepEqual(queue(state), []);
-});
-
-test('run_timers refuses an unsupported level timer kind', async () => {
-    const state = rottingState();
-    // timeout.h permits positional timers only for MELT_ICE_AWAY; ROT_CORPSE
-    // with TIMER_LEVEL is not an admitted source pair.
-    start_timer(0, TIMER_LEVEL, ROT_CORPSE, 5 * 0x10000 + 5, state);
-    await assert.rejects(
-        run_timers(state, { newsym: () => {} }),
-        new RegExp(`every due timer kind to have a supported handler, but kind `
-            + `${TIMER_LEVEL} is due`, 'u'),
-    );
 });
 
 test('run_timers dispatches the MELT_ICE_AWAY level callback', async () => {

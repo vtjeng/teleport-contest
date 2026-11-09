@@ -53,7 +53,6 @@ import {
     LEVITATION,
     KILLED_BY,
     KILLED_BY_AN,
-    MELT_ICE_AWAY,
     MAGICAL_BREATHING,
     MM_NOMSG,
     M_AP_MONSTER,
@@ -554,8 +553,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
 // C ref: timeout.c timeout_funcs[] (1978-1990), "Table of timeout functions,
 // listed in order of enum timeout_types". Each row keeps the VERBOSE_TIMER
 // name C prints so a stop can say which function it refused. `f` is the ported
-// timeout_proc and `unported` the reason it cannot run yet; a row with neither
-// names a function this port has not reached.
+// timeout_proc and `unported` the reason it cannot run yet.
 //
 // C's second TTAB field, `cleanup`, is not here. Only BURN_OBJECT has one, and
 // stop_timer() already owns it through preflightTimerCleanup() above; nothing
@@ -662,17 +660,11 @@ function unportedDueTimerReason(state, env) {
     for (let timer = state.gt?.timer_base;
         timer && Math.trunc(timer.timeout) <= currentMove(state);
         timer = timer.next) {
-        const isMeltIceLevelTimer = timer.kind === TIMER_LEVEL
-            && timer.func_index === MELT_ICE_AWAY;
-        if (timer.kind !== TIMER_OBJECT && !isMeltIceLevelTimer) {
-            // timeout.h:52-59 timer_is_pos(): MELT_ICE_AWAY is the one
-            // admitted position timer; other due timer kinds remain gaps.
-            return 'every due timer kind to have a supported handler, but kind '
-                + `${timer.kind} is due`;
-        }
+        // C starts only TIMER_OBJECT timers and the TIMER_LEVEL
+        // MELT_ICE_AWAY timer (zap.c:5108, nhlua.c:1634), and every row of
+        // timeout_funcs[] is ported, so the kind and the function need no
+        // check here.
         const entry = timeout_funcs[timer.func_index];
-        if (!entry.f)
-            return `a ported timeout function, but ${entry.name}() is due`;
         // C rereads timer_base after every callback. Corpse deletion stops
         // residual object timers through obfree -> obj_stop_timers; conversion
         // cancels them through set_corpsenm. Both may change the queue head.

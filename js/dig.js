@@ -2367,12 +2367,10 @@ function rotEnv(env) {
     return { ...env, state: env.state ?? game, hooks: env.hooks ?? {} };
 }
 
-// Corpses cannot contain objects in valid play. ROT_ORGANIC's generic
-// container callback is separate from this corpse-specific cleanup.
+// rot_corpse()'s admission for run_timers(). A corpse never holds objects
+// (no C or Lua path puts an object in one), so its contents need no check.
 export function unportedRotCorpseReason(obj, rawEnv = {}) {
     const env = rotEnv(rawEnv);
-    if (Has_contents(obj))
-        return 'a rotting corpse to hold nothing, but one holds an object';
     if (obj.where === OBJ_FLOOR && typeof env.hooks.newsym !== 'function')
         throw new TypeError('rot_corpse requires a newsym seam');
     return null;
