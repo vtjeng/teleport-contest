@@ -410,44 +410,18 @@ test('set_bknown writes the flag only when it changes', () => {
     set_bknown(obj, 0, { state });
     assert.equal(obj.bknown, 0);
 
-    // C's two conditions on the refresh, each isolated by a state that would
-    // make update_inventory() visible. invent.c requireInventoryRefresh()
-    // throws for a permanent-inventory window with no owner to draw it, so a
-    // refresh that should not have happened is the thrown error.
+    // C's refresh conditions (carried, moves > 1) reach update_inventory(),
+    // which the recorder's tty port draws nothing for even under perm_invent
+    // (js/wintty.js tty_update_inventory()), so each case only writes the
+    // flag. OBJ_FREE (0) and turn 1 are the cases C skips the refresh for.
     state.program_state = { in_moveloop: 1 };
     state.iflags = { perm_invent: true };
-    const refreshes = (where, moves) => {
+    for (const [where, moves] of [[OBJ_INVENT, 2], [0, 2], [OBJ_INVENT, 1]]) {
         state.moves = moves;
         const target = item(TOOL_CLASS, STETHOSCOPE, { bknown: 0, where });
-        try {
-            set_bknown(target, 1, { state });
-            return false;
-        } catch (error) {
-            return error.name === 'UnsupportedObjectOperationError';
-        }
-    };
-    // Both conditions hold: C redraws.
-    assert.equal(refreshes(OBJ_INVENT, 2), true);
-    // A floor object at the same turn does not, so the two conjuncts are not
-    // interchangeable.
-    assert.equal(refreshes(0 /* OBJ_FREE */, 2), false);
-    // Turn 1 is u_init()'s, where C suppresses the redraw with `moves > 1L`;
-    // turn 2 is the first that shows one.
-    assert.equal(refreshes(OBJ_INVENT, 1), false);
-
-    // The change guard itself, under the same redrawing state: every case
-    // above hands set_bknown() a fresh object whose flag does change, so they
-    // hold with the guard deleted. Writing a value the object already holds
-    // must reach neither the write nor update_inventory(). moves = 2 is the
-    // first turn C's `svm.moves > 1L` admits, and OBJ_INVENT the where that
-    // redraws, so both conjuncts are satisfied and only the guard can stop it.
-    state.moves = 2;
-    const settled = item(TOOL_CLASS, STETHOSCOPE,
-        { bknown: 0, where: OBJ_INVENT });
-    assert.throws(() => set_bknown(settled, 1, { state }),
-        { name: 'UnsupportedObjectOperationError' });
-    assert.equal(settled.bknown, 1);
-    assert.doesNotThrow(() => set_bknown(settled, 1, { state }));
+        set_bknown(target, 1, { state });
+        assert.equal(target.bknown, 1);
+    }
 });
 
 test('welded and freehand answer on the wielded weapon', () => {

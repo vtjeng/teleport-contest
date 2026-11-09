@@ -29,7 +29,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
-    UnsupportedObjectOperationError, curse, newObject,
+    curse, newObject,
 } from '../js/obj.js';
 import {
     ARROW,
@@ -478,36 +478,31 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
     assert.equal(weapon_status(state), 'Dual-weps');
 });
 
-// invent.c update_inventory() repaints the persistent-inventory window.
-// js/invent.js supplies no window, so with OPTIONS=perm_invent set inside the
-// move loop it stops instead; that stop is the only observable either
-// update_inventory() call in dotwoweapon() has.
+// invent.c update_inventory() repaints the persistent-inventory window, which
+// the recorder's tty build lacks (js/wintty.js tty_update_inventory()), so
+// with OPTIONS=perm_invent set inside the move loop dotwoweapon() runs on
+// past both of its update_inventory() calls.
 function permInventHero(state) {
     state.iflags = { perm_invent: true };
     state.program_state = { in_moveloop: true };
     return state;
 }
 
-test('dotwoweapon refreshes the inventory after switching on', async () => {
+test('dotwoweapon switches on under perm_invent', async () => {
     initRng(2);
     enableRngLog();
     const state = permInventHero(armHero(makeState()));
     state.u.acurr.a[A_DEX] = 14;
-    await assert.rejects(() => dotwoweapon(state),
-        UnsupportedObjectOperationError);
-    // wield.c:858-860 prints, sets the flag, then refreshes, so both earlier
-    // statements have run by the time the refresh stops.
+    await dotwoweapon(state);
+    // wield.c:858-860 prints, sets the flag, then refreshes.
     assert.equal(state._pending_message, 'You begin two-weapon combat.');
     assert.equal(state.u.twoweap, true);
-    // wield.c:861 draws only after the refresh returns.
-    assert.deepEqual(getRngLog(), []);
 });
 
-test('dotwoweapon refreshes the inventory after switching off', async () => {
+test('dotwoweapon switches off under perm_invent', async () => {
     const state = permInventHero(armHero(makeState()));
     state.u.twoweap = true;
-    await assert.rejects(() => dotwoweapon(state),
-        UnsupportedObjectOperationError);
+    await dotwoweapon(state);
     // wield.c:849-851, in that order, before the arm returns ECMD_OK.
     assert.equal(state._pending_message, 'You switch to your primary weapon.');
     assert.equal(state.u.twoweap, false);
