@@ -19,6 +19,7 @@ import {
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
+    emitQueuedNotices,
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
     MORE_PROMPT,
@@ -498,6 +499,7 @@ export async function displayTtyMenuTextWindow(
     state = game,
     rawLines,
 ) {
+    await emitQueuedNotices(state);
     const display = state.nhDisplay;
     if (!display)
         throw new Error('tty menu text window requires an initialized display');
@@ -938,6 +940,7 @@ async function dmore(state, display, row) {
 // lines begin in column 0 rather than after the one-cell margin an offset
 // window writes. Returns morc, the key that dismissed the last --More--.
 export async function displayTtyTextWindow(state = game, lines) {
+    await emitQueuedNotices(state);
     const display = state.nhDisplay;
     if (!display)
         throw new Error('tty text window requires an initialized display');
@@ -1683,6 +1686,7 @@ async function selectAnyTtyMenu(state, spec) {
 // PICK_ONE loop, which refuses every selection and so always answers
 // cancelValue (or an empty array when returnSelections is requested).
 export async function selectTtyMenu(state = game, spec) {
+    await emitQueuedNotices(state);
     // wintty.c tty_display_nhwindow() clears rawprint before the menu arm.
     if (state.nhDisplay?.nomuxRaw)
         state.nhDisplay.nomuxRaw.rawprint = 0;

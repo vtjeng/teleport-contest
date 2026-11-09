@@ -341,6 +341,19 @@ export async function displayPendingTtyMessageWindow(state) {
     }
 }
 
+// display.c show_glyph() calls pline_xy(), and vision.c vision_recalc()'s
+// notice_all_mons() calls You(), synchronously. JS defers the awaitable TTY
+// work by queueing those lines (js/startup_a11y.js), so anything that later
+// reaches the screen -- a message, a menu or text window, or a prompt --
+// must first print every source-earlier queued line. Each such window-port
+// entry point calls this first; scripts/queued-notice-drain.test.mjs checks
+// that they do. emitGlyphUpdateNotices() marks its own recursive ttyPline()
+// calls so they do not re-enter.
+export async function emitQueuedNotices(state = game) {
+    if (!state._emittingGlyphUpdateNotices)
+        await emitGlyphUpdateNotices(state, { pline: ttyPline });
+}
+
 // C refs: pline.c vpline(), Norep(); win/tty/topl.c update_topl(). Messages
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
@@ -357,13 +370,7 @@ async function ttyPlineCore(
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return false;
-    // display.c show_glyph() calls pline_xy() synchronously. JS defers the
-    // awaitable TTY work, so a later ordinary message must first drain every
-    // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
-    // ttyPline() calls to avoid re-entering this boundary.
-    if (!state._emittingGlyphUpdateNotices) {
-        await emitGlyphUpdateNotices(state, { pline: ttyPline });
-    }
+    await emitQueuedNotices(state);
     // pline.c You() and its siblings write "prefix + format" into
     // gy.you_buf; vpline() prints a format without '%' from that buffer.
     // state.gy.you_buf is that buffer's text, written only here and by

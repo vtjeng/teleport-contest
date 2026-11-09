@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40417,
+      "datetime": "20020611083000",
+      "nethackrc": "OPTIONS=name:Sight,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,!tips,spot_monsters\n",
+      "moves": " \u0017potion of blindness\nqf\u0007newt\n\u0017potion of see invisible\nqg  \u001b"
+    }
+  ],
+  "comment": "win/tty getline.c hooked_tty_getlin(): the potion cures blindness, so vision_recalc() spots the newt and the grid bug and notice_all_mons() prints them at once; C shows those lines before the \"Call a pink potion:\" prompt. The port queues them and must print them before the prompt opens."
+}

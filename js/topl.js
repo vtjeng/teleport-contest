@@ -12,6 +12,7 @@ import {
 import { game } from './gstate.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
+    emitQueuedNotices,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
@@ -665,6 +666,7 @@ async function clearMessageWindow(state) {
 // `def` is unread on the unrestricted arm; C names it because clean_up is
 // shared, and on the restricted arm quitchars and Escape resolve to it.
 export async function tty_yn_function(query, resp, def, state = game) {
+    await emitQueuedNotices(state);
     const { readchar, key2txt } = await import('./cmd.js');
     const display = state.nhDisplay;
     if (!display) throw new Error('a yn prompt requires an initialized display');

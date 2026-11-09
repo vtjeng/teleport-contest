@@ -25,6 +25,7 @@ import { vision_recalc } from './vision.js';
 import { mungspaces, visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
+    emitQueuedNotices,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     dismissPendingTtyMessage,
@@ -272,6 +273,7 @@ async function hooked_tty_getlin(query, hook, state) {
 // C ref: win/tty/getline.c tty_getlin().  Returns the answer, or "\x1b" when
 // Escape cancelled an empty line, exactly as C leaves bufp.
 export async function tty_getlin(query, state = game) {
+    await emitQueuedNotices(state);
     suppress_history = false;
     return hooked_tty_getlin(query, null, state);
 }
