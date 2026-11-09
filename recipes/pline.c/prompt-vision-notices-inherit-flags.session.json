@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730211,
+      "datetime": "20410306141500",
+      "nethackrc": "OPTIONS=name:Lumen,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,spot_monsters\n",
+      "moves": "E- Elbereth\n\u0007newt\n\u0017wand of light\nEe y x\n.s"
+    }
+  ]
+}

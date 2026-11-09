@@ -4,6 +4,8 @@
 import {
     MAX_MSG_HISTORY,
     MSGTYP_STOP,
+    OVERRIDE_MSGTYPE,
+    SUPPRESS_HISTORY,
     TOPLINE_SPECIAL_PROMPT,
     WIN_LOCKHISTORY,
     WIN_NOSTOP,
@@ -17,6 +19,7 @@ import {
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
     dismissPendingTtyMessage,
+    vplineVisionRecalc,
 } from './tty_message.js';
 
 const CTRL_P = 0x10;
@@ -718,10 +721,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
         // C custompline() enters vpline(): deferred vision precedes the map
         // flush even for a restricted or unrestricted input prompt. Keep the
         // same live owner as ttyPlineCore and the existing restore safeguard.
-        if (state === game && state.vision_full_recalc) {
-            const { vision_recalc } = await import('./vision.js');
-            vision_recalc(0);
-        }
+        await vplineVisionRecalc(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state);
         const { flush_screen } = await import('./display.js');
         await flush_screen(1);
     }
