@@ -96,13 +96,13 @@ test('object operations refuse only through requiredHook()', () => {
 // run_timers()'s admission (timeout.c run_timers() 2216-2240) may refuse a
 // due prefix only for the reasons below. C starts only TIMER_OBJECT timers
 // and the TIMER_LEVEL MELT_ICE_AWAY timer, every timeout_funcs[] row is
-// ported, a corpse never holds objects, and only start_glob_timeout() starts
-// SHRINK_GLOB, on a glob; so no reason may test the timer kind, a missing
-// function, a corpse's contents or a non-glob.
+// ported, a corpse never holds objects, only start_glob_timeout() starts
+// SHRINK_GLOB, on a glob, and mkobj.c shrink_glob() treats an unpaid glob
+// like any other; so no reason may test the timer kind, a missing function,
+// a corpse's contents, a non-glob or an unpaid glob.
 const DUE_TIMER_REASONS = {
     'timeout.js unportedDueTimerReason': ['the due object to hold only its own timer'],
     'dig.js unportedRotCorpseReason': [],
-    'obj.js unportedShrinkGlobReason': ['shrink_glob for an unpaid glob'],
 };
 
 test('run_timers() refuses a due prefix only for the pinned reasons', () => {

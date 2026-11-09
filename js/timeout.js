@@ -199,7 +199,7 @@ import {
     WAX_CANDLE,
 } from './objects.js';
 import {
-    carried, remove_object, shrink_glob, unportedShrinkGlobReason, weight,
+    carried, remove_object, shrink_glob, weight,
 } from './obj.js';
 import { m_at } from './monst.js';
 import { cansee } from './vision.js';
@@ -570,7 +570,7 @@ const timeout_funcs = [
         f: figTransformCallback,
         unported: () => null,
     },
-    { name: 'shrink_glob', f: shrinkGlobCallback, unported: unportedShrinkGlobReason },
+    { name: 'shrink_glob', f: shrinkGlobCallback, unported: () => null },
     { name: 'melt_ice_away', f: meltIceAwayCallback, unported: () => null },
 ];
 if (timeout_funcs.length !== NUM_TIME_FUNCS)

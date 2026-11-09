@@ -2264,19 +2264,6 @@ export async function shrink_glob(obj, expire_time, env = {}) {
     }
 }
 
-// C ref: mkobj.c shrink_glob(). The reason a SHRINK_GLOB timer cannot fire
-// over this object, or null when it can. run_timers() asks this for every
-// element of the due prefix before it unlinks any of them.
-//
-// Only timeout.c start_glob_timeout() starts SHRINK_GLOB, and only on a glob,
-// so shrink_glob()'s own non-glob impossible() needs no reason here.
-export function unportedShrinkGlobReason(obj, env) {
-    // Unpaid globs need the obfreeShopBill hook, which the timer env does not
-    // carry.
-    if (obj.unpaid) return 'shrink_glob for an unpaid glob';
-    return null;
-}
-
 // C ref: mkobj.c shrinking_glob_gone() (1672-1701). A glob has shrunk to
 // nothing; handle owornmask, then delete the glob.
 async function shrinking_glob_gone(obj, env = {}) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c shrink_glob() on an unpaid glob: a debug Tourist level-teleports to Dlvl 3, arriving in a general store, wishes a glob of gray ooze, sells it to the shopkeeper and picks it up again (unpaid), then searches until its SHRINK_GLOB timer fires (\"Kabalebo's small glob of gray ooze shrinks.\").",
+  "segments": [
+    {
+      "seed": 3300102,
+      "datetime": "20510613190000",
+      "nethackrc": "OPTIONS=name:Shopper,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u00163\n \u0017glob of gray ooze\nda y, 20s20s"
+    }
+  ]
+}
