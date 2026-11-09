@@ -10,6 +10,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
+import { assertExceptionCount } from './exception-count.mjs';
+
 const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 
 // Literals that C prints through You() or pline() rather than You_see().
@@ -23,21 +25,45 @@ const NOT_YOU_SEE = [
 
 const PREFIX = /['"`]You (?:dream that you )?see /u;
 
-test('only pline.js youSee() writes the You_see() prefixes', () => {
-    const found = [];
+// Every "You see " literal outside pline.js, as { site, excused }. `excused`
+// is 'data' in a help or data table, 'listed' for a NOT_YOU_SEE entry, and
+// null otherwise.
+function prefixSites() {
+    const sites = [];
     for (const name of readdirSync(JS_DIR).sort()) {
         if (!name.endsWith('.js') || name === 'pline.js') continue;
         // Help and data tables are text shown to the player, not messages.
-        if (name.startsWith('data_') || name === 'help_data.js') continue;
+        const data = name.startsWith('data_') || name === 'help_data.js';
         const lines = readFileSync(`${JS_DIR}${name}`, 'utf8').split('\n');
         lines.forEach((line, index) => {
             if (!PREFIX.test(line)) return;
             // Comments quote messages without printing them.
             if (/^\s*(?:\/\/|\/?\*)/u.test(line)) return;
-            if (NOT_YOU_SEE.some(([file, fragment]) => file === name
-                && line.includes(fragment))) return;
-            found.push(`${name}:${index + 1}: ${line.trim()}`);
+            const listed = NOT_YOU_SEE.some(([file, fragment]) => file === name
+                && line.includes(fragment));
+            sites.push({ site: `${name}:${index + 1}: ${line.trim()}`,
+                excused: data ? 'data' : listed ? 'listed' : null });
         });
     }
-    assert.deepEqual(found, []);
+    return sites;
+}
+
+test('only pline.js youSee() writes the You_see() prefixes', () => {
+    assert.deepEqual(prefixSites().filter(({ excused }) => !excused).map(({ site }) => site), []);
+});
+
+test('the exceptions hold the pinned number of entries and sites', () => {
+    // On 9f7e42e6 (8 November 2026): 2 NOT_YOU_SEE entries covering 2
+    // literals, and 1 literal in the data tables, a quotation in
+    // js/data_base_data.js.
+    const PINS = { entries: 2, listed: 2, data: 1 };
+    const pin = (key) => `PINS.${key} in scripts/you-see-prefix.test.mjs`;
+    const sites = prefixSites();
+    const count = (kind) => sites.filter(({ excused }) => excused === kind).length;
+    assertExceptionCount(NOT_YOU_SEE.length, PINS.entries,
+        { what: 'NOT_YOU_SEE entries', pin: pin('entries') });
+    assertExceptionCount(count('listed'), PINS.listed,
+        { what: '"You see" literals that NOT_YOU_SEE excuses', pin: pin('listed') });
+    assertExceptionCount(count('data'), PINS.data,
+        { what: '"You see" literals in help and data tables', pin: pin('data') });
 });
