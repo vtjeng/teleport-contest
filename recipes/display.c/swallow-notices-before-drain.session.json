@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 81337,
+      "datetime": "20020611083000",
+      "nethackrc": "OPTIONS=name:Vort,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,!tips,mention_map\n",
+      "moves": " \u001b\u0007energy vortex\nms ms            "
+    }
+  ],
+  "comment": "display.c swallowed() with mention_map: each stomach show_glyph() prints its '(north): interior of the energy vortex.' notice at once, before gulpmu() goes on to the shock and energy drain, so the status line flushed with those notices still shows the hero's earlier HP and Pw."
+}

@@ -3139,6 +3139,11 @@ export async function swallowed(first, state = game) {
     }
 
     state._swallowedLast = { x: state.u.ux, y: state.u.uy };
+    // C prints each show_glyph() notice above as it draws the stomach, so
+    // they precede whatever gulpmu() does next (a drain_en() that changes
+    // the status line, for one).
+    if (!state._emittingGlyphUpdateNotices)
+        await emitGlyphUpdateNotices(state, { pline: ttyPline });
 }
 
 // C ref: display.c glyph_at() (2478-2482). Read the logical number from the
