@@ -151,6 +151,7 @@ import {
     strstri,
     upstart,
     upwords,
+    push_front,
 } from './hacklib.js';
 import { game } from './gstate.js';
 import {
@@ -1995,7 +1996,7 @@ function set_lit(x, y, lit, state, gremlins) {
         // C pushes each gremlin onto the front of its list, so litroom()
         // hits the last one found first.
         if (monster?.data?.pmidx === PM_GREMLIN)
-            gremlins.unshift(monster);
+            push_front(gremlins, monster);
         return;
     }
     location.lit = false;

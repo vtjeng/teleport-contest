@@ -2,6 +2,7 @@
 // C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
 
 import { CMD_PARAM, extcmdlist } from './extcmdlist_data.js';
+import { push_front } from './hacklib.js';
 
 // C ref: cmd.c commands_init(), which walks extcmdlist[] and binds every row
 // carrying a nonzero key. Keeping that order matters because rebinding an
@@ -134,7 +135,7 @@ function setBinding(bindings, key, command, restBinding = false,
         bindings[index].userbind = userbind;
         bindings[index].param = param;
     } else {
-        bindings.unshift({ key, command, restBinding, userbind, param });
+        push_front(bindings, { key, command, restBinding, userbind, param });
     }
 }
 

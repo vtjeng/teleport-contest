@@ -3,6 +3,18 @@
 
 const utf8Encoder = new TextEncoder();
 
+// C keeps many lists as chains and links each new record onto the front,
+// `x->next = head; head = x;`, so whatever walks the list meets the newest
+// record first. Where the port keeps such a list as an array, its head is
+// index 0 and this is the one way to add a record, so a forward walk of the
+// array meets the records in C's order. scripts/front-pushed-lists.test.mjs
+// fails when a port of a C front push builds its list another way, or when
+// js/ calls unshift() anywhere but here.
+export function push_front(list, item) {
+    list.unshift(item);
+    return list;
+}
+
 // C integer.h AppendLongDigit for the recorded signed 64-bit-long profile.
 // Callers decide how to reset a count when the source reports overflow.
 export function appendLongDigit(value, digitValue) {

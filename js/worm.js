@@ -27,7 +27,7 @@ import { m_at, remove_monster } from './monst.js';
 import { PM_LONG_WORM } from './monsters.js';
 import { clone_mon } from './makemon.js';
 import { Monnam, mon_nam } from './do_name.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { dist2, push_front, s_suffix } from './hacklib.js';
 
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
@@ -405,7 +405,7 @@ export function place_worm_tail_randomly(monster, x, y, rawEnv = {}) {
         segment.x = previousX = next.x;
         segment.y = previousY = next.y;
         env.state.level.monsters[next.x][next.y] = monster;
-        placed.unshift(segment);
+        push_front(placed, segment);
         redrawWormSquare(next.x, next.y, env);
     }
     record.segments = placed;

@@ -229,7 +229,7 @@ import {
     movobj,
 } from './hack.js';
 import { goodpos } from './teleport.js';
-import { ordin, sgn, upstart } from './hacklib.js';
+import { ordin, push_front, sgn, upstart } from './hacklib.js';
 import { livelog_printf, youFeel } from './pline.js';
 import { messageAt } from './startup_a11y.js';
 import {
@@ -996,7 +996,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     resetTrap(trap, typ);
     const linkTrap = () => {
         if (!oldplace) {
-            state.level.traps.unshift(trap);
+            push_front(state.level.traps, trap);
         } else if (state.level?.flags?.sokoban_rules) {
             maybe_finish_sokoban(state);
         }

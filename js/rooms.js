@@ -34,6 +34,7 @@ import {
     ZOO,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { push_front } from './hacklib.js';
 import {
     PM_CAPTAIN,
     PM_LIEUTENANT,
@@ -145,7 +146,7 @@ export function in_rooms(x, y, typewanted = 0, state = game) {
             if (rno >= ROOMOFFSET
                 && !result.includes(rno)
                 && goodRoomType(rno, typewanted, state)) {
-                result.unshift(rno);
+                push_front(result, rno);
             }
         }
     }

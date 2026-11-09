@@ -38,6 +38,7 @@ import {
     digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, ordin,
     s_suffix, strcasecpy, strstri, truncateByteString,
     upstart,
+    push_front,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -1765,7 +1766,7 @@ function doname_base(
         && ((obj.otyp === BAG_OF_TRICKS || obj.otyp === HORN_OF_PLENTY)
             ? obj.spe === 0 && !ident.known
             : (isContainer(obj) || obj.otyp === STATUE) && !hasContents(obj))) {
-        modifiers.unshift('empty');
+        push_front(modifiers, 'empty');
     }
     // A box announces a known trap and its known lock state before the
     // greased prefix. C reads the stored dknown for the trap, and there is no

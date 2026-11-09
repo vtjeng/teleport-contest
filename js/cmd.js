@@ -251,6 +251,7 @@ import {
     appendLongDigit,
     upstart,
     visctrl,
+    push_front,
 } from './hacklib.js';
 import {
     ddoinv,
@@ -2083,7 +2084,7 @@ export function cmdq_add_int(q, value, state = game) {
 // its tail to the head is the linked-list operation's direct equivalent.
 export function cmdq_shift(q, state = game) {
     const queue = commandQueue(state)[q];
-    if (queue.length > 1) queue.unshift(queue.pop());
+    if (queue.length > 1) push_front(queue, queue.pop());
 }
 
 function recordRepeatCommand(command, prefixed, state) {
@@ -3893,7 +3894,7 @@ export function cmdbind_add(key, command, user = false, state = game) {
         existing.userbind = Boolean(user);
         existing.param = null;
     } else {
-        bindings.unshift({
+        push_front(bindings, {
             key: byte,
             command: command.ef_txt,
             restBinding: false,

@@ -68,7 +68,7 @@ import {
 } from './dungeon.js';
 import { migrate_to_level } from './dog.js';
 import { game } from './gstate.js';
-import { dist2, upstart } from './hacklib.js';
+import { dist2, push_front, upstart } from './hacklib.js';
 import { add_to_minv, stackobjRuntime } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
@@ -518,11 +518,11 @@ export async function movebubbles(state = game, random = rn2) {
                             list = object;
                             object = next;
                         }
-                        bubble.cons.unshift({ x, y, what: 'object', list });
+                        push_front(bubble.cons, { x, y, what: 'object', list });
                     }
                     const monster = m_at(x, y, state);
                     if (monster) {
-                        bubble.cons.unshift({ x, y, what: 'monster', list: monster });
+                        push_front(bubble.cons, { x, y, what: 'monster', list: monster });
                         if (monster.wormno) remove_worm(monster, { state });
                         else remove_monster(x, y, state);
                         newsym(x, y);
@@ -530,12 +530,12 @@ export async function movebubbles(state = game, random = rn2) {
                         monster.mstate = (monster.mstate ?? 0) | MON_BUBBLEMOVE;
                     }
                     if (!state.u.uswallow && state.u.ux === x && state.u.uy === y) {
-                        bubble.cons.unshift({ x, y, what: 'hero', list: null });
+                        push_front(bubble.cons, { x, y, what: 'hero', list: null });
                         state.hero_bubble = bubble;
                     }
                     const trap = t_at(x, y, state);
                     if (trap)
-                        bubble.cons.unshift({ x, y, what: 'trap', list: trap });
+                        push_front(bubble.cons, { x, y, what: 'trap', list: trap });
                     resetAirLocation(state.level.at(x, y), WATER);
                     block_point(x, y, state);
                 }

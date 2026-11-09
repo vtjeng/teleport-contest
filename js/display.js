@@ -125,7 +125,7 @@ import {
     mungspaces,
     sgn,
 } from './hacklib.js';
-import { truncateByteString } from './hacklib.js';
+import { push_front, truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
@@ -4554,9 +4554,9 @@ export async function tmp_at(x, y, state = game) {
     case DISP_TETHER:
     case DISP_FLASH:
     case DISP_ALWAYS:
-        // C allocates a nested frame when one is already open; a plain array
-        // push is the same list operation with the head at the end.
-        stack.push({ saved: [], style: x, glyph: y });
+        // C allocates a nested frame when one is already open and pushes it
+        // onto the front of the tglyph chain; index 0 is the open frame.
+        push_front(stack, { saved: [], style: x, glyph: y });
         await flush_screen(0); /* flush buffered glyphs */
         return;
 
@@ -4572,7 +4572,7 @@ export async function tmp_at(x, y, state = game) {
         // C's panic("tmp_at: tglyph not initialized").
         throw new Error('tmp_at: tglyph not initialized');
     }
-    const tglyph = stack[stack.length - 1];
+    const tglyph = stack[0];
 
     switch (x) {
     case DISP_CHANGE:
@@ -4605,7 +4605,7 @@ export async function tmp_at(x, y, state = game) {
             if (tglyph.saved.length) /* been called at least once */
                 newsym(tglyph.saved[0].x, tglyph.saved[0].y);
         }
-        stack.pop();
+        stack.shift();
         break;
 
     default: /* do it */

@@ -10,6 +10,7 @@
 // reconstruction (docrt, bot) and the welcome-back message follow in the
 // caller (jsmain.js).
 
+import { push_front } from './hacklib.js';
 import { cliparound } from './wintty.js';
 import { rest_regions, rest_saved_level_regions } from './region.js';
 import { newsym } from './display.js';
@@ -195,7 +196,7 @@ export function rest_traps(level, relativeTo = null) {
     level.traps = [];
     rest_push_each(saved, (trap) => {
         if (trap.dst) trap.dst = absolute_dest(trap.dst, relativeTo);
-        level.traps.unshift(trap);
+        push_front(level.traps, trap);
     });
 }
 
