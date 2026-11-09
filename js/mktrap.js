@@ -109,6 +109,7 @@ import { coreRandom } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
+import { dungeon_at } from './dungeon_table.js';
 
 function levelTrapEnv(env = {}) {
     return {
@@ -197,7 +198,7 @@ export function traptype_rnd(mktrapflags = MKTRAP_NOFLAGS, rawEnv = {}) {
         if (lvl < 8) kind = NO_TRAP;
         break;
     case FIRE_TRAP:
-        if (!state.dungeons[state.u.uz.dnum].flags.hellish)
+        if (!dungeon_at(state.u.uz.dnum, state).flags.hellish)
             kind = NO_TRAP;
         break;
     case TELEP_TRAP:
@@ -414,7 +415,7 @@ export function mktrap(
         kind = num;
     } else if (on_level(state.u.uz, state.rogue_level)) {
         kind = traptype_roguelvl(env);
-    } else if (state.dungeons[state.u.uz.dnum].flags.hellish
+    } else if (dungeon_at(state.u.uz.dnum, state).flags.hellish
         && !random.rn2(5)) {
         kind = FIRE_TRAP;
     } else {

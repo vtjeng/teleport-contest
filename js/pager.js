@@ -279,6 +279,7 @@ import {
     Hallucination, Infravision, Invis, Levitation, See_invisible,
     Unblind_telepat,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -1464,7 +1465,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         const actualVibratingTrap = looked && glyph_is_trap(glyph)
             && glyph_to_trap(glyph) === VIBRATING_SQUARE;
         const inHell = Boolean(
-            state.dungeons?.[state.u?.uz?.dnum]?.flags?.hellish,
+            dungeon_at(state.u?.uz?.dnum, state)?.flags?.hellish,
         );
         if (!found) {
             if (cmapTrap && effectiveIndex !== vibratingSquare) {

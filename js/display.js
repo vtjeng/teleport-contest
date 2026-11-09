@@ -327,6 +327,7 @@ import {
     Invis, Levitation, Protection_from_shape_changers, See_invisible, Sick,
     Slimed, Stoned, Strangled, Stunned, Warn_of_mon, Warning, Wounded_legs,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
 // _tp_sensemon() macro. This is only the telepathy predicate; underwater,
@@ -5262,7 +5263,7 @@ function _statusConditions(u, shrinkLevel = 0) {
 // Knox, and endgame descriptions have no colon and are never shrunk.
 function _statusLevelDescription(u, short = false) {
     if (Is_knox_level(u.uz))
-        return game.dungeons[u.uz.dnum].dname;
+        return dungeon_at(u.uz.dnum, game).dname;
     if (In_quest(u.uz))
         return `Home ${dunlev(u.uz)}`;
     if (In_endgame(u.uz)) {
@@ -5286,7 +5287,7 @@ export function describe_level(dflgs = 0, state = game) {
     const addSpace = Boolean(dflgs & 1);
     let addBranch = Boolean(dflgs & 2);
     let result;
-    const dungeon = state.dungeons?.[level?.dnum];
+    const dungeon = dungeon_at(level?.dnum, state);
     const isKnox = Boolean(state.knox_level
         && level?.dnum === state.knox_level.dnum
         && level?.dlevel === state.knox_level.dlevel);

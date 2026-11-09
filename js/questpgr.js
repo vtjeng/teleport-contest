@@ -26,6 +26,7 @@ import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { EBlinded, HBlinded } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: questpgr.c quest_info(). Role quest identities remain fixed even
 // when a quest monster changes shape.
@@ -200,7 +201,7 @@ function convertArg(c, state) {
             && !state.u?.uroleplay?.blind);
         return blind ? 'sense' : 'see';
     }
-    case 'Z': return state.svd?.dungeons?.[0]?.dname
+    case 'Z': return dungeon_at(0, state)?.dname
         ?? 'The Dungeons of Doom';
     case '%': return '%';
     default: return '';

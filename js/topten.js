@@ -37,6 +37,7 @@ import { coreRandom, rnd } from './rng.js';
 
 import { note_unported } from './unported.js';
 import { canseemon } from './display.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: topten.c:96-105 killed_by_prefix[].  Indexed by game_end_types
 // (hack.h:483-498): DIED, CHOKING, POISONING, STARVING, DROWNING, BURNING,
@@ -372,7 +373,7 @@ function outentry(rank, t1, so, state) {
             }
             linebuf += fmt.replace('%s', arg);
         } else {
-            const dname = state.dungeons?.[t1.deathdnum]?.dname
+            const dname = dungeon_at(t1.deathdnum, state)?.dname
                 ?? 'The Dungeons of Doom';
             linebuf += ` in ${dname}`;
             if (t1.deathdnum !== state.knox_level?.dnum)

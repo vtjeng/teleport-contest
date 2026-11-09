@@ -27,6 +27,7 @@ import { NUMMONS } from './monsters.js';
 // nothing, so this edge cannot close a cycle.
 import { genders } from './roles.js';
 import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_GREEN, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW } from './terminal.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C macro: SIZE(arr) = sizeof(arr)/sizeof(arr[0]) → JS: arr.length
 export function SIZE(arr) { return arr.length; }
@@ -3128,7 +3129,7 @@ export function Is_stronghold(uz, state = game) { const g = state; return g?.str
 export function Is_botlevel(uz, state = game) {
     const lev = uz ?? state?.u?.uz;
     if (!lev) return false;
-    const dun = state?.dungeons?.[lev.dnum];
+    const dun = dungeon_at(lev.dnum, state);
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
 export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }

@@ -126,6 +126,7 @@ import {
     Half_spell_damage, Hallucination, Levitation, See_invisible,
     Shock_resistance, Slimed,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 
 function Underwater(state) {
@@ -250,7 +251,7 @@ async function special_throne_effect(effect, state, rawEnv = {}) {
         const { find_hell } = await import('./dungeon.js');
         const destination = {};
         find_hell(destination, state);
-        destination.dlevel = state.dungeons[destination.dnum].num_dunlevs - 1;
+        destination.dlevel = dungeon_at(destination.dnum, state).num_dunlevs - 1;
         if (u.uhave.amulet) {
             await message(youFeel('extremely disoriented for a moment.', state), state, env);
         } else {

@@ -132,6 +132,7 @@ import { Invocation_lev } from './dungeon.js';
 import { cliparound, tty_create_nhwindow, tty_curs } from './wintty.js';
 import { select_menu } from './windows.js';
 import { NO_COLOR } from './terminal.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: getpos.c dxdy_to_dist_descr() (557-590).  This is shared by the
 // status window's held-by-monster line and the farlook helpers; keep the
@@ -566,7 +567,7 @@ async function auto_describe(cx, cy, state) {
 // this excludes wizard-created fake vibrating traps that cannot occur in a
 // normal invocation-level map.
 export function known_vibrating_square_at(x, y, state) {
-    if (!state.u?.uz || !state.dungeons?.[state.u.uz.dnum]) return false;
+    if (!state.u?.uz || !dungeon_at(state.u.uz.dnum, state)) return false;
     if (!Invocation_lev(state.u?.uz, state)
         || state.inv_pos?.x !== x || state.inv_pos?.y !== y) {
         return false;

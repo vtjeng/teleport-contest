@@ -467,6 +467,7 @@ import {
     Half_spell_damage, Hallucination, Invis, Protection_from_shape_changers,
     Stealth, Unaware,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 
 function movementEnv(env = {}) {
@@ -1784,7 +1785,7 @@ function isLawfulMinion(monster) {
 
 function inHell(state) {
     const dnum = state.u?.uz?.dnum;
-    return Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+    return Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
 function inEndgame(state) {

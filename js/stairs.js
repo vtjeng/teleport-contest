@@ -14,6 +14,7 @@ import {
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { strsubst } from './hacklib.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: stairs.c stairway_add(). C also clears u_traversed here; the object
 // literal omits it, and js/mklev.js sets it on the D:1 upstairs exactly where
@@ -195,7 +196,7 @@ export function stairs_description(stway, stcase, state = game) {
     }
     // Known branch stairs; naming the destination level too would be verbose.
     return strsubst(
-        `branch ${stairs} ${updown} to ${state.dungeons[tolev.dnum].dname}`,
+        `branch ${stairs} ${updown} to ${dungeon_at(tolev.dnum, state).dname}`,
         'The ',
         'the ',
     );

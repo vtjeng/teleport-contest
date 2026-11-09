@@ -8,6 +8,7 @@
 import { In_quest } from './const.js';
 import { Is_special } from './dungeon.js';
 import { vfsDeleteFile, vfsReadFile, vfsWriteFile } from './storage.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: files.c set_bonesfile_name() (768-809). Returns C's file name
 // (`file`, "bon" followed by the bonesid) and the bonesid it validates
@@ -21,7 +22,7 @@ import { vfsDeleteFile, vfsReadFile, vfsWriteFile } from './storage.js';
 // must take its name from here (scripts/bones-file-name.test.mjs).
 export function set_bonesfile_name(lev, state) {
     const sptr = Is_special(lev, state);
-    const bonesid = `${state.dungeons[lev.dnum].boneid}`
+    const bonesid = `${dungeon_at(lev.dnum, state).boneid}`
         + `${In_quest(lev, state) ? state.urole.filecode : '0'}`
         + `.${sptr ? sptr.boneid : lev.dlevel}`;
     return { file: `bon${bonesid}`, bonesid };

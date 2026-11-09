@@ -393,6 +393,7 @@ import {
     Blind,
     Hallucination,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -1789,7 +1790,7 @@ function isRogueLevel(state) {
 function inHell(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
-        && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+        && Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
 function makeArtifact(obj, env, adjustSpe) {

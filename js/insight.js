@@ -384,6 +384,7 @@ import {
     Teleportation, Unchanging, Undead_warning, Very_fast, Vomiting,
     Warn_of_mon, Warning, Wounded_legs, Wwalking,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
 // description and the status window share this source-owned wording. The
@@ -741,9 +742,9 @@ function background_enlightenment(final, state, lines) {
             + levelName, BUFSZ - 1);
     } else if (Is_knox_level(u.uz, state)) {
         /* this gives away the fact that the knox branch is only 1 level */
-        buf = `on the ${state.dungeons[u.uz.dnum].dname} level`;
+        buf = `on the ${dungeon_at(u.uz.dnum, state).dname} level`;
     } else {
-        let dgnbuf = state.dungeons[u.uz.dnum].dname;
+        let dgnbuf = dungeon_at(u.uz.dnum, state).dname;
         if (dgnbuf.slice(0, 4).toLowerCase() === 'the ')
             dgnbuf = lowc(dgnbuf[0]) + dgnbuf.slice(1);
         tmpbuf = `level ${In_quest(u.uz, state) ? dunlev(u.uz) : depth(u.uz, state)}`;

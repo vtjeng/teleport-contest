@@ -348,6 +348,7 @@ import {
     Sleep_resistance, Slimed, Stone_resistance, Stunned, Swimming,
     Teleport_control, Teleportation, Wwalking,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
 // flag. Conduct and luck remain the separate player values initialized by
@@ -618,7 +619,7 @@ export function dng_bottom(level, state = game) {
 function hole_destination(destination, env) {
     const { state, random } = env;
     const current = state.u?.uz;
-    if (!current || !state.dungeons?.[current.dnum])
+    if (!current || !dungeon_at(current.dnum, state))
         throw new Error('hole_destination requires initialized dungeon state');
 
     const bottom = dng_bottom(current, state);
@@ -788,7 +789,7 @@ function preflightPitTerrain(x, y, env) {
 
 function preflightHoleDestination(env) {
     const current = env.state.u?.uz;
-    if (!current || !env.state.dungeons?.[current.dnum]) {
+    if (!current || !dungeon_at(current.dnum, env.state)) {
         throw new Error(
             'hole_destination requires initialized dungeon state',
         );
@@ -1077,7 +1078,7 @@ function maybe_finish_sokoban(state) {
         }
 
         const u = state.u;
-        const sokonum = state.dungeons[u.uz.dnum].entry_lev - u.uz.dlevel + 1;
+        const sokonum = dungeon_at(u.uz.dnum, state).entry_lev - u.uz.dlevel + 1;
         state.level.flags.sokoban_rules = false;
         livelog_printf(
             LL_MINORAC | LL_DUMP,

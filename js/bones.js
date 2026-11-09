@@ -167,6 +167,7 @@ import { delete_bonesfile, open_bonesfile, write_bonesfile } from './files_bones
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
+import { dungeon_at } from './dungeon_table.js';
 
 export function no_bones_level(level, state) {
     // gs.save_dlevel is nonzero only while savebones() temporarily evaluates
@@ -176,7 +177,7 @@ export function no_bones_level(level, state) {
         assign_level(level, saveLevel);
 
     const special = Is_special(level, state);
-    const dungeon = state.dungeons[level.dnum];
+    const dungeon = dungeon_at(level.dnum, state);
     return Boolean(
         (special && !special.boneid)
         || !dungeon.boneid

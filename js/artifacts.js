@@ -295,6 +295,7 @@ import {
     HStun, Hallucination, Levitation, Maybe_Half_Phys, Poison_resistance,
     Shock_resistance, Sick, Slimed, Stone_resistance,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.
@@ -2430,12 +2431,12 @@ async function invoke_create_portal(obj, state) {
     const items = [];
 
     for (let i = 0; i < state.n_dgns; i++) {
-        if (!state.dungeons[i].dunlev_ureached) continue;
+        if (!dungeon_at(i, state).dunlev_ureached) continue;
         if (Number.isInteger(state.tutorial_dnum) && i === state.tutorial_dnum)
             continue;
         items.push({
             value: i + 1,
-            label: state.dungeons[i].dname,
+            label: dungeon_at(i, state).dname,
         });
         num_ok_dungeons++;
         last_ok_dungeon = i;
@@ -2459,10 +2460,10 @@ async function invoke_create_portal(obj, state) {
     }
 
     const newlev = { dnum: chosen, dlevel: 0 };
-    if (state.dungeons[chosen].depth_start >= depth(u.uz, state))
-        newlev.dlevel = state.dungeons[chosen].entry_lev;
+    if (dungeon_at(chosen, state).depth_start >= depth(u.uz, state))
+        newlev.dlevel = dungeon_at(chosen, state).entry_lev;
     else
-        newlev.dlevel = state.dungeons[chosen].dunlev_ureached;
+        newlev.dlevel = dungeon_at(chosen, state).dunlev_ureached;
 
     if (u.uhave?.amulet || In_endgame(u.uz, state) || In_endgame(newlev, state)
         || newlev.dnum === u.uz.dnum || !(await next_to_u(state))) {

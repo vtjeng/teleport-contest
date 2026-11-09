@@ -354,6 +354,7 @@ import { makeroguerooms, makerogueghost } from './extralev.js';
 import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
 import { DAT_LUA_FILES } from './dat_files.js';
+import { dungeon_at } from './dungeon_table.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -738,7 +739,7 @@ async function makelevel(specialLevelLoader = null) {
     }
 
     // C ref: mklev.c:1271-1274. Dungeon-wide prototype or fill level.
-    const dungeonRecord = g.dungeons[g.u.uz.dnum];
+    const dungeonRecord = dungeon_at(g.u.uz.dnum, g);
     if (dungeonRecord.proto) {
         await makemaz('', null, g);
         await finishLevelGeneration();

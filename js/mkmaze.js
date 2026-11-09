@@ -153,6 +153,7 @@ import { onscary, set_apparxy } from './monmove.js';
 import {
     Deaf, Swimming,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
 // water, secret doors, and iron bars in addition to ordinary wall types.
@@ -1152,7 +1153,7 @@ const ORC_FRUIT = Object.freeze(['paddle cactus', 'dwarven root']);
 export async function migrate_orc(monster, flags, state = game) {
     const currentDepth = depth(state.u.uz, state);
     const maxDepth = dunlevs_in_dungeon(state.u.uz, state)
-        + state.dungeons[state.u.uz.dnum].depth_start - 1;
+        + dungeon_at(state.u.uz.dnum, state).depth_start - 1;
     let destinationDepth;
     if (flags === ORC_LEADER) {
         destinationDepth = maxDepth;

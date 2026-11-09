@@ -222,6 +222,7 @@ import { tty_exit_nhwindows } from './wintty.js';
 import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -1514,7 +1515,7 @@ async function really_done(how, state) {
             pbuf = `You ${uz.dlevel < 0 ? 'passed away' : ends[how]}`
                 + ' beyond the confines of the dungeon';
         } else {
-            let where = state.dungeons?.[uz.dnum]?.dname
+            let where = dungeon_at(uz.dnum, state)?.dname
                 ?? 'The Dungeons of Doom';
             if (Is_astralevel(uz, state)) where = 'The Astral Plane';
             pbuf = `You ${ends[how]} in ${where}`;

@@ -112,6 +112,7 @@ import {
     Blind, EAggravate_monster, Flying, Hallucination, Levitation,
 } from './youprop.js';
 import { rest_push_each } from './restore.js';
+import { dungeon_at } from './dungeon_table.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -318,7 +319,7 @@ function find_branch(name, pd, state = game) {
     /* support for level tport by name */
     const folded = name.toLowerCase();
     const branch = (state.branches ?? []).find((candidate) => {
-        const dnam = state.dungeons[candidate.end2.dnum].dname;
+        const dnam = dungeon_at(candidate.end2.dnum, state).dname;
         const foldedName = dnam.toLowerCase();
         return foldedName === folded
             || (foldedName.startsWith('the ')
@@ -344,7 +345,7 @@ function parent_dnum(name, pd) {
 // C ref: dungeon.c level_range. The returned pair replaces adjusted_base's
 // output pointer with an object field.
 export function level_range(dgn, baseValue, randc, chain, pd, state = game) {
-    const lmax = state.dungeons[dgn].num_dunlevs;
+    const lmax = dungeon_at(dgn, state).num_dunlevs;
     let base = baseValue;
 
     if (chain >= 0) {
@@ -451,16 +452,16 @@ export function insert_branch(newBranch, extractFirst, state = game) {
 }
 
 function add_branch(dgn, childEntryLevel, pd, state, random) {
-    const branchIndex = find_branch(state.dungeons[dgn].dname, pd, state);
+    const branchIndex = find_branch(dungeon_at(dgn, state).dname, pd, state);
     const tmpBranch = pd.tmpbranch[branchIndex];
     const branch = {
         next: null,
         id: pd.branch_id++,
         type: correct_branch_type(tmpBranch),
         end1: {
-            dnum: parent_dnum(state.dungeons[dgn].dname, pd),
+            dnum: parent_dnum(dungeon_at(dgn, state).dname, pd),
             dlevel: parent_dlevel(
-                state.dungeons[dgn].dname,
+                dungeon_at(dgn, state).dname,
                 pd,
                 state,
                 random,
@@ -575,8 +576,10 @@ function add_level(newLevel, state) {
 // start of the branch it belongs to. C reads svd.dungeons[] unguarded, so a
 // caller reaching here before init_dungeons() has filled that array is a bug
 // in the caller, and this throws rather than inventing a depth for it.
+// depth() returns schar.
 export function depth(level, state = game) {
-    return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
+    const result = dungeon_at(level.dnum, state).depth_start + level.dlevel - 1;
+    return (result << 24) >> 24;
 }
 
 // C ref: dungeon.c endgamelevelname(). Translate the observable depth used by
@@ -602,12 +605,12 @@ export function dunlev(level) {
 // C ref: dungeon.c dunlevs_in_dungeon(). The deepest level number this
 // dungeon branch holds.
 export function dunlevs_in_dungeon(level, state = game) {
-    return state.dungeons[level.dnum].num_dunlevs;
+    return dungeon_at(level.dnum, state).num_dunlevs;
 }
 
 // C ref: dungeon.c In_hell(). The Inhell macro is In_hell(&u.uz).
 export function In_hell(level, state = game) {
-    return Boolean(state.dungeons[level.dnum].flags.hellish);
+    return Boolean(dungeon_at(level.dnum, state).flags.hellish);
 }
 
 // C ref: dungeon.c find_hell() (1949-1953). Assigns the gateway level at the
@@ -669,13 +672,13 @@ export function get_level(newlevel, levnum, state = game) {
     if (levnum <= 0) {
         /* can only currently happen in endgame */
         levnum = state.u.uz.dlevel;
-    } else if (levnum > (state.dungeons[dgn].depth_start
-                         + state.dungeons[dgn].num_dunlevs - 1)) {
+    } else if (levnum > (dungeon_at(dgn, state).depth_start
+                         + dungeon_at(dgn, state).num_dunlevs - 1)) {
         /* beyond end of dungeon, jump to last level */
-        levnum = state.dungeons[dgn].num_dunlevs;
+        levnum = dungeon_at(dgn, state).num_dunlevs;
     } else {
         /* The desired level is in this dungeon or a "higher" one. */
-        if (levnum < state.dungeons[dgn].depth_start) {
+        if (levnum < dungeon_at(dgn, state).depth_start) {
             do {
                 /*
                  * Find the parent dungeon of this dungeon.
@@ -688,11 +691,11 @@ export function get_level(newlevel, levnum, state = game) {
                 );
                 if (!br) panic("get_level: can't find parent dungeon");
                 dgn = br.end1.dnum;
-            } while (levnum < state.dungeons[dgn].depth_start);
+            } while (levnum < dungeon_at(dgn, state).depth_start);
         }
 
         /* We're within the same dungeon; calculate the level. */
-        levnum = levnum - state.dungeons[dgn].depth_start + 1;
+        levnum = levnum - dungeon_at(dgn, state).depth_start + 1;
     }
 
     newlevel.dnum = dgn;
@@ -702,7 +705,7 @@ export function get_level(newlevel, levnum, state = game) {
 // C ref: dungeon.c Invocation_lev(), Can_dig_down(), and Can_fall_thru().
 // Falling retains the Castle exception even when digging is blocked there.
 export function Invocation_lev(level, state = game) {
-    const dungeon = state.dungeons[level.dnum];
+    const dungeon = dungeon_at(level.dnum, state);
     return Boolean(
         dungeon.flags.hellish
         && level.dlevel === dungeon.num_dunlevs - 1
@@ -710,7 +713,7 @@ export function Invocation_lev(level, state = game) {
 }
 
 export function Can_dig_down(level, state = game) {
-    const dungeon = state.dungeons[level.dnum];
+    const dungeon = dungeon_at(level.dnum, state);
     return !state.level?.flags?.hardfloor
         && level.dlevel !== dungeon.num_dunlevs
         && !Invocation_lev(level, state);
@@ -744,7 +747,7 @@ export function Can_rise_up(x, y, lev, state = game) {
         || (isWiz1 && In_W_tower(x, y, lev, state)))
         return false;
     return lev.dlevel > 1
-        || (state.dungeons[lev.dnum].entry_lev === 1
+        || (dungeon_at(lev.dnum, state).entry_lev === 1
             && ledger_no(lev, state) !== 1
             && stway && stway.up);
 }
@@ -777,7 +780,7 @@ export function avoid_ceiling(level, state = game) {
 }
 
 export function builds_up(level, state = game) {
-    const dungeon = state.dungeons[level.dnum];
+    const dungeon = dungeon_at(level.dnum, state);
     if (dungeon.num_dunlevs > 1)
         return dungeon.entry_lev === dungeon.num_dunlevs;
     const branch = state.branches.find(
@@ -867,7 +870,7 @@ export function deepest_lev_reached(state, noquest = false) {
         // the deepest level without counting the Quest, which the player
         // thinks of as starting at level 1 rather than going deeper.
         if (noquest && dnum === state.quest_dnum) continue;
-        const dlevel = Math.trunc(state.dungeons[dnum].dunlev_ureached ?? 0);
+        const dlevel = Math.trunc(dungeon_at(dnum, state).dunlev_ureached ?? 0);
         if (!dlevel) continue;
         deepest = Math.max(deepest, depth({ dnum, dlevel }, state));
     }
@@ -879,7 +882,7 @@ export function deepest_lev_reached(state, noquest = false) {
 // adjustments rather than treating dungeon depth as interchangeable.
 export function level_difficulty(state = game) {
     const level = state.u?.uz;
-    if (!level || !state.dungeons?.[level.dnum])
+    if (!level || !dungeon_at(level.dnum, state))
         throw new Error('level_difficulty requires initialized dungeon state');
 
     const astral = state.astral_level;
@@ -899,7 +902,7 @@ export function level_difficulty(state = game) {
     } else {
         result = depth(level, state);
         if (builds_up(level, state)) {
-            const dungeon = state.dungeons[level.dnum];
+            const dungeon = dungeon_at(level.dnum, state);
             result += 2 * (dungeon.entry_lev - level.dlevel + 1);
         }
     }
@@ -911,34 +914,15 @@ export function level_difficulty(state = game) {
 // C ref: dungeon.c ledger_no() (1375-1379), which returns
 // (xint16) (lev->dlevel + svd.dungeons[lev->dnum].ledger_start).
 export function ledger_no(level, state = game) {
-    const ledger = level.dlevel + dungeon_ledger_start(level.dnum, state);
+    const ledger = level.dlevel + dungeon_at(level.dnum, state).ledger_start;
     return (ledger << 16) >> 16; // the xint16 cast
-}
-
-// svd.dungeons[dnum].ledger_start as ledger_no() reads it. maketrap() gives
-// every trap a dst of {-1, -1}, and only a magic portal that mkportal() made
-// gets a real one; a portal made by a wish ("A magic portal to nowhere.")
-// keeps {-1, -1}. A monster that enters such a portal reaches
-// teleport.c mlevel_tele_trap(), which passes ledger_no(&trap->dst) to
-// migrate_to_level(), so C reads svd.dungeons[-1].ledger_start, outside the
-// array. In the recorder's build sizeof(dungeon) is 92 with ledger_start at
-// offset 84, and svc, whose struct context_info is 704 bytes, lies directly
-// before svd, so the read is the int at offset 696 of svc.context:
-// jingle[0..3], music.c improvised_notes()'s last tune, zero until a tune is
-// improvised. ledger_no()'s xint16 cast keeps only the low 16 bits of the
-// sum, which depend only on jingle[0] and jingle[1].
-function dungeon_ledger_start(dnum, state) {
-    if (dnum !== -1) return state.dungeons[dnum].ledger_start;
-    const jingle = state.context?.jingle ?? '';
-    const byte = (i) => (i < jingle.length ? jingle.charCodeAt(i) : 0);
-    return byte(0) | (byte(1) << 8);
 }
 
 // C refs: dungeon.c ledger_to_dnum() and ledger_to_dlev().
 export function ledger_to_dnum(ledgerNumber, state = game) {
     const ledger = Math.trunc(ledgerNumber);
     for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
-        const dungeon = state.dungeons[dnum];
+        const dungeon = dungeon_at(dnum, state);
         if (dungeon.ledger_start < ledger
             && ledger <= dungeon.ledger_start + dungeon.num_dunlevs) {
             return dnum;
@@ -951,7 +935,7 @@ export function ledger_to_dnum(ledgerNumber, state = game) {
 
 export function ledger_to_dlev(ledgerNumber, state = game) {
     const dnum = ledger_to_dnum(ledgerNumber, state);
-    return Math.trunc(ledgerNumber) - state.dungeons[dnum].ledger_start;
+    return Math.trunc(ledgerNumber) - dungeon_at(dnum, state).ledger_start;
 }
 
 // C ref: dungeon.c assign_level(). It copies the two fields rather than
@@ -1002,11 +986,11 @@ export function at_dgn_entrance(dname, state = game) {
 // C ref: dungeon.h dunlev_reached(), the deepest level of a dungeon the hero
 // has reached.
 export function dunlev_reached(level, state = game) {
-    return Math.trunc(state.dungeons[level.dnum].dunlev_ureached ?? 0);
+    return Math.trunc(dungeon_at(level.dnum, state).dunlev_ureached ?? 0);
 }
 
 export function set_dunlev_reached(level, dlevel, state = game) {
-    state.dungeons[level.dnum].dunlev_ureached = dlevel;
+    dungeon_at(level.dnum, state).dunlev_ureached = dlevel;
 }
 
 // C ref: dungeon.h `struct level_info`, the ledger-indexed array decl.c
@@ -1029,13 +1013,13 @@ export function level_info(ledgerNumber, state = game) {
 }
 
 export function maxledgerno(state = game) {
-    const last = state.dungeons[state.n_dgns - 1];
+    const last = dungeon_at(state.n_dgns - 1, state);
     return last.ledger_start + last.num_dunlevs;
 }
 
 function init_dungeon_set_entry(pd, dngidx, state) {
     const configuredEntry = pd.tmpdungeon[dngidx].entry_lev;
-    const dungeon = state.dungeons[dngidx];
+    const dungeon = dungeon_at(dngidx, state);
     if (configuredEntry < 0) {
         dungeon.entry_lev = dungeon.num_dunlevs + configuredEntry + 1;
         if (dungeon.entry_lev <= 0)
@@ -1050,7 +1034,7 @@ function init_dungeon_set_entry(pd, dngidx, state) {
 }
 
 function init_dungeon_set_depth(pd, dngidx, state, random) {
-    const dungeon = state.dungeons[dngidx];
+    const dungeon = dungeon_at(dngidx, state);
     const branch = add_branch(dngidx, dungeon.entry_lev, pd, state, random);
     let fromDepth;
     let fromUp;
@@ -1101,8 +1085,8 @@ function init_dungeon_dungeons(raw, pd, dngidx, state, wizard, random) {
         dunlev_ureached: dngidx === 0 ? 1 : 0,
         ledger_start: dngidx === 0
             ? 0
-            : state.dungeons[dngidx - 1].ledger_start
-                + state.dungeons[dngidx - 1].num_dunlevs,
+            : dungeon_at(dngidx - 1, state).ledger_start
+                + dungeon_at(dngidx - 1, state).num_dunlevs,
         depth_start: dngidx === 0 ? 1 : 0,
         flags: {
             town: false,
@@ -1116,7 +1100,7 @@ function init_dungeon_dungeons(raw, pd, dngidx, state, wizard, random) {
             unconnected: Boolean(dungeonFlags & UNCONNECTED),
         },
     };
-    state.dungeons[dngidx] = dungeon;
+    state.dungeons.push(dungeon);
 
     init_dungeon_set_entry(pd, dngidx, state);
     if (dungeon.flags.unconnected)
@@ -1428,7 +1412,7 @@ export function Is_branchlev(level, state = game) {
 // C ref: dungeon.c Is_botlevel() (1643-1647). Dungeon level numbers are
 // one-based, and num_dunlevs is the bottom level's number.
 export function Is_botlevel(level, state = game) {
-    return level.dlevel === state.dungeons[level.dnum].num_dunlevs;
+    return level.dlevel === dungeon_at(level.dnum, state).num_dunlevs;
 }
 
 // ---------------------------------------------------------------------------
@@ -1519,7 +1503,7 @@ function print_branch(
             // arm starts with a literal space (dungeon.c:2272).
             const marker = bymenu ? chr_u_on_lvl(br.end1, state) : ' ';
             const buf = `${marker} ${br_string(br.type)}`
-                + ` to ${state.dungeons[br.end2.dnum].dname}: `
+                + ` to ${dungeon_at(br.end2.dnum, state).dname}: `
                 + `${depth(br.end1, state)}`;
             if (bymenu) {
                 tport_menu(items, buf, lchoices, br.end1,
@@ -1550,7 +1534,7 @@ export async function print_dungeon(state = game, { bymenu = true } = {}) {
     };
 
     for (let i = 0; i < state.n_dgns; i++) {
-        const dptr = state.dungeons[i];
+        const dptr = dungeon_at(i, state);
         // In_endgame spelled out against state.
         const inEndgame = state.u.uz.dnum === state.astral_level?.dnum;
         if (bymenu && inEndgame && i !== state.astral_level?.dnum) continue;
@@ -1618,7 +1602,7 @@ export async function print_dungeon(state = game, { bymenu = true } = {}) {
             }
             items.push({
                 text: `   ${br_string(br.type)} to `
-                    + `${state.dungeons[br.end2.dnum].dname}`,
+                    + `${dungeon_at(br.end2.dnum, state).dname}`,
             });
         }
 
@@ -1923,7 +1907,7 @@ export function interest_mapseen(mptr, state = game) {
         || feat.ntemple;
     const knownBones = mptr.final_resting_place
         && (flags.knownbones || state.wizard);
-    const deepest = state.dungeons?.[mptr.lev?.dnum]?.dunlev_ureached;
+    const deepest = dungeon_at(mptr.lev?.dnum, state)?.dunlev_ureached;
     return Boolean(interestingFeature || knownBones || mptr.custom || mptr.br
         || mptr.lev?.dlevel === deepest);
 }
@@ -2073,7 +2057,7 @@ export function print_mapseen(
 ) {
     const items = menu_items(win);
     const dnum = mptr.lev.dnum;
-    const dungeon = state.dungeons?.[dnum];
+    const dungeon = dungeon_at(dnum, state);
     if (!dungeon)
         throw new Error(`print_mapseen: unknown dungeon ${dnum}`);
     const depthstart = dnum === state.quest_dnum
@@ -2185,7 +2169,7 @@ export function print_mapseen(
 
     if (mptr.br) {
         let branchText = `      ${br_string2(mptr.br, state)} to `
-            + `${state.dungeons[mptr.br.end2.dnum].dname}`;
+            + `${dungeon_at(mptr.br.end2.dnum, state).dname}`;
         if (mptr.br.end1_up && !in_endgame_level(mptr.br.end2, state))
             branchText += `, level ${depth(mptr.br.end2, state)}`;
         appendInterest(items, `${branchText}.`);
@@ -2396,7 +2380,7 @@ export function rm_mapseen(ledgerNumber, state = game) {
 
     for (let index = 0; index < mapseen.length; index += 1) {
         const entry = mapseen[index];
-        const entryLedger = state.dungeons[entry.lev.dnum].ledger_start
+        const entryLedger = dungeon_at(entry.lev.dnum, state).ledger_start
             + entry.lev.dlevel;
         if (entryLedger !== ledgerNumber) continue;
 
@@ -2719,7 +2703,7 @@ export function induced_align(pct, state = game, random = rn2) {
     const specialAlignment = special?.flags?.align ?? 0;
     if (specialAlignment && random(100) < pct) return specialAlignment;
 
-    const dungeonAlignment = state.dungeons?.[current?.dnum]?.flags?.align ?? 0;
+    const dungeonAlignment = dungeon_at(current?.dnum, state)?.flags?.align ?? 0;
     if (dungeonAlignment && random(100) < pct) return dungeonAlignment;
 
     return Align2amask(random(3) - 1);
@@ -2779,7 +2763,7 @@ export function fixup_level_locations(state, roleFilecode) {
 
     const dummy = find_level('dummy', state);
     if (dummy) {
-        const dungeon = state.dungeons[dummy.dlevel.dnum];
+        const dungeon = dungeon_at(dummy.dlevel.dnum, state);
         if (dungeon.num_dunlevs > 1 - dungeon.depth_start)
             --dungeon.depth_start;
     }

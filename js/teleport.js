@@ -246,6 +246,7 @@ import {
     Levitation, Passes_walls, Stunned, Swimming, Teleport_control,
     Teleportation, Wwalking,
 } from './youprop.js';
+import { dungeon_at } from './dungeon_table.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -553,7 +554,7 @@ export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
 function currentDungeonIsHellish(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
-        && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+        && Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
 function m_blocks_teleporting(monster) {
@@ -812,7 +813,7 @@ export async function mlevel_tele_trap(
         destination.dnum = state.valley_level?.dnum;
         destination.dlevel = state.valley_level?.dlevel;
     } else {
-        const dungeon = state.dungeons?.[state.u?.uz?.dnum];
+        const dungeon = dungeon_at(state.u?.uz?.dnum, state);
         if (state.u?.uz && dungeon
             && state.u.uz.dlevel === dungeon.num_dunlevs) {
             if (inSight && trap.tseen) {
@@ -2115,12 +2116,12 @@ export function random_teleport_level(
            no one can randomly teleport past it */
         if (dunlev_reached(state.u.uz, state) < qlocate_depth)
             bottom = qlocate_depth;
-        min_depth = state.dungeons[state.u.uz.dnum].depth_start;
-        max_depth = bottom + (state.dungeons[state.u.uz.dnum].depth_start - 1);
+        min_depth = dungeon_at(state.u.uz.dnum, state).depth_start;
+        max_depth = bottom + (dungeon_at(state.u.uz.dnum, state).depth_start - 1);
     } else {
         min_depth = 1;
         max_depth = dunlevs_in_dungeon(state.u.uz, state)
-            + (state.dungeons[state.u.uz.dnum].depth_start - 1);
+            + (dungeon_at(state.u.uz.dnum, state).depth_start - 1);
         /* can't reach Sanctum if the invocation hasn't been performed */
         if (In_hell(state.u.uz, state) && !state.u?.uevent?.invoked)
             max_depth -= 1;
@@ -2219,8 +2220,8 @@ export async function level_tele(state = game) {
         do {
             newlevel.dnum = rn2(nDungeons);
         } while (newlevel.dnum === state.astral_level?.dnum
-            || state.dungeons[newlevel.dnum]?.flags?.unconnected
-            || !state.dungeons[newlevel.dnum]?.num_dunlevs);
+            || dungeon_at(newlevel.dnum, state)?.flags?.unconnected
+            || !dungeon_at(newlevel.dnum, state)?.num_dunlevs);
         newlevel.dlevel = 1 + rn2(
             dunlevs_in_dungeon(newlevel, state),
         );
@@ -2355,7 +2356,7 @@ export async function level_tele(state = game) {
             // teleport.c:1290-1291. The status line shows "Home N", so a
             // typed Quest level is relative to the Quest dungeon.
             if (levelInQuest(u.uz, state) && newlev > 0) {
-                newlev += state.dungeons[u.uz.dnum].depth_start - 1;
+                newlev += dungeon_at(u.uz.dnum, state).depth_start - 1;
             }
         }
     }
@@ -2454,7 +2455,7 @@ export async function level_tele(state = game) {
         newlevel = { dnum: 0, dlevel: 0 };
     } else if (!force_dest
         && u.uz.dnum === state.medusa_level?.dnum
-        && newlev >= state.dungeons[u.uz.dnum].depth_start
+        && newlev >= dungeon_at(u.uz.dnum, state).depth_start
             + dunlevs_in_dungeon(u.uz, state)) {
         // teleport.c:1388-1391 calls find_hell(), whose source body assigns
         // the Valley of the Dead entrance at depth 1.
@@ -2466,7 +2467,7 @@ export async function level_tele(state = game) {
                 ? state.mineend_level
                 : state.sanctum_level;
         const qbranchLevel = qbranch ?? u.uz;
-        const deepest = state.dungeons[qbranchLevel.dnum].depth_start
+        const deepest = dungeon_at(qbranchLevel.dnum, state).depth_start
             + dunlevs_in_dungeon(qbranchLevel, state) - 1;
         if (!state.wizard && In_hell(u.uz, state)
             && !u.uevent?.invoked && newlev >= deepest) {

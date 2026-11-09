@@ -72,6 +72,7 @@ import {
     objects_globals_init,
 } from './objects.js';
 import { Hallucination } from './youprop.js';
+import { ledger_no } from './dungeon.js';
 
 function ensureObjectGlobals(state) {
     if (!Array.isArray(state.objects)
@@ -85,13 +86,6 @@ function ensureObjectGlobals(state) {
     state.svd.disco ??= new Array(NUM_OBJECTS).fill(0);
     state.go.oclass_prob_totals ??= new Array(MAXOCLASSES).fill(0);
     return state.objects;
-}
-
-function ledger_no(dlev, state) {
-    const dnum = Math.trunc(dlev?.dnum ?? 0);
-    const dlevel = Math.trunc(dlev?.dlevel ?? 0);
-    const ledgerStart = Math.trunc(state.dungeons?.[dnum]?.ledger_start ?? 0);
-    return dlevel + ledgerStart;
 }
 
 function maxledgerno(state) {

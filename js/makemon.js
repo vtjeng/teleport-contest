@@ -149,6 +149,7 @@ import { consume_obj_charge, update_inventory } from './invent.js';
 import { an } from './objnam.js';
 
 import { sensemon } from './display.js';
+import { dungeon_at } from './dungeon_table.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -178,7 +179,7 @@ function currentSpecialLevel(state) {
 function inHell(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
-        && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+        && Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
 function inEndgame(state) {
@@ -237,7 +238,7 @@ export function align_shift(monster, state) {
     }
     const alignment = statics.lev
         ? statics.lev.flags.align
-        : state.dungeons[state.u.uz.dnum].flags.align;
+        : dungeon_at(state.u.uz.dnum, state).flags.align;
     switch (alignment) {
     case AM_LAWFUL:
         return Math.trunc((monster.maligntyp + 20) / (2 * ALIGNWEIGHT));
