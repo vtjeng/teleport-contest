@@ -83,13 +83,19 @@ for(const hallu of [false,true])for(const blind of [false,true]){
     // the port's refusal boundary for the shapes it does not yet drop.
     const excluded=[
         ['surface Water boulder',{underwater:false}],
-        ['ordinary pool boulder',{water:false}],
         ['Water lava boulder',{terrain:LAVAPOOL}],
         ['Water non-boulder',{kind:FOOD_RATION}],
     ];
     for(const [name,extra]of excluded)test(`excluded ${name} Hallu=${hallu} blind=${blind}`,async()=>{
         const {obj}=await setup({hallu,blind,...extra}),before=snapshot();
         assert.throws(()=>preflight_dropx(obj,dropCommandEnv(game)),/unsupported drop/u);
+        assert.equal(obj.where,OBJ_INVENT);assert.deepEqual(snapshot(),before);
+    });
+    // do.c flooreffects() sends a boulder on an ordinary pool through
+    // boulder_hits_pool(), so its drop is admitted like the Water case.
+    test(`ordinary pool boulder is admitted Hallu=${hallu} blind=${blind}`,async()=>{
+        const {obj}=await setup({hallu,blind,water:false}),before=snapshot();
+        assert.doesNotThrow(()=>preflight_dropx(obj,dropCommandEnv(game)));
         assert.equal(obj.where,OBJ_INVENT);assert.deepEqual(snapshot(),before);
     });
     test(`ordinary lava admission stays unchanged Hallu=${hallu} blind=${blind}`,async()=>{

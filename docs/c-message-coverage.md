@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3982 | 86 |
-| diagnostic | 723 | 186 | 537 |
+| diagnostic | 723 | 187 | 536 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4171 | 740 |
+| total | 4911 | 4172 | 739 |
 
 ## Missing by C file
 
@@ -85,7 +85,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mthrowu.c | yes | 0 | 3 | 0 |
 | src/muse.c | yes | 0 | 7 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
-| src/nhlua.c | yes | 1 | 15 | 1 |
+| src/nhlua.c | yes | 1 | 14 | 1 |
 | src/o_init.c | yes | 1 | 7 | 0 |
 | src/objnam.c | yes | 0 | 15 | 0 |
 | src/options.c | yes | 4 | 6 | 0 |
@@ -1186,7 +1186,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2170 impossible: `Lua error:`
 
 - `nhl_loadlua()`
-  - 2200 impossible: `nhl_loadlua: Error opening`
   - 2262 impossible: `) line too long`
   - 2272 impossible: `luaL_loadbuffer: Error loading`
 
