@@ -74,7 +74,9 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
-import { canseemon, canspotmon, glyph_is_monster } from './display.js';
+import {
+    canseemon, canspotmon, glyph_is_monster, suppress_map_output,
+} from './display.js';
 import { GLYPH_NOTHING_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import {
     do_screen_description,
@@ -573,6 +575,7 @@ export function queueGlyphUpdateNotice(
         || program.gameover
         || program.in_getlev
         || program.stopprint
+        || suppress_map_output(state)
         // A cell with no presentation since cls() holds C's nul_gbuf: the
         // unexplored glyph with gnew clear, so redrawing it unexplored (as
         // under_water()'s limited update does) is no change.

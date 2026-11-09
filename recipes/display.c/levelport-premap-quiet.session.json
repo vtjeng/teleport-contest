@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66021,
+      "datetime": "20020611083000",
+      "nethackrc": "OPTIONS=name:Port,role:Caveman,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,!tips,mention_map\n",
+      "moves": " \u001b\u0016?\n>E  "
+    }
+  ],
+  "comment": "display.c show_glyph() with mention_map: Sokoban's premap_detect() maps the level inside mklev(), while gi.in_mklev makes _suppress_map_output() true, so C prints no '(south): staircase up.' notices on arrival."
+}
