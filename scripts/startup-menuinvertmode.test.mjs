@@ -4,7 +4,6 @@ import test from 'node:test';
 import { allopt } from '../js/optlist_data.js';
 import {
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupMenuinvertmodeRecipe,
@@ -78,7 +77,6 @@ test('comma recursion applies menuinvertmode right to left', () => {
         ' * Line 1: compound option specified multiple times:'
             + ' menuinvertmode.',
     ]);
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('menuinvertmode'), false);
 });
 
 test('the fresh recipe pins both non-default bulk-selection modes', () => {

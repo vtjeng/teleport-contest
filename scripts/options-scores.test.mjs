@@ -51,21 +51,28 @@ test('live scores parsing retains token order, suffixes and signed counts', () =
     }
 });
 
-test('scores errors pin source returns and writes while naming live output gap', () => {
-    for (const [statement, expected, result] of [
+test('scores errors pin source returns, writes and live config errors', () => {
+    for (const [statement, expected, result, message] of [
         // Empty mandatory values return optn_err before resetting prior fields.
-        ['scores', [7, 4, true], 0],
-        ['scores:', [7, 4, true], 0],
+        ['scores', [7, 4, true], 0, "Missing parameter for 'scores'"],
+        ['scores:', [7, 4, true], 0, "Missing parameter for 'scores:'"],
         // Negative and unknown tokens return optn_silenterr after earlier writes.
-        ['scores:7top/-2around', [7, 0, false], -1],
-        ['scores:4around/zqxj', [0, 4, false], -1],
-        ['scores:own//top', [0, 0, true], -1],
+        ['scores:7top/-2around', [7, 0, false], -1,
+            'Values for scores:top and scores:around must not be negative'],
+        ['scores:4around/zqxj', [0, 4, false], -1,
+            "Unknown scores parameter 'zqxj'"],
+        ['scores:own//top', [0, 0, true], -1,
+            "Unknown scores parameter '/top'"],
     ]) {
-        const s = state();
+        // The live editor's view: options.js's 'scores' set handler collects
+        // config_error_add() reports here for cfgfiles.c config_erradd()'s
+        // pline()/wait_synch() arm.
+        const s = { ...state(), liveConfigErrors: [] };
         initUnported();
         assert.equal(handler(s, scores, DO_SET, false, statement, ''), result, statement);
         assert.deepEqual(fields(s), expected, statement);
-        assert.deepEqual([...game.unported], ['cfgfiles.c config_erradd']);
+        assert.deepEqual(s.liveConfigErrors, [message], statement);
+        assert.deepEqual([...game.unported], [], statement);
     }
 });
 

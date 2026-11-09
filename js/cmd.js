@@ -288,7 +288,6 @@ import {
     dotogglepickup,
     toggle_bool_option,
     show_menu_controls,
-    UnsupportedOptionMenuError,
 } from './options.js';
 import {
     dosacrifice,
@@ -2983,15 +2982,11 @@ export function failClosedCommandRefusals() {
         // branches, and ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
-        // options.c doset() builds its whole menu before select_menu() draws
-        // anything, so an unported option value stops with no output; its
-        // pick loop stops after the player has committed a selection.
-        UnsupportedOptionMenuError,
-        // do.c goto_level()'s tail reaches the next three from inside the `>`
+        // do.c goto_level()'s tail reaches the next two from inside the `>`
         // handler, so each one ends the segment where it would otherwise
         // discard the prefix: run_timers() fires timers that expired while
-        // away, mon_arrive() reaches rloc_to() placing a follower, and mklev()
-        // reaches makemon() when the shop it generates holds a mimic.
+        // away, and mklev() reaches makemon() when the shop it generates
+        // holds a mimic.
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedMonsterCreationError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
@@ -3712,9 +3707,7 @@ async function runEnhanceCommand(key, state) {
 }
 
 // C ref: options.c doset_simple() ('O') and doset() ('#optionsfull'). Both
-// preserve their own menu_requested inversion and format the menu before
-// select_menu() draws anything, so an unported option value stops before any
-// output.
+// preserve their own menu_requested inversion.
 async function runOptionsCommand(key, state, handler = doset_simple) {
     return failClosedCommand(key, state, () => handler(state,
         optionCommandHelpers(state)));
@@ -3756,7 +3749,6 @@ function optionCommandHelpers(state) {
             o_autocomplete: () => handler_change_autocompletions(state),
         },
         resetCommands: () => reset_commands(false, state),
-        updateRestOnSpace: () => update_rest_on_space(state),
     };
 }
 

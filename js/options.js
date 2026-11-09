@@ -3928,57 +3928,6 @@ export function optfn_palette(
     return optn_ok;
 }
 
-// The source's #if 0 Mac OS 9 duplicate remains a separate callable helper,
-// rather than competing with the active optfn_palette definition above.
-export function optfn_palette_legacy(
-    state, optidx, request, negated, opts, op,
-) {
-    void optidx;
-    void negated;
-    if (request === DO_INIT) return optn_ok;
-    if (request === DO_SET) {
-        if ((op ?? string_for_opt(opts, true, state)) === '') return optn_err;
-        const value = op ?? string_for_opt(opts, true, state);
-        if (!match_optname(opts, 'palette', 3, true)
-            && !match_optname(opts, 'hicolor', 3, true)) return optn_ok;
-        const hicolor = match_optname(opts, 'hicolor', 3, true);
-        let color = hicolor ? CLR_MAX + 4 : 0;
-        const increment = hicolor ? -1 : 1;
-        let at = 0;
-        while (at < value.length && color >= 0) {
-            let reverse = 0;
-            if (value[at] === '-') {
-                reverse = 1;
-                ++at;
-            }
-            let rgb = 0;
-            for (let count = 0; count < 3; ++count) {
-                if (value[at] && value[at] !== '/') {
-                    let digit = value[at++];
-                    if (/^[A-Za-z]$/u.test(digit))
-                        digit = String.fromCharCode((digit.charCodeAt(0) + 9) & 0xF);
-                    else digit = String.fromCharCode(digit.charCodeAt(0) & 0xF);
-                    const nibble = digit.charCodeAt(0);
-                    rgb = (rgb << 8) + (nibble << 4) + nibble;
-                }
-            }
-            if (value[at] === '/') ++at;
-            // C discards change_color()'s void terminal result. The palette
-            // bookkeeping itself is still the source's parsed branch.
-            note_unported('wintty.c tty_change_color');
-            color += increment;
-        }
-        if (state.go?.opt_initial === false)
-            state.go.opt_update_basic_palette = true;
-        return optn_ok;
-    }
-    if (request === GET_VAL || request === GET_CNF_VAL) {
-        if (opts == null) return optn_err;
-        return n_currently_set(count_alt_palette(state));
-    }
-    return optn_ok;
-}
-
 function messageWindowChoices(state) {
     const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
     return [
@@ -4683,14 +4632,9 @@ export function optfn_scores(result, optidx, req, negated, opts, op) {
     if (req === DO_SET) {
         // The live editor passes a view with `liveConfigErrors`, which
         // configErrorAdd() collects for cfgfiles.c config_erradd()'s
-        // pline()/wait_synch() arm (1554-1562).
-        const reportError = message => {
-            if (result.go?.opt_initial === false && !result.liveConfigErrors) {
-                note_unported('cfgfiles.c config_erradd');
-            } else {
-                configErrorAdd(result, message);
-            }
-        };
+        // pline()/wait_synch() arm (1554-1562); the rc-file read passes its
+        // result, whose error frame collects them.
+        const reportError = (message) => configErrorAdd(result, message);
         // string_for_opt(opts,FALSE) reports a missing value through the same
         // discarded diagnostic owner. Read its value with TRUE and route that
         // diagnostic here so a live call does not mutate a startup frame.
@@ -7070,15 +7014,6 @@ export function parseNethackrc(rc, random = rn2) {
 // it to the window port; applying the picks stays unported.
 // ===========================================================================
 
-// Thrown where the options menu reaches an options.c path this port has not
-// implemented.  Every stop names the C function that is missing.
-export class UnsupportedOptionMenuError extends Error {
-    constructor(what) {
-        super(`the options menu requires ${what}`);
-        this.name = 'UnsupportedOptionMenuError';
-        this.what = what;
-    }
-}
 
 // C ref: global.h enum optset_restrictions, the values doset() compares
 // allopt[].setwhere against.
@@ -7352,35 +7287,8 @@ function booleanOptionValue(state, option) {
     const path = option.addr.split('.');
     let owner = state;
     for (let index = 0; index < path.length - 1; ++index)
-        owner = owner?.[path[index]];
-    const value = owner?.[path[path.length - 1]];
-    if (typeof value !== 'boolean') {
-        throw new UnsupportedOptionMenuError(
-            `a live value for boolean option '${option.name}' (${option.addr})`,
-        );
-    }
-    return value;
-}
-
-// C ref: coloratt.c colornames[] and attrnames[], each truncated at the NULL
-// entry that separates canonical names from aliases; clr2colorname() and
-// attr2attrname() return the first entry whose value matches.  The port's
-// attribute set holds four of C's seven values, because recorder patch 006
-// retains only bold, underline and inverse, so dim, italic and blink share
-// ATR_NONE and cannot be named apart from it.
-const COLOR_NAMES = Object.freeze([
-    ['black', CLR_BLACK], ['red', CLR_RED], ['green', CLR_GREEN],
-    ['brown', CLR_BROWN], ['blue', CLR_BLUE], ['magenta', CLR_MAGENTA],
-    ['cyan', CLR_CYAN], ['gray', CLR_GRAY], ['orange', CLR_ORANGE],
-    ['light green', CLR_BRIGHT_GREEN], ['yellow', CLR_YELLOW],
-    ['light blue', CLR_BRIGHT_BLUE], ['light magenta', CLR_BRIGHT_MAGENTA],
-    ['light cyan', CLR_BRIGHT_CYAN], ['white', CLR_WHITE],
-    ['no color', NO_COLOR],
-]);
-function nameForValue(table, value, what) {
-    const found = table.find(([, candidate]) => candidate === value);
-    if (!found) throw new UnsupportedOptionMenuError(`a name for ${what}`);
-    return found[0];
+        owner = owner[path[index]];
+    return owner[path[path.length - 1]];
 }
 
 // C ref: options.c oc_to_str(), which spells an object-class list with the
@@ -7527,33 +7435,12 @@ export async function dotogglepickup(state) {
     await ttyPline(`Autopickup: ${buf}.`, state);
 }
 
-// A configuration statement cfgfiles.c dispatches and parseNethackrc() only
-// records.  The list each one appends to is the list a count below walks, so
-// the count stops here rather than reporting the empty list as the session's.
-export function hasUnportedConfigStatement(state, name) {
-    return Boolean(state.unportedConfigStatements?.includes(name));
-}
-
-function refuseUnportedConfigStatement(state, name) {
-    if (hasUnportedConfigStatement(state, name)) {
-        throw new UnsupportedOptionMenuError(
-            `cfgfiles.c cnf_line_${name.toUpperCase()}()`,
-        );
-    }
-}
-
 function msgtype_count(state) {
     let count = 0;
     for (let rule = state.gp?.plinemsg_types; rule; rule = rule.next) ++count;
     return count;
 }
 
-// parseNethackrc() gives source semantics to the options its own arms parse
-// and falls back to keeping an unported option's raw text under
-// flags[<option name>].  For an option whose parsed home is that same field,
-// the raw text overwrites the parsed value rather than sitting beside it, and
-// showing the compiled-in default would misreport the session.  Every such
-// option's parsed form is a number, so a type test finds the raw string.
 // C ref: hack.h FEATURE_NOTICE_VER_MAJ, _MIN and _PATCH, formatted as
 // "%lu.%lu.%lu" by optfn_suppress_alert(get_val) and the live branch of
 // feature_alert_opts(). The major field is deliberately unmasked while minor
@@ -7564,16 +7451,6 @@ function feature_notice_ver_string(packed) {
     const minor = Math.floor(packed / 0x00010000) % 0x100;
     const patch = Math.floor(packed / 0x00000100) % 0x100;
     return `${major}.${minor}.${patch}`;
-}
-
-function requireParsedNumber(state, option) {
-    const value = state.flags[option.name];
-    if (typeof value !== 'number') {
-        throw new UnsupportedOptionMenuError(
-            `parseoptions() to interpret '${option.name}'`,
-        );
-    }
-    return value;
 }
 
 // The get_val and get_cnf_val arms of both alignment handlers use the same
@@ -7633,9 +7510,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
                     : preferred === 'n' ? 'none' : 'random';
     },
     soundlib: (state) => get_soundlib_name(state),
-    autounlock: (state, option) => autounlockValue(
-        requireParsedNumber(state, option),
-    ),
+    autounlock: (state) => autounlockValue(state.flags.autounlock),
     // go.ov_primary_syms holds an explicit S_boulder override; without one
     // the value falls back to the active rock-class symbol.
     boulder: (state) => decodeUtf8ByteString([
@@ -7757,19 +7632,15 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         : "0 (off: don't highlight status fields)"),
     statuslines: (state) => (wc2_supported('statuslines')
         ? (state.iflags.wc2_statuslines < 3 ? '2' : '3') : 'unknown'),
-    suppress_alert: (state, option) => {
+    suppress_alert: (state) => {
         // C ref: optfn_suppress_alert(get_val).
-        const packed = requireParsedNumber(state, option);
+        const packed = state.flags.suppress_alert;
         if (packed === 0) return none;
         return feature_notice_ver_string(packed);
     },
     symset: (state) => symsetValue(state, PRIMARYSET, true),
-    // versinfo is the remaining option whose parsed home is its own field and
-    // whose parse arm requires a value. `OPTIONS=versinfo` therefore reaches
-    // applyBooleanOption()'s fallback after C reports the missing value, so
-    // this handler retains requireParsedNumber() as the same-field guard.
-    versinfo: (state, option) => {
-        const vi = requireParsedNumber(state, option);
+    versinfo: (state) => {
+        const vi = state.flags.versinfo;
         const g = (vi & VI_NAME) !== 0;
         const b = (vi & VI_BRANCH) !== 0;
         const n = (vi & VI_NUMBER) !== 0;
@@ -7820,36 +7691,12 @@ function symsetValue(state, set, withHandling) {
     return opts;
 }
 
-// parseNethackrc() gives source semantics to the options its own arms parse
-// and preserves every other option's raw text under flags[<option name>].  A
-// value kept that way never reached the field the handler above reads, so the
-// menu would show the compiled-in default instead of the session's setting.
-//
-// Membership is every shown compound option that parseNethackrc() leaves as
-// raw text under flags[<option name>] and whose handler above reads some
-// other field, so the raw text sits beside the value rather than replacing
-// it. Where the raw text lands in the very field the handler reads --
-// versinfo -- there is nothing left to compare against, so it is guarded by
-// type inside its handler instead and is not a member. The other-settings
-// rows need neither guard: each counts live state rather than reading an
-// option field.
-// scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
-// so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
-export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set());
-
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
 // it keeps when the handler writes nothing.
+// Every option either menu lists has a handler here:
+// scripts/option-statement-sources.test.mjs checks each one.
 export function optionValue(state, option, helpers) {
-    if (UNPARSED_COMPOUND_OPTIONS.has(option.name)
-        && state.flags?.[option.name] !== undefined) {
-        throw new UnsupportedOptionMenuError(
-            `parseoptions() to interpret '${option.name}'`,
-        );
-    }
-    const handler = OPTION_VALUE_HANDLERS[option.optfn];
-    if (!handler)
-        throw new UnsupportedOptionMenuError(`optfn_${option.optfn}()`);
-    return handler(state, option, helpers);
+    return OPTION_VALUE_HANDLERS[option.optfn](state, option, helpers);
 }
 
 // C ref: options.c doset_add_menu().  idx < 0 is the PREFIXES_IN_USE arm,
@@ -8145,13 +7992,7 @@ function setBooleanOptionValue(state, option, value) {
     const path = option.addr.split('.');
     let owner = state;
     for (let index = 0; index < path.length - 1; ++index)
-        owner = owner?.[path[index]];
-    if (!owner) {
-        throw new UnsupportedOptionMenuError(
-            `live storage for boolean option '${option.name}'`
-            + ` (${option.addr})`,
-        );
-    }
+        owner = owner[path[index]];
     owner[path[path.length - 1]] = value;
     const parsedName = option.name.toLowerCase();
     if (option.addr !== `flags.${parsedName}`)
@@ -8206,16 +8047,10 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
     if (state.go.opt_initial && option.setwhere === set_wiznofuz)
         return optn_err;
 
-    if (string_for_opt(opts, true) !== '') {
-        // options.c:5211-5241 reads "opt:true", "opt:no", "opt:1" and their
-        // relatives, and `ln`, which the opt_female arm below floors at 3,
-        // is the length of that value.  doset() builds its statement as
-        // "%s%s" from an optional '!' and the option's name, so no pick
-        // brings a value and ln stays 0.
-        throw new UnsupportedOptionMenuError(
-            "parseoptions() with a value on a boolean option's statement",
-        );
-    }
+    // options.c:5211-5241 reads a value such as "opt:true" or "opt:no".
+    // doset() and toggle_bool_option() build their statements as "%s%s" from
+    // an optional '!' and the option's name, so no statement here carries
+    // one.
 
     if (state.iflags?.debug_fuzzer && !state.go.opt_initial) {
         /* don't randomly toggle this/these */
@@ -8224,15 +8059,9 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
     }
 
     /* Before the change */
+    // options.c:5245-5266's 'female' arm is not here: 'female' is
+    // set_in_config, so the test above has already returned optn_err.
     switch (option.name) {
-    case 'female':
-        // options.c:5245-5266 keeps the old 'O'-prompts-for-text behaviour,
-        // where "female" and "male" both reached this entry.  doset()'s
-        // boolean loop skips every entry whose storage is &flags.female
-        // (options.c:8873), so no pick can arrive here.
-        throw new UnsupportedOptionMenuError(
-            "optfn_boolean()'s flags.female arm",
-        );
     case 'perm_invent':
         // options.c:5267-5270 asks can_set_perm_invent() whether the
         // interface can show a persistent inventory window.
@@ -8247,11 +8076,9 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
     setBooleanOptionValue(state, option, !negated); /* <==== SET IT HERE */
 
     /* After the change */
+    // options.c:5288-5291's 'pauper' arm is not here: 'pauper' is
+    // set_in_config, so the test above has already returned optn_err.
     switch (option.name) {
-    case 'pauper':
-        // options.c:5288-5291. 'pauper' is set_in_config, so doset() lists it
-        // in the pass that assigns no selector.
-        throw new UnsupportedOptionMenuError("optfn_boolean()'s pauper arm");
     case 'ascii_map':
         state.iflags.wc_tiled_map = negated;
         break;
@@ -8363,11 +8190,10 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
     case 'rest_on_space':
         // options.c:5424-5425 calls cmd.c update_rest_on_space(), which
         // rebinds <space> in gc.Cmd.cmdbinds to a private #wait entry, or
-        // back to whatever the RC file bound there.
-        if (typeof helpers?.updateRestOnSpace === 'function')
-            helpers.updateRestOnSpace(state);
-        else
-            throw new UnsupportedOptionMenuError('update_rest_on_space()');
+        // back to whatever the RC file bound there. js/cmd.js imports this
+        // module, so the call is resolved at run time.
+        (await import('./cmd.js')).update_rest_on_space(state);
+        break;
     case 'accessiblemsg':
         // options.c:5427-5428 clears a11y.msg_loc.  This port stores no such
         // position: pline.c:162-164 clears it on every message, which is the
@@ -8418,9 +8244,10 @@ export function optfn_pickup_types(
 
     // options.c:3364-3389, shared after either explicit or prompted input.
     const finish = (symbols) => {
+        // A negated statement arrives only from a configuration file:
+        // parseoptions() builds a '!' statement for a BoolOpt row alone.
         if (negated) {
-            if (initial) bad_negation(state, allopt[optidx].name, true);
-            else note_unported('options.c bad_negation');
+            bad_negation(state, allopt[optidx].name, true);
             return optn_err;
         }
         const parsed = pickupTypesFromSymbols(symbols);
@@ -8474,25 +8301,17 @@ export function optfn_pickup_types(
     })();
 }
 
-function setMenuOptionFromParse(state, optidx, negated, opts, helpers) {
-    const name = allopt[optidx].name;
-    const optfn = MENU_OPTION_FUNCTIONS[name];
-    if (!optfn) throw new UnsupportedOptionMenuError(`optfn_${name}()`);
-    return optfn(
-        state,
-        optidx,
-        DO_SET,
-        negated,
-        opts,
-        string_for_opt(opts, true, state),
-        helpers,
-    );
-}
-
-const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
-    ...MENU_COMMAND_OPTIONS.map(({ name }) => name),
-    'menu_headings',
-].map((name) => [name, setMenuOptionFromParse])));
+// The thirteen menu_* command options and menu_headings, each through its own
+// optfn_<name>(do_set).
+const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries(
+    Object.entries(MENU_OPTION_FUNCTIONS).map(([name, optfn]) => [
+        name,
+        (state, optidx, negated, opts, helpers) => optfn(
+            state, optidx, DO_SET, negated, opts,
+            string_for_opt(opts, true, state), helpers,
+        ),
+    ]),
+));
 
 // C ref: options.c parseoptions() (489-681)'s handler table, C's
 // allopt[optidx].optfn(optidx, do_set, ...).  The key is that function's own
@@ -8782,15 +8601,11 @@ const OPTION_SET_HANDLERS = Object.freeze({
 export async function parseoptions(
     state, statement, tinitial, tfrom_file, helpers,
 ) {
-    if (tinitial || tfrom_file) {
-        // The comma recursion at options.c:513-521, duplicate_opt_detection()'s
-        // per-option counter and every config_error_add() report belong to the
-        // configuration-file pass, which parseNethackrc() above covers with a
-        // parser of its own.
-        throw new UnsupportedOptionMenuError(
-            'parseoptions() during option initialization',
-        );
-    }
+    // Every caller passes tinitial and tfrom_file FALSE: the comma recursion
+    // at options.c:513-521, duplicate_opt_detection()'s per-option counter
+    // and every config_error_add() report belong to the configuration-file
+    // pass, which parseNethackrc() above covers with a parser of its own.
+    // scripts/option-statement-sources.test.mjs checks the callers.
     state.go ??= {};
     state.go.opt_initial = tinitial;
     state.go.opt_from_file = tfrom_file;
@@ -8827,13 +8642,10 @@ export async function parseoptions(
             break;
         }
     }
-    if (!got_match) {
-        // options.c:592-612 tries allopt[].alias next.  doset() builds this
-        // statement from an allopt[] entry's own name, and the loop above
-        // always matches such a name by the time it reaches that entry, so no
-        // pick can arrive here.
-        throw new UnsupportedOptionMenuError("parseoptions()'s alias table");
-    }
+    // options.c:592-612 tries allopt[].alias when nothing matched.  Every
+    // caller builds its statement from an allopt[] entry's own name, and the
+    // loop above always matches such a name by the time it reaches that
+    // entry; scripts/option-statement-sources.test.mjs checks both.
 
     // options.c:614 raises program_state.in_parseoptions so a handler can ask
     // who called it; optfn_boolean(), the one handler dispatched below, never
@@ -9378,13 +9190,13 @@ export async function handler_menu_colors(state, helpers) {
     for (;;) {
         const action = await handle_add_list_remove(state, 'menucolor', count_menucolors(state), helpers);
         if (action === 3) {
-            if (state.iflags.use_menu_color && state.iflags.perm_invent) note_unported('invent.c update_inventory');
+            if (state.iflags.use_menu_color && state.iflags.perm_invent) update_inventory({ state });
             return optn_ok;
         }
         if (action === 0) {
             const pattern = helpers?.getlin ? await helpers.getlin('What new menucolor pattern?') : await getlin('What new menucolor pattern?', state);
             if (pattern?.[0] === '\x1b') {
-                if (state.iflags.use_menu_color && state.iflags.perm_invent) note_unported('invent.c update_inventory');
+                if (state.iflags.use_menu_color && state.iflags.perm_invent) update_inventory({ state });
                 return optn_ok;
             }
             if (pattern && test_regex_pattern(state, pattern, 'MENUCOLORS regex')) {
@@ -9393,7 +9205,8 @@ export async function handler_menu_colors(state, helpers) {
                     const attr = await query_attr(state, null, 0, helpers);
                     if (attr !== -1 && !add_menu_coloring_parsed(state, pattern, color, attr)) {
                         await ttyPline('Error adding the menu color.', state);
-                        note_unported('windows.c wait_synch');
+                        const { tty_wait_synch } = await import('./tty_rawprint.js');
+                        await tty_wait_synch(state);
                     }
                 }
             }
@@ -9441,7 +9254,8 @@ export async function handler_msgtype(state, helpers) {
                 const picks = menuSelectionValues(selected);
                 if (picks.length && !msgtype_add(state, picks[0] - 1, pattern)) {
                     await ttyPline('Error adding the message type.', state);
-                    note_unported('windows.c wait_synch');
+                    const { tty_wait_synch } = await import('./tty_rawprint.js');
+                    await tty_wait_synch(state);
                 }
             }
             continue;

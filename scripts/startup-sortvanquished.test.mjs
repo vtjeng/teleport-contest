@@ -5,7 +5,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupSortvanquishedRecipe,
@@ -125,7 +124,6 @@ test('the optionsfull getter names all eight vanquished orders', () => {
         parsed.flags.vanq_sortmode = index;
         assert.equal(optionValue(parsed, row, {}), VANQORDER_VALUES[index]);
     }
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('sortvanquished'), false);
 });
 
 test('the fresh sortvanquished matrix contains replay inputs only', () => {

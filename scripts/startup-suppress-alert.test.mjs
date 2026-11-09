@@ -5,7 +5,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     get_current_feature_ver,
@@ -133,7 +132,6 @@ test('suppress_alert retains its source option contract', () => {
     assert.equal(SUPPRESS_ALERT_ROW?.negateok, false);
     assert.equal(SUPPRESS_ALERT_ROW?.valok, true);
     assert.equal(SUPPRESS_ALERT_ROW?.has_handler, false);
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('suppress_alert'), false);
 });
 
 test('the fresh suppress-alert matrix contains replay inputs only', () => {

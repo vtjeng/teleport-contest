@@ -4,7 +4,6 @@ import test from 'node:test';
 import { allopt } from '../js/optlist_data.js';
 import {
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupScoresRecipe,
@@ -141,7 +140,6 @@ test('optlist rejects outer scores negation before the handler resets state',
             ' * Line 1: The scores option may not both have a value and be'
                 + ' negated.',
         ]);
-        assert.equal(UNPARSED_COMPOUND_OPTIONS.has('scores'), false);
     });
 
 test('the fresh scores matrix contains replay inputs only', () => {

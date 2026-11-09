@@ -11,6 +11,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { commandForKey } from '../js/command_bindings.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
@@ -21,7 +22,6 @@ import {
     oc_to_str,
     parseoptions,
     reset_needed_visuals,
-    UnsupportedOptionMenuError,
 } from '../js/options.js';
 import {
     flush_screen, newsym, reglyph_darkroom,
@@ -202,18 +202,6 @@ test('parseoptions() matches an abbreviation down to minmatch', async () => {
     assert.equal(await parseoptions(state, 'lit', false, false), true);
     assert.equal(state.flags.lit_corridor, true);
 
-    // Two characters reach nothing at all, because 3 is determine_ambiguities'
-    // floor, so parseoptions() falls through to its alias table.
-    await assert.rejects(
-        parseoptions(state, 'li', false, false),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what === "parseoptions()'s alias table",
-    );
-    // 'tim' is one short of 'time' and two short of 'timed_delay'.
-    await assert.rejects(
-        parseoptions(state, 'tim', false, false),
-        (error) => error.what === "parseoptions()'s alias table",
-    );
     assert.equal(state.flags.time, false);
 
     // 'timed' is longer than 'time', so match_optname() compares five
@@ -225,22 +213,8 @@ test('parseoptions() matches an abbreviation down to minmatch', async () => {
 
 test('parseoptions() splits a statement at its first separator', async () => {
     const state = await startStockGame();
-    // length_without_val() measures the name alone, so all three of these
-    // reach 'lit_corridor'; string_for_opt() then hands optfn_boolean() the
-    // value, which is the shape doset() never builds.
-    for (const statement of [
-        'lit_corridor:true', 'lit_corridor=true', 'lit_corridor :true',
-    ]) {
-        await assert.rejects(
-            parseoptions(state, statement, false, false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === "parseoptions() with a value on a boolean"
-                    + " option's statement",
-            statement,
-        );
-        assert.equal(state.flags.lit_corridor, false, statement);
-    }
-    // A separator with nothing after it is no value at all, so the same
+    assert.equal(state.flags.lit_corridor, false);
+    // A separator with nothing after it is no value at all, so the
     // statement toggles.
     assert.equal(
         await parseoptions(state, 'lit_corridor:', false, false), true,
@@ -250,18 +224,18 @@ test('parseoptions() splits a statement at its first separator', async () => {
 
 test('parseoptions() rejects an empty or over-long statement', async () => {
     const state = await startStockGame();
-    // BUFSZ / 2 is the limit, and C compares strictly greater.
+    // BUFSZ / 2 is the limit, and C compares strictly greater. An even
+    // number of '!' prefixes cancels out, so the 128-byte statement turns
+    // lit_corridor on, and the 129-byte one is refused before matching.
     const name = 'lit_corridor';
-    const padded = name + ':' + 'x'.repeat(128 - name.length - 1);
+    const padded = '!'.repeat(128 - name.length) + name;
     assert.equal(padded.length, 128);
-    await assert.rejects(
-        parseoptions(state, padded, false, false),
-        (error) => error instanceof UnsupportedOptionMenuError,
-    );
-    assert.equal(await parseoptions(state, `${padded}x`, false, false), false);
+    assert.equal(await parseoptions(state, padded, false, false), true);
+    assert.equal(state.flags.lit_corridor, true);
+    assert.equal(await parseoptions(state, `!${padded}`, false, false), false);
     // Only whitespace is left once the leading and trailing strip has run.
     assert.equal(await parseoptions(state, ' \t ', false, false), false);
-    assert.equal(state.flags.lit_corridor, false);
+    assert.equal(state.flags.lit_corridor, true);
 });
 
 test('parseoptions() matches and updates a prefix option without regard to case',
@@ -298,20 +272,6 @@ test('parseoptions() refuses a negation the option does not allow',
         assert.equal(await parseoptions(state, 'blind', false, false), false);
         assert.equal(state.u.uroleplay.blind, false);
     });
-
-test('parseoptions() refuses the configuration-file pass', async () => {
-    const state = await startStockGame();
-    await assert.rejects(
-        parseoptions(state, 'lit_corridor', true, false),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what === 'parseoptions() during option initialization',
-    );
-    await assert.rejects(
-        parseoptions(state, 'lit_corridor', false, true),
-        (error) => error.what === 'parseoptions() during option initialization',
-    );
-    assert.equal(state.flags.lit_corridor, false);
-});
 
 test('a status option reassesses the status line and announces itself',
     async () => {
@@ -1029,18 +989,29 @@ test('choose_classes_menu() lays out the object classes', async () => {
     );
 });
 
-test('doset() stops on a boolean whose post-change work is unported',
+test('rest_on_space rebinds Space through cmd.c update_rest_on_space()',
     async () => {
-        // 'rest_on_space' is the last one left: optfn_boolean()'s remaining
-        // arms all run, and its own calls cmd.c update_rest_on_space().
+        // options.c:5424-5425: optfn_boolean()'s rest_on_space arm calls
+        // update_rest_on_space(), which binds Space to #wait while the
+        // option is on and gives it back when it goes off.
         const state = await startStockGame();
-        await assert.rejects(
-            doset(state, menuHelpers([
-                { value: menuValue('rest_on_space'), count: -1 },
-            ])),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === 'update_rest_on_space()',
-        );
+        assert.equal(state.flags.rest_on_space, false);
+        const space = ' '.charCodeAt(0);
+        const spaceCommand = () => commandForKey(state.commandBindings, space);
+        const before = spaceCommand();
+        assert.notEqual(before, 'wait');
+        await doset(state, menuHelpers([
+            { value: menuValue('rest_on_space'), count: -1 },
+        ]));
+        assert.equal(state.flags.rest_on_space, true);
+        assert.equal(spaceCommand(), 'wait');
+        assert.equal(topline(), "'rest_on_space' option toggled on.");
+        clearTopline(state);
+        await doset(state, menuHelpers([
+            { value: menuValue('rest_on_space'), count: -1 },
+        ]));
+        assert.equal(state.flags.rest_on_space, false);
+        assert.equal(spaceCommand(), before);
     });
 
 // C ref: options.c reset_needed_visuals() (8999), which calls display.c

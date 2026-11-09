@@ -4,7 +4,6 @@ import test from 'node:test';
 import { allopt } from '../js/optlist_data.js';
 import {
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupCrashIdentityRecipe,
@@ -103,8 +102,6 @@ test('crash identity duplicates overwrite in source application order', () => {
         '\nOPTIONS=crash_name:Last Name',
         ' * Line 3: compound option specified multiple times: crash_name.',
     ]);
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('crash_email'), false);
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('crash_name'), false);
 });
 
 test('the fresh crash identity matrix contains replay inputs only', () => {

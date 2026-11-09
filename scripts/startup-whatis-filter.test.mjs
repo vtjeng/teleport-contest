@@ -10,7 +10,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupWhatisFilterRecipes,
@@ -36,7 +35,6 @@ test('whatis_filter getter names all three source enum values', () => {
         parsed.iflags.getloc_filter = filter;
         assert.equal(optionValue(parsed, row, {}), shown);
     }
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('whatis_filter'), false);
 });
 
 test('the fresh whatis_filter matrix contains replay inputs only', () => {

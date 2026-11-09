@@ -11,7 +11,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupAutounlockRecipe,
@@ -134,7 +133,6 @@ test('the optionsfull getter names masks in source order', () => {
         parsed.flags.autounlock = mask;
         assert.equal(optionValue(parsed, AUTOUNLOCK_ROW, {}), expected);
     }
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('autounlock'), false);
 });
 
 test('autounlock retains its source option contract', () => {

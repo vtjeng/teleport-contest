@@ -7,7 +7,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupWindowtypeRecipe,
@@ -168,6 +167,5 @@ test('window type getters read active TTY after configuration', () => (
         );
         assert.equal(chosenWindowtype(game), 'zqxj');
         assert.equal(optionValue(game, row, {}), 'tty');
-        assert.equal(UNPARSED_COMPOUND_OPTIONS.has('windowtype'), false);
     })
 ));

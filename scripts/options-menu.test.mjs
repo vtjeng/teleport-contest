@@ -25,8 +25,8 @@ import {
     menuObjsymItems,
     parseNethackrc,
     term_for_boolean,
-    UNPARSED_COMPOUND_OPTIONS,
-    UnsupportedOptionMenuError,
+    dosetSimpleMenuItems,
+    optionValue,
 } from '../js/options.js';
 import {
     ALIGN_BOTTOM,
@@ -355,7 +355,6 @@ test('the options menu reads the configured whatis filter', async () => {
         valueOf(dosetMenuItems(state, menuHelpers(), false), 'whatis_filter'),
         'view',
     );
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('whatis_filter'), false);
 });
 
 test('a configured session reaches the menu\'s value column', async () => {
@@ -483,32 +482,48 @@ test('the menu counts final status highlight rows without changing rules',
         assert.deepEqual(state.iflags.status_hilites, configuredRules);
     });
 
-test('the menu refuses an option whose value it cannot derive', async () => {
+// optionValue() and the boolean rows read their option's storage directly,
+// so every row either menu lists has to find a value there.
+test('every listed option has a value handler and a typed value', async () => {
     const state = await startConfiguredGame(STOCK);
-    // versinfo is another option whose parsed home is its own name. Its parse
-    // arm sits behind the test for a value, so `OPTIONS=versinfo` -- which C
-    // answers with a config error that leaves flags.versinfo at its default --
-    // reaches applyBooleanOption() here and leaves a boolean in that field.
-    const savedVersinfo = state.flags.versinfo;
-    for (const raw of ['kick', true]) {
-        state.flags.versinfo = raw;
-        assert.throws(
-            () => dosetMenuItems(state, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === "parseoptions() to interpret 'versinfo'",
-            `versinfo:${raw}`,
-        );
+    // Wizard mode widens doset()'s compound passes to set_wiznofuz.
+    for (const wizard of [false, true]) {
+        state.wizard = wizard;
+        assert.ok(dosetMenuItems(state, menuHelpers(), false).length > 100);
+        assert.ok(dosetSimpleMenuItems(state, menuHelpers()).length > 30);
     }
-    state.flags.versinfo = savedVersinfo;
-    // A boolean option with no live value would otherwise read as false.
-    delete state.flags.acoustics;
-    assert.throws(
-        () => dosetMenuItems(state, menuHelpers(), false),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what.includes("'acoustics'"),
+    state.wizard = false;
+    // doset_simple() names roguesymset in symset's row on the Rogue level.
+    assert.equal(
+        optionValue(state, allopt.find(({ name }) => name === 'roguesymset'), {}),
+        'default',
     );
-    state.flags.acoustics = true;
-    assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
+    // optlist.h's allopt[].addr for each boolean names storage the game
+    // keeps as a boolean, for the rc-file parse alone and for a started game.
+    const parsed = parseNethackrc('');
+    for (const option of allopt) {
+        if (option.opttyp !== 'BoolOpt' || !option.addr) continue;
+        const read = (root) => option.addr.split('.')
+            .reduce((owner, key) => owner[key], root);
+        assert.equal(typeof read(state), 'boolean', option.addr);
+        if (!option.addr.startsWith('u.'))
+            assert.equal(typeof read(parsed), 'boolean', option.addr);
+    }
+    // versinfo, autounlock and suppress_alert are read from flags.<name>
+    // itself, so every rc spelling has to leave a number there: C's parse
+    // arms report what they cannot read and keep the default.
+    for (const name of ['versinfo', 'autounlock', 'suppress_alert']) {
+        for (const prefix of ['', '!', 'no']) {
+            for (const value of ['', ':', ':1', ':kick', ':3.7.0', ':none',
+                ':untrap+apply-key', ':7', ':99']) {
+                const statement = `OPTIONS=${prefix}${name}${value}\n`;
+                assert.equal(
+                    typeof parseNethackrc(statement).flags[name], 'number',
+                    statement,
+                );
+            }
+        }
+    }
 });
 
 // C ref: cmd.c count_bind_keys(), reached through options.c
@@ -573,12 +588,11 @@ test('each selectable item carries its own allopt[] identifier', async () => {
     assert.equal(new Set(values).size, values.length);
 });
 
-// UNPARSED_COMPOUND_OPTIONS and the by-type guards inside the value handlers
-// are together the whole defence against the menu printing a compiled-in
-// default where the session set something else. Derive the rule rather than
-// listing it: an option needs a guard exactly when parseNethackrc() can leave
-// raw text under flags[<option name>].
-test('every shown compound option guards its unparsed raw text', async () => {
+// The menu reads each compound option from the field its parse arm writes.
+// parseNethackrc() keeps the raw text of an option it does not interpret under
+// flags[<option name>], which no value handler reads, so a shown compound
+// option must never land there.
+test('no shown compound option keeps unparsed raw text', async () => {
     const state = await startConfiguredGame(STOCK);
     const shown = new Set(dosetMenuItems(state, menuHelpers(), false)
         .map((item) => item.text.trim())
@@ -587,7 +601,7 @@ test('every shown compound option guards its unparsed raw text', async () => {
     // A value no parse arm would leave behind, and not a legal value for any
     // shown option.
     const RAW = 'kick';
-    const needsGuard = [];
+    const raw = [];
     for (const option of allopt) {
         if (option.opttyp !== 'CompOpt' || !shown.has(option.name)) continue;
         let parsed;
@@ -597,38 +611,9 @@ test('every shown compound option guards its unparsed raw text', async () => {
         } catch {
             continue;
         }
-        // The parse routes the value to the field the handler reads.
-        if (parsed.flags[option.name] !== RAW) continue;
-        const saved = state.flags[option.name];
-        state.flags[option.name] = RAW;
-        assert.throws(
-            () => dosetMenuItems(state, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError,
-            option.name,
-        );
-        if (saved === undefined) delete state.flags[option.name];
-        else state.flags[option.name] = saved;
-        needsGuard.push(option.name);
+        if (parsed.flags[option.name] === RAW) raw.push(option.name);
     }
-    // The two routes that answer the loop above, and nothing else: the frozen
-    // set, plus the options whose handler reads flags[<option name>] itself
-    // and tests its type there. versinfo and pickup_burden are two more of
-    // those, but each has a parse arm that rejects a value it cannot read --
-    // a non-number and a letter outside "ubsnotl" -- so raw text reaches
-    // their fields only through the value-less spelling the refusal test
-    // covers, and the loop above never reaches their guards.
-    assert.deepEqual(
-        needsGuard.slice().sort(),
-        [...UNPARSED_COMPOUND_OPTIONS].sort(),
-    );
-    // The other-settings rows need no guard: each counts live state instead
-    // of reading an option field, so raw text under their names is inert.
-    for (const name of UNPARSED_COMPOUND_OPTIONS) {
-        assert.equal(
-            allopt.find((option) => option.name === name)?.opttyp, 'CompOpt',
-            name,
-        );
-    }
+    assert.deepEqual(raw, []);
 });
 
 // C ref: options.c optfn_boolean()'s do_set arm, which writes

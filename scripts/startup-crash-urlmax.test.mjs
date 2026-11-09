@@ -4,7 +4,6 @@ import test from 'node:test';
 import { allopt } from '../js/optlist_data.js';
 import {
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     loadStartupCrashUrlmaxRecipe,
@@ -96,7 +95,6 @@ test('optlist rejects crash_urlmax negation before its handler', () => {
         ' * Line 1: The crash_urlmax option may not both have a value and be'
             + ' negated.',
     ]);
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('crash_urlmax'), false);
 });
 
 test('the fresh crash_urlmax matrix contains replay inputs only', () => {

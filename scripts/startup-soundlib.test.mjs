@@ -5,7 +5,6 @@ import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
     parseNethackrc,
-    UNPARSED_COMPOUND_OPTIONS,
 } from '../js/options.js';
 import {
     activate_chosen_soundlib,
@@ -100,7 +99,6 @@ test('soundlib activation and getter use active rather than chosen state', () =>
 
     const row = allopt.find(({ name }) => name === 'soundlib');
     assert.equal(optionValue(state, row, {}), 'nosound');
-    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('soundlib'), false);
 });
 
 test('soundlib helpers reject IDs outside the compiled choice table', () => {
