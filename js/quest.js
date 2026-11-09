@@ -45,10 +45,11 @@ import {
 } from './questpgr.js';
 import { coreRandom, rn2 } from './rng.js';
 import { the, xname } from './objnam.js';
-import { Monnam, noit_mon_nam } from './do_name.js';
+import { Monnam, mon_nam, noit_mon_nam } from './do_name.js';
 import { canseemon } from './display.js';
 import { ttyPline } from './tty_message.js';
 import {
+    impossible,
     livelog_printf,
     verbalize,
 } from './pline.js';
@@ -429,26 +430,32 @@ async function chat_with_guardian(ops) {
 }
 
 // C ref: quest.c quest_chat() (472-492). The leader remains identified by its
-// persistent m_id; the remaining supported quest voices dispatch by msound.
+// persistent m_id; the remaining quest voices dispatch by msound. Another
+// role's leader, or any MS_LEADER monster that is not this quest's leader,
+// reaches C's default arm, which reports impossible().
 export async function quest_chat(mtmp, state = game, env = {}) {
     const qs = state.svq?.quest_status;
     if (qs?.leader_m_id && mtmp.m_id === qs.leader_m_id) {
         const ops = questConversation({ ...env, state });
         await chat_with_leader(mtmp, ops);
         if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
-        return true;
+        return;
     }
 
     const ops = questConversation({ ...env, state });
     if (mtmp.data?.msound === MS_NEMESIS) {
         await chat_with_nemesis(ops);
-        return true;
+        return;
     }
     if (mtmp.data?.msound === MS_GUARDIAN) {
         await chat_with_guardian(ops);
-        return true;
+        return;
     }
-    return false;
+    await impossible(
+        `quest_chat: Unknown quest character ${mon_nam(mtmp, state, ops)}.`,
+        state,
+        ops,
+    );
 }
 
 // C ref: quest.c quest_talk() (494-511). monmove.c dochug() calls this for a

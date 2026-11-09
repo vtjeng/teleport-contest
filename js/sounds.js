@@ -214,7 +214,6 @@ import { cansee, couldsee } from './vision.js';
 import { gd_sound, vault_occupied } from './vault.js';
 import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
-import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
 import {
     Blind, Conflict, Deaf, Hallucination, Invis, Strangled,
@@ -998,11 +997,9 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     case MS_LEADER:
     case MS_NEMESIS:
     case MS_GUARDIAN:
-        if (!await quest_chat(mtmp, state, {
+        await quest_chat(mtmp, state, {
             unsupported: (reason) => { throw new UnsupportedChatError(reason); },
-        })) {
-            note_unported('quest.c quest_chat impossible unknown character');
-        }
+        });
         break;
     case MS_SELL:
         if (!Hallucination(state.u) || is_silent(ptr)

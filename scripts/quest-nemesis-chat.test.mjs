@@ -23,7 +23,7 @@ test('quest nemesis chat pages before setting met_nemesis', async () => {
     const events = [];
     const nemesis = { m_id: 12, data: { msound: MS_NEMESIS } };
 
-    const handled = await quest_chat(nemesis, state, {
+    await quest_chat(nemesis, state, {
         pager: async (msgid) => {
             events.push(msgid);
             assert.equal(state.svq.quest_status.met_nemesis, false);
@@ -31,7 +31,6 @@ test('quest nemesis chat pages before setting met_nemesis', async () => {
         unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
     });
 
-    assert.equal(handled, true);
     assert.deepEqual(events, ['discourage']);
     assert.equal(state.svq.quest_status.met_nemesis, true);
 });
@@ -42,12 +41,11 @@ test('repeat quest nemesis chat keeps met_nemesis set', async () => {
     const events = [];
     const nemesis = { m_id: 12, data: { msound: MS_NEMESIS } };
 
-    const handled = await quest_chat(nemesis, state, {
+    await quest_chat(nemesis, state, {
         pager: async (msgid) => events.push(msgid),
         unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
     });
 
-    assert.equal(handled, true);
     assert.deepEqual(events, ['discourage']);
     assert.equal(state.svq.quest_status.met_nemesis, true);
 });

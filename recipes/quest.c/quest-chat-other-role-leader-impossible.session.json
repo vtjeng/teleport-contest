@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50718244,
+      "datetime": "20470302091512",
+      "nethackrc": "OPTIONS=name:QuestOtherLeader,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\npeaceful Grand Master\ny#chat\nu  s"
+    }
+  ],
+  "comment": "Independent C runtime witness for the default arm of quest.c quest_chat(): a Healer chats to a peaceful Grand Master, the Monk quest leader, created by #wizgenesis. It is not this game's quest leader and its msound is MS_LEADER, so C reports impossible(\"quest_chat: Unknown quest character %s.\") with mon_nam(), then the two further impossible() lines. The direction is read from the C recording."
+}
