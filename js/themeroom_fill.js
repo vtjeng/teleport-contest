@@ -87,13 +87,12 @@ import {
     m_dowear,
     restore_waiting_vampire,
     set_mimic_sym,
-    UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { newsym } from './display.js';
 import { onscary, set_apparxy } from './monmove.js';
 import { mk_roamer } from './priest.js';
-import { emits_light, is_shapeshifter, is_vampshifter, name_to_mon, pm_invisible, set_mon_data, your_race } from './mondata.js';
+import { emits_light, is_vampshifter, name_to_mon, pm_invisible, set_mon_data, your_race } from './mondata.js';
 import { mgender_from_permonst, select_newcham_form, validvamp } from './mon.js';
 import { del_light_source, new_light_source } from './light.js';
 import { mk_mplayer } from './mplayer.js';
@@ -167,11 +166,9 @@ import {
     PM_TOURIST,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
-    PM_VLAD_THE_IMPALER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
-    PM_WIZARD_OF_YENDOR,
     PM_WOOD_NYMPH,
     PM_SALAMANDER,
     S_EEL,
@@ -841,38 +838,6 @@ function createMonsterBody(m, croom, env) {
     return finish(maybeMtmp);
 }
 
-// Refuse remaining unsupported monster appearance descriptors before creation
-// consumes RNG or mutates level state.
-function assertSupportedMonsterAppearance(m, state) {
-    if (m.appear_as == null) return;
-    if (m.appear === M_AP_MONSTER && ismnum(m.id)) {
-        const species = state.mons[m.id];
-        const vital = state.mvitals?.[m.id]?.mvflags ?? 0;
-        // C silently ignores appearances for an ordinary monster. Only use
-        // the pre-creation no-op when explicit creation will retain this
-        // species; random substitutions can turn into shapechangers.
-        if (species && species.mlet !== S_MIMIC
-            && !is_shapeshifter(species)
-            && m.id !== PM_WIZARD_OF_YENDOR
-            && !(vital & G_GONE)
-            && !((species.geno & G_UNIQ) && (vital & G_EXTINCT))
-            && !In_mines(state.u?.uz, state)) return;
-    }
-    if (m.appear === M_AP_MONSTER
-        && (ismnum(m.id) ? (state.mons[m.id]?.mlet === S_MIMIC
-            || m.id === PM_CHAMELEON
-            || m.id === PM_DOPPELGANGER
-            || m.id === PM_SANDESTIN
-            || m.id === PM_VAMPIRE || m.id === PM_VAMPIRE_LEADER
-            || m.id === PM_VLAD_THE_IMPALER)
-            : m.class === S_MIMIC)) return;
-    if (m.appear !== M_AP_OBJECT && m.appear !== M_AP_FURNITURE) {
-        throw new UnsupportedMonsterCreationError(
-            `special-level appearance type ${m.appear}`,
-        );
-    }
-}
-
 // C ref: sp_lev.c noncoalignment(). An alignment that differs from the
 // hero's: either of the two others for a neutral hero, otherwise the opposite
 // or neutral.
@@ -948,7 +913,6 @@ export function spo_end_moninvent(context, env) {
 // nothing and leaves the custom-inventory callback to lspo_monster().
 export function create_monster(m, croom, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
-    assertSupportedMonsterAppearance(m, env.state);
     const maybeMtmp = createMonsterBody(m, croom, env);
 
     const finish = (mtmp) => {

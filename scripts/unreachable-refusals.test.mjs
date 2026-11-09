@@ -69,6 +69,14 @@ export const RULES = [
         name: 'nameObject hook supplied by game code',
         pattern: /(?<![\w.$])nameObject\s*:|\.nameObject\s*(?:\?\?|\|\||&&)?=(?!=)/gu,
     },
+    {
+        // sp_lev.c lspo_monster() accepts only obj:, mon: and ter:
+        // appearances, and no dat/*.lua level uses mon:; create_monster()'s
+        // M_AP_MONSTER arm is ported in full.
+        name: 'special-level monster appearance refusal',
+        files: ['themeroom_fill.js'],
+        pattern: /assertSupportedMonsterAppearance|special-level appearance type/gu,
+    },
 ];
 
 function stripComments(source) {
