@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_loadlua() through wiz_load_lua(): each library file in dat/ (themerms, nhcore, quest, dungeon) runs only its top level, so C draws nhl_init()'s nhlib.lua shuffle and nothing else; a name with no file then takes the Error opening impossible(). Seed, date and Priest chosen independently.",
+  "segments": [
+    {
+      "seed": 71230411,
+      "datetime": "20641103101530",
+      "nethackrc": "OPTIONS=name:LuaLibs,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nthemerms\n#wizloadlua\nnhcore\n#wizloadlua\nquest\n#wizloadlua\ndungeon\n#wizloadlua\nnosuch\n    "
+    }
+  ]
+}

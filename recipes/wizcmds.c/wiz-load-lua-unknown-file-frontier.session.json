@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Independent C-first wizcmds.c:wiz_load_lua variation. C initializes/loads nhlib before requested file fails; retain exact nhl_loadlua error-output frontier as blocked evidence, no invented output or success boolean. Seeds16792011/13/17/19/23/29 and clock20620518141622 chosen before comparison; roles/filename/cancellation/mode exercise distinct source branches. Blocker: nhlua.c:nhl_loadlua missing-file error output and paniclog/impossible More prompts are unported; this recipe is excluded from completion evidence.",
+  "comment": "Independent C-first wizcmds.c:wiz_load_lua variation. C initializes and loads nhlib.lua, then nhlua.c nhl_loadlua() cannot open the requested file and reports it through impossible(). Seeds16792011/13/17/19/23/29 and clock20620518141622 chosen before comparison; roles/filename/cancellation/mode exercise distinct source branches.",
   "segments": [
     {
       "seed": 16792029,

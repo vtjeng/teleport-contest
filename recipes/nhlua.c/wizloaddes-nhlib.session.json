@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_loadlua() through sp_lev.c load_special(): #wizloaddes nhlib runs nhlib.lua's top level a second time (its align shuffle), then load_special() post-processes the current level with a fresh coder, including flip_level_rnd() and the lregion placements that fail on this level. Seed, date and Healer chosen independently.",
+  "segments": [
+    {
+      "seed": 71230417,
+      "datetime": "20641103101530",
+      "nethackrc": "OPTIONS=name:DesLib,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloaddes\nnhlib\n                        "
+    }
+  ]
+}
