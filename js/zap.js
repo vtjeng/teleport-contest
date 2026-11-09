@@ -243,7 +243,7 @@ import {
     hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
-import { livelog_printf, set_msg_xy, youFeel } from './pline.js';
+import { impossible, livelog_printf, set_msg_xy, youFeel } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
@@ -257,15 +257,6 @@ import {
     Maybe_Half_Phys, Passes_walls, Reflecting, Shock_resistance,
     Sleep_resistance, Stoned, Stunned, Teleport_control, Unchanging,
 } from './youprop.js';
-
-// Thrown where zap.c reaches a wand effect this port has not ported.
-export class UnsupportedZapError extends Error {
-    constructor(branch) {
-        super(`zapping a wand requires ${branch}`);
-        this.name = 'UnsupportedZapError';
-        this.branch = branch;
-    }
-}
 
 
 function bhitTransientLightEnv(state, random, rawEnv = {}) {
@@ -6585,11 +6576,10 @@ export async function weffects(
                 state, random, rawEnv,
             );
         } else {
-            // C's impossible("weffects: unexpected spell or wand"), for a
-            // directional object that is neither a dig nor a ray.
-            throw new UnsupportedZapError(
-                `weffects() for unexpected object type ${otyp}`,
-            );
+            // zap.c:3467, for a directional object that is neither a dig
+            // nor a ray. Every RAY-direction wand and spell in objects.h is
+            // one of those, so no caller reaches it.
+            await impossible('weffects: unexpected spell or wand', state);
         }
         disclose = true;
     }

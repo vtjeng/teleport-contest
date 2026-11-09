@@ -359,7 +359,6 @@ import {
 } from './wizcmds.js';
 import {
     dozap,
-    UnsupportedZapError,
 } from './zap.js';
 import {
     doswapweapon,
@@ -2999,13 +2998,6 @@ export function failClosedCommandRefusals() {
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
         UnsupportedRegionPlacementError,
-        // zap.c raises this from dozap()'s effect arms and from every arm of
-        // the ray below weffects() that this port has not reached. Each one
-        // stops after the command has already spent a charge and painted its
-        // prompts -- and, for the ray, after the bolt has already been drawn
-        // across the map -- so the segment has to end on them rather than
-        // lose the screens they matched.
-        UnsupportedZapError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.

@@ -30,6 +30,9 @@ export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedSpellCastError',
     // zap.c bhit()'s call-type check: every caller passes one of the six
     'UnsupportedBhitError',
+    // zap.c weffects()'s impossible() for a directed object that is neither
+    // a dig nor a ray
+    'UnsupportedZapError',
 ];
 
 function stripComments(source) {

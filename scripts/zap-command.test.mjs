@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ART_EXCALIBUR } from '../js/artifacts.js';
-import { DISPATCHED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     DOOR,
     A_CHA,
@@ -63,7 +63,6 @@ import {
     cancel_monst,
     obj_shudders,
     obj_unpolyable,
-    UnsupportedZapError,
     zap_ok,
     zappable,
     zapnodir,
@@ -502,9 +501,6 @@ test('the zap command is admitted and shares its extcmdlist row with dozap',
     // accepts it and rhack()'s movement tests cannot divert it.
     assert.equal(row.key, ZAP_KEY.charCodeAt(0));
     assert.equal(row.flags, 0);
-    // failClosedCommand() has to convert the class dozap() raises, or the
-    // segment would lose the prompts it already matched.
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedZapError));
 });
 
 test('an overloaded hero is refused before the object prompt opens',
@@ -1251,41 +1247,6 @@ test('the discovery matrix zaps a wand whose type is not yet known', () => {
             nethackrc.includes('playmode:debug'),
         ]),
         [[8210002, 'wand of sleep', true, true]],
-    );
-});
-
-test('every remaining zap refusal names an unported zap.c function',
-    () => {
-    const source = readFileSync(
-        new URL('../js/zap.js', import.meta.url), 'utf8',
-    );
-    // Every refusal the file carries, in source order, and nothing else: an
-    // extra one would mean an arm that C runs and this port does not. Each
-    // entry is the C function the refusal names, which is the text up to its
-    // first parenthesis.
-    //
-    // The `z` command's own self-zap switch is now source-complete. Its
-    // discarded helper calls use note_unported() and its default impossible()
-    // arm records a gap without throwing, so neither appears here.
-    //
-    // weffects() dispatches its source spell and wand ray bands but retains
-    // an unexpected-object diagnostic refusal.
-    //
-    // The rest are the ray's, in source order. Ported branches have no
-    // refusal inventory entry; calls whose result is discarded remain
-    // explicit note_unported() gaps instead.
-    assert.deepEqual(
-        [...source.matchAll(
-            /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
-        )].map(([, text]) => text.split('(')[0]),
-        [
-            // bhito() now handles the whole floor-object callback. Void
-            // callee gaps are source-named and do not reject the ray.
-            // zapnodir() now covers its whole NODIR switch, including the
-            // C default no-op; weffects() still refuses unexpected directed
-            // objects after its NODIR and ray cases.
-            'weffects',
-        ],
     );
 });
 

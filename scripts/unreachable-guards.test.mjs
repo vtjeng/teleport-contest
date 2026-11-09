@@ -173,3 +173,13 @@ test('spelleffects()\'s default arm is C\'s impossible()', () => {
     assert.match(defaultArm, /^default:\s*await impossible\(`Unknown spell \$\{spell\} attempted\.`/u);
     assert.doesNotMatch(defaultArm.slice(0, defaultArm.indexOf('}')), /\bthrow\b/u);
 });
+
+// zap.c weffects() (3455-3468): every RAY-direction wand and spell in
+// objects.h is a dig or in one of the two ray bands, so the last arm is C's
+// impossible() and weffects() carries on to disclose = TRUE.
+test('weffects()\'s last arm is C\'s impossible()', () => {
+    const body = functionBody(jsCode('zap.js'), 'weffects');
+    assert.match(body,
+        /await impossible\('weffects: unexpected spell or wand', state\);\s*\}\s*disclose = true;/u);
+    assert.doesNotMatch(body, /\bthrow\b/u);
+});
