@@ -10,6 +10,7 @@ import {
     MM_NOMSG,
     NON_PM,
     ONAME,
+    ONAME_LEVEL_DEF,
     ONAME_NO_FLAGS,
     SP_COORD_IS_RANDOM,
     STONE_RES,
@@ -17,7 +18,8 @@ import {
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { bury_an_obj } from './bury.js';
-import { lookup_novel } from './do_name.js';
+import { lookup_novel, oname } from './do_name.js';
+import { canseemon } from './display.js';
 import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
@@ -70,15 +72,6 @@ import {
 import { mpickobj, preflight_mpickobj } from './steal.js';
 
 const MAX_CONTAINMENT = 10;
-
-export class UnsupportedSpecialObjectError extends Error {
-    constructor(operation, specification = null) {
-        super(`special-level object requires ${operation}`);
-        this.name = 'UnsupportedSpecialObjectError';
-        this.operation = operation;
-        this.specification = specification;
-    }
-}
 
 // The C loader keeps a process-global stack while one level is decoded. JS
 // scopes the same stack to one synchronous special-level or themed-room fill.
@@ -249,7 +242,7 @@ function blessorcurseSpecialObject(obj, env) {
     }
 }
 
-function applyBuc(obj, buc, env, specification) {
+function applyBuc(obj, buc, env) {
     // C ref: sp_lev.c create_object()'s curse_state switch; get_table_buc()
     // produces the numbers.
     switch (buc) {
@@ -272,13 +265,8 @@ function applyBuc(obj, buc, env, specification) {
     case 6: /* not blessed */
         unblessSpecialObject(obj, env);
         break;
-    case 0: /* random */
-        break;
-    default:
-        throw new UnsupportedSpecialObjectError(
-            `BUC state ${String(buc)}`,
-            specification,
-        );
+    default: /* random */
+        break; /* keep what mkobj gave us */
     }
 }
 
@@ -310,7 +298,7 @@ function constructObject(specification, coordinate, env) {
 function applyObjectFields(obj, specification, env) {
     if (specification.spe !== -127)
         obj.spe = signedChar(specification.spe);
-    applyBuc(obj, specification.buc, env, specification);
+    applyBuc(obj, specification.buc, env);
 
     if (specification.corpsenm !== NON_PM) {
         const species = specification.corpsenm === NON_PM - 1
@@ -320,31 +308,14 @@ function applyObjectFields(obj, specification, env) {
     }
 
     if (specification.name != null) {
-        const nameObject = env.hooks.nameObject;
-        if (typeof nameObject !== 'function') {
-            throw new UnsupportedSpecialObjectError(
-                'named-object creation',
-                specification,
-            );
-        }
-        const namedObject = nameObject(
-            obj,
-            String(specification.name),
-            env,
-        );
-        if (!namedObject) {
-            throw new UnsupportedSpecialObjectError(
-                'a named-object result',
-                specification,
-            );
-        }
-        // sp_lev.c oname() preserves identity and every ownership chain.
-        if (namedObject !== obj) {
-            throw new UnsupportedSpecialObjectError(
-                'named-object identity preservation',
-                specification,
-            );
-        }
+        // C assigns oname()'s result back to otmp; oname() returns its
+        // argument, and returns a promise only for uwep or uswapwep, which
+        // a just-made level object never is. A test may supply the hook to
+        // observe the object at this point.
+        if (env.hooks.nameObject)
+            env.hooks.nameObject(obj, String(specification.name), env);
+        else
+            oname(obj, String(specification.name), ONAME_LEVEL_DEF, env);
         if (obj.otyp === SPE_NOVEL) {
             const lookedUp = lookup_novel(
                 String(specification.name),
@@ -476,18 +447,16 @@ function putInCurrentContainer(obj, context, env) {
         : finishPlacement(placed);
 }
 
-function heroCanSeeCarrier(monster, env, specification) {
+// C calls canseemon() for the carrier. Every special-level load runs inside
+// level creation (mklev() and lspo_reset_level() set in_mklev), while map
+// visibility is suppressed, so the carrier is not visible there. A test may
+// supply the hook.
+function heroCanSeeCarrier(monster, env) {
     const canSeeMonster = env.hooks.canSeeMonster;
     if (typeof canSeeMonster === 'function')
         return Boolean(canSeeMonster(monster, env));
-    // Special-level callbacks run while mklev has map visibility suppressed,
-    // so the carrier is not visible.  A later live loader must provide the
-    // complete canseemon() boundary explicitly.
     if (env.state.in_mklev) return false;
-    throw new UnsupportedSpecialObjectError(
-        'monster visibility for custom inventory',
-        specification,
-    );
+    return canseemon(monster, env.state);
 }
 
 function saddleRejectedBeforePickup(obj, monster) {
@@ -498,35 +467,14 @@ function saddleRejectedBeforePickup(obj, monster) {
     return false;
 }
 
-function preflightCarrierVisibility(obj, monster, env, specification) {
-    // mpickobj() skips canseemon() for tame carriers.  For every other live
-    // carrier, verify that JS owns the complete visibility boundary before
-    // remove_object() unlinks the newly generated floor object.  The provider
-    // itself still runs later at the source-ordered pickup point.
-    if (!saddleRejectedBeforePickup(obj, monster)
-        && !monster.mtame
-        && !env.state.in_mklev
-        && typeof env.hooks.canSeeMonster !== 'function') {
-        throw new UnsupportedSpecialObjectError(
-            'monster visibility for custom inventory',
-            specification,
-        );
-    }
-}
-
-function putInCurrentMonster(obj, monster, env, specification) {
+function putInCurrentMonster(obj, monster, env) {
     const saddlePickup = obj.otyp === SADDLE && can_saddle(monster);
-    preflightCarrierVisibility(obj, monster, env, specification);
     let pickupEnv;
     let pickupPlan;
     if (!saddlePickup) {
         pickupEnv = {
             ...env,
-            canSeeMonster: (candidate) => heroCanSeeCarrier(
-                candidate,
-                env,
-                specification,
-            ),
+            canSeeMonster: (candidate) => heroCanSeeCarrier(candidate, env),
         };
         pickupPlan = preflight_mpickobj(monster, obj, pickupEnv);
     }
@@ -534,11 +482,7 @@ function putInCurrentMonster(obj, monster, env, specification) {
     if (saddlePickup) {
         put_saddle_on_mon(obj, monster, {
             ...env,
-            canseemon: (candidate) => heroCanSeeCarrier(
-                candidate,
-                env,
-                specification,
-            ),
+            canseemon: (candidate) => heroCanSeeCarrier(candidate, env),
         });
         return obj;
     }
@@ -560,7 +504,6 @@ function placeSpecialObject(obj, specification, context, env) {
             obj,
             context.inventCarryingMonster,
             env,
-            specification,
         );
     }
     // A legal monster descriptor can outlive a failed unique-monster

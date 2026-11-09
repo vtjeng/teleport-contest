@@ -64,7 +64,6 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import {
-    UnsupportedSpecialObjectError,
     create_object,
     lspo_object,
     new_sp_lev_object_context,
@@ -212,12 +211,7 @@ test('explicit double-negative coordinates use the random-coordinate sentinel', 
 });
 
 test('named exact and class-generated novels resolve their canonical index', () => {
-    function nameObject(obj, name) {
-        obj.oextra ??= {};
-        obj.oextra.oname = name;
-        return obj;
-    }
-
+    // No nameObject hook: create_object() calls oname() itself, as C does.
     const exactSetup = roomState();
     const exact = lspo_object({
         id: SPE_NOVEL,
@@ -226,7 +220,6 @@ test('named exact and class-generated novels resolve their canonical index', () 
     }, exactSetup.room, {
         state: exactSetup.state,
         random: quietGenerationRandom(),
-        hooks: { nameObject },
     });
     assert.equal(exact.otyp, SPE_NOVEL);
     assert.equal(exact.novelidx, 33);
@@ -245,7 +238,6 @@ test('named exact and class-generated novels resolve their canonical index', () 
     }, classSetup.room, {
         state: classSetup.state,
         random: classRandom,
-        hooks: { nameObject },
     });
     assert.equal(generated.otyp, SPE_NOVEL);
     assert.equal(generated.novelidx, 4);
@@ -323,36 +315,6 @@ test('special-object numeric fields use their source C storage widths', () => {
             );
         }
     }
-});
-
-test('named objects must preserve their linked object identity', () => {
-    const { level, room, state } = roomState();
-    let original = null;
-    assert.throws(
-        () => lspo_object({
-            id: CHEST,
-            name: 'detached',
-            coordinate: { x: 0, y: 0 },
-        }, room, {
-            state,
-            random: quietGenerationRandom(),
-            hooks: {
-                nameObject(obj) {
-                    original = obj;
-                    assert.equal(obj.where, OBJ_FLOOR);
-                    assert.equal(level.objects[2][3], obj);
-                    assert.equal(level.objlist, obj);
-                    return { ...obj };
-                },
-            },
-        }),
-        /named-object identity preservation/,
-    );
-    assert.equal(original.where, OBJ_FLOOR);
-    assert.equal(original.o_id, 2);
-    assert.equal(level.objects[2][3], original);
-    assert.equal(level.objlist, original);
-    assert.equal(state.context.ident, 3);
 });
 
 test('trapKnown follows the source truthy trapped gate', () => {
@@ -1105,34 +1067,6 @@ test('an already-saddled carrier rejects another before visibility', () => {
     assert.equal(rejectedSaddle.where, OBJ_FREE);
 });
 
-test('a live saddle pickup preflights its visibility provider', () => {
-    const unsupportedSetup = roomState();
-    unsupportedSetup.state.in_mklev = false;
-    const unsupportedHorse = carrier(
-        unsupportedSetup.state,
-        PM_WARHORSE,
-        81,
-    );
-    const unsupportedContext = new_sp_lev_object_context();
-    unsupportedContext.inventCarryingMonster = unsupportedHorse;
-    assert.throws(
-        () => lspo_object({
-            id: SADDLE,
-            coordinate: { x: 0, y: 0 },
-        }, unsupportedSetup.room, {
-            state: unsupportedSetup.state,
-            random: quietGenerationRandom(),
-            spObjectContext: unsupportedContext,
-        }),
-        (error) => error instanceof UnsupportedSpecialObjectError
-            && error.operation === 'monster visibility for custom inventory',
-    );
-    const unsupportedSaddle = unsupportedSetup.level.objects[2][3];
-    assert.equal(unsupportedSaddle.where, OBJ_FLOOR);
-    assert.equal(unsupportedSetup.level.objlist, unsupportedSaddle);
-    assert.equal(unsupportedHorse.minvent, null);
-});
-
 test('a nonsaddleable carrier picks a saddle up as ordinary inventory', () => {
     const ogreSetup = roomState();
     const ogre = carrier(ogreSetup.state, PM_OGRE);
@@ -1191,32 +1125,6 @@ test('ordinary live pickup checks visibility after unlink and before inventory',
     assert.equal(apple.where, OBJ_MINVENT);
     assert.equal(apple.ocarry, ogre);
     assert.equal(ogre.minvent, apple);
-});
-
-test('ordinary live pickup without visibility stays linked on the floor', () => {
-    const setup = roomState();
-    setup.state.in_mklev = false;
-    const ogre = carrier(setup.state, PM_OGRE, 83);
-    const context = new_sp_lev_object_context();
-    context.inventCarryingMonster = ogre;
-
-    assert.throws(
-        () => lspo_object({
-            id: APPLE,
-            coordinate: { x: 0, y: 0 },
-        }, setup.room, {
-            state: setup.state,
-            random: quietGenerationRandom(),
-            spObjectContext: context,
-        }),
-        (error) => error instanceof UnsupportedSpecialObjectError
-            && error.operation === 'monster visibility for custom inventory',
-    );
-
-    const apple = setup.level.objects[2][3];
-    assert.equal(apple.where, OBJ_FLOOR);
-    assert.equal(setup.level.objlist, apple);
-    assert.equal(ogre.minvent, null);
 });
 
 test('direct carried burial and figurine timers retain their source boundaries', async () => {

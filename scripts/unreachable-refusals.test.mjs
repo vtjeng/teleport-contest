@@ -56,6 +56,19 @@ export const RULES = [
         name: 'region placement refusal',
         pattern: /UnsupportedRegionPlacementError/gu,
     },
+    {
+        // sp_lev.c create_object(): get_table_buc() yields only 0-6, and
+        // oname() returns the new object itself. The carrier's canseemon()
+        // is false during level creation, the only time a level loads.
+        name: 'special-level object refusal',
+        pattern: /UnsupportedSpecialObjectError|preflightCarrierVisibility/gu,
+    },
+    {
+        // create_object() calls oname() itself; game code must not supply a
+        // nameObject hook (a copy of that default a caller could forget).
+        name: 'nameObject hook supplied by game code',
+        pattern: /(?<![\w.$])nameObject\s*:|\.nameObject\s*(?:\?\?|\|\||&&)?=(?!=)/gu,
+    },
 ];
 
 function stripComments(source) {

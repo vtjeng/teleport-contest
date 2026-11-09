@@ -7,8 +7,6 @@ import {
     artifactCount,
     isPermanentlyPoisoned,
 } from './artifacts.js';
-import { ONAME_LEVEL_DEF } from './const.js';
-import { oname } from './do_name.js';
 import { recalc_block_point } from './vision.js';
 
 export function objectGenerationHooks(overrides = {}) {
@@ -21,7 +19,6 @@ export function objectGenerationHooks(overrides = {}) {
         // until that no-op goes.
         recalcBlockPoint: (x, y, env) => recalc_block_point(x, y, env.state),
         isPermanentlyPoisoned,
-        nameObject: (obj, name, env) => oname(obj, name, ONAME_LEVEL_DEF, env),
         ...overrides,
     };
 }
