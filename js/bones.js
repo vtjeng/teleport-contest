@@ -48,7 +48,7 @@ import { isok } from './cmd_isok.js';
 import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { newsym } from './display.js';
+import { installLevel, newsym } from './display.js';
 import { clear_bypasses, m_dowear } from './worn.js';
 import {
     In_hell,
@@ -1348,7 +1348,7 @@ async function restoreBonesLevel(bonesData, state) {
     level.objlist = rebuildObjChain(bonesData.floorObjects ?? []);
     restobjchn_ghostly(level.objlist, false, ghost, state);
 
-    state.level = level;
+    installLevel(level, state);
     await find_lev_obj(state);
 
     // Buried objects

@@ -47,6 +47,7 @@ import {
     map_background,
     map_object,
     map_trap,
+    installLevel,
     newsym,
     set_wall_state,
 } from './display.js';
@@ -481,7 +482,7 @@ export async function mklev({ specialLevelLoader = null } = {}) {
 // C ref: mklev.c clear_level_structures()
 function clear_level_structures() {
     const g = game;
-    g.level = new GameMap();
+    installLevel(new GameMap(), g);
     g.subrooms = [];
     g.nsubroom = 0;
     g.made_branch = false;
