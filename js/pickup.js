@@ -3641,7 +3641,9 @@ async function doloot_core(state) {
                 how: PICK_ANY,
                 cancelValue: null,
             });
-            const n = result ? result.length : 0;
+            // tty select_menu() answers -1 for Escape (cancelValue null), so
+            // a cancelled menu still sets c = 'y' below and skips lootmon.
+            const n = result === null ? -1 : result.length;
             if (n > 0) {
                 for (let i = 0; i < n; i++) {
                     const cobj = result[i].value;

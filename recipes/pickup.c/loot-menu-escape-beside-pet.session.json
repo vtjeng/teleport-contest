@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pickup.c:doloot_core() witness: with two containers underfoot and the kitten beside her, a Wizard selects one container in the Loot which containers? menu and escapes. tty select_menu() returns -1, so n != 0 sets c = 'y' and C skips the Loot in what direction? arm at pickup.c:2296. A second #loot escapes with nothing selected. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7740318,
+      "datetime": "20480203154500",
+      "nethackrc": "OPTIONS=name:Lootless,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,pettype:cat\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\u0017sack\n\u0017large box\n dpdq#loot\na\u001b#loot\n\u001b"
+    }
+  ]
+}
