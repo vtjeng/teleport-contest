@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 727401,
+      "datetime": "20470811163005",
+      "nethackrc": "OPTIONS=name:Lurker,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\ngarter snake\n\u001b\u0007hostile fog cloud\nms #monster\n"
+    }
+  ],
+  "comment": "Wizard-mode gnome Healer polymorphs into a garter snake, which hides under objects, and creates a hostile fog cloud, which engulfs without digesting. Engulfed, the hero uses #monster: polyself.c dohide() refuses with \"engulfed\", because digests() is false for the fog cloud's AD_PHYS engulfing attack."
+}

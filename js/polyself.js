@@ -255,7 +255,7 @@ import {
 import { has_ceiling, surface } from './dungeon.js';
 import { On_stairs } from './stairs.js';
 import { couldsee } from './vision.js';
-import { throwit } from './dothrow.js';
+import { digests, throwit } from './dothrow.js';
 import { in_rooms } from './rooms.js';
 import { add_damage } from './shk.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -299,11 +299,6 @@ export class UnsupportedPolyselfError extends Error {
 // monster arm mondata.js ports as Resists_Elem().
 function resists_fire(mon, state) {
     return Resists_Elem(mon, FIRE_RES, state);
-}
-
-// mondata.h:71 digests: an AT_ENGL attack that deals AD_DGST.
-function digests(ptr) {
-    return dmgtype_fromattack(ptr, M.AD_DGST, M.AT_ENGL) !== 0;
 }
 
 // you.h:559 mdistu(mon), the squared distance from the hero to a monster.
