@@ -256,7 +256,7 @@ import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { ttyPline } from './tty_message.js';
-import { youHear } from './pline.js';
+import { pline_mon, youHear } from './pline.js';
 import { messageAt } from './startup_a11y.js';
 
 import { obj_sheds_light } from './light.js';
@@ -1792,10 +1792,12 @@ export async function thrwmu(monster, rawEnv = {}) {
                 ? env.swingVerb(selected, rang <= 2, env)
                 : null;
             if (verb && typeof env.message === 'function') {
-                await env.message(
+                await pline_mon(
+                    monster,
                     `${Monnam(monster, state)} ${verb} `
                     + `${obj_is_pname(selected, state) ? the(name, state) : an(name)}.`,
                     state,
+                    env,
                 );
             } else {
                 note_unported('mhitu.c mswings_verb/pline_mon');
