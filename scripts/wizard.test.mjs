@@ -398,12 +398,14 @@ test('tactics keeps cached tower coordinates for post-relocation healing',
                     return 1;
                 },
             },
-            noteleportLevel: () => false,
-            rloc: (subject) => {
-                subject.mx = 10;
-                subject.my = 11;
+            tacticsOps: {
+                noteleport_level: () => false,
+                rloc: (subject) => {
+                    subject.mx = 10;
+                    subject.my = 11;
+                },
+                healmon: () => calls.push('heal'),
             },
-            healmon: () => calls.push('heal'),
         });
         assert.equal(result, 1);
         assert.deepEqual(calls, ['rn2(3)', 'rnd(8)', 'heal']);
@@ -437,9 +439,11 @@ test('tactics keeps STRAT_NONE harassment order and relocation flags', async () 
                 throw new Error('STRAT_NONE must not call rnd');
             },
         },
-        noteleportLevel: () => false,
-        mnexto(subject, flags) {
-            calls.push([subject, flags]);
+        tacticsOps: {
+            noteleport_level: () => false,
+            mnexto(subject, flags) {
+                calls.push([subject, flags]);
+            },
         },
     });
     assert.equal(result, 0);

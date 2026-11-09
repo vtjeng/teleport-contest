@@ -70,20 +70,26 @@ import {
     FAKE_AMULET_OF_YENDOR, SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
 import { com_pager, is_quest_artifact } from './questpgr.js';
-import { mon_aligntyp } from './priest.js';
+import { inhistemple, mon_aligntyp } from './priest.js';
 import { stairway_find_type_dir } from './stairs.js';
-import { enexto } from './teleport.js';
+import { enexto, noteleport_level, rloc, rloc_to } from './teleport.js';
 import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh, Tobjnam } from './objnam.js';
-import { add_to_minv } from './invent.js';
+import { add_to_minv, obj_extract_self } from './invent.js';
 import { mksobj } from './obj.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { coreRandom, rn1, rn2 } from './rng.js';
 import { newsym } from './display.js';
-import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
+import {
+    healmon, mnearto, mnexto as moveMonsterNextTo, wake_nearto,
+} from './mon.js';
+import { m_at } from './monst.js';
+import { mon_arrive, mon_catchup_elapsed_time } from './dog.js';
+import { monnear } from './monmove.js';
+import { inhishop } from './shk.js';
+import { mpickobj } from './steal.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { verbalize, youFeel } from './pline.js';
@@ -346,17 +352,14 @@ export async function intervene(state = game, rawEnv = {}) {
     }
 }
 
-// The existing-Wizard arm of wizard.c resurrect(). Caller-supplied dog.c
-// operations keep the source file ownership explicit and avoid a module cycle.
+// The existing-Wizard arm of wizard.c resurrect(), which calls dog.c
+// mon_catchup_elapsed_time() and mon_arrive(mtmp, Wiz_arrive).
 async function resurrectMigratingWizard(state, rawEnv) {
-    const arrive = rawEnv.monArrive;
-    const catchUp = rawEnv.monCatchupElapsedTime;
-    if (typeof arrive !== 'function' || typeof catchUp !== 'function') {
-        throw new TypeError(
-            'resurrect requires the dog.c arrival and catch-up operations',
-        );
-    }
     const random = rawEnv.random ?? coreRandom;
+    const catchUp = (monster, elapsed) =>
+        mon_catchup_elapsed_time(monster, elapsed, { state, random });
+    const arrive = (monster) =>
+        mon_arrive(monster, 'Wiz_arrive', { state, random });
     state.gm ??= {};
     let previous = null;
     let monster = state.gm.migrating_mons ?? null;
@@ -691,9 +694,7 @@ export function you_have(mask, state = game) {
     }
 }
 
-// C ref: wizard.c target_on() (235-267).  The optional predicates are
-// supplied by monmove.js to avoid making wizard.js depend on the shopkeeper or
-// priest movement modules (both of which depend on the monster runtime).
+// C ref: wizard.c target_on() (235-267).
 export function target_on(mask, monster, state = game, rawEnv = {}) {
     if (!(monster?.data?.mflags3 & mask)) return STRAT_NONE;
     const otyp = which_arti(mask);
@@ -710,8 +711,7 @@ export function target_on(mask, monster, state = game, rawEnv = {}) {
             return STRAT_GROUND | mask;
         }
         const other = other_mon_has_arti(monster, otyp, state);
-        const inTemple = rawEnv.inhistemple
-            ?? (() => false);
+        const inTemple = tacticsCallee(rawEnv, 'inhistemple');
         if (other && (otyp !== AMULET_OF_YENDOR
             || (!other.iswiz && !inTemple(other, state)))) {
             monster.mgoal.x = other.mx;
@@ -724,12 +724,11 @@ export function target_on(mask, monster, state = game, rawEnv = {}) {
     return STRAT_NONE;
 }
 
-// C ref: wizard.c strategy() (269-327).  `rawEnv` contains only predicates
-// and state seams; the strategy itself is pure apart from the source-mandated
-// mgoal writes in target_on().
+// C ref: wizard.c strategy() (269-327). The strategy is pure apart from the
+// source-mandated mgoal writes in target_on().
 export function strategy(monster, state = game, rawEnv = {}) {
-    const inShop = rawEnv.inhishop ?? (() => false);
-    const inTemple = rawEnv.inhistemple ?? (() => false);
+    const inShop = tacticsCallee(rawEnv, 'inhishop');
+    const inTemple = tacticsCallee(rawEnv, 'inhistemple');
     if (!is_covetous(monster?.data)
         || (monster.isshk && inShop(monster, state))
         || (monster.ispriest && inTemple(monster, state))) {
@@ -796,24 +795,44 @@ export function choose_stairs(dir, state = game) {
     return result;
 }
 
-function wizardOperation(rawEnv, name, fallback = null) {
-    return typeof rawEnv[name] === 'function' ? rawEnv[name] : fallback;
+// The functions C's strategy(), target_on() and tactics() call. They call
+// them directly; a test may replace one through `rawEnv.tacticsOps`, which
+// game code never supplies (scripts/wizard-tactics-callees.test.mjs).
+const TACTICS_CALLEES = Object.freeze({
+    healmon,
+    inhishop,
+    inhistemple,
+    m_at,
+    mnearto,
+    mnexto: moveMonsterNextTo,
+    monnear,
+    mpickobj,
+    noteleport_level,
+    obj_extract_self,
+    rloc,
+    rloc_to,
+});
+
+export const TACTICS_CALLEE_NAMES = Object.freeze(Object.keys(TACTICS_CALLEES));
+
+function tacticsCallee(rawEnv, name) {
+    return rawEnv.tacticsOps?.[name] ?? TACTICS_CALLEES[name];
 }
 
-// C ref: wizard.c tactics() (368-468).  Relocation, object transfer, and
-// output are operation seams that callers and tests may replace.  The only
-// discarded unavailable callee
-// is the swallowed expels(TRUE) arm; its return is not used by C.
+// C ref: wizard.c tactics() (368-468).
 export async function tactics(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    const noTeleport = wizardOperation(rawEnv, 'noteleportLevel',
-        () => false);
-    const mnearto = wizardOperation(rawEnv, 'mnearto');
-    const rlocTo = wizardOperation(rawEnv, 'rlocTo');
-    const rloc = wizardOperation(rawEnv, 'rloc');
-    const mnexto = rawEnv.mnexto ?? moveMonsterNextTo;
-    const healmon = wizardOperation(rawEnv, 'healmon');
+    const noTeleport = tacticsCallee(rawEnv, 'noteleport_level');
+    const mnearto = tacticsCallee(rawEnv, 'mnearto');
+    const rlocTo = tacticsCallee(rawEnv, 'rloc_to');
+    const rloc = tacticsCallee(rawEnv, 'rloc');
+    const mnexto = tacticsCallee(rawEnv, 'mnexto');
+    const healmon = tacticsCallee(rawEnv, 'healmon');
+    const monnear = tacticsCallee(rawEnv, 'monnear');
+    const monsterAt = tacticsCallee(rawEnv, 'm_at');
+    const objExtractSelf = tacticsCallee(rawEnv, 'obj_extract_self');
+    const mpickobj = tacticsCallee(rawEnv, 'mpickobj');
     const message = rawEnv.message ?? ttyPline;
     const mstrategy = strategy(monster, state, rawEnv);
     monster.mstrategy = (monster.mstrategy
@@ -840,8 +859,7 @@ export async function tactics(monster, rawEnv = {}) {
             || (monster.iswiz && !sx && !mon_has_amulet(monster))) {
             if (!noTeleport(monster, state)
                 && !random.rn2(3 + Math.trunc(monster.mhp / 10))) {
-                if (!rloc) note_unported('teleport.c rloc');
-                else await rloc(monster, RLOC_MSG, {
+                await rloc(monster, RLOC_MSG, {
                     ...rawEnv,
                     state,
                     random,
@@ -849,9 +867,7 @@ export async function tactics(monster, rawEnv = {}) {
             }
         } else if (sx && (mx !== sx || my !== sy)) {
             if (!noTeleport(monster, state)) {
-                if (!mnearto || !rlocTo)
-                    note_unported('mon.c mnearto/teleport.c rloc_to');
-                else if (!await mnearto(monster, sx, sy, true, RLOC_MSG, {
+                if (!await mnearto(monster, sx, sy, true, RLOC_MSG, {
                     ...rawEnv,
                     state,
                     random,
@@ -870,8 +886,7 @@ export async function tactics(monster, rawEnv = {}) {
         if ((mx - state.u.ux) ** 2
             + (my - state.u.uy) ** 2 > BOLT_LIM * BOLT_LIM
             && monster.mhp <= monster.mhpmax - 8) {
-            if (!healmon) note_unported('mon.c healmon');
-            else await healmon(monster, random.rnd(8), 0, {
+            await healmon(monster, random.rnd(8), 0, {
                 ...rawEnv,
                 state,
                 random,
@@ -882,8 +897,7 @@ export async function tactics(monster, rawEnv = {}) {
     case STRAT_NONE:
         if (!noTeleport(monster, state)
             && !random.rn2(monster.mflee ? 33 : 5)) {
-            if (!mnexto) note_unported('mon.c mnexto');
-            else await mnexto(monster, RLOC_MSG, {
+            await mnexto(monster, RLOC_MSG, {
                 ...rawEnv,
                 state,
                 random,
@@ -899,17 +913,17 @@ export async function tactics(monster, rawEnv = {}) {
             || !isok(tx, ty))
             return 0;
         if (noTeleport(monster, state)
-            && !rawEnv.monnear?.(monster, tx, ty, state)) return 0;
+            && !monnear(monster, tx, ty, state)) return 0;
         if (u_at(tx, ty, state) || where === STRAT_PLAYER) {
             mx = monster.mx;
             my = monster.my;
-            if (noTeleport(monster, state) || !mnearto
+            if (noTeleport(monster, state)
                 || !await mnearto(monster, tx, ty, false, RLOC_MSG, {
                     ...rawEnv,
                     state,
                     random,
                 })) {
-                if (rlocTo) await rlocTo(monster, mx, my, {
+                await rlocTo(monster, mx, my, {
                     ...rawEnv,
                     state,
                     random,
@@ -918,9 +932,9 @@ export async function tactics(monster, rawEnv = {}) {
             return 0;
         }
         if (where === STRAT_GROUND) {
-            const occupant = rawEnv.m_at?.(tx, ty, state);
+            const occupant = monsterAt(tx, ty, state);
             if (!occupant || (monster.mx === tx && monster.my === ty)) {
-                if (rlocTo) await rlocTo(monster, tx, ty, {
+                await rlocTo(monster, tx, ty, {
                     ...rawEnv,
                     state,
                     random,
@@ -935,21 +949,17 @@ export async function tactics(monster, rawEnv = {}) {
                         rawEnv,
                     );
                 }
-                if (rawEnv.objExtractSelf)
-                    rawEnv.objExtractSelf(objectAtTarget, {
-                        ...rawEnv,
-                        state,
-                    });
-                if (rawEnv.mpickobj)
-                    await rawEnv.mpickobj(monster, objectAtTarget, {
-                        ...rawEnv,
-                        state,
-                    });
-                else note_unported('steal.c mpickobj');
+                objExtractSelf(objectAtTarget, {
+                    ...rawEnv,
+                    state,
+                });
+                await mpickobj(monster, objectAtTarget, {
+                    ...rawEnv,
+                    state,
+                });
                 return 1;
             }
-            if (!random.rn2(5) && !noTeleport(monster, state)
-                && mnexto) {
+            if (!random.rn2(5) && !noTeleport(monster, state)) {
                 await mnexto(monster, RLOC_MSG, {
                     ...rawEnv,
                     state,
@@ -960,12 +970,12 @@ export async function tactics(monster, rawEnv = {}) {
         }
         mx = monster.mx;
         my = monster.my;
-        if (!noTeleport(monster, state) && mnearto
+        if (!noTeleport(monster, state)
             && !await mnearto(monster, tx, ty, false, RLOC_MSG, {
                 ...rawEnv,
                 state,
                 random,
-            }) && rlocTo) {
+            })) {
             await rlocTo(monster, mx, my, {
                 ...rawEnv,
                 state,

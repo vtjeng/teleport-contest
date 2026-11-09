@@ -179,8 +179,7 @@ import {
 } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import {
-    discard_migrations, keepdogs, losedogs, mon_arrive,
-    mon_catchup_elapsed_time, update_mlstmv,
+    discard_migrations, keepdogs, losedogs, update_mlstmv,
 } from './dog.js';
 import { can_reach_floor, engr_at, save_engravings } from './engrave.js';
 import { make_grave } from './grave.js';
@@ -3119,11 +3118,6 @@ export async function goto_level(
             await resurrect(state, {
                 makemon: makemon_runtime,
                 redraw: newsym,
-                monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
-                    state,
-                }),
-                monCatchupElapsedTime: (monster, elapsed) =>
-                    mon_catchup_elapsed_time(monster, elapsed, { state }),
             });
         }
     } else if (In_quest(u.uz, state)) {

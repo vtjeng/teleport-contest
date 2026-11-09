@@ -32,7 +32,7 @@ import {
 } from './const.js';
 import { acurr, exerchk } from './attrib.js';
 import {
-    makedog, mon_arrive, mon_catchup_elapsed_time, see_nearby_monsters,
+    makedog, see_nearby_monsters,
 } from './dog.js';
 import { mklev, l_nhcore_init } from './mklev.js';
 import { run_end_turn_callbacks } from './nhlua.js';
@@ -1008,11 +1008,6 @@ export async function finishElapsedTurn(state, random) {
                 message: ttyPline,
                 rndcurse,
                 makemon: makemon_runtime,
-                monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
-                    state, random,
-                }),
-                monCatchupElapsedTime: (monster, elapsed) =>
-                    mon_catchup_elapsed_time(monster, elapsed, { state, random }),
                 hooks: {
                     stopOccupation: (_monster, hookEnv) => stop_occupation(
                         hookEnv.state, hookEnv,

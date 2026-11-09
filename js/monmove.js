@@ -202,12 +202,10 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
-import { delobj, money_cnt, obj_extract_self, sobj_at } from './invent.js';
+import { delobj, money_cnt, sobj_at } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
-import {
-    healmon, m_in_air, mnearto, mongone, newcham,
-} from './mon.js';
+import { m_in_air, mongone, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { m_next2u, ranged_attk_available } from './mhitu.js';
 import {
@@ -425,7 +423,7 @@ import { coreRandom } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { see_wsegs, worm_move, worm_nomove, wormhitu } from './worm.js';
 import { add_damage, after_shk_move, costly_spot, inhishop, shk_move } from './shk.js';
-import { findgold, mdrop_obj, mpickobj } from './steal.js';
+import { findgold, mdrop_obj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
 import { collectMonsterMovementMessage, messageAt } from './startup_a11y.js';
 import { mbodypart } from './polyself.js';
@@ -446,7 +444,6 @@ import {
 import {
     noteleport_level,
     rloc,
-    rloc_to,
     tele_restrict,
 } from './teleport.js';
 import { displayPendingTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
@@ -2518,18 +2515,6 @@ export async function dochug(monster, rawEnv = {}) {
             ...env,
             state,
             random,
-            m_at,
-            mnearto,
-            mnexto,
-            rloc,
-            rlocTo: rloc_to,
-            mpickobj,
-            objExtractSelf: obj_extract_self,
-            healmon,
-            monnear,
-            noteleportLevel: noteleport_level,
-            inhishop,
-            inhistemple,
             newsym,
             message: rawEnv.message ?? ttyPline,
         });
