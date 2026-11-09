@@ -2340,8 +2340,14 @@ export async function do_repeat(state = game) {
 // C ref: cmd.c extcmd_via_menu() (752-889). Group names by accelerator
 // for long choice lists, preserve descriptions for short lists, and wrap
 // long groups. Selecting a character narrows the same command list.
+//
+// `cbuf` is C's cbuf[QBUFSZ] and `matchLevel` its matchlevel. C filters on
+// the first matchlevel characters of cbuf but titles the menu with the whole
+// string, and a dismissed submenu resets only matchlevel; so the root menu it
+// returns to still reads "Extended Command: w" after 'w' and Escape, until the
+// next pick overwrites cbuf[0] and terminates the string after it.
 export async function extcmd_via_menu(state = game) {
-    let prefix = '';
+    let cbuf = '';
     let matchLevel = 0;
     // C keeps the largest description width across successive prefix menus.
     let biggest = 0;
@@ -2350,7 +2356,7 @@ export async function extcmd_via_menu(state = game) {
             if (entry.flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) return false;
             if (!(entry.flags & AUTOCOMPLETE)) return false;
             if (!state.wizard && (entry.flags & WIZMODECMD)) return false;
-            if (!entry.ef_txt.startsWith(prefix)) return false;
+            if (matchLevel && !entry.ef_txt.startsWith(cbuf.slice(0, matchLevel))) return false;
             biggest = Math.max(biggest, entry.ef_desc.length);
             return true;
         });
@@ -2364,22 +2370,27 @@ export async function extcmd_via_menu(state = game) {
 
         const onePerLine = choices.length < ROWNO - 3;
         const items = [];
-        let previousAccelerator = null;
+        // C's prevaccelerator starts at 0, the '\0' of an exhausted name.
+        let previousAccelerator = '';
         let previousName = '';
         let prompt = '';
         let count = 0;
         let wasTooLong = false;
+        // C's accelerator is ef_txt[matchlevel], which is '\0' for a command
+        // whose whole name is the prefix while a longer name shares it
+        // ("known" beside "knownclass"). Its menu line then has a zero
+        // identifier: it is shown without a selector and cannot be picked.
+        const flushLine = (text, accelerator) => (accelerator
+            ? { selector: accelerator, value: accelerator, label: text }
+            : { text });
         const flush = () => {
-            if (count) items.push({
-                selector: previousAccelerator,
-                value: previousAccelerator,
-                label: prompt.padEnd(biggest + 15),
-            });
+            if (count) items.push(flushLine(
+                prompt.padEnd(biggest + 15), previousAccelerator,
+            ));
             count = 0;
         };
         for (const entry of choices) {
-            const accelerator = entry.ef_txt[matchLevel];
-            if (!accelerator) continue;
+            const accelerator = entry.ef_txt[matchLevel] ?? '';
             const newAccelerator = accelerator !== previousAccelerator;
             if (newAccelerator || onePerLine) wasTooLong = false;
             const wrapped = count >= 2
@@ -2405,7 +2416,7 @@ export async function extcmd_via_menu(state = game) {
         const selected = await select_menu(state, {
             items,
             how: PICK_ONE,
-            title: `Extended Command: ${prefix}`,
+            title: `Extended Command: ${cbuf}`,
             ...menuTitleStyle(state),
             cancelValue: null,
         });
@@ -2413,17 +2424,16 @@ export async function extcmd_via_menu(state = game) {
             if (matchLevel) {
                 // C lets Escape back out one complete menu prompt by
                 // restarting the root menu; only Escape at the root cancels.
-                prefix = '';
+                // cbuf keeps its text for the root menu's title.
                 matchLevel = 0;
                 continue;
             }
             return -1;
         }
-        prefix += typeof selected === 'string'
-            ? selected : String.fromCharCode(selected);
+        // cbuf[matchlevel++] = pick; cbuf[matchlevel] = '\0';
+        cbuf = cbuf.slice(0, matchLevel) + (typeof selected === 'string'
+            ? selected : String.fromCharCode(selected));
         matchLevel++;
-        const exact = choices.filter((entry) => entry.ef_txt === prefix);
-        if (exact.length === 1) return extcmdlist.indexOf(exact[0]);
     }
 }
 

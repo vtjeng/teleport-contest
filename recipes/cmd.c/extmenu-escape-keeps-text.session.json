@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77314,
+      "datetime": "20010305141500",
+      "nethackrc": "OPTIONS=name:Cbuf,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,extmenu\n",
+      "moves": ".#a\u001bc\u001b\u001b#c\u001bo"
+    }
+  ],
+  "comment": "extcmd_via_menu(): Escape from a submenu resets matchlevel but not cbuf, so the root menu keeps the picked letters in its title; the next pick overwrites them. A second # starts again from an empty cbuf."
+}
