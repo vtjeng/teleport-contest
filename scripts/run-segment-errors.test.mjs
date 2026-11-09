@@ -20,10 +20,10 @@ const START = {
 // UnsupportedHeroCommandBoundaryError because nhbell() is not ported. The
 // trailing search is input the segment never reaches.
 const MID_GAME = { ...START, moves: 'ssss\xffs' };
-// cfgfiles.c parse_sym_line() reports an unknown symbol name as a config
-// error; js/options.js parseSymbolAssignments() has not ported that report
-// and throws a plain Error while start() reads the rc, before any capture.
-const START_CRASH = { ...START, nethackrc: `${START.nethackrc}SYMBOLS=S_nonsense:x\n` };
+// options.c parseoptions() accepts a unique prefix of a menu command option;
+// js/options.js applyOption() has not ported that match and throws a plain
+// Error while start() reads the rc, before any capture.
+const START_CRASH = { ...START, nethackrc: `${START.nethackrc}OPTIONS=menu_first_pa:x\n` };
 
 function captured(game) {
     return {
@@ -80,7 +80,8 @@ test('runSegment() returns a game that crashed during start()', async () => {
     assert.ok(before.getScreens().length > 0);
 
     const game = await runSegment(START_CRASH);
-    assert.equal(game.segmentError.message, "nethackrc line 3: unknown symbol 'S_nonsense'");
+    assert.equal(game.segmentError.message,
+        "nethackrc line 3: menu command option 'menu_first_pa' requires its full canonical name");
     assert.deepEqual(game.getScreens(), []);
     assert.deepEqual(game.getCursors(), []);
     assert.deepEqual(game.getAnimationFramesByStep(), []);
@@ -88,7 +89,7 @@ test('runSegment() returns a game that crashed during start()', async () => {
     // between, so this segment has logged no call.
     assert.deepEqual(game.getRngLog(), []);
 
-    await assert.rejects(runSegmentStrict(START_CRASH), /unknown symbol 'S_nonsense'/u);
+    await assert.rejects(runSegmentStrict(START_CRASH), /menu command option 'menu_first_pa'/u);
 });
 
 test('runSegment() leaves segmentError null when nothing crashed', async () => {

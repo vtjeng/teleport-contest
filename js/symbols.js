@@ -689,8 +689,9 @@ export function replay_symbol_operations(options, state = game) {
         }
         case 'override':
             applySymbolAssignments(operation, state);
-            // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE).
-            switch_symbols(state, true);
+            // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE) when
+            // parsesymbols() succeeds.
+            if (operation.switchSymbols !== false) switch_symbols(state, true);
             break;
         case 'glyph-customization': {
             const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;

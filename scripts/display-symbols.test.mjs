@@ -7121,14 +7121,18 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         '⌠',
     );
 
-    assert.throws(
-        () => parseNethackrc('SYMBOLS=G_not_a_source_glyph:U+2603'),
-        /unknown symbol/u,
-    );
-    assert.throws(
-        () => parseNethackrc('SYMBOLS=g_fountain:U+2603'),
-        /unknown symbol/u,
-    );
+    // cnf_line_SYMBOLS() reports a name match_glyph() rejects; the report
+    // quotes the name, which parsesymbols() cut at its delimiter.
+    const symbolsErrors = (rc) => parseNethackrc(rc).configErrorFrame.output;
+    assert.deepEqual(symbolsErrors('SYMBOLS=G_not_a_source_glyph:U+2603'), [
+        '\nSYMBOLS=G_not_a_source_glyph:U+2603',
+        " * Line 1: Error in SYMBOLS definition 'G_not_a_source_glyph'.",
+    ]);
+    // parsesymbols()'s G_ gate is case-sensitive.
+    assert.deepEqual(symbolsErrors('SYMBOLS=g_fountain:U+2603'), [
+        '\nSYMBOLS=g_fountain:U+2603',
+        " * Line 1: Error in SYMBOLS definition 'g_fountain'.",
+    ]);
     // Exercise every source family that is absent from or only partially
     // represented by dat/symbols.
     for (const glyphId of [
@@ -7151,14 +7155,16 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         'G_piletop_statue_of_male_giant_ant',
         'G_nothing',
     ]) {
-        assert.doesNotThrow(
-            () => parseNethackrc(`SYMBOLS=${glyphId}:U+2603`),
-            glyphId,
+        assert.deepEqual(
+            symbolsErrors(`SYMBOLS=${glyphId}:U+2603`), [], glyphId,
         );
     }
-    assert.throws(
-        () => parseNethackrc('SYMBOLS=G_piletop_generic_weapon:U+2603'),
-        /unknown symbol/u,
+    assert.deepEqual(
+        symbolsErrors('SYMBOLS=G_piletop_generic_weapon:U+2603'),
+        [
+            '\nSYMBOLS=G_piletop_generic_weapon:U+2603',
+            " * Line 1: Error in SYMBOLS definition 'G_piletop_generic_weapon'.",
+        ],
     );
 
     // Each of the five altar numbers carries its own customization name, and
@@ -7171,9 +7177,7 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         'G_unaligned_altar', 'G_chaotic_altar', 'G_neutral_altar',
         'G_lawful_altar', 'G_altar_other',
     ]) {
-        assert.doesNotThrow(
-            () => parseNethackrc(`SYMBOLS=${name}:U+2603`), name,
-        );
+        assert.deepEqual(symbolsErrors(`SYMBOLS=${name}:U+2603`), [], name);
     }
     assert.equal(
         named_glyph_customization(

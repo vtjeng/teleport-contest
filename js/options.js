@@ -5667,21 +5667,11 @@ function matchedOptionRow(name) {
 // match_sym() decides, so a symbol name C does not know arrives at the
 // "Unknown option" message already cut down to the part before that
 // separator.  A statement carrying neither separator is reported whole.
+// options.c:687-689 quotes opts as a failed parsesymbols() call (663) left
+// it, which is only tried for a statement with the case-sensitive "S_" prefix.
 function unknownOptionText(statement) {
     if (!statement.startsWith('S_')) return statement;
-    // parsesymbols()'s scan starts at the second character and stops before
-    // the last one, and passes over a colon that sits between two quotes.
-    let separator = -1;
-    for (let index = 1; index < statement.length - 1; ++index) {
-        if (statement[index] !== ':') continue;
-        if (statement[index - 1] === "'" && statement[index + 1] === "'")
-            continue;
-        separator = index;
-        break;
-    }
-    if (separator < 0) separator = statement.indexOf('=');
-    if (separator < 0) return statement;
-    return mungspaces(statement.slice(0, separator));
+    return parseSymbolAssignments(statement).text;
 }
 
 // C ref: options.c optfn_pickup_types() (3369-3389), the class-symbol loop
@@ -6040,11 +6030,6 @@ function prefixSuffixText(opts) {
     return colon < 0 ? opts : opts.slice(0, colon);
 }
 
-function isSourceSymbolAssignment(sourceName, value) {
-    return value != null && sourceName.startsWith('S_')
-        && SOURCE_SYMBOL_NAMES.has(sourceName.toLowerCase());
-}
-
 function appendSymbolSelection(
     result,
     set,
@@ -6060,12 +6045,16 @@ function appendSymbolSelection(
     });
 }
 
-function appendSymbolOverrides(result, set, assignments) {
+// `switchSymbols` is false when parsesymbols() failed after applying some
+// assignments: the caller then skips switch_symbols(TRUE).
+function appendSymbolOverrides(result, set, assignments, switchSymbols = true) {
     // This ordered stream is authoritative.  flags/rogueSymbols below are
     // compatibility snapshots for older callers and only represent S_*
     // symbol slots. Standalone G_* records are retained here because C saves
     // them back to config, although parsesymbols() does not apply them.
-    result.symbolOperations.push({ kind: 'override', set, assignments });
+    result.symbolOperations.push({
+        kind: 'override', set, assignments, switchSymbols,
+    });
     const target = set === 'rogue' ? result.rogueSymbols : result.flags;
     for (const { kind, name, rawValue } of assignments) {
         if (kind !== 'glyph') target[name] = rawValue;
@@ -6076,7 +6065,15 @@ function appendSymbolOverrides(result, set, assignments) {
 // first, then the current assignment. Keep a mutable character buffer so the
 // outer call retains its pre-recursion colon pointer, including the source's
 // surprising mixed-delimiter behavior.
-function parseSymbolAssignments(value, lineNumber) {
+//
+// parsesymbols() returns FALSE for an element with no ':' or '=' and for an
+// unknown name; a failing suffix stops before the current element. The
+// assignments it applied before failing stay applied. `text` is the line as
+// parsesymbols() left it, which cnf_line_SYMBOLS() and
+// cnf_line_ROGUESYMBOLS() quote: cut at the first unquoted comma and, when
+// the first element's name was unknown, at its delimiter with its name
+// munged in place.
+function parseSymbolAssignments(value) {
     const buffer = Array.from(String(value));
     buffer.push('\0');
 
@@ -6108,7 +6105,9 @@ function parseSymbolAssignments(value, lineNumber) {
         const assignments = [];
         if (comma >= 0) {
             buffer[comma] = '\0';
-            assignments.push(...parseAt(comma + 1));
+            const suffix = parseAt(comma + 1);
+            assignments.push(...suffix.assignments);
+            if (!suffix.ok) return { ok: false, assignments };
         }
 
         let delimiter = colon;
@@ -6120,14 +6119,14 @@ function parseSymbolAssignments(value, lineNumber) {
                 }
             }
         }
-        if (delimiter < 0) {
-            optionError(
-                lineNumber,
-                `invalid symbol assignment '${cString(start)}'`,
-            );
-        }
+        if (delimiter < 0) return { ok: false, assignments };
         buffer[delimiter] = '\0';
         const sourceName = mungspaces(cString(start));
+        // mungspaces() rewrites symname in place.
+        Array.from(sourceName).forEach((ch, index) => {
+            buffer[start + index] = ch;
+        });
+        buffer[start + Array.from(sourceName).length] = '\0';
         const rawValue = mungspaces(cString(delimiter + 1));
         // match_sym() independently stops its lookup key at ':' or '='.
         // With the carried-colon quirk, sourceName can still contain an '='.
@@ -6140,18 +6139,18 @@ function parseSymbolAssignments(value, lineNumber) {
         // the complete glyph-ID cache case-insensitively.
         const glyphName = sourceName.startsWith('G_')
             ? sourceGlyphName(lookupName) : null;
-        if (!SOURCE_SYMBOL_NAMES.has(lookupName) && !glyphName) {
-            optionError(lineNumber, `unknown symbol '${sourceName}'`);
-        }
+        if (!SOURCE_SYMBOL_NAMES.has(lookupName) && !glyphName)
+            return { ok: false, assignments };
         assignments.push(glyphName
             ? { kind: 'glyph', name: glyphName, rawValue }
             : {
                 kind: 'symbol', name: lookupName, glyphrepName, rawValue,
             });
-        return assignments;
+        return { ok: true, assignments };
     };
 
-    return parseAt(0);
+    const { ok, assignments } = parseAt(0);
+    return { ok, assignments, text: cString(0) };
 }
 
 // `aliasState` carries options.c's `using_alias` static across the elements of
@@ -6247,8 +6246,12 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     const sourceMatch = sourceOptionMatch(parsedName);
     const aliasTarget = optionAliasTarget(parsedName);
     const hasAlias = aliasTarget !== null;
-    // options.c strips negation, then checks this prefix case-sensitively.
-    const isSymbolAssignment = isSourceSymbolAssignment(rawName, value);
+    // options.c:661-666 strips negation, then checks this prefix
+    // case-sensitively and hands the statement to parsesymbols(). An OPTIONS
+    // element holds no comma, so the parse yields at most one assignment.
+    const symbolParse = statement.startsWith('S_')
+        ? parseSymbolAssignments(statement) : null;
+    const isSymbolAssignment = symbolParse?.ok === true;
     let name = sourceMatch?.[0] ?? aliasTarget;
     // options.c:592-612 runs the alias loop only after the name loop has
     // failed, and raises using_alias there and nowhere else, so a name match
@@ -6412,10 +6415,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_IBMgraphics(result, DO_SET, negated, statement, value);
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
-        appendSymbolOverrides(result, 'primary', [{
-            name,
-            rawValue: value,
-        }]);
+        appendSymbolOverrides(result, 'primary', symbolParse.assignments);
     } else if (name === 'number_pad') {
         optfn_number_pad(
             result, allopt.indexOf(matchedRow), DO_SET, negated,
@@ -7003,11 +7003,21 @@ export function parseNethackrc(rc, random = rn2) {
             continue;
         }
         if (statement.kind === 'symbols') {
-            appendSymbolOverrides(
-                result,
-                statement.set,
-                parseSymbolAssignments(normalizedValue, lineNumber),
+            // C ref: cfgfiles.c cnf_line_SYMBOLS() and
+            // cnf_line_ROGUESYMBOLS(). Only a successful parse calls
+            // switch_symbols(TRUE). cnf_line_SYMBOLS() also stays quiet when
+            // config_unmatched_ignored(), which only
+            // rcfile_interface_options() sets, and that pass disregards
+            // every config statement, so this reader never sees it set.
+            const { ok, assignments, text } = parseSymbolAssignments(
+                normalizedValue,
             );
+            appendSymbolOverrides(result, statement.set, assignments, ok);
+            if (!ok) {
+                configErrorAdd(result, `Error in ${
+                    statement.set === 'rogue' ? 'ROGUESYMBOLS' : 'SYMBOLS'
+                } definition '${text}'`);
+            }
             continue;
         }
         if (statement.kind === 'status-hilite') {

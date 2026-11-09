@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: parseoptions() hands an S_ element to parsesymbols(), whose delimiter scan skips the last byte, so a trailing ':' (also after trimming) is an unknown option while a trailing '=' is accepted",
+  "segments": [
+    {
+      "seed": 61177420,
+      "datetime": "20470301065845",
+      "nethackrc": "OPTIONS=name:Saskia,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=S_vwall:\nOPTIONS=S_hwall\nOPTIONS=S_tlcorn=\nOPTIONS=S_room: ,S_corr:%\n",
+      "moves": "\nss      "
+    }
+  ]
+}

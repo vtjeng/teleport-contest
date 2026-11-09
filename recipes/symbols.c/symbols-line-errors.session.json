@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed: parsesymbols() failures in SYMBOLS and ROGUESYMBOLS lines (no delimiter, delimiter as the last byte, unknown name, failing element after an applied comma suffix) are reported and the game goes on",
+  "segments": [
+    {
+      "seed": 29031177,
+      "datetime": "20520908201530",
+      "nethackrc": "OPTIONS=name:Bertil,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nSYMBOLS=S_hwall\nSYMBOLS=S_vwall=\nSYMBOLS=S_flarp : Z,S_room:~\nROGUESYMBOLS=S_xyzzy:q\nSYMBOLS=S_tree:#,S_nope=1\n",
+      "moves": "\nss:      "
+    }
+  ]
+}
