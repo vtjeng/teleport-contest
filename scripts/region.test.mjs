@@ -25,7 +25,6 @@ import {
 import { S_cloud, S_poisoncloud } from '../js/symbols.js';
 import {
     UnsupportedRegionCallbackError,
-    UnsupportedRegionOperationError,
     add_region,
     any_visible_region,
     create_gas_cloud,
@@ -216,19 +215,21 @@ test('valid_cloud_pos reads the terrain beneath a raised drawbridge', () => {
     assert.equal(valid_cloud_pos(10, 10, state), true);
 });
 
-test('add_region requires runtime visual ownership unless explicitly deferred', () => {
+test('add_region runs the C vision and display calls when none is supplied', () => {
+    // region.c add_region() calls block_point(), cansee() and newsym()
+    // directly, so a visible runtime region needs no injected operations.
     const state = regionState();
     const cloud = pointRegion(10, 10, { visible: true });
-
-    assert.throws(
-        () => add_region(cloud, state),
-        (error) => error instanceof UnsupportedRegionOperationError
-            && error.operation === 'blockPoint',
-    );
-    assert.deepEqual(state.level.regions, []);
-
-    add_region(cloud, state, { deferVisual: true });
+    add_region(cloud, state);
     assert.deepEqual(state.level.regions, [cloud]);
+
+    const deferred = regionState();
+    const later = pointRegion(10, 10, { visible: true });
+    add_region(later, deferred, {
+        deferVisual: true,
+        blockPoint() { assert.fail('a deferred region must not block'); },
+    });
+    assert.deepEqual(deferred.level.regions, [later]);
 });
 
 test('gas-cloud selections retain damage and poison-cloud glyph', () => {
@@ -258,26 +259,24 @@ test('gas-cloud selections retain damage and poison-cloud glyph', () => {
     assert.equal(harmless.glyph_cmap, S_cloud);
 });
 
-test('create_gas_cloud preflights runtime activation before drawing or mutation', async () => {
+test('create_gas_cloud runs without injected vision or display operations', async () => {
+    // region.c create_gas_cloud() reaches block_point(), cansee() and
+    // newsym() directly; a caller such as trap.c chest_trap() passes none.
     const state = regionState();
     state.level.at(10, 10).typ = ROOM;
-    let draws = 0;
-
-    await assert.rejects(
-        create_gas_cloud(10, 10, 1, 0, {
-            state,
-            random: {
-                rn2() {
-                    ++draws;
-                    return 0;
-                },
+    const bounds = [];
+    const cloud = await create_gas_cloud(10, 10, 1, 0, {
+        state,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                return 0;
             },
-        }),
-        (error) => error instanceof UnsupportedRegionOperationError
-            && error.operation === 'blockPoint',
-    );
-    assert.equal(draws, 0);
-    assert.deepEqual(state.level.regions, []);
+        },
+    });
+    // A size-one cloud draws only its rn1(3, 4) ttl (fresh-vapor test below).
+    assert.deepEqual(bounds, [3]);
+    assert.deepEqual(state.level.regions, [cloud]);
 });
 
 test('fresh fog vapor of size one draws only its rn1-expanded ttl call', async () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "region.c create_gas_cloud() calls block_point(), cansee(), newsym() and pline() itself; trap.c chest_trap()'s poison-gas arm reaches it with no caller-supplied operation. A human Valkyrie breaks five wished mirrors (Luck -10, so chest_trap()'s rn2(13 - Luck) reaches cases 17-20), wishes for a trapped unlocked chest, drops it and loots it: \"A cloud of noxious gas billows from the chest.\" and \"You are enveloped in a cloud of noxious gas!\", then waits in the cloud. Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 5302,
+      "datetime": "20380905161616",
+      "nethackrc": "OPTIONS=name:Hesper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "l\u0017mirror\n\u0017mirror\n\u0017mirror\n\u0017mirror\n\u0017mirror\ntfktgkthktiktjk\u0017trapped unlocked chest\ndk#loot\n   . . . . . ."
+    }
+  ]
+}

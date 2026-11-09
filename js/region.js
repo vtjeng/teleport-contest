@@ -53,6 +53,8 @@ import { make_blinded, set_itimeout } from './potion.js';
 import { body_part } from './polyself.js';
 import { coreRandom, d as roll_d } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { cansee, block_point, does_block, unblock_point } from './vision.js';
+import { newsym } from './display.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
 import { note_unported } from './unported.js';
@@ -81,20 +83,37 @@ export class UnsupportedRegionCallbackError extends Error {
     }
 }
 
+// The vision, display, message and teleport functions region.c calls
+// directly. A caller (normally a test) may supply its own;
+// scripts/region-operation-defaults.test.mjs keeps region.js from refusing
+// when it does not.
+const REGION_OPERATIONS = {
+    blockPoint: (x, y, state) => block_point(x, y, state),
+    unblockPoint: (x, y, state) => unblock_point(x, y, state),
+    doesBlock: (x, y, location, state) => does_block(x, y, location, state),
+    canSee: (x, y, state) => cansee(x, y, state),
+    newsym: (x, y) => newsym(x, y),
+    message: (text, state) => ttyPline(text, state),
+    safeTeleds: async (flags, state, env) => {
+        const { safe_teleds } = await import('./teleport.js');
+        return safe_teleds(flags, state, env);
+    },
+};
+
+function regionOperationEnv(rawEnv, state) {
+    const env = { ...rawEnv, state };
+    for (const [name, implementation] of Object.entries(REGION_OPERATIONS)) {
+        if (typeof env[name] !== 'function') env[name] = implementation;
+    }
+    return env;
+}
+
 function normalizedRegionEnv(rawEnv = {}) {
     return {
-        ...rawEnv,
-        state: rawEnv.state ?? game,
+        ...regionOperationEnv(rawEnv, rawEnv.state ?? game),
         random: rawEnv.random ?? coreRandom,
         callbacks: rawEnv.callbacks ?? {},
     };
-}
-
-function requiredOperation(env, operation) {
-    const implementation = env[operation];
-    if (typeof implementation !== 'function')
-        throw new UnsupportedRegionOperationError(operation);
-    return implementation;
 }
 
 function callbackName(callback) {
@@ -239,21 +258,18 @@ export function remove_mon_from_reg(region, monster) {
     return region;
 }
 
-// C ref: region.c add_region(). Runtime visible regions require
+// C ref: region.c add_region(). Runtime visible regions call
 // blockPoint(x,y), canSee(x,y), and newsym(x,y). Level generation explicitly
 // passes deferVisual because vision_reset() reconstructs opacity and the
 // initial display after mklev finishes.
 export function add_region(region, state = game, rawEnv = {}) {
     if (!state.level)
         throw new Error('add_region requires an initialized level');
-    const env = { ...rawEnv, state };
+    const env = regionOperationEnv(rawEnv, state);
     const activatesVisual = Boolean(region.visible && !env.deferVisual);
-    const blockPoint = activatesVisual
-        ? requiredOperation(env, 'blockPoint') : null;
-    const canSee = activatesVisual
-        ? requiredOperation(env, 'canSee') : null;
-    const redraw = activatesVisual
-        ? requiredOperation(env, 'newsym') : null;
+    const blockPoint = activatesVisual ? env.blockPoint : null;
+    const canSee = activatesVisual ? env.canSee : null;
+    const redraw = activatesVisual ? env.newsym : null;
 
     state.level.regions ??= [];
     // C gm.max_regions belongs to the current level's region allocation.
@@ -318,29 +334,26 @@ export function update_monster_region(monster, state = game) {
 function preflightVisibleRemoval(region, env) {
     if (!region.visible) return null;
     const operations = {
-        doesBlock: requiredOperation(env, 'doesBlock'),
-        unblockPoint: requiredOperation(env, 'unblockPoint'),
+        doesBlock: env.doesBlock,
+        unblockPoint: env.unblockPoint,
         canSee: null,
         newsym: null,
     };
     if (!Blind(env.state.u)) {
-        operations.canSee = requiredOperation(env, 'canSee');
-        operations.newsym = requiredOperation(env, 'newsym');
+        operations.canSee = env.canSee;
+        operations.newsym = env.newsym;
     }
     return operations;
 }
 
 function preflightGasDissipation(region, env) {
     const operations = {
-        doesBlock: requiredOperation(env, 'doesBlock'),
-        unblockPoint: requiredOperation(env, 'unblockPoint'),
+        doesBlock: env.doesBlock,
+        unblockPoint: env.unblockPoint,
         canSee: null,
     };
     if (!Blind(env.state.u))
-        operations.canSee = requiredOperation(env, 'canSee');
-    // expire_gas_cloud() can aggregate either of its two messages.  Require
-    // the output boundary before the callback mutates opacity or counters.
-    requiredOperation(env, 'message');
+        operations.canSee = env.canSee;
     return operations;
 }
 
@@ -354,7 +367,7 @@ export function remove_region(region, state = game, rawEnv = {}) {
     const index = regions.indexOf(region);
     if (index < 0) return false;
 
-    const env = { ...rawEnv, state };
+    const env = regionOperationEnv(rawEnv, state);
     const visual = preflightVisibleRemoval(region, env);
 
     regions[index] = regions.at(-1);
@@ -400,9 +413,7 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
         region.ttl += 5;
     if (damage < 1) return false;
 
-    const message = typeof env.message === 'function'
-        ? env.message
-        : async (text) => ttyPline(text, state);
+    const message = env.message;
     if (!monster) {
         if (m_poisongas_ok(state.youmonst, state) === M_POISONGAS_OK)
             return false;
@@ -440,8 +451,7 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
 
     if (m_poisongas_ok(monster, state) !== M_POISONGAS_OK) {
         if (!is_silent(monster.data)) {
-            if ((typeof env.canSee === 'function'
-                && env.canSee(monster.mx, monster.my, state, env))
+            if (env.canSee(monster.mx, monster.my, state, env)
                 || dist2(monster.mx, monster.my,
                     state.u.ux, state.u.uy) < 8) {
                 await message(`${Monnam(monster, state, env)} coughs!`, state, env);
@@ -519,7 +529,6 @@ export function expire_gas_cloud(region, _subject = null, rawEnv = {}) {
 
 function preflightRunRegions(env) {
     const plans = new Map();
-    let canDissipate = false;
     for (const region of env.state.level?.regions ?? []) {
         const plan = { expire: null, inside: null, removal: null };
         if (region.ttl === 0) {
@@ -535,7 +544,6 @@ function preflightRunRegions(env) {
                 && Math.trunc(region.arg ?? 0) >= 5;
             if (!thickGasProlongs)
                 plan.removal = preflightVisibleRemoval(region, env);
-            canDissipate ||= Boolean(plan.expire) && !thickGasProlongs;
         }
         plan.inside = regionCallback(region.inside_f, env);
         if (plan.inside) {
@@ -550,7 +558,6 @@ function preflightRunRegions(env) {
         }
         plans.set(region, plan);
     }
-    if (canDissipate) requiredOperation(env, 'message');
     return plans;
 }
 
@@ -661,7 +668,6 @@ function preflightHeroTransition(x, y, env) {
                 null,
                 env,
             );
-            if (region.enter_msg) requiredOperation(env, 'message');
         } else if (!destinationInside && region.hero_inside) {
             plan.canLeave = preflightCallback(
                 region.can_leave_f,
@@ -675,7 +681,6 @@ function preflightHeroTransition(x, y, env) {
                 null,
                 env,
             );
-            if (region.leave_msg) requiredOperation(env, 'message');
         }
         plans.set(region, plan);
     }
@@ -889,11 +894,10 @@ export function region_danger(state = game) {
     return false;
 }
 
-// C ref: region.c region_safety() (1368-1405). The prayer caller supplies
-// the existing teleport, message, and map-visual operations; keeping those
-// boundaries injected avoids a region.js cycle through teleport.js/vision.js.
+// C ref: region.c region_safety() (1368-1405). safe_teleds() is loaded at
+// call time, as timeout.js loads its do.js callbacks.
 export async function region_safety(state = game, rawEnv = {}) {
-    const env = { ...rawEnv, state };
+    const env = regionOperationEnv(rawEnv, state);
     let removable = null;
     let count = 0;
 
@@ -905,7 +909,7 @@ export async function region_safety(state = game, rawEnv = {}) {
     }
 
     if (count > 1 || (count === 1 && !removable)) {
-        await requiredOperation(env, 'safeTeleds')(
+        await env.safeTeleds(
             TELEDS_NO_FLAGS, state, env,
         );
         if (region_danger(state)) {
@@ -915,17 +919,17 @@ export async function region_safety(state = game, rawEnv = {}) {
             set_itimeout(
                 state.u.uprops[MAGICAL_BREATHING], d(4, 4) + 4,
             );
-            await requiredOperation(env, 'message')(
+            await env.message(
                 youFeel('able to breathe.', state), state, env,
             );
         }
     } else if (removable) {
         remove_region(removable, state, env);
-        await requiredOperation(env, 'message')(
+        await env.message(
             'The gas cloud enveloping you dissipates.', state, env,
         );
     } else {
-        await requiredOperation(env, 'message')(
+        await env.message(
             'The gas cloud has dissipated.', state, env,
         );
     }
@@ -967,12 +971,6 @@ function preflightGasCreation(env, damage) {
         throw new RangeError(`invalid gas-cloud damage ${damage}`);
     if (typeof env.random?.rn2 !== 'function')
         throw new TypeError('create_gas_cloud random injection requires rn2');
-    if (!env.state.in_mklev) {
-        requiredOperation(env, 'blockPoint');
-        requiredOperation(env, 'canSee');
-        requiredOperation(env, 'newsym');
-        requiredOperation(env, 'message');
-    }
 }
 
 async function makeGasCloud(cloud, damage, insideCloud, env) {
