@@ -116,6 +116,14 @@ export const RULES = [
         files: ['teleport.js'],
         pattern: /display\.c docrt|findHell|without valley_level/gu,
     },
+    {
+        // C prints impossible() and carries on where trapmove() finds no
+        // known trap type, domove_swap_with_pet() an unknown mintrap()
+        // result, and mlevel_tele_trap() a trap other than a hole, trap door,
+        // level teleporter or portal; none of the three can happen.
+        name: 'refusal in place of impossible()',
+        pattern: /held hero movement|domove_swap_with_pet\(\) unknown trap result|UnsupportedPositionCheckError|non-hole monster level teleportation/gu,
+    },
 ];
 
 function stripComments(source) {

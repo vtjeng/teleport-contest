@@ -210,7 +210,7 @@ import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded, make_confused, make_stunned } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
-import { verbalize, youFeel } from './pline.js';
+import { impossible, verbalize, youFeel } from './pline.js';
 import { y_n, ynq } from './cmd.js';
 import { inhistemple } from './priest.js';
 import { set_voice, yelp } from './sounds.js';
@@ -252,14 +252,6 @@ import {
 const M1_WALLWALK = 0x00000008;
 const M1_NOEYES = 0x00001000;
 const M2_ROCKTHROW = 0x08000000;
-
-export class UnsupportedPositionCheckError extends Error {
-    constructor(operation) {
-        super(`unsupported monster position check: ${operation}`);
-        this.name = 'UnsupportedPositionCheckError';
-        this.operation = operation;
-    }
-}
 
 function teleportEnv(env = {}) {
     const random = env.random ?? coreRandom;
@@ -723,11 +715,13 @@ export async function mlevel_tele_trap(
     if (monster === state.u?.ustuck) return 'finished';
     if (monster === state.u?.usteed) return 'finished';
     if (!await teleport_pet(monster, forceIt, env)) return 'finished';
+    // trapeffect_level_telep() is the only caller, for holes, trap doors,
+    // level teleporters and magic portals, so this arm never runs.
     if (!portal && !levelTeleporter
         && trapType !== HOLE && trapType !== TRAPDOOR) {
-        throw new UnsupportedPositionCheckError(
-            'non-hole monster level teleportation',
-        );
+        await impossible(
+            `mlevel_tele_trap: unexpected trap type (${trapType})`, state);
+        return 'finished';
     }
     if (!levelTeleporter && (!trap.dst
         || !Number.isInteger(trap.dst.dnum)

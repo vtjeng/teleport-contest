@@ -152,6 +152,7 @@ import {
     TT_BURIEDBALL,
     TT_INFLOOR,
     TT_LAVA,
+    TT_NONE,
     TT_PIT,
     TT_WEB,
     Upolyd,
@@ -518,7 +519,7 @@ import {
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects, objdescr_is } from './o_init.js';
 import { note_unported } from './unported.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel } from './pline.js';
 import { makeplural } from './fruit.js';
 import { On_stairs } from './stairs.js';
 import { select_menu } from './windows.js';
@@ -4130,8 +4131,15 @@ async function trapmove(x, y, desttrap, state = game) {
         }
         return false;
     }
+    // set_utrap() sets utrap and utraptype together, so neither arm runs.
+    if (u.utraptype === TT_NONE) {
+        await impossible('trapmove: trapped in nothing?', state);
+        return false;
+    }
     if (u.utraptype !== TT_BEARTRAP) {
-        throw new UnsupportedHeroMoveBoundaryError('held hero movement');
+        await impossible(
+            `trapmove: stuck in unknown trap? (${u.utraptype})`, state);
+        return false;
     }
     // hack.c:1556-1579 names the trapped steed on both the continuing and
     // successful escape arms. The diagonal short circuit still draws no RNG.
@@ -5217,9 +5225,9 @@ export async function domove_swap_with_pet(
         break;
     }
     default:
-        throw new UnsupportedHeroMoveBoundaryError(
-            'domove_swap_with_pet() unknown trap result',
-        );
+        // minliquid() and mintrap() yield only the four results above.
+        await impossible("that's strange, unknown mintrap result!", state);
+        break;
     }
     return true;
 }

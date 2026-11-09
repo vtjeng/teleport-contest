@@ -192,7 +192,7 @@ import {
     SADDLE,
     SKELETON_KEY,
 } from './objects.js';
-import { dotelecmd, UnsupportedPositionCheckError } from './teleport.js';
+import { dotelecmd } from './teleport.js';
 import { reset_utrap, t_at, dountrap } from './trap.js';
 import { stairway_at } from './stairs.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
@@ -2994,7 +2994,6 @@ export function failClosedCommandRefusals() {
         // away, mon_arrive() reaches rloc_to() placing a follower, and mklev()
         // reaches makemon() when the shop it generates holds a mimic.
         UnsupportedHeroTimeoutBoundaryError,
-        UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use

@@ -5050,17 +5050,12 @@ test('every class goto_level()\'s tail can raise converts at the command seam',
     async () => {
         const { UnsupportedHeroTimeoutBoundaryError } =
             await import('../js/timeout.js');
-        const { UnsupportedPositionCheckError } =
-            await import('../js/teleport.js');
         const { UnsupportedMonsterCreationError } =
             await import('../js/makemon_create.js');
         const converted = failClosedCommandRefusals();
 
         // do.c:1821 run_timers(), for timers due while the hero was away.
         assert.ok(converted.includes(UnsupportedHeroTimeoutBoundaryError));
-        // do.c:1814 losedogs() -> mon_arrive() -> rloc_to(), placing a
-        // follower that arrives with the hero.
-        assert.ok(converted.includes(UnsupportedPositionCheckError));
         // do.c:1699 mklev() -> makemon(), for a mimic inside a generated shop.
         assert.ok(converted.includes(UnsupportedMonsterCreationError));
     });

@@ -30,6 +30,7 @@ import {
     DO_MOVE,
     TEST_TRAP,
     TEST_TRAV,
+    TT_NONE,
 } from '../js/const.js';
 import {
     PICK_AXE,
@@ -924,23 +925,24 @@ test('a suppressed pull skips doopen_indir effects and prompts', async () => {
 // These cases exercise caller branches that precede test_move(): a mounted
 // hero reaches steed.c and a held hero reaches trapmove(). They must not be
 // mistaken for closed-door behavior merely because the destination is a
-// closed door.
+// closed door. A utrap without a utraptype, which set_utrap() never makes,
+// reaches trapmove()'s TT_NONE arm and C's impossible().
 test('caller branches precede the closed-door test_move arm', async () => {
     const base = loadAutoopenSuppressedRecipe().segments[0];
     const walkWest = commandKeyCode(base.moves[0]);
 
     const refusals = [
-        ['steed', null,
+        ['steed',
             (state) => {
                 state.u.usteed = {
                     mx: 1, my: 1, data: state.youmonst.data,
                 };
             }],
-        ['held hero', 'held hero movement',
-            (state) => { state.u.utrap = 3; }],
+        ['held hero',
+            (state) => { state.u.utrap = 3; state.u.utraptype = TT_NONE; }],
     ];
 
-    for (const [label, reason, apply] of refusals) {
+    for (const [label, apply] of refusals) {
         const replay = await runSegment({ ...base, moves: '' });
         const door = { x: game.u.ux - 1, y: game.u.uy };
         const cell = game.level.at(door.x, door.y);
@@ -953,13 +955,17 @@ test('caller branches precede the closed-door test_move arm', async () => {
             await moveloop_core();
             assert.match(game.nhDisplay.topMessage, /won't move!/u, label);
         } else {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error.reason === reason,
-                label,
-            );
+            const start = [game.u.ux, game.u.uy];
+            // impossible()'s first two lines each end at --More--.
+            game.nhDisplay.pushKey(32);
+            game.nhDisplay.pushKey(32);
+            await moveloop_core();
+            assert.equal(game.nhDisplay.topMessage,
+                'Please report these messages to devteam@nethack.org.', label);
+            assert.deepEqual(game.nhDisplay.terminal._inputQueue, [], label);
+            assert.deepEqual([game.u.ux, game.u.uy], start, label);
         }
-        // Refused before the arm ran: no draw, no message, door untouched.
+        // Stopped before the arm ran: no draw, door untouched.
         assert.equal(replay.getRngLog().length, drawsBefore, label);
         assert.equal(cell.flags, D_CLOSED, label);
     }
