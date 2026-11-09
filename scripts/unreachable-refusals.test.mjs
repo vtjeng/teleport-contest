@@ -107,6 +107,15 @@ export const RULES = [
         name: 'constant-argument refusal',
         pattern: /should_query_disclose_option\(\) category|non-ordinary travel path selection|notice_all_mons\(FALSE\)|swallowed hero without an engulfer|a steed in a trap/gu,
     },
+    {
+        // With the copy-of-game pass gone (ba54a0b4) every teleport runs on
+        // the live game, so teleds() and rloc_to_core() call docrt() as C
+        // does; and fixup_level_locations() always sets valley_level, which
+        // dungeon.js find_hell() reads.
+        name: 'teleport live-state and Valley refusal',
+        files: ['teleport.js'],
+        pattern: /display\.c docrt|findHell|without valley_level/gu,
+    },
 ];
 
 function stripComments(source) {

@@ -91,6 +91,7 @@ import {
     depth,
     dunlev_reached,
     dunlevs_in_dungeon,
+    find_hell,
     get_level,
     ledger_no,
     lev_by_name,
@@ -111,7 +112,6 @@ import {
 import { docrt, newsym, see_monsters, shieldeff } from './display.js';
 import {
     schedule_goto,
-    UnsupportedLevelChangeError,
 } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { sengr_at } from './engrave.js';
@@ -1198,12 +1198,7 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                         random: env.random,
                         actionEnv: { ...env, state, message },
                     }),
-                    () => thenResult(
-                        state === game
-                            ? docrt()
-                            : note_unported('display.c docrt'),
-                        finishPlacement,
-                    ),
+                    () => thenResult(docrt(), finishPlacement),
                 ));
             }
             if (dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 2) {
@@ -1831,8 +1826,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
             ball_active = true;
             ball_still_in_range = allow_drag = false;
         }
-        if (state === game) await docrt();
-        else note_unported('display.c docrt');
+        await docrt();
     }
 
     if (ball_active && (ball_still_in_range || allow_drag)) {
@@ -2183,18 +2177,6 @@ function levelInSokoban(level, state) {
         && level.dnum === state.sokoban_dnum);
 }
 
-// C ref: dungeon.c find_hell() (1949-1953). This helper has no independent
-// return value; it assigns the Valley of the Dead entrance to its argument.
-function findHell(level, state) {
-    if (!state.valley_level || !Number.isInteger(state.valley_level.dnum)) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() find_hell() without valley_level',
-        );
-    }
-    level.dnum = state.valley_level.dnum;
-    level.dlevel = 1;
-}
-
 function killerForLevelTele(state) {
     state.killer ??= { name: '', format: KILLED_BY };
     state.killer.name ??= '';
@@ -2482,7 +2464,7 @@ export async function level_tele(state = game) {
             + dunlevs_in_dungeon(u.uz, state)) {
         // teleport.c:1388-1391 calls find_hell(), whose source body assigns
         // the Valley of the Dead entrance at depth 1.
-        findHell(newlevel, state);
+        find_hell(newlevel, state);
     } else if (!force_dest) {
         const qbranch = levelInQuest(u.uz, state)
             ? state.qstart_level
