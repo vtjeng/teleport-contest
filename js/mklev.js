@@ -353,6 +353,8 @@ import { create_drawbridge } from './dbridge.js';
 import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
 import { note_unported } from './unported.js';
+import { impossible } from './pline.js';
+import { DAT_LUA_FILES } from './dat_files.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -2038,18 +2040,29 @@ export async function load_special(name, state, callerEnv = null) {
     // NULL-state finalizer even when the Lua program is not implemented.
     const specialLevelApi = createSpecialLevelApi(state);
     if (callerEnv) callerEnv.frame = specialLevelApi.frame;
+    // C ref: nhlua.c nhl_init(); dat/nhlib.lua. The Lua state shuffles
+    // its private alignment table before nhl_loadlua() opens the file.
+    const nhlInit = () => {
+        const align = ['law', 'neutral', 'chaos'];
+        shuffle_core_values(align, rn2);
+        state.specialLevelAlign = align;
+    };
     if (!loader) {
-        // Arbitrary Lua execution and nhl_loadlua's file-error output have
-        // no owner. wiz_load_splua discards this load result and continues.
+        // nhlua.c nhl_loadlua() (2198-2203): dlb_fopen() finds no file by a
+        // name outside dat/, and the load fails after impossible(). A path
+        // with a directory part could reach another file, and running a
+        // dat/ file that has no port here is not supported.
+        if (!name.includes('/') && !DAT_LUA_FILES.has(name)) {
+            nhlInit();
+            await impossible(`nhl_loadlua: Error opening (${name})`, state);
+            return false;
+        }
+        // wiz_load_splua discards this load result and continues.
         note_unported('nhlua.c nhl_loadlua');
         return false;
     }
 
-    // C ref: nhlua.c nhl_init(); dat/nhlib.lua. The Lua state shuffles
-    // its private alignment table before evaluating the level file.
-    const align = ['law', 'neutral', 'chaos'];
-    shuffle_core_values(align, rn2);
-    state.specialLevelAlign = align;
+    nhlInit();
 
     await loader(specialLevelApi, state);
 

@@ -19,6 +19,7 @@ const GENERATED_CHECKS = [
     'check:colors',
     'check:config-statements',
     'check:data-base',
+    'check:dat-files',
     'check:extcmds',
     'check:glyph-offsets',
     'check:help-data',

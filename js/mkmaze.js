@@ -126,6 +126,7 @@ import {
     t_at,
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
+import { impossible } from './pline.js';
 import {
     block_point,
     cansee,
@@ -802,9 +803,11 @@ export async function place_lregion(
                 return;
 
     // C's impossible() prints "Couldn't place lregion type %d!" and returns,
-    // leaving the caller with whatever position it already had. Nothing in
-    // this port can continue sensibly from a hero who was never placed.
-    throw new Error(`Couldn't place lregion type ${rtype}!`);
+    // leaving the caller with whatever position it already had. A preflight
+    // pass has no effects, so it leaves that report to the live pass. A
+    // caller's message and urgentMessage options replace the tty output.
+    if (options.preflightOnly) return;
+    await impossible(`Couldn't place lregion type ${rtype}!`, state, options);
 }
 
 // C ref: mkmaze.c put_lregion_here(). Answers whether <x,y> took the placement;

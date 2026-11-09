@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mkmaze.c:place_lregion() witness for its impossible() tail. #wizloaddes names a des file that does not exist; nhl_loadlua() reports the error, and the level finalization then finds no ROOM, CORR or AIR square for the branch stairs or the hero's arrival, so each place_lregion() call reports Couldn't place lregion type N! through impossible() and returns. Seed, date, role and file name chosen independently.",
+  "segments": [
+    {
+      "seed": 4410927,
+      "datetime": "20440117083000",
+      "nethackrc": "OPTIONS=name:Loader,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #wizloaddes\nmissing\n          "
+    }
+  ]
+}

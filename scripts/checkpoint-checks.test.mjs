@@ -107,6 +107,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'generated data (check:colors)',
             'generated data (check:config-statements)',
             'generated data (check:data-base)',
+            'generated data (check:dat-files)',
             'generated data (check:extcmds)',
             'generated data (check:glyph-offsets)',
             'generated data (check:help-data)',

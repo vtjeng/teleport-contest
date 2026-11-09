@@ -9,6 +9,7 @@
     "check:constants": "node scripts/check-c-constants.mjs",
     "check:duplicate-symbols": "node scripts/check-duplicate-symbols.mjs",
     "check:data-base": "node scripts/generate-data-base.mjs --check",
+    "check:dat-files": "node scripts/generate-dat-files.mjs --check",
     "check:config-statements": "node scripts/generate-config-statements.mjs --check",
     "check:colors": "node scripts/generate-color-data.mjs --check",
     "check:fixed-datetime": "node scripts/check-fixed-datetime.mjs",

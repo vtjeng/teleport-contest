@@ -56,7 +56,6 @@ import { inv_weight, weight_cap } from '../js/hack.js';
 import { check_special_room } from '../js/rooms.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
-    UnsupportedRegionPlacementError,
     bad_location,
     is_exclusion_zone,
     place_lregion,
@@ -369,16 +368,24 @@ test('the deterministic placement sweep includes both upper bounds', async () =>
     assert.deepEqual([state.u.ux, state.u.uy], [79, 20]);
 });
 
-test('unbounded branch placement is refused only for a level with rooms',
+// mkmaze.c place_lregion() (371-374, 409): with no rooms an unbounded branch
+// searches the map, and a map with no ROOM, CORR or AIR square ends in
+// impossible(), which reports and returns.
+test('unbounded branch placement without rooms reports through impossible()',
     async () => {
         const state = placementState();
         state.level.nroom = 0;
-        await assert.rejects(
-            place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
-                          LR_BRANCH, null, state),
-            (error) => !(error instanceof UnsupportedRegionPlacementError)
-                && error.message === `Couldn't place lregion type ${LR_BRANCH}!`,
-        );
+        const lines = [];
+        const record = async (text) => { lines.push(text); };
+        await place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
+                            LR_BRANCH, null, state,
+                            { message: record, urgentMessage: record });
+        // pline.c impossible(): the text, then the two fixed report lines.
+        assert.deepEqual(lines, [
+            `Couldn't place lregion type ${LR_BRANCH}!`,
+            'Program in disorder!',
+            'Please report these messages to devteam@nethack.org.',
+        ]);
     });
 
 test('numeric topology resolution is pure and stays in the current dungeon',

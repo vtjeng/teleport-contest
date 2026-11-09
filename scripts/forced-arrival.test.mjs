@@ -52,12 +52,14 @@ test('a forced placement preflight cannot remove an undestroyable portal', async
     const trap = Object.freeze({tx: 10, ty: 8, ttyp: MAGIC_PORTAL});
     level.traps = Object.freeze([trap]);
     const state = {level, u: {ux: 1, uy: 1}};
-    await assert.rejects(() => place_lregion(10, 8, 10, 8, 0, 0, 0, 0,
+    // The preflight pass leaves place_lregion()'s impossible() report to the
+    // live pass, so it returns without choosing a square.
+    await place_lregion(10, 8, 10, 8, 0, 0, 0, 0,
         LR_DOWNTELE, null, state, {
             preflightOnly: true,
             randomOneBased: (_count, offset) => offset,
             preflightPosition() { assert.fail('portal is not a viable arrival square'); },
-        }), /Couldn't place lregion/);
+        });
     assert.equal(level.traps[0], trap);
 });
 
