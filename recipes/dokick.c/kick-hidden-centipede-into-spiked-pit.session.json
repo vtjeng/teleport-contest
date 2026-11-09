@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7330159,
+      "datetime": "20321105084000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u0017rock\nld1fl\u0017spiked pit\nhh\u0017blindfold\nPgssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\u0007hidden centipede\n\u0004l ",
+      "comment": "A blindfolded Samurai drops a rock east of the room corner, wishes for a spiked pit two squares east, waits, and creates a hidden centipede with wizard-mode ^G; it lands under the rock. Kicking east, dokick.c kick_monster() reveals it and map_invisible()s the square ('I'); the martial-arts kick leaves it alive and knocks it into the spiked pit, which kills it. mondead() clears the marker only at the pit, so dokick() finds 'I' at the kicked square and calls show_glyph(x, y, oldglyph) (dokick.c:1418), redrawing the remembered rock. The count of 's' turns was searched (wait counts 1-90) for a survived kick, a knockback and a kill in the pit; seed, clock and character were chosen for the room corner."
+    }
+  ]
+}

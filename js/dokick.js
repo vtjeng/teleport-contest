@@ -111,7 +111,8 @@ import {
     In_mines,
 } from './const.js';
 import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
-    map_invisible, newsym, unmap_invisible } from './display.js';
+    map_glyphinfo, map_invisible, newsym, show_glyph_cell, unmap_invisible,
+} from './display.js';
 import {
     flooreffects, legs_in_no_shape,
     set_wounded_legs,
@@ -1374,11 +1375,13 @@ export async function dokick(state = game) {
         await kick_monster(mtmp, x, y, state);
         const glyph = glyph_at(x, y, state);
         if (mtmp.mhp < 1) { // DEADMONSTER(mtmp)
-            if (glyph !== oldGlyph && glyph_is_invisible(glyph)) {
-                // display.c:show_glyph is void and has no corresponding
-                // source-owned JS screen operation; preserve the exact gap.
-                note_unported('display.c show_glyph');
-            }
+            // dokick.c:1411-1418. A hidden monster that kick_monster()
+            // marked with 'I' and that died away from <x,y> (knocked into a
+            // trap by a martial-arts kick) leaves the marker, which mondead()
+            // only clears at the death square. show_glyph(x, y, oldglyph)
+            // redraws what was shown before; levl[x][y].glyph keeps the 'I'.
+            if (glyph !== oldGlyph && glyph_is_invisible(glyph))
+                show_glyph_cell(x, y, map_glyphinfo(oldGlyph, state));
         } else if (!canspotmon(mtmp, state)
                    && mtmp.mx === x && mtmp.my === y
                    && !glyph_is_invisible(glyph)
