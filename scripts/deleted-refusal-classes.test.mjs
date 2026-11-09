@@ -33,6 +33,25 @@ export const DELETED_REFUSAL_CLASSES = [
     // zap.c weffects()'s impossible() for a directed object that is neither
     // a dig nor a ray
     'UnsupportedZapError',
+    // Hooks that callers had to supply through env.unsupported, which no
+    // production caller supplied: dokick.c, pray.c and dothrow.c
+    'UnsupportedKickError',
+    'UnsupportedPrayerError',
+    'UnsupportedThrowError',
+    // region.c's callback and operation tables, now filled from one source
+    'UnsupportedRegionCallbackError',
+    'UnsupportedRegionOperationError',
+    // trapmove(), the pet-swap trap result and mlevel_tele_trap(), which now
+    // print C's impossible() and continue
+    'UnsupportedPositionCheckError',
+    // mineralize.c, sp_lev.c put_lregion_here() and sp_lev.c object creation:
+    // contexts and argument values every caller rules out
+    'UnsupportedMineralizeContextError',
+    'UnsupportedRegionPlacementError',
+    'UnsupportedSpecialObjectError',
+    // pager.c help inputs and options.c option-menu states no caller creates
+    'UnsupportedHelpError',
+    'UnsupportedOptionMenuError',
 ];
 
 function stripComments(source) {

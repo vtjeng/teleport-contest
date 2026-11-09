@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3982 | 86 |
-| diagnostic | 723 | 186 | 537 |
+| diagnostic | 723 | 194 | 529 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4171 | 740 |
+| total | 4911 | 4179 | 732 |
 
 ## Missing by C file
 
@@ -50,7 +50,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/display.c | yes | 0 | 15 | 0 |
 | src/do.c | yes | 1 | 6 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
-| src/do_wear.c | yes | 0 | 9 | 0 |
+| src/do_wear.c | yes | 0 | 8 | 0 |
 | src/dog.c | yes | 0 | 4 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
@@ -62,7 +62,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/files.c | yes | 17 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
-| src/hack.c | yes | 0 | 4 | 0 |
+| src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
 | src/insight.c | yes | 0 | 3 | 0 |
 | src/invent.c | yes | 2 | 8 | 0 |
@@ -75,7 +75,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 12 | 2 |
 | src/mkmap.c | no | 0 | 2 | 0 |
-| src/mkmaze.c | yes | 4 | 9 | 2 |
+| src/mkmaze.c | yes | 4 | 8 | 2 |
 | src/mkobj.c | no | 0 | 27 | 4 |
 | src/mkroom.c | yes | 0 | 2 | 0 |
 | src/mon.c | yes | 0 | 12 | 2 |
@@ -114,12 +114,12 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/sit.c | yes | 1 | 0 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 16 | 3 |
-| src/spell.c | yes | 0 | 4 | 0 |
+| src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
 | src/steed.c | yes | 0 | 5 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
-| src/teleport.c | yes | 0 | 4 | 3 |
+| src/teleport.c | yes | 0 | 3 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
 | src/topten.c | yes | 3 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
@@ -135,7 +135,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/wizcmds.c | yes | 3 | 7 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
-| src/zap.c | yes | 0 | 12 | 1 |
+| src/zap.c | yes | 0 | 11 | 1 |
 | sys/share/ioctl.c | no | 2 | 0 | 0 |
 | sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
@@ -614,9 +614,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `armor_or_accessory_off()`
   - 1823 impossible: `removing strange accessory:`
 
-- `cursed()`
-  - 1896 impossible: `cursed without otmp`
-
 - `armoroff()`
   - 1963 impossible: `Taking off unknown armor (`
 
@@ -781,15 +778,8 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/hack.c
 
-- `trapmove()`
-  - 1683 impossible: `trapmove: trapped in nothing?`
-  - 1686 impossible: `trapmove: stuck in unknown trap? (`
-
 - `handle_tip()`
   - 1875 impossible: `Unknown tip in handle_tip(`
-
-- `domove_swap_with_pet()`
-  - 2220 impossible: `that's strange, unknown mintrap result!`
 
 ### src/iactions.c
 
@@ -984,9 +974,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `fix_wall_spines()`
   - 250 panic: `wall_extends: bad bounds (`
-
-- `makemaz()`
-  - 1194 impossible: `" - making a maze.`
 
 - `mkportal()`
   - 1471 impossible: `portal on top of portal?`
@@ -1607,9 +1594,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `spelltypemnemonic()`
   - 850 impossible: `Unknown spell skill,`
 
-- `spelleffects()`
-  - 1592 impossible: `Unknown spell`
-
 - `tport_spell()`
   - 1725 impossible: `tport_spell: spellbook full`
 
@@ -1654,9 +1638,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `rloc()`
   - 1887 impossible: `rloc(): couldn't relocate monster`
-
-- `mlevel_tele_trap()`
-  - 2080 impossible: `mlevel_tele_trap: unexpected trap type (`
 
 ### src/timeout.c
 
@@ -1878,9 +1859,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `zapyourself()`
   - 3005 impossible: `zapyourself: object`
-
-- `weffects()`
-  - 3467 impossible: `weffects: unexpected spell or wand`
 
 - `melt_ice()`
   - 5070 impossible: `melt_ice: no pool?`
