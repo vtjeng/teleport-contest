@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
 
 // js/tty_message.js emitQueuedNotices() prints the glyph and monster notices
 // the port queues where C prints them at once. Every window-port entry point
@@ -19,7 +19,7 @@ const ENTRY_POINTS = [
 
 function firstStatement(file, name) {
     const source = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-    const ast = acorn.parse(source, { ecmaVersion: 'latest', sourceType: 'module' });
+    const ast = parse(source, { ecmaVersion: 'latest', sourceType: 'module' });
     for (const node of ast.body) {
         const fn = node.type === 'ExportNamedDeclaration' ? node.declaration : node;
         if (fn?.type === 'FunctionDeclaration' && fn.id.name === name) {

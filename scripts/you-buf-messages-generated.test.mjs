@@ -5,35 +5,34 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-    collectYouBufMessages,
+    collectYouBufFormats,
     readSources,
-    renderYouBufMessages,
+    renderYouBufFormats,
 } from './generate-you-buf-messages.mjs';
-import { YOU_BUF_MESSAGES } from '../js/you_buf_messages_data.js';
+import { YOU_BUF_FORMATS } from '../js/you_buf_messages_data.js';
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const outputPath = join(projectRoot, 'js', 'you_buf_messages_data.js');
 
 test('you_buf message table matches deterministic output from src/*.c', () => {
-    const generated = renderYouBufMessages(collectYouBufMessages(readSources()));
+    const generated = renderYouBufFormats(collectYouBufFormats(readSources()));
     assert.equal(readFileSync(outputPath, 'utf8'), generated);
 });
 
-test('you_buf message table holds only formats without %', () => {
+test('you_buf format table holds only formats without %', () => {
     // pickup.c encumber_msg()'s Your("movements are now unencumbered."):
     // the message the batch games saw rewritten after rehumanize().
-    assert.ok(YOU_BUF_MESSAGES.has('Your movements are now unencumbered.'));
+    assert.ok(YOU_BUF_FORMATS.Your.has('movements are now unencumbered.'));
     // region.c:461 pline_The("gas cloud around you dissipates."), the
     // message the recipe recordings/pline.c/you-buf-notice-rewrite shows
     // rewritten.
-    assert.ok(YOU_BUF_MESSAGES.has('The gas cloud around you dissipates.'));
-    // Both You_feel() prefixes of one literal: sit.c's and trap.c's
-    // You_feel("a change coming over you.") prints either.
-    assert.ok(YOU_BUF_MESSAGES.has('You feel a change coming over you.'));
-    assert.ok(YOU_BUF_MESSAGES.has('You dream that you feel a change coming over you.'));
+    assert.ok(YOU_BUF_FORMATS.pline_The.has('gas cloud around you dissipates.'));
+    // sit.c's and trap.c's You_feel("a change coming over you.").
+    assert.ok(YOU_BUF_FORMATS.You_feel.has('a change coming over you.'));
     // hack.c notice_mon()'s You("%s %s.", ...) is formatted into a copy,
     // so its expansion never reads the buffer late.
-    assert.ok(![...YOU_BUF_MESSAGES].some((text) => text.includes('%')));
+    for (const formats of Object.values(YOU_BUF_FORMATS))
+        assert.ok(![...formats].some((format) => format.includes('%')));
 });
 
 test('conditional formats contribute each literal branch', () => {
@@ -47,8 +46,9 @@ test('conditional formats contribute each literal branch', () => {
     // Both branches of the conditional are formats; the '%' format is
     // vsnprintf()ed into a copy; a literal passed to a nested call is that
     // call's argument, not There()'s format.
-    assert.deepEqual(collectYouBufMessages([source]),
-        ['You feel a draft.', 'You see a draft.']);
+    assert.deepEqual(collectYouBufFormats([source]).You,
+        ['feel a draft.', 'see a draft.']);
+    assert.deepEqual(collectYouBufFormats([source]).There, []);
 });
 
 test('a text also spelled by another literal is left out', () => {
@@ -61,5 +61,5 @@ test('a text also spelled by another literal is left out', () => {
     ].join('\n');
     // pline("You are hit.") prints the same text without the buffer, so
     // the port cannot tell which call it came from.
-    assert.deepEqual(collectYouBufMessages([source]), ['You are missed.']);
+    assert.deepEqual(collectYouBufFormats([source]).You, ['are missed.']);
 });

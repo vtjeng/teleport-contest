@@ -46,6 +46,11 @@ const JS_DIR = join(PROJECT_ROOT, 'js');
 // The scorer replaces these files with its own copies; they hold no messages.
 const FROZEN_JS = new Set(['isaac64.js', 'terminal.js', 'storage.js']);
 
+// Tables of C format text that the port matches against, not messages it
+// prints: js/you_buf_messages_data.js lists every You()-family format so that
+// js/tty_message.js can tell which lines vpline() reads from gy.you_buf.
+const FORMAT_TABLES_JS = new Set(['you_buf_messages_data.js']);
+
 // Calls whose string arguments the player can see: the pline.c family, the
 // tty window port's raw output, prompts, and the error reports.
 export const MESSAGE_FUNCTIONS = new Set([
@@ -486,7 +491,8 @@ export function jsStringsOf(source) {
 export function collectJsStrings() {
     const strings = [];
     for (const name of readdirSync(JS_DIR).sort()) {
-        if (!name.endsWith('.js') || FROZEN_JS.has(name)) continue;
+        if (!name.endsWith('.js') || FROZEN_JS.has(name)
+            || FORMAT_TABLES_JS.has(name)) continue;
         strings.push(...jsStringsOf(readFileSync(join(JS_DIR, name), 'utf8')));
     }
     // NUL never occurs in a C message fragment, so it separates strings.

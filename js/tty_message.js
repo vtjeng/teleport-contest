@@ -27,7 +27,8 @@ import {
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
-import { YOU_BUF_MESSAGES } from './you_buf_messages_data.js';
+import { YOU_BUF_FORMATS } from './you_buf_messages_data.js';
+import { youFeel, youHear, youSee } from './pline.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
@@ -341,6 +342,28 @@ export async function displayPendingTtyMessageWindow(state) {
     }
 }
 
+// pline.c You(), Your(), You_cant(), pline_The() and There() prefixes; the
+// You_feel(), You_hear() and You_see() ones depend on the hero, and
+// js/pline.js owns them.
+const YOU_BUF_PLAIN_PREFIXES = Object.freeze([
+    ['You', 'You '], ['Your', 'Your '], ['You_cant', "You can't "],
+    ['pline_The', 'The '], ['There', 'There '],
+]);
+
+// Whether `message` is the text of a You()-family call whose format has no
+// '%', which vpline() prints from gy.you_buf rather than from a copy.
+function printedFromYouBuf(message, state) {
+    const prefixes = [
+        ...YOU_BUF_PLAIN_PREFIXES,
+        ['You_feel', youFeel('', state)],
+        ['You_hear', youHear('', state)],
+        ['You_see', youSee('', state)],
+    ];
+    return prefixes.some(([fn, prefix]) => prefix
+        && message.startsWith(prefix)
+        && YOU_BUF_FORMATS[fn].has(message.slice(prefix.length)));
+}
+
 // display.c show_glyph() calls pline_xy(), and vision.c vision_recalc()'s
 // notice_all_mons() calls You(), synchronously. JS defers the awaitable TTY
 // work by queueing those lines (js/startup_a11y.js), so anything that later
@@ -376,7 +399,7 @@ async function ttyPlineCore(
     // state.gy.you_buf is that buffer's text, written only here and by
     // startup_a11y.js emitGlyphUpdateNotices() for notice_mon(); C keeps it
     // for the whole process, but no reader looks past the current message.
-    const fromYouBuf = YOU_BUF_MESSAGES.has(message);
+    const fromYouBuf = printedFromYouBuf(message, state);
     if (fromYouBuf) (state.gy ??= {}).you_buf = message;
     let normalizedMessage = normalizeVplineMessage(message);
     let next = ttyByteText(normalizedMessage);
