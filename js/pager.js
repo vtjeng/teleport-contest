@@ -290,13 +290,6 @@ export class UnsupportedWhatisError extends Error {
     }
 }
 
-export class UnsupportedHelpError extends Error {
-    constructor(reason) {
-        super(`unsupported help: ${reason}`);
-        this.name = 'UnsupportedHelpError';
-        this.reason = reason;
-    }
-}
 
 
 
@@ -552,8 +545,6 @@ function warningMonsterName(monster, state = game) {
 export function self_lookat(state = game) {
     const u = state.u ?? {};
     const species = state.mons?.[u.umonnum] ?? state.youmonst?.data;
-    if (!species?.pmnames)
-        throw new UnsupportedWhatisError('a hero form without monster names');
     const unblindTelepathy = Boolean(Unblind_telepat(state.u));
     const invisible = Invis(state.u)
         && (unblindTelepathy
@@ -1218,9 +1209,9 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (glyph_is_trap(glyph)) {
         return trap_description(glyph_to_trap(glyph), x, y, state);
     }
+    // lookat() calls this only for a cmap glyph, so the index is in
+    // 0..MAXPCHARS-1.
     const index = glyph_to_cmap(glyph);
-    if (!Number.isInteger(index) || index < 0 || index >= MAXPCHARS)
-        throw new UnsupportedWhatisError(`terrain ${index}`);
     // C ref: pager.c lookat() (738-793). Every ordinary cmap index has a
     // source explanation; only the context-sensitive cases below need more
     // than the generated defsym text. Keeping the generated fallback here
@@ -1915,12 +1906,11 @@ export async function checkfile(
     return result;
 }
 
+// dowhatis() and doquickwhatis() are its only callers, with mode 0 and 1 and
+// no click; cmd.js doclicklook() does not come through here.
 export async function do_look(mode, clickCc = null, state = game) {
     const quick = mode === 1;
     const clicklook = mode === 2;
-    if ((mode !== 0 && !quick && !clicklook)
-        || (clicklook ? !clickCc : Boolean(clickCc)))
-        throw new UnsupportedWhatisError('click or queued look mode');
     const queued = (await import('./cmd.js')).cmdq_pop(state);
     let queuedChoice = null;
     const hasQueued = queued !== null;
@@ -2245,10 +2235,9 @@ export function setopt_cmd(state = game) {
 // win/tty/wintty.c tty_display_file() (2424-2516). The generator has already
 // removed newlines and applied hacklib.c tabexpand(), so the runtime builds
 // the NHW_TEXT lines without filesystem access.
+// Every filename its callers pass is a HELP_TEXT_FILES key.
 async function display_file(filename, state) {
     const text = HELP_TEXT_FILES[filename];
-    if (!text)
-        throw new UnsupportedHelpError(`missing static file ${filename}`);
     await displayTtyTextWindow(state, text.map((line) => ({ text: line })));
 }
 
@@ -2365,14 +2354,13 @@ export async function domenucontrols(state = game) {
 const DEVTEAM_EMAIL = 'devteam@nethack.org';
 const DEVTEAM_URL = 'https://www.nethack.org/';
 
-// C ref: pager.c docontact() (2721-2745), through the recorder's branch with
-// no sysopt.support value and a formatted default WIZARDS list. An explicit
-// SUPPORT value remains outside the current goal.
+// C ref: pager.c docontact() (2721-2745). The recorder's sysconf sets no
+// SUPPORT, and an rc file cannot set it, so its first arm stays unused here.
 export function contactLines(state = game) {
-    if (state.sysopt?.support)
-        throw new UnsupportedHelpError('configured SUPPORT text');
     const lines = [];
-    if (state.sysopt?.fmtd_wizard_list) {
+    if (state.sysopt?.support) {
+        lines.push(`To contact local support, ${state.sysopt.support}`, '');
+    } else if (state.sysopt?.fmtd_wizard_list) {
         lines.push(
             `To contact local support, contact ${state.sysopt.fmtd_wizard_list}.`,
             '',
@@ -2516,9 +2504,7 @@ export async function dohelp(state = game) {
         await docontact(state);
         return ECMD_OK;
     }
-    if (choice === 16) {
-        await dispfile_debughelp(state);
-        return ECMD_OK;
-    }
-    throw new UnsupportedHelpError(`menu target ${choice}`);
+    // helpMenuItems() offers values 1 through 16, so this is 16.
+    await dispfile_debughelp(state);
+    return ECMD_OK;
 }

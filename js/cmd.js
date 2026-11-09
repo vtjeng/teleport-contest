@@ -306,7 +306,6 @@ import {
     doquickwhatis,
     do_screen_description,
     dowhatis,
-    UnsupportedHelpError,
     UnsupportedWhatisError,
 } from './pager.js';
 import { dopay, UnsupportedShopError } from './shk.js';
@@ -2958,7 +2957,6 @@ export function failClosedCommandRefusals() {
         UnsupportedVaultGuardError,
         UnsupportedSearchError,
         UnsupportedDirectionBoundaryError,
-        UnsupportedHelpError,
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
         UnsupportedLockError,
