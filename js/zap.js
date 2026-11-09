@@ -54,7 +54,7 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot, cmap_to_glyph, docrt, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
 import {
-    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
+    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, mon_pmname, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import {
     cant_finish_meal, eaten_stat, fix_petrification, vegetarian,
@@ -1105,7 +1105,7 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
                 const verb = nonliving(revived.data)
                     ? 'reanimates' : 'comes alive';
                 const asMonster = differentType
-                    ? ' as ' + an(monsterCommonName(revived.data, state))
+                    ? ' as ' + an(mon_pmname(revived, state))
                     : '';
                 await message(
                     owner + corpseName + ' suddenly ' + verb + asMonster + '!',

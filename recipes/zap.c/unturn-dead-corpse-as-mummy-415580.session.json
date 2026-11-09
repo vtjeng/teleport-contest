@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 415580,
+      "datetime": "20470128201540",
+      "nethackrc": "OPTIONS=name:Turner,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007kobold mummy\n#wizkill\n \u001bl.\u001bl ,b\n\u001b\u0017wand of undead turning\nzj.  "
+    }
+  ],
+  "comment": "Wizard-mode Priest creates a kobold mummy, slays it with #wizkill, picks up the kobold corpse it leaves (which keeps the mummy's traits), and zaps a wished-for wand of undead turning at himself. zap.c unturn_dead() revives the carried corpse as a kobold mummy, a different type from the corpse, and names that type with mon_pmname(): \"It suddenly reanimates as a kobold mummy!\""
+}
