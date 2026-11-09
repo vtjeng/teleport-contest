@@ -3849,7 +3849,6 @@ export async function loot_mon(mtmp, passedInfo = null, prevLoot = null,
         state,
         hooks: {
             message,
-            encumberMessage: subject => encumber_msg(subject, { message }),
             dropObject: (obj, actionEnv) => dropx(obj, actionEnv),
             ...rawEnv.hooks,
         },
@@ -4034,7 +4033,6 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
                 if (!await hornoplenty(box, true, targetbox, {
                     state,
                     hooks: {
-                        encumberMessage: encumber_msg,
                         newsym,
                     },
                 }))
@@ -4136,7 +4134,6 @@ async function tipcontainer(box, state) {
     const tipDropEnv = {
         state,
         hooks: {
-            encumberMessage: encumber_msg,
             extractExternalObject: remove_object,
             newsym,
         },

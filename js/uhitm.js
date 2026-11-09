@@ -3975,9 +3975,6 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
             // the same floor owner as other artifact pickup callers.
             extractExternalObject: env.hooks?.extractExternalObject
                 ?? remove_object,
-            encumberMessage: env.hooks?.encumberMessage
-                ?? env.encumberMessage
-                ?? ((currentState) => encumber_msg(currentState, { message })),
         },
     };
     let otmp = mdef.minvent;

@@ -1798,49 +1798,4 @@ test('hornoplenty wires the default carried-object encumbrance callback', async 
     assert.equal(game.go.oldcap, near_capacity(game));
     assert.match(game.nhDisplay.toplines, /movements are now unencumbered/u);
     assert.equal(game.iflags.suppress_price, 0);
-
-    // Reset the harness to verify that an established caller override remains
-    // authoritative. Reusing the same seed/date/options gives the same clean
-    // initialized state as the default-callback check above.
-    await runSegment({
-        seed: 4917324,
-        datetime: '20450323111709',
-        nethackrc: 'OPTIONS=name:Test,role:Valkyrie,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none,!acoustics,!autopickup',
-        // No command is needed before applying the manually constructed horn.
-        moves: '',
-    });
-    clearTtyMessageWindow(game);
-    // Match the queued continuations used above; these are unrelated to the
-    // encumbrance callback being tested.
-    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
-    // Keep the same one-charge carried-horn fixture used above.
-    const overrideHorn = newObject({
-        otyp: HORN_OF_PLENTY,
-        oclass: game.objects[HORN_OF_PLENTY].oc_class,
-        quan: 1,
-        // One charge reaches the same charged hornoplenty branch.
-        spe: 1,
-        where: OBJ_INVENT,
-        invlet: 'a',
-        owt: 25,
-    });
-    game.invent = overrideHorn;
-    game.go.oldcap = 4;
-    let overrideCalls = 0;
-    await hornoplenty(overrideHorn, false, null, {
-        state: game,
-        hooks: {
-            // The established injection seam owns this call when provided.
-            encumberMessage() { overrideCalls += 1; },
-        },
-    });
-    assert.equal(overrideCalls, 1);
-    assert.equal(game.go.oldcap, 4, 'the default callback was not substituted');
-    assert.doesNotMatch(
-        game.nhDisplay.toplines,
-        /movements are now unencumbered/u,
-        'the default callback did not replace the supplied hook',
-    );
 });

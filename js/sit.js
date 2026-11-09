@@ -703,18 +703,14 @@ export async function lay_an_egg(state = game, rawEnv = {}) {
         `You ${eggs_in_water(species) ? 'spawn' : 'lay'} an egg.`, state,
     );
 
-    // do.c dropy() needs the same display, object extraction, and
-    // encumbrance operations its production command supplies.
+    // do.c dropy() needs the same display operation its production command
+    // supplies.
     const { dropy } = await import('./do.js');
-    const [{ encumber_msg }, { newsym }] = await Promise.all([
-        import('./pickup.js'),
-        import('./display.js'),
-    ]);
+    const { newsym } = await import('./display.js');
     const dropEnv = {
         ...rawEnv,
         state,
         hooks: {
-            encumberMessage: encumber_msg,
             newsym,
         },
     };

@@ -247,7 +247,7 @@ import { surface } from './dungeon.js';
 import { ice_descr, self_lookat } from './pager.js';
 import { digests } from './dothrow.js';
 import { can_reach_floor } from './engrave.js';
-import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, query_objlist_selector, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
+import { add_valid_menu_class, allow_all, allow_category, encumber_msg, force_decor, query_objlist, query_objlist_selector, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -4920,7 +4920,9 @@ export async function hold_another_object(
             await prinv(hold_msg, obj, oquan, normalized);
         /* obj made it into inventory and is staying there */
         update_inventory(normalized);
-        await requiredHook(normalized, 'encumberMessage', obj)(state);
+        await encumber_msg(state, {
+            message: normalized.hooks.message ?? ttyPline,
+        });
     }
     return obj;
 }

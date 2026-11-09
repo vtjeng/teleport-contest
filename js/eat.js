@@ -3387,7 +3387,6 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
         // costly_alteration() call owns its output and billing continuation.
         hooks: {
             newsym,
-            encumberMessage: encumber_msg,
         },
         message,
         // C fpostfx()'s gainstr() can reach adjattrib() and then

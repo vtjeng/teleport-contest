@@ -2523,12 +2523,10 @@ test('prinv prints the line, with the prefix and total C adds', async () => {
 test('hold_another_object adds the object and prints its letter', async () => {
     const state = carryingState();
     const lines = [];
-    let encumbered = 0;
     const env = {
         state,
         hooks: {
             message: (text) => lines.push(text),
-            encumberMessage: () => { encumbered += 1; },
         },
     };
     // A wished-for lamp is seen but neither identified nor known to be
@@ -2543,8 +2541,9 @@ test('hold_another_object adds the object and prints its letter', async () => {
     // C passes a null hold_msg, so prinv() prints the bare letter line; it
     // runs because drop_fmt is non-null, which is the `hold_msg || drop_fmt`
     // test at 1287.
+    // pickup.c encumber_msg() runs last and prints nothing: the light lamp
+    // leaves the hero unencumbered.
     assert.deepEqual(lines, ['a - a lamp.']);
-    assert.equal(encumbered, 1);
 
     // 1250-1256 drops only a corpse the wish marked; an ordinary one is held
     // like anything else.
@@ -2597,7 +2596,6 @@ test('hold_another_object waits for the comparison message', async () => {
                 ++comparisonCalls;
                 return messageGate;
             },
-            encumberMessage: () => {},
         },
     };
 
@@ -2770,7 +2768,6 @@ test('hold_another_object holds an artifact the hero can touch', async () => {
         await hold_another_object(sword, null, null, null, {
             state,
             hooks: {
-                encumberMessage: () => {},
                 // do.c supplies remove_object() for obj_extract_self()'s
                 // floor arm, which is the half of the round trip that takes
                 // the artifact back off the square.
@@ -2799,7 +2796,6 @@ test('Fumbling adds the object before issuing the drop callback', async () => {
     const result = await hold_another_object(lamp, null, null, null, {
         state,
         hooks: {
-            encumberMessage: () => {},
             dropObject: (obj) => dropStates.push([obj.where, obj.nomerge]),
         },
     });
@@ -2824,6 +2820,11 @@ test('the hold limit takes the larger of the load and the burden option',
         // does not merge, so the lamp added below stays a separate stack.
         const loaded = (ballastWeight, pickupBurden) => {
             const state = carryingState();
+            // pickup.c encumber_msg() names the hero's form in its
+            // Stressed message (hack.c stagger()).
+            state.youmonst = {
+                data: { mflags1: 0, mflags2: 0, msize: 2, mattk: [] },
+            };
             if (pickupBurden !== undefined)
                 state.flags.pickup_burden = pickupBurden;
             const ballast = instance(HEAVY_IRON_BALL, state, {
@@ -2836,7 +2837,7 @@ test('the hold limit takes the larger of the load and the burden option',
         };
         const hold = (state, obj) => hold_another_object(
             obj, null, null, null,
-            { state, hooks: { encumberMessage: () => {} } },
+            { state, hooks: { message: () => {} } },
         );
 
         // The load is the larger operand: twice capacity is an excess of one
@@ -2890,7 +2891,6 @@ test('hold_another_object applies inventory and burden limits after addinv',
         const env = {
             state,
             hooks: {
-                encumberMessage: () => {},
                 preflightDropObject: () => { ++preflights; },
                 dropObject: () => { ++drops; },
             },
@@ -2933,7 +2933,6 @@ test('hold_another_object drops the 53rd non-gold slot after addinv',
             state,
             hooks: {
                 message: (text) => events.push(['message', text, ball.where]),
-                encumberMessage: () => {},
                 dropObject: () => events.push(['dropx', null, ball.where]),
             },
         };
@@ -2961,7 +2960,6 @@ test('Fumbling adds the object before issuing the drop callback', async () => {
     const result = await hold_another_object(lamp, null, null, null, {
         state,
         hooks: {
-            encumberMessage: () => {},
             dropObject: (obj) => dropStates.push([obj.where, obj.nomerge]),
         },
     });
@@ -2992,7 +2990,6 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
     const hooks = {
         message: (line) => lines.push(line),
         newsym: () => {},
-        encumberMessage: () => {},
         // stackobj() unlinks the pile member it absorbs; remove_object() is
         // what do.c supplies for it.
         extractExternalObject: (object, env) => remove_object(object, env),
@@ -3207,9 +3204,6 @@ test('heavy-ball retain and drop paths preserve source callback order',
                 newsym() {
                     snapshot('newsym');
                 },
-                encumberMessage() {
-                    snapshot('encumber');
-                },
             };
             const env = { state, hooks };
 
@@ -3233,7 +3227,16 @@ test('heavy-ball retain and drop paths preserve source callback order',
                         true,
                         false,
                     ],
-                    ['encumber', null, OBJ_INVENT, 1, true, false],
+                    // pickup.c encumber_msg() reports the rise to
+                    // MOD_ENCUMBER.
+                    [
+                        'message',
+                        'You rebalance your load.  Movement is difficult.',
+                        OBJ_INVENT,
+                        1,
+                        true,
+                        false,
+                    ],
                 ], currentCase.name);
             } else {
                 assert.equal(held, null, currentCase.name);
@@ -3271,12 +3274,10 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         state.stairs = null;
         const ball = instance(HEAVY_IRON_BALL, state);
         const lines = [];
-        let encumbered = 0;
         const hooks = {
             message: (text) => lines.push(text),
             dropObject: dropx,
             newsym: () => {},
-            encumberMessage: () => { ++encumbered; },
             extractExternalObject: (object, env2) => remove_object(object, env2),
         };
         const env = { state, hooks };
@@ -3312,9 +3313,6 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             'Oops!  The heavy iron ball drops to the floor!',
             'Oops!  The heavy iron ball drops to the floor!',
         ]);
-        // The hook is hold_another_object()'s own (invent.c:1303), for an
-        // object it keeps; dropz() calls encumber_msg() itself.
-        assert.equal(encumbered, 0);
     });
 
 test('dropx runs doaltarobj before placing cursed noncoin and coin objects',

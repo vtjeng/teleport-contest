@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c hold_another_object() reached from mthrowu.c ucatchgem(): a debug human Ranger wishes a sling and a ruby, creates a hostile gnome lord beside her and drops both where it follows her, so it picks them up and wields the sling. She polymorphs into a white unicorn, steps back toward it and waits until it shoots the ruby, which she catches (\"You catch: b - a red gem.\"); hold_another_object() ends with pickup.c encumber_msg().",
+  "segments": [
+    {
+      "seed": 6620917,
+      "datetime": "20510518113000",
+      "nethackrc": "OPTIONS=name:Horn,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017sling\n\u0017ruby\n\u0007hostile gnome lord\ndaldblll#polyself\nwhite unicorn\n llhsssssssssssss  i"
+    }
+  ]
+}

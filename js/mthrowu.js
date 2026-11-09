@@ -486,18 +486,12 @@ async function u_catch_thrown_obj(obj, env) {
         && calc_capacity(obj.owt, state) <= SLT_ENCUMBER
         && random.rn2(catchChance) === 0) {
         const name = simpleonames(obj, state);
-        // pickup.c owns encumber_msg; load it at the live handoff to avoid
-        // introducing a static inventory/pickup/throw import cycle.
-        const { encumber_msg } = await import('./pickup.js');
         await hold_another_object(obj, 'You catch, but drop, the %s.',
             name, `You catch the ${name}!`, {
                 ...env,
                 hooks: {
                     ...env.hooks,
                     message: env.message ?? ttyPline,
-                    encumberMessage: env.hooks?.encumberMessage
-                        ?? env.encumberMessage
-                        ?? (subject => encumber_msg(subject, { message: env.message ?? ttyPline })),
                 },
             });
         return true;

@@ -175,7 +175,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
-import { doloot, dotip, encumber_msg } from './pickup.js';
+import { doloot, dotip } from './pickup.js';
 import {
     dodrink,
     dodip,
@@ -3256,12 +3256,6 @@ async function runEngraveCommand(key, state) {
             random_engraving({ state: engravingState, random }),
         yesNo: yn_function,
         monName: mon_nam,
-        // engrave.c engrave() hands the dulled dagger split off a stack to
-        // hold_another_object(), whose addinv() reaches pickup.c
-        // encumber_msg().
-        inventoryHooks: {
-            encumberMessage: encumber_msg,
-        },
         ECMD_CANCEL,
         ECMD_OK,
         ECMD_FAIL,

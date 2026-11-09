@@ -527,7 +527,7 @@ import { ttyPline } from './tty_message.js';
 import { cansee, couldsee, howmonseen, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
-import { encumber_msg, pickup_object, use_container } from './pickup.js';
+import { pickup_object, use_container } from './pickup.js';
 import {
     buried_ball_to_freedom,
     dig_check,
@@ -980,11 +980,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                     }
                     await hold_another_object(
                         object, 'You drop %s!', donameFresh(object, state),
-                        null, { ...env, state, hooks: {
-                            ...(env.hooks ?? {}),
-                            encumberMessage: env.hooks?.encumberMessage
-                                ?? ((targetState) => encumber_msg(targetState)),
-                        } },
+                        null, { ...env, state },
                     );
                     break;
                 }
@@ -1788,14 +1784,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     can.owt = weight(can, { ...env, state });
     can.known = true;
     set_tin_variety(can, HOMEMADE_TIN, { ...env, state });
-    const lifecycleEnv = {
-        ...env,
-        state,
-        hooks: {
-            ...env.hooks,
-            encumberMessage: env.hooks?.encumberMessage ?? encumber_msg,
-        },
-    };
+    const lifecycleEnv = { ...env, state };
 
     if (carried(corpse)) {
         if (corpse.unpaid) {
@@ -3263,10 +3252,6 @@ export async function light_cocktail(objp, state = game, env = {}) {
                 hooks: {
                     ...(env.hooks ?? {}),
                     message: holdMessage,
-                    encumberMessage: env.hooks?.encumberMessage
-                        ?? ((targetState) => encumber_msg(targetState, {
-                            message: holdMessage,
-                        })),
                 },
             },
         );

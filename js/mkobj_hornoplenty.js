@@ -101,11 +101,6 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
 
         state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
         if (!tipping) {
-            // Preserve a caller hook; otherwise use pickup.c:encumber_msg.
-            const holdHooks = {
-                ...(env.hooks ?? {}),
-                encumberMessage: env.hooks?.encumberMessage ?? encumber_msg,
-            };
             obj = await hold_another_object(
                 obj,
                 u.uswallow
@@ -118,7 +113,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
                         : 'Oops!  %s to the floor!',
                 The(aobjnam(obj, 'slip', state), state),
                 null,
-                { ...env, state, hooks: holdHooks },
+                { ...env, state },
             );
         } else if (targetbox) {
             add_to_container(targetbox, obj, { ...env, state });

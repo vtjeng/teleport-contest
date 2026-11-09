@@ -4112,10 +4112,8 @@ test('potion dip explosion passes the live exercise hook and C Deaf value',
                     return value;
                 },
             },
-            hooks: {
-                encumberMessage: async (state) => {
-                    events.push(['encumber', state.moves]);
-                },
+            encumberMessage: async (state) => {
+                events.push(['encumber', state.moves]);
             },
         });
 

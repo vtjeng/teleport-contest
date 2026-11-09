@@ -2021,7 +2021,6 @@ export async function makewish(state = game) {
         state,
         hooks: {
             message: ttyPline,
-            encumberMessage: encumber_msg,
             newsym,
             dropObject: dropx,
             dropy,

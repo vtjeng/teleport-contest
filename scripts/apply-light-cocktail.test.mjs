@@ -93,7 +93,7 @@ test('light_cocktail retains the complete C branch and helper order', () => {
     assert.match(jsHelper, /const holdMessage = env\.hooks\?\.message \?\? message;/u);
     assert.match(
         jsHelper,
-        /hooks:\s*\{[\s\S]*?message: holdMessage,[\s\S]*?encumberMessage: env\.hooks\?\.encumberMessage\s*\?\?\s*\(\(targetState\) => encumber_msg\(targetState,\s*\{\s*message: holdMessage,/u,
+        /hooks:\s*\{[\s\S]*?message: holdMessage,\s*\}/u,
     );
     assert.doesNotMatch(jsHelper, /check_unpaid\(obj, state\)/u);
     assert.doesNotMatch(jsHelper, /UnsupportedShopError/u);

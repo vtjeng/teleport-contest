@@ -62,10 +62,6 @@ test('uhitm.c steal_it keeps monster gold outside the stolen-object selection', 
     assert.ok(jsSteps.every((index) => index >= 0));
     assert.deepEqual(cSteps, [...cSteps].sort((a, b) => a - b));
     assert.deepEqual(jsSteps, [...jsSteps].sort((a, b) => a - b));
-    assert.match(
-        jsStealIt,
-        /encumberMessage:[\s\S]*?encumber_msg\(currentState, \{ message \}\)/,
-    );
 });
 
 test('mhitm_ad_sedu wires the hero attack arm to steal_it', () => {

@@ -31,10 +31,13 @@ const DEFAULTED_HOOKS = [
 
 // Defaulted hooks whose name is also a flat operation of another owner:
 // region.js create_gas_cloud() takes its own `blockPoint` beside `canSee` and
-// `newsym`. For these the scan counts only keys in a hook table: an object
-// literal that is the value of a `hooks` key or of a variable named
-// `...hooks`/`...Hooks`, or that a `...Hooks()` function returns.
-const DEFAULTED_TABLE_HOOKS = ['blockPoint'];
+// `newsym`, and attrib.c exercise() and its callers take a flat
+// `encumberMessage` (invent.c hold_another_object() calls pickup.c
+// encumber_msg() itself). For these the scan counts only keys in a hook
+// table: an object literal that is the value of a `hooks` key or of a
+// variable named `...hooks`/`...Hooks`, or that a `...Hooks()` function
+// returns.
+const DEFAULTED_TABLE_HOOKS = ['blockPoint', 'encumberMessage'];
 
 function stripComments(source) {
     return source
@@ -194,6 +197,7 @@ test('every defaulted hook is still read where C calls its default', () => {
     assert.match(sources['invent.js'], /: obj_no_longer_held\(obj, env\)/u);
     assert.match(sources['obj.js'], /normalized\.hooks\.blockPoint\s*\?\?/u);
     assert.match(sources['obj.js'], /block_point\(bx, by, placeEnv\.state\)/u);
+    assert.match(sources['invent.js'], /await encumber_msg\(state, \{\s*message: normalized\.hooks\.message \?\? ttyPline,/u);
 });
 
 // Hooks js/obj.js, js/invent.js and js/worn.js still refuse to run without,
@@ -201,7 +205,6 @@ test('every defaulted hook is still read where C calls its default', () => {
 // call to the named function.
 const REMAINING_REQUIRED_HOOKS = {
     absorbGlob: 2, // mkobj.c obj_absorb() from invent.c merged()
-    encumberMessage: 1, // pickup.c encumber_msg()
     endArtifactLight: 1, // light.c/artifact.c end of an artifact's light
     inventoryComparisonDiscovered: 2, // the synchronous merged()'s comparison pline()
     mwepgone: 1, // weapon.c mwepgone()

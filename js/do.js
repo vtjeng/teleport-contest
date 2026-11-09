@@ -1538,10 +1538,8 @@ function dropEnv(env = {}) {
 }
 
 // The environment of a drop command. dropz() calls newsym() and
-// encumber_msg() itself (do.c:840-842) and ignores these two hooks; they stay
-// because callers that build one environment here for both a drop and
-// invent.c hold_another_object() (artifacts.c invoke_create_ammo(),
-// pickup.c loot_mon()) rely on hold_another_object()'s encumberMessage hook.
+// encumber_msg() itself (do.c:840-842); the newsym hook stays for callees
+// that still take one.
 export function dropCommandEnv(state, env = {}) {
     const dropState = env.state ?? state;
     return {
@@ -1549,7 +1547,6 @@ export function dropCommandEnv(state, env = {}) {
         state: dropState,
         hooks: {
             ...setwornEnv(dropState).hooks,
-            encumberMessage: encumber_msg,
             newsym,
             ...env.hooks,
         },
