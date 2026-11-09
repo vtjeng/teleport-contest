@@ -8,7 +8,7 @@ import {
     encodeUtf8ByteString, strncmpi, strstri, strsubst, truncateByteString,
 } from './hacklib.js';
 import {
-    _getobjInternals, let_to_name, preflight_update_inventory,
+    _getobjInternals, let_to_name,
     update_inventory,
 } from './invent.js';
 import { PM_SAMURAI } from './monsters.js';
@@ -454,7 +454,6 @@ export function discover_object(
         && typeof env.random.rn2 !== 'function') {
         throw new TypeError('discover_object exercise requires rn2');
     }
-    if (liveKnowledge) preflight_update_inventory(env);
 
     const classEnd = state.svb.bases[objectClass + 1] ?? NUM_OBJECTS;
     let index = state.svb.bases[objectClass];

@@ -68,7 +68,7 @@ test('drain_item source orders defenses, resistance, alteration and mutation', (
     assert.ok(source.indexOf('if (disp.botl)') < source.indexOf('if (carried(obj))'));
 });
 
-test('drain_item updates a worn strength ring and refreshes status before inventory',
+test('drain_item updates a worn strength ring and refreshes status',
     async () => {
         const state = await startGame();
         // This ring exercises zap.c's explicit worn-ring strength case.
@@ -81,12 +81,6 @@ test('drain_item updates a worn strength ring and refreshes status before invent
         state.disp.botl = false;
         const draws = ordinaryDraws([99]); // 99 exceeds the ordinary 10% resistance chance.
         const order = [];
-        const hooks = {
-            updateInventory(receivedState) {
-                assert.equal(receivedState, state);
-                order.push('inventory');
-            },
-        };
 
         assert.equal(drain_item(ring, false, state, {
             random: draws,
@@ -94,14 +88,13 @@ test('drain_item updates a worn strength ring and refreshes status before invent
                 order.push('status');
                 state.disp.botl = false; // C bot() consumes the dirty-status request.
             },
-            hooks,
         }), true);
 
         assert.equal(ring.spe, 1);
         assert.equal(state.u.abon[A_STR], 2);
         assert.deepEqual(draws.bounds, [100]);
         assert.equal(draws.remaining(), 0);
-        assert.deepEqual(order, ['status', 'inventory']);
+        assert.deepEqual(order, ['status']);
         assert.equal(state.iflags.suppress_price, 7);
     });
 

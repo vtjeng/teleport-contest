@@ -363,7 +363,7 @@ test('apply.c unleash_all clears inventory and monster leash state in order', ()
     assert.deepEqual([firstMonster.mleashed, secondMonster.mleashed], [0, 0]);
 });
 
-test('apply.c o_unleash clears the matching monster before refreshing inventory', () => {
+test('apply.c o_unleash clears the matching monster and the leash', () => {
     // apply.c:715-723 searches fmon by the object's id and always clears
     // leashmon, even when the matching monster has left the current level.
     const source = readFileSync(new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8');
@@ -373,17 +373,16 @@ test('apply.c o_unleash clears the matching monster before refreshing inventory'
     const leash = { leashmon: 27 };
     const state = { level: { monlist: attached },
         program_state: { in_moveloop: true }, iflags: { perm_invent: true } };
-    const refresh = [];
-    o_unleash(leash, { state, hooks: { updateInventory() {
-        refresh.push([leash.leashmon, attached.mleashed, other.mleashed]);
-    } } });
-    assert.deepEqual(refresh, [[0, 0, 1]]); // Both attachment owners clear before update_inventory.
+    o_unleash(leash, { state });
+    // Both attachment owners clear; the unrelated monster keeps its leash.
+    assert.deepEqual([leash.leashmon, attached.mleashed, other.mleashed],
+        [0, 0, 1]);
     leash.leashmon = 41; // No monster has this id: object-side attachment still clears.
-    o_unleash(leash, { state, hooks: { updateInventory() {} } });
+    o_unleash(leash, { state });
     assert.equal(leash.leashmon, 0);
 });
 
-test('apply.c m_unleash clears the object before refreshing inventory and flag', () => {
+test('apply.c m_unleash clears the object and the monster flag', () => {
     const start = APPLY_C.indexOf(
         'm_unleash(struct monst *mtmp, boolean feedback)',
     );
@@ -400,16 +399,9 @@ test('apply.c m_unleash clears the object before refreshing inventory and flag',
         program_state: { in_moveloop: true },
         iflags: { perm_invent: true },
     };
-    const refresh = [];
-    m_unleash(monster, false, {
-        state,
-        hooks: { updateInventory() {
-            refresh.push([leash.leashmon, monster.mleashed]);
-        } },
-    });
+    m_unleash(monster, false, { state });
 
-    assert.deepEqual(refresh, [[0, 1]],
-        'update_inventory runs after the object clears and before mleashed clears');
+    assert.equal(leash.leashmon, 0);
     assert.equal(monster.mleashed, 0);
 });
 

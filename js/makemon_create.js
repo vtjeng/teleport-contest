@@ -134,7 +134,6 @@ import {
     add_to_minv,
     obfree,
     obj_extract_self,
-    update_inventory,
 } from './invent.js';
 import { new_light_source } from './light.js';
 import {
@@ -3271,7 +3270,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 // savebones() passes MM_NONAME and then christen_monst separately.
                 if (!(mmflags & MM_NONAME)) {
                     christen_monst(monster, rndghostname(normalized), {
-                        updateInventory: () => update_inventory(normalized),
+                        state,
                     });
                 }
             } else if (mndx === PM_CROESUS) {

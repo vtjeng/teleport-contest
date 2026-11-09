@@ -52,7 +52,7 @@ test('water_damage uses the same blank_novel owner without an injected operation
     obj.otyp = SPE_NOVEL;
     const events = [];
     const result = await water_damage(obj, null, true, {
-        state, message: line => events.push(line), hooks: { updateInventory: () => {} },
+        state, message: line => events.push(line),
         random: Object.fromEntries(['rn2', 'rnd', 'rn1', 'rne'].map(name =>
             [name, () => assert.fail('forced novel blanking needs no random draw')])),
     });

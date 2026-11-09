@@ -204,21 +204,19 @@ test('passive awaits passive_obj messages and preserves its trailing guard draw'
         await passive(monster, ring, true, true, AT_WEAP, false, state, {
             random,
             statusRefresh: () => events.push('status'),
-            hooks: { updateInventory: () => events.push('inventory') },
             message: async (line) => { events.push(`message:${line}`); },
         });
 
         assert.deepEqual(random.bounds, ['rn2(100)', 'rn2(3)']);
         assert.equal(random.remaining(), 0);
         assert.equal(ring.spe, 0);
+        assert.equal(events.length, 2);
         assert.equal(events[0], 'status');
-        assert.equal(events[1], 'inventory');
-        assert.ok(events[2].startsWith('message:'));
-        assert.ok(events[2].endsWith('less effective.'));
-        assert.equal(events[3], 'inventory');
+        assert.ok(events[1].startsWith('message:'));
+        assert.ok(events[1].endsWith('less effective.'));
     });
 
-test('passive_obj ignores cancelled disenchanters but still updates carried inventory',
+test('passive_obj ignores cancelled disenchanters on carried inventory',
     async () => {
         const state = await startGame();
         const ring = mksobj(RIN_GAIN_STRENGTH, false, false, { state });
@@ -227,16 +225,13 @@ test('passive_obj ignores cancelled disenchanters but still updates carried inve
         ring.spe = 1; // Cancellation must skip drain_item and its rn2(100).
         const monster = { mcan: true };
         const random = scripted([]);
-        let inventories = 0;
 
         await passive_obj(monster, ring, { adtyp: AD_ENCH }, state, {
             random,
-            hooks: { updateInventory: () => { inventories++; } },
             message: () => assert.fail('cancelled passive emits no drain message'),
         });
 
         assert.equal(ring.spe, 1);
-        assert.equal(inventories, 1);
         assert.deepEqual(random.bounds, []);
         assert.equal(random.remaining(), 0);
     });

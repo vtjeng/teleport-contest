@@ -818,7 +818,6 @@ test('toggle_displacement forwards discovery through its environment',
     }
     game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
     const draws = [];
-    const refreshes = [];
     await toggle_displacement(
         { otyp: CLOAK_OF_DISPLACEMENT },
         0,
@@ -829,17 +828,11 @@ test('toggle_displacement forwards discovery through its environment',
                 draws.push(limit);
                 return 0;
             } },
-            hooks: {
-                updateInventory: (state) => refreshes.push(state),
-            },
         },
     );
     // o_init.c discover_object() exercises Wisdom exactly once after its
-    // discovery preflight.  The supplied random source receives that draw and
-    // the supplied hook the inventory refresh.
+    // discovery preflight.  The supplied random source receives that draw.
     assert.deepEqual(draws, [19]);
-    assert.equal(refreshes.length, 1);
-    assert.equal(refreshes[0], game);
     assert.equal(type.oc_name_known, 1);
     assert.equal(type.oc_encountered, 1);
     });

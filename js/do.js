@@ -244,7 +244,6 @@ import {
     ggetobj,
     mergable,
     obfree,
-    preflight_update_inventory,
     stackobj,
     useup,
     useupf,
@@ -2005,7 +2004,6 @@ export function preflight_dropx(obj, env = {}) {
         );
     }
 
-    preflight_update_inventory(normalized);
     requiredDropHook(normalized, 'newsym');
     requiredDropHook(normalized, 'encumberMessage');
     return {

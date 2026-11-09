@@ -938,13 +938,16 @@ test('pickup preflights every reachable addinv dependency before unlinking',
                 },
             },
             {
+                // perm_invent reaches addinv()'s update_inventory(), which
+                // the recorder's tty port draws nothing for.
                 name: 'permanent inventory refresh',
                 otyp: ELVEN_DAGGER,
-                expected: /updateInventory is not available/u,
+                accepts: true,
                 prepare(_object, state) {
                     state.program_state.in_moveloop = true;
                     state.iflags.perm_invent = true;
                 },
+                check() {},
             },
         ];
 

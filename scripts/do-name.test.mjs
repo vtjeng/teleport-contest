@@ -867,32 +867,17 @@ test('lookup_novel applies the configured-fruit article exception', () => {
     });
 });
 
-test('christen_monst refreshes a leashed name after rename and removal', () => {
-    const monster = {
-        mleashed: true,
-        mextra: { mgivenname: 'Fido' },
-    };
-    const observed = [];
-    const env = {
-        updateInventory() {
-            observed.push(monster.mextra?.mgivenname ?? '');
-        },
-    };
-
-    assert.equal(christen_monst(monster, 'Rover', env), monster);
-    assert.equal(monster.mextra.mgivenname, 'Rover');
-    assert.equal(christen_monst(monster, '', env), monster);
-    assert.equal(monster.mextra.mgivenname, undefined);
-    assert.deepEqual(observed, ['Rover', '']);
-});
-
-test('christen_monst updates a leashed name without an injected hook', () => {
+// A leashed monster takes christen_monst()'s update_inventory() branch,
+// which the recorder's tty port draws nothing for.
+test('christen_monst renames and clears a leashed monster', () => {
     const monster = {
         mleashed: true,
         mextra: { mgivenname: 'Fido' },
     };
     assert.equal(christen_monst(monster, 'Rover'), monster);
     assert.equal(monster.mextra.mgivenname, 'Rover');
+    assert.equal(christen_monst(monster, ''), monster);
+    assert.equal(monster.mextra.mgivenname, undefined);
 });
 
 // do_name.c:20-100. The five-buffer helper rotates through five reusable

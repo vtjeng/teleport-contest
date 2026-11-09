@@ -32,7 +32,6 @@ test('wet_a_towel and dry_a_towel keep C amount signs, clamping, and wield state
         // A carried towel starts at spe=2 so the negative wet amount adds two,
         // crossing C's damp-to-wet threshold while it remains wielded.
         const towel = { otyp: TOWEL, spe: 2, where: OBJ_INVENT, nobj: null };
-        const refreshed = [];
         const state = {
             invent: towel,
             iflags: { perm_invent: true },
@@ -40,21 +39,17 @@ test('wet_a_towel and dry_a_towel keep C amount signs, clamping, and wield state
             uwep: towel,
             unweapon: true,
         };
-        const env = {
-            hooks: { updateInventory: (current) => refreshed.push(current) },
-            message: async () => {},
-        };
+        const env = { message: async () => {} };
 
         await wet_a_towel(towel, -2, false, state, env);
         assert.equal(towel.spe, 4);
         assert.equal(state.unweapon, false);
 
         // amt=0 selects dry spe=0; the C helper must set unweapon for the now
-        // dry wielded towel and refresh the carried inventory once more.
+        // dry wielded towel.
         await dry_a_towel(towel, 0, false, state, env);
         assert.equal(towel.spe, 0);
         assert.equal(state.unweapon, true);
-        assert.deepEqual(refreshed, [state, state]);
     });
 
 test('towel wetness clamps after source-directed changes', async () => {

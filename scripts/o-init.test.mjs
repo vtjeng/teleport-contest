@@ -369,7 +369,7 @@ function discoveryState() {
     return state;
 }
 
-test('discover_object applies live credit and inventory effects in C order', () => {
+test('discover_object applies live credit and learns the object', () => {
     const state = discoveryState();
     const events = [];
     const result = discover_object(OIL_LAMP, true, true, true, state, {
@@ -379,46 +379,23 @@ test('discover_object applies live credit and inventory effects in C order', () 
                 return 18;
             },
         },
-        hooks: {
-            updateInventory() {
-                events.push('inventory');
-                assert.equal(state.objects[OIL_LAMP].oc_name_known, 1);
-                assert.equal(state.objects[OIL_LAMP].oc_encountered, 1);
-            },
-        },
     });
 
     assert.equal(result, true);
     assert.equal(state.u.aexe[2], 1);
-    assert.deepEqual(events, ['exercise:19', 'inventory']);
-});
-
-test('discover_object runs native gem billing before refreshing inventory', () => {
-    const state = discoveryState();
-    const events = [];
-    discover_object(AQUAMARINE, true, true, false, state, {
-        hooks: {
-            updateInventory() {
-                events.push('inventory');
-                assert.equal(state.objects[AQUAMARINE].oc_name_known, 1);
-            },
-        },
-    });
-    assert.deepEqual(events, ['inventory']);
+    assert.deepEqual(events, ['exercise:19']);
+    assert.equal(state.objects[OIL_LAMP].oc_name_known, 1);
+    assert.equal(state.objects[OIL_LAMP].oc_encountered, 1);
 });
 
 test('discover_object uses gem_learned without an injected callback', () => {
     const state = discoveryState();
     const base = state.svb.bases[GEM_CLASS];
-    const updates = [];
-    const result = discover_object(AQUAMARINE, true, true, false, state, {
-        hooks: { updateInventory() { updates.push('inventory'); } },
-    });
+    const result = discover_object(AQUAMARINE, true, true, false, state);
     assert.equal(result, true);
     assert.equal(state.objects[AQUAMARINE].oc_name_known, 1);
     assert.equal(state.objects[AQUAMARINE].oc_encountered, 1);
     assert.equal(state.svd.disco[base], AQUAMARINE);
-    assert.deepEqual(updates, ['inventory']);
     assert.match(C_O_INIT,
         /if \(objects\[oindx\]\.oc_class == GEM_CLASS\)\s*gem_learned\(oindx\);[\s\S]*?update_inventory\(\);/u);
 });

@@ -2219,12 +2219,7 @@ async function levelTeleMenu(state) {
             objectGenerationEnv({ state }),
         );
         if (amu) {
-            amu = addinv(amu, {
-                state,
-                hooks: {
-                    updateInventory: () => {},
-                },
-            });
+            amu = addinv(amu, { state });
             await prinv('Endgame prerequisite:', amu, 0, { state });
         }
     }

@@ -3358,11 +3358,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         displayRandom: env.displayRandom
             ?? ((bound) => rn2_on_display_rng(bound, state)),
     };
-    actionEnv.hooks = {
-        ...(env.hooks ?? {}),
-        updateInventory: env.hooks?.updateInventory
-            ?? state.hooks?.updateInventory,
-    };
+    actionEnv.hooks = { ...(env.hooks ?? {}) };
     const otyp = obj.otyp;
     let dmg = 0;
     let vis = canseemon(mon, state);

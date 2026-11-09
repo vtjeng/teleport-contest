@@ -3342,7 +3342,6 @@ async function runEngraveCommand(key, state) {
         // hold_another_object(), whose addinv() reaches pickup.c
         // encumber_msg() and invent.c:941's comparison discovery message.
         inventoryHooks: {
-            updateInventory: () => bot(),
             encumberMessage: encumber_msg,
             inventoryComparisonDiscovered: () => ttyPline(
                 'You learn more about your items by comparing them.', state,

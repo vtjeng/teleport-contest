@@ -348,8 +348,7 @@ export function christen_monst(monster, name, env = {}) {
         monster.mextra.mgivenname = clipped;
     }
     if (monster.mleashed) {
-        if (typeof env.updateInventory === 'function') env.updateInventory(env);
-        else update_inventory({ state: env.state ?? game });
+        update_inventory({ state: env.state ?? game });
     }
     return monster;
 }

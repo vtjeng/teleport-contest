@@ -245,14 +245,6 @@ function timerGlobals(state) {
     return state;
 }
 
-export class UnsupportedTimerCleanupError extends Error {
-    constructor(operation, funcIndex) {
-        super(`timer cleanup requires ${operation} for function ${funcIndex}`);
-        this.name = 'UnsupportedTimerCleanupError';
-        this.operation = operation;
-        this.func_index = funcIndex;
-    }
-}
 
 export class UnsupportedBurnObjectError extends Error {
     constructor(obj) {
@@ -279,45 +271,6 @@ function objectLightDeletion(state, env) {
         : (object) => del_light_source(LS_OBJECT, object, state);
 }
 
-// Keep this display boundary synchronized with invent.js update_inventory().
-// It is spelled out here rather than imported so a timer's display decision
-// stays readable beside the timers, not because an import is impossible: this
-// file already sits inside that cycle through './dig.js' and './do.js', both
-// of which import invent.js, and it imports carrying() from invent.js
-// directly. For a carried lit object, the optional window hook is used
-// whenever display is active and unsuppressed; it becomes mandatory only for
-// a permanent-inventory display.
-function burnInventoryRefreshActive(state) {
-    const programState = state.program_state;
-    return Boolean(programState?.in_moveloop
-        && !state.in_mklev
-        && !programState.saving
-        && !programState.restoring
-        && !programState.done_hup);
-}
-
-function preflightBurnInventoryRefresh(obj, state, env) {
-    if (obj.where !== OBJ_INVENT || !burnInventoryRefreshActive(state))
-        return null;
-    const updateInventory = env.hooks?.updateInventory;
-    if (state.iflags?.perm_invent && typeof updateInventory !== 'function') {
-        throw new UnsupportedTimerCleanupError('updateInventory', BURN_OBJECT);
-    }
-    return typeof updateInventory === 'function' ? updateInventory : null;
-}
-
-function runBurnInventoryRefresh(updateInventory, state) {
-    if (!updateInventory) return;
-    state.iflags ??= {};
-    const savedSuppressPrice = state.iflags.suppress_price;
-    state.iflags.suppress_price = 0;
-    try {
-        updateInventory(state);
-    } finally {
-        state.iflags.suppress_price = savedSuppressPrice;
-    }
-}
-
 // C ref: timeout.c cleanup_burn(). The timeout owns the BURN_OBJECT callback
 // and calls light.c:del_light_source(LS_OBJECT, obj_to_any(obj)) directly.
 // Keep the optional hook as a focused integration seam; the production path
@@ -330,16 +283,11 @@ function preflightTimerCleanup(timer, state, env = {}) {
     if (!obj.lamplit) {
         // cleanup_burn() reports an impossible condition and returns without
         // touching light or fuel state when a timed object is no longer lit.
-        return { normalized, deleteLight: null, updateInventory: null };
+        return { normalized, deleteLight: null };
     }
 
     const deleteLight = objectLightDeletion(state, normalized);
-    const updateInventory = preflightBurnInventoryRefresh(
-        obj,
-        state,
-        normalized,
-    );
-    return { normalized, deleteLight, updateInventory };
+    return { normalized, deleteLight };
 }
 
 function cleanupTimer(timer, state, cleanup) {
@@ -357,7 +305,7 @@ function cleanupTimer(timer, state, cleanup) {
         + timer.timeout - currentMove(state);
     obj.lamplit = false;
     try {
-        runBurnInventoryRefresh(cleanup.updateInventory, state);
+        if (obj.where === OBJ_INVENT) update_inventory({ state });
     } catch (error) {
         if (firstError === NO_CLEANUP_ERROR) {
             firstError = error;
@@ -674,10 +622,6 @@ async function figTransformCallback(arg, timeout, env) {
         extractExternalObject: remove_object,
         ...(env.hooks ?? {}),
     };
-    if (hooks.updateInventory === undefined
-        && typeof env.state?.hooks?.updateInventory === 'function') {
-        hooks.updateInventory = env.state.hooks.updateInventory;
-    }
     return fig_transform(arg, timeout, { ...env, hooks });
 }
 
@@ -1961,17 +1905,7 @@ export function preflight_end_burn(
         && !artifact_light(obj);
     if (!attached) {
         const deleteLight = objectLightDeletion(state, normalized);
-        const updateInventory = preflightBurnInventoryRefresh(
-            obj,
-            state,
-            normalized,
-        );
-        return {
-            mode: 'direct',
-            normalized,
-            deleteLight,
-            updateInventory,
-        };
+        return { mode: 'direct', normalized, deleteLight };
     }
 
     let timer = state.gt?.timer_base ?? null;
@@ -1992,10 +1926,8 @@ export function end_burn(obj, timerAttached = true, env = {}) {
     if (plan.mode === 'direct') {
         plan.deleteLight(obj, plan.normalized);
         obj.lamplit = false;
-        runBurnInventoryRefresh(
-            plan.updateInventory,
-            plan.normalized.state,
-        );
+        if (obj.where === OBJ_INVENT)
+            update_inventory({ state: plan.normalized.state });
         return true;
     }
     stop_timer(BURN_OBJECT, obj, plan.normalized.state, plan.normalized);
@@ -2233,9 +2165,6 @@ function burnObjectEnv(rawEnv) {
         }),
         ...rawEnv.hooks,
     };
-    if (env.hooks.updateInventory === undefined) {
-        env.hooks.updateInventory = state.hooks?.updateInventory;
-    }
     return env;
 }
 
@@ -2551,18 +2480,12 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         else turns = age;
         radius = candle_light_range(obj);
     }
-    let updateInventory = null;
     let position = null;
 
-    // C cannot fail at these linked subsystem boundaries. The JS port can
-    // have an integration hook or light owner missing, so resolve both before
-    // start_timer() claims ownership and adjusts the candle's remaining fuel.
+    // C cannot fail at this linked subsystem boundary. The JS port can have
+    // its light owner missing, so resolve it before start_timer() claims
+    // ownership and adjusts the candle's remaining fuel.
     if (!alreadyLit) {
-        updateInventory = preflightBurnInventoryRefresh(
-            obj,
-            state,
-            normalized,
-        );
         position = get_obj_location(
             obj,
             CONTAINED_TOO | BURIED_TOO,
@@ -2578,13 +2501,15 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         if (start_timer(turns, TIMER_OBJECT, BURN_OBJECT, obj, state)) {
             obj.lamplit = true;
             obj.age = age - turns;
-            runBurnInventoryRefresh(updateInventory, state);
+            if (obj.where === OBJ_INVENT && !alreadyLit)
+                update_inventory({ state });
         } else {
             obj.lamplit = false;
         }
     } else {
         obj.lamplit = true;
-        runBurnInventoryRefresh(updateInventory, state);
+        if (obj.where === OBJ_INVENT && !alreadyLit)
+            update_inventory({ state });
     }
 
     if (obj.lamplit && !alreadyLit) {

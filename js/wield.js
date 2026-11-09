@@ -171,13 +171,7 @@ export async function setuwep(obj, env = {}) {
     }
     if ((state.uwep ?? null) === obj
         && artifact_light(olduwep) && olduwep.lamplit) {
-        end_burn(olduwep, false, objectGenerationEnv({
-            ...normalized,
-            hooks: {
-                updateInventory: () => update_inventory({ state }),
-                ...normalized.hooks,
-            },
-        }));
+        end_burn(olduwep, false, objectGenerationEnv(normalized));
         if (!Blind(state.u)) {
             await (env.message ?? ttyPline)(
                 `${Tobjnam(olduwep, 'stop', state)} shining.`, state,
@@ -1227,13 +1221,7 @@ export function uwepgone(env = {}) {
         };
         if (artifact_light(state.uwep) && state.uwep.lamplit) {
             const weapon = state.uwep;
-            end_burn(weapon, false, objectGenerationEnv({
-                ...env, state,
-                hooks: {
-                    updateInventory: () => update_inventory({ state }),
-                    ...env.hooks,
-                },
-            }));
+            end_burn(weapon, false, objectGenerationEnv({ ...env, state }));
             if (!Blind(state.u)) {
                 const message = (env.message ?? ttyPline)(
                     `${Tobjnam(weapon, 'stop', state)} shining.`, state,

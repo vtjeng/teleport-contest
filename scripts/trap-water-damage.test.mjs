@@ -276,18 +276,15 @@ test('water_damage follows trap.c source branches for potion dilution',
             where: OBJ_INVENT,
         };
         const messages = [];
-        let refreshes = 0;
         const result = await water_damage(obj, 'fruit juice', true, {
             state,
             message: (line) => messages.push(line),
-            updateInventory: () => { ++refreshes; },
             random: { rn2: () => assert.fail('forced water damage skips luck') },
             erodeObject: () => assert.fail('potions do not reach erosion'),
         });
         assert.equal(result, ER_DAMAGED);
         assert.equal(obj.odiluted, 1);
         assert.deepEqual(messages, ['Your fruit juice dilutes.']);
-        assert.equal(refreshes, 1);
     });
 
 test('water_damage deletes an acid potion through pot_acid_damage and delobj',
@@ -382,7 +379,6 @@ test('a previously diluted potion becomes uncursed water', async () => {
     const result = await water_damage(obj, 'fruit juice', true, {
         state,
         message: (line) => messages.push(line),
-        updateInventory: () => {},
         random: { rn2: () => assert.fail('forced water damage skips luck') },
     });
     assert.equal(result, ER_DAMAGED);
@@ -405,11 +401,9 @@ test('water_damage blanks a nonblank scroll and leaves blank paper alone',
             where: OBJ_INVENT,
         };
         const messages = [];
-        let refreshes = 0;
         const env = {
             state,
             message: (line) => messages.push(line),
-            updateInventory: () => { ++refreshes; },
             random: { rn2: () => assert.fail('forced water damage skips luck') },
         };
         assert.equal(
@@ -420,11 +414,9 @@ test('water_damage blanks a nonblank scroll and leaves blank paper alone',
         assert.equal(obj.spe, 0);
         assert.equal(obj.dknown, 0);
         assert.deepEqual(messages, ['Your scroll fades.']);
-        assert.equal(refreshes, 1);
         messages.length = 0;
         assert.equal(await water_damage(obj, 'scroll', true, env), ER_NOTHING);
         assert.deepEqual(messages, []);
-        assert.equal(refreshes, 1);
     });
 
 test('waterproof containers leak only on the cursed rn2(3) arm', async () => {

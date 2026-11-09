@@ -683,9 +683,7 @@ export class NethackGame {
             // C ref: allmain.c moveloop(TRUE):589. The preamble with
             // resuming=true applies new date-dependent effects (moon phase,
             // Friday the 13th) but skips gear-equip, pickup, and seer_turn.
-            await runMoveloopPreambleAtStartupBoundary(true, g, {
-                hooks: TTY_WINDOW_HOOKS,
-            });
+            await runMoveloopPreambleAtStartupBoundary(true, g);
             return true;
         }
 
@@ -701,9 +699,7 @@ export class NethackGame {
         // RNG effects precede the optional tutorial query.  The wrapper turns
         // a refusal raised inside it into the boundary runSegment() below ends
         // the segment on.
-        await runMoveloopPreambleAtStartupBoundary(false, g, {
-            hooks: TTY_WINDOW_HOOKS,
-        });
+        await runMoveloopPreambleAtStartupBoundary(false, g);
         await maybe_do_tutorial(g);
         return true;
     }
@@ -794,13 +790,6 @@ function createThemeroomSelectionCollector() {
         },
     });
 }
-
-// win/tty/wintty.c tty_update_inventory().  The recorder build lacks
-// TTY_PERM_INVENT, so the window-proc function installed in tty_procs is a
-// no-op even when startup options set iflags.perm_invent.
-const TTY_WINDOW_HOOKS = Object.freeze({
-    updateInventory() {},
-});
 
 export function segmentIterationLimit(movesLength) {
     return Math.max(

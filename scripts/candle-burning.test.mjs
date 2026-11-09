@@ -32,7 +32,6 @@ import {
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     UnsupportedBurnObjectError,
-    UnsupportedTimerCleanupError,
     begin_burn,
     peek_timer,
     start_timer,
@@ -379,29 +378,20 @@ test('unsupported burn and light paths fail before claiming ownership', () => {
     );
 });
 
-test('begin_burn refreshes carried candle state before creating its light', () => {
+// With perm_invent set, the carried candle reaches begin_burn()'s
+// update_inventory(), which leaves suppress_price as it found it.
+test('begin_burn lights a carried candle under perm_invent', () => {
     const state = burnState(10);
     state.iflags = { perm_invent: true, suppress_price: 7 };
     state.program_state = { in_moveloop: 1 };
     const obj = candle(TALLOW_CANDLE, { where: OBJ_INVENT });
-    let refreshes = 0;
 
-    begin_burn(obj, false, {
-        state,
-        hooks: {
-            updateInventory(currentState) {
-                ++refreshes;
-                assert.equal(currentState, state);
-                assert.equal(currentState.iflags.suppress_price, 0);
-                assert.equal(currentState.gl.light_base, null);
-                assert.equal(obj.age, 75);
-                assert.equal(obj.lamplit, true);
-                assert.equal(obj.timed, 1);
-            },
-        },
-    });
+    begin_burn(obj, false, { state });
 
-    assert.equal(refreshes, 1);
+    // The 75-turn stage of a 100-turn candle: timeout.c begin_burn().
+    assert.equal(obj.age, 75);
+    assert.equal(obj.lamplit, true);
+    assert.equal(obj.timed, 1);
     assert.equal(state.iflags.suppress_price, 7);
     assert.deepEqual(
         [state.gl.light_base.x, state.gl.light_base.y],
@@ -420,21 +410,6 @@ test('begin_burn preflights live integration before claiming ownership', () => {
                 assert.throws(
                     () => begin_burn(obj, false, { state }),
                     /can't get object position/,
-                );
-            },
-        },
-        {
-            name: 'permanent inventory requires its display hook',
-            state: Object.assign(burnState(), {
-                iflags: { perm_invent: true },
-                program_state: { in_moveloop: 1 },
-            }),
-            obj: candle(WAX_CANDLE, { where: OBJ_INVENT }),
-            run(state, obj) {
-                assert.throws(
-                    () => begin_burn(obj, false, { state }),
-                    (error) => error instanceof UnsupportedTimerCleanupError
-                        && error.operation === 'updateInventory',
                 );
             },
         },

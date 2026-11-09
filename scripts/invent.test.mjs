@@ -296,14 +296,9 @@ test('consume_obj_charge keeps its C billing-before-decrement order', async () =
         checkUnpaid(item, checkState) {
             events.push(['check', item.spe, checkState]);
         },
-        hooks: {
-            updateInventory() { events.push(['update', object.spe]); },
-        },
     });
-    assert.deepEqual(events, [
-        ['check', 2, state],
-        ['update', 1],
-    ]);
+    assert.deepEqual(events, [['check', 2, state]]);
+    assert.equal(object.spe, 1);
 
     // Other callers use the source-backed adapter. With no resident keeper,
     // shk.c returns from check_unpaid_usage before billing or drawing RNG.

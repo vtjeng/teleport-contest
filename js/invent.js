@@ -195,6 +195,7 @@ import {
 } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { tty_wait_synch } from './tty_rawprint.js';
+import { tty_update_inventory } from './wintty.js';
 import {
     CMAP_EXPLANATIONS,
     DEFAULT_PRIMARY_SYMBOLS,
@@ -2702,8 +2703,7 @@ function requiredHook(env, name, obj) {
 // intercepts only invent.c's discarded void billing call; absent it, the
 // existing check_unpaid implementation remains in effect.
 // Inventory effects: removeSpecialInventoryEffects(obj, env),
-// archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
-// updateInventory(state).
+// archeologistDeciphersScroll(obj, env), recordAchievement(id, env).
 // Ownership/lifetime: objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
 // deleteObjectLightSource(obj, env), unleashObject(obj, env),
 // resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
@@ -2721,28 +2721,6 @@ function suppressMapOutput(state) {
         || state.program_state?.saving
         || state.program_state?.restoring
         || state.program_state?.done_hup);
-}
-
-function inventoryRefreshActive(env) {
-    return Boolean(env.state.program_state?.in_moveloop)
-        && !suppressMapOutput(env.state);
-}
-
-function requireInventoryRefresh(env) {
-    if (!inventoryRefreshActive(env)) return;
-    if (env.state.iflags?.perm_invent
-        && typeof env.hooks.updateInventory !== 'function') {
-        throw new UnsupportedObjectOperationError('updateInventory');
-    }
-}
-
-// Dependency-only half of update_inventory(). Callers which must mutate
-// other state first can preserve C order while still failing atomically when
-// the permanent-inventory window boundary is unavailable.
-export function preflight_update_inventory(env = {}) {
-    const normalized = inventoryEnv(env);
-    requireInventoryRefresh(normalized);
-    return normalized;
 }
 
 // C ref: invent.c count_contents() (3620-3651). Counts the items inside a
@@ -2948,29 +2926,26 @@ export async function learn_unseen_invent(state = game, env = {}) {
         update_inventory({ ...env, state });
 }
 
-// C ref: invent.c update_inventory(). Calls before the move loop and while
-// map output is suppressed are deliberately ignored. moveloop_preamble()
-// owns the first live startup refresh.
+// C ref: invent.c update_inventory() (2782-2810). Calls before the move loop
+// and while map output is suppressed return early; moveloop_preamble() owns
+// the first live startup refresh.
 export function update_inventory(env = {}) {
-    const normalized = preflight_update_inventory(env);
-    if (!inventoryRefreshActive(normalized)) return false;
-    if (typeof normalized.hooks.updateInventory !== 'function') return false;
-    normalized.state.iflags ??= {};
-    const savedSuppressPrice = normalized.state.iflags.suppress_price;
-    normalized.state.iflags.suppress_price = 0;
-    try {
-        normalized.hooks.updateInventory(normalized.state);
-    } finally {
-        normalized.state.iflags.suppress_price = savedSuppressPrice;
-    }
-    return true;
+    const state = env.state ?? game;
+    if (!state.program_state?.in_moveloop) return;
+    if (suppressMapOutput(state)) return;
+    state.iflags ??= {};
+    const saveSuppressPrice = state.iflags.suppress_price;
+    state.iflags.suppress_price = 0;
+    tty_update_inventory(0);
+    state.iflags.suppress_price = saveSuppressPrice;
 }
 
-// C ref: invent.c doperminv() (2814-2857).  The recorder TTY build does not
-// advertise WC_PERM_INVENT, while callers with a window-port test hook may
-// provide the capability explicitly.  Keep the capability check before the
-// option and empty-pack checks, exactly as C does.
-export async function doperminv(state = game, hooks = {}) {
+// C ref: invent.c doperminv() (2814-2857). The recorder's tty_procs omit
+// WC_PERM_INVENT (see js/wintty.js tty_update_inventory()), so the #perminv
+// command reports that the interface lacks support. A capability named on
+// the state, as a test of another window port would set it, reaches the
+// remaining branches in C's order.
+export async function doperminv(state = game) {
     const capability = Number(state.wincap ?? 0);
     const namedCapability = state.windowCapabilities instanceof Set
         && state.windowCapabilities.has('WC_PERM_INVENT');
@@ -2988,15 +2963,8 @@ export async function doperminv(state = game, hooks = {}) {
         );
     } else if (!inventoryHead(state)) {
         await ttyPline('Persistent inventory display is empty.', state);
-    } else if (typeof hooks.updateInventory === 'function') {
-        hooks.updateInventory(1, state);
-    } else if (typeof state.hooks?.updateInventory === 'function') {
-        state.hooks.updateInventory(1, state);
     } else {
-        // A capable interface owns the actual persistent window operation;
-        // without one, leave the command at the same boundary after its
-        // source capability checks.
-        throw new UnsupportedObjectOperationError('win_update_inventory');
+        tty_update_inventory(1);
     }
     return ECMD_OK;
 }
@@ -3250,7 +3218,6 @@ function* freeinv_core_steps(obj, env, facts) {
 
 export function freeinv(obj, env = {}) {
     const normalized = inventoryEnv(env);
-    requireInventoryRefresh(normalized);
     const facts = preflightFreeinvCore(obj, normalized);
     normalized.state.invent = extract_nobj(obj, inventoryHead(normalized.state));
     obj.pickup_prev = false;
@@ -3323,7 +3290,6 @@ function preflightObjectExtraction(obj, env) {
         preflightContainedExtraction(obj, env);
         break;
     case OBJ_INVENT:
-        requireInventoryRefresh(env);
         preflightFreeinvCore(obj, env);
         break;
     case OBJ_ONBILL:
@@ -3649,8 +3615,6 @@ function oidPriceAdjustment(obj, oid, state) {
 }
 
 function preflightObfree(obj, merge, env) {
-    if (obj.otyp === LEASH && obj.leashmon)
-        preflight_update_inventory(env);
     if (isContainer(obj)) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj) requiredHook(env, 'resetPick', obj);
@@ -4269,7 +4233,6 @@ function addinv_core2(obj, env, facts) {
 // Archeologist's label message, so callers must consume this return value.
 export function replace_inventory_core(obj, replacement, env = {}) {
     const normalized = inventoryEnv(env);
-    requireInventoryRefresh(normalized);
     const freeFacts = preflightFreeinvCore(obj, normalized);
     const addFacts = preflightAddinvCores(replacement, normalized);
     freeinv_core(obj, normalized, freeFacts);
@@ -4359,7 +4322,6 @@ function setQuiver(obj, env) {
 // that exact object and normalized state, and one addinv() commit consumes it.
 export function preflight_addinv(obj, env = {}) {
     const normalized = inventoryEnv(env);
-    requireInventoryRefresh(normalized);
     return {
         object: obj,
         normalized,
@@ -5128,7 +5090,6 @@ export function useupall(obj, env = {}) {
     const normalized = inventoryEnv(env);
     if (obj.where !== OBJ_INVENT)
         throw new Error('useupall requires an inventory object');
-    requireInventoryRefresh(normalized);
     preflightFreeinvCore(obj, normalized);
     preflightObfree(obj, null, normalized);
     const afterWear = () => {
@@ -5173,7 +5134,6 @@ export async function consume_obj_charge(obj, maybe_unpaid, env = {}) {
 
 export function resetInventory(env = {}) {
     const normalized = inventoryEnv(env);
-    requireInventoryRefresh(normalized);
     for (let obj = inventoryHead(normalized.state); obj; obj = obj.nobj) {
         preflightFreeinvCore(obj, normalized);
         preflightObfree(obj, null, normalized);

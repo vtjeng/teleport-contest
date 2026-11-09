@@ -32,9 +32,9 @@ for(const [otyp,kind,bonus] of [[GOLD_DRAGON_SCALE_MAIL,'gold dragon scale mail'
         test(`Armor_on lights ${buc} ${kind} after knowledge and dragon effects`,async()=>{
             const obj=await setup(otyp,{blessed:buc==='blessed',cursed:buc==='cursed'});
             const events=[];
-            const env={hooks:{updateInventory:()=>events.push({known:obj.known,lit:obj.lamplit,resistance:game.u.uprops[HALLUC_RES].extrinsic&W_ARM})},
-                message:async text=>{assert.ok(game.gl.light_base?.id===obj,
-                    'begin_burn registered its light before pline');events.push(text);}};
+            const env={message:async text=>{assert.ok(game.gl.light_base?.id===obj,
+                'begin_burn registered its light before pline');
+            events.push({known:obj.known,lit:obj.lamplit,resistance:game.u.uprops[HALLUC_RES].extrinsic&W_ARM},text);}};
             const timers=game.gt.timer_base;
             const rng=getRngLog().length;
             assert.equal(await Armor_on(game,env),0);
@@ -43,7 +43,7 @@ for(const [otyp,kind,bonus] of [[GOLD_DRAGON_SCALE_MAIL,'gold dragon scale mail'
             assert.equal(game.gt.timer_base,timers,'gold armor uses no burn timer');
             assert.equal(game.gl.light_base.id,obj);
             assert.equal(game.gl.light_base.range,base+bonus);
-            assert.deepEqual(events,[{known:true,lit:false,resistance:0},{known:true,lit:true,resistance:W_ARM},
+            assert.deepEqual(events,[{known:true,lit:true,resistance:W_ARM},
                 `Your ${kind} begins to shine ${description}!`]);
             assert.equal(getRngLog().length,rng,'the source light tail makes no RNG call');
         });
@@ -62,8 +62,7 @@ test('Armor_on skips an already lit known suit without duplicate light or feedba
     const obj=await setup(GOLD_DRAGON_SCALES,{known:true});
     begin_burn(obj,false,{state:game}); // Existing owner establishes the lit source.
     const source=game.gl.light_base;const events=[];
-    assert.equal(await Armor_on(game,{hooks:{updateInventory:()=>events.push('inventory')},
-        message:async text=>events.push(text)}),0);
+    assert.equal(await Armor_on(game,{message:async text=>events.push(text)}),0);
     assert.equal(game.gl.light_base,source);assert.deepEqual(events,[]);
 });
 

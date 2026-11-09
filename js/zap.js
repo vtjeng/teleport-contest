@@ -2664,10 +2664,7 @@ export async function stone_to_flesh_obj(obj, state = game,
         ...rawEnv,
         message,
         norepMessage,
-        hooks: {
-            updateInventory: () => update_inventory({ state }),
-            ...(rawEnv.hooks ?? {}),
-        },
+        hooks: { ...(rawEnv.hooks ?? {}) },
     });
     const type = objectType(obj, state);
     if (type.oc_material !== MINERAL && type.oc_material !== GEMSTONE)

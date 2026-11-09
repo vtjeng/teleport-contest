@@ -252,26 +252,22 @@ test('passive_obj source preserves each switch arm and final carried refresh', (
     assert.match(caller, /if \(malive && !mon->mcan && rn2\(3\)\)/u);
 });
 
-test('passive_obj leaves unsupported damage types as C no-ops and refreshes carried items',
+test('passive_obj leaves unsupported damage types as C no-ops on carried items',
     async () => {
         const state = await startGame();
         const object = mksobj(DAGGER, false, false, { state });
         object.where = OBJ_INVENT;
         const random = scripted([]);
-        let inventoryRefreshes = 0;
 
         // AD_SLIM has no case body in passive_obj; C reaches update_inventory
-        // because the selected dagger is carried.
+        // because the selected dagger is carried, and the recorder's tty port
+        // draws nothing for it.
         await passive_obj({ data: {} }, object, { adtyp: AD_SLIM }, state, {
             random,
-            hooks: {
-                updateInventory: () => { inventoryRefreshes++; },
-            },
         });
 
         assert.deepEqual(random.calls, []);
         assert.equal(random.remaining(), 0);
-        assert.equal(inventoryRefreshes, 1);
     });
 
 test('passive wires the rust-object arm before its source trailing roll', async () => {
@@ -290,14 +286,10 @@ test('passive wires the rust-object arm before its source trailing roll', async 
     await passive(monster, weapon, true, true, AT_WEAP, false, state, {
         random,
         message: async (line) => { events.push(`message:${line}`); },
-        hooks: {
-            updateInventory: () => { events.push('inventory'); },
-        },
     });
 
     assert.equal(weapon.oeroded, 1);
     assert.deepEqual(random.calls, [3]);
     assert.equal(random.remaining(), 0);
     assert.ok(events.some((event) => event.includes('rusts!')));
-    assert.ok(events.includes('inventory'));
 });

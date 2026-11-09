@@ -115,12 +115,8 @@ export async function moveloop_preamble(
         state.iflags.fuzzerpending = false;
     }
     state.program_state.in_moveloop = 1;
-    if (state.iflags.perm_invent) {
-        update_inventory({
-            state,
-            hooks: env.hooks,
-        });
-    }
+    if (state.iflags.perm_invent)
+        update_inventory({ state });
     return state;
 }
 

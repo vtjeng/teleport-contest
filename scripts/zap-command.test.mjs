@@ -1085,18 +1085,17 @@ test('zapping unpaid merchandise without a resident shopkeeper continues',
     assert.ok(lastCharge.spe <= 0);
 });
 
-test('a zap under perm_invent stops at the inventory window', async () => {
+test('a zap under perm_invent completes past the inventory refresh', async () => {
     // zap.c:2681's update_inventory(), whose comment reads "maybe used a
-    // charge". It does nothing while the permanent-inventory window is off,
-    // so the only way to show the call happens is to turn the window on: the
-    // port has no owner for it and must stop rather than skip the redraw.
-    await heroCarryingWand();
+    // charge". The recorder's tty port leaves TTY_PERM_INVENT undefined, so
+    // tty_update_inventory() draws nothing even with perm_invent set, and the
+    // command finishes as it does with the option off.
+    await heroCarryingWand({ spe: 4 });
     game.iflags.perm_invent = true;
     typeAtPrompts(HEALER_WAND, ESCAPE_KEY);
     try {
-        await assert.rejects(
-            () => dozap(game), /updateInventory/u,
-        );
+        assert.equal(await dozap(game), ECMD_TIME);
+        assert.equal(pendingTopLine(), 'The wand of sleep glows and fades.');
     } finally {
         game.iflags.perm_invent = false;
     }

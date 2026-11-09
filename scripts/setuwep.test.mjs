@@ -134,7 +134,7 @@ test('Ogresmasher status dirties and source unweapon exceptions survive replacem
     assert.equal(state.unweapon, true);
 });
 
-test('incoming Ogresmasher status and burn inventory refresh precede the light message', async () => {
+test('incoming Ogresmasher status and extinguished light precede the light message', async () => {
     const state = hero();
     const old = equip(state);
     const incoming = object(state, WAR_HAMMER, { oartifact: ART_OGRESMASHER });
@@ -144,17 +144,10 @@ test('incoming Ogresmasher status and burn inventory refresh precede the light m
         assert.equal(state.disp.botl, true);
         assert.equal(state.uwep, incoming);
         assert.equal(old.lamplit, false);
+        assert.equal(state.gl.light_base, null);
     });
-    options.hooks.updateInventory = () => {
-        // worn.c:setworn refreshes inventory before setuwep's first botl
-        // mark; timeout.c:end_burn refreshes it again after clearing lamplit.
-        events.push(old.lamplit ? 'slot-inventory' : 'burn-inventory');
-        assert.equal(state.disp.botl, !old.lamplit);
-        assert.equal(state.uwep, incoming);
-        if (!old.lamplit) assert.equal(state.gl.light_base, null);
-    };
     await setuwep(incoming, options);
-    assert.deepEqual(events, ['slot-inventory', 'burn-inventory', 'message']);
+    assert.deepEqual(events, ['message']);
 });
 
 // B135's canonical worn owner can wait for artifact display. wield.c must

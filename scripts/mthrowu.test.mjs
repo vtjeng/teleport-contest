@@ -1484,7 +1484,6 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
         stackObject: () => {},
         hooks: {
             message: (line) => { messages.push(line); },
-            updateInventory: () => {},
             encumberMessage: () => {},
         },
         endMulti: () => {},

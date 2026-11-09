@@ -3618,12 +3618,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
 // JavaScript slice. Keep them out of the generic default, which C reaches
 // only after every named case has failed to match.
 function figurineObjectEnv(state, env = {}) {
-    const hooks = { ...(env.hooks ?? {}) };
-    if (hooks.updateInventory === undefined
-        && typeof state.hooks?.updateInventory === 'function') {
-        hooks.updateInventory = state.hooks.updateInventory;
-    }
-    return { ...env, state, hooks };
+    return { ...env, state, hooks: { ...(env.hooks ?? {}) } };
 }
 
 // C ref: apply.c fig_transform() (2398-2508). This is timeout.c's object

@@ -1556,7 +1556,6 @@ function unslimeEnv(state, displayDraws, coreDraws, messages) {
             },
             message: async (text) => { messages.push(text); },
             redraw: () => {},
-            hooks: { updateInventory: () => {} },
         },
     };
 }

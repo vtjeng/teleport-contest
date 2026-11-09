@@ -29,10 +29,9 @@ async function fixture(otyp,age,where=OBJ_INVENT,quantity=1){
   obj.where=where;obj.ocarry=mon;game.level.monlist=mon;game.level.monsters[mon.mx][mon.my]=mon;
  }else if(where===OBJ_MIGRATING){obj.where=where;game.gm.migrating_objs=obj;}
  new_light_source(game.u.ux,game.u.uy,2,LS_OBJECT,obj,game); // Minimum ordinary-candle radius.
- const messages=[],redraws=[],inventory=[];
- const env={state:game,message:async text=>messages.push(text),newsym:(x,y)=>redraws.push([x,y]),
-  hooks:{updateInventory:()=>inventory.push(obj.lamplit)}};
- return{obj,env,messages,redraws,inventory};
+ const messages=[],redraws=[];
+ const env={state:game,message:async text=>messages.push(text),newsym:(x,y)=>redraws.push([x,y])};
+ return{obj,env,messages,redraws};
 }
 function assertDark(obj){assert.equal(obj.lamplit,false);assert.equal(game.gl.light_base,null);}
 
@@ -87,7 +86,7 @@ test('candelabrum expiry clears candle count and recomputes retained weight',asy
  await burn_object(f.obj,game.moves,f.env);
  assert.deepEqual(f.messages,["Your candelabrum's flames die."]);
  assertDark(f.obj);assert.equal(f.obj.where,OBJ_INVENT);assert.equal(f.obj.spe,0);
- assert.equal(f.obj.owt,bare);assert.ok(f.inventory.length>0);
+ assert.equal(f.obj.owt,bare);
 });
 
 for(const otyp of [OIL_LAMP,BRASS_LANTERN]){

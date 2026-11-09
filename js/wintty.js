@@ -634,6 +634,15 @@ export function tty_preference_update(pref, state = game) {
     }
 }
 
+// C ref: win/tty/wintty.c tty_update_inventory() (3605-3613), the tty
+// window port's win_update_inventory. The recorder is built from
+// sys/unix/hints/linux-minimal, which leaves include/config.h's
+// TTY_PERM_INVENT undefined, so the function takes its "do nothing" branch:
+// it draws no permanent inventory window and never calls back into
+// invent.c sync_perminvent(), whether or not iflags.perm_invent is set.
+// The same build omits WC_PERM_INVENT from tty_procs' capabilities.
+export function tty_update_inventory(_arg = 0) {}
+
 // C ref: win/tty/wintty.c tty_player_selection() (633-641). The role.c
 // implementation is already owned by player_selection_tty.js; it returns true
 // once a character is chosen, and a cancelled selection bails, which does not

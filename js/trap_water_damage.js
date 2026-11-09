@@ -87,12 +87,11 @@ function containerIsWaterproof(obj, objects) {
         || obj.otyp === objects.CHEST;
 }
 
-async function updateInventory(env) {
-    if (typeof env.updateInventory === 'function') {
-        return env.updateInventory(env);
-    }
+// trap.c water_damage()'s update_inventory() calls, through a lazy import of
+// js/invent.js.
+async function lazyUpdateInventory(env) {
     const { update_inventory } = await import('./invent.js');
-    return update_inventory(env);
+    update_inventory(env);
 }
 
 // C ref: trap.c water_damage() calls apply.c splash_lit() first.
@@ -147,7 +146,7 @@ export async function pot_acid_damage(obj, inInvent, described, rawEnv = {}) {
     const { setnotworn } = await import('./worn.js');
     await setnotworn(obj, { ...rawEnv, state });
     delobj(obj, { ...rawEnv, state });
-    if (inInvent) await updateInventory({ ...rawEnv, state });
+    if (inInvent) await lazyUpdateInventory({ ...rawEnv, state });
 }
 
 async function damageContents(obj, env) {
@@ -478,7 +477,7 @@ export async function water_damage(obj, description, force, env = {}) {
                 await message(
                     `The grease on ${yname(obj, state)} washes off.`,
                     state);
-                await updateInventory(env);
+                await lazyUpdateInventory(env);
             }
             // C ref: trap.c:4744-4748. Ungreased potion of acid is destroyed.
             if (obj.otyp === objects.POT_ACID) {
@@ -549,7 +548,7 @@ export async function water_damage(obj, description, force, env = {}) {
         obj.otyp = objects.SCR_BLANK_PAPER;
         obj.dknown = 0;
         obj.spe = 0;
-        if (in_invent) await updateInventory(env);
+        if (in_invent) await lazyUpdateInventory(env);
         return ER_DAMAGED;
     }
 
@@ -588,7 +587,7 @@ export async function water_damage(obj, description, force, env = {}) {
         if (obj.spestudied) obj.spestudied = random.rn2(obj.spestudied);
         obj.dknown = 0;
         if (oldType === objects.SPE_NOVEL) blank_novel(obj, env);
-        if (in_invent) await updateInventory(env);
+        if (in_invent) await lazyUpdateInventory(env);
         return ER_DAMAGED;
     }
 
@@ -609,7 +608,7 @@ export async function water_damage(obj, description, force, env = {}) {
             obj.blessed = false;
             obj.cursed = false;
             obj.odiluted = 0;
-            if (in_invent) await updateInventory(env);
+            if (in_invent) await lazyUpdateInventory(env);
             return ER_DAMAGED;
         }
         if (obj.otyp !== objects.POT_WATER) {
@@ -619,7 +618,7 @@ export async function water_damage(obj, description, force, env = {}) {
                     state,
                 );
             obj.odiluted = (obj.odiluted ?? 0) + 1;
-            if (in_invent) await updateInventory(env);
+            if (in_invent) await lazyUpdateInventory(env);
             return ER_DAMAGED;
         }
         return ER_NOTHING;

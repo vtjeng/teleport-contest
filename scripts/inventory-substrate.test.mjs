@@ -1398,7 +1398,6 @@ test('runtime comparison messages pause before object deletion and addinv tail',
         releaseMessage = resolve;
     });
     let comparisonCalls = 0;
-    let inventoryRefreshes = 0;
     let settled = false;
     const pending = addinv_runtime(incoming, {
         state,
@@ -1406,9 +1405,6 @@ test('runtime comparison messages pause before object deletion and addinv tail',
             inventoryComparisonDiscovered() {
                 ++comparisonCalls;
                 return messageGate;
-            },
-            updateInventory() {
-                ++inventoryRefreshes;
             },
         },
     }).then((result) => {
@@ -1424,14 +1420,12 @@ test('runtime comparison messages pause before object deletion and addinv tail',
     assert.equal(target.o_id, 3);
     assert.equal(incoming.where, OBJ_FREE);
     assert.equal(target.pickup_prev, false);
-    assert.equal(inventoryRefreshes, 0);
 
     releaseMessage();
     assert.equal(await pending, target);
     assert.equal(incoming.where, OBJ_DELETED);
     assert.equal(target.o_id, 4);
     assert.equal(target.pickup_prev, true);
-    assert.equal(inventoryRefreshes, 1);
 });
 
 test('runtime addinv keeps nonblocking source branches synchronous', async () => {
@@ -1794,17 +1788,13 @@ test('special-prize achievement is direct and source-ordered', () => {
     assert.equal(prize.where, OBJ_INVENT);
 });
 
-test('addinv_nomerge restores its flag when a seam rejects insertion', () => {
+test('addinv_nomerge restores its flag after inserting under perm_invent', () => {
     const state = initializedState();
     state.iflags.perm_invent = true;
     const ration = instance(FOOD_RATION, state);
-    assert.throws(
-        () => addinv_nomerge(ration, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'updateInventory',
-    );
+    assert.equal(addinv_nomerge(ration, { state }), ration);
     assert.equal(ration.nomerge, false);
-    assert.equal(ration.where, OBJ_FREE);
+    assert.equal(ration.where, OBJ_INVENT);
 });
 
 test('freeinv recalculates moreluck when removing a luckstone', () => {
@@ -2173,23 +2163,14 @@ test('a live cursed figurine timer follows inventory ownership', () => {
     assert.equal(figurine.where, OBJ_DELETED);
 });
 
-test('permanent inventory requires and receives refreshes', () => {
+// The recorder's tty port has no permanent inventory window
+// (js/wintty.js tty_update_inventory()), so perm_invent needs no window hook.
+test('permanent inventory adds an object without a window hook', () => {
     const state = initializedState();
     state.iflags.perm_invent = true;
     const ration = instance(FOOD_RATION, state);
-    assert.throws(
-        () => addinv(ration, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'updateInventory',
-    );
-    assert.equal(ration.where, OBJ_FREE);
-
-    let updates = 0;
-    addinv(ration, {
-        state,
-        hooks: { updateInventory: () => { ++updates; } },
-    });
-    assert.equal(updates, 1);
+    assert.equal(addinv(ration, { state }), ration);
+    assert.equal(ration.where, OBJ_INVENT);
 });
 
 test('startup inventory additions defer permanent inventory rendering', () => {
@@ -2215,39 +2196,29 @@ test('inventory refresh honors map suppression and restores price state', () => 
     ]) {
         const [field, owner] = suppressingState;
         owner[field] = 1;
-        assert.equal(update_inventory({ state }), false);
+        assert.equal(update_inventory({ state }), undefined);
+        assert.equal(state.iflags.suppress_price, 7);
         owner[field] = 0;
     }
 
-    assert.throws(
-        () => update_inventory({
-            state,
-            hooks: {
-                updateInventory(current) {
-                    assert.equal(current.iflags.suppress_price, 0);
-                    throw new Error('window failure');
-                },
-            },
-        }),
-        /window failure/u,
-    );
+    // invent.c:2806-2809 forces suppress_price to 0 only around the window
+    // call and puts the caller's value back.
+    update_inventory({ state });
     assert.equal(state.iflags.suppress_price, 7);
 });
 
-test('useupall checks permanent inventory before unwielding', () => {
+test('useupall unwields and deletes a wielded object under perm_invent', () => {
     const state = initializedState();
     const dart = instance(DART, state);
     addinv(dart, { state });
     dart.owornmask = W_WEP;
+    state.uwep = dart;
     state.iflags.perm_invent = true;
 
-    assert.throws(
-        () => useupall(dart, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'updateInventory',
-    );
-    assert.equal(dart.owornmask, W_WEP);
-    assert.equal(dart.where, OBJ_INVENT);
+    useupall(dart, { state });
+    assert.equal(dart.owornmask, 0);
+    assert.equal(dart.where, OBJ_DELETED);
+    assert.equal(state.uwep ?? null, null);
 });
 
 test('money_cnt returns the first coin stack like the source invariant', () => {
@@ -2259,21 +2230,16 @@ test('money_cnt returns the first coin stack like the source invariant', () => {
     assert.equal(money_cnt(first), 25);
 });
 
-test('consume_obj_charge bills before decrementing and refreshes known items',
+test('consume_obj_charge decrements known and unpaid items',
     async () => {
         const state = initializedState();
         const horn = instance(HORN_OF_PLENTY, state, {
             known: true,
             spe: 3,
         });
-        let refreshed = 0;
         state.program_state.in_moveloop = 1;
-        await consume_obj_charge(horn, false, {
-            state,
-            hooks: { updateInventory: () => { refreshed += 1; } },
-        });
+        await consume_obj_charge(horn, false, { state });
         assert.equal(horn.spe, 2);
-        assert.equal(refreshed, 1);
 
         const unpaid = instance(HORN_OF_PLENTY, state, {
             known: false,
@@ -2444,16 +2410,14 @@ test('doperminv follows capability, option, and empty-pack gates', async () => {
     await doperminv(empty);
     assert.equal(empty._ttyToplines, 'Persistent inventory display is empty.');
 
-    const calls = [];
+    // The last branch hands the window port a nonzero argument and prints
+    // nothing itself.
     const capable = {
         flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
         invent: { nobj: null },
     };
-    assert.equal(
-        await doperminv(capable, { updateInventory: (key) => calls.push(key) }),
-        0,
-    );
-    assert.deepEqual(calls, [1]);
+    assert.equal(await doperminv(capable), 0);
+    assert.equal(capable._ttyToplines, undefined);
 });
 
 test('dispinv_with_action uses source in-use ordering and restores flags', async () => {
@@ -3288,11 +3252,6 @@ test('heavy-ball retain and drop paths preserve source callback order',
                     snapshot('encumber');
                 },
             };
-            if (!currentCase.drops) {
-                hooks.updateInventory = () => {
-                    snapshot('inventory refresh');
-                };
-            }
             const env = { state, hooks };
 
             const held = await hold_another_object(
@@ -3315,7 +3274,6 @@ test('heavy-ball retain and drop paths preserve source callback order',
                         true,
                         false,
                     ],
-                    ['inventory refresh', null, OBJ_INVENT, 1, true, false],
                     ['encumber', null, OBJ_INVENT, 1, true, false],
                 ], currentCase.name);
             } else {

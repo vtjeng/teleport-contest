@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 771203,
+      "datetime": "20300614101500",
+      "nethackrc": "OPTIONS=name:Lamplighter,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,perm_invent\n",
+      "moves": " \u0017oil lamp\najwjdj,5s#perminv\n",
+      "comment": "perm_invent set in the rc on the recorder's tty build, whose TTY_PERM_INVENT is undefined: invent.c update_inventory() reaches wintty.c tty_update_inventory(), which draws nothing, from the wish's addinv(), begin_burn() lighting the lamp, setuwep() wielding it, and the drop and pickup; #perminv reaches doperminv()'s unsupported-interface message."
+    }
+  ]
+}

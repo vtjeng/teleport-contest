@@ -133,10 +133,6 @@ function tutorialInventoryHooks({ objectGenerationHooks }) {
         // level's monster visibility state is discarded by goto_level().
         cancelDoff() {},
         monsterUnseesProperty() {},
-        // Permanent-inventory rendering is a window-port concern. Supplying
-        // its live hook preserves update_inventory()'s source boundary while
-        // the subsequent full redraw owns the gameplay terminal.
-        updateInventory() {},
     });
 }
 

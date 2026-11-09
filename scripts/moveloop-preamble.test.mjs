@@ -179,20 +179,15 @@ test('new-game preamble resets starting inventory before staircase decor',
         assert.deepEqual([state.u.ux, state.u.uy, state.context.move], [1, 1, 0]);
     });
 
-test('permanent inventory first renders after entering the move loop', async () => {
+// allmain.c:107-110 calls update_inventory() for perm_invent after setting
+// in_moveloop; the recorder's tty port draws nothing for it.
+test('permanent inventory startup refresh needs no window hook', async () => {
     const state = preambleState('20260129120000');
     state.iflags.perm_invent = true;
-    const updates = [];
 
-    await moveloop_preamble(false, state, {
-        hooks: {
-            updateInventory(current) {
-                updates.push(current.program_state.in_moveloop);
-            },
-        },
-    });
+    await moveloop_preamble(false, state);
 
-    assert.deepEqual(updates, [1]);
+    assert.equal(state.program_state.in_moveloop, 1);
 });
 
 test('moon and Friday effects preserve source messages and Luck changes', async () => {
@@ -666,20 +661,16 @@ test('a startup failure that is not a refusal still escapes the preamble',
     async () => {
         // The converter reads js/cmd.js failClosedCommandRefusals(), so a
         // fault outside that list stays a hard failure: converting one would
-        // turn a port bug into a quietly short segment. The perm_invent hook
-        // is the seam an injected fault can reach without pretending that a
-        // ported function raises it.
+        // turn a port bug into a quietly short segment. Reading the
+        // perm_invent option is the seam an injected fault can reach without
+        // pretending that a ported function raises it.
         const state = preambleState('20260129120000');
-        state.iflags.perm_invent = true;
+        Object.defineProperty(state.iflags, 'perm_invent', {
+            get() { throw new Error('no inventory window'); },
+        });
 
         await assert.rejects(
-            runMoveloopPreambleAtStartupBoundary(false, state, {
-                hooks: {
-                    updateInventory() {
-                        throw new Error('no inventory window');
-                    },
-                },
-            }),
+            runMoveloopPreambleAtStartupBoundary(false, state),
             (error) => {
                 assert.equal(error.constructor, Error,
                     `expected a plain Error, got ${error?.name}`);

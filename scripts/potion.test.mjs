@@ -538,7 +538,7 @@ test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
     assert.equal(foreign.disp.botl, true);
 });
 
-test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {
+test('make_glib preserves C boolean XOR with and without worn gloves', () => {
     // potion.c:462-468 uses !old ^ !!xtime, including the equal-state cases.
     for (const old of [0, 1, FROMOUTSIDE]) {
         for (const xtime of [0, 2]) {
@@ -550,20 +550,10 @@ test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {
                     iflags: { suppress_price: 7 },
                 };
                 state.u.uprops[GLIB] = { intrinsic: old };
-                let refreshes = 0;
-                make_glib(xtime, state, { hooks: {
-                    updateInventory(subject) {
-                        assert.strictEqual(subject, state);
-                        assert.equal(subject.u.uprops[GLIB].intrinsic,
-                            (old & ~TIMEOUT) | xtime);
-                        assert.equal(subject.iflags.suppress_price, 0);
-                        refreshes++;
-                    },
-                } });
+                make_glib(xtime, state);
                 assert.equal(state.disp.botl, Boolean(old) === Boolean(xtime));
                 assert.equal(state.u.uprops[GLIB].intrinsic,
                     (old & ~TIMEOUT) | xtime);
-                assert.equal(refreshes, gloves ? 1 : 0);
                 assert.equal(state.iflags.suppress_price, 7,
                     'inventory refresh restores its independent flag');
             }
@@ -4126,7 +4116,6 @@ test('potion dip explosion passes the live exercise hook and C Deaf value',
                 encumberMessage: async (state) => {
                     events.push(['encumber', state.moves]);
                 },
-                updateInventory: () => {},
             },
         });
 

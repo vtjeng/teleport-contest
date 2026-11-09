@@ -126,7 +126,6 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
-    UnsupportedTimerCleanupError,
     choke_dialogue,
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
@@ -187,23 +186,15 @@ test('learn_egg_type normalizes baby species, preserves mvflags, then refreshes 
     );
 
     // The adult slot begins with G_EXTINCT to prove learn_egg_type only adds
-    // the knowledge bit; the hook observes the source-ordered refresh.
+    // the knowledge bit.
     const state = {
         program_state: { in_moveloop: 1 },
         svm: { mvitals: [] },
     };
     state.svm.mvitals[PM_CROCODILE] = { mvflags: G_EXTINCT };
-    const events = [];
-    learn_egg_type(PM_BABY_CROCODILE, state, {
-        hooks: {
-            updateInventory(updatedState) {
-                events.push([updatedState.svm.mvitals[PM_CROCODILE].mvflags]);
-            },
-        },
-    });
+    learn_egg_type(PM_BABY_CROCODILE, state);
     assert.equal(state.svm.mvitals[PM_CROCODILE].mvflags,
         G_EXTINCT | MV_KNOWS_EGG);
-    assert.deepEqual(events, [[G_EXTINCT | MV_KNOWS_EGG]]);
 });
 
 function timerState(moves = 10) {
@@ -2328,17 +2319,10 @@ test('stop_timer performs burning-object cleanup in source order', () => {
                 assert.equal(obj.timed, 0);
                 assert.equal(peek_timer(BURN_OBJECT, obj, state), 0);
             },
-            updateInventory(currentState) {
-                calls.push('inventory');
-                assert.equal(currentState, state);
-                assert.equal(currentState.iflags.suppress_price, 0);
-                assert.equal(lamp.age, 45);
-                assert.equal(lamp.lamplit, false);
-            },
         },
     }), 5);
 
-    assert.deepEqual(calls, ['light', 'inventory']);
+    assert.deepEqual(calls, ['light']);
     assert.equal(lamp.timed, 0);
     assert.equal(lamp.age, 45);
     assert.equal(lamp.lamplit, false);
@@ -2369,27 +2353,18 @@ test('cleanup_burn deletes its object light before restoring fuel and inventory'
     start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, state);
     state.moves = 12;
 
-    let refreshed = false;
-    assert.equal(stop_timer(BURN_OBJECT, lamp, state, {
-        hooks: {
-            updateInventory(currentState) {
-                refreshed = true;
-                assert.equal(currentState, state);
-                assert.equal(currentState.gl.light_base, null);
-                assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
-                assert.equal(lamp.timed, 0);
-                assert.equal(lamp.age, 45);
-                assert.equal(lamp.lamplit, false);
-            },
-        },
-    }), 5);
-    assert.equal(refreshed, true);
+    assert.equal(stop_timer(BURN_OBJECT, lamp, state), 5);
+    assert.equal(state.gl.light_base, null);
+    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
+    assert.equal(lamp.timed, 0);
+    assert.equal(lamp.age, 45);
+    assert.equal(lamp.lamplit, false);
     assert.equal(state.vision_full_recalc, 1);
     assert.equal(state.iflags.suppress_price, 7);
 });
 
 test('burn cleanup completes local state before rethrowing hook errors', () => {
-    for (const failingHook of ['deleteObjectLightSource', 'updateInventory']) {
+    for (const failingHook of ['deleteObjectLightSource']) {
         const state = timerState(10);
         state.iflags = { perm_invent: true, suppress_price: 7 };
         state.program_state = { in_moveloop: 1 };
@@ -2412,15 +2387,11 @@ test('burn cleanup completes local state before rethrowing hook errors', () => {
                         if (failingHook === 'deleteObjectLightSource')
                             throw failure;
                     },
-                    updateInventory() {
-                        calls.push('inventory');
-                        if (failingHook === 'updateInventory') throw failure;
-                    },
                 },
             }),
             (error) => error === failure,
         );
-        assert.deepEqual(calls, ['light', 'inventory']);
+        assert.deepEqual(calls, ['light']);
         assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
         assert.equal(lamp.timed, 0);
         assert.equal(lamp.age, 45);
@@ -2452,10 +2423,6 @@ test('burn cleanup preserves the first thrown value even when it is falsy', () =
                     calls.push('light');
                     throw false;
                 },
-                updateInventory() {
-                    calls.push('inventory');
-                    throw new Error('later inventory failure');
-                },
             },
         });
     } catch (error) {
@@ -2464,98 +2431,12 @@ test('burn cleanup preserves the first thrown value even when it is falsy', () =
     }
     assert.equal(didThrow, true);
     assert.equal(thrown, false);
-    assert.deepEqual(calls, ['light', 'inventory']);
+    assert.deepEqual(calls, ['light']);
     assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
     assert.equal(lamp.timed, 0);
     assert.equal(lamp.age, 45);
     assert.equal(lamp.lamplit, false);
     assert.equal(state.iflags.suppress_price, 7);
-});
-
-test('burn cleanup preflights the required inventory refresh before queue mutation', () => {
-    const state = timerState(10);
-    state.iflags = { perm_invent: true };
-    state.program_state = { in_moveloop: 1 };
-    const lamp = {
-        age: 40,
-        lamplit: true,
-        timed: 0,
-        where: OBJ_INVENT,
-    };
-    start_timer(5, TIMER_OBJECT, BURN_OBJECT, lamp, state);
-
-    assert.throws(
-        () => stop_timer(BURN_OBJECT, lamp, state),
-        (error) => error instanceof UnsupportedTimerCleanupError
-            && error.operation === 'updateInventory',
-    );
-    assert.throws(
-        () => stop_timer(BURN_OBJECT, lamp, state, {
-            hooks: { deleteObjectLightSource() {} },
-        }),
-        (error) => error instanceof UnsupportedTimerCleanupError
-            && error.operation === 'updateInventory',
-    );
-    assert.equal(lamp.timed, 1);
-    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 15);
-    assert.equal(lamp.age, 40);
-    assert.equal(lamp.lamplit, true);
-});
-
-test('burn cleanup uses the optional live inventory seam without perm_invent', () => {
-    for (const active of [false, true]) {
-        const state = timerState(10);
-        if (active) {
-            state.iflags = { perm_invent: false };
-            state.program_state = { in_moveloop: 1 };
-        }
-        const lamp = {
-            age: 40,
-            lamplit: true,
-            timed: 0,
-            where: OBJ_INVENT,
-        };
-        start_timer(5, TIMER_OBJECT, BURN_OBJECT, lamp, state);
-
-        let refreshes = 0;
-        assert.equal(stop_timer(BURN_OBJECT, lamp, state, {
-            hooks: {
-                deleteObjectLightSource() {},
-                updateInventory() { ++refreshes; },
-            },
-        }), 5);
-        assert.equal(refreshes, active ? 1 : 0);
-        assert.equal(lamp.timed, 0);
-        assert.equal(lamp.age, 45);
-        assert.equal(lamp.lamplit, false);
-    }
-});
-
-test('obj_stop_timers preflights all cleanup before removing any timer', () => {
-    const state = timerState(20);
-    state.iflags = { perm_invent: true };
-    state.program_state = { in_moveloop: 1 };
-    const target = {
-        age: 30,
-        lamplit: true,
-        timed: 0,
-        where: OBJ_INVENT,
-    };
-    // ROT expires first, before the later BURN timer whose inventory-window
-    // hook is missing. Global preflight must reject without removing either.
-    start_timer(4, TIMER_OBJECT, ROT_CORPSE, target, state);
-    start_timer(8, TIMER_OBJECT, BURN_OBJECT, target, state);
-    const timers = queue(state);
-
-    assert.throws(
-        () => obj_stop_timers(target, state),
-        (error) => error instanceof UnsupportedTimerCleanupError
-            && error.operation === 'updateInventory',
-    );
-    assert.deepEqual(queue(state), timers);
-    assert.equal(target.timed, 2);
-    assert.equal(target.age, 30);
-    assert.equal(target.lamplit, true);
 });
 
 test('obj_stop_timers cleans burn state and preserves unrelated queue order', () => {

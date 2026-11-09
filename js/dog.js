@@ -89,7 +89,7 @@ import { game } from './gstate.js';
 import {
     can_saddle, dismount_steed, put_saddle_on_mon,
 } from './steed.js';
-import { obfree, update_inventory } from './invent.js';
+import { obfree } from './invent.js';
 import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
 import { discard_minvent, makemon_runtime } from './makemon_create.js';
 import {
@@ -796,9 +796,7 @@ export async function makedog(env = {}) {
     const firstPetName = Math.trunc(state.gp.petname_used ?? 0) === 0;
     state.gp.petname_used = Math.trunc(state.gp.petname_used ?? 0) + 1;
     if (firstPetName && petname) {
-        christen_monst(monster, petname, {
-            updateInventory: () => update_inventory(normalized),
-        });
+        christen_monst(monster, petname, { state });
     }
     initedog(monster, true, normalized);
     return monster;
