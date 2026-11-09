@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c domove_attackmon_at() calls uhitm.c do_attack() for a force-fight (F) at a monster the hero cannot see, including a ceiling hider still hidden. A Valkyrie in debug mode creates a hidden rock piercer with #wizgenesis, which lands to the northeast, and force-fights it until it dies or is revealed.",
+  "segments": [
+    {
+      "seed": 4128803,
+      "datetime": "20450610142233",
+      "nethackrc": "OPTIONS=name:Ceiling,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0007hidden piercer\nFuFuFuFuFus"
+    }
+  ]
+}

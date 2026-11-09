@@ -1576,27 +1576,6 @@ export function doorless_door(location, state = game) {
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }
 
-// C ref: hack.c domove_attackmon_at() (1954-1992). What the hero has to know
-// about the target before uhitm.c do_attack() can run.
-//
-// C's displacer-beast swap at 1972-1985 short-circuits on the species before
-// its !rn2(2), so every other target reaches do_attack() with no draw spent
-// and only that one species stops here.
-//
-// The gate at 1968-1970 admits a hidden target when it hides under something
-// or is an eel (S_EEL), and is not a safe pet. attack_checks() then handles
-// the reveal message and refuses the attack. Targets hidden another way
-// (ceiling hiders, for example) are not handled in do_attack() and stop here.
-function requireOrdinaryHostileMelee(monster, state) {
-    if (monster.mundetected
-        && !sensemon(monster, state)
-        && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'attacking a hidden monster (ceiling hider or other)',
-        );
-    }
-}
-
 // The destination-monster seam. C splits by `is_safemon(mtmp) &&
 // !svc.context.forcefight` inside do_attack() (uhitm.c:462); this splits the
 // same way, including Stormbringer's inner exception to displacement. The
@@ -1617,9 +1596,11 @@ function requireSupportedDestinationMonster(monster, x, y, state) {
         && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
         return;
     }
+    // uhitm.c do_attack() handles every other attack, including a force-fight
+    // at a ceiling hider still hidden: attack_checks() returns at once for
+    // context.forcefight.
     if (!is_safemon(monster, state) || state.context?.forcefight
         || state.uwep?.oartifact === ART_STORMBRINGER) {
-        requireOrdinaryHostileMelee(monster, state);
         return;
     }
     requireOrdinarySafeMonsterSwap(monster, x, y, state);
