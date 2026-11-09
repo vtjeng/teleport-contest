@@ -312,10 +312,8 @@ test('themeroom generation connects selection, map placement, and filler region'
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
         {
-            randomFacade: completeRandomFacade(random, randomOneBased),
+            random: completeRandomFacade(random, randomOneBased),
             themeroomFill() {
                 assert.fail('ordinary filler-region branch must not fill');
             },
@@ -369,10 +367,8 @@ test('live filler maps invoke their optional themed fill synchronously', async (
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
         {
-            randomFacade,
+            random: randomFacade,
             themeroomFill(room, difficulty, callbackEnv) {
                 ++callbackCount;
                 assert.equal(room, game.level.rooms[0]);
@@ -428,9 +424,7 @@ test('live filler maps execute the selected default themed fill', async () => {
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
-        { randomFacade: completeRandomFacade(random, randomOneBased) },
+        { random: completeRandomFacade(random, randomOneBased) },
     ), true);
     assert.equal(scripted.length, 0);
     assert.equal(fillBound, 13);
@@ -466,8 +460,7 @@ test('live generic room generation keeps the injected RNG streams', async () => 
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
+        { random: completeRandomFacade(random, randomOneBased) },
     ), true);
     assert.equal(scripted.length, 0);
     assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
@@ -503,10 +496,8 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
         {
-            randomFacade,
+            random: randomFacade,
             themeroomFill(room, difficulty, callbackEnv) {
                 ++callbackCount;
                 assert.equal(difficulty, 1);
@@ -576,10 +567,8 @@ test('live generic fill dispatch executes selected Statuary', async () => {
     let filledRoom = null;
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
         {
-            randomFacade,
+            random: randomFacade,
             themeroomFill(room, difficulty, callbackEnv) {
                 filledRoom = room;
                 return themeroom_fill(room, difficulty, {
@@ -663,9 +652,7 @@ test('live default fill executes supported handlers and propagates their errors'
     await assert.rejects(
         themerooms_generate(
             1,
-            random,
-            randomOneBased,
-            { randomFacade: completeRandomFacade(random, randomOneBased) },
+            { random: completeRandomFacade(random, randomOneBased) },
         ),
         (error) => error === marker,
     );
@@ -942,11 +929,9 @@ test('generic room descriptors set topology and flags before synchronous content
         const randomFacade = completeRandomFacade(random, randomOneBased);
         const result = dispatch_themeroom(
             definitionById(id),
-            random,
-            randomOneBased,
             {
                 difficulty: 1,
-                randomFacade,
+                random: randomFacade,
                 themeroomFill(room, difficulty, callbackEnv) {
                     ++callbackCount;
                     assert.equal(phase, 'dispatching');
@@ -993,9 +978,7 @@ test('generic room relocation keeps rn1 distinct from rnd', () => {
     ]);
     assert.equal(dispatch_themeroom(
         definitionById('default'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
     assert.equal(game.level.rooms[0].ly, 2);
@@ -1178,8 +1161,7 @@ test('live Fake Delphi builds and registers its nested room in source order', as
 
     assert.equal(await themerooms_generate(
         1,
-        random,
-        randomOneBased,
+        { random: completeRandomFacade(random, randomOneBased) },
     ), true);
     assert.equal(coreDraws.length, 0);
     assert.equal(oneBasedDraws.length, 0);
@@ -1244,9 +1226,7 @@ test('Room in a room preserves random room and door source order', () => {
 
     assert.equal(dispatch_themeroom(
         definitionById('room-in-a-room'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
 
@@ -1308,9 +1288,7 @@ test('Huge nested room creates both source-ordered optional doors', () => {
 
     assert.equal(dispatch_themeroom(
         definitionById('huge-room-with-another-room-inside'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
 
@@ -1365,9 +1343,7 @@ test('Huge nested room stops after the failed second-door gate', () => {
 
     assert.equal(dispatch_themeroom(
         definitionById('huge-room-with-another-room-inside'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
 
@@ -1398,9 +1374,7 @@ test('Huge nested room stops after the failed child percentage gate', () => {
 
     assert.equal(dispatch_themeroom(
         definitionById('huge-room-with-another-room-inside'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
     assert.equal(game.level.nroom, 1);
@@ -1458,9 +1432,7 @@ test('Nesting rooms preserves deep room, percentage, and door order', () => {
 
     assert.equal(dispatch_themeroom(
         definitionById('nesting-rooms'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
 
@@ -1536,9 +1508,7 @@ test('Nesting rooms skips the grandchild and second child door at boundaries', (
 
     assert.equal(dispatch_themeroom(
         definitionById('nesting-rooms'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
+        { difficulty: 1, random: random.random },
     ), true);
     random.assertExhausted();
     assert.equal(game.level.nroom, 1);
@@ -1570,9 +1540,7 @@ test('Pillars preserves every distinct shuffled terrain outcome', () => {
 
         assert.equal(dispatch_themeroom(
             definitionById('pillars'),
-            random.random.rn2,
-            random.random.rnd,
-            { difficulty: 1 },
+            { difficulty: 1, random: random.random },
         ), true);
         random.assertExhausted();
 
@@ -1657,9 +1625,7 @@ test('Odd-room feature preserves every distinct shuffled terrain outcome', () =>
             definitionById(
                 'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
             ),
-            random.random.rn2,
-            random.random.rnd,
-            { difficulty: 1 },
+            { difficulty: 1, random: random.random },
         ), true);
         random.assertExhausted();
 
@@ -1997,9 +1963,14 @@ test('strict dispatch rejects alternate state before draws or mutation', () => {
     assert.throws(
         () => dispatch_themeroom(
             definitionById('default'),
-            () => { ++randomCalls; return 0; },
-            (bound) => bound,
-            { difficulty: 1, state: alternate },
+            {
+                difficulty: 1,
+                random: completeRandomFacade(
+                    () => { ++randomCalls; return 0; },
+                    (bound) => bound,
+                ),
+                state: alternate,
+            },
         ),
         /only supports the global game state/,
     );
@@ -2020,15 +1991,19 @@ test('strict map dispatch preflights its fill callback before loading terrain', 
     assert.throws(
         () => dispatch_themeroom(
             definitionById('cross'),
-            (bound) => {
-                ++randomCalls;
-                const next = wouldMutate.shift();
-                assert.ok(next, `unexpected rn2(${bound})`);
-                assert.equal(bound, next[0]);
-                return next[1];
+            {
+                difficulty: 1,
+                random: completeRandomFacade(
+                    (bound) => {
+                        ++randomCalls;
+                        const next = wouldMutate.shift();
+                        assert.ok(next, `unexpected rn2(${bound})`);
+                        assert.equal(bound, next[0]);
+                        return next[1];
+                    },
+                    (bound) => bound,
+                ),
             },
-            (bound) => bound,
-            { difficulty: 1 },
         ),
         UnsupportedThemeroomActionError,
     );
@@ -2037,7 +2012,7 @@ test('strict map dispatch preflights its fill callback before loading terrain', 
     assert.equal(game.level.at(31, 4).typ, STONE);
 });
 
-test('strict map dispatch preflights its fill callback RNG contract', () => {
+test('strict map dispatch preflights its fill callback difficulty', () => {
     const cases = [
         {
             name: 'integer difficulty',
@@ -2045,27 +2020,9 @@ test('strict map dispatch preflights its fill callback RNG contract', () => {
             configure(random, randomOneBased) {
                 return {
                     difficulty: '1',
-                    randomFacade: completeRandomFacade(random, randomOneBased),
+                    random: completeRandomFacade(random, randomOneBased),
                     themeroomFill() {},
                 };
-            },
-        },
-        {
-            name: 'complete facade',
-            expected: /randomFacade\.rnz/,
-            configure(random, randomOneBased) {
-                const randomFacade = completeRandomFacade(random, randomOneBased);
-                delete randomFacade.rnz;
-                return { difficulty: 1, randomFacade, themeroomFill() {} };
-            },
-        },
-        {
-            name: 'shared scalar streams',
-            expected: /randomFacade\.rn2\/rnd to match/,
-            configure(random, randomOneBased) {
-                const randomFacade = completeRandomFacade(random, randomOneBased);
-                randomFacade.rn2 = () => 0;
-                return { difficulty: 1, randomFacade, themeroomFill() {} };
             },
         },
     ];
@@ -2079,8 +2036,6 @@ test('strict map dispatch preflights its fill callback RNG contract', () => {
         assert.throws(
             () => dispatch_themeroom(
                 definitionById('cross'),
-                random,
-                randomOneBased,
                 contractCase.configure(random, randomOneBased),
             ),
             contractCase.expected,
@@ -2111,11 +2066,9 @@ test('all static filler-map descriptors dispatch through filler_region', () => {
             definition,
             // Midpoint origins keep every map and its one-cell halo in bounds;
             // rn2(100)=50 selects filler_region's ordinary 70% branch.
-            random,
-            randomOneBased,
             {
                 difficulty: 1,
-                randomFacade: completeRandomFacade(random, randomOneBased),
+                random: completeRandomFacade(random, randomOneBased),
                 themeroomFill() {},
             },
         );
@@ -2181,9 +2134,7 @@ test('Blocked center uses core shuffle and matching-cell chance draws in order',
     assert.equal(
         dispatch_themeroom(
             definitionById('blocked-center'),
-            random,
-            randomOneBased,
-            { difficulty: 1, randomFacade, themeroomFill() {} },
+            { difficulty: 1, random: randomFacade, themeroomFill() {} },
         ),
         true,
     );
@@ -2222,11 +2173,9 @@ test('Blocked center replace_terrain scans matching cells x-major', () => {
     assert.throws(
         () => dispatch_themeroom(
             definitionById('blocked-center'),
-            random,
-            randomOneBased,
             {
                 difficulty: 1,
-                randomFacade: completeRandomFacade(random, randomOneBased),
+                random: completeRandomFacade(random, randomOneBased),
                 themeroomFill() {},
             },
         ),
@@ -2272,11 +2221,9 @@ test('filler_region invokes an injected fill after registering room flags', () =
 
     assert.equal(dispatch_themeroom(
         definitionById('cross'),
-        random,
-        randomOneBased,
         {
             difficulty: 1,
-            randomFacade,
+            random: randomFacade,
             themeroomFill(room, difficulty, callbackEnv) {
                 ++callbackCount;
                 assert.equal(difficulty, 1);
@@ -2296,23 +2243,6 @@ test('filler_region invokes an injected fill after registering room flags', () =
     ), true);
     assert.equal(callbackCount, 1);
     assert.equal(scripted.length, 0);
-});
-
-test('Water vault requires its complete creation facade before map mutation', () => {
-    resetThemeroomLevel();
-    let randomCalls = 0;
-    assert.throws(
-        () => dispatch_themeroom(
-            definitionById('water-surrounded-vault'),
-            () => { ++randomCalls; return 0; },
-            (bound) => bound,
-            { difficulty: 1 },
-        ),
-        UnsupportedThemeroomActionError,
-    );
-    assert.equal(randomCalls, 0);
-    assert.equal(game.level.nroom, 0);
-    assert.equal(game.level.at(10, 10).typ, STONE);
 });
 
 test('Water vault registers its chamber, chests, undead, and exclusion', async () => {

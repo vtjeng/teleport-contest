@@ -368,10 +368,6 @@ const SPLEV_RIGHT = 5;
 const SPLEV_TOP = 1;
 const SPLEV_BOTTOM = 5;
 
-const THEMEROOM_RANDOM_METHODS = Object.freeze([
-    'd', 'rn1', 'rn2', 'rnd', 'rne', 'rnz',
-]);
-
 // Direction deltas
 const xdir = [-1, -1, 0, 1, 1, 1, 0, -1];
 const ydir = [0, -1, -1, -1, 0, 1, 1, 1];
@@ -5735,26 +5731,6 @@ export class UnsupportedThemeroomActionError extends Error {
     }
 }
 
-function themeroom_random_facade(context, operation, streams) {
-    const facade = context.randomFacade;
-    for (const method of THEMEROOM_RANDOM_METHODS) {
-        if (typeof facade?.[method] !== 'function') {
-            throw new UnsupportedThemeroomActionError(
-                context.definition,
-                `requires randomFacade.${method} for ${operation}`,
-            );
-        }
-    }
-    if (facade.rn2 !== context.random
-        || facade.rnd !== context.randomOneBased) {
-        throw new UnsupportedThemeroomActionError(
-            context.definition,
-            `requires randomFacade.rn2/rnd to match the ${streams} RNG streams`,
-        );
-    }
-    return facade;
-}
-
 function preflight_themeroom_fill(definition, context) {
     if (typeof context.themeroomFill !== 'function') {
         throw new UnsupportedThemeroomActionError(
@@ -5768,11 +5744,6 @@ function preflight_themeroom_fill(definition, context) {
             'requires an integer difficulty for its themeroom-fill callback',
         );
     }
-    themeroom_random_facade(
-        context,
-        'its themeroom-fill callback',
-        'map',
-    );
     return true;
 }
 
@@ -6138,14 +6109,9 @@ function pillars(context) {
 }
 
 function direct_creation_environment(context) {
-    const facade = themeroom_random_facade(
-        context,
-        'special-level creation',
-        'room',
-    );
     return {
         state: game,
-        random: facade,
+        random: context.randomFacade,
         spObjectContext: new_sp_lev_object_context(),
     };
 }
@@ -6542,12 +6508,7 @@ function dispatch_map_action(definition, context) {
 // Runtime counterpart to a selected themerms.lua contents function. Keep this
 // export narrow so focused tests and future direct-name diagnostics can execute
 // a source-derived descriptor without recreating reservoir selection.
-export function dispatch_themeroom(
-    definition,
-    random = rn2,
-    randomOneBased = rnd,
-    env = {},
-) {
+export function dispatch_themeroom(definition, env = {}) {
     // The strict dispatcher currently owns the process-global level just like
     // the live generator. Reject an apparent alternate-state injection before
     // any source draw or level mutation instead of silently writing `game`.
@@ -6556,15 +6517,17 @@ export function dispatch_themeroom(
             'dispatch_themeroom only supports the global game state',
         );
     }
-    const sourceRandomFacade = random === rn2 && randomOneBased === rnd
-        ? coreRandom
-        : null;
+    // themerms.lua draws every number through nh.rn2(), nh.random() and
+    // d(), all of which use C's core RNG. One random object stands for it,
+    // so the room code and the fill callbacks cannot draw from different
+    // streams.
+    const random = env.random ?? coreRandom;
     const context = {
         definition,
         difficulty: env.difficulty ?? level_difficulty(game),
-        random,
-        randomOneBased,
-        randomFacade: env.randomFacade ?? sourceRandomFacade,
+        random: random.rn2,
+        randomOneBased: random.rnd,
+        randomFacade: random,
         themeroomFill: env.themeroomFill,
     };
     switch (definition?.action?.kind) {
@@ -6586,27 +6549,17 @@ export function dispatch_themeroom(
 // strict synchronous dispatcher and the complete source-order fill reservoir.
 // Every initial-generation definition now uses its registered source handler;
 // dispatch_themeroom() remains the strict completion seam.
-export async function themerooms_generate(
-    difficulty,
-    random = rn2,
-    randomOneBased = rnd,
-    rawEnv = {},
-) {
-    const pick = select_themeroom(difficulty, random);
+export async function themerooms_generate(difficulty, rawEnv = {}) {
+    const random = rawEnv.random ?? coreRandom;
+    const pick = select_themeroom(difficulty, random.rn2);
     if (!pick) return false;
     // Local closure diagnostics observe the already-selected definition;
     // absent diagnostics, this optional chain has no runtime effect.
     game._themeroomSelectionCollector?.record('room', pick.id);
-    const sourceRandomFacade = random === rn2 && randomOneBased === rnd
-        ? coreRandom
-        : null;
-    const useDefaultFill = rawEnv.themeroomFill == null;
-    return dispatch_themeroom(pick, random, randomOneBased, {
+    return dispatch_themeroom(pick, {
         difficulty,
-        randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
-        themeroomFill: useDefaultFill
-            ? themeroom_fill
-            : rawEnv.themeroomFill,
+        random,
+        themeroomFill: rawEnv.themeroomFill ?? themeroom_fill,
     });
 }
 

@@ -34,6 +34,14 @@ export const RULES = [
         files: ['mklev.js'],
         pattern: /hasLoader|no loader for|SPECIAL_LEVEL_LOADERS\[fillName\]/gu,
     },
+    {
+        // themerms.lua draws from C's one core RNG. dispatch_themeroom() and
+        // themerooms_generate() take one random object, so the room code and
+        // the fill callbacks cannot be handed different streams.
+        name: 'themed-room random facade',
+        files: ['mklev.js'],
+        pattern: /themeroom_random_facade|THEMEROOM_RANDOM_METHODS|(?:raw)?[eE]nv\.randomFacade/gu,
+    },
 ];
 
 function stripComments(source) {
