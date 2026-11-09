@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c:goto_level() witness for a wished magic portal to nowhere. objnam.c makes the portal with maketrap()'s dst of {-1, -1}; stepping back onto it schedules that destination, and goto_level() finds ledger_no() <= 0 and calls done(ESCAPED). Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 6620913,
+      "datetime": "20610911201500",
+      "nethackrc": "OPTIONS=name:Nowhere,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "j\u0017magic portal\nkj      "
+    }
+  ]
+}
