@@ -239,7 +239,7 @@ import {
     ggetobj,
     mergable,
     obfree,
-    stackobj,
+    stackobjRuntime,
     useup,
     useupf,
 } from './invent.js';
@@ -1873,7 +1873,8 @@ export function preflight_dropx(obj, env = {}) {
     // member into it. The survivor keeps its light and timers across an
     // ordinary drop; light.c finds their new location through that same object.
     // Compatible lit candles use merged()'s canonical light/timer owners.
-    // Globs coalesce in flooreffects before ordinary stacking. A timed corpse
+    // Globs coalesce in flooreffects() off liquid; on a pool or moat they
+    // reach stackobj(), whose merged() absorbs them. A timed corpse
     // can merge when invent.c:mergable() admits its species; invent.c:merged()
     // then stops the absorbed floor object's timer through timeout.c.
     // obfree()'s remaining operations are reached by an object the drop chain
@@ -1940,7 +1941,7 @@ export function preflight_dropx(obj, env = {}) {
     // merged() stops an absorbed member's light and timers (851-854). Of the
     // lit or timed objects, mergable() admits only lit candles of a close
     // age, corpses of a species that does not revive, and globs (which
-    // flooreffects() coalesces first). It refuses lit potions of oil, eggs
+    // flooreffects() coalesces first except on liquid). It refuses lit potions of oil, eggs
     // with a hatch timer and revivable corpses, and lamps, figurines and
     // other timed tools have no oc_merge. Only a lit candle's end_burn()
     // has an admission of its own.
@@ -2101,7 +2102,10 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         await sellobj(obj, normalized.state.u.ux, normalized.state.u.uy,
             normalized.state, normalized);
     }
-    stackobj(obj, normalized);
+    // invent.c stackobj() can merge the dropped glob with one already on the
+    // square (flooreffects() melds globs only off liquid), and merged() then
+    // prints pudding_merge_message(); the runtime variant waits for it.
+    await stackobjRuntime(obj, normalized);
     if (Blind(normalized.state.u) && Levitation(normalized.state.u)) {
         // display.c map_object() refuses any state but the module-global
         // game, because its draw half paints that game whatever state it is

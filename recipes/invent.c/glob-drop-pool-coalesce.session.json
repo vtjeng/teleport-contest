@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c merged() glob arm from do.c dropz(): a debug dwarven Caveman in water walking boots wishes a pool under himself and drops two globs of brown pudding there. flooreffects() melds globs only off liquid, so the second glob reaches stackobj() -> merged() -> pudding_merge_message() and obj_absorb() (\"The globs of brown pudding coalesce.\").",
+  "segments": [
+    {
+      "seed": 7302215,
+      "datetime": "20510214161500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017water walking boots\nWa\u0017pool\n\u0017glob of brown pudding\ndb\u0017glob of brown pudding\ndc :"
+    }
+  ]
+}

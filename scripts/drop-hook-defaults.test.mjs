@@ -71,7 +71,7 @@ test('do.js dropz() neither reads nor requires a newsym or encumber_msg hook', (
         source.indexOf('async function dropzAdmitted('),
         source.indexOf('export async function dropz('),
     ));
-    assert.match(tail, /stackobj\(obj, normalized\);[\s\S]*newsym\(normalized\.state\.u\.ux, normalized\.state\.u\.uy\);\s*await encumber_msg\(normalized\.state\);\s*\}/u);
+    assert.match(tail, /await stackobjRuntime\(obj, normalized\);[\s\S]*newsym\(normalized\.state\.u\.ux, normalized\.state\.u\.uy\);\s*await encumber_msg\(normalized\.state\);\s*\}/u);
 });
 
 test('no drop call supplies a newsym or encumberMessage hook', () => {
