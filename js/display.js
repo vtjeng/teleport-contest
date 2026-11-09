@@ -3372,8 +3372,11 @@ export function feel_location(x, y, state = game) {
     // the square. sensemon() excludes direct sight, matching the C macro.
     const monster = !u_at(x, y, state) ? m_at(x, y, state) : null;
     if (monster && sensemon(monster, state)) {
+        // display.c:905 tests MATCH_WARN_OF_MON(), warning of this monster's
+        // kind (warningMatches()), not the general Warning that mon_warning()
+        // and the warning glyph use.
         const sightflags = tp_sensemon(monster, state)
-            || monsterWarnsHero(monster, state)
+            || warningMatches(monster, state)
             ? DISPLAY_PHYSICALLY_SEEN : DISPLAY_DETECTED;
         display_monster(
             x, y, monster, sightflags,

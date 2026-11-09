@@ -186,10 +186,11 @@ import {
     M1_CONCEAL,
     M1_HIDE,
     PM_CAVE_SPIDER,
+    PM_TENGU,
     S_EEL,
     S_FELINE,
 } from '../js/monsters.js';
-import { newMonster } from '../js/monst.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { create_region } from '../js/region.js';
 
@@ -1079,6 +1080,35 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     assert.equal(location.seenv, SV4);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
     assertCompleteMappedGlyph(location, expected);
+});
+
+test('blind feel_location keeps a detected monster detected under general Warning', async () => {
+    // display.c feel_location():902-907 draws a sensed monster as
+    // PHYSICALLY_SEEN only for tp_sensemon() or MATCH_WARN_OF_MON(); a hero
+    // who merely has Warning (mon_warning()) still sees the Detect_monsters
+    // glyph, which tty draws in inverse video.
+    const target = await globalSearchState();
+    const tengu = newMonster({
+        data: game.mons[PM_TENGU], mnum: PM_TENGU, m_id: 9931,
+        // m_lev 8 puts the tengu above the warning threshold
+        // (m_lev / 4 >= warnlevel 1) at distance 2, so mon_warning() holds.
+        m_lev: 8, mhp: 20, mhpmax: 20, mpeaceful: false,
+        mcanmove: true, mcansee: true,
+    });
+    tengu.nmon = game.level.monlist;
+    game.level.monlist = tengu;
+    place_monster(tengu, target.x, target.y, game);
+    game.u.uprops[WARNING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    game.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    game.context.warnlevel = 1;
+    game.context.warntype = { obj: 0, polyd: 0, species: null };
+    game.iflags.wc_inverse = true;
+
+    feel_location(target.x, target.y, game);
+
+    const location = game.level.at(target.x, target.y);
+    assert.equal(location.disp_ch, 'i');
+    assert.equal(location.disp_attr & ATR_INVERSE, ATR_INVERSE);
 });
 
 test('blind tactile mapping delegates unavailable floors to display.c', async () => {
