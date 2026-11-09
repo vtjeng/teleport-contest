@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c makemon() with MM_ADJACENTOK on an occupied square relocates the new monster with enexto_core() instead of failing. A Healer raised to experience level 9 leaves a wished statue of a dwarf on the floor, steps off it, surrounds itself with eight brown molds (one on the statue), and casts stone to flesh at the statue: trap.c animate_statue() passes MM_ADJACENTOK for ANIMATE_SPELL, and the dwarf appears next to the mold. Two searches let it act.",
+  "segments": [
+    {
+      "seed": 6620418,
+      "datetime": "20451104075530",
+      "nethackrc": "OPTIONS=name:Crowd,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017statue of a dwarf\n\u00178 uncursed potions of gain level\nqnqnqnqnqnqnqnqnj\u00078 brown molds\nZckss"
+    }
+  ]
+}

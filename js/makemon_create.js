@@ -93,6 +93,7 @@ import {
     ZOO,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { note_unported } from './unported.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
@@ -2897,7 +2898,20 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         x = coordinate.x;
         y = coordinate.y;
     }
-    if (m_at(x, y, state)) return null;
+    // C: impossible("makemon trying to create a monster at <%d,%d>?").
+    if (!isok(x, y)) {
+        note_unported('pline.c impossible');
+        return null;
+    }
+    // Does a monster already exist at the position?
+    if (m_at(x, y, state)) {
+        const coordinate = (mmflags & MM_ADJACENTOK)
+            ? enexto_core(x, y, ptr, gpflags, normalized)
+            : null;
+        if (!coordinate) return null;
+        x = coordinate.x;
+        y = coordinate.y;
+    }
 
     const anymon = !ptr;
     if (anymon) {
