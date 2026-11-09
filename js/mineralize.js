@@ -9,8 +9,15 @@ import {
     STONE,
     WATER,
     W_NONDIGGABLE,
+    In_endgame,
+    In_mines,
+    In_quest,
+    In_V_tower,
+    Is_oracle_level,
+    Is_rogue_level,
+    Is_waterlevel,
 } from './const.js';
-import { depth, on_level } from './dungeon.js';
+import { depth, In_hell, Is_special } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_buried } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -30,104 +37,21 @@ import {
 } from './objects.js';
 import { coreRandom } from './rng.js';
 
-export class UnsupportedMineralizeContextError extends Error {
-    constructor(detail) {
-        super(`mineralize requires ${detail}`);
-        this.name = 'UnsupportedMineralizeContextError';
-        this.detail = detail;
-    }
-}
-
-function requireInteger(value, detail) {
-    if (!Number.isInteger(value))
-        throw new UnsupportedMineralizeContextError(detail);
-    return value;
-}
-
-function currentLevel(state) {
-    const level = state.u?.uz;
-    requireInteger(level?.dnum, 'an initialized current dungeon number');
-    requireInteger(level?.dlevel, 'an initialized current level number');
-    return level;
-}
-
-function topologyLevel(state, name) {
-    const level = state[name];
-    requireInteger(level?.dnum, `initialized ${name}`);
-    requireInteger(level?.dlevel, `initialized ${name}`);
-    return level;
-}
-
-function dungeonNumber(state, name) {
-    return requireInteger(state[name], `initialized ${name}`);
-}
-
-function locationAt(state, x, y) {
-    const location = state.level?.at?.(x, y);
-    if (!location)
-        throw new UnsupportedMineralizeContextError('an initialized level map');
-    return location;
-}
-
-function levelAssigned(level) {
-    return Boolean(level.dnum || level.dlevel);
-}
-
-function isTopologyLevel(state, name) {
-    const target = topologyLevel(state, name);
-    return levelAssigned(target) && on_level(currentLevel(state), target);
-}
-
-function inEndgame(state) {
-    // In_endgame() compares dungeon numbers rather than a full d_level.
-    return currentLevel(state).dnum
-        === topologyLevel(state, 'astral_level').dnum;
-}
-
-function inHell(state) {
-    const current = currentLevel(state);
-    const dungeon = state.dungeons?.[current.dnum];
-    if (!dungeon?.flags
-        || typeof dungeon.flags.hellish !== 'boolean') {
-        throw new UnsupportedMineralizeContextError(
-            'the current dungeon hellish flag',
-        );
-    }
-    return dungeon.flags.hellish;
-}
-
-function arborealLevel(state) {
-    const value = state.level?.flags?.arboreal;
-    if (typeof value !== 'boolean') {
-        throw new UnsupportedMineralizeContextError(
-            'the current level arboreal flag',
-        );
-    }
-    return value;
-}
-
-function currentSpecialLevel(state) {
-    if (!Array.isArray(state.specialLevels)) {
-        throw new UnsupportedMineralizeContextError(
-            'the initialized special-level chain',
-        );
-    }
-    const current = currentLevel(state);
-    return state.specialLevels.find(
-        (candidate) => on_level(current, candidate?.dlevel),
-    ) ?? null;
-}
-
-function excludedSpecialLevel(state) {
-    const special = currentSpecialLevel(state);
-    if (!special || isTopologyLevel(state, 'oracle_level')) return false;
-    if (typeof special.flags?.town !== 'boolean') {
-        throw new UnsupportedMineralizeContextError(
-            'the current special level town flag',
-        );
-    }
-    return currentLevel(state).dnum !== dungeonNumber(state, 'mines_dnum')
-        || special.flags.town;
+// C reads the current level from u.uz and the topology globals that
+// init_dungeons() sets; every caller runs after both, so these read them
+// directly.
+function waterHasKelp(x, y, kelpPool, kelpMoat, env) {
+    const location = env.state.level.at(x, y);
+    return Boolean(
+        (kelpPool
+            && (location.typ === POOL
+                || (location.typ === WATER
+                    && !Is_waterlevel(env.state.u.uz, env.state)))
+            && !env.random.rn2(kelpPool))
+        || (kelpMoat
+            && location.typ === MOAT
+            && !env.random.rn2(kelpMoat)),
+    );
 }
 
 function mineralizeEnv(rawEnv = {}) {
@@ -140,42 +64,7 @@ function mineralizeEnv(rawEnv = {}) {
             );
         }
     }
-    currentLevel(state);
     return objectGenerationEnv({ ...rawEnv, state, random });
-}
-
-function preflightLevelContext(state, current, goldprob) {
-    // water_has_kelp() consults this only for WATER, but the C topology global
-    // is unconditionally available. Validate it before an earlier pool or
-    // moat can consume RNG and place kelp.
-    topologyLevel(state, 'water_level');
-
-    const excluded = inHell(state)
-        || current.dnum === dungeonNumber(state, 'tower_dnum')
-        || isTopologyLevel(state, 'rogue_level')
-        || arborealLevel(state)
-        || excludedSpecialLevel(state);
-    if (excluded) return { excluded };
-
-    const mines = dungeonNumber(state, 'mines_dnum');
-    const quest = dungeonNumber(state, 'quest_dnum');
-    const defaultGold = goldprob < 0
-        ? 20 + Math.trunc(depth(current, state) / 3) : null;
-    return { excluded, mines, quest, defaultGold };
-}
-
-function waterHasKelp(x, y, kelpPool, kelpMoat, env) {
-    const location = locationAt(env.state, x, y);
-    return Boolean(
-        (kelpPool
-            && (location.typ === POOL
-                || (location.typ === WATER
-                    && !isTopologyLevel(env.state, 'water_level')))
-            && !env.random.rn2(kelpPool))
-        || (kelpMoat
-            && location.typ === MOAT
-            && !env.random.rn2(kelpMoat)),
-    );
 }
 
 // C ref: mklev.c water_has_kelp(). The exported form is useful to special
@@ -194,7 +83,6 @@ export function water_has_kelp(
             'water_has_kelp random injection requires rn2()',
         );
     }
-    currentLevel(state);
     return waterHasKelp(x, y, kelpPool, kelpMoat, { state, random });
 }
 
@@ -211,14 +99,13 @@ export function mineralize(
 ) {
     const env = mineralizeEnv(rawEnv);
     const { random, state } = env;
-    const current = currentLevel(state);
+    const current = state.u.uz;
+    let sp;
 
     if (kelpPool < 0) kelpPool = 10;
     if (kelpMoat < 0) kelpMoat = 30;
 
-    if (!skipLevelChecks && inEndgame(state)) return;
-    const levelContext = skipLevelChecks
-        ? null : preflightLevelContext(state, current, goldprob);
+    if (!skipLevelChecks && In_endgame(current, state)) return;
     for (let x = 2; x < COLNO - 2; ++x) {
         for (let y = 1; y < ROWNO - 1; ++y) {
             if (waterHasKelp(x, y, kelpPool, kelpMoat, env)) {
@@ -227,38 +114,45 @@ export function mineralize(
         }
     }
 
-    if (levelContext?.excluded) return;
+    if (!skipLevelChecks
+        && (In_hell(current, state) || In_V_tower(current, state)
+            || Is_rogue_level(current, state)
+            || state.level.flags.arboreal
+            || ((sp = Is_special(current, state)) !== null
+                && !Is_oracle_level(current, state)
+                && (!In_mines(current, state) || sp.flags.town))))
+        return;
 
     if (goldprob < 0)
-        goldprob = levelContext?.defaultGold
-            ?? 20 + Math.trunc(depth(current, state) / 3);
+        goldprob = 20 + Math.trunc(depth(current, state) / 3);
     if (gemprob < 0)
         gemprob = Math.trunc(goldprob / 4);
 
     if (!skipLevelChecks) {
-        if (current.dnum === levelContext.mines) {
+        if (In_mines(current, state)) {
             goldprob *= 2;
             gemprob *= 3;
-        } else if (current.dnum === levelContext.quest) {
+        } else if (In_quest(current, state)) {
             goldprob = Math.trunc(goldprob / 4);
             gemprob = Math.trunc(gemprob / 6);
         }
     }
 
+    const at = (x, y) => state.level.at(x, y);
     for (let x = 2; x < COLNO - 2; ++x) {
         for (let y = 1; y < ROWNO - 1; ++y) {
-            if (locationAt(state, x, y + 1).typ !== STONE) {
+            if (at(x, y + 1).typ !== STONE) {
                 y += 2;
-            } else if (locationAt(state, x, y).typ !== STONE) {
+            } else if (at(x, y).typ !== STONE) {
                 y += 1;
-            } else if (!(locationAt(state, x, y).flags & W_NONDIGGABLE)
-                       && locationAt(state, x, y - 1).typ === STONE
-                       && locationAt(state, x + 1, y - 1).typ === STONE
-                       && locationAt(state, x - 1, y - 1).typ === STONE
-                       && locationAt(state, x + 1, y).typ === STONE
-                       && locationAt(state, x - 1, y).typ === STONE
-                       && locationAt(state, x + 1, y + 1).typ === STONE
-                       && locationAt(state, x - 1, y + 1).typ === STONE) {
+            } else if (!(at(x, y).flags & W_NONDIGGABLE)
+                       && at(x, y - 1).typ === STONE
+                       && at(x + 1, y - 1).typ === STONE
+                       && at(x - 1, y - 1).typ === STONE
+                       && at(x + 1, y).typ === STONE
+                       && at(x - 1, y).typ === STONE
+                       && at(x + 1, y + 1).typ === STONE
+                       && at(x - 1, y + 1).typ === STONE) {
                 if (random.rn2(1000) < goldprob) {
                     const gold = mksobj(GOLD_PIECE, false, false, env);
                     gold.ox = x;

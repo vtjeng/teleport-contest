@@ -15,7 +15,6 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import {
-    UnsupportedMineralizeContextError,
     mineralize,
     water_has_kelp,
 } from '../js/mineralize.js';
@@ -350,7 +349,7 @@ test('level gates preserve special-level exceptions', () => {
     }), 0);
 });
 
-test('the endgame gate precedes kelp and missing topology fails explicitly', () => {
+test('the endgame gate precedes kelp', () => {
     const state = topologyState();
     fillTerrain(state, ROOM);
     state.level.at(2, 1).typ = POOL;
@@ -361,34 +360,6 @@ test('the endgame gate precedes kelp and missing topology fails explicitly', () 
 
     mineralize(1, 1, 0, 0, false, { state, random });
     assert.equal(state.level.objects[2][1], null);
-
-    state.astral_level = { dnum: 8, dlevel: 1 };
-    delete state.tower_dnum;
-    assert.throws(
-        () => mineralize(0, 0, 0, 0, false, { state, random }),
-        UnsupportedMineralizeContextError,
-    );
-});
-
-test('mineralize preflights late topology before kelp RNG or mutation', () => {
-    const state = objectState();
-    fillTerrain(state, ROOM);
-    state.level.at(2, 1).typ = POOL;
-    delete state.tower_dnum;
-    let draws = 0;
-    const random = noUnexpectedObjectDraws(() => {
-        ++draws;
-        return 0;
-    });
-
-    assert.throws(
-        () => mineralize(1, 1, 0, 0, false, { state, random }),
-        UnsupportedMineralizeContextError,
-    );
-    assert.equal(draws, 0);
-    assert.equal(state.level.objects[2][1], null);
-    assert.equal(state.level.objlist, null);
-    assert.equal(state.context.ident, FIRST_OBJECT_ID);
 });
 
 test('Mines and Quest probability adjustments use C integer arithmetic', () => {
