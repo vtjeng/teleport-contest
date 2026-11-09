@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mkobj.c dealloc_obj() and shk.c obfree() call timeout.c obj_stop_timers() directly. A dwarven Valkyrie wishes for two black naga eggs, whose hatch timers readobjnam() starts, creates a jackal beside her and throws one egg at it (\"You hit the jackal with an egg.  Splat!\") and the other at the wall (\"Splat!\"); both breakages free a timed egg. Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 7731904,
+      "datetime": "20340512091733",
+      "nethackrc": "OPTIONS=name:Ovid,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u00172 black naga eggs\n\u0007jackal\ntejtek..."
+    }
+  ]
+}

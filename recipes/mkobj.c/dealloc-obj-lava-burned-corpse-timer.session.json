@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "trap.c lava_effects() burns a carried corpse with useupall(), whose obfree() and dealloc_obj() call timeout.c obj_stop_timers() for its ROT_CORPSE timer. A human Priest without fire resistance wishes for a newt corpse, then for lava under himself, falls in (\"Other items in your inventory have been destroyed.\"), declines to die and waits. Seed, date, character and inputs chosen independently of batch 10.",
+  "segments": [
+    {
+      "seed": 4418276,
+      "datetime": "20331019203347",
+      "nethackrc": "OPTIONS=name:Ember,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017newt corpse\n\u0017lava\n     ......"
+    }
+  ]
+}

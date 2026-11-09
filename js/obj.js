@@ -466,6 +466,7 @@ export class UnsupportedObjectOperationError extends Error {
 //     STATUE and FIGURINE branches
 //   isPermanentlyPoisoned(obj, env) -> boolean (default permapoisoned())
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
+//     (default timeout.c obj_stop_timers())
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
 //     (default light.c del_light_source())
 
@@ -1132,13 +1133,12 @@ export function dealloc_obj(obj, env = {}) {
     if (obj.nobj || obj.cobj)
         throw new Error('dealloc_obj: object is still linked');
 
+    // C calls timeout.c obj_stop_timers() here; the optional hook is a test
+    // seam.
     if (obj.timed) {
-        const stopTimers = requiredHook(
-            normalized,
-            'stopObjectTimers',
-            obj,
-        );
-        stopTimers(obj, normalized);
+        const hook = normalized.hooks.stopObjectTimers;
+        if (typeof hook === 'function') hook(obj, normalized);
+        else obj_stop_timers(obj, normalized.state, normalized);
         if (obj.timed)
             throw new Error('stopObjectTimers must clear obj.timed');
     }
@@ -1929,8 +1929,6 @@ function mkbox_cnts(box, env) {
     const hooks = { ...env.hooks };
     hooks.objectNoLongerHeld ??= (obj, hookEnv) =>
         obj_no_longer_held(obj, hookEnv);
-    hooks.stopObjectTimers ??= (obj, hookEnv) =>
-        obj_stop_timers(obj, hookEnv.state, hookEnv);
     const enrichedEnv = { ...env, hooks };
 
     for (let i = count; i > 0; i--) {
@@ -2188,8 +2186,7 @@ export function item_on_ice(item, state = game) {
 // and destroys the glob when its weight reaches 0. A catch-up path handles
 // missed firings after returning to a level.
 //
-// env carries: state, message (pline function), newsym, and hooks including
-// stopObjectTimers.
+// env carries: state, message (pline function), newsym, and hooks.
 export async function shrink_glob(obj, expire_time, env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? (async () => {});

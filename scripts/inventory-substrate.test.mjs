@@ -8,6 +8,7 @@ import { getRngLog } from '../js/rng.js';
 
 import {
     FIG_TRANSFORM,
+    HATCH_EGG,
     G_GENOD,
     TIMER_OBJECT,
     ACH_AMUL,
@@ -201,6 +202,7 @@ import {
     TALLOW_CANDLE,
     TIN,
     HORN_OF_PLENTY,
+    LARGE_BOX,
     MAGIC_FLUTE,
     TOWEL,
     objects_globals_init,
@@ -904,12 +906,14 @@ test('delete_contents extracts and frees each child before returning', () => {
 test('delete_contents preflights every sibling before changing ownership', () => {
     const state = initializedState();
     const sack = instance(SACK, state);
-    // A timed egg needs the stopObjectTimers hook, which this env omits.
-    // Any real species works; only the refusal before mutation is tested.
-    const egg = instance(EGG, state, { corpsenm: TEST_SPECIES, timed: 1 });
+    // A box whose lock the hero is picking needs the resetPick hook
+    // (lock.c reset_pick()), which this env omits; only the refusal before
+    // mutation is tested.
+    const box = instance(LARGE_BOX, state);
+    state.xlock = { box };
     const apple = instance(APPLE, state);
     addinv(sack, { state });
-    add_to_container(sack, egg, { state });
+    add_to_container(sack, box, { state });
     add_to_container(sack, apple, { state });
     sack.owt = weight(sack, { state });
     const originalWeight = sack.owt;
@@ -917,16 +921,16 @@ test('delete_contents preflights every sibling before changing ownership', () =>
     assert.throws(
         () => delete_contents(sack, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'stopObjectTimers',
+            && error.operation === 'resetPick',
     );
 
     assert.equal(sack.cobj, apple);
-    assert.equal(apple.nobj, egg);
+    assert.equal(apple.nobj, box);
     assert.equal(apple.where, OBJ_CONTAINED);
-    assert.equal(egg.where, OBJ_CONTAINED);
+    assert.equal(box.where, OBJ_CONTAINED);
     assert.equal(apple.ocontainer, sack);
-    assert.equal(egg.ocontainer, sack);
-    assert.equal(egg.timed, 1);
+    assert.equal(box.ocontainer, sack);
+    assert.equal(state.xlock.box, box);
     assert.equal(sack.owt, originalWeight);
 });
 
@@ -934,13 +938,15 @@ test('delete_contents preflights the whole nested graph before mutation', () => 
     const state = initializedState();
     const outer = instance(SACK, state);
     const inner = instance(BAG_OF_HOLDING, state);
-    // A timed egg needs the stopObjectTimers hook, which this env omits.
-    // Any real species works; only the refusal before mutation is tested.
-    const egg = instance(EGG, state, { corpsenm: TEST_SPECIES, timed: 1 });
+    // A box whose lock the hero is picking needs the resetPick hook
+    // (lock.c reset_pick()), which this env omits; only the refusal before
+    // mutation is tested.
+    const box = instance(LARGE_BOX, state);
+    state.xlock = { box };
     const apple = instance(APPLE, state);
     addinv(outer, { state });
     add_to_container(outer, inner, { state });
-    add_to_container(inner, egg, {
+    add_to_container(inner, box, {
         state,
         hooks: { objectNoLongerHeld() {} },
     });
@@ -953,19 +959,19 @@ test('delete_contents preflights the whole nested graph before mutation', () => 
     assert.throws(
         () => delete_contents(outer, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'stopObjectTimers',
+            && error.operation === 'resetPick',
     );
 
     assert.equal(outer.cobj, apple);
     assert.equal(apple.nobj, inner);
-    assert.equal(inner.cobj, egg);
+    assert.equal(inner.cobj, box);
     assert.equal(apple.where, OBJ_CONTAINED);
     assert.equal(inner.where, OBJ_CONTAINED);
-    assert.equal(egg.where, OBJ_CONTAINED);
+    assert.equal(box.where, OBJ_CONTAINED);
     assert.equal(apple.ocontainer, outer);
     assert.equal(inner.ocontainer, outer);
-    assert.equal(egg.ocontainer, inner);
-    assert.equal(egg.timed, 1);
+    assert.equal(box.ocontainer, inner);
+    assert.equal(state.xlock.box, box);
     assert.equal(inner.owt, originalInnerWeight);
     assert.equal(outer.owt, originalOuterWeight);
 });
@@ -1644,23 +1650,23 @@ test('inventory reset stops timers on top-level and nested objects', () => {
     assert.equal(carriedEgg.where, OBJ_DELETED);
 });
 
-test('timed reset fails before unlinking when cleanup is unavailable', () => {
+test('timed reset stops timers through obj_stop_timers() without a hook', () => {
+    // shk.c obfree() and mkobj.c dealloc_obj() call timeout.c
+    // obj_stop_timers() directly, so a reset with no hook frees a timed egg.
     const state = initializedState();
+    timeout_globals_init(state);
     const ration = instance(FOOD_RATION, state);
-    const egg = instance(EGG, state, {
-        corpsenm: TEST_SPECIES,
-        timed: 1,
-    });
+    const egg = instance(EGG, state, { corpsenm: TEST_SPECIES });
     addinv(ration, { state });
     addinv(egg, { state });
-    assert.throws(
-        () => resetInventory({ state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'stopObjectTimers',
-    );
-    assert.deepEqual(inventoryObjects(state), [ration, egg]);
-    assert.equal(ration.where, OBJ_INVENT);
-    assert.equal(egg.where, OBJ_INVENT);
+    // Any pending turn works; 10 keeps the hatch timer queued.
+    start_timer(10, TIMER_OBJECT, HATCH_EGG, egg, state);
+    resetInventory({ state });
+    assert.deepEqual(inventoryObjects(state), []);
+    assert.equal(egg.timed, 0);
+    assert.equal(state.gt.timer_base, null);
+    assert.equal(ration.where, OBJ_DELETED);
+    assert.equal(egg.where, OBJ_DELETED);
 });
 
 test('fresh inventory initialization refuses to orphan an existing chain', () => {

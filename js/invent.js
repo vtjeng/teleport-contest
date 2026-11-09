@@ -3630,8 +3630,12 @@ export function merge_choice(objlist, obj, state = game) {
     return current ?? null;
 }
 
+// C calls timeout.c obj_stop_timers() directly; the optional hook is a test
+// seam.
 function stopObjectTimers(obj, env) {
-    requiredHook(env, 'stopObjectTimers', obj)(obj, env);
+    const hook = env.hooks?.stopObjectTimers;
+    if (typeof hook === 'function') hook(obj, env);
+    else obj_stop_timers(obj, env.state, env);
     if (obj.timed)
         throw new Error('stopObjectTimers must clear obj.timed');
 }
@@ -3646,12 +3650,6 @@ function oidPriceAdjustment(obj, oid, state) {
 function preflightObfree(obj, merge, env) {
     if (obj.otyp === LEASH && obj.leashmon)
         preflight_update_inventory(env);
-    // useupall() runs freeinv_core() first, which stops a carried figurine's
-    // transform timer before obfree() reaches deallocation.
-    const timerStopsDuringFreeinv = obj.where === OBJ_INVENT
-        && obj.otyp === FIGURINE;
-    if (obj.timed && !timerStopsDuringFreeinv)
-        requiredHook(env, 'stopObjectTimers', obj);
     if (isContainer(obj)) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj) requiredHook(env, 'resetPick', obj);
@@ -3749,27 +3747,11 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     dealloc_obj(obj, env);
 }
 
-// merged() owns the source timer-stop call after light merging. Supply the
-// canonical timeout owner for every inventory and floor caller; the optional
-// timer hook remains a focused test seam, not a missing runtime dependency.
-function mergedEnv(env) {
-    const normalized = inventoryEnv(env);
-    return {
-        ...normalized,
-        hooks: {
-            stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
-                obj, hookEnv.state, hookEnv,
-            ),
-            ...normalized.hooks,
-        },
-    };
-}
-
 // Mutation prefix of invent.c merged(), through the point immediately before
 // its comparison-discovery pline().  The live pickup path can suspend at that
 // call boundary before obfree() deletes the incoming object.
 function beginMerged(otmp, obj, env = {}, globMode = 'sync') {
-    const normalized = mergedEnv(env);
+    const normalized = inventoryEnv(env);
     if (!preflightMerged(otmp, obj, normalized, globMode)) return null;
 
     if (!obj.lamplit && !obj.globby) {
@@ -3884,7 +3866,7 @@ export function merged(otmp, obj, env = {}) {
 // still complete synchronously so merely scanning incompatible stacks cannot
 // introduce an observable scheduling boundary.
 export function mergedRuntime(otmp, obj, env = {}) {
-    const normalized = mergedEnv(env);
+    const normalized = inventoryEnv(env);
     const plan = beginMerged(otmp, obj, normalized, 'runtime');
     if (!plan) return false;
     if (plan.globby) {
@@ -3928,9 +3910,8 @@ export function mergedRuntime(otmp, obj, env = {}) {
 // selected floor sequence before observing or unlinking its first object, so
 // the merge target can be the projected result of an earlier selection.
 function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
-    normalized = mergedEnv(normalized);
+    normalized = inventoryEnv(normalized);
     if (!mergable(otmp, obj, normalized)) return false;
-    if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
     if (obj.owornmask && otmp.where === OBJ_INVENT)
         requiredHook(normalized, 'mergeWornMasks', obj);
     if (obj.globby && globMode === 'sync')

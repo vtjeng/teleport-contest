@@ -1284,20 +1284,23 @@ test('dealloc_obj stops timers before deleting any surviving light source', () =
     assert.equal(survivingLight.where, OBJ_DELETED);
 });
 
-test('dealloc_obj preflights the timer seam before mutation', () => {
+test('dealloc_obj stops timers through obj_stop_timers() without a hook', () => {
+    // mkobj.c dealloc_obj() calls timeout.c obj_stop_timers() directly, so a
+    // caller that supplies no hook still frees a timed object.
+    const state = {};
+    timeout_globals_init(state);
     const obj = newObject({
         oextra: { oname: 'Mort' },
-        timed: 1,
         where: OBJ_FREE,
     });
-    assert.throws(
-        () => dealloc_obj(obj, { state: {} }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'stopObjectTimers',
-    );
+    // Any due turn works; 10 keeps the timer pending. ROT_CORPSE has no
+    // cleanup function, so only the queue removal is under test.
+    start_timer(10, TIMER_OBJECT, ROT_CORPSE, obj, state);
     assert.equal(obj.timed, 1);
-    assert.deepEqual(obj.oextra, { oname: 'Mort' });
-    assert.equal(obj.where, OBJ_FREE);
+    dealloc_obj(obj, { state });
+    assert.equal(obj.timed, 0);
+    assert.equal(state.gt.timer_base, null);
+    assert.equal(obj.where, OBJ_DELETED);
 });
 
 test('dealloc_obj deletes a light that survives timer cleanup', () => {
