@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2649031,
+      "datetime": "20280911134500",
+      "nethackrc": "OPTIONS=name:Nimbus,role:Monk,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "#wizlevelport\n-9\n\u001bn   ",
+      "comment": "#wizlevelport to level -9 without flight. teleport.c level_tele() prints the Cloud 9 messages and calls display_nhwindow(WIN_MESSAGE, FALSE) (teleport.c:1343); Escape at that --More-- sets WIN_STOP, so update_topl() suppresses \"Unfortunately, you don't know how to fly.\" and the plummet message until the \"Die?\" prompt. Declining death returns the hero to the surface and the escape disclosure prompts follow. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

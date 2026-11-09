@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180263,
+      "datetime": "20330402071900",
+      "nethackrc": "OPTIONS=name:Wisp,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u00160\ny\u001bn ",
+      "comment": "Wizard-mode level teleport (^V) to level 0 answered y. teleport.c level_tele() prints \"You scream in agony...\" and calls display_nhwindow(WIN_MESSAGE, FALSE) (teleport.c:1261), whose --More-- is answered with Escape. wintty.c more() then sets WIN_STOP, so update_topl() suppresses \"You cease to exist.\" and the possessions message until the \"Die?\" prompt. Declining death reaches the rematerialization messages. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

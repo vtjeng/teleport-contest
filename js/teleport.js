@@ -236,7 +236,7 @@ import { mintrap } from './trap_effects.js';
 import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
-import { ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -2325,7 +2325,7 @@ export async function level_tele(state = game) {
                     `${silent ? 'You writhe' : 'You scream'} in agony as your body begins to warp...`,
                     state,
                 );
-                note_unported('window.c display_nhwindow');
+                await displayPendingTtyMessageWindow(state);
                 await ttyPline('You cease to exist.', state);
                 if (state.gi?.invent || state.invent) {
                     await ttyPline(
@@ -2419,7 +2419,7 @@ export async function level_tele(state = game) {
         } else if (newlev === -9) {
             await ttyPline(youFeel('deliriously happy.', state), state);
             await ttyPline('(In fact, you\'re on Cloud 9!)', state);
-            note_unported('window.c display_nhwindow');
+            await displayPendingTtyMessageWindow(state);
         } else {
             await ttyPline('You are now high above the clouds...', state);
         }
