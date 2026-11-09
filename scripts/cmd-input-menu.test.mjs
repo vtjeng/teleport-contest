@@ -114,10 +114,10 @@ test('external command cores preserve time state and record only platform gaps',
     const state = await initializedGame();
     state.fixedDatetime = '20320405060708';
     state.urealtime = { realtime: 7, start_timing: 0, finish_time: 0 };
-    // cmd.c:5676 uses Norep() when the tty window cannot suspend; ECMD_OK is
-    // still the handler result and no platform gap is recorded on that path.
+    // cmd.c:5666 always calls ioctl.c dosuspend() for tty, which uses Norep()
+    // when sysconf names no SHELLERS; ECMD_OK is still the handler result.
     assert.equal(await dosuspend_core(state), ECMD_OK);
-    assert.match(state.nhDisplay.toplines, /suspend.*not available/u);
+    assert.match(state.nhDisplay.toplines, /^Suspend command not available\./u);
 
     state.urealtime.start_timing = 0;
     assert.equal(await dosh_core(state), ECMD_OK);

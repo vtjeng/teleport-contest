@@ -379,6 +379,7 @@ import { do_write_config_file } from './cfgfiles.js';
 import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
 import { dosh } from './unixunix.js';
+import { dosuspend } from './ioctl.js';
 import {
     selection_floodfill,
     selection_new,
@@ -980,20 +981,14 @@ function externalCommandStarted(state) {
     state.urealtime.start_timing = now;
 }
 
-// C ref: cmd.c dosuspend_core(). The browser window has no suspend-capable
-// window port, so the normal tty path reports the same unavailable command.
-// A test or future window port can expose the C callback shape; its discarded
-// platform operation remains an explicit gap while the clock bookkeeping is
-// preserved here.
+// C ref: cmd.c dosuspend_core() (5660-5678), compiled with SUSPEND. The tty
+// window port's win_can_suspend is genl_can_suspend_yes (wintty.c:162), and
+// tty is this build's only interface, so C always takes the dosuspend() arm.
 export async function dosuspend_core(state = game) {
-    const canSuspend = state.windowprocs?.win_can_suspend?.() === true;
-    if (canSuspend) {
-        externalCommandStarted(state);
-        note_unported('sys/share/ioctl.c dosuspend');
-        state.urealtime.start_timing = getnow(state);
-    } else {
-        await ttyNorep("'#suspend' command not available.", state);
-    }
+    externalCommandStarted(state);
+    /* NB: SYSCF SHELLERS handled in port code. */
+    await dosuspend(state);
+    state.urealtime.start_timing = getnow(state); /* resume keeping track of time */
     return ECMD_OK;
 }
 

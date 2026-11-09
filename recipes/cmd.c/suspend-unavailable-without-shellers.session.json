@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40418,
+      "datetime": "20350304101600",
+      "nethackrc": "OPTIONS=name:Sleeper,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "\u001a\u001a#suspend\ns"
+    }
+  ],
+  "comment": "cmd.c dosuspend_core() with the tty window port, which can always suspend, calls sys/share/ioctl.c dosuspend(). The recorder's sysconf sets no SHELLERS, so ^Z prints \"Suspend command not available.\" through Norep(); the second ^Z repeats it and Norep() suppresses it, and #suspend reaches the same handler. A final search shows the commands took no time."
+}

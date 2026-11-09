@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3983 | 85 |
+| gameplay | 4068 | 3984 | 84 |
 | diagnostic | 723 | 198 | 525 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4184 | 727 |
+| total | 4911 | 4185 | 726 |
 
 ## Missing by C file
 
@@ -135,7 +135,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 11 | 1 |
-| sys/share/ioctl.c | no | 2 | 0 | 0 |
+| sys/share/ioctl.c | yes | 1 | 0 | 0 |
 | sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
 | win/tty/wintty.c | yes | 0 | 5 | 1 |
@@ -391,7 +391,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 ### sys/share/ioctl.c
 
 - `dosuspend()`
-  - 167 Norep: `Suspend command not available.`
   - 194 pline: `I don't think your shell has job control.`
 
 ### sys/unix/unixunix.c
