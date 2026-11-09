@@ -30,7 +30,6 @@ import {
     regex_init,
     regex_match,
     UnsupportedPosixDuplicatedCaptureError,
-    UnsupportedPosixLocaleMatchError,
 } from '../js/posixregex.js';
 import {
     dismissPendingTtyMessage,
@@ -420,7 +419,7 @@ test('compiled regex states use one explicit representation discriminant', () =>
     assert.equal(regex_compile('[z-a]', regex), false);
     assert.equal(regex.kind, 'rejected');
     assert.equal(regex_compile('é', regex), true);
-    assert.equal(regex.kind, 'locale-boundary');
+    assert.equal(regex.kind, 'direct');
     assert.equal(regex_compile('a+', regex), true);
     assert.equal(regex.kind, 'direct');
     assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
@@ -585,18 +584,6 @@ test('configured internal dollar classifies a live newline message',
         assert.equal(state._pending_message, undefined);
         assert.equal(state._ttyPreviousMessage, '');
     });
-
-test('regex_match names its unported C.UTF-8 locale boundary', () => {
-    for (const [pattern, text] of [['é', 'é'], ['.*', 'é']]) {
-        const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true);
-        assert.throws(
-            () => regex_match(text, regex),
-            (error) => error instanceof UnsupportedPosixLocaleMatchError
-                && /regex_match.*C\.UTF-8/u.test(error.message),
-        );
-    }
-});
 
 test('internal caret requires the current candidate to consume its newline',
     () => {

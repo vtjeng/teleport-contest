@@ -57,6 +57,9 @@ export const DELETED_REFUSAL_CLASSES = [
     'UnsupportedMonsterCreationError',
     // cmd.c yn_function()'s query of QBUFSZ bytes or more, now truncated
     'UnsupportedDirectionBoundaryError',
+    // posixregex.c regex_match() on non-ASCII text, now matched bytewise as
+    // glibc does in the C locale
+    'UnsupportedPosixLocaleMatchError',
 ];
 
 function stripComments(source) {

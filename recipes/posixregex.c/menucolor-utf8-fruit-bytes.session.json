@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "posixregex.c regex_match() on non-ASCII text: NetHack never calls setlocale(), so glibc's regexec() runs in the C locale and treats each UTF-8 byte as a character. With eight_bit_tty the fruit name keeps its two-byte e-acute, so in the O menu's fruit line \"\\[caf..\\]\" matches (red, underlined) and \"\\[caf.\\]\" does not, the reverse of a UTF-8 locale. Seed, date, Healer and fruit chosen independently.",
+  "segments": [
+    {
+      "seed": 71230443,
+      "datetime": "20641108120000",
+      "nethackrc": "OPTIONS=name:Bytewise,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nOPTIONS=fruit:café,menucolors,eight_bit_tty\nMENUCOLOR=\"\\[caf.\\]\"=green\nMENUCOLOR=\"\\[caf..\\]\"=red&underline\n",
+      "moves": "  O>>\u001b  "
+    }
+  ]
+}

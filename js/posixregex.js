@@ -1,12 +1,20 @@
-// posixregex.js -- POSIX extended-regexp validation and ASCII matching.
+// posixregex.js -- POSIX extended-regexp validation and matching.
 // C ref: sys/share/posixregex.c regex_init(), regex_compile(), and
 // regex_match(). The recorder links this implementation and calls libc
 // regcomp() with REG_EXTENDED | REG_NOSUB, then regexec() without REG_NEWLINE.
 //
-// Bracket ranges compare ordinary characters by code point. Matching is exact
-// for the ASCII part of the recorder's C.UTF-8 locale. Non-ASCII matching is a
-// named fail-closed boundary because libc character classes and collation are
-// locale behavior that ECMAScript RegExp does not supply.
+// NetHack never calls setlocale() on the Unix tty path, so libc runs in the
+// "C" locale, whatever LANG says: one byte is one character, the character
+// classes and \w hold ASCII bytes only, and a bracket range compares byte
+// values. The matcher therefore works on byte strings, one UTF-8 byte of the
+// pattern or text per JS character (toByteString()).
+
+import { encodeUtf8ByteString } from './hacklib.js';
+
+// The C string's bytes, each as one JS character from U+0000 to U+00FF.
+function toByteString(value) {
+    return String.fromCharCode(...encodeUtf8ByteString(value));
+}
 
 const POSIX_CHARACTER_CLASSES = Object.freeze(new Set([
     'alnum',
@@ -61,7 +69,7 @@ function bracketSpecial(pattern, index) {
     if (marker === ':' && !POSIX_CHARACTER_CLASSES.has(value)) {
         return { error: 'Invalid character class name' };
     }
-    // C.UTF-8 has one-character collating and equivalence elements. The
+    // The C locale has one-byte collating and equivalence elements. The
     // syntax is still recognized separately so `[.x.]` (without the outer
     // bracket-expression pair) remains ordinary bracket content as in libc.
     if (marker !== ':' && [...value].length !== 1) {
@@ -1180,15 +1188,13 @@ function matchDirectExtendedRegexp(input, evaluator) {
 
 export function regex_compile(pattern, regex) {
     if (!regex) return false;
-    const text = String(pattern);
+    const text = toByteString(pattern);
     regex.error = validateExtendedRegexp(text);
     regex.pattern = regex.error ? null : text;
     regex.matcher = null;
     regex.evaluator = null;
     if (regex.error) {
         regex.kind = 'rejected';
-    } else if (/[^\x00-\x7F]/u.test(text)) {
-        regex.kind = 'locale-boundary';
     } else {
         regex.evaluator = parseAsciiExtendedRegexp(text);
         if (!regex.evaluator.referencedGroups.size) {
@@ -1211,13 +1217,6 @@ export function regex_error_desc(regex) {
     return regex.error;
 }
 
-export class UnsupportedPosixLocaleMatchError extends Error {
-    constructor() {
-        super('posixregex.c regex_match() with non-ASCII C.UTF-8 input');
-        this.name = 'UnsupportedPosixLocaleMatchError';
-    }
-}
-
 export class UnsupportedPosixDuplicatedCaptureError extends Error {
     constructor() {
         super('posixregex.c regex_match() with a duplicated repeated capture '
@@ -1229,10 +1228,7 @@ export class UnsupportedPosixDuplicatedCaptureError extends Error {
 export function regex_match(value, regex) {
     if (!regex || regex.kind === 'uncompiled' || regex.kind === 'rejected')
         return false;
-    const text = String(value);
-    if (regex.kind === 'locale-boundary' || /[^\x00-\x7F]/u.test(text)) {
-        throw new UnsupportedPosixLocaleMatchError();
-    }
+    const text = toByteString(value);
     if (regex.kind === 'duplicated-capture-boundary') {
         throw new UnsupportedPosixDuplicatedCaptureError();
     }
