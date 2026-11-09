@@ -1541,16 +1541,11 @@ function dropEnv(env = {}) {
     };
 }
 
-function requiredDropHook(env, name) {
-    const hook = env.hooks[name];
-    if (typeof hook !== 'function')
-        throw new UnsupportedDropError(`missing ${name} operation`);
-    return hook;
-}
-
-// The two operations the dropz() tail needs. C calls newsym() and
-// encumber_msg() from inside dropz() itself, at do.c:840 and :842. Both are
-// injected because display.c and pickup.c own them.
+// The environment of a drop command. dropz() calls newsym() and
+// encumber_msg() itself (do.c:840-842) and ignores these two hooks; they stay
+// because callers that build one environment here for both a drop and
+// invent.c hold_another_object() (artifacts.c invoke_create_ammo(),
+// pickup.c loot_mon()) rely on hold_another_object()'s encumberMessage hook.
 export function dropCommandEnv(state, env = {}) {
     const dropState = env.state ?? state;
     return {
@@ -1878,8 +1873,6 @@ export function preflight_dropx(obj, env = {}) {
     const u = state.u;
     if (!obj || typeof obj !== 'object')
         throw new TypeError('preflight_dropx requires an object');
-    if (obj.where !== OBJ_FREE && obj.where !== OBJ_INVENT)
-        throw new UnsupportedDropError(`object ownership ${obj.where}`);
     // stackobj() preserves the newly dropped object and absorbs an older pile
     // member into it. The survivor keeps its light and timers across an
     // ordinary drop; light.c finds their new location through that same object.
@@ -1894,8 +1887,6 @@ export function preflight_dropx(obj, env = {}) {
     // whose lock the hero is picking is left.
     if (state.xlock?.box === obj)
         throw new UnsupportedDropError('the box whose lock is being picked');
-    if (!u || u.uswallow)
-        throw new UnsupportedDropError('a swallowed hero');
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
     // not test can_reach_floor(). Underwater drops still reach flooreffects;
     // its pool arm suppresses splash messages while Underwater is true.
@@ -1961,8 +1952,6 @@ export function preflight_dropx(obj, env = {}) {
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
     // floor. Keep its text intact and let the ordinary placement/redraw run.
     // A visible region affects the canonical redraw, not floor placement.
-    if (!Array.isArray(state.level.objects?.[x]))
-        throw new UnsupportedDropError('a missing floor-object grid');
     // invent.c stackobj() (4366-4375) hands this object to merged() (814-948)
     // as the survivor and each pile member in turn as the object absorbed, and
     // merged() reads lamplit and timed on that member at 851-854 and globby at
@@ -1998,8 +1987,6 @@ export function preflight_dropx(obj, env = {}) {
         );
     }
 
-    requiredDropHook(normalized, 'newsym');
-    requiredDropHook(normalized, 'encumberMessage');
     return {
         consumed: false,
         initialWhere: obj.where,
@@ -2157,12 +2144,8 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         // handed.
         map_object(obj, 0, normalized.state);
     }
-    requiredDropHook(normalized, 'newsym')(
-        normalized.state.u.ux,
-        normalized.state.u.uy,
-        normalized.state,
-    );
-    await requiredDropHook(normalized, 'encumberMessage')(normalized.state);
+    newsym(normalized.state.u.ux, normalized.state.u.uy);
+    await encumber_msg(normalized.state);
 }
 
 // C ref: do.c dropz() (806-842). Ordinary drops retain the admitted source

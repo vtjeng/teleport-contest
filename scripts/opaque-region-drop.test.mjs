@@ -20,6 +20,8 @@ import {light_globals_init} from '../js/light.js';
 for(const hallu of [false,true])for(const blind of [false,true])for(const coverage of ['none','outside','at-drop'])for(const weapon of [false,true]){
  test(`opaque region drop Hallu=${hallu} blind=${blind} coverage=${coverage} weapon=${weapon}`,async()=>{
   const outcomes=[];
+  // The delegated run supplies a newsym hook. do.c dropz() calls newsym()
+  // itself (do.c:840), so the hook is never called and both runs end the same.
   for(const delegated of [false,true]){
    await runSegment({seed:8432142,datetime:'20270318100000',nethackrc:'OPTIONS=name:CloudDrop,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n',moves:' '});
    game.level=new GameMap();game.head_engr=null;for(let x=2;x<=15;x++)for(let y=2;y<=13;y++){game.level.at(x,y).typ=ROOM;game.level.at(x,y).lit=true;}
@@ -36,7 +38,7 @@ for(const hallu of [false,true])for(const blind of [false,true])for(const covera
    await dropx(obj,env);
    assert.equal(obj.where,OBJ_FLOOR);assert.equal(obj.ox,5);assert.equal(obj.oy,7);assert.equal(obj.quan,quantity);assert.equal(obj.owt,weight);assert.equal(game.level.objects[5][7],obj);assert.equal(game.level.objlist,obj);let inPack=false;for(let item=game.invent;item;item=item.nobj)if(item===obj)inPack=true;assert.equal(inPack,false);
    if(weapon){assert.equal(game.uwep,null);assert.equal(obj.owornmask&W_WEP,0);}else assert.equal(game.uwep,originalWeapon);
-   assert.deepEqual(game.coreCtx,beforeCore);assert.deepEqual(game.level.regions,beforeRegions);assert.equal(game.u.uhp,beforeHP);assert.equal(events.length,delegated?1:0);
+   assert.deepEqual(game.coreCtx,beforeCore);assert.deepEqual(game.level.regions,beforeRegions);assert.equal(game.u.uhp,beforeHP);assert.equal(events.length,0);
    outcomes.push({core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),grid:structuredClone(game.nhDisplay.grid),regions:structuredClone(game.level.regions),object:{type:obj.otyp,where:obj.where,x:obj.ox,y:obj.oy,quantity:obj.quan,weight:obj.owt,worn:obj.owornmask},hp:game.u.uhp});
   }
   assert.deepEqual(outcomes[0],outcomes[1]);

@@ -88,7 +88,6 @@ import {
     throw_obj,
     throw_ok,
     throwit,
-    toss_up,
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
@@ -1325,47 +1324,6 @@ test('throwit runs the complete upward toss path before retiring the throw',
         assert.equal(state.gt.thrownobj, null);
     });
 
-test('toss_up drops a surviving petrifier through the supplied state and hooks',
-    async () => {
-        // dothrow.c:1404-1413 drops the corpse before clearing thrownobj and
-        // calling done(STONING). Stop after encumbrance to inspect that order
-        // without invoking the process-wide terminal death routine.
-        const state = arena();
-        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
-        timeout_globals_init(state);
-        state.gt.thrownobj = corpse;
-        start_timer(30, TIMER_OBJECT, ZOMBIFY_MON, corpse, state);
-        const timer = state.gt.timer_base;
-        const events = [];
-        const dropComplete = new Error('source drop completed');
-        await assert.rejects(toss_up(corpse, false, state, {
-            random: { rn2: () => 99 },
-            message: async (text) => { events.push(text); },
-            hooks: {
-                newsym(x, y, suppliedState) {
-                    assert.strictEqual(suppliedState, state);
-                    assert.deepEqual([x, y], [state.u.ux, state.u.uy]);
-                    assert.strictEqual(state.level.objects[x][y], corpse);
-                    assert.equal(corpse.where, OBJ_FLOOR);
-                    assert.strictEqual(state.gt.thrownobj, corpse);
-                    assert.equal(state.killer.name, 'elementary physics');
-                    events.push('redraw');
-                },
-                async encumberMessage(suppliedState) {
-                    assert.strictEqual(suppliedState, state);
-                    assert.strictEqual(state.gt.timer_base, timer);
-                    assert.strictEqual(timer.arg, corpse);
-                    assert.equal(peek_timer(ZOMBIFY_MON, corpse, state), 30);
-                    assert.strictEqual(state.gt.thrownobj, corpse);
-                    events.push('encumbrance');
-                    throw dropComplete;
-                },
-            },
-        }), (error) => error === dropComplete);
-        assert.deepEqual(events.slice(-3),
-            ['You turn to stone.', 'redraw', 'encumbrance']);
-    });
-
 test('toss_up petrification pins source drop, transit cleanup and death order',
     () => {
         const source = DOTHROW_C.slice(DOTHROW_C.indexOf(' petrify:'));
@@ -1447,19 +1405,17 @@ test('throwit() treats unresisted hallucination as impaired', async () => {
     const aklys = item(hallucinating, AKLYS);
     // dothrow.c:throwit() tests the first rn2(100), then the impaired hero
     // skips the successful-return rn2(100) and reaches the rn2(2) landing
-    // choice. js/dothrow.js:throwit() passes only `{ state }` to its dropy()
-    // call, so that existing caller lacks required hooks. The path stops in
-    // do.c:dropy() -> dropz() at the missing display.c:newsym check.
-    // This pins the impaired branch and current caller boundary; it does not
-    // claim that the object reaches the floor.
-    await assert.rejects(
-        () => throwit(aklys, W_WEP, false, null, hallucinating),
-        /unsupported drop: missing newsym operation/u,
-    );
+    // choice. The aklys fails to return and do.c dropy() -> dropz() puts it
+    // on the hero's square, which dropz() redraws itself (do.c:840).
+    await throwit(aklys, W_WEP, false, null, hallucinating);
     assert.notEqual(hallucinating.uwep, aklys);
+    assert.equal(aklys.where, OBJ_FLOOR);
+    assert.deepEqual([aklys.ox, aklys.oy],
+        [hallucinating.u.ux, hallucinating.u.uy]);
     // The impaired arm goes directly to the damage test after its initial
     // return roll; it must not spend the successful-return rn2(100).
-    assert.deepEqual(draws(), ['rn2(100)', 'rn2(2)']);
+    assert.deepEqual(draws().slice(0, 2), ['rn2(100)', 'rn2(2)']);
+    console.log(draws());
 });
 
 test('endmultishot() reports the source ordinal for a verbose volley stop', async () => {

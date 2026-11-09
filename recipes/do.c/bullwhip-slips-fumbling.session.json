@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c dropz() witness through apply.c use_whip(). A debug Priest wearing gauntlets of fumbling applies a wielded bullwhip westward; the second lash slips (!rn2(5)) and falls out of her hand; use_whip() drops it through dropx() -> dropz(), which clears uwep, redraws her square and calls encumber_msg() itself (do.c:810-842).",
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20410709194500",
+      "nethackrc": "OPTIONS=name:Lasher,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed gauntlets of fumbling\n\u0017bullwhip\nWjak hakhs"
+    }
+  ]
+}

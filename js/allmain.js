@@ -817,16 +817,7 @@ export async function finishElapsedTurn(state, random) {
         await glibr(state, {
             message: ttyPline,
             canletgo,
-            dropx: (object) => dropx(object, {
-                state,
-                hooks: {
-                    encumberMessage: (targetState) => encumber_msg(
-                        targetState,
-                        { message: ttyPline },
-                    ),
-                    newsym,
-                },
-            }),
+            dropx: (object) => dropx(object, { state }),
         });
     }
 

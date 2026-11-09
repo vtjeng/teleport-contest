@@ -183,7 +183,7 @@ import { an, ansimpleoname, distant_name, donameFresh, is_plural,
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, closed_door, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
-import { encumber_msg, removed_from_icebox } from './pickup.js';
+import { removed_from_icebox } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
 import { coreRandom, d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
@@ -1734,16 +1734,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} to the ${surface(state.u.ux, state.u.uy, state)}!`,
                 state, env);
-            // do.c dropz() always redraws the landing square and updates
-            // burden. These are the same caller-owned hooks as pickup.c
-            // tipcontainer().
-            await dropy(obj, {
-                state,
-                hooks: {
-                    encumberMessage: encumber_msg,
-                    newsym,
-                },
-            });
+            await dropy(obj, { state });
             break;
         case 3: /* into mon's inventory */
             await pline_mon(mtmp,

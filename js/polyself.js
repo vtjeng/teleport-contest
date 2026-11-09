@@ -601,23 +601,12 @@ export async function skinback(silently, state = game, rawEnv = {}) {
 // ---------- dropp (break_armor helper) ---------------------------------
 // C ref: polyself.c dropp() (1122-1154). Drop an item from inventory,
 // checking that it is still there (emergency_disrobe might have removed it).
-async function dropp(obj, state, rawEnv = {}) {
-    const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? newsym;
+async function dropp(obj, state) {
     let otmp = state.invent;
     while (otmp) {
         if (otmp === obj) {
-            // C's dropp() calls dropx() unconditionally; dropx()/dropz()
-            // requires three hooks that its callers inject: newsym (do.c:840),
-            // encumber_msg (do.c:842), and remove_object (via stackobj ->
-            // merged -> obj_extract_self). Match do.js dropCommandEnv().
-            await dropx(obj, {
-                state,
-                hooks: {
-                    newsym: (x, y) => redraw(x, y, state),
-                    encumberMessage: (target) => encumber_msg(target, { message }),
-                },
-            });
+            // C's dropp() calls dropx() unconditionally.
+            await dropx(obj, { state });
             break;
         }
         otmp = otmp.nobj;
@@ -690,7 +679,7 @@ async function break_armor(state, rawEnv = {}) {
                     env,
                 );
                 await Cloak_off(state, env);
-                await dropp(otmp, state, env);
+                await dropp(otmp, state);
             } else {
                 await message(
                     `The clasp on your ${cloak_simple_name(otmp, state)} breaks open!`,
@@ -698,7 +687,7 @@ async function break_armor(state, rawEnv = {}) {
                     env,
                 );
                 await Cloak_off(state, env);
-                await dropp(otmp, state, env);
+                await dropp(otmp, state);
             }
         }
         if ((otmp = state.uarmu) != null) {
@@ -711,7 +700,7 @@ async function break_armor(state, rawEnv = {}) {
             cancelDonning(otmp);
             await message('Your armor falls around you!', state, env);
             await Armor_gone(state, env);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarmc) != null
             && (otmp.otyp !== MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
@@ -723,7 +712,7 @@ async function break_armor(state, rawEnv = {}) {
                 env,
             );
             await Cloak_off(state, env);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarmu) != null) {
             await message(
@@ -734,7 +723,7 @@ async function break_armor(state, rawEnv = {}) {
                 env,
             );
             await setworn(null, otmp.owornmask & W_ARMU, setwornEnv(state));
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
     }
     if (has_horns(uptr) && (otmp = state.uarmh) != null) {
@@ -753,7 +742,7 @@ async function break_armor(state, rawEnv = {}) {
                 env,
             );
             await Helmet_off(state);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
     }
     if (nohands(uptr) || verysmall(uptr)) {
@@ -766,12 +755,12 @@ async function break_armor(state, rawEnv = {}) {
             );
             await drop_weapon(0, state, env);
             await Gloves_off(state, env);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarms) != null) {
             await message('You can no longer hold your shield!', state, env);
             Shield_off(state);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarmh) != null) {
             cancelDonning(otmp);
@@ -781,7 +770,7 @@ async function break_armor(state, rawEnv = {}) {
                 env,
             );
             await Helmet_off(state);
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
     }
     if (nohands(uptr) || verysmall(uptr)
@@ -800,7 +789,7 @@ async function break_armor(state, rawEnv = {}) {
             // non-returning C call.  The JS finalizer marks gameover and
             // returns, so do not continue with dropp() after fatal cleanup.
             if (state.program_state?.gameover) return;
-            await dropp(otmp, state, env);
+            await dropp(otmp, state);
         }
     }
     if ((otmp = state.ublindf) != null && !has_head(uptr)) {
@@ -811,7 +800,7 @@ async function break_armor(state, rawEnv = {}) {
             env,
         );
         await Blindf_off(null, state, env);
-        await dropp(otmp, state, env);
+        await dropp(otmp, state);
     }
 }
 
@@ -823,7 +812,6 @@ async function break_armor(state, rawEnv = {}) {
 // hands), so this falls through to the untwoweapon check.
 async function drop_weapon(alone, state, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? newsym;
     if (state.uwep) {
         // alone=0 when called from break_armor alongside glove removal;
         // alone=1 when called directly from polymon.
@@ -861,13 +849,7 @@ async function drop_weapon(alone, state, rawEnv = {}) {
                 if (otmp.in_use)
                     updateinv = false;
                 else if (candropswapwep)
-                    await dropx(otmp, {
-                        state,
-                        hooks: {
-                            newsym: (x, y) => redraw(x, y, state),
-                            encumberMessage: (target) => encumber_msg(target, { message }),
-                        },
-                    });
+                    await dropx(otmp, { state });
             }
             // Drop primary weapon.
             const otmp = state.uwep;
@@ -875,13 +857,7 @@ async function drop_weapon(alone, state, rawEnv = {}) {
             if (otmp.in_use)
                 updateinv = false;
             else if (candropwep)
-                await dropx(otmp, {
-                    state,
-                    hooks: {
-                        newsym: (x, y) => redraw(x, y, state),
-                        encumberMessage: (target) => encumber_msg(target, { message }),
-                    },
-                });
+                await dropx(otmp, { state });
             if (updateinv)
                 update_inventory({ state });
         } else if (!could_twoweap(state.youmonst.data)) {

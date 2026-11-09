@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c dropz() witness through dothrow.c throwit(). A hallucinating debug Archeologist throws her wielded aklys; impaired, it does not return to her hand, and throwit() drops it at her feet through dropy() -> dropz(), which redraws her square (newsym, do.c:840) and calls encumber_msg() (do.c:842) itself.",
+  "segments": [
+    {
+      "seed": 5530817,
+      "datetime": "20410522083000",
+      "nethackrc": "OPTIONS=name:Tether,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017aklys\n\u0017potion of hallucination\nwjqktjh"
+    }
+  ]
+}

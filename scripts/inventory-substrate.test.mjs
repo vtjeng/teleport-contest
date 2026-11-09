@@ -3263,9 +3263,9 @@ test('heavy-ball retain and drop paths preserve source callback order',
                         true,
                         false,
                     ],
+                    // dropz() redraws and calls encumber_msg() itself
+                    // (do.c:840-842), not through these hooks.
                     ['dropx', null, OBJ_INVENT, 0, true, false],
-                    ['newsym', null, OBJ_FLOOR, 0, false, true],
-                    ['encumber', null, OBJ_FLOOR, 0, false, true],
                 ], currentCase.name);
             }
         }
@@ -3328,7 +3328,9 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             'Oops!  The heavy iron ball drops to the floor!',
             'Oops!  The heavy iron ball drops to the floor!',
         ]);
-        assert.equal(encumbered, 2);
+        // The hook is hold_another_object()'s own (invent.c:1303), for an
+        // object it keeps; dropz() calls encumber_msg() itself.
+        assert.equal(encumbered, 0);
     });
 
 test('dropx runs doaltarobj before placing cursed noncoin and coin objects',
@@ -3587,16 +3589,10 @@ test('direct drop preflight admits a dry Water-level floor without changing owne
 test('ordinary drop preflight atomically refuses every excluded do.c tail',
     () => {
         const cases = [
-            ['wrong ownership', /ownership/u, ({ obj }) => {
-                obj.where = OBJ_FLOOR;
-            }],
             // shk.c obfree()'s last operation: lock.c reset_pick(), for the
             // box whose lock the hero is in the middle of picking.
             ['box being picked', /lock is being picked/u, ({ state, obj }) => {
                 state.xlock = { box: obj };
-            }],
-            ['swallowed hero', /swallowed/u, ({ state }) => {
-                state.u.uswallow = true;
             }],
             ['water level liquid', /special-level/u, ({ state }) => {
                 state.water_level = { ...state.u.uz };
@@ -3613,9 +3609,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.uswapwep = obj;
             }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
-            ['missing floor grid', /floor-object grid/u, ({ state }) => {
-                state.level.objects[10] = null;
-            }],
         ];
 
         for (const [name, reason, setup, otyp] of cases) {
@@ -3752,30 +3745,22 @@ test('prepared drop admission rejects changed ownership and origin',
         );
     });
 
-test('dropz places an impact drop before the source redraw and encumbrance',
+test('dropz places an impact drop and then settles the carrying capacity',
     async () => {
         const { hooks, lines, obj, state } = ordinaryDropFixture();
         obj.where = OBJ_FREE;
         state.invent = null;
-        const events = [];
-        hooks.newsym = (x, y) => {
-            events.push(['newsym', x, y, obj.where,
-                state.level.objects[10][5] === obj]);
-        };
-        hooks.encumberMessage = () => {
-            events.push(['encumber', obj.where,
-                state.level.objects[10][5] === obj]);
-        };
+        delete state.go?.oldcap;
 
         await dropz(obj, true, { state, hooks });
 
         assert.equal(obj.where, OBJ_FLOOR);
         assert.equal(state.level.objects[10][5], obj);
         assert.deepEqual(lines, []);
-        assert.deepEqual(events, [
-            ['newsym', 10, 5, OBJ_FLOOR, true],
-            ['encumber', OBJ_FLOOR, true],
-        ]);
+        // do.c:842: dropz() calls encumber_msg() itself, which records the
+        // capacity it reported. The call order is pinned against the source
+        // in scripts/drop-hook-defaults.test.mjs.
+        assert.equal(typeof state.go.oldcap, 'number');
     });
 
 test('a heavy hold reaches fountain drop admission after addinv and its message',

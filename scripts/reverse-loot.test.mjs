@@ -216,22 +216,21 @@ test('reverse_loot direct drops accept levitation and map blind gold before redr
                     message: async text => events.push(text),
                     random: { ...coreRandom, rn2: n => { calls.push(['rn2', n]); return 1; },
                         rnd: n => { calls.push(['rnd', n]); return n === 5 ? fifth : 1; }},
-                    hooks: {newsym: () => {
-                        const dropped = state.level.objects[state.u.ux][state.u.uy];
-                        assert.equal(dropped.quan, expected);
-                        if (blind) assert.equal(location.remembered_glyph.glyph,
-                            normal_obj_to_glyph(dropped, state));
-                        events.push('newsym');
-                    }, encumberMessage: () => events.push('encumber')},
                 });
+                // dropz() maps the gold for a blind levitating hero and then
+                // redraws her square itself (do.c:838-840).
+                const dropped = state.level.objects[state.u.ux][state.u.uy];
+                assert.equal(dropped.quan, expected);
+                if (blind) assert.equal(location.remembered_glyph.glyph,
+                    normal_obj_to_glyph(dropped, state));
                 assert.deepEqual(calls, fifth < 5
                     ? [['rn2', 3], ['rnd', 5], ['rnd', 2]]
                     : [['rn2', 3], ['rnd', 5]]);
                 assert.equal(state.invent?.quan ?? 0, 13 - expected);
                 assert.equal(gold.quan, fifth < 5 ? 13 - expected : expected);
                 assert.deepEqual(events, throne
-                    ? [`You drop ${expected} gold pieces.`, 'newsym', 'encumber']
-                    : ['newsym', 'encumber', 'Ok, now there is loot here.']);
+                    ? [`You drop ${expected} gold pieces.`]
+                    : ['Ok, now there is loot here.']);
             }
         }
     }

@@ -3666,14 +3666,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                         ? 'free yourself from' : 'disarm'} the bear trap.`;
                     if (await check_capacity(dropQbuf, state) && beartrap) {
                         obj_extract_self(beartrap, { state });
-                        await dropy(beartrap, {
-                            ...objectEnv,
-                            hooks: {
-                                ...objectEnv.hooks,
-                                encumberMessage: encumber_msg,
-                                newsym,
-                            },
-                        });
+                        await dropy(beartrap, objectEnv);
                         return null;
                     }
                     return beartrap;
@@ -4287,14 +4280,7 @@ export async function doeat(state = game, env = {}) {
                 if (otmp.owornmask)
                     await remove_worn_item(otmp, false, state);
                 await freeinv(otmp, eatEnv);
-                await dropy(otmp, {
-                    ...eatEnv,
-                    hooks: {
-                        ...eatEnv.hooks,
-                        encumberMessage: encumber_msg,
-                        newsym,
-                    },
-                });
+                await dropy(otmp, eatEnv);
             }
             stackobj(otmp, eatEnv);
         }

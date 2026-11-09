@@ -5036,22 +5036,8 @@ export async function doapply(state = game, env = {}) {
         return dowrite(obj, state, {
             ...env,
             fingersOrGloves: fingers_or_gloves,
-            // write.c discards dropx()'s result. Use the existing ordinary
-            // floor-drop path with the same display and inventory hooks as
-            // other production drop callers.
-            dropx: (object) => dropx(object, {
-                ...env,
-                state,
-                hooks: {
-                    ...(env.hooks ?? {}),
-                    encumberMessage: env.hooks?.encumberMessage
-                        ?? ((targetState) => encumber_msg(targetState, {
-                            message: ttyPline,
-                        })),
-                    newsym: env.hooks?.newsym
-                        ?? ((x, y) => newsym(x, y)),
-                },
-            }),
+            // write.c discards dropx()'s result.
+            dropx: (object) => dropx(object, { ...env, state }),
         });
     case TIN_OPENER: {
         // apply.c:4364-4366 assigns this ECMD result before the common
@@ -5156,19 +5142,7 @@ export async function flip_coin(obj, state = game, env = {}) {
     if (loseCoin) {
         if (coin.quan > 1)
             coin = splitobj(coin, 1, { ...env, state });
-        await dropx(coin, {
-            ...env,
-            state,
-            hooks: {
-                ...(env.hooks ?? {}),
-                encumberMessage: env.hooks?.encumberMessage
-                    ?? ((targetState) => encumber_msg(targetState, {
-                        message: ttyPline,
-                    })),
-                newsym: env.hooks?.newsym
-                    ?? ((x, y) => newsym(x, y)),
-            },
-        });
+        await dropx(coin, { ...env, state });
         return ECMD_TIME;
     }
 

@@ -78,30 +78,6 @@ function inventoryCan() {
     return undefined;
 }
 
-test('grease slip retains caller overrides and redraws before encumbrance', async () => {
-    const recipe = JSON.parse(readFileSync(new URL(
-        '../recipes/apply.c/grease-glib-slip-independent.session.json',
-        import.meta.url), 'utf8'));
-    await runSegment({ ...recipe.segments[0],
-        moves: '\u0017uncursed can of grease (9)\n ' });
-    const can = inventoryCan();
-    game.u.uprops[GLIB].intrinsic = 30; // Enter C's first slip arm.
-    const operations = [];
-    await use_grease(can, game, { hooks: {
-        newsym(x, y, state) {
-            assert.equal(state, game);
-            assert.deepEqual([x, y], [game.u.ux, game.u.uy]);
-            assert.equal(can.where, OBJ_FLOOR); // Placement precedes newsym.
-            operations.push('newsym');
-        },
-        encumberMessage(state) {
-            assert.equal(state, game);
-            operations.push('encumber_msg');
-        },
-    } });
-    assert.deepEqual(operations, ['newsym', 'encumber_msg']);
-});
-
 test('use_grease source keeps Glib and charged slip before target selection', () => {
     const source = applyC.slice(applyC.indexOf('use_grease(struct obj *obj)'),
         applyC.indexOf('touchstone_ok(struct obj *obj)'));
