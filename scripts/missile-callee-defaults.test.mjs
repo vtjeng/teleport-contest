@@ -18,7 +18,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import * as acorn from 'acorn';
+import { parse as parseModule } from 'acorn';
 
 import { assertExceptionCount } from './exception-count.mjs';
 
@@ -108,7 +108,7 @@ function walk(node, visit) {
 }
 
 function parse(source) {
-    return acorn.parse(source, {
+    return parseModule(source, {
         ecmaVersion: 'latest',
         sourceType: 'module',
         locations: true,

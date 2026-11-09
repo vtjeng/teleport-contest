@@ -144,6 +144,15 @@ test('no caller passes a scatter() operation outside scatterOps', () => {
                 const key = property.key?.name ?? property.key?.value;
                 if (property.type === 'Property' && SCATTER_OPERATIONS.includes(key))
                     problems.push(`js/${name}: scatter() call passes ${key} outside scatterOps`);
+                // scatter() throws on a scatterOps key it does not list.
+                if (property.type === 'Property' && key === 'scatterOps'
+                    && property.value.type === 'ObjectExpression') {
+                    for (const op of property.value.properties) {
+                        const opKey = op.key?.name ?? op.key?.value;
+                        if (op.type === 'Property' && !SCATTER_OPERATIONS.includes(opKey))
+                            problems.push(`js/${name}: scatterOps passes ${opKey}, which scatter() lacks`);
+                    }
+                }
             }
         });
     }

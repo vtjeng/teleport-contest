@@ -1139,10 +1139,6 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             const nfall = await scatter(x, y, 2, SCATTER_MAY_HIT, treefruit, state, {
                 scatterOps: {
                     stopOccupation: subject => stop_occupation(subject, { message: ttyPline }),
-                    exercise: (attribute, increase, subject) => exercise(
-                        attribute, increase, subject, random,
-                        { encumberMessage: encumber_msg },
-                    ),
                 },
             });
             if (nfall !== nfruit) {
