@@ -9,11 +9,15 @@
 import { cliparound } from './wintty.js';
 import { getnow, night } from './calendar.js';
 import { game } from './gstate.js';
+// end.js imports timet_delta() back from this file; both bindings are read
+// only inside functions.
+import { done } from './end.js';
 import {
     A_DEX,
     COLNO,
     CQ_CANNED,
     CQ_REPEAT,
+    ESCAPED,
     LL_ACHIEVE,
     EXT_ENCUMBER,
     HVY_ENCUMBER,
@@ -118,7 +122,6 @@ import {
     status_eval_next_unhilite,
 } from './display.js';
 import {
-    dismissPendingTtyMessage,
     displayPendingTtyMessageWindow,
     ttyNorep,
     ttyPline,
@@ -614,13 +617,6 @@ async function runUnmulAtTurnBoundary(state) {
     }
 }
 
-
-function elapsedTurnBoundary(reason) {
-    throw new UnsupportedTurnBoundaryError(
-        `elapsed turn reached ${reason}`,
-    );
-}
-
 // C ref: allmain.c interrupt_multi() (975-983), which regen_hp():678 and
 // regen_pw():617 reach when the hero regains the last hit point or the last
 // power point during a multi-turn action. A run and a travel are deliberately
@@ -788,18 +784,13 @@ export async function finishElapsedTurn(state, random) {
     settrack(state);
 
     state.moves++;
+    // C ref: allmain.c moveloop_core() 250-258. The turn counter stops
+    // short of wrapping: the game ends as an escape. done(ESCAPED) asks no
+    // "Die?" question and ends in nh_terminate().
     if (state.moves >= 1000000000) {
-        // C ref: allmain.c moveloop_core() runs display_nhwindow(WIN_MESSAGE,
-        // TRUE), then urgent_pline("The dungeon capitulates."), then
-        // done(ESCAPED). Only the first is ported. done() drives the
-        // disclosure prompts, the "You escaped from the dungeon" summary, and
-        // topten, and recorder patch 006 writes its single final capture
-        // inside nh_terminate() after topten has painted. Printing the pline
-        // and capturing a frame here would invent a boundary no C run
-        // produces, so stop after the dismissal C performs first.
-        if (state._pending_message)
-            await dismissPendingTtyMessage(state);
-        elapsedTurnBoundary('game end through done(ESCAPED)');
+        await displayPendingTtyMessageWindow(state);
+        await ttyUrgentPline('The dungeon capitulates.', state);
+        await done(ESCAPED, state);
     }
     state.hero_seq = state.moves * 8;
     if (state.flags?.time && !state.context?.run) {

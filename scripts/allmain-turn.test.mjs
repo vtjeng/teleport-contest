@@ -10,7 +10,6 @@ import {
     maybeRunClairvoyance,
     maybeWipeHeroEngraving,
     moveloop_core,
-    UnsupportedTurnBoundaryError,
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
@@ -20,6 +19,7 @@ import {
     COULD_SEE,
     CLAIRVOYANT,
     COLNO,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     DUST,
     EXT_ENCUMBER,
     FAST,
@@ -1585,6 +1585,28 @@ test('due ROT_ORGANIC timeout frees an empty buried container', async () => {
         'the elapsed turn reaches the command boundary after firing the timer');
 });
 
+// Records every value written to the tty top line from now on, so a test can
+// see a message that the end-game windows later cover. The returned function
+// restores the plain property and returns the values.
+function recordToplines(state) {
+    const seen = [];
+    let value = state._ttyToplines;
+    Object.defineProperty(state, '_ttyToplines', {
+        configurable: true,
+        enumerable: true,
+        get: () => value,
+        set: (next) => {
+            value = next;
+            seen.push(next);
+        },
+    });
+    return () => {
+        delete state._ttyToplines;
+        state._ttyToplines = value;
+        return seen;
+    };
+}
+
 test('the billionth turn capitulates before hero sequence and upkeep',
     () => withSerializedGrids(async () => {
         const replay = await runSegment({
@@ -1619,33 +1641,33 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         game.level.regions.push(laterRegion);
         const priorHeroSequence = game.hero_seq;
         const priorHunger = game.u.uhunger;
-        game.nhDisplay.pushKey(' '.charCodeAt(0));
-        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        const stopRecording = recordToplines(game);
+        // done(ESCAPED) asks nothing when every disclosure category is off.
+        // The spaces answer the --More-- prompts before it and the end-game
+        // windows that really_done() shows before nh_terminate().
+        game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+        for (let index = 0; index < 8; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        // allmain.c reaches done(ESCAPED) here, which is not ported. The turn
-        // must stop rather than invent the disclosure, summary, and topten
-        // frames that C's nh_terminate() capture would show.
-        const reachesLimit = (error) => (
-            error instanceof UnsupportedTurnBoundaryError
-            && /done\(ESCAPED\)/u.test(error.message)
-        );
-
-        // The live turn stops at the limit.
-        await assert.rejects(() => moveloop_core(), reachesLimit);
+        // Constructed state: no recording reaches a billion turns, and no
+        // command sets the turn counter.
+        let toplines;
+        try {
+            await expectTerminated(() => moveloop_core());
+        } finally {
+            toplines = stopRecording();
+        }
         // allmain.c increments svm.moves before it tests the limit, and sets
         // gh.hero_seq only after the test.
         assert.equal(game.moves, 1000000000);
         assert.equal(game.hero_seq, priorHeroSequence);
         assert.equal(game.u.uhunger, priorHunger);
-        // "The dungeon capitulates." is urgent_pline() output belonging to the
-        // unported branch, so it must never reach the topline.
-        assert.notEqual(
-            game.nhDisplay.toplines,
-            'The dungeon capitulates.',
-        );
+        assert.ok(toplines.includes('The dungeon capitulates.'));
+        // done() names the escape from deaths[] (end.c:44-50).
+        assert.equal(game.killer.name, 'escaped');
         // The once-per-turn upkeep beyond the limit never ran.
         assert.equal(game.level.regions.includes(laterRegion), true);
-        assert.notEqual(game.program_state?.gameover, true);
+        assert.equal(game.program_state.gameover, true);
     }));
 
 // allmain.c gives an invulnerable hero UNENCUMBERED in place of the snapshot
@@ -2552,17 +2574,21 @@ test('the billionth turn capitulates for an unburdened hero too',
             heroSeq: game.hero_seq,
             hunger: game.u.uhunger,
         };
+        const stopRecording = recordToplines(game);
         // allmain.c's display_nhwindow(WIN_MESSAGE, TRUE) before the limit
-        // dismisses the prior message with --More--, which reads this key.
-        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        // dismisses the prior message with --More--; the other spaces answer
+        // the end-game windows. No disclosure category prompts.
+        game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+        for (let index = 0; index < 8; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && /done\(ESCAPED\)/u.test(error.message)
-            ),
-        );
+        // Constructed state, as in the burdened test above.
+        let toplines;
+        try {
+            await expectTerminated(() => moveloop_core());
+        } finally {
+            toplines = stopRecording();
+        }
         // allmain.c increments svm.moves before it tests the limit, and sets
         // gh.hero_seq and runs the hunger upkeep only after the test.
         assert.equal(game.moves, 1000000000);
@@ -2570,7 +2596,8 @@ test('the billionth turn capitulates for an unburdened hero too',
             heroSeq: game.hero_seq,
             hunger: game.u.uhunger,
         }, before);
-        assert.notEqual(game.nhDisplay.toplines, 'The dungeon capitulates.');
+        assert.ok(toplines.includes('The dungeon capitulates.'));
+        assert.equal(game.program_state.gameover, true);
     }));
 
 // Audit rows 3 and 11: the switch from moveloop_core()'s mvl_wtcap snapshot to
