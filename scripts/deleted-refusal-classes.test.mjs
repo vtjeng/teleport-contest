@@ -66,6 +66,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // pager.c look_engrs() in the compass, full compass and screen
     // whatis_coord modes, now formatted with coord_desc()
     'UnsupportedWhatisError',
+    // steal.c mpickobj()'s "%s out." for a synchronous caller, which no
+    // engulfer holding the hero reaches; mpickobjRuntime() prints it
+    'UnsupportedMonsterPickupOperationError',
 ];
 
 function stripComments(source) {

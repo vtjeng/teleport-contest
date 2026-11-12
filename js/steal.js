@@ -154,15 +154,6 @@ import {
     Adornment, Blind, Conflict, Flying, Levitation,
 } from './youprop.js';
 
-export class UnsupportedMonsterPickupOperationError extends Error {
-    constructor(operation, obj = null) {
-        super(`monster pickup requires ${operation}`);
-        this.name = 'UnsupportedMonsterPickupOperationError';
-        this.operation = operation;
-        this.object = obj;
-    }
-}
-
 function pickupEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const hooks = { ...(rawEnv.hooks ?? {}) };
@@ -173,15 +164,6 @@ function pickupEnv(rawEnv = {}) {
         : (monster) => canseemon(monster, state);
     return { ...rawEnv, state, hooks, canSeeMonster };
 }
-
-function requiredPickupOperation(env, operation, obj) {
-    const callback = env.hooks?.[operation];
-    if (typeof callback !== 'function') {
-        throw new UnsupportedMonsterPickupOperationError(operation, obj);
-    }
-    return callback;
-}
-
 
 // Resolve every missing JavaScript subsystem boundary before a caller unlinks
 // the object from the floor. Pure source predicates may run here; all state
@@ -196,12 +178,11 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
 
     const snuff = obj_sheds_light(obj)
         && attacktype(monster?.data, AT_ENGL);
-    const reportObjectGoesOut = snuff
-        && env.state.u?.uswallow
+    // steal.c mpickobj():648-650, engulfing_u(mtmp) && !Blind.
+    const goesOut = snuff
+        && Boolean(env.state.u?.uswallow)
         && env.state.u?.ustuck === monster
-        && !Blind(env.state.u)
-        ? requiredPickupOperation(env, 'reportObjectGoesOut', obj)
-        : null;
+        && !Blind(env.state.u);
 
     const canSeeMonster = monster?.mtame
         ? null
@@ -215,7 +196,7 @@ export function preflight_mpickobj(monster, obj, rawEnv = {}) {
         outcome: 'pickup',
         billed,
         snuff,
-        reportObjectGoesOut,
+        goesOut,
         canSeeMonster,
         carryEffects,
     };
@@ -259,8 +240,18 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
         subfrombill(obj, owner, env.state, env);
     }
 
-    if (plan.reportObjectGoesOut)
-        plan.reportObjectGoesOut(obj, env);
+    // steal.c mpickobj():648-650 prints "%s out." here when an engulfer
+    // holding a hero who can see takes a burning object. Every caller that
+    // can reach that state awaits mpickobjRuntime(), which prints it: do.c
+    // dropz(), dothrow.c swallowit() and mon.c mpickstuff(). The callers of
+    // this synchronous form are not engulfers holding the hero (shopkeepers,
+    // minions, player monsters at creation, a whip-snatching monster), give an
+    // object that cannot burn (gold, a mirror, a pick, a boulder, iron shoes,
+    // a quest artifact, a trap), or run where the hero is not engulfed:
+    // dogmove.c dog_move() returns before dog_invent() while its pet holds
+    // the hero, and mon.c xkilled()'s missile for a dead engulfer is a weapon,
+    // ball or boulder that did the damage (dothrow.c thitmonst() makes any
+    // other object, a burning lamp or candle included, vanish without harm).
 
     obj.no_charge = false;
     if (!monster.mtame) {
@@ -284,7 +275,9 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
 // C ref: steal.c mpickobj():649-650, the message an engulfer gives when it
 // takes a burning object while the hero, who can see, is inside it.
 async function reportObjectGoesOut(obj, env) {
-    await ttyPline(`${Tobjnam(obj, 'go', env.state)} out.`, env.state);
+    await (env.message ?? ttyPline)(
+        `${Tobjnam(obj, 'go', env.state)} out.`, env.state,
+    );
 }
 
 // Runtime counterpart of steal.c:mpickobj(). It retains the source-ordered
@@ -294,10 +287,7 @@ async function reportObjectGoesOut(obj, env) {
 export async function mpickobjRuntime(
     monster, obj, rawEnv = {}, prepared = null,
 ) {
-    const plan = checkedPickupPlan(monster, obj, {
-        ...rawEnv,
-        hooks: { reportObjectGoesOut, ...(rawEnv.hooks ?? {}) },
-    }, prepared);
+    const plan = checkedPickupPlan(monster, obj, rawEnv, prepared);
     const { env } = plan;
     if (plan.outcome === 'missing') {
         /* impossible("monster (%s) taking or picking up nothing?") */
@@ -321,8 +311,8 @@ export async function mpickobjRuntime(
         subfrombill(obj, owner, env.state, env);
     }
 
-    if (plan.reportObjectGoesOut)
-        await plan.reportObjectGoesOut(obj, env);
+    if (plan.goesOut)
+        await reportObjectGoesOut(obj, env);
 
     obj.no_charge = false;
     if (!monster.mtame) {

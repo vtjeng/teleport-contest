@@ -48,6 +48,7 @@ import {
     findgold,
     somegold,
     mpickobj,
+    mpickobjRuntime,
     preflight_mpickobj,
     relobj,
     steal,
@@ -511,7 +512,7 @@ test('cursed figurine carrying effect runs before inventory transfer', () => {
     assert.equal(figurine.where, OBJ_MINVENT);
 });
 
-test('engulfing pickup reports before transfer and snuffs afterward', () => {
+test('engulfing pickup reports before transfer and snuffs afterward', async () => {
     const carrier = monster({
         data: { mattk: [{ aatyp: AT_ENGL }] },
     });
@@ -520,6 +521,8 @@ test('engulfing pickup reports before transfer and snuffs afterward', () => {
     // spe 1 is a magic lamp with its djinni, which ignitable() requires.
     const lamp = object({
         otyp: MAGIC_LAMP,
+        oclass: TOOL_CLASS,
+        quan: 1,
         spe: 1,
         lamplit: true,
     });
@@ -532,19 +535,20 @@ test('engulfing pickup reports before transfer and snuffs afterward', () => {
     new_light_source(CARRIER_X, CARRIER_Y, 1, LS_OBJECT, lamp, gameState);
     const events = [];
 
-    assert.equal(mpickobj(carrier, lamp, {
+    assert.equal(await mpickobjRuntime(carrier, lamp, {
         state: gameState,
         canSeeMonster: () => false,
-        hooks: {
-            reportObjectGoesOut(obj) {
-                events.push('report');
-                assert.equal(obj.no_charge, true);
-                assert.equal(obj.where, OBJ_FREE);
-                assert.equal(obj.lamplit, true);
-            },
+        // steal.c mpickobj():649-650 prints before obj->no_charge is
+        // cleared and before add_to_minv() and snuff_light_source().
+        message: async (text) => {
+            events.push(text);
+            assert.equal(lamp.no_charge, true);
+            assert.equal(lamp.where, OBJ_FREE);
+            assert.equal(lamp.lamplit, true);
         },
     }), false);
-    assert.deepEqual(events, ['report']);
+    // An unidentified magic lamp is named by its appearance.
+    assert.deepEqual(events, ['The lamp goes out.']);
     assert.equal(lamp.where, OBJ_MINVENT);
     assert.equal(lamp.lamplit, false);
     assert.equal(gameState.gl.light_base, null);

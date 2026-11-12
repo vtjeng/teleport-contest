@@ -61,7 +61,6 @@ import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { polyself, set_uasmon } from './polyself.js';
 import { you_were } from './were.js';
-import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
 import { depth, init_dungeons, on_level } from './dungeon.js';
@@ -1044,12 +1043,11 @@ function elapsedTurnRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
-        // mpickstuff()'s -- call splitobj() and mpickobj() from inside the
-        // monster scan, so these classes reach here from a path that used to
-        // stop at an injected refusal. Without them a split or pickup refusal
-        // discards the segment instead of stopping on its last matching screen.
+        // mpickstuff()'s -- call splitobj() from inside the monster scan, so
+        // this class reaches here from a path that used to stop at an
+        // injected refusal. Without it a split refusal discards the segment
+        // instead of stopping on its last matching screen.
         UnsupportedObjectOperationError,
-        UnsupportedMonsterPickupOperationError,
         // dogmove.c dog_invent() may split an unpaid stack through
         // mkobj.c splitobj() (whose splitbill result is discarded), then
         // reach shk.c onbill() while distant_name() names the returned child.
