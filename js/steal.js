@@ -1166,13 +1166,15 @@ export function mdrop_special_objs(mon, rawEnv = {}) {
                         ...env,
                     }).then(() => dropNext(next));
                 }
-                return extract_from_minvent(
+                // extract_from_minvent() answers synchronously unless one of
+                // its steps must wait; this arm stays asynchronous either way.
+                return Promise.resolve(extract_from_minvent(
                     mon,
                     obj,
                     true,
                     true,
                     extractionEnv(env),
-                ).then(() => rloco(obj, env)).then(() => dropNext(next));
+                )).then(() => rloco(obj, env)).then(() => dropNext(next));
             }
             obj = next;
         }

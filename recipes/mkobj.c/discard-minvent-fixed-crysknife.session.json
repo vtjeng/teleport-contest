@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first witness for mkobj.c discard_minvent() -> worn.c extract_from_minvent() -> do.c obj_no_longer_held(): a tame hill orc picks up a wished-for fixed (erodeproof) crysknife, a wand of teleportation sends it away from the hero so keepdogs() leaves it behind, and #wizmakemap's makemap_remove_mons() -> mongone() discards its inventory. obj_no_longer_held() draws rn2(10) for the erodeproof crysknife between mdrop_special_objs()'s obj_resists() checks.",
+  "segments": [
+    {
+      "seed": 5180449,
+      "datetime": "20310922083000",
+      "nethackrc": "OPTIONS=name:Ostler,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017uncursed fixed crysknife\n\u0007tame hill orc\ndfllsssssssss\u0017wand of teleportation\nzgk#wizmakemap\ns"
+    }
+  ]
+}

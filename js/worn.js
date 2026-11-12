@@ -171,6 +171,7 @@ import { youHear } from './monmove.js';
 import { coreRandom } from './rng.js';
 import { discover_object } from './o_init.js';
 import { finish_steps } from './source_steps.js';
+import { mwepgone } from './weapon.js';
 import { note_unported } from './unported.js';
 import {
     distant_name,
@@ -1025,7 +1026,14 @@ export function* m_dowear_steps(monster, creation = false, rawEnv = {}) {
 // `do_extrinsics` selects update_mon_extrinsics(); `silently` is only that
 // call's message flag, which is why steal.c mdrop_obj() can pass FALSE for the
 // first and TRUE for the second and defer the extrinsics to after the drop.
-export async function extract_from_minvent(
+//
+// The ordinary path is synchronous, so mkobj.c discard_minvent() can extract
+// generated inventory inside makemon(). A promise comes back only when a step
+// must wait: a caller's endArtifactLight or mwepgone hook, a noisy
+// update_mon_extrinsics(), a shopkeeper's charge for a reverting crysknife in
+// obj_no_longer_held(), or a wielded light source's "stops shining" message
+// in mwepgone(). Each later step runs after the one before it settles.
+export function extract_from_minvent(
     mon,
     obj,
     do_extrinsics,
@@ -1034,6 +1042,8 @@ export async function extract_from_minvent(
 ) {
     const normalized = wornEnv(env);
     const unwornmask = obj.owornmask ?? 0;
+    const after = (result, next) => (result && typeof result.then === 'function'
+        ? result.then(next) : next());
 
     // C reports impossible() and returns; the port has no caller that can
     // legitimately arrive with a non-minvent object, so this stops instead.
@@ -1042,10 +1052,11 @@ export async function extract_from_minvent(
             'extract_from_minvent called on object not in minvent',
         );
     }
+    let lightResult;
     if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj)) {
         const endArtifactLight = normalized.hooks.endArtifactLight;
         if (endArtifactLight !== undefined) {
-            await requiredHook(normalized, 'endArtifactLight', obj)(
+            lightResult = requiredHook(normalized, 'endArtifactLight', obj)(
                 obj,
                 normalized,
             );
@@ -1056,50 +1067,48 @@ export async function extract_from_minvent(
         }
     }
 
-    obj_extract_self(obj, normalized);
-    obj.owornmask = 0;
-    let updateResult;
-    if (unwornmask) {
-        if (!(mon.mhp < 1) /* !DEADMONSTER() */ && do_extrinsics) {
-            const update = normalized.hooks.updateMonExtrinsics
-                ?? ((target, item, on, silent, actionEnv) =>
-                    update_mon_extrinsics(target, item, on, {
-                        ...actionEnv,
-                        state: normalized.state,
-                        silent,
-                    }));
-            updateResult = update(
-                mon,
-                obj,
-                false,
-                silently,
-                normalized,
-            );
+    const extract = () => {
+        obj_extract_self(obj, normalized);
+        obj.owornmask = 0;
+        let updateResult;
+        if (unwornmask) {
+            if (!(mon.mhp < 1) /* !DEADMONSTER() */ && do_extrinsics) {
+                const update = normalized.hooks.updateMonExtrinsics
+                    ?? ((target, item, on, silent, actionEnv) =>
+                        update_mon_extrinsics(target, item, on, {
+                            ...actionEnv,
+                            state: normalized.state,
+                            silent,
+                        }));
+                updateResult = update(
+                    mon,
+                    obj,
+                    false,
+                    silently,
+                    normalized,
+                );
+            }
         }
-    }
-    const finish = async () => {
+        return after(updateResult, release);
+    };
+    const release = () => {
         if (unwornmask) {
             mon.misc_worn_check &= ~unwornmask;
             // give monster a chance to wear other equipment on its next move
             check_gear_next_turn(mon);
         }
-        await obj_no_longer_held(obj, normalized);
-        if (unwornmask & W_WEP) {
-            const mwepgoneHook = normalized.hooks.mwepgone;
-            if (mwepgoneHook !== undefined) {
-                await requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
-            } else {
-                // mwepgone() is a used-return asynchronous source owner here:
-                // its setmnotwielded light cleanup must finish before callers
-                // can free or merge this object.
-                const { mwepgone } = await import('./weapon.js');
-                await mwepgone(mon, normalized);
-            }
-        }
+        return after(obj_no_longer_held(obj, normalized), unwield);
     };
-    if (updateResult?.then)
-        return updateResult.then(finish);
-    return finish();
+    const unwield = () => {
+        if (!(unwornmask & W_WEP)) return undefined;
+        // mwepgone() unwields and sets weapon_check to NEED_WEAPON; its
+        // setmnotwielded() light cleanup must finish before callers can free
+        // or merge this object.
+        if (normalized.hooks.mwepgone !== undefined)
+            return requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
+        return mwepgone(mon, normalized);
+    };
+    return after(lightResult, extract);
 }
 
 // C ref: worn.c m_lose_armor() (1038-1051). Remove worn monster armor,

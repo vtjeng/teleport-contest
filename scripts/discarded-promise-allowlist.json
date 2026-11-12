@@ -188,6 +188,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/dog.js | discard_migrations | discard_minvent": {
+      "count": 1,
+      "reason": "discard_minvent() answers a promise only when an extraction step waits. For a migrating monster that is a wielded lit light-emitting artifact, whose setmnotwielded() cleanup is asynchronous though canseemon() is false off the level and it prints nothing, or an unpaid crysknife's costly_alteration(); neither has been audited further. The old inline discard_minvent() returned the same promise for the first case."
+    },
     "js/dogmove.js | dog_invent | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -368,13 +372,9 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | discard_minvent | obj_extract_self": {
+    "js/makemon.js | unmakemon | discard_minvent": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/makemon_create.js | discard_minvent | update_mon_extrinsics": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "unmakemon() undoes a monster makemon() just made. makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and mhp = 0 skips update_mon_extrinsics(), so discard_minvent() returns synchronously."
     },
     "js/makemon_create.js | m_initinv_steps | add_to_container": {
       "count": 1,
@@ -403,6 +403,10 @@
     "js/makemon_create.js | mongets | curse": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | finishMonsterInventoryAndStrategySteps | discard_minvent": {
+      "count": 1,
+      "reason": "This is makemon()'s own no-inventory branch. makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and its update_mon_extrinsics(..., silently) call has no message or steed dismount, so discard_minvent() returns synchronously."
     },
     "js/makemon.js | unmakemon | mongone": {
       "count": 1,
@@ -964,6 +968,10 @@
       "count": 1,
       "reason": "Runs only during level creation, where vision_recalc() returns at once, so m_dowear(mon, TRUE) has no vision notices to print and returns synchronously; no promise is discarded."
     },
+    "js/themeroom_fill.js | finish | discard_minvent": {
+      "count": 1,
+      "reason": "sp_lev.c create_monster() discards the default inventory right after makemon(). makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and its update_mon_extrinsics(..., silently) call has no message or steed dismount, so discard_minvent() returns synchronously."
+    },
     "js/timeout.js | burn_object | obj_extract_self": {
       "count": 3,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -1104,10 +1112,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/worn.js | extract_from_minvent | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/worn.js | m_dowear_type_steps | curse": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -1115,6 +1119,10 @@
     "js/worn.js | m_dowear_type_steps | update_mon_extrinsics": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/worn.js | extract | obj_extract_self": {
+      "count": 1,
+      "reason": "extract_from_minvent() has already checked that obj is OBJ_MINVENT, whose obj_extract_self() arm only unlinks it; only the OBJ_INVENT arm (freeinv()) returns a promise."
     },
     "js/zap.js | bhito | exercise": {
       "count": 1,

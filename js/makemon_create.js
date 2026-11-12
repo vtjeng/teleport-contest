@@ -21,7 +21,6 @@ import {
     GP_CHECKSCARY,
     HOLE,
     HWALL,
-    I_SPECIAL,
     In_endgame,
     In_quest,
     In_mines,
@@ -81,7 +80,6 @@ import {
     TUWALL,
     TRAPDOOR,
     VAULT,
-    W_ARM,
     W_ARMH,
     W_SADDLE,
     IS_WALL,
@@ -94,7 +92,6 @@ import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
     artifact_exists,
-    artifact_light,
 } from './artifacts.js';
 import { newemin } from './minion.js';
 import { in_town } from './hack.js';
@@ -130,7 +127,6 @@ import {
     add_to_container,
     add_to_minv,
     obfree,
-    obj_extract_self,
 } from './invent.js';
 import { new_light_source } from './light.js';
 import {
@@ -515,7 +511,7 @@ import {
     S_vcdoor,
     S_vwall,
 } from './symbols.js';
-import { begin_burn, end_burn, stop_timer } from './timeout.js';
+import { begin_burn, stop_timer } from './timeout.js';
 import {
     t_at,
 } from './trap.js';
@@ -523,7 +519,6 @@ import {
     extract_from_minvent,
     m_dowear_steps,
     mon_set_minvis,
-    update_mon_extrinsics,
     which_armor,
 } from './worn.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -2017,59 +2012,15 @@ function* m_initinv_steps(monster, normalized) {
 // level-creation callers that historically imported it from this module.
 export { m_dowear, racial_exception, update_mon_extrinsics } from './worn.js';
 
-// C ref: mkobj.c discard_minvent().  The currently supported makemon()
-// species cannot receive invocation artifacts or other special objects which
-// mdrop_special_objs() would preserve on the floor.  Artifact bookkeeping is
-// still reversed here before each generated inventory object is uncreated.
+// C ref: mkobj.c discard_minvent(). Each object leaves through worn.c
+// extract_from_minvent(..., TRUE, TRUE), loses any artifact bookkeeping when
+// the caller asks, and is freed by obfree(). Extraction is synchronous unless
+// one of its steps must wait (a wielded light source's "stops shining"
+// message, for one); only then does this answer a promise, and the next
+// object waits for it.
 export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     const normalized = creationEnv(env);
-    // A wielded light-emitting artifact makes extract_from_minvent()'s
-    // mwepgone() -> setmnotwielded() end its light and say "<obj> in <mon>'s
-    // hand stops shining." That message can wait for --More--, so take the
-    // complete awaited source owner for such an inventory; every other
-    // inventory keeps the synchronous path below, which has no output.
-    const weapon = monster.mw;
-    if (weapon && weapon.lamplit && artifact_light(weapon)) {
-        return (async () => {
-            while (monster.minvent) {
-                const obj = monster.minvent;
-                await extract_from_minvent(monster, obj, true, true,
-                    normalized);
-                if (uncreateArtifacts && obj.oartifact) {
-                    artifact_exists(obj, ONAME(obj), false, ONAME_NO_FLAGS,
-                        normalized.state);
-                }
-                obfree(obj, null, objectGenerationEnv(normalized));
-            }
-            return monster;
-        })();
-    }
-    while (monster.minvent) {
-        const obj = monster.minvent;
-        const unwornmask = obj.owornmask;
-        // worn.c extract_from_minvent() first puts out worn gold dragon
-        // scales or scale mail, while owornmask still holds the W_ARM that
-        // artifact_light() tests. Without it the light outlives the object:
-        // dealloc_obj()'s obj_sheds_light() sees a cleared mask and keeps it.
-        if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj))
-            end_burn(obj, false, objectGenerationEnv(normalized));
-        // C's extract_from_minvent(..., TRUE, TRUE) unlinks and clears the worn
-        // mask before reversing live-monster effects. Dead monsters skip that
-        // reversal but still clear their masks and schedule a gear check.
-        obj_extract_self(obj, normalized);
-        obj.owornmask = 0;
-        if (unwornmask) {
-            if (monster.mhp >= 1) {
-                update_mon_extrinsics(
-                    monster,
-                    obj,
-                    false,
-                    normalized.state,
-                );
-            }
-            monster.misc_worn_check &= ~unwornmask;
-            monster.misc_worn_check |= I_SPECIAL;
-        }
+    const discard = (obj) => {
         if (uncreateArtifacts && obj.oartifact) {
             artifact_exists(
                 obj,
@@ -2083,8 +2034,29 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
         // source through timeout.c and light.c directly; supply those owners
         // unless the caller brought its own.
         obfree(obj, null, objectGenerationEnv(normalized));
-    }
-    return monster;
+    };
+    const discardRest = () => {
+        let obj;
+        while ((obj = monster.minvent)) {
+            const current = obj;
+            const extracted = extract_from_minvent(
+                monster,
+                current,
+                true,
+                true,
+                normalized,
+            );
+            if (extracted && typeof extracted.then === 'function') {
+                return extracted.then(() => {
+                    discard(current);
+                    return discardRest();
+                });
+            }
+            discard(current);
+        }
+        return monster;
+    };
+    return discardRest();
 }
 
 // C ref: mon.c dmonsfree(). Dead non-guard nodes are unlinked in place, and

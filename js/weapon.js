@@ -965,48 +965,55 @@ async function endMonsterArtifactLight(monster, obj, normalized) {
     );
 }
 
-async function clearMonsterWeapon(
-    monster,
-    obj,
-    normalized,
-    preflightEndArtifactLight,
-) {
-    if (!obj) return;
-    if (artifact_light(obj) && obj.lamplit) {
-        if (preflightEndArtifactLight) {
-            await preflightEndArtifactLight(monster, obj, normalized);
-        } else if (typeof normalized.endArtifactLight === 'function') {
-            await normalized.endArtifactLight(monster, obj, normalized);
-        } else if (typeof normalized.hooks?.endArtifactLight === 'function') {
-            await normalized.hooks.endArtifactLight(obj, normalized);
-        } else if (normalized.endArtifactLight !== undefined
-                   || normalized.hooks?.endArtifactLight !== undefined) {
-            throw new TypeError('setmnotwielded requires an endArtifactLight operation');
-        } else {
-            await endMonsterArtifactLight(monster, obj, normalized);
-        }
+async function endWieldedArtifactLight(monster, obj, normalized) {
+    if (typeof normalized.endArtifactLight === 'function') {
+        await normalized.endArtifactLight(monster, obj, normalized);
+    } else if (typeof normalized.hooks?.endArtifactLight === 'function') {
+        await normalized.hooks.endArtifactLight(obj, normalized);
+    } else if (normalized.endArtifactLight !== undefined
+               || normalized.hooks?.endArtifactLight !== undefined) {
+        throw new TypeError('setmnotwielded requires an endArtifactLight operation');
+    } else {
+        await endMonsterArtifactLight(monster, obj, normalized);
     }
-    if (monster.mw === obj) monster.mw = null;
-    obj.owornmask &= ~W_WEP;
 }
 
 // C ref: weapon.c setmnotwielded(). End the artifact light through the
 // canonical timeout owner when no caller supplies an integration hook, then
-// print C's visibility-dependent stop-shining message.
-export async function setmnotwielded(monster, obj, env = {}) {
-    return clearMonsterWeapon(monster, obj, weaponEnv(env));
+// print C's visibility-dependent stop-shining message. Only that light branch
+// can wait for --More--, so it alone answers a promise; an ordinary weapon is
+// released synchronously, which lets mkobj.c discard_minvent() run inside
+// makemon() through worn.c extract_from_minvent().
+export function setmnotwielded(monster, obj, env = {}) {
+    if (!obj) return undefined;
+    const normalized = weaponEnv(env);
+    const release = () => {
+        if (monster.mw === obj) monster.mw = null; /* MON_NOWEP(mon) */
+        obj.owornmask &= ~W_WEP;
+    };
+    if (artifact_light(obj) && obj.lamplit)
+        return endWieldedArtifactLight(monster, obj, normalized).then(release);
+    release();
+    return undefined;
 }
 
 // C ref: weapon.c mwepgone() (938-946). Release a monster's wielded weapon
-// and make its next weapon check reconsider what it should wield. Completion
-// includes the asynchronous setmnotwielded light cleanup before the check is
-// changed, so extract_from_minvent() can await the complete source operation.
-export async function mwepgone(monster, env = {}) {
+// and make its next weapon check reconsider what it should wield. When
+// setmnotwielded() must wait for its light message, the weapon check changes
+// after that promise settles, so extract_from_minvent() can wait for the
+// complete source operation.
+export function mwepgone(monster, env = {}) {
     const mwep = monster.mw; /* MON_WEP(monster) */
     if (mwep) {
-        await setmnotwielded(monster, mwep, env);
-        monster.weapon_check = NEED_WEAPON;
+        const unwielded = setmnotwielded(monster, mwep, env);
+        const needWeapon = () => {
+            monster.weapon_check = NEED_WEAPON;
+        };
+        if (unwielded && typeof unwielded.then === 'function')
+            return unwielded.then(needWeapon);
+        needWeapon();
     }
+    return undefined;
 }
 
 // C ref: weapon.c abon() (949-987), the hero's Strength and Dexterity attack

@@ -649,16 +649,16 @@ test('extract_from_minvent waits for canonical wielded-light cleanup', async () 
     assert.equal(mon.weapon_check, NEED_WEAPON);
 });
 
-test('extract_from_minvent rejects an object outside a monster inventory',
-    async () => {
+test('extract_from_minvent refuses an object outside a monster inventory',
+    () => {
         const state = catalogState();
         const held = wornObject(state, ORCISH_HELM, 0);
         const { mon, env } = carrier(state, held);
         // C reports impossible() and returns; the port has no caller that can
-        // arrive this way, so it stops.
+        // arrive this way, so it stops before any step that could wait.
         held.where = OBJ_FREE;
-        await assert.rejects(
-            extract_from_minvent(mon, held, false, true, env),
+        assert.throws(
+            () => extract_from_minvent(mon, held, false, true, env),
             /not in minvent/u,
         );
     });
