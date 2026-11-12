@@ -1133,9 +1133,16 @@ export function append_str(out, description) {
 
 function visibleGlyphCharacter(glyphinfo) {
     if (glyphinfo.displayCh) return glyphinfo.displayCh;
+    // A null `ch` marks a map byte whose g_putch() capture the recorder
+    // ignores (see js/termcap.js). Text that names the glyph still carries
+    // its byte, which the text's own writer prints; keep the seven-bit form
+    // the map capture would have used.
+    const byte = glyphinfo.ttychar;
+    const ch = glyphinfo.ch
+        ?? String.fromCharCode(byte & 0x80 ? byte & 0x7f : byte);
     if (glyphinfo.dec)
-        return SCORER_DEC_MAP[glyphinfo.ch] ?? glyphinfo.ch;
-    return glyphinfo.ch;
+        return SCORER_DEC_MAP[ch] ?? ch;
+    return ch;
 }
 
 // C pager.c derives its encoded prefix from map_glyphinfo(0,0,glyph), while
