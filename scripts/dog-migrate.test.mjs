@@ -521,7 +521,10 @@ test('dog.c mon_arrive preserves the mounted-steed early return state', async ()
     ]);
 });
 
-test('failed Wizard arrival records the void limbo gap without throwing', async () => {
+// The recording recordings/dog.c/resurrected-wizard-full-level-limbo covers
+// this branch through resurrect(); this test keeps the direct mon_arrive()
+// contract on a level with no free square.
+test('failed Wizard arrival sends him into limbo on the current level', async () => {
     const state = migrationState();
     const monster = newMonster({
         data: state.mons[PM_SEWER_RAT],
@@ -535,9 +538,14 @@ test('failed Wizard arrival records the void limbo gap without throwing', async 
         random: { rn1: (_range, low) => low, rn2: () => 1 },
     }));
 
-    assert.equal(state.level.monlist, monster);
+    // mon.c m_into_limbo(): off the level chain, onto migrating_mons for
+    // this level with MIGR_APPROX_XY and MON_LIMBO set.
+    assert.equal(state.level.monlist, null);
+    assert.equal(state.gm.migrating_mons, monster);
     assert.equal(monster.mstate & MON_STILL_ARRIVING, 0);
-    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+    assert.equal(monster.mstate & MON_LIMBO, MON_LIMBO);
+    assert.equal(monster.mtrack[0].x, MIGR_APPROX_XY);
+    assert.equal(game.unported?.has('dog.c migrate_to_level') ?? false, false);
 });
 
 test('dog.c losedogs places exact and random migrants in source order', async () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5093371,
+      "datetime": "20370909091500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " #wizgenesis\nWizard of Yendor\ny#wizkill\nm.\u001b\u001b#wizgenesis\nWizard of Yendor\ny#migratemons\n -1\n#wizgenesis\n1000 peaceful brown mold\n\u001b999s\u001b#migratemons\n c\u001b",
+      "comment": "A debug Valkyrie creates the Wizard of Yendor and slays him with #wizkill, which makes her a demigod and starts the intervention countdown. She creates a second Wizard, sends him off the level with #migratemons -1, and fills every free square with 1000 peaceful brown molds. During a long counted search, wizard.c intervene() picks resurrect(), which takes the migrating Wizard to dog.c mon_arrive(Wiz_arrive): mnearto() finds no room beside her, so mon_arrive() calls mon.c m_into_limbo() and the Wizard migrates back to this level. #migratemons then lists him as pending for the current level. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

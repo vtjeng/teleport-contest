@@ -1296,9 +1296,9 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
         if (!whenIsWizard) {
             await relmon(monster, 'failed_arrivals', state, env);
         } else {
-            // mon.c m_into_limbo() delegates to the still-partial
-            // dog.c:migrate_to_level() adapter; C discards the void result.
-            note_unported('dog.c migrate_to_level');
+            // C ref: dog.c:613-616. A resurrected Wizard with no room is
+            // not called from losedogs(), so he goes straight into limbo.
+            await m_into_limbo(monster, state, env);
         }
     }
     monster.mstate &= ~MON_STILL_ARRIVING;
