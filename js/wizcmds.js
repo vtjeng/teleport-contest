@@ -89,7 +89,7 @@ import { dist2, mungspaces, strncmpi, upstart, truncateByteString } from './hack
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
-import { impossible_printer } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { makewish } from './zap.js';
@@ -189,7 +189,10 @@ export async function makemap_remove_mons(state = game) {
     }
 
     dmonsfree(state);
-    if (state.level.monlist) note_unported('pline.c impossible');
+    if (state.level.monlist) {
+        await impossible("makemap_remove_mons: 'fmon' did not get emptied?",
+            state);
+    }
 }
 
 // C ref: wizcmds.c wiz_show_wmodes() (657-689). The canonical interface

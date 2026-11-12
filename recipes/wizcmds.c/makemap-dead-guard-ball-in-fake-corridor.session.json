@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "wizcmds.c makemap_remove_mons() with a dead vault guard left on fmon. A punished hero teleports into the vault, waits for the guard, follows it out until the dragged ball rests on the guard's fake corridor at the breached vault wall, and kills the guard with #wizkill. vault.c grddead() cannot clear the fake corridor while the ball lies on it, so it parks the dead guard at <0,0> with isgd still set; #wizmakemap skips it as dead, mon.c dmonsfree() keeps a dead isgd monster, and C prints impossible(\"makemap_remove_mons: 'fmon' did not get emptied?\").",
+  "segments": [
+    {
+      "seed": 107,
+      "datetime": "20410607120000",
+      "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017scroll of punishment\nre  \u0014lllJjjj.\u001b\u001b40s Bob\nshhhkk#wizkill\nyh.\u001b\u001b#wizmakemap\n   "
+    }
+  ]
+}
