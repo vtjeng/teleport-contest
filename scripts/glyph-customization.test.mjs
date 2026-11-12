@@ -223,10 +223,19 @@ test('S_* expansion covers cmap fanout, generic objects, and eight monster range
     );
     assert.equal(glyph_find('S_unexplored'), null);
 
+    // glyphs.c:1138-1142 sets find_oc's val to the loadsyms[] offset i,
+    // which starts at S_strange_obj (defsym.h OBJCLASS(1, ...)), so S_weapon
+    // (class 2) has i = 1; glyphs.c:258-261 then matches glyph_to_obj() == 1,
+    // the generic "strange" object, not the generic weapon.
     assert.deepEqual(glyph_find('S_weapon'), [
-        GLYPH_OBJ_OFF + 2,
-        GLYPH_OBJ_PILETOP_OFF + 2,
-    ], 'glyph_to_obj()==class selects generic class glyphs, not class members');
+        GLYPH_OBJ_OFF + 1,
+        GLYPH_OBJ_PILETOP_OFF + 1,
+    ], 'glyph_to_obj()==loadsyms offset selects the previous object index');
+    // S_strange_obj (i = 0) reaches the strange object's own glyphs.
+    assert.deepEqual(glyph_find('S_strange_obj'), [
+        GLYPH_OBJ_OFF,
+        GLYPH_OBJ_PILETOP_OFF,
+    ]);
 
     const humans = MONSTER_TEMPLATES.filter((monster) => (
         monster.mlet === SYMBOL_INDEX_BY_NAME.s_human - SYM_OFF_M
@@ -290,9 +299,12 @@ test('every canonical S_* expansion equals independent source predicates', () =>
     assert.equal(names[SYM_OFF_O], undefined, 'RANDOM_CLASS has no symbol');
     for (let absolute = SYM_OFF_O + 1; absolute < SYM_OFF_M; ++absolute) {
         const objectClass = absolute - SYM_OFF_O;
-        const expected = [GLYPH_OBJ_OFF + objectClass];
-        if (objectClass !== VENOM_CLASS)
-            expected.push(GLYPH_OBJ_PILETOP_OFF + objectClass);
+        // The loadsyms[] offset (glyphs.c:1141) is objectClass - 1; both the
+        // object glyph and its piletop satisfy glyph_is_object() for every
+        // object index below VENOM_CLASS.
+        const otyp = objectClass - 1;
+        assert.ok(otyp < VENOM_CLASS);
+        const expected = [GLYPH_OBJ_OFF + otyp, GLYPH_OBJ_PILETOP_OFF + otyp];
         assert.deepEqual(
             glyph_find(`S_${names[absolute]}`), expected,
             `object class ${objectClass}`,

@@ -840,15 +840,24 @@ export function monster_class_symbol(mlet, state = game) {
     return symbol_at(SYM_OFF_M + mlet, state);
 }
 
-// glyphs.c's find_oc() applies an S_* Unicode customization to a concrete
-// object only when the glyph's object index is the generic class entry.  Byte
-// symbol tables still apply class-wide, as they do in showsyms[].
+// Byte symbol tables apply class-wide, as they do in showsyms[]. An S_*
+// object-class Unicode entry does not: glyphs.c parse_id() gives find_oc the
+// entry's loadsyms[] offset, class - 1, and glyph_find_core() matches it
+// against glyph_to_obj(), so the entry for class c reaches only the glyphs of
+// object index c - 1 (the generic object of class c - 1, or the strange
+// object for S_strange_obj). The glyph of object index `otyp` therefore
+// takes the Unicode of class otyp + 1, with its own class's byte.
 export function object_class_symbol(oclass, state = game, otyp = oclass) {
     if (!Number.isInteger(oclass) || oclass < 0 || oclass >= MAXOCLASSES)
         throw new RangeError(`object class ${oclass} is outside MAXOCLASSES`);
-    return symbol_at(SYM_OFF_O + oclass, state, {
-        allowUnicode: otyp === oclass,
-    });
+    const own = symbol_at(SYM_OFF_O + oclass, state, { allowUnicode: false });
+    const unicodeClass = otyp + 1;
+    if (!Number.isInteger(otyp) || unicodeClass >= MAXOCLASSES) return own;
+    const custom = symbol_at(SYM_OFF_O + unicodeClass, state);
+    if (!custom.displayCh || custom.ch !== null) return own;
+    const result = { ch: null, dec: false, displayCh: custom.displayCh };
+    Object.defineProperty(result, 'ttychar', { value: own.ttychar });
+    return result;
 }
 
 export function misc_symbol(index, state = game) {

@@ -294,7 +294,9 @@ export function parse_id(id, findwhat, state = game) {
                 return 1;
             }
             if (absolute >= SYM_OFF_O && absolute < SYM_OFF_M) {
-                Object.assign(findwhat, { findtype: 2, val: absolute - SYM_OFF_O, loadsyms_offset: absolute });
+                // C's val is the entry's offset among loadsyms[]'s SYM_OC
+                // rows, which start at S_strange_obj (class 1): class - 1.
+                Object.assign(findwhat, { findtype: 2, val: absolute - SYM_OFF_O - 1, loadsyms_offset: absolute });
                 return 1;
             }
             if (absolute > SYM_OFF_M && absolute <= SYM_OFF_X) {
@@ -336,14 +338,13 @@ export function glyph_find(id, state = game) {
     if (absolute >= SYM_OFF_P && absolute < SYM_OFF_O)
         return cmapGlyphs(absolute - SYM_OFF_P);
     if (absolute >= SYM_OFF_O && absolute < SYM_OFF_M) {
-        const objectClass = absolute - SYM_OFF_O;
-        // glyph_to_obj()==class selects the two generic class glyphs. It does
-        // not expand to every concrete object whose oc_class matches.
-        const glyphs = [GLYPH_OBJ_OFF + objectClass];
-        // display.h glyph_is_object() excludes the piletop venom hole.
-        if (objectClass !== VENOM_CLASS)
-            glyphs.push(GLYPH_OBJ_PILETOP_OFF + objectClass);
-        return glyphs;
+        // parse_id()'s find_oc value is the loadsyms[] offset, class - 1,
+        // and glyph_find_core() compares it with glyph_to_obj(), an object
+        // index. It therefore selects the two glyphs of object index
+        // class - 1: the previous class's generic object, or for
+        // S_strange_obj the strange object. No concrete object matches.
+        const otyp = absolute - SYM_OFF_O - 1;
+        return [GLYPH_OBJ_OFF + otyp, GLYPH_OBJ_PILETOP_OFF + otyp];
     }
     // parse_id()'s inclusive `i <= pm_count` reaches one row beyond the
     // MONSYMS_PARSE block.  That row is S_nothing, which succeeds as an empty

@@ -1281,11 +1281,18 @@ test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', (
         ch: ')',
         dec: false,
     });
-    // The customization installs on the generic weapon glyph.
+    // glyphs.c parse_id() gives S_weapon the loadsyms offset WEAPON_CLASS - 1,
+    // so the customization installs on that object index's glyph, the
+    // generic "strange" object, and not on the generic weapon.
     const customization = numeric_glyph_customization(
-        GLYPH_OBJ_OFF + WEAPON_CLASS, state,
+        GLYPH_OBJ_OFF + WEAPON_CLASS - 1, state,
     );
     assert.equal(customization?.displayCh, '☃');
+    assert.equal(
+        numeric_glyph_customization(GLYPH_OBJ_OFF + WEAPON_CLASS, state)
+            ?.displayCh,
+        undefined,
+    );
 });
 
 test('hero and pet symbol overrides require sysconf accessibility', () => {

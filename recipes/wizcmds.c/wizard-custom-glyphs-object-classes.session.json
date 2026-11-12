@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "glyphs.c parse_id() for S_* object-class entries, listed by wiz_custom(): find_oc's value is the entry's loadsyms offset, one less than its class, and glyph_find_core() matches glyph_to_obj(), so Enhanced2's S_amulet Unicode lands on the generic ring glyphs, an rc glyph:S_strange_obj on the strange object glyphs, and glyph:S_venom on the generic iron chain glyphs. Seed, date and character chosen independently.",
+  "segments": [
+    {
+      "seed": 29350817,
+      "datetime": "20590811170244",
+      "nethackrc": "OPTIONS=name:Classglyph,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nOPTIONS=symset:Enhanced2\nOPTIONS=glyph:S_strange_obj:U+2605\nOPTIONS=glyph:S_venom:U+2620/green\n",
+      "moves": "  #wizcustom\n\u001b "
+    }
+  ]
+}
