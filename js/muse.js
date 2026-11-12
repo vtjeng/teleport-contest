@@ -133,7 +133,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import {
-    Can_dig_down, Can_fall_thru, Can_rise_up, In_hell, On_W_tower_level,
+    Can_dig_down, Can_fall_thru, Can_rise_up_steps, In_hell, On_W_tower_level,
     ceiling, depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, on_level,
     surface,
 } from './dungeon.js';
@@ -190,7 +190,8 @@ import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
-import { pline_mon, verbalize, youFeel } from './pline.js';
+import { impossible_printer, pline_mon, verbalize, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     destroy_drawbridge,
     find_drawbridge,
@@ -1492,7 +1493,9 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (!otmp) throw new Error('use_misc: no potion of gain level');
         await mquaffmsg(mtmp, otmp, state);
         if (otmp.cursed) {
-            if (Can_rise_up(mtmp.mx, mtmp.my, state.u.uz, state)) {
+            if (await finish_steps(
+                Can_rise_up_steps(mtmp.mx, mtmp.my, state.u.uz, state),
+                impossible_printer(state))) {
                 const tolev = depth(state.u.uz, state) - 1;
                 const tolevel = {};
                 get_level(tolevel, tolev, state);

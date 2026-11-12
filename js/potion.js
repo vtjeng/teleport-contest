@@ -209,7 +209,7 @@ import {
 import { eatmupdate, fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
 import { coreRandom, d, rn1, rn2, rnd } from './rng.js';
-import { aggravate } from './wizard.js';
+import { aggravate_steps } from './wizard.js';
 import { cloneu } from './mhitu.js';
 import {
     burn_away_slime, fall_asleep,
@@ -218,8 +218,8 @@ import { explode, explode_oil } from './explode.js';
 import { float_up } from './trap.js';
 import { rider_cant_reach } from './steed.js';
 import {
-    Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
-    surface,
+    Can_rise_up_steps, ceiling, depth, get_level, has_ceiling, ledger_no,
+    on_level, surface,
 } from './dungeon.js';
 import { stairway_at } from './stairs.js';
 import { cansee, vision_recalc_async } from './vision.js';
@@ -278,7 +278,8 @@ import {
 } from './objects.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible_printer, livelog_printf, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     GLYPH_INVISIBLE, map_invisible, unmap_object,
 } from './display.js';
@@ -1479,7 +1480,8 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
     if (otmp.cursed) {
         await ttyPline(
             'For some reason, you feel your presence is known.', state);
-        aggravate(state, random);
+        await finish_steps(aggravate_steps(state, random),
+            impossible_printer(state));
         state.u.uprops[INVIS].intrinsic &= ~FROMOUTSIDE;
     }
 }
@@ -1796,7 +1798,8 @@ async function peffect_gain_level(otmp, state = game) {
         const onLevel1 = ledger_no(u.uz, state) === 1;
         state.gp.potion_unkn++;
         if (onLevel1 ? u.uhave.amulet
-            : Can_rise_up(u.ux, u.uy, u.uz, state)) {
+            : await finish_steps(Can_rise_up_steps(u.ux, u.uy, u.uz, state),
+                impossible_printer(state))) {
             let newlevel;
             if (onLevel1) {
                 // C copies earth_level into a local d_level before goto_level;

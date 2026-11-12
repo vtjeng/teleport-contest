@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizard.c aggravate() and dungeon.c Can_rise_up() on a tower level with no dndest boundary: after #wizloaddes oracle on wizard1, a cursed potion of invisibility (potion.c peffect_invisibility()) calls aggravate(), whose In_W_tower() calls each print impossible(\"No boundary for Wizard's Tower?\"), and a cursed potion of gain level (potion.c peffect_gain_level()) calls Can_rise_up(), which tests In_W_tower() on wizard1 and prints it before the hero rises. Seed, date, Priest and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 803316475,
+      "datetime": "20220227084512",
+      "nethackrc": "OPTIONS=name:Ceilingward,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  #wizlevelport\n?\nq #wizloaddes\noracle\n   \u0017cursed potion of invisibility\n\u0017cursed potion of gain level\nqj                            qk      \u001b  "
+    }
+  ]
+}

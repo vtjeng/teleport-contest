@@ -366,7 +366,7 @@ import {
     cantwield,
 } from './wield.js';
 import { coreRandom, rn1, rn2, rnd } from './rng.js';
-import { aggravate } from './wizard.js';
+import { aggravate_steps } from './wizard.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
@@ -376,7 +376,8 @@ import {
 } from './tty_message.js';
 import { do_write_config_file } from './cfgfiles.js';
 import { note_unported } from './unported.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { dosh } from './unixunix.js';
 import { dosuspend } from './ioctl.js';
 import {
@@ -3575,7 +3576,8 @@ export async function domonability(state = game) {
                 'Unfortunately sound does not carry well through rock.',
                 state,
             );
-        else aggravate(state, coreRandom);
+        else await finish_steps(aggravate_steps(state, coreRandom),
+            impossible_printer(state));
     } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
         return dopoly(state);
     } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {

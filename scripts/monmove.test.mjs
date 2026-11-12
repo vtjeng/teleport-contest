@@ -151,7 +151,7 @@ test('m_move awaits shopkeeper room checks after its source movement hooks', () 
 // for -- is tested from the same fixtures.
 import { lined_up } from '../js/mthrowu.js';
 import {
-    mm_aggression,
+    mm_aggression_steps,
     mm_displacement,
     m_in_air,
     mon_allowflags,
@@ -209,6 +209,7 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
+import { finish_steps } from '../js/source_steps.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { initUnported } from '../js/unported.js';
@@ -3990,7 +3991,7 @@ test('mon.c candidate helpers preserve remembered lines, aggression, and displac
         mnum: PM_HUMAN,
         mgenmklev: false,
     });
-    assert.ok(mm_aggression(zombie, human, state) & ALLOW_M);
+    assert.ok(finish_steps(mm_aggression_steps(zombie, human, state)) & ALLOW_M);
 
     const displacer = newMonster({
         data: state.mons[PM_DISPLACER_BEAST],

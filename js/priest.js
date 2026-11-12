@@ -88,8 +88,9 @@ import {
     resist_conflict,
 } from './mondata.js';
 import {
-    m_break_boulder, m_move_aggress, mfndpos, monnear,
+    m_break_boulder, m_move_aggress, mfndpos_steps, monnear,
 } from './monmove.js';
+import { finish_steps } from './source_steps.js';
 import {
     AD_ELEC,
     PM_ALIGNED_CLERIC,
@@ -111,7 +112,7 @@ import { coreRandom, d, rn2 } from './rng.js';
 import { exercise, adjalign } from './attrib.js';
 import { currency, money_cnt } from './invent.js';
 import { incr_itimeout } from './potion.js';
-import { livelog_printf, verbalize, youFeel } from './pline.js';
+import { impossible_printer, livelog_printf, verbalize, youFeel } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -624,7 +625,8 @@ export async function move_special(
     let niy = omy;
     const allowflags = mon_allowflags(mtmp, env);
     const data = { poss: [], info: [], cnt: 0 };
-    const cnt = mfndpos(mtmp, data, allowflags, env);
+    const cnt = await finish_steps(mfndpos_steps(mtmp, data, allowflags, env),
+        impossible_printer(state));
 
     if (mtmp.isshk && avoid && uondoor) {
         let canAvoid = true;

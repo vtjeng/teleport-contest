@@ -211,7 +211,7 @@ import { flooreffects, revive_corpse } from './do.js';
 import { cursed_object_at, finish_meating } from './dogmove.js';
 import {
     has_ceiling,
-    In_W_tower,
+    In_W_tower_steps,
     ledger_no,
     level_difficulty,
     on_level,
@@ -589,7 +589,10 @@ import {
     place_monster,
     remove_monster,
 } from './monst.js';
-import { livelog_printf, pline_mon, youFeel, youSee } from './pline.js';
+import {
+    impossible_printer, livelog_printf, pline_mon, youFeel, youSee,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
@@ -708,7 +711,7 @@ import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import {
-    aggravate,
+    aggravate_steps,
     mon_has_amulet,
     mon_has_special,
     pick_nasty,
@@ -2035,25 +2038,24 @@ export function monlineu(monster, nx, ny) {
     return online2(nx, ny, monster.mux, monster.muy);
 }
 
-// C ref: mon.c mm_2way_aggression(). The Wizard's Tower partition is treated
-// as a separate level so monsters do not attack across its boundary.
-export function mm_2way_aggression(magr, mdef, state = game) {
+// C ref: mon.c mm_2way_aggression() (2388-2420). The Wizard's Tower partition
+// is treated as a separate level so monsters do not attack across its
+// boundary. In_W_tower() can print an impossible(), so this is a step
+// generator (js/source_steps.js) run through mfndpos_steps(); C evaluates
+// the tower tests in this order and stops at the first that settles the
+// conditional.
+function* mm_2way_aggression_steps(magr, mdef, state = game) {
     const level = state.u?.uz;
     if (On_W_tower_level(level, state)) {
-        const heroInTower = In_W_tower(
-            state.u.ux, state.u.uy, level, state,
-        );
-        const attackerInTower = In_W_tower(
-            magr.mx, magr.my, level, state,
-        );
-        const defenderInTower = In_W_tower(
-            mdef.mx, mdef.my, level, state,
-        );
-        if (heroInTower
-            ? (!attackerInTower || !defenderInTower)
-            : (attackerInTower || defenderInTower)) {
+        /* treat inside the Wizard's tower as if it were a separate level
+           from outside so when hero is inside Wizard's tower, both monsters
+           need to be too; when outside, the monsters need to be too */
+        if ((yield* In_W_tower_steps(state.u.ux, state.u.uy, level, state))
+            ? (!(yield* In_W_tower_steps(magr.mx, magr.my, level, state))
+               || !(yield* In_W_tower_steps(mdef.mx, mdef.my, level, state)))
+            : ((yield* In_W_tower_steps(magr.mx, magr.my, level, state))
+               || (yield* In_W_tower_steps(mdef.mx, mdef.my, level, state))))
             return 0;
-        }
     }
     if (zombie_maker(magr) && zombie_form(mdef.data) !== NON_PM) {
         if (magr.mgenmklev && mdef.mgenmklev) return 0;
@@ -2066,17 +2068,18 @@ export function mm_2way_aggression(magr, mdef, state = game) {
     return 0;
 }
 
-// C ref: mon.c mm_aggression(). This is deliberately symmetric only for the
-// cases C marks as two-way; ordinary monster pairings remain non-aggressive.
-export function mm_aggression(magr, mdef, state = game) {
+// C ref: mon.c mm_aggression() (2428-2447). This is deliberately symmetric
+// only for the cases C marks as two-way; ordinary monster pairings remain
+// non-aggressive. A step generator, as mm_2way_aggression_steps() is.
+export function* mm_aggression_steps(magr, mdef, state = game) {
     const mndx = monsndx(magr.data);
     if (magr.mtame && mdef.mtame) return 0;
     if ((mndx === PM_PURPLE_WORM || mndx === PM_BABY_PURPLE_WORM)
         && monsndx(mdef.data) === PM_SHRIEKER) {
         return ALLOW_M | ALLOW_TM;
     }
-    return mm_2way_aggression(magr, mdef, state)
-        | mm_2way_aggression(mdef, magr, state);
+    return (yield* mm_2way_aggression_steps(magr, mdef, state))
+        | (yield* mm_2way_aggression_steps(mdef, magr, state));
 }
 
 // C ref: mon.c mm_displacement(). count_wsegs() is the worm.c helper that
@@ -3700,7 +3703,8 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
             },
         });
     }
-    aggravate(state, random);
+    await finish_steps(aggravate_steps(state, random),
+        impossible_printer(state));
 }
 
 // C ref: mon.c m_respond_medusa() (4109-4120). The first gaze slot is run in
@@ -3729,7 +3733,8 @@ export async function m_respond(monster, rawEnv = {}) {
     }
     if (monster.data === state.mons?.[PM_ERINYS]
         && !monster.mpeaceful && m_canseeu(monster, state)) {
-        aggravate(state, rawEnv.random ?? coreRandom);
+        await finish_steps(aggravate_steps(state, rawEnv.random ?? coreRandom),
+            impossible_printer(state));
     }
 }
 

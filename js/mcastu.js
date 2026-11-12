@@ -86,7 +86,7 @@ import { lined_up } from './mthrowu.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
-import { aggravate, has_aggravatables, nasty } from './wizard.js';
+import { aggravate_steps, has_aggravatables_steps, nasty } from './wizard.js';
 import { mon_adjust_speed, mon_set_minvis } from './worn.js';
 import { burn_away_slime } from './timeout.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -98,11 +98,13 @@ import {
     buzz, flash_str, flashburn, mon_spell_hits_spot,
 } from './zap.js';
 import {
+    impossible_printer,
     pline_mon,
     verbalize as plineVerbalize,
     youFeel,
     youHear,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
     Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
@@ -278,8 +280,10 @@ function is_undirected_spell(spellnum) {
 }
 
 // ---- spell_would_be_useless() ----
-// C ref: mcastu.c spell_would_be_useless() (908-985).
-function spell_would_be_useless(mtmp, spellnum, env = {}) {
+// C ref: mcastu.c spell_would_be_useless() (908-985). has_aggravatables()
+// can print In_W_tower()'s impossible(), so this is a step generator
+// (js/source_steps.js) that castmu() drives.
+function* spell_would_be_useless_steps(mtmp, spellnum, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
 
@@ -313,7 +317,7 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
            but caster might not realize that [chance to pick it then
            must be very small otherwise caller's many retry attempts
            will eventually end up picking it too often] */
-        if (!has_aggravatables(mtmp, state))
+        if (!(yield* has_aggravatables_steps(mtmp, state)))
             return random.rn2(100) ? true : false;
         break;
     case MCAST_HASTE_SELF:
@@ -336,8 +340,9 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
 }
 
 // ---- choose_monster_spell() ----
-// C ref: mcastu.c choose_monster_spell() (88-123).
-function choose_monster_spell(mtmp, adtyp, env = {}) {
+// C ref: mcastu.c choose_monster_spell() (88-123). A step generator, as
+// spell_would_be_useless_steps() is.
+function* choose_monster_spell_steps(mtmp, adtyp, env = {}) {
     const random = env.random ?? coreRandom;
     let list = null;
 
@@ -361,7 +366,7 @@ function choose_monster_spell(mtmp, adtyp, env = {}) {
     /* find the highest spell in the list we could cast */
     for (let i = len - 1; i >= 0; i--) {
         if (mcast_data[list[i]].level <= spellval
-            && !spell_would_be_useless(mtmp, list[i], env))
+            && !(yield* spell_would_be_useless_steps(mtmp, list[i], env)))
             return list[i];
     }
 
@@ -448,17 +453,23 @@ export async function castmu(
         let cnt = 40;
 
         do {
-            spellnum = choose_monster_spell(mtmp, mattk.adtyp, env);
+            spellnum = await finish_steps(
+                choose_monster_spell_steps(mtmp, mattk.adtyp, env),
+                impossible_printer(state));
             /* not trying to attack?  don't allow directed spells */
             if (!thinks_it_foundyou) {
                 if (!is_undirected_spell(spellnum)
-                    || spell_would_be_useless(mtmp, spellnum, env)) {
+                    || await finish_steps(
+                        spell_would_be_useless_steps(mtmp, spellnum, env),
+                        impossible_printer(state))) {
                     return M_ATTK_MISS;
                 }
                 break;
             }
         } while (--cnt > 0
-            && spell_would_be_useless(mtmp, spellnum, env));
+            && await finish_steps(
+                spell_would_be_useless_steps(mtmp, spellnum, env),
+                impossible_printer(state)));
         if (cnt === 0) return M_ATTK_MISS;
     }
 
@@ -1086,7 +1097,8 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
                 youFeel('that monsters are aware of your presence.', state),
                 state,
             );
-        aggravate(state, env.random);
+        await finish_steps(aggravate_steps(state, env.random),
+            impossible_printer(state));
         break;
     case MCAST_CURSE_ITEMS:
         if (typeof env.message === 'function')

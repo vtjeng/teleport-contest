@@ -744,8 +744,9 @@ export function Can_fall_thru(level, state = game) {
 //
 // In_endgame, In_sokoban, and Is_wiz1_level are spelled out against `state`
 // rather than imported from js/const.js, following the same reasoning as
-// has_ceiling below.
-export function Can_rise_up(x, y, lev, state = game) {
+// has_ceiling below. In_W_tower() can print an impossible(), so this is a
+// step generator (js/source_steps.js); both callers in js/ can wait.
+export function* Can_rise_up_steps(x, y, lev, state = game) {
     const stway = stairway_find_special_dir(false, state);
 
     const inEndgame = lev?.dnum != null
@@ -755,12 +756,18 @@ export function Can_rise_up(x, y, lev, state = game) {
     const isWiz1 = on_level(lev, state.wiz1_level);
 
     if (inEndgame || inSokoban
-        || (isWiz1 && In_W_tower(x, y, lev, state)))
+        || (isWiz1 && (yield* In_W_tower_steps(x, y, lev, state))))
         return false;
     return lev.dlevel > 1
         || (dungeon_at(lev.dnum, state).entry_lev === 1
             && ledger_no(lev, state) !== 1
             && stway && stway.up);
+}
+
+// The synchronous form of Can_rise_up_steps(), which records In_W_tower()'s
+// impossible() as a gap. Only tests call it.
+export function Can_rise_up(x, y, lev, state = game) {
+    return finish_steps(Can_rise_up_steps(x, y, lev, state));
 }
 
 // C ref: dungeon.c has_ceiling() (1689-1698). Every level has a ceiling

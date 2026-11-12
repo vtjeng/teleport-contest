@@ -102,7 +102,7 @@ import {
 } from './objects.js';
 import { body_part } from './polyself.js';
 import { coreRandom } from './rng.js';
-import { aggravate } from './wizard.js';
+import { aggravate_steps } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 
 import {
@@ -118,7 +118,8 @@ import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifacts.js'
 import { update_inventory } from './invent.js';
 import { which_armor } from './worn.js';
 import { ttyPline } from './tty_message.js';
-import { youFeel } from './pline.js';
+import { impossible_printer, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     Antimagic, Blind, Cold_resistance, Deaf, Drain_resistance,
     EAcid_resistance, ETelepat, Fire_resistance, Flying, HAcid_resistance,
@@ -550,7 +551,8 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
             if (luck < 0) {
                 await message(youFeel('threatened.', state), state);
-                aggravate(state, random);
+                await finish_steps(aggravate_steps(state, random),
+                    impossible_printer(state));
             } else {
                 await message(youFeel('a wrenching sensation.', state), state);
                 const { tele } = await import('./teleport.js');

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mcastu.c castmu() -> choose_monster_spell() / spell_would_be_useless() -> wizard.c has_aggravatables() on a tower level with no dndest boundary: after #wizloaddes oracle on wizard3, a master lich (an arch-lich once it drinks gain level) casts at the hero, and each MCAST_AGGRAVATION it weighs calls has_aggravatables(), whose In_W_tower() calls print impossible(\"No boundary for Wizard's Tower?\"). The hero is raised to level 30 first to survive the spells. Seed, date, Barbarian and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 1922750313,
+      "datetime": "20450601120000",
+      "nethackrc": "OPTIONS=name:Lichwatch,role:Barbarian,race:orc,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  #levelchange\n30\n\u001b#wizlevelport\n?\nr #wizloaddes\noracle\n   \u0007master lich\nms            ms            ms            ms            ms            ms            ms            ms            "
+    }
+  ]
+}

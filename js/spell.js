@@ -152,13 +152,14 @@ import {
     LENSES,
 } from './objects.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
-import { aggravate } from './wizard.js';
+import { aggravate_steps } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { impossible, livelog_printf, youFeel } from './pline.js';
+import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
@@ -440,7 +441,8 @@ export async function cursed_book(book, state = game, env = {}) {
         break;
     case 1:
         await message(youFeel('threatened.', state), state);
-        aggravate(state, random);
+        await finish_steps(aggravate_steps(state, random),
+            impossible_printer(state));
         break;
     case 2: {
         await make_blinded(

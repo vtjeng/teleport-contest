@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c mfndpos() -> mm_aggression() -> mm_2way_aggression() on a tower level with no dndest boundary: #wizloaddes minefill on wizard2 leaves the level claiming the Wizard's Tower without its teleport region, so each In_W_tower() call made while a monster (monmove.c m_move()) or the pet (dogmove.c dog_move()) weighs a square holding another monster prints impossible(\"No boundary for Wizard's Tower?\"). The newt is created next to the hero so that the cat has a monster beside it. Seed, date, Valkyrie and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 51730962,
+      "datetime": "20310918153027",
+      "nethackrc": "OPTIONS=name:Rampart,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup\n",
+      "moves": "  #wizlevelport\n?\nr #wizloaddes\nminefill\n   \u0007newt\nms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001bms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001bms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001bms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001bms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001bms\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b"
+    }
+  ]
+}

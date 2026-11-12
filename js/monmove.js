@@ -209,10 +209,12 @@ import { m_in_air, mongone, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { m_next2u, ranged_attk_available } from './mhitu.js';
 import {
+    impossible_printer,
     youHear,
     youSee,
     verbalize,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 export { youHear } from './pline.js';
 import {
     angry_guards,
@@ -226,7 +228,7 @@ import {
     meatobj,
     max_mon_load,
     mon_allowflags,
-    mm_aggression,
+    mm_aggression_steps,
     mm_displacement,
     monlineu,
     m_respond,
@@ -1347,13 +1349,16 @@ function hasAdjacentResistanceTrap(monster, state) {
 // ALLOW_TRAPS marks a harmful or fixed teleport trap, and NOGARLIC/NOTONL mark
 // garlic or alignment with the remembered hero. Discovering an adjacent hero
 // updates `monster.mux`/`muy` before an absent ALLOW_U rejects that square.
-function mfndposCore(monster, data, initialFlags, env = {}) {
+// mm_aggression() can print In_W_tower()'s impossible(), so this is a step
+// generator (js/source_steps.js).
+function* mfndposCoreSteps(monster, data, initialFlags, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
     const onScaryCheck = env.onScary ?? onscary;
     const sanctuaryCheck = env.inYourSanctuary ?? in_your_sanctuary;
     const harmlessTrap = env.mHarmlessTrap ?? m_harmless_trap;
-    const aggression = env.mmAggression ?? mm_aggression;
+    // A test's replacement for mm_aggression() is a plain function.
+    const aggressionHook = env.mmAggression;
     const displacement = env.mmDisplacement ?? mm_displacement;
     resetMfndposData(data);
 
@@ -1505,8 +1510,9 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 } else {
                     const occupant = m_at(nx, ny, state);
                     if (occupant) {
-                        const monsterFlags = flags
-                            | aggression(monster, occupant, state);
+                        const monsterFlags = flags | (aggressionHook
+                            ? aggressionHook(monster, occupant, state)
+                            : yield* mm_aggression_steps(monster, occupant, state));
                         if (monsterFlags & ALLOW_M) {
                             data.info[count] |= ALLOW_M;
                             if (occupant.mtame) {
@@ -1574,7 +1580,11 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
     return count;
 }
 
-export function mfndpos(monster, data, initialFlags, env = {}) {
+// C ref: mon.c mfndpos() (2140-2382). Every caller in js/ can wait and drives
+// this generator with finish_steps(..., impossible_printer(state)), so
+// In_W_tower()'s impossible() prints where C prints it;
+// scripts/in-w-tower-callers.test.mjs checks that.
+export function* mfndpos_steps(monster, data, initialFlags, env = {}) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     const state = env.state ?? game;
@@ -1593,11 +1603,17 @@ export function mfndpos(monster, data, initialFlags, env = {}) {
         ? snapshotMfndposMutation(monster, data)
         : null;
     try {
-        return mfndposCore(monster, data, initialFlags, env);
+        return yield* mfndposCoreSteps(monster, data, initialFlags, env);
     } catch (error) {
         if (snapshot) restoreMfndposMutation(monster, data, snapshot);
         throw error;
     }
+}
+
+// The synchronous form of mfndpos_steps(), which records In_W_tower()'s
+// impossible() as a gap. Only tests call it.
+export function mfndpos(monster, data, initialFlags, env = {}) {
+    return finish_steps(mfndpos_steps(monster, data, initialFlags, env));
 }
 
 function isArmorCategory(obj, category, state) {
@@ -3954,12 +3970,12 @@ export async function m_move(monster, rawEnv = {}) {
     }
 
     const data = { cnt: 0, poss: [], info: [] };
-    const count = mfndpos(
+    const count = await finish_steps(mfndpos_steps(
         monster,
         data,
         mon_allowflags(monster, env),
         { ...env, resistsTrapEffect },
-    );
+    ), impossible_printer(state));
     if (!count && !is_unicorn(monster.data)) {
         // C ref: monmove.c:1927. A monster with no movement options attempts
         // a defensive escape before giving up.

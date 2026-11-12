@@ -121,7 +121,8 @@ import { on_level, lastseentyp_grid } from './dungeon.js';
 import { game } from './gstate.js';
 import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
-import { youHear } from './pline.js';
+import { impossible_printer, youHear } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { mplayer_talk } from './mplayer.js';
 import {
     decodeUtf8ByteString,
@@ -198,7 +199,7 @@ import {
 } from './priest.js';
 import { demon_talk } from './minion.js';
 import { coreRandom, rn2 } from './rng.js';
-import { aggravate, cuss } from './wizard.js';
+import { aggravate_steps, cuss } from './wizard.js';
 import { genders } from './roles.js';
 
 import {
@@ -1158,7 +1159,8 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         break;
     case MS_SHRIEK:
         plineMsg = 'shrieks.';
-        aggravate(state, coreRandom);
+        await finish_steps(aggravate_steps(state, coreRandom),
+            impossible_printer(state));
         break;
     case MS_IMITATE:
         plineMsg = 'imitates you.';

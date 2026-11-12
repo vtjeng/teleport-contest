@@ -169,11 +169,13 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { losehp, near_capacity, nomul, You_can_move_again } from './hack.js';
 import {
+    impossible_printer,
     livelog_printf,
     verbalize,
     youFeel,
     youHear,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { dist2, upstart, s_suffix } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -273,7 +275,7 @@ import { losexp, pluslvl } from './exper.js';
 import { coreRandom, d, rn1, rn2, rn2_on_display_rng, rnl, rnd, rnz } from './rng.js';
 import { roles } from './roles.js';
 import { randrole } from './role_init.js';
-import { aggravate } from './wizard.js';
+import { aggravate_steps } from './wizard.js';
 import {
     animate_statue,
     reset_utrap,
@@ -2060,7 +2062,8 @@ export async function doturn(state = game, env = {}) {
         await message(
             `For some reason, ${Gname} seems to ignore you.`, state, env,
         );
-        aggravate(state, random);
+        await finish_steps(aggravate_steps(state, random),
+            impossible_printer(state));
         await exercise(A_WIS, false, state, random);
         return ECMD_TIME;
     }
@@ -2072,7 +2075,8 @@ export async function doturn(state = game, env = {}) {
             state,
             env,
         );
-        aggravate(state, random);
+        await finish_steps(aggravate_steps(state, random),
+            impossible_printer(state));
         return ECMD_TIME;
     }
 

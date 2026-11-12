@@ -31,7 +31,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { Monnam, hcolor } from './do_name.js';
-import { In_W_tower, In_W_tower_steps, In_hell, builds_up } from './dungeon.js';
+import { In_W_tower_steps, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
 import {
@@ -168,17 +168,21 @@ function inEndgameState(state) {
 }
 
 // C ref: wizard.c has_aggravatables() (472-491). "are there any monsters mon
-// could aggravate?" A pure scan of fmon: no draws, no output, no state change.
-// mcastu.c spell_would_be_useless() reads it for MCAST_AGGRAVATION.
-export function has_aggravatables(mon, state = game) {
-    const in_w_tower = In_W_tower(mon.mx, mon.my, state.u.uz, state);
+// could aggravate?" A scan of fmon with no draws and no state change; its
+// In_W_tower() calls can print an impossible(), so it is a step generator
+// (js/source_steps.js). mcastu.c spell_would_be_useless() reads it for
+// MCAST_AGGRAVATION.
+export function* has_aggravatables_steps(mon, state = game) {
+    const in_w_tower = yield* In_W_tower_steps(mon.mx, mon.my, state.u.uz, state);
 
-    if (in_w_tower !== In_W_tower(state.u.ux, state.u.uy, state.u.uz, state))
+    if (in_w_tower !== (yield* In_W_tower_steps(
+        state.u.ux, state.u.uy, state.u.uz, state)))
         return false;
 
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
-        if (in_w_tower !== In_W_tower(mtmp.mx, mtmp.my, state.u.uz, state))
+        if (in_w_tower !== (yield* In_W_tower_steps(
+            mtmp.mx, mtmp.my, state.u.uz, state)))
             continue;
         if ((mtmp.mstrategy & STRAT_WAITFORU) !== 0 || helpless(mtmp))
             return true;
@@ -186,19 +190,28 @@ export function has_aggravatables(mon, state = game) {
     return false;
 }
 
+// The synchronous form of has_aggravatables_steps(), which records
+// In_W_tower()'s impossible() as a gap. Only tests call it.
+export function has_aggravatables(mon, state = game) {
+    return finish_steps(has_aggravatables_steps(mon, state));
+}
+
 // C ref: wizard.c aggravate() (494-511). Scan the live monster chain in
 // source order, waking every living monster in the hero's Wizard's Tower
 // region. C only consumes RNG for an immobile monster after clearing its
-// strategy and sleeping state; a zero rn2(5) result thaws it.
-export function aggravate(state = game, random = coreRandom) {
-    const in_w_tower = In_W_tower(
+// strategy and sleeping state; a zero rn2(5) result thaws it. A step
+// generator, as has_aggravatables_steps() is; every caller in js/ can wait
+// and drives it with finish_steps(..., impossible_printer(state)).
+export function* aggravate_steps(state = game, random = coreRandom) {
+    const in_w_tower = yield* In_W_tower_steps(
         state.u.ux, state.u.uy, state.u.uz, state,
     );
     const roll = random.rn2 ?? rn2;
 
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
-        if (in_w_tower !== In_W_tower(mtmp.mx, mtmp.my, state.u.uz, state))
+        if (in_w_tower !== (yield* In_W_tower_steps(
+            mtmp.mx, mtmp.my, state.u.uz, state)))
             continue;
 
         mtmp.mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
@@ -208,6 +221,12 @@ export function aggravate(state = game, random = coreRandom) {
             mtmp.mcanmove = true;
         }
     }
+}
+
+// The synchronous form of aggravate_steps(), which records In_W_tower()'s
+// impossible() as a gap. Only tests call it.
+export function aggravate(state = game, random = coreRandom) {
+    return finish_steps(aggravate_steps(state, random));
 }
 
 function creationEnv(state, rawEnv) {
@@ -340,7 +359,8 @@ export async function intervene(state = game, rawEnv = {}) {
         await rawEnv.rndcurse(state, effectEnv);
         break;
     case 3:
-        aggravate(state, random);
+        await finish_steps(aggravate_steps(state, random),
+            impossible_printer(state));
         break;
     case 4:
         await (rawEnv.nasty ?? nasty)(null, effectEnv);

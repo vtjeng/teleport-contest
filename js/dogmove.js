@@ -141,7 +141,7 @@ import {
     remove_monster,
 } from './monst.js';
 import {
-    mfndpos,
+    mfndpos_steps,
     mon_track_add,
     monnear,
     onscary,
@@ -199,7 +199,8 @@ import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
-import { pline_mon, youFeel } from './pline.js';
+import { impossible_printer, pline_mon, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
@@ -290,7 +291,11 @@ function normalizePetMoveEnv(rawEnv) {
         droppables: rawEnv.droppables ?? droppables,
         couldReachItem: rawEnv.couldReachItem ?? could_reach_item,
         cursedObjectAt: rawEnv.cursedObjectAt ?? cursed_object_at,
-        findPositions: rawEnv.findPositions ?? mfndpos,
+        // C's mfndpos(); a test's replacement returns the count directly.
+        findPositions: rawEnv.findPositions
+            ?? ((monster, data, flags, env) => finish_steps(
+                mfndpos_steps(monster, data, flags, env),
+                impossible_printer(state))),
         monAllowFlags: rawEnv.monAllowFlags ?? mon_allowflags,
     };
 }
@@ -1411,7 +1416,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
 
     const data = { cnt: 0, poss: [], info: [] };
     const allowflags = env.monAllowFlags(monster, env);
-    const count = env.findPositions(monster, data, allowflags, env);
+    const count = await env.findPositions(monster, data, allowflags, env);
     let uncursedCount = 0;
     for (let index = 0; index < count; ++index) {
         const { x, y } = data.poss[index];
