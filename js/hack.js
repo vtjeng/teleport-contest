@@ -4877,12 +4877,11 @@ function domove_monster_trap_env(state, env = {}) {
                 },
             )
         ),
-        // hack.c:2198-2199 consumes minliquid()'s return to choose
-        // Trap_Killed_Mon. Only the later deal_with_overcrowding() result is
-        // discarded when rloc() fails; keep that owner explicit instead of
-        // swallowing an exception.
-        dealWithOvercrowding: env.dealWithOvercrowding
-            ?? (() => note_unported('mon.c deal_with_overcrowding')),
+        // minliquid() reaches mon.js deal_with_overcrowding() itself when no
+        // caller seam is given. From these two swaps C never gets there:
+        // goodpos() admits the swapped monster to the hero's old square only
+        // where it can fly, float, swim or like lava, so minliquid_core()
+        // takes no drowning or burning arm.
     };
     return trapEnv;
 }
