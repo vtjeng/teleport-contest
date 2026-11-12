@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c tty_clear_nhwindow(WIN_MESSAGE) repairs with docorner() the rows a wrapped top line reached (cw->cury). A Knight riding a pony with a long horsename gets a getpos autodescribe longer than the terminal, which show_topl()'s addtopl() wraps onto row 1. Travel to her own square says only a MSGTYPE-hidden \"You are already here.\", so the description stays until cmd.c parse() clears the message window before ^G's prompt, erasing row 1. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61193027,
+      "datetime": "20500820142208",
+      "nethackrc": "OPTIONS=name:Wrapper,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,autodescribe\nOPTIONS=horsename:Bartholomew Longshanks of the Northern Downs\nMSGTYPE=hide \"already here\"\n",
+      "moves": " #ride\nyy_  @.\u0007\u001bs"
+    }
+  ]
+}

@@ -188,12 +188,18 @@ export async function xwaitforspace(
 // retaining gt.toplines for message history. With TOPLINE_EMPTY it does
 // nothing, so a line that tty_display_nhwindow(WIN_MESSAGE, FALSE) retired
 // without erasing (as monmove.c vamp_shift() does) stays on the screen.
+// A top line that show_topl()'s addtopl() wrapped leaves cw->cury on the
+// last row it reached, and the clear repairs those rows with docorner()
+// (wintty.c:1052-1055).
 export function clearTtyMessageWindow(state = game) {
     const display = state.nhDisplay;
     if (!display) return;
     if (display.toplin === TOPLINE_EMPTY) return;
     display.clearRow(0);
     display.setCursor(0, 0);
+    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    if (cw?.cury) docorner(1, cw.cury + 1, 0, state);
+    if (cw) cw.curx = cw.cury = 0;
     state._pending_message = '';
     delete state._pendingMessageLayout;
     delete state._ttyMixedFirstCell;
