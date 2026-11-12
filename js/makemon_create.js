@@ -1676,7 +1676,9 @@ export function rnd_defensive_item(monster, normalized) {
             return ptr.pmidx !== PM_PESTILENCE
                 ? POT_FULL_HEALING : POT_SICKNESS;
         case 7:
-            if (state.u.uz.dnum === state.sokoban_dnum && random.rn2(4))
+            // C's Sokoban macro is the level's sokoban_rules flag, which a
+            // Sokoban level file sets wherever it is loaded and solving clears.
+            if (state.level.flags.sokoban_rules && random.rn2(4))
                 continue;
             if (isFloater(ptr)
                 || monster.isshk

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent muse.c rnd_defensive_item() witness for the Sokoban macro: #wizloaddes loads a Sokoban level file into the first dungeon level, which sets level.flags.sokoban_rules outside the Sokoban branch. Wizard genesis then creates a counted group of arch-liches; C's case 7 (wand of digging) draws rn2(4) whenever sokoban_rules is set, whatever the dungeon branch. The seed, clock, role, and name are chosen independently.",
+  "segments": [
+    {
+      "seed": 5517093,
+      "datetime": "20290706171500",
+      "nethackrc": "OPTIONS=name:BoulderClerk,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#wizloaddes\nsoko4-1\n30\u0007arch-lich\n"
+    }
+  ]
+}
