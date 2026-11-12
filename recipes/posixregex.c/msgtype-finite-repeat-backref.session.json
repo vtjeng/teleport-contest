@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40917,
+      "datetime": "20110622093000",
+      "nethackrc": "OPTIONS=name:Rebel,role:Wizard,race:human,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen\nMSGTYPE=stop \"l(.*){0,2}\\1{1,}\"\n",
+      "moves": ":s:"
+    }
+  ],
+  "comment": "posixregex.c regex_match() through glibc regexec.c get_subexp() and prune_impossible_nodes(): a backreference to a group copied by the finite repeat {0,2}. glibc never matches l(.*){0,2}\\1{1,}, though l, an empty group and an empty \\1 would, so no message containing 'l' stops at --More--."
+}

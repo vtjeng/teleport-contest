@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61523,
+      "datetime": "20190302201500",
+      "nethackrc": "OPTIONS=name:Tove,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen\nMSGTYPE=hide \"( +a?){2,}\\1*\"\n",
+      "moves": ":s:"
+    }
+  ],
+  "comment": "posixregex.c regex_match() through glibc regexec.c: a backreference to a group copied by the unbounded repeat {2,}. glibc matches ( +a?){2,}\\1* in 'NetHack!  You are', so MSGTYPE=hide swallows the welcome and any other message with two spaces."
+}

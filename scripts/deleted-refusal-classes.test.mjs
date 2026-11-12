@@ -63,6 +63,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // posixregex.c regex_match() on non-ASCII text, now matched bytewise as
     // glibc does in the C locale
     'UnsupportedPosixLocaleMatchError',
+    // posixregex.c regex_match() with a duplicated repeated capture used by
+    // a backreference, now matched by the port of glibc's regexec.c
+    'UnsupportedPosixDuplicatedCaptureError',
     // timeout.c run_timers(): an object holding more than one due timer and
     // an unpaid shrinking glob, both of which C runs as usual
     'UnsupportedHeroTimeoutBoundaryError',

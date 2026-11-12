@@ -40,7 +40,7 @@ function list(result) {
 
 function assertCompiledList(state) {
     for (let ape = state.ga?.apelist; ape; ape = ape.next) {
-        assert.equal(ape.regex.pattern, ape.pattern);
+        assert.equal(ape.regex.err, 0, ape.pattern);
         assert.equal(regex_match(ape.pattern, ape.regex), true, ape.pattern);
     }
 }
@@ -210,7 +210,7 @@ test('the POSIX validator accepts non-JavaScript bracket and branch syntax', () 
     ]) {
         const regex = regex_init();
         assert.equal(regex_compile(pattern, regex), true, pattern);
-        assert.equal(regex.pattern, pattern, pattern);
+        assert.equal(regex_error_desc(regex), 'no explanation', pattern);
     }
 });
 
@@ -259,7 +259,6 @@ test('startup installation uses finite duplicated-capture semantics',
         const state = {};
         installParsedGa(state, parsed);
         assert.equal(state.ga.apelist, parsed.ga.apelist);
-        assert.equal(state.ga.apelist.regex.kind, 'reference-aware');
         assert.equal(regex_match('>wandwandwand', state.ga.apelist.regex), true);
         assert.equal(regex_match('>wandwand', state.ga.apelist.regex), false);
     });

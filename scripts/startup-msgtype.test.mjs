@@ -27,9 +27,9 @@ import {
 } from '../js/options.js';
 import {
     regex_compile,
+    regex_error_desc,
     regex_init,
     regex_match,
-    UnsupportedPosixDuplicatedCaptureError,
 } from '../js/posixregex.js';
 import {
     dismissPendingTtyMessage,
@@ -234,7 +234,7 @@ test('numeric backreferences follow recorder glibc compile and match rules',
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), false, pattern);
-            assert.equal(regex.error, 'Invalid back reference', pattern);
+            assert.equal(regex_error_desc(regex), 'Invalid back reference', pattern);
         }
     });
 
@@ -284,20 +284,16 @@ test('duplicated captures use the compiled repeat semantics when supported',
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'reference-aware', pattern);
             assert.equal(regex_match('aaa', regex), expected, pattern);
         }
 
-        // This nullable nested unbounded capture has a distinct glibc
-        // endpoint choice which the current evaluator does not yet model.
+        // glibc's answers for a nullable nested unbounded capture.
         const nullableUnbounded = regex_init();
-        const unsupported = String.raw`^((a?)?){1,}\2$`;
-        assert.equal(regex_compile(unsupported, nullableUnbounded), true);
-        assert.equal(nullableUnbounded.kind, 'duplicated-capture-boundary');
-        assert.throws(
-            () => regex_match('a', nullableUnbounded),
-            UnsupportedPosixDuplicatedCaptureError,
-        );
+        assert.equal(regex_compile(String.raw`^((a?)?){1,}\2$`,
+            nullableUnbounded), true);
+        assert.equal(regex_match('a', nullableUnbounded), false);
+        assert.equal(regex_match('', nullableUnbounded), true);
+        assert.equal(regex_match('aa', nullableUnbounded), true);
 
         for (const [pattern, text, expected] of [
             [String.raw`^(a){0}\1$`, '', false],
@@ -308,7 +304,6 @@ test('duplicated captures use the compiled repeat semantics when supported',
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'reference-aware', pattern);
             assert.equal(regex_match(text, regex), expected, pattern);
         }
 
@@ -316,14 +311,12 @@ test('duplicated captures use the compiled repeat semantics when supported',
         assert.equal(regex_compile(
             String.raw`^He(l){2}(\1){0}o$`, deletedReference,
         ), true);
-        assert.equal(deletedReference.kind, 'direct');
         assert.equal(regex_match('Hello', deletedReference), true);
 
         const deletedDuplicatedSubtree = regex_init();
         assert.equal(regex_compile(
             String.raw`^((a){2}){0}\2$`, deletedDuplicatedSubtree,
         ), true);
-        assert.equal(deletedDuplicatedSubtree.kind, 'reference-aware');
         assert.equal(regex_match('', deletedDuplicatedSubtree), false);
 
         const configured = parseNethackrc(
@@ -356,7 +349,7 @@ test('a finite duplicated-capture MSGTYPE reaches startup',
 test('sibling alternatives expose only captures on their current path', () => {
     const invalid = regex_init();
     assert.equal(regex_compile(String.raw`(a)|\1`, invalid), false);
-    assert.equal(invalid.error, 'Invalid back reference');
+    assert.equal(regex_error_desc(invalid), 'Invalid back reference');
 
     const valid = regex_init();
     assert.equal(regex_compile(String.raw`(a)|(b)\2`, valid), true);
@@ -373,7 +366,6 @@ test('supported backreferences follow recorder unbounded repetition selection',
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'reference-aware', pattern);
             for (const text of matches)
                 assert.equal(regex_match(text, regex), true,
                     JSON.stringify({ pattern, text }));
@@ -392,7 +384,6 @@ test('reference-aware classes and anchors exercise their parsed-tree arms', () =
     ]) {
         const regex = regex_init();
         assert.equal(regex_compile(pattern, regex), true, pattern);
-        assert.equal(regex.kind, 'reference-aware', pattern);
         for (const text of matches)
             assert.equal(regex_match(text, regex), true,
                 JSON.stringify({ pattern, text }));
@@ -406,31 +397,23 @@ test('variable-width captures overwrite and retain recorder values', () => {
     const pattern = String.raw`^((ab|c)|x)*\2$`;
     const regex = regex_init();
     assert.equal(regex_compile(pattern, regex), true);
-    assert.equal(regex.kind, 'reference-aware');
     for (const text of ['abab', 'abxab', 'abcc', 'cc', 'xabxabab'])
         assert.equal(regex_match(text, regex), true, text);
     for (const text of ['ababc', 'xc', 'abxc'])
         assert.equal(regex_match(text, regex), false, text);
 });
 
-test('compiled regex states use one explicit representation discriminant', () => {
+test('posixregex.c keeps the last regcomp() error code', () => {
     const regex = regex_init();
-    assert.equal(regex.kind, 'uncompiled');
+    assert.equal(regex_error_desc(regex), 'no explanation');
+    assert.equal(regex_error_desc(null), 'no regexp');
     assert.equal(regex_compile('[z-a]', regex), false);
-    assert.equal(regex.kind, 'rejected');
-    assert.equal(regex_compile('é', regex), true);
-    assert.equal(regex.kind, 'direct');
-    assert.equal(regex_compile('a+', regex), true);
-    assert.equal(regex.kind, 'direct');
-    assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
-    assert.equal(regex.kind, 'reference-aware');
+    assert.equal(regex_error_desc(regex), 'Invalid range end');
+    assert.equal(regex_match('a', regex), false);
     assert.equal(regex_compile(String.raw`(a){2}\1`, regex), true);
-    assert.equal(regex.kind, 'reference-aware');
-    regex.kind = 'unknown';
-    assert.throws(
-        () => regex_match('aa', regex),
-        /invalid compiled regex state: unknown/u,
-    );
+    assert.equal(regex_error_desc(regex), 'no explanation');
+    assert.equal(regex_match('aaa', regex), true);
+    assert.equal(regex_match('aa', regex), false);
 });
 
 test('GNU word, space, and boundary escapes use ASCII glibc semantics', () => {
@@ -457,7 +440,7 @@ test('GNU word, space, and boundary escapes use ASCII glibc semantics', () => {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), false, pattern);
             assert.equal(
-                regex.error,
+                regex_error_desc(regex),
                 'Invalid preceding regular expression',
                 pattern,
             );
@@ -512,7 +495,7 @@ test('a leading literal close bracket can be a range endpoint', () => {
 
     const rejected = regex_init();
     assert.equal(regex_compile('[]--]', rejected), false);
-    assert.equal(rejected.error, 'Invalid range end');
+    assert.equal(regex_error_desc(rejected), 'Invalid range end');
 });
 
 test('every source-accepted translator edge compiles without a JS leak', () => {
@@ -571,7 +554,7 @@ test('GNU buffer anchors and contextual line anchors match recorder glibc',
                 const pattern = anchor + quantifier;
                 const regex = regex_init();
                 assert.equal(regex_compile(pattern, regex), false, pattern);
-                assert.equal(regex.error,
+                assert.equal(regex_error_desc(regex),
                     'Invalid preceding regular expression', pattern);
             }
         }
@@ -595,7 +578,6 @@ test('internal caret requires the current candidate to consume its newline',
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'direct', pattern);
             assert.equal(regex_match(text, regex), expected, pattern);
         }
     });

@@ -25,8 +25,9 @@ const REQUIRED_RESOURCE_NAMES = Object.freeze([
 test('adversarial regex inputs return the expected matches without hanging', () => {
     const result = spawnSync(process.execPath, [RUNNER], {
         encoding: 'utf8',
-        // Six children each have a ten-second hang watchdog, plus launcher time.
-        timeout: 65_000,
+        // The children's hang watchdogs (ten seconds, or twice a case's CPU
+        // budget), plus launcher time.
+        timeout: 5 * 10_000 + 2 * 12_000 + 5_000,
         maxBuffer: 1024 * 1024,
     });
     if (result.error || result.status !== 0) {

@@ -51,13 +51,16 @@ export const EXACT_BOUNDARY_REGEX_CASES = Object.freeze([
         2000,
         128 * 1024,
     ),
+    // Recorder glibc itself spends 1.35 s of CPU on this match: its
+    // get_subexp() calls check_arrival() about 1.4 million times. The port
+    // of regexec.c repeats that work at roughly five times glibc's cost.
     exactCase(
         'suffix-reaching-zero-minimum',
         String.raw`^(a+)*\1` + '()'.repeat(123) + '$',
         'a'.repeat(REGEX_EXACT_BOUNDARY_BYTES),
         true,
-        2000,
-        128 * 1024,
+        12000,
+        192 * 1024,
     ),
     exactCase(
         'suffix-reaching-correlated-frontier',

@@ -274,7 +274,7 @@ function verifyState(state, entry, phase) {
     for (let ape = state.ga?.apelist; ape; ape = ape.next) nodes.push(ape);
     for (const [text, expected, index = 0] of entry.probes) {
         const node = nodes[index];
-        if (!node?.regex || node.regex.pattern !== node.pattern) {
+        if (!node?.regex?.re || node.regex.err) {
             throw new Error(`${entry.label} ${phase} lost its compiled regex`);
         }
         if (node.regex && regex_match(text, node.regex) !== expected) {

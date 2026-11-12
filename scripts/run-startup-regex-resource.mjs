@@ -79,13 +79,15 @@ export function runBoundedChild(name, budget, {
     enforceResources = false,
 } = {}) {
     // Correctness checks share a machine with other tests. Give them a generous
-    // hang watchdog; tight CPU/RSS budgets belong to an isolated resource run.
+    // hang watchdog, twice a case's CPU budget and at least ten seconds;
+    // tight CPU/RSS budgets belong to an isolated resource run.
     const result = run(
         process.execPath,
         [SCRIPT_PATH, '--case', name],
         {
             encoding: 'utf8',
-            timeout: enforceResources ? budget.budgetCpuMs + 2000 : 10_000,
+            timeout: enforceResources ? budget.budgetCpuMs + 2000
+                : Math.max(10_000, 2 * budget.budgetCpuMs),
             maxBuffer: 1024 * 1024,
         },
     );
