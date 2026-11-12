@@ -81,6 +81,7 @@ import {
     TUWALL,
     TRAPDOOR,
     VAULT,
+    W_ARM,
     W_ARMH,
     W_SADDLE,
     IS_WALL,
@@ -514,7 +515,7 @@ import {
     S_vcdoor,
     S_vwall,
 } from './symbols.js';
-import { begin_burn, stop_timer } from './timeout.js';
+import { begin_burn, end_burn, stop_timer } from './timeout.js';
 import {
     t_at,
 } from './trap.js';
@@ -2046,6 +2047,12 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     while (monster.minvent) {
         const obj = monster.minvent;
         const unwornmask = obj.owornmask;
+        // worn.c extract_from_minvent() first puts out worn gold dragon
+        // scales or scale mail, while owornmask still holds the W_ARM that
+        // artifact_light() tests. Without it the light outlives the object:
+        // dealloc_obj()'s obj_sheds_light() sees a cleared mask and keeps it.
+        if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj))
+            end_burn(obj, false, objectGenerationEnv(normalized));
         // C's extract_from_minvent(..., TRUE, TRUE) unlinks and clears the worn
         // mask before reversing live-monster effects. Dead monsters skip that
         // reversal but still clear their masks and schedule a gear check.

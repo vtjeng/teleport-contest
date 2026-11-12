@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first witness for mkobj.c discard_minvent() -> worn.c extract_from_minvent(): a tame dwarf picks up and puts on a wished-for gold dragon scale mail, which artifact_light() lights while worn; the hero outpaces it so keepdogs() leaves it behind, and #wizmakemap's makemap_remove_mons() -> mongone() discards its inventory. extract_from_minvent() must end_burn() the mail while owornmask still holds W_ARM, so save_light_sources() finds no light owned by a deleted object.",
+  "segments": [
+    {
+      "seed": 7302215,
+      "datetime": "20480313141500",
+      "nethackrc": "OPTIONS=name:Gilded,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017gold dragon scale mail\n\u0007tame dwarf\nde j s s s s hhhhh#wizmakemap\n s "
+    }
+  ]
+}
