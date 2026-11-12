@@ -451,7 +451,8 @@ export function setup_waterlevel(state = game, random = rn2) {
     state.air_bubbles = [];
     state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
     state.waterlevel_portal = null;
-    state.hero_bubble = null;
+    // hero_bubble keeps whatever the last movebubbles() left; see
+    // unsetup_waterlevel().
     for (let x = 1; x <= COLNO - 1; ++x) {
         for (let y = 0; y <= ROWNO - 1; ++y) {
             const location = state.level.at(x, y);
@@ -670,9 +671,16 @@ export function set_wportal(state = game) {
 }
 
 // C ref: mkmaze.c unsetup_waterlevel() (1859-1869).
+// C frees the bubbles but leaves mkmaze.c's file-scope hero_bubble pointing
+// at the freed one; only movebubbles() resets it. So after #wizmakemap remakes
+// the Plane of Water, the hero's next move still finds hero_bubble set and
+// maybe_adjust_hero_bubble() draws rn2(2) before any turn has moved the new
+// bubbles. The port keeps the old bubble object, which no list holds, so its
+// direction change reaches no live bubble. (In C the write lands in freed
+// memory, which malloc may already have handed to a new bubble; that
+// allocator-dependent effect is not modelled.)
 export function unsetup_waterlevel(state = game) {
     state.air_bubbles = [];
-    state.hero_bubble = null;
     state.waterlevel_portal = null;
 }
 
