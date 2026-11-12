@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52817,
+      "datetime": "20310914163000",
+      "nethackrc": "OPTIONS=name:Hopper,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time,!tips\n",
+      "moves": " \u0007tame saddled horse\n#ride\nky\u0017uncursed jumping boots\nWe#jump\n . s",
+      "comment": "Independent apply.c jump() witness for the mounted jump-in-place refusal: a debug dwarven Valkyrie forces a ride on a tame saddled horse (north, read from the C screen), wears wished-for jumping boots, enters #jump and selects her own square with '.', so C prints YMonnam(u.usteed) ('Your horse') before \"isn't capable of jumping in place.\""
+    }
+  ]
+}

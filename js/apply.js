@@ -224,7 +224,7 @@ import {
 } from './display.js';
 import {
     Amonnam, a_monnam, l_monnam, m_monnam, Monnam, noit_mon_nam, c_obj_colors, hcolor, mon_nam, monverbself, obj_pmname,
-    pmname, x_monnam, y_monnam,
+    pmname, x_monnam, y_monnam, YMonnam,
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -3013,7 +3013,7 @@ export async function jump(magic = 0, state = game, env = {}) {
     if (!await is_valid_jump_pos(target.x, target.y, magic, true, state))
         return ECMD_FAIL;
     if (state.u.usteed && u_at(target.x, target.y, state)) {
-        await ttyPline("Your steed isn't capable of jumping in place.", state);
+        await ttyPline(`${YMonnam(state.u.usteed, state)} isn't capable of jumping in place.`, state);
         return ECMD_FAIL;
     }
 
