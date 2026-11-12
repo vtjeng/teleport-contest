@@ -1,160 +1,166 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import { readdirSync, readFileSync } from 'node:fs';
-import { parse } from 'acorn';
-
 // dungeon.c In_W_tower() prints impossible("No boundary for Wizard's
 // Tower?") on a tower level that has no dndest boundary, which #wizloaddes
-// of another level file onto a tower level leaves. The port's impossible()
-// is async, so js/dungeon.js has two entry points: In_W_tower_async(), which
-// prints it, and In_W_tower(), which passes it to env.impossible or records
-// it as a gap.
+// of another level file onto a tower level leaves, and C reaches it from
+// every In_W_tower() call made there. impossible() waits for keys, so, as for
+// builds_up() (scripts/level-difficulty-steps.test.mjs), js/dungeon.js
+// writes the function once as In_W_tower_steps() (js/source_steps.js): a
+// caller that can wait drives it with finish_steps(...,
+// impossible_printer(state)) or `yield*`; In_W_tower(), the synchronous
+// form, records the print as a gap.
 //
-// This check fails on three patterns:
-// - an In_W_tower() call without an env argument inside an async function,
-//   unless that function is in ASYNC_EXCEPTIONS;
-// - such a call in a synchronous function not listed in SYNC_CALLERS;
-// - an In_W_tower_async() call that is not awaited.
-//
-// Each synchronous caller below would reach too far up its callers if made
-// async:
-// - dungeon.js Can_rise_up(): trap and level-change predicates call it.
-// - mon.js mm_2way_aggression(): mm_aggression(), from every monster's
-//   target search.
-// - teleport.js rloc(): every monster relocation.
-// - wizard.js has_aggravatables() and aggravate(): monster spell and
-//   wake-up paths that are synchronous here.
-const SYNC_CALLERS = new Set([
-    'js/dungeon.js Can_rise_up',
-    'js/mon.js mm_2way_aggression',
-    'js/teleport.js rloc',
-    'js/wizard.js has_aggravatables',
-    'js/wizard.js aggravate',
-]);
-// Async functions still calling the synchronous form. js/mklev.js belongs to
-// the level-generation work, which takes this two-line change separately:
-// sp_lev.c lspo_reset_level() and lspo_finalize_level() print the
-// impossible() in C (recipes/dungeon.c/in-w-tower-no-boundary-blocked).
-const ASYNC_EXCEPTIONS = new Set([
-    'js/mklev.js lspo_reset_level',
-    'js/mklev.js lspo_finalize_level',
+// This check keeps the gap from spreading or coming back:
+// - every call of In_W_tower() is listed below with the reason it cannot
+//   wait yet, so a new one, or a converted caller going back to the
+//   synchronous form, fails; a listed call that is gone fails too;
+// - every call of In_W_tower_steps() is driven.
+
+import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import test from 'node:test';
+
+import { parse } from 'acorn';
+
+// "<file> | <outermost named function> | In_W_tower": [count, reason].
+const ALLOWED = {
+    'dungeon.js | Can_rise_up | In_W_tower': [1,
+        'trap and level-change predicates call it synchronously'],
+    'mon.js | mm_2way_aggression | In_W_tower': [3,
+        'mm_aggression() runs inside every monster target search'],
+    'teleport.js | rloc | In_W_tower': [1,
+        'rloc() is synchronous and relocates every monster'],
+    'wizard.js | has_aggravatables | In_W_tower': [3,
+        'a synchronous predicate of the Wizard\'s spell and wake-up paths'],
+    'wizard.js | aggravate | In_W_tower': [2,
+        'aggravate() is synchronous'],
+    'mklev.js | lspo_reset_level | In_W_tower': [1,
+        'async, so convertible; js/mklev.js belongs to the level-generation '
+        + 'branch (recipes/dungeon.c/in-w-tower-no-boundary-blocked)'],
+    'mklev.js | lspo_finalize_level | In_W_tower': [1,
+        'async, so convertible; js/mklev.js belongs to the level-generation '
+        + 'branch (recipes/dungeon.c/in-w-tower-no-boundary-blocked)'],
+};
+
+const FUNCTION_TYPES = new Set([
+    'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',
 ]);
 
-function isAwaited(parent, node) {
-    if (!parent) return false;
-    if (parent.type === 'AwaitExpression') return true;
-    if (parent.type === 'ReturnStatement') return true;
-    return parent.type === 'ArrowFunctionExpression' && parent.body === node;
+function isNode(value) {
+    return value && typeof value.type === 'string';
 }
 
-export function inWTowerViolations(file, source) {
+function walk(node, visit, ancestors = []) {
+    visit(node, ancestors);
+    ancestors.push(node);
+    for (const key of Object.keys(node)) {
+        if (key === 'loc') continue;
+        const value = node[key];
+        if (Array.isArray(value)) {
+            for (const child of value) if (isNode(child)) walk(child, visit, ancestors);
+        } else if (isNode(value)) {
+            walk(value, visit, ancestors);
+        }
+    }
+    ancestors.pop();
+}
+
+// The outermost named function around a node, or <module>.
+function enclosingName(ancestors) {
+    for (let i = 0; i < ancestors.length; i++) {
+        const node = ancestors[i];
+        if (!FUNCTION_TYPES.has(node.type)) continue;
+        const parent = ancestors[i - 1];
+        const own = node.id?.name
+            ?? (parent?.type === 'VariableDeclarator' ? parent.id?.name : null);
+        if (own) return own;
+    }
+    return '<module>';
+}
+
+function calleeName(callee) {
+    if (callee.type === 'Identifier') return callee.name;
+    if (callee.type === 'MemberExpression' && !callee.computed)
+        return callee.property.name;
+    return null;
+}
+
+export function scanSource(file, source) {
     const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
-    const found = [];
-    const ancestors = [];
-    const enclosing = () => {
-        for (let i = ancestors.length - 1; i >= 0; i--) {
-            const node = ancestors[i];
-            if (!/Function/u.test(node.type)) continue;
-            const parent = ancestors[i - 1];
-            const name = node.id?.name
-                ?? (parent?.type === 'VariableDeclarator'
-                    ? parent.id.name : null)
-                ?? '(anonymous)';
-            return { name, async: node.async };
+    const syncCalls = {};
+    const undriven = [];
+    walk(ast, (node, ancestors) => {
+        if (node.type !== 'CallExpression') return;
+        const name = calleeName(node.callee);
+        if (name === 'In_W_tower') {
+            const key = `${file} | ${enclosingName(ancestors)} | ${name}`;
+            syncCalls[key] = (syncCalls[key] ?? 0) + 1;
+        } else if (name === 'In_W_tower_steps') {
+            const parent = ancestors[ancestors.length - 1];
+            const delegated = parent?.type === 'YieldExpression' && parent.delegate;
+            const driven = parent?.type === 'CallExpression'
+                && calleeName(parent.callee) === 'finish_steps'
+                && parent.arguments[0] === node;
+            if (!delegated && !driven)
+                undriven.push(`${file}:${node.loc.start.line} ${name}`);
         }
-        return { name: '(module)', async: false };
-    };
-    const walk = (node) => {
-        if (Array.isArray(node)) {
-            for (const child of node) walk(child);
-            return;
-        }
-        if (!node || typeof node.type !== 'string') return;
-        const parent = ancestors.at(-1);
-        ancestors.push(node);
-        if (node.type === 'CallExpression'
-            && node.callee.type === 'Identifier') {
-            const fn = enclosing();
-            const where = `${file}:${node.loc.start.line} ${fn.name}()`;
-            const key = `${file} ${fn.name}`;
-            if (node.callee.name === 'In_W_tower'
-                && node.arguments.length < 5) {
-                if (fn.async && !ASYNC_EXCEPTIONS.has(key))
-                    found.push(`${where} calls In_W_tower() in an async`
-                        + ' function; use await In_W_tower_async()');
-                else if (!fn.async && !SYNC_CALLERS.has(key))
-                    found.push(`${where} calls In_W_tower() from an unlisted`
-                        + ' synchronous function');
-            }
-            if (node.callee.name === 'In_W_tower_async'
-                && !isAwaited(parent, node))
-                found.push(`${where} does not await In_W_tower_async()`);
-        }
-        for (const [k, value] of Object.entries(node)) {
-            if (k !== 'loc' && value && typeof value === 'object')
-                walk(value);
-        }
-        ancestors.pop();
-    };
-    walk(ast);
-    return found;
+    });
+    return { syncCalls, undriven };
 }
 
-test('In_W_tower() callers that can wait print its impossible()', () => {
-    const files = readdirSync(new URL('../js/', import.meta.url))
-        .filter((name) => name.endsWith('.js'))
-        .map((name) => `js/${name}`);
-    const found = files.flatMap((file) => inWTowerViolations(
-        file, readFileSync(new URL(`../${file}`, import.meta.url), 'utf8'),
-    ));
-    assert.deepEqual(found, []);
-    // Every listed exception is still a caller, so the lists shrink as
-    // callers are ported: count the listed functions that call In_W_tower().
-    const callers = new Set();
-    for (const file of files) {
-        const source = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-        for (const name of [...SYNC_CALLERS, ...ASYNC_EXCEPTIONS]) {
-            const [listedFile, fn] = name.split(' ');
-            if (listedFile !== file) continue;
-            const start = source.search(new RegExp(`function ${fn}\\(`, 'u'));
-            const next = source.indexOf('\nexport ', start + 1);
-            const body = source.slice(start, next < 0 ? undefined : next);
-            if (start >= 0 && /\bIn_W_tower\(/u.test(body)) callers.add(name);
+function scanJs() {
+    const dir = new URL('../js/', import.meta.url);
+    const syncCalls = {};
+    const undriven = [];
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.js')).sort()) {
+        const found = scanSource(file, readFileSync(new URL(file, dir), 'utf8'));
+        Object.assign(syncCalls, found.syncCalls);
+        undriven.push(...found.undriven);
+    }
+    return { syncCalls, undriven };
+}
+
+// Function that only checks a found-calls map against ALLOWED.
+function problemsFor(syncCalls) {
+    const problems = [];
+    for (const [key, count] of Object.entries(syncCalls)) {
+        const entry = ALLOWED[key];
+        if (!entry) {
+            problems.push(`new: ${key} (${count}); drive In_W_tower_steps() `
+                + 'from a caller that can wait, or list it with a reason');
+        } else if (entry[0] !== count) {
+            problems.push(`changed: ${key} (${entry[0]} -> ${count})`);
         }
     }
-    assert.deepEqual([...callers].sort(),
-        [...SYNC_CALLERS, ...ASYNC_EXCEPTIONS].sort());
+    for (const key of Object.keys(ALLOWED))
+        if (!Object.hasOwn(syncCalls, key)) problems.push(`stale: ${key}; remove it`);
+    return problems;
+}
+
+test('every synchronous In_W_tower() call is listed', () => {
+    assert.deepEqual(problemsFor(scanJs().syncCalls), []);
+    for (const [key, [, reason]] of Object.entries(ALLOWED))
+        assert.ok(reason?.trim(), `no reason: ${key}`);
 });
 
-test('the In_W_tower() check reports each bypass', () => {
-    const cases = [
-        // An async caller that would drop the impossible().
-        ['async function f(s) { return In_W_tower(1, 2, s.u.uz, s); }',
-            'in an async function'],
-        // A new synchronous caller outside the list.
-        ['function f(s) { return In_W_tower(1, 2, s.u.uz, s); }',
-            'unlisted synchronous'],
-        // A listed name in another file is not the listed function.
-        ['function rloc(s) { return In_W_tower(1, 2, s.u.uz, s); }',
-            'unlisted synchronous'],
-        // The async entry point called without await.
-        ['async function f(s) { const t = In_W_tower_async(1, 2, s.u.uz, s); }',
-            'does not await'],
-    ];
-    for (const [source, expected] of cases) {
-        const found = inWTowerViolations('js/x.js', source);
-        assert.ok(found.some((line) => line.includes(expected)),
-            `${source}: ${JSON.stringify(found)}`);
-    }
-    const allowed = [
-        ['js/x.js',
-            'async function f(s) { return await In_W_tower_async(1, 2, s.u.uz, s); }'],
-        ['js/x.js',
-            'async function f(s) { return In_W_tower(1, 2, s.u.uz, s, { impossible() {} }); }'],
-        ['js/teleport.js', 'function rloc(s) { return In_W_tower(1, 2, s.u.uz, s); }'],
-    ];
-    for (const [file, source] of allowed)
-        assert.deepEqual(inWTowerViolations(file, source), [], source);
+test('every In_W_tower_steps() call is driven', () => {
+    assert.deepEqual(scanJs().undriven, []);
+});
+
+test('the scan reports each bypass', () => {
+    const source = [
+        'export async function wiz_makemap(state) {',
+        // A converted caller going back to the synchronous form.
+        '    const a = In_W_tower(1, 2, state.u.uz, state);',
+        '    const b = await finish_steps(In_W_tower_steps(1, 2, state.u.uz, state), p);',
+        // A generator that is called and dropped runs none of its body.
+        '    In_W_tower_steps(1, 2, state.u.uz, state);',
+        '    return a && b;',
+        '}',
+    ].join('\n');
+    const found = scanSource('wizcmds.js', source);
+    assert.deepEqual(found.syncCalls, { 'wizcmds.js | wiz_makemap | In_W_tower': 1 });
+    assert.deepEqual(found.undriven, ['wizcmds.js:4 In_W_tower_steps']);
+    assert.ok(problemsFor({ ...found.syncCalls })
+        .some((line) => line.startsWith('new: wizcmds.js | wiz_makemap')));
 });

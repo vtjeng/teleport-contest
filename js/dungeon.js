@@ -639,19 +639,17 @@ export function On_W_tower_level(level, state = game) {
         || on_level(level, state.wiz3_level));
 }
 
-const NO_TOWER_BOUNDARY = "No boundary for Wizard's Tower?";
-
-// impossible() is async in this port and In_W_tower() is not, so, as in
-// builds_up(), a caller that can wait passes env.impossible, which receives
-// the message to print once In_W_tower() returns (In_W_tower_async() does
-// this); for any other caller the message is recorded as a gap.
-export function In_W_tower(x, y, level, state = game, env = {}) {
+// The impossible() is yielded as an ImpossibleCall (js/source_steps.js), so
+// a caller that can wait drives In_W_tower_steps() with finish_steps(...,
+// impossible_printer(state)) and prints it where C does. In_W_tower() is the
+// synchronous form, which records the print as a gap;
+// scripts/in-w-tower-callers.test.mjs lists its callers.
+export function* In_W_tower_steps(x, y, level, state = game) {
     if (!On_W_tower_level(level, state))
         return false;
     const dndest = state.dndest ?? {};
     if (!dndest.nlx) {
-        if (env.impossible) env.impossible(NO_TOWER_BOUNDARY);
-        else note_unported('pline.c impossible');
+        yield new ImpossibleCall("No boundary for Wizard's Tower?");
         return false;
     }
     /*
@@ -662,18 +660,8 @@ export function In_W_tower(x, y, level, state = game, env = {}) {
                                dndest.nhx, dndest.nhy);
 }
 
-// In_W_tower() for a caller that can wait: prints C's impossible() before
-// returning, as C does inside In_W_tower().
-export async function In_W_tower_async(x, y, level, state = game) {
-    let text = null;
-    const inside = In_W_tower(x, y, level, state, {
-        impossible: (message) => { text = message; },
-    });
-    if (text !== null) {
-        const { impossible } = await import('./pline.js');
-        await impossible(text, state);
-    }
-    return inside;
+export function In_W_tower(x, y, level, state = game) {
+    return finish_steps(In_W_tower_steps(x, y, level, state));
 }
 
 // C ref: dungeon.c single_level_branch() (1966-1975). C's own comment calls

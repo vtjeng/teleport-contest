@@ -37,6 +37,7 @@ import {
 } from '../js/const.js';
 import {
     In_W_tower,
+    In_W_tower_steps,
     On_W_tower_level,
     get_level,
     lev_by_name,
@@ -69,6 +70,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
+import { finish_steps } from '../js/source_steps.js';
 import { accessible } from '../js/monmove.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -447,9 +449,10 @@ test('single-level and Wizard tower predicates read their source-owned state',
         // can wait receives the message; any other records the gap.
         state.dndest = { nlx: 0, nly: 0, nhx: 0, nhy: 0 };
         const messages = [];
-        assert.equal(In_W_tower(35, 8, { dnum: 9, dlevel: 2 }, state, {
-            impossible: (message) => messages.push(message),
-        }), false);
+        assert.equal(finish_steps(
+            In_W_tower_steps(35, 8, { dnum: 9, dlevel: 2 }, state),
+            (message) => { messages.push(message); },
+        ), false);
         assert.deepEqual(messages, ["No boundary for Wizard's Tower?"]);
         game.unported = new Set();
         assert.equal(In_W_tower(35, 8, { dnum: 9, dlevel: 2 }, state), false);

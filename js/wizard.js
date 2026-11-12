@@ -31,7 +31,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { Monnam, hcolor } from './do_name.js';
-import { In_W_tower, In_W_tower_async, In_hell, builds_up } from './dungeon.js';
+import { In_W_tower, In_W_tower_steps, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
 import {
@@ -92,7 +92,8 @@ import { inhishop } from './shk.js';
 import { mpickobj } from './steal.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
-import { verbalize, youFeel } from './pline.js';
+import { impossible_printer, verbalize, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { Blind, Deaf, Protection_from_shape_changers } from './youprop.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
@@ -851,7 +852,8 @@ export async function tactics(monster, rawEnv = {}) {
             state,
         ));
         monster.mavenge = true;
-        if (await In_W_tower_async(mx, my, state.u.uz, state)
+        if (await finish_steps(In_W_tower_steps(mx, my, state.u.uz, state),
+            impossible_printer(state))
             || (monster.iswiz && !sx && !mon_has_amulet(monster))) {
             if (!noTeleport(monster, state)
                 && !random.rn2(3 + Math.trunc(monster.mhp / 10))) {

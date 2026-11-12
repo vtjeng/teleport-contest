@@ -183,7 +183,7 @@ import { fruitname, makeplural } from './fruit.js';
 import {
     Can_fall_thru,
     In_hell,
-    In_W_tower_async,
+    In_W_tower_steps,
     On_W_tower_level,
     assign_level,
     assign_rnd_level,
@@ -2589,7 +2589,8 @@ export async function goto_level(
     let new_ledger;
     // C captures this before anything runs, so it reads the level being left.
     const prev_temperature = state.level.flags.temperature;
-    const was_in_W_tower = await In_W_tower_async(u.ux, u.uy, u.uz, state);
+    const was_in_W_tower = await finish_steps(
+        In_W_tower_steps(u.ux, u.uy, u.uz, state), impossible_printer(state));
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel, state))
         newlevel.dlevel = dunlevs_in_dungeon(newlevel, state);
@@ -2724,7 +2725,8 @@ export async function goto_level(
         await keepdogs(false, {
             state,
             inWizardTower: (x, y, level, callbackState) =>
-                In_W_tower_async(x, y, level, callbackState),
+                finish_steps(In_W_tower_steps(x, y, level, callbackState),
+                    impossible_printer(callbackState)),
         });
     }
 

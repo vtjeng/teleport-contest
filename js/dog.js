@@ -69,7 +69,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    In_W_tower_async,
+    In_W_tower_steps,
     depth,
     ledger_no,
     ledger_to_dlev,
@@ -115,7 +115,8 @@ import {
 import {
     m_at, mon_track_clear, place_monster,
 } from './monst.js';
-import { livelog_printf, pline_mon } from './pline.js';
+import { impossible_printer, livelog_printf, pline_mon } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     AT_WEAP,
     M2_DOMESTIC,
@@ -1398,7 +1399,10 @@ export async function migrate_to_level(
         state.wiz3_level,
     ].some((level) => sameLevel(level, state.u.uz));
     const inWizardTower = onWizardTowerLevel
-        ? migratingOperation(env, 'inWizardTower', In_W_tower_async)
+        ? migratingOperation(env, 'inWizardTower',
+            (x, y, level, towerState) => finish_steps(
+                In_W_tower_steps(x, y, level, towerState),
+                impossible_printer(towerState)))
         : null;
     const isOnMap = m_at(monster.mx, monster.my, state) === monster;
     const isOffMapLimbo = monster.mx === 0
