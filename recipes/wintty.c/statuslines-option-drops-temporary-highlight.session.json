@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90717,
+      "datetime": "20290403081500",
+      "nethackrc": "OPTIONS=name:Gilder,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,statushilites:30\nOPTIONS=hilite_status:gold/up/green/down/red\n",
+      "moves": " \u0017200 gold pieces\n#optionsfull\n>>>>>>j\n3\nss",
+      "comment": "Independent wintty.c new_status_window() witness: a debug Tourist with statushilites:30 and a gold/up/green rule wishes for 200 gold, so $: is shown green, then sets statuslines to 3 through #optionsfull. tty_preference_update('statuslines') rebuilds the status window and calls botl.c status_initialize(REASSESS_ONLY), whose gu.update_all evaluates every field with chg = 0 and clears its timer, so the redrawn gold has no highlight."
+    }
+  ]
+}

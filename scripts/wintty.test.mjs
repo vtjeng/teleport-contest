@@ -13,6 +13,7 @@ import {
     WIN_ERR,
 } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
+import { status_initialize } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { get_saved_games } from '../js/restore.js';
 import { parseCFunctions } from './c-functions.mjs';
@@ -286,8 +287,13 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
         CO: 80,
         WIN_STATUS: WIN_ERR,
     };
+    // botl.c status_initialize(FALSE) ran at startup; new_status_window()'s
+    // REASSESS_ONLY call panics without it.
+    status_initialize(state, false);
+    state.gu.update_all = false;
     tty_preference_update('statuslines', state);
     assert.equal(state.disp.botlx, true);
+    assert.equal(state.gu.update_all, true);
     assert.equal(state.wintty.clipping, false);
 });
 
@@ -387,10 +393,16 @@ test('new_status_window clears the JavaScript status rows', () => {
         { text: 'old row 2', owners: [] },
     ];
     state._renderedStatusStyles = [[], []];
+    status_initialize(state, false); // startup's full status initialization
+    state.disp.botlx = false;
+    state.gu.update_all = false;
     new_status_window(state);
 
-    // wintty.c tty_clear_nhwindow() NHW_STATUS sets disp.botlx.
+    // wintty.c tty_clear_nhwindow() NHW_STATUS sets disp.botlx, and
+    // status_initialize(REASSESS_ONLY) sets gu.update_all so the next bot()
+    // drops temporary highlights.
     assert.equal(state.disp.botlx, true);
+    assert.equal(state.gu.update_all, true);
     // Two blank rows: wc2_statuslines is unset, which StatusRows() reads as 2.
     // recordings/wintty.c/statuslines-preference-clears-status shows C's
     // blank status rows until the next bot().

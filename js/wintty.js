@@ -13,7 +13,7 @@ import {
     ROWNO,
     WIN_ERR,
 } from './const.js';
-import { redraw_map } from './display.js';
+import { redraw_map, status_initialize } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
@@ -384,12 +384,15 @@ function clear_status_window(state) {
 // arm, which clears and destroys an existing status window, needs WIN_STATUS
 // set, and the port never assigns it a window id.  genl_status_finish() and
 // tty_status_init() only free and reallocate status tracking data.
-// config.h defines STATUS_HILITES; status_initialize(REASSESS_ONLY) is
-// already represented by the full status refresh the clear requests.
+// config.h defines STATUS_HILITES, so the rebuilt window ends with botl.c
+// status_initialize(REASSESS_ONLY): its gu.update_all makes the next bot()
+// evaluate every field with chg = 0 and clear its highlight timer, dropping
+// a temporary up/down highlight.
 export function new_status_window(state = game) {
     note_unported('windows.c genl_status_finish');
     note_unported('wintty.c tty_status_init');
     clear_status_window(state);
+    status_initialize(state, true);
 }
 
 // C ref: win/tty/wintty.c tty_init_nhwindows() (511-593). The terminal
