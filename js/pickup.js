@@ -2642,8 +2642,9 @@ export function allow_all() {
 // for the ':' look choice and traverses the same object-chain link as C.
 async function simple_look(objs, here, state) {
     if (!objs) {
-        // C reaches this diagnostic-only case only after a stale or malformed
-        // object list; impossible() has no gameplay return value here.
+        // C reaches this case only after a stale or malformed object list,
+        // and prints "simple_look(null)" through impossible(), which this
+        // build shows in every mode; the port records the gap.
         note_unported('pline.c impossible');
         return;
     }

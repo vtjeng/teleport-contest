@@ -327,8 +327,10 @@ export function tport_spell(what, state = game) {
         if (id === SPE_TELEPORT_AWAY || id === NO_SPELL) break;
     }
     if (index === MAXSPELL) {
-        // C's impossible() result is diagnostic only; it has no value or
-        // state effect for dotelecmd() to consume.
+        // C prints "tport_spell: spellbook full" through impossible(), which
+        // this build shows in every mode; it returns nothing for dotelecmd()
+        // to consume. tport_spell() is synchronous and cannot wait for it,
+        // so the port records the gap.
         if (state === game) note_unported('pline.c impossible');
     } else if (spellid(index, state) === NO_SPELL) {
         if (what === HIDE || what === REMOVE) {

@@ -3108,7 +3108,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         break;
 
     default:
-        // mhitu.c discards impossible()'s result; it is diagnostic-only.
+        // C prints "Gaze attack %d?" through impossible(), which this build
+        // shows in every mode, and goes on; the port records the gap.
         note_unported('pline.c impossible');
         break;
     }

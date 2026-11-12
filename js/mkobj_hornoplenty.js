@@ -54,7 +54,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
     let objcount = 0;
 
     if (!horn || horn.otyp !== HORN_OF_PLENTY) {
-        // C's impossible() emits only a diagnostic and returns void.
+        // C prints "bad horn o' plenty" through impossible(), which this
+        // build shows in every mode, and returns; the port records the gap.
         note_unported('pline.c impossible');
     } else if (horn.spe < 1) {
         await ttyPline(nothing_happens, state);

@@ -3059,8 +3059,9 @@ export function check_invent_gold(why, state = game) {
         }
     }
     if (goldstacks > 1 || wrongslot > 0) {
-        // C's impossible() is diagnostic only and has no terminal output.
-        // Keep the source dependency explicit while preserving its return.
+        // C prints this through impossible(), which this build shows in every
+        // mode. check_invent_gold() is synchronous and cannot wait for it,
+        // so the port records the gap and keeps C's return.
         note_unported('pline.c impossible');
         return true;
     }
@@ -3686,7 +3687,9 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     }
 
     if (obj.owornmask) {
-        // C's impossible() is diagnostic only and has no terminal output.
+        // C prints this through impossible(), which this build shows in every
+        // mode. obfree() is synchronous and cannot wait for it, so the port
+        // records the gap.
         note_unported('pline.c impossible');
         setnotworn(obj, setwornEnv(env.state, env));
     }

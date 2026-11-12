@@ -2915,7 +2915,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         case GAUNTLETS_OF_DEXTERITY:
             break;
         default:
-            // C's impossible() diagnostic has no gameplay effect.
+            // C prints "Unknown type of gloves" through impossible(), which
+            // this build shows in every mode, and goes on; the port records
+            // the gap.
             note_unported('pline.c impossible unknown glove type');
             break;
         }

@@ -623,7 +623,9 @@ export async function teleport_pet(monster, forceIt, rawEnv = {}) {
     const { get_mleash, m_unleash } = await import('./apply.js');
     const leash = get_mleash(monster, state);
     if (!leash) {
-        // C emits an impossible() diagnostic without changing game output.
+        // C prints "%s is leashed, without a leash." through impossible(),
+        // which this build shows in every mode, then releases the monster
+        // without "Your leash goes slack."; the port records the gap.
         note_unported('pline.c impossible');
     } else if (leash.cursed && !forceIt) {
         await yelp(monster, state, random);

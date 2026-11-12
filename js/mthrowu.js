@@ -997,8 +997,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             let damage;
             if (singleobj.otyp === EGG
                 && !touch_petrifies(state.mons?.[singleobj.corpsenm])) {
-                // C's impossible() is diagnostic-only; it does not consume
-                // the missile or stop the flight.
+                // C prints this through impossible(), which this build shows
+                // in every mode; it neither uses up the missile nor stops
+                // the flight. The port records the gap.
                 note_unported('mthrowu.c impossible');
                 hitv = 0;
                 damage = 0;
