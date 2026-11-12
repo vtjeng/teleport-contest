@@ -413,9 +413,10 @@ test('the supported set is every command the port dispatches', () => {
     // supported here even though later travel steps still carry debt.
     assert.equal(supported.has('travel'), true);
     // The rows whose function the port lacks are the ones callExtcmdFunction()
-    // refuses; none of them has a default key. report.c dobugreport() is
-    // ported, so #bugreport is supported.
-    assert.equal(supported.has('debugfuzzer'), false);
+    // refuses; none of them has a default key. report.c dobugreport() and
+    // wizcmds.c wiz_fuzzer() are ported, so #bugreport and #debugfuzzer are
+    // supported.
+    assert.equal(supported.has('debugfuzzer'), true);
     assert.equal(supported.has('bugreport'), true);
 });
 
