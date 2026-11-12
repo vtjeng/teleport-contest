@@ -691,3 +691,33 @@ test('wiz_fuzzer reads the panic() after impossible() answer and records the gap
             assert.ok(game.unported.has('wizcmds.c wiz_fuzzer'));
         }
     });
+
+// end.c panic() (392-472) past tty_wait_synch()'s getret() wait. The key
+// that answers it leads to exit_nhwindows(), the raw prints, the error save
+// and NH_abort(), which ends the process without another input boundary, so
+// no recording reaches this far: the C recorder fails ("recorder exited
+// before recording all input boundaries ... SIGABRT") on such a recipe.
+test('panic ends the segment after getret() without another screen', async () => {
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const replay = await runSegment({
+        seed: 18534099, // Independent startup; only the panic path matters.
+        datetime: '20381010124532',
+        nethackrc: 'OPTIONS=name:PanicTail,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none\n',
+        // Space answers getret(); the trailing 'x' is a key the aborted
+        // process never reads.
+        moves: '#panic\nyes\n x',
+    });
+    const { game } = gstate;
+    const screens = replay.getScreens();
+    // One startup screen and one per key through the "yes" line's Return;
+    // the space that answers getret() gets none.
+    assert.equal(screens.length, 1 + '#panic\nyes\n'.length);
+    assert.equal(screens.at(-1), '\nOops...');
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(game.program_state.gameover, true);
+    assert.equal(game.program_state.panicking, 1);
+    assert.equal(game.iflags.window_inited, false);
+    assert.ok(game.unported.has('files.c set_error_savefile'));
+});

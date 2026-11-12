@@ -64,7 +64,7 @@ import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu, add_menu_heading } from './windows.js';
 import { game } from './gstate.js';
-import { done } from './end.js';
+import { done, panic } from './end.js';
 import { minimal_monnam, mon_nam, x_monnam } from './do_name.js';
 import { dmonsfree, makemon_runtime } from './makemon_create.js';
 import { rndmonst } from './makemon.js';
@@ -877,8 +877,7 @@ export async function wiz_telekinesis(state = game, env = {}) {
     return ECMD_OK;
 }
 
-// C ref: wizcmds.c wiz_panic() (534-546). Native panic's shutdown,
-// error-save and core dump remain an explicit discarded-void callee gap.
+// C ref: wizcmds.c wiz_panic() (534-546).
 export async function wiz_panic(state = game) {
     if (state.iflags.debug_fuzzer) {
         state.u.uhp = state.u.uhpmax = 1000;
@@ -887,9 +886,8 @@ export async function wiz_panic(state = game) {
     }
     if (await paranoid_query(
         true, 'Do you want to call panic() and end your game?', state,
-    )) {
-        note_unported('end.c panic');
-    }
+    ))
+        await panic('Crash test (#panic).', state);
     return ECMD_OK;
 }
 

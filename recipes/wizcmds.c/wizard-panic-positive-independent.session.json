@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18534005,
+      "datetime": "20381010124532",
+      "nethackrc": "OPTIONS=name:PanicPositive,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\n",
+      "moves": ".#panic\nyes\n",
+      "comment": "Positive confirmation reaches end.c panic(): raw_print(\"\\r\\nOops...\") and tty_wait_synch()'s getret() wait, which is the last input boundary. The key that answers getret() leads to exit_nhwindows(), the error save and NH_abort(), which writes no further boundary, so the recipe ends at that wait."
+    }
+  ]
+}

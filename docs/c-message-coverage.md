@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3987 | 81 |
-| diagnostic | 723 | 198 | 525 |
+| gameplay | 4068 | 3990 | 78 |
+| diagnostic | 723 | 199 | 524 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4188 | 723 |
+| total | 4911 | 4192 | 719 |
 
 ## Missing by C file
 
@@ -57,7 +57,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dungeon.c | yes | 0 | 19 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 1 | 36 |
-| src/end.c | yes | 3 | 4 | 1 |
+| src/end.c | yes | 0 | 4 | 1 |
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/files.c | yes | 17 | 3 | 1 |
@@ -131,7 +131,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
-| src/wizcmds.c | yes | 0 | 7 | 0 |
+| src/wizcmds.c | yes | 0 | 6 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 11 | 1 |
@@ -189,13 +189,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `argcheck()`
   - 515 raw_printf: `version can only be extended with -`
-
-### src/end.c
-
-- `panic()`
-  - 433 raw_printf: `To report this error,`
-  - 436 raw_printf: `To report this error, contact`
-  - 439 raw_printf: `Report error to "`
 
 ### src/files.c
 
@@ -1767,9 +1760,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `makemap_remove_mons()`
   - 147 impossible: `makemap_remove_mons: 'fmon' did not get emptied?`
-
-- `wiz_panic()`
-  - 543 panic: `Crash test (#panic).`
 
 - `you_sanity_check()`
   - 1408 impossible: `sanity_check: swallowed by nothing?`

@@ -1069,6 +1069,84 @@ export function fixup_death(how, state) {
         state.multireasonbuf = '';
 }
 
+// C ref: end.c panic() (392-472). The recorder's build defines CRASHREPORT
+// (config.h:244-250 for __linux__) and not NOTIFY_NETHACK_BUGS (WIN32
+// without SYSCF only), so every panic ends in NH_abort() and really_done()
+// is never reached. tty_wait_synch() takes its getret() arm after the
+// raw_print() and waits for a key; the recorder captures that wait, and
+// nothing after it, because abort() writes no input boundary.
+export async function panic(str, state = game) {
+    state.program_state ??= {};
+    const panicking = Number(state.program_state.panicking ?? 0);
+    state.program_state.panicking = panicking + 1;
+    if (panicking)
+        await NH_abort(state); /* avoid loops - this should never happen*/
+
+    state.gb ??= {};
+    state.gb.bot_disabled = true;
+    if (state.iflags?.window_inited !== false) {
+        tty_raw_print(state, '\r\nOops...');
+        await tty_wait_synch(state); /* make sure all pending output gets flushed */
+        // soundprocs.sound_exit_nhsound is null: the build has no sound
+        // library.
+        tty_exit_nhwindows(null, state);
+        state.iflags.window_inited = false; /* they're gone; force raw_print()ing */
+    }
+
+    tty_raw_print(state, state.program_state.gameover
+        ? 'Postgame wrapup disrupted.'
+        : !state.program_state.something_worth_saving
+            ? 'Program initialization has failed.'
+            : 'Suddenly, the dungeon collapses.');
+    if (!state.wizard) {
+        const maybe_rebuild = !state.program_state.something_worth_saving
+            ? '.'
+            : '\nand it may be possible to rebuild.';
+
+        if (state.sysopt?.support)
+            tty_raw_print(state,
+                `To report this error, ${state.sysopt.support}${maybe_rebuild}`);
+        else if (state.sysopt?.fmtd_wizard_list) /* formatted SYSCF WIZARDS */
+            tty_raw_print(state, 'To report this error, contact '
+                + `${state.sysopt.fmtd_wizard_list}${maybe_rebuild}`);
+        else
+            tty_raw_print(state, `Report error to "wizard"${maybe_rebuild}`);
+    }
+    if (state.program_state.something_worth_saving
+        && !state.iflags?.debug_fuzzer) {
+        // files.c set_error_savefile() appends ".e" to the save file name and
+        // dosave0() writes the game there. The port's dosave0() writes only
+        // SAVE_FILE_PATH, which the next segment would restore, while C's
+        // next segment never reads the ".e" file. dosave0()'s result selects
+        // only the sysopt.recover line, which the recorder's sysconf leaves
+        // unset.
+        note_unported('files.c set_error_savefile');
+    }
+
+    tty_raw_print(state, str);
+    // paniclog() appends only to the paniclog file, which the port does not
+    // keep.
+    await NH_abort(state); /* generate core dump */
+}
+
+// C ref: end.c NH_abort() (1895-1946). With PANICTRACE and no
+// sysopt.crashreporturl, submit_web_report() returns FALSE and the libc
+// backtrace goes to stderr; then abort() ends the process. Unlike
+// nh_terminate(), no screen is captured on the way out.
+async function NH_abort(state = game) {
+    if (isTerminated()) {
+        recordTerminationViolation('NH_abort',
+            'NH_abort() called after the segment terminated');
+        await neverSettles();
+    }
+    state.program_state.in_moveloop = 0;
+    markTerminated();
+    state.program_state.exiting = 1;
+    state.program_state.gameover = true;
+    settleTerminationNotice();
+    await neverSettles();
+}
+
 // C ref: end.c get_valuables() (763-791).  C keeps the inventory linked list
 // intact and accumulates ordinary amulets and gems into two fixed tables.  The
 // JavaScript tables live on the game because a scorer can run more than one
