@@ -15,8 +15,9 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // The allowlist's size, pinned both ways so that neither a new entry nor a
 // raised count gets in unnoticed, and a removal lowers the pin. 290 entries
 // holding 373 discarded calls: 289 and 372 on 9f7e42e6 (8 November 2026),
-// plus sp_lev_object.js applyObjectFields()'s oname().
-const ALLOWLIST_PINS = { entries: 290, calls: 373 };
+// plus sp_lev_object.js applyObjectFields()'s oname(), plus mon.js
+// apply_newcham_steps()'s newmonhp() (branch levdiff, 11 November 2026).
+const ALLOWLIST_PINS = { entries: 291, calls: 374 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());

@@ -124,6 +124,13 @@ export async function impossible(text, state = game, env = {}) {
     }
 }
 
+// finish_steps()'s onImpossible (js/source_steps.js) for a caller that can
+// wait: each impossible() prints where C calls it, and the rest of the body
+// runs after it.
+export function impossible_printer(state = game, env = {}) {
+    return (text) => impossible(text, state, env);
+}
+
 // C appends to gg.gamelog and preserves insertion order. The C allocator
 // stores the supplied turn separately from the message; retaining that shape
 // keeps save/restore source-visible.

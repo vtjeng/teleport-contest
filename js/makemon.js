@@ -45,7 +45,10 @@ import {
     YMonnam,
 } from './do_name.js';
 import { tamedog } from './dog.js';
-import { level_difficulty, on_level } from './dungeon.js';
+import {
+    level_difficulty, level_difficulty_steps, on_level,
+} from './dungeon.js';
+import { finish_steps } from './source_steps.js';
 import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
@@ -300,8 +303,14 @@ export function wrong_elem_type(monster, state) {
     return false;
 }
 
-// C ref: makemon.c adj_lev().
+// C ref: makemon.c adj_lev(). level_difficulty()'s impossible() is a step
+// (js/source_steps.js); adj_lev() is the synchronous form, which records it
+// as a gap.
 export function adj_lev(monster, state = game) {
+    return finish_steps(adj_lev_steps(monster, state));
+}
+
+export function* adj_lev_steps(monster, state = game) {
     if (monster.pmidx === PM_WIZARD_OF_YENDOR) {
         return Math.min(
             monster.mlevel + Math.trunc(state.mvitals[monster.pmidx].died ?? 0),
@@ -311,7 +320,7 @@ export function adj_lev(monster, state = game) {
     let adjusted = Math.trunc(monster.mlevel);
     if (adjusted > 49) return 50;
 
-    let difference = level_difficulty(state) - adjusted;
+    let difference = (yield* level_difficulty_steps(state)) - adjusted;
     if (difference < 0) --adjusted;
     else adjusted += Math.trunc(difference / 5);
 
@@ -767,8 +776,13 @@ function isRider(mndx) {
     return mndx === PM_DEATH || mndx === PM_PESTILENCE || mndx === PM_FAMINE;
 }
 
-// C ref: makemon.c newmonhp().
+// C ref: makemon.c newmonhp(). adj_lev()'s impossible() is a step;
+// newmonhp() is the synchronous form, which records it as a gap.
 export function newmonhp(mon, mndx, env = {}) {
+    return finish_steps(newmonhp_steps(mon, mndx, env));
+}
+
+export function* newmonhp_steps(mon, mndx, env = {}) {
     const { random, state } = hitPointEnv(env);
     if (!mon || typeof mon !== 'object')
         throw new TypeError('newmonhp requires a monster instance');
@@ -777,7 +791,7 @@ export function newmonhp(mon, mndx, env = {}) {
 
     const ptr = state.mons[mndx];
     let basehp = 0;
-    mon.m_lev = adj_lev(ptr, state);
+    mon.m_lev = yield* adj_lev_steps(ptr, state);
     if (ptr.mlet === S_GOLEM) {
         mon.mhpmax = mon.mhp = golemhp(mndx);
     } else if (isRider(mndx)) {
@@ -1116,7 +1130,13 @@ export function qt_montype(env = {}) {
 // Weighted reservoir sampling is intentional. It consumes one rn2 call for
 // every viable positive-weight candidate, in mons[] order; replacing it with
 // a final weighted draw would select the same distribution but the wrong RNG.
+// level_difficulty()'s impossible() is a step; rndmonst_adj() is the
+// synchronous form, which records it as a gap.
 export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
+    return finish_steps(rndmonst_adj_steps(minadj, maxadj, env));
+}
+
+export function* rndmonst_adj_steps(minadj = 0, maxadj = 0, env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
     if (state.u.uz.dnum === state.quest_dnum && random.rn2(7)) {
@@ -1124,7 +1144,7 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
         if (quest) return quest;
     }
 
-    const zlevel = level_difficulty(state);
+    const zlevel = yield* level_difficulty_steps(state);
     const minmlev = Math.trunc(zlevel / 6) + Math.trunc(minadj);
     const maxmlev = Math.trunc((zlevel + state.u.ulevel) / 2)
         + Math.trunc(maxadj);
@@ -1159,6 +1179,10 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
 
 export function rndmonst(env = {}) {
     return rndmonst_adj(0, 0, env);
+}
+
+export function* rndmonst_steps(env = {}) {
+    return yield* rndmonst_adj_steps(0, 0, env);
 }
 
 export function rndmonnum_adj(minadj = 0, maxadj = 0, env = {}) {

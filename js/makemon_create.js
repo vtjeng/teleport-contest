@@ -88,6 +88,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { note_unported } from './unported.js';
+import { finish_steps } from './source_steps.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
@@ -117,7 +118,7 @@ import { newsym } from './display.js';
 import {
     depth,
     In_hell,
-    level_difficulty,
+    level_difficulty_steps,
     mapseen_room,
     on_level,
 } from './dungeon.js';
@@ -133,11 +134,11 @@ import {
 import { new_light_source } from './light.js';
 import {
     newmcorpsenm,
-    newmonhp,
+    newmonhp_steps,
     peace_minded,
     propagate,
     rndmonnum,
-    rndmonst,
+    rndmonst_steps,
     set_malign,
 } from './makemon.js';
 import {
@@ -1730,8 +1731,9 @@ export function mkmonmoney(monster, amount, normalized) {
     return addFreshMonsterObject(monster, gold, normalized);
 }
 
-// C ref: makemon.c m_initinv().
-function m_initinv(monster, normalized) {
+// C ref: makemon.c m_initinv(). level_difficulty()'s impossible() is a step
+// (js/source_steps.js).
+function* m_initinv_steps(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (isRogueLevel(state)) return;
@@ -1921,7 +1923,7 @@ function m_initinv(monster, normalized) {
     } else if (ptr.mlet === S_LEPRECHAUN) {
         mkmonmoney(
             monster,
-            random.d(level_difficulty(state), 30),
+            random.d(yield* level_difficulty_steps(state), 30),
             normalized,
         );
     } else if (ptr.pmidx === PM_SHOPKEEPER) {
@@ -1997,7 +1999,10 @@ function m_initinv(monster, normalized) {
         && !random.rn2(5)) {
         mkmonmoney(
             monster,
-            random.d(level_difficulty(state), monster.minvent ? 5 : 10),
+            random.d(
+                yield* level_difficulty_steps(state),
+                monster.minvent ? 5 : 10,
+            ),
             normalized,
         );
     }
@@ -2168,7 +2173,7 @@ export async function newcham_revival(monster, target, rawEnv = {}) {
     return await newcham(monster, target, normalized);
 }
 
-function finishMonsterInventoryAndStrategy(
+function* finishMonsterInventoryAndStrategySteps(
     monster,
     ptr,
     allowMinvent,
@@ -2178,7 +2183,7 @@ function finishMonsterInventoryAndStrategy(
     const { random, state } = normalized;
     if (allowMinvent) {
         if (isArmed(ptr)) m_initweap(monster, normalized);
-        m_initinv(monster, normalized);
+        yield* m_initinv_steps(monster, normalized);
         m_dowear(monster, true, normalized);
 
         const saddleRoll = random.rn2(100);
@@ -2250,6 +2255,13 @@ async function makemonOccupationCheck(monster, normalized) {
 // set_malign(); makemon_runtime() and makemon_revival() run the rest.
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
+    return finish_steps(
+        makemon_steps(ptr, x, y, mmflags, normalized),
+        normalized.onImpossible,
+    );
+}
+
+function* makemon_steps(ptr, x, y, mmflags, normalized) {
     const { random, state } = normalized;
     requireCreationState(mmflags, state);
 
@@ -2304,7 +2316,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (anymon) {
         let attempts = 0;
         do {
-            ptr = rndmonst(normalized);
+            ptr = yield* rndmonst_steps(normalized);
             if (!ptr) return null;
         } while (++attempts <= 50
             && ((attempts === 1
@@ -2352,7 +2364,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         state.svq.quest_status ??= {};
         state.svq.quest_status.leader_m_id = monster.m_id;
     }
-    newmonhp(monster, mndx, normalized);
+    yield* newmonhp_steps(monster, mndx, normalized);
     initializeGender(monster, ptr, mmflags, random, state);
 
     // C ref: makemon.c:1281-1293.  Monsters created on certain levels
@@ -2464,142 +2476,139 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             initialShape = newcham_initial(monster, normalized);
         }
     }
-    const finishAfterInitial = (initialChanged) => {
-        if (initialChanged) allowMinvent = false;
-        if (naturalShape === NON_PM) {
-            if (mndx === PM_WIZARD_OF_YENDOR) {
-                monster.iswiz = true;
-                state.context.no_of_wizards
-                    = (state.context.no_of_wizards || 0) + 1;
-                if (state.context.no_of_wizards === 1
-                    && on_level(state.u?.uz, state.earth_level))
-                    mitem = SPE_DIG;
-            } else if (mndx === PM_GHOST) {
-                // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
-                // savebones() passes MM_NONAME and then christen_monst separately.
-                if (!(mmflags & MM_NONAME)) {
-                    christen_monst(monster, rndghostname(normalized), {
-                        state,
-                    });
-                }
-            } else if (mndx === PM_CROESUS) {
-                mitem = TWO_HANDED_SWORD;
-            } else if (ptr.msound === MS_NEMESIS) {
-                mitem = BELL_OF_OPENING;
-            } else if (mndx === PM_PESTILENCE) {
-                mitem = POT_SICKNESS;
-            }
-        }
-        if (mitem !== STRANGE_OBJECT && allowMinvent)
-            mongets(monster, mitem, normalized);
-        if (state.in_mklev
-            && mklevSleeperSpecies(ptr)
-            && !state.u.uhave.amulet
-            && random.rn2(5)) {
-            monster.msleeping = true;
-        }
-        if (byHero && !state.in_mklev) {
-            // C makemon.c calls newsym() and then set_apparxy() here, using the
-            // original byyou flag even after enexto() moved the monster away from
-            // the hero's square. Preserve both source calls so displaced and
-            // unseen heroes consume the same placement draw as C.
-            redrawSquare(monster.mx, monster.my, normalized);
-            set_apparxy(monster, normalized);
-        }
-        // C ref: makemon.c:1403-1404. A wielded beaked polearm pacifies ravens.
-        if (mndx === PM_RAVEN && state.uwep?.otyp === BEC_DE_CORBIN)
-            monster.mpeaceful = true;
-        // C ref: makemon.c:1405-1408.
-        if (mndx === PM_LONG_WORM) {
-            monster.wormno = get_wormno(state);
-            if (monster.wormno) {
-                initworm(monster, allowtail ? random.rn2(5) : 0, {
-                    ...normalized,
+    const initialChanged = yield initialShape;
+    if (initialChanged) allowMinvent = false;
+    if (naturalShape === NON_PM) {
+        if (mndx === PM_WIZARD_OF_YENDOR) {
+            monster.iswiz = true;
+            state.context.no_of_wizards
+                = (state.context.no_of_wizards || 0) + 1;
+            if (state.context.no_of_wizards === 1
+                && on_level(state.u?.uz, state.earth_level))
+                mitem = SPE_DIG;
+        } else if (mndx === PM_GHOST) {
+            // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
+            // savebones() passes MM_NONAME and then christen_monst separately.
+            if (!(mmflags & MM_NONAME)) {
+                christen_monst(monster, rndghostname(normalized), {
                     state,
                 });
-                if (count_wsegs(monster, state))
-                    place_worm_tail_randomly(monster, x, y, normalized);
             }
+        } else if (mndx === PM_CROESUS) {
+            mitem = TWO_HANDED_SWORD;
+        } else if (ptr.msound === MS_NEMESIS) {
+            mitem = BELL_OF_OPENING;
+        } else if (mndx === PM_PESTILENCE) {
+            mitem = POT_SICKNESS;
         }
-        // C ref: makemon.c:1410-1428. Aligned/high clerics made without a
-        // priest or minion extension, and one third of Angels without an
-        // explicit minion extension, become roamer minions before set_malign.
-        // Keep the ternary's Angel-only gate draw in source order.
-        const defaultMinionData = (
-            mndx === PM_ALIGNED_CLERIC || mndx === PM_HIGH_CLERIC
-        )
-            ? !(mmflags & (MM_EPRI | MM_EMIN))
-            : mndx === PM_ANGEL
-                && !(mmflags & MM_EMIN)
-                && !random.rn2(3);
-        if (defaultMinionData) {
-            newemin(monster);
-            const emin = EMIN(monster);
-            monster.isminion = true;
-            emin.min_align = random.rn2(3) - 1;
-            emin.renegade = (mmflags & MM_ANGRY)
-                ? true
-                : !random.rn2(3);
-            monster.mpeaceful = emin.min_align === state.u.ualign.type
-                ? !emin.renegade
-                : emin.renegade;
-        }
-        set_malign(monster, state);
-
-        // sp_lev.c fills special rooms after level_finalize_topology() clears
-        // in_mklev.  That call is still part of level creation, identified by
-        // fill_special_room()'s marker, so it must skip only makemon_runtime's
-        // continuation bookkeeping and still run C's post-creation tail.
-        if (!state.in_mklev && !normalized._specialRoomFill) {
-            // makemon_runtime() and makemon_revival() supply a fresh
-            // continuation for every runtime call.
-            Object.assign(normalized.runtimeContinuation, {
-                claimed: true,
-                monster,
-                ptr,
-                anymon,
-                allowMinvent,
+    }
+    if (mitem !== STRANGE_OBJECT && allowMinvent)
+        mongets(monster, mitem, normalized);
+    if (state.in_mklev
+        && mklevSleeperSpecies(ptr)
+        && !state.u.uhave.amulet
+        && random.rn2(5)) {
+        monster.msleeping = true;
+    }
+    if (byHero && !state.in_mklev) {
+        // C makemon.c calls newsym() and then set_apparxy() here, using the
+        // original byyou flag even after enexto() moved the monster away from
+        // the hero's square. Preserve both source calls so displaced and
+        // unseen heroes consume the same placement draw as C.
+        redrawSquare(monster.mx, monster.my, normalized);
+        set_apparxy(monster, normalized);
+    }
+    // C ref: makemon.c:1403-1404. A wielded beaked polearm pacifies ravens.
+    if (mndx === PM_RAVEN && state.uwep?.otyp === BEC_DE_CORBIN)
+        monster.mpeaceful = true;
+    // C ref: makemon.c:1405-1408.
+    if (mndx === PM_LONG_WORM) {
+        monster.wormno = get_wormno(state);
+        if (monster.wormno) {
+            initworm(monster, allowtail ? random.rn2(5) : 0, {
+                ...normalized,
+                state,
             });
-            return monster;
+            if (count_wsegs(monster, state))
+                place_worm_tail_randomly(monster, x, y, normalized);
         }
+    }
+    // C ref: makemon.c:1410-1428. Aligned/high clerics made without a
+    // priest or minion extension, and one third of Angels without an
+    // explicit minion extension, become roamer minions before set_malign.
+    // Keep the ternary's Angel-only gate draw in source order.
+    const defaultMinionData = (
+        mndx === PM_ALIGNED_CLERIC || mndx === PM_HIGH_CLERIC
+    )
+        ? !(mmflags & (MM_EPRI | MM_EMIN))
+        : mndx === PM_ANGEL
+            && !(mmflags & MM_EMIN)
+            && !random.rn2(3);
+    if (defaultMinionData) {
+        newemin(monster);
+        const emin = EMIN(monster);
+        monster.isminion = true;
+        emin.min_align = random.rn2(3) - 1;
+        emin.renegade = (mmflags & MM_ANGRY)
+            ? true
+            : !random.rn2(3);
+        monster.mpeaceful = emin.min_align === state.u.ualign.type
+            ? !emin.renegade
+            : emin.renegade;
+    }
+    set_malign(monster, state);
 
-        if (anymon && !(mmflags & MM_NOGRP)) {
-            if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
-                m_initgrp(monster, 3, mmflags, normalized);
-            } else if (ptr.geno & G_LGROUP) {
-                m_initgrp(
-                    monster,
-                    random.rn2(3) ? 10 : 3,
-                    mmflags,
-                    normalized,
-                );
-            }
-        }
-        finishMonsterInventoryAndStrategy(
+    // sp_lev.c fills special rooms after level_finalize_topology() clears
+    // in_mklev.  That call is still part of level creation, identified by
+    // fill_special_room()'s marker, so it must skip only makemon_runtime's
+    // continuation bookkeeping and still run C's post-creation tail.
+    if (!state.in_mklev && !normalized._specialRoomFill) {
+        // makemon_runtime() and makemon_revival() supply a fresh
+        // continuation for every runtime call.
+        Object.assign(normalized.runtimeContinuation, {
+            claimed: true,
             monster,
             ptr,
+            anymon,
             allowMinvent,
-            mmflags,
-            normalized,
-        );
-
-        if (!state.in_mklev && normalized._specialRoomFill) {
-            // C's post-finalization fill still redraws the created monster,
-            // emits its normal appearance line when visible, and checks the
-            // active occupation.  Use the same asynchronous owner as runtime
-            // creation, with default message sinks for the level builder.
-            return finishRuntimeCreationTail(monster, mmflags, {
-                ...normalized,
-                message: normalized.message ?? ttyPline,
-                norepMessage: normalized.norepMessage ?? ttyNorep,
-            }).then(() => monster);
-        }
-
+        });
         return monster;
-    };
-    if (initialShape && typeof initialShape.then === 'function')
-        return initialShape.then(finishAfterInitial);
-    return finishAfterInitial(initialShape);
+    }
+
+    if (anymon && !(mmflags & MM_NOGRP)) {
+        if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
+            m_initgrp(monster, 3, mmflags, normalized);
+        } else if (ptr.geno & G_LGROUP) {
+            m_initgrp(
+                monster,
+                random.rn2(3) ? 10 : 3,
+                mmflags,
+                normalized,
+            );
+        }
+    }
+    yield* finishMonsterInventoryAndStrategySteps(
+        monster,
+        ptr,
+        allowMinvent,
+        mmflags,
+        normalized,
+    );
+
+    if (!state.in_mklev && normalized._specialRoomFill) {
+        // C's post-finalization fill still redraws the created monster,
+        // emits its normal appearance line when visible, and checks the
+        // active occupation.  Use the same asynchronous owner as runtime
+        // creation, with default message sinks for the level builder.
+        yield finishRuntimeCreationTail(monster, mmflags, {
+            ...normalized,
+            message: normalized.message ?? ttyPline,
+            norepMessage: normalized.norepMessage ?? ttyNorep,
+        });
+        return monster;
+    }
+
+    return monster;
 }
 
 // Async adapter for makemon.c's runtime suffix.  The synchronous constructor
@@ -2650,13 +2659,13 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
             );
         }
     }
-    finishMonsterInventoryAndStrategy(
+    await finish_steps(finishMonsterInventoryAndStrategySteps(
         monster,
         selected,
         allowMinvent,
         mmflags,
         normalized,
-    );
+    ), normalized.onImpossible);
     await finishRuntimeCreationTail(monster, mmflags, normalized);
     return monster;
 }
@@ -2681,21 +2690,25 @@ export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
             || runtimeContinuation.monster !== monster) {
             throw new Error('revival continuation was not claimed');
         }
-        finishMonsterInventoryAndStrategy(
+        const afterInventory = () => {
+            redrawSquare(monster.mx, monster.my, normalized);
+            // Every revival caller passes MM_NOMSG, so makemon()'s appearance
+            // message never applies; its occupation check still does.
+            if (state.go?.occupation) {
+                return makemonOccupationCheck(monster, normalized)
+                    .then(() => monster);
+            }
+            return monster;
+        };
+        const stocked = finish_steps(finishMonsterInventoryAndStrategySteps(
             monster,
             runtimeContinuation.ptr,
             runtimeContinuation.allowMinvent,
             mmflags,
             normalized,
-        );
-        redrawSquare(monster.mx, monster.my, normalized);
-        // Every revival caller passes MM_NOMSG, so makemon()'s appearance
-        // message never applies; its occupation check still does.
-        if (state.go?.occupation) {
-            return makemonOccupationCheck(monster, normalized)
-                .then(() => monster);
-        }
-        return monster;
+        ), normalized.onImpossible);
+        return stocked && typeof stocked.then === 'function'
+            ? stocked.then(afterInventory) : afterInventory();
     };
     const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
     return maybeMonster && typeof maybeMonster.then === 'function'

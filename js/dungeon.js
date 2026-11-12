@@ -4,7 +4,7 @@
 
 import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
-import { note_unported } from './unported.js';
+import { finish_steps, ImpossibleCall } from './source_steps.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
@@ -781,11 +781,11 @@ export function avoid_ceiling(level, state = game) {
 }
 
 // C ref: dungeon.c builds_up() (1477-1493). Only a level of dungeon -1 (see
-// js/dungeon_table.js) reaches the impossible() arm. impossible() is async in
-// this port and builds_up() is not, so a caller that can wait passes
-// env.impossible, which receives the message to print once builds_up()
-// returns; for any other caller the message is recorded as a gap.
-export function builds_up(level, state = game, env = {}) {
+// js/dungeon_table.js) reaches the impossible() arm; it is yielded as an
+// ImpossibleCall (js/source_steps.js), so a caller that can wait prints it
+// where C does. builds_up() is the synchronous form, which records the print
+// as a gap; scripts/level-difficulty-steps.test.mjs lists its callers.
+export function* builds_up_steps(level, state = game) {
     const dungeon = dungeon_at(level.dnum, state);
     if (dungeon.num_dunlevs > 1)
         return dungeon.entry_lev === dungeon.num_dunlevs;
@@ -793,10 +793,13 @@ export function builds_up(level, state = game, env = {}) {
         (candidate) => on_level(candidate.end2, level),
     );
     if (branch) return Boolean(branch.end1_up);
-    const text = `builds_up: can't find branch for dungeon ${level.dnum}`;
-    if (env.impossible) env.impossible(text);
-    else note_unported('pline.c impossible');
+    yield new ImpossibleCall(
+        `builds_up: can't find branch for dungeon ${level.dnum}`);
     return false;
+}
+
+export function builds_up(level, state = game) {
+    return finish_steps(builds_up_steps(level, state));
 }
 
 // C ref: dungeon.c next_level() (1496-1514), the '>' command's descent.
@@ -888,7 +891,9 @@ export function deepest_lev_reached(state, noquest = false) {
 // C ref: dungeon.c level_difficulty(). This value feeds random monster and
 // object generation, so retain the source's endgame, Amulet, and upward-branch
 // adjustments rather than treating dungeon depth as interchangeable.
-export function level_difficulty(state = game) {
+// builds_up()'s impossible() is a step (see builds_up_steps() above);
+// level_difficulty() is the synchronous form, which records it as a gap.
+export function* level_difficulty_steps(state = game) {
     const level = state.u?.uz;
     if (!level || !dungeon_at(level.dnum, state))
         throw new Error('level_difficulty requires initialized dungeon state');
@@ -909,7 +914,7 @@ export function level_difficulty(state = game) {
         result = deepest_lev_reached(state);
     } else {
         result = depth(level, state);
-        if (builds_up(level, state)) {
+        if (yield* builds_up_steps(level, state)) {
             const dungeon = dungeon_at(level.dnum, state);
             result += 2 * (dungeon.entry_lev - level.dlevel + 1);
         }
@@ -917,6 +922,10 @@ export function level_difficulty(state = game) {
     if (EAggravate_monster(state.u))
         result = result > 25 ? 50 : result * 2;
     return result;
+}
+
+export function level_difficulty(state = game) {
+    return finish_steps(level_difficulty_steps(state));
 }
 
 // C ref: dungeon.c ledger_no() (1375-1379), which returns

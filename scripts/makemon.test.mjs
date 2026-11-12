@@ -150,12 +150,14 @@ test('adj_lev follows the level, player, special-monster and cap branches',
         const source = cFunction(MAKEMON_C, 'adj_lev', 'grow_up');
         assert.match(source,
             /if \(ptr == &mons\[PM_WIZARD_OF_YENDOR\]\)[\s\S]*?svm\.mvitals\[PM_WIZARD_OF_YENDOR\]\.died[\s\S]*?if \(\(tmp = ptr->mlevel\) > 49\)[\s\S]*?level_difficulty\(\) - tmp[\s\S]*?u\.ulevel - ptr->mlevel[\s\S]*?\(3 \* \(\(int\) ptr->mlevel\)\) \/ 2[\s\S]*?tmp > 0 \? tmp : 0/u);
-        const jsStart = MAKEMON_JS.indexOf('export function adj_lev(');
+        // adj_lev() runs adj_lev_steps(), which holds the body.
+        const jsStart = MAKEMON_JS.indexOf('export function* adj_lev_steps(');
         const jsEnd = MAKEMON_JS.indexOf('\n}', jsStart) + 2;
         assert.ok(jsStart >= 0 && jsEnd > jsStart);
         const jsBody = MAKEMON_JS.slice(jsStart, jsEnd);
         assert.match(jsBody, /if \(monster\.pmidx === PM_WIZARD_OF_YENDOR\)/u);
-        assert.match(jsBody, /level_difficulty\(state\) - adjusted/u);
+        assert.match(jsBody,
+            /\(yield\* level_difficulty_steps\(state\)\) - adjusted/u);
         assert.match(jsBody,
             /Math\.trunc\(state\.u\.ulevel\) - monster\.mlevel/u);
 

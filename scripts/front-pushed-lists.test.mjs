@@ -111,7 +111,7 @@ test('the scan finds a port that appends where C pushes onto the front', () => {
         '    monster.nmon = state.level.monlist;\n    state.level.monlist = monster;',
         '    let tail = state.level.monlist;\n    while (tail?.nmon) tail = tail.nmon;\n'
         + '    if (tail) tail.nmon = monster; else state.level.monlist = monster;')),
-    ['makemon_create.js makemon: does not push onto the front of its list as C makemon() does']);
+    ['makemon_create.js makemon_steps: does not push onto the front of its list as C makemon() does']);
     // make_engr_at() leaving the new engraving off the chain.
     assert.deepEqual(frontPushFindings(['make_engr_at'], altered('engrave.js',
         'nxt_engr: state.head_engr ?? null,', 'nxt_engr: null,')),

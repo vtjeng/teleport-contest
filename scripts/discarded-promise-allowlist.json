@@ -376,11 +376,11 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | m_initinv | add_to_container": {
+    "js/makemon_create.js | m_initinv_steps | add_to_container": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | m_initinv | curse": {
+    "js/makemon_create.js | m_initinv_steps | curse": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -388,15 +388,15 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | makemon | hideunder": {
+    "js/makemon_create.js | makemon_steps | hideunder": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | makemon | mkobj_at": {
+    "js/makemon_create.js | makemon_steps | mkobj_at": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/makemon_create.js | makemon | mon_adjust_speed": {
+    "js/makemon_create.js | makemon_steps | mon_adjust_speed": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -583,6 +583,10 @@
     "js/mktrap.js | mktrap_victim | place_object": {
       "count": 3,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | apply_newcham_steps | newmonhp": {
+      "count": 1,
+      "reason": "newmonhp() is the synchronous form of newmonhp_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so it returns synchronously. scripts/level-difficulty-steps.test.mjs lists this call."
     },
     "js/mon.js | apply_newcham_steps | obj_extract_self": {
       "count": 1,

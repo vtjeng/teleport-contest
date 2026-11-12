@@ -62,6 +62,9 @@ export const PORT_NAMES = {
     // invent.c addinv_core0()'s insertion (1116-1126) is invent.js
     // insertInventoryObject(), which both of the port's addinv cores call.
     addinv_core0: 'insertInventoryObject',
+    // makemon.c makemon()'s body is makemon_create.js makemon_steps(), which
+    // makemon() runs (js/source_steps.js).
+    makemon: 'makemon_steps',
 };
 
 // C functions whose port does not build the scanned list by pushing onto its
