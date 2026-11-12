@@ -498,6 +498,7 @@ import { coreRandom } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
+import { impossible_printer } from './pline.js';
 import { block_point, cansee, couldsee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
 import {
@@ -2623,11 +2624,14 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         throw new TypeError('makemon_runtime requires message operations');
     }
     const runtimeContinuation = { claimed: false };
+    // This caller waits, so level_difficulty()'s impossible() for dungeon -1
+    // prints where C prints it (js/source_steps.js).
     const normalized = creationEnv({
         ...env,
         message,
         norepMessage,
         runtimeContinuation,
+        onImpossible: impossible_printer(env.state ?? game),
     });
     const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
     const monster = maybeMonster && typeof maybeMonster.then === 'function'
@@ -2678,11 +2682,14 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
 export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const runtimeContinuation = { claimed: false };
+    // Every caller accepts a promise, so level_difficulty()'s impossible()
+    // for dungeon -1 prints where C prints it (js/source_steps.js).
     const normalized = creationEnv({
         ...rawEnv,
         state,
         revival: true,
         runtimeContinuation,
+        onImpossible: impossible_printer(state),
     });
     const finish = (monster) => {
         if (!monster) return null;

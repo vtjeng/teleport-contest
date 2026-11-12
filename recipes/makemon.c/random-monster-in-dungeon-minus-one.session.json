@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent makemon.c witness for rndmonst_adj() and newmonhp()->adj_lev() on a dungeon -1 level. A Priest improvises once on a wished wooden flute (a one-note tune), wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it, arriving on a level of dungeon -1 (ledger_start overlays svc.context.jingle). Three potions of gain level raise the hero to XL4, so that rndmonst_adj()'s (level_difficulty() + u.ulevel) / 2 admits monsters at that level's difficulty of -2. Searching there, moveloop's random makemon() reaches level_difficulty(), whose builds_up() finds no branch for dungeon -1 and calls impossible(): in rndmonst_adj() after makemon_rnd_goodpos() and before the reservoir draws, then in newmonhp()'s adj_lev() before the hit-point roll, each with three --More-- prompts. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7310944,
+      "datetime": "20480915141500",
+      "nethackrc": "OPTIONS=name:Osric,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naiyh\u0017magic portal\nlh       \u00173 blessed potions of gain level\nqj qj qj 200s 200s            s"
+    }
+  ]
+}
