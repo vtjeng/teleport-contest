@@ -370,10 +370,10 @@ function clear_status_window(state) {
         for (let row = firstRow; row < display.rows; ++row)
             display.clearRow(row);
         // cl_end() also erases map glyphs that an unclipped map printed on a
-        // status row (display.js _statusMapOverlay()); they come back only
+        // status row (display.js _screenOverlay()); they come back only
         // when the map cell is printed again.
-        for (const [key, cell] of state._statusMapOverlay ?? [])
-            if (cell.row >= firstRow) state._statusMapOverlay.delete(key);
+        for (const [key, cell] of state._screenOverlay ?? [])
+            if (cell.row >= firstRow) state._screenOverlay.delete(key);
     }
     state.disp ??= {};
     state.disp.botlx = true;

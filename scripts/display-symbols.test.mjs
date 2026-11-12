@@ -10771,7 +10771,7 @@ test('a status field that shrinks redraws over a map glyph on its columns',
     assert.ok(column > 0, 'the first status row shows St:18/01');
     // A glyph printed over the 'S' of the field, as tty_print_glyph()
     // does for map row 20.
-    game._statusMapOverlay = new Map([[`21:${column}`, {
+    game._screenOverlay = new Map([[`21:${column}`, {
         column, row: 21, ch: '#', color: NO_COLOR, attr: 0,
     }]]);
     game.u.acurr.a[0] = 18;

@@ -6901,10 +6901,10 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
         const overStatus = screenRow >= firstStatusRow;
-        if (overStatus && game._statusMapOverlay) {
-            for (const [key, cell] of game._statusMapOverlay)
+        if (overStatus && game._screenOverlay) {
+            for (const [key, cell] of game._screenOverlay)
                 if (cell.row === screenRow && cell.column >= xmin - 1)
-                    game._statusMapOverlay.delete(key);
+                    game._screenOverlay.delete(key);
         }
         const mapRow = screenRow - mapOffy;
         if (mapRow < 0 || mapRow >= viewport.height) continue;
@@ -6946,7 +6946,7 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
                 : presentation.color ?? NO_COLOR;
             display.setCell(x - 1, screenRow, ch, color, attr);
             if (overStatus) {
-                recordStatusOverlay(x - 1, screenRow, ch, color, attr);
+                recordScreenOverlay(x - 1, screenRow, ch, color, attr);
             }
         }
     }
@@ -6993,7 +6993,7 @@ function writeStatusRows(
         }
     }
     game._statusOverlayBasis = { layouts, styles };
-    _applyStatusOverlay(display);
+    _applyScreenOverlay(display);
 }
 
 // Map glyphs printed over the status window.
@@ -7006,19 +7006,19 @@ function writeStatusRows(
 // redraw only when its own text, colour, attribute or position changes (or
 // every field, on a forced update), and tty_putstatusfield() then writes the
 // whole field. render_status() also erases the rest of a row that got
-// shorter. game._statusMapOverlay holds those glyphs by terminal cell;
+// shorter. game._screenOverlay holds those glyphs by terminal cell;
 // cls() discards it with the rest of the screen.
-function _statusMapOverlay() {
-    game._statusMapOverlay ??= new Map();
-    return game._statusMapOverlay;
+function _screenOverlay() {
+    game._screenOverlay ??= new Map();
+    return game._screenOverlay;
 }
 
-function recordStatusOverlay(column, row, ch, color, attr) {
-    _statusMapOverlay().set(`${row}:${column}`, { column, row, ch, color, attr });
+function recordScreenOverlay(column, row, ch, color, attr) {
+    _screenOverlay().set(`${row}:${column}`, { column, row, ch, color, attr });
 }
 
-function _applyStatusOverlay(display) {
-    const overlay = game._statusMapOverlay;
+function _applyScreenOverlay(display) {
+    const overlay = game._screenOverlay;
     if (!overlay?.size) return;
     for (const { column, row, ch, color, attr } of overlay.values())
         display.setCell(column, row, ch, color, attr);
@@ -7050,7 +7050,7 @@ function _clearRedrawnStatusOverlay(
     screenRow, rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
     titleDirty = false, columns = 80,
 ) {
-    const overlay = game._statusMapOverlay;
+    const overlay = game._screenOverlay;
     if (!overlay?.size) return;
     const newText = newLayout?.text ?? '';
     const oldText = oldLayout?.text ?? '';
@@ -7246,7 +7246,7 @@ function _buildScreenOutput(cursorOnHero = true) {
             const y = viewport.top + offset;
             // An unclipped map row that lands on the status window is
             // printed there only when its glyph changes; see
-            // _statusMapOverlay().
+            // _screenOverlay().
             const overStatus = offset + 1 >= firstStatusRow;
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
@@ -7273,7 +7273,7 @@ function _buildScreenOutput(cursorOnHero = true) {
                 if (!ch) continue;
                 if (overStatus) printedOverStatus.add(`${offset + 1}:${x - 1}`);
                 if (overStatus) {
-                    recordStatusOverlay(
+                    recordScreenOverlay(
                         x - 1,
                         offset + 1,
                         ch,
@@ -7497,7 +7497,7 @@ export async function cls() {
             }
         }
         game._pending_message = '';
-        game._statusMapOverlay = null;
+        game._screenOverlay = null;
     } finally {
         game._inCls = false;
     }
