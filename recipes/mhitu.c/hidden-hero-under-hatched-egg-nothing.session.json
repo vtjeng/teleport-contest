@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mhitu.c mattacku() surface-hider branch with no object at the hero's square: the pit-viper hero hides under its own snake egg, the egg hatches (timeout.c hatch_egg() does not unhide the hero), and an adjacent hostile hatchling's attack reaches impossible(\"hiding under nothing?\").",
+  "segments": [
+    {
+      "seed": 4242003,
+      "datetime": "20270318143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017snake egg\n#polyself\npit viper\n\n\n\n\n#wizintrinsic\n>>500u\n\nkdf#monster\n200s10s50s50s50s\nFb#monster\n50s50s50s50s"
+    }
+  ]
+}

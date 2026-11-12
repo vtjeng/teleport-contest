@@ -301,7 +301,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { pline_mon, verbalize, youHear, youFeel } from './pline.js';
+import { impossible, pline_mon, verbalize, youHear, youFeel } from './pline.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -1670,9 +1670,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         if (obj) obj.spe = saveSpe;
                     }
                 } else {
-                    if (typeof env.impossible === 'function')
-                        env.impossible('hiding under nothing?');
-                    else note_unported('pline.c impossible');
+                    await impossible('hiding under nothing?', state);
                 }
             }
             redraw(u.ux, u.uy, state);
