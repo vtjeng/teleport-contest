@@ -408,16 +408,6 @@ import {
     Hallucination, Levitation, Maybe_Half_Phys, Wounded_legs,
 } from './youprop.js';
 
-// A fail-closed boundary for goto_level() branches outside the ordinary
-// staircase descent and positive-decimal level teleport ports.
-export class UnsupportedLevelChangeError extends Error {
-    constructor(reason) {
-        super(`unsupported level change: ${reason}`);
-        this.name = 'UnsupportedLevelChangeError';
-        this.reason = reason;
-    }
-}
-
 // C ref: do.c revive_corpse() (2111-2250). revive() deletes the corpse on
 // success, so its location, carrier, container, and name are saved first.
 export async function revive_corpse(corpse, state = game, rawEnv = {}) {

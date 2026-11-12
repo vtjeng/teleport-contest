@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DISPATCHED_COMMANDS, failClosedCommandRefusals,
+    DISPATCHED_COMMANDS,
 } from '../js/cmd.js';
 import {
     commandForKey, createCommandBindingModel,
@@ -31,7 +31,6 @@ import {
 import {
     deferred_goto,
     maybe_lvltport_feedback,
-    UnsupportedLevelChangeError,
 } from '../js/do.js';
 import {
     CMD_M_PREFIX, IFBURIED, WIZMODECMD, extcmdlist,
@@ -186,16 +185,6 @@ test('the command table binds C(v) to the row wiz_level_tele() serves', () => {
     // admitParsedCommand() refuses every command outside this list before any
     // handler runs, so the key reaches rhack()'s arm only once it is here.
     assert.ok(DISPATCHED_COMMANDS.includes('wizlevelport'));
-});
-
-test('the level-teleport refusal converts at the command seam', () => {
-    // js/cmd.js runLevelTeleCommand() wraps wiz_level_tele() in
-    // failClosedCommand(), and js/jsmain.js breaks a segment only for the
-    // three boundary classes, so a class level_tele() can raise that the
-    // wrapper does not list escapes as a hard failure and discards the
-    // segment's matching prefix instead of stopping on it. Every unported
-    // answer reaches this one after getlin() has echoed the whole line.
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedLevelChangeError));
 });
 
 test('C(v) paints the level-teleport prompt', async () => {

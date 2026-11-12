@@ -69,6 +69,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // steal.c mpickobj()'s "%s out." for a synchronous caller, which no
     // engulfer holding the hero reaches; mpickobjRuntime() prints it
     'UnsupportedMonsterPickupOperationError',
+    // do.c goto_level(): no throw site was left once its branches were
+    // ported
+    'UnsupportedLevelChangeError',
 ];
 
 function stripComments(source) {
