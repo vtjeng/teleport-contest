@@ -255,8 +255,13 @@ function unplacebc_core(state) {
         return;
     }
 
-    if (!carried(ball) && ball.where === OBJ_FLOOR) {
-        remove_object(ball, { state });
+    if (!carried(ball)) {
+        // obj_extract_self() does nothing to a free ball, but C still
+        // redraws its last square: after makemap_prepost()'s second
+        // unplacebc(), that is the ball's square on the replaced level,
+        // whose remembered room floor newsym() may darken.
+        if (ball.where === OBJ_FLOOR)
+            remove_object(ball, { state });
         if (Blind(state.u) && (state.u.bc_felt & BC_BALL))
             state.level.at(ball.ox, ball.oy).remembered_glyph = rememberedGlyph(state.u.bglyph);
         maybe_unhide_at(ball.ox, ball.oy, state);

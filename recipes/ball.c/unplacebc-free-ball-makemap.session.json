@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "ball.c unplacebc_core() with a free ball: cmd.c makemap_prepost() unplaces the ball and chain before #wizmakemap and again after it, and the second call, finding the ball neither carried nor on the floor, still calls newsym() at its last square. On a remade (premapped) Sokoban level that square is remembered room floor out of sight, so with dark_room it becomes \"dark part of a room\", which a farlook shows. A debug Knight wishes for and reads a cursed scroll of punishment, level-teleports to the first Sokoban level, walks three squares, remakes the level and farlooks at the ball's old square. Seed, date and character chosen independently.",
+  "segments": [
+    {
+      "seed": 57720419,
+      "datetime": "20620214082530",
+      "nethackrc": "OPTIONS=name:Chained,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  \u0017cursed scroll of punishment\n ri  #wizlevelport\n?\n>E   hhh#wizmakemap\n   ;  lllljjjjjj.   "
+    }
+  ]
+}
