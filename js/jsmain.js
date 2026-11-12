@@ -279,8 +279,8 @@ export class NethackGame {
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
         // The input boundaries the recorder keeps; playSegment() sets it from
-        // moves (recordedBoundaryLimit()). _rngSlices has one entry per
-        // captured boundary.
+        // moves (recordedBoundaryLimit()) while it replays them.
+        // _rngSlices has one entry per captured boundary.
         this._boundaryLimit = Infinity;
         // rng.js keeps one RNG log per process, and start() replaces it with
         // a fresh one, so until then the process log still holds the previous
@@ -995,7 +995,20 @@ function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
     });
 }
 
-async function playSegment(nhGame, input, { onBoundary = null, inputBytes = null } = {}) {
+// The recorder keeps a limited number of boundaries only while it replays
+// moves; a caller that drives the returned game further, as unit tests do,
+// gets every later boundary captured.
+async function playSegment(nhGame, input, options = {}) {
+    if (!options.inputBytes)
+        nhGame._boundaryLimit = recordedBoundaryLimit(input.moves || '');
+    try {
+        await replayInputBytes(nhGame, input, options);
+    } finally {
+        nhGame._boundaryLimit = Infinity;
+    }
+}
+
+async function replayInputBytes(nhGame, input, { onBoundary = null, inputBytes = null } = {}) {
     const moves = input.moves || '';
 
     const display = new GameDisplay(null);
@@ -1003,7 +1016,6 @@ async function playSegment(nhGame, input, { onBoundary = null, inputBytes = null
     nhGame._pendingDisplay = display;
 
     const keys = inputBytes ?? recordedInputBytes(moves);
-    if (!inputBytes) nhGame._boundaryLimit = recordedBoundaryLimit(moves);
     for (const byte of keys)
         display.pushKey(byte);
 
