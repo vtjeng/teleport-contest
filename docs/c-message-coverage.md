@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3990 | 78 |
+| gameplay | 4068 | 3992 | 76 |
 | diagnostic | 723 | 205 | 518 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4198 | 713 |
+| total | 4911 | 4200 | 711 |
 
 ## Missing by C file
 
@@ -41,7 +41,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/ball.c | yes | 0 | 10 | 0 |
 | src/bones.c | yes | 1 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
-| src/cfgfiles.c | yes | 6 | 0 | 2 |
+| src/cfgfiles.c | yes | 5 | 0 | 2 |
 | src/cmd.c | yes | 0 | 3 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
 | src/decl.c | no | 1 | 0 | 0 |
@@ -60,7 +60,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/end.c | yes | 0 | 4 | 1 |
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
-| src/files.c | yes | 17 | 3 | 1 |
+| src/files.c | yes | 16 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
@@ -165,7 +165,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 206 pline: `An error occurred, wrote only partial data (`
 
 - `fopen_config_file()`
-  - 261 raw_printf: `Access to`
   - 271 raw_printf: `Couldn't open requested config file`
   - 365 raw_printf: `Couldn't open default config file`
 
@@ -208,7 +207,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2428 raw_printf: `Can't remove fcntl lock on`
 
 - `fopen_wizkit_file()`
-  - 2487 raw_printf: `Access to`
   - 2497 raw_printf: `Couldn't open requested wizkit file`
   - 2526 raw_printf: `Couldn't open default gw.wizkit file`
 
