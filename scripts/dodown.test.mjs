@@ -63,6 +63,7 @@ import {
     loadDescendRefusalRecipe,
 } from './run-descend-refusal.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
 const JS_SOURCE = readFileSync('js/do.js', 'utf8');
@@ -442,9 +443,7 @@ test('goto_level refreshes and preserves the departing level overview',
 
     // Model a remembered feature learned since the prior recalculation. C's
     // source-ordered recalc_mapseen() must count it before savelev().
-    state.level.lastseentyp ??= [];
-    state.level.lastseentyp[1] ??= [];
-    state.level.lastseentyp[1][1] = FOUNTAIN;
+    lastseentyp_grid(state)[1][1] = FOUNTAIN;
     mapseen.feat.nfount = 0;
 
     state.nhDisplay.pushKey(' '.charCodeAt(0));
@@ -452,13 +451,13 @@ test('goto_level refreshes and preserves the departing level overview',
 
     assert.equal(mapseen.feat.nfount, 1);
     assert.equal(
-        state._savedLevels[departedLedger].level.lastseentyp[1][1],
+        state._savedLevels[departedLedger].lastseentyp[1][1],
         FOUNTAIN,
         'initializing destination mapseen must not erase saved source memory',
     );
     assert.notEqual(
-        state.level.lastseentyp,
-        state._savedLevels[departedLedger].level.lastseentyp,
+        lastseentyp_grid(state),
+        state._savedLevels[departedLedger].lastseentyp,
         'the destination and saved source own separate remembered grids',
     );
 });

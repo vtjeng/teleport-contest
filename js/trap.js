@@ -208,6 +208,7 @@ import {
     surface,
     find_hell,
     update_lastseentyp,
+    lastseentyp_grid,
 } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
@@ -1287,7 +1288,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
     update_lastseentyp(u.ux, u.uy, state, {
         canSeeMonster: (monster) => canseemon(monster, state),
     });
-    state.iflags.prev_decor = state.level.lastseentyp[u.ux][u.uy];
+    state.iflags.prev_decor = lastseentyp_grid(state)[u.ux][u.uy];
 }
 
 // C ref: trap.c rnd_nextto_goodpos(). The helper shuffles all eight adjacent

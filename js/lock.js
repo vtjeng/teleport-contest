@@ -69,7 +69,7 @@ import {
     newsym,
     same_remembered_glyph,
 } from './display.js';
-import { update_mapseen_for } from './dungeon.js';
+import { lastseentyp_grid, update_mapseen_for } from './dungeon.js';
 import { can_reach_floor, cant_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -865,7 +865,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             const oldlastseentyp = update_mapseen_for(cc.x, cc.y, state);
             feel_location(cc.x, cc.y, state);
             if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
-                || state.level.lastseentyp[cc.x][cc.y] !== oldlastseentyp)
+                || lastseentyp_grid(state)[cc.x][cc.y] !== oldlastseentyp)
                 res = PICKLOCK_LEARNED_SOMETHING;
             const blind = Blind(state.u);
             if (is_drawbridge_wall(cc.x, cc.y, state) >= 0)
@@ -1140,7 +1140,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
         const oldlastseentyp = update_mapseen_for(cc.x, cc.y, state);
         newsym(cc.x, cc.y, state);
         if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
-            || state.level.lastseentyp[cc.x][cc.y] !== oldlastseentyp)
+            || lastseentyp_grid(state)[cc.x][cc.y] !== oldlastseentyp)
             res = ECMD_TIME;
     }
 
@@ -1562,7 +1562,7 @@ export async function doclose(state = game) {
 
         feel_location(x, y, state);
         if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
-            || state.level.lastseentyp[x][y] !== oldlastseentyp)
+            || lastseentyp_grid(state)[x][y] !== oldlastseentyp)
             res = ECMD_TIME; /* learned something */
     }
 

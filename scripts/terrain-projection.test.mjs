@@ -9,6 +9,7 @@ import { GLYPH_MON_MALE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js
 import { DIAMOND } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { S_cloud, S_corr, S_darkroom, S_fountain, S_litcorr, S_room, S_stone } from '../js/symbols.js';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const C = readFileSync(new URL('../nethack-c/upstream/src/detect.c', import.meta.url), 'utf8');
 const JS_SOURCE = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
@@ -20,10 +21,11 @@ function fixture() {
         remembered_glyph: { glyph: cmap_to_glyph(S_room) },
         disp_glyph: { glyph: objnum_to_glyph(DIAMOND) } };
     const state = { u: { ux: 10, uy: 10, uinwater: 0 },
+        lastseentyp: { 10: { 10: ROOM } },
         level: { flags: { hero_memory: true }, regions: [],
             monsters: Array.from({ length: COLNO }, () => Array(ROWNO).fill(null)),
             traps: [{ tx: 10, ty: 10, ttyp: ANTI_MAGIC, tseen: true }],
-            lastseentyp: { 10: { 10: ROOM } }, at: () => cell } };
+            at: () => cell } };
     return { cell, state, glyph: (subset, swallowed = false) =>
         reveal_terrain_getglyph(10, 10, swallowed,
             cmap_to_glyph(S_stone), subset, state) };
@@ -74,7 +76,7 @@ test('visible region precedence matches C trap and unexplored arms', () => {
 });
 test('remembered furniture mimic takes precedence over current terrain', () => {
     const { cell, state, glyph } = fixture();
-    state.level.lastseentyp[10][10] = POOL;
+    lastseentyp_grid(state)[10][10] = POOL;
     state.level.monsters[10][10] = { m_ap_type: M_AP_FURNITURE,
         mappearance: S_fountain, mhp: 1 };
     assert.equal(glyph(TER_MAP), cmap_to_glyph(S_fountain));
@@ -93,7 +95,7 @@ test('without hero memory only in-sight topology replaces the object overlay', (
 test('remembered topology copy restores the live cell after projection', () => {
     const { cell, state, glyph } = fixture();
     // POOL is remembered beneath an object, while the actual square is ROOM.
-    state.level.lastseentyp[10][10] = POOL;
+    lastseentyp_grid(state)[10][10] = POOL;
     const saved = structuredClone(cell);
     assert.notEqual(glyph(TER_MAP), cmap_to_glyph(S_room));
     assert.deepEqual(cell, saved);

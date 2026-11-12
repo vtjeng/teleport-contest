@@ -35,6 +35,7 @@ import {
     str2role,
 } from '../js/roles.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 function initializedState() {
     const state = resetGame();
@@ -70,7 +71,7 @@ test('u_on_newpos records the first position and terrain on a new level', () => 
     assert.deepEqual([state.u.ux0, state.u.uy0], [14, 8]);
     assert.equal(state.u.uundetected, false);
     assert.deepEqual([steed.mx, steed.my], [14, 8]);
-    assert.equal(state.level.lastseentyp[14][8], STAIRS);
+    assert.equal(lastseentyp_grid(state)[14][8], STAIRS);
     assert.equal(state.iflags.terrain_typ, MAX_TYPE);
 });
 
@@ -85,7 +86,7 @@ test('u_on_newpos keeps the prior position bookkeeping on the same level', () =>
 
     assert.deepEqual([state.u.ux, state.u.uy], [14, 8]);
     assert.deepEqual([state.u.ux0, state.u.uy0], [4, 3]);
-    assert.equal(state.level.lastseentyp, undefined);
+    assert.equal(state.lastseentyp, undefined);
     assert.equal(state.iflags.terrain_typ, 17);
 });
 

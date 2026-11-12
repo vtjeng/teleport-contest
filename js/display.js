@@ -43,6 +43,7 @@ import { acurr } from './attrib.js';
 import { near_capacity, nh_delay_output } from './hack.js';
 import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
+    lastseentyp_grid,
 } from './dungeon.js';
 import { money_cnt, sobj_at } from './invent.js';
 import {
@@ -1447,11 +1448,7 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
                 = remembered_glyph_from_presentation(glyph);
             if (!sensed) {
                 show_glyph_cell(x, y, glyph);
-                state.level.lastseentyp ??= Array.from(
-                    { length: COLNO },
-                    () => new Array(ROWNO).fill(STONE),
-                );
-                state.level.lastseentyp[x][y]
+                lastseentyp_grid(state)[x][y]
                     = cmap_to_type(monster.mappearance);
             }
             break;
@@ -4827,7 +4824,7 @@ const TERRAIN_DESCRIPTIONS = Object.freeze([
 export function classify_terrain(state = game) {
     const u = state.u;
     const loc = state.level?.at(u?.ux, u?.uy);
-    let typ = state.level?.lastseentyp?.[u?.ux]?.[u?.uy] ?? loc?.typ ?? STONE;
+    let typ = lastseentyp_grid(state)[u?.ux]?.[u?.uy] ?? loc?.typ ?? STONE;
 
     if (u?.uinwater) {
         typ = 44; // xSUBMERGED

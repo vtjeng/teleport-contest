@@ -104,6 +104,7 @@ import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
 } from './run-level-teleport-arrival.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 // The code under test takes a complete random set; these fixtures script
 // only its rn2().
@@ -586,7 +587,7 @@ test('live placement preflights before changing any position owner', async () =>
     const before = structuredClone({
         hero: state.u,
         iflags: state.iflags,
-        lastSeen: state.level.lastseentyp,
+        lastSeen: lastseentyp_grid(state),
     });
     const refusal = new Error('position refused');
 
@@ -603,7 +604,7 @@ test('live placement preflights before changing any position owner', async () =>
     assert.deepEqual({
         hero: state.u,
         iflags: state.iflags,
-        lastSeen: state.level.lastseentyp,
+        lastSeen: lastseentyp_grid(state),
     }, before);
 });
 

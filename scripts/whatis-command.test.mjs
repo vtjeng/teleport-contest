@@ -174,6 +174,7 @@ import {
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import { howmonseen } from '../js/vision.js';
 import { worm_known } from '../js/worm.js';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 test('getpos valid selection follows the C x-then-y traversal', async () => {
     // getpos.c:102-115 visits x from 1 through COLNO - 1, with y from 0
@@ -1426,7 +1427,7 @@ test('engraving lists use remembered grave terrain for obscured headstones',
         // SVALL is 0xFF: C admits an engraving after any nonzero seenv bit;
         // the full mask avoids making this test about one viewing direction.
         location.seenv = 0xFF;
-        game.level.lastseentyp[x][y] = GRAVE;
+        lastseentyp_grid(game)[x][y] = GRAVE;
         game.head_engr = {
             engr_x: x,
             engr_y: y,

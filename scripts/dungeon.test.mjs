@@ -105,6 +105,7 @@ import {
     parseDungeonSource,
     renderDungeonData,
 } from './generate-dungeon-data.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 // recalc_mapseen() asks at_dgn_entrance("The Quest") on every call, and C's
 // dungeon_branch() panics when no branch leads there. A constructed level
@@ -294,7 +295,7 @@ test('update_lastseentyp remembers a raised drawbridge underlay', () => {
             },
         };
         const typ = update_lastseentyp(x, y, state);
-        assert.equal(state.level.lastseentyp[x][y], typ);
+        assert.equal(lastseentyp_grid(state)[x][y], typ);
         return typ;
     };
 
@@ -331,9 +332,9 @@ test('update_mapseen_for reads one square and refreshes the hero\'s own', () => 
 
     // Nothing has been seen yet, so C's zeroed svl.lastseentyp reads STONE.
     assert.equal(update_mapseen_for(5, 4, state), STONE);
-    assert.equal(state.level.lastseentyp[4][4], ROOM);
+    assert.equal(lastseentyp_grid(state)[4][4], ROOM);
     // The read square itself is untouched: only the hero's own is refreshed.
-    assert.equal(state.level.lastseentyp[5][4], STONE);
+    assert.equal(lastseentyp_grid(state)[5][4], STONE);
 
     // Once the target has been seen, the value read back is the one already
     // recorded there, which is what lock.c:580 compares against afterwards.
@@ -344,16 +345,18 @@ test('update_mapseen_for reads one square and refreshes the hero\'s own', () => 
     state.level.at(4, 4).typ = CORR;
     state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     update_mapseen_for(5, 4, state);
-    assert.equal(state.level.lastseentyp[4][4], ROOM);
+    assert.equal(lastseentyp_grid(state)[4][4], ROOM);
     state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     update_mapseen_for(5, 4, state);
-    assert.equal(state.level.lastseentyp[4][4], CORR);
+    assert.equal(lastseentyp_grid(state)[4][4], CORR);
 });
 
-test('init_mapseen sorts records without erasing the departing map', () => {
+test('init_mapseen sorts records and clears the remembered-terrain grid', () => {
     const state = resetGame();
     state.level = new GameMap();
-    state.level.lastseentyp = [[FOUNTAIN]];
+    // A grid savelev() has already copied for the departing level.
+    const departing = [[FOUNTAIN]];
+    state.lastseentyp = departing;
 
     init_mapseen({ dnum: 1, dlevel: 2 }, state);
     init_mapseen({ dnum: 0, dlevel: 3 }, state);
@@ -367,9 +370,11 @@ test('init_mapseen sorts records without erasing the departing map', () => {
             { dnum: 1, dlevel: 2 },
         ],
     );
-    assert.equal(state.level.lastseentyp[0][0], FOUNTAIN);
+    // dungeon.c:2848-2850 memsets svl.lastseentyp; the copy is untouched.
+    assert.equal(lastseentyp_grid(state)[0][0], STONE);
+    assert.equal(departing[0][0], FOUNTAIN);
     assert.equal(new GameMap().lastseentyp, undefined,
-        'a separately allocated destination owns its clear remembered grid');
+        'the grid is not part of the level structure');
 });
 
 test('rm_mapseen removes the first node for its source ledger number', () => {
@@ -446,10 +451,10 @@ test('recalc_mapseen takes altar alignment from mimics and Astral sight', () => 
     };
     init_mapseen(state.u.uz, state);
     installQuestEntrance(state);
-    state.level.lastseentyp = Array.from(
+    state.lastseentyp = Array.from(
         { length: 80 }, () => new Array(21).fill(STONE),
     );
-    state.level.lastseentyp[5][5] = ALTAR;
+    lastseentyp_grid(state)[5][5] = ALTAR;
     state.level.at(5, 5).typ = ROOM;
     state.level.at(5, 5).seenv = SVALL;
     state.level.monsters[5][5] = {
@@ -483,7 +488,7 @@ test('recalc_mapseen rebuilds summaries for every seen room family', () => {
     };
     const mapseen = init_mapseen(state.u.uz, state);
     installQuestEntrance(state);
-    state.level.lastseentyp = Array.from(
+    state.lastseentyp = Array.from(
         { length: 80 }, () => new Array(21).fill(STONE),
     );
     state.level.rooms = [
@@ -540,12 +545,12 @@ test('recalc_mapseen counts every remembered feature and saturates at three',
             };
             const mapseen = init_mapseen(state.u.uz, state);
             installQuestEntrance(state);
-            state.level.lastseentyp = Array.from(
+            state.lastseentyp = Array.from(
                 { length: 80 }, () => new Array(21).fill(STONE),
             );
             // Four instances cross the three-value packed saturation bound.
             for (let x = 2; x <= 5; ++x)
-                state.level.lastseentyp[x][2] = terrain;
+                lastseentyp_grid(state)[x][2] = terrain;
 
             recalc_mapseen(state);
 
@@ -566,7 +571,7 @@ test('recalc_mapseen resolves encoded subrooms through their parent graph',
         };
         const mapseen = init_mapseen(state.u.uz, state);
         installQuestEntrance(state);
-        state.level.lastseentyp = Array.from(
+        state.lastseentyp = Array.from(
             { length: 80 }, () => new Array(21).fill(STONE),
         );
         // C places the first subroom at MAXNROFROOMS + 1 in its contiguous

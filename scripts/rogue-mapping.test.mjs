@@ -9,6 +9,7 @@ import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
 import { initialize_symbols_from_options, S_darkroom, S_room, S_stone } from '../js/symbols.js';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const source = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 
@@ -67,7 +68,7 @@ for (const [name, options, expected] of [
         assert.equal(loc.remembered_glyph.glyph,
             expected === null ? GLYPH_NOTHING_OFF : cmap_to_glyph(expected, state));
         assert.equal(loc.disp_ch, 'x', 'show=false keeps the existing screen cell');
-        assert.equal(state.level.lastseentyp[x][y], ROOM);
+        assert.equal(lastseentyp_grid(state)[x][y], ROOM);
     });
 }
 
@@ -76,7 +77,7 @@ test('rogue mapping draws blank terrain while memory-disabled mapping does not s
     magic_map_background(x, y, true, state);
     assert.equal(loc.remembered_glyph, undefined);
     assert.equal(loc.disp_ch, ' '); // sym.h S_stone's source map symbol.
-    assert.equal(state.level.lastseentyp[x][y], ROOM);
+    assert.equal(lastseentyp_grid(state)[x][y], ROOM);
 });
 
 test('magic mapping preserves an existing nonterrain memory glyph', () => {

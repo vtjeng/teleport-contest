@@ -117,7 +117,7 @@ import {
     rndmonnam,
 } from './do_name.js';
 import { night, midnight } from './calendar.js';
-import { on_level } from './dungeon.js';
+import { on_level, lastseentyp_grid } from './dungeon.js';
 import { game } from './gstate.js';
 import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
@@ -1516,7 +1516,7 @@ async function dochat(state) {
                like a wall; IS_WALL() test excludes solid rock even when
                that serves as a wall bordering a corridor */
             if (Blind(state.u)
-                && !IS_WALL(state.level.lastseentyp?.[tx]?.[ty] ?? STONE)) {
+                && !IS_WALL(lastseentyp_grid(state)[tx]?.[ty] ?? STONE)) {
                 /* when blind, you can only talk to a wall if it has
                    already been mapped as a wall */
                 /* (C's empty statement: the arm prints nothing) */

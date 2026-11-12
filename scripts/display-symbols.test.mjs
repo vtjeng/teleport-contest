@@ -392,6 +392,7 @@ import {
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const C_DISPLAY_SOURCE = readFileSync(
     'nethack-c/upstream/src/display.c',
@@ -679,6 +680,7 @@ function statusRenderingState() {
         oclass: state.objects[otyp].oc_class,
     });
     state.level.at(7, 4).typ = STAIRS;
+    lastseentyp_grid(state)[7][4] = STAIRS; // check_here()'s update
     state.dungeons = dungeonsOfDoom();
     state.flags = {
         female: false,
@@ -2411,7 +2413,7 @@ test('feel_location maps a sensed monster after tactile memory updates', () => {
     assert.equal(
         glyph_to_cmap(square.remembered_glyph.glyph), S_darkroom,
     );
-    assert.equal(state.level.lastseentyp[x][y], ROOM);
+    assert.equal(lastseentyp_grid(state)[x][y], ROOM);
     assert.equal(square.disp_glyph.glyph, GLYPH_DETECT_MALE_OFF + PM_GOBLIN);
     assert.equal(state.level.monsters[x][y].meverseen, 1);
 
@@ -5435,7 +5437,7 @@ test('newsym maps a visible furniture mimic into display and memory', () => {
     );
     assert.equal(remembered.ch, '+');
     assert.equal(remembered.color, CLR_BROWN);
-    assert.equal(state.level.lastseentyp[x][y], DOOR);
+    assert.equal(lastseentyp_grid(state)[x][y], DOOR);
 });
 
 test('a visible gas region covers the hero without refreshing map memory', () => {
@@ -6467,7 +6469,7 @@ test('newsym snapshots permanent lighting only at the visible boundary', () => {
     newsym(x, y);
     assert.equal(loc.waslit, true);
     assert.equal(loc.disp_color, CLR_WHITE);
-    assert.equal(state.level.lastseentyp[x][y], CORR);
+    assert.equal(lastseentyp_grid(state)[x][y], CORR);
 
     loc.lit = false;
     newsym(x, y);
@@ -7479,15 +7481,21 @@ test('terrain status classifies map and pseudo-terrain types', () => {
         uinwater: false,
     };
     const loc = state.level.at(7, 4);
+    // hack.c classify_terrain() reads svl.lastseentyp, which the hero's
+    // check_here() keeps current in play; mirror each change there.
+    const grid = lastseentyp_grid(state);
 
     loc.typ = ROOM;
+    grid[7][4] = loc.typ;
     assert.equal(classify_terrain(state), 39, 'room becomes xFLOOR');
     loc.typ = DOOR;
+    grid[7][4] = loc.typ;
     loc.flags = D_ISOPEN;
     assert.equal(classify_terrain(state), 41, 'open door becomes xOPENDOOR');
     loc.flags = D_CLOSED;
     assert.equal(classify_terrain(state), 42, 'closed door becomes xSHUTDOOR');
     loc.typ = DRAWBRIDGE_UP;
+    grid[7][4] = loc.typ;
     loc.flags = DB_LAVA;
     assert.equal(classify_terrain(state), 20, 'lava underlay becomes LAVAPOOL');
     state.u.uinwater = true;
@@ -7506,6 +7514,7 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         oclass: state.objects[otyp].oc_class,
     });
     state.level.at(7, 4).typ = STAIRS;
+    lastseentyp_grid(state)[7][4] = STAIRS; // check_here()'s update
     state.dungeons = dungeonsOfDoom();
     state.flags = {
         weaponstatus: true,
@@ -8145,6 +8154,7 @@ test('tutorial overflow shrinking preserves complete status grids and attributes
     const state = statusRenderingState();
     state.tutorial_dnum = state.u.uz.dnum;
     state.level.at(state.u.ux, state.u.uy).typ = ICE;
+    lastseentyp_grid(state)[state.u.ux][state.u.uy] = ICE; // check_here()
     state.uwep = null;
     state.u.uroleplay.deaf = true;
     state.u.usick_type = SICK_NONVOMITABLE | SICK_VOMITABLE;

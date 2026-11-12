@@ -109,7 +109,7 @@ import {
     rndmonnam,
     y_monnam,
 } from './do_name.js';
-import { on_level, surface_typ } from './dungeon.js';
+import { on_level, surface_typ, lastseentyp_grid } from './dungeon.js';
 import {
     is_drawbridge_wall,
     is_pool,
@@ -1049,7 +1049,7 @@ export async function look_engrs(nearby, state = game) {
             if (!location?.seenv) continue;
             const engraving = engr_at(x, y, state);
             if (!engraving) continue;
-            const lastSeenType = state.level?.lastseentyp?.[x]?.[y]
+            const lastSeenType = lastseentyp_grid(state)[x]?.[y]
                 ?? location.typ;
             const headstone = lastSeenType === GRAVE;
             let description = add_quoted_engraving(

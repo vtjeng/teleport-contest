@@ -64,6 +64,7 @@ import {
     maxledgerno,
     on_level,
     save_exclusions,
+    copy_lastseentyp_grid, lastseentyp_grid,
 } from './dungeon.js';
 import { formatkiller } from './topten.js';
 import { game } from './gstate.js';
@@ -754,9 +755,7 @@ export async function savebones(how, when, corpse, state) {
                     loc.waslit = 0;
                     loc.glyph = GLYPH_UNEXPLORED_OFF;
                     loc.remembered_glyph = undefined;
-                    // C's svl.lastseentyp is the port's state.level.lastseentyp.
-                    if (state.level.lastseentyp)
-                        state.level.lastseentyp[x][y] = 0;
+                    lastseentyp_grid(state)[x][y] = 0;
                 }
             }
         }
@@ -1000,7 +999,7 @@ function serializeBonesLevel(state) {
         // svd.dndest right after the stairs; a bones file is a savelev() too.
         updest: state.updest ? { ...state.updest } : {},
         dndest: state.dndest ? { ...state.dndest } : {},
-        lastseentyp: level.lastseentyp,
+        lastseentyp: copy_lastseentyp_grid(lastseentyp_grid(state)),
         bonesinfo: level.bonesinfo,
         regions: level.regions,
         // C ref: save.c:552 save_exclusions(); a bones file is a savelev().
@@ -1200,7 +1199,6 @@ async function restoreBonesLevel(bonesData, state) {
         flags: bonesData.flags ?? {},
         dnstair: bonesData.dnstair,
         upstair: bonesData.upstair,
-        lastseentyp: bonesData.lastseentyp,
         bonesinfo: bonesData.bonesinfo,
         regions: bonesData.regions,
         traps: bonesData.traps ?? [],
@@ -1349,6 +1347,8 @@ async function restoreBonesLevel(bonesData, state) {
     restobjchn_ghostly(level.objlist, false, ghost, state);
 
     installLevel(level, state);
+    // getlev() reads the bones file's svl.lastseentyp[][].
+    state.lastseentyp = copy_lastseentyp_grid(bonesData.lastseentyp);
     await find_lev_obj(state);
 
     // Buried objects

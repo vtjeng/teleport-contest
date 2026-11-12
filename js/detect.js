@@ -118,7 +118,7 @@ import {
     flash_glyph_at,
     under_water,
 } from './display.js';
-import { depth, on_level, room_discovered } from './dungeon.js';
+import { depth, on_level, room_discovered, lastseentyp_grid } from './dungeon.js';
 import {
     engr_at,
 } from './engrave.js';
@@ -351,7 +351,7 @@ export function reveal_terrain_getglyph(
                 glyph = trap?.tseen ? trap_to_glyph(trap, state)
                     : cmap_to_glyph(region.glyph_cmap, state);
             } else {
-                const lastSeenType = state.level.lastseentyp[x][y];
+                const lastSeenType = lastseentyp_grid(state)[x][y];
                 if (lastSeenType === location.typ) {
                     glyph = back_to_glyph(x, y, state);
                 } else {

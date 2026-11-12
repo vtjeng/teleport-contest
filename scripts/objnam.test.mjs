@@ -237,6 +237,7 @@ import { roles } from '../js/roles.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
@@ -787,7 +788,7 @@ test('blind ICE forces decor before the tactile line', async () => {
     assert.ok(events.indexOf('You try to feel what is on it.')
         > events.findIndex((text) => /ice/u.test(text)));
     assert.equal(
-        state.level.lastseentyp[state.u.ux][state.u.uy], ICE,
+        lastseentyp_grid(state)[state.u.ux][state.u.uy], ICE,
     );
     assert.equal(state.decor_fumble_override, false);
     assert.equal(state.gd.decor_levitate_override, false);

@@ -1831,6 +1831,26 @@ export function surface(x, y, state = game) {
 
 // C ref: dungeon.c update_lastseentyp(). The caller supplies canseemon()
 // because dungeon topology does not own hero sensing.
+// C ref: svl.lastseentyp[COLNO][ROWNO], the terrain type the hero last saw at
+// each square. It is one game-wide grid, not part of the level structure:
+// init_mapseen() clears it for a newly made level, savelev() and getlev()
+// write and read it with each level (js/save.js, js/restore.js, bones), and
+// bones.c clears the squares it forgets. Replacing the level structure, as
+// clear_level_structures() does for #wizloaddes, leaves it alone.
+// scripts/lastseentyp-grid.test.mjs keeps every use on this definition.
+export function new_lastseentyp_grid() {
+    return Array.from({ length: COLNO }, () => new Array(ROWNO).fill(STONE));
+}
+
+export function lastseentyp_grid(state = game) {
+    return state.lastseentyp ??= new_lastseentyp_grid();
+}
+
+// A copy for savelev()/getlev(), which write and read the grid by value.
+export function copy_lastseentyp_grid(grid) {
+    return grid ? grid.map((column) => [...column]) : new_lastseentyp_grid();
+}
+
 export function update_lastseentyp(
     x,
     y,
@@ -1846,11 +1866,7 @@ export function update_lastseentyp(
         && canSeeMonster(monster)) {
         typ = cmap_to_type(monster.mappearance);
     }
-    state.level.lastseentyp ??= Array.from(
-        { length: COLNO },
-        () => new Array(ROWNO).fill(STONE),
-    );
-    state.level.lastseentyp[x][y] = typ;
+    lastseentyp_grid(state)[x][y] = typ;
     return typ;
 }
 
@@ -2451,10 +2467,9 @@ export function init_mapseen(lev, state = game) {
     if (after < 0) state.svm.mapseenchn.push(entry);
     else state.svm.mapseenchn.splice(after, 0, entry);
 
-    // C clears the separate live svl.lastseentyp grid for the destination.
-    // The port's destination GameMap is newly allocated and starts clear;
-    // mutating state.level here would instead erase the departing GameMap
-    // that savelev() has already retained by reference.
+    /* svl.lastseentyp[][] is reused for each level, so get rid of
+       previous level's data */
+    state.lastseentyp = new_lastseentyp_grid();
     return entry;
 }
 
@@ -2466,7 +2481,7 @@ function incrementMapseenFeature(feat, key) {
 // remembered location into the current level's mapseen features. C's
 // `#if 0` arms for ice, water and lava are not compiled.
 function count_feat_lastseentyp(mapseen, x, y, state) {
-    switch (state.level?.lastseentyp?.[x]?.[y] ?? STONE) {
+    switch (lastseentyp_grid(state)[x][y]) {
     case TREE:
         incrementMapseenFeature(mapseen.feat, 'ntree');
         break;
@@ -2695,7 +2710,7 @@ export function recalc_mapseen(state = game) {
     // A past hero's death becomes known once the current hero has seen the
     // map location where it happened.
     for (let bp = mapseen.final_resting_place; bp; bp = bp.next) {
-        if (state.level.lastseentyp?.[bp.frpx]?.[bp.frpy]) {
+        if (lastseentyp_grid(state)[bp.frpx]?.[bp.frpy]) {
             bp.bonesknown = true;
             mapseen.flags.knownbones = 1;
         }
@@ -2727,7 +2742,7 @@ export function room_discovered(roomno, state = game) {
 // C ref: dungeon.c update_mapseen_for() (2942-2947).
 export function update_mapseen_for(x, y, state = game) {
     recalc_mapseen(state);
-    return state.level?.lastseentyp?.[x]?.[y] ?? STONE;
+    return lastseentyp_grid(state)[x]?.[y] ?? STONE;
 }
 
 // C ref: dungeon.c induced_align(). Special-level and dungeon alignment masks

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "svl.lastseentyp[][] across #wizloaddes: clear_level_structures() replaces the level structure but leaves the game-wide grid, which only init_mapseen() clears. Loading soko4-1 over the first level premaps it (seen vectors set, lastseentyp untouched), so #terrain's known-terrain view (detect.c reveal_terrain()) draws each premapped square from what the hero last saw there before the load: the first level's room where they overlap and stone elsewhere. Seed, date and Ranger chosen independently.",
+  "segments": [
+    {
+      "seed": 38870245,
+      "datetime": "20570119140911",
+      "nethackrc": "OPTIONS=name:Memory,role:Ranger,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloaddes\nsoko4-1\n   #terrain\nb    "
+    }
+  ]
+}

@@ -48,6 +48,7 @@ import {
 import { init_artifacts, restore_artifacts } from './artifacts.js';
 import {
     ledger_no, level_info, load_exclusions, on_level, set_dungeon_topology,
+    copy_lastseentyp_grid,
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
@@ -287,6 +288,8 @@ export async function dorestore(state = game) {
 
     // Level and dungeon state
     installLevel(snapshot.level, state);
+    // getlev() of the hero's level reads svl.lastseentyp[][].
+    state.lastseentyp = copy_lastseentyp_grid(snapshot.lastseentyp);
     restoreLevelAt(state.level);
     // C ref: restore.c getlev():1149-1163, which dorecover() reaches for the
     // hero's level. The other levels' chains are reversed twice, once by
@@ -952,6 +955,8 @@ export async function getlev(ledger, state = game) {
 
     // Restore the level, stairs, engravings, smeq, updest, dndest.
     installLevel(snapshot.level, state);
+    // restore.c:1105-1108 reads svl.lastseentyp[][] by value.
+    state.lastseentyp = copy_lastseentyp_grid(snapshot.lastseentyp);
     // C ref: restore.c getlev():1113 rest_stairs(). Each save and restore
     // reverses the stairway list, which makemon_rnd_goodpos()'s stair
     // fallback walks in order.

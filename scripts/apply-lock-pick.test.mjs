@@ -60,6 +60,7 @@ import {
     LOCK_PICK_SLOT,
     loadApplyLockPickRecipe,
 } from './run-apply-lock-pick.mjs';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -377,13 +378,13 @@ test('a felt square whose recorded terrain type is new spends the turn',
     const wall = game.level.at(x, y);
     assert.equal(wall.typ, HWALL);
     const wallMemory = wall.remembered_glyph;
-    game.level.lastseentyp[x][y] = STONE;
+    lastseentyp_grid(game)[x][y] = STONE;
     answer(LOCK_PICK_SLOT, 'k');
     assert.equal(await doapply(game), ECMD_TIME);
     // The glyph really did not move, so the lastseentyp disjunct is the only
     // operand that could have answered.
     assert.equal(wall.remembered_glyph.glyph, wallMemory.glyph);
-    assert.equal(game.level.lastseentyp[x][y], HWALL);
+    assert.equal(lastseentyp_grid(game)[x][y], HWALL);
 });
 
 test('a remembered pile whose top has changed to a lookalike spends the turn',

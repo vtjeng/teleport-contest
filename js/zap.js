@@ -67,7 +67,9 @@ import { bury_objs,
 export { zap_dig };
 import { dropx, dropy } from './do.js';
 import {
-    ceiling, Invocation_lev, on_level, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
+    ceiling, Invocation_lev, on_level, surface, surface_typ, update_mapseen_for,
+    lastseentyp_grid,
+} from './dungeon.js';
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin, select_menu } from './windows.js';
@@ -3951,10 +3953,10 @@ export async function zap_map(
         let learnIt = false;
 
         // C's ttmp snapshot and old map values precede show_map_spot().
-        const oldType = state.level.lastseentyp?.[x]?.[y];
+        const oldType = lastseentyp_grid(state)[x]?.[y];
         const oldGlyph = glyph_at(x, y, state);
         show_map_spot(x, y, false, state, random);
-        if (oldType !== state.level.lastseentyp?.[x]?.[y]
+        if (oldType !== lastseentyp_grid(state)[x]?.[y]
             || oldGlyph !== glyph_at(x, y, state)) {
             learnIt = true;
         }
@@ -6299,7 +6301,7 @@ export async function zap_updown(obj, state = game,
             let surf;
             if (ltyp === ICE || IS_FURNITURE(ltyp)) {
                 surf = 'it';
-                if (state.level.lastseentyp?.[x]?.[y] !== rememberedltyp)
+                if (lastseentyp_grid(state)[x]?.[y] !== rememberedltyp)
                     ++ptmp;
             } else {
                 surf = the(surface(x, y, state), state);

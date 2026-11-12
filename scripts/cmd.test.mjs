@@ -152,6 +152,7 @@ import {
     TOPLINE_NEED_MORE,
     ttyPline,
 } from '../js/tty_message.js';
+import { lastseentyp_grid } from '../js/dungeon.js';
 
 const CMD_C = readFileSync(
     new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
@@ -517,7 +518,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
         });
         game.flags.mention_walls = false;
         const heroLastSeenType = 0x7F;
-        game.level.lastseentyp[game.u.ux][game.u.uy] = heroLastSeenType;
+        lastseentyp_grid(game)[game.u.ux][game.u.uy] = heroLastSeenType;
         for (const typ of [HWALL, STONE]) {
             for (let dy = -1; dy <= 1; ++dy) {
                 for (let dx = -1; dx <= 1; ++dx) {
@@ -528,7 +529,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                     destination.typ = typ;
                     destination.seenv = 0;
                     destination.remembered_glyph = null;
-                    game.level.lastseentyp[x][y] = 0x7E;
+                    lastseentyp_grid(game)[x][y] = 0x7E;
 
                     assert.equal(
                         await test_move(
@@ -564,12 +565,12 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                         ).ch,
                     );
                     assert.equal(
-                        game.level.lastseentyp[x][y],
+                        lastseentyp_grid(game)[x][y],
                         typ,
                         'feel_location records the tactile terrain type',
                     );
                     assert.equal(
-                        game.level.lastseentyp[game.u.ux][game.u.uy],
+                        lastseentyp_grid(game)[game.u.ux][game.u.uy],
                         heroLastSeenType,
                         'feel_location does not rewrite unrelated cells',
                     );
@@ -660,7 +661,7 @@ function heroMoveAdmissionSnapshot(replay) {
         rngLog: [...getRngLog()],
         screens: [...replay.getScreens()],
         world: {
-            lastSeen: structuredClone(game.level.lastseentyp),
+            lastSeen: structuredClone(lastseentyp_grid(game)),
             levelObjects: objectChain(game.level.objlist, 'nobj'),
             locations: structuredClone(game.level.locations),
             monsterGrid: game.level.monsters.map(
