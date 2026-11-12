@@ -151,7 +151,6 @@ import {
     reset_eat,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
-import { UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError, gd_move, invault } from './vault.js';
 import { fightm } from './mhitm.js';
 import {
@@ -1056,11 +1055,6 @@ function elapsedTurnRefusals() {
         // injected refusal. Without it a split refusal discards the segment
         // instead of stopping on its last matching screen.
         UnsupportedObjectOperationError,
-        // dogmove.c dog_invent() may split an unpaid stack through
-        // mkobj.c splitobj() (whose splitbill result is discarded), then
-        // reach shk.c onbill() while distant_name() names the returned child.
-        // The live-scan catch already converts this same shop refusal.
-        UnsupportedShopError,
     ];
 }
 
@@ -1180,7 +1174,7 @@ async function advanceElapsedTurn(state) {
             // and death entry are set. Below that entry, end.c really_done()
             // settles with the level's shopkeepers, vault guard and priests
             // through paybill(), paygd() and clearpriests(), whose unported
-            // arms raise UnsupportedEndOfGameError, UnsupportedShopError and
+            // arms raise UnsupportedEndOfGameError and
             // UnsupportedVaultGuardError. The scan also reaches every owner
             // elapsedTurnRefusals() names.
             const liveScanRefusals = [

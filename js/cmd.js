@@ -308,7 +308,7 @@ import {
     doquickwhatis,
     dowhatis,
 } from './pager.js';
-import { dopay, UnsupportedShopError } from './shk.js';
+import { dopay } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
 import { dofire, dothrow } from './dothrow.js';
 import { dosit } from './sit.js';
@@ -2926,12 +2926,10 @@ function restoreParsedCommand(pending, state) {
 export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
-        UnsupportedShopError,
-        // end.c really_done() calls paybill() and paygd() on every death, so
-        // a shopkeeper inherits() cannot settle with or a vault guard owed the
-        // hero's gold refuses below a killing blow. The hero's own command
-        // reaches that death through losehp(), and js/allmain.js converts the
-        // same two classes where a monster's attack reaches it.
+        // end.c really_done() calls paygd() on every death, so a vault guard
+        // owed the hero's gold refuses below a killing blow. The hero's own
+        // command reaches that death through losehp(), and js/allmain.js
+        // converts the same class where a monster's attack reaches it.
         UnsupportedVaultGuardError,
         UnsupportedSearchError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm.

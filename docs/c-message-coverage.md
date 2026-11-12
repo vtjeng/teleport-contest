@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3990 | 78 |
-| diagnostic | 723 | 200 | 523 |
+| diagnostic | 723 | 205 | 518 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4193 | 718 |
+| total | 4911 | 4198 | 713 |
 
 ## Missing by C file
 
@@ -108,7 +108,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/save.c | yes | 2 | 2 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
 | src/sfstruct.c | no | 0 | 6 | 0 |
-| src/shk.c | yes | 0 | 30 | 1 |
+| src/shk.c | yes | 0 | 25 | 1 |
 | src/shknam.c | yes | 2 | 4 | 0 |
 | src/sit.c | yes | 1 | 0 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
@@ -1445,9 +1445,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `onbill()`
   - 1146 impossible: `onbill: paid obj on bill?`
-  - 1152 impossible: `onbill: unpaid obj`
-  - 1153 impossible: `without shopkeeper`
-  - 1153 impossible: `not on shk's bill`
 
 - `obfree()`
   - 1240 impossible: `obfree: not on bill,`
@@ -1472,8 +1469,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 3303 impossible: `unpaid_cost: object wasn't on any bill.`
 
 - `splitbill()`
-  - 3631 impossible: `splitbill: no resident shopkeeper??`
-  - 3636 impossible: `splitbill: not on bill?`
   - 3640 impossible: `Negative quantity on bill??`
   - 3643 impossible: `Zero quantity on bill??`
 

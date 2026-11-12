@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310229,
+      "datetime": "20460302101500",
+      "nethackrc": "OPTIONS=name:Biller,role:Valkyrie,race:human,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,montelecontrol\n",
+      "moves": " \u00162\n\u0014  HHHHHhjjjjjjj. \u00173 darts\nde y, #wiztelekinesis\nj.l\u001b\u00166\n\u0014LLLLLLLLllllljjjj.  tek    "
+    }
+  ],
+  "comment": "shk.c splitbill() 3633-3637 and onbill() 1150-1153. Sell three wished darts in a general store on level 2 and pick them up (unpaid); #wiztelekinesis hurtles the keeper out without setpaid(), so u_left_shop() finds him away and the hero levelports to 6 still owing for the darts. In level 6's armor shop, throwing one dart splits the stack: onbill() does not find it on that keeper's bill, and splitbill() reports it. The recording stops inside splitbill()'s report: the landing dart then reaches sub_one_frombill(), whose synchronous onbill() call the port leaves as a gap, so the last line of the report gets no --More-- in the port."
+}

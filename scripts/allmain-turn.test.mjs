@@ -44,12 +44,10 @@ import {
     NOT_HUNGRY,
     NO_SPELL,
     OBJ_DELETED,
-    OBJ_FLOOR,
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
     POISON_RES,
-    ROOM,
     ROT_CORPSE,
     RUN_STEP,
     STRANGLED,
@@ -100,7 +98,6 @@ import {
     PM_KITTEN,
     PM_LICHEN,
     PM_ORC,
-    PM_PONY,
     PM_SMALL_MIMIC,
     PM_TENGU,
     PM_WATER_DEMON,
@@ -109,7 +106,6 @@ import {
 import {
     BOULDER,
     CORPSE,
-    DAGGER,
     SACK,
     TOOL_CLASS,
 } from '../js/objects.js';
@@ -2528,141 +2524,6 @@ test('a natural Aleax spawn completes the previously refused runtime prefix',
         assert.equal(replay.getCursors().length, 67);
         assert.equal(replay.getRngLog().length, 3199);
         assert.equal(game.moves, 22);
-    });
-
-function fetchedFloorObject(x, y, otyp, o_id) {
-    const type = game.objects[otyp];
-    return {
-        cobj: null,
-        nobj: null,
-        nexthere: null,
-        o_id,
-        oclass: type.oc_class,
-        ox: x,
-        oy: y,
-        otyp,
-        owt: type.oc_weight,
-        quan: 1,
-        spe: 0,
-        where: OBJ_FLOOR,
-    };
-}
-
-// A starting pony standing two squares west of the hero on the object
-// buildObject() returns, with every other monster and object taken off the
-// level. C reads svl.level.objects[omx][omy], the pet's own square, and gates
-// the carry on `rn2(udist) || !rn2(edog->apport)` (dogmove.c:448), where udist
-// is distu() from dogmove.c:1014. Beside the hero that is 1, rn2(1) is always
-// 0, and the arm then needs the one-in-twenty second draw; two squares out it
-// is 4 and the first draw carries the arm. The same distance keeps
-// distant_name() inside its near square, where the name formats through
-// doname().
-async function prepareFetchingPet(buildObject) {
-    const replay = await runSegment({
-        // Independently chosen. What each row below needs from it is a plain
-        // room square two west of the hero that the hero can see.
-        seed: 2026081501,
-        datetime: '20260815090000',
-        nethackrc: 'OPTIONS=name:Fetching,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none,!acoustics',
-        moves: '',
-    });
-    for (const column of game.level.monsters) column.fill(null);
-    for (const column of game.level.objects) column.fill(null);
-    game.level.monlist = null;
-    game.level.objlist = null;
-    game.level.regions = [];
-    game.head_engr = null;
-
-    const x = game.u.ux - 2;
-    const y = game.u.uy;
-    assert.equal(game.level.at(x, y).typ, ROOM);
-    assert.equal(cansee(x, y), true);
-
-    const pony = place_monster(newMonster({
-        data: game.mons[PM_PONY],
-        m_id: 9001,
-        mnum: PM_PONY,
-        m_lev: game.mons[PM_PONY].mlevel,
-        mhp: 8,
-        mhpmax: 8,
-        mcanmove: true,
-        mcansee: true,
-        mpeaceful: true,
-        mtame: 10,
-        movement: NORMAL_SPEED,
-        mux: game.u.ux,
-        muy: game.u.uy,
-        // dog.c's starting pet. An apport of 20 carries dog_invent()'s
-        // `rn2(20) < edog->apport + 3` whatever the draw answers, leaving the
-        // distance test above as the arm's only gate.
-        mextra: {
-            edog: {
-                apport: 20,
-                dropdist: 10000,
-                droptime: 0,
-                hungrytime: 1000,
-                mhpmax_penalty: 0,
-                ogoal: { x: 0, y: 0 },
-                whistletime: 0,
-            },
-        },
-    }), x, y, game);
-    game.level.monlist = pony;
-    game.context.startingpet_mid = pony.m_id;
-    game.context.startingpet_typ = PM_PONY;
-
-    const item = buildObject(x, y);
-    game.level.objects[x][y] = item;
-    game.level.objlist = item;
-
-    game.u.umovement = 0;
-    game.context.move = 1;
-    return replay;
-}
-
-// C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
-// through splitobj(), names the result through distant_name(), and hands it to
-// mpickobj(), all from inside the elapsed turn's monster scan. An unpaid-bill
-// refusal must become a turn boundary after naming is supported; otherwise it
-// escapes runSegment() and discards the matching prefix instead of stopping on
-// the last screen.
-test('a refused pet pickup becomes a turn boundary, not a hard failure',
-    async () => {
-        for (const [name, buildObject, refusal] of [
-            [
-                // can_carry() caps a nohands pet at one item, so a stack of two
-                // splits before anything is named. splitobj() performs C's
-                // split, records its discarded splitbill gap, and returns the
-                // child. distant_name() then asks onbill() about that unpaid
-                // child, so this row stops at shk.c:onbill(), not splitobj().
-                'split',
-                (x, y) => Object.assign(
-                    fetchedFloorObject(x, y, DAGGER, 9302),
-                    { quan: 2, owt: 20, unpaid: true },
-                ),
-                'shop handling requires onbill() reporting a stray unpaid item',
-            ],
-        ]) {
-            await prepareFetchingPet(buildObject);
-
-            // The live turn reaches the shk.c refusal, and the coordinator
-            // that owns the conversion turns it into a boundary. On the way
-            // the live pet's dog_invent() prints, and topl.c update_topl()
-            // first dismisses the setup's pending message with --More--,
-            // which reads this key.
-            game.nhDisplay.pushKey(' '.charCodeAt(0));
-            game.context.move = 1;
-            await assert.rejects(
-                () => moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedTurnBoundaryError
-                    && error.message === refusal
-                ),
-                name,
-            );
-        }
     });
 
 test('the billionth turn capitulates for an unburdened hero too',

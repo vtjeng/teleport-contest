@@ -459,7 +459,6 @@ import {
     shop_keeper,
     stolen_value,
     subfrombill,
-    UnsupportedShopError,
 } from './shk.js';
 import {
     collectMonsterNoticeMessage,
@@ -1456,13 +1455,7 @@ export function requireSimpleHeroDestination(
             gw: { ...(state.gw ?? {}) },
             u: { ...state.u, ux: x, uy: y },
         };
-        try {
-            preflight_projected_random_arrival_pickup(projected);
-        } catch (error) {
-            if (error instanceof UnsupportedShopError)
-                throw new UnsupportedHeroMoveBoundaryError(error.branch);
-            throw error;
-        }
+        preflight_projected_random_arrival_pickup(projected);
     }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
     // it before "You see here" when the square holds exactly one object.

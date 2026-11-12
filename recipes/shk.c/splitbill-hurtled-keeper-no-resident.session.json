@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310229,
+      "datetime": "20460302101500",
+      "nethackrc": "OPTIONS=name:Biller,role:Valkyrie,race:human,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,montelecontrol\n",
+      "moves": " \u00162\n\u0014  HHHHHhjjjjjjj. \u00173 darts\nde y, #wiztelekinesis\nj.l\u001bteh     "
+    }
+  ],
+  "comment": "shk.c splitbill() 3628-3632 and onbill() 1150-1153. Sell three wished darts in a general store and pick them up (unpaid). #wiztelekinesis hurtles the keeper out through the door: mhurtle() angers him but never calls setpaid(), so the bill survives while he is out of his shop. Throwing one dart splits the stack: splitbill() finds no resident shopkeeper. The dart lands where costly_spot() is false (the keeper is away), so check_shop_obj() calls stolen_value(), whose billable() finds no tending keeper, and its onbill(obj, NULL, FALSE) reports the unpaid dart without a shopkeeper."
+}

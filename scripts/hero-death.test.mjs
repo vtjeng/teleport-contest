@@ -69,7 +69,6 @@ import {
     PM_SHOPKEEPER,
     PM_WRAITH,
 } from '../js/monsters.js';
-import { UnsupportedShopError } from '../js/shk.js';
 import { findgd, UnsupportedVaultGuardError } from '../js/vault.js';
 import {
     EXPLORE_CASE,
@@ -1468,7 +1467,6 @@ test('a peaceful vault guard leaves the dead hero gold outside the vault',
 test('the refusals really_done() raises below a killing blow end a command',
      () => {
     for (const Refusal of [
-        UnsupportedShopError,
         UnsupportedVaultGuardError,
     ]) {
         assert.ok(
