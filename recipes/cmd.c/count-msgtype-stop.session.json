@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40917,
+      "datetime": "20040611093000",
+      "nethackrc": "OPTIONS=name:Tally,role:Samurai,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen\nMSGTYPE=stop \"^Count: 1[0-9]$\"\n",
+      "moves": "12 s23s15\u001b4s"
+    }
+  ],
+  "comment": "cmd.c get_count() shows 'Count: N' through custompline(SUPPRESS_HISTORY); a MSGTYPE=stop rule matching it makes vpline() wait at --More-- and clear the top line. 'Count: 23' does not match and is shown plainly. Escape at the second --More-- sets WIN_STOP, which the next readchar() clears, so 'Count: 154' is shown."
+}

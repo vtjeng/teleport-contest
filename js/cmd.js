@@ -1810,13 +1810,11 @@ export async function get_count(
                 countMessage = `Count: ${count}`;
                 backspaced = false;
             }
-            // A MSGTYPE=hide or norep rule can swallow the line; vpline()
-            // then returns before its flush_screen() and putmesg(), and the
-            // cursor stays where it was.
-            if (await ttyCustomPline(countMessage, SUPPRESS_HISTORY, state)) {
-                await flush_screen(1);
-                state.nhDisplay?.setCursor(countMessage.length, 0);
-            }
+            // vpline() flushes the screen and show_topl() leaves the cursor
+            // after the line; a MSGTYPE=hide or norep rule that swallows the
+            // line leaves it where it was, and a stop rule's --More-- leaves
+            // it at the cleared top line's start. mark_synch() moves nothing.
+            await ttyCustomPline(countMessage, SUPPRESS_HISTORY, state);
         }
     }
 

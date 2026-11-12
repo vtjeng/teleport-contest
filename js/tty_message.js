@@ -8,6 +8,7 @@ import {
     MSGTYP_NOREP,
     MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
+    MSGTYP_STOP,
     NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
     PICK_NONE,
@@ -506,6 +507,10 @@ async function ttyPlineCore(
         }
         if (urgentMessage && messageWin)
             messageWin.flags &= ~WIN_NOSTOP;
+        // vpline():283-284 waits for a MSGTYPE=stop line whichever way
+        // putmesg() showed it; show_topl()'s addtopl() left NEED_MORE.
+        if (msgtype === MSGTYP_STOP)
+            await displayPendingTtyMessageWindow(state);
         return true;
     }
     if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
