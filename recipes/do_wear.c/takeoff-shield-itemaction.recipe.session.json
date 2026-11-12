@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Inventory item action on worn armor: i, the shield's letter, T queues cmd.c's INTERNALCMD row \"alttakeoff\" (iactions.c itemactions_pushkeys -> cmdq_add_ec(ia_dotakeoff)); rhack() calls ia_dotakeoff() -> dotakeoff() through the queued pointer and the canned letter answers getobj(). ^A then repeats the queued row with nothing left to remove, and #? runs doextlist() from the extended-command prompt.",
+  "segments": [
+    {
+      "seed": 77123,
+      "datetime": "20810304101500",
+      "nethackrc": "OPTIONS=name:Shieldy,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " icT\u0001#?\n\u001b"
+    }
+  ]
+}

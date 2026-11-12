@@ -5242,6 +5242,20 @@ const EXTCMD_FUNCTIONS = new Map(Object.entries({
     doinvoke: (key, state) => failClosedCommand(key, state, () => doinvoke(state)),
     // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
     dountrap: (key, state) => dountrap(state),
+    // C ref: cmd.c doextlist(), bound to M-? and reachable from a BIND
+    // option; it returns ECMD_OK. doextcmd() runs it itself for `#?`.
+    doextlist: (key, state) => doextlist(state),
+    // C ref: cmd.c:2064-2065, the INTERNALCMD rows "alttakeoff" and
+    // "altunwield". extcmds_match() hides INTERNALCMD rows from the `#`
+    // prompt, so only iactions.c's itemactions_pushkeys() reaches them, by
+    // queueing the row; rhack() then calls the queued pointer like any other.
+    // do_wear.c ia_dotakeoff() returns dotakeoff()'s result;
+    // remarm_swapwep() reads the queued '-' itself and answers ECMD_TIME or
+    // ECMD_FAIL.
+    ia_dotakeoff: (key, state) => failClosedCommand(
+        key, state, () => ia_dotakeoff(state),
+    ),
+    remarm_swapwep: (key, state) => remarm_swapwep(state),
 }));
 
 // Every extcmdlist[] name whose function the port dispatches, for callers
@@ -5537,19 +5551,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
-        // C ref: iactions.c:231 queues ia_dotakeoff() for IA_TAKEOFF_OBJ;
-        // rhack() invokes the queued function pointer before consuming the
-        // following canned inventory letter inside getobj().
-        if (queuedExtcmdEntry?.ef_funct === 'ia_dotakeoff') {
-            const res = await failClosedCommand(
-                key, state, () => ia_dotakeoff(state),
-            );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
-            return;
-        }
         // C ref: cmd.c act_on_act() queues dosit's function pointer for
         // MCMD_SIT, and rhack() dispatches that pointer before reading another
         // key. The queued row's ef_txt is "sit"; this arm dispatches it by its
@@ -5816,11 +5817,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         }
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
-            return;
-        }
-        if (command === '?') {
-            await doextlist(state);
             resetCommandVars(state, state.multi < 0);
             return;
         }
@@ -6190,19 +6186,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dowieldquiver(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
-            return;
-        }
-        if (command === 'altunwield') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3825. The
-            // internal row can arrive only from itemactions_pushkeys(), and
-            // remarm_swapwep() consumes the queued '-' itself. A valid
-            // alternate weapon always answers ECMD_TIME after removing it;
-            // a missing or malformed continuation answers ECMD_FAIL.
-            const res = await remarm_swapwep(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
