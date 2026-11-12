@@ -278,6 +278,10 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
+        // The input boundaries the recorder keeps; playSegment() sets it from
+        // moves (recordedBoundaryLimit()). _rngSlices has one entry per
+        // captured boundary.
+        this._boundaryLimit = Infinity;
         // rng.js keeps one RNG log per process, and start() replaces it with
         // a fresh one, so until then the process log still holds the previous
         // segment's calls; a segment that stops before that point has logged
@@ -712,6 +716,9 @@ export class NethackGame {
         // its port of that function.
         game._animationFrameHook = () => nhGame.animationFrame();
         game._preNhgetchHook = async () => {
+            // The recorder has stopped keeping boundaries; the game reads on
+            // and its RNG calls stay in the flat log.
+            if (nhGame._rngSlices.length >= nhGame._boundaryLimit) return;
             // Capture RNG slice since last capture
             const fullLog = getRngLog() || [];
             const slice = fullLog.slice(nhGame._lastRngIdx);
@@ -807,14 +814,17 @@ function createThemeroomSelectionCollector() {
 //   0xC3, the first byte of 'é', is the key M-C, bound to #conduct.
 // Each read is preceded by its own boundary, so the recording's boundaries
 // fall between bytes, not between moves characters, and the bytes of one
-// multi-byte key are read at successive boundaries. The recorder stops after
-// moves.length + 1 boundaries, so the game read only the first moves.length
-// bytes before its last recorded boundary; any later bytes were still unread
-// in the pipe when the recorder ended the game. Replaying exactly those
-// bytes ends the JavaScript segment at the same boundary.
+// multi-byte key are read at successive boundaries. The recorder writes the
+// last key at its moves.length-th boundary and keeps moves.length + 1
+// boundaries (recordedBoundaryLimit() below), but the game does not wait for
+// it: it reads the bytes still in the pipe, and plays the commands they
+// complete, before the recorder's SIGTERM arrives. The game's RNG log is line
+// buffered, and the recorder reads it after that last boundary, so the
+// recording's last step holds the RNG calls of those commands. This returns
+// every byte, and playSegment() replays them all.
 export function recordedInputBytes(moves) {
     const bytes = [];
-    for (let i = 0; i < moves.length && bytes.length < moves.length; i++) {
+    for (let i = 0; i < moves.length; i++) {
         const unit = moves.charCodeAt(i) === 0x0d ? 0x0a : moves.charCodeAt(i);
         if (unit < 0x80) {
             bytes.push(unit);
@@ -826,7 +836,16 @@ export function recordedInputBytes(moves) {
                 0x80 | (cp & 0x3f));
         }
     }
-    return bytes.slice(0, moves.length);
+    return bytes;
+}
+
+// The input boundaries scripts/record-session.mjs keeps from a segment that
+// replays moves: the initial one and one per key it writes. It ignores every
+// later boundary's screen, cursor and animation frames, so the capture hook
+// stops at this many; the game keeps reading the bytes a multi-byte key left
+// in the pipe (recordedInputBytes()).
+export function recordedBoundaryLimit(moves) {
+    return moves.length + 1;
 }
 
 export function segmentIterationLimit(movesLength) {
@@ -984,6 +1003,7 @@ async function playSegment(nhGame, input, { onBoundary = null, inputBytes = null
     nhGame._pendingDisplay = display;
 
     const keys = inputBytes ?? recordedInputBytes(moves);
+    if (!inputBytes) nhGame._boundaryLimit = recordedBoundaryLimit(moves);
     for (const byte of keys)
         display.pushKey(byte);
 

@@ -8,5 +8,5 @@
       "moves": " 😀\u001bs\rü      "
     }
   ],
-  "comment": "The recorder writes one UTF-16 code unit per boundary, so each half of the astral U+1F600 is a lone surrogate that Node encodes as U+FFFD (EF BF BD): M-o (#offer), M-? (the extended command list), then M-=, M-o, M-? and M-= inside that menu. Escape closes it, 's' searches, a carriage return arrives as a newline (^J, which rushes south), and 'ü' (C3 BC) opens #conduct (M-C). The recording stops after moves.length bytes, five bytes short of the end."
+  "comment": "The recorder writes one UTF-16 code unit per boundary, so each half of the astral U+1F600 is a lone surrogate that Node encodes as U+FFFD (EF BF BD): M-o (#offer), M-? (the extended command list), then M-=, M-o, M-? and M-= inside that menu. Escape closes it, 's' searches, a carriage return arrives as a newline (^J, which rushes south), and 'ü' (C3 BC) opens #conduct (M-C). The recorder keeps moves.length + 1 boundaries, so the game reads the last five bytes, all spaces, after its last kept one; they make no RNG call."
 }
