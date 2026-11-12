@@ -67,6 +67,7 @@ import {
     PM_GRID_BUG,
     PM_GUARD,
     PM_SHOPKEEPER,
+    PM_WEREJACKAL,
     PM_WRAITH,
 } from '../js/monsters.js';
 import { findgd, UnsupportedVaultGuardError } from '../js/vault.js';
@@ -462,11 +463,42 @@ test('debug-fuzzer recovery keeps temporary remedy effects source-ordered',
         rn1: (bound, start) => start,
         rne: () => 1,
     };
+    // One lowered attribute (index 0, Strength) gives the blessed restore
+    // ability potion something to restore.
+    game.u.acurr.a[0] = game.u.amax.a[0] - 2;
     await done(DIED, game, { random });
-    assert.deepEqual(bounds, [10, 4, 6, 10]);
+    // The third bound is potion.c peffect_restore_ability()'s rn2(A_MAX)
+    // (potion.c:662), drawn by the peffects() call at end.c:985.
+    assert.deepEqual(bounds, [10, 4, 6, 6, 10]);
+    assert.equal(game.u.acurr.a[0], game.u.amax.a[0]);
     assert.equal(game.u.umortality, 0);
     assert.equal(game.u.uhp, 10);
-    assert.ok(game.unported.has('potion.c peffects'));
+    assert.equal(game.unported?.has('potion.c peffects') ?? false, false);
+});
+
+test('debug-fuzzer recovery cures lycanthropy with blessed holy water',
+     async () => {
+    await dyingGame();
+    game.iflags.debug_fuzzer = 1;
+    game.u.uhp = 0;
+    // A werejackal's lycanthropy makes end.c:973 offer holy water.
+    game.u.ulycn = PM_WEREJACKAL;
+    let draws = 0;
+    const random = {
+        // 0 for the remedy roll (end.c:965) and !rn2(3) at end.c:973 takes
+        // the holy-water arm; every later draw, including the restore
+        // ability rn2(3) at end.c:980, is a stable nonzero 1.
+        rn2: () => (++draws <= 2 ? 0 : 1),
+        rnd: (bound) => bound > 0 ? 1 : 0,
+        rn1: (bound, start) => start,
+        rne: () => 1,
+    };
+    await done(DIED, game, { random });
+    // potion.c peffect_water(): the neutral Tourist feels full of awe and
+    // you_unwere(TRUE) purifies the hero (potion.c:752-753).
+    assert.equal(game.u.ulycn, NON_PM);
+    assert.equal(game.u.umortality, 0);
+    assert.equal(game.unported?.has('potion.c peffects') ?? false, false);
 });
 
 test('debug-fuzzer queues the wizard map rebuild before returning', async () => {

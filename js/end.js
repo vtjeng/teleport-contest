@@ -206,7 +206,7 @@ import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
 import { keepdogs } from './dog.js';
-import { make_sick, set_itimeout } from './potion.js';
+import { make_sick, peffects, set_itimeout } from './potion.js';
 import { coreRandom } from './rng.js';
 import { d } from './rng.js';
 import {
@@ -356,8 +356,8 @@ async function savelife(how, state = game) {
 // C ref: end.c fuzzer_savelife() (945-1016).  The debug fuzzer calls this
 // before done() initializes the killer or mortality fields.  It is a
 // return-valued source helper: TRUE returns from done(), while FALSE lets the
-// ordinary death path continue.  peffects() has a discarded result here and
-// remains a named gap. The source-required wiz_makemap command-queue mutation
+// ordinary death path continue.  C discards both peffects() results. The
+// source-required wiz_makemap command-queue mutation
 // below reaches cmd.c's queued callback without reading another command.
 async function fuzzer_savelife(how, state = game, source = {}) {
     const programState = state.program_state ?? {};
@@ -375,16 +375,15 @@ async function fuzzer_savelife(how, state = game, source = {}) {
         let remedies = 0;
         let potion;
 
-        // Both peffects() return values are discarded by C.  Its effect
-        // implementation remains an explicit gap, but mksobj/bless/obfree
-        // still execute in source order around that call boundary.
+        // Both peffects() return values are discarded by C.
+        const effectEnv = source.random ? { random: source.random } : {};
         if (ismnum(u.ulycn) && !random.rn2(3)) {
             const objectEnv = source.random
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_WATER, true, false, objectEnv);
             bless(potion, { state });
-            note_unported('potion.c peffects');
+            await peffects(potion, state, effectEnv);
             obfree(potion, null, { state });
             ++remedies;
         }
@@ -394,7 +393,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 : { state };
             potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
             bless(potion, { state });
-            note_unported('potion.c peffects');
+            await peffects(potion, state, effectEnv);
             obfree(potion, null, { state });
             ++remedies;
         }
