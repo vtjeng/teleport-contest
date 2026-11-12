@@ -4,6 +4,7 @@
 // recorder patch 006's nomux_enter_raw_mode(), nomux_raw_putch(),
 // nomux_raw_emit() and nomux_get_cursor().
 
+import { recordRawShadowCells } from './display.js';
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { ATR_BOLD, NO_COLOR } from './terminal.js';
@@ -24,8 +25,10 @@ const utf8Decoder = new TextDecoder('utf-8', { ignoreBOM: true });
 // exposes each stored row as UTF-8: a complete sequence occupies one screen
 // cell, while an isolated high byte becomes U+FFFD. Keep that presentation
 // separate from the byte-counted raw cursor.
-function nomux_raw_write(display, bytes, attr = 0) {
+function nomux_raw_write(state, bytes, attr = 0) {
+    const display = state.nhDisplay;
     const raw = display.nomuxRaw;
+    const shadowCells = mapWindowLive(state) ? [] : null;
     let captured = [];
     let capturedStart = 0;
     const flush = () => {
@@ -34,6 +37,9 @@ function nomux_raw_write(display, bytes, attr = 0) {
             for (const character of utf8Decoder.decode(
                 Uint8Array.from(captured),
             )) {
+                shadowCells?.push({
+                    column, row: raw.row, ch: character, color: NO_COLOR, attr,
+                });
                 display.setCell(column++, raw.row, character, NO_COLOR, attr);
             }
         }
@@ -56,6 +62,43 @@ function nomux_raw_write(display, bytes, attr = 0) {
         }
     }
     flush();
+    if (shadowCells) recordRawShadowCells(shadowCells, state);
+}
+
+// The window port's map is on the screen: a level exists and
+// tty_init_nhwindows() has run without a later exit_nhwindows(). The browser
+// has no separate WinDesc for WIN_MAP, but a generated level and an
+// initialized window are the same source boundary: normal play has a map
+// window even when the hero's coordinates have temporarily been cleared by
+// bones.c savebones(). The terminal renderer owns the map cells directly, so
+// the level object and initialized window stand in for C's WIN_MAP and
+// ttyDisplay pointers.
+function mapWindowLive(state) {
+    return Boolean(
+        state.nhDisplay
+        && state.level?.at
+        && state.iflags?.window_inited !== false,
+    );
+}
+
+// C ref: recorder patch 006 nomux_enter_raw_mode(). Raw mode starts at the
+// top left of a blanked shadow screen. Only the shadow is blanked: wintty.c
+// and display.c still hold every cell as last printed, so while the map
+// window is live the blank cells go to the screen overlay until C prints
+// over them (js/display.js recordRawShadowCells()).
+function nomux_enter_raw_mode(state) {
+    const display = state.nhDisplay;
+    const raw = display.nomuxRaw;
+    raw.active = true;
+    raw.row = 0;
+    raw.col = 0;
+    display.clearScreen();
+    if (!mapWindowLive(state)) return;
+    const blanks = [];
+    for (let row = 1; row < display.rows; ++row)
+        for (let column = 0; column < display.cols; ++column)
+            blanks.push({ column, row, ch: ' ', color: NO_COLOR, attr: 0 });
+    recordRawShadowCells(blanks, state);
 }
 
 // C ref: win/tty/wintty.c tty_raw_print(), whose puts() the recorder mirrors
@@ -71,14 +114,9 @@ export function tty_raw_print(state, str) {
 
     const raw = display.nomuxRaw;
     raw.rawprint = (raw.rawprint ?? 0) + 1;
-    if (!raw.active) {
-        raw.active = true;
-        raw.row = 0;
-        raw.col = 0;
-        display.clearScreen();
-    }
+    if (!raw.active) nomux_enter_raw_mode(state);
     // puts() appends the newline tty_raw_print() does not write itself.
-    nomux_raw_write(display, [
+    nomux_raw_write(state, [
         ...encodeUtf8ByteString(String(str)),
         0x0A,
     ]);
@@ -92,13 +130,8 @@ export function tty_raw_print_bold(state, str) {
 
     const raw = display.nomuxRaw;
     raw.rawprint = (raw.rawprint ?? 0) + 1;
-    if (!raw.active) {
-        raw.active = true;
-        raw.row = 0;
-        raw.col = 0;
-        display.clearScreen();
-    }
-    nomux_raw_write(display, [
+    if (!raw.active) nomux_enter_raw_mode(state);
+    nomux_raw_write(state, [
         ...encodeUtf8ByteString(String(str)),
         0x0A,
     ], ATR_BOLD);
@@ -134,22 +167,11 @@ async function getret(state) {
 // recorder's sticky `active` mode does not select this arm; only the
 // resettable ttyDisplay->rawprint state does.
 export async function tty_wait_synch(state = game) {
-    // The browser has no separate WinDesc for WIN_MAP, but a generated level
-    // and an initialized window are the same source boundary: normal play has
-    // a map window even when the hero's coordinates have temporarily been
-    // cleared by bones.c savebones(). The terminal renderer owns the map
-    // cells directly, so the level object and initialized window stand in for
-    // C's WIN_MAP and ttyDisplay pointers.
     // The preceding death pline() has already flushed the canonical map. C's
     // tty_display_nhwindow(WIN_MAP, FALSE) has no status refresh here, so do
     // not route this arm through flush_screen(), which calls bot() first.
     const rawprint = Number(state.nhDisplay?.nomuxRaw?.rawprint ?? 0);
-    const mapWindow = Boolean(
-        state.nhDisplay
-        && state.level?.at
-        && state.iflags?.window_inited !== false
-        && rawprint === 0,
-    );
+    const mapWindow = mapWindowLive(state) && rawprint === 0;
     if (mapWindow) {
         // tty_display_nhwindow(WIN_MAP, FALSE) clears this C counter before
         // repainting.  Keep the assignment explicit for displays created by

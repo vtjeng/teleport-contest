@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() -> fopen_wizkit_file() in debug mode with WIZKIT naming no file: C raw_printf()s \"Access to <name> denied (2).\" and wait_synch()s before the welcome. The raw print is the first, so recorder patch 006's nomux_enter_raw_mode() blanks the shadow screen; C's gg.gbuf still holds the map, so the map stays blank until docorner() redraws the corner under the inventory menu, while moveloop_preamble()'s full status redraw restores both status rows. The later WIZKIT statement replaces the first (cnf_line_WIZKIT()). Seed, date, Tourist and kit names chosen independently.",
+  "segments": [
+    {
+      "seed": 71230431,
+      "datetime": "20641106174500",
+      "nethackrc": "OPTIONS=name:Kitless,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nWIZKIT=firstkit\nWIZKIT=my kit list\n",
+      "moves": "    i  "
+    }
+  ]
+}

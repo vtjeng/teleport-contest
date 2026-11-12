@@ -6901,10 +6901,11 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
         const overStatus = screenRow >= firstStatusRow;
-        if (overStatus && game._screenOverlay) {
-            for (const [key, cell] of game._screenOverlay)
+        // cl_end() erases every overlay cell from the cursor rightwards.
+        if (state._screenOverlay) {
+            for (const [key, cell] of state._screenOverlay)
                 if (cell.row === screenRow && cell.column >= xmin - 1)
-                    game._screenOverlay.delete(key);
+                    state._screenOverlay.delete(key);
         }
         const mapRow = screenRow - mapOffy;
         if (mapRow < 0 || mapRow >= viewport.height) continue;
@@ -6996,18 +6997,30 @@ function writeStatusRows(
     _applyScreenOverlay(display);
 }
 
-// Map glyphs printed over the status window.
+// Cells of recorder patch 006's shadow screen (termcap.c nomux_buf) that the
+// canonical rebuild in _buildScreenOutput() does not produce, keyed by
+// terminal cell. The rebuild applies them last; the wintty.c write that
+// covers a cell in C drops its entry. cls() discards them with the rest of
+// the screen. Two writers put cells here:
 //
-// On a 24-row terminal with three status lines the map is not clipped (see
-// mapViewport()), so wintty.c tty_print_glyph() prints map row ROWNO-1 on
-// the first status row. Nothing records that in the status window's
-// cw->data, so the glyph stays on the terminal until render_status()
-// rewrites the field covering its column: check_fields() marks a field for
-// redraw only when its own text, colour, attribute or position changes (or
-// every field, on a forced update), and tty_putstatusfield() then writes the
-// whole field. render_status() also erases the rest of a row that got
-// shorter. game._screenOverlay holds those glyphs by terminal cell;
-// cls() discards it with the rest of the screen.
+// Map glyphs printed over the status window. On a 24-row terminal with three
+// status lines the map is not clipped (see mapViewport()), so wintty.c
+// tty_print_glyph() prints map row ROWNO-1 on the first status row. Nothing
+// records that in the status window's cw->data, so the glyph stays on the
+// terminal until render_status() rewrites the field covering its column:
+// check_fields() marks a field for redraw only when its own text, colour,
+// attribute or position changes (or every field, on a forced update), and
+// tty_putstatusfield() then writes the whole field. render_status() also
+// erases the rest of a row that got shorter.
+//
+// tty_raw_print() output while the map window is live (see
+// recordRawShadowCells()). Patch 006 writes it into the shadow screen
+// directly, and its nomux_enter_raw_mode() first blanks the whole shadow
+// screen. Neither goes through wintty.c, so C's gg.gbuf, the status
+// window's cw->data and tty_status[] still hold the cells as last printed,
+// and C prints over a blanked or overwritten cell only when it would print
+// there anyway: flush_screen() for a gbuf cell whose gnew bit is set, a
+// status field that check_fields() redraws, docorner()'s or cls()'s erase.
 function _screenOverlay() {
     game._screenOverlay ??= new Map();
     return game._screenOverlay;
@@ -7015,6 +7028,24 @@ function _screenOverlay() {
 
 function recordScreenOverlay(column, row, ch, color, attr) {
     _screenOverlay().set(`${row}:${column}`, { column, row, ch, color, attr });
+}
+
+// Record shadow-screen cells that tty_raw_print() wrote behind wintty.c's
+// back; js/tty_rawprint.js calls this for the blanking of
+// nomux_enter_raw_mode() and for each character nomux_raw_putch() stores.
+// Row 0 is left out: the port projects the message line from
+// _pending_message, and C's next message write there starts with home()
+// and cl_end(), which erase the raw text. Raw output before the map window
+// exists, or after exit_nhwindows(), needs no entry: newgame()'s or
+// dorecover()'s docrt() erases the screen before the first map flush, and
+// no flush follows the farewell.
+export function recordRawShadowCells(cells, state = game) {
+    for (const { column, row, ch, color, attr } of cells) {
+        if (row < 1) continue;
+        state._screenOverlay ??= new Map();
+        state._screenOverlay.set(`${row}:${column}`,
+            { column, row, ch, color, attr });
+    }
 }
 
 function _applyScreenOverlay(display) {
@@ -7262,6 +7293,10 @@ function _buildScreenOutput(cursorOnHero = true) {
                         loc.disp_browser_attr = framed_print_attr(
                             loc.disp_browser_attr, x, y);
                     commitFlushedGlyph(loc);
+                    // tty_print_glyph()'s g_putch() covers a raw-print cell;
+                    // its UTF-8 path leaves the shadow cell as it was.
+                    if (game._screenOverlay && loc.disp_glyph?.ch !== null)
+                        game._screenOverlay.delete(`${offset + 1}:${x - 1}`);
                 }
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
@@ -7332,6 +7367,9 @@ function _buildScreenOutput(cursorOnHero = true) {
                 }
             }
         }
+        // writeStatusRows() applies the overlay; repeat it for a flush that
+        // leaves the status rows to bot_disabled.
+        if (!bufferedOnly) _applyScreenOverlay(display);
         // display.c flush_screen():2261-2263 moves the cursor only for a
         // nonzero cursor_on_u. Restore the TTY cursor after clearScreen() for
         // the mode used by getpos.c and tmp_at().

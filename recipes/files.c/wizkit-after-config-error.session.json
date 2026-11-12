@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() raw_printf()s \"Access to <name> denied (2).\" while recorder patch 006 is already in raw mode: the unknown option before it raw-printed a configuration error at startup, so the report lands on the raw cursor's row over the live map without blanking the screen, and its 80th column is the last one stored. C's gg.gbuf still holds the overwritten map cells, so they come back only where flush_screen() prints a changed glyph (the hero walking down through the row) or docorner() erases and redraws the corner under the inventory menu. Seed, date, Priest and kit name chosen independently of other recordings.",
+  "segments": [
+    {
+      "seed": 830404,
+      "datetime": "20480923161500",
+      "nethackrc": "OPTIONS=name:Rawly,role:Priest,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=frobnicate\nWIZKIT=kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\n",
+      "moves": "\n  jjjj i  "
+    }
+  ]
+}

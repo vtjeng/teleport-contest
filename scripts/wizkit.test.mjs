@@ -1,8 +1,9 @@
 // cfgfiles.c cnf_line_WIZKIT() stores gw.wizkit, and files.c read_wizkit()
-// reads it at the start of a new game in debug mode. The blocked recipe
-// recipes/files.c/wizkit-missing-file-blocked reaches the "Access to <name>
-// denied" report; these tests pin the stored name and the arms that print
-// nothing.
+// reads it at the start of a new game in debug mode. The recordings of
+// recipes/files.c/wizkit-missing-file and wizkit-after-config-error show the
+// "Access to <name> denied" report; these tests pin what no recording shows:
+// the 127-byte limit, the arms that print nothing, and the names the port
+// cannot rule out as files.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
