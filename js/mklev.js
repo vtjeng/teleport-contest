@@ -360,7 +360,7 @@ import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
 import { note_unported } from './unported.js';
 import { impossible, impossible_printer } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { dungeon_at } from './dungeon_table.js';
 
 const XLIM = 4;
@@ -1850,8 +1850,9 @@ function lvlfill_swamp(fg, bg, lit, frame, state) {
 }
 
 // C ref: sp_lev.c splev_initlev(). Dispatches a des.level_init() request to
-// the fill routine its style names.
-function splev_initlev(linit, frame, state) {
+// the fill routine its style names. A step generator (js/source_steps.js):
+// mkmap.c join_map() can print impossible() in the middle of the fill.
+function* splev_initlev_steps(linit, frame, state) {
     switch (linit.init_style) {
     default:
         throw new Error('Unrecognized level init style.');
@@ -1885,7 +1886,7 @@ function splev_initlev(linit, frame, state) {
         // C: the file-scope icedpools flag lspo_level_flags("icedpools")
         // sets; this port keeps it on the frame.
         linit.icedpools = frame.icedpools;
-        mkmap(linit, state);
+        yield* mkmap_steps(linit, state);
         break;
     case LVLINIT_SWAMP:
         if (linit.lit === BOOL_RANDOM)
@@ -2807,7 +2808,10 @@ export function lspo_level_init(args, env) {
     if (init_lev.bg === INVALID_TYPE)
         init_lev.bg = (init_lev.init_style === LVLINIT_SWAMP) ? MOAT : STONE;
 
-    splev_initlev(init_lev, frame, state);
+    // Every des.level_init() caller awaits the result, so join_map()'s
+    // impossible() prints at C's point in the fill.
+    return finish_steps(splev_initlev_steps(init_lev, frame, state),
+        impossible_printer(state));
 }
 
 // C ref: sp_lev.c lspo_engraving(). Forms: engraving({ x, y, type, text })
@@ -5422,7 +5426,9 @@ function mkmap_join_map_cleanup(state) {
 
 // C ref: mkmap.c join_map(). Flood-fill to find fg_typ regions, create
 // temporary rooms for them, then dig corridors to connect adjacent regions.
-function mkmap_join_map(bg_typ, fg_typ, state) {
+// A step generator: it yields the impossible() C prints when a region has no
+// square somexy() can pick.
+function* mkmap_join_map_steps(bg_typ, fg_typ, state) {
     // Find all regions via flood fill and create rooms for them.
     for (let x = 2; x <= WIDTH; x++) {
         for (let y = 1; y < HEIGHT; y++) {
@@ -5476,6 +5482,9 @@ function mkmap_join_map(bg_typ, fg_typ, state) {
         const sm = {};
         const em = {};
         if (!somexy(croom, sm, { state }) || !somexy(croom2, em, { state })) {
+            /* ack! -- the level is going to be busted */
+            /* arbitrarily pick centers of both rooms and hope for the best */
+            yield new ImpossibleCall('No start/end room loc in join_map.');
             sm.x = croom.lx + Math.trunc((croom.hx - croom.lx) / 2);
             sm.y = croom.ly + Math.trunc((croom.hy - croom.ly) / 2);
             em.x = croom2.lx + Math.trunc((croom2.hx - croom2.lx) / 2);
@@ -5524,7 +5533,8 @@ function mkmap_finish_map(fg_typ, bg_typ, lit, walled, icedpools, state) {
 
 // C ref: mkmap.c mkmap(). Top-level cave generator: fill, automata passes,
 // optional smoothing and joining, then finish with walls and lighting.
-function mkmap(init_lev, state) {
+// A step generator, for join_map()'s impossible().
+function* mkmap_steps(init_lev, state) {
     const bg_typ = init_lev.bg;
     const fg_typ = init_lev.fg;
     const smooth = init_lev.smoothed;
@@ -5548,7 +5558,7 @@ function mkmap(init_lev, state) {
             mkmap_pass_three(bg_typ, fg_typ, state);
 
     if (join)
-        mkmap_join_map(bg_typ, fg_typ, state);
+        yield* mkmap_join_map_steps(bg_typ, fg_typ, state);
 
     mkmap_finish_map(
         fg_typ, bg_typ, lit, walled,

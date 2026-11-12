@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 218 | 505 |
+| diagnostic | 723 | 219 | 504 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4214 | 697 |
+| total | 4911 | 4215 | 696 |
 
 ## Missing by C file
 
@@ -73,7 +73,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mhitu.c | yes | 1 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 12 | 2 |
-| src/mkmap.c | no | 0 | 2 | 0 |
+| src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 4 | 8 | 2 |
 | src/mkobj.c | no | 0 | 27 | 4 |
 | src/mkroom.c | yes | 0 | 2 | 0 |
@@ -913,9 +913,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2576 impossible: `mkinvpos called with dist`
 
 ### src/mkmap.c
-
-- `join_map()`
-  - 309 impossible: `No start/end room loc in join_map.`
 
 - `remove_rooms()`
   - 395 impossible: `regular room in joined map`

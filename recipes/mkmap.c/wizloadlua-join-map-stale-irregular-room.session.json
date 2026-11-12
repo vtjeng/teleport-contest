@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkmap.c join_map() with rooms it cannot pick a square in: #wizloadlua fakewiz1 leaves its irregular room in svr.rooms[], and #wizloadlua minefill then runs mkmap() on the same level. init_map() clears every square's roomno, so join_map()'s somexy() finds no square of the old irregular room, and C prints impossible(\"No start/end room loc in join_map.\") six times, each before digging between the two rooms' centres, while the level program goes on. Seed, date, Priest and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61940277,
+      "datetime": "20480923151204",
+      "nethackrc": "OPTIONS=name:Joiner,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nfakewiz1\n#wizloadlua\nminefill\n                 :"
+    }
+  ]
+}
