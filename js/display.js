@@ -6282,7 +6282,22 @@ export function init_blstats(state = game) {
     gb.status_hilite_chg_banks = [Array(size).fill(false),
         Array(size).fill(false)];
     gb.status_hilite_chg = gb.status_hilite_chg_banks[0];
+    statusPercentBanks(gb);
     return true;
+}
+
+// C ref: botl.c gb.blstats[2][].percent_value and gn.now_or_before_idx. Every
+// bot() toggles the index and refills that bank's values, so the other bank
+// holds the previous bot()'s values -- which is what the port's shifted
+// status_hilite_* banks hold too. percent_value is the exception: a bank
+// stores one only when eval_notify_windowport_field() recomputes it, so each
+// bank keeps its own, possibly old, percentage, and a new one is compared
+// with the other bank's. Both banks start zeroed, and the index at 0.
+function statusPercentBanks(gb) {
+    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+    gb.status_percent_value ??= [Array(size).fill(0), Array(size).fill(0)];
+    gb.now_or_before_idx ??= 0;
+    return gb.status_percent_value;
 }
 
 // C ref: botl.c status_initialize(). Full initialization owns the one-time
@@ -6329,6 +6344,10 @@ function _setStatusHiliteChange(gb, fld, value) {
 function _beginStatusHilitePass(onlyField = null) {
     const gb = game.gb ??= {};
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+    // bot_via_windowport() toggles gn.now_or_before_idx; stat_update_time()
+    // does not.
+    statusPercentBanks(gb);
+    if (!onlyField) gb.now_or_before_idx = 1 - gb.now_or_before_idx;
     for (const name of ['status_hilite_rule', 'status_hilite_value',
         'status_hilite_compare_value', 'status_hilite_percent',
         'status_hilite_text', 'status_hilite_type']) {
@@ -6423,7 +6442,7 @@ function _statusFieldNotice(gb, fld, data, updateAll) {
     const value = data.value ?? null;
     const compareValue = data.compareValue ?? value;
     const changed = gb.status_hilite_compare_value[1][fld] !== compareValue
-        || gb.status_hilite_percent[1][fld] !== (data.percent ?? null)
+        || Boolean(data.percentChange)
         || gb.status_hilite_text[1][fld] !== (data.text ?? null);
     const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
     const expired = !updateAll && !changed && !game.multi && until > 0
@@ -6571,8 +6590,10 @@ function _collectStatusHilites(layouts, onlyField = null) {
         // percentage field recomputes its percentage only while it has
         // highlight rules, and then only when its value changed, on
         // update_all, or (for BL_XP) always; 'hitpointbar' forces BL_HP.
-        // Otherwise the bank keeps its last percentage, 0 until one has been
-        // computed, so the first pass after a rule is added can see a change.
+        // A recomputed percentage that differs from the one the other bank
+        // of statusPercentBanks() holds sets chg to its direction, and is
+        // stored in this pass's bank. Otherwise pc is 0 for get_hilite(), and
+        // the bank keeps whatever percentage it last stored.
         if (data.percent != null) {
             const hasThresholds = (game.iflags?.status_hilites ?? []).some(
                 (rule) => rule.field === field.key,
@@ -6583,14 +6604,22 @@ function _collectStatusHilites(layouts, onlyField = null) {
                     || field.key === 'experience-level'))
                 || (field.key === 'hitpoints'
                     && Boolean(game.iflags?.wc2_hitpointbar));
-            if (!recompute) data.percent = gb.status_hilite_percent[1][fld] ?? 0;
+            const banks = statusPercentBanks(gb);
+            const idx = gb.now_or_before_idx;
+            if (recompute) {
+                const before = banks[1 - idx][fld];
+                if (data.percent !== before)
+                    data.percentChange = data.percent < before ? -1 : 1;
+                banks[idx][fld] = data.percent;
+            } else {
+                data.percent = 0;
+            }
         }
         const value = data.value ?? null;
         const compareValue = data.compareValue ?? value;
         const percent = data.percent ?? null;
         const text = data.text ?? null;
         const previousCompareValue = gb.status_hilite_compare_value[1][fld];
-        const previousPercent = gb.status_hilite_percent[1][fld];
         const previousText = gb.status_hilite_text[1][fld];
         const { changed, expired } = _statusFieldNotice(gb, fld, data,
             updateAll);
@@ -6604,9 +6633,7 @@ function _collectStatusHilites(layouts, onlyField = null) {
         if (data.value == null && text != null && previousText != null
             && text !== previousText)
             change = text < previousText ? -1 : 1;
-        if (percent != null && previousPercent != null
-            && percent !== previousPercent)
-            change = Math.sign(percent - previousPercent);
+        if (data.percentChange) change = data.percentChange;
         // BL_XP uses a percentage to decide whether to notify, then resets
         // chg to compare_blstats() on its level value.
         if (field.key === 'experience-level' && change === 1

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913374,
+      "datetime": "20310620142211",
+      "nethackrc": "OPTIONS=name:Ewan,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,color,statushilites:4\nOPTIONS=hilite_status:hitpoints/up/red/down/green\n",
+      "moves": "\n\u0007jackal\n20s20s20s20s20s"
+    }
+  ],
+  "comment": "botl.c keeps a hit-point percentage in each of its two blstats banks, and bot() alternates between them, so a recomputed percentage is compared with the other bank's, which may be older than the last one computed; a pass that does not recompute it passes 0 to get_hilite(). With hitpoints/up/red/down/green, each of the jackal's bites keeps the 'down' rule."
+}
