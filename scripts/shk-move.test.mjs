@@ -21,7 +21,6 @@ import {
     repairable_damage,
     shk_impaired,
     shk_move,
-    UnsupportedShopError,
 } from '../js/shk.js';
 import { m_move } from '../js/monmove.js';
 import { monst_globals_init, PM_SHOPKEEPER } from '../js/monsters.js';
@@ -177,23 +176,6 @@ test('shk_move completes adjacent angry combat before returning zero', async () 
     assert.equal(await result, 0);
     assert.equal(settled, true);
     assert.deepEqual(order, ['attack completed']);
-});
-
-test('shk_move retains the unqualified different-customer following boundary', async () => {
-    // C ref: shk.c:4903-4931.  A following shopkeeper would talk to the hero
-    const shkp = makeStationaryShopkeeper();
-    shkp.mextra.eshk.following = true;
-    shkp.mextra.eshk.customer = 'previous-customer';
-    // Boundary-contract fixture, not a claim that this state is reachable.
-    // C checks following speech only while the hero is within dist2 < 3.
-    const state = makeShopState({ ux: 4, uy: 5 });
-    state.level.rooms[0].resident = shkp;
-
-    await assert.rejects(
-        () => shk_move(shkp, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('following'),
-    );
 });
 
 test('shk_move moves an indebted shopkeeper toward its guard', async () => {

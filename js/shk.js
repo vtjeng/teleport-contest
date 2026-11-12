@@ -3909,8 +3909,7 @@ export async function fix_shop_damage(state = game, env = {}) {
 
 // C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and
 // hands candidate selection to priest.c move_special(), which is shared by
-// both special movers. Same-customer following speech runs in C order;
-// different-customer following remains a boundary.
+// both special movers.
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
 // -2 = died.
@@ -3946,12 +3945,20 @@ export async function shk_move(shkp, state, rawEnv = {}) {
             })();
         }
         if (eshkp.following) {
-            // C shk.c:4903-4931. The same-customer reminder is reachable
-            // after native polymorph and music pacification. A supported
-            // different-customer entry path remains unqualified.
+            // C shk.c:4903-4931. The customer differs from plname only for a
+            // bones shopkeeper who was following the dead hero.
             if (truncateByteString(eshkp.customer ?? '', PL_NSIZ)
-                !== truncateByteString(state.plname ?? '', PL_NSIZ))
-                throw new UnsupportedShopError('shk_move following speech');
+                !== truncateByteString(state.plname ?? '', PL_NSIZ)) {
+                if (!Deaf(state.u) && !muteshk(shkp)) {
+                    set_voice(shkp, 0, 80, 0, state);
+                    await verbalize(
+                        `${Hello(state.urole, { shopkeeper: true })}, ${state.plname}!  I was looking for ${eshkp.customer}.`,
+                        state, { message: env.message ?? ttyPline },
+                    );
+                }
+                eshkp.following = 0;
+                return 0;
+            }
             const globals = state.gf ??= {};
             if ((state.moves ?? 0) > (globals.followmsg ?? 0) + 4) {
                 if (!Deaf(state.u) && !muteshk(shkp)) {

@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1002,
+      "datetime": "20450922163000",
+      "nethackrc": "OPTIONS=name:Pilferer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00162\n\u0017wand of death\n\u0014HHHHHHHHhhhhhhhkk.  ,  \u0014LLLLLLLLLL.    zf.  y     y",
+      "comment": "A debug-mode Valkyrie, whom set_playmode() names \"wizard\", level-teleports to D:2 of seed 1002, which has a tended armor shop (see recipes/bones.c/shopkeeper-level-bones), wishes for a wand of death, teleports into the shop, picks up a helm and teleports out. shk.c u_left_shop() -> rob_shop() calls hot_pursuit(), so the shopkeeper follows with customer \"wizard\". She zaps herself, and inherits() \"comes and takes all your possessions\" and sends the shopkeeper home, still following; she saves bones."
+    },
+    {
+      "seed": 6084,
+      "datetime": "20450925090000",
+      "nethackrc": "OPTIONS=name:Bystander,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " lae  >ae>  ssssssssssssssssssss",
+      "comment": "An ordinary-mode Archeologist named Bystander digs through D:1 with his pick-axe and lands on the bones level (getbones()'s rn2(3) is 0 for this seed). shk.c restshk() pacifies the angry shopkeeper because the customer is not Bystander, but following stays set; the shopkeeper comes out to him and shk_move() says \"Hello, Bystander!  I was looking for wizard.\" and stops following."
+    }
+  ]
+}
