@@ -3197,7 +3197,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
 // case hmon_hitmon() must return immediately with FALSE.
 async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
     if (obj.quan > 1)
-        obj = splitobj(obj, 1, { ...env, state });
+        obj = await splitobj(obj, 1, { ...env, state });
     else {
         // C uhitm.c:1100 calls setuwep(NULL), whose worn.c setworn() path
         // needs do_wear.c cancel_doff() and the other canonical worn hooks.

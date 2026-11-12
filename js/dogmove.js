@@ -563,7 +563,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     // Food stacks split one item at a time; unusual object eaters consume the
     // complete object, exactly as dogmove.c's `oclass == FOOD_CLASS` gate.
     if (obj.quan > 1 && obj.oclass === FOOD_CLASS)
-        obj = splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
+        obj = await splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
 
     // dogmove.c:275 raises this before any distant_name()/doname() work, so
     // an unpaid object's price never leaks into the ordinary eating text.
@@ -854,7 +854,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
             }
         }
         const taken = amount !== obj.quan
-            ? splitobj(obj, amount, objectEnv)
+            ? await splitobj(obj, amount, objectEnv)
             : obj;
         if (cansee(monster.mx, monster.my, state)) {
             // C ref: dogmove.c:452-462. distant_name() runs for its side

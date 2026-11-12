@@ -55,7 +55,7 @@ test('splitobj copies source object timers before checking light', () => {
 
     const jsSplitobj = sourceFunction(
         JS_OBJ,
-        'export function splitobj(obj, quantity, env = {}) {',
+        'export async function splitobj(obj, quantity, env = {}) {',
     );
     assert.match(jsSplitobj,
         /if \(obj\.timed\) \{[\s\S]*?normalized\.hooks\.splitObjectTimers\(obj, child, normalized\);\s*else obj_split_timers\(obj, child, normalized\.state\);\s*\}[\s\S]*?if \(obj_sheds_light\(obj\)\)/u);

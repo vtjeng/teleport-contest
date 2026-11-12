@@ -1320,7 +1320,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
         );
         amount = Math.min(amount, heroGold.quan);
         if (amount < heroGold.quan)
-            heroGold = splitobj(heroGold, amount, inventoryEnv);
+            heroGold = await splitobj(heroGold, amount, inventoryEnv);
         else
             await setnotworn(heroGold, inventoryEnv);
         await freeinv(heroGold, inventoryEnv);

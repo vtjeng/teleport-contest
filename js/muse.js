@@ -842,7 +842,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         // monster lands in lava or on a fire trap and the scroll is destroyed.
         let scrollObj = otmp;
         if (scrollObj.quan > 1)
-            scrollObj = splitobj(scrollObj, 1, { state });
+            scrollObj = await splitobj(scrollObj, 1, { state });
         await extract_from_minvent(mtmp, scrollObj, false, false, { state });
         // C uses the message owner to distinguish observed use from a known
         // scroll whose current reading and teleport produced no feedback.
@@ -3429,7 +3429,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
         let saw_lit = false;
 
         if (obj.quan > 1)
-            obj = splitobj(obj, 1, { state });
+            obj = await splitobj(obj, 1, { state });
         if (vis && !was_lit) {
             await pline_mon(mon,
                 `${capitalizedMonsterName(mon, state, actionEnv)} ignites ${ansimpleoname(obj, state)}.`,

@@ -1072,7 +1072,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                                 cntgiven = false;
                             } else {
                                 if (splittable(item, state))
-                                    return splitobj(item, cnt, { state });
+                                    return await splitobj(item, cnt, { state });
                                 if (item.otyp === LOADSTONE && item.cursed)
                                     item.corpsenm = cnt;
                             }
@@ -1388,7 +1388,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         if (cnt === 0) return null;
         if (cnt !== otmp.quan) {
             if (splittable(otmp, state))
-                otmp = splitobj(otmp, cnt, { state });
+                otmp = await splitobj(otmp, cnt, { state });
             else if (otmp.otyp === LOADSTONE && otmp.cursed)
                 otmp.corpsenm = cnt;
         }
@@ -1629,7 +1629,7 @@ export async function askchain(
                 } else {
                     response = 'y';
                     if (number < selected.quan && splittable(selected, state))
-                        selected = splitobj(selected, number, { state });
+                        selected = await splitobj(selected, number, { state });
                 }
             }
             switch (response) {
@@ -3421,7 +3421,7 @@ export async function useupf(obj, numused, env = {}) {
     /* "burn_floor_objects() keeps an object pointer that it tries to
      * useupf() multiple times, so obj must survive if plural" */
     const otmp = (obj.quan > numused)
-        ? splitobj(obj, numused, normalized)
+        ? await splitobj(obj, numused, normalized)
         : obj;
     if (!state.context?.mon_moving && costly_spot(otmp.ox, otmp.oy, state)) {
         const room = in_rooms(otmp.ox, otmp.oy, 0, state)[0] ?? 0;
@@ -4882,7 +4882,7 @@ export async function hold_another_object(
                 && near_capacity(state) > prev_encumbr)) {
             /* 1275-1281 undoes any merge which took place before drop_it. */
             if (obj.quan > oquan)
-                obj = splitobj(obj, oquan, normalized);
+                obj = await splitobj(obj, oquan, normalized);
             await gotoDrop(obj, drop_fmt, drop_arg, normalized);
             return null;
         }
@@ -5709,7 +5709,7 @@ export async function adjust_split(state = game, hooks = {}) {
         );
         return ECMD_CANCEL;
     }
-    const child = splitobj(obj, splitAmount, { state, hooks });
+    const child = await splitobj(obj, splitAmount, { state, hooks });
     return doorganize_core(child, state, hooks);
 }
 

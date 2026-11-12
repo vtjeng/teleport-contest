@@ -1789,7 +1789,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
             break;
         }
         if (obj.quan > 1)
-            obj = splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
+            obj = await splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
         if (cansee(x, y, state) && canseemon(mtmp, state)) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
@@ -1965,7 +1965,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
         }
     }
     const taken = carryamt !== obj.quan
-        ? splitobj(obj, carryamt, objectEnv)
+        ? await splitobj(obj, carryamt, objectEnv)
         : obj;
     if (cansee(monster.mx, monster.my, state)) {
         // C ref: mon.c:1893-1901. distant_name() runs for its side effects

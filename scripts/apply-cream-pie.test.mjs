@@ -181,7 +181,7 @@ test('splitobj preserves the returned child and explicit splitBill hook',
     pie.owt = weight(pie, { state: game });
     let splitBillCalls = 0;
 
-    const child = splitobj(pie, 1, {
+    const child = await splitobj(pie, 1, {
         state: game,
         hooks: {
             splitBill(parent, split, normalized) {

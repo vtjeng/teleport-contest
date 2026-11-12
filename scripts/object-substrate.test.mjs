@@ -525,7 +525,7 @@ test('copy_oextra copies C-owned data while retaining monster pointers', () => {
     );
 });
 
-test('splitobj preserves source list placement, ids, and independent extras', () => {
+test('splitobj preserves source list placement, ids, and independent extras', async () => {
     const state = initializedFloorState();
     // Both ids are divisible by four, so the first child candidate preserves
     // the unidentified-object shop-price class without a retry.
@@ -560,7 +560,7 @@ test('splitobj preserves source list placement, ids, and independent extras', ()
         { name: 'rnd', args: [2], result: 2 },
     ]);
 
-    const child = splitobj(stack, splitQuantity, { state, ...random });
+    const child = await splitobj(stack, splitQuantity, { state, ...random });
 
     assert.equal(child.o_id, childId);
     assert.equal(state.context.ident, childId + 2);
@@ -584,7 +584,7 @@ test('splitobj preserves source list placement, ids, and independent extras', ()
     random.done();
 });
 
-test('splitobj retries ids until the shop-price class matches', () => {
+test('splitobj retries ids until the shop-price class matches', async () => {
     const state = initializedState();
     // Parent id 9 has the normal price class. Candidate 12 has a surcharge,
     // so nextoid() must select 13 before advancing the shared id.
@@ -602,14 +602,14 @@ test('splitobj retries ids until the shop-price class matches', () => {
         { name: 'rnd', args: [2], result: 2 },
     ]);
 
-    const child = splitobj(stack, 1, { state, ...random });
+    const child = await splitobj(stack, 1, { state, ...random });
 
     assert.equal(child.o_id, matchingChildId);
     assert.equal(state.context.ident, matchingChildId + 2);
     random.done();
 });
 
-test('splitobj adds a light child after bill, extra, and timer work', () => {
+test('splitobj adds a light child after bill, extra, and timer work', async () => {
     const state = initializedState();
     light_globals_init(state);
     // Parent and candidate ids both use the normal shop-price class.
@@ -652,7 +652,7 @@ test('splitobj adds a light child after bill, extra, and timer work', () => {
         { name: 'rnd', args: [2], result: 1 },
     ]);
 
-    const child = splitobj(stack, splitQuantity, {
+    const child = await splitobj(stack, splitQuantity, {
         state,
         ...random,
         hooks: {
@@ -693,7 +693,7 @@ test('splitobj adds a light child after bill, extra, and timer work', () => {
     random.done();
 });
 
-test('splitobj tests light ownership with obj_sheds_light()', () => {
+test('splitobj tests light ownership with obj_sheds_light()', async () => {
     const state = initializedState();
     const parentId = 9;
     const childId = 10;
@@ -710,13 +710,13 @@ test('splitobj tests light ownership with obj_sheds_light()', () => {
         { name: 'rnd', args: [2], result: 1 },
     ]);
 
-    const child = splitobj(stack, 1, { state, ...random });
+    const child = await splitobj(stack, 1, { state, ...random });
 
     assert.equal(child.lamplit, false);
     random.done();
 });
 
-test('splitobj rejects an uninitialized shared id before mutating the stack', () => {
+test('splitobj rejects an uninitialized shared id before mutating the stack', async () => {
     const state = initializedState();
     // A two-object stack split by one is the smallest valid split request.
     const originalQuantity = 2;
@@ -731,7 +731,7 @@ test('splitobj rejects an uninitialized shared id before mutating the stack', ()
     });
     const stillNoDraws = scriptedRandom([]);
 
-    assert.throws(
+    await assert.rejects(
         () => splitobj(unidentifiedStack, splitQuantity, {
             state: missingIdState,
             ...stillNoDraws,
@@ -744,7 +744,7 @@ test('splitobj rejects an uninitialized shared id before mutating the stack', ()
     stillNoDraws.done();
 });
 
-test('splitobj copies timers before cloning lit candle sources', () => {
+test('splitobj copies timers before cloning lit candle sources', async () => {
     const initializeLiveGame = () => {
         resetGame();
         game.context = { ident: 10 };
@@ -769,7 +769,7 @@ test('splitobj copies timers before cloning lit candle sources', () => {
     const timerRandom = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 },
     ]);
-    const timerChild = splitobj(timerStack, 1, {
+    const timerChild = await splitobj(timerStack, 1, {
         state: timerState,
         ...timerRandom,
     });
@@ -805,7 +805,7 @@ test('splitobj copies timers before cloning lit candle sources', () => {
     const lightRandom = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 },
     ]);
-    const lightChild = splitobj(lightStack, 1, {
+    const lightChild = await splitobj(lightStack, 1, {
         state: lightState,
         ...lightRandom,
     });
@@ -822,7 +822,7 @@ test('splitobj copies timers before cloning lit candle sources', () => {
     lightRandom.done();
 });
 
-test('splitobj checks light ownership after the timer call', () => {
+test('splitobj checks light ownership after the timer call', async () => {
     const state = initializedState();
     state.context.ident = 10;
     const stack = plainObject(TALLOW_CANDLE, state, {
@@ -836,7 +836,7 @@ test('splitobj checks light ownership after the timer call', () => {
         { name: 'rnd', args: [2], result: 1 },
     ]);
 
-    splitobj(stack, 1, {
+    await splitobj(stack, 1, {
         state,
         ...random,
         hooks: {

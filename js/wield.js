@@ -845,7 +845,7 @@ export async function dowield(state = game) {
             const answer = await quiver_ynq(qbuf, state);
             if (answer === 'q') return ECMD_OK;
             if (answer === 'y') {
-                wep = splitobj(quiver, 1, { state });
+                wep = await splitobj(quiver, 1, { state });
                 finish_splitting(wep, state);
             } else {
                 qbuf = 'Wield all of them instead?';
@@ -1008,7 +1008,7 @@ export async function doquiver_core(verb, state = game) {
             const answer = await quiver_ynq(qbuf, state);
             if (answer === 'q') return ECMD_OK;
             if (answer === 'y') {
-                newquiver = splitobj(
+                newquiver = await splitobj(
                     newquiver,
                     newquiver.quan - 1,
                     { state },
@@ -1061,7 +1061,7 @@ export async function doquiver_core(verb, state = game) {
             const answer = await quiver_ynq(qbuf, state);
             if (answer === 'q') return ECMD_OK;
             if (answer === 'y') {
-                newquiver = splitobj(
+                newquiver = await splitobj(
                     newquiver,
                     newquiver.quan - 1,
                     { state },

@@ -1355,7 +1355,7 @@ export async function pickup_object(
         if (carried.count < 1) return -1;
         count = carried.count;
         if (count > 0 && count < obj.quan)
-            obj = splitobj(obj, count, env);
+            obj = await splitobj(obj, count, env);
 
         if (obj.blessed) {
             await unbless(obj, env);
@@ -1380,7 +1380,7 @@ export async function pickup_object(
     if (obj.oclass === COIN_CLASS)
         state.disp.botl = true;
     if (obj.quan !== count && obj.otyp !== LOADSTONE) {
-        obj = splitobj(obj, count, env);
+        obj = await splitobj(obj, count, env);
         plan = null;
     }
     obj = await pick_obj(obj, state, env, plan);
@@ -3291,7 +3291,7 @@ async function out_container(obj, state) {
 
     let otmp = obj;
     if (obj.quan !== count && obj.otyp !== LOADSTONE)
-        otmp = splitobj(obj, count, { state });
+        otmp = await splitobj(obj, count, { state });
 
     // Remove the object from the container.
     obj_extract_self(otmp, { state });
@@ -3481,7 +3481,7 @@ export async function menu_loot(retry, put_in, state = game) {
             n_looted = 1;
             let toStash = otmp;
             if (count > 0 && count < otmp.quan)
-                toStash = splitobj(otmp, count, { state });
+                toStash = await splitobj(otmp, count, { state });
             await in_container(toStash, state);
             // Return value does not matter; container may have exploded.
         }
@@ -3512,7 +3512,7 @@ export async function menu_loot(retry, put_in, state = game) {
                 const origObj = obj;
                 const cnt = choice.count;
                 if (cnt > 0 && cnt < obj.quan)
-                    obj = splitobj(obj, cnt, { state });
+                    obj = await splitobj(obj, cnt, { state });
                 const res = put_in
                     ? await in_container(obj, state)
                     : await out_container(obj, state);
@@ -3786,7 +3786,7 @@ export async function reverse_loot(state = game, rawEnv = {}) {
         if (goldob.oclass === COIN_CLASS) {
             const contribution = Math.trunc((random.rnd(5) * goldob.quan + 4) / 5);
             if (contribution < goldob.quan)
-                goldob = splitobj(goldob, contribution, env);
+                goldob = await splitobj(goldob, contribution, env);
             break;
         }
     }

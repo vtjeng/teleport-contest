@@ -49,7 +49,7 @@ test('royal jelly helper preserves C split, prompt, egg effects, and cleanup ord
     assert.match(cHelper,
         /if \(splitit\)\s*obj = splitobj\(obj, 1L\);[\s\S]*?freeinv\(obj\);[\s\S]*?getobj\("rub the royal jelly on", jelly_ok, GETOBJ_PROMPT\)/u);
     assert.match(jsHelper,
-        /if \(splitit\) obj = splitobj\(obj, 1, env\);\s*await freeinv\(obj, env\);[\s\S]*?getobj\(\s*'rub the royal jelly on', jelly_ok, GETOBJ_PROMPT, state,/u);
+        /if \(splitit\) obj = await splitobj\(obj, 1, env\);\s*await freeinv\(obj, env\);[\s\S]*?getobj\(\s*'rub the royal jelly on', jelly_ok, GETOBJ_PROMPT, state,/u);
 
     assert.ok(cHelper.indexOf('if (eobj->corpsenm == PM_KILLER_BEE)')
         < cHelper.indexOf('if (obj->cursed)'));

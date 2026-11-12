@@ -1767,7 +1767,7 @@ export async function menudrop_split(obj, count, state = game) {
         } else if (obj.otyp === LOADSTONE && obj.cursed) {
             obj.corpsenm = count;
         } else {
-            obj = splitobj(obj, count, { state });
+            obj = await splitobj(obj, count, { state });
         }
     }
     return drop(obj, state);

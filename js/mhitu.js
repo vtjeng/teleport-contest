@@ -1153,7 +1153,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                     `${noit_Monnam(mon, state, namingEnv)} takes ${cost} `
                         + `${currency(cost, state)} for services rendered!`,
                 );
-                money2mon(mon, cost, state);
+                await money2mon(mon, cost, state);
                 state.disp.botl = true;
             }
         }

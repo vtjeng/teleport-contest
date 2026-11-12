@@ -2171,7 +2171,7 @@ export async function dodrink(state = game) {
     // steal.c:remove_worn_item() helper.
     if (otmp.owornmask) {
         if (otmp.quan > 1) {
-            otmp = splitobj(otmp, 1, { state });
+            otmp = await splitobj(otmp, 1, { state });
             otmp.owornmask = 0;
         } else {
             // C removes a singly worn potion before polymorph or another
@@ -3327,7 +3327,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 amount = random.rnd(Math.min(amount, 8) - 2) + 2;
             else amount = random.rnd(amount - 6) + 6;
             if (amount < obj.quan) {
-                obj = splitobj(obj, amount, env);
+                obj = await splitobj(obj, amount, env);
                 mixName = amount + ' of the';
             }
         }
@@ -3513,7 +3513,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             oldColor = hcolor(OBJ_DESCR(state.objects[potion.otyp], state),
                 state, env) + ' ';
         const singlePotion = potion.quan > 1
-            ? splitobj(potion, 1, env) : potion;
+            ? await splitobj(potion, 1, env) : potion;
         await costly_alteration(singlePotion, COST_NUTRLZ, env);
         singlePotion.otyp = mixture;
         singlePotion.blessed = 0;

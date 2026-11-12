@@ -2600,7 +2600,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         singleobj = otmp;
         otmp = null;
     } else {
-        singleobj = splitobj(otmp, 1, objectEnv);
+        singleobj = await splitobj(otmp, 1, objectEnv);
         obj_extract_self(singleobj, objectEnv);
     }
     redraw(x1, y1);

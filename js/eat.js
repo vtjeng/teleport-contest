@@ -272,7 +272,7 @@ async function costly_tin(alterType, state = game) {
     if (!needsCharge) return tin;
 
     if ((tin.quan ?? 1) > 1) {
-        tin = splitobj(tin, 1, { state });
+        tin = await splitobj(tin, 1, { state });
         context.tin = tin;
         context.o_id = tin.o_id;
     }
@@ -1181,7 +1181,7 @@ async function start_tin(otmp, state = game, env = {}) {
                     state,
                 );
                 if ((otmp.quan ?? 1) > 1)
-                    otmp = splitobj(otmp, 1, { state });
+                    otmp = await splitobj(otmp, 1, { state });
                 if (carried(otmp))
                     await dropx(otmp, dropCommandEnv(state, env));
                 else stackobj(otmp, { state });
@@ -1205,7 +1205,7 @@ async function start_tin(otmp, state = game, env = {}) {
                 state,
             );
             if ((otmp.quan ?? 1) > 1)
-                otmp = splitobj(otmp, 1, { state });
+                otmp = await splitobj(otmp, 1, { state });
             if (carried(otmp))
                 await dropx(otmp, dropCommandEnv(state, env));
             else stackobj(otmp, { state });
@@ -1576,8 +1576,8 @@ export function adj_victual_nutrition(state) {
 async function touchfood(otmp, env) {
     const { state } = env;
     if (otmp.quan > 1) {
-        if (!carried(otmp)) splitobj(otmp, otmp.quan - 1, env);
-        else otmp = splitobj(otmp, 1, env);
+        if (!carried(otmp)) await splitobj(otmp, otmp.quan - 1, env);
+        else otmp = await splitobj(otmp, 1, env);
     }
     if (!otmp.oeaten) {
         await costly_alteration(otmp, COST_BITE, env);
@@ -4251,9 +4251,9 @@ export async function doeat(state = game, env = {}) {
         otmp.rknown = true;
         if ((otmp.quan ?? 1) > 1) {
             if (!carried(otmp))
-                splitobj(otmp, otmp.quan - 1, { state });
+                await splitobj(otmp, otmp.quan - 1, { state });
             else
-                otmp = splitobj(otmp, 1, { state });
+                otmp = await splitobj(otmp, 1, { state });
         }
         await eatEnv.message(
             `Ulch - that ${xnameFresh(otmp, state)} was rustproofed!`, state,

@@ -2219,7 +2219,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
         /* split this object off from its slot if necessary */
         let otmp;
         if (obj.quan > 1) {
-            otmp = splitobj(obj, 1, { state });
+            otmp = await splitobj(obj, 1, { state });
         } else {
             otmp = obj;
             if ((otmp.owornmask & W_QUIVER)

@@ -885,7 +885,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     } else {
         // C splitobj(obj, 1L) keeps the parent stack in monster inventory;
         // obj_extract_self() moves the one missile into OBJ_FREE.
-        singleobj = splitobj(obj, 1, env);
+        singleobj = await splitobj(obj, 1, env);
         extractObject(singleobj, env);
     }
     state.gt ??= {};

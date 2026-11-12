@@ -690,7 +690,7 @@ export async function engrave(state = game, env = {}) {
             // mkobj.c splitobj() draws nothing. Leave the random source to
             // js/obj.js, which uses the shared RNG module when none is given,
             // as C's splitobj() uses the global RNG.
-            stylus = context.stylus = splitobj(stylus, 1, {
+            stylus = context.stylus = await splitobj(stylus, 1, {
                 state,
                 hooks: env.objectHooks ?? {},
             });

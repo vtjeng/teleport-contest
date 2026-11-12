@@ -722,7 +722,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     }
     if (object().quan > 1) {
         if (!isGold) {
-            state.gk.kickedobj = splitobj(object(), 1, env);
+            state.gk.kickedobj = await splitobj(object(), 1, env);
         } else {
             if (random.rn2(20)) {
                 if (!Deaf(state.u)) await message('Thwwpingg!', state, env);

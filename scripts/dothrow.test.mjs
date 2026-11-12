@@ -2011,7 +2011,7 @@ test('throw_gold() restores a count-split stack when aimed at yourself',
         const state = arena();
         const gold = item(state, GOLD_PIECE, { quan: 7 });
         carry(state, gold);
-        const selected = splitobj(gold, 2, { state });
+        const selected = await splitobj(gold, 2, { state });
         state.nhDisplay.pushKey('.'.charCodeAt(0));
         assert.equal(await throw_obj(selected, 0, state), ECMD_CANCEL);
         assert.equal(state.invent, gold);
@@ -2553,7 +2553,7 @@ test('throw_obj restores saved split context before the unsplitobj cleanup',
         const stack = item(state, DAGGER, { quan: 5 });
         carry(state, stack);
         state.uquiver = null;
-        const child = splitobj(stack, 1, { state });
+        const child = await splitobj(stack, 1, { state });
         const savedSplit = { ...state.context.objsplit };
         assert.deepEqual(savedSplit,
             { parent_oid: stack.o_id, child_oid: child.o_id },

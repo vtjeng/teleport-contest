@@ -341,7 +341,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
 }
 
 // C ref: minion.c bribe() (361-389). The terminal line is parsed as a signed
-// decimal long, payment is capped to the hero's inventory, and money2mon()
+// decimal long, payment is capped to the hero's inventory, and await money2mon()
 // owns the object transfer while its C return is discarded here.
 export async function bribe(mtmp, prompt, state = game, env = {}) {
     const message = env.message ?? ttyPline;
@@ -369,7 +369,7 @@ export async function bribe(mtmp, prompt, state = game, env = {}) {
     }
 
     const { money2mon } = await import('./shk.js');
-    money2mon(mtmp, offer, state);
+    await money2mon(mtmp, offer, state);
     state.disp ??= {};
     state.disp.botl = true;
     return offer;

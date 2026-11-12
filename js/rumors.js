@@ -336,7 +336,7 @@ export async function doconsult(oracl, state = game, env = {}) {
         u_pay = Math.min(umoney, major_cost);
         break;
     }
-    money2mon(oracl, u_pay, state);
+    await money2mon(oracl, u_pay, state);
     state.disp.botl = true;
     const event = state.u.uevent;
     if (!event.major_oracle && !event.minor_oracle)

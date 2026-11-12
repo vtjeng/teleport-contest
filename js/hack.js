@@ -3666,7 +3666,7 @@ async function domove_fight_ironbars(x, y, state) {
         let breakflags = BRK_BY_HERO | BRK_FROM_INV | BRK_MELEE;
         const env = { state };
         if (breaktest(obj, env)) {
-            if (obj.quan > 1) obj = splitobj(obj, 1, env);
+            if (obj.quan > 1) obj = await splitobj(obj, 1, env);
             else await setuwep(null, env);
             await freeinv(obj, env);
             breakflags |= BRK_KNOWN2BREAK;

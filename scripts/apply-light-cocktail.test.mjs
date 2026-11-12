@@ -68,7 +68,7 @@ test('light_cocktail retains the complete C branch and helper order', () => {
         'objp.obj = await addinv_runtime(obj',
         'if (state.u?.uinwater)',
         'const split1off = obj.quan > 1;',
-        'obj = splitobj(obj, 1',
+        'obj = await splitobj(obj, 1',
         'const ownership = shk_your(obj, state);',
         'You light ${ownership}potion.',
         'if (obj.unpaid && costly_spot',

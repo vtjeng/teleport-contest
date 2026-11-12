@@ -1833,7 +1833,7 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     const several = obj.quan > 1;
 
     if (several)
-        obj = splitobj(obj, 1, env);
+        obj = await splitobj(obj, 1, env);
 
     if (Hallucination(state.u)) {
         await ttyPline('You give yourself a facial.', state);
@@ -3204,7 +3204,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
     }
 
     const split1off = obj.quan > 1;
-    if (split1off) obj = splitobj(obj, 1, { ...env, state });
+    if (split1off) obj = await splitobj(obj, 1, { ...env, state });
 
     const ownership = shk_your(obj, state);
     await message(
@@ -3384,7 +3384,7 @@ export async function use_candle(obj, state = game, env = {}) {
     }
 
     if (candelabrum.spe + obj.quan > 7) {
-        obj = splitobj(obj, 7 - candelabrum.spe, { ...env, state });
+        obj = await splitobj(obj, 7 - candelabrum.spe, { ...env, state });
         candleNoun = obj.quan !== 1 ? 'candles' : 'candle';
     }
 
@@ -3947,7 +3947,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
     const message = env.message ?? ttyPline;
     const splitit = obj.quan > 1;
 
-    if (splitit) obj = splitobj(obj, 1, env);
+    if (splitit) obj = await splitobj(obj, 1, env);
     await freeinv(obj, env);
 
     const eobj = await getobj(
@@ -5126,7 +5126,7 @@ export async function flip_coin(obj, state = game, env = {}) {
 
     if (loseCoin) {
         if (coin.quan > 1)
-            coin = splitobj(coin, 1, { ...env, state });
+            coin = await splitobj(coin, 1, { ...env, state });
         await dropx(coin, { ...env, state });
         return ECMD_TIME;
     }

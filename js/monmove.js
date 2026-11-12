@@ -1915,7 +1915,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
 
     if (!mtmp) {
         const m_delay = obj.blessed ? 3 : !obj.cursed ? 5 : 7;
-        if (obj.quan > 1) obj = splitobj(obj, 1, objectEnv);
+        if (obj.quan > 1) obj = await splitobj(obj, 1, objectEnv);
         if (canseemon(mon, state)) {
             await message(
                 messageAt(

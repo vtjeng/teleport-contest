@@ -323,10 +323,10 @@ export function shk_globals_init(state = game) {
     state.gs.sell_how = SELL_NORMAL;
 }
 
-// C ref: shk.c money2mon() (157-184). Transfer an exact gold stack from the
+// C ref: shk.c await money2mon() (157-184). Transfer an exact gold stack from the
 // hero's inventory to a monster. The diagnostic branches are impossible in a
 // valid payment, so their discarded pline.c result is recorded as a gap.
-export function money2mon(monster, amount, state = game) {
+export async function money2mon(monster, amount, state = game) {
     const gold = findgold(state.invent);
     const payment = Math.trunc(amount);
     if (payment <= 0) {
@@ -340,7 +340,7 @@ export function money2mon(monster, amount, state = game) {
 
     let paid = gold;
     if (gold.quan > payment)
-        paid = splitobj(gold, payment, { state });
+        paid = await splitobj(gold, payment, { state });
     else if (gold.owornmask)
         remove_worn_item(gold, false, state);
     freeinv(paid, { state });
@@ -369,7 +369,7 @@ export async function money2u(monster, amount, state = game) {
 
     let paid = gold;
     if (gold.quan > payment)
-        paid = splitobj(gold, payment, { state });
+        paid = await splitobj(gold, payment, { state });
     obj_extract_self(paid, { state });
 
     if (!merge_choice(state.invent, paid, state)
@@ -2021,7 +2021,7 @@ async function check_credit(amount, shkp, state, env) {
 async function pay(amount, shkp, state, env) {
     let robbed = shkp.mextra.eshk.robbed;
     const balance = amount <= 0 ? amount : await check_credit(amount, shkp, state, env);
-    if (balance > 0) money2mon(shkp, balance, state);
+    if (balance > 0) await money2mon(shkp, balance, state);
     else if (balance < 0) await money2u(shkp, -balance, state);
     state.disp.botl = true;
     if (robbed) {
@@ -2447,14 +2447,14 @@ export async function dopay(state = game, env = {}) {
             eshk.debit = eshk.loan = 0;
             await message('Your debt is covered by your credit.', state);
         } else if (!eshk.credit) {
-            money2mon(shkp, debt, state);
+            await money2mon(shkp, debt, state);
             eshk.debit = eshk.loan = 0;
             await message('You pay that debt.', state);
             state.disp.botl = true;
         } else {
             debt -= eshk.credit;
             eshk.credit = 0;
-            money2mon(shkp, debt, state);
+            await money2mon(shkp, debt, state);
             eshk.debit = eshk.loan = 0;
             await message('That debt is partially offset by your credit.', state);
             await message('You pay the remainder.', state);
@@ -4774,7 +4774,7 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
             if (loss > umoney || !loss || uinshop) {
                 eshkp.robbed = Math.max(0, eshkp.robbed - umoney);
                 if (umoney > 0) {
-                    money2mon(shopkeeper, umoney, state);
+                    await money2mon(shopkeeper, umoney, state);
                     state.disp ??= {};
                     state.disp.botl = true;
                 }
@@ -4785,7 +4785,7 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
                     );
                 taken = true;
             } else {
-                money2mon(shopkeeper, loss, state);
+                await money2mon(shopkeeper, loss, state);
                 state.disp ??= {};
                 state.disp.botl = true;
                 if (!silently) {
@@ -4895,7 +4895,7 @@ export async function finish_paybill(state = game) {
     unleash_all(state);
     if (shkp) {
         const umoney = money_cnt(state.invent);
-        if (umoney) money2mon(shkp, umoney, state);
+        if (umoney) await money2mon(shkp, umoney, state);
     }
     await drop_upon_death(null, null, x, y, state);
 }
@@ -5113,7 +5113,7 @@ export async function pay_for_damage(
         const oldY = shopkeeper.my;
         damageCost = await check_credit(damageCost, shopkeeper, state, env);
         if (damageCost > 0) {
-            money2mon(shopkeeper, damageCost, state);
+            await money2mon(shopkeeper, damageCost, state);
             state.disp.botl = true;
         }
         await message(`Mollified, ${shkname(shopkeeper, state)} accepts your restitution.`, state, env);

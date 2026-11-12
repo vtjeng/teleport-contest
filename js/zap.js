@@ -682,7 +682,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
 
     const oneOf = corpse.quan > 1;
     if (oneOf)
-        corpse = splitobj(corpse, 1, objectGenerationEnv(env));
+        corpse = await splitobj(corpse, 1, objectGenerationEnv(env));
 
     if (byHero) {
         let shopkeeper = null;
@@ -2192,7 +2192,7 @@ export async function do_osshock(obj, state = game, random = coreRandom, rawEnv 
         const splitQuantity = obj.quan > LARGEST_INT
             ? random.rnd(30000)
             : random.rnd(Math.trunc(obj.quan) - 1);
-        obj = splitobj(obj, splitQuantity,
+        obj = await splitobj(obj, splitQuantity,
             zapObjectEnv(state, random, rawEnv));
     }
     // do_osshock() is floor-only. Bill the affected stock before delobj()

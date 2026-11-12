@@ -2293,7 +2293,7 @@ test('unsplitobj merges split inventory objects back together', async () => {
     state.context ??= {};
 
     // Split off 2 from the stack of 5. splitobj sets context.objsplit.
-    const child = splitobj(arrow, 2, { state });
+    const child = await splitobj(arrow, 2, { state });
     assert.equal(arrow.quan, 3, 'parent retains 3 after split');
     assert.equal(child.quan, 2, 'child receives 2 from split');
     assert.equal(child.where, OBJ_INVENT, 'child inherits where');
