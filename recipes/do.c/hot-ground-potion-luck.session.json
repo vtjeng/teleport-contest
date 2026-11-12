@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c flooreffects() potion on hot ground: survival_chance adds Luck * 2 (Luck = u.uluck + u.moreluck) for a potion that was in inventory. A debug-mode Valkyrie wishes for a blessed luckstone (moreluck +3) and 15 potions of water, level-teleports to Asmodeus' level in Gehennom (temperature 1), #wizloaddes tut-2 for a quiet lit room floor, and drops two potions one at a time. The first potion's obj_resists() roll lies between 50 and 56, so it survives only because Luck raises its survival chance; the second shatters and trycall() asks for a name, which ESC declines. The seed was chosen by replaying the port over seeds 5518302-5518339 for a drop whose outcome depends on Luck (3 of 38 seeds); the date and character are independent of batch 13.",
+  "segments": [
+    {
+      "seed": 5518310,
+      "datetime": "20500621141500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  \u0017blessed luckstone\n\u001715 uncursed potions of water\n#wizlevelport\n?\nl    #wizloaddes\ntut-2\n    d1f d1f   \u001b"
+    }
+  ]
+}

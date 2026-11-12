@@ -1154,7 +1154,11 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 );
             }
             let survivalChance = obj.blessed ? 70 : 50;
-            if (obj.invlet) survivalChance += Math.trunc(state.u?.luck ?? 0) * 2;
+            // Luck is u.uluck + u.moreluck (you.h).
+            if (obj.invlet) {
+                survivalChance += ((state.u.uluck ?? 0)
+                    + (state.u.moreluck ?? 0)) * 2;
+            }
             if (obj.otyp === POT_OIL) survivalChance = 100;
             const random = rawEnv.random ?? coreRandom;
             if (!obj_resists(obj, survivalChance, 100, {
