@@ -525,7 +525,6 @@ async function ttyPlineCore(
     // redraw, and replacement transition. These callbacks are its terminal
     // primitives, not alternate branch implementations.
     await update_topl(next, state, {
-        msgtype,
         urgentMessage,
         mixedFirstCell,
         stoppedAtEntry,
@@ -541,13 +540,18 @@ async function ttyPlineCore(
             }
         },
         callbacks: {
-            displayPendingTtyMessageWindow,
             dismissPendingTtyMessage,
         },
     });
     // wintty.c clears the one-shot after the source-selected write path.
     if (urgentMessage && messageWin)
         messageWin.flags &= ~WIN_NOSTOP;
+    // pline.c vpline() (283-284) waits for a MSGTYPE=stop line after
+    // putmesg() returns, so an urgent line's WIN_NOSTOP is already clear and
+    // Escape at this --More-- sets WIN_STOP. A line update_topl() suppressed
+    // under WIN_STOP reaches tty_display_nhwindow()'s WIN_CANCELLED return.
+    if (msgtype === MSGTYP_STOP)
+        await displayPendingTtyMessageWindow(state);
     return true;
 }
 

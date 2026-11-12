@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33219,
+      "datetime": "20280912140500",
+      "nethackrc": "OPTIONS=name:Missing,role:Monk,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nMSGTYPE=stop \"lregion type\"\n",
+      "moves": " #wizloaddes\nnosuchlevel\n   \u001b     ",
+      "comment": "Independent pline.c vpline() witness for MSGTYPE=stop on an urgent impossible() line: #wizloaddes of a missing file leaves mkmaze.c put_lregion_here() no room, so impossible() prints 'Couldn't place lregion type 3!' with URGENT_MESSAGE. tty_putstr() clears its one-shot WIN_NOSTOP before vpline() waits for the stop type, so Escape at that --More-- sets WIN_STOP and hides the following 'Program in disorder!' lines until the next urgent impossible() message."
+    }
+  ]
+}

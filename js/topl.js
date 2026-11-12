@@ -3,7 +3,6 @@
 
 import {
     MAX_MSG_HISTORY,
-    MSGTYP_STOP,
     OVERRIDE_MSGTYPE,
     SUPPRESS_HISTORY,
     TOPLINE_SPECIAL_PROMPT,
@@ -314,7 +313,6 @@ function rememberPreviousMessage(state, context, message) {
 // branch order, history changes, and wait decisions stay with this source unit.
 export async function update_topl(message, state = game, context = {}) {
     const {
-        msgtype,
         urgentMessage = false,
         mixedFirstCell = null,
         resetLastMessage = () => {},
@@ -361,8 +359,6 @@ export async function update_topl(message, state = game, context = {}) {
         }
         rememberPreviousMessage(state, context, message);
         resetLastMessage();
-        if (msgtype === MSGTYP_STOP)
-            await callbacks.displayPendingTtyMessageWindow?.(state);
         return;
     }
 
@@ -394,8 +390,6 @@ export async function update_topl(message, state = game, context = {}) {
         });
     }
     resetLastMessage();
-    if (msgtype === MSGTYP_STOP)
-        await callbacks.displayPendingTtyMessageWindow?.(state);
 }
 
 // C refs: topl.c topl_putsym(), putsyms() and removetopl().
