@@ -241,6 +241,11 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
             // when the square is empty.
             monsters: Array.from({ length: COLNO }, () => []),
         },
+        // svl.lastseentyp, which classify_terrain() reads; pickup.c
+        // check_here() has recorded both squares in play.
+        lastseentyp: Array.from({ length: COLNO }, (_, x) => (
+            x === 4 ? { 4: previousTyp } : x === 5 ? { 4: currentTyp } : []
+        )),
         iflags: { terrain_typ: previousTyp },
         flags: { terrainstatus: true },
         context: { run: 0 },

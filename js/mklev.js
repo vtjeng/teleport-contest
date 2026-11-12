@@ -756,7 +756,6 @@ async function makelevel(specialLevelLoader = null) {
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         await specialLevelApi.finish();
-        g.gc.coder = null;
         await finishLevelGeneration();
         return;
     }
@@ -2076,7 +2075,6 @@ export async function load_special(name, state, callerEnv = null) {
     // fill_special_room. ensure_way_out (conditional on check_inaccessibles)
     // is recorded as a gap.
     await specialLevelApi.finish();
-    state.gc.coder = null; // C: Free(gc.coder); gc.coder = NULL;
 
     return true;
 }
@@ -5041,9 +5039,11 @@ function createSpecialLevelApi(state) {
                 premap_detect(state);
             }
 
-            // sp_lev.c:6454–6503 load_special() ends here. makelevel()
-            // fills natural loads; lspo_finalize_level() fills direct loads
-            // after level_finalize_topology() has mineralized the map.
+            // sp_lev.c:6454–6503 load_special() ends here, freeing
+            // gc.coder. makelevel() fills natural loads;
+            // lspo_finalize_level() fills direct loads after
+            // level_finalize_topology() has mineralized the map.
+            state.gc.coder = null;
         },
     });
     // selection is a Lua global library, separate from the C des.* table.
