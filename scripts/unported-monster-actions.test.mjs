@@ -3461,22 +3461,6 @@ test('simple ordinary monster and starting pet can land in a corridor',
         }
     });
 
-test('a tame minion refuses its unported movement',
-    async () => {
-        // A tame minion eating dog still throws. Non-tame EMIN roamers now
-        // use ordinary m_move(), but guardian-pet movement remains outside
-        // this span.
-        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-        target.monster.isminion = true;
-        target.monster.meating = 1;
-        await assert.rejects(
-            runSimpleMonsterAction(target.monster, { state: game }),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'tame minion movement',
-            'minion eating dog',
-        );
-    });
-
 test('non-tame EMIN roamers use ordinary movement and avoid known fire traps',
     async () => {
         for (const peaceful of [false, true]) {

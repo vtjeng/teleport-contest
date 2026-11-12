@@ -36,7 +36,6 @@ import {
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
 import { capitalizedMonsterName, mon_nam } from './do_name.js';
-import { PM_ANGEL } from './monsters.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -132,12 +131,15 @@ export class UnsupportedSimpleMonsterActionError extends Error {
     }
 }
 
+// castmu()'s unported AD_FIRE arm and quest_talk() refuse through this
+// operation, which simpleMonsterActionOperations() hands them.
 function unsupported(reason) {
     throw new UnsupportedSimpleMonsterActionError(reason);
 }
 
-function assertSimpleActionState(monster) {
-    if (!monster.mcanmove) return;
+// monmove.js dochug() calls this before the turn. It admits every monster
+// state; the comments record why no state needs a guard.
+function assertSimpleActionState() {
     // STRAT_ARRIVE needs no guard: dog.c mon_arrive() is the only writer, and
     // monmove.c dochug() answers it at 704-708 by calling m_arrival(), which
     // clears the bit and returns -1 so that dochug() carries straight on.
@@ -151,23 +153,14 @@ function assertSimpleActionState(monster) {
     // clears mcanmove, and every writer of mcanmove clears mfrozen.
     // trap.c mintrap() owns every held-trap escape, including pits,
     // metallivore effects, and clearing a stale mtrapped bit on no trap.
-    if (monster.mtame && !monster.isminion) {
-        // C monmove.c:m_move() sends every tame non-minion through
-        // dogmove.c:dog_move(); that path is not limited to the three species
-        // selected as a new game starting pet. dog.c tamedog() and initedog()
-        // give every such monster its edog extension.
-        // C dochug() calls disturb() before m_move() reaches dog_move().
-        return;
-    }
-
-    // C m_move() sends the tame Astral guardian through dog_move(), whose
-    // null-edog path follows the hero without ordinary pet hunger/fetching.
-    // Its Conflict loss branch remains owned by dog_move() as well.
-    const guardian = monster.mtame
-        && monster.isminion
-        && monster.data?.pmidx === PM_ANGEL;
-    if (monster.mtame && !guardian)
-        unsupported('tame minion movement');
+    // C monmove.c:m_move() sends every tame monster through
+    // dogmove.c:dog_move(), whatever its species. dog.c tamedog() and
+    // initedog() give every tame non-minion its edog extension; the tame
+    // minions -- the Astral guardian Angel (minion.c gain_guardian_angel()),
+    // its clones, and any form it is changed into -- have none, and
+    // dog_move()'s null-edog path follows the hero without pet hunger or
+    // fetching. C dochug() calls disturb() before m_move() reaches dog_move().
+    //
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
     // peaceful escort path and throws on unported branches.
     // isshk and ispriest are admitted: m_move() dispatches to shk_move()
@@ -702,7 +695,6 @@ export async function runDirectMonsterAction(monster, rawEnv = {}) {
 // Execute one monster action for the movemon() adapter in js/allmain.js.
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     const { env, state } = simpleMonsterActionEnvironment(rawEnv);
-    assertSimpleActionState(monster, state);
     return dochugw(monster, true, {
         ...env,
         canSpotMonster: (subject) => canspotmon(subject, state),

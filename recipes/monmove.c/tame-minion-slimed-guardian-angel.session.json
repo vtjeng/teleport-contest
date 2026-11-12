@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "monmove.c m_move() sends every tame monster to dogmove.c dog_move(), including a tame minion that is no longer an Angel. A debug lawful Priestess with her starting little dog (so u.uconduct.pets is nonzero) raises her alignment record above 8 by #wizkill-ing two #wizgenesis imps, level-teleports through the ^V '?' menu to the Astral Plane, where minion.c gain_guardian_angel() makes a tame guardian Angel with no edog, takes the Amulet's wish (a food ration), sets her level to 30 and polymorphs into a green slime. Her touches turn the guardian into a green slime (uhitm.c AD_SLIM newcham(), which no magic resistance stops, unlike a wand of polymorph); she turns back into a slime whenever she reverts. The tame green-slime minion then moves through dog_move()'s null-edog path for twelve more turns. The attack directions were chosen by following the guardian turn by turn; Escape answers each --More-- and each debug-mode Die? prompt.",
+  "segments": [
+    {
+      "seed": 7301,
+      "datetime": "20451103140000",
+      "nethackrc": "OPTIONS=name:Seraph,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,!autopickup,!acoustics\n",
+      "moves": "#wizgenesis\nimp\n#wizkill\nh.\u001b#wizgenesis\nimp\n#wizkill\nu.\u001b\u0016?\n>J       food ration\n#levelchange\n30\n\u001b\u001b\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001b\u001bFk\u001b\u001b\u001b\u001bFk\u001b\u001b\u001b\u001bFj\u001b\u001b\u001b\u001bFl\u001b\u001b\u001b\u001bFl\u001b\u001b\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001b"
+    }
+  ]
+}
