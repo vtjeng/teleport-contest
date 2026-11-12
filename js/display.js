@@ -904,13 +904,21 @@ function withCmapAccessibility(glyph, cmap, customizationName) {
 }
 
 function glyphPresentation(symbol, color, state, customization = null) {
-    const displayCh = customization?.displayCh ?? symbol.displayCh;
+    // wintty.c tty_print_glyph() prints a glyph's gm.u sequence only while
+    // SYMHANDLING(H_UTF8), the handling of gs.symset[gc.currentgraphics].
+    // reset_glyphmap() leaves gm.u in place, so on the Rogue level, whose
+    // set is not UTF-8, a primary-set customization is still attached but
+    // g_putch() prints the symbol's byte instead.
+    const customCh = state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling === H_UTF8 ? customization?.displayCh : undefined;
+    const displayCh = customCh ?? symbol.displayCh;
     const result = {
         // tty_print_glyph() sends UTF-8 customizations through g_pututf8().
         // Recorder patch 006 does not mirror that byte sequence into its
         // shadow frame, so its existing cell stays untouched.  The browser
         // still receives the Unicode presentation independently.
-        ch: customization?.displayCh ? null : symbol.ch,
+        ch: customCh ? null : symbol.ch,
         color: recorderMapColor(
             customization?.basicColor ?? color,
             state,

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730019,
+      "datetime": "20221102094500",
+      "nethackrc": "OPTIONS=name:Rhun,role:Knight,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!autopickup,playmode:debug,symset:Enhanced1\nSYMBOLS=S_corr:U+2592,S_litcorr:U+2593,S_vwall:U+2016\n",
+      "moves": "\u0016?\ng  \u0006  "
+    }
+  ],
+  "comment": "wintty.c tty_print_glyph() prints a glyph's UTF-8 customization (gm.u) only while SYMHANDLING(H_UTF8), the handling of the current graphics set. The SYMBOLS customizations belong to the primary set, Enhanced1; on the Rogue level gc.currentgraphics is ROGUESET, whose default handling is not UTF-8, so although reset_glyphmap() leaves gm.u attached, g_putch() prints the Rogue symbols' bytes. Level teleport to the Rogue level (debug mode) and ^F map it: C draws corridors as '#' and walls as '|'."
+}
