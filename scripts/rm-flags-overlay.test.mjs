@@ -1,5 +1,5 @@
-// rm.h:213-220 defines doormask, wall_info and looted (and altarmask,
-// ladder, drawbridgemask, icedpool and emptygrave) as macros over struct
+// rm.h:213-220 defines doormask, wall_info, looted, ladder, icedpool and
+// emptygrave (and altarmask and drawbridgemask) as macros over struct
 // rm's `flags`, so each of those values has one home per square; a secret
 // door's lock and trap bits share it with its wall mode. js/game.js
 // makeLocation() mirrors that: the port keeps them in `flags` and has no
@@ -20,9 +20,10 @@ import { makeLocation } from '../js/game.js';
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 
 // A property access, an object-literal key, a computed key or an `in` test.
+// `des.ladder(...)` is the Lua level API's ladder command, not a map square.
 function fieldPattern(field) {
     return new RegExp(
-        `\\.${field}\\b|\\b${field}\\s*:|\\[\\s*['"\`]${field}['"\`]\\s*\\]`
+        `(?<!\\bdes)\\.${field}\\b|\\b${field}\\s*:|\\[\\s*['"\`]${field}['"\`]\\s*\\]`
         + `|['"\`]${field}['"\`]\\s+in\\b`,
         'u',
     );
@@ -39,7 +40,9 @@ const ALLOWED = {
     ],
 };
 
-const FIELDS = ['doormask', 'looted', 'wall_info'];
+const FIELDS = [
+    'doormask', 'emptygrave', 'icedpool', 'ladder', 'looted', 'wall_info',
+];
 
 // Returns { line, text, allowed } for each code line that names the field,
 // `allowed` when an ALLOWED entry covers it. Line comments and block-comment

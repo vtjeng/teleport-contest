@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c lspo_map() clears levl[][].flags on every square its map covers, and rm.h's ladder aliases flags, but set_levltyp() keeps STAIRS. #wizloadlua earth over Dlvl 1 leaves the old down staircase under the map with ladder 0, so ^F shows it as '<', getpos '<' describes it as a staircase up, and getpos '>' finds no down staircase. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 30418867,
+      "datetime": "20480622091531",
+      "nethackrc": "OPTIONS=name:Stairmap,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,autodescribe\n",
+      "moves": "#wizloadlua\nearth\n\u001b\u0006;  <.\u001b;>\u001b\u001b"
+    }
+  ]
+}

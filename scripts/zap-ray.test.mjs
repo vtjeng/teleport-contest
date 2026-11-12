@@ -2554,7 +2554,7 @@ test('zap_map destroys a canonical lowered drawbridge through the real striking 
         const location = game.level.at(x, yy);
         location.typ = ROOM;
         location.flags = 0;
-        location.icedpool = 0;
+        location.flags = 0;
     }
     const wall = game.level.at(x + 1, y);
     wall.typ = VWALL;
@@ -2609,7 +2609,7 @@ async function createDrawbridgeAt(x, y) {
     const bridgeSquare = game.level.at(x, y);
     bridgeSquare.typ = ROOM;
     bridgeSquare.flags = 0;
-    bridgeSquare.icedpool = 0;
+    bridgeSquare.flags = 0;
     const wall = game.level.at(x + 1, y);
     wall.typ = VWALL;
     wall.flags = 0;

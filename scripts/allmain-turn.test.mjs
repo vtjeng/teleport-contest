@@ -2399,7 +2399,7 @@ test('a due ice boulder timer melts the ice and names water from the display RNG
         const y = game.u.uy;
         const location = game.level.at(x, y);
         location.typ = ICE;
-        location.icedpool = ICED_POOL;
+        location.flags = ICED_POOL;
         game.u.uprops[HALLUC] = {
             intrinsic: INTRINSIC,
             extrinsic: 0,

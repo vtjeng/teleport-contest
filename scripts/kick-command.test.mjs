@@ -451,7 +451,7 @@ test('kicking the staircase the hero stepped off hurts', async () => {
     assert.equal(base.boundary, null);
     const start = game.level.at(game.u.ux, game.u.uy);
     assert.equal(start.typ, STAIRS);
-    assert.equal(start.ladder, LA_UP);
+    assert.equal(start.flags, LA_UP);
 
     const kicked = await replay(MONK(), `h${KICK}l`);
     assert.equal(kicked.boundary, null);

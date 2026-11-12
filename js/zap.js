@@ -4975,8 +4975,8 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
     if (lev.typ === DRAWBRIDGE_UP || lev.typ === DRAWBRIDGE_DOWN) {
         lev.flags = (lev.flags ?? 0) & ~DB_ICE;
     } else {
-        lev.typ = lev.icedpool === ICED_POOL ? POOL : MOAT;
-        lev.icedpool = 0;
+        lev.typ = lev.flags === ICED_POOL ? POOL : MOAT;
+        lev.flags = 0;
     }
 
     spot_stop_timers(x, y, MELT_ICE_AWAY, state);
@@ -5260,7 +5260,7 @@ export async function zap_over_floor(
                     lev.flags = (underMask & ~DB_UNDER)
                         | (lava ? DB_FLOOR : DB_ICE);
                 } else {
-                    lev.icedpool = lava ? 0
+                    lev.flags = lava ? 0
                         : lev.typ === POOL ? ICED_POOL : ICED_MOAT;
                     if (lavawall) {
                         const vertical = (isok(x, y - 1)

@@ -2800,7 +2800,7 @@ export function back_to_glyph(x, y, state = game) {
         break;
     case STAIRS: {
         const stairway = stairway_at(x, y, state);
-        const down = Boolean(ptr.ladder & LA_DOWN);
+        const down = Boolean(ptr.flags & LA_DOWN);
         idx = known_branch_stairs(stairway, state)
             ? down ? S_brdnstair : S_brupstair
             : down ? S_dnstair : S_upstair;
@@ -2808,7 +2808,7 @@ export function back_to_glyph(x, y, state = game) {
     }
     case LADDER: {
         const stairway = stairway_at(x, y, state);
-        const down = Boolean(ptr.ladder & LA_DOWN);
+        const down = Boolean(ptr.flags & LA_DOWN);
         idx = known_branch_stairs(stairway, state)
             ? down ? S_brdnladder : S_brupladder
             : down ? S_dnladder : S_upladder;

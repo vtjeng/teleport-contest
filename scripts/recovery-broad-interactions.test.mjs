@@ -22,7 +22,7 @@ for (const [label, lit, asleep, expectedLit, expectedSleep] of [
     for (let x=10;x<12;x++) for (let y=6;y<8;y++) {
       const cell=game.level.at(x,y);
       assert.equal(cell.typ,ICE);assert.equal(Boolean(cell.lit),expectedLit);
-      assert.equal(cell.icedpool,8);
+      assert.equal(cell.flags,8);
     }
     const monster=await des.monster({id:'chameleon',appear_as:'mon:jackal',
       x:0,y:0,asleep,peaceful:false,female:false,inventory:false});

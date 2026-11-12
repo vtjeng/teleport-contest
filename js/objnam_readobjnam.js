@@ -651,7 +651,7 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
     } else if (endsWith('ice')) {
         if (!isDbridge) {
             lev.typ = ICE;
-            lev.icedpool = oldtyp === ROOM ? ICED_POOL : ICED_MOAT;
+            lev.flags = oldtyp === ROOM ? ICED_POOL : ICED_MOAT;
         } else {
             addDrawbridgeTerrain(DB_ICE);
         }

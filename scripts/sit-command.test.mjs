@@ -366,6 +366,9 @@ test('the terrain chain runs each selected arm in source order', async () => {
     for (const [typ, first, second] of arms) {
         await standOnStairs();
         heroSquare().typ = typ;
+        // rm.h: the staircase's ladder bits share `flags` with altarmask and
+        // the other per-terrain fields; give each arm a fresh square's 0.
+        heroSquare().flags = 0;
         if (typ === LAVAPOOL) {
             // The source branch deals real damage; keep this focused branch
             // test alive so its assertions do not need a post-death answer.

@@ -276,10 +276,10 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
         else
             await hear('a loud *CRASH*!');
         const icy = Boolean(under & DB_ICE);
-        // The C expression reads DB_ICE from the preserved drawbridgemask;
-        // the bridge's `flags` stay intact on this dry branch.
+        // The C expression reads DB_ICE from the drawbridgemask, then
+        // icedpool, which aliases the same `flags`, replaces it.
         bridge.typ = icy ? ICE : ROOM;
-        bridge.icedpool = icy ? ICED_MOAT : 0;
+        bridge.flags = icy ? ICED_MOAT : 0;
     }
 
     await wake_nearto(x, y, 500, env);

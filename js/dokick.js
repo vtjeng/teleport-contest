@@ -1218,7 +1218,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
         // 1244. mklev.c mkstairs() writes LA_DOWN on a down staircase as well
         // as a down ladder, so kicking at either one is a dumb move; a wall or
         // anything leading up hurts instead.
-        if (!IS_STWALL(maploc.typ) && maploc.ladder === LA_DOWN) {
+        if (!IS_STWALL(maploc.typ) && maploc.flags === LA_DOWN) {
             await kick_dumb(x, y, state);
             return ECMD_TIME;
         }

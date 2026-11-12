@@ -207,7 +207,7 @@ test('mines finish_map stores source pool and moat ice flags', async () => {
                 const location = game.level.at(x,y);
                 if (location.typ === ICE) {
                     ++ice;
-                    assert.equal(location.icedpool, icedpools ? ICED_POOL : ICED_MOAT);
+                    assert.equal(location.flags, icedpools ? ICED_POOL : ICED_MOAT);
                 }
             }
             assert.ok(ice > 0); // Source background I must reach the finish-map assignment.

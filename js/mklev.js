@@ -1250,7 +1250,7 @@ function set_themeroom_map_terrain(x, y, typ, state, lit = 0, frame = null) {
     } else if (typ === HWALL || typ === IRONBARS) {
         loc.horizontal = true;
     } else if (frame?.splev_init_present && typ === ICE) {
-        loc.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
+        loc.flags = frame.icedpools ? ICED_POOL : ICED_MOAT;
     } else if (typ === CLOUD) {
         del_engr_at(x, y, state);
     }
@@ -1469,7 +1469,7 @@ function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     } else if (actualType === HWALL || actualType === IRONBARS) {
         location.horizontal = true;
     } else if (frame?.splev_init_present && actualType === ICE) {
-        location.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
+        location.flags = frame.icedpools ? ICED_POOL : ICED_MOAT;
     } else if (actualType === CLOUD) {
         del_engr_at(x, y, state);
     }
@@ -1808,7 +1808,6 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
-            loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
             loc.edge = false;
@@ -3160,14 +3159,14 @@ function l_create_stairway(args, using_ladder, env) {
                 dlevel: state.u.uz.dlevel - 1,
             };
             stairway_add(x, y, true, true, dest);
-            loc.ladder = LA_UP;
+            loc.flags = LA_UP;
         } else {
             const dest = {
                 dnum: state.u.uz.dnum,
                 dlevel: state.u.uz.dlevel + 1,
             };
             stairway_add(x, y, false, true, dest);
-            loc.ladder = LA_DOWN;
+            loc.flags = LA_DOWN;
         }
     } else {
         // sp_lev.c:4209–4210 forces fixed-coordinate stairs onto ROOM.
@@ -5514,7 +5513,7 @@ function mkmap_finish_map(fg_typ, bg_typ, lit, walled, icedpools, state) {
             const loc = state.level.at(x, y);
             if (loc.typ === LAVAPOOL) loc.lit = true;
             else if (loc.typ === ICE)
-                loc.icedpool = icedpools ? ICED_POOL : ICED_MOAT;
+                loc.flags = icedpools ? ICED_POOL : ICED_MOAT;
         }
     }
 }
@@ -7698,7 +7697,7 @@ export function mkstairs(x, y, up, croom, force = false) {
         return;
     if (loc) {
         loc.typ = STAIRS;
-        loc.ladder = up ? 1 : 2;
+        loc.flags = up ? LA_UP : LA_DOWN; // rm.h: ladder aliases flags
     }
     const dest = {
         dnum: g.u?.uz?.dnum ?? 0,
@@ -7913,7 +7912,7 @@ function place_branch(branchp, x = 0, y = 0) {
             const loc = g.level?.at(x, y);
             if (loc) {
                 loc.typ = STAIRS;
-                loc.ladder = goes_up ? LA_UP : LA_DOWN;
+                loc.flags = goes_up ? LA_UP : LA_DOWN;
             }
         }
     }

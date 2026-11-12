@@ -1668,7 +1668,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
     }
 
     const hallucinating = Hallucination(state.u);
-    const whatHappens = location.emptygrave ? -1 : random.rn2(5);
+    const whatHappens = location.flags ? -1 : random.rn2(5);
     switch (whatHappens) {
     case 0:
     case 1: {
@@ -1750,7 +1750,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
     }
 
     location.typ = ROOM;
-    location.emptygrave = 0;
+    location.flags = 0;
     location.disturbed = 0;
     del_engr_at(x, y, state);
     newsym(x, y, state);

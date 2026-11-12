@@ -41,7 +41,7 @@ for(const row of rows)test(`C map ice origin ${row.kind}: ${row.init}/${row.pool
         }
         assert.equal(getRngLog().length,before);
         assert.equal(cells.length,9);
-        assert.deepEqual(cells.map(([x,y])=>{const loc=game.level.at(x,y);return[x,y,loc.typ,loc.icedpool??0];}),row.expected);
+        assert.deepEqual(cells.map(([x,y])=>{const loc=game.level.at(x,y);return[x,y,loc.typ,loc.flags??0];}),row.expected);
     });
 });
 test('ice-origin executed C oracle and function bodies remain source pinned',()=>{

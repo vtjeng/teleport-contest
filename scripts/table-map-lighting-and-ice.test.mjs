@@ -39,7 +39,7 @@ for(const row of rows)test(`C table-map lighting/ice interaction: ${row.name}`,a
         let lit=0;
         for(let x=1;x<=3;x++)for(let y=0;y<=2;y++){
             const loc=game.level.at(x,y);assert.equal(loc.typ,ICE);
-            if(loc.lit)lit++;assert.equal(loc.icedpool,row.icedpool);
+            if(loc.lit)lit++;assert.equal(loc.flags,row.icedpool);
         }
         assert.equal(getRngLog().length,before);assert.equal(lit,row.expected);
     });

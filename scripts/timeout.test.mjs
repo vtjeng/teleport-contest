@@ -1747,7 +1747,7 @@ test('run_timers dispatches the MELT_ICE_AWAY level callback', async () => {
     const x = 5, y = 6; // The test square keeps the packed x/y timer argument distinct.
     const square = state.level.at(x, y);
     square.typ = ICE;
-    square.icedpool = ICED_POOL; // The source melts ICED_POOL back to POOL.
+    square.flags = ICED_POOL; // The source melts ICED_POOL back to POOL.
     const where = (x << 16) | y;
     state.context = { mon_moving: false };
     start_timer(0, TIMER_LEVEL, MELT_ICE_AWAY, where, state);
@@ -1762,7 +1762,7 @@ test('run_timers dispatches the MELT_ICE_AWAY level callback', async () => {
     });
 
     assert.equal(square.typ, POOL);
-    assert.equal(square.icedpool, 0);
+    assert.equal(square.flags, 0);
     assert.equal(state.context.mon_moving, false);
     assert.equal(state.gt.timer_base, null);
 });
@@ -3390,8 +3390,7 @@ test('nh_timeout real melt callback resets a FAINTED hero before drown crawl', a
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
         const tile = state.level.at(x + dx, y + dy);
         tile.typ = dx === 0 && dy === 0 ? ICE : ROOM;
-        tile.icedpool = dx === 0 && dy === 0 ? ICED_POOL : 0;
-        tile.flags = tile.flags = 0;
+        tile.flags = dx === 0 && dy === 0 ? ICED_POOL : 0;
     }
     assert.equal(state.u.umonnum, state.urole.mnum);
     assert.equal(state.u.umonster, state.urole.mnum);
@@ -3400,7 +3399,7 @@ test('nh_timeout real melt callback resets a FAINTED hero before drown crawl', a
     assert.equal(state.u.uhs, FAINTED);
     assert.equal(state.u.uprops[DEAF].intrinsic, 10);
     assert.equal(state.level.at(x, y).typ, ICE);
-    assert.equal(state.level.at(x, y).icedpool, ICED_POOL);
+    assert.equal(state.level.at(x, y).flags, ICED_POOL);
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
         if (!dx && !dy) continue;
         assert.equal(state.level.at(x + dx, y + dy).typ, ROOM);

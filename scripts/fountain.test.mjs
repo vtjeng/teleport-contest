@@ -1643,7 +1643,7 @@ test('vomit on acidic form melts the hero square after the delay', async () => {
     // ICE plus levitation reaches the melt without drowning the test hero.
     const square = game.level.at(game.u.ux, game.u.uy);
     square.typ = ICE;
-    square.icedpool = ICED_POOL;
+    square.flags = ICED_POOL;
     const messages = [];
     const message = async (text) => messages.push(text);
     await vomit(game, {

@@ -130,10 +130,10 @@ test('the special-level terrain writer paints ice and clears cloud engravings', 
         const location = game.level.at(painted.x, painted.y);
         assert.equal(location.typ, character === 'I' ? ICE : CLOUD, character);
         if (character === 'I') {
-            assert.equal(location.icedpool, ICED_POOL, character);
+            assert.equal(location.flags, ICED_POOL, character);
             assert.ok(engr_at(painted.x, painted.y, game), character);
         } else {
-            assert.equal(location.icedpool ?? 0, 0, character);
+            assert.equal(location.flags ?? 0, 0, character);
             assert.equal(engr_at(painted.x, painted.y, game), null, character);
         }
     }

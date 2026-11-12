@@ -1108,9 +1108,9 @@ function waterbodyDescription(x, y, state) {
 function terrainDescription(location, x, y, state) {
     switch (location.typ) {
     case DOOR: return doorDescription(location, x, y, state);
-    case STAIRS: return location.ladder & LA_DOWN
+    case STAIRS: return location.flags & LA_DOWN
         ? 'staircase down' : 'staircase up';
-    case LADDER: return location.ladder & LA_DOWN ? 'ladder down' : 'ladder up';
+    case LADDER: return location.flags & LA_DOWN ? 'ladder down' : 'ladder up';
     case ALTAR: return altarDescription(location, x, y, state);
     case GRAVE: return 'grave';
     case THRONE: return 'opulent throne';

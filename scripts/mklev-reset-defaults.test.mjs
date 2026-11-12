@@ -90,12 +90,12 @@ for (const icedpools of [false,true]) {
             if (icedpools) des.level_flags('icedpools');
             des.terrain({x:9,y:6,typ:'I',lit:0});
             const origin = icedpools ? ICED_POOL : ICED_MOAT;
-            assert.equal(game.level.at(10,6).icedpool,origin);
+            assert.equal(game.level.at(10,6).flags,origin);
             des.terrain({x:9,y:6,typ:'I',lit:0});
-            assert.equal(game.level.at(10,6).icedpool,origin,'ordinary paint control');
+            assert.equal(game.level.at(10,6).flags,origin,'ordinary paint control');
             des.level_init({style:'solidfill',fg:'I',bg:'I',lit:0});
             assert.equal(game.level.at(10,6).typ,ICE);
-            assert.equal(game.level.at(10,6).icedpool,0);
+            assert.equal(game.level.at(10,6).flags,0);
         });
     });
 }

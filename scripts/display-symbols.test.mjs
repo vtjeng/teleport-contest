@@ -820,20 +820,20 @@ test('stairs use rm direction and reveal only traversed branch symbols', () => {
     initialize_symbols_from_options({ flags: {} }, state);
 
     assert.deepEqual(
-        terrainGlyphAt({ typ: STAIRS, ladder: 0 }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, flags: 0 }, 7, 4, state),
         { ch: '<', color: CLR_YELLOW, dec: false },
     );
     assert.equal(cmap_symbol(S_brupstair, state).ch, '<');
 
     state.stairs.u_traversed = false;
     assert.deepEqual(
-        terrainGlyphAt({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, flags: LA_DOWN }, 7, 4, state),
         { ch: '>', color: NO_COLOR, dec: false },
     );
 
     state.stairs.u_traversed = true;
     assert.deepEqual(
-        terrainGlyphAt({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, flags: LA_DOWN }, 7, 4, state),
         { ch: '>', color: CLR_YELLOW, dec: false },
     );
     assert.equal(cmap_symbol(S_brdnstair, state).ch, '>');
@@ -874,20 +874,20 @@ test('terrain conversion covers source backgrounds omitted by the old switch', (
     state.level.flags.arboreal = false;
 
     assert.equal(
-        terrainGlyphAt({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, flags: 0 }, 7, 4, state).ch,
         'u',
     );
     assert.equal(
-        terrainGlyphAt({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, flags: LA_DOWN }, 7, 4, state).ch,
         'd',
     );
     state.stairs.u_traversed = true;
     assert.equal(
-        terrainGlyphAt({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, flags: 0 }, 7, 4, state).ch,
         'U',
     );
     assert.equal(
-        terrainGlyphAt({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, flags: LA_DOWN }, 7, 4, state).ch,
         'D',
     );
 
@@ -962,7 +962,7 @@ test('disabled color suppresses colored terrain glyphs', () => {
         next: null,
     };
     assert.equal(
-        terrainGlyphAt({ typ: STAIRS, ladder: 0 }, 7, 4, state).color,
+        terrainGlyphAt({ typ: STAIRS, flags: 0 }, 7, 4, state).color,
         NO_COLOR,
     );
 });
