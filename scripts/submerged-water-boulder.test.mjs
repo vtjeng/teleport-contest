@@ -79,16 +79,18 @@ for(const hallu of [false,true])for(const blind of [false,true]){
             assert.deepEqual(outcomes[0],outcomes[1]);
         });
     }
-    // preflight_dropx() is dropx()'s live admission guard (js/do.js); these pin
-    // the port's refusal boundary for the shapes it does not yet drop.
-    const excluded=[
+    // do.c dropz() has no Plane of Water arm: flooreffects() sends every
+    // object on a Water-level liquid square through its ordinary boulder,
+    // lava and pool arms. preflight_dropx() (js/do.js) admits these shapes
+    // without mutating anything.
+    const waterShapes=[
         ['surface Water boulder',{underwater:false}],
         ['Water lava boulder',{terrain:LAVAPOOL}],
         ['Water non-boulder',{kind:FOOD_RATION}],
     ];
-    for(const [name,extra]of excluded)test(`excluded ${name} Hallu=${hallu} blind=${blind}`,async()=>{
+    for(const [name,extra]of waterShapes)test(`admitted ${name} Hallu=${hallu} blind=${blind}`,async()=>{
         const {obj}=await setup({hallu,blind,...extra}),before=snapshot();
-        assert.throws(()=>preflight_dropx(obj,dropCommandEnv(game)),/unsupported drop/u);
+        assert.doesNotThrow(()=>preflight_dropx(obj,dropCommandEnv(game)));
         assert.equal(obj.where,OBJ_INVENT);assert.deepEqual(snapshot(),before);
     });
     // do.c flooreffects() sends a boulder on an ordinary pool through

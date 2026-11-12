@@ -142,7 +142,6 @@ import {
     dowipe,
     doup,
     u_collide_m,
-    UnsupportedDropError,
 } from './do.js';
 import {
     doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
@@ -2939,8 +2938,6 @@ export function failClosedCommandRefusals() {
         // opens.
         UnsupportedWieldError,
         UnsupportedTransientDisplayError,
-        // A killing blow reaches the next class.
-        UnsupportedDropError,
         // Keep the experience/attribute refusal classes recognizable at this
         // boundary. pluslvl() and setuhpmax() now handle their polymorphed
         // branches, and ordinary level loss is implemented.

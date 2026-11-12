@@ -11,14 +11,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import {
-    failClosedCommandRefusals, rhack,
+import { rhack,
 } from '../js/cmd.js';
 import { init_artifacts } from '../js/artifacts.js';
 import {
     A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, OBJ_FLOOR, POOL, UNENCUMBERED,
 } from '../js/const.js';
-import { UnsupportedDropError } from '../js/do.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -503,10 +501,6 @@ test('a configured pickup_burden decides whether a wish is held',
         assert.deepEqual(boundaries, []);
         assert.equal(heldTypes().includes(DAGGER), true);
     });
-
-test('ordinary wish-drop refusals convert at the command seam', () => {
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
-});
 
 // zap.c:6346-6347. An Escape over an empty wish line empties the buffer rather
 // than declining the wish, so readobjnam("") falls past

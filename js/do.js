@@ -1517,20 +1517,6 @@ async function sinkRingGiveback(obj, state) {
     await trycall(obj, state);
 }
 
-// Every branch of the drop chain -- dodrop(), drop() and the
-// dropx()/dropy()/dropz() tail -- that this port has not translated raises
-// this. js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps
-// every frame the command already matched instead of failing hard. Callers
-// other than the `d` command reach the tail with their own messages, billing,
-// equipment, migration and impact behavior still unported.
-export class UnsupportedDropError extends Error {
-    constructor(reason) {
-        super(`unsupported drop: ${reason}`);
-        this.name = 'UnsupportedDropError';
-        this.reason = reason;
-    }
-}
-
 function dropEnv(env = {}) {
     return {
         ...env,
@@ -1886,19 +1872,6 @@ export function preflight_dropx(obj, env = {}) {
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
     // not test can_reach_floor(). Underwater drops still reach flooreffects;
     // its pool arm suppresses splash messages while Underwater is true.
-    // C dropx/dropz has no plane exclusion on dry bubble floors. Keep the
-    // distinct Water-level liquid path outside this ordinary admission.
-    // do.c boulder_hits_pool never fills a Water-level pool. Underwater
-    // drops skip its splash/wakeup arm and consume the boulder through the
-    // existing live owner. Surface/private liquid effects stay excluded.
-    const submergedWaterBoulder = state === game
-        && obj.otyp === BOULDER && u.uinwater
-        && on_level(u.uz, state.water_level)
-        && is_pool(u.ux, u.uy, state);
-    if (on_level(u.uz, state.water_level)
-        && (is_pool(u.ux, u.uy, state) || is_lava(u.ux, u.uy, state))
-        && !submergedWaterBoulder)
-        throw new UnsupportedDropError('special-level display');
     // do.c dropz() clears uwep, uquiver and uswapwep (do.c:810-818) and
     // drop_ball() takes the carried iron ball (do.c:833-834). Every other
     // worn object leaves its slot before a drop: drop() asks canletgo(),

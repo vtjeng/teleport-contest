@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Plane of Water underwater drop: wearing an amulet of magical breathing, the hero level-teleports to the Plane of Water (wizard mode supplies the Amulet), steps out of the air bubble with the m prefix and plunges into the water, then drops a dagger. do.c dropz() -> flooreffects()'s pool arm runs water_damage() with the splash message suppressed Underwater, and place_object() leaves the dagger on the water square. The Wizard of Yendor's touch of death is answered no by wizard mode's Die? prompt.",
+  "segments": [
+    {
+      "seed": 8383,
+      "datetime": "20810611093000",
+      "nethackrc": "OPTIONS=name:Diver,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=pettype:none,!autopickup,!legacy,!tutorial,!splash_screen,suppress_alert:3.4.3\n",
+      "moves": " \u0017amulet of magical breathing\nPe\u0016?\n>>K      nothing\nmh\u001b\u001bmh\u001b\u001bmh\u001b\u001bmh\u001b\u001bdb\u001b\u001b:\u001b"
+    }
+  ]
+}

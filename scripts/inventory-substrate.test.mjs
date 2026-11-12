@@ -3526,62 +3526,45 @@ test('direct drop preflight admits a dry Water-level floor without changing owne
     assert.deepEqual(lines, []);
 });
 
-test('ordinary drop preflight atomically refuses every excluded do.c tail',
+test('ordinary drop preflight admits every do.c dropz() tail without mutation',
     () => {
-        const cases = [
-            ['water level liquid', /special-level/u, ({ state }) => {
+        // do.c dropz() -> flooreffects() sends a drop on lava through
+        // lava_damage() and one on water through water_damage(); the Plane of
+        // Water has no arm of its own.
+        const liquids = [
+            ['lava', ({ state }) => {
+                state.level.at(10, 5).typ = LAVAPOOL;
+            }],
+            ['Plane of Water water', ({ state }) => {
                 state.water_level = { ...state.u.uz };
                 state.level.at(10, 5).typ = WATER;
             }],
         ];
-
-        for (const [name, reason, setup, otyp] of cases) {
-            const fixture = ordinaryDropFixture(otyp);
-            setup?.(fixture);
-            const { hooks, lines, obj, state } = fixture;
-            const before = {
-                invent: state.invent,
-                where: obj.where,
-                floor: state.level.objects?.[10]?.[5] ?? null,
+        for (const [name, setup] of liquids) {
+            const liquid = ordinaryDropFixture();
+            setup(liquid);
+            const beforeLiquidAdmission = {
+                inventory: liquid.state.invent,
+                ownership: liquid.obj.where,
+                floor: liquid.state.level.objects[10][5],
             };
-
-            assert.throws(
-                () => preflight_dropx(obj, { state, hooks }),
-                reason,
+            const liquidAdmission = preflight_dropx(liquid.obj, {
+                state: liquid.state,
+                hooks: liquid.hooks,
+            });
+            assert.equal(liquidAdmission.object, liquid.obj, name);
+            assert.equal(liquidAdmission.state, liquid.state, name);
+            assert.equal(liquidAdmission.initialWhere, OBJ_INVENT, name);
+            assert.equal(liquidAdmission.consumed, false, name);
+            assert.equal(liquid.state.invent, beforeLiquidAdmission.inventory, name);
+            assert.equal(liquid.obj.where, beforeLiquidAdmission.ownership, name);
+            assert.equal(
+                liquid.state.level.objects[10][5],
+                beforeLiquidAdmission.floor,
                 name,
             );
-            assert.equal(state.invent, before.invent, `${name}: inventory`);
-            assert.equal(obj.where, before.where, `${name}: ownership`);
-            assert.equal(
-                state.level.objects?.[10]?.[5] ?? null,
-                before.floor,
-                `${name}: floor`,
-            );
-            assert.deepEqual(lines, [], `${name}: output`);
+            assert.deepEqual(liquid.lines, [], name);
         }
-
-        const lava = ordinaryDropFixture();
-        lava.state.level.at(10, 5).typ = LAVAPOOL;
-        const beforeLiquidAdmission = {
-            inventory: lava.state.invent,
-            ownership: lava.obj.where,
-            floor: lava.state.level.objects[10][5],
-        };
-        const liquidAdmission = preflight_dropx(lava.obj, {
-            state: lava.state,
-            hooks: lava.hooks,
-        });
-        assert.equal(liquidAdmission.object, lava.obj);
-        assert.equal(liquidAdmission.state, lava.state);
-        assert.equal(liquidAdmission.initialWhere, OBJ_INVENT);
-        assert.equal(liquidAdmission.consumed, false);
-        assert.equal(lava.state.invent, beforeLiquidAdmission.inventory);
-        assert.equal(lava.obj.where, beforeLiquidAdmission.ownership);
-        assert.equal(
-            lava.state.level.objects[10][5],
-            beforeLiquidAdmission.floor,
-        );
-        assert.deepEqual(lava.lines, []);
 
         // do.c:833-834: dropz() places the carried iron ball and calls
         // ball.c drop_ball(); its W_BALL mask stays set through freeinv().
