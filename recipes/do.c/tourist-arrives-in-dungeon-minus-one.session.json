@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent witness for three callers of dungeon.c level_difficulty() on a dungeon -1 level: do.c goto_level()'s Tourist more_experienced(), read.c create_particular()'s rndmonst() for #wizgenesis \"*\", and read.c do_genocide()'s rndmonst() for a reverse genocide answered \"none\". A Tourist improvises once on a wished wooden flute (a one-note tune), wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it, arriving on a level of dungeon -1. At each call builds_up() finds no branch for dungeon -1 and calls impossible(), with three --More-- prompts. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5524107,
+      "datetime": "20511110083000",
+      "nethackrc": "OPTIONS=name:Mirela,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\napyh\u0017magic portal\nlh         \u0007*\n      \u0017cursed scroll of genocide\nrq  none\n    s"
+    }
+  ]
+}

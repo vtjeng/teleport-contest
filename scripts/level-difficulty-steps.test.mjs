@@ -87,12 +87,6 @@ const ALLOWED = {
         'muse.js is being changed by another branch; a monster polymorphs at -1'],
     'weapon.js | abon | adj_lev': [1,
         'the to-hit calculation is synchronous'],
-    'do.js | goto_level | level_difficulty': [1,
-        'a Tourist arriving at -1; not yet converted'],
-    'read.js | create_particular_creation | rndmonst': [1,
-        '#wizgenesis "*" at -1; not yet converted'],
-    'read.js | do_genocide | rndmonst': [2,
-        'a reverse genocide answered "none" at -1; not yet converted'],
     'end.js | really_done | adj_lev': [1,
         `${NO_RECIPE_YET}; Schroedinger's cat at the end of a game at -1`],
     'fountain.js | dowaterdemon | level_difficulty': [1,
@@ -131,8 +125,8 @@ const ALLOWED = {
 };
 
 // Entries and calls in ALLOWED, pinned both ways (scripts/exception-count.mjs).
-// 38 entries holding 43 calls on branch levdiff (11 November 2026).
-const ALLOWED_PINS = { entries: 38, calls: 43 };
+// 35 entries holding 39 calls on branch levdiff (11 November 2026).
+const ALLOWED_PINS = { entries: 35, calls: 39 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

@@ -195,7 +195,7 @@ import {
     dunlevs_in_dungeon,
     ledger_to_dnum,
     ledger_no,
-    level_difficulty,
+    level_difficulty_steps,
     level_info,
     maxledgerno,
     next_level,
@@ -3132,7 +3132,8 @@ export async function goto_level(
             // calls run after docrt() and flush_screen(-1) above, so neither
             // draws: more_experienced() only asks for a status redraw, which
             // the next flush_screen() or the command loop's own bot() serves.
-            more_experienced(level_difficulty(state), 0, state);
+            more_experienced(await finish_steps(level_difficulty_steps(state),
+                impossible_printer(state)), 0, state);
             await newexplevel(state, { message: ttyPline });
         }
     }

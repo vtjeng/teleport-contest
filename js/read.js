@@ -197,7 +197,7 @@ import { makemon_runtime, newcham } from './makemon_create.js';
 import {
     create_critters,
     mkclass,
-    rndmonst,
+    rndmonst_steps,
     set_malign,
 } from './makemon.js';
 import { monster_census } from './minion.js';
@@ -404,7 +404,10 @@ import { closed_door, monflee, youHear } from './monmove.js';
 import {
     avoid_ceiling, ceiling, has_ceiling, on_level,
 } from './dungeon.js';
-import { livelog_printf, verbalize, youFeel } from './pline.js';
+import {
+    impossible_printer, livelog_printf, verbalize, youFeel,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     an,
     simpleonames,
@@ -2849,7 +2852,8 @@ export async function do_genocide(how, state = game) {
         buf = '';
         for (let attempt = 0; ; ++attempt) {
             if (attempt >= 5) {
-                if (!really && (ptr = rndmonst({ state }))) break;
+                if (!really && (ptr = await finish_steps(
+                    rndmonst_steps({ state }), impossible_printer(state)))) break;
                 await ttyPline(thats_enough_tries, state);
                 return;
             }
@@ -2870,7 +2874,8 @@ export async function do_genocide(how, state = game) {
             if (buf[0] === '\x1b'
                 || ['none', "'none'", 'nothing']
                     .some((word) => buf.toLowerCase() === word)) {
-                if (!really && (ptr = rndmonst({ state }))) break;
+                if (!really && (ptr = await finish_steps(
+                    rndmonst_steps({ state }), impossible_printer(state)))) break;
                 livelog_printf(LL_GENOCIDE,
                     'declined to perform genocide', state);
                 return;
@@ -3508,7 +3513,8 @@ async function create_particular_creation(d, state = game) {
         if (d.monclass !== MAXMCLASSES)
             whichpm = mkclass(d.monclass, 0, { state });
         else if (d.randmonst)
-            whichpm = rndmonst({ state });
+            whichpm = await finish_steps(rndmonst_steps({ state }),
+                impossible_printer(state));
 
         let mmflags = NO_MM_FLAGS;
         if (d.genderconf === -1) {
