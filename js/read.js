@@ -3139,9 +3139,13 @@ async function seffect_create_monster(scroll, state = game,
 // C ref: read.c:seffect_mail() (2157-2188). This static helper sets gk.known,
 // the effect's discovery flag, then chooses its exact message from spe and
 // the object's identifier parity. doread() later discovers the scroll type
-// through learnscroll(); this helper does not set oc_name_known. The external
-// readmail() result is discarded by C, so its default MAIL branch remains an
-// explicit void-call gap.
+// through learnscroll(); this helper does not set oc_name_known. The
+// recorder's build defines MAIL and DEF_MAILREADER "/bin/mail", so a spe 0
+// scroll reaches UNIX mail.c readmail(), which forks and execs the mail
+// reader (unixunix.c child()). What a recording then shows depends on the
+// host, not on the game: whether /bin/mail exists and reads the recorder's
+// input, and, when it does not, the forked child's own nh_terminate(), which
+// writes an extra screen capture. The call stays a gap.
 async function seffect_mail(scroll, state = game, env = {}) {
     const odd = Math.trunc(scroll.o_id ?? 0) % 2 === 1;
     const message = env.message ?? ttyPline;
