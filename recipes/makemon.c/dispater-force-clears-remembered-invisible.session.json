@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6495,
+      "datetime": "20060917120000",
+      "nethackrc": "OPTIONS=name:Lorn,role:Priest,race:human,gender:male,align:chaotic,pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": "\u0007invisible hostile jackal\nssssju\u0007Dispater\nys"
+    }
+  ],
+  "comment": "makemon.c makemon(): forcing Dispater at #wizgenesis's \"force Dispater?\" prompt puts him on a square the hero remembers as an unseen monster (I). The byyou newsym() at makemon.c:1392 runs while he is still visible and overwrites the I; then the MS_BRIBE demon prince turns invisible, and the closing newsym() shows the floor. C erases the I; a port that sets the invisibility first keeps it."
+}

@@ -2438,21 +2438,6 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
             silent: true,
         });
     }
-    // C ref: makemon.c:1398-1403. Demon princes who use the bribe sound
-    // start peaceful and permanently invisible, unless the hero wields
-    // Excalibur or Demonbane. This runs before initial inventory, so it also
-    // controls rnd_misc_item()'s peaceful-monster branch without a draw.
-    if (is_dprince(ptr) && ptr.msound === MS_BRIBE) {
-        monster.mpeaceful = true;
-        monster.minvis = true;
-        monster.perminvis = true;
-        monster.mavenge = false;
-        if (state.uwep?.oartifact === ART_EXCALIBUR
-            || state.uwep?.oartifact === ART_DEMONBANE) {
-            monster.mpeaceful = false;
-            monster.mtame = false;
-        }
-    }
     const lightRange = emits_light(monster.data);
     if (lightRange) {
         new_light_source(
@@ -2521,6 +2506,23 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
         // unseen heroes consume the same placement draw as C.
         redrawSquare(monster.mx, monster.my, normalized);
         set_apparxy(monster, normalized);
+    }
+    // C ref: makemon.c:1397-1402. Demon princes who use the bribe sound
+    // start peaceful and permanently invisible, unless the hero wields
+    // Excalibur or Demonbane. This follows the byyou newsym() above, which
+    // draws the prince while he is still visible (and so overwrites a
+    // remembered 'I' under him), and precedes initial inventory, so it also
+    // controls rnd_misc_item()'s peaceful-monster branch without a draw.
+    if (is_dprince(ptr) && ptr.msound === MS_BRIBE) {
+        monster.mpeaceful = true;
+        monster.minvis = true;
+        monster.perminvis = true;
+        monster.mavenge = false;
+        if (state.uwep?.oartifact === ART_EXCALIBUR
+            || state.uwep?.oartifact === ART_DEMONBANE) {
+            monster.mpeaceful = false;
+            monster.mtame = false;
+        }
     }
     // C ref: makemon.c:1403-1404. A wielded beaked polearm pacifies ravens.
     if (mndx === PM_RAVEN && state.uwep?.otyp === BEC_DE_CORBIN)
