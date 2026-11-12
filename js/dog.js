@@ -23,7 +23,6 @@ import {
     LARGEST_INT,
     MAGIC_PORTAL,
     M_AP_MONSTER,
-    M_AP_NOTHING,
     M_AP_TYPMASK,
     MAX_NUM_WORMS,
     MON_ARRIVE_WITH_YOU,
@@ -998,47 +997,17 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             mtmp.wormno = num_segs;
             mtmp.mlstmv = state.moves;
         } else if (keep_mon_accessible(mtmp, state)) {
-            const appearance = mtmp.m_ap_type & M_AP_TYPMASK;
-            let onLevelChain = false;
-            const seen = new Set();
-            for (let current = state.level.monlist;
-                current && !seen.has(current);
-                current = current.nmon) {
-                seen.add(current);
-                if (current === mtmp) {
-                    onLevelChain = true;
-                    break;
-                }
-            }
-            const trackAvailable = Array.isArray(mtmp.mtrack)
-                && mtmp.mtrack.length >= 3
-                && mtmp.mtrack.slice(0, 3).every(Boolean);
-            // dog.c keys accessibility on retained Wizard identity, including
-            // forms reached through the normal newcham() transition.
-            const ordinaryAccessible = (mtmp.iswiz === true
-                || mtmp.isshk || mtmp.ispriest || mtmp.isgd)
-                && !mtmp.wormno
-                && (appearance === M_AP_NOTHING
-                    || appearance === M_AP_MONSTER)
-                && mtmp !== u.ustuck
-                && onLevelChain
-                && m_at(mtmp.mx, mtmp.my, state) === mtmp
-                && trackAvailable
-                && (mtmp.mstate & (MON_LIMBO | MON_MIGRATING
-                    | MON_STILL_ARRIVING)) === 0;
-            if (ordinaryAccessible) {
-                await migrate_to_level(
-                    mtmp,
-                    ledger_no(u.uz, state),
-                    MIGR_EXACT_XY,
-                    null,
-                    env,
-                );
-            } else {
-                // Preserve the discarded C call marker where the existing
-                // migration adapter does not yet support this state.
-                note_unported('dog.c migrate_to_level');
-            }
+            // C ref: dog.c keepdogs() 866-876. The Wizard, and a shopkeeper,
+            // priest or vault guard away from home, migrate to come back to
+            // this spot in whatever form they have, a long worm's tail
+            // included (mon_leave() counts it).
+            await migrate_to_level(
+                mtmp,
+                ledger_no(u.uz, state),
+                MIGR_EXACT_XY,
+                null,
+                env,
+            );
         } else if (mtmp.mleashed) {
             const message = env.message ?? ttyPline;
             await message(

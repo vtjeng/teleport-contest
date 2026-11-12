@@ -1199,16 +1199,32 @@ test('keepdogs preserves the sleeping tower Wizard as an exact-coordinate migran
     assert.equal(monster.muy, CURRENT_LEVEL.dlevel);
 });
 
-test('keepdogs retains explicit migration gaps for unsupported Wizard states',
+// Constructed state: the Wizard reaches these forms only after a level drain
+// below 30 and a polymorph spell from a level-30 hero (zap.c resist()), and
+// goto_level() releases u.ustuck before it calls keepdogs(). C's keepdogs()
+// migrates him in every one of them (dog.c:866-876).
+test('keepdogs migrates the Wizard whatever form or hold he has',
     async () => {
         const cases = [
-            ['unsupported disguise', (_state, monster) => {
+            ['disguised as furniture', (_state, monster) => {
                 monster.m_ap_type = M_AP_FURNITURE;
             }],
-            ['long worm', (_state, monster) => {
+            // Two tail segments west of the head, laid out as the worm
+            // migration test above does; mon_leave() counts them.
+            ['long worm', (state, monster) => {
+                monster.data = state.mons[PM_LONG_WORM];
                 monster.wormno = 1;
+                const segments = [
+                    { x: MONSTER_X - 2, y: MONSTER_Y },
+                    { x: MONSTER_X - 1, y: MONSTER_Y },
+                    { x: MONSTER_X, y: MONSTER_Y },
+                ];
+                state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+                state.level.worms[1] = { segments, growtime: 0 };
+                for (const { x, y } of segments)
+                    state.level.monsters[x][y] = monster;
             }],
-            ['hero-stuck actor', (state, monster) => {
+            ['holding the hero', (state, monster) => {
                 state.u.ustuck = monster;
             }],
         ];
@@ -1230,11 +1246,19 @@ test('keepdogs retains explicit migration gaps for unsupported Wizard states',
 
             await keepdogs(false, { newsym: () => {}, state });
 
-            assert.equal(state.level.monlist, monster, label);
-            assert.equal(m_at(MONSTER_X, MONSTER_Y, state), monster, label);
-            assert.equal(state.gm.migrating_mons, null, label);
-            assert.equal(game.unported.has('dog.c migrate_to_level'), true,
+            assert.equal(state.level.monlist, null, label);
+            assert.equal(m_at(MONSTER_X, MONSTER_Y, state), null, label);
+            assert.equal(state.gm.migrating_mons, monster, label);
+            assert.deepEqual(monster.mtrack[0], { x: MIGR_EXACT_XY, y: 0 },
                 label);
+            assert.deepEqual(monster.mtrack[1],
+                { x: MONSTER_X, y: MONSTER_Y }, label);
+            assert.equal(game.unported?.has('dog.c migrate_to_level') ?? false,
+                false, label);
+            if (label === 'long worm') {
+                assert.equal(monster.wormno, 2);
+                assert.equal(m_at(MONSTER_X - 2, MONSTER_Y, state), null);
+            }
         }
     });
 
