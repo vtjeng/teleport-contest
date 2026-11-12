@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savelev_core() runs dmonsfree() when iflags.purge_monsters is set, so a game saved with monsters that died since the last movemon() restores without them. #wizloadlua Wiz-loca on Dlvl 1 makes statue traps, whose mk_trap_statue() sends each donor monster away with mongone(); saving at once leaves those deaths pending. After the restore, movemon()'s dmonsfree() finds nothing pending. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 38820516,
+      "datetime": "20510304101917",
+      "nethackrc": "OPTIONS=name:Purger,role:Priest,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizloadlua\nWiz-loca\n\u001bSy"
+    },
+    {
+      "seed": 38820517,
+      "datetime": "20510304103002",
+      "nethackrc": "OPTIONS=name:Purger,role:Priest,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " n msms"
+    }
+  ]
+}

@@ -442,9 +442,12 @@ export async function dosave0(state = game) {
     // This command runs after the TTY message window is initialized.
     clearTtyMessageWindow(state);
 
-    // C ref: save.c:168 savelev(nhfp, ledger_no(&u.uz)). Of its writes,
-    // only the VISITED mark (savelev_core():493-494) reaches state that
+    // C ref: save.c:168 savelev(nhfp, ledger_no(&u.uz)). savelev_core()
+    // first purges the monsters that died since movemon() last did
+    // (save.c:487-488), so the file holds none of them. Of its writes, only
+    // the VISITED mark (savelev_core():493-494) reaches state that
     // savegamestate() then saves, through save_dungeon()'s level_info.
+    if (state.iflags?.purge_monsters) dmonsfree(state);
     level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
 
     // C ref: save.c:168 savelev() writes fmon through savemonchn(), and
