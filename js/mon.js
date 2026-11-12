@@ -4340,13 +4340,6 @@ export async function mcalcdistress(state = game, env = {}) {
 // The vault-guard arm waits for vault.c:grddead() before continuing removal.
 // ---------------------------------------------------------------------------
 
-function requiredKillOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`the monster kill path requires ${name}`);
-    return operation;
-}
-
 // Match js/makemon_create.js redrawSquare(): a caller that supplies its own
 // newsym owns the redraw, and a synthetic state must not repaint the live map.
 function killRedraw(x, y, env) {
@@ -5892,7 +5885,10 @@ function monsterDigests(species) {
 // The extra farewell is restricted to a pet which completely burns, rusts
 // or rots. C names that pet even when the hero cannot see it.
 export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
-    const message = requiredKillOperation(env, 'message');
+    // C prints through pline(), as xkilled() below does; a caller may route
+    // the line elsewhere with env.message.
+    const message = env.message ?? ttyPline;
+    env = { ...env, state, message };
     const mptr = mdef.data;
 
     if (fltxt != null && (mdef.wormno

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61613,
+      "datetime": "20070402081500",
+      "nethackrc": "OPTIONS=name:Rhun,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": " #ride\nhy#wizloaddes\nwater\n            js"
+    }
+  ],
+  "comment": "steed.c dismount_steed(): riding off a one-square air bubble on a #wizloaddes Plane of Water, the hero falls into the water, landing_spot() and enexto() find no room, and the other-dismount arm kills the steed through mon.c monkilled(mtmp, \"\", -AD_PHYS), which prints \"The saddled pony is killed!\"."
+}
