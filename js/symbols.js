@@ -631,12 +631,9 @@ function fallbackOperations(options) {
     return operations;
 }
 
-// C ref: symbols.c:switch_symbols(). A false useOverrides value is distinct
-// from clearing overrides: symset:default can hide and a later assignment can
-// reveal the same stored customization.
-export function switch_symbols(state = game, useOverrides = true) {
-    graphicsState(state);
-    const set = state.gc.currentgraphics ?? PRIMARYSET;
+// Fill gs.showsyms (and its UTF-8 shadow) from one slot's tables, each entry
+// the override when one is set, else the set's own symbol.
+function showSlotSymbols(set, state, useOverrides = true) {
     const arrays = slotArrays(set, state);
     state.gs.showsyms = arrays.base.map((symbol, index) => (
         useOverrides && arrays.overrides[index]
@@ -651,6 +648,18 @@ export function switch_symbols(state = game, useOverrides = true) {
     });
 }
 
+// C ref: symbols.c:switch_symbols(). Both arms read the primary tables
+// whatever gc.currentgraphics says: on the Rogue level, a primary symset
+// chosen through #optionsfull's do_symset(FALSE), or a SYMBOLS or
+// ROGUESYMBOLS line, puts the primary symbols on the map until the next
+// assign_graphics(). A false useOverrides value is distinct from clearing
+// overrides: symset:default can hide and a later assignment can reveal the
+// same stored customization.
+export function switch_symbols(state = game, useOverrides = true) {
+    graphicsState(state);
+    showSlotSymbols(PRIMARYSET, state, useOverrides);
+}
+
 // C ref: symbols.c assign_graphics().  A level change selects the primary or
 // Rogue symbol table, then rebuilds the active display symbols.  The JavaScript
 // renderer resolves glyphs when it draws them, so reset_glyphmap() has no
@@ -659,7 +668,7 @@ export function assign_graphics(whichSet, state = game) {
     graphicsState(state);
     state.gc.currentgraphics = whichSet === ROGUESET
         ? ROGUESET : PRIMARYSET;
-    switch_symbols(state, true);
+    showSlotSymbols(state.gc.currentgraphics, state);
 }
 
 export function initialize_symbols_from_options(options, state = game) {

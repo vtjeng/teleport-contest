@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 770419,
+      "datetime": "20300905110233",
+      "nethackrc": "OPTIONS=name:Rook,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,color\n",
+      "moves": "\u001617\n\n#optionsfull\n>>>>>>l\nhsss\u001616\nss"
+    }
+  ],
+  "comment": "#optionsfull's symset item on the Rogue level runs do_symset(FALSE): switch_symbols(TRUE) copies the primary tables (DECgraphics here) into gs.showsyms while gc.currentgraphics stays ROGUESET, and no assign_graphics() follows until the level teleport back to Dlvl 16."
+}
