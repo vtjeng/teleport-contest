@@ -205,7 +205,7 @@ test('finalize_level finishes the topology and clears Lua testing', async () => 
     });
 });
 
-test('NULL reset preserves the existing special-level frame and painted mask', async () => {
+test('NULL reset keeps the painted mask and resets the frame as clear_level_structures() does', async () => {
     const body = cFunctionBody('lspo_reset_level');
     assert.match(body, /if \(L\) \{[\s\S]*?create_des_coder\(\);\s*\}/u);
     await runLoader(0x4e53, async des => {
@@ -219,8 +219,10 @@ test('NULL reset preserves the existing special-level frame and painted mask', a
         await lspo_reset_level(null, {
             state: game, frame: des.frame, coder: inaccessibleCoder,
         });
-        assert.equal(des.frame.xstart, xstart);
-        assert.equal(des.frame.ystart, ystart);
+        // mklev.c clear_level_structures() (line 922) resets the frame to
+        // the whole map; only sp_level_coder_init() clears SpLev_Map.
+        assert.equal(des.frame.xstart, 1);
+        assert.equal(des.frame.ystart, 0);
         assert.equal(des.frame.splevMap[xstart][ystart], 1);
         assert.equal(game.iflags.lua_testing, true);
         assert.equal(game.level.at(xstart, ystart).typ, STONE);

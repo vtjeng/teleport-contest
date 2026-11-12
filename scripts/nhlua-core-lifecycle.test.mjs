@@ -53,13 +53,14 @@ test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', asyn
     assert.deepEqual([...game.unported], ['nhlua.c nhlL_newstate', 'nhlua.c nhl_done']);
 });
 
-test('bounded load_lua initializes before a level program it cannot run', async () => {
+test('bounded load_lua initializes before a file it cannot run', async () => {
     const { load_lua } = await import('../js/nhlua.js');
     assert.equal(typeof load_lua, 'function');
-    // minefill.lua is a level program in dat/, which C runs without a coder;
     // "save/one.lua" names a file in save/, which holds whatever save files
-    // the game wrote. Both stay noted after nhl_init()'s shuffle.
-    for (const name of ['minefill.lua', 'save/one.lua']) {
+    // the game wrote; it stays noted after nhl_init()'s shuffle. (A level
+    // program such as minefill.lua now runs; recipes/nhlua.c/
+    // wizloadlua-level-program.session.json covers it.)
+    for (const name of ['save/one.lua']) {
         freshGame();
         game.iflags = { in_lua: false }; // Source-valid command state.
         const draws = [];

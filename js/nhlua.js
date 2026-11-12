@@ -353,10 +353,10 @@ export async function load_lua(name, sbi, state = game, env = {}) {
     const lua = { align: nhl_init(random) };
     const loaded = await nhl_loadlua(lua, name, state, random);
     if (loaded === 'level') {
-        // A level program run without a coder: C runs its des.* calls on
-        // the current level, each with sp_lev.c's NULL-coder behaviour,
-        // which the port's level loaders do not have.
-        note_unported('nhlua.c nhl_loadlua');
+        // C runs the level program's des.* calls on the current level with
+        // no post-processing. Dynamic import: js/mklev.js imports this file.
+        const { run_level_program } = await import('./mklev.js');
+        await run_level_program(name, lua.align, state);
     }
     note_unported('nhlua.c nhl_done');
     state.iflags.in_lua = false;

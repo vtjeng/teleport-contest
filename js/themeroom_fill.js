@@ -84,6 +84,7 @@ import { induced_align } from './dungeon.js';
 import {
     discard_minvent,
     makemon,
+    makemon_runtime,
     m_dowear,
     restore_waiting_vampire,
     set_mimic_sym,
@@ -618,7 +619,10 @@ function createMonsterBody(m, croom, env) {
         )
         : PM_ARCHEOLOGIST <= m.id && m.id <= PM_WIZARD
             ? mk_mplayer(pm, coordinate.x, coordinate.y, false, monsterEnv)
-        : makemon(
+        // A level program that #wizloadlua runs (nhlua.c load_lua()) makes
+        // its monsters outside level creation, so makemon() runs its runtime
+        // tail there, as in mk_roamer().
+        : (state.in_mklev || env._specialRoomFill ? makemon : makemon_runtime)(
             pm,
             coordinate.x,
             coordinate.y,

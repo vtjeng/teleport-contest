@@ -491,11 +491,10 @@ function clear_level_structures() {
     g.stairs = null;
     g.head_engr = null;
     free_exclusions(g);
-    // C ref: gl.lregions / gn.num_lregions, the level regions a special
-    // level's des.levregion() and des.teleport_region() add through
-    // levregion_add(). C allocates it on the first add and frees it at the
-    // end of mkmaze.c fixup_special(); the port empties it in both places.
-    g.lregions = [];
+    // gl.lregions is not cleared here: C empties it only at the end of
+    // mkmaze.c fixup_special(), so regions a #wizloadlua level program added
+    // stay for the next special-level load (js/gstate.js starts it empty).
+    reset_xystart_size(sp_lev_frame(g), g); // mklev.c:922
     g.vault_x = -1;
     const lf = g.level.flags;
     lf.has_shop = false;
@@ -711,6 +710,8 @@ function themerooms_post_level_generate(state = game) {
     if (!luathemes_at(dnum, state)) return;
     run_themeroom_postprocess({ state });
     wallification(1, 0, COLNO - 1, ROWNO - 1, state);
+    // mklev.c:1191. makerooms() made (or reused) gc.coder for the themes.
+    if (state.gc?.coder) state.gc.coder = null;
 }
 
 // C ref: mklev.c makelevel()
@@ -751,9 +752,11 @@ async function makelevel(specialLevelLoader = null) {
         const align = ['law', 'neutral', 'chaos'];
         shuffle_core_values(align, rn2);
         g.specialLevelAlign = align;
+        create_des_coder(g);
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         await specialLevelApi.finish();
+        g.gc.coder = null;
         await finishLevelGeneration();
         return;
     }
@@ -2042,9 +2045,11 @@ export async function specialLevelLoaderNames() {
 // when the file cannot be loaded.
 export async function load_special(name, state, callerEnv = null) {
     await ensureSpecialLevelLoaders();
-    // C creates gc.coder, including the file-scope SpLev_Map state, before
-    // attempting load_lua(). Keep that state available to the caller's
-    // NULL-state finalizer even when the load fails.
+    // C creates gc.coder before attempting load_lua(), or reuses the one a
+    // #wizloadlua level program left. The file-scope SpLev_Map state stays
+    // available to the caller's NULL-state finalizer even when the load
+    // fails.
+    create_des_coder(state);
     const specialLevelApi = createSpecialLevelApi(state);
     if (callerEnv) callerEnv.frame = specialLevelApi.frame;
     // C ref: nhlua.c load_lua(). nhl_init() loads nhlib.lua, which shuffles
@@ -2055,7 +2060,10 @@ export async function load_special(name, state, callerEnv = null) {
     const lua = { align };
     const loaded = await nhl_loadlua(lua, name, state);
     state.specialLevelAlign = lua.align;
-    if (!loaded) return false;
+    if (!loaded) {
+        state.gc.coder = null; // C: give_up: Free(gc.coder)
+        return false;
+    }
     // A library file's top level leaves the coder as create_des_coder()
     // made it, and load_special() post-processes the current level as it is.
     // The port registers each level program under its name without ".lua".
@@ -2068,8 +2076,21 @@ export async function load_special(name, state, callerEnv = null) {
     // fill_special_room. ensure_way_out (conditional on check_inaccessibles)
     // is recorded as a gap.
     await specialLevelApi.finish();
+    state.gc.coder = null; // C: Free(gc.coder); gc.coder = NULL;
 
     return true;
+}
+
+// C ref: nhlua.c load_lua() for a level program named by #wizloadlua
+// (wizcmds.c wiz_load_lua()). C runs its des.* calls on the current level:
+// the first creates gc.coder, nothing post-processes the level, and the coder
+// stays for the next special-level load to reuse. `align` is the shuffled
+// nhlib.lua table of the Lua state nhl_init() made.
+export async function run_level_program(name, align, state) {
+    await ensureSpecialLevelLoaders();
+    state.specialLevelAlign = align;
+    await SPECIAL_LEVEL_LOADERS[name.slice(0, -'.lua'.length)](
+        createSpecialLevelApi(state), state);
 }
 
 // C ref: mkmaze.c makemaz(). Selects the special level variant, loads
@@ -2169,11 +2190,11 @@ function update_croom(coder) {
 
 // C ref: sp_lev.c reset_xystart_size(). The map frame that get_location()
 // converts Lua-relative coordinates through: column 0 is off limits, so the
-// frame starts at (1, 0) and covers COLNO-1 by ROWNO. `frame` holds C's
-// gx.xstart/gy.ystart/gx.xsize/gy.ysize for one special-level load;
+// frame starts at (1, 0) and covers COLNO-1 by ROWNO. `frame`
+// (sp_lev_frame()) holds C's gx.xstart/gy.ystart/gx.xsize/gy.ysize;
 // state.xstart and friends mirror them for trap.js's launch offsets, and
-// lspo_map() sets both the same way. mklev.c also calls this before and
-// after each level build; the JS frame is created fresh per load instead.
+// lspo_map() sets both the same way. clear_level_structures() calls this
+// too; mklev.c's themed-room calls have no frame user in the port.
 function reset_xystart_size(frame, state) {
     frame.xstart = 1; /* column [0] is off limits */
     frame.ystart = 0;
@@ -2187,8 +2208,7 @@ function reset_xystart_size(frame, state) {
 
 // C ref: sp_lev.c sp_level_coder_init(). Allocates and initializes the
 // sp_coder structure, resets file-scope level-generation state, and sets
-// default level flags. Returns the coder. SpLev_Map is created by
-// createSpecialLevelApi since it is not part of the C sp_coder struct.
+// default level flags. Returns the coder.
 function sp_level_coder_init(state, frame) {
     const coder = {
         premapped: false,
@@ -2217,7 +2237,7 @@ function sp_level_coder_init(state, frame) {
     // In JS these live in the sp_lev_object context, created separately.
 
     // C: memset(SpLev_Map, 0, sizeof SpLev_Map);
-    // In JS, splevMap is created by createSpecialLevelApi.
+    for (const column of frame.splevMap) column.fill(0);
 
     // C: level.flags initialization
     state.level.flags.is_maze_lev = false;
@@ -2244,12 +2264,37 @@ function l_register_des(api) {
     return api;
 }
 
-// C ref: sp_lev.c create_des_coder(). In C, allocates the coder on first
-// use (each lspo_* function calls this as a guard). In JS, the coder is
-// created once per special level by createSpecialLevelApi.
-function create_des_coder(state, frame) {
-    return sp_level_coder_init(state, frame);
+// C ref: sp_lev.c gc.coder and the file-scope statics sp_lev.c keeps beside
+// it (SpLev_Map, the xstart/ystart/xsize/ysize frame, splev_init_present,
+// icedpools). gc.coder lives in the game state as state.gc.coder: NULL until
+// create_des_coder() allocates it, freed (set to null) by load_special(),
+// lspo_reset_level() and themerooms_post_level_generate(). A level program
+// run by #wizloadlua (nhlua.c load_lua()) creates it on its first des.* call
+// and leaves it for the next special-level load to reuse. Neither is saved.
+function sp_lev_frame(state) {
+    return state.sp_lev_frame ??= {
+        xMazeMax: (COLNO - 1) & ~1,
+        yMazeMax: (ROWNO - 1) & ~1,
+        splevMap: Array.from({ length: COLNO }, () => new Uint8Array(ROWNO)),
+    };
 }
+
+// C ref: sp_lev.c create_des_coder(). Allocates the coder on first use;
+// load_special() and every des.* function call it first.
+function create_des_coder(state) {
+    state.gc ??= {};
+    if (!state.gc.coder)
+        state.gc.coder = sp_level_coder_init(state, sp_lev_frame(state));
+    return state.gc.coder;
+}
+
+// The des.* functions that do not start with create_des_coder() in C:
+// reset_level() and finalize_level() decide for themselves, and the rest are
+// not des.* functions (finish() is load_special()'s post-processing).
+const DES_WITHOUT_CODER = new Set([
+    'reset_level', 'finalize_level', 'finish', 'random', 'shuffle',
+    'parse_config',
+]);
 
 // The des.* functions below take their Lua arguments as the array `args`
 // and read C's globals from `env`: `env.state` for svl.level, `env.coder`
@@ -4555,11 +4600,8 @@ export function lspo_wallify(args, env) {
 // des.reset_level() in the Lua test scripts, and wizcmds.c
 // wiz_load_splua() with no Lua state. Only the Lua caller remakes the coder;
 // both mark Lua testing and clear the level for a fresh generation.
-// The port's coder is the object createSpecialLevelApi() made, shared with
-// its closures, so the remake writes sp_level_coder_init()'s fields into
-// it in place and clears the SpLev_Map the frame holds.
 export async function lspo_reset_level(args, env) {
-    const { state, coder, frame } = env;
+    const { state } = env;
     const wtower = await finish_steps(
         In_W_tower_steps(state.u.ux, state.u.uy, state.u.uz, state),
         impossible_printer(state));
@@ -4567,13 +4609,14 @@ export async function lspo_reset_level(args, env) {
     state.iflags ??= {};
     state.iflags.lua_testing = true;
     // C: if (L) { Free(gc.coder); gc.coder = NULL; create_des_coder(); }
-    if (args !== null) Object.assign(coder, sp_level_coder_init(state, frame));
+    if (args !== null) {
+        state.gc.coder = null;
+        create_des_coder(state);
+    }
     // Dynamic import keeps cmd.c's port in js/cmd.js without adding a static
     // cmd -> do -> mklev -> cmd initialization cycle.
     const { makemap_prepost } = await import('./cmd.js');
     await makemap_prepost(true, wtower, state);
-    if (args !== null)
-        for (const column of frame.splevMap) column.fill(0);
     state.in_mklev = true;
     oinit(state); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -4587,10 +4630,14 @@ export async function lspo_reset_level(args, env) {
 // finish(); this adds level_finalize_topology() and the special-room
 // fills.
 export async function lspo_finalize_level(args, env) {
-    const { state, coder, frame } = env;
+    const { state } = env;
+    const frame = sp_lev_frame(state);
     const wtower = await finish_steps(
         In_W_tower_steps(state.u.ux, state.u.uy, state.u.uz, state),
         impossible_printer(state));
+
+    if (args !== null) create_des_coder(state);
+    const coder = state.gc?.coder ?? null;
 
     link_doors_rooms();
     remove_boundary_syms(frame, state);
@@ -4660,21 +4707,13 @@ async function finishFixupSpecial(state) {
 const SPECIAL_LEVEL_LUA_GLOBALS = Symbol('special-level Lua globals');
 
 function createSpecialLevelApi(state) {
-    // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
-    // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
-    // maze1xy avoids these cells when placing fill objects.
-    const splevMap = Array.from({ length: COLNO }, () =>
-        new Uint8Array(ROWNO),
-    );
-    // The frame's xstart/ystart/xsize/ysize are set by reset_xystart_size()
-    // from sp_level_coder_init(); des.map() overrides them with the map's
+    // sp_lev.c's file-scope state (sp_lev_frame()). SpLev_Map tracks which
+    // cells lspo_map, lspo_door, lspo_stair, or lspo_drawbridge placed;
+    // maze1xy avoids them when placing fill objects. The frame's
+    // xstart/ystart/xsize/ysize are set by reset_xystart_size() from
+    // sp_level_coder_init(); des.map() overrides them with the map's
     // placement, and map-less levels keep the whole-map defaults.
-    const frame = {
-        xMazeMax: (COLNO - 1) & ~1,
-        yMazeMax: (ROWNO - 1) & ~1,
-        splevMap,
-    };
-    const coder = create_des_coder(state, frame);
+    const frame = sp_lev_frame(state);
     const spObjectContext = new_sp_lev_object_context();
     // The C globals the des.* functions read: svl.level through `state`,
     // gc.coder, and sp_lev.c's file-scope placement state through `frame`.
@@ -4688,7 +4727,8 @@ function createSpecialLevelApi(state) {
             },
         },
         frame,
-        coder,
+        // gc.coder as it is now: each des.* call creates it first (below).
+        get coder() { return state.gc?.coder ?? null; },
         spObjectContext,
     };
 
@@ -4746,13 +4786,12 @@ function createSpecialLevelApi(state) {
                         'Map requires either x,y or halign,valign params',
                     );
                 }
-                if (coder.croom) {
-                    frame.xstart = x + coder.croom.lx;
-                    frame.ystart = y + coder.croom.ly;
-                    frame.xsize = Math.min(mf.wid,
-                                           (coder.croom.hx - coder.croom.lx));
-                    frame.ysize = Math.min(mf.hei,
-                                           (coder.croom.hy - coder.croom.ly));
+                const { croom } = env.coder;
+                if (croom) {
+                    frame.xstart = x + croom.lx;
+                    frame.ystart = y + croom.ly;
+                    frame.xsize = Math.min(mf.wid, (croom.hx - croom.lx));
+                    frame.ysize = Math.min(mf.hei, (croom.hy - croom.ly));
                 } else {
                     frame.xstart = x;
                     frame.ystart = y;
@@ -4919,13 +4958,13 @@ function createSpecialLevelApi(state) {
                 coordinate,
                 corpsenm,
             };
-            return lspo_object(normalized, coder.croom, env);
+            return lspo_object(normalized, env.coder.croom, env);
         },
 
         gold(...args) { return lspo_gold(args, env); },
 
         monster(...args) {
-            return lspo_monster(args, coder.croom, env);
+            return lspo_monster(args, env.coder.croom, env);
         },
 
         stair(...args) { return lspo_stair(args, env); },
@@ -4970,6 +5009,7 @@ function createSpecialLevelApi(state) {
         async finalize_level(...args) { return lspo_finalize_level(args, env); },
 
         async finish() {
+            const coder = env.coder;
             link_doors_rooms();
             remove_boundary_syms(frame, state);
 
@@ -5017,6 +5057,20 @@ function createSpecialLevelApi(state) {
     Object.defineProperty(des, SPECIAL_LEVEL_LUA_GLOBALS, {
         value: luaGlobals,
     });
+    // Every sp_lev.c lspo_* function (and l_create_stairway() and
+    // set_wallprop_in_selection(), behind stair, ladder, non_diggable and
+    // non_passwall) starts with create_des_coder().
+    for (const [name, descriptor] of Object.entries(
+        Object.getOwnPropertyDescriptors(des),
+    )) {
+        if (typeof descriptor.value !== 'function'
+            || DES_WITHOUT_CODER.has(name)) continue;
+        const call = descriptor.value;
+        des[name] = function (...args) {
+            create_des_coder(state);
+            return call.apply(this, args);
+        };
+    }
     return des;
 }
 

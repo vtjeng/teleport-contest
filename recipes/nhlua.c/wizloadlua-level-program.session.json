@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c load_lua() through wiz_load_lua() runs a level program (minefill) on the current level: its first des.* call creates gc.coder (sp_level_coder_init() resets the level flags and frame), its monsters are made outside level creation, so makemon() runs its runtime tail, and nothing post-processes the level. C draws 2,304 random numbers at the Enter. Seed, date and Samurai chosen independently.",
+  "segments": [
+    {
+      "seed": 71230413,
+      "datetime": "20641103101530",
+      "nethackrc": "OPTIONS=name:LuaLevel,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nminefill\n      "
+    }
+  ]
+}

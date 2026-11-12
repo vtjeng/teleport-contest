@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c gc.coder left by a #wizloadlua level program: nhlua.c load_lua() runs soko4-1's des.* calls on the current level, the first of which creates gc.coder, and nothing frees it. The following #wizloaddes minefill reuses it in load_special(): create_des_coder() does not reinitialize it, so soko4-1's premapped, solidify and noflip flags apply to the mines filler, which is premapped and not flipped. Seed, date and Caveman chosen independently.",
+  "segments": [
+    {
+      "seed": 66103379,
+      "datetime": "20540908213305",
+      "nethackrc": "OPTIONS=name:Leftover,role:Caveman,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nsoko4-1\n   #wizloaddes\nminefill\n   ssss"
+    }
+  ]
+}
