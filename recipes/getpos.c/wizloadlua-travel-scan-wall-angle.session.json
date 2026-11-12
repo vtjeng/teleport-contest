@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "getpos.c getpos()'s feature-symbol scan reaching display.c wall_angle(): #wizloadlua knox leaves walls with wall_info mode 4 (a closed door's D_CLOSED) on the Dlvl 1 it is drawn over, ^F maps them (one impossible() each, dismissed with Escape), and travel's _ then > scans every seen square for a down staircase knox does not have, calling back_to_glyph() on each, so C prints impossible(\"wall_angle: unknown hwall mode 4\") or its vwall form for each such wall again from inside getpos(). Seed, date, Ranger and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 44318820,
+      "datetime": "20610305223915",
+      "nethackrc": "OPTIONS=name:Scanner,role:Ranger,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nknox\n\u0006\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b_  >\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b:"
+    }
+  ]
+}

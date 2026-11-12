@@ -205,7 +205,7 @@ import {
     map_invisible,
     map_object,
     newsym,
-    back_to_glyph,
+    back_to_glyph_steps,
     unmap_invisible,
     unmap_object,
 } from './display.js';
@@ -516,7 +516,8 @@ import {
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects, objdescr_is } from './o_init.js';
 import { note_unported } from './unported.js';
-import { impossible, livelog_printf, youFeel } from './pline.js';
+import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { makeplural } from './fruit.js';
 import { On_stairs } from './stairs.js';
 import { select_menu } from './windows.js';
@@ -2588,7 +2589,9 @@ export async function test_move(
                     && In_sokoban(state.u?.uz, state)) {
                     await message('The Sokoban walls resist your ability.', state);
                 } else if (state.flags?.mention_walls) {
-                    const glyph = back_to_glyph(x, y, state);
+                    const glyph = await finish_steps(
+                        back_to_glyph_steps(x, y, state),
+                        impossible_printer(state));
                     const symbol = glyph_is_cmap(glyph)
                         ? glyph_to_cmap(glyph) : -1;
                     const description = symbol === S_stone
@@ -3855,7 +3858,9 @@ async function domove_fight_empty(x, y, state) {
         buf = location.seenv || IS_STWALL(location.typ)
             || location.typ === SDOOR || location.typ === SCORR
             ? the(CMAP_EXPLANATIONS[
-                glyph_to_cmap(back_to_glyph(x, y, state))
+                glyph_to_cmap(await finish_steps(
+                    back_to_glyph_steps(x, y, state),
+                    impossible_printer(state)))
             ], state)
             : 'an unknown obstacle';
     } else {

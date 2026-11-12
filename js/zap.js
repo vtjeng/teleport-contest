@@ -59,7 +59,7 @@ import { get_mtraits } from './corpstat.js';
 import {
     cant_finish_meal, eaten_stat, fix_petrification, vegetarian,
 } from './eat.js';
-import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
+import { cvt_sdoor_to_door, findit, show_map_spot_steps } from './detect.js';
 import { bury_objs,
     draft_message,
     zap_dig,
@@ -3963,7 +3963,8 @@ export async function zap_map(
         // C's ttmp snapshot and old map values precede show_map_spot().
         const oldType = lastseentyp_grid(state)[x]?.[y];
         const oldGlyph = glyph_at(x, y, state);
-        show_map_spot(x, y, false, state, random);
+        await finish_steps(show_map_spot_steps(x, y, false, state, random),
+            impossible_printer(state));
         if (oldType !== lastseentyp_grid(state)[x]?.[y]
             || oldGlyph !== glyph_at(x, y, state)) {
             learnIt = true;

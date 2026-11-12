@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c wall_angle() for a wall whose wall_info mode it does not know: #wizloadlua knox draws Fort Ludios over the Dlvl 1 the level program runs on, and nothing calls set_wall_state() afterwards, so a wall laid on a square that held a closed door keeps D_CLOSED in its flags: mode 4. ^F (detect.c do_mapping()) then maps every square through show_map_spot() -> magic_map_background() -> back_to_glyph(), and C prints impossible(\"wall_angle: unknown hwall mode 4\") or its vwall form for each such wall, twelve in all, with the map drawn up to that column on the screen behind each. Seed, date, Tourist and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 27705196,
+      "datetime": "20570612081530",
+      "nethackrc": "OPTIONS=name:Mapper,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nknox\n\u0006                                   :"
+    }
+  ]
+}

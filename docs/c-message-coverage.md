@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 221 | 502 |
+| diagnostic | 723 | 228 | 495 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4217 | 694 |
+| total | 4911 | 4224 | 687 |
 
 ## Missing by C file
 
@@ -46,7 +46,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/decl.c | no | 1 | 0 | 0 |
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
-| src/display.c | yes | 0 | 15 | 0 |
+| src/display.c | yes | 0 | 8 | 0 |
 | src/do.c | yes | 1 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
@@ -539,15 +539,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `zapdir_to_glyph()`
   - 2464 impossible: `zapdir_to_glyph:  illegal beam type`
-
-- `wall_angle()`
-  - 3591 impossible: `wall_angle: unknown T wall mode`
-  - 3620 impossible: `wall_angle: unknown vwall mode`
-  - 3640 impossible: `wall_angle: unknown hwall mode`
-  - 3666 impossible: `wall_angle: unknown`
-  - 3745 impossible: `wall_angle: bottom of crwall check`
-  - 3776 impossible: `wall_angle: unknown crosswall mode`
-  - 3783 impossible: `wall_angle: unexpected wall type`
 
 ### src/do.c
 

@@ -36,7 +36,8 @@ import * as statusConstants from './const.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { isok } from './cmd_isok.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { is_pool, is_pool_or_lava, is_ice } from './dbridge.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
@@ -611,17 +612,39 @@ function only(seenv, bits) {
     return Boolean((seenv & bits) && !(seenv & ~bits));
 }
 
-function cornerAngle(seenv, mode, which, outer, inner) {
+// display.c t_warn(): the impossible() a T wall whose seen vector its mode
+// cannot draw gets.
+function t_warn(loc) {
+    const WNAMES = {
+        [TUWALL]: 'tuwall', [TLWALL]: 'tlwall', [TRWALL]: 'trwall',
+        [TDWALL]: 'tdwall', [VWALL]: 'vwall', [HWALL]: 'hwall',
+        [TLCORNER]: 'tlcorner', [TRCORNER]: 'trcorner',
+        [BLCORNER]: 'blcorner', [BRCORNER]: 'brcorner',
+    };
+    const wname = WNAMES[loc.typ] ?? 'unknown';
+    return new ImpossibleCall(`wall_angle: ${wname}: case ${wallMode(loc)}: `
+        + `seenv = 0x${((loc.seenv ?? 0) & 0xFF).toString(16)}`);
+}
+
+// display.c set_corner(): a corner's mode outside 0, WM_C_OUTER and
+// WM_C_INNER is reported and drawn as stone.
+function* cornerAngle(seenv, mode, which, outer, inner, name) {
     if (mode === 0) return which;
     if (mode === WM_C_OUTER) return seenv & outer ? which : S_stone;
     if (mode === WM_C_INNER) return seenv & ~inner ? which : S_stone;
+    yield new ImpossibleCall(`wall_angle: unknown ${name} mode ${mode}`);
     return S_stone;
 }
 
 // C ref: display.c wall_angle(). This returns an S_* cmap index, not a
 // rendered character; cmap_to_glyph() numbers it and map_glyphinfo() picks
-// the symbol.
-export function wall_angle(loc) {
+// the symbol. A step generator (js/source_steps.js): it yields the
+// impossible() C prints for a wall whose wall_info mode its type does not
+// know, which a wall gets when a level program that #wizloadlua runs puts it
+// on a square whose flags held something else (a closed door's D_CLOSED is
+// mode 4); the synchronous form below records the print as a gap.
+// scripts/wall-angle-callers.test.mjs lists the callers that still use it.
+export function* wall_angle_steps(loc) {
     let seenv = (loc.seenv ?? 0) & 0xFF;
     const mode = wallMode(loc);
 
@@ -652,7 +675,10 @@ export function wall_angle(loc) {
                 || ((seenv & SV4) && (seenv & SV6))) col = T_TDWALL;
             else if (seenv & (SV0 | SV1 | SV2)) {
                 col = seenv & (SV4 | SV6) ? T_TDWALL : T_HWALL;
-            } else col = T_STONE;
+            } else {
+                yield t_warn(loc);
+                col = T_STONE;
+            }
         } else if (mode === WM_T_LONG) {
             if ((seenv & (SV3 | SV4))
                 && !(seenv & (SV5 | SV6 | SV7))) col = T_TLCORN;
@@ -661,7 +687,11 @@ export function wall_angle(loc) {
             else if ((seenv & SV5)
                 || ((seenv & (SV3 | SV4))
                     && (seenv & (SV6 | SV7)))) col = T_TDWALL;
-            else col = T_STONE;
+            else {
+                /* only SV0|SV1|SV2 */
+                if (!only(seenv, SV0 | SV1 | SV2)) yield t_warn(loc);
+                col = T_STONE;
+            }
         } else if (mode === WM_T_BL) {
             if (only(seenv, SV4 | SV5)) col = T_TLCORN;
             else if ((seenv & (SV0 | SV1 | SV2 | SV7))
@@ -674,24 +704,16 @@ export function wall_angle(loc) {
                 && !(seenv & (SV5 | SV6 | SV7))) col = T_HWALL;
             else if (only(seenv, SV4)) col = T_STONE;
             else col = T_TDWALL;
-        } else col = T_STONE;
+        } else {
+            yield new ImpossibleCall(`wall_angle: unknown T wall mode ${mode}`);
+            col = T_STONE;
+        }
         return row[col];
     }
 
     case SDOOR:
         if (loc.arboreal_sdoor || loc.candig) return S_tree;
-        if (loc.horizontal) {
-            if (mode === 0) return seenv ? S_hwall : S_stone;
-            if (mode === 1) {
-                return seenv & (SV3 | SV4 | SV5 | SV6 | SV7)
-                    ? S_hwall : S_stone;
-            }
-            if (mode === 2) {
-                return seenv & (SV0 | SV1 | SV2 | SV3 | SV7)
-                    ? S_hwall : S_stone;
-            }
-            return S_stone;
-        }
+        if (loc.horizontal) return yield* hwallAngle(seenv, mode);
         // Non-horizontal secret doors use the vertical-wall cases.
         // falls through
     case VWALL:
@@ -704,35 +726,27 @@ export function wall_angle(loc) {
             return seenv & (SV0 | SV1 | SV5 | SV6 | SV7)
                 ? S_vwall : S_stone;
         }
+        yield new ImpossibleCall(`wall_angle: unknown vwall mode ${mode}`);
         return S_stone;
 
     case HWALL:
-        if (mode === 0) return seenv ? S_hwall : S_stone;
-        if (mode === 1) {
-            return seenv & (SV3 | SV4 | SV5 | SV6 | SV7)
-                ? S_hwall : S_stone;
-        }
-        if (mode === 2) {
-            return seenv & (SV0 | SV1 | SV2 | SV3 | SV7)
-                ? S_hwall : S_stone;
-        }
-        return S_stone;
+        return yield* hwallAngle(seenv, mode);
 
     case TLCORNER:
-        return cornerAngle(
-            seenv, mode, S_tlcorn, SV3 | SV4 | SV5, SV4,
+        return yield* cornerAngle(
+            seenv, mode, S_tlcorn, SV3 | SV4 | SV5, SV4, 'tlcorn',
         );
     case TRCORNER:
-        return cornerAngle(
-            seenv, mode, S_trcorn, SV5 | SV6 | SV7, SV6,
+        return yield* cornerAngle(
+            seenv, mode, S_trcorn, SV5 | SV6 | SV7, SV6, 'trcorn',
         );
     case BLCORNER:
-        return cornerAngle(
-            seenv, mode, S_blcorn, SV1 | SV2 | SV3, SV2,
+        return yield* cornerAngle(
+            seenv, mode, S_blcorn, SV1 | SV2 | SV3, SV2, 'blcorn',
         );
     case BRCORNER:
-        return cornerAngle(
-            seenv, mode, S_brcorn, SV7 | SV0 | SV1, SV0,
+        return yield* cornerAngle(
+            seenv, mode, S_brcorn, SV7 | SV0 | SV1, SV0, 'brcorn',
         );
 
     case CROSSWALL: {
@@ -783,7 +797,10 @@ export function wall_angle(loc) {
                 col = seenv & SV7 ? C_CRWALL : C_TUWALL;
             } else if (seenv & SV7) {
                 col = seenv & SV1 ? C_CRWALL : C_TLWALL;
-            } else col = C_CRWALL;
+            } else {
+                yield new ImpossibleCall('wall_angle: bottom of crwall check');
+                col = C_CRWALL;
+            }
             return row[col];
         }
 
@@ -799,12 +816,35 @@ export function wall_angle(loc) {
             if (only(seenv, SV2 | SV6)) return S_stone;
             return S_crwall;
         }
+        yield new ImpossibleCall('wall_angle: unknown crosswall mode');
         return S_stone;
     }
 
     default:
+        yield new ImpossibleCall(`wall_angle: unexpected wall type ${loc.typ}`);
         return S_stone;
     }
+}
+
+// display.c wall_angle()'s HWALL case, which a horizontal secret door
+// reaches through `goto horiz`.
+function* hwallAngle(seenv, mode) {
+    if (mode === 0) return seenv ? S_hwall : S_stone;
+    if (mode === 1) {
+        return seenv & (SV3 | SV4 | SV5 | SV6 | SV7)
+            ? S_hwall : S_stone;
+    }
+    if (mode === 2) {
+        return seenv & (SV0 | SV1 | SV2 | SV3 | SV7)
+            ? S_hwall : S_stone;
+    }
+    yield new ImpossibleCall(`wall_angle: unknown hwall mode ${mode}`);
+    return S_stone;
+}
+
+// wall_angle() for a caller that cannot wait: an impossible() is a gap.
+export function wall_angle(loc) {
+    return finish_steps(wall_angle_steps(loc));
 }
 
 function mapColorEnabled(state) {
@@ -2771,20 +2811,37 @@ function mappedObjectGlyphInfo(obj, state) {
  * cmap_walls_to_glyph(), so a wall recorded in the Mines keeps the Mines'
  * number after the hero leaves.
  */
+//
+// A step generator (js/source_steps.js), for wall_angle()'s impossible().
+// Only the wall arm can yield, so the synchronous back_to_glyph() below runs
+// every other square without a generator.
+export function* back_to_glyph_steps(x, y, state = game) {
+    const ptr = state.level?.at(x, y);
+    if (WALL_TYPES.has(ptr.typ)) {
+        // C's SDOOR case falls through to the ten wall cases unless the
+        // secret door hides a tree, so the two share one arm here too.
+        const idx = ptr.typ === SDOOR && (ptr.arboreal_sdoor || ptr.candig)
+            ? S_tree
+            : ptr.seenv ? yield* wall_angle_steps(ptr) : S_stone;
+        return cmap_to_glyph(idx, state);
+    }
+    return terrain_to_glyph(ptr, x, y, state);
+}
+
+// back_to_glyph() for a caller that cannot wait: wall_angle()'s impossible()
+// is a gap. scripts/wall-angle-callers.test.mjs lists its callers.
 export function back_to_glyph(x, y, state = game) {
     const ptr = state.level?.at(x, y);
+    if (WALL_TYPES.has(ptr.typ))
+        return finish_steps(back_to_glyph_steps(x, y, state));
+    return terrain_to_glyph(ptr, x, y, state);
+}
+
+// back_to_glyph()'s arms for every square but a wall.
+function terrain_to_glyph(ptr, x, y, state) {
     let idx;
     let bypass_glyph = NO_GLYPH;
     const typ = ptr.typ;
-    if (WALL_TYPES.has(typ)) {
-        // C's SDOOR case falls through to the ten wall cases unless the
-        // secret door hides a tree, so the two share one arm here too.
-        idx = typ === SDOOR && (ptr.arboreal_sdoor || ptr.candig)
-            ? S_tree
-            : ptr.seenv ? wall_angle(ptr) : S_stone;
-        return cmap_to_glyph(idx, state);
-    }
-
     switch (typ) {
     case SCORR:
     case STONE:
@@ -3046,7 +3103,8 @@ export async function flash_glyph_at(
         ? map_glyphinfo(rememberedNumber, state)
         : useMemory
             ? unexploredGlyphInfo(state)
-            : map_glyphinfo(back_to_glyph(x, y, state), state);
+            : map_glyphinfo(await finish_steps(back_to_glyph_steps(x, y, state),
+                impossible_printer(state)), state);
 
     // display.c's animation is a window-port side effect. Another state
     // still resolves the two glyphs in source order, but cannot paint the
@@ -3756,10 +3814,11 @@ export function map_background(x, y, show, state = game) {
 
 // C ref: display.c magic_map_background() (233-258). Magic mapping corrects
 // out-of-sight lit floor and corridor glyphs before storing terrain memory.
-export function magic_map_background(x, y, show, state = game) {
+// A step generator (js/source_steps.js), for wall_angle()'s impossible().
+export function* magic_map_background_steps(x, y, show, state = game) {
     const location = state.level?.at(x, y);
     if (!location) return;
-    let glyphNumber = back_to_glyph(x, y, state);
+    let glyphNumber = yield* back_to_glyph_steps(x, y, state);
     if (!cansee(x, y, state) && !location.waslit) {
         if (location.typ === ROOM
             && glyphNumber === cmap_to_glyph(S_room, state)) {
@@ -3784,6 +3843,11 @@ export function magic_map_background(x, y, show, state = game) {
     update_lastseentyp(x, y, state, {
         canSeeMonster: (subject) => canseemon(subject, state),
     });
+}
+
+// magic_map_background() for a caller that cannot wait.
+export function magic_map_background(x, y, show, state = game) {
+    return finish_steps(magic_map_background_steps(x, y, show, state));
 }
 
 // C ref: display.c map_engraving() (318-325). Mapping reveals the engraving

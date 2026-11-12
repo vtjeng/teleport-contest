@@ -66,6 +66,7 @@ import {
 } from './cmd.js';
 import {
     back_to_glyph,
+    back_to_glyph_steps,
     docrt,
     flush_screen,
     glyph_at,
@@ -88,6 +89,8 @@ import { visctrl } from './hacklib.js';
 import { an } from './objnam.js';
 import { do_screen_description } from './pager.js';
 import { cansee } from './vision.js';
+import { impossible_printer } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { BOULDER, ROCK } from './objects.js';
 import { PM_LONG_WORM_TAIL } from './monsters.js';
 import {
@@ -899,8 +902,9 @@ function matchingCmapGlyph(glyph, matching) {
 // C ref: getpos.c getpos() feature-symbol scan (1066-1116). The scan uses
 // current presentation, remembered glyph, a genuine vibrating square, and
 // seen terrain in that order, with a lower-right pass followed by an
-// upper-left pass.
-function findTerrainFeature(key, cx, cy, state) {
+// upper-left pass. A step generator (js/source_steps.js): back_to_glyph()
+// can print wall_angle()'s impossible().
+function* findTerrainFeature_steps(key, cx, cy, state) {
     const map = state.level;
     if (!map) return null;
     const { matching, count, sidx } = featureSymbolMatches(key, state);
@@ -929,7 +933,8 @@ function findTerrainFeature(key, cx, cy, state) {
                     && known_vibrating_square_at(tx, ty, state))
                     return { found: true, x: tx, y: ty, tx, ty, sidx };
                 if (location.seenv
-                    && matchingCmapGlyph(back_to_glyph(tx, ty, state), matching))
+                    && matchingCmapGlyph(
+                        yield* back_to_glyph_steps(tx, ty, state), matching))
                     return { found: true, x: tx, y: ty, tx, ty, sidx };
             }
         }
@@ -1288,7 +1293,9 @@ export async function getpos(ccp, force, goal, state = game) {
             // symbols with no matching terrain fall through to direction
             // handling below.
             if (!quitchars.includes(String.fromCharCode(key))) {
-                const feature = findTerrainFeature(key, cx, cy, state);
+                const feature = await finish_steps(
+                    findTerrainFeature_steps(key, cx, cy, state),
+                    impossible_printer(state));
                 if (feature?.found) {
                     tx.value = feature.tx;
                     ty.value = feature.ty;

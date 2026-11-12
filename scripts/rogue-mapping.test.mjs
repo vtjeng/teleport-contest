@@ -19,7 +19,7 @@ test('magic mapping consumes the source DARKROOMSYM rogue-level choice', () => {
     assert.match(source('../nethack-c/upstream/src/display.c'),
         /if \(lev->typ == ROOM && glyph == cmap_to_glyph\(S_room\)\)\s*glyph = \(flags\.dark_room && iflags\.use_color\)\s*\? cmap_to_glyph\(DARKROOMSYM\)\s*: GLYPH_NOTHING;/u);
     const js = source('../js/display.js');
-    const start = js.indexOf('export function magic_map_background(');
+    const start = js.indexOf('export function* magic_map_background_steps(');
     const body = js.slice(start, js.indexOf('\n}\n', start));
     assert.match(body, /cmap_to_glyph\(\s*isRogueLevelForState\(state\) \? S_stone : S_darkroom, state\)/u);
     assert.ok(body.indexOf('location.remembered_glyph =') < body.indexOf('if (show)'));

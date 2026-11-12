@@ -79,6 +79,7 @@ import { acurr, exercise } from './attrib.js';
 import { cmdSafetyPrevention, yn_function } from './cmd.js';
 import {
     back_to_glyph,
+    back_to_glyph_steps,
     cmap_to_glyph,
     cls,
     docrt,
@@ -99,7 +100,7 @@ import {
     map_glyphinfo,
     map_monster_glyph_info,
     map_engraving,
-    magic_map_background,
+    magic_map_background_steps,
     map_trap,
     map_object,
     newsym,
@@ -299,7 +300,8 @@ function terrainGlyphInfo(glyph, state) {
 // C ref: detect.c reveal_terrain_getglyph() (2167-2288). Projection reads
 // the displayed glyph separately from the remembered levl glyph. Temporary
 // seenv/topology changes are restored before returning the selected glyph.
-export function reveal_terrain_getglyph(
+// A step generator (js/source_steps.js), for wall_angle()'s impossible().
+export function* reveal_terrain_getglyph_steps(
     x, y, swallowed, defaultGlyph, whichSubset, state = game,
 ) {
     const keepTraps = Boolean(whichSubset & TER_TRP);
@@ -313,14 +315,14 @@ export function reveal_terrain_getglyph(
     let glyph;
     if (full) {
         location.seenv = SVALL;
-        glyph = back_to_glyph(x, y, state);
+        glyph = yield* back_to_glyph_steps(x, y, state);
         location.seenv = seenv;
     } else {
         const region = visible_region_at(x, y, state);
         let wasMonster = false;
         const levelGlyph = heroMemory
             ? location.remembered_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF
-            : seenv ? back_to_glyph(x, y, state) : defaultGlyph;
+            : seenv ? (yield* back_to_glyph_steps(x, y, state)) : defaultGlyph;
         glyph = swallowed ? levelGlyph : glyph_at(x, y, state);
         if (keepMonsters && u_at(x, y, state) && swallowed) {
             glyph = mon_to_glyph(state.u.ustuck, state, rn2_on_display_rng).glyph;
@@ -354,7 +356,7 @@ export function reveal_terrain_getglyph(
             } else {
                 const lastSeenType = lastseentyp_grid(state)[x][y];
                 if (lastSeenType === location.typ) {
-                    glyph = back_to_glyph(x, y, state);
+                    glyph = yield* back_to_glyph_steps(x, y, state);
                 } else {
                     const monster = m_at(x, y, state);
                     if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE) {
@@ -364,7 +366,7 @@ export function reveal_terrain_getglyph(
                         location.typ = lastSeenType;
                         if (IS_WALL(location.typ) || location.typ === SDOOR)
                             xy_set_wall_state(x, y, state);
-                        glyph = back_to_glyph(x, y, state);
+                        glyph = yield* back_to_glyph_steps(x, y, state);
                         Object.assign(location, saved);
                     }
                 }
@@ -376,6 +378,14 @@ export function reveal_terrain_getglyph(
     else if (glyph === cmap_to_glyph(S_litcorr, state))
         glyph = cmap_to_glyph(S_corr, state);
     return glyph;
+}
+
+// reveal_terrain_getglyph() for a caller that cannot wait.
+export function reveal_terrain_getglyph(
+    x, y, swallowed, defaultGlyph, whichSubset, state = game,
+) {
+    return finish_steps(reveal_terrain_getglyph_steps(
+        x, y, swallowed, defaultGlyph, whichSubset, state));
 }
 
 // C ref: detect.c browse_map() (94-106). The temporary presentation is a
@@ -1262,7 +1272,8 @@ async function furniture_detect(state = game) {
             const monster = m_at(x, y, state);
             if (IS_FURNITURE(location.typ)) {
                 ++found;
-                magic_map_background(x, y, 1, state);
+                await finish_steps(magic_map_background_steps(x, y, 1, state),
+                    impossible_printer(state));
             } else if (symbol >= S_upstair && symbol <= S_fountain) {
                 ++found;
                 if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE)
@@ -1576,11 +1587,12 @@ export async function reveal_terrain(whichSubset, state = game) {
         });
     }
     const defaultGlyph = cmap_to_glyph(defaultSym, state);
+    const printer = impossible_printer(state);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
-            const glyph = reveal_terrain_getglyph(
+            const glyph = await finish_steps(reveal_terrain_getglyph_steps(
                 x, y, swallowed, defaultGlyph, whichSubset, state,
-            );
+            ), printer);
             show_glyph_cell(x, y, terrainGlyphInfo(glyph, state));
         }
     }
@@ -1610,8 +1622,11 @@ function glyphIsTrap(glyph) {
 }
 
 // C ref: detect.c show_map_spot() (1372-1419). Confusion independently skips
-// most squares before any map state or display is changed.
-export function show_map_spot(
+// most squares before any map state or display is changed. A step generator
+// (js/source_steps.js): magic_map_background() can print wall_angle()'s
+// impossible(). Its callers all wait, so each drives it with
+// impossible_printer().
+export function* show_map_spot_steps(
     x, y, cnf, state = game, random = coreRandom,
 ) {
     if (state !== game)
@@ -1625,10 +1640,10 @@ export function show_map_spot(
     }
     const oldglyph = glyph_at(x, y, state);
     if (state.level?.flags?.hero_memory) {
-        magic_map_background(x, y, 0, state);
+        yield* magic_map_background_steps(x, y, 0, state);
         newsym(x, y);
     } else {
-        magic_map_background(x, y, 1, state);
+        yield* magic_map_background_steps(x, y, 1, state);
     }
     if (!IS_FURNITURE(location.typ)) {
         const trap = t_at(x, y, state);
@@ -1650,15 +1665,23 @@ export function show_map_spot(
         room_discovered(location.roomno - ROOMOFFSET, state);
 }
 
+// show_map_spot() for a caller that cannot wait; every caller now waits.
+export function show_map_spot(x, y, cnf, state = game, random = coreRandom) {
+    return finish_steps(show_map_spot_steps(x, y, cnf, state, random));
+}
+
 // C ref: detect.c do_mapping() (1422-1444). The temporary map is browsed when
 // memory is unavailable or the hero was unconstrained for the projection.
 export async function do_mapping(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const unconstrained = unconstrain_map(state);
     const confused = Boolean(Confusion(state.u));
+    const printer = impossible_printer(state);
     for (let x = 1; x < COLNO; ++x) {
-        for (let y = 0; y < ROWNO; ++y)
-            show_map_spot(x, y, confused, state, random);
+        for (let y = 0; y < ROWNO; ++y) {
+            await finish_steps(
+                show_map_spot_steps(x, y, confused, state, random), printer);
+        }
     }
     if (!state.level?.flags?.hero_memory || unconstrained) {
         await flush_screen(1);
@@ -1716,11 +1739,11 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     for (let x = loX; x <= hiX; ++x) {
         for (let y = loY; y <= hiY; ++y) {
             const oldGlyph = glyph_at(x, y, state);
-            show_map_spot(
+            await finish_steps(show_map_spot_steps(
                 x, y,
                 Boolean(Confusion(state.u)),
                 state, random,
-            );
+            ), impossible_printer(state));
 
             // OBJ_AT() examines only the top object at this location; buried
             // objects are intentionally not revealed by clairvoyance.
@@ -2371,8 +2394,10 @@ export async function findone(x, y, found, state) {
         );
         cvt_sdoor_to_door(location, state);
         recalc_block_point(x, y, state);
-        magic_map_background(x, y, false, state);
-        foundone(x, y, back_to_glyph(x, y, state), state);
+        await finish_steps(magic_map_background_steps(x, y, false, state),
+            impossible_printer(state));
+        foundone(x, y, await finish_steps(back_to_glyph_steps(x, y, state),
+            impossible_printer(state)), state);
         found.num_sdoors++;
     } else if (location.typ === SCORR) {
         await flash_glyph_at(
@@ -2380,7 +2405,8 @@ export async function findone(x, y, found, state) {
         );
         location.typ = CORR;
         unblock_point(x, y, state);
-        magic_map_background(x, y, false, state);
+        await finish_steps(magic_map_background_steps(x, y, false, state),
+            impossible_printer(state));
         foundone(x, y, cmap_to_glyph(S_corr, state), state);
         found.num_scorrs++;
     }
