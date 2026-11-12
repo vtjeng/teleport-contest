@@ -11,6 +11,12 @@ function initialGameState() {
         // C decl.c:init_svn initializes the saved NHUUID buffer to zero.
         // Native get_nhuuid() is inactive in the reference recorder build.
         svn: { nhuuid: '' },
+        // C decl.c:482 and 568 start gl.lregions empty (gn.num_lregions 0).
+        // levregion_add() fills it while a special level loads and mkmaze.c
+        // fixup_special() empties it; a restored game starts with it empty,
+        // since savelev() does not store it, so sp_lev.c flip_level() finds
+        // no region to flip there.
+        lregions: [],
     };
 }
 

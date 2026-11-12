@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c flip_level() through #wizfliplevel in a restored game: the second segment starts with gl.lregions empty (decl.c), since savelev() does not store level regions, so the flip has no level region to mirror. A debug Archeologist saves on the first level and, after the restore, flips it horizontally and walks. Seeds, dates and character chosen independently.",
+  "segments": [
+    {
+      "seed": 84120577,
+      "datetime": "20530221063307",
+      "nethackrc": "OPTIONS=name:Flipper,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  ssSy"
+    },
+    {
+      "seed": 84120578,
+      "datetime": "20530221073307",
+      "nethackrc": "OPTIONS=name:Flipper,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " n#wizfliplevel\n2  ssss"
+    }
+  ]
+}
