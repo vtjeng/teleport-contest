@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6188203,
+      "datetime": "20370805221000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0007tame saddled horse\n#ride\nly\u0017wand of death\n\u00071000 peaceful jackal\n\nze.  yqy  ",
+      "comment": "A debug dwarvish Valkyrie creates a tame saddled horse, mounts it by force, and fills the rest of the level with 1000 peaceful jackals. Dying to a wished wand of death zapped at herself and saving bones makes dismount_steed(DISMOUNT_BONES) look for a square for the horse: enexto() and rloc(RLOC_ERR|RLOC_NOMSG) both fail on the full level, so rloc() prints its impossible() diagnostic. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

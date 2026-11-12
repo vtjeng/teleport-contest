@@ -454,7 +454,13 @@ export function rloc(monster, rlocflags = 0, rawEnv = {}) {
                 backup = { x, y };
         }
         if (!backup) {
-            if (rlocflags & RLOC_ERR) note_unported('pline.c impossible');
+            // C ref: teleport.c rloc() 1883-1888. Every RLOC_ERR caller
+            // awaits rloc(), so this arm may return a Promise.
+            if (rlocflags & RLOC_ERR) {
+                return impossible(
+                    'rloc(): couldn\'t relocate monster', state, env,
+                ).then(() => false);
+            }
             return false;
         }
         return place(backup.x, backup.y);

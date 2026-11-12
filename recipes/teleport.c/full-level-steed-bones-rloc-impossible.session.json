@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3907716,
+      "datetime": "20370517194500",
+      "nethackrc": "OPTIONS=name:Lancelot,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,!autopickup\n",
+      "moves": " #ride\nuy\u0017wand of death\n\u00071000 peaceful newt\n\nzi.  yqy  ",
+      "comment": "A debug Knight rides his starting pony (#ride, forcing the mount), wishes for a wand of death, and fills every free square of the level with 1000 peaceful newts through #wizgenesis. He then zaps the wand at himself, accepts death and saves bones. bones.c savebones() calls steed.c dismount_steed(DISMOUNT_BONES), which puts the pony on the hero's square; enexto() finds no room, so it calls rloc(RLOC_ERR|RLOC_NOMSG), which finds no square either and prints teleport.c's impossible(\"rloc(): couldn't relocate monster\") with \"Program in disorder!\" and the report line. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}
