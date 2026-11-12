@@ -54,7 +54,12 @@ import {
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
-import { makemon, dmonsfree, set_mimic_sym } from './makemon_create.js';
+import {
+    makemon,
+    makemon_runtime,
+    dmonsfree,
+    set_mimic_sym,
+} from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { make_grave } from './grave.js';
@@ -4399,7 +4404,7 @@ export function lspo_drawbridge(args, env) {
 // with x/y or coord, typ, stocked, and dir. Steps one square in the walk
 // direction, moves the start onto odd parity, carves from it through
 // walkfrom(), and fills the maze through fill_empty_maze() when stocked.
-export function lspo_mazewalk(args, env) {
+export async function lspo_mazewalk(args, env) {
     const { state, coder, frame } = env;
     const mwdirs = ['north', 'south', 'east', 'west', 'random'];
     const mwdirs2i = [W_NORTH, W_SOUTH, W_EAST, W_WEST, W_RANDOM, -2];
@@ -4487,7 +4492,7 @@ export function lspo_mazewalk(args, env) {
 
     walkfrom(x, y, ftyp, state);
     if (fstocked)
-        fill_empty_maze(frame, state, env);
+        await fill_empty_maze(frame, state, env);
 }
 
 // C ref: sp_lev.c lspo_wall_property(). A rectangle from x1/y1/x2/y2 or
@@ -5652,8 +5657,12 @@ function maze1xy(humidity, frame, state) {
 
 // C ref: sp_lev.c fill_empty_maze(). Fills unused maze area with random
 // objects, boulders, minotaurs, monsters, gold, and traps proportional
-// to how much of the maze the special-level map did not cover.
-function fill_empty_maze(frame, state, env) {
+// to how much of the maze the special-level map did not cover. A level
+// program that #wizloadlua runs (nhlua.c load_lua()) walks its maze outside
+// level creation, so makemon() runs its runtime tail there, as in
+// create_monster().
+async function fill_empty_maze(frame, state, env) {
+    const createMonster = state.in_mklev ? makemon : makemon_runtime;
     let mapcountmax, mapcount;
     mapcountmax = mapcount =
         (frame.xMazeMax - 2) * (frame.yMazeMax - 2);
@@ -5685,7 +5694,7 @@ function fill_empty_maze(frame, state, env) {
         // Minotaurs
         for (let i = rn2(2); i > 0; i--) {
             const mm = maze1xy(DRY, frame, state);
-            makemon(
+            await createMonster(
                 state.mons[PM_MINOTAUR],
                 mm.x,
                 mm.y,
@@ -5696,7 +5705,7 @@ function fill_empty_maze(frame, state, env) {
         // Random monsters
         for (let i = rnd(Math.trunc((12 * mapfact) / 100)); i > 0; i--) {
             const mm = maze1xy(DRY, frame, state);
-            makemon(null, mm.x, mm.y, NO_MM_FLAGS, env);
+            await createMonster(null, mm.x, mm.y, NO_MM_FLAGS, env);
         }
         // Gold
         for (let i = rn2(Math.trunc((15 * mapfact) / 100)); i > 0; i--) {

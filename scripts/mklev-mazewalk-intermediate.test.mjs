@@ -42,14 +42,14 @@ for (const [midpoint,carve,expected] of [
     ['+','.',ROOM],['+','#',CORR],['.','.',ROOM],['.','#',CORR],
 ]) {
     test(`mazewalk ${carve} overwrites intermediate ${midpoint} with identical RNG`, async () => {
-        await withDescriptor(des => {
+        await withDescriptor(async des => {
             des.level_init({style:'solidfill',fg:'.',lit:0});
             des.terrain(13,11,midpoint);
             des.terrain(14,11,' ');
             assert.deepEqual([13,14,15].map(x => game.level.at(x,11).typ),
                 [ROOM,midpoint === '+' ? DOOR : ROOM,STONE]);
             enableRngLog();
-            des.mazewalk({x:11,y:11,dir:'east',typ:carve,stocked:0});
+            await des.mazewalk({x:11,y:11,dir:'east',typ:carve,stocked:0});
             assert.deepEqual([13,14,15].map(x => game.level.at(x,11).typ),
                 [expected,expected,expected]);
             assert.deepEqual(getRngLog(),['rn2(1)=0']);

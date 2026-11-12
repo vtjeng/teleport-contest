@@ -448,10 +448,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/mklev.js | fill_empty_maze | makemon": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/mklev.js | fill_empty_maze | mkobj_at": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

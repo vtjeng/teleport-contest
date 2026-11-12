@@ -13,14 +13,16 @@ const ALLOWLIST = JSON.parse(readFileSync(
     new URL('./discarded-promise-allowlist.json', import.meta.url), 'utf8'));
 
 // The allowlist's size, pinned both ways so that neither a new entry nor a
-// raised count gets in unnoticed, and a removal lowers the pin. 290 entries
-// holding 373 discarded calls: 289 and 372 on 9f7e42e6 (8 November 2026),
+// raised count gets in unnoticed, and a removal lowers the pin. 291 entries
+// holding 374 discarded calls: 289 and 372 on 9f7e42e6 (8 November 2026),
 // plus sp_lev_object.js applyObjectFields()'s oname(), plus mon.js
 // apply_newcham_steps()'s newmonhp() (branch levdiff, 11 November 2026).
 // 293 and 376 since discard_minvent() calls extract_from_minvent() (branch
 // minvent-extract, 12 November 2026): its two inline-copy entries went, and
-// its four synchronous callers and worn.js's extract() arm came in.
-const ALLOWLIST_PINS = { entries: 293, calls: 376 };
+// its four synchronous callers and worn.js's extract() arm came in. 292 and
+// 374 since mklev.js fill_empty_maze() awaits its two makemon() calls
+// (12 November 2026).
+const ALLOWLIST_PINS = { entries: 292, calls: 374 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c fill_empty_maze() outside level creation, second variation: #wizloadlua baalz walks a stocked maze with in_mklev false (nhlua.c load_lua()), with a different role and a maze whose filled share differs from fakewiz1's. Seed, date, Samurai and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7302915,
+      "datetime": "20511107182240",
+      "nethackrc": "OPTIONS=name:Baalfill,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nbaalz\n     ssss"
+    }
+  ]
+}

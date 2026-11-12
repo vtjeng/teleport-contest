@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c lspo_mazewalk() and fill_empty_maze() outside level creation: #wizloadlua runs fakewiz1's des.* calls on the current level through nhlua.c load_lua(), so in_mklev is false when its stocked mazewalk fills the maze, and makemon.c makemon() runs its runtime tail (groups, inventory, newsym and the appearance message) for the minotaur and random monsters. Seed, date, Priest and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 40718263,
+      "datetime": "20480623094517",
+      "nethackrc": "OPTIONS=name:Mazefill,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nfakewiz1\n     ssss"
+    }
+  ]
+}
