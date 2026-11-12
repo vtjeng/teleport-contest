@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c create_room() gives a fixed-position des.room() no gs.smeq entry, and mklev.c makecorridors() does not reset gs.smeq, so a level program's random_corridors() joins its rooms by the values the level below left. #wizloadlua minetn-7 over Dlvl 1 appends the town's room after the old rooms, whose entries the old makecorridors() already merged, so only consecutive rooms are joined. The seed is the second of 50100-50129 (minetn-7, this character and date) whose port replay changed when makecorridors() stopped resetting gs.smeq. Character, date and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 50108,
+      "datetime": "20490210161244",
+      "nethackrc": "OPTIONS=name:Joiner,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizloadlua\nminetn-7\n\u001b\u0006\u001b"
+    }
+  ]
+}

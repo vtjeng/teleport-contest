@@ -336,7 +336,6 @@ export async function dorestore(state = game) {
     state.svm.mapseenchn = snapshot.mapseenchn.map((saved) =>
         load_mapseen(saved, state));
     if (snapshot.specialLevels) state.specialLevels = snapshot.specialLevels;
-    if (snapshot.smeq) state.smeq = snapshot.smeq;
     if (snapshot.tune != null) {
         state.tune = snapshot.tune;
         state.svt ??= {};
@@ -953,7 +952,7 @@ export async function getlev(ledger, state = game) {
         throw new Error(`getlev: no saved level for ledger ${ledger}`);
     }
 
-    // Restore the level, stairs, engravings, smeq, updest, dndest.
+    // Restore the level, stairs, engravings, updest, dndest.
     installLevel(snapshot.level, state);
     // restore.c:1105-1108 reads svl.lastseentyp[][] by value.
     state.lastseentyp = copy_lastseentyp_grid(snapshot.lastseentyp);
@@ -963,7 +962,6 @@ export async function getlev(ledger, state = game) {
     rest_stairs(snapshot.stairs, state);
     // C ref: restore.c getlev():1174 rest_engravings().
     rest_engravings(snapshot.head_engr, state);
-    if (snapshot.smeq) state.smeq = snapshot.smeq;
     state.updest = snapshot.updest ?? {};
     state.dndest = snapshot.dndest ?? {};
 

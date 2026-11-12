@@ -291,7 +291,6 @@ export function savelev(ledger, state = game, options = {}) {
             billobjs: state.gb?.billobjs ?? null,
             stairs: state.stairs,
             head_engr: state.head_engr,
-            smeq: state.smeq ? [...state.smeq] : null,
             omoves: state.moves,         // C: svm.moves saved as svo.omoves
             // track.c save_track() writes the current level's populated track
             // entries before release_data() clears the process-global ring.
@@ -594,7 +593,6 @@ function serializeGameState(state) {
         level_info: save_level_info(state),
         inv_pos: state.inv_pos,
         specialLevels: serializeSpecialLevels(state.specialLevels),
-        smeq: state.smeq,
         tune: state.tune,
         // Inventory and objects
         invent: state.invent,

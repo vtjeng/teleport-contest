@@ -492,7 +492,6 @@ function clear_level_structures() {
     g.subrooms = [];
     g.nsubroom = 0;
     g.made_branch = false;
-    g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     g.stairs = null;
     g.head_engr = null;
     free_exclusions(g);
@@ -5857,7 +5856,6 @@ function register_irregular_map_region(
         state,
     );
     if (!bounds) return null;
-    state.smeq ??= new Array(MAXNROFROOMS + 1).fill(0);
     state.smeq[roomIndex] = roomIndex;
     add_room(
         bounds.minx, bounds.miny, bounds.maxx, bounds.maxy,
@@ -7585,7 +7583,6 @@ function makecorridors() {
 function* makecorridors_steps() {
     const g = game;
     let any = true;
-    for (let i = 0; i < g.level.nroom; i++) g.smeq[i] = i;
     for (let a = 0; a < g.level.nroom - 1; a++) {
         yield* join_steps(a, a + 1, false);
         if (!rn2(50)) break;

@@ -17,6 +17,15 @@ function initialGameState() {
         // since savelev() does not store it, so sp_lev.c flip_level() finds
         // no region to flip there.
         lregions: [],
+        // C decl.c:682 starts gs.smeq[MAXNROFROOMS + 1] zeroed (DUMMY) once
+        // per process. sp_lev.c create_room() and extralev.c write a new
+        // room's entry and mklev.c join() merges them; nothing else resets
+        // it, and savelev() does not store it, so a level's fixed des.room()
+        // rooms inherit the values the previous level left and a restored
+        // game starts from zeros. The length is MAXNROFROOMS + 1 from
+        // js/const.js, which imports this file; scripts/smeq-lifetime.test.mjs
+        // checks it.
+        smeq: new Array(41).fill(0),
     };
 }
 
