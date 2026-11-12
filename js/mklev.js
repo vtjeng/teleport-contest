@@ -12,7 +12,7 @@ import {
     Can_dig_down,
     Can_fall_thru,
     In_hell,
-    In_W_tower,
+    In_W_tower_steps,
     Invocation_lev,
     Is_special,
     at_dgn_entrance,
@@ -354,7 +354,8 @@ import { create_drawbridge } from './dbridge.js';
 import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
 import { note_unported } from './unported.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { dungeon_at } from './dungeon_table.js';
 
 const XLIM = 4;
@@ -4559,7 +4560,9 @@ export function lspo_wallify(args, env) {
 // it in place and clears the SpLev_Map the frame holds.
 export async function lspo_reset_level(args, env) {
     const { state, coder, frame } = env;
-    const wtower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
+    const wtower = await finish_steps(
+        In_W_tower_steps(state.u.ux, state.u.uy, state.u.uz, state),
+        impossible_printer(state));
 
     state.iflags ??= {};
     state.iflags.lua_testing = true;
@@ -4585,7 +4588,9 @@ export async function lspo_reset_level(args, env) {
 // fills.
 export async function lspo_finalize_level(args, env) {
     const { state, coder, frame } = env;
-    const wtower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
+    const wtower = await finish_steps(
+        In_W_tower_steps(state.u.ux, state.u.uy, state.u.uz, state),
+        impossible_printer(state));
 
     link_doors_rooms();
     remove_boundary_syms(frame, state);

@@ -32,12 +32,6 @@ const ALLOWED = {
         'a synchronous predicate of the Wizard\'s spell and wake-up paths'],
     'wizard.js | aggravate | In_W_tower': [2,
         'aggravate() is synchronous'],
-    'mklev.js | lspo_reset_level | In_W_tower': [1,
-        'async, so convertible; js/mklev.js belongs to the level-generation '
-        + 'branch (recipes/dungeon.c/in-w-tower-no-boundary-blocked)'],
-    'mklev.js | lspo_finalize_level | In_W_tower': [1,
-        'async, so convertible; js/mklev.js belongs to the level-generation '
-        + 'branch (recipes/dungeon.c/in-w-tower-no-boundary-blocked)'],
 };
 
 const FUNCTION_TYPES = new Set([
