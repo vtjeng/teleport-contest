@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c mfndpos() reached from dogmove.c dog_move() on a Wizard's Tower level with no dndest boundary. A debug-mode gnomish Healer with a kitten level-teleports to wizard2, #wizloaddes loads tut-2 over it, creates a newt beside her, waits, and swaps places with the kitten, which puts it beside the newt; the newt's m_move() and the kitten's dog_move() each run mfndpos(), whose mm_aggression() prints In_W_tower()'s impossible(\"No boundary for Wizard's Tower?\") before the kitten bites the newt. Seed, date and character chosen independently of batch 13.",
+  "segments": [
+    {
+      "seed": 2290417,
+      "datetime": "20470915221840",
+      "nethackrc": "OPTIONS=name:Mirela,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\nq    #wizloaddes\ntut-2\n    \u0007newt\n.j                   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c mfndpos() -> mm_aggression() -> mm_2way_aggression() -> dungeon.c In_W_tower() on a tower level with no dndest boundary. A debug-mode Samurai level-teleports to wizard1, #wizloaddes loads tut-2 over it (no teleport region, so no boundary), creates two newts and steps away; the following newt's m_move() mfndpos() finds the other newt beside it and mm_aggression() prints impossible(\"No boundary for Wizard's Tower?\") six times, three for each direction of mm_2way_aggression(). Seed, date and character chosen independently of batch 13.",
+  "segments": [
+    {
+      "seed": 7310524,
+      "datetime": "20510304093015",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\nq    #wizloaddes\ntut-2\n    \u0007newt\n\u0007newt\nnl                  "
+    }
+  ]
+}
