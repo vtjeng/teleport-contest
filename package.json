@@ -18,6 +18,7 @@
     "check:extcmds": "node scripts/generate-extcmds.mjs --check",
     "check:glyph-offsets": "node scripts/generate-glyph-offsets.mjs --check",
     "check:help-data": "node scripts/generate-help-data.mjs --check",
+    "check:lua-load-errors": "node scripts/generate-lua-load-errors.mjs --check",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:nasties": "node scripts/generate-nasties.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",

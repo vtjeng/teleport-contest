@@ -9,6 +9,7 @@ import { game } from './gstate.js';
 import { note_unported } from './unported.js';
 import { rn2 } from './rng.js';
 import { resolvePlaygroundPath } from './files.js';
+import { LUA_LOAD_ERRORS } from './lua_load_errors_data.js';
 import {
     NHCORE_ENTER_TUTORIAL,
     NHCORE_LEAVE_TUTORIAL,
@@ -303,6 +304,23 @@ export const LUA_LIBRARY_FILES = new Set([
     'dungeon.lua', 'nhcore.lua', 'nhlib.lua', 'quest.lua', 'themerms.lua',
 ]);
 
+// C ref: Lua 5.4 lobject.c luaO_chunkid(), the string-source branch: how a
+// Lua error message names a chunk whose name starts with neither '=' nor
+// '@', as nhl_loadlua()'s "(<name>)" does. LUA_IDSIZE (luaconf.h) is 60, so
+// at most 45 bytes of the name are shown.
+export function luaO_chunkid(source) {
+    const PRE = '[string "';
+    const RETS = '...';
+    const POS = '"]';
+    const bufflen = 60 - (PRE.length + RETS.length + POS.length) - 1;
+    const nl = source.indexOf('\n');
+    let srclen = source.length;
+    if (srclen < bufflen && nl < 0) return PRE + source + POS;
+    if (nl >= 0) srclen = nl;
+    if (srclen > bufflen) srclen = bufflen;
+    return PRE + source.slice(0, srclen) + RETS + POS;
+}
+
 // C ref: nhlua.c nhl_loadlua(), opening `name` in the playground and running
 // its top level in a Lua state that nhl_init() made. Returns false when the
 // file cannot be opened, after C's impossible(); 'library' after running a
@@ -322,10 +340,22 @@ export async function nhl_loadlua(lua, name, state = game, random = rn2) {
         await impossible(`nhl_loadlua: Error opening (${name})`, state);
         return false;
     }
+    if (target.kind === 'file' && Object.hasOwn(LUA_LOAD_ERRORS, target.file)) {
+        // A non-Lua text file the install fixes: luaL_loadbuffer() fails
+        // with the syntax error scripts/generate-lua-load-errors.mjs read
+        // from Lua itself, named by the chunk name "(<name>)".
+        const altfname = `(${name})`;
+        const [line, error] = LUA_LOAD_ERRORS[target.file];
+        const { impossible } = await import('./pline.js');
+        await impossible(`luaL_loadbuffer: Error loading ${altfname}: `
+            + `${luaO_chunkid(altfname)}:${line}: ${error}`, state);
+        return false;
+    }
     if (target.kind !== 'lua') {
-        // A directory, a non-Lua playground file, or a file the game wrote:
-        // C reads it and fails in luaL_loadbuffer() with Lua's syntax
-        // message, or opens a directory and aborts.
+        // A directory, a file the game wrote, or the nethack and recover
+        // programs, whose bytes depend on the host: C reads it and fails in
+        // luaL_loadbuffer() with Lua's message, loads an empty file, or
+        // opens a directory and aborts.
         note_unported('nhlua.c nhl_loadlua');
         return false;
     }

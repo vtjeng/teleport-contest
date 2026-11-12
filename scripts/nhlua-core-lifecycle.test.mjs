@@ -74,3 +74,23 @@ test('bounded load_lua initializes before a file it cannot run', async () => {
         ], name);
     }
 });
+
+test('lobject.c luaO_chunkid names a string chunk as Lua 5.4 does', async () => {
+    const { luaO_chunkid } = await import('../js/nhlua.js');
+    // LUA_IDSIZE is 60 (luaconf.h), so a string source keeps at most
+    // 60 - strlen("[string \"" "..." "\"]") - 1 = 45 bytes.
+    assert.equal(luaO_chunkid('(./license)'), '[string "(./license)"]');
+    // 44 bytes: srclen < bufflen, kept whole.
+    const kept = `(${'./'.repeat(20)}hh)`;
+    assert.equal(kept.length, 44);
+    assert.equal(luaO_chunkid(kept), `[string "${kept}"]`);
+    // 45 bytes: not less than bufflen, so cut to 45 and marked with "...".
+    const cut = `(${'./'.repeat(20)}hhh)`;
+    assert.equal(cut.length, 45);
+    assert.equal(luaO_chunkid(cut), `[string "${cut}..."]`);
+    // Longer: the first 45 bytes, then "...".
+    const long = `(${'./'.repeat(30)}options)`;
+    assert.equal(luaO_chunkid(long), `[string "${long.slice(0, 45)}..."]`);
+    // A newline ends the shown part even in a short source.
+    assert.equal(luaO_chunkid('(a\nb)'), '[string "(a..."]');
+});
