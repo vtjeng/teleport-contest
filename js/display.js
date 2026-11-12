@@ -5415,7 +5415,12 @@ function _statusVitals(u) {
 // require the full object catalog during early status-layout tests.
 // tty_putstatusfield() prints that byte through putchar(); a byte
 // nomux_putch() ignores becomes the NUL marker _newStatusRow() leaves blank.
+// The tty shows the prefix it was last sent (see _deliverStatusGold()).
 function _statusGoldSymbol() {
+    return game._statusGoldShown ?? _currentStatusGoldSymbol();
+}
+
+function _currentStatusGoldSymbol() {
     if (game.iflags?.invis_goldsym) return '$';
     const byte = symbol_at(SYM_OFF_O + COIN_CLASS, game).ttychar;
     const stored = nomux_putch_byte(byte);
@@ -6396,6 +6401,26 @@ function _deliverStatusTime() {
     const { changed, expired } = _statusFieldNotice(gb, field.fld, data,
         updateAll);
     if (updateAll || changed || expired) game._statusTimeShown = data.value;
+}
+
+// C ref: botl.c eval_notify_windowport_field() for BL_GOLD, and the
+// status_vals[BL_GOLD] string wintty.c keeps for it. bot_via_windowport()
+// formats the gold prefix on every bot(), but compare_blstats() compares only
+// the amount, so the window port receives a new prefix only when the amount
+// changes, a highlight expires, or gu.update_all is set (which a changed
+// coin symbol or svc.context.rndencode forces). A goto_level() whose
+// check_gold_symbol() changes iflags.invis_goldsym alone leaves the tty
+// showing the earlier prefix. Call this after _beginStatusHilitePass() and
+// before laying out the status rows.
+function _deliverStatusGold() {
+    const field = STATUS_FIELDS.find(row => row.key === 'gold');
+    if (!_statusFieldEnabled(field, game)) return;
+    const updateAll = Boolean(game._statusHiliteUpdateAll
+        || game._statusGoldUpdateAll);
+    const { changed, expired } = _statusFieldNotice(game.gb, field.fld,
+        _statusFieldData('gold'), updateAll);
+    if (updateAll || changed || expired)
+        game._statusGoldShown = _currentStatusGoldSymbol();
 }
 
 // C ref: botl.c evaluate_and_notify_windowport() for BL_HD, and the
@@ -7605,6 +7630,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     const retainInitialOverlap = initialTtyRefresh
         && !optionalFieldsChanged;
     _beginStatusHilitePass();
+    _deliverStatusGold();
     _deliverStatusTime();
     _deliverStatusHD();
     const layouts = statusLayouts({
