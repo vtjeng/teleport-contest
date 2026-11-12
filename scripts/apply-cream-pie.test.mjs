@@ -59,7 +59,8 @@ function queue(...keys) {
 
 test('cream-pie callers use the canonical can_blnd predicate', () => {
     // apply.c:3584 consumes can_blnd() before drawing rnd(25); the JavaScript
-    // use_cream_pie arm must keep the same helper and decision point.
+    // use_cream_pie arm must keep the same helper and decision point, driving
+    // its step form with a printer (scripts/resists-blnd-callers.test.mjs).
     const cStart = APPLY_C.indexOf('\nuse_cream_pie(struct obj *obj)');
     const cEnd = APPLY_C.indexOf('\n}', cStart) + 2;
     assert.notEqual(cStart, -1, 'apply.c must contain use_cream_pie');
@@ -74,7 +75,7 @@ test('cream-pie callers use the canonical can_blnd predicate', () => {
     assert.ok(jsEnd > jsStart, 'use_cream_pie must have a complete JS body');
     const jsBody = APPLY_JS.slice(jsStart, jsEnd);
     assert.match(jsBody,
-        /if\s*\(can_blnd\(null, state\.youmonst, AT_WEAP, obj, state\)\)\s*\{[\s\S]*?random\.rnd\(25\)/u);
+        /if\s*\(await finish_steps\(can_blnd_steps\(null, state\.youmonst, AT_WEAP, obj, state\),\s*impossible_printer\(state\)\)\)\s*\{[\s\S]*?random\.rnd\(25\)/u);
 });
 
 test('can_blnd admits a cream pie against an unprotected hero with eyes',
