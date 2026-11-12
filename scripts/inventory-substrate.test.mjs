@@ -1446,9 +1446,15 @@ test('merging corpses weighs them by their species', () => {
     assert.equal(incoming.where, OBJ_DELETED);
 });
 
-test('glob absorption must own the absorbed object lifecycle', () => {
+test('merged() absorbs a glob only through its runtime form', async () => {
+    // invent.c:928-930: a glob merge prints pudding_merge_message() and then
+    // calls mkobj.c obj_absorb(), which adds the absorbed weight (3726) and
+    // frees the absorbed glob. The synchronous merged() cannot wait for the
+    // message, so it rejects a glob before changing either object;
+    // mergedRuntime() performs the merge.
     const state = initializedState();
-    const firstWeight = 100; // distinct weights make successful absorption visible
+    timeout_globals_init(state);
+    const firstWeight = 100; // distinct weights make the absorbed weight visible
     const secondWeight = 50;
     const target = instance(GLOB_OF_GRAY_OOZE, state, {
         globby: true,
@@ -1458,53 +1464,26 @@ test('glob absorption must own the absorbed object lifecycle', () => {
         globby: true,
         owt: secondWeight,
     });
+    addinv(target, { state });
 
     assert.throws(
-        () => merged(target, incoming, {
-            state,
-            hooks: { absorbGlob: () => {} },
-        }),
-        /must deallocate the absorbed object/,
+        () => merged(target, incoming, { state }),
+        /a glob merge must use mergedRuntime\(\)/u,
     );
+    assert.equal(target.owt, firstWeight);
     assert.equal(incoming.where, OBJ_FREE);
 
-    assert.equal(merged(target, incoming, {
+    const messages = [];
+    assert.equal(await mergedRuntime(target, incoming, {
         state,
-        hooks: {
-            absorbGlob(survivor, absorbed) {
-                survivor.owt += absorbed.owt;
-                absorbed.where = OBJ_DELETED;
-            },
-        },
+        message: (line) => { messages.push(line); },
     }), true);
     assert.equal(target.owt, firstWeight + secondWeight);
     assert.equal(incoming.where, OBJ_DELETED);
-});
-
-test('glob absorption bypasses comparison and generic shop-free seams', () => {
-    const state = initializedState();
-    const target = instance(GLOB_OF_GRAY_OOZE, state, {
-        bknown: false,
-        globby: true,
-        known: false,
-        rknown: false,
-    });
-    const incoming = instance(GLOB_OF_GRAY_OOZE, state, {
-        globby: true,
-        unpaid: true,
-    });
-    addinv(target, { state });
-
-    assert.equal(merged(target, incoming, {
-        state,
-        hooks: {
-            absorbGlob(survivor, absorbed) {
-                survivor.owt += absorbed.owt;
-                absorbed.where = OBJ_DELETED;
-            },
-        },
-    }), true);
-    assert.equal(incoming.where, OBJ_DELETED);
+    // mkobj.c:3836-3837: a glob in the hero's pack coalesces "inside your
+    // pack".
+    assert.deepEqual(messages,
+        ['The globs of gray ooze coalesce inside your pack.']);
 });
 
 test('a worn merge keeps the survivor in the strongest weapon slot', () => {
@@ -3892,7 +3871,6 @@ test('glob pickup projection has no live merge effects; runtime keeps its non-gl
     const [plan] = preflight_addinv_sequence([incoming], {
         state,
         hooks: {
-            absorbGlob() { effectCalls++; throw new Error('projection invoked absorption'); },
             message() { effectCalls++; throw new Error('projection invoked message'); },
             obfreeShopBill() { effectCalls++; throw new Error('projection invoked billing'); },
             stopObjectTimers() { effectCalls++; throw new Error('projection stopped a timer'); },
@@ -3947,8 +3925,7 @@ test('glob pickup projection has no live merge effects; runtime keeps its non-gl
     };
     assert.throws(() => merged(legacyTarget, legacyIncoming, {
         state: legacyState,
-    }), (error) => error.name === 'UnsupportedObjectOperationError'
-        && /absorbGlob/u.test(error.message));
+    }), /a glob merge must use mergedRuntime\(\)/u);
     assert.deepEqual(inputFingerprint(legacyTarget), legacyBefore.target);
     assert.deepEqual(inputFingerprint(legacyIncoming), legacyBefore.incoming);
     assert.equal(legacyState.invent, legacyBefore.inventory);

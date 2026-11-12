@@ -138,7 +138,7 @@ import {
 import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
 import {
-    carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
+    carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobjRuntime, update_inventory,
     useup,
 } from './invent.js';
 import { bless, isContainer, mksobj, place_object } from './obj.js';
@@ -990,17 +990,19 @@ export async function done_object_cleanup(state) {
     const [ox, oy] = (!isok(ox0, oy0) || !accessible(ox0, oy0, state))
         ? [state.u.ux, state.u.uy]
         : [ox0, oy0];
-    const placeFreeTransitObject = (obj, container, field) => {
+    const placeFreeTransitObject = async (obj, container, field) => {
         if (!obj || obj.where !== OBJ_FREE) return;
         // mkobj.c place_object() block_point()s a landed boulder, such as
         // one a giant threw at the hero.
         place_object(obj, ox, oy, { state });
-        stackobj(obj, { state });
+        // A thrown or kicked glob merges with a glob already there, and
+        // merged() prints pudding_merge_message(); the runtime form waits.
+        await stackobjRuntime(obj, { state });
         if (container?.[field] === obj) container[field] = null;
     };
 
-    placeFreeTransitObject(state.gt?.thrownobj, state.gt, 'thrownobj');
-    placeFreeTransitObject(state.gk?.kickedobj, state.gk, 'kickedobj');
+    await placeFreeTransitObject(state.gt?.thrownobj, state.gt, 'thrownobj');
+    await placeFreeTransitObject(state.gk?.kickedobj, state.gk, 'kickedobj');
 
     const uchain = state.uchain;
     if (uchain && uchain.where === OBJ_FREE) {

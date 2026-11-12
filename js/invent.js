@@ -2712,11 +2712,11 @@ function requiredHook(env, name, obj) {
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
 // entry, or 'unbilled' when normal deletion and price adjustment should run.
 // 'preserved' is obfree's diagnostic return when the merge target lacks a bill.
-// Merge effects: absorbGlob(target, obj, env) owns
-// mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
-// target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
-// inventoryComparisonDiscovered(target, env) stands in for merged()'s pline()
-// in the synchronous merged() only; mergedRuntime() prints it itself.
+// Merge effects: inventoryComparisonDiscovered(target, env) stands in for
+// merged()'s pline() in the synchronous merged() only; mergedRuntime() prints
+// it itself. A glob merge has no hook: merged() calls
+// pudding_merge_message() and obj_absorb() itself (invent.c:928-930), and
+// only mergedRuntime() can wait for that message.
 
 // C ref: invent.c count_contents() (3620-3651). Counts the items inside a
 // container. With everything=true the function counts every stack; with
@@ -3811,16 +3811,12 @@ function isThenable(value) {
 }
 
 // C ref: invent.c merged(). Returns true when `obj` was absorbed into otmp.
+// A glob never reaches this form: merged() prints pudding_merge_message()
+// before obj_absorb() (invent.c:928-930), which only mergedRuntime() can wait
+// for, so preflightMerged() rejects a glob before anything changes.
 export function merged(otmp, obj, env = {}) {
     const plan = beginMerged(otmp, obj, env);
     if (!plan) return false;
-    if (plan.globby) {
-        requiredHook(plan.normalized, 'absorbGlob', plan.object)(
-            plan.target, plan.object, plan.normalized,
-        );
-        validateGlobAbsorption(plan.target, plan.object);
-        return true;
-    }
     if (plan.comparisonDiscovered) {
         requiredHook(
             plan.normalized,
@@ -3884,8 +3880,12 @@ export function mergedRuntime(otmp, obj, env = {}) {
 function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
     normalized = inventoryEnv(normalized);
     if (!mergable(otmp, obj, normalized)) return false;
+    // No game caller reaches this: every stackobj(), add_to_container(),
+    // add_to_minv() and addinv() path that can meet a mergeable glob uses the
+    // runtime form, and the others run flooreffects() first, which melds
+    // the glob (do.c:303-314).
     if (obj.globby && globMode === 'sync')
-        requiredHook(normalized, 'absorbGlob', obj);
+        throw new Error('merged(): a glob merge must use mergedRuntime()');
     // Runtime and projection modes use the canonical owners statically
     // imported above; module linking guarantees both dependencies exist.
     // Only the synchronous merged() cannot print the comparison message.

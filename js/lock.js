@@ -76,7 +76,7 @@ import {
     delobj,
     obj_extract_self,
     obfree,
-    stackobj,
+    stackobjRuntime,
     useup,
     currency,
 } from './invent.js';
@@ -390,7 +390,10 @@ export async function breakchestlock(box, destroyit, state = game) {
             );
             if (placement && typeof placement.then === 'function')
                 await placement;
-            stackobj(otmp, { state });
+            // lock.c:204 stackobj() absorbs a spilled glob into a glob
+            // already at the hero's feet, and merged() then prints
+            // pudding_merge_message(); the runtime form waits for it.
+            await stackobjRuntime(otmp, { state });
         }
         if (costly)
             loss += await stolen_value(

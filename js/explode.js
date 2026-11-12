@@ -155,7 +155,7 @@ import { ohitmon, thitu } from './mthrowu.js';
 import { dmgval } from './weapon.js';
 import {
     obj_extract_self,
-    stackobj,
+    stackobjRuntime,
     sobj_at,
 } from './invent.js';
 import {
@@ -931,8 +931,11 @@ export async function scatter(
         ?? ((object, quantity) => splitobj(object, quantity, lifecycle));
     const placeObject = ops.placeObject
         ?? ((object, x, y) => place_object(object, x, y, lifecycle));
+    // explode.c scatter():932 stackobj() can absorb a glob into a glob already
+    // on the landing square, and merged() then prints pudding_merge_message();
+    // the runtime form waits for that message.
     const stackObject = ops.stackObject
-        ?? ((object) => stackobj(object, lifecycle));
+        ?? ((object) => stackobjRuntime(object, lifecycle));
     const objectAt = ops.objectAt
         ?? ((otyp, x, y) => sobj_at(otyp, x, y, state));
     const floorEffects = ops.floorEffects

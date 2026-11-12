@@ -208,7 +208,6 @@ test('every defaulted hook is still read where C calls its default', () => {
 // with the number of requiredHook() sites naming each. Each stands in for a C
 // call to the named function.
 const REMAINING_REQUIRED_HOOKS = {
-    absorbGlob: 2, // mkobj.c obj_absorb() from invent.c merged()
     endArtifactLight: 1, // light.c/artifact.c end of an artifact's light
     inventoryComparisonDiscovered: 2, // the synchronous merged()'s comparison pline()
     mwepgone: 1, // weapon.c mwepgone()

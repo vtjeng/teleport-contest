@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A glob spilled from a destroyed box coalesces with a glob on the floor. The Priest stashes a glob of gray ooze in a wished unlocked large box, locks it with a skeleton key, drops a second glob beside it and #forces the lock with the mace. lock.c forcelock() destroys the box (seed 4285) and puts each surviving content at the hero's feet with place_object() and stackobj(); invent.c merged() then prints pudding_merge_message() (\"The globs of gray ooze coalesce.\") and calls mkobj.c obj_absorb().",
+  "segments": [
+    {
+      "seed": 4285,
+      "datetime": "20810611093000",
+      "nethackrc": "OPTIONS=name:Basher,role:Priest,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=pettype:none,!autopickup,!legacy,!tutorial,!splash_screen,suppress_alert:3.4.3\n",
+      "moves": " j\u0017unlocked large box\ndj\u0017glob of gray ooze\n#loot\nsk\u0017skeleton key\nal.y\u0017glob of gray ooze\ndm#force\ny   :  "
+    }
+  ]
+}
