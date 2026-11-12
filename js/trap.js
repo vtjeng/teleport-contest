@@ -232,7 +232,7 @@ import {
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, push_front, sgn, upstart } from './hacklib.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel } from './pline.js';
 import { messageAt } from './startup_a11y.js';
 import {
     stackobj,
@@ -294,7 +294,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     an, bare_artifactname, safe_qbuf, ansimpleoname, the, The, Yobjnam2,
     xnameFresh,
-    donameFresh, Tobjnam,
+    donameFresh, simpleonames, Tobjnam,
 } from './objnam.js';
 import {
     ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, CORPSE, DART, IRON, LAND_MINE,
@@ -1562,7 +1562,9 @@ export async function lava_effects(state = game) {
                     protectedId = obj.o_id;
                     obj.in_use = false;
                 } else {
-                    note_unported('trap.c lava_effects impossible in-use object');
+                    await impossible(
+                        `lava_effects: '${simpleonames(obj, state)}' (#${obj.o_id}) `
+                        + `is already in use; so is #${protectedId}.`, state);
                 }
                 obj = next;
                 continue;

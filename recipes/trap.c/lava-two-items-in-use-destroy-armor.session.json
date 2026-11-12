@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "trap.c lava_effects() with two inventory items in use: a cursed scroll of destroy armor (in_use while read) disintegrates levitation boots (in_use from maybe_destroy_armor()) over lava, so float_down() reaches lava_effects(), which protects the boots and prints impossible(\"lava_effects: '%s' (#%u) is already in use; so is #%u.\") for the scroll. The inputs stop at the wizard-mode life-save; resuming doread() would make C useup() the scroll that lava_effects() already freed.",
+  "segments": [
+    {
+      "seed": 52361,
+      "datetime": "20361104121500",
+      "nethackrc": "OPTIONS=name:LavaProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,suppress_alert:3.4.3\n",
+      "moves": " T\u0017uncursed levitation boots\n\u0017cursed scroll of destroy armor\nWo\u0017lava\nrp        "
+    }
+  ]
+}
