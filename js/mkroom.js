@@ -73,7 +73,12 @@ import { game } from './gstate.js';
 import { isok } from './cmd_isok.js';
 import { add_to_container, sobj_at } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
-import { makemon, makemon_runtime, mongets } from './makemon_create.js';
+import {
+    makemon,
+    makemon_by_context,
+    makemon_runtime,
+    mongets,
+} from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { revive } from './zap.js';
 import { mkclass, set_malign } from './makemon.js';
@@ -721,7 +726,7 @@ function mk_zoo_thronemon(x, y, normalized) {
         mongets(monster, MACE, normalized);
         return monster;
     };
-    const maybeMonster = makemon(species, x, y, 0, normalized);
+    const maybeMonster = makemon_by_context(species, x, y, 0, normalized);
     return maybeMonster && typeof maybeMonster.then === 'function'
         ? maybeMonster.then(finish) : finish(maybeMonster);
 }
@@ -903,7 +908,7 @@ export function fill_zoo(sroom, env = {}) {
                                     : type === ANTHOLE
                                         ? antholemon(state)
                             : null;
-            const maybeMonster = makemon(
+            const maybeMonster = makemon_by_context(
                 species,
                 x,
                 y,

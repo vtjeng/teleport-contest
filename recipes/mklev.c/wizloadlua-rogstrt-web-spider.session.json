@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mklev.c mktrap()'s web spider outside level creation: ^V to Dlvl 12 (level_difficulty() >= 7 allows random webs), then #wizloadlua Rog-strt, whose random des.trap() calls go through sp_lev.c create_trap() -> mktrap(); a web gets its giant spider from makemon(), which runs its runtime tail because load_lua() leaves in_mklev false. The seed was the first of 61840275-61840474 whose port replay at the parent commit reached the web spider; 97 of 200 did. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61840277,
+      "datetime": "20510917203344",
+      "nethackrc": "OPTIONS=name:Luacheck,role:Rogue,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u001612\n#wizloadlua\nRog-strt\n   ss"
+    }
+  ]
+}

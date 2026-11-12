@@ -2658,6 +2658,28 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     return monster;
 }
 
+// C ref: makemon.c makemon(). C has one makemon(), which runs its tail after
+// set_malign() (groups, inventory, newsym(), the appearance message and the
+// occupation check) by testing in_mklev; the port splits that into makemon()
+// for level creation and makemon_runtime() for everything else. A function
+// that C runs both inside and outside level creation calls this instead, so
+// the choice is made where C makes it. Such functions are the level builders
+// a level program reaches through #wizloadlua (wizcmds.c wiz_load_lua() ->
+// nhlua.c load_lua(), which never sets in_mklev), and sp_lev.c
+// fill_special_room() when lspo_finalize_level() calls it after
+// level_finalize_topology() has cleared in_mklev (#wizloaddes), which the
+// _specialRoomFill marker identifies. The result is the monster or null
+// during level creation and a Promise otherwise, so the caller accepts
+// either. scripts/makemon-level-creation.test.mjs lists the callers that may
+// still call makemon() directly, with the C call chain that keeps each one
+// inside level creation.
+export function makemon_by_context(ptr, x, y, mmflags = 0, env = {}) {
+    const state = env.state ?? game;
+    return state.in_mklev || env._specialRoomFill
+        ? makemon(ptr, x, y, mmflags, env)
+        : makemon_runtime(ptr, x, y, mmflags, env);
+}
+
 // C ref: makemon.c makemon(), the synchronous runtime call shape used by
 // zap.c revive()/montraits(). NO_MINVENT makes the inventory tail drawless,
 // MM_NOMSG suppresses the appearance line, and MM_NOWAIT suppresses the

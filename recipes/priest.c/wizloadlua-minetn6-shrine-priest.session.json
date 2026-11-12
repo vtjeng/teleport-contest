@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "priest.c priestini() outside level creation: #wizloadlua (wizcmds.c wiz_load_lua() -> nhlua.c load_lua()) runs minetn-6's des.* calls on the current level with in_mklev false, so the temple's des.altar() shrine reaches sp_lev.c create_altar() -> priestini(), and makemon.c makemon() runs its runtime tail for the aligned priest before priestini() adds the shrine record and spellbooks. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61840275,
+      "datetime": "20510917203344",
+      "nethackrc": "OPTIONS=name:Luacheck,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizloadlua\nminetn-6\n   ss"
+    }
+  ]
+}

@@ -107,6 +107,8 @@ import {
 } from './objects.js';
 import { coreRandom } from './rng.js';
 import { maketrap, t_at } from './trap.js';
+import { makemon_by_context } from './makemon_create.js';
+import { finish_steps } from './source_steps.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
 import { dungeon_at } from './dungeon_table.js';
@@ -397,6 +399,11 @@ function mazeCoordinate(coordinate, env) {
     choose(coordinate, env);
 }
 
+// C ref: mklev.c mktrap(). Level creation runs it synchronously. A level
+// program that #wizloadlua runs (nhlua.c load_lua()) reaches it through
+// sp_lev.c create_trap() outside level creation, where the statue trap's
+// donor monster and the web's giant spider come from makemon()'s runtime
+// form; the trap is then returned through a Promise.
 export function mktrap(
     num,
     mktrapflags = MKTRAP_NOFLAGS,
@@ -404,6 +411,10 @@ export function mktrap(
     tm = null,
     rawEnv = {},
 ) {
+    return finish_steps(mktrap_steps(num, mktrapflags, croom, tm, rawEnv));
+}
+
+function* mktrap_steps(num, mktrapflags, croom, tm, rawEnv) {
     const env = levelTrapEnv(rawEnv);
     const { random, state } = env;
     if (!tm && !croom && !(mktrapflags & MKTRAP_MAZEFLAG)) return null;
@@ -446,16 +457,12 @@ export function mktrap(
                 && sobj_at(BOULDER, coordinate.x, coordinate.y, state)));
     }
 
-    const trap = maketrap(coordinate.x, coordinate.y, kind, env);
+    // maketrap() returns a Promise for a statue trap made outside level
+    // creation (trap.c mk_trap_statue()).
+    const trap = yield maketrap(coordinate.x, coordinate.y, kind, env);
     kind = trap?.ttyp ?? NO_TRAP;
     if (kind === WEB && !(mktrapflags & MKTRAP_NOSPIDERONWEB)) {
-        const makeMonster = env.hooks.makeMonster;
-        if (typeof makeMonster !== 'function') {
-            throw new Error(
-                'mktrap requires general monster creation for a web spider',
-            );
-        }
-        makeMonster(
+        yield makemon_by_context(
             state.mons[PM_GIANT_SPIDER],
             coordinate.x,
             coordinate.y,

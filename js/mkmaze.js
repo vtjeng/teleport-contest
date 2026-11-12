@@ -1456,7 +1456,6 @@ export function populate_maze(frame, state = game) {
         random: coreRandom,
         hooks: {
             mazexy: coordinate => mazexy(coordinate, frame, state),
-            makeMonster: makemon,
         },
     });
     let count = rn1(8, 11);

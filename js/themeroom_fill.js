@@ -83,8 +83,7 @@ import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
 import {
     discard_minvent,
-    makemon,
-    makemon_runtime,
+    makemon_by_context,
     m_dowear,
     restore_waiting_vampire,
     set_mimic_sym,
@@ -324,16 +323,7 @@ function startMeltTimer(x, y, when, env) {
 function createTrap(type, flags, x, y, env) {
     const hook = env.hooks.createTrap;
     if (hook) return hook(type, flags, x, y, env);
-    // C ref: mklev.c mktrap() (2104-2105) calls makemon() itself for the giant
-    // spider that comes with a web. js/mktrap.js takes that call as a hook, and
-    // this fill is its production owner: fillSpiderNest() asks for a spider on
-    // four webs in five once level_difficulty() passes 8, so before this the
-    // web arm threw a bare Error out of runSegment() on any D:9 spider nest.
-    const trapEnv = themedCreationEnv({
-        ...env,
-        hooks: { makeMonster: makemon, ...env.hooks },
-    });
-    return mktrap(type, flags, null, { x, y }, trapEnv);
+    return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
 }
 
 // sp_lev.c create_trap(). Resolve either an SP_COORD_PACK() value or the
@@ -620,9 +610,8 @@ function createMonsterBody(m, croom, env) {
         : PM_ARCHEOLOGIST <= m.id && m.id <= PM_WIZARD
             ? mk_mplayer(pm, coordinate.x, coordinate.y, false, monsterEnv)
         // A level program that #wizloadlua runs (nhlua.c load_lua()) makes
-        // its monsters outside level creation, so makemon() runs its runtime
-        // tail there, as in mk_roamer().
-        : (state.in_mklev || env._specialRoomFill ? makemon : makemon_runtime)(
+        // its monsters outside level creation.
+        : makemon_by_context(
             pm,
             coordinate.x,
             coordinate.y,

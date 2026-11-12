@@ -31,7 +31,7 @@ import {
     obfree,
     stackobjRuntime,
 } from './invent.js';
-import { makemon } from './makemon_create.js';
+import { makemon_by_context } from './makemon_create.js';
 import { mongone } from './mon.js';
 import { propagate, rndmonnum } from './makemon.js';
 import { Resists_Elem, poly_when_stoned } from './mondata.js';
@@ -553,7 +553,9 @@ function populateMedusaStatue(obj, specification, env) {
     };
     const tryMonster = (attempts = 0) => {
         if (attempts >= 1000) return finishAccepted(null);
-        const maybeMonster = makemon(
+        // A Promise when a level program that #wizloadlua runs on Medusa's
+        // level makes the statue outside level creation.
+        const maybeMonster = makemon_by_context(
             state.mons[speciesIndex],
             0,
             0,

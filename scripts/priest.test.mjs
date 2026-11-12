@@ -321,7 +321,7 @@ test('priestini creates its priest with MM_EPRI as C does', () => {
     assert.match(jsFunction, /sanctum \? PM_HIGH_CLERIC : PM_ALIGNED_CLERIC/u);
     assert.match(
         jsFunction,
-        /makemon\(prim, px, py, MM_EPRI, env\)/u,
+        /makemon_by_context\(prim, px, py, MM_EPRI, env\)/u,
     );
     assert.equal(PM_HIGH_CLERIC, 276);
 });

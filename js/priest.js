@@ -68,7 +68,7 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, s_suffix, sgn } from './hacklib.js';
 import { record_achievement } from './insight.js';
-import { makemon, makemon_runtime, mongets } from './makemon_create.js';
+import { makemon_by_context, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { mattacku, m_next2u } from './mhitu.js';
 import { mon_allowflags, mongone, setmangry, wakeup } from './mon.js';
@@ -470,7 +470,10 @@ function pm_good_location(x, y, pm, env = {}) {
 }
 
 // C ref: priest.c priestini(). Places an aligned priest or high cleric next
-// to a shrine altar. Called exclusively from mktemple() during level creation.
+// to a shrine altar. mkroom.c mktemple() calls it during level creation, and
+// sp_lev.c create_altar() for a shrine in a temple, which a level program
+// that #wizloadlua runs reaches outside it; makemon() then runs its runtime
+// tail, and the rest of the setup follows it. Returns a Promise in that case.
 export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
@@ -497,46 +500,53 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     const blocker = m_at(px, py, state);
     if (blocker) rloc(blocker, RLOC_NOMSG, env);
 
-    const priest = makemon(prim, px, py, MM_EPRI, env);
-    if (!priest) return;
+    // C priestini() after makemon(): the shrine record, peacefulness, the
+    // spellbooks and the robe's curse state.
+    const finishPriest = (priest) => {
+        if (!priest) return;
 
-    const epri = priest.mextra.epri;
-    // C's `sroom - svr.rooms` spans top-level rooms and subrooms in one
-    // conceptual array. JS stores subrooms under their parent, so retain the
-    // source roomnoidx assigned by add_subroom() when available.
-    epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
-        + ROOMOFFSET);
-    epri.shralign = Amask2align(state.level.at(sx, sy).flags);
-    epri.shrpos = { x: sx, y: sy };
-    assign_level(epri.shrlevel, lvl);
-    mon_learns_traps(priest, ALL_TRAPS);
-    priest.mpeaceful = true;
-    priest.ispriest = true;
-    priest.isminion = false;
-    priest.msleeping = false;
-    set_malign(priest, state);
+        const epri = priest.mextra.epri;
+        // C's `sroom - svr.rooms` spans top-level rooms and subrooms in one
+        // conceptual array. JS stores subrooms under their parent, so retain the
+        // source roomnoidx assigned by add_subroom() when available.
+        epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
+            + ROOMOFFSET);
+        epri.shralign = Amask2align(state.level.at(sx, sy).flags);
+        epri.shrpos = { x: sx, y: sy };
+        assign_level(epri.shrlevel, lvl);
+        mon_learns_traps(priest, ALL_TRAPS);
+        priest.mpeaceful = true;
+        priest.ispriest = true;
+        priest.isminion = false;
+        priest.msleeping = false;
+        set_malign(priest, state);
 
-    if (sanctum && epri.shralign === A_NONE
-        && on_level(state.sanctum_level, state.u.uz)) {
-        mongets(priest, AMULET_OF_YENDOR, env);
-    }
+        if (sanctum && epri.shralign === A_NONE
+            && on_level(state.sanctum_level, state.u.uz)) {
+            mongets(priest, AMULET_OF_YENDOR, env);
+        }
 
-    // 2 to 4 spellbooks.
-    for (let cnt = random.rn1(3, 2); cnt > 0; --cnt) {
-        mpickobj(priest, mkobj(SPBOOK_NO_NOVEL, false, env), env);
-    }
+        // 2 to 4 spellbooks.
+        for (let cnt = random.rn1(3, 2); cnt > 0; --cnt) {
+            mpickobj(priest, mkobj(SPBOOK_NO_NOVEL, false, env), env);
+        }
 
-    // Robe blessing/cursing: the robe is given by makemon via m_initweapon.
-    if (random.rn2(2)) {
-        const otmp = which_armor(priest, W_ARMC, state);
-        if (otmp) {
-            if (p_coaligned(priest, state)) {
-                otmp.cursed = false;
-            } else {
-                curse(otmp, { ...env, state });
+        // Robe blessing/cursing: the robe is given by makemon via m_initweapon.
+        if (random.rn2(2)) {
+            const otmp = which_armor(priest, W_ARMC, state);
+            if (otmp) {
+                if (p_coaligned(priest, state)) {
+                    otmp.cursed = false;
+                } else {
+                    curse(otmp, { ...env, state });
+                }
             }
         }
-    }
+    };
+    const maybePriest = makemon_by_context(prim, px, py, MM_EPRI, env);
+    return maybePriest && typeof maybePriest.then === 'function'
+        ? maybePriest.then(finishPriest)
+        : finishPriest(maybePriest);
 }
 
 // C ref: priest.c mk_roamer() (724-753).  Special-level descriptors with an
@@ -559,13 +569,8 @@ export function mk_roamer(
     if (blocker) rloc(blocker, RLOC_NOMSG, { ...rawEnv, state });
 
     // mk_roamer() is used both while constructing special levels and during
-    // runtime events such as final_level().  Runtime makemon() callers must
-    // own its asynchronous group/inventory/message tail; level construction
-    // keeps the synchronous path, including special-room filling.
-    const createRoamer = state.in_mklev || rawEnv._specialRoomFill
-        ? makemon
-        : makemon_runtime;
-    const maybeRoamer = createRoamer(
+    // runtime events such as final_level().
+    const maybeRoamer = makemon_by_context(
         ptr,
         x,
         y,

@@ -252,7 +252,7 @@ import { get_obj_location } from './light.js';
 import { water_damage_chain } from './trap_water_damage.js';
 import { Is_box, stumble_on_door_mimic } from './lock.js';
 import { rndmonnum_adj, set_malign } from './makemon.js';
-import { makemon, makemon_runtime } from './makemon_create.js';
+import { makemon_by_context } from './makemon_create.js';
 import {
     killed, mongone, mon_to_stone, monstone, set_ustuck, vamp_stone,
     wake_nearby, wakeup, seemimic, xkilled,
@@ -888,8 +888,9 @@ function pitTerrain(x, y, env) {
 
 // C ref: trap.c mk_trap_statue() (390-417). Create a statue and a temporary
 // monster whose generated inventory is moved into it, then detach the donor.
-// Level-generation creation stays synchronous; a runtime caller awaits the
-// ordinary makemon runtime tail before consuming the returned monster.
+// Level-generation creation stays synchronous; outside it (a statue trap a
+// level program makes under #wizloadlua) the donor comes from makemon()'s
+// runtime form and the rest follows it.
 function mk_trap_statue(x, y, env) {
     const { state } = env;
     let tryCount = 10;
@@ -928,35 +929,15 @@ function mk_trap_statue(x, y, env) {
         return transfer();
     };
 
-    if (state.in_mklev) {
-        return finishDonor(makemon(
-            state.mons[statue.corpsenm],
-            0,
-            0,
-            mmflags,
-            donorEnv,
-        ));
-    }
-    if (env._specialRoomFill) {
-        // sp_lev.c room filling owns the runtime tail inside makemon(), which
-        // returns its Promise to keep the caller's source order intact.
-        const creation = makemon(
-            state.mons[statue.corpsenm],
-            0,
-            0,
-            mmflags,
-            { ...donorEnv, runtimeContinuation: { claimed: false } },
-        );
-        return creation && typeof creation.then === 'function'
-            ? creation.then(finishDonor) : finishDonor(creation);
-    }
-    return makemon_runtime(
+    const creation = makemon_by_context(
         state.mons[statue.corpsenm],
         0,
         0,
         mmflags,
         donorEnv,
-    ).then(finishDonor);
+    );
+    return creation && typeof creation.then === 'function'
+        ? creation.then(finishDonor) : finishDonor(creation);
 }
 
 // C ref: trap.c maketrap(). This owns the level trap list, field reset, terrain

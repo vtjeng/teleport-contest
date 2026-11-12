@@ -17,7 +17,7 @@ import { ART_MAGICBANE, mk_artifact, is_art } from './artifacts.js';
 import { christen_monst } from './do_name.js';
 import { rank_of } from './display.js';
 import { game } from './gstate.js';
-import { makemon, mkmonmoney, makemon_runtime, mongets, rnd_defensive_item, rnd_misc_item, rnd_offensive_item } from './makemon_create.js';
+import { makemon_by_context, mkmonmoney, mongets, rnd_defensive_item, rnd_misc_item, rnd_offensive_item } from './makemon_create.js';
 import { is_female, is_mplayer, monsndx, set_mon_data } from './mondata.js';
 import { mkobj, mksobj, rnd_class, is_spear, weight } from './obj.js';
 import { curse, bless } from './obj.js';
@@ -135,13 +135,9 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
     }
 
     if (!In_endgame(state.u?.uz, state)) special = false;
-    const monster = state.in_mklev || env._specialRoomFill
-        ? await makemon(
-            species, x, y, special ? MM_NOMSG : NO_MM_FLAGS, env,
-        )
-        : await makemon_runtime(
-            species, x, y, special ? MM_NOMSG : NO_MM_FLAGS, env,
-        );
+    const monster = await makemon_by_context(
+        species, x, y, special ? MM_NOMSG : NO_MM_FLAGS, env,
+    );
     if (!monster) return null;
 
     monster.m_lev = special ? random.rn1(16, 15) : random.rnd(16);

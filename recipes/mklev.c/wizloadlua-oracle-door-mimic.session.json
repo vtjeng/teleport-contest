@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mklev.c dosdoor()'s trapped-door mimic outside level creation: ^V to Dlvl 12 (level_difficulty() >= 9 allows the mimic), then #wizloadlua oracle, whose des.random_corridors() runs sp_lev.c create_corridor() -> makecorridors() -> join() -> dodoor() -> dosdoor(); a trapped door replaced by a mimic gets it from makemon(), which runs its runtime tail because load_lua() leaves in_mklev false. The seed was the first of 61840275-61840474 whose port replay at the parent commit reached the mimic, with oracle, Arc-fila or Wiz-fila; 14 of 600 runs did. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61840278,
+      "datetime": "20510917203344",
+      "nethackrc": "OPTIONS=name:Luacheck,role:Rogue,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u001612\n#wizloadlua\noracle\n   ss"
+    }
+  ]
+}

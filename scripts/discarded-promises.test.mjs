@@ -21,8 +21,10 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // minvent-extract, 12 November 2026): its two inline-copy entries went, and
 // its four synchronous callers and worn.js's extract() arm came in. 292 and
 // 374 since mklev.js fill_empty_maze() awaits its two makemon() calls
-// (12 November 2026).
-const ALLOWLIST_PINS = { entries: 292, calls: 374 };
+// (12 November 2026). 300 and 385 with eight level-creation-only callers of
+// mktrap(), dodoor() and priestini(), which return a Promise only outside
+// level creation (11 calls; branch wizloadlua-makemon, 12 November 2026).
+const ALLOWLIST_PINS = { entries: 300, calls: 385 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());

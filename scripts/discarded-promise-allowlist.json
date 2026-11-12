@@ -300,6 +300,10 @@
       "count": 6,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/extralev.js | roguecorr | dodoor": {
+      "count": 4,
+      "reason": "Runs only on the Rogue level (mklev.c makelevel() -> extralev.c makeroguerooms(); no level program uses the rogue level_init style), where mklev.c dosdoor() clears every door to D_NODOOR before the trapped-door mimic test, so dodoor() makes no monster and returns synchronously."
+    },
     "js/fountain.js | dofindgem | mksobj_at": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -456,6 +460,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/mklev.js | finishMonster | make_level_trap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. C reaches fill_ordinary_room() only from mklev.c makelevel()."
+    },
     "js/mklev.js | finishMonster | maketrap": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -548,6 +556,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/mkmaze.js | populate_maze | mktrap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. C reaches populate_maze() only from mkmaze.c makemaz() inside makelevel()."
+    },
     "js/mkmaze.js | restore_waterlevel | mv_bubble": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -575,6 +587,10 @@
     "js/mkroom.js | mkswamp | makemon": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | mktemple | priestini": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so priestini() returns synchronously. C reaches mktemple() only from mkroom.c mkroom() inside makelevel()."
     },
     "js/mktrap.js | mktrap_victim | curse": {
       "count": 2,
@@ -816,7 +832,7 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/priest.js | priestini | curse": {
+    "js/priest.js | finishPriest | curse": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -959,6 +975,22 @@
     "js/teleport.js | teleport_pet | m_unleash": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/themeroom_fill.js | fillBoulderRoom | createRoomTrap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. Theme-room fills run from mklev.c makerooms() inside makelevel()."
+    },
+    "js/themeroom_fill.js | fillSpiderNest | createTrap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. Theme-room fills run from mklev.c makerooms() inside makelevel()."
+    },
+    "js/themeroom_fill.js | fillTrapRoom | createTrap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. Theme-room fills run from mklev.c makerooms() inside makelevel()."
+    },
+    "js/themeroom_fill.js | makeTeleportationHubTrap | createPostprocessTrap": {
+      "count": 1,
+      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. Theme-room post-processing runs from mklev.c makelevel() (themerooms_post_level_generate())."
     },
     "js/themeroom_fill.js | spo_end_moninvent | m_dowear": {
       "count": 1,

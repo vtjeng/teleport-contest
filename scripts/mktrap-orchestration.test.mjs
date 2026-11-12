@@ -463,28 +463,28 @@ test('level object hooks can discard a timed land-mine possession', () => {
     assert.equal(state.gt.timer_base, null);
 });
 
-test('normal webs delegate their source-ordered giant-spider creation', () => {
+test('a normal web gets its giant spider on the web square', () => {
+    // mklev.c mktrap() calls makemon(&mons[PM_GIANT_SPIDER], m.x, m.y,
+    // NO_MM_FLAGS) for a web made without MKTRAP_NOSPIDERONWEB (flags 0).
+    // generationState() sets in_mklev, so the spider comes from the
+    // synchronous level-creation makemon() and mktrap() returns the trap
+    // itself, not a Promise. Seed 141421 is arbitrary; (10, 5) is a free
+    // square of the test map.
     const state = generationState(141421);
-    let call = null;
-    const hooks = objectGenerationHooks({
-        makeMonster(species, x, y, flags, env) {
-            call = { species, x, y, flags, env };
-            return {};
-        },
-    });
 
     const trap = mktrap(
         WEB,
         0,
         null,
         { x: 10, y: 5 },
-        { state, hooks },
+        { state, hooks: objectGenerationHooks() },
     );
 
     assert.equal(trap.ttyp, WEB);
-    assert.equal(call.species.pmidx, PM_GIANT_SPIDER);
-    assert.deepEqual([call.x, call.y, call.flags], [10, 5, 0]);
-    assert.equal(call.env.state, state);
+    const spider = state.level.monlist;
+    assert.ok(spider);
+    assert.equal(spider.data.pmidx, PM_GIANT_SPIDER);
+    assert.deepEqual([spider.mx, spider.my], [10, 5]);
 });
 
 test('statue traps transfer a temporary monster inventory before detaching it', () => {

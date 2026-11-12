@@ -30,7 +30,7 @@ import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { distmin, letter } from './hacklib.js';
 import {
-    makemon,
+    makemon_by_context,
     mkmonmoney,
     mongets,
 } from './makemon_create.js';
@@ -406,7 +406,9 @@ function shkinit(shop, sroom, normalized) {
     const occupant = m_at(placement.sx, placement.sy, state);
     if (occupant) rloc(occupant, RLOC_NOMSG, normalized);
 
-    const maybeShk = makemon(
+    // sp_lev.c fill_special_room() stocks a shop after in_mklev is cleared
+    // when lspo_finalize_level() runs it (#wizloaddes).
+    const maybeShk = makemon_by_context(
         state.mons[PM_SHOPKEEPER],
         placement.sx,
         placement.sy,
@@ -518,7 +520,8 @@ function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
     if (random.rn2(100) < depth(state.u.uz, state)
         && !m_at(sx, sy, state)) {
         const mimic = mkclass(S_MIMIC, 0, normalized);
-        const made = mimic ? makemon(mimic, sx, sy, 0, normalized) : null;
+        const made = mimic
+            ? makemon_by_context(mimic, sx, sy, 0, normalized) : null;
         if (made && typeof made.then === 'function')
             return made.then((monster) => { if (!monster) makeShopItem(); });
         if (made) return undefined;

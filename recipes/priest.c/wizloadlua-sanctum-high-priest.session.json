@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "priest.c priestini() for a sanctum outside level creation: #wizloadlua runs sanctum's des.altar() of type sanctum in its temple with in_mklev false, so create_altar() makes the high priest (sanctum argument TRUE) through makemon()'s runtime tail and then marks the altar AM_SANCTUM. The variation from wizloadlua-minetn6-shrine-priest is the shrine kind. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61840275,
+      "datetime": "20510917203344",
+      "nethackrc": "OPTIONS=name:Luacheck,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizloadlua\nsanctum\n   ss"
+    }
+  ]
+}
