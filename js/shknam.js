@@ -471,7 +471,11 @@ function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
 
 // C ref: shknam.c mkshobj_at(). C takes the shtypes[] row by pointer and
 // recovers its index for get_shop_item(); the index is what this port passes
-// throughout.
+// throughout. A shop filled after level creation (fill_special_room() from a
+// #wizloaddes level) makes its mimic through makemon()'s runtime tail, which
+// redraws the mimic and prints its "suddenly appears" line; that tail is a
+// promise, and this function then returns one that settles after it, so the
+// next square is not stocked before the mimic's line, as in C.
 function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
     const { random, state } = normalized;
     const shop = SHTYPES[shopIndex];
@@ -492,19 +496,26 @@ function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
         return;
     }
 
-    if (random.rn2(100) < depth(state.u.uz, state)
-        && !m_at(sx, sy, state)) {
-        const mimic = mkclass(S_MIMIC, 0, normalized);
-        if (mimic && makemon(mimic, sx, sy, 0, normalized)) return;
-    }
-
     // An iprobs[] itype is a real object class when it is non-negative, the
     // health food store's pseudo-class when it is VEGETARIAN_CLASS, and the
     // negation of one object type when it is negative.
-    const atype = get_shop_item(shopIndex, random);
-    if (atype === VEGETARIAN_CLASS) mkveggy_at(sx, sy, normalized);
-    else if (atype < 0) mksobj_at(-atype, sx, sy, true, true, normalized);
-    else mkobj_at(atype, sx, sy, true, normalized);
+    const makeShopItem = () => {
+        const atype = get_shop_item(shopIndex, random);
+        if (atype === VEGETARIAN_CLASS) mkveggy_at(sx, sy, normalized);
+        else if (atype < 0) mksobj_at(-atype, sx, sy, true, true, normalized);
+        else mkobj_at(atype, sx, sy, true, normalized);
+    };
+
+    if (random.rn2(100) < depth(state.u.uz, state)
+        && !m_at(sx, sy, state)) {
+        const mimic = mkclass(S_MIMIC, 0, normalized);
+        const made = mimic ? makemon(mimic, sx, sy, 0, normalized) : null;
+        if (made && typeof made.then === 'function')
+            return made.then((monster) => { if (!monster) makeShopItem(); });
+        if (made) return undefined;
+    }
+    makeShopItem();
+    return undefined;
 }
 
 function redrawDoor(x, y, normalized) {
@@ -579,28 +590,40 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             stockCount = 0;
         }
 
+        const finishStocking = () => {
+            // C ref: shknam.c stock_room()'s Orcus-level ghost-town hack. The
+            // shopkeepers are created and their normal inventory is
+            // initialized so that object IDs and RNG calls remain in source
+            // order, then the keeper is dismissed after stocking. mongone()
+            // preserves special items while discarding ordinary inventory and
+            // consumes obj_resists() once per item.
+            if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
+                mongone(sroom.resident, normalized);
+
+            state.level.flags.has_shop = true;
+            return true;
+        };
+        // The squares in C's x-major order. stockSquares() resumes after a
+        // square whose mkshobj_at() returned a promise.
+        const squares = [];
         for (let x = sroom.lx; x <= sroom.hx; ++x) {
-            for (let y = sroom.ly; y <= sroom.hy; ++y) {
+            for (let y = sroom.ly; y <= sroom.hy; ++y) squares.push([x, y]);
+        }
+        const stockSquares = (start) => {
+            for (let i = start; i < squares.length; ++i) {
+                const [x, y] = squares[i];
                 if (!stock_room_goodpos(
                     sroom, roomNumber, shopDoor, x, y, state,
                 )) continue;
                 ++stockCount;
-                mkshobj_at(
+                const pending = mkshobj_at(
                     shopIndex, x, y, stockCount === specialSpot, normalized,
                 );
+                if (pending) return pending.then(() => stockSquares(i + 1));
             }
-        }
-
-        // C ref: shknam.c stock_room()'s Orcus-level ghost-town hack. The
-        // shopkeepers are created and their normal inventory is initialized so
-        // that object IDs and RNG calls remain in source order, then the keeper
-        // is dismissed after stocking. mongone() preserves special items while
-        // discarding ordinary inventory and consumes obj_resists() once per item.
-        if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
-            mongone(sroom.resident, normalized);
-
-        state.level.flags.has_shop = true;
-        return true;
+            return finishStocking();
+        };
+        return stockSquares(0);
     };
     const maybeShopDoor = shkinit(shop, sroom, normalized);
     return maybeShopDoor && typeof maybeShopDoor.then === 'function'

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1022,
+      "datetime": "20090106200000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": "\u001625\n #wizloaddes\nminetn-7\n        s"
+    }
+  ],
+  "comment": "shknam.c mkshobj_at(): #wizloaddes minetn-7 deep in the Dungeons fills its shops after level creation, so each shop mimic runs makemon()'s runtime tail -- redraw, then \"<object> suddenly appears!\" -- before the next square is stocked. The hero stands where a lit shop is in view: each mimic shows only when its own line is printed, and the lines wait at --More-- in stocking order."
+}

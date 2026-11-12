@@ -888,15 +888,15 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/shknam.js | finishStockRoom | mongone": {
+    "js/shknam.js | finishStocking | mongone": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/shknam.js | mkshobj_at | mkobj_at": {
+    "js/shknam.js | makeShopItem | mkobj_at": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/shknam.js | mkshobj_at | mksobj_at": {
+    "js/shknam.js | makeShopItem | mksobj_at": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
