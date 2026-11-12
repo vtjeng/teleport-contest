@@ -105,6 +105,7 @@ import {
 import { inhishop, shop_keeper } from './shk.js';
 import { findpriest, inhistemple } from './priest.js';
 import { ttyPline } from './tty_message.js';
+import { impossible } from './pline.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
@@ -2340,8 +2341,10 @@ export function remdun_mapseen(dnum, state = game) {
 // fall can cross a dungeon boundary without proving that the transition used
 // the branch recorded in the source topology. Remember only a matching
 // forward branch on the level being left; reverse travel and non-branch
-// transitions leave the overview unchanged.
-export function recbranch_mapseen(source, dest, state = game) {
+// transitions leave the overview unchanged. A forward branch from a level
+// with no overview record, or a second branch on one level, is reported
+// through impossible(); `env.impossible` replaces pline.c impossible().
+export async function recbranch_mapseen(source, dest, state = game, env = {}) {
     if (!source || !dest || source.dnum === dest.dnum) return;
 
     let branch = state.svb?.branches ?? null;
@@ -2356,15 +2359,19 @@ export function recbranch_mapseen(source, dest, state = game) {
         }
     }
 
-    // No matching branch means this was not a real dungeon branch. C's
-    // impossible() diagnostics here have no gameplay-visible effect.
+    /* branch not found, so not a real branch. */
     if (!branch) return;
 
+    const report = env.impossible ?? ((text) => impossible(text, state));
     const mapseen = find_mapseen(source, state);
-    if (!mapseen) return;
-    // C reports an impossible diagnostic when a different branch was already
-    // remembered, then assigns the newly observed forward branch anyway.
-    mapseen.br = branch;
+    if (mapseen) {
+        if (mapseen.br && branch !== mapseen.br)
+            await report('Two branches on the same level?');
+        mapseen.br = branch;
+    } else {
+        await report(`Can't note branch for unseen level (${source.dnum}, `
+            + `${source.dlevel})`);
+    }
 }
 
 // C ref: dungeon.c get_annotation() (2478-2485). Return the custom name for

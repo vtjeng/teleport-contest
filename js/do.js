@@ -2765,7 +2765,7 @@ export async function goto_level(
     // arrival flags and therefore cannot mark a branch as seen.
     if ((at_stairs || falling || portal)
         && u.uz.dnum !== newlevel.dnum) {
-        recbranch_mapseen(u.uz, newlevel, state);
+        await recbranch_mapseen(u.uz, newlevel, state);
     }
 
     // dungeon.c assign_level() copies the two fields into the destination

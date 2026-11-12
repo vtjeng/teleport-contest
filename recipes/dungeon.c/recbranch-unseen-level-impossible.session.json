@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70323,
+      "datetime": "20080515101500",
+      "nethackrc": "OPTIONS=name:Odda,role:Valkyrie,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": "\u00162\n#wizloaddes\nbigrm-1\n\u0014    >>.>    s"
+    }
+  ],
+  "comment": "dungeon.c recbranch_mapseen(): #wizloaddes on the Gnomish Mines entrance level (Dlvl 2 for this seed) discards its overview record through makemap_prepost(), and lspo_finalize_level() places the branch stairs again. Going down them, goto_level() finds no record for the level being left and prints impossible(\"Can't note branch for unseen level (0, 2)\") while vision_recalc(2) has already blanked the map."
+}

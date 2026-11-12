@@ -746,7 +746,7 @@ test('print_mapseen emits source-ordered overview rows', () => {
     ]);
 });
 
-test('recbranch_mapseen remembers only a forward branch transition', () => {
+test('recbranch_mapseen remembers only a forward branch transition', async () => {
     // dungeon.c:2446-2473. The branch list is the C svb.branches linked list;
     // mapseenchn owns the one overview record whose `br` field is changed.
     const cSource = readFileSync(
@@ -762,6 +762,9 @@ test('recbranch_mapseen remembers only a forward branch transition', () => {
     assert.match(cFunction, /on_level\(source, &br->end1\)/u);
     assert.match(cFunction, /on_level\(dest, &br->end2\)/u);
     assert.match(cFunction, /mptr->br = br/u);
+    assert.match(cFunction, /impossible\("Two branches on the same level\?"\)/u);
+    assert.match(cFunction,
+        /impossible\("Can't note branch for unseen level \(%d, %d\)"/u);
 
     const forward = {
         next: null,
@@ -785,34 +788,56 @@ test('recbranch_mapseen remembers only a forward branch transition', () => {
         svb: { branches: unrelated },
         svm: { mapseenchn: [sourceMapseen] },
     };
+    const reports = [];
+    const env = { impossible: (text) => { reports.push(text); } };
 
     // The matching branch is found after an unrelated C-list entry.
-    recbranch_mapseen(
-        { dnum: 0, dlevel: 6 }, { dnum: 1, dlevel: 1 }, state,
+    await recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 1, dlevel: 1 }, state, env,
     );
     assert.equal(sourceMapseen.br, forward);
 
     // Reverse travel is explicitly ignored, even after the forward branch
     // has been remembered.
     const remembered = sourceMapseen.br;
-    recbranch_mapseen(
-        { dnum: 1, dlevel: 1 }, { dnum: 0, dlevel: 6 }, state,
+    await recbranch_mapseen(
+        { dnum: 1, dlevel: 1 }, { dnum: 0, dlevel: 6 }, state, env,
     );
     assert.equal(sourceMapseen.br, remembered);
 
     // Same-dungeon movement and an unrelated cross-dungeon destination both
-    // leave the record alone. An unseen source also follows C's diagnostic
-    // return without manufacturing an overview record.
-    recbranch_mapseen(
-        { dnum: 0, dlevel: 6 }, { dnum: 0, dlevel: 7 }, state,
+    // leave the record alone without a report.
+    await recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 0, dlevel: 7 }, state, env,
     );
-    recbranch_mapseen(
-        { dnum: 0, dlevel: 6 }, { dnum: 2, dlevel: 1 }, state,
-    );
-    recbranch_mapseen(
-        { dnum: 0, dlevel: 7 }, { dnum: 1, dlevel: 1 }, state,
+    await recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 2, dlevel: 1 }, state, env,
     );
     assert.equal(sourceMapseen.br, remembered);
+    assert.deepEqual(reports, []);
+
+    // A forward branch from a level with no overview record (D:7 has none
+    // here) reports it and manufactures no record.
+    const sevenToOne = {
+        next: unrelated, type: BR_STAIR, end1: { dnum: 0, dlevel: 7 },
+        end2: { dnum: 1, dlevel: 1 }, end1_up: false,
+    };
+    state.svb.branches = sevenToOne;
+    await recbranch_mapseen(
+        { dnum: 0, dlevel: 7 }, { dnum: 1, dlevel: 1 }, state, env,
+    );
+    assert.equal(state.svm.mapseenchn.length, 1);
+    assert.deepEqual(reports, ["Can't note branch for unseen level (0, 7)"]);
+
+    // A second branch on D:6 (the D:8 portal fixture moved to D:6) is
+    // reported, then remembered anyway.
+    reports.length = 0;
+    unrelated.end1 = { dnum: 0, dlevel: 6 };
+    await recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 2, dlevel: 1 }, state, env,
+    );
+    assert.deepEqual(reports, ['Two branches on the same level?']);
+    assert.equal(sourceMapseen.br, unrelated);
 });
 
 test('get_annotation returns only an existing level annotation', () => {

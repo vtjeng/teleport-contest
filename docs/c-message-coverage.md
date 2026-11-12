@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3992 | 76 |
-| diagnostic | 723 | 205 | 518 |
+| diagnostic | 723 | 207 | 516 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4200 | 711 |
+| total | 4911 | 4202 | 709 |
 
 ## Missing by C file
 
@@ -54,7 +54,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dog.c | yes | 0 | 4 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
-| src/dungeon.c | yes | 0 | 19 | 7 |
+| src/dungeon.c | yes | 0 | 17 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 1 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
@@ -667,10 +667,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `dungeon_branch()`
   - 1883 panic: `dgn_entrance: can't find entrance to`
-
-- `recbranch_mapseen()`
-  - 2469 impossible: `Two branches on the same level?`
-  - 2472 impossible: `Can't note branch for unseen level (`
 
 ### src/eat.c
 
