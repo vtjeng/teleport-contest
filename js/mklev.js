@@ -7750,11 +7750,14 @@ export async function makeniche(trap_type) {
     }
 }
 
+// C ref: mklev.c make_niches(). The thresholds read depth(&u.uz), which
+// differs from dlevel outside the Dungeons of Doom, as in dungeon -1.
 async function make_niches() {
     const g = game;
-    let ct = rnd(Math.trunc(g.level.nroom / 2) + 1);
-    let ltptr = ((g.u?.uz?.dlevel ?? 1) > 15);
-    let vamp = ((g.u?.uz?.dlevel ?? 1) > 5 && (g.u?.uz?.dlevel ?? 1) < 25);
+    let ct = rnd((g.level.nroom >> 1) + 1);
+    const dep = depth(g.u.uz, g);
+    let ltptr = !g.level.flags.noteleport && dep > 15;
+    let vamp = dep > 5 && dep < 25;
     while (ct--) {
         if (ltptr && !rn2(6)) {
             ltptr = false;

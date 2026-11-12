@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent mklev.c make_niches() witness for depth(&u.uz). Fourteen improvised flute tunes end with five, three, two and one notes, so svc.context.jingle holds a note, three NULs, the five-note tune's last note and a NUL. A wished magic portal keeps maketrap()'s dst of {-1, -1}. svd.dungeons[-1] overlays svc.context: its ledger_start is jingle[0..3], a small ledger, and its depth_start is jingle[4..5], the fifth note's character code. Stepping onto the portal makes a regular level in dungeon -1 at dlevel -1 and depth 63 to 69. C's make_niches() tests depth(), not dlevel, so it rolls rn2(6) for a level-teleporter niche. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 6603117,
+      "datetime": "20471111221500",
+      "nethackrc": "OPTIONS=name:Hrefna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyl\u0017magic portal\nhl      "
+    }
+  ]
+}
