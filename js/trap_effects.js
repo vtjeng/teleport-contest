@@ -171,6 +171,7 @@ import { game } from './gstate.js';
 import { get_obj_location } from './light.js';
 import { losexp } from './exper.js';
 import {
+    impossible,
     youFeel as plineYouFeel, youHear as plineYouHear, youSee as plineYouSee,
 } from './pline.js';
 import { m_in_air, newcham, setmangry } from './mon.js';
@@ -1921,11 +1922,14 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
 
     if (mtmp === state.youmonst) {
         if (!Can_fall_thru(state.u?.uz, state)) {
-            // C reports this through impossible(), which has no terminal or
-            // game-state effect. seetrap() still records the trap before that
-            // diagnostic, as fall_through() normally would.
-            seetrap(trap, env);
-            return Trap_Effect_Finished;
+            seetrap(trap, env); // normally done in fall_through
+            await impossible(
+                `dotrap: ${trapname(trap.ttyp, true, state)}s cannot exist`
+                    + ' on this level.',
+                state,
+                env,
+            );
+            return Trap_Effect_Finished; // don't activate it after all
         }
         await fall_through(true, trflags & TOOKPLUNGE, state);
         return Trap_Effect_Finished;
@@ -1940,8 +1944,13 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
         || (state.level?.flags?.sokoban_rules && !trap.madeby_u);
 
     if (!Can_fall_thru(state.u?.uz, state)) {
-        // C's impossible() is diagnostic only; no visible output is emitted.
-        return Trap_Effect_Finished;
+        await impossible(
+            `mintrap: ${trapname(tt, true, state)}s cannot exist`
+                + ' on this level.',
+            state,
+            env,
+        );
+        return Trap_Effect_Finished; // don't activate it after all
     }
 
     const tooLargeOrAirborne = !grounded(species, state)

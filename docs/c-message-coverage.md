@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 208 | 515 |
+| diagnostic | 723 | 209 | 514 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4204 | 707 |
+| total | 4911 | 4205 | 706 |
 
 ## Missing by C file
 
@@ -121,7 +121,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/timeout.c | yes | 0 | 18 | 0 |
 | src/topten.c | yes | 3 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
-| src/trap.c | yes | 0 | 16 | 1 |
+| src/trap.c | yes | 0 | 15 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
 | src/uhitm.c | yes | 0 | 3 | 0 |
 | src/vault.c | yes | 0 | 3 | 2 |
@@ -1650,9 +1650,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `m_harmless_trap()`
   - 1182 impossible: `m_harmless_trap: unknown trap`
-
-- `trapeffect_hole()`
-  - 2021 impossible: `s cannot exist on this level.`
 
 - `trapeffect_poly_trap()`
   - 2505 impossible: `re-equipping iron shoes destroyed them?`
