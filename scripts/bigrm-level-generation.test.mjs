@@ -67,6 +67,8 @@ test('bigrm-11 follows the Lua maze and placement sequence', async () => {
         'level_flags', 'level_init', 'region', 'non_diggable',
         'terrain', 'object', 'stair', 'trap', 'monster',
     ].map((name) => [name, record(name)]));
+    // sel:iterate() runs in the level program's Lua state; none here.
+    des.luaEnv = { lua: null, state };
 
     await loader(des, state);
 

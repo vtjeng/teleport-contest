@@ -1,6 +1,6 @@
 // Selection operations ported from src/nhlsel.c:
-// l_selection_or(), l_selection_sub(), l_selection_setpoint(), and
-// l_selection_randline().
+// l_selection_or(), l_selection_sub(), l_selection_setpoint(),
+// l_selection_iterate(), and l_selection_randline().
 import {
     ANY_LOC,
     COLNO,
@@ -9,7 +9,7 @@ import {
     SP_COORD_PACK_RANDOM,
 } from './const.js';
 import { get_location_coord } from './room_coordinates.js';
-import { luaL_checkinteger } from './nhlua.js';
+import { luaL_checkinteger, nhl_pcall_handle } from './nhlua.js';
 import { rn2 } from './rng.js';
 import { selection_do_randline } from './selvar.js';
 import { selection_map_frame, selection_new, ThemeroomSelection } from './themerooms.js';
@@ -52,6 +52,46 @@ function rectBounds(a, b) {
         hx: Math.max(a.hx, b.hx),
         hy: Math.max(a.hy, b.hy),
     };
+}
+
+// C ref: nhlsel.c l_selection_iterate(), sel:iterate(fn) in a level
+// program's Lua state `env.lua`. The y-major walk (ThemeroomSelection
+// iterate()) hands `callback` each point converted to map-relative
+// coordinates, as cvt_to_relcoord() does with the des.map() frame `origin`;
+// the callback only changes the map, never the selection, so the points are
+// read first and the async callback awaited for each. Each call is
+// protected (nhl_pcall_handle(..., "l_selection_iterate",
+// NHLpa_impossible)): a Lua error in it prints impossible() and ends the
+// loop, "to prevent possible error cascade", and the level program goes on.
+// `site` describes the Lua source for the traceback: `line`, the caller's
+// line of the sel:iterate() call, and `callee`, the callback's frame name
+// ("function 'f'") and `lines`, the line it calls each des.* field from.
+export async function l_selection_iterate(selection, callback, origin, site,
+    env) {
+    const { lua, state } = env;
+    const frames = lua?.frames;
+    const caller = frames?.at(-1);
+    if (caller?.lua) caller.currentline = site.line;
+    const points = [];
+    selection.iterate((x, y) => points.push([x, y]), origin);
+    frames?.push({ desc: "method 'iterate'" });
+    try {
+        for (const [x, y] of points) {
+            const failed = await nhl_pcall_handle(lua, async () => {
+                frames?.push({
+                    lua: true,
+                    desc: site.callee.desc,
+                    lines: site.callee.lines,
+                    currentline: 0,
+                });
+                await callback(x, y);
+                frames?.pop();
+            }, 'l_selection_iterate', state);
+            if (failed) break; /* abort loops to prevent possible error cascade */
+        }
+    } finally {
+        frames?.pop();
+    }
 }
 
 // C nhlsel.c l_selection_or(): Lua __bor and __add. Preserve each numeric

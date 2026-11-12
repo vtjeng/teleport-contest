@@ -182,7 +182,7 @@ export function dismissTtyLegacyIntroduction(state = game, rendered) {
 
 export async function ttyLegacyIntroduction(state = game, random = rn2) {
     if (!state.flags?.legacy) return false;
-    initializeQuestPagerLua(random);
+    initializeQuestPagerLua(random, state);
     const rendered = renderTtyLegacyIntroduction(state);
     for (;;) {
         const code = await nhgetch(state);

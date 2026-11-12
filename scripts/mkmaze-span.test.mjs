@@ -72,7 +72,7 @@ test('load_special awaits fixup before premapping and leaves room filling to cal
     assert.equal(cBody.includes('fill_special_room('), false);
 
     const jsApi = sourceBody(JS_MKLEV,
-        'function createSpecialLevelApi(state) {');
+        'function createSpecialLevelApi(state, lua) {');
     const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'),
         jsApi.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
     const jsFixup = jsFinish.indexOf('await finishFixupSpecial(state);');

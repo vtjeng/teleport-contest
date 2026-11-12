@@ -118,6 +118,7 @@ import {
 } from './youprop.js';
 import { rest_push_each } from './restore.js';
 import { dungeon_at } from './dungeon_table.js';
+import { nhlL_newstate } from './nhlua.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -2884,7 +2885,8 @@ export function fixup_level_locations(state, roleFilecode) {
     set_dungeon_topology(state, topology);
 }
 
-function init_private_lua(random) {
+function init_private_lua(random, state) {
+    nhlL_newstate(state);
     // C ref: nhlua.c nhl_init() loads nhlib.lua before dungeon.lua. The
     // private state's global align table is shuffled even though dungeon.lua
     // does not use the resulting order, then that Lua state is discarded.
@@ -2912,7 +2914,7 @@ export function init_dungeons(
     // dungeon.c:1247-1248, after dungeon.lua is loaded.
     if (state.iflags?.window_inited !== false) tty_clear_map_window(state);
 
-    init_private_lua(random);
+    init_private_lua(random, state);
 
     const pd = {
         tmpdungeon: [],

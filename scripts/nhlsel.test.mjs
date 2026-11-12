@@ -56,7 +56,7 @@ test('l_selection_or matches C bitwise values and wires every translated caller'
     assert.match(bigrm1, /selection\.line\(15,4, 15, 13\) \| selection\.line\(59,4, 59, 13\)/u);
     assert.match(bigrm2, /selection\.area\(01,07,22,09\)[\s\S]*?\| selection\.area\(24,01,50,05\)/u);
     assert.match(questLevels, /const shops = l_selection_or\(/u);
-    assert.match(bigrmJs, /import \{ l_selection_or \} from '\.\/nhlsel\.js';/u);
+    assert.match(bigrmJs, /import \{ l_selection_iterate, l_selection_or \} from '\.\/nhlsel\.js';/u);
     assert.match(bigrmJs, /function bigrm1\([\s\S]*?l_selection_or\(/u);
     assert.match(bigrmJs, /function bigrm2\([\s\S]*?l_selection_or\(/u);
     assert.doesNotMatch(bigrmJs, /selUnion/u);

@@ -4,7 +4,7 @@
 // the same nhlib.lua shims (percent, math.random = 1 + rn2, shuffle).
 
 import { rn2 } from './rng.js';
-import { l_selection_or } from './nhlsel.js';
+import { l_selection_iterate, l_selection_or } from './nhlsel.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
     COLNO, ROWNO, IS_STWALL,
@@ -655,24 +655,27 @@ function tOrF() {
     return percent(50) ? true : false;
 }
 
-// C ref: dat/bigrm-11.lua replace_wall_boulder(). The selection callback is
-// synchronous in Lua; special-level object creation may be async in JS, so
-// its caller snapshots the y-major selection and awaits each same ordered pair.
+// C ref: dat/bigrm-11.lua replace_wall_boulder(), a global function (lines
+// 15-18) that calls des.terrain() on line 16 and des.object() on line 17.
 async function replace_wall_boulder(des, x, y) {
     await des.terrain(x, y, '.');
     await des.object('boulder', x, y);
 }
 
-async function replaceWallBoulders(des, selection, state) {
-    const points = [];
-    // C's l_selection_iterate() converts absolute selection points to
-    // map-relative callback coordinates before Lua calls des.terrain/object.
-    selection.iterate((x, y) => points.push([x, y]), {
-        x: state.xstart,
-        y: state.ystart,
-    });
-    for (const [x, y] of points)
-        await replace_wall_boulder(des, x, y);
+const REPLACE_WALL_BOULDER_FRAME = Object.freeze({
+    desc: "function 'replace_wall_boulder'",
+    lines: Object.freeze({ terrain: 16, object: 17 }),
+});
+
+// sel:iterate(replace_wall_boulder) on bigrm-11.lua line `line`. C's
+// l_selection_iterate() converts absolute selection points to map-relative
+// callback coordinates before Lua calls des.terrain/object.
+async function replaceWallBoulders(des, selection, line, state) {
+    await l_selection_iterate(selection,
+        (x, y) => replace_wall_boulder(des, x, y),
+        { x: state.xstart, y: state.ystart },
+        { line, callee: REPLACE_WALL_BOULDER_FRAME },
+        des.luaEnv);
 }
 
 // C ref: dat/bigrm-11.lua. Boulder "maze" with wide corridors, generated
@@ -693,11 +696,11 @@ async function bigrm11(des, state) {
         selection_match('.w.', state),
         selection_match('.\nw\n.', state),
     );
-    await replaceWallBoulders(des, replaceableWalls, state);
+    await replaceWallBoulders(des, replaceableWalls, 22, state);
 
     // C's second pass picks up the remaining horizontal corner walls after
     // the first pass has changed its selected terrain to ROOM.
-    await replaceWallBoulders(des, selection_match('.w.', state), state);
+    await replaceWallBoulders(des, selection_match('.w.', state), 25, state);
 
     await des.stair('up');
     await des.stair('down');

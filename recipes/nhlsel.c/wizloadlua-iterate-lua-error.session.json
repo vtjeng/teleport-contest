@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlsel.c l_selection_iterate()'s protected callback call: #wizloadlua soko2-1 leaves its narrow des.map() frame (gx.xstart) in place, and #wizloadlua bigrm-11 then iterates over wall squares west of it, so cvt_to_relcoord() hands replace_wall_boulder() a negative x and its des.terrain() raises nhl_error(\"terrain coord not ok\"). C reports it through impossible(\"Lua error: %d:%s %s\") with the sandbox id (5: dungeon.lua, nhcore.lua, the themed rooms, soko2-1, bigrm-11), the name \"l_selection_iterate\" and the message with its Lua traceback, cut at BUFSZ - 1 bytes, ends that loop, and the level program goes on: the second sel:iterate() fails the same way and the rest of the level is made. Seed, date, Monk and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 83920154,
+      "datetime": "20531030204512",
+      "nethackrc": "OPTIONS=name:Iterator,role:Monk,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nsoko2-1\n#wizloadlua\nbigrm-11\n     :"
+    }
+  ]
+}

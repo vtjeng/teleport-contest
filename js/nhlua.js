@@ -269,15 +269,129 @@ export async function tutorial(entering, state = game) {
     available[NHCORE_LEAVE_TUTORIAL] = false;
 }
 
-// C ref: nhlua.c nhl_error(). Lua's debug API supplies currentline and
-// short_src; a JS boundary may provide those fields directly or under
-// `debug`. lua_error() does not return, so the corresponding JS operation is
-// a thrown Error whose message is the exact C-formatted payload.
+// A Lua error raised by lua_error(): what a protected call
+// (nhl_pcall_handle()) catches. `message` is the error value, and
+// `traceback` the "stack traceback:" text nhl_pcall()'s traceback_handler()
+// appends to it, taken where the error is raised, as Lua takes it before
+// the stack unwinds.
+export class LuaError extends Error {
+    constructor(message, traceback = '') {
+        super(message);
+        this.name = 'LuaError';
+        this.traceback = traceback;
+    }
+}
+
+// The Lua call stack of a level program's Lua state, which the port, having
+// no Lua VM, keeps itself: `lua.frames` lists the running functions,
+// outermost first. A Lua function's frame is { lua: true, desc, currentline }
+// and may carry `lines`, the line of each des.* field it calls (a Lua
+// function that calls each field once); a C function's is { desc }. desc is
+// the name luaL_traceback() gives the function ("main chunk",
+// "function 'f'", "field 'terrain'", "method 'iterate'"), and `lua.chunk` the
+// chunk's short_src.
+function luaFrames(luaState) {
+    return Array.isArray(luaState?.frames) ? luaState.frames : null;
+}
+
+// C ref: lauxlib.c luaL_traceback(L, L1, msg, 0) as traceback_handler()
+// calls it: level 0 is the handler itself, a C function.
+function luaL_traceback(luaState) {
+    const frames = luaFrames(luaState) ?? [];
+    let text = 'stack traceback:\n\t[C]: in ?';
+    for (let i = frames.length - 1; i >= 0; i--) {
+        const frame = frames[i];
+        text += frame.lua
+            ? `\n\t${luaState.chunk}:${frame.currentline}: in ${frame.desc}`
+            : `\n\t[C]: in ${frame.desc}`;
+    }
+    return text;
+}
+
+// C ref: nhlua.c nhl_error(). lua_getstack(L, 1) is the function that called
+// the C function raising the error: in a level program's Lua state, the
+// innermost Lua frame (luaFrames()). Any other caller may provide
+// currentline and short_src directly or under `debug`. lua_error() does not
+// return, so the corresponding JS operation is a thrown LuaError whose
+// message is the exact C-formatted payload.
 export function nhl_error(luaState, msg) {
-    const debug = luaState?.debug ?? luaState ?? {};
+    const frames = luaFrames(luaState);
+    const caller = frames?.findLast((frame) => frame.lua);
+    const debug = caller
+        ? { currentline: caller.currentline, short_src: luaState.chunk }
+        : luaState?.debug ?? luaState ?? {};
     const line = Number.isFinite(debug.currentline) ? debug.currentline : 0;
     const source = debug.short_src == null ? '' : String(debug.short_src);
-    throw new Error(`${String(msg)} (line ${line} ${source})`);
+    throw new LuaError(`${String(msg)} (line ${line} ${source})`,
+        frames ? luaL_traceback(luaState) : '');
+}
+
+// A C function a level program's Lua code calls as des.<name>: its frame is
+// on the Lua stack while it runs, and the calling Lua function's current
+// line is the one it calls `name` from, when its frame records that.
+export function nhl_call_field(luaState, name, call) {
+    const frames = luaFrames(luaState);
+    if (!frames) return call();
+    const caller = frames.at(-1);
+    if (caller?.lua && caller.lines && Object.hasOwn(caller.lines, name))
+        caller.currentline = caller.lines[name];
+    const depth = frames.length;
+    frames.push({ desc: `field '${name}'` });
+    let result;
+    try {
+        result = call();
+    } catch (error) {
+        frames.length = depth;
+        throw error;
+    }
+    if (result && typeof result.then === 'function') {
+        return Promise.resolve(result).finally(() => {
+            frames.length = depth;
+        });
+    }
+    frames.length = depth;
+    return result;
+}
+
+// C ref: nhlua.c nhl_pcall() and nhl_pcall_handle(..., NHLpa_impossible).
+// Runs `call`, a Lua call, protected: the sandbox's name becomes `name` (and
+// stays so afterwards, as nud->name does), and a Lua error is reported as
+// impossible("Lua error: %d:%s %s") with the sandbox id, the name now in
+// force and the message with its traceback, then dropped, with the Lua stack
+// back where it was. Returns 0, or nonzero after an error, as lua_pcall()
+// does. Any other exception is the port's own and propagates.
+export async function nhl_pcall_handle(luaState, call, name, state = game) {
+    const nud = luaState?.nud;
+    if (nud && name) nud.name = name;
+    const frames = luaFrames(luaState);
+    const depth = frames?.length ?? 0;
+    try {
+        await call();
+        return 0;
+    } catch (error) {
+        if (!(error instanceof LuaError)) throw error;
+        if (frames) frames.length = depth;
+        const text = error.traceback
+            ? `${error.message}\n${error.traceback}` : error.message;
+        const { impossible } = await import('./pline.js');
+        await impossible(`Lua error: ${nud?.sid ?? 0}:${
+            nud?.name ?? '(unknown)'} ${text}`, state);
+        return 2; // LUA_ERRRUN
+    }
+}
+
+// C ref: nhlua.c nhlL_newstate(). Every Lua state the game makes has a
+// memory limit -- dungeon.c init_dungeons(), nhlua.c l_nhcore_init() and
+// get_lua_version(), mklev.c makerooms(), questpgr.c com_pager_core(),
+// sp_lev.c load_special() and wizcmds.c wiz_load_lua() -- so each gets an
+// nhl_user_data numbered by ++gl.lua_sid, whose `name` nhl_pcall() replaces
+// with the name of each protected call. nhl_pcall_handle()'s impossible()
+// prints both. gl is process-global and not saved, so a restored game counts
+// from 1 again. Each of those callers calls this where C calls nhl_init().
+export function nhlL_newstate(state = game) {
+    state.gl ??= {};
+    state.gl.lua_sid = (state.gl.lua_sid ?? 0) + 1;
+    return { sid: state.gl.lua_sid, name: 'nhl_init' };
 }
 
 // Every nhl_init() loads nhlib.lua. Its three-entry table uses Fisher-Yates
@@ -377,16 +491,21 @@ export async function nhl_loadlua(lua, name, state = game, random = rn2) {
 // game can show.
 export async function load_lua(name, sbi, state = game, env = {}) {
     const random = env.random ?? rn2;
-    note_unported('nhlua.c nhlL_newstate');
+    const nud = nhlL_newstate(state);
     state.iflags.in_lua = true;
     // nhl_init() loads nhlib.lua, whose top level shuffles `align`.
-    const lua = { align: nhl_init(random) };
-    const loaded = await nhl_loadlua(lua, name, state, random);
+    const lua = { align: nhl_init(random), nud };
+    let loaded = await nhl_loadlua(lua, name, state, random);
     if (loaded === 'level') {
         // C runs the level program's des.* calls on the current level with
-        // no post-processing. Dynamic import: js/mklev.js imports this file.
+        // no post-processing, in nhl_loadlua()'s protected call: a Lua
+        // error prints impossible() and stops the program there, and
+        // load_lua() returns FALSE. Dynamic import: js/mklev.js imports
+        // this file.
         const { run_level_program } = await import('./mklev.js');
-        await run_level_program(name, lua.align, state);
+        if (await nhl_pcall_handle(lua,
+            () => run_level_program(name, lua, state), name, state))
+            loaded = false;
     }
     note_unported('nhlua.c nhl_done');
     state.iflags.in_lua = false;

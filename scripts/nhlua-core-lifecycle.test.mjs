@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game, resetGame } from '../js/gstate.js';
-import { nhl_error } from '../js/nhlua.js';
+import { LuaError, nhl_call_field, nhl_error } from '../js/nhlua.js';
+import { wrapTtyTopline } from '../js/topl.js';
 import { initUnported } from '../js/unported.js';
 
 function freshGame() {
@@ -24,6 +25,60 @@ test('nhlua.c nhl_error preserves message, line, and short source', () => {
         () => nhl_error({ debug: { currentline: 4, short_src: '@x.lua' } }, 'oops'),
         /oops \(line 4 @x\.lua\)/u,
     );
+});
+
+// The Lua stack of bigrm-11.lua when line 16's des.terrain() fails inside
+// sel:iterate(replace_wall_boulder) on line 22: nhl_error() names line 16
+// of the calling Lua function (lua_getstack(L, 1)), and traceback_handler()'s
+// luaL_traceback(L, L, msg, 0) lists the handler, then each frame from the
+// innermost, as Lua 5.4 names them; the C recording
+// recordings/nhlsel.c/wizloadlua-iterate-lua-error.session.json shows the
+// first 255 bytes of this text.
+test('nhl_error names the calling Lua line and keeps the traceback', () => {
+    freshGame();
+    const lua = {
+        chunk: '[string "(bigrm-11.lua)"]',
+        frames: [
+            { desc: '?' },
+            { lua: true, desc: 'main chunk', currentline: 22 },
+            { desc: "method 'iterate'" },
+            {
+                lua: true,
+                desc: "function 'replace_wall_boulder'",
+                lines: { terrain: 16, object: 17 },
+                currentline: 0,
+            },
+        ],
+    };
+    assert.throws(
+        () => nhl_call_field(lua, 'terrain',
+            () => nhl_error(lua, 'terrain coord not ok')),
+        (error) => error instanceof LuaError
+            && error.message === 'terrain coord not ok '
+                + '(line 16 [string "(bigrm-11.lua)"])'
+            && error.traceback === [
+                'stack traceback:',
+                '\t[C]: in ?',
+                "\t[C]: in field 'terrain'",
+                '\t[string "(bigrm-11.lua)"]:16: in function '
+                    + "'replace_wall_boulder'",
+                "\t[C]: in method 'iterate'",
+                '\t[string "(bigrm-11.lua)"]:22: in main chunk',
+                '\t[C]: in ?',
+            ].join('\n'),
+    );
+    // The field's frame is gone once the error has left it.
+    assert.equal(lua.frames.length, 4);
+});
+
+// topl.c update_topl() splits at spaces counting every byte, and
+// topl_putsym() starts a row at each newline, whether update_topl() put it
+// there or the text held it; a tab takes one column.
+test('a top line breaks at the newlines its text holds', () => {
+    assert.deepEqual(wrapTtyTopline('stack traceback:\n\t[C]: in ?', 80),
+        ['stack traceback:', '\t[C]: in ?']);
+    assert.deepEqual(wrapTtyTopline(`${'a'.repeat(79)}\nb`, 80),
+        ['a'.repeat(79), 'b']);
 });
 
 test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', async () => {
@@ -50,7 +105,9 @@ test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', asyn
     assert.equal(result, true); // load_lua()'s ret: nhl_loadlua() succeeded.
     assert.deepEqual(draws, [3, 2, 3, 2]); // Implicit then explicit library load.
     assert.equal(game.iflags.in_lua, false);
-    assert.deepEqual([...game.unported], ['nhlua.c nhlL_newstate', 'nhlua.c nhl_done']);
+    assert.deepEqual([...game.unported], ['nhlua.c nhl_done']);
+    // nhlL_newstate() numbers the state's sandbox: the first in this game.
+    assert.equal(game.gl.lua_sid, 1);
 });
 
 test('bounded load_lua initializes before a file it cannot run', async () => {
@@ -70,7 +127,7 @@ test('bounded load_lua initializes before a file it cannot run', async () => {
         assert.deepEqual(draws, [3, 2], name); // C initializes before lookup.
         assert.equal(game.iflags.in_lua, false, name);
         assert.deepEqual([...game.unported], [
-            'nhlua.c nhlL_newstate', 'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
+            'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
         ], name);
     }
 });

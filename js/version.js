@@ -1,7 +1,7 @@
 // version.js — Build version info
 
 import { do_runtime_info, runtime_info_init } from './mdlib.js';
-import { nhl_init } from './nhlua.js';
+import { nhlL_newstate, nhl_init } from './nhlua.js';
 export const VERSION = '0.1.0';
 export const BUILD_DATE = '2026-04-18';
 export const COMMIT = 'contest-skeleton';
@@ -124,6 +124,7 @@ export async function doversion(state, {
 function get_lua_version(state, random) {
     state.gl ??= {};
     if (!state.gl.lua_ver) {
+        nhlL_newstate(state);
         nhl_init(random);
         state.gl.lua_ver = LUA_VERSION;
     }

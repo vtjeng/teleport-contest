@@ -12,6 +12,7 @@ import {
     NEUTRAL,
 } from './const.js';
 import { game } from './gstate.js';
+import { nhlL_newstate } from './nhlua.js';
 import { MS_LEADER, MS_NEMESIS, MS_GUARDIAN } from './monsters.js';
 import { note_unported } from './unported.js';
 import { s_suffix } from './hacklib.js';
@@ -44,7 +45,8 @@ export function quest_info(typ, state = game) {
 // C refs: questpgr.c com_pager_core(), nhlua.c nhl_init(), dat/nhlib.lua.
 // Every pager owns a fresh Lua state; loading nhlib shuffles its private
 // three-entry alignment table even when the selected quest text is fixed.
-export function initializeQuestPagerLua(random = rn2) {
+export function initializeQuestPagerLua(random = rn2, state = game) {
+    nhlL_newstate(state);
     const align = ['law', 'neutral', 'chaos'];
     for (let index = align.length; index > 1; --index) {
         const selected = random(index);
@@ -356,7 +358,7 @@ async function comPagerCore(
     section, msgid, showerror, state, random, output, rawText = null,
 ) {
     if (skip_pager(state)) return false;
-    initializeQuestPagerLua(random);
+    initializeQuestPagerLua(random, state);
 
     const sectionData = QUEST_TEXT_DATA[section];
     if (!sectionData) {

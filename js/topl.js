@@ -172,15 +172,26 @@ function updateToplLines(message, columns) {
 }
 
 // C ref: topl.c update_topl()'s line splitting and byte cursor rules.
+// topl_putsym() starts a new row at a newline the text itself holds (a Lua
+// error's traceback, nhl_pcall_handle()), as at one update_topl() put in;
+// update_topl() counts those bytes as it splits.
 export function wrapTtyTopline(message, columns) {
     const physicalWidth = Math.max(1, columns - 1);
-    return updateToplLines(message, columns).flatMap((line) => {
-        if (!line.length) return [''];
-        const rows = [];
-        for (let start = 0; start < line.length; start += physicalWidth)
-            rows.push(line.slice(start, start + physicalWidth));
-        return rows;
-    });
+    return updateToplLines(message, columns).flatMap((line) => line
+        .split('\n').flatMap((part) => {
+            if (!part.length) return [''];
+            const rows = [];
+            for (let start = 0; start < part.length; start += physicalWidth)
+                rows.push(part.slice(start, start + physicalWidth));
+            return rows;
+        }));
+}
+
+// topl_putsym() passes a control byte such as a tab to putchar(), and
+// recorder patch 006's nomux_putch() leaves its cell as it was
+// (termcap.js nomux_putch_byte()) while the cursor moves past it.
+function leavesCell(ch) {
+    return ch.charCodeAt(0) < 0x20;
 }
 
 export function writeRecorderTtyLine(display, row, value) {
@@ -188,7 +199,7 @@ export function writeRecorderTtyLine(display, row, value) {
     let column = 0;
     for (const ch of line) {
         if (column >= display.cols) break;
-        if (ch !== '\0') display.setCell(column, row, ch, NO_COLOR, 0);
+        if (!leavesCell(ch)) display.setCell(column, row, ch, NO_COLOR, 0);
         ++column;
     }
     display.setCursor(column, row);
@@ -221,8 +232,14 @@ function redrawTtyTopline(state, message, mixedFirstCell = null) {
     const display = state.nhDisplay;
     if (!display) return;
     const lines = wrapTtyTopline(message, display.cols);
-    for (let row = 0; row < lines.length; ++row)
+    for (let row = 0; row < lines.length; ++row) {
+        // topl_putsym('\n') clears the row it moves onto before writing.
+        if (row > 0) {
+            display.setCursor(0, row);
+            display.clearToEol();
+        }
         writeRecorderTtyLine(display, row, lines[row]);
+    }
     if (mixedFirstCell) display.setCell(0, 0, mixedFirstCell, NO_COLOR, 0);
     display.setCursor(lines.at(-1)?.length ?? 0, lines.length - 1);
 }
