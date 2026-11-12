@@ -246,7 +246,7 @@ import {
     touch_petrifies,
     breathless,
     haseyes,
-    can_blnd,
+    can_blnd_steps,
     hates_silver,
     mon_hates_blessings,
     monsndx,
@@ -411,7 +411,8 @@ import {
 } from './do_name.js';
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
-import { verbalize, youFeel } from './pline.js';
+import { impossible_printer, verbalize, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { coreRandom, d, rn2, rnd } from './rng.js';
@@ -1178,7 +1179,8 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
     } else if (breaktest(obj, { ...rawEnv, state, random })) {
         // Determine the blindness before breakobj() deletes the object.
         const blindinc = ((otyp === CREAM_PIE || otyp === BLINDING_VENOM)
-            && can_blnd(state.youmonst, state.youmonst, AT_WEAP, obj, state))
+            && await finish_steps(can_blnd_steps(state.youmonst, state.youmonst, AT_WEAP, obj, state),
+                impossible_printer(state)))
             ? random.rnd(25) : 0;
         await breakmsg(obj, !Blind(state.u), { ...rawEnv, state });
         if (await breakobj(obj, u.ux, u.uy, true, true,

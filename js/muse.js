@@ -157,7 +157,7 @@ import {
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
     mon_knows_traps, mon_learns_traps, Resists_Elem, monstseesu,
     monstunseesu, needspick, nohands, noncorporeal, nonliving, passes_walls,
-    resists_blnd, resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
+    resists_blnd_steps, resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
     unsolid, verysmall,
     poly_when_stoned,
 } from './mondata.js';
@@ -2497,7 +2497,9 @@ async function buzz_force_miss(
 
 // C ref: muse.c find_offensive() (1421-1594). Select the last viable item
 // while preserving the source-order nomore() skips across inventory objects.
-export function find_offensive(mtmp, rawEnv = {}) {
+// The camera test reaches mondata.c resists_blnd(), which can call
+// impossible(), so the body is a step generator (js/source_steps.js).
+export function* find_offensive_steps(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const species = mtmp.data;
     const u = state.u;
@@ -2614,10 +2616,11 @@ export function find_offensive(mtmp, rawEnv = {}) {
             && (!inEndgame || earthLevelHere))
             select(MUSE_SCR_EARTH, obj);
         if (has_offense === MUSE_CAMERA) continue;
-        const blindedByFlash = !Blind(state.u)
-            && !resists_blnd(state.youmonst ?? state.u, state);
         if (otyp === O.EXPENSIVE_CAMERA
-            && (blindedByFlash || hates_light(state.youmonst?.data ?? state.u?.data))
+            && ((!Blind(state.u)
+                && !(yield* resists_blnd_steps(state.youmonst ?? state.u,
+                    state)))
+                || hates_light(state.youmonst?.data ?? state.u?.data))
             && dist2(mtmp.mx, mtmp.my, mtmp.mux, mtmp.muy) <= 2
             && obj.spe > 0 && !random.rn2(6))
             select(MUSE_CAMERA, obj);
@@ -2625,6 +2628,11 @@ export function find_offensive(mtmp, rawEnv = {}) {
     if (!has_offense) return false;
     state.m_offense = { has_offense, offensive };
     return true;
+}
+
+// Synchronous form for callers that cannot wait; records the print as a gap.
+export function find_offensive(mtmp, rawEnv = {}) {
+    return finish_steps(find_offensive_steps(mtmp, rawEnv));
 }
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
@@ -2731,7 +2739,9 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         }
         state.m_using = true;
         if (!Blind(state.u)
-            && !resists_blnd(state.youmonst ?? state.u, state)) {
+            && !await finish_steps(
+                resists_blnd_steps(state.youmonst ?? state.u, state),
+                impossible_printer(state))) {
             await message('You are blinded by the flash of light!', state, env);
             const blindedTimeout = (HBlinded(state.u))
                 & TIMEOUT;

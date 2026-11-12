@@ -133,7 +133,7 @@ import {
     dmgtype,
     haseyes,
     perceives,
-    resists_blnd,
+    resists_blnd_steps,
     slimeproof,
     stagger,
 } from './mondata.js';
@@ -195,7 +195,8 @@ import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { IRON, METAL, SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
-import { pline_mon, youFeel } from './pline.js';
+import { impossible_printer, pline_mon, youFeel } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { coreRandom } from './rng.js';
 
 import {
@@ -1411,7 +1412,8 @@ async function gazemm(magr, mdef, mattk, env) {
     }
 
     if (magr.mcan || !mdef.mcansee
-        || (archon ? resists_blnd(mdef, state) : !magr.mcansee)
+        || (archon ? await finish_steps(resists_blnd_steps(mdef, state),
+            impossible_printer(state)) : !magr.mcansee)
         || (magr.minvis && !perceives(mdef.data))
         || mdef.msleeping) {
         if (state.gv?.vis && canspotmon(mdef, state))

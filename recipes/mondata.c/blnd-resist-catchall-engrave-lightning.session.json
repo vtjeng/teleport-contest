@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of blnd-resist-catchall-camera-flash through another caller: with the same #wizintrinsic blindness resistance, an Archeologist engraves with a wished-for wand of lightning, and engrave.c doengrave()'s doblind check calls resists_blnd(), which prints impossible(\"'Blnd_resist' but not resists_blnd()?\") after the text is entered.",
+  "segments": [
+    {
+      "seed": 5150,
+      "datetime": "20330914093000",
+      "nethackrc": "OPTIONS=name:Etcher,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "#wizintrinsic\n>r\n\n\u0017wand of lightning\nEi  x\n  "
+    }
+  ]
+}

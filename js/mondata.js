@@ -53,6 +53,7 @@ import {
     P_NONE,
 } from './const.js';
 import { acurr } from './attrib.js';
+import { finish_steps, ImpossibleCall } from './source_steps.js';
 import {
     ART_EXCALIBUR,
     defends,
@@ -249,8 +250,11 @@ export function resists_blnd_by_arti(mon, state = game) {
 
 // C ref: mondata.c resists_blnd() (248-275).  The hero's Blind and Unaware
 // properties are represented by the same state fields used by the status
-// line; monsters retain their mblinded/mcansee/sleeping flags.
-export function resists_blnd(mon, state = game) {
+// line; monsters retain their mblinded/mcansee/sleeping flags.  The catchall
+// calls impossible(), so the body is a step generator (js/source_steps.js);
+// scripts/resists-blnd-callers.test.mjs keeps every caller driving it with a
+// printer.
+export function* resists_blnd_steps(mon, state = game) {
     const isYou = mon === state.youmonst;
     const heroBlind = Blind(state.u);
     const heroUnaware = Unaware(state);
@@ -266,18 +270,22 @@ export function resists_blnd(mon, state = game) {
     }
     if (resists_blnd_by_arti(mon, state)) return true;
     if (isYou && Blnd_resist(state.u)) {
-        // mondata.c explicitly calls impossible() for this inconsistent state
-        // before returning TRUE; keep the source-named diagnostic gap.
-        note_unported('pline.c impossible');
+        yield new ImpossibleCall("'Blnd_resist' but not resists_blnd()?");
         return true;
     }
     return false;
 }
 
+// Synchronous form for callers that cannot wait; records the print as a gap.
+export function resists_blnd(mon, state = game) {
+    return finish_steps(resists_blnd_steps(mon, state));
+}
+
 // C ref: mondata.c can_blnd() (305-398).  This is called for monster
 // defenders as well as the hero, and keeps the source's attack-type switch and
 // visor check in the same order.  A no-eyed defender is immune to all modes.
-export function can_blnd(magr, mdef, aatyp, obj, state = game) {
+// It reaches resists_blnd(), so it is a step generator too.
+export function* can_blnd_steps(magr, mdef, aatyp, obj, state = game) {
     if (!haseyes(mdef?.data)) return false;
 
     const isYou = mdef === state.youmonst;
@@ -296,7 +304,7 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     case M.AT_MAGC:
     case M.AT_BREA:
         if (magr?.mcan) return false;
-        return !resists_blnd(mdef, state);
+        return !(yield* resists_blnd_steps(mdef, state));
     case M.AT_WEAP:
     case M.AT_SPIT:
     case M.AT_NONE:
@@ -340,6 +348,11 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
         }
     }
     return true;
+}
+
+// Synchronous form for callers that cannot wait; records the print as a gap.
+export function can_blnd(magr, mdef, aatyp, obj, state = game) {
+    return finish_steps(can_blnd_steps(magr, mdef, aatyp, obj, state));
 }
 
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }

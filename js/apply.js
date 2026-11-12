@@ -275,7 +275,7 @@ import {
 } from './mon.js';
 import {
     can_blow,
-    can_blnd,
+    can_blnd_steps,
     gender,
     humanoid,
     is_female,
@@ -609,7 +609,15 @@ import {
     zapyourself,
 } from './zap.js';
 import { explode } from './explode.js';
-import { impossible, pline_mon, verbalize, youSee, youFeel } from './pline.js';
+import {
+    impossible,
+    impossible_printer,
+    pline_mon,
+    verbalize,
+    youFeel,
+    youSee,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
@@ -1848,7 +1856,8 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
         );
     }
 
-    if (can_blnd(null, state.youmonst, AT_WEAP, obj, state)) {
+    if (await finish_steps(can_blnd_steps(null, state.youmonst, AT_WEAP, obj, state),
+        impossible_printer(state))) {
         const blindinc = random.rnd(25);
         state.u.ucreamed += blindinc;
         await make_blinded(

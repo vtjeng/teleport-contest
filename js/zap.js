@@ -115,7 +115,7 @@ import { create_critters, monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
     makemon_revival, makemon_runtime, newcham_revival, neweshk, } from './makemon_create.js';
 import {
-    can_be_hatched, completelyburns, defended, dead_species, dmgtype, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
+    can_be_hatched, completelyburns, defended, dead_species, dmgtype, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd_steps, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
 import {
     AD_ACID, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -253,7 +253,14 @@ import {
     hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
-import { impossible, livelog_printf, set_msg_xy, youFeel } from './pline.js';
+import {
+    impossible,
+    impossible_printer,
+    livelog_printf,
+    set_msg_xy,
+    youFeel,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
@@ -1755,7 +1762,8 @@ export async function zhitm(
             sho_shieldeff = true;
             tmp = 0;
         }
-        if (!resists_blnd(mon, state)
+        if (!await finish_steps(resists_blnd_steps(mon, state),
+            impossible_printer(state))
             && !(type > 0 && engulfing_u(mon, state)) && nd > 2) {
             const blindAmount = random.rnd(50);
             mon.mcansee = false;
@@ -5605,7 +5613,8 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
 // transition and its immediate vision-clear message.
 export async function flashburn(duration, viaLightning, state, env = {}) {
     const message = env.message ?? ttyPline;
-    if (!resists_blnd(state.youmonst, state)) {
+    if (!await finish_steps(resists_blnd_steps(state.youmonst, state),
+        impossible_printer(state))) {
         await message('You are blinded by the flash!', state, env);
         await make_blinded(duration, false, state, { ...env, message });
         if (!Blind(state.u))

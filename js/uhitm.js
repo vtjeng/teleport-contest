@@ -190,10 +190,12 @@ import {
 } from './do_name.js';
 import {
     consume_msg_xy,
+    impossible_printer,
     livelog_printf,
     verbalize,
     youFeel,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -295,7 +297,7 @@ import {
     bigmonst,
     breathless,
     attacktype,
-    can_blnd,
+    can_blnd_steps,
     can_be_strangled,
     defended,
     dmgtype,
@@ -341,7 +343,7 @@ import {
     noattacks,
     passes_walls,
     passes_rocks,
-    resists_blnd,
+    resists_blnd_steps,
     resists_blnd_by_arti,
     slimeproof,
     stagger,
@@ -825,7 +827,8 @@ export async function flash_hits_mon(
             result = 1;
         }
     } else if (monster.data?.mlet !== S_LIGHT) {
-        if (!resists_blnd(monster, state)) {
+        if (!await finish_steps(resists_blnd_steps(monster, state),
+            impossible_printer(state))) {
             const distance = dist2(object.ox, object.oy, x, y);
             if (useeit) {
                 await ttyPline(
@@ -1409,7 +1412,8 @@ export async function explum(mdef, mattk, state = game, env = {}) {
 
     switch (mattk.adtyp) {
     case AD_BLND:
-        if (mdef && !resists_blnd(mdef, state)) {
+        if (mdef && !await finish_steps(resists_blnd_steps(mdef, state),
+            impossible_printer(state))) {
             await message(
                 `${Monnam(mdef, state, env)} is blinded by your flash of light!`,
                 state,
@@ -1655,7 +1659,8 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 }
                 break;
             case AD_BLND:
-                if (can_blnd(state.youmonst, mdef, mattk.aatyp, null, state)) {
+                if (await finish_steps(can_blnd_steps(state.youmonst, mdef, mattk.aatyp, null, state),
+                    impossible_printer(state))) {
                     if (mdef.mcansee)
                         await message(`${Monnam(mdef, state, env)} can't see in there!`, state);
                     mdef.mcansee = 0;
@@ -3106,12 +3111,12 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
 
     if (obj.otyp === CREAM_PIE || obj.otyp === BLINDING_VENOM) {
         mon.msleeping = 0;
-        if (can_blnd(
+        if (await finish_steps(can_blnd_steps(
             state.youmonst, mon,
             obj.otyp === BLINDING_VENOM ? AT_SPIT : AT_WEAP,
             obj,
             state,
-        )) {
+        ), impossible_printer(state))) {
             if (Blind(state.u)) {
                 await message(obj.otyp === CREAM_PIE ? 'Splat!' : 'Splash!', state);
             } else if (obj.otyp === BLINDING_VENOM) {
@@ -5207,7 +5212,8 @@ export async function mhitm_ad_blnd(
 
     if (magr === state.youmonst) {
         /* uhitm */
-        if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
+        if (await finish_steps(can_blnd_steps(magr, mdef, mattk.aatyp, null, state),
+            impossible_printer(state))) {
             if (!Blind(state.u) && mdef.mcansee)
                 await message(`${Monnam(mdef, state, env)} is blinded.`, state);
             mdef.mcansee = 0;
@@ -5218,7 +5224,8 @@ export async function mhitm_ad_blnd(
         mhm.damage = 0;
     } else if (mdef === state.youmonst) {
         /* mhitu */
-        if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
+        if (await finish_steps(can_blnd_steps(magr, mdef, mattk.aatyp, null, state),
+            impossible_printer(state))) {
             if (!Blind(state.u))
                 await message(`${Monnam(magr, state, env)} blinds you!`, state);
             const blindedTimeout = HBlinded(state.u)
@@ -5233,7 +5240,8 @@ export async function mhitm_ad_blnd(
         mhm.damage = 0;
     } else {
         /* mhitm */
-        if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
+        if (await finish_steps(can_blnd_steps(magr, mdef, mattk.aatyp, null, state),
+            impossible_printer(state))) {
             if (state.gv?.vis && mdef.mcansee && canspotmon(mdef, state)) {
                 let text = `${Monnam(mdef, state, env)} is blinded`;
                 if (mdef.data?.pmidx === PM_ARCHON

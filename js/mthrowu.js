@@ -106,7 +106,7 @@ import { down_gate, ship_object } from './dokick.js';
 import {
     amorphous,
     bigmonst,
-    can_blnd,
+    can_blnd_steps,
     cvt_adtyp_to_mseenres,
     get_atkdam_type,
     is_elf,
@@ -256,7 +256,8 @@ import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { ttyPline } from './tty_message.js';
-import { pline_mon, youHear } from './pline.js';
+import { impossible_printer, pline_mon, youHear } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { messageAt } from './startup_a11y.js';
 
 import { obj_sheds_light } from './light.js';
@@ -770,10 +771,10 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         /* blinding venom and cream pie do 0 damage, but verify
            that the target is still alive anyway */
         if (mtmp.mhp > 0 /* !DEADMONSTER */
-            && can_blnd(null, mtmp,
+            && await finish_steps(can_blnd_steps(null, mtmp,
                         (otmp.otyp === BLINDING_VENOM) ? AT_SPIT
                                                        : AT_WEAP,
-                        otmp, state)) {
+                        otmp, state), impossible_printer(state))) {
             if (vis && mtmp.mcansee)
                 await message(`${Monnam(mtmp, state, env)} is blinded by `
                     + `${the(otmp.oclass === VENOM_CLASS ? 'venom'
@@ -1061,13 +1062,13 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             // JS returns with gameover set and must not settle the missile.
             if (state.program_state?.gameover)
                 return 0;
-            if (hit && can_blnd(
+            if (hit && await finish_steps(can_blnd_steps(
                 null,
                 state.youmonst,
                 singleobj.otyp === BLINDING_VENOM ? AT_SPIT : AT_WEAP,
                 singleobj,
                 state,
-            )) {
+            ), impossible_printer(state))) {
                 blindinc = random.rnd(25);
                 if (typeof env.message === 'function') {
                     if (singleobj.otyp === CREAM_PIE) {

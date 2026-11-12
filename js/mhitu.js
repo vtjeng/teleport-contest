@@ -191,10 +191,10 @@ import {
     unsolid,
     is_whirly,
     attacktype_fordmg,
-    can_blnd,
+    can_blnd_steps,
     flaming,
     defended,
-    resists_blnd,
+    resists_blnd_steps,
     resists_drli,
     is_hider,
     likes_gold,
@@ -203,7 +203,7 @@ import {
 } from './mondata.js';
 import { monnear, onscary, set_apparxy } from './monmove.js';
 import * as M from './monsters.js';
-import { find_offensive } from './muse.js';
+import { find_offensive_steps } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
 import { is_weptool, is_wet_towel, objectType } from './obj.js';
@@ -301,7 +301,15 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { impossible, pline_mon, verbalize, youHear, youFeel } from './pline.js';
+import {
+    impossible,
+    impossible_printer,
+    pline_mon,
+    verbalize,
+    youFeel,
+    youHear,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -1755,7 +1763,8 @@ export async function mattacku(monster, rawEnv = {}) {
     }
 
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
-    if (find_offensive(monster, env)) {
+    if (await finish_steps(find_offensive_steps(monster, env),
+        impossible_printer(state))) {
         const useOffensiveItem = requireMattackuOperation(
             env,
             'useOffensiveItem',
@@ -2374,7 +2383,8 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         }
         break;
     case M.AD_BLND:
-        if (can_blnd(mtmp, state.youmonst, mattk.aatyp, null, state)) {
+        if (await finish_steps(can_blnd_steps(mtmp, state.youmonst, mattk.aatyp, null, state),
+            impossible_printer(state))) {
             if (!Blind(state.u)) {
                 const wasBlinded = isBlinded();
                 if (!Blind(state.u))
@@ -2771,7 +2781,8 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
         if (mtmp.mhp > 0) killAgr = false;
         break;
     case M.AD_BLND:
-        notAffected = resists_blnd(state.youmonst, state);
+        notAffected = await finish_steps(resists_blnd_steps(state.youmonst, state),
+            impossible_printer(state));
         if (ufound && !notAffected) {
             // C places the division inside the right side of ||. A visible
             // monster skips both that mutation and its random draw.
@@ -3033,7 +3044,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
 
     case M.AD_BLND:
         if (canseemon(monster, state)
-            && !resists_blnd(state.youmonst, state)
+            && !await finish_steps(resists_blnd_steps(state.youmonst, state),
+                impossible_printer(state))
             && mdistu(monster, state) <= BOLT_LIM * BOLT_LIM) {
             if (cancelled) {
                 react = draw('rn1', 2, 2);
@@ -3519,13 +3531,13 @@ export async function gulp_blnd_check(state = game, rawEnv = {}) {
     // includes EBlinded and must not be used for this guard.
     if (!Blinded(state.u) && state.u?.uswallow
         && (mattk = attacktype_fordmg(stuck.data, M.AT_ENGL, M.AD_BLND))
-        && can_blnd(
+        && await finish_steps(can_blnd_steps(
             stuck,
             state.youmonst,
             mattk.aatyp,
             null,
             state,
-        )) {
+        ), impossible_printer(state))) {
         ++state.u.uswldtim;
         await gulpmu(stuck, mattk, {
             ...rawEnv,

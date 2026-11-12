@@ -348,7 +348,7 @@ import {
 import { lined_up, m_has_launcher_and_ammo } from './mthrowu.js';
 import { an, bare_artifactname, xnameFresh, yname } from './objnam.js';
 import {
-    find_defensive, find_offensive, searches_for_item, use_defensive,
+    find_defensive, find_offensive_steps, searches_for_item, use_defensive,
 } from './muse.js';
 import { fracture_rock } from './zap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -2670,7 +2670,8 @@ export async function dochug(monster, rawEnv = {}) {
             const shootsAfterMoving = !range.nearby
                 && (ranged_attk_available(monster, env)
                     || attacktype(preMoveSpecies, AT_WEAP)
-                    || find_offensive(monster, env));
+                    || await finish_steps(find_offensive_steps(monster, env),
+                        impossible_printer(state)));
             if (!shootsAfterMoving) {
                 // monmove.c:953-954 returns mattacku() when this mover still
                 // holds the swallowed hero. Preserve its result before the

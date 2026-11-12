@@ -172,8 +172,12 @@ import { get_obj_location } from './light.js';
 import { losexp } from './exper.js';
 import {
     impossible,
-    youFeel as plineYouFeel, youHear as plineYouHear, youSee as plineYouSee,
+    impossible_printer,
+    youFeel as plineYouFeel,
+    youHear as plineYouHear,
+    youSee as plineYouSee,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { m_in_air, newcham, setmangry } from './mon.js';
 import { hard_helmet } from './do_wear.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
@@ -244,7 +248,7 @@ import {
     pm_invisible,
     passes_rocks,
     passes_walls,
-    resists_blnd,
+    resists_blnd_steps,
     resists_magm,
     strongmonst,
     throws_rocks,
@@ -1741,7 +1745,8 @@ async function domagictrap(env) {
         // await its runtime continuation for the monster's complete effects,
         // then deliberately ignore its returned instance.
         let count = random.rnd(4);
-        if (!resists_blnd(state.youmonst, state)) {
+        if (!await finish_steps(resists_blnd_steps(state.youmonst, state),
+            impossible_printer(state))) {
             await message(
                 'You are momentarily blinded by a flash of light!', state,
             );

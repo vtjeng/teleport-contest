@@ -128,7 +128,7 @@ import { get_obj_location } from './light.js';
 import { find_drawbridge, is_pool, open_drawbridge } from './dbridge.js';
 import { Is_box } from './lock.js';
 import { losehp, nomul } from './hack.js';
-import { hides_under, is_hider, resists_blnd } from './mondata.js';
+import { hides_under, is_hider, resists_blnd_steps } from './mondata.js';
 import {
     NUMMONS,
     PM_GOLD_GOLEM,
@@ -161,7 +161,8 @@ import { consume_obj_charge, currency, money_cnt, useup, sobj_at } from './inven
 import { findgold } from './steal.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
-import { youFeel, youSee } from './pline.js';
+import { impossible_printer, youFeel, youSee } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { note_unported } from './unported.js';
 import { isBox, objectType } from './obj.js';
 import {
@@ -1365,7 +1366,8 @@ export async function use_crystal_ball(optr, state = game) {
             );
             break;
         case 3:
-            if (!resists_blnd(state.youmonst, state)) {
+            if (!await finish_steps(resists_blnd_steps(state.youmonst, state),
+                impossible_printer(state))) {
                 await ttyPline(
                     `${Tobjnam(obj, 'damage', state)} your vision!`, state,
                 );

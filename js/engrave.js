@@ -52,7 +52,7 @@ import {
     decodeUtf8ByteString, encodeUtf8ByteString, xcrypt, } from './hacklib.js';
 import { nomul } from './hack.js';
 import {
-    is_animal, is_demon, is_vampire, is_whirly, resists_blnd, sticks, } from './mondata.js';
+    is_animal, is_demon, is_vampire, is_whirly, resists_blnd_steps, sticks, } from './mondata.js';
 import {
     AT_HUGS, M1_CLING, M1_FLY, M1_HIDE, MZ_HUGE, PM_GHOUL, S_MIMIC, } from './monsters.js';
 import { coreRandom } from './rng.js';
@@ -74,7 +74,8 @@ import {
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
-import { livelog_printf, youSee } from './pline.js';
+import { impossible_printer, livelog_printf, youSee } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
 import { sanitize_name } from './bones.js';
@@ -1094,7 +1095,8 @@ export async function doengrave(state = game, env = {}) {
     env.setOccupation((current) => engrave(current, env), 'engraving', 0, state);
 
     if (de.post_engr_text) await say(de.post_engr_text);
-    if (de.doblind && !resists_blnd(state.youmonst, state)) {
+    if (de.doblind && !await finish_steps(resists_blnd_steps(state.youmonst, state),
+        impossible_printer(state))) {
         await say('You are blinded by the flash!');
         await make_blinded(env.random.rnd(50), false, state, env.blindingEnv ?? {});
         if (!Blind(state.u)) await say(`Your ${vision_clears}`);
