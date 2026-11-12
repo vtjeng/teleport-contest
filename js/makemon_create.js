@@ -1673,7 +1673,8 @@ export function rnd_defensive_item(monster, normalized) {
         case 4:
             return POT_EXTRA_HEALING;
         case 5:
-            return POT_FULL_HEALING;
+            return ptr.pmidx !== PM_PESTILENCE
+                ? POT_FULL_HEALING : POT_SICKNESS;
         case 7:
             if (state.u.uz.dnum === state.sokoban_dnum && random.rn2(4))
                 continue;

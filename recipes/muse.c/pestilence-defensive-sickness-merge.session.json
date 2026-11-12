@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent muse.c rnd_defensive_item() witness for Pestilence: wizard genesis creates a counted group of Pestilence, then #wizmakemap removes them. C's case 5 returns POT_SICKNESS for Pestilence, which merges with the POT_SICKNESS that makemon() gives every Pestilence, so mdrop_special_objs() draws one obj_resists() per stack. The seed, clock, role, and name are chosen independently.",
+  "segments": [
+    {
+      "seed": 7310524,
+      "datetime": "20310214093000",
+      "nethackrc": "OPTIONS=name:PlagueCount,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "24\u0007Pestilence\ny#wizmakemap\n"
+    }
+  ]
+}
