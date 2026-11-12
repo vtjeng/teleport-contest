@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52817,
+      "datetime": "20100320143000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Healer,race:gnome,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips,symset:RogueEpyx\n",
+      "moves": ";.s"
+    }
+  ],
+  "comment": "topl.c topl_putsym(): RogueEpyx draws the hero as the byte 0x01, and farlook's answer starts with that symbol. topl_putsym() advances the cursor and putchar()s it, and recorder patch 006's nomux_putch() ignores bytes below 32, so column 0 keeps the 'P' of the earlier \"Pick a monster, object or location.\" prompt."
+}
