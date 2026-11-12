@@ -126,6 +126,8 @@ export const S_cloud = requiredCmapSymbol('s_cloud');
 export const S_water = requiredCmapSymbol('s_water');
 export const S_poisoncloud = requiredCmapSymbol('s_poisoncloud');
 export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
+// The last trap display.c cmap_to_roguecolor() colors magenta.
+export const S_polymorph_trap = requiredCmapSymbol('s_polymorph_trap');
 // The two ends of defsym.h's zap/effect run. display.h's enum glyph_offsets
 // spaces GLYPH_SWALLOW_OFF by ((S_goodpos - S_digbeam) + 1), so both indices
 // are inputs to js/glyph_offsets.js.

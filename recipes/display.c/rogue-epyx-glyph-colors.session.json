@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 238861,
+      "datetime": "20321127195301",
+      "nethackrc": "OPTIONS=name:Ilse,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:kitten,playmode:debug,suppress_alert:3.4.3,!autopickup,color,roguesymset:RogueEpyx\n",
+      "moves": "\n\u001617\n\n\u0017boulder\nh\u0007newt\nssss"
+    }
+  ],
+  "comment": "RogueEpyx's 'Color: Yes' turns on display.c reset_glyphmap()'s has_rogue_color arms on the Rogue level: brown walls and doors, green floor, a bright-blue boulder, a yellow male monster and no colour for a female one or a pet."
+}

@@ -179,6 +179,7 @@ import {
     SYM_OFF_P,
     SYM_OFF_W,
     S_arrow_trap,
+    S_polymorph_trap,
     S_digbeam,
     S_goodpos,
     S_stone,
@@ -974,7 +975,7 @@ export function hero_glyph_info(state = game) {
     );
     const glyph = glyphPresentation(
         symbol,
-        species?.mcolor ?? CLR_WHITE,
+        monsterGlyphColor(logicalGlyph, species?.mcolor ?? CLR_WHITE, state),
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
@@ -1065,7 +1066,7 @@ function actualMonsterGlyphInfo(monster, state) {
         );
     const glyph = glyphPresentation(
         symbol,
-        monster.data.mcolor,
+        monsterGlyphColor(logicalGlyph, monster.data.mcolor, state),
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
@@ -1263,7 +1264,7 @@ function presentedMonsterGlyphInfo(
         );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
-        species.mcolor,
+        monsterGlyphColor(logicalGlyph, species.mcolor, state),
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
@@ -1306,7 +1307,7 @@ function riddenMonsterGlyphInfo(monster, state) {
     );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
-        species.mcolor,
+        monsterGlyphColor(logicalGlyph, species.mcolor, state),
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
@@ -1350,7 +1351,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
-        species.mcolor,
+        monsterGlyphColor(logicalGlyph, species.mcolor, state),
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
@@ -1544,7 +1545,7 @@ function warningGlyphInfo(monster, state) {
         );
     const glyph = glyphPresentation(
         symbol_at(SYM_OFF_W + warningLevel, state),
-        def_warnsyms[warningLevel].color,
+        warningGlyphColor(warningLevel, state),
         state,
         numeric_glyph_customization(warningLevel + GLYPH_WARNING_OFF, state),
     );
@@ -2198,6 +2199,47 @@ function hasRogueColor(state) {
         && state.gs?.symset?.[ROGUESET]?.nocolor === 0;
 }
 
+// C ref: display.c cmap_to_roguecolor(). reset_glyphmap() calls it only
+// under has_rogue_color, for the cmap arms that have a Rogue colour.
+export function cmap_to_roguecolor(cmap, state = game) {
+    if (state.gs?.symset?.[state.gc?.currentgraphics ?? PRIMARYSET]?.nocolor)
+        return NO_COLOR;
+    if (cmap >= S_vwall && cmap <= S_hcdoor) return CLR_BROWN;
+    if (cmap >= S_arrow_trap && cmap <= S_polymorph_trap) return CLR_MAGENTA;
+    if (cmap === S_corr || cmap === S_litcorr) return CLR_GRAY;
+    if (cmap >= S_room && cmap <= S_water && cmap !== S_darkroom)
+        return CLR_GREEN;
+    return NO_COLOR;
+}
+
+// display.c reset_glyphmap()'s monster arms (2986-3065) choose a monster
+// glyph's colour: under has_rogue_color an ordinary male monster is yellow
+// and every other monster glyph (female, pet, detected, ridden) has none;
+// otherwise mon_color() or pet_color() gives the species colour. Every
+// builder of a monster glyph's presentation takes its colour from here.
+function monsterGlyphColor(glyph, mcolor, state) {
+    if (!hasRogueColor(state)) return mcolor ?? NO_COLOR;
+    return glyph >= GLYPH_MON_MALE_OFF && glyph < GLYPH_MON_FEM_OFF
+        ? CLR_YELLOW : NO_COLOR;
+}
+
+// display.c reset_glyphmap()'s warning arm (2836-2842): warn_color(), or no
+// colour under has_rogue_color.
+function warningGlyphColor(level, state) {
+    return hasRogueColor(state)
+        ? NO_COLOR : def_warnsyms[level]?.color ?? NO_COLOR;
+}
+
+// display.c reset_glyphmap()'s object arms under has_rogue_color: gold is
+// yellow, food red, and every other object bright blue.
+function objectRogueColor(otyp, state) {
+    switch (state.objects?.[otyp]?.oc_class) {
+    case COIN_CLASS: return CLR_YELLOW;
+    case FOOD_CLASS: return CLR_RED;
+    default: return CLR_BRIGHT_BLUE;
+    }
+}
+
 function isRogueLevelForState(state) {
     const level = state.u?.uz;
     const rogue = state.rogue_level;
@@ -2317,40 +2359,38 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         } else {
             glyphflags = MG_MALE;
         }
-        if (rogueColor) {
-            color = glyph >= GLYPH_MON_MALE_OFF
-                && glyph < GLYPH_MON_FEM_OFF ? CLR_YELLOW : NO_COLOR;
-        }
+        color = monsterGlyphColor(glyph, color, state);
     } else if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
-        color = statueColor(state);
+        color = rogueColor ? CLR_RED : statueColor(state);
         glyphflags = MG_STATUE | MG_FEMALE | MG_OBJPILE;
     } else if ((offset = glyph - GLYPH_STATUE_MALE_PILETOP_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
-        color = statueColor(state);
+        color = rogueColor ? CLR_RED : statueColor(state);
         glyphflags = MG_STATUE | MG_MALE | MG_OBJPILE;
     } else if ((offset = glyph - GLYPH_BODY_PILETOP_OFF) >= 0) {
         symbol = corpseSymbol(state);
-        color = state.mons?.[offset]?.mcolor ?? NO_COLOR;
+        color = rogueColor ? CLR_RED : state.mons?.[offset]?.mcolor ?? NO_COLOR;
         glyphflags = MG_CORPSE | MG_OBJPILE;
     } else if ((offset = glyph - GLYPH_OBJ_PILETOP_OFF) >= 0) {
         symbol = objectSymbol(offset, state);
-        color = state.objects?.[offset]?.oc_color ?? NO_COLOR;
+        color = rogueColor ? objectRogueColor(offset, state)
+            : state.objects?.[offset]?.oc_color ?? NO_COLOR;
         glyphflags = MG_OBJPILE;
     } else if ((offset = glyph - GLYPH_STATUE_FEM_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
-        color = statueColor(state);
+        color = rogueColor ? CLR_RED : statueColor(state);
         glyphflags = MG_STATUE | MG_FEMALE;
     } else if ((offset = glyph - GLYPH_STATUE_MALE_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
-        color = statueColor(state);
+        color = rogueColor ? CLR_RED : statueColor(state);
         glyphflags = MG_STATUE | MG_MALE;
     } else if ((offset = glyph - GLYPH_WARNING_OFF) >= 0) {
         // display.c:2836-2842. Warning glyphs already carry their level;
         // map_glyphinfo resolves that stored level without rerolling the
         // hallucinated warning chosen by warningGlyphInfo().
         symbol = symbol_at(SYM_OFF_W + offset, state);
-        color = rogueColor ? NO_COLOR : def_warnsyms[offset]?.color ?? NO_COLOR;
+        color = warningGlyphColor(offset, state);
     } else if ((offset = glyph - GLYPH_EXPLODE_FROSTY_OFF) >= 0) {
         // display.c:2843-2862. Explosion glyphs use the same cmap symbol
         // sequence for each color family and choose color from explodecolors.
@@ -2379,36 +2419,45 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         // stomach-wall symbols; the remaining bits select the engulfer's
         // monster colour.
         cmap = S_sw_tl + (offset & 0x7);
-        color = state.mons?.[offset >> 3]?.mcolor ?? NO_COLOR;
+        color = rogueColor ? NO_COLOR
+            : state.mons?.[offset >> 3]?.mcolor ?? NO_COLOR;
     } else if ((offset = glyph - GLYPH_CMAP_C_OFF) >= 0) {
         // display.c:2884-2890. region.c's gas clouds are the ported producer.
         cmap = S_digbeam + offset;
-        color = CMAP_COLORS[cmap];
+        color = rogueColor ? cmap_to_roguecolor(cmap, state)
+            : CMAP_COLORS[cmap];
     } else if ((offset = glyph - GLYPH_ZAP_OFF) >= 0) {
         // display.c:2877-2883. zapdir_to_glyph() below packs the beam
         // direction into the low two bits and the zap type above them, so the
         // mask recovers the S_vbeam..S_rslant offset and the shift recovers
         // zapcolors[]'s index.
         cmap = S_vbeam + (offset & 0x3);
-        color = zapcolors[offset >> 2];
+        color = rogueColor ? NO_COLOR : zapcolors[offset >> 2];
     } else if ((offset = glyph - GLYPH_CMAP_B_OFF) >= 0) {
         // display.c:2903-2929.
         cmap = S_grave + offset;
         color = CMAP_COLORS[cmap];
         glyphflags = cmapBlackAndWhiteFlags(cmap, state);
+        // The has_rogue_color arm is the else of C's !iflags.use_color test.
+        if (rogueColor && state.iflags?.use_color !== false)
+            color = cmap_to_roguecolor(cmap, state);
         if (cmap === S_fountain) customizationName = 'G_fountain';
     } else if ((offset = glyph - GLYPH_ALTAR_OFF) >= 0) {
         // display.c:2930-2937. Every altar draws S_altar; only the colour and
         // the customization separate the five alignments.
         cmap = S_altar;
-        color = altarcolors[offset];
+        color = rogueColor ? cmap_to_roguecolor(S_altar, state)
+            : altarcolors[offset];
         customizationName = ALTAR_CUSTOMIZATION_NAMES[offset];
     } else if ((offset = glyph - GLYPH_CMAP_A_OFF) >= 0) {
         // display.c:2938-2959.
         cmap = S_ndoor + offset;
         color = CMAP_COLORS[cmap];
         const sym = cmap_symbol_byte(cmap, state);
-        if (cmap === S_litcorr && sym === cmap_symbol_byte(S_corr, state)) {
+        if (rogueColor) {
+            color = cmap_to_roguecolor(cmap, state);
+        } else if (cmap === S_litcorr
+                   && sym === cmap_symbol_byte(S_corr, state)) {
             // A lit corridor drawn with the dark corridor's byte would be
             // invisible as a distinction; C brightens it instead.
             color = CLR_WHITE;
@@ -2435,17 +2484,19 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     } else if ((offset = glyph - GLYPH_CMAP_MAIN_OFF) >= 0) {
         // display.c:2976-2981.
         cmap = S_vwall + offset;
-        color = wallcolors[main_walls];
+        color = rogueColor ? cmap_to_roguecolor(cmap, state)
+            : wallcolors[main_walls];
     } else if (glyph - GLYPH_CMAP_STONE_OFF >= 0) {
         // display.c:2982-2984. One glyph, so C uses SYM_OFF_P by itself.
         cmap = S_stone;
         color = CMAP_COLORS[cmap];
     } else if ((offset = glyph - GLYPH_OBJ_OFF) >= 0) {
         symbol = objectSymbol(offset, state);
-        color = state.objects?.[offset]?.oc_color ?? NO_COLOR;
+        color = rogueColor ? objectRogueColor(offset, state)
+            : state.objects?.[offset]?.oc_color ?? NO_COLOR;
     } else if ((offset = glyph - GLYPH_BODY_OFF) >= 0) {
         symbol = corpseSymbol(state);
-        color = state.mons?.[offset]?.mcolor ?? NO_COLOR;
+        color = rogueColor ? CLR_RED : state.mons?.[offset]?.mcolor ?? NO_COLOR;
         glyphflags = MG_CORPSE;
     } else {
         // display.c:3029-3035, the GLYPH_INVIS_OFF arm. It sits below every
