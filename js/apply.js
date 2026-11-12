@@ -609,7 +609,7 @@ import {
     zapyourself,
 } from './zap.js';
 import { explode } from './explode.js';
-import { pline_mon, verbalize, youSee, youFeel } from './pline.js';
+import { impossible, pline_mon, verbalize, youSee, youFeel } from './pline.js';
 import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
@@ -1343,7 +1343,7 @@ export async function check_leash(x, y, rawEnv = {}) {
             continue;
         const monster = find_mid(leash.leashmon, FM_FMON, state);
         if (!monster) {
-            note_unported('pline.c impossible');
+            await impossible("leash in use isn't attached to anything?", state);
             leash.leashmon = 0;
             continue;
         }

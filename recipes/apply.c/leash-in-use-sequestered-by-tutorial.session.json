@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "apply.c check_leash() with a leash whose monster is gone: a leashed kitten follows the hero into the tutorial by wizard ^V, nhlua.c nhl_gamestate() sequesters the in-use leash, the kitten dies there so m_unleash() cannot clear leashmon, and after returning to the Dungeons the next move reaches impossible(\"leash in use isn't attached to anything?\").",
+  "segments": [
+    {
+      "seed": 777,
+      "datetime": "20260101120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat,playmode:debug,!autopickup\n",
+      "moves": " \u0017leash\naeu\u0016?\n>>P\u001b\u0017wand of striking\nzaj\u001bzaj\u001b\u0016?\na\u001b\u001bl\u001b"
+    }
+  ]
+}
