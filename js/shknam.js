@@ -104,6 +104,15 @@ export function shkname(shopkeeper, state = game, env = {}) {
     }
     const extension = shopkeeper.mextra?.eshk;
     if (!extension) {
+        // C panic()s: "shkname: shopkeeper \"%s\" lacks 'eshk' data.".
+        // js/end.js panic() is async: it waits for tty_wait_synch() and then
+        // never settles, so its caller stops there. shkname() must stay
+        // synchronous, because x_monnam() and about a hundred other calls
+        // use its value inside expressions, so it cannot wait for panic(); a
+        // call left unawaited would return the fallback name and let the
+        // game run on past C's stopping point. No valid state reaches this
+        // arm: shknam.c shkinit() and zap.c's revival set isshk only on a
+        // monster that has just been given its eshk.
         note_unported('end.c panic');
         return fallback;
     }
