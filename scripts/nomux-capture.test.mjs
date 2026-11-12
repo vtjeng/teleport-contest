@@ -35,3 +35,25 @@ test('g_putch() strips the high bit before the same test', () => {
     // A plain control byte (\x1b from SYMBOLS=...:\x1b) is untouched.
     assert.equal(nomux_g_putch_byte(0x1b), null);
 });
+
+test('a map symbol whose capture is ignored leaves the cell untouched', async () => {
+    const { symbol_at } = await import('../js/symbols.js');
+    const { SYM_OFF_P } = await import('../js/symbol_data.js');
+    const showsyms = Array(200).fill(0x2e);
+    // S_stone (SYM_OFF_P + 0) as ^A, as SYMBOLS=S_stone:^A sets it.
+    showsyms[SYM_OFF_P] = 0x01;
+    // S_vwall (SYM_OFF_P + 1) as AmigaFont's \xc0, stored as '@'.
+    showsyms[SYM_OFF_P + 1] = 0xc0;
+    // S_hwall (SYM_OFF_P + 2) as \x93, whose low bits are a control byte.
+    showsyms[SYM_OFF_P + 2] = 0x93;
+    const state = {
+        gc: { currentgraphics: 0 },
+        gs: { showsyms, symset: [{ handling: 0 }, { handling: 0 }] },
+        iflags: {},
+    };
+    assert.equal(symbol_at(SYM_OFF_P, state).ch, null);
+    assert.equal(symbol_at(SYM_OFF_P + 1, state).ch, '@');
+    assert.equal(symbol_at(SYM_OFF_P + 2, state).ch, null);
+    // The glyph's own byte is unchanged for callers that need it.
+    assert.equal(symbol_at(SYM_OFF_P + 2, state).ttychar, 0x93);
+});

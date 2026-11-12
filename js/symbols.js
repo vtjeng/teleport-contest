@@ -17,6 +17,7 @@ import {
     SYM_BOULDER,
 } from './const.js';
 import { game } from './gstate.js';
+import { nomux_g_putch_byte } from './termcap.js';
 import { isDefaultSymsetName } from './files.js';
 import {
     apply_customizations,
@@ -784,7 +785,16 @@ export function symbol_at(
     const eightBit = Boolean(state.iflags?.wc_eight_bit_input);
     const dec = high && handling !== H_IBM && handling !== H_UTF8
         && !(eightBit && (handling !== H_DEC || low < 0x60));
-    const result = { ch: String.fromCharCode(high ? low : byte), dec };
+    // tty_print_glyph() prints the byte through g_putch(). A byte whose
+    // capture nomux_putch() ignores -- a control byte, or a high byte whose
+    // low seven bits are one, as AmigaFont's door bytes \x91-\x94 are --
+    // leaves the recorder-facing cell untouched, as a null `ch` does for
+    // g_pututf8().
+    const stored = nomux_g_putch_byte(byte);
+    const result = {
+        ch: stored === null ? null : String.fromCharCode(stored),
+        dec,
+    };
     if (high && handling === H_IBM) result.displayCh = CP437_HIGH[low];
     Object.defineProperty(result, 'ttychar', { value: byte });
     return result;

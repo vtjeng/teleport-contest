@@ -296,6 +296,7 @@ import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { t_at, unconscious } from './trap.js';
 
 import { note_unported } from './unported.js';
+import { nomux_putch_byte } from './termcap.js';
 import { Sting_effects } from './artifacts.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
@@ -5408,13 +5409,17 @@ function _statusVitals(u) {
 
 // C ref: botl.c bot_via_windowport()'s BL_GOLD value.  check_gold_symbol()
 // marks symbols that cannot be used as a status prefix; otherwise encglyph()
-// resolves GOLD_PIECE through the active object-class symbol table.  The
-// concrete object shares its class slot, so this does not require the full
-// object catalog during early status-layout tests.
+// encodes GOLD_PIECE and wintty.c tty_status_update()'s decode_mixed() turns
+// it back into the gs.showsyms[] byte of its symbol index, never a UTF-8
+// sequence. The concrete object shares its class slot, so this does not
+// require the full object catalog during early status-layout tests.
+// tty_putstatusfield() prints that byte through putchar(); a byte
+// nomux_putch() ignores becomes the NUL marker _newStatusRow() leaves blank.
 function _statusGoldSymbol() {
     if (game.iflags?.invis_goldsym) return '$';
-    const symbol = symbol_at(SYM_OFF_O + COIN_CLASS, game);
-    return symbol.displayCh ?? symbol.ch ?? '$';
+    const byte = symbol_at(SYM_OFF_O + COIN_CLASS, game).ttychar;
+    const stored = nomux_putch_byte(byte);
+    return stored === null ? '\0' : String.fromCharCode(stored);
 }
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from

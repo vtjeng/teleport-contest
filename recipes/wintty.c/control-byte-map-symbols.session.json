@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640213,
+      "datetime": "20310418093012",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,symset:AmigaFont\nSYMBOLS=S_room:^A,S_upstair:\\x1b\n",
+      "moves": "  llllkkkhhhjjjs"
+    }
+  ],
+  "comment": "AmigaFont's closed-door bytes (\\x93, \\x94) and SYMBOLS control bytes for the floor (^A) and up stairs (\\x1b): wintty.c g_putch()'s capture hook strips the high bit, and nomux_putch() ignores every byte below 32, so those map cells keep what cls() left."
+}

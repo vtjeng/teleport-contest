@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 318877,
+      "datetime": "20290702151420",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,time\nSYMBOLS=S_coin:\\xa4\n",
+      "moves": "  ss\u00163\nss"
+    }
+  ],
+  "comment": "A high-bit coin symbol (\\xa4): tty_putstatusfield() passes it to nomux_putch() as a negative signed char, so the status line's gold prefix cell stays blank. A level teleport keeps it blank: check_gold_symbol() leaves iflags.invis_goldsym clear for a byte above space."
+}
