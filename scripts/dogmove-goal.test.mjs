@@ -292,10 +292,10 @@ test('can_reach_location refuses closed doors', () => {
 });
 
 test('dog_goal returns approach separately from its shared goal scratch',
-    () => {
+    async () => {
         const { state, monster, edog } = petState();
         const bounds = [];
-        const approach = dog_goal(
+        const approach = await dog_goal(
             monster,
             edog,
             false,
@@ -319,10 +319,10 @@ test('dog_goal returns approach separately from its shared goal scratch',
         });
     });
 
-test('dog_goal applies its early follow and confusion branches', () => {
+test('dog_goal applies its early follow and confusion branches', async () => {
     const afterCase = petState();
     const afterBounds = [];
-    assert.equal(dog_goal(
+    assert.equal(await dog_goal(
         afterCase.monster,
         afterCase.edog,
         true,
@@ -341,7 +341,7 @@ test('dog_goal applies its early follow and confusion branches', () => {
 
     const leashedCase = petState();
     leashedCase.monster.mleashed = true;
-    assert.equal(dog_goal(
+    assert.equal(await dog_goal(
         leashedCase.monster,
         leashedCase.edog,
         false,
@@ -352,7 +352,7 @@ test('dog_goal applies its early follow and confusion branches', () => {
     assert.equal(leashedCase.state.gg.gtyp, APPORT);
 
     leashedCase.monster.mconf = true;
-    assert.equal(dog_goal(
+    assert.equal(await dog_goal(
         leashedCase.monster,
         leashedCase.edog,
         false,
@@ -362,7 +362,7 @@ test('dog_goal applies its early follow and confusion branches', () => {
     ), 0);
 });
 
-test('dog_goal forwards its PRNG environment into food classification', () => {
+test('dog_goal forwards its PRNG environment into food classification', async () => {
     const { state, monster, edog } = petState();
     const food = {
         ox: 6,
@@ -375,7 +375,7 @@ test('dog_goal forwards its PRNG environment into food classification', () => {
     const random = { rn2: () => 1 };
     const environments = [];
 
-    dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
         random,
         dogfood(_monster, _obj, operationEnv) {
             environments.push(operationEnv);
@@ -388,7 +388,7 @@ test('dog_goal forwards its PRNG environment into food classification', () => {
     assert.equal(environments[0].state, state);
 });
 
-test('dog_goal prefers better food then the nearer equal food', () => {
+test('dog_goal prefers better food then the nearer equal food', async () => {
     const { state, monster, edog } = petState();
     const farther = {
         ox: 8,
@@ -419,7 +419,7 @@ test('dog_goal prefers better food then the nearer equal food', () => {
     state.level.objects[6][5] = nearer;
     state.level.objects[8][5] = farther;
 
-    const approach = dog_goal(
+    const approach = await dog_goal(
         monster,
         edog,
         false,
@@ -438,7 +438,7 @@ test('dog_goal prefers better food then the nearer equal food', () => {
     });
 });
 
-test('dog_goal avoids cursed food unless starvation admits it', () => {
+test('dog_goal avoids cursed food unless starvation admits it', async () => {
     for (const starving of [false, true]) {
         const { state, monster, edog } = petState();
         const food = {
@@ -453,7 +453,7 @@ test('dog_goal avoids cursed food unless starvation admits it', () => {
         state.level.objects[6][5] = food;
         edog.mhpmax_penalty = starving ? 2 : 0;
 
-        dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+        await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
             dogfood: (_monster, obj) => obj.kind,
         }));
         assert.equal(
@@ -464,7 +464,7 @@ test('dog_goal avoids cursed food unless starvation admits it', () => {
     }
 });
 
-test('dog_goal rejects food whose location cannot be reached', () => {
+test('dog_goal rejects food whose location cannot be reached', async () => {
     const { state, monster, edog } = petState();
     const food = {
         ox: 6,
@@ -478,7 +478,7 @@ test('dog_goal rejects food whose location cannot be reached', () => {
     state.level.objects[6][5] = food;
     const calls = [];
 
-    dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
         dogfood: (_monster, obj) => obj.kind,
         canReachLocation(_monster, fromX, fromY, toX, toY) {
             calls.push([fromX, fromY, toX, toY]);
@@ -490,7 +490,7 @@ test('dog_goal rejects food whose location cannot be reached', () => {
     assert.equal(state.gg.gtyp, UNDEF);
 });
 
-test('dog_goal applies pet sight before the apport and carrying draws', () => {
+test('dog_goal applies pet sight before the apport and carrying draws', async () => {
     const { state, monster, edog } = petState();
     const fetchable = {
         ox: 6,
@@ -504,7 +504,7 @@ test('dog_goal applies pet sight before the apport and carrying draws', () => {
     state.level.objects[6][5] = fetchable;
     const calls = [];
 
-    dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
         dogfood: (_monster, obj) => obj.kind,
         petCanSee(subject, x, y) {
             calls.push(['sight', subject, x, y]);
@@ -538,7 +538,7 @@ test('dog_goal applies pet sight before the apport and carrying draws', () => {
 // read in either direction: an empty-handed pet takes the APPORT goal, and a
 // carrying one is not even asked whether it can see or lift the object.
 test('dog_goal withholds the apport goal from a pet that already carries',
-    () => {
+    async () => {
         const { state, monster, edog } = petState();
         const fetchable = {
             ox: 6,
@@ -552,7 +552,7 @@ test('dog_goal withholds the apport goal from a pet that already carries',
         state.level.objects[6][5] = fetchable;
         const calls = [];
 
-        dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+        await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
             dogfood: (_monster, obj) => obj.kind,
             droppables: () => ({ otyp: SKELETON_KEY }),
             petCanSee(subject, x, y) {
@@ -589,7 +589,7 @@ test('dog_goal withholds the apport goal from a pet that already carries',
 // of the close-following test, so it is read only once the room test and
 // rn2(4) have both missed and no whistle is pending.
 test('dog_goal makes a carrying pet close in unless its apport draw is zero',
-    () => {
+    async () => {
         // Each row is [carrying, apport draw, expected approach, expected
         // bounds]. The first row is C's `dog_has_minvent && rn2(apport)`
         // holding; the second is the same pet with a zero draw, which is the
@@ -605,7 +605,7 @@ test('dog_goal makes a carrying pet close in unless its apport draw is zero',
             const drawn = [];
             const values = [1, apportDraw]; // rn2(4) misses, then rn2(apport).
 
-            assert.equal(dog_goal(
+            assert.equal(await dog_goal(
                 monster,
                 edog,
                 false,
@@ -631,7 +631,7 @@ test('dog_goal makes a carrying pet close in unless its apport draw is zero',
         }
     });
 
-test('dog_goal follows stairs, nearby portals, and carried dog food', () => {
+test('dog_goal follows stairs, nearby portals, and carried dog food', async () => {
     for (const setup of [
         (state) => {
             state.stairs = {
@@ -653,7 +653,7 @@ test('dog_goal follows stairs, nearby portals, and carried dog food', () => {
     ]) {
         const { state, monster, edog } = petState();
         setup(state);
-        assert.equal(dog_goal(
+        assert.equal(await dog_goal(
             monster,
             edog,
             false,
@@ -666,12 +666,12 @@ test('dog_goal follows stairs, nearby portals, and carried dog food', () => {
     }
 });
 
-test('dog_goal skips the close-following draw outside a room', () => {
+test('dog_goal skips the close-following draw outside a room', async () => {
     const { state, monster, edog } = petState();
     state.level.at(state.u.ux, state.u.uy).typ = STONE;
     const bounds = [];
 
-    assert.equal(dog_goal(
+    assert.equal(await dog_goal(
         monster,
         edog,
         false,
@@ -693,7 +693,7 @@ test('dog_goal skips the close-following draw outside a room', () => {
     );
 });
 
-test('dog_goal uses the newest adjacent track for an unseen hero', () => {
+test('dog_goal uses the newest adjacent track for an unseen hero', async () => {
     const { state, monster, edog } = petState();
     state.u.ux = 4;
     state.u.uy = 5;
@@ -701,7 +701,7 @@ test('dog_goal uses the newest adjacent track for an unseen hero', () => {
     state.u.ux = 20;
     state.u.uy = 10;
 
-    dog_goal(monster, edog, false, 400, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 400, false, goalEnv(state, {
         couldSee: () => false,
     }));
     assert.deepEqual(
@@ -711,13 +711,13 @@ test('dog_goal uses the newest adjacent track for an unseen hero', () => {
     assert.equal(edog.ogoal.x, 0);
 });
 
-test('dog_goal reuses then clears an unseen previous goal', () => {
+test('dog_goal reuses then clears an unseen previous goal', async () => {
     const { state, monster, edog } = petState();
     state.u.ux = 20;
     state.u.uy = 10;
     edog.ogoal = { x: 6, y: 5 };
 
-    dog_goal(monster, edog, false, 400, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 400, false, goalEnv(state, {
         couldSee: () => false,
     }));
 
@@ -728,13 +728,13 @@ test('dog_goal reuses then clears an unseen previous goal', () => {
     assert.equal(edog.ogoal.x, 0);
 });
 
-test('dog_goal fallback retains the closest visited clear-area square', () => {
+test('dog_goal fallback retains the closest visited clear-area square', async () => {
     const { state, monster, edog } = petState();
     state.u.ux = 20;
     state.u.uy = 10;
     const visited = [];
 
-    dog_goal(monster, edog, false, 400, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 400, false, goalEnv(state, {
         couldSee: () => false,
         clearArea(_x, _y, range, callback, argument, suppliedState) {
             assert.equal(range, 9);
@@ -761,12 +761,12 @@ test('dog_goal fallback retains the closest visited clear-area square', () => {
     assert.deepEqual(edog.ogoal, { x: 7, y: 6 });
 });
 
-test('dog_goal fallback returns to the hero when no square improves', () => {
+test('dog_goal fallback returns to the hero when no square improves', async () => {
     const { state, monster, edog } = petState();
     state.u.ux = 20;
     state.u.uy = 10;
 
-    dog_goal(monster, edog, false, 400, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 400, false, goalEnv(state, {
         couldSee: () => false,
         clearArea(_x, _y, _range, _callback) {
             // A vault-like clear-area scan can produce no callback.
@@ -780,10 +780,10 @@ test('dog_goal fallback returns to the hero when no square improves', () => {
     assert.deepEqual(edog.ogoal, { x: 0, y: 0 });
 });
 
-test('dog_goal returns before dependencies for a ridden steed', () => {
+test('dog_goal returns before dependencies for a ridden steed', async () => {
     const { state, monster, edog } = petState();
     state.u.usteed = monster;
-    assert.equal(dog_goal(monster, edog, true, 0, false, {
+    assert.equal(await dog_goal(monster, edog, true, 0, false, {
         state,
         random: {},
     }), -2);

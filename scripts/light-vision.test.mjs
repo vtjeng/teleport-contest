@@ -586,14 +586,14 @@ test('vision_recalc refuses another state with no painter', () => {
     );
 });
 
-test('do_clear_area uses the cached hero-centered vision circle', () => {
+test('do_clear_area uses the cached hero-centered vision circle', async () => {
     const state = darkRoomState();
     const visited = [];
 
     vision_reset();
     vision_recalc(0);
     // Radius two exercises the source offsets [2, 2, 1] around the hero.
-    do_clear_area(
+    await do_clear_area(
         state.u.ux,
         state.u.uy,
         2,
@@ -614,7 +614,7 @@ test('do_clear_area uses the cached hero-centered vision circle', () => {
     ]);
 });
 
-test('do_clear_area preserves off-hero Algorithm C callback order', () => {
+test('do_clear_area preserves off-hero Algorithm C callback order', async () => {
     const state = darkRoomState();
     const visited = [];
 
@@ -622,7 +622,7 @@ test('do_clear_area preserves off-hero Algorithm C callback order', () => {
     // A one-square radius exposes the starting row, downward right/left
     // quadrants, then upward right/left quadrants. Both halves intentionally
     // visit the center column of each adjacent row.
-    do_clear_area(
+    await do_clear_area(
         10,
         10,
         1,
@@ -638,7 +638,7 @@ test('do_clear_area preserves off-hero Algorithm C callback order', () => {
     ]);
 });
 
-test('off-hero clear-area clones must share active transparency', () => {
+test('off-hero clear-area clones must share active transparency', async () => {
     const state = darkRoomState();
     vision_reset();
     const alternate = {
@@ -647,7 +647,7 @@ test('off-hero clear-area clones must share active transparency', () => {
     };
     alternate.level.at(10, 10).typ = ROOM;
 
-    assert.throws(
+    await assert.rejects(
         () => do_clear_area(10, 10, 1, () => {}, null, alternate),
         /must share active vision transparency/u,
     );

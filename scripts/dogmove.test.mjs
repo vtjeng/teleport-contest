@@ -857,10 +857,10 @@ test('can_reach_location follows decreasing-distance squares', () => {
     );
 });
 
-test('dog_goal follows the hero and preserves the rn2(4) gate', () => {
+test('dog_goal follows the hero and preserves the rn2(4) gate', async () => {
     const { state, monster, edog } = petState();
     const bounds = [];
-    const approach = dog_goal(
+    const approach = await dog_goal(
         monster,
         edog,
         false,
@@ -884,7 +884,7 @@ test('dog_goal follows the hero and preserves the rn2(4) gate', () => {
     });
 });
 
-test('dog_goal prefers better food then the nearer equal food', () => {
+test('dog_goal prefers better food then the nearer equal food', async () => {
     const { state, monster, edog } = petState();
     const farther = {
         ox: 8,
@@ -915,7 +915,7 @@ test('dog_goal prefers better food then the nearer equal food', () => {
     state.level.objects[6][5] = nearer;
     state.level.objects[8][5] = farther;
 
-    const approach = dog_goal(
+    const approach = await dog_goal(
         monster,
         edog,
         false,
@@ -934,7 +934,7 @@ test('dog_goal prefers better food then the nearer equal food', () => {
     });
 });
 
-test('dog_goal avoids cursed food unless starvation admits it', () => {
+test('dog_goal avoids cursed food unless starvation admits it', async () => {
     for (const starving of [false, true]) {
         const { state, monster, edog } = petState();
         const food = {
@@ -949,7 +949,7 @@ test('dog_goal avoids cursed food unless starvation admits it', () => {
         state.level.objects[6][5] = food;
         edog.mhpmax_penalty = starving ? 2 : 0;
 
-        dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+        await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
             dogfood: (_monster, obj) => obj.kind,
         }));
         assert.equal(
@@ -960,7 +960,7 @@ test('dog_goal avoids cursed food unless starvation admits it', () => {
     }
 });
 
-test('dog_goal uses the newest adjacent track for an unseen hero', () => {
+test('dog_goal uses the newest adjacent track for an unseen hero', async () => {
     const { state, monster, edog } = petState();
     state.u.ux = 20;
     state.u.uy = 10;
@@ -970,7 +970,7 @@ test('dog_goal uses the newest adjacent track for an unseen hero', () => {
     state.u.ux = 20;
     state.u.uy = 10;
 
-    dog_goal(monster, edog, false, 400, false, goalEnv(state, {
+    await dog_goal(monster, edog, false, 400, false, goalEnv(state, {
         couldSee: () => false,
     }));
     assert.deepEqual(
@@ -980,10 +980,10 @@ test('dog_goal uses the newest adjacent track for an unseen hero', () => {
     assert.equal(edog.ogoal.x, 0);
 });
 
-test('dog_goal returns before dependencies for a ridden steed', () => {
+test('dog_goal returns before dependencies for a ridden steed', async () => {
     const { state, monster, edog } = petState();
     state.u.usteed = monster;
-    assert.equal(dog_goal(monster, edog, true, 0, false, {
+    assert.equal(await dog_goal(monster, edog, true, 0, false, {
         state,
         random: {},
     }), -2);

@@ -219,7 +219,7 @@ import {
 import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import {
     cansee,
-    do_clear_area_async,
+    do_clear_area,
     recalc_block_point,
     unblock_point,
     vision_recalc,
@@ -2543,7 +2543,7 @@ export async function findit(state = game, rawEnv = {}) {
         num_kept_invis: 0,
         num_cleared_invis: 0,
     };
-    await do_clear_area_async(
+    await do_clear_area(
         state.u.ux,
         state.u.uy,
         BOLT_LIM,
@@ -2618,7 +2618,7 @@ export async function openit(state = game, rawEnv = {}) {
         return -1;
     }
     const counter = { value: 0 };
-    await do_clear_area_async(
+    await do_clear_area(
         state.u.ux,
         state.u.uy,
         BOLT_LIM,

@@ -3169,7 +3169,7 @@ test('dogmove preserves source order before the mounted-steed no-op', () => {
         /return MMOVE_NOTHING;/);
 
     // The existing JS port must retain the same setup and short-circuit order.
-    const jsGoalStart = DOGMOVE_JS_SOURCE.indexOf('export function dog_goal(');
+    const jsGoalStart = DOGMOVE_JS_SOURCE.indexOf('export async function dog_goal(');
     const jsSteedReturn = DOGMOVE_JS_SOURCE.indexOf(
         'if (monster === hero?.usteed) return -2;',
         jsGoalStart,
@@ -3182,7 +3182,7 @@ test('dogmove preserves source order before the mounted-steed no-op', () => {
         DOGMOVE_JS_SOURCE.indexOf('dog_hunger(monster, edog, env)', jsMoveStart),
         DOGMOVE_JS_SOURCE.indexOf('if (monster === state.u.usteed)', jsMoveStart),
         DOGMOVE_JS_SOURCE.indexOf('dog_invent(', jsMoveStart),
-        DOGMOVE_JS_SOURCE.indexOf('const approach = dog_goal(', jsMoveStart),
+        DOGMOVE_JS_SOURCE.indexOf('const approach = await dog_goal(', jsMoveStart),
         DOGMOVE_JS_SOURCE.indexOf(
             'if (approach === -2) return MMOVE_NOTHING;',
             jsMoveStart,

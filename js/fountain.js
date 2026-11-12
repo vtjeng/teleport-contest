@@ -97,7 +97,7 @@ import {
     cansee,
     couldsee,
     does_block,
-    do_clear_area_async,
+    do_clear_area,
     unblock_point,
 } from './vision.js';
 import { create_gas_cloud } from './region.js';
@@ -404,7 +404,7 @@ export async function dogushforth(drinking, state = game, env = {}) {
     // each visible square. The async adapter preserves the callback boundary:
     // gush finishes this square before the next square consumes its candidate
     // RNG or applies its effects.
-    await do_clear_area_async(state.u.ux, state.u.uy, 7,
+    await do_clear_area(state.u.ux, state.u.uy, 7,
         (x, y, callbackArgument) => gush(
             x, y, callbackArgument, state, env),
         context,

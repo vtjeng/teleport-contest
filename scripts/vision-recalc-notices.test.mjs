@@ -24,13 +24,9 @@ import { parse } from 'acorn';
 // so the suspendVision and restoreVision callbacks a caller passes to docrt()
 // may call vision_recalc() too.
 //
-// Two synchronous functions still call vision_recalc() and leave its notices
-// queued; each needs its whole caller chain made async to print them at C's
+// One synchronous function still calls vision_recalc() and leaves its notices
+// queued; it needs its whole caller chain made async to print them at C's
 // point:
-// - vision.js do_clear_area() recalculates only when centred on the hero. Its
-//   one synchronous caller, dogmove.js dog_goal(), centres on the pet, and
-//   dog_goal() returns before the scan for the one pet on the hero's square,
-//   the steed. Async callers use do_clear_area_async().
 // - worn.js m_dowear_type() lights an artifact-light armour that a monster
 //   puts on at creation; makemon() and its m_dowear(mon, TRUE) callers are
 //   synchronous. The runtime path prints through vision_recalc_async().
@@ -38,7 +34,6 @@ const ALLOWED = new Set([
     'js/vision.js vision_recalc_async',
     'js/tty_message.js vplineVisionRecalc',
     'js/display.js docrt',
-    'js/vision.js do_clear_area',
     'js/worn.js m_dowear_type',
 ]);
 const DOCRT_PHASES = new Set(['suspendVision', 'restoreVision']);

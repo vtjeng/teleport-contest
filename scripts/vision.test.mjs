@@ -7,7 +7,7 @@ import {
     SEE_INVIS,
 } from '../js/const.js';
 import {
-    does_block, do_clear_area_async, makeVisionBuffers, recalc_block_point,
+    does_block, do_clear_area, makeVisionBuffers, recalc_block_point,
     vision_recalc, vision_reset,
 } from '../js/vision.js';
 import { set_mimic_blocking } from '../js/display.js';
@@ -30,7 +30,7 @@ function darkCenteredState(level) {
 
 async function visitedFor(state, detecting, center = [10, 10]) {
     const visited = [];
-    await do_clear_area_async(
+    await do_clear_area(
         center[0], center[1], 1,
         (x, y) => { visited.push([x, y]); },
         null,

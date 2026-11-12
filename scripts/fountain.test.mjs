@@ -89,7 +89,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { TOPLINE_EMPTY } from '../js/tty_message.js';
-import { do_clear_area_async } from '../js/vision.js';
+import { do_clear_area } from '../js/vision.js';
 
 async function prepareGushingSquares() {
     await startedGame();
@@ -117,7 +117,7 @@ test('do_clear_area async callbacks preserve source callback order', async () =>
     await startedGame();
     const coordinates = [];
     let callbackActive = false;
-    await do_clear_area_async(game.u.ux, game.u.uy, 7,
+    await do_clear_area(game.u.ux, game.u.uy, 7,
         async (x, y) => {
             assert.equal(callbackActive, false);
             callbackActive = true;

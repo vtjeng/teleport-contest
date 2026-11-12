@@ -665,16 +665,21 @@ function view_from(
     }
 }
 
-// C ref: vision.c do_clear_area(). Callback order is significant for clients
-// such as dogmove.c wantdoor(), which keeps the first square at a tied
-// distance.
-export function do_clear_area(
+// C ref: vision.c do_clear_area() (2106-2148). Callback order is
+// significant for clients such as dogmove.c wantdoor(), which keeps the first
+// square at a tied distance. Each callback is awaited before the next square
+// is considered, so a callback can finish changing one square (and consuming
+// its RNG) first, as fountain gushes and detection do. Centred on the hero,
+// C first runs vision_recalc(0) if vision is dirty, which can print notices;
+// they print here, before the first callback.
+export async function do_clear_area(
     scol,
     srow,
     range,
     callback,
     argument = null,
     state = game,
+    rawEnv = {},
 ) {
     if (typeof callback !== 'function')
         throw new TypeError('do_clear_area requires a callback');
@@ -691,6 +696,10 @@ export function do_clear_area(
                     + 'vision transparency',
             );
         }
+        // view_from() walks the transparency index while it reports each
+        // square; collect them first so an awaited callback cannot change
+        // the walk.
+        const coordinates = [];
         view_from(
             srow,
             scol,
@@ -698,64 +707,17 @@ export function do_clear_area(
             null,
             null,
             range,
-            (x, y) => callback(x, y, argument),
-        );
-        return;
-    }
-
-    if (state === game && game.vision_full_recalc) vision_recalc(0, { state });
-    const minY = Math.max(0, srow - range);
-    const maxY = Math.min(ROWNO - 1, srow + range);
-    for (let y = minY; y <= maxY; ++y) {
-        const offset = circle_offset(range, Math.abs(y - srow));
-        const minX = Math.max(1, scol - offset);
-        const maxX = Math.min(COLNO - 1, scol + offset);
-        for (let x = minX; x <= maxX; ++x) {
-            if (couldsee(x, y, state)) callback(x, y, argument);
-        }
-    }
-}
-
-// C ref: vision.c do_clear_area().  This async adapter keeps the same
-// row-major callback order for callers whose callback has source-visible
-// asynchronous work.  In particular, a callback can finish changing one
-// square (and consuming its RNG) before the next square is considered.
-// The ordinary synchronous API above remains unchanged for its existing
-// callers.  Fountain gushes are centered on the hero in C; the off-center
-// path below preserves view_from()'s coordinate selection before awaiting
-// each selected callback.
-export async function do_clear_area_async(
-    scol,
-    srow,
-    range,
-    callback,
-    argument = null,
-    state = game,
-    rawEnv = {},
-) {
-    if (typeof callback !== 'function')
-        throw new TypeError('do_clear_area_async requires a callback');
-    if (range > MAX_RADIUS || range < 1)
-        throw new RangeError(`do_clear_area: illegal range ${range}`);
-
-    if (scol !== state.u.ux || srow !== state.u.uy) {
-        const coordinates = [];
-        do_clear_area(
-            scol,
-            srow,
-            range,
             (x, y) => coordinates.push([x, y]),
-            null,
-            state,
         );
         for (const [x, y] of coordinates)
             await callback(x, y, argument);
         return;
     }
 
-    if (state === game && game.vision_full_recalc) await vision_recalc_async(0, { state });
+    if (state === game && game.vision_full_recalc)
+        await vision_recalc_async(0, { state });
     // vision.c only bypasses couldsee() for a centered detection callback on
-    // the air or water plane. Other async area effects keep normal visibility.
+    // the air or water plane. Other area effects keep normal visibility.
     const overrideVision = Boolean(rawEnv.detecting
         && (on_level(state.u.uz, state.water_level)
             || on_level(state.u.uz, state.air_level)));
