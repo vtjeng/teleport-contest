@@ -11,6 +11,8 @@ import {
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
+import { encodeUtf8ByteString } from './hacklib.js';
+import { nomux_putch_byte } from './termcap.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
     emitQueuedNotices,
@@ -111,7 +113,10 @@ export function addtopl(text, state = game) {
     if (!display) return;
     const start = display.cursorCol ?? 0;
     let column = start;
-    for (const ch of String(text)) {
+    // putsyms(s) prints the string's bytes. A NUL here is ttyByteText()'s
+    // marker for a byte the capture ignores (js/tty_message.js), which
+    // advances the cursor like any other uncaptured byte.
+    for (const byte of encodeUtf8ByteString(text)) {
         if (column >= display.cols - 1) {
             // topl_putsym() advances the terminal cursor as it prints. Our
             // grid writes use setCell(), so move the cursor to the same
@@ -124,7 +129,12 @@ export function addtopl(text, state = game) {
             if (cw) cw.cury = display.cursorRow;
             column = 0;
         }
-        display.setCell(column++, display.cursorRow ?? 0, ch, NO_COLOR, 0);
+        const stored = nomux_putch_byte(byte);
+        if (stored !== null) {
+            display.setCell(column, display.cursorRow ?? 0,
+                String.fromCharCode(stored), NO_COLOR, 0);
+        }
+        ++column;
     }
     display.setCursor(column, display.cursorRow ?? 0);
     display.clearToEol();
@@ -393,6 +403,7 @@ export async function update_topl(message, state = game, context = {}) {
 }
 
 // C refs: topl.c topl_putsym(), putsyms() and removetopl().
+// `ch` is one byte, as a one-character string whose code is below 256.
 export function topl_putsym(ch, state = game) {
     const display = state.nhDisplay;
     if (!display) return;
@@ -414,14 +425,19 @@ export function topl_putsym(ch, state = game) {
     } else {
         if (display.cursorCol === display.cols - 1)
             topl_putsym('\n', state);
-        display.setCell(display.cursorCol, display.cursorRow, ch, NO_COLOR, 0);
+        // putchar(c) passes a signed char: recorder patch 006's
+        // nomux_putch() leaves the cell as it was for a high or control
+        // byte, while ttyDisplay->curx has already advanced past it.
+        if (nomux_putch_byte(ch.charCodeAt(0)) !== null)
+            display.setCell(display.cursorCol, display.cursorRow, ch, NO_COLOR, 0);
         display.setCursor(display.cursorCol + 1, display.cursorRow);
     }
 }
 
 export function putsyms(text, state = game) {
-    // C's putsyms(const char *) stops at the first NUL byte.
-    for (const ch of String(text).split('\0', 1)[0]) topl_putsym(ch, state);
+    // C's putsyms(const char *) prints each byte up to the first NUL.
+    for (const byte of encodeUtf8ByteString(String(text).split('\0', 1)[0]))
+        topl_putsym(String.fromCharCode(byte), state);
 }
 
 export function removetopl(count, state = game) {

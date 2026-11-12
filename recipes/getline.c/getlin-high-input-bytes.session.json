@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 918273,
+      "datetime": "20240709161500",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "E- Nöé\n:    "
+    }
+  ],
+  "comment": "getline.c hooked_tty_getlin(): the recorder sends each moves character as UTF-8 and pgetchar() reads one byte at a time, so 'ö' and 'é' arrive as 0xC3 0xB6 and 0xC3 0xA9. Each byte passes the ' ' <= (unsigned char) c test and is stored; putsyms() echoes it through topl_putsym(), which advances the cursor while recorder patch 006's nomux_putch() leaves the cell untouched for a signed high byte. The erase key removes one byte (0xB6), leaving 0xC3, so the engraving holds N C3 C3 A9; ':' reads it back. The two extra bytes shift every later read, so the moves end with spaces to let the last reads happen."
+}

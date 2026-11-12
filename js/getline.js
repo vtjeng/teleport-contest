@@ -26,7 +26,12 @@ import {
 } from './cmd.js';
 import { docorner, flush_screen } from './display.js';
 import { game } from './gstate.js';
-import { mungspaces, visctrl } from './hacklib.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+    mungspaces,
+    visctrl,
+} from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
     emitQueuedNotices,
@@ -101,11 +106,21 @@ function redrawPrompt(query, text, state) {
     state.nhDisplay.toplin = TOPLINE_NEED_MORE;
 }
 
+// putsyms() of the bytes buf[from..], as getline.c's putsyms(bufp) prints
+// the buffer from the insertion point to its terminator.
+function putbytes(buf, from, state) {
+    for (let i = from; i < buf.length; ++i)
+        topl_putsym(String.fromCharCode(buf[i]), state);
+}
+
 // C ref: win/tty/getline.c hooked_tty_getlin().  Returns the buffer as C
 // leaves it: the typed text, or "\x1b" when Escape cancels an empty line.
 //
-// `text` holds obufp's contents up to its terminator and `pos` holds
-// bufp - obufp.  NEWAUTOCOMP's painting needs both, because the hook rewrites
+// `buf` holds obufp's bytes up to its terminator and `pos` holds
+// bufp - obufp.  pgetchar() delivers one byte per read, so a key the
+// recorder sent as UTF-8 arrives as several bytes, each stored as C stores
+// it; the returned string is decodeUtf8ByteString() of those bytes, the
+// port's form of a C byte string.  NEWAUTOCOMP's painting needs both, because the hook rewrites
 // the whole buffer while leaving the insertion point where it was.  `hook`
 // returns the expansion, or null when nothing matched, in place of the boolean
 // the C hook returns after rewriting the buffer in place.
@@ -129,9 +144,11 @@ async function hooked_tty_getlin(query, hook, state) {
     // C ttyDisplay->inread counts prompt readers, not menus. The tty owner
     // initializes it to zero; retain any surrounding reader's depth.
     display.inread = (display.inread ?? 0) + 1;
-    let text = '';
+    let buf = [];
     let pos = 0;
     let doprev = false;
+    const text = () => decodeUtf8ByteString(buf);
+    let cancelled = false;
     try {
         // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
         // spends a deferred vision recalculation and flushes the map first;
@@ -149,7 +166,7 @@ async function hooked_tty_getlin(query, hook, state) {
         for (;;) {
             // Strcat(strcat(strcpy(gt.toplines, query), " "), obufp) refreshes the
             // recall copy of the prompt before every keystroke.
-            setToplinesDirectly(`${query} ${text}`, state);
+            setToplinesDirectly(`${query} ${text()}`, state);
             const c = (await nhgetch(state)) & 0xFF;
 
             // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
@@ -167,15 +184,15 @@ async function hooked_tty_getlin(query, hook, state) {
                 // existing text, where Escape would clear and redraw the prompt.
                 // NUL still restarts, because tty_nhgetch() has already turned it
                 // into Escape by the time this test runs.
-                if (c !== EOF_BYTE && text) {
+                if (c !== EOF_BYTE && buf.length) {
                     // Escape over existing text restarts the prompt and then
                     // falls through the remaining tests. Only the doprev arm
                     // below can take it, after a single-mode Ctrl-P recall.
-                    text = '';
+                    buf = [];
                     pos = 0;
-                    redrawPrompt(query, text, state);
+                    redrawPrompt(query, '', state);
                 } else {
-                    text = '\x1B';
+                    cancelled = true;
                     break;
                 }
             }
@@ -196,14 +213,14 @@ async function hooked_tty_getlin(query, hook, state) {
                 display.inread = savedInread;
                 doprev = false;
                 // *bufp = 0 drops any completion past the insertion point.
-                text = text.slice(0, pos);
-                redrawPrompt(query, text, state);
+                buf = buf.slice(0, pos);
+                redrawPrompt(query, text(), state);
                 continue;
             }
             if (doprev) {
                 doprev = false;
-                text = text.slice(0, pos);
-                redrawPrompt(query, text, state);
+                buf = buf.slice(0, pos);
+                redrawPrompt(query, text(), state);
             }
             // Escape, whether it restarted the prompt or not, declines every
             // remaining test.
@@ -214,10 +231,10 @@ async function hooked_tty_getlin(query, hook, state) {
                     topl_putsym('\b', state);
                     // Blank whatever the hook painted past the new insertion
                     // point, then step the cursor back over those blanks.
-                    const painted = text.length - pos;
+                    const painted = buf.length - pos;
                     for (let i = 0; i < painted; ++i) topl_putsym(' ', state);
                     for (let i = 0; i < painted; ++i) topl_putsym('\b', state);
-                    text = text.slice(0, pos);
+                    buf = buf.slice(0, pos);
                 }
                 // tty_nhbell() otherwise, which writes no cell.
                 continue;
@@ -226,16 +243,16 @@ async function hooked_tty_getlin(query, hook, state) {
             if (c >= 0x20 && c !== 0x7F && pos < BUFSZ - 1 && pos < COLNO) {
                 // char *i = eos(bufp) records how far the previous guess reached,
                 // before *bufp = c truncates the buffer at the insertion point.
-                const priorEnd = text.length;
-                text = text.slice(0, pos) + String.fromCharCode(c);
-                putsyms(text.slice(pos), state);
+                const priorEnd = buf.length;
+                buf = [...buf.slice(0, pos), c];
+                putbytes(buf, pos, state);
                 ++pos;
-                const expansion = hook ? hook(text) : null;
+                const expansion = hook ? hook(text()) : null;
                 if (expansion !== null) {
-                    text = expansion;
-                    putsyms(text.slice(pos), state);
+                    buf = encodeUtf8ByteString(expansion);
+                    putbytes(buf, pos, state);
                     // Pointer and cursor left where they were.
-                    for (let i = pos; i < text.length; ++i)
+                    for (let i = pos; i < buf.length; ++i)
                         topl_putsym('\b', state);
                 } else if (priorEnd > pos) {
                     // Erase the rest of the prior guess.
@@ -248,10 +265,10 @@ async function hooked_tty_getlin(query, hook, state) {
             }
             if (c === KILL_CHAR || c === 0x7F) {
                 // This test comes last because '@' can be the kill character.
-                for (let i = pos; i < text.length; ++i) topl_putsym(' ', state);
-                for (pos = text.length; pos > 0; --pos)
+                for (let i = pos; i < buf.length; ++i) topl_putsym(' ', state);
+                for (pos = buf.length; pos > 0; --pos)
                     putsyms('\b \b', state);
-                text = '';
+                buf = [];
             }
             // tty_nhbell() for anything else.
         }
@@ -273,7 +290,8 @@ async function hooked_tty_getlin(query, hook, state) {
         setToplinesDirectly('', state);
     }
     display.topMessage = state._ttyToplines;
-    return text;
+    // obufp[0] = '\033', obufp[1] = '\0' for a cancelled empty line.
+    return cancelled ? '\x1B' : text();
 }
 
 // C ref: win/tty/getline.c tty_getlin().  Returns the answer, or "\x1b" when
@@ -320,7 +338,9 @@ export async function tty_get_ext_cmd(state = game) {
     const matches = extcmds_match(buf, ECM_IGNOREAC | ECM_EXACTMATCH, state);
     if (matches.length !== 1) {
         await ttyPline(
-            `${visctrl(extcmdChar)}${buf.slice(0, 60)}`
+            // "%s%.60s" keeps at most 60 bytes of the typed text.
+            `${visctrl(extcmdChar)}${decodeUtf8ByteString(
+                encodeUtf8ByteString(buf).slice(0, 60))}`
             + ': unknown extended command.',
             state,
         );
