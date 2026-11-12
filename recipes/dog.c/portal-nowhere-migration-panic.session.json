@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dog.c:migrate_to_level out-of-range ledger witness. #wizloadlua tut-1 on an ordinary Dlvl 1 builds the tutorial's magic portals with maketrap()'s dst {-1,-1}, because mktrap() copies u.ucamefrom only when it is set. On the first 20s a monster enters one; teleport.c mlevel_tele_trap() passes ledger_no({-1,-1}), which reads svd.dungeons[-1].ledger_start (svc.context.jingle[0..3], zero here) and gives -1, and dungeon.c ledger_to_dnum(-1) panics. Seed 52130010 is the first of 52130001-52130080 (Samurai, this clock) whose port replay reached the portal within 300 turns; 7 of the 80 did.",
+  "segments": [
+    {
+      "seed": 52130010,
+      "datetime": "20550712083015",
+      "nethackrc": "OPTIONS=name:Nowhere,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloadlua\ntut-1\n20s"
+    }
+  ]
+}

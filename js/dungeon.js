@@ -4,6 +4,9 @@
 
 import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
+// end.c panic(); the local panic() below stands in for it in the synchronous
+// dungeon-description loader.
+import { panic as end_panic } from './end.js';
 import { finish_steps, ImpossibleCall } from './source_steps.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
@@ -952,9 +955,9 @@ export function ledger_no(level, state = game) {
     return (ledger << 16) >> 16; // the xint16 cast
 }
 
-// C refs: dungeon.c ledger_to_dnum() and ledger_to_dlev().
-export function ledger_to_dnum(ledgerNumber, state = game) {
-    const ledger = Math.trunc(ledgerNumber);
+// The search in dungeon.c ledger_to_dnum() (1401-1416): the dungeon whose
+// ledger range holds the number, or null where C panic()s.
+function find_ledger_dnum(ledger, state) {
     for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
         const dungeon = dungeon_at(dnum, state);
         if (dungeon.ledger_start < ledger
@@ -962,9 +965,29 @@ export function ledger_to_dnum(ledgerNumber, state = game) {
             return dnum;
         }
     }
-    throw new RangeError(
-        `level number out of range [ledger_to_dnum(${ledger})]`,
-    );
+    return null;
+}
+
+function ledger_range_panic_message(ledger) {
+    return `level number out of range [ledger_to_dnum(${ledger})]`;
+}
+
+// C refs: dungeon.c ledger_to_dnum() and ledger_to_dlev(). C panic()s when
+// no dungeon holds the ledger number. js/end.js panic() is async, so this
+// synchronous form throws instead; a caller that can wait uses
+// ledger_to_dnum_async(), which reaches panic() as C does.
+export function ledger_to_dnum(ledgerNumber, state = game) {
+    const ledger = Math.trunc(ledgerNumber);
+    const dnum = find_ledger_dnum(ledger, state);
+    if (dnum === null) throw new RangeError(ledger_range_panic_message(ledger));
+    return dnum;
+}
+
+export async function ledger_to_dnum_async(ledgerNumber, state = game) {
+    const ledger = Math.trunc(ledgerNumber);
+    const dnum = find_ledger_dnum(ledger, state);
+    if (dnum === null) await end_panic(ledger_range_panic_message(ledger), state);
+    return dnum;
 }
 
 export function ledger_to_dlev(ledgerNumber, state = game) {
