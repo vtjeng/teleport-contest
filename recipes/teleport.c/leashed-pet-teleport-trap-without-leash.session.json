@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "teleport.c teleport_pet() for a leashed monster with no leash: the tutorial gamestate sequesters the in-use leash of a kitten that followed the hero in by wizard ^V; when the kitten steps on a teleportation trap, get_mleash() finds nothing and C prints impossible(\"%s is leashed, without a leash.\") before m_unleash().",
+  "segments": [
+    {
+      "seed": 777,
+      "datetime": "20260101120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat,playmode:debug,!autopickup\n",
+      "moves": " \u0017leash\naeu\u0016?\n>>P\u001b\u0017teleportation trap\n\u001blssssssssssssssssssssssssssssssssssssssss"
+    }
+  ]
+}
