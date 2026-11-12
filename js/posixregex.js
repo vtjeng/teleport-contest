@@ -755,15 +755,35 @@ function selectsFirstNestedCaptureEndpoint(node, evaluator) {
         && node.child.minimumWidth > 0;
 }
 
+// Whether `node` matches exactly one nonempty byte string: literals, and
+// groups and sequences of them. An unbounded repeat with minimum one over
+// such a subtree, as in `((There is) )+\2`, captures the same text in every
+// iteration, so no endpoint choice can change a backreference's value.
+// Recorder glibc agreed with the evaluator on that shape in randomly
+// generated patterns with ambiguous context such as `.*` or `(a|bb)*` around
+// it and texts built from their words. With a minimum of two or more it did
+// not: `.*(b){2,}\1` does not match "bbb" in glibc, so that shape stays
+// refused.
+function isFixedText(node) {
+    if (node.type === 'literal') return node.value !== '';
+    if (node.type === 'group') return isFixedText(node.child);
+    if (node.type === 'sequence') {
+        return node.nodes.length > 0 && node.nodes.every(isFixedText);
+    }
+    return false;
+}
+
 function hasUnsupportedDuplicatedCaptureRepeat(node, evaluator) {
     // The evaluator tracks finite repeat endpoints, the source-pinned
-    // first-endpoint rule for a directly referenced repeated group, and
-    // zero-width fixed points. Keep other unbounded duplicate-capture shapes
-    // explicitly refused rather than returning an unverified match result.
+    // first-endpoint rule for a directly referenced repeated group,
+    // zero-width fixed points and a fixed-text body repeated at least once.
+    // Keep other unbounded duplicate-capture shapes explicitly refused rather
+    // than returning an unverified match result.
     if (node.type === 'repeat' && node.duplicatesReferencedCapture
         && !Number.isFinite(node.maximum)
         && !selectsFirstNestedCaptureEndpoint(node, evaluator)
-        && !node.child.alwaysZeroWidth) return true;
+        && !node.child.alwaysZeroWidth
+        && !(node.minimum === 1 && isFixedText(node.child))) return true;
     const children = node.type === 'sequence' || node.type === 'alternative'
         ? node.nodes : node.child ? [node.child] : [];
     return children.some((child) => (

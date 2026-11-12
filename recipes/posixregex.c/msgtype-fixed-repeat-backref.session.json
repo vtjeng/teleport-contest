@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77215,
+      "datetime": "20050308154500",
+      "nethackrc": "OPTIONS=name:Brook,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen\nMSGTYPE=hide \"(o)+\\1k\"\nMSGTYPE=stop \"((u)p )+o\\2\"\n",
+      "moves": ":s:"
+    }
+  ],
+  "comment": "posixregex.c regex_match(): a backreference to a group inside an unbounded repeat with a fixed-text body. 'Hello Brook, ...' has 'ook', so MSGTYPE=hide swallows the welcome; 'There is a staircase up out of the dungeon here.' has 'up ou', so the stop rule waits at --More--."
+}
