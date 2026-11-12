@@ -216,7 +216,6 @@ import {
     does_block,
     recalc_block_point,
     unblock_point,
-    vision_recalc,
     vision_recalc_async,
 } from './vision.js';
 import {
@@ -271,7 +270,7 @@ import {
 function bhitTransientLightEnv(state, random, rawEnv = {}) {
     const objectEnv = zapObjectEnv(state, random, rawEnv);
     return {
-        visionRecalc: (control) => vision_recalc(control, {
+        visionRecalc: (control) => vision_recalc_async(control, {
             state,
             redraw: (x, y) => newsym(x, y, state),
         }),

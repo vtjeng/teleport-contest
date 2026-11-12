@@ -524,7 +524,7 @@ import {
 } from './trap.js';
 import { dotrap, feeltrap, mintrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, couldsee, howmonseen, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
+import { cansee, couldsee, howmonseen, recalc_block_point, unblock_point, vision_recalc_async } from './vision.js';
 import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { pickup_object, use_container } from './pickup.js';
@@ -1615,7 +1615,7 @@ export async function use_grapple(obj, state = game, env = {}) {
 
 function cameraTransientLightEnv(state) {
     return {
-        visionRecalc: (control) => vision_recalc(control, {
+        visionRecalc: (control) => vision_recalc_async(control, {
             state,
             redraw: (x, y) => newsym(x, y, state),
         }),

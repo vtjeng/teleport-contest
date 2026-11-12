@@ -48,7 +48,7 @@ import { getlin } from './windows.js';
 import { coreRandom } from './rng.js';
 import { show_transient_light, transient_light_cleanup } from './light.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { vision_recalc } from './vision.js';
+import { vision_recalc_async } from './vision.js';
 import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
 import { set_voice } from './sounds.js';
@@ -161,7 +161,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
 
 function transientLightEnv(state) {
     return {
-        visionRecalc: (control) => vision_recalc(control, {
+        visionRecalc: (control) => vision_recalc_async(control, {
             state,
             redraw: (x, y) => newsym(x, y, state),
         }),

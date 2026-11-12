@@ -384,7 +384,7 @@ import { digests, light_hits_gremlin } from './uhitm.js';
 import {
     block_point,
     cansee,
-    do_clear_area,
+    do_clear_area_async,
     does_block,
     unblock_point,
     vision_recalc_async,
@@ -2086,7 +2086,7 @@ export async function litroom(on, object, state) {
         // parity.
         set_lit(state.u.ux, state.u.uy, true, state, gremlins);
     } else {
-        do_clear_area(
+        await do_clear_area_async(
             state.u.ux, state.u.uy, blessedEffect ? 9 : 5,
             (x, y, value) => set_lit(x, y, value, state, gremlins),
             on ? true : null,

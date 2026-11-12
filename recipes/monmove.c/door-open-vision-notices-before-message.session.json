@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "monmove.c postmov()'s UnblockDoor macro calls vision_recalc(0) as soon as a monster opens a door, so notice_all_mons() prints \"You see a ... mold.\" for each of three molds in the lit room beyond, with a --More-- among them, before postmov() prints \"The hill orc opens a door.\". The port called its vision recalculation without await: the notices printed from a promise left running, which stopped at the --More-- while the door message went on. A debug-mode dwarvish Valkyrie teleports into a lit room on level 1 to create three molds at its far side, then beside the closed west door to create a hill orc, and then into the corridor just outside that door. The orc follows the hero's track to the door and opens it. Independent of the batch 11 and 12 games.",
+  "segments": [
+    {
+      "seed": 4417023,
+      "datetime": "20470315103000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,spot_monsters,time\n",
+      "moves": " \u0014  LLlllK.\u0007brown mold\n\u0007yellow mold\n\u0007green mold\n\u0014 hhhhhh. \u0007hill orc\n\u0014 hh.ss ss"
+    }
+  ]
+}

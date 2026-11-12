@@ -160,7 +160,7 @@ import { messageAt } from './startup_a11y.js';
 import { night } from './calendar.js';
 import { acurr } from './attrib.js';
 import { rloc, rloc_to } from './teleport.js';
-import { vision_recalc } from './vision.js';
+import { vision_recalc_async } from './vision.js';
 import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
 import { growl, yelp } from './sounds.js';
@@ -1453,7 +1453,7 @@ export async function migrate_to_level(
     const oldX = monster.mx;
     const oldY = monster.my;
     const recalculateVision = monsterEmitsLight(monster)
-        ? migratingOperation(env, 'visionRecalc', vision_recalc)
+        ? migratingOperation(env, 'visionRecalc', vision_recalc_async)
         : null;
 
     const num_segs = mon_leave(monster, state);
@@ -1479,7 +1479,11 @@ export async function migrate_to_level(
     monster.muy = destination.dlevel;
     monster.mx = 0;
     monster.my = 0;
-    if (recalculateVision) recalculateVision(0);
+    if (recalculateVision) {
+        await recalculateVision(0, {
+            state, redraw: (x, y) => newsym(x, y, state),
+        });
+    }
     return monster;
 }
 

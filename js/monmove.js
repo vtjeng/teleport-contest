@@ -449,7 +449,7 @@ import {
 import { displayPendingTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
 import { gd_move } from './vault.js';
 import { cuss, tactics } from './wizard.js';
-import { block_point, cansee, clear_path, couldsee, m_canseeu, recalc_block_point, vision_recalc } from './vision.js';
+import { block_point, cansee, clear_path, couldsee, m_canseeu, recalc_block_point, vision_recalc_async } from './vision.js';
 import {
     autoreturn_weapon,
     can_touch_safely,
@@ -3179,7 +3179,7 @@ export async function postmov(
     // calls in that order.  recalc_block_point() already takes the state it
     // derives from; a caller may substitute either.
     const recalcBlockPoint = rawEnv.recalcBlockPoint ?? recalc_block_point;
-    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc;
+    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc_async;
     // C's `ptr` parameter, refreshed from mtmp->data after the mintrap() call
     // below because a trap can polymorph the monster (monmove.c:1517).
     let species = monster.data;
@@ -3193,12 +3193,12 @@ export async function postmov(
 
     // C ref: monmove.c:1526-1536, the UnblockDoor macro.  canseeit is the
     // caller's local there, so this returns the value the macro recomputes.
-    const unblockDoor = (where, who, what) => {
+    const unblockDoor = async (where, who, what) => {
         // where->doormask = what; rm.h's doormask is `flags`.
         where.flags = what;
         redraw(who.mx, who.my);
         recalcBlockPoint(who.mx, who.my, state);
-        visionRecalc(0);
+        await visionRecalc(0, { state, redraw });
         return didseeit || cansee(who.mx, who.my, state);
     };
 
@@ -3295,7 +3295,7 @@ export async function postmov(
                 // C ref: monmove.c:1554-1574.  A trapped locked door is
                 // first changed to D_NODOOR, then mb_trapped() applies the
                 // explosion and damage.  An ordinary unlock becomes open.
-                canseeit = unblockDoor(
+                canseeit = await unblockDoor(
                     here,
                     monster,
                     btrapped ? D_NODOOR : D_ISOPEN,
@@ -3337,7 +3337,7 @@ export async function postmov(
                 // C ref: monmove.c:1576-1592.  Whole-mask equality with
                 // D_CLOSED makes btrapped false here; a trapped closed door
                 // therefore cannot enter this arm.
-                canseeit = unblockDoor(here, monster, D_ISOPEN);
+                canseeit = await unblockDoor(here, monster, D_ISOPEN);
                 // Soundeffect(se_door_open, 100) is a tty-sound hook that
                 // writes nothing to the terminal the recorder captures.
                 if (state.flags?.verbose) {
@@ -3369,7 +3369,7 @@ export async function postmov(
                     || ((currentMask() & D_LOCKED) !== 0 && !random.rn2(2))
                     ? D_NODOOR
                     : D_BROKEN;
-                canseeit = unblockDoor(here, monster, mask);
+                canseeit = await unblockDoor(here, monster, mask);
                 if (btrapped) {
                     if (await mb_trapped(monster, canseeit, {
                         ...env,
