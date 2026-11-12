@@ -33,6 +33,7 @@ import { GameMap } from '../js/game.js';
 import { add_to_container } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj, weight } from '../js/obj.js';
+import { simpleonames } from '../js/objnam.js';
 import { newMonster } from '../js/monst.js';
 import {
     APPLE,
@@ -685,9 +686,15 @@ test('achievement duplicates preserve source warning and unknowns stay typed', (
     assert.equal(second.nomerge, false);
     assert.deepEqual(messages, ['multiple prizes on mines end level']);
 
+    // C: describe_level(lbuf, 1 | 2) names the depth and the branch
+    // ("level 1, the Dungeons of Doom "), then simpleonames() the object.
+    // This state's object names are not the game's, so the name is read back
+    // through simpleonames(); recordings/sp_lev.c/wizloadlua-prize-outside-
+    // its-level.session.json pins C's "stone" for a luckstone.
     const unknown = roomState();
+    unknown.state.dungeons = [{ dname: 'The Dungeons of Doom', depth_start: 1 }];
     const unknownMessages = [];
-    lspo_object({
+    const unknownPrize = lspo_object({
         id: CHEST,
         achievement: true,
         coordinate: { x: 0, y: 0 },
@@ -699,7 +706,8 @@ test('achievement duplicates preserve source warning and unknowns stay typed', (
         },
     });
     assert.deepEqual(unknownMessages, [
-        `create_object: unknown achievement object ${CHEST}`,
+        'create_object: unknown achievement (level 1, the Dungeons of Doom "'
+            + `${simpleonames(unknownPrize, unknown.state)}")`,
     ]);
 
     const testing = roomState();

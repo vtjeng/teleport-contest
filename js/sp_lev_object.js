@@ -19,7 +19,8 @@ import {
 import { artifact_exists } from './artifacts.js';
 import { bury_an_obj } from './bury.js';
 import { lookup_novel, oname } from './do_name.js';
-import { canseemon } from './display.js';
+import { simpleonames } from './objnam.js';
+import { canseemon, describe_level } from './display.js';
 import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
@@ -363,9 +364,18 @@ function applyObjectFields(obj, specification, env) {
     return obj;
 }
 
+// pline.c impossible() through the caller's hook. A level program's des.*
+// env (js/mklev.js createSpecialLevelApi()) prints and returns the promise,
+// which a caller that can wait settles before it goes on, as C's
+// create_object() does; a hook may also just record the text.
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
-        env.hooks.impossible(message, env);
+        return env.hooks.impossible(message, env);
+    return undefined;
+}
+
+function isThenable(value) {
+    return Boolean(value) && typeof value.then === 'function';
 }
 
 function achievementTracking(state) {
@@ -380,7 +390,8 @@ function achievementTracking(state) {
 
 // C ref: sp_lev.c create_object() achievement branch.  Prize creation only
 // registers identity and prevents floor stacking; invent.addinv() owns the
-// later achievement award, oid clearing, and nomerge reset.
+// later achievement award, oid clearing, and nomerge reset.  Returns the
+// promise of an impossible() the hook printed, or undefined.
 function initializeAchievementObject(obj, env) {
     const { state } = env;
     const tracking = achievementTracking(state);
@@ -397,25 +408,23 @@ function initializeAchievementObject(obj, env) {
         levelName = 'sokoban end';
     } else {
         if (!state.iflags?.lua_testing) {
-            // Full describe_level()/simpleonames() formatting belongs to the
-            // unported message-name boundary; retain the object type here so
-            // malformed level data still produces a deterministic diagnostic.
-            impossible(
-                `create_object: unknown achievement object ${obj.otyp}`,
+            // describe_level(lbuf, 1 | 2): "level N, <dungeon> ".
+            return impossible(
+                `create_object: unknown achievement (${
+                    describe_level(1 | 2, state)}"${
+                    simpleonames(obj, state)}")`,
                 env,
             );
         }
-        return obj;
+        return undefined;
     }
 
-    if (tracking[oidField]) {
-        impossible(`multiple prizes on ${levelName} level`, env);
-        return obj;
-    }
+    if (tracking[oidField])
+        return impossible(`multiple prizes on ${levelName} level`, env);
     tracking[oidField] = obj.o_id;
     tracking[typeField] = obj.otyp;
     obj.nomerge = true;
-    return obj;
+    return undefined;
 }
 
 function putInCurrentContainer(obj, context, env) {
@@ -625,15 +634,18 @@ function createOneObject(specification, croom, env) {
         if (specification.container)
             pushContainer(obj, context, env);
 
-        const finish = (populated) => {
-            obj = populated;
-            if (specification.achievement) {
-                initializeAchievementObject(obj, env);
-            }
-
+        const finalize = () => {
             if (!specification.content && obj)
                 obj = finalizeTopLevelObject(obj, specification, context, env);
             return obj;
+        };
+        const finish = (populated) => {
+            obj = populated;
+            if (specification.achievement) {
+                const reported = initializeAchievementObject(obj, env);
+                if (isThenable(reported)) return reported.then(finalize);
+            }
+            return finalize();
         };
         const maybeObj = populateMedusaStatue(obj, specification, env);
         return maybeObj && typeof maybeObj.then === 'function'

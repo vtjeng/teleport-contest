@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 217 | 506 |
+| diagnostic | 723 | 218 | 505 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4213 | 698 |
+| total | 4911 | 4214 | 697 |
 
 ## Missing by C file
 
@@ -110,7 +110,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/shknam.c | yes | 2 | 4 | 0 |
 | src/sit.c | yes | 1 | 0 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
-| src/sp_lev.c | yes | 0 | 16 | 3 |
+| src/sp_lev.c | yes | 0 | 15 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
 | src/steed.c | yes | 0 | 5 | 1 |
@@ -1498,7 +1498,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `create_object()`
   - 2221 panic: `create_object:  unexpected object class '`
-  - 2417 impossible: `create_object: unknown achievement (`
 
 - `create_corridor()`
   - 2685 impossible: `create_corridor to/from a random wall`

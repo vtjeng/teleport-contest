@@ -4733,7 +4733,12 @@ function createSpecialLevelApi(state) {
     const env = {
         state,
         random: coreRandom,
-        hooks: objectGenerationHooks(),
+        // A des.* call prints impossible() where C does: every caller of
+        // these functions awaits them (js/sp_lev_object.js returns the
+        // promise through create_object()).
+        hooks: objectGenerationHooks({
+            impossible: (message) => impossible(message, state),
+        }),
         frame,
         // gc.coder as it is now: each des.* call creates it first (below).
         get coder() { return state.gc?.coder ?? null; },

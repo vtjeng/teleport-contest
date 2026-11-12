@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c create_object() achievement branch on a level that is neither Mines' End nor Sokoban's top: #wizloadlua minend-1 on Dlvl 1 makes its achievement luckstone there, so C prints impossible(\"create_object: unknown achievement (level 1, the Dungeons of Doom \\\"stone\\\")\") in the middle of the level program and goes on creating its objects and monsters. Seed, date, Valkyrie and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 50817342,
+      "datetime": "20590214093107",
+      "nethackrc": "OPTIONS=name:Prize,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nminend-1\n   :"
+    }
+  ]
+}
