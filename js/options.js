@@ -232,6 +232,7 @@ import {
 } from './cmd_autocomplete.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
+    SYMBOL_SET_DEFINITIONS,
     SYM_OFF_O,
     SYM_OFF_X,
 } from './symbol_data.js';
@@ -1750,6 +1751,49 @@ function optfn_DECgraphics(result, request, negated, opts, op) {
     return optn_ok;
 }
 
+// C ref: glyphs.c to_custom_symset_entry_callback() (52-104).  A Unicode
+// or color detail for a glyph, while gs.symset[gs.symset_which_set] has no
+// name, is ignored with a config_error_add() nag, at most once per process
+// for each kind: the static glyphnag and colornag counters are the parser
+// context's unicodeNagged and colorNagged.  `inspected` is
+// inspect_glyphrep()'s answer for the glyph representation.
+function unnamedSymsetNags(result, inspected) {
+    const context = result.parserGlyphSetContext;
+    if (context.names[context.set]) return;
+    for (const [detail, nagged] of [
+        ['hasUnicode', 'unicodeNagged'],
+        ['hasColor', 'colorNagged'],
+    ]) {
+        if (!inspected[detail] || context[nagged]) continue;
+        context[nagged] = true;
+        configErrorAdd(
+            result,
+            'Unimplemented customization feature, ignoring for now',
+        );
+    }
+}
+
+// C ref: symbols.c parsesymbols()'s symbol arm.  An S_ assignment whose set
+// uses H_UTF8 handling, or whose value starts "U+" (either case), goes to
+// glyphrep_to_custom_map_entries() as "<name>:<value>" instead of
+// update_ov_*_symset(); this reports what that call reports while the
+// configuration is read.  `assignments` is parseSymbolAssignments()'s list,
+// in the order parsesymbols() applies them.  Every S_ name has a range
+// other than SYM_CONTROL, and a G_ name never reaches this arm.
+function parsesymbolsGlyphrepNags(result, set, assignments) {
+    const name = result.parserGlyphSetContext.names[set];
+    const utf8 = Boolean(name) && SYMBOL_SET_DEFINITIONS.find(
+        (definition) => definition.name.toLowerCase() === name.toLowerCase(),
+    )?.handling === 'UTF8';
+    for (const { kind, glyphrepName, rawValue } of assignments) {
+        if (kind !== 'symbol') continue;
+        if (!utf8 && !/^u\+/iu.test(rawValue)) continue;
+        unnamedSymsetNags(
+            result, inspect_glyphrep(`${glyphrepName}:${rawValue}`),
+        );
+    }
+}
+
 function optfn_glyph(result, request, negated, opts, op) {
     if (request === DO_SET) {
         const value = op ?? string_for_opt(opts, true, result);
@@ -1770,22 +1814,7 @@ function optfn_glyph(result, request, negated, opts, op) {
             set: context.set,
             raw: glyphValue,
         });
-        if (!context.names[context.set]) {
-            if (inspected.hasUnicode && !context.unicodeNagged) {
-                context.unicodeNagged = true;
-                configErrorAdd(
-                    result,
-                    'Unimplemented customization feature, ignoring for now',
-                );
-            }
-            if (inspected.hasColor && !context.colorNagged) {
-                context.colorNagged = true;
-                configErrorAdd(
-                    result,
-                    'Unimplemented customization feature, ignoring for now',
-                );
-            }
-        }
+        unnamedSymsetNags(result, inspected);
         return optn_ok;
     }
     if (request === GET_VAL) return to_be_done;
@@ -6365,6 +6394,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_IBMgraphics(result, DO_SET, negated, statement, value);
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
+        parsesymbolsGlyphrepNags(result, 'primary', symbolParse.assignments);
         appendSymbolOverrides(result, 'primary', symbolParse.assignments);
     } else if (name === 'number_pad') {
         optfn_number_pad(
@@ -6963,6 +6993,7 @@ export function parseNethackrc(rc, random = rn2) {
             const { ok, assignments, text } = parseSymbolAssignments(
                 normalizedValue,
             );
+            parsesymbolsGlyphrepNags(result, statement.set, assignments);
             appendSymbolOverrides(result, statement.set, assignments, ok);
             if (!ok) {
                 configErrorAdd(result, `Error in ${

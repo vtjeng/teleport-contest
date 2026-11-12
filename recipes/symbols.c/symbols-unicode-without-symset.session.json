@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 271828,
+      "datetime": "20250203071200",
+      "nethackrc": "OPTIONS=name:Ilse,role:Archeologist,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!tips\nSYMBOLS=S_bogus:x,S_tree:u+2663/255-0-0\nROGUESYMBOLS=S_ant:U+263A\n",
+      "moves": "\nss"
+    }
+  ],
+  "comment": "symbols.c parsesymbols() sends an S_ value starting \"U+\" (either case) to glyphrep_to_custom_map_entries(); with no symbol set selected, glyphs.c to_custom_symset_entry_callback() reports \"Unimplemented customization feature, ignoring for now\" once for the Unicode value and once for the color. The comma suffix is applied first, so both reports precede the line's error for the unknown S_bogus; the static counters keep ROGUESYMBOLS quiet."
+}
