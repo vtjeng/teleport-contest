@@ -57,6 +57,7 @@ import {
 import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
 import { vision_recalc } from './vision.js';
 import { pmatchi } from './strutil.js';
+import { nomux_g_putch_byte, nomux_putch_byte } from './termcap.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -133,20 +134,22 @@ function writeStyledText(
         while (end < bytes.length && (bytes[end] === 0x20) === spaces) ++end;
         const compressed = spaces && end - index >= 5;
         for (; index < end && column + index < maxColumn; ++index) {
-            let byte = bytes[index];
+            const byte = bytes[index];
             let cellColumn = column + index;
+            let stored;
             if (index === 0 && textWindowUtf8 !== undefined
                 && (textWindowUtf8 || byte >= 0x80)) {
-                // g_putch(): nomux_putch((ch & 0x80) ? (ch ^ 0x80) : ch)
-                // at the pre-incremented curx.
-                byte &= 0x7f;
+                // g_putch()'s hook, at the pre-incremented curx.
+                stored = nomux_g_putch_byte(byte);
                 ++cellColumn;
+            } else {
+                stored = nomux_putch_byte(byte);
             }
-            if (byte < 0x20 || byte >= 0x80) continue;
+            if (stored === null) continue;
             display.setCell(
                 cellColumn,
                 row,
-                String.fromCharCode(byte),
+                String.fromCharCode(stored),
                 compressed ? NO_COLOR : color,
                 compressed ? 0 : attr,
             );
