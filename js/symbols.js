@@ -239,11 +239,24 @@ function resetSymbolSlot(set, state) {
     if (previous && Object.hasOwn(previous, 'handling')) {
         purgeSlotCustomizations(set, previous.handling, state);
     }
+    // init_primary_symbols() and init_rogue_symbols() fill the P, O, M and
+    // W slots with defaults, but each "other" slot with get_othersym(), which
+    // reads the override and then the slot's current value before falling
+    // back to a default. A symbol a previous set or override gave S_boulder,
+    // S_invisible and the rest therefore survives the reset, and a new set
+    // that does not name it keeps it: Blank's blank boulder stays blank after
+    // Enhanced2 is chosen.
+    const { base: previousBase, overrides } = slotArrays(set, state);
+    const symbols = [...(rogue ? DEFAULT_ROGUE_SYMBOLS : DEFAULT_PRIMARY_SYMBOLS)];
+    for (let index = SYM_OFF_X; index < SYM_MAX; ++index) {
+        symbols[index] = overrides?.[index] || previousBase?.[index]
+            || symbols[index];
+    }
     if (rogue) {
-        state.gr.rogue_syms = [...DEFAULT_ROGUE_SYMBOLS];
+        state.gr.rogue_syms = symbols;
         state.gr.rogue_utf8_syms = Array(SYM_MAX).fill(null);
     } else {
-        state.gp.primary_syms = [...DEFAULT_PRIMARY_SYMBOLS];
+        state.gp.primary_syms = symbols;
         state.gp.primary_utf8_syms = Array(SYM_MAX).fill(null);
     }
     state.gs.symset[set] = {
@@ -489,6 +502,10 @@ export function init_symbols(state = game) {
     state.go.ov_primary_utf8_syms = Array(SYM_MAX).fill(null);
     state.go.ov_rogue_syms = Array(SYM_MAX).fill(0);
     state.go.ov_rogue_utf8_syms = Array(SYM_MAX).fill(null);
+    // C's tables are zero-filled statics when initoptions() first runs, so
+    // get_othersym() finds no earlier symbol to keep.
+    state.gp.primary_syms = null;
+    state.gr.rogue_syms = null;
     resetSymbolSlot(PRIMARYSET, state);
     resetSymbolSlot(ROGUESET, state);
     state.gc.currentgraphics = PRIMARYSET;

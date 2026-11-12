@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 402966,
+      "datetime": "20280513081544",
+      "nethackrc": "OPTIONS=name:Wren,role:Caveman,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,symset:Blank\n",
+      "moves": "\u0017boulder\nhs#optionsfull\n>>>>>>l\njsl"
+    }
+  ],
+  "comment": "symbols.c init_primary_symbols() fills each other-symbol slot through get_othersym(), which keeps the slot's current value: Blank's blank S_boulder survives do_symset() choosing Enhanced2, which names no boulder, so the wished-for boulder stays blank."
+}
