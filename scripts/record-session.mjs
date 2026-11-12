@@ -391,6 +391,14 @@ function payloadToLines(payload) {
 // PRNG log parsing (mirrors run_session.py parse_rng_lines)
 // ---------------------------------------------------------------------------
 
+// Bytes of `buf` up to and including its last newline. The C program can
+// still be writing the PRNG log when a boundary marker arrives, for example
+// while it consumes the later bytes of a multi-byte key, so a read can end
+// inside a line. That line is left for the next boundary to read whole.
+export function completeLogBytes(buf) {
+    return buf.lastIndexOf(0x0a) + 1;
+}
+
 function parseRngLines(text) {
     const out = [];
     for (const raw of text.split('\n')) {
@@ -623,9 +631,10 @@ export async function recordSegment({
                 const st = await fh.stat();
                 if (st.size > lastRngBytes) {
                     const buf = Buffer.alloc(st.size - lastRngBytes);
-                    await fh.read(buf, 0, buf.length, lastRngBytes);
-                    rngText = buf.toString('utf8');
-                    lastRngBytes = st.size;
+                    const { bytesRead } = await fh.read(buf, 0, buf.length, lastRngBytes);
+                    const used = completeLogBytes(buf.subarray(0, bytesRead));
+                    rngText = buf.subarray(0, used).toString('utf8');
+                    lastRngBytes += used;
                 }
             } finally {
                 await fh.close();

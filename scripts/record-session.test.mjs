@@ -7,6 +7,7 @@ import test from 'node:test';
 
 import {
     clearLockFiles,
+    completeLogBytes,
     copyInstall,
     installDirTooLong,
     isPerGameFile,
@@ -155,4 +156,20 @@ test('explicit terminal input accepts only successful natural process closure wi
     ]) {
         assert.equal(successfulTerminalExit({ ...expected, ...invalid }), false);
     }
+});
+
+test('completeLogBytes stops a boundary read at the last complete log line', () => {
+    // The C recorder can still be writing the PRNG log when a boundary marker
+    // arrives (p2-00078 of the batch 14 pilot split "8401 rn2(12) = 7 @ ..."
+    // after "8401 rn"). A read that ends inside a line must leave that line for
+    // the next boundary, or the recording keeps two fragments of one call.
+    const whole = '8400 rn2(5) = 4 @ distfleeck(monmove.c:538)\n';
+    const partial = '8401 rn';
+    assert.equal(completeLogBytes(Buffer.from(whole + partial)),
+        Buffer.byteLength(whole));
+    // A read that ends exactly at a newline consumes everything.
+    assert.equal(completeLogBytes(Buffer.from(whole)), Buffer.byteLength(whole));
+    // A read holding no newline consumes nothing.
+    assert.equal(completeLogBytes(Buffer.from(partial)), 0);
+    assert.equal(completeLogBytes(Buffer.alloc(0)), 0);
 });
