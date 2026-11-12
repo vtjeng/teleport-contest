@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310452,
+      "datetime": "20370314101500",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,monpolycontrol\n",
+      "moves": "\u0017ring of levitation\nPer\n\u0017wand of polymorph\nkhhh\u0017lava\nl\u00071000 peaceful newt\n\u0007sleeping bat\nzfhfire ant\nmsmsmsms",
+      "comment": "A levitating Valkyrie wishes for lava beside the room's west wall, steps east, and fills every other free square of the level with 1000 peaceful newts (#wizgenesis stops when makemon() finds no room). A sleeping bat is then created on the only square left, the lava, and a wand of polymorph zapped west turns it into a fire ant under monpolycontrol. On the ant's move, mon.c movemon_singlemon() calls minliquid(): the fire-resistant ant burns slightly, rloc() finds no square, and deal_with_overcrowding() sends it into limbo with m_into_limbo(), so it leaves the map. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}

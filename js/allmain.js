@@ -167,7 +167,6 @@ import {
     create_gas_cloud,
     run_regions,
 } from './region.js';
-import { note_unported } from './unported.js';
 import {
     nh_timeout,
     do_storms,
@@ -732,12 +731,6 @@ function elapsedTurnMinLiquid(monster, env) {
             const { fire_damage_chain } = await import('./trap.js');
             await fire_damage_chain(chain, force, here, x, y, effectEnv);
         },
-        // C discards deal_with_overcrowding()'s result. Its remaining level
-        // transition branches are outside this span, so name and skip that
-        // discarded call after rloc() has returned false.
-        dealWithOvercrowding: () => note_unported(
-            'mon.c deal_with_overcrowding',
-        ),
         hooks: {
             ...(env.hooks ?? {}),
             newsym: (x, y) => newsym(x, y),

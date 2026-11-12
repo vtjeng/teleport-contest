@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5524981,
+      "datetime": "20370902083000",
+      "nethackrc": "OPTIONS=name:Akiko,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,monpolycontrol\n",
+      "moves": "\u0017ring of levitation\nPfr\n\u0017wand of polymorph\nk\u0017lava\nl\u00071000 peaceful newt\n\u0007sleeping bat\nzghred mold\n\nmsmsmsms",
+      "comment": "A levitating Samurai wishes for lava against the west wall of a closet room, steps east, and fills the rest of the level with 1000 peaceful newts. A sleeping bat created on the lava is polymorphed into a red mold under monpolycontrol. A red mold cannot move, so mon.c m_calcdistress() calls minliquid() at the end of the turn: the mold burns slightly, rloc() fails on the full level, and deal_with_overcrowding() moves it into limbo. Seed, clock, character and keys were chosen for this path."
+    }
+  ]
+}
