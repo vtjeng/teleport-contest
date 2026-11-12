@@ -1961,6 +1961,30 @@ test('findtravelpath excludes adjacent TRAVP_GUESS from the fast path',
         assert.equal(state.context.run, 8);
     });
 
+test('findtravelpath stops travel when the hero is already on the target',
+    async () => {
+        // hack.c:1291 searches only `if (u.tx != u.ux || u.ty != u.uy)`;
+        // otherwise control reaches `found:` (1518-1522), which zeroes
+        // u.dx/u.dy and calls nomul(0). A Plane of Air or Water bubble can
+        // carry a travelling hero onto the target between steps, and C then
+        // stops travelling there (batch 13 g01207). Both modes reach it, as
+        // domove_core() tries TRAVP_GUESS after TRAVP_TRAVEL fails.
+        // travel1 is 0 because only the first step of a travel has it set.
+        for (const mode of [TRAVP_TRAVEL, TRAVP_GUESS]) {
+            const state = adjacentTravelState();
+            state.u.tx = state.u.ux;
+            state.u.ty = state.u.uy;
+            state.u.dx = 0;
+            state.u.dy = -1;
+            state.context.travel1 = 0;
+            state.multi = COLNO; // dotravel_target()'s max(COLNO, ROWNO)
+
+            assert.equal(await findtravelpath(mode, state), false);
+            assert.deepEqual([state.u.dx, state.u.dy], [0, 0], `mode ${mode}`);
+            assert.equal(state.multi, 0, `mode ${mode}`);
+        }
+    });
+
 test('travel guessing selects a visible reachable point and restarts travel',
     async () => {
         // hack.c:1451-1513. The target at <14,10> is enclosed by STONE, so

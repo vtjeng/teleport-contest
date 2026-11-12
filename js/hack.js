@@ -2914,8 +2914,15 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
         if (mode === TRAVP_TRAVEL) state.context.run = 8;
     }
 
-    if (state.u.tx === state.u.ux && state.u.ty === state.u.uy)
+    // C ref: hack.c:1291 and 1518-1522. With the hero already on the
+    // target (a Plane of Water or Air bubble can carry him there mid-travel)
+    // C skips the search and reaches `found:`, which stops the travel.
+    if (state.u.tx === state.u.ux && state.u.ty === state.u.uy) {
+        state.u.dx = 0;
+        state.u.dy = 0;
+        nomul(0, state);
         return false;
+    }
 
     const travel = new Uint16Array(COLNO * ROWNO);
     const travelStepX = [[], []];
