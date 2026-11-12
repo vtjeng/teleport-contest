@@ -791,6 +791,43 @@ function createThemeroomSelectionCollector() {
     });
 }
 
+// The bytes the recorded C game read, in order, from a replay's moves.
+//
+// scripts/record-session.mjs writes moves[i], one UTF-16 code unit, to the
+// game's stdin as UTF-8 each time the game reaches an input boundary (the
+// patched tty_nhgetch() emits one boundary marker before each read). Through
+// that pipe:
+// - a carriage return arrives as a newline, as a tmux pty's ICRNL line
+//   discipline delivers it; the recorder copies that translation;
+// - a code unit from U+0080 to U+07FF arrives as two bytes, and any other
+//   code unit above U+007F as three; Node encodes a lone surrogate, half of
+//   an astral character, as U+FFFD (EF BF BD);
+// - tgetch() is getchar(), so the game reads one byte per tty_nhgetch().
+//   0xC3, the first byte of 'é', is the key M-C, bound to #conduct.
+// Each read is preceded by its own boundary, so the recording's boundaries
+// fall between bytes, not between moves characters, and the bytes of one
+// multi-byte key are read at successive boundaries. The recorder stops after
+// moves.length + 1 boundaries, so the game read only the first moves.length
+// bytes before its last recorded boundary; any later bytes were still unread
+// in the pipe when the recorder ended the game. Replaying exactly those
+// bytes ends the JavaScript segment at the same boundary.
+export function recordedInputBytes(moves) {
+    const bytes = [];
+    for (let i = 0; i < moves.length && bytes.length < moves.length; i++) {
+        const unit = moves.charCodeAt(i) === 0x0d ? 0x0a : moves.charCodeAt(i);
+        if (unit < 0x80) {
+            bytes.push(unit);
+        } else if (unit < 0x800) {
+            bytes.push(0xc0 | (unit >> 6), 0x80 | (unit & 0x3f));
+        } else {
+            const cp = unit >= 0xd800 && unit <= 0xdfff ? 0xfffd : unit;
+            bytes.push(0xe0 | (cp >> 12), 0x80 | ((cp >> 6) & 0x3f),
+                0x80 | (cp & 0x3f));
+        }
+    }
+    return bytes.slice(0, moves.length);
+}
+
 export function segmentIterationLimit(movesLength) {
     return Math.max(
         movesLength * (MAX_COMMAND_COUNT + 1) + 1,
@@ -825,7 +862,9 @@ export function segmentIterationLimit(movesLength) {
 // a replay recipe or the judge contract. onBoundary, when supplied, receives
 // the fail-closed boundary error that ended the segment; the loop below
 // swallows it, so an observer has no other way to learn which unported path
-// the segment reached.
+// the segment reached. inputBytes, when supplied, replaces the bytes
+// recordedInputBytes() derives from moves; unit tests use it for a byte that
+// no recording can deliver, such as 0377, which tty getline() reads as EOF.
 //
 // Two entry points share playSegment() and differ only in what an error that
 // is neither a boundary refusal nor input exhaustion does:
@@ -936,20 +975,16 @@ function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
     });
 }
 
-async function playSegment(nhGame, input, { onBoundary = null } = {}) {
+async function playSegment(nhGame, input, { onBoundary = null, inputBytes = null } = {}) {
     const moves = input.moves || '';
 
     const display = new GameDisplay(null);
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };
     nhGame._pendingDisplay = display;
 
-    // The recorder drives NetHack through a terminal whose ICRNL line
-    // discipline translates carriage return to newline before the game reads
-    // it. Replay input is already the recorder's raw key stream, so mirror
-    // that terminal boundary here rather than making command bindings accept
-    // a second, non-source key code.
-    for (const ch of moves)
-        display.pushKey((ch === '\r' ? '\n' : ch).charCodeAt(0));
+    const keys = inputBytes ?? recordedInputBytes(moves);
+    for (const byte of keys)
+        display.pushKey(byte);
 
     let started;
     try {
@@ -975,7 +1010,7 @@ async function playSegment(nhGame, input, { onBoundary = null } = {}) {
     // A single legal count can repeat through MAX_COMMAND_COUNT turns before
     // the next input boundary.  Keep a finite runaway guard, but size it from
     // the portable source limit rather than truncating valid counted commands.
-    const maxIter = segmentIterationLimit(moves.length);
+    const maxIter = segmentIterationLimit(keys.length);
     for (let iter = 0; iter < maxIter; iter++) {
         // Once terminated, moveloop_core() would only read a raw key, and an
         // empty queue here would be misread as input exhaustion below.

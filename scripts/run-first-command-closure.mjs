@@ -70,7 +70,7 @@ function assertFirstCommandBoundary(segment, replay) {
             `${label} reached an unsupported gameplay command`,
         );
     }
-    const expectedBoundaries = [...segment.moves].length + 1;
+    const expectedBoundaries = segment.moves.length + 1;
     if (replay.getCursors().length !== expectedBoundaries) {
         throw new Error(
             `${label} did not consume exactly its startup dismissal keys`,

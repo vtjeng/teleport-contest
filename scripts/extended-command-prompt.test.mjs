@@ -670,16 +670,21 @@ test('an EOF byte cancels the prompt where Escape would restart it',
     // EOF` and sets iflags.term_gone for the EOF half; getline.c:88 then gates
     // the restart on `c == '\033'` alone, so EOF always cancels -- even over
     // text, where Escape clears the buffer and redraws the prompt instead.
-    const EOF_KEY = '\xFF';
+    //
+    // The recorder sends each key as UTF-8, which never contains 0xFF, so the
+    // byte is passed to runSegment() directly after the ASCII keys before it.
     const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
+    const thenEof = (keys) => ({
+        inputBytes: [...keys].map((key) => key.charCodeAt(0)).concat(0xFF),
+    });
 
     // Over an empty buffer both arms would cancel, so this pins term_gone.
-    await runSegment({ ...base, moves: `.${EXTCMD_KEY}${EOF_KEY}` });
+    await runSegment(base, thenEof(`.${EXTCMD_KEY}`));
     assert.equal(topLine(), '');
     assert.equal(game.iflags.term_gone, 1);
 
     // Over existing text the two arms diverge, which is the whole gate.
-    await runSegment({ ...base, moves: `.${EXTCMD_KEY}wa${EOF_KEY}` });
+    await runSegment(base, thenEof(`.${EXTCMD_KEY}wa`));
     assert.equal(topLine(), '');
     assert.equal(game.iflags.term_gone, 1);
 

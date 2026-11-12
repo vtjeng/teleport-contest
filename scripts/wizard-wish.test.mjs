@@ -323,8 +323,13 @@ test('the wish command restores flags.verbose after makewish() returns',
     // route by which a running game reaches wizcmds.c:39 today, so it is the
     // one that can show the flag going back. It runs here through the whole
     // command, so encumber_msg() at wizcmds.c:40 runs too.
+    // The recorder sends each key as UTF-8, which never contains 0xFF, so the
+    // byte is passed to runSegment() directly after the ASCII keys before it.
     const segment = segmentFor(`${WIZWISH_KEY}mud boo`);
-    await runSegment({ ...segment, moves: `.${WIZWISH_KEY}lam${EOF_BYTE}` });
+    await runSegment(segment, {
+        inputBytes: [...`.${WIZWISH_KEY}lam${EOF_BYTE}`]
+            .map((key) => key.charCodeAt(0)),
+    });
 
     assert.equal(game.iflags.term_gone, 1);
     // The next moveloop_core iteration calls makewish, clearing the saved flag

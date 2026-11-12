@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5528190,
+      "datetime": "20370321074512",
+      "nethackrc": "OPTIONS=name:Bytewise,role:Priest,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "€  ä  ð  i\u001b"
+    }
+  ],
+  "comment": "tty_nhgetch() reads one byte per input boundary, and the recorder writes each moves character as UTF-8. The 3-byte '€' (E2 82 AC) is read as M-b, M-^B and M-, at three successive boundaries; the 2-byte 'ä' and 'ð' (C3 ..) each open #conduct (M-C) and their second byte is ignored by the conduct window. The recording stops after moves.length bytes, before the last four are read."
+}
