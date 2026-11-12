@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55441,
+      "datetime": "20230514203000",
+      "nethackrc": "OPTIONS=name:Odo,role:Priest,race:elf,gender:male,align:chaotic,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!autopickup,playmode:debug\nMSGTYPE=hide \".\"\n",
+      "moves": "l\u0017teleportation trap\nlh.   "
+    }
+  ],
+  "comment": "display.c flush_screen(0) prints the buffered map cells without moving the cursor to the hero, so tty_print_glyph() leaves the cursor just past the last cell it printed. Debug mode: step off the up stairs, wish for a teleportation trap, step off and back onto it. tele_trap() reaches teleport.c scrolltele()'s getpos(), whose curs(WIN_MAP, cx, cy); flush_screen(0) prints the hero's move. MSGTYPE hides every message, so no vpline() flush prints those cells first."
+}

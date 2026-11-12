@@ -7383,6 +7383,11 @@ function _buildScreenOutput(cursorOnHero = true) {
         // writes them physically, so restoring the status cells kept while
         // bot() is disabled must leave them in place.
         const printedOverStatus = new Set();
+        // tty_print_glyph() moves the terminal cursor to each cell it prints
+        // and writes one column there, so the cursor ends just past the last
+        // cell this loop prints, in display.c flush_screen()'s row-major
+        // order. A zero cursor_on_u flush leaves it there.
+        let afterLastPrinted = null;
         for (let offset = 0; offset < viewport.height; ++offset) {
             const y = viewport.top + offset;
             // An unclipped map row that lands on the status window is
@@ -7407,6 +7412,7 @@ function _buildScreenOutput(cursorOnHero = true) {
                     // its UTF-8 path leaves the shadow cell as it was.
                     if (game._screenOverlay && loc.disp_glyph?.ch !== null)
                         game._screenOverlay.delete(`${offset + 1}:${x - 1}`);
+                    afterLastPrinted = [x, offset + 1];
                 }
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
@@ -7488,6 +7494,8 @@ function _buildScreenOutput(cursorOnHero = true) {
                 game.u.ux - 1,
                 game.u.uy - viewport.top + 1,
             );
+        else if (!cursorOnHero && afterLastPrinted)
+            display.setCursor(afterLastPrinted[0], afterLastPrinted[1]);
         else if (!cursorOnHero && savedCursor)
             display.setCursor(savedCursor[0], savedCursor[1]);
     }
