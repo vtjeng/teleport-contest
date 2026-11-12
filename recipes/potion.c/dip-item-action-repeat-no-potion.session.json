@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "potion.c dip_into() reached by ^A: the inventory item action dips an object into a potion through the canned command queue; #repeat then replays dip_into() from CQ_REPEAT with CQ_CANNED empty, so C prints impossible(\"dip_into: where is potion?\") and returns ECMD_FAIL.",
+  "segments": [
+    {
+      "seed": 41817,
+      "datetime": "20361103101500",
+      "nethackrc": "OPTIONS=name:DipProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,suppress_alert:3.4.3\nOPTIONS=!autopickup\n",
+      "moves": " idaa\u0001  "
+    }
+  ]
+}

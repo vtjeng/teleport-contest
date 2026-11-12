@@ -278,7 +278,7 @@ import {
 } from './objects.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { impossible_printer, livelog_printf, youFeel } from './pline.js';
+import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
     GLYPH_INVISIBLE, map_invisible, unmap_object,
@@ -3208,7 +3208,7 @@ export async function dip_into(state = game, rawEnv = {}) {
     const env = drinkEnvironment(state, rawEnv);
     const { cmdq_peek } = await import('./cmd.js');
     if (!cmdq_peek(CQ_CANNED, state)) {
-        note_unported('cmd.c impossible dip_into missing canned potion');
+        await impossible('dip_into: where is potion?', state);
         return ECMD_FAIL;
     }
     drink_ok_extra = 0;
