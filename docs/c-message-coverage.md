@@ -22,8 +22,8 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3992 | 76 |
-| diagnostic | 723 | 207 | 516 |
+| gameplay | 4068 | 3993 | 75 |
+| diagnostic | 723 | 206 | 517 |
 | debug | 120 | 3 | 117 |
 | total | 4911 | 4202 | 709 |
 
@@ -33,7 +33,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 
 | C file | JS module | Gameplay | Diagnostic | Debug |
 | --- | --- | ---: | ---: | ---: |
-| src/allmain.c | yes | 1 | 0 | 0 |
 | src/alloc.c | yes | 0 | 5 | 0 |
 | src/apply.c | yes | 1 | 7 | 0 |
 | src/artifact.c | no | 0 | 4 | 0 |
@@ -54,7 +53,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dog.c | yes | 0 | 4 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
-| src/dungeon.c | yes | 0 | 17 | 7 |
+| src/dungeon.c | yes | 0 | 19 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 1 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
@@ -118,7 +117,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/steed.c | yes | 0 | 5 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
-| src/teleport.c | yes | 0 | 3 | 3 |
+| src/teleport.c | yes | 0 | 2 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
 | src/topten.c | yes | 3 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
@@ -143,11 +142,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 ## Missing gameplay messages
 
 Each line gives the C line, the message function, and the fragment searched for.
-
-### src/allmain.c
-
-- `moveloop_core()`
-  - 255 urgent_pline: `The dungeon capitulates.`
 
 ### src/apply.c
 
@@ -667,6 +661,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `dungeon_branch()`
   - 1883 panic: `dgn_entrance: can't find entrance to`
+
+- `recbranch_mapseen()`
+  - 2469 impossible: `Two branches on the same level?`
+  - 2472 impossible: `Can't note branch for unseen level (`
 
 ### src/eat.c
 
@@ -1590,9 +1588,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `tele_to_rnd_pet()`
   - 820 impossible: `attempt to teleport hero to be near a pet on no-teleport level`
-
-- `rloc()`
-  - 1887 impossible: `rloc(): couldn't relocate monster`
 
 ### src/timeout.c
 
