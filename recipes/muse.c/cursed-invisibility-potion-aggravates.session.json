@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7724519,
+      "datetime": "20310917153020",
+      "nethackrc": "OPTIONS=name:Jolted,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\nde\u0007hostile gnome lord\nllllll    msms"
+    }
+  ],
+  "comment": "muse.c use_misc() MUSE_POT_INVISIBILITY with a cursed potion calls you_aggravate(). The hostile gnome lord picks up the dropped potion while the hero walks east, and drinks it once the hero is out of reach. After cls() and You_feel(), display_nhwindow(WIN_MAP, TRUE) waits at --More-- over a map that shows only the gnome lord and the hero; the next key lets docrt() restore the map."
+}

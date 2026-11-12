@@ -11,7 +11,7 @@
 // mon_reflects(), ureflects(), munstone(), mon_consume_unstone();
 // mondata.c can_blow().
 
-import { cliparound } from './wintty.js';
+import { cliparound, tty_display_nhwindow_map_blocking } from './wintty.js';
 import {
     ACID_RES,
     ARTICLE_A,
@@ -114,7 +114,7 @@ import { stop_occupation } from './allmain.js';
 import { losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import {
-    cls, display_self, docrt, flush_screen, map_invisible,
+    cls, display_self, docrt, map_invisible,
     map_monster_glyph_info, newsym, show_glyph_cell,
     shieldeff,
 } from './display.js';
@@ -1772,8 +1772,7 @@ async function you_aggravate(mtmp, state) {
         youFeel(`aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
             state),
         state);
-    // C: display_nhwindow(WIN_MAP, TRUE) -- flush the map display
-    await flush_screen(1);
+    await tty_display_nhwindow_map_blocking(state);
     await docrt({ state });
     if (unconscious(state)) {
         state.multi = -1;
