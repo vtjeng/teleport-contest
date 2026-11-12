@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61442,
+      "datetime": "20330721193000",
+      "nethackrc": "OPTIONS=name:Loader,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " #wizloaddes\nbigrm-5\n  #wizloaddes\nsoko1-2\n     ",
+      "comment": "Independent display.c show_glyph() witness for its in_mklev suppression: a debug elven Priestess loads bigrm-5 with #wizloaddes, then loads soko1-2 from inside that lit room. premap_detect() runs during load_special() while in_mklev is set, so show_glyph() leaves the glyph buffer holding the bigroom; after level_finalize_topology() clears in_mklev, fill_special_room() -> fill_zoo() -> makemon() prints 'suddenly appears', and vpline()'s vision_recalc(0) and flush_screen() show only the cells whose sight changed over the stale bigroom until makemap_prepost()'s docrt()."
+    }
+  ]
+}

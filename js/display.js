@@ -2912,6 +2912,11 @@ export function show_glyph_cell(x, y, glyph) {
         displayCh = null,
         displayColor = null,
     } = glyph;
+    // C ref: display.c show_glyph() (1885-1887). Level construction, save
+    // and restore leave the glyph buffer untouched; premap_detect() during a
+    // special level's load stores map memory only, so a message printed
+    // after in_mklev clears flushes the previous level's buffered cells.
+    if (suppress_map_output()) return;
     const loc = game.level?.at(x, y);
     if (!loc) return;
     const logicalPresentation = {
