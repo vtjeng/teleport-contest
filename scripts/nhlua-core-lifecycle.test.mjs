@@ -57,9 +57,9 @@ test('bounded load_lua initializes before a level program it cannot run', async 
     const { load_lua } = await import('../js/nhlua.js');
     assert.equal(typeof load_lua, 'function');
     // minefill.lua is a level program in dat/, which C runs without a coder;
-    // "kits/one.lua" has a directory part, so dlb_fopen() reaches the host
-    // filesystem. Both stay noted after nhl_init()'s shuffle.
-    for (const name of ['minefill.lua', 'kits/one.lua']) {
+    // "save/one.lua" names a file in save/, which holds whatever save files
+    // the game wrote. Both stay noted after nhl_init()'s shuffle.
+    for (const name of ['minefill.lua', 'save/one.lua']) {
         freshGame();
         game.iflags = { in_lua: false }; // Source-valid command state.
         const draws = [];

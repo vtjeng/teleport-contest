@@ -270,6 +270,44 @@ const PLAYGROUND_NON_LUA_FILES = new Set([
     'xlogfile',
 ]);
 
+// What fopen(name, "r") reaches with C's working directory in the playground,
+// following POSIX path resolution: { kind: 'lua', file } for one of dat/'s
+// Lua files; 'file' for another playground file; 'directory' for the
+// playground or its save directory; 'unknown' for a name the game itself may
+// have written ("<lock>.<n>", "bonD0.<n>", anything in save/); 'absent' when
+// resolution fails inside the playground (no such entry, or a file used as a
+// directory); and 'outside' for an absolute name or one that climbs above
+// the playground, which reaches a host directory the port cannot read.
+export function resolvePlaygroundPath(name) {
+    const text = String(name);
+    if (text.startsWith('/')) return { kind: 'outside' };
+    let dir = 'playground';
+    let file = null;
+    const parts = text.split('/');
+    for (const part of parts) {
+        // A file followed by any component, even "." or a trailing slash,
+        // fails with ENOTDIR.
+        if (file !== null) return { kind: 'absent' };
+        if (part === '' || part === '.') continue;
+        if (part === '..') {
+            if (dir === 'playground') return { kind: 'outside' };
+            dir = 'playground';
+        } else if (dir === 'save') {
+            return { kind: 'unknown' };
+        } else if (part === 'save') {
+            dir = 'save';
+        } else if (DAT_LUA_FILES.has(part) || PLAYGROUND_NON_LUA_FILES.has(part)) {
+            file = part;
+        } else if (/\.\d+$/u.test(part)) {
+            return { kind: 'unknown' };
+        } else {
+            return { kind: 'absent' };
+        }
+    }
+    if (file === null) return { kind: 'directory' };
+    return { kind: DAT_LUA_FILES.has(file) ? 'lua' : 'file', file };
+}
+
 // Whether access(name, R_OK) can succeed with C's working directory in the
 // playground, or the $HOME fallback can open the name. True for a name the
 // port cannot rule out: a playground file or directory, a lock, level or

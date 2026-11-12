@@ -8,7 +8,7 @@
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
 import { rn2 } from './rng.js';
-import { DAT_LUA_FILES } from './dat_files.js';
+import { resolvePlaygroundPath } from './files.js';
 import {
     NHCORE_ENTER_TUTORIAL,
     NHCORE_LEAVE_TUTORIAL,
@@ -310,23 +310,35 @@ export const LUA_LIBRARY_FILES = new Set([
 // and 'level' for a level program, which the caller runs, since only
 // load_special() has the coder its des.* calls need.
 export async function nhl_loadlua(lua, name, state = game, random = rn2) {
-    if (name.includes('/')) {
-        // dlb_fopen() resolves a name with a directory part against the host
-        // filesystem, which the game cannot read.
-        note_unported('nhlua.c nhl_loadlua');
-        return false;
-    }
-    // The unix install copies only dat/'s Lua files into the playground, and
-    // wiz_load_lua() and wiz_load_splua() add ".lua" to a name without a
-    // dot, so no other playground file can be named. ("." and ".." name
-    // directories, which C's fopen() opens and then aborts on.)
-    if (!DAT_LUA_FILES.has(name)) {
+    // dlb_fopen() (no DLB library in the unix build) falls back to
+    // fopen_datafile(), whose fopen() resolves the name against C's working
+    // directory, the playground.
+    const target = resolvePlaygroundPath(name);
+    // A name outside the playground reaches a host directory the game
+    // cannot read; the port takes it to hold no such file, as the recorder's
+    // and every ordinary install's parent directories do.
+    if (target.kind === 'absent' || target.kind === 'outside') {
         const { impossible } = await import('./pline.js');
         await impossible(`nhl_loadlua: Error opening (${name})`, state);
         return false;
     }
-    if (!LUA_LIBRARY_FILES.has(name)) return 'level';
-    if (name === 'nhlib.lua') lua.align = nhl_init(random);
+    if (target.kind !== 'lua') {
+        // A directory, a non-Lua playground file, or a file the game wrote:
+        // C reads it and fails in luaL_loadbuffer() with Lua's syntax
+        // message, or opens a directory and aborts.
+        note_unported('nhlua.c nhl_loadlua');
+        return false;
+    }
+    if (!LUA_LIBRARY_FILES.has(target.file)) {
+        // The caller runs a level program by the name it passed, so one
+        // reached through a directory part stays a gap.
+        if (target.file !== name) {
+            note_unported('nhlua.c nhl_loadlua');
+            return false;
+        }
+        return 'level';
+    }
+    if (target.file === 'nhlib.lua') lua.align = nhl_init(random);
     return 'library';
 }
 

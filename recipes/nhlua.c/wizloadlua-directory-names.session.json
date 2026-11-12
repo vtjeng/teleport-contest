@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_loadlua() through wiz_load_lua() with names that have a directory part: fopen() resolves each against the playground, so './nhlib.lua' and 'save/../quest.lua' run those library files (nhl_init()'s nhlib.lua shuffle, plus nhlib.lua's own), while 'nodir/dungeon.lua', 'oracles/x.lua' (a file used as a directory) and '../nosuch/file' (outside the playground) take the Error opening impossible(). Seed, date and Healer chosen independently.",
+  "segments": [
+    {
+      "seed": 52817093,
+      "datetime": "20590417154512",
+      "nethackrc": "OPTIONS=name:LuaDirs,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\n./nhlib.lua\n#wizloadlua\nsave/../quest.lua\n#wizloadlua\nnodir/dungeon.lua\n  #wizloadlua\noracles/x.lua\n  #wizloadlua\n../nosuch/file\n    "
+    }
+  ]
+}
