@@ -807,6 +807,21 @@ export async function vision_recalc_async(control = 0, env = {}) {
     if (state === game) await emitQueuedNotices(state);
 }
 
+// vision_recalc() inside a `*_steps` generator (js/source_steps.js), for a C
+// function whose callers are partly synchronous. When the recalculation
+// queues notices, it yields their print, so a caller that can wait prints
+// them where C does. When it queues none it yields nothing and the generator
+// stays synchronous; that is always so during level creation, where
+// vision_recalc() returns at once, so a synchronous level builder never
+// receives a promise. Delegate to it with yield*.
+export function* vision_recalc_steps(control = 0, env = {}) {
+    const state = env.state ?? game;
+    const queued = state._glyphUpdateNotices?.length ?? 0;
+    vision_recalc(control, env);
+    if (state === game && (state._glyphUpdateNotices?.length ?? 0) > queued)
+        yield emitQueuedNotices(state);
+}
+
 export function vision_recalc(control = 0, env = {}) {
     const state = env.state ?? game;
     if (state !== game && typeof env.redraw !== 'function') {

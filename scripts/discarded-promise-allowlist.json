@@ -960,6 +960,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/themeroom_fill.js | spo_end_moninvent | m_dowear": {
+      "count": 1,
+      "reason": "Runs only during level creation, where vision_recalc() returns at once, so m_dowear(mon, TRUE) has no vision notices to print and returns synchronously; no promise is discarded."
+    },
     "js/timeout.js | burn_object | obj_extract_self": {
       "count": 3,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -1104,15 +1108,11 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/worn.js | m_dowear | m_dowear_type": {
+    "js/worn.js | m_dowear_type_steps | curse": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/worn.js | m_dowear_type | curse": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/worn.js | m_dowear_type | update_mon_extrinsics": {
+    "js/worn.js | m_dowear_type_steps | update_mon_extrinsics": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },

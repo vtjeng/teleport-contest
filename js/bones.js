@@ -660,7 +660,7 @@ export async function savebones(how, when, corpse, state) {
         if (mtmp.data.mlet === S_MUMMY
             && !m_carrying(mtmp, MUMMY_WRAPPING, state))
             mongets(mtmp, MUMMY_WRAPPING, bonesObjectEnv(state));
-        m_dowear(mtmp, true, { state });
+        await m_dowear(mtmp, true, { state });
     } else if (state.u.ugrave_arise === LEAVESTATUE) {
         // bones.c:480-489. The possessions are embedded in a statue of the
         // hero's current form.

@@ -10,31 +10,29 @@ import { parse } from 'acorn';
 // awaits it; otherwise the notices wait for the next message or window, or a
 // promise left running prints them in the middle of a later message.
 //
-// This check fails on three patterns:
+// This check fails on four patterns:
 // - a reference to vision_recalc() outside the functions that print the queue
 //   themselves, whether a call or a function passed on as a callback;
 // - a call to vision_recalc_async(), or to an injected `visionRecalc`
 //   operation, that is not awaited or returned to an awaiting caller;
+// - a call to vision_recalc_steps() that a step generator does not delegate
+//   to with yield*;
 // - a `visionRecalc` operation that a caller supplies as vision_recalc.
 //
 // The allowed functions print the queue themselves: vision_recalc_async() is
-// the shared definition; tty_message.js vplineVisionRecalc() prints the
-// notices under its outer message's pline flags; display.js docrt() brackets
-// its two recalculations with program_state.in_docrt and prints after both,
-// so the suspendVision and restoreVision callbacks a caller passes to docrt()
-// may call vision_recalc() too.
-//
-// One synchronous function still calls vision_recalc() and leaves its notices
-// queued; it needs its whole caller chain made async to print them at C's
-// point:
-// - worn.js m_dowear_type() lights an artifact-light armour that a monster
-//   puts on at creation; makemon() and its m_dowear(mon, TRUE) callers are
-//   synchronous. The runtime path prints through vision_recalc_async().
+// the shared definition, and vision_recalc_steps() its form for a `*_steps`
+// generator (js/source_steps.js) whose callers are partly synchronous, such
+// as worn.js m_dowear_type_steps() on the creation path;
+// tty_message.js vplineVisionRecalc() prints the notices under its outer
+// message's pline flags; display.js docrt() brackets its two recalculations
+// with program_state.in_docrt and prints after both, so the suspendVision
+// and restoreVision callbacks a caller passes to docrt() may call
+// vision_recalc() too.
 const ALLOWED = new Set([
     'js/vision.js vision_recalc_async',
+    'js/vision.js vision_recalc_steps',
     'js/tty_message.js vplineVisionRecalc',
     'js/display.js docrt',
-    'js/worn.js m_dowear_type',
 ]);
 const DOCRT_PHASES = new Set(['suspendVision', 'restoreVision']);
 
@@ -129,6 +127,11 @@ export function visionRecalcViolations(file, source) {
         }
         if (isAsyncRecalcCall(node) && !isAwaited(parent, node))
             found.push(`${where(node)} does not await a vision recalculation`);
+        if (node.type === 'CallExpression'
+            && node.callee.type === 'Identifier'
+            && node.callee.name === 'vision_recalc_steps'
+            && !(parent?.type === 'YieldExpression' && parent.delegate))
+            found.push(`${where(node)} does not yield* a vision recalculation`);
         for (const [key, value] of Object.entries(node)) {
             if (key !== 'loc' && value && typeof value === 'object')
                 walk(value);
@@ -172,6 +175,10 @@ test('the check reports each bypass', () => {
             'does not await'],
         ['async function f() { vision_recalc_async(0); }',
             'does not await'],
+        // A step generator that runs the recalculation without yielding its
+        // print, or yields the generator object instead of delegating.
+        ['function* f() { vision_recalc_steps(1); }', 'does not yield*'],
+        ['function* f() { yield vision_recalc_steps(1); }', 'does not yield*'],
     ];
     for (const [source, expected] of cases) {
         const found = visionRecalcViolations('js/x.js', source);
@@ -185,6 +192,7 @@ test('the check reports each bypass', () => {
             + ' suspendVision: () => vision_recalc(2),'
             + ' restoreVision: () => vision_recalc(0) }); }',
         'import { vision_recalc } from "./vision.js";',
+        'function* f() { yield* vision_recalc_steps(1); }',
     ];
     for (const source of allowed) {
         assert.deepEqual(visionRecalcViolations('js/x.js', source), [],

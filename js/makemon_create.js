@@ -520,7 +520,7 @@ import {
 } from './trap.js';
 import {
     extract_from_minvent,
-    m_dowear,
+    m_dowear_steps,
     mon_set_minvis,
     update_mon_extrinsics,
     which_armor,
@@ -2188,7 +2188,7 @@ function* finishMonsterInventoryAndStrategySteps(
     if (allowMinvent) {
         if (isArmed(ptr)) m_initweap(monster, normalized);
         yield* m_initinv_steps(monster, normalized);
-        m_dowear(monster, true, normalized);
+        yield* m_dowear_steps(monster, true, normalized);
 
         const saddleRoll = random.rn2(100);
         if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)

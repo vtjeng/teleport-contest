@@ -246,7 +246,7 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
         if (weapon === O.WAR_HAMMER) mk_mplayer_armor(monster, O.GAUNTLETS_OF_POWER, env);
         else if (random.rn2(8)) mk_mplayer_armor(monster, rnd_class(O.LEATHER_GLOVES, O.GAUNTLETS_OF_DEXTERITY, env), env);
         if (random.rn2(8)) mk_mplayer_armor(monster, rnd_class(O.LOW_BOOTS, O.LEVITATION_BOOTS, env), env);
-        m_dowear(monster, true, env);
+        await m_dowear(monster, true, env);
         let quantity = random.rn2(3) ? random.rn2(3) : random.rn2(16);
         while (quantity--) mongets(monster, rnd_class(O.DILITHIUM_CRYSTAL, O.JADE, env), env);
         mkmonmoney(monster, random.rn2(1000), env);

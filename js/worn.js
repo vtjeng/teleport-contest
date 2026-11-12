@@ -160,7 +160,7 @@ import {
 import { learnwand } from './zap.js';
 import { ttyPline } from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
-import { cansee, vision_recalc, vision_recalc_async } from './vision.js';
+import { cansee, vision_recalc_async, vision_recalc_steps } from './vision.js';
 import { arti_light_description } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
@@ -170,6 +170,7 @@ import { surface } from './dungeon.js';
 import { youHear } from './monmove.js';
 import { coreRandom } from './rng.js';
 import { discover_object } from './o_init.js';
+import { finish_steps } from './source_steps.js';
 import { note_unported } from './unported.js';
 import {
     distant_name,
@@ -588,8 +589,9 @@ export async function mon_adjust_speed(
 // C refs: worn.c update_mon_extrinsics() (579-712), m_dowear() (757-797),
 // and m_dowear_type() (799-1002).  Monster equipment belongs to worn.c even
 // though level creation historically kept a narrow copy in makemon_create.js.
-// Creation stays synchronous; live reassessment returns a promise so its
-// messages and speed recalculation finish before movemon continues.
+// Creation stays synchronous unless an artifact light's vision notices must
+// print; live reassessment returns a promise so its messages and speed
+// recalculation finish before movemon continues.
 
 function monsterArmorEnv(rawEnv = {}) {
     if (rawEnv && rawEnv.state) {
@@ -904,14 +906,19 @@ async function applyMonsterArmorRuntime(
     }
 }
 
-function m_dowear_type(
+// C ref: worn.c m_dowear_type() (799-1002), as a step generator
+// (js/source_steps.js). The runtime arm yields its async wear sequence; the
+// creation arm is synchronous except where an artifact light's
+// vision_recalc(1) queues notices, which it yields so that they print at
+// C's point.
+function* m_dowear_type_steps(
     monster,
     mask,
     creation,
     env,
     racialException = false,
 ) {
-    if (monster.mfrozen) return undefined;
+    if (monster.mfrozen) return;
     const runtime = !creation;
     // C snapshots the name with canspotmon(), including sensed monsters.
     // The armor owner's canSeeMonster seam controls visible wear messages;
@@ -923,11 +930,13 @@ function m_dowear_type(
     const selected = selectMonsterArmor(monster, mask, {
         ...env, creation,
     }, racialException);
-    if (!selected.best || selected.best === selected.old) return undefined;
-    if (runtime)
-        return applyMonsterArmorRuntime(
+    if (!selected.best || selected.best === selected.old) return;
+    if (runtime) {
+        yield applyMonsterArmorRuntime(
             monster, mask, selected.old, selected.best, env, sourceName,
         );
+        return;
+    }
     const { old, best } = selected;
     const oldMask = old?.owornmask ?? 0;
     if (old) {
@@ -954,7 +963,7 @@ function m_dowear_type(
     }
     if (artifact_light(best) && !best.lamplit) {
         begin_burn(best, false, { ...env, state: env.state });
-        vision_recalc(1, {
+        yield* vision_recalc_steps(1, {
             ...env,
             state: env.state,
             redraw: env.redraw ?? (env.state === game ? newsym : () => {}),
@@ -963,10 +972,17 @@ function m_dowear_type(
     update_mon_extrinsics(monster, best, true, {
         ...env, state: env.state, silent: true,
     });
-    return undefined;
 }
 
+// C ref: worn.c m_dowear() (757-797). Synchronous until a step must wait: a
+// runtime wear always does, and a creation wear only when an artifact light
+// prints vision notices, which cannot happen during level creation because
+// vision_recalc() does nothing there.
 export function m_dowear(monster, creation = false, rawEnv = {}) {
+    return finish_steps(m_dowear_steps(monster, creation, rawEnv));
+}
+
+export function* m_dowear_steps(monster, creation = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = {
         ...rawEnv,
@@ -999,15 +1015,8 @@ export function m_dowear(monster, creation = false, rawEnv = {}) {
             ? [[W_ARMF, false]] : []),
         [W_ARM, !canWearArmor],
     ];
-    if (!creation) {
-        return (async () => {
-            for (const [mask, racial] of calls)
-                await m_dowear_type(monster, mask, creation, env, racial);
-            return monster;
-        })();
-    }
     for (const [mask, racial] of calls)
-        m_dowear_type(monster, mask, creation, env, racial);
+        yield* m_dowear_type_steps(monster, mask, creation, env, racial);
     return monster;
 }
 

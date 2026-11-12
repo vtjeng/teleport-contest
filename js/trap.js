@@ -3509,7 +3509,7 @@ export async function animate_statue(
         obj_extract_self(item, objectEnv);
         await mpickobjRuntime(monster, item, objectEnv);
     }
-    m_dowear(monster, true, objectEnv);
+    await m_dowear(monster, true, objectEnv);
     if (statue.owornmask)
         await remove_worn_item(statue, true, state, objectEnv);
     delobj(statue, objectEnv);

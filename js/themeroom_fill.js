@@ -899,6 +899,8 @@ export function sp_amask_to_amask(sp_amask, rawEnv = {}) {
 // slot is cleared. It deliberately consults the shared carrier rather than a
 // saved local, so a nested descriptor that replaced or cleared it wins.
 export function spo_end_moninvent(context, env) {
+    // Level creation runs this, where vision_recalc() does nothing, so
+    // m_dowear() never has notices to print and returns synchronously.
     if (context.inventCarryingMonster)
         m_dowear(context.inventCarryingMonster, true, env);
     context.inventCarryingMonster = null;
