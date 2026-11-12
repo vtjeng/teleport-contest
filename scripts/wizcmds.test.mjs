@@ -653,3 +653,41 @@ test('wiz_load_lua cancellation and unavailable direct call do not initialize Lu
     }), ECMD_OK);
     assert.deepEqual(messages, ["Unavailable command 'wizloadlua'."]);
 });
+
+// wizcmds.c wiz_fuzzer() (548-564) after "Do you want to start fuzz
+// testing?" is accepted. No recording can answer the y_n() that follows,
+// because C then reads only randomkey() keys and never waits for input again
+// (recipes/wizcmds.c/fuzzer-prompts stops at that question). The port reads
+// the answer, records the unported fuzz-testing mode and leaves
+// iflags.debug_fuzzer unset.
+test('wiz_fuzzer reads the panic() after impossible() answer and records the gap',
+    async () => {
+        const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
+        const gstate = await import('../js/gstate.js');
+        const { wiz_fuzzer } = await import('../js/wizcmds.js');
+        // 'n' and 'y' are the two answers wiz_fuzzer() distinguishes.
+        for (const answer of ['n', 'y']) {
+            await runSegment({
+                seed: 58113, // Independent startup; only the prompts matter.
+                datetime: '20410607080910',
+                // suppress_alert:3.7.0 skips the two notices, so no --More--
+                // precedes the paranoid query.
+                nethackrc: 'OPTIONS=name:Fuzzunit,role:Priest,race:human,gender:female,align:neutral\n'
+                    + 'OPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,playmode:debug,suppress_alert:3.7.0\n',
+                moves: '',
+            });
+            const { game } = gstate;
+            const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+            clearTtyMessageWindow(game);
+            game.nhDisplay.onEmptyQueue = () => {
+                throw new Error('wiz_fuzzer requested an unprovided key');
+            };
+            // paranoid_query(TRUE, ...) reads a line that must be "yes".
+            for (const key of `yes\n${answer}`)
+                game.nhDisplay.pushKey(key.charCodeAt(0));
+            assert.equal(await wiz_fuzzer(game), ECMD_OK);
+            assert.equal(game.nhDisplay.inputQueueLength, 0);
+            assert.ok(!game.iflags.debug_fuzzer);
+            assert.ok(game.unported.has('wizcmds.c wiz_fuzzer'));
+        }
+    });

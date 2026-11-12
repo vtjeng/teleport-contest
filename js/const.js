@@ -981,6 +981,10 @@ export const GFILTER_VIEW = (GFILTER_NONE + 1);
 export const GFILTER_AREA = (GFILTER_VIEW + 1);
 export const NUM_GFILTER = (GFILTER_AREA + 1);
 export const WC_COUNT = 4; // flag.h enum windowcolors_windows
+// flag.h enum debug_fuzzer_states, the values of iflags.debug_fuzzer
+export const FUZZER_OFF = 0;
+export const FUZZER_IMPOSSIBLE_PANIC = (FUZZER_OFF + 1);
+export const FUZZER_IMPOSSIBLE_CONTINUE = (FUZZER_IMPOSSIBLE_PANIC + 1);
 export const PLNMSG_UNKNOWN = 0;
 export const PLNMSG_ONE_ITEM_HERE = (PLNMSG_UNKNOWN + 1);
 export const PLNMSG_TOWER_OF_FLAME = (PLNMSG_ONE_ITEM_HERE + 1);

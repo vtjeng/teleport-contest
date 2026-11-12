@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c wiz_fuzzer(). Segment 1 has the default suppress_alert, so the two notices print before paranoid_query(TRUE, \"Do you want to start fuzz testing?\"); it declines with 'no', then repeats the command and declines with Escape. Segment 2 sets suppress_alert to 3.7.0, which skips the notices, and declines with a bare 'n'. Segment 3 sets suppress_alert to 3.6.0, which is older than 3.7.0 and keeps the notices, accepts with 'yes' and stops at the y_n() question about panic() after impossible(). Answering it starts the fuzzer's own random keys, after which C never waits for input again, so no recording can go further.",
+  "segments": [
+    {
+      "seed": 72911,
+      "datetime": "20380116204500",
+      "nethackrc": "OPTIONS=name:Fuzzless,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "#debugfuzzer\n  no\n#debugfuzzer\n  \u001bs"
+    },
+    {
+      "seed": 72967,
+      "datetime": "20380209113000",
+      "nethackrc": "OPTIONS=name:Quietude,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,suppress_alert:3.7.0\n",
+      "moves": "#debugfuzzer\nn\ns"
+    },
+    {
+      "seed": 73019,
+      "datetime": "20380322160500",
+      "nethackrc": "OPTIONS=name:Thothful,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,suppress_alert:3.6.0\n",
+      "moves": "#debugfuzzer\n  yes\n"
+    }
+  ]
+}

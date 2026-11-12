@@ -3,6 +3,7 @@
 
 import {
     FULL_MOON,
+    FUZZER_IMPOSSIBLE_PANIC,
     LUCKMAX,
     LUCKMIN,
     NEW_MOON,
@@ -110,8 +111,7 @@ export async function moveloop_preamble(
     state.context.move = 0;
 
     if (state.iflags.fuzzerpending) {
-        // include/flag.h: fuzzer_impossible_panic is enum value 1.
-        state.iflags.debug_fuzzer = 1;
+        state.iflags.debug_fuzzer = FUZZER_IMPOSSIBLE_PANIC;
         state.iflags.fuzzerpending = false;
     }
     state.program_state.in_moveloop = 1;

@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3984 | 84 |
+| gameplay | 4068 | 3987 | 81 |
 | diagnostic | 723 | 198 | 525 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4185 | 726 |
+| total | 4911 | 4188 | 723 |
 
 ## Missing by C file
 
@@ -131,7 +131,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
-| src/wizcmds.c | yes | 3 | 7 | 0 |
+| src/wizcmds.c | yes | 0 | 7 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 11 | 1 |
@@ -380,13 +380,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `choose_windows()`
   - 296 raw_printf: `No window types supported?`
-
-### src/wizcmds.c
-
-- `wiz_fuzzer()`
-  - 552 pline: `The fuzz tester will make NetHack execute random keypresses.`
-  - 553 There: `is no conventional way out of this mode.`
-  - 557 yn_function: `Do you want to call panic() after impossible()?`
 
 ### sys/share/ioctl.c
 

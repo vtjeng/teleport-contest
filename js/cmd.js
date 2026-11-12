@@ -105,6 +105,7 @@ import {
     zdir,
     W_SADDLE,
     has_mgivenname,
+    FUZZER_IMPOSSIBLE_CONTINUE,
 } from './const.js';
 import { NO_COLOR } from './terminal.js';
 import {
@@ -352,7 +353,7 @@ import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
     wiz_level_tele, wiz_load_lua, wiz_load_splua, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
     makemap_remove_mons,
-    wiz_map_levltyp, wiz_levltyp_legend, wiz_panic, wiz_show_nhuuid,
+    wiz_map_levltyp, wiz_levltyp_legend, wiz_panic, wiz_fuzzer, wiz_show_nhuuid,
 } from './wizcmds.js';
 import {
     dozap,
@@ -808,8 +809,6 @@ async function yn_function_menu(query, resp, def, state = game, sharedResp = tru
 // set, tty_yn_function() returns only a character of `resp` or `def`, and both
 // ported callers pass a `def` that is in their set, so the paniclog() and
 // impossible() inside it stay unreachable.
-// include/flag.h enum debug_fuzzer_states: fuzzer_impossible_continue.
-const FUZZER_IMPOSSIBLE_CONTINUE = 2;
 
 // `sharedResp: false` marks a `resp` that C passes as a literal or local copy
 // rather than one of decl.c's shared arrays (see yn_menuable_resp()).
@@ -5208,6 +5207,7 @@ const EXTCMD_FUNCTIONS = new Map(Object.entries({
     wiz_flip_level: (key, state) => wiz_flip_level(state),
     wiz_kill: (key, state) => runKillCommand(key, state),
     wiz_panic: (key, state) => wiz_panic(state),
+    wiz_fuzzer: (key, state) => wiz_fuzzer(state),
     wiz_show_nhuuid: (key, state) => wiz_show_nhuuid(state),
     wiz_migrate_mons: (key, state) => wiz_migrate_mons(state),
     wiz_light_sources: async (key, state) => {
