@@ -2442,6 +2442,38 @@ export function rm_mapseen(ledgerNumber, state = game) {
     }
 }
 
+// C ref: dungeon.c save_mapseen() (2694-2717) and load_mapseen() (2721-2731)
+// share this walk of svb.branches. It stops at the first branch `stop`
+// accepts. When none does, curr is null and brindx is the number of
+// branches, so a mapseen with no branch saves that count and loads as null.
+function walk_branches(stop, state) {
+    let brindx = 0;
+    let curr = state.svb?.branches ?? null;
+    for (; curr; curr = curr.next, ++brindx)
+        if (stop(curr, brindx)) break;
+    return { curr, brindx };
+}
+
+// C ref: dungeon.c save_mapseen() (2694-2717). C writes mptr->br as its
+// position in svb.branches, not the branch itself, so that load_mapseen()
+// can point the restored node at the restored branch. Every other field is
+// saved by value.
+export function save_mapseen(mptr, state) {
+    const { br, ...fields } = mptr;
+    const { brindx } = walk_branches((curr) => curr === br, state);
+    return { branch_index: brindx, ...fields };
+}
+
+// C ref: dungeon.c load_mapseen() (2721-2760). The caller restores
+// svb.branches first, as restore_dungeon() does, so that `br` is one of the
+// restored branches and recbranch_mapseen()'s identity check holds.
+export function load_mapseen(saved, state) {
+    const { branch_index: branchnum, ...fields } = saved;
+    const { curr } = walk_branches(
+        (_curr, brindx) => brindx === branchnum, state);
+    return { br: curr, ...fields };
+}
+
 // C ref: dungeon.c init_mapseen() (2834-2872). An array represents C's linked
 // list while preserving its sorted dungeon-and-level order.
 export function init_mapseen(lev, state = game) {

@@ -11,6 +11,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
 import { A_CHAOTIC, DISPLACED, W_ARMC } from '../js/const.js';
+import { save_mapseen } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dorestore } from '../js/restore.js';
@@ -173,7 +174,11 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
         'u.uy must be a positive number after restore',
     );
     // restoregamestate() restores the overview chain before gameplay resumes.
-    assert.deepEqual(game.svm.mapseenchn, savedSnapshot.mapseenchn);
+    // load_mapseen() turned each saved branch index back into a branch, so
+    // compare in the saved form.
+    assert.deepEqual(
+        game.svm.mapseenchn.map((mptr) => save_mapseen(mptr, game)),
+        savedSnapshot.mapseenchn);
     assert.deepEqual(game.gamelog, savedSnapshot.gamelog,
         'restore must rebuild the saved chronicle entries');
 

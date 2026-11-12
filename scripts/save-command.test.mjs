@@ -10,6 +10,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
+import { save_mapseen } from '../js/dungeon.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { InMemoryStorage } from '../js/storage.js';
@@ -91,8 +92,11 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
         text: 'Sneaky the chaotic female human Rogue entered the dungeon',
     });
     // dungeon.c savegamestate() serializes svm.mapseenchn independently of
-    // the live level. The current level's record must survive the segment.
-    assert.deepEqual(snapshot.mapseenchn, game.svm.mapseenchn);
+    // the live level, each node through save_mapseen(), which writes br as
+    // its svb.branches index. The current level's record must survive the
+    // segment.
+    assert.deepEqual(snapshot.mapseenchn,
+        game.svm.mapseenchn.map((mptr) => save_mapseen(mptr, game)));
     const currentOverview = snapshot.mapseenchn.find((entry) =>
         entry.lev.dnum === snapshot.u.uz.dnum
         && entry.lev.dlevel === snapshot.u.uz.dlevel);

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "dungeon.c save_mapseen() and load_mapseen(): a mapseen's branch is saved as its index in svb.branches and relinked to the restored branch on load, so recbranch_mapseen()'s \"Two branches on the same level?\" check stays silent after a restore. Seed 4170016 was chosen from an independent scan of seeds 4170000-4170039 for a debug-mode Valkyrie whose Gnomish Mines branch stair, on D:3, travel reaches after ^V level teleport and ^F mapping. The first segment travels to the branch stair, enters the Mines (recording the branch on D:3's overview), climbs back and saves. The second segment restores, declines to keep the save file, and crosses the same branch stair down, up and down again. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4170016,
+      "datetime": "20410315101500",
+      "nethackrc": "OPTIONS=name:Rejoin,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!tips\n",
+      "moves": "\u00163\n\u0006_>>.>\n<\nSy"
+    },
+    {
+      "seed": 4170017,
+      "datetime": "20410316194500",
+      "nethackrc": "OPTIONS=name:Rejoin,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!tips\n",
+      "moves": "\nn>\n<\n>\n"
+    }
+  ]
+}

@@ -48,7 +48,7 @@ import {
 import { init_artifacts, restore_artifacts } from './artifacts.js';
 import {
     ledger_no, level_info, load_exclusions, on_level, set_dungeon_topology,
-    copy_lastseentyp_grid,
+    copy_lastseentyp_grid, load_mapseen,
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
@@ -314,6 +314,14 @@ export async function dorestore(state = game) {
     state.n_dgns = snapshot.n_dgns;
     state.dungeons = snapshot.dungeons;
     if (snapshot.branches) state.branches = snapshot.branches;
+    // C ref: dungeon.c restore_dungeon():225-238 links each restored branch
+    // to the next one read, in saved order.
+    if (state.branches) {
+        for (let i = 0; i < state.branches.length; i++)
+            state.branches[i].next = state.branches[i + 1] ?? null;
+        state.svb ??= {};
+        state.svb.branches = state.branches[0] ?? null;
+    }
     // C ref: dungeon.c restore_dungeon():240-247 reads svl.level_info for
     // the ledgers save_dungeon() wrote, then svi.inv_pos.
     if (Array.isArray(snapshot.level_info)) {
@@ -322,6 +330,11 @@ export async function dorestore(state = game) {
         });
     }
     if (snapshot.inv_pos) state.inv_pos = snapshot.inv_pos;
+    // C ref: dungeon.c restore_dungeon():249-260 reads each mapseen with
+    // load_mapseen(), which points its br at the branch just restored above.
+    state.svm ??= {};
+    state.svm.mapseenchn = snapshot.mapseenchn.map((saved) =>
+        load_mapseen(saved, state));
     if (snapshot.specialLevels) state.specialLevels = snapshot.specialLevels;
     if (snapshot.smeq) state.smeq = snapshot.smeq;
     if (snapshot.tune != null) {
@@ -422,10 +435,6 @@ export async function dorestore(state = game) {
         state.svm ??= {};
         state.svm.mvitals = snapshot.mvitals;
     }
-    if (snapshot.mapseenchn) {
-        state.svm ??= {};
-        state.svm.mapseenchn = snapshot.mapseenchn;
-    }
     // C ref: restore.c restgamestate():706 Sfi_q_score(&svq.quest_status)
     // replaces the struct role_init() initialized above with the saved one.
     state.svq.quest_status = snapshot.quest_status;
@@ -471,15 +480,6 @@ export async function dorestore(state = game) {
                 = state.specialLevels[i + 1] ?? null;
         }
         state.sp_levchn = state.specialLevels[0] ?? null;
-    }
-
-    // C ref: dungeon.c restore_dungeon():225-238 links each restored branch
-    // to the next one read, in saved order.
-    if (state.branches) {
-        for (let i = 0; i < state.branches.length; i++)
-            state.branches[i].next = state.branches[i + 1] ?? null;
-        state.svb ??= {};
-        state.svb.branches = state.branches[0] ?? null;
     }
 
     // C ref: restgamestate():722 restore_luadata() -> nhlua.c:1358
