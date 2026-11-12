@@ -150,7 +150,6 @@ import {
     maybe_finished_meal,
     reset_eat,
 } from './eat.js';
-import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedVaultGuardError, gd_move, invault } from './vault.js';
 import { fightm } from './mhitm.js';
 import {
@@ -1166,13 +1165,11 @@ async function advanceElapsedTurn(state) {
             // existing end.c boundary is converted only after the real killer
             // and death entry are set. Below that entry, end.c really_done()
             // settles with the level's shopkeepers, vault guard and priests
-            // through paybill(), paygd() and clearpriests(), whose unported
-            // arms raise UnsupportedEndOfGameError and
-            // UnsupportedVaultGuardError. The scan also reaches every owner
-            // elapsedTurnRefusals() names.
+            // through paybill(), paygd() and clearpriests(); paygd()'s
+            // unported arm raises UnsupportedVaultGuardError. The scan also
+            // reaches every owner elapsedTurnRefusals() names.
             const liveScanRefusals = [
                 ...elapsedTurnRefusals(),
-                UnsupportedEndOfGameError,
                 UnsupportedVaultGuardError,
             ];
             if (!liveScanRefusals.some((type) => error instanceof type))

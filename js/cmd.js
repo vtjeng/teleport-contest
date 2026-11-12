@@ -340,7 +340,7 @@ import {
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
-import { done2, nh_terminate, UnsupportedEndOfGameError } from './end.js';
+import { done2, nh_terminate } from './end.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import { doread } from './read.js';
@@ -2938,13 +2938,7 @@ export function failClosedCommandRefusals() {
         // opens.
         UnsupportedWieldError,
         UnsupportedTransientDisplayError,
-        // A killing blow reaches the next two classes.
-        // UnsupportedEndOfGameError now has
-        // several source-ordered endpoints: a return-capable paranoid query
-        // is preflighted before done() paints or mutates, an ordinary death
-        // stops above really_done() after the forced status work, and a debug
-        // or explore death can draw "Die?" before savelife() refuses.
-        UnsupportedEndOfGameError,
+        // A killing blow reaches the next class.
         UnsupportedDropError,
         // Keep the experience/attribute refusal classes recognizable at this
         // boundary. pluslvl() and setuhpmax() now handle their polymorphed

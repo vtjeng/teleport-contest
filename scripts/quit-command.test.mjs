@@ -126,6 +126,30 @@ test('accepted ordinary quit reaches really_done() finalization',
         assert.equal(state.moves, movesBefore);
     });
 
+// Constructed state: the recorder cannot record this branch. C's abort()
+// bypasses nh_terminate(), where the patched recorder writes its last
+// screen, so the run ends one boundary short and record-session.mjs rejects
+// it ("got 8, expected 9 (signal SIGABRT)" for `#quit`, `y`, `y`).
+test('wizard-mode quit that dumps core shuts the windows and aborts',
+    async () => {
+        const state = await startedGame();
+        // done2() asks "Dump core?" only in wizard mode.
+        state.wizard = true;
+        // The first 'y' confirms "Really quit?"; the second answers
+        // "Dump core?" (end.c:130), the arm under test.
+        state.readchar_queue = ['y'.charCodeAt(0), 'y'.charCodeAt(0)];
+
+        await expectTerminated(() => done2(state));
+        // tty_exit_nhwindows() (end.c:139) clears window_inited, and
+        // NH_abort() (end.c:140) ends the segment.
+        assert.equal(state.iflags.window_inited, false);
+        assert.equal(state.program_state.gameover, true);
+        // done(QUIT) at end.c:145 is never reached, so the killer never
+        // becomes "quit" as it does in the ordinary quit test above.
+        assert.notEqual(state.killer?.name, 'quit');
+        assert.equal(state.readchar_queue.length, 0);
+    });
+
 test('the quit recipe contains replay inputs only', () => {
     assert.equal(loadQuitCommandRecipe().version, 5);
     assert.deepEqual(RECIPE_SEGMENT.moves, `.#quit\n${NO}.`);

@@ -75,6 +75,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // do.c goto_level(): no throw site was left once its branches were
     // ported
     'UnsupportedLevelChangeError',
+    // end.c done2()'s wizard-mode "Dump core?" answered 'y', which now shuts
+    // the windows down and calls NH_abort()
+    'UnsupportedEndOfGameError',
 ];
 
 function stripComments(source) {

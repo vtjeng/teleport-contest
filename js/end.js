@@ -25,7 +25,7 @@ import { lift_covet_and_placebc, override_restriction } from './ball.js';
 // urgent_pline("You die..."), so a segment that runs out of input at the
 // query ends on the "Die? [yn] (n)" this file draws.
 
-// js/cmd.js imports UnsupportedEndOfGameError back from this file. Both cycle
+// js/cmd.js imports done2() and nh_terminate() back from this file. Both cycle
 // edges are safe because their imported bindings are read only inside
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
@@ -223,13 +223,6 @@ import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-
-export class UnsupportedEndOfGameError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedEndOfGameError';
-    }
-}
 
 // C ref: end.c deaths[] (44-50), "the array of death". Its index is a
 // game_end_types value, so the rows are in include/hack.h:483-498 order.
@@ -639,18 +632,18 @@ export async function done2(state = game) {
         return ECMD_OK;
     }
 
-    // The recorder is a UNIX build, where wizard mode offers a core dump
-    // query before done(QUIT). A core dump cannot be represented in the
-    // browser runner, so retain an explicit boundary after consuming the
-    // source prompt; 'n' and 'q' continue into done(QUIT) as C does.
+    // C ref: end.c done2() 119-145. The recorder is a UNIX build, where
+    // wizard mode offers a core dump query before done(QUIT). On 'y' C
+    // resets SIGINT to done1() (the port has no signals), skips the absent
+    // sound library's exit hook, shuts the windows down and aborts, so the
+    // recorder captures no screen after the answer.
     if (state.wizard) {
         const coreAnswer = await yn_function(
             'Dump core?', 'ynq', 'q', true, state,
         );
         if (coreAnswer === 'y') {
-            throw new UnsupportedEndOfGameError(
-                'done2() requested the unavailable core-dump path',
-            );
+            tty_exit_nhwindows(null, state);
+            await NH_abort(state);
         }
         if (coreAnswer === 'q') {
             state.program_state ??= {};
