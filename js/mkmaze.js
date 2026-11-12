@@ -921,7 +921,15 @@ export async function baalz_fixup(state = game) {
 
     x = bughack.inarea.x1;
     for (y = 0; y < ROWNO; ++y) {
-        if ((state.level.at(x, y).flags & W_NONDIGGABLE) !== 0) {
+        // With no nondiggable square in the middle row, or one only in its
+        // last column (another level file loaded here by #wizloaddes), x1
+        // is still or again COLNO, and C reads
+        // levl[COLNO][y] past svl.level.locations[][]. That is
+        // svl.level.objects[0][y], whose rm.flags byte is the pointer's
+        // seventh byte: zero for NULL and every user-space address, so the
+        // test always fails there.
+        if (x < COLNO
+            && (state.level.at(x, y).flags & W_NONDIGGABLE) !== 0) {
             if (!lasty) bughack.inarea.y1 = y + 1;
             lasty = y;
         }

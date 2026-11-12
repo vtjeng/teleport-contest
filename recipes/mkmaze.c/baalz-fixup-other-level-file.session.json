@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkmaze.c baalz_fixup() when #wizloaddes loads another level file (minefill) on Baalzebub's level: fixup_special() still calls it, the middle row has no nondiggable square, so bughack.inarea.x1 stays COLNO and C reads levl[COLNO][y], which aliases svl.level.objects[0][y] and finds no flag; wallification() then covers columns 78-79 of rows 19-20. Seed, date and Valkyrie chosen independently.",
+  "segments": [
+    {
+      "seed": 30917755,
+      "datetime": "20610922083015",
+      "nethackrc": "OPTIONS=name:Bughack,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  #wizlevelport\n?\nn    #wizloaddes\nminefill\n    ssss"
+    }
+  ]
+}
