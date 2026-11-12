@@ -1516,9 +1516,9 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
         'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
     ]);
     // The fixture's BLND_RES with no resisting artifact reaches mondata.c
-    // resists_blnd()'s impossible() through flashburn(); mcastu.c itself
-    // records no gap.
-    assert.deepEqual(gaps(), ['pline.c impossible']);
+    // resists_blnd()'s impossible() through flashburn(), which now prints it
+    // (scripts/resists-blnd-callers.test.mjs); no path records a gap.
+    assert.deepEqual(gaps(), []);
 });
 
 test('paralyze: production cleric cast applies nomul damage', async () => {
