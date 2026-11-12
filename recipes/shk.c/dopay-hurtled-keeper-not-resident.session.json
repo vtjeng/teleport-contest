@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310229,
+      "datetime": "20460302101500",
+      "nethackrc": "OPTIONS=name:Biller,role:Valkyrie,race:human,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,montelecontrol\n",
+      "moves": " \u00162\n\u0014  HHHHHhjjjjjjj. \u00173 darts\nde y, #wiztelekinesis\nj.l\u001bjlssp  "
+    }
+  ],
+  "comment": "shk.c dopay() 1945-1949: impossible(\"dopay: not to shopkeeper?\"). Sell three wished darts in a general store and pick them up (unpaid). #wiztelekinesis hurtles the keeper out through the door: mhurtle() angers him through wakeup() but, unlike rloc_to_core()'s make_angry_shk(), never calls setpaid(), so the bill survives. The hero waits on the shop door until the angry keeper stands next to it outside the shop, then pays: the keeper is billing but is not the resident."
+}

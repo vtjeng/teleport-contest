@@ -279,7 +279,7 @@ import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
 import { body_part, mbodypart, poly_gender } from './polyself.js';
-import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
+import { impossible, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -2423,7 +2423,9 @@ export async function dopay(state = game, env = {}) {
         return ECMD_TIME;
     }
     if (shkp !== resident) {
-        note_unported('pline.c impossible');
+        // Reached when the keeper was moved out of his shop without
+        // make_angry_shk()'s setpaid(), as mhurtle() does, and is billing.
+        await impossible('dopay: not to shopkeeper?', state);
         if (resident) setpaid(resident, state);
         return ECMD_OK;
     }
