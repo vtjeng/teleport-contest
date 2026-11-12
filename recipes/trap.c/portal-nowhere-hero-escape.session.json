@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent witness of the hero entering a magic portal whose dst is {-1,-1}. #wizloadlua tut-1 on an ordinary Dlvl 1 builds the tutorial's magic portals through des.trap(); trap.c maketrap() sets dst {-1,-1} and mklev.c mktrap() replaces it only when u.ucamefrom is set. ^T moves the hero beside the portal at map (19,11), level (21,14), and 'j' 'y' steps in: trap.c trapeffect_magic_portal() -> teleport.c domagicportal() -> schedule_goto({-1,-1}) -> do.c goto_level(). ledger_no({-1,-1}) reads svd.dungeons[-1].ledger_start, which is svc.context.jingle[0..3] in the recorder's build and 0 with no improvised tune, so new_ledger is -1 and goto_level() calls done(ESCAPED). The trailing spaces answer the end-of-game disclosure prompts.",
+  "segments": [
+    {
+      "seed": 77310452,
+      "datetime": "20480305141522",
+      "nethackrc": "OPTIONS=name:Porter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "#wizloadlua\ntut-1\n\u0014 LLlllk.  jy      "
+    }
+  ]
+}

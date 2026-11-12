@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of portal-nowhere-hero-escape: an improvised tune before #wizloadlua tut-1 changes where the hero goes. music.c improvised_notes() leaves svc.context.jingle as one note, 'G', here; svd.dungeons[-1] overlays svc.context, so when the hero enters the tutorial's portal to {-1,-1}, ledger_no() reads ledger_start = 'G' (71) and gives 70 rather than escaping. goto_level() moves the hero to Dlvl -2 of dungeon -1: builds_up() and the portal search each call impossible(), and mklev() builds a plain level. ^O then runs dungeon.c #overview with the hero in dungeon -1, whose empty dname prints no dungeon header above 'Level -2'. Same seed and character as the escape case; the inputs differ only by the flute and the overview.",
+  "segments": [
+    {
+      "seed": 77310452,
+      "datetime": "20480305141522",
+      "nethackrc": "OPTIONS=name:Porter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0017wooden flute\naey#wizloadlua\ntut-1\n\u0014 LLlllk.  jy       s\u000f "
+    }
+  ]
+}
