@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "dog.c mon_arrive() for a MIGR_PORTAL arrival on a level with no magic portal. Seven flute improvisations leave svc.context.jingle as the single note 'D'; #wizloadlua tut-1 builds the tutorial's portals with dst {-1,-1}, so ledger_no() reads svd.dungeons[-1].ledger_start, which overlays the jingle, and gives ledger 67, Sokoban's second level for this seed. A monster enters a portal during the 100 turns of searching and migrates there with MIGR_PORTAL. The hero level-teleports to Dlvl 2 by number first, so the ^V menu's redraw does not show the tutorial walls whose wall mode 4 makes display.c wall_angle() call impossible(); the menu then picks soko2, losedogs() delivers the monster, and C prints impossible(\"mon_arrive: no corresponding portal?\"). Seed 1034 is the first of 1000-1048 (this character and clock) where the port found both a one-note Sokoban or Vlad's Tower jingle and a portal entry.",
+  "segments": [
+    {
+      "seed": 1034,
+      "datetime": "20391021101500",
+      "nethackrc": "OPTIONS=name:Piper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017wooden flute\naeyaeyaeyaeyaeyaeyaey#wizloadlua\ntut-1\n20s20s20s20s20s\u00162\n\u0016?\n>C       "
+    }
+  ]
+}

@@ -115,7 +115,9 @@ import {
 import {
     m_at, mon_track_clear, place_monster,
 } from './monst.js';
-import { impossible_printer, livelog_printf, pline_mon } from './pline.js';
+import {
+    impossible, impossible_printer, livelog_printf, pline_mon,
+} from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
     AT_WEAP,
@@ -1242,10 +1244,9 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
             && level.dlevel === state.qstart_level?.dlevel;
         if (!(u.uevent?.qexpelled
             && (questStart(u.uz0) || questStart(u.uz)))) {
-            note_unported('pline.c impossible');
+            await impossible('mon_arrive: no corresponding portal?', state);
         }
-        // C falls through to MIGR_RANDOM when the portal is absent after
-        // quest expulsion.
+        // With no portal, C falls through to MIGR_RANDOM.
         xlocale = 0;
         ylocale = 0;
         break;
