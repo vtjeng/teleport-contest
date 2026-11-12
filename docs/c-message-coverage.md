@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 209 | 514 |
+| diagnostic | 723 | 217 | 506 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4205 | 706 |
+| total | 4911 | 4213 | 698 |
 
 ## Missing by C file
 
@@ -34,7 +34,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | C file | JS module | Gameplay | Diagnostic | Debug |
 | --- | --- | ---: | ---: | ---: |
 | src/alloc.c | yes | 0 | 5 | 0 |
-| src/apply.c | yes | 1 | 7 | 0 |
+| src/apply.c | yes | 1 | 6 | 0 |
 | src/artifact.c | no | 0 | 4 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
 | src/ball.c | yes | 0 | 10 | 0 |
@@ -50,7 +50,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/do.c | yes | 1 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
-| src/dog.c | yes | 0 | 4 | 0 |
+| src/dog.c | yes | 0 | 3 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
 | src/dungeon.c | yes | 0 | 17 | 7 |
@@ -78,13 +78,13 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mkobj.c | no | 0 | 27 | 4 |
 | src/mkroom.c | yes | 0 | 2 | 0 |
 | src/mon.c | yes | 0 | 12 | 2 |
-| src/mondata.c | yes | 0 | 2 | 0 |
+| src/mondata.c | yes | 0 | 1 | 0 |
 | src/monmove.c | yes | 0 | 1 | 0 |
 | src/mplayer.c | yes | 0 | 1 | 0 |
 | src/mthrowu.c | yes | 0 | 3 | 0 |
 | src/muse.c | yes | 0 | 7 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
-| src/nhlua.c | yes | 1 | 14 | 1 |
+| src/nhlua.c | yes | 1 | 13 | 1 |
 | src/o_init.c | yes | 1 | 7 | 0 |
 | src/objnam.c | yes | 0 | 15 | 0 |
 | src/options.c | yes | 4 | 6 | 0 |
@@ -92,7 +92,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/pickup.c | yes | 1 | 6 | 1 |
 | src/pline.c | yes | 1 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
-| src/potion.c | yes | 0 | 1 | 0 |
 | src/pray.c | yes | 1 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
 | src/quest.c | yes | 0 | 1 | 0 |
@@ -117,11 +116,11 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/steed.c | yes | 0 | 5 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
-| src/teleport.c | yes | 0 | 2 | 3 |
+| src/teleport.c | yes | 0 | 1 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
 | src/topten.c | yes | 3 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
-| src/trap.c | yes | 0 | 15 | 1 |
+| src/trap.c | yes | 0 | 14 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
 | src/uhitm.c | yes | 0 | 3 | 0 |
 | src/vault.c | yes | 0 | 3 | 2 |
@@ -130,7 +129,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
-| src/wizcmds.c | yes | 0 | 6 | 0 |
+| src/wizcmds.c | yes | 0 | 5 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/zap.c | yes | 0 | 11 | 1 |
@@ -406,9 +405,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `mleashed_next2u()`
   - 900 impossible: `leashed-unleashed mon?`
 
-- `check_leash()`
-  - 941 impossible: `leash in use isn't attached to anything?`
-
 - `use_candelabrum()`
   - 1371 impossible: `Candelabrum with candles but no fuel?`
 
@@ -597,9 +593,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2971 impossible: `take_off: taking off`
 
 ### src/dog.c
-
-- `mon_arrive()`
-  - 566 impossible: `mon_arrive: no corresponding portal?`
 
 - `mon_catchup_elapsed_time()`
   - 640 impossible: `catchup from now?`
@@ -1069,9 +1062,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `Resists_Elem()`
   - 167 impossible: `), unexpected property type`
 
-- `resists_blnd()`
-  - 268 impossible: `'Blnd_resist' but not resists_blnd()?`
-
 ### src/monmove.c
 
 - `m_move()`
@@ -1137,7 +1127,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `nhl_loadlua()`
   - 2262 impossible: `) line too long`
-  - 2272 impossible: `luaL_loadbuffer: Error loading`
 
 - `nhl_panic()`
   - 2998 panic: `unprotected error in call to Lua API (`
@@ -1270,11 +1259,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `mbodypart()`
   - 2058 impossible: `mbodypart: bad part`
-
-### src/potion.c
-
-- `dip_into()`
-  - 2385 impossible: `dip_into: where is potion?`
 
 ### src/pray.c
 
@@ -1579,9 +1563,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/teleport.c
 
-- `teleport_pet()`
-  - 796 impossible: `is leashed, without a leash.`
-
 - `tele_to_rnd_pet()`
   - 820 impossible: `attempt to teleport hero to be near a pet on no-teleport level`
 
@@ -1669,9 +1650,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 6339 impossible: `chest disarm bug`
   - 6491 impossible: `bad chest trap`
 
-- `lava_effects()`
-  - 6837 impossible: `) is already in use; so is #`
-
 - `trap_sanity_check()`
   - 7204 impossible: `trap sanity: location (`
   - 7206 impossible: `trap sanity: type (`
@@ -1731,9 +1709,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1693 panic: `choose_classes_menu: invalid category`
 
 ### src/wizcmds.c
-
-- `makemap_remove_mons()`
-  - 147 impossible: `makemap_remove_mons: 'fmon' did not get emptied?`
 
 - `you_sanity_check()`
   - 1408 impossible: `sanity_check: swallowed by nothing?`
