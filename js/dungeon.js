@@ -629,23 +629,30 @@ export function find_hell(level, state = game) {
 // The tower's boundary is the exclusion area of the level's
 // des.teleport_region(), which mkmaze.c fixup_special() stores in svd.dndest.
 // savelev() and getlev() carry dndest with the level, including a bones
-// level, so a tower level always has it in C.
+// level. A debug command that loads another level file onto a tower level
+// (#wizloaddes) leaves the level claiming the tower without a boundary, and
+// C's In_W_tower() then prints impossible("No boundary for Wizard's
+// Tower?") and returns FALSE.
 export function On_W_tower_level(level, state = game) {
     return Boolean(on_level(level, state.wiz1_level)
         || on_level(level, state.wiz2_level)
         || on_level(level, state.wiz3_level));
 }
 
-export function In_W_tower(x, y, level, state = game) {
+const NO_TOWER_BOUNDARY = "No boundary for Wizard's Tower?";
+
+// impossible() is async in this port and In_W_tower() is not, so, as in
+// builds_up(), a caller that can wait passes env.impossible, which receives
+// the message to print once In_W_tower() returns (In_W_tower_async() does
+// this); for any other caller the message is recorded as a gap.
+export function In_W_tower(x, y, level, state = game, env = {}) {
     if (!On_W_tower_level(level, state))
         return false;
     const dndest = state.dndest ?? {};
     if (!dndest.nlx) {
-        // C's impossible("No boundary for Wizard's Tower?") reports a level
-        // that claims the tower without carrying its exclusion region. The
-        // port reaching this means its level state lost dndest; impossible()
-        // is async and every caller here is synchronous, so fail closed.
-        throw new Error("No boundary for Wizard's Tower?");
+        if (env.impossible) env.impossible(NO_TOWER_BOUNDARY);
+        else note_unported('pline.c impossible');
+        return false;
     }
     /*
      * Both of the exclusion regions for arriving via level teleport
@@ -653,6 +660,20 @@ export function In_W_tower(x, y, level, state = game) {
      */
     return within_bounded_area(x, y, dndest.nlx, dndest.nly,
                                dndest.nhx, dndest.nhy);
+}
+
+// In_W_tower() for a caller that can wait: prints C's impossible() before
+// returning, as C does inside In_W_tower().
+export async function In_W_tower_async(x, y, level, state = game) {
+    let text = null;
+    const inside = In_W_tower(x, y, level, state, {
+        impossible: (message) => { text = message; },
+    });
+    if (text !== null) {
+        const { impossible } = await import('./pline.js');
+        await impossible(text, state);
+    }
+    return inside;
 }
 
 // C ref: dungeon.c single_level_branch() (1966-1975). C's own comment calls

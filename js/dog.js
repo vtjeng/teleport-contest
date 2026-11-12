@@ -69,7 +69,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    In_W_tower,
+    In_W_tower_async,
     depth,
     ledger_no,
     ledger_to_dlev,
@@ -1398,7 +1398,7 @@ export async function migrate_to_level(
         state.wiz3_level,
     ].some((level) => sameLevel(level, state.u.uz));
     const inWizardTower = onWizardTowerLevel
-        ? migratingOperation(env, 'inWizardTower', In_W_tower)
+        ? migratingOperation(env, 'inWizardTower', In_W_tower_async)
         : null;
     const isOnMap = m_at(monster.mx, monster.my, state) === monster;
     const isOffMapLimbo = monster.mx === 0
@@ -1433,7 +1433,7 @@ export async function migrate_to_level(
         ? 1
         : 0;
     if (inWizardTower
-        && inWizardTower(oldX, oldY, state.u.uz, state)) {
+        && await inWizardTower(oldX, oldY, state.u.uz, state)) {
         xyFlags |= 2;
     }
     monster.wormno = num_segs;

@@ -417,7 +417,7 @@ test('wiz_makemap preserves tower snapshot, pre/generation/post order and result
     assert.equal(typeof wiz_makemap, 'function');
     const js = readFileSync('js/wizcmds.js', 'utf8');
     const body = js.slice(js.indexOf('export async function wiz_makemap('), js.indexOf('export async function wiz_map('));
-    assert.match(body, /was_in_W_tower = In_W_tower[\s\S]*await makemap_prepost\(true, was_in_W_tower, state\);[\s\S]*await mklev\(\);[\s\S]*await makemap_prepost\(false, was_in_W_tower, state\);[\s\S]*return ECMD_OK;/u);
+    assert.match(body, /was_in_W_tower = await In_W_tower_async\([\s\S]*await makemap_prepost\(true, was_in_W_tower, state\);[\s\S]*await mklev\(\);[\s\S]*await makemap_prepost\(false, was_in_W_tower, state\);[\s\S]*return ECMD_OK;/u);
     assert.match(body, /Unavailable command 'wizmakemap'\./u);
     assert.doesNotMatch(body, /\brn[2d]\(/u, 'level generation owns its source draws');
 });

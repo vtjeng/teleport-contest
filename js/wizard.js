@@ -31,7 +31,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { Monnam, hcolor } from './do_name.js';
-import { In_W_tower, In_hell, builds_up } from './dungeon.js';
+import { In_W_tower, In_W_tower_async, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
 import {
@@ -851,7 +851,7 @@ export async function tactics(monster, rawEnv = {}) {
             state,
         ));
         monster.mavenge = true;
-        if (In_W_tower(mx, my, state.u.uz, state)
+        if (await In_W_tower_async(mx, my, state.u.uz, state)
             || (monster.iswiz && !sx && !mon_has_amulet(monster))) {
             if (!noTeleport(monster, state)
                 && !random.rn2(3 + Math.trunc(monster.mhp / 10))) {

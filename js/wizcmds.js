@@ -95,7 +95,7 @@ import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     glyph_is_cmap, glyph_is_cmap_zap, glyph_to_cmap, glyph_to_mon, glyph_is_object, glyph_to_obj, NO_GLYPH,
     glyphmap_base_fields, map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { overview_stats, In_W_tower, on_level, print_dungeon,
+import { overview_stats, In_W_tower_async, on_level, print_dungeon,
     depth, get_level, Is_botlevel, ledger_no,
     Is_special, Invocation_lev, On_W_tower_level,
 } from './dungeon.js';
@@ -363,7 +363,7 @@ export async function wiz_show_vision(state = game, env = {}) {
 // belong to replacement levels. The existing pre/post owner records its gaps.
 export async function wiz_makemap(state = game) {
     if (state.wizard) {
-        const was_in_W_tower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
+        const was_in_W_tower = await In_W_tower_async(state.u.ux, state.u.uy, state.u.uz, state);
         await makemap_prepost(true, was_in_W_tower, state);
         await mklev();
         await makemap_prepost(false, was_in_W_tower, state);

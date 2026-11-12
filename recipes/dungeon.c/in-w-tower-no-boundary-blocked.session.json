@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked by sp_lev.c lspo_finalize_level() (js/mklev.js), which calls the synchronous In_W_tower() and so records the impossible() as a gap. dungeon.c In_W_tower() on a tower level with no dndest boundary: #wizloaddes minefill on wizard1 leaves the level without its teleport region, so lspo_finalize_level() prints impossible(\"No boundary for Wizard's Tower?\"), and #wizmakemap's wiz_makemap() prints it again before remaking the level. Seed, date and Wizard chosen independently.",
+  "segments": [
+    {
+      "seed": 64402871,
+      "datetime": "20480713211044",
+      "nethackrc": "OPTIONS=name:Towerless,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  #wizlevelport\n?\np    #wizloaddes\nminefill\n   #wizmakemap\n    "
+    }
+  ]
+}
