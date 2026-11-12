@@ -37,7 +37,6 @@ import { o_unleash } from './apply.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { maybe_unhide_at } from './mon.js';
 import { newsym } from './display.js';
-import { recalc_block_point } from './vision.js';
 import { set_utrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
@@ -124,8 +123,8 @@ function punishedObject(state, name) {
 }
 
 // The returned next pointer and deallocation flag are the C return value and
-// out-parameter.  Boulder extraction delegates its visibility update to the
-// same recalcBlockPoint lifecycle owner used by remove_object().
+// out-parameter.  Boulder extraction updates vision through
+// remove_object()'s own recalc_block_point() call.
 export async function bury_an_obj(obj, rawEnv = {}) {
     const base = burialEnvironment(rawEnv);
     const { random, state } = base;
@@ -139,7 +138,6 @@ export async function bury_an_obj(obj, rawEnv = {}) {
         hooks: {
             maybeUnhideAt: (x, y) => maybe_unhide_at(x, y, state, base),
             newsym: (x, y) => redraw(x, y, state),
-            recalcBlockPoint: (x, y) => recalc_block_point(x, y, state),
             ...base.hooks,
         },
     });

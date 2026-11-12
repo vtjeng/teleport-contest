@@ -229,7 +229,7 @@ import { encumber_msg } from './pickup.js';
 // inventory. steal.js imports from this file; both sides use the other's
 // exports only inside function bodies.
 import { remove_worn_item } from './steal.js';
-import { block_point, cansee } from './vision.js';
+import { block_point, cansee, recalc_block_point } from './vision.js';
 // monster_object.js imports this file; both sides use the other's exports
 // only inside function bodies.
 import { monsterObject } from './monster_object.js';
@@ -636,13 +636,6 @@ function objectEnv(env = {}) {
         hooks: env.hooks ?? {},
         random: sourceRandom({ ...env, state }),
     };
-}
-
-function requiredHook(env, name, obj) {
-    const hook = env.hooks?.[name];
-    if (typeof hook !== 'function')
-        throw new UnsupportedObjectOperationError(name, obj);
-    return hook;
 }
 
 // C ref: mkobj.c clear_splitobjs().
@@ -3003,8 +2996,14 @@ export function remove_object(obj, env = {}) {
     }
 
     const grid = floorObjectGrid(state);
+    // mkobj.c remove_object():2518 calls vision.c recalc_block_point() for a
+    // boulder leaving its square. A test may supply the hook to observe the
+    // call; game code relies on this default. The hook takes the lifecycle
+    // env, which has the state that recalc_block_point() needs.
     const recalcBlockPoint = obj.otyp === BOULDER
-        ? requiredHook(normalized, 'recalcBlockPoint', obj)
+        ? (normalized.hooks.recalcBlockPoint
+            ?? ((bx, by, removeEnv) =>
+                recalc_block_point(bx, by, removeEnv.state)))
         : null;
 
     // C ref: mkobj.c remove_object() calls extract_nexthere() then

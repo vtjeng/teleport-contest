@@ -184,7 +184,7 @@ import {
 } from './objects.js';
 import { goodpos } from './teleport.js';
 import { deltrap, maketrap, reset_utrap, t_at } from './trap.js';
-import { does_block, recalc_block_point, unblock_point } from './vision.js';
+import { does_block, unblock_point } from './vision.js';
 import { buried_ball_to_punishment } from './dig.js';
 import { mintrap } from './trap_effects.js';
 import { minliquid, seemimic } from './mon.js';
@@ -8063,14 +8063,7 @@ export function wallification(x1, y1, x2, y2, state = game) {
 // C ref: sp_lev.c map_cleanup(). Liquid squares cannot retain boulders,
 // ordinary traps, or engravings after a special level has been loaded.
 export function map_cleanup(state = game) {
-    const objectEnv = objectGenerationEnv({
-        state,
-        hooks: {
-            recalcBlockPoint: (x, y, env) => {
-                recalc_block_point(x, y, env.state);
-            },
-        },
-    });
+    const objectEnv = objectGenerationEnv({ state });
 
     for (let x = 0; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {

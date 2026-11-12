@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A land mine under a boulder: the hero arms a wished land mine on the square where a wished boulder fell, polymorphs into a hill giant, steps off and back on (the boulder cannot move into the wall beyond, so the giant maneuvers over it) and sets the mine off. trap.c blow_up_landmine() -> explode.c scatter() extracts the boulder with obj_extract_self() -> mkobj.c remove_object(), which calls vision.c recalc_block_point() for the boulder, then fractures it.",
+  "segments": [
+    {
+      "seed": 404,
+      "datetime": "20810611093000",
+      "nethackrc": "OPTIONS=name:Miner,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=pettype:none,!autopickup,!legacy,!tutorial,!splash_screen,suppress_alert:3.4.3\n",
+      "moves": " j\u0017boulder\n\u0017land mine\naf#polyself\nhill giant\nkjy     "
+    }
+  ]
+}

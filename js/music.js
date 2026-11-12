@@ -262,15 +262,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
                 ? ' below you' : ''}!`, state);
         }
         if (mtmp) mtmp.mtrapped = false;
-        const objectEnv = objectGenerationEnv({
-            ...env,
-            random,
-            hooks: {
-                recalcBlockPoint: (bx, by, operationEnv) =>
-                    recalc_block_point(bx, by, operationEnv.state),
-                ...env.hooks,
-            },
-        });
+        const objectEnv = objectGenerationEnv({ ...env, random });
         obj_extract_self(boulder, objectEnv);
         await flooreffects(boulder, x, y, '', objectEnv);
         return;

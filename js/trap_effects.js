@@ -2572,19 +2572,9 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     const youSee = env.youSee ?? plineYouSee;
     const youHear = env.youHear ?? plineYouHear;
 
-    // Object lifecycle hooks receive the normalized operation environment,
-    // whereas the vision owners take the state directly.  Keep that adapter
-    // at this source boundary so removing the launched boulder can set
-    // vision_full_recalc before the next C message flushes the map.
-    const objectHooks = {
-        ...(env.hooks ?? {}),
-        recalcBlockPoint: env.hooks?.recalcBlockPoint
-            ?? ((ox, oy, actionEnv) => recalc_block_point(
-                ox,
-                oy,
-                actionEnv?.state ?? state,
-            )),
-    };
+    // remove_object() makes its own recalc_block_point() call when the
+    // launched boulder leaves its square.
+    const objectHooks = { ...(env.hooks ?? {}) };
 
     let otmp = sobj_at(otyp, x1, y1, state);
     // Try the other side too, for rolling boulder traps
@@ -2733,10 +2723,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         state,
                         canSeeMonster: env.canSeeMonster
                             ?? ((subject) => canseemon(subject, state)),
-                        hooks: {
-                            ...(env.hooks ?? {}),
-                            recalcBlockPoint: objectHooks.recalcBlockPoint,
-                        },
+                        hooks: objectHooks,
                     };
                     if (typeof env.mpickobj === 'function')
                         env.mpickobj(mtmp, singleobj, pickupEnv);
@@ -2762,17 +2749,8 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         place_object(obj, ox, oy, actionEnv)),
                 shouldMulch: env.shouldMulch ?? (() => false),
                 stackObject: env.stackObject
-                    ?? ((obj, actionEnv) => stackobj(obj, {
-                        ...actionEnv,
-                        hooks: {
-                            ...(actionEnv.hooks ?? {}),
-                            recalcBlockPoint: objectHooks.recalcBlockPoint,
-                        },
-                    })),
-                hooks: {
-                    ...(env.hooks ?? {}),
-                    recalcBlockPoint: objectHooks.recalcBlockPoint,
-                },
+                    ?? ((obj, actionEnv) => stackobj(obj, actionEnv)),
+                hooks: objectHooks,
             };
             if (await ohitmon(
                 mtmp,
@@ -2958,8 +2936,13 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         'The boulder crashes through a door.', x, y, state,
                     ), state, env);
                 loc.flags = D_BROKEN;
-                if (dist)
-                    objectHooks.recalcBlockPoint(x, y, objectEnv);
+                // trap.c:3539-3540 calls recalc_block_point() itself; a
+                // test may observe the call through the lifecycle hook.
+                if (dist) {
+                    (objectHooks.recalcBlockPoint
+                        ?? ((bx, by) => recalc_block_point(bx, by, state)))(
+                        x, y, objectEnv);
+                }
             }
         }
 

@@ -2,8 +2,9 @@
 // timeout.c obj_stop_timers() and light.c del_light_source() directly from
 // mkobj.c dealloc_obj(), shk.c obfree() and invent.c merged(); mkobj.c
 // mksobj_init() and mksobj() initialize statues and figurines;
-// add_to_container() calls obj_no_longer_held(); and place_object() calls
-// vision.c block_point() for a boulder. js/obj.js and js/invent.js make
+// add_to_container() calls obj_no_longer_held(); place_object() calls
+// vision.c block_point() for a boulder, and remove_object() calls
+// recalc_block_point() for one. js/obj.js and js/invent.js make
 // those calls unless a test supplies the hook. Game code must neither supply
 // those hooks (a copy of the default that a new caller can forget) nor
 // refuse when one is absent.
@@ -32,13 +33,14 @@ const DEFAULTED_HOOKS = [
 
 // Defaulted hooks whose name is also a flat operation of another owner:
 // region.js create_gas_cloud() takes its own `blockPoint` beside `canSee` and
-// `newsym`, and attrib.c exercise() and its callers take a flat
+// `newsym`, attrib.c exercise() and its callers take a flat
 // `encumberMessage` (invent.c hold_another_object() calls pickup.c
-// encumber_msg() itself). For these the scan counts only keys in a hook
-// table: an object literal that is the value of a `hooks` key or of a
-// variable named `...hooks`/`...Hooks`, or that a `...Hooks()` function
-// returns.
-const DEFAULTED_TABLE_HOOKS = ['blockPoint', 'encumberMessage'];
+// encumber_msg() itself), and detect.js, dig.js and monmove.js take a flat
+// `recalcBlockPoint` for their own terrain changes. For these the scan counts
+// only keys in a hook table: an object literal that is the value of a
+// `hooks` key or of a variable named `...hooks`/`...Hooks`, or that a
+// `...Hooks()` function returns.
+const DEFAULTED_TABLE_HOOKS = ['blockPoint', 'encumberMessage', 'recalcBlockPoint'];
 
 function stripComments(source) {
     return source
@@ -210,11 +212,6 @@ const REMAINING_REQUIRED_HOOKS = {
     endArtifactLight: 1, // light.c/artifact.c end of an artifact's light
     inventoryComparisonDiscovered: 2, // the synchronous merged()'s comparison pline()
     mwepgone: 1, // weapon.c mwepgone()
-    // vision.c recalc_block_point() for a lifted boulder. Not defaulted yet:
-    // explode.js scatter() substitutes a no-op only when its caller's hooks
-    // lack this one, and callers that reach scatter() with a boulder supply
-    // it, so a default would change what those calls do.
-    recalcBlockPoint: 1,
 };
 
 test('the remaining required hooks are pinned', () => {

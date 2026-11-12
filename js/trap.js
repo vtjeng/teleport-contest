@@ -1991,11 +1991,7 @@ export function fill_pit(x, y, state = game, rawEnv = {}) {
     if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp)) && boulder) {
         obj_extract_self(boulder, {
             state,
-            hooks: {
-                extractExternalObject: remove_object,
-                recalcBlockPoint: (bx, by, env) =>
-                    recalc_block_point(bx, by, env.state),
-            },
+            hooks: { extractExternalObject: remove_object },
         });
         return import('./do.js').then(({ flooreffects }) =>
             flooreffects(boulder, x, y, 'settle', { ...rawEnv, state }));
@@ -3650,11 +3646,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             let chestgone = false;
             const objectEnv = {
                 state,
-                hooks: {
-                    extractExternalObject: remove_object,
-                    recalcBlockPoint: (bx, by, operationEnv) =>
-                        recalc_block_point(bx, by, operationEnv.state),
-                },
+                hooks: { extractExternalObject: remove_object },
             };
             let otmp = state.level.objects[ox]?.[oy] ?? null;
             while (otmp) {

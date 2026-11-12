@@ -1822,13 +1822,7 @@ export async function dighole(
             await wake_nearby(false, { ...rawEnv, state });
             await delfloortrap(trap, state);
         }
-        const deletionHooks = {
-            ...rawEnv.hooks,
-            recalcBlockPoint: rawEnv.hooks?.recalcBlockPoint
-                ?? ((bx, by, hookEnv) =>
-                    recalc_block_point(bx, by, hookEnv.state)),
-        };
-        delobj(boulder, { ...rawEnv, state, hooks: deletionHooks });
+        delobj(boulder, { ...rawEnv, state });
     } else if (IS_GRAVE(oldType)) {
         await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
         await dig_up_grave(coordinate, { ...rawEnv, state, random, message });

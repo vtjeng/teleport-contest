@@ -1549,11 +1549,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
 export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (!state.level.objects[x]?.[y]) return;
-    const env = objectGenerationEnv({ ...rawEnv, state, hooks: {
-        recalcBlockPoint: (bx, by, objectEnv) =>
-            recalc_block_point(bx, by, objectEnv.state),
-        ...rawEnv.hooks,
-    } });
+    const env = objectGenerationEnv({ ...rawEnv, state });
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
     let toloc = down_gate(x, y, state);

@@ -5012,22 +5012,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
         }
         const { boulder_hits_pool } = await import('./do.js');
         do {
-            obj_extract_self(boulder, {
-                ...env,
-                hooks: {
-                    ...env.hooks,
-                    // mkobj.c remove_object() must update vision's
-                    // boulder-block map after unlinking this floor item.
-                    recalcBlockPoint:
-                        env.hooks?.recalcBlockPoint
-                            ?? ((bx, by, hookEnv) =>
-                                recalc_block_point(
-                                    bx,
-                                    by,
-                                    hookEnv.state ?? state,
-                                )),
-                },
-            });
+            obj_extract_self(boulder, env);
             // C's impossible() here only diagnoses an impossible return from
             // boulder_hits_pool(); the value is still not otherwise used.
             if (!await boulder_hits_pool(boulder, x, y, false, env)) {

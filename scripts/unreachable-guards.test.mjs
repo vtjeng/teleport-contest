@@ -71,18 +71,19 @@ function count(code, pattern) {
 // (mkobj.c:890 and :1099: "mk_artifact() with otmp and A_NONE will never
 // return NULL"), an unset current fruit (options.c initoptions_finish() sets
 // it on every startup) and a cursed object outside free-object generation.
-// What is left is requiredHook()'s refusal in obj.js and invent.js, whose hook
-// names scripts/lifecycle-hook-defaults.test.mjs pins.
-const OBJECT_OPERATION_REFUSAL_SITES = 2;
+// obj.js's requiredHook() went when remove_object() began calling
+// recalc_block_point() itself (mkobj.c:2518). What is left is invent.js
+// requiredHook()'s refusal, whose hook names
+// scripts/lifecycle-hook-defaults.test.mjs pins.
+const OBJECT_OPERATION_REFUSAL_SITES = 1;
 
 test('object operations refuse only through requiredHook()', () => {
     let sites = 0;
     for (const file of ['obj.js', 'invent.js']) {
-        const code = jsCode(file);
-        sites += count(code, /new UnsupportedObjectOperationError\(/gu);
-        assert.match(functionBody(code, 'requiredHook'),
-            /new UnsupportedObjectOperationError\(/u, file);
+        sites += count(jsCode(file), /new UnsupportedObjectOperationError\(/gu);
     }
+    assert.match(functionBody(jsCode('invent.js'), 'requiredHook'),
+        /new UnsupportedObjectOperationError\(/u);
     assertExceptionCount(sites, OBJECT_OPERATION_REFUSAL_SITES, {
         what: 'UnsupportedObjectOperationError throw sites in obj.js and invent.js',
         pin: 'OBJECT_OPERATION_REFUSAL_SITES in scripts/unreachable-guards.test.mjs',

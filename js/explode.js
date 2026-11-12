@@ -924,14 +924,6 @@ export async function scatter(
         ...env,
         state,
         random,
-        hooks: {
-            ...env.hooks,
-            // remove_object() requires the boulder vision hook. This no-op,
-            // used when the caller's hooks lack the hook, differs from C,
-            // whose remove_object() always calls recalc_block_point().
-            recalcBlockPoint: env.hooks?.recalcBlockPoint
-                ?? (() => {}),
-        },
     });
     const extractObject = ops.extractObject
         ?? ((object) => obj_extract_self(object, lifecycle));

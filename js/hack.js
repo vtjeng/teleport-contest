@@ -1710,24 +1710,6 @@ function could_move_onto_boulder(sx, sy, dx, dy, state) {
     return !state.invent || inv_weight(state) <= WT_SQUEEZABLE_INV * -1;
 }
 
-// remove_object() reaches vision.c recalc_block_point() for a boulder through
-// the object lifecycle's hook table. explode.js scatter() substitutes a no-op
-// only when its caller's hooks lack this one, and a boulder pushed onto a
-// land mine reaches scatter() with these hooks, so the copy stays until that
-// no-op goes.
-function boulderVisionEnv(state) {
-    return {
-        state,
-        // The hook takes the lifecycle env as its third argument, not a
-        // state; passing recalc_block_point itself would hand vision_reset()
-        // an object with no `level` on it, which it answers by doing nothing.
-        hooks: {
-            recalcBlockPoint:
-                (x, y, env) => recalc_block_point(x, y, env.state),
-        },
-    };
-}
-
 // C ref: hack.c cannot_push_msg() (247-261). A failed mounted push names the
 // steed; an unmounted push names the hero. Blindness also reveals the boulder.
 async function cannot_push_msg(otmp, sx, sy, state, env) {
@@ -1971,10 +1953,10 @@ export async function still_chewing(x, y, state = game) {
 // is still one square back when the boulder leaves.
 export function movobj(obj, ox, oy, state = game) {
     /* optimize by leaving on the fobj chain? */
-    remove_object(obj, boulderVisionEnv(state));
+    remove_object(obj, { state });
     maybe_unhide_at(obj.ox, obj.oy, state);
     newsym(obj.ox, obj.oy);
-    place_object(obj, ox, oy, boulderVisionEnv(state));
+    place_object(obj, ox, oy, { state });
     newsym(ox, oy);
 }
 
@@ -2165,12 +2147,10 @@ async function moverock_core(sx, sy, state, env) {
     const u = state.u;
     const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
-    const baseObjectEnv = boulderVisionEnv(state);
     const objectEnv = {
-        ...baseObjectEnv,
         ...env,
         state,
-        hooks: { ...baseObjectEnv.hooks, ...env.hooks },
+        hooks: { ...env.hooks },
     };
     const redraw = env.newsym
         ?? ((x, y) => newsym(x, y, state));
@@ -2478,10 +2458,7 @@ async function moverock_core(sx, sy, state, env) {
             const helperEnv = {
                 ...effectEnv,
                 state,
-                hooks: {
-                    ...boulderVisionEnv(state).hooks,
-                    ...env.hooks,
-                },
+                hooks: { ...env.hooks },
             };
             if (await boulder_hits_pool(otmp, rx, ry, true, helperEnv))
                 continue;
@@ -2492,8 +2469,8 @@ async function moverock_core(sx, sy, state, env) {
          * when level is restored.
          */
         if (otmp !== state.level.objlist) {
-            remove_object(otmp, boulderVisionEnv(state));
-            place_object(otmp, otmp.ox, otmp.oy, boulderVisionEnv(state));
+            remove_object(otmp, { state });
+            place_object(otmp, otmp.ox, otmp.oy, { state });
         }
         await dopush(sx, sy, rx, ry, otmp, state, {
             ...effectEnv,

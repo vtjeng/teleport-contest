@@ -112,7 +112,6 @@ import {
     block_point,
     cansee,
     couldsee,
-    recalc_block_point,
     unblock_point,
 } from './vision.js';
 import {
@@ -548,14 +547,7 @@ function simpleMonsterActionEnvironment(rawEnv = {}) {
         ...rawEnv,
         state,
         random,
-        hooks: {
-            // C mthrowu.c drop_throw() and mon.c mpickstuff() remove
-            // boulders through mkobj.c remove_object().
-            recalcBlockPoint: (x, y, objectEnv) => {
-                recalc_block_point(x, y, objectEnv.state);
-            },
-            ...(rawEnv.hooks ?? {}),
-        },
+        hooks: { ...(rawEnv.hooks ?? {}) },
         migrateToLevel: rawEnv.migrateToLevel
             ?? monsterMigrationOperation({ ...rawEnv, state, random }),
         setApparxy: rawEnv.setApparxy

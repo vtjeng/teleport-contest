@@ -510,12 +510,7 @@ export async function movebubbles(state = game, random = rn2) {
                         let list = null;
                         while (object) {
                             const next = object.nexthere;
-                            // C mkmaze.c:1589 remove_object() delegates boulder
-                            // opacity refresh to vision.c recalc_block_point().
-                            remove_object(object, objectGenerationEnv({ state,
-                                hooks: { recalcBlockPoint: (px, py, env) =>
-                                    recalc_block_point(px, py, env.state) },
-                            }));
+                            remove_object(object, objectGenerationEnv({ state }));
                             object.ox = object.oy = 0;
                             object.nexthere = list;
                             list = object;
