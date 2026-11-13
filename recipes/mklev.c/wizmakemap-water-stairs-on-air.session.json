@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mklev.c mkstairs():2175-2181 impossible(\"mkstairs:  placing stairs %s on %s at <%d,%d>\") for a square that is not ROOM, CORR or ICE. An elven Priest in debug mode level-teleports with ^V to the Plane of Water (the menu's 'K' entry), wishes for nothing, and runs #wizloadlua orcus, whose des.levregion() stair regions stay in gl.lregions because #wizloadlua runs no fixup_special(). #wizmakemap then regenerates water.lua, and mkmaze.c fixup_special() places those stair regions: put_lregion_here() accepts an air square (bad_location() allows AIR), so mkstairs() reports placing stairs on air. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2209841,
+      "datetime": "20480119063000",
+      "nethackrc": "OPTIONS=name:Planer,role:Priest,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b\u0016?\n>>K\u001b\u001bnothing\n\u001b\u001b#wizloadlua\norcus\n\u001b\u001b#wizmakemap\n     \u001b"
+    }
+  ]
+}

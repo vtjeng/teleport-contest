@@ -126,7 +126,7 @@ import {
     t_at,
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
 import {
     block_point,
     cansee,
@@ -896,7 +896,8 @@ async function put_lregion_here(
         // C ref: mkmaze.c:456-459. Special-level stair regions are resolved
         // before generate_stairs(), so the latter must see the stair already
         // present and avoid consuming its fallback room-selection draws.
-        mkstairs(x, y, rtype === LR_UPSTAIR ? 1 : 0, null);
+        await mkstairs(x, y, rtype === LR_UPSTAIR ? 1 : 0, null, false,
+            impossible_printer(state, options));
         break;
     }
     return true;
