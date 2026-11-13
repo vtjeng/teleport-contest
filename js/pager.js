@@ -246,7 +246,6 @@ import { NO_COLOR } from './terminal.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
     describeMonster,
-    furnitureDescription,
     monsterSurfaceDescription,
 } from './startup_a11y.js';
 import {
@@ -469,7 +468,10 @@ export function mhidden_description(
     };
     let suffix = '';
     if (appearance === M_AP_FURNITURE) {
-        const what = furnitureDescription(monster.mappearance) ?? 'something';
+        // pager.c reads defsyms[mappearance].explanation for every cmap
+        // index, so a wall-shaped mimic (set_mimic_sym() on the Rogue level)
+        // is "a wall", not only the furniture symbols.
+        const what = CMAP_EXPLANATIONS[monster.mappearance];
         // C's an() returns the complete article-plus-name phrase.  Keep the
         // source's single append; concatenating `what` again doubles the
         // furniture noun ("a fountainfountain").

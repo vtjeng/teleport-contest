@@ -9,7 +9,7 @@ import {
 } from '../js/const.js';
 import { mhidden_description } from '../js/startup_a11y.js';
 import { M2_NEUTER } from '../js/monsters.js';
-import { S_fountain } from '../js/symbols.js';
+import { S_fountain, S_hwall, S_stone, S_vwall } from '../js/symbols.js';
 
 test('object-shaped mimic with unexplored memory falls back to something', () => {
     const state = {
@@ -59,6 +59,32 @@ test('furniture hidden descriptions append the article exactly once', () => {
     ];
     for (const [options, expected] of cases) {
         assert.equal(mhidden_description(mimic, state, options), expected);
+    }
+});
+
+// pager.c names every M_AP_FURNITURE appearance from
+// defsyms[mappearance].explanation (defsym.h), not only the dungeon-feature
+// symbols. makemon.c set_mimic_sym() gives a mimic in a Rogue-level doorway
+// S_hwall or S_vwall, both explained as "wall"; S_stone is defsym.h's first
+// entry, "stone", the other end of the table.
+test('wall- and stone-shaped mimics use the defsyms explanation', () => {
+    const state = {
+        u: { ux: 10, uy: 10 },
+        level: { at: () => undefined, regions: [] },
+    };
+    const cases = [
+        [S_vwall, 'a wall'],
+        [S_hwall, 'a wall'],
+        [S_stone, 'a stone'],
+    ];
+    for (const [mappearance, expected] of cases) {
+        const mimic = {
+            mx: 10, my: 10, m_ap_type: M_AP_FURNITURE, mappearance,
+        };
+        assert.equal(mhidden_description(mimic, state, {
+            includePrefix: false,
+            includeArticle: true,
+        }), expected);
     }
 });
 

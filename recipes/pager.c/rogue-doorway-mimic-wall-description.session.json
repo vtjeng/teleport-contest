@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c mhidden_description() names an M_AP_FURNITURE mimic from defsyms[mappearance].explanation. A Valkyrie level-teleports to the Rogue level in debug mode, stands north of the room's lower doorway and creates six small mimics with #wizgenesis; set_mimic_sym() makes the one in the doorway look like a wall (S_hwall), so makemon() prints \"A wall appears next to you.\"",
+  "segments": [
+    {
+      "seed": 5517302,
+      "datetime": "20310214093000",
+      "nethackrc": "OPTIONS=name:Wallie,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizlevelport\nrogue\n\njllll\u00076 small mimics\n      "
+    }
+  ]
+}
