@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pray.c pleased():1287-1303, the pat_on_head case 4 ('You are surrounded by a light blue aura.') that uncurses every cursed inventory object except a worn helm of opposite alignment (uarmh). A lawful human Valkyrie in debug mode on a full-moon date (+1 Luck) wishes for a helm of opposite alignment and wears it (it curses itself and makes her chaotic, wiping her alignment record), wishes for an uncursed luckstone (Luck +3, so Luck 4), creates a hostile soldier ant and #wizkills it and a grid bug for alignment record (+5 each, above STRIDENT), wishes for a chaotic altar on the square to the north, prays there and answers y to 'Force the gods to be pleased?', then lists her inventory: the helm is still cursed and nothing glowed amber. Seed 6602419 is the first of seeds 6602417-6602446 whose prayer reached case 4 (also 6602432 and 6602439). Date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6602419,
+      "datetime": "20290727142000",
+      "nethackrc": "OPTIONS=name:Turncoat,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u0017helm of opposite alignment\nWe     \u0017uncursed luckstone\n\u0007hostile soldier ant\n#wizkill\n \u001bm.m.\u001bk\u0017chaotic altar\n#pray\ny y     i\u001b"
+    }
+  ]
+}

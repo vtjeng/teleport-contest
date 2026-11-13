@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_wear.c armor_or_accessory_off():1777-1797 refuses to take off uskin, dragon armor merged into a polymorphed hero's skin: 'You can't take that off; it's embedded.' A human Healer in debug mode wishes for an amulet versus poison (l) and puts it on, wishes for silver dragon scale mail (m) and wears it, and polymorphs into a silver dragon, which merges the mail as scales and drops her other armor. With no armor slot filled and one accessory worn, 'T' asks which item to take off (dotakeoff() counts no armor piece) and she names the scales; then the inventory item action 'T' on the scales runs ia_dotakeoff() to the same refusal. Seed, date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5520917,
+      "datetime": "20290922164500",
+      "nethackrc": "OPTIONS=name:Plated,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed amulet versus poison\nPl\u0017uncursed silver dragon scale mail\nWm #polyself\nsilver dragon\n   TmimT"
+    }
+  ]
+}

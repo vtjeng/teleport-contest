@@ -710,7 +710,7 @@ export async function dig(state = game, rawEnv = {}) {
                 ) + dbon(state);
                 let damage = damageResult;
                 if (damage < 1) damage = 1;
-                else if (u.uarmf) damage = Math.trunc((damage + 1) / 2);
+                else if (state.uarmf) damage = Math.trunc((damage + 1) / 2);
                 const { body_part } = await import('./polyself.js');
                 const part = body_part(FOOT, state.youmonst);
                 await message(`You hit yourself in the ${part}.`, state, rawEnv);

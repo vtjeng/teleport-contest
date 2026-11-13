@@ -2583,8 +2583,8 @@ export async function pleased(g_align, state = game) {
                 );
             for (let object = state.invent; object; object = object.nobj) {
                 if (object.cursed
-                    && (object !== u.uarmh
-                        || u.uarmh.otyp !== HELM_OF_OPPOSITE_ALIGNMENT)) {
+                    && (object !== state.uarmh
+                        || state.uarmh.otyp !== HELM_OF_OPPOSITE_ALIGNMENT)) {
                     if (!Blind(state.u)) {
                         await ttyPline(
                             `${Yobjnam2(object, 'softly glow', state)} ${hcolor('amber', state)}.`,

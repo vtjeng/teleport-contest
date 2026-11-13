@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c dig():391-402, the downward-digging branch for a hero held in a bear trap: when rnl(7) exceeds 4 she hits herself in the foot, and worn boots (uarmf) halve the damage. A human Valkyrie in debug mode raises herself to level 10 (ESC dismisses the level-up messages) so the trap and the pick-axe cannot kill her, wishes for low boots (e) and wears them, wishes for a pick-axe (f), steps north, wishes for a bear trap there, steps off and back on so that it closes on her foot, and applies the pick-axe downward. Seed 8830124 is the first of seeds 8830122-8830130 whose rnl(7) roll took the hit branch (also 8830125 and 8830126). Date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 8830124,
+      "datetime": "20310603091500",
+      "nethackrc": "OPTIONS=name:Digger,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n10\n\u001b\u0017uncursed +0 low boots\nWe\u0017uncursed +0 pick-axe\nk\u0017trapped bear trap\njkaf >    "
+    }
+  ]
+}

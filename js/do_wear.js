@@ -3760,13 +3760,13 @@ export async function armor_or_accessory_off(obj, state = game) {
         await ttyPline('You are not wearing that.', state);
         return ECMD_OK;
     }
-    if (obj === state.u?.uskin
+    if (obj === state.uskin
         || (obj === state.uarm && state.uarmc)
         || (obj === state.uarmu && (state.uarmc || state.uarm))) {
         let why = '';
         let what = '';
 
-        if (obj !== state.u?.uskin) {
+        if (obj !== state.uskin) {
             if (state.uarmc) what += cloak_simple_name(state.uarmc, state);
             if (obj === state.uarmu && state.uarm) {
                 if (state.uarmc) what += ' and ';
