@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c somegold() caps the purse at global.h LARGEST_INT (32767) before choosing how much a leprechaun takes, so an 80000-piece purse draws rn1(27768, 5000). A human Samurai in debug mode wishes for a tin whistle and 80000 gold pieces, creates a hostile leprechaun (generated asleep), wakes it with the whistle, and lets it hit. The seed is the first of 7340001-7340030 whose leprechaun hits on its first move (port scan; 19 of 30 did).",
+  "segments": [
+    {
+      "seed": 7340001,
+      "datetime": "20310603121000",
+      "nethackrc": "OPTIONS=name:FatPurse,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": "\u0017tin whistle\n\u001780000 gold pieces\n \u0007hostile leprechaun\naf  s"
+    }
+  ]
+}
