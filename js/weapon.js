@@ -261,6 +261,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { canseemon, canspotmon, newsym } from './display.js';
 import { bypass_obj } from './worn.js';
 import { pline_mon } from './pline.js';
+import { panic } from './end.js';
 
 const MR_STONE = 0x80;
 
@@ -1639,7 +1640,7 @@ export async function drain_weapon_skill(
         --state.u.skills_advanced;
 
         if (P_SKILL(skill, state) <= P_UNSKILLED)
-            throw new Error(`drain_weapon_skill (${skill})`);
+            await panic(`drain_weapon_skill (${skill})`, state);
         skillSlot(skill, state).skill--;
         state.u.weapon_slots += slots_required(skill, state);
 

@@ -1839,8 +1839,8 @@ export function preflight_end_burn(
            && !(timer.func_index === BURN_OBJECT && timer.arg === obj)) {
         timer = timer.next;
     }
-    if (!timer)
-        throw new Error('end_burn: lit object has no burn timer');
+    // stop_timer() finds nothing to stop: end_burn() reports it.
+    if (!timer) return { mode: 'untimed', normalized };
     preflightTimerCleanup(timer, state, normalized);
     return { mode: 'timer', normalized };
 }
@@ -1854,6 +1854,12 @@ export function end_burn(obj, timerAttached = true, env = {}) {
         obj.lamplit = false;
         if (obj.where === OBJ_INVENT)
             update_inventory({ state: plan.normalized.state });
+        return true;
+    }
+    if (plan.mode === 'untimed') {
+        // impossible("end_burn: obj %s not timed!", xname(obj)); this
+        // function cannot wait for the print.
+        note_unported('pline.c impossible');
         return true;
     }
     stop_timer(BURN_OBJECT, obj, plan.normalized.state, plan.normalized);
@@ -2402,22 +2408,11 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         else turns = age;
         radius = candle_light_range(obj);
     }
-    let position = null;
-
-    // C cannot fail at this linked subsystem boundary. The JS port can have
-    // its light owner missing, so resolve it before start_timer() claims
-    // ownership and adjusts the candle's remaining fuel.
-    if (!alreadyLit) {
-        position = get_obj_location(
-            obj,
-            CONTAINED_TOO | BURIED_TOO,
-            state,
-        );
-        if (!position)
-            throw new Error("begin_burn: can't get object position");
-        if (!state.gl || !Object.hasOwn(state.gl, 'light_base'))
-            throw new Error('light sources require light_globals_init()');
-    }
+    // The JS port can have its light owner missing, so check it before
+    // start_timer() claims ownership and adjusts the candle's remaining fuel.
+    if (!alreadyLit
+        && (!state.gl || !Object.hasOwn(state.gl, 'light_base')))
+        throw new Error('light sources require light_globals_init()');
 
     if (usesTimer) {
         if (start_timer(turns, TIMER_OBJECT, BURN_OBJECT, obj, state)) {
@@ -2435,14 +2430,25 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
     }
 
     if (obj.lamplit && !alreadyLit) {
-        new_light_source(
-            position.x,
-            position.y,
-            radius,
-            LS_OBJECT,
+        const position = get_obj_location(
             obj,
+            CONTAINED_TOO | BURIED_TOO,
             state,
         );
+        if (position) {
+            new_light_source(
+                position.x,
+                position.y,
+                radius,
+                LS_OBJECT,
+                obj,
+                state,
+            );
+        } else {
+            // impossible("begin_burn: can't get obj position"); this
+            // function cannot wait for the print.
+            note_unported('pline.c impossible');
+        }
     }
 }
 

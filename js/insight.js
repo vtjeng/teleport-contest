@@ -2046,7 +2046,10 @@ export function record_achievement(achidx, state = game) {
        stored as the complement (ie, negative) to track gender */
     if ((achidx < 1 && (absidx < ACH_RNK1 || absidx > ACH_RNK8))
         || achidx >= N_ACH) {
-        throw new RangeError(`Achievement #${achidx} is out of range.`);
+        // impossible("Achievement #%d is out of range.", achidx); this
+        // synchronous function cannot wait on the print.
+        note_unported('pline.c impossible');
+        return;
     }
 
     /* the list has an extra slot so there is always at least one 0 at its

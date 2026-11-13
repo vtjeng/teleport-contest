@@ -15,6 +15,7 @@ import { game } from './gstate.js';
 import { nhlL_newstate } from './nhlua.js';
 import { MS_LEADER, MS_NEMESIS, MS_GUARDIAN } from './monsters.js';
 import { note_unported } from './unported.js';
+import { impossible } from './pline.js';
 import { s_suffix, lcase, upstart } from './hacklib.js';
 import { align_str } from './insight.js';
 import { type_is_pname } from './mondata.js';
@@ -347,6 +348,9 @@ async function deliverByWindow(text, state, output) {
 // BUFSZ - 1 from the C source.
 const BUFSZ = 256;
 
+// C ref: questpgr.c:10.
+const QTEXT_FILE = 'quest.lua';
+
 // C ref: questpgr.c com_pager_core().  Looks up a quest message by
 // section (role filecode) and message ID, produces the nhlib shuffle,
 // reads the text and output mode, and delivers the message.
@@ -358,8 +362,10 @@ async function comPagerCore(
 
     const sectionData = QUEST_TEXT_DATA[section];
     if (!sectionData) {
-        if (showerror)
-            throw new Error(`com_pager: section ${section} not found`);
+        if (showerror) {
+            await impossible(`com_pager: questtext[${section}] in ${
+                QTEXT_FILE} is not a lua table`, state);
+        }
         return false;
     }
 
@@ -371,9 +377,14 @@ async function comPagerCore(
         if (fallbackMsgid) entry = sectionData[fallbackMsgid];
     }
     if (!entry) {
-        if (showerror)
-            throw new Error(
-                `com_pager: ${section}.${msgid} not found`);
+        if (showerror) {
+            await impossible(!fallbackMsgid
+                ? `com_pager: questtext[${section}][${msgid}] in ${
+                    QTEXT_FILE} is not a lua table`
+                : `com_pager: questtext[${section}][${msgid}] and [][${
+                    fallbackMsgid}] in ${QTEXT_FILE} are not lua tables`,
+            state);
+        }
         return false;
     }
 
@@ -389,26 +400,24 @@ async function comPagerCore(
     let text = null;
     let outputMode = 'default';
     let synopsis = null;
-    if (Array.isArray(entry)) {
-        // Raw Lua array: com_pager_core() chooses one 1-based array element.
-        const nelems = entry.length;
-        if (nelems < 2) {
-            if (showerror)
-                throw new Error(
-                    `com_pager: ${section}.${msgid} array too short`);
-            return false;
-        }
-        text = entry[random(nelems)];
-    } else if (entry && typeof entry === 'object') {
-        text = entry.text ?? null;
+    if (!Array.isArray(entry)) {
+        text = typeof entry.text === 'string' ? entry.text : null;
         outputMode = entry.output ?? 'default';
         synopsis = entry.synopsis ?? null;
     }
-    if (typeof text !== 'string') {
-        if (showerror)
-            throw new Error(
-                `com_pager: ${section}.${msgid} has no text`);
-        return false;
+    if (text === null) {
+        // Raw Lua array: com_pager_core() chooses one 1-based array element.
+        // A table with neither text nor array elements has length 0.
+        const nelems = Array.isArray(entry) ? entry.length : 0;
+        if (nelems < 2) {
+            if (showerror) {
+                await impossible(`com_pager: questtext[${section}][${
+                    fallbackMsgid ?? msgid}] in ${
+                    QTEXT_FILE} is not an array of strings`, state);
+            }
+            return false;
+        }
+        text = entry[random(nelems)];
     }
 
     // Determine output mode.  C maps: pline=1, window=2, text=2, menu=3,

@@ -16,6 +16,7 @@ import {
 import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { game } from './gstate.js';
+import { note_unported } from './unported.js';
 import { mungspaces, strstri, upstart, lcase } from './hacklib.js';
 import { getobj, hold_another_object, obfree, useup } from './invent.js';
 import { update_inventory } from './invent.js';
@@ -109,11 +110,11 @@ export function cost(otmp, state) {
         return 30;
     case SCR_BLANK_PAPER:
     default:
-        // C: impossible("You can't write such a weird scroll!");
-        throw new Error("impossible: You can't write such a weird scroll!");
+        // impossible("You can't write such a weird scroll!"): dowrite(), the
+        // only caller, cannot wait inside cost().
+        note_unported('pline.c impossible');
     }
-    // C returns 1000 after the impossible(); unreachable in this port because
-    // the impossible throws.
+    return 1000;
 }
 
 // C ref: write.c write_ok() (60-70). getobj callback for the object to write

@@ -1128,7 +1128,7 @@ test('setuhpmax owns u.uhpmax, u.uhppeak and the u.uhp ceiling', () => {
     assert.equal(notPolymorphed.u.uhpmax, 17);
 });
 
-test('record_achievement appends once and rejects an out-of-range index', () => {
+test('record_achievement appends once and reports an out-of-range index', () => {
     const state = heroState();
     record_achievement(ACH_RNK1, state);
     record_achievement(ACH_RNK1 + 1, state);
@@ -1156,16 +1156,17 @@ test('record_achievement appends once and rejects an out-of-range index', () => 
     record_achievement(N_ACH - 1, lowest);
     assert.deepEqual(lowest.u.uachieved.slice(0, 3), [1, N_ACH - 1, 0]);
 
-    assert.throws(() => record_achievement(0, heroState()), RangeError);
-    assert.throws(
-        () => record_achievement(-(ACH_RNK1 - 1), heroState()),
-        RangeError,
-    );
-    assert.throws(
-        () => record_achievement(-(ACH_RNK8 + 1), heroState()),
-        RangeError,
-    );
-    assert.throws(() => record_achievement(N_ACH, heroState()), RangeError);
+    // Anything else is reported through impossible() and recorded nowhere
+    // (insight.c:2416-2418); the synchronous port records the report as a
+    // gap. 0, the complements just outside the rank range, and N_ACH are
+    // the four edges of the accepted set.
+    for (const achidx of [0, -(ACH_RNK1 - 1), -(ACH_RNK8 + 1), N_ACH]) {
+        const rejected = heroState();
+        game.unported = new Set();
+        record_achievement(achidx, rejected);
+        assert.equal(rejected.u.uachieved[0], 0, `achievement ${achidx}`);
+        assert.ok(game.unported.has('pline.c impossible'));
+    }
 });
 
 test('achieve_rank complements the index for a female hero', () => {

@@ -3460,7 +3460,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
                 : 'relinquish %s and receive %ld gold piece%s in compensation.%s',
             offer, '', state, env);
     } else {
-        throw new Error(`invalid sell response ${String(answer)}`);
+        await impossible('invalid sell response', state, env);
     }
 }
 

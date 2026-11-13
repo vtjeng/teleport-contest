@@ -32,6 +32,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     UnsupportedBurnObjectError,
     begin_burn,
+    end_burn,
     peek_timer,
     start_timer,
     timeout_globals_init,
@@ -394,19 +395,50 @@ test('begin_burn lights a carried candle under perm_invent', () => {
     );
 });
 
+// timeout.c begin_burn():1790-1795. The timer starts and the object is lit
+// before C looks for its position; a free object has none, so C reports
+// impossible("begin_burn: can't get obj position") and makes no light source.
+test('begin_burn lights a candle with no map position but adds no light', () => {
+    const state = burnState();
+    // A free candle: get_obj_location() finds no position for OBJ_FREE.
+    const obj = candle(TALLOW_CANDLE, { where: OBJ_FREE });
+    const previous = game.unported;
+    game.unported = new Set();
+    try {
+        begin_burn(obj, false, { state });
+        assert.equal(game.unported.has('pline.c impossible'), true);
+    } finally {
+        game.unported = previous;
+    }
+    assert.equal(obj.lamplit, true);
+    // Age 200 burns to the 75-turn stage: 125 turns on this timer.
+    assert.equal(obj.age, 75);
+    assert.equal(obj.timed, 1);
+    assert.equal(state.gt.timer_base.func_index, BURN_OBJECT);
+    assert.equal(state.gl.light_base ?? null, null);
+});
+
+// timeout.c end_burn():1820-1821. A lit candle whose burn timer is gone:
+// stop_timer() finds nothing, so C reports impossible("end_burn: obj %s not
+// timed!") and leaves the candle lit.
+test('end_burn reports a lit candle that has no burn timer', () => {
+    const state = burnState();
+    // Lit by hand with no timer and no light source: only the report runs.
+    const obj = candle(TALLOW_CANDLE, { lamplit: true });
+    const previous = game.unported;
+    game.unported = new Set();
+    try {
+        end_burn(obj, true, { state });
+        assert.equal(game.unported.has('pline.c impossible'), true);
+    } finally {
+        game.unported = previous;
+    }
+    assert.equal(obj.lamplit, true);
+    assert.equal(state.gt.timer_base, null);
+});
+
 test('begin_burn preflights live integration before claiming ownership', () => {
     const cases = [
-        {
-            name: 'a free candle has no map position',
-            state: burnState(),
-            obj: candle(TALLOW_CANDLE, { where: OBJ_FREE }),
-            run(state, obj) {
-                assert.throws(
-                    () => begin_burn(obj, false, { state }),
-                    /can't get object position/,
-                );
-            },
-        },
         {
             name: 'the light-source globals must be initialized',
             state: (() => {

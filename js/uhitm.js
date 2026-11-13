@@ -678,7 +678,7 @@ import { cansee } from './vision.js';
 import {
     body_part, mbodypart, polymon, rehumanize, ugolemeffects, uunstick,
 } from './polyself.js';
-import { delayed_killer, done, done_in_by } from './end.js';
+import { delayed_killer, done, done_in_by, panic } from './end.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description, object_from_map } from './pager.js';
@@ -3998,7 +3998,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
             otmp = link[linkField];
             if (otmp.owornmask & W_ARM) {
                 if (ustealo)
-                    throw new Error('steal_it: multiple worn suits');
+                    await panic('steal_it: multiple worn suits', state);
                 link[linkField] = otmp.nobj;
                 ustealo = otmp;
                 ustealo.nobj = null;

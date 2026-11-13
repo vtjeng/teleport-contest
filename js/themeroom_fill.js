@@ -2,6 +2,7 @@
 // C refs: dat/themerms.lua themeroom_fills/themeroom_fill;
 // src/sp_lev.c special-level terrain and trap creation.
 
+import { isok } from './cmd_isok.js';
 import {
     AIR,
     ALTAR,
@@ -404,8 +405,8 @@ function randomRoomCoordinate(room, env) {
         SP_COORD_IS_RANDOM,
         env,
     );
-    if (coordinate.x === -1 || coordinate.y === -1)
-        throw new Error('themed-room fill could not choose a room coordinate');
+    // get_location() leaves <-1,-1> when no square qualifies; the caller
+    // passes it on as C does.
     return coordinate;
 }
 
@@ -452,8 +453,11 @@ function createFeature(typ, room, env) {
     const replacement = env.hooks.createFeature;
     if (replacement) return replacement(typ, room, env);
     const coordinate = randomRoomCoordinate(room, env);
-    const location = env.state.level?.at(coordinate.x, coordinate.y);
-    if (!location || IS_FURNITURE(location.typ)) return null;
+    // sel_set_feature() returns at once for a square off the map, as when
+    // get_location() found no place and left <-1,-1>.
+    if (!isok(coordinate.x, coordinate.y)) return null;
+    const location = env.state.level.at(coordinate.x, coordinate.y);
+    if (IS_FURNITURE(location.typ)) return null;
     location.typ = typ;
     return location;
 }

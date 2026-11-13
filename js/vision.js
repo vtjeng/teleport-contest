@@ -2,6 +2,7 @@ import { queueVisionMonsterNotices } from './startup_a11y.js';
 import { emitQueuedNotices } from './tty_message.js';
 import { impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
+import { panic } from './end.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
@@ -687,7 +688,7 @@ export async function do_clear_area(
     if (typeof callback !== 'function')
         throw new TypeError('do_clear_area requires a callback');
     if (range > MAX_RADIUS || range < 1)
-        throw new RangeError(`do_clear_area: illegal range ${range}`);
+        await panic(`do_clear_area:  illegal range ${range}`, state);
 
     if (scol !== state.u.ux || srow !== state.u.uy) {
         // The game's level owns the index.

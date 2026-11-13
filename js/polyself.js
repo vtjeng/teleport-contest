@@ -174,7 +174,7 @@ import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { youhiding } from './insight.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel } from './pline.js';
 import {
     deltrap, instapetrify, maketrap, reset_utrap, set_utrap, selftouch, t_at,
     unconscious,
@@ -2059,8 +2059,7 @@ export async function dobreathe(state = game) {
         state.youmonst.data, M.AT_BREA, M.AD_ANY,
     );
     if (!mattk) {
-        // C: impossible("bad breath attack?");
-        throw new Error('impossible: bad breath attack?');
+        await impossible('bad breath attack?', state); /* mouthwash needed... */
     } else if (!state.u.dx && !state.u.dy && !state.u.dz) {
         await ubreatheu(mattk, state, coreRandom);
     } else {
@@ -2081,8 +2080,8 @@ export async function dospit(state = game) {
         return ECMD_CANCEL;
     const mattk = attacktype_fordmg(state.youmonst.data, M.AT_SPIT, M.AD_ANY);
     if (!mattk) {
-        // C: impossible("bad spit attack?");
-        throw new Error('impossible: bad spit attack?');
+        await impossible('bad spit attack?', state);
+        return ECMD_TIME;
     }
     let otmp;
     switch (mattk.adtyp) {
@@ -2091,9 +2090,8 @@ export async function dospit(state = game) {
         otmp = mksobj(BLINDING_VENOM, true, false, { state });
         break;
     default:
-        // C: impossible("bad attack type in dospit") and fall through to
-        // AD_ACID. No spitting species carries another damage type.
-        throw new Error('impossible: bad attack type in dospit');
+        await impossible('bad attack type in dospit', state);
+        // FALLTHROUGH
     case M.AD_ACID:
         otmp = mksobj(ACID_VENOM, true, false, { state });
         break;
@@ -2171,10 +2169,8 @@ export async function dospinweb(state = game) {
                 if (u.ustuck.data.mattk[i].aatyp === M.AT_ENGL)
                     break;
             if (i === NATTK) {
-                // C: impossible("Swallower has no engulfing attack?");
-                throw new Error(
-                    'impossible: Swallower has no engulfing attack?',
-                );
+                await impossible('Swallower has no engulfing attack?', state);
+                return ECMD_OK;
             }
             let sweep = '';
             switch (u.ustuck.data.mattk[i].adtyp) {
@@ -2255,8 +2251,8 @@ export async function dospinweb(state = game) {
             await dotrap(ttmp, NO_TRAP_FLAGS, state);
             return ECMD_TIME;
         default:
-            // C: impossible("Webbing over trap type %d?", ttmp->ttyp);
-            throw new Error(`impossible: Webbing over trap type ${ttmp.ttyp}?`);
+            await impossible(`Webbing over trap type ${ttmp.ttyp}?`, state);
+            return ECMD_OK;
         }
     } else if (On_stairs(x, y, state)) {
         /* cop out: don't let them hide the stairs */
@@ -2673,8 +2669,8 @@ export async function uunstick(state = game, rawEnv = {}) {
     const mtmp = state.u.ustuck;
 
     if (!mtmp) {
-        // C: impossible("uunstick: no ustuck?");
-        throw new Error('impossible: uunstick: no ustuck?');
+        await impossible('uunstick: no ustuck?', state, rawEnv);
+        return;
     }
     set_ustuck(null, state); /* before pline() */
     const message = rawEnv.message ?? ttyPline;
