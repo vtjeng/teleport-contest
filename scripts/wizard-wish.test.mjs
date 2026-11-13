@@ -299,11 +299,9 @@ test('a terminal that goes away at the prompt suspends the wish', async () => {
     // zap.c:6339-6342. win/tty/getline.c:87 raises iflags.term_gone for the
     // byte that reads back as EOF, and makewish() then returns instead of
     // reading the buffer. allmain.c:200 resumes this wish before elapsed turns.
-    //
-    // No fresh recording can reach this arm: scripts/record-session.mjs sends
-    // each replay key as Buffer.from(k, 'utf8'), which turns 0xFF into the two
-    // bytes 0xC3 0xBF, so the reference program never sees the byte that reads
-    // back as EOF.
+    // The next test reaches the same arm through the whole command, and
+    // recordings/zap.c/latin1-eof-byte-suspends-wish records it from C, where
+    // 'ÿ' is the byte 0xFF.
     const { state } = wishState(`lam${EOF_BYTE}`);
     state.u = { uconduct: {} };
     state.context = { resume_wish: 7 }; /* a value zap.c:6323 has to clear */
@@ -321,13 +319,8 @@ test('the wish command restores flags.verbose after makewish() returns',
     // route by which a running game reaches wizcmds.c:39 today, so it is the
     // one that can show the flag going back. It runs here through the whole
     // command, so encumber_msg() at wizcmds.c:40 runs too.
-    // The recorder sends each key as UTF-8, which never contains 0xFF, so the
-    // byte is passed to runSegment() directly after the ASCII keys before it.
     const segment = segmentFor(`${WIZWISH_KEY}mud boo`);
-    await runSegment(segment, {
-        inputBytes: [...`.${WIZWISH_KEY}lam${EOF_BYTE}`]
-            .map((key) => key.charCodeAt(0)),
-    });
+    await runSegment({ ...segment, moves: `.${WIZWISH_KEY}lam${EOF_BYTE}` });
 
     assert.equal(game.iflags.term_gone, 1);
     // The next moveloop_core iteration calls makewish, clearing the saved flag

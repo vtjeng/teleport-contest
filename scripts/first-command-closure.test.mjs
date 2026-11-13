@@ -88,20 +88,14 @@ test('closure boundary rejects an appended unsupported command', async () => {
         /dispatched a command before stopping/u,
     );
     // admitParsedCommand() still refuses byte 0377 before dispatch, which
-    // leaves the parsed command pending. The recorder sends each key as
-    // UTF-8, so the byte comes from altmeta: cmd.c readchar_core() makes
-    // Escape then DEL (0177) into 0377.
-    const appended = {
-        ...segment,
-        nethackrc: `${segment.nethackrc}OPTIONS=altmeta\n`,
-        moves: `${segment.moves}\x1b\x7f`,
-    };
+    // leaves the parsed command pending.
+    const appended = `${segment.moves}ÿ`;
     await assert.rejects(
-        verifyFirstCommandBoundary(appended),
+        verifyFirstCommandBoundary({ ...segment, moves: appended }),
         /unsupported gameplay command/u,
     );
     await assert.rejects(
-        traceFirstCommandThemeroomSelections(appended),
+        traceFirstCommandThemeroomSelections({ ...segment, moves: appended }),
         /unsupported gameplay command/u,
     );
 });

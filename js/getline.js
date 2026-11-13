@@ -117,13 +117,14 @@ function putbytes(buf, from, state) {
 // leaves it: the typed text, or "\x1b" when Escape cancels an empty line.
 //
 // `buf` holds obufp's bytes up to its terminator and `pos` holds
-// bufp - obufp.  pgetchar() delivers one byte per read, so a key the
-// recorder sent as UTF-8 arrives as several bytes, each stored as C stores
-// it; the returned string is decodeUtf8ByteString() of those bytes, the
-// port's form of a C byte string.  NEWAUTOCOMP's painting needs both, because the hook rewrites
-// the whole buffer while leaving the insertion point where it was.  `hook`
-// returns the expansion, or null when nothing matched, in place of the boolean
-// the C hook returns after rewriting the buffer in place.
+// bufp - obufp.  pgetchar() delivers one byte per read, each stored as C
+// stores it; the returned string is decodeUtf8ByteString() of those bytes,
+// the port's form of a C byte string, in which a byte that is not part of a
+// UTF-8 sequence, such as a lone 0xE9, keeps its value.  NEWAUTOCOMP's
+// painting needs both, because the hook rewrites the whole buffer while
+// leaving the insertion point where it was.  `hook` returns the expansion, or
+// null when nothing matched, in place of the boolean the C hook returns after
+// rewriting the buffer in place.
 async function hooked_tty_getlin(query, hook, state) {
     const display = state.nhDisplay;
     if (!display) throw new Error('getlin requires an initialized display');

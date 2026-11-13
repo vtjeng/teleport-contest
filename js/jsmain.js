@@ -278,10 +278,6 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
-        // The input boundaries the recorder keeps; playSegment() sets it from
-        // moves (recordedBoundaryLimit()) while it replays them.
-        // _rngSlices has one entry per captured boundary.
-        this._boundaryLimit = Infinity;
         // rng.js keeps one RNG log per process, and start() replaces it with
         // a fresh one, so until then the process log still holds the previous
         // segment's calls; a segment that stops before that point has logged
@@ -716,9 +712,6 @@ export class NethackGame {
         // its port of that function.
         game._animationFrameHook = () => nhGame.animationFrame();
         game._preNhgetchHook = async () => {
-            // The recorder has stopped keeping boundaries; the game reads on
-            // and its RNG calls stay in the flat log.
-            if (nhGame._rngSlices.length >= nhGame._boundaryLimit) return;
             // Capture RNG slice since last capture
             const fullLog = getRngLog() || [];
             const slice = fullLog.slice(nhGame._lastRngIdx);
@@ -799,53 +792,21 @@ function createThemeroomSelectionCollector() {
     });
 }
 
-// The bytes the recorded C game read, in order, from a replay's moves.
-//
-// scripts/record-session.mjs writes moves[i], one UTF-16 code unit, to the
-// game's stdin as UTF-8 each time the game reaches an input boundary (the
-// patched tty_nhgetch() emits one boundary marker before each read). Through
-// that pipe:
-// - a carriage return arrives as a newline, as a tmux pty's ICRNL line
-//   discipline delivers it; the recorder copies that translation;
-// - a code unit from U+0080 to U+07FF arrives as two bytes, and any other
-//   code unit above U+007F as three; Node encodes a lone surrogate, half of
-//   an astral character, as U+FFFD (EF BF BD);
-// - tgetch() is getchar(), so the game reads one byte per tty_nhgetch().
-//   0xC3, the first byte of 'é', is the key M-C, bound to #conduct.
-// Each read is preceded by its own boundary, so the recording's boundaries
-// fall between bytes, not between moves characters, and the bytes of one
-// multi-byte key are read at successive boundaries. The recorder writes the
-// last key at its moves.length-th boundary and keeps moves.length + 1
-// boundaries (recordedBoundaryLimit() below), but the game does not wait for
-// it: it reads the bytes still in the pipe, and plays the commands they
-// complete, before the recorder's SIGTERM arrives. The game's RNG log is line
-// buffered, and the recorder reads it after that last boundary, so the
-// recording's last step holds the RNG calls of those commands. This returns
-// every byte, and playSegment() replays them all.
-export function recordedInputBytes(moves) {
-    const bytes = [];
+// The input codes the recorded C game read, in order, from a replay's moves:
+// one per UTF-16 code unit, its charCodeAt(), as frozen/playability_runner.mjs
+// queues them. The judge's held-out sessions were recorded with one byte per
+// key and one input boundary per key, and scripts/record-session.mjs writes
+// the same byte, keyByte(), for every key up to U+00FF; it refuses a higher
+// one. tty_nhgetch() reads that byte, so 'é' (0xE9) is the key M-i, #invoke.
+// A carriage return arrives as a newline, as a pty's ICRNL line discipline
+// delivers it; the recorder makes the same translation.
+export function recordedInputCodes(moves) {
+    const codes = [];
     for (let i = 0; i < moves.length; i++) {
-        const unit = moves.charCodeAt(i) === 0x0d ? 0x0a : moves.charCodeAt(i);
-        if (unit < 0x80) {
-            bytes.push(unit);
-        } else if (unit < 0x800) {
-            bytes.push(0xc0 | (unit >> 6), 0x80 | (unit & 0x3f));
-        } else {
-            const cp = unit >= 0xd800 && unit <= 0xdfff ? 0xfffd : unit;
-            bytes.push(0xe0 | (cp >> 12), 0x80 | ((cp >> 6) & 0x3f),
-                0x80 | (cp & 0x3f));
-        }
+        const unit = moves.charCodeAt(i);
+        codes.push(unit === 0x0d ? 0x0a : unit);
     }
-    return bytes;
-}
-
-// The input boundaries scripts/record-session.mjs keeps from a segment that
-// replays moves: the initial one and one per key it writes. It ignores every
-// later boundary's screen, cursor and animation frames, so the capture hook
-// stops at this many; the game keeps reading the bytes a multi-byte key left
-// in the pipe (recordedInputBytes()).
-export function recordedBoundaryLimit(moves) {
-    return moves.length + 1;
+    return codes;
 }
 
 export function segmentIterationLimit(movesLength) {
@@ -882,9 +843,7 @@ export function segmentIterationLimit(movesLength) {
 // a replay recipe or the judge contract. onBoundary, when supplied, receives
 // the fail-closed boundary error that ended the segment; the loop below
 // swallows it, so an observer has no other way to learn which unported path
-// the segment reached. inputBytes, when supplied, replaces the bytes
-// recordedInputBytes() derives from moves; unit tests use it for a byte that
-// no recording can deliver, such as 0377, which tty getline() reads as EOF.
+// the segment reached.
 //
 // Two entry points share playSegment() and differ only in what an error that
 // is neither a boundary refusal nor input exhaustion does:
@@ -995,29 +954,16 @@ function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
     });
 }
 
-// The recorder keeps a limited number of boundaries only while it replays
-// moves; a caller that drives the returned game further, as unit tests do,
-// gets every later boundary captured.
-async function playSegment(nhGame, input, options = {}) {
-    if (!options.inputBytes)
-        nhGame._boundaryLimit = recordedBoundaryLimit(input.moves || '');
-    try {
-        await replayInputBytes(nhGame, input, options);
-    } finally {
-        nhGame._boundaryLimit = Infinity;
-    }
-}
-
-async function replayInputBytes(nhGame, input, { onBoundary = null, inputBytes = null } = {}) {
+async function playSegment(nhGame, input, { onBoundary = null } = {}) {
     const moves = input.moves || '';
 
     const display = new GameDisplay(null);
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };
     nhGame._pendingDisplay = display;
 
-    const keys = inputBytes ?? recordedInputBytes(moves);
-    for (const byte of keys)
-        display.pushKey(byte);
+    const keys = recordedInputCodes(moves);
+    for (const code of keys)
+        display.pushKey(code);
 
     let started;
     try {

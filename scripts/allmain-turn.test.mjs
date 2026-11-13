@@ -3225,8 +3225,8 @@ test('wererat infection gets its daytime allmain change roll before dosounds',
     });
 
 // allmain.c:200-201 resumes a saved wish before context.move's elapsed-turn
-// gate. The reference recorder encodes EOF as UTF-8, so it cannot record that
-// saved flag; set it directly and exercise the production moveloop_core caller.
+// gate. Set the saved flag directly, rather than through an EOF byte at the
+// wish prompt, and exercise the production moveloop_core caller.
 test('moveloop_core resumes a pending wish before reading the next command', async () => {
     // Independent setup only creates a real initialized loop and display.
     await runSegment({ seed: 92650201, datetime: '20761111124500',

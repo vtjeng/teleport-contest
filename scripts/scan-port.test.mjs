@@ -75,11 +75,9 @@ test('scanSeeds counts a refused command by error class without calling keep', a
         datetime: DATETIME,
         // cmd.c rhack():3660-3671 answers a 0377 command byte with nhbell(),
         // which cmd.js refuses as unported, so both seeds stop at that
-        // boundary on the first command byte. The recorder sends each key as
-        // UTF-8, so the byte comes from altmeta: cmd.c readchar_core() makes
-        // Escape then DEL (0177) into 0377.
-        nethackrc: `${NETHACKRC}OPTIONS=altmeta\n`,
-        moves: '\x1b\x7f',
+        // boundary on the first command byte.
+        nethackrc: NETHACKRC,
+        moves: '\u00ff',
         keep: () => { keepCalls++; return true; },
     });
     assert.equal(replayed, 2);

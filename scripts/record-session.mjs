@@ -4,7 +4,8 @@
 // Reads an input session.json (clean v5 segments format), spawns the
 // patched NetHack 5.0 "recorder" binary with NOMUX_MARKERS=1, drives
 // it one key at a time using in-band stdout sync markers (OSC 7777),
-// reads PRNG calls from the rng-log file, and writes a fresh v5 session.
+// writing each key as one byte (keyByte()), reads PRNG calls from the
+// rng-log file, and writes a fresh v5 session.
 //
 // Usage:
 //   node scripts/record-session.mjs <input.session.json> [output.session.json]
@@ -392,11 +393,29 @@ function payloadToLines(payload) {
 // ---------------------------------------------------------------------------
 
 // Bytes of `buf` up to and including its last newline. The C program can
-// still be writing the PRNG log when a boundary marker arrives, for example
-// while it consumes the later bytes of a multi-byte key, so a read can end
-// inside a line. That line is left for the next boundary to read whole.
+// still be writing the PRNG log when a boundary marker arrives, so a read can
+// end inside a line. That line is left for the next boundary to read whole.
 export function completeLogBytes(buf) {
     return buf.lastIndexOf(0x0a) + 1;
+}
+
+// The byte written to the game for one moves character, a UTF-16 code unit.
+// The judge's held-out sessions were recorded with one byte per key and one
+// input boundary per key (davidbau/teleport-contest#23), the stream
+// frozen/playability_runner.mjs replays with moves.charCodeAt(i), so a
+// character up to U+00FF is sent as that byte: 'é' is 0xE9, the key M-i.
+// Nobody knows what the judge's recorder sent for a character above U+00FF,
+// so this refuses one rather than guess; js/jsmain.js recordedInputCodes()
+// replays the same byte.
+export function keyByte(k) {
+    const unit = k.charCodeAt(0);
+    if (unit > 0xff) {
+        throw new Error(`key ${JSON.stringify(k)} (U+${unit.toString(16)
+            .toUpperCase().padStart(4, '0')}) is above U+00FF; the recorder `
+            + 'sends one byte per key, and the byte the judge\'s recorder sent '
+            + 'for such a key is unknown');
+    }
+    return Buffer.from([unit]);
 }
 
 function parseRngLines(text) {
@@ -542,7 +561,6 @@ export async function recordSegment({
         NETHACK_FIXED_ISDST: JUDGE_RECORDER_IS_DST ? '1' : '0',
         NETHACK_RNGLOG: rngLogPath,
         NOMUX_MARKERS: '1',
-        NETHACK_RAW_KEYS: '1',
     };
 
     // Some legacy sessions have steps[].key populated but moves
@@ -557,6 +575,8 @@ export async function recordSegment({
         moves = reconstructed.join('');
     }
     if (prompt) moves = moves.replace(/\r/gu, '\n');
+    // Refuse an unrecordable key before starting the game.
+    for (let i = 0; i < moves.length; i++) keyByte(moves[i]);
     const prefixLength = moves.length;
     const controller = prompt ? createPromptController(prompt) : null;
     // A clean v5 recording is also the replay recipe, so its existing step
@@ -725,9 +745,9 @@ export async function recordSegment({
                 }
                 const k = moves[nextKeyIdx++];
                 await onReceipt({kind: 'key-intent', index: nextKeyIdx - 1,
-                    frameIndex: steps.length - 1, key: k, bytes: Buffer.from(k, 'utf8').toString('hex')});
+                    frameIndex: steps.length - 1, key: k, bytes: keyByte(k).toString('hex')});
                 if (pendingFailure) return;
-                child.stdin.write(Buffer.from(k, 'utf8'));
+                child.stdin.write(keyByte(k));
                 emittedMoves += k;
                 if (controller.decisions.at(-1)) controller.decisions.at(-1).sent = true;
                 await onReceipt({kind: 'key-written', index: nextKeyIdx - 1});
@@ -749,19 +769,20 @@ export async function recordSegment({
             }
             if (nextKeyIdx < moves.length) {
                 let k = moves[nextKeyIdx++];
-                // The canonical sessions were captured under tmux, whose pty
-                // line discipline maps incoming CR (\r) to LF (\n) before the
-                // application reads it (ICRNL).  Our pipe-based stdin has no
-                // line discipline, so we replicate that translation on the
-                // way out.  (DEL / 0x7f is fine to send verbatim because the
-                // patched gettty seeds erase_char with '\177'.)
+                // A pty's ICRNL line discipline maps an incoming CR (\r) to
+                // LF (\n) before the application reads it, and the port
+                // replays a carriage return as a newline
+                // (js/jsmain.js recordedInputCodes()).  This pipe-based stdin
+                // has no line discipline, so the translation happens here.
+                // (DEL / 0x7f is fine to send verbatim because the patched
+                // gettty seeds erase_char with '\177'.)
                 if (k === '\r') k = '\n';
                 if (preserveFailure) {
                     await onReceipt({kind: 'key-intent', index: nextKeyIdx - 1,
-                        frameIndex: steps.length - 1, key: k, bytes: Buffer.from(k, 'utf8').toString('hex')});
+                        frameIndex: steps.length - 1, key: k, bytes: keyByte(k).toString('hex')});
                     if (pendingFailure) return;
                 }
-                child.stdin.write(Buffer.from(k, 'utf8'));
+                child.stdin.write(keyByte(k));
                 if (preserveFailure) await onReceipt({kind: 'key-written', index: nextKeyIdx - 1});
                 armTimeout(20000, `after key ${nextKeyIdx}/${moves.length}`);
             } else if (!child.stdin.writableEnded) {

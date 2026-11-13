@@ -18,14 +18,8 @@ const START = {
 // Four searches give the segment four input boundaries, and RNG calls, before
 // the 0377 command byte, which cmd.js admitParsedCommand() refuses with an
 // UnsupportedHeroCommandBoundaryError because nhbell() is not ported. The
-// recorder sends each key as UTF-8, so no key is the byte 0377 itself; with
-// altmeta, cmd.c readchar_core() makes Escape then DEL (0177) into 0377. The
 // trailing search is input the segment never reaches.
-const MID_GAME = {
-    ...START,
-    nethackrc: `${START.nethackrc}OPTIONS=altmeta\n`,
-    moves: 'ssss\x1b\x7fs',
-};
+const MID_GAME = { ...START, moves: 'ssss\xffs' };
 // options.c parseoptions() accepts a unique prefix of a menu command option;
 // js/options.js applyOption() has not ported that match and throws a plain
 // Error while start() reads the rc, before any capture.
@@ -51,9 +45,9 @@ async function boundaryReference() {
 
 test('runSegment() ends a segment that crashes partway and keeps its capture', async () => {
     const reference = await boundaryReference();
-    // Startup, the four searches and the Escape that altmeta pairs with DEL
-    // each wait for input; zero would mean the crash hid every boundary.
-    assert.equal(reference.screens.length, 6);
+    // Startup plus the four searches each wait for input; zero would mean the
+    // crash hid every boundary.
+    assert.equal(reference.screens.length, 5);
     assert.ok(reference.rng.length > 0);
 
     // An onBoundary observer that fails is a crash at the boundary: the error

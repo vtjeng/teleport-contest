@@ -22,7 +22,7 @@ export function appendLongDigit(value, digitValue) {
     return appended > 9223372036854775807n ? -1n : appended;
 }
 
-// Contest inputs are JavaScript strings which the recorder writes as UTF-8.
+// The UTF-8 bytes of a JavaScript string, as the recorder writes a nethackrc.
 export function encodeUtf8Text(value) {
     return Array.from(utf8Encoder.encode(String(value)));
 }
