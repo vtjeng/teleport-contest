@@ -16,7 +16,10 @@ const MONSTER_ACTIONS_JS = readFileSync(
 function defaultedOperations(source) {
     const table = source.match(/const REGION_OPERATIONS = \{([\s\S]*?)\n\};/u)?.[1];
     assert.ok(table, 'REGION_OPERATIONS table is present');
-    return [...table.matchAll(/^ {4}(\w+):/gmu)].map((match) => match[1]).sort();
+    // `name: value`, or the shorthand `name,` for an operation that is the
+    // C function itself, such as newsym.
+    return [...table.matchAll(/^ {4}(\w+)(?::|,$)/gmu)]
+        .map((match) => match[1]).sort();
 }
 
 // Every operation region.js calls through its env, as `env.name(`,
