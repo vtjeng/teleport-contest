@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "worn.c setworn():79-82, reached from restore.c restgamestate():686-689 for each worn inventory object: body armor saved with W_ARM|I_SPECIAL is dragon armor merged into the hero's skin and becomes uskin, not uarm, so do_wear.c find_ac() does not count it. A human Healer in debug mode wishes for gray dragon scale mail (it lands on k), wears it, polymorphs into a gray dragon so that polyself.c polymon() merges it as scales, and saves. The second segment restores the game (answering n to keep the save file), shows AC -1 on the status line rather than -4, tries 'T', which do_wear.c dotakeoff() answers 'The dragon scales are merged with your skin!' because uskin is set and no other armor is worn, and lists the inventory. Seeds, dates and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4417203,
+      "datetime": "20300415103000",
+      "nethackrc": "OPTIONS=name:Scaly,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017gray dragon scale mail\nWk #polyself\ngray dragon\n    Sy"
+    },
+    {
+      "seed": 4417204,
+      "datetime": "20300415111500",
+      "nethackrc": "OPTIONS=name:Scaly,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " nTi\u001b"
+    }
+  ]
+}

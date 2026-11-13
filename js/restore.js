@@ -26,6 +26,7 @@ import {
     M_AP_TYPE,
     ROWNO,
     VISITED,
+    I_SPECIAL,
     W_AMUL,
     W_ARM,
     W_ARMC,
@@ -879,19 +880,30 @@ function rebuildObjectList(state) {
 // the inventory for items whose owornmask identifies their slot. This
 // replaces what setworn() established during the original equipping and
 // avoids the side effects setworn()'s hooks would produce on restore.
+// Returns whether obj went to uskin.
+// C ref: worn.c setworn():79-82. Body armor saved with I_SPECIAL is dragon
+// armor merged into a polymorphed hero's skin: it becomes uskin, not uarm,
+// and "no properties are conferred via skin".
 function setWornPointers(obj, state) {
+    if ((obj.owornmask & (W_ARM | I_SPECIAL)) === (W_ARM | I_SPECIAL)) {
+        state.uskin = obj;
+        return true;
+    }
     for (const { mask, field } of WORN_SLOTS) {
         if (obj.owornmask & mask) {
             state[field] = obj;
         }
     }
+    return false;
 }
 
 function rebuildEquipmentPointers(state, bcObjs) {
-    // Clear all equipment slots first.
+    // Clear all equipment slots first. uskin, like the slots, is a pointer
+    // that only setworn() sets on restore (decl.h; it is not saved).
     for (const { field } of WORN_SLOTS) {
         state[field] = null;
     }
+    state.uskin = null;
 
     // C ref: restore.c restgamestate():662-669, setworn() for the dangling
     // ball and chain, before the inventory's. Neither confers a property.
@@ -908,7 +920,7 @@ function rebuildEquipmentPointers(state, bcObjs) {
     // (Its artifact-intrinsic and display steps stay out, as before.)
     for (let obj = state.invent; obj; obj = obj.nobj) {
         if (!obj.owornmask) continue;
-        setWornPointers(obj, state);
+        if (setWornPointers(obj, state)) continue;
         for (const { mask } of WORN_SLOTS) {
             if ((obj.owornmask & mask) && !(mask & (W_SWAPWEP | W_QUIVER)))
                 add_worn_property(obj, mask, obj.owornmask, state);
