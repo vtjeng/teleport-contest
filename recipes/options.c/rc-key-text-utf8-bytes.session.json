@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent options.c txt2key() witness for non-ASCII key text in the configuration file. Seed 27183163, clock 20570711121314, Healer and the two key texts were chosen before JavaScript comparison. The recorder writes the nethackrc as UTF-8, so \"é\" and \"ñ\" are two bytes each and not a simple character: txt2key() returns 0, which spcfn_misc_menu_cmd() rejects as the reserved key '^@' and parsebindings() reports as an unknown key binding key.",
+  "segments": [
+    {
+      "seed": 27183163,
+      "datetime": "20570711121314",
+      "nethackrc": "OPTIONS=name:Eir,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=menu_first_page:é\nBIND=ñ:search\n",
+      "moves": "\n\n\n"
+    }
+  ]
+}

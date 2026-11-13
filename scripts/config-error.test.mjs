@@ -175,6 +175,11 @@ test('a binding parsebindings() cannot read is reported, not bound', () => {
             [" * Line 1: Unknown key binding key 'zorkmid'."]],
         ['BIND=zorkmid\t:redraw',
             [" * Line 1: Unknown key binding key 'zorkmid'."]],
+        // The rc file is UTF-8, so "ñ" is the two bytes 0xC3 0xB1: no simple
+        // character, and txt2key() answers zero
+        // (recordings/options.c/rc-key-text-utf8-bytes.session.json).
+        ['BIND=\u00f1:search',
+            [" * Line 1: Unknown key binding key '\u00f1'."]],
     ]) {
         const parsed = parseNethackrc(`${statement}\n`);
         assert.deepEqual(parsed.configErrorFrame.output, [

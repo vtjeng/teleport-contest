@@ -3380,9 +3380,12 @@ function firstEscapedByte(text) {
 
 // C ref: options.c txt2key() (6970-7067).  It opens on trimspaces(), so both
 // halves apply to the text it reads; only the trailing half is visible to a
-// caller that keeps the buffer it passed in.
+// caller that keeps the buffer it passed in.  txt2key() reads bytes, so
+// `value` holds one character per byte: "é" is two and no simple character.
 function textToKey(text) {
-    let value = trimspaces(text);
+    let value = String.fromCharCode(
+        ...encodeUtf8ByteString(trimspaces(text)),
+    );
     if (!value) return 0;
     if (value.length === 1) return byteOf(value);
     if (value === '<enter>') return 10;
