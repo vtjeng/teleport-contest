@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 229 | 494 |
+| diagnostic | 723 | 233 | 490 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4226 | 685 |
+| total | 4911 | 4230 | 681 |
 
 ## Missing by C file
 
@@ -113,7 +113,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/sp_lev.c | yes | 0 | 15 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
-| src/steed.c | yes | 0 | 5 | 1 |
+| src/steed.c | yes | 0 | 1 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 1 | 3 |
@@ -1526,12 +1526,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `put_saddle_on_mon()`
   - 158 panic: `merged saddle?`
-
-- `place_monster()`
-  - 909 impossible: `trying to place`
-  - 917 impossible: `onto map, mstate:`
-  - 918 impossible: `defunct monster`
-  - 926 impossible: `>, mstates:`
 
 ### src/sys.c
 
