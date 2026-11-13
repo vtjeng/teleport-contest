@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmon_hitmon_misc_obj() names a cream pie that splashes a monster's face: 'A cream pie' (An(singular())) when the hero bashes with a stack of more than one, and the monster's name without a possessive when it has no face to splash (the floating eye). A human Samurai in debug mode wishes for 3 cream pies and a ring of free action (against the eye's passive paralysis), puts on the ring and wields the pies, then creates a newt and a floating eye and fights each once. The seed is the first of 7370001-7370060 where both blows land (port scan; 15 of 60 did); the fight directions are where ^G placed each monster in that game.",
+  "segments": [
+    {
+      "seed": 7370003,
+      "datetime": "20310528081500",
+      "nethackrc": "OPTIONS=name:PieBasher,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": "\u00173 cream pies\n\u0017ring of free action\nPgrwf\u0007newt\nFb \u0007floating eye\nFh  "
+    }
+  ]
+}
