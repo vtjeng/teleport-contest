@@ -294,8 +294,8 @@ export async function tty_message_menu(
         await ttyPline(mesg, state);
         return 0;
     }
-    if (how !== PICK_ONE)
-        throw new Error(`unsupported tty_message_menu mode ${how}`);
+    // C has no other arm: invent.c display_pickinv()'s two calls pass
+    // PICK_ONE or PICK_NONE, and any other value would take the PICK_ONE path.
 
     const display = state.nhDisplay;
     if (!display)
@@ -323,7 +323,7 @@ export async function tty_message_menu(
     state._ttyMessageStopped = false;
     display.dismiss_more = 0;
     const morc = display.morc;
-    return morc === selected || morc === 27 ? morc : 0;
+    return (how === PICK_ONE && morc === selected) || morc === 27 ? morc : 0;
 }
 
 // C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE/FALSE). Only a

@@ -4002,12 +4002,6 @@
       "c": null,
       "reason": "Refuses a call made without the initialized tty display every game has."
     },
-    "js/tty_message.js | tty_message_menu | `unsupported tty_message_menu mode ${how}`": {
-      "count": 1,
-      "class": "guard",
-      "c": "win/tty/wintty.c:2819",
-      "reason": "C would treat another mode like PICK_ONE; invent.c passes only PICK_ONE or PICK_NONE."
-    },
     "js/tty_startup.js | ttyAsknameImpl | 'tty_askname requires an initialized display'": {
       "count": 1,
       "class": "invariant",

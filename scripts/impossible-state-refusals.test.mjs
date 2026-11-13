@@ -24,6 +24,10 @@
 //   check; it calls m_detach(), which reports a second detach through
 //   impossible() (mon.c 2791-2797) and is now ported.
 //
+// - js/tty_message.js tty_message_menu(): a selection mode other than
+//   PICK_ONE or PICK_NONE. invent.c display_pickinv()'s two calls pass one
+//   of those, and C has no other arm.
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -43,6 +47,7 @@ const REMOVED_REFUSALS = {
     ],
     'shk.js': ['shk_move without eshk extension'],
     'mon.js': ['mongone: monster is already detached'],
+    'tty_message.js': ['unsupported tty_message_menu mode'],
     'makemon_create.js': [
         'mmflags 0x',
         'random coordinates outside mklev',
