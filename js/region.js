@@ -31,7 +31,7 @@ import { losehp } from './hack.js';
 import { dist2, encodeUtf8ByteString } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { youFeel, youSee } from './pline.js';
+import { impossible, youFeel, youSee } from './pline.js';
 import {
     haseyes,
     is_silent,
@@ -1005,7 +1005,14 @@ export async function create_gas_cloud(
         ) === M_POISONGAS_OK)) {
         insideCloud = true;
     }
-    if (cloudSize > MAX_CLOUD_SIZE) cloudSize = MAX_CLOUD_SIZE;
+    if (cloudSize > MAX_CLOUD_SIZE) {
+        await impossible(
+            `create_gas_cloud: cloud too large (${cloudSize})!`,
+            env.state,
+            env,
+        );
+        cloudSize = MAX_CLOUD_SIZE;
+    }
 
     const coordinates = [{ x, y }];
     for (let current = 0;

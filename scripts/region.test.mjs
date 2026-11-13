@@ -1041,3 +1041,40 @@ test('any_visible_region and visible_region_summary follow the timeout source tr
         `    5\t${'poison gas (7)'.padEnd(16)}\t@[4,4..4,4]`,
     ]);
 });
+
+// region.c create_gas_cloud() (1237-1240). Callers ask for at most 25
+// squares (read.c's blessed stinking cloud: 15 + 10), so no recorded game
+// reaches the report; C prints it and clamps the size to MAX_CLOUD_SIZE.
+test('create_gas_cloud reports a cloud over 150 squares and clamps it', async () => {
+    const state = regionState();
+    // Only <10,10> is open, so the search finds no neighbour and the cloud
+    // keeps one square; 151 is the smallest size over the limit.
+    state.level.at(10, 10).typ = ROOM;
+    const lines = [];
+    const draws = [];
+    const capture = async (text) => { lines.push(text); };
+    const cloud = await create_gas_cloud(10, 10, 151, 0, {
+        state,
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                // The shuffle's swaps and the ttl draw: rn2(3) = 0 gives
+                // ttl 4 before the size scaling.
+                return 0;
+            },
+        },
+        blockPoint() {},
+        canSee() { return false; },
+        newsym() {},
+        message: capture,
+        urgentMessage: capture,
+    });
+    assert.deepEqual(lines.slice(0, 2), [
+        'create_gas_cloud: cloud too large (151)!',
+        'Program in disorder!',
+    ]);
+    // One shuffle (4, 3, 2, 1) for the single square, then the ttl draw.
+    assert.deepEqual(draws, [4, 3, 2, 1, 3]);
+    // ttl 4 * 150 clamped squares / 1 square found.
+    assert.equal(cloud.ttl, 600);
+});
