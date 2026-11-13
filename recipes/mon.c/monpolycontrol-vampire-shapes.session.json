@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c validvamp() (lines 5034-5075, through wiz_force_cham_form()): a Priest in debug mode with the debug-only monpolycontrol option creates vampire lords and vampires with ^G; each one's first shape change asks what it should become. The answers cover a non-shifter refused by name (newt), a shapeshifter that maps back to the vampire's own form (chameleon), a dog class that becomes a wolf for a vampire lord but is refused for a plain vampire (wolf, d), the bat, vortex and vampire classes (B, v, V), and five refusals ending in \"That's enough tries\" and pickvampshape(). Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4471906,
+      "datetime": "20371030230000",
+      "nethackrc": "OPTIONS=name:Shifty,role:Priest,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,monpolycontrol\n",
+      "moves": "\u001b\u001b\u0007vampire lord\nnewt\n\u001bchameleon\n\u001b\u001b\u0007vampire lord\nd\n\u001b\u001b\u0007vampire\nwolf\n\u001bd\n\u001bB\n\u001b\u001b\u0007vampire\nv\n\u001b\u001b\u0007vampire\nV\n\u001b\u001b\u0007vampire\nnewt\n\u001bnewt\n\u001bnewt\n\u001bnewt\n\u001bnewt\n\u001b\u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "muse.c munslime() and muse_unslime(), a fire breather curing its own sliming (lines 3054-3057 and the fire-breath branch at 3141-3150): a dwarvish Caveman in debug mode raises himself to experience level 20, eats a wished-for floating eye corpse for telepathy, creates a hostile hell hound pup with ^G and turns into a green slime with #polyself. Blind but telepathic, he attacks the pup with F; each touch that slimes it (1 in 4) lets it breathe fire on itself instead of turning into slime. Whenever the pup's bites end his slime form he polymorphs again. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 3916640,
+      "datetime": "20360402181500",
+      "nethackrc": "OPTIONS=name:Oozer,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#levelchange\n20\n\u001b\u001b\u001b#wizwish\nfloating eye corpse\n\u001b\u001bef\u001b\u001b\u001b\u001b\u0007hell hound pup\n\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001b#polyself\ngreen slime\n\u001b\u001b\u001bFl\u001b\u001bFl\u001b\u001bFl\u001b\u001b"
+    }
+  ]
+}
