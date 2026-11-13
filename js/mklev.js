@@ -3615,7 +3615,10 @@ export function lspo_door(args, env) {
                                               walldirs)],
         };
 
-        create_door(tmpd, coder.croom, env.random.rn2);
+        // Every des.door() caller awaits the result, so create_door()'s
+        // impossible() prints at C's point in the level program.
+        return create_door(tmpd, coder.croom, env.random.rn2,
+            impossible_printer(state));
     } else {
         const c = { x, y };
         get_location_coord(c, ANY_LOC, coder.croom, SP_COORD_PACK(x, y),
@@ -7416,7 +7419,14 @@ function rnddoor(random) {
 
 // C ref: sp_lev.c create_door(). The descriptor is deliberately mutable:
 // source resolves its random fields in place before attempting placement.
-export function create_door(dd, broom, random = rn2) {
+// After 100 failed tries C prints impossible("create_door: Can't find a
+// proper place!"); the caller's onImpossible prints it (see
+// js/source_steps.js), and the result is a promise when it waits.
+export function create_door(dd, broom, random = rn2, onImpossible) {
+    return finish_steps(create_door_steps(dd, broom, random), onImpossible);
+}
+
+function* create_door_steps(dd, broom, random) {
     if (dd.secret === -1) dd.secret = random(2);
     if (dd.wall === W_RANDOM) dd.wall = W_ANY;
 
@@ -7480,7 +7490,10 @@ export function create_door(dd, broom, random = rn2) {
         }
         if (okdoor(x, y)) break;
     }
-    if (trycnt >= 100) return false;
+    if (trycnt >= 100) {
+        yield new ImpossibleCall('create_door: Can\'t find a proper place!');
+        return false;
+    }
     if (!set_levltyp(x, y, dd.secret ? SDOOR : DOOR, { state: game }))
         return false;
 
@@ -7502,12 +7515,17 @@ export function create_room_door(spec, broom, random = rn2) {
     const wallName = spec.wall ?? 'all';
     const mask = ROOM_DOOR_STATE_MASKS[stateName];
     if (mask === -1) rnddoor(random);
-    return create_door({
+    // The synchronous form of create_door(): not every themeroom callback
+    // here can wait, so its impossible() stays a recorded gap
+    // (source_steps.js gap_impossible()) and the steps never yield a promise,
+    // so the result is create_door_steps()'s placement flag.
+    const placed = finish_steps(create_door_steps({
         secret: mask === D_SECRET ? 1 : 0,
         mask,
         pos: spec.pos ?? -1,
         wall: ROOM_DOOR_WALL_MASKS[wallName],
-    }, broom, random);
+    }, broom, random));
+    return placed;
 }
 
 // C ref: sp_lev.c shared_with_room()/maybe_add_door().
