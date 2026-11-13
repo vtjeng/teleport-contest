@@ -7,6 +7,7 @@ import {
     HAND,
     LEFT_HANDED,
     LEFT_RING,
+    LARGEST_INT,
     LOST_DROPPED,
     LOST_NONE,
     LOST_STOLEN,
@@ -1228,8 +1229,8 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
 // C ref: steal.c somegold() (14-34). Return a bounded proportional subset of
 // the available money, preserving the source's thresholds and rn1 arguments.
 export function somegold(lmoney, random = coreRandom) {
-    const largestInt = 0x7fffffff;
-    let igold = lmoney >= largestInt ? largestInt : Math.trunc(lmoney);
+    // global.h LARGEST_INT is 32767, not INT_MAX.
+    let igold = lmoney >= LARGEST_INT ? LARGEST_INT : Math.trunc(lmoney);
 
     if (igold < 50) {
         // All gold.

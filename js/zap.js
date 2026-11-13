@@ -2239,7 +2239,7 @@ export async function polyuse(objhdr, material, minwt, state = game,
                         await stolen_value(current, current.ox, current.oy,
                             false, false, state);
                 }
-                minwt = current.quan < 0x7fffffff
+                minwt = current.quan < LARGEST_INT
                     ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
                 delobj_core(current, false,
                     zapObjectEnv(state, random, rawEnv));

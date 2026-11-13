@@ -1453,7 +1453,12 @@ test('somegold follows steal.c thresholds and rn1 bounds', () => {
         [5000, [4001, 1000]],
         [9999, [9000, 1000]],
         [10000, [5001, 5000]],
-        [0x7fffffff + 1, [0x7fffffff - 5000 + 1, 5000]],
+        // global.h LARGEST_INT is 32767: one below it still uses the
+        // amount, and it and anything above (80000, a large purse) are
+        // capped to it before the last rn1(igold - 5000 + 1, 5000).
+        [32766, [27767, 5000]],
+        [32767, [27768, 5000]],
+        [80000, [27768, 5000]],
     ];
 
     for (const [money, expected] of cases) {
