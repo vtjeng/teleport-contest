@@ -45,7 +45,7 @@ test('breakobj explodes pyrolisk eggs after deleting them', () => {
     assert.match(jsBody,
         /case EGG:[\s\S]*?if \(obj\.corpsenm === PM_PYROLISK\) explosion = true;/u);
     assert.match(jsBody,
-        /if \(!fracture\) delobj\(obj, objectEnv\);\s*if \(explosion\) \{\s*await explode\(x, y, -11, \(random\.d \?\? d\)\(3, 6\), 0, EXPL_FIERY, state,/u);
+        /if \(!fracture\) await delobj\(obj, objectEnv\);\s*if \(explosion\) \{\s*await explode\(x, y, -11, \(random\.d \?\? d\)\(3, 6\), 0, EXPL_FIERY, state,/u);
     assert.ok(jsBody.indexOf('if (!fracture) delobj(obj, objectEnv);')
         < jsBody.indexOf('await explode(x, y, -11'));
     assert.equal(jsBody.includes("note_unported('explode.c explode')"), false);

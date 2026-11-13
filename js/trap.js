@@ -3486,13 +3486,13 @@ export async function animate_statue(
 
     while (statue.cobj) {
         const item = statue.cobj;
-        obj_extract_self(item, objectEnv);
+        await obj_extract_self(item, objectEnv);
         await mpickobjRuntime(monster, item, objectEnv);
     }
     await m_dowear(monster, true, objectEnv);
     if (statue.owornmask)
         await remove_worn_item(statue, true, state, objectEnv);
-    delobj(statue, objectEnv);
+    await delobj(statue, objectEnv);
 
     if (atHero && Upolyd(state.u)
         && hides_under(state.youmonst?.data)
@@ -3657,7 +3657,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                         Boolean(keeper.mpeaceful), true, state);
                 if (otmp === obj)
                     chestgone = true;
-                delobj(otmp, objectEnv);
+                await delobj(otmp, objectEnv);
                 otmp = next;
             }
             await wake_nearby({ state });

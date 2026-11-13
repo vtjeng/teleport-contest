@@ -529,7 +529,7 @@ test('floor lookup helpers use identity and nexthere chains', () => {
     assert.equal(sobj_at(ROCK, 10, 5, state), second);
 });
 
-test('delallobj deletes a floor pile while preserving its skipped chain', () => {
+test('delallobj deletes a floor pile while preserving its skipped chain', async () => {
     const state = initializedState();
     state.level = new GameMap();
     const first = instance(APPLE, state);
@@ -540,7 +540,7 @@ test('delallobj deletes a floor pile while preserving its skipped chain', () => 
     place_object(last, 10, 5, { state });
     state.uchain = chain;
 
-    delallobj(10, 5, {
+    await delallobj(10, 5, {
         state,
         random: { rn2: () => 99 },
         redraw: () => {},

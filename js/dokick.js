@@ -679,7 +679,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         }
         await message(Blind(state.u) ? 'It comes loose.'
             : `${The(distant_name(object(), xname, state), state)} ${otense(object(), 'come', state)} loose.`, state, env);
-        obj_extract_self(object(), env);
+        await obj_extract_self(object(), env);
         redraw(x, y);
         if (costly && (!costly_spot(u.ux, u.uy, state)
             || !u.urooms.includes(in_rooms(x, y, SHOPBASE, state)[0]))) {
@@ -740,7 +740,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     }
     if (slide && !Blind(state.u))
         await message(`Whee!  ${Doname2(object(), state)} ${otense(object(), 'slide', state)} across the ${surface(x, y, state)}.`, state, env);
-    obj_extract_self(object(), env);
+    await obj_extract_self(object(), env);
     await snuff_candle(object(), env);
     redraw(x, y);
     const ref = { obj: object() };
@@ -1517,7 +1517,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
             if (item.quan > 1) {
                 await useup(item, { state });
             } else {
-                obj_extract_self(item, { state });
+                await obj_extract_self(item, { state });
                 obfree(item, null, { state });
             }
             obj.cknown = 0;
@@ -1582,7 +1582,7 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
             if (obj !== state.uball && obj !== state.uchain
                 && !(isrock && obj.otyp === BOULDER)
                 && !random.rn2(obj.otyp === BOULDER ? 30 : 3)) {
-                obj_extract_self(obj, env);
+                await obj_extract_self(obj, env);
                 if (costly) {
                     price += await stolen_value(obj, x, y,
                         costly_spot(state.u.ux, state.u.uy, state)
@@ -1714,7 +1714,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
         note_unported('sounds.c Soundeffect');
         const heard = youHear(`a muffled ${result}.`, state);
         if (heard) await message(heard, state, env);
-        obj_extract_self(obj, { ...env, state });
+        await obj_extract_self(obj, { ...env, state });
         obfree(obj, null, { ...env, state });
         return true;
     }
@@ -1763,7 +1763,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
             continue;
         }
 
-        obj_extract_self(otmp, env);
+        await obj_extract_self(otmp, env);
         otmp.owornmask = 0;
         const fromdlev = {
             dnum: otmp.omigr_from_dnum,
@@ -1810,7 +1810,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
                 } else if (breaktest(otmp, env)) {
                     // dokick.c assumes this broke before arrival and omits
                     // the ordinary broken-object message.
-                    delobj(otmp, env);
+                    await delobj(otmp, env);
                     otmp = otmp2;
                     continue;
                 }
@@ -1830,7 +1830,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
             otmp.oy = 0;
             if (await rloco(otmp, env) && !nobreak
                 && breaktest(otmp, env)) {
-                delobj(otmp, env);
+                await delobj(otmp, env);
             }
         }
         otmp = otmp2;

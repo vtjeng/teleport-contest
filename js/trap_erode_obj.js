@@ -351,7 +351,7 @@ export async function erode_obj(obj, description, type, flags, env) {
                 obj.owornmask = 0;
             }
         }
-        delobj(obj, { ...env, state });
+        await delobj(obj, { ...env, state });
         return ER_DESTROYED;
     }
 

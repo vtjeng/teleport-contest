@@ -1578,7 +1578,7 @@ test('breakobj wires the lit-oil source branch before object cleanup', () => {
     assert.match(jsBody,
         /obj\.in_use = 1;[\s\S]*?if \(obj\.otyp === POT_OIL && obj\.lamplit\) \{\s*await explode_oil\(obj, x, y, state,/u);
     assert.ok(jsBody.indexOf('await explode_oil(obj, x, y, state,')
-        < jsBody.indexOf('if (!fracture) delobj(obj, objectEnv)'));
+        < jsBody.indexOf('if (!fracture) await delobj(obj, objectEnv)'));
     assert.equal(jsBody.includes("note_unported('potion.c explode_oil')"), false);
 });
 

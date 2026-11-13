@@ -2599,13 +2599,13 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         hooks: objectHooks,
     };
     if (otmp.quan === 1) {
-        obj_extract_self(otmp, objectEnv);
+        await obj_extract_self(otmp, objectEnv);
         maybe_unhide_at(otmp.ox, otmp.oy, state);
         singleobj = otmp;
         otmp = null;
     } else {
         singleobj = await splitobj(otmp, 1, objectEnv);
-        obj_extract_self(singleobj, objectEnv);
+        await obj_extract_self(singleobj, objectEnv);
     }
     redraw(x1, y1);
     const digging = state.context?.digging;
@@ -2916,7 +2916,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 note_unported('sounds.c Soundeffect');
                 const heard = youHear(`a loud crash${suffix}!`, state);
                 if (heard) await message(heard, state, env);
-                obj_extract_self(nextBoulder, objectEnv);
+                await obj_extract_self(nextBoulder, objectEnv);
                 nextBoulder.otrapped = singleobj.otrapped;
                 singleobj.otrapped = 0;
                 const placement = place_object(singleobj, x, y, objectEnv);

@@ -3668,7 +3668,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                     const dropQbuf = `You only manage to ${uInBeartrap
                         ? 'free yourself from' : 'disarm'} the bear trap.`;
                     if (await check_capacity(dropQbuf, state) && beartrap) {
-                        obj_extract_self(beartrap, { state });
+                        await obj_extract_self(beartrap, { state });
                         await dropy(beartrap, objectEnv);
                         return null;
                     }

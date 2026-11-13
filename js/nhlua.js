@@ -166,7 +166,7 @@ export async function nhl_gamestate(reststate, state = game) {
         const obj = state.invent;
         const wornmask = obj.owornmask;
         setnotworn(obj, { state, hooks });
-        freeinv(obj, { state, hooks });
+        await freeinv(obj, { state, hooks });
         obj.owornmask = wornmask;
         obj.nobj = state.gmst_invent;
         state.gmst_invent = obj;

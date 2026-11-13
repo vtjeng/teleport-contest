@@ -1424,7 +1424,7 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
         // xobj's weight twice when container is carried; so take
         // xobj out, check whether it can be carried, and then put
         // it back (below) if it can't be
-        obj_extract_self(xobj, { state });   /* this reduces container's weight */
+        await obj_extract_self(xobj, { state });   /* this reduces container's weight */
         // check whether mon can handle xobj and whether weight of xobj plus
         // minvent (including container, now without xobj) can be carried
         if (can_carry(mon, xobj, { state })) {

@@ -31,8 +31,26 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // 13 November 2026). 303 and 388 since bones.js drop_upon_death() awaits
 // its obj_extract_self() (branch b16-defects, 13 November 2026). 304 and
 // 389 with monst.js place_monster()'s finish_steps(), the synchronous form of
-// place_monster_steps() (branch b16-defects, 13 November 2026).
-const ALLOWLIST_PINS = { entries: 304, calls: 389 };
+// place_monster_steps() (branch b16-defects, 13 November 2026). 238 and
+// 308 since the removal callees were audited (branch
+// audit-unawaited-removals, 13 November 2026): every caller of
+// obj_extract_self(), freeinv() and freeinv_core() that can reach a carried
+// object awaits it, delobj_core() hands its Promise on, and 66 entries holding
+// 81 calls went, with read.js unpunish()'s delobj() added.
+const ALLOWLIST_PINS = { entries: 238, calls: 308 };
+
+// Callees that take an object out of a chain. A carried object goes through
+// invent.c freeinv(), whose impossible() reports and artifact intrinsic
+// removal can wait at --More--; C finishes them before the caller's next
+// statement, so a discarded call prints out of order (batch 16 game F3,
+// bones.js drop_upon_death()). Each listed caller names the object's chain
+// in its reason; the count is pinned both ways like the total above.
+const REMOVAL_CALLEES = new Set([
+    'obj_extract_self', 'freeinv', 'freeinv_core', 'delobj', 'delobj_core', 'delallobj',
+]);
+// 15 obj_extract_self() callers whose object is never carried, and
+// read.js unpunish()'s delobj() of the iron chain.
+const REMOVAL_PIN = 16;
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());
@@ -60,6 +78,18 @@ test('the allowlist holds the pinned number of entries and calls', () => {
     assertExceptionCount(entries.reduce((n, entry) => n + entry.count, 0), ALLOWLIST_PINS.calls, {
         what: 'allowed discarded calls',
         pin: 'ALLOWLIST_PINS.calls in scripts/discarded-promises.test.mjs',
+    });
+});
+
+test('every allowed discarded removal call is audited, and their number is pinned', () => {
+    const removals = Object.entries(ALLOWLIST.entries)
+        .filter(([key]) => REMOVAL_CALLEES.has(key.split(' | ')[2]));
+    assert.deepEqual(
+        removals.filter(([, entry]) => /not yet audited/u.test(entry.reason)).map(([key]) => key),
+        []);
+    assertExceptionCount(removals.length, REMOVAL_PIN, {
+        what: 'allowlist entries for removal callees',
+        pin: 'REMOVAL_PIN in scripts/discarded-promises.test.mjs',
     });
 });
 

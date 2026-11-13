@@ -3199,7 +3199,7 @@ function* freeinv_core_steps(obj, env, facts) {
     }
 
     if (obj.otyp === LOADSTONE) {
-        curse(obj, env);
+        yield curse(obj, env);
     } else if (facts.confersLuck) {
         set_moreluck(state);
         state.disp ??= {};
@@ -3360,14 +3360,15 @@ export function obj_extract_self(obj, env = {}) {
 // C ref: invent.c delobj() (1428-1433). "normal object deletion (if unpaid, it
 // remains on the bill)".
 export function delobj(obj, env = {}) {
-    delobj_core(obj, false, env);
+    return delobj_core(obj, false, env);
 }
 
 // C ref: invent.c delallobj() (1405-1426).  Deleting the ball can rewrite the
 // punishment chain, so the next floor link is read only after unpunish(), just
 // as in C.  A drawbridge leaves the chain itself behind while deleting every
-// other object at the square.
-export function delallobj(x, y, env = {}) {
+// other object at the square.  Each delobj() finishes, including a carried
+// object's freeinv() output, before the next object is examined.
+export async function delallobj(x, y, env = {}) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
     let obj = state.level?.objects?.[x]?.[y] ?? null;
@@ -3380,7 +3381,7 @@ export function delallobj(x, y, env = {}) {
         }
         const next = obj.nexthere;
         if (obj !== state.uchain)
-            delobj(obj, normalized);
+            await delobj(obj, normalized);
         obj = next;
     }
 }
@@ -3388,6 +3389,10 @@ export function delallobj(x, y, env = {}) {
 // C ref: invent.c delobj_core() (1435-1462). `force` is TRUE only when
 // reviving a Rider corpse, so every call this port makes passes FALSE and
 // spends zap.c obj_resists()'s rn2(100) before deleting anything.
+// obj_extract_self() returns a Promise only for a carried object whose
+// freeinv() must wait (an impossible() report, or an artifact's intrinsic
+// removal); the rest of the deletion then follows it, as in C, and the caller
+// receives that Promise.  Every other deletion stays synchronous.
 export function delobj_core(obj, force, env = {}) {
     const normalized = inventoryEnv(env);
     /* "obj_resists(obj,0,0) protects the Amulet, the invocation tools,
@@ -3397,18 +3402,22 @@ export function delobj_core(obj, force, env = {}) {
         return;
     }
     const update_map = (obj.where === OBJ_FLOOR);
-    obj_extract_self(obj, normalized);
-    if (update_map) {
-        /* "floor object's coordinates are always up to date" */
-        maybe_unhide_at(obj.ox, obj.oy, normalized.state);
-        // No test distinguishes this call from its absence: the port paints
-        // the map from level state at the next flush, so the square a floor
-        // delete vacated is already redrawn by the time any screen is
-        // compared. It is here because C draws it here.
-        const redraw = normalized.redraw ?? newsym;
-        redraw(obj.ox, obj.oy);
-    }
-    obfree(obj, null, normalized); /* "frees contents also" */
+    const extracted = obj_extract_self(obj, normalized);
+    const finishDeletion = () => {
+        if (update_map) {
+            /* "floor object's coordinates are always up to date" */
+            maybe_unhide_at(obj.ox, obj.oy, normalized.state);
+            // No test distinguishes this call from its absence: the port
+            // paints the map from level state at the next flush, so the
+            // square a floor delete vacated is already redrawn by the time
+            // any screen is compared. It is here because C draws it here.
+            const redraw = normalized.redraw ?? newsym;
+            redraw(obj.ox, obj.oy);
+        }
+        obfree(obj, null, normalized); /* "frees contents also" */
+    };
+    if (isThenable(extracted)) return Promise.resolve(extracted).then(finishDeletion);
+    finishDeletion();
 }
 
 // C ref: invent.c useupf() (4760-4783). "uses up an object that's on the
@@ -3433,7 +3442,7 @@ export async function useupf(obj, numused, env = {}) {
         else
             await stolen_value(otmp, otmp.ox, otmp.oy, false, false, state);
     }
-    delobj(otmp, normalized);
+    await delobj(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
         hideunder(state.youmonst, { ...normalized, state });
 }
@@ -4241,17 +4250,24 @@ export function replace_inventory_core(obj, replacement, env = {}) {
     const normalized = inventoryEnv(env);
     const freeFacts = preflightFreeinvCore(obj, normalized);
     const addFacts = preflightAddinvCores(replacement, normalized);
-    freeinv_core(obj, normalized, freeFacts);
     const finish = () => {
         const effects = addinv_core2(replacement, normalized, addFacts);
         if (isThenable(effects))
             return Promise.resolve(effects).then(() => replacement);
         return replacement;
     };
-    const core1Effects = addinv_core1(replacement, normalized, addFacts);
-    if (isThenable(core1Effects))
-        return Promise.resolve(core1Effects).then(finish);
-    return finish();
+    const add = () => {
+        const core1Effects = addinv_core1(replacement, normalized, addFacts);
+        if (isThenable(core1Effects))
+            return Promise.resolve(core1Effects).then(finish);
+        return finish();
+    };
+    // freeinv_core() can wait for an impossible() report or an artifact's
+    // intrinsic removal (a polymorphed carried artifact); zap.c 1911-1912
+    // finishes it before addinv_core1().
+    const freeEffects = freeinv_core(obj, normalized, freeFacts);
+    if (isThenable(freeEffects)) return Promise.resolve(freeEffects).then(add);
+    return add();
 }
 
 function runCarryObjEffects(obj, env, shouldAttachFigurineTimer) {
@@ -4843,7 +4859,7 @@ export async function hold_another_object(
         // C's accepted death enters done() and does not return.
         if (state.program_state?.gameover) return obj;
         if (!touched) {
-            obj_extract_self(obj, normalized);
+            await obj_extract_self(obj, normalized);
             await holdDropY(obj, normalized);
             return obj;
         } else if (wasUpolyd && !Upolyd(state.u)) {
@@ -4851,11 +4867,11 @@ export async function hold_another_object(
                 const message = normalized.hooks.message ?? ttyPline;
                 await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
             }
-            obj_extract_self(obj, normalized);
+            await obj_extract_self(obj, normalized);
             await holdDropY(obj, normalized);
             return obj;
         }
-        obj_extract_self(obj, normalized);
+        await obj_extract_self(obj, normalized);
         if (crysknife) {
             obj.otyp = CRYSKNIFE;
             obj.oerodeproof = oerode;

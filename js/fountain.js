@@ -1052,7 +1052,7 @@ export async function dipfountain(obj, state = game, env = {}) {
                     coin_loss = Math.min(coin_loss, Math.trunc(otmp.quan));
                     otmp.quan -= coin_loss;
                     loss -= coin_loss * denomination;
-                    if (!otmp.quan) delobj(otmp, { state });
+                    if (!otmp.quan) await delobj(otmp, { state });
                 }
                 otmp = nextobj;
             }

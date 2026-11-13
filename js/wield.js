@@ -728,9 +728,9 @@ function wield_ok(obj, state) {
 // partial stack (the hero typed a count), the child has no invlet of its own
 // yet. freeinv() removes it from the chain; addinv_nomerge() assigns a fresh
 // invlet and re-inserts without trying to merge it back.
-function finish_splitting(obj, state) {
-    freeinv(obj, { state });
-    addinv_nomerge(obj, { state });
+async function finish_splitting(obj, state) {
+    await freeinv(obj, { state });
+    await addinv_nomerge(obj, { state });
 }
 
 // C ref: obj.h pair_of(). These armor categories name one logical item as a
@@ -827,7 +827,7 @@ export async function dowield(state = game) {
                 state.unweapon = false; /* [see setuwep()] */
             return ECMD_FAIL;
         }
-        finish_splitting(wep, state);
+        await finish_splitting(wep, state);
     }
 
     /* Handle no object, or object in other slot */
@@ -846,7 +846,7 @@ export async function dowield(state = game) {
             if (answer === 'q') return ECMD_OK;
             if (answer === 'y') {
                 wep = await splitobj(quiver, 1, { state });
-                finish_splitting(wep, state);
+                await finish_splitting(wep, state);
             } else {
                 qbuf = 'Wield all of them instead?';
                 if (await quiver_ynq(qbuf, state) !== 'y') {
@@ -983,7 +983,7 @@ export async function doquiver_core(verb, state = game) {
             unsplitobj(newquiver, { state });
             return ECMD_OK;
         }
-        finish_splitting(newquiver, state);
+        await finish_splitting(newquiver, state);
     } else if (newquiver === state.uquiver) {
         await ttyPline('That ammunition is already readied!', state);
         return ECMD_OK;
@@ -1013,7 +1013,7 @@ export async function doquiver_core(verb, state = game) {
                     newquiver.quan - 1,
                     { state },
                 );
-                finish_splitting(newquiver, state);
+                await finish_splitting(newquiver, state);
                 // C's goto quivering bypasses the wielded-primary tail.
             } else {
                 qbuf = 'Ready all of them instead?';
@@ -1066,7 +1066,7 @@ export async function doquiver_core(verb, state = game) {
                     newquiver.quan - 1,
                     { state },
                 );
-                finish_splitting(newquiver, state);
+                await finish_splitting(newquiver, state);
             } else {
                 qbuf = 'Ready all of them instead?';
                 if (await quiver_ynq(qbuf, state) !== 'y') {

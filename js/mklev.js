@@ -1397,7 +1397,7 @@ async function mkinvpos(x, y, dist, state = game, rawEnv = {}) {
             await fracture_rock(boulder, state, rawEnv.random, rawEnv);
             makeRocks = false;
         } else {
-            obj_extract_self(boulder, { ...rawEnv, state });
+            await obj_extract_self(boulder, { ...rawEnv, state });
             obfree(boulder, null, { ...rawEnv, state });
         }
     }

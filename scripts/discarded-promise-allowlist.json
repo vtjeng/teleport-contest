@@ -4,33 +4,13 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/apply.js | fig_transform | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/apply.js | light_cocktail | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/apply.js | maybe_dunk_boulders | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/apply.js | use_cream_pie | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/apply.js | use_royal_jelly | addinv_nomerge": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/apply.js | whipattack | obj_extract_self": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/artifacts.js | dispose_of_orig_obj | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "artifact.c mk_artifact() reaches dispose_of_orig_obj() (lines 271, 302) only with an alignment and a non-null otmp, and every caller passing an alignment (pray.c gcrownu() line 1798; js/pray.js) passes a null object, so this never runs; an object it got would be a fresh, uncarried one. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/ball.js | ballrelease | setuqwep": {
       "count": 1,
@@ -76,14 +56,6 @@
       "count": 4,
       "reason": "curse() returns a promise only while the hero studies the book or for a lit object whose light radius changes. resetobjs() runs after death, so no study is active, and the Amulet, the Bell, the Book and the Candelabrum (its burn ended first) are not lit."
     },
-    "js/bury.js | bury_an_obj | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dbridge.js | destroy_drawbridge | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/detect.js | food_detect | exercise": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -92,19 +64,7 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/dig.js | buried_ball_to_freedom | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dig.js | buried_ball_to_freedom | place_object": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dig.js | buried_ball_to_punishment | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dig.js | dig | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -118,7 +78,7 @@
     },
     "js/dig.js | expose | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "dig.c unearth_objs() (2086-2116) walks level.buriedobjlist, so obj is OBJ_BURIED. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/dig.js | mdig_tunnel | mksobj_at": {
       "count": 1,
@@ -133,10 +93,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/dig.js | rot_corpse | rot_organic": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dig.js | rot_organic | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -208,10 +164,6 @@
       "count": 1,
       "reason": "discard_minvent() answers a promise only when an extraction step waits. For a migrating monster that is a wielded lit light-emitting artifact, whose setmnotwielded() cleanup is asynchronous though canseemon() is false off the level and it prints nothing, or an unpaid crysknife's costly_alteration(); neither has been audited further. The old inline discard_minvent() returned the same promise for the first case."
     },
-    "js/dogmove.js | dog_invent | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dogmove.js | dog_move | m_unleash": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -220,35 +172,15 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/dokick.js | container_impact_dmg | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dokick.js | deliver_obj_to_mon | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dokick.js | impact_drop | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "dokick.c deliver_obj_to_mon() walks gm.migrating_objs, so otmp is OBJ_MIGRATING. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/dokick.js | kick_nondoor | mksobj_at": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/dokick.js | obj_delivery | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dokick.js | obj_delivery | place_object": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dokick.js | really_kick_object | obj_extract_self": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dokick.js | ship_object | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -284,10 +216,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/eat.js | floorfood | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/end.js | finishInUseInventory | useup": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -297,10 +225,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/end.js | placeFreeTransitObject | place_object": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/engrave.js | engrave | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -332,10 +256,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/hack.js | moverock_core | obj_extract_self": {
-      "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/hack.js | moverock_core | place_object": {
       "count": 3,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -346,23 +266,11 @@
     },
     "js/invent.js | beginMerged | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "invent.c merged() (845) extracts obj only after mergable() passed. mergable() (4378-4497) requires objects[].oc_merge, which the Amulet, Candelabrum, Bell and Book of the Dead lack, and equal oartifact, which two objects cannot share; so a carried obj reaches only freeinv_core()'s coin, plain and loadstone arms, and curse() of a loadstone is synchronous (a loadstone is never lit, a spellbook, or the two-weapon uswapwep). freeinv() therefore never waits here."
     },
     "js/invent.js | delete_contents | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/invent.js | delobj_core | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/invent.js | freeinv_core_steps | curse": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/invent.js | hold_another_object | obj_extract_self": {
-      "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "shk.c delete_contents() extracts container->cobj, an OBJ_CONTAINED object. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/invent.js | hold_another_object | setuqwep": {
       "count": 1,
@@ -372,19 +280,11 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/invent.js | replace_inventory_core | freeinv_core": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/invent.js | resetInventory | useupall": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/invent.js | useupf | hideunder": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/lock.js | breakchestlock | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -514,11 +414,7 @@
     },
     "js/mklev.js | map_cleanup | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mklev.js | mkinvpos | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c map_cleanup() extracts boulders found by sobj_at(), which are OBJ_FLOOR. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/mklev.js | nesting_rooms | run_room_descriptor": {
       "count": 2,
@@ -616,10 +512,6 @@
       "count": 1,
       "reason": "newmonhp() is the synchronous form of newmonhp_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so it returns synchronously. scripts/level-difficulty-steps.test.mjs lists this call."
     },
-    "js/mon.js | apply_newcham_steps | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/mon.js | apply_newcham_steps | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -636,15 +528,7 @@
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/mon.js | meatbox | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/mon.js | meatmetal | mksobj_at": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mon.js | meatobj | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -654,11 +538,7 @@
     },
     "js/mon.js | mpickgold | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mon.js | mpickstuff | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mon.c mpickgold() (1827-1845) extracts the gold found by g_at(), an OBJ_FLOOR object. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/monmove.js | m_move | mongone": {
       "count": 1,
@@ -680,23 +560,7 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/mthrowu.js | ohitmon | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mthrowu.js | spitmm | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/muse.js | mloot_container | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/muse.js | precheck | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/music.js | do_pit | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -716,21 +580,13 @@
       "count": 6,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/obj.js | obj_absorb | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/obj.js | shrinking_glob_gone | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/obj.js | shrinking_glob_gone | remove_worn_item": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "objnam.c readobjnam() (5086-5091) extracts a lit light source it has just placed with place_object(), so it is OBJ_FLOOR. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | place_object": {
       "count": 1,
@@ -764,14 +620,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/pickup.js | boh_loss | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/pickup.js | do_boh_explosion | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/pickup.js | in_container | setuqwep": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -780,27 +628,11 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/pickup.js | observe_quantum_cat | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/pickup.js | observe_quantum_cat | oname": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/pickup.js | out_container | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/pickup.js | pick_obj | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/pickup.js | pickup | hideunder": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/pickup.js | tipcontainer | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -809,10 +641,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/polyself.js | polymon | hideunder": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/potion.js | hold_potion | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -868,6 +696,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/read.js | unpunish | delobj": {
+      "count": 1,
+      "reason": "read.c unpunish() (3066-3077) deletes the saved uchain, which is OBJ_FLOOR or OBJ_FREE and never in the hero's inventory; delobj_core() returns a Promise only when obj_extract_self() reaches freeinv()."
+    },
     "js/read.js | unpunish | setworn": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -888,23 +720,11 @@
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/shk.js | litter_scatter | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/shk.js | money2mon | freeinv": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/shk.js | money2mon | remove_worn_item": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/shk.js | money2u | addinv": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/shk.js | money2u | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -914,11 +734,11 @@
     },
     "js/shk.js | setpaid | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "shk.c setpaid() drains gb.billobjs, whose objects are OBJ_ONBILL. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/shk.js | update_bill | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "shk.c update_bill() (2171-2211) extracts paiditem only after checking where == OBJ_ONBILL. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/shknam.js | finishStocking | mongone": {
       "count": 1,
@@ -958,17 +778,9 @@
     },
     "js/sp_lev_object.js | finishAccepted | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c create_object() moves the statue's monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/sp_lev_object.js | finishMonster | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/steal.js | relobj | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/steal.js | stealgold | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -977,14 +789,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/steed.js | put_saddle_on_mon | update_mon_extrinsics": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/steed.js | use_saddle | freeinv": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/teleport.js | rloco | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -1016,39 +820,19 @@
       "count": 1,
       "reason": "sp_lev.c create_monster() discards the default inventory right after makemon(). makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and its update_mon_extrinsics(..., silently) call has no message or steed dismount, so discard_minvent() returns synchronously."
     },
-    "js/timeout.js | burn_object | obj_extract_self": {
-      "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/timeout.js | hatch_egg | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/trap_effects.js | force_launch_placement | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c keep_saddle_with_steedcorpse() (939-967) moves the saddle found by sobj_at(SADDLE, u.ux, u.uy) (line 2580), an OBJ_FLOOR object. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/trap_effects.js | launch_obj | obj_extract_self": {
-      "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/trap_water_damage.js | fire_damage | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/trap_water_damage.js | fire_damage | place_object": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/trap.js | animate_statue | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -1058,7 +842,7 @@
     },
     "js/trap.js | fill_pit | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c fill_pit() (4010-4021) extracts a boulder found by sobj_at(), an OBJ_FLOOR object. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/trap.js | makeRollingBoulderLaunch | place_object": {
       "count": 1,
@@ -1070,7 +854,7 @@
     },
     "js/trap.js | transfer | obj_extract_self": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c mk_trap_statue() moves the donor monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/u_init_inventory_use.js | initialArmor | setworn": {
       "count": 1,
@@ -1088,27 +872,7 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/uhitm.js | mhitm_ad_sgld | obj_extract_self": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/uhitm.js | steal_it | obj_extract_self": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/vault.js | gd_move | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/vault.js | restfakecorr | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/vault.js | wallify_vault | obj_extract_self": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/weapon.js | possibly_unwield | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -1129,14 +893,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/wield.js | dowield | setuswapwep": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/wield.js | finish_splitting | addinv_nomerge": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/wield.js | finish_splitting | freeinv": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -1176,31 +932,11 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/zap.js | break_statue | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/zap.js | fracture_rock | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/zap.js | melt_ice | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/zap.js | poly_obj | setuqwep": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/zap.js | poly_obj | setuswapwep": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/zap.js | revive | obj_extract_self": {
-      "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/zap.js | stone_to_flesh_obj | obj_extract_self": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },

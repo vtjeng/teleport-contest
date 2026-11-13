@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c poly_obj() (1904-1913) swaps a carried object in place and calls invent.c freeinv_core() (1356-1393), whose set_artifact_intrinsic(obj, 0, W_ART) (1383) turns off an invoked power through artifact.c arti_invoke() (881-884) before addinv_core1() runs. A neutral human Barbarian in debug mode drops his short sword, wishes for the Heart of Ahriman, invokes it to levitate, wishes for a potion of polymorph and dips the Heart into it until obj_unpolyable()'s obj_resists(obj, 5, 95) lets it change (the fourth dip on this seed). float_down() lands him on the stairs and look_here() reports the sword, so its messages fill two --More-- prompts before potion.c prinv() names the new gem. The port discarded freeinv_core()'s Promise in js/invent.js replace_inventory_core(), and 'e - a white gem.' overtook the floating-down messages. Seed and date were chosen independently of every recorded session; the drop puts an object under the landing square.",
+  "segments": [
+    {
+      "seed": 5160233,
+      "datetime": "20310214163500",
+      "nethackrc": "OPTIONS=name:Hoister,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "db\u0017the Heart of Ahriman\n #invoke\ne\u0017potion of polymorph\n#dip\nef#dip\nef#dip\nef#dip\nef  "
+    }
+  ]
+}

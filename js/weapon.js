@@ -1302,7 +1302,7 @@ export function possibly_unwield(monster, polyspot = false, env = {}) {
                     );
                     (env.newsym ?? newsym)(monster.mx, monster.my, state);
                 }
-                obj_extract_self(weapon, { ...env, state });
+                await obj_extract_self(weapon, { ...env, state });
                 const { flooreffects } = await import('./do.js');
                 if (!await flooreffects(
                     weapon,

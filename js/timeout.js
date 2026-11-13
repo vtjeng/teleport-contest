@@ -520,7 +520,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
                 ...(env.hooks ?? {}),
             },
         };
-        obj_extract_self(egg, objectEnv);
+        await obj_extract_self(egg, objectEnv);
         obfree(egg, null, objectEnv);
         const remainingMonster = (monster = m_at(x, y, state));
         if (remainingMonster
@@ -2145,7 +2145,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
             } else if (isCandle || obj.otyp === POT_OIL) {
                 const monster = obj.where === OBJ_FLOOR
                     ? m_at(obj.ox, obj.oy, state) : null;
-                obj_extract_self(obj, env);
+                await obj_extract_self(obj, env);
                 obfree(obj, null, env);
                 obj = null;
                 if (monster)
@@ -2194,7 +2194,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
             await useupall(obj, env);
         } else {
             if (obj.where === OBJ_MIGRATING) obj.owornmask = 0;
-            obj_extract_self(obj, env);
+            await obj_extract_self(obj, env);
             obfree(obj, null, env);
         }
         obj = null;
@@ -2328,7 +2328,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
                 } else {
                     const onfloor = obj.where === OBJ_FLOOR;
                     if (obj.where === OBJ_MIGRATING) obj.owornmask = 0;
-                    obj_extract_self(obj, env);
+                    await obj_extract_self(obj, env);
                     if (onfloor)
                         maybe_unhide_at(location.x, location.y, state, env);
                     obfree(obj, null, env);

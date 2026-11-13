@@ -779,7 +779,7 @@ export async function dig(state = game, rawEnv = {}) {
             await fracture_rock(boulder, state, random, rawEnv);
             const remainingBoulder = sobj_at(BOULDER, x, y, state);
             if (remainingBoulder) {
-                obj_extract_self(remainingBoulder, { ...rawEnv, state });
+                await obj_extract_self(remainingBoulder, { ...rawEnv, state });
                 place_object(remainingBoulder, x, y, { ...rawEnv, state });
             }
             digtext = 'The boulder falls apart.';
@@ -1822,7 +1822,7 @@ export async function dighole(
             await wake_nearby(false, { ...rawEnv, state });
             await delfloortrap(trap, state);
         }
-        delobj(boulder, { ...rawEnv, state });
+        await delobj(boulder, { ...rawEnv, state });
     } else if (IS_GRAVE(oldType)) {
         await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
         await dig_up_grave(coordinate, { ...rawEnv, state, random, message });
@@ -2373,7 +2373,7 @@ export async function rot_organic(arg, timeout, rawEnv = {}) {
         obj.cobj.oy = obj.oy;
         await bury_an_obj(obj.cobj, env);
     }
-    obj_extract_self(obj, env);
+    await obj_extract_self(obj, env);
     obfree(obj, null, env);
 }
 
@@ -2464,7 +2464,7 @@ export async function buried_ball_to_punishment(state = game, rawEnv = {}) {
     const ball = buried_ball(cc, state);
     if (!ball) return;
     const env = objectGenerationEnv({ ...rawEnv, state });
-    obj_extract_self(ball, env);
+    await obj_extract_self(ball, env);
     await punish(ball, state, rawEnv);
     await reset_utrap(false, state);
     del_engr_at(cc.x, cc.y, state);
@@ -2480,7 +2480,7 @@ export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
     if (!ball) return;
 
     const env = objectGenerationEnv({ ...rawEnv, state });
-    obj_extract_self(ball, env);
+    await obj_extract_self(ball, env);
     place_object(ball, cc.x, cc.y, env);
     stackobj(ball, env);
     await reset_utrap(true, state);

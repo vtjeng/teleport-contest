@@ -167,7 +167,7 @@ export async function take_gold(state, rawEnv = {}) {
             const { remove_worn_item } = await import('./steal.js');
             await remove_worn_item(otmp, false, state, env);
             const { delobj } = await import('./invent.js');
-            delobj(otmp, env);
+            await delobj(otmp, env);
         }
         otmp = nobj;
     }

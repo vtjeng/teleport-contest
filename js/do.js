@@ -1387,7 +1387,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
                     );
                     ideed = true;
                 }
-                delobj(otmp, { ...rawEnv, state });
+                await delobj(otmp, { ...rawEnv, state });
             }
             otmp = otmp2;
         }
@@ -2189,7 +2189,7 @@ async function engulfer_digests_food(obj, state = game, env = {}) {
         healmon(swallower, swallower.mhpmax, 0);
         await mcureblindness(swallower, false, state);
     }
-    delobj(obj, { ...env, state });
+    await delobj(obj, { ...env, state });
     return true;
 }
 

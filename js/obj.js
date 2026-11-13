@@ -2287,7 +2287,7 @@ async function shrinking_glob_gone(obj, env = {}) {
             if (obj.owornmask && obj === obj.ocarry?.mw)
                 await setmnotwielded(obj.ocarry, obj, env);
         }
-        obj_extract_self(obj, env);
+        await obj_extract_self(obj, env);
         if (owhere === OBJ_FLOOR)
             maybe_unhide_at(obj.ox, obj.oy, state);
         obfree(obj, null, env);
@@ -3882,7 +3882,7 @@ export async function obj_absorb(otmp1, otmp2, state = game, env = {}) {
             start_glob_timeout(otmp1, tm1, env);
         }
         // get rid of second glob, return augmented first one
-        obj_extract_self(otmp2, env);
+        await obj_extract_self(otmp2, env);
         dealloc_obj(otmp2, env);
         return otmp1;
     }

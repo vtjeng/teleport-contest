@@ -266,7 +266,7 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
         bridge.flags = 0;
         const boulder = sobj_at(BOULDER, x, y, state);
         if (boulder) {
-            obj_extract_self(boulder, env);
+            await obj_extract_self(boulder, env);
             await flooreffects(boulder, x, y, 'fall', env);
             if (state.program_state?.gameover) return;
         }
@@ -604,8 +604,8 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
     await revive_nasty(x, y, null, state);
     await revive_nasty(x2, y2, null, state);
     const objectEnv = objectGenerationEnv({ ...env, state });
-    delallobj(x, y, objectEnv);
-    delallobj(x2, y2, objectEnv);
+    await delallobj(x, y, objectEnv);
+    await delallobj(x2, y2, objectEnv);
     const firstTrap = t_at(x, y, state), secondTrap = t_at(x2, y2, state);
     if (firstTrap) deltrap(firstTrap, state);
     if (secondTrap) deltrap(secondTrap, state);
@@ -647,7 +647,7 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
     set_entity(x2, y2, second, state);
     await do_entity(second, state, { ...env, random: randomEnv });
     await revive_nasty(x, y, null, state);
-    delallobj(x, y, objectGenerationEnv({ ...env, state }));
+    await delallobj(x, y, objectGenerationEnv({ ...env, state }));
     for (const [tx, ty] of [[x, y], [x2, y2]]) {
         const trap = t_at(tx, ty, state);
         if (trap) deltrap(trap, state);

@@ -159,7 +159,7 @@ export async function bury_an_obj(obj, rawEnv = {}) {
 
     if (obj.otyp === LEASH && obj.leashmon !== 0) o_unleash(obj, env);
     if (obj.lamplit && obj.otyp !== POT_OIL) end_burn(obj, true, env);
-    obj_extract_self(obj, env);
+    await obj_extract_self(obj, env);
     const underIce = is_ice(obj.ox, obj.oy, state);
     if ((obj.otyp === ROCK && !underIce) || obj.otyp === BOULDER) {
         obfree(obj, null, env);

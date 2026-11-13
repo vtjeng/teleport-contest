@@ -882,7 +882,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
                 );
             }
         }
-        obj_extract_self(taken, objectEnv);
+        await obj_extract_self(taken, objectEnv);
         redraw(monster.mx, monster.my, state);
         mpickobj(monster, taken, objectEnv);
         if (attacktype(monster.data, AT_WEAP)

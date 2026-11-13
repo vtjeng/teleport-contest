@@ -393,7 +393,7 @@ export async function use_saddle(otmp, state = game, env = {}) {
         await ttyPline(`You put the saddle on ${mon_nam(mtmp, state)}.`, state);
         if (otmp.owornmask)
             await remove_worn_item(otmp, false, state, env);
-        freeinv(otmp, { ...env, state });
+        await freeinv(otmp, { ...env, state });
         put_saddle_on_mon(otmp, mtmp, { ...env, state });
     } else {
         await ttyPline(`${Monnam(mtmp, state)} resists!`, state);

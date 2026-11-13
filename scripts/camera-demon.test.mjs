@@ -113,7 +113,7 @@ test('camera breakobj awaits release while the source camera still exists',async
 test('camera caller removes the source gap and retains release before deletion',()=>{
  const js=readFileSync(new URL('../js/dothrow.js',import.meta.url),'utf8');
  assert.doesNotMatch(js,/note_unported\('dothrow.c release_camera_demon'\)/u);
- assert.match(js,/case EXPENSIVE_CAMERA:\s*await release_camera_demon\(obj, x, y,[\s\S]*if \(!fracture\) delobj/u);
+ assert.match(js,/case EXPENSIVE_CAMERA:\s*await release_camera_demon\(obj, x, y,[\s\S]*if \(!fracture\) await delobj/u);
  const c=readFileSync(new URL('../nethack-c/upstream/src/dothrow.c',import.meta.url),'utf8');
  assert.match(c,/if \(!rn2\(3\)[\s\S]*PM_HOMUNCULUS : PM_IMP[\s\S]*mtmp->mpeaceful = !obj->cursed;\s*set_malign\(mtmp\)/u);
 });

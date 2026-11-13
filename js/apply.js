@@ -946,7 +946,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                 pullFree = false;
             }
             if (pullFree) {
-                obj_extract_self(object, { state });
+                await obj_extract_self(object, { state });
                 await possibly_unwield(monster, false, { state });
                 await setmnotwielded(monster, object, { state });
                 switch (rn2(proficient + 1)) {
@@ -983,7 +983,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                             if (state.program_state?.gameover) return ECMD_TIME;
                             // A life-saving amulet returns here. C removes
                             // the corpse from the floor before holding it.
-                            obj_extract_self(object, { state });
+                            await obj_extract_self(object, { state });
                         }
                     }
                     await hold_another_object(
@@ -1883,8 +1883,8 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
 
     await setnotworn(obj, env);
     await costly_alteration(obj, COST_SPLAT, env);
-    obj_extract_self(obj, env);
-    delobj(obj, env);
+    await obj_extract_self(obj, env);
+    await delobj(obj, env);
     return ECMD_OK;
 }
 
@@ -3246,7 +3246,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
     begin_burn(obj, false, { ...env, state });
 
     if (split1off) {
-        obj_extract_self(obj, { ...env, state });
+        await obj_extract_self(obj, { ...env, state });
         obj.nomerge = 1;
         const dropName = donameFresh(obj, state);
         const holdMessage = env.hooks?.message ?? message;
@@ -3740,7 +3740,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
     if (carried(figurine)) {
         await useup(figurine, env);
     } else {
-        obj_extract_self(figurine, env);
+        await obj_extract_self(figurine, env);
         obfree(figurine, null, env);
     }
     if (redraw) newsym(location.x, location.y, state);
@@ -4570,10 +4570,10 @@ export async function magic_whistled(obj, state = game, env = {}) {
 
 // C ref: apply.c discard_broken_wand() (3880-3890).  `current_wand` is the
 // JavaScript home of gc.current_wand, also used by zap.c destroy_items().
-function discard_broken_wand(state = game, rawEnv = {}) {
+async function discard_broken_wand(state = game, rawEnv = {}) {
     const obj = state.current_wand;
     state.current_wand = null;
-    if (obj) delobj(obj, { ...rawEnv, state });
+    if (obj) await delobj(obj, { ...rawEnv, state });
     nomul(0, state);
 }
 
@@ -4597,7 +4597,7 @@ async function broken_wand_explode(obj, damage, expltype, state = game,
     // sets gameover instead, so nothing after it may run.
     if (state.program_state?.gameover) return;
     discover_object(obj.otyp, true, true, true, state, { ...env, random });
-    discard_broken_wand(state, env);
+    await discard_broken_wand(state, env);
 }
 
 // C ref: apply.c maybe_dunk_boulders() (3902-3910).  do.c
@@ -4610,7 +4610,7 @@ export async function maybe_dunk_boulders(
     let boulder;
     while (is_pool_or_lava(x, y, state)
         && (boulder = sobj_at(BOULDER, x, y, state))) {
-        obj_extract_self(boulder, { ...env });
+        await obj_extract_self(boulder, { ...env });
         await boulder_hits_pool(
             boulder,
             x,
@@ -4682,7 +4682,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
 
     if (!await zappable(obj, state)) {
         await message(nothing_else_happens, state, env);
-        discard_broken_wand(state, env);
+        await discard_broken_wand(state, env);
         return ECMD_TIME;
     }
     // C's successful zappable() consumes one charge; breaking the wand puts
@@ -4703,7 +4703,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
             await release_hold(state);
             if (obj.dknown)
                 discover_object(WAN_OPENING, true, true, true, state, env);
-            discard_broken_wand(state, env);
+            await discard_broken_wand(state, env);
             return ECMD_TIME;
         }
         // C falls through to the no-special-effect group when not stuck.
@@ -4716,7 +4716,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     case WAN_SECRET_DOOR_DETECTION:
     case WAN_STASIS:
         await message(nothing_else_happens, state, env);
-        discard_broken_wand(state, env);
+        await discard_broken_wand(state, env);
         return ECMD_TIME;
     case WAN_DEATH:
     case WAN_LIGHTNING:
@@ -4861,7 +4861,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     if (shopDamage) await pay_for_damage('dig into', false, state, env);
     if (obj.otyp === WAN_LIGHT)
         await litroom(true, obj, state);
-    discard_broken_wand(state, env);
+    await discard_broken_wand(state, env);
     return ECMD_TIME;
 }
 

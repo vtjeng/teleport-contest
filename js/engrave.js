@@ -710,7 +710,7 @@ export async function engrave(state = game, env = {}) {
             }
         }
         if (splitstack) {
-            obj_extract_self(stylus, { state, hooks: env.inventoryHooks ?? {} });
+            await obj_extract_self(stylus, { state, hooks: env.inventoryHooks ?? {} });
             stylus = await hold_another_object(
                 stylus,
                 'You drop one %s!',

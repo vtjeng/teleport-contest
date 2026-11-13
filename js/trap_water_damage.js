@@ -145,7 +145,7 @@ export async function pot_acid_damage(obj, inInvent, described, rawEnv = {}) {
 
     const { setnotworn } = await import('./worn.js');
     await setnotworn(obj, { ...rawEnv, state });
-    delobj(obj, { ...rawEnv, state });
+    await delobj(obj, { ...rawEnv, state });
     if (inInvent) await lazyUpdateInventory({ ...rawEnv, state });
 }
 
@@ -259,7 +259,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             const { flooreffects } = await import('./do.js');
             for (let child = obj.cobj; child;) {
                 const next = child.nobj;
-                obj_extract_self(child, objectGenerationEnv({
+                await obj_extract_self(child, objectGenerationEnv({
                     ...rawEnv,
                     state,
                     hooks: rawEnv.hooks ?? {},
@@ -279,7 +279,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
-        delobj(obj, { ...rawEnv, state });
+        await delobj(obj, { ...rawEnv, state });
         return true;
     }
 
@@ -304,7 +304,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
-        delobj(obj, { ...rawEnv, state });
+        await delobj(obj, { ...rawEnv, state });
         return true;
     }
     if (obj.oclass === POTION_CLASS) {
@@ -315,7 +315,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
-        delobj(obj, { ...rawEnv, state });
+        await delobj(obj, { ...rawEnv, state });
         return true;
     }
 
@@ -383,7 +383,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
             }
             await useupall(obj, { ...rawEnv, state });
         } else {
-            delobj(obj, { ...rawEnv, state });
+            await delobj(obj, { ...rawEnv, state });
         }
         return true;
     }

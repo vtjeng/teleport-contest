@@ -739,7 +739,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             }
             for (let object = ghost.minvent; object;) {
                 const next = object.nobj;
-                obj_extract_self(object, env);
+                await obj_extract_self(object, env);
                 const { add_to_minv } = await import('./invent.js');
                 add_to_minv(monster, object, env);
                 object = next;
@@ -787,12 +787,12 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         await m_useup(corpse.ocarry, corpse, objectEnv);
         break;
     case OBJ_CONTAINED:
-        obj_extract_self(corpse, objectEnv);
+        await obj_extract_self(corpse, objectEnv);
         await obfree(corpse, null, objectEnv);
         break;
     case OBJ_BURIED:
         if (!isZombie) return null;
-        obj_extract_self(corpse, objectEnv);
+        await obj_extract_self(corpse, objectEnv);
         await obfree(corpse, null, objectEnv);
         break;
     case OBJ_FREE:
@@ -2214,7 +2214,7 @@ export async function do_osshock(obj, state = game, random = coreRandom, rawEnv 
         else
             await stolen_value(obj, obj.ox, obj.oy, false, false, state);
     }
-    delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
+    await delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
 }
 
 // C ref: zap.c polyuse() (1505-1544).  The object successor is captured
@@ -2241,7 +2241,7 @@ export async function polyuse(objhdr, material, minwt, state = game,
                 }
                 minwt = current.quan < LARGEST_INT
                     ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
-                delobj_core(current, false,
+                await delobj_core(current, false,
                     zapObjectEnv(state, random, rawEnv));
             }
         }
@@ -2367,7 +2367,7 @@ export async function poly_obj(obj, id, state = game,
         let tries = 3;
         do {
             if (replacement)
-                delobj_core(replacement, false, env);
+                await delobj_core(replacement, false, env);
             replacement = mkobj(obj.oclass, false, env);
         } while (--tries > 0
                  && Boolean(objectType(replacement, state).oc_magic)
@@ -2627,7 +2627,7 @@ export async function poly_obj(obj, id, state = game,
             }
         }
     }
-    delobj_core(obj, false, env);
+    await delobj_core(obj, false, env);
     return replacement;
 }
 
@@ -2708,7 +2708,7 @@ export async function stone_to_flesh_obj(obj, state = game,
                     }
                     if (obj.timed) obj_stop_timers(obj, state, env);
                     if (carried(obj)) await useup(obj, env);
-                    else delobj(obj, env);
+                    else await delobj(obj, env);
                     if (cansee(monster.mx, monster.my, state)) {
                         await ttyPline(
                             `The figurine ${golemXform
@@ -2737,7 +2737,7 @@ export async function stone_to_flesh_obj(obj, state = game,
                 while (target.cobj) {
                     const item = target.cobj;
                     bypass_obj(item, state);
-                    obj_extract_self(item, env);
+                    await obj_extract_self(item, env);
                     const placement = place_object(item, ox, oy, env);
                     if (placement && typeof placement.then === 'function')
                         await placement;
@@ -2831,7 +2831,7 @@ export async function fracture_rock(obj, state = game, random = coreRandom, rawE
 
     if (obj.where === OBJ_FLOOR) {
         const { ox, oy } = obj;
-        obj_extract_self(obj, objectEnv);
+        await obj_extract_self(obj, objectEnv);
         const placement = place_object(obj, ox, oy, objectEnv);
         if (placement && typeof placement.then === 'function') await placement;
         if (!does_block(ox, oy, null, state)) {
@@ -2860,7 +2860,7 @@ export async function break_statue(obj, state = game, random = coreRandom, rawEn
     }
     while (obj.cobj) {
         const item = obj.cobj;
-        obj_extract_self(item, objectEnv);
+        await obj_extract_self(item, objectEnv);
         const placement = place_object(item, obj.ox, obj.oy, objectEnv);
         if (placement && typeof placement.then === 'function') await placement;
     }
@@ -5012,7 +5012,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
         }
         const { boulder_hits_pool } = await import('./do.js');
         do {
-            obj_extract_self(boulder, env);
+            await obj_extract_self(boulder, env);
             // C's impossible() here only diagnoses an impossible return from
             // boulder_hits_pool(); the value is still not otherwise used.
             if (!await boulder_hits_pool(boulder, x, y, false, env)) {

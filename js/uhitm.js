@@ -4027,7 +4027,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         }
     }
 
-    if (gold) obj_extract_self(gold, env);
+    if (gold) await obj_extract_self(gold, env);
     while ((otmp = mdef.minvent)) {
         if (gold) {
             mpickobj(mdef, gold, env);
@@ -4060,7 +4060,7 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
             if (mdef.mhp < 1) break;
         }
         if (!ustealo) break;
-        if ((gold = findgold(mdef.minvent))) obj_extract_self(gold, env);
+        if ((gold = findgold(mdef.minvent))) await obj_extract_self(gold, env);
     }
     if (gold) mpickobj(mdef, gold, env);
 }
@@ -7151,7 +7151,7 @@ export async function mhitm_ad_sgld(
         const mongold = findgold(mdef.minvent);
         if (mongold) {
             const inventoryEnv = dropCommandEnv(state, { ...env, random });
-            obj_extract_self(mongold, inventoryEnv);
+            await obj_extract_self(mongold, inventoryEnv);
             if (merge_choice(state.invent, mongold, state)
                 || inv_cnt(false, state) < INVLET_BASIC) {
                 await addinv_runtime(mongold, inventoryEnv);
@@ -7183,7 +7183,7 @@ export async function mhitm_ad_sgld(
         if (magr.mcan) return;
         const gold = findgold(mdef.minvent);
         if (!gold) return;
-        obj_extract_self(gold, { ...env, state, random });
+        await obj_extract_self(gold, { ...env, state, random });
         add_to_minv(magr, gold, { ...env, state, random });
         mdef.mstrategy &= ~STRAT_WAITFORU;
         const buf = Monnam(magr, state, env);

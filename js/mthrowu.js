@@ -521,7 +521,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
         || Boolean(ohit && obj.otyp === EGG);
     if (!broken) broken = Boolean(ohit && shouldMulch(obj, env));
     if (broken) {
-        delobj(obj, env);
+        await delobj(obj, env);
     } else {
         if (down_gate(x, y, state) !== -1)
             broken = await ship_object(obj, x, y, false, env);
@@ -793,7 +793,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         const objgone = await drop_throw(otmp, 1,
             state.gb.bhitpos.x, state.gb.bhitpos.y, env);
         if (!objgone && range === -1) { /* special case */
-            obj_extract_self(otmp, env); /* free it for motion again */
+            await obj_extract_self(otmp, env); /* free it for motion again */
             return false;
         }
         return true;
@@ -1490,7 +1490,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
 
             return M_ATTK_HIT;
         } else {
-            obj_extract_self(otmp, { state });
+            await obj_extract_self(otmp, { state });
             obfree(otmp, null, { state });
         }
     }

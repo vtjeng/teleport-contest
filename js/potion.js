@@ -3112,7 +3112,7 @@ export async function hold_potion(potobj, dropFmt, dropArg, holdMsg,
     const savedBurden = state.flags.pickup_burden;
     if (state.flags.pickup_burden < cap)
         state.flags.pickup_burden = cap;
-    obj_extract_self(potobj, env);
+    await obj_extract_self(potobj, env);
     await hold_another_object(potobj, dropFmt, dropArg, holdMsg, env);
     state.flags.pickup_burden = savedBurden;
     update_inventory(env);

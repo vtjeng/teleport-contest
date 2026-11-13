@@ -1208,7 +1208,7 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
                 state,
             );
         }
-        obj_extract_self(gold, env);
+        await obj_extract_self(gold, env);
         obfree(gold, null, env);
     }
 
@@ -1281,7 +1281,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
     if (floorGold && (!heroGold
         || floorGold.quan > heroGold.quan
         || !random.rn2(5))) {
-        obj_extract_self(floorGold, inventoryEnv);
+        await obj_extract_self(floorGold, inventoryEnv);
         add_to_minv(mtmp, floorGold, inventoryEnv);
         redraw(state.u.ux, state.u.uy, state);
 

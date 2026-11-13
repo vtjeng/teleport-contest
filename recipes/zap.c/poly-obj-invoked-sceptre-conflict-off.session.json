@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of poly-obj-invoked-heart-float-down: the invoked power is CONFLICT, so artifact.c arti_invoke() turning it off from freeinv_core() (invent.c 1383) prints one line, 'You feel the tension decrease around you.', before potion.c prinv() names the new weapon. A lawful human Caveman in debug mode wishes for the Sceptre of Might, invokes it, wishes for a potion of polymorph and dips the Sceptre until it changes (the fifth dip on this seed). Seed 7302518 was tried first and dropped because a jackal killed the hero during the dips; 4417093 was the next arbitrary choice. Seeds and date were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20310214163500",
+      "nethackrc": "OPTIONS=name:Hoister,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017the Sceptre of Might\n #invoke\nf\u0017potion of polymorph\n#dip\nfg#dip\nfg#dip\nfg#dip\nfg#dip\nfg"
+    }
+  ]
+}

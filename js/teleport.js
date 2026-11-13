@@ -2524,7 +2524,7 @@ export async function rloco(obj, rawEnv = {}) {
         if (await revive_corpse(obj, state, env)) return false;
     }
 
-    obj_extract_self(obj, env);
+    await obj_extract_self(obj, env);
     const otx = obj.ox;
     const oty = obj.oy;
     const restrictedFall = otx === 0 && Boolean(state.dndest?.lx);

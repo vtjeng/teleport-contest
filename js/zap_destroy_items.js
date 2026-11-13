@@ -157,7 +157,7 @@ async function removeObjectQuantity(obj, quantity, env) {
         obj.owt = weight(obj, lifecycleEnv);
         return;
     }
-    delobj(obj, lifecycleEnv);
+    await delobj(obj, lifecycleEnv);
 }
 
 // C ref: zap.c burn_floor_objects() (4617-4628). Both names are xname(),

@@ -1403,7 +1403,7 @@ export async function pick_obj(otmp, state = game, env = {}, plan = null) {
     const { x: ox, y: oy } = location;
     let robshop = !state.u.uswallow && otmp !== state.uball
         && costly_spot(ox, oy, state);
-    obj_extract_self(otmp, env);
+    await obj_extract_self(otmp, env);
     if (fromfloor) (env.redraw ?? newsym)(ox, oy, state);
     if (robshop) {
         const savedShops = state.u.ushops;
@@ -2008,7 +2008,7 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
             }
             christen_monst(livecat, sc, { state });
             if (deadcat) {
-                obj_extract_self(deadcat, { state });
+                await obj_extract_self(deadcat, { state });
                 obfree(deadcat, null, { state });
                 deadcat = null;
             }
@@ -2133,7 +2133,7 @@ async function boh_loss(container, held, state) {
     for (let current = container.cobj; current;) {
         const next = current.nobj;
         if (is_boh_item_gone(state)) {
-            obj_extract_self(current, { state });
+            await obj_extract_self(current, { state });
             loss += await mbag_item_gone(held, current, false, state);
         }
         current = next;
@@ -2471,7 +2471,7 @@ async function do_boh_explosion(boh, on_floor, state = game) {
     for (let otmp = boh.cobj, nobj; otmp; otmp = nobj) {
         nobj = otmp.nobj;
         if (is_boh_item_gone(state)) {
-            obj_extract_self(otmp, { state });
+            await obj_extract_self(otmp, { state });
             // C discards mbag_item_gone()'s shop-loss result here.
             await mbag_item_gone(!on_floor, otmp, true, state);
         } else {
@@ -3293,7 +3293,7 @@ async function out_container(obj, state) {
         otmp = await splitobj(obj, count, { state });
 
     // Remove the object from the container.
-    obj_extract_self(otmp, { state });
+    await obj_extract_self(otmp, { state });
     state.gc.current_container.owt =
         weight(state.gc.current_container, { state });
 
@@ -4141,7 +4141,7 @@ async function tipcontainer(box, state) {
     let nobj;
     for (let otmp = box.cobj; otmp; otmp = nobj) {
         nobj = otmp.nobj;
-        obj_extract_self(otmp, { state });
+        await obj_extract_self(otmp, { state });
         otmp.ox = box.ox;
         otmp.oy = box.oy;
 

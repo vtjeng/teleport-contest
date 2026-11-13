@@ -1945,7 +1945,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
                 env,
             );
         }
-        delobj(obj, objectEnv);
+        await delobj(obj, objectEnv);
 
         if (mon.m_lev < (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1)
             mon.m_lev = (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1;

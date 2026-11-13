@@ -431,11 +431,11 @@ async function wallify_vault(grd, state, env) {
                 // C ref: vault.c lines 682-689.
                 let rocks;
                 while ((rocks = sobj_at(ROCK, x, y, state)) != null) {
-                    obj_extract_self(rocks, { state });
+                    await obj_extract_self(rocks, { state });
                     obfree(rocks);
                 }
                 while ((rocks = sobj_at(BOULDER, x, y, state)) != null) {
-                    obj_extract_self(rocks, { state });
+                    await obj_extract_self(rocks, { state });
                     obfree(rocks);
                 }
                 const trap = t_at(x, y, state);
@@ -786,7 +786,7 @@ export async function gd_move(grd, env = {}) {
             }
             const gold = g_at(goldX, goldY, state);
             const objectEnv = objectGenerationEnv({ ...env, state });
-            obj_extract_self(gold, objectEnv);
+            await obj_extract_self(gold, objectEnv);
             add_to_minv(grd, gold, objectEnv);
             newsym(goldX, goldY, state);
         } else if (goldX === guardX && goldY === guardY) {
