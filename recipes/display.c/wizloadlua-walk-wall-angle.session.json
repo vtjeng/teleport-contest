@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c newsym() reaching wall_angle() from vision.c vision_recalc(): #wizloadlua knox draws Fort Ludios over the Dlvl 1 the level program runs on without set_wall_state(), so a wall laid on a square that held a closed door keeps D_CLOSED, mode 4. Walking under such a wall brings it into view from a new angle, and hack.c domove()'s vision_recalc(1) newsym()s it; C prints impossible(\"wall_angle: unknown hwall mode 4\") there, before the hero is redrawn on the new square, on each of the two moves that add a seen angle. Seed, date, dwarvish Archeologist and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 61803398,
+      "datetime": "20581103194210",
+      "nethackrc": "OPTIONS=name:Walker,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizloadlua\nknox\nllllkkkkh  h  j  l"
+    }
+  ]
+}

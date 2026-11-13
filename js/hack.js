@@ -193,6 +193,7 @@ import {
     classify_terrain,
     docrt,
     feel_location,
+    feel_location_steps,
     flush_screen,
     glyph_at,
     glyph_is_cmap,
@@ -527,7 +528,6 @@ import {
     cansee,
     couldsee,
     recalc_block_point,
-    vision_recalc,
     vision_recalc_async,
 } from './vision.js';
 import { canspotmon, mon_visible, sensemon } from './display.js';
@@ -2527,8 +2527,10 @@ export async function test_move(
     // branch, and the pass-wall and tunnelling forms deliberately fall through
     // instead of being treated as ordinary refusals.
     if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
-        if (Blind(state.u) && mode === DO_MOVE)
-            feel_location(x, y, state);
+        if (Blind(state.u) && mode === DO_MOVE) {
+            await finish_steps(feel_location_steps(x, y, state),
+                impossible_printer(state));
+        }
         if (passesWalls && may_passwall(x, y, state)) {
             // The source intentionally continues into the common checks.
         } else if (state.u?.uinwater) {
@@ -5182,11 +5184,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
                 // requesting the later full recalculation. display.c's C
                 // docrt_flags() owns both phases; JS docrt() exposes them to
                 // callers so this submerged-to-air redraw follows that order.
-                await docrt({
-                    state,
-                    suspendVision: () => vision_recalc(2, { state }),
-                    restoreVision: () => vision_recalc(0, { state }),
-                });
+                await docrt();
                 state.vision_full_recalc = 1;
             }
         }

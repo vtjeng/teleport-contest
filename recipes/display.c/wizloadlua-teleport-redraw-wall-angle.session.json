@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c newsym() reaching wall_angle() from two more callers after #wizloadlua knox leaves walls with a closed door's D_CLOSED mode (4): ^T teleports beside one, and teleport.c teleds()'s vision_recalc(0) reports it before \"You materialize in a different location!\"; ^R then runs display.c docrt(), whose vision_recalc(0) redraws every square in sight and reports it again with the remembered map behind it. Seed, date, Priest, !tips and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 4142135,
+      "datetime": "20590214103005",
+      "nethackrc": "OPTIONS=name:Jumper,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "  #wizloadlua\nknox\n\u0014 LLljjjjjj.    \u0012  "
+    }
+  ]
+}

@@ -49,7 +49,7 @@ import {
 import { money_cnt, sobj_at } from './invent.js';
 import {
     block_point, cansee, couldsee, is_lightblocker_mappear,
-    seenv_matrix, unblock_point, vision_recalc,
+    seenv_matrix, unblock_point, vision_recalc, vision_recalc_async,
 } from './vision.js';
 import { iter_mons } from './mon.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
@@ -3357,7 +3357,15 @@ export function same_remembered_glyph(before, after) {
 // Its branches retain C's source order: suppression, bounds, the accurate
 // invisible marker, underwater gate, tactile map, punishment memory, and the
 // final sensed monster overlay.
+//
+// A step generator (js/source_steps.js), for wall_angle()'s impossible(): a
+// blind hero who feels a wall laid with a mode wall_angle() cannot draw
+// reports it here in C. The synchronous feel_location() records it as a gap.
 export function feel_location(x, y, state = game) {
+    return finish_steps(feel_location_steps(x, y, state));
+}
+
+export function* feel_location_steps(x, y, state = game) {
     if (state !== game) {
         throw new Error(
             'feel_location requires the active display state',
@@ -3399,20 +3407,20 @@ export function feel_location(x, y, state = game) {
             || (IS_DOOR(location.typ)
                 && (location.flags
                     & (D_LOCKED | D_CLOSED)))) {
-            map_background(x, y, 1, state);
+            yield* map_background_steps(x, y, 1, state);
         } else {
             const boulder = sobj_at(BOULDER, x, y, state);
             if (boulder) {
                 map_object(boulder, 1, state);
             } else if (IS_DOOR(location.typ)) {
-                map_background(x, y, 1, state);
+                yield* map_background_steps(x, y, 1, state);
             } else if (IS_ROOM(location.typ) || IS_POOL(location.typ)) {
                 let doRoomGlyph = false;
                 const remembered = location.remembered_glyph?.glyph;
                 if (remembered === objnum_to_glyph(BOULDER)
                     || glyph_is_invisible(remembered)) {
                     if (location.typ !== ROOM && location.seenv)
-                        map_background(x, y, 1, state);
+                        yield* map_background_steps(x, y, 1, state);
                     else
                         doRoomGlyph = true;
                 } else if (remembered >= cmap_to_glyph(S_stone, state)
@@ -3435,7 +3443,7 @@ export function feel_location(x, y, state = game) {
                     );
                 }
             } else {
-                map_background(x, y, 1, state);
+                yield* map_background_steps(x, y, 1, state);
                 // Corridors are never felt as lit unless their memory says so.
                 if (location.typ === CORR
                     && location.remembered_glyph?.glyph
@@ -3456,7 +3464,7 @@ export function feel_location(x, y, state = game) {
         const engraving = engr_at(x, y, state);
         if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
 
-        map_location(x, y, 1, state);
+        yield* map_location_steps(x, y, 1, state);
 
         // display.c:865-891. C's Punished macro is the file-scope uball;
         // each object is felt only when it is the first object on this floor
@@ -3546,7 +3554,14 @@ function rememberedCmap(cmap, state) {
 // spot_shows_engravings() and the erevealed test, so it answers non-null
 // exactly where C's third condition holds; the memory and screen writes below
 // it are map_engraving()'s two statements.
+//
+// A step generator (js/source_steps.js), for wall_angle()'s impossible() in
+// its background arm; the synchronous map_location() records it as a gap.
 export function map_location(x, y, show, state) {
+    return finish_steps(map_location_steps(x, y, show, state));
+}
+
+export function* map_location_steps(x, y, show, state) {
     const location = state.level?.at(x, y);
     if (!location) return;
     const covered = floorLayersCovered(location, state);
@@ -3565,7 +3580,7 @@ export function map_location(x, y, show, state) {
         }
         if (show) show_glyph_cell(x, y, engraving);
     } else {
-        map_background(x, y, show, state);
+        yield* map_background_steps(x, y, show, state);
     }
     update_lastseentyp(x, y, state, {
         canSeeMonster: (subject) => canseemon(subject, state),
@@ -3801,13 +3816,18 @@ export function map_trap(trap, show, state = game) {
 }
 
 // C ref: display.c map_background() (278-287). Puts the square's own terrain
-// back into map memory, and paints it when `show` is set. unmap_object() below
-// is the only ported caller, and it always passes show = 0, because the
-// caller that follows it -- hack.c domove_fight_empty() -- calls newsym().
+// back into map memory, and paints it when `show` is set.
+// A step generator (js/source_steps.js), for wall_angle()'s impossible();
+// the synchronous map_background() records it as a gap.
 export function map_background(x, y, show, state = game) {
+    return finish_steps(map_background_steps(x, y, show, state));
+}
+
+export function* map_background_steps(x, y, show, state = game) {
     const location = state.level?.at(x, y);
     if (!location) return;
-    const glyph = map_glyphinfo(back_to_glyph(x, y, state), state);
+    const glyph = map_glyphinfo(
+        yield* back_to_glyph_steps(x, y, state), state);
     if (state.level?.flags?.hero_memory) {
         location.remembered_glyph = remembered_glyph_from_presentation(glyph);
     }
@@ -3961,7 +3981,30 @@ function observeNearbyObject(object, x, y, state) {
 // C ref: display.c newsym().  This is a side-effect-only map mutation; callers
 // which need the persistent map glyph must reread
 // level.at(x, y).remembered_glyph afterward.
+//
+// A step generator (js/source_steps.js), for wall_angle()'s impossible():
+// C's _map_location() reaches back_to_glyph() for a square the hero can
+// see, and a seen wall whose mode wall_angle() does not know reports there,
+// with the map drawn so far behind the report. vision.js vision_recalc()
+// delegates to it, so a caller that can wait prints the report at C's point
+// in the recalculation. The synchronous newsym() below records it as a gap;
+// scripts/wall-angle-callers.test.mjs counts its callers.
 export function newsym(x, y) {
+    return finish_steps(newsym_steps(x, y));
+}
+
+// newsym() for a caller that can wait, which awaits the result: it prints
+// wall_angle()'s impossible() where C's newsym() reaches it. env.redraw is
+// the newsym() a caller injected; any function but newsym itself draws
+// synchronously, as vision_recalc() treats it.
+export function newsym_async(x, y, env = {}) {
+    const state = env.state ?? game;
+    const redraw = env.redraw ?? newsym;
+    if (redraw !== newsym) return redraw(x, y, state);
+    return finish_steps(newsym_steps(x, y), impossible_printer(state, env));
+}
+
+export function* newsym_steps(x, y) {
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppress_map_output()) return;
@@ -3987,7 +4030,7 @@ export function newsym(x, y) {
     // pre-map a floor object here: feel_location owns that map update and
     // its Hallucination draws before display_self paints the hero.
     if (!visible && game.u?.ux === x && game.u?.uy === y) {
-        feel_location(x, y, game);
+        yield* feel_location_steps(x, y, game);
         if (heroCanSpotSelf(game)) display_self();
         return;
     }
@@ -4169,7 +4212,8 @@ export function newsym(x, y) {
             underlying = rememberedUnderlying = trap_glyph_info(trap, game);
         } else {
             underlying = engravingGlyph(engraving, loc, game)
-                ?? map_glyphinfo(back_to_glyph(x, y, game), game);
+                ?? map_glyphinfo(
+                    yield* back_to_glyph_steps(x, y, game), game);
             rememberedUnderlying = underlying;
         }
     }
@@ -4364,7 +4408,11 @@ export function see_monsters(state = game, env = {}) {
     };
     // The loop stays synchronous unless newsym() has a diagnostic to print.
     // It returns a promise only when that report or Sting's glow must wait
-    // for the message window.
+    // for the message window. Through newsym() itself, a monster standing on
+    // a seen wall whose mode wall_angle() cannot draw (one in a wall a
+    // #wizloadlua program laid) raises that impossible() where C does; a
+    // caller's own redraw draws synchronously.
+    const draw = (x, y) => newsym_async(x, y, { ...env, state, redraw: repaint });
     const scan = (first) => {
         for (let mon = first; mon; mon = mon.nmon) {
             if (mon.mhp < 1) continue; /* DEADMONSTER() */
@@ -4379,7 +4427,14 @@ export function see_monsters(state = game, env = {}) {
                         return scan(next);
                     });
             }
-            repaint(mon.mx, mon.my, state);
+            const drawn = draw(mon.mx, mon.my);
+            if (drawn && typeof drawn.then === 'function') {
+                const next = mon.nmon;
+                return drawn.then(() => {
+                    afterRepaint(mon);
+                    return scan(next);
+                });
+            }
             afterRepaint(mon);
         }
         return tail();
@@ -4387,7 +4442,8 @@ export function see_monsters(state = game, env = {}) {
 
     const finish = () => {
         /* when mounted, hero's location gets caught by monster loop */
-        if (!state.u.usteed) repaint(state.u.ux, state.u.uy, state);
+        if (!state.u.usteed) return draw(state.u.ux, state.u.uy);
+        return undefined;
     };
     const tail = () => {
         if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
@@ -4398,11 +4454,10 @@ export function see_monsters(state = game, env = {}) {
                 ...env,
             }).then(() => {
                 state.warn_obj_cnt = new_warn_obj_cnt;
-                finish();
+                return finish();
             });
         }
-        finish();
-        return undefined;
+        return finish();
     };
     return scan(state.level?.monlist ?? null);
 }
@@ -4471,8 +4526,10 @@ export async function redraw_map(cursorOnHero = false) {
 // displays take precedence over the ordinary remembered-map redraw. cls()
 // flushes pending messages before clearing the transient frame. Ordinary
 // vision recalculation brackets the remembered-map pass, including when
-// restore defers see_monsters(). Callers can supply equivalent vision callbacks;
-// overlayMonsters=false lets a caller perform its own final monster overlay.
+// restore defers see_monsters(). A caller that brackets the repaint with the
+// two recalculations itself (mon.js) passes no-op suspendVision and
+// restoreVision; overlayMonsters=false lets a caller perform its own final
+// monster overlay.
 export async function docrt(options = {}) {
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
@@ -4518,8 +4575,12 @@ export async function docrt(options = {}) {
                         show_glyph_cell(x, y, unexploredGlyphInfo(game));
                     }
                 }
+            // vision_recalc(0) redraws every square in sight through
+            // newsym(), and C prints wall_angle()'s impossible() for each
+            // seen wall whose mode it cannot draw, with the rest of the map
+            // still showing memory behind the report.
             if (options.restoreVision) options.restoreVision();
-            else vision_recalc(0);
+            else await vision_recalc_async(0);
             // vision_recalc() ends with notice_all_mons(), whose lines C
             // prints here, inside docrt(), before see_monsters().
             await emitGlyphUpdateNotices(game, { pline: ttyPline });

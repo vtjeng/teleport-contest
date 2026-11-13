@@ -223,7 +223,6 @@ import {
     do_clear_area,
     recalc_block_point,
     unblock_point,
-    vision_recalc,
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
@@ -1305,10 +1304,7 @@ export async function map_redisplay(state = game) {
     if (state !== game)
         throw new TypeError('map_redisplay() redraws the global game');
     reconstrain_map(state);
-    await docrt({
-        suspendVision: () => vision_recalc(2, { state }),
-        restoreVision: () => vision_recalc(0, { state }),
-    });
+    await docrt();
     if (state.u.uinwater) await under_water(2, state);
 }
 
@@ -1580,10 +1576,7 @@ export async function reveal_terrain(whichSubset, state = game) {
     const swallowed = state.u.uswallow;
     const defaultSym = state.level.flags.arboreal ? S_tree : S_stone;
     if (unconstrain_map(state)) {
-        await docrt({
-            suspendVision: () => vision_recalc(2, { state }),
-            restoreVision: () => vision_recalc(0, { state }),
-        });
+        await docrt();
     }
     const defaultGlyph = cmap_to_glyph(defaultSym, state);
     const printer = impossible_printer(state);

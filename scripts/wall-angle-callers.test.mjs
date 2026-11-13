@@ -15,9 +15,19 @@
 // - getpos.c getpos()'s feature-symbol scan (travel's _< and _>);
 // - display.c flash_glyph_at(), hack.c test_move()'s mention_walls
 //   message and domove_fight_empty(), and detect.c findone() and
-//   furniture_detect().
+//   furniture_detect();
+// - display.c newsym(), through _map_location() for a square the hero can
+//   see: vision.c vision_recalc() (every async caller, through
+//   vision_recalc_async() or vision_recalc_steps(), and pline.c vpline()'s
+//   deferred recalculation), display.c docrt() and see_monsters(), and
+//   monmove.c postmov()'s redraw of the square a monster left;
+// - display.c feel_location(), from hack.c test_move() for a blind hero.
 // The synchronous form under the C name runs its twin with no printer and
 // records the print as a gap.
+//
+// vision_recalc() and see_monsters() draw through newsym_steps() only when
+// the redraw a caller injects is newsym itself, so a closure that only
+// forwards to newsym() would hide the report; the last check refuses one.
 //
 // This check keeps the gap from spreading or coming back:
 // - every call of a synchronous form in js/ is listed below with the reason
@@ -26,7 +36,10 @@
 //   call that is gone fails too;
 // - every call of a step generator is driven by `yield*` or by
 //   finish_steps() with an onImpossible; only the synchronous form of the
-//   same function may drive it without one.
+//   same function may drive it without one;
+// - newsym() has hundreds of synchronous callers, so its calls are counted
+//   per file rather than per function, under one reason;
+// - vision_recalc() given an env.onImpossible prints, and is not counted.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -48,7 +61,15 @@ const SYNC_FORMS = new Set([
     'magic_map_background',
     'show_map_spot',
     'reveal_terrain_getglyph',
+    'map_background',
+    'map_location',
+    'feel_location',
+    'newsym',
+    'vision_recalc',
 ]);
+
+// Counted per file, under PER_FILE_REASONS.
+const PER_FILE_FORMS = new Set(['newsym']);
 
 // Step generators: each must be driven by its caller.
 const STEP_FORMS = new Set([
@@ -58,18 +79,17 @@ const STEP_FORMS = new Set([
     'show_map_spot_steps',
     'reveal_terrain_getglyph_steps',
     'findTerrainFeature_steps',
+    'map_background_steps',
+    'map_location_steps',
+    'feel_location_steps',
+    'newsym_steps',
+    'vision_recalc_steps',
 ]);
 
-// "<file> | <outermost named function> | <synchronous form>": [count, reason].
+// "<file> | <outermost named function> | <synchronous form>": [count, reason],
+// or, for a form in PER_FILE_FORMS, "<file> | * | <form>": count, under
+// PER_FILE_REASON below.
 const ALLOWED = {
-    'display.js | map_background | back_to_glyph': [1,
-        'map_background() is synchronous, and so are its callers: '
-        + 'map_location(), the region and lighting redraws in display.js, '
-        + 'do.js, sit.js and mklev.js; a known gap'],
-    'display.js | newsym | back_to_glyph': [1,
-        'newsym() is synchronous, and vision_recalc() calls it for every '
-        + 'square that comes into view, which is how most moves after such '
-        + 'a #wizloadlua reach wall_angle() in C; a known gap'],
     'detect.js | mappedSearchLayer | back_to_glyph': [1,
         'automatic search maps only a door or corridor it converted, or a '
         + 'trap square'],
@@ -82,7 +102,118 @@ const ALLOWED = {
     'sp_lev.js | flip_visuals | back_to_glyph': [1,
         'flip_level() is synchronous; #wizfliplevel after such a '
         + '#wizloadlua reaches it; a known gap'],
+    'display.js | docrt | vision_recalc': [1,
+        'docrt()\'s vision_recalc(2): with nothing in sight, newsym() '
+        + 'draws each square from memory and never reaches back_to_glyph()'],
+    'display.js | unmap_object | map_background': [1,
+        'a square whose remembered object or invisible marker is erased; '
+        + 'a wall there needs a #wizloadlua under a remembered object; a '
+        + 'known gap'],
+    'do.js | flooreffects | map_background': [1,
+        'a boulder filling a pool or lava square, never a wall'],
+    'mklev.js | premap_detect | map_background': [1,
+        'Sokoban premapping at level creation, whose walls set_wall_state() '
+        + 'has already given known modes'],
+    'sit.js | special_throne_effect | map_background': [1,
+        'the throne square and the map a throne reveals; a wall laid with '
+        + 'an unknown mode there is a known gap'],
+    'sit.js | throne_sit_effect | map_background': [1,
+        'the throne square and the map a throne reveals; a wall laid with '
+        + 'an unknown mode there is a known gap'],
+    'dungeon.js | u_on_newpos | map_location': [1,
+        'the hero\'s own square, a wall only for a hero who passes walls; '
+        + 'a known gap'],
+    'uhitm.js | start_engulf | map_location': [1,
+        'the hero\'s own square as an engulfer takes it; a known gap'],
+    'vault.js | clear_fcorr | map_location': [1,
+        'the guard\'s fake corridor squares, which are corridor or the '
+        + 'wall they replaced; a known gap'],
+    'display.js | feel_newsym | feel_location': [1,
+        'feel_newsym() is synchronous and has many callers; a blind hero '
+        + 'feeling such a wall through it is a known gap'],
+    'detect.js | defaultFeelSearchLocation | feel_location': [1,
+        'a blind hero searching beside such a wall; a known gap'],
+    'dokick.js | kick_dumb | feel_location': [1,
+        'a blind hero kicking such a wall; a known gap'],
+    'dokick.js | kick_ouch | feel_location': [1,
+        'a blind hero kicking such a wall; a known gap'],
+    'dokick.js | kick_door | feel_location': [1,
+        'a door square: back_to_glyph()\'s door arm never reaches '
+        + 'wall_angle()'],
+    'hack.js | cannot_push_msg | feel_location': [1,
+        'a blind hero failing to push a boulder; the boulder square, a '
+        + 'wall only after a #wizloadlua; a known gap'],
+    'hack.js | dopush | feel_location': [2,
+        'a blind hero pushing a boulder into the square beyond; a known gap'],
+    'hack.js | moverock_core | feel_location': [4,
+        'a blind hero pushing a boulder; a known gap'],
+    'hack.js | test_move | feel_location': [2,
+        'a closed door or a doorway entered diagonally: back_to_glyph()\'s '
+        + 'door arm never reaches wall_angle()'],
+    'lock.js | pick_lock | feel_location': [1,
+        'a blind hero applying a lock pick to a square without a door; a '
+        + 'known gap'],
+    'lock.js | doclose | feel_location': [1,
+        'a blind hero closing a square without a door; a known gap'],
+    'apply.js | * | newsym': 5,
+    'artifacts.js | * | newsym': 1,
+    'ball.js | * | newsym': 10,
+    'bones.js | * | newsym': 1,
+    'bury.js | * | newsym': 1,
+    'dbridge.js | * | newsym': 6,
+    'detect.js | * | newsym': 11,
+    'dig.js | * | newsym': 7,
+    'display.js | * | newsym': 10,
+    'do.js | * | newsym': 4,
+    'do_wear.js | * | newsym': 1,
+    'dog.js | * | newsym': 3,
+    'dokick.js | * | newsym': 11,
+    'dothrow.js | * | newsym': 4,
+    'eat.js | * | newsym': 4,
+    'fountain.js | * | newsym': 8,
+    'getpos.js | * | newsym': 1,
+    'hack.js | * | newsym': 11,
+    'lock.js | * | newsym': 2,
+    'makemon.js | * | newsym': 1,
+    'makemon_create.js | * | newsym': 2,
+    'minion.js | * | newsym': 1,
+    'mkmaze.js | * | newsym': 2,
+    'mon.js | * | newsym': 9,
+    'monmove.js | * | newsym': 4,
+    'muse.js | * | newsym': 7,
+    'music.js | * | newsym': 3,
+    'nhlua.js | * | newsym': 1,
+    'obj.js | * | newsym': 2,
+    'pickup.js | * | newsym': 1,
+    'polyself.js | * | newsym': 7,
+    'potion.js | * | newsym': 3,
+    'pray.js | * | newsym': 4,
+    'priest.js | * | newsym': 1,
+    'read.js | * | newsym': 1,
+    'region.js | * | newsym': 1,
+    'shk.js | * | newsym': 4,
+    'shknam.js | * | newsym': 2,
+    'sit.js | * | newsym': 3,
+    'steed.js | * | newsym': 2,
+    'teleport.js | * | newsym': 4,
+    'trap.js | * | newsym': 5,
+    'trap_effects.js | * | newsym': 6,
+    'uhitm.js | * | newsym': 2,
+    'vault.js | * | newsym': 15,
+    'worm.js | * | newsym': 6,
+    'worn.js | * | newsym': 1,
+    'zap.js | * | newsym': 16,
 };
+
+// The reason for every newsym() entry above. C prints wall_angle()'s
+// impossible() from newsym() for a square in sight that is a seen wall with a
+// mode wall_angle() cannot draw, which only a #wizloadlua or #wizloaddes
+// level program leaves. These callers redraw a square their own code changed
+// and draw synchronously, so such a report there is a known gap; an async
+// caller that meets one awaits newsym_async() instead, as monmove.js
+// postmov() does.
+const PER_FILE_REASON = 'newsym() of a square the caller changed; '
+    + 'a known gap for a seen wall laid with an unknown mode';
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',
@@ -127,17 +258,50 @@ function calleeName(callee) {
     return null;
 }
 
+// True for vision_recalc(control, { ..., onImpossible }), which prints.
+function passesPrinter(node) {
+    return node.arguments.some((arg) => arg.type === 'ObjectExpression'
+        && arg.properties.some((property) => property.type === 'Property'
+            && !property.computed && property.key.name === 'onImpossible'));
+}
+
+// True for a function whose whole body calls newsym() with its own
+// parameters in order, such as `(x, y) => newsym(x, y, state)`.
+function forwardsToNewsym(node) {
+    if (!FUNCTION_TYPES.has(node.type)) return false;
+    let call = node.body;
+    if (call.type === 'BlockStatement') {
+        if (call.body.length !== 1) return false;
+        const [statement] = call.body;
+        call = statement.type === 'ExpressionStatement' ? statement.expression
+            : statement.type === 'ReturnStatement' ? statement.argument : null;
+    }
+    if (call?.type !== 'CallExpression' || call.callee.type !== 'Identifier'
+        || call.callee.name !== 'newsym') return false;
+    return node.params.length >= 2
+        && node.params.slice(0, 2).every((param, i) =>
+            param.type === 'Identifier'
+            && call.arguments[i]?.type === 'Identifier'
+            && call.arguments[i].name === param.name);
+}
+
 export function scanSource(file, source) {
     const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
     const syncCalls = {};
     const undriven = [];
+    const forwarders = [];
     walk(ast, (node, ancestors) => {
+        if (forwardsToNewsym(node))
+            forwarders.push(`${file}:${node.loc.start.line}`);
         if (node.type !== 'CallExpression') return;
         const name = calleeName(node.callee);
         if (SYNC_FORMS.has(name)) {
-            const key = `${file} | ${enclosingName(ancestors)} | ${name}`;
+            if (name === 'vision_recalc' && passesPrinter(node)) return;
+            const where = PER_FILE_FORMS.has(name)
+                ? '*' : enclosingName(ancestors);
+            const key = `${file} | ${where} | ${name}`;
             syncCalls[key] = (syncCalls[key] ?? 0) + 1;
         } else if (STEP_FORMS.has(name)) {
             const parent = ancestors[ancestors.length - 1];
@@ -152,19 +316,21 @@ export function scanSource(file, source) {
                 undriven.push(`${file}:${node.loc.start.line} ${name}`);
         }
     });
-    return { syncCalls, undriven };
+    return { syncCalls, undriven, forwarders };
 }
 
 function scanJs() {
     const dir = new URL('../js/', import.meta.url);
     const syncCalls = {};
     const undriven = [];
+    const forwarders = [];
     for (const file of readdirSync(dir).filter((f) => f.endsWith('.js')).sort()) {
         const found = scanSource(file, readFileSync(new URL(file, dir), 'utf8'));
         Object.assign(syncCalls, found.syncCalls);
         undriven.push(...found.undriven);
+        forwarders.push(...found.forwarders);
     }
-    return { syncCalls, undriven };
+    return { syncCalls, undriven, forwarders };
 }
 
 // Function that only checks a found-calls map against ALLOWED.
@@ -172,11 +338,12 @@ function problemsFor(syncCalls) {
     const problems = [];
     for (const [key, count] of Object.entries(syncCalls)) {
         const entry = ALLOWED[key];
-        if (!entry) {
+        const expected = Array.isArray(entry) ? entry[0] : entry;
+        if (entry === undefined) {
             problems.push(`new: ${key} (${count}); drive the *_steps form `
                 + 'from a caller that can wait, or list it with a reason');
-        } else if (entry[0] !== count) {
-            problems.push(`changed: ${key} (${entry[0]} -> ${count})`);
+        } else if (expected !== count) {
+            problems.push(`changed: ${key} (${expected} -> ${count})`);
         }
     }
     for (const key of Object.keys(ALLOWED))
@@ -186,12 +353,24 @@ function problemsFor(syncCalls) {
 
 test('every synchronous wall_angle() path is listed', () => {
     assert.deepEqual(problemsFor(scanJs().syncCalls), []);
-    for (const [key, [, reason]] of Object.entries(ALLOWED))
+    for (const [key, entry] of Object.entries(ALLOWED)) {
+        const perFile = key.split(' | ')[1] === '*';
+        assert.equal(Array.isArray(entry), !perFile, `wrong shape: ${key}`);
+        const reason = perFile ? PER_FILE_REASON : entry[1];
         assert.ok(reason?.trim(), `no reason: ${key}`);
+    }
 });
 
 test('every step generator call is driven', () => {
     assert.deepEqual(scanJs().undriven, []);
+});
+
+// vision_recalc(), see_monsters(), newsym_async() and postmov() print
+// through newsym_steps() only when the injected redraw is newsym itself.
+test('no closure stands in for newsym()', () => {
+    assert.deepEqual(scanJs().forwarders, [],
+        'pass newsym itself: a closure that only forwards to it draws '
+        + 'synchronously, and wall_angle()\'s impossible() becomes a gap');
 });
 
 test('the scan reports each bypass', () => {
@@ -220,6 +399,33 @@ test('the scan reports each bypass', () => {
     ]);
     assert.ok(problemsFor({ ...found.syncCalls })
         .some((line) => line.startsWith('new: detect.js | do_mapping')));
+});
+
+test('the scan counts newsym() per file and finds stand-ins', () => {
+    const source = [
+        'export async function domove(state) {',
+        '    newsym(1, 2);',
+        // An injected newsym is counted with the direct calls.
+        '    env.newsym(1, 2);',
+        // A recalculation given a printer prints.
+        '    await vision_recalc(0, { state, onImpossible: printer });',
+        // One that is not draws synchronously.
+        '    vision_recalc(0, { state });',
+        '    see_monsters(state, { redraw: (x, y) => newsym(x, y, state) });',
+        // Forwarding to an injected operation is not a stand-in.
+        '    const op = (x, y) => hooks.newsym(x, y, state);',
+        '}',
+        'function teleds(state) {',
+        '    newsym(3, 4);',
+        '}',
+    ].join('\n');
+    const found = scanSource('hack.js', source);
+    // Five: the two direct calls, the call inside each closure and teleds().
+    assert.deepEqual(found.syncCalls, {
+        'hack.js | * | newsym': 5,
+        'hack.js | domove | vision_recalc': 1,
+    });
+    assert.deepEqual(found.forwarders, ['hack.js:6']);
 });
 
 // The reports display.c wall_angle() makes, read from the source: rm.h's

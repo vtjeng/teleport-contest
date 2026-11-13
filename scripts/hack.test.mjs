@@ -544,15 +544,15 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
         /set_uinwater\(0\);[\s\S]*?if \(!u\.ustuck && !Levitation && !Flying && is_pool_or_lava/u);
     // hack.c restores vision by calling docrt() before setting the deferred
     // full-recalculation flag. display.c docrt_flags() brackets its memory
-    // repaint with vision_recalc(2) and vision_recalc(0); JS docrt() accepts
-    // those phases from its caller rather than running them unconditionally.
+    // repaint with vision_recalc(2) and vision_recalc(0), and so does JS
+    // docrt() itself.
     const jsPooleffects = HACK_JS_SOURCE.slice(
         HACK_JS_SOURCE.indexOf('export async function pooleffects('),
         HACK_JS_SOURCE.indexOf('\nexport async function spoteffects(',
             HACK_JS_SOURCE.indexOf('export async function pooleffects(')),
     );
     assert.match(jsPooleffects,
-        /await set_uinwater\(false, state, rawEnv\);[\s\S]*?await docrt\(\{\s*state,\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);\s*state\.vision_full_recalc = 1;/u);
+        /await set_uinwater\(false, state, rawEnv\);[\s\S]*?await docrt\(\);\s*state\.vision_full_recalc = 1;/u);
 
     // Seed 840041 selects reproducible downstream lava-effect draws; (5,4) is
     // an ordinary interior square for the LAVAWALL transition, and 20 HP keeps

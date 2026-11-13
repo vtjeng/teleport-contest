@@ -110,7 +110,6 @@ import {
     make_stoned, make_vomiting,
 } from './potion.js';
 import { flip_level, flip_level_rnd } from './sp_lev.js';
-import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { monsndx, nonliving, olfaction } from './mondata.js';
@@ -683,10 +682,7 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
     // down before painting memory, then restores it before see_monsters().
     // The JS redraw exposes that bracket to callers. It must run again here
     // after the menu's repair so visible hallucinated objects are remapped.
-    await docrt({
-        suspendVision: () => vision_recalc(2, { state }),
-        restoreVision: () => vision_recalc(0, { state }),
-    });
+    await docrt();
     return ECMD_OK;
 }
 

@@ -169,6 +169,7 @@ import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
 import {
     newsym,
+    newsym_async,
     newsymOffMapImpossible,
     newsymReportsOffMap,
     swallowed,
@@ -3258,7 +3259,9 @@ export async function postmov(
                 redraw(nix, niy);
             }
         }
-        redraw(omx, omy);
+        // A monster leaving a seen wall whose mode wall_angle() cannot draw
+        // (one a #wizloadlua program laid around it) reports here in C.
+        await newsym_async(omx, omy, { state, redraw });
         // C ref: monmove.c:1509-1516.  mintrap() runs here, before the door
         // block, on the monster's current square: MMOVE_MOVED does not imply
         // the square changed, so a monster that stayed put on a trap triggers

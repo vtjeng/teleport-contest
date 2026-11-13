@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c feel_location() reaching wall_angle(): after #wizloadlua knox leaves walls with a closed door's D_CLOSED mode (4), a blindfolded hero walks into one, and hack.c test_move() feels it through map_background() -> back_to_glyph(), so C prints impossible(\"wall_angle: unknown hwall mode 4\") before the move is refused. Seed, date, Valkyrie and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5772156,
+      "datetime": "20600921171245",
+      "nethackrc": "OPTIONS=name:Groper,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "  #wizloadlua\nknox\n\u0017blindfold\nPekk  j"
+    }
+  ]
+}

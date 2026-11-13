@@ -29,7 +29,7 @@ import {
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { YOU_BUF_FORMATS } from './you_buf_messages_data.js';
-import { youFeel, youHear, youSee } from './pline.js';
+import { impossible_printer, youFeel, youHear, youSee } from './pline.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { nomux_putch_byte } from './termcap.js';
@@ -576,7 +576,9 @@ async function ttyPlineCore(
 // a recalculation ran.
 export async function vplineVisionRecalc(pflags, state = game) {
     if (state !== game || !state.vision_full_recalc) return false;
-    vision_recalc(0, { state });
+    // newsym() inside it prints display.c wall_angle()'s impossible() as a
+    // message nested in this one, as C's does once in_pline is cleared.
+    await vision_recalc(0, { state, onImpossible: impossible_printer(state) });
     if (!state._emittingGlyphUpdateNotices) {
         await emitGlyphUpdateNotices(state, {
             pline: (line, noticeState) => ttyPlineCore(line, noticeState, pflags),

@@ -1,5 +1,7 @@
 import { queueVisionMonsterNotices } from './startup_a11y.js';
 import { emitQueuedNotices } from './tty_message.js';
+import { impossible_printer } from './pline.js';
+import { finish_steps } from './source_steps.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
@@ -26,6 +28,7 @@ import {
     canseemon,
     mon_visible,
     newsym,
+    newsym_steps,
     see_with_infrared,
     tp_sensemon,
     warningMatches,
@@ -755,7 +758,7 @@ export async function do_clear_area(
 // the whole of a lit room, walls included, and could-see a dark one; the
 // adjacent squares are always in sight. The in-doorway newsym() runs while
 // state.viz_array still holds the previous bitmap, as in C.
-function rogue_vision(next, rmin, rmax, state, redraw) {
+function* rogue_vision(next, rmin, rmax, state, draw) {
     const { u, level } = state;
     const rnum = level.at(u.ux, u.uy).roomno - ROOMOFFSET; /* no SHARED... */
 
@@ -787,7 +790,7 @@ function rogue_vision(next, rmin, rmax, state, redraw) {
         if (xhi > rmax[zy]) rmax[zy] = xhi;
         for (let zx = xlo; zx <= xhi; zx++) {
             next[zy][zx] = COULD_SEE | IN_SIGHT;
-            if (in_door && (zx === u.ux || zy === u.uy)) redraw(zx, zy);
+            if (in_door && (zx === u.ux || zy === u.uy)) yield* draw(zx, zy);
         }
     }
 }
@@ -801,28 +804,46 @@ function rogue_vision(next, rmin, rmax, state, redraw) {
 // between, such as the hero's next turn or a regenerated hit point, would
 // reach the screen with them. scripts/vision-recalc-notices.test.mjs checks
 // that no async function calls vision_recalc() directly.
+//
+// It also prints display.c wall_angle()'s impossible() where C does: newsym()
+// reaches back_to_glyph() for each wall that comes into view, and C's report
+// interrupts the recalculation with the squares updated so far on the screen
+// and the hero not yet redrawn.
 export async function vision_recalc_async(control = 0, env = {}) {
-    vision_recalc(control, env);
     const state = env.state ?? game;
+    await finish_steps(recalc_steps(control, env), impossible_printer(state));
     if (state === game) await emitQueuedNotices(state);
 }
 
 // vision_recalc() inside a `*_steps` generator (js/source_steps.js), for a C
-// function whose callers are partly synchronous. When the recalculation
-// queues notices, it yields their print, so a caller that can wait prints
-// them where C does. When it queues none it yields nothing and the generator
-// stays synchronous; that is always so during level creation, where
-// vision_recalc() returns at once, so a synchronous level builder never
-// receives a promise. Delegate to it with yield*.
+// function whose callers are partly synchronous. It yields wall_angle()'s
+// impossible() where newsym() raises it, and, when the recalculation queues
+// notices, their print, so a caller that can wait prints both where C does.
+// When it has neither it yields nothing and the generator stays synchronous;
+// that is always so during level creation, where vision_recalc() returns at
+// once, so a synchronous level builder never receives a promise. Delegate to
+// it with yield*.
 export function* vision_recalc_steps(control = 0, env = {}) {
     const state = env.state ?? game;
     const queued = state._glyphUpdateNotices?.length ?? 0;
-    vision_recalc(control, env);
+    yield* recalc_steps(control, env);
     if (state === game && (state._glyphUpdateNotices?.length ?? 0) > queued)
         yield emitQueuedNotices(state);
 }
 
+// vision_recalc() for a caller that cannot wait: wall_angle()'s impossible()
+// is a gap. A caller that can wait but prints the queued notices itself
+// passes env.onImpossible, as finish_steps() takes it, and awaits the
+// result. scripts/wall-angle-callers.test.mjs lists the callers that pass
+// none.
 export function vision_recalc(control = 0, env = {}) {
+    return finish_steps(recalc_steps(control, env), env.onImpossible);
+}
+
+// The body of C's vision_recalc(). Each square it redraws goes through
+// newsym_steps(), so a wall_angle() report surfaces as a step here; a caller
+// that supplies its own `redraw` draws synchronously instead.
+function* recalc_steps(control, env) {
     const state = env.state ?? game;
     if (state !== game && typeof env.redraw !== 'function') {
         throw new TypeError(
@@ -830,6 +851,9 @@ export function vision_recalc(control = 0, env = {}) {
         );
     }
     const redraw = env.redraw ?? newsym;
+    const draw = redraw === newsym ? newsym_steps : function* (x, y) {
+        redraw(x, y);
+    };
     const u = state.u;
     if (!u || !state.level) return;
     state.vision_full_recalc = 0;
@@ -906,7 +930,7 @@ export function vision_recalc(control = 0, env = {}) {
             }
         } else if (rogueLevel && !Blind(u)) {
             // vision.c:584-585. Blind sight takes the view_from() path.
-            rogue_vision(next, next_rmin, next_rmax, state, redraw);
+            yield* rogue_vision(next, next_rmin, next_rmax, state, draw);
         } else {
             view_from(u.uy, u.ux, next, next_rmin, next_rmax);
         }
@@ -925,13 +949,13 @@ export function vision_recalc(control = 0, env = {}) {
         if (oldArray) {
             for (let row = 0; row < ROWNO; ++row) {
                 for (let col = 0; col < COLNO; ++col) {
-                    if (oldArray[row][col] & IN_SIGHT) redraw(col, row);
+                    if (oldArray[row][col] & IN_SIGHT) yield* draw(col, row);
                 }
             }
         }
         // vision.c:843-853 skip: Blind bypasses the normal update loop,
         // but still redraws the hero before publishing the new row bounds.
-        if (!state.program_state?.panicking) redraw(ux, uy);
+        if (!state.program_state?.panicking) yield* draw(ux, uy);
         state._viz_rmin = next_rmin;
         state._viz_rmax = next_rmax;
         queueVisionMonsterNotices(state);
@@ -958,7 +982,7 @@ export function vision_recalc(control = 0, env = {}) {
                     // C redraws against the old published bitmap here;
                     // the normal update loop redraws after publication.
                     if (!(oldValue & IN_SIGHT) || oldseenv !== SVALL)
-                        redraw(col, row);
+                        yield* draw(col, row);
                 }
                 next_rmin[row] = Math.min(start, next_rmin[row]);
                 next_rmax[row] = Math.max(stop, next_rmax[row]);
@@ -1056,7 +1080,7 @@ export function vision_recalc(control = 0, env = {}) {
                     const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                     loc.seenv = (loc.seenv || 0) | sv;
                     if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv) {
-                        redraw(col, row);
+                        yield* draw(col, row);
                     }
                 } else if ((nv & COULD_SEE)
                     && (loc.lit || (nv & TEMP_LIT))) {
@@ -1071,14 +1095,14 @@ export function vision_recalc(control = 0, env = {}) {
                             const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                             loc.seenv = (loc.seenv || 0) | sv;
                             if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv)
-                                redraw(col, row);
+                                yield* draw(col, row);
                         } else if ((ov & IN_SIGHT)
                             || ((nv & COULD_SEE) ^ (ov & COULD_SEE))) {
                             // vision.c:784 `goto not_in_sight`: a door or
                             // wall at the end of a dark hallway is not seen,
                             // and the not-in-sight arm below repaints it
                             // when it was in sight before.
-                            redraw(col, row);
+                            yield* draw(col, row);
                         }
                     } else {
                         next_row[col] |= IN_SIGHT;
@@ -1086,20 +1110,20 @@ export function vision_recalc(control = 0, env = {}) {
                         const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                         loc.seenv = (loc.seenv || 0) | sv;
                         if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv)
-                            redraw(col, row);
+                            yield* draw(col, row);
                     }
                 } else if ((nv & COULD_SEE) && loc.waslit) {
                     loc.waslit = 0;
-                    redraw(col, row);
+                    yield* draw(col, row);
                 } else {
                     if ((ov & IN_SIGHT)
                         || ((nv & COULD_SEE) ^ (ov & COULD_SEE))) {
-                        redraw(col, row);
+                        yield* draw(col, row);
                     }
                 }
             }
         }
-        if (ux > 0) redraw(ux, uy);
+        if (ux > 0) yield* draw(ux, uy);
     }
 
     state._viz_rmin = next_rmin;

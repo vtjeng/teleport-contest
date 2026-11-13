@@ -55,7 +55,6 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
-import { vision_recalc } from './vision.js';
 import { pmatchi } from './strutil.js';
 import { nomux_g_putch_byte, nomux_putch_byte } from './termcap.js';
 
@@ -294,10 +293,7 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
         }
         return;
     }
-    await docrt({
-        suspendVision: () => vision_recalc(2, { state }),
-        restoreVision: () => vision_recalc(0, { state }),
-    });
+    await docrt();
     // _buildScreenOutput() reconstructs its canonical grid at every JS
     // flush, keeping the physical status cells while bot() is disabled. C's
     // tty has no equivalent reconstruction: when select_menu() keeps

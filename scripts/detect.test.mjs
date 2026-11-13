@@ -2621,7 +2621,7 @@ test('object_detect does not overwrite scroll knowledge when nothing is found', 
     assert.equal(game.gk.known, true);
 });
 
-test('map_redisplay forwards docrt vision phases around the memory repaint', () => {
+test('map_redisplay leaves docrt its vision phases around the memory repaint', () => {
     const source = cDefinition('staticfn void\nmap_redisplay(', '\n/* use getpos()');
     const display = readFileSync(new URL('../nethack-c/upstream/src/display.c', import.meta.url), 'utf8');
     const docrt = display.slice(display.indexOf('docrt_flags(int refresh_flags)'), display.indexOf('\nvoid\nredraw_map(', display.indexOf('docrt_flags(int refresh_flags)')));
@@ -2630,7 +2630,7 @@ test('map_redisplay forwards docrt vision phases around the memory repaint', () 
     assert.match(docrt, /vision_recalc\(2\);[\s\S]*show_glyph\(x, y, lev->glyph\);[\s\S]*vision_recalc\(0\);[\s\S]*see_monsters\(\);/u);
     const js = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
     const implementation = js.slice(js.indexOf('export async function map_redisplay('), js.indexOf('// C ref: detect.c level_distance()'));
-    assert.match(implementation, /await docrt\(\{\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);/u);
+    assert.match(implementation, /reconstrain_map\(state\);\s*await docrt\(\);/u);
 });
 
 import { trapped_chest_at, trapped_door_at } from '../js/detect.js';
