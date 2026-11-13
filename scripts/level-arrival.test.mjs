@@ -77,7 +77,6 @@ import { exp_percent_changing } from '../js/display.js';
 import {
     more_experienced,
     newexplevel,
-    UnsupportedExperienceChangeError,
 } from '../js/exper.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -1246,29 +1245,6 @@ test('more_experienced skips the experience half of a score-only grant', () => {
     assert.equal(state.u.uexp, 0);
     assert.equal(state.u.urexp, 10);
     assert.equal(state.disp.botl, false);
-});
-
-test('more_experienced refuses a total JavaScript cannot hold exactly', () => {
-    // exper.c:178-181 caps each total at LONG_MAX when C's 64-bit addition
-    // drives it negative. A JavaScript number stops being an exact integer at
-    // 2**53 - 1 instead, so the port refuses there rather than answering with
-    // a total that is neither C's cap nor the true sum. Each half stands on
-    // its own: the score takes four times the experience, so a grant u.uexp
-    // still holds exactly can already have left u.urexp behind, and a hero
-    // sitting at the limit overflows u.uexp on a grant of one point while her
-    // score stays small.
-    const scoreOverflows = sightseerState();
-    assert.throws(
-        () => more_experienced(Number.MAX_SAFE_INTEGER, 0, scoreOverflows),
-        UnsupportedExperienceChangeError,
-    );
-
-    const experienceOverflows = sightseerState();
-    experienceOverflows.u.uexp = Number.MAX_SAFE_INTEGER;
-    assert.throws(
-        () => more_experienced(1, 0, experienceOverflows),
-        UnsupportedExperienceChangeError,
-    );
 });
 
 test('more_experienced clears flags.beginner at the role threshold', () => {

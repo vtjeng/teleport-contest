@@ -4844,16 +4844,13 @@ test('ported hunger transitions no longer register a command refusal', () => {
         (type) => type.name === 'UnsupportedHungerTransitionError'), false);
 });
 
-// Keep the refusal classes recognizable at the command seam. The polymorphed
-// pluslvl() and setuhpmax() branches and ordinary level loss are implemented.
-test('experience and attribute refusal classes remain registered at the command seam',
+// Keep the refusal class recognizable at the command seam. The polymorphed
+// setuhpmax() branch is implemented.
+test('the attribute refusal class remains registered at the command seam',
     async () => {
-    const { UnsupportedExperienceChangeError } =
-        await import('../js/exper.js');
     const { UnsupportedAbilityChangeError } = await import('../js/attrib.js');
     const converted = failClosedCommandRefusals();
 
-    assert.ok(converted.includes(UnsupportedExperienceChangeError));
     assert.ok(converted.includes(UnsupportedAbilityChangeError));
 });
 

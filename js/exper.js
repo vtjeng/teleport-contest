@@ -267,14 +267,6 @@ export function experience(mtmp, nk, state = game) {
 }
 
 // Thrown where exper.c reaches an experience branch this port has not ported.
-export class UnsupportedExperienceChangeError extends Error {
-    constructor(branch) {
-        super(`experience change requires ${branch}`);
-        this.name = 'UnsupportedExperienceChangeError';
-        this.branch = branch;
-    }
-}
-
 // C ref: exper.c more_experienced(). Adds `exper` experience points and
 // `rexp` bonus score points, the score also taking four times the experience.
 // It draws no random numbers and prints nothing; all it can do besides move
@@ -293,16 +285,11 @@ export function more_experienced(exper, rexp, state = game) {
 
     /* "cap experience and score on wraparound" */
     // exper.c:178-181 replaces a total that C's 64-bit `long` addition drove
-    // negative with LONG_MAX. A JavaScript number neither wraps nor stays an
-    // exact integer that far out, so the cap cannot be reproduced; refuse the
-    // arithmetic instead, at the point where the two languages part. Nothing
-    // ported comes close: neither total ever goes negative, and the largest
-    // single grant any caller makes here is level_difficulty(), 2 on D:2.
-    if (!Number.isSafeInteger(newexp) || !Number.isSafeInteger(newrexp)) {
-        throw new UnsupportedExperienceChangeError(
-            "more_experienced() past JavaScript's exact-integer range",
-        );
-    }
+    // negative with LONG_MAX. Neither total can get there: each grant is a C
+    // int, the largest being experience() for a kill, a few thousand points,
+    // so even u.urexp's four-fold share needs some 10^12 kills to pass 2^53,
+    // where a JavaScript number stops being an exact integer. The cap is not
+    // reproduced.
 
     if (newexp !== oldexp) {
         u.uexp = newexp;

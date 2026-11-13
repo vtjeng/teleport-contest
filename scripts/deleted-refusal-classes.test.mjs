@@ -81,6 +81,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // end.c done2()'s wizard-mode "Dump core?" answered 'y', which now shuts
     // the windows down and calls NH_abort()
     'UnsupportedEndOfGameError',
+    // exper.c more_experienced() past 2^53 points, which no game reaches:
+    // each grant is a C int of at most a few thousand
+    'UnsupportedExperienceChangeError',
 ];
 
 function stripComments(source) {

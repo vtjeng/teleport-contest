@@ -340,7 +340,6 @@ import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
 import { done2, nh_terminate } from './end.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
-import { UnsupportedExperienceChangeError } from './exper.js';
 import { doread } from './read.js';
 import {
     UnsupportedPolyselfError, dobreathe, dogaze, dohide, domindblast,
@@ -2964,10 +2963,8 @@ export function failClosedCommandRefusals() {
         // opens.
         UnsupportedWieldError,
         UnsupportedTransientDisplayError,
-        // Keep the experience/attribute refusal classes recognizable at this
-        // boundary. pluslvl() and setuhpmax() now handle their polymorphed
-        // branches, and ordinary level loss is implemented.
-        UnsupportedExperienceChangeError,
+        // Keep the attribute refusal class recognizable at this boundary.
+        // setuhpmax() now handles its polymorphed branch.
         UnsupportedAbilityChangeError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use

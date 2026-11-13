@@ -28,6 +28,10 @@
 //   PICK_ONE or PICK_NONE. invent.c display_pickinv()'s two calls pass one
 //   of those, and C has no other arm.
 //
+// - js/exper.js more_experienced(): a total past 2^53, where a JavaScript
+//   number stops being an exact integer. Every grant is a C int, the
+//   largest experience() for one kill.
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -48,6 +52,7 @@ const REMOVED_REFUSALS = {
     'shk.js': ['shk_move without eshk extension'],
     'mon.js': ['mongone: monster is already detached'],
     'tty_message.js': ['unsupported tty_message_menu mode'],
+    'exper.js': ["past JavaScript's exact-integer range", 'Number.isSafeInteger'],
     'makemon_create.js': [
         'mmflags 0x',
         'random coordinates outside mklev',
