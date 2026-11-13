@@ -373,6 +373,7 @@ import {
     yname,
     Yname2,
     erosion_matters,
+    safe_typename,
 } from './objnam.js';
 import {
     add_valid_menu_class, encumber_msg, is_worn_by_type, menu_class_present,
@@ -1871,7 +1872,7 @@ export async function Boots_off(state = game, rawEnv = {}) {
     case KICKING_BOOTS:
         break;
     default:
-        throw new Error(`Boots_off: unknown boots type ${otyp}`);
+        await impossible(`Unknown type of ${c_boots} (${otyp})`, state);
     }
     takeoff.cancelled_don = false;
     return 0;
@@ -3698,9 +3699,8 @@ async function accessory_or_armor_on(obj, state = game) {
             /* setworn() and on_msg() handled by Blindf_on() */
             await Blindf_on(obj, state);
         } else {
-            throw new Error(
-                `putting on unexpected type of accessory: otyp ${obj.otyp}`,
-            );
+            await impossible('putting on unexpected type of accessory: '
+                + safe_typename(obj.otyp, state), state);
         }
     }
     return ECMD_TIME;

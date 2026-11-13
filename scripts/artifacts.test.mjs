@@ -90,6 +90,8 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { game } from '../js/gstate.js';
+import { initUnported } from '../js/unported.js';
 import {
     ROLE_ALIGNMASK,
     ROLE_ALIGNS,
@@ -1665,17 +1667,26 @@ test('found_artifact() marks an artifact as found', () => {
         'found bit is set');
 });
 
-test('found_artifact() throws for non-existent artifact', () => {
+// artifact.c found_artifact():411-416 reports a bad index or an artifact
+// that does not exist yet through impossible() and sets nothing. The
+// synchronous port records the unprinted report.
+test('found_artifact() reports a non-existent artifact and leaves it unfound', () => {
     const state = artiState();
+    initUnported();
     // Artifact index 1 exists=0 by default.
-    assert.throws(() => found_artifact(1, state),
-        /artifact doesn't exist yet/);
+    found_artifact(1, state);
+    assert.equal(state.artiexist[1].found, 0);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });
 
-test('found_artifact() throws for out-of-range index', () => {
+test('found_artifact() reports an out-of-range index and changes nothing', () => {
     const state = artiState();
-    assert.throws(() => found_artifact(0, state),
-        /invalid artifact index/);
-    assert.throws(() => found_artifact(99, state),
-        /invalid artifact index/);
+    const before = JSON.stringify(state.artiexist);
+    initUnported();
+    // 0 is ART_NONARTIFACT, below the a < 1 bound; 99 is above
+    // NROFARTIFACTS.
+    found_artifact(0, state);
+    found_artifact(99, state);
+    assert.equal(JSON.stringify(state.artiexist), before);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });

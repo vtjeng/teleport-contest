@@ -17,6 +17,7 @@ import { newgame_pre_mklev } from '../js/allmain.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { u_on_newpos } from '../js/dungeon.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mklev } from '../js/mklev.js';
 import { u_on_upstairs } from '../js/stairs.js';
 import { monst_globals_init } from '../js/monsters.js';
@@ -186,12 +187,26 @@ test('u_on_newpos observes nothing when the hero changes level', () => {
     assert.equal(rock.dknown, false);
 });
 
-test('u_on_newpos rejects coordinates outside the playable map', async () => {
-    const state = initializedState();
-    await assert.rejects(
-        u_on_newpos(0, 8, state),
-        /hero location is off map/,
-    );
+test('u_on_newpos reports column 0 through impossible() and places the hero', async () => {
+    // dungeon.c u_on_newpos():1570-1576. Column 0 is inside the array but
+    // not isok(), so C calls impossible() rather than panic() and goes on.
+    // A real game supplies the tty that prints impossible()'s three lines;
+    // seed and date are arbitrary.
+    await runSegment({
+        seed: 4417,
+        datetime: '20290302101500',
+        nethackrc: 'OPTIONS=name:Edge,role:Archeologist,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '',
+    });
+    // The welcome line is still pending; drop it as the next key would.
+    game._pending_message = '';
+    // One space for each --More-- between impossible()'s three lines.
+    for (let i = 0; i < 2; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // Row 8 is an arbitrary row inside ROWNO.
+    await u_on_newpos(0, 8, game);
+    assert.deepEqual([game.u.ux, game.u.uy], [0, 8]);
+    assert.equal(game._pending_message,
+        'Please report these messages to devteam@nethack.org.');
 });
 
 test('u_on_upstairs selects the first upward stair without drawing PRNG', async () => {

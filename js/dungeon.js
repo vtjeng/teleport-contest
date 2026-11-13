@@ -1222,10 +1222,15 @@ export async function u_on_newpos(
         seeNearbyObjectsOptions = undefined,
     } = {},
 ) {
-    if (!isok(x, y))
-        throw new RangeError(
-            `u_on_newpos: hero location is off map <${x},${y}>`,
-        );
+    if (!isok(x, y)) { /* validate location */
+        // C reports column 0 through impossible() and places the hero there
+        // anyway; a square off the whole array is a panic().
+        const text = `u_on_newpos: trying to place hero off map <${x},${y}>`;
+        if (x < 0 || y < 0 || x > COLNO - 1 || y > ROWNO - 1)
+            await end_panic(text, state);
+        else
+            await impossible(text, state);
+    }
     preflightPosition?.(x, y, state);
 
     const hero = state.u;

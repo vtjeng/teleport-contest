@@ -3181,7 +3181,11 @@ export async function u_collide_m(mtmp, state = game) {
     if (!mtmp || mtmp === state.u.usteed
         || mtmp !== m_at(state.u.ux, state.u.uy, state)) {
         // C's impossible() returns without moving anybody.
-        throw new Error('level arrival collision: monster not co-located');
+        await impossible(`level arrival collision: ${
+            !mtmp ? 'no monster'
+                : (mtmp === state.u.usteed) ? 'steed is on map'
+                    : 'monster not co-located'}?`, state);
+        return;
     }
 
     const cc = !rn2(2)

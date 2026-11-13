@@ -84,7 +84,7 @@ import {
     TOWEL, T_SHIRT, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP,
     YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
     HORN_OF_PLENTY,
-    GOLD_PIECE, STRANGE_OBJECT,
+    GOLD_PIECE, NUM_OBJECTS, STRANGE_OBJECT,
 } from './objects.js';
 import {
     append_price_quote,
@@ -299,6 +299,26 @@ export function simple_typename(otyp, state = game) {
     const pp = bufp.indexOf(' (');
     /* strip the appended description */
     return pp >= 0 ? bufp.slice(0, pp) : bufp;
+}
+
+// C ref: objnam.c safe_typename() (310-330). A type name for debugging
+// feedback where the data may be suspect: an otyp out of range or without a
+// name gets "glorkum[otyp]" and its own impossible() report, which this
+// synchronous port records as unported; any other type is named as if fully
+// discovered.
+export function safe_typename(otyp, state = game) {
+    if (otyp < STRANGE_OBJECT || otyp >= NUM_OBJECTS
+        || !OBJ_NAME(state.objects[otyp], state)) {
+        note_unported('pline.c impossible');
+        return `glorkum[${otyp}]`;
+    }
+    /* force it to be treated as fully discovered */
+    const ocl = state.objects[otyp];
+    const save_nameknown = ocl.oc_name_known;
+    ocl.oc_name_known = 1;
+    const res = simple_typename(otyp, state);
+    ocl.oc_name_known = save_nameknown;
+    return res;
 }
 
 // C ref: objnam.c mimic_obj_name() (5606–5616).

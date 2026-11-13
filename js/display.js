@@ -4695,14 +4695,14 @@ export function reglyph_darkroom(state = game) {
 // reason obj_to_glyph() records above: tmp_at()'s frame stack and
 // show_glyph_cell() both take one. The number stays reachable on it.
 //
-// C's out-of-range guard is `impossible("zapdir_to_glyph: illegal beam type")`
-// followed by beam_type = 0. Every ported caller passes dobuzz()'s hdmgtype,
-// which is a wand's damage type (0..5) or Hallucination's rn2(6), so the guard
-// is unreachable and a wrong number is a defect here rather than a glyph to
-// substitute for.
+// C's out-of-range guard is `impossible("zapdir_to_glyph:  illegal beam
+// type")` followed by beam_type = 0; this synchronous port records the print
+// as unported. Every ported caller passes dobuzz()'s hdmgtype, which is a
+// wand's damage type (0..5) or Hallucination's rn2(6), so no play reaches it.
 export function zapdir_to_glyph(dx, dy, beam_type, state = game) {
-    if (beam_type < 0 || beam_type >= NUM_ZAP) {
-        throw new RangeError(`zapdir_to_glyph: illegal beam type ${beam_type}`);
+    if (beam_type >= NUM_ZAP) {
+        note_unported('pline.c impossible');
+        beam_type = 0;
     }
     const dir = (dx === dy) ? 2 : (dx && dy) ? 3 : dx ? 1 : 0;
     return map_glyphinfo(((beam_type << 2) | dir) + GLYPH_ZAP_OFF, state);

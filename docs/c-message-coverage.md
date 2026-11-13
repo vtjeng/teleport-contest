@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 233 | 490 |
+| diagnostic | 723 | 230 | 493 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4230 | 681 |
+| total | 4911 | 4227 | 684 |
 
 ## Missing by C file
 
@@ -35,7 +35,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | --- | --- | ---: | ---: | ---: |
 | src/alloc.c | yes | 0 | 5 | 0 |
 | src/apply.c | yes | 1 | 6 | 0 |
-| src/artifact.c | no | 0 | 4 | 0 |
+| src/artifact.c | no | 0 | 8 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
 | src/ball.c | yes | 0 | 10 | 0 |
 | src/bones.c | yes | 1 | 0 | 2 |
@@ -47,7 +47,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
 | src/display.c | yes | 0 | 8 | 0 |
-| src/do.c | yes | 1 | 4 | 0 |
+| src/do.c | yes | 1 | 3 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
 | src/dog.c | yes | 0 | 3 | 0 |
@@ -415,8 +415,18 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/artifact.c
 
+- `found_artifact()`
+  - 412 impossible: `found_artifact: invalid artifact index! (`
+  - 414 impossible: `found_artifact: artifact doesn't exist yet? (`
+
 - `artifact_origin()`
   - 511 impossible: `invalid artifact origin:`
+
+- `spec_applies()`
+  - 1056 impossible: `Weird weapon special attack.`
+
+- `discover_artifact()`
+  - 1126 impossible: `couldn't discover artifact (`
 
 - `artifact_hit()`
   - 1473 impossible: `attacking yourself with weapon?`
@@ -539,9 +549,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `boulder_hits_pool()`
   - 56 impossible: `Not a boulder?`
-
-- `u_collide_m()`
-  - 1419 impossible: `steed is on map`
 
 - `revive_corpse()`
   - 2203 impossible: `reviving corpse from non-existent container`

@@ -5,14 +5,18 @@ import { PM_KITTEN, PM_SAMURAI, monst_globals_init } from '../js/monsters.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from '../js/hacklib.js';
 import { disco_typename, init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
-import { obj_typename, simple_typename, xcalled, xnameFresh } from '../js/objnam.js';
+import { game } from '../js/gstate.js';
+import {
+    obj_typename, safe_typename, simple_typename, xcalled, xnameFresh,
+} from '../js/objnam.js';
+import { initUnported } from '../js/unported.js';
 import { loadCalledTypeRecipes, verifyCalledTypeSegment } from './run-worn-glove-name.mjs';
 import {
     AMULET_OF_REFLECTION, DART, FIGURINE, FLINT, GAUNTLETS_OF_POWER, GOLD_PIECE,
     GRAY_DRAGON_SCALES,
     JADE, MAGIC_HARP, OIL_LAMP, POT_HEALING, RIN_PROTECTION, SCR_IDENTIFY,
-    SPE_BOOK_OF_THE_DEAD, SPE_FORCE_BOLT, SPE_NOVEL, TOWEL, WAN_SLEEP, WOODEN_HARP,
-    objects_globals_init,
+    NUM_OBJECTS, SPE_BOOK_OF_THE_DEAD, SPE_FORCE_BOLT, SPE_NOVEL, TOWEL, WAN_SLEEP,
+    WOODEN_HARP, objects_globals_init,
 } from '../js/objects.js';
 
 function namingState() {
@@ -213,3 +217,22 @@ for (const { label, recipe } of loadCalledTypeRecipes()) {
         await verifyCalledTypeSegment(recipe.segments[0]);
     });
 }
+
+test('safe_typename names a type as discovered and refuses a bad otyp', () => {
+    // objnam.c safe_typename() (310-330).
+    const state = namingState();
+    const type = state.objects[POT_HEALING];
+    // An unidentified potion with a user name: the name is forced known
+    // and the user's alias suppressed, then both are restored.
+    type.oc_name_known = 0;
+    type.oc_uname = 'probe';
+    assert.equal(safe_typename(POT_HEALING, state), 'potion of healing');
+    assert.equal(type.oc_name_known, 0);
+    assert.equal(type.oc_uname, 'probe');
+    // NUM_OBJECTS is one past the last type and -1 is below STRANGE_OBJECT
+    // (0): both give "glorkum[%d]" and an impossible() report.
+    initUnported();
+    assert.equal(safe_typename(NUM_OBJECTS, state), `glorkum[${NUM_OBJECTS}]`);
+    assert.equal(safe_typename(-1, state), 'glorkum[-1]');
+    assert.equal(game.unported.has('pline.c impossible'), true);
+});
