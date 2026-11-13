@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c find_trap() clears the map, shows the trap, prints 'You find ...', and then waits through display_nhwindow(WIN_MAP, TRUE) when the trap's glyph is hidden under an object. With MSGTYPE=hide matching every message, the topline stays empty, so tty_display_nhwindow() has no --More-- to wait for and find_trap() goes straight to docrt(). A human Samurai in debug mode steps off the up stairs, wishes for a squeaky board there, drops the ya on it, steps away, and searches with a count until the board is found. The seed and date were chosen arbitrarily; the search count leaves room for rnl(8).",
+  "segments": [
+    {
+      "seed": 7330021,
+      "datetime": "20310117221500",
+      "nethackrc": "OPTIONS=name:Quietfind,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\nMSGTYPE=hide \".*\"\n",
+      "moves": "l\u0017squeaky board\nddl20s"
+    }
+  ]
+}
