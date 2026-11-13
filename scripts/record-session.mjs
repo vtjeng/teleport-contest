@@ -515,11 +515,18 @@ export async function recordSegment({
     homeDir,
     tz,
     prompt = null,
+    // In place of a prompt plan, a caller's own controller: an object whose
+    // decide(step) returns {key} or {stop: reason}, with a `decisions` array
+    // and `plan.maxMs`, the time cap, as createPromptController() returns.
+    // After the keys in seg.moves, each key comes from decide() given the
+    // screen at that input boundary.
+    controller: callerController = null,
     onReceipt = async () => {},
     deadline = null,
     preserveFailure = false,
     onSpawn = () => {},
 }) {
+    if (prompt && callerController) throw new Error('pass a prompt plan or a controller, not both');
     // Write nethackrc into homeDir
     await fs.mkdir(homeDir, { recursive: true });
     await fs.writeFile(path.join(homeDir, '.nethackrc'), seg.nethackrc || '');
@@ -574,11 +581,11 @@ export async function recordSegment({
         }
         moves = reconstructed.join('');
     }
-    if (prompt) moves = moves.replace(/\r/gu, '\n');
+    const controller = prompt ? createPromptController(prompt) : callerController;
+    if (controller) moves = moves.replace(/\r/gu, '\n');
     // Refuse an unrecordable key before starting the game.
     for (let i = 0; i < moves.length; i++) keyByte(moves[i]);
     const prefixLength = moves.length;
-    const controller = prompt ? createPromptController(prompt) : null;
     // A clean v5 recording is also the replay recipe, so its existing step
     // count is the completion contract.  This matters for games which end
     // before consuming every planned key: they legitimately have fewer than
@@ -639,7 +646,12 @@ export async function recordSegment({
         if (controller || preserveFailure) chain = chain.then(() => onReceipt({
             kind: 'child-start', argv: [binary, ...args], launched: true})).catch(fail);
     });
-    child.stdin.on('error', error => { if (controller || preserveFailure) fail(error); });
+    // EPIPE: the game closed its input, normally by exiting, while a key
+    // was being written. The close handler reports how the game ended.
+    child.stdin.on('error', error => {
+        if (error.code === 'EPIPE') return;
+        if (controller || preserveFailure) fail(error);
+    });
 
     armTimeout(20000, 'first marker');
 
