@@ -23,6 +23,9 @@ export function appendLongDigit(value, digitValue) {
 }
 
 // The UTF-8 bytes of a JavaScript string, as the recorder writes a nethackrc.
+// Only options.js's nethackrc reader uses it: TextEncoder turns a raw-byte
+// escape from decodeUtf8ByteString() into U+FFFD's three bytes, so every C byte
+// count or copy uses encodeUtf8ByteString() (scripts/utf8-byte-encoding.test.mjs).
 export function encodeUtf8Text(value) {
     return Array.from(utf8Encoder.encode(String(value)));
 }

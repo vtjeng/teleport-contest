@@ -237,7 +237,6 @@ import {
     u_on_rndspot,
 } from './dungeon.js';
 import {
-    encodeUtf8Text,
     eos,
     dist2,
     mungspaces,
@@ -968,9 +967,9 @@ export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) 
         let promptPrefix = '';
         let tryLimit = 6;
         do {
-            const k = encodeUtf8Text(promptPrefix).length + 1
-                + encodeUtf8Text(responseType).length;
-            if (encodeUtf8Text(pbuf).length + k > QBUFSZ - 1) {
+            const k = encodeUtf8ByteString(promptPrefix).length + 1
+                + encodeUtf8ByteString(responseType).length;
+            if (encodeUtf8ByteString(pbuf).length + k > QBUFSZ - 1) {
                 const retained = QBUFSZ - 1 - k - 4;
                 pbuf = `${truncateByteString(pbuf, retained)}...?`;
             }

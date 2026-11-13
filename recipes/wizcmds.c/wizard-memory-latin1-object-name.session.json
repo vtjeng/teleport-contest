@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wizcmds.c size_obj() witness for a typed Latin-1 object name. Seed 27183077, clock 20570705201544, Valkyrie, the #name route and the name were chosen before JavaScript comparison. tty getlin stores each key 0xE9 as one byte, so #stats counts ONAME as strlen() + 1 = 4 bytes in the inventory line.",
+  "segments": [
+    {
+      "seed": 27183077,
+      "datetime": "20570705201544",
+      "nethackrc": "OPTIONS=name:Runa,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #name\niaééé\n#stats\n    "
+    }
+  ]
+}

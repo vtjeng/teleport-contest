@@ -11,7 +11,7 @@ import {
     ROGUESET,
 } from './const.js';
 import { game } from './gstate.js';
-import { lcase } from './hacklib.js';
+import { encodeUtf8ByteString, lcase } from './hacklib.js';
 import { rgbstr_to_int32 } from './coloratt.js';
 import {
     GLYPHREP_CMAP_PARTITIONS,
@@ -177,7 +177,7 @@ function cmapGlyphs(cmap) {
 // created during configuration or #wizcustom and freed at those source sites.
 export function glyph_hash(id) {
     let hash = 0;
-    for (const byte of new TextEncoder().encode(id)) {
+    for (const byte of encodeUtf8ByteString(id)) {
         if (!byte) break;
         // The reference build uses signed char; its XOR promotes high bytes.
         const ch = byte >= 128 ? byte - 256

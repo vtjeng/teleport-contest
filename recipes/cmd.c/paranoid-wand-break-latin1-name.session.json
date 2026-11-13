@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cmd.c paranoid_ynq() witness for a prompt holding typed Latin-1 bytes. Seed 27183103, clock 20570707140528, Valkyrie, paranoid_confirmation:wand-break, a wished-for wand of striking and a 30-key name of 0xE9 were chosen before JavaScript comparison. tty getlin stores each key as one byte, so apply.c do_break_wand()'s prompt for \"your redwood wand named\" and the 30 bytes is 93 bytes; with k = 1 + strlen(\"[yes|n] (n)\") = 12 it stays under QBUFSZ - 1 and paranoid_ynq() shows it whole.",
+  "segments": [
+    {
+      "seed": 27183103,
+      "datetime": "20570707140528",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips,paranoid_confirmation:wand-break\n",
+      "moves": "\u0017wand of striking\n#name\nieéééééééééééééééééééééééééééééé\nae\u001b"
+    }
+  ]
+}

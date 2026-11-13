@@ -1813,7 +1813,7 @@ export function add_sound_mapping(mapping, state = game, rawEnv = {}) {
     }
     state.sounddir ??= '.';
     const filespec = `${state.sounddir}/${parsed.filename}`;
-    if (new TextEncoder().encode(filespec).length >= 256) {
+    if (encodeUtf8ByteString(filespec).length >= 256) {
         soundMappingError('sound file name too long', state, rawEnv);
         return 0;
     }

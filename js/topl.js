@@ -96,7 +96,7 @@ export function remember_topl(state = game) {
     cw.unsplit[idx] = text === state._ttyUnsplitToplines;
     // C pads the allocation size to a multiple of eight, including a full
     // eight bytes when the terminator already lands on a multiple of eight.
-    const byteLength = new TextEncoder().encode(`${text}\0`).length;
+    const byteLength = encodeUtf8ByteString(`${text}\0`).length;
     cw.datlen[idx] = byteLength + (8 - (byteLength & 7));
     if (!state.program_state?.in_checkpoint) {
         cw.maxcol = cw.maxrow = (idx + 1) % rows;

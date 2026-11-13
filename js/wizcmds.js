@@ -85,7 +85,7 @@ import {
     may_dig,
 } from './hack.js';
 import { mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
+import { dist2, encodeUtf8ByteString, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
@@ -1068,7 +1068,7 @@ export function memory_stats_line(label, count, size) {
         + '  ' + String(size).padStart(6);
 }
 function stringAllocation(text) {
-    return new TextEncoder().encode(text).length + 1;
+    return encodeUtf8ByteString(text).length + 1;
 }
 export function size_obj(obj, state = game) {
     let size = memoryLayout.obj;
@@ -1435,7 +1435,7 @@ export function wizcustom_callback(items, glyphnum, id, state = game) {
     let bufu = '';
     if (unicode) {
         bufu = `U+${unicode.codePointAt(0).toString(16).padStart(4, '0')}`;
-        for (const byte of new TextEncoder().encode(unicode)) {
+        for (const byte of encodeUtf8ByteString(unicode)) {
             if (!byte) break;
             bufu += ` <${byte}>`;
         }
