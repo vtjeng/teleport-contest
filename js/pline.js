@@ -5,6 +5,7 @@
 // list is game state because insight.c #chronicle reads it.
 
 import { game } from './gstate.js';
+import { panic } from './end.js';
 import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
 import { BUFSZ, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
@@ -100,7 +101,7 @@ export async function impossible(text, state = game, env = {}) {
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const programState = state.program_state ??= {};
     if (programState.in_impossible)
-        throw new Error('impossible called impossible'); // C panic()
+        await panic('impossible called impossible', state);
     programState.in_impossible = 1;
     try {
         // pbuf[BUFSZ - 1] = '\0'

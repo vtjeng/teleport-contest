@@ -48,6 +48,7 @@ import {
     VWALL,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { panic } from './end.js';
 import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
@@ -953,7 +954,7 @@ async function gd_move_proceed(
 
     if ((nx !== ggx || ny !== ggy) || (grd.mx !== ggx || grd.my !== ggy)) {
         if (egrd.fcend >= FCSIZ) {
-            throw new Error('fakecorr overflow');
+            await panic('fakecorr overflow', state);
         }
         const fcp = egrd.fakecorr[egrd.fcend];
         fcp.fx = nx;

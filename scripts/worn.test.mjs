@@ -649,18 +649,25 @@ test('extract_from_minvent waits for canonical wielded-light cleanup', async () 
     assert.equal(mon.weapon_check, NEED_WEAPON);
 });
 
-test('extract_from_minvent refuses an object outside a monster inventory',
+// worn.c extract_from_minvent():1393-1396 reports impossible() for an object
+// outside a monster inventory and returns, leaving it where it was.
+test('extract_from_minvent reports an object outside a monster inventory',
     () => {
         const state = catalogState();
         const held = wornObject(state, ORCISH_HELM, 0);
         const { mon, env } = carrier(state, held);
-        // C reports impossible() and returns; the port has no caller that can
-        // arrive this way, so it stops before any step that could wait.
         held.where = OBJ_FREE;
-        assert.throws(
-            () => extract_from_minvent(mon, held, false, true, env),
-            /not in minvent/u,
-        );
+        const previous = game.unported;
+        game.unported = new Set();
+        try {
+            assert.equal(
+                extract_from_minvent(mon, held, false, true, env), undefined);
+            assert.equal(game.unported.has('pline.c impossible'), true);
+        } finally {
+            game.unported = previous;
+        }
+        assert.equal(held.where, OBJ_FREE);
+        assert.equal(mon.minvent, held);
     });
 
 // wield.c:128-134 computes gu.unweapon. Its WEAPON_CLASS arm (:129-131) leaves

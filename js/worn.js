@@ -1046,12 +1046,11 @@ export function extract_from_minvent(
     const after = (result, next) => (result && typeof result.then === 'function'
         ? result.then(next) : next());
 
-    // C reports impossible() and returns; the port has no caller that can
-    // legitimately arrive with a non-minvent object, so this stops instead.
+    // impossible("extract_from_minvent called on object not in minvent"),
+    // then return; this function cannot wait for the print.
     if (obj.where !== OBJ_MINVENT) {
-        throw new Error(
-            'extract_from_minvent called on object not in minvent',
-        );
+        note_unported('pline.c impossible');
+        return undefined;
     }
     let lightResult;
     if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj)) {
