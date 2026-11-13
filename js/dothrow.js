@@ -2377,7 +2377,7 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
     let result = obj;
     if (!mergedObject) {
         obj.nomerge = 1;
-        result = addinv_before(obj, oldslot, { state });
+        result = await addinv_before(obj, oldslot, { state });
         obj.nomerge = 0;
         if (!result) result = obj;
         if ((result.owornmask & W_QUIVER)

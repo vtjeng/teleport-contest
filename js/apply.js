@@ -3969,7 +3969,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
             unsplitobj(obj, env);
             update_inventory(env);
         } else {
-            addinv_nomerge(obj, env);
+            await addinv_nomerge(obj, env);
         }
         return ECMD_CANCEL;
     }

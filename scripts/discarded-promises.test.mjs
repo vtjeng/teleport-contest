@@ -39,7 +39,7 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // 81 calls went, with read.js unpunish()'s delobj() added. 239 and 309 with
 // obj.js add_to_migration()'s finish_steps(), the synchronous form of
 // add_to_migration_steps() (branch loose-ends, 13 November 2026).
-const ALLOWLIST_PINS = { entries: 239, calls: 309 };
+const ALLOWLIST_PINS = { entries: 237, calls: 307 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

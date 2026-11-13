@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c addinv_core2() and learn_unseen_invent(), polyself.c newman(). Variation on archeologist-unblind-deciphers-before-split, with the same game start: the Archeologist is blind because she has polymorphed into an eyeless small mimic, not because of a blindfold. She wishes for two scrolls while eyeless, then polymorphs back into a human; newman() restores her sight through toggle_blindness(), which deciphers the scrolls (\"You can see again.\" then \"You decipher the label on your scrolls labeled ...\") before she wields one of them with a count.",
+  "segments": [
+    {
+      "seed": 5180327,
+      "datetime": "20480219141500",
+      "nethackrc": "OPTIONS=name:Indira,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #polyself\nsmall mimic\n   \u00172 scrolls of light\n#polyself\nhuman\n  w1i i"
+    }
+  ]
+}

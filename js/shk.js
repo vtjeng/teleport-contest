@@ -378,7 +378,7 @@ export async function money2u(monster, amount, state = game) {
         const { dropy } = await import('./do.js');
         await dropy(paid, { state });
     } else {
-        addinv(paid, { state });
+        await addinv(paid, { state });
         state.disp ??= {};
         state.disp.botl = true;
     }

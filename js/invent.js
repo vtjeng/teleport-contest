@@ -4192,19 +4192,13 @@ function addinv_core2(obj, env, facts) {
         && !Blind(env.state.u)
         && !objectType(obj, env.state).oc_name_known) {
         observe_object(obj, env.state);
-        const message = env.hooks?.message ?? env.message;
-        let output = null;
-        if (typeof message === 'function') {
-            output = message(
-                `You decipher the label on ${yname(obj, env.state)}.`,
-                env.state,
-            );
-        } else {
-            // The synchronous startup addinv() API has no message owner. C's
-            // pline result is discarded here; runtime pickup supplies the
-            // asynchronous owner and completes this arm below.
-            note_unported('invent.c addinv_core2 pline');
-        }
+        // C's pline(). A caller may supply its own message owner; otherwise
+        // the tty prints it, and addinv() returns the wait to its caller.
+        const message = env.hooks?.message ?? env.message ?? ttyPline;
+        const output = message(
+            `You decipher the label on ${yname(obj, env.state)}.`,
+            env.state,
+        );
         const finishDiscovery = () => {
             discover_object(
                 obj.otyp,
@@ -4630,18 +4624,7 @@ async function addinvCore0Runtime(
     obj, env = {}, prepared = null, updatePermInvent,
     otherObj = null,
 ) {
-    // Live addinv() may be called by a wish or a container path with only a
-    // state argument. Supply ttyPline to the async addinv_core2() arm while
-    // leaving synchronous startup addinv() free of an unawaited Promise.
-    const message = env.hooks?.message ?? env.message ?? ttyPline;
-    const liveEnv = {
-        ...env,
-        hooks: {
-            ...(env.hooks ?? {}),
-            message,
-        },
-    };
-    const pendingContext = beginAddinv(obj, liveEnv, prepared);
+    const pendingContext = beginAddinv(obj, env, prepared);
     const context = isThenable(pendingContext)
         ? await pendingContext : pendingContext;
     if (!context) return null;

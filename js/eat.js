@@ -1591,7 +1591,7 @@ async function touchfood(otmp, env) {
             await dropy(otmp, env);
             sellobj_state(SELL_NORMAL, state);
             if (otmp.where === OBJ_DELETED) otmp = null;
-        } else otmp = addinv_nomerge(otmp, env);
+        } else otmp = await addinv_nomerge(otmp, env);
     }
     return otmp;
 }

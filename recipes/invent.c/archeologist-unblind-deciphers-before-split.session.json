@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c addinv_core2() and learn_unseen_invent(), potion.c toggle_blindness(), wield.c finish_splitting(). A blindfolded Archeologist wishes for two scrolls, drops them and picks them up while she cannot see, so neither addinv_core2() call deciphers them. Taking the blindfold off runs toggle_blindness(), whose learn_unseen_invent() calls addinv_core2() for every scroll in her pack: \"You decipher the label on your scrolls labeled ...\". Wielding one of the two with a count then splits the stack, and finish_splitting()'s addinv_nomerge() finds the type already known, so it prints nothing more. This is why the synchronous addinv() decipher arm cannot be reached through finish_splitting().",
+  "segments": [
+    {
+      "seed": 5180327,
+      "datetime": "20480219141500",
+      "nethackrc": "OPTIONS=name:Indira,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017blindfold\nPi\u00172 scrolls of light\ndj,R w1j i"
+    }
+  ]
+}

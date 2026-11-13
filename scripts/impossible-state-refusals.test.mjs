@@ -45,6 +45,14 @@
 //   Only '#', clicklook and mouseaction lack one, and rhack() runs those
 //   itself; scripts/command-dispatch-tables.test.mjs pins the three.
 //
+// - js/invent.js addinv_core2(): an Archeologist's scroll reaching the
+//   synchronous addinv() with no message owner. The arm now prints through
+//   ttyPline by default, as C's pline() does; the gap note it replaced is
+//   listed so it cannot return. (No game reaches the arm through a split:
+//   potion.c toggle_blindness() deciphers every carried scroll as sight
+//   returns, as recordings/invent.c/archeologist-*-deciphers-before-split
+//   show.)
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -72,6 +80,7 @@ const REMOVED_REFUSALS = {
     'trap_effects.js': ["'trap activation'", 'preflight_dotrap'],
     'hack.js': ['preflight_dotrap'],
     'cmd.js': ['for the extended command'],
+    'invent.js': ["'invent.c addinv_core2 pline'"],
     'exper.js': ["past JavaScript's exact-integer range", 'Number.isSafeInteger'],
     'makemon_create.js': [
         'mmflags 0x',

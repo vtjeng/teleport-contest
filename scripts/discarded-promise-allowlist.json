@@ -4,10 +4,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/apply.js | use_royal_jelly | addinv_nomerge": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/artifacts.js | dispose_of_orig_obj | obj_extract_self": {
       "count": 1,
       "reason": "artifact.c mk_artifact() reaches dispose_of_orig_obj() (lines 271, 302) only with an alignment and a non-null otmp, and every caller passing an alignment (pray.c gcrownu() line 1798; js/pray.js) passes a null object, so this never runs; an object it got would be a fresh, uncarried one. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
@@ -725,10 +721,6 @@
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/shk.js | money2mon | remove_worn_item": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/shk.js | money2u | addinv": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
