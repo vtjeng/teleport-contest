@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3993 | 75 |
-| diagnostic | 723 | 228 | 495 |
+| diagnostic | 723 | 229 | 494 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4224 | 687 |
+| total | 4911 | 4225 | 686 |
 
 ## Missing by C file
 
@@ -86,7 +86,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/music.c | yes | 0 | 1 | 0 |
 | src/nhlua.c | yes | 1 | 11 | 1 |
 | src/o_init.c | yes | 1 | 7 | 0 |
-| src/objnam.c | yes | 0 | 15 | 0 |
+| src/objnam.c | yes | 0 | 14 | 0 |
 | src/options.c | yes | 4 | 6 | 0 |
 | src/pager.c | yes | 2 | 6 | 0 |
 | src/pickup.c | yes | 1 | 6 | 1 |
@@ -1151,7 +1151,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `xname_flags()`
   - 751 impossible: `Bad fruit #`
-  - 933 impossible: `xname_flags:`
 
 - `doname_base()`
   - 1441 impossible: `leashed monster #`
