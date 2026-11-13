@@ -98,6 +98,7 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { note_unported } from './unported.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { Blind, EWarn_of_mon, Glib } from './youprop.js';
 
 // C ref: objnam.c erosion_matters() (1195-1215). Keep this predicate in the
@@ -456,7 +457,7 @@ function identificationFlags(obj, type, state) {
     };
 }
 
-function xnameBase(obj, type, state, ident) {
+function* xnameBaseSteps(obj, type, state, ident) {
     const knownType = ident.nameKnown;
     const dknown = ident.dknown;
     const un = type.oc_uname;
@@ -620,13 +621,15 @@ function xnameBase(obj, type, state, ident) {
         }
         return `${actual}${isGemStone(obj.otyp, type) ? ' stone' : ''}`;
     }
-    default:
-        // C xname_flags() formats oclass numerically, then calls the
-        // discarded-void pline.c:impossible() helper before continuing.
+    default: {
+        // C xname_flags() formats oclass numerically, then calls
+        // pline.c impossible() before continuing with that text.
         const objectClass = typeof obj.oclass === 'number' ? obj.oclass
             : obj.oclass.charCodeAt(0);
-        note_unported('pline.c impossible');
-        return `glorkum ${objectClass} ${obj.otyp} ${obj.spe ?? 0}`;
+        const buf = `glorkum ${objectClass} ${obj.otyp} ${obj.spe ?? 0}`;
+        yield new ImpossibleCall(`xname_flags: ${buf}`);
+        return buf;
+    }
     }
 }
 // C ref: objnam.c not_fully_identified() (1787-1818). Callers which already
@@ -826,12 +829,19 @@ function nextobuf(value = '') {
 
 // C objnam.c xname_flags() (581-1030). Its C char-pointer result is represented
 // by the immutable name plus the byte offset that doname_base retains.
-export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
+// The default arm of its class switch calls pline.c impossible(), which can
+// wait at --More--; the body is a step generator (js/source_steps.js), so a
+// caller that can wait passes impossible_printer() as onImpossible.
+export function xname_flags(obj, state, cxnFlags = CXN_NORMAL, onImpossible) {
+    return finish_steps(xname_flags_steps(obj, state, cxnFlags), onImpossible);
+}
+
+function* xname_flags_steps(obj, state, cxnFlags = CXN_NORMAL) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('xname_flags requires an object');
+    // C sets pluralize from obj->quan != 1L, so the zero quantity of
+    // decl.c's hands_obj pluralizes too.
     const quantity = Math.trunc(obj.quan ?? 1);
-    if (quantity <= 0)
-        throw new RangeError('xname_flags requires positive quantity');
     const type = objectType(obj, state);
     // C ref: objnam.c xname_flags():625-626. This runs ahead of the
     // override_ID block at :632, so it reads the type's stored flag rather
@@ -865,7 +875,7 @@ export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
         ? `t${instanceName.slice(1)}` : instanceName;
     let base = personalName
         ? String(displayedInstanceName)
-        : xnameBase(obj, type, state, ident);
+        : yield* xnameBaseSteps(obj, type, state, ident);
     base = nextobuf(base);
     if (!personalName && eos(base) > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
@@ -1690,8 +1700,14 @@ export function Yobjnam2(obj, verb, state = game) {
 // C ref: objnam.c Tobjnam() (2288-2299). Its own comment: "like aobjnam, but
 // prepend 'The', not count, and use xname". zap.c dozap() names the wand that
 // crumbles with it.
-export function Tobjnam(otmp, verb, state = game) {
-    const bp = The(xnameFresh(otmp, state), state);
+// onImpossible is xname_flags()'s; a caller that can wait passes
+// impossible_printer() and awaits the result.
+export function Tobjnam(otmp, verb, state = game, onImpossible) {
+    return finish_steps(Tobjnam_steps(otmp, verb, state), onImpossible);
+}
+
+function* Tobjnam_steps(otmp, verb, state) {
+    const bp = The((yield* xname_flags_steps(otmp, state)).name, state);
 
     if (verb)
         return `${bp} ${otense(otmp, verb, state)}`;

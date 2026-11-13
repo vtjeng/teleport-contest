@@ -569,6 +569,15 @@ export function newObject(overrides = {}) {
     return obj;
 }
 
+// C ref: decl.c hands_obj, `struct obj hands_obj = DUMMY;`. getobj() returns
+// its address when the player deliberately selects hands/self; callers
+// compare that identity. Its fields are C's zeros, and C code that reads them
+// anyway sees those values: eat.c edibility_prompts() names the iron-bars
+// sentinel floorfood() returns, which reaches objnam.c xname_flags()'s
+// impossible() for class 0. xname_flags() can also set its dknown or bknown,
+// as C does, so it is not frozen. js/invent.js re-exports it beside getobj().
+export const hands_obj = newObject();
+
 // C ref: mkobj.c init_dummyobj() (3346-3371), which fills in just enough of an
 // object for the obj.h predicates that take an object pointer. Its one ported
 // caller is apply.c use_stethoscope()'s M_AP_OBJECT arm, which needs to know

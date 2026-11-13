@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c doeat() with the food-detection sense (u.uedibility) passes floorfood()'s iron-bars sentinel, decl.c hands_obj with every field zero, to edibility_prompts(). Its Tobjnam() reaches objnam.c xname_flags()'s default class arm, which calls pline.c impossible() ('xname_flags: glorkum 0 0 0' and its two follow-up lines), and then the hero starts chewing the bars. A human Samurai in debug mode (fixed starting inventory, so the wish lands on f) reads a wished blessed scroll of food detection, wishes for iron bars, becomes a xorn, eats the bars, and declines the resume prompt. The seed and date were chosen arbitrarily; no branch depends on them.",
+  "segments": [
+    {
+      "seed": 7320011,
+      "datetime": "20300922063000",
+      "nethackrc": "OPTIONS=name:BarSniffer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed scroll of food detection\nrf   \u001b\u0017iron bars\n#polyself\nxorn\ney   en"
+    }
+  ]
+}
