@@ -585,16 +585,22 @@ export function uasmon_maxStr(state = game) {
 // C ref: polyself.c skinback() (1953-1969). Return merged dragon scales.
 export async function skinback(silently, state = game, rawEnv = {}) {
     if (state.uskin) {
-        if (!silently) {
-            const message = rawEnv.message ?? ttyPline;
+        const old_light = arti_light_radius(state.uskin, state);
+        const message = rawEnv.message ?? ttyPline;
+
+        if (!silently)
             await message('Your skin returns to its original form.', state,
                 rawEnv);
-        }
         state.uarm = state.uskin;
         state.uskin = null;
+        /* undo save/restore hack */
         state.uarm.owornmask &= ~I_SPECIAL;
-        // artifact light adjustment omitted — no artifact dragon scales
-        // in the gnome case
+
+        // Gold dragon scales shine at radius 1 as a skin and at their
+        // worn radius once they are armor again.
+        if (artifact_light(state.uarm))
+            await maybe_adjust_light(state.uarm, old_light,
+                { ...rawEnv, state, message });
     }
 }
 

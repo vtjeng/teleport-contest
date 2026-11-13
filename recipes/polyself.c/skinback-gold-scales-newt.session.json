@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c skinback() via polymon(): a gold dragon whose worn uncursed gold dragon scales became its skin polymorphs into a newt. skinback() returns the scales to body armor, and mkobj.c maybe_adjust_light() reports the light radius rising from the skin's 1 to the worn 2 (\"shines brighter\"); pline.c's vision_recalc() redraws the newt before that --More--.",
+  "segments": [
+    {
+      "seed": 530119,
+      "datetime": "20261104091500",
+      "nethackrc": "OPTIONS=name:Scaly,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017uncursed gold dragon scales\nWm #polyself\ngold dragon\n    #polyself\nnewt\n    "
+    }
+  ]
+}

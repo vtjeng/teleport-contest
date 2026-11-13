@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c skinback() via rehumanize() and polyman(): a gold dragon whose worn blessed gold dragon scales became its skin picks its own role at the wizard-mode #polyself prompt. skinback() returns the scales to body armor, and mkobj.c maybe_adjust_light() reports the light radius rising from the skin's 1 to the blessed worn 3 (\"shines much brighter\").",
+  "segments": [
+    {
+      "seed": 530123,
+      "datetime": "20261107211000",
+      "nethackrc": "OPTIONS=name:Scaly,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017blessed gold dragon scales\nWf #polyself\ngold dragon\n     #polyself\nvalkyrie\n  "
+    }
+  ]
+}
