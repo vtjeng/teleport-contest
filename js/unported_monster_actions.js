@@ -130,8 +130,8 @@ export class UnsupportedSimpleMonsterActionError extends Error {
     }
 }
 
-// castmu()'s unported AD_FIRE arm and quest_talk() refuse through this
-// operation, which simpleMonsterActionOperations() hands them.
+// castmu()'s unported AD_FIRE arm refuses through this operation, which
+// simpleMonsterActionOperations() hands it.
 function unsupported(reason) {
     throw new UnsupportedSimpleMonsterActionError(reason);
 }
@@ -616,15 +616,14 @@ function simpleMonsterActionOperations(env, state) {
                 // `adjust?` prompt.
         questTalk: (subject, talkEnv) => quest_talk(subject, {
                     ...talkEnv,
-                    unsupported,
                     output: undefined,
                     message: ttyPline,
                     yn: undefined,
                 }),
         monsterCanSeeHero: ordinaryMonsterCanSeeHero,
         moveMonster: moveSimpleOrdinary,
-        // dochug() hands this to quest_talk() and, through
-        // castUndirectedSpell, to castmu()'s unported AD_FIRE arm.
+        // dochug() hands this, through castUndirectedSpell, to castmu()'s
+        // unported AD_FIRE arm.
         unsupported,
         // C ref: monmove.c dochug():794-799 runs muse.c use_defensive() or
         // use_misc() as soon as find_defensive() or find_misc() selects an

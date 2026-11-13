@@ -2398,8 +2398,8 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'monsterCanSeeHero',
     );
-    // quest_talk() and castmu()'s unported AD_FIRE arm (through
-    // castUndirectedSpell) refuse through this.
+    // castmu()'s unported AD_FIRE arm (through castUndirectedSpell) refuses
+    // through this.
     const unsupported = requireDochugOperation(rawEnv, 'unsupported');
     // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
     // calls castmu(FALSE, FALSE) for each; the provider answers whether one
@@ -2443,7 +2443,7 @@ export async function dochug(monster, rawEnv = {}) {
         if (monster.mcanmove && (monster.mstrategy & STRAT_CLOSE)
             && !monster.msleeping
             && monnear(monster, state.u.ux, state.u.uy, state)) {
-            await questTalk(monster, { state, random, unsupported });
+            await questTalk(monster, { state, random });
         }
         return 0;             /* other frozen monsters can't do anything */
     }

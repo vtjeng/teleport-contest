@@ -33,9 +33,6 @@ function testOps(state, events, random = () => assert.fail('unexpected RNG')) {
         async pager(msgid) {
             events.push(msgid);
         },
-        unsupported(reason) {
-            assert.fail(`unexpected unsupported path: ${reason}`);
-        },
     };
 }
 
@@ -125,7 +122,7 @@ test('nemesis talk and battle-state caller match quest.c and dochug wiring', () 
     assert.match(MONMOVE_C,
         /quest_stat_check\(mtmp\);[\s\S]*?quest_talk\(mtmp\); \/\* give the leaders a chance to speak \*\//u);
     assert.match(MONMOVE_JS,
-        /questStatCheck\(monster, state\);[\s\S]*?await questTalk\(monster, \{ state, random, unsupported \}\);/u);
+        /questStatCheck\(monster, state\);[\s\S]*?await questTalk\(monster, \{ state, random \}\);/u);
     assert.match(MONMOVE_JS,
         /if \(!helpless\(monster\) && range\.nearby\)\s*await questTalk\(monster, \{ \.\.\.env, state \}\);/u);
 });

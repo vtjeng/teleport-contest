@@ -48,7 +48,6 @@ test('converted hero is banished by the quest leader', async () => {
         random: { rn2: () => 0 },
         pager: async id => pages.push(`quest:${id}`),
         commonPager: async id => pages.push(`common:${id}`),
-        unsupported: reason => assert.fail(`unported: ${reason}`),
     });
     assert.deepEqual(pages, ['quest:leader_first', 'common:banished']);
     assert.equal(state.svq.quest_status.met_leader, true);
@@ -65,7 +64,6 @@ test('unchanged alignment still earns the quest at the same audience', async () 
     await quest_chat(leader, state, {
         random: { rn2: () => 0 },
         pager: async id => pages.push(id),
-        unsupported: reason => assert.fail(`unported: ${reason}`),
     });
     assert.deepEqual(pages, ['leader_first', 'assignquest']);
     assert.equal(state.svq.quest_status.got_quest, true);

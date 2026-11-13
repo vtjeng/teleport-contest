@@ -937,13 +937,6 @@ export function mon_is_gecko(mon, state = game) {
     return glyph_to_mon(glyph_at(mon.mx, mon.my, state)) === PM_GECKO;
 }
 
-export class UnsupportedChatError extends Error {
-    constructor(reason) {
-        super(`#chat needs ${reason}`);
-        this.name = 'UnsupportedChatError';
-    }
-}
-
 // C ref: sounds.c domonnoise() (679-1247). The leader is identified by its
 // persistent m_id rather than by its current species, because the leader can
 // be polymorphed and still speaks with quest-leader dialogue. The switch is
@@ -998,9 +991,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     case MS_LEADER:
     case MS_NEMESIS:
     case MS_GUARDIAN:
-        await quest_chat(mtmp, state, {
-            unsupported: (reason) => { throw new UnsupportedChatError(reason); },
-        });
+        await quest_chat(mtmp, state);
         break;
     case MS_SELL:
         if (!Hallucination(state.u) || is_silent(ptr)

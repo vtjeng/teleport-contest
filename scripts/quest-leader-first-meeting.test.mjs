@@ -84,7 +84,6 @@ test('worthy first quest meeting records the granting leader', async () => {
     await quest_chat(leader, state, {
         random,
         output: { pline: async () => {}, window: async () => {} },
-        unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
     });
 
     assert.equal(state.svq.quest_status.got_quest, true);
@@ -137,7 +136,6 @@ test('an under-level first audience receives badlevel before expulsion',
         await quest_chat(leader, state, {
             random: { rn2: (bound) => (events.push(`rn2:${bound}`), 0) },
             pager: async (id) => events.push(`pager:${id}`),
-            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
         });
 
         assert.deepEqual(events, ['pager:leader_first', 'pager:badlevel', 'rn2:19']);
@@ -150,7 +148,7 @@ test('an under-level first audience receives badlevel before expulsion',
             import.meta.url), 'utf8');
         const js = readFileSync(new URL('../js/quest.js', import.meta.url), 'utf8');
         assert.match(c, /if \(not_capable\(\)\) \{\s*qt_pager\("badlevel"\);\s*exercise\(A_WIS, TRUE\);\s*expulsion\(FALSE\);/u);
-        assert.match(js, /if \(not_capable\(state\)\) \{\s*await ops\.pager\('badlevel'\);\s*await exercise\(A_WIS, true, state, ops\.random\);\s*expulsion\(false, ops\);/u);
+        assert.match(js, /if \(not_capable\(state\)\) \{\s*await ops\.pager\('badlevel'\);\s*await exercise\(A_WIS, true, state, ops\.random\);\s*await expulsion\(false, ops\);/u);
     });
 
 test('every role has the badalign text chat_with_leader() delivers', () => {
@@ -228,7 +226,6 @@ test('quest_talk stays silent for a monster with no quest voice', async () => {
         { m_id: 12, data: { msound: MS_LEADER } },
         {
             state,
-            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
         },
     );
 });
@@ -242,7 +239,6 @@ test('quest_talk dispatches the nemesis first-meeting speech', async () => {
             state,
             pager: async (msgid) => pages.push(msgid),
             random: () => assert.fail('first nemesis speech does not draw RNG'),
-            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
         },
     );
     assert.deepEqual(pages, ['nemesis_first']);

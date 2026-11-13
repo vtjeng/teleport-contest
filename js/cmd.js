@@ -364,7 +364,7 @@ import {
 } from './wield.js';
 import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { aggravate_steps } from './wizard.js';
-import { dotalk, UnsupportedChatError } from './sounds.js';
+import { dotalk } from './sounds.js';
 import {
     clearTtyMessageWindow,
     ttyCustomPline,
@@ -2982,10 +2982,6 @@ export function failClosedCommandRefusals() {
         // elapsedTurnRefusals() already lists the class, and the note
         // above says a class several paths can reach belongs in each.
         UnsupportedObjectOperationError,
-        // sounds.c dochat() reaches this for a shop's merchandise, for a
-        // steed, and for a monster on the target square, all three of which
-        // continue into a function this goal leaves unported.
-        UnsupportedChatError,
         // polyself.c polymon(), break_armor(), drop_weapon(), and polyself()
         // raise this for every form whose species-specific branches are not
         // ported: dragon HP, golem HP, breakarm armor paths, horned/headless

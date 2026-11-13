@@ -3096,12 +3096,6 @@
       "c": null,
       "reason": "makemon() with MM_EMIN always allocates the extension; checks the JavaScript allocation."
     },
-    "js/quest.js | questConversation | 'a quest conversation requires an unsupported operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/random_text.js | randomFunction | 'random text selection requires an rn2-like function'": {
       "count": 1,
       "class": "invariant",

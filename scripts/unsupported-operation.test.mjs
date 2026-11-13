@@ -11,8 +11,10 @@
 //   suppliers are unported_monster_actions.js attackHeroWithMattacku()
 //   (mattacku() passes its env to castMonsterSpell) and the dochug()
 //   operation bundle (dochug() passes its env to castUndirectedSpell).
-// - quest.js expulsion(seal) and its quest_chat() and quest_talk() callers in
-//   sounds.js, monmove.js dochug() and unported_monster_actions.js.
+//
+// quest.js expulsion(seal) refused its sealing arm through one, which its
+// quest_chat() and quest_talk() callers had to supply; no C caller passes
+// seal = TRUE, and the arm is now ported, so quest.c needs none.
 //
 // The pin counts, per file, the object keys (`unsupported:`), values passed
 // on (`{ unsupported }`, `f(x, unsupported)`), property reads
@@ -32,15 +34,10 @@ const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 const REMAINING_UNSUPPORTED = {
     // castmu(): the requirement and the env that carries it to the AD_FIRE arm.
     'mcastu.js': 2,
-    // dochug(): the requirement, its env, and the quest_talk() call.
-    'monmove.js': 3,
-    // questConversation()'s typeof test, its key and read, and expulsion().
-    'quest.js': 4,
-    // domonnoise()'s quest_chat() call.
-    'sounds.js': 1,
-    // attackHeroWithMattacku(), the questTalk wrapper and the dochug()
-    // operation bundle.
-    'unported_monster_actions.js': 3,
+    // dochug(): the requirement and its env.
+    'monmove.js': 2,
+    // attackHeroWithMattacku() and the dochug() operation bundle.
+    'unported_monster_actions.js': 2,
 };
 
 function stripComments(source) {

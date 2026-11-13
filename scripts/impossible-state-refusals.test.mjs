@@ -32,6 +32,10 @@
 //   number stops being an exact integer. Every grant is a C int, the
 //   largest experience() for one kill.
 //
+// - js/quest.js expulsion(): seal = TRUE, which none of chat_with_leader()'s
+//   three calls passes; the arm is ported, and quest.c needs no refusal
+//   operation from its callers.
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -52,6 +56,10 @@ const REMOVED_REFUSALS = {
     'shk.js': ['shk_move without eshk extension'],
     'mon.js': ['mongone: monster is already detached'],
     'tty_message.js': ['unsupported tty_message_menu mode'],
+    'quest.js': [
+        'sealing the quest branch',
+        'a quest conversation requires an unsupported operation',
+    ],
     'exper.js': ["past JavaScript's exact-integer range", 'Number.isSafeInteger'],
     'makemon_create.js': [
         'mmflags 0x',

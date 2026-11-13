@@ -28,7 +28,6 @@ test('quest nemesis chat pages before setting met_nemesis', async () => {
             events.push(msgid);
             assert.equal(state.svq.quest_status.met_nemesis, false);
         },
-        unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
     });
 
     assert.deepEqual(events, ['discourage']);
@@ -43,7 +42,6 @@ test('repeat quest nemesis chat keeps met_nemesis set', async () => {
 
     await quest_chat(nemesis, state, {
         pager: async (msgid) => events.push(msgid),
-        unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
     });
 
     assert.deepEqual(events, ['discourage']);
@@ -61,7 +59,6 @@ test('quest guardian selects before and after dialogue from quest state',
         const guardian = { m_id: 12, data: { msound: MS_GUARDIAN } };
         await quest_chat(guardian, beforeState, {
             pager: async (msgid) => before.push(msgid),
-            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
         });
 
         // C selects guardtalk_after only when both flags are true.
@@ -72,7 +69,6 @@ test('quest guardian selects before and after dialogue from quest state',
         const after = [];
         await quest_chat(guardian, afterState, {
             pager: async (msgid) => after.push(msgid),
-            unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
         });
 
         assert.deepEqual(before, ['guardtalk_before']);
@@ -104,5 +100,5 @@ test('quest chat keeps its C helper order and production dispatch', () => {
     assert.match(cSounds,
         /case MS_LEADER:\s*case MS_NEMESIS:\s*case MS_GUARDIAN:\s*quest_chat\(mtmp\);/u);
     assert.match(jsSounds,
-        /case MS_LEADER:\s*case MS_NEMESIS:\s*case MS_GUARDIAN:[\s\S]*?await quest_chat\(mtmp, state,/u);
+        /case MS_LEADER:\s*case MS_NEMESIS:\s*case MS_GUARDIAN:[\s\S]*?await quest_chat\(mtmp, state\);/u);
 });

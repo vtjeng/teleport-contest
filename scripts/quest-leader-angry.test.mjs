@@ -27,7 +27,6 @@ test('an angry quest leader stops waiting and gives its final speech once', asyn
     const env = {
         state,
         pager: async id => pages.push(id),
-        unsupported: reason => assert.fail(`unexpected quest refusal: ${reason}`),
     };
     await quest_talk(leader, env);
     await quest_talk(leader, env);

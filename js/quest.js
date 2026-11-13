@@ -13,8 +13,10 @@ import {
     STRAT_WAITMASK,
     LL_ACHIEVE,
     helpless,
+    MAGIC_PORTAL,
     UTOTYPE_NONE,
     UTOTYPE_PORTAL,
+    UTOTYPE_RMPORTAL,
 } from './const.js';
 import {
     AMULET_OF_YENDOR,
@@ -23,10 +25,13 @@ import {
 } from './objects.js';
 import { yn_function } from './cmd.js';
 import { adjalign, exercise, exercise_nonphysical } from './attrib.js';
-import { dungeon_branch, Is_special, on_level } from './dungeon.js';
+import {
+    dungeon_branch, Is_special, on_level, remdun_mapseen,
+} from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { deltrap } from './trap.js';
 import { carrying, fully_identify_obj, update_inventory } from './invent.js';
 import { angry_guards, setmangry } from './mon.js';
 import { align_str } from './insight.js';
@@ -57,23 +62,18 @@ import { observe_object } from './o_init.js';
 import { Deaf } from './youprop.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
-// pager's window-port calls, pline(), the wizard-mode prompt, the random
-// stream, and the refusal. Each caller owns the refusal class, so that #chat
-// and monster movement report an unported arm the way the rest of their own
-// subsystem does.
+// pager's window-port calls, pline(), the wizard-mode prompt and the random
+// stream.
 function questConversation(env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const pagerRandom = typeof random === 'function'
         ? random : random.rn2 ?? rn2;
-    if (typeof env.unsupported !== 'function')
-        throw new TypeError('a quest conversation requires an unsupported operation');
     return {
         ...env,
         state,
         random,
         displayRandom: env.displayRandom,
-        unsupported: env.unsupported,
         message: env.message ?? ttyPline,
         yn: env.yn ?? yn_function,
         pager: env.pager ?? ((msgid) => qt_pager(
@@ -227,18 +227,30 @@ export function ok_to_quest(state = game) {
         || qs.killed_leader;
 }
 
-// C ref: quest.c expulsion() (185-216). All three current C call sites in
-// chat_with_leader() pass FALSE. The TRUE arm would remove the magic portal
-// and call remdun_mapseen(), but has no caller in the pinned source.
-function expulsion(seal, ops) {
+// C ref: quest.c expulsion() (185-216). All three C call sites, in
+// chat_with_leader(), pass FALSE; the sealing arm is ported with them.
+async function expulsion(seal, ops) {
     const state = ops.state;
     const u = state.u;
-    if (seal) ops.unsupported('sealing the quest branch');
-    const portal_flag = u.uevent?.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
+    let portal_flag = u.uevent?.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
     const br = dungeon_branch('The Quest', state);
     const dest = (br.end1.dnum === u.uz.dnum) ? br.end2 : br.end1;
+    if (seal) portal_flag |= UTOTYPE_RMPORTAL;
     nomul(0, state); /* stop running */
     schedule_goto(dest, portal_flag, null, null, state);
+    if (seal) { /* remove the portal to the quest - sealing it off */
+        const reexpelled = u.uevent.qexpelled;
+
+        u.uevent.qexpelled = 1;
+        remdun_mapseen(state.quest_dnum, state);
+        /* "Delete the near portal now; the far (main dungeon side) portal
+           will be deleted as part of arrival on that level." */
+        const t = state.level.traps.find((trap) => trap.ttyp === MAGIC_PORTAL);
+        if (t)
+            deltrap(t, state); /* (display might be briefly out of sync) */
+        else if (!reexpelled)
+            await impossible('quest portal already gone?', state);
+    }
 }
 
 // C ref: quest.c finish_quest() (226-279). The pager and inventory helpers
@@ -357,12 +369,12 @@ async function chat_with_leader(mtmp, ops) {
         if (not_capable(state)) {
             await ops.pager('badlevel');
             await exercise(A_WIS, true, state, ops.random);
-            expulsion(false, ops);
+            await expulsion(false, ops);
         } else if ((purity = await is_pure(true, ops)) < 0) {
             if (!qs.pissed_off) {
                 await ops.commonPager('banished');
                 qs.pissed_off = true;
-                expulsion(false, ops);
+                await expulsion(false, ops);
                 livelog_printf(
                     LL_ACHIEVE,
                     `${noit_mon_nam(mtmp, state, ops)} has expelled you from the quest`,
@@ -373,7 +385,7 @@ async function chat_with_leader(mtmp, ops) {
             await ops.pager('badalign');
             qs.not_ready = 1;
             await exercise(A_WIS, true, state, ops.random);
-            expulsion(false, ops);
+            await expulsion(false, ops);
         } else { /* You are worthy! */
             await ops.pager('assignquest');
             await exercise(A_WIS, true, state, ops.random);

@@ -48,9 +48,6 @@ function prisonerState() {
 function conversationOps(state, messages) {
     return {
         state,
-        unsupported(reason) {
-            assert.fail(`unexpected unsupported quest path: ${reason}`);
-        },
         async message(line) {
             messages.push(line);
         },

@@ -93,7 +93,6 @@ test('quest_chat wires the carried-artifact finish and preserves C effect order'
             events.push('identify');
         },
         refreshInventory: () => events.push('inventory'),
-        unsupported: (reason) => assert.fail(`unexpected quest refusal: ${reason}`),
     });
 
     // C prints offeredit, recommends the missing Bell, sets got_thanks and
@@ -116,7 +115,6 @@ test('quest_chat uses the hasamulet pager after the leader already thanked the h
 
     await quest_chat(leader(), state, {
         pager: async (msgid) => pages.push(msgid),
-        unsupported: (reason) => assert.fail(`unexpected quest refusal: ${reason}`),
     });
 
     assert.deepEqual(pages, ['hasamulet']);
@@ -131,7 +129,6 @@ test('quest_chat repeats the post-thanks advice before the Amulet', async () => 
     const pages = [];
     await quest_chat(leader(), state, {
         pager: async (msgid) => pages.push(msgid),
-        unsupported: (reason) => assert.fail(`unexpected quest refusal: ${reason}`),
     });
     assert.deepEqual(pages, ['posthanks']);
     assert.equal(state.svq.quest_status.got_thanks, true);

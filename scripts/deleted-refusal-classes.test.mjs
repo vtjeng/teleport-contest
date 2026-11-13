@@ -84,6 +84,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // exper.c more_experienced() past 2^53 points, which no game reaches:
     // each grant is a C int of at most a few thousand
     'UnsupportedExperienceChangeError',
+    // quest.c expulsion()'s sealing arm, which no caller reaches and which
+    // is now ported; #chat supplied the refusal it was raised through
+    'UnsupportedChatError',
 ];
 
 function stripComments(source) {
