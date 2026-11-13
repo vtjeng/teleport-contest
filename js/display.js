@@ -7601,13 +7601,17 @@ function _buildScreenOutput(cursorOnHero = true) {
         }
         // topl_putsym('\n') cleared each continuation row from column 0
         // before writing it, and flush_screen() reprints only changed map
-        // cells, so the wrapped text stays over the map.
+        // cells, so the wrapped text stays over the map.  A NUL is
+        // ttyByteText()'s marker for a high or control byte, which the
+        // capture leaves as the cleared blank.
         for (let row = 1; !bufferedOnly && msgRows && row < msgRows.length
             && row < display.rows; ++row) {
             display.clearRow(row);
             const text = msgRows[row];
-            for (let c = 0; c < Math.min(text.length, display.cols); ++c)
-                display.setCell(c, row, text[c], NO_COLOR, 0);
+            for (let c = 0; c < Math.min(text.length, display.cols); ++c) {
+                if (text[c] !== '\0')
+                    display.setCell(c, row, text[c], NO_COLOR, 0);
+            }
         }
         // C's flush_screen() still redraws the map while botl.c bot() returns
         // early with gb.bot_disabled.  Keep that suppression visible in the

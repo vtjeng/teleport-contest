@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent topl.c topl_putsym() witness for a wrapped message ending in typed Latin-1 bytes. Seed 27183177, clock 20570712091530, elven Wizard with a kitten, and a name of 39 key pairs 0xC3 0xA9 were chosen before JavaScript comparison. do_name.c keeps PL_PSIZ - 1 = 62 bytes of the name, so getpos's autodescribe line \"tame kitten called \" plus the name is 81 bytes: topl_putsym() wraps at column CO - 1, clears the new row (cl_end() at curx 0), and the two high bytes written there leave it blank in the capture.",
+  "segments": [
+    {
+      "seed": 27183177,
+      "datetime": "20570712091530",
+      "nethackrc": "OPTIONS=name:Kai,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "#name\nmm.Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©\n;m."
+    }
+  ]
+}
