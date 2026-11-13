@@ -23,7 +23,7 @@ import { requireCompiler } from './recorder-headers.mjs';
 // literal + 29 no JS function, after report.c dobugreport() was ported
 // (9 November 2026).
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 292;
+const UNPAIRED_CEILING = 291;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');

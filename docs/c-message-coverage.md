@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 224 | 499 |
+| diagnostic | 723 | 225 | 498 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4221 | 690 |
+| total | 4911 | 4222 | 689 |
 
 ## Missing by C file
 
@@ -95,7 +95,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/polyself.c | yes | 0 | 2 | 0 |
 | src/pray.c | yes | 0 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
-| src/quest.c | yes | 0 | 1 | 0 |
 | src/questpgr.c | yes | 0 | 4 | 0 |
 | src/read.c | yes | 0 | 2 | 0 |
 | src/rect.c | yes | 0 | 2 | 0 |
@@ -1296,11 +1295,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `forget_temple_entry()`
   - 550 impossible: `attempting to manipulate shrine data for non-priest?`
-
-### src/quest.c
-
-- `expulsion()`
-  - 214 impossible: `quest portal already gone?`
 
 ### src/questpgr.c
 
