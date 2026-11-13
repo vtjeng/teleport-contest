@@ -86,7 +86,7 @@ import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
+import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, uncurse } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { coreRandom } from './rng.js';
@@ -1000,7 +1000,9 @@ export async function dipfountain(obj, state = game, env = {}) {
                     `The ${hliquid('water', env)} glows for a moment.`,
                     state);
             }
-            obj.cursed = false;
+            // mkobj.c uncurse() also recomputes u.moreluck for a carried
+            // luckstone (set_moreluck()) and refreshes a bag's weight.
+            await uncurse(obj, { ...env, state });
         } else {
             await message('A feeling of loss comes over you.', state);
         }

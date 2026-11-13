@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "fountain.c dipfountain() uncurses a dipped item through mkobj.c uncurse(), which calls set_moreluck() for a carried luckstone. A dwarven Valkyrie in debug mode wishes for a cursed luckstone and a fountain, dips the stone (rnd(30) picks the uncurse case), and checks ^X: u.moreluck goes from -3 to +3, so enlightenment reports extra luck. The seed was the first of 7301001-7301087 whose first dip reaches the uncurse case (port scan; 5 of 87 did).",
+  "segments": [
+    {
+      "seed": 7301027,
+      "datetime": "20290619141500",
+      "nethackrc": "OPTIONS=name:Dipper,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017cursed luckstone\n\u0017fountain\n#dip\ney\u0018      "
+    }
+  ]
+}
