@@ -1,6 +1,8 @@
 // hacklib.js — Utility functions.
 // C refs: hacklib.c.
 
+import { recordArgumentMisuse } from './gstate.js';
+
 const utf8Encoder = new TextEncoder();
 
 // C keeps many lists as chains and links each new record onto the front,
@@ -22,131 +24,70 @@ export function appendLongDigit(value, digitValue) {
     return appended > 9223372036854775807n ? -1n : appended;
 }
 
-// The UTF-8 bytes of a JavaScript string, as the recorder writes a nethackrc.
-// Only options.js's nethackrc reader uses it: TextEncoder turns a raw-byte
-// escape from decodeUtf8ByteString() into U+FFFD's three bytes, so every C byte
-// count or copy uses encodeUtf8ByteString() (scripts/utf8-byte-encoding.test.mjs).
+// Text the game reads or builds is a byte string: one JavaScript code unit
+// per C char, each from 0 to 0xFF, the way C holds it in a char array. The
+// player's typed keys arrive one byte each, and nethackrc lines, getlin()
+// answers and data-file text all become byte strings where they enter, so
+// .length, indexing, slice() and comparisons count and order C's bytes.
+// Unicode appears only on its way to the screen, where a UTF-8 capture
+// decodes it (tty_rawprint.js), or as a symbol set's display glyph.
+// scripts/byte-text.test.mjs keeps every source of text on this convention.
+
+// The UTF-8 bytes of a JavaScript string, as the recorder writes a nethackrc
+// and as wintty.c prints a Unicode glyph. Only the nethackrc reader and the
+// glyph writers call it; text already held as bytes goes through
+// textBytes() instead.
 export function encodeUtf8Text(value) {
     return Array.from(utf8Encoder.encode(String(value)));
 }
 
-// Fixed C buffers can truncate a UTF-8 sequence.  Preserve each malformed
-// byte as a low-surrogate escape so later byte-oriented operations can copy it
-// without silently substituting U+FFFD.
-export function decodeUtf8ByteString(bytes) {
-    let decoded = '';
-    for (let index = 0; index < bytes.length;) {
-        const first = bytes[index];
-        let length = 0;
-        let codePoint = 0;
-        if (first <= 0x7F) {
-            length = 1;
-            codePoint = first;
-        } else if (first >= 0xC2 && first <= 0xDF
-                   && bytes[index + 1] >= 0x80
-                   && bytes[index + 1] <= 0xBF) {
-            length = 2;
-            codePoint = ((first & 0x1F) << 6)
-                | (bytes[index + 1] & 0x3F);
-        } else if (first >= 0xE0 && first <= 0xEF) {
-            const second = bytes[index + 1];
-            const third = bytes[index + 2];
-            const validSecond = second >= 0x80 && second <= 0xBF
-                && (first !== 0xE0 || second >= 0xA0)
-                && (first !== 0xED || second <= 0x9F);
-            if (validSecond && third >= 0x80 && third <= 0xBF) {
-                length = 3;
-                codePoint = ((first & 0x0F) << 12)
-                    | ((second & 0x3F) << 6)
-                    | (third & 0x3F);
-            }
-        } else if (first >= 0xF0 && first <= 0xF4) {
-            const second = bytes[index + 1];
-            const third = bytes[index + 2];
-            const fourth = bytes[index + 3];
-            const validSecond = second >= 0x80 && second <= 0xBF
-                && (first !== 0xF0 || second >= 0x90)
-                && (first !== 0xF4 || second <= 0x8F);
-            if (validSecond
-                && third >= 0x80 && third <= 0xBF
-                && fourth >= 0x80 && fourth <= 0xBF) {
-                length = 4;
-                codePoint = ((first & 0x07) << 18)
-                    | ((second & 0x3F) << 12)
-                    | ((third & 0x3F) << 6)
-                    | (fourth & 0x3F);
-            }
-        }
-
-        if (length > 0) {
-            decoded += String.fromCodePoint(codePoint);
-            index += length;
-        } else {
-            decoded += String.fromCharCode(0xDC00 + first);
-            index += 1;
-        }
-    }
-    return decoded;
+// The byte string of a Unicode string's UTF-8 form. A symbol set's display
+// glyph (a DECgraphics box character, a UTF8 or IBM symbol) is Unicode, and
+// C's mixed_to_utf8() puts its utf8str bytes into the text it passes to
+// tty_putstr(); tests also write typed or configured text this way.
+export function utf8Text(text) {
+    return bytesText(encodeUtf8Text(text));
 }
 
-// Re-encode a string returned by decodeUtf8ByteString(), restoring its raw
-// byte escapes while handling ordinary Unicode like TextEncoder.
-export function encodeUtf8ByteString(value) {
+// The byte string holding C's bytes.
+export function bytesText(bytes) {
+    let text = '';
+    for (const byte of bytes) {
+        if (!Number.isInteger(byte) || byte < 0 || byte > 0xFF)
+            throw new RangeError(`bytesText(): ${byte} is not a byte`);
+        text += String.fromCharCode(byte);
+    }
+    return text;
+}
+
+// The C bytes a byte string holds. A code unit above 0xFF is decoded text
+// that reached a C byte operation and has no byte value. Tests and local
+// replays throw on it (js/gstate.js recordArgumentMisuse()); a game the judge
+// drives records it, so the local scorers fail that game, and goes on with
+// the character's UTF-8 bytes.
+export function textBytes(value) {
     const text = String(value);
     const bytes = [];
     for (let index = 0; index < text.length; ++index) {
-        const first = text.charCodeAt(index);
-        if (first >= 0xDC80 && first <= 0xDCFF) {
-            bytes.push(first - 0xDC00);
+        const unit = text.charCodeAt(index);
+        if (unit <= 0xFF) {
+            bytes.push(unit);
             continue;
         }
-
-        let codePoint = first;
-        if (first >= 0xD800 && first <= 0xDBFF
-            && index + 1 < text.length) {
-            const second = text.charCodeAt(index + 1);
-            if (second >= 0xDC00 && second <= 0xDFFF) {
-                codePoint = 0x10000
-                    + ((first - 0xD800) << 10)
-                    + (second - 0xDC00);
-                index += 1;
-            } else {
-                codePoint = 0xFFFD;
-            }
-        } else if (first >= 0xD800 && first <= 0xDFFF) {
-            codePoint = 0xFFFD;
-        }
-
-        if (codePoint <= 0x7F) {
-            bytes.push(codePoint);
-        } else if (codePoint <= 0x7FF) {
-            bytes.push(
-                0xC0 | (codePoint >> 6),
-                0x80 | (codePoint & 0x3F),
-            );
-        } else if (codePoint <= 0xFFFF) {
-            bytes.push(
-                0xE0 | (codePoint >> 12),
-                0x80 | ((codePoint >> 6) & 0x3F),
-                0x80 | (codePoint & 0x3F),
-            );
-        } else {
-            bytes.push(
-                0xF0 | (codePoint >> 18),
-                0x80 | ((codePoint >> 12) & 0x3F),
-                0x80 | ((codePoint >> 6) & 0x3F),
-                0x80 | (codePoint & 0x3F),
-            );
-        }
+        const ch = String.fromCodePoint(text.codePointAt(index));
+        recordArgumentMisuse('byteText',
+            `textBytes(): code unit 0x${unit.toString(16)} is not a byte`,
+            (detail) => new RangeError(detail));
+        bytes.push(...encodeUtf8Text(ch));
+        index += ch.length - 1;
     }
     return bytes;
 }
 
-// Cut a string at a byte offset, the unit every fixed C buffer and every
-// "%.Ns" precision counts.  A cut inside a multibyte sequence keeps the bytes
-// it leaves behind, because decodeUtf8ByteString() escapes each one.
+// Cut a byte string at a byte offset, the unit every fixed C buffer and
+// every "%.Ns" precision counts.
 export function truncateByteString(value, limit) {
-    return decodeUtf8ByteString(encodeUtf8ByteString(value).slice(0, limit));
+    return String(value).slice(0, limit);
 }
 
 // hacklib.c's string helpers edit a caller-supplied buffer in place and return
@@ -160,10 +101,9 @@ export function truncateByteString(value, limit) {
 // offset its callers reach by pointer arithmetic.
 
 // C ref: hacklib.c eos() (194-199). JS strings are immutable, so return the
-// UTF-8 byte offset of the first NUL terminator rather than a pointer. Callers
-// must keep this C byte offset separate from JavaScript's UTF-16 indexes.
+// byte offset of the first NUL terminator rather than a pointer.
 export function eos(value) {
-    const bytes = encodeUtf8ByteString(value);
+    const bytes = textBytes(value);
     let offset = 0;
     while (offset < bytes.length && bytes[offset] !== 0) ++offset;
     return offset;
@@ -204,7 +144,7 @@ export function lowc(c) {
 // islower(). C never calls setlocale(), so these change the bytes 'A'-'Z'
 // and 'a'-'z' and nothing else, while JavaScript's toLowerCase(),
 // toUpperCase(), localeCompare() and the /i regular-expression flag also
-// change other letters: typed bytes 0xC3 0x89 decode to 'É', and
+// change other letters: the byte 0xC9 is 'É' to them, and
 // 'ß'.toUpperCase() is "SS". scripts/ascii-case.test.mjs fails when js/
 // uses one of those outside its allowlist.
 

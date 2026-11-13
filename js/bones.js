@@ -116,7 +116,7 @@ import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { place_wsegs } from './worm.js';
 import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import { bytesText, textBytes } from './hacklib.js';
 import {
     ghostfruit, reset_oattached_mids, rest_adjust_levelflags, rest_stairs,
     rest_traps, restdamage,
@@ -1493,7 +1493,7 @@ async function restoreBonesLevel(bonesData, state) {
 // stores the result.
 export function sanitize_name(name, state = game) {
     const strip8thBit = !state.iflags?.wc_eight_bit_input;
-    return decodeUtf8ByteString(encodeUtf8ByteString(name).map((byte) => {
+    return bytesText(textBytes(name).map((byte) => {
         const c = byte & 0x7F;
         if (c < 0x20 || c === 0x7F) return 0x2E;
         if (c !== byte && strip8thBit) return 0x5F;

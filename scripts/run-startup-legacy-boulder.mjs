@@ -6,7 +6,7 @@
 import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { decodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 import { sobj_at } from '../js/invent.js';
@@ -117,7 +117,7 @@ export const LEGACY_BOULDER_CASES = Object.freeze([
         primary: 0xE9,
         rogue: 0,
         active: 'i',
-        menu: decodeUtf8ByteString([0xE9]),
+        menu: bytesText([0xE9]),
         waits: 0,
     }),
     Object.freeze({

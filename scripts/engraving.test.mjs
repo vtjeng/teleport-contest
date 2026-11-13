@@ -34,7 +34,7 @@ import {
     wipe_engr_at,
     wipeout_text,
 } from '../js/engrave.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, textBytes } from '../js/hacklib.js';
 import {
     AMULET_CLASS,
     GEM_CLASS,
@@ -345,12 +345,11 @@ test('wipeout_text selects and mutates UTF-8 bytes', () => {
         ['rn2', 3, 0], ['rn2', 4, 2],
     ]);
 
-    const wiped = wipeout_text('éA', 2, 0, { random: scripted.random });
+    const wiped = wipeout_text(bytesText([0xC3, 0xA9, 0x41]), 2, 0,
+        { random: scripted.random });
     scripted.done();
-    // The low-surrogate escape stores the invalid A9 byte without replacing
-    // it by U+FFFD; re-encoding recovers C's exact post-rubout byte sequence.
-    assert.equal(wiped, '?' + String.fromCharCode(0xDCA9) + '^');
-    assert.deepEqual(encodeUtf8ByteString(wiped), [0x3F, 0xA9, 0x5E]);
+    // The A9 continuation byte stays as it was.
+    assert.deepEqual(textBytes(wiped), [0x3F, 0xA9, 0x5E]);
 });
 
 test('make_engr_at creates and replaces C-shaped DUST engraving state', () => {
@@ -411,17 +410,18 @@ test('make_engr_at sizes text slots by UTF-8 bytes', () => {
     const state = {};
     // One e-acute occupies two UTF-8 bytes; the two-character pristine form
     // occupies four, so C allocates five bytes per slot including NUL.
+    const eAcute = bytesText([0xC3, 0xA9]);
     const engraving = make_engr_at(
         31,
         12,
-        'é',
-        'éé',
+        eAcute,
+        eAcute.repeat(2),
         0,
         DUST,
         { state, random: noDrawRandom() },
     );
 
-    assert.deepEqual(engraving.engr_txt, ['é', 'é', 'éé']);
+    assert.deepEqual(engraving.engr_txt, [eAcute, eAcute, eAcute.repeat(2)]);
     assert.equal(engraving.engr_szeach, 5);
     assert.equal(engraving.engr_alloc, 15);
 });

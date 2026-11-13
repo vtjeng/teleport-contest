@@ -123,7 +123,7 @@ import { monsndx, sticks } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     dist2,
-    encodeUtf8ByteString,
+    textBytes,
     mungspaces,
     sgn, lcase, ucase, upstart, strcmpi,
 } from './hacklib.js';
@@ -5085,8 +5085,8 @@ function _statusPlayerName() {
     // byte, then truncate only when the complete title exceeds 30 bytes.
     const rawName = game.plname || 'Hero';
     const role = _statusRoleText();
-    const nameBytes = encodeUtf8ByteString(rawName);
-    const roleBytes = encodeUtf8ByteString(role);
+    const nameBytes = textBytes(rawName);
+    const roleBytes = textBytes(role);
     if (nameBytes[0] >= 0x61 && nameBytes[0] <= 0x7A) {
         nameBytes[0] -= 0x20;
     }
@@ -6279,7 +6279,7 @@ function _statusFieldData(field, valueSnapshot = null) {
         // names follow strlen(), not JavaScript code-unit indexing.
         return {
             text: title.slice(
-                encodeUtf8ByteString(game.plname || 'Hero').length + 5,
+                textBytes(game.plname || 'Hero').length + 5,
             ),
         };
     case 'strength': return { value: attrs[A_STR] ?? 0 };
@@ -8415,7 +8415,7 @@ export async function status_hilite_menu_add(state, origfld, helpers) {
                 } else {
                     const text = await hiliteLine(state, query, helpers);
                     if (!text || text[0] === '\x1b') { phase = 'behavior'; continue; }
-                    if (encodeUtf8ByteString(text).length >= 80) return false;
+                    if (textBytes(text).length >= 80) return false;
                     rule.text = text;
                 }
                 rule.relation = '=';

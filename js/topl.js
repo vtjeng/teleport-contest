@@ -11,7 +11,7 @@ import {
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
-import { encodeUtf8ByteString } from './hacklib.js';
+import { textBytes } from './hacklib.js';
 import { nomux_putch_byte } from './termcap.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
@@ -96,7 +96,7 @@ export function remember_topl(state = game) {
     cw.unsplit[idx] = text === state._ttyUnsplitToplines;
     // C pads the allocation size to a multiple of eight, including a full
     // eight bytes when the terminator already lands on a multiple of eight.
-    const byteLength = encodeUtf8ByteString(`${text}\0`).length;
+    const byteLength = textBytes(`${text}\0`).length;
     cw.datlen[idx] = byteLength + (8 - (byteLength & 7));
     if (!state.program_state?.in_checkpoint) {
         cw.maxcol = cw.maxrow = (idx + 1) % rows;
@@ -116,7 +116,7 @@ export function addtopl(text, state = game) {
     // putsyms(s) prints the string's bytes. A NUL here is ttyByteText()'s
     // marker for a byte the capture ignores (js/tty_message.js), which
     // advances the cursor like any other uncaptured byte.
-    for (const byte of encodeUtf8ByteString(text)) {
+    for (const byte of textBytes(text)) {
         if (column >= display.cols - 1) {
             // topl_putsym() advances the terminal cursor as it prints. Our
             // grid writes use setCell(), so move the cursor to the same
@@ -453,7 +453,7 @@ export function topl_putsym(ch, state = game) {
 
 export function putsyms(text, state = game) {
     // C's putsyms(const char *) prints each byte up to the first NUL.
-    for (const byte of encodeUtf8ByteString(String(text).split('\0', 1)[0]))
+    for (const byte of textBytes(String(text).split('\0', 1)[0]))
         topl_putsym(String.fromCharCode(byte), state);
 }
 

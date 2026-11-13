@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import * as inventoryDisplay from '../js/invent.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 import { donameFresh } from '../js/objnam.js';
 
 import {
@@ -406,11 +406,11 @@ test('container trap heading honors the C byte-capacity guard', () => {
     const state = stateFixture();
     const chest = object(CHEST, state, {
         cknown: true, lknown: true, otrapped: true,
-        oextra: { oname: '€'.repeat(40) },
+        oextra: { oname: utf8Text('€'.repeat(40)) },
     });
-    // Forty three-byte glyphs make the full name exceed QBUFSZ's spare
-    // capacity while using fewer JS characters than its 128-byte limit.
+    // Forty three-byte characters make the full name exceed QBUFSZ's spare
+    // capacity.
     const full = donameFresh(chest, state);
-    assert.ok(encodeUtf8ByteString(full).length + 'trapped '.length + 1 > QBUFSZ);
+    assert.ok(textBytes(full).length + 'trapped '.length + 1 > QBUFSZ);
     assert.equal(inventoryDisplay.cinv_doname(chest, state), full);
 });

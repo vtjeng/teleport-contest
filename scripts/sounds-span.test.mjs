@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 
 import {
     INVIS,
@@ -332,11 +333,12 @@ test('append filename builders retain sounds.c exact-size truncation quirk', () 
     assert.equal(base_soundname_to_filename(
         'alert', 'audio/', 17, sff_havedir_append_rest,
     ), 'audio/alert.wav');
+    // A two-byte UTF-8 name needs three bytes with its NUL.
     assert.equal(base_soundname_to_filename(
-        'é', '', 3, sff_base_only,
-    ), 'é');
+        utf8Text('é'), '', 3, sff_base_only,
+    ), utf8Text('é'));
     assert.equal(base_soundname_to_filename(
-        'é', '', 2, sff_base_only,
+        utf8Text('é'), '', 2, sff_base_only,
     ), null);
     assert.equal(base_soundname_to_filename(
         'alert', '', 256, sff_default,

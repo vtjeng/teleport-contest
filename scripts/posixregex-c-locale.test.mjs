@@ -10,6 +10,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { utf8Text } from '../js/hacklib.js';
+
 import {
     regex_compile,
     regex_error_desc,
@@ -66,16 +68,19 @@ const ERRORS = [
 test('regex_match treats each UTF-8 byte as one character', () => {
     for (const [pattern, ...texts] of MATCHES) {
         const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-        for (const [text, expected] of texts)
-            assert.equal(regex_match(text, regex), expected, `${pattern} ${text}`);
+        // Configured patterns and the text they match are UTF-8 bytes.
+        assert.equal(regex_compile(utf8Text(pattern), regex), true, pattern);
+        for (const [text, expected] of texts) {
+            assert.equal(regex_match(utf8Text(text), regex), expected,
+                `${pattern} ${text}`);
+        }
     }
 });
 
 test('regex_compile rejects multibyte range ends and collating elements', () => {
     for (const [pattern, diagnostic] of ERRORS) {
         const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), false, pattern);
+        assert.equal(regex_compile(utf8Text(pattern), regex), false, pattern);
         assert.equal(regex_error_desc(regex), diagnostic, pattern);
     }
 });

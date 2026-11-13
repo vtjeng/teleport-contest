@@ -117,7 +117,7 @@ import { del_engr_at } from './engrave.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
 import {
-    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi,
+    dist2, textBytes, online2, sgn, s_suffix, strncmpi,
     truncateByteString, upstart,
 } from './hacklib.js';
 import { mattacku } from './mhitu.js';
@@ -1248,10 +1248,9 @@ export function append_price_quote(buf, otyp, state = game) {
         buf2 += `${sep}sell ${type.oc_sell_minseen}`;
 
     buf2 += '}';
-    // C shk.c measures both pointers as bytes. A multibyte remembered name
-    // therefore leaves less room than JavaScript's UTF-16 String.length.
-    return encodeUtf8ByteString(buf2).length
-        < BUFSZ - encodeUtf8ByteString(buf).length - 1 ? buf2 : '';
+    // C shk.c measures both pointers as bytes.
+    return textBytes(buf2).length
+        < BUFSZ - textBytes(buf).length - 1 ? buf2 : '';
 }
 
 // C ref: shk.c record_price_quote(). The object catalog owns the four quote
@@ -3481,8 +3480,8 @@ export async function shk_chat(shkp, state = game, env = {}) {
             noitPronoun(shkp, 'he', state, random)} dislikes ${
             eshk.robbed ? 'non-paying' : 'rude'} customers.`, state);
     } else if (eshk.following) {
-        const customer = encodeUtf8ByteString(eshk.customer ?? '').slice(0, PL_NSIZ);
-        const player = encodeUtf8ByteString(state.plname ?? '').slice(0, PL_NSIZ);
+        const customer = textBytes(eshk.customer ?? '').slice(0, PL_NSIZ);
+        const player = textBytes(state.plname ?? '').slice(0, PL_NSIZ);
         const isCustomer = customer.length === player.length
             && customer.every((byte, i) => byte === player[i]);
         if (!isCustomer) {

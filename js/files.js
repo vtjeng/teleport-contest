@@ -4,7 +4,7 @@
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
 import { LFILE_EXISTS } from './const.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces, lcase } from './hacklib.js';
+import { bytesText, textBytes, mungspaces, lcase } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
@@ -218,8 +218,8 @@ export async function read_tribute(
         if (line.startsWith('#') || !foundpassage) continue;
         if (nowin_buf) {
             const maxBytes = Math.max(0, Math.trunc(bufsz) - 1);
-            bufferText = decodeUtf8ByteString(
-                encodeUtf8ByteString(line).slice(0, maxBytes),
+            bufferText = bytesText(
+                textBytes(line).slice(0, maxBytes),
             );
             nowin_buf.value = bufferText;
             break;

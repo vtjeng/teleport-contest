@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 import { pmatchi } from '../js/strutil.js';
 
 // strutil.c:pmatch_internal105-142 and pmatchi152-155 use lowc and the
@@ -18,5 +19,9 @@ test('pmatchi preserves source case-insensitive whole-string wildcard results', 
         ['a\\*', 'a\\bc', true], ['A', 'a', true], ['a', 'aa', false],
         ['?', 'é', false], ['??', 'é', true], ['????', '😀', true],
         ['é', 'É', false], ['a\0ignored', 'A\0tail', true],
-    ]) assert.equal(pmatchi(pattern, text), expected, `${pattern} / ${text}`);
+    ]) {
+        // Typed and configured text reaches pmatchi() as UTF-8 bytes.
+        assert.equal(pmatchi(utf8Text(pattern), utf8Text(text)), expected,
+            `${pattern} / ${text}`);
+    }
 });

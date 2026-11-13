@@ -10,7 +10,8 @@ import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';
 import {
-    encodeUtf8ByteString,
+    textBytes,
+    utf8Text,
 } from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
@@ -134,31 +135,31 @@ test('NHW_MENU text data keeps pre-wrap width and drops the split space', () => 
 test('NHW_MENU text measures, truncates, and splits recorder bytes', () => {
     // These code points occupy two, three, and four UTF-8 bytes. Together
     // they distinguish byte strlen() from JavaScript code-unit length.
-    const short = 'a caf\u00e9 \u20ac \ud83d\ude00';
-    const shortBytes = encodeUtf8ByteString(short);
+    const short = utf8Text('a caf\u00e9 \u20ac \ud83d\ude00');
+    const shortBytes = textBytes(short);
     const shortData = ttyMenuTextData([short], 80);
     assert.equal(shortData.maxcol, shortBytes.length + 1);
-    assert.deepEqual(encodeUtf8ByteString(shortData.lines[0]), shortBytes);
+    assert.deepEqual(textBytes(shortData.lines[0]), shortBytes);
 
     // Thirty-eight two-byte characters place the space at byte 76, before
     // tty_putstr()'s byte-79 search start, and leave a suffix after CO bytes.
-    const long = `${'\u00e9'.repeat(38)} TAIL`;
+    const long = `${utf8Text('\u00e9').repeat(38)} TAIL`;
     const longData = ttyMenuTextData([long], 80);
-    assert.equal(longData.maxcol, encodeUtf8ByteString(long).length + 1);
+    assert.equal(longData.maxcol, textBytes(long).length + 1);
     assert.deepEqual(
-        longData.lines.map((line) => encodeUtf8ByteString(line)),
+        longData.lines.map((line) => textBytes(line)),
         [
-            encodeUtf8ByteString('\u00e9'.repeat(38)),
-            encodeUtf8ByteString('TAIL'),
+            textBytes(utf8Text('\u00e9').repeat(38)),
+            textBytes('TAIL'),
         ],
     );
 
     // The 253-byte ASCII prefix leaves two bytes of a three-byte code point
     // in compress_str()'s 255-byte copy limit. Its full-buffer rule removes
     // the second copied tail byte to reserve NUL, preserving 0xE2 alone.
-    const truncated = `${'A'.repeat(253)}\u20ac`;
+    const truncated = `${'A'.repeat(253)}${utf8Text('\u20ac')}`;
     const truncatedData = ttyMenuTextData([truncated], 80);
-    const retained = encodeUtf8ByteString(truncatedData.lines.join(''));
+    const retained = textBytes(truncatedData.lines.join(''));
     assert.equal(retained.length, 254);
     assert.deepEqual(retained.slice(-2), [0x41, 0xE2]);
 });
@@ -253,7 +254,7 @@ test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     // repair at dismissal. This separates clearsScreen from fullRepair.
     const fullRepairWithoutClear = ttyMenuTextLayout(
         state,
-        [`${'\u00e9'.repeat(38)} TAIL`],
+        [`${utf8Text('\u00e9').repeat(38)} TAIL`],
     );
     assert.equal(fullRepairWithoutClear.clearsScreen, false);
     assert.equal(fullRepairWithoutClear.fullRepair, true);
@@ -298,8 +299,8 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     state._preNhgetchHook = () => {
         const layout = ttyMenuTextLayout(state, [
             'Things that are here:',
-            'a \u00e9X \u20acY \ud83d\ude00Z',
-            '\u00e9X',
+            utf8Text('a \u00e9X \u20acY \ud83d\ude00Z'),
+            utf8Text('\u00e9X'),
         ]);
         boundary = {
             layout,
@@ -318,9 +319,9 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
         'Things that are here:',
         // X, Y, and Z follow two-, three-, and four-byte code points. Their
         // columns pin curx's increment for each recorder byte.
-        'a \u00e9X \u20acY \ud83d\ude00Z',
+        utf8Text('a \u00e9X \u20acY \ud83d\ude00Z'),
         // process_text_window() sends the first byte through g_putch().
-        '\u00e9X',
+        utf8Text('\u00e9X'),
     ]);
 
     const start = boundary.layout.lineColumn;
@@ -483,7 +484,7 @@ test('NHW_MENU text dismisses a pending topline before drawing the window',
 
         await displayTtyMenuTextWindow(state, [
             'Things that are here:',
-            'a caf\u00e9',
+            utf8Text('a caf\u00e9'),
         ]);
 
         assert.equal(boundaries.length, 2);
@@ -540,9 +541,9 @@ test('nonblocking message display retires but does not erase acknowledged toplin
 test('NHW_MENU text restores partial and full byte-window regions', async () => {
     for (const [label, overlay, line] of [
         // A short two-byte name retains the right-side overlay.
-        ['partial', true, 'a caf\u00e9'],
+        ['partial', true, utf8Text('a caf\u00e9')],
         // Disabled overlays clear first and restore the complete display.
-        ['full', false, 'a \u20ac and \ud83d\ude00'],
+        ['full', false, utf8Text('a \u20ac and \ud83d\ude00')],
     ]) {
         const state = menuState(' ');
         state.iflags = { ...state.iflags, menu_overlay: overlay };
@@ -1326,7 +1327,7 @@ test('process_menu_window emits ASCII at recorder-byte columns', () => {
     // columns pin curx's increment for every recorder byte.
     const spec = {
         title: null,
-        lines: [{ text: 'a éX €Y 😀Z', attr: 1 }],
+        lines: [{ text: utf8Text('a éX €Y 😀Z'), attr: 1 }],
     };
 
     const rendered = renderTtyMenu(state, spec);
@@ -1478,24 +1479,24 @@ test('tty_end_menu measures and cuts a stored menu line in bytes', () => {
     // Twenty two-byte characters store 40 bytes, so `len` is 42 and offx is
     // 80 - 42 - 1. Measuring the same line in code units would leave the
     // window at the H2344_BROKEN half-terminal cap of 40 instead.
-    assert.equal(storedLine('é'.repeat(20)).firstColumn, 37);
+    assert.equal(storedLine(utf8Text('é').repeat(20)).firstColumn, 37);
 
     // Thirty-nine of them store exactly cols - 2 == 78 bytes in 39 code
     // units: the longest line that survives whole. `len` then fills the
     // terminal and leaves no column for a right-half overlay.
-    const fits = 'é'.repeat(39);
+    const fits = utf8Text('é').repeat(39);
     const fitsLayout = storedLine(fits);
     assert.equal(fitsLayout.lines[0].text, fits);
     assert.equal(fitsLayout.firstColumn, 0);
 
     // One more of them stores 80 bytes, so the cut at byte 78 falls between
     // characters and drops the fortieth whole.
-    assert.equal(storedLine('é'.repeat(40)).lines[0].text, fits);
+    assert.equal(storedLine(utf8Text('é').repeat(40)).lines[0].text, fits);
 
     // An ASCII lead makes every later character start on an odd byte, so
     // byte 78 falls inside the thirty-ninth and only its lead byte survives.
-    const inside = encodeUtf8ByteString(
-        storedLine(`A${'é'.repeat(40)}`).lines[0].text,
+    const inside = textBytes(
+        storedLine(`A${utf8Text('é').repeat(40)}`).lines[0].text,
     );
     assert.equal(inside.length, cols - 2);
     // 0xC3 0xA9 is e-acute; the kept prefix ends on a lone lead byte.

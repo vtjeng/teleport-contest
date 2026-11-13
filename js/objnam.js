@@ -35,7 +35,7 @@ import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import { count_contents, currency } from './invent.js';
 import {
-    digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, ordin,
+    digit, dist2, textBytes, eos, highc, lowc, mungspaces, ordin,
     s_suffix, strcasecpy, strstri, truncateByteString,
     upstart,
     push_front, lcase, strncmpi,
@@ -170,7 +170,7 @@ const DONAME_BODY_CAPACITY = BUFSZ - PREFIX - 1;
 // at eos-delta and therefore replaces that byte.
 function nameBodySpaceLeft(body, pointerOffset = 0) {
     return Math.max(0, DONAME_BODY_CAPACITY - pointerOffset
-        - encodeUtf8ByteString(body).length);
+        - textBytes(body).length);
 }
 
 export function concatNameBody(body, text, delta = 0, pointerOffset = 0) {
@@ -182,7 +182,7 @@ export function concatNameBody(body, text, delta = 0, pointerOffset = 0) {
 export function concatFormatNameBody(
     body, text, delta = 0, pointerOffset = 0, cachedSpaceLeft = null,
 ) {
-    const bodyLength = encodeUtf8ByteString(body).length;
+    const bodyLength = textBytes(body).length;
     const startLength = Math.max(0, bodyLength - delta);
     const start = truncateByteString(body, startLength);
     // append_price_quote() advances C's bp_eos without updating the cached
@@ -200,8 +200,8 @@ const DONAME_FOR_MENU = 4;
 // C ref: objnam.c xcalled():558–572. JavaScript returns the appended buffer;
 // siz includes the terminating NUL, and only the user-supplied suffix truncates.
 export function xcalled(buf, siz, pfx, sfx) {
-    const bufsiz = siz - 1 - encodeUtf8ByteString(buf).length;
-    const pfxlen = encodeUtf8ByteString(pfx).length + ' called '.length;
+    const bufsiz = siz - 1 - textBytes(buf).length;
+    const pfxlen = textBytes(pfx).length + ' called '.length;
     if (pfxlen > bufsiz)
         throw new RangeError(`xcalled: not enough room for prefix (${pfxlen} > ${bufsiz})`);
     return `${buf}${pfx} called ${truncateByteString(sfx, bufsiz - pfxlen)}`;
@@ -1061,7 +1061,7 @@ export function thesimpleoname(obj, state = game) {
 // The object is not permanently modified.
 export function short_oname(obj, func, altfunc, lenlimit, state = game) {
     let out = func(obj, state);
-    const byteLength = (value) => encodeUtf8ByteString(value).length;
+    const byteLength = (value) => textBytes(value).length;
     if (byteLength(out) <= lenlimit) return out;
 
     // C ref: objnam.c:2023-2063. The fixed local buffers hold eight bytes
@@ -1626,8 +1626,8 @@ export function the(str, state = game) {
                 } else if (namingIndex < 0) {
                     const length = Strlen_(str, 'the', 2220);
                     if (length >= 31) {
-                        const bytes = encodeUtf8ByteString(str).slice(0, length);
-                        const suffix = encodeUtf8ByteString(
+                        const bytes = textBytes(str).slice(0, length);
+                        const suffix = textBytes(
                             'Platinum Yendorian Express Card',
                         );
                         if (bytes.length >= suffix.length
@@ -1835,7 +1835,7 @@ function doname_base(
     case ARMOR_CLASS:
         if (base.startsWith('poisoned ') && obj.opoisoned) {
             base = base.slice('poisoned '.length);
-            bufferOffset += encodeUtf8ByteString('poisoned ').length;
+            bufferOffset += textBytes('poisoned ').length;
             modifiers.push('poisoned');
         }
         modifiers.push(...erosionWords(obj, state, ident.rknown));
@@ -2025,7 +2025,7 @@ function doname_base(
         words = unprefixedWords;
     }
 
-    const byteLength = encodeUtf8ByteString(words).length;
+    const byteLength = textBytes(words).length;
     if (byteLength > BUFSZ - 1)
         throw new RangeError('doname: long object description overflow.');
     const menuOffset = forMenu ? 4 : 0;
@@ -2169,7 +2169,7 @@ export function safe_qbuf(
     const qprefix = prefix == null ? '' : String(prefix);
     const qsuffix = suffix == null ? '' : String(suffix);
     const fallback = String(lastR);
-    const byteLength = (value) => encodeUtf8ByteString(value).length;
+    const byteLength = (value) => textBytes(value).length;
     let result = truncateByteString(qprefix, limit);
 
     if (byteLength(result) + byteLength(fallback) + byteLength(qsuffix)

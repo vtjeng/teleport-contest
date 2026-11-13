@@ -91,8 +91,8 @@ import { alter_cost } from './shk.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
     fuzzymatch,
     mungspaces,
     s_suffix,
@@ -279,12 +279,12 @@ function* oname_steps(obj, name, oflgs, env) {
 
     // C measures and truncates bytes, so a multi-byte name has to be cut on a
     // byte boundary rather than a code-point one, as christen_monst() does.
-    const bytes = encodeUtf8ByteString(String(name));
+    const bytes = textBytes(String(name));
     let lth = bytes.length ? bytes.length + 1 : 0;
     let text = String(name);
     if (lth > PL_PSIZ) {
         lth = PL_PSIZ;
-        text = decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1));
+        text = bytesText(bytes.slice(0, PL_PSIZ - 1));
     }
     /* If named artifact exists in the game, do not create another.
        Also trying to create an artifact shouldn't de-artifact
@@ -337,10 +337,10 @@ function* oname_steps(obj, name, oflgs, env) {
 export function christen_monst(monster, name, env = {}) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('christen_monst requires a monster instance');
-    const bytes = encodeUtf8ByteString(String(name ?? ''));
+    const bytes = textBytes(String(name ?? ''));
     const lth = bytes.length ? bytes.length + 1 : 0;
     const clipped = lth > PL_PSIZ
-        ? decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1))
+        ? bytesText(bytes.slice(0, PL_PSIZ - 1))
         : String(name ?? '');
     new_mgivenname(monster, lth > PL_PSIZ ? PL_PSIZ : lth);
     if (lth) {
@@ -399,13 +399,13 @@ export function rndorcname(random = coreRandom) {
 // is capitalized and optionally followed by the invading gang name.
 export function christen_orc(monster, gang, other, env = {}) {
     const orcname = rndorcname(env.random ?? coreRandom);
-    let size = encodeUtf8ByteString(orcname).length;
+    let size = textBytes(orcname).length;
     // C tests pointers for presence, so an empty gang or suffix still names
     // the monster and takes the corresponding branch.
     if (gang !== null && gang !== undefined)
-        size += encodeUtf8ByteString(String(gang)).length + ' of '.length;
+        size += textBytes(String(gang)).length + ' of '.length;
     else if (other !== null && other !== undefined)
-        size += encodeUtf8ByteString(String(other)).length;
+        size += textBytes(String(other)).length;
 
     if (size < BUFSZ) {
         let name;
@@ -766,9 +766,9 @@ export async function name_from_player(prompt, defres, state = game) {
 
     /* strip leading and trailing spaces, condense internal sequences */
     outbuf = mungspaces(outbuf);
-    const bytes = encodeUtf8ByteString(outbuf);
+    const bytes = textBytes(outbuf);
     if (bytes.length >= PL_PSIZ)
-        outbuf = decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1));
+        outbuf = bytesText(bytes.slice(0, PL_PSIZ - 1));
     return outbuf;
 }
 

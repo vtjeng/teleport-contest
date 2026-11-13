@@ -5,7 +5,7 @@
 // it proves that the parser and the displayed value share flags.end_disclose.
 
 import { game } from '../js/gstate.js';
-import { decodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosetMenuItems, parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -61,7 +61,7 @@ export const STARTUP_DISCLOSE_CASES = Object.freeze([
         // The first line reports the invalid byte; each repeated CompOpt also
         // reports its duplicate before reaching the same invalid byte.
         errors: 16,
-        invalidByte: decodeUtf8ByteString([0xC3]),
+        invalidByte: bytesText([0xC3]),
     }),
 ]);
 

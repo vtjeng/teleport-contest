@@ -27,8 +27,8 @@ import {
 import { docorner, flush_screen } from './display.js';
 import { game } from './gstate.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
     mungspaces,
     visctrl,
 } from './hacklib.js';
@@ -118,7 +118,7 @@ function putbytes(buf, from, state) {
 //
 // `buf` holds obufp's bytes up to its terminator and `pos` holds
 // bufp - obufp.  pgetchar() delivers one byte per read, each stored as C
-// stores it; the returned string is decodeUtf8ByteString() of those bytes,
+// stores it; the returned string is bytesText() of those bytes,
 // the port's form of a C byte string, in which a byte that is not part of a
 // UTF-8 sequence, such as a lone 0xE9, keeps its value.  NEWAUTOCOMP's
 // painting needs both, because the hook rewrites the whole buffer while
@@ -148,7 +148,7 @@ async function hooked_tty_getlin(query, hook, state) {
     let buf = [];
     let pos = 0;
     let doprev = false;
-    const text = () => decodeUtf8ByteString(buf);
+    const text = () => bytesText(buf);
     let cancelled = false;
     try {
         // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
@@ -250,7 +250,7 @@ async function hooked_tty_getlin(query, hook, state) {
                 ++pos;
                 const expansion = hook ? hook(text()) : null;
                 if (expansion !== null) {
-                    buf = encodeUtf8ByteString(expansion);
+                    buf = textBytes(expansion);
                     putbytes(buf, pos, state);
                     // Pointer and cursor left where they were.
                     for (let i = pos; i < buf.length; ++i)
@@ -340,8 +340,8 @@ export async function tty_get_ext_cmd(state = game) {
     if (matches.length !== 1) {
         await ttyPline(
             // "%s%.60s" keeps at most 60 bytes of the typed text.
-            `${visctrl(extcmdChar)}${decodeUtf8ByteString(
-                encodeUtf8ByteString(buf).slice(0, 60))}`
+            `${visctrl(extcmdChar)}${bytesText(
+                textBytes(buf).slice(0, 60))}`
             + ': unknown extended command.',
             state,
         );

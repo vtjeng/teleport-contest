@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { utf8Text } from '../js/hacklib.js';
+
 import {
     ARROW_TRAP,
     BEAR_TRAP,
@@ -704,7 +706,8 @@ test('room floor retains every dot ambiguity before lookat refinement', () => {
     // and S_ice, in defsym.h order.
     assert.deepEqual(terrainDescription(S_room), {
         found: 1,
-        out: '·        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)',
+        // `out` holds the display glyph as its UTF-8 bytes.
+        out: utf8Text('·        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)'),
         firstmatch: 'floor of a room',
     });
 });
@@ -725,7 +728,7 @@ test('looked descriptions compare the raw tty byte behind DEC graphics', () => {
         : undefined);
     assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
         found: 1,
-        out: '│        the interior of a monster or a wall (wall)',
+        out: utf8Text('│        the interior of a monster or a wall (wall)'),
         firstmatch: 'wall',
     });
 });
@@ -828,7 +831,7 @@ test('lookat refines shared sink/fountain symbols and ordinary cmap defaults', (
 });
 
 test('doorway refinement distinguishes broken and trapped-broken masks', () => {
-    const prefix = '·        a doorway or the floor of a room or the dark part of a room or ice';
+    const prefix = utf8Text('·        a doorway or the floor of a room or the dark part of a room or ice');
     assert.deepEqual(terrainDescription(S_ndoor), {
         found: 1,
         out: `${prefix} (doorway)`,

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 
 import * as pager from '../js/pager.js';
 import {
@@ -683,6 +684,6 @@ test('the whole extended list retains source flag formatting and pass separators
     assert(discovery.some(row => row.text.includes('become extinct')));
     const long = extendedCommandListLines(state, { searchbuf: '*'.repeat(200) }).map(row => row.text);
     assert(long.includes('s - Switch back from search')); // QBUFSZ guard omits the long phrase
-    const multibyte = extendedCommandListLines(state, { searchbuf: 'é'.repeat(60) }).map(row => row.text);
+    const multibyte = extendedCommandListLines(state, { searchbuf: utf8Text('é'.repeat(60)) }).map(row => row.text);
     assert(multibyte.includes('s - Switch back from search')); // C strlen counts 120 UTF-8 bytes
 });

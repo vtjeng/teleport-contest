@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes } from '../js/hacklib.js';
 import {
     regex_compile,
     regex_error_desc,
@@ -205,7 +205,7 @@ async function checkVplineOracle(executable) {
             game.nhDisplay.pushKey(' '.charCodeAt(0));
         await ttyPline(input, game);
         assert.deepEqual(
-            encodeUtf8ByteString(game._ttyPreviousMessage),
+            textBytes(game._ttyPreviousMessage),
             Array.from(runBuffer(executable, [input])),
             String(input.length),
         );

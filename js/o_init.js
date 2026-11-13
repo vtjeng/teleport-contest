@@ -5,7 +5,7 @@ import { disp_artifact_discoveries, dump_artifact_info, NROFARTIFACTS } from './
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
-    encodeUtf8ByteString, strncmpi, strstri, strsubst, truncateByteString, lcase,
+    textBytes, strncmpi, strstri, strsubst, truncateByteString, lcase,
 } from './hacklib.js';
 import {
     _getobjInternals, let_to_name,
@@ -822,10 +822,10 @@ export function disco_typename(otyp, state) {
 // suffix when one is present.
 function disco_append_typename(buf, dis, state) {
     const typnm = disco_typename(dis, state);
-    const len = encodeUtf8ByteString(buf).length;
+    const len = textBytes(buf).length;
     let out;
 
-    if (len + encodeUtf8ByteString(typnm).length < BUFSZ) {
+    if (len + textBytes(typnm).length < BUFSZ) {
         out = buf + typnm;
     } else {
         const paren = typnm.lastIndexOf('(');
@@ -833,7 +833,7 @@ function disco_append_typename(buf, dis, state) {
             && typnm.indexOf(')', paren) >= 0) {
             // Truncate the user-applied name and keep " (actual type)".
             const tail = typnm.slice(paren - 1);
-            const room = BUFSZ - 1 - (len + encodeUtf8ByteString(tail).length);
+            const room = BUFSZ - 1 - (len + textBytes(tail).length);
             out = buf + truncateByteString(typnm, Math.max(0, room)) + tail;
         } else {
             out = buf + truncateByteString(typnm, Math.max(0, BUFSZ - 1 - len));

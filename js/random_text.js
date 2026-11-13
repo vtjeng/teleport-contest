@@ -19,7 +19,7 @@ import {
 import { exercise_nonphysical } from './attrib.js';
 import { bogon_is_pname } from './do_name.js';
 import { game } from './gstate.js';
-import { decodeUtf8ByteString, lowc, xcrypt } from './hacklib.js';
+import { bytesText, lowc, xcrypt } from './hacklib.js';
 import { G_UNIQ, LOW_PM, NUMMONS } from './monsters.js';
 import { the_unique_pm } from './objnam.js';
 import { verbalize } from './pline.js';
@@ -50,7 +50,7 @@ function readByteLine(data, position, bufferSize = BUFSZ) {
 }
 
 function decodeByteString(bytes) {
-    return decodeUtf8ByteString(
+    return bytesText(
         Array.from(bytes, (character) => character.charCodeAt(0)),
     );
 }

@@ -12,6 +12,7 @@ import {timeout_globals_init} from '../js/timeout.js';
 import {light_globals_init} from '../js/light.js';
 import {initRng,enableRngLog,getRngLog} from '../js/rng.js';
 import {str2align,str2gend,str2race,str2role} from '../js/roles.js';
+import {utf8Text} from '../js/hacklib.js';
 const root=new URL('./test-fixtures/recovery-c-string-consumers/',import.meta.url);
 const proof=JSON.parse(readFileSync(new URL('provenance.json',root)));
 const messages=JSON.parse(readFileSync(new URL('messages.json',root)));
@@ -43,13 +44,15 @@ for(const row of engravings)test(`C engraving prefix ${row.kind}: ${row.form}/${
     await withDescriptor(des=>{
         des.level_init({style:'solidfill',fg:'.',lit:0});
         assert.ok(!game.head_engr);const before=getRngLog().length;
-        if(row.form)des.engraving([2,2],'engrave',row.text);
-        else des.engraving({x:2,y:2,type:'engrave',text:row.text});
+        // A level program's string is the UTF-8 bytes of its .lua file.
+        const text=utf8Text(row.text);
+        if(row.form)des.engraving([2,2],'engrave',text);
+        else des.engraving({x:2,y:2,type:'engrave',text});
         const e=game.head_engr;assert.ok(e&&!e.nxt_engr);
         assert.equal(getRngLog().length,before);
         assert.deepEqual({x:e.engr_x,y:e.engr_y,type:e.engr_type,time:e.engr_time,size:e.engr_szeach,
             allocation:e.engr_alloc,guardobjects:Number(e.guardobjects),nowipeout:Number(e.nowipeout),
-            textHex:e.engr_txt.map(t=>Buffer.from(t).toString('hex'))},row.expected);
+            textHex:e.engr_txt.map(t=>Buffer.from(t,'latin1').toString('hex'))},row.expected);
     });
 });
 for(const row of maps)test(`native C table-map prefix ${row.kind}: ${row.name}`,async()=>{

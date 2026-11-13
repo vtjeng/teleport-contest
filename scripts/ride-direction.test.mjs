@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 
 import {
     cmdq_clear,
@@ -568,10 +569,10 @@ test('yn_function truncates a query of QBUFSZ bytes or more', async () => {
     // One byte short, the query is shown whole.
     assert.equal(await shown('x'.repeat(QBUFSZ - 1)),
         `${'x'.repeat(QBUFSZ - 1)} `);
-    // strlen() counts bytes: 64 two-byte characters are 128 bytes though
-    // only 64 UTF-16 units, and 124 bytes keep 62 of them.
-    assert.equal(await shown('\u00e9'.repeat(64)),
-        `${'\u00e9'.repeat(62)}... `);
+    // strlen() counts bytes: 64 two-byte characters are 128 bytes, and 124
+    // bytes keep 62 of them.
+    assert.equal(await shown(utf8Text('\u00e9'.repeat(64))),
+        `${utf8Text('\u00e9'.repeat(62))}... `);
 });
 
 test('tty_yn_function parses counts and preserves case when the response requests it',

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { utf8Text } from '../js/hacklib.js';
+
 import { LAST_PROP, NORMAL_SPEED, STAIRS, STONE } from '../js/const.js';
 import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -346,7 +348,7 @@ test('high-bit top-line bytes stay nonbreaking until recorder projection', async
     // high-bit byte as a space while choosing a wrap point, so seven following
     // bytes remain on row zero. Recorder patch 006 leaves the two high-bit
     // cells blank only when the raw bytes reach the shadow grid.
-    const message = `${'a'.repeat(70)}é${'B'.repeat(12)}`;
+    const message = `${'a'.repeat(70)}${utf8Text('é')}${'B'.repeat(12)}`;
 
     await ttyPline(message, state);
 
@@ -377,7 +379,7 @@ test('short high-bit messages never write internal markers to the screen', async
             cell.column, 0, cell.ch, cell.color, cell.attr,
         );
     }
-    await ttyPline('AéB', state);
+    await ttyPline(utf8Text('AéB'), state);
 
     await flush_screen(1);
 
@@ -423,7 +425,7 @@ test('recorder-ignored top-line bytes preserve prior physical cells', async () =
     // More prompt, so redotoplin()'s cl_end() must erase this stale cell.
     state.nhDisplay.setCell(20, 0, 'T', 5, 2);
     const boundaries = captureBoundaries(state, 1);
-    await ttyPline('AéB', state);
+    await ttyPline(utf8Text('AéB'), state);
 
     await dismissPendingTtyMessage(state);
 

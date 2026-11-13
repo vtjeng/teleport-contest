@@ -13,7 +13,7 @@ import {
 } from '../js/cfgfiles.js';
 import { ECMD_OK } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 
 test('get_default_configfile returns the compiled UNIX basename', () => {
     // cfgfiles.c:126-139 selects .nethackrc for the recorder's UNIX build.
@@ -32,9 +32,9 @@ test('set_configfile_name stores a BUFSZ-1-byte path', () => {
 
     // C copies UTF-8 bytes, so a cut inside a two-byte character keeps the
     // first byte rather than silently rounding to a JavaScript character.
-    const utf8Name = 'é'.repeat(200);
+    const utf8Name = utf8Text('é'.repeat(200));
     set_configfile_name(utf8Name, state);
-    assert.equal(encodeUtf8ByteString(state.configfile).length, 255);
+    assert.equal(textBytes(state.configfile).length, 255);
 });
 
 test('do_write_config_file reports a missing configuration name', async () => {

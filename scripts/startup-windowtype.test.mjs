@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, textBytes, utf8Text } from '../js/hacklib.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     optionValue,
@@ -59,16 +59,16 @@ test('window type copies at most WINTYPELEN minus one source bytes', () => {
 
 test('window type truncation preserves an orphan UTF-8 boundary byte', () => {
     const value = '0123456789abcdé-tail';
-    const truncated = `0123456789abcd${String.fromCharCode(0xDCC3)}`;
+    const truncated = `0123456789abcd${bytesText([0xC3])}`;
     const line = `OPTIONS=windowtype:${value}`;
     const parsed = parseNethackrc(`${line}\n`);
     assert.deepEqual(
-        encodeUtf8ByteString(chosenWindowtype(parsed)),
+        textBytes(chosenWindowtype(parsed)),
         [...Buffer.from('0123456789abcd'), 0xC3],
     );
     assert.equal(chosenWindowtype(parsed), truncated);
     assert.deepEqual(parsed.configErrorFrame.output, [
-        `\n${line}`,
+        utf8Text(`\n${line}`),
         ` * Line 1: Window type ${truncated} not recognized.  The only`
             + ' choice is: tty.',
     ]);

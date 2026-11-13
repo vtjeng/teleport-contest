@@ -5,7 +5,7 @@
 
 import { game } from './gstate.js';
 import {
-    encodeUtf8ByteString,
+    textBytes,
     trimspaces,
     truncateByteString,
 } from './hacklib.js';
@@ -318,7 +318,7 @@ export function config_error_done(frame, state = game) {
 export function get_uchars(
     bufp, list, modlist, size, name, syntaxError,
 ) {
-    const bytes = encodeUtf8ByteString(String(bufp ?? ''));
+    const bytes = textBytes(String(bufp ?? ''));
     let num = 0;
     let count = 0;
     let havenum = false;
