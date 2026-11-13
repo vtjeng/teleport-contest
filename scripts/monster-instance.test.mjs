@@ -3,13 +3,17 @@ import test from 'node:test';
 
 import { COLNO, MON_FLOOR, ROWNO } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     m_at,
     newMonster,
     place_monster,
+    place_monster_async,
     relocate_monster,
     remove_monster,
 } from '../js/monst.js';
+import { NON_PM, PM_NEWT } from '../js/monsters.js';
 
 function levelState() {
     return { level: new GameMap() };
@@ -62,22 +66,57 @@ test('place_monster owns the coordinate index and remove_monster clears it', () 
     assert.deepEqual([monster.mx, monster.my, monster.mstate], [10, 5, 0]);
 });
 
-test('place_monster fails closed for invalid, dead, and occupied placement', () => {
-    const state = levelState();
-    assert.throws(
-        () => place_monster(newMonster({ mhp: 1 }), 0, 5, state),
-        /off-map/u,
-    );
-    assert.throws(
-        () => place_monster(newMonster(), 10, 5, state),
-        /dead monster/u,
-    );
+test('place_monster reports bad placements as steed.c does and goes on', async () => {
+    // A real game supplies minimal_monnam()'s species names and
+    // describe_level()'s "Dlvl:1 " (botl.c's %-2d leaves the space before
+    // the question mark).
+    await runSegment({
+        seed: 6102231,
+        datetime: '20300610120000',
+        nethackrc: 'OPTIONS=name:Placer,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '',
+    });
+    const lines = [];
+    const capture = async (text) => { lines.push(text); };
+    const env = { message: capture, urgentMessage: capture };
+    const newt = (fields = {}) => newMonster({
+        data: game.mons[PM_NEWT], mhp: 1, cham: NON_PM, ...fields,
+    });
+    // <40,10> and <41,10> are two arbitrary squares inside the 80x21 map,
+    // away from column 0 and row 0; neither needs to be a room square.
+    const first = newt();
+    await place_monster_async(first, 40, 10, game, env);
+    assert.deepEqual(lines, []);
 
-    place_monster(newMonster({ mhp: 1 }), 10, 5, state);
-    assert.throws(
-        () => place_monster(newMonster({ mhp: 1 }), 10, 5, state),
-        /occupied/u,
-    );
+    // steed.c:921-927: an occupied square is reported, then overwritten.
+    const second = newt();
+    await place_monster_async(second, 40, 10, game, env);
+    assert.equal(lines[0], 'placing newt <0,0> over newt <40,10> at <40,10>,'
+        + ' mstates:0 0 on Dlvl:1 ?');
+    assert.equal(lines[1], 'Program in disorder!  (Saving and reloading may fix this problem.)');
+    assert.equal(m_at(40, 10, game), second);
+    assert.deepEqual([first.mx, first.my], [40, 10]);
+
+    // steed.c:906-912: off the map (column 90 is past COLNO 80), the
+    // monster goes to <0,0>.
+    lines.length = 0;
+    const third = newt();
+    await place_monster_async(third, 90, 5, game, env);
+    assert.equal(lines[0], 'trying to place newt <0,0> at <90,5> mstate:0 on Dlvl:1 ');
+    assert.deepEqual([third.mx, third.my], [0, 0]);
+
+    // steed.c:913-920: a dead monster (mhp 0) is not placed.
+    lines.length = 0;
+    const dead = newt({ mhp: 0 });
+    await place_monster_async(dead, 41, 10, game, env);
+    assert.equal(lines[0], 'placing defunct monster onto map, mstate:0, on Dlvl:1 ?');
+    assert.equal(m_at(41, 10, game), null);
+
+    // The synchronous form records the unprinted report and still places.
+    const fourth = newt();
+    assert.equal(place_monster(fourth, 40, 10, game), fourth);
+    assert.equal(m_at(40, 10, game), fourth);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 test('place_monster retains the source vault-guard parking exception', () => {

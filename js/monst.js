@@ -139,11 +139,13 @@ function* place_monster_steps(mon, x, y, state) {
 }
 
 // place_monster() for a caller that cannot wait: gap_impossible() records
-// each report as unported and the placement goes on as in C.
+// each report as unported and the placement goes on as in C. C returns
+// nothing; the port returns the monster for its callers' convenience.
 export function place_monster(monster, x, y, state = game) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('place_monster requires a monster instance');
     finish_steps(place_monster_steps(monster, x, y, state));
+    return monster;
 }
 
 // place_monster() for a caller that can wait, which awaits the result: it
