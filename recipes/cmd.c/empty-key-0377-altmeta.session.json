@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 284417,
+      "datetime": "20290918063000",
+      "nethackrc": "OPTIONS=name:Altff,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,altmeta\n",
+      "moves": "\u001bÿs\u001b\u001bÿs\u001b\u0080\u001bss_\u001bÿs"
+    }
+  ],
+  "comment": "cmd.c readchar_core() and rhack():3659-3671 witness under altmeta. After ESC, readchar_core() reads the next byte through pgetchar(), whose (char) result is EOF for 0377, so ESC 0377 becomes ESC: in parse() it takes rhack()'s ESC arm, and at the travel prompt it cancels getpos(). ESC ESC stays ESC, and a plain 0377 is the empty command, which rhack() answers with nhbell() and reset_cmd_vars(). ESC 0200 becomes the unbound M-^@ and ESC s becomes M-s, #sit."
+}

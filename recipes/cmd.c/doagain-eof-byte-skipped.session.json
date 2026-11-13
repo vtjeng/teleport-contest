@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 590263,
+      "datetime": "20330621200500",
+      "nethackrc": "OPTIONS=name:Redo,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "_ll.\u0001ÿÿhh.s"
+    }
+  ],
+  "comment": "cmd.c readchar_core() witness for EOF while repeating. #repeat (^A) replays the travel command with gi.in_doagain set, so getpos() reads its keys through pgetchar(), whose (char) result is EOF for 0377. NR_OF_EOFS is 20 in this SYSV build, so readchar_core() discards each 0377 and keeps the first other byte: the two 0377 bytes leave the cursor where it was and 'h' moves it."
+}
