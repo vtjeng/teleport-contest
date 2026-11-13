@@ -1959,7 +1959,7 @@ async function tower1(des, state) {
     });
 
     // Protect the tower against outside attacks
-    await des.non_diggable();
+    await des.non_diggable(selection_area(0, 0, 14, 10));
 }
 
 // C ref: dat/tower2.lua. Middle stage of Vlad's Tower: a ten-niche map with

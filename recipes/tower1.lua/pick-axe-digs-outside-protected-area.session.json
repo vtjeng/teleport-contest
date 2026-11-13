@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dat/tower1.lua's last statement, des.non_diggable(selection.area(00,00,14,10)), protects only the tower's map area; the stone tower1.lua's solidfill lays everywhere else stays diggable. A dwarvish Archeologist in debug mode runs #wizloadlua tower1 on Dlvl 1, far west of the tower, and applies her pick-axe to the stone beside her, which dig.c dig_check() lets her dig. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20520311172000",
+      "nethackrc": "OPTIONS=name:Delver,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b#wizloadlua\ntower1\n\u001b\u001bae  h\u001b s\u001b"
+    }
+  ]
+}
