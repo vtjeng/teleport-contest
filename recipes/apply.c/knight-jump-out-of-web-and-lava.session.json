@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c jump(), leaving a web and lava (lines 2093-2109 for the lava case): a Knight in debug mode steps off the stairs, wishes for a web under himself, steps away and back into it, and #jumps a knight's move out of it, tearing the web; he then puts on a wished-for ring of fire resistance, wishes for lava under himself (he sinks in but is only slightly burned) and #jumps again, which pulls him above the lava in place. Sunk in again, he zaps a wished-for wand of cold downward, which freezes the lava around his legs, and #jumps once more, which only strains his legs (the TT_INFLOOR case). Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6904418,
+      "datetime": "20410309130500",
+      "nethackrc": "OPTIONS=name:Leaper,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001bn#wizwish\nweb\n\u001b\u001blh\u001b\u001b#jump\n\u001b\u001bllj.\u001b\u001b#wizwish\nring of fire resistance\n\u001b\u001bPir\u001b\u001b#wizwish\nlava\n\u001b\u001b#jump\nhhk.\u001b\u001b#wizwish\nwand of cold\n\u001b\u001bzj>\u001b\u001b#jump\nhhk.\u001b\u001b"
+    }
+  ]
+}

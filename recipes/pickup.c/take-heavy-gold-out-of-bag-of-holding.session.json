@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c carry_count(), the gold branch that adjusts for a carried container (lines 1610-1631): a dwarvish Valkyrie in debug mode wishes for a blessed bag of holding and twelve times for 30000 gold pieces, stashing each lot in the bag, where it weighs a quarter as much; she then takes all 360000 pieces out. Lifting them all would exceed her maximum capacity, so carry_count() steps the quantity up in hundreds, crediting the weight the bag loses, and she takes out only part of the gold. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1730458,
+      "datetime": "20371204094500",
+      "nethackrc": "OPTIONS=name:Midas,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nblessed bag of holding\n\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001b#wizwish\n30000 gold pieces\n\u001b\u001baes$\u001b\u001baeob\n$\n\u001b\u001b\u001b"
+    }
+  ]
+}
