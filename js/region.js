@@ -75,7 +75,7 @@ const REGION_OPERATIONS = {
     unblockPoint: (x, y, state) => unblock_point(x, y, state),
     doesBlock: (x, y, location, state) => does_block(x, y, location, state),
     canSee: (x, y, state) => cansee(x, y, state),
-    newsym: (x, y) => newsym(x, y),
+    newsym,
     message: (text, state) => ttyPline(text, state),
     safeTeleds: async (flags, state, env) => {
         const { safe_teleds } = await import('./teleport.js');

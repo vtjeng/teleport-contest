@@ -1010,7 +1010,7 @@ export async function scatter(
             y,
             { ...lifecycle, ...operationEnv, message },
         ));
-    const redraw = ops.newsym ?? ((x, y) => newsym(x, y));
+    const redraw = ops.newsym ?? newsym;
     const reveal = ops.maybeUnhideAt
         ?? ((x, y) => maybe_unhide_at(x, y, state, env));
 

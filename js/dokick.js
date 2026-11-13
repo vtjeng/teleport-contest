@@ -268,7 +268,7 @@ function kickEnvironment(state) {
         pline: ttyPline,
         nearCapacity: near_capacity,
         encumberMessage: encumber_msg,
-        redraw: (x, y) => newsym(x, y),
+        redraw: newsym,
         mInAir: m_in_air,
         heroDeaf: (hookState) => Deaf(hookState.u),
         youHear: (line, targetState) => youHear(line, targetState),
@@ -607,7 +607,7 @@ export async function kick_object(x, y, kickName, state = game, rawEnv = {}) {
 export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? ((px, py) => newsym(px, py, state));
+    const redraw = rawEnv.redraw ?? newsym;
     const env = objectGenerationEnv({ ...rawEnv, state, random, message, redraw });
     const u = state.u;
     const object = () => state.gk.kickedobj;

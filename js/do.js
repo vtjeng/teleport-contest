@@ -2818,7 +2818,7 @@ export async function goto_level(
                 await u_on_rndspot(0, state);
             }
         } else {
-            seetrap(ttrap, { redraw: (x, y) => newsym(x, y, state) });
+            seetrap(ttrap, { redraw: newsym });
             await u_on_newpos(ttrap.tx, ttrap.ty, state);
         }
     // do.c:1802-1810 places the hero at a random spot after a fall or a

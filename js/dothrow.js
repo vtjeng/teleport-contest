@@ -658,7 +658,7 @@ function mhurtleTrapEnvironment(rawEnv, state) {
         youHear: rawEnv.youHear ?? youHear,
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
-        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
+        redraw: rawEnv.redraw ?? newsym,
     };
 }
 

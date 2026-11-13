@@ -428,7 +428,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
                 message,
                 redrawSquare: rawEnv.redrawSquare
                     ?? rawEnv.redraw
-                    ?? ((x, y) => newsym(x, y)),
+                    ?? newsym,
             });
         }
     } else if (Protection_from_shape_changers(state.u)
@@ -440,7 +440,7 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
             message,
             redrawSquare: rawEnv.redrawSquare
                 ?? rawEnv.redraw
-                ?? ((x, y) => newsym(x, y)),
+                ?? newsym,
         });
     }
 

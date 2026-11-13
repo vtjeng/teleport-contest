@@ -160,7 +160,7 @@ export async function nemesis_stinks(mx, my, state = game, ops = {}) {
             blockPoint: ops.blockPoint
                 ?? ((x, y) => block_point(x, y, state)),
             canSee: ops.canSee ?? ((x, y) => cansee(x, y, state)),
-            newsym: ops.newsym ?? ((x, y) => newsym(x, y)),
+            newsym: ops.newsym ?? newsym,
             message: ops.message ?? ((text) => ttyPline(text, state)),
         });
     } finally {

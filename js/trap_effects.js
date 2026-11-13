@@ -439,7 +439,7 @@ function heroTrapEnv(state, rawEnv = {}) {
         random: rawEnv.random ?? coreRandom,
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),
-        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
+        redraw: rawEnv.redraw ?? newsym,
     };
 }
 
@@ -2565,7 +2565,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     };
     const message = env.message ?? ((line, target) =>
         ttyPline(line, target ?? state));
-    const redraw = env.redraw ?? ((x, y) => newsym(x, y, state));
+    const redraw = env.redraw ?? newsym;
     const delayOutput = env.delayOutput ?? nh_delay_output;
     const temporaryDisplay = env.temporaryDisplay ?? tmp_at;
     const cursorOnHero = env.cursorOnHero ?? curs_on_u;
@@ -3540,7 +3540,7 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
             // newsym() replacement.
             scatterOps: {
                 newsym: env.newsym ?? env.redraw
-                    ?? ((rx, ry) => newsym(rx, ry, state)),
+                    ?? newsym,
             },
         },
     );
@@ -3597,7 +3597,7 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
                 remaining.madeby_u = false;
                 seetrap(remaining, {
                     ...env,
-                    redraw: env.redraw ?? ((rx, ry) => newsym(rx, ry, state)),
+                    redraw: env.redraw ?? newsym,
                 });
             }
         }

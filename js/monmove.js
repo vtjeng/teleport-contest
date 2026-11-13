@@ -2473,7 +2473,7 @@ export async function dochug(monster, rawEnv = {}) {
             // only after a successful relocation, in the same order as C.
             const relocation = await relocateRandomMonster(monster, RLOC_MSG, {
                 ...env,
-                newsym: rawEnv.newsym ?? ((x, y) => newsym(x, y)),
+                newsym: rawEnv.newsym ?? newsym,
                 onscary: rawEnv.onscary
                     ?? ((x, y, subject, relocationEnv) => onscary(
                         x,

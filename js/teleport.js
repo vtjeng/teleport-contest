@@ -2510,7 +2510,7 @@ export async function rloco(obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const env = objectGenerationEnv({ ...rawEnv, state, random });
-    const redraw = rawEnv.redraw ?? ((x, y) => newsym(x, y, state));
+    const redraw = rawEnv.redraw ?? newsym;
 
     if (obj.otyp === CORPSE && is_rider(state.mons?.[obj.corpsenm])) {
         const { revive_corpse } = await import('./do.js');

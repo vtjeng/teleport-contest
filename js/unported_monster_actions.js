@@ -710,7 +710,7 @@ function createMonsterGasCloud(x, y, size, damage, effectEnv) {
         blockPoint: (cloudX, cloudY) =>
             block_point(cloudX, cloudY, state),
         canSee: (cloudX, cloudY) => cansee(cloudX, cloudY, state),
-        newsym: (cloudX, cloudY) => newsym(cloudX, cloudY),
+        newsym,
         message: effectEnv.message ?? ((text, target) => ttyPline(text, target)),
     });
 }

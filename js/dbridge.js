@@ -311,7 +311,7 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
         ...env,
         state,
         redraw: env.redraw
-            ?? ((redrawX, redrawY) => newsym(redrawX, redrawY, state)),
+            ?? newsym,
     });
     if (on_level(state.u.uz, state.stronghold_level)) {
         state.u.uevent ??= {};

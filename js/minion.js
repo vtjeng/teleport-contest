@@ -163,7 +163,7 @@ function transientLightEnv(state) {
     return {
         visionRecalc: (control) => vision_recalc_async(control, {
             state,
-            redraw: (x, y) => newsym(x, y, state),
+            redraw: newsym,
         }),
         flushScreen: (mode) => flush_screen(mode),
         canSeeMonster: (monster) => canseemon(monster, state),

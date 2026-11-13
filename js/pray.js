@@ -1466,7 +1466,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
             doesBlock: (x, y, location) => does_block(x, y, location, state),
             unblockPoint: (x, y) => unblock_point(x, y, state),
             canSee: (x, y) => cansee(x, y, state),
-            newsym: (x, y) => newsym(x, y),
+            newsym,
             random: coreRandom,
         });
         break;

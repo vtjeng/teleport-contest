@@ -1625,7 +1625,7 @@ function cameraTransientLightEnv(state) {
     return {
         visionRecalc: (control) => vision_recalc_async(control, {
             state,
-            redraw: (x, y) => newsym(x, y, state),
+            redraw: newsym,
         }),
         flushScreen: (mode) => flush_screen(mode),
         canSpotMonster: (monster) => canspotmon(monster, state),
@@ -2045,7 +2045,7 @@ export async function set_trap(state = game, env = {}) {
         trap.madeby_u = true;
         feeltrap(trap, {
             state,
-            redraw: (x, y) => newsym(x, y, state),
+            redraw: newsym,
         });
         if (in_rooms(state.u.ux, state.u.uy, SHOPBASE, state).length)
             add_damage(state.u.ux, state.u.uy, 0, state);
@@ -4219,7 +4219,7 @@ export async function use_mirror(obj, state = game, env = {}) {
                 ...env,
                 state,
                 random,
-                newsym: (x, y) => newsym(x, y, state),
+                newsym,
                 onscary: (x, y, mon) => onscary(x, y, mon, state),
                 setApparxy: set_apparxy,
             });
@@ -4503,7 +4503,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
                     state,
                     random,
                     message,
-                    redraw: (x, y) => newsym(x, y),
+                    redraw: newsym,
                     mInAir: subject => m_in_air(subject, state),
                     heroDeaf: () => Deaf(state.u),
                     youHear,

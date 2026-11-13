@@ -2585,7 +2585,7 @@ function normalizedDistressEnv(rawEnv = {}) {
         ?? ((monster) => canspotmon(monster, state));
     const message = rawEnv.message ?? ttyPline;
     const redrawSquare = rawEnv.redrawSquare
-        ?? (state === game ? (x, y) => newsym(x, y) : null);
+        ?? (state === game ? newsym : null);
     if (typeof seeMonster !== 'function'
         || typeof spotMonster !== 'function'
         || typeof message !== 'function') {
@@ -4097,7 +4097,7 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
     const mcham = Number(mon.cham);
     const redrawSquare = rawEnv.redrawSquare
         ?? rawEnv.redraw
-        ?? ((x, y) => newsym(x, y, state));
+        ?? newsym;
     const finishMimic = () => {
         if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
             if (!mon.meating) {

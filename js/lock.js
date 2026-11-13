@@ -1464,11 +1464,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                 }
             }
             if (state.vision_full_recalc)
-                await vision_recalc_async(0, {
-                    state,
-                    redraw: (redrawX, redrawY) =>
-                        redraw(redrawX, redrawY, state),
-                });
+                await vision_recalc_async(0, { state, redraw });
             loudness = 20;
         } else {
             result = false;

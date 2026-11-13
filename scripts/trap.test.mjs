@@ -395,7 +395,7 @@ test('dotrap forwards caller owners and keeps C-discarded selector return', () =
     assert.match(heroEnv,
         /message: rawEnv\.message\s*\?\?\s*\(\(line, target\) => ttyPline\(line, target \?\? state\)\)/u);
     assert.match(heroEnv,
-        /redraw: rawEnv\.redraw \?\? \(\(x, y\) => newsym\(x, y\)\)/u);
+        /redraw: rawEnv\.redraw \?\? newsym,/u);
 
     assert.match(JS_TRAP_EFFECTS,
         /export async function dotrap\(trap, trflags, state = game, rawEnv = \{\}\)/u);
@@ -474,8 +474,8 @@ test('mkroll_launch redraws the launch square through the default capability', (
     assert.ok(jsLaunchX >= 0 && jsLaunchY > jsLaunchX && jsRedraw > jsLaunchY,
         'JavaScript redraws after assigning the launch coordinate');
     assert.match(JS_TRAP,
-        /const DEFAULT_CAPABILITIES = Object\.freeze\(\{[\s\S]*?\n\s+newsym\(x, y, env\) \{ newsym\(x, y, env\.state\); \},/u,
-        'the default capability routes the C redraw to the active game state');
+        /const DEFAULT_CAPABILITIES = Object\.freeze\(\{[\s\S]*?\n\s+newsym,/u,
+        'the default capability is newsym() itself, which draws the game');
 });
 
 test('trapeffect_hole reads tail count from the supplied state',

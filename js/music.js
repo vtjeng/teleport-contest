@@ -91,7 +91,7 @@ export async function awaken_scare(mon, scary, state = game, env = {}) {
                     unblockPoint: (cx, cy) => unblock_point(cx, cy, state),
                     doesBlock: (cx, cy, location) => does_block(cx, cy, location, state),
                     canSee: (cx, cy) => cansee(cx, cy, state),
-                    newsym: (cx, cy) => newsym(cx, cy, state),
+                    newsym,
                     message: env.message ?? ttyPline,
                 })),
         });
@@ -389,7 +389,7 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
                     seemimic(mtmp, state, {
                         ...env,
-                        newsym: (mx, my) => newsym(mx, my, state),
+                        newsym,
                         unblockPoint: (mx, my) => unblock_point(mx, my, state),
                     });
                 }

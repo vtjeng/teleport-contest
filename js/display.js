@@ -3919,7 +3919,7 @@ export function see_nearby_objects(state = game, { redraw = null } = {}) {
         throw new TypeError('see_nearby_objects() redraws the global game');
     }
     const redrawCell = typeof redraw === 'function'
-        ? redraw : (x, y) => newsym(x, y);
+        ? redraw : newsym;
     const x = state.u?.ux ?? 0;
     const y = state.u?.uy ?? 0;
     // these 'r' and 'neardist' calculations match distant_name(objnam.c)

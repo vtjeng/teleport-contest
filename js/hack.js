@@ -2153,7 +2153,7 @@ async function moverock_core(sx, sy, state, env) {
         hooks: { ...env.hooks },
     };
     const redraw = env.newsym
-        ?? ((x, y) => newsym(x, y, state));
+        ?? newsym;
     const effectEnv = {
         ...env,
         state,
@@ -4836,7 +4836,7 @@ function domove_monster_trap_env(state, env = {}) {
         state,
         random,
         message,
-        redraw: env.redraw ?? ((tx, ty) => newsym(tx, ty, state)),
+        redraw: env.redraw ?? newsym,
         mInAir: env.mInAir ?? ((mon, st) => m_in_air(mon, st)),
         heroDeaf: env.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: env.youHear ?? ((line, st) => youHear(line, st)),
@@ -4854,7 +4854,7 @@ function domove_monster_trap_env(state, env = {}) {
                     random: relocationEnv.random ?? random,
                     message,
                     newsym: relocationEnv.newsym
-                        ?? ((tx, ty) => newsym(tx, ty, state)),
+                        ?? newsym,
                     onscary: relocationEnv.onscary
                         ?? ((tx, ty, target) => onscary(tx, ty, target, state)),
                     setApparxy: relocationEnv.setApparxy
@@ -4954,7 +4954,7 @@ export async function domove_swap_with_pet(
         if (unseen) {
             feeltrap(trap, {
                 state,
-                redraw: (tx, ty) => newsym(tx, ty, state),
+                redraw: newsym,
             });
             which = just_an(what);
         }

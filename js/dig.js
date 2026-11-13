@@ -1126,7 +1126,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
                 if (!trap.tseen) {
                     const { newsym } = await import('./display.js');
                     const { seetrap } = await import('./trap_effects.js');
-                    seetrap(trap, { redraw: (x, y) => newsym(x, y, state) });
+                    seetrap(trap, { redraw: newsym });
                     await message('There is a spider web there!', state);
                 }
                 await message(`${Yobjnam2(obj, 'become', state)} entangled in the web.`, state);
@@ -1366,7 +1366,7 @@ export async function liquid_flow(
 
     // unearth_objs completes punishment restoration before liquid damage.
     const redraw = rawEnv.newsym ?? rawEnv.redraw
-        ?? ((rx, ry) => newsym(rx, ry, state));
+        ?? newsym;
     await unearth_objs(x, y, {
         ...env,
         hooks: {
@@ -1533,7 +1533,7 @@ export async function digactualhole(
     const newObjects = state.level.objects?.[x]?.[y] ?? null;
     trap.madeby_u = herosFault;
     trap.tseen = false;
-    const trapEnv = { state, redraw: (tx, ty) => newsym(tx, ty, state) };
+    const trapEnv = { state, redraw: newsym };
     if (cansee(x, y, state)) seetrap(trap, trapEnv);
     else if (madebyU) feeltrap(trap, trapEnv);
 
@@ -2307,7 +2307,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
 // the chain that had followed a ball.
 export async function bury_objs(x, y, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const redraw = env.newsym ?? env.redraw ?? ((px, py) => newsym(px, py, state));
+    const redraw = env.newsym ?? env.redraw ?? newsym;
     const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
     const costly = keeper && costly_spot(x, y, state);
     let loss = 0;

@@ -459,7 +459,7 @@ export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const redraw = typeof rawEnv.redraw === 'function'
         ? rawEnv.redraw
-        : (xx, yy) => newsym(xx, yy, state);
+        : newsym;
     const mndx = monsndx(mon.data);
 
     /* may be too weak or have been extinguished for population control */

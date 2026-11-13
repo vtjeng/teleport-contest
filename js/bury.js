@@ -131,7 +131,7 @@ export async function bury_an_obj(obj, rawEnv = {}) {
     const redraw = base.newsym ?? base.redraw
         ?? (base.hooks?.newsym
             ? ((x, y) => base.hooks.newsym(x, y, base))
-            : ((x, y) => newsym(x, y, state)));
+            : newsym);
     const env = objectGenerationEnv({
         ...base,
         redraw,

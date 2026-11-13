@@ -671,7 +671,7 @@ function regionEffectEnv(state, random) {
             state,
         ),
         canSee: (x, y) => cansee(x, y, state),
-        newsym: (x, y) => newsym(x, y),
+        newsym,
         message: (message) => ttyPline(message, state),
     };
 }
@@ -705,7 +705,7 @@ function elapsedTurnMinLiquid(monster, env) {
                 state: env.state,
                 random: relocationEnv.random ?? env.random,
                 message: ttyPline,
-                newsym: (x, y) => newsym(x, y, env.state),
+                newsym,
                 onscary: (x, y, target) => onscary(
                     x,
                     y,
@@ -728,7 +728,7 @@ function elapsedTurnMinLiquid(monster, env) {
         },
         hooks: {
             ...(env.hooks ?? {}),
-            newsym: (x, y) => newsym(x, y),
+            newsym,
         },
     });
 }
@@ -917,7 +917,7 @@ export async function finishElapsedTurn(state, random) {
     if (Warning(state.u)) {
         await warnreveal({
             state, random,
-            newSym: (x, y) => newsym(x, y),
+            newSym: newsym,
         });
     }
     // C ref: allmain.c:347-350. A were change this turn (were.c new_were()
@@ -1085,7 +1085,7 @@ async function moveElapsedTurnMonster(monster, env) {
         // changes.
         hideUnder: (subject, subjectEnv) => hideunder(subject, {
             ...subjectEnv,
-            redraw: (x, y) => newsym(x, y),
+            redraw: newsym,
         }),
         // C ref: mon.c movemon_singlemon():1305, m_canseeu().
         canSeeHero: (subject) => m_canseeu(subject, env.state),
@@ -1094,7 +1094,7 @@ async function moveElapsedTurnMonster(monster, env) {
             ...subjectEnv,
             message: ttyPline,
             markInvisible: (x, y) => map_invisible(x, y, env.state),
-            redraw: (x, y) => newsym(x, y),
+            redraw: newsym,
             wieldMonsterItemAgainstMonster,
         }),
         dochugwAction: runElapsedTurnMonsterAction,

@@ -407,7 +407,7 @@ async function noises(magr, mattk, env) {
 // through show_glyph_cell(), which reads that same global.
 function pre_mm_attack(magr, mdef, env) {
     const { state } = env;
-    const redraw = env.redraw ?? ((x, y) => newsym(x, y));
+    const redraw = env.redraw ?? newsym;
     const markInvisible = env.markInvisible
         ?? ((x, y) => map_invisible(x, y, state));
     let showit = false;
@@ -727,7 +727,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef.mundetected) {
         mdef.mundetected = 0;
-        (env.redraw ?? ((x, y) => newsym(x, y)))(mdef.mx, mdef.my);
+        (env.redraw ?? newsym)(mdef.mx, mdef.my);
         if (canseemon(mdef, state) && !sensemon(mdef, state)) {
             const message = requireAttackOperation(env, 'message');
             if (Unaware(state)) {

@@ -904,7 +904,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             }
             const t = env._trap;
             if (vis) {
-                seetrap(t, { redraw: (x, y) => newsym(x, y) });
+                seetrap(t, { redraw: newsym });
                 await pline_mon(mtmp,
                     `${capitalizedMonsterName(mtmp, state)} has made a pit in the ${surface(mtmp.mx, mtmp.my, state)}.`,
                     state);
@@ -917,7 +917,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const t = await maketrap(mtmp.mx, mtmp.my, HOLE, { state });
         if (!t) return 2;
         recalc_block_point(mtmp.mx, mtmp.my, state);
-        seetrap(t, { redraw: (x, y) => newsym(x, y) });
+        seetrap(t, { redraw: newsym });
         if (vis) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} has made a hole in the ${surface(mtmp.mx, mtmp.my, state)}.`,
@@ -1017,7 +1017,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
-        reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
+        reveal_trap(t, vis, state, { redraw: newsym });
         // Don't use rloc_to() because worm tails must "move"
         remove_monster(mtmp.mx, mtmp.my, state);
         newsym(mtmp.mx, mtmp.my);
@@ -1119,7 +1119,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp, false, state)}!`,
                 state);
         }
-        reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
+        reveal_trap(t, vis, state, { redraw: newsym });
         // Don't use rloc_to() because worm tails must "move"
         remove_monster(mtmp.mx, mtmp.my, state);
         newsym(mtmp.mx, mtmp.my);
@@ -1640,7 +1640,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             seetrap(t, {
                 ...env,
                 state,
-                redraw: env.redraw ?? ((x, y) => newsym(x, y, state)),
+                redraw: env.redraw ?? newsym,
             });
         }
         if (vismon || vistrapspot) {
@@ -3343,7 +3343,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const redraw = state !== game
         ? () => {}
-        : env.redraw ?? ((x, y) => newsym(x, y));
+        : env.redraw ?? newsym;
     const actionEnv = {
         ...env,
         state,

@@ -281,7 +281,7 @@ function bhitTransientLightEnv(state, random, rawEnv = {}) {
     return {
         visionRecalc: (control) => vision_recalc_async(control, {
             state,
-            redraw: (x, y) => newsym(x, y, state),
+            redraw: newsym,
         }),
         flushScreen: (mode) => flush_screen(mode),
         canSeeMonster: (monster) => canseemon(monster, state),
@@ -767,7 +767,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
 
     const objectEnv = objectGenerationEnv({
         ...env,
-        redraw: (rx, ry) => newsym(rx, ry, state),
+        redraw: newsym,
     });
     if (corpse.where === OBJ_INVENT) {
         const wornHooks = setwornEnv(state).hooks;
@@ -2142,7 +2142,7 @@ function zapObjectEnv(state, random, rawEnv = {}) {
         ...rawEnv,
         state,
         random,
-        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y, state)),
+        redraw: rawEnv.redraw ?? newsym,
     });
 }
 
@@ -3356,7 +3356,7 @@ function bhitmRelocationEnv(state, random, rawEnv = {}) {
         ...rawEnv,
         state,
         random,
-        newsym: rawEnv.newsym ?? ((x, y) => newsym(x, y, state)),
+        newsym: rawEnv.newsym ?? newsym,
         onscary: rawEnv.onscary
             ?? ((x, y, target) => onscary(x, y, target, state)),
         setApparxy: rawEnv.setApparxy
@@ -4978,7 +4978,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
     const norepMessage = env.norepMessage ?? ttyNorep;
     const canSee = env.canSee ?? ((cx, cy) => cansee(cx, cy, state));
     const redraw = env.newsym ?? env.redraw
-        ?? ((cx, cy) => newsym(cx, cy, state));
+        ?? newsym;
     const lev = state.level.at(x, y);
 
     if (lev.typ === DRAWBRIDGE_UP || lev.typ === DRAWBRIDGE_DOWN) {

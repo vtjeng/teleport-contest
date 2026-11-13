@@ -550,7 +550,7 @@ function makeRollingBoulderLaunch(trap, x, y, env) {
 
 const DEFAULT_CAPABILITIES = Object.freeze({
     makeRollingBoulderLaunch,
-    newsym(x, y, env) { newsym(x, y, env.state); },
+    newsym,
     resetUtrap(msg, env) { return reset_utrap(msg, env.state); },
     objIceEffects: obj_ice_effects,
     spotStopTimers(x, y, action, env) {
@@ -665,7 +665,7 @@ export async function fall_through(td, ftflags, state = game) {
 
     if (td) {
         trap = t_at(u.ux, u.uy, state);
-        await feeltrap(trap, { state, redraw: (x, y) => newsym(x, y) });
+        await feeltrap(trap, { state, redraw: newsym });
         if (!state.level?.flags?.sokoban_rules && !plunged) {
             await ttyPline(
                 trap.ttyp === TRAPDOOR

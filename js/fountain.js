@@ -366,7 +366,7 @@ async function gush(x, y, argument, state = game, env = {}) {
                         random: relocationEnv.random ?? random,
                         message,
                         newsym: relocationEnv.newsym
-                            ?? ((tx, ty) => newsym(tx, ty, state)),
+                            ?? newsym,
                         onscary: relocationEnv.onscary
                             ?? ((tx, ty, target) =>
                                 onscary(tx, ty, target, state)),
@@ -508,7 +508,7 @@ export async function dryup(x, y, isyou, state = game, env = {}) {
     const glyphAt = env.glyphAt ?? env.glyph_at
         ?? ((tx, ty) => glyph_at(tx, ty, state));
     const redraw = env.redraw ?? env.newsym
-        ?? ((tx, ty) => newsym(tx, ty, state));
+        ?? newsym;
 
     if (IS_FOUNTAIN(state.level.at(x, y).typ)
         && (!random.rn2(3)
@@ -841,7 +841,7 @@ export async function drinkfountain(state = game, env = {}) {
                         doesBlock: (cx, cy, region) =>
                             does_block(cx, cy, region, state),
                         canSee: (cx, cy) => cansee(cx, cy, state),
-                        newsym: (cx, cy) => newsym(cx, cy, state),
+                        newsym,
                         message,
                     }));
             const fleeEnv = { ...env, state, random, createGasCloud };
@@ -1422,7 +1422,7 @@ export async function drinksink(state = game, env = {}) {
             doesBlock: (cx, cy, region) =>
                 does_block(cx, cy, region, state),
             canSee: (cx, cy) => cansee(cx, cy, state),
-            newsym: (cx, cy) => newsym(cx, cy, state),
+            newsym,
             message,
         });
         break;

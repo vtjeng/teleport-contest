@@ -942,7 +942,7 @@ function restoredRegionVisuals(state) {
         doesBlock: (x, y, location) => does_block(x, y, location, state),
         unblockPoint: (x, y) => unblock_point(x, y, state),
         canSee: (x, y) => cansee(x, y, state),
-        newsym: (x, y) => newsym(x, y),
+        newsym,
     };
 }
 

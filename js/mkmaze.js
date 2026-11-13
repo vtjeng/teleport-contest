@@ -247,7 +247,7 @@ export async function fumaroles(state = game) {
                 allowPositiveDamage: true,
                 blockPoint: (bx, by) => block_point(bx, by, state),
                 canSee: (bx, by) => cansee(bx, by, state),
-                newsym: (bx, by) => newsym(bx, by),
+                newsym,
                 message: (line) => ttyNorep(line, state),
             },
         );

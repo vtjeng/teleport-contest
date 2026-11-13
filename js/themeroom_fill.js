@@ -377,8 +377,7 @@ function themedCreationEnv(env) {
         // priest.c mk_roamer() may move an occupant from a scripted square.
         // rloc() needs the same state-bound redraw, scare, and apparent-hero
         // operations as an ordinary monster caller; preserve caller seams.
-        newsym: env.newsym ?? env.hooks?.newsym ?? ((x, y, operationEnv) =>
-            newsym(x, y, operationEnv.state)),
+        newsym: env.newsym ?? env.hooks?.newsym ?? newsym,
         onscary: env.onscary ?? env.hooks?.onscary ?? ((x, y, monster, operationEnv) =>
             onscary(x, y, monster, operationEnv.state)),
         setApparxy: env.setApparxy ?? env.hooks?.setApparxy ?? ((monster, operationEnv) =>

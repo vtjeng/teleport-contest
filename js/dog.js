@@ -1459,7 +1459,7 @@ export async function migrate_to_level(
     monster.my = 0;
     if (recalculateVision) {
         await recalculateVision(0, {
-            state, redraw: (x, y) => newsym(x, y, state),
+            state, redraw: newsym,
         });
     }
     return monster;
@@ -1521,7 +1521,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
     const { state, random } = env;
     const quietly = was_dead;
     const message = env.message ?? ttyPline;
-    const redraw = env.redraw ?? ((x, y) => newsym(x, y, state));
+    const redraw = env.redraw ?? newsym;
     finish_meating(mtmp, { ...env, redraw });
     if (!mtmp.mtame) return;
     const edog = !mtmp.isminion ? EDOG(mtmp) : null;
