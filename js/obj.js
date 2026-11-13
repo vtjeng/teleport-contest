@@ -326,6 +326,7 @@ import {
     MEAT_RING,
     MINERAL,
     MITHRIL,
+    OBJ_NAME,
     OILSKIN_SACK,
     OIL_LAMP,
     NODIR,
@@ -1130,13 +1131,24 @@ function lifecycleEnv(env = {}) {
 export function dealloc_obj(obj, env = {}) {
     const normalized = lifecycleEnv(env);
     if (obj.otyp === BOULDER) obj.next_boulder = 0;
-    if (obj.where !== OBJ_FREE && obj.where !== OBJ_LUAFREE) {
+    // mkobj.c dealloc_obj():2749-2751 reports an object freed twice through
+    // impossible() and returns; 2752-2759 panic for any other object that
+    // is not free or is still linked.
+    if (obj.where === OBJ_DELETED) {
+        note_unported('pline.c impossible');
+        return obj;
+    } else if (obj.where !== OBJ_FREE && obj.where !== OBJ_LUAFREE) {
         throw new Error(
             `dealloc_obj: object where=${obj.where}, expected free`,
         );
     }
     if (obj.nobj || obj.cobj)
         throw new Error('dealloc_obj: object is still linked');
+    // mkobj.c dealloc_obj():2760-2763
+    if (obj === hands_obj) {
+        note_unported('pline.c impossible');
+        return obj;
+    }
 
     // C calls timeout.c obj_stop_timers() here; the optional hook is a test
     // seam, and scripts/lifecycle-hook-defaults.test.mjs keeps js/ from
@@ -1693,8 +1705,11 @@ export function weight(obj, env = {}) {
     const type = objectType(obj, state);
     let wt = Math.trunc(type.oc_weight);
 
-    if (obj.quan < 1)
-        throw new RangeError(`weight: quantity ${obj.quan} for otyp ${obj.otyp}`);
+    // mkobj.c weight():1892-1896
+    if (obj.quan < 1) {
+        note_unported('pline.c impossible');
+        return 0;
+    }
     if (obj.globby) return Math.trunc(obj.owt);
 
     if (isContainer(obj) || obj.otyp === STATUE) {
@@ -1737,15 +1752,14 @@ export function weight(obj, env = {}) {
     return wt ? wt * Math.trunc(obj.quan) : Math.trunc((obj.quan + 1) / 2);
 }
 
-// Check the object type and quantity weight() would read, without applying
+// Check the object types weight() would read, without applying
 // an eaten-stat calculation. Callers use this before mutations that would be
 // difficult to roll back if weight() then threw.
 export function preflightWeight(obj, env = {}) {
     const normalized = objectEnv(env);
     objectType(obj, normalized.state);
-    if (obj.quan < 1)
-        throw new RangeError(`weight: quantity ${obj.quan} for otyp ${obj.otyp}`);
-    if (obj.globby) return;
+    // weight() reports a quantity below 1 and returns 0, as C does.
+    if (obj.quan < 1 || obj.globby) return;
 
     if (isContainer(obj) || obj.otyp === STATUE) {
         for (let contents = obj.cobj; contents; contents = contents.nobj)
@@ -2719,8 +2733,11 @@ export function mkobj(oclass, artif = false, env = {}) {
             ++otyp;
     }
 
-    if (catalog[otyp]?.oc_class !== oclass)
-        throw new Error(`mkobj: probability table selected ${otyp} for class ${oclass}`);
+    // mkobj.c mkobj():295-298
+    if (catalog[otyp]?.oc_class !== oclass || !OBJ_NAME(catalog[otyp], state)) {
+        note_unported('pline.c impossible');
+        otyp = bases[oclass];
+    }
     return mksobj(otyp, true, artif, normalized);
 }
 
@@ -2849,10 +2866,14 @@ export function obj_no_longer_held(obj, env = {}) {
 export function place_object(obj, x, y, env = {}) {
     const normalized = lifecycleEnv(env);
     const { state } = normalized;
+    // mkobj.c place_object():2309-2321 reports a spot that fails isok()
+    // through panic() when it lies outside the level arrays and through
+    // impossible() otherwise (column 0), and then places the object there.
     if (!Number.isInteger(x) || !Number.isInteger(y)
         || x < 0 || x >= COLNO || y < 0 || y >= ROWNO) {
         throw new RangeError(`place_object: off-map location <${x},${y}>`);
     }
+    if (!isok(x, y)) note_unported('pline.c impossible');
     if (obj.where !== OBJ_FREE)
         throw new Error(`place_object: object where=${obj.where}, expected free`);
     // C ref: mkobj.c place_object():2331-2334, `block_point(x, y)` for a

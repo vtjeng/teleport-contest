@@ -368,6 +368,14 @@ test('An capitalizes the C article helper result for valid nonempty names', () =
     assert.equal(An('troll'), 'A troll');
 });
 
+test('an() answers an empty name as C does after its impossible() report', () => {
+    // objnam.c an():2149-2152 reports "Alphabet soup" and returns "an []";
+    // An() then capitalizes its first letter.
+    assert.equal(an(''), 'an []');
+    assert.equal(an(null), 'an []');
+    assert.equal(An(''), 'An []');
+});
+
 test('simple_typename drops the description and the user-assigned name', () => {
     const state = namingState();
     // objnam.c simple_typename() over obj_typename(). An undiscovered ring's
@@ -3001,7 +3009,6 @@ test('an() applies just_an()\'s article rules', () => {
         assert.equal(an(name), expected, name);
         assert.equal(just_an(name) + name, expected, `just_an ${name}`);
     }
-    assert.throws(() => an(''), /an\(\) requires a name/u);
 });
 
 test('an and the keep objnam.c Strlen-based BUFSZ byte limits', () => {

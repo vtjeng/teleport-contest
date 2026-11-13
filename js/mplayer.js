@@ -29,7 +29,7 @@ import { m_dowear } from './worn.js';
 import { monmightthrowwep } from './weapon.js';
 import { m_at } from './monst.js';
 import { goodpos, rloc } from './teleport.js';
-import { verbalize } from './pline.js';
+import { impossible, verbalize } from './pline.js';
 import { objectGenerationEnv } from './object_generation.js';
 
 const developers = Object.freeze([
@@ -214,7 +214,10 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
         shield = O.STRANGE_OBJECT;
         break;
     default:
-        throw new Error('mk_mplayer received a non-player species');
+        // mplayer.c mk_mplayer():250-252
+        await impossible('bad mplayer monster', state, rawEnv);
+        weapon = 0;
+        break;
     }
 
     if (weapon !== O.STRANGE_OBJECT) {
