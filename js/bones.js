@@ -118,9 +118,10 @@ import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import {
-    ghostfruit, reset_oattached_mids, rest_stairs, rest_traps, restdamage,
+    ghostfruit, reset_oattached_mids, rest_adjust_levelflags, rest_stairs,
+    rest_traps, restdamage,
 } from './restore.js';
-import { savefruitchn, savemonchn } from './save.js';
+import { save_adjust_levelflags, savefruitchn, savemonchn } from './save.js';
 import { dismount_steed } from './steed.js';
 import {
     BOW,
@@ -786,6 +787,10 @@ export async function savebones(how, when, corpse, state) {
     // makes every priest forget the hero's temple entries (priest.c
     // forget_temple_entry()) before savemon() writes it.
     savemonchn(state.level.monlist, state);
+    // C ref: save.c savelev_core():520-522 writes the level flags' turn
+    // stamps (stasis_until) relative to this turn and converts them back
+    // after the write; getlev() adds the loading game's turn.
+    save_adjust_levelflags(state);
     const bonesData = serializeBonesLevel(state);
     // Strip functions from the serialized output. The cloneObjChain and
     // cloneMon helpers above already break object-graph cycles (ocontainer,
@@ -795,7 +800,9 @@ export async function savebones(how, when, corpse, state) {
         if (typeof val === 'function') return undefined;
         return val;
     };
-    write_bonesfile(state.u.uz, JSON.stringify(bonesData, safeReplacer), state);
+    const bonesText = JSON.stringify(bonesData, safeReplacer);
+    rest_adjust_levelflags(state);
+    write_bonesfile(state.u.uz, bonesText, state);
 }
 
 // C ref: save.c save_stairs() and savetrapchn(): a destination level in the
@@ -1347,6 +1354,9 @@ async function restoreBonesLevel(bonesData, state) {
     restobjchn_ghostly(level.objlist, false, ghost, state);
 
     installLevel(level, state);
+    // C ref: restore.c getlev():1117 rest_adjust_levelflags() makes the
+    // flags' relative turn stamps absolute in the loading game.
+    rest_adjust_levelflags(state);
     // getlev() reads the bones file's svl.lastseentyp[][].
     state.lastseentyp = copy_lastseentyp_grid(bonesData.lastseentyp);
     await find_lev_obj(state);

@@ -202,7 +202,7 @@ export function shift_level_edog_times(level, delta) {
 // value in the snapshot; restore.js rest_adjust_levelflags() converts it
 // back. C converts the live value back after the write (524), which the
 // snapshot does not need.
-function save_adjust_levelflags(state) {
+export function save_adjust_levelflags(state) {
     const flags = state.level?.flags;
     if (flags) flags.stasis_until = (flags.stasis_until ?? 0) - state.moves;
 }

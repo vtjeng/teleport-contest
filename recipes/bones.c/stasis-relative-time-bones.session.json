@@ -1,0 +1,17 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70221,
+      "datetime": "20250404101010",
+      "nethackrc": "OPTIONS=name:Hilde,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!tutorial,!autopickup,pettype:none,time\n",
+      "moves": "\n\u001610\n\u0017wand of stasis\nze40s20s20s\u0017wand of death\nzf.  ynnnny"
+    },
+    {
+      "seed": 70222,
+      "datetime": "20250405101010",
+      "nethackrc": "OPTIONS=name:Hilde,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!tutorial,!autopickup,pettype:none,time\n",
+      "moves": "\n\u001610\nyn\u0017wand of teleportation\n\u0007newt\nzel"
+    }
+  ]
+}

@@ -701,7 +701,7 @@ function rest_other_levels(levels, state) {
 
 // C ref: restore.c rest_adjust_levelflags() (1314-1318), the inverse of
 // save.js save_adjust_levelflags().
-function rest_adjust_levelflags(state) {
+export function rest_adjust_levelflags(state) {
     const flags = state.level?.flags;
     if (flags) flags.stasis_until = (flags.stasis_until ?? 0) + state.moves;
 }
