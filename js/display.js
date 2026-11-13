@@ -5369,12 +5369,21 @@ export function statusConditionActive(option, u) {
 // C ref: botl.c condtests[], conditions[], and cond_cmp(). Encumbrance remains
 // absent at the new-game boundary because u_init_carry_attr_boost() guarantees
 // that the initial inventory is within capacity.
+//
+// game._statusDeliveredConditions is blstats[][BL_CONDITION] as bot() last
+// delivered it to wintty.c (tty_condition_bits): the options bot() found
+// active. botl.c stat_update_time() delivers BL_TIME alone, so while
+// _stat_update_time() re-fits the row (game._statusTimeOnlyRefit) the
+// conditions come from that delivery, not from the hero's current state.
 function _statusConditionEntries(u, shrinkLevel = 0) {
-    botl_incapacitated_conditions(game, u);
+    const delivered = game._statusTimeOnlyRefit
+        ? game._statusDeliveredConditions : null;
+    if (!delivered) botl_incapacitated_conditions(game, u);
     const configured = game.iflags?.status_conditions ?? {};
     return STATUS_CONDITION_SPECS
         .filter((spec) => (configured[spec.option] ?? spec.enabled)
-            && statusConditionActive(spec.option, u))
+            && (delivered ? delivered.has(spec.option)
+                : statusConditionActive(spec.option, u)))
         .sort((left, right) => left.rank - right.rank
             || left.option.localeCompare(right.option))
         .map((spec) => ({
@@ -7800,6 +7809,9 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     _deliverStatusGold();
     _deliverStatusTime();
     _deliverStatusHD();
+    game._statusDeliveredConditions = new Set(
+        _statusConditionEntries(game.u).map(({ option }) => option),
+    );
     const layouts = statusLayouts({
         deliverCapacity: true,
         initialTtyRefresh: retainInitialOverlap,
@@ -7895,13 +7907,19 @@ function _stat_update_time() {
         layouts = [...rendered];
         const timeRow = layouts.length - 1;
         let refreshed;
-        if (layouts.length === 2) {
-            const capacity = game._statusCapacitySnapshot ?? near_capacity(game);
-            refreshed = _statusLine2Layout(capacity);
-        } else if (layouts.length === 3) {
-            refreshed = _statusLine3DetailsLayout({
-                initialTtyRefresh: false,
-            });
+        game._statusTimeOnlyRefit = true;
+        try {
+            if (layouts.length === 2) {
+                const capacity = game._statusCapacitySnapshot
+                    ?? near_capacity(game);
+                refreshed = _statusLine2Layout(capacity);
+            } else if (layouts.length === 3) {
+                refreshed = _statusLine3DetailsLayout({
+                    initialTtyRefresh: false,
+                });
+            }
+        } finally {
+            game._statusTimeOnlyRefit = false;
         }
         if (refreshed?.fields && layouts[timeRow]?.fields) {
             const freshByOwner = new Map();
