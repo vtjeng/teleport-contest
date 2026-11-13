@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 604215,
+      "datetime": "20230611201000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017cream pie\n\u0017blindfold\nal ac. Pmac. ",
+      "comment": "A gnomish Healer pies her own face, applies her stethoscope to herself, then puts on a blindfold and listens again. insight.c ustatusline() appends \", blind\", then \", cover\" only when the goop is not the sole blinder, then \"ed by sticky goop\": first \"blinded by sticky goop\", then \"blind, covered by sticky goop\". Seed, date and character chosen independently of the batch 14 pilot."
+    }
+  ]
+}

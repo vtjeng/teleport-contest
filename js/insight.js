@@ -3169,8 +3169,8 @@ export async function ustatusline(state = game) {
         if (u.ucreamed) {
             if (u.ucreamed < BlindedTimeout(u) || Blindfolded(u)
                 || !haseyes(state.youmonst.data))
-                info += ', covered';
-            info += ' by sticky goop';
+                info += ', cover';
+            info += 'ed by sticky goop';
         }
     }
     if (HStun(u)) info += ', stunned';
