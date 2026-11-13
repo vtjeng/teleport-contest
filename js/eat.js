@@ -3850,6 +3850,12 @@ async function eataccessory(otmp, state, env) {
 
     const message = env.message ?? ttyPline;
     const effect = () => accessory_has_effect(otmp, state, env);
+    // attrib.c adjattrib() prints through You_feel() and, for Strength and
+    // Constitution, ends with pickup.c encumber_msg().
+    const attribEnv = {
+        message,
+        encumberMessage: (target) => encumber_msg(target, { message }),
+    };
     switch (typ) {
     default:
         if (!type.oc_oprop) break;
@@ -3903,17 +3909,17 @@ async function eataccessory(otmp, state, env) {
         break;
     case RIN_ADORNMENT:
         await effect();
-        if (await adjattrib(A_CHA, otmp.spe, -1, state))
+        if (await adjattrib(A_CHA, otmp.spe, -1, state, attribEnv))
             discover_object(typ, true, true, true, state);
         break;
     case RIN_GAIN_STRENGTH:
         await effect();
-        if (await adjattrib(A_STR, otmp.spe, -1, state))
+        if (await adjattrib(A_STR, otmp.spe, -1, state, attribEnv))
             discover_object(typ, true, true, true, state);
         break;
     case RIN_GAIN_CONSTITUTION:
         await effect();
-        if (await adjattrib(A_CON, otmp.spe, -1, state))
+        if (await adjattrib(A_CON, otmp.spe, -1, state, attribEnv))
             discover_object(typ, true, true, true, state);
         break;
     case RIN_INCREASE_ACCURACY:
