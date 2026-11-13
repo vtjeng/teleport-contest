@@ -40,6 +40,7 @@ import {
     randrole,
     rigid_role_checks,
 } from './role_init.js';
+import { lcase } from './hacklib.js';
 
 const BP_ALIGN = 'alignment';
 const BP_GEND = 'gender';
@@ -142,8 +143,8 @@ function rootPromptParts(rolenum, racenum, gendnum, alignnum, filter) {
 
 // C ref: hacklib.c s_suffix().
 function possessive(text) {
-    if (text.toLowerCase() === 'it') return `${text}s`;
-    if (text.toLowerCase() === 'you') return `${text}r`;
+    if (lcase(text) === 'it') return `${text}s`;
+    if (lcase(text) === 'you') return `${text}r`;
     return text.endsWith('s') ? `${text}'` : `${text}'s`;
 }
 
@@ -191,7 +192,7 @@ export function build_plselection_prompt(
     prompt = possessive(prompt);
 
     // The source repairs this one awkward possessive after s_suffix().
-    if (/priest\/priestess'$/iu.test(prompt)) prompt += 's';
+    if (lcase(prompt).endsWith("priest/priestess'")) prompt += 's';
 
     if (!post.size) {
         if (rolenum === ROLE_NONE) post.add(BP_ROLE);
@@ -430,9 +431,9 @@ function initialResponse(response) {
     let ch = typeof response === 'number'
         ? String.fromCharCode(response & 0xFF)
         : String(response ?? '').slice(0, 1);
-    if (ch === '\0' || ch === '\x1b' || ch.toLowerCase() === 'q')
+    if (ch === '\0' || ch === '\x1b' || lcase(ch) === 'q')
         return 'q';
-    ch = ch.toLowerCase();
+    ch = lcase(ch);
     if (ch === ' ' || ch === '\n' || ch === '\r') return 'y';
     if (ch === '@' || ch === '*') return 'a';
     return ch === 'y' || ch === 'n' || ch === 'a' ? ch : null;

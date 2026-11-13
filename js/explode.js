@@ -57,7 +57,7 @@ import {
     nomul,
     nh_delay_output,
 } from './hack.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { dist2, s_suffix, lcase, lowc } from './hacklib.js';
 import {
     GLYPH_EXPLODE_FIERY_OFF,
     GLYPH_EXPLODE_FROSTY_OFF,
@@ -382,7 +382,7 @@ function hallucinatoryExplosion(state, env) {
     do {
         text = `${s_suffix(rndmonnam({ state, random: env.displayRandom ?? rn2_on_display_rng }))} explosion`;
         tries++;
-    } while (text[0] !== text[0]?.toLowerCase() && tries < 20);
+    } while (text[0] !== lowc(text[0]) && tries < 20);
     return text;
 }
 
@@ -726,7 +726,7 @@ export async function explode(
                     // C explode.c:662-667 uses an article for a fireball or
                     // tower of flame, even when the source is a scroll.
                     state.killer.format = ['tower of flame', 'fireball']
-                        .includes(str.toLowerCase())
+                        .includes(lcase(str))
                         ? KILLED_BY_AN : KILLED_BY;
                 }
                 // explode.c:668-673 checks the last pline after item effects:

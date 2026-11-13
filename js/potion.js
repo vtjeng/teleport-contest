@@ -187,7 +187,7 @@ import {
     unbless, uncurse,
 } from './obj.js';
 import { obj_resists } from './bury.js';
-import { dist2, s_suffix, upstart } from './hacklib.js';
+import { dist2, s_suffix, upstart, lcase } from './hacklib.js';
 import {
     The, Tobjnam, Yname2, Yobjnam2, cxname, donameFresh, is_plural,
     isPoisonable, otense, short_oname, simpleonames, the, thesimpleoname,
@@ -447,7 +447,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
     if (!Blind(state.u)) {
         const indefinite = Amonnam(monster, { state });
         await message(
-            `In a cloud of smoke, ${indefinite.charAt(0).toLowerCase()}${
+            `In a cloud of smoke, ${lcase(indefinite.charAt(0))}${
                 indefinite.slice(1)} emerges!`,
             state,
         );

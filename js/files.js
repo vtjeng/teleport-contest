@@ -4,7 +4,7 @@
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
 import { LFILE_EXISTS } from './const.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces } from './hacklib.js';
+import { decodeUtf8ByteString, encodeUtf8ByteString, mungspaces, lcase } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
@@ -26,8 +26,8 @@ export function nh_basename(fname, keepSuffix) {
 
 export function isDefaultSymsetName(name) {
     const text = String(name ?? '');
-    if (text.toLowerCase() === 'default') return true;
-    const folded = text.toLowerCase().replace(/[ _-]/gu, '');
+    if (lcase(text) === 'default') return true;
+    const folded = lcase(text).replace(/[ _-]/gu, '');
     return folded === 'defaultsymbols';
 }
 
@@ -37,9 +37,9 @@ export function isDefaultSymsetName(name) {
 // the table and metadata mutations made while the matching block is parsed.
 export function read_sym_file(name) {
     if (isDefaultSymsetName(name)) return true;
-    const folded = String(name).toLowerCase();
+    const folded = lcase(String(name));
     return SYMBOL_SET_DEFINITIONS.some(
-        (definition) => definition.name.toLowerCase() === folded,
+        (definition) => lcase(definition.name) === folded,
     );
 }
 

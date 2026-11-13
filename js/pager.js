@@ -162,7 +162,7 @@ import { game } from './gstate.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
 import {
-    dist2, encodeUtf8ByteString, mungspaces, strstri, visctrl,
+    dist2, encodeUtf8ByteString, mungspaces, strstri, visctrl, lcase, upstart,
 } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory, sobj_at } from './invent.js';
@@ -864,7 +864,7 @@ export async function look_all(nearby, doMons, state = game) {
                     : canSpotSelf ? 'you' : 'your position';
                 lines.push({
                     text: nearby
-                        ? `${which[0].toUpperCase()}${which.slice(1)} currently shown near ${position}:`
+                        ? `${upstart(which)} currently shown near ${position}:`
                         : `All ${which} currently shown on the map:`,
                 });
                 lines.push({ text: '    ' });
@@ -1127,7 +1127,7 @@ export async function look_engrs(nearby, state = game) {
 // collection code below compares the returned string to the old one to retain
 // that count without losing the source's truncation behavior.
 export function append_str(out, description) {
-    if (out.toLowerCase().includes(description.toLowerCase())) return out;
+    if (lcase(out).includes(lcase(description))) return out;
     const spaceLeft = BUFSZ - 1 - out.length;
     if (spaceLeft <= 0) return out;
     const separator = ' or ';
@@ -1764,7 +1764,7 @@ export function normalizeDataBaseLookup(input, state = game) {
     if (typeof input !== 'string' || input.length > 255)
         throw new TypeError('checkfile input must be a BUFSZ-sized string');
 
-    let base = input.toLowerCase();
+    let base = lcase(input);
     let skipped = 0;
     const skip = (count) => {
         base = base.slice(count);
@@ -2072,8 +2072,8 @@ export async function do_look(mode, clickCc = null, state = game) {
     }
     if (choice === 'm' || choice === 'M'
         || choice === 'o' || choice === 'O') {
-        await look_all(choice === choice.toLowerCase(),
-            choice.toLowerCase() === 'm', state);
+        await look_all(choice === lcase(choice),
+            lcase(choice) === 'm', state);
         return ECMD_OK;
     }
     if (choice === 't' || choice === 'T') {

@@ -85,7 +85,7 @@ import {
     may_dig,
 } from './hack.js';
 import { mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, encodeUtf8ByteString, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
+import { dist2, encodeUtf8ByteString, mungspaces, strncmpi, upstart, truncateByteString, lcase } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
@@ -1131,7 +1131,7 @@ export function size_monst(monster, incl_wsegs, state = game) {
 }
 export function mon_chain(rows, label, chain, force, totals, state = game) {
     const subtotal = { count: 0, size: 0 };
-    const incl_wsegs = label.toLowerCase() === 'fmon';
+    const incl_wsegs = lcase(label) === 'fmon';
     for (let mon = chain; mon; mon = mon.nmon) {
         subtotal.count++; subtotal.size += size_monst(mon, incl_wsegs, state);
     }

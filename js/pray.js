@@ -176,7 +176,7 @@ import {
     youHear,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { dist2, upstart, s_suffix } from './hacklib.js';
+import { dist2, upstart, s_suffix, lcase } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     attacktype_fordmg,
@@ -831,7 +831,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             : null;
         if (demon) {
             let demonName = a_monnam(demon, { state });
-            if (demonName.toLowerCase() === 'it') {
+            if (lcase(demonName) === 'it') {
                 demonName = 'something dreadful';
             } else {
                 demon.mstrategy &= ~STRAT_APPEARMSG;
@@ -2934,7 +2934,7 @@ export async function angrygods(resp_god, state = game) {
                 && !(Antimagic(u))) {
                 const aura = an(hcolor('black', state));
                 await ttyPline(
-                    `${aura[0].toUpperCase()}${aura.slice(1)} glow surrounds you.`,
+                    `${upstart(aura)} glow surrounds you.`,
                     state,
                 );
             }

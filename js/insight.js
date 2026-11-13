@@ -242,7 +242,7 @@ import { game } from './gstate.js';
 import { newuexp } from './exper.js';
 import { inv_weight, near_capacity } from './hack.js';
 import {
-    lcase, lowc, highc, mungspaces, ordin, strsubst, s_suffix,
+    lcase, lowc, highc, mungspaces, ordin, strcmpi, strsubst, s_suffix,
     truncateByteString,
     upstart,
 } from './hacklib.js';
@@ -676,7 +676,7 @@ function background_enlightenment(final, state, lines) {
             || innategend !== flags.initgend))
         tmpbuf = `${genders[innategend].adj} `;
     let buf = Upolyd(u) ? 'actually ' : '';
-    if (rank_titl.toLowerCase() === role_titl.toLowerCase()) {
+    if (lcase(rank_titl) === lcase(role_titl)) {
         /* omit role when rank title matches it */
         buf += `${an(rank_titl)}, level ${u.ulevel} ${tmpbuf}`
             + `${state.urace.noun}`;
@@ -745,7 +745,7 @@ function background_enlightenment(final, state, lines) {
         buf = `on the ${dungeon_at(u.uz.dnum, state).dname} level`;
     } else {
         let dgnbuf = dungeon_at(u.uz.dnum, state).dname;
-        if (dgnbuf.slice(0, 4).toLowerCase() === 'the ')
+        if (lcase(dgnbuf.slice(0, 4)) === 'the ')
             dgnbuf = lowc(dgnbuf[0]) + dgnbuf.slice(1);
         tmpbuf = `level ${In_quest(u.uz, state) ? dunlev(u.uz) : depth(u.uz, state)}`;
         if (Is_rogue_level(u.uz, state)) tmpbuf += ', a primitive area';
@@ -989,7 +989,7 @@ function weapon_insight(final, state, lines) {
             what = 'wet towel';
 
         you_are(lines, final,
-            (['armor', 'food', 'venom'].includes(what.toLowerCase()))
+            (['armor', 'food', 'venom'].includes(lcase(what)))
                 ? `wielding some ${what}`
                 /* [maybe include known blessed?] */
                 : `wielding ${(uwep.quan === 1) ? an(what) : makeplural(what)}`,
@@ -2197,7 +2197,7 @@ export function vanquishedName(entry) {
 }
 
 export function vanquishedPrefix(text) {
-    const lower = text.toLowerCase();
+    const lower = lcase(text);
     if (lower.startsWith('the ')) return 0;
     if (lower.startsWith('an ')) return 1;
     if (lower.startsWith('a ')) return 2;
@@ -2213,12 +2213,6 @@ const VANQ_PUNCT_CLASSES = Object.freeze([
 
 function vanquishedIndex(value) {
     return typeof value === 'number' ? value : value.index;
-}
-
-function strcmpi(left, right) {
-    const first = lcase(String(left));
-    const second = lcase(String(right));
-    return first < second ? -1 : first > second ? 1 : 0;
 }
 
 // C ref: insight.c vanqsort_cmp() (2621-2715).  The C qsort callback gets

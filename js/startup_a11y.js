@@ -199,6 +199,7 @@ import {
     S_water,
 } from './symbols.js';
 import { Blind, Hallucination } from './youprop.js';
+import { lcase, lowc, strncmpi } from './hacklib.js';
 
 // mhidden_description() is owned by pager.c.  Keep this compatibility export
 // for status-line and startup callers while pager.js remains the sole JS
@@ -804,9 +805,10 @@ function selectionDescription(selection) {
 }
 
 function indefiniteArticle(text) {
-    if (/^(?:uni(?:corn|form)|use|ewe|one\b)/iu.test(text)) return 'a';
-    if (/^(?:hour|honest|heir)/iu.test(text)) return 'an';
-    return /^[aeiou]/iu.test(text) ? 'an' : 'a';
+    const lower = lcase(text);
+    if (/^(?:uni(?:corn|form)|use|ewe|one\b)/u.test(lower)) return 'a';
+    if (/^(?:hour|honest|heir)/u.test(lower)) return 'an';
+    return /^[aeiou]/u.test(lower) ? 'an' : 'a';
 }
 
 function describeKnownRoom(x, y, state) {
@@ -1387,7 +1389,7 @@ function describeObject(object, state) {
     const artifactFruit = object.otyp === SLIME_MOLD
         ? matching_artifact_fruit(name, state) : null;
     if (artifactFruit?.forceThe)
-        return `the ${modifiers}${name.replace(/^the /iu, '')}`;
+        return `the ${modifiers}${strncmpi(name, 'the ', 4) === 0 ? name.slice(4) : name}`;
     if (artifactFruit) return base;
     return `${indefiniteArticle(base)} ${base}`;
 }
@@ -1473,8 +1475,8 @@ export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
 
 function singularMovementVerb(species) {
     const verb = locomotion(species, 'move');
-    const last = verb.at(-1).toLowerCase();
-    const prior = verb.at(-2)?.toLowerCase() ?? '';
+    const last = lcase(verb.at(-1));
+    const prior = lowc(verb.at(-2) ?? '');
     if ('zxs'.includes(last)
         || (last === 'h' && 'cs'.includes(prior))) {
         return `${verb}es`;

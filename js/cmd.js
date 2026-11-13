@@ -248,7 +248,7 @@ import {
     appendLongDigit,
     upstart,
     visctrl,
-    push_front,
+    push_front, lcase,
 } from './hacklib.js';
 import {
     ddoinv,
@@ -973,9 +973,9 @@ export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) 
                 const retained = QBUFSZ - 1 - k - 4;
                 pbuf = `${truncateByteString(pbuf, retained)}...?`;
             }
-            const answer = mungspaces(await getlin(
+            const answer = lcase(mungspaces(await getlin(
                 `${promptPrefix}${pbuf} ${responseType}`, state,
-            )).toLowerCase();
+            )));
             if (answer === 'yes') return 'y';
             if (answer === 'quit' || answer.startsWith('\x1b'))
                 return accept_q ? 'q' : 'n';
@@ -1141,8 +1141,8 @@ export function key2extcmddesc(key, state = game) {
     const entry = boundExtcmd(bindingAt(model.bindings, byte));
     if (!entry?.ef_txt) return null;
     let result = `${entry.ef_desc} (#${entry.ef_txt})`;
-    if (result.toLowerCase().startsWith('prefix:')
-        && entry.ef_txt.toLowerCase() === 'reqmenu') {
+    if (lcase(result).startsWith('prefix:')
+        && lcase(entry.ef_txt) === 'reqmenu') {
         result = 'movement prefix: move without autopickup and without '
             + 'attacking\nnon-movement prefix:' + result.slice(7);
     }
@@ -3874,16 +3874,16 @@ export async function get_changed_key_binds(sbuf = null, state = game) {
 // parser for configuration strings and records the same command operation.
 export function bind_key(key, commandText, user = false, state = game) {
     const text = String(commandText ?? '');
-    if (text.toLowerCase() === 'nothing') {
+    if (lcase(text) === 'nothing') {
         cmdbind_remove(key, state);
         return true;
     }
     const opening = text.indexOf('(');
     const closing = text.lastIndexOf(')');
     const parenthesized = opening >= 0 && closing > opening;
-    const name = (parenthesized ? text.slice(0, opening) : text).toLowerCase();
+    const name = lcase(parenthesized ? text.slice(0, opening) : text);
     const command = extcmdlist.find((entry) => (
-        entry.ef_txt.toLowerCase() === name
+        lcase(entry.ef_txt) === name
         && !(entry.flags & INTERNALCMD)
     ));
     if (!command) return false;

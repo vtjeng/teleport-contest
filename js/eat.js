@@ -3058,7 +3058,7 @@ async function eatcorpse(otmp, state, env = {}) {
         const use_is = Hallucination(state.u)
             || (palatable && palat_msg[0] === 'I');
 
-        if (pmxnam.slice(0, 4).toLowerCase() === 'the ')
+        if (lcase(pmxnam.slice(0, 4)) === 'the ')
             pmxnam = pmxnam.slice(4);
         await ttyPline(
             `${type_is_pname(corpse) ? ''

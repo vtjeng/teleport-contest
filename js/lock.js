@@ -162,7 +162,7 @@ import {
     unblock_point,
     vision_recalc_async,
 } from './vision.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { dist2, s_suffix, upstart } from './hacklib.js';
 import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
@@ -333,7 +333,7 @@ async function chest_shatter_msg(otmp, state = game) {
     }
     const subject = an(thing);
     await ttyPline(
-        `${subject[0].toUpperCase()}${subject.slice(1)} ${disposition}!`,
+        `${upstart(subject)} ${disposition}!`,
         state,
     );
 }

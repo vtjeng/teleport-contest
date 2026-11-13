@@ -29,7 +29,7 @@ import {
     purge_custom_entries,
 } from './glyphs.js';
 import { sourceGlyphNumber } from './glyph_ids.js';
-import { encodeUtf8ByteString } from './hacklib.js';
+import { encodeUtf8ByteString, lcase } from './hacklib.js';
 import { escapes } from './options_escapes.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
@@ -294,9 +294,9 @@ export function clear_symsetentry(set, nameToo, state = game) {
 }
 
 function symbolSetDefinition(name) {
-    const folded = String(name).toLowerCase();
+    const folded = lcase(String(name));
     return SYMBOL_SET_DEFINITIONS.find((definition) => (
-        definition.name.toLowerCase() === folded
+        lcase(definition.name) === folded
     ));
 }
 
@@ -409,7 +409,7 @@ export function symsetMenuItems(rogueFlag, state = game) {
     for (const definition of definitions) {
         const value = definition.index + 2;
         if (currentName
-            && definition.name.toLowerCase() === currentName.toLowerCase()) {
+            && lcase(definition.name) === lcase(currentName)) {
             defaultIndex = value;
         }
         items.push({
@@ -418,7 +418,7 @@ export function symsetMenuItems(rogueFlag, state = game) {
             // trailing padding for rows whose Description is missing.
             text: `${definition.name.padEnd(biggest + 2)} ${definition.description ?? ''}`,
             selected: Boolean(currentName)
-                && definition.name.toLowerCase() === currentName.toLowerCase(),
+                && lcase(definition.name) === lcase(currentName),
         });
     }
     return { items, defaultIndex, count: definitions.length };

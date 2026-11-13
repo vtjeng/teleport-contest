@@ -71,6 +71,7 @@ import {
     begin_burn,
 } from './timeout.js';
 import { mpickobj, preflight_mpickobj } from './steal.js';
+import { lcase } from './hacklib.js';
 
 const MAX_CONTAINMENT = 10;
 
@@ -128,7 +129,7 @@ function normalizedSpe(specification, nonpmobj) {
     if (specification.id === EGG)
         return (specification.laid_by_you ?? specification.laidByYou) ? 1 : 0;
     if (specification.id === TIN && nonpmobj)
-        return specification.montype.toLowerCase() === 'spinach' ? 1 : 0;
+        return lcase(specification.montype) === 'spinach' ? 1 : 0;
     if (specification.id === TIN || specification.id === FIGURINE)
         return 0;
     return get_table_int_or_random(specification, 'spe', -127);
@@ -175,7 +176,7 @@ function normalizeSpecification(specification, context, state) {
     // C ref: lspo_object nonpmobj. NON_PM skips create_object's setter;
     // it does not erase the species state produced by ordinary mksobj.
     const montype = typeof specification.montype === 'string'
-        ? specification.montype.toLowerCase() : null;
+        ? lcase(specification.montype) : null;
     const nonpmobj = (id === TIN && (montype === 'spinach' || montype === 'empty'))
         || (id === EGG && montype === 'empty');
     return {

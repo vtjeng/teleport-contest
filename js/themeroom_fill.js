@@ -206,6 +206,7 @@ import {
     stop_timer,
 } from './timeout.js';
 import { Protection_from_shape_changers } from './youprop.js';
+import { lcase } from './hacklib.js';
 
 // Keep source-order loops synchronous for the ordinary construction path, but
 // continue them after a Promise when a shape-changing monster or object
@@ -705,7 +706,7 @@ function createMonsterBody(m, croom, env) {
         case M_AP_MONSTER: {
             // C sp_lev.c:create_monster(): a mimic uses mappearance, while a
             // chameleon takes the named form as its actual species.
-            let mndx = m.appear_as.toLowerCase() === 'random'
+            let mndx = lcase(m.appear_as) === 'random'
                 ? select_newcham_form(mtmp, { state, random: env.random })
                 : name_to_mon(m.appear_as, { state });
             if (ismnum(mndx) && is_vampshifter(mtmp)) {

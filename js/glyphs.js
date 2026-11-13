@@ -117,7 +117,7 @@ function ensureCustomizationState(state) {
 // ignores the first non-hex suffix. Validation for UTF-8 conversion is the
 // callback's separate responsibility.
 export function unicode_val(value) {
-    const match = /^[Uu]\+([0-9a-f]{1,7})/iu.exec(String(value ?? ''));
+    const match = /^[Uu]\+([0-9A-Fa-f]{1,7})/u.exec(String(value ?? ''));
     return match ? Number.parseInt(match[1], 16) : 0;
 }
 

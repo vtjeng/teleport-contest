@@ -28,6 +28,7 @@ import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 import { setToplinesDirectly } from './topl.js';
 import { Hallucination } from './youprop.js';
+import { lcase } from './hacklib.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
 const REROLL_QUERY = 'Reroll this character?';
@@ -158,7 +159,7 @@ async function fallbackRerollChoice(state) {
             response = 'n';
             break;
         }
-        const key = String.fromCharCode(code & 0xFF).toLowerCase();
+        const key = lcase(String.fromCharCode(code & 0xFF));
         if (key === 'y' || key === 'n') {
             response = key;
             break;

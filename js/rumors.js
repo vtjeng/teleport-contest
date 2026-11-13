@@ -64,11 +64,11 @@ export function init_rumors(file, state = game) {
     for (const [owner, kind, separator, field] of fields) {
         // sscanf skips leading whitespace for every numeric conversion.
         const match = remaining.match(kind === 'decimal'
-            ? /^\s*[+-]?\d+/u : /^\s*[+-]?(?:0x)?[\da-f]+/iu);
+            ? /^\s*[+-]?\d+/u : /^\s*[+-]?(?:0[Xx])?[\dA-Fa-f]+/u);
         if (!match) break;
         const token = match[0].trim();
         const negative = token.startsWith('-');
-        const digits = token.replace(/^[+-]/u, '').replace(/^0x/iu, '');
+        const digits = token.replace(/^[+-]/u, '').replace(/^0[Xx]/u, '');
         const value = kind === 'decimal' ? longInteger(token)
             : longInteger((negative ? -1n : 1n) * BigInt('0x' + digits), true);
         if (owner) owner[field] = value;

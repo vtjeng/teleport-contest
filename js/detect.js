@@ -2644,7 +2644,7 @@ export async function openit(state = game, rawEnv = {}) {
 }
 
 function indefinite(name) {
-    return /^[aeiou]/i.test(name) ? `an ${name}` : `a ${name}`;
+    return /^[aeiouAEIOU]/u.test(name) ? `an ${name}` : `a ${name}`;
 }
 
 async function findTrap(trap, env) {

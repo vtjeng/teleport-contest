@@ -152,7 +152,7 @@ import {
     strstri,
     upstart,
     upwords,
-    push_front,
+    push_front, lcase,
 } from './hacklib.js';
 import { game } from './gstate.js';
 import {
@@ -2670,7 +2670,7 @@ export async function do_class_genocide(state = game, env = {}) {
         }
         if (buf[0] === '\x1b'
             || ['none', "'none'", 'nothing']
-                .some((word) => buf.toLowerCase() === word)) {
+                .some((word) => lcase(buf) === word)) {
             livelog_printf(LL_GENOCIDE,
                 'declined to perform class genocide', state);
             return;
@@ -2876,7 +2876,7 @@ export async function do_genocide(how, state = game) {
             }
             if (buf[0] === '\x1b'
                 || ['none', "'none'", 'nothing']
-                    .some((word) => buf.toLowerCase() === word)) {
+                    .some((word) => lcase(buf) === word)) {
                 if (!really && (ptr = await finish_steps(
                     rndmonst_steps({ state }), impossible_printer(state)))) break;
                 livelog_printf(LL_GENOCIDE,
@@ -2936,7 +2936,7 @@ export async function do_genocide(how, state = game) {
         } else {
             buf = (state.flags?.female && state.urole.name.f)
                 ? state.urole.name.f : state.urole.name.m;
-            buf = buf[0].toLowerCase() + buf.slice(1);
+            buf = lcase(buf[0]) + buf.slice(1);
         }
     } else {
         buf = realName;
@@ -3103,7 +3103,7 @@ export async function seffect_amnesia(
         await message(
             'Your mind releases itself from mundane concerns.', state,
         );
-    } else if (String(state.plname ?? '').slice(0, 4).toLowerCase() === 'maud') {
+    } else if (lcase(String(state.plname ?? '').slice(0, 4)) === 'maud') {
         await message(
             'As your mind turns inward on itself, you forget everything else.',
             state,

@@ -125,7 +125,7 @@ import {
     dist2,
     encodeUtf8ByteString,
     mungspaces,
-    sgn,
+    sgn, lcase, ucase, upstart, strcmpi,
 } from './hacklib.js';
 import { push_front, truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
@@ -4890,18 +4890,18 @@ export function weapon_status(state = game) {
         case P_UNICORN_HORN: description = 'unihorn'; break;
         default:
             description = weapon_descr(weapon, state);
-            if (description.toLowerCase() === 'food'
+            if (lcase(description) === 'food'
                 && weapon.otyp === CREAM_PIE) description = 'pie';
             break;
         }
     }
 
-    description = description[0].toUpperCase() + description.slice(1);
+    description = upstart(description);
     let result = '';
     if ((weapon.oclass === WEAPON_CLASS || is_weptool(weapon, state))
         && bimanual(weapon, state)
         && !description.startsWith('2')
-        && !description.toLowerCase().startsWith('two')) result = '2H-';
+        && !lcase(description).startsWith('two')) result = '2H-';
     result += description;
     return result.replaceAll(' ', '-');
 }
@@ -4951,7 +4951,7 @@ export function armor_status(state = game) {
         || state.uarmc?.otyp === CLOAK_OF_PROTECTION
         || state.uarmh?.oartifact === ART_MITRE_OF_HOLINESS
         || state.uwep?.oartifact === ART_TSURUGI_OF_MURAMASA) result += '+';
-    return result[0].toUpperCase() + result.slice(1);
+    return upstart(result);
 }
 
 const TERRAIN_DESCRIPTIONS = Object.freeze([
@@ -5113,7 +5113,7 @@ function _statusTitle() {
     // of the monster name so the title reads "Name the Gnome" not "Name the
     // gnome".
     if (Upolyd(u)) {
-        role = role.replace(/(?:^|\s)\S/g, (ch) => ch.toUpperCase());
+        role = role.replace(/(?:^|\s)\S/g, (ch) => ucase(ch));
     }
     return `${name} the ${role}`;
 }
@@ -5446,7 +5446,7 @@ function _statusConditionEntries(u, shrinkLevel = 0) {
             && (delivered ? delivered.has(spec.option)
                 : statusConditionActive(spec.option, u)))
         .sort((left, right) => left.rank - right.rank
-            || left.option.localeCompare(right.option))
+            || strcmpi(left.option, right.option))
         .map((spec) => ({
             option: spec.option,
             text: spec.forms[shrinkLevel],
@@ -6353,11 +6353,11 @@ function _statusFieldData(field, valueSnapshot = null) {
 }
 
 function _statusFuzzyText(value) {
-    return String(value ?? '').toLowerCase().replace(/[" _-]+/gu, '');
+    return lcase(String(value ?? '')).replace(/[" _-]+/gu, '');
 }
 
 function _noneOfTheAbove(value) {
-    const compact = String(value ?? '').toLowerCase().replace(/[" _()-]+/gu, '');
+    const compact = lcase(String(value ?? '')).replace(/[" _()-]+/gu, '');
     return compact === 'noneoftheabove'
         || compact === 'polymorphed'
         || compact === 'noneoftheabovepolymorphed';
@@ -8439,8 +8439,8 @@ export async function status_hilite_menu_add(state, origfld, helpers) {
             const attr = hlattr2attrname(attrib);
             await hiliteMessage(state, `Added hilite condition/${conditionbitmask2str(cond)}/${clr2colorname(color).replaceAll(' ', '-')}${attr === null ? '' : `&${attr}`}`, helpers);
         } else {
-            if (fld === BL_TITLE && rule.text.toLowerCase().includes(' or ')) {
-                const index = rule.text.toLowerCase().indexOf(' or '), tail = rule.text.slice(index + 4);
+            if (fld === BL_TITLE && lcase(rule.text).includes(' or ')) {
+                const index = lcase(rule.text).indexOf(' or '), tail = rule.text.slice(index + 4);
                 rule.text = rule.text.slice(0, index);
                 status_hilite_add_threshold(state, fld, rule);
                 await hiliteMessage(state, `Added hilite ${status_hilite2str(rule)}`, helpers);

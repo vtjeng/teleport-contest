@@ -83,7 +83,7 @@ import {
 // exports only inside function bodies, so the cycle resolves.
 import { see_monsters, shieldeff } from './display.js';
 import { game } from './gstate.js';
-import { strstri } from './hacklib.js';
+import { strstri, lcase, isupper } from './hacklib.js';
 // js/invent.js does not import from this file, so no cycle.
 import { carrying } from './invent.js';
 import { TOWEL } from './objects.js';
@@ -1630,7 +1630,7 @@ export async function poisoned(
     if (!blast && strstri(reason, 'poison') < 0) {
         const plural = reason.length > 0 && reason[reason.length - 1] === 's';
         const article = reason.length > 0
-            && reason[0] === reason[0].toUpperCase() ? '' : 'The ';
+            && isupper(reason[0]) ? '' : 'The ';
         await message(
             `${article}${reason} ${plural ? 'were' : 'was'} poisoned!`,
             state,
@@ -1652,9 +1652,9 @@ export async function poisoned(
         if (!type_is_pname(state.mons[i_mon]))
             pkiller = the(pkiller, state);
     } else if (pkiller.length >= 4
-               && (pkiller.slice(0, 4).toLowerCase() === 'the '
-                   || pkiller.slice(0, 3).toLowerCase() === 'an '
-                   || pkiller.slice(0, 2).toLowerCase() === 'a ')) {
+               && (lcase(pkiller.slice(0, 4)) === 'the '
+                   || lcase(pkiller.slice(0, 3)) === 'an '
+                   || lcase(pkiller.slice(0, 2)) === 'a ')) {
         kprefix = KILLED_BY;
     }
 

@@ -66,7 +66,7 @@ import {
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { dist2, s_suffix, sgn } from './hacklib.js';
+import { dist2, s_suffix, sgn, lcase } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon_by_context, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
@@ -817,7 +817,7 @@ export function priestname(mon, article, reveal_high_priest, state = game, env =
         if (high_priest)
             pname += do_hallu ? 'grand ' : 'high ';
     } else {
-        if (mon.mtame && what.toLowerCase() === 'angel')
+        if (mon.mtame && lcase(what) === 'angel')
             pname += 'guardian ';
     }
 

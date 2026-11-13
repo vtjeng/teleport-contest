@@ -15,7 +15,7 @@ import { tty_getlin } from './getline.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
-    appendLongDigit,
+    appendLongDigit, ucase, lcase,
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
@@ -1745,7 +1745,7 @@ export function gotRoleFilter(state = game) {
 }
 
 function indefiniteArticle(text) {
-    return /^[aeiou]/iu.test(text) ? `an ${text}` : `a ${text}`;
+    return /^[aeiouAEIOU]/u.test(text) ? `an ${text}` : `a ${text}`;
 }
 
 function roleFilterItems(filter) {
@@ -1753,8 +1753,8 @@ function roleFilterItems(filter) {
     let lastSelector = '';
     for (let index = 0; index < roles.length; ++index) {
         const role = roles[index];
-        let selector = role.name.m[0].toLowerCase();
-        if (selector === lastSelector) selector = selector.toUpperCase();
+        let selector = lcase(role.name.m[0]);
+        if (selector === lastSelector) selector = ucase(selector);
         lastSelector = selector;
 
         let name = role.name.m;
@@ -1790,7 +1790,7 @@ function raceFilterItems(filter) {
             ROLE_NONE, index, ROLE_NONE, ROLE_NONE, filter,
         );
         items.push({
-            selector: race.noun[0].toUpperCase(),
+            selector: ucase(race.noun[0]),
             label: race.noun,
             value: race.noun,
             selected: !raceOk,
@@ -1811,7 +1811,7 @@ function genderFilterItems(filter) {
             ROLE_NONE, ROLE_NONE, index, ROLE_NONE, filter,
         );
         items.push({
-            selector: gender.adj[0].toUpperCase(),
+            selector: ucase(gender.adj[0]),
             label: gender.adj,
             value: gender.adj,
             selected: !genderOk,
@@ -1832,7 +1832,7 @@ function alignmentFilterItems(filter) {
             ROLE_NONE, ROLE_NONE, ROLE_NONE, index, filter,
         );
         items.push({
-            selector: alignment.adj[0].toUpperCase(),
+            selector: ucase(alignment.adj[0]),
             label: alignment.adj,
             value: alignment.adj,
             selected: !alignmentOk,

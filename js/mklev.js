@@ -4967,7 +4967,7 @@ function createSpecialLevelApi(state, lua) {
                 const montype = Number.isInteger(spec.montype) ? spec.montype
                     : get_table_str_opt(spec, 'montype', null);
                 if (Number.isInteger(montype)) corpsenm = montype;
-                const token = typeof montype === 'string' ? montype.toLowerCase() : null;
+                const token = typeof montype === 'string' ? lcase(montype) : null;
                 const nonpmobj = (id === TIN && (token === 'spinach' || token === 'empty'))
                     || (id === EGG && token === 'empty');
                 if (token != null && !nonpmobj) {
@@ -4982,7 +4982,7 @@ function createSpecialLevelApi(state, lua) {
                         for (let i = LOW_PM; i < NUMMONS; ++i) {
                             const names = state.mons[i].pmnames;
                             if ([names[NEUTRAL], names[MALE], names[FEMALE]]
-                                .some(name => name != null && name.toLowerCase() === token)) {
+                                .some(name => name != null && lcase(name) === token)) {
                                 species = state.mons[i];
                                 break;
                             }
