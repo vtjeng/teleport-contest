@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20290614152000",
+      "nethackrc": "OPTIONS=name:Brushed,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017neutral altar\n\u00176 wraith corpses\n\u0017blindfold\nPf#offer\ne  #offer\ne  #offer\ne  #offer\ne  #offer\ne  #offer\ne  ",
+      "comment": "pray.c offer_corpse() luck branch while blind: wraith corpses (value 10 for a non-chaotic hero) first work off the prayer timeout, which starts at 300 and grows with each wish (zap.c makewish()); a later one raises Luck, so the blindfolded hero gets \"You think something brushed your foot.\" with body_part(FOOT) in the singular."
+    }
+  ]
+}

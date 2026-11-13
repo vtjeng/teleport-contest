@@ -1125,9 +1125,10 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         if (u.uluck < 0) u.uluck = 0;
         if (u.uluck !== originalLuck) {
             if (Blind(state.u)) {
+                // C ref: pray.c offer_corpse(): singular body_part(FOOT).
                 await ttyPline(
                     `You think ${something} brushed your `
-                        + `${makeplural(body_part(FOOT, state.youmonst))}.`,
+                        + `${body_part(FOOT, state.youmonst)}.`,
                     state,
                 );
             } else {
