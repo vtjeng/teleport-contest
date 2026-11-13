@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3304812,
+      "datetime": "20270922083000",
+      "nethackrc": "OPTIONS=name:Crabgrass,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017lawful altar\n\u00177 wraith corpses\n\u0017potion of hallucination\n#offer\nf  #offer\nf  #offer\nf  #offer\nf  #offer\nf  qg  #offer\nf  #offer\nf  ",
+      "comment": "pray.c offer_corpse() luck branch while sighted: wraith corpses (value 10 for a non-chaotic hero) work off the prayer timeout, which grows with each wish (zap.c makewish()); a sober offering then shows \"You glimpse a four-leaf clover at your feet.\" and, after a potion of hallucination, \"You see crabgrass at your feet.  A funny thing in a dungeon.\" with two spaces between the sentences."
+    }
+  ]
+}

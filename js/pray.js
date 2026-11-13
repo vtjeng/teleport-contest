@@ -1132,12 +1132,11 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
                     state,
                 );
             } else {
+                const feet = makeplural(body_part(FOOT, state.youmonst));
                 await ttyPline(
-                    `You ${Hallucination(state.u)
-                        ? 'see crabgrass' : 'glimpse a four-leaf clover'} at your `
-                        + `${makeplural(body_part(FOOT, state.youmonst))}`
-                        + `${Hallucination(state.u)
-                            ? '. A funny thing in a dungeon.' : '.'}`,
+                    Hallucination(state.u)
+                        ? `You see crabgrass at your ${feet}.  A funny thing in a dungeon.`
+                        : `You glimpse a four-leaf clover at your ${feet}.`,
                     state,
                 );
             }

@@ -21,6 +21,9 @@ const NOT_YOU_SEE = [
     ['zap.js', "'You see a puff'"],
     // vault.c:877 You("see %s approaching.", ...)
     ['vault.js', '`You see ${name} approaching.`'],
+    // pray.c:2114 You(Hallucination ? "see crabgrass at your %s.  A funny
+    // thing in a dungeon." : ...), reached only when not Blind
+    ['pray.js', '`You see crabgrass at your ${feet}.'],
 ];
 
 const PREFIX = /['"`]You (?:dream that you )?see /u;
@@ -55,8 +58,9 @@ test('only pline.js youSee() writes the You_see() prefixes', () => {
 test('the exceptions hold the pinned number of entries and sites', () => {
     // On 9f7e42e6 (8 November 2026): 2 NOT_YOU_SEE entries covering 2
     // literals, and 1 literal in the data tables, a quotation in
-    // js/data_base_data.js.
-    const PINS = { entries: 2, listed: 2, data: 1 };
+    // js/data_base_data.js. The pray.c crabgrass message made it 3 and 3
+    // on 13 November 2026, when the port first spelled it as one literal.
+    const PINS = { entries: 3, listed: 3, data: 1 };
     const pin = (key) => `PINS.${key} in scripts/you-see-prefix.test.mjs`;
     const sites = prefixSites();
     const count = (kind) => sites.filter(({ excused }) => excused === kind).length;

@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3993 | 75 |
+| gameplay | 4068 | 3994 | 74 |
 | diagnostic | 723 | 229 | 494 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4225 | 686 |
+| total | 4911 | 4226 | 685 |
 
 ## Missing by C file
 
@@ -92,7 +92,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/pickup.c | yes | 1 | 6 | 1 |
 | src/pline.c | yes | 1 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
-| src/pray.c | yes | 1 | 6 | 0 |
+| src/pray.c | yes | 0 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
 | src/quest.c | yes | 0 | 1 | 0 |
 | src/questpgr.c | yes | 0 | 6 | 0 |
@@ -293,11 +293,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `execplinehandler()`
   - 670 pline: `Fork to message handler failed.`
-
-### src/pray.c
-
-- `offer_corpse()`
-  - 2115 You: `.  A funny thing in a dungeon.`
 
 ### src/restore.c
 
