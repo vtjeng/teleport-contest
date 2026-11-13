@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c swallowed() draws the hero with display_self(). A hallucinating Valkyrie with an amulet of magical breathing is engulfed by a fog cloud, then eats a blessed tin of small mimic meat and mimics an orange. allmain.c moveloop_core() calls swallowed(0) each turn while the hero hallucinates inside the engulfer, and display_self() shows the mimicked orange instead of the hero symbol.",
+  "segments": [
+    {
+      "seed": 640219,
+      "datetime": "20261115134500",
+      "nethackrc": "OPTIONS=name:Mimi,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017potion of hallucination\n\u0017blessed tin of small mimic meat\n\u0017amulet of magical breathing\nPgqe\u0007hostile fog cloud\nmsmsmsmsmsms ef  y    "
+    }
+  ]
+}
