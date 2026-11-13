@@ -264,10 +264,6 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/dothrow.js | gem_accept | rloc": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dothrow.js | return_throw_to_inv | setuqwep": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
