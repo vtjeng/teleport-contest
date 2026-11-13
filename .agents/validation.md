@@ -523,6 +523,8 @@ Each of these has produced a wrong conclusion before.
   `moves.charCodeAt(i)`. Before changing how the port reads input, times
   output or writes the terminal to match our recorder, check `frozen/` and the
   public sessions, and follow them where the two disagree.
+  `scripts/judge-key-encoding.test.mjs` fails if the port's key replay stops
+  matching `frozen/playability_runner.mjs`.
 - When the judge's score changes and replaying our own recordings does not
   explain it, read the open issues on davidbau/teleport-contest before
   searching further.
