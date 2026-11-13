@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5129911,
+      "datetime": "20280317201500",
+      "nethackrc": "OPTIONS=name:Amber,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017lawful altar\n\u001712 wraith corpses\n\u0017cursed potion of water\n\u00172 cursed daggers\n#offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #offer\ni  #pray\ny y     #pray\ny y     #pray\ny y     #pray\ny y     #pray\ny y     ",
+      "comment": "pray.c pleased() pat_on_head case 4: wraith sacrifices on a lawful altar work off the prayer timeout and raise Luck, then forced wizard-mode prayers (alignment 10 >= STRIDENT, no trouble, so action 5 sets pat_on_head) reach \"You are surrounded by a light blue aura.\" and the uncurse messages, \"Your clear potion softly glows amber.\" for one object and \"Your 2 daggers softly glow amber.\" for a plural stack (Yobjnam2() with the verb \"softly glow\")."
+    }
+  ]
+}

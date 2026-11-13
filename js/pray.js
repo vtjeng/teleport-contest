@@ -2502,9 +2502,8 @@ export async function pleased(g_align, state = game) {
                     weapon.oeroded2 = 0;
                     if (repair_buf)
                         await ttyPline(
-                            `${Yobjnam2(weapon, null, state)} ${otense(
-                                weapon, Blind(state.u) ? 'feel' : 'look', state,
-                            )} as good as new!`, state,
+                            `${Yobjnam2(weapon, Blind(state.u) ? 'feel' : 'look', state)}`
+                                + ' as good as new!', state,
                         );
                 }
                 update_inventory({ state });
@@ -2585,7 +2584,7 @@ export async function pleased(g_align, state = game) {
                         || u.uarmh.otyp !== HELM_OF_OPPOSITE_ALIGNMENT)) {
                     if (!Blind(state.u)) {
                         await ttyPline(
-                            `${Yobjnam2(object, null, state)} ${hcolor('amber', state)}.`,
+                            `${Yobjnam2(object, 'softly glow', state)} ${hcolor('amber', state)}.`,
                             state,
                         );
                         state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
