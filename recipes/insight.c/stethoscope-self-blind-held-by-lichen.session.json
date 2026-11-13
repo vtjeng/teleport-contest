@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 318822,
+      "datetime": "20191103190000",
+      "nethackrc": "OPTIONS=name:Oswin,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017blindfold\nPl\u0007lichen\n30s ac. ",
+      "comment": "A blindfolded Healer is stuck to a lichen he cannot see and applies his stethoscope to himself. insight.c ustatusline() appends a_monnam(u.ustuck) unchanged, so C prints \"held by it\"; only the enlightenment status section substitutes \"an unseen creature\". Seed, date, character and holder chosen independently of the batch 14 pilot."
+    }
+  ]
+}

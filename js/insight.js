@@ -3198,12 +3198,10 @@ export async function ustatusline(state = game) {
             info += ', held by ';
         else
             info += ', holding ';
-        let heldmon = a_monnam(u.ustuck, { state });
-        if (heldmon === 'it'
-            && (!u.ustuck.mextra?.mgivenname
-                || u.ustuck.mextra.mgivenname !== 'it'))
-            heldmon = 'an unseen creature';
-        info += heldmon;
+        // C appends a_monnam(u.ustuck) as it is: an unseen holder is "it".
+        // Only enlightenment's status section substitutes "an unseen
+        // creature".
+        info += a_monnam(u.ustuck, { state });
     }
     // insight.c:3474-3476 excludes regions while swallowed.
     if (!u.uswallow) {
