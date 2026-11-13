@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c checkfile() lcase()s the typed name before fruit_from_name() compares it with the fruit by strcmp(). lcase() changes only 'A'-'Z', so the fruit \"éclair\" (typed as its UTF-8 bytes 0xC3 0xA9 with eight_bit_tty on, so sanitize_name() keeps them) does not match \"Éclair\" (0xC3 0x89): C finds no entry for it, and then shows the fruit entry for \"éclair\". Seed 4410923, clock 20380214093000 and the gnome Healer were chosen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 4410923,
+      "datetime": "20380214093000",
+      "nethackrc": "OPTIONS=name:Ines,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,eight_bit_tty\n",
+      "moves": "OaÃ©clair\n\u001b/?Ãclair\n\u001b\u001b/?Ã©clair\n\u001b\u001b"
+    }
+  ]
+}

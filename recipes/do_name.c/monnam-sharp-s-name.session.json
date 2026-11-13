@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_name.c Monnam() is upstart(), whose highc() changes only 'a'-'z'. The Samurai names his dog \"ßob\" (keys 0xC3 0x9F, the UTF-8 bytes of 'ß') and chats to it: sounds.c domonnoise() prints \"%s barks.\" with Monnam(), so the name keeps its first byte, where an upper-casing that knows 'ß' would write \"SS\". Seed 8162034, clock 20410923171500 and the role were chosen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 8162034,
+      "datetime": "20410923171500",
+      "nethackrc": "OPTIONS=name:Oda,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "#name\nmm.Ãob\n#chat\nj"
+    }
+  ]
+}
