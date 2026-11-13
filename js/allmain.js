@@ -1277,6 +1277,10 @@ async function moveloop_core_body() {
         await makewish(g);
     }
 
+    // C ref: allmain.c:453. find_ac() comes before the vision recalculation
+    // below, so a wall_angle() impossible() that vision_recalc() prints
+    // flushes a status line that already shows the new AC.
+    find_ac(g);
     const hallucinating = Hallucination(g.u);
     const blind = Blind(g.u);
     // Keep the existing non-hallucinatory vision/region ordering. Hallucination
@@ -1293,7 +1297,6 @@ async function moveloop_core_body() {
     // Close the elapsed turn's display work before status calculation and
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
-    find_ac(g);
     // C ref: allmain.c moveloop_core() (474-485). When the hero cannot move
     // this input, hallucination repaints the visible monster/object/trap
     // layers and redraws the swallowed stomach. The latter bypasses newsym(),
