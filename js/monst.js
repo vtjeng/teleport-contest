@@ -4,6 +4,10 @@
 
 import { MON_FLOOR } from './const.js';
 import { isok } from './cmd_isok.js';
+import { describe_level } from './display.js';
+import { minimal_monnam } from './do_name.js';
+import { impossible_printer } from './pline.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { game } from './gstate.js';
 import { update_monster_region } from './region.js';
 
@@ -97,28 +101,58 @@ export function m_at(x, y, state = game) {
     return monsterGrid(state)[x]?.[y] ?? null;
 }
 
-// C ref: steed.c place_monster(). The exceptional <0,0> vault-guard parking
-// spot is retained; ordinary live monsters must occupy an empty valid square.
-// This updates only the coordinate index and the monster position/state.
-// makemon() owns creation-time monlist linkage; relocation callers clear the
-// old coordinate before placing again.
+// C ref: steed.c place_monster() (897-933), written once as
+// place_monster_steps() (js/source_steps.js). Off the map, the monster is
+// put at <0,0>; a steed not being dismounted, or a dead monster other than a
+// parked vault guard, is not placed; an occupied square is overwritten, the
+// occupant staying on the monster list. Each case first reports through
+// impossible(), which C prints in the middle of the function.
+function* place_monster_steps(mon, x, y, state) {
+    if (!isok(x, y) && (x !== 0 || y !== 0 || !mon.isgd)) {
+        yield new ImpossibleCall(`trying to place ${minimal_monnam(mon, true, state)}`
+            + ` at <${x},${y}> mstate:${(mon.mstate >>> 0).toString(16)}`
+            + ` on ${describe_level(0, state)}`);
+        x = y = 0;
+    }
+    if ((mon === state.u?.usteed && !state.in_steed_dismounting)
+        /* special case is for convoluted vault guard handling */
+        || (mon.mhp < 1 && !(mon.isgd && x === 0 && y === 0))) {
+        yield new ImpossibleCall(`placing ${mon === state.u?.usteed
+            ? 'steed' : 'defunct monster'} onto map, mstate:${
+            (mon.mstate >>> 0).toString(16)}, on ${describe_level(0, state)}?`);
+        return;
+    }
+    const grid = monsterGrid(state);
+    const othermon = grid[x][y];
+    if (othermon) {
+        const monnm = minimal_monnam(mon, false, state);
+        const othnm = mon !== othermon
+            ? minimal_monnam(othermon, true, state) : 'itself';
+        yield new ImpossibleCall(`placing ${monnm} over ${othnm} at <${x},${y}>,`
+            + ` mstates:${(othermon.mstate >>> 0).toString(16)}`
+            + ` ${(mon.mstate >>> 0).toString(16)} on ${describe_level(0, state)}?`);
+    }
+    mon.mx = x;
+    mon.my = y;
+    grid[x][y] = mon;
+    mon.mstate = MON_FLOOR;
+}
+
+// place_monster() for a caller that cannot wait: gap_impossible() records
+// each report as unported and the placement goes on as in C.
 export function place_monster(monster, x, y, state = game) {
-    const parkedGuard = x === 0 && y === 0 && monster?.isgd;
     if (!monster || typeof monster !== 'object')
         throw new TypeError('place_monster requires a monster instance');
-    if (!isok(x, y) && !parkedGuard)
-        throw new RangeError(`place_monster: off-map location <${x},${y}>`);
-    if (monster.mhp < 1 && !parkedGuard)
-        throw new Error('place_monster: cannot place a dead monster');
+    finish_steps(place_monster_steps(monster, x, y, state));
+}
 
-    const grid = monsterGrid(state);
-    if (grid[x][y])
-        throw new Error(`place_monster: occupied location <${x},${y}>`);
-    monster.mx = x;
-    monster.my = y;
-    grid[x][y] = monster;
-    monster.mstate = MON_FLOOR;
-    return monster;
+// place_monster() for a caller that can wait, which awaits the result: it
+// prints each impossible() report where C's place_monster() makes it.
+export function place_monster_async(monster, x, y, state = game, env = {}) {
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('place_monster requires a monster instance');
+    return finish_steps(place_monster_steps(monster, x, y, state),
+        impossible_printer(state, env));
 }
 
 // C ref: rm.h remove_monster(). This clears only the coordinate index. Monster

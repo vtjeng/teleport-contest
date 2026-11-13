@@ -668,6 +668,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/monst.js | place_monster | finish_steps": {
+      "count": 1,
+      "reason": "place_monster() is the synchronous form of place_monster_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. place_monster_async() is the form for a caller that can wait."
+    },
     "js/mplayer.js | mk_mplayer_armor | bless": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

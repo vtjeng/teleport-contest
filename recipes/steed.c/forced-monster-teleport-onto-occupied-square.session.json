@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steed.c place_monster():921-927 reports placing a monster on a square another monster holds through impossible() ('placing newt <33,15> over newt <33,16> at <33,16>, ...'), then places it anyway, leaving the occupant on the monster list. A wizard-mode player reaches it with the montelecontrol option: teleport.c control_mon_tele() lets her choose where a teleported monster goes and answers y to '... is not considered viable; force anyway?', and rloc() passes the occupied square to rloc_to_core(). A human Valkyrie in debug mode creates two newts, wishes for a wand of teleportation (f), zaps it east at one newt, dismisses the getpos tip, moves the cursor onto the other newt, forces the spot, reads the three impossible() lines and searches twice with the m prefix (a newt is adjacent). Seed, date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7046118,
+      "datetime": "20310214093000",
+      "nethackrc": "OPTIONS=name:Warden,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,montelecontrol\n",
+      "moves": " \u0007newt\n\u0007newt\n\u0017wand of teleportation\nzfl \u001b j.y   msms"
+    }
+  ]
+}

@@ -163,7 +163,7 @@ import { is_home_elemental } from './makemon.js';
 import {
     m_at,
     mon_track_clear,
-    place_monster,
+    place_monster_async,
     remove_monster,
 } from './monst.js';
 import { place_worm_tail_randomly, remove_worm } from './worm.js';
@@ -1183,7 +1183,14 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
         }
 
         mon_track_clear(monster);
-        place_monster(monster, x, y, state);
+        // steed.c place_monster() can report through impossible(), as when
+        // a wizard-mode player forces a teleporting monster onto an occupied
+        // square (control_mon_tele()); its lines print before the rest.
+        return thenResult(place_monster_async(monster, x, y, state,
+            { ...env, message }), afterPlace);
+    };
+
+    const afterPlace = () => {
         update_monster_region(monster, state);
         if (monster.wormno)
             place_worm_tail_randomly(monster, x, y, {

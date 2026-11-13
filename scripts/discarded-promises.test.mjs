@@ -29,8 +29,10 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // vision_recalc(2) (branch wall-angle-vision, 12 November 2026). 304 and
 // 389 since dothrow.js gem_accept() awaits its rloc() (branch b15-fixes,
 // 13 November 2026). 303 and 388 since bones.js drop_upon_death() awaits
-// its obj_extract_self() (branch b16-defects, 13 November 2026).
-const ALLOWLIST_PINS = { entries: 303, calls: 388 };
+// its obj_extract_self() (branch b16-defects, 13 November 2026). 304 and
+// 389 with monst.js place_monster()'s finish_steps(), the synchronous form of
+// place_monster_steps() (branch b16-defects, 13 November 2026).
+const ALLOWLIST_PINS = { entries: 304, calls: 389 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());
