@@ -213,7 +213,6 @@ import {
 import { wake_nearto } from './mon.js';
 import { digests } from './dothrow.js';
 import {
-    dismissPendingTtyMessage,
     displayPendingTtyMessageWindow,
     ttyNorep,
     ttyPline,
@@ -1939,17 +1938,10 @@ async function defaultWaitFoundTrap(env) {
             + 'for non-global state',
         );
     }
-    // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_MAP, TRUE).
-    // A pending find_trap() message is presented through more(), whose key
-    // wait and topline cleanup are owned by the tty message subsystem.
-    // WIN_STOP suppresses that message and therefore the wait, but find_trap()
-    // still continues to docrt().
-    const messageWasStopped = Boolean(env.state._ttyMessageStopped);
-    if (!await dismissPendingTtyMessage(env.state) && !messageWasStopped) {
-        throw new Error(
-            'automatic search trap-map wait requires its pending tty message',
-        );
-    }
+    // C ref: detect.c find_trap() display_nhwindow(WIN_MAP, TRUE), then
+    // docrt(). tty waits at --More-- only when the topline holds the
+    // message; WIN_STOP or a MSGTYPE=hide match leaves nothing to wait for.
+    await tty_display_nhwindow_map_blocking(env.state);
     await docrt();
 }
 
