@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c level_distance() (lines 1154-1183): a gnomish Wizard in debug mode wishes for a blessed +7 crystal ball and gazes into it for a symbol that is no object, monster or furniture ('7'), which makes use_crystal_ball() name a random special level and its distance. He gazes four times on level 1, where the targets lie below or in another dungeon, then level-teleports with ^V to the Valley and to level 40 in Gehennom and gazes again, where they lie above, wishing for a second ball when the first is empty. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6120443,
+      "datetime": "20410128084500",
+      "nethackrc": "OPTIONS=name:Gazer,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nblessed +7 crystal ball\n\u001b\u001bao\u001b7\u001b\u001b\u001bao\u001b7\u001b\u001b\u001bao\u001b7\u001b\u001b\u001bao\u001b7\u001b\u001b\u001640\n\u001b\u001b\u001b\u001bao\u001b7\u001b\u001b\u001bao\u001b7\u001b\u001b\u001bao\u001b7\u001b\u001b\u001640\n\u001b\u001b\u001b#wizwish\nblessed +7 crystal ball\n\u001b\u001bap\u001b7\u001b\u001b\u001bap\u001b7\u001b\u001b\u001bap\u001b7\u001b\u001b\u001bap\u001b7\u001b\u001b"
+    }
+  ]
+}
