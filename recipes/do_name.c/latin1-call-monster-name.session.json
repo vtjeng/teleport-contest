@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73105,
+      "datetime": "20230824203000",
+      "nethackrc": "OPTIONS=name:Ottavio,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "Cémm,naïve\n;m."
+    }
+  ],
+  "comment": "'C' opens docallcmd()'s menu, which ignores 'é' (0xE9); 'm' chooses a monster, getpos() 'm' moves the cursor to the pony and ',' selects it. getlin() stores 'ï' in \"naïve\" as the byte 0xEF, which recorder patch 006's nomux_putch() leaves blank when echoed, and farlook then shows the pony called \"na ve\"."
+}

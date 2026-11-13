@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 80933,
+      "datetime": "20161219180000",
+      "nethackrc": "OPTIONS=name:Rudi,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": ";éll."
+    }
+  ],
+  "comment": "';' (farlook) calls getpos(), which reports 'é' (0xE9) as an unknown direction, shown by visctrl() as M-i; 'l' moves the cursor and '.' picks the location."
+}

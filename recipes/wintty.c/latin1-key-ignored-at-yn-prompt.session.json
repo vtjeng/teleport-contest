@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66403,
+      "datetime": "20250206224500",
+      "nethackrc": "OPTIONS=name:Tobiah,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "ðýn"
+    }
+  ],
+  "comment": "'ð' (0xF0) is M-p, #pray. tty_yn_function() rejects 'ý' (0xFD), which is not one of the prompt's choices, and keeps waiting; 'n' declines."
+}

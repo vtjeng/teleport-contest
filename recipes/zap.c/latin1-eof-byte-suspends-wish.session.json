@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12477,
+      "datetime": "20200608093000",
+      "nethackrc": "OPTIONS=name:Wanda,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "\u0017ÿ lamp\n  "
+    }
+  ],
+  "comment": "In debug mode ^W asks for a wish. pgetchar() returns 'ÿ' (0xFF) as the signed char -1, EOF, so hooked_tty_getlin() sets iflags.term_gone and makewish() returns with context.resume_wish set; moveloop_core() resumes the wish after the --More--. term_gone is never cleared, so makewish() discards \"lamp\" too, and the first space, an unknown command, resumes the wish again."
+}

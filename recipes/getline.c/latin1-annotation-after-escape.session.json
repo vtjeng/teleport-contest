@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90127,
+      "datetime": "20180424110000",
+      "nethackrc": "OPTIONS=name:Hakon,role:Valkyrie,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "Áx\u001bÆøß\n\u000f"
+    }
+  ],
+  "comment": "'Á' (0xC1) is M-A, #annotate. hooked_tty_getlin() restarts the prompt when Escape follows text ('x'), then stores 'Æ', 'ø' and 'ß' (0xC6, 0xF8, 0xDF) one byte each, echoing each as an untouched cell; ^O's dungeon overview prints the annotation."
+}

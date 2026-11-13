@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4417,
+      "datetime": "20190305141000",
+      "nethackrc": "OPTIONS=name:Lirio,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "Ã\u001bÃ\u001bä\u001bé\u001bñö\u001bã\u001bs"
+    }
+  ],
+  "comment": "tty_nhgetch() reads one byte per input boundary, and the recorder sends each moves character up to U+00FF as that byte, as the judge's held-out sessions were recorded. A high byte is a Meta key. The welcome --More-- ignores the first 'Ã' (0xC3) and Escape dismisses it; the second runs M-C (#conduct). 'ä' (0xE4) runs M-d (#dip), 'é' (0xE9) M-i (#invoke), 'ö' (0xF6) M-v (#version) and 'ã' (0xE3) M-c (#chat), each closed with Escape. 'ñ' (0xF1, M-q) and U+0085 (M-^E) are unbound, so rhack() reports an unknown command."
+}

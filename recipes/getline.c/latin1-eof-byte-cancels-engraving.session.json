@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44590,
+      "datetime": "20220315121500",
+      "nethackrc": "OPTIONS=name:Isidro,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\nOPTIONS=pettype:none\n",
+      "moves": "E- naïÿE- ñu\n: "
+    }
+  ],
+  "comment": "hooked_tty_getlin() reads 'ÿ' (0xFF) as EOF, which cancels the engraving prompt even over the typed \"na\" and 0xEF ('ï'), where Escape would restart it. The second engraving stores 'ñ' (0xF1) and 'u', and ':' reads back \" u\", the high byte left blank."
+}

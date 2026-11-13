@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31846,
+      "datetime": "20270909150500",
+      "nethackrc": "OPTIONS=name:Umeko,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#café\n#é\n"
+    }
+  ],
+  "comment": "tty_get_ext_cmd() reads '#' commands a byte at a time. 'é' (0xE9) follows \"caf\" in the first and stands alone in the second; neither matches an extended command, and each is reported as unknown with the high byte printed as a blank."
+}

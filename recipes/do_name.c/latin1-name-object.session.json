@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58211,
+      "datetime": "20211109071500",
+      "nethackrc": "OPTIONS=name:Brisa,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none\n",
+      "moves": "#name\nibcafé\ni\u001b"
+    }
+  ],
+  "comment": "#name, then 'i', names one inventory object: the pancakes (b) get the name \"café\", whose last byte, 0xE9, getlin() stores and echoes as an untouched cell. The inventory shows them named \"caf\" and that blank."
+}
