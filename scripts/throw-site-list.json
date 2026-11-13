@@ -1248,6 +1248,12 @@
       "c": "src/hack.c:4557",
       "reason": "C panic(\"division by zero in rounddiv\"); synchronous function."
     },
+    "js/hacklib.js | bytesText | `bytesText(): ${byte} is not a byte`": {
+      "count": 1,
+      "class": "invariant",
+      "c": null,
+      "reason": "A caller passed a value that is not a byte; every production caller passes bytes read from a C buffer, a key or textBytes()."
+    },
     "js/input.js | nhgetch | 'Input queue empty - test may be missing keystrokes'": {
       "count": 1,
       "class": "invariant",

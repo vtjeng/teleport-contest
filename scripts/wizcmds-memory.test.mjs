@@ -3,6 +3,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import * as wiz from '../js/wizcmds.js';
+import { utf8Text } from '../js/hacklib.js';
 import * as region from '../js/region.js';
 import * as dungeon from '../js/dungeon.js';
 import * as engrave from '../js/engrave.js';
@@ -25,7 +26,7 @@ test('size_obj and size_monst count allocation presence and source byte strings'
     assert.equal(worm.size_wseg(saved, state), 2 * sz.wseg);
     assert.equal(wiz.size_monst(saved, false, state), sz.monst + sz.mextra + 4 + sz.edog); // Name includes terminating NUL.
     assert.equal(wiz.size_monst(saved, true, state), sz.monst + sz.mextra + 4 + sz.edog + 2 * sz.wseg);
-    const obj = { quan: 999, oextra: { oname: '', omailcmd: 'é', omonst: saved } }; // Quantity is irrelevant; UTF-8 mail text occupies two bytes.
+    const obj = { quan: 999, oextra: { oname: '', omailcmd: utf8Text('é'), omonst: saved } }; // Quantity is irrelevant; UTF-8 mail text occupies two bytes.
     assert.equal(wiz.size_obj(obj, state), sz.obj + sz.oextra + 1 + 3 + wiz.size_monst(saved, false, state));
     assert.equal(wiz.size_obj({}), sz.obj); // No separately allocated oextra.
     for (const key of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
@@ -104,7 +105,7 @@ test('allocation helper formulas and production callers are pinned to whole C so
 });
 test('misc_stats includes every conditional chain and allocated empty names', () => {
     const rows = [], totals = total();
-    const state = { level: { traps: [{}, {}], damagelist: { next: {} }, bonesinfo: [{}, {}], regions: [], max_regions: 0 }, killer: { next: { next: {} } }, objects: [{ oc_uname: '' }, { oc_uname: 'é' }, {}] }; // Two records per conditional list, plus two allocated names including empty text.
+    const state = { level: { traps: [{}, {}], damagelist: { next: {} }, bonesinfo: [{}, {}], regions: [], max_regions: 0 }, killer: { next: { next: {} } }, objects: [{ oc_uname: '' }, { oc_uname: utf8Text('é') }, {}] }; // Two records per conditional list, plus two allocated names including empty text.
     wiz.misc_stats(rows, totals, state);
     assert.deepEqual(totals, { count: 10, size: 2 * sz.trap + 2 * sz.damage + 2 * sz.kinfo + 2 * sz.cemetery + 4 });
     assert.deepEqual(rows.map(r => r.text.slice(0, 27).trim()), [

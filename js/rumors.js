@@ -13,7 +13,7 @@ import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { record_achievement } from './insight.js';
 import { currency, money_cnt } from './invent.js';
-import { decodeUtf8ByteString, xcrypt } from './hacklib.js';
+import { bytesText, xcrypt } from './hacklib.js';
 import { outrumor } from './random_text.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { rnd } from './rng.js';
@@ -92,7 +92,7 @@ export function init_rumors(file, state = game) {
 function decodedLine(line) {
     const newline = line.indexOf('\n');
     const encrypted = newline >= 0 ? line.slice(0, newline) : line;
-    return decodeUtf8ByteString(Array.from(xcrypt(encrypted), character => character.charCodeAt(0)));
+    return bytesText(Array.from(xcrypt(encrypted), character => character.charCodeAt(0)));
 }
 
 // C ref: rumors.c rumor_check() (196-303). A local line array represents the
@@ -182,7 +182,7 @@ export function others_check(ftype, fname, win, env = {}) {
         error('malformed; first line is not a comment line:');
         const raw = line.split('\n')[0];
         put('- first line, as is');
-        put(decodeUtf8ByteString(Array.from(raw, character => character.charCodeAt(0))));
+        put(bytesText(Array.from(raw, character => character.charCodeAt(0))));
         put('- xcrypt of first line');
         put(decodedLine(line));
     } else {

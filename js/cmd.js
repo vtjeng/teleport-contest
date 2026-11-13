@@ -241,7 +241,7 @@ import {
     strstri,
     strsubst,
     truncateByteString,
-    encodeUtf8ByteString,
+    textBytes,
     appendLongDigit,
     upstart,
     visctrl,
@@ -845,7 +845,7 @@ export async function yn_function(
 
     // cmd.c:5486-5491: the maximum acceptable length is QBUFSZ-1 bytes.
     // paniclog() appends the query to a log file, which a game cannot see.
-    if (encodeUtf8ByteString(query).length >= QBUFSZ) {
+    if (textBytes(query).length >= QBUFSZ) {
         note_unported('files.c paniclog');
         query = `${truncateByteString(query, QBUFSZ - 1 - 3)}...`;
     }
@@ -958,9 +958,9 @@ export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) 
         let promptPrefix = '';
         let tryLimit = 6;
         do {
-            const k = encodeUtf8ByteString(promptPrefix).length + 1
-                + encodeUtf8ByteString(responseType).length;
-            if (encodeUtf8ByteString(pbuf).length + k > QBUFSZ - 1) {
+            const k = textBytes(promptPrefix).length + 1
+                + textBytes(responseType).length;
+            if (textBytes(pbuf).length + k > QBUFSZ - 1) {
                 const retained = QBUFSZ - 1 - k - 4;
                 pbuf = `${truncateByteString(pbuf, retained)}...?`;
             }

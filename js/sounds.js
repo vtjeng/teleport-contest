@@ -125,8 +125,8 @@ import { impossible_printer, youHear } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { mplayer_talk } from './mplayer.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString, lcase, ucase,
+    bytesText,
+    textBytes, lcase, ucase,
 } from './hacklib.js';
 import { search_special } from './mkroom.js';
 import { genus, get_iter_mons, wake_nearto } from './mon.js';
@@ -1804,7 +1804,7 @@ export function add_sound_mapping(mapping, state = game, rawEnv = {}) {
     }
     state.sounddir ??= '.';
     const filespec = `${state.sounddir}/${parsed.filename}`;
-    if (encodeUtf8ByteString(filespec).length >= 256) {
+    if (textBytes(filespec).length >= 256) {
         soundMappingError('sound file name too long', state, rawEnv);
         return 0;
     }
@@ -1995,7 +1995,7 @@ export function initialize_semap_basenames() {
 }
 
 function cStringBytes(value) {
-    const bytes = encodeUtf8ByteString(value);
+    const bytes = textBytes(value);
     const nul = bytes.indexOf(0);
     return nul < 0 ? bytes : bytes.slice(0, nul);
 }
@@ -2014,7 +2014,7 @@ function appendSoundFilename(existing, body, bufsz) {
         0,
         Math.max(0, snprintfSize - 1),
     );
-    return decodeUtf8ByteString([...prefix, ...appended]);
+    return bytesText([...prefix, ...appended]);
 }
 
 // C ref: sounds.c get_sound_effect_filename() (1995-2079). JavaScript strings
@@ -2062,7 +2062,7 @@ export function get_sound_effect_filename(
 
     const filename = `se_${basename}`;
     if (approach === sff_default)
-        return `${decodeUtf8ByteString(dirBytes)}/${filename}.wav`;
+        return `${bytesText(dirBytes)}/${filename}.wav`;
     if (approach === sff_havedir_append_rest)
         return appendSoundFilename(buf, `${filename}.wav`, bufsz);
     if (approach === sff_base_only) return filename;
@@ -2095,7 +2095,7 @@ export function base_soundname_to_filename(
         return null;
     }
 
-    const base = decodeUtf8ByteString(baseBytes);
+    const base = bytesText(baseBytes);
     if (approach === sff_havedir_append_rest)
         return appendSoundFilename(buf, `${base}.wav`, bufsz);
     if (approach === sff_base_only) return base;
@@ -2157,7 +2157,7 @@ export function sound_speak(text, state = game) {
     }
     let spoken = '';
     if (last - first >= 0 && last - first < (512 - 1))
-        spoken = decodeUtf8ByteString(bytes.slice(first, last + 1));
+        spoken = bytesText(bytes.slice(first, last + 1));
 
     const voice = state.gv?.voice ?? {};
     verbal(

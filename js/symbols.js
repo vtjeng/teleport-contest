@@ -29,7 +29,7 @@ import {
     purge_custom_entries,
 } from './glyphs.js';
 import { sourceGlyphNumber, sourceSymbolNamesByIndex } from './glyph_ids.js';
-import { encodeUtf8ByteString, lcase } from './hacklib.js';
+import { textBytes, lcase } from './hacklib.js';
 import { escapes } from './options_escapes.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
@@ -539,7 +539,7 @@ function isCWhitespace(byte) {
 // C ref: options.c:sym_val(). Configuration arrives at C as UTF-8 bytes;
 // parsing code units would choose the wrong byte for every non-ASCII value.
 export function sym_val(value) {
-    let bytes = encodeUtf8ByteString(String(value ?? ''));
+    let bytes = textBytes(String(value ?? ''));
     if (bytes.length <= 1) {
         return !bytes.length || isCWhitespace(bytes[0]) ? 0 : bytes[0];
     }

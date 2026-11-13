@@ -4,6 +4,7 @@ import test from 'node:test';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 
 import { createArtifactTable } from '../js/artifacts.js';
+import { utf8Text } from '../js/hacklib.js';
 import {
     ALTAR,
     AM_CHAOTIC,
@@ -7381,9 +7382,10 @@ test('sym_val consumes the first configured UTF-8 byte and source escapes', () =
     assert.equal(sym_val(''), 0);
     assert.equal(sym_val(' '), 0);
     assert.equal(sym_val("' '"), 0x20);
-    assert.equal(sym_val('é'), 0xC3);
-    assert.equal(sym_val('😀'), 0xF0);
-    assert.equal(sym_val("'é'"), 0xC3);
+    // Configured text arrives as the nethackrc's UTF-8 bytes.
+    assert.equal(sym_val(utf8Text('é')), 0xC3);
+    assert.equal(sym_val(utf8Text('😀')), 0xF0);
+    assert.equal(sym_val(utf8Text("'é'")), 0xC3);
     assert.equal(sym_val("'''"), 0x27);
     assert.equal(sym_val(String.raw`'\\'`), 0x5C);
     assert.equal(sym_val(String.raw`'\"'`), 0x22);
@@ -9236,7 +9238,7 @@ test('title formatting and matching use source byte limits', async () => {
             // Thirteen characters occupy twenty-six UTF-8 bytes. Formatting
             // truncates the byte string to nineteen cells, but get_hilite()
             // still advances by the complete strlen(plname), past Digger.
-            name: 'é'.repeat(13),
+            name: utf8Text('é'.repeat(13)),
             prefix: ' '.repeat(19),
             color: NO_COLOR,
             styleColumn: 20,

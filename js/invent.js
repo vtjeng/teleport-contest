@@ -173,7 +173,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, encodeUtf8ByteString, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl, upstart, strcmpi } from './hacklib.js';
+import { digit, textBytes, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl, upstart, strcmpi } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -5868,7 +5868,7 @@ export async function display_minventory(
 export function cinv_doname(obj, state = game) {
     let result = donameFresh(obj, state);
     // sizeof "trapped " includes its terminating byte in C.
-    if (obj.otrapped && encodeUtf8ByteString(result).length + 9 <= QBUFSZ) {
+    if (obj.otrapped && textBytes(result).length + 9 <= QBUFSZ) {
         const p = strstri(result, ' locked');
         const q = strstri(result, ' unlocked');
         if (p >= 0 && (q < 0 || p < q))

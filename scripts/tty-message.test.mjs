@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 
 import {
     PLNMSG_CAUGHT_IN_EXPLOSION,
@@ -82,7 +83,7 @@ test('same-line append paints new bytes at the source cursor and preserves skipp
         state.nhDisplay.setCell(7, 0, 'M', 6, 2);
         state.nhDisplay.setCell(14, 0, 'Z', 3, 1);
 
-        await ttyPline('éX', state);
+        await ttyPline(utf8Text('éX'), state);
 
         assert.equal(state._pending_message, `base  \0\0X`);
         assert.equal(state._ttyToplines, `base  \0\0X`);
@@ -109,7 +110,7 @@ test('redotoplin preserves shadow cells for ignored high-bit bytes',
         state.nhDisplay.setCell(3, 0, 'Z', 7, 4);
         state.nhDisplay.setCell(4, 0, 'Y', 6, 2);
 
-        await ttyPline('abcéX', state);
+        await ttyPline(utf8Text('abcéX'), state);
 
         assert.equal(state.nhDisplay.grid[0][3].ch, 'Z');
         assert.equal(state.nhDisplay.grid[0][3].color, 7);

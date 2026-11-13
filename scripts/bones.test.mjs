@@ -13,7 +13,7 @@ import {
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { set_bonesfile_name } from '../js/files_bones.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { bless, mksobj_at } from '../js/obj.js';
 import { AMULET_OF_YENDOR, FAKE_AMULET_OF_YENDOR } from '../js/objects.js';
@@ -486,17 +486,19 @@ test('sanitize_name maps bytes as bones.c sanitize_name() does', () => {
     // 'e' with an acute accent is two UTF-8 bytes with the eighth bit set
     // (0xc3 0xa9). The tty port without wc_eight_bit_input turns each into
     // '_'; with it they are kept.
-    assert.equal(sanitize_name('caf\u00e9', { iflags: {} }), 'caf__');
+    assert.equal(sanitize_name(utf8Text('caf\u00e9'), { iflags: {} }), 'caf__');
     assert.equal(
-        sanitize_name('caf\u00e9', { iflags: { wc_eight_bit_input: true } }),
-        'caf\u00e9',
+        sanitize_name(utf8Text('caf\u00e9'),
+            { iflags: { wc_eight_bit_input: true } }),
+        utf8Text('caf\u00e9'),
     );
     // 0x9b keeps its eighth bit but its low seven bits are ESC, so it is
     // replaced by '.' whatever the option says (bones.c:210-212). U+00DB is
     // encoded as 0xc3 0x9b; the result's bytes are 0xc3 0x2e.
     assert.deepEqual(
-        encodeUtf8ByteString(
-            sanitize_name('\u00db', { iflags: { wc_eight_bit_input: true } }),
+        textBytes(
+            sanitize_name(utf8Text('\u00db'),
+                { iflags: { wc_eight_bit_input: true } }),
         ),
         [0xc3, 0x2e],
     );

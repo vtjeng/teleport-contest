@@ -28,8 +28,9 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    encodeUtf8Text,
+    textBytes,
 } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
@@ -51,6 +52,11 @@ import {
 // three could matter.
 const SEED = 4471903;
 const DATETIME = '20030417113000';
+
+// The game holds the nethackrc as the UTF-8 bytes the recorder writes, one
+// code unit per byte (js/hacklib.js), so text it reports from the file is
+// compared in that form.
+const utf8 = (text) => bytesText(encodeUtf8Text(text));
 
 function configErrorLine(count) {
     const plural = count === 1 ? 'error' : 'errors';
@@ -91,9 +97,9 @@ test('raw printing writes whole lines from the top of a cleared screen',
 
 test('raw capture decodes complete and isolated high-byte sequences', () => {
     const state = displayState();
-    tty_raw_print(state, 'é');
-    tty_raw_print(state, decodeUtf8ByteString([0xC3]));
-    tty_raw_print(state, '\uFEFFOPTIONS=x');
+    tty_raw_print(state, utf8('é'));
+    tty_raw_print(state, bytesText([0xC3]));
+    tty_raw_print(state, utf8('\uFEFFOPTIONS=x'));
 
     assert.equal(rowText(state.nhDisplay, 0), 'é');
     assert.equal(rowText(state.nhDisplay, 1), '\uFFFD');
@@ -185,7 +191,7 @@ test('a binding parsebindings() cannot read is reported, not bound', () => {
         assert.deepEqual(parsed.configErrorFrame.output, [
             `\n${statement}`,
             ...reported,
-        ], statement);
+        ].map(utf8), statement);
         assert.deepEqual(parsed.commandOperations, [], statement);
         assert.equal(parsed.iflags.mapped_menu_cmds, '', statement);
         assert.equal(parsed.iflags.mapped_menu_op, '', statement);
@@ -1464,7 +1470,7 @@ test('startup boulder parsing rejects source clashes and signed controls',
             assert.deepEqual(parsed.configErrorFrame.output, [
                 `\n${statement}`,
                 ` * Line 1: ${message}`,
-            ], value);
+            ].map(utf8), value);
         }
 
         for (const [value, byte] of [
@@ -1845,7 +1851,7 @@ test('startup packorder rewrites inv_order with source diagnostics and fill',
         assert.equal(multibyte.configErrorFrame.output.length, 3);
         assert.deepEqual(
             multibyte.configErrorFrame.output.slice(1).map(
-                (message) => encodeUtf8ByteString(message).at(-3),
+                (message) => textBytes(message).at(-3),
             ),
             [0xC3, 0xA9],
         );

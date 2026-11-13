@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { QBUFSZ } from '../js/const.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 import { safe_qbuf, short_oname } from '../js/objnam.js';
 
 test('short_oname truncates both assigned names before stripping attributes', () => {
@@ -96,8 +96,8 @@ test('safe_qbuf selects the shorter formatter before the literal fallback', () =
 test('safe_qbuf respects the C buffer byte limit, including UTF-8 names', () => {
     const result = safe_qbuf(
         'P:', '!', {},
-        () => '界'.repeat(QBUFSZ), () => '短い名前', 'x',
+        () => utf8Text('界'.repeat(QBUFSZ)), () => utf8Text('短い名前'), 'x',
     );
-    assert.equal(result, 'P:短い名前!');
-    assert.ok(encodeUtf8ByteString(result).length < QBUFSZ);
+    assert.equal(result, utf8Text('P:短い名前!'));
+    assert.ok(textBytes(result).length < QBUFSZ);
 });

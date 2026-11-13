@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of tombstone-utf8-name-bytes with a 13-character name of 21 UTF-8 bytes. rip.c genl_outrip() keeps the first STONE_LINE_LEN (16) bytes, which end with \"ü\" and drop \"éà\", and centers those 16 bytes; topten.c then prints the name in its own byte-counted fields.",
+  "segments": [
+    {
+      "seed": 4417023,
+      "datetime": "20591103152207",
+      "nethackrc": "OPTIONS=name:Ægirfröðrÿüéà\nOPTIONS=role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "ta< ta< ta< ta< ta<   nnnn  "
+    }
+  ]
+}

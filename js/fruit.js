@@ -7,8 +7,8 @@
 
 import { game } from './gstate.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
     strstri, lcase, ucase, upstart, highc, lowc, strncmpi,
 } from './hacklib.js';
 import { Strlen_ } from './strutil.js';
@@ -112,20 +112,20 @@ function sanitizeBytes(bytes, stripEighthBit = true) {
         if (lowSeven !== byte && stripEighthBit) return 0x5F;
         return byte;
     });
-    return decodeUtf8ByteString(sanitized);
+    return bytesText(sanitized);
 }
 
 function nmcpy(value, maxlen = PL_FSIZ) {
-    return decodeUtf8ByteString(bytesUntilTerminator(
-        encodeUtf8ByteString(value),
+    return bytesText(bytesUntilTerminator(
+        textBytes(value),
         maxlen - 1,
         { comma: true },
     ));
 }
 
 function copynchars(value, count = PL_FSIZ - 1) {
-    return decodeUtf8ByteString(bytesUntilTerminator(
-        encodeUtf8ByteString(value),
+    return bytesText(bytesUntilTerminator(
+        textBytes(value),
         count,
         { newline: true },
     ));
@@ -145,14 +145,14 @@ function mungspaceBytes(bytes) {
 }
 
 export function mungspaces(value) {
-    const result = mungspaceBytes(encodeUtf8ByteString(value));
-    return decodeUtf8ByteString(result);
+    const result = mungspaceBytes(textBytes(value));
+    return bytesText(result);
 }
 
 export function normalize_initial_fruit(value, eightBitTty = false) {
     const normalized = sanitizeBytes(
         bytesUntilTerminator(
-            mungspaceBytes(encodeUtf8ByteString(value)),
+            mungspaceBytes(textBytes(value)),
             PL_FSIZ - 1,
             { comma: true },
         ),
@@ -537,10 +537,10 @@ function fruitLookup(fname, exact, state) {
     let tentativeLength = -1;
     if (!exact) {
         const fnameLength = Strlen_(fname, 'fruit_from_name', 470);
-        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
+        const fnameBytes = textBytes(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
             const length = Strlen_(fruit.fname, 'fruit_from_name', 470);
-            const fruitBytes = encodeUtf8ByteString(fruit.fname).slice(0, length);
+            const fruitBytes = textBytes(fruit.fname).slice(0, length);
             let prefixMatches = fnameLength >= length;
             for (let index = 0; prefixMatches && index < length; ++index)
                 prefixMatches = fnameBytes[index] === fruitBytes[index];
@@ -562,14 +562,14 @@ function fruitLookup(fname, exact, state) {
         tentative = null;
         tentativeLength = -1;
         const fnameLength = Strlen_(fname, 'fruit_from_name', 490);
-        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
+        const fnameBytes = textBytes(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
             const length = Strlen_(fruit.fname, 'fruit_from_name', 494);
             if (fnameLength < length) continue;
             const space = fnameBytes.indexOf(0x20, length);
             if (space < 0) continue;
             const prefixBytes = fnameBytes.slice(0, space);
-            const prefix = makesingular(decodeUtf8ByteString(prefixBytes));
+            const prefix = makesingular(bytesText(prefixBytes));
             const prefixLength = Strlen_(prefix, 'fruit_from_name', 509);
             if (fruit.fname === prefix && prefixLength > tentativeLength) {
                 tentative = fruit;
@@ -680,7 +680,7 @@ export function fruitadd(str, replace_fruit = null, env = {}) {
         if (str == null) throw new TypeError('fruitadd requires a fruit name');
         name = sanitizeBytes(
             bytesUntilTerminator(
-                encodeUtf8ByteString(str),
+                textBytes(str),
                 PL_FSIZ - 1,
                 { newline: true },
             ),
@@ -741,6 +741,6 @@ export function finish_fruit_option(parsedOptions = {}, state = game, env = {}) 
 export const _fruitInternals = Object.freeze({
     nmcpy,
     copynchars,
-    internalBytes: encodeUtf8ByteString,
+    internalBytes: textBytes,
     ambiguousObjectName,
 });

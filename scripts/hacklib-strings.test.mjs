@@ -40,6 +40,8 @@ import {
     upstart,
     upwords,
     visctrl,
+    bytesText,
+    encodeUtf8Text,
 } from '../js/hacklib.js';
 import { Strlen_ } from '../js/strutil.js';
 
@@ -49,6 +51,10 @@ const GLOBAL_SOURCE = readFileSync('nethack-c/upstream/include/global.h', 'utf8'
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const FRUIT_SOURCE = readFileSync('js/fruit.js', 'utf8');
 
+// Text the game holds is bytes, one code unit each (js/hacklib.js); a
+// non-ASCII character reaches it as these UTF-8 bytes.
+const utf8 = (text) => bytesText(encodeUtf8Text(text));
+
 test('eos returns the C byte offset at the first NUL terminator', () => {
     assert.match(
         HACKLIB_SOURCE,
@@ -57,10 +63,10 @@ test('eos returns the C byte offset at the first NUL terminator', () => {
     assert.equal(eos(''), 0);
     assert.equal(eos('room'), 4);
     // C advances one char pointer byte at a time; this UTF-8 character uses
-    // two bytes even though JS exposes one Unicode code point.
-    assert.equal(eos('é'), 2);
+    // two bytes.
+    assert.equal(eos(utf8('é')), 2);
     assert.equal(eos('a\0tail'), 1);
-    assert.equal(eos('é\0tail'), 2);
+    assert.equal(eos(utf8('é\0tail')), 2);
 });
 
 test('Strlen_ is the bounded strutil owner used by makeplural', () => {
@@ -78,8 +84,8 @@ test('Strlen_ is the bounded strutil owner used by makeplural', () => {
     assert.equal(Strlen_('', 'test', 1), 0);
     assert.equal(Strlen_('NetHack', 'test', 1), 7);
     assert.equal(Strlen_('a\0tail', 'test', 1), 1);
-    assert.equal(Strlen_('é', 'test', 1), 2);
-    assert.equal(Strlen_('水', 'test', 1), 3);
+    assert.equal(Strlen_(utf8('é'), 'test', 1), 2);
+    assert.equal(Strlen_(utf8('水'), 'test', 1), 3);
     assert.equal(
         Strlen_('a'.repeat(LARGEST_INT - 1), 'test', 1),
         LARGEST_INT - 1,
@@ -143,8 +149,8 @@ test('the case helpers change only ASCII letters, as C does in the "C" locale', 
     assert.equal(upstart('ßob'), 'ßob');
     assert.equal(highc('é'), 'é');
     assert.equal(lowc('É'), 'É');
-    // A byte escape from decodeUtf8ByteString() is not a letter either.
-    assert.equal(lcase('\udcc9X'), '\udcc9x');
+    // A high byte is not a letter either.
+    assert.equal(lcase('\u00c9X'), '\u00c9x');
 });
 
 test('isupper() and islower() are <ctype.h> in the "C" locale', () => {

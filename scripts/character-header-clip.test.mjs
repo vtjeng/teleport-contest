@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { encodeUtf8Text } from '../js/hacklib.js';
 import {
     HEADER_CASES,
     loadCharacterHeaderClipRecipe,
@@ -15,8 +15,9 @@ import {
 const HEADER_FIELD_BYTES = 20;
 const PL_NSIZ = 32;
 
+// The recorder writes the nethackrc as UTF-8, so C reads these bytes.
 function nameBytes(plname) {
-    return encodeUtf8ByteString(plname);
+    return encodeUtf8Text(plname);
 }
 
 // The kept prefix ends inside a character when the first dropped byte is a

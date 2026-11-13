@@ -28,7 +28,7 @@ import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { Monnam } from './do_name.js';
 import { losehp } from './hack.js';
-import { dist2, encodeUtf8ByteString } from './hacklib.js';
+import { dist2, textBytes } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { impossible, youFeel, youSee } from './pline.js';
@@ -1213,7 +1213,7 @@ export function region_stats(headerFormat, state = game) {
     for (const region of regions) {
         size += region.rects.length * memoryLayout.NhRect;
         for (const message of [region.enter_msg, region.leave_msg])
-            if (message != null) size += encodeUtf8ByteString(message).length + 1;
+            if (message != null) size += textBytes(message).length + 1;
         size += region.max_monst * memoryLayout.unsigned;
     }
     return { header: headerFormat.replace('%ld', String(memoryLayout.NhRegion))

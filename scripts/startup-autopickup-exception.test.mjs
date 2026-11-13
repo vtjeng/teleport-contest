@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes } from '../js/hacklib.js';
 import { installParsedGa } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
@@ -113,7 +113,7 @@ test('the source sscanf accidents accept unclosed and 254-byte mappings', () => 
     const split = parseNethackrc(
         `AUTOPICKUP_EXCEPTION=\">${splitUtf8}\"\n`,
     );
-    const splitBytes = encodeUtf8ByteString(list(split)[0].pattern);
+    const splitBytes = textBytes(list(split)[0].pattern);
     assert.equal(splitBytes.length, 253);
     assert.deepEqual(splitBytes.slice(-2), [0x61, 0xC3]);
 

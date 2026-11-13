@@ -58,7 +58,8 @@ export function resetGame() {
 // report fails there at the line that made it.
 let recordingArgumentMisuses = true;
 // One entry per distinct message, in first-use order: { kind, detail, count }.
-// `kind` is 'youpropArgument' for js/youprop.js.
+// `kind` is 'youpropArgument' for js/youprop.js and 'byteText' for
+// js/hacklib.js textBytes() given decoded text.
 const misuseLog = new Map();
 
 // Select recording (true) or throwing (false); returns the previous mode.

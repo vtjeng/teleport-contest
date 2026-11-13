@@ -81,7 +81,7 @@ import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
 import {
-    encodeUtf8ByteString, mungspaces, strstri, strsubst, trimspaces,
+    textBytes, mungspaces, strstri, strsubst, trimspaces,
     truncateByteString, lcase, highc,
 } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
@@ -2301,7 +2301,7 @@ async function query_annotation(lev, state = game) {
         // #else branch of EDIT_GETLIN: existing annotation triggers
         // "Replace annotation" prompt.
         // "%.30s%s" with strlen(custom) > 30: both count bytes.
-        const truncated = encodeUtf8ByteString(mptr.custom).length > 30
+        const truncated = textBytes(mptr.custom).length > 30
             ? truncateByteString(mptr.custom, 30) + '...'
             : mptr.custom;
         nbuf = await getlin(
@@ -2341,7 +2341,7 @@ async function query_annotation(lev, state = game) {
         mptr.custom = nbuf;
         // custom_lth = strlen(custom), a byte count without the '\0'; two
         // typed keys that form one UTF-8 character count as two.
-        mptr.custom_lth = encodeUtf8ByteString(mptr.custom).length;
+        mptr.custom_lth = textBytes(mptr.custom).length;
     }
 }
 

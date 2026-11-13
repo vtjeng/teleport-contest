@@ -3,6 +3,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import * as glyphs from '../js/glyphs.js';
+import { utf8Text } from '../js/hacklib.js';
 import * as wizard from '../js/wizcmds.js';
 import { sourceGlyphNumber, SOURCE_GLYPH_IDS } from '../js/glyph_ids.js';
 import { PRIMARYSET, NH_BASIC_COLOR, ECMD_OK } from '../js/const.js';
@@ -29,7 +30,7 @@ test('glyph cache preserves C rotate/xor hash, first duplicate and lifecycle', (
     assert.equal(glyphs.glyph_hash('G_'), (103 << 1) ^ 95);
     assert.equal(glyphs.glyph_hash('G_MALE_HEALER'), glyphs.glyph_hash('g_male_healer'));
     // UTF8 é bytes C3 A9 promote signed chars -61/-87 before XOR.
-    assert.equal(glyphs.glyph_hash('é'), (((-61 << 1) | (-61 >>> 31)) ^ -87) >>> 0);
+    assert.equal(glyphs.glyph_hash(utf8Text('é')), (((-61 << 1) | (-61 >>> 31)) ^ -87) >>> 0);
     const state = {};
     assert.equal(glyphs.glyphid_cache_status(state), false);
     glyphs.fill_glyphid_cache(state);

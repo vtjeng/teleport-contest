@@ -6,7 +6,7 @@ import test from 'node:test';
 
 import { config_error_done } from '../js/cfgfiles.js';
 import { configLineStatements } from '../js/config_statement_data.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, textBytes, utf8Text } from '../js/hacklib.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import {
     check_misc_menu_command,
@@ -1228,17 +1228,17 @@ test('an over-long colour or attribute is cut at bytes, not characters', () => {
     assert.deepEqual(overLong.configErrorFrame.output, [
         `\nOPTIONS=menu_headings:${colour}`,
         ` * Line 1: Unknown color '${'é'.repeat(30)}'.`,
-    ]);
+    ].map(utf8Text));
 
     // The precision can fall inside a character.  '€' is three bytes, so an
     // 'a' and 21 of them reaches byte 60 two bytes into the twentieth '€';
-    // C copies those two bytes alone, and js/hacklib.js carries an orphaned
-    // byte as 0xDC00 plus its value.
+    // C copies those two bytes alone.
     const split = `a${'€'.repeat(21)}`;
     const splitColour = parseNethackrc(`OPTIONS=menu_headings:${split}\n`);
     assert.deepEqual(splitColour.configErrorFrame.output, [
-        `\nOPTIONS=menu_headings:${split}`,
-        ` * Line 1: Unknown color 'a${'€'.repeat(19)}\uDCE2\uDC82'.`,
+        utf8Text(`\nOPTIONS=menu_headings:${split}`),
+        ` * Line 1: Unknown color '${utf8Text(`a${'€'.repeat(19)}`)}`
+            + `${bytesText([0xE2, 0x82])}'.`,
     ]);
 
     // match_str2attr() reports only from color_attr_parse_str()'s '&' arm,
@@ -1251,7 +1251,7 @@ test('an over-long colour or attribute is cut at bytes, not characters', () => {
     assert.deepEqual(overLongAttr.configErrorFrame.output, [
         `\nOPTIONS=menu_headings:red&${attribute}`,
         ` * Line 1: Unknown text attribute '${'é'.repeat(25)}'.`,
-    ]);
+    ].map(utf8Text));
 });
 
 test('use_inverse owns the tty inverse-video interface flag', () => {
@@ -2401,7 +2401,7 @@ test('pet type aliases and names retain pinned startup values', () => {
         parseNethackrc(
             `OPTIONS=catname:${'é'.repeat(32)},eight_bit_tty`,
         ).catname,
-        'é'.repeat(31),
+        utf8Text('é'.repeat(31)),
     );
     // Right-to-left comma parsing sanitizes the name before this spelling
     // enables eight-bit tty input.
@@ -2429,7 +2429,7 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
     assert.equal(literal.catname, 'A\u007fB');
     assert.equal(
         parseNethackrc(`CAT=${'é'.repeat(32)}`).catname,
-        'é'.repeat(31),
+        utf8Text('é'.repeat(31)),
     );
     const munged = parseNethackrc(
         'NAME=Direct   Hero\nDOG=Fido\t\tThe   Dog',
@@ -2445,8 +2445,9 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
         `NAME=${'é'.repeat(16)}`,
     ]) {
         const truncated = parseNethackrc(configured).name;
-        assert.equal(truncated.slice(0, 15), 'é'.repeat(15), configured);
-        assert.equal(truncated.charCodeAt(15), 0xDCC3, configured);
+        assert.equal(truncated.slice(0, 30), utf8Text('é'.repeat(15)),
+            configured);
+        assert.equal(truncated.charCodeAt(30), 0xC3, configured);
     }
 });
 
@@ -2824,8 +2825,8 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         assert.deepEqual(below.configErrorFrame.output, []);
         assert.equal(below.iflags.status_hilites.length, 1);
         const storedBelowText = below.iflags.status_hilites[0].text;
-        assert.equal(encodeUtf8ByteString(storedBelowText).length, 79);
-        assert.equal(storedBelowText, 'é'.repeat(39) + '\uDCC3');
+        assert.equal(textBytes(storedBelowText).length, 79);
+        assert.equal(storedBelowText, utf8Text('é'.repeat(39)) + bytesText([0xC3]));
         assert.equal(below.iflags.status_hilites[0].style.color, CLR_RED);
         assert.equal(below.iflags.hilite_delta, 3);
 
@@ -2852,22 +2853,21 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
             `\n${atStatement}`,
             ` * Line 1: Unknown color '${'é'.repeat(30)}'.`,
             " * Line 1: bad color '16 -1'.",
-        ]);
+        ].map(utf8Text));
         assert.deepEqual(at.iflags.status_hilites, []);
         assert.equal(at.iflags.hilite_delta, 0);
 
         // The byte limit can also split a multibyte character.  One ASCII
         // byte followed by 63 two-byte characters leaves the leading byte of
         // the last character in hsbuf[].  C's %.60s diagnostic ends on an
-        // earlier leading byte; the reversible byte-string representation
-        // must retain it rather than replacing it.
+        // earlier leading byte, which the byte string keeps.
         const splitValue = `title/a${'é'.repeat(63)}/red`;
         const splitStatement = `HILITE_STATUS=${splitValue}`;
         const split = parseNethackrc(`${splitStatement}\n`);
         const quoted = split.configErrorFrame.output[1]
             .slice(" * Line 1: Unknown color '".length, -2);
-        assert.equal(quoted.charCodeAt(quoted.length - 1), 0xDCC3);
-        assert.equal(encodeUtf8ByteString(quoted).at(-1), 0xC3);
+        assert.equal(quoted.charCodeAt(quoted.length - 1), 0xC3);
+        assert.equal(textBytes(quoted).at(-1), 0xC3);
         assert.deepEqual(split.configErrorFrame.output.slice(2), [
             " * Line 1: bad color '16 -1'.",
         ]);
@@ -2886,15 +2886,15 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         );
         assert.equal(
             splitCondition.configErrorFrame.output[0],
-            `\n${splitConditionStatement}`,
+            utf8Text(`\n${splitConditionStatement}`),
         );
         const unknownCondition = splitCondition.configErrorFrame.output[1]
             .slice(" * Line 1: Unknown condition '".length, -2);
-        const conditionBytes = encodeUtf8ByteString(unknownCondition);
+        const conditionBytes = textBytes(unknownCondition);
         assert.equal(conditionBytes.length, 126);
         assert.equal(unknownCondition.charCodeAt(
             unknownCondition.length - 1,
-        ), 0xDCC3);
+        ), 0xC3);
         assert.equal(conditionBytes.at(-1), 0xC3);
         assert.deepEqual(splitCondition.configErrorFrame.output.slice(2), []);
         assert.deepEqual(splitCondition.iflags.status_hilites, []);
@@ -3346,7 +3346,7 @@ test('status highlight shapes C accepts report nothing', () => {
         assert.equal(parsed.iflags.status_hilites.length, 1, threshold);
         assert.equal(
             parsed.iflags.status_hilites[0].text,
-            expected,
+            utf8Text(expected),
             threshold,
         );
     }
@@ -4213,7 +4213,7 @@ test('an over-long option element is reported and the rest of the line runs',
         assert.deepEqual(
             parseNethackrc(`OPTIONS=${twoByte.repeat(64)}\n`)
                 .configErrorFrame.output.at(-1),
-            ` * Line 1: Unknown option '${twoByte.repeat(64)}'.`,
+            utf8Text(` * Line 1: Unknown option '${twoByte.repeat(64)}'.`),
         );
 
         // The recursion into the comma suffix has already run by the time the

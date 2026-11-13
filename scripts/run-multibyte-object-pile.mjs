@@ -9,7 +9,7 @@
 
 import { OBJ_FLOOR, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { donameFresh } from '../js/objnam.js';
 import { SLIME_MOLD } from '../js/objects.js';
@@ -96,8 +96,8 @@ export async function verifyMultibyteObjectPileSegment(segment) {
     if (!fruitObject)
         throw new Error('pile window lost its named slime mold');
     const fruitName = donameFresh(fruitObject, game);
-    if (fruitName !== 'a caf\u00e9'
-        || encodeUtf8ByteString(fruitName).join(',')
+    if (fruitName !== utf8Text('a caf\u00e9')
+        || textBytes(fruitName).join(',')
             !== '97,32,99,97,102,195,169') {
         throw new Error('pile window did not preserve the named fruit bytes');
     }
@@ -130,7 +130,7 @@ export async function verifyMultibyteObjectPileSegment(segment) {
         if (!actual[index].known)
             throw new Error('pile display did not observe every object');
     }
-    if (game.gf?.ffruit?.fname !== 'caf\u00e9')
+    if (game.gf?.ffruit?.fname !== utf8Text('caf\u00e9'))
         throw new Error('replay did not retain the custom UTF-8 fruit name');
     if (game.flags.pickup)
         throw new Error('replay changed the autopickup option');

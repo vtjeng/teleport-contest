@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { BUFSZ, NON_PM } from '../js/const.js';
 import { PM_KITTEN, PM_SAMURAI, monst_globals_init } from '../js/monsters.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, textBytes, utf8Text } from '../js/hacklib.js';
 import { disco_typename, init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import { game } from '../js/gstate.js';
@@ -43,10 +43,10 @@ test('xcalled reserves the NUL and truncates only the user suffix', () => {
     assert.throws(() => xcalled('', exact - 1, 'ring', 'discard'), RangeError);
     assert.equal(xcalled('', exact + 3, 'ring', 'abcdef'), `${prefix}abc`);
     // C %.Ns counts bytes and may split the two-byte UTF-8 é.
-    assert.equal(xcalled('', exact + 1, 'ring', 'é'),
-        prefix + decodeUtf8ByteString([0xc3]));
-    const unicode = xcalled('', exact + 3, 'ring', 'éé');
-    assert.equal(encodeUtf8ByteString(unicode).length, exact + 2);
+    assert.equal(xcalled('', exact + 1, 'ring', utf8Text('é')),
+        prefix + bytesText([0xc3]));
+    const unicode = xcalled('', exact + 3, 'ring', utf8Text('éé'));
+    assert.equal(textBytes(unicode).length, exact + 2);
 });
 
 test('obj_typename preserves every class alias arm and appearance suffix', () => {

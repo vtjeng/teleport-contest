@@ -3,7 +3,7 @@
 import { ENGRAVEFILE, MD_PAD_RUMORS } from './const.js';
 import { wipeout_text } from './engrave.js';
 import { game } from './gstate.js';
-import { encodeUtf8ByteString } from './hacklib.js';
+import { textBytes } from './hacklib.js';
 import { get_rnd_text, getrumor } from './random_text.js';
 import { coreRandom } from './rng.js';
 
@@ -37,7 +37,7 @@ export function random_engraving(rawEnv = {}) {
         );
     }
 
-    const count = Math.trunc(encodeUtf8ByteString(pristine).length / 4);
+    const count = Math.trunc(textBytes(pristine).length / 4);
     return {
         text: wipeText(pristine, count, 0, env),
         pristine,

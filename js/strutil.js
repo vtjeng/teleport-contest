@@ -1,7 +1,7 @@
 // C refs: strutil.c.
 
 import { LARGEST_INT } from './const.js';
-import { eos, encodeUtf8ByteString } from './hacklib.js';
+import { eos, textBytes } from './hacklib.js';
 
 // C ref: strutil.c Strlen_() (82-101). Unlike hacklib.c:eos(), this bounded
 // byte count panics when no NUL appears before LARGEST_INT bytes. JavaScript
@@ -23,12 +23,12 @@ function lowercaseAscii(byte) {
 // without recursion. C advances char pointers, so '?' consumes one UTF-8
 // byte, and both operands stop at their first NUL.
 export function pmatchi(pattern, text) {
-    const patternBytes = encodeUtf8ByteString(pattern);
-    const textBytes = encodeUtf8ByteString(text);
+    const patternBytes = textBytes(pattern);
+    const subjectBytes = textBytes(text);
     const patternEnd = patternBytes.indexOf(0);
-    const textEnd = textBytes.indexOf(0);
+    const textEnd = subjectBytes.indexOf(0);
     const patternLength = patternEnd < 0 ? patternBytes.length : patternEnd;
-    const textLength = textEnd < 0 ? textBytes.length : textEnd;
+    const textLength = textEnd < 0 ? subjectBytes.length : textEnd;
     let previous = new Array(textLength + 1).fill(false);
     previous[0] = true;
     for (let p = 0; p < patternLength; ++p) {
@@ -39,7 +39,7 @@ export function pmatchi(pattern, text) {
             if (patternByte === 42) {
                 current[index] = previous[index] || current[index - 1];
             } else if (patternByte === 63 // '?'
-                || lowercaseAscii(patternByte) === lowercaseAscii(textBytes[index - 1])) {
+                || lowercaseAscii(patternByte) === lowercaseAscii(subjectBytes[index - 1])) {
                 current[index] = previous[index - 1];
             }
         }

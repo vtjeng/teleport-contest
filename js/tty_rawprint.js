@@ -6,7 +6,7 @@
 
 import { recordRawShadowCells } from './display.js';
 import { game } from './gstate.js';
-import { encodeUtf8ByteString } from './hacklib.js';
+import { textBytes } from './hacklib.js';
 import { ATR_BOLD, NO_COLOR } from './terminal.js';
 import {
     showPendingTtyMessage,
@@ -117,7 +117,7 @@ export function tty_raw_print(state, str) {
     if (!raw.active) nomux_enter_raw_mode(state);
     // puts() appends the newline tty_raw_print() does not write itself.
     nomux_raw_write(state, [
-        ...encodeUtf8ByteString(String(str)),
+        ...textBytes(String(str)),
         0x0A,
     ]);
 }
@@ -132,7 +132,7 @@ export function tty_raw_print_bold(state, str) {
     raw.rawprint = (raw.rawprint ?? 0) + 1;
     if (!raw.active) nomux_enter_raw_mode(state);
     nomux_raw_write(state, [
-        ...encodeUtf8ByteString(String(str)),
+        ...textBytes(String(str)),
         0x0A,
     ], ATR_BOLD);
 }

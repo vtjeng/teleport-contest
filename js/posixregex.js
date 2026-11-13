@@ -12,13 +12,13 @@
 // and text are therefore passed as byte strings, one UTF-8 byte per JS
 // character (toByteString()).
 
-import { encodeUtf8ByteString } from './hacklib.js';
+import { textBytes } from './hacklib.js';
 import { regcomp, regerror } from './regcomp.js';
 import { regexec } from './regexec.js';
 
 // The C string's bytes, each as one JS character from U+0000 to U+00FF.
 function toByteString(value) {
-    return String.fromCharCode(...encodeUtf8ByteString(value));
+    return String.fromCharCode(...textBytes(value));
 }
 
 // struct nhregex: the compiled regex_t and the last error code.

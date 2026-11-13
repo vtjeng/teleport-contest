@@ -15,7 +15,7 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { textBytes, utf8Text } from '../js/hacklib.js';
 import { nhgetch } from '../js/input.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
@@ -879,21 +879,21 @@ test('normalized-equal long messages compare equal before NOREP', async () => {
 
 test('vpline normalization slices UTF-8 bytes and preserves 255 bytes',
     async () => {
-        const split = 'a'.repeat(248) + 'é' + 'removed' + 'XYZ';
+        const split = 'a'.repeat(248) + utf8Text('é') + 'removed' + 'XYZ';
         const splitState = messageState('', '        ');
         await ttyPline(split, splitState);
-        assert.deepEqual(encodeUtf8ByteString(splitState._ttyPreviousMessage), [
+        assert.deepEqual(textBytes(splitState._ttyPreviousMessage), [
             ...Array(248).fill(0x61), 0xC3, 0x2E, 0x2E, 0x2E,
             0x58, 0x59, 0x5A,
         ]);
 
-        const atLimit = 'b'.repeat(253) + 'é';
-        assert.equal(encodeUtf8ByteString(atLimit).length, 255);
+        const atLimit = 'b'.repeat(253) + utf8Text('é');
+        assert.equal(textBytes(atLimit).length, 255);
         const controlState = messageState('', '        ');
         await ttyPline(atLimit, controlState);
         assert.deepEqual(
-            encodeUtf8ByteString(controlState._ttyPreviousMessage),
-            encodeUtf8ByteString(atLimit),
+            textBytes(controlState._ttyPreviousMessage),
+            textBytes(atLimit),
         );
     });
 

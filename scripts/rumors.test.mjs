@@ -246,7 +246,8 @@ test('others_check pins one/two/three/four entry presentation and byte decoding'
     others_check('Catalog:', 'catalog', nonAscii, {
         files: { catalog: textFile(['caf\xc3\xa9_', 'second_']) },
     });
-    assert.equal(nonAscii.lines[2].text, 'café_');
+    // The text window line keeps those bytes.
+    assert.equal(nonAscii.lines[2].text, 'caf\xc3\xa9_');
     assert.match(source, /if \(entrycount > 3\)\s*putstr\(tmpwin, 0, " \.\.\."\)/u);
 });
 

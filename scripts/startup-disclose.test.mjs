@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
-import { decodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, utf8Text } from '../js/hacklib.js';
 import {
     STARTUP_DISCLOSE_CASES,
     STARTUP_DISCLOSE_NONASCII_SEGMENT,
@@ -82,10 +82,10 @@ test('startup disclose reports an invalid byte after preserving earlier writes',
 
 test('startup disclose rejects the first byte of a non-ASCII parameter', () => {
     const parsed = endDisclose('disclose:é');
-    const invalid = decodeUtf8ByteString([0xC3]);
+    const invalid = bytesText([0xC3]);
     assert.equal(parsed.flags.end_disclose.join(''), 'nnnnnn');
     assert.deepEqual(parsed.configErrorFrame.output, [
-        '\nOPTIONS=disclose:é',
+        utf8Text('\nOPTIONS=disclose:é'),
         ` * Line 1: Unknown disclose parameter '${invalid}'.`,
     ]);
 });

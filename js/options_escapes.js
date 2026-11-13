@@ -1,6 +1,6 @@
 // Port of options.c:escapes() and its local digit decoding.
 
-import { encodeUtf8ByteString } from './hacklib.js';
+import { textBytes } from './hacklib.js';
 
 function digitValue(byte, radix) {
     if (byte >= 0x30 && byte <= 0x39) {
@@ -18,7 +18,7 @@ function digitValue(byte, radix) {
 export function escapes(value) {
     const bytes = Array.isArray(value)
         ? value.map((byte) => byte & 0xFF)
-        : encodeUtf8ByteString(String(value ?? ''));
+        : textBytes(String(value ?? ''));
     const expanded = [];
     let index = 0;
 

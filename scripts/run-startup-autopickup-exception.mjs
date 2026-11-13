@@ -6,7 +6,7 @@
 // line. pickup.c object filtering remains at its existing named refusal.
 
 import { game } from '../js/gstate.js';
-import { truncateByteString } from '../js/hacklib.js';
+import { truncateByteString, utf8Text } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import { optionValue, parseNethackrc } from '../js/options.js';
@@ -101,7 +101,8 @@ export const STARTUP_AUTOPICKUP_EXCEPTION_CASES = Object.freeze([
             `AUTOPICKUP_EXCEPTION=\">${splitUtf8}\"`,
         ],
         expected: [
-            { pattern: truncateByteString(splitUtf8, 253), grab: false },
+            // The pattern holds the nethackrc's UTF-8 bytes, cut at 253.
+            { pattern: truncateByteString(utf8Text(splitUtf8), 253), grab: false },
             { pattern: atLimit, grab: false },
             { pattern: 'unclosed', grab: true },
         ],

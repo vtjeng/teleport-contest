@@ -171,8 +171,8 @@ import {
     normalize_initial_fruit,
 } from './fruit.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
     encodeUtf8Text,
     fuzzymatch,
     highc,
@@ -929,7 +929,7 @@ function* logicalConfigLines(rc, frame) {
         // parse_conf_buf() reports the line to the error frame here, before
         // the leading whitespace is stepped over, so a reported line keeps its
         // indent.  A false answer abandons the rest of the file.
-        if (!config_error_nextline(frame, decodeUtf8ByteString(line))) return;
+        if (!config_error_nextline(frame, bytesText(line))) return;
         const lineNumber = frame.line_num;
         while (line[0] === 0x20 || line[0] === 0x09) line.shift();
 
@@ -946,7 +946,7 @@ function* logicalConfigLines(rc, frame) {
         if (continued || (ignored && !hadBuffered)) continue;
 
         yield {
-            line: decodeUtf8ByteString(buffered),
+            line: bytesText(buffered),
             lineNumber,
         };
         buffered = null;
@@ -1516,7 +1516,7 @@ function setPettype(result, statement, negated) {
 // characters or DEL become '.'; default tty mode replaces other high-bit
 // bytes with '_'.
 function sanitizePetName(value, eightBitTty) {
-    const bytes = encodeUtf8ByteString(value).slice(0, PET_NAME_BYTE_LIMIT);
+    const bytes = textBytes(value).slice(0, PET_NAME_BYTE_LIMIT);
     for (let index = 0; index < bytes.length; ++index) {
         const lowSeven = bytes[index] & 0x7F;
         if (lowSeven < 0x20 || lowSeven === 0x7F) bytes[index] = 0x2E;
@@ -1524,7 +1524,7 @@ function sanitizePetName(value, eightBitTty) {
             bytes[index] = 0x5F;
         }
     }
-    return decodeUtf8ByteString(bytes);
+    return bytesText(bytes);
 }
 
 // C ref: options.c petname_optfn() (846-873), the do_set arm shared by
@@ -2814,14 +2814,14 @@ function parse_status_hl1(result, op) {
     // byte-based, including a cut through the middle of a UTF-8 sequence.
     // Keep the groups as bytes until parse_status_hl2() reads them so the
     // repository's reversible decoder preserves such a cut.
-    const opBytes = encodeUtf8ByteString(op);
+    const opBytes = textBytes(op);
     const hsbufBytes = Array.from({ length: MAX_THRESH }, () => []);
     let badopt = false;
     let fldnum = 0;
     let ccount = 0;
     let index = 0;
 
-    const parsedFields = () => hsbufBytes.map(decodeUtf8ByteString);
+    const parsedFields = () => hsbufBytes.map(bytesText);
     const parseFields = () => parse_status_hl2(result, parsedFields());
     while (index < opBytes.length
            && fldnum < MAX_THRESH && ccount < QBUFSZ - 2) {
@@ -2831,7 +2831,7 @@ function parse_status_hl1(result, op) {
         if (c === 0x20) {
             if (fldnum >= 1) {
                 if (fldnum === 1
-                    && decodeUtf8ByteString(hsbufBytes[0]) === 'title') {
+                    && bytesText(hsbufBytes[0]) === 'title') {
                     /* spaces are allowed in title */
                     hsbufBytes[fldnum].push(c);
                     ccount += 1;
@@ -3382,7 +3382,7 @@ function firstEscapedByte(text) {
 // `value` holds one character per byte: "é" is two and no simple character.
 function textToKey(text) {
     let value = String.fromCharCode(
-        ...encodeUtf8ByteString(trimspaces(text)),
+        ...textBytes(trimspaces(text)),
     );
     if (!value) return 0;
     if (value.length === 1) return byteOf(value);
@@ -3665,14 +3665,14 @@ function atol(str) {
 // handler below stores its result in `name` during startup and `plname` in a
 // live game; both are the same C svp.plname value.
 function nmcpy(value, maxlen) {
-    const bytes = encodeUtf8ByteString(value);
+    const bytes = textBytes(value);
     const copied = [];
     for (const byte of bytes) {
         if (byte === 0 || byte === 0x2C || copied.length >= maxlen - 1)
             break;
         copied.push(byte);
     }
-    return decodeUtf8ByteString(copied);
+    return bytesText(copied);
 }
 
 function optionOwnerName(state) {
@@ -3790,7 +3790,7 @@ export function optfn_number_pad(
 ) {
     if (request === DO_INIT) return optn_ok;
     if (request === DO_SET) {
-        const compat = encodeUtf8ByteString(opts).length <= 10;
+        const compat = textBytes(opts).length <= 10;
         const value = op ?? string_for_opt(
             opts, compat || state.go?.opt_initial !== true, state,
         );
@@ -3908,8 +3908,8 @@ export function count_alt_palette(state) {
 
 export function alternative_palette(state, op) {
     if (op == null) return 0;
-    const buf = decodeUtf8ByteString(
-        encodeUtf8ByteString(op).slice(0, BUFSZ - 1),
+    const buf = bytesText(
+        textBytes(op).slice(0, BUFSZ - 1),
     );
     const firstSlash = buf.indexOf('/');
     const colorId = firstSlash < 0 ? buf : buf.slice(0, firstSlash);
@@ -5074,7 +5074,7 @@ function setPickupBurden(result, statement) {
 // missing parameter.  A negation makes the value optional; when one is
 // present its first byte wins and the negation is otherwise ignored.
 function optfn_menustyle(result, statement, negated) {
-    const valRequired = encodeUtf8ByteString(statement).length > 5 && !negated;
+    const valRequired = textBytes(statement).length > 5 && !negated;
     const op = string_for_opt(statement, !valRequired, result);
     let initial;
     if (op === '') {
@@ -5105,7 +5105,7 @@ function optfn_menustyle(result, statement, negated) {
 // spellings report through string_for_opt(), then startup parsing still treats
 // the empty answer as mode 1.  optlist.h rejects negation before this handler.
 function optfn_mouse_support(result, statement) {
-    const compat = encodeUtf8ByteString(statement).length <= 13;
+    const compat = textBytes(statement).length <= 13;
     const op = string_for_opt(statement, compat, result);
     if (op === '') {
         result.iflags.wc_mouse_support = 1;
@@ -5686,7 +5686,7 @@ function pickupTypesFromSymbols(symbols) {
 // good classes.  Gold leads only when omitted; every other omitted class
 // follows in the order that was active before this statement.
 export function change_inv_order(result, op, reportError = configErrorAdd) {
-    const symbols = encodeUtf8ByteString(op);
+    const symbols = textBytes(op);
     const previous = result.flags.inv_order;
     const reordered = [];
     let accepted = true;
@@ -5696,7 +5696,7 @@ export function change_inv_order(result, op, reportError = configErrorAdd) {
 
     for (let index = 0; index < symbols.length; ++index) {
         const byte = symbols[index];
-        const symbol = decodeUtf8ByteString([byte]);
+        const symbol = bytesText([byte]);
         const objectClass = def_char_to_objclass(symbol);
         let rejected = false;
 
@@ -6147,11 +6147,11 @@ function optfn_disclose(result, statement, negated) {
         return;
     }
 
-    const opBytes = encodeUtf8ByteString(op);
+    const opBytes = textBytes(op);
     const isAll = opBytes.length === 3
-        && equal_ncasechars(decodeUtf8ByteString(opBytes), 'all', 3);
+        && equal_ncasechars(bytesText(opBytes), 'all', 3);
     const isNone = opBytes.length === 4
-        && equal_ncasechars(decodeUtf8ByteString(opBytes), 'none', 4);
+        && equal_ncasechars(bytesText(opBytes), 'none', 4);
     // A bare disclose asks each question with Yes preselected; a bare
     // negation, or "none", suppresses every question without asking.
     if (op === '' || isAll || isNone) {
@@ -6202,7 +6202,7 @@ function optfn_disclose(result, statement, negated) {
         } else if (c !== ' ') {
             configErrorAdd(
                 result,
-                `Unknown disclose parameter '${decodeUtf8ByteString(
+                `Unknown disclose parameter '${bytesText(
                     [opBytes[index]],
                 )}'`,
             );
@@ -6667,7 +6667,7 @@ function matchesConfigName(name, canonical, minLength) {
 }
 
 function scanfAutopickupMapping(mapping, prefix) {
-    const bytes = encodeUtf8ByteString(mapping);
+    const bytes = textBytes(mapping);
     let index = 0;
     if (bytes[index++] !== 0x22) return { n: 0 }; // opening '"'
     if (prefix != null && bytes[index++] !== prefix) return { n: 0 };
@@ -6678,7 +6678,7 @@ function scanfAutopickupMapping(mapping, prefix) {
         text.push(bytes[index++]);
     }
     if (!text.length) return { n: 0 };
-    const decoded = decodeUtf8ByteString(text);
+    const decoded = bytesText(text);
     // scanf() keeps prior assignments when a later literal does not match.
     // That makes an unclosed quote, and a quote beyond the field width, n=1.
     if (bytes[index] !== 0x22) return { n: 1, text: decoded };
@@ -6742,7 +6742,7 @@ const MSGTYPE_NAMES = Object.freeze([
 ]);
 
 function scanfMsgtypeRule(value) {
-    const bytes = encodeUtf8ByteString(value);
+    const bytes = textBytes(value);
     let index = 0;
     const whitespace = (byte) => (
         byte === 0x20 || (byte >= 0x09 && byte <= 0x0D)
@@ -6759,7 +6759,7 @@ function scanfMsgtypeRule(value) {
     if (bytes[index++] !== 0x22) {
         return {
             assignments: 1,
-            action: decodeUtf8ByteString(action),
+            action: bytesText(action),
         };
     }
 
@@ -6771,15 +6771,15 @@ function scanfMsgtypeRule(value) {
     if (!pattern.length) {
         return {
             assignments: 1,
-            action: decodeUtf8ByteString(action),
+            action: bytesText(action),
         };
     }
     // The closing quote is a literal after both conversions. sscanf() keeps
     // two assignments when that literal is missing or lies beyond width 255.
     return {
         assignments: 2,
-        action: decodeUtf8ByteString(action),
-        pattern: decodeUtf8ByteString(pattern),
+        action: bytesText(action),
+        pattern: bytesText(pattern),
     };
 }
 
@@ -6946,7 +6946,7 @@ export function parseNethackrc(rc, random = rn2) {
                 // or invoking an option handler.  The recursion into the comma
                 // suffix has already run, so the other elements on the line
                 // are unaffected.
-                if (encodeUtf8ByteString(rawOption).length
+                if (textBytes(rawOption).length
                     > OPTION_ELEMENT_BYTE_LIMIT) {
                     configErrorAdd(
                         result,
@@ -7553,7 +7553,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     autounlock: (state) => autounlockValue(state.flags.autounlock),
     // go.ov_primary_syms holds an explicit S_boulder override; without one
     // the value falls back to the active rock-class symbol.
-    boulder: (state) => decodeUtf8ByteString([
+    boulder: (state) => bytesText([
         state.go?.ov_primary_syms?.[SYM_OFF_X + SYM_BOULDER]
         || state.gs.showsyms[SYM_OFF_O + ROCK_CLASS],
     ]),
@@ -8277,7 +8277,7 @@ export function optfn_pickup_types(
     if (request !== DO_SET) return optn_ok;
 
     const initial = Boolean(state.go?.opt_initial);
-    const compat = encodeUtf8ByteString(opts).length <= 6;
+    const compat = textBytes(opts).length <= 6;
     const tbuf = oc_to_str(state.flags.pickup_types);
     state.flags.pickup_types = []; /* all */
     let op = string_for_opt(opts, compat || !initial, state);
@@ -8658,7 +8658,7 @@ export async function parseoptions(
     state.go.opt_initial = tinitial;
     state.go.opt_from_file = tfrom_file;
 
-    if (encodeUtf8ByteString(statement).length > OPTION_ELEMENT_BYTE_LIMIT)
+    if (textBytes(statement).length > OPTION_ELEMENT_BYTE_LIMIT)
         return false; /* "Option too long" */
 
     const element = trimCWhitespace(statement);
@@ -9263,7 +9263,7 @@ export async function handler_menu_colors(state, helpers) {
             for (let node = state.gm?.menu_colorings; node; node = node.next) {
                 const suffix = `""=${clr2colorname(node.color).replaceAll(' ', '-')}${node.attr !== 0 ? `&${attr2attrname(node.attr)}` : ''}`;
                 const available = BUFSZ - suffix.length - 1;
-                const orig = encodeUtf8ByteString(node.origstr).length > available ? `${truncateByteString(node.origstr, available - 3)}...` : node.origstr;
+                const orig = textBytes(node.origstr).length > available ? `${truncateByteString(node.origstr, available - 3)}...` : node.origstr;
                 items.push({ text: `"${orig}${suffix.slice(1)}`, value: items.length + 1 });
             }
             const selected = await optionMenuSelect(state, { items, title: `${action === 1 ? 'List of' : 'Remove which'} menu colors`, how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [] }, helpers);
@@ -9314,7 +9314,7 @@ export async function handler_msgtype(state, helpers) {
                 msgtype === rule.msgtype && !['noshow', 'more'].includes(name))?.name ?? '(null)';
             const prefix = `${name.padEnd(5)} "`;
             const available = BUFSZ - prefix.length - 2;
-            const pattern = encodeUtf8ByteString(rule.pattern).length > available
+            const pattern = textBytes(rule.pattern).length > available
                 ? `${truncateByteString(rule.pattern, available - 3)}...` : rule.pattern;
             items.push({ text: `${prefix}${pattern}"`, value: items.length + 1 });
         }

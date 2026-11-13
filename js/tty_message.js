@@ -23,8 +23,8 @@ import {
 } from './const.js';
 import { docorner, flush_screen } from './display.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
@@ -75,7 +75,7 @@ function ttyByteText(value) {
     // or, as a signed char, a high byte (nomux_putch_byte()). NUL is an
     // internal skipped-byte marker: it occupies one logical byte cell but is
     // not a wrapping space.
-    return encodeUtf8ByteString(value).map((byte) => (
+    return textBytes(value).map((byte) => (
         byte === 0x08 || byte === 0x0A || nomux_putch_byte(byte) !== null
             ? String.fromCharCode(byte) : '\0'
     )).join('');
@@ -86,9 +86,9 @@ function ttyByteText(value) {
 // gp.prevmsg storage. Bytes 249 through 251 become an ellipsis and bytes 252
 // through 254 preserve the original final three bytes.
 function normalizeVplineMessage(value) {
-    const bytes = encodeUtf8ByteString(value);
-    if (bytes.length <= 255) return decodeUtf8ByteString(bytes);
-    return decodeUtf8ByteString([
+    const bytes = textBytes(value);
+    if (bytes.length <= 255) return bytesText(bytes);
+    return bytesText([
         ...bytes.slice(0, 249),
         0x2E, 0x2E, 0x2E,
         ...bytes.slice(-3),

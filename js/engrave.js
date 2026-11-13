@@ -49,7 +49,7 @@ import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import { newsym } from './display.js';
 import {
-    decodeUtf8ByteString, encodeUtf8ByteString, xcrypt, } from './hacklib.js';
+    bytesText, textBytes, xcrypt, } from './hacklib.js';
 import { nomul } from './hack.js';
 import {
     is_animal, is_demon, is_vampire, is_whirly, resists_blnd_steps, sticks, } from './mondata.js';
@@ -174,8 +174,8 @@ export function make_engr_at(
     const sourceText = String(text);
     const pristine = pristineText == null ? sourceText : String(pristineText);
     const stringBytes = Math.max(
-        encodeUtf8ByteString(sourceText).length,
-        encodeUtf8ByteString(pristine).length,
+        textBytes(sourceText).length,
+        textBytes(pristine).length,
     ) + 1;
     const exactElbereth = sourceText === 'Elbereth';
     if (exactElbereth && !state.in_mklev)
@@ -669,8 +669,8 @@ export async function engrave(state = game, env = {}) {
         rate = Math.min(rate, Math.trunc(stylus.spe) * 2);
     }
 
-    const originalText = encodeUtf8ByteString(context.text ?? '');
-    const remaining = encodeUtf8ByteString(context.nextc ?? '');
+    const originalText = textBytes(context.text ?? '');
+    const remaining = textBytes(context.nextc ?? '');
     const pointerOffset = Math.max(0, originalText.length - remaining.length);
     const remainingLength = remaining.length;
     let end = 0;
@@ -758,7 +758,7 @@ export async function engrave(state = game, env = {}) {
     let buf = '';
     let oep = engr_at(state.u.ux, state.u.uy, state);
     if (oep) buf = oep.engr_txt?.[0] ?? '';
-    const existingBytes = encodeUtf8ByteString(buf);
+    const existingBytes = textBytes(buf);
     const spaceLeft = Math.max(BUFSZ - existingBytes.length - 1, 0);
     if (end > spaceLeft) {
         await say('You run out of room to write.');
@@ -769,7 +769,7 @@ export async function engrave(state = game, env = {}) {
         // C writes NUL at endc in context.text, so the persistent source text
         // is shortened through the pointer position rather than replacing
         // only the `nextc` suffix.
-        context.text = decodeUtf8ByteString(
+        context.text = bytesText(
             originalText.slice(0, pointerOffset + end),
         );
         remaining.length = end;
@@ -777,7 +777,7 @@ export async function engrave(state = game, env = {}) {
     } else {
         truncate = false;
     }
-    buf = decodeUtf8ByteString(encodeUtf8ByteString(buf)
+    buf = bytesText(textBytes(buf)
         .concat(remaining.slice(0, Math.min(spaceLeft, end))));
     make_engr_at(
         state.u.ux,
@@ -795,7 +795,7 @@ export async function engrave(state = game, env = {}) {
     }
 
     if (end < remainingLength && !truncate) {
-        context.nextc = decodeUtf8ByteString(remaining.slice(end));
+        context.nextc = bytesText(remaining.slice(end));
         if (neweng) env.redraw?.(context.pos.x, context.pos.y, state);
         return 1;
     }
@@ -1023,7 +1023,7 @@ export async function doengrave(state = game, env = {}) {
                     await say('You will overwrite the current message.');
                 de.eow = true;
             }
-        } else if (encodeUtf8ByteString(de.oep.engr_txt?.[0] ?? '').length >= BUFSZ - 1) {
+        } else if (textBytes(de.oep.engr_txt?.[0] ?? '').length >= BUFSZ - 1) {
             await say('There is no room to add anything else here.');
             de.ret = env.ECMD_TIME ?? ECMD_TIME;
             if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
@@ -1043,7 +1043,7 @@ export async function doengrave(state = game, env = {}) {
 
     de.qbuf = `What do you want to ${de.everb} the ${de.eloc} here?`;
     de.ebuf = env.mungspaces(await env.getLine(de.qbuf, state));
-    const bytes = encodeUtf8ByteString(de.ebuf);
+    const bytes = textBytes(de.ebuf);
     let length = bytes.length;
     for (const byte of bytes) if (byte === 0x20) length--;
     if (!length || bytes.includes(0x1b)) {
@@ -1078,7 +1078,7 @@ export async function doengrave(state = game, env = {}) {
                 && !env.random.rn2(2);
         if (damage) corrupted[i] = 0x20 + env.random.rnd(94);
     }
-    de.ebuf = decodeUtf8ByteString(corrupted);
+    de.ebuf = bytesText(corrupted);
 
     if (de.eow) {
         del_engr_at(state.u.ux, state.u.uy, state);
@@ -1291,10 +1291,9 @@ export async function read_engr_at(
 // the position and rubout draws, matching the source's continue statement.
 export function wipeout_text(text, count, seed = 0, env = {}) {
     const { random } = engravingEnv(env);
-    // C indexes the raw bytes of its UTF-8 char array. Surrogate escapes from
-    // decodeUtf8ByteString preserve a byte when rubbing out one byte leaves a
-    // malformed sequence, so later byte-oriented operations can round-trip it.
-    const bytes = encodeUtf8ByteString(text);
+    // C indexes the bytes of its char array, and rubbing out one byte of a
+    // UTF-8 sequence leaves the others as they were.
+    const bytes = textBytes(text);
     const length = bytes.length;
     let currentSeed = seed >>> 0;
 
@@ -1337,7 +1336,7 @@ export function wipeout_text(text, count, seed = 0, env = {}) {
         }
     }
     while (bytes.at(-1) === ' '.charCodeAt(0)) bytes.pop();
-    return decodeUtf8ByteString(bytes);
+    return bytesText(bytes);
 }
 
 // C ref: engrave.c u_wipe_engr() (264-268). Rubs out part of whatever the hero

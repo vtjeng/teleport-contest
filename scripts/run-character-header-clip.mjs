@@ -29,7 +29,7 @@
 // reference output in an isolated temporary workspace.
 
 import { game } from '../js/gstate.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { bytesText, encodeUtf8Text, textBytes } from '../js/hacklib.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
@@ -108,7 +108,10 @@ export async function verifyCharacterHeaderClipSegment(recipeSegment) {
         (entry) => headerSegment(entry).nethackrc === recipeSegment.nethackrc,
     );
     if (!found) throw new Error('no header case for this rc');
-    const { plname, field } = found;
+    const { field } = found;
+    // The recorder writes the nethackrc as UTF-8, and svp.plname holds those
+    // bytes (js/hacklib.js, byte strings).
+    const plname = bytesText(encodeUtf8Text(found.plname));
 
     // Stop with the confirmation menu drawn and its answer unread, so the
     // header stays on the live terminal.
@@ -124,7 +127,7 @@ export async function verifyCharacterHeaderClipSegment(recipeSegment) {
             `svp.plname is ${JSON.stringify(game.plname)}`,
         );
     }
-    if (encodeUtf8ByteString(game.plname).length > 31)
+    if (textBytes(game.plname).length > 31)
         throw new Error('the case name outgrew nmcpy()');
 
     const header = game.nhDisplay.grid[2]

@@ -61,6 +61,7 @@ import {
     TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { utf8Text } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
@@ -2910,10 +2911,10 @@ test('append_price_quote measures multibyte C buffer contents in bytes', () => {
     // Its 21-byte suffix fits after 116 two-byte names (23 bytes remain),
     // while 117 leave exactly 21 bytes and fail C's strict `<` check.
     assert.equal(
-        append_price_quote('é'.repeat(116), POT_HEALING, state), quote,
+        append_price_quote(utf8Text('é'.repeat(116)), POT_HEALING, state), quote,
     );
     assert.equal(
-        append_price_quote('é'.repeat(117), POT_HEALING, state), '',
+        append_price_quote(utf8Text('é'.repeat(117)), POT_HEALING, state), '',
     );
 });
 

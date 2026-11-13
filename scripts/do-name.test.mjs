@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { SUPPRESS_NAME, LAST_PROP } from '../js/const.js';
+import { bytesText, encodeUtf8Text } from '../js/hacklib.js';
 import {
     Amonnam,
     Adjmonnam,
@@ -764,6 +765,10 @@ test('noveltitle leaves invalid indices untouched but uses its draw', () => {
     assert.equal(random.draws, 1);
 });
 
+// Typed text reaches the game as bytes, one code unit each (js/hacklib.js);
+// a non-ASCII character typed as UTF-8 is these bytes.
+const utf8 = (text) => bytesText(encodeUtf8Text(text));
+
 test('lookup_novel canonicalizes source aliases and preserves valid fallback', () => {
     assert.deepEqual(lookup_novel('Color of Magic', 12), {
         novelidx: 0,
@@ -801,8 +806,8 @@ test('lookup_novel canonicalizes source aliases and preserves valid fallback', (
         novelidx: -1,
         title: null,
     });
-    // C folds ASCII only; Unicode's Kelvin sign must not become an ASCII k.
-    assert.deepEqual(lookup_novel('MaKing Money', 9), {
+    // C folds ASCII only; the Kelvin sign's bytes must not become an ASCII k.
+    assert.deepEqual(lookup_novel(utf8('MaKing Money'), 9), {
         novelidx: 9,
         title: 'Moving Pictures',
     });
@@ -1055,13 +1060,12 @@ test('oname truncates a name at PL_PSIZ and stops on a held object', () => {
     // cut on a byte boundary rather than a code-point one -- and the cut can
     // land inside a character. 'a' plus forty e-acutes is 81 bytes; keeping
     // PL_PSIZ - 1 of them keeps 'a', thirty whole e-acutes and the leading
-    // 0xC3 of the thirty-first, which decodeUtf8ByteString() carries as the
-    // low-surrogate escape 0xDC00 + 0xC3. A code-point truncation would have
-    // kept 62 characters instead of 32.
-    oname(obj, `a${'é'.repeat(40)}`, ONAME_WISH, { state });
-    assert.equal(obj.oextra.oname.length, 32);
-    assert.equal(obj.oextra.oname.slice(0, 31), `a${'é'.repeat(30)}`);
-    assert.equal(obj.oextra.oname.charCodeAt(31), 0xDCC3);
+    // 0xC3 of the thirty-first.
+    oname(obj, utf8(`a${'é'.repeat(40)}`), ONAME_WISH, { state });
+    assert.equal(obj.oextra.oname.length, PL_PSIZ - 1);
+    assert.equal(obj.oextra.oname.slice(0, PL_PSIZ - 2),
+        utf8(`a${'é'.repeat(30)}`));
+    assert.equal(obj.oextra.oname.charCodeAt(PL_PSIZ - 2), 0xC3);
 
     // 424-425 refreshes the inventory window for an object the hero holds.
     const held = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_INVENT };
@@ -1394,9 +1398,8 @@ test('christen_orc preserves pointer branches and the C byte limit', () => {
     assert.equal(unnamedMonster.mextra.mgivenname, 'Old name');
 
     const oversizedMonster = { mextra: {} };
-    christen_orc(oversizedMonster, 'é'.repeat(126), null, { random });
+    christen_orc(oversizedMonster, utf8('é'.repeat(126)), null, { random });
     // 126 two-byte characters plus the generated name and " of " exceed the
-    // 256-byte BUFSZ check even though the JavaScript string is short enough
-    // to pass a UTF-16 length check.
+    // 256-byte BUFSZ check.
     assert.equal(oversizedMonster.mextra.mgivenname, undefined);
 });

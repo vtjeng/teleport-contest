@@ -21,6 +21,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { initoptions_finish, parseNethackrc } from '../js/options.js';
+import { bytesText, encodeUtf8Text } from '../js/hacklib.js';
 import {
     SLIME_MOLD,
     objects_globals_init,
@@ -82,23 +83,28 @@ test('initial fruit option munges, sanitizes, and truncates source bytes', () =>
 
 test('a typed high byte stays one byte through the fruit option', () => {
     // hooked_tty_getlin() stores the key 0xE9 as one byte, which the port's
-    // getlin() returns as the escape U+DCE9 (decodeUtf8ByteString()).
+    // getlin() returns as the one code unit 0xE9 (bytesText()).
     // mungspaces() and nmcpy() copy that one byte; sanitize_name() turns it
     // into one '_' when eight_bit_tty is off, and keeps it when it is on.
-    // Re-encoding the escape with TextEncoder would give U+FFFD's three bytes
-    // and "pomm___", the mismatch recorded by
+    // Encoding the byte as UTF-8 would give more than one byte and
+    // "pomm___" or "pomm__", the mismatch recorded by
     // recordings/options.c/fruit-option-latin1-byte-sanitized.session.json.
-    assert.equal(fruitMungspaces(' pomm\uDCE9 '), 'pomm\uDCE9');
-    assert.equal(normalize_initial_fruit('pomm\uDCE9'), 'pomm_');
-    assert.equal(normalize_initial_fruit('pomm\uDCE9', true), 'pomm\uDCE9');
+    assert.equal(fruitMungspaces(' pomm\u00E9 '), 'pomm\u00E9');
+    assert.equal(normalize_initial_fruit('pomm\u00E9'), 'pomm_');
+    assert.equal(normalize_initial_fruit('pomm\u00E9', true), 'pomm\u00E9');
     // 0x85's low seven bits are a control code, so sanitize_name() writes
-    // '.' whatever eight_bit_tty says; 31 one-byte escapes fill PL_FSIZ - 1.
-    assert.equal(normalize_initial_fruit('a\uDC85b', true), 'a.b');
+    // '.' whatever eight_bit_tty says; 31 one-byte characters fill
+    // PL_FSIZ - 1.
+    assert.equal(normalize_initial_fruit('a\u0085b', true), 'a.b');
     assert.equal(
-        normalize_initial_fruit('\uDCE8'.repeat(40), true),
-        '\uDCE8'.repeat(31),
+        normalize_initial_fruit('\u00E8'.repeat(40), true),
+        '\u00E8'.repeat(31),
     );
 });
+
+// The game holds the nethackrc as the UTF-8 bytes the recorder writes, one
+// code unit per byte (js/hacklib.js).
+const utf8 = (text) => bytesText(encodeUtf8Text(text));
 
 test('fruit parsing preserves C whitespace and eight-bit option order', () => {
     assert.equal(
@@ -128,14 +134,14 @@ test('fruit parsing preserves C whitespace and eight-bit option order', () => {
         'OPTIONS=fruit:é',
     ].join('\n'));
     assert.equal(earlierLine.iflags.wc_eight_bit_input, true);
-    assert.equal(earlierLine.pl_fruit, 'é');
+    assert.equal(earlierLine.pl_fruit, utf8('é'));
 
     // parseoptions() recurses through a comma list right-to-left. The first
     // spelling below enables eight-bit input before fruit is sanitized; the
     // second enables it only after the high bytes have become underscores.
     assert.equal(
         parseNethackrc('OPTIONS=fruit:é,eight_bit_tty').pl_fruit,
-        'é',
+        utf8('é'),
     );
     assert.equal(
         parseNethackrc('OPTIONS=eight_bit_tty,fruit:é').pl_fruit,
@@ -146,35 +152,33 @@ test('fruit parsing preserves C whitespace and eight-bit option order', () => {
         'OPTIONS=fruit:é,\\\n eight_bit_tty',
     );
     assert.equal(continued.iflags.wc_eight_bit_input, true);
-    assert.equal(continued.pl_fruit, 'é');
+    assert.equal(continued.pl_fruit, utf8('é'));
 
     // TextDecoder normally consumes a leading UTF-8 BOM.  The C buffer does
     // not, so it remains the first character of an eight-bit fruit name.
     assert.equal(
         parseNethackrc('OPTIONS=fruit:\uFEFFapple,eight_bit_tty').pl_fruit,
-        '\uFEFFapple',
+        utf8('\uFEFFapple'),
     );
 
     // PL_FSIZ truncates the sixteenth e-acute halfway through its two-byte
-    // UTF-8 sequence.  The internal surrogate escape represents that final
-    // raw C3 byte and must round-trip through later fixed-buffer copies.
+    // UTF-8 sequence, keeping its C3 byte.
     const truncated = parseNethackrc(
         `OPTIONS=fruit:${'é'.repeat(16)},eight_bit_tty`,
     ).pl_fruit;
-    assert.equal(truncated.slice(0, 15), 'é'.repeat(15));
-    assert.equal(truncated.charCodeAt(15), 0xDCC3);
+    assert.equal(truncated.slice(0, 30), utf8('é'.repeat(15)));
+    assert.equal(truncated.charCodeAt(30), 0xC3);
     assert.deepEqual(
         _fruitInternals.internalBytes(truncated),
         [...Buffer.from('é'.repeat(15)), 0xC3],
     );
 
     // An unpaired surrogate supplied at the API boundary is encoded as the
-    // replacement character by the recorder's UTF-8 file write.  It must not
-    // be mistaken for an internally generated raw-byte escape.
+    // replacement character by the recorder's UTF-8 file write.
     const externalSurrogate = parseNethackrc(
         'OPTIONS=fruit:\uDCC3,eight_bit_tty',
     ).pl_fruit;
-    assert.equal(externalSurrogate, '\uFFFD');
+    assert.equal(externalSurrogate, utf8('\uFFFD'));
     assert.deepEqual(
         _fruitInternals.internalBytes(externalSurrogate),
         [0xEF, 0xBF, 0xBD],
@@ -529,8 +533,8 @@ test('game startup finishes the configured fruit before its first input', async 
         moves: '',
     });
     assert.equal(game.iflags.wc_eight_bit_input, true);
-    assert.equal(game.svp.pl_fruit, 'é');
-    assert.equal(game.gf.ffruit.fname, 'é');
+    assert.equal(game.svp.pl_fruit, utf8('é'));
+    assert.equal(game.gf.ffruit.fname, utf8('é'));
 
     await runSegment({
         // Monster-shaped fruit used to abort before the name prompt; this

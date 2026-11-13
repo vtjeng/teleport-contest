@@ -84,7 +84,7 @@ import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
-    dist2, encodeUtf8ByteString, lcase, mungspaces, s_suffix, strncmpi,
+    dist2, textBytes, lcase, mungspaces, s_suffix, strncmpi,
     strsubst, truncateByteString, upstart,
 } from './hacklib.js';
 import {
@@ -5522,7 +5522,7 @@ export async function mon_spell_hits_spot(
         const engraving = engr_at(x, y, state);
         const engravingText = engraving?.engr_txt?.[0];
         if (engravingText !== null && engravingText !== undefined) {
-            const engravingBytes = encodeUtf8ByteString(engravingText);
+            const engravingBytes = textBytes(engravingText);
             const terminator = engravingBytes.indexOf(0);
             const textLength = terminator < 0
                 ? engravingBytes.length : terminator;

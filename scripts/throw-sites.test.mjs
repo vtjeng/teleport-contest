@@ -21,8 +21,8 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // 13 November 2026 (branch audit-impossible-throws) found 814 throws under
 // 805 keys at 8b1ac72af, ported the impossible() calls among them and left
 // 735 under 729 keys: 516 invariant, 87 guard, 86 panic, 44 lua-error and
-// 2 unported.
-const LIST_PINS = { entries: 727, sites: 733 };
+// 2 unported. js/hacklib.js bytesText() added one invariant.
+const LIST_PINS = { entries: 728, sites: 734 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

@@ -162,7 +162,8 @@ import { game } from './gstate.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
 import {
-    dist2, encodeUtf8ByteString, mungspaces, strstri, visctrl, lcase, upstart,
+    dist2, textBytes, mungspaces, strstri, utf8Text, visctrl, lcase,
+    upstart,
 } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory, sobj_at } from './invent.js';
@@ -943,7 +944,7 @@ function textWindowGlyphCell(column, glyph, ch, state) {
 // C ref: windows.c decode_mixed(). A text-window line holds the one byte
 // gs.showsyms[] gives an encglyph() glyph. A high-bit byte (an IBMgraphics or
 // DECgraphics symbol) is carried as that raw byte, which
-// js/hacklib.js encodeUtf8ByteString() keeps one column wide, rather than as
+// js/hacklib.js textBytes() keeps one column wide, rather than as
 // its rendered character, whose UTF-8 form would take two or three columns
 // and shift the rest of the line. A UTF-8 symset writes the rendered form.
 function decodedGlyphText(glyph, rendered, state) {
@@ -952,8 +953,8 @@ function decodedGlyphText(glyph, rendered, state) {
     ]?.handling;
     const byte = map_glyphinfo(glyph, state).ttychar;
     if (handling !== H_UTF8 && Number.isInteger(byte) && (byte & 0x80) !== 0)
-        return String.fromCharCode(0xDC00 + byte);
-    return rendered;
+        return String.fromCharCode(byte);
+    return utf8Text(rendered);
 }
 
 function displayedGlyphCharacter(glyph, x, y, state) {
@@ -1372,7 +1373,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         symbolByte = lookupGlyphInfo.ttychar;
     }
     const prefix = looked
-        ? displayCharacter + '        '
+        ? utf8Text(displayCharacter) + '        '
         : String.fromCharCode(symbolByte) + '        ';
     let found = 0;
     let needToLook = false;
@@ -2029,7 +2030,7 @@ export async function do_look(mode, clickCc = null, state = game) {
         if (!answer || answer.startsWith('\x1b')) return ECMD_OK;
         // pager.c:1852 tests out_str[1], the second byte: two typed keys
         // that form one UTF-8 character are a complete string to checkfile().
-        const answerBytes = encodeUtf8ByteString(answer);
+        const answerBytes = textBytes(answer);
         if (answerBytes.length === 1) {
             // pager.c treats a one-character answer as a symbol lookup and
             // falls through to the same description/output path as a screen
@@ -2111,24 +2112,21 @@ export async function do_look(mode, clickCc = null, state = game) {
 
             const description = do_screen_description(cc, true, 0, state);
             const location = state.level?.at(cc.x, cc.y);
-            // do_screen_description()'s encglyph() prefix.
+            // do_screen_description()'s encglyph() prefix, which `out` holds
+            // as the UTF-8 bytes of its display character.
             const prefix = map_glyphinfo(glyph_at(cc.x, cc.y, state), state);
+            const prefixCell = visibleGlyphCharacter(prefix);
+            const rest = description.out.slice(utf8Text(prefixCell).length);
             // pager.c do_look() 1920-1923 shows every explanation with
             // putmixed(), never pline(), so MSGTYPE never applies to it.
             if (location?.disp_decgfx) {
-                await ttyPutmixed(
-                    `${location.disp_ch}${description.out.slice(1)}`,
-                    description.out[0], state,
-                );
+                await ttyPutmixed(`${location.disp_ch}${rest}`, prefixCell, state);
             } else if ((prefix.ttychar & 0x80) && prefix.ch != null) {
                 // topl.c redotoplin() sends a mixed line's high-bit first
                 // byte through g_putch(), which recorder patch 006 captures
                 // with the high bit stripped: symbol_at()'s `ch` for an
                 // H_IBM byte. That byte is one cell wide.
-                await ttyPutmixed(
-                    `${prefix.ch}${description.out.slice(1)}`,
-                    prefix.ch, state,
-                );
+                await ttyPutmixed(`${prefix.ch}${rest}`, prefix.ch, state);
             } else {
                 await ttyPutmixed(description.out, null, state);
             }

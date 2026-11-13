@@ -13,8 +13,8 @@ import {
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    bytesText,
+    textBytes,
     appendLongDigit, ucase, lcase,
 } from './hacklib.js';
 import { nhgetch } from './input.js';
@@ -125,7 +125,7 @@ function writeStyledText(
     display, column, row, text, color, attr, maxColumn = display.cols,
     textWindowUtf8 = undefined,
 ) {
-    const bytes = encodeUtf8ByteString(text);
+    const bytes = textBytes(text);
     for (let index = 0;
         index < bytes.length && column + index < maxColumn;) {
         const spaces = bytes[index] === 0x20;
@@ -320,7 +320,7 @@ function compressTtyWindowLine(value, columns) {
 // string; those positions must follow dropped leading/repeated spaces and the
 // BUFSZ truncation before tty_putstr() splits the normalized bytes.
 function compressTtyWindowBytes(value, columns) {
-    const source = encodeUtf8ByteString(value ?? '');
+    const source = textBytes(value ?? '');
     if (source.length < columns && !source.includes(0x0A)) {
         return {
             bytes: source,
@@ -417,13 +417,13 @@ function ttyWindowTextData(lines, columns, preserveLines) {
                 // split byte and the recursive suffix starts after it.
                 stored.push(storedLine(
                     sourceLine,
-                    decodeUtf8ByteString(compressed.slice(0, split)),
+                    bytesText(compressed.slice(0, split)),
                     sourceToNormalized,
                     normalizedStart,
                     split,
                 ));
                 putstr(
-                    decodeUtf8ByteString(compressed.slice(next)),
+                    bytesText(compressed.slice(next)),
                     sourceLine,
                     compressedDataForLine,
                     normalizedStart + next,
@@ -433,7 +433,7 @@ function ttyWindowTextData(lines, columns, preserveLines) {
         }
         stored.push(storedLine(
             sourceLine,
-            decodeUtf8ByteString(compressed),
+            bytesText(compressed),
             sourceToNormalized,
             normalizedStart,
             compressed.length,
@@ -689,9 +689,9 @@ export function ttyMenuLayout(state, spec, pageIndex = 0) {
     // and the cut count bytes: a line of exactly cols - 2 bytes survives whole
     // and one of cols - 1 loses its last byte.
     for (const line of allLines) {
-        const bytes = encodeUtf8ByteString(String(line.text ?? ''));
+        const bytes = textBytes(String(line.text ?? ''));
         if (bytes.length + 2 > display.cols) {
-            line.text = decodeUtf8ByteString(
+            line.text = bytesText(
                 bytes.slice(0, display.cols - 2),
             );
         }
@@ -713,7 +713,7 @@ export function ttyMenuLayout(state, spec, pageIndex = 0) {
     const maxcol = Math.max(
         footerText.length + 1,
         ...allLines.map((line) => (
-            encodeUtf8ByteString(String(line.text ?? '')).length + 2
+            textBytes(String(line.text ?? '')).length + 2
         )),
     );
     const maxrow = pageCount > 1
@@ -1008,7 +1008,7 @@ export async function displayTtyTextWindow(state = game, lines) {
             utf8,
         );
         const firstByteGPutch = utf8
-            || encodeUtf8ByteString(text.slice(0, 1))[0] >= 0x80;
+            || textBytes(text.slice(0, 1))[0] >= 0x80;
         // wintty.c process_text_window() sends putmixed() lines through
         // decode_mixed(). A decoded glyph can use a rendered DEC character
         // that writeStyledText() deliberately drops as a non-ASCII byte, so

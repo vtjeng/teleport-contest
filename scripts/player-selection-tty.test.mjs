@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { utf8Text } from '../js/hacklib.js';
 
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -256,7 +257,8 @@ test('plsel_startmenu cuts the hero name at twenty bytes', async () => {
     ]) {
         // n chooses menus; w/h/m/n choose Wizard, human, male, neutral.
         const state = selectionState('nwhmny');
-        state.plname = plname;
+        // svp.plname holds the nethackrc name's UTF-8 bytes.
+        state.plname = utf8Text(plname);
         const captures = captureBoundaries(state);
         assert.equal(await ttyPlayerSelection(state, noRandom), true, plname);
         assert.equal(captures.length, 6, plname);
