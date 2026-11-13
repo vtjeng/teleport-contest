@@ -2245,7 +2245,10 @@ async function gcrownu(state) {
     }
 
     if (state.objects?.[classGift]?.oc_class === SPBOOK_CLASS) {
+        // C assigns the book to `obj`, so the wielded weapon is enhanced
+        // below only when the hero already knows the spell.
         const book = mksobj(classGift, true, false, { state });
+        obj = book;
         const bookName = actualoname(book, state);
         bless(book, { state });
         book.bknown = 1;

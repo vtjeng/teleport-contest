@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60413,
+      "datetime": "20250727160000",
+      "nethackrc": "OPTIONS=name:Lin,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!tutorial,!autopickup,pettype:none\n",
+      "moves": "\n\n#levelchange\n14\n               \u00172 diamonds\n\u0017blessed luckstone\n\u0017uncursed +0 mace\n\t\t\nwm\u0007peaceful gray unicorn\ntkh  \u0007peaceful gray unicorn\ntkl  \u0016?\n>y  \u0007Grand Master\ny#chat\nh  y ss#pray\ny y          #pray\ny y          #pray\ny y          #pray\ny y          #pray\ny y          #pray\ny y          i"
+    }
+  ]
+}
