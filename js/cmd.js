@@ -1922,28 +1922,20 @@ export async function end_of_input(state = game) {
     await nh_terminate(state);
 }
 
-const EMPTY_KEY_BOUNDARY = 'cmd.c rhack():3660-3671 answers a NUL or 0377 '
-    + 'command byte with nhbell(), which is not ported';
-
-// C has no admission step: rhack() dispatches whatever row the key is bound
-// to, and callExtcmdFunction() refuses a row whose function this port lacks
-// when the dispatch reaches it. A byte bound to no row takes the bad-command
-// path, which this file owns. parse() has already run when this is called, so
-// the byte classified here is the command byte parse() returned, never a
-// count digit get_count() consumed ahead of it.
-//
-// parse() answers Escape by clearing the message window and zeroing both
-// count fields, which finishCommandParse() already does, and rhack() then
-// returns without a message or a turn. The two empty-key values stay refused:
-// C rings the bell for them and nhbell() is not ported. Only 0377 can arrive
-// here, because js/input.js nhgetch() substitutes ESC for NUL below
-// readchar(), as win/tty/wintty.c tty_nhgetch():4093-4098 does; the other half
-// is written out because rhack():3661 tests it.
-function admitParsedCommand(key, state) {
-    if (!key || key === 0xFF) {
-        resetCommandVars(state);
-        throw new UnsupportedHeroCommandBoundaryError(EMPTY_KEY_BOUNDARY, key);
-    }
+// C ref: cmd.c rhack():3659-3671, "if there's no command, there's nothing to
+// do except reset". rhack() runs this test on every key it reaches, both the
+// first and each one read again at got_prefix_input after a prefix, and on a
+// key a CMDQ_KEY node supplies. The `key == (char) 0377` arm compares parse()'s
+// `(char)` result, which is -1 for byte 0377; the port's keys are unsigned, so
+// 0xFF is that value. NUL and 0377 ring nhbell(): win/tty/termcap.c
+// tty_nhbell():751-757 writes BEL, which changes no cell and, as its comment
+// says, leaves the cursor where it was, so the port writes nothing for it.
+// ESC instead copies iflags.sanity_check into iflags.sanity_no_check, which
+// only wizcmds.c sanity_check() reads; that check is not ported, so the copy
+// is left out. Every arm then calls reset_cmd_vars(TRUE) and returns, with no
+// message and no turn.
+function isNoCommandKey(key) {
+    return !key || key === 0xFF || key === ESC;
 }
 
 // C ref: cmd.c reset_occupations() (194-200). Its own comment lists the three
@@ -5385,10 +5377,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                     captureParsedCommand(key, state);
                 newLogicalCommand = true;
             }
-            // Admission runs on the parsed command rather than on the byte
-            // that opened it, and outside the capture above, so a restored
-            // command is re-examined instead of dispatched unchecked.
-            admitParsedCommand(key, state);
             // parse() cannot push a canned command here: click_to_cmd() is
             // its only pusher and no mouse input is ported, so C's
             // `!key && cmdq_peek(CQ_CANNED)` retry at 3655 never fires.
@@ -5402,7 +5390,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 (state._commandDispatchCount ?? 0) + 1;
         }
 
-        if (!cmdqCommand && (!key || key === 0xFF || key === ESC)) {
+        if (!cmdqCommand && isNoCommandKey(key)) {
             resetCommandVars(state);
             return;
         }
@@ -5471,7 +5459,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                         captureParsedCommand(key, state);
                 }
             }
-            if (!commandAfterPrefix && (!key || key === 0xFF || key === ESC)) {
+            if (!commandAfterPrefix && isNoCommandKey(key)) {
                 resetCommandVars(state);
                 return;
             }

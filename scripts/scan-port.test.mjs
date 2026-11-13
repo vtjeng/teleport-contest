@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { DOOR, D_CLOSED } from '../js/const.js';
+import { GameDisplay } from '../js/game_display.js';
 import { scanSeeds, seedRange } from './scan-port.mjs';
 
 // The same character and clock as the kick matrix, so the door check below
@@ -70,16 +72,29 @@ test('scanSeeds finds the closed door the kick matrix recorded against', async (
 
 test('scanSeeds counts a refused command by error class without calling keep', async () => {
     let keepCalls = 0;
-    const { replayed, kept, stopped } = await scanSeeds({
-        seeds: seedRange(6600001, 6600002),
-        datetime: DATETIME,
-        // cmd.c rhack():3660-3671 answers a 0377 command byte with nhbell(),
-        // which cmd.js refuses as unported, so both seeds stop at that
-        // boundary on the first command byte.
-        nethackrc: NETHACKRC,
-        moves: '\u00ff',
-        keep: () => { keepCalls++; return true; },
-    });
+    // No short input reaches a fail-closed refusal any more, so the key
+    // reader raises the command refusal itself when it reads 'Z', and both
+    // seeds stop at that boundary on the first command byte.
+    const original = GameDisplay.prototype.readKey;
+    GameDisplay.prototype.readKey = async function readKey(options) {
+        const key = await original.call(this, options);
+        if (key === 'Z'.charCodeAt(0))
+            throw new UnsupportedHeroCommandBoundaryError('a test refusal', key);
+        return key;
+    };
+    let scan;
+    try {
+        scan = await scanSeeds({
+            seeds: seedRange(6600001, 6600002),
+            datetime: DATETIME,
+            nethackrc: NETHACKRC,
+            moves: 'Z',
+            keep: () => { keepCalls++; return true; },
+        });
+    } finally {
+        GameDisplay.prototype.readKey = original;
+    }
+    const { replayed, kept, stopped } = scan;
     assert.equal(replayed, 2);
     assert.equal(kept.length, 0);
     assert.equal(keepCalls, 0);

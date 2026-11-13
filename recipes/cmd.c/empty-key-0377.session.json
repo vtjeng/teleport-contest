@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731906,
+      "datetime": "20310305142200",
+      "nethackrc": "OPTIONS=name:Ffkey,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "ÿsÿÿs12ÿsFÿssÿ\u0001s"
+    }
+  ],
+  "comment": "cmd.c rhack():3659-3671 witness for the 0377 command byte. parse() returns (char) 0377, which rhack() treats as no command: nhbell() writes only BEL and reset_cmd_vars(TRUE) clears the count and both command queues. Covers 0377 as the first key, twice in a row, after a count that get_count() echoed, after the F prefix (the got_prefix_input re-test), and before ^A, which then finds CQ_REPEAT empty."
+}

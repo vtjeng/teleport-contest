@@ -3222,13 +3222,17 @@ test('a count before a byte bound to no command reaches the bad-command path',
     assert.equal(game.commandCount, 12);
 });
 
-test('the 0377 empty-key value stays refused after parsing', async () => {
-    // cmd.c rhack():3661-3672 rings the bell for key 0377 and returns;
-    // nhbell() is not ported, so it stays on the refusing side even though
-    // cmdbind_get() finds no command for it, which is the one place this port
-    // parts company with an ordinary unbound byte. rhack()'s other empty-key
-    // value, 0, cannot be reached: win/tty/wintty.c tty_nhgetch():4093-4098
-    // substitutes ESC for NUL below readchar(), as js/input.js nhgetch() does.
+test('the 0377 command byte resets a count without a message or a turn',
+    async () => {
+    // cmd.c rhack():3659-3671 treats parse()'s `(char) 0377` as no command:
+    // nhbell() writes only BEL, then reset_cmd_vars(TRUE) zeroes gm.multi and
+    // rhack() returns. cmdbind_get() finds no row for the byte either, so
+    // without that arm it would take the bad-command path and print "Unknown
+    // command"; the empty top line tells the two apart. rhack()'s other
+    // empty-key value, 0, cannot arrive: win/tty/wintty.c
+    // tty_nhgetch():4093-4098 substitutes ESC for NUL below readchar(), as
+    // js/input.js nhgetch() does. recordings/cmd.c/empty-key-0377.session.json
+    // is the C witness.
     const key = 0xFF;
     await runSegment({
         seed: 840021,
@@ -3238,15 +3242,20 @@ test('the 0377 empty-key value stays refused after parsing', async () => {
             + '!splash_screen,pettype:none',
         moves: ' ',
     });
-    // Sharing the unbound byte's classification is what makes the separate
-    // empty-key test load-bearing rather than decorative.
     assert.equal(commandForKey(createCommandBindingModel(game), key), null);
+    const startingMoves = game.moves;
+    // 12 is the smallest count get_count() echoes, so parse() leaves gm.multi
+    // at 11 for the reset to clear.
+    for (const ch of '12') game.nhDisplay.pushKey(commandKeyCode(ch));
     game.nhDisplay.pushKey(key);
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === key,
-    );
+
+    await moveloop_core();
+    await flush_screen(1);
+
+    assert.equal(topLine(game), '');
+    assert.equal(game.multi, 0);
+    assert.equal(game.context.move, 0);
+    assert.equal(game.moves, startingMoves);
 });
 
 test('a counted descent off the stairs takes no time and leaves no count',

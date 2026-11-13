@@ -81,22 +81,16 @@ test('closure recipes reach the first command without executing it', async () =>
 test('closure boundary rejects an appended unsupported command', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
         .segments[0];
-    // Every bound key now dispatches through the extcmdlist table, so `X`
-    // (#twoweapon) reaches dispatch and fails the dispatch-count check.
-    await assert.rejects(
-        verifyFirstCommandBoundary({ ...segment, moves: `${segment.moves}X` }),
-        /dispatched a command before stopping/u,
-    );
-    // admitParsedCommand() still refuses byte 0377 before dispatch, which
-    // leaves the parsed command pending.
-    const appended = `${segment.moves}ÿ`;
+    // rhack() counts every command byte parse() returns as a dispatch, so `X`
+    // (#twoweapon) fails the dispatch-count check.
+    const appended = `${segment.moves}X`;
     await assert.rejects(
         verifyFirstCommandBoundary({ ...segment, moves: appended }),
-        /unsupported gameplay command/u,
+        /dispatched a command before stopping/u,
     );
     await assert.rejects(
         traceFirstCommandThemeroomSelections({ ...segment, moves: appended }),
-        /unsupported gameplay command/u,
+        /dispatched a command before stopping/u,
     );
 });
 

@@ -160,8 +160,8 @@ test('the genesis matrix contains only source-selected inputs', () => {
 });
 
 test('the ^G key reaches the command seam rather than the boundary', () => {
-    // js/cmd.js admitParsedCommand() throws for a parsed command outside this
-    // list, before rhack() dispatches anything, so the key would stop at the
+    // js/cmd.js callExtcmdFunction() throws for a row outside this list when
+    // rhack() reaches its dispatch, so the key would stop at the
     // repeated-command boundary without the row.
     assert.ok(DISPATCHED_COMMANDS.includes('wizgenesis'));
 });

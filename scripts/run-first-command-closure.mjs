@@ -65,11 +65,6 @@ function assertFirstCommandBoundary(segment, replay) {
     if (rows.some((row) => row.includes('--More--'))) {
         throw new Error(`${label} stopped at a --More-- prompt`);
     }
-    if (game.context?.pendingCommand) {
-        throw new Error(
-            `${label} reached an unsupported gameplay command`,
-        );
-    }
     const expectedBoundaries = segment.moves.length + 1;
     if (replay.getCursors().length !== expectedBoundaries) {
         throw new Error(

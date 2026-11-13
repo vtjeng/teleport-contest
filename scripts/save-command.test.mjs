@@ -16,9 +16,9 @@ import { game } from '../js/gstate.js';
 import { InMemoryStorage } from '../js/storage.js';
 
 test('save is in DISPATCHED_COMMANDS', () => {
-    // The 'save' command must be admitted so that admitParsedCommand() does
-    // not throw UnsupportedHeroCommandBoundaryError when the player presses
-    // S (key 0x53, extcmdlist row "save").
+    // The 'save' command must be dispatched so that callExtcmdFunction()
+    // does not throw UnsupportedHeroCommandBoundaryError when the player
+    // presses S (key 0x53, extcmdlist row "save").
     assert.ok(
         DISPATCHED_COMMANDS.includes('save'),
         'DISPATCHED_COMMANDS must include "save"',
