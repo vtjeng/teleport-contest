@@ -25,7 +25,6 @@ import {
     parseCommand,
     resetCommandVars,
     rhack,
-    UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
 import {
 } from '../js/eat.js';
@@ -48,7 +47,6 @@ import {
     D_NODOOR,
     DOOR,
     FAST,
-    NO_TRAP,
     TELEP_TRAP,
     FOUNTAIN,
     GETOBJ_EXCLUDE,
@@ -123,7 +121,6 @@ import {
     monster_nearby,
     preflightDomoveDestination,
     test_move,
-    UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegmentStrict as runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { stairway_find_dir } from '../js/stairs.js';
@@ -920,14 +917,6 @@ function installOccupiedTeleportDestinationTrap(x, y) {
     return { destination: [px, py], resident };
 }
 
-// trap.c dotrap() has no arm for a trap of no known type, so
-// preflight_dotrap() refuses it ('trap activation') before any effect. The
-// refusal-ownership tests below use it as their fixed boundary.
-function installUnsupportedTrap(x, y) {
-    game.level.traps.push({ tx: x, ty: y, ttyp: NO_TRAP, tseen: false,
-        once: false, teledest: { x: -1, y: -1 } });
-}
-
 function installFloorPile(x, y, count = 2, firstOverrides = {}) {
     let head = null;
     for (let index = count - 1; index >= 0; --index) {
@@ -1415,166 +1404,6 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
         assert.equal(game.u.umoved, false);
     });
 
-test('runtime hero refusals do not become phantom elapsed turns', async () => {
-    const cases = [
-        // Every terrain a walking hero can reach, and every pet swap, is an
-        // admitted destination of the walking seam; hack.c test_move()
-        // decides doors through testdiag and its closed-door arm. A trap of
-        // no known type still stops the arrival preflight, so it stands in
-        // as the retry fixture.
-        {
-            name: 'trap of no known type',
-            reason: 'trap activation',
-            install: ({ x, y }) => installUnsupportedTrap(x, y),
-            remove: () => {
-                game.level.traps = [];
-            },
-        },
-    ];
-
-    for (const refusal of cases) {
-        const replay = await runSegment({
-            seed: 840004,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:MoveRetry,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none',
-            moves: '',
-        });
-        clearTtyMessageWindow(game);
-        resetCommandVars(game);
-        // Every case moves one square; the diagonal ones carry their own
-        // offset and movement key so that the same retry snapshot covers both
-        // orientations.
-        const moveKey = refusal.key ?? 'l';
-        const x = game.u.ux + (refusal.dx ?? 1);
-        const y = game.u.uy + (refusal.dy ?? 0);
-        const destination = game.level.at(x, y);
-        destination.typ = ROOM;
-        destination.flags = 0;
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.level.objects[x][y] = null;
-        game.level.traps = [];
-        game.level.regions = [];
-        game.head_engr = null;
-        refusal.install({ destination, x, y });
-        game.cmdKey = commandKeyCode('k');
-        game.commandCount = 17;
-        game.lastCommandCount = 19;
-
-        const expected = heroCommandRetrySnapshot(replay);
-        Object.assign(expected.context, {
-            forcefight: 0,
-            move: 0,
-            mv: 0,
-            nopick: 0,
-            run: 0,
-            travel: 0,
-            travel1: 0,
-        });
-        expected.domoveAttempting = 0;
-        expected.iflags.menu_requested = false;
-        expected.multi = 0;
-        Object.assign(expected.parser, {
-            cmdKey: commandKeyCode(moveKey),
-            commandCount: 0,
-            lastCommandCount: 0,
-        });
-        expected.context.pendingCommand = {
-            key: commandKeyCode(moveKey),
-            commandCount: 0,
-            lastCommandCount: 0,
-            multi: 0,
-        };
-        const expectedOutput = expected.output;
-        delete expected.output;
-        const initialDispatches = game._commandDispatchCount;
-        let refusalOutput;
-        let refusalScreen;
-        let refusalCursor;
-        let refusalTerminal;
-
-        game.nhDisplay.pushKey(commandKeyCode(moveKey));
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error.reason === refusal.reason
-                    && (
-                        error instanceof UnsupportedHeroMoveBoundaryError
-                        || error instanceof UnsupportedHeroCommandBoundaryError
-                    ),
-                `${refusal.name}, attempt ${attempt + 1}`,
-            );
-            const actual = heroCommandRetrySnapshot(replay);
-            const actualOutput = actual.output;
-            const actualTerminal = actual.terminal;
-            delete actual.output;
-            delete actual.terminal;
-            expected.parser.dispatchCount = initialDispatches + 1;
-            const expectedTerminal = expected.terminal;
-            delete expected.terminal;
-            assert.deepEqual(
-                actual,
-                expected,
-                `${refusal.name}, attempt ${attempt + 1}`,
-            );
-            expected.terminal = expectedTerminal;
-            assert.equal(
-                game._commandDispatchCount,
-                initialDispatches + 1,
-                refusal.name,
-            );
-            if (attempt === 0) {
-                refusalOutput = structuredClone(actualOutput);
-                assert.equal(
-                    actualOutput.screens.length,
-                    expectedOutput.screens.length + 1,
-                );
-                assert.deepEqual(
-                    actualOutput.screens.slice(0, -1),
-                    expectedOutput.screens,
-                );
-                assert.equal(
-                    actualOutput.cursors.length,
-                    expectedOutput.cursors.length + 1,
-                );
-                assert.deepEqual(
-                    actualOutput.cursors.slice(0, -1),
-                    expectedOutput.cursors,
-                );
-                refusalScreen = replay.getScreens().at(-1);
-                refusalCursor = replay.getCursors().at(-1);
-                refusalTerminal = structuredClone(actualTerminal);
-            } else {
-                assert.deepEqual(actualOutput, refusalOutput);
-                assert.deepEqual(actualTerminal, refusalTerminal);
-                assert.equal(replay.getScreens().at(-1), refusalScreen);
-                assert.deepEqual(
-                    replay.getCursors().at(-1),
-                    refusalCursor,
-                );
-            }
-            assert.deepEqual(replay.getRngSlices().at(-1), []);
-            assert.deepEqual(
-                replay.getAnimationFramesByStep().at(-1),
-                [],
-            );
-        }
-
-        refusal.remove({ destination, x, y });
-        await moveloop_core();
-        await assert.rejects(moveloop_core(), /Input queue empty/u);
-        assert.deepEqual([game.u.ux, game.u.uy], [x, y], refusal.name);
-        assert.equal(game.moves, expected.scheduler.moves + 1, refusal.name);
-        assert.equal(
-            game._commandDispatchCount,
-            initialDispatches + 1,
-            refusal.name,
-        );
-    }
-});
-
 // Place the hero on an intact doorway with the pet on the diagonal it would
 // step to. hack.c:2798 reaches domove_attackmon_at() and hack.c:2843 reaches
 // test_move(), in that order, so the doorway exit rule decides the step only
@@ -1946,133 +1775,6 @@ test('a doorless mask leaves both diagonal doorway rules unarmed',
             );
         }
     });
-
-test('unsupported movement retains its byte ahead of the next command',
-    async () => {
-        const replay = await runSegment({
-            seed: 840004,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:PendingMove,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none',
-            moves: '',
-        });
-        clearTtyMessageWindow(game);
-        resetCommandVars(game);
-        const start = [game.u.ux, game.u.uy];
-        const east = game.level.at(start[0] + 1, start[1]);
-        // A trap of no known type is refused before mutation; this keeps the
-        // queued-byte assertion independent of terrain.
-        east.typ = ROOM;
-        east.flags = 0;
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.level.objects[start[0] + 1][start[1]] = null;
-        game.level.traps = [];
-        installUnsupportedTrap(start[0] + 1, start[1]);
-        game.flags.paranoia_bits &= ~PARANOID_TRAP;
-        game.level.regions = [];
-        game.head_engr = null;
-        game.nhDisplay.pushKey(commandKeyCode('l'));
-        game.nhDisplay.pushKey(commandKeyCode('.'));
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'trap activation'
-                ),
-            );
-            assert.equal(
-                game.context.pendingCommand.key,
-                commandKeyCode('l'),
-            );
-            assert.deepEqual(
-                game.nhDisplay.terminal._inputQueue,
-                [commandKeyCode('.')],
-            );
-            assert.deepEqual(replay.getRngSlices().at(-1), []);
-        }
-
-        game.level.traps = [];
-        await moveloop_core();
-        assert.deepEqual(
-            [game.u.ux, game.u.uy],
-            [start[0] + 1, start[1]],
-        );
-        assert.equal(game.context.pendingCommand, undefined);
-
-        await moveloop_core();
-        assert.deepEqual(
-            [game.u.ux, game.u.uy],
-            [start[0] + 1, start[1]],
-        );
-        assert.equal(game.context.pendingCommand, undefined);
-    });
-
-test('retried reqmenu movement retains its no-pick prefix', async () => {
-    const replay = await runSegment({
-        // This independent seed supplies an ordinary adjacent square; the
-        // test replaces its terrain and object so only retry ownership varies.
-        seed: 840005,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:PendingMenuMove,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none,autopickup',
-        moves: '',
-    });
-    clearTtyMessageWindow(game);
-    resetCommandVars(game);
-    const start = [game.u.ux, game.u.uy];
-    const x = start[0] + 1;
-    const y = start[1];
-    const east = game.level.at(x, y);
-    // A trap of no known type is refused after the reqmenu prefix is parsed;
-    // this pins retry ownership without treating ICE as blocked terrain.
-    east.typ = ROOM;
-    east.flags = 0;
-    for (const column of game.level.monsters) column.fill(null);
-    game.level.monlist = null;
-    const floorObject = installFloorPile(x, y, 1);
-    game.level.traps = [];
-    installUnsupportedTrap(x, y);
-    game.flags.paranoia_bits &= ~PARANOID_TRAP;
-    game.level.regions = [];
-    game.head_engr = null;
-    game.nhDisplay.pushKey(commandKeyCode('m'));
-    // `l` names the prepared square one column east of the hero.
-    game.nhDisplay.pushKey(commandKeyCode('l'));
-
-    let pendingCommand = null;
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'trap activation'
-            ),
-        );
-        assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
-        assert.equal(game.context.pendingCommand.menuRequested, true);
-        if (pendingCommand === null) {
-            pendingCommand = structuredClone(game.context.pendingCommand);
-        } else {
-            assert.deepEqual(game.context.pendingCommand, pendingCommand);
-        }
-        assert.deepEqual([game.u.ux, game.u.uy], start);
-        assert.equal(game.level.objects[x][y], floorObject);
-        assert.deepEqual(replay.getRngSlices().at(-1), []);
-    }
-
-    game.level.traps = [];
-    await moveloop_core();
-
-    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
-    assert.equal(game.level.objects[x][y], floorObject);
-    assert.equal(game.context.nopick, 1);
-    assert.equal(game.context.pendingCommand, undefined);
-});
 
 test('simple hero movement admits empty room and corridor controls',
     async () => {
@@ -4602,36 +4304,6 @@ test('a continued run crosses an unreachable floor object without pickup',
         assert.equal(game.level.objects[second[0]][second[1]], object);
         assert.equal(object.where, OBJ_FLOOR);
         assert.equal(game.context.pendingCommand, undefined);
-    });
-
-test('the run loop leaves a class outside the refusal list as it found it',
-    async () => {
-        // The wrapper converts only what failClosedCommandRefusals() names.
-        // UnsupportedHeroMoveBoundaryError is not on that list -- js/jsmain.js
-        // breaks the segment on it directly -- so the seam's own refusal has
-        // to arrive with its own type, reason and message.
-        const { first, second } = await prepareRunPastTheFirstStep();
-        // A trap of no known type reaches the boundary after the run's
-        // first step, exercising the same unconverted error class without
-        // relying on the now-supported ICE arrival path.
-        game.level.traps = [];
-        installUnsupportedTrap(second[0], second[1]);
-        game.flags.paranoia_bits &= ~PARANOID_TRAP;
-        await takeFirstRunStep(first);
-
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => {
-                assert.ok(
-                    error instanceof UnsupportedHeroMoveBoundaryError,
-                    `${error.constructor.name} is not a hero move boundary`,
-                );
-                assert.equal(error.reason, 'trap activation');
-                return true;
-            },
-        );
-        // The refused step left the hero where the first one put him.
-        assert.deepEqual([game.u.ux, game.u.uy], first);
     });
 
 test('all source direction families dispatch their exact movement intent', async () => {

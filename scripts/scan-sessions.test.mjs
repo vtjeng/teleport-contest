@@ -14,7 +14,6 @@ import {
     UnsupportedHeroCommandBoundaryError,
     UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import {
     DEVELOPMENT_DIR,
     commandsIssued,
@@ -441,12 +440,6 @@ test('isCommandRefusal separates a refused command from a refused branch',
     assert.equal(
         isCommandRefusal(new UnsupportedHeroCommandBranchBoundaryError(
             'an unported branch of this command: quaffing a potion', 0x71)),
-        false,
-    );
-    // A boundary raised outside any command was never derivable either, and
-    // is the case the branch refusal joins.
-    assert.equal(
-        isCommandRefusal(new UnsupportedHeroMoveBoundaryError('engraving')),
         false,
     );
 });

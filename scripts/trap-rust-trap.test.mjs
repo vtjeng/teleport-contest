@@ -11,7 +11,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GREMLIN, PM_IRON_GOLEM } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import {
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 import { coreRandom } from '../js/rng.js';
@@ -61,26 +60,6 @@ function effectEnv(state, roll) {
         randomCalls,
     };
 }
-
-test('preflight_dotrap admits an unseen RUST_TRAP', async () => {
-    const state = await stateReady();
-    assert.doesNotThrow(() => preflight_dotrap(trap(state), state));
-});
-
-test('preflight_dotrap admits a seen RUST_TRAP', async () => {
-    const state = await stateReady();
-    const seen = trap(state, true);
-    const before = structuredClone({ core: state.coreCtx, display: state.displayCtx, seen });
-    assert.doesNotThrow(() => preflight_dotrap(seen, state));
-    assert.deepEqual({ core: state.coreCtx, display: state.displayCtx, seen }, before);
-});
-
-test('preflight_dotrap admits an unseen RUST_TRAP with a steed', async () => {
-    const state = await stateReady();
-    state.u.usteed = { mx: state.u.ux, my: state.u.uy };
-    assert.doesNotThrow(() => preflight_dotrap(trap(state), state));
-    state.u.usteed = null;
-});
 
 for (const [roll, expected] of [
     [0, 'A gush of water hits you on the head!'],

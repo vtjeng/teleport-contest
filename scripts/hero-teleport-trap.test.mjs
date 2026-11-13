@@ -16,7 +16,6 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { deltrap, t_at } from '../js/trap.js';
 import { level_tele_trap, tele_trap } from '../js/teleport.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { preflight_dotrap } from '../js/trap_effects.js';
 import { loadHeroTeleportTrapRecipe } from './run-hero-teleport-trap.mjs';
 
 // The keys every segment is allowed to spend: the four orthogonal and four
@@ -156,8 +155,8 @@ test('tele_trap()\'s one-shot arm deletes the trap and lands in the vault',
 test('a level that blocks teleportation wrenches instead of moving the hero',
     async () => {
         // teleport.c:1502-1505. noteleport_level() is the reachable third of
-        // that condition: In_endgame() needs the endgame dungeon, and
-        // preflight_dotrap() admits an Antimagic hero to the shieldeff() arm.
+        // that condition: In_endgame() needs the endgame dungeon, and an
+        // Antimagic hero takes the shieldeff() arm instead.
         await runSegment(VAULT_NICHE_SEGMENT);
         const trap = teleportTraps().find((each) => each.once);
         const before = { x: game.u.ux, y: game.u.uy };
@@ -207,18 +206,11 @@ test('search_special() finds the vault among the level\'s rooms', async () => {
     assert.equal(search_special(BEAR_TRAP + 1000, game), null);
 });
 
-test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
+test('tele_trap() moves a resident off an occupied fixed destination',
     async () => {
         await runSegment(VAULT_NICHE_SEGMENT);
         const trap = teleportTraps().find((each) => each.once);
         trap.tseen = false;
-        assert.equal(preflight_dotrap(trap, game), undefined);
-
-        // teleport.c:1503's shieldeff() is display-only and does not stop
-        // teleport.c:tele_trap from proceeding.
-        game.u.uprops[ANTIMAGIC].intrinsic = 1;
-        assert.equal(preflight_dotrap(trap, game), undefined);
-        game.u.uprops[ANTIMAGIC].intrinsic = 0;
 
         // teleport.c:1512-1530: with a monster on a fixed destination,
         // enexto() finds it a nearby spot, rloc_to() moves it there and
@@ -234,7 +226,6 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         game.level.monlist = kobold;
         trap.once = 0;
         trap.teledest = { ...spot };
-        assert.equal(preflight_dotrap(trap, game), undefined);
         clearTtyMessageWindow(game);
         game._ttyToplines = '';
 
@@ -243,23 +234,6 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         assert.deepEqual([game.u.ux, game.u.uy], [spot.x, spot.y]);
         assert.notDeepEqual([kobold.mx, kobold.my], [spot.x, spot.y]);
         assert.equal(game.level.monsters[kobold.mx][kobold.my], kobold);
-    });
-
-test('preflight_dotrap() admits a seen level teleporter to its C escape roll',
-    async () => {
-        await runSegment(VAULT_NICHE_SEGMENT);
-        const trap = {
-            ttyp: LEVEL_TELEP,
-            tseen: true,
-            tx: game.u.ux,
-            ty: game.u.uy,
-            teledest: { x: -1, y: -1 },
-        };
-
-        // trap.c:3035-3043 makes the rn2(5) escape decision in dotrap();
-        // admission must let that source path run instead of refusing before
-        // the hero's move commits.
-        assert.equal(preflight_dotrap(trap, game), undefined);
     });
 
 test('level_tele_trap applies natural Antimagic before removing the trap',

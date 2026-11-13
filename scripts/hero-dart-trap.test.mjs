@@ -23,7 +23,6 @@ import { maketrap, t_at } from '../js/trap.js';
 import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 import {
     dotrap,
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 import { loadHeroBearTrapRecipe } from './run-hero-bear-trap.mjs';
@@ -35,29 +34,7 @@ const SEED = 4;
 const DATETIME = '20260414173108';
 const RC = 'OPTIONS=!legacy,!tutorial,time';
 
-// ── preflight tests ──
-
-test('preflight_dotrap admits an unseen DART_TRAP', async () => {
-    // A fresh DART_TRAP: once=false, tseen=false, no steed.
-    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
-    const trap = { ttyp: DART_TRAP, once: false, tseen: false };
-    assert.doesNotThrow(() => preflight_dotrap(trap, game));
-});
-
-test('preflight_dotrap admits an unseen ARROW_TRAP', async () => {
-    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
-    // A new arrow trap starts unseen and unused; the arrow effect handles this
-    // ordinary hero activation through the existing dotrap() dispatch.
-    const trap = { ttyp: ARROW_TRAP, once: false, tseen: false };
-    assert.doesNotThrow(() => preflight_dotrap(trap, game));
-});
-
-test('preflight_dotrap admits a seen ARROW_TRAP', async () => {
-    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
-    // A triggered arrow trap is seen and used; dotrap() owns the C escape roll.
-    const trap = { ttyp: ARROW_TRAP, once: true, tseen: true };
-    assert.doesNotThrow(() => preflight_dotrap(trap, game));
-});
+// ── dotrap() escape tests ──
 
 test('dotrap uses "an" for the escape message from an unowned arrow trap',
     async () => {
@@ -87,38 +64,6 @@ test('dotrap uses "an" for the escape message from an unowned arrow trap',
         });
         assert.deepEqual(draws, [5]);
         assert.deepEqual(messages, ['You escape an arrow trap.']);
-    });
-
-test('preflight_dotrap admits an ARROW_TRAP when the hero rides a steed',
-    async () => {
-        await runSegment(
-            { seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' },
-        );
-        // trapeffect_arrow_trap() delegates this source branch to steedintrap().
-        game.u.usteed = { mx: game.u.ux, my: game.u.uy };
-        const trap = { ttyp: ARROW_TRAP, once: false, tseen: false };
-        assert.doesNotThrow(() => preflight_dotrap(trap, game));
-        game.u.usteed = null;
-    });
-
-test('preflight_dotrap admits a seen DART_TRAP', async () => {
-    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
-    // The completed common dotrap escape branch owns trapname(); admission is pure.
-    const trap = { ttyp: DART_TRAP, once: false, tseen: true };
-    const before = structuredClone({ core: game.coreCtx, display: game.displayCtx, trap });
-    assert.doesNotThrow(() => preflight_dotrap(trap, game));
-    assert.deepEqual({ core: game.coreCtx, display: game.displayCtx, trap }, before);
-});
-
-test('preflight_dotrap admits a DART_TRAP when the hero rides a steed',
-    async () => {
-        await runSegment(
-            { seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' },
-        );
-        game.u.usteed = { mx: game.u.ux, my: game.u.uy };
-        const trap = { ttyp: DART_TRAP, once: false, tseen: false };
-        assert.doesNotThrow(() => preflight_dotrap(trap, game));
-        game.u.usteed = null;
     });
 
 // ── thitu tests ──

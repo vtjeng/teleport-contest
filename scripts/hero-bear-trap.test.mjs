@@ -4,19 +4,15 @@ import test from 'node:test';
 import {
     A_DEX,
     BEAR_TRAP,
-    FAILEDUNTRAP,
-    FORCETRAP,
     BOTH_SIDES,
     FLYING,
     HALF_PHDAM,
     LEFT_SIDE,
     LEVITATION,
-    PIT,
     RIGHT_SIDE,
     TIMEOUT,
     OBJ_INVENT,
     TOOKPLUNGE,
-    TELEP_TRAP,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_NONE,
@@ -30,7 +26,6 @@ import {
 import { set_wounded_legs } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import {
-    UnsupportedHeroMoveBoundaryError,
     domove,
     preflightDomoveDestination,
     weight_cap,
@@ -59,7 +54,6 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     check_in_air,
     dotrap,
-    preflight_dotrap,
     wearing_iron_shoes,
 } from '../js/trap_effects.js';
 import { loadHeroBearTrapRecipe } from './run-hero-bear-trap.mjs';
@@ -338,34 +332,18 @@ test('a held hero struggles toward a square the seam screens when free',
             // unported trap type. A free hero walks through the door, because
             // autoopen pulls it open, so that case pins only the order of the
             // held arm against the closed-door arm below it.
-            { index: 3, walkIn: 'n ', dx: 1, dy: -1, freeReason: null },
+            { index: 3, walkIn: 'n ', dx: 1, dy: -1 },
             // The neighbor trap is a DART_TRAP (type 2), whose hero arm is
-            // ported, so preflight_dotrap() admits it and freeReason is null.
-            { index: 1, walkIn: 'j ', dx: 1, dy: -1, freeReason: null },
+            // ported.
+            { index: 1, walkIn: 'j ', dx: 1, dy: -1 },
         ];
 
-        for (const { index, walkIn, dx, dy, freeReason, place } of cases) {
+        for (const { index, walkIn, dx, dy, place } of cases) {
             await runSegment({ ...segments[index], moves: walkIn });
             assert.equal(game.u.utraptype, TT_BEARTRAP, `segment ${index}`);
             const x = game.u.ux + dx;
             const y = game.u.uy + dy;
             if (place) place(x, y);
-
-            // The seam still screens the square for a hero the trap has let
-            // go, which is what it is for; only the held hero skips it.
-            if (freeReason) {
-                const held = game.u.utrap;
-                game.u.utrap = 0;
-                game.u.utraptype = TT_NONE;
-                assert.throws(
-                    () => preflightDomoveDestination(x, y, game, 0),
-                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                        && error.reason === freeReason,
-                    `${freeReason} while free`,
-                );
-                game.u.utrap = held;
-                game.u.utraptype = TT_BEARTRAP;
-            }
 
             const held = game.u.utrap;
             const [ux, uy] = [game.u.ux, game.u.uy];
@@ -804,7 +782,6 @@ test('mounted bear-trap branch catches the steed without wounding the hero',
         await heroOnLevelOne();
         const trap = { tx: game.u.ux, ty: game.u.uy, ttyp: BEAR_TRAP,
             tseen: false, madeby_u: 0 };
-        assert.doesNotThrow(() => preflight_dotrap(trap, game));
 
         // trap.c:1506-1512 gives the already rolled damage to the mounted
         // monster, then exercises Dexterity; the hero receives no leg wound
@@ -828,37 +805,6 @@ test('mounted bear-trap branch catches the steed without wounding the hero',
 
         // trap.c trapeffect_pit() handles an unmounted hero directly; the
         // blanket activation refusal was removed when that source arm landed.
-        assert.doesNotThrow(
-            () => preflight_dotrap({ ...trap, ttyp: PIT }, game),
-        );
-    });
-
-test('preflight_dotrap admits seen bear traps to C escape and effect logic',
-    async () => {
-        await heroOnLevelOne();
-        // trap.c:2999-3000 sets forcetrap for either bit; fixed_tele_trap()
-        // at trap.c:3009-3012 also sets it before the seen-trap gate. A plain
-        // seen bear trap reaches the source's rn2(5) escape test at :3038.
-        const seenBearTrap = { tx: game.u.ux, ty: game.u.uy,
-            ttyp: BEAR_TRAP, tseen: true, madeby_u: 0 };
-        assert.doesNotThrow(() => preflight_dotrap(seenBearTrap, game));
-        for (const [name, flags] of [
-            ['FORCETRAP', FORCETRAP],
-            ['FAILEDUNTRAP', FAILEDUNTRAP],
-        ]) {
-            assert.doesNotThrow(
-                () => preflight_dotrap(seenBearTrap, game, flags), name,
-            );
-        }
-
-        // trap.h:125 defines a fixed tele trap by its valid destination;
-        // once:true isolates that predicate from the occupied-destination
-        // preflight branch while C still derives forcetrap from the macro.
-        const seenFixedTeleport = { ttyp: TELEP_TRAP, tseen: true, once: true,
-            teledest: { x: 1, y: 1 } };
-        assert.doesNotThrow(
-            () => preflight_dotrap(seenFixedTeleport, game),
-        );
     });
 
 test('Half_physical_damage halves the bear trap bite', async () => {

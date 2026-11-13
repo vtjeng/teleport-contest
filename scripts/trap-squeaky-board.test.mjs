@@ -14,7 +14,6 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     dotrap,
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 
@@ -97,25 +96,6 @@ test('trapeffect_sqky_board preserves C hero and monster branch order', () => {
         && jsHeroWake < jsMonster && jsMonster < jsInSight
         && jsInSight < jsAirborne && jsAirborne < jsWake);
     assert.match(JS_BODY, /await wake_nearby\(false, \{ \.\.\.env, state \}\);/u);
-});
-
-test('preflight_dotrap admits the completed SQKY_BOARD hero source arms', async () => {
-    const state = await initializedState();
-    // The unseen normal trap reaches the hero arm without FORCETRAP flags.
-    const unseen = { ttyp: SQKY_BOARD, tseen: false };
-    assert.doesNotThrow(() => preflight_dotrap(unseen, state));
-
-    // C dotrap() has no steed-specific SQKY_BOARD arm: it still triggers the
-    // hero's trap effect after mon_learns_traps() handles the mount.
-    state.u.usteed = {};
-    assert.doesNotThrow(() => preflight_dotrap(unseen, state));
-
-    // The already-seen trap uses dotrap()'s existing source escape gate.
-    assert.doesNotThrow(() => preflight_dotrap(
-        { ...unseen, tseen: true },
-        state,
-    ));
-    state.u.usteed = null;
 });
 
 test('dotrap calls the hero squeak arm and reveals the board', async () => {

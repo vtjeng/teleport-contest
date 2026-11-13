@@ -508,7 +508,6 @@ import {
     dotrap,
     feeltrap,
     mintrap,
-    preflight_dotrap,
     seetrap,
 } from './trap_effects.js';
 import {
@@ -844,14 +843,6 @@ export async function overexertion(state = game) {
         await overexert_hp(state);
     }
     return (state.multi ?? 0) < 0;
-}
-
-export class UnsupportedHeroMoveBoundaryError extends Error {
-    constructor(reason) {
-        super(`unsupported hero move: ${reason}`);
-        this.name = 'UnsupportedHeroMoveBoundaryError';
-        this.reason = reason;
-    }
 }
 
 // C ref: hack.c rounddiv() (4549-4573). Integer division that rounds a
@@ -1400,7 +1391,7 @@ function refusedDiagonalDoorway(x, y, state) {
 }
 
 // The arrival checks that must run before the hero moves, because the arrival
-// itself (pickup() and dotrap()) runs after domove_core() or teleds() has
+// itself (pickup()) runs after domove_core() or teleds() has
 // committed the move. Every terrain is admitted: hack.c test_move() owns the
 // legality of a step, teleok() owns that of a teleport, and switch_terrain(),
 // spoteffects() and describe_decor() handle every terrain the hero can reach.
@@ -1462,12 +1453,6 @@ export function requireSimpleHeroDestination(
     // it before "You see here" when the square holds exactly one object.
     // dfeature_at() owns the altar deity description, so altar squares follow
     // the same movement path as the other furniture features.
-    // spoteffects() triggers the trap under the hero after the move commits,
-    // so everything trap.c dotrap() cannot answer has to be asked here, while
-    // refusing still costs nothing. preflight_dotrap() is that question and
-    // raises this same class; the bear trap is the one type it lets through.
-    const destinationTrap = t_at(x, y, state);
-    if (destinationTrap) preflight_dotrap(destinationTrap, state);
 
     // shk.c:u_left_shop() handles both shop-boundary warnings and indebted
     // departures after the movement commits, through check_special_room().

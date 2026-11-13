@@ -36,6 +36,11 @@
 //   three calls passes; the arm is ported, and quest.c needs no refusal
 //   operation from its callers.
 //
+// - js/trap_effects.js preflight_dotrap(), and its calls in dotrap() and
+//   hack.js requireSimpleHeroDestination(): a trap of no known type. Every
+//   type from ARROW_TRAP to VIBRATING_SQUARE has its trapeffect_*() arm, and
+//   trapeffect_selector() answers any other with C's impossible().
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -60,6 +65,8 @@ const REMOVED_REFUSALS = {
         'sealing the quest branch',
         'a quest conversation requires an unsupported operation',
     ],
+    'trap_effects.js': ["'trap activation'", 'preflight_dotrap'],
+    'hack.js': ['preflight_dotrap'],
     'exper.js': ["past JavaScript's exact-integer range", 'Number.isSafeInteger'],
     'makemon_create.js': [
         'mmflags 0x',

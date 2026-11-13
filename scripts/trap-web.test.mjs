@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    A_STR, COULD_SEE, FORCETRAP, HOLE, IN_SIGHT, MAX_NUM_WORMS, NOWEBMSG,
-    TRAPDOOR, TT_NONE, TT_WEB, Trap_Caught_Mon, Trap_Effect_Finished,
+    A_STR, COULD_SEE, FORCETRAP, IN_SIGHT, MAX_NUM_WORMS, NOWEBMSG, TT_NONE, TT_WEB, Trap_Caught_Mon, Trap_Effect_Finished,
     VIASITTING, WEB,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -17,7 +16,7 @@ import {
     PM_RED_DRAGON,
 } from '../js/monsters.js';
 import {
-    mintrap, preflight_dotrap, trapeffect_selector,
+    mintrap, trapeffect_selector,
 } from '../js/trap_effects.js';
 
 // An independently chosen startup supplies valid vision, map memory, and
@@ -234,7 +233,6 @@ test('mounted web catch uses mintrap then transfers the hold to the hero', async
     game.u.usteed = steed;
     const trap = webAt(game.u.ux, game.u.uy);
     const env = environment();
-    assert.doesNotThrow(() => preflight_dotrap(trap, game));
     await trapeffect_selector(game.youmonst, trap, 0, env);
     assert.equal(steed.mx, game.u.ux);
     assert.equal(steed.my, game.u.uy);
@@ -246,11 +244,3 @@ test('mounted web catch uses mintrap then transfers the hold to the hero', async
     assert.deepEqual(env.draws, [['rnd', 2]]);
 });
 
-test('preflight admits hole traps so dotrap can apply its seen-trap rules', async () => {
-    await setup();
-    for (const ttyp of [HOLE, TRAPDOOR]) {
-        for (const tseen of [false, true]) {
-            assert.doesNotThrow(() => preflight_dotrap({ ttyp, tseen }, game));
-        }
-    }
-});

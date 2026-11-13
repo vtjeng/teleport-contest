@@ -8,7 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initRng } from '../js/rng.js';
 import { PM_RABID_RAT, PM_WIZARD } from '../js/monsters.js';
 import { CLOAK_OF_MAGIC_RESISTANCE } from '../js/objects.js';
-import { dotrap, floor_trigger, preflight_dotrap } from '../js/trap_effects.js';
+import { dotrap, floor_trigger } from '../js/trap_effects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
 const JS_SOURCE = readFileSync('js/trap_effects.js', 'utf8');
@@ -66,16 +66,8 @@ test('trapeffect_poly_trap keeps the ordinary hero source order', () => {
         /await newcham\(mtmp, null, \{ \.\.\.env, ncflags: NC_SHOW_MSG \}\);/u);
 });
 
-test('hero POLY_TRAP preflight admits unmounted and mounted source arms', () => {
+test('a polymorph trap is not a floor trigger', () => {
     assert.equal(floor_trigger(POLY_TRAP), false);
-    assert.doesNotThrow(() => preflight_dotrap(
-        { ttyp: POLY_TRAP, tseen: false },
-        { u: { usteed: null } },
-    ));
-    assert.doesNotThrow(() => preflight_dotrap(
-        { ttyp: POLY_TRAP, tseen: false },
-        { u: { usteed: {} } },
-    ));
 });
 
 test('an independent hero trap activation enters polyself in production', async () => {

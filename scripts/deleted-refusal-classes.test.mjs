@@ -87,6 +87,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // quest.c expulsion()'s sealing arm, which no caller reaches and which
     // is now ported; #chat supplied the refusal it was raised through
     'UnsupportedChatError',
+    // trap.c dotrap() for a trap of no known type, which no level creates;
+    // trapeffect_selector() answers it with C's impossible()
+    'UnsupportedHeroMoveBoundaryError',
 ];
 
 function stripComments(source) {

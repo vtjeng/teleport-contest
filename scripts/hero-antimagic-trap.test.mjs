@@ -15,7 +15,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ARMOR_CLASS, IRON_SHOES } from '../js/objects.js';
 import {
     drain_en,
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 
@@ -261,10 +260,3 @@ test('drain_en uses You_feel dreaming prefix and zero-energy branch', async () =
     assert.deepEqual(messages, ['You dream that you feel momentarily lethargic.']);
 });
 
-test('preflight_dotrap admits seen and mounted anti-magic traps', async () => {
-    const state = await initState();
-    state.u.usteed = { m_id: 901, data: { mname: 'pony' } };
-    assert.doesNotThrow(() => preflight_dotrap(antiMagicTrap(state, true), state));
-    state.u.usteed = null;
-    assert.doesNotThrow(() => preflight_dotrap(antiMagicTrap(state), state));
-});

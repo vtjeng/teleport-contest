@@ -26,7 +26,6 @@ import { PM_GIANT_RAT } from '../js/monsters.js';
 import { body_part } from '../js/polyself.js';
 import {
     dotrap,
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 
@@ -137,22 +136,6 @@ async function preflightState() {
     return game;
 }
 
-test('preflight_dotrap admits an unseen MAGIC_TRAP', async () => {
-    // A fresh MAGIC_TRAP with tseen=false and no steed passes preflight.
-    // Breaking: remove MAGIC_TRAP from the type check in preflight_dotrap().
-    const state = await preflightState();
-    const trap = { ttyp: MAGIC_TRAP, tseen: false };
-    assert.doesNotThrow(() => preflight_dotrap(trap, state));
-});
-
-test('preflight_dotrap admits a seen MAGIC_TRAP for dotrap escape handling', async () => {
-    // C dotrap() handles the seen trap with an escape roll; preflight must not
-    // refuse before that source branch runs.
-    const state = await preflightState();
-    const trap = { ttyp: MAGIC_TRAP, tseen: true };
-    assert.doesNotThrow(() => preflight_dotrap(trap, state));
-});
-
 test('dotrap runs the seen MAGIC_TRAP escape roll before its effect', async () => {
     const state = await initState();
     const trap = makeTrap(state);
@@ -164,14 +147,6 @@ test('dotrap runs the seen MAGIC_TRAP escape roll before its effect', async () =
 
     assert.deepEqual(env.randomCalls, ['rn2(5)', 'rn2(30)', 'rnd(20)']);
     assert.deepEqual(env.messages, []);
-});
-
-test('preflight_dotrap admits MAGIC_TRAP with a steed', async () => {
-    const state = await preflightState();
-    state.u.usteed = { mx: state.u.ux, my: state.u.uy };
-    const trap = { ttyp: MAGIC_TRAP, tseen: false };
-    assert.doesNotThrow(() => preflight_dotrap(trap, state));
-    state.u.usteed = null;
 });
 
 // ── trapeffect_magic_trap hero arm via trapeffect_selector ──

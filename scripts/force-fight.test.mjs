@@ -44,7 +44,6 @@ import { game } from '../js/gstate.js';
 import {
     domove,
     preflightDomoveDestination,
-    UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { new_light_source } from '../js/light.js';
@@ -152,14 +151,6 @@ function aimedWest(state) {
 
 async function forceFightWest(state) {
     await domove(aimedWest(state));
-}
-
-function refusedWest(state, pattern) {
-    return assert.rejects(
-        () => forceFightWest(state),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && pattern.test(error.message),
-    );
 }
 
 // ── cmd.c do_fight() ──

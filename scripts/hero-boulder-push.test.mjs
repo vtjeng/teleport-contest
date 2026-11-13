@@ -25,7 +25,6 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
-    UnsupportedHeroMoveBoundaryError,
     domove,
     preflightDomoveDestination,
     revive_nasty,
@@ -120,14 +119,10 @@ async function stepNorth(state = game) {
     return state._ttyToplines;
 }
 
+// No arrival refusal is left to report; the admission must simply run
+// without throwing, which preflightDomoveDestination() itself enforces.
 function refusalReason(x, y, run = 0) {
-    try {
-        preflightDomoveDestination(x, y, game, run);
-    } catch (error) {
-        if (error instanceof UnsupportedHeroMoveBoundaryError)
-            return error.reason;
-        throw error;
-    }
+    preflightDomoveDestination(x, y, game, run);
     return null;
 }
 

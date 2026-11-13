@@ -12,7 +12,6 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 import { loadMonsterStatueTrapRecipe } from './run-monster-statue-trap.mjs';
@@ -39,16 +38,6 @@ test('a monster finishes on a statue trap without activation work', async () => 
                  'the monster arm does not activate or refuse the trap');
     assert.equal(trap.tseen, false,
                  'the no-op arm leaves the trap state unchanged');
-});
-
-test('the hero preflight admits an unseen statue trap', () => {
-    const state = { u: { usteed: null } };
-    const trap = { ttyp: STATUE_TRAP, tseen: false };
-
-    assert.doesNotThrow(
-        () => preflight_dotrap(trap, state),
-        'trap.c routes the hero arm to activate_statue_trap()',
-    );
 });
 
 test('monster movement reaches the no-op through postmov', async () => {

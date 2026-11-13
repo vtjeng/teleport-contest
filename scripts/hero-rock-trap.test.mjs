@@ -12,7 +12,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ARMOR_CLASS, HELMET, ROCK } from '../js/objects.js';
 import { PM_XORN } from '../js/monsters.js';
 import { passes_rocks } from '../js/mondata.js';
-import { preflight_dotrap, trapeffect_selector } from '../js/trap_effects.js';
+import { trapeffect_selector } from '../js/trap_effects.js';
 
 const DATETIME = '20260214031500';
 const RC = [
@@ -73,24 +73,6 @@ function effectEnv(state, damage = 6) {
         redraw: (x, y) => { redraws.push([x, y]); },
     };
 }
-
-test('dotrap preflight admits rock traps in unseen, seen, and mounted states',
-    async () => {
-        const state = await hero();
-        for (const tseen of [false, true]) {
-            assert.doesNotThrow(() => preflight_dotrap({
-                ttyp: ROCKTRAP,
-                tseen,
-            }, state));
-        }
-
-        state.u.usteed = { mx: state.u.ux, my: state.u.uy };
-        assert.doesNotThrow(() => preflight_dotrap({
-            ttyp: ROCKTRAP,
-            tseen: false,
-        }, state));
-        state.u.usteed = null;
-    });
 
 test('hero rock trap rolls damage before creating, placing, and naming its rock',
     async () => {

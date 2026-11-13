@@ -38,7 +38,6 @@ import {
     teleport_pet,
 } from '../js/teleport.js';
 import {
-    preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 import { cansee } from '../js/vision.js';
@@ -618,13 +617,9 @@ test('a home elemental is refused silently at an endgame portal',
         assert.equal(trap.tseen, false);
     });
 
-test('hero magic portals pass preflight and schedule a portal transition',
+test('hero magic portals schedule a portal transition',
     async () => {
         await initializedMonster(PORTAL_HERO_SEED, 'PortalHero');
-
-        assert.doesNotThrow(
-            () => preflight_dotrap({ ttyp: MAGIC_PORTAL }, game),
-        );
 
         const trap = {
             dst: { dnum: 0, dlevel: 1 },

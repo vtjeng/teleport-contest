@@ -334,7 +334,6 @@ import {
     test_move,
     u_maybe_impaired,
     NODIAG,
-    UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
@@ -2849,17 +2848,11 @@ async function executeMovement(command, key, firstTime, state) {
     // rejected command for elapsed time.
     const newx = state.u.ux + dx;
     const newy = state.u.uy + dy;
-    try {
-        // domove_core() returns from carrying_too_much() (hack.c:2730-2731)
-        // before it reads the destination, so an overloaded or exhausted
-        // hero never reaches the arrival effects the preflight plans.
-        if (!carryingTooMuchToMove(state))
-            preflightDomoveDestination(newx, newy, state, run);
-    } catch (error) {
-        if (error instanceof UnsupportedHeroMoveBoundaryError)
-            resetCommandVars(state);
-        throw error;
-    }
+    // domove_core() returns from carrying_too_much() (hack.c:2730-2731)
+    // before it reads the destination, so an overloaded or exhausted hero
+    // never reaches the arrival effects the preflight plans.
+    if (!carryingTooMuchToMove(state))
+        preflightDomoveDestination(newx, newy, state, run);
 
     set_move_cmd(xytodir(dx, dy), run, state);
     state.context.move = 1;
@@ -6558,8 +6551,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         state.multi = 0;
     } catch (error) {
         retryableBoundary =
-            error instanceof UnsupportedHeroMoveBoundaryError
-            || error instanceof UnsupportedHeroCommandBoundaryError;
+            error instanceof UnsupportedHeroCommandBoundaryError;
         throw error;
     } finally {
         if (firstTime && !retryableBoundary)

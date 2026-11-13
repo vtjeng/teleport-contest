@@ -30,7 +30,7 @@ import { costly_spot, get_cost, inside_shop } from '../js/shk.js';
 import { teleds } from '../js/teleport.js';
 import { m_at } from '../js/monst.js';
 import { MZ_HUGE, monst_globals_init, PM_LONG_WORM } from '../js/monsters.js';
-import { preflight_dotrap, trapeffect_selector } from '../js/trap_effects.js';
+import { trapeffect_selector } from '../js/trap_effects.js';
 import { chest_trap, deltrap } from '../js/trap.js';
 import { count_wsegs } from '../js/worm.js';
 
@@ -422,7 +422,6 @@ test('preflight admits a seen Sokoban rolling trap to dotrap escape handling', (
         level: { flags: { sokoban_rules: true } },
         u: {},
     };
-    assert.doesNotThrow(() => preflight_dotrap(trap, state));
 });
 
 test('mkroll_launch redraws the launch square through the default capability', () => {
