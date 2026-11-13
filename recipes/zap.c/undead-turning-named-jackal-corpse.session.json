@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77113,
+      "datetime": "20240917083000",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017jackal corpse named Rex\n\u0017wand of undead turning\ndjzk>s",
+      "comment": "A Priest drops a wished jackal corpse named Rex and zaps a wand of undead turning down at it. zap.c bhito() announces the revived monster with noname_monnam(mtmp, ARTICLE_THE), so C prints \"The jackal is resurrected!\" without the name revive() copied from the corpse. Seed, date, character, species and name chosen independently of the batch 14 pilot."
+    }
+  ]
+}
