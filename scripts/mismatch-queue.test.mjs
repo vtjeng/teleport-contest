@@ -234,7 +234,7 @@ test('Lua RNG callers remain selectable without any C owner', () => {
     }]);
     assert.equal(queue.candidates[0].luaFile, 'tower1.lua');
     assert.doesNotThrow(() => assertGoalSelection(queue, { luaFile: 'tower1.lua' }));
-    assert.throws(() => assertGoalSelection(queue, { cFile: 'sfbase.c' }), /mismatch/u);
+    assert.throws(() => assertGoalSelection(queue, { cFile: 'music.c' }), /mismatch/u);
 });
 
 test('screen-only and unresolved stops forbid roadmap fallback', () => {
@@ -243,7 +243,7 @@ test('screen-only and unresolved stops forbid roadmap fallback', () => {
         const queue = build([row]);
         assert.equal(queue.candidates[0].kind, 'source-investigation');
         assert.equal(queue.roadmapFallbackAllowed, false);
-        assert.throws(() => assertGoalSelection(queue, { cFile: 'sfbase.c' }), /mismatch/u);
+        assert.throws(() => assertGoalSelection(queue, { cFile: 'music.c' }), /mismatch/u);
         assert.throws(() => assertGoalSelection(queue, {
             cFile: 'hack.c', session: queue.sessions[0].session,
         }), /selectionReason/u);
@@ -296,7 +296,7 @@ test('selection accepts any traced source while requiring a reason for a changed
         cFile: 'sp_lev.c', selectionReason: 'The movement fix requires this source-traced callee.',
     }));
     assert.throws(() => assertGoalSelection(queue, {
-        cFile: 'sfbase.c', selectionReason: 'It has many undeclared functions.',
+        cFile: 'music.c', selectionReason: 'It has many undeclared functions.',
     }), /mismatch/u);
     assert.throws(() => assertGoalSelection(queue, {
         cFile: 'attrib.c', sessions: ['movement'],
@@ -320,7 +320,29 @@ test('roadmap work is allowed only for a completely matching scan', () => {
     assert.equal(queue.roadmapFallbackAllowed, true);
     assert.match(formatQueue(queue), /every session matches/u);
     assert.match(formatQueue(queue), /Roadmap fallback: allowed/u);
-    assert.doesNotThrow(() => assertGoalSelection(queue, { cFile: 'sfbase.c' }));
+    assert.doesNotThrow(() => assertGoalSelection(queue, { cFile: 'music.c' }));
+});
+
+test('selection refuses a C file that is not ported by design in every queue mode', () => {
+    // A completely matching scan allows roadmap fallback to any other file, so
+    // only the not-ported list can refuse here.
+    const queue = build([passing]);
+    assert.doesNotThrow(() => assertGoalSelection(queue, { cFile: 'music.c' }));
+    for (const goal of [
+        { cFile: 'sfbase.c' }, // A file port or divergence fix in the file itself.
+        { cFile: 'sfstruct.c', selectionReason: 'Source tracing names this file.' },
+        // A required function elsewhere would port part of the file too.
+        { luaFile: 'tower1.lua', requiredFunctions: [{ sourceFile: 'sfbase.c', name: 'sfo_char' }] },
+    ]) {
+        assert.throws(() => assertGoalSelection(queue, goal),
+            /sf(base|struct)\.c is not ported by design: .*input\.storage/u);
+    }
+    // The refusal precedes the combined queue's own empty-queue refusal.
+    const work = buildWorkQueue(build([passing]), {
+        mode: 'synthetic', corpus: 'synthetic', blockers: [], sessions: [],
+        generationReady: true,
+    });
+    assert.throws(() => assertGoalSelection(work, { cFile: 'sfbase.c' }), /not ported by design/u);
 });
 
 test('CLI preserves unresolved mismatches in a saved scan and rejects a missing path', () => {
@@ -535,7 +557,7 @@ test('combined work mode never enables roadmap fallback', () => {
         generationReady: true,
     });
     assert.equal(work.roadmapFallbackAllowed, false);
-    assert.throws(() => assertGoalSelection(work, { cFile: 'sfbase.c' }),
+    assert.throws(() => assertGoalSelection(work, { cFile: 'music.c' }),
         /no fixed regression or synthetic candidate/u);
     assert.equal(fixed.roadmapFallbackAllowed, true);
 });

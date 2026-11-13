@@ -20,6 +20,7 @@ import {
 import * as challengeResults from './challenge-results.mjs';
 import { readInvestigation, syntheticSessionParts } from './investigation-cache.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { assertPortable } from './not-ported-by-design.mjs';
 import { diagnosticToolIdentity } from './scan-sessions.mjs';
 
 // Patch 004 adds Lua annotations alongside ordinary `name(file.c:line)`.
@@ -495,8 +496,10 @@ export function buildWorkQueue(fixed, synthetic) {
  * Used by both queue-goal and open-goal. A declaration never clears a blocker.
  * Changing owner after tracing needs a recorded source-based reason. Queue
  * ordering is diagnostic; any actionable, investigated source may be selected.
+ * A C file that is not ported by design is refused whatever the queue holds.
  */
 export function assertGoalSelection(queue, goal) {
+    assertPortable(goal);
     if (queue?.mode === 'work' || queue?.corpus === 'combined') {
         if (queue.blockers?.length) {
             throw new Error('synthetic evidence is incomplete, missing, stale, or invalid; '

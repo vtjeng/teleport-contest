@@ -29,7 +29,7 @@ const CORE_SCRIPTS = [
     'goal-log.mjs', 'c-functions.mjs', 'score-log.mjs', 'lua-sources.mjs',
     'port-evidence.mjs', 'source-parity.mjs', 'check-namespace-members.mjs',
     'score-development.mjs', 'scoring-workspace.mjs', 'segment-error-preload.mjs', 'fixed-workload.mjs',
-    'local-tmpdir.mjs',
+    'local-tmpdir.mjs', 'not-ported-by-design.mjs',
     'development-standing.mjs', 'checkpoint-results.mjs',
 ];
 // These standings distinguish progress before parking, during another goal,
@@ -670,6 +670,24 @@ test('supersession refuses missing replacements, cycles, and active or completed
             '--by', 'widget', '--reason', 'Cannot bypass parking or completion.');
         assert.deepEqual(f.goals(), goals);
     }
+});
+
+test('a goal for a C file not ported by design is refused and retired without a replacement', (t) => {
+    const f = fixture(t);
+    // sfbase.c is in scripts/not-ported-by-design.mjs; the fixture has no copy
+    // of it, so the refusal must come before any source lookup.
+    f.refuses(/sfbase\.c is not ported by design/u, 'queue-goal', '--id', 'port-sfbase',
+        '--kind', 'file-port', '--c-file', 'sfbase.c', '--summary', 'Port sfbase.c');
+    assert.deepEqual(f.goals(), []);
+    // A closed historical port of the file, as GOALS.json held for sfbase.c.
+    const closed = { id: 'port-sfbase', kind: 'file-port', status: 'closed',
+        summary: 'Port sfbase.c', cFile: 'sfbase.c', functions: [] };
+    f.json('GOALS.json', { goals: [closed] });
+    f.cli('supersede-goal', '--goal', 'port-sfbase', '--reason', 'Not ported by design.');
+    assert.deepEqual(f.goals(), [{ ...closed, status: 'superseded',
+        supersededReason: 'Not ported by design.', supersededAt: f.head() }]);
+    f.refuses(/only queued, parked, or closed/u, 'supersede-goal', '--goal', 'port-sfbase',
+        '--reason', 'Cannot retire twice.');
 });
 
 test('C CLI plans a same-name partial function and closes only with evidence and a current checkpoint', (t) => {

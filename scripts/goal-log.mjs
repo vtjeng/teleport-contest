@@ -22,6 +22,7 @@ import { listLuaFiles, luaProgram } from './lua-sources.mjs';
 import { completedSourceUnits, sourceUnits, sourceUnitKey, validatePortEvidence, validateSourceTrialGoal } from './port-evidence.mjs';
 import { isDeepStrictEqual } from 'node:util';
 import { fixedWorkload } from './fixed-workload.mjs';
+import { assertPortable, notPortedReason, touchesNotPorted } from './not-ported-by-design.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
@@ -141,8 +142,11 @@ export function validateGoals(store) {
         const seen = new Set([goal.id]);
         let current = goal;
         while (current.status === 'superseded') {
+            // A goal for a C file that is not ported by design has no replacement.
+            if (current.supersededBy === undefined && touchesNotPorted(current)) break;
             const next = byId.get(current.supersededBy);
-            if (!next) throw new Error(`superseded goal ${current.id} needs an existing replacement`);
+            if (!next) throw new Error(`superseded goal ${current.id} needs an existing replacement`
+                + ' or a C file in scripts/not-ported-by-design.mjs');
             if (seen.has(next.id)) throw new Error(`goal supersession cycle at ${next.id}`);
             seen.add(next.id);
             current = next;
@@ -462,7 +466,8 @@ export function formatGoal(goal, { detail = false } = {}) {
         `${goal.status.toUpperCase()} ${goal.id}: ${goalSummary(goal)}`,
     ];
     if (goal.status === 'superseded') {
-        lines.push(`  replaced by: ${goal.supersededBy}`, `  reason: ${goal.supersededReason}`);
+        lines.push(goal.supersededBy === undefined ? '  not ported by design'
+            : `  replaced by: ${goal.supersededBy}`, `  reason: ${goal.supersededReason}`);
     }
     if (isSourcePort(goal)) {
         const { declared, complete, total } = completionCount(goal);
@@ -499,7 +504,9 @@ export function formatGoal(goal, { detail = false } = {}) {
 }
 
 /**
- * The C roadmap counts declarations separately from completion evidence.
+ * The C roadmap counts declarations separately from completion evidence. A C
+ * file that is not ported by design has no unverified functions; its row
+ * carries the reason and sorts after every file still to be ported.
  */
 export function roadmapRows(files, names, goals) {
     const latestGoal = new Map();
@@ -515,15 +522,19 @@ export function roadmapRows(files, names, goals) {
         const complete = functions.filter((entry) => names.has(entry.name)
             && evidence.has(entry.name)).length;
         const goal = latestGoal.get(name);
+        const notPorted = notPortedReason(name);
         return {
             cFile: name,
             total: functions.length,
             declared,
             complete,
-            pending: functions.length - complete,
-            goal: goal ? `${goal.id} (${goal.status})` : '',
+            pending: notPorted === null ? functions.length - complete : 0,
+            goal: notPorted !== null ? `not ported by design: ${notPorted}`
+                : goal ? `${goal.id} (${goal.status})` : '',
+            ...(notPorted !== null ? { notPorted: true } : {}),
         };
-    }).sort((a, b) => b.pending - a.pending || a.cFile.localeCompare(b.cFile));
+    }).sort((a, b) => Number(Boolean(a.notPorted)) - Number(Boolean(b.notPorted))
+        || b.pending - a.pending || a.cFile.localeCompare(b.cFile));
 }
 
 export function luaRoadmapRows(files, goals) {
@@ -534,10 +545,15 @@ export function luaRoadmapRows(files, goals) {
 }
 
 export function formatRoadmap(rows, head, luaRows = []) {
-    const total = rows.reduce((sum, row) => sum + row.total, 0);
-    const complete = rows.reduce((sum, row) => sum + row.complete, 0);
+    const ported = rows.filter((row) => !row.notPorted);
+    const excluded = rows.filter((row) => row.notPorted);
+    const total = ported.reduce((sum, row) => sum + row.total, 0);
+    const complete = ported.reduce((sum, row) => sum + row.complete, 0);
     const lines = [
         `Verified C functions: ${complete} of ${total}, at ${head.slice(0, 8)}.`,
+        ...(excluded.length ? [`Not ported by design: ${excluded.reduce((sum, row) => sum + row.total, 0)}`
+            + ` functions in ${excluded.map((row) => row.cFile).join(', ')}`
+            + ' (scripts/not-ported-by-design.mjs).'] : []),
         '',
         'Declarations are inventory only. Historical name matches carry no',
         'completion evidence. Resolve the mismatch queue before roadmap work.',
@@ -547,7 +563,7 @@ export function formatRoadmap(rows, head, luaRows = []) {
     ];
     for (const row of rows) {
         lines.push(`| ${row.cFile} | ${row.total} | ${row.declared} | ${row.complete} `
-            + `| ${row.pending} `
+            + `| ${row.notPorted ? '-' : row.pending} `
             + `| ${row.goal} |`);
     }
     lines.push('', `Verified Lua programs: ${luaRows.filter((row) => row.complete).length}`
@@ -664,8 +680,10 @@ Neither command opens the goal.`,
     },
     'supersede-goal': {
         description: 'Retire a replaced plan while preserving its evidence and history.',
-        usage: '--goal <id> --by <replacement-id> --reason <text>',
+        usage: '--goal <id> [--by <replacement-id>] --reason <text>',
         details: 'Requires a queued or parked goal and an existing replacement goal.\n'
+            + 'A goal for a C file in scripts/not-ported-by-design.mjs needs no --by\n'
+            + 'and may also be closed.\n'
             + 'Preserves spans, measurements, and evidence; does not claim completion or score gains.\n'
             + 'Superseded goals leave --current and cannot be reopened.',
     },
@@ -739,6 +757,8 @@ function newGoal(options) {
         closedAt: null,
         delivered: null,
     };
+    // Refuse before reading the source; checkSelection rechecks required functions.
+    assertPortable(goal);
     if (goal.kind === 'file-port') {
         const functions = selectFunctionRange(
             cFunctions(goal.cFile),
@@ -889,6 +909,8 @@ function readDevelopmentScan(path) {
 }
 
 async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {}) {
+    // The queued-synthetic path below can skip assertGoalSelection.
+    assertPortable(goal);
     const { assertGoalSelection, loadWorkQueue } =
         await import('./mismatch-queue.mjs');
     // A saved fixed scan is an input to the combined queue, not a way to opt
@@ -1276,14 +1298,18 @@ async function main(args) {
         return;
     }
     if (mode === 'supersede-goal') {
-        required(options, ['goal', 'by', 'reason']);
+        required(options, ['goal', 'reason']);
         const store = readGoals();
         const goal = findGoal(store, options.goal);
-        if (!['queued', 'parked'].includes(goal.status)) {
-            throw new Error('only queued or parked goals can be superseded');
+        const notPorted = touchesNotPorted(goal);
+        if (!notPorted) required(options, ['by']);
+        if (!['queued', 'parked', ...(notPorted ? ['closed'] : [])].includes(goal.status)) {
+            throw new Error(notPorted ? 'only queued, parked, or closed goals for a C file '
+                + 'not ported by design can be superseded'
+                : 'only queued or parked goals can be superseded');
         }
         goal.status = 'superseded';
-        goal.supersededBy = options.by;
+        if (options.by !== undefined) goal.supersededBy = options.by;
         goal.supersededReason = options.reason;
         goal.supersededAt = repositoryHead();
         writeGoals(store);

@@ -177,6 +177,35 @@ test('superseded records require provenance and keep the roadmap on the replacem
     }
 });
 
+test('a goal for a C file not ported by design is superseded without a replacement', () => {
+    const data = structuredClone(store);
+    // sfbase.c is in scripts/not-ported-by-design.mjs; widget.c is not.
+    const retired = { id: 'port-sfbase', kind: 'file-port', status: 'superseded',
+        summary: 'Port sfbase.c', cFile: 'sfbase.c', functions: [],
+        supersededReason: 'Not ported by design.', supersededAt: 'a'.repeat(40) };
+    data.goals.push(retired);
+    assert.doesNotThrow(() => validateGoals(data));
+    assert.match(formatGoal(retired), /not ported by design\n {2}reason: Not ported by design\./u);
+    const ported = structuredClone(data);
+    ported.goals.at(-1).cFile = 'widget.c';
+    assert.throws(() => validateGoals(ported), /needs an existing replacement or a C file/u);
+});
+
+test('the roadmap shows a file not ported by design without remaining work', () => {
+    // Two functions in sfbase.c would outrank one in small.c if they counted.
+    const files = [
+        { name: 'sfbase.c', text: 'void\none(void)\n{\n}\nvoid\ntwo(void)\n{\n}\n' },
+        { name: 'small.c', text: 'void\nonly(void)\n{\n}\n' },
+    ];
+    const rows = roadmapRows(files, new Set(), []);
+    assert.deepEqual(rows.map((row) => [row.cFile, row.pending]), [['small.c', 1], ['sfbase.c', 0]]);
+    assert.match(rows[1].goal, /^not ported by design: .*input\.storage/u);
+    const markdown = formatRoadmap(rows, 'f'.repeat(40));
+    assert.ok(markdown.startsWith('Verified C functions: 0 of 1, at ffffffff.\n'
+        + 'Not ported by design: 2 functions in sfbase.c (scripts/not-ported-by-design.mjs).\n'));
+    assert.ok(markdown.includes('| sfbase.c | 2 | 0 | 0 | - | not ported by design: '));
+});
+
 test('parseCFunctions reads column-0 definitions and their extents', () => {
     // NetHack style: return type on its own line, name at column 0. The
     // prototype and the indented call must not count as definitions.
@@ -552,7 +581,7 @@ function closeGoalFixture(standingSha, checkpoint = {}) {
     for (const name of ['goal-log.mjs', 'score-log.mjs', 'c-functions.mjs',
         'lua-sources.mjs', 'port-evidence.mjs', 'source-parity.mjs', 'check-namespace-members.mjs',
         'development-standing.mjs', 'scoring-workspace.mjs', 'segment-error-preload.mjs', 'fixed-workload.mjs',
-        'local-tmpdir.mjs',
+        'local-tmpdir.mjs', 'not-ported-by-design.mjs',
         'checkpoint-results.mjs']) {
         copyFileSync(join(SCRIPT_DIR, name), join(root, 'scripts', name));
     }

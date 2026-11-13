@@ -18970,7 +18970,7 @@
     {
       "id": "port-sfbase",
       "kind": "file-port",
-      "status": "closed",
+      "status": "superseded",
       "summary": "Port sfbase.c save-format serialization helpers",
       "cFile": "sfbase.c",
       "sessions": [],
@@ -19630,7 +19630,9 @@
       "range": {
         "from": 246,
         "to": 1118
-      }
+      },
+      "supersededReason": "sfbase.c is not ported by design: the port keeps game state between segments through input.storage, not NetHack's save-file format, and no game code imported js/sfbase.js. Vincent approved deleting the port on 2026-11-13.",
+      "supersededAt": "e7843cb7f3c0aa21049d0be9711b68556835c4e7"
     },
     {
       "id": "port-wintty-vt-output",
