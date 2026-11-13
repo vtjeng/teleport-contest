@@ -3168,12 +3168,14 @@ async function in_container(obj, state) {
         }
         await do_boh_explosion(state.gc.current_container, floor_container,
             state);
+        // pickup.c:2686-2691 looks for a floor container at the hero's
+        // square, where doloot_core() found it.
         if (!floor_container) {
             await useup(state.gc.current_container, { state });
         } else if (obj_here(
             state.gc.current_container,
-            state.gc.current_container.ox,
-            state.gc.current_container.oy,
+            state.u.ux,
+            state.u.uy,
             state,
         )) {
             await useupf(
