@@ -1152,7 +1152,7 @@ async function at_your_feet(str, state) {
         const captor = state.u.ustuck;
         await ttyPline(
             `${str} ${vtense(str, 'drop')} into `
-                + `${s_suffix(Monnam(captor, state))} `
+                + `${s_suffix(mon_nam(captor, state))} `
                 + `${mbodypart(captor, STOMACH)}.`,
             state,
         );

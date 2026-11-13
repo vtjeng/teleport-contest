@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31337,
+      "datetime": "20250318091500",
+      "nethackrc": "OPTIONS=name:Astrid,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!tutorial,!autopickup,time,pettype:none\n",
+      "moves": "\n\n\u0017blessed ring of slow digestion\nPfr800sssFkFkFk800ssssssFkFkFk800ssskFyFyFyFy800syFhFhFh800s400s sFhFhFh20s20s\u0007jackal\nFnFnFnFhFh\u00172 diamonds\n\u0017blessed luckstone\n\t\t\n \u0007peaceful white unicorn\ntgh  \u0007peaceful white unicorn\ntgl  #levelchange\n14\n            \u0007ice vortex\nmsmsms s#pray\ny y  "
+    }
+  ]
+}
