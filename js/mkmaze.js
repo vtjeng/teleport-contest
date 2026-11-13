@@ -282,16 +282,23 @@ function airBubbleBounds(state = game) {
         ?? { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
 }
 
-function resetAirLocation(location, typ = AIR) {
-    // C assigns a static water_pos or air_pos rm record: Water is unlit,
-    // Air is lit. Objects, traps, and level-wide indices are separate.
+function resetAirLocation(location, typ = AIR, state = game) {
+    // C assigns a static water_pos or air_pos rm record (mkmaze.c:1541-1545),
+    // so every field of struct rm takes its value: the remembered glyph is
+    // S_water or S_cloud, Water is unlit and Air lit, and waslit, like the
+    // rest, is zero. Objects, traps, and level-wide indices are separate.
+    location.remembered_glyph = {
+        glyph: cmap_to_glyph(typ === AIR ? S_cloud : S_water, state),
+    };
     location.typ = typ;
-    location.lit = typ === AIR;
-    location.flags = 0;
     location.seenv = 0;
+    location.flags = 0;
     location.horizontal = false;
-    location.edge = false;
+    location.lit = typ === AIR;
+    location.waslit = false;
     location.roomno = 0;
+    location.edge = false;
+    location.candig = false;
 }
 
 export function mv_bubble(bubble, dx, dy, initial, state = game,
@@ -534,7 +541,7 @@ export async function movebubbles(state = game, random = rn2) {
                     const trap = t_at(x, y, state);
                     if (trap)
                         push_front(bubble.cons, { x, y, what: 'trap', list: trap });
-                    resetAirLocation(state.level.at(x, y), WATER);
+                    resetAirLocation(state.level.at(x, y), WATER, state);
                     block_point(x, y, state);
                 }
             }
@@ -543,13 +550,7 @@ export async function movebubbles(state = game, random = rn2) {
       for (let x = 1; x <= COLNO - 1; ++x) {
         for (let y = 0; y <= ROWNO - 1; ++y) {
             const location = state.level.at(x, y);
-            resetAirLocation(location);
-            // C movebubbles() assigns air_pos, whose live glyph is
-            // S_cloud. The remembered glyph is the port's stored equivalent
-            // of C's levl[x][y].glyph and must change with that assignment.
-            location.remembered_glyph = {
-                glyph: cmap_to_glyph(S_cloud, state),
-            };
+            resetAirLocation(location, AIR, state);
             recalc_block_point(x, y, state);
 
             // C breaks up the all-air perimeter. Note that the edge test is
