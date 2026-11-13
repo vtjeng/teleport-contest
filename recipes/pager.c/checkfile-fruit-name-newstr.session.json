@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7302291,
+      "datetime": "20260704110500",
+      "nethackrc": "OPTIONS=name:Lookup,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none\n",
+      "moves": "/?slime mold\n\u001b\u001b/?a slime mold\n\u001b\u001b/?some slime mold\n\u001b\u001b/?uncursed slime mold\n\u001b\u001b\u001b",
+      "comment": "pager.c checkfile() for the default fruit name typed at / ?: strcpy(newstr, \"fruit\") overwrites the buffer dbase_str points into, so \"slime mold\" looks up \"fruit\" once, \"a slime mold\" looks up \"fruit\" then \"uit\", \"some slime mold\" lands on the terminator (an empty second pass), and \"uncursed slime mold\" starts past the copied bytes and shows the fruit entry and then the slime mold entry."
+    }
+  ]
+}

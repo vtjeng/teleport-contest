@@ -1754,41 +1754,51 @@ export const CHKFIL_USR_TYPED = 1;
 export const CHKFIL_DONT_ASK = 2;
 export const CHKFIL_IA_CHECK = 4;
 
-function stripPrefix(value, prefix) {
-    return value.startsWith(prefix) ? value.slice(prefix.length) : value;
-}
-
 // C ref: pager.c checkfile() (830-964), through the two lookup strings used by
-// its ordered data.base passes. The returned `alt` is searched before `base`.
+// its ordered data.base passes. The returned `alt` is searched before `base`;
+// null stands for an empty name, which C does not look up.
+// C copies the name into newstr and advances dbase_str past each prefix it
+// strips; `skipped` counts those bytes, because the fruit branch below
+// overwrites the start of newstr while dbase_str still points into it.
 export function normalizeDataBaseLookup(input, state = game) {
     if (typeof input !== 'string' || input.length > 255)
         throw new TypeError('checkfile input must be a BUFSZ-sized string');
 
     let base = input.toLowerCase();
-    base = stripPrefix(base, 'interior of ');
-    if (base.startsWith('a ')) base = base.slice(2);
-    else if (base.startsWith('an ')) base = base.slice(3);
-    else if (base.startsWith('the ')) base = base.slice(4);
-    else if (base.startsWith('some ')) base = base.slice(5);
-    else if (/^[0-9]/u.test(base)) {
-        base = base.replace(/^[0-9]+ ?/u, '');
-    }
-    base = stripPrefix(base, 'pair of ');
-    if (base.startsWith('tame ')) base = base.slice(5);
-    else if (base.startsWith('peaceful ')) base = base.slice(9);
-    base = stripPrefix(base, 'invisible ');
-    base = stripPrefix(base, 'saddled ');
-    if (base.startsWith('blessed ')) base = base.slice(8);
-    else if (base.startsWith('uncursed ')) base = base.slice(9);
-    else if (base.startsWith('cursed ')) base = base.slice(7);
-    base = stripPrefix(base, 'empty ');
-    if (base.startsWith('partly used ')) base = base.slice(12);
-    else if (base.startsWith('partly eaten ')) base = base.slice(13);
+    let skipped = 0;
+    const skip = (count) => {
+        base = base.slice(count);
+        skipped += count;
+    };
+    if (base.startsWith('interior of ')) skip(12);
+    if (base.startsWith('a ')) skip(2);
+    else if (base.startsWith('an ')) skip(3);
+    else if (base.startsWith('the ')) skip(4);
+    else if (base.startsWith('some ')) skip(5);
+    else if (/^[0-9]/u.test(base)) skip(/^[0-9]+ ?/u.exec(base)[0].length);
+    if (base.startsWith('pair of ')) skip(8);
+    if (base.startsWith('tame ')) skip(5);
+    else if (base.startsWith('peaceful ')) skip(9);
+    if (base.startsWith('invisible ')) skip(10);
+    if (base.startsWith('saddled ')) skip(8);
+    if (base.startsWith('blessed ')) skip(8);
+    else if (base.startsWith('uncursed ')) skip(9);
+    else if (base.startsWith('cursed ')) skip(7);
+    if (base.startsWith('empty ')) skip(6);
+    if (base.startsWith('partly used ')) skip(12);
+    else if (base.startsWith('partly eaten ')) skip(13);
     if (base.startsWith('statue of ')) base = 'statue';
     else if (base.startsWith('figurine of ')) base = 'figurine';
     if (/^[+-][0-9]/u.test(base))
-        base = base.replace(/^[+-][0-9]+ ?/u, '');
-    if (base.startsWith('moist towel')) base = `wet${base.slice(5)}`;
+        skip(/^[+-][0-9]+ ?/u.exec(base)[0].length);
+    // memcpy(dbase_str += 2, "wet", 3)
+    if (base.startsWith('moist towel')) {
+        skip(2);
+        base = `wet${base.slice(3)}`;
+    }
+    // C skips the lookup when the name is empty at this point; the fruit
+    // branch below can leave dbase_str empty later without that check.
+    if (!base) return null;
 
     let alt = null;
     const named = base.indexOf(' named ');
@@ -1816,7 +1826,13 @@ export function normalizeDataBaseLookup(input, state = game) {
         if (altDetails > 0) alt = alt.slice(0, altDetails);
     }
     if (!alt && fruit_from_name(base, true, state)) {
-        alt = state.obj_descr?.[SLIME_MOLD]?.oc_name ?? 'slime mold';
+        // alt = strcpy(newstr, obj_descr[SLIME_MOLD].oc_name) writes the
+        // object name ("fruit" once options are set) and its terminator over
+        // newstr. When dbase_str starts within those bytes, it now reads the
+        // tail of that name: "slime mold" becomes "fruit", so both passes
+        // look up the same string and C runs only one.
+        alt = state.obj_descr[SLIME_MOLD].oc_name;
+        if (skipped <= alt.length) base = alt.slice(skipped);
     } else if (!alt) {
         alt = makesingular(base);
     }
@@ -1882,8 +1898,9 @@ export async function checkfile(
                 supplemental.name = input.slice(sp + 8, sp + 8 + BUFSZ - 1);
         }
     }
-    const { base, alt } = normalizeDataBaseLookup(source, state);
-    if (!base) return false;
+    const lookup = normalizeDataBaseLookup(source, state);
+    if (!lookup) return false;
+    const { base, alt } = lookup;
 
     const terms = alt === base ? [base] : [alt, base];
     let firstEntry = null;

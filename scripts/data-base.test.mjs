@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { DATA_BASE_ENTRIES } from '../js/data_base_data.js';
+import { SLIME_MOLD } from '../js/objects.js';
 import {
     dataBaseEntry,
     normalizeDataBaseLookup,
@@ -119,4 +120,35 @@ test('checkfile lookup normalization preserves pager.c prefix ordering', () => {
     ];
     for (const [input, expected] of cases)
         assert.deepEqual(normalizeDataBaseLookup(input), expected, input);
+});
+
+test('checkfile lookup of the fruit name reads newstr after strcpy()', () => {
+    // initoptions_finish() has renamed SLIME_MOLD "fruit", and the default
+    // fruit option adds "slime mold" as fid 1.
+    const obj_descr = [];
+    obj_descr[SLIME_MOLD] = { oc_name: 'fruit' };
+    const state = {
+        gf: { ffruit: { fname: 'slime mold', fid: 1, nextf: null } },
+        obj_descr,
+    };
+    const cases = [
+        // No prefix: dbase_str is newstr itself, so it reads "fruit" too and
+        // C runs a single pass instead of also showing the slime mold entry.
+        ['slime mold', { base: 'fruit', alt: 'fruit' }],
+        // "a " leaves dbase_str two bytes into the copied "fruit".
+        ['a slime mold', { base: 'uit', alt: 'fruit' }],
+        // "some " lands on the terminator strcpy() wrote after "fruit".
+        ['some slime mold', { base: '', alt: 'fruit' }],
+        // "uncursed " (9 bytes) starts past the 6 bytes strcpy() wrote.
+        ['uncursed slime mold', { base: 'slime mold', alt: 'fruit' }],
+    ];
+    for (const [input, expected] of cases) {
+        assert.deepEqual(
+            normalizeDataBaseLookup(input, state), expected, input,
+        );
+    }
+    // The entry shown for the typed fruit name is the generic fruit entry.
+    assert.deepEqual(dataBaseEntry('fruit').keys, ['fruit', 'fruitname']);
+    // An empty name is not looked up at all.
+    assert.equal(normalizeDataBaseLookup('the ', state), null);
 });
