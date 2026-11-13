@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "mkroom.c rest_rooms() (893-906), which restore.c getlev() calls, with save.c savelev():564 zeroing svr.rooms[]. A gnomish Healer in debug mode level-teleports to the Oracle (Dlvl 8 for this seed, found with #wizwhere), teleports onto a Delphi fountain and runs #overview, which marks the Delphi subroom seen. #wizloadlua minefill then runs mkmap.c join_map_cleanup(), which sets svn.nroom and gn.nsubroom to 0 but leaves the old room records in memory, and the hero saves. After the restore only svn.nroom rooms come back and the rest of svr.rooms[] is zero, so the second segment's #overview finds no Delphi room and prints no 'Oracle of Delphi.' line. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5530217,
+      "datetime": "20520908161500",
+      "nethackrc": "OPTIONS=name:Seer,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b\u00168\n\u001b\u0006\u0014\u001b\n{.\u001b#overview\n\u001b#wizloadlua\nminefill\n\u001b\u001bSy"
+    },
+    {
+      "seed": 5530218,
+      "datetime": "20520908170000",
+      "nethackrc": "OPTIONS=name:Seer,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001bn\u001b#overview\n\u001b"
+    }
+  ]
+}

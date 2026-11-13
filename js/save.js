@@ -58,6 +58,7 @@ import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_exit_nhwindows } from './wintty.js';
 import { save_waterlevel } from './mkmaze.js';
+import { clear_level_structures } from './mklev.js';
 import { rest_saved_level_regions } from './region.js';
 import { save_oracles } from './rumors.js';
 import { tty_getmsghistory } from './topl.js';
@@ -326,6 +327,12 @@ export function savelev(ledger, state = game, options = {}) {
     // the level's used-up unpaid objects leave with it.
     free_exclusions(state);
     if (state.gb) state.gb.billobjs = null;
+    // save.c:561 clear_level_structures() under the same release_data()
+    // test. Besides the level map it resets process-global state that
+    // getlev() does not restore, such as rect.c's free rectangles, so a
+    // special level loaded on a level the hero returns to starts from one
+    // whole-map rectangle as it does in C.
+    clear_level_structures();
 }
 
 // ── dosave / dosave0 — the #save command ──

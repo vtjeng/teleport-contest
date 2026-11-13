@@ -197,6 +197,42 @@ import {
     S_water,
 } from './symbols.js';
 
+// C ref: mkroom.c rest_room() (875-886). The level snapshot keeps each room
+// with its sbrooms[] links, so of the read only the rebuild of gs.subrooms[]
+// remains: a room's subrooms take the next slots in saved order, and each
+// starts with no resident. C points sbrooms[i] at the slot before it reads
+// that subroom's own subrooms into the same slot; no level program nests a
+// subroom inside a subroom, so the slots here follow the plain recursion.
+function rest_room(r, state) {
+    for (let i = 0; i < (r.nsubrooms ?? 0); i++) {
+        const subroom = r.sbrooms[i];
+        state.subrooms[state.nsubroom] = subroom;
+        rest_room(subroom, state);
+        state.subrooms[state.nsubroom++].resident = null;
+    }
+}
+
+// C ref: mkroom.c rest_rooms() (893-906), which restore.c getlev() calls for
+// every level it reads. gs.subrooms[] is process state that savelev() does
+// not keep apart from the rooms, so a level the hero returns to, or the
+// hero's level after a restore, gets it back here. Every room's resident is
+// cleared; getlev() later calls shk.c set_residency() for each shopkeeper.
+// savelev() zeroed svr.rooms[] (save.c:564) and the save holds only the
+// first svn.nroom rooms, so the entries after them start empty here; the
+// snapshot would otherwise keep whatever the level's generation left there.
+export function rest_rooms(state = game) {
+    const level = state.level;
+    state.subrooms = [];
+    state.nsubroom = 0;
+    level.rooms.length = level.nroom;
+    for (let i = 0; i < level.nroom; i++) {
+        rest_room(level.rooms[i], state);
+        level.rooms[i].resident = null;
+    }
+    level.rooms[level.nroom] = { hx: -1 }; /* restore ending flags */
+    state.subrooms[state.nsubroom] = { hx: -1 };
+}
+
 export function cmap_to_type(symbol) {
     switch (symbol) {
     case S_vwall: return VWALL;

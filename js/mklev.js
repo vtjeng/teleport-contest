@@ -492,7 +492,7 @@ export async function mklev({ specialLevelLoader = null } = {}) {
 }
 
 // C ref: mklev.c clear_level_structures()
-function clear_level_structures() {
+export function clear_level_structures() {
     const g = game;
     installLevel(new GameMap(), g);
     g.subrooms = [];
