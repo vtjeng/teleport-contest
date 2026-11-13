@@ -14,6 +14,8 @@ import {
     makeplural,
     matching_artifact_fruit,
     makesingular,
+    mungspaces as fruitMungspaces,
+    normalize_initial_fruit,
 } from '../js/fruit.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -75,6 +77,26 @@ test('initial fruit option munges, sanitizes, and truncates source bytes', () =>
     assert.equal(
         parseNethackrc(`OPTIONS=fruit:${'é'.repeat(16)}`).pl_fruit,
         '_'.repeat(31),
+    );
+});
+
+test('a typed high byte stays one byte through the fruit option', () => {
+    // hooked_tty_getlin() stores the key 0xE9 as one byte, which the port's
+    // getlin() returns as the escape U+DCE9 (decodeUtf8ByteString()).
+    // mungspaces() and nmcpy() copy that one byte; sanitize_name() turns it
+    // into one '_' when eight_bit_tty is off, and keeps it when it is on.
+    // Re-encoding the escape with TextEncoder would give U+FFFD's three bytes
+    // and "pomm___", the mismatch recorded by
+    // recordings/options.c/fruit-option-latin1-byte-sanitized.session.json.
+    assert.equal(fruitMungspaces(' pomm\uDCE9 '), 'pomm\uDCE9');
+    assert.equal(normalize_initial_fruit('pomm\uDCE9'), 'pomm_');
+    assert.equal(normalize_initial_fruit('pomm\uDCE9', true), 'pomm\uDCE9');
+    // 0x85's low seven bits are a control code, so sanitize_name() writes
+    // '.' whatever eight_bit_tty says; 31 one-byte escapes fill PL_FSIZ - 1.
+    assert.equal(normalize_initial_fruit('a\uDC85b', true), 'a.b');
+    assert.equal(
+        normalize_initial_fruit('\uDCE8'.repeat(40), true),
+        '\uDCE8'.repeat(31),
     );
 });
 

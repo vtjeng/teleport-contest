@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent options.c:optfn_fruit() witness for a typed Latin-1 byte. Seed 27183041, clock 20570703161522, Priest, the full-menu route and the fruit name were chosen before JavaScript comparison. tty getlin stores the key 0xE9 as one byte; nmcpy() copies it and bones.c sanitize_name() replaces it with '_' because eight_bit_tty is off, so C prints Fruit is now \"pomm_\".",
+  "segments": [
+    {
+      "seed": 27183041,
+      "datetime": "20570703161522",
+      "nethackrc": "OPTIONS=name:Ines,role:Priest,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:fruit\n\npommé\n\u001b"
+    }
+  ]
+}

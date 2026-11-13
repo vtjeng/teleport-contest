@@ -9,7 +9,6 @@ import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
-    encodeUtf8Text,
     strstri,
 } from './hacklib.js';
 import { Strlen_ } from './strutil.js';
@@ -146,14 +145,14 @@ function mungspaceBytes(bytes) {
 }
 
 export function mungspaces(value) {
-    const result = mungspaceBytes(encodeUtf8Text(value));
+    const result = mungspaceBytes(encodeUtf8ByteString(value));
     return decodeUtf8ByteString(result);
 }
 
 export function normalize_initial_fruit(value, eightBitTty = false) {
     const normalized = sanitizeBytes(
         bytesUntilTerminator(
-            mungspaceBytes(encodeUtf8Text(value)),
+            mungspaceBytes(encodeUtf8ByteString(value)),
             PL_FSIZ - 1,
             { comma: true },
         ),

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent options.c:optfn_fruit() witness for typed bytes above 0x7F with eight_bit_tty on. Seed 27183059, clock 20570704092210, Monk, the full-menu route and the fruit text were chosen before JavaScript comparison. tty getlin stores each key as one byte; the pair 0xC3 0xA9 forms a UTF-8 sequence while 0xE8 stands alone. nmcpy() keeps PL_FSIZ - 1 = 31 bytes, and bones.c sanitize_name() keeps the high bytes because eight_bit_tty sets wc_eight_bit_input, but turns 0x85, whose low seven bits are a control code, into '.'.",
+  "segments": [
+    {
+      "seed": 27183059,
+      "datetime": "20570704092210",
+      "nethackrc": "OPTIONS=name:Odile,role:Monk,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,eight_bit_tty\n",
+      "moves": " #optionsfull\n:fruit\n\nÃ©clair au chocolat très très fin\n\u001b"
+    }
+  ]
+}
