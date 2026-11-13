@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c skinback() returns merged dragon scales to body armor and, when they give off light, calls obj.c maybe_adjust_light() for the change from the embedded radius 1 to the worn radius ('Your set of gold dragon scales shines much brighter.'). A human Healer in debug mode (no body armor to remove, fixed letters so the wish lands on l) wishes for blessed gold dragon scales, wears them (they light), polymorphs into a gold dragon to merge with them, then polymorphs into a human, which runs newman() and polyman(). The seed and date were chosen arbitrarily, avoiding a full or new moon message.",
+  "segments": [
+    {
+      "seed": 7350007,
+      "datetime": "20311108195500",
+      "nethackrc": "OPTIONS=name:ScaleHealer,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed gold dragon scales\nWl #polyself\ngold dragon\n    #polyself\nhuman\n  "
+    }
+  ]
+}
