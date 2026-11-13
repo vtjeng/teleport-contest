@@ -144,6 +144,26 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/display.js | docrt | vision_recalc": {
+      "count": 1,
+      "reason": "vision_recalc() returns a promise only when env.onImpossible is passed; docrt()'s vision_recalc(2) passes none, and with nothing in sight newsym() never reaches wall_angle(). scripts/wall-angle-callers.test.mjs lists this call."
+    },
+    "js/display.js | feel_location | finish_steps": {
+      "count": 1,
+      "reason": "feel_location() is the synchronous form of feel_location_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+    },
+    "js/display.js | map_background | finish_steps": {
+      "count": 1,
+      "reason": "map_background() is the synchronous form of map_background_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+    },
+    "js/display.js | map_location | finish_steps": {
+      "count": 1,
+      "reason": "map_location() is the synchronous form of map_location_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+    },
+    "js/display.js | newsym | finish_steps": {
+      "count": 1,
+      "reason": "newsym() is the synchronous form of newsym_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+    },
     "js/do_wear.js | glibr | setuswapwep": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

@@ -24,7 +24,10 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // (12 November 2026). 300 and 385 with eight level-creation-only callers of
 // mktrap(), dodoor() and priestini(), which return a Promise only outside
 // level creation (11 calls; branch wizloadlua-makemon, 12 November 2026).
-const ALLOWLIST_PINS = { entries: 300, calls: 385 };
+// 305 and 390 with the finish_steps() calls of the synchronous newsym(),
+// feel_location(), map_location() and map_background(), and docrt()'s
+// vision_recalc(2) (branch wall-angle-vision, 12 November 2026).
+const ALLOWLIST_PINS = { entries: 305, calls: 390 };
 
 test('every discarded promise in js/ is on the allowlist with a reason', () => {
     const current = scanDiscardedPromises(readJsSources());

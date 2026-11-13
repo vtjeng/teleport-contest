@@ -3362,7 +3362,7 @@ export function same_remembered_glyph(before, after) {
 // blind hero who feels a wall laid with a mode wall_angle() cannot draw
 // reports it here in C. The synchronous feel_location() records it as a gap.
 export function feel_location(x, y, state = game) {
-    return finish_steps(feel_location_steps(x, y, state));
+    finish_steps(feel_location_steps(x, y, state));
 }
 
 export function* feel_location_steps(x, y, state = game) {
@@ -3558,7 +3558,7 @@ function rememberedCmap(cmap, state) {
 // A step generator (js/source_steps.js), for wall_angle()'s impossible() in
 // its background arm; the synchronous map_location() records it as a gap.
 export function map_location(x, y, show, state) {
-    return finish_steps(map_location_steps(x, y, show, state));
+    finish_steps(map_location_steps(x, y, show, state));
 }
 
 export function* map_location_steps(x, y, show, state) {
@@ -3820,7 +3820,7 @@ export function map_trap(trap, show, state = game) {
 // A step generator (js/source_steps.js), for wall_angle()'s impossible();
 // the synchronous map_background() records it as a gap.
 export function map_background(x, y, show, state = game) {
-    return finish_steps(map_background_steps(x, y, show, state));
+    finish_steps(map_background_steps(x, y, show, state));
 }
 
 export function* map_background_steps(x, y, show, state = game) {
@@ -3990,7 +3990,7 @@ function observeNearbyObject(object, x, y, state) {
 // in the recalculation. The synchronous newsym() below records it as a gap;
 // scripts/wall-angle-callers.test.mjs counts its callers.
 export function newsym(x, y) {
-    return finish_steps(newsym_steps(x, y));
+    finish_steps(newsym_steps(x, y));
 }
 
 // newsym() for a caller that can wait, which awaits the result: it prints
