@@ -154,6 +154,7 @@ import {
     Deaf, Swimming,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { note_unported } from './unported.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
 // water, secret doors, and iron bars in addition to ordinary wall types.
@@ -404,7 +405,8 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 contents.list.ty = contents.y;
                 break;
             default:
-                throw new Error('mv_bubble: unknown bubble contents');
+                await impossible('mv_bubble: unknown bubble contents', state);
+                break;
             }
         }
         bubble.cons = [];
@@ -653,8 +655,15 @@ export function restore_waterlevel(source, state = game, random = rn2) {
         state.air_bubbles.push(bubble);
         mv_bubble(bubble, 0, 0, true, state, random);
     }
-    if (!state.air_bubbles.length)
-        throw new Error('No air bubbles or clouds to restore?');
+    // mkmaze.c restore_waterlevel():1782-1794 reports a level with no
+    // bubbles through impossible() between clearing and setting
+    // something_worth_saving, and goes on.
+    if (!state.air_bubbles.length) {
+        state.program_state ??= {};
+        state.program_state.something_worth_saving = 0;
+        note_unported('pline.c impossible');
+        state.program_state.something_worth_saving = 1;
+    }
     return state.air_bubbles;
 }
 

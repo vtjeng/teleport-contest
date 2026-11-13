@@ -2012,7 +2012,8 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_polymorph(otmp, state);
         break;
     default:
-        throw new Error(`What a funny potion! (${otmp.otyp})`);
+        await impossible(`What a funny potion! (${otmp.otyp})`, state);
+        return 0;
     }
     return -1;
 }

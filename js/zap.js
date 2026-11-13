@@ -70,7 +70,7 @@ import {
     ceiling, Invocation_lev, on_level, surface, surface_typ, update_mapseen_for,
     lastseentyp_grid,
 } from './dungeon.js';
-import { done } from './end.js';
+import { done, panic } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
@@ -800,7 +800,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     case OBJ_ONBILL:
     case OBJ_LUAFREE:
     default:
-        throw new Error('revive: invalid corpse location ' + corpse.where);
+        await panic(`revive default case ${corpse.where}`, state);
     }
     return monster;
 }

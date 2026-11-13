@@ -3060,7 +3060,9 @@ export async function jump(magic = 0, state = game, env = {}) {
             await set_wounded_legs(RIGHT_SIDE, rn1(10, 11), state);
             return ECMD_TIME;
         default:
-            throw new Error(`Jumping out of strange trap (${state.u.utraptype})?`);
+            await impossible(
+                `Jumping out of strange trap (${state.u.utraptype})?`, state);
+            break;
         }
         await reset_utrap(true, state);
     }

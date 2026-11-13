@@ -135,7 +135,7 @@ import {
 } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
-import { container_contents } from './end.js';
+import { container_contents, panic } from './end.js';
 import {
     autokey,
     boxlock,
@@ -281,7 +281,7 @@ import {
     SCATTER_MAY_HIT,
     scatter,
 } from './explode.js';
-import { livelog_printf, verbalize } from './pline.js';
+import { impossible, livelog_printf, verbalize } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { setuwep, welded, weldmsg } from './wield.js';
@@ -3182,7 +3182,7 @@ async function in_container(obj, state) {
                 { state },
             );
         } else {
-            throw new Error('in_container: bag not found');
+            await panic('in_container:  bag not found.', state);
         }
         await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);
         state.gc.current_container = null;
@@ -3268,7 +3268,8 @@ async function pickup_prinv(otmp, count, verb, state) {
 // Returns: -1 to stop, 1 item was removed, 0 item was not removed.
 async function out_container(obj, state) {
     if (!state.gc?.current_container) {
-        throw new Error('<out> no gc.current_container?');
+        await impossible('<out> no gc.current_container?', state);
+        return -1;
     }
     const is_gold = obj.oclass === COIN_CLASS;
     if (is_gold) {

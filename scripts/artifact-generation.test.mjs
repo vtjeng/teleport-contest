@@ -37,6 +37,8 @@ import {
     ONAME_WISH,
 } from '../js/const.js';
 import { mksobj, newObject } from '../js/obj.js';
+import { game } from '../js/gstate.js';
+import { initUnported } from '../js/unported.js';
 import {
     ELVEN_BROADSWORD,
     LONG_SWORD,
@@ -138,17 +140,18 @@ test('find_artifact records the first observation exactly once', () => {
     assert.equal(find_artifact(bareWeapon(LONG_SWORD), state), false);
 });
 
-test('find_artifact rejects impossible artifact state before mutation', () => {
+test('find_artifact reports an artifact that does not exist and leaves it unfound', () => {
+    // artifact.c find_artifact():427-457 calls found_artifact(), whose
+    // impossible() at 413-414 sets nothing; the livelog line still follows.
     const state = stateFor('Arc', 'lawful');
     const nonexistent = bareWeapon(LONG_SWORD, {
         oartifact: ART_GIANTSLAYER,
     });
 
-    assert.throws(
-        () => find_artifact(nonexistent, state),
-        /artifact .* does not exist/,
-    );
+    initUnported();
+    find_artifact(nonexistent, state);
     assert.equal(state.artiexist[ART_GIANTSLAYER].found, 0);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });
 
 test('existing-object selection keeps source order and mutation boundaries', () => {

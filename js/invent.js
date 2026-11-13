@@ -1155,8 +1155,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             break;
         case GETOBJ_SUGGEST:
             break; /* adding otmp->invlet is all that's needed */
+        case GETOBJ_EXCLUDE_NONINVENT: /* not applicable for invent items */
         default:
-            throw new Error('bad return from getobj callback');
+            await impossible('bad return from getobj callback', state);
         }
     }
 

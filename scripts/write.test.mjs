@@ -8,6 +8,7 @@ import {
     GETOBJ_SUGGEST,
     NO_SPELL,
 } from '../js/const.js';
+import { game } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import {
     MAXSPELL,
@@ -216,14 +217,20 @@ test('cost returns 10 * oc_level for spellbooks', () => {
     );
 });
 
-test('cost throws for blank paper (impossible branch)', () => {
-    // C ref: write.c:52-56. Writing blank paper on blank paper is caught
-    // earlier in dowrite, so reaching cost() with it is impossible.
+test('cost reports blank paper and returns 1000 (impossible branch)', () => {
+    // C ref: write.c:52-56. dowrite() refuses blank paper before cost(), so
+    // C's impossible() report here needs a caller no game path makes; C then
+    // returns 1000, the cost after the switch.
     const state = costState();
-    assert.throws(
-        () => cost({ oclass: SCROLL_CLASS, otyp: SCR_BLANK_PAPER }, state),
-        { message: /impossible/ },
-    );
+    const previous = game.unported;
+    game.unported = new Set();
+    try {
+        assert.equal(
+            cost({ oclass: SCROLL_CLASS, otyp: SCR_BLANK_PAPER }, state), 1000);
+        assert.equal(game.unported.has('pline.c impossible'), true);
+    } finally {
+        game.unported = previous;
+    }
 });
 
 // -- new_book_description tests -------------------------------------------

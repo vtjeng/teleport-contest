@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c dospinweb():1603-1604 has no case for STATUE_TRAP, so a webmaker spinning on a statue trap reaches its default arm: impossible(\"Webbing over trap type 19?\") and ECMD_OK. A gnome Healer in debug mode steps east off the up stairs, wishes for a statue trap on his own square, polymorphs into a giant spider and uses #monster, then searches. Seed, date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5520913,
+      "datetime": "20290609171500",
+      "nethackrc": "OPTIONS=name:Weaver,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "l\u0017statue trap\n#polyself\ngiant spider\n  #monster\n  s"
+    }
+  ]
+}

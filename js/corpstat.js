@@ -20,6 +20,7 @@ import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
 import { obj_stop_timers, start_corpse_timeout } from './timeout.js';
 import { forget_temple_entry } from './priest.js';
+import { note_unported } from './unported.js';
 
 function corpstatEnv(env = {}) {
     return {
@@ -146,8 +147,10 @@ export function mkcorpstat(
     corpstatflags,
     rawEnv = {},
 ) {
+    // C: impossible("making corpstat type %d", objtype), then makes the
+    // object anyway.
     if (objtype !== CORPSE && objtype !== STATUE)
-        throw new RangeError(`mkcorpstat object type ${objtype}`);
+        note_unported('pline.c impossible');
     const env = corpstatEnv(rawEnv);
     const { state } = env;
     const init = Boolean(corpstatflags & CORPSTAT_INIT);

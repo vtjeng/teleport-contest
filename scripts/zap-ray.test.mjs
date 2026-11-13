@@ -131,6 +131,7 @@ import { SYMBOL_INDEX_BY_NAME } from '../js/symbol_data.js';
 import { cmap_symbol, misc_symbol } from '../js/symbols.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { burnarmor, erode_obj } from '../js/trap_erode_obj.js';
+import { initUnported } from '../js/unported.js';
 import {
     CLR_BRIGHT_BLUE, CLR_GREEN, CLR_ORANGE, CLR_WHITE, CLR_YELLOW, NO_COLOR,
 } from '../js/terminal.js';
@@ -501,9 +502,14 @@ test('zapdir_to_glyph packs the beam direction under its type', () => {
     // Beam type 0 is magic missile, the first zapcolors[] entry, so the
     // guard has to admit it.
     assert.equal(zapdir_to_glyph(1, 0, 0, game).glyph, GLYPH_ZAP_OFF + 1);
-    // NUM_ZAP is 8, so beam type 8 is one past the last zapcolors[] entry.
-    assert.throws(() => zapdir_to_glyph(1, 0, 8, game), RangeError);
-    assert.throws(() => zapdir_to_glyph(1, 0, -1, game), RangeError);
+    // NUM_ZAP is 8, so beam type 8 is one past the last zapcolors[] entry:
+    // C reports it through impossible() and draws beam type 0 instead, the
+    // horizontal magic-missile glyph here. The synchronous port records the
+    // report as an unported print. C has no lower bound, and no caller passes
+    // a negative type.
+    initUnported();
+    assert.equal(zapdir_to_glyph(1, 0, 8, game).glyph, GLYPH_ZAP_OFF + 1);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });
 
 test('the zap glyph arm reads S_vbeam and zapcolors by its two fields',
@@ -1300,10 +1306,13 @@ test('dobuzz admits a hero wand or monster breath and rejects other bands', asyn
         assert.equal(game.u.uhp, 94);
     }
     // 9 is the last slot the band reserves and flash_types[] leaves empty, so
-    // the guard has to admit it even though the message it would print has no
-    // name to put in. What it must not do is report it as out of band.
-    await assert.rejects(() => call(9), (error) =>
-        !error.message.includes('for a spell, breath or monster zap'));
+    // the guard has to admit it. display.c zapdir_to_glyph() then reports
+    // beam type 9 through impossible() and draws beam type 0 (display.c
+    // 2461-2467); the synchronous port records that print as a gap, and the
+    // ray goes on rather than ending the game.
+    initUnported();
+    await call(9);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });
 
 test('monster breath dobuzz consumes only its source range draw on a forced miss',

@@ -84,7 +84,7 @@ import {
     TOWEL, T_SHIRT, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP,
     YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
     HORN_OF_PLENTY,
-    GOLD_PIECE, STRANGE_OBJECT,
+    GOLD_PIECE, NUM_OBJECTS, STRANGE_OBJECT,
 } from './objects.js';
 import {
     append_price_quote,
@@ -299,6 +299,26 @@ export function simple_typename(otyp, state = game) {
     const pp = bufp.indexOf(' (');
     /* strip the appended description */
     return pp >= 0 ? bufp.slice(0, pp) : bufp;
+}
+
+// C ref: objnam.c safe_typename() (310-330). A type name for debugging
+// feedback where the data may be suspect: an otyp out of range or without a
+// name gets "glorkum[otyp]" and its own impossible() report, which this
+// synchronous port records as unported; any other type is named as if fully
+// discovered.
+export function safe_typename(otyp, state = game) {
+    if (otyp < STRANGE_OBJECT || otyp >= NUM_OBJECTS
+        || !OBJ_NAME(state.objects[otyp], state)) {
+        note_unported('pline.c impossible');
+        return `glorkum[${otyp}]`;
+    }
+    /* force it to be treated as fully discovered */
+    const ocl = state.objects[otyp];
+    const save_nameknown = ocl.oc_name_known;
+    ocl.oc_name_known = 1;
+    const res = simple_typename(otyp, state);
+    ocl.oc_name_known = save_nameknown;
+    return res;
 }
 
 // C ref: objnam.c mimic_obj_name() (5606–5616).
@@ -728,10 +748,13 @@ export function just_an(str) {
         ? 'an ' : 'a ';
 }
 
-// C ref: objnam.c an(). C answers "an []" through impossible() for an empty
-// name; nothing in the port can supply one, so that stays a thrown error.
+// C ref: objnam.c an() (2145-2156). An empty or missing name is reported
+// through impossible() and answered with "an []".
 export function an(str) {
-    if (!str) throw new Error(`an() requires a name; got ${String(str)}`);
+    if (!str) {
+        note_unported('pline.c impossible');
+        return 'an []';
+    }
     const article = just_an(str);
     // C an() uses strncat(BUFSZ - 1 - Strlen(buf)); preserve its byte limit.
     const remaining = BUFSZ - 1 - Strlen_(article, 'an', 2154);
@@ -1564,10 +1587,10 @@ export function singular(otmp, func, state) {
 // names, and treats a configured fruit as an ordinary noun unless an artifact
 // of that name deliberately lacks the article.
 export function the(str, state = game) {
+    // objnam.c the():2177-2180
     if (!str) {
-        // C's impossible() returns "the []" and carries on. Reaching it means
-        // a caller handed this an empty name, which is a defect here.
-        throw new Error('the(): empty name');
+        note_unported('pline.c impossible');
+        return 'the []';
     }
     if (lcase(str.slice(0, 4)) === 'the ')
         return lcase(str[0]) + str.slice(1);

@@ -1633,8 +1633,9 @@ export function rnd_offensive_item(monster, normalized) {
     case 10: return WAN_FIRE;
     case 11: return WAN_COLD;
     case 12: return WAN_LIGHTNING;
-    default: throw new Error('rnd_offensive_item selected an invalid case');
     }
+    /*NOTREACHED*/
+    return 0;
 }
 
 // C ref: muse.c rnd_defensive_item().
@@ -1683,9 +1684,9 @@ export function rnd_defensive_item(monster, normalized) {
                 return 0;
             }
             return WAN_DIGGING;
-        default:
-            throw new Error('rnd_defensive_item selected an invalid case');
         }
+        /* rn2()'s bound keeps the switch within its cases */
+        return 0;
     }
 }
 
@@ -1710,9 +1711,9 @@ export function rnd_misc_item(monster, normalized) {
         return random.rn2(6) ? POT_INVISIBILITY : WAN_MAKE_INVISIBLE;
     case 2:
         return POT_GAIN_LEVEL;
-    default:
-        throw new Error('rnd_misc_item selected an invalid case');
     }
+    /*NOTREACHED*/
+    return 0;
 }
 
 function findMonsterGold(monster) {
@@ -2084,9 +2085,9 @@ export function dmonsfree(state = game) {
     }
     state.iflags.purge_monsters = 0;
     if (removed !== expected) {
-        throw new Error(
-            `dmonsfree: ${removed} removed does not match ${expected} pending`,
-        );
+        // impossible("dmonsfree: %d removed doesn't match %d pending on %s",
+        // ...); this synchronous function cannot wait on the print.
+        note_unported('pline.c impossible');
     }
     return removed;
 }

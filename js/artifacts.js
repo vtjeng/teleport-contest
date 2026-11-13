@@ -688,19 +688,17 @@ export function restore_artifacts(snapshot, state = game) {
     hack_artifacts(state);
 }
 
-// C ref: artifact.c found_artifact() (409-421). Marks an existing artifact
-// as found by the hero. C's impossible() calls catch index errors; JS throws
-// instead.
+// C ref: artifact.c found_artifact() (409-417). Marks an existing artifact
+// as found by the hero. An index out of range or an artifact that does not
+// exist yet gets C's impossible() report ("found_artifact: invalid artifact
+// index! (%d)", "found_artifact: artifact doesn't exist yet? (%d)") and
+// nothing else; this synchronous port records that print as unported.
 export function found_artifact(a, state = game) {
     artifactTables(state);
     if (a < 1 || a > NROFARTIFACTS) {
-        throw new RangeError(
-            `found_artifact: invalid artifact index! (${a})`,
-        );
+        note_unported('pline.c impossible');
     } else if (!state.artiexist[a].exists) {
-        throw new Error(
-            `found_artifact: artifact doesn't exist yet? (${a})`,
-        );
+        note_unported('pline.c impossible');
     } else {
         state.artiexist[a].found = 1;
     }
@@ -714,10 +712,10 @@ export function find_artifact(obj, state = game) {
     artifactTables(state);
     if (index < 1 || index > NROFARTIFACTS || !state.artilist[index]?.otyp)
         throw new RangeError(`invalid artifact index ${index}`);
-    if (!state.artiexist[index].exists)
-        throw new Error(`artifact ${index} does not exist`);
     if (state.artiexist[index].found) return false;
-    state.artiexist[index].found = 1;
+    // found_artifact() reports an artifact that does not exist yet through
+    // impossible() and leaves it unfound; C goes on to the livelog line.
+    found_artifact(index, state); /* artiexist[a].found = 1 */
     const where = obj.where === OBJ_FLOOR
         ? (inside_shop(obj.ox, obj.oy, state) ? ' in a shop' : ' on the floor')
         : obj.where === OBJ_CONTAINED ? ' in a container'
@@ -1218,9 +1216,8 @@ export function artifact_origin(obj, flags, state = game) {
     }
     // Other oname() control bits, such as ONAME_SKIP_INVUPD, do not describe
     // provenance and are ignored here by the source.
-    if (origins !== 1) {
-        throw new RangeError(`invalid artifact origin flags ${flags}`);
-    }
+    // C: impossible("invalid artifact origin: %4o", aflags), then return.
+    if (origins !== 1) note_unported('pline.c impossible');
 }
 
 /** Port of artifact.c:artifact_exists() for object-name ownership. */
@@ -1612,7 +1609,8 @@ function spec_applies(weap, mtmp, state = game, env = {}) {
             return !(yours ? Stone_resistance(state.u)
                            : Resists_Elem(mtmp, STONE_RES, state));
         default:
-            throw new Error('Weird weapon special attack.');
+            // C: impossible("Weird weapon special attack."), then return 0.
+            note_unported('pline.c impossible');
         }
     }
     return false;
@@ -1687,7 +1685,8 @@ export function discover_artifact(m, state = game) {
     }
     /* there is one slot per artifact, so we should never reach the
        end without either finding the artifact or an empty slot... */
-    throw new Error(`couldn't discover artifact (${m})`);
+    // C: impossible("couldn't discover artifact (%d)", (int) m).
+    note_unported('pline.c impossible');
 }
 
 // C ref: artifact.c undiscovered_artifact() (1130-1143). Used to decide

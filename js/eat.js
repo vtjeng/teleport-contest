@@ -1530,15 +1530,13 @@ export function obj_nutrition(otmp, state = game) {
 export function eaten_stat(base, obj, env = {}) {
     const state = env.state ?? game;
     const full_amount = obj_nutrition(obj, state);
-    const uneaten_amt = Math.trunc(obj.oeaten);
+    let uneaten_amt = Math.trunc(obj.oeaten);
     if (uneaten_amt > full_amount) {
-        // C's impossible() clamps and carries on; reaching it means this port
-        // has let oeaten outgrow the food, which is a defect rather than an
-        // unported branch.
-        throw new Error(
-            `partly eaten food (${uneaten_amt}) more nutritious than `
-            + `untouched food (${full_amount})`,
-        );
+        // C prints "partly eaten food (%ld) more nutritious than untouched
+        // food (%ld)" through impossible(), which this synchronous caller
+        // cannot wait on, and clamps.
+        note_unported('pline.c impossible');
+        uneaten_amt = full_amount;
     }
     const scaled = full_amount
         ? Math.trunc(base * uneaten_amt / full_amount)
@@ -1555,8 +1553,11 @@ export function eaten_stat(base, obj, env = {}) {
 export function adj_victual_nutrition(state) {
     const otyp = victual(state).piece.otyp;
     let nut = -victual(state).nmod; /* convert 'nmod' to positive */
-    if (nut <= 0)
-        throw new Error('adj_victual_nutrition requires a negative nmod');
+    // assert(nut > 0): global.h assert() reports through pline.c
+    // nhassert_failed(), which calls impossible() and returns; this
+    // synchronous function cannot wait on the print. bite(), the only
+    // caller, calls it only when nmod is negative.
+    if (nut <= 0) note_unported('pline.c impossible');
     const maybePolyd = (predicate, race) => Upolyd(state.u)
         ? predicate(state.youmonst.data) : state.urace.mnum === race;
     if (otyp === LEMBAS_WAFER) {
@@ -1625,7 +1626,12 @@ export function food_disappears(obj, state = game) {
 // C ref: eat.c recalc_wt() (291-306).
 function recalc_wt(env) {
     const piece = victual(env.state).piece;
-    if (!piece) throw new Error('recalc_wt without piece');
+    if (!piece) {
+        // C prints "recalc_wt without piece" through impossible(), which
+        // this synchronous function cannot wait on.
+        note_unported('pline.c impossible');
+        return;
+    }
     piece.owt = weight(piece, env);
 }
 
@@ -1642,11 +1648,11 @@ export function reset_eat(state = game) {
 // to untouched, so the last bite leaves 1 and shortens the meal instead.
 export function consume_oeaten(obj, amt, state = game) {
     if (!obj_nutrition(obj, state)) {
-        // C's impossible(); a zero-nutrition food never reaches a bite here.
-        throw new Error(
-            `oeaten: attempting to set 0 nutrition food (${obj.otyp}) `
-            + 'partially eaten',
-        );
+        // C prints "oeaten: attempting to set 0 nutrition food (%s)
+        // partially eaten" through impossible(), which this synchronous
+        // function cannot wait on, and leaves oeaten alone.
+        note_unported('pline.c impossible');
+        return;
     }
 
     if (amt > 0) {

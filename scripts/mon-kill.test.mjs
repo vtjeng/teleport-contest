@@ -310,13 +310,6 @@ function refuses(fn, reason, label) {
     }, label);
 }
 
-function refusesAsync(fn, reason, label) {
-    return assert.rejects(fn, (error) => {
-        assert.equal(error.message, reason, label);
-        return true;
-    }, label);
-}
-
 // mon.c corpse_chance():3247. Every divisor below was computed from the
 // species record in js/monsters.js, which the generated-data check pins
 // against monst.c: tmp = 2 + ((geno & G_FREQ) < 2) + verysmall(mdat).
@@ -876,12 +869,12 @@ test('m_detach takes the monster off the map and drops what it carried',
         // computes `is_pet && flags.verbose` as FALSE and says nothing.
         assert.deepEqual(env.lines, [], 'a dead monster drops in silence');
 
-        // A second detach would double-count the purge, so it throws rather
-        // than corrupting what dmonsfree() checks.
-        await refusesAsync(
-            () => m_detach(mon, mon.data, true, game, killEnv()),
-            'm_detach: monster is already detached',
-        );
+        // mon.c m_detach():2791-2797: a second detach is reported through
+        // impossible() and does not count the purge again.
+        game.unported = new Set();
+        await m_detach(mon, mon.data, true, game, killEnv());
+        assert.equal(game.iflags.purge_monsters, 1);
+        assert.ok(game.unported.has('pline.c impossible'));
     });
 
 test('m_detach generically dismounts a steed after detaching its corpse',

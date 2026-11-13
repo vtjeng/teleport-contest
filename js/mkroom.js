@@ -402,9 +402,10 @@ export function invalid_shop_shape(sroom, state = game) {
             }
         }
     }
+    // mkroom.c invalid_shop_shape():1069-1072
     if (insidect < 1) {
-        // C's impossible() answers TRUE and carries on.
-        throw new Error('invalid_shop_shape: no squares inside door?');
+        note_unported('pline.c impossible');
+        return true;
     }
     // More than one square beside the door already gives the shopkeeper room
     // to move, so no further check is needed.

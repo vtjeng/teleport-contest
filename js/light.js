@@ -125,7 +125,10 @@ export function new_light_source(x, y, range, type, id, state = game) {
         && id !== null && typeof id === 'object' && id.a_obj === null;
     if (radius < 0 || radius > MAX_RADIUS
         || (radius === 0 && !cameraFlash)) {
-        throw new RangeError(`new_light_source: illegal range ${range}`);
+        // impossible("new_light_source:  illegal range %d", range); this
+        // synchronous function cannot wait on the print. C returns no source.
+        note_unported('pline.c impossible');
+        return null;
     }
     if (!id || typeof id !== 'object') {
         throw new TypeError(
@@ -157,8 +160,13 @@ export function del_light_source(type, id, state = game) {
         previous = current;
         current = current.next;
     }
-    if (!current)
-        throw new Error('del_light_source: object light source not found');
+    if (!current) {
+        // impossible("del_light_source: not found type=%d, id=%s", ...);
+        // this synchronous function cannot wait on the print, and C deletes
+        // nothing.
+        note_unported('pline.c impossible');
+        return;
+    }
     if (previous) previous.next = current.next;
     else globals.light_base = current.next;
     current.next = null;
@@ -295,8 +303,12 @@ export function save_light_sources(range, state = game) {
             isGlobal = !obj_is_local(current.id, state);
         else if (current.type === LS_MONSTER)
             isGlobal = !(current.id.mx > 0);
-        else
-            throw new Error(`save_light_sources: bad type ${current.type}`);
+        else {
+            // impossible("save_light_sources: bad type (%d) [range=%d]",
+            // ...); this synchronous function cannot wait on the print.
+            isGlobal = false;
+            note_unported('pline.c impossible');
+        }
 
         if (isGlobal !== (range === RANGE_LEVEL)) {
             if (previous) previous.next = next;
@@ -333,8 +345,12 @@ export function light_sources_in_range(range, state = game) {
             isGlobal = !obj_is_local(ls.id, state);
         else if (ls.type === LS_MONSTER)
             isGlobal = !(ls.id.mx > 0);
-        else
-            throw new Error(`maybe_write_ls: bad type ${ls.type}`);
+        else {
+            // impossible("maybe_write_ls: bad type (%d) [range=%d]", ...);
+            // this synchronous function cannot wait on the print.
+            isGlobal = false;
+            note_unported('pline.c impossible');
+        }
         if (isGlobal !== (range === RANGE_LEVEL)) sources.push(ls);
     }
     return sources;

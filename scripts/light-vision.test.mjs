@@ -710,14 +710,16 @@ test('camera flash owns the source-approved radius-zero null-object light', () =
     assert.deepEqual([source.x, source.y], [10, 7]);
     assert.equal(state.vision_full_recalc, 1);
 
-    assert.throws(
-        () => new_light_source(10, 7, 0, LS_OBJECT, { camera: true }, state),
-        /illegal range/u,
-    );
-    assert.throws(
-        () => new_light_source(10, 7, 0, LS_MONSTER, { a_obj: null }, state),
-        /illegal range/u,
-    );
+    // light.c new_light_core():74-78 reports any other radius-zero source
+    // through impossible("new_light_source:  illegal range %d") and makes
+    // none; the synchronous port records the print as a gap.
+    state.unported = new Set();
+    assert.equal(
+        new_light_source(10, 7, 0, LS_OBJECT, { camera: true }, state), null);
+    assert.equal(
+        new_light_source(10, 7, 0, LS_MONSTER, { a_obj: null }, state), null);
+    assert.equal(state.gl.light_base, source);
+    assert.ok(state.unported.has('pline.c impossible'));
 });
 
 test('a blocking wall stops candle light along clear_path', () => {

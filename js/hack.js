@@ -5479,14 +5479,16 @@ export function notice_mon_off(state = game) {
         = (state.a11y.mon_notices_blocked ?? 0) + 1;
 }
 
-// C ref: flag.h:234-237 notice_mon_on(). C reports an unpaired resume through
-// impossible() and clamps to zero; this throws instead, because a negative
-// count means a caller lost its notice_mon_off() and would silently start
-// noticing monsters again mid-message.
+// C ref: flag.h:234-237 notice_mon_on(). C reports an unpaired resume
+// through impossible("mon_notices_blocked<0") and clamps to zero; the macro's
+// callers are synchronous here, so the print is recorded as a gap.
 export function notice_mon_on(state = game) {
     state.a11y ??= {};
-    const blocked = (state.a11y.mon_notices_blocked ?? 0) - 1;
-    if (blocked < 0) throw new Error('mon_notices_blocked<0');
+    let blocked = (state.a11y.mon_notices_blocked ?? 0) - 1;
+    if (blocked < 0) {
+        note_unported('pline.c impossible');
+        blocked = 0;
+    }
     state.a11y.mon_notices_blocked = blocked;
 }
 

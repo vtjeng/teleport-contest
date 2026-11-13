@@ -15,6 +15,14 @@
 //   writer of isshk = true creates it first.
 // - js/makemon_create.js preflightCreation() and its helpers: makemon() call
 //   shapes and markers no C caller produces.
+// - js/makemon_create.js rnd_offensive_item(), rnd_defensive_item() and
+//   rnd_misc_item(): a switch default past rn2()'s range. Each switch has a
+//   case for every value rn2(n) returns (muse.c 2035-2080, 1222-1270,
+//   2654-2686); C falls out of it and returns 0, as the port now does.
+//
+// - js/mon.js mongone(): a monster already detached. C mongone() has no such
+//   check; it calls m_detach(), which reports a second detach through
+//   impossible() (mon.c 2791-2797) and is now ported.
 //
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
@@ -34,6 +42,7 @@ const REMOVED_REFUSALS = {
         'mfndpos() door or special terrain movement',
     ],
     'shk.js': ['shk_move without eshk extension'],
+    'mon.js': ['mongone: monster is already detached'],
     'makemon_create.js': [
         'mmflags 0x',
         'random coordinates outside mklev',
@@ -47,6 +56,9 @@ const REMOVED_REFUSALS = {
         'waiting-vampire target',
         'revival doppelganger shape change',
         'runtime creation without an unused async continuation',
+        'rnd_offensive_item selected an invalid case',
+        'rnd_defensive_item selected an invalid case',
+        'rnd_misc_item selected an invalid case',
     ],
 };
 

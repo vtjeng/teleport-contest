@@ -1863,7 +1863,8 @@ function lvlfill_swamp(fg, bg, lit, frame, state) {
 function* splev_initlev_steps(linit, frame, state) {
     switch (linit.init_style) {
     default:
-        throw new Error('Unrecognized level init style.');
+        yield new ImpossibleCall('Unrecognized level init style.');
+        break;
     case LVLINIT_NONE:
         break;
     case LVLINIT_SOLIDFILL:

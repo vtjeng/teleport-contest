@@ -126,9 +126,9 @@ export function setgemprobs(dlev = null, state = game) {
     if (first > LAST_REAL_GEM
         || objects[first].oc_class !== GEM_CLASS
         || OBJ_NAME(objects[first], state) === null) {
-        throw new Error(
-            `setgemprobs: invalid real-gem range (first=${first}, skipped=${j})`,
-        );
+        // o_init.c setgemprobs():69-73 prints "Not enough gems? ..." with
+        // raw_printf(), waits through wait_synch(), and goes on.
+        note_unported('pline.c raw_printf');
     }
 
     for (j = first; j <= LAST_REAL_GEM; ++j) {
