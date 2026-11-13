@@ -65,6 +65,11 @@ export const PORT_NAMES = {
     // makemon.c makemon()'s body is makemon_create.js makemon_steps(), which
     // makemon() runs (js/source_steps.js).
     makemon: 'makemon_steps',
+    // mkobj.c add_to_migration() and worm.c place_worm_tail_randomly() are
+    // written once as *_steps generators (js/source_steps.js), which their
+    // synchronous and asynchronous forms run.
+    add_to_migration: 'add_to_migration_steps',
+    place_worm_tail_randomly: 'place_worm_tail_randomly_steps',
 };
 
 // C functions whose port does not build the scanned list by pushing onto its

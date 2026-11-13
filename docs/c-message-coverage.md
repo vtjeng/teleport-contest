@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 217 | 506 |
+| diagnostic | 723 | 224 | 499 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4214 | 697 |
+| total | 4911 | 4221 | 690 |
 
 ## Missing by C file
 
@@ -77,7 +77,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mklev.c | yes | 0 | 10 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 4 | 10 | 2 |
-| src/mkobj.c | no | 0 | 27 | 4 |
+| src/mkobj.c | no | 0 | 26 | 4 |
 | src/mkroom.c | yes | 0 | 3 | 0 |
 | src/mon.c | yes | 0 | 12 | 2 |
 | src/mondata.c | yes | 0 | 1 | 0 |
@@ -99,7 +99,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/questpgr.c | yes | 0 | 4 | 0 |
 | src/read.c | yes | 0 | 2 | 0 |
 | src/rect.c | yes | 0 | 2 | 0 |
-| src/region.c | yes | 0 | 2 | 0 |
+| src/region.c | yes | 0 | 1 | 0 |
 | src/restore.c | yes | 6 | 7 | 1 |
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
@@ -114,7 +114,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/sp_lev.c | yes | 0 | 14 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
-| src/steed.c | yes | 0 | 1 | 1 |
+| src/steed.c | yes | 0 | 0 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
@@ -131,7 +131,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
 | src/wizcmds.c | yes | 0 | 6 | 0 |
-| src/worm.c | yes | 0 | 12 | 0 |
+| src/worm.c | yes | 0 | 8 | 0 |
 | src/worn.c | yes | 0 | 4 | 0 |
 | src/write.c | yes | 0 | 1 | 0 |
 | src/zap.c | yes | 0 | 10 | 1 |
@@ -1008,9 +1008,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `add_to_container()`
   - 2681 panic: `add_to_container: obj where=`
 
-- `add_to_migration()`
-  - 2704 impossible: `unpaid object migrating to another level? [`
-
 - `add_to_buried()`
   - 2723 panic: `add_to_buried: obj where=`
 
@@ -1338,9 +1335,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `add_mon_to_reg()`
   - 170 impossible: `] already in region.`
 
-- `create_gas_cloud()`
-  - 1239 impossible: `create_gas_cloud: cloud too large (`
-
 ### src/restore.c
 
 - `restobjchn()`
@@ -1562,11 +1556,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 624 impossible: `) taking or picking up nothing?`
   - 628 impossible: `) taking or picking up attached`
 
-### src/steed.c
-
-- `put_saddle_on_mon()`
-  - 158 panic: `merged saddle?`
-
 ### src/sys.c
 
 - `sys_early_init()`
@@ -1741,20 +1730,12 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `cutworm()`
   - 401 impossible: `cutworm: no segment at (`
 
-- `place_wsegs()`
-  - 626 impossible: `placing worm seg <`
-  - 628 impossible: `replacing worm seg <`
-
 - `sanity_check_worm()`
   - 645 impossible: `worm_sanity: null monster!`
   - 653 impossible: `worm_sanity: not a worm!`
   - 659 impossible: `is set without proper tail`
   - 670 impossible: `worm seg not isok <`
   - 672 impossible: `) at seg location is not worm (`
-
-- `place_worm_tail_randomly()`
-  - 746 impossible: `place_worm_tail_randomly: wormno is set without a tail!`
-  - 755 impossible: `place_worm_tail_randomly: tail segment at <`
 
 - `worm_cross()`
   - 914 impossible: `worm_cross checking for non-adjacent location?`
