@@ -182,7 +182,6 @@ import {
     Some_Monnam,
     Mgender,
     monsterCommonName,
-    monsterPossessive,
     pmname,
     some_mon_nam,
     x_monnam,
@@ -554,6 +553,8 @@ import {
     xname,
     mshot_xname,
     isPoisonable,
+    An,
+    singular,
     the,
     cloak_simple_name,
     helm_simple_name,
@@ -3126,10 +3127,13 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
                     state,
                 );
             } else {
-                let whom = monsterPossessive(mon, state);
-                const what = The(cxname(obj, state), state);
+                let whom = mon_nam(mon, state);
+                let what = The(xname(obj, state), state);
+
+                if (!hmd.thrown && obj.quan > 1)
+                    what = An(singular(obj, xname, state));
                 if (haseyes(hmd.mdat) && hmd.mdat.pmidx !== PM_FLOATING_EYE)
-                    whom += ` ${mbodypart(mon, FACE)}`;
+                    whom = `${s_suffix(whom)} ${mbodypart(mon, FACE)}`;
                 await message(
                     `${what} ${vtense(what, 'splash')} over ${whom}!`,
                     state,
