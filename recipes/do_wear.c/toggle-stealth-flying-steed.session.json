@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52017,
+      "datetime": "20251104190500",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!tutorial,!autopickup\n",
+      "moves": "\n\n\u0017elven cloak\nWi#ride\nhy\u0017amulet of flying\nPjTis"
+    }
+  ]
+}
