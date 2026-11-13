@@ -939,7 +939,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
             let pullFree = gotIt;
             if (gotIt && mwelded(object, state)) {
                 await ttyPline(
-                    `${object.quan === 1 ? 'It is' : 'They are'} welded to ${s_suffix(mon_nam(monster, state))} ${hand}${object.bknown ? '.' : '!'}`,
+                    `${object.quan === 1 ? 'It is' : 'They are'} welded to ${mhis(monster, { ...env, state })} ${hand}${object.bknown ? '.' : '!'}`,
                     state,
                 );
                 set_bknown(object, true, { state });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 900419,
+      "datetime": "20210822113000",
+      "nethackrc": "OPTIONS=name:Hesper,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0007soldier\nmsms aah  ",
+      "comment": "A dwarvish Archeologist creates a soldier, waits until it wields a cursed short sword, then lashes it with his bullwhip. apply.c use_whip() reports \"It is welded to his hand.\" with mhis(mtmp), not the monster's name. The setup needs a cursed weapon from makemon.c m_initweap(): seeds 900417-900426 under this character and date were recorded and 900419 and 900423 had the soldier weld its weapon; 900419 is used."
+    }
+  ]
+}
