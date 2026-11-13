@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c stat_update_time() delivers BL_TIME alone, and wintty.c re-fits the status row from the condition bits bot() last delivered. A level-30 wizard-mode Priest carrying 60000 gold, with a hostile jackal and #wizintrinsic giving five turns of fatal illness and longer stun, confusion, hallucination, blindness, deafness, slippery fingers, wounded legs and levitation, has a status row that overflows even after make_things_fit() shrinks it. On the fatal turn the jackal's bite is on the top line when timeout.c nh_timeout() lets the illness timeout reach zero and urgent_pline()s \"You die from your illness.\"; that pline's flush runs timebot(), and the --More-- screen must keep \"Ill\" from the delivered bits although the hero's illness timeout is already zero.",
+  "segments": [
+    {
+      "seed": 815330,
+      "datetime": "20261117081500",
+      "nethackrc": "OPTIONS=name:Sicko,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,showexp,time\nOPTIONS=cond_slip,cond_woundedlegs\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001760000 gold pieces\n #levelchange\n30\n\u001b\u0007jackal\n#wizintrinsic\n5e100f100g100h100i100j100l100m100q\n       ms ms ms ms ms ms ms ms ms ms"
+    }
+  ]
+}
