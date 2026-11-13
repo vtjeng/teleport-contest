@@ -3534,11 +3534,11 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/steed.js | put_saddle_on_mon | 'put_saddle_on_mon: merged saddle'": {
+    "js/steed.js | put_saddle_on_mon | 'merged saddle?'": {
       "count": 1,
       "class": "panic",
       "c": "src/steed.c:158",
-      "reason": "C panics with \"merged saddle?\" when mpickobj() merges the saddle; the function is synchronous."
+      "reason": "C panics with \"merged saddle?\" when mpickobj() merges the saddle; the function is synchronous. The saddle has oc_merge 0 (objects.h), so the merge does not happen."
     },
     "js/strutil.js | Strlen_ | `${file}:${line} string too long`": {
       "count": 1,

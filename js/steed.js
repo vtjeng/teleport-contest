@@ -253,8 +253,12 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
         canSeeMonster: (subject) => typeof normalized.canseemon === 'function'
             ? Boolean(normalized.canseemon(subject, normalized))
             : canseemon(subject, normalized.state),
-    }))
-        throw new Error('put_saddle_on_mon: merged saddle');
+    })) {
+        // panic("merged saddle?") (steed.c:157-158); this function cannot
+        // wait on end.js panic(). objects.h gives the saddle oc_merge 0, so
+        // mpickobj() never merges it.
+        throw new Error('merged saddle?');
+    }
     monster.misc_worn_check |= W_SADDLE;
     saddle.owornmask = W_SADDLE;
     saddle.leashmon = monster.m_id;
