@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 230 | 493 |
+| diagnostic | 723 | 214 | 509 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4227 | 684 |
+| total | 4911 | 4211 | 700 |
 
 ## Missing by C file
 
@@ -33,6 +33,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 
 | C file | JS module | Gameplay | Diagnostic | Debug |
 | --- | --- | ---: | ---: | ---: |
+| src/allmain.c | yes | 0 | 1 | 0 |
 | src/alloc.c | yes | 0 | 5 | 0 |
 | src/apply.c | yes | 1 | 6 | 0 |
 | src/artifact.c | no | 0 | 8 | 0 |
@@ -47,7 +48,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
 | src/display.c | yes | 0 | 8 | 0 |
-| src/do.c | yes | 1 | 3 | 0 |
+| src/do.c | yes | 1 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
 | src/dog.c | yes | 0 | 3 | 0 |
@@ -55,15 +56,16 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dothrow.c | yes | 0 | 2 | 0 |
 | src/dungeon.c | yes | 0 | 17 | 7 |
 | src/earlyarg.c | no | 1 | 0 | 0 |
-| src/eat.c | yes | 0 | 1 | 36 |
+| src/eat.c | yes | 0 | 4 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
+| src/extralev.c | yes | 0 | 7 | 0 |
 | src/files.c | yes | 16 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
-| src/insight.c | yes | 0 | 3 | 0 |
+| src/insight.c | yes | 0 | 4 | 0 |
 | src/invent.c | yes | 2 | 8 | 0 |
 | src/light.c | yes | 0 | 21 | 0 |
 | src/lock.c | yes | 0 | 2 | 0 |
@@ -74,13 +76,12 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 12 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
-| src/mkmaze.c | yes | 4 | 8 | 2 |
+| src/mkmaze.c | yes | 4 | 10 | 2 |
 | src/mkobj.c | no | 0 | 27 | 4 |
-| src/mkroom.c | yes | 0 | 2 | 0 |
+| src/mkroom.c | yes | 0 | 3 | 0 |
 | src/mon.c | yes | 0 | 12 | 2 |
 | src/mondata.c | yes | 0 | 1 | 0 |
 | src/monmove.c | yes | 0 | 1 | 0 |
-| src/mplayer.c | yes | 0 | 1 | 0 |
 | src/mthrowu.c | yes | 0 | 3 | 0 |
 | src/muse.c | yes | 0 | 7 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
@@ -89,21 +90,21 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/objnam.c | yes | 0 | 14 | 0 |
 | src/options.c | yes | 4 | 6 | 0 |
 | src/pager.c | yes | 2 | 6 | 0 |
-| src/pickup.c | yes | 1 | 6 | 1 |
+| src/pickup.c | yes | 1 | 5 | 1 |
 | src/pline.c | yes | 1 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
 | src/pray.c | yes | 0 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
 | src/quest.c | yes | 0 | 1 | 0 |
-| src/questpgr.c | yes | 0 | 6 | 0 |
-| src/read.c | yes | 0 | 1 | 0 |
+| src/questpgr.c | yes | 0 | 4 | 0 |
+| src/read.c | yes | 0 | 2 | 0 |
 | src/rect.c | yes | 0 | 2 | 0 |
 | src/region.c | yes | 0 | 2 | 0 |
 | src/restore.c | yes | 6 | 7 | 1 |
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
 | src/rumors.c | yes | 0 | 2 | 0 |
-| src/save.c | yes | 2 | 2 | 1 |
+| src/save.c | yes | 2 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
 | src/sfstruct.c | no | 0 | 6 | 0 |
 | src/shk.c | yes | 0 | 25 | 1 |
@@ -116,7 +117,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/steed.c | yes | 0 | 1 | 1 |
 | src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
-| src/teleport.c | yes | 0 | 1 | 3 |
+| src/teleport.c | yes | 0 | 2 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
 | src/topten.c | yes | 3 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
@@ -125,14 +126,15 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/uhitm.c | yes | 0 | 3 | 0 |
 | src/vault.c | yes | 0 | 3 | 2 |
 | src/version.c | yes | 5 | 0 | 0 |
-| src/vision.c | yes | 0 | 2 | 0 |
+| src/vision.c | yes | 0 | 1 | 0 |
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 1 | 2 | 1 |
-| src/wizcmds.c | yes | 0 | 5 | 0 |
+| src/wizcmds.c | yes | 0 | 6 | 0 |
 | src/worm.c | yes | 0 | 12 | 0 |
-| src/worn.c | yes | 0 | 3 | 0 |
-| src/zap.c | yes | 0 | 11 | 1 |
+| src/worn.c | yes | 0 | 4 | 0 |
+| src/write.c | yes | 0 | 1 | 0 |
+| src/zap.c | yes | 0 | 10 | 1 |
 | sys/share/ioctl.c | yes | 1 | 0 | 0 |
 | sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
@@ -378,6 +380,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 Each line gives the C line, the message function, and the fragment searched for.
 
+### src/allmain.c
+
+- `newgame()`
+  - 844 impossible: `mon_notices_blocked<0`
+
 ### src/alloc.c
 
 - `alloc()`
@@ -550,6 +557,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `boulder_hits_pool()`
   - 56 impossible: `Not a boulder?`
 
+- `goto_level()`
+  - 1971 impossible: `mon_notices_blocked<0`
+
 - `revive_corpse()`
   - 2203 impossible: `reviving corpse from non-existent container`
   - 2240 impossible: `revive_corpse: lost corpse @`
@@ -650,8 +660,17 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/eat.c
 
+- `recalc_wt()`
+  - 297 impossible: `recalc_wt without piece`
+
 - `floorfood()`
   - 3718 impossible: `floorfood: unknown request (`
+
+- `eaten_stat()`
+  - 3797 impossible: `) more nutritious than untouched food (`
+
+- `consume_oeaten()`
+  - 3823 impossible: `oeaten: attempting to set 0 nutrition food (`
 
 ### src/end.c
 
@@ -708,6 +727,19 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `mon_explodes()`
   - 1045 impossible: `unknown type for mon_explode`
 
+### src/extralev.c
+
+- `roguecorr()`
+  - 62 impossible: `down: no wall at`
+  - 68 impossible: `down door from`
+  - 84 impossible: `up: no wall at`
+  - 110 impossible: `right door from`
+  - 126 impossible: `left: no wall at`
+  - 134 impossible: `corridor in direction`
+
+- `makeroguerooms()`
+  - 270 impossible: `never connected?`
+
 ### src/files.c
 
 - `init_nhfile()`
@@ -739,6 +771,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `attributes_enlightenment()`
   - 1991 impossible: `dead without dying?`
+
+- `record_achievement()`
+  - 2417 impossible: `is out of range.`
 
 - `num_genocides()`
   - 2961 impossible: `unique creature '`
@@ -924,6 +959,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `movebubbles()`
   - 1578 impossible: `movebubbles: bad pos (`
 
+- `restore_waterlevel()`
+  - 1789 impossible: `to restore?`
+  - 1794 impossible: `air bubbles or clouds`
+
 - `set_wportal()`
   - 1808 impossible: `set_wportal(): no portal!`
 
@@ -1015,6 +1054,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `mkshop()`
   - 166 impossible: `rooms[] not closed by -1?`
 
+- `invalid_shop_shape()`
+  - 1070 impossible: `invalid_shop_shape: no squares inside door?`
+
 ### src/mon.c
 
 - `sanity_check_single_mon()`
@@ -1056,11 +1098,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `m_move()`
   - 1818 impossible: `unknown shk/gd/pri_move return value (`
-
-### src/mplayer.c
-
-- `mk_mplayer()`
-  - 251 impossible: `bad mplayer monster`
 
 ### src/mthrowu.c
 
@@ -1227,7 +1264,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `in_container()`
   - 2565 impossible: `<in> no gc.current_container?`
-  - 2690 panic: `in_container:  bag not found.`
 
 ### src/pline.c
 
@@ -1284,10 +1320,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `com_pager_core()`
   - 490 impossible: `com_pager: nhl_init() failed`
   - 504 impossible: `com_pager: questtext in`
-  - 512 impossible: `com_pager: questtext[`
-  - 561 impossible: `is not an array of strings`
 
 ### src/read.c
+
+- `seffect_magic_mapping()`
+  - 2148 impossible: `mon_notices_blocked<0`
 
 - `seffects()`
   - 2283 impossible: `What weird effect is this? (`
@@ -1354,6 +1391,9 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 780 impossible: `Can't open '`
 
 ### src/save.c
+
+- `dosave0()`
+  - 231 impossible: `mon_notices_blocked<0`
 
 - `savelev()`
   - 440 panic: `savelev: where are we?`
@@ -1541,6 +1581,9 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/teleport.c
 
+- `teleds()`
+  - 570 impossible: `mon_notices_blocked<0`
+
 - `tele_to_rnd_pet()`
   - 820 impossible: `attempt to teleport hero to be near a pet on no-teleport level`
 
@@ -1664,9 +1707,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `view_from()`
   - 2048 panic: `view_from called with range`
 
-- `do_clear_area()`
-  - 2129 panic: `do_clear_area:  illegal range`
-
 ### src/weapon.c
 
 - `weapon_dam_bonus()`
@@ -1687,6 +1727,9 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1693 panic: `choose_classes_menu: invalid category`
 
 ### src/wizcmds.c
+
+- `wiz_map()`
+  - 193 impossible: `mon_notices_blocked<0`
 
 - `you_sanity_check()`
   - 1408 impossible: `sanity_check: swallowed by nothing?`
@@ -1734,6 +1777,14 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `which_armor()`
   - 1025 impossible: `bad flag in which_armor`
 
+- `extract_from_minvent()`
+  - 1394 impossible: `extract_from_minvent called on object not in minvent`
+
+### src/write.c
+
+- `cost()`
+  - 54 impossible: `You can't write such a weird scroll!`
+
 ### src/zap.c
 
 - `bhitm()`
@@ -1744,7 +1795,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `revive()`
   - 897 impossible: `Attempting to revive`
-  - 1136 panic: `revive default case`
 
 - `bhito()`
   - 2179 impossible: `bhito: obj is not floor or Stone To Flesh spell`
