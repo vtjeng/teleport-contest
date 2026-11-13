@@ -95,7 +95,8 @@ it does not certify every source unit. A **parked** goal or blocked task
 preserves unfinished work and identifies what is needed to resume it.
 
 A **superseded** goal is a retired plan whose work belongs to another named
-goal. It retains its history and evidence but is neither pending nor completed
+goal, or whose C file `scripts/not-ported-by-design.mjs` lists as not ported.
+It retains its history and evidence but is neither pending nor completed
 work. `.agents/selection.md` gives the retirement command.
 
 A **check** is routine diff inspection, testing, source comparison, or

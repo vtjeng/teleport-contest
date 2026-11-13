@@ -242,6 +242,12 @@ measurements without claiming completion or adding a score event. Superseded
 plans leave the current queue and cannot be reopened; their replacement owns
 any remaining work. Keep a goal parked when it still has independent work.
 
+`scripts/not-ported-by-design.mjs` lists the C files the port deliberately
+skips, with each reason. The roadmap marks them, goal selection refuses them,
+and a goal for one is retired with `supersede-goal --goal <id> --reason
+"<reason>"`, without `--by`. Taking a file off the list needs Vincent's
+approval.
+
 Use `node scripts/goal-log.mjs roadmap` to trace dependencies and choose
 under-exercised behavior for new synthetic missions. An empty fixed queue
 selects synthetic work; a shortage of independently assignable tasks selects
