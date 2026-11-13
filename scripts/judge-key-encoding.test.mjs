@@ -3,8 +3,10 @@
 // above U+0080 as its UTF-8 bytes instead (d6d7de842), and the judge's score
 // fell by 55 screens (davidbau/teleport-contest#23). These checks fail if the
 // judge's runner, the port's replay or scripts/record-session.mjs stops
-// using one byte per moves character.
+// using one byte per moves character, or if a committed recipe or recording
+// holds a key that one byte cannot carry.
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import os from 'node:os';
@@ -71,8 +73,86 @@ test('the recorder writes one byte for each key up to U+00FF', () => {
     // return into a newline as a pty would.
     assert.match(RECORDER, /let k = moves\[nextKeyIdx\+\+\];/u);
     assert.match(RECORDER, /if \(k === '\\r'\) k = '\\n';/u);
-    assert.match(RECORDER, /child\.stdin\.write\(keyByte\(k\)\);/u);
     assert.match(RECORDER, /expectedSteps = moves\.length \+ 1;/u);
+});
+
+test('every write to the game sends keyByte() output', () => {
+    // Matching one keyByte() write would still pass if a second write sent a
+    // key some other way, such as Buffer.from(k, 'utf8'), which is how
+    // d6d7de842 sent UTF-8. So every write() call in the recorder is listed
+    // here. recordSegment() has two: the controller's key and the replayed
+    // key. A new write site changes the count and fails until it is checked
+    // and the count updated.
+    const writes = RECORDER.match(/\bwrite\s*\([^;]*/gu) ?? [];
+    assert.deepEqual(writes, [
+        'write(keyByte(k))',
+        'write(keyByte(k))',
+    ]);
+    assert.equal(RECORDER.match(/child\.stdin\.write\(keyByte\(k\)\);/gu)?.length, 2);
+    // end(data) writes data before closing, so every end() closes only.
+    for (const end of RECORDER.match(/\bend\s*\([^)]*\)/gu) ?? [])
+        assert.equal(end, 'end()');
+});
+
+// Every "moves" string in the committed JSON under `roots`, read from the raw
+// bytes. The files total about 1.1 GB, mostly recordings. Parsing each with
+// JSON.parse() took about two minutes on 12 November 2026; searching the
+// Buffers took about 7 s with the files cached. Two committed recipes hold
+// raw control characters in moves, which JSON.parse() rejects, so those are
+// escaped before the literal is decoded.
+function committedMoves(roots) {
+    const root = new URL('..', import.meta.url);
+    const files = execFileSync('git', ['ls-files', '-z', '--', ...roots], {
+        cwd: root, encoding: 'utf8', maxBuffer: 1 << 28,
+    }).split('\0').filter((file) => file.endsWith('.json'));
+    const KEY = Buffer.from('"moves"');
+    const space = (byte) => byte === 0x20 || byte === 0x09
+        || byte === 0x0a || byte === 0x0d;
+    const found = [];
+    for (const file of files) {
+        const buf = readFileSync(new URL(file, root));
+        for (let at = buf.indexOf(KEY); at !== -1; at = buf.indexOf(KEY, at + 1)) {
+            // A quote inside a JSON string is escaped, so an unescaped
+            // "moves" followed by a colon is a key.
+            let i = at + KEY.length;
+            while (space(buf[i])) i++;
+            if (buf[i] !== 0x3a) continue;
+            i++;
+            while (space(buf[i])) i++;
+            if (buf[i] !== 0x22) continue;
+            let j = i + 1;
+            while (j < buf.length && buf[j] !== 0x22) j += buf[j] === 0x5c ? 2 : 1;
+            const literal = buf.toString('utf8', i, j + 1).replace(/[\u0000-\u001f]/gu,
+                (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`);
+            found.push({ file, moves: JSON.parse(literal) });
+        }
+    }
+    return found;
+}
+
+test('every committed recipe and recording has keys the recorder can send', () => {
+    // A key above U+00FF has no byte the judge's recorder is known to have
+    // sent, and keyByte() refuses it. These roots hold every recipe and
+    // recording: the fixed workload (sessions/, sessions/holdout/), the
+    // regression corpus and the synthetic cases.
+    const roots = ['recipes', 'recordings', 'sessions', 'challenges'];
+    const found = committedMoves(roots);
+    for (const root of roots) {
+        assert.ok(found.some(({ file }) => file.startsWith(`${root}/`)),
+            `${root}/ supplies moves`);
+    }
+    const refused = [];
+    for (const { file, moves } of found) {
+        // The recorder writes moves[i], one UTF-16 code unit, per key.
+        for (let i = 0; i < moves.length; i++) {
+            try {
+                recorder.keyByte(moves[i]);
+            } catch (error) {
+                refused.push(`${file} moves[${i}]: ${error.message}`);
+            }
+        }
+    }
+    assert.deepEqual(refused, []);
 });
 
 test('the recorder refuses a key above U+00FF before starting the game', async () => {
