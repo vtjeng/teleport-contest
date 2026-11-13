@@ -491,17 +491,6 @@ export function from_what(propidx, state = game) {
     return '';
 }
 
-// Thrown where attrib.c reaches an ability transition this port has not
-// ported. Every one of them changes an intrinsic while the hero is playing,
-// which is the boundary of the experience-level slice this file serves.
-export class UnsupportedAbilityChangeError extends Error {
-    constructor(branch) {
-        super(`ability change requires ${branch}`);
-        this.name = 'UnsupportedAbilityChangeError';
-        this.branch = branch;
-    }
-}
-
 // C ref: attrib.c postadjabil(). C compares the `long *` it was handed against
 // &HWarning and &HSee_invisible; the port passes the prop.h index that pointer
 // stood for, so the comparison is against those two indices. Every other

@@ -153,7 +153,7 @@ import {
     maybe_finished_meal,
     reset_eat,
 } from './eat.js';
-import { UnsupportedVaultGuardError, gd_move, invault } from './vault.js';
+import { gd_move, invault } from './vault.js';
 import { fightm } from './mhitm.js';
 import {
     m_everyturn_effect,
@@ -1154,16 +1154,9 @@ async function advanceElapsedTurn(state) {
             // refuses. Preserve that output through the gameplay boundary.
             // The normal lethal monster arm reaches done_in_by() here; its
             // existing end.c boundary is converted only after the real killer
-            // and death entry are set. Below that entry, end.c really_done()
-            // settles with the level's shopkeepers, vault guard and priests
-            // through paybill(), paygd() and clearpriests(); paygd()'s
-            // unported arm raises UnsupportedVaultGuardError. The scan also
-            // reaches every owner elapsedTurnRefusals() names.
-            const liveScanRefusals = [
-                ...elapsedTurnRefusals(),
-                UnsupportedVaultGuardError,
-            ];
-            if (!liveScanRefusals.some((type) => error instanceof type))
+            // and death entry are set. The scan reaches every owner
+            // elapsedTurnRefusals() names.
+            if (!elapsedTurnRefusals().some((type) => error instanceof type))
                 throw error;
             const boundary = new UnsupportedTurnBoundaryError(error.message);
             boundary.reason = error.reason;

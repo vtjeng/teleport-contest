@@ -433,14 +433,6 @@ export async function lightdamage(scroll, ordinary, amount, state = game) {
     return damage;
 }
 
-export class UnsupportedRevivalError extends Error {
-    constructor(branch) {
-        super(`reviving a corpse requires ${branch}`);
-        this.name = 'UnsupportedRevivalError';
-        this.branch = branch;
-    }
-}
-
 function revivalEnv(rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     return { ...rawEnv, random, state: rawEnv.state ?? game };

@@ -415,17 +415,6 @@ export function nxtobj(obj, type, by_nexthere) {
     return current;
 }
 
-// Thrown where invent.c reads a terrain description this port has not reached
-// yet. dfeature_at() is source-shaped for its admitted terrain cases, so every
-// stop below names the C helper that is missing rather than the caller that hit it.
-export class UnsupportedFeatureDescriptionError extends Error {
-    constructor(helper) {
-        super(`feature description requires ${helper}`);
-        this.name = 'UnsupportedFeatureDescriptionError';
-        this.helper = helper;
-    }
-}
-
 function alignmentName(alignment) {
     switch (alignment) {
     case A_CHAOTIC: return 'chaotic';

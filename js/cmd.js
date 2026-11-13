@@ -120,7 +120,6 @@ import { ballrelease, placebc, unplacebc } from './ball.js';
 import {
     dosearch,
     reveal_terrain,
-    UnsupportedSearchError,
 } from './detect.js';
 import {
     bot,
@@ -134,7 +133,6 @@ import {
     newsym,
     objnum_to_glyph,
     vobj_at,
-    UnsupportedTransientDisplayError,
 } from './display.js';
 import {
     dodown,
@@ -147,7 +145,7 @@ import {
     doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
     reset_remarm, doddoremarm,
 } from './do_wear.js';
-import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lock.js';
+import { doclose, doforce, doopen, reset_pick } from './lock.js';
 import {
     attacktype,
     can_breathe,
@@ -180,9 +178,8 @@ import {
     dodip,
     dip_into,
     split_mon,
-    UnsupportedQuaffError,
 } from './potion.js';
-import { dryup, UnsupportedFountainError } from './fountain.js';
+import { dryup } from './fountain.js';
 import { is_pool } from './dbridge.js';
 import {
     BOULDER,
@@ -267,7 +264,6 @@ import {
     carrying,
     getobj,
     hands_obj,
-    UnsupportedFeatureDescriptionError,
 } from './invent.js';
 import {
     doattributes,
@@ -307,7 +303,6 @@ import {
     dowhatis,
 } from './pager.js';
 import { dopay } from './shk.js';
-import { UnsupportedVaultGuardError } from './vault.js';
 import { dofire, dothrow } from './dothrow.js';
 import { dosit } from './sit.js';
 import { clear_kickedloc, dokick } from './dokick.js';
@@ -338,10 +333,9 @@ import {
 import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
 import { done2, nh_terminate } from './end.js';
-import { UnsupportedAbilityChangeError } from './attrib.js';
 import { doread } from './read.js';
 import {
-    UnsupportedPolyselfError, dobreathe, dogaze, dohide, domindblast,
+    dobreathe, dogaze, dohide, domindblast,
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
@@ -358,7 +352,6 @@ import {
     dotwoweapon,
     dowieldquiver,
     dowield,
-    UnsupportedWieldError,
     cantwield,
 } from './wield.js';
 import { coreRandom, rn1, rn2, rnd } from './rng.js';
@@ -2941,32 +2934,6 @@ function restoreParsedCommand(pending, state) {
 // preamble allmain.c moveloop() runs before its first moveloop_core().
 export function failClosedCommandRefusals() {
     return [
-        UnsupportedFeatureDescriptionError,
-        // end.c really_done() calls paygd() on every death, so a vault guard
-        // owed the hero's gold refuses below a killing blow. The hero's own
-        // command reaches that death through losehp(), and js/allmain.js
-        // converts the same class where a monster's attack reaches it.
-        UnsupportedVaultGuardError,
-        UnsupportedSearchError,
-        // lock.c pick_lock() stops inside doapply()'s lock-pick arm.
-        UnsupportedLockError,
-        // The `f` command's files: wield.c the branches ready_weapon()
-        // reaches when the swap-and-retry arm puts a launcher in the hero's
-        // hand, and display.c the one transient-glyph style bhit() never
-        // opens.
-        UnsupportedWieldError,
-        UnsupportedTransientDisplayError,
-        // Keep the attribute refusal class recognizable at this boundary.
-        // setuhpmax() now handles its polymorphed branch.
-        UnsupportedAbilityChangeError,
-        // potion.c dodrink()/dopotion()/peffects() still raises this for
-        // unported potion-effect arms. dodrink()'s unported void helpers use
-        // named note_unported gaps and continue in source order instead.
-        UnsupportedQuaffError,
-        // fountain.c drinkfountain(), dowaterdemon(), dipfountain(),
-        // and dryup() raise this for the fountain-effect arms this port
-        // leaves unported.
-        UnsupportedFountainError,
         // invent.c hold_another_object(), which makewish() calls unguarded,
         // raises it from its drop, artifact, Fumbling and autoquiver arms. A
         // wish heavy or numerous enough to push near_capacity() past
@@ -2975,14 +2942,6 @@ export function failClosedCommandRefusals() {
         // elapsedTurnRefusals() already lists the class, and the note
         // above says a class several paths can reach belongs in each.
         UnsupportedObjectOperationError,
-        // polyself.c polymon(), break_armor(), drop_weapon(), and polyself()
-        // raise this for every form whose species-specific branches are not
-        // ported: dragon HP, golem HP, breakarm armor paths, horned/headless
-        // gear, forced weapon drops, iswere/isvamp/draconian gotos, random
-        // selection, and newman(). Each guard fires after getlin() has echoed
-        // the typed monster name and after the controlled-input loop has
-        // committed the species.
-        UnsupportedPolyselfError,
     ];
 }
 

@@ -2390,11 +2390,6 @@ test('findone scans global floor order for stacked trapped boxes', async () => {
     assert.equal(pileHead.tknown, true);
 });
 
-// Both arms must raise UnsupportedSearchError, not a bare Error: js/cmd.js
-// failClosedCommand() converts only that class into the retryable command
-// boundary, and anything else escapes runSegment() and costs the segment every
-// screen it had already matched. The class assertion is the point of these two
-// cases; asserting the message alone passed while the refusal was a bare Error.
 test('explicit search activates an adjacent statue trap after its hit draw', async () => {
     const state = explicitSearchState();
     const trap = {

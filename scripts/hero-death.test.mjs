@@ -42,7 +42,6 @@ import { can_make_bones } from '../js/bones.js';
 import {
     cmdq_add_dir,
     extcmdRow,
-    failClosedCommandRefusals,
     paranoid_query,
 } from '../js/cmd.js';
 import { deaths, done, done_in_by } from '../js/end.js';
@@ -70,7 +69,7 @@ import {
     PM_WEREJACKAL,
     PM_WRAITH,
 } from '../js/monsters.js';
-import { findgd, UnsupportedVaultGuardError } from '../js/vault.js';
+import { findgd } from '../js/vault.js';
 import {
     EXPLORE_CASE,
     HERO_DEATH_CASES,
@@ -1494,18 +1493,3 @@ test('a peaceful vault guard leaves the dead hero gold outside the vault',
     assert.equal(money_cnt(game.invent), gold);
 });
 
-// The hero's own command reaches the same really_done() through losehp(), so
-// the classes it can raise there belong to failClosedCommand()'s list too.
-test('the refusals really_done() raises below a killing blow end a command',
-     () => {
-    for (const Refusal of [
-        UnsupportedVaultGuardError,
-    ]) {
-        assert.ok(
-            failClosedCommandRefusals().some(
-                (type) => new Refusal('x') instanceof type,
-            ),
-            Refusal.name,
-        );
-    }
-});

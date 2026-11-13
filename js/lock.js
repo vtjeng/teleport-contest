@@ -172,15 +172,6 @@ import {
     Protection_from_shape_changers, Stunned, Unaware,
 } from './youprop.js';
 
-// Thrown where lock.c reaches a branch this port has not ported.
-export class UnsupportedLockError extends Error {
-    constructor(branch) {
-        super(`picking a lock requires ${branch}`);
-        this.name = 'UnsupportedLockError';
-        this.branch = branch;
-    }
-}
-
 // C's gx.xlock, the lock-picking occupation's context. js/invent.js obfree()
 // already reads it to decide whether deleting a container invalidates the
 // occupation; this is its single owner. pick_lock() writes to it at the end

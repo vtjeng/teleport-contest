@@ -4737,17 +4737,6 @@ export function tether_glyph(x, y, state = game) {
     );
 }
 
-// A transient-display branch this port has not translated. js/cmd.js
-// failClosedCommandRefusals() lists it, so a segment keeps every frame the
-// command already matched instead of failing hard.
-export class UnsupportedTransientDisplayError extends Error {
-    constructor(what) {
-        super(`display.c tmp_at() reached ${what}`);
-        this.name = 'UnsupportedTransientDisplayError';
-        this.what = what;
-    }
-}
-
 export async function tmp_at(x, y, state = game) {
     const stack = tmpAtStack(state);
 

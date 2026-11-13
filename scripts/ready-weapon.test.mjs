@@ -44,7 +44,6 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
-    UnsupportedWieldError,
     cantwield,
     cant_wield_corpse,
     empty_handed,
@@ -329,13 +328,6 @@ test('doswapweapon() zeroes multi without calling nomul()', async () => {
     state.uswapwep = object(state, SHORT_SWORD, { owornmask: W_SWAPWEP });
     await doswapweapon(state);
     assert.equal(state.multi, 0);
-});
-
-test('a wielding refusal is one this port fails closed on', () => {
-    // js/cmd.js failClosedCommandRefusals() converts it, so a segment that
-    // reaches one keeps every frame it already matched.
-    assert.ok(new UnsupportedWieldError('x') instanceof Error);
-    assert.equal(new UnsupportedWieldError('x').name, 'UnsupportedWieldError');
 });
 
 // wield.c:157-166 is pure: gloves take precedence over body shape.

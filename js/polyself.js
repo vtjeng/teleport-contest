@@ -277,24 +277,6 @@ import {
     Swimming, Unchanging,
 } from './youprop.js';
 
-// Boundary error for polyself branches that fall outside the current goal.
-// failClosedCommand() in cmd.js converts this to an
-// UnsupportedHeroCommandBranchBoundaryError, which the scorer keeps as a
-// graceful stop rather than a session crash.
-export class UnsupportedPolyselfError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedPolyselfError';
-    }
-}
-
-
-
-
-
-
-
-
 // monst.h:272 resists_fire(mon) is Resists_Elem(mon, FIRE_RES), whose
 // monster arm mondata.js ports as Resists_Elem().
 function resists_fire(mon, state) {

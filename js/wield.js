@@ -401,17 +401,6 @@ export function mwelded(obj, state = game) {
 // matches the launcher in the secondary slot, so the swap is what puts the
 // launcher in the hero's hand before the shot.
 
-// A branch of wield.c this port has not translated. js/cmd.js
-// failClosedCommandRefusals() lists it, so the segment keeps every frame the
-// command already matched instead of failing hard.
-export class UnsupportedWieldError extends Error {
-    constructor(what) {
-        super(`wield.c reached ${what}`);
-        this.name = 'UnsupportedWieldError';
-        this.what = what;
-    }
-}
-
 // C ref: wield.c chwepon() (916-1048). The caller consumes this return value:
 // zero means strange_feeling() consumed the scroll; all other source arms
 // leave it for read.c:doread() to consume after seffects().

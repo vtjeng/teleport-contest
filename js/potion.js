@@ -31,7 +31,7 @@
 // POT_POLYMORPH,
 // POT_INVISIBILITY (also SPE_INVISIBILITY), POT_HALLUCINATION, POT_WATER,
 // POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY, POT_ENLIGHTENMENT,
-// are ported. Remaining unported arms throw UnsupportedQuaffError.
+// are ported.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
@@ -317,16 +317,6 @@ import {
     Sick_resistance, Sleep_resistance, Slimed, Stoned, Strangled, Unaware,
     Unchanging, Very_fast, Vomiting, Wounded_legs,
 } from './youprop.js';
-
-// Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported, such as an unported potion type.
-export class UnsupportedQuaffError extends Error {
-    constructor(reason) {
-        super(`quaffing requires ${reason}`);
-        this.name = 'UnsupportedQuaffError';
-        this.reason = reason;
-    }
-}
 
 // potion.c keeps this file-static because dodrink(), dodip() and dip_into()
 // all pass drink_ok() to getobj(). Each command resets it at the same point as

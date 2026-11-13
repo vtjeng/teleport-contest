@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
@@ -87,7 +86,6 @@ import {
     SPE_DETECT_TREASURE,
 } from '../js/objects.js';
 import {
-    UnsupportedQuaffError,
     bottlename,
     drink_ok,
     dip_hands_ok,
@@ -2670,18 +2668,6 @@ test('a message that names the potion identifies its type', async () => {
     assert.deepEqual(drawn, [19]);
 });
 
-test('the command seam keeps refusals for still-unported potion effects', () => {
-    // js/cmd.js failClosedCommandRefusals() decides whether a refusal ends the
-    // segment on its last matching screen or escapes and loses every screen
-    // the command earned. The quaff refusal still needs conversion under
-    // #quaff while vapor effects now run through potionbreathe().
-    const listed = failClosedCommandRefusals();
-    // UnsupportedQuaffError is raised by dodrink/dopotion/peffects for
-    // unported branches. Dropping it would lose every screen the quaff
-    // command earned before the refusal.
-    assert.ok(listed.includes(UnsupportedQuaffError));
-});
-
 test('sickness potion clears active hallucination before returning', async () => {
     await startedGame(771021, 'SicknessCuresHallucination');
     game.u.uprops[HALLUC] = { intrinsic: 30, extrinsic: 0 };
@@ -3377,13 +3363,9 @@ test('quaffing cursed oil prints "This tastes like castor oil."', async () => {
     assert.equal(toplines(), 'This tastes like castor oil.');
 });
 
-test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
-    // Porting peffect_oil() should remove the throw for POT_OIL from the
-    // peffects switch. The normal branch is the simplest way to verify: if
-    // it threw, runSegment() would catch UnsupportedQuaffError and the test
-    // above would fail. This test pins the expectation independently by
-    // confirming the UnsupportedQuaffError list no longer includes POT_OIL.
-    // Broken by reverting the switch arm to a throw.
+test('peffects POT_OIL runs its source arm', async () => {
+    // peffect_oil() is ported; the normal branch is the simplest way to
+    // verify that the switch reaches it.
     await startedGame(771020, 'OilNoThrow');
     const obj = vaporPotion(POT_OIL);
     obj.cursed = false;

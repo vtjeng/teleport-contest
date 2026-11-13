@@ -4516,16 +4516,6 @@ test('ported hunger transitions no longer register a command refusal', () => {
         (type) => type.name === 'UnsupportedHungerTransitionError'), false);
 });
 
-// Keep the refusal class recognizable at the command seam. The polymorphed
-// setuhpmax() branch is implemented.
-test('the attribute refusal class remains registered at the command seam',
-    async () => {
-    const { UnsupportedAbilityChangeError } = await import('../js/attrib.js');
-    const converted = failClosedCommandRefusals();
-
-    assert.ok(converted.includes(UnsupportedAbilityChangeError));
-});
-
 // C ref: cmd.c count_bind_keys(), which options.c optfn_o_bind_keys() shows
 // as the "bind keys" line's "(N currently set)".
 test('count_bind_keys counts moved commands and orphaned default keys',

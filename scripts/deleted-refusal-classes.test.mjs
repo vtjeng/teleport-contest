@@ -90,6 +90,19 @@ export const DELETED_REFUSAL_CLASSES = [
     // trap.c dotrap() for a trap of no known type, which no level creates;
     // trapeffect_selector() answers it with C's impossible()
     'UnsupportedHeroMoveBoundaryError',
+    // Classes whose throw sites had all been ported or deleted, left behind
+    // with their cmd.js and allmain.js refusal-list entries and no throw
+    'UnsupportedAbilityChangeError',
+    'UnsupportedFeatureDescriptionError',
+    'UnsupportedFountainError',
+    'UnsupportedLockError',
+    'UnsupportedPolyselfError',
+    'UnsupportedQuaffError',
+    'UnsupportedRevivalError',
+    'UnsupportedSearchError',
+    'UnsupportedTransientDisplayError',
+    'UnsupportedVaultGuardError',
+    'UnsupportedWieldError',
 ];
 
 function stripComments(source) {

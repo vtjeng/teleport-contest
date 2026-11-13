@@ -104,15 +104,6 @@ import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
 import { Blind, Deaf, Punished, Strangled } from './youprop.js';
 
-// Thrown where vault.c reaches vault-guard handling this port has not ported.
-export class UnsupportedVaultGuardError extends Error {
-    constructor(branch) {
-        super(`vault guard handling requires ${branch}`);
-        this.name = 'UnsupportedVaultGuardError';
-        this.branch = branch;
-    }
-}
-
 // C ref: vault.c vault_occupied() (244-253). `array` is one of the hero's room
 // strings, which js/rooms.js models as a zero-terminated array of room
 // numbers. C returns the room number or '\0'; this returns 0 for "none",

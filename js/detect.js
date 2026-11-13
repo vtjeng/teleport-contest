@@ -235,13 +235,6 @@ import {
 } from './youprop.js';
 
 /** An explicit-search branch whose effects are still unported. */
-export class UnsupportedSearchError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedSearchError';
-    }
-}
-
 // C ref: detect.c:unconstrain_map() (69-81). Save all three constraint fields
 // before clearing them; the return value reports whether any saved value was set.
 export function unconstrain_map(state = game) {

@@ -126,17 +126,6 @@ import {
     Poison_resistance, Unchanging,
 } from './youprop.js';
 
-// ── Fail-closed error ──
-// Thrown when a fountain function reaches a branch this port has not ported.
-export class UnsupportedFountainError extends Error {
-    constructor(reason) {
-        super(`fountain requires ${reason}`);
-        this.name = 'UnsupportedFountainError';
-        this.reason = reason;
-    }
-}
-
-
 // ── floating_above ──
 // C ref: fountain.c floating_above() (18-32). Prints a message when the
 // hero tries to interact with a feature while levitating.
