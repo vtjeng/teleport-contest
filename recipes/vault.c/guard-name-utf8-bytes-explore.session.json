@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4121403,
+      "datetime": "20450521140318",
+      "nethackrc": "OPTIONS=name:Åsa Þórhildur Ævarsdóttirë\nOPTIONS=role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:explore\n",
+      "comment": "vault.c invault() compares the guard's getlin() answer with plname by strncmpi(buf, plname, strlen(plname)) and, for a lawful hero, calls adjalign(-1) when they differ. The nethackrc name is 32 UTF-8 bytes; options.c nmcpy() keeps 31, so plname ends with the first byte of the final two-byte letter. The hero types all 32 bytes, one key per byte: strlen(plname) is 31, the first 31 bytes match, and there is no penalty, although the answer and plname differ as characters. A lawful dwarvish Valkyrie starts with alignment record 0, and explore mode keeps the name (debug mode would replace it with \"wizard\") while Ctrl-X still shows the record: \"You are nominally aligned\", where -1 would read \"You have strayed\". Seeds 4120001-4123000 were scanned with the port for a vault teleporter whose \"ad aerarium\" engraving lies in the starting room; on this seed the hero starts on it. She searches out the secret door, kicks it open, searches out the niche with the m prefix while a jackal bites, steps on the teleporter into the vault, and waits for the guard. The clock and name were chosen before the scan.",
+      "moves": "  20sok\u0004kkmsmsmsmsmsmsmsmsmsmsk 40s40s Ãsa ÃÃ³rhildur ÃvarsdÃ³ttirÃ«\n\u0018 \u001b"
+    }
+  ]
+}

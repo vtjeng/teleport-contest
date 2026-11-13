@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9010004,
+      "datetime": "20370412083356",
+      "nethackrc": "OPTIONS=name:Chídínmá Ọ̀kọ̀nkwọ́\nOPTIONS=role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:explore\n",
+      "comment": "shk.c u_entered_shop() compares eshkp->customer with plname by strncmpi(..., PL_NSIZ), copies plname into customer with strncpy(..., PL_NSIZ), and greets the hero by plname. The nethackrc name is 31 UTF-8 bytes (PL_NSIZ - 1, the longest name C keeps) in 19 characters, with three-byte letters and combining marks, so the greeting wraps where its bytes reach the line end. Debug mode would rename the hero \"wizard\", so this explore-mode Valkyrie walks: seeds 9010001-9010010 were replayed with the port, walking each to the down stairs by a shortest path over the generated map, and this seed's level 2 has a general store whose door the hero then walks through. Seed range, clock and name were chosen before the walk.",
+      "moves": "  okokkkkkkkyhhhhhhhhhyybjbhhhbFjjjjjjbbjbhhykyhhhhhhhykyhhokokkkllllll> kulnlllllllllllllllllnnllnllllllllllluull l "
+    }
+  ]
+}
