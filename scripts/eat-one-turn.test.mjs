@@ -248,11 +248,12 @@ test('eaten_stat scales by the fraction left and never answers zero', () => {
     assert.equal(eaten_stat(2, food(current, APPLE, { oeaten: 1 }), env), 1);
     // An untouched apple is not the impossible() case: C compares with `>`.
     assert.equal(eaten_stat(2, food(current, APPLE, { oeaten: 50 }), env), 2);
-    // oeaten above the full amount is C's impossible() case.
-    assert.throws(
-        () => eaten_stat(2, food(current, APPLE, { oeaten: 51 }), env),
-        /more nutritious than untouched food/u,
-    );
+    // oeaten above the full amount is C's impossible() case (eat.c:3795-
+    // 3799): it reports, clamps oeaten to the full 50 and scales 2 to 2.
+    // The synchronous port records the report as a gap.
+    game.unported = new Set();
+    assert.equal(eaten_stat(2, food(current, APPLE, { oeaten: 51 }), env), 2);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 // C ref: eat.c consume_oeaten() (3806-3872).
@@ -276,13 +277,15 @@ test('consume_oeaten subtracts, shifts, and stops short of zero', () => {
     consume_oeaten(apple, -50, current);
     assert.equal(apple.oeaten, 1);
     assert.equal(current.context.victual.reqtime, 0);
-    // A food with no nutrition at all is C's second impossible().
+    // A food with no nutrition at all is C's second impossible()
+    // (eat.c:3811-3824): it reports and returns, leaving oeaten alone. The
+    // synchronous port records the report as a gap.
     const empty = food(current, CORPSE, { corpsenm: PM_LICHEN, oeaten: 1 });
     current.mons[PM_LICHEN] = { ...current.mons[PM_LICHEN], cnutrit: 0 };
-    assert.throws(
-        () => consume_oeaten(empty, -1, current),
-        /attempting to set 0 nutrition food/u,
-    );
+    game.unported = new Set();
+    consume_oeaten(empty, -1, current);
+    assert.equal(empty.oeaten, 1);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 // C ref: eat.c adj_victual_nutrition() (336-357).
@@ -329,12 +332,16 @@ test('adj_victual_nutrition adjusts lembas and cram by race', () => {
         assert.equal(adj_victual_nutrition(current), expected,
             `otyp ${otyp} race ${race} form ${form}`);
     }
-    // C asserts nut > 0; only a negative nmod reaches this function.
+    // C asserts nut > 0 (eat.c:344); a failed assert() reports through
+    // impossible() and carries on, so max(nut, 1) answers 1. Only a negative
+    // nmod reaches this function in play.
     const current = state();
     current.context.victual = {
         ...zero_victual(), piece: food(current, APPLE), nmod: 0,
     };
-    assert.throws(() => adj_victual_nutrition(current), /negative nmod/u);
+    game.unported = new Set();
+    assert.equal(adj_victual_nutrition(current), 1);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 function newuhsEnv(messages = []) {

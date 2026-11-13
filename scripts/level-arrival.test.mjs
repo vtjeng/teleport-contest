@@ -310,9 +310,14 @@ test('a luminous monster is local while it stands on the level', () => {
 
     // new_light_source() admits only the two mobile types, so the walk's
     // default arm needs a source planted directly on the list.
+    // light.c save_light_sources():454-459 reports it through impossible()
+    // and treats it as local (is_global = 0), so saving the level's range
+    // removes it; the synchronous port records the print as a gap.
     state.gl.light_base = { next: null, type: 0, id: standing };
-    assert.throws(() => save_light_sources(RANGE_LEVEL, state),
-        /save_light_sources: bad type/u);
+    state.unported = new Set();
+    save_light_sources(RANGE_LEVEL, state);
+    assert.equal(state.gl.light_base, null);
+    assert.ok(state.unported.has('pline.c impossible'));
 });
 
 test('the stairway list is emptied and searched by origin', () => {

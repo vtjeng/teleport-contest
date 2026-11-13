@@ -984,10 +984,10 @@ test('see_monsters repaints the monster list and skips the hero square',
     steed.mstate = 0;
 });
 
-test('notice_mon_off and notice_mon_on nest and reject an unpaired resume',
+test('notice_mon_off and notice_mon_on nest and clamp an unpaired resume',
     async () => {
-    // flag.h:233-237. C clamps a negative count through impossible(); this
-    // port throws, because a negative count means a lost notice_mon_off().
+    // flag.h:233-237. C reports a negative count through impossible() and
+    // clamps it to zero; the synchronous port records the report as a gap.
     const state = await mounted();
     const before = state.a11y.mon_notices_blocked ?? 0;
     notice_mon_off(state);
@@ -996,7 +996,12 @@ test('notice_mon_off and notice_mon_on nest and reject an unpaired resume',
     notice_mon_on(state);
     notice_mon_on(state);
     assert.equal(state.a11y.mon_notices_blocked, before);
-    if (before === 0) assert.throws(() => notice_mon_on(state), /blocked<0/u);
+    if (before === 0) {
+        game.unported = new Set();
+        notice_mon_on(state);
+        assert.equal(state.a11y.mon_notices_blocked, 0);
+        assert.ok(game.unported.has('pline.c impossible'));
+    }
 });
 
 test('invocation_message reports the Invocation vibration after interrupting travel', async () => {
