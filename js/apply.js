@@ -1072,7 +1072,7 @@ export async function use_pole(obj, autohit, state = game) {
             ? "Don't know what to hit." : 'Too close!', state);
         return ECMD_FAIL;
     } else if (!cansee(target.x, target.y, state) && !glyphIsPoleable(glyph)) {
-        await ttyPline("That won't hit anything if you can't see that spot.", state);
+        await ttyPline("You won't hit anything if you can't see that spot.", state);
         return ECMD_FAIL;
     } else if (!couldsee(target.x, target.y, state)) {
         await ttyPline("You can't reach that spot from here.", state);

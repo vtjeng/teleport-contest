@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 413207,
+      "datetime": "20200429070000",
+      "nethackrc": "OPTIONS=name:Ugra,role:Caveman,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017uncursed glaive\n\u0017blindfold\nPgaf  ll.",
+      "comment": "A blindfolded cavewoman applies a wished glaive at the floor two squares east. The spot is in range but unseen and holds no monster, invisible-monster or statue glyph, so apply.c use_pole() prints You(cant_see_spot): \"You won't hit anything if you can't see that spot.\" Seed, date, character, polearm and target chosen independently of the batch 14 pilot."
+    }
+  ]
+}
