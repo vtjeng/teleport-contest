@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7351,
+      "datetime": "20250611143000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!tutorial,!autopickup\n",
+      "moves": "\n\n\u001786000 gold pieces\n\u0017diamond\n \u0007peaceful white unicorn\ntej  s"
+    }
+  ]
+}

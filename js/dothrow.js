@@ -2511,7 +2511,9 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
 
     if (!Blind(state.u)) await message(text, state, env);
     if (!(await tele_restrict(mon, state, { ...env, message }))) {
-        rloc(mon, RLOC_MSG, {
+        // rloc() returns a Promise when RLOC_MSG prints "vanishes!"; finish
+        // that message before throw_obj()'s encumber_msg() can print.
+        await rloc(mon, RLOC_MSG, {
             ...env,
             state,
             message,
