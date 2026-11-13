@@ -11,7 +11,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    bytesText, textBytes, truncateByteString, utf8Text,
+    bytesText, strcmpi, strncmpi, textBytes, truncateByteString, utf8Text,
 } from '../js/hacklib.js';
 import {
     recordedArgumentMisuses, resetArgumentMisuses, setArgumentMisuseRecording,
@@ -119,4 +119,16 @@ test('the nethackrc enters as the bytes the recorder writes', () => {
     const result = parseNethackrc('OPTIONS=name:Zo\u00EB\n');
     assert.equal(result.name, 'Zo\u00C3\u00AB');
     assert.equal(result.name.length, 4);
+});
+
+test('strncmpi() orders a high byte below ASCII, as a signed char', () => {
+    // hacklib.c strncmpi() compares `char t1, t2`; 0xE9 is -23 there, so
+    // "\xE9a" sorts before "b" (o_init.c discovered_cmp()).
+    assert.equal(strcmpi('\u00E9a', 'b'), -1);
+    assert.equal(strcmpi('b', '\u00E9a'), 1);
+    // lowc() leaves the high byte alone, so 0xC9 and 0xE9 still differ, and
+    // 0xC9 (-55) is below 0xE9 (-23).
+    assert.equal(strncmpi('\u00C9', '\u00E9', 1), -1);
+    // ASCII still folds case.
+    assert.equal(strcmpi('ABC', 'abc'), 0);
 });

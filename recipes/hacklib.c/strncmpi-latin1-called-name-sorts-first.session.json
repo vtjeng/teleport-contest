@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hacklib.c strncmpi() compares the case-folded bytes as `char t1, t2`, which is signed on the recorder's x86-64 build: the typed byte 0xE9 is -23 and sorts before every ASCII letter. With sortdiscoveries:a, o_init.c discovered_cmp() therefore lists the scroll type called \"\\xE9a\" before the one called \"b\". Both scrolls are wished for in debug mode and called with #name, o. Seed 7710342, clock 20590521081530 and the names were chosen before any recording.",
+  "segments": [
+    {
+      "seed": 7710342,
+      "datetime": "20590521081530",
+      "nethackrc": "OPTIONS=sortdiscoveries:a\nOPTIONS=role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017scroll of light\n\u0017scroll of gold detection\n#name\noféa\n#name\nogb\n\\  "
+    }
+  ]
+}
