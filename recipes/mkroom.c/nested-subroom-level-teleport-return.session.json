@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkroom.c rest_room() (875-886) on a level whose subroom has its own subroom, reached through restore.c getlev() -> mkroom.c rest_rooms() (893-906) when the hero returns to a level. Seed 4170006 was the first hit of a port-only scanSeeds() probe over 4170001-4170400 (3 hits) for a Dlvl 1 room whose subroom has nsubrooms > 0: themerms.lua 'Nesting rooms' puts the outer room at (3,6)-(14,17), its subroom at (5,9)-(14,14) and that subroom's own subroom at (13,11)-(14,12). A debug-mode Archeologist level-teleports to Dlvl 2 and back to Dlvl 1, so getlev() reads the nested subroom into the same gs.subrooms[] slot as its parent. Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 4170006,
+      "datetime": "20270305141500",
+      "nethackrc": "OPTIONS=name:Nester,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00162\n\u00161\nss"
+    }
+  ]
+}

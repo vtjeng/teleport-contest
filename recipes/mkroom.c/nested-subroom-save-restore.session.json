@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Save-and-restore variation of nested-subroom-level-teleport-return: restore.c dorecover() reads the hero's own level through getlev() -> mkroom.c rest_rooms() (893-906) -> rest_room() (875-886), instead of goto_level() reading a level the hero returns to. Seed 4170006's Dlvl 1 has themerms.lua 'Nesting rooms' with the outer room at (3,6)-(14,17), its subroom at (5,9)-(14,14) and that subroom's own subroom at (13,11)-(14,12) (port-only scanSeeds() probe over 4170001-4170400, first of 3 hits). The debug-mode Archeologist saves on Dlvl 1 at once; the second segment restores, declines to keep the save file, and searches twice. Seeds, datetimes, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 4170006,
+      "datetime": "20270305141500",
+      "nethackrc": "OPTIONS=name:Nester,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001bSy"
+    },
+    {
+      "seed": 4170007,
+      "datetime": "20270305150000",
+      "nethackrc": "OPTIONS=name:Nester,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001bnss"
+    }
+  ]
+}
