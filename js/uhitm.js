@@ -913,7 +913,7 @@ export async function light_hits_gremlin(
         // C prints both lines with pline_mon().
         await ttyPline(messageAt(
             `${Monnam(monster, state, rawEnv)} `
-                + `${damage > monster.mhp / 2 ? 'wails in agony' : 'cries out in pain'}!`,
+                + `${damage > Math.trunc(monster.mhp / 2) ? 'wails in agony' : 'cries out in pain'}!`,
             monster.mx, monster.my, state,
         ), state, rawEnv);
     } else if (canseemon(monster, state)) {

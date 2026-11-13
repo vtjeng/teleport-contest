@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c domonnoise() compares a peaceful humanoid's mhp with mhpmax / 4 and mhpmax / 2 in C integer arithmetic. A human Samurai in debug mode with a little dog creates a peaceful hobbit, searches twice while the dog bites it to 4 of 9 hit points, and chats with it: 4 < 9 / 2 is false in C, so the hobbit complains about the dungeon instead of asking for a potion of healing. The seed, the two waits and the chat direction come from a port scan of seeds 7360001-7360080 and 1-10 waits for an adjacent peaceful hobbit whose HP sits on one of these boundaries (seed 7360023 was the first with a live hobbit).",
+  "segments": [
+    {
+      "seed": 7360023,
+      "datetime": "20310911104500",
+      "nethackrc": "OPTIONS=name:Chatter,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,time\n",
+      "moves": "\u0007peaceful hobbit\nss#chat\ny"
+    }
+  ]
+}
