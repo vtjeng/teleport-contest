@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "bones.c savebones():620 update_mlstmv() stamps every monster on the bones level with the dying game's turn (dog.c set_mon_lastmove()) after the loop at bones.c:541-549 has zeroed mlstmv and made the pet hostile. A loading game compares that stamp with its own svm.moves: dogmove.c dog_move():1157-1164 lets a pet's victim strike back only when the victim's mlstmv is not this turn. A human Healer in debug mode with a kitten searches twice and kills herself with a wished-for wand of death on turn 3, then saves bones on level 1. The second game answers y to 'Get bones?' (keeping the file) and starts on that level beside the old kitten; on turn 3 the new kitten bites the old one, which, stamped with turn 3, does not bite back. The number of searches in the first game was chosen by trying 1 to 12; only 2 put a bite on the stamped turn. Seeds, dates and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9184402,
+      "datetime": "20300802111500",
+      "nethackrc": "OPTIONS=name:Keeper,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,!autopickup,pettype:cat,!safe_wait,disclose:-i -a -v -g -c -o\n",
+      "moves": "ss\u0017wand of death\nzk.  yy"
+    },
+    {
+      "seed": 9184403,
+      "datetime": "20300802124500",
+      "nethackrc": "OPTIONS=name:Keeper,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,!autopickup,pettype:cat,!safe_wait,disclose:-i -a -v -g -c -o\n",
+      "moves": "y   ssss"
+    }
+  ]
+}

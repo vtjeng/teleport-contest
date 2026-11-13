@@ -122,6 +122,7 @@ import {
     rest_traps, restdamage,
 } from './restore.js';
 import { save_adjust_levelflags, savefruitchn, savemonchn } from './save.js';
+import { update_mlstmv } from './dog.js';
 import { dismount_steed } from './steed.js';
 import {
     BOW,
@@ -788,6 +789,11 @@ export async function savebones(how, when, corpse, state) {
     // C ref: save.c savelev_core() writes fmon through savemonchn(), which
     // makes every priest forget the hero's temple entries (priest.c
     // forget_temple_entry()) before savemon() writes it.
+    // C ref: bones.c savebones():620 update_mlstmv() first stamps every
+    // monster's mlstmv with this turn, over the 0 the loop above set; the
+    // game that loads the bones compares it with its own svm.moves, as
+    // dogmove.c dog_move() does before a pet's victim strikes back.
+    update_mlstmv(state);
     savemonchn(state.level.monlist, state);
     // C ref: save.c savelev_core():520-522 writes the level flags' turn
     // stamps (stasis_until) relative to this turn and converts them back

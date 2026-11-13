@@ -1030,13 +1030,15 @@ function set_mon_lastmove(monster, state) {
 
 // C ref: dog.c update_mlstmv(), which do.c goto_level() calls just before the
 // level is saved so that mon_arrive() can catch a restored monster up for the
-// turns it spent inactive.
+// turns it spent inactive, and bones.c savebones() calls before writing the
+// bones level, whose monsters keep that turn when another game loads it.
 //
 // Every monster it writes to belongs to the level being left. C's keepdogs()
 // transfers followers to gm.mydogs and accessible monsters to
 // gm.migrating_mons; this port also has a documented migrate_to_level() gap,
 // so accessible monsters remain on the level chain here. The port drops the
 // leaving level rather than saving it, so nothing reads these values back yet.
+// The bones level does keep them.
 export function update_mlstmv(state = game) {
     for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
