@@ -4,14 +4,16 @@
 // domouseaction() queue (C queues the function pointer itself), the rows that
 // carry occupation text for a counted command (cmd.c rhack():3726-3729), and
 // the names the key-binding model stores (cmd.c bind_key() refuses any other).
-// Each test below fails when a table gains a name the dispatcher lacks, and the
-// last fails when one of the removed refusals returns.
+// A fourth test holds the function table rhack() and doextcmd() call through
+// to every extcmdlist[] row. Each test below fails when a table gains a name
+// the dispatcher lacks, and the last fails when one of the removed refusals
+// returns.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { commandEntryForHandler } from '../js/cmd.js';
+import { commandEntryForHandler, DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     createCommandBindingModel,
     resetCommandBindingModel,
@@ -105,8 +107,26 @@ test('every name the binding model stores is an extcmdlist row', () => {
     assert.deepEqual(missing, []);
 });
 
+test('every extcmdlist row but three has a function to call', () => {
+    // callExtcmdFunction() calls through EXTCMD_FUNCTIONS with no refusal.
+    // Three rows never reach it: rhack() runs doextcmd() for '#' itself, and
+    // its MOUSECMD arm runs doclicklook() and domouseaction(), which only a
+    // queued command reaches (INTERNALCMD rows have no key and are hidden
+    // from the '#' prompt). Any other row without a function would fail here.
+    const dispatched = new Set(DISPATCHED_COMMANDS);
+    assert.deepEqual(
+        extcmdlist.filter((row) => !dispatched.has(row.ef_txt))
+            .map((row) => row.ef_funct),
+        ['doextcmd', 'doclicklook', 'domouseaction'],
+    );
+    assert.match(CMD_SOURCE, /if \(command === '#'\) \{/u);
+    assert.match(CMD_SOURCE,
+        /queuedClickHandler === 'doclicklook'\s*\|\| queuedClickHandler === 'domouseaction'\)/u);
+});
+
 test('the dispatcher no longer refuses a name it cannot place', () => {
     for (const pattern of [
+        /for the extended command .* is not ported/u,
         /command queue handler/u,
         /commandMenuResult|hereCmdMenu|thereCmdMenu/u,
         /timedOccupationFunction|has no ported occupation/u,

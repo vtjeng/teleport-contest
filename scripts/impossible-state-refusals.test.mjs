@@ -41,6 +41,10 @@
 //   type from ARROW_TRAP to VIBRATING_SQUARE has its trapeffect_*() arm, and
 //   trapeffect_selector() answers any other with C's impossible().
 //
+// - js/cmd.js callExtcmdFunction(): an extcmdlist[] row with no function.
+//   Only '#', clicklook and mouseaction lack one, and rhack() runs those
+//   itself; scripts/command-dispatch-tables.test.mjs pins the three.
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -67,6 +71,7 @@ const REMOVED_REFUSALS = {
     ],
     'trap_effects.js': ["'trap activation'", 'preflight_dotrap'],
     'hack.js': ['preflight_dotrap'],
+    'cmd.js': ['for the extended command'],
     'exper.js': ["past JavaScript's exact-integer range", 'Number.isSafeInteger'],
     'makemon_create.js': [
         'mmflags 0x',

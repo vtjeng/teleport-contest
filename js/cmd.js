@@ -5275,17 +5275,11 @@ export const DISPATCHED_COMMANDS = Object.freeze(
 );
 
 // C ref: the `(*func)()` call in rhack() and doextcmd(), for one extcmdlist[]
-// row. The refusal stands where C would call into a function this port lacks.
+// row. EXTCMD_FUNCTIONS holds every row but '#' and the two MOUSECMD rows,
+// which rhack() runs itself; scripts/command-dispatch-tables.test.mjs pins
+// that.
 async function callExtcmdFunction(entry, key, state) {
-    const func = EXTCMD_FUNCTIONS.get(entry.ef_funct);
-    if (!func) {
-        resetCommandVars(state);
-        throw new UnsupportedHeroCommandBoundaryError(
-            `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
-            key,
-        );
-    }
-    return await func(key, state);
+    return await EXTCMD_FUNCTIONS.get(entry.ef_funct)(key, state);
 }
 
 // C ref: cmd.c doextcmd() (493-519). Only doextlist repeats the
@@ -5341,10 +5335,9 @@ async function doextcmd(key, state, onSelectedEntry = null) {
 const TIMED_OCCUPATION_FUNCTIONS = Object.freeze({ dosearch, donull });
 
 // C ref: cmd.c rhack(). Every bound row is dispatched here, through the arm
-// that names it or through EXTCMD_FUNCTIONS; a row whose function the port
-// lacks is refused by callExtcmdFunction(). On a fresh read parse() always
-// runs to completion first, so such a refusal comes only after get_count() has
-// consumed and echoed its digits and parse()'s closing
+// that names it or through EXTCMD_FUNCTIONS. On a fresh read parse() always
+// runs to completion first, so a refusal raised by the command comes only
+// after get_count() has consumed and echoed its digits and parse()'s closing
 // clear_nhwindow(WIN_MESSAGE) has cleared the row: it happens at the command
 // byte and never at a count digit, and it is retryable. A supplied nonzero key
 // (normally cmdKey during a repeat) is already logical input and retains the

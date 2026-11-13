@@ -182,8 +182,8 @@ test('the command table binds C(v) to the row wiz_level_tele() serves', () => {
         ),
         'wizlevelport',
     );
-    // callExtcmdFunction() refuses every command outside this list instead of
-    // running a handler, so the key reaches rhack()'s arm only once it is here.
+    // callExtcmdFunction() calls the handler this list's table names for the
+    // row, so the key reaches its function only through it.
     assert.ok(DISPATCHED_COMMANDS.includes('wizlevelport'));
 });
 
