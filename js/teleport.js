@@ -166,7 +166,7 @@ import {
     place_monster_async,
     remove_monster,
 } from './monst.js';
-import { place_worm_tail_randomly, remove_worm } from './worm.js';
+import { place_worm_tail_randomly_async, remove_worm } from './worm.js';
 import {
     G_UNIQ,
     M1_AMORPHOUS,
@@ -1192,12 +1192,17 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
 
     const afterPlace = () => {
         update_monster_region(monster, state);
+        // worm.c place_worm_tail_randomly() can report through impossible().
         if (monster.wormno)
-            place_worm_tail_randomly(monster, x, y, {
+            return thenResult(place_worm_tail_randomly_async(monster, x, y, {
                 ...env,
+                message,
                 newsym: redraw,
-            });
+            }), afterTail);
+        return afterTail();
+    };
 
+    const afterTail = () => {
         if (state.u?.ustuck === monster) {
             if (state.u.uswallow) {
                 const placed = u_on_newpos(monster.mx, monster.my, state);

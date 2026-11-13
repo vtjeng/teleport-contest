@@ -4278,7 +4278,7 @@
       "c": "src/worm.c:120",
       "reason": "C stores the tail unchecked; makemon() calls it only after get_wormno() allocates a free slot."
     },
-    "js/worm.js | place_worm_tail_randomly | 'worm tail placement requires monster goodpos'": {
+    "js/worm.js | place_worm_tail_randomly_steps | 'worm tail placement requires monster goodpos'": {
       "count": 1,
       "class": "invariant",
       "c": null,

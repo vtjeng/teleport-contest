@@ -211,7 +211,7 @@ import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { hitval, possibly_unwield } from './weapon.js';
 import { find_mac, is_pole, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
-import { place_worm_tail_randomly, remove_worm } from './worm.js';
+import { place_worm_tail_randomly_async, remove_worm } from './worm.js';
 import {
     map_invisible,
     mon_visible,
@@ -658,7 +658,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     place_monster(magr, tx, ty, state);
     place_monster(mdef, fx, fy, state);
     if (mdef.wormno) {
-        place_worm_tail_randomly(mdef, fx, fy, operationEnv);
+        await place_worm_tail_randomly_async(mdef, fx, fy, operationEnv);
     }
     update_monster_region(magr, state);
     update_monster_region(mdef, state);

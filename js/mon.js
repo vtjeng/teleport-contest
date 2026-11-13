@@ -274,7 +274,7 @@ import {
     count_wsegs,
     get_wormno,
     initworm,
-    place_worm_tail_randomly,
+    place_worm_tail_randomly_steps,
     place_wsegs,
     remove_worm,
     worm_known,
@@ -2999,7 +2999,8 @@ function* apply_newcham_steps(
     if (target.pmidx === PM_LONG_WORM
         && (monster.wormno = get_wormno(state)) !== 0) {
         initworm(monster, random.rn2(5), { ...normalized, state });
-        place_worm_tail_randomly(monster, monster.mx, monster.my, normalized);
+        yield* place_worm_tail_randomly_steps(
+            monster, monster.mx, monster.my, normalized);
     }
     monster.meverseen = false;
     shapeRedraw(monster.mx, monster.my, normalized);
@@ -4580,7 +4581,7 @@ export async function replmon(mtmp, mtmp2, state = game) {
 
     if (mtmp !== state.u?.usteed)
         place_monster(mtmp2, mtmp2.mx, mtmp2.my, state);
-    if (mtmp2.wormno) place_wsegs(mtmp2, mtmp, { state });
+    if (mtmp2.wormno) await place_wsegs(mtmp2, mtmp, { state });
     if (emits_light(mtmp2.data)) {
         new_light_source(
             mtmp2.mx,

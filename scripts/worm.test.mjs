@@ -10,6 +10,9 @@ import {
     flip_worm_segs_vertical,
     flip_worm_segs_horizontal,
     initworm,
+    place_worm_tail_randomly_async,
+    place_worm_tail_randomly_steps,
+    place_wsegs,
     redraw_worm,
     remove_worm,
     wseg_at,
@@ -18,6 +21,7 @@ import {
 } from '../js/worm.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { finish_steps } from '../js/source_steps.js';
 
 function wormState() {
     return {
@@ -479,3 +483,87 @@ test('a null worm chain has no reflection side effects', () => {
     flip_worm_segs_horizontal({wormno: 1}, 1, 78, state);
     assert.deepEqual(state, {level: {}});
 });
+
+// impossible() prints the report and then "Program in disorder!" and the
+// contact line; the tests keep every printed line.
+function reportCapture() {
+    const lines = [];
+    const capture = async (text) => { lines.push(text); };
+    return { lines, env: { message: capture, urgentMessage: capture } };
+}
+
+// worm.c place_wsegs() (615-635). Its callers (restore.c getlev(), mon.c
+// replmon(), worm.c cutworm()) pass segments that are on empty squares or
+// held by oldworm; no recorded game reaches either report.
+test('place_wsegs reports a segment over another monster and places it anyway',
+    async () => {
+        const state = wormState();
+        const worm = { wormno: 1, mx: 8, my: 7 };
+        const other = { mx: 5, my: 7 };
+        // Two tail nodes at <5,7> and <6,7> and the hidden head node.
+        state.level.worms[1] = {
+            segments: [{ x: 5, y: 7 }, { x: 6, y: 7 }, { x: 0, y: 0 }],
+            growtime: 0,
+        };
+        state.level.monsters[5][7] = other;
+        const { lines, env } = reportCapture();
+        await place_wsegs(worm, null, { state, ...env });
+        assert.equal(lines[0], 'placing worm seg <5,7> over another mon');
+        assert.equal(lines[1], 'Program in disorder!');
+        assert.equal(lines.length, 3);
+        assert.equal(state.level.monsters[5][7], worm);
+        assert.equal(state.level.monsters[6][7], worm);
+        assert.deepEqual(state.level.worms[1].segments[2], { x: 8, y: 7 });
+    });
+
+test('place_wsegs reports an empty square when replacing an old worm', async () => {
+    const state = wormState();
+    const oldworm = { wormno: 1, mx: 8, my: 7 };
+    const worm = { wormno: 1, mx: 8, my: 7 };
+    state.level.worms[1] = {
+        segments: [{ x: 5, y: 7 }, { x: 6, y: 7 }, { x: 8, y: 7 }],
+        growtime: 0,
+    };
+    // <6,7> still holds the old worm; <5,7> is empty.
+    state.level.monsters[6][7] = oldworm;
+    const { lines, env } = reportCapture();
+    await place_wsegs(worm, oldworm, { state, ...env });
+    assert.equal(lines[0], 'replacing worm seg <5,7> on empty spot');
+    assert.equal(lines.length, 3, 'only <5,7> is reported');
+    assert.equal(state.level.monsters[5][7], worm);
+    assert.equal(state.level.monsters[6][7], worm);
+});
+
+// worm.c place_worm_tail_randomly() (737-760). Every caller removes the worm
+// (remove_worm() zeroes each wx) or has just made a tail with initworm(), so
+// no recorded game reaches either report.
+test('place_worm_tail_randomly reports a missing tail and a stray lone segment',
+    async () => {
+        const state = wormState();
+        const { lines, env } = reportCapture();
+        await place_worm_tail_randomly_async({ wormno: 2, mx: 9, my: 9 },
+            9, 9, { state, ...env });
+        assert.deepEqual(lines.slice(0, 2), [
+            'place_worm_tail_randomly: wormno is set without a tail!',
+            'Program in disorder!',
+        ]);
+
+        // A lone segment left at <5,7> while the worm is at <9,9>: C reports
+        // it, takes the worm off <5,7> and moves the segment to the worm.
+        lines.length = 0;
+        const worm = { wormno: 1, mx: 9, my: 9 };
+        state.level.worms[1] = { segments: [{ x: 5, y: 7 }], growtime: 0 };
+        state.level.monsters[5][7] = worm;
+        await place_worm_tail_randomly_async(worm, 9, 9, { state, ...env });
+        assert.equal(lines[0],
+            'place_worm_tail_randomly: tail segment at <5,7>, worm at <9,9>');
+        assert.equal(state.level.monsters[5][7], null);
+        assert.deepEqual(state.level.worms[1].segments[0], { x: 9, y: 9 });
+
+        // A caller that cannot wait records the report and goes on.
+        state.level.worms[1].segments[0] = { x: 5, y: 7 };
+        game.unported = new Set();
+        finish_steps(place_worm_tail_randomly_steps(worm, 9, 9, { state }));
+        assert.ok(game.unported.has('pline.c impossible'));
+        assert.deepEqual(state.level.worms[1].segments[0], { x: 9, y: 9 });
+    });

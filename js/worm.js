@@ -29,6 +29,8 @@ import { clone_mon } from './makemon.js';
 import { Monnam, mon_nam } from './do_name.js';
 import { dist2, push_front, s_suffix } from './hacklib.js';
 
+import { impossible, impossible_printer } from './pline.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
 import { note_unported } from './unported.js';
@@ -319,9 +321,12 @@ export function worm_move(worm, rawEnv = {}) {
     }
 }
 
-// C ref: worm.c place_wsegs(). Coordinates in each segment remain the sole
-// owner of long-worm tail positions; the final hidden node tracks the head.
-export function place_wsegs(worm, oldworm = null, rawEnv = {}) {
+// C ref: worm.c place_wsegs() (615-635). Coordinates in each segment remain
+// the sole owner of long-worm tail positions; the final hidden node tracks
+// the head. A segment square held by another monster, or an empty one when
+// replacing oldworm, is reported through impossible(); place_worm_seg() then
+// writes the worm there regardless.
+export async function place_wsegs(worm, oldworm = null, rawEnv = {}) {
     const env = wormEnvironment(rawEnv);
     const segments = wormSlots(env.state)[worm.wormno]?.segments;
     if (!segments?.length)
@@ -331,9 +336,12 @@ export function place_wsegs(worm, oldworm = null, rawEnv = {}) {
         const occupant = m_at(x, y, env.state);
         if (oldworm && occupant === oldworm)
             remove_monster(x, y, env.state);
-        // C reports impossible placement conflicts diagnostically and then
-        // place_worm_seg still writes the worm into the map. The assignment
-        // below preserves that source behavior without a visible substitute.
+        else if (occupant)
+            await impossible(`placing worm seg <${x},${y}> over another mon`,
+                env.state, env);
+        else if (oldworm)
+            await impossible(`replacing worm seg <${x},${y}> on empty spot`,
+                env.state, env);
         env.state.level.monsters[x][y] = worm;
     }
     const head = segments[segments.length - 1];
@@ -354,21 +362,30 @@ export function remove_worm(monster, rawEnv = {}) {
     }
 }
 
-// C ref: worm.c place_worm_tail_randomly(). The array remains in tail-to-head
-// order while positions are chosen from the head outward.
-export function place_worm_tail_randomly(monster, x, y, rawEnv = {}) {
+// C ref: worm.c place_worm_tail_randomly() (737-790), written once as
+// place_worm_tail_randomly_steps() (js/source_steps.js). The array remains in
+// tail-to-head order while positions are chosen from the head outward. A
+// worm number without a tail, and a lone tail segment away from the worm,
+// are reported through impossible() where C makes the call.
+export function* place_worm_tail_randomly_steps(monster, x, y, rawEnv = {}) {
     const env = wormEnvironment(rawEnv);
     const record = wormSlots(env.state)[monster.wormno];
     if (!record?.segments?.length) {
-        if (monster.wormno) note_unported('pline.c impossible');
+        if (monster.wormno) {
+            yield new ImpossibleCall(
+                'place_worm_tail_randomly: wormno is set without a tail!');
+        }
         return;
     }
     if (record.segments.length === 1) {
         const segment = record.segments[0];
         if (segment.x
-            && (segment.x !== monster.mx || segment.y !== monster.my)
-            && m_at(segment.x, segment.y, env.state) === monster) {
-            remove_monster(segment.x, segment.y, env.state);
+            && (segment.x !== monster.mx || segment.y !== monster.my)) {
+            yield new ImpossibleCall('place_worm_tail_randomly: tail segment'
+                + ` at <${segment.x},${segment.y}>, worm at`
+                + ` <${monster.mx},${monster.my}>`);
+            if (m_at(segment.x, segment.y, env.state) === monster)
+                remove_monster(segment.x, segment.y, env.state);
         }
         segment.x = monster.mx;
         segment.y = monster.my;
@@ -409,6 +426,15 @@ export function place_worm_tail_randomly(monster, x, y, rawEnv = {}) {
         redrawWormSquare(next.x, next.y, env);
     }
     record.segments = placed;
+}
+
+// place_worm_tail_randomly() for a caller that can wait on the result: it
+// prints each impossible() report where C makes it. Step generators use
+// place_worm_tail_randomly_steps() directly.
+export function place_worm_tail_randomly_async(monster, x, y, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    return finish_steps(place_worm_tail_randomly_steps(monster, x, y, env),
+        impossible_printer(env.state, env));
 }
 
 // C ref: worm.c wormgone(). This removes the hidden head as well as visible
@@ -507,7 +533,7 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
 
     // C initializes wgrowtime[new_wnum] alongside its tail and head links.
     slots[newWnum] = { segments: newTail, growtime: 0 };
-    place_wsegs(newWorm, worm, env);
+    await place_wsegs(newWorm, worm, env);
     if (state.context?.mon_moving) {
         await wormMessage(`${Monnam(worm, state)} is cut in half.`, env);
     } else {

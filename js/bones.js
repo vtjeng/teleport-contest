@@ -1391,7 +1391,7 @@ async function restoreBonesLevel(bonesData, state) {
     for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.isshk) set_residency(mtmp, false, state);
         if (isok(mtmp.mx, mtmp.my)) level.monsters[mtmp.mx][mtmp.my] = mtmp;
-        if (mtmp.wormno) place_wsegs(mtmp, null, { state });
+        if (mtmp.wormno) await place_wsegs(mtmp, null, { state });
     }
 
     // C ref: restore.c getlev():1130 restore_timers(RANGE_LEVEL, elapsed)

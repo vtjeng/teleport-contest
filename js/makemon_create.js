@@ -99,7 +99,7 @@ import {
     count_wsegs,
     get_wormno,
     initworm,
-    place_worm_tail_randomly,
+    place_worm_tail_randomly_steps,
 } from './worm.js';
 import {
     can_saddle,
@@ -2516,7 +2516,7 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
                 state,
             });
             if (count_wsegs(monster, state))
-                place_worm_tail_randomly(monster, x, y, normalized);
+                yield* place_worm_tail_randomly_steps(monster, x, y, normalized);
         }
     }
     // C ref: makemon.c:1410-1428. Aligned/high clerics made without a
