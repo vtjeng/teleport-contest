@@ -590,7 +590,7 @@ import {
     remove_monster,
 } from './monst.js';
 import {
-    impossible_printer, livelog_printf, pline_mon, youFeel, youSee,
+    impossible, impossible_printer, livelog_printf, pline_mon, youFeel, youSee,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { SHTYPES } from './shtypes_data.js';
@@ -2544,9 +2544,9 @@ export function mcalcmove(
     return movement;
 }
 
-// C ref: monmove.c mon_regen().  Meal digestion is owned by each actual
-// monster action; mcalcdistress() passes false and only performs turn-based
-// healing plus special-attack cooldown.
+// C ref: monmove.c mon_regen() (307-320). Its one caller, mon.c
+// mcalcdistress(), passes digest_meal FALSE; the digestion arm is ported for
+// completeness.
 export function mon_regen(monster, digestMeal = false, state = game) {
     if (!(Math.trunc(state.moves ?? 0) % 20)
         || regenerates(monster.data)) {
@@ -2557,7 +2557,11 @@ export function mon_regen(monster, digestMeal = false, state = game) {
     }
     if (monster.mspec_used) monster.mspec_used--;
     if (digestMeal) {
-        throw new Error('mon_regen meal-digestion branch is not implemented');
+        if (monster.meating) {
+            monster.meating--;
+            if (monster.meating <= 0)
+                finish_meating(monster, { state });
+        }
     }
 }
 
@@ -4544,10 +4548,12 @@ async function relmon(mon, state = game) {
 // swallowing state. Worm segments are moved with the replacement record.
 export async function replmon(mtmp, mtmp2, state = game) {
     for (let obj = mtmp2.minvent; obj; obj = obj.nobj) {
-        if (obj.where !== undefined && obj.where !== OBJ_MINVENT)
-            throw new Error('replmon: minvent inconsistency');
-        if (obj.ocarry !== undefined && obj.ocarry !== mtmp)
-            throw new Error('replmon: minvent inconsistency');
+        // mon.c replmon():2521-2522 reports an inconsistent object through
+        // impossible() and transfers it anyway. An unset where or ocarry
+        // (an object record a test builds) is not reported.
+        if ((obj.where !== undefined && obj.where !== OBJ_MINVENT)
+            || (obj.ocarry !== undefined && obj.ocarry !== mtmp))
+            await impossible('replmon: minvent inconsistency', state);
         obj.ocarry = mtmp2;
     }
     mtmp.minvent = null;
@@ -4824,11 +4830,14 @@ export function m_detach(
         if (In_endgame(state.u.uz, state))
             mtmp.mstate = (mtmp.mstate ?? 0) | MON_ENDGAME_FREE;
 
-        if ((mtmp.mstate ?? 0) & MON_DETACH)
-            throw new Error('m_detach: monster is already detached');
-        mtmp.mstate |= MON_DETACH;
-        state.iflags ??= {};
-        state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
+        // mon.c m_detach():2791-2797
+        if ((mtmp.mstate ?? 0) & MON_DETACH) {
+            note_unported('pline.c impossible');
+        } else {
+            mtmp.mstate |= MON_DETACH;
+            state.iflags ??= {};
+            state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
+        }
 
         /* "hero is thrown from his steed when it dies or gets genocided" */
         if (mtmp === state.u.usteed) {
@@ -4907,8 +4916,6 @@ export function mongone(monster, env = {}) {
         throw new TypeError('mongone requires a monster instance');
     if (!monsterOnLevelChain(monster, state))
         throw new Error('mongone: monster is not on the level chain');
-    if (monster.mstate & MON_DETACH)
-        throw new Error('mongone: monster is already detached');
 
     monster.mhp = 0;
 

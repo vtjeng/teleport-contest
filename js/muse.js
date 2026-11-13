@@ -190,7 +190,7 @@ import { in_rooms } from './rooms.js';
 import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
-import { impossible_printer, pline_mon, verbalize, youFeel } from './pline.js';
+import { impossible, impossible_printer, pline_mon, verbalize, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
     destroy_drawbridge,
@@ -1752,8 +1752,12 @@ export async function use_misc(mtmp, selection, state, env = {}) {
     case undefined:
         return 0; /* i.e. an exploded wand */
     default:
-        throw new Error(
-            `${capitalizedMonsterName(mtmp, state)} wanted to perform action ${selection.kind}?`);
+        // muse.c use_misc():2620-2623. C prints gm.m.has_misc's number; the
+        // port keys the selection by name.
+        await impossible(
+            `${capitalizedMonsterName(mtmp, state)} wanted to perform action ${selection.kind}?`,
+            state, env);
+        break;
     }
     return 0;
 }
@@ -2889,16 +2893,13 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     }
     case 0:
         return 0; /* i.e. an exploded wand */
-    default: {
-        const impossible = env.impossible;
-        if (typeof impossible === 'function') {
-            impossible(
-                capitalizedMonsterName(mtmp, state, env)
-                    + ' wanted to perform action ' + selection.has_offense + '?',
-            );
-        }
+    default:
+        // muse.c use_offensive():2026-2029
+        await impossible(
+            capitalizedMonsterName(mtmp, state, env)
+                + ' wanted to perform action ' + selection.has_offense + '?',
+            state, env);
         return 0;
-    }
     }
 }
 

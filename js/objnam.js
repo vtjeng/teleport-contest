@@ -748,10 +748,13 @@ export function just_an(str) {
         ? 'an ' : 'a ';
 }
 
-// C ref: objnam.c an(). C answers "an []" through impossible() for an empty
-// name; nothing in the port can supply one, so that stays a thrown error.
+// C ref: objnam.c an() (2145-2156). An empty or missing name is reported
+// through impossible() and answered with "an []".
 export function an(str) {
-    if (!str) throw new Error(`an() requires a name; got ${String(str)}`);
+    if (!str) {
+        note_unported('pline.c impossible');
+        return 'an []';
+    }
     const article = just_an(str);
     // C an() uses strncat(BUFSZ - 1 - Strlen(buf)); preserve its byte limit.
     const remaining = BUFSZ - 1 - Strlen_(article, 'an', 2154);
@@ -1584,10 +1587,10 @@ export function singular(otmp, func, state) {
 // names, and treats a configured fruit as an ordinary noun unless an artifact
 // of that name deliberately lacks the article.
 export function the(str, state = game) {
+    // objnam.c the():2177-2180
     if (!str) {
-        // C's impossible() returns "the []" and carries on. Reaching it means
-        // a caller handed this an empty name, which is a defect here.
-        throw new Error('the(): empty name');
+        note_unported('pline.c impossible');
+        return 'the []';
     }
     if (lcase(str.slice(0, 4)) === 'the ')
         return lcase(str[0]) + str.slice(1);

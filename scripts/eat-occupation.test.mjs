@@ -793,7 +793,9 @@ test('the() prefixes an article only where C does', () => {
     assert.equal(the('food ration'), 'the food ration');
     assert.equal(the('The Amulet of Yendor'), 'the Amulet of Yendor');
     assert.equal(the('Excalibur'), 'Excalibur');
-    assert.throws(() => the(''), /empty name/u);
+    // objnam.c the():2177-2180: an empty name is reported through
+    // impossible() and answered with "the []".
+    assert.equal(the(''), 'the []');
     // C's test is `*str < 'A' || *str > 'Z'`, so both ends of the range are
     // capitals and both enter the proper-name decisions rather than the
     // unconditional article arm.
