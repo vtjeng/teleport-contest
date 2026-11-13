@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pager.c do_look() witness for a typed word of Latin-1 bytes. Seed 27183121, clock 20570708101010, Archeologist and the three answers were chosen before JavaScript comparison. tty getlin stores each key as one byte, and pager.c:1852 tests out_str[1]: the lone key 0xE9 is a symbol, which matches nothing (\"I've never heard of such things.\"), while the keys 0xC3 0xA9, one UTF-8 character, and 0xE9 0xE8 are complete strings for checkfile().",
+  "segments": [
+    {
+      "seed": 27183121,
+      "datetime": "20570708101010",
+      "nethackrc": "OPTIONS=name:Lio,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": "/?é\n/?Ã©\n/?éè\n"
+    }
+  ]
+}

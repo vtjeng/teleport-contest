@@ -147,6 +147,7 @@ import { makeplural } from './fruit.js';
 import {
     mungspaces,
     dist2,
+    encodeUtf8ByteString,
     s_suffix,
     strstri,
     upstart,
@@ -2728,7 +2729,9 @@ export async function do_class_genocide(state = game, env = {}) {
                 await ttyPline(`Eliminated ${count} monster${plur(count)}.`, state);
                 return;
             } else {
-                await ttyPline(`That ${buf.length === 1 ? 'symbol' : 'response'} does not represent any monster.`, state);
+                // strlen(buf) counts bytes: two keys forming one UTF-8
+                // character are a "response".
+                await ttyPline(`That ${encodeUtf8ByteString(buf).length === 1 ? 'symbol' : 'response'} does not represent any monster.`, state);
             }
             continue;
         }

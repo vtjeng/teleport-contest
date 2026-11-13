@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent read.c do_class_genocide() witness for typed Latin-1 bytes. Seed 27183133, clock 20570709173402, Priest, a wished-for blessed scroll of genocide and the answers were chosen before JavaScript comparison. tty getlin stores each key as one byte. The keys 0xC3 0xA9 form one UTF-8 character but strlen() counts 2, so C says \"That response does not represent any monster.\"; the lone key 0xE9 is one byte and draws \"That symbol ...\". Escape then declines the genocide.",
+  "segments": [
+    {
+      "seed": 27183133,
+      "datetime": "20570709173402",
+      "nethackrc": "OPTIONS=name:Tove,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "\u0017blessed scroll of genocide\nri\n\nÃ©\n\né\n\n\u001b"
+    }
+  ]
+}

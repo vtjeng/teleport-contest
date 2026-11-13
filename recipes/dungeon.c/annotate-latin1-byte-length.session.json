@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dungeon.c donamelevel() witness for an annotation typed as Latin-1 bytes. Seed 27183149, clock 20570710084512, Tourist, the annotation of 20 key pairs 0xC3 0xA9 and the #stats check were chosen before JavaScript comparison. tty getlin stores each key as one byte, so the 20 UTF-8 characters are 40 bytes: the second #annotate shows \"%.30s\" of them, 15 characters, followed by \"...\" because strlen() > 30, and #stats counts custom_lth + 1 = 41 bytes for the annotation.",
+  "segments": [
+    {
+      "seed": 27183149,
+      "datetime": "20570710084512",
+      "nethackrc": "OPTIONS=name:Ada,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "#annotate\nÃ©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©Ã©\n#annotate\n\u001b#stats\n    "
+    }
+  ]
+}

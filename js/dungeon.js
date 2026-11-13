@@ -80,7 +80,10 @@ import { describe_level, map_location, see_nearby_objects } from './display.js';
 import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
-import { mungspaces, strstri, strsubst, trimspaces } from './hacklib.js';
+import {
+    encodeUtf8ByteString, mungspaces, strstri, strsubst, trimspaces,
+    truncateByteString,
+} from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
@@ -2292,8 +2295,9 @@ async function query_annotation(lev, state = game) {
     if (mptr.custom) {
         // #else branch of EDIT_GETLIN: existing annotation triggers
         // "Replace annotation" prompt.
-        const truncated = mptr.custom.length > 30
-            ? mptr.custom.substring(0, 30) + '...'
+        // "%.30s%s" with strlen(custom) > 30: both count bytes.
+        const truncated = encodeUtf8ByteString(mptr.custom).length > 30
+            ? truncateByteString(mptr.custom, 30) + '...'
             : mptr.custom;
         nbuf = await getlin(
             `Replace annotation "${truncated}" with?`, state,
@@ -2330,9 +2334,9 @@ async function query_annotation(lev, state = game) {
     // Add new annotation, unless it's all spaces (empty after mungspaces).
     if (nbuf && nbuf !== ' ') {
         mptr.custom = nbuf;
-        // custom_lth does not include trailing '\0' in the count; in JS
-        // there is no terminator, so the length matches directly.
-        mptr.custom_lth = mptr.custom.length;
+        // custom_lth = strlen(custom), a byte count without the '\0'; two
+        // typed keys that form one UTF-8 character count as two.
+        mptr.custom_lth = encodeUtf8ByteString(mptr.custom).length;
     }
 }
 

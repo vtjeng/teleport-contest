@@ -161,7 +161,9 @@ import {
 import { game } from './gstate.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
-import { dist2, mungspaces, strstri, visctrl } from './hacklib.js';
+import {
+    dist2, encodeUtf8ByteString, mungspaces, strstri, visctrl,
+} from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory, sobj_at } from './invent.js';
 import { m_at } from './monst.js';
@@ -2008,13 +2010,20 @@ export async function do_look(mode, clickCc = null, state = game) {
         let answer = await getlin('Specify what? (type the word)', state);
         if (answer !== ' ') answer = mungspaces(answer);
         if (!answer || answer.startsWith('\x1b')) return ECMD_OK;
-        if (answer.length === 1) {
+        // pager.c:1852 tests out_str[1], the second byte: two typed keys
+        // that form one UTF-8 character are a complete string to checkfile().
+        const answerBytes = encodeUtf8ByteString(answer);
+        if (answerBytes.length === 1) {
             // pager.c treats a one-character answer as a symbol lookup and
             // falls through to the same description/output path as a screen
             // lookup.  It uses the default symbol tables because no glyph was
             // selected, then performs the optional help lookup afterward.
+            // `sym = out_str[0]` reads a signed char, so a byte above 0x7F
+            // is negative and matches no symbol.
+            const sym = answerBytes[0] < 0x80
+                ? answerBytes[0] : answerBytes[0] - 0x100;
             const description = do_screen_description(
-                { x: 0, y: 0 }, false, answer.charCodeAt(0), state,
+                { x: 0, y: 0 }, false, sym, state,
             );
             if (description.found) {
                 await ttyPutmixed(description.out, description.out[0], state);
