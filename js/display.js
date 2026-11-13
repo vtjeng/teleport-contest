@@ -3185,9 +3185,11 @@ export function swallow_to_glyph(
         + GLYPH_SWALLOW_OFF;
 }
 
-// C ref: display.c swallowed() (1330-1382). This is the initial swallow arm
-// reached by mhitu.c gulpmu(); the continuing-position redraw is outside this
-// slice because gulpmu() does not call swallowed(FALSE) for repeated damage.
+// C ref: display.c swallowed() (1330-1386). Draw the engulfer's stomach
+// around the hero; first (gulpmu(), docrt()) clears the screen, and a
+// continuing redraw (m_move(), moveloop_core(), newcham(), make_hallucinated())
+// erases the previous stomach. The hero cell comes from display_self(), so a
+// hero mimicking an object shows the mimicked glyph.
 export async function swallowed(first, state = game) {
     if (state !== game) {
         throw new TypeError('swallowed() requires the live game state');
@@ -3241,7 +3243,7 @@ export async function swallowed(first, state = game) {
 
     if (leftOk)
         show_glyph_cell(state.u.ux - 1, state.u.uy, stomachGlyph(S_sw_ml));
-    show_glyph_cell(state.u.ux, state.u.uy, hero_glyph_info(state));
+    display_self(state);
     if (rightOk)
         show_glyph_cell(state.u.ux + 1, state.u.uy, stomachGlyph(S_sw_mr));
 
