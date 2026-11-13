@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c weapon_insight(), two-weapon branch, secondary-weapon comparison where the two-weapon skill exceeds the secondary's (lines 1402-1423): a Valkyrie wishes for an uncursed club (P_CLUB is restricted for Valkyries), wields it, swaps with x so that her dagger is primary and the club secondary, takes off her small shield, starts two-weapon combat with X and views ^X enlightenment, which reports that her two-weapon skill is limited by having no skill with club. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7302915,
+      "datetime": "20380417093000",
+      "nethackrc": "OPTIONS=name:Twoblade,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nuncursed club\n\u001bwf\u001bx\u001bT\u001bX\u001b\u0018    \u001b\u001b"
+    }
+  ]
+}

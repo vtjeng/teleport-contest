@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c goto_level(), the mysterious force (lines 1544-1572): a chaotic orcish Barbarian in debug mode wishes for the Amulet of Yendor (answering the Amulet's own wish with a scroll), level-teleports with ^V to the Valley and then to dungeon level 35 in Gehennom, maps the level with ^F, teleports onto the up staircase with ^T and climbs with <. Climbing from a Gehennom level more than three above its bottom while carrying the Amulet has a 1 in (4 + mysteryforce) chance of the force; on this seed it acts on the first climb and sends him down (assign_rnd_level()). Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2650937,
+      "datetime": "20400712034500",
+      "nethackrc": "OPTIONS=name:Upward,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nAmulet of Yendor\n\u001b\u001bblessed scroll of genocide\n\u001b\u001640\n\u001b\u001b\u001b\u001635\n\u001b\u001b\u001b\u0006\u001b\u0014\u001b\u001b<.\u001b<\u001b"
+    }
+  ]
+}
