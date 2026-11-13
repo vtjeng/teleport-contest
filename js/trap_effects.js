@@ -3612,9 +3612,11 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
 
 // C ref: trap.c keep_saddle_with_steedcorpse() (939-963). Search the floor
 // object list, including container contents, for the slain mount's corpse.
-// The saddle is moved onto the corpse's reported physical location and
-// merged into that square's pile.
-function keep_saddle_with_steedcorpse(
+// The saddle is moved onto the corpse's location and merged into that
+// square's pile. get_obj_location() without CONTAINED_TOO fails for a corpse
+// inside a container; C then leaves the saddle where it is and still reports
+// the corpse found.
+export function keep_saddle_with_steedcorpse(
     steedMid,
     objchn,
     saddle,
@@ -3624,11 +3626,13 @@ function keep_saddle_with_steedcorpse(
     while (objchn) {
         const corpseMonster = objchn.otyp === CORPSE ? OMONST(objchn) : null;
         if (corpseMonster?.m_id === steedMid) {
-            const location = get_obj_location(objchn, 0, state) ?? { x: 0, y: 0 };
-            const objectEnv = objectGenerationEnv({ state });
-            obj_extract_self(saddle, objectEnv);
-            place_object(saddle, location.x, location.y, objectEnv);
-            stackobj(saddle, objectEnv);
+            const location = get_obj_location(objchn, 0, state);
+            if (location) {
+                const objectEnv = objectGenerationEnv({ state });
+                obj_extract_self(saddle, objectEnv);
+                place_object(saddle, location.x, location.y, objectEnv);
+                stackobj(saddle, objectEnv);
+            }
             return true;
         }
         if (Has_contents(objchn)

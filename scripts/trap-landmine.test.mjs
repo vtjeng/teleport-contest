@@ -14,10 +14,12 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { PM_GIANT_ANT, PM_TITANOTHERE } from '../js/monsters.js';
-import { mksobj_at } from '../js/obj.js';
-import { ROCK } from '../js/objects.js';
+import { add_to_container } from '../js/invent.js';
+import { mksobj, mksobj_at, newomonst } from '../js/obj.js';
+import { CORPSE, LARGE_BOX, ROCK, SADDLE } from '../js/objects.js';
 import {
     blow_up_landmine,
+    keep_saddle_with_steedcorpse,
     trapeffect_selector,
 } from '../js/trap_effects.js';
 
@@ -214,3 +216,38 @@ test('landmine scatter completes exercise after a rock hits the hero', async () 
     assert.equal(game.u.aexe[A_STR], -1);
     assert.equal(trap.ttyp, PIT);
 });
+
+// trap.c keep_saddle_with_steedcorpse() (939-967). No recorded game reaches
+// the failure: the slain steed's corpse is a new floor object at the head of
+// fobj, so the search finds it before any container. Only a corpse in a
+// container whose saved m_id equals the steed's (bones keep contained
+// corpses' m_ids, restore.c reset_oattached_mids()) with no new corpse made
+// could come first. get_obj_location(.., 0) fails for the contained corpse,
+// and C leaves the saddle in place but still returns TRUE.
+test('keep_saddle_with_steedcorpse leaves the saddle when the corpse is boxed',
+    async () => {
+        await freshHero();
+        const { ux, uy } = game.u;
+        // An arbitrary m_id no fixture monster uses.
+        const steedMid = 4242;
+        const saddle = mksobj_at(SADDLE, ux, uy, false, false);
+        // The box sits one square east, so a moved saddle would change square.
+        const box = mksobj_at(LARGE_BOX, ux + 1, uy, false, false);
+        const corpse = mksobj(CORPSE, false, false);
+        newomonst(corpse);
+        corpse.oextra.omonst.m_id = steedMid;
+        add_to_container(box, corpse);
+
+        assert.equal(keep_saddle_with_steedcorpse(
+            steedMid, game.level.objlist, saddle, game), true);
+        assert.deepEqual([saddle.ox, saddle.oy], [ux, uy]);
+
+        // With the corpse on the floor at the box's square, the saddle moves
+        // there (trap.c:952-957).
+        const floorCorpse = mksobj_at(CORPSE, ux + 1, uy, false, false);
+        newomonst(floorCorpse);
+        floorCorpse.oextra.omonst.m_id = steedMid;
+        assert.equal(keep_saddle_with_steedcorpse(
+            steedMid, game.level.objlist, saddle, game), true);
+        assert.deepEqual([saddle.ox, saddle.oy], [ux + 1, uy]);
+    });
