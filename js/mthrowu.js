@@ -82,7 +82,7 @@ import { stop_occupation } from './allmain.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity, losehp, nomul, rounddiv } from './hack.js';
-import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
+import { dist2, distmin, s_suffix, sgn, upstart, lcase } from './hacklib.js';
 import {
     add_to_minv,
     delobj,
@@ -1872,7 +1872,7 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
         kprefix = KILLED_BY;
     } else {
         knm = name;
-        const lower = name.toLowerCase();
+        const lower = lcase(name);
         if (lower.startsWith('the ') || lower.startsWith('an ')
             || lower.startsWith('a '))
             kprefix = KILLED_BY;

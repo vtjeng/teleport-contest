@@ -173,7 +173,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, encodeUtf8ByteString, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl } from './hacklib.js';
+import { digit, encodeUtf8ByteString, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl, upstart, strcmpi } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -814,10 +814,8 @@ function sortloot_cmp(sli1, sli2, mode, state = game) {
     if (!(mode & SORTLOOT_LOOT)) return sli1.indx - sli2.indx;
     if (!sli1.str) sli1.str = loot_xname(sli1.obj, state);
     if (!sli2.str) sli2.str = loot_xname(sli2.obj, state);
-    const name1 = sli1.str.toLowerCase();
-    const name2 = sli2.str.toLowerCase();
-    if (name1 < name2) return -1;
-    if (name1 > name2) return 1;
+    const namcmp = strcmpi(sli1.str, sli2.str);
+    if (namcmp !== 0) return namcmp;
 
     const buc = (obj) => obj.bknown
         ? (obj.blessed ? 3 : !obj.cursed ? 2 : 1) : 0;
@@ -1594,7 +1592,7 @@ export async function askchain(
                 let prefix = '';
                 if (first) {
                     if (takeOut || putIn)
-                        prefix = `${word[0].toUpperCase()}${word.slice(1)}: `;
+                        prefix = `${upstart(word)}: `;
                     first = false;
                 }
                 const qbuf = safe_qbuf(
@@ -2583,7 +2581,8 @@ export async function look_here(
             || dfeature === 'iron bars'
             || dfeature === 'ice'
             || dfeature.startsWith('frozen ')
-            || / ice$/iu.test(dfeature));
+            || (dfeature.includes(' ')
+                && strcmpi(dfeature.slice(dfeature.indexOf(' ')), ' ice') === 0));
         const named = article ? an(dfeature) : dfeature;
         fbuf = `There ${vtense(named, 'are')} ${named} here.`;
     }

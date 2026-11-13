@@ -82,7 +82,7 @@ import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
 import {
     encodeUtf8ByteString, mungspaces, strstri, strsubst, trimspaces,
-    truncateByteString,
+    truncateByteString, lcase, highc,
 } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
@@ -326,10 +326,10 @@ function find_branch(name, pd, state = game) {
         panic(`find_branch: can't find ${name}`);
     }
     /* support for level tport by name */
-    const folded = name.toLowerCase();
+    const folded = lcase(name);
     const branch = (state.branches ?? []).find((candidate) => {
         const dnam = dungeon_at(candidate.end2.dnum, state).dname;
-        const foldedName = dnam.toLowerCase();
+        const foldedName = lcase(dnam);
         return foldedName === folded
             || (foldedName.startsWith('the ')
                 && foldedName.slice(4) === folded);
@@ -1188,16 +1188,16 @@ function init_castle_tune(state, random) {
 }
 
 export function find_level(name, state = game) {
-    const foldedName = name.toLowerCase();
+    const foldedName = lcase(name);
     return (state.specialLevels ?? []).find(
-        (level) => level.proto.toLowerCase() === foldedName,
+        (level) => lcase(level.proto) === foldedName,
     ) ?? null;
 }
 
 function dname_to_dnum(name, state) {
-    const foldedName = name.toLowerCase();
+    const foldedName = lcase(name);
     const index = state.dungeons.findIndex(
-        (dungeon) => dungeon.dname.toLowerCase() === foldedName,
+        (dungeon) => lcase(dungeon.dname) === foldedName,
     );
     if (index === -1)
         panic(`Couldn't resolve dungeon number for ${name}`);
@@ -1380,7 +1380,7 @@ export function lev_by_name(nam, state = game) {
     if (!mseen) {
         /* no matching annotation, check whether they used a name we know */
         /* allow strings like "the oracle level" to find "oracle" */
-        if (nam.slice(0, 4).toLowerCase() === 'the ')
+        if (lcase(nam.slice(0, 4)) === 'the ')
             nam = nam.slice(4);
         // C's `(p = strstri(nam, " level")) != 0 && p == eos(nam) - 6`
         // accepts the suffix only where it ends the string, and strstri()
@@ -1393,12 +1393,12 @@ export function lev_by_name(nam, state = game) {
             nam = nam.slice(0, -6);
         /* hell is the old name, and wouldn't match; gehennom would match its
            branch, yielding the castle level instead of valley of the dead */
-        if (nam.toLowerCase() === 'gehennom'
-            || nam.toLowerCase() === 'hell') {
+        if (lcase(nam) === 'gehennom'
+            || lcase(nam) === 'hell') {
             nam = state.u.uz.dnum === state.tower_dnum
                 ? " to Vlad's tower" /* branch to... */
                 : 'valley';
-        } else if (nam.toLowerCase() === 'delphi') {
+        } else if (lcase(nam) === 'delphi') {
             /* Oracle says "welcome to Delphi" so recognize that name too */
             nam = 'oracle';
         }
@@ -2220,7 +2220,7 @@ export function print_mapseen(
         addN('grave', feat.ngrave);
         addN('tree', feat.ntree);
         if (buf) {
-            buf = buf.slice(0, 6) + buf[6].toUpperCase() + buf.slice(7) + '.';
+            buf = buf.slice(0, 6) + highc(buf[6]) + buf.slice(7) + '.';
             appendInterest(items, buf);
         }
     }
@@ -2452,9 +2452,9 @@ export async function print_level_annotation(state = game) {
 
 // C ref: dungeon.c find_mapseen_by_str() (2651-2663).
 function find_mapseen_by_str(value, state = game) {
-    const folded = value.toLowerCase();
+    const folded = lcase(value);
     return state.svm?.mapseenchn?.find(
-        (entry) => entry.custom?.toLowerCase() === folded,
+        (entry) => entry.custom != null && lcase(entry.custom) === folded,
     ) ?? null;
 }
 

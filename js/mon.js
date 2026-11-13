@@ -235,7 +235,7 @@ import {
     spoteffects,
     u_locomotion,
 } from './hack.js';
-import { dist2, online2, ordin, s_suffix, upstart } from './hacklib.js';
+import { dist2, online2, ordin, s_suffix, upstart, lcase } from './hacklib.js';
 import {
     add_to_container,
     add_to_minv,
@@ -2812,7 +2812,7 @@ function shapeOldNames(monster, state, msg, env = {}) {
         env,
     );
     return {
-        oldname: oldname ? oldname[0].toUpperCase() + oldname.slice(1) : '',
+        oldname: oldname ? upstart(oldname) : '',
         l_oldname,
     };
 }
@@ -3422,7 +3422,7 @@ export async function wiz_force_cham_form(monster, rawEnv = {}) {
         monclass = 0;
         buf = mungspaces(await input(prompt, state));
         if (buf === '\x1b') break;
-        if (buf === '*' || buf.toLowerCase() === 'random') {
+        if (buf === '*' || lcase(buf) === 'random') {
             mndx = NON_PM;
             break;
         }
@@ -3802,7 +3802,7 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
                 if (!Deaf(state.u) && !random.rn2(5)) {
                     const gasp = maybe_gasp(monster, state, random);
                     if (gasp) {
-                        if (gasp.slice(0, 4).toLowerCase() === 'gasp') {
+                        if (lcase(gasp.slice(0, 4)) === 'gasp') {
                             buf = `${Monnam(monster, state)} gasps`;
                             needPunct = true;
                         } else {

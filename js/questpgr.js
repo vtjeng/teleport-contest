@@ -15,7 +15,7 @@ import { game } from './gstate.js';
 import { nhlL_newstate } from './nhlua.js';
 import { MS_LEADER, MS_NEMESIS, MS_GUARDIAN } from './monsters.js';
 import { note_unported } from './unported.js';
-import { s_suffix } from './hacklib.js';
+import { s_suffix, lcase, upstart } from './hacklib.js';
 import { align_str } from './insight.js';
 import { type_is_pname } from './mondata.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -134,10 +134,10 @@ const GENDERS = [
 // C ref: questpgr.c:qtext_pronoun() (200-236). The caller supplies C's
 // cvt_buf name; return its replacement instead of sharing a mutable buffer.
 export function qtext_pronoun(who, which, state, name = '') {
-    const lwhich = which.toLowerCase();
+    const lwhich = lcase(which);
     let pnoun;
-    if (who === 'o' && (name.toLowerCase().includes('eyes ')
-        || name.toLowerCase() !== makesingular(name).toLowerCase())) {
+    if (who === 'o' && (lcase(name).includes('eyes ')
+        || lcase(name) !== lcase(makesingular(name)))) {
         pnoun = lwhich === 'h' ? 'they' : lwhich === 'i' ? 'them'
             : lwhich === 'j' ? 'their' : '?';
     } else {
@@ -149,7 +149,7 @@ export function qtext_pronoun(who, which, state, name = '') {
         pnoun = lwhich === 'h' ? entry.he : lwhich === 'i' ? entry.him
             : lwhich === 'j' ? entry.his : '?';
     }
-    if (which !== lwhich) pnoun = pnoun[0].toUpperCase() + pnoun.slice(1);
+    if (which !== lwhich) pnoun = upstart(pnoun);
     return pnoun;
 }
 
@@ -179,7 +179,7 @@ function convertArg(c, state) {
     case 'O': case 'o': {
         const name = the(artiname(state), state);
         if (c === 'O') {
-            const idx = name.toLowerCase().indexOf(' of ');
+            const idx = lcase(name).indexOf(' of ');
             return idx >= 0 ? name.slice(0, idx) : name;
         }
         return name;
@@ -231,10 +231,9 @@ export function convertLine(line, state) {
                 const mod = line[i];
                 switch (mod) {
                 case 'A': {
-                    // An prefix
-                    const first = cvtBuf[0]?.toUpperCase() ?? '';
-                    out += 'aeiouAEIOU'.includes(first)
-                        ? `An ${cvtBuf}` : `A ${cvtBuf}`;
+                    // C: Strcat(cc, An(gc.cvt_buf)), where An() is
+                    // upstart(an()).
+                    out += upstart(an(cvtBuf));
                     i++;
                     continue;
                 }
@@ -244,22 +243,20 @@ export function convertLine(line, state) {
                     continue;
                 }
                 case 'C':
-                    cvtBuf = cvtBuf[0]?.toUpperCase()
-                        + cvtBuf.slice(1);
+                    cvtBuf = upstart(cvtBuf);
                     i++;
                     break;
                 case 'h': case 'H':
                 case 'i': case 'I':
                 case 'j': case 'J':
-                    if ('dlno'.includes(argChar.toLowerCase())) {
+                    if ('dlno'.includes(lcase(argChar))) {
                         cvtBuf = qtext_pronoun(argChar, mod, state, cvtBuf);
                         i++;
                     }
                     // else fall through to default (mod not consumed)
                     break;
                 case 'P':
-                    cvtBuf = cvtBuf[0]?.toUpperCase()
-                        + cvtBuf.slice(1);
+                    cvtBuf = upstart(cvtBuf);
                     cvtBuf = makeplural(cvtBuf);
                     i++;
                     break;
@@ -268,8 +265,7 @@ export function convertLine(line, state) {
                     i++;
                     break;
                 case 'S':
-                    cvtBuf = cvtBuf[0]?.toUpperCase()
-                        + cvtBuf.slice(1);
+                    cvtBuf = upstart(cvtBuf);
                     cvtBuf = s_suffix(cvtBuf);
                     i++;
                     break;
@@ -278,7 +274,7 @@ export function convertLine(line, state) {
                     i++;
                     break;
                 case 't':
-                    if (cvtBuf.toLowerCase().startsWith('the ')) {
+                    if (lcase(cvtBuf).startsWith('the ')) {
                         cvtBuf = cvtBuf.slice(4);
                     }
                     i++;
@@ -470,12 +466,12 @@ export async function stinky_nemesis(
     if (typeof rawText.value !== 'string') return false;
 
     const normalized = rawText.value.replaceAll('\n', ' ');
-    let at = normalized.toLowerCase().indexOf('noxious');
-    if (at < 0) at = normalized.toLowerCase().indexOf('poisonous');
-    if (at < 0) at = normalized.toLowerCase().indexOf('toxic');
+    let at = lcase(normalized).indexOf('noxious');
+    if (at < 0) at = lcase(normalized).indexOf('poisonous');
+    if (at < 0) at = lcase(normalized).indexOf('toxic');
     if (at < 0) return false;
 
-    const suffix = normalized.slice(at).toLowerCase();
+    const suffix = lcase(normalized.slice(at));
     return suffix.includes(' gas') || suffix.includes(' fumes');
 }
 

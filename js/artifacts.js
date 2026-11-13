@@ -1444,7 +1444,7 @@ export function restrict_name(otmp, name, state = game) {
 
     let sought = name;
     if (sought.length >= 4
-        && sought.slice(0, 4).toLowerCase() === 'the ')
+        && lcase(sought.slice(0, 4)) === 'the ')
         sought = sought.slice(4);
     if (!sought) return false;
 
@@ -1477,7 +1477,7 @@ export function restrict_name(otmp, name, state = game) {
         if (!sametype[artilist[a].otyp]) continue;
         let aname = artilist[a].name;
         if (aname.length >= 4
-            && aname.slice(0, 4).toLowerCase() === 'the ')
+            && lcase(aname.slice(0, 4)) === 'the ')
             aname = aname.slice(4);
         if (aname === sought)
             return ((artilist[a].spfx & (SPFX_NOGEN | SPFX_RESTR)) !== 0

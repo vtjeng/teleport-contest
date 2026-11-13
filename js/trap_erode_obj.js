@@ -74,7 +74,7 @@ import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
-import { dist2 } from './hacklib.js';
+import { dist2, strncmpi } from './hacklib.js';
 import { canseemon } from './display.js';
 import { dry_a_towel } from './weapon.js';
 import { note_unported } from './unported.js';
@@ -224,7 +224,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     let name = description ?? cxname(obj, state);
     // trap.c's visobj strings are already article-free: it strips the
     // leading "the " from cxname() before using the floor-object message.
-    if (visobj && !uvictim && !vismon && /^the /iu.test(name))
+    if (visobj && !uvictim && !vismon && strncmpi(name, 'the ', 4) === 0)
         name = name.slice(4);
     // C's two remaining message subjects. The capitalized form opens a
     // sentence; the lower-case one sits after "Somehow,". C selects these

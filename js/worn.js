@@ -118,7 +118,7 @@ import {
     verysmall,
     is_whirly,
 } from './mondata.js';
-import { s_suffix, strsubst, strncmpi } from './hacklib.js';
+import { s_suffix, strsubst, strncmpi, lcase } from './hacklib.js';
 import {
     AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
@@ -821,7 +821,7 @@ async function applyMonsterArmorRuntime(
     if (sawMonster) {
         oldName = old ? distant_name(old, donameFresh, state) : '';
         newName = distant_name(best, donameFresh, state);
-        if (newName.toLowerCase() === oldName.toLowerCase()) {
+        if (lcase(newName) === lcase(oldName)) {
             if (strncmpi(newName, 'a ', 2) === 0)
                 newName = strsubst(newName, 'a ', 'another ');
             else if (strncmpi(newName, 'an ', 3) === 0)

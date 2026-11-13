@@ -97,7 +97,7 @@ import {
     mungspaces,
     s_suffix,
     strstri,
-    upstart,
+    upstart, lcase, highc,
 } from './hacklib.js';
 import { carrying, getobj, update_inventory } from './invent.js';
 import {
@@ -490,7 +490,7 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
     let match = fuzzymatch(usrbuf, monnambuf, ' -_', true);
     const invisibleName = strstri(monnambuf, 'invisible ');
     const ofName = strstri(monnambuf, ' of ');
-    if (!match && monnambuf.toLowerCase().startsWith('the '))
+    if (!match && lcase(monnambuf).startsWith('the '))
         match = fuzzymatch(usrbuf, monnambuf.slice(4), ' -_', true);
     if (!match && invisibleName >= 0)
         match = fuzzymatch(usrbuf, monnambuf.slice(invisibleName + 10), ' -_', true);
@@ -510,7 +510,7 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
 
     if (monsndx(monster.data) === PM_JUIBLEX
         && strstri(monnambuf, 'Juiblex') >= 0
-        && usrbuf.toLowerCase() === 'jubilex') {
+        && lcase(usrbuf) === 'jubilex') {
         await ttyPline(
             `${upstart(monnambuf)} doesn't like being called ${usrbuf}.`,
             state,
@@ -845,7 +845,7 @@ export async function do_oname(obj, state = game) {
         || exist_artifact(obj.otyp, aname, state))) {
         finalName = aname;
         const original = finalName;
-        const offset = finalName.toLowerCase().startsWith('the ') ? 4 : 0;
+        const offset = lcase(finalName).startsWith('the ') ? 4 : 0;
         do {
             const prefix = finalName.slice(0, offset);
             const target = finalName.slice(offset);
@@ -1018,7 +1018,7 @@ export function monsterCommonName(
 
 export function capitalizedMonsterName(monster, state = game, env = {}) {
     const name = monsterCommonName(monster, state, 0, env);
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    return upstart(name);
 }
 
 // C ref: do_name.c some_mon_nam() (1064-1071). Like mon_nam() but when the
@@ -1035,7 +1035,7 @@ export function some_mon_nam(monster, state = game, env = {}) {
 // C ref: do_name.c Some_Monnam() (1092-1098). Capitalized some_mon_nam().
 export function Some_Monnam(monster, state = game, env = {}) {
     const name = some_mon_nam(monster, state, env);
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    return upstart(name);
 }
 
 // C ref: do_name.c noit_mon_nam() (1048-1060). Like mon_nam() but suppresses
@@ -1051,7 +1051,7 @@ export function noit_mon_nam(monster, state = game, env = {}) {
 // C ref: do_name.c noit_Monnam() (1083-1089). Capitalized noit_mon_nam().
 export function noit_Monnam(monster, state = game, env = {}) {
     const name = noit_mon_nam(monster, state, env);
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    return upstart(name);
 }
 
 // C ref: do_name.c y_monnam() (1117-1129). "your little dog" for pets,
@@ -1137,7 +1137,7 @@ export function Adjmonnam(monster, adj, state = game, env = {}) {
     const name = x_monnam(
         monster, ARTICLE_THE, adj, suppress, false, state, env,
     );
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    return upstart(name);
 }
 
 // C ref: do_name.c distant_monnam() (1170-1186). The high priest on a remote
@@ -1388,8 +1388,8 @@ export function x_monnam(
         } else if (called) {
             buf += `${pm_name} called ${givenName}`;
             name_at_start = type_is_pname(mdat);
-        } else if (is_mplayer(mdat) && / the /iu.test(givenName)) {
-            const insertion = givenName.toLowerCase().indexOf(' the ') + 5;
+        } else if (is_mplayer(mdat) && strstri(givenName, ' the ') >= 0) {
+            const insertion = strstri(givenName, ' the ') + 5;
             buf = givenName.slice(0, insertion) + buf + givenName.slice(insertion);
             effectiveArticle = ARTICLE_NONE;
             name_at_start = true;
@@ -1402,8 +1402,7 @@ export function x_monnam(
         && state.u?.uz
         && state.u.uz.dnum === state.astral_level.dnum
     )) {
-        buf += rank_of(monster.m_lev, mdat.pmidx, monster.female, state)
-            .toLowerCase();
+        buf += lcase(rank_of(monster.m_lev, mdat.pmidx, monster.female, state));
         name_at_start = false;
     } else {
         buf += pm_name;
@@ -1452,7 +1451,7 @@ export function capitalizedAlwaysVisibleMonsterName(
     env = {},
 ) {
     const name = alwaysVisibleMonsterName(monster, state, env);
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+    return upstart(name);
 }
 
 // C ref: do_name.c mon_nam_too() (1189-1216). The object of a verb whose
@@ -1496,8 +1495,8 @@ export function monverbself(mon, monnamtext, verb, othertext,
         result = makeplural(result);
         /* for "it", makeplural() produces "they" but we want "them" as
            the object-position pronoun (C genders[3]: he="they" him="them") */
-        if (result.toLowerCase() === 'they') {
-            const capitaliz = result[0] === result[0].toUpperCase();
+        if (lcase(result) === 'they') {
+            const capitaliz = result[0] === highc(result[0]);
             result = capitaliz ? 'Them' : 'them';
         }
     }

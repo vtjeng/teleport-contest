@@ -25,6 +25,7 @@ import {
 } from './objects.js';
 import { SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { MAX_GLYPH } from './glyph_offsets.js';
+import { lcase } from './hacklib.js';
 
 const { NUMMONS } = MONSTERS;
 
@@ -116,7 +117,7 @@ export const GLYPHREP_CMAP_PARTITIONS = Object.freeze({
 function fixGlyphName(name) {
     return String(name).replace(/[A-Z]|[^a-z0-9]/gu, (character) => (
         character >= 'A' && character <= 'Z'
-            ? character.toLowerCase()
+            ? lcase(character)
             : '_'
     ));
 }
@@ -295,8 +296,8 @@ for (const [glyph, name] of SOURCE_GLYPH_IDS.entries()) {
     // add_glyph_to_cache() scans ascending glyph numbers and
     // find_glyph_in_cache() returns the first equal ID.  Several generic
     // object IDs also occur in a later piletop range.
-    if (name && !SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.has(name.toLowerCase())) {
-        SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.set(name.toLowerCase(), glyph);
+    if (name && !SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.has(lcase(name))) {
+        SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.set(lcase(name), glyph);
     }
 }
 
@@ -308,16 +309,16 @@ export function sourceGlyphName(name) {
 
 /** Numeric glyphs.c:match_glyph() result after its case-sensitive G_ gate. */
 export function sourceGlyphNumber(name) {
-    return SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.get(String(name).toLowerCase())
+    return SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.get(lcase(String(name)))
         ?? null;
 }
 
 /** Canonical loadsyms[] spelling for glyphs.c's case-sensitive S_ gate. */
 export function sourceSymbolIndex(name) {
-    const folded = String(name).toLowerCase();
+    const folded = lcase(String(name));
     const canonical = sourceSymbolNamesByIndex();
     const index = canonical.findIndex((entry) => (
-        entry !== undefined && `s_${entry}`.toLowerCase() === folded
+        entry !== undefined && lcase(`s_${entry}`) === folded
     ));
     return index < 0 ? null : index;
 }

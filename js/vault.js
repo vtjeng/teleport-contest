@@ -57,7 +57,7 @@ import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, lcase, upstart } from './hacklib.js';
 import { nomul } from './hack.js';
 import { add_to_minv, currency, freeinv, money_cnt, obj_extract_self, obfree, sobj_at, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
@@ -629,7 +629,7 @@ export async function gd_move(grd, env = {}) {
                     await message(`"I repeat, ${buf}"`, state, gdEnv);
                 } else {
                     await message(
-                        `"${buf.charAt(0).toUpperCase()}${buf.slice(1)}"`,
+                        `"${upstart(buf)}"`,
                         state, gdEnv,
                     );
                 }
@@ -1225,14 +1225,14 @@ export async function invault(state, env = {}) {
     } while (!buf && --trycount > 0);
 
     if (u.ualign.type === A_LAWFUL
-        && buf.substring(0, state.plname.length).toLowerCase()
-            !== state.plname.toLowerCase()) {
+        && lcase(buf.substring(0, state.plname.length))
+            !== lcase(state.plname)) {
         adjalign(-1, state);
     }
 
-    if (buf.toLowerCase() === 'croesus'
-        || buf.toLowerCase() === 'kroisos'
-        || buf.toLowerCase() === 'creosote') {
+    if (lcase(buf) === 'croesus'
+        || lcase(buf) === 'kroisos'
+        || lcase(buf) === 'creosote') {
         if (!state.mvitals[PM_CROESUS].died) {
             if (Deaf(state.u)) {
                 if (!Blind(state.u))

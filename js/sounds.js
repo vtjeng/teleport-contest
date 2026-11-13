@@ -126,7 +126,7 @@ import { finish_steps } from './source_steps.js';
 import { mplayer_talk } from './mplayer.js';
 import {
     decodeUtf8ByteString,
-    encodeUtf8ByteString,
+    encodeUtf8ByteString, lcase, ucase,
 } from './hacklib.js';
 import { search_special } from './mkroom.js';
 import { genus, get_iter_mons, wake_nearto } from './mon.js';
@@ -1351,8 +1351,8 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             const title = noveltitle(book.novelidx, { random: coreRandom });
             book.novelidx = title.novelidx;
             verbalMsg = `Ah, so you have a copy of /${title.title}/.`;
-            if (title.title.toLowerCase() !== 'snuff'
-                && title.title.toLowerCase() !== 'the wee free men') {
+            if (lcase(title.title) !== 'snuff'
+                && lcase(title.title) !== 'the wee free men') {
                 verbalMsg += '  I may have been misquoted there.';
             }
             state.context.tribute ??= {};
@@ -1389,7 +1389,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         if (ptr === state.mons?.[PM_DEATH]) {
             // files.c tribute dialogue is emitted by pline1() without
             // quotation marks and Death's voice uses the special voice bit.
-            const deathMessage = verbalMsg.toUpperCase();
+            const deathMessage = ucase(verbalMsg);
             await message(deathMessage, state);
             set_voice(null, 0, 80, voice_death, state);
             sound_speak(deathMessage, state);
@@ -1932,7 +1932,7 @@ export function assign_soundlib(state, index) {
 // back to nosound and reports the sole available choice.
 export function choose_soundlib(name, state = game, rawEnv = {}) {
     for (let i = 1; i < soundlib_choices.length; ++i) {
-        if (name.toLowerCase() === soundlib_choices[i].soundname.toLowerCase()) {
+        if (lcase(name) === lcase(soundlib_choices[i].soundname)) {
             assign_soundlib(state, i);
             return;
         }

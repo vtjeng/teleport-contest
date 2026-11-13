@@ -943,7 +943,7 @@ function cad(altusage, state = game) {
         result = 'thing';
         break;
     }
-    return altusage ? `"${result[0].toUpperCase()}${result.slice(1)}!  `
+    return altusage ? `"${upstart(result)}!  `
         : result;
 }
 
@@ -2044,7 +2044,7 @@ async function shk_names_obj(shkp, obj, fmt, amount, arg, state, env) {
         discover_object(obj.otyp, true, true, true, state);
     }
     const name = paydoname(obj, state);
-    const subject = unknown ? `${name[0].toUpperCase()}${name.slice(1)}; you` : 'You';
+    const subject = unknown ? `${upstart(name)}; you` : 'You';
     const args = [unknown ? obj.quan > 1 ? 'them' : 'it' : name,
         amount, plur(amount), arg];
     const text = fmt.replace(/%ld|%s/gu, () => String(args.shift()));

@@ -262,7 +262,7 @@ import {
     sgn,
     s_suffix,
     upstart,
-    visctrl,
+    visctrl, lcase,
 } from './hacklib.js';
 import {
     can_reach_floor,
@@ -1153,7 +1153,7 @@ export async function unmul(msg_override, state = game, env = {}) {
     if (state.nomovemsg) {
         await message(state.nomovemsg, state, env);
         if (Upolyd(state.u)
-            && state.nomovemsg.toLowerCase().startsWith(
+            && lcase(state.nomovemsg).startsWith(
                 'you survived that ',
             )) {
             const form = an(pmname(
@@ -3680,7 +3680,7 @@ async function domove_fight_web(x, y, state) {
             const scndbuf = state.u.twoweap ? weapon_descr(state.uswapwep, state) : '';
             const onewep = !scndbuf || uwepbuf === scndbuf;
             let uwepstr;
-            if (['armor', 'food', 'venom'].includes(uwepbuf.toLowerCase())) {
+            if (['armor', 'food', 'venom'].includes(lcase(uwepbuf))) {
                 uwepstr = uwepbuf;
             } else if (uwep.quan === 1 && !(state.u.twoweap && onewep)) {
                 uwepstr = an(uwepbuf);

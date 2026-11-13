@@ -28,6 +28,7 @@ import { NUMMONS } from './monsters.js';
 import { genders } from './roles.js';
 import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_GREEN, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW } from './terminal.js';
 import { dungeon_at } from './dungeon_table.js';
+import { lcase } from './hacklib.js';
 
 // C macro: SIZE(arr) = sizeof(arr)/sizeof(arr[0]) → JS: arr.length
 export function SIZE(arr) { return arr.length; }
@@ -2754,7 +2755,7 @@ export function set_symhandling(handling, which_set) {
   let i = 0;
   gs.symset[which_set].handling = H_UNK;
   while (known_handling[i]) {
-    if (known_handling[i].toLowerCase() === handling.toLowerCase()) { gs.symset[which_set].handling = i; return; }
+    if (lcase(known_handling[i]) === lcase(handling)) { gs.symset[which_set].handling = i; return; }
     i++;
   }
 }

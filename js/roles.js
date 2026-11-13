@@ -1,3 +1,4 @@
+import { lcase } from './hacklib.js';
 // roles.js -- character role, race, gender, and alignment tables.
 // C ref: src/role.c roles[], races[], genders[], aligns[].
 
@@ -431,11 +432,11 @@ export const aligns = deepFreeze([
 ]);
 
 function text(value) {
-    return typeof value === 'string' ? value.toLowerCase() : '';
+    return typeof value === 'string' ? lcase(value) : '';
 }
 
 function prefixMatch(input, candidate) {
-    return candidate != null && candidate.toLowerCase().startsWith(input);
+    return candidate != null && lcase(candidate).startsWith(input);
 }
 
 function randomToken(input) {
@@ -454,7 +455,7 @@ export function str2role(value) {
         const role = roles[i];
         if (prefixMatch(input, role.name.m)
             || prefixMatch(input, role.name.f)
-            || role.filecode.toLowerCase() === input) return i;
+            || lcase(role.filecode) === input) return i;
     }
     return randomToken(input) ? ROLE_RANDOM : ROLE_NONE;
 }
@@ -471,7 +472,7 @@ export function str2race(value) {
     for (let i = 0; i < races.length; ++i) {
         const race = races[i];
         if (prefixMatch(input, race.noun) || prefixMatch(input, race.adj)
-            || race.filecode.toLowerCase() === input) return i;
+            || lcase(race.filecode) === input) return i;
     }
     return randomToken(input) ? ROLE_RANDOM : ROLE_NONE;
 }
@@ -488,7 +489,7 @@ export function str2gend(value) {
     if (!input) return ROLE_NONE;
     for (let i = 0; i < ROLE_GENDERS; ++i) {
         if (prefixMatch(input, genders[i].adj)
-            || genders[i].filecode.toLowerCase() === input) return i;
+            || lcase(genders[i].filecode) === input) return i;
     }
     return randomToken(input) ? ROLE_RANDOM : ROLE_NONE;
 }
@@ -505,7 +506,7 @@ export function str2align(value) {
     if (!input) return ROLE_NONE;
     for (let i = 0; i < ROLE_ALIGNS; ++i) {
         if (prefixMatch(input, aligns[i].adj)
-            || aligns[i].filecode.toLowerCase() === input) return i;
+            || lcase(aligns[i].filecode) === input) return i;
     }
     return randomToken(input) ? ROLE_RANDOM : ROLE_NONE;
 }

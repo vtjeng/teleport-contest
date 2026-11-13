@@ -16,7 +16,7 @@ import {
 import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { game } from './gstate.js';
-import { mungspaces, strstri, upstart } from './hacklib.js';
+import { mungspaces, strstri, upstart, lcase } from './hacklib.js';
 import { getobj, hold_another_object, obfree, useup } from './invent.js';
 import { update_inventory } from './invent.js';
 import { nohands } from './mondata.js';
@@ -204,11 +204,11 @@ export async function dowrite(pen, state = game, env = {}) {
     let nm = mungspaces(namebuf); /* remove any excess whitespace */
     if (nm[0] === '\x1b' || !nm)
         return ECMD_TIME;
-    if (nm.toLowerCase().startsWith('scroll '))
+    if (lcase(nm).startsWith('scroll '))
         nm = nm.slice(7);
-    else if (nm.toLowerCase().startsWith('spellbook '))
+    else if (lcase(nm).startsWith('spellbook '))
         nm = nm.slice(10);
-    if (nm.toLowerCase().startsWith('of '))
+    if (lcase(nm).startsWith('of '))
         nm = nm.slice(3);
 
     // C ref: write.c:139-142. Normalize British "armour" to "armor".
@@ -235,7 +235,7 @@ export async function dowrite(pen, state = game, env = {}) {
         if (!OBJ_NAME(type, state))
             continue;
 
-        if (OBJ_NAME(type, state).toLowerCase() === nm.toLowerCase()) {
+        if (lcase(OBJ_NAME(type, state)) === lcase(nm)) {
             if (type.oc_name_known
                 /* spellbooks can only be written by_name, so no need to
                    hold out for a 'better' by_descr match */
@@ -250,7 +250,7 @@ export async function dowrite(pen, state = game, env = {}) {
         }
 
         const descr = OBJ_DESCR(type, state);
-        if (descr && descr.toLowerCase() === nm.toLowerCase()) {
+        if (descr && lcase(descr) === lcase(nm)) {
             by_descr = true;
             found = true;
             break;
@@ -265,7 +265,7 @@ export async function dowrite(pen, state = game, env = {}) {
             /* player might assign same name multiple times and if so,
                we choose one of those matches randomly */
             if (type.oc_uname
-                && type.oc_uname.toLowerCase() === nm.toLowerCase()
+                && lcase(type.oc_uname) === lcase(nm)
                 /* prefer attempting to write the real scroll type if
                    the typename clobbers a real scroll and is known to
                    be incorrect */
@@ -513,7 +513,7 @@ export function new_book_description(booktype, state) {
 
     const descr = OBJ_DESCR(objectType(booktype, state), state);
     const isComposition = compositions.some(
-        (c) => c.toLowerCase() === descr.toLowerCase(),
+        (c) => lcase(c) === lcase(descr),
     );
     return `${isComposition ? 'into ' : ''}${descr}`;
 }

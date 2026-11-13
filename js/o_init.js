@@ -5,7 +5,7 @@ import { disp_artifact_discoveries, dump_artifact_info, NROFARTIFACTS } from './
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
-    encodeUtf8ByteString, strncmpi, strstri, strsubst, truncateByteString,
+    encodeUtf8ByteString, strncmpi, strstri, strsubst, truncateByteString, lcase,
 } from './hacklib.js';
 import {
     _getobjInternals, let_to_name,
@@ -615,7 +615,7 @@ export function sortloot_descr(otyp, state = game) {
 }
 
 export function oclass_to_name(oclass) {
-    return let_to_name(oclass, false, false).toLowerCase();
+    return lcase(let_to_name(oclass, false, false));
 }
 
 function classSymbol(oclass) {

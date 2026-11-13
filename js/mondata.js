@@ -68,7 +68,7 @@ import { canspotmon } from './display.js';
 // only inside function bodies, so this direct edge resolves the same way.
 import { has_ceiling } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, highc, strstri } from './hacklib.js';
+import { dist2, highc, strstri, lcase } from './hacklib.js';
 import * as M from './monsters.js';
 import {
     ALCHEMY_SMOCK,
@@ -1186,10 +1186,10 @@ export function name_to_monclass(in_str, mndxRef = null, env = {}) {
         return monsterClass;
     }
 
-    if (text.toLowerCase() === 'long') return 0;
+    if (lcase(text) === 'long') return 0;
     const singular = makesingular(text);
     if (['an', 'the', 'or', 'other', 'or other'].some(
-        (word) => singular.toLowerCase() === word,
+        (word) => lcase(singular) === word,
     )) return 0;
 
     const trueMatches = new Map([
@@ -1199,7 +1199,7 @@ export function name_to_monclass(in_str, mndxRef = null, env = {}) {
         ['bug', { monsterClass: M.S_XAN }],
         ['fish', { monsterClass: M.S_EEL }],
     ]);
-    const special = trueMatches.get(singular.toLowerCase());
+    const special = trueMatches.get(lcase(singular));
     if (special) {
         if (special.value !== undefined) {
             if (mndxRef) mndxRef.value = special.value;

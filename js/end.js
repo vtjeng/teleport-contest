@@ -136,7 +136,7 @@ import {
     S_WRAITH,
 } from './monsters.js';
 import { endmultishot } from './dothrow.js';
-import { upstart } from './hacklib.js';
+import { upstart, lcase } from './hacklib.js';
 import {
     carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobjRuntime, update_inventory,
     useup,
@@ -494,7 +494,7 @@ export async function done_in_by(mtmp, how, state = game) {
             // set up fake mptr for type_is_pname/the_unique_pm.
             effectiveMptr = mons[mtmp.mappearance];
             fakenm = pmname(effectiveMptr, gender(mtmp));
-        } else if (alt && realnm.toLowerCase().includes('vampire')
+        } else if (alt && lcase(realnm).includes('vampire')
                    && fakenm === 'vampire bat') {
             // Special case: use "vampire in bat form" in preference
             // to redundant looking "vampire in vampire bat form".

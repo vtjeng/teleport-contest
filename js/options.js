@@ -181,7 +181,7 @@ import {
     str_start_is,
     strstri,
     truncateByteString,
-    visctrl,
+    visctrl, lcase, strcmpi, strncmpi,
 } from './hacklib.js';
 import { isDefaultSymsetName, read_sym_file } from './files.js';
 import {
@@ -330,7 +330,7 @@ const GET_CNF_VAL = 5;
 // catalog matters because unported options still determine whether a prefix
 // is unique (and are preserved under their canonical key).
 const SOURCE_OPTION_NAMES = Object.freeze(
-    allopt.map((option) => option.name.toLowerCase()),
+    allopt.map((option) => lcase(option.name)),
 );
 
 function sourceOptionMinLength(name) {
@@ -1037,7 +1037,7 @@ function optfn_boolean_returns_before_setting(result, row, value, negated) {
 // caller must leave the option and everything it drags with it alone.
 function booleanValue(result, row, statement, value, negated) {
     if (value == null || value === '') return !negated;
-    const normalized = value.toLowerCase();
+    const normalized = lcase(value);
     if ('true'.startsWith(normalized)
         || 'yes'.startsWith(normalized)
         || normalized === 'on'
@@ -1148,12 +1148,9 @@ function stripValueNegation(value) {
         if (token.startsWith('!')) {
             negated = !negated;
             token = token.slice(1);
-        } else if (/^no-/iu.test(token)) {
+        } else if (strncmpi(token, 'no', 2) === 0) {
             negated = !negated;
-            token = token.slice(3);
-        } else if (/^no/iu.test(token)) {
-            negated = !negated;
-            token = token.slice(2);
+            token = token.slice(token[2] === '-' ? 3 : 2);
         } else {
             break;
         }
@@ -1210,7 +1207,7 @@ function roleoptIndex(optidx) {
     }
     if (typeof optidx === 'string') {
         return opt2roleopt(allopt.findIndex(
-            (option) => option.name.toLowerCase() === optidx.toLowerCase(),
+            (option) => lcase(option.name) === lcase(optidx),
         ));
     }
     return opt2roleopt(optidx);
@@ -1298,7 +1295,7 @@ function parse_role_opt(
     let previousValueNegated = false;
     let first = true;
     let finalOp = '';
-    const optionName = String(fullname).toLowerCase();
+    const optionName = lcase(String(fullname));
 
     for (const rawValue of values) {
         const valueNegation = stripValueNegation(rawValue);
@@ -1369,7 +1366,7 @@ function get_cnf_role_opt(state, optidx) {
 
 function applyParsedCharacterOption(result, option, parsedOp) {
     if (parsedOp === '!') return;
-    const optionName = option.name.toLowerCase();
+    const optionName = lcase(option.name);
     const choice = CHARACTER_OPTIONS[optionName];
     const parsed = choice.parser(parsedOp);
     // C ref: optfn_role(), optfn_race(), optfn_gender() and
@@ -1394,8 +1391,9 @@ function applyParsedCharacterOption(result, option, parsedOp) {
 }
 
 function characterOptionValue(result, option) {
-    const optionName = (typeof option === 'number'
-        ? allopt[option]?.name : option?.name)?.toLowerCase();
+    const name = typeof option === 'number'
+        ? allopt[option]?.name : option?.name;
+    const optionName = name == null ? undefined : lcase(name);
     const choice = CHARACTER_OPTIONS[optionName];
     if (!choice) return ROLE_NONE;
     const table = optionName === 'gender' ? genders : aligns;
@@ -1444,11 +1442,11 @@ function optfn_gender(
 function setCharacterOption(
     result, optionState, option, statement, negated, usingAlias, duplicate,
 ) {
-    if (option.name.toLowerCase() === 'alignment') {
+    if (lcase(option.name) === 'alignment') {
         optfn_alignment(
             result, option, statement, negated, duplicate, usingAlias,
         );
-    } else if (option.name.toLowerCase() === 'gender') {
+    } else if (lcase(option.name) === 'gender') {
         optfn_gender(
             result, option, statement, negated, duplicate, usingAlias,
         );
@@ -1472,7 +1470,7 @@ function setCharacterOption(
 function setPlaymode(result, value, duplicate) {
     if (duplicate) return;
     if (value == null || value === '') return; /* optn_err, silently */
-    const mode = value.toLowerCase();
+    const mode = lcase(value);
     let canonical;
     if (mode.startsWith('normal') || mode === 'play') canonical = 'normal';
     else if (mode.startsWith('explor') || mode.startsWith('discov')) {
@@ -1783,11 +1781,11 @@ function unnamedSymsetNags(result, inspected) {
 function parsesymbolsGlyphrepNags(result, set, assignments) {
     const name = result.parserGlyphSetContext.names[set];
     const utf8 = Boolean(name) && SYMBOL_SET_DEFINITIONS.find(
-        (definition) => definition.name.toLowerCase() === name.toLowerCase(),
+        (definition) => lcase(definition.name) === lcase(name),
     )?.handling === 'UTF8';
     for (const { kind, glyphrepName, rawValue } of assignments) {
         if (kind !== 'symbol') continue;
-        if (!utf8 && !/^u\+/iu.test(rawValue)) continue;
+        if (!utf8 && !/^[Uu]\+/u.test(rawValue)) continue;
         unnamedSymsetNags(
             result, inspect_glyphrep(`${glyphrepName}:${rawValue}`),
         );
@@ -2094,7 +2092,7 @@ const STATUS_HILITE_ATTRIBUTES = Object.freeze({
 function menuHeadingToken(value) {
     // coloratt.c match_str2clr()/match_str2attr() ignore spaces, hyphens,
     // and underscores anywhere in the value.
-    return String(value).trim().toLowerCase().replace(/[ _-]+/gu, '');
+    return lcase(String(value).trim()).replace(/[ _-]+/gu, '');
 }
 
 function menuHeadingColor(token, rawToken = token) {
@@ -2310,7 +2308,7 @@ function statusHiliteFieldName(rawName) {
     // a prefix of carrying-capacity where "carryingc" is not.  The keys below
     // are the initblstats[] names, and strncmpi() folds case, so the lowercase
     // spelling of "HD" compares the same way.
-    const prefix = String(rawName).toLowerCase();
+    const prefix = lcase(String(rawName));
     const partials = Object.keys(STATUS_HILITE_FIELDS).filter(
         (name) => name.startsWith(prefix),
     );
@@ -2428,7 +2426,7 @@ function match_str2conditionbitmask(str) {
     const aliases = Object.keys(STATUS_CONDITION_ALIASES);
     const exact = aliases.find((name) => menuHeadingToken(name) === token);
     if (exact) return STATUS_CONDITION_ALIASES[exact];
-    const prefix = str.toLowerCase();
+    const prefix = lcase(str);
     return aliases.filter((name) => name.startsWith(prefix))
         .flatMap((name) => STATUS_CONDITION_ALIASES[name]);
 }
@@ -3362,8 +3360,8 @@ function firstEscapedByte(text) {
         const match = text.slice(index + 2).match(/^[0-7]{1,3}/u);
         value = Number.parseInt(match[0], 8) & 0xFF;
     } else if ((next === 'x' || next === 'X')
-        && /[0-9a-f]/iu.test(text[index + 2] ?? '')) {
-        const match = text.slice(index + 2).match(/^[0-9a-f]{1,2}/iu);
+        && /[0-9A-Fa-f]/u.test(text[index + 2] ?? '')) {
+        const match = text.slice(index + 2).match(/^[0-9A-Fa-f]{1,2}/u);
         value = Number.parseInt(match[0], 16) & 0xFF;
     } else {
         const escaped = {
@@ -3394,13 +3392,13 @@ function textToKey(text) {
     if (value[0] === '\\') return firstEscapedByte(value);
 
     let meta = false;
-    if (value[0].toUpperCase() === 'M') {
+    if (highc(value[0]) === 'M') {
         value = value.slice(1);
         if (value[0] === '-' && value.length > 1) value = value.slice(1);
         if (value.length === 1) return metaByte(byteOf(value));
         meta = true;
     }
-    if (value[0] === '^' || value[0]?.toUpperCase() === 'C') {
+    if (value[0] === '^' || highc(value[0] ?? '') === 'C') {
         const original = value[0];
         if (value.length === 1) {
             const byte = byteOf(original);
@@ -3514,7 +3512,7 @@ function bindingSeparator(bindings) {
 //    the gc.cmd_bind that rhack() sets; `parameter` below is computed for the
 //    diagnostics only.
 function bind_key(result, command) {
-    if (command.toLowerCase() === 'nothing') return true;
+    if (lcase(command) === 'nothing') return true;
     // C truncates its copy at the '(' and points p past it only when a ')'
     // follows; otherwise the copy keeps the parenthesis and matches no row.
     const opening = command.indexOf('(');
@@ -3524,7 +3522,7 @@ function bind_key(result, command) {
     const parameter = parenthesized
         ? command.slice(opening + 1, closing) : null;
     const row = extcmdlist.find((entry) => (
-        entry.ef_txt.toLowerCase() === name.toLowerCase()
+        lcase(entry.ef_txt) === lcase(name)
         && (entry.flags & INTERNALCMD) === 0
     ));
     if (!row) return false;
@@ -3556,9 +3554,9 @@ const MOUSE_BUTTON_NAMES = Object.freeze(['mouse1', 'mouse2']);
 // mouseaction -- bind, and a name that matches a row without MOUSECMD keeps
 // the loop running and so answers FALSE.
 function bind_mousebtn(command) {
-    if (command.toLowerCase() === 'nothing') return true;
+    if (lcase(command) === 'nothing') return true;
     return extcmdlist.some((entry) => (
-        entry.ef_txt.toLowerCase() === command.toLowerCase()
+        lcase(entry.ef_txt) === lcase(command)
         && (entry.flags & MOUSECMD) !== 0
     ));
 }
@@ -3628,7 +3626,7 @@ function applyMenuBinding(result, binding) {
     // compatibility projection of parsed option state.
     const operation = {
         key,
-        command: commandName.toLowerCase(),
+        command: lcase(commandName),
     };
     result.gameplayBindings.push(operation);
     result.commandOperations.push({ type: 'bind', ...operation });
@@ -5279,7 +5277,7 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
     const { resultKey, field } = booleanOptionStorage(row.addr);
     result[resultKey][field] = enabled;
 
-    switch (row.name.toLowerCase()) {
+    switch (lcase(row.name)) {
     case 'pauper':
         // options.c:5288-5291. Pauper implies nudist immediately, so the
         // right-to-left order of two options on one line remains observable.
@@ -5633,7 +5631,7 @@ function matchedPrefixOptionRow(statement, parsedName) {
 // cond_<condition> comes from the single cond_ prefix row, and a name that
 // matched nothing has no row at all.
 const ALLOPT_ROWS = Object.freeze(new Map(
-    allopt.map((option) => [option.name.toLowerCase(), option]),
+    allopt.map((option) => [lcase(option.name), option]),
 ));
 
 function matchedOptionRow(name) {
@@ -5858,7 +5856,7 @@ function bad_negation(result, optname, withParameter = true) {
 // match_optname(..., FALSE) rejects that suffix.
 function parse_cond_option(target, negated, opts) {
     if (!opts || opts.length <= 'cond_'.length) return 2;
-    const suffix = opts.slice('cond_'.length).toLowerCase();
+    const suffix = lcase(opts.slice('cond_'.length));
     const canonical = SOURCE_CONDITION_NAMES.find((candidate) => (
         suffix.length >= Math.min(candidate.length, 4)
             && candidate.startsWith(suffix)
@@ -6112,10 +6110,9 @@ function parseSymbolAssignments(value) {
         const rawValue = mungspaces(cString(delimiter + 1));
         // match_sym() independently stops its lookup key at ':' or '='.
         // With the carried-colon quirk, sourceName can still contain an '='.
-        const lookupName = sourceName
+        const lookupName = lcase(sourceName
             .split(/[:=]/u, 1)[0]
-            .trim()
-            .toLowerCase();
+            .trim());
         const glyphrepName = sourceName.split(/[:=]/u, 1)[0].trim();
         // parse_id()'s G_ gate is case-sensitive; match_glyph() then compares
         // the complete glyph-ID cache case-insensitively.
@@ -6223,7 +6220,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     // `element` keeps those prefixes and is read nowhere else.
     const { statement, negated } = stripNegation(element);
     const { name: rawName, value } = splitNameAndValue(statement);
-    const parsedName = rawName.toLowerCase();
+    const parsedName = lcase(rawName);
 
     const sourceMatch = sourceOptionMatch(parsedName);
     const aliasTarget = optionAliasTarget(parsedName);
@@ -6614,7 +6611,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
 }
 
 function applyDirectOption(result, key, value) {
-    const normalized = key.toLowerCase();
+    const normalized = lcase(key);
     if (normalized === 'name') {
         result.name = truncateByteString(value, PLAYER_NAME_BYTE_LIMIT);
     }
@@ -6883,7 +6880,7 @@ export function parseNethackrc(rc, random = rn2) {
         const delimiter = configDelimiter(mungedLine);
         const statementNameText = delimiter >= 0
             ? mungedLine.slice(0, delimiter) : mungedLine;
-        const statementName = mungspaces(statementNameText).toLowerCase();
+        const statementName = lcase(mungspaces(statementNameText));
         if (matchesConfigName(statementName, 'choose', 6)) {
             // cfgfiles.c parse_conf_buf():1775-1798.  Both arms report and
             // leave gc.config_section_chosen null, which is what makes every
@@ -8037,7 +8034,7 @@ function setBooleanOptionValue(state, option, value) {
     for (let index = 0; index < path.length - 1; ++index)
         owner = owner[path[index]];
     owner[path[path.length - 1]] = value;
-    const parsedName = option.name.toLowerCase();
+    const parsedName = lcase(option.name);
     if (option.addr !== `flags.${parsedName}`)
         delete state.flags?.[parsedName];
 }
@@ -8047,7 +8044,7 @@ function setBooleanOptionValue(state, option, value) {
 // `helpers` are the ones doset() receives; parseoptions() hands them to the
 // option's handler.
 export async function toggle_bool_option(prefix, state, helpers) {
-    const text = String(prefix).toLowerCase();
+    const text = lcase(String(prefix));
     let result = ECMD_FAIL;
     // C deliberately does not stop after the first prefix match: every
     // matching in-game BoolOpt row is toggled, and each row refreshes the
@@ -8056,7 +8053,7 @@ export async function toggle_bool_option(prefix, state, helpers) {
         if (option.opttyp !== 'BoolOpt'
             || option.setwhere !== set_in_game
             || !option.addr
-            || !option.name.toLowerCase().startsWith(text)) continue;
+            || !lcase(option.name).startsWith(text)) continue;
         // 9290-9292: a leading '!' turns a set option off, and parseoptions()
         // runs optfn_boolean(), which prints "'name' option toggled on." or
         // "off.".
@@ -9410,7 +9407,7 @@ export async function handler_status_conditions(state, helpers) {
         const rankSort = Boolean(state.gc?.condmenu_sortorder);
         const names = STATUS_CONDITIONS.map(({ option }, index) => ({ option, index }));
         names.sort((a, b) => (rankSort ? CONDITION_RANKS[a.index] - CONDITION_RANKS[b.index] : 0)
-            || a.option.toLowerCase().localeCompare(b.option.toLowerCase(), 'en'));
+            || strcmpi(a.option, b.option));
         const title = rankSort ? 'by ranking' : 'alphabetically';
         const other = rankSort ? 'alphabetically' : 'by ranking';
         const items = [{

@@ -2,7 +2,7 @@
 // C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
 
 import { CMD_PARAM, extcmdlist } from './extcmdlist_data.js';
-import { push_front } from './hacklib.js';
+import { push_front, lcase, ucase } from './hacklib.js';
 
 // C ref: cmd.c commands_init(), which walks extcmdlist[] and binds every row
 // carrying a nonzero key. Keeping that order matters because rebinding an
@@ -233,7 +233,7 @@ function resetCommandBindings(
         // second, which is observable after user bindings and mode changes.
         const modeKeys = numberPadEnabled
             ? [key, key | 0x80, key | 0x80]
-            : [key, directionKeys.toUpperCase().charCodeAt(direction), key & 0x1F];
+            : [key, ucase(directionKeys).charCodeAt(direction), key & 0x1F];
         return modeKeys.map((modeKey) => {
             const binding = bindingAt(model.bindings, modeKey);
             const backup = {
@@ -256,7 +256,7 @@ function resetCommandBindings(
         } else {
             setBinding(
                 model.bindings,
-                directionKeys.toUpperCase().charCodeAt(direction),
+                ucase(directionKeys).charCodeAt(direction),
                 run,
             );
             setBinding(model.bindings, key & 0x1F, rush);
@@ -317,11 +317,11 @@ export function createCommandBindingModel(state) {
             const opening = operation.command.indexOf('(');
             const closing = operation.command.lastIndexOf(')');
             const parenthesized = opening >= 0 && closing > opening;
-            const command = (parenthesized
+            const command = lcase(parenthesized
                 ? operation.command.slice(0, opening)
-                : operation.command).toLowerCase();
+                : operation.command);
             const entry = extcmdlist.find((candidate) => (
-                candidate.ef_txt.toLowerCase() === command
+                lcase(candidate.ef_txt) === command
             ));
             const param = parenthesized && entry
                 && (entry.flags & CMD_PARAM) !== 0

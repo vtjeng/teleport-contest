@@ -10,7 +10,7 @@ import {
     fuzzymatch,
     mungspaces,
     strstri,
-    truncateByteString,
+    truncateByteString, lcase,
 } from './hacklib.js';
 import {
     regex_compile,
@@ -182,7 +182,7 @@ function scanWidthTwoHex(value, start) {
     const field = value.slice(start, start + 2);
     if (!field) return null;
     // The recorder's glibc accepts a width-exhausted 0x prefix as zero.
-    if (/^0x/iu.test(field)) return { value: 0n, next: start + 2 };
+    if (/^0[Xx]/u.test(field)) return { value: 0n, next: start + 2 };
     let index = 0;
     let negative = false;
     if (field[index] === '+' || field[index] === '-') {
@@ -190,7 +190,7 @@ function scanWidthTwoHex(value, start) {
         ++index;
     }
     const begin = index;
-    while (index < field.length && /[0-9a-f]/iu.test(field[index])) ++index;
+    while (index < field.length && /[0-9A-Fa-f]/u.test(field[index])) ++index;
     if (index === begin) return null;
     let parsed = BigInt(`0x${field.slice(begin, index)}`);
     if (negative) parsed = -parsed;
@@ -239,7 +239,7 @@ export function check_enhanced_colors(buf) {
 // parser below then rejects hexadecimal letters and deliberately retains the
 // source's last-component-wins behavior when more than two dashes occur.
 export function onlyhexdigits(buf) {
-    return /^[0-9a-f-]*$/iu.test(String(buf));
+    return /^[0-9A-Fa-f-]*$/u.test(String(buf));
 }
 
 export function rgbstr_to_int32(rgbstr) {
@@ -362,7 +362,7 @@ function pickedValues(picks) {
 // masks; PICK_ANY returns the separate source HL bit vocabulary.
 export async function query_attr(state, prompt, dflt, helpers) {
     const { ttyMenuColorAttribute } = await import('./windows.js');
-    const allowMany = Boolean(prompt && prompt.slice(0, 6).toLowerCase() === 'choose');
+    const allowMany = Boolean(prompt && lcase(prompt.slice(0, 6)) === 'choose');
     const rows = MENU_COLOR_ATTRIBUTES.slice(0, MENU_COLOR_ATTRIBUTES.findIndex(row => row.name === null));
     const picks = pickedValues(await queryMenu(state, {
         items: rows.map(({ name, attr }, i) => ({ text: name, value: i + 1,

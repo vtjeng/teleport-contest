@@ -9,7 +9,7 @@ import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
-    strstri,
+    strstri, lcase, ucase, upstart, highc, lowc, strncmpi,
 } from './hacklib.js';
 import { Strlen_ } from './strutil.js';
 import { name_to_mon } from './mondata.js';
@@ -162,18 +162,18 @@ export function normalize_initial_fruit(value, eightBitTty = false) {
 }
 
 function endsWithCI(value, suffix) {
-    return value.toLowerCase().endsWith(suffix.toLowerCase());
+    return lcase(value).endsWith(lcase(suffix));
 }
 
 function equalsCI(left, right) {
-    return left.toLowerCase() === right.toLowerCase();
+    return lcase(left) === lcase(right);
 }
 
 function caseChar(oldCharacter, newCharacter) {
     if (oldCharacter >= 'a' && oldCharacter <= 'z')
-        return newCharacter.toLowerCase();
+        return lcase(newCharacter);
     if (oldCharacter >= 'A' && oldCharacter <= 'Z')
-        return newCharacter.toUpperCase();
+        return ucase(newCharacter);
     return newCharacter;
 }
 
@@ -199,10 +199,10 @@ function replaceSuffixCase(value, oldLength, replacement) {
 }
 
 function singplur_compound(value) {
-    const lowered = value.toLowerCase();
+    const lowered = lcase(value);
     let selected = -1;
     for (const compound of COMPOUNDS) {
-        const index = lowered.indexOf(compound.toLowerCase());
+        const index = lowered.indexOf(lcase(compound));
         if (index >= 0 && (selected < 0 || index < selected)) selected = index;
     }
     return selected;
@@ -212,7 +212,7 @@ function badman(value, toPlural) {
     const suffix = toPlural ? 'man' : 'men';
     if (!endsWithCI(value, suffix)) return false;
     const prefixes = toPlural ? NO_MEN : NO_MAN;
-    const lowered = value.toLowerCase();
+    const lowered = lcase(value);
     for (const prefix of prefixes) {
         const start = value.length - suffix.length - prefix.length;
         if (start < 0) continue;
@@ -294,13 +294,13 @@ export function makeplural(oldstr) {
         ['hers', 'their'],
         ['its', 'their'],
     ]);
-    const pronoun = pronouns.get(original.toLowerCase());
+    const pronoun = pronouns.get(lcase(original));
     if (pronoun) {
-        return original[0] === original[0].toUpperCase()
-            ? pronoun[0].toUpperCase() + pronoun.slice(1)
+        return original[0] === highc(original[0])
+            ? upstart(pronoun)
             : pronoun;
     }
-    if (/^pair of /iu.test(original)) return original;
+    if (strncmpi(original, 'pair of ', 8) === 0) return original;
 
     const split = singplur_compound(original);
     const excess = split >= 0 ? original.slice(split) : '';
@@ -319,10 +319,10 @@ export function makeplural(oldstr) {
     if (equalsCI(base, 'ya') || endsWithCI(base, ' ya'))
         return base + excess;
 
-    const prior = base.at(-2)?.toLowerCase() ?? '';
+    const prior = lowc(base.at(-2) ?? '');
     if (len >= 3 && endsWithCI(base, 'man') && !badman(base, true))
         return replaceSuffixCase(base, 2, 'en') + excess;
-    if (last.toLowerCase() === 'f'
+    if (lcase(last) === 'f'
         && !endsWithCI(base, 'erf')
         && 'aeioulr'.includes(prior)) {
         return replaceSuffixCase(base, 1, 'ves') + excess;
@@ -363,7 +363,7 @@ export function makeplural(oldstr) {
         return replaceSuffixCase(base, 2, 'ices') + excess;
     }
 
-    const lowerLast = last.toLowerCase();
+    const lowerLast = lcase(last);
     const sibilant = 'zxs'.includes(lowerLast)
         || (lowerLast === 'h'
             && 'cs'.includes(prior)
@@ -387,10 +387,10 @@ export function makesingular(oldstr) {
         ['them', 'it'],
         ['their', 'its'],
     ]);
-    const pronoun = pronouns.get(original.toLowerCase());
+    const pronoun = pronouns.get(lcase(original));
     if (pronoun) {
-        return original[0] === original[0].toUpperCase()
-            ? pronoun[0].toUpperCase() + pronoun.slice(1)
+        return original[0] === highc(original[0])
+            ? upstart(pronoun)
             : pronoun;
     }
 
@@ -419,7 +419,7 @@ export function makesingular(oldstr) {
                 return base + excess;
             }
 
-            const fourthFromEnd = base.at(-4)?.toLowerCase();
+            const fourthFromEnd = lowc(base.at(-4) ?? '');
             if (endsWithCI(base, 'ves')
                 && fourthFromEnd
                 && ('aeioulr'.includes(fourthFromEnd))) {
@@ -454,8 +454,8 @@ export function makesingular(oldstr) {
         return base.slice(0, -1) + excess;
     }
     if (base.length >= 4 && endsWithCI(base, 'ia')
-        && 'lr'.includes(base.at(-3)?.toLowerCase() ?? '')
-        && base.at(-4)?.toLowerCase() === 'e') {
+        && 'lr'.includes(lowc(base.at(-3) ?? ''))
+        && lowc(base.at(-4) ?? '') === 'e') {
         base = replaceSuffixCase(base, 1, 'um');
     }
     return base + excess;
@@ -506,16 +506,21 @@ export function fruit_from_indx(indx, state = game) {
     return fruitNodes(state).find((fruit) => fruit.fid === indx) ?? null;
 }
 
+// C's `if (!strncmpi(s, "the ", 4)) s += 4`.
+function skipThe(s) {
+    return strncmpi(s, 'the ', 4) === 0 ? s.slice(4) : s;
+}
+
 // C ref: objnam.c doname_base()'s fake_arti handling. Named fruit can borrow
 // an artifact's proper-name article rules without becoming an artifact.
 export function matching_artifact_fruit(name, state = game) {
-    const candidate = String(name).replace(/^the /iu, '').toLowerCase();
+    const candidate = lcase(skipThe(String(name)));
     for (let index = 1; state.artilist?.[index]?.otyp; ++index) {
         const artifactName = state.artilist[index].name;
         if (typeof artifactName !== 'string') continue;
-        const comparable = artifactName.replace(/^the /iu, '').toLowerCase();
+        const comparable = lcase(skipThe(artifactName));
         if (candidate === comparable)
-            return { forceThe: /^the /iu.test(artifactName) };
+            return { forceThe: strncmpi(artifactName, 'the ', 4) === 0 };
     }
     return null;
 }

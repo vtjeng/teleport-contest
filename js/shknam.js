@@ -28,7 +28,7 @@ import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { distmin, letter } from './hacklib.js';
+import { distmin, letter, upstart } from './hacklib.js';
 import {
     makemon_by_context,
     mkmonmoney,
@@ -141,7 +141,7 @@ export function shkname_is_pname(shopkeeper) {
 // C ref: shknam.c Shknam() (843-851), the sentence-initial spelling.
 export function Shknam(shopkeeper, state = game, env = {}) {
     const name = shkname(shopkeeper, state, env);
-    return name ? name[0].toUpperCase() + name.slice(1) : name;
+    return name ? upstart(name) : name;
 }
 
 // C ref: shknam.c is_izchak() (908-924). Shopkeeper names carry a leading

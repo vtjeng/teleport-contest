@@ -205,7 +205,8 @@ export function lowc(c) {
 // and 'a'-'z' and nothing else, while JavaScript's toLowerCase(),
 // toUpperCase(), localeCompare() and the /i regular-expression flag also
 // change other letters: typed bytes 0xC3 0x89 decode to 'É', and
-// 'ß'.toUpperCase() is "SS".
+// 'ß'.toUpperCase() is "SS". scripts/ascii-case.test.mjs fails when js/
+// uses one of those outside its allowlist.
 
 // C ref: hacklib.c lcase().
 export function lcase(s) {

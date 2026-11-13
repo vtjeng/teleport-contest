@@ -3,7 +3,7 @@
 // maybe_skip_seps(), and the confirmation loop; win/tty/topl.c yn_function().
 
 import { game } from './gstate.js';
-import { truncateByteString } from './hacklib.js';
+import { truncateByteString, ucase, lcase } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { TOPLINE_NON_EMPTY } from './tty_message.js';
 import {
@@ -104,7 +104,7 @@ function selectionHeader(state) {
 }
 
 function indefiniteArticle(text) {
-    return /^[aeiou]/iu.test(text) ? `an ${text}` : `a ${text}`;
+    return /^[aeiouAEIOU]/u.test(text) ? `an ${text}` : `a ${text}`;
 }
 
 function roleCandidates(state) {
@@ -122,8 +122,8 @@ function roleCandidates(state) {
             && ok_align(index, flags.initrace, flags.initgend,
                 flags.initalign, filter))) continue;
 
-        let selector = roles[index].name.m[0].toLowerCase();
-        if (selector === lastSelector) selector = selector.toUpperCase();
+        let selector = lcase(roles[index].name.m[0]);
+        if (selector === lastSelector) selector = ucase(selector);
         let name = roles[index].name.m;
         if (roles[index].name.f) {
             if (flags.initgend === 1) name = roles[index].name.f;
@@ -153,7 +153,7 @@ function raceCandidates(state) {
                 flags.initalign, filter)) {
             candidates.push({
                 selector: races[index].noun[0],
-                groupSelector: races[index].noun[0].toUpperCase(),
+                groupSelector: ucase(races[index].noun[0]),
                 label: races[index].noun,
                 value: index,
             });
@@ -175,7 +175,7 @@ function genderCandidates(state) {
                 flags.initalign, filter)) {
             candidates.push({
                 selector: genders[index].adj[0],
-                groupSelector: genders[index].adj[0].toUpperCase(),
+                groupSelector: ucase(genders[index].adj[0]),
                 label: genders[index].adj,
                 value: index,
             });
@@ -197,7 +197,7 @@ function alignmentCandidates(state) {
                 index, filter)) {
             candidates.push({
                 selector: aligns[index].adj[0],
-                groupSelector: aligns[index].adj[0].toUpperCase(),
+                groupSelector: ucase(aligns[index].adj[0]),
                 label: aligns[index].adj,
                 value: index,
             });

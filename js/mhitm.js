@@ -79,7 +79,7 @@ import {
     dist2,
     distmin,
     s_suffix,
-    truncateByteString,
+    truncateByteString, lcase,
 } from './hacklib.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
@@ -1671,7 +1671,7 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
             }
         } else if (await newcham(mdef, null, { ...env, ncflags: NO_NC_FLAGS })) {
             if (state.gv?.vis) {
-                const wasSeen = before.toLowerCase() !== 'it';
+                const wasSeen = lcase(before) !== 'it';
                 const verbosely = state.flags.verbose || !wasSeen;
                 if (canspotmon(mdef, state)) {
                     await message(`${before}${verbosely ? freaky : ''}`

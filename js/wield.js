@@ -47,7 +47,7 @@ import { acurr, exercise } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { inv_cnt } from './hack.js';
-import { strstri } from './hacklib.js';
+import { strstri, upstart } from './hacklib.js';
 import { hcolor } from './do_name.js';
 import {
     addinv_nomerge,
@@ -763,7 +763,7 @@ async function quiver_ynq(query, state) {
 async function shk_your_prefix(obj, state) {
     const { shk_your } = await import('./shk.js');
     const prefix = shk_your(obj, state);
-    return prefix ? prefix[0].toUpperCase() + prefix.slice(1) : prefix;
+    return prefix ? upstart(prefix) : prefix;
 }
 
 // C ref: wield.c dowield() (354-457), the #wield command. Prompts the hero

@@ -38,7 +38,7 @@ import {
     digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, ordin,
     s_suffix, strcasecpy, strstri, truncateByteString,
     upstart,
-    push_front,
+    push_front, lcase, strncmpi,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -358,7 +358,7 @@ export function gloves_simple_name(gloves, state = game) {
     const name = type.oc_name_known
         ? OBJ_NAME(type, state)
         : OBJ_DESCR(type, state);
-    return name?.toLowerCase().includes('gauntlets')
+    return name != null && strstri(name, 'gauntlets') >= 0
         ? 'gauntlets'
         : 'gloves';
 }
@@ -697,7 +697,7 @@ function theUniqueObject(obj, type, state) {
 const VOWELS = 'aeiouAEIOU';
 
 function startsWithFold(text, prefix) {
-    return text.slice(0, prefix.length).toLowerCase() === prefix.toLowerCase();
+    return lcase(text.slice(0, prefix.length)) === lcase(prefix);
 }
 
 // C ref: objnam.c just_an(). Returns the article, with its trailing space,
@@ -709,9 +709,9 @@ export function just_an(str) {
         return 'aefhilmnosx'.includes(c0) ? 'an ' : 'a ';
     }
     if (startsWithFold(str, 'the ')
-        || str.toLowerCase() === 'molten lava'
-        || str.toLowerCase() === 'iron bars'
-        || str.toLowerCase() === 'ice') {
+        || lcase(str) === 'molten lava'
+        || lcase(str) === 'iron bars'
+        || lcase(str) === 'ice') {
         return '';
     }
     // The normal case is "an <vowel>" or "a <consonant>".
@@ -775,8 +775,7 @@ export function vtense(subj, verb) {
             if (spot < 0) spot = subj.length - 1;
             const endsWith = (offset, text) => (
                 spot - offset >= 0
-                && subj.slice(spot - offset, spot - offset + text.length)
-                    .toLowerCase() === text
+                && lcase(subj.slice(spot - offset, spot - offset + text.length)) === text
             );
             const plural = (lowc(subj[spot]) === 's' && spot !== 0
                     && !'us'.includes(lowc(subj[spot - 1])))
@@ -787,15 +786,14 @@ export function vtense(subj, verb) {
                 const special = SPECIAL_SUBJS.some((entry) => {
                     const entryLength = Strlen_(entry, 'vtense', 2610);
                     return (len === entryLength
-                        && subj.slice(0, len).toLowerCase()
-                            === entry.toLowerCase())
+                        && lcase(subj.slice(0, len))
+                            === lcase(entry))
                     || (len > entryLength && subj[spot - entryLength] === ' '
-                        && subj.slice(spot - entryLength + 1, spot + 1)
-                            .toLowerCase() === entry.toLowerCase())
+                        && lcase(subj.slice(spot - entryLength + 1, spot + 1)) === lcase(entry))
                 });
                 if (!special) return verb;
-            } else if (subj.toLowerCase() === 'they'
-                || subj.toLowerCase() === 'you') {
+            } else if (lcase(subj) === 'they'
+                || lcase(subj) === 'you') {
                 // Third person plural without a telltale s, and second person
                 // singular, which behaves as if plural.
                 return verb;
@@ -804,8 +802,8 @@ export function vtense(subj, verb) {
     }
     const buf = verb;
     const last = buf.length - 1;
-    if (buf.toLowerCase() === 'are') return strcasecpy(buf, 0, 'is');
-    if (buf.toLowerCase() === 'have') return strcasecpy(buf, last - 1, 's');
+    if (lcase(buf) === 'are') return strcasecpy(buf, 0, 'is');
+    if (lcase(buf) === 'have') return strcasecpy(buf, last - 1, 's');
     if ('zxs'.includes(lowc(buf[last]))
         || (buf.length >= 2 && lowc(buf[last]) === 'h'
             && 'cs'.includes(lowc(buf[last - 1])))
@@ -908,7 +906,7 @@ function* xname_flags_steps(obj, state, cxnFlags = CXN_NORMAL) {
     }
     if (!personalName && instanceName && ident.dknown)
         base = truncateByteString(`${base} named ${displayedInstanceName}`, BUFSZ - PREFIX - 1);
-    const bufferOffset = base.slice(0, 4).toLowerCase() === 'the ' ? 4 : 0;
+    const bufferOffset = lcase(base.slice(0, 4)) === 'the ' ? 4 : 0;
     return {
         name: bufferOffset ? base.slice(bufferOffset) : base,
         // C returns buf+4 after stripping "the "; doname_base() retains the
@@ -1525,8 +1523,8 @@ export function killer_xname(obj, state = game) {
         } else {
             name = xnameFresh(obj, state);
         }
-        const possessive = name.toLowerCase().includes("'s ")
-            || name.toLowerCase().includes("s' ");
+        const possessive = lcase(name).includes("'s ")
+            || lcase(name).includes("s' ");
         if (obj.quan === 1 && !possessive) {
             name = (obj_is_pname(obj, state) || the_unique_obj(obj, state))
                 ? the(name, state) : an(name);
@@ -1571,8 +1569,8 @@ export function the(str, state = game) {
         // a caller handed this an empty name, which is a defect here.
         throw new Error('the(): empty name');
     }
-    if (str.slice(0, 4).toLowerCase() === 'the ')
-        return str[0].toLowerCase() + str.slice(1);
+    if (lcase(str.slice(0, 4)) === 'the ')
+        return lcase(str[0]) + str.slice(1);
     let insertThe = str[0] < 'A' || str[0] > 'Z'
         || CapitalMon(str, state);
     if (!insertThe) {
@@ -1580,7 +1578,7 @@ export function the(str, state = game) {
         if (fruit) {
             const artifact = artifact_name(str, null, false, state);
             insertThe = !artifact
-                || artifact.slice(0, 4).toLowerCase() === 'the ';
+                || lcase(artifact.slice(0, 4)) === 'the ';
         }
     }
     if (!insertThe) {
@@ -1592,7 +1590,7 @@ export function the(str, state = game) {
         } else if (separator >= 0) {
             const firstSpace = str.indexOf(' ');
             if (firstSpace >= 0 && firstSpace < separator) {
-                const folded = str.toLowerCase();
+                const folded = lcase(str);
                 const ofIndex = folded.indexOf(' of ');
                 const namedIndex = folded.indexOf(' named ');
                 const calledIndex = folded.indexOf(' called ');
@@ -1991,10 +1989,11 @@ function doname_base(
     } else if (quantity !== 1) {
         const count = ident.dknown || !vagueQuantity ? quantity : 'some';
         words = strprepend(unprefixedWords, `${count} `);
-    } else if (fakeArtifact?.slice(0, 4).toLowerCase() === 'the '
+    } else if ((fakeArtifact != null && strncmpi(fakeArtifact, 'the ', 4) === 0)
         || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
-        words = strprepend(unprefixedWords.replace(/^the /iu, ''), 'the ');
+        words = strprepend(strncmpi(unprefixedWords, 'the ', 4) === 0
+            ? unprefixedWords.slice(4) : unprefixedWords, 'the ');
     } else if (!fakeArtifact) {
         // C's just_an() builds the ordinary article in prefix[] before the
         // final strprepend(bp, prefix) call.
