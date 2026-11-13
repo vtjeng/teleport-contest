@@ -442,9 +442,11 @@ export function from_what(propidx, state = game) {
         }
 
         // C ref: artifact.c what_gives() identifies the worn or carried object
-        // providing an extrinsic property. C uses ysimple_name() for ordinary
-        // objects and objnam.c bare_artifactname() for artifacts.
-        if (state.wizard && (u.uprops?.[propidx]?.extrinsic ?? 0) !== 0) {
+        // providing a property. C asks it whatever the extrinsic bits hold: an
+        // artifact matching on its special ability (Sting for Warning) answers
+        // even when the property came from elsewhere. C uses ysimple_name()
+        // for ordinary objects and objnam.c bare_artifactname() for artifacts.
+        if (state.wizard) {
             const sourceObject = what_gives(propidx, state);
             if (sourceObject) {
                 return from_what_trim(

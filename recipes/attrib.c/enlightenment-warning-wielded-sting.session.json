@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 271828,
+      "datetime": "20220205160000",
+      "nethackrc": "OPTIONS=name:Elanor,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017Sting\n#wizintrinsic\n>v\n wg \u0018>>\u001b",
+      "comment": "An elven Ranger takes timed Warning from #wizintrinsic, wields a wished Sting and opens ^X. attrib.c from_what(WARNING) asks artifact.c what_gives() whatever the extrinsic bits hold; Sting's SPFX_WARN matches while wielded, so C prints \"You are warned because of Sting.\" Seed, date, character and the source of Warning chosen independently of the batch 14 pilot."
+    }
+  ]
+}
