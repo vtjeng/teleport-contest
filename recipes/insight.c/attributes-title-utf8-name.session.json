@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7302215,
+      "datetime": "20480917061532",
+      "nethackrc": "OPTIONS=name:ásgerður Þórunnardóttir Bø\nOPTIONS=role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "comment": "insight.c enlightenment() copies plname into the window title and capitalizes its first byte with highc(). The nethackrc name is 32 UTF-8 bytes; options.c nmcpy() keeps 31, so plname ends with the lead byte of the final two-byte letter, and it starts with a two-byte letter, which highc() leaves alone. Ctrl-X in normal play shows the title. Seed, clock and name were chosen before any recording.",
+      "moves": " \u0018 \u001b"
+    }
+  ]
+}

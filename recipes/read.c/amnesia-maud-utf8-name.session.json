@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3305905,
+      "datetime": "20410315113022",
+      "nethackrc": "OPTIONS=name:Maudþrúður Ásgeirsdóttir\nOPTIONS=role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "comment": "read.c seffect_amnesia() compares the first four bytes of plname with \"Maud\" by strncmpi() and, on a match, prints the inward-turning message without drawing rn2(2). The nethackrc name is 29 UTF-8 bytes and starts with Maud followed by a two-byte letter. Seeds 3305001-3307000 were scanned with the port for an uncursed scroll of amnesia on the floor of the starting room; this seed has one two squares east and one south of the hero, who picks it up and reads it. The clock and name were chosen before the scan.",
+      "moves": " lln,rf "
+    }
+  ]
+}

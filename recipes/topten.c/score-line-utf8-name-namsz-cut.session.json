@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6619074,
+      "datetime": "20520708221906",
+      "nethackrc": "OPTIONS=name:東京都千代田区\nOPTIONS=role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "comment": "topten.c topten() copies plname into the score entry with copynchars(t0->name, svp.plname, NAMSZ), which keeps NAMSZ (10) bytes. The nethackrc name is seven three-byte characters (21 bytes), so the score line keeps three characters and the first byte of the fourth, and the role and the rest of the line start ten columns after the name. The Samurai quits on the first turn with every disclosure question off. Seed, clock and name were chosen before any recording.",
+      "moves": " #quit\ny "
+    }
+  ]
+}

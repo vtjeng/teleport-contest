@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180342,
+      "datetime": "20310226194405",
+      "nethackrc": "OPTIONS=name:Guðrún Ósvífurs-Val-Hum-Fem-Neu\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "comment": "options.c nmcpy() keeps PL_NSIZ - 1 (31) bytes of the name option, and role.c plnamesuffix() then splits the role suffix at each '-'. The name before the suffix is 19 UTF-8 bytes in 15 characters, so the cut falls exactly after \"-Val-Hum-Fem\" and drops \"-Neu\": the role, race and gender come from the suffix, and the game asks for the alignment. The answer n opens the alignment menu and l picks lawful. Seed, clock and name were chosen before any recording.",
+      "moves": "nl  "
+    }
+  ]
+}
