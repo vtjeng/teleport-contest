@@ -4008,7 +4008,8 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
 
     let gold = findgold(mdef.minvent);
     if (ustealo) {
-        if (gender(mdef) === Boolean(state.u.mfemale)
+        // C: gender(mdef) == (int) u.mfemale; gender() is 0, 1 or 2.
+        if (gender(mdef) === (state.u.mfemale ? 1 : 0)
             && state.youmonst.data.mlet === S_NYMPH) {
             await message(
                 `You charm ${mon_nam(mdef, state, env)}.  ${upstart(mhe(mdef, nameEnv))} gladly hands over ${gold ? 'most of ' : ''}${mhis(mdef, nameEnv)} possessions.`,

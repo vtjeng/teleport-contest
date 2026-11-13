@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50321,
+      "datetime": "20250304141500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #polyself\nwater nymph\n \u0007peaceful female soldier\nFy       i\u001b",
+      "comment": "A female Valkyrie polymorphed into a water nymph hits a peaceful female soldier with AD_SITM. uhitm.c steal_it() compares gender(mdef) with (int) u.mfemale; both are 1, so the nymph charms her (\"You charm the soldier.  She gladly hands over her possessions.\") rather than seducing her. Seed, date, character and target chosen independently of the batch 14 pilot."
+    }
+  ]
+}
