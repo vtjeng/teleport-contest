@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c scatter() and shk.c credit_report() (lines 629-661, never entered before): a Valkyrie in debug mode level-teleports with ^V's menu to Minetown, maps it with ^F and teleports with ^T into Niskal's hardware store, raises herself to experience level 14, picks up a tin opener, a whistle, a drum and the store's bag (a bag of holding), wishes for her own bag of holding and 300 gold pieces, stashes the tin opener, the drum and the gold in her bag and then stashes the store's bag of holding in it. The explosion scatters the contents from a costly square, so scatter() takes the credit snapshot before and, when gold lands outside the shop, bills it and reports the change. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5208871,
+      "datetime": "20360714150500",
+      "nethackrc": "OPTIONS=name:Shopper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b\u0016?\n>w\u001b\u001b\u001b\u0006\u001b\u0014\u001b\u001bHHhhkkkkkk.\u001b\u001b#levelchange\n14\n\u001b\u001b\u001b,\u001b\u001bh,\u001b\u001bk,\u001b\u001bh,\u001b\u001b#wizwish\nbag of holding\n\u001b\u001b#wizwish\n300 gold pieces\n\u001b\u001bajsf\u001b\u001bajsh\u001b\u001bajs$\u001b\u001bajsi\u001b\u001b\u001b\u001b\u001b\u001b"
+    }
+  ]
+}

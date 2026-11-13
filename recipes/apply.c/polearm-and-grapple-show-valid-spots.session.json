@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c display_polearm_positions() and display_grapple_positions() (lines 3335-3353 and 3708-3726, never entered before): a Samurai in debug mode wishes for a halberd, wields it and applies it, then at the target prompt presses $ twice to mark the valid positions and clear them again; she then wishes for a grappling hook, applies it (which wields it) and does the same. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 8175524,
+      "datetime": "20380925063000",
+      "nethackrc": "OPTIONS=name:Reacher,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nhalberd\n\u001bwf\u001b\u001baf\u001b\u001b$$\u001b\u001b\u001b#wizwish\ngrappling hook\n\u001bag\u001b$$\u001b\u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c dounpaid(), unpaid objects inside carried containers (lines 3730-3735): a Valkyrie in debug mode level-teleports with ^V's menu to Minetown, maps it with ^F and teleports with ^T into Niskal's hardware store, picks up a tin opener, a whistle, a drum and the store's bag (a bag of holding), wishes for a sack, stashes the whistle in the sack and the tin opener in the store's bag, then lists unpaid items with Iu, which prices each contained object under its container. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5208871,
+      "datetime": "20360714150500",
+      "nethackrc": "OPTIONS=name:Shopper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b\u0016?\n>w\u001b\u001b\u001b\u0006\u001b\u0014\u001b\u001bHHhhkkkkkk.\u001b\u001b,\u001b\u001bh,\u001b\u001bk,\u001b\u001bh,\u001b\u001b#wizwish\nsack\n\u001b\u001bajsg\u001b\u001baisf\u001b\u001bIu\u001b\u001b"
+    }
+  ]
+}

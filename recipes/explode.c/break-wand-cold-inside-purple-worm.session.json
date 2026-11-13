@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c engulfer_explosion_msg(), the digesting engulfer's cold and disintegration cases (lines 127-135): an elven Wizard in debug mode raises himself to experience level 20 with #levelchange, wishes for a wand of cold and a wand of death, creates a purple worm with ^G and waits with ms until it swallows him, then applies and breaks the wand of cold and then the wand of death; do_break_wand() calls explode() with the hero swallowed, which reports the worm getting chilly and then irradiated by pure energy. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5590218,
+      "datetime": "20350626220400",
+      "nethackrc": "OPTIONS=name:Chiller,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#levelchange\n20\n\u001b\u001b#wizwish\nwand of cold\n\u001b#wizwish\nwand of death\n\u001b\u0007purple worm\n\u001b\u001bms\u001bms\u001bms\u001bms\u001baqy\u001b\u001b\u001bary\u001b\u001b\u001b\u001b"
+    }
+  ]
+}

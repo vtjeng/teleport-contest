@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c dofiretrap(), the polymorphed-hero damage table (lines 4261-4272): a Priestess in debug mode turns into a paper golem with #polyself (her robe falls off on the stairs), steps off them, wishes for a fire trap under herself and sits on it with #sit, which springs the trap (dosit() calls dotrap()); she then does the same (twice, after the first escape) as a straw, a wood and a leather golem. Each golem form sets a different minimum damage from its maximum hit points. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 3381054,
+      "datetime": "20360119120700",
+      "nethackrc": "OPTIONS=name:Kindling,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#polyself\npaper golem\n\u001b\u001bj#wizwish\nfire trap\n\u001b#sit\n\u001b\u001b\u001b#polyself\nstraw golem\n\u001b\u001b#sit\n\u001b\u001b\u001b#sit\n\u001b\u001b\u001b#polyself\nwood golem\n\u001b\u001b#sit\n\u001b\u001b\u001b#polyself\nleather golem\n\u001b\u001b#sit\n\u001b\u001b\u001b"
+    }
+  ]
+}

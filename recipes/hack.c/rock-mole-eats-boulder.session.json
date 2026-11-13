@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c still_chewing(), a tunneling hero eating a boulder (lines 733-750): a Barbarian in debug mode drops everything she can, turns into a rock mole with #polyself and wishes for two boulders, which drop under her; she steps west and moves back east repeatedly, chewing until she eats the top boulder, when the second boulder still blocks the square (block_point() and the reset of the dig state), and then the second. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2740663,
+      "datetime": "20360917152000",
+      "nethackrc": "OPTIONS=name:Muncher,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001bDAa\n\u001b\u001b#polyself\nrock mole\n\u001b\u001b\u001b#wizwish\nboulder\n\u001b\u001b\u001b#wizwish\nboulder\n\u001b\u001b\u001bhl\u001bl\u001bl\u001bl\u001bl\u001bl\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c dotele(), the branch for a seen teleportation trap under the hero (lines 1055-1067): a gnomish Archeologist in debug mode wishes for a teleportation trap (wizterrainwish() makes it unseen under her), wishes for a wand of secret door detection and zaps it, which reveals the trap, steps west off the up staircase first, then presses ^T: dotele() reports that she jumps onto the teleportation trap before the debug-mode teleport asks for a destination. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9061482,
+      "datetime": "20370305161200",
+      "nethackrc": "OPTIONS=name:Trapjump,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001bh#wizwish\nteleportation trap\n\u001b#wizwish\nwand of secret door detection\n\u001bzj\u001b\u0014\u001b\u001bll.\u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c engulfer_explosion_msg(), the non-digesting engulfer's disintegration case for a wand (lines 158-163): a Priestess in debug mode raises herself to experience level 20 with #levelchange, wishes for a wand of death, creates a dust vortex with ^G and waits with ms until it engulfs her, then applies the wand and breaks it; do_break_wand() calls explode() while she is engulfed, which reports the vortex overwhelmed by pure energy. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9371125,
+      "datetime": "20400918170000",
+      "nethackrc": "OPTIONS=name:Misty,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#levelchange\n20\n\u001b\u001b#wizwish\nwand of death\n\u001b\u0007dust vortex\n\u001b\u001bms\u001bms\u001bajy\u001b\u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmon_hitmon_misc_obj(), an ordinary egg hitting a monster whose touch petrifies (lines 1232-1243): a Samurai in debug mode raises himself to experience level 14 with #levelchange, wishes for three eggs, creates a cockatrice beside him with ^G, wields the eggs and hits it with F (the eggs turn to rocks), then wishes for two more eggs and throws them at it one at a time (both miss on this seed). Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1957320,
+      "datetime": "20370611101000",
+      "nethackrc": "OPTIONS=name:Eggman,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#levelchange\n14\n\u001b\u001b#wizwish\n3 uncursed eggs\n\u001b\u001b\u0007cockatrice\n\u001b\u001bwf\u001bFj\u001b\u001b#wizwish\n2 uncursed eggs\n\u001b\u001btgj\u001b\u001btgj\u001b\u001b"
+    }
+  ]
+}

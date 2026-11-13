@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c weapon_insight(), two-weapon branch where both comparisons are equal (the 'also' wording, lines 1414-1423): a dwarvish Valkyrie wishes for an uncursed axe and an uncursed short sword (both unskilled for a starting Valkyrie, as is two-weapon combat), wields the short sword, swaps it to the alternate slot with x, wields the axe, takes off her small shield, starts two-weapon combat with X and views ^X enlightenment. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4417730,
+      "datetime": "20390922211500",
+      "nethackrc": "OPTIONS=name:Pairhand,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nuncursed axe\n\u001b#wizwish\nuncursed short sword\n\u001bwf\u001bx\u001bwe\u001bT\u001bX\u001b\u0018    \u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bigrm-1.lua, the 80% terrain-line variant's first two choices (lines 40-41: one horizontal line): an Archeologist in debug mode loads bigrm-1 with #wizloaddes twelve times in a row; each load rolls the level's percent() choices again, which reaches branches no recorded game had run. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2215408,
+      "datetime": "20390117120000",
+      "nethackrc": "OPTIONS=name:Mason,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b#wizloaddes\nbigrm-1\n\u001b\u001b\u001b"
+    }
+  ]
+}
