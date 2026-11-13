@@ -127,6 +127,7 @@ import {
 import {
     choke_dialogue,
     attach_egg_hatch_timeout,
+    end_burn,
     attach_fig_transform_timeout,
     learn_egg_type,
     kill_egg,
@@ -2250,6 +2251,19 @@ test('end_burn takes the timer path only for a timed ordinary light', () => {
         preflight_end_burn(lamp, true, { state: timed, hooks }).mode,
         'timer',
     );
+});
+
+// timeout.c end_burn() (1806-1809) reports an unlit object through
+// impossible() and returns. Every C caller tests lamplit first or comes from
+// a lit light source or burn timer, so no recorded game reaches it; the port
+// records the unprinted report, as for the untimed report below it.
+test('end_burn records the report for an unlit object and changes nothing', () => {
+    const state = timerState();
+    const lamp = { otyp: OIL_LAMP, lamplit: false, where: OBJ_FREE };
+    game.unported = new Set();
+    assert.equal(end_burn(lamp, true, { state }), false);
+    assert.ok(game.unported.has('pline.c impossible'));
+    assert.equal(lamp.lamplit, false);
 });
 
 test('stop_timer performs burning-object cleanup in source order', () => {

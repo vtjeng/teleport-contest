@@ -1848,7 +1848,14 @@ export function preflight_end_burn(
 // C ref: timeout.c end_burn().  Returns whether a lit source was stopped.
 export function end_burn(obj, timerAttached = true, env = {}) {
     const plan = preflight_end_burn(obj, timerAttached, env);
-    if (plan.mode === 'none') return false;
+    if (plan.mode === 'none') {
+        // impossible("end_burn: obj %s not lit", xname(obj)) (timeout.c
+        // 1806-1809), then return; this function cannot wait for the print.
+        // Every C caller checks lamplit first or reaches it from a lit light
+        // source or burn timer.
+        note_unported('pline.c impossible');
+        return false;
+    }
     if (plan.mode === 'direct') {
         plan.deleteLight(obj, plan.normalized);
         obj.lamplit = false;
