@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "minetn-5.lua, the optional wall and floor changes (lines 38-61): a Healer in debug mode loads minetn-5 with #wizloaddes six times in a row; each load rolls the level's percent() choices again, which reaches branches no recorded game had run. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 8193302,
+      "datetime": "20370213163000",
+      "nethackrc": "OPTIONS=name:Townie,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b#wizloaddes\nminetn-5\n\u001b\u001b\u001b"
+    }
+  ]
+}

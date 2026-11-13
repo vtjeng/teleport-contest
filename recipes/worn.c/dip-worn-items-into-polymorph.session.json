@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "worn.c wearslot() (lines 287-330), through zap.c poly_obj()'s handling of a worn item: a Valkyrie in debug mode wishes for eight potions of polymorph and for a leather cloak, an orcish helm, leather gloves, low boots, an amulet of ESP, a ring of adornment and a blindfold, puts them all on, then dips her small shield and each of those worn items into the potions with #dip. poly_obj() asks wearslot() where each new form may be worn and keeps it on only in the slot it came from. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1093357,
+      "datetime": "20370822071500",
+      "nethackrc": "OPTIONS=name:Shifter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\n8 uncursed potions of polymorph\n\u001b\u001b#wizwish\nuncursed leather cloak\n\u001b\u001bWf\u001b\u001b#wizwish\nuncursed orcish helm\n\u001b\u001bWg\u001b\u001b#wizwish\nuncursed leather gloves\n\u001b\u001bWh\u001b\u001b#wizwish\nuncursed low boots\n\u001b\u001bWi\u001b\u001b#wizwish\nuncursed amulet of ESP\n\u001b\u001bPj\u001b\u001b#wizwish\nuncursed ring of adornment\n\u001b\u001bPkr\u001b\u001b#wizwish\nblindfold\n\u001b\u001bPl\u001b\u001b#dip\nce\u001b\u001b#dip\nfe\u001b\u001b#dip\nge\u001b\u001b#dip\nhe\u001b\u001b#dip\nie\u001b\u001b#dip\nje\u001b\u001b#dip\nke\u001b\u001b#dip\nle\u001b\u001bi\u001b"
+    }
+  ]
+}

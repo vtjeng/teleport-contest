@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bigrm-2.lua, its random terrain substitutions (lines 41-44): a Ranger in debug mode loads bigrm-2 with #wizloaddes six times in a row; each load rolls the level's percent() choices again, which reaches branches no recorded game had run. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 3307715,
+      "datetime": "20400506081500",
+      "nethackrc": "OPTIONS=name:Tiler,role:Ranger,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b#wizloaddes\nbigrm-2\n\u001b\u001b\u001b"
+    }
+  ]
+}
