@@ -198,18 +198,33 @@ export function lowc(c) {
         ? String.fromCharCode(c.charCodeAt(0) | 0o40) : c;
 }
 
+// Game code changes and compares letter case only through this file:
+// lowc(), highc(), lcase(), ucase(), upstart(), strcmpi(), strncmpi(),
+// strstri() and fuzzymatch(), and the "C" locale's <ctype.h> isupper() and
+// islower(). C never calls setlocale(), so these change the bytes 'A'-'Z'
+// and 'a'-'z' and nothing else, while JavaScript's toLowerCase(),
+// toUpperCase(), localeCompare() and the /i regular-expression flag also
+// change other letters: typed bytes 0xC3 0x89 decode to 'É', and
+// 'ß'.toUpperCase() is "SS".
+
 // C ref: hacklib.c lcase().
 export function lcase(s) {
-    let out = '';
-    for (const ch of s) out += (ch >= 'A' && ch <= 'Z') ? lowc(ch) : ch;
-    return out;
+    return s.replace(/[A-Z]/gu, lowc);
 }
 
 // C ref: hacklib.c ucase().
 export function ucase(s) {
-    let out = '';
-    for (const ch of s) out += (ch >= 'a' && ch <= 'z') ? highc(ch) : ch;
-    return out;
+    return s.replace(/[a-z]/gu, highc);
+}
+
+// <ctype.h> isupper() in the "C" locale.
+export function isupper(c) {
+    return c >= 'A' && c <= 'Z';
+}
+
+// <ctype.h> islower() in the "C" locale.
+export function islower(c) {
+    return c >= 'a' && c <= 'z';
 }
 
 // C ref: hacklib.c upstart().
@@ -338,8 +353,8 @@ export function strcasecpy(dst, offset, src) {
 // C ref: hacklib.c s_suffix().  "it" and "you" are special-cased case-blind;
 // a trailing 's' takes a bare apostrophe.
 export function s_suffix(s) {
-    if (s.toLowerCase() === 'it') return `${s}s`;
-    if (s.toLowerCase() === 'you') return `${s}r`;
+    if (strcmpi(s, 'it') === 0) return `${s}s`;
+    if (strcmpi(s, 'you') === 0) return `${s}r`;
     if (s.slice(-1) === 's') return `${s}'`;
     return `${s}'s`;
 }
@@ -352,7 +367,7 @@ export function ing_suffix(s) {
     let onoff = '';
     for (const tail of [' on', ' off', ' with']) {
         if (buf.length >= tail.length
-            && buf.slice(-tail.length).toLowerCase() === tail) {
+            && lcase(buf.slice(-tail.length)) === tail) {
             const at = buf.lastIndexOf(' ');
             onoff = buf.slice(at);
             buf = buf.slice(0, at);
@@ -360,13 +375,13 @@ export function ing_suffix(s) {
         }
     }
     const n = buf.length;
-    if (n >= 2 && buf.slice(-2).toLowerCase() === 'er') {
+    if (n >= 2 && lcase(buf.slice(-2)) === 'er') {
         // slither -> slithering; no stem change.
     } else if (n >= 3 && !vowel.includes(buf[n - 1])
                && vowel.includes(buf[n - 2])
                && !vowel.includes(buf[n - 3])) {
         buf += buf[n - 1]; // tip -> tipp
-    } else if (n >= 2 && buf.slice(-2).toLowerCase() === 'ie') {
+    } else if (n >= 2 && lcase(buf.slice(-2)) === 'ie') {
         buf = `${buf.slice(0, n - 2)}y`; // vie -> vy
     } else if (n >= 1 && buf[n - 1] === 'e') {
         buf = buf.slice(0, n - 1); // grease -> greas
@@ -559,6 +574,11 @@ export function strncmpi(s1, s2, n) {
         index++;
     }
     return 0;
+}
+
+// C ref: global.h strcmpi(), which is strncmpi() with a count of -1.
+export function strcmpi(s1, s2) {
+    return strncmpi(s1, s2, -1);
 }
 
 // C ref: hacklib.c swapbits(). Swaps bit a with bit b in val.

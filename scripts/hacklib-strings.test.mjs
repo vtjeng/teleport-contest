@@ -14,6 +14,8 @@ import {
     eos,
     highc,
     ing_suffix,
+    islower,
+    isupper,
     lcase,
     letter,
     lowc,
@@ -27,6 +29,7 @@ import {
     str_lines_maxlen,
     str_start_is,
     strcasecpy,
+    strcmpi,
     strip_newline,
     stripchars,
     stripdigits,
@@ -124,6 +127,45 @@ test('highc() and lowc() only touch letters', () => {
 test('lcase() and ucase() convert letters and leave the rest alone', () => {
     assert.equal(lcase('AbC-1'), 'abc-1');
     assert.equal(ucase('AbC-1'), 'ABC-1');
+});
+
+test('the case helpers change only ASCII letters, as C does in the "C" locale', () => {
+    // hacklib.c lcase() and ucase() test 'A' <= *p && *p <= 'Z' (and the
+    // lower-case range) byte by byte, and C never calls setlocale().
+    assert.match(HACKLIB_SOURCE, /if \('A' <= \*p && \*p <= 'Z'\)\s*\*p \|= 040;/u);
+    assert.match(HACKLIB_SOURCE, /if \('a' <= \*p && \*p <= 'z'\)\s*\*p &= ~040;/u);
+    // 'É' and 'é' are what a typed 0xC3 0x89 and 0xC3 0xA9 decode to; C
+    // leaves both bytes of each alone and folds only the ASCII letters.
+    assert.equal(lcase('ÉCLAIR'), 'Éclair');
+    assert.equal(ucase('éclair'), 'éCLAIR');
+    // 'ß' upper-cases to "SS" in JavaScript; C's ucase() and highc() keep it.
+    assert.equal(ucase('ßob'), 'ßOB');
+    assert.equal(upstart('ßob'), 'ßob');
+    assert.equal(highc('é'), 'é');
+    assert.equal(lowc('É'), 'É');
+    // A byte escape from decodeUtf8ByteString() is not a letter either.
+    assert.equal(lcase('\udcc9X'), '\udcc9x');
+});
+
+test('isupper() and islower() are <ctype.h> in the "C" locale', () => {
+    // The ends of each ASCII range, the characters just outside them, and a
+    // decoded non-ASCII capital and small letter, which C rejects.
+    assert.deepEqual(['A', 'Z', '@', '[', 'a', 'É'].map(isupper),
+        [true, true, false, false, false, false]);
+    assert.deepEqual(['a', 'z', '`', '{', 'A', 'é'].map(islower),
+        [true, true, false, false, false, false]);
+});
+
+test('strcmpi() is strncmpi() with no count limit, folding ASCII only', () => {
+    assert.match(GLOBAL_SOURCE, /#define strcmpi\(a, b\) strncmpi\(\(a\), \(b\), -1\)/u);
+    // Equal after lowc() on every byte.
+    assert.equal(strcmpi('Fruit', 'fRUIT'), 0);
+    // 'É' and 'é' differ, so the strings differ although JavaScript's
+    // toLowerCase() would make them equal.
+    assert.notEqual(strcmpi('Éclair', 'éclair'), 0);
+    // A proper prefix sorts first, from the !*s1 and !*s2 branches.
+    assert.equal(strcmpi('ab', 'abc'), -1);
+    assert.equal(strcmpi('abc', 'AB'), 1);
 });
 
 test('upstart() capitalizes only the first character', () => {
