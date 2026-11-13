@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9046,
+      "datetime": "20250902211500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!tutorial,!autopickup\n",
+      "moves": "\n\n\u0017potion of hallucination\n\u0017potion of extra healing\nqf\u0017luckstone\n\t\t\nqg\u00172 diamonds\n\t\u001bs"
+    }
+  ]
+}
