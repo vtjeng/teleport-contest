@@ -23,9 +23,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
 | gameplay | 4068 | 3994 | 74 |
-| diagnostic | 723 | 233 | 490 |
+| diagnostic | 723 | 236 | 487 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4230 | 681 |
+| total | 4911 | 4233 | 678 |
 
 ## Missing by C file
 
@@ -72,7 +72,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mcastu.c | yes | 1 | 8 | 1 |
 | src/mhitu.c | yes | 1 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
-| src/mklev.c | yes | 0 | 12 | 2 |
+| src/mklev.c | yes | 0 | 10 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 4 | 8 | 2 |
 | src/mkobj.c | no | 0 | 27 | 4 |
@@ -110,7 +110,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/shknam.c | yes | 2 | 4 | 0 |
 | src/sit.c | yes | 1 | 0 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
-| src/sp_lev.c | yes | 0 | 15 | 3 |
+| src/sp_lev.c | yes | 0 | 14 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
 | src/steed.c | yes | 0 | 1 | 1 |
@@ -891,10 +891,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `find_branch_room()`
   - 1670 impossible: `Can't place branch!`
 
-- `mkstairs()`
-  - 2169 impossible: `mkstairs:  bogus stair attempt at <`
-  - 2179 impossible: `mkstairs:  placing stairs`
-
 - `mkinvpos()`
   - 2576 impossible: `mkinvpos called with dist`
 
@@ -1465,9 +1461,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `get_free_room_loc()`
   - 1401 panic: `get_free_room_loc:  can't find a place!`
-
-- `create_door()`
-  - 1800 impossible: `create_door: Can't find a proper place!`
 
 - `create_monster()`
   - 2012 impossible: `create_monster: mon has an appearance, "`
