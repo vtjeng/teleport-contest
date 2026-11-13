@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkmaze.c setup_waterlevel() and mk_bubble(): mk_bubble() appends each bubble to svb.bbubbles, which only unsetup_waterlevel() empties. #wizloaddes (wizcmds.c wiz_load_splua()) on the Plane of Water runs fixup_special() twice, once at the end of load_special() and again in lspo_finalize_level(), so setup_waterlevel() makes a second set of bubbles beside the first, and movebubbles() moves both sets each turn. A dwarvish Valkyrie in debug mode level-teleports with ^V to the Plane of Water (the menu's 'K' entry), wishes for nothing, runs #wizloaddes minefill and searches for five turns. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5118276,
+      "datetime": "20410502190000",
+      "nethackrc": "OPTIONS=name:Bubbler,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b\u0016?\n>>K\u001b\u001bnothing\n\u001b\u001b#wizloaddes\nminefill\n\u001b\u001b5s\u001b"
+    }
+  ]
+}

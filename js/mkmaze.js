@@ -455,7 +455,11 @@ export function setup_waterlevel(state = game, random = rn2) {
         throw new Error('setup_waterlevel: level is neither Water nor Air');
 
     state.level.flags.hero_memory = false;
-    state.air_bubbles = [];
+    // C's mk_bubble() appends to svb.bbubbles, which only
+    // unsetup_waterlevel() empties: a second call, as #wizloaddes makes
+    // through load_special() and then lspo_finalize_level(), keeps the
+    // first call's bubbles.
+    state.air_bubbles ??= [];
     state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
     state.waterlevel_portal = null;
     // hero_bubble keeps whatever the last movebubbles() left; see
