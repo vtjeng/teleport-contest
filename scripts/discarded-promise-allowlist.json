@@ -56,10 +56,6 @@
       "count": 6,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/bones.js | drop_upon_death | obj_extract_self": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/bones.js | drop_upon_death | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

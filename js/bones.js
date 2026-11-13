@@ -480,7 +480,9 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 
     while (state.invent) {
         const otmp = state.invent;
-        obj_extract_self(otmp, { state });
+        // invent.c freeinv_core() can report a unique item through
+        // impossible(), whose messages must finish before the drop goes on.
+        await obj_extract_self(otmp, { state });
         // When not turning into a living monster, detach equipment effects
         if (!mtmp || is_undead(mtmp.data))
             await obj_no_longer_held(otmp, { state });

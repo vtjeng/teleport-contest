@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bones.c drop_upon_death():275 takes each inventory object out through invent.c freeinv_core(), which reports a unique item the hero is not recorded as carrying through impossible() (invent.c:1369-1372); pline.c impossible() prints the report and 'Program in disorder!' through pline(), so they share the top line before the drop goes on. A gnomish Healer in debug mode wishes for the Bell of Opening twice (the second wish reports 'already have silver bell?', and u.uhave.bell stays set), wishes for a wand of death and zaps it at herself, answers y to 'Die?', declines the disclosure prompts and answers y to 'Save bones?'. Freeing the first bell clears u.uhave.bell, so freeing the second reports 'don't have silver bell?'. Seed, date and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 3371902,
+      "datetime": "20300919201000",
+      "nethackrc": "OPTIONS=name:Ringer,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017Bell of Opening\n\u0017Bell of Opening\n   \u0017wand of death\nzn.  y     y    "
+    }
+  ]
+}
