@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c mon_overrides_region(): a visible monster shows over a gas region when distu() <= r * (r + 1), where r is the hero's X-ray range when above 1. A Monk wearing the Eyes of the Overworld (X-ray range 3) steps away from a peaceful fog cloud; the cloud's harmless vapor (monmove.c m_everyturn_effect()) is redrawn while the fog cloud is two squares away, and newsym() must keep showing the fog cloud rather than the vapor.",
+  "segments": [
+    {
+      "seed": 712044,
+      "datetime": "20261116101500",
+      "nethackrc": "OPTIONS=name:Seer,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017Eyes of the Overworld\n Pl\u0007peaceful fog cloud\nhssssssssssss"
+    }
+  ]
+}

@@ -4004,7 +4004,8 @@ export function newsym(x, y) {
     // display.c:newsym() lets a visible gas region cover every accessible
     // location, including the hero. Visible poison and steam clouds also cover
     // pools, moats, and lava. Sensed monsters and generic monster warnings
-    // override the region; ordinary visible monsters do so only when adjacent,
+    // override the region; ordinary visible monsters do so only when adjacent
+    // (within the hero's X-ray range when that is wider),
     // and object-disguised mimics do not. The early return intentionally
     // leaves the remembered underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
@@ -4045,12 +4046,16 @@ export function newsym(x, y) {
     );
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
+        // display.c mon_overrides_region() (689-694): "adjacent" widens to
+        // the hero's X-ray range, distu() <= r * (r + 1).
+        const r = game.u?.xray_range > 1 ? game.u.xray_range : 1;
         const adjacentVisibleMonster = monster
+            && !Blind(game.u)
             && monsterDirectlyVisible
             && ![M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             )
-            && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2;
+            && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= r * (r + 1);
         // display.c mon_overrides_region()'s closing line (697-699): with no
         // monster to prefer, a remembered invisible monster still overrides
         // the cloud, so the marker survives a gas cloud drifting over it.
