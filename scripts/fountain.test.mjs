@@ -603,7 +603,7 @@ test('drinkfountain fate 29 flees live monsters before the common dryup tail', a
 test('drinkfountain fate 29 supplies the real Vrock gas-cloud operations', async () => {
     const { js } = await drinkfountainSource();
     assert.match(js,
-        /create_gas_cloud\(x, y, size, damage, \{[\s\S]*?blockPoint:[\s\S]*?unblockPoint:[\s\S]*?doesBlock:[\s\S]*?canSee:[\s\S]*?newsym:[\s\S]*?message,/u);
+        /create_gas_cloud\(x, y, size, damage, \{[\s\S]*?blockPoint:[\s\S]*?unblockPoint:[\s\S]*?doesBlock:[\s\S]*?canSee:[\s\S]*?newsym,[\s\S]*?message,/u);
 
     await startedGame();
     const location = game.level.at(game.u.ux, game.u.uy);
