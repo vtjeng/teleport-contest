@@ -11,6 +11,16 @@ const SAVE_FILE_REASON = 'the port keeps game state between segments through '
 export const NOT_PORTED_BY_DESIGN = Object.freeze({
     'sfbase.c': Object.freeze({ reason: SAVE_FILE_REASON, approved: 'Vincent, 2026-11-13' }),
     'sfstruct.c': Object.freeze({ reason: SAVE_FILE_REASON, approved: 'Vincent, 2026-11-13' }),
+    'dlb.c': Object.freeze({
+        reason: 'the build leaves DLB undefined (include/config.h), so dlb.c compiles '
+            + 'to nothing and dlb.h maps its calls to stdio',
+        approved: 'Vincent, 2026-11-13',
+    }),
+    'nhmd4.c': Object.freeze({
+        reason: "only report.c's crash reporting uses it, to hash the binary into a "
+            + 'build ID that no session can display',
+        approved: 'Vincent, 2026-11-13',
+    }),
 });
 
 /** The reason a C file is not ported, or null when it is to be ported. */
