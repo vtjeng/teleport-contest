@@ -317,7 +317,7 @@ import {
     verysmall,
 } from './mondata.js';
 import {
-    add_to_migration,
+    add_to_migration_async,
     is_pick,
     is_blade,
     splitobj,
@@ -2400,7 +2400,7 @@ async function moverock_core(sx, sy, state, env) {
                 if (costly)
                     await stolen_value(otmp, rx, ry, !ttmp.tseen, false, state);
                 await obj_extract_self(otmp, objectEnv);
-                add_to_migration(otmp, state);
+                await add_to_migration_async(otmp, state, { message });
                 const dest = {};
                 get_level(dest, newlev, state);
                 otmp.ox = dest.dnum;

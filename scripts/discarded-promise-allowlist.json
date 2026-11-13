@@ -564,6 +564,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/obj.js | add_to_migration | finish_steps": {
+      "count": 1,
+      "reason": "add_to_migration() is the synchronous form of add_to_migration_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. add_to_migration_async() is the form for a caller that can wait; the synchronous caller is mksobj_migr_to_species(), whose new object is never unpaid."
+    },
     "js/obj.js | initializeTin | blessorcurse": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."

@@ -153,7 +153,7 @@ import {
     dealloc_obj,
     mksobj,
     rnd_treefruit_at,
-    add_to_migration,
+    add_to_migration_async,
     isContainer,
     mkgold,
     mksobj_at,
@@ -1592,7 +1592,7 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
                     if (Has_contents(obj)) picked_container(obj);
                     if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
                 }
-                add_to_migration(obj, state);
+                await add_to_migration_async(obj, state, { message });
                 obj.ox = cc.x;
                 obj.oy = cc.y;
                 obj.owornmask = toloc;
@@ -1718,7 +1718,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
         obfree(obj, null, { ...env, state });
         return true;
     }
-    add_to_migration(obj, state);
+    await add_to_migration_async(obj, state, { message });
     obj.ox = cc.x;
     obj.oy = cc.y;
     obj.owornmask = toloc;

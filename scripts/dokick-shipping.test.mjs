@@ -12,11 +12,13 @@ import {
 } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj, objectType, place_object } from '../js/obj.js';
+import {
+    add_to_migration, add_to_migration_async, mksobj, objectType, place_object,
+} from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { add_to_container } from '../js/invent.js';
 import {
-    BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, CORPSE, DAGGER, EGG,
+    APPLE, BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, CORPSE, DAGGER, EGG,
     GLASS, LARGE_BOX, MIRROR, POT_WATER,
 } from '../js/objects.js';
 import { PM_NEWT, PM_SHOPKEEPER } from '../js/monsters.js';
@@ -516,4 +518,33 @@ test('container_impact_dmg skips bags of holding and tricks', async () => {
         assert.equal(potion.where, OBJ_CONTAINED);
     }
     assert.deepEqual(draws, []);
+});
+
+// mkobj.c add_to_migration() (2702-2704). Its callers take an unpaid object
+// off the bill first (dokick.c ship_object() through stolen_value()), so no
+// recorded game reaches the report; C prints it and still ships the object.
+test('add_to_migration reports an unpaid object and still ships it', async () => {
+    const state = await setup();
+    const lines = [];
+    const capture = async (text) => { lines.push(text); };
+    const apple = mksobj(APPLE, false, false, objectGenerationEnv({ state }));
+    apple.unpaid = 1;
+    apple.no_charge = 1;
+    await add_to_migration_async(apple, state,
+        { message: capture, urgentMessage: capture });
+    assert.deepEqual(lines.slice(0, 2), [
+        'unpaid object migrating to another level? [apple]',
+        'Program in disorder!  (Saving and reloading may fix this problem.)',
+    ]);
+    assert.equal(apple.where, OBJ_MIGRATING);
+    assert.equal(apple.no_charge, 0);
+    assert.equal(state.gm.migrating_objs, apple);
+
+    // The synchronous form records the unprinted report and goes on.
+    const second = mksobj(APPLE, false, false, objectGenerationEnv({ state }));
+    second.unpaid = 1;
+    state.unported = new Set();
+    add_to_migration(second, state);
+    assert.ok(state.unported.has('pline.c impossible'));
+    assert.equal(state.gm.migrating_objs, second);
 });

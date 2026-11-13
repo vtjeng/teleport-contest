@@ -36,8 +36,10 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // audit-unawaited-removals, 13 November 2026): every caller of
 // obj_extract_self(), freeinv() and freeinv_core() that can reach a carried
 // object awaits it, delobj_core() hands its Promise on, and 66 entries holding
-// 81 calls went, with read.js unpunish()'s delobj() added.
-const ALLOWLIST_PINS = { entries: 238, calls: 308 };
+// 81 calls went, with read.js unpunish()'s delobj() added. 239 and 309 with
+// obj.js add_to_migration()'s finish_steps(), the synchronous form of
+// add_to_migration_steps() (branch loose-ends, 13 November 2026).
+const ALLOWLIST_PINS = { entries: 239, calls: 309 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

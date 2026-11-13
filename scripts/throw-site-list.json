@@ -2766,7 +2766,7 @@
       "c": null,
       "reason": "An injected rn2 that returned outside its bound; C's rn2(4) cannot."
     },
-    "js/obj.js | add_to_migration | `add_to_migration: obj where=${obj.where}, not free`": {
+    "js/obj.js | add_to_migration_steps | `add_to_migration: obj where=${obj.where}, not free`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2701",

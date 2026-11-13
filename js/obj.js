@@ -219,7 +219,8 @@ import {
     unpaid_cost,
 } from './shk.js';
 import { in_rooms } from './rooms.js';
-import { verbalize, youSee } from './pline.js';
+import { impossible_printer, verbalize, youSee } from './pline.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { set_voice } from './sounds.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
@@ -3117,17 +3118,21 @@ export function extract_nexthere(obj, head) {
     throw new Error('extract_nexthere: object lost');
 }
 
-// C ref: mkobj.c add_to_migration(). Transfers a free object to the
-// gm.migrating_objs chain, recording the level it came from.
-export function add_to_migration(obj, state = game) {
+// C ref: mkobj.c add_to_migration() (2697-2717), written once as
+// add_to_migration_steps() (js/source_steps.js). Transfers a free object to
+// the gm.migrating_objs chain, recording the level it came from. An unpaid
+// object is reported through impossible() first; the caller should have
+// changed it to stolen.
+function* add_to_migration_steps(obj, state) {
     if (obj.where !== OBJ_FREE)
         throw new Error(
             `add_to_migration: obj where=${obj.where}, not free`,
         );
 
-    // C: if (obj->unpaid) impossible("unpaid object migrating to another
-    // level? [%s]", simpleonames(obj)). The caller should have changed the
-    // unpaid item to stolen before this point.
+    if (obj.unpaid) {
+        yield new ImpossibleCall('unpaid object migrating to another level?'
+            + ` [${simpleonames(obj, state)}]`);
+    }
     obj.no_charge = 0; // was only relevant while inside a shop
 
     // lock picking context becomes stale if it's for this object
@@ -3140,6 +3145,19 @@ export function add_to_migration(obj, state = game) {
     obj.omigr_from_dnum = state.u.uz.dnum;
     obj.omigr_from_dlevel = state.u.uz.dlevel;
     state.gm.migrating_objs = obj;
+}
+
+// add_to_migration() for a caller that cannot wait: gap_impossible() records
+// the report as unported and the transfer goes on as in C.
+export function add_to_migration(obj, state = game) {
+    finish_steps(add_to_migration_steps(obj, state));
+}
+
+// add_to_migration() for a caller that can wait on the result: it prints
+// the report where C makes it.
+export function add_to_migration_async(obj, state = game, env = {}) {
+    return finish_steps(add_to_migration_steps(obj, state),
+        impossible_printer(state, env));
 }
 
 // C ref: invent.c g_at().

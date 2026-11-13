@@ -298,7 +298,7 @@ import { hits_bars, ohitmon, thitu } from './mthrowu.js';
 import { sleep_monst } from './mhitm.js';
 import { splash_lit } from './apply_splash_lit.js';
 import {
-    add_to_migration,
+    add_to_migration_async,
     carried,
     costly_alteration,
     dealloc_obj,
@@ -2857,7 +2857,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                             ...env, hooks: objectHooks, redraw,
                         });
                     } else {
-                        add_to_migration(singleobj, state);
+                        await add_to_migration_async(singleobj, state, env);
                         const destination = {};
                         get_level(destination, newlev, state);
                         singleobj.ox = destination.dnum;
