@@ -41,7 +41,9 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
+
+import { listJsFiles } from './discarded-promises.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -94,7 +96,7 @@ function enclosingName(ancestors) {
 
 // Each listed throw in one file: { key, line, errorClass }.
 export function throwSitesInSource(file, source) {
-    const ast = acorn.parse(source, {
+    const ast = parse(source, {
         ecmaVersion: 'latest',
         sourceType: 'module',
         locations: true,
@@ -132,11 +134,10 @@ export function scanThrowSites(sources) {
     return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
 }
 
-export async function readJsSources(root = PROJECT_ROOT) {
-    const { listJsFiles } = await import('./discarded-promises.mjs');
+export function readJsSources(root = PROJECT_ROOT) {
     return Object.fromEntries(listJsFiles(root)
         .map((file) => [file, readFileSync(join(root, file), 'utf8')]));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH)
-    console.log(JSON.stringify(scanThrowSites(await readJsSources()), null, 2));
+    console.log(JSON.stringify(scanThrowSites(readJsSources()), null, 2));

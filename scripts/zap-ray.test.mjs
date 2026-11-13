@@ -1306,10 +1306,13 @@ test('dobuzz admits a hero wand or monster breath and rejects other bands', asyn
         assert.equal(game.u.uhp, 94);
     }
     // 9 is the last slot the band reserves and flash_types[] leaves empty, so
-    // the guard has to admit it even though the message it would print has no
-    // name to put in. What it must not do is report it as out of band.
-    await assert.rejects(() => call(9), (error) =>
-        !error.message.includes('for a spell, breath or monster zap'));
+    // the guard has to admit it. display.c zapdir_to_glyph() then reports
+    // beam type 9 through impossible() and draws beam type 0 (display.c
+    // 2461-2467); the synchronous port records that print as a gap, and the
+    // ray goes on rather than ending the game.
+    initUnported();
+    await call(9);
+    assert.equal(game.unported.has('pline.c impossible'), true);
 });
 
 test('monster breath dobuzz consumes only its source range draw on a forced miss',

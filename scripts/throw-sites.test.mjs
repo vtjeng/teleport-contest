@@ -24,8 +24,8 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // 2 unported.
 const LIST_PINS = { entries: 729, sites: 735 };
 
-test('every throw in js/ is on the list with a class and a reason', async () => {
-    const current = scanThrowSites(await readJsSources());
+test('every throw in js/ is on the list with a class and a reason', () => {
+    const current = scanThrowSites(readJsSources());
     const problems = [];
     for (const [key, count] of Object.entries(current)) {
         const entry = LIST.entries[key];

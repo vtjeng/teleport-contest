@@ -20,6 +20,10 @@
 //   case for every value rn2(n) returns (muse.c 2035-2080, 1222-1270,
 //   2654-2686); C falls out of it and returns 0, as the port now does.
 //
+// - js/mon.js mongone(): a monster already detached. C mongone() has no such
+//   check; it calls m_detach(), which reports a second detach through
+//   impossible() (mon.c 2791-2797) and is now ported.
+//
 // This check fails when one of those refusals returns. The makemon() species,
 // shopkeeper and Rogue-level chameleon refusals that C could reach are ported;
 // scripts/deleted-refusal-classes.test.mjs keeps their class from returning.
@@ -38,6 +42,7 @@ const REMOVED_REFUSALS = {
         'mfndpos() door or special terrain movement',
     ],
     'shk.js': ['shk_move without eshk extension'],
+    'mon.js': ['mongone: monster is already detached'],
     'makemon_create.js': [
         'mmflags 0x',
         'random coordinates outside mklev',
