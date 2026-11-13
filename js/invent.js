@@ -340,6 +340,7 @@ import {
     obj_absorb,
     obj_no_longer_held,
     pudding_merge_message,
+    hands_obj,
 } from './obj.js';
 import { get_obj_location, obj_merge_light_sources } from './light.js';
 import { maybe_reset_pick } from './lock.js';
@@ -537,11 +538,10 @@ export function free_invbuf() {
     return undefined;
 }
 
-// C ref: invent.c hands_obj. getobj() returns this shared sentinel when the
-// player deliberately selects hands/self; null remains the cancellation and
-// invalid-answer result. Callers compare its identity and must not inspect it
-// as an ordinary object.
-export const hands_obj = Object.freeze({});
+// C ref: decl.c hands_obj, defined in js/obj.js. getobj() returns this
+// shared sentinel when the player deliberately selects hands/self; null
+// remains the cancellation and invalid-answer result.
+export { hands_obj };
 
 // C ref: invent.c inuse_classify() (70-144). Classifies an object for the
 // in-use inventory display. The C function writes these four fields into its

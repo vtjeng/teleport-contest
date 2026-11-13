@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const OWNERSHIP_EDGES = Object.freeze([
-    ['js/objnam.js', 'Tobjnam', 'The', 1],
+    ['js/objnam.js', 'Tobjnam_steps', 'The', 1],
     ['js/eat.js', 'food_xname', 'the', 1],
     ['js/sit.js', 'dosit', 'the', 2],
     ['js/dothrow.js', 'throwit', 'the', 2],

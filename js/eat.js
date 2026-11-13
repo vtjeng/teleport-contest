@@ -153,7 +153,7 @@ import { is_ice,
 import { note_unported } from './unported.js';
 import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
-import { livelog_printf, verbalize, youHear, youFeel } from './pline.js';
+import { impossible_printer, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
@@ -3322,7 +3322,11 @@ export async function edibility_prompts(otmp, state = game, env = {}) {
     const cadaver = otmp.otyp === CORPSE;
     const material = objectType(otmp, state).oc_material;
     const mnum = otmp.corpsenm;
-    const foodsmell = Tobjnam(otmp, 'smell', state);
+    // For the iron-bars sentinel (decl.c hands_obj, class 0) xname_flags()
+    // calls impossible() here, as C's does.
+    const foodsmell = await Tobjnam(
+        otmp, 'smell', state, impossible_printer(state),
+    );
     const pronoun = otmp.quan === 1 ? 'it' : 'they';
     let rotted = 0;
     let stoneorslime = false;
