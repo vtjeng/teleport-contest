@@ -24,7 +24,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -85,7 +85,7 @@ function regExpFlagsFoldCase(args) {
 
 /** Findings in one module's source: `{ line, code, kind }`. */
 export function asciiCaseFindings(source) {
-    const ast = acorn.parse(source, {
+    const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
     const findings = [];
