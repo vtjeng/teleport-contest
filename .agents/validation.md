@@ -517,6 +517,15 @@ Each of these has produced a wrong conclusion before.
   segment that stops early scores the next segment's startup calls against C's
   continuing log, and the matched count can fall while correctness rises. When
   a count moves the wrong way, find where the logs first diverge.
+- `scripts/record-session.mjs` is our recorder, not the judge's, and the two
+  can differ. The judge's held-out sessions give each moves character one
+  byte and one step, as `frozen/playability_runner.mjs` does with
+  `moves.charCodeAt(i)`. Before changing how the port reads input, times
+  output or writes the terminal to match our recorder, check `frozen/` and the
+  public sessions, and follow them where the two disagree.
+- When the judge's score changes and replaying our own recordings does not
+  explain it, read the open issues on davidbau/teleport-contest before
+  searching further.
 - `scripts/record-session.mjs` clears the install directory only before a
   chunk's first segment (`clearStaleState()` runs when `isFirstSegment`), so a
   save-and-quit in segment 0 restores in segment 1. A `playmode:debug` game the
