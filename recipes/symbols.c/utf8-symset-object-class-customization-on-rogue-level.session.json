@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "symbols.c parse_sym_line() sends each S_* line of a UTF8-handling symbol set through glyphs.c glyphrep_to_custom_map_entries() instead of showsyms[]. With symset:Enhanced2 its S_amulet: U+2299 line therefore marks only the glyphs of object index AMULET_CLASS - 1, the generic ring (parse_id() gives find_oc the loadsyms[] offset class - 1, and glyph_find_core() compares it with glyph_to_obj()), and its wall lines mark the wall glyphs. Those glyphmap customizations stay when the Rogue level switches to the rogue symbol set. A human Tourist in debug mode level-teleports with ^V to the Rogue level (the menu's 'g' entry) and runs #wizcustom, whose list starts with the generic ring and the main walls. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4471903,
+      "datetime": "20590830211500",
+      "nethackrc": "OPTIONS=name:Glypher,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,symset:Enhanced2\n",
+      "moves": "\u001b\u0016?\ng\u001b\u001b#wizcustom\n>\u001b"
+    }
+  ]
+}

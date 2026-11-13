@@ -184,6 +184,7 @@ import {
     glyph_is_invisible,
     mon_to_glyph,
     newsym,
+    newsym_async,
     newsymOffMapImpossible,
     newsymReportsOffMap,
     see_monsters,
@@ -4352,8 +4353,20 @@ export async function mcalcdistress(state = game, env = {}) {
 // Match js/makemon_create.js redrawSquare(): a caller that supplies its own
 // newsym owns the redraw, and a synthetic state must not repaint the live map.
 function killRedraw(x, y, env) {
-    if (typeof env.hooks?.newsym === 'function') env.hooks.newsym(x, y, env);
-    else if ((env.state ?? game) === game) newsym(x, y);
+    if (typeof env.hooks?.newsym === 'function')
+        return env.hooks.newsym(x, y, env);
+    if ((env.state ?? game) === game) newsym(x, y);
+    return undefined;
+}
+
+// killRedraw() for a caller that can wait: display.c newsym() can reach
+// wall_angle()'s impossible() for a seen wall, which then prints at C's
+// point (js/display.js newsym_async()). The result is a promise only then.
+function killRedrawAsync(x, y, env) {
+    if (typeof env.hooks?.newsym === 'function') return killRedraw(x, y, env);
+    const state = env.state ?? game;
+    if (state === game) return newsym_async(x, y, { state });
+    return undefined;
 }
 
 // make_corpse()'s newsym(x, y) calls. A dead vault guard that vault.c
@@ -4662,14 +4675,20 @@ export function mon_leaving_level(mon, state = game, env = {}) {
     /* "to prevent an infinite relobj-flooreffects-hmon-killed loop" */
     mon.mtrapped = 0;
     /* "mon is not swallowing or holding you nor held by you" */
-    const finishAfterSettling = () => {
-        if (onmap) killRedraw(mx, my, { ...env, state });
+    const forgetTarget = () => {
         /* "if mon is a remembered target, forget it since it isn't here anymore".
            apply.c use_pole() is the only C writer that stores a monster here and
            none of it is ported, so in production this pointer is null and the
            test cannot hold. */
         if (state.context?.polearm?.hitmon === mon)
             state.context.polearm.hitmon = null;
+    };
+    // Every caller of mon_leaving_level() waits for a promise it returns.
+    const finishAfterSettling = () => {
+        const redraw = onmap ? killRedrawAsync(mx, my, { ...env, state }) : null;
+        return redraw && typeof redraw.then === 'function'
+            ? redraw.then(forgetTarget)
+            : forgetTarget();
     };
     const finishLeaving = () => {
         /* "vault guard might be at <0,0>" */

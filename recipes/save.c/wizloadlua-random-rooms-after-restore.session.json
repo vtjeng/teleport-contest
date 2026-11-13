@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savelev():560-563 clear_level_structures() under release_data(), which restore.c dorecover():831 reaches through restlevelfile() for the hero's level. It calls rect.c init_rect(), so a restored game holds one whole-map free rectangle that savelev() never stores. A gnomish Archeologist in debug mode saves on her first turn; the second segment restores and runs #wizloadlua Pri-fila, whose random des.room() calls draw rn2(rect_cnt) in rect.c rnd_rect(). Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7254113,
+      "datetime": "20470321081500",
+      "nethackrc": "OPTIONS=name:Rectus,role:Archeologist,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001bSy"
+    },
+    {
+      "seed": 7254114,
+      "datetime": "20470321093000",
+      "nethackrc": "OPTIONS=name:Rectus,role:Archeologist,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001bn\u001b#wizloadlua\nPri-fila\n\u001bs\u0006\u001b"
+    }
+  ]
+}

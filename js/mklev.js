@@ -43,6 +43,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import {
+    back_to_glyph_steps,
     flush_screen,
     map_background,
     map_object,
@@ -51,6 +52,8 @@ import {
     newsym,
     set_wall_state,
 } from './display.js';
+import { glyph_to_cmap } from './glyphs.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
@@ -492,7 +495,7 @@ export async function mklev({ specialLevelLoader = null } = {}) {
 }
 
 // C ref: mklev.c clear_level_structures()
-function clear_level_structures() {
+export function clear_level_structures() {
     const g = game;
     installLevel(new GameMap(), g);
     g.subrooms = [];
@@ -1369,7 +1372,8 @@ export async function mkinvokearea(state = game, rawEnv = {}) {
     }
 
     await message('You are standing at the top of a stairwell leading down!', state, rawEnv);
-    mkstairs(state.u.ux, state.u.uy, 0, null, false);
+    await mkstairs(state.u.ux, state.u.uy, 0, null, false,
+        impossible_printer(state));
     redraw(state.u.ux, state.u.uy, state);
     state.vision_full_recalc = 1;
 }
@@ -2169,10 +2173,12 @@ async function makemaz(proto, slev, state) {
     if (!state.level.flags.corrmaze)
         wallification(2, 2, frame.xMazeMax, frame.yMazeMax, state);
     let point = mazexy(null, frame, state);
-    mkstairs(point.x, point.y, true, null);
+    await mkstairs(point.x, point.y, true, null, false,
+        impossible_printer(state));
     if (!invocation) {
         point = mazexy(null, frame, state);
-        mkstairs(point.x, point.y, false, null);
+        await mkstairs(point.x, point.y, false, null, false,
+            impossible_printer(state));
     } else {
         state.inv_pos = pick_vibrasquare_location(frame, state);
         maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
@@ -3197,8 +3203,12 @@ function l_create_stairway(args, using_ladder, env) {
         }
     } else {
         // sp_lev.c:4209–4210 forces fixed-coordinate stairs onto ROOM.
-        mkstairs(x, y, up, coder.croom, !(scoord & SP_COORD_IS_RANDOM));
+        // Every des.stair() caller awaits the result, so mkstairs()'s
+        // impossible() prints at C's point in the level program.
+        return mkstairs(x, y, up, coder.croom, !(scoord & SP_COORD_IS_RANDOM),
+            impossible_printer(state));
     }
+    return undefined;
 }
 
 // C ref: sp_lev.c lspo_stair().
@@ -3616,7 +3626,10 @@ export function lspo_door(args, env) {
                                               walldirs)],
         };
 
-        create_door(tmpd, coder.croom, env.random.rn2);
+        // Every des.door() caller awaits the result, so create_door()'s
+        // impossible() prints at C's point in the level program.
+        return create_door(tmpd, coder.croom, env.random.rn2,
+            impossible_printer(state));
     } else {
         const c = { x, y };
         get_location_coord(c, ANY_LOC, coder.croom, SP_COORD_PACK(x, y),
@@ -7417,7 +7430,14 @@ function rnddoor(random) {
 
 // C ref: sp_lev.c create_door(). The descriptor is deliberately mutable:
 // source resolves its random fields in place before attempting placement.
-export function create_door(dd, broom, random = rn2) {
+// After 100 failed tries C prints impossible("create_door: Can't find a
+// proper place!"); the caller's onImpossible prints it (see
+// js/source_steps.js), and the result is a promise when it waits.
+export function create_door(dd, broom, random = rn2, onImpossible) {
+    return finish_steps(create_door_steps(dd, broom, random), onImpossible);
+}
+
+function* create_door_steps(dd, broom, random) {
     if (dd.secret === -1) dd.secret = random(2);
     if (dd.wall === W_RANDOM) dd.wall = W_ANY;
 
@@ -7481,7 +7501,10 @@ export function create_door(dd, broom, random = rn2) {
         }
         if (okdoor(x, y)) break;
     }
-    if (trycnt >= 100) return false;
+    if (trycnt >= 100) {
+        yield new ImpossibleCall('create_door: Can\'t find a proper place!');
+        return false;
+    }
     if (!set_levltyp(x, y, dd.secret ? SDOOR : DOOR, { state: game }))
         return false;
 
@@ -7503,12 +7526,17 @@ export function create_room_door(spec, broom, random = rn2) {
     const wallName = spec.wall ?? 'all';
     const mask = ROOM_DOOR_STATE_MASKS[stateName];
     if (mask === -1) rnddoor(random);
-    return create_door({
+    // The synchronous form of create_door(): not every themeroom callback
+    // here can wait, so its impossible() stays a recorded gap
+    // (source_steps.js gap_impossible()) and the steps never yield a promise,
+    // so the result is create_door_steps()'s placement flag.
+    const placed = finish_steps(create_door_steps({
         secret: mask === D_SECRET ? 1 : 0,
         mask,
         pos: spec.pos ?? -1,
         wall: ROOM_DOOR_WALL_MASKS[wallName],
-    }, broom, random);
+    }, broom, random));
+    return placed;
 }
 
 // C ref: sp_lev.c shared_with_room()/maybe_add_door().
@@ -7732,21 +7760,38 @@ function generate_stairs_find_room() {
     return g.level.rooms[rn2(g.level.nroom)];
 }
 
-export function mkstairs(x, y, up, croom, force = false) {
+// C ref: mklev.c mkstairs() (2159-2196). Its two impossible() reports, for
+// an off-map square and for a square that is not floor, print through the
+// caller's onImpossible (js/source_steps.js); every caller waits for it.
+export function mkstairs(x, y, up, croom, force = false, onImpossible) {
+    return finish_steps(mkstairs_steps(x, y, up, croom, force), onImpossible);
+}
+
+function* mkstairs_steps(x, y, up, croom, force) {
     const g = game;
+    if (!x || !isok(x, y)) {
+        yield new ImpossibleCall(
+            `mkstairs:  bogus stair attempt at <${x},${y}>`);
+        return;
+    }
     const loc = g.level.at(x, y);
     // mklev.c:2172–2173: fixed descriptors force ROOM even when the
     // dungeon-end guard below refuses the stair itself.
-    if (force && loc) loc.typ = ROOM;
+    if (force) loc.typ = ROOM;
+    const ltyp = loc.typ; /* somexyspace() allows ice */
+    if (ltyp !== ROOM && ltyp !== CORR && ltyp !== ICE) {
+        const glyph = yield* back_to_glyph_steps(x, y, g);
+        const sidx = glyph_to_cmap(glyph);
+        yield new ImpossibleCall(`mkstairs:  placing stairs ${
+            up ? 'up' : 'down'} on ${CMAP_EXPLANATIONS[sidx]} at <${x},${y}>`);
+    }
     // C ref: mklev.c mkstairs():2183-2189. A regular stair cannot be
     // created at either end of a dungeon branch; the Lua `des.stair("up")`
     // on Mines level 1 therefore creates no stairway or STAIRS terrain.
     if (dunlev(g.u.uz) === (up ? 1 : dunlevs_in_dungeon(g.u.uz, g)))
         return;
-    if (loc) {
-        loc.typ = STAIRS;
-        loc.flags = up ? LA_UP : LA_DOWN; // rm.h: ladder aliases flags
-    }
+    loc.typ = STAIRS;
+    loc.flags = up ? LA_UP : LA_DOWN; // rm.h: ladder aliases flags
     const dest = {
         dnum: g.u?.uz?.dnum ?? 0,
         dlevel: (g.u?.uz?.dlevel ?? 1) + (up ? -1 : 1),
@@ -7767,7 +7812,8 @@ async function generate_stairs() {
                 pos.x = somex(croom);
                 pos.y = somey(croom);
             }
-            mkstairs(pos.x, pos.y, 0, croom);
+            await mkstairs(pos.x, pos.y, 0, croom, false,
+                impossible_printer(g));
         }
     }
     // Up stairs only if not level 1
@@ -7778,7 +7824,8 @@ async function generate_stairs() {
                 pos.x = somex(croom);
                 pos.y = somey(croom);
             }
-            mkstairs(pos.x, pos.y, 1, croom);
+            await mkstairs(pos.x, pos.y, 1, croom, false,
+                impossible_printer(g));
         }
     }
 }

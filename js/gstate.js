@@ -26,6 +26,15 @@ function initialGameState() {
         // js/const.js, which imports this file; scripts/smeq-lifetime.test.mjs
         // checks it.
         smeq: new Array(41).fill(0),
+        // C rect.c:20-22 holds n_rects, rect_cnt and rect[] as file statics,
+        // zero and null once per process. mklev.c clear_level_structures()
+        // calls init_rect() before each new level and save.c
+        // freedynamicdata() calls free_rect(); savelev() stores none of
+        // them, so a restored game starts with no rectangles and
+        // rect.c rnd_rect() returns null until a level is made.
+        n_rects: 0,
+        rect_cnt: 0,
+        nhrect: null,
     };
 }
 

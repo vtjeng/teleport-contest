@@ -235,7 +235,7 @@ import {
     apply_customizations,
     numeric_glyph_customization,
 } from '../js/glyphs.js';
-import { sourceGlyphName } from '../js/glyph_ids.js';
+import { sourceGlyphName, sourceGlyphNumber } from '../js/glyph_ids.js';
 import {
     add_rect_to_reg,
     add_region,
@@ -1216,6 +1216,17 @@ test('failed primary selections clear metadata without undoing earlier bytes',
         }
     });
 
+// symbols.c parse_sym_line() turns a UTF8-handling set's S_* Unicode into
+// glyph customizations rather than symbol-table entries: the symbol keeps its
+// byte, and each of the symbol's glyphs carries the Unicode. The main
+// dungeon's vertical wall stands for S_vwall; the Enhanced sets give the
+// Mines and Sokoban walls their own G_* entries.
+function vwallUnicode(state) {
+    return numeric_glyph_customization(
+        sourceGlyphNumber('G_vwall_main'), state,
+    )?.displayCh;
+}
+
 test('named symbol sets load source-derived byte and Unicode maps', () => {
     const configured = (name) => {
         const state = {};
@@ -1236,8 +1247,9 @@ test('named symbol sets load source-derived byte and Unicode maps', () => {
     );
     assert.deepEqual(
         cmap_symbol(S_vwall, configured('Enhanced1')),
-        { ch: null, dec: false, displayCh: '│' },
+        { ch: '|', dec: false },
     );
+    assert.equal(vwallUnicode(configured('Enhanced1')), '│');
 });
 
 test('object and monster classes use their absolute source symbol slots', () => {
@@ -1275,11 +1287,6 @@ test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', (
     // The class-level symbol returns the raw byte; the Unicode override lives
     // in the per-glyph customization map.
     assert.deepEqual(object_class_symbol(WEAPON_CLASS, state), {
-        ch: ')',
-        dec: false,
-    });
-    // The concrete-object variant (otyp !== oclass) always returns the byte.
-    assert.deepEqual(object_class_symbol(WEAPON_CLASS, state, 42), {
         ch: ')',
         dec: false,
     });
@@ -5274,7 +5281,7 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
     // oc_color is CLR_BLACK, which recorderMapColor() folds onto the
     // terminal default.
     const genericZeroClass = {
-        ch: object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
+        ch: object_class_symbol(ILLOBJ_CLASS, state).ch,
         color: NO_COLOR,
         dec: false,
     };
@@ -5382,14 +5389,14 @@ test('nearby zero-class object mimics stay outside the generic-glyph range', () 
     assert.equal(state.objects[SPE_FORCE_BOLT].oc_encountered, 0);
     assert.equal(
         state.level.at(x, y).disp_ch,
-        object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
+        object_class_symbol(ILLOBJ_CLASS, state).ch,
     );
     assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
     assert.equal(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
         ).ch,
-        object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
+        object_class_symbol(ILLOBJ_CLASS, state).ch,
     );
     // display.h glyph_is_generic_object(): class zero is GLYPH_OBJ_OFF
     // itself, which the macro's `> GLYPH_OBJ_OFF` term excludes.
@@ -6672,7 +6679,7 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
     const lastStatue = monster_class_symbol(
         mons[NUMMONS - 1].mlet, state,
     ).ch;
-    const corpse = object_class_symbol(FOOD_CLASS, state, CORPSE).ch;
+    const corpse = object_class_symbol(FOOD_CLASS, state).ch;
     const statueColor = state.objects[STATUE].oc_color;
     // The first glyph of each arm, and the glyph one below it, which belongs
     // to the arm underneath. reset_glyphmap() tests `>= 0` on each
@@ -7235,38 +7242,35 @@ test('UTF-8 symbols honor handling, customization, and set-reset boundaries', ()
 
     // A byte override from a prior non-UTF8 set does not mask a named UTF-8
     // glyph mapping, but loading a new set purges an active UTF-8 override.
-    assert.deepEqual(
-        cmap_symbol(
-            S_vwall,
+    assert.equal(
+        vwallUnicode(
             configured([
                 'SYMBOLS=S_vwall:!',
                 'OPTIONS=symset:Enhanced1',
             ].join('\n')),
         ),
-        { ch: null, dec: false, displayCh: '│' },
+        '│',
     );
-    assert.deepEqual(
-        cmap_symbol(
-            S_vwall,
+    assert.equal(
+        vwallUnicode(
             configured([
                 'OPTIONS=symset:Enhanced1',
                 'SYMBOLS=S_vwall:U+2603',
                 'OPTIONS=symset:Enhanced2',
             ].join('\n')),
         ),
-        { ch: null, dec: false, displayCh: '║' },
+        '║',
     );
 
     for (const invalid of ['U+0000', 'U+D800', 'U+110000', 'U+Z']) {
-        assert.deepEqual(
-            cmap_symbol(
-                S_vwall,
+        assert.equal(
+            vwallUnicode(
                 configured([
                     'OPTIONS=symset:Enhanced1',
                     `SYMBOLS=S_vwall:${invalid}`,
                 ].join('\n')),
             ),
-            { ch: null, dec: false, displayCh: '│' },
+            '│',
             invalid,
         );
     }

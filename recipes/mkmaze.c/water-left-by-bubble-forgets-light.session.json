@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkmaze.c movebubbles():1644 assigns the static water_pos to every square a bubble leaves, so each field of struct rm resets, waslit among them. A human Valkyrie in debug mode with !dark_room level-teleports with ^V to the Plane of Water (the menu's 'K' entry), wishes for nothing and searches for eight turns while the bubbles carry lit air she has seen away from her. #wizloadlua bigrm-2 then lays room floor over the level, and ^F maps it: display.c magic_map_background() draws an out-of-sight room square whose waslit is zero as the dark room symbol, blank with !dark_room. Seed 7730093 is the third of 7730061, 7730077 and 7730093 tried, the first whose bubbles leave such a square inside the room; date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7730093,
+      "datetime": "20370922044500",
+      "nethackrc": "OPTIONS=name:Drifter,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!dark_room\n",
+      "moves": "\u001b\u0016?\n>>K\u001b\u001bnothing\n\u001b\u001b8s\u001b\u001b\u001b#wizloadlua\nbigrm-2\n\u001b\u001b\u001b\u0006\u001b\u001b\u001b"
+    }
+  ]
+}

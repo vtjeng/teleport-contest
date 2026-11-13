@@ -2675,7 +2675,7 @@ function statueColor(state) {
 // objects[CORPSE].oc_class + SYM_OFF_O. The class carries the symbol; the
 // species only chooses the colour, through mon_color(offset).
 function corpseSymbol(state) {
-    return object_class_symbol(FOOD_CLASS, state, CORPSE);
+    return object_class_symbol(FOOD_CLASS, state);
 }
 
 // display.c reset_glyphmap()'s two object arms:
@@ -2691,7 +2691,7 @@ function objectSymbol(otyp, state) {
             'object display requires the complete object catalog',
         );
     }
-    return object_class_symbol(type.oc_class, state, otyp);
+    return object_class_symbol(type.oc_class, state);
 }
 
 /**

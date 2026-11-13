@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "save.c savelev():560-563 clear_level_structures() under release_data(), which do.c goto_level() reaches when it leaves a level. It calls rect.c init_rect(), so after returning to a visited level the free rectangles are one whole-map rectangle, not whatever making the level just left consumed. A human Valkyrie in debug mode level-teleports to Dlvl 3 and back to Dlvl 1 with ^V, then runs #wizloadlua Pri-filb, whose random des.room() calls draw rn2(rect_cnt) in rect.c rnd_rect(). Seed, datetime, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9183427,
+      "datetime": "20390612142000",
+      "nethackrc": "OPTIONS=name:Returner,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u00163\n\u001b\u00161\n\u001b#wizloadlua\nPri-filb\n\u001bs\u0006\u001b"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ import {
     copy_lastseentyp_grid, load_mapseen,
 } from './dungeon.js';
 import { game } from './gstate.js';
-import { l_nhcore_init } from './mklev.js';
+import { clear_level_structures, l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
 import { adj_erinys, hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
@@ -82,6 +82,7 @@ import { restore_oracles } from './rumors.js';
 import { assign_graphics } from './symbols.js';
 import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
+import { rest_rooms } from './mkroom.js';
 import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
@@ -287,26 +288,6 @@ export async function dorestore(state = game) {
     state.urole = snapshot.urole;
     state.urace = snapshot.urace;
 
-    // Level and dungeon state
-    installLevel(snapshot.level, state);
-    // getlev() of the hero's level reads svl.lastseentyp[][].
-    state.lastseentyp = copy_lastseentyp_grid(snapshot.lastseentyp);
-    restoreLevelAt(state.level);
-    // C ref: restore.c getlev():1149-1163, which dorecover() reaches for the
-    // hero's level. The other levels' chains are reversed twice, once by
-    // dosave0()'s getlev() and once by dorecover()'s, so they keep their order.
-    rest_traps(state.level);
-    // C ref: restore.c getlev():1225 rest_regions(). The game state and the
-    // regions were saved on the same turn, so only regions whose time had
-    // already run out are discarded.
-    rest_regions(snapshot.moves, state, restoredRegionVisuals(state));
-    // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
-    // through getlev() for the hero's level.
-    rest_stairs(snapshot.stairs, state);
-    // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
-    // right after the stairs.
-    state.updest = snapshot.updest ?? {};
-    state.dndest = snapshot.dndest ?? {};
     // C ref: dungeon.c restore_dungeon():222 reads svd.dungeon_topology
     // whole; dorecover() does not rerun fixup_level_locations(), whose x-
     // proto renames, Fort Ludios branch insertion and dummy-level
@@ -331,6 +312,39 @@ export async function dorestore(state = game) {
         });
     }
     if (snapshot.inv_pos) state.inv_pos = snapshot.inv_pos;
+
+    // C ref: restore.c dorecover():831 restlevelfile() and 885 write each
+    // level through savelev(), whose release_data() branch calls
+    // mklev.c clear_level_structures() (save.c:561) before getlev() reads
+    // the hero's level back. Clearing here, before the hero's level is
+    // installed, leaves the same state: getlev()'s fields are restored
+    // below, and the rest (rect.c's free rectangles, gv.vault_x, the
+    // special-level frame) keep the values clear_level_structures() set.
+    // It reads In_hell(&u.uz), so it follows the dungeon restore above.
+    clear_level_structures();
+
+    // The hero's level
+    installLevel(snapshot.level, state);
+    // getlev() of the hero's level reads svl.lastseentyp[][].
+    state.lastseentyp = copy_lastseentyp_grid(snapshot.lastseentyp);
+    restoreLevelAt(state.level);
+    // C ref: restore.c getlev():1132 rest_rooms().
+    rest_rooms(state);
+    // C ref: restore.c getlev():1149-1163, which dorecover() reaches for the
+    // hero's level. The other levels' chains are reversed twice, once by
+    // dosave0()'s getlev() and once by dorecover()'s, so they keep their order.
+    rest_traps(state.level);
+    // C ref: restore.c getlev():1225 rest_regions(). The game state and the
+    // regions were saved on the same turn, so only regions whose time had
+    // already run out are discarded.
+    rest_regions(snapshot.moves, state, restoredRegionVisuals(state));
+    // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
+    // through getlev() for the hero's level.
+    rest_stairs(snapshot.stairs, state);
+    // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
+    // right after the stairs.
+    state.updest = snapshot.updest ?? {};
+    state.dndest = snapshot.dndest ?? {};
     // C ref: dungeon.c restore_dungeon():249-260 reads each mapseen with
     // load_mapseen(), which points its br at the branch just restored above.
     state.svm ??= {};
@@ -978,6 +992,8 @@ export async function getlev(ledger, state = game) {
     state.dndest = snapshot.dndest ?? {};
 
     restoreLevelAt(state.level);
+    // C ref: restore.c getlev():1132 rest_rooms().
+    rest_rooms(state);
     // C ref: restore.c getlev():1149-1163.
     rest_traps(state.level);
 

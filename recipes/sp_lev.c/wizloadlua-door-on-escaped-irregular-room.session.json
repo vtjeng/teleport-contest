@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c create_door() (1714-1810) reaching impossible(\"create_door: Can't find a proper place!\") from lspo_door()'s wall form. #wizloadlua Wiz-loca on Dlvl 1 draws its map over the level's stairs, which set_levltyp() will not overwrite, so the downstairs at <39,8> leave a gap in the west wall of the first irregular des.region(). mkmap.c flood_fill_rm() backs up through the stairs (IS_ROOM) and fills the whole moat-bounded area, so the room's bounding box has no wall a door can go in, and all 100 tries fail. Seed 8120067 was found by scanning seeds 8120001-8121500 with scripts/scan-port.mjs for a Dlvl-1 staircase at x 39, y 4-16 (14 of 1500 kept); date, human Samurai and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 8120067,
+      "datetime": "20440704203000",
+      "nethackrc": "OPTIONS=name:Ringer,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b#wizloadlua\nWiz-loca\n   \u001b\u001b"
+    }
+  ]
+}

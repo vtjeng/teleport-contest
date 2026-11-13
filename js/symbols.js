@@ -28,7 +28,7 @@ import {
     glyphrep_to_custom_map_entries,
     purge_custom_entries,
 } from './glyphs.js';
-import { sourceGlyphNumber } from './glyph_ids.js';
+import { sourceGlyphNumber, sourceSymbolNamesByIndex } from './glyph_ids.js';
 import { encodeUtf8ByteString, lcase } from './hacklib.js';
 import { escapes } from './options_escapes.js';
 import {
@@ -349,8 +349,19 @@ function readSymbolSetFile(name, set, state) {
     for (const [index, byte] of Object.entries(definition.bytes)) {
         arrays.base[Number(index)] = byte;
     }
+    // symbols.c parse_sym_line() sends every S_* line of a UTF8-handling set
+    // through glyphrep_to_custom_map_entries(), never to showsyms[], so each
+    // becomes a glyph customization below, once the set has its name. The
+    // glyphs it reaches are parse_id()'s: every glyph of a map symbol or a
+    // monster class, but for an object class only the glyphs of object
+    // index class - 1 (find_oc compares the entry's loadsyms[] offset with
+    // glyph_to_obj()), so S_amulet marks the generic ring.
+    const utf8Lines = [];
     for (const [index, symbol] of Object.entries(definition.utf8)) {
-        arrays.baseUtf8[Number(index)] = symbol;
+        if (definition.handling === 'UTF8')
+            utf8Lines.push([Number(index), symbol]);
+        else
+            arrays.baseUtf8[Number(index)] = symbol;
     }
     const entry = state.gs.symset[set];
     entry.explicitly = true;
@@ -366,6 +377,11 @@ function readSymbolSetFile(name, set, state) {
     // deliberately does not pass them to glyphrep_to_custom_map_entries().
     entry.glyphs = { ...definition.glyphs };
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
+    for (const [slot, symbol] of utf8Lines) {
+        const name = sourceSymbolNamesByIndex()[slot];
+        const codepoint = symbol.codePointAt(0).toString(16);
+        glyphrep_to_custom_map_entries(`S_${name}:U+${codepoint}`, state);
+    }
     for (const [glyphName, value] of Object.entries(definition.glyphs)) {
         glyphrep_to_custom_map_entries(`${glyphName}:${value}`, state);
     }
@@ -840,24 +856,13 @@ export function monster_class_symbol(mlet, state = game) {
     return symbol_at(SYM_OFF_M + mlet, state);
 }
 
-// Byte symbol tables apply class-wide, as they do in showsyms[]. An S_*
-// object-class Unicode entry does not: glyphs.c parse_id() gives find_oc the
-// entry's loadsyms[] offset, class - 1, and glyph_find_core() matches it
-// against glyph_to_obj(), so the entry for class c reaches only the glyphs of
-// object index c - 1 (the generic object of class c - 1, or the strange
-// object for S_strange_obj). The glyph of object index `otyp` therefore
-// takes the Unicode of class otyp + 1, with its own class's byte.
-export function object_class_symbol(oclass, state = game, otyp = oclass) {
+// An object class's symbol. A Unicode S_* object-class entry never reaches
+// this table: it becomes a glyph customization (readSymbolSetFile() and
+// applySymbolAssignments()), so the class symbol is its byte.
+export function object_class_symbol(oclass, state = game) {
     if (!Number.isInteger(oclass) || oclass < 0 || oclass >= MAXOCLASSES)
         throw new RangeError(`object class ${oclass} is outside MAXOCLASSES`);
-    const own = symbol_at(SYM_OFF_O + oclass, state, { allowUnicode: false });
-    const unicodeClass = otyp + 1;
-    if (!Number.isInteger(otyp) || unicodeClass >= MAXOCLASSES) return own;
-    const custom = symbol_at(SYM_OFF_O + unicodeClass, state);
-    if (!custom.displayCh || custom.ch !== null) return own;
-    const result = { ch: null, dec: false, displayCh: custom.displayCh };
-    Object.defineProperty(result, 'ttychar', { value: own.ttychar });
-    return result;
+    return symbol_at(SYM_OFF_O + oclass, state, { allowUnicode: false });
 }
 
 export function misc_symbol(index, state = game) {

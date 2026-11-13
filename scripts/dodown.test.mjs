@@ -501,12 +501,15 @@ test('goto_level() takes the pet off the level and onto gm.mydogs',
     const { state, pet } = await petBesideHeroOnDownStairs();
     const petX = pet.mx;
     const petY = pet.my;
+    // savelev() ends with clear_level_structures(), which installs a fresh
+    // map, so the departing level is read through its own reference.
+    const departingLevel = state.level;
 
     await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.equal(state.gm.mydogs, pet);
-    assert.equal(m_at(petX, petY, state), null);
-    for (let mon = state.level.monlist; mon; mon = mon.nmon)
+    assert.equal(m_at(petX, petY, { level: departingLevel }), null);
+    for (let mon = departingLevel.monlist; mon; mon = mon.nmon)
         assert.notEqual(mon, pet, 'the pet has left the level chain');
     assert.equal(pet.mx, 0);
     assert.equal(pet.my, 0);
@@ -520,11 +523,14 @@ test('a pet that has not noticed the hero stays on the level', async () => {
     // the level chain to be saved with the level.
     const { state, pet } = await petBesideHeroOnDownStairs();
     pet.mstrategy = (pet.mstrategy ?? 0) | STRAT_WAITFORU;
+    // savelev() ends with clear_level_structures(), which installs a fresh
+    // map, so the departing level is read through its own reference.
+    const departingLevel = state.level;
 
     await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.equal(state.gm?.mydogs ?? null, null);
-    assert.equal(state.level.monlist, pet, 'the pet heads the level chain');
+    assert.equal(departingLevel.monlist, pet, 'the pet heads the level chain');
 });
 
 test('a sleeping pet stays behind but a following one does not', async () => {
