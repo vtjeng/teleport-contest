@@ -69,10 +69,7 @@ const ALLOWED = {
     'display.js | newsym | back_to_glyph': [1,
         'newsym() is synchronous, and vision_recalc() calls it for every '
         + 'square that comes into view, which is how most moves after such '
-        + 'a #wizloadlua reach wall_angle() in C; the port also computes '
-        + 'the background of squares out of sight, where C\'s newsym() '
-        + 'never calls back_to_glyph(), so it cannot print here as it is; '
-        + 'a known gap'],
+        + 'a #wizloadlua reach wall_angle() in C; a known gap'],
     'detect.js | mappedSearchLayer | back_to_glyph': [1,
         'automatic search maps only a door or corridor it converted, or a '
         + 'trap square'],

@@ -4154,24 +4154,24 @@ export function newsym(x, y) {
         && (tt === BEAR_TRAP || is_pit(tt) || tt === WEB))
         trapAt.tseen = true;
     const trap = covered ? null : trapAt;
-    const mapsLocation = visible
-        || (game.u?.ux === x && game.u?.uy === y);
+    // display.c _map_location(), which C's newsym() reaches only for a square
+    // the hero can see: the hero's own square out of sight returned through
+    // feel_location() above, and the out-of-sight arms below draw from
+    // memory. Only here does newsym() reach back_to_glyph().
     let underlying;
     let rememberedUnderlying;
-    if (object && mapsLocation) {
-        const mapped = mappedObjectGlyphInfo(object, game);
-        underlying = mapped.shown;
-        rememberedUnderlying = mapped.remembered;
-    } else if (object) {
-        // Out-of-sight non-hero cells retain existing memory without invoking
-        // map_object() or consuming its Hallucination display draws.
-        underlying = rememberedUnderlying = object_glyph_info(object, game);
-    } else if (trap?.tseen) {
-        underlying = rememberedUnderlying = trap_glyph_info(trap, game);
-    } else {
-        underlying = engravingGlyph(engraving, loc, game)
-            ?? map_glyphinfo(back_to_glyph(x, y, game), game);
-        rememberedUnderlying = underlying;
+    if (visible) {
+        if (object) {
+            const mapped = mappedObjectGlyphInfo(object, game);
+            underlying = mapped.shown;
+            rememberedUnderlying = mapped.remembered;
+        } else if (trap?.tseen) {
+            underlying = rememberedUnderlying = trap_glyph_info(trap, game);
+        } else {
+            underlying = engravingGlyph(engraving, loc, game)
+                ?? map_glyphinfo(back_to_glyph(x, y, game), game);
+            rememberedUnderlying = underlying;
+        }
     }
 
     if (game.u?.ux === x && game.u?.uy === y) {
