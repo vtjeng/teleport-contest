@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c vamp_stone() 3817-3828: a sandestin created with ^G takes another form (here an umber hulk); a Healer, protected by her gloves, hits it with a wielded cockatrice corpse, and the stoning-resistant sandestin reverts through newcham(..., NC_SHOW_MSG), printing \"The umber hulk turns into a sandestin!\". The first F misses; the second hits. Seed, date and character chosen independently of batch 17.",
+  "segments": [
+    {
+      "seed": 3051786,
+      "datetime": "20261114113000",
+      "nethackrc": "OPTIONS=name:Stoner,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017cockatrice corpse\nwm\u0007sandestin\nFk Fk  "
+    }
+  ]
+}

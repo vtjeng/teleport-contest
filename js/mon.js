@@ -6400,7 +6400,10 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
         mtmp.mfrozen = 0;
         set_mon_min_mhpmax(mtmp, 10);
         mtmp.mhp = mtmp.mhpmax;
-        await newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
+        // C mon.c:3825 passes NC_SHOW_MSG: "<old> turns into <new>!".
+        await newcham(mtmp, state.mons[mtmp.cham], {
+            ...env, state, ncflags: NC_SHOW_MSG,
+        });
         redraw(mtmp.mx, mtmp.my, state);
         return false;
     }
