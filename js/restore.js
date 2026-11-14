@@ -846,9 +846,13 @@ export function restmonchn(first, state) {
             for (obj = mtmp.minvent; obj; obj = obj.nobj)
                 if (obj.owornmask & W_WEP)
                     break;
-            // The miss arm is C's MON_NOWEP(mtmp) plus an impossible()
-            // report; the pointer reset is the state change.
-            mtmp.mw = obj ?? null;
+            if (obj)
+                mtmp.mw = obj;
+            else {
+                mtmp.mw = null; // C's MON_NOWEP(mtmp)
+                // C: impossible("bad monster weapon restore");
+                note_unported('pline.c impossible');
+            }
         }
         if (mtmp.isshk)
             restshk(mtmp, false, state);

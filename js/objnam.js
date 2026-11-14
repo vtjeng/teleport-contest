@@ -423,7 +423,13 @@ export function armor_simple_name(armor, state = game) {
     case ARM_BOOTS:   return boots_simple_name(armor, state);
     case ARM_SHIELD:  return shield_simple_name(armor, state);
     case ARM_SHIRT:   return shirt_simple_name(armor, state);
-    default:          return simpleonames(armor, state);
+    default: {
+        const result = simpleonames(armor, state);
+        sync_impossible(
+            `unknown armor category (${result} => ${type.oc_armcat})`, state,
+        );
+        return result;
+    }
     }
 }
 // C refs: objnam.c xname_flags():632-639, doname_base():1254-1262,
@@ -546,7 +552,11 @@ function* xnameBaseSteps(obj, type, state, ident) {
     case FOOD_CLASS:
         if (obj.otyp === SLIME_MOLD) {
             const fruit = fruit_from_indx(obj.spe, state);
-            return fruit?.fname ?? 'fruit';
+            if (!fruit) {
+                yield new ImpossibleCall(`Bad fruit #${obj.spe}?`);
+                return 'fruit';
+            }
+            return fruit.fname;
         }
         // C applies the xname_flags hook to every non-fruit FOOD_CLASS item
         // before selecting the glob/non-glob formatting arm.
@@ -2174,6 +2184,25 @@ export function safe_qbuf(
     const qsuffix = suffix == null ? '' : String(suffix);
     const fallback = String(lastR);
     const byteLength = (value) => textBytes(value).length;
+    const lenQpfx = byteLength(qprefix);
+    const lenQsfx = byteLength(qsuffix);
+    const lenLastR = byteLength(fallback);
+    /* sanity check, aimed mainly at paniclog */
+    if (lenQpfx > limit) {
+        sync_impossible(
+            `safe_qbuf: prefix too long (${lenQpfx} characters).`, state,
+        );
+    } else if (lenQpfx + lenQsfx > limit) {
+        sync_impossible(
+            `safe_qbuf: suffix too long (${lenQpfx} + ${lenQsfx} characters).`,
+            state,
+        );
+    } else if (lenQpfx + lenLastR + lenQsfx > limit) {
+        sync_impossible(
+            `safe_qbuf: filler too long (${lenQpfx} + ${lenLastR} + ${lenQsfx} characters).`,
+            state,
+        );
+    }
     let result = truncateByteString(qprefix, limit);
 
     if (byteLength(result) + byteLength(fallback) + byteLength(qsuffix)

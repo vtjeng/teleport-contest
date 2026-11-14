@@ -1374,6 +1374,18 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
+    "js/invent.js | finishAddinvCore0 | `addinv: null obj after merge otyp=${initialObj.otyp}`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/invent.c:1112",
+      "reason": "C addinv_core0() panics when an inventory merge leaves no object; the synchronous port cannot await panic()."
+    },
+    "js/invent.js | finishAddinvCore0 | `addinv: null obj after quiver merge otyp=${initialObj.otyp}": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/invent.c:1104",
+      "reason": "C addinv_core0() panics when a quiver merge leaves no object; the synchronous port cannot await panic()."
+    },
     "js/invent.js | floorPileForStacking | 'stackobj requires an object'": {
       "count": 1,
       "class": "invariant",

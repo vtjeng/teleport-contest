@@ -229,6 +229,10 @@ export function init_oclass_probs(state = game) {
         if (sum <= 0
             && objectClass !== ILLOBJ_CLASS
             && bases[objectClass] !== bases[objectClass + 1]) {
+            // C: impossible("%s (%d) probability total for oclass %d",
+            //               !sum ? "zero" : "negative", sum, oclass);
+            note_unported('pline.c impossible');
+            /* gracefully fail by setting all members of this class to 1 */
             for (let i = bases[objectClass]; i < bases[objectClass + 1]; ++i) {
                 objects[i].oc_prob = 1;
                 ++sum;
@@ -385,8 +389,17 @@ export function init_objects(state = game, random = rn2) {
     for (let i = MAXOCLASSES; i < NUM_OBJECTS; ++i) {
         const hasDescription = OBJ_DESCR(objects[i], state) !== null;
         const nameKnown = objects[i].oc_name_known !== 0;
-        if (hasDescription === nameKnown)
+        if (hasDescription === nameKnown) {
+            if (state.iflags?.sanity_check) {
+                // C: impossible(
+                //     "obj #%d (%s) name is %s despite%s alternate description",
+                //     i, OBJ_NAME(objects[i]),
+                //     nmkn ? "pre-known" : "not known", nmkn ? "" : " no");
+                note_unported('pline.c impossible');
+            }
+            /* repair the mistake and keep going */
             objects[i].oc_name_known = nameKnown ? 0 : 1;
+        }
     }
 
     init_oclass_probs(state);
@@ -399,7 +412,11 @@ export function init_objects(state = game, random = rn2) {
 // description matches the given string. The hero's knowledge is irrelevant:
 // the match is against the object's actual randomized description.
 export function objdescr_is(obj, descr, state = game) {
-    if (!obj) return false;
+    if (!obj) {
+        // C: impossible("objdescr_is: null obj");
+        note_unported('pline.c impossible');
+        return false;
+    }
     const type = state.objects[obj.otyp];
     const objDescr = OBJ_DESCR(type, state);
     return objDescr != null && objDescr === descr;
@@ -493,11 +510,16 @@ export function undiscover_object(oindx, state = game) {
             found = true;
     }
 
+    /* clear last slot */
     if (found)
         state.svd.disco[dindx - 1] = 0;
-    // C: impossible("named object not in disco") -- should not happen
+    else {
+        // C: impossible("named object not in disco");
+        note_unported('pline.c impossible');
+    }
 
-    if (found && acls === GEM_CLASS) gem_learned(oindx, state);
+    if (acls === GEM_CLASS)
+        gem_learned(oindx, state); /* ok, it's actually been unlearned */
 }
 
 // C ref: o_init.c observe_object().

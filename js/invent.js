@@ -371,6 +371,8 @@ import {
 import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
+import { sync_impossible } from './source_steps.js';
+import { panic } from './end.js';
 import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
 import { bypass_objlist, nxt_unbypassed_loot, setnotworn, setuqwep, setworn } from './worn.js';
@@ -1122,6 +1124,15 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
     /* force invent to be in invlet order before collecting candidate
        inventory letters */
     for (const item of sortlootByInvlet(state)) {
+        // C's bp starts prefix.length characters into buf[BUFSZ], and
+        // altlets is a char[BUFSZ] too.
+        if (prefix.length + letters.length === BUFSZ - 1
+            || altlets.length === BUFSZ - 1) {
+            /* we must have a huge number of noinvsym items somehow */
+            await impossible('getobj: inventory overflow', state);
+            break;
+        }
+
         letters.push(item.invlet);
         switch (await obj_ok(item, state)) {
         case GETOBJ_EXCLUDE_INACCESS:
@@ -3693,6 +3704,8 @@ export function obfree(obj, merge = null, rawEnv = {}) {
         // C prints this through impossible(), which this build shows in every
         // mode. obfree() is synchronous and cannot wait for it, so the port
         // records the gap.
+        // C: impossible("obfree: deleting worn obj (%d: %ld)", obj->otyp,
+        //               obj->owornmask);
         note_unported('pline.c impossible');
         setnotworn(obj, setwornEnv(env.state, env));
     }
@@ -3760,8 +3773,11 @@ function beginMerged(otmp, obj, env = {}, globMode = 'sync') {
         } else if (wmask & W_QUIVER) {
             wmask = W_QUIVER;
         } else {
-            // C's impossible("merging strangely worn items (%lx)").
-            note_unported('pline.c impossible');
+            // C: impossible("merging strangely worn items (%lx)", wmask);
+            sync_impossible(
+                `merging strangely worn items (${wmask.toString(16)})`,
+                normalized.state,
+            );
             wmask = otmp.owornmask;
         }
         const wornEnv = setwornEnv(normalized.state, normalized);
@@ -4586,6 +4602,11 @@ function finishAddinvCore0(context, initialObj, updatePermInvent, otherObj) {
         context.insertedBefore = true;
     } else if (state.uquiver && merged(state.uquiver, obj, normalized)) {
         obj = state.uquiver;
+        if (!obj) {
+            throw new Error(
+                `addinv: null obj after quiver merge otyp=${initialObj.otyp}`,
+            );
+        }
     } else {
         let previous = null;
         let current = inventoryHead(state);
@@ -4595,6 +4616,11 @@ function finishAddinvCore0(context, initialObj, updatePermInvent, otherObj) {
         }
         if (current) {
             obj = current;
+            if (!obj) {
+                throw new Error(
+                    `addinv: null obj after merge otyp=${initialObj.otyp}`,
+                );
+            }
         } else {
             insertInventoryObject(obj, previous, state);
             inserted = true;
@@ -4631,6 +4657,8 @@ async function addinvCore0Runtime(
         ? await pendingContext : pendingContext;
     if (!context) return null;
     const { normalized, state } = context;
+    // C's saved_otyp, for the panics below.
+    const savedOtyp = obj.otyp;
     let inserted;
     let mergedObject;
 
@@ -4641,7 +4669,15 @@ async function addinvCore0Runtime(
         mergedObject = mergedRuntime(state.uquiver, obj, normalized);
         if (isThenable(mergedObject))
             mergedObject = await mergedObject;
-        if (mergedObject) obj = state.uquiver;
+        if (mergedObject) {
+            obj = state.uquiver;
+            if (!obj) {
+                await panic(
+                    `addinv: null obj after quiver merge otyp=${savedOtyp}`,
+                    state,
+                );
+            }
+        }
     }
     if (!mergedObject) {
         let previous = null;
@@ -4656,6 +4692,10 @@ async function addinvCore0Runtime(
         }
         if (current) {
             obj = current;
+            if (!obj) {
+                await panic(`addinv: null obj after merge otyp=${savedOtyp}`,
+                    state);
+            }
         } else {
             insertInventoryObject(obj, previous, state);
             inserted = true;
