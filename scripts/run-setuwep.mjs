@@ -9,6 +9,7 @@ import assert from 'node:assert/strict';
 import { OBJ_FLOOR } from '../js/const.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { AKLYS, BOOMERANG, LONG_SWORD, PICK_AXE, POT_SLEEPING, RIN_SEARCHING } from '../js/objects.js';
@@ -66,7 +67,7 @@ export async function verifySetuwepSegment(name, segment, restore = null) {
             assert.equal(primary.lamplit, true, 'restore does not extinguish the reconstructed artifact');
         }
         if (restore.index === 0) {
-            assert.ok(restore.storage.getItem('vfs:nhsave'), 'production save completed');
+            assert.ok(restore.storage.getItem(savefileKey(game)), 'production save completed');
         }
         assert.equal(game.unweapon, name === 'setuwep-restore-bare-hands'
             || (restore.index > 0 && name === 'setuwep-restore-pickaxe'));

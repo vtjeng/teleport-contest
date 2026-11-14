@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getlev } from '../js/restore.js';
 import { InMemoryStorage } from '../js/storage.js';
@@ -104,9 +105,9 @@ test('a whole-game restore has the hero level\'s shop damage in reverse', async 
     assert.match(source('restore.c'), RESTDAMAGE_PUSH);
     const storage = new InMemoryStorage();
     await runSegment({ ...SCRIBE, moves: '\u001bSy', storage });
-    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
     snapshot.level.damagelist = twoDamages(snapshot.moves);
-    storage.setItem('vfs:nhsave', JSON.stringify(snapshot));
+    storage.setItem(savefileKey(game), JSON.stringify(snapshot));
     await runSegment({ ...SCRIBE, seed: SCRIBE.seed + 1, moves: ' n', storage });
     assert.deepEqual(damageSquares(game.level), ['20,5', '10,5']);
 });

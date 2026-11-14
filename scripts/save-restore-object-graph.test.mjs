@@ -67,7 +67,7 @@ test('save and restore preserve C floor chains and global timers/lights', () => 
         < globalRestore.indexOf('restobjchn(nhfp, FALSE)'));
 
     assert.match(jsSave,
-        /vfsWriteFile\(SAVE_FILE_PATH, serializeSnapshot\(snapshot\)\)/u);
+        /vfsWriteFile\(savefile, serializeSnapshot\(snapshot\)\)/u);
     assert.match(jsSave, /timers: maybe_write_timer\(RANGE_GLOBAL, state\)/u);
     assert.match(jsSave, /lights: light_sources_in_range\(RANGE_GLOBAL, state\)/u);
     assert.match(jsRestore, /const snapshot = parseSnapshot\(raw\)/u);

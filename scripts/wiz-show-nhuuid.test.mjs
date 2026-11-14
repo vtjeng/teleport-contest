@@ -7,6 +7,7 @@ import { ECMD_OK } from '../js/const.js';
 import { AUTOCOMPLETE, IFBURIED, WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosave0 } from '../js/save.js';
 import { InMemoryStorage } from '../js/storage.js';
@@ -58,7 +59,7 @@ test('production save/restore transports a nonempty UUID before moves', async ()
     const uuid = 'abcdefab-cdef-abcd-efab-cdefabcdefab'; // 36-byte valid UUID.
     game.svn.nhuuid = uuid;
     assert.equal(await dosave0(game), 1); // save.c returns success after writing.
-    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
     assert.equal(snapshot.nhuuid, uuid);
     assert.ok(Object.keys(snapshot).indexOf('nhuuid') < Object.keys(snapshot).indexOf('moves'));
     let boundary;

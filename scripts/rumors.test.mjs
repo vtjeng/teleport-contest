@@ -4,6 +4,7 @@ import test from 'node:test';
 import { COLNO, ORACLEFILE } from '../js/const.js';
 import { xcrypt } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RANDOM_TEXT_FILES } from '../js/random_text_data.js';
 import { init_oracles, outoracle, restore_oracles, save_oracles } from '../js/rumors.js';
@@ -159,7 +160,7 @@ test('production save and restore retain the consumed list without reinitializin
         '../recipes/rumors.c/oracle-restore-rogue-outside-limit.session.json', import.meta.url)));
     const storage = new InMemoryStorage();
     await runSegment({ ...recipe.segments[0], storage });
-    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
     assert.equal(snapshot.oracles.oracle_cnt, 20, 'the first normal consultation consumes one');
     const remaining = [...snapshot.oracles.oracle_loc];
     assert.equal(remaining.length, 20, 'the consumed tail is not serialized');

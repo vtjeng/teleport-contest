@@ -1,0 +1,26 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3141,
+      "datetime": "20050302101500",
+      "nethackrc": "OPTIONS=name:Alice,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "lljSy",
+      "comment": "sys/unix/unixmain.c attempt_restore: Alice walks three squares and saves, which files.c set_savefile_name() names save/<uid>Alice."
+    },
+    {
+      "seed": 2718,
+      "datetime": "20050302103000",
+      "nethackrc": "OPTIONS=name:Bob,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "hhk",
+      "comment": "Bob's restore_saved_game() opens only save/<uid>Bob, which does not exist, so C starts a new game for Bob and leaves Alice's save alone."
+    },
+    {
+      "seed": 1618,
+      "datetime": "20050302104500",
+      "nethackrc": "OPTIONS=name:Alice,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "jj",
+      "comment": "Alice again: her save is still there, so C restores her game."
+    }
+  ]
+}

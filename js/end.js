@@ -1110,10 +1110,10 @@ export async function panic(str, state = game) {
         && !state.iflags?.debug_fuzzer) {
         // files.c set_error_savefile() appends ".e" to the save file name and
         // dosave0() writes the game there. The port's dosave0() writes only
-        // SAVE_FILE_PATH, which the next segment would restore, while C's
-        // next segment never reads the ".e" file. dosave0()'s result selects
-        // only the sysopt.recover line, which the recorder's sysconf leaves
-        // unset.
+        // the set_savefile_name() file, which the next segment would restore,
+        // while C's next segment never reads the ".e" file. dosave0()'s result
+        // selects only the sysopt.recover line, which the recorder's sysconf
+        // leaves unset.
         note_unported('files.c set_error_savefile');
     }
 

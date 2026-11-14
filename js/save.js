@@ -54,6 +54,7 @@ import { forget_temple_entry } from './priest.js';
 import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
+import { set_savefile_name } from './files.js';
 import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_exit_nhwindows } from './wintty.js';
@@ -337,12 +338,6 @@ export function savelev(ledger, state = game, options = {}) {
 
 // ── dosave / dosave0 — the #save command ──
 
-// The VFS path that dosave0() writes the serialized game state to. A future
-// dorestore() reads from the same path. C uses gs.SAVEF, which encodes the
-// uid and plname; this port has one game at a time and no uid, so a fixed
-// path suffices.
-export const SAVE_FILE_PATH = 'nhsave';
-
 // C ref: save.c save_msghistory(). Its callback strings follow every other
 // serialized game field and preserve the ring's oldest-first order.
 export function save_msghistory(state = game) {
@@ -416,7 +411,8 @@ export async function dosave0(state = game) {
     await done_object_cleanup(state);
 
     // C ref: save.c:100-101. program_state.something_worth_saving is always
-    // set in the port, and gs.SAVEF is the fixed SAVE_FILE_PATH.
+    // set in the port, and gs.SAVEF is set_savefile_name() of the hero's name.
+    const savefile = set_savefile_name(state);
 
     // C ref: save.c:111-124. An old save file exists when a debug or explore
     // mode restore kept it (unixmain.c:266-273 restores its permissions);
@@ -424,7 +420,7 @@ export async function dosave0(state = game) {
     // to overwrite leaves the old file in place and saves nothing.
     // nh_uncompress(), nh_sfconvert() and nh_compress() have no VFS
     // counterpart.
-    if (vfsReadFile(SAVE_FILE_PATH) != null) {
+    if (vfsReadFile(savefile) != null) {
         clearTtyMessageWindow(state);
         // pline.c There() adds only the prefix "There ".
         await ttyPline('There seems to be an old save file.', state);
@@ -479,7 +475,7 @@ export async function dosave0(state = game) {
     // monster and object chains keep C's order through their nmon and nobj
     // links.
     const snapshot = serializeGameState(state);
-    vfsWriteFile(SAVE_FILE_PATH, serializeSnapshot(snapshot));
+    vfsWriteFile(savefile, serializeSnapshot(snapshot));
 
     return 1;
 }

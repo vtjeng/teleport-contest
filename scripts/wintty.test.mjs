@@ -13,6 +13,7 @@ import {
     WIN_ERR,
 } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { status_initialize } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { get_saved_games } from '../js/restore.js';
@@ -258,7 +259,7 @@ test('tty_askname preserves SELECTSAVED return paths before prompting', async ()
     state.nhDisplay = new GameDisplay(null);
     state.iflags = { wc2_selectsaved: true };
     const storage = new InMemoryStorage();
-    storage.setItem('vfs:nhsave', JSON.stringify({ plname: 'saved' }));
+    storage.setItem(savefileKey({ plname: 'saved' }), JSON.stringify({ plname: 'saved' }));
     setStorageForTesting(storage);
     state.nhDisplay.pushKey('a'.charCodeAt(0));
 

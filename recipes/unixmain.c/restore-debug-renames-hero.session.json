@@ -1,0 +1,26 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4242,
+      "datetime": "20050402101500",
+      "nethackrc": "OPTIONS=name:Alice,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "kkhSy",
+      "comment": "sys/unix/unixmain.c attempt_restore: Alice walks three squares and saves to save/<uid>Alice (files.c set_savefile_name())."
+    },
+    {
+      "seed": 4343,
+      "datetime": "20050402103000",
+      "nethackrc": "OPTIONS=name:Alice,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": "ll",
+      "comment": "Debug mode: options.c set_playmode() renames the hero 'wizard' before attempt_restore, so C looks for save/<uid>wizard, finds none and starts a new game."
+    },
+    {
+      "seed": 4444,
+      "datetime": "20050402104500",
+      "nethackrc": "OPTIONS=name:Alice,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "jj",
+      "comment": "Alice in normal mode again: her save is untouched, so C restores it."
+    }
+  ]
+}
