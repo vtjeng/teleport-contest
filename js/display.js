@@ -7620,6 +7620,19 @@ function _buildScreenOutput(cursorOnHero = true) {
                 if (!loc || (bufferedOnly && !loc.gnew)) continue;
                 if (overStatus && !loc.gnew) continue;
                 if (loc.gnew) {
+                    // flush_screen() prints the gbuf entry itself, so a cell
+                    // marked by newsym_force() without a changed glyph is
+                    // printed from disp_glyph again, not from what the screen
+                    // last showed there.
+                    const entry = loc.disp_glyph;
+                    if (entry && entry.ch !== null) {
+                        loc.disp_ch = entry.ch;
+                        loc.disp_color = entry.color;
+                        loc.disp_decgfx = entry.dec;
+                        loc.disp_attr = entry.attr;
+                    }
+                    if (entry?.displayCh)
+                        loc.disp_browser_attr = entry.attr;
                     // tty_print_glyph() decides the attribute as it prints;
                     // the printed cell keeps it until it is printed again.
                     loc.disp_attr = framed_print_attr(loc.disp_attr ?? 0,

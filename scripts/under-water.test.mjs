@@ -42,8 +42,12 @@ test('under_water full update clears distant transient cells and preserves memor
     await under_water(1); // Source mode 1 calls cls before drawing.
     assert.equal(game.level.at(20, 10).disp_glyph, null);
     assert.deepEqual(game.level.at(20, 10).remembered_glyph, { glyph: 123 });
+    // cls() left nul_gbuf in these cells, which already holds
+    // GLYPH_UNEXPLORED, so display.c show_glyph() finds nothing to change and
+    // the cell keeps no presentation of its own.
     for (const [x, y] of [[9, 9], [9, 10], [11, 11]])
-        assert.equal(game.level.at(x, y).disp_glyph.glyph, GLYPH_UNEXPLORED_OFF);
+        assert.equal(game.level.at(x, y).disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF,
+            GLYPH_UNEXPLORED_OFF);
     assert.deepEqual(game._underWater, { x: 10, y: 10, dela: false });
 });
 
@@ -61,6 +65,11 @@ test('under_water delayed full update takes precedence over a second mode 2', as
 test('limited update erases old square in y/x order then draws in x/y order', async () => {
     setup();
     game._underWater = { x: 5, y: 5, dela: false };
+    // A write of GLYPH_UNEXPLORED over nul_gbuf changes nothing, so give each
+    // square a floor glyph first; every source write below then replaces it.
+    for (const [x, y] of [[4, 4], [5, 4], [6, 4], [4, 5], [5, 5], [6, 5],
+        [4, 6], [5, 6], [6, 6], [9, 9], [9, 10], [11, 11]])
+        show_glyph_cell(x, y, { ch: '.', dec: false });
     const writes = [];
     const at = game.level.at.bind(game.level);
     game.level.at = (x, y) => {
