@@ -65,6 +65,7 @@ import {
     cxname,
     erosion_matters,
     helm_simple_name,
+    simpleonames,
     vtense,
     Yobjnam2,
     xnameFresh,
@@ -77,7 +78,7 @@ import { cansee } from './vision.js';
 import { dist2, strncmpi } from './hacklib.js';
 import { canseemon } from './display.js';
 import { dry_a_towel } from './weapon.js';
-import { note_unported } from './unported.js';
+import { impossible } from './pline.js';
 import { Blind } from './youprop.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
@@ -181,11 +182,11 @@ export async function erode_obj(obj, description, type, flags, env) {
     const floorVictim = !uvictim && !monsterVictim;
 
     const details = EROSION[type];
+    const { state } = env;
     if (!details) {
-        note_unported('pline.c impossible');
+        await impossible('Invalid erosion type in erode_obj', state, env);
         return ER_NOTHING;
     }
-    const { state } = env;
     // trap.c:257 draws rnl(4) for a blessed item.
     const random = env.random ?? coreRandom;
     const message = erosionOperation(env, 'message', ttyPline);
@@ -345,10 +346,13 @@ export async function erode_obj(obj, description, type, flags, env) {
                         },
                     },
                 );
-            } else {
-                // C's impossible() branch clears the mask before deleting a
-                // strangely worn object, preventing a second diagnostic.
-                obj.owornmask = 0;
+            } else { /* worn but not in hero invent or monster minvent ? */
+                const mask = (obj.owornmask >>> 0).toString(16).padStart(8, '0');
+                await impossible(
+                    `erode_obj(${type}): destroying strangely worn item [${obj.where}, 0x${mask}: ${simpleonames(obj, state)}]`,
+                    state, env);
+                obj.owornmask = 0; /* otherwise a second complaint (about
+                                    * deleting a worn item) will ensue */
             }
         }
         await delobj(obj, { ...env, state });

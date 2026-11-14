@@ -53,7 +53,7 @@ import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
-import { verbalize, youHear, youSee } from './pline.js';
+import { impossible, verbalize, youHear, youSee } from './pline.js';
 import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
@@ -102,6 +102,7 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
+import { note_unported } from './unported.js';
 import { Blind, Deaf, Punished, Strangled } from './youprop.js';
 
 // C ref: vault.c vault_occupied() (244-253). `array` is one of the hero's room
@@ -120,7 +121,11 @@ export function vault_occupied(array, state = game) {
 // C ref: vault.c uleftvault() (256-278). teleds() calls this after updating
 // the hero's temporary vault occupancy and before destination room effects.
 export async function uleftvault(grd, state = game, env = {}) {
-    if (!grd || !grd.isgd || grd.mhp < 1) return;
+    /* only called if caller has checked vault_occupied() and findgd() */
+    if (!grd || !grd.isgd || grd.mhp < 1) {
+        await impossible('escaping vault without guard?', state, env);
+        return;
+    }
     if ((money_cnt(state.invent) || hidden_gold(true, state))
         && um_dist(grd.mx, grd.my, 1, state)) {
         if (grd.mpeaceful) {
@@ -1021,6 +1026,10 @@ function find_guard_dest(guard, state) {
             }
         }
     }
+    // C: impossible("Not a single corridor on this level?"); tele();
+    // This helper is synchronous, so neither the diagnostic nor C's tele()
+    // that follows it runs here.
+    note_unported('pline.c impossible');
     return null;
 }
 

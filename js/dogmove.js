@@ -199,7 +199,7 @@ import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
-import { impossible_printer, pline_mon, youFeel } from './pline.js';
+import { impossible, impossible_printer, pline_mon, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
@@ -625,9 +625,18 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     } else {
         if (classifyDogFood(mtmp, obj, { ...rawEnv, state }) === DOGFOOD
             && obj.invlet) {
+            const prior_apport = edog.apport;
             const denominator = edog.dropdist + state.moves - edog.droptime;
             edog.apport += Math.trunc(200 / denominator);
-            if (edog.apport <= 0) edog.apport = 1;
+            if (edog.apport <= 0) {
+                await impossible(
+                    `dog_eat: pet apport <= 0 (${edog.apport}, ${edog.dropdist}, `
+                        + `${edog.droptime}, ${state.moves}, ${prior_apport}, `
+                        + `${mtmp.m_id}, ${edog.parentmid})`,
+                    state, rawEnv,
+                );
+                edog.apport = 1;
+            }
         }
         if (obj.unpaid) {
             const price = unpaid_cost(obj, COST_CONTENTS, state);

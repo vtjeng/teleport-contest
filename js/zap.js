@@ -573,7 +573,12 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
     const message = env.message ?? ttyPline;
-    if (corpse?.otyp !== CORPSE) return null;
+    if (!corpse) return null;
+    if (corpse.otyp !== CORPSE) {
+        await impossible(`Attempting to revive ${xname(corpse, state)}?`,
+            state, env);
+        return null;
+    }
 
     const originalType = corpse.corpsenm;
     const originalSpecies = state.mons?.[originalType];

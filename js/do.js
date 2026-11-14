@@ -837,8 +837,10 @@ function next2u(x, y, state) {
 // direct source return used by flooreffects().
 export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    if (!otmp || otmp.otyp !== BOULDER)
+    if (!otmp || otmp.otyp !== BOULDER) {
+        await impossible('Not a boulder?', state, rawEnv);
         return false;
+    }
     if (!is_pool_or_lava(rx, ry, state)) return false;
     const random = rawEnv.random ?? coreRandom;
     const location = state.level?.at(rx, ry);

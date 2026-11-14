@@ -957,6 +957,12 @@ export async function study_book(spellbook, state = game, env = {}) {
             return 1;
         }
 
+        if (level < 1 || level > 7) {
+            await impossible(
+                `Unknown spellbook level ${level}, book ${booktype};`,
+                state, env);
+            return 0;
+        }
         spbook.delay = spellStudyDelay(type);
         let index = 0;
         for (; index < MAXSPELL; ++index) {

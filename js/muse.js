@@ -191,6 +191,7 @@ import { add_damage, inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
 import { impossible, impossible_printer, pline_mon, verbalize, youFeel } from './pline.js';
+import { panic } from './end.js';
 import { finish_steps } from './source_steps.js';
 import {
     destroy_drawbridge,
@@ -441,7 +442,8 @@ async function mzapwand(mtmp, otmp, self, state, rawEnv = {}) {
             message,
         }));
     if (otmp.spe < 1) {
-        // impossible("Mon zapping wand with %d charges?", otmp->spe)
+        await impossible(`Mon zapping wand with ${otmp.spe} charges?`,
+            state, rawEnv);
         return;
     }
     if (!canseemon(mtmp, state)) {
@@ -782,8 +784,9 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 await pline_mon(mtmp,
                     `${capitalizedMonsterName(mtmp, state)} seems steadier now.`,
                     state);
+        } else {
+            await impossible('No need for unicorn horn?', state);
         }
-        // C: else impossible("No need for unicorn horn?");
         return 2;
     }
     case 'bugle': {
@@ -961,6 +964,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         // pm: null => random, eel => aquatic, croc => amphibious
         const pm = !is_pool(mtmp.mx, mtmp.my, state) ? null
             : state.mons[state.u?.uinwater ? M.PM_GIANT_EEL : M.PM_CROCODILE];
+        if (!otmp)
+            await panic('use_defensive: no wand of create monster', state);
         const cc = enexto(mtmp.mx, mtmp.my, pm, { state });
         if (!cc) return 0;
         await mzapwand(mtmp, otmp, false, state);
@@ -975,6 +980,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         // MUSE_SCR_CREATE_MONSTER
         let cnt = 1;
         let known = false;
+        if (!otmp)
+            await panic('use_defensive: no scroll of create monster', state);
         if (!rn2(73))
             cnt += rnd(4);
         if (mtmp.mconf || otmp.cursed)
@@ -1134,6 +1141,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
     }
     case 'healing': {
         // MUSE_POT_HEALING
+        if (!otmp)
+            await panic('use_defensive: no potioh of healing', state);
         await mquaffmsg(mtmp, otmp, state);
         const amt = d(6 + 2 * bcsign(otmp), 4);
         healmon(mtmp, amt, 1);
@@ -1150,6 +1159,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
     }
     case 'extra healing': {
         // MUSE_POT_EXTRA_HEALING
+        if (!otmp)
+            await panic('use_defensive: no potioh of extra healing', state);
         await mquaffmsg(mtmp, otmp, state);
         const amt = d(6 + 2 * bcsign(otmp), 8);
         healmon(mtmp, amt, otmp.blessed ? 5 : 2);
@@ -1167,6 +1178,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
     case 'full healing':
     case 'pestilence healing': {
         // MUSE_POT_FULL_HEALING (also Pestilence's POT_SICKNESS)
+        if (!otmp)
+            await panic('use_defensive: no potioh of full healing', state);
         await mquaffmsg(mtmp, otmp, state);
         if (otmp.otyp === O.POT_SICKNESS)
             await unbless(otmp, { state }); /* Pestilence */

@@ -210,12 +210,14 @@ import { m_in_air, mongone, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { m_next2u, ranged_attk_available } from './mhitu.js';
 import {
+    impossible,
     impossible_printer,
     youHear,
     youSee,
     verbalize,
 } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
+import { note_unported } from './unported.js';
 export { youHear } from './pline.js';
 import {
     angry_guards,
@@ -1236,6 +1238,8 @@ export function m_harmless_trap(monster, trap, env = {}) {
     case VIBRATING_SQUARE:
         return true;
     default:
+        // C: impossible("m_harmless_trap: unknown trap %i", ttmp->ttyp);
+        note_unported('pline.c impossible');
         return false;
     }
 }
@@ -1350,8 +1354,9 @@ function hasAdjacentResistanceTrap(monster, state) {
 // ALLOW_TRAPS marks a harmful or fixed teleport trap, and NOGARLIC/NOTONL mark
 // garlic or alignment with the remembered hero. Discovering an adjacent hero
 // updates `monster.mux`/`muy` before an absent ALLOW_U rejects that square.
-// mm_aggression() can print In_W_tower()'s impossible(), so this is a step
-// generator (js/source_steps.js).
+// mm_aggression() can print In_W_tower()'s impossible(), and a strange trap
+// type prints mfndpos()'s own, so this is a step generator
+// (js/source_steps.js).
 function* mfndposCoreSteps(monster, data, initialFlags, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
@@ -1555,7 +1560,11 @@ function* mfndposCoreSteps(monster, data, initialFlags, env = {}) {
                 }
                 const trap = t_at(nx, ny, state);
                 if (trap) {
-                    if (trap.ttyp >= TRAPNUM || trap.ttyp === 0) continue;
+                    if (trap.ttyp >= TRAPNUM || trap.ttyp === 0) {
+                        yield new ImpossibleCall(
+                            `A monster looked at a very strange trap of type ${trap.ttyp}.`);
+                        continue;
+                    }
                     if (fixed_tele_trap(trap) && hastrack(nx, ny, state)) {
                         data.info[count] |= ALLOW_TRAPS;
                     } else if (!harmlessTrap(monster, trap, { ...env, state })) {
@@ -1611,8 +1620,8 @@ export function* mfndpos_steps(monster, data, initialFlags, env = {}) {
     }
 }
 
-// The synchronous form of mfndpos_steps(), which records In_W_tower()'s
-// impossible() as a gap. Only tests call it.
+// The synchronous form of mfndpos_steps(), which records each impossible()
+// as a gap. Only tests call it.
 export function mfndpos(monster, data, initialFlags, env = {}) {
     return finish_steps(mfndpos_steps(monster, data, initialFlags, env));
 }
@@ -3770,7 +3779,12 @@ export async function m_move(monster, rawEnv = {}) {
             // a shopkeeper outside its shop and a priest outside its temple
             // must not be converted into a hard action refusal here.
         } else {
-            // xm === 0 or xm === 1: return through postmov().
+            if (xm !== 0 && xm !== 1) {
+                await impossible(
+                    `unknown shk/gd/pri_move return value (${xm})`, state);
+            }
+            // xm === 0 or xm === 1 (or C's fall-through from the default):
+            // return through postmov().
             return await postMonsterMove(
                 monster,
                 oldX,

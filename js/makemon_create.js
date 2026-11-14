@@ -87,7 +87,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { note_unported } from './unported.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
@@ -1732,8 +1732,8 @@ export function mkmonmoney(monster, amount, normalized) {
     return addFreshMonsterObject(monster, gold, normalized);
 }
 
-// C ref: makemon.c m_initinv(). level_difficulty()'s impossible() is a step
-// (js/source_steps.js).
+// C ref: makemon.c m_initinv(). Its own impossible() and
+// level_difficulty()'s are steps (js/source_steps.js).
 function* m_initinv_steps(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
@@ -1751,7 +1751,10 @@ function* m_initinv_steps(monster, normalized) {
         case PM_CAPTAIN:      mac = -3; break;
         case PM_WATCHMAN:     mac =  3; break;
         case PM_WATCH_CAPTAIN: mac = -2; break;
-        default:              mac =  0; break;
+        default:
+            yield new ImpossibleCall(`odd mercenary ${ptr.pmidx}?`);
+            mac = 0;
+            break;
         }
         let obj;
         const addArmorClass = () => {

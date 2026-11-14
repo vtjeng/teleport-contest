@@ -114,7 +114,7 @@ import {
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
-import { verbalize, youFeel } from './pline.js';
+import { impossible, verbalize, youFeel } from './pline.js';
 import { bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
@@ -1988,7 +1988,7 @@ export async function artifact_hit(
     dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state, effectEnv);
 
     if (youattack && youdefend) {
-        // C: impossible("attacking yourself with weapon?");
+        await impossible('attacking yourself with weapon?', state, env);
         return false;
     }
 
@@ -2660,7 +2660,7 @@ async function arti_invoke(obj, state = game) {
     let res = ECMD_OK;
 
     if (!obj) {
-        // impossible("arti_invoke without obj")
+        await impossible('arti_invoke without obj', state);
         return ECMD_OK;
     }
     const oart = get_artifact(obj, state);
@@ -2704,7 +2704,7 @@ async function arti_invoke(obj, state = game) {
         case FIRESTORM: res = await invoke_storm_spell(obj, state); break;
         case BLINDING_RAY: res = await invoke_blinding_ray(obj, state); break;
         default:
-            // impossible("Unknown invoke power %d.", oart.inv_prop)
+            await impossible(`Unknown invoke power ${oart.inv_prop}.`, state);
             break;
         }
         return res;

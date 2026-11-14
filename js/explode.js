@@ -67,7 +67,7 @@ import {
     GLYPH_EXPLODE_WET_OFF,
 } from './glyph_offsets.js';
 import { game } from './gstate.js';
-import { youHear } from './pline.js';
+import { impossible, youHear } from './pline.js';
 import {
     AD_ACID,
     AD_COLD,
@@ -247,28 +247,6 @@ export function explosion_to_glyph(expltype, cmap, state = game) {
     return map_glyphinfo(cmap - S_expl_tl + offset, state);
 }
 
-
-
-function monsterResists(monster, adtyp, olet, state) {
-    switch (adtyp) {
-    case AD_PHYS: return false;
-    case AD_MAGM: return resists_magm(monster, state);
-    case AD_FIRE: return Resists_Elem(monster, FIRE_RES, state);
-    case AD_COLD: return Resists_Elem(monster, COLD_RES, state);
-    case AD_DISN:
-        return olet === WAND_CLASS
-            ? (nonliving(monster.data) || is_demon(monster.data)
-                || is_vampshifter(monster))
-            : Resists_Elem(monster, DISINT_RES, state);
-    case AD_ELEC: return Resists_Elem(monster, SHOCK_RES, state);
-    case AD_DRST: return Resists_Elem(monster, POISON_RES, state);
-    case AD_ACID: return Resists_Elem(monster, ACID_RES, state);
-    default:
-        note_unported('pline.c impossible');
-        return false;
-    }
-}
-
 // C ref: explode.c explosionmask() (25-115).  This is pure: it spends no
 // random numbers and changes no state, and is consequently also used by the
 // display pass before any explosion effects are applied.
@@ -287,11 +265,35 @@ export function explosionmask(monster, adtyp, olet, state = game) {
         case AD_DRST: return Poison_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         case AD_ACID: return Acid_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         default:
+            // C: impossible("explosion type %d?", adtyp);
             note_unported('pline.c impossible');
             return EXPL_NONE;
         }
     }
-    return monsterResists(monster, adtyp, olet, state) ? EXPL_MON : EXPL_NONE;
+    /* 'm' is a monster */
+    switch (adtyp) {
+    case AD_PHYS: return EXPL_NONE;
+    case AD_MAGM: return resists_magm(monster, state) ? EXPL_MON : EXPL_NONE;
+    case AD_FIRE:
+        return Resists_Elem(monster, FIRE_RES, state) ? EXPL_MON : EXPL_NONE;
+    case AD_COLD:
+        return Resists_Elem(monster, COLD_RES, state) ? EXPL_MON : EXPL_NONE;
+    case AD_DISN:
+        return (olet === WAND_CLASS
+            ? (nonliving(monster.data) || is_demon(monster.data)
+                || is_vampshifter(monster))
+            : Resists_Elem(monster, DISINT_RES, state)) ? EXPL_MON : EXPL_NONE;
+    case AD_ELEC:
+        return Resists_Elem(monster, SHOCK_RES, state) ? EXPL_MON : EXPL_NONE;
+    case AD_DRST:
+        return Resists_Elem(monster, POISON_RES, state) ? EXPL_MON : EXPL_NONE;
+    case AD_ACID:
+        return Resists_Elem(monster, ACID_RES, state) ? EXPL_MON : EXPL_NONE;
+    default:
+        // C: impossible("explosion type %d?", adtyp);
+        note_unported('pline.c impossible');
+        return EXPL_NONE;
+    }
 }
 
 async function messageLine(text, state, env) {
@@ -338,31 +340,6 @@ export async function engulfer_explosion_msg(adtyp, olet, state = game, env = {}
             state, env,
         );
     }
-}
-
-function adtypForExplosion(type, olet, state, env) {
-    let adtyp;
-    let description;
-    switch (Math.abs(type) % 10) {
-    case 0: adtyp = AD_MAGM; description = 'magical blast'; break;
-    case 1:
-        adtyp = AD_FIRE;
-        description = olet === BURNING_OIL ? 'burning oil'
-            : olet === SCROLL_CLASS ? 'tower of flame' : 'fireball';
-        break;
-    case 2: adtyp = AD_COLD; description = 'ball of cold'; break;
-    case 4:
-        adtyp = AD_DISN;
-        description = olet === WAND_CLASS ? 'death field' : 'disintegration field';
-        break;
-    case 5: adtyp = AD_ELEC; description = 'ball of lightning'; break;
-    case 6: adtyp = AD_DRST; description = 'poison gas cloud'; break;
-    case 7: adtyp = AD_ACID; description = 'splash of acid'; break;
-    default:
-        note_unported('pline.c impossible');
-        return { adtyp: AD_MAGM, description: 'magical blast' };
-    }
-    return { adtyp, description };
 }
 
 function targetAt(x, y, state) {
@@ -431,7 +408,12 @@ export async function explode(
             if (object?.oc_dir === RAY && type !== WAN_DIGGING
                 && type !== WAN_SLEEP) {
                 type -= WAN_MAGIC_MISSILE;
-                if (type < 0 || type > 9) type = 0;
+                if (type < 0 || type > 9) {
+                    await impossible(
+                        `explode: wand has bad zap type (${type}).`, state, env,
+                    );
+                    type = 0;
+                }
             } else type = 0;
         }
         // you.h Role_switch reads the original role even while polymorphed.
@@ -476,9 +458,30 @@ export async function explode(
     if (type === PHYS_EXPL_TYPE) {
         adtyp = AD_PHYS;
     } else {
-        const converted = adtypForExplosion(type, olet, state, env);
-        adtyp = converted.adtyp;
-        if (!str) str = converted.description;
+        /* If str is e.g. "flaming sphere's explosion" from above, we want to
+         * still assign adtyp appropriately, but not replace str. */
+        let adstr;
+        switch (Math.abs(type) % 10) {
+        case 0: adstr = 'magical blast'; adtyp = AD_MAGM; break;
+        case 1:
+            adstr = olet === BURNING_OIL ? 'burning oil'
+                : olet === SCROLL_CLASS ? 'tower of flame' : 'fireball';
+            /* fire damage, not physical damage */
+            adtyp = AD_FIRE;
+            break;
+        case 2: adstr = 'ball of cold'; adtyp = AD_COLD; break;
+        case 4:
+            adstr = olet === WAND_CLASS ? 'death field' : 'disintegration field';
+            adtyp = AD_DISN;
+            break;
+        case 5: adstr = 'ball of lightning'; adtyp = AD_ELEC; break;
+        case 6: adstr = 'poison gas cloud'; adtyp = AD_DRST; break;
+        case 7: adstr = 'splash of acid'; adtyp = AD_ACID; break;
+        default:
+            await impossible(`explosion base type ${type}?`, state, env);
+            return;
+        }
+        if (!str) str = adstr;
     }
     if (!str) str = type === PHYS_EXPL_TYPE ? 'gas spore\'s explosion' : 'explosion';
 
