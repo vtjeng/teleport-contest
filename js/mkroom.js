@@ -151,6 +151,7 @@ import { inside_room } from './room_coordinates.js';
 import { t_at } from './trap.js';
 import { SHTYPES } from './shtypes_data.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
+import { tt_oname } from './topten.js';
 import { note_unported } from './unported.js';
 import {
     S_air,
@@ -772,18 +773,23 @@ export function squadmon(state = game, random = coreRandom) {
 }
 
 // C ref: mkobj.c mk_tt_object(). Creates a corpse or statue named after a
-// random player class. C calls tt_oname → get_rnd_toptenentry, which draws
-// rnd(tt_oname_maxrank) before reading the record file. The recorder's file
-// is always empty, so get_rnd_toptenentry returns NULL and the fallback path
-// fires. The rnd(10) call must still happen to keep the RNG aligned.
+// random score entry. tt_oname() returns null when the record file has no
+// usable entry, and the object then gets a random player monster.
 export function mk_tt_object(objtype, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const normalized = { ...env, state, random };
-    const otmp = mksobj_at(objtype, x, y, objtype !== STATUE, false, normalized);
-    random.rnd(10);
-    const pm = random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
-    set_corpsenm(otmp, pm, normalized);
+    /* player statues never contain books */
+    const initialize_it = objtype !== STATUE;
+    const otmp = mksobj_at(objtype, x, y, initialize_it, false, normalized);
+
+    /* tt_oname() will return null if the scoreboard is empty, which in
+       turn leaves the random corpsenm value; force it to match a player */
+    if (!tt_oname(otmp, normalized)) {
+        const pm = random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+        /* update weight for either, force timer sanity for corpses */
+        set_corpsenm(otmp, pm, normalized);
+    }
     return otmp;
 }
 
