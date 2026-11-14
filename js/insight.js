@@ -325,7 +325,7 @@ import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
 import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, mbodypart, udeadinside, ugenocided } from './polyself.js';
-import { visible_region_at } from './region.js';
+import { reg_damg, visible_region_at } from './region.js';
 import { mhidden_description, waterbody_name } from './pager.js';
 import {
     displayTtyMenuTextWindow,
@@ -3204,8 +3204,7 @@ export async function ustatusline(state = game) {
     if (!u.uswallow) {
         const region = visible_region_at(u.ux, u.uy, state);
         if (region) {
-            const damage = Math.trunc(region.arg ?? 0);
-            info += `, in a cloud of ${damage ? 'poison gas' : 'vapor'}`;
+            info += `, in a cloud of ${reg_damg(region) ? 'poison gas' : 'vapor'}`;
         }
     }
 

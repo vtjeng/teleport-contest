@@ -803,6 +803,12 @@ export async function m_in_out_region(monster, x, y, rawEnv = {}) {
     return true;
 }
 
+// C ref: region.c reg_damg() (649-656). Per-turn damage of a visible
+// region; an invisible one, or one whose ttl is -2, does none.
+export function reg_damg(reg) {
+    return (!reg.visible || reg.ttl === -2) ? 0 : Math.trunc(reg.arg ?? 0);
+}
+
 // C ref: region.c any_visible_region() (660-671).
 export function any_visible_region(state = game) {
     for (const region of state.level?.regions ?? []) {

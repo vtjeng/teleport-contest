@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 
 import {
     DB_FLOOR,
@@ -35,6 +35,7 @@ import {
     visible_region_summary,
     inside_gas_cloud,
     m_in_out_region,
+    reg_damg,
     region_danger,
     region_safety,
     run_regions,
@@ -42,6 +43,27 @@ import {
 } from '../js/region.js';
 
 const REGION_SOURCE = readFileSync('nethack-c/upstream/src/region.c', 'utf8');
+
+test('reg_damg() is region.c\'s, and every C caller has its one JS port', () => {
+    assert.match(REGION_SOURCE, /int damg = \(!reg->visible \|\| reg->ttl == -2L\) \? 0 : reg->arg\.a_int;/u);
+    // A visible cloud's damage (5, an arbitrary nonzero a_int), the same
+    // cloud made invisible, and one whose ttl is -2: the two zero arms.
+    assert.equal(reg_damg({ visible: true, ttl: 10, arg: 5 }), 5);
+    assert.equal(reg_damg({ visible: false, ttl: 10, arg: 5 }), 0);
+    assert.equal(reg_damg({ visible: true, ttl: -2, arg: 5 }), 0);
+    // hack.c (3 calls), insight.c and invent.c each call reg_damg(); the JS
+    // files must call the one port as often, not test region.arg themselves.
+    const calls = (dir, names) => Object.fromEntries(names.map((name) => [name,
+        (readFileSync(`${dir}/${name}`, 'utf8').match(/\breg_damg\(/gu) ?? []).length]));
+    assert.deepEqual(calls('nethack-c/upstream/src', ['hack.c', 'insight.c', 'invent.c']),
+        { 'hack.c': 3, 'insight.c': 1, 'invent.c': 1 });
+    assert.deepEqual(calls('js', ['hack.js', 'insight.js', 'invent.js']),
+        { 'hack.js': 3, 'insight.js': 1, 'invent.js': 1 });
+    const inline = readdirSync('js').filter((name) => name.endsWith('.js')
+        && name !== 'region.js'
+        && /region\??\.arg\b/u.test(readFileSync(`js/${name}`, 'utf8')));
+    assert.deepEqual(inline, []);
+});
 
 test('inside_rect uses C inclusive bounds and inside_region checks each rect', () => {
     const cStart = REGION_SOURCE.indexOf('inside_rect(NhRect *r, int x, int y)');
