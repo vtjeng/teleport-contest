@@ -174,8 +174,8 @@ import { youHear } from './monmove.js';
 // Naming functions in objnam.js are used only inside object helper bodies, so
 // the function-body-only module cycle is safe after initialization.
 import {
-    Yname2, donameFresh, erosion_matters, lost_leash_impossible, obj_typename,
-    otense, safe_typename, simpleonames,
+    Yname2, donameFresh, erosion_matters, obj_typename, otense, safe_typename,
+    simpleonames,
 } from './objnam.js';
 import {
     coreRandom,
@@ -226,7 +226,7 @@ import { in_rooms } from './rooms.js';
 import { impossible, impossible_printer, verbalize, youSee } from './pline.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
-import { ImpossibleCall, finish_steps } from './source_steps.js';
+import { ImpossibleCall, collect_impossibles, finish_steps } from './source_steps.js';
 import { set_voice } from './sounds.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
@@ -3660,12 +3660,12 @@ export async function insane_object(obj, fmt, mesg, mon, state = game) {
     let monnm = 'null!';
     if (obj) {
         state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
-        // doname() of a leash whose monster is gone prints its own
-        // impossible() before returning; print it here, where C does.
-        const leashText = lost_leash_impossible(obj, state);
-        if (leashText) await impossible(leashText, state);
-        objnm = donameFresh(obj, state);
+        // doname() can itself call impossible() (a leash whose monster is
+        // gone, an unpaid object on no bill); C prints those first.
+        const named = collect_impossibles(state, () => donameFresh(obj, state));
         state.iflags.override_ID -= 1;
+        for (const text of named.texts) await impossible(text, state);
+        objnm = named.value;
     }
     if (mon || (strstri(mesg, 'minvent') && !strstri(mesg, 'contained'))) {
         const altfmt = `${fmt} held by mon %s (%s)`;
