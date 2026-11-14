@@ -174,8 +174,8 @@ import { youHear } from './monmove.js';
 // Naming functions in objnam.js are used only inside object helper bodies, so
 // the function-body-only module cycle is safe after initialization.
 import {
-    Yname2, donameFresh, erosion_matters, obj_typename, otense, safe_typename,
-    simpleonames,
+    Yname2, donameFresh, erosion_matters, lost_leash_impossible, obj_typename,
+    otense, safe_typename, simpleonames,
 } from './objnam.js';
 import {
     coreRandom,
@@ -3659,6 +3659,10 @@ export async function insane_object(obj, fmt, mesg, mon, state = game) {
     let monnm = 'null!';
     if (obj) {
         state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
+        // doname() of a leash whose monster is gone prints its own
+        // impossible() before returning; print it here, where C does.
+        const leashText = lost_leash_impossible(obj, state);
+        if (leashText) await impossible(leashText, state);
         objnm = donameFresh(obj, state);
         state.iflags.override_ID -= 1;
     }

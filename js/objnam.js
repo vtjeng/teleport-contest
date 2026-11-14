@@ -1772,6 +1772,26 @@ export function Yname2(obj, state = game, env = {}) {
 
 // C ref: objnam.c doname_base() (1223-1752). `xname()` is deliberately first;
 // every flag below is read after its source-ordered discovery updates.
+// C ref: objnam.c doname_base() (1431-1444), the TOOL_CLASS arm for a leash
+// whose leashmon names no live monster on fmon: C prints impossible() and
+// clears leashmon. find_mid(FM_FMON) skips dead monsters, so the "leashed %s
+// #%u is dead" arm cannot run and only "not found" is reachable. Returns that
+// message after clearing leashmon, or null when doname() would not print it.
+// doname_base() cannot wait for the message, so an async caller that names
+// the object (mkobj.c insane_object()) calls this first and prints the
+// result, which is the order C prints in.
+export function lost_leash_impossible(obj, state = game) {
+    if (obj.oclass !== TOOL_CLASS || is_weptool(obj, state)
+        || (obj.owornmask & (W_TOOL | W_SADDLE))
+        || obj.otyp !== LEASH || !obj.leashmon)
+        return null;
+    const monster = find_mid(obj.leashmon, FM_FMON, state);
+    if (monster && monster.mhp >= 1) return null;
+    const text = `leashed monster #${obj.leashmon} not found`;
+    obj.leashmon = 0;
+    return text;
+}
+
 function doname_base(
     obj,
     donameFlags = 0,
@@ -1854,8 +1874,10 @@ function doname_base(
                     0, bufferOffset,
                 );
             } else {
+                // doname_base() is synchronous; an async caller prints this
+                // impossible() first through lost_leash_impossible().
+                lost_leash_impossible(obj, state);
                 note_unported('pline.c impossible');
-                obj.leashmon = 0;
             }
             allowToolChargeSuffix = false;
             break;
