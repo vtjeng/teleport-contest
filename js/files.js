@@ -270,14 +270,20 @@ const PLAYGROUND_NON_LUA_FILES = new Set([
     'xlogfile',
 ]);
 
+// errno values that path resolution fails with; <errno.h> gives both the
+// same numbers on macOS, the judge's host, and on Linux.
+const ENOENT = 2;
+const ENOTDIR = 20;
+
 // What fopen(name, "r") reaches with C's working directory in the playground,
 // following POSIX path resolution: { kind: 'lua', file } for one of dat/'s
 // Lua files; 'file' for another playground file; 'directory' for the
 // playground or its save directory; 'unknown' for a name the game itself may
-// have written ("<lock>.<n>", "bonD0.<n>", anything in save/); 'absent' when
-// resolution fails inside the playground (no such entry, or a file used as a
-// directory); and 'outside' for an absolute name or one that climbs above
-// the playground, which reaches a host directory the port cannot read.
+// have written ("<lock>.<n>", "bonD0.<n>", anything in save/);
+// { kind: 'absent', errno } when resolution fails inside the playground, with
+// ENOENT for no such entry and ENOTDIR for a file used as a directory; and
+// 'outside' for an absolute name or one that climbs above the playground,
+// which reaches a host directory the port cannot read.
 export function resolvePlaygroundPath(name) {
     const text = String(name);
     if (text.startsWith('/')) return { kind: 'outside' };
@@ -287,7 +293,7 @@ export function resolvePlaygroundPath(name) {
     for (const part of parts) {
         // A file followed by any component, even "." or a trailing slash,
         // fails with ENOTDIR.
-        if (file !== null) return { kind: 'absent' };
+        if (file !== null) return { kind: 'absent', errno: ENOTDIR };
         if (part === '' || part === '.') continue;
         if (part === '..') {
             if (dir === 'playground') return { kind: 'outside' };
@@ -301,46 +307,71 @@ export function resolvePlaygroundPath(name) {
         } else if (/\.\d+$/u.test(part)) {
             return { kind: 'unknown' };
         } else {
-            return { kind: 'absent' };
+            return { kind: 'absent', errno: ENOENT };
         }
     }
     if (file === null) return { kind: 'directory' };
     return { kind: DAT_LUA_FILES.has(file) ? 'lua' : 'file', file };
 }
 
-// Whether access(name, R_OK) can succeed with C's working directory in the
-// playground, or the $HOME fallback can open the name. True for a name the
-// port cannot rule out: a playground file or directory, a lock, level or
-// bones file the game itself writes there ("<lock>.<n>", "bonD0.<n>"), the
-// rc file the recorder's otherwise empty $HOME holds, and any name with a
-// directory part, which reaches the host filesystem.
-function wizkitFileMayExist(name) {
-    return name.includes('/') || name === '.' || name === '..'
-        || name === '.nethackrc' || /\.\d+$/u.test(name)
-        || DAT_LUA_FILES.has(name) || PLAYGROUND_NON_LUA_FILES.has(name);
+// What fopen_wizkit_file()'s fopen("$HOME/<name>", "r") reaches. The
+// recorder's HOME holds only the config file it writes before each launch
+// (docs/recording-environment.md), so the result is 'file' for that file,
+// 'directory' for HOME itself, 'outside' for a name that climbs above HOME,
+// and { kind: 'absent', errno } as resolvePlaygroundPath() gives it. C joins
+// HOME and the name with "/", so even an absolute name resolves inside HOME.
+export function resolveRecorderHomePath(name, configfile) {
+    let file = false;
+    for (const part of String(name).split('/')) {
+        if (file) return { kind: 'absent', errno: ENOTDIR };
+        if (part === '' || part === '.') continue;
+        if (part === '..') return { kind: 'outside' };
+        if (part !== configfile) return { kind: 'absent', errno: ENOENT };
+        file = true;
+    }
+    return { kind: file ? 'file' : 'directory' };
 }
 
-// C ref: files.c fopen_wizkit_file() (2465-2530), UNIX arm. The WIZKIT
-// environment variable is not part of a session's input, and the recorder
-// does not set it. For a missing file access() fails with ENOENT (2); C
-// reports it and tries $HOME/<name>, which fails silently with ENOENT too.
-// The port opens no wizkit file: it cannot read one that exists.
-async function fopen_wizkit_file(state) {
-    const name = state.wizkit ?? '';
-    if (!name) return;
-    if (wizkitFileMayExist(name)) {
-        note_unported('files.c fopen_wizkit_file');
-        return;
-    }
+// C ref: pline.c raw_printf() followed by tty_wait_synch(). raw_printf() and
+// vraw_printf() each count the message until moveloop_preamble() sets
+// beyond_savefile_load.
+async function wizkit_raw_printf(state, message) {
     const { tty_raw_print, tty_wait_synch } = await import('./tty_rawprint.js');
-    // pline.c raw_printf() and vraw_printf() each count the message until
-    // moveloop_preamble() sets beyond_savefile_load.
-    tty_raw_print(state, `Access to ${name} denied (2).`);
+    tty_raw_print(state, message);
     if (!state.program_state?.beyond_savefile_load) {
         state.ge ??= { early_raw_messages: 0 };
         state.ge.early_raw_messages += 2;
     }
     await tty_wait_synch(state);
+}
+
+// C ref: files.c fopen_wizkit_file() (2465-2530), UNIX arm. The WIZKIT
+// environment variable is not part of a session's input, and the recorder
+// does not set it. access() resolves the name in the playground, C's working
+// directory; when it fails, C reports its errno and tries $HOME/<name>, and
+// reports any failure there other than ENOENT. The message names the
+// judge's HOME, which recorder patch 010 shows in place of the local
+// recorder's temporary one. The port opens no wizkit file: it cannot read
+// one that exists, nor decide a name that leaves the playground or HOME.
+async function fopen_wizkit_file(state) {
+    const name = state.wizkit ?? '';
+    if (!name) return;
+    const target = resolvePlaygroundPath(name);
+    if (target.kind !== 'absent') {
+        note_unported('files.c fopen_wizkit_file');
+        return;
+    }
+    await wizkit_raw_printf(state, `Access to ${name} denied (${target.errno}).`);
+    const { DEFAULT_CONFIGFILE, RECORDER_HOME } = await import('./cfgfiles.js');
+    const home = resolveRecorderHomePath(name, DEFAULT_CONFIGFILE);
+    if (home.kind !== 'absent') {
+        note_unported('files.c fopen_wizkit_file');
+        return;
+    }
+    if (home.errno !== ENOENT) {
+        await wizkit_raw_printf(state, "Couldn't open default gw.wizkit file "
+            + `${RECORDER_HOME}/${name} (${home.errno}).`);
+    }
 }
 
 // C ref: files.c read_wizkit() (2584-2601). No wizkit file opens in the

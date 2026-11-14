@@ -28,10 +28,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
-| gameplay | 4068 | 4000 | 67 | 1 |
+| gameplay | 4068 | 4001 | 67 | 0 |
 | diagnostic | 723 | 226 | 6 | 491 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4229 | 73 | 609 |
+| total | 4911 | 4230 | 73 | 608 |
 
 ## Missing by C file
 
@@ -65,7 +65,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/extralev.c | yes | 0 | 7 | 0 |
-| src/files.c | yes | 1 | 3 | 1 |
+| src/files.c | yes | 0 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
@@ -140,11 +140,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 ## Missing gameplay messages
 
 Each line gives the C line, the message function, and the fragment searched for.
-
-### src/files.c
-
-- `fopen_wizkit_file()`
-  - 2526 raw_printf: `Couldn't open default gw.wizkit file`
 
 ## Missing diagnostics (impossible, panic)
 

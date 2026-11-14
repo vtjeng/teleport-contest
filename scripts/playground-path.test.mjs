@@ -22,14 +22,14 @@ test('names inside the playground resolve as POSIX open() resolves them', () => 
 });
 
 test('failed resolution inside the playground is absent', () => {
-    // ENOENT: no "nodir" directory in the playground.
-    assert.deepEqual(resolvePlaygroundPath('nodir/dungeon.lua'), { kind: 'absent' });
-    // ENOTDIR: a file used as a directory, including a trailing slash or ".".
-    assert.deepEqual(resolvePlaygroundPath('oracles/x.lua'), { kind: 'absent' });
-    assert.deepEqual(resolvePlaygroundPath('oracle.lua/'), { kind: 'absent' });
-    assert.deepEqual(resolvePlaygroundPath('oracle.lua/.'), { kind: 'absent' });
-    // ENOENT for a plain name the install does not ship.
-    assert.deepEqual(resolvePlaygroundPath('nosuch.lua'), { kind: 'absent' });
+    // ENOENT (2): no "nodir" directory in the playground.
+    assert.deepEqual(resolvePlaygroundPath('nodir/dungeon.lua'), { kind: 'absent', errno: 2 });
+    // ENOTDIR (20): a file used as a directory, including a trailing slash or ".".
+    assert.deepEqual(resolvePlaygroundPath('oracles/x.lua'), { kind: 'absent', errno: 20 });
+    assert.deepEqual(resolvePlaygroundPath('oracle.lua/'), { kind: 'absent', errno: 20 });
+    assert.deepEqual(resolvePlaygroundPath('oracle.lua/.'), { kind: 'absent', errno: 20 });
+    // ENOENT (2) for a plain name the install does not ship.
+    assert.deepEqual(resolvePlaygroundPath('nosuch.lua'), { kind: 'absent', errno: 2 });
 });
 
 test('names the game may have written, or outside the playground, are not resolved', () => {

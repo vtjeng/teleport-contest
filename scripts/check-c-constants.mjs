@@ -197,7 +197,9 @@ export const PORT_ONLY = new Map([
     ...portOnly('C\'s (char) EOF, -1, as the unsigned byte the port reads',
         ['CHAR_EOF', 'EOF_BYTE']),
     ...portOnly('from date.h, which makedefs writes at build time; pinned to the'
-        + ' recorder build\'s value', ['BUILD_TIME', 'IGNORED_FEATURES']),
+        + ' recorder build\'s value', ['IGNORED_FEATURES']),
+    ...portOnly('an <errno.h> value, the same on macOS and Linux; the headers the'
+        + ' check compiles do not include <errno.h>', ['ENOENT', 'ENOTDIR']),
     ...portOnly('the port\'s model of the recorder\'s time zone, where C calls localtime()',
         ['HOUR_MILLIS', 'NEW_YORK_DAYLIGHT_OFFSET_MILLIS', 'TRANSITION_PROBE_MILLIS']),
     ...portOnly('a count of entries in a dat/*.lua level file', [

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() -> fopen_wizkit_file() in debug mode with WIZKIT=.nethackrc/kit: access() in the playground fails with ENOENT (2), so C reports \"Access to .nethackrc/kit denied (2).\" and tries $HOME/.nethackrc/kit. The recorder's HOME holds the .nethackrc file, so that fopen() fails with ENOTDIR (20) and C reports \"Couldn't open default gw.wizkit file <HOME>/.nethackrc/kit (20).\" with the judge's HOME (recorder patch 010). Each raw_printf() waits for a key before the welcome. Seed, date, Samurai and kit name chosen independently.",
+  "segments": [
+    {
+      "seed": 58201937,
+      "datetime": "20710314083000",
+      "nethackrc": "OPTIONS=name:Homekit,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.nethackrc/kit\n",
+      "moves": "     i  "
+    }
+  ]
+}

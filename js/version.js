@@ -1,20 +1,29 @@
 // version.js — Build version info
 
-import { do_runtime_info, runtime_info_init } from './mdlib.js';
+import {
+    COPYRIGHT_BANNER_A,
+    COPYRIGHT_BANNER_B,
+    COPYRIGHT_BANNER_D,
+} from './const.js';
+import {
+    bannerc_string,
+    do_runtime_info,
+    mdlib_version_string,
+    RECORDER_BUILD_DATE,
+    runtime_info_init,
+    version_id_string,
+} from './mdlib.js';
 import { nhlL_newstate, nhl_init } from './nhlua.js';
-export const VERSION = '0.1.0';
-export const BUILD_DATE = '2026-04-18';
-export const COMMIT = 'contest-skeleton';
-export const COMMIT_NUMBER = '0';
-export const TELEPORT_BUILD_DATE = '2026-04-18';
 
 export const VI_NUMBER = 1;
 export const VI_NAME = 2;
 export const VI_BRANCH = 4;
-export const NETHACK_VERSION = '5.0.0';
+export const NETHACK_VERSION = mdlib_version_string('.');
 
-const RECORDER_VERSION_ID =
-    'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
+// C ref: date.c populate_nomakedefs(): nomakedefs.version_id and
+// nomakedefs.copyright_banner_c.
+const RECORDER_VERSION_ID = version_id_string(RECORDER_BUILD_DATE);
+const RECORDER_COPYRIGHT_BANNER_C = bannerc_string(RECORDER_BUILD_DATE);
 const LUA_VERSION = '5.4.8';
 const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
 
@@ -100,6 +109,17 @@ export function status_version(flags = {}, indent = false) {
 // no git hash, branch, prefix, or runtime port suffix follows version_id.
 export function getversionstring() {
     return RECORDER_VERSION_ID;
+}
+
+// C ref: version.c copyright_banner_line(). The startup screen
+// (wintty.c tty_init_nhwindows()) and the saved-game menu (restore.c
+// restore_menu()) print lines 1 to 4.
+export function copyright_banner_line(indx) {
+    if (indx === 1) return COPYRIGHT_BANNER_A;
+    if (indx === 2) return COPYRIGHT_BANNER_B;
+    if (indx === 3) return RECORDER_COPYRIGHT_BANNER_C;
+    if (indx === 4) return COPYRIGHT_BANNER_D;
+    return '';
 }
 
 // C ref: version.c doversion(). The short V command prints one message; its

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() -> fopen_wizkit_file() in debug mode with WIZKIT=rumors/kit: rumors is a file in the playground, C's working directory, so access() fails with ENOTDIR (20) and C reports \"Access to rumors/kit denied (20).\" The fallback $HOME/rumors/kit fails with ENOENT, which C does not report. Seed, date, Healer and kit name chosen independently.",
+  "segments": [
+    {
+      "seed": 30417765,
+      "datetime": "20590927211500",
+      "nethackrc": "OPTIONS=name:Rumorkit,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=rumors/kit\n",
+      "moves": "    i  "
+    }
+  ]
+}

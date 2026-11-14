@@ -1,6 +1,38 @@
-// mdlib.js -- Runtime build-option text.
-// C ref: mdlib.c build_savebones_compat_string(), opt_out_words(),
+// mdlib.js -- Runtime build-option and version text.
+// C ref: mdlib.c mdlib_version_string(), version_id_string(),
+// bannerc_string(), build_savebones_compat_string(), opt_out_words(),
 // build_options(), runtime_info_init(), and do_runtime_info().
+
+import { PATCHLEVEL, VERSION_MAJOR, VERSION_MINOR } from './const.js';
+
+// C ref: include/global.h PORT_ID. The judge's recorder is a macOS build,
+// where __APPLE__ selects "MacOS" (global.h:191-193); a Linux recorder
+// prints the same through nethack-c/host-profiles/linux-macos-output.patch.
+const PORT_ID = 'MacOS';
+
+// C ref: date.c populate_nomakedefs(), which passes nomakedefs.build_date to
+// version_id_string() and bannerc_string(). Recorder patch 001 pins it in
+// place of __DATE__ " " __TIME__.
+export const RECORDER_BUILD_DATE = 'May  2 2026 12:00:00';
+
+// C ref: mdlib.c mdlib_version_string(). patchlevel.h sets NH_DEVEL_STATUS
+// to NH_STATUS_RELEASED, so no "-EDITLEVEL" suffix follows.
+export function mdlib_version_string(delim) {
+    return `${VERSION_MAJOR}${delim}${VERSION_MINOR}${delim}${PATCHLEVEL}`;
+}
+
+// C ref: mdlib.c version_id_string(). In the released build statusbuf is
+// empty, and PORT_SUB_ID is undefined for UNIX. date_via_env is set only by
+// makedefs reading SOURCE_DATE_EPOCH, so at run time the word is "build".
+export function version_id_string(build_date) {
+    return `${PORT_ID} NetHack Version ${mdlib_version_string('.')} - last build ${build_date}.`;
+}
+
+// C ref: mdlib.c bannerc_string(), the third copyright banner line, with the
+// same released-build and date_via_env choices as version_id_string().
+export function bannerc_string(build_date) {
+    return `         Version ${mdlib_version_string('.')} ${PORT_ID}, built ${build_date}.`;
+}
 
 const OPTION_INDENT = '    ';
 const OPTION_WRAP_COLUMN = 75; // C: COLNO - 5 with the 80-column map.
@@ -67,7 +99,7 @@ function punctuatedBuildOptions() {
 export function build_options() {
     return [
         '',
-        `${OPTION_INDENT}NetHack version 5.0.0`,
+        `${OPTION_INDENT}NetHack version ${mdlib_version_string('.')}`,
         'Options compiled into this edition:',
         '',
         ...wrapWords(punctuatedBuildOptions()),

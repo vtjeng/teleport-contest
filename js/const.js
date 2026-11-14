@@ -7,9 +7,9 @@ const MAXPCHARS = 105; // from symbols.js
 //   gstate.js (game state singleton, no imports from this DAG)
 //   terminal.js (leaf: ANSI color constants)
 //   hacklib.js (leaf: string utilities)
-//   mdlib.js, nhlua.js (leaves: build text and Lua initialization)
-//   version.js (build version) <- imports: mdlib.js, nhlua.js
-//   const.js (this file) <- imports: terminal.js, hacklib.js, version.js, gstate.js
+//   const.js (this file) <- imports: terminal.js, hacklib.js, gstate.js
+//   mdlib.js (build text) <- imports: const.js
+//   version.js (build version) <- imports: const.js, mdlib.js, nhlua.js
 //   objects.js <- imports: const.js
 //   monsters.js <- imports: const.js, objects.js
 //   symbols.js <- imports: const.js, monsters.js
@@ -17,9 +17,10 @@ const MAXPCHARS = 105; // from symbols.js
 // IMPORTANT: const.js imports gstate.js for the game object (used by
 // u_at, OBJ_AT, etc.). This is safe because gstate.js has no imports
 // from this DAG. Do NOT add imports from objects.js, monsters.js, or
-// symbols.js into const.js — that would create a cycle.
+// symbols.js into const.js — that would create a cycle. mdlib.js and
+// version.js read the patchlevel.h constants here, so const.js must not
+// import them either.
 
-import { COMMIT_NUMBER, TELEPORT_BUILD_DATE } from './version.js';
 // No imports from non-constant files — const.js is a leaf in the DAG
 import { game } from './gstate.js';
 import { NUMMONS } from './monsters.js';
@@ -37,8 +38,6 @@ export function SIZE(arr) { return arr.length; }
 export const VERSION_MAJOR = 5;
 export const VERSION_MINOR = 0;
 export const PATCHLEVEL = 0;
-export const VERSION_STRING = `NetHack ${VERSION_MAJOR}.${VERSION_MINOR}.${PATCHLEVEL} Teleport #${COMMIT_NUMBER}`;
-export const TELEPORT_BANNER_C = `         Version ${VERSION_MAJOR}.${VERSION_MINOR}.${PATCHLEVEL}-134 Teleport JS (experiment ${COMMIT_NUMBER}) ${TELEPORT_BUILD_DATE}.`;
 
 // AUTO-IMPORT-BEGIN: CONST_GLOBAL_RM
 // Auto-imported global/rm constants from C headers
@@ -441,13 +440,6 @@ export const TRAVP_VALID = 2;
 // - monster mtrack ring size and object-search radius in dog/monmove logic
 export const MTSZ = 4;
 export const SQSRCHRADIUS = 5;
-
-// Build-specific constants: hand-pinned for deterministic replay.
-// These come from date.h and change every C rebuild, so the generator skips them.
-export const BUILD_DATE = "Sun May  3 01:27:17 2026";
-export const BUILD_TIME = (1777786037);
-// nomakedefs.copyright_banner_c — build-specific version string
-export const COPYRIGHT_BANNER_C = "         Version 5.0.0 MacOS, built Sun May  3 01:27:17 2026.";
 
 // AUTO-IMPORT-BEGIN: CONST_ALL_HEADERS
 // Auto-imported header constants (pre-symbol pass)
@@ -2912,9 +2904,9 @@ export const DEFERRED_HEADER_CONST_ROOT_BLOCKERS = Object.freeze([
 
 export const HEADER_MACRO_NON_EMITTABLE = Object.freeze([
     "B: objects.h alias; owned by objects.js with objclass.h direction constants",
-    "BUILD_DATE: build-time string from date.h; hand-pinned for deterministic replay",
-    "BUILD_TIME: build-time integer from date.h; hand-pinned for deterministic replay",
-    "COPYRIGHT_BANNER_C: build-specific version string from date.h; hand-pinned for deterministic replay",
+    "BUILD_DATE: build-time string from date.h; js/mdlib.js RECORDER_BUILD_DATE holds the recorder's",
+    "BUILD_TIME: build-time integer from date.h; no reader in the port",
+    "COPYRIGHT_BANNER_C: build-specific version string from date.h; js/mdlib.js bannerc_string() builds it",
     "DLBFILE: platform/filesystem path constant; not used in web runtime",
     "DUMPLOG_FILE: platform/filesystem path template; not used in web runtime",
     "HACKDIR: platform/filesystem path constant; not used in web runtime",

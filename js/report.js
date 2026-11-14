@@ -9,8 +9,9 @@ import { ttyPline } from './tty_message.js';
 // C ref: report.c submit_web_report() (289-428). The function returns FALSE
 // at once unless sysopt.crashreporturl is set. Only cfgfiles.c
 // cnf_line_CRASHREPORTURL(), the SYSCF reader of the CRASHREPORTURL line,
-// sets it, and the recorder's build does not define SYSCF, so it keeps
-// sys.c sys_early_init()'s NULL. The port has no other writer of
+// sets it. The recorder defines SYSCF (include/config.h), but its sysconf
+// leaves the CRASHREPORTURL line commented out, so sysopt.crashreporturl
+// keeps sys.c sys_early_init()'s NULL. The port has no other writer of
 // sysopt.crashreporturl, so the remainder, which builds a URL and runs a
 // browser helper program, is unreachable.
 export function submit_web_report(cos, msg, why, state = game) {
