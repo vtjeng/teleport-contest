@@ -215,27 +215,30 @@ test('mines finish_map stores source pool and moat ice flags', async () => {
     }
 });
 
-test('join_map stops scanning every column once it has MAXNROFROOMS*2 regions', async () => {
+test('join_map panics in add_room at the 41st region, before its MAXNROFROOMS*2 cap', async () => {
     const source = readFileSync('nethack-c/upstream/src/mkmap.c', 'utf8');
     const join = source.slice(source.indexOf('join_map(schar bg_typ'), source.indexOf(' joinm:'));
     // mkmap.c join_map: the goto sits inside both scan loops and its label
-    // follows them, so reaching the cap ends the whole flood-fill pass.
+    // follows them, so reaching the cap would end the whole flood-fill pass.
     assert.match(join, /for \(x = 2; x <= WIDTH; x\+\+\)\s*for \(y = 1; y < HEIGHT; y\+\+\)[\s\S]*?if \(svn\.nroom >= \(MAXNROFROOMS \* 2\)\)\s*goto joinm;/u);
-    assert.equal(MAXNROFROOMS * 2, 80); // The cap the layout below reaches.
+    // But patchlevel.h defines DEBUG, so mklev.c add_room() panics once
+    // nroom reaches MAXNROFROOMS, long before that cap.
+    const mklev = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
+    assert.match(mklev, /#ifdef DEBUG\s*if \(svn\.nroom >= MAXNROFROOMS\)\s*panic\("level has too many rooms"\);/u);
+    assert.match(readFileSync('nethack-c/upstream/include/patchlevel.h', 'utf8'), /#define DEBUG\n/u);
+    assert.equal(MAXNROFROOMS, 40); // The 41st region is the one that panics.
     await runLoader(async des => {
         await des.level_init({style:'solidfill', fg:' '}); // All STONE.
         // 2x2 ROOM blobs (4 squares, above the tiny-hole limit of 3) on a
         // 3-square stride: 6 per column at y=1..16 and 14 columns at
-        // x=2..41, so the scan, which runs down each column, makes its
-        // 80th region at (41,4).
+        // x=2..41: 84 regions, more than add_room() accepts.
         for (let i = 0; i < 14; ++i) for (let j = 0; j < 6; ++j)
             for (let dx = 0; dx < 2; ++dx) for (let dy = 0; dy < 2; ++dy)
                 game.level.at(2 + 3 * i + dx, 1 + 3 * j + dy).typ = ROOM;
-        // A one-square tiny hole far to the right of every corridor between
-        // those blobs: C stops before reaching it, so it is never erased.
-        game.level.at(78, 10).typ = ROOM;
-        for (const _ of mkmap_join_map_steps(STONE, ROOM, game)) { /* no impossible() expected */ }
-        assert.equal(game.level.at(78, 10).typ, ROOM);
+        assert.throws(() => {
+            for (const _ of mkmap_join_map_steps(STONE, ROOM, game)) { /* no impossible() expected */ }
+        }, /^Error: level has too many rooms$/u);
+        assert.equal(game.level.nroom, MAXNROFROOMS); // The 40 rooms added before it.
     });
 });
 

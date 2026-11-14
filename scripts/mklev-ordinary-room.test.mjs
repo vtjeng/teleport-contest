@@ -11,7 +11,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import {
     fill_ordinary_room,
-    populateSupplyChest,
+    fill_ordinary_room_supply_chest,
 } from '../js/mklev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { weight } from '../js/obj.js';
@@ -62,7 +62,7 @@ function scriptedRandom(expectedCalls) {
     };
 }
 
-test('populateSupplyChest keeps cursed rerolls and guarantees a noncursed item', () => {
+test('fill_ordinary_room_supply_chest keeps cursed rerolls and guarantees a noncursed item', () => {
     const state = initializedState();
     const stream = scriptedRandom([
         ['rn2', 3, 1], // Select the source's twice-as-likely CHEST branch.
@@ -85,7 +85,7 @@ test('populateSupplyChest keeps cursed rerolls and guarantees a noncursed item',
     const env = objectGenerationEnv({ state, random: stream.random });
     const position = { x: 10, y: 5 }; // An interior tile isolates floor ownership.
 
-    const chest = populateSupplyChest(position, env);
+    const chest = fill_ordinary_room_supply_chest(position, env);
     stream.done();
 
     const healing = chest.cobj;

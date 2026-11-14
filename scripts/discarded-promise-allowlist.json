@@ -416,7 +416,7 @@
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/mklev.js | populateSupplyChest | add_to_container": {
+    "js/mklev.js | fill_ordinary_room_supply_chest | add_to_container": {
       "count": 2,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },

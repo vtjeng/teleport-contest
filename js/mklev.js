@@ -8284,7 +8284,9 @@ function isMinesEntrance(branch, state) {
         && (branch.end1?.dnum === mines || branch.end2?.dnum === mines));
 }
 
-export function populateSupplyChest(position, env) {
+// C ref: mklev.c fill_ordinary_room(), the supply-chest arm above the
+// Oracle (1036-1127).
+export function fill_ordinary_room_supply_chest(position, env) {
     const { state } = env;
     const random = env.random?.rn2 ?? rn2;
     const chest = mksobj_at(
@@ -8414,7 +8416,7 @@ export function fill_ordinary_room(croom, bonusItems) {
                 && state.u.uz.dnum === state.oracle_level.dnum
                 && state.u.uz.dlevel < state.oracle_level.dlevel
                 && rn2(3)) {
-                populateSupplyChest(position, env);
+                fill_ordinary_room_supply_chest(position, env);
                 skipChests = true;
             }
         }
