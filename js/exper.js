@@ -37,7 +37,6 @@ import { coreRandom, rn2 } from './rng.js';
 import { Goodbye } from './role_init.js';
 import { monhp_per_lvl } from './makemon.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { find_mac } from './worn.js';
 import { Amphibious } from './youprop.js';
 
@@ -79,9 +78,7 @@ export async function losexp(drainer = null, state = game, env = {}) {
             `lost experience level ${u.ulevel + 1}`,
             state,
         );
-        // SoundAchievement() has no browser owner; record the source call as
-        // a discarded notification without changing the source state.
-        note_unported('sounds.c SoundAchievement');
+        // C exper.c:231 SoundAchievement(): empty macro with no sound library (include/sndprocs.h:193-197, 274).
     } else {
         if (drainer !== null) {
             state.killer ??= {};

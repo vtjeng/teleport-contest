@@ -631,9 +631,7 @@ async function deadbook(book, state = game, env = {}) {
                 env,
             );
             if (!state.u.uhave.bell) {
-                // The C tty recorder has no Soundeffect backend. Keep the
-                // discarded source call explicit while omitting its no-op.
-                if (state === game) note_unported('sound.c Soundeffect');
+                // C spell.c:256 Soundeffect(se_faint_chime, 30): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 const heard = youHear('a faint chime...', state);
                 if (heard) await message(heard, state, env);
             }

@@ -202,7 +202,6 @@ import {
 } from './dbridge.js';
 
 import { kick_steed } from './steed.js';
-import { note_unported } from './unported.js';
 import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
 import {
@@ -1502,8 +1501,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
             if (item.otyp === EGG && item.spe && ismnum(item.corpsenm))
                 change_luck(-1, state);
 
-            // sounds.c:Soundeffect has no terminal-side behavior in this port.
-            note_unported('sounds.c Soundeffect');
+            // C dokick.c:451-455 Soundeffect(): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             const heard = youHear(`a muffled ${result}.`, state);
             if (heard) await message(heard, state, rawEnv);
 
@@ -1711,7 +1709,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
                 change_luck(-Math.min(obj.quan, 5), state);
             result = 'splat';
         }
-        note_unported('sounds.c Soundeffect');
+        // C dokick.c:1732-1736 Soundeffect(): empty macro with no sound library (include/sndprocs.h:193-197, 272).
         const heard = youHear(`a muffled ${result}.`, state);
         if (heard) await message(heard, state, env);
         await obj_extract_self(obj, { ...env, state });

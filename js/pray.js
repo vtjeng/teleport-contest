@@ -2520,13 +2520,13 @@ export async function pleased(g_align, state = game) {
             if (!u.uevent.uopened_dbridge && !u.uevent.gehennom_entered) {
                 if (u.uevent.uheard_tune < 1) {
                     await godvoice(g_align, null, state);
-                    note_unported('pray.c SetVoice');
+                    // C pray.c:1226 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
                     await verbalize(
                         `Hark, ${is_human(state.youmonst?.data)
                             ? 'mortal' : 'creature'}!`,
                         state,
                     );
-                    note_unported('pray.c SetVoice');
+                    // C pray.c:1230 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
                     await verbalize(
                         'To enter the castle, thou must play the right tune!',
                         state,
@@ -2534,7 +2534,7 @@ export async function pleased(g_align, state = game) {
                     u.uevent.uheard_tune++;
                     break;
                 } else if (u.uevent.uheard_tune < 2) {
-                    note_unported('pray.c Soundeffect');
+                    // C pray.c:1236 Soundeffect(se_divine_music, 50): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                     const music = youHear('a divine music...', state);
                     if (music !== null) await ttyPline(music, state);
                     await ttyPline(`It sounds like:  "${state.svt?.tune ?? ''}".`, state);

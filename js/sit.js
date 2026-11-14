@@ -434,7 +434,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
         case 7: {
             let count = random.rnd(10);
             await message('A voice echoes:', state);
-            note_unported('sit.c SetVoice');
+            // C sit.c:118 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
             const { verbalize } = await import('./pline.js');
             await verbalize(
                 `Thine audience hath been summoned, ${state.flags?.female ? 'Dame' : 'Sire'}!`,
@@ -463,7 +463,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
         }
         case 8:
             await message('A voice echoes:', state);
-            note_unported('sit.c SetVoice');
+            // C sit.c:128 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
             {
                 const { verbalize } = await import('./pline.js');
                 await verbalize(
@@ -479,7 +479,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             break;
         case 9: {
             await message('A voice echoes:', state);
-            note_unported('sit.c SetVoice');
+            // C sit.c:136 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
             const { verbalize } = await import('./pline.js');
             await verbalize(
                 'A curse upon thee for sitting upon this most holy throne!',

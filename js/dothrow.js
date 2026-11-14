@@ -2806,7 +2806,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     if (!Deaf(state.u) && !u.uinwater
         && (is_pool(bx, by, state)
             || (is_lava(bx, by, state) && !is_flammable(obj, state)))) {
-        note_unported('sounds.c Soundeffect');
+        // C dothrow.c:1799 Soundeffect(se_splash, 50): empty macro with no sound library (include/sndprocs.h:193-197, 272).
         await ttyPline(
             weight(obj, { state }) > WT_SPLASH_THRESHOLD ? 'Splash!' : 'Plop!',
             state,

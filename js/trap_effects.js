@@ -707,9 +707,8 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
 
     if (mtmp === state.youmonst) {
         if (trap.once && trap.tseen && !random.rn2(15)) {
-            // Soundeffect() has no captured tty output. You_hear() is a void
-            // message helper; keep its message boundary before deltrap().
-            note_unported('sounds.c Soundeffect');
+            // C trap.c:1200 Soundeffect(se_loud_click, 100): empty macro with no sound library (include/sndprocs.h:193-197, 272).
+            // You_hear() keeps its message boundary before deltrap().
             const heard = plineYouHear('a loud click!', state);
             if (heard !== null) await message(heard, state, env);
             deltrap(trap, state);
@@ -908,8 +907,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         // C 1262-1267: misfire check. The rn2(15) draw fires only when both
         // conditions are true; its roll is part of the recorded PRNG log.
         if (trap.once && trap.tseen && !random.rn2(15)) {
-            // Soundeffect() is a tty-sound hook and writes nothing.
-            note_unported('sounds.c Soundeffect');
+            // C trap.c:1263 Soundeffect(se_soft_click, 30): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             const heard = plineYouHear('a soft click.', state);
             if (heard !== null) await message(heard, state, env);
             deltrap(trap, state);
@@ -2643,10 +2641,10 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     state,
                 );
             } else if (Hallucination(state.u)) {
-                note_unported('sounds.c Soundeffect');
+                // C trap.c:3324 Soundeffect(se_someone_bowling, 60): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 announcement = youHear('someone bowling.', state);
             } else {
-                note_unported('sounds.c Soundeffect');
+                // C trap.c:3327 Soundeffect(se_rumbling, 60): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 const nearby = dist2(x1, y1, state.u?.ux, state.u?.uy) <= 16;
                 announcement = youHear(
                     `rumbling ${nearby ? 'nearby' : 'in the distance'}.`,
@@ -2911,7 +2909,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         ? ' as one boulder hits another'
                         : ' as one boulder sets another in motion'
                     : '';
-                note_unported('sounds.c Soundeffect');
+                // C trap.c:3521 Soundeffect(se_loud_crash, 80): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 const heard = youHear(`a loud crash${suffix}!`, state);
                 if (heard) await message(heard, state, env);
                 await obj_extract_self(nextBoulder, objectEnv);
@@ -3677,9 +3675,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             );
             if (alreadySeen && random.rn2(3))
                 return Trap_Effect_Finished;
-            // C's Soundeffect() is terminal-only and has no captured state;
-            // preserve the source call as a named gap before the pline.
-            note_unported('sounds.c Soundeffect');
+            // C trap.c:2557 Soundeffect(se_kaablamm_of_mine, 80): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             await message(
                 `KAABLAMM!!!  ${forcebungle ? 'Your inept attempt sets'
                     : 'The air currents set'}${alreadySeen

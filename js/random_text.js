@@ -27,7 +27,6 @@ import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { coreRandom, rn2 } from './rng.js';
 import { init_rumors } from './rumors.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { Blind } from './youprop.js';
 
 export { xcrypt } from './hacklib.js';
@@ -283,9 +282,7 @@ export async function outrumor(truth, mechanism, state = game, rawEnv = {}) {
             : (!random(3)
                 ? 'casually '
                 : (random(2) ? 'nonchalantly ' : ''));
-        // SetVoice() only reaches the recorder's no-sound interface and has
-        // no state or screen result; preserve the explicit source gap.
-        note_unported('rumors.c SetVoice');
+        // C rumors.c:561 SetVoice(): empty macro with no sound library (include/sndprocs.h:193-197, 276).
         await message(`True to her word, the Oracle ${adverb}says: `, state);
         await verbalize(line, state, { message });
         return;

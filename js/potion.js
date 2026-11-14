@@ -277,7 +277,6 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
@@ -2416,8 +2415,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         }
 
         if (!cansee(tx, ty, state)) {
-            // C's sound event has no gameplay-visible return or state.
-            note_unported('sounds.c Soundeffect');
+            // C potion.c:1654 Soundeffect(se_potion_crash_and_break, 60): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             await message('Crash!', state);
         } else {
             const monsterName = mon_nam(mon, state, env);
@@ -2433,7 +2431,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             } else {
                 targetName = monsterName;
             }
-            note_unported('sounds.c Soundeffect');
+            // C potion.c:1671 Soundeffect(se_potion_crash_and_break, 60): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             await message(
                 `The ${botlnam} crashes on ${targetName} and breaks into shards.`,
                 state,

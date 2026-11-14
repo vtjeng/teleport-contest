@@ -668,7 +668,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         if (ismimic)
             seemimic(mtmp, state, env);
         mtmp.msleeping = 0;
-        note_unported('sounds.c Soundeffect'); /* Soundeffect(se_splat_egg, 35) */
+        // C mthrowu.c:383 Soundeffect(se_splat_egg, 35): empty macro with no sound library (include/sndprocs.h:193-197, 272).
         if (vis) {
             if (otmp.otyp === EGG) {
                 await message(`Splat!  ${Monnam(mtmp, state, env)} is hit with `
@@ -1358,7 +1358,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             if (!Deaf(state.u) && !state.u?.uinwater) {
                 if (is_pool(x, y, state)
                     || (is_lava(x, y, state) && !is_flammable(otmp, state))) {
-                    note_unported('sound.c Soundeffect');
+                    // C mthrowu.c:955 Soundeffect(se_splash, 50): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                     await message(weight(otmp, env) > 9 ? 'Splash!' : 'Plop!', state);
                 }
             }
@@ -1437,7 +1437,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
                     state,
                 );
             } else {
-                note_unported('sound.c Soundeffect');
+                // C mthrowu.c:1026 Soundeffect(se_dry_throat_rattle, 50): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 const heard = youHear('a dry rattle nearby.', state);
                 if (heard)
                     await message(heard, state);
@@ -1525,7 +1525,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                 if (canseemon(mtmp, state)) {
                     await message(`${Monnam(mtmp, state, { displayRandom: env.displayRandom })} coughs.`, state);
                 } else {
-                    note_unported('sound.c Soundeffect');
+                    // C mthrowu.c:1104 Soundeffect(se_cough, 100): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                     const heard = youHear('a cough.', state);
                     if (heard)
                         await message(heard, state);
@@ -2005,7 +2005,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
             if (cansee(barsx, barsy, state) && !nodissolve) {
                 await message('The iron bars are dissolved!', state, rawEnv);
             } else {
-                note_unported('sounds.c Soundeffect');
+                // C mthrowu.c:1439 Soundeffect(se_angry_snakes, 100): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                 const heard = youHear(Hallucination(state.u)
                     ? 'angry snakes!' : 'a hissing noise.', state);
                 if (heard) await message(heard, state, rawEnv);
@@ -2036,7 +2036,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
                     bsindx = barsounds.length - 1;
                 }
             }
-            note_unported('sounds.c Soundeffect');
+            // C mthrowu.c:1466 Soundeffect(se[bsindx], 100): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             await (rawEnv.message ?? ttyPline)(
                 `${barsounds[bsindx]}!`, state, rawEnv);
         }

@@ -556,7 +556,7 @@ export async function explode(
             generic = true;
         }
         if (!Deaf(state.u) && olet !== SCROLL_CLASS) {
-            note_unported('sound.c Soundeffect');
+            // C explode.c:445 Soundeffect(se_blast, 75): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             const heard = youHear('a blast.', state);
             if (heard) await messageLine(heard, state, env);
             didmsg = true;

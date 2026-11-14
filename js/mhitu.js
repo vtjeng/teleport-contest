@@ -1897,8 +1897,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         monster.mx, monster.my, state,
                     ), state, env);
                 } else {
-                    if (is_whirly(mdat))
-                        note_unported('sound.c rushing-wind sound effect');
+                    // C mhitu.c:863-865 Soundeffect(se_rushing_wind_noise, 60): empty macro with no sound library (include/sndprocs.h:193-197, 272).
                     const heard = youHear(
                         `a ${is_whirly(mdat) ? 'rushing noise' : 'splat'} nearby.`,
                         state,

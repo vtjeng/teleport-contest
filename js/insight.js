@@ -2065,9 +2065,7 @@ export function record_achievement(achidx, state = game) {
         }
     }
 
-    // C plays the achievement sound even for a duplicate. The sound result is
-    // discarded by its caller and the browser has no sound-achievement owner.
-    note_unported('sounds.c SoundAchievement');
+    // C insight.c:2438 SoundAchievement(): empty macro with no sound library (include/sndprocs.h:193-197, 274).
     if (repeat_achievement)
         return; /* already recorded, don't duplicate it */
     u.uachieved[i] = achidx;

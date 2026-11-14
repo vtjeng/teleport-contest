@@ -455,7 +455,9 @@ test('container_impact_dmg breaks non-gem glass in C order', async () => {
     assert.equal(box.cknown, 0);
     assert.equal(potion.where, OBJ_DELETED);
     assert.deepEqual(messages, ['You hear a muffled shatter.']);
-    assert.equal(state.unported?.has('sounds.c Soundeffect'), true);
+    // Soundeffect() is an empty macro in the recorder build, so nothing is
+    // recorded as skipped.
+    assert.equal(state.unported?.size ?? 0, 0);
 });
 
 test('kicked shop container breakage settles theft and angers keeper', async () => {

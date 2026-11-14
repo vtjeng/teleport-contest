@@ -392,7 +392,7 @@ export async function boomhit(
         await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
         await nh_delay_output(state);
         if (IS_SINK(location.typ)) {
-            note_unported('sounds.c Soundeffect');
+            // C zap.c:4220 Soundeffect(se_boomerang_klonk, 75): empty macro with no sound library (include/sndprocs.h:193-197, 272).
             if (!Deaf(state.u)) await ttyPline('Klonk!', state);
             await wake_nearto(
                 state.gb.bhitpos.x, state.gb.bhitpos.y, 20, { state },
