@@ -14,6 +14,10 @@
 import { NOT_PORTED_BY_DESIGN } from './not-ported-by-design.mjs';
 
 const APPROVED = 'Vincent, 2026-11-13';
+const PERM_INVENT = 'only tty_ctrl_nhwindow() under TTY_PERM_INVENT reports a too-small '
+    + 'terminal, and config.h leaves TTY_PERM_INVENT commented out';
+const SYMBOLS_FILE = 'needs the installed symbols file to be missing or to hold no sets; '
+    + 'the recorder install has one with 14 sets';
 
 // The recorder starts NetHack with only "-u <name>" (scripts/record-session.mjs
 // recordSegment()), and a session carries no command line for the port.
@@ -162,6 +166,33 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
     entry('sys/unix/unixunix.c', 'child', 'Fork failed.  Try again.',
         'fork() failed when starting a shell or mail reader; the operating system '
         + 'decides that, not game input'),
+    // Traced by the message-port agent on 2026-11-13 (branch missing-messages):
+    // each needs a build option, installed file or caller the recorder lacks.
+    entry('src/bones.c', 'getbones', 'Discarding unusable bones; no need to panic...',
+        'needs validate() to reject a bones file outside debug mode; every bones file a '
+        + 'session can make comes from this build, so it is always current'),
+    entry('src/files.c', 'read_tribute', 'too overwhelmed to continue!',
+        'needs dlb_fopen(TRIBUTEFILE) to fail; the recorder install ships the tribute file'),
+    entry('src/invent.c', 'sync_perminvent', 'could not be enabled.', PERM_INVENT),
+    entry('src/invent.c', 'sync_perminvent', 'needs a terminal that is at least', PERM_INVENT),
+    entry('src/mail.c', 'md_rush', "This place's too crowded.  I'm outta here.",
+        'MAILPATH is undefined, so mail comes only from $MAIL changing during play; '
+        + 'no session input sets or changes it'),
+    entry('src/options.c', 'handler_msg_window', "' option is not supported for '",
+        'PREV_MSGS is 1 under TTY_GRAPHICS (options.c), and the window port is always tty'),
+    entry('src/options.c', 'rejectoption', 'can be set only from NETHACKOPTIONS or',
+        'needs string_for_env_opt() after start-up; every option that calls it is '
+        + 'start-up only or set in game through a handler, which bypasses it'),
+    entry('src/options.c', 'initoptions_finish', 'Status highlighting not supported for',
+        'STATUS_HILITES is defined (config.h), so tty advertises WC2_HILITE_STATUS'),
+    entry('src/pickup.c', 'query_objlist', 'pick yourself up!',
+        'needs INCLUDE_HERO with a pick; its only callers (display_minventory() from '
+        + 'invent.c and zap.c) pass PICK_NONE'),
+    entry('src/symbols.c', 'do_symset', 'Unable to access "', SYMBOLS_FILE),
+    entry('src/symbols.c', 'do_symset', 'were no symbol sets found in "', SYMBOLS_FILE),
+    entry('sys/share/ioctl.c', 'dosuspend', "I don't think your shell has job control.",
+        'the recorder sysconf leaves SHELLERS commented out, so the SYSCF check returns '
+        + 'first with "Suspend command not available." (ported in js/ioctl.js)'),
 ]);
 
 function key(file, fn, fragment) {

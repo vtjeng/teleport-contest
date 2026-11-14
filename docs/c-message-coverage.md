@@ -28,10 +28,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
-| gameplay | 4068 | 4000 | 55 | 13 |
+| gameplay | 4068 | 4000 | 67 | 1 |
 | diagnostic | 723 | 225 | 6 | 492 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4228 | 61 | 622 |
+| total | 4911 | 4228 | 73 | 610 |
 
 ## Missing by C file
 
@@ -45,7 +45,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/artifact.c | no | 0 | 8 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
 | src/ball.c | yes | 0 | 10 | 0 |
-| src/bones.c | yes | 1 | 0 | 2 |
+| src/bones.c | yes | 0 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
 | src/cfgfiles.c | yes | 0 | 0 | 2 |
 | src/cmd.c | yes | 0 | 3 | 0 |
@@ -65,15 +65,15 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/extralev.c | yes | 0 | 7 | 0 |
-| src/files.c | yes | 2 | 3 | 1 |
+| src/files.c | yes | 1 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
 | src/insight.c | yes | 0 | 4 | 0 |
-| src/invent.c | yes | 2 | 8 | 0 |
+| src/invent.c | yes | 0 | 8 | 0 |
 | src/light.c | yes | 0 | 21 | 0 |
 | src/lock.c | yes | 0 | 2 | 0 |
-| src/mail.c | no | 1 | 0 | 1 |
+| src/mail.c | no | 0 | 0 | 1 |
 | src/makemon.c | yes | 0 | 7 | 4 |
 | src/mcastu.c | yes | 0 | 8 | 1 |
 | src/mhitu.c | yes | 0 | 4 | 0 |
@@ -92,9 +92,9 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/nhlua.c | yes | 0 | 11 | 1 |
 | src/o_init.c | yes | 0 | 7 | 0 |
 | src/objnam.c | yes | 0 | 14 | 0 |
-| src/options.c | yes | 3 | 6 | 0 |
+| src/options.c | yes | 0 | 6 | 0 |
 | src/pager.c | yes | 0 | 6 | 0 |
-| src/pickup.c | yes | 1 | 5 | 1 |
+| src/pickup.c | yes | 0 | 5 | 1 |
 | src/pline.c | yes | 0 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
 | src/pray.c | yes | 0 | 6 | 0 |
@@ -116,7 +116,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/spell.c | yes | 0 | 3 | 0 |
 | src/steal.c | yes | 0 | 5 | 1 |
 | src/steed.c | yes | 0 | 0 | 1 |
-| src/symbols.c | yes | 2 | 0 | 0 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
@@ -135,7 +134,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/worn.c | yes | 0 | 4 | 0 |
 | src/write.c | yes | 0 | 1 | 0 |
 | src/zap.c | yes | 0 | 10 | 1 |
-| sys/share/ioctl.c | yes | 1 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
 | win/tty/wintty.c | yes | 0 | 5 | 1 |
 
@@ -143,56 +141,10 @@ The JS module column says whether `js/` has a module with the C file's name.
 
 Each line gives the C line, the message function, and the fragment searched for.
 
-### src/bones.c
-
-- `getbones()`
-  - 665 pline: `Discarding unusable bones; no need to panic...`
-
 ### src/files.c
 
 - `fopen_wizkit_file()`
   - 2526 raw_printf: `Couldn't open default gw.wizkit file`
-
-- `read_tribute()`
-  - 3506 You_feel: `too overwhelmed to continue!`
-
-### src/invent.c
-
-- `sync_perminvent()`
-  - 5631 pline: `could not be enabled.`
-  - 5632 pline: `needs a terminal that is at least`
-
-### src/mail.c
-
-- `md_rush()`
-  - 373 verbalize: `This place's too crowded.  I'm outta here.`
-
-### src/options.c
-
-- `handler_msg_window()`
-  - 5887 pline: `' option is not supported for '`
-
-- `rejectoption()`
-  - 6817 pline: `can be set only from NETHACKOPTIONS or`
-
-- `initoptions_finish()`
-  - 7359 raw_printf: `Status highlighting not supported for`
-
-### src/pickup.c
-
-- `query_objlist()`
-  - 1182 You_cant: `pick yourself up!`
-
-### src/symbols.c
-
-- `do_symset()`
-  - 1042 pline: `Unable to access "`
-  - 1046 There: `were no symbol sets found in "`
-
-### sys/share/ioctl.c
-
-- `dosuspend()`
-  - 194 pline: `I don't think your shell has job control.`
 
 ## Missing diagnostics (impossible, panic)
 
@@ -1918,6 +1870,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 Each function line gives the reason and who approved it; each line under
 it gives the C line, the message function, and the fragment.
 
+### src/bones.c
+
+- `getbones()`: needs validate() to reject a bones file outside debug mode; every bones file a session can make comes from this build, so it is always current (approved: Vincent, 2026-11-13)
+  - 665 pline: `Discarding unusable bones; no need to panic...`
+
 ### src/cfgfiles.c
 
 - `do_write_config_file()`: #saveoptions reports a short fwrite() of the config file, which only a full or failing disk causes (approved: Vincent, 2026-11-13)
@@ -1974,8 +1931,22 @@ it gives the C line, the message function, and the fragment.
   - 3300 raw_printf: `are in many separate files.`
   - 3360 raw_printf: `Your personal configuration file`
 
+- `read_tribute()`: needs dlb_fopen(TRIBUTEFILE) to fail; the recorder install ships the tribute file (approved: Vincent, 2026-11-13)
+  - 3506 You_feel: `too overwhelmed to continue!`
+
 - `livelog_add()`: needs sysconf LIVELOG, which the recorder's sysconf leaves commented out, so sysopt.livelog is 0 and livelog_add() returns first (approved: Vincent, 2026-11-13)
   - 3678 pline: `Cannot open live log file!`
+
+### src/invent.c
+
+- `sync_perminvent()`: only tty_ctrl_nhwindow() under TTY_PERM_INVENT reports a too-small terminal, and config.h leaves TTY_PERM_INVENT commented out (approved: Vincent, 2026-11-13)
+  - 5631 pline: `could not be enabled.`
+  - 5632 pline: `needs a terminal that is at least`
+
+### src/mail.c
+
+- `md_rush()`: MAILPATH is undefined, so mail comes only from $MAIL changing during play; no session input sets or changes it (approved: Vincent, 2026-11-13)
+  - 373 verbalize: `This place's too crowded.  I'm outta here.`
 
 ### src/makemon.c
 
@@ -2002,6 +1973,17 @@ it gives the C line, the message function, and the fragment.
 - `setgemprobs()`: self-check of the objects[] gem order; setgemprobs() zeroes at most 9 gems, which leaves real gems at every depth (approved: Vincent, 2026-11-13)
   - 70 raw_printf: `Not enough gems? - first=`
 
+### src/options.c
+
+- `handler_msg_window()`: PREV_MSGS is 1 under TTY_GRAPHICS (options.c), and the window port is always tty (approved: Vincent, 2026-11-13)
+  - 5887 pline: `' option is not supported for '`
+
+- `rejectoption()`: needs string_for_env_opt() after start-up; every option that calls it is start-up only or set in game through a handler, which bypasses it (approved: Vincent, 2026-11-13)
+  - 6817 pline: `can be set only from NETHACKOPTIONS or`
+
+- `initoptions_finish()`: STATUS_HILITES is defined (config.h), so tty advertises WC2_HILITE_STATUS (approved: Vincent, 2026-11-13)
+  - 7359 raw_printf: `Status highlighting not supported for`
+
 ### src/pager.c
 
 - `checkfile()`: the installed 'data' file is missing, an installation fault (approved: Vincent, 2026-11-13)
@@ -2009,6 +1991,11 @@ it gives the C line, the message function, and the fragment.
 
 - `checkfile()`: fseek() failed on the installed 'data' file, an operating-system error (approved: Vincent, 2026-11-13)
   - 1073 pline: `? Seek error on 'data' file!`
+
+### src/pickup.c
+
+- `query_objlist()`: needs INCLUDE_HERO with a pick; its only callers (display_minventory() from invent.c and zap.c) pass PICK_NONE (approved: Vincent, 2026-11-13)
+  - 1182 You_cant: `pick yourself up!`
 
 ### src/pline.c
 
@@ -2063,6 +2050,12 @@ Whole file not ported by design: the port keeps game state between segments thro
   - 645 pline: `Room at (`
   - 647 pline: `doormax=`
 
+### src/symbols.c
+
+- `do_symset()`: needs the installed symbols file to be missing or to hold no sets; the recorder install has one with 14 sets (approved: Vincent, 2026-11-13)
+  - 1042 pline: `Unable to access "`
+  - 1046 There: `were no symbol sets found in "`
+
 ### src/topten.c
 
 - `prscore()`: output of the -s option (earlyarg.c scores_only()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
@@ -2089,6 +2082,11 @@ Whole file not ported by design: the port keeps game state between segments thro
 
 - `choose_windows()`: build check that some window port is compiled in; the recorder build has tty (approved: Vincent, 2026-11-13)
   - 296 raw_printf: `No window types supported?`
+
+### sys/share/ioctl.c
+
+- `dosuspend()`: the recorder sysconf leaves SHELLERS commented out, so the SYSCF check returns first with "Suspend command not available." (ported in js/ioctl.js) (approved: Vincent, 2026-11-13)
+  - 194 pline: `I don't think your shell has job control.`
 
 ### sys/unix/unixunix.c
 
