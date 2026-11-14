@@ -138,6 +138,7 @@ import {
     set_occupation,
     y_n,
     yn_function,
+    ynq,
     } from './cmd.js';
 import { o_unleash, tinnable } from './apply.js';
 import { on_level,
@@ -184,7 +185,7 @@ import { delayed_killer, done } from './end.js';
 import {
     carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
 import {
-    Tobjnam, an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, xnameFresh, yobjnam, } from './objnam.js';
+    Tobjnam, an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, thesimpleoname, xnameFresh, yobjnam, } from './objnam.js';
 import {
     GLOB_OF_GREEN_SLIME, APPLE, AMULET_CLASS, AMULET_OF_CHANGE, AMULET_OF_FLYING, AMULET_OF_GUARDING, AMULET_OF_LIFE_SAVING, AMULET_OF_REFLECTION, AMULET_OF_RESTFUL_SLEEP, AMULET_OF_STRANGULATION, AMULET_OF_UNCHANGING, AMULET_OF_YENDOR, CANDY_BAR, CARROT, CLOVE_OF_GARLIC, COIN_CLASS, CORPSE, CRAM_RATION, CREAM_PIE, C_RATION, EGG, ENORMOUS_MEATBALL, EUCALYPTUS_LEAF, FAKE_AMULET_OF_YENDOR, BONE, DRAGON_HIDE, FLESH, FOOD_CLASS, BALL_CLASS, CHAIN_CLASS, GEM_CLASS, GLASS, FOOD_RATION, FORTUNE_COOKIE, K_RATION, LEATHER, LEMBAS_WAFER, LUMP_OF_ROYAL_JELLY, PAPER, POTION_CLASS, RIN_ADORNMENT, RIN_FREE_ACTION, RIN_GAIN_CONSTITUTION, RIN_GAIN_STRENGTH, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_INVISIBILITY, RIN_LEVITATION, RIN_PROTECTION_FROM_SHAPE_CHAN, RING_CLASS, RIN_SEE_INVISIBLE, RIN_SUSTAIN_ABILITY, SCROLL_CLASS, MEATBALL, MEAT_RING, MEAT_STICK, PANCAKE, PEAR, RIN_PROTECTION, RIN_SLOW_DIGESTION, SLIME_MOLD, SPRIG_OF_WOLFSBANE, TRIDENT, FLINT, LEASH, SCR_MAIL, SCR_SCARE_MONSTER, DAGGER, SILVER_DAGGER, ELVEN_DAGGER, ORCISH_DAGGER, ATHAME, KNIFE, STILETTO, CRYSKNIFE, PICK_AXE, AXE, TIN, TIN_OPENER, TRIPE_RATION, BEARTRAP, WAX, WOOD, WEAPON_CLASS, GOLD_PIECE, ORANGE, } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -1307,11 +1308,10 @@ export async function use_tin_opener(obj, state = game, env = {}) {
     if (obj !== state.uwep) {
         if (obj.cursed && obj.bknown) {
             const qbuf = safe_qbuf(
-                'Really wield ', '?', obj, donameFresh, ansimpleoname,
+                'Really wield ', '?', obj, donameFresh, thesimpleoname,
                 'that', state,
             );
-            if (await yn_function(qbuf, 'ynq', 'n', true, state)
-                !== 'y') {
+            if (await ynq(qbuf, state) !== 'y') {
                 return ECMD_OK;
             }
         }

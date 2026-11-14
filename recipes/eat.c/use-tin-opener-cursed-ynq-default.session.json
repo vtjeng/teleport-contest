@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c use_tin_opener() 3110-3113: a Priest knows the bless/curse state of every object, so a wished cursed tin opener applied while unwielded asks ynq(\"Really wield ...?\"), whose default is q (hack.h 1330). The first apply answers ESC (the default); the second answers y, which welds the opener and goes on to getobj() and start_tin(). Seed, date and character chosen independently of batch 17.",
+  "segments": [
+    {
+      "seed": 5208813,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Tinny,role:Priest,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017cursed tin opener\n\u0017tin of lichen\nai\u001baiy j  n"
+    }
+  ]
+}
