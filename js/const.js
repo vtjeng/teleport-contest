@@ -26,7 +26,7 @@ import { NUMMONS } from './monsters.js';
 // role.c genders[], read by the you.h pronoun macro below. roles.js imports
 // nothing, so this edge cannot close a cycle.
 import { genders } from './roles.js';
-import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_GREEN, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW } from './terminal.js';
+import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW } from './terminal.js';
 import { dungeon_at } from './dungeon_table.js';
 import { lcase } from './hacklib.js';
 
@@ -99,14 +99,6 @@ export const D_TRAPPED = 0x10;
 export const D_SECRET = 0x20;
 // AUTO-IMPORT-END: CONST_GLOBAL_RM
 
-// Display dimensions
-export const TERMINAL_COLS = 80;
-export const TERMINAL_ROWS = 24;  // message + map + 2 status lines
-export const MESSAGE_ROW = 0;
-export const MAP_ROW_START = 1;
-export const STATUS_ROW_1 = 22;
-export const STATUS_ROW_2 = 23;
-
 
 // Direction arrays (decl.c:77-78 and decl.c's zdir[])
 // Index: 0=W, 1=NW, 2=N, 3=NE, 4=E, 5=SE, 6=S, 7=SW, 8=down, 9=up
@@ -175,41 +167,9 @@ export function Amask2align(x) {
 export const MALE = 0;
 export const FEMALE = 1;
 
-// Races
-export const RACE_HUMAN = 0;
-export const RACE_ELF = 1;
-export const RACE_DWARF = 2;
-export const RACE_GNOME = 3;
-export const RACE_ORC = 4;
-
 // PM_* role constants removed — use real C monster-table PM_* from monsters.js
 // player.roleMnum stores the monster-table index (matching C's urole.mnum)
 // player.roleIndex remains as the roles[] array index (0-12) for chargen/iteration
-
-// Monster spell ids (src/mcastu.c: choose_magic_spell/choose_clerical_spell)
-export const MGC_PSI_BOLT = 0;
-export const MGC_CURE_SELF = 1;
-export const MGC_HASTE_SELF = 2;
-export const MGC_STUN_YOU = 3;
-export const MGC_DISAPPEAR = 4;
-export const MGC_WEAKEN_YOU = 5;
-export const MGC_DESTRY_ARMR = 6;
-export const MGC_CURSE_ITEMS = 7;
-export const MGC_AGGRAVATION = 8;
-export const MGC_SUMMON_MONS = 9;
-export const MGC_CLONE_WIZ = 10;
-export const MGC_DEATH_TOUCH = 11;
-
-export const CLC_OPEN_WOUNDS = 0;
-export const CLC_CURE_SELF = 1;
-export const CLC_CONFUSE_YOU = 2;
-export const CLC_PARALYZE = 3;
-export const CLC_BLIND_YOU = 4;
-export const CLC_INSECTS = 5;
-export const CLC_CURSE_ITEMS = 6;
-export const CLC_LIGHTNING = 7;
-export const CLC_FIRE_PILLAR = 8;
-export const CLC_GEYSER = 9;
 
 // Achievements enum (include/you.h, used by src/insight.c)
 export const ACH_BELL = 1;
@@ -446,9 +406,6 @@ export const STOMACH = 18;
 export const FILL_NONE = 0;
 export const FILL_NORMAL = 1;
 
-// Padded text chunk width for makedefs-generated rumor-like files.
-// Runtime fields: get_rnd_line_index(..., chunksize) for rumors/epitaph/engraving pools.
-export const RUMOR_PAD_LENGTH = 60;
 
 // Pet migration mode string token (src/dog.c mon_arrive)
 // Runtime field: migrating monster `mon_arrive(..., with_you, ...)` argument.
@@ -482,10 +439,8 @@ export const TRAVP_VALID = 2;
 // Shared monster/pathing distance constants (include/monst.h, include/hack.h, src/dogmove.c)
 // Runtime fields:
 // - monster mtrack ring size and object-search radius in dog/monmove logic
-// - threat range / spell range checks and "far away" distance sentinels
 export const MTSZ = 4;
 export const SQSRCHRADIUS = 5;
-export const FARAWAY = 127;
 
 // Build-specific constants: hand-pinned for deterministic replay.
 // These come from date.h and change every C rebuild, so the generator skips them.
@@ -2267,7 +2222,6 @@ export const MM_FEMALE = 0x00010000;
 export const MM_NOMSG = 0x00020000;
 export const MM_NOEXCLAM = 0x00040000;
 export const MM_IGNORELAVA = 0x00080000;
-export const MM_ASYNC = 0x00100000;      // caller will await; store appear-message promise on monster
 
 // Teleport target search flags (include/hack.h; src/teleport.c goodpos/enexto)
 // Runtime fields: teleport goodpos/enexto entflags/gpflags args
@@ -2444,7 +2398,6 @@ export const DRAIN_RES = 9;
 export const SICK_RES = 10;
 export const INVULNERABLE = 11;
 export const ANTIMAGIC = 12;
-export const PROP_INDEX_START_ABILITIES = 13; // marker
 export const STUNNED = 13;
 export const CONFUSION = 14;
 export const BLINDED = 15;
@@ -2502,9 +2455,6 @@ export const FREE_ACTION = 66;
 export const FIXED_ABIL = 67;
 export const LIFESAVED = 68;
 export const LAST_PROP = LIFESAVED;
-// Temporary aliases still used in JS callsites.
-export const SLEEPING = SLEEPY;
-export const WATERPROOF = WWALKING;
 
 // Intrinsic bitmask constants (prop.h)
 // C ref: include/prop.h — bitmask for intrinsic field
@@ -2895,8 +2845,6 @@ export const SCROLLBAR_COLOR = CLR_MAGENTA;
 export const SCROLLBAR_BACK_COLOR = CLR_BLACK;
 export const HIGHLIGHT_COLOR = CLR_WHITE;
 export const MORECOLOR = CLR_ORANGE;
-export const STAT_UP_COLOR = CLR_GREEN;
-export const STAT_DOWN_COLOR = CLR_RED;
 
 export const DEFERRED_HEADER_CONST_MACROS = Object.freeze([
     "SYM_OFF_O (hack.h)",
