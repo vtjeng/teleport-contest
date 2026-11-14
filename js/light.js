@@ -503,7 +503,7 @@ export function obj_adjust_light_radius(obj, new_radius, state = game) {
     }
     // C reports an impossible() and continues when a lit object has no
     // corresponding source. Keep that diagnostic without fabricating one.
-    note_unported('light.c obj_adjust_light_radius missing source');
+    note_unported('pline.c impossible');
 }
 
 // C ref: light.c candle_light_range() (843–877). Preserve all source arms,

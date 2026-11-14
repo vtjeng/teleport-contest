@@ -20,38 +20,21 @@ const JS_ROOT = join(PROJECT_ROOT, 'js');
 
 // impossible() is ported as js/pline.js impossible(), which is async; many of
 // these callers are synchronous and would need to become async to wait for
-// it. Each site is an arm C reaches only on inconsistent game state.
+// it. Each site is an arm C reaches only on inconsistent game state. Every
+// impossible() marker uses this label, whatever C file it sits in, because
+// scripts/c-diagnostic-markers.test.mjs counts markers by it.
 const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossible()';
-// The label names the function that contains the marker: it records an
-// impossible() or debugpline() arm inside that function, not a skipped call.
+// The label names the function that contains the marker: it records a
+// debugpline() arm inside that function, not a skipped call.
 const OWN_DIAGNOSTIC = 'diagnostic arm inside the named function itself';
 
 const EXCEPTIONS = new Map([
-    ['pline.c impossible', { count: 176, reason: IMPOSSIBLE }],
-    ['hack.c impossible', { count: 1, reason: IMPOSSIBLE }],
-    ['mcastu.c impossible', { count: 4, reason: IMPOSSIBLE }],
-    ['mkroom.c impossible', { count: 1, reason: IMPOSSIBLE }],
-    ['mthrowu.c impossible', { count: 1, reason: IMPOSSIBLE }],
-    ['pray.c impossible', { count: 3, reason: IMPOSSIBLE }],
-    ['shk.c impossible', { count: 3, reason: IMPOSSIBLE }],
-    ['trap.c impossible', { count: 3, reason: IMPOSSIBLE }],
-    ['zap.c impossible', { count: 3, reason: IMPOSSIBLE }],
+    ['pline.c impossible', { count: 210, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.
     ['end.c panic', { count: 1, reason: 'synchronous shkname() cannot wait for async panic()' }],
-    ['explode.c adtyp_to_expltype', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['explode.c explosionmask', { count: 2, reason: OWN_DIAGNOSTIC }],
-    ['explode.c mon_explodes', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['explode.c scatter', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['light.c obj_adjust_light_radius', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['mon.c set_ustuck', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['read.c seffects', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['shk.c doinvbill', { count: 2, reason: OWN_DIAGNOSTIC }],
-    ['shk.c get_cost', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['trap.c lava_effects', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['zap.c bhitm', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['zap.c bhito', { count: 2, reason: OWN_DIAGNOSTIC }],
     // The named function is ported; the marker inside it records an input
     // the port cannot read: a host file, or the fuzzer's random key loop.
     ['files.c fopen_wizkit_file', { count: 2, reason: 'reading a host wizkit file is unported' }],

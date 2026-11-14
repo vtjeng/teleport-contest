@@ -606,7 +606,7 @@ export async function doengrave_sfx_item(de, state = game, env = {}) {
         await message('Writing a poison pen letter?');
         break;
     case ILLOBJ_CLASS:
-        note_unported('hack.c impossible');
+        note_unported('pline.c impossible');
         break;
     }
     return true;

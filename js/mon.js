@@ -1282,7 +1282,7 @@ export function restore_cham(monster, state = game, rawEnv = {}) {
 export function set_ustuck(mtmp, state = game) {
     if ((state.iflags?.sanity_check || state.iflags?.debug_fuzzer)
         && mtmp && !m_next2u(mtmp, state))
-        note_unported('mon.c set_ustuck impossible');
+        note_unported('pline.c impossible');
     state.disp ??= {};
     state.disp.botl = true;
     state.u.ustuck = mtmp;

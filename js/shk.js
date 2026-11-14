@@ -1394,7 +1394,7 @@ export function get_cost(obj, shopkeeper, state = game) {
             const pair = GLASS_GEM_PRICE_TYPES[obj.otyp - FIRST_GLASS_GEM];
             const pricedType = pair
                 ? pair[pseudorand ? 0 : 1] : STRANGE_OBJECT;
-            if (!pair) note_unported('shk.c get_cost impossible bad glass gem');
+            if (!pair) note_unported('pline.c impossible');
             price = Math.trunc(objectType(pricedType, state).oc_cost);
         } else if (oid_price_adjustment(obj, obj.o_id, state) > 0) {
             multiplier *= 4;
@@ -1842,7 +1842,7 @@ export function bp_to_obj(bp, state = game) {
 export async function doinvbill(mode, state = game) {
     const shkp = shop_keeper(firstRoom(state.u?.ushops), state);
     if (!shkp || !inhishop(shkp, state)) {
-        if (mode) note_unported('shk.c doinvbill: no shopkeeper');
+        if (mode) note_unported('pline.c impossible');
         return 0;
     }
     const eshk = shkp.mextra.eshk;
@@ -1858,7 +1858,7 @@ export async function doinvbill(mode, state = game) {
     for (const bp of bill) {
         const obj = bp_to_obj(bp, state);
         if (!obj) {
-            note_unported('shk.c doinvbill: bad shopkeeper administration');
+            note_unported('pline.c impossible');
             break;
         }
         if (!bp.useup && bp.bquan <= obj.quan) continue;
@@ -4187,9 +4187,9 @@ export async function splitbill(obj, child, state = game) {
         return;
     }
     if (bill.bquan < child.quan)
-        note_unported('shk.c impossible splitbill: negative bill quantity');
+        note_unported('pline.c impossible'); // negative bill quantity
     if (bill.bquan === child.quan)
-        note_unported('shk.c impossible splitbill: zero bill quantity');
+        note_unported('pline.c impossible'); // zero bill quantity
     bill.bquan -= child.quan;
 
     const eshk = ESHK(shopkeeper);
@@ -4486,7 +4486,7 @@ export async function globby_bill_fixup(obj_absorber, obj_absorbed, state = game
     const floor_absorber = obj_absorber.where === OBJ_FLOOR;
 
     if (!obj_absorber.globby) {
-        note_unported('shk.c impossible: globby_bill_fixup called for non-globby object');
+        note_unported('pline.c impossible');
     }
     if (floor_absorber) {
         x = obj_absorber.ox;

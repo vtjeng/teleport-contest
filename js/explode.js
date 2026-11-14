@@ -264,7 +264,7 @@ function monsterResists(monster, adtyp, olet, state) {
     case AD_DRST: return Resists_Elem(monster, POISON_RES, state);
     case AD_ACID: return Resists_Elem(monster, ACID_RES, state);
     default:
-        note_unported(`explode.c explosionmask() for adtyp ${adtyp}`);
+        note_unported('pline.c impossible');
         return false;
     }
 }
@@ -287,7 +287,7 @@ export function explosionmask(monster, adtyp, olet, state = game) {
         case AD_DRST: return Poison_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         case AD_ACID: return Acid_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         default:
-            note_unported(`explode.c explosionmask() for adtyp ${adtyp}`);
+            note_unported('pline.c impossible');
             return EXPL_NONE;
         }
     }
@@ -359,7 +359,7 @@ function adtypForExplosion(type, olet, state, env) {
     case 6: adtyp = AD_DRST; description = 'poison gas cloud'; break;
     case 7: adtyp = AD_ACID; description = 'splash of acid'; break;
     default:
-        note_unported(`explode.c bad explosion base type ${type}`);
+        note_unported('pline.c impossible');
         return { adtyp: AD_MAGM, description: 'magical blast' };
     }
     return { adtyp, description };
@@ -778,7 +778,7 @@ export function adtyp_to_expltype(adtyp) {
     case AD_PHYS:
         return 1;
     default:
-        note_unported(`explode.c adtyp_to_expltype() for adtyp ${adtyp}`);
+        note_unported('pline.c impossible');
         return 5;
     }
 }
@@ -799,7 +799,7 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     else if (mattk.adtyp >= AD_MAGM && mattk.adtyp <= 10)
         type = -((mattk.adtyp - 1) + 20);
     else {
-        note_unported(`explode.c mon_explodes() unknown type ${mattk.adtyp}`);
+        note_unported('pline.c impossible');
         return;
     }
     if (mon.mhp > 0) await mondead(mon, state, env);
@@ -875,10 +875,7 @@ export async function scatter(
     if (individualObject && (obj.ox !== sx || obj.oy !== sy)) {
         // C calls impossible() and continues. The diagnostic is deliberately
         // not a throw: the object may still be useful to a recovery caller.
-        note_unported(
-            `explode.c scatter object <${obj.ox},${obj.oy}> not at `
-            + `scatter site <${sx},${sy}>`,
-        );
+        note_unported('pline.c impossible');
     }
 
     const roomNumbers = ops.inRooms

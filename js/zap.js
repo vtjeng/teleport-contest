@@ -1009,7 +1009,7 @@ async function boxlock_invent(obj, state = game) {
 export async function release_hold(state = game) {
     const holder = state.u?.ustuck;
     if (!holder) {
-        note_unported('zap.c impossible release_hold');
+        note_unported('pline.c impossible'); // release_hold
         return;
     }
     const swallowed = Boolean(state.u?.uswallow);
@@ -1495,7 +1495,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     }
 
     default:
-        note_unported('zap.c impossible');
+        note_unported('pline.c impossible');
         break;
     }
     // Several arms above can end the game (a death ray, system shock from
@@ -3091,7 +3091,7 @@ export async function bhito(obj, wand, state = game,
         obj.bypass = false;
     }
     if (obj?.where !== OBJ_FLOOR && wand.otyp !== SPE_STONE_TO_FLESH)
-        note_unported('zap.c bhito impossible object location');
+        note_unported('pline.c impossible'); // object location
 
     if (obj === state.uball) {
         res = 0;
@@ -3305,7 +3305,7 @@ export async function bhito(obj, wand, state = game,
             res = await stone_to_flesh_obj(obj, state, random, rawEnv);
             break;
         default:
-            note_unported('zap.c bhito impossible effect');
+            note_unported('pline.c impossible'); // bhito effect
             break;
         }
     }
@@ -3817,7 +3817,7 @@ export async function bhitm(monster, wand, state = game,
         }
     } else {
         // C's default is impossible() for an invalid effect/type pairing.
-        note_unported('zap.c bhitm impossible effect');
+        note_unported('pline.c impossible'); // bhitm effect
     }
     if (wake && monster.mhp >= 1) {
         await wakeup(monster, !helpful_gesture, {
@@ -5539,7 +5539,7 @@ export async function mon_spell_hits_spot(
             x, y, zapDamageType, shopDamage, true, 0, state, random, env,
         );
     } else {
-        note_unported('zap.c impossible');
+        note_unported('pline.c impossible');
     }
 }
 

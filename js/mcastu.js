@@ -841,7 +841,7 @@ async function mcast_clone_wiz(mtmp, rawEnv = {}) {
         await message('Double Trouble...', state, rawEnv);
         await clonewiz(state, rawEnv);
     } else {
-        note_unported('mcastu.c impossible');
+        note_unported('pline.c impossible');
     }
 }
 
@@ -1090,11 +1090,11 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     const mdamageu = env.mdamageu;
 
     if (dmg < 0) {
-        note_unported('mcastu.c impossible');
+        note_unported('pline.c impossible');
         return;
     }
     if (dmg === 0 && !is_undirected_spell(spellnum)) {
-        note_unported('mcastu.c impossible');
+        note_unported('pline.c impossible');
         return;
     }
 
@@ -1172,7 +1172,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         await mcast_confuse_you(mtmp, env);
         break;
     default:
-        note_unported('mcastu.c impossible');
+        note_unported('pline.c impossible');
         break;
     }
 

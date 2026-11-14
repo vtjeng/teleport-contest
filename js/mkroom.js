@@ -1107,5 +1107,5 @@ export function do_mkroom(roomtype, state = game, random = coreRandom) {
         return;
     }
     // C's impossible() result is discarded by do_mkroom().
-    note_unported('mkroom.c impossible');
+    note_unported('pline.c impossible');
 }

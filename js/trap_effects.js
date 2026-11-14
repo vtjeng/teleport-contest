@@ -1408,7 +1408,7 @@ async function steedintrap(trap, otmp, env) {
     switch (trap.ttyp) {
     case ARROW_TRAP:
         if (!otmp) {
-            note_unported('trap.c impossible steed arrow');
+            note_unported('pline.c impossible'); // steed arrow
             return Trap_Effect_Finished;
         }
         trapkilled = await thitm(8, steed, otmp, 0, false, env);
@@ -1416,7 +1416,7 @@ async function steedintrap(trap, otmp, env) {
         break;
     case DART_TRAP:
         if (!otmp) {
-            note_unported('trap.c impossible steed dart');
+            note_unported('pline.c impossible'); // steed dart
             return Trap_Effect_Finished;
         }
         trapkilled = await thitm(7, steed, otmp, 0, false, env);
@@ -3118,7 +3118,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         let shoes = which_armor(mtmp, W_ARMF, state);
         await extract_from_minvent(mtmp, shoes, true, true, { ...env, state });
         if (await mpickobj(mtmp, shoes, { ...env, state })) {
-            note_unported('trap.c impossible re-equipping iron shoes destroyed them');
+            note_unported('pline.c impossible');
             return Trap_Effect_Finished;
         }
         shoes = await poly_obj(

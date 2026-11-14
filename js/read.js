@@ -3280,7 +3280,7 @@ export async function seffects(scroll, state = game, env = {}) {
         await seffect_stinking_cloud(scroll, state);
         break;
     default:
-        note_unported('read.c seffects default');
+        note_unported('pline.c impossible');
         break;
     }
 
