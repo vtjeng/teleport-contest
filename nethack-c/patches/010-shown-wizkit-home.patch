@@ -1,0 +1,62 @@
+diff --git a/src/files.c b/src/files.c
+--- a/src/files.c
++++ b/src/files.c
+@@ -186,7 +186,7 @@
+ #ifndef USE_FCNTL
+ staticfn char *make_lockname(const char *, char *);
+ #endif
+-staticfn FILE *fopen_wizkit_file(void);
++staticfn FILE *fopen_wizkit_file(void); staticfn const char *shown_wizkit(const char *); /* patch 010 */
+ staticfn void wizkit_addinv(struct obj *);
+ boolean proc_wizkit_line(char *buf);
+ void read_wizkit(void);  /* in extern.h; why here too? */
+@@ -2524,7 +2524,7 @@
+         /* e.g., problems when setuid NetHack can't search home
+          * directory restricted to user */
+         raw_printf("Couldn't open default gw.wizkit file %s (%d).",
+-                   tmp_wizkit, errno);
++                   shown_wizkit(tmp_wizkit), errno);
+         wait_synch();
+     }
+ #endif
+@@ -3717,4 +3717,40 @@
+ 
+ #endif /* !LIVELOG */
+ 
++#ifndef SFCTOOL
++/* Recorder patch 010: show the reference recorder's HOME in the default
++ * wizkit file's error.
++ *
++ * fopen_wizkit_file() falls back to $HOME/<WIZKIT> and, when that open
++ * fails with an errno other than ENOENT, prints the name it tried.  The
++ * judge's recorder ran with the HOME that docs/recording-environment.md
++ * gives; a local recorder runs with a temporary one.  When
++ * NETHACK_SHOWN_HOME is set, print the name with that HOME in place of the
++ * real one, as patch 008 does for the config file.  Only the printed name
++ * changes: fopen() has already tried the local file.  errno is restored
++ * because the caller reads it in the same argument list.
++ *
++ * This function sits at the end of the file and its declaration shares a
++ * line with fopen_wizkit_file()'s, so every upstream line keeps its number:
++ * the RNG log names the line of each call (patch 003).
++ */
++staticfn const char *
++shown_wizkit(const char *tried)
++{
++    static char shown[BUFSZ];
++    int saved_errno = errno;
++    char *home = nh_getenv("HOME");
++    char *shown_home = nh_getenv("NETHACK_SHOWN_HOME");
++    size_t homelen = home ? strlen(home) : 0;
++
++    if (homelen && shown_home && *shown_home
++        && !strncmp(tried, home, homelen) && tried[homelen] == '/') {
++        Snprintf(shown, sizeof shown, "%s%s", shown_home, tried + homelen);
++        tried = shown;
++    }
++    errno = saved_errno;
++    return tried;
++}
++#endif /* !SFCTOOL */
++
+ /*files.c*/

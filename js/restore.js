@@ -89,7 +89,7 @@ import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
 import { set_uasmon } from './polyself.js';
 import { select_menu } from './windows.js';
-import { TTY_STARTUP_BANNER } from './tty_startup.js';
+import { copyright_banner_line } from './version.js';
 import { tty_putmsghistory } from './topl.js';
 
 // C ref: restore.c restore_msghistory(). The callback buffers messages in
@@ -135,7 +135,8 @@ export async function restore_menu(_bannerwin = null, state = game) {
     items.push({ selector: 'q', label: 'Never mind (quit)', value: -1 });
     const choice = await select_menu(state, {
         title: 'Select one of your saved games',
-        lines: [...TTY_STARTUP_BANNER, ''],
+        // COPYRIGHT_BANNER_[ABCD], then an empty line (restore.c:1557-1560).
+        lines: [1, 2, 3, 4].map(copyright_banner_line).concat(''),
         items,
         cancelValue: null,
     });

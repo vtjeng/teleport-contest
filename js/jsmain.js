@@ -157,10 +157,10 @@ export function set_playmode(state = game, { loginName } = {}) {
     // system option explicit before the play-mode fields are layered on.
     sysopt.livelog ??= LL_NONE;
     sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
-    // The recorder's linux-minimal hints file does not define SYSCF, so the C
-    // binary never calls cnf_line_WIZARDS() and fmtd_wizard_list stays NULL.
-    // Do not create it here — the contact page must omit the "local support"
-    // line to match C's output.
+    // The recorder defines SYSCF, and its sysconf sets WIZARDS=*.
+    // cfgfiles.c cnf_line_WIZARDS() formats fmtd_wizard_list only for a
+    // list other than "*", so it stays NULL. Do not create it here — the
+    // contact page must omit the "local support" line to match C's output.
     sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
 
     const username = String(loginName ?? RECORDER_ACCOUNT);

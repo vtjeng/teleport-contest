@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game, resetGame } from '../js/gstate.js';
@@ -7,10 +8,11 @@ import {
     ensureTtyPlayerName,
     isGenericPlayerName,
     renderTtyStartupBanner,
-    TTY_STARTUP_BANNER,
     ttyAskname,
     ttyPlayerNameAndSuffix,
 } from '../js/tty_startup.js';
+import { RECORDER_BUILD_DATE } from '../js/mdlib.js';
+import { copyright_banner_line, getversionstring } from '../js/version.js';
 
 function startupState(keys = '') {
     resetGame();
@@ -27,18 +29,48 @@ function plainScreen(state) {
     return rows.join('\n');
 }
 
-test('tty startup banner uses the source and pinned-recorder build lines', () => {
+// The banner as the judge's macOS recorder prints it: patchlevel.h's
+// COPYRIGHT_BANNER_A, B and D, and mdlib.c bannerc_string() with PORT_ID
+// "MacOS" and the build date recorder patch 001 pins. The judge's scorer
+// normalizes "Version" lines (frozen/ps_test_runner.mjs), so no recording
+// can catch a wrong third line; this test does.
+const RECORDER_BANNER = [
+    'NetHack, Copyright 1985-2026',
+    '         By Stichting Mathematisch Centrum and M. Stephenson.',
+    '         Version 5.0.0 MacOS, built May  2 2026 12:00:00.',
+    '         See license for details.',
+];
+
+test('copyright_banner_line gives the recorder banner', () => {
+    assert.deepEqual([1, 2, 3, 4].map(copyright_banner_line), RECORDER_BANNER);
+    // version.c copyright_banner_line() returns "" for any other index.
+    assert.equal(copyright_banner_line(0), '');
+    assert.equal(copyright_banner_line(5), '');
+    // version_id_string() shares the port name and build date.
+    assert.equal(getversionstring(),
+        'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.');
+});
+
+test('the banner reads the recorder build\'s sources', () => {
+    // patch 001 pins date.c populate_nomakedefs()'s build date, and the Linux
+    // host profile gives a Linux recorder macOS's PORT_ID.
+    assert.ok(readFileSync('nethack-c/patches/001-deterministic-runtime.patch', 'utf8')
+        .includes(`: "${RECORDER_BUILD_DATE}");`));
+    assert.match(readFileSync('nethack-c/host-profiles/linux-macos-output.patch', 'utf8'),
+        /^\+#if defined\(__APPLE__\) \|\| defined\(__linux__\).*\n #define PORT_ID "MacOS"$/mu);
+    assert.ok(RECORDER_BANNER[2].includes(` MacOS, built ${RECORDER_BUILD_DATE}.`));
+    const patchlevel = readFileSync('nethack-c/upstream/include/patchlevel.h', 'utf8');
+    // COPYRIGHT_BANNER_A, B and D are string literals there.
+    for (const index of [0, 1, 3])
+        assert.ok(patchlevel.includes(`"${RECORDER_BANNER[index]}"`), RECORDER_BANNER[index]);
+});
+
+test('tty startup banner prints copyright_banner_line(1) to (4) from row 4', () => {
     const state = startupState();
     renderTtyStartupBanner(state);
 
-    assert.deepEqual(TTY_STARTUP_BANNER, [
-        'NetHack, Copyright 1985-2026',
-        '         By Stichting Mathematisch Centrum and M. Stephenson.',
-        '         Version 5.0.0 Unix, built May  2 2026 12:00:00.',
-        '         See license for details.',
-    ]);
     assert.equal(plainScreen(state), [
-        '', '', '', '', ...TTY_STARTUP_BANNER,
+        '', '', '', '', ...RECORDER_BANNER,
     ].join('\n'));
     assert.deepEqual(
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],

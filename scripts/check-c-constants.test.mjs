@@ -124,8 +124,10 @@ test('every js/ constant that names a C constant has its C value', async () => {
     // On constants-check (13 November 2026): 3 KNOWN_MISMATCHES entries; 91
     // js/ constants the check cannot compare, named after a C name that the
     // recorder's build leaves undefined (91) or that is not a constant (0);
-    // and 101 PORT_ONLY names.
-    const PINS = { known: 3, uncompared: 91, portOnly: 101 };
+    // and 101 PORT_ONLY names. wizkit-banner (13 November 2026) removed
+    // BUILD_TIME with const.js's stale build constants and added ENOENT and
+    // ENOTDIR for files.c fopen_wizkit_file(): 102.
+    const PINS = { known: 3, uncompared: 91, portOnly: 102 };
     assertExceptionCount(KNOWN_MISMATCHES.size, PINS.known, {
         what: 'KNOWN_MISMATCHES entries',
         pin: 'PINS.known in scripts/check-c-constants.test.mjs',

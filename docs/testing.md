@@ -160,6 +160,13 @@ and the two cannot drift apart. `#saveoptions` writes to the stored name,
 as the judge's recorder did; where that directory does not exist, its
 `fopen()` fails without a message.
 
+Patch 010 (`nethack-c/patches/010-shown-wizkit-home.patch`) does the same
+for the one other message that names a file under `HOME`. In debug mode,
+`fopen_wizkit_file()` in `src/files.c` falls back to `$HOME/<WIZKIT>` and,
+when that open fails with an error other than ENOENT, prints the name it
+tried. The patch prints that name with `$NETHACK_SHOWN_HOME` in place of
+`$HOME`; the open itself still uses the local `HOME`.
+
 The macOS measurement below predates patch 008, so its recordings show
 the temporary `HOME`. Re-run the macOS workflow after this change reaches
 `main` to measure the patch on macOS.

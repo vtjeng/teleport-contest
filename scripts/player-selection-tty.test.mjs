@@ -343,9 +343,11 @@ test('confirmation rename preserves facets and tty base-window position', async 
     assert.equal(captures.length, 7);
     assert.deepEqual(captures[2].cursor, [13, 10]);
     assert.equal(captures[2].rows[10], 'Who are you?');
+    // The banner's third line, copyright_banner_line(3), with PORT_ID
+    // "MacOS" as the recorder prints it, up to where this capture ends it.
     assert.equal(
         captures[2].rows[6],
-        '         Version 5.0.0 Unix, built May',
+        '         Version 5.0.0 MacOS, built May',
     );
     assert.equal(
         captures[6].rows[2].slice(41),

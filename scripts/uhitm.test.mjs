@@ -389,9 +389,12 @@ test('the natural pet-swap arrival replay pins the TTY handoff',
         // Since the "Shall I pick ..." question goes through
         // tty_yn_function(), six more blank cells on screen 10 store color 7
         // instead of 8; the judge-format screens still match the C recording.
+        // The startup banner's third line reads "MacOS", the recorder's
+        // PORT_ID, since copyright_banner_line() builds it; with "Unix" the
+        // digest was da303c8a...
         assert.equal(
             digest(replay.getScreens()),
-            'da303c8ac10aaa40d9c0989ac32d0a8cef40fc04e87197aef551b1799b528f0b',
+            '88b5dcb3e4598f565050738812861eb169c19f1990174c1fe4f4afd9bff59e44',
         );
         assert.equal(
             digest(replay.getCursors()),
