@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() with WIZKIT=.nethackrc in debug mode: access() fails in the playground, so C raw_printf()s \"Access to .nethackrc denied (2).\" and opens $HOME/.nethackrc, the config file the recorder wrote from this nethackrc. parse_conf_file() hands both statements to proc_wizkit_line(); readobjnam() rejects each, config_error_add() records \"Bad wizkit item\", and pline.c vpline() discards those messages and config_error_done()'s summary because program_state.wizkit_wishing is set. Its wait_synch() does not wait, since the earlier wait_synch() cleared rawprint, so the game starts with the role's inventory alone. Seed, date, Valkyrie and name chosen independently.",
+  "segments": [
+    {
+      "seed": 5517203,
+      "datetime": "20391204093000",
+      "nethackrc": "OPTIONS=name:Kitbag,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.nethackrc\n",
+      "moves": "      i    "
+    }
+  ]
+}

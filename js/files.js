@@ -3,8 +3,13 @@
 
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
-import { LFILE_EXISTS } from './const.js';
-import { bytesText, textBytes, mungspaces, lcase } from './hacklib.js';
+import {
+    BUFSZ, LFILE_EXISTS, MIGR_NOBREAK, MIGR_NOSCATTER, MIGR_WITH_HERO,
+} from './const.js';
+import { COIN_CLASS } from './objects.js';
+import {
+    bytesText, textBytes, mungspaces, lcase, truncateByteString,
+} from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
@@ -362,32 +367,130 @@ async function wizkit_raw_printf(state, message) {
 // directory; when it fails, C reports its errno and tries $HOME/<name>, and
 // reports any failure there other than ENOENT. The message names the
 // judge's HOME, which recorder patch 010 shows in place of the local
-// recorder's temporary one. The port opens no wizkit file: it cannot read
-// one that exists, nor decide a name that leaves the playground or HOME.
+// recorder's temporary one.
+//
+// Answers the text C's stream reads, or null where C returns NULL. A
+// directory opens for reading and its first fgets() fails, so it reads as
+// empty text. $HOME holds only the config file the recorder writes, whose
+// text the segment supplies. The port has no copy of any other playground
+// file's bytes, and cannot see a host directory outside the playground or
+// HOME, so those names stay a gap.
 async function fopen_wizkit_file(state) {
     const name = state.wizkit ?? '';
-    if (!name) return;
+    if (!name) return null;
     const target = resolvePlaygroundPath(name);
+    if (target.kind === 'directory') return '';
     if (target.kind !== 'absent') {
         note_unported('files.c fopen_wizkit_file');
-        return;
+        return null;
     }
     await wizkit_raw_printf(state, `Access to ${name} denied (${target.errno}).`);
     const { DEFAULT_CONFIGFILE, RECORDER_HOME } = await import('./cfgfiles.js');
     const home = resolveRecorderHomePath(name, DEFAULT_CONFIGFILE);
+    if (home.kind === 'file') return state.homeConfigText ?? '';
+    if (home.kind === 'directory') return '';
     if (home.kind !== 'absent') {
         note_unported('files.c fopen_wizkit_file');
-        return;
+        return null;
     }
     if (home.errno !== ENOENT) {
         await wizkit_raw_printf(state, "Couldn't open default gw.wizkit file "
             + `${RECORDER_HOME}/${name} (${home.errno}).`);
     }
+    return null;
 }
 
-// C ref: files.c read_wizkit() (2584-2601). No wizkit file opens in the
-// port, so parse_conf_file()'s wishes never run.
+// C ref: files.c wizkit_addinv() (2533-2556). Adds a wished-for object to
+// the hero's inventory, or, when every letter is taken and it would not
+// merge, schedules it to arrive with the hero on level 1 of the main
+// dungeon, which newgame()'s obj_delivery() then does.
+async function wizkit_addinv(obj, state) {
+    const { hands_obj, INVLET_BASIC, merge_choice, addinv_runtime }
+        = await import('./invent.js');
+    if (!obj || obj === hands_obj) return;
+
+    /* subset of starting inventory pre-ID */
+    const { observe_object } = await import('./o_init.js');
+    observe_object(obj, state);
+    const { PM_CLERIC } = await import('./monsters.js');
+    if (state.urole?.mnum === PM_CLERIC)
+        obj.bknown = 1; /* ok to bypass set_bknown() */
+    /* same criteria as lift_object()'s check for available inventory slot */
+    const { inv_cnt } = await import('./hack.js');
+    if (obj.oclass !== COIN_CLASS && inv_cnt(false, state) >= INVLET_BASIC
+        && !merge_choice(state.invent, obj, state)) {
+        /* inventory overflow; can't just place & stack object since
+           hero isn't in position yet, so schedule for arrival later */
+        const { add_to_migration_async } = await import('./obj.js');
+        await add_to_migration_async(obj, state);
+        obj.ox = 0; /* index of main dungeon */
+        obj.oy = 1; /* starting level number */
+        obj.owornmask = MIGR_WITH_HERO | MIGR_NOBREAK | MIGR_NOSCATTER;
+    } else {
+        await addinv_runtime(obj, { state });
+    }
+}
+
+// C ref: files.c proc_wizkit_line() (2558-2581). C's readobjnam() edits buf
+// in place: mungspaces() first, then cuts such as " named " write a NUL into
+// it. wish_history_add() therefore records the munged line up to the first
+// cut. readobjnam() here takes an immutable string, so the history gets the
+// whole munged line; only the m-prefixed wish menu shows the difference.
+export async function proc_wizkit_line(buf, state = game) {
+    let line = buf;
+    if (textBytes(line).length >= BUFSZ)
+        line = truncateByteString(line, BUFSZ - 1);
+    const { readobjnam } = await import('./objnam_readobjnam.js');
+    const { objectGenerationEnv } = await import('./object_generation.js');
+    const { y_n } = await import('./cmd.js');
+    const otmp = await readobjnam(
+        line, null, objectGenerationEnv({ state, askYesNo: y_n }),
+    );
+
+    if (otmp) {
+        const { hands_obj } = await import('./invent.js');
+        if (otmp !== hands_obj) {
+            const { wish_history_add } = await import('./zap.js');
+            wish_history_add(mungspaces(line), state);
+            await wizkit_addinv(otmp, state);
+        }
+    } else {
+        /* .60 limits output line width to 79 chars */
+        const { config_error_add } = await import('./cfgfiles.js');
+        config_error_add(state.configErrorFrame,
+            `Bad wizkit item: "${truncateByteString(line, 60)}"`);
+        return false;
+    }
+    return true;
+}
+
+// C ref: files.c read_wizkit() (2584-2601). program_state.wizkit_wishing
+// makes pline.c vpline() discard every message until it is cleared, so the
+// error frame's report is never shown; config_error_done()'s wait_synch()
+// still runs when a line failed. config_error_init() pushes the frame that
+// state.configErrorFrame names and config_error_done() pops it.
 export async function read_wizkit(state = game) {
     if (!state.wizard) return;
-    await fopen_wizkit_file(state);
+    const text = await fopen_wizkit_file(state);
+    if (text === null) return;
+
+    state.program_state ??= {};
+    state.program_state.wizkit_wishing = 1;
+    const {
+        config_error_done, config_error_init, parse_conf_file,
+    } = await import('./cfgfiles.js');
+    const outerFrame = state.configErrorFrame;
+    state.configErrorFrame = config_error_init(null, 'WIZKIT');
+
+    state.gc ??= {};
+    for (const { line } of parse_conf_file(text, state))
+        await proc_wizkit_line(line, state);
+
+    const errors = config_error_done(state.configErrorFrame, state);
+    if (errors) {
+        const { tty_wait_synch } = await import('./tty_rawprint.js');
+        await tty_wait_synch(state);
+    }
+    state.configErrorFrame = outerFrame;
+    state.program_state.wizkit_wishing = 0;
 }

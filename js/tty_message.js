@@ -406,6 +406,9 @@ async function ttyPlineCore(
 ) {
     // pline.c:vpline returns before putmesg for an empty format.
     if (!message) return false;
+    // pline.c vpline():172-173 discards every message while files.c
+    // read_wizkit() is wishing. tty_putmixed() does not pass through vpline().
+    if (viaVpline && state.program_state?.wizkit_wishing) return false;
     await emitQueuedNotices(state);
     // pline.c You() and its siblings write "prefix + format" into
     // gy.you_buf; vpline() prints a format without '%' from that buffer.

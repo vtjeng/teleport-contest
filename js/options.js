@@ -142,17 +142,16 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import {
-    choose_random_part,
     cnf_line_BOULDER,
     cnf_line_MENUCOLOR,
     cnf_line_WARNINGS,
     cnf_line_WIZKIT,
     config_error_add,
     config_error_init,
-    config_error_nextline,
-    free_config_sections,
+    find_optparam,
     get_configfile,
-    handle_config_section,
+    matchesConfigName,
+    parse_conf_file,
 } from './cfgfiles.js';
 import {
     count_menucolors,
@@ -174,7 +173,6 @@ import {
 import {
     bytesText,
     textBytes,
-    encodeUtf8Text,
     fuzzymatch,
     highc,
     letter,
@@ -302,7 +300,6 @@ import { game } from './gstate.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
-const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
 const OPTION_ELEMENT_BYTE_LIMIT = 256 / 2; // options.c: BUFSZ / 2
 const SET_WIZONLY = 5; // global.h enum optset_restrictions
 const SET_WIZNOFUZ = 6; // global.h enum optset_restrictions
@@ -863,95 +860,6 @@ function mungspaces(value) {
     }
     if (wasSpace && normalized) normalized = normalized.slice(0, -1);
     return normalized;
-}
-
-// C ref: cfgfiles.c:parse_conf_buf().  A physical line ending in a literal
-// backslash continues onto the next non-comment text with one separating
-// space.  Ignored lines without their own continuation terminate a pending
-// logical line, matching the parser's p->buf lifetime.
-//
-// This yields rather than returns a list, because parse_conf_file() alternates
-// between reading a line and handing a completed statement to its proc.  An
-// error the proc reports is stamped with the line and text the frame is
-// holding at that moment, and both move on the next physical line.
-function* logicalConfigLines(rc, frame) {
-    const input = encodeUtf8Text(rc);
-    let buffered = null;
-    let cursor = 0;
-    let skip = false;
-
-    while (cursor < input.length) {
-        const chunk = [];
-        while (cursor < input.length
-               && chunk.length < CONFIG_BUFFER_BYTE_CAPACITY - 1) {
-            const byte = input[cursor++];
-            chunk.push(byte);
-            if (byte === 0x0A) break;
-        }
-
-        let cLength = chunk.length;
-        let newline = -1;
-        for (let index = 0; index < chunk.length; ++index) {
-            if (chunk[index] === 0) {
-                cLength = index;
-                break;
-            }
-            if (chunk[index] === 0x0A) {
-                newline = index;
-                break;
-            }
-        }
-
-        if (skip) {
-            if (newline >= 0) skip = false;
-            continue;
-        }
-
-        if (newline < 0
-            && cLength >= CONFIG_BUFFER_BYTE_CAPACITY - 2) {
-            // parse_conf_buf() reports this non-fatally, then discards input
-            // through the next visible newline.  The error lands on whichever
-            // line config_error_nextline() last accepted, because this one
-            // never reaches it.
-            config_error_add(frame, 'Line too long, skipping');
-            skip = true;
-            continue;
-        }
-
-        let line = chunk.slice(0, newline >= 0 ? newline : cLength);
-        const continued = line.at(-1) === 0x5C;
-        if (continued) {
-            // parse_conf_buf() leaves its end pointer on the new NUL, so
-            // spaces before a continuation backslash remain in the buffer.
-            line.pop();
-        } else {
-            while ([0x20, 0x09, 0x0D].includes(line.at(-1))) line.pop();
-        }
-        // parse_conf_buf() reports the line to the error frame here, before
-        // the leading whitespace is stepped over, so a reported line keeps its
-        // indent.  A false answer abandons the rest of the file.
-        if (!config_error_nextline(frame, bytesText(line))) return;
-        const lineNumber = frame.line_num;
-        while (line[0] === 0x20 || line[0] === 0x09) line.shift();
-
-        const ignored = line.length === 0 || line[0] === 0x23;
-        const hadBuffered = buffered !== null;
-
-        if (!ignored) {
-            buffered = hadBuffered
-                ? [...buffered, 0x20, ...line]
-                : line;
-            if (buffered.length >= CONFIG_BUFFER_BYTE_CAPACITY)
-                buffered.length = CONFIG_BUFFER_BYTE_CAPACITY - 1;
-        }
-        if (continued || (ignored && !hadBuffered)) continue;
-
-        yield {
-            line: bytesText(buffered),
-            lineNumber,
-        };
-        buffered = null;
-    }
 }
 
 // C ref: options.c parseoptions() (543-556), which measures the name with
@@ -6664,17 +6572,6 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     wizkit: Object.freeze({ kind: 'wizkit' }),
 });
 
-function configDelimiter(line) {
-    const colon = line.indexOf(':');
-    const equals = line.indexOf('=');
-    if (colon >= 0 && equals >= 0) return Math.min(colon, equals);
-    return Math.max(colon, equals);
-}
-
-function matchesConfigName(name, canonical, minLength) {
-    return name.length >= minLength && canonical.startsWith(name);
-}
-
 function scanfAutopickupMapping(mapping, prefix) {
     const bytes = textBytes(mapping);
     let index = 0;
@@ -6868,47 +6765,21 @@ export function parseNethackrc(rc, random = rn2) {
 
     // cfgfiles.c keeps section selection in instance_globals_c.  The parser
     // result carries that same state through the source-owned helpers rather
-    // than keeping a second local representation here.
-    free_config_sections(result);
-    const lines = logicalConfigLines(rc, result.configErrorFrame);
-    for (const configLine of lines) {
+    // than keeping a second local representation here.  parse_conf_file()
+    // yields every statement it hands to parse_config_line().
+    for (const configLine of parse_conf_file(rc, result, random)) {
         const { lineNumber } = configLine;
-        // parse_conf_buf() calls handle_config_section() on every logical
-        // line. is_config_section() applies trimspaces() before checking for
-        // '[', so that outer padding is removed even from CHOOSE and OPTIONS.
-        // parse_config_line() then normalizes a separate copy with mungspaces().
+        // parse_config_line() normalizes a separate copy of p->buf with
+        // mungspaces(); is_config_section() has already trimmed outer
+        // padding from its own copy.
         const paddingTrimmedLine = trimspaces(configLine.line);
         const mungedLine = mungspaces(paddingTrimmedLine);
         if (!mungedLine || mungedLine.startsWith('#')) continue;
 
-        // parse_conf_buf() calls handle_config_section() before CHOOSE and
-        // before the regular config statement handler.  It returns true for a
-        // header and for every statement gated out by a non-selected section.
-        if (handle_config_section(paddingTrimmedLine, result)) continue;
-
-        const delimiter = configDelimiter(mungedLine);
+        const delimiter = find_optparam(mungedLine);
         const statementNameText = delimiter >= 0
             ? mungedLine.slice(0, delimiter) : mungedLine;
         const statementName = lcase(mungspaces(statementNameText));
-        if (matchesConfigName(statementName, 'choose', 6)) {
-            // cfgfiles.c parse_conf_buf():1775-1798.  Both arms report and
-            // leave gc.config_section_chosen null, which is what makes every
-            // later section header the "without CHOOSE" case above.
-            if (delimiter < 0) {
-                configErrorAdd(
-                    result, 'Format is CHOOSE=section1,section2,...',
-                );
-                continue;
-            }
-            result.gc.config_section_chosen = null;
-            const rawDelimiter = configDelimiter(paddingTrimmedLine);
-            result.gc.config_section_chosen = choose_random_part(
-                paddingTrimmedLine.slice(rawDelimiter + 1), ',', random,
-            );
-            if (result.gc.config_section_chosen == null)
-                configErrorAdd(result, 'No config section to choose');
-            continue;
-        }
         if (delimiter < 0) {
             // cfgfiles.c parse_config_line():1412-1416.  Its
             // ignore_statement_errors guard belongs to
@@ -6935,7 +6806,7 @@ export function parseNethackrc(rc, random = rn2) {
         }
 
         const rawValue = statement.kind === 'options'
-            ? paddingTrimmedLine.slice(configDelimiter(paddingTrimmedLine) + 1)
+            ? paddingTrimmedLine.slice(find_optparam(paddingTrimmedLine) + 1)
             : mungedLine.slice(delimiter + 1);
         if (statement.kind === 'options') {
             const options = rawValue.split(',');
@@ -7052,7 +6923,6 @@ export function parseNethackrc(rc, random = rn2) {
         applyDirectOption(result, statement.directName, normalizedValue);
     }
 
-    free_config_sections(result);
     if (glyphid_cache_status(result)) free_glyphid_cache(result);
     return result;
 }

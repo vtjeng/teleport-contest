@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cfgfiles.c parse_conf_file() sections in a wizkit file: WIZKIT=.nethackrc rereads a CHOOSE=first,second line, so choose_random_part() draws rn2(2) once in initoptions() and again in read_wizkit(); only the chosen section's item line reaches proc_wizkit_line(), and \"[]\" ends the sections. Seed, date, Samurai and items chosen independently.",
+  "segments": [
+    {
+      "seed": 7730514,
+      "datetime": "20441019060500",
+      "nethackrc": "OPTIONS=name:Chooser,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.nethackrc\nCHOOSE=first,second\n[first]\n3 cream pies\n[second]\nblessed +1 elven mithril-coat\n[]\n",
+      "moves": "\n     i    "
+    }
+  ]
+}

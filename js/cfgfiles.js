@@ -5,6 +5,10 @@
 
 import { game } from './gstate.js';
 import {
+    bytesText,
+    encodeUtf8Text,
+    lcase,
+    mungspaces,
     textBytes,
     trimspaces,
     truncateByteString,
@@ -228,21 +232,21 @@ export function handle_config_section(buf, state = game) {
 }
 
 // C ref: cfgfiles.c struct _config_error_frame (1455-1464) and
-// config_error_init().  Its other two arguments distinguish frames this port
-// cannot open: `secure` is CONFIG_ERROR_SECURE, which rcfile() (1943) passes
-// only for a configuration file named on the command line or in
-// NETHACKOPTIONS, and `sourcename` names that file or "command line".  A
-// segment supplies its configuration as text and nothing else
-// (js/jsmain.js runSegment()), so every frame is the default ~/.nethackrc one,
-// with a null source and secure clear.
+// config_error_init().  `secure` is CONFIG_ERROR_SECURE, which rcfile()
+// (1943) passes only for a configuration file named on the command line or
+// in NETHACKOPTIONS; a segment supplies its configuration as text and nothing
+// else (js/jsmain.js runSegment()), so secure is always clear.  `sourcename`
+// is empty for the default ~/.nethackrc frame and "WIZKIT" for
+// files.c read_wizkit()'s; C copies at most BUFSZ - 1 bytes of it.
 //
 // C prints each error the moment config_error_add() receives it. pline() is
 // raw_print() this early because iflags.window_inited is still false
 // (pline.c:239). startupEvents preserves that source order when another rc
 // handler waits before config_error_done(); output remains the complete error
 // report used by parser callers and focused tests.
-export function config_error_init(startupEvents = []) {
+export function config_error_init(startupEvents = [], sourcename = '') {
     return {
+        source: truncateByteString(sourcename ?? '', BUFSZ - 1),
         line_num: 0,
         num_errors: 0,
         origline_shown: false,
@@ -293,8 +297,8 @@ export function config_error_add(frame, str) {
 
 // C ref: cfgfiles.c config_error_done().  Returns the error count; a caller
 // that gets a nonzero one owes the wait_synch() that follows the summary in C,
-// which js/jsmain.js supplies.  The "on" wording belongs to the command-line
-// source the paragraph above rules out.  USER_SOUNDS is undefined for this
+// which js/jsmain.js and files.js read_wizkit() supply.  The "on" wording
+// belongs to the command-line source config_error_init() rules out.  USER_SOUNDS is undefined for this
 // build, but gn.no_sound_notified stays zero unless a SOUND or SOUNDDIR
 // statement is read, and js/options.js dispatches neither.
 export function config_error_done(frame, state = game) {
@@ -303,10 +307,168 @@ export function config_error_done(frame, state = game) {
         // hacklib.h plur(x): "" for one, "s" otherwise.
         appendConfigOutput(
             frame,
-            `\n${n} error${n === 1 ? '' : 's'} in ${get_configfile(state)}.\n`,
+            `\n${n} error${n === 1 ? '' : 's'} in ${
+                frame.source || get_configfile(state)}.\n`,
         );
     }
     return n;
+}
+
+const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
+
+// C ref: cfgfiles.c find_optparam() (587-598): the first '=' or, when it
+// comes earlier, the first ':'.  Answers its index, or -1 for C's NULL.
+export function find_optparam(line) {
+    const colon = line.indexOf(':');
+    const equals = line.indexOf('=');
+    if (colon >= 0 && equals >= 0) return Math.min(colon, equals);
+    return Math.max(colon, equals);
+}
+
+// C ref: cfgfiles.c match_varname(), options.c match_optname() with
+// is_alias TRUE, applied to a lower-cased statement name.
+export function matchesConfigName(name, canonical, minLength) {
+    return name.length >= minLength && canonical.startsWith(name);
+}
+
+// C ref: cfgfiles.c:parse_conf_buf().  A physical line ending in a literal
+// backslash continues onto the next non-comment text with one separating
+// space.  Ignored lines without their own continuation terminate a pending
+// logical line, matching the parser's p->buf lifetime.
+//
+// This yields rather than returns a list, because parse_conf_file() alternates
+// between reading a line and handing a completed statement to its proc.  An
+// error the proc reports is stamped with the line and text the frame is
+// holding at that moment, and both move on the next physical line.
+function* logicalConfigLines(rc, frame) {
+    const input = encodeUtf8Text(rc);
+    let buffered = null;
+    let cursor = 0;
+    let skip = false;
+
+    while (cursor < input.length) {
+        const chunk = [];
+        while (cursor < input.length
+               && chunk.length < CONFIG_BUFFER_BYTE_CAPACITY - 1) {
+            const byte = input[cursor++];
+            chunk.push(byte);
+            if (byte === 0x0A) break;
+        }
+
+        let cLength = chunk.length;
+        let newline = -1;
+        for (let index = 0; index < chunk.length; ++index) {
+            if (chunk[index] === 0) {
+                cLength = index;
+                break;
+            }
+            if (chunk[index] === 0x0A) {
+                newline = index;
+                break;
+            }
+        }
+
+        if (skip) {
+            if (newline >= 0) skip = false;
+            continue;
+        }
+
+        if (newline < 0
+            && cLength >= CONFIG_BUFFER_BYTE_CAPACITY - 2) {
+            // parse_conf_buf() reports this non-fatally, then discards input
+            // through the next visible newline.  The error lands on whichever
+            // line config_error_nextline() last accepted, because this one
+            // never reaches it.
+            config_error_add(frame, 'Line too long, skipping');
+            skip = true;
+            continue;
+        }
+
+        let line = chunk.slice(0, newline >= 0 ? newline : cLength);
+        const continued = line.at(-1) === 0x5C;
+        if (continued) {
+            // parse_conf_buf() leaves its end pointer on the new NUL, so
+            // spaces before a continuation backslash remain in the buffer.
+            line.pop();
+        } else {
+            while ([0x20, 0x09, 0x0D].includes(line.at(-1))) line.pop();
+        }
+        // parse_conf_buf() reports the line to the error frame here, before
+        // the leading whitespace is stepped over, so a reported line keeps its
+        // indent.  A false answer abandons the rest of the file.
+        if (!config_error_nextline(frame, bytesText(line))) return;
+        const lineNumber = frame.line_num;
+        while (line[0] === 0x20 || line[0] === 0x09) line.shift();
+
+        const ignored = line.length === 0 || line[0] === 0x23;
+        const hadBuffered = buffered !== null;
+
+        if (!ignored) {
+            buffered = hadBuffered
+                ? [...buffered, 0x20, ...line]
+                : line;
+            if (buffered.length >= CONFIG_BUFFER_BYTE_CAPACITY)
+                buffered.length = CONFIG_BUFFER_BYTE_CAPACITY - 1;
+        }
+        if (continued || (ignored && !hadBuffered)) continue;
+
+        yield {
+            line: bytesText(buffered),
+            lineNumber,
+        };
+        buffered = null;
+    }
+}
+
+// C ref: cfgfiles.c parse_conf_file() (1844-1861) and the statement half of
+// parse_conf_buf() (1767-1806).  C calls proc for each statement that is not
+// a section header, a line of a section CHOOSE did not pick, or a CHOOSE
+// line; this generator yields each such statement to the caller's loop
+// instead, so that read_config_file()'s parse_config_line(), which never
+// waits, and files.c read_wizkit()'s proc_wizkit_line(), which does, share
+// it.  `state.gc` holds C's gc.config_section_* and `state.configErrorFrame`
+// the frame config_error_init() pushed.  Each yielded value is the statement
+// text and the physical line number it ended on.  free_config_sections() runs
+// before the first line and after the last, as in C.
+export function* parse_conf_file(rc, state = game, random = rn2) {
+    const frame = state.configErrorFrame;
+    free_config_sections(state);
+    try {
+        for (const configLine of logicalConfigLines(rc, frame)) {
+            // handle_config_section() receives p->buf; is_config_section()
+            // applies trimspaces() before checking for '['.
+            if (handle_config_section(configLine.line, state)) continue;
+
+            const paddingTrimmedLine = trimspaces(configLine.line);
+            const mungedLine = mungspaces(paddingTrimmedLine);
+            const delimiter = find_optparam(mungedLine);
+            const statementNameText = delimiter >= 0
+                ? mungedLine.slice(0, delimiter) : mungedLine;
+            const statementName = lcase(mungspaces(statementNameText));
+            if (matchesConfigName(statementName, 'choose', 6)) {
+                // cfgfiles.c parse_conf_buf():1775-1798.  Both error arms
+                // leave gc.config_section_chosen null, which is what makes
+                // every later section header the "without CHOOSE" case.
+                if (delimiter < 0) {
+                    config_error_add(
+                        frame, 'Format is CHOOSE=section1,section2,...',
+                    );
+                    continue;
+                }
+                state.gc.config_section_chosen = null;
+                const rawDelimiter = find_optparam(paddingTrimmedLine);
+                state.gc.config_section_chosen = choose_random_part(
+                    paddingTrimmedLine.slice(rawDelimiter + 1), ',', random,
+                );
+                if (state.gc.config_section_chosen == null)
+                    config_error_add(frame, 'No config section to choose');
+                continue;
+            }
+            yield configLine;
+        }
+    } finally {
+        free_config_sections(state);
+    }
 }
 
 // C ref: cfgfiles.c get_uchars(). The caller supplies a byte array because the

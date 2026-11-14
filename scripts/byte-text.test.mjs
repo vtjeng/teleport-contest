@@ -45,13 +45,13 @@ test('only hacklib.js encodes and only tty_rawprint.js decodes UTF-8', () => {
 
 test('encodeUtf8Text() has only its three callers', () => {
     // hacklib.js: its definition, utf8Text() and textBytes()'s
-    // recorded fallback for decoded text. options.js:
+    // recorded fallback for decoded text. cfgfiles.js:
     // logicalConfigLines() reads the nethackrc as the recorder writes it.
     // wizcmds.js: wizcustom_callback() prints a glyph's UTF-8 bytes.
     assert.deepEqual(countsMatching(/\bencodeUtf8Text\(/gu), {
-        'hacklib.js': 3, 'options.js': 1, 'wizcmds.js': 1,
+        'cfgfiles.js': 1, 'hacklib.js': 3, 'wizcmds.js': 1,
     });
-    assert.match(sources['options.js'], /const input = encodeUtf8Text\(rc\);/u);
+    assert.match(sources['cfgfiles.js'], /const input = encodeUtf8Text\(rc\);/u);
 });
 
 test('no file builds a code point from a byte', () => {
