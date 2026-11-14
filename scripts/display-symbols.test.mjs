@@ -2155,11 +2155,13 @@ test('newsym re-asserts a remembered marker instead of the floor under it',
     assert.equal(location.disp_ch, 'I');
 
     // The same square out of sight draws its memory, which is still the
-    // marker: newsym()'s unsighted arm resolves the remembered number.
+    // marker: newsym()'s unsighted arm resolves the remembered number. The
+    // glyph is unchanged, so display.c show_glyph() leaves the buffered
+    // entry, and the screen, as they were; drawing the floor would change it.
     state.viz_array[y][x] = 0;
-    location.disp_ch = null;
     newsym(x, y);
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
+    assert.equal(location.disp_glyph.glyph, GLYPH_INVISIBLE);
     assert.equal(location.disp_ch, 'I');
 });
 
@@ -7009,7 +7011,11 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: null,
-            color: CLR_BRIGHT_BLUE,
+            // wintty.c tty_print_glyph() prints an RGB customcolor through
+            // term_start_extracolor(), so the recorder's cell keeps the
+            // default colour (recordings/wintty.c/
+            // rgb-customcolor-map-glyph-default-foreground).
+            color: NO_COLOR,
             dec: false,
             displayCh: '⌠',
             // dat/symbols configures the concrete fountain as 0-150-255.
@@ -7035,7 +7041,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: '{',
-            color: CLR_BRIGHT_BLUE,
+            color: NO_COLOR, // The RGB customcolor, as above.
             dec: false,
             rgb: [0, 150, 255],
             displayColor: 'rgb(0, 150, 255)',

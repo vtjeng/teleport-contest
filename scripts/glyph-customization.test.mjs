@@ -63,7 +63,7 @@ import {
     SYM_OFF_W,
     SYM_OFF_X,
 } from '../js/symbol_data.js';
-import { CLR_BRIGHT_BLUE } from '../js/terminal.js';
+import { NO_COLOR } from '../js/terminal.js';
 import { extractSymbolLayout } from './generate-symbol-data.mjs';
 import {
     loadStartupGlyphCustomizationRecipe,
@@ -730,7 +730,11 @@ test('map presentation exposes browser Unicode/RGB but preserves NOMUX limits', 
     const fountain = sourceGlyphNumber('G_fountain');
     const shown = map_glyphinfo(fountain, state);
     assert.equal(shown.ch, null, 'NOMUX does not mirror g_pututf8()');
-    assert.equal(shown.color, CLR_BRIGHT_BLUE, 'true RGB is not mirrored by NOMUX');
+    // wintty.c tty_print_glyph() prints true RGB with term_start_extracolor()
+    // instead of term_start_color(), the only colour call NOMUX hooks, so the
+    // captured cell keeps the default colour (recordings/wintty.c/
+    // rgb-customcolor-map-glyph-default-foreground), not the fountain's blue.
+    assert.equal(shown.color, NO_COLOR, 'true RGB is not mirrored by NOMUX');
     assert.equal(shown.displayCh, '⌠');
     assert.deepEqual(shown.rgb, [0, 150, 255]);
 });
