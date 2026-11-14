@@ -22,6 +22,7 @@ import {
     dunlevs_in_dungeon,
     find_level,
     free_exclusions,
+    init_dungeons,
     init_mapseen,
     insert_branch,
     level_difficulty,
@@ -743,6 +744,12 @@ async function makelevel(specialLevelLoader = null) {
         // mklev.c:1414-1420 fills every special room before the themed hook.
         themerooms_post_level_generate(g);
     };
+    // C tests wiz1_level.dlevel == 0; before init_dungeons() the JS
+    // state has no wiz1_level at all.
+    if (!g.wiz1_level?.dlevel) {
+        await impossible('makelevel() called when dungeon not yet initialized.', g);
+        init_dungeons(g);
+    }
     oinit();
     clear_level_structures();
 
@@ -1730,6 +1737,7 @@ function create_corridor(c, state = game) {
     if (c.src.wall === W_ANY || c.src.wall === W_RANDOM
         || c.dest.wall === W_ANY || c.dest.wall === W_RANDOM) {
         // C: impossible("create_corridor to/from a random wall");
+        note_unported('pline.c impossible');
         return;
     }
     const org = search_door(state.level.rooms[c.src.room], c.src.wall,
@@ -1959,6 +1967,7 @@ export function get_mkroom_name(rtype) {
             return name;
 
     // C: impossible("get_mkroom_name unknown rtype %d", rtype);
+    note_unported('pline.c impossible');
     return 'unknown'; /* not NULL */
 }
 
@@ -3779,6 +3788,7 @@ export function lspo_feature(args, env) {
 
     if (typ === STONE) {
         // C: impossible("feature has unknown type param.");
+        note_unported('pline.c impossible');
     } else {
         sel_set_feature(x, y, typ, state);
     }
@@ -4353,7 +4363,10 @@ export function lspo_region(args, env) {
     room_not_needed = (rtype === OROOM && !irregular
                        && !do_arrival_room && !state.in_mk_themerooms);
     if (room_not_needed || state.level.nroom >= MAXNROFROOMS) {
-        // C: if (!room_not_needed) impossible("Too many rooms on new level!");
+        if (!room_not_needed) {
+            // C: impossible("Too many rooms on new level!");
+            note_unported('pline.c impossible');
+        }
         light_region({
             rlit, x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2,
         }, state);
@@ -4395,6 +4408,7 @@ export function lspo_region(args, env) {
     if (!room_not_needed) {
         if (coder.n_subroom > 1) {
             // C: impossible("region as subroom");
+            note_unported('pline.c impossible');
         } else {
             coder.tmproomlist[coder.n_subroom] = troom;
             coder.failed_room[coder.n_subroom] = false;
@@ -4448,6 +4462,7 @@ export function lspo_drawbridge(args, env) {
         db_open = rn2(2) ? 0 : 1;
     if (!create_drawbridge(c.x, c.y, dir, Boolean(db_open), state)) {
         // C: impossible("Cannot create drawbridge.");
+        note_unported('pline.c impossible');
     }
     frame.splevMap[c.x][c.y] = 1;
 }
@@ -4510,7 +4525,7 @@ export async function lspo_mazewalk(args, env) {
         --x;
         break;
     default:
-        // C: impossible("mazewalk: Bad direction");
+        await impossible('mazewalk: Bad direction', state);
         break;
     }
 
@@ -6891,6 +6906,8 @@ function create_vault() {
 // C ref: mklev.c add_room()
 function add_room(lowx, lowy, hix, hiy, lit, rtype, special) {
     const g = game;
+    if (g.level.nroom >= MAXNROFROOMS)
+        throw new Error('level has too many rooms');
     const croom = {
         roomnoidx: g.level.nroom,
         needfill: 0,
@@ -7193,7 +7210,10 @@ function finddpos(cc, dir, aroom) {
     case DIR_S: x1 = aroom.lx; x2 = aroom.hx; y1 = y2 = aroom.hy + 1; break;
     case DIR_W: x1 = x2 = aroom.lx - 1; y1 = aroom.ly; y2 = aroom.hy; break;
     case DIR_E: x1 = x2 = aroom.hx + 1; y1 = aroom.ly; y2 = aroom.hy; break;
-    default: return false;
+    default:
+        // C: impossible("finddpos: illegal dir");
+        note_unported('pline.c impossible');
+        return false;
     }
     let tryct = 0;
     let x, y;
@@ -8119,6 +8139,9 @@ function extend_spine(locale, wall_there, dx, dy) {
     return 1;
 }
 function wall_cleanup(x1, y1, x2, y2, state = game) {
+    /* sanity check on incoming variables */
+    if (x1 < 0 || x2 >= COLNO || x1 > x2 || y1 < 0 || y2 >= ROWNO || y1 > y2)
+        throw new Error(`wall_cleanup: bad bounds (${x1},${y1}) to (${x2},${y2})`);
     const map = state.level;
     if (!map) return;
     for (let x = x1; x <= x2; x++)
@@ -8144,6 +8167,9 @@ export function fix_wall_spines(x1, y1, x2, y2, state = game) {
         VWALL, TRCORNER, TLCORNER, TDWALL,
         VWALL, BRCORNER, BLCORNER, TUWALL,
         VWALL, TLWALL, TRWALL, CROSSWALL];
+    /* sanity check on incoming variables */
+    if (x1 < 0 || x2 >= COLNO || x1 > x2 || y1 < 0 || y2 >= ROWNO || y1 > y2)
+        throw new Error(`wall_extends: bad bounds (${x1},${y1}) to (${x2},${y2})`);
     const map = state.level;
     if (!map) return;
     for (let x = x1; x <= x2; x++)
@@ -8284,7 +8310,12 @@ export function populateSupplyChest(position, env) {
         }
         cursed = obj.cursed;
         add_to_container(chest, obj, env);
-        if (++tries === 50) break;
+        if (++tries === 50) {
+            // C (mklev.c fill_ordinary_room()):
+            // impossible("couldn't generate supply chest item");
+            note_unported('pline.c impossible');
+            break;
+        }
     } while (cursed || !random(5));
 
     if (random(3)) {
@@ -8432,7 +8463,11 @@ export function fill_ordinary_room(croom, bonusItems) {
         );
         tryCount = 0;
         while (!rn2(5)) {
-            if (++tryCount > 100) break;
+            if (++tryCount > 100) {
+                // C: impossible("trycnt overflow4");
+                note_unported('pline.c impossible');
+                break;
+            }
             if (somexyspace(croom, position, { state })) {
                 mkobj_at(
                     RANDOM_CLASS,
@@ -8458,7 +8493,11 @@ export function fill_ordinary_room(croom, bonusItems) {
     const finishSubrooms = (index) => {
         for (let current = index; current < subroomCount; ++current) {
             const subroom = subrooms[current];
-            if (!subroom) return;
+            if (!subroom) {
+                // C: impossible("fill_ordinary_room: Null subroom");
+                note_unported('pline.c impossible');
+                return;
+            }
             const maybeChild = fill_ordinary_room(subroom, false);
             if (maybeChild && typeof maybeChild.then === 'function') {
                 return maybeChild.then(() => finishSubrooms(current + 1));

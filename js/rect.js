@@ -6,6 +6,7 @@
 import { game } from './gstate.js';
 import { COLNO, ROWNO } from './const.js';
 import { rn2 } from './rng.js';
+import { note_unported } from './unported.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -106,7 +107,8 @@ export function remove_rect(r) {
 // C ref: rect.c:160 add_rect()
 export function add_rect(r) {
     if (game.rect_cnt >= game.n_rects) {
-        // impossible("n_rects may be too small.")
+        // C: impossible("n_rects may be too small.");
+        note_unported('pline.c impossible');
         return;
     }
     if (get_rect(r))

@@ -1848,6 +1848,12 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
+    "js/mklev.js | add_room | 'level has too many rooms'": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/mklev.c:311",
+      "reason": "C panic(\"level has too many rooms\"); synchronous level creation."
+    },
     "js/mklev.js | add_subroom | 'level has too many subrooms'": {
       "count": 1,
       "class": "panic",
@@ -1883,6 +1889,12 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
+    },
+    "js/mklev.js | fix_wall_spines | `wall_extends: bad bounds (${x1},${y1}) to (${x2},${y2})`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/mkmaze.c:250",
+      "reason": "C fix_wall_spines() panics on bounds outside the map; synchronous level creation."
     },
     "js/mklev.js | get_coord | 'non-table coord specified'": {
       "count": 1,
@@ -2099,6 +2111,12 @@
       "class": "panic",
       "c": "src/sp_lev.c:2526",
       "reason": "C panic(\"search_door: Bad wall!\"); synchronous level creation."
+    },
+    "js/mklev.js | wall_cleanup | `wall_cleanup: bad bounds (${x1},${y1}) to (${x2},${y2})`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/mkmaze.c:206",
+      "reason": "C wall_cleanup() panics on bounds outside the map; synchronous level creation."
     },
     "js/mkmaze.js | mazeStep | `mz_move: bad direction ${direction}`": {
       "count": 1,
@@ -3425,6 +3443,12 @@
       "class": "invariant",
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
+    },
+    "js/sp_lev_object.js | constructObject | 'create_object: unexpected object class ' + `'${specificatio": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sp_lev.c:2221",
+      "reason": "C create_object() panics on a class character that names no object class; synchronous object creation."
     },
     "js/sp_lev_object.js | normalizeSpecification | 'special-level object contents must be a function'": {
       "count": 1,

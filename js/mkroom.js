@@ -589,7 +589,16 @@ function mkshop(state, random) {
             break;
         }
     }
-    if (!sroom) return;
+    if (!sroom) {
+        // C's scan reaches rooms[nroom], which add_room() closes with
+        // hx == -1; the port may leave that slot empty instead.
+        const terminator = state.level.rooms[state.level.nroom];
+        if (terminator && terminator.hx >= 0) {
+            // C: impossible("rooms[] not closed by -1?");
+            note_unported('pline.c impossible');
+        }
+        return;
+    }
 
     // A dark shop is lit, along with the one-cell border that holds its walls
     // and its door, so the hero sees the stock from the doorway.

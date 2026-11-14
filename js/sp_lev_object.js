@@ -53,6 +53,7 @@ import {
     CORPSE,
     EGG,
     FIGURINE,
+    MAXOCLASSES,
     RANDOM_CLASS,
     SADDLE,
     SPE_NOVEL,
@@ -183,6 +184,9 @@ function normalizeSpecification(specification, context, state) {
         ...specification,
         id: id > STRANGE_OBJECT ? id : null,
         class: objectClass > -1 ? objectClass : null,
+        // C keeps the class character until create_object() converts it.
+        classChar: typeof specification.class === 'string'
+            ? specification.class : null,
         spe: signedShort(normalizedSpe(nonpmobj ? { ...specification, id } : specification, nonpmobj)),
         buc: get_table_buc(specification),
         corpsenm: nonpmobj ? NON_PM : (specification.corpsenm ?? NON_PM),
@@ -285,6 +289,10 @@ function constructObject(specification, coordinate, env) {
         );
     }
     const objectClass = specification.class ?? RANDOM_CLASS;
+    if (objectClass === MAXOCLASSES) {
+        throw new Error('create_object:  unexpected object class '
+            + `'${specification.classChar}'`);
+    }
     if (objectClass === COIN_CLASS) {
         return mkgold(0, coordinate.x, coordinate.y, env);
     }

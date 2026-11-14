@@ -170,6 +170,7 @@ import {
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
+    PM_WIZARD_OF_YENDOR,
     PM_WOOD_NYMPH,
     PM_SALAMANDER,
     S_EEL,
@@ -645,6 +646,13 @@ function createMonsterBody(m, croom, env) {
             || (ismnum(mtmp.cham) && m.appear === M_AP_MONSTER))
         && !Protection_from_shape_changers(state.u)) {
         switch (m.appear) {
+        case M_AP_NOTHING:
+            impossible(
+                `create_monster: mon has an appearance, "${m.appear_as}", but no type`,
+                env,
+            );
+            break;
+
         case M_AP_FURNITURE: {
             // C: scan defsyms[] for the exact furniture explanation. The
             // generated cmap explanation table has the same MAXPCHARS order.
@@ -719,8 +727,13 @@ function createMonsterBody(m, croom, env) {
                 else mndx = form.value;
             }
             if (!ismnum(mndx)) {
-                const kind = mtmp.cham === PM_CHAMELEON
-                    ? 'chameleon shape' : 'mimic appearance';
+                const kind = (mtmp.data.mlet === S_MIMIC)
+                    ? 'mimic appearance'
+                    : (mtmp.data === state.mons[PM_WIZARD_OF_YENDOR])
+                        ? 'Wizard appearance'
+                        : is_vampshifter(mtmp)
+                            ? 'vampire shape'
+                            : 'chameleon shape';
                 impossible(`create_monster: invalid ${kind} ("${m.appear_as}")`, env);
             } else if (state.mons[mndx] === mtmp.data) {
                 mtmp.m_ap_type = M_AP_NOTHING;
@@ -749,7 +762,10 @@ function createMonsterBody(m, croom, env) {
             break;
         }
         default:
-            // M_AP_NOTHING has no appearance to install.
+            impossible(
+                `create_monster: unimplemented mon appear type [${m.appear},"${m.appear_as}"]`,
+                env,
+            );
             break;
         }
         if (does_block(x, y, state.level.at(x, y), state))
