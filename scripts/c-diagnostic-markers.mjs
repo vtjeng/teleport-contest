@@ -19,9 +19,11 @@
 //
 // JS side: the functions named like the C function, or like it with a
 // `_steps` suffix, in a js/ file named for the C file (`hack.js`,
-// `hack_*.js`), or in any file when none there has the name. Each
-// note_unported() call in such a function, nested functions included, whose
-// label starts with 'pline.c impossible' or 'end.c panic' is a marker.
+// `hack_*.js`), or in any file when none there has the name; and, in any
+// file, a helper named for part of it, such as obfree_shop_bill() for
+// obfree(), unless that name is a C function too. Each note_unported() call
+// in such a function, nested functions included, whose label starts with
+// 'pline.c impossible' or 'end.c panic' is a marker.
 //
 // A C function's deficit is its missing calls, less those that a listed
 // panic throw stands for, less its markers; it is counted only when js/ has
@@ -44,6 +46,7 @@ import {
     longestFragment,
     tokenizeMessageSources,
 } from './c-message-coverage.mjs';
+import { functionOwners } from './c-functions.mjs';
 import { messageExemption } from './c-message-exemptions.mjs';
 import { PROJECT_ROOT, requireCompiler } from './recorder-headers.mjs';
 
@@ -119,11 +122,15 @@ export function readJsFunctions(jsDir = JS_DIR) {
 }
 
 // The JS functions that port C function `name` of C file `cFile`.
-function portsOf(cFile, name, byName) {
+// `cNames` holds every C function name.
+function portsOf(cFile, name, byName, cNames) {
     const all = [...(byName.get(name) ?? []), ...(byName.get(`${name}_steps`) ?? [])];
     const stem = cFile.split('/').pop().replace(/\.c$/u, '');
     const own = all.filter((f) => f.file === `${stem}.js` || f.file.startsWith(`${stem}_`));
-    return own.length > 0 ? own : all;
+    if (all.length === 0) return [];
+    const helpers = [...byName].filter(([js]) => js.startsWith(`${name}_`)
+        && js !== `${name}_steps` && !cNames.has(js)).flatMap(([, fns]) => fns);
+    return [...(own.length > 0 ? own : all), ...helpers];
 }
 
 // The C lines that a listed panic throw stands for, as 'src/x.c:123'.
@@ -134,7 +141,7 @@ export function panicThrowLines(list) {
 
 // Each ported C function with a deficit, as { key, file, function, missing,
 // markers, deficit, js, lines }; `key` is '<C path> <function>'.
-export function diagnosticDeficits(sites, jsFunctions, thrownPanics) {
+export function diagnosticDeficits(sites, jsFunctions, thrownPanics, cNames = new Set()) {
     const byName = new Map();
     for (const f of jsFunctions) {
         if (!byName.has(f.name)) byName.set(f.name, []);
@@ -150,7 +157,7 @@ export function diagnosticDeficits(sites, jsFunctions, thrownPanics) {
     }
     const deficits = [];
     for (const group of groups.values()) {
-        const ports = portsOf(group.file, group.function, byName);
+        const ports = portsOf(group.file, group.function, byName, cNames);
         if (ports.length === 0) continue;
         const markers = ports.reduce((n, f) => n + f.markers, 0);
         const deficit = group.lines.length - markers;
@@ -165,7 +172,8 @@ export async function scanDeficits({ compiler, jobs = 2 } = {}) {
     const sources = await tokenizeMessageSources({ compiler, jobs });
     const sites = cDiagnosticSites(sources, collectJsStrings());
     const list = JSON.parse(readFileSync(join(PROJECT_ROOT, 'scripts', 'throw-site-list.json'), 'utf8'));
-    return { sites, deficits: diagnosticDeficits(sites, readJsFunctions(), panicThrowLines(list)) };
+    const cNames = new Set(functionOwners().keys());
+    return { sites, deficits: diagnosticDeficits(sites, readJsFunctions(), panicThrowLines(list), cNames) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

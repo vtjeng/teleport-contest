@@ -23,8 +23,10 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // 735 under 729 keys: 516 invariant, 87 guard, 86 panic, 44 lua-error and
 // 2 unported. js/hacklib.js bytesText() added one invariant. Porting the
 // sanity_check() family replaced three panic throws (mon.c:84 and the two
-// mkobj.c check_contained() cycles) with end.c panic().
-const LIST_PINS = { entries: 725, sites: 731 };
+// mkobj.c check_contained() cycles) with end.c panic(). The diagnostic
+// marker audit (branch diag-markers) gave 13 more C panic() calls in
+// synchronous functions a listed throw: 96 panic in all.
+const LIST_PINS = { entries: 738, sites: 744 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

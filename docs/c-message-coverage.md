@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4001 | 67 | 0 |
-| diagnostic | 723 | 273 | 6 | 444 |
+| diagnostic | 723 | 357 | 6 | 360 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4277 | 73 | 561 |
+| total | 4911 | 4361 | 73 | 477 |
 
 ## Missing by C file
 
@@ -41,60 +41,56 @@ The JS module column says whether `js/` has a module with the C file's name.
 | --- | --- | ---: | ---: | ---: |
 | src/allmain.c | yes | 0 | 1 | 0 |
 | src/alloc.c | yes | 0 | 5 | 0 |
-| src/apply.c | yes | 0 | 6 | 0 |
-| src/artifact.c | no | 0 | 8 | 0 |
-| src/attrib.c | yes | 0 | 1 | 10 |
-| src/ball.c | yes | 0 | 5 | 0 |
+| src/apply.c | yes | 0 | 5 | 0 |
+| src/artifact.c | no | 0 | 5 | 0 |
+| src/attrib.c | yes | 0 | 0 | 10 |
+| src/ball.c | yes | 0 | 4 | 0 |
 | src/bones.c | yes | 0 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
 | src/cfgfiles.c | yes | 0 | 0 | 2 |
-| src/cmd.c | yes | 0 | 3 | 0 |
+| src/cmd.c | yes | 0 | 1 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
 | src/detect.c | yes | 0 | 1 | 0 |
-| src/dig.c | yes | 0 | 3 | 3 |
-| src/display.c | yes | 0 | 8 | 0 |
-| src/do.c | yes | 0 | 4 | 0 |
+| src/dig.c | yes | 0 | 1 | 3 |
+| src/display.c | yes | 0 | 6 | 0 |
+| src/do.c | yes | 0 | 3 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
-| src/do_wear.c | yes | 0 | 7 | 0 |
+| src/do_wear.c | yes | 0 | 6 | 0 |
 | src/dog.c | yes | 0 | 3 | 0 |
-| src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
-| src/dungeon.c | yes | 0 | 17 | 7 |
+| src/dungeon.c | yes | 0 | 12 | 7 |
 | src/eat.c | yes | 0 | 4 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
-| src/engrave.c | yes | 0 | 9 | 2 |
+| src/engrave.c | yes | 0 | 8 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/extralev.c | yes | 0 | 7 | 0 |
 | src/files.c | yes | 0 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
-| src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
-| src/insight.c | yes | 0 | 4 | 0 |
-| src/invent.c | yes | 0 | 5 | 0 |
-| src/light.c | yes | 0 | 17 | 0 |
-| src/lock.c | yes | 0 | 2 | 0 |
+| src/insight.c | yes | 0 | 3 | 0 |
+| src/invent.c | yes | 0 | 1 | 0 |
+| src/light.c | yes | 0 | 14 | 0 |
+| src/lock.c | yes | 0 | 1 | 0 |
 | src/mail.c | no | 0 | 0 | 1 |
-| src/makemon.c | yes | 0 | 7 | 4 |
-| src/mcastu.c | yes | 0 | 8 | 1 |
+| src/makemon.c | yes | 0 | 5 | 4 |
+| src/mcastu.c | yes | 0 | 6 | 1 |
 | src/mhitu.c | yes | 0 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
-| src/mklev.c | yes | 0 | 7 | 2 |
+| src/mklev.c | yes | 0 | 5 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
-| src/mkmaze.c | yes | 0 | 10 | 2 |
-| src/mkobj.c | no | 0 | 24 | 4 |
+| src/mkmaze.c | yes | 0 | 7 | 2 |
+| src/mkobj.c | no | 0 | 20 | 4 |
 | src/mkroom.c | yes | 0 | 3 | 0 |
-| src/mon.c | yes | 0 | 8 | 2 |
+| src/mon.c | yes | 0 | 6 | 2 |
 | src/mondata.c | yes | 0 | 1 | 0 |
-| src/monmove.c | yes | 0 | 1 | 0 |
-| src/mthrowu.c | yes | 0 | 3 | 0 |
-| src/muse.c | yes | 0 | 7 | 0 |
+| src/mthrowu.c | yes | 0 | 1 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
 | src/nhlua.c | yes | 0 | 11 | 1 |
 | src/o_init.c | yes | 0 | 7 | 0 |
-| src/objnam.c | yes | 0 | 13 | 0 |
+| src/objnam.c | yes | 0 | 8 | 0 |
 | src/options.c | yes | 0 | 6 | 0 |
-| src/pager.c | yes | 0 | 6 | 0 |
-| src/pickup.c | yes | 0 | 5 | 1 |
+| src/pager.c | yes | 0 | 5 | 0 |
+| src/pickup.c | yes | 0 | 4 | 1 |
 | src/pline.c | yes | 0 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
 | src/pray.c | yes | 0 | 6 | 0 |
@@ -109,33 +105,30 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rumors.c | yes | 0 | 2 | 0 |
 | src/save.c | yes | 0 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
-| src/shk.c | yes | 0 | 24 | 1 |
-| src/shknam.c | yes | 0 | 4 | 0 |
-| src/sounds.c | yes | 0 | 3 | 0 |
-| src/sp_lev.c | yes | 0 | 14 | 3 |
-| src/spell.c | yes | 0 | 3 | 0 |
-| src/steal.c | yes | 0 | 5 | 1 |
+| src/shk.c | yes | 0 | 25 | 1 |
+| src/shknam.c | yes | 0 | 3 | 0 |
+| src/sp_lev.c | yes | 0 | 8 | 3 |
+| src/spell.c | yes | 0 | 2 | 0 |
+| src/steal.c | yes | 0 | 4 | 1 |
 | src/steed.c | yes | 0 | 0 | 1 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
 | src/timeout.c | yes | 0 | 10 | 0 |
 | src/topten.c | yes | 0 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
-| src/trap.c | yes | 0 | 12 | 1 |
+| src/trap.c | yes | 0 | 8 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
-| src/uhitm.c | yes | 0 | 3 | 0 |
-| src/vault.c | yes | 0 | 3 | 2 |
-| src/vision.c | yes | 0 | 1 | 0 |
+| src/uhitm.c | yes | 0 | 2 | 0 |
+| src/vault.c | yes | 0 | 2 | 2 |
 | src/weapon.c | yes | 0 | 2 | 0 |
-| src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 0 | 2 | 1 |
 | src/wizcmds.c | yes | 0 | 1 | 0 |
 | src/worm.c | yes | 0 | 3 | 0 |
 | src/worn.c | yes | 0 | 3 | 0 |
 | src/write.c | yes | 0 | 1 | 0 |
-| src/zap.c | yes | 0 | 10 | 1 |
+| src/zap.c | yes | 0 | 9 | 1 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
-| win/tty/wintty.c | yes | 0 | 5 | 1 |
+| win/tty/wintty.c | yes | 0 | 4 | 1 |
 
 ## Missing gameplay messages
 
@@ -178,9 +171,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `use_tinning_kit()`
   - 2255 impossible: `Tinning failed.`
 
-- `use_unicorn_horn()`
-  - 2379 impossible: `use_unicorn_horn: bad trouble? (`
-
 - `fig_transform()`
   - 2409 impossible: `null figurine in fig_transform()`
   - 2494 impossible: `figurine came to life where? (`
@@ -200,18 +190,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `discover_artifact()`
   - 1126 impossible: `couldn't discover artifact (`
 
-- `artifact_hit()`
-  - 1473 impossible: `attacking yourself with weapon?`
-
-- `arti_invoke()`
-  - 2137 impossible: `arti_invoke without obj`
-  - 2174 impossible: `Unknown invoke power`
-
-### src/attrib.c
-
-- `losestr()`
-  - 228 impossible: `losestr:`
-
 ### src/ball.c
 
 - `placebc_core()`
@@ -225,9 +203,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `bc_order()`
   - 369 impossible: `bc_order:  ball&chain not in same location!`
-
-- `drag_ball()`
-  - 766 impossible: `bad chain movement`
 
 ### src/botl.c
 
@@ -260,10 +235,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/cmd.c
 
-- `getdir()`
-  - 3977 impossible: `getdir: command queue had no dir?`
-  - 4085 impossible: `getpos successful but not one of [.,;:] (`
-
 - `get_count()`
   - 5066 impossible: `get_count: cmdcount_nht`
 
@@ -279,14 +250,8 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/dig.c
 
-- `mkcavepos()`
-  - 83 impossible: `mkcavepos called with dist`
-
 - `digactualhole()`
   - 665 impossible: `digactualhole: can't dig`
-
-- `mdig_tunnel()`
-  - 1459 impossible: `) is undiggable`
 
 ### src/display.c
 
@@ -300,10 +265,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1993 impossible: `show_glyph:  bad pos <`
   - 1998 impossible: `show_glyph:  bad glyph`
 
-- `back_to_glyph()`
-  - 2411 impossible: `Strange db-under:`
-  - 2421 impossible: `back_to_glyph:  unknown level type [ =`
-
 - `swallow_to_glyph()`
   - 2442 impossible: `swallow_to_glyph: bad swallow location`
 
@@ -311,9 +272,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2464 impossible: `zapdir_to_glyph:  illegal beam type`
 
 ### src/do.c
-
-- `boulder_hits_pool()`
-  - 56 impossible: `Not a boulder?`
 
 - `goto_level()`
   - 1971 impossible: `mon_notices_blocked<0`
@@ -341,9 +299,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `stuck_ring()`
   - 2660 impossible: `stuck_ring: neither left nor right?`
 
-- `select_off()`
-  - 2818 impossible: `select_off:`
-
 - `do_takeoff()`
   - 2891 impossible: `do_takeoff: taking off`
 
@@ -358,11 +313,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `keepdogs()`
   - 854 impossible: `steed left behind?`
-
-### src/dogmove.c
-
-- `dog_eat()`
-  - 321 impossible: `dog_eat: pet apport <= 0 (`
 
 ### src/dothrow.c
 
@@ -379,15 +329,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `dname_to_dnum()`
   - 292 panic: `Couldn't resolve dungeon number for name "`
-
-- `parent_dnum()`
-  - 362 panic: `parent_dnum: couldn't resolve branch.`
-
-- `level_range()`
-  - 391 panic: `level_range: empty chain level!`
-
-- `pick_level()`
-  - 640 panic: `pick_level:  ran out of valid levels`
 
 - `get_dgn_flags()`
   - 769 impossible: `] is not a string`
@@ -406,9 +347,7 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `init_dungeons()`
   - 1218 panic: `'nhl_init' failed; can't continue.`
   - 1256 panic: `dungeon is not a lua table`
-  - 1272 panic: `init_dungeons: too many dungeons`
   - 1281 panic: `] is not a lua table`
-  - 1293 panic: `init_dungeon:  couldn't place levels`
 
 - `dungeon_branch()`
   - 1883 panic: `dgn_entrance: can't find entrance to`
@@ -441,9 +380,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/engrave.c
 
-- `read_engr_at()`
-  - 367 impossible: `is written in a very strange way.`
-
 - `doengrave_sfx_item()`
   - 887 impossible: `You're engraving with an illegal object!`
 
@@ -465,8 +401,8 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `explosionmask()`
   - 69 impossible: `explosion type`
 
-- `explode()`
-  - 236 impossible: `explode: wand has bad zap type (`
+- `scatter()`
+  - 741 impossible: `> not at scatter site <`
 
 - `explode_oil()`
   - 979 impossible: `exploding unlit oil`
@@ -504,11 +440,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `parse_id()`
   - 1109 panic: `parse_id: buf[0] overflowed`
 
-### src/hack.c
-
-- `handle_tip()`
-  - 1875 impossible: `Unknown tip in handle_tip(`
-
 ### src/iactions.c
 
 - `itemactions_pushkeys()`
@@ -519,9 +450,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `status_enlightenment()`
   - 1081 impossible: `Punished without uball?`
 
-- `attributes_enlightenment()`
-  - 1991 impossible: `dead without dying?`
-
 - `record_achievement()`
   - 2417 impossible: `is out of range.`
 
@@ -530,16 +458,8 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/invent.c
 
-- `merged()`
-  - 896 impossible: `merging strangely worn items (`
-
 - `addinv_core0()`
   - 1065 panic: `addinv: obj not free`
-  - 1104 panic: `addinv: null obj after quiver merge otyp=`
-  - 1112 panic: `addinv: null obj after merge otyp=`
-
-- `getobj()`
-  - 1868 impossible: `getobj: inventory overflow`
 
 ### src/light.c
 
@@ -564,16 +484,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `relink_light_sources()`
   - 555 panic: `relink_light_sources: can't find`
 
-- `maybe_write_ls()`
-  - 578 impossible: `maybe_write_ls: no id! [range=`
-  - 590 impossible: `maybe_write_ls: bad type (`
-
 - `write_ls()`
   - 651 impossible: `write_ls: can't find obj #`
   - 678 impossible: `write_ls: can't find mon`
   - 679 impossible: `because it's dead`
   - 686 impossible: `write_ls: stashed monst ptr not in any chain`
-  - 700 impossible: `write_ls: bad type (`
 
 - `obj_adjust_light_radius()`
   - 837 impossible: `obj_adjust_light_radius: can't find`
@@ -583,22 +498,13 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `pick_lock()`
   - 416 impossible: `picking lock with object`
 
-- `doorlock()`
-  - 1255 impossible: `) attempted on door.`
-
 ### src/makemon.c
-
-- `m_initinv()`
-  - 629 impossible: `odd mercenary`
 
 - `clone_mon()`
   - 857 impossible: `clone_mon trying to create a monster at <`
 
 - `makemon()`
   - 1189 impossible: `makemon trying to create a monster at <`
-
-- `rndmonst_adj()`
-  - 1709 impossible: `bad weight in rndmonst for mndx`
 
 - `mkclass_aligned()`
   - 1892 impossible: `mkclass called with bad class!`
@@ -608,10 +514,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2562 impossible: `bad bag o' tricks`
 
 ### src/mcastu.c
-
-- `castmu()`
-  - 163 impossible: `spellcasting monster found you and doesn't know it?`
-  - 236 impossible: `casting non-hand-to-hand version of hand-to-hand spell`
 
 - `mcast_clone_wiz()`
   - 417 impossible: `bad wizard cloning?`
@@ -654,16 +556,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `finddpos()`
   - 179 impossible: `finddpos: illegal dir`
 
-- `add_room()`
-  - 311 panic: `level has too many rooms`
-
 - `fill_ordinary_room()`
   - 959 impossible: `fill_ordinary_room: Null subroom`
   - 1074 impossible: `couldn't generate supply chest item`
   - 1163 impossible: `trycnt overflow4`
-
-- `makelevel()`
-  - 1261 impossible: `makelevel() called when dungeon not yet initialized.`
 
 - `mkinvpos()`
   - 2576 impossible: `mkinvpos called with dist`
@@ -675,17 +571,8 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/mkmaze.c
 
-- `wall_cleanup()`
-  - 206 panic: `wall_cleanup: bad bounds (`
-
-- `fix_wall_spines()`
-  - 250 panic: `wall_extends: bad bounds (`
-
 - `mkportal()`
   - 1471 impossible: `portal on top of portal?`
-
-- `movebubbles()`
-  - 1578 impossible: `movebubbles: bad pos (`
 
 - `restore_waterlevel()`
   - 1789 impossible: `to restore?`
@@ -703,9 +590,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/mkobj.c
 
-- `mkobj()`
-  - 296 impossible: `probtype error, oclass=`
-
 - `splitobj()`
   - 463 panic: `splitobj [cobj=`
   - 464 panic: `non-empty container`
@@ -715,9 +599,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `start_glob_timeout()`
   - 1478 impossible: `start_glob_timeout for non-glob [`
-
-- `shrink_glob()`
-  - 1516 impossible: `shrink_glob for non-glob [`
 
 - `weight()`
   - 1893 impossible: `Calculating weight of`
@@ -746,8 +627,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `dealloc_obj()`
   - 2750 impossible: `dealloc_obj: obj already deleted (type=`
   - 2753 panic: `dealloc_obj: obj not free (type=`
-  - 2757 panic: `dealloc_obj with nobj`
-  - 2759 panic: `dealloc_obj with cobj`
   - 2761 impossible: `dealloc_obj with hands_obj`
 
 - `dobjsfree()`
@@ -778,14 +657,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/mon.c
 
-- `mfndpos()`
-  - 2355 impossible: `A monster looked at a very strange trap of type`
-
 - `dmonsfree()`
   - 2507 impossible: `removed doesn't match`
 
 - `relmon()`
-  - 2566 panic: `relmon: no fmon available.`
   - 2583 panic: `relmon: mon not in list.`
 
 - `dealloc_monst()`
@@ -805,34 +680,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `Resists_Elem()`
   - 167 impossible: `), unexpected property type`
 
-### src/monmove.c
-
-- `m_move()`
-  - 1818 impossible: `unknown shk/gd/pri_move return value (`
-
 ### src/mthrowu.c
 
 - `m_throw()`
   - 707 impossible: `monster throwing egg type`
-
-- `spitmm()`
-  - 1043 impossible: `bad attack type in spitmm`
-
-- `breamm()`
-  - 1145 impossible: `Breath weapon`
-
-### src/muse.c
-
-- `mzapwand()`
-  - 171 impossible: `Mon zapping wand with`
-
-- `use_defensive()`
-  - 835 impossible: `No need for unicorn horn?`
-  - 989 panic: `wand of create monster`
-  - 1006 panic: `scroll of create monster`
-  - 1163 panic: `potioh of healing`
-  - 1177 panic: `potioh of extra healing`
-  - 1191 panic: `potioh of full healing`
 
 ### src/music.c
 
@@ -899,9 +750,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 534 impossible: `reorder_fruit: fruit index (`
   - 537 impossible: `reorder_fruit: duplicate fruit index (`
 
-- `xname_flags()`
-  - 751 impossible: `Bad fruit #`
-
 - `an()`
   - 2150 impossible: `Alphabet soup: 'an(`
 
@@ -913,14 +761,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `makesingular()`
   - 3047 impossible: `singular of null?`
-
-- `armor_simple_name()`
-  - 5464 impossible: `unknown armor category (`
-
-- `safe_qbuf()`
-  - 5647 impossible: `safe_qbuf: prefix too long (`
-  - 5649 impossible: `safe_qbuf: suffix too long (`
-  - 5652 impossible: `safe_qbuf: filler too long (`
 
 ### src/options.c
 
@@ -951,7 +791,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 550 impossible: `lookat: unknown method of seeing monster`
 
 - `checkfile()`
-  - 853 impossible: `bad do_look buffer passed (`
   - 998 impossible: `can't get to start of 'data' file`
   - 1003 impossible: `can't read 'data' file`
   - 1123 impossible: `'data' file in wrong format or corrupted`
@@ -963,9 +802,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `query_category()`
   - 1373 impossible: `query_category: too many categories`
-
-- `delta_cwt()`
-  - 1558 panic: `delta_cwt: obj not inside container?`
 
 - `pickup_object()`
   - 1811 impossible: `pickup_object: count`
@@ -1143,8 +979,8 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 2375 impossible: `disappeared from bill.`
   - 2383 impossible: `contents failed unexpectedly (#`
 
-- `finish_paybill()`
-  - 2738 impossible: `finish_paybill: bad location <`
+- `get_cost()`
+  - 2936 impossible: `bad glass gem`
 
 - `splitbill()`
   - 3640 impossible: `Negative quantity on bill??`
@@ -1160,10 +996,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `cad()`
   - 5927 impossible: `cad: unknown gender`
 
-### src/shknam.c
+- `globby_bill_fixup()`
+  - 5986 impossible: `globby_bill_fixup called for non-globby object`
 
-- `shkveg()`
-  - 437 panic: `shkveg probtype error, oclass=`
+### src/shknam.c
 
 - `shkinit()`
   - 644 impossible: `Where is shopdoor?`
@@ -1172,35 +1008,13 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 867 impossible: `" is not a shopkeeper.`
   - 869 panic: `shkname: shopkeeper "`
 
-### src/sounds.c
-
-- `activate_chosen_soundlib()`
-  - 1784 panic: `activate_chosen_soundlib: invalid soundlib (`
-
-- `assign_soundlib()`
-  - 1801 panic: `assign_soundlib: invalid soundlib (`
-
-- `get_soundlib_name()`
-  - 1871 panic: `get_soundlib_name: invalid active_soundlib (`
-
 ### src/sp_lev.c
-
-- `get_location()`
-  - 1251 impossible: `get_location:  can't find a place!`
 
 - `get_room_loc()`
   - 1369 panic: `get_room_loc : can't find a place!`
 
 - `get_free_room_loc()`
   - 1401 panic: `get_free_room_loc:  can't find a place!`
-
-- `create_monster()`
-  - 2012 impossible: `create_monster: mon has an appearance, "`
-  - 2077 impossible: `Wizard appearance`
-  - 2117 impossible: `create_monster: unimplemented mon appear type [`
-
-- `create_object()`
-  - 2221 panic: `create_object:  unexpected object class '`
 
 - `create_corridor()`
   - 2685 impossible: `create_corridor to/from a random wall`
@@ -1218,13 +1032,7 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `lspo_drawbridge()`
   - 5759 impossible: `Cannot create drawbridge.`
 
-- `lspo_mazewalk()`
-  - 5833 impossible: `mazewalk: Bad direction`
-
 ### src/spell.c
-
-- `study_book()`
-  - 556 impossible: `Unknown spellbook level`
 
 - `spelltypemnemonic()`
   - 850 impossible: `Unknown spell skill,`
@@ -1239,9 +1047,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `remove_worn_item()`
   - 244 impossible: `Removing embedded scales?`
-
-- `steal()`
-  - 563 impossible: `Tried to steal a strange worn thing. [`
 
 - `mpickobj()`
   - 624 impossible: `) taking or picking up nothing?`
@@ -1306,10 +1111,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/trap.c
 
-- `erode_obj()`
-  - 235 impossible: `Invalid erosion type in erode_obj`
-  - 333 impossible: `): destroying strangely worn item [`
-
 - `maketrap()`
   - 571 impossible: `making fixed-dest tele trap pointing to itself`
 
@@ -1330,19 +1131,12 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 3118 impossible: `steed hit by non-existent arrow?`
   - 3126 impossible: `steed hit by non-existent dart?`
 
-- `chest_trap()`
-  - 6339 impossible: `chest disarm bug`
-  - 6491 impossible: `bad chest trap`
-
 ### src/u_init.c
 
 - `skills_for_role()`
   - 1085 panic: `No skills found for role`
 
 ### src/uhitm.c
-
-- `hitum_cleave()`
-  - 669 impossible: `hitum_cleave: unknown target direction [`
 
 - `mhitm_ad_phys()`
   - 3993 impossible: `bad shade attack function flow?`
@@ -1352,19 +1146,11 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 ### src/vault.c
 
-- `uleftvault()`
-  - 260 impossible: `escaping vault without guard?`
-
 - `find_guard_dest()`
   - 311 impossible: `Not a single corridor on this level?`
 
 - `gd_pick_corridor_gold()`
   - 766 impossible: `vault guard: no gold at hero's feet?`
-
-### src/vision.c
-
-- `view_from()`
-  - 2048 panic: `view_from called with range`
 
 ### src/weapon.c
 
@@ -1373,11 +1159,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `skill_init()`
   - 1798 impossible: `skill_init: curr > max:`
-
-### src/were.c
-
-- `new_were()`
-  - 108 impossible: `unknown lycanthrope`
 
 ### src/windows.c
 
@@ -1425,9 +1206,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `release_hold()`
   - 583 impossible: `release_hold when not held?`
 
-- `revive()`
-  - 897 impossible: `Attempting to revive`
-
 - `bhito()`
   - 2179 impossible: `bhito: obj is not floor or Stone To Flesh spell`
   - 2416 impossible: `What an interesting effect (`
@@ -1453,9 +1231,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 310 panic: `Putsym window MESSAGE nonexistent`
 
 ### win/tty/wintty.c
-
-- `tty_create_nhwindow()`
-  - 934 panic: `Tried to create window type`
 
 - `process_menu_window()`
   - 1404 panic: `bad menu screen page #`

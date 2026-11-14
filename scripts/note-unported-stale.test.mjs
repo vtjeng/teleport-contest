@@ -29,7 +29,7 @@ const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossi
 const OWN_DIAGNOSTIC = 'diagnostic arm inside the named function itself';
 
 const EXCEPTIONS = new Map([
-    ['pline.c impossible', { count: 210, reason: IMPOSSIBLE }],
+    ['pline.c impossible', { count: 268, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

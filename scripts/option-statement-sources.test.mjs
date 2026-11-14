@@ -98,10 +98,12 @@ test('optfn_boolean() returns before its female and pauper arms', () => {
         /if \(!state\.go\.opt_initial && option\.setwhere === set_in_config\)\s*return optn_err;/u);
 });
 
-// The one stand-in options.js keeps: termcap.c tty_number_pad() writes only
-// the keypad-mode escape.
+// The stand-ins options.js keeps: termcap.c tty_number_pad() writes only
+// the keypad-mode escape, and synchronous oc_to_str() marks C's
+// impossible() for an illegal object class.
 const REMAINING_NOTES = [
     "note_unported('wintty.c tty_number_pad')",
+    "note_unported('pline.c impossible')",
 ];
 
 test('options.js keeps only its pinned stand-ins', () => {
