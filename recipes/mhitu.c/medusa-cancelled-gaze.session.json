@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3309152,
+      "datetime": "20250705193000",
+      "nethackrc": "OPTIONS=name:Perseid,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017wand of cancellation\n\u0007peaceful medusa\nyzey",
+      "comment": "mhitu.c gazemu() AD_STON cancelled arm (1704-1718): a peaceful Medusa made with ^G is cancelled and angered by a wand of cancellation, so her gaze prints \"Medusa gazes ineffectually.\" The \"doesn't look all that ugly\" alternative needs !react, but react is still -1 there, so C never prints it."
+    }
+  ]
+}

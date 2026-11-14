@@ -2908,9 +2908,14 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                     'Someone seems overdue for a serpent cut.', state, env,
                 );
             } else {
+                // mhitu.c:1714-1716. react is still -1 here, so !react is
+                // false and C always takes "gazes ineffectually".
                 await message(
-                    messageAt(`${Monnam(monster, state, env)} gazes ineffectually.`,
-                        monster.mx, monster.my, state), state,
+                    messageAt(`${Monnam(monster, state, env)} ${
+                        (isMedusa && monster.mcan && !react)
+                            ? "doesn't look all that ugly"
+                            : 'gazes ineffectually'}.`,
+                    monster.mx, monster.my, state), state,
                     env,
                 );
             }
