@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8102446,
+      "datetime": "20240927081500",
+      "nethackrc": "OPTIONS=name:Frostbite,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017ice\n#sit\n",
+      "comment": "sit.c dosit() ice arm (550-553): a wizard-mode terrain wish (objnam.c wizterrainwish()) puts ice under a Samurai, who lacks cold resistance, so #sit prints \"You sit on the ice.\" and \"The ice feels cold.\""
+    }
+  ]
+}

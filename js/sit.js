@@ -913,7 +913,9 @@ export async function dosit(state = game, rawEnv = {}) {
     } else if (is_ice(u.ux, u.uy, state)) {
         await message(sit_message(CMAP_EXPLANATIONS[S_ice]), state);
         if (!Cold_resistance(state.u))
-            await message(`${The(CMAP_EXPLANATIONS[S_ice], state)} feels cold.`, state);
+            // sit.c:553 pline_The("ice feels cold."): a fixed literal, not
+            // the S_ice explanation.
+            await message('The ice feels cold.', state);
     } else if (typ === DRAWBRIDGE_DOWN) {
         await message(sit_message('drawbridge'), state);
     } else if (IS_THRONE(typ)) {
