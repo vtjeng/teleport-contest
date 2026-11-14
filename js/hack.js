@@ -655,6 +655,8 @@ export async function handle_tip(tip, state = game, env = {}) {
             cancelValue: null,
         }));
         await textWindow(GETPOS_TIP_LINES.map((text) => ({ text })));
+    } else {
+        await impossible(`Unknown tip in handle_tip(${tip})`, state);
     }
     return true;
 }

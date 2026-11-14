@@ -1888,18 +1888,19 @@ const soundlib_choices = Object.freeze([
     nosound_procs,
 ]);
 
-function soundlibChoice(index, caller) {
-    if (!Number.isInteger(index) || index < 0
-        || index >= soundlib_choices.length) {
-        throw new RangeError(`${caller}: invalid soundlib (${index})`);
-    }
-    return soundlib_choices[index];
+// C's IndexOk(idx, soundlib_choices). Each caller throws where C panics; the
+// callers are synchronous and cannot await panic().
+function soundlibIndexOk(index) {
+    return Number.isInteger(index) && index >= 0
+        && index < soundlib_choices.length;
 }
 
 export function activate_chosen_soundlib(state = game) {
-    const choice = soundlibChoice(
-        state.gc?.chosen_soundlib, 'activate_chosen_soundlib',
-    );
+    const idx = state.gc?.chosen_soundlib;
+    if (!soundlibIndexOk(idx))
+        throw new RangeError(
+            `activate_chosen_soundlib: invalid soundlib (${idx})`);
+    const choice = soundlib_choices[idx];
     if (state.ga?.active_soundlib !== soundlib_nosound
         || choice.soundlib_id !== soundlib_nosound) {
         state.soundprocs?.sound_exit_nhsound?.('assigning a new sound library');
@@ -1912,10 +1913,10 @@ export function activate_chosen_soundlib(state = game) {
 }
 
 export function assign_soundlib(state, index) {
+    if (!soundlibIndexOk(index))
+        throw new RangeError(`assign_soundlib: invalid soundlib (${index})`);
     state.gc ??= {};
-    state.gc.chosen_soundlib = soundlibChoice(
-        index, 'assign_soundlib',
-    ).soundlib_id;
+    state.gc.chosen_soundlib = soundlib_choices[index].soundlib_id;
 }
 
 // C ref: sounds.c choose_soundlib() (1809-1858), retained inside #if 0 in
@@ -1941,9 +1942,11 @@ export function choose_soundlib(name, state = game, rawEnv = {}) {
 }
 
 export function get_soundlib_name(state = game, maxlen = WINTYPELEN) {
-    const source = soundlibChoice(
-        state.ga?.active_soundlib, 'get_soundlib_name',
-    ).soundname;
+    const idx = state.ga?.active_soundlib;
+    if (!soundlibIndexOk(idx))
+        throw new RangeError(
+            `get_soundlib_name: invalid active_soundlib (${idx})`);
+    const source = soundlib_choices[idx].soundname;
     const comma = source.indexOf(',');
     return source.slice(0, Math.min(
         comma < 0 ? source.length : comma,

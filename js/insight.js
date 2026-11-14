@@ -341,7 +341,7 @@ import {
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
-import { livelog_printf } from './pline.js';
+import { impossible, livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
 import { ATR_INVERSE, ATR_NONE } from './terminal.js';
 import { hidden_gold } from './vault.js';
@@ -1922,6 +1922,8 @@ export async function attributes_enlightenment(final, state, lines) {
         }
     } else {
         mortalityVerb = 'are dead';
+        if (mortality === 0)
+            await impossible('dead without dying?', state);
         if (mortality > 1)
             mortalitySuffix = ` (${mortality}${ordin(mortality)} time!)`;
     }

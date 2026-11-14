@@ -67,7 +67,8 @@ export function formatkiller(how, incl_helpless, state = game) {
     const parts = [];
     switch (killer.format) {
     default:
-        // C: impossible("bad killer format? (%d)", killer.format);
+        // C: impossible("bad killer format? (%d)", svk.killer.format);
+        note_unported('pline.c impossible');
         // fall through
     case NO_KILLER_PREFIX:
         break;

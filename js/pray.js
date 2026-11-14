@@ -2998,7 +2998,8 @@ export function align_gname(alignment, state = game) {
         gnam = state.urole.cgod;
         break;
     default:
-        // C reports impossible() and carries on with "someone".
+        // C: impossible("unknown alignment.");
+        note_unported('pline.c impossible');
         gnam = 'someone';
         break;
     }
@@ -3046,9 +3047,14 @@ export function halu_gname(alignment, state = game) {
         gnam = Moloch;
         break;
     default:
-        break; // C reports impossible(); retain its missing-name fallback.
+        // C: impossible("rn2 broken in halu_gname?!?");
+        note_unported('pline.c impossible');
     }
-    if (!gnam) gnam = 'your Friend the Computer';
+    if (!gnam) {
+        // C: impossible("No random god name?");
+        note_unported('pline.c impossible');
+        gnam = 'your Friend the Computer'; /* Paranoia */
+    }
     return gnam.startsWith('_') ? gnam.slice(1) : gnam;
 }
 

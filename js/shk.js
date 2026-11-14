@@ -4906,6 +4906,10 @@ export async function finish_paybill(state = game) {
     const shkp = repo.shopkeeper;
     let { x, y } = repo.location ?? {};
     if (!isok(x, y)) {
+        if (shkp)
+            await impossible(
+                `finish_paybill: bad location <${x},${y}>.`, state);
+        /* force a valid location */
         x = state.u.ux || state.u.ux0;
         y = state.u.ux ? state.u.uy : state.u.uy0;
     }

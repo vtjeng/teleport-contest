@@ -132,7 +132,7 @@ import { coreRandom, rn1, rn2 } from './rng.js';
 import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { summon_furies } from './makemon.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 import {
     BBlinded, BClairvoyant, BInvis, BlindedTimeout, Blindfolded_only,
@@ -1474,9 +1474,7 @@ export async function losestr(num, knam, k_format, state = game, env = {}) {
     const waspolyd = Upolyd(u);
 
     if (num <= 0 || u.acurr.a[A_STR] < attrmin) {
-        // C reports impossible("losestr: %d - %d", ABASE(A_STR), num) and
-        // returns. Both conditions mean the caller asked for a loss the hero
-        // cannot take, so there is nothing to spend here either way.
+        await impossible(`losestr: ${u.acurr.a[A_STR]} - ${num}`, state);
         return;
     }
     let dmg = 0;

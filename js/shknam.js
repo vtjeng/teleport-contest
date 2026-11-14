@@ -46,6 +46,7 @@ import {
     FOOD_CLASS,
     MAXOCLASSES,
     NUM_OBJECTS,
+    OBJ_NAME,
     RANDOM_CLASS,
     SCR_CHARGING,
     SPE_NOVEL,
@@ -236,6 +237,10 @@ export function shkveg(normalized) {
         j++;
         i = ok[j];
     }
+
+    if (state.objects[i].oc_class !== oclass
+        || !OBJ_NAME(state.objects[i], state))
+        throw new Error(`shkveg probtype error, oclass=${oclass} i=${i}`);
     return i;
 }
 
@@ -402,7 +407,15 @@ function good_shopdoor(sroom, state) {
 function shkinit(shop, sroom, normalized) {
     const { state } = normalized;
     const placement = good_shopdoor(sroom, state);
-    if (!placement) return null;
+    if (!placement) {
+        // patchlevel.h defines DEBUG, so a wizard-mode game reports the
+        // missing door before C returns -1.
+        if (state.wizard) {
+            // C: impossible("Where is shopdoor?"); and the room and door plines after it
+            note_unported('pline.c impossible');
+        }
+        return null;
+    }
     const occupant = m_at(placement.sx, placement.sy, state);
     if (occupant) rloc(occupant, RLOC_NOMSG, normalized);
 

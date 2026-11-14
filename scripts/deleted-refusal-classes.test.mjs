@@ -90,6 +90,9 @@ export const DELETED_REFUSAL_CLASSES = [
     // trap.c dotrap() for a trap of no known type, which no level creates;
     // trapeffect_selector() answers it with C's impossible()
     'UnsupportedHeroMoveBoundaryError',
+    // timeout.c begin_burn()'s default arm for an object that is not a light
+    // source, which no caller passes; it now marks C's impossible()
+    'UnsupportedBurnObjectError',
     // mcastu.c castmu()'s AD_FIRE arm, now ported; mattacku() and dochug()
     // supplied the `unsupported` operation it was raised through
     'UnsupportedSimpleMonsterActionError',

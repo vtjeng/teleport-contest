@@ -1263,8 +1263,8 @@ export async function read_engr_at(
         }
         break;
     default:
+        await impossible('Something is written in a very strange way.', state);
         sensed = true;
-        break;
     }
     if (!sensed) return false;
 

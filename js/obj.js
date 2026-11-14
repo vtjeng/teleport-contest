@@ -1146,8 +1146,10 @@ export function dealloc_obj(obj, env = {}) {
             `dealloc_obj: object where=${obj.where}, expected free`,
         );
     }
-    if (obj.nobj || obj.cobj)
-        throw new Error('dealloc_obj: object is still linked');
+    if (obj.nobj)
+        throw new Error('dealloc_obj with nobj');
+    if (obj.cobj)
+        throw new Error('dealloc_obj with cobj');
     // mkobj.c dealloc_obj():2760-2763
     if (obj === hands_obj) {
         note_unported('pline.c impossible');
@@ -2172,7 +2174,10 @@ export async function shrink_glob(obj, expire_time, env = {}) {
     let old_top_owt = 0;
 
     if (!obj.globby) {
-        // C: impossible("shrink_glob for non-glob [%d: %s]?", ...)
+        await impossible(
+            `shrink_glob for non-glob [${obj.otyp}: ${simpleonames(obj, state)}]?`,
+            state,
+        );
         return; /* old timer is gone, don't start a new one */
     }
     /* note: if check_glob() complains about a problem, the " obj " here
