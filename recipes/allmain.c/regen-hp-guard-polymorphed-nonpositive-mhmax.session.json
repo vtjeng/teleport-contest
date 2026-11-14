@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "allmain.c moveloop_core() 286-294 calls regen_hp() for a polymorphed hero only when u.mh < u.mhmax or the form is an eel. A dwarf-form hero at full hit points, wearing an amulet of unchanging, is drained by #levelchange from level 9 to 1: each losexp() lowers u.mh and u.mhmax together, so the hero first dies with u.mhmax <= 0 and end.c savelife() leaves u.mh == u.mhmax <= 0. The 's' that follows ends a turn without reaching regen_hp()'s rehumanize(). Seed 9314472 is the first of 9314471-9314474 with no monster attacking during the setup; of the starting levels 6, 8, 9 and 10 tried on this seed, 6 never reaches u.mhmax <= 0, and 9 reaches it with the fewest Die? prompts (three).",
+  "segments": [
+    {
+      "seed": 9314472,
+      "datetime": "20261114103000",
+      "nethackrc": "OPTIONS=name:Drain,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n9\n\u001b#polyself\ndwarf\n\u001b\u0017amulet of unchanging\nPe#levelchange\n1\n  n n nss"
+    }
+  ]
+}

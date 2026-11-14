@@ -67,7 +67,7 @@ import { UnsupportedObjectOperationError } from './obj.js';
 import { polyself, set_uasmon } from './polyself.js';
 import { you_were } from './were.js';
 import { objectGenerationHooks } from './object_generation.js';
-import { reset_mvitals } from './monsters.js';
+import { S_EEL, reset_mvitals } from './monsters.js';
 import { depth, init_dungeons, on_level } from './dungeon.js';
 import { movebubbles, fumaroles } from './mkmaze.js';
 import { init_artifacts, mkot_trap_warn } from './artifacts.js';
@@ -841,11 +841,18 @@ export async function finishElapsedTurn(state, random) {
         interruptMulti: interrupt_multi,
         norepMessage: ttyNorep,
     };
-    // C ref: allmain.c substitutes UNENCUMBERED for an invulnerable hero
-    // instead of healing, and the two consumers below then read the
-    // substituted value rather than the snapshot taken above.
+    // C ref: allmain.c (286-294) substitutes UNENCUMBERED for an invulnerable
+    // hero instead of healing, and the two consumers below then read the
+    // substituted value rather than the snapshot taken above. Otherwise it
+    // calls regen_hp() only for a hero below maximum hit points, or for a
+    // polymorphed eel; a polymorphed hero at u.mh == u.mhmax <= 0 therefore
+    // never reaches regen_hp()'s rehumanize().
     if (state.u.uinvulnerable) wtcap = UNENCUMBERED;
-    else await regen_hp(wtcap, state, regenEnv);
+    else if (!Upolyd(state.u) ? state.u.uhp < state.u.uhpmax
+        : (state.u.mh < state.u.mhmax
+            || state.youmonst.data.mlet === S_EEL)) {
+        await regen_hp(wtcap, state, regenEnv);
+    }
     // C ref: allmain.c's "moving around while encumbered is hard work" block,
     // between regen_hp() and regen_pw(). The gate is allmain.c's; what it
     // guards is hack.c overexert_hp().

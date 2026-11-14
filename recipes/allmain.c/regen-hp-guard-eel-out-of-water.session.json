@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "allmain.c moveloop_core() 286-294, the eel arm of the regen_hp() guard: a hero polymorphed into a giant eel on dry land reaches regen_hp() at full hit points and loses them as allmain.c regen_hp() 634-642 describes, over a counted search of 20 turns. Variation of regen-hp-guard-polymorphed-nonpositive-mhmax. Seed, date and character chosen independently of batch 17.",
+  "segments": [
+    {
+      "seed": 6620913,
+      "datetime": "20261114104500",
+      "nethackrc": "OPTIONS=name:Eel,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#polyself\ngiant eel\n\u001b20s"
+    }
+  ]
+}
