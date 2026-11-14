@@ -1743,6 +1743,9 @@ test('final blocked shape changes use source past wording', async () => {
     state.u.uprops[UNCHANGING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     state.u.uprops[POLYMORPH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     state.u.umonnum = state.u.umonster;
+    // done() has counted the death before final disclosure; zero would take
+    // insight.c's "dead without dying?" impossible() arm.
+    state.u.umortality = 1;
     let lines = [];
     await attributes_enlightenment(ENL_GAMEOVERDEAD, state, lines);
     assert.ok(lines.includes(

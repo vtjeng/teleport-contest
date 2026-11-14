@@ -398,6 +398,10 @@ function* setworn_steps(obj, mask, env) {
     for (const slot of WORN_SLOTS) {
         if (!(slot.mask & mask)) continue;
         const old = state[slot.field] ?? null;
+        if (old && !(old.owornmask & slot.mask)) {
+            // C: impossible("Setworn: mask=0x%08lx.", wp->w_mask);
+            note_unported('pline.c impossible');
+        }
         if (old) {
             if (state.u.twoweap && (old.owornmask & (W_WEP | W_SWAPWEP)))
                 set_twoweap(false, state);

@@ -3143,9 +3143,14 @@ function RING_ON_PRIMARY(state) {
 // only matters when the ring is worn and is that type.
 //
 // C opens with an impossible() for a ring that is worn in neither slot. Both
-// callers pass uleft or uright literally, so the diagnostic is unreachable and
-// this port drops it rather than inventing a message sink for it.
+// callers pass uleft or uright literally, so the diagnostic is unreachable.
 export function stuck_ring(ring, otyp, state = game) {
+    if (ring !== state.uleft && ring !== state.uright) {
+        // C: impossible("stuck_ring: neither left nor right?");
+        note_unported('pline.c impossible');
+        return null;
+    }
+
     if (ring && ring.otyp === otyp) {
         /* reasons ring can't be removed match those checked by select_off();
            limbless case has extra checks because ordinarily it's temporary */
@@ -3176,7 +3181,7 @@ export function unchanger(state = game) {
 }
 
 // The slot-to-mask chain do_wear.c:2786-2812 spells out the worn-item bits
-// that select_off() commits to context.takeoff.mask.
+// that select_off() commits to context.takeoff.mask; 0 means none matched.
 function takeoffMaskFor(otmp, state) {
     if (otmp === state.uarm) return WORN_ARMOR;
     if (otmp === state.uarmc) return WORN_CLOAK;
@@ -3192,7 +3197,6 @@ function takeoffMaskFor(otmp, state) {
     if (otmp === state.uwep) return W_WEP;
     if (otmp === state.uswapwep) return W_SWAPWEP;
     if (otmp === state.uquiver) return W_QUIVER;
-    note_unported('pline.c impossible');
     return 0;
 }
 
@@ -3312,7 +3316,12 @@ export async function select_off(otmp, state = game) {
         if (await cursed(otmp, state)) return 0;
     }
 
-    takeoffContext(state).mask |= takeoffMaskFor(otmp, state);
+    const mask = takeoffMaskFor(otmp, state);
+    if (mask)
+        takeoffContext(state).mask |= mask;
+    else
+        await impossible(`select_off: ${donameFresh(otmp, state)}???`, state);
+
     return 0;
 }
 

@@ -2800,10 +2800,13 @@ function delta_cwt(container, obj, state) {
     const owt = container.owt;
     // Temporarily remove obj from container's content chain.
     let prev = null;
-    for (let cur = container.cobj; cur; cur = cur.nobj) {
+    let cur;
+    for (cur = container.cobj; cur; cur = cur.nobj) {
         if (cur === obj) break;
         prev = cur;
     }
+    if (!cur)
+        throw new Error('delta_cwt: obj not inside container?');
     if (prev) prev.nobj = obj.nobj;
     else container.cobj = obj.nobj;
     const nwt = weight(container, { state });

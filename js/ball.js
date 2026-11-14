@@ -682,6 +682,7 @@ export async function drag_ball(
             }
             break;
         default:
+            await impossible('bad chain movement', state);
             break;
         }
         return true;

@@ -3585,6 +3585,8 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             didProp++;
             break;
         default:
+            await impossible(
+                `use_unicorn_horn: bad trouble? (${troubles[value]})`, state);
             break;
         }
     }

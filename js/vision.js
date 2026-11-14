@@ -654,6 +654,8 @@ function view_from(
 
     let limitsIdx = -1;
     if (range) {
+        if (range > MAX_RADIUS || range < 1)
+            throw new Error(`view_from called with range ${range}`);
         if (left < scol - range) left = scol - range;
         if (right > scol + range) right = scol + range;
         limitsIdx = circle_start[range] + 1;

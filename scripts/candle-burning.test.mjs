@@ -30,7 +30,6 @@ import {
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
-    UnsupportedBurnObjectError,
     begin_burn,
     end_burn,
     peek_timer,
@@ -361,16 +360,21 @@ test('a full candelabrum uses the candle warning and bright-light bands', () => 
     assert.equal(state.gl.light_base.range, 4);
 });
 
-test('unsupported burn and light paths fail before claiming ownership', () => {
+// timeout.c begin_burn()'s default arm: an object that is neither a light
+// source type nor an artifact light reports impossible() and then burns its
+// whole age (200, the fixture's fuel) with the initial radius of 3.
+test('an unexpected burn object takes the impossible() arm', () => {
     const state = burnState();
-    const unsupported = candle(-1);
-    assert.throws(
-        () => begin_burn(unsupported, false, { state }),
-        (error) => error instanceof UnsupportedBurnObjectError
-            && error.otyp === -1,
-    );
-    assert.equal(state.gt.timer_base, null);
-    assert.equal(state.gl.light_base, null);
+    // otyp -1 matches no case of begin_burn()'s switch.
+    const unexpected = candle(-1);
+    game.unported = new Set();
+    begin_burn(unexpected, false, { state });
+    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.equal(unexpected.lamplit, true);
+    assert.equal(unexpected.age, 0);
+    // The fixture starts at move 10, so the 200-turn burn expires at 210.
+    assert.equal(peek_timer(BURN_OBJECT, unexpected, state), 210);
+    assert.equal(state.gl.light_base.range, 3);
 });
 
 // With perm_invent set, the carried candle reaches begin_burn()'s

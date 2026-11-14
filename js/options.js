@@ -7343,11 +7343,18 @@ function booleanOptionValue(state, option) {
 // C ref: options.c oc_to_str(), which spells an object-class list with the
 // fixed drawing.c def_oc_syms[] symbols rather than the active symbol set.
 export function oc_to_str(classes) {
-    return classes
-        .map((oclass) => String.fromCharCode(
-            DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
-        ))
-        .join('');
+    let dest = '';
+    for (const oclass of classes) {
+        if (oclass < 0 || oclass >= MAXOCLASSES) {
+            // C: impossible("oc_to_str:  illegal object class %d", i);
+            note_unported('pline.c impossible');
+        } else {
+            dest += String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
+            );
+        }
+    }
+    return dest;
 }
 
 // C ref: options.c's file-scope strings shared by several handlers.

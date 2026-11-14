@@ -1643,6 +1643,7 @@ export async function getdir(s, state = game) {
     } else if (queued) {
         cmdq_clear(CQ_CANNED, state);
         dirsym = 0;
+        await impossible('getdir: command queue had no dir?', state);
     }
     const spkeys = commandBindings(state).specialKeys;
     // C's retry label is reached after the help page is dismissed.  Each
@@ -1694,7 +1695,7 @@ export async function getdir(s, state = game) {
         } else if (dirsym === spkeys['getdir.mouse']) {
             const pickKeys = commandBindings(state).specialKeys;
             const cc = { x: u.ux, y: u.uy };
-            const pos = await getpos(
+            let pos = await getpos(
                 cc,
                 true,
                 `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
@@ -1719,14 +1720,18 @@ export async function getdir(s, state = game) {
                 } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
                     mod = CLICK_2;
                 } else {
-                    // getpos() only returns these four PICK_ONE results. Keep
-                    // C's defensive failure result if that contract changes.
-                    mod = 0;
+                    // getpos() only returns these four PICK_ONE results.
+                    await impossible(
+                        `getpos successful but not one of [.,;:] (${pos})`,
+                        state,
+                    );
+                    mod = 0; /* neither CLICK_1 nor CLICK_2 */
+                    pos = -1; /* return failure */
                 }
             }
             if (state.iflags.getdir_click)
                 state.iflags.getdir_click = mod;
-            return pos >= 0 && pos <= LOOK_VERBOSE;
+            return pos >= 0;
         } else {
             const is_mov = movecmd(dirsym, MV_ANY, state);
             if (!is_mov && !u.dz) {

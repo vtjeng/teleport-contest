@@ -1565,10 +1565,17 @@ export function weapon_dam_bonus(weapon, state = game) {
         bonus = 0;
     } else if (type <= P_LAST_WEAPON) {
         switch (P_SKILL(type, state)) {
+        default:
+            // C: impossible("weapon_dam_bonus: bad skill %d", P_SKILL(type));
+            note_unported('pline.c impossible');
+            // fall through
+        case P_ISRESTRICTED:
+        case P_UNSKILLED:
+            bonus = -2;
+            break;
         case P_BASIC: bonus = 0; break;
         case P_SKILLED: bonus = 1; break;
         case P_EXPERT: bonus = 2; break;
-        default: bonus = -2; break;
         }
     } else if (type === P_TWO_WEAPON_COMBAT) {
         let skill = P_SKILL(P_TWO_WEAPON_COMBAT, state);

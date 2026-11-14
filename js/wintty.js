@@ -9,6 +9,7 @@ import {
     NHW_MAP,
     NHW_MESSAGE,
     NHW_MENU,
+    NHW_STATUS,
     NHW_TEXT,
     ROWNO,
     WIN_ERR,
@@ -117,10 +118,12 @@ export function tty_create_nhwindow(type, state = game) {
         window.rows = 0;
         window.offx = 0;
         window.offy = 0;
-    } else {
+    } else if (type === NHW_STATUS) {
         throw new Error(
             'tty_create_nhwindow() only ports the NHW_MESSAGE and NHW_MAP startup branches',
         );
+    } else {
+        throw new Error(`Tried to create window type ${type}\n`);
     }
     wt.wins[id] = window;
     return id;

@@ -152,7 +152,7 @@ import {
 } from './trap.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { maybe_absorb_item } from './steal.js';
-import { verbalize } from './pline.js';
+import { impossible, verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { messageAt } from './startup_a11y.js';
 import {
@@ -1462,7 +1462,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
         }
         break;
     default:
-        // zap.c's impossible() is debug-only in this tty build.
+        await impossible(`magic (${obj.otyp}) attempted on door.`, state);
         break;
     }
 

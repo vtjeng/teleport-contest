@@ -2772,11 +2772,17 @@
       "c": "src/mkobj.c:2701",
       "reason": "add_to_migration() panics on an object that is not free."
     },
-    "js/obj.js | dealloc_obj | 'dealloc_obj: object is still linked'": {
+    "js/obj.js | dealloc_obj | 'dealloc_obj with cobj'": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/mkobj.c:2759",
+      "reason": "dealloc_obj() panics on an object whose cobj is set."
+    },
+    "js/obj.js | dealloc_obj | 'dealloc_obj with nobj'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2757",
-      "reason": "dealloc_obj() panics on an object with nobj or cobj set."
+      "reason": "dealloc_obj() panics on an object whose nobj is set."
     },
     "js/obj.js | dealloc_obj | 'stopObjectTimers must clear obj.timed'": {
       "count": 1,
@@ -2987,6 +2993,12 @@
       "class": "invariant",
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
+    },
+    "js/pickup.js | delta_cwt | 'delta_cwt: obj not inside container?'": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/pickup.c:1558",
+      "reason": "C delta_cwt() panics when the object is not in the container's contents; the synchronous port cannot await panic()."
     },
     "js/pickup.js | menu_loot | '<menu_loot> no gc.current_container?'": {
       "count": 1,
@@ -3360,6 +3372,12 @@
       "c": "src/shknam.c:426",
       "reason": "C panics when no food is vegetarian; the function is synchronous and the object table always has some."
     },
+    "js/shknam.js | shkveg | `shkveg probtype error, oclass=${oclass} i=${i}`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/shknam.c:437",
+      "reason": "C panics when the chosen type is not a named food; the function is synchronous and every veggy candidate is a named food."
+    },
     "js/shknam.js | shopEnv | `shop stocking random injection requires ${required.join(', ": {
       "count": 1,
       "class": "invariant",
@@ -3372,11 +3390,23 @@
       "c": "src/shknam.c:stock_room",
       "reason": "C indexes shtypes[] unchecked; callers pass a shop room type."
     },
-    "js/sounds.js | soundlibChoice | `${caller}: invalid soundlib (${index})`": {
+    "js/sounds.js | activate_chosen_soundlib | `activate_chosen_soundlib: invalid soundlib (${idx})`": {
       "count": 1,
       "class": "panic",
       "c": "src/sounds.c:1784",
-      "reason": "activate_chosen_soundlib(), assign_soundlib() and get_soundlib_name() panic on an index outside soundlib_choices[]; the helper is synchronous."
+      "reason": "C activate_chosen_soundlib() panics on an index outside soundlib_choices[]; the function is synchronous."
+    },
+    "js/sounds.js | assign_soundlib | `assign_soundlib: invalid soundlib (${index})`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sounds.c:1801",
+      "reason": "C assign_soundlib() panics on an index outside soundlib_choices[]; the function is synchronous."
+    },
+    "js/sounds.js | get_soundlib_name | `get_soundlib_name: invalid active_soundlib (${idx})`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sounds.c:1871",
+      "reason": "C get_soundlib_name() panics on an active_soundlib outside soundlib_choices[]; the function is synchronous."
     },
     "js/sp_lev_object.js | achievementTracking | 'special-level achievement objects require initialized achie": {
       "count": 1,
@@ -4158,6 +4188,12 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
+    "js/vision.js | view_from | `view_from called with range ${range}`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/vision.c:2048",
+      "reason": "C view_from() panics on a range outside 1..MAX_RADIUS; the function is synchronous."
+    },
     "js/weapon.js | drain_weapon_skill | 'drain_weapon_skill requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -4204,7 +4240,13 @@
       "count": 1,
       "class": "unported",
       "c": "win/tty/wintty.c:850",
-      "reason": "Refuses the NHW_STATUS and NHW_PERMINVENT branches of wintty.c tty_create_nhwindow(), which the port has not ported; no JavaScript caller asks for them."
+      "reason": "Refuses the NHW_STATUS branch of wintty.c tty_create_nhwindow(), which the port has not ported; no JavaScript caller asks for it."
+    },
+    "js/wintty.js | tty_create_nhwindow | `Tried to create window type ${type}\\n`": {
+      "count": 1,
+      "class": "panic",
+      "c": "win/tty/wintty.c:934",
+      "reason": "C panics on a window type with no case, NHW_PERMINVENT included; the function is synchronous."
     },
     "js/wintty.js | tty_curs | 'tty_curs() received an invalid window'": {
       "count": 1,

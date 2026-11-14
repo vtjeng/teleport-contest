@@ -112,7 +112,7 @@ test('soundlib helpers reject IDs outside the compiled choice table', () => {
     );
     assert.throws(
         () => get_soundlib_name({ ga: { active_soundlib: 1 } }),
-        /get_soundlib_name: invalid soundlib \(1\)/u,
+        /get_soundlib_name: invalid active_soundlib \(1\)/u,
     );
 });
 

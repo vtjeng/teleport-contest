@@ -76,6 +76,7 @@ import {
     M_AP_MONSTER,
     M_AP_TYPE,
     NO_KILLER_PREFIX,
+    NUM_DISCLOSURE_OPTIONS,
     PARANOID_QUIT,
     PICK_ONE,
     PANICKED,
@@ -838,27 +839,40 @@ const DISCLOSURE_OPTIONS = 'iavgco';
 // C ref: end.c should_query_disclose_option() (475-515). The returned
 // `defquery` is the answer used when the option suppresses the prompt and the
 // default passed to yn_function() when it does not.
-// Every caller passes a literal from DISCLOSURE_OPTIONS, so C's bad-category
-// impossible() cannot run.
+// Every caller passes a literal from DISCLOSURE_OPTIONS, so neither of C's
+// impossible() arms can run.
 function should_query_disclose_option(category, state) {
-    const index = DISCLOSURE_OPTIONS.indexOf(category);
-    const disclose = state.flags.end_disclose[index];
-    switch (disclose) {
-    case DISCLOSE_YES_WITHOUT_PROMPT:
-        return { ask: false, defquery: 'y' };
-    case DISCLOSE_SPECIAL_WITHOUT_PROMPT:
-        return { ask: false, defquery: 'a' };
-    case DISCLOSE_NO_WITHOUT_PROMPT:
-        return { ask: false, defquery: 'n' };
-    case DISCLOSE_PROMPT_DEFAULT_YES:
-        return { ask: true, defquery: 'y' };
-    case DISCLOSE_PROMPT_DEFAULT_SPECIAL:
-        return { ask: true, defquery: 'a' };
-    case DISCLOSE_PROMPT_DEFAULT_NO:
-        return { ask: true, defquery: 'n' };
-    default:
-        return { ask: true, defquery: 'n' };
+    // strchr() also finds the string's terminating NUL, one past the last
+    // option letter.
+    const index = category === '\0' ? DISCLOSURE_OPTIONS.length
+        : DISCLOSURE_OPTIONS.indexOf(category);
+    if (index >= 0) {
+        if (index >= NUM_DISCLOSURE_OPTIONS) {
+            // C: impossible("should_query_disclose_option: bad disclosure index %d %c", idx, category);
+            note_unported('pline.c impossible');
+            return { ask: true, defquery: DISCLOSE_PROMPT_DEFAULT_YES };
+        }
+        const disclose = state.flags.end_disclose[index];
+        switch (disclose) {
+        case DISCLOSE_YES_WITHOUT_PROMPT:
+            return { ask: false, defquery: 'y' };
+        case DISCLOSE_SPECIAL_WITHOUT_PROMPT:
+            return { ask: false, defquery: 'a' };
+        case DISCLOSE_NO_WITHOUT_PROMPT:
+            return { ask: false, defquery: 'n' };
+        case DISCLOSE_PROMPT_DEFAULT_YES:
+            return { ask: true, defquery: 'y' };
+        case DISCLOSE_PROMPT_DEFAULT_SPECIAL:
+            return { ask: true, defquery: 'a' };
+        case DISCLOSE_PROMPT_DEFAULT_NO:
+            return { ask: true, defquery: 'n' };
+        default:
+            return { ask: true, defquery: 'n' };
+        }
     }
+    // C: impossible("should_query_disclose_option: bad category %c", category);
+    note_unported('pline.c impossible');
+    return { ask: true, defquery: 'n' };
 }
 
 function disclosureStopprint(state) {
@@ -1806,7 +1820,12 @@ export function dealloc_killer(killer, state = game) {
         previous = current;
         current = current.next ?? null;
     }
-    if (current) previous.next = current.next ?? null;
+    if (!current) {
+        // C: impossible("dealloc_killer (#%d) not on list", kptr->id);
+        note_unported('pline.c impossible');
+    } else {
+        previous.next = current.next ?? null;
+    }
 }
 
 // C ref: end.c container_contents() (1594-1670). Iterates `list` via nobj,

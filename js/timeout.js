@@ -250,14 +250,6 @@ function timerGlobals(state) {
 }
 
 
-export class UnsupportedBurnObjectError extends Error {
-    constructor(obj) {
-        super(`begin_burn is not available for otyp ${obj?.otyp}`);
-        this.name = 'UnsupportedBurnObjectError';
-        this.otyp = obj?.otyp;
-    }
-}
-
 function timerCleanupEnv(state, env = {}) {
     return {
         ...env,
@@ -1733,6 +1725,8 @@ export function start_timer(
         if (timer.kind === kind
             && timer.func_index === funcIndex
             && timer.arg === arg) {
+            // C: impossible("Attempted to start duplicate %s, aborted.", idbuf);
+            note_unported('pline.c impossible');
             return false;
         }
     }
@@ -2379,10 +2373,6 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
     const isMagicLamp = obj?.otyp === MAGIC_LAMP;
     const isOilPotion = obj?.otyp === POT_OIL;
     const isArtifactLight = artifact_light(obj);
-    if (!isCandle && !isLamp && !isCandelabrum
-        && !isMagicLamp && !isOilPotion && !isArtifactLight) {
-        throw new UnsupportedBurnObjectError(obj);
-    }
 
     const age = Math.trunc(obj.age ?? 0);
     if (age === 0 && !isMagicLamp && !isArtifactLight) return;
@@ -2419,6 +2409,10 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         else if (age > 15) turns = age - 15;
         else turns = age;
         radius = candle_light_range(obj);
+    } else {
+        // C: impossible("begin burn: unexpected %s", xname(obj));
+        note_unported('pline.c impossible');
+        turns = age;
     }
     // The JS port can have its light owner missing, so check it before
     // start_timer() claims ownership and adjusts the candle's remaining fuel.
@@ -2559,7 +2553,11 @@ export function attach_fig_transform_timeout(figurine, env = {}) {
 // or queue mutation, matching the source's impossible()+return path.
 export function start_glob_timeout(obj, when = 0, env = {}) {
     const { random, state } = timeoutEnv(env);
-    if (!obj.globby) return false;
+    if (!obj.globby) {
+        // C: impossible("start_glob_timeout for non-glob [%d: %s]?", obj->otyp, simpleonames(obj));
+        note_unported('pline.c impossible');
+        return false; /* skip timer creation */
+    }
     if (obj.timed) stop_timer(SHRINK_GLOB, obj, state);
     let delay = Math.trunc(when);
     if (delay < 1) delay = 25 + random.rn2(5) - 2;
