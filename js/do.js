@@ -3197,10 +3197,16 @@ export async function u_collide_m(mtmp, state = game) {
         await mnexto(mtmp, RLOC_NOMSG, { state });
     }
 
-    if (m_at(state.u.ux, state.u.uy, state)) {
-        // C tries rloc() and then m_into_limbo(), which sends the monster off
-        // the level to return later. The wizard-mode message is not ported.
-        await m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
+    // do.c:1436-1444. Neither branch above leaves a monster on the hero's
+    // square except mnexto()'s deal_with_overcrowding() on the Astral Plane,
+    // where elemental_clog() finds nothing to obliterate.
+    if ((mtmp = m_at(state.u.ux, state.u.uy, state)) != null) {
+        if (state.wizard)
+            await ttyPline("(monster in hero's way)", state);
+        if (!await rloc(mtmp, RLOC_NOMSG, { state })
+            || (mtmp = m_at(state.u.ux, state.u.uy, state)) != null)
+            /* no room to move it; send it away, to return later */
+            await m_into_limbo(mtmp, state);
     }
 }
 
