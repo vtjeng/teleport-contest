@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "SYMBOLS=S_unexplored:x. #terrain's first view (detect.c reveal_terrain()) shows GLYPH_UNEXPLORED for every unremembered square, which map_glyphinfo() draws with the x, not a blank.",
+  "segments": [
+    {
+      "seed": 4418093,
+      "datetime": "20290611201500",
+      "nethackrc": "OPTIONS=name:Toru,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nSYMBOLS=S_unexplored:x\n",
+      "moves": " #terrain\na\u001b\u001b"
+    }
+  ]
+}

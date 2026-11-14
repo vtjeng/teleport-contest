@@ -225,7 +225,6 @@ import {
     unblock_point,
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
-import { NO_COLOR } from './terminal.js';
 import { canspotmon, sensemon } from './display.js';
 import { detect_wsegs } from './worm.js';
 import {
@@ -273,19 +272,10 @@ function glyphIsGascloud(glyph) {
 }
 
 function terrainGlyphInfo(glyph, state) {
-    // display.c's GLYPH_UNEXPLORED is a real glyph number, but this port's
-    // ordinary map renderer represents it as an unremembered blank.  Keep the
-    // number on the transient presentation so reveal_terrain_getglyph() can
-    // still make the same source-shaped comparisons.
-    if (glyph === undefined || glyph === GLYPH_UNEXPLORED_OFF) {
-        return {
-            glyph: GLYPH_UNEXPLORED_OFF,
-            ch: ' ',
-            color: NO_COLOR,
-            dec: false,
-        };
-    }
-    return map_glyphinfo(glyph, state);
+    // An unremembered square has no glyph number in the port; C's is
+    // GLYPH_UNEXPLORED, which map_glyphinfo() draws with S_unexplored and
+    // keeps on the presentation for reveal_terrain_getglyph()'s comparisons.
+    return map_glyphinfo(glyph ?? GLYPH_UNEXPLORED_OFF, state);
 }
 
 // C ref: detect.c reveal_terrain_getglyph() (2167-2288). Projection reads

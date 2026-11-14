@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "SYMBOLS=S_unexplored:x. display.c docrt_flags() calls show_glyph(GLYPH_UNEXPLORED) on every unremembered square; its glyphinfo now differs from nul_gbuf's blank (display.c:2031-2044), so flush_screen() prints the x. The inventory corner menu is then dismissed: wintty.c docorner() clears each covered row and display.c row_refresh() repaints it, but its force test reads gg.gbuf[0][0], which only clear_glyph_buffer() writes and always with nul_gbuf, so the unexplored squares keep cl_end()'s blank, also after the next move.",
+  "segments": [
+    {
+      "seed": 6120447,
+      "datetime": "20310917094200",
+      "nethackrc": "OPTIONS=name:Ulla,role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nSYMBOLS=S_unexplored:x\n",
+      "moves": " i\u001bj"
+    }
+  ]
+}
