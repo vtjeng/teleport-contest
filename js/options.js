@@ -92,6 +92,7 @@ import {
     QBUFSZ,
     ROGUESET,
     ROWNO,
+    MAX_MENU_MAPPED_CMDS,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_STEP,
@@ -3440,10 +3441,18 @@ function illegalMenuCommandKey(result, key) {
     return false;
 }
 
-function addMenuCommandAlias(result, fromKey, command) {
-    if (result.iflags.mapped_menu_cmds.length >= 32) return;
-    result.iflags.mapped_menu_cmds += String.fromCharCode(fromKey);
-    result.iflags.mapped_menu_op += command;
+// C ref: options.c add_menu_cmd_alias() (8076-8092).  Its callers,
+// spcfn_misc_menu_cmd() for the set_in_config menu_* options and
+// parsebindings() for BIND, run only while the rc file is read, before
+// iflags.window_inited, so the full-table pline() is pline.c's early
+// raw_print() (pline.c:239).
+function add_menu_cmd_alias(result, fromKey, command) {
+    if (result.iflags.mapped_menu_cmds.length >= MAX_MENU_MAPPED_CMDS) {
+        result.startupEvents.push({ text: 'out of menu map space.' });
+    } else {
+        result.iflags.mapped_menu_cmds += String.fromCharCode(fromKey);
+        result.iflags.mapped_menu_op += command;
+    }
 }
 
 // C ref: options.c spcfn_misc_menu_cmd() (5451-5477).  shared_menu_optfn()
@@ -3463,7 +3472,7 @@ function spcfn_misc_menu_cmd(result, midx, request, negated, opts, op) {
         if (value !== '') {
             const key = textToKey(value);
             if (illegalMenuCommandKey(result, key)) return optn_err;
-            addMenuCommandAlias(
+            add_menu_cmd_alias(
                 result, key, MENU_COMMAND_OPTIONS[midx].command,
             );
         }
@@ -3609,7 +3618,7 @@ function applyMenuBinding(result, binding) {
             );
             return;
         }
-        addMenuCommandAlias(result, key, command);
+        add_menu_cmd_alias(result, key, command);
         return;
     }
     // parsebindings() reports whatever bind_key() would not bind and

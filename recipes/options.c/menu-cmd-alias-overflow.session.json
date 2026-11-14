@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6620931,
+      "datetime": "20260203110000",
+      "nethackrc": "OPTIONS=name:Pagewright,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nBIND=^A:menu_next_page\nOPTIONS=menu_previous_page:^B\nOPTIONS=nosuchoption\n",
+      "moves": "\n i",
+      "comment": "options.c add_menu_cmd_alias() (8076-8092): the 33rd BIND of a menu command and the menu_previous_page option overflow MAX_MENU_MAPPED_CMDS (32), so each prints \"out of menu map space.\" through pline.c's early raw_print(); the unknown option that follows makes config_error_done() wait, which keeps that raw output on the screen."
+    }
+  ]
+}
