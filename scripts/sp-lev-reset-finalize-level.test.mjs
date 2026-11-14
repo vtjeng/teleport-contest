@@ -119,10 +119,10 @@ test('reset_level marks Lua testing, remakes the coder, and clears the level', a
         assert.equal(des.frame.xstart, 1);
         assert.equal(des.frame.ystart, 0);
         assert.equal(des.frame.splevMap[painted.x][painted.y], 0);
-        assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
-        assert.equal(game.unported.has('wizcmds.c makemap_remove_mons'), false);
+        assert.equal(game.unported?.has('cmd.c makemap_prepost') ?? false, false);
+        assert.equal(game.unported?.has('wizcmds.c makemap_remove_mons') ?? false, false);
         assert.equal(game.unported?.has('dog.c keepdogs') ?? false, false);
-        assert.equal(game.unported.has('dungeon.c rm_mapseen'), false);
+        assert.equal(game.unported?.has('dungeon.c rm_mapseen') ?? false, false);
         assert.equal(game.svm.mapseenchn.includes(replacedMapseen), false,
             'makemap_prepost(TRUE) removes the replaced level overview node');
         assert.equal(game.in_mklev, true);
@@ -198,7 +198,7 @@ test('finalize_level finishes the topology and clears Lua testing', async () => 
         assert.equal(game.in_mklev, false);
         assert.equal(game.xstart, 0);
         assert.equal(game.ystart, 0);
-        assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
+        assert.equal(game.unported?.has('cmd.c makemap_prepost') ?? false, false);
         // The room survived the pass with its floor intact.
         const room = game.level.rooms[0];
         assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);
