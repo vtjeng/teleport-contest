@@ -972,6 +972,12 @@ function glyphPresentation(symbol, color, state, customization = null) {
     if (customization?.rgb && state.iflags?.wc_color !== false) {
         result.rgb = [...customization.rgb];
         result.displayColor = `rgb(${customization.rgb.join(', ')})`;
+        // wintty.c tty_print_glyph() (3893-3913) prints an RGB customcolor
+        // with term_start_extracolor() and skips term_start_color(). The
+        // recorder's TERM, xterm-256color, sets colorcount to 256, so this
+        // is the path taken, and recorder patch 006 hooks only
+        // term_start_color(): the captured cell keeps the default colour.
+        result.color = NO_COLOR;
     }
     return result;
 }
@@ -1022,16 +1028,20 @@ export function hero_glyph_info(state = game) {
         GLYPH_MON_MALE_OFF,
         GLYPH_MON_FEM_OFF,
     );
+    const customization = numeric_glyph_customization(logicalGlyph, state);
     const glyph = glyphPresentation(
         symbol,
         monsterGlyphColor(logicalGlyph, species?.mcolor ?? CLR_WHITE, state),
         state,
-        numeric_glyph_customization(logicalGlyph, state),
+        customization,
     );
     // C ref: display.c map_glyphinfo() (2620-2632). The hero's color tweak
     // replaces the stored glyphmap color, so it survives reset_glyphmap()
-    // turning colors off on a Rogue level without Rogue IBM colors.
-    if (state.iflags?.wc_color !== false && !Upolyd(state.u)) {
+    // turning colors off on a Rogue level without Rogue IBM colors. It
+    // changes gm.sym.color only; wintty.c tty_print_glyph() prints a
+    // customcolor instead (see glyphPresentation()).
+    if (state.iflags?.wc_color !== false && !Upolyd(state.u)
+        && customization?.basicColor == null && !glyph.rgb) {
         if (hasRogueColor(state)) glyph.color = CLR_YELLOW;
         else if (showRace) glyph.color = HI_DOMESTIC;
     }
@@ -2638,8 +2648,11 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         state,
         customization,
     );
-    // A glyph customization's color still takes precedence, as before.
-    if (heroColor !== null && customization?.basicColor == null)
+    // A glyph customization's color takes precedence: tty_print_glyph()
+    // replaces gm.sym.color with a basic customcolor and prints an RGB one
+    // through term_start_extracolor() (see glyphPresentation()).
+    if (heroColor !== null && customization?.basicColor == null
+        && !presentation.rgb)
         presentation.color = heroColor;
     const attr = print_glyph_attr(glyphflags, state);
     if (attr) presentation.attr = attr;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "An RGB glyph customization on the fountain and on the showrace dwarf hero. wintty.c tty_print_glyph() (3893-3913) prints an RGB customcolor with term_start_extracolor() when colorcount >= 256 (TERM=xterm-256color) and skips term_start_color(), which is the only call recorder patch 006 hooks, so both cells keep the default foreground; the hero's showrace HI_DOMESTIC tweak changes only gm.sym.color.",
+  "segments": [
+    {
+      "seed": 6120447,
+      "datetime": "20310917094200",
+      "nethackrc": "OPTIONS=name:Ulla,role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,showrace\nOPTIONS=symset:plain\nOPTIONS=glyph:S_fountain:U+007B/255-0-0\nOPTIONS=glyph:G_female_dwarf:U+0068/0-255-0\n",
+      "moves": " l"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A basic-colour glyph customization on the showrace dwarf hero. wintty.c tty_print_glyph() replaces the color with COLORVAL(customcolor), so the hero is red rather than map_glyphinfo()'s showrace HI_DOMESTIC white.",
+  "segments": [
+    {
+      "seed": 7730215,
+      "datetime": "20300203081000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,showrace\nOPTIONS=symset:plain\nOPTIONS=glyph:G_female_dwarf:U+0068/red\n",
+      "moves": " j"
+    }
+  ]
+}
