@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8813305,
+      "datetime": "20250218143307",
+      "nethackrc": "OPTIONS=name:Ansel,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nMSGTYPE=hide \"holy water\"\n",
+      "moves": "q?\u001bq?d",
+      "comment": "wintty.c tty_message_menu() writes its PICK_ONE line with tty_putstr(WIN_MESSAGE), bypassing pline.c vpline()'s MSGTYPE lookup. The Priest's only potion stack is listed by invent.c display_pickinv() at the quaff prompt even though a MSGTYPE=hide rule matches its text; Escape cancels the first listing and typing the letter at the second --More-- selects the stack to drink."
+    }
+  ]
+}

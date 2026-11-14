@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91357,
+      "datetime": "20250610120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,statuslines:3,armorstatus,terrainstatus,blind,time\n",
+      "moves": "ss:\u001bhhjjkkllss",
+      "comment": "wintty.c render_status() lines the third row's Blind condition up with the hunger column and stores that column as its x, so every later check_fields() pass redraws it and its indent blanks the unchanged Shield and terrain fields. A terrain word that gets shorter is redrawn and the rest-of-line erase takes Blind with it until the next pass; the turn counter reaching two digits moves every later field, which redraws them all."
+    }
+  ]
+}

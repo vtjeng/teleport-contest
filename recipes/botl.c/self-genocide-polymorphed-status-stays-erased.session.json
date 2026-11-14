@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 271828,
+      "datetime": "20260415101500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,time\n",
+      "moves": "#polyself\nhill orc\n\u0017uncursed scroll of genocide\nrg  human\n\u0018\u001bss\u0012sss",
+      "comment": "read.c do_genocide() sets u.uhp = -1 when a polymorphed human genocides humans, and botl.c bot() then draws nothing. The ^X window and ^R both clear the screen (wintty.c tty_clear_nhwindow() NHW_MAP, which also blanks the status window's cw->data), so the status rows stay blank; timebot() still redraws the T: field alone when the turn counter moves."
+    }
+  ]
+}
