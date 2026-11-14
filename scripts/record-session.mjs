@@ -467,6 +467,21 @@ function parseNethackrcName(rc) {
     return null;
 }
 
+// The name the recorder passes to C as `-u <name>`. C's early_options()
+// (earlyarg.c) reads every argument that starts with '-' as an option, the one
+// after -u included, so a name such as "-s" or "--showpaths" would run a
+// command-line feature instead of a game. Such names are outside the port's
+// scope (Vincent, 2026-11-13), so the recorder refuses them, as keyByte()
+// refuses keys above U+00FF; scripts/c-message-exemptions.mjs relies on this.
+export function recorderPlayerName(rc) {
+    const name = parseNethackrcName(rc) ?? '';
+    if (name.startsWith('-')) {
+        throw new Error(`player name ${JSON.stringify(name)} starts with '-'; the recorder `
+            + 'passes it to NetHack as "-u <name>", which would read it as a command-line option');
+    }
+    return name;
+}
+
 async function ensureScorefiles(installDir) {
     for (const name of ['record', 'xlogfile', 'logfile']) {
         const p = path.join(installDir, name);
@@ -541,7 +556,7 @@ export async function recordSegment({
     if (isFirstSegment) await clearStaleState(installDir);
     else await clearLockFiles(installDir);
 
-    const playerName = parseNethackrcName(seg.nethackrc) ?? '';
+    const playerName = recorderPlayerName(seg.nethackrc);
     const args = ['-u', playerName];
 
     const env = {

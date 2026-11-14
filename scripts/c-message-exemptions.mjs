@@ -19,11 +19,15 @@ const PERM_INVENT = 'only tty_ctrl_nhwindow() under TTY_PERM_INVENT reports a to
 const SYMBOLS_FILE = 'needs the installed symbols file to be missing or to hold no sets; '
     + 'the recorder install has one with 14 sets';
 
-// The recorder starts NetHack with only "-u <name>" (scripts/record-session.mjs
-// recordSegment()), and a session carries no command line for the port.
+// The recorder starts NetHack as "-u <name>", taking the name from the
+// session's OPTIONS=name:. NetHack reads any argument that starts with '-'
+// as an option (earlyarg.c early_options()), the name included, so these
+// messages are reachable only through a name such as "-s" or "--showpaths".
+// Such names are out of scope (Vincent, 2026-11-13): record-session.mjs
+// recorderPlayerName() refuses them, and recorder-player-name.test.mjs pins it.
 function commandLine(what) {
-    return `${what}; the recorder passes only "-u <name>" `
-        + '(scripts/record-session.mjs), and a session has no command line';
+    return `${what}; reachable only through a player name that starts with '-', `
+        + 'which the recorder refuses (record-session.mjs recorderPlayerName())';
 }
 const DUMPMONGEN = commandLine('output of the --dumpmongen option (earlyarg.c argcheck())');
 const PRSCORE = commandLine('output of the -s option (earlyarg.c scores_only())');
@@ -57,8 +61,8 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
         "#saveoptions reports a short fwrite() of the config file, which only a full "
         + 'or failing disk causes'),
     entry('src/cfgfiles.c', 'fopen_config_file', "Couldn't open requested config file",
-        'a config file named by --nethackrc or NETHACKOPTIONS="@file"; the recorder '
-        + 'sets neither and writes the session options to $HOME/.nethackrc'),
+        commandLine('a config file named by --nethackrc (NETHACKOPTIONS="@file" is not '
+            + 'set by the recorder either)')),
     entry('src/cfgfiles.c', 'fopen_config_file', "Couldn't open default config file",
         'opening $HOME/.nethackrc failed with an errno other than ENOENT; the recorder '
         + 'writes that file before it starts NetHack'),
@@ -68,12 +72,11 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
         + 'NETHACKOPTIONS (cfgfiles.c rcfile()) and the command line are each read '
         + 'inside config_error_init()'),
     entry('src/cfgfiles.c', 'assure_syscf_file', 'Unable to open SYSCF_FILE.',
-        'installation check: the sysconf file the recorder build installs is missing'),
+        commandLine('the sysconf file is missing from the playground, which only the -d '
+            + 'option can move away from the one the recorder installs')),
     entry('src/decl.c', 'decl_globals_init', '.havestate not True.',
         'MAGICCHECK self-check of the global initializers at start-up; only a '
         + 'miscompiled build fails it'),
-    entry('src/earlyarg.c', 'argcheck', 'version can only be extended with -',
-        commandLine('rejects a bad --version:<word> option')),
     entry('src/files.c', 'commit_bonesfile', "couldn't rename",
         'debug mode reports a failed rename() of the temporary bones file within its '
         + 'own directory, a filesystem error'),
@@ -85,12 +88,12 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
     entry('src/files.c', 'unlock_file', "Can't remove fcntl lock on",
         'fcntl(F_UNLCK) failed on a descriptor the game holds, an operating-system error'),
     entry('src/files.c', 'fopen_wizkit_file', "Couldn't open requested wizkit file",
-        'access(R_OK) succeeded but fopen("r") failed; the recorder is not setuid, and '
-        + 'on Linux an open for reading succeeds whenever access() grants read, '
-        + 'directories included'),
+        'needs a WIZKIT path where access(R_OK) succeeds but fopen("r") fails, such as '
+        + 'a socket like /dev/log; which paths do that depends on the host machine, not '
+        + 'the game (Vincent chose to exempt it, 2026-11-13)'),
     entry('src/files.c', 'check_recordfile', "Warning: cannot write scoreboard file '",
-        'start-up check (unixmain.c) that the record file can be created in the '
-        + 'playground the recorder installs'),
+        commandLine('start-up check (unixmain.c) that the record file can be created; '
+            + 'it fails only in a playground chosen with the -d option')),
     entry('src/files.c', 'reveal_paths', 'system configuration file', REVEAL_PATHS),
     entry('src/files.c', 'reveal_paths', 'above is missing or inaccessible!', REVEAL_PATHS),
     entry('src/files.c', 'reveal_paths', 'are in many separate files.', REVEAL_PATHS),
@@ -121,10 +124,11 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
         "needs sysconf MSGHANDLER, which the recorder's sysconf leaves commented out, "
         + 'and then a failed fork()'),
     entry('src/restore.c', 'inven_inuse', 'Finishing off',
-        'objects still marked in_use in a save file, which a hangup during an action '
-        + 'leaves (the comment names the HUP cheat); a recorded segment saves through '
-        + 'the S command, after the action that set in_use has cleared it or used the '
-        + 'object up'),
+        'needs objects still marked in_use in a save file; potion.c potion_dip() can '
+        + 'leave a potion marked (a worn amulet dipped into polymorph that becomes an '
+        + 'amulet of change), but save.c dosave0() calls done_object_cleanup() '
+        + '(end.c), which uses up every marked object before writing, and a segment '
+        + 'otherwise ends without saving (EOF reads as ESC; SIGTERM is not trapped)'),
     entry('src/restore.c', 'restgamestate', 'Saved game was not yours.',
         'sysconf CHECK_SAVE_UID and a save file written by another user ID; every '
         + 'segment of a recording runs as the same user'),
@@ -176,8 +180,8 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
     entry('src/invent.c', 'sync_perminvent', 'could not be enabled.', PERM_INVENT),
     entry('src/invent.c', 'sync_perminvent', 'needs a terminal that is at least', PERM_INVENT),
     entry('src/mail.c', 'md_rush', "This place's too crowded.  I'm outta here.",
-        'MAILPATH is undefined, so mail comes only from $MAIL changing during play; '
-        + 'no session input sets or changes it'),
+        'needs the mailbox file ($MAIL, or MAILPATH under LINUX) to change during '
+        + 'play; no session input writes to it'),
     entry('src/options.c', 'handler_msg_window', "' option is not supported for '",
         'PREV_MSGS is 1 under TTY_GRAPHICS (options.c), and the window port is always tty'),
     entry('src/options.c', 'rejectoption', 'can be set only from NETHACKOPTIONS or',

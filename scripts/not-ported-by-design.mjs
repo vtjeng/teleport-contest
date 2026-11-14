@@ -11,6 +11,11 @@ const SAVE_FILE_REASON = 'the port keeps game state between segments through '
 export const NOT_PORTED_BY_DESIGN = Object.freeze({
     'sfbase.c': Object.freeze({ reason: SAVE_FILE_REASON, approved: 'Vincent, 2026-11-13' }),
     'sfstruct.c': Object.freeze({ reason: SAVE_FILE_REASON, approved: 'Vincent, 2026-11-13' }),
+    'earlyarg.c': Object.freeze({
+        reason: "it parses NetHack's command line; the recorder's only argument is "
+            + '"-u <name>", and record-session.mjs refuses a name that starts with \'-\'',
+        approved: 'Vincent, 2026-11-13',
+    }),
     'dlb.c': Object.freeze({
         reason: 'the build leaves DLB undefined (include/config.h), so dlb.c compiles '
             + 'to nothing and dlb.h maps its calls to stdio',

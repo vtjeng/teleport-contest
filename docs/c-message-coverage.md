@@ -1880,7 +1880,7 @@ it gives the C line, the message function, and the fragment.
 - `do_write_config_file()`: #saveoptions reports a short fwrite() of the config file, which only a full or failing disk causes (approved: Vincent, 2026-11-13)
   - 206 pline: `An error occurred, wrote only partial data (`
 
-- `fopen_config_file()`: a config file named by --nethackrc or NETHACKOPTIONS="@file"; the recorder sets neither and writes the session options to $HOME/.nethackrc (approved: Vincent, 2026-11-13)
+- `fopen_config_file()`: a config file named by --nethackrc (NETHACKOPTIONS="@file" is not set by the recorder either); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 271 raw_printf: `Couldn't open requested config file`
 
 - `fopen_config_file()`: opening $HOME/.nethackrc failed with an errno other than ENOENT; the recorder writes that file before it starts NetHack (approved: Vincent, 2026-11-13)
@@ -1889,7 +1889,7 @@ it gives the C line, the message function, and the fragment.
 - `config_erradd()`: the prefix prints only for an option error outside config_error_init() before windows exist; sysconf (options.c initoptions()), the nethackrc and NETHACKOPTIONS (cfgfiles.c rcfile()) and the command line are each read inside config_error_init() (approved: Vincent, 2026-11-13)
   - 1560 pline: `config_error_add:`
 
-- `assure_syscf_file()`: installation check: the sysconf file the recorder build installs is missing (approved: Vincent, 2026-11-13)
+- `assure_syscf_file()`: the sysconf file is missing from the playground, which only the -d option can move away from the one the recorder installs; reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 2066 raw_printf: `Unable to open SYSCF_FILE.`
 
 ### src/decl.c
@@ -1899,7 +1899,9 @@ it gives the C line, the message function, and the fragment.
 
 ### src/earlyarg.c
 
-- `argcheck()`: rejects a bad --version:<word> option; the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+Whole file not ported by design: it parses NetHack's command line; the recorder's only argument is "-u <name>", and record-session.mjs refuses a name that starts with '-' (approved: Vincent, 2026-11-13)
+
+- `argcheck()`
   - 515 raw_printf: `version can only be extended with -`
 
 ### src/files.c
@@ -1919,13 +1921,13 @@ it gives the C line, the message function, and the fragment.
 - `unlock_file()`: fcntl(F_UNLCK) failed on a descriptor the game holds, an operating-system error (approved: Vincent, 2026-11-13)
   - 2428 raw_printf: `Can't remove fcntl lock on`
 
-- `fopen_wizkit_file()`: access(R_OK) succeeded but fopen("r") failed; the recorder is not setuid, and on Linux an open for reading succeeds whenever access() grants read, directories included (approved: Vincent, 2026-11-13)
+- `fopen_wizkit_file()`: needs a WIZKIT path where access(R_OK) succeeds but fopen("r") fails, such as a socket like /dev/log; which paths do that depends on the host machine, not the game (Vincent chose to exempt it, 2026-11-13) (approved: Vincent, 2026-11-13)
   - 2497 raw_printf: `Couldn't open requested wizkit file`
 
-- `check_recordfile()`: start-up check (unixmain.c) that the record file can be created in the playground the recorder installs (approved: Vincent, 2026-11-13)
+- `check_recordfile()`: start-up check (unixmain.c) that the record file can be created; it fails only in a playground chosen with the -d option; reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 2714 raw_printf: `Warning: cannot write scoreboard file '`
 
-- `reveal_paths()`: output of the --showpaths option (files.c do_deferred_showpaths()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+- `reveal_paths()`: output of the --showpaths option (files.c do_deferred_showpaths()); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 3216 raw_printf: `system configuration file`
   - 3229 raw_printf: `above is missing or inaccessible!`
   - 3300 raw_printf: `are in many separate files.`
@@ -1945,12 +1947,12 @@ it gives the C line, the message function, and the fragment.
 
 ### src/mail.c
 
-- `md_rush()`: MAILPATH is undefined, so mail comes only from $MAIL changing during play; no session input sets or changes it (approved: Vincent, 2026-11-13)
+- `md_rush()`: needs the mailbox file ($MAIL, or MAILPATH under LINUX) to change during play; no session input writes to it (approved: Vincent, 2026-11-13)
   - 373 verbalize: `This place's too crowded.  I'm outta here.`
 
 ### src/makemon.c
 
-- `dump_mongen()`: output of the --dumpmongen option (earlyarg.c argcheck()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+- `dump_mongen()`: output of the --dumpmongen option (earlyarg.c argcheck()); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 1843 raw_printf: `int mongen_order[] = {`
   - 1852 raw_printf: `', diff=`
   - 1857 raw_printf: `(G_NOGEN | G_UNIQ)`
@@ -2004,7 +2006,7 @@ it gives the C line, the message function, and the fragment.
 
 ### src/restore.c
 
-- `inven_inuse()`: objects still marked in_use in a save file, which a hangup during an action leaves (the comment names the HUP cheat); a recorded segment saves through the S command, after the action that set in_use has cleared it or used the object up (approved: Vincent, 2026-11-13)
+- `inven_inuse()`: needs objects still marked in_use in a save file; potion.c potion_dip() can leave a potion marked (a worn amulet dipped into polymorph that becomes an amulet of change), but save.c dosave0() calls done_object_cleanup() (end.c), which uses up every marked object before writing, and a segment otherwise ends without saving (EOF reads as ESC; SIGTERM is not trapped) (approved: Vincent, 2026-11-13)
   - 121 pline: `Finishing off`
 
 - `restgamestate()`: sysconf CHECK_SAVE_UID and a save file written by another user ID; every segment of a recording runs as the same user (approved: Vincent, 2026-11-13)
@@ -2058,14 +2060,14 @@ Whole file not ported by design: the port keeps game state between segments thro
 
 ### src/topten.c
 
-- `prscore()`: output of the -s option (earlyarg.c scores_only()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+- `prscore()`: output of the -s option (earlyarg.c scores_only()); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 1211 raw_printf: `prscore: bad arguments (`
   - 1339 raw_printf: `-s [-v] <playertypes> [maxrank] [playernames]`
   - 1341 raw_printf: `Player types are: [-p role] [-r race]`
 
 ### src/version.c
 
-- `early_version_info()`: output of the --version:copy option (earlyarg.c argcheck()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+- `early_version_info()`: output of the --version:copy option (earlyarg.c argcheck()); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
   - 309 raw_printf: `Paste buffer copy is not available.`
 
 - `check_version()`: a save or bones file written by another build; every segment of a recording writes and reads its files with the same recorder build (approved: Vincent, 2026-11-13)
