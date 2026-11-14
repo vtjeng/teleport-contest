@@ -572,9 +572,10 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const canSee = rawEnv.canSee
         ?? ((x, y) => cansee(x, y, state));
     const message = rawEnv.message ?? ttyPline;
-    const invisibleHero = Invis(state.u)
-        && !perceives(mtmp.data);
-    const unotseen = !mtmp.mcansee || invisibleHero;
+    // C tests plain Invis twice: with perceives() for unotseen, and alone for
+    // the "invisible " word in the displaced-image messages below.
+    const invisibleHero = Invis(state.u);
+    const unotseen = !mtmp.mcansee || (invisibleHero && !perceives(mtmp.data));
     const unotthere = Displaced(state.u);
     const usubmerged = Boolean(state.u?.uinwater);
 
