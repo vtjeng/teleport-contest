@@ -32,7 +32,7 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
 
 import {
     FUNCTION_NODES,
@@ -93,7 +93,7 @@ function labelOf(arg) {
 // `markers` counts the diagnostic note_unported() calls inside it,
 // including those in nested functions.
 export function jsFunctionMarkers(file, source) {
-    const ast = acorn.parse(source, { ecmaVersion: 'latest', sourceType: 'module', locations: true });
+    const ast = parse(source, { ecmaVersion: 'latest', sourceType: 'module', locations: true });
     const found = [];
     const visit = (node, parent, stack) => {
         if (FUNCTION_NODES.has(node.type)) {

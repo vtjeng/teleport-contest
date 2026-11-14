@@ -707,7 +707,7 @@ test('do_mkroom dispatches every source room family',
         assert.deepEqual(swampDraws, [1, 1, 1, 1, 1]);
 
         do_mkroom(-1, state);
-        assert.ok(state.unported.has('mkroom.c impossible'));
+        assert.ok(state.unported.has('pline.c impossible'));
     });
 
 test('antholemon chooses and skips genocided ant species', () => {
