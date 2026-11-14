@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c wizkit_addinv() for a Priest: WIZKIT=.nethackrc wishes for 3 potions of water, which wizkit_addinv() marks bknown (the Role_if(PM_CLERIC) arm) and addinv() places as a new stack beside the blessed holy water. The item line is also an initoptions() error, raw-printed before the game. Seed, date, elven Priest and item chosen independently.",
+  "segments": [
+    {
+      "seed": 9163382,
+      "datetime": "20460728114500",
+      "nethackrc": "OPTIONS=name:Abbot,role:Priest,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.nethackrc\n3 potions of water\n",
+      "moves": "\n     i    "
+    }
+  ]
+}

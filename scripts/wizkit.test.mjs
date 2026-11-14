@@ -3,8 +3,10 @@
 // recipes/files.c/wizkit-missing-file, wizkit-after-config-error,
 // wizkit-playground-not-directory and wizkit-home-not-directory show the
 // "Access to <name> denied" and "Couldn't open default gw.wizkit file"
-// reports; these tests pin what no recording shows: the 127-byte limit, the
-// arms that print nothing, and the names the port cannot rule out as files.
+// reports, and wizkit-home-config-* show C reading $HOME/.nethackrc as the
+// kit; these tests pin what no recording shows: the 127-byte limit, the
+// arms that print nothing, a directory read as an empty kit, and the names
+// whose bytes the port does not have.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -36,18 +38,35 @@ test('read_wizkit prints nothing outside debug mode or without a kit', async () 
     await read_wizkit({ wizard: true, wizkit: '' });
 });
 
-test('read_wizkit notes a kit name the port cannot rule out as a file', async () => {
-    // access() succeeds or reaches the host for each: "rumors" is a
-    // playground file, "." the playground, "1000wizard.3" a level file the
+test('read_wizkit notes a kit name whose bytes the port does not have', async () => {
+    // access() succeeds or reaches the host for each: "rumors" and
+    // "minefill.lua" are playground files, "1000wizard.3" a level file the
     // game may have written, "save/kit" a name in the save directory, and
     // "/etc/kit" and "../kit" leave the playground. C would open any that
     // exists and wish for its lines. Neither state has a display, so a raw
     // print before the note would throw.
-    for (const wizkit of ['rumors', 'minefill.lua', '.', '1000wizard.3',
+    for (const wizkit of ['rumors', 'minefill.lua', '1000wizard.3',
         'save/kit', '/etc/kit', '../kit']) {
         game.unported = new Set();
         await read_wizkit({ wizard: true, wizkit });
         assert.deepEqual([...game.unported], ['files.c fopen_wizkit_file'], wizkit);
+    }
+});
+
+test('read_wizkit reads a playground directory as an empty kit', async () => {
+    // access() and fopen(name, "r") both succeed on a directory, and the
+    // first fgets() fails, so parse_conf_file() hands proc_wizkit_line()
+    // nothing: "." is the playground and "save" its save directory. No state
+    // has a display, so a raw print would throw.
+    for (const wizkit of ['.', 'save', 'save/']) {
+        game.unported = new Set();
+        const state = { wizard: true, wizkit };
+        await read_wizkit(state);
+        assert.deepEqual([...game.unported], [], wizkit);
+        // read_wizkit() clears program_state.wizkit_wishing and pops its
+        // error frame once the file is read.
+        assert.equal(state.program_state.wizkit_wishing, 0, wizkit);
+        assert.equal(state.configErrorFrame, undefined, wizkit);
     }
 });
 
@@ -92,11 +111,12 @@ test('read_wizkit reports access() and $HOME failures with their errno', async (
         unread: 0,
         unported: [],
     });
-    // access() fails, but fopen() then opens $HOME/.nethackrc itself.
+    // access() fails, but fopen() then opens $HOME/.nethackrc itself, whose
+    // text this state leaves empty, so nothing is wished for.
     assert.deepEqual(await wizkitRows('./.nethackrc', 1), {
         rows: ['Access to ./.nethackrc denied (2).'],
         unread: 0,
-        unported: ['files.c fopen_wizkit_file'],
+        unported: [],
     });
 });
 

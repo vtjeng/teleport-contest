@@ -3147,13 +3147,9 @@ async function seffect_create_monster(scroll, state = game,
 // C ref: read.c:seffect_mail() (2157-2188). This static helper sets gk.known,
 // the effect's discovery flag, then chooses its exact message from spe and
 // the object's identifier parity. doread() later discovers the scroll type
-// through learnscroll(); this helper does not set oc_name_known. The
-// recorder's build defines MAIL and DEF_MAILREADER "/bin/mail", so a spe 0
-// scroll reaches UNIX mail.c readmail(), which forks and execs the mail
-// reader (unixunix.c child()). What a recording then shows depends on the
-// host, not on the game: whether /bin/mail exists and reads the recorder's
-// input, and, when it does not, the forked child's own nh_terminate(), which
-// writes an extra screen capture. The call stays a gap.
+// through learnscroll(); this helper does not set oc_name_known. A spe 0
+// scroll reaches UNIX mail.c readmail(); the default arm below says why
+// that call stays a gap.
 async function seffect_mail(scroll, state = game, env = {}) {
     const odd = Math.trunc(scroll.o_id ?? 0) % 2 === 1;
     const message = env.message ?? ttyPline;
@@ -3177,6 +3173,22 @@ async function seffect_mail(scroll, state = game, env = {}) {
         );
         break;
     default:
+        // mail.c readmail() (703-733, the UNIX one) is compiled and
+        // reachable, but what it shows depends on the host. Neither hints
+        // file defines NOMAIL, so unixconf.h:146 defines MAIL; SIMPLE_MAIL
+        // stays undefined, so readmail() takes the DEF_MAILREADER arm. A spe 0 scroll needs no mailbox: debug
+        // mode's ^G makes a mail daemon and #wizkill kills it, and
+        // mon.c xkilled():3578-3579 drops one. readmail() then calls
+        // display_nhwindow(), forks, and execs MAILREADER from the
+        // environment, or DEF_MAILREADER: "/usr/bin/mailx" on the judge's
+        // macOS build (unixconf.h:179-187, SYSV without LINUX) and "/bin/mail"
+        // on a Linux recorder (:189-191). The child's output on the tty
+        // comes from that program and the host's mailbox, and when the
+        // program is missing the child runs nh_terminate() itself. The
+        // parent's unixunix.c child(1) then raw_print()s "" and waits for a
+        // key before resume_nhwindows(). A local recording (2026-11-14,
+        // /bin/mail absent) showed two blank screens and the next turn's RNG
+        // after the second key, which the judge's host need not reproduce.
         note_unported('mail.c readmail');
         break;
     }

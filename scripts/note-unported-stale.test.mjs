@@ -29,7 +29,9 @@ const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossi
 const OWN_DIAGNOSTIC = 'diagnostic arm inside the named function itself';
 
 const EXCEPTIONS = new Map([
-    ['pline.c impossible', { count: 268, reason: IMPOSSIBLE }],
+    // 267: vault.c find_guard_dest() now awaits impossible() and tele()
+    // (2026-11-14).
+    ['pline.c impossible', { count: 267, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.
@@ -37,6 +39,9 @@ const EXCEPTIONS = new Map([
     ['trap.c lava_effects', { count: 1, reason: OWN_DIAGNOSTIC }],
     // The named function is ported; the marker inside it records an input
     // the port cannot read: a host file, or the fuzzer's random key loop.
+    // fopen_wizkit_file() reads $HOME/.nethackrc and directories; its two
+    // markers are the other playground files and names outside the
+    // playground or HOME, whose bytes the port does not have.
     ['files.c fopen_wizkit_file', { count: 2, reason: 'reading a host wizkit file is unported' }],
     ['nhlua.c nhl_loadlua', { count: 2, reason: 'loading a host file that is not a bundled Lua program is unported' }],
     ['wizcmds.c wiz_fuzzer', { count: 1, reason: 'the fuzzer key loop is unported' }],

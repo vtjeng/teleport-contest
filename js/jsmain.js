@@ -433,6 +433,11 @@ export class NethackGame {
         g.dogname = opts.dogname ?? '';
         g.horsename = opts.horsename ?? '';
         g.wizkit = opts.wizkit ?? ''; // C ref: gw.wizkit
+        // The bytes of $HOME/.nethackrc, which the recorder writes from the
+        // segment's nethackrc before each launch
+        // (docs/recording-environment.md).  initoptions() has read it; files.c
+        // fopen_wizkit_file() can open it again when WIZKIT names it.
+        g.homeConfigText = this._nethackrc;
         g.gameplayBindings = opts.gameplayBindings.map((binding) => ({
             ...binding,
         }));

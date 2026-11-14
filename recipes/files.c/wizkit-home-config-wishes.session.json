@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() reading $HOME/.nethackrc through WIZKIT=.nethackrc: the three item lines first fail initoptions() as \"Not a config statement\" (raw-printed before the game), then each reaches proc_wizkit_line() in order. readobjnam() makes the scrolls and the saber, wizkit_addinv() observes and adds them, and the comment line is skipped by parse_conf_buf(); the line between them names nothing, so it is a silent \"Bad wizkit item\". Seed, date, dwarven Valkyrie and items chosen independently.",
+  "segments": [
+    {
+      "seed": 4402917,
+      "datetime": "20520317201000",
+      "nethackrc": "OPTIONS=name:Packer,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.nethackrc\n# kit items\n2 blessed scrolls of enchant armor\nfrobozz widget\n+2 silver saber\n",
+      "moves": "\n     i    "
+    }
+  ]
+}

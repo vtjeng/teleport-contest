@@ -89,7 +89,7 @@ import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { relobj } from './steal.js';
 import { um_dist } from './apply.js';
-import { enexto, rloc } from './teleport.js';
+import { enexto, rloc, tele } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -102,7 +102,6 @@ import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
 import { make_grave } from './grave.js';
 import { coreRandom } from './rng.js';
-import { note_unported } from './unported.js';
 import { Blind, Deaf, Punished, Strangled } from './youprop.js';
 
 // C ref: vault.c vault_occupied() (244-253). `array` is one of the hero's room
@@ -960,7 +959,7 @@ async function gd_move_proceed(
         egrd.fcend++;
     } else if (!egrd.gddone) {
         // We're stuck; try to find a new destination
-        const dest = find_guard_dest(grd, state);
+        const dest = await find_guard_dest(grd, state, env);
         if (!dest || (dest.x === ggx && dest.y === ggy)) {
             await env.message(
                 `${capitalizedMonsterName(grd, state)}, confused, disappears.`,
@@ -996,8 +995,10 @@ async function gd_move_proceed(
 
 // C ref: vault.c find_guard_dest() (281-314). Finds the nearest corridor cell
 // in expanding concentric squares around the hero that the guard can walk
-// toward. Returns { x, y } or null.
-function find_guard_dest(guard, state) {
+// toward. Returns { x, y }, or null after C's impossible() and tele() when
+// the level has no such corridor. Every level with a vault has corridors, so
+// only a broken level state reaches that tail.
+async function find_guard_dest(guard, state, env = {}) {
     outer:
     for (let dd = 2; dd < ROWNO || dd < COLNO; dd++) {
         for (let y = state.u.uy - dd; y <= state.u.uy + dd; y++) {
@@ -1026,10 +1027,8 @@ function find_guard_dest(guard, state) {
             }
         }
     }
-    // C: impossible("Not a single corridor on this level?"); tele();
-    // This helper is synchronous, so neither the diagnostic nor C's tele()
-    // that follows it runs here.
-    note_unported('pline.c impossible');
+    await impossible('Not a single corridor on this level?', state, env);
+    await tele(state, { random: env.random ?? coreRandom });
     return null;
 }
 
@@ -1061,7 +1060,7 @@ export async function invault(state, env = {}) {
     if (guard) return;
 
     // No guard yet — create one.
-    const dest = find_guard_dest(null, state);
+    const dest = await find_guard_dest(null, state, env);
     if (!dest) return;
     const gdx = dest.x;
     const gdy = dest.y;
