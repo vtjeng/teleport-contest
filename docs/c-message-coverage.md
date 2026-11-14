@@ -22,10 +22,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Missing |
 | --- | ---: | ---: | ---: |
-| gameplay | 4068 | 3994 | 74 |
+| gameplay | 4068 | 4000 | 68 |
 | diagnostic | 723 | 225 | 498 |
 | debug | 120 | 3 | 117 |
-| total | 4911 | 4222 | 689 |
+| total | 4911 | 4228 | 683 |
 
 ## Missing by C file
 
@@ -35,7 +35,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | --- | --- | ---: | ---: | ---: |
 | src/allmain.c | yes | 0 | 1 | 0 |
 | src/alloc.c | yes | 0 | 5 | 0 |
-| src/apply.c | yes | 1 | 6 | 0 |
+| src/apply.c | yes | 0 | 6 | 0 |
 | src/artifact.c | no | 0 | 8 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
 | src/ball.c | yes | 0 | 10 | 0 |
@@ -48,7 +48,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
 | src/display.c | yes | 0 | 8 | 0 |
-| src/do.c | yes | 1 | 4 | 0 |
+| src/do.c | yes | 0 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
 | src/do_wear.c | yes | 0 | 8 | 0 |
 | src/dog.c | yes | 0 | 3 | 0 |
@@ -71,8 +71,8 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/lock.c | yes | 0 | 2 | 0 |
 | src/mail.c | no | 1 | 0 | 1 |
 | src/makemon.c | yes | 3 | 7 | 4 |
-| src/mcastu.c | yes | 1 | 8 | 1 |
-| src/mhitu.c | yes | 1 | 4 | 0 |
+| src/mcastu.c | yes | 0 | 8 | 1 |
+| src/mhitu.c | yes | 0 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 10 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
@@ -88,7 +88,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/nhlua.c | yes | 1 | 11 | 1 |
 | src/o_init.c | yes | 1 | 7 | 0 |
 | src/objnam.c | yes | 0 | 14 | 0 |
-| src/options.c | yes | 4 | 6 | 0 |
+| src/options.c | yes | 3 | 6 | 0 |
 | src/pager.c | yes | 2 | 6 | 0 |
 | src/pickup.c | yes | 1 | 5 | 1 |
 | src/pline.c | yes | 1 | 2 | 0 |
@@ -108,7 +108,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/sfstruct.c | no | 0 | 6 | 0 |
 | src/shk.c | yes | 0 | 25 | 1 |
 | src/shknam.c | yes | 2 | 4 | 0 |
-| src/sit.c | yes | 1 | 0 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 14 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
@@ -143,11 +142,6 @@ The JS module column says whether `js/` has a module with the C file's name.
 
 Each line gives the C line, the message function, and the fragment searched for.
 
-### src/apply.c
-
-- `use_whip()`
-  - 3009 There: `is too much resistance to flick your bullwhip.`
-
 ### src/bones.c
 
 - `getbones()`
@@ -172,11 +166,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `decl_globals_init()`
   - 1142 raw_printf: `.havestate not True.`
-
-### src/do.c
-
-- `u_collide_m()`
-  - 1440 pline: `(monster in hero's way)`
 
 ### src/earlyarg.c
 
@@ -237,16 +226,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1852 raw_printf: `', diff=`
   - 1857 raw_printf: `(G_NOGEN | G_UNIQ)`
 
-### src/mcastu.c
-
-- `castmu()`
-  - 254 pline: `You're enveloped in flames.`
-
-### src/mhitu.c
-
-- `gazemu()`
-  - 1717 pline_mon: `doesn't look all that ugly`
-
 ### src/mkmaze.c
 
 - `mv_bubble()`
@@ -275,9 +254,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `initoptions_finish()`
   - 7359 raw_printf: `Status highlighting not supported for`
-
-- `add_menu_cmd_alias()`
-  - 8083 pline: `out of menu map space.`
 
 ### src/pager.c
 
@@ -322,11 +298,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `shkinit()`
   - 645 pline: `Room at (`
   - 647 pline: `doormax=`
-
-### src/sit.c
-
-- `dosit()`
-  - 553 pline_The: `ice feels cold.`
 
 ### src/symbols.c
 
