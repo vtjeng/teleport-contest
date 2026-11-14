@@ -2178,8 +2178,9 @@ export async function shrink_glob(obj, expire_time, env = {}) {
         // C: impossible("shrink_glob for non-glob [%d: %s]?", ...)
         return; /* old timer is gone, don't start a new one */
     }
-    // C: check_glob(obj, "shrink obj ") -- void, result discarded
-    check_glob(obj, 'shrink obj ', state);
+    /* note: if check_glob() complains about a problem, the " obj " here
+       will be replaced in the feedback with info about this glob */
+    await check_glob(obj, 'shrink obj ', state);
 
     /* If shrinkage occurred while on another level, catch up now. */
     if (expire_time < (state.moves ?? 0) && globloc !== BURIED_UNDER_ICE) {
