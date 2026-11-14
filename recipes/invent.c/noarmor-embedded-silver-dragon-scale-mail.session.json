@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c noarmor() 4583-4595, variation of noarmor-embedded-gray-dragon-scales: a Healer wears silver dragon scale mail and polymorphs into a silver dragon; the mail reverts to scales as it merges (polyself.c 640-648), and '[' reports \"silver scales\". Seed 1189359 is the first of 1189357-1189360 on which no monster interrupts the setup.",
+  "segments": [
+    {
+      "seed": 1189359,
+      "datetime": "20261114111500",
+      "nethackrc": "OPTIONS=name:Mailed,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017silver dragon scale mail\nWl#polyself\nsilver dragon\n\u001b["
+    }
+  ]
+}

@@ -173,7 +173,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, textBytes, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl, upstart, strcmpi } from './hacklib.js';
+import { digit, textBytes, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl, upstart, strcmpi, strncmpi } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -6169,11 +6169,17 @@ async function noarmor(report_uskin, state) {
     } else {
         const { simpleonames } = await import('./objnam.js');
         let uskinname = simpleonames(state.uskin, state);
-        if (uskinname.startsWith('set of '))
+        // Shorten "set of <color> dragon scales" to "<color> scales" and
+        // "<color> dragon scale mail" to "<color> scale mail". C's
+        // `p[1] = p[8]` loop keeps the space at p[0] and removes the seven
+        // characters "dragon " after it.
+        if (!strncmpi(uskinname, 'set of ', 7))
             uskinname = uskinname.slice(7);
-        const dragonIdx = uskinname.indexOf(' dragon ');
-        if (dragonIdx >= 0)
-            uskinname = uskinname.slice(0, dragonIdx) + uskinname.slice(dragonIdx + 8);
+        const dragonIdx = strstri(uskinname, ' dragon ');
+        if (dragonIdx >= 0) {
+            uskinname = uskinname.slice(0, dragonIdx + 1)
+                + uskinname.slice(dragonIdx + 8);
+        }
         await ttyPline(
             `You are not wearing armor but have ${uskinname} embedded in your skin.`,
             state,

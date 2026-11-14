@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c noarmor() 4583-4595: a Valkyrie wears a wished set of gray dragon scales and polymorphs into a gray dragon, which merges the scales into her skin; '[' then reports \"gray scales\": C drops \"set of \" and the seven characters \"dragon \" after the space that strstri() finds. Seed, date and character chosen independently of batch 17.",
+  "segments": [
+    {
+      "seed": 4407725,
+      "datetime": "20261114110000",
+      "nethackrc": "OPTIONS=name:Scaly,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017gray dragon scales\nWf#polyself\ngray dragon\n\u001b["
+    }
+  ]
+}
