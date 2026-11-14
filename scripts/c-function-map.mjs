@@ -52,7 +52,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
 
 import { tokenizeMessageSources } from './c-message-coverage.mjs';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
@@ -221,7 +221,7 @@ export function functionSites(ast) {
 
 /** The names of the functions one JS file's source defines, methods included. */
 export function definedNames(source) {
-    const ast = acorn.parse(source, { ecmaVersion: 'latest', sourceType: 'module' });
+    const ast = parse(source, { ecmaVersion: 'latest', sourceType: 'module' });
     return new Set([...functionSites(ast).definitions.values()].filter(Boolean));
 }
 
@@ -253,7 +253,7 @@ function commentBlocks(source, comments) {
  */
 export function cRefsInSource(source) {
     const comments = [];
-    const ast = acorn.parse(source, {
+    const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', onComment: comments,
     });
     const { bodies, definitions } = functionSites(ast);
