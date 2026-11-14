@@ -2354,7 +2354,8 @@ export async function dopay(state = game, env = {}) {
             }
             shkp = mon;
         }
-        if (!shkp) { note_unported('pline.c debugpline'); return ECMD_OK; }
+        // C shk.c:1852 debugpline0() prints only when sysopt.debugfiles names the file, and the recorder's sysconf leaves DEBUGFILES unset (files.c:3138-3141, sys/unix/sysconf:127).
+        if (!shkp) return ECMD_OK;
     }
     const eshk = shkp.mextra.eshk;
     const robbed = eshk.robbed;

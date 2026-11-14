@@ -209,6 +209,7 @@ import {
     set_dunlev_reached,
     u_on_newpos,
     u_on_rndspot,
+    goto_hell,
 } from './dungeon.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { floating_above } from './fountain.js';
@@ -247,7 +248,7 @@ import {
     useupf,
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
-import { mklev } from './mklev.js';
+import { free_luathemes, mklev } from './mklev.js';
 import { dmonsfree, makemon_runtime } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
@@ -2398,12 +2399,11 @@ export async function dodown(state = game, env = {}) {
     // do.c:1281-1291. `trap` is non-null here only for a seen hole or trap
     // door under the hero, and uescaped_shaft() above has already sent that
     // case through dotrap(TOOKPLUNGE) and returned, so C never reaches the
-    // trap arms below. The Stronghold arm's goto_hell() is therefore left as
-    // a recorded gap; recordings/do.c/fly-through-castle-trap-door-valley
+    // trap arms below; recordings/do.c/fly-through-castle-trap-door-valley
     // shows C taking the dotrap() path instead.
     if (trap && state.stronghold_level
         && on_level(state.stronghold_level, u.uz)) {
-        note_unported('dungeon.c goto_hell');
+        await goto_hell(false, true, state);
     } else if (trap && trap.dst && trap.dst.dlevel !== -1) {
         const tdst = {};
         assign_level(tdst, trap.dst);
@@ -2723,7 +2723,7 @@ export async function goto_level(
     if (!cant_go_back) {
         update_mlstmv(state);
     } else {
-        note_unported('mklev.c free_luathemes');
+        free_luathemes(leaving_tutorial ? 'tut_themes' : 'most_themes', state);
     }
     savelev(ledger_no(u.uz, state), state,
         { mode: cant_go_back ? 'FREEING' : 'WRITING|FREEING' });

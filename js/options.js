@@ -3694,10 +3694,10 @@ function numberPadTerminalUpdate(state, helpers) {
     // During startup the command model is rebuilt after parsing and the
     // operation above is its source-ordered input.
     if (typeof helpers?.resetCommands === 'function') helpers.resetCommands();
-    // wintty.c number_pad() is a void terminal-mode hook. The command model
-    // above owns its observable key behavior; this call is the discarded
-    // window-port side effect.
-    note_unported('wintty.c tty_number_pad');
+    // termcap.c:359-374 tty_number_pad() only writes the keypad-mode escape
+    // through xputs() (termcap.c:638-645), which bypasses the nomux_buf[][]
+    // screen the recorder captures (patch 006); the command model above owns
+    // its key behavior.
 }
 
 // C ref: options.c optfn_number_pad() (2573-2645), including its historic

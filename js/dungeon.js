@@ -629,6 +629,15 @@ export function find_hell(level, state = game) {
     level.dlevel = 1;
 }
 
+// C ref: dungeon.c goto_hell() (1956-1963). Dynamic import: js/do.js imports
+// this file.
+export async function goto_hell(at_stairs, falling, state = game) {
+    const lev = {};
+    find_hell(lev, state);
+    const { goto_level } = await import('./do.js');
+    await goto_level(lev, at_stairs, falling, false, state);
+}
+
 // C ref: dungeon.c On_W_tower_level() (1913-1920) and In_W_tower()
 // (1922-1940). The first asks whether the level holds the Wizard's tower, the
 // second whether a square is inside it.

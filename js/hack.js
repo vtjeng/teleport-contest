@@ -980,10 +980,9 @@ export function max_capacity(state = game) {
 // source-formatted initializer ordered first by seven-digit weight and then by
 // the displayed body or object name.
 export function dump_weights(state = game, env = {}) {
-    // decl_globals_init() and freedynamicdata() are void lifecycle calls. The
-    // JS command-line path that would own them is not ported, so record both
-    // gaps and operate on the caller's initialized catalogs.
-    note_unported('decl.c decl_globals_init');
+    // Only the --dumpweights command-line option (earlyarg.c:538-540) calls
+    // this. C hack.c:4429 decl_globals_init() resets the ga..gz globals, none
+    // of which the dump reads; the port uses the caller's initialized catalogs.
     const initializeObjects = env.initObjects ?? init_objects;
     initializeObjects(state, env.random ?? rn2);
 
@@ -1045,7 +1044,8 @@ export function dump_weights(state = game, env = {}) {
     }
     rawPrint('};');
     rawPrint('');
-    note_unported('decl.c freedynamicdata');
+    // C hack.c:4482 freedynamicdata() frees memory (save.c:1077-1189) before
+    // earlyarg.c's caller exits; it prints nothing.
 }
 
 // C ref: hack.c cmp_weights() (4486-4493). strcmp() only promises a negative,

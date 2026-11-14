@@ -507,9 +507,16 @@ export async function load_lua(name, sbi, state = game, env = {}) {
             () => run_level_program(name, lua, state), name, state))
             loaded = false;
     }
-    note_unported('nhlua.c nhl_done');
-    state.iflags.in_lua = false;
+    nhl_done(lua, state);
     return loaded !== false;
+}
+
+// C ref: nhlua.c nhl_done() (2368-2389). Its LUASTATS livelog lines need
+// gl.loglua, which only the -loglua command-line flag sets
+// (sys/unix/unixmain.c:411) and the recorder does not pass; lua_close() and
+// the allocator release have nothing to show.
+export function nhl_done(lua, state = game) {
+    state.iflags.in_lua = false;
 }
 
 // C ref: nhlua.c nhl_get_timertype(). Lua callback arguments are represented

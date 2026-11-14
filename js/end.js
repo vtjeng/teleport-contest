@@ -1123,11 +1123,15 @@ export async function panic(str, state = game) {
     if (state.program_state.something_worth_saving
         && !state.iflags?.debug_fuzzer) {
         // files.c set_error_savefile() appends ".e" to the save file name and
-        // dosave0() writes the game there. The port's dosave0() writes only
-        // the set_savefile_name() file, which the next segment would restore,
-        // while C's next segment never reads the ".e" file. dosave0()'s result
-        // selects only the sysopt.recover line, which the recorder's sysconf
-        // leaves unset.
+        // dosave0() writes the game there, a host file. The port's dosave0()
+        // writes only the set_savefile_name() file, which the next segment
+        // would restore. C's next process would find the ".e" file through
+        // CHECK_PANIC_SAVE (include/unixconf.h:134, unixmain.c
+        // check_panic_save()) and ask whether to start a new game, but no
+        // recording reaches one: CRASHREPORT (config.h:244-256) makes panic()
+        // end in NH_abort() (end.c:463-467), which the recorder reports as a
+        // failure. dosave0()'s result selects only the sysopt.recover line,
+        // which the recorder's sysconf leaves unset.
         note_unported('files.c set_error_savefile');
     }
 

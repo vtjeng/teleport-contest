@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
-import { PROJECT_ROOT, jsFunctionNames } from './c-functions.mjs';
+import { PROJECT_ROOT, UPSTREAM_ROOT, jsFunctionNames } from './c-functions.mjs';
 
 const JS_ROOT = join(PROJECT_ROOT, 'js');
 
@@ -24,9 +24,6 @@ const JS_ROOT = join(PROJECT_ROOT, 'js');
 // impossible() marker uses this label, whatever C file it sits in, because
 // scripts/c-diagnostic-markers.test.mjs counts markers by it.
 const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossible()';
-// The label names the function that contains the marker: it records a
-// debugpline() arm inside that function, not a skipped call.
-const OWN_DIAGNOSTIC = 'diagnostic arm inside the named function itself';
 
 const EXCEPTIONS = new Map([
     // 267: vault.c find_guard_dest() now awaits impossible() and tele()
@@ -36,7 +33,6 @@ const EXCEPTIONS = new Map([
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.
     ['end.c panic', { count: 1, reason: 'synchronous shkname() cannot wait for async panic()' }],
-    ['trap.c lava_effects', { count: 1, reason: OWN_DIAGNOSTIC }],
     // The named function is ported; the marker inside it records an input
     // the port cannot read: a host file, or the fuzzer's random key loop.
     // fopen_wizkit_file() reads $HOME/.nethackrc and directories; its two
@@ -105,4 +101,34 @@ test('no note_unported() label names a function that js/ defines', () => {
             `${key}: ${observed} stale markers, pinned at ${count}; `
             + 'update the count in this file');
     }
+});
+
+// Calls that print or change nothing in the recorder's build need a comment
+// at the call site, not a marker. No hints file the recorder uses defines a
+// SND_LIB_*, so sndprocs.h's no-sound-library branch defines each sound call
+// as an empty macro; this reads those names from the header. debugpline*()
+// prints only for files named in sysconf DEBUGFILES, which the recorder's
+// sysconf leaves unset (files.c debugcore(), sys/unix/sysconf).
+function emptySoundMacros() {
+    const header = readFileSync(join(UPSTREAM_ROOT, 'include', 'sndprocs.h'), 'utf8');
+    const start = header.indexOf('NO SOUNDLIB IS INTEGRATED AFTER THIS');
+    assert.ok(start > 0, 'sndprocs.h no longer has its no-sound-library branch');
+    const branch = header.slice(start, header.indexOf('#endif  /* No SOUNDLIB */', start));
+    return [...branch.matchAll(/^#define (\w+)\([^)]*\)[ \t]*$/gmu)].map((m) => m[1]);
+}
+
+test('no note_unported() label names a call that does nothing in the recorder build', () => {
+    const empty = new Set([
+        ...emptySoundMacros(),
+        'debugpline', 'debugpline0', 'debugpline1', 'debugpline2',
+        'debugpline3', 'debugpline4',
+    ]);
+    // Soundeffect, SoundAchievement and SetVoice are the macros js/ had
+    // marked; the header must still define them as empty.
+    for (const name of ['Soundeffect', 'SoundAchievement', 'SetVoice'])
+        assert.ok(empty.has(name), `${name} is no longer an empty macro`);
+    const found = markers().filter((marker) => empty.has(marker.function))
+        .map((marker) => `${marker.key}: ${marker.site}`);
+    assert.deepEqual(found, [],
+        'replace each marker with a comment naming the C call and why it does nothing');
 });

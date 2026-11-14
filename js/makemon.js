@@ -146,6 +146,8 @@ import {
 import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
 import { ttyPline } from './tty_message.js';
+import { tty_raw_print } from './tty_rawprint.js';
+import { monsdump } from './glyph_ids.js';
 import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { consume_obj_charge, update_inventory } from './invent.js';
@@ -969,17 +971,41 @@ export function init_mongen_order(state) {
     state._mclass_maxf = mclass_maxf;
 }
 
-// C ref: makemon.c dump_mongen(). Debug dump of the monster generation order
-// table to stdout via raw_printf/raw_print. Called from earlyarg.c for the
-// --mongen-dump command-line option.
-function dump_mongen(state = game) {
+// C ref: makemon.c dump_mongen() (1835-1866). The --dumpmongen
+// command-line option (earlyarg.c:535-537) prints the sorted mongen_order[]
+// table as a C initializer; no game reaches it. `env.rawPrint` overrides
+// raw_printf()/raw_print() in tests.
+export function dump_mongen(state = game, env = {}) {
+    const rawPrint = env.rawPrint ?? ((line) => tty_raw_print(state, line));
+    const nmwidth = 27;
+    let prev_mlet = '';
+
     monst_globals_init(state);
     init_mongen_order(state);
-    // The body formats and prints the sorted mongen_order table via
-    // raw_printf/raw_print and references def_monsyms[] and monsdump[],
-    // none of which are ported.
-    note_unported('pline.c raw_printf');
-    note_unported('alloc.c freedynamicdata');
+    const order = state._mongen_order;
+    const names = monsdump();
+    rawPrint('int mongen_order[] = {');
+    for (let i = LOW_PM; i < SPECIAL_PM; ++i) {
+        const ptr = state.mons[order[i]];
+        const special = ptr.geno & (G_NOGEN | G_UNIQ);
+        const mlet = monsterClassSymbol(ptr.mlet);
+        if (prev_mlet && prev_mlet !== mlet)
+            rawPrint('');
+        const nmbuf = `PM_${names[order[i]]}${i === SPECIAL_PM - 1 ? '' : ','}`;
+        const tag = special === (G_NOGEN | G_UNIQ) ? '(G_NOGEN | G_UNIQ)'
+            : special === G_NOGEN ? '(G_NOGEN)'
+                : special === G_UNIQ ? '(G_UNIQ)' : '';
+        rawPrint(`    ${nmbuf.padEnd(nmwidth)} /* ${i === order[i] ? ' ' : '.'}`
+            + ` seq=${String(i).padStart(3)}, idx=${String(order[i]).padStart(3)},`
+            + ` sym='${mlet}', diff=${String(ptr.difficulty).padStart(2)},`
+            + ` freq=${String(ptr.geno & G_FREQ).padStart(2)}`
+            + `[${state._mclass_maxf[ptr.mlet]}] ${tag} */`);
+        prev_mlet = mlet;
+    }
+    rawPrint('};');
+    rawPrint('');
+    // C makemon.c:1865 freedynamicdata() frees memory (save.c:1077-1189)
+    // before earlyarg.c's caller exits; it prints nothing.
 }
 
 // C ref: makemon.c mkclass(). Wrapper for mkclass_aligned with A_NONE.

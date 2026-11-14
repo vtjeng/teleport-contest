@@ -17,7 +17,6 @@ import {
 import { redraw_map, status_initialize } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
-import { note_unported } from './unported.js';
 import {
     displayPendingTtyMessageWindow,
     TOPLINE_EMPTY,
@@ -253,9 +252,11 @@ export function tty_exit_nhwindows(str, state = game) {
 
 // wintty.c:342-349.  The C path removes lock files, tears down tty windows,
 // and exits the process through nh_terminate(), which does not return here
-// either.  The browser runner has no lock files to release; record that call.
+// either.
 export async function bail(mesg, state = game) {
-    note_unported('files.c clearlocks');
+    // C files.c clearlocks() deletes the lock and level files (files.c:
+    // 733-750) and prints nothing; the recorder deletes them itself before
+    // the next segment (scripts/record-session.mjs:555-556 clearLockFiles()).
     tty_exit_nhwindows(mesg, state);
     await nh_terminate(state);
 }
@@ -385,15 +386,22 @@ function clear_status_window(state) {
 // wintty.c:491-510.  The browser renderer has no WinDesc status window, so
 // tty_clear_nhwindow(WIN_STATUS) clears the cached status rows.  C's first
 // arm, which clears and destroys an existing status window, needs WIN_STATUS
-// set, and the port never assigns it a window id.  genl_status_finish() and
-// tty_status_init() only free and reallocate status tracking data.
+// set, and the port never assigns it a window id.
 // config.h defines STATUS_HILITES, so the rebuilt window ends with botl.c
 // status_initialize(REASSESS_ONLY): its gu.update_all makes the next bot()
 // evaluate every field with chg = 0 and clear its highlight timer, dropping
 // a temporary up/down highlight.
 export function new_status_window(state = game) {
-    note_unported('windows.c genl_status_finish');
-    note_unported('wintty.c tty_status_init');
+    // windows.c:909-919 genl_status_finish() frees status_vals[]; then
+    // wintty.c:4336-4361 tty_status_init() resets tty_status[][], the
+    // condition bits and the hit-point bar, and genl_status_init()
+    // (windows.c:893-906) empties status_vals[] and disables every field.
+    // status_initialize(REASSESS_ONLY) below enables the fields again and
+    // sets gu.update_all, so the next bot() sends every field before the
+    // rows are drawn; the cached rows cleared below stand for that data.
+    // genl_status_init()'s display_nhwindow(WIN_STATUS) clears rawprint
+    // (wintty.c:1868).
+    if (state.nhDisplay?.nomuxRaw) state.nhDisplay.nomuxRaw.rawprint = 0;
     clear_status_window(state);
     status_initialize(state, true);
 }

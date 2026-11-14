@@ -123,13 +123,9 @@ export function setgemprobs(dlev = null, state = game) {
         objects[first + j].oc_prob = 0;
     first += j;
 
-    if (first > LAST_REAL_GEM
-        || objects[first].oc_class !== GEM_CLASS
-        || OBJ_NAME(objects[first], state) === null) {
-        // o_init.c setgemprobs():69-73 prints "Not enough gems? ..." with
-        // raw_printf(), waits through wait_synch(), and goes on.
-        note_unported('pline.c raw_printf');
-    }
+    // o_init.c:68-73 prints "Not enough gems? ..." with raw_printf() when
+    // first passes the real gems. It cannot: lev >= 0 keeps j <= 9, so first
+    // is at most the tenth of the 22 real gems (objects.h GEM entries).
 
     for (j = first; j <= LAST_REAL_GEM; ++j) {
         objects[j].oc_prob = Math.trunc(

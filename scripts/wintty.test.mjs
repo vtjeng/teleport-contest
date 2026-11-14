@@ -298,16 +298,15 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
     assert.equal(state.wintty.clipping, false);
 });
 
-test('bail records unavailable cleanup and ends in nh_terminate', async () => {
+test('bail ends in nh_terminate', async () => {
     // wintty.c:348 nh_terminate(EXIT_SUCCESS) does not return; gameover is
     // the runner's observable nh_terminate result.
     const state = resetGame();
     initUnported();
     await expectTerminated(() => bail('stop here', state));
 
-    assert.deepEqual([...state.unported], [
-        'files.c clearlocks',
-    ]);
+    // clearlocks() deletes host lock files only; nothing is recorded.
+    assert.deepEqual([...state.unported], []);
     assert.deepEqual(state.program_state, {
         in_moveloop: 0,
         exiting: 1,
@@ -397,7 +396,11 @@ test('new_status_window clears the JavaScript status rows', () => {
     status_initialize(state, false); // startup's full status initialization
     state.disp.botlx = false;
     state.gu.update_all = false;
+    // One raw_print() since the last window display; genl_status_init()'s
+    // display_nhwindow(WIN_STATUS) clears the count (wintty.c:1868).
+    state.nhDisplay = { nomuxRaw: { rawprint: 1 } };
     new_status_window(state);
+    assert.equal(state.nhDisplay.nomuxRaw.rawprint, 0);
 
     // wintty.c tty_clear_nhwindow() NHW_STATUS sets disp.botlx, and
     // status_initialize(REASSESS_ONLY) sets gu.update_all so the next bot()
@@ -412,8 +415,5 @@ test('new_status_window clears the JavaScript status rows', () => {
         { text: '', owners: [] },
     ]);
     assert.equal(state._renderedStatusStyles, null);
-    assert.deepEqual([...state.unported], [
-        'windows.c genl_status_finish',
-        'wintty.c tty_status_init',
-    ]);
+    assert.deepEqual([...state.unported], []);
 });

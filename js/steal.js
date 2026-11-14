@@ -12,7 +12,6 @@ import {
     LOST_NONE,
     LOST_STOLEN,
     LOST_THROWN,
-    OBJ_DELETED,
     PLNMSG_MON_TAKES_OFF_ITEM,
     RLOC_MSG,
     RIGHT_RING,
@@ -385,9 +384,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
         } else if (obj.owornmask) {
             await setnotworn(obj, setwornEnv(state, env));
         }
-
-        if (obj.where === OBJ_DELETED)
-            note_unported('pline.c debugpline1');
+        // C steal.c:287-288 debugpline1() prints only when sysopt.debugfiles names the file, and the recorder's sysconf leaves DEBUGFILES unset (files.c:3138-3141, sys/unix/sysconf:127).
     } finally {
         obj.in_use = oldinuse;
     }

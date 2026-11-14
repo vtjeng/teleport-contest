@@ -2696,9 +2696,10 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         state.u.uundetected = false;
         dmonsfree(state);
         dobjsfree(state);
-        savelev(ledger, state);
-        note_unported('files.c get_freeing_nhfile');
-        note_unported('files.c close_nhfile');
+        // cmd.c:1036-1038: get_freeing_nhfile() supplies savelev()'s FREEING
+        // mode (files.c:1299-1308); close_nhfile() of that never-opened file
+        // only frees it (files.c:518-531).
+        savelev(ledger, state, { mode: 'FREEING' });
         return ECMD_OK;
     }
 
@@ -4142,8 +4143,7 @@ export function cmdname_from_func(fn, outbuf = [], fullname = false, state = gam
     }
     const result = entry.ef_txt.slice(0, length || entry.ef_txt.length);
     writeOutBuffer(outbuf, result);
-    if (result !== entry.ef_txt)
-        note_unported('pline.c debugpline2');
+    // C cmd.c:3151 debugpline2() prints only when sysopt.debugfiles names the file, and the recorder's sysconf leaves DEBUGFILES unset (files.c:3138-3141, sys/unix/sysconf:127).
     return result;
 }
 

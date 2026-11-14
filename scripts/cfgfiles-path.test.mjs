@@ -83,7 +83,7 @@ test('do_write_config_file keeps warning, wait, query, and gap order', async () 
     assert.equal(state.unported, undefined);
 });
 
-test('do_write_config_file records unavailable write after confirmation', async () => {
+test('do_write_config_file returns after confirmation without a gap', async () => {
     const state = resetGame();
     Object.assign(state, {
         configfile: '/home/player/.nethackrc',
@@ -95,7 +95,8 @@ test('do_write_config_file records unavailable write after confirmation', async 
     });
 
     assert.equal(result, ECMD_OK);
-    assert.deepEqual([...state.unported], ['cfgfiles.c fopen']);
+    // No later read sees the written file (see js/cfgfiles.js).
+    assert.equal(state.unported?.size ?? 0, 0);
 });
 
 // cfgfiles.c do_write_config_file() calls pline(), wait_synch() and cmd.c

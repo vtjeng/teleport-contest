@@ -136,6 +136,12 @@ export function sourceSymbolNamesByIndex() {
     return names;
 }
 
+// C ref: earlyarg.c monsdump[], the PM_* names without their prefix, by
+// monster index.
+export function monsdump() {
+    return monsterNames();
+}
+
 function monsterNames() {
     const names = new Array(NUMMONS);
     // monsdump[] is generated from the PM_* enum, not from the mutable

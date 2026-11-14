@@ -588,9 +588,9 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
 
     assert.equal(state.u.uinwater, false);
     assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
-    // The recursive guard is an observation point after lava_effects is
-    // entered; the chosen state keeps this fixture away from its other arms.
-    assert.ok(state.unported.has('trap.c lava_effects recursive call'));
+    // The recursive guard returns before lava_effects() does anything else;
+    // its debugpline0() prints nothing without DEBUGFILES.
+    assert.equal(state.unported.size, 0);
     resetGame();
 });
 

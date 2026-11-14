@@ -1534,9 +1534,7 @@ export async function lava_effects(state = game) {
     state.iflags ??= {};
     state.iflags.in_lava_effects ??= 0;
     if (state.iflags.in_lava_effects) {
-        // C's debugpline is output only when debugging; this port has no
-        // debug window owner, so the recursive call is a source-discarded gap.
-        note_unported('trap.c lava_effects recursive call');
+        // C trap.c:6803 debugpline0() prints only when sysopt.debugfiles names the file, and the recorder's sysconf leaves DEBUGFILES unset (files.c:3138-3141, sys/unix/sysconf:127).
         return false;
     }
 

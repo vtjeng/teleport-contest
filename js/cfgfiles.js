@@ -22,7 +22,6 @@ import {
 } from './const.js';
 import { add_menu_coloring } from './coloratt.js';
 import { get_feature_notice_ver } from './version.js';
-import { note_unported } from './unported.js';
 import { rn2 } from './rng.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
@@ -98,10 +97,11 @@ export async function do_write_config_file(state = game, env = {}) {
     const prompt = `Overwrite config file ${filename}?`;
     if (!await query(true, prompt, state)) return ECMD_OK;
 
-    // C now opens configfile for writing and serializes all_options_strbuf().
-    // JavaScript has no host filesystem in the contest runtime, so do not
-    // invent a pathname or a second configuration store for this operation.
-    note_unported('cfgfiles.c fopen');
+    // cfgfiles.c:194-208 writes all_options_strbuf() to configfile. Nothing
+    // reads that file again: C reads it only at startup (cfgfiles.c:1944,
+    // options.c:7327 rcfile()), and the recorder rewrites HOME/.nethackrc from
+    // the session before each segment starts (scripts/record-session.mjs:547).
+    // The partial-write message needs a failing host write.
     return ECMD_OK;
 }
 

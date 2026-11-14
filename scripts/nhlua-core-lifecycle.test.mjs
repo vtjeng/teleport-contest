@@ -105,7 +105,7 @@ test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', asyn
     assert.equal(result, true); // load_lua()'s ret: nhl_loadlua() succeeded.
     assert.deepEqual(draws, [3, 2, 3, 2]); // Implicit then explicit library load.
     assert.equal(game.iflags.in_lua, false);
-    assert.deepEqual([...game.unported], ['nhlua.c nhl_done']);
+    assert.deepEqual([...game.unported], []); // nhl_done() is ported.
     // nhlL_newstate() numbers the state's sandbox: the first in this game.
     assert.equal(game.gl.lua_sid, 1);
 });
@@ -126,9 +126,7 @@ test('bounded load_lua initializes before a file it cannot run', async () => {
         });
         assert.deepEqual(draws, [3, 2], name); // C initializes before lookup.
         assert.equal(game.iflags.in_lua, false, name);
-        assert.deepEqual([...game.unported], [
-            'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
-        ], name);
+        assert.deepEqual([...game.unported], ['nhlua.c nhl_loadlua'], name);
     }
 });
 

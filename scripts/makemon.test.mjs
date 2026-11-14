@@ -1566,3 +1566,17 @@ test('newmextra returns an object with mcorpsenm set to NON_PM', () => {
     assert.equal(mex.mcorpsenm, NON_PM,
         'mcorpsenm should be NON_PM in a fresh mextra');
 });
+
+// scripts/fixtures/dump-mongen.txt is the stdout of the recorder binary run
+// as `nethack --dumpmongen` (NETHACKDIR and HACKDIR set to its install
+// directory), which reaches makemon.c dump_mongen() through earlyarg.c.
+// The port must print the same table, byte for byte.
+test('dump_mongen prints the table the C --dumpmongen option prints', async () => {
+    const { dump_mongen } = await import('../js/makemon.js');
+    const lines = [];
+    dump_mongen({}, { rawPrint: (line) => lines.push(line) });
+    const expected = readFileSync(
+        new URL('./fixtures/dump-mongen.txt', import.meta.url), 'utf8');
+    // raw_print() is puts(), which ends every line with a newline.
+    assert.equal(lines.map((line) => `${line}\n`).join(''), expected);
+});

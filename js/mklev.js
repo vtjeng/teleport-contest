@@ -93,6 +93,7 @@ import {
     luaO_chunkid,
     nhl_pcall_handle,
     nhlL_newstate,
+    nhl_done,
 } from './nhlua.js';
 import {
     create_maze,
@@ -697,6 +698,22 @@ function luathemes_at(dnum, state) {
         return false;
     }
     return Boolean(state._luathemes_loaded?.[dnum]);
+}
+
+// C ref: mklev.c free_luathemes() (345-364). `theme_group` is 'tut_themes'
+// (leaving the tutorial), 'most_themes' (entering the endgame) or
+// 'all_themes'. A freed dungeon's next makerooms() loads its themes again.
+export function free_luathemes(theme_group, state = game) {
+    for (let i = 0; i < (state.n_dgns ?? 0); ++i) {
+        if ((theme_group === 'tut_themes' && i !== state.tutorial_dnum)
+            || (theme_group === 'most_themes'
+                && i === state.astral_level?.dnum))
+            continue;
+        if (state._luathemes_loaded?.[i]) {
+            nhl_done(null, state);
+            state._luathemes_loaded[i] = false;
+        }
+    }
 }
 
 // C refs: nhlua.c nhl_init(); dat/nhlib.lua. Each dungeon branch retains its
