@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c query_objlist() 1119-1126 with menu_objsyms (headers): a heading shows its class symbol only when how != PICK_NONE. A wand of probing zapped down at a wished ice box calls zap.c bhito() -> invent.c display_cinventory(), a PICK_NONE list whose 'Comestibles' heading has no symbol; the following D drop menu is PICK_ANY, and its headings keep the symbol. Seed, date and character chosen independently of batch 17.",
+  "segments": [
+    {
+      "seed": 7730126,
+      "datetime": "20261114101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_objsyms\n",
+      "moves": "\u0017wand of probing\n\u0017ice box\nzf>\u001b Da\n\u001b"
+    }
+  ]
+}

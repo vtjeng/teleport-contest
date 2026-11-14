@@ -720,7 +720,8 @@ export async function query_objlist(
                     let_to_name(
                         packClass,
                         false,
-                        Boolean(state.iflags?.menu_head_objsym),
+                        how !== PICK_NONE
+                            && Boolean(state.iflags?.menu_head_objsym),
                     ),
                     state,
                 ));
