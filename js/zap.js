@@ -207,8 +207,8 @@ import { deltrap } from './trap.js';
 import { delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, sokoban_guilt, t_at, trapname, trap_ice_effects } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import {
-    erode_armor, flash_hits_mon, m_is_steadfast, shade_miss,
-    that_is_a_mimic,
+    disguised_as_mon, disguised_as_non_mon, erode_armor, flash_hits_mon,
+    m_is_steadfast, shade_miss, that_is_a_mimic,
 } from './uhitm.js';
 import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
 import {
@@ -3617,7 +3617,7 @@ export async function bhitm(monster, wand, state = game,
         reveal_invis = true;
         learn_it = cansee(hitpos.x, hitpos.y, state);
         if (resists_magm(monster, state)) {
-            if (disguised_mimic && M_AP_TYPE(monster) !== M_AP_MONSTER)
+            if (disguised_mimic && !disguised_as_mon(monster))
                 seemimic(monster, state);
             await shieldeff(monster.mx, monster.my, state);
             await ttyPline('Boing!', state, rawEnv);
@@ -5632,9 +5632,7 @@ async function buzzmonst(
     if (forcemiss
         || !zap_hit(find_mac(mon, state), spellType, random, state)) {
         if (saymiss
-            || (canseemon(mon, state)
-                // monst.h disguised_as_non_mon()
-                && !(M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)))
+            || (canseemon(mon, state) && !disguised_as_non_mon(mon, state)))
             await miss(flash_str(fltyp, false, state, random), mon, state, env);
         return { hit: false, reflected: false, clearGas: false, stop: false };
     }

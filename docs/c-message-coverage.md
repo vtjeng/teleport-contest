@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4001 | 67 | 0 |
-| diagnostic | 723 | 226 | 6 | 491 |
+| diagnostic | 723 | 227 | 6 | 490 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4230 | 73 | 608 |
+| total | 4911 | 4231 | 73 | 607 |
 
 ## Missing by C file
 
@@ -78,7 +78,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mcastu.c | yes | 0 | 8 | 1 |
 | src/mhitu.c | yes | 0 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
-| src/mklev.c | yes | 0 | 10 | 2 |
+| src/mklev.c | yes | 0 | 9 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 0 | 10 | 2 |
 | src/mkobj.c | no | 0 | 26 | 4 |
@@ -691,9 +691,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `makelevel()`
   - 1261 impossible: `makelevel() called when dungeon not yet initialized.`
-
-- `find_branch_room()`
-  - 1670 impossible: `Can't place branch!`
 
 - `mkinvpos()`
   - 2576 impossible: `mkinvpos called with dist`

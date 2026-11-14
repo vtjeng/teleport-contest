@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c disguised_as_non_mon() through zap.c buzz(). A wizard-mode elven Priest wears an amulet of ESP, creates a giant mimic, which takes an object disguise next to her, and zaps a wand of sleep at it. Unblind telepathy makes the mimic sensed as well as seen, so disguised_as_non_mon() is false and C prints \"The sleep ray misses the giant mimic.\" when the first pass misses. The elf's sleep resistance keeps the bounced ray from putting her to sleep.",
+  "segments": [
+    {
+      "seed": 88140002,
+      "datetime": "20470920120000",
+      "nethackrc": "OPTIONS=name:Elwing,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0017amulet of ESP\n\u0017blessed wand of sleep\n\u0007giant mimic\nPjzkl     "
+    }
+  ]
+}

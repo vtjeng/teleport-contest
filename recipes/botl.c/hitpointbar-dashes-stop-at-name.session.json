@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c repad_with_dashes() through wintty.c's hitpointbar. An explore-mode Wizard named \"Al  Bo\", with two adjacent spaces, takes off her cloak of magic resistance and casts force bolt at herself, leaving 2 of 12 hit points. critically_low_hp() then dashes the bar; repad_with_dashes() replaces the trailing space pairs and stops at the first pair that is not two spaces, so the double space inside the name stays.",
+  "segments": [
+    {
+      "seed": 90210015,
+      "datetime": "20471002080000",
+      "nethackrc": "OPTIONS=name:Al  Bo,role:Wizard,race:human,gender:female,align:neutral,playmode:explore,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,hitpointbar,color\n",
+      "moves": " TZa."
+    }
+  ]
+}

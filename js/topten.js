@@ -3,10 +3,13 @@
 
 import {
     COLNO,
+    CORPSTAT_FEMALE,
+    CORPSTAT_MALE,
     ENTRYMAX,
     KILLED_BY,
     KILLED_BY_AN,
     NO_KILLER_PREFIX,
+    ONAME_NO_FLAGS,
     PANICKED,
     PERSMAX,
     POINTSMIN,
@@ -28,7 +31,8 @@ import {
     PM_RANGER,
     PM_WIZARD,
 } from './monsters.js';
-import { christen_monst } from './do_name.js';
+import { christen_monst, oname } from './do_name.js';
+import { set_corpsenm } from './obj.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
 import { displayTtyTextWindow } from './tty_menu.js';
@@ -238,6 +242,23 @@ export function get_rnd_toptenentry(rawEnv = {}) {
         entry = readentry(lines[0] ?? '');
     }
     return entry.points ? entry : null;
+}
+
+// C ref: topten.c tt_oname() (1420-1442).  Gives a statue or corpse the
+// role, gender and name of a random score entry, or returns null, leaving
+// the object alone, when get_rnd_toptenentry() finds none.
+export function tt_oname(otmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? coreRandom;
+    if (!otmp) return null;
+
+    const tt = get_rnd_toptenentry({ ...rawEnv, state, random });
+    if (!tt) return null;
+
+    set_corpsenm(otmp, classmon(tt.plrole), { ...rawEnv, state, random });
+    if (tt.plgend[0] === 'F') otmp.spe = CORPSTAT_FEMALE;
+    else if (tt.plgend[0] === 'M') otmp.spe = CORPSTAT_MALE;
+    return oname(otmp, tt.name, ONAME_NO_FLAGS, { ...rawEnv, state });
 }
 
 // C ref: topten.c tt_doppel() (1445-1463).  Its return value selects the

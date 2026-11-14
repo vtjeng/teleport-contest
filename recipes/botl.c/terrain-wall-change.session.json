@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61822141,
+      "datetime": "20470605143000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,color,terrainstatus,statushilites:2\nOPTIONS=hilite_status:terrain/changed/red\n",
+      "moves": " #polyself\nxorn\nhjjjlllllllllll"
+    }
+  ],
+  "comment": "botl.c compare_blstats() for BL_TERRAIN. A xorn (wizard-mode #polyself) walks from the up stairs into the room's west wall, down to the south-west corner, and east along the south wall to the south-east corner and the rock beyond, with terrainstatus and a 'changed' rule on terrain. compare_blstats() compares BL_TERRAIN as the terrain_typ number, yet the recorder highlights only Stairs->Wall and Wall->Stone, not the moves between wall types that share the text \"Wall\". The JavaScript status therefore compares terrain by its text; a port that compares the number fails this recording."
+}

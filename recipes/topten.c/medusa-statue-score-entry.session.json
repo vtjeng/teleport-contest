@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "topten.c tt_oname() through mkmaze.c fixup_special()'s Medusa statues. Segment 0: a Valkyrie kills her kitten for score points and quits, writing a 20-point entry to the record file. Segment 1: a wizard-mode Priest level-teleports to Medusa's level, whose mk_tt_object() statues draw rnd(tt_oname_maxrank), read that entry, and take its role, gender and name instead of the empty-scoreboard rn1() fallback.",
+  "segments": [
+    {
+      "seed": 73300417,
+      "datetime": "20470811090000",
+      "nethackrc": "OPTIONS=name:Gunnhild,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup\n",
+      "moves": "FhFhFh\n#quit\nynnnnn "
+    },
+    {
+      "seed": 73300429,
+      "datetime": "20470812100000",
+      "nethackrc": "OPTIONS=name:Torvald,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0016?\nhs"
+    }
+  ]
+}

@@ -5113,16 +5113,21 @@ function _statusHitpointBarTitle() {
         .padEnd(STATUS_HP_BAR_WIDTH);
     // C ref: wintty.c:4539 asks critically_low_hp(TRUE) before dashing the
     // unfilled half of the bar.
-    if (critically_low_hp(true)) {
-        const chars = [...bar];
-        for (let index = chars.length - 1; index >= 1; index -= 2) {
-            if (chars[index] === ' ' && chars[index - 1] === ' ') {
-                chars[index] = '-';
-            }
-        }
-        bar = chars.join('');
-    }
+    if (critically_low_hp(true)) bar = repad_with_dashes(bar);
     return bar;
+}
+
+// C ref: botl.c repad_with_dashes() (2167-2178). Working back from the end
+// of the space-padded bar, replace the second space of each pair with a
+// dash, and stop at the first pair that is not two spaces.
+export function repad_with_dashes(inoutbuf) {
+    const chars = [...inoutbuf];
+    let p = chars.length;
+    while (p >= 2 && chars[p - 1] === ' ' && chars[p - 2] === ' ') {
+        chars[p - 1] = '-';
+        p -= 2;
+    }
+    return chars.join('');
 }
 
 function _statusAlignment(u = game.u) {
@@ -6768,11 +6773,21 @@ function _collectStatusHilites(layouts, onlyField = null) {
             gb.status_hilite_times[1][fld] = 0;
         }
         const notification = updateAll || changed || expired;
+        // C ref: botl.c compare_blstats(prev, curr). A number gives 1 when
+        // it rose. A string field gives sgn(strcmp(prev, curr)), 1 when the
+        // old text sorts after the new; status text is a byte string, so
+        // code-unit order is strcmp()'s unsigned byte order. The sign of a
+        // string change is not visible: parse_status_hl2() makes 'up' and
+        // 'down' on a string field 'changed' rules, and tty_status_update()
+        // ignores chg. C compares BL_TERRAIN as the terrain_typ number, but
+        // the recorder shows no change between wall types, which share the
+        // text "Wall" (recordings/botl.c/terrain-wall-change); the text
+        // comparison here matches that.
         let change = previousCompareValue == null || compareValue == null
             ? 0 : Math.sign(compareValue - previousCompareValue);
         if (data.value == null && text != null && previousText != null
             && text !== previousText)
-            change = text < previousText ? -1 : 1;
+            change = previousText > text ? 1 : -1;
         if (data.percentChange) change = data.percentChange;
         // BL_XP uses a percentage to decide whether to notify, then resets
         // chg to compare_blstats() on its level value.
