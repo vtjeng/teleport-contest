@@ -3040,8 +3040,10 @@ export function carrying(type, state = game) {
 // C ref: invent.c check_invent_gold() (4889-4913). Returns true when the
 // inventory contains gold in an unexpected arrangement (multiple stacks or
 // a stack in a slot other than '$'), which means gold should be allowed as
-// a target for the #adjust command. In normal play this returns false.
-export function check_invent_gold(why, state = game) {
+// a target for the #adjust command; it reports that through impossible().
+// In normal play this returns false. doorganize(), itemactions() and
+// wizcmds.c you_sanity_check() call it.
+export async function check_invent_gold(why, state = game) {
     let goldstacks = 0;
     let wrongslot = 0;
     for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
@@ -3051,13 +3053,13 @@ export function check_invent_gold(why, state = game) {
         }
     }
     if (goldstacks > 1 || wrongslot > 0) {
-        // C prints this through impossible(), which this build shows in every
-        // mode. check_invent_gold() is synchronous and cannot wait for it,
-        // so the port records the gap and keeps C's return.
-        note_unported('pline.c impossible');
-        return true;
+        await impossible(`${why}: ${wrongslot > 1 ? 'gold in wrong slots'
+            : wrongslot > 0 ? 'gold in wrong slot' : ''}`
+            + `${wrongslot > 0 && goldstacks > 1 ? ' and ' : ''}`
+            + `${goldstacks > 1 ? 'multiple gold stacks' : ''}`, state);
+        return true; /* gold can be #adjusted */
     }
-    return false;
+    return false; /* gold can't be #adjusted */
 }
 
 export function initializeInventory(state = game) {
@@ -5666,7 +5668,8 @@ export async function doorganize(state = game, hooks = {}) {
         return ECMD_OK;
     }
     if (!state.flags?.invlet_constant) reassign(state);
-    const filter = check_invent_gold('adjust', state) ? adjust_gold_ok : adjust_ok;
+    const filter = await check_invent_gold('adjust', state)
+        ? adjust_gold_ok : adjust_ok;
     const obj = await getobj(
         'adjust', filter, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
     );

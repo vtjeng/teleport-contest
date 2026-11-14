@@ -481,17 +481,17 @@ test('armor_simple_name dispatches to the correct category function', () => {
 
 // ── check_invent_gold ──
 
-test('check_invent_gold returns false when gold is in the $ slot', () => {
+test('check_invent_gold returns false when gold is in the $ slot', async () => {
     // C: invent.c:4895-4912. A single gold stack in the '$' slot is normal.
     const state = catalogState();
     const gold = fakeObj(0, {
         oclass: COIN_CLASS, invlet: GOLD_SYM, nobj: null,
     });
     state.invent = gold;
-    assert.equal(check_invent_gold('test', state), false);
+    assert.equal(await check_invent_gold('test', state), false);
 });
 
-test('check_invent_gold returns true when gold is in a wrong slot', () => {
+test('check_invent_gold returns true when gold is in a wrong slot', async () => {
     // C: invent.c:4898-4909. Gold in any slot other than '$' triggers the
     // sanity warning and returns true.
     const state = catalogState();
@@ -499,5 +499,5 @@ test('check_invent_gold returns true when gold is in a wrong slot', () => {
         oclass: COIN_CLASS, invlet: 'a', nobj: null,
     });
     state.invent = gold;
-    assert.equal(check_invent_gold('test', state), true);
+    assert.equal(await check_invent_gold('test', state), true);
 });

@@ -7,6 +7,7 @@ import { panic } from './end.js';
 
 import { game } from './gstate.js';
 import { on_level } from './dungeon.js';
+import { isok } from './cmd_isok.js';
 import { do_light_sources } from './light.js';
 import { is_pool } from './dbridge.js';
 import { worm_known } from './worm.js';
@@ -204,6 +205,13 @@ function blocksVisionAt(x, y, state) {
 // C ref: vision.c does_block().
 export function does_block(x, y, _location = null, state = game) {
     return blocksVisionAt(x, y, state);
+}
+
+// C ref: vision.c get_viz_clear() (104-110). True when <x,y> is on the map
+// and the transparency index marks it as blocking. Pure; only wizcmds.c
+// levl_sanity_check() calls it.
+export function get_viz_clear(x, y) {
+    return Boolean(isok(x, y) && !viz_clear[y][x]);
 }
 
 // C vision.c block_point/unblock_point explicitly change one obstruction.

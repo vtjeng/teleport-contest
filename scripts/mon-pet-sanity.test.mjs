@@ -106,16 +106,21 @@ test('m_poisongas_ok follows C immunity, resistance, and bad branches', () => {
     assert.equal(m_poisongas_ok(state.youmonst, state), M_POISONGAS_OK);
 });
 
-test('pet_sanity_check reports future droptime and get_mleash scans hero inventory', () => {
+test('pet_sanity_check reports future droptime and get_mleash scans hero inventory', async () => {
     const state = monsterState();
+    // moves 10 with droptime 11: a drop time one turn in the future is the
+    // smallest value mon.c:64 rejects.
     state.moves = 10;
     const pet = {
         m_id: 7,
         mextra: { edog: { droptime: 11 } },
     };
     const messages = [];
-    pet_sanity_check(pet, 'fmon', state, {
-        impossible(message) { messages.push(message); },
+    // Inside sanity_check(), impossible() prints its one line only
+    // (pline.c:606-610).
+    state.program_state = { in_sanity_check: 1 };
+    await pet_sanity_check(pet, 'fmon', state, {
+        urgentMessage(message) { messages.push(message); },
     });
     assert.deepEqual(messages, [
         'insane pet #7 has droptime (11) in the future (10) (fmon)',

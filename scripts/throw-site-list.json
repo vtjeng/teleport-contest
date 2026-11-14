@@ -2262,12 +2262,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/mon.js | sanityPanic | message": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/mon.c:84",
-      "reason": "sanity_check_single_mon() panics on illegal monster data; the sanity check is synchronous."
-    },
     "js/mon.js | validvamp | 'validvamp requires an mndx reference'": {
       "count": 1,
       "class": "invariant",
@@ -2777,18 +2771,6 @@
       "class": "panic",
       "c": "src/mkobj.c:2701",
       "reason": "add_to_migration() panics on an object that is not free."
-    },
-    "js/obj.js | check_contained | 'failed sanity check: container holds its parent'": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/mkobj.c:3406",
-      "reason": "check_contained() panics on a container that holds its parent."
-    },
-    "js/obj.js | check_contained | 'failed sanity check: container holds itself'": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/mkobj.c:3390",
-      "reason": "check_contained() panics on a container that holds itself."
     },
     "js/obj.js | dealloc_obj | 'dealloc_obj: object is still linked'": {
       "count": 1,

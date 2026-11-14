@@ -34,6 +34,8 @@ import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
 import { note_unported } from './unported.js';
+import { fmt_ptr } from './alloc.js';
+import { isok } from './cmd_isok.js';
 import { mattacku } from './mhitu.js';
 import { canspotmon } from './display.js';
 import { mcalcmove } from './mon.js';
@@ -544,4 +546,45 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
 // C ref: worm.c size_wseg() (827-830). Only visible segments contribute.
 export function size_wseg(monster, state = game) {
     return count_wsegs(monster, state) * memoryLayout.wseg;
+}
+
+// C ref: worm.c sanity_check_worm() (637-678), called from mon.c
+// mon_sanity_check(). level.worms[wnum].segments holds wtails[wnum] through
+// wheads[wnum] in list order, so its last entry is the head and the loop
+// visits every entry before it.
+export async function sanity_check_worm(worm, state = game) {
+    if (!worm) {
+        await impossible('worm_sanity: null monster!', state);
+        return;
+    }
+    if (!worm.wormno) {
+        await impossible('worm_sanity: not a worm!', state);
+        return;
+    }
+
+    const wnum = worm.wormno;
+    const segments = state.level?.worms?.[wnum]?.segments ?? [];
+    if (!segments.length) {
+        await impossible(`wormno ${wnum} is set without proper tail`, state);
+        return;
+    }
+    /* if worm is migrating, we can't check its segments against the map */
+    if (!worm.mx)
+        return;
+
+    for (let index = 0; index < segments.length - 1; ++index) {
+        const { x, y } = segments[index];
+        if (!isok(x, y))
+            await impossible(`worm seg not isok <${x},${y}>`, state);
+        else if (m_at(x, y, state) !== worm)
+            await impossible(`mon (${fmt_ptr(m_at(x, y, state))}) at seg`
+                + ` location is not worm (${fmt_ptr(worm)})`, state);
+    }
+}
+
+// C ref: worm.c wormno_sanity_check() (680-703). Its whole body is under
+// #ifdef EXTRA_SANITY_CHECKS, which config.h:634-638 defines only when
+// NH_DEVEL_STATUS is not NH_STATUS_RELEASED; patchlevel.h:33 sets RELEASED,
+// so the recorder compiles an empty function.
+export function wormno_sanity_check(_state = game) {
 }

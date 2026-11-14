@@ -5,9 +5,9 @@
 // wiz_makemap(), among the rows cmd.c dispatches here.
 
 import { NO_COLOR } from './terminal.js';
-import { engr_stats } from './engrave.js';
-import { light_stats } from './light.js';
-import { property_by_index, timer_stats } from './timeout.js';
+import { engr_stats, engraving_sanity_check } from './engrave.js';
+import { light_sources_sanity_check, light_stats } from './light.js';
+import { property_by_index, timer_sanity_check, timer_stats } from './timeout.js';
 import { region_stats } from './region.js';
 import { size_wseg } from './worm.js';
 import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
@@ -56,7 +56,7 @@ import {
     XKILL_NOMSG,
     has_mgivenname, MGIVENNAME, MM_NOMSG, MIGR_RANDOM, MIGR_EXACT_XY,
     MON_ENDGAME_MIGR, MON_LIMBO, MON_MIGRATING, MON_OFFMAP,
-    u_at,
+    u_at, Upolyd,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
 import { rumor_check } from './rumors.js';
@@ -79,16 +79,16 @@ import {
 } from './cmd.js';
 import { get_feature_notice_ver } from './version.js';
 import { hurtle, mhurtle } from './dothrow.js';
-import { display_inventory } from './invent.js';
+import { check_invent_gold, display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
     may_dig,
 } from './hack.js';
-import { mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
+import { mon_sanity_check, mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
 import { dist2, encodeUtf8Text, textBytes, mungspaces, strncmpi, upstart, truncateByteString, lcase } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
-import { ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { impossible, impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { displayTtyTextWindow } from './tty_menu.js';
@@ -114,7 +114,12 @@ import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { monsndx, nonliving, olfaction } from './mondata.js';
 import { setpaid } from './shk.js';
-import { HConfusion, HHallucination } from './youprop.js';
+import { HConfusion, HHallucination, Underwater } from './youprop.js';
+import { check_wornmask_slots } from './worn.js';
+import { obj_sanity_check } from './obj.js';
+import { bc_sanity_check } from './ball.js';
+import { trap_sanity_check } from './trap.js';
+import { does_block, get_viz_clear } from './vision.js';
 import { dungeon_at } from './dungeon_table.js';
 
 // C refs: wizcmds.c makemap_unmakemon() and makemap_remove_mons().
@@ -1464,4 +1469,90 @@ export async function wiz_custom(state = game, env = {}) {
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
     (env.redraw ?? docrt)(state);
     return ECMD_OK;
+}
+
+// C ref: wizcmds.c you_sanity_check() (1401-1441). The hero must not be
+// swallowed by nothing nor stand over a monster other than the one holding
+// them, and current hit points and energy must not exceed their maxima.
+// Each failure repairs the value it reports, as C does.
+async function you_sanity_check(state) {
+    const { u } = state;
+
+    if (u.uswallow && !u.ustuck) {
+        /* this probably ought to be panic() */
+        await impossible('sanity_check: swallowed by nothing?', state);
+        await displayPendingTtyMessageWindow(state);
+        /* try to recover from whatever the problem is */
+        u.uswallow = 0;
+        u.uswldtim = 0;
+        await docrt();
+    }
+    const mtmp = m_at(u.ux, u.uy, state);
+    if (mtmp) {
+        /* u.usteed isn't on the map */
+        if (u.ustuck !== mtmp)
+            await impossible('sanity_check: you over monster', state);
+    }
+    if (u.uhp > u.uhpmax) {
+        await impossible(`current hero health (${u.uhp}) better than`
+            + ` maximum? (${u.uhpmax})`, state);
+        u.uhp = u.uhpmax;
+    }
+    if (Upolyd(u) && u.mh > u.mhmax) {
+        await impossible(`current hero health as monster (${u.mh}) better`
+            + ` than maximum? (${u.mhmax})`, state);
+        u.mh = u.mhmax;
+    }
+    if (u.uen > u.uenmax) {
+        await impossible(`current hero energy (${u.uen}) better than`
+            + ` maximum? (${u.uenmax})`, state);
+        u.uen = u.uenmax;
+    }
+
+    await check_wornmask_slots(state);
+    await check_invent_gold('invent', state);
+}
+
+// C ref: wizcmds.c levl_sanity_check() (1443-1458). Every square's
+// does_block() answer must agree with vision's transparency index, except
+// underwater, where vision uses a different index.
+async function levl_sanity_check(state) {
+    if (Underwater(state.u))
+        return; /* Underwater uses different vision */
+
+    for (let y = 0; y < ROWNO; y++) {
+        for (let x = 1; x < COLNO; x++) {
+            if (does_block(x, y, state.level.at(x, y), state)
+                !== get_viz_clear(x, y))
+                await impossible(`levl[${x}][${y}] vision blocking`, state);
+        }
+    }
+}
+
+// C ref: wizcmds.c sanity_check() (1460-1481). allmain.c moveloop_core()
+// calls it before every command while iflags.sanity_check or the debug
+// fuzzer is on. program_state.in_sanity_check makes each impossible() print
+// its one line without the "Program in disorder!" block. A command that
+// sets iflags.sanity_no_check (ESC, an unknown command, ^P or ^R) skips the
+// next check, and the skip clears the flag.
+export async function sanity_check(state = game) {
+    if (state.iflags.sanity_no_check) {
+        state.iflags.sanity_no_check = false;
+        return;
+    }
+    state.program_state.in_sanity_check
+        = (state.program_state.in_sanity_check ?? 0) + 1;
+    try {
+        await you_sanity_check(state);
+        await obj_sanity_check(state);
+        await timer_sanity_check(state);
+        await mon_sanity_check(state);
+        await light_sources_sanity_check(state);
+        await bc_sanity_check(state);
+        await trap_sanity_check(state);
+        await engraving_sanity_check(state);
+        await levl_sanity_check(state);
+    } finally {
+        state.program_state.in_sanity_check--;
+    }
 }

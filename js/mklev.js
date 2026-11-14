@@ -843,6 +843,7 @@ async function makelevel(specialLevelLoader = null) {
     if (!rogue) {
         await makecorridors();
         await make_niches();
+        await mklev_sanity_check(g);
     }
 
     // C ref: mklev.c makelevel() secret-vault realization and retry. Rogue
@@ -7956,6 +7957,59 @@ async function make_niches() {
         } else {
             await makeniche(NO_TRAP);
         }
+    }
+}
+
+// C ref: mklev.c chk_okdoor() (1197-1219). A door is not ok when the squares
+// on its two open sides differ: one is solid terrain (typ <= TREE) and the
+// other is not. Pure: reads the map only.
+export function chk_okdoor(x, y, state = game) {
+    const typAt = (tx, ty) => state.level.at(tx, ty).typ;
+    if (!IS_DOOR(typAt(x, y))) return true;
+    if (state.level.at(x, y).horizontal) {
+        if ((isok(x, y - 1) && typAt(x, y - 1) > TREE)
+            && (isok(x, y + 1) && typAt(x, y + 1) <= TREE))
+            return false;
+        if ((isok(x, y - 1) && typAt(x, y - 1) <= TREE)
+            && (isok(x, y + 1) && typAt(x, y + 1) > TREE))
+            return false;
+    } else {
+        if ((isok(x - 1, y) && typAt(x - 1, y) > TREE)
+            && (isok(x + 1, y) && typAt(x + 1, y) <= TREE))
+            return false;
+        if ((isok(x - 1, y) && typAt(x - 1, y) <= TREE)
+            && (isok(x + 1, y) && typAt(x + 1, y) > TREE))
+            return false;
+    }
+    return true;
+}
+
+// C ref: mklev.c mklev_sanity_check() (1222-1246). makelevel() calls it
+// after make_niches() on a room-and-corridor level. It runs outside
+// sanity_check(), so each impossible() prints its full "Program in
+// disorder!" block. makecorridors() can leave a room unjoined, since join()
+// returns without merging smeq[] when finddpos() or dig_corridor() fails,
+// so "room %i not connected?" reports a level C really makes.
+async function mklev_sanity_check(state = game) {
+    let rmno = -1;
+
+    if (!(state.iflags?.sanity_check || state.iflags?.debug_fuzzer))
+        return;
+
+    for (let y = 0; y < ROWNO; y++) {
+        for (let x = 1; x < COLNO; x++) {
+            if (!chk_okdoor(x, y, state))
+                await impossible(`levl[${x}][${y}] door not ok`, state);
+        }
+    }
+
+    for (let i = 0; i < state.level.nroom; i++) {
+        if (!state.level.rooms[i].needjoining)
+            continue;
+        if (rmno === -1)
+            rmno = state.smeq[i];
+        if (rmno !== -1 && state.smeq[i] !== rmno)
+            await impossible(`room ${i} not connected?`, state);
     }
 }
 

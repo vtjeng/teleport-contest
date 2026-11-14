@@ -113,6 +113,7 @@ import {
     MON_MIGRATING,
     MON_OFFMAP,
     MOAT,
+    Is_waterlevel,
     OBJ_AT,
     MSLOW,
     NATTK,
@@ -152,9 +153,7 @@ import {
     LAVAWALL,
     ROWNO,
     STOMACH,
-    FEMALE,
     IN_SIGHT,
-    MALE,
     W_AMUL,
     W_ARM,
     W_ARMG,
@@ -198,6 +197,7 @@ import {
     capitalizedMonsterName,
     free_mgivenname,
     hliquid,
+    Mgender,
     Monnam,
     mon_nam,
     mon_pmname,
@@ -277,8 +277,10 @@ import {
     place_worm_tail_randomly_steps,
     place_wsegs,
     remove_worm,
+    sanity_check_worm,
     worm_known,
     wormgone,
+    wormno_sanity_check,
 } from './worm.js';
 import { expels, gazemu, m_next2u } from './mhitu.js';
 import {
@@ -710,6 +712,8 @@ import {
 } from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { fmt_ptr } from './alloc.js';
+import { panic } from './end.js';
 import { unpunish } from './read.js';
 import {
     aggravate_steps,
@@ -948,252 +952,235 @@ export function get_iter_mons_xy(bfunc, x, y, state = game) {
     return null;
 }
 
-function sanityImpossible(message, env) {
-    if (typeof env.impossible === 'function') {
-        env.impossible(message, env);
-    } else {
-        note_unported('pline.c impossible');
+// C ref: mon.c pet_sanity_check() (57-70). `env` passes impossible()'s
+// message operations through, which a test can replace.
+export async function pet_sanity_check(mtmp, msgarg, state = game, env = {}) {
+    if (has_edog(mtmp)) {
+        const edog = mtmp.mextra.edog;
+
+        if (edog.droptime > state.moves)
+            await impossible(`insane pet #${mtmp.m_id} has droptime`
+                + ` (${edog.droptime}) in the future (${state.moves})`
+                + ` (${msgarg})`, state, env);
+        /* TODO: verify some of the other edog fields */
     }
 }
 
-function sanityPanic(message, env) {
-    if (typeof env.panic === 'function') env.panic(message, env);
-    else note_unported('pline.c panic');
-    throw new Error(message);
-}
-
-// C ref: mon.c pet_sanity_check() (57-70). This is a diagnostic-only helper;
-// the C impossible() boundary is injected when a caller wants diagnostics,
-// and otherwise recorded as the existing pline.c gap.
-export function pet_sanity_check(mtmp, msgarg, state = game, env = {}) {
-    if (!has_edog(mtmp)) return;
-    const edog = mtmp.mextra.edog;
-    if (edog.droptime > (state.moves ?? 0)) {
-        sanityImpossible(
-            `insane pet #${mtmp.m_id} has droptime (${edog.droptime}) `
-            + `in the future (${state.moves ?? 0}) (${msgarg})`,
-            env,
-        );
-    }
-}
-
-// C ref: mon.c sanity_check_single_mon() (73-255). The checks retain C's
-// order, including the early dead-monster return and the diagnostic-only
-// calls into worm.c and pline.c.
-export function sanity_check_single_mon(
-    mtmp,
-    chkGeno,
-    msg,
-    state = game,
-    env = {},
+// C ref: mon.c sanity_check_single_mon() (73-255), in C's check order,
+// including the repair of a stale mnum and the early return for a dead
+// monster. Illegal species data is a panic(), which ends the game.
+export async function sanity_check_single_mon(
+    mtmp, chk_geno, msg, state = game, env = {},
 ) {
     const mptr = mtmp.data;
-    let mx = mtmp.mx;
-    let my = mtmp.my;
+    let mx = mtmp.mx, my = mtmp.my;
     const mndx = monsndx(mptr);
-    const validSpecies = Number.isInteger(mndx)
-        && mndx >= LOW_PM && mndx <= HIGH_PM
-        && (state.mons?.[mndx] === mptr || mptr?.pmidx === mndx);
+    const legal = Number.isInteger(mndx)
+        && mndx >= LOW_PM && mndx <= HIGH_PM && state.mons?.[mndx] === mptr;
 
-    if (!validSpecies) {
-        sanityPanic(
-            `illegal mon data; mnum=${mtmp.mnum} (${msg})`,
-            env,
-        );
+    if (!legal) {
+        /* most sanity checks issue warnings if they detect a problem,
+           but this would be too extreme to keep going */
+        await panic(`illegal mon data ${fmt_ptr(mptr)}; mnum=${mtmp.mnum}`
+            + ` (${msg})`, state);
+        return;
     } else {
         if (mtmp.mnum !== mndx) {
-            sanityImpossible(
-                `monster mnum=${mtmp.mnum}, monsndx=${mndx} (${msg})`,
-                env,
-            );
+            await impossible(`monster mnum=${mtmp.mnum}, monsndx=${mndx}`
+                + ` (${msg})`, state, env);
             mtmp.mnum = mndx;
         }
-        if ((mtmp.mhpmax ?? 0) < 1
-            || (mtmp.mhpmax ?? 0) < (mtmp.m_lev ?? 0)
-            || mtmp.mhp > mtmp.mhpmax) {
-            sanityImpossible(
-                `${msg}: level ${mtmp.m_lev} ${mptr.pmnames?.[2] ?? ''}`
-                + ` #${mtmp.m_id} has ${mtmp.mhp} cur HP,`
-                + ` ${mtmp.mhpmax} max HP`,
-                env,
-            );
-        }
-        if (mtmp.mhp < 1) return;
-        const mvitals = state.svm?.mvitals ?? state.mvitals;
-        if (chkGeno && (mvitals?.[mndx]?.mvflags ?? 0) & G_GENOD)
-            sanityImpossible(
-                `genocided ${pmname(mptr, mtmp.female ? FEMALE : MALE)}`
-                + ` in play (${msg})`,
-                env,
-            );
+        /* check before DEADMONSTER() because dead monsters should still
+           have sane mhpmax; C has disabled the (mhpmax < m_lev) test
+           because gremlins break it */
+        if (mtmp.mhpmax < 1 || mtmp.mhp > mtmp.mhpmax)
+            await impossible(`${msg}: level ${mtmp.m_lev}`
+                + ` ${mptr.pmnames[NEUTRAL]} #${mtmp.m_id} [${fmt_ptr(mtmp)}]`
+                + ` has ${mtmp.mhp} cur HP, ${mtmp.mhpmax} max HP`,
+            state, env);
+        if (mtmp.mhp < 1) /* DEADMONSTER(mtmp) */
+            return;
+        if (chk_geno && (state.mvitals[mndx].mvflags & G_GENOD) !== 0)
+            await impossible(`genocided ${pmname(mptr, Mgender(mtmp))}`
+                + ` in play (${msg})`, state, env);
         if (mtmp.mtame && !mtmp.mpeaceful)
-            sanityImpossible(`tame monster is not peaceful (${msg})`, env);
+            await impossible(`tame ${pmname(mptr, Mgender(mtmp))}`
+                + ` is not peaceful (${msg})`, state, env);
     }
-
     if (mtmp.isshk && !has_eshk(mtmp))
-        sanityImpossible(`shk without eshk (${msg})`, env);
+        await impossible(`shk without eshk (${msg})`, state, env);
     if (mtmp.ispriest && !has_epri(mtmp))
-        sanityImpossible(`priest without epri (${msg})`, env);
+        await impossible(`priest without epri (${msg})`, state, env);
     if (mtmp.isgd && !has_egd(mtmp))
-        sanityImpossible(`guard without egd (${msg})`, env);
+        await impossible(`guard without egd (${msg})`, state, env);
     if (mtmp.isminion && !has_emin(mtmp))
-        sanityImpossible(`minion without emin (${msg})`, env);
+        await impossible(`minion without emin (${msg})`, state, env);
+    /* guardian angel on astral level is tame but has emin rather than edog */
     if (mtmp.mtame) {
         if (!has_edog(mtmp) && !mtmp.isminion)
-            sanityImpossible(`pet without edog (${msg})`, env);
-        else pet_sanity_check(mtmp, msg, state, env);
+            await impossible(`pet without edog (${msg})`, state, env);
+        else
+            await pet_sanity_check(mtmp, msg, state, env);
+    }
+    /* steed should be tame and saddled */
+    if (mtmp === state.u.usteed) {
+        const nt = !mtmp.mtame ? 'not tame' : null;
+        const ns = !m_carrying(mtmp, SADDLE, state) ? 'no saddle'
+            : !which_armor(mtmp, W_SADDLE, state) ? 'saddle not worn'
+                : null;
+        if (ns || nt)
+            await impossible(`steed: ${ns ?? ''}${ns && nt ? ', ' : ''}`
+                + `${nt ?? ''} (${msg})`, state, env);
     }
 
-    if (mtmp === state.u?.usteed) {
-        const notTame = !mtmp.mtame ? 'not tame' : '';
-        const saddle = !m_carrying(mtmp, SADDLE, state)
-            ? 'no saddle'
-            : !which_armor(mtmp, W_SADDLE, state) ? 'saddle not worn' : '';
-        if (saddle || notTame)
-            sanityImpossible(
-                `steed: ${saddle}${saddle && notTame ? ', ' : ''}`
-                + `${notTame} (${msg})`,
-                env,
-            );
+    if (mtmp.mtrapped) {
+        if (mtmp.wormno) {
+            /* TODO: how to check worm in trap? */
+        } else if (!t_at(mx, my, state))
+            await impossible(`trapped without a trap (${msg})`, state, env);
     }
-
-    if (mtmp.mtrapped && !mtmp.wormno && !t_at(mx, my, state))
-        sanityImpossible(`trapped without a trap (${msg})`, env);
+    /* code that sets mfrozen needs to also clear mcanmove, otherwise the
+       helpless() test will be unreliable */
     if (mtmp.mfrozen && mtmp.mcanmove)
-        sanityImpossible(
-            `frozen monster [${mtmp.mtame ? 'tame ' : mtmp.mpeaceful ? 'peaceful ' : ''}`
-            + `${pmname(mptr, mtmp.female ? FEMALE : MALE)}] is able to move (${msg})`,
-            env,
-        );
+        await impossible('frozen monster ['
+            + `${mtmp.mtame ? 'tame ' : mtmp.mpeaceful ? 'peaceful ' : ''}`
+            + `${pmname(mptr, Mgender(mtmp))}] is able to move (${msg})`,
+        state, env);
 
+    /* monster is hiding? */
     if (mtmp.mundetected) {
-        if (!isok(mx, my)) mx = my = 0;
-        if (mtmp === state.u?.ustuck)
-            sanityImpossible(`hiding monster stuck to you (${msg})`, env);
-        if (m_at(mx, my, state) === mtmp && hides_under(mptr)
-            && !OBJ_AT(mx, my, state)) {
-            sanityImpossible(`mon hiding under nonexistent obj (${msg})`, env);
-        }
-        if (mptr.mlet === S_EEL
-            && !(is_pool(mx, my, state) && !on_level(state.u?.uz, state.water_level))) {
-            sanityImpossible(
-                `eel hiding ${!on_level(state.u?.uz, state.water_level)
-                    ? 'out of water' : 'on Plane of Water'} (${msg})`,
-                env,
-            );
-        }
-        if (ceiling_hider(mptr)
-            && (!has_ceiling(state.u?.uz, state)
-                || ![POOL, MOAT, WATER, LAVAPOOL, LAVAWALL]
-                    .includes(state.level?.at?.(mx, my)?.typ)
-                    && !accessible(mx, my, state))) {
-            sanityImpossible(
-                `${!has_ceiling(state.u?.uz, state) ? 'without ceiling' : 'in solid stone'}`
-                + ` (${msg})`,
-                env,
-            );
-        }
-        const trap = mtmp.mtrapped ? t_at(mx, my, state) : null;
-        if (trap && !is_pit(trap.ttyp))
-            sanityImpossible(`hiding while trapped in a non-pit (${msg})`, env);
-    } else if (M_AP_TYPE(mtmp) !== M_AP_NOTHING) {
-        const isMimic = mptr.mlet === S_MIMIC;
-        const appearance = M_AP_TYPE(mtmp);
-        const what = appearance === M_AP_FURNITURE ? 'furniture'
-            : appearance === M_AP_MONSTER ? 'a monster'
-                : appearance === M_AP_OBJECT ? 'an object' : 'something strange';
-        if (msg === 'migr' && appearance !== M_AP_MONSTER)
-            sanityImpossible(
-                `migrating ${isMimic ? 'mimic' : 'monster'} mimicking ${what} ${msg}`,
-                env,
-            );
-        else if (msg !== 'migr'
-            && Protection_from_shape_changers(state.u)) {
-            sanityImpossible(
-                `mimic${isMimic ? '' : 'ker'} concealed as ${what}`
-                + ` despite Prot-from-shape-changers ${msg}`,
-                env,
-            );
-        }
-        if (!(isMimic || mtmp.meating
-              || (mtmp.iswiz && appearance === M_AP_MONSTER))) {
-            sanityImpossible(
-                `non-mimic (${mptr.pmnames?.[2] ?? ''}) posing as ${what} (${msg})`,
-                env,
-            );
-        }
-    }
+        let t;
 
+        if (!isok(mx, my)) /* caller will have checked this but not fixed it */
+            mx = my = 0;
+        if (mtmp === state.u.ustuck)
+            await impossible(`hiding monster stuck to you (${msg})`,
+                state, env);
+        if (m_at(mx, my, state) === mtmp && hides_under(mptr)
+            && !OBJ_AT(mx, my, state))
+            await impossible(`mon hiding under nonexistent obj (${msg})`,
+                state, env);
+        if (mptr.mlet === S_EEL
+            && !(is_pool(mx, my, state) && !Is_waterlevel(state.u.uz, state)))
+            await impossible('eel hiding '
+                + `${!Is_waterlevel(state.u.uz, state) ? 'out of water'
+                    : 'on Plane of Water'} (${msg})`, state, env);
+        const typ = state.level.at(mx, my).typ;
+        if (ceiling_hider(mptr)
+            /* normally !accessible would be overridable with passes_walls,
+               but not for hiding on the ceiling */
+            && (!has_ceiling(state.u.uz, state)
+                || !(typ === POOL || typ === MOAT || typ === WATER
+                     || typ === LAVAPOOL || typ === LAVAWALL
+                     || accessible(mx, my, state))))
+            await impossible('ceiling hider hiding '
+                + `${!has_ceiling(state.u.uz, state) ? 'without ceiling'
+                    : 'in solid stone'} (${msg})`, state, env);
+        if (mtmp.mtrapped && (t = t_at(mx, my, state)) && !is_pit(t.ttyp))
+            await impossible(`hiding while trapped in a non-pit (${msg})`,
+                state, env);
+    } else if (M_AP_TYPE(mtmp) !== M_AP_NOTHING) {
+        const is_mimic = mptr.mlet === S_MIMIC;
+        const what = M_AP_TYPE(mtmp) === M_AP_FURNITURE ? 'furniture'
+            : M_AP_TYPE(mtmp) === M_AP_MONSTER ? 'a monster'
+                : M_AP_TYPE(mtmp) === M_AP_OBJECT ? 'an object'
+                    : 'something strange';
+
+        if (msg === 'migr') {
+            if (M_AP_TYPE(mtmp) !== M_AP_MONSTER)
+                await impossible(`migrating ${is_mimic ? 'mimic' : 'monster'}`
+                    + ` mimicking ${what} ${msg}`, state, env);
+        } else if (Protection_from_shape_changers(state.u)) {
+            await impossible(`mimic${is_mimic ? '' : 'ker'} concealed as`
+                + ` ${what} despite Prot-from-shape-changers ${msg}`,
+            state, env);
+        }
+        /* the Wizard's clone after "double trouble" starts out mimicking
+           some other monster; pet's quickmimic effect can temporarily take
+           on furniture, object, or monster shape, but only until the pet
+           finishes eating a mimic corpse */
+        if (!(is_mimic || mtmp.meating
+              || (mtmp.iswiz && M_AP_TYPE(mtmp) === M_AP_MONSTER)))
+            await impossible(`non-mimic (${mptr.pmnames[NEUTRAL]}) posing as`
+                + ` ${what} (${msg})`, state, env);
+    }
     if (mtmp.mleashed) {
         if (!get_mleash(mtmp, state))
-            sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp, state)}`,
-                env,
-            );
+            await impossible(`monst ${mtmp.m_id}: leashed but no leash for`
+                + ` ${mon_pmname(mtmp, state)}`, state, env);
         else if (!mtmp.mtame)
-            sanityImpossible(
-                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp, state)}`,
-                env,
-            );
+            await impossible(`monst ${mtmp.m_id}: leashed but not tame`
+                + ` ${mon_pmname(mtmp, state)}`, state, env);
     }
 }
 
-// C ref: mon.c mon_sanity_check() (258-326). The two worm.c checks remain
-// void-only gaps; all list and map checks retain their C traversal order.
-export function mon_sanity_check(state = game, env = {}) {
-    const level = state.level;
-    for (let mtmp = level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
-        sanity_check_single_mon(mtmp, true, 'fmon', state, env);
-        if (mtmp.mhp < 1 && !mtmp.isgd) continue;
-        const { mx, my } = mtmp;
-        if (!isok(mx, my) && !(mtmp.isgd && mx === 0 && my === 0)) {
-            sanityImpossible(`mon claims to be at <${mx},${my}>?`, env);
-        } else if (mtmp === state.u?.usteed) {
-            if (mx !== state.u.ux || my !== state.u.uy)
-                sanityImpossible(`steed claims to be at <${mx},${my}>?`, env);
-        } else if (m_at(mx, my, state) !== mtmp) {
-            sanityImpossible(`mon at <${mx},${my}> is not there!`, env);
+// C ref: mon.c mon_sanity_check() (257-326), called by wizcmds.c
+// sanity_check(). Checks fmon against the map, the map against fmon, and the
+// migrating list's mstate bits, then worm.c's tail bookkeeping.
+export async function mon_sanity_check(state = game, env = {}) {
+    const hex08 = (mask) => (mask >>> 0).toString(16).padStart(8, '0');
+
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
+        /* dead monsters should still have sane data */
+        await sanity_check_single_mon(mtmp, true, 'fmon', state, env);
+        if (mtmp.mhp < 1 && !mtmp.isgd) /* DEADMONSTER(mtmp) */
+            continue;
+
+        const x = mtmp.mx, y = mtmp.my;
+        if (!isok(x, y) && !(mtmp.isgd && x === 0 && y === 0)) {
+            await impossible(`mon (${fmt_ptr(mtmp)}) claims to be at`
+                + ` <${x},${y}>?`, state, env);
+        } else if (mtmp === state.u.usteed) {
+            /* steed is in fmon list but not on the map; its
+               <mx,my> coordinates should match hero's location */
+            if (x !== state.u.ux || y !== state.u.uy)
+                await impossible(`steed (${fmt_ptr(mtmp)}) claims to be at`
+                    + ` <${x},${y}>?`, state, env);
+        } else if (m_at(x, y, state) !== mtmp) {
+            await impossible(`mon (${fmt_ptr(mtmp)}) at <${x},${y}> is not`
+                + ' there!', state, env);
         } else if (mtmp.wormno) {
-            note_unported('worm.c sanity_check_worm');
+            await sanity_check_worm(mtmp, state);
         } else if (mon_offmap(mtmp)) {
-            sanityImpossible('floor mon has mstate set to non-floor', env);
+            await impossible(`floor mon (${fmt_ptr(mtmp)}) with mstate set`
+                + ` to 0x${hex08(mtmp.mstate)}`, state, env);
         }
     }
 
-    const monsters = level?.monsters;
-    for (let x = 1; x < COLNO; ++x) {
-        for (let y = 0; y < ROWNO; ++y) {
-            const mtmp = monsters?.[x]?.[y];
+    for (let x = 1; x < COLNO; x++)
+        for (let y = 0; y < ROWNO; y++) {
+            const mtmp = m_at(x, y, state);
             if (!mtmp) continue;
-            let found = false;
-            for (let m = level?.monlist ?? null; m; m = m.nmon) {
-                if (m === mtmp) { found = true; break; }
-            }
-            if (!found)
-                sanityImpossible(`map mon at <${x},${y}> not in fmon list!`, env);
-            else if (mtmp === state.u?.usteed)
-                sanityImpossible(`steed is on the map at <${x},${y}>!`, env);
+            let m;
+            for (m = state.level.monlist; m; m = m.nmon)
+                if (m === mtmp)
+                    break;
+            if (!m)
+                await impossible(`map mon (${fmt_ptr(mtmp)}) at <${x},${y}>`
+                    + ' not in fmon list!', state, env);
+            else if (mtmp === state.u.usteed)
+                await impossible(`steed (${fmt_ptr(mtmp)}) is on the map at`
+                    + ` <${x},${y}>!`, state, env);
             else if ((mtmp.mx !== x || mtmp.my !== y)
-                     && mtmp.data?.pmidx !== PM_LONG_WORM) {
-                sanityImpossible(
-                    `map mon at <${x},${y}> is found at <${mtmp.mx},${mtmp.my}>?`,
-                    env,
-                );
-            }
+                     && mtmp.data !== state.mons[PM_LONG_WORM])
+                await impossible(`map mon (${fmt_ptr(mtmp)}) at`
+                    + ` <${mtmp.mx},${mtmp.my}> is found at <${x},${y}>?`,
+                state, env);
         }
+
+    for (let mtmp = state.gm?.migrating_mons ?? null; mtmp;
+        mtmp = mtmp.nmon) {
+        await sanity_check_single_mon(mtmp, false, 'migr', state, env);
+
+        if (((mtmp.mstate ?? 0)
+             & ~(MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR | MON_OFFMAP))
+            !== 0
+            || !((mtmp.mstate ?? 0) & MON_MIGRATING))
+            await impossible(`migrating mon (${fmt_ptr(mtmp)}) with mstate`
+                + ` set to 0x${hex08(mtmp.mstate ?? 0)}`, state, env);
     }
 
-    for (let mtmp = state.gm?.migrating_mons ?? null;
-        mtmp;
-        mtmp = mtmp.nmon) {
-        sanity_check_single_mon(mtmp, false, 'migr', state, env);
-        const allowed = MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR | MON_OFFMAP;
-        if (((mtmp.mstate ?? 0) & ~allowed) !== 0
-            || !((mtmp.mstate ?? 0) & MON_MIGRATING)) {
-            sanityImpossible('migrating mon has invalid mstate', env);
-        }
-    }
-    note_unported('worm.c wormno_sanity_check');
+    wormno_sanity_check(state); /* test for bogus worm tail */
 }
 
 // C ref: mon.c m_poisongas_ok() (330-357). This only classifies tolerance;
@@ -1286,11 +1273,16 @@ export function restore_cham(monster, state = game, rawEnv = {}) {
         monster.cham = pm_to_cham(monsndx(monster.data), state);
 }
 
-// C ref: mon.c set_ustuck() (3421-3434). The sanity-check impossible() at the
-// top runs only under iflags.sanity_check or the debug fuzzer, neither of
-// which this port models. Clearing the holder clears the swallow state with
-// it, which is why teleds() reads u.uswallow before calling this.
+// C ref: mon.c set_ustuck() (3421-3434). Clearing the holder clears the
+// swallow state with it, which is why teleds() reads u.uswallow before
+// calling this. Under iflags.sanity_check or the debug fuzzer, C first
+// reports a holder that is not next to the hero through impossible(). This
+// function has 35 synchronous callers and cannot wait for that message, so
+// the port records the gap when the condition holds.
 export function set_ustuck(mtmp, state = game) {
+    if ((state.iflags?.sanity_check || state.iflags?.debug_fuzzer)
+        && mtmp && !m_next2u(mtmp, state))
+        note_unported('mon.c set_ustuck impossible');
     state.disp ??= {};
     state.disp.botl = true;
     state.u.ustuck = mtmp;

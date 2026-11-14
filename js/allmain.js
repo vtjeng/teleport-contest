@@ -9,6 +9,7 @@
 import { cliparound } from './wintty.js';
 import { getnow, night } from './calendar.js';
 import { game } from './gstate.js';
+import { sanity_check } from './wizcmds.js';
 // end.js imports timet_delta() back from this file; both bindings are read
 // only inside functions.
 import { done } from './end.js';
@@ -1226,6 +1227,11 @@ async function moveloop_core_body() {
     // a command with no monster scan still consumes the pending cleanup.
     if (g.context?.bypasses)
         clear_bypasses(g);
+
+    // C ref: allmain.c:197-198. The wizard-mode sanity_check option, or the
+    // debug fuzzer, checks game-state consistency before each command.
+    if (g.iflags?.sanity_check || g.iflags?.debug_fuzzer)
+        await sanity_check(g);
 
     // C ref: allmain.c:200-201 resumes a terminal-interrupted wish before
     // context.move can allocate elapsed time or dispatch another command.

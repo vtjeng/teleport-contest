@@ -3808,3 +3808,17 @@ export async function trap_ice_effects(x, y, ice_is_melting, state = game, env =
         }
     }
 }
+
+// C ref: trap.c trap_sanity_check() (7197-7210). Walk gf.ftrap, whose ntrap
+// order this port keeps as level.traps' array order, and report each trap
+// with an off-map location or an out-of-range type.
+export async function trap_sanity_check(state = game) {
+    for (const ttmp of state.level?.traps ?? []) {
+        if (!isok(ttmp.tx, ttmp.ty))
+            await impossible(
+                `trap sanity: location (${ttmp.tx},${ttmp.ty})`, state,
+            );
+        if (ttmp.ttyp <= NO_TRAP || ttmp.ttyp >= TRAPNUM)
+            await impossible(`trap sanity: type (${ttmp.ttyp})`, state);
+    }
+}

@@ -23,6 +23,7 @@ import {
     FM_MIGRATE,
     FM_MYDOGS,
     FM_YOU,
+    FM_EVERYWHERE,
     RANGE_LEVEL,
     ROWNO,
     TEMP_LIT,
@@ -45,6 +46,8 @@ import {
 // inside function bodies, so the cycle resolves.
 import { end_burn, obj_is_local } from './timeout.js';
 import { rest_push_each } from './restore.js';
+import { panic } from './end.js';
+import { find_oid } from './shk.js';
 
 // decl.c initializes gl.light_base for each game. Keep the source owner (`gl`)
 // separate from the flattened vision_full_recalc flag used by the current JS
@@ -658,4 +661,29 @@ export async function wiz_light_sources(state = game) {
     // TTY dismissal corresponding to display_nhwindow(win, FALSE).
     await displayTtyMenuTextWindow(state, lines);
     return ECMD_OK;
+}
+
+// C ref: light.c light_sources_sanity_check() (605-628). Every light source
+// must name an object or monster that the id lookups still find. Each failure
+// is a panic(), which ends the game.
+export async function light_sources_sanity_check(state = game) {
+    for (let ls = lightGlobals(state).light_base; ls; ls = ls.next) {
+        if (!ls.id)
+            await panic('insane light source: no id!', state);
+        if (ls.type === LS_OBJECT) {
+            const otmp = ls.id;
+            const auint = otmp.o_id;
+            if (find_oid(auint, state) !== otmp)
+                await panic(`insane light source: can't find obj #${auint}!`,
+                    state);
+        } else if (ls.type === LS_MONSTER) {
+            const mtmp = ls.id;
+            const auint = mtmp.m_id;
+            if (find_mid(auint, FM_EVERYWHERE, state) !== mtmp)
+                await panic(`insane light source: can't find mon #${auint}!`,
+                    state);
+        } else {
+            await panic(`insane light source: bad ls type ${ls.type}`, state);
+        }
+    }
 }
