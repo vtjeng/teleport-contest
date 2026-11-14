@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7741,
+      "datetime": "20260716160000",
+      "nethackrc": "OPTIONS=name:Kari,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,color,terrainstatus,statushilites:2,symset:DECgraphics\nOPTIONS=hilite_status:terrain/changed/red\n",
+      "moves": " #polyself\nxorn\nkmsmsmsmshmsmsmsjmsmsmskmsmsmslmsmsmslmsmsmslmsmsmslmsmsmslmsmsmslmsmsmskmsmsms",
+      "comment": "A xorn (wizard-mode #polyself) walks the north wall of the arrival room: HWALL, TLCORNER, VWALL, back along HWALL, through the doorway, to TRCORNER and the rock above, waiting with m-prefixed searches so each 'changed' terrain highlight expires before the next move. botl.c compare_blstats() compares BL_TERRAIN with strcmp(): blstats[][BL_TERRAIN] is initblstats[]'s armor entry (init_blstats() copies by position), so its terrain_typ cheat never fires. Only Stairs->Wall, Wall->Doorway->Wall and Wall->Stone highlight; the moves between wall types do not."
+    }
+  ]
+}

@@ -4995,7 +4995,7 @@ export function armor_status(state = game) {
     return upstart(result);
 }
 
-const TERRAIN_DESCRIPTIONS = Object.freeze([
+export const TERRAIN_DESCRIPTIONS = Object.freeze([
     'Stone', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall',
     'Wall', 'Wall', 'Wall', 'Wall', 'Portcullis', 'Tree', 'Wall',
     'Stone', 'Pool', 'Moat', 'Water', '(gap)', 'Lava', 'LavaWall',
@@ -6971,10 +6971,16 @@ function _collectStatusHilites(layouts, onlyField = null) {
         // code-unit order is strcmp()'s unsigned byte order. The sign of a
         // string change is not visible: parse_status_hl2() makes 'up' and
         // 'down' on a string field 'changed' rules, and tty_status_update()
-        // ignores chg. C compares BL_TERRAIN as the terrain_typ number, but
-        // the recorder shows no change between wall types, which share the
-        // text "Wall" (recordings/botl.c/terrain-wall-change); the text
-        // comparison here matches that.
+        // ignores chg. BL_TERRAIN compares as a string too, though
+        // compare_blstats() (botl.c 1828-1831) means to compare its
+        // terrain_typ number: init_blstats() (1774) copies initblstats[j]
+        // into blstats[][j], and initblstats[] (703-741) lists version,
+        // weapon, armor, terrain where the enum has weapon, armor, terrain,
+        // version, so blstats[][BL_TERRAIN] is the armor entry, its fld is
+        // BL_ARMOR and the cheat never fires. Moving between wall types,
+        // which all read "Wall", is therefore no change
+        // (recordings/botl.c/terrain-wall-change;
+        // scripts/terrain-status-compare.test.mjs).
         let change = previousCompareValue == null || compareValue == null
             ? 0 : Math.sign(compareValue - previousCompareValue);
         if (data.value == null && text != null && previousText != null
