@@ -1166,11 +1166,21 @@ export async function getbones(state = game) {
     }
 
     // Restore the level from the bones snapshot.
-    await restoreBonesLevel(bonesData, state);
+    const idMap = await restoreBonesLevel(bonesData, state);
 
     // C ref: restore.c getlev() resets peaceful/malign relative to the new
     // character while walking the restored monster chain.
     await ghostly_getlev_monsters(state);
+
+    // C ref: restore.c getlev():1300-1301, after the monster loop and
+    // "after all mons & objs are restored". relink_light_sources() follows
+    // restore_cham(), so a shapeshifter that reverts from a light-emitting
+    // form here misses its unlinked source in del_light_source(), as in C.
+    // relink_timers() (1299) is done in restoreBonesLevel().
+    if (idMap) {
+        relink_light_sources(idMap, state);
+        reset_oattached_mids(idMap, state);
+    }
 
     // Process defunct monsters and surviving inventories for the restore path.
     purgeDefunctBonesMonsters(state);
@@ -1414,13 +1424,8 @@ async function restoreBonesLevel(bonesData, state) {
     restore_timers(timers, state);
 
     // C ref: restore.c getlev():1131 restore_light_sources(), right after
-    // the timers, and 1300 relink_light_sources(ghostly) after every monster
-    // and object is read. C relinks after the monster loop's restore_cham();
-    // this relinks first, which differs only if restore_cham() changed a
-    // light-emitting shapeshifter, where C's del_light_source() would miss
-    // the still-unlinked source.
+    // the timers. getbones() relinks them after the monster loop.
     restore_light_sources(bonesData.lights, state);
-    relink_light_sources(idMap, state);
 
     // C ref: restore.c restdamage() (153-179), which getlev() calls after
     // its monster loop.
@@ -1481,9 +1486,7 @@ async function restoreBonesLevel(bonesData, state) {
         }
     }
 
-    // C ref: restore.c getlev():1301, the last fixup once every monster and
-    // object has its new id.
-    reset_oattached_mids(idMap, state);
+    return idMap;
 }
 
 // C ref: bones.c sanitize_name() (197-220), for the tty window port the

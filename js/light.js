@@ -150,13 +150,19 @@ export function new_light_source(x, y, range, type, id, state = game) {
     return source;
 }
 
-// C ref: light.c del_light_source(). Object and monster sources use their
-// owner identity directly; save/restore fixup ids remain outside this subset.
+// C ref: light.c del_light_source() (98-138). A source restore has not yet
+// relinked (LSF_NEEDS_FIXUP) still holds the saved o_id or m_id, which C
+// compares with the owner's current id. On a bones level that is the dead
+// hero's id, not the new one restmon() gave the monster, so C misses it.
 export function del_light_source(type, id, state = game) {
     const globals = lightGlobals(state);
+    const currentId = type === LS_OBJECT ? (id?.o_id ?? 0)
+        : type === LS_MONSTER ? id.m_id : 0;
     let previous = null;
     let current = globals.light_base;
-    while (current && (current.type !== type || current.id !== id)) {
+    while (current && (current.type !== type
+        || current.id !== ((current.flags & LSF_NEEDS_FIXUP)
+            ? currentId : id))) {
         previous = current;
         current = current.next;
     }
