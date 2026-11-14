@@ -248,6 +248,10 @@ and a goal for one is retired with `supersede-goal --goal <id> --reason
 "<reason>"`, without `--by`. Taking a file off the list needs Vincent's
 approval.
 
+`docs/c-message-coverage.md` lists only C messages a recorded game can
+print. `scripts/c-message-exemptions.mjs` records each message no recorded
+game reaches, with its reason; add an entry only with Vincent's approval.
+
 Use `node scripts/goal-log.mjs roadmap` to trace dependencies and choose
 under-exercised behavior for new synthetic missions. An empty fixed queue
 selects synthetic work; a shortage of independently assignable tasks selects
