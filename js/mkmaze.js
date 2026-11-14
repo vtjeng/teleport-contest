@@ -773,7 +773,7 @@ export async function place_lregion(
         // C ref: mkmaze.c:371-374. When defaulting to whole level and rooms
         // exist, let place_branch choose the location to avoid corridors.
         if (rtype === LR_BRANCH && state.level?.nroom) {
-            place_branch(Is_branchlev(state.u.uz, state), 0, 0);
+            await place_branch(Is_branchlev(state.u.uz, state), 0, 0);
             return;
         }
         lx = 1; /* column 0 is not used */
@@ -897,7 +897,7 @@ async function put_lregion_here(
     }
     case LR_BRANCH:
         // C ref: mkmaze.c:464-465. place_branch(Is_branchlev(&u.uz), x, y).
-        place_branch(Is_branchlev(state.u.uz, state), x, y);
+        await place_branch(Is_branchlev(state.u.uz, state), x, y);
         break;
     case LR_PORTAL: {
         // C ref: mkmaze.c:450-454 mkportal(). A portal is a magic portal

@@ -867,7 +867,7 @@ async function makelevel(specialLevelLoader = null) {
                 vaultRoom.needfill = FILL_NORMAL;
                 await fill_special_room(vaultRoom);
             }
-            mk_knox_portal(vx.v + vw.v, vy.v + vh.v);
+            await mk_knox_portal(vx.v + vw.v, vy.v + vh.v);
             if (!g.level.flags.noteleport && !rn2(3))
                 await makeniche(TELEP_TRAP);
         }
@@ -927,7 +927,7 @@ async function makelevel(specialLevelLoader = null) {
 
     // Place dungeon branch
     if (branchp) {
-        place_branch(branchp);
+        await place_branch(branchp);
     }
     if (g.u.uz.dnum === 0 && g.u.uz.dlevel === 1
         && g.stairs !== previousStairs) {
@@ -963,7 +963,7 @@ async function makelevel(specialLevelLoader = null) {
 // C calls insert_branch() before place_branch() so Fort Ludios becomes a
 // reachable portal from the accepted vault level. The source endpoint starts
 // as the sentinel dungeon number and remains deferred until this branch runs.
-function mk_knox_portal(x, y) {
+async function mk_knox_portal(x, y) {
     const g = game;
     const br = dungeon_branch('Fort Ludios', g);
     const sourceIsEnd2 = on_level(g.knox_level, br.end1);
@@ -987,7 +987,7 @@ function mk_knox_portal(x, y) {
     // branch ordering, and place the portal at the vault's selected corner.
     Object.assign(source, g.u.uz);
     insert_branch(br, true, g);
-    place_branch(br, x, y);
+    await place_branch(br, x, y);
 }
 
 // C ref: mklev.c makerooms()
@@ -2184,7 +2184,7 @@ async function makemaz(proto, slev, state) {
         maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
             { state });
     }
-    place_branch(is_branchlev());
+    await place_branch(is_branchlev(), 0, 0, frame);
     populate_maze(frame, state);
 }
 
@@ -7973,44 +7973,54 @@ function is_branchlev() {
     return null;
 }
 
-function find_branch_room(mp) {
-    const croom = generate_stairs_find_room();
-    if (croom) somexyspace(croom, mp);
+// C ref: mklev.c find_branch_room(). C's mazexy() reads the maze bounds
+// gx.x_maze_max and gy.y_maze_max; `frame` carries them here. makemaz() is the
+// only caller that reaches the roomless arm, and it passes its frame.
+async function find_branch_room(mp, frame) {
+    const g = game;
+    let croom = null;
+
+    if (g.level.nroom === 0) {
+        mazexy(mp, frame, g); /* already verifies location */
+    } else {
+        croom = generate_stairs_find_room();
+        if (!somexyspace(croom, mp))
+            await impossible("Can't place branch!", g);
+    }
     return croom;
 }
 
 // C ref: mklev.c place_branch(). When x is nonzero the branch is placed at
-// (x, y) directly; otherwise find_branch_room picks a random location.
-function place_branch(branchp, x = 0, y = 0) {
+// (x, y) directly; otherwise find_branch_room picks a random location. C's
+// pos_to_room() call for a given location discards its result and has no
+// effect. `frame` holds the maze bounds that find_branch_room() needs.
+async function place_branch(branchp, x = 0, y = 0, frame = undefined) {
     const g = game;
     if (!branchp || g.made_branch) return;
-    if (!x) {
+    if (!x) { /* find random coordinates for branch */
         const mp = { x: 0, y: 0 };
-        const croom = find_branch_room(mp);
-        if (!croom || mp.x <= 0) { g.made_branch = true; return; }
+        await find_branch_room(mp, frame);
         x = mp.x;
         y = mp.y;
     }
-    const on_end1 = (branchp.end1?.dnum === g.u?.uz?.dnum
-        && branchp.end1?.dlevel === g.u?.uz?.dlevel);
+    const on_end1 = on_level(branchp.end1, g.u.uz);
+    /* on end1, make_stairs unless BR_NO_END1; on end2, unless BR_NO_END2 */
+    const make_stairs = on_end1
+        ? branchp.type !== BR_NO_END1
+        : branchp.type !== BR_NO_END2;
     const dest = on_end1 ? branchp.end2 : branchp.end1;
-    // C ref: mklev.c:1727-1739
+    // C ref: mklev.c:1727-1739. The iflags.debug_fuzzer arm needs the
+    // fuzzer, which a recorded session cannot enable.
     if (branchp.type === BR_PORTAL) {
         mkportal(x, y, dest.dnum, dest.dlevel, g);
-    } else {
-        const make_stairs = on_end1
-            ? branchp.type !== BR_NO_END1
-            : branchp.type !== BR_NO_END2;
-        if (make_stairs) {
-            const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
-            stairway_add(x, y, goes_up, false, dest || { dnum: 0, dlevel: 0 });
-            const loc = g.level?.at(x, y);
-            if (loc) {
-                loc.typ = STAIRS;
-                loc.flags = goes_up ? LA_UP : LA_DOWN;
-            }
-        }
+    } else if (make_stairs) {
+        const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
+        stairway_add(x, y, goes_up, false, dest);
+        set_levltyp(x, y, STAIRS, { state: g });
+        g.level.at(x, y).flags = goes_up ? LA_UP : LA_DOWN; /* ladder */
     }
+    /* C sets made_branch even when no stairwell was made: there is only
+       one branch per level, so a second attempt would fail too. */
     g.made_branch = true;
 }
 
