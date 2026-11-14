@@ -427,7 +427,11 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
 export function mk_bubble(x, y, n, state = game, random = rn2) {
     const bounds = airBubbleBounds(state);
     if (x >= bounds.xmax || y >= bounds.ymax) return null;
-    if (n >= AIR_BUBBLE_MASKS.length) n = AIR_BUBBLE_MASKS.length - 1;
+    if (n >= AIR_BUBBLE_MASKS.length) {
+        // C: impossible("n too large (mk_bubble)");
+        note_unported('pline.c impossible');
+        n = AIR_BUBBLE_MASKS.length - 1;
+    }
     const mask = AIR_BUBBLE_MASKS[n];
     if (x + mask.width - 1 > bounds.xmax)
         x = bounds.xmax - mask.width + 1;
@@ -517,7 +521,10 @@ export async function movebubbles(state = game, random = rn2) {
                     if (!(bubble.mask.rows[j] & (1 << i))) continue;
                     const x = bubble.x + i;
                     const y = bubble.y + j;
-                    if (!isok(x, y)) continue;
+                    if (!isok(x, y)) {
+                        await impossible(`movebubbles: bad pos (${x},${y})`, state);
+                        continue;
+                    }
                     let object = state.level.objects?.[x]?.[y] ?? null;
                     if (object) {
                         let list = null;
@@ -676,6 +683,10 @@ export function restore_waterlevel(source, state = game, random = rn2) {
 export function set_wportal(state = game) {
     state.waterlevel_portal = (state.level?.traps ?? [])
         .find((trap) => trap.ttyp === MAGIC_PORTAL) ?? null;
+    if (!state.waterlevel_portal) {
+        // C: impossible("set_wportal(): no portal!");
+        note_unported('pline.c impossible');
+    }
     return state.waterlevel_portal;
 }
 
@@ -1533,7 +1544,11 @@ export function mazexy(coordinate = null, frame, state = game,
 export function mkportal(x, y, destinationDungeon, destinationLevel,
                          state = game) {
     const portal = maketrap(x, y, MAGIC_PORTAL, { state });
-    if (!portal) return null;
+    if (!portal) {
+        // C: impossible("portal on top of portal?");
+        note_unported('pline.c impossible');
+        return null;
+    }
     portal.dst = { dnum: destinationDungeon, dlevel: destinationLevel };
     return portal;
 }

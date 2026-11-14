@@ -348,7 +348,7 @@ function parent_dnum(name, pd) {
         if (branchIndex < 0)
             return pdnum;
     }
-    panic("parent_dnum: couldn't resolve branch");
+    panic("parent_dnum: couldn't resolve branch.");
 }
 
 // C ref: dungeon.c level_range. The returned pair replaces adjusted_base's
@@ -360,7 +360,7 @@ export function level_range(dgn, baseValue, randc, chain, pd, state = game) {
     if (chain >= 0) {
         const chainedLevel = pd.final_lev[chain];
         if (!chainedLevel)
-            panic('level_range: empty chain level');
+            panic('level_range: empty chain level!');
         base += chainedLevel.dlevel.dlevel;
     } else if (base < 0) {
         base = lmax + base + 1;
@@ -543,7 +543,7 @@ function pick_level(map, nth) {
         if (map[level] && nth-- === 0)
             return level;
     }
-    panic('pick_level: ran out of valid levels');
+    panic('pick_level:  ran out of valid levels');
 }
 
 export function place_level(protoIndex, pd, state = game, random = rn2) {
@@ -2941,6 +2941,9 @@ export function init_dungeons(
     state.branches = [];
     state.n_dgns = DUNGEON_DATA.length;
 
+    if (state.n_dgns >= MAXDUNGEON)
+        panic('init_dungeons: too many dungeons');
+
     let dngidx = 0;
     let initializedLevelCount = 0;
     for (const rawDungeon of DUNGEON_DATA) {
@@ -2966,7 +2969,7 @@ export function init_dungeons(
             );
         }
         if (!place_level(pd.start, pd, state, random))
-            panic("init_dungeon: couldn't place levels");
+            panic("init_dungeon:  couldn't place levels");
         for (; pd.start < pd.n_levs; ++pd.start) {
             if (pd.final_lev[pd.start])
                 add_level(pd.final_lev[pd.start], state);

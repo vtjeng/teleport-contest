@@ -39,6 +39,7 @@ import { game } from './gstate.js';
 import { sobj_at } from './invent.js';
 import { BOULDER } from './objects.js';
 import { rn1, rn2 } from './rng.js';
+import { note_unported } from './unported.js';
 
 function coordinateEnvironment(rawEnv = {}) {
     return {
@@ -257,7 +258,10 @@ export function get_location(coordinate, humidity, croom, rawEnv = {}) {
                 if (humidity & NO_LOC_WARN) {
                     coordinate.x = coordinate.y = -1;
                 } else if (hooks.impossible) {
-                    hooks.impossible("get_location: can't find a place!", env);
+                    hooks.impossible("get_location:  can't find a place!", env);
+                } else {
+                    // C: impossible("get_location:  can't find a place!");
+                    note_unported('pline.c impossible');
                 }
             }
         }
