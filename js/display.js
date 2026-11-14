@@ -5113,16 +5113,21 @@ function _statusHitpointBarTitle() {
         .padEnd(STATUS_HP_BAR_WIDTH);
     // C ref: wintty.c:4539 asks critically_low_hp(TRUE) before dashing the
     // unfilled half of the bar.
-    if (critically_low_hp(true)) {
-        const chars = [...bar];
-        for (let index = chars.length - 1; index >= 1; index -= 2) {
-            if (chars[index] === ' ' && chars[index - 1] === ' ') {
-                chars[index] = '-';
-            }
-        }
-        bar = chars.join('');
-    }
+    if (critically_low_hp(true)) bar = repad_with_dashes(bar);
     return bar;
+}
+
+// C ref: botl.c repad_with_dashes() (2167-2178). Working back from the end
+// of the space-padded bar, replace the second space of each pair with a
+// dash, and stop at the first pair that is not two spaces.
+export function repad_with_dashes(inoutbuf) {
+    const chars = [...inoutbuf];
+    let p = chars.length;
+    while (p >= 2 && chars[p - 1] === ' ' && chars[p - 2] === ' ') {
+        chars[p - 1] = '-';
+        p -= 2;
+    }
+    return chars.join('');
 }
 
 function _statusAlignment(u = game.u) {
