@@ -1121,6 +1121,19 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
     }
 }
 
+// C ref: uhitm.c disguised_as_non_mon() (6299-6304).
+export function disguised_as_non_mon(mtmp, state = game) {
+    return (!sensemon(mtmp, state)
+            && Boolean(M_AP_TYPE(mtmp))
+            && M_AP_TYPE(mtmp) !== M_AP_MONSTER);
+}
+
+// C ref: uhitm.c disguised_as_mon() (6306-6311).
+export function disguised_as_mon(mtmp) {
+    return (Boolean(M_AP_TYPE(mtmp))
+            && M_AP_TYPE(mtmp) === M_AP_MONSTER);
+}
+
 // C ref: uhitm.c attack_checks() (188-327). FALSE means it is fine to attack.
 // The ordinary melee case -- a spotted, undisguised, hostile target -- reaches
 // the closing `return FALSE` at 326 having done nothing but clear the wait
