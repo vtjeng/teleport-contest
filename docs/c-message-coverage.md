@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4000 | 67 | 1 |
-| diagnostic | 723 | 225 | 6 | 492 |
+| diagnostic | 723 | 226 | 6 | 491 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4228 | 73 | 610 |
+| total | 4911 | 4229 | 73 | 609 |
 
 ## Missing by C file
 
@@ -55,7 +55,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/display.c | yes | 0 | 8 | 0 |
 | src/do.c | yes | 0 | 4 | 0 |
 | src/do_name.c | yes | 0 | 1 | 0 |
-| src/do_wear.c | yes | 0 | 8 | 0 |
+| src/do_wear.c | yes | 0 | 7 | 0 |
 | src/dog.c | yes | 0 | 3 | 0 |
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
@@ -346,9 +346,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `Blindf_off()`
   - 1503 impossible: `Blindf_off without eyewear?`
-
-- `armor_or_accessory_off()`
-  - 1823 impossible: `removing strange accessory:`
 
 - `armoroff()`
   - 1963 impossible: `Taking off unknown armor (`

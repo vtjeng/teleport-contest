@@ -707,19 +707,23 @@ test('a trapped steed is refused with its pronoun and actual trap name', async (
     assert.equal(toplines(), "You can't mount the saddled pony while it's trapped in a bear trap.");
 });
 
-test('a petrifying touch records its unported void callee without a mount refusal', async () => {
+test('a petrifying touch calls instapetrify before the mount refusal', async () => {
     const { result, error } = await mountAfter(knightSlipSegment(), state => {
         const pony = m_at(state.u.ux, state.u.uy + 1);
         // Only an artificial saddle/petrifier pairing can get past which_armor;
         // valid saddle creation requires can_saddle, which rejects cockatrices.
         pony.data = state.mons.find(pm => pm.pmnames[2] === 'cockatrice');
-        // Supply source message acknowledgments for touch plus cannot-ride text.
+        // steed.c:294 instapetrify() reaches done(STONING); wizard mode asks
+        // "Die?", and a space takes its default 'n', so mounting continues.
+        state.wizard = true;
+        // Supply source message acknowledgments and the "Die?" answer.
         state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
         return pony;
     });
     assert.equal(error, null);
     assert.equal(result, false);
-    assert.ok(game.unported.has('trap.c instapetrify'));
+    assert.equal(game.unported.has('trap.c instapetrify'), false);
+    assert.equal(toplines(), "OK, so you don't die.  You can't ride such a creature.");
 });
 
 test('untaming a leashed steed clears its leash after the refusal message', async () => {
