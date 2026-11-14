@@ -34,6 +34,17 @@ typedef long long lua_Integer;
 typedef double lua_Number;
 typedef struct luaL_Reg luaL_Reg;
 typedef int (*lua_CFunction)(lua_State *);
+/* Lua 5.4.8's version macros (lib/lua-5.4.8/src/lua.h), which build-recorder.sh
+   builds against. nhlua.c tests them in #if: without LUA_VERSION_RELEASE_NUM
+   it turns NHL_SANDBOX off, and with it the sandbox code the recorder runs. */
+#define LUA_VERSION_MAJOR "5"
+#define LUA_VERSION_MINOR "4"
+#define LUA_VERSION_RELEASE "8"
+#define LUA_VERSION_NUM 504
+#define LUA_VERSION_RELEASE_NUM (LUA_VERSION_NUM * 100 + 8)
+#define LUA_VERSION "Lua " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
+#define LUA_RELEASE LUA_VERSION "." LUA_VERSION_RELEASE
+#define LUA_COPYRIGHT LUA_RELEASE "  Copyright (C) 1994-2025 Lua.org, PUC-Rio"
 `;
 
 // The recorder is built with clang (build-recorder.sh requires it for its

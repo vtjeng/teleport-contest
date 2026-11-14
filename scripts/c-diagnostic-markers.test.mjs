@@ -64,8 +64,14 @@ const EXCEPTIONS = new Map([
     // MAX_BMASK bounds C's fixed bmask[] table (mkmaze.c:1900).
     ['src/mkmaze.c mk_bubble', { count: 1, reason: NO_C_RESOURCE }],
     ['src/nhlua.c l_nhcore_init', { count: 1, reason: NO_C_RESOURCE }],
+    // The sandbox's Lua version check: the recorder builds Lua 5.4.8, the
+    // version NHL_VERSION_EXPECTED names.
+    ['src/nhlua.c nhl_init', { count: 1, reason: DEAD_IN_C }],
     ['src/nhlua.c nhl_loadlua', { count: 1, reason: NO_C_RESOURCE }],
-    ['src/nhlua.c nhlL_newstate', { count: 1, reason: NO_C_RESOURCE }],
+    // "NULL lua_newstate" checks an allocation; "steps and perpcall both
+    // non-zero" cannot hold, because every caller's nhl_sandbox_info sets
+    // steps to 0.
+    ['src/nhlua.c nhlL_newstate', { count: 2, reason: `${NO_C_RESOURCE}; ${DEAD_IN_C}` }],
     // js/pager.js reads the generated DATA_BASE_ENTRIES, not the data file.
     ['src/pager.c checkfile', { count: 3, reason: NO_C_RESOURCE }],
     ['src/rect.c init_rect', { count: 1, reason: NO_C_RESOURCE }],
@@ -90,7 +96,7 @@ const EXCEPTIONS = new Map([
         reason: 'the port writes through state.nhDisplay and keeps no WIN_MESSAGE record to be missing' }],
 ]);
 // The sum of the counts above.
-const EXCEPTION_PIN = 39;
+const EXCEPTION_PIN = 41;
 
 test('each ported C function ports or marks its missing diagnostics', async () => {
     const { deficits } = await scanDeficits({

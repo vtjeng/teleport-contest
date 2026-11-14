@@ -23,15 +23,15 @@ ported by design (`scripts/not-ported-by-design.mjs`), or
 command-line option or a file-system error. Exempt messages are listed
 at the end, not under Missing.
 
-Message literals of 14 or more characters: 4981.
+Message literals of 14 or more characters: 4984.
 Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4004 | 64 | 0 |
-| diagnostic | 723 | 358 | 6 | 359 |
+| diagnostic | 726 | 358 | 6 | 362 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4365 | 70 | 476 |
+| total | 4914 | 4365 | 70 | 479 |
 
 ## Missing by C file
 
@@ -85,7 +85,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mondata.c | yes | 0 | 1 | 0 |
 | src/mthrowu.c | yes | 0 | 1 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
-| src/nhlua.c | yes | 0 | 11 | 1 |
+| src/nhlua.c | yes | 0 | 14 | 1 |
 | src/o_init.c | yes | 0 | 7 | 0 |
 | src/objnam.c | yes | 0 | 8 | 0 |
 | src/options.c | yes | 0 | 6 | 0 |
@@ -710,14 +710,21 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1796 impossible: `nhl_gamestate: inconsistent state (`
   - 1798 impossible: `already stored`
 
+- `nhl_pcall()`
+  - 2130 panic: `Lua time exceeded`
+
 - `nhl_loadlua()`
   - 2262 impossible: `) line too long`
+
+- `nhl_init()`
+  - 2310 panic: `sandbox doesn't know this Lua version: this=`
 
 - `nhl_panic()`
   - 2998 panic: `unprotected error in call to Lua API (`
 
 - `nhlL_newstate()`
   - 3072 panic: `NULL lua_newstate`
+  - 3083 impossible: `steps and perpcall both non-zero`
 
 ### src/o_init.c
 
