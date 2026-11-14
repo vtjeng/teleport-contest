@@ -14,7 +14,7 @@ import {
     ROWNO,
     WIN_ERR,
 } from './const.js';
-import { redraw_map, status_initialize } from './display.js';
+import { erase_status_rows, redraw_map, status_initialize } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import {
@@ -354,6 +354,7 @@ export function tty_clear_map_window(state = game) {
     const display = state.nhDisplay;
     if (!display?.grid) return;
     display.clearScreen();
+    erase_status_rows(state);
     if (state._ttyBaseCursorRow !== undefined) state._ttyBaseCursorRow = 0;
 }
 
@@ -403,6 +404,10 @@ export function new_status_window(state = game) {
     // (wintty.c:1868).
     if (state.nhDisplay?.nomuxRaw) state.nhDisplay.nomuxRaw.rawprint = 0;
     clear_status_window(state);
+    // tty_status_init() zeroes tty_status[][] and finalx[][], so the next
+    // render_status() pass redraws every field (display.js
+    // _renderStatusLastRow()).
+    state._statusLastRowTty = null;
     status_initialize(state, true);
 }
 
