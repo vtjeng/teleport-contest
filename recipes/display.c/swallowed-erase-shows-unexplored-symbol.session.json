@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90211,
+      "datetime": "20260710091500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nSYMBOLS=S_unexplored:x\n",
+      "moves": "\u0017ring of conflict\nPer\u0007ice vortex\nms ms ms ms ms ms ms ms ms ms ms ms ",
+      "comment": "SYMBOLS=S_unexplored:x. A ring of conflict lets the ice vortex move while it engulfs the hero (monmove.c dochug() 882-887, m_move() 1858-1859). postmov() then moves the hero with it and calls swallowed(0) (monmove.c 1649-1654), which shows GLYPH_UNEXPLORED on the old 3x3 stomach (display.c 1343-1347); flush_screen() prints the cells the new stomach does not cover with the S_unexplored symbol."
+    }
+  ]
+}

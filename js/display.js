@@ -3262,14 +3262,10 @@ export async function swallowed(first, state = game) {
     if (!first) {
         const previous = state._swallowedLast;
         if (previous) {
-            // GLYPH_UNEXPLORED is the display.c sentinel rather than a
-            // normal glyph-map entry, so clear the presentation directly.
-            const unexplored = {
-                ch: ' ',
-                color: NO_COLOR,
-                dec: false,
-                glyph: GLYPH_UNEXPLORED_OFF,
-            };
+            // display.c 1343-1347: show_glyph(GLYPH_UNEXPLORED), which
+            // flush_screen() prints with S_unexplored and any G_unexplored
+            // customization (map_glyphinfo() 2778-2782).
+            const unexplored = unexploredGlyphInfo(state);
             for (let y = previous.y - 1; y <= previous.y + 1; ++y) {
                 for (let x = previous.x - 1; x <= previous.x + 1; ++x) {
                     if (isok(x, y)) show_glyph_cell(x, y, unexplored);

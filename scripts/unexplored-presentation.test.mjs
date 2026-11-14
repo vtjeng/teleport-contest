@@ -34,14 +34,10 @@ function scanJs() {
 }
 
 test('only the counted exceptions hard-code a blank unexplored glyph', () => {
-    // Two exceptions. js/display.js NUL_GBUF_PRESENTATION is display.c
-    // nul_gbuf itself, which is a blank whatever S_unexplored is. js/display.js
-    // swallowed()'s old-position erase still draws a blank where display.c
-    // swallowed() (1343-1347) shows GLYPH_UNEXPLORED: the cells it leaves
-    // uncovered show only after the engulfer moves (monmove.c:1649-1654),
-    // and no recording reaches that yet. Lower the count when it is fixed.
+    // One exception: js/display.js NUL_GBUF_PRESENTATION is display.c
+    // nul_gbuf itself, which is a blank whatever S_unexplored is.
     const found = scanJs();
-    assert.equal(found.length, 2, found.join('\n'));
+    assert.equal(found.length, 1, found.join('\n'));
     assert.ok(found.every((site) => site.startsWith('display.js:')), found.join('\n'));
 });
 

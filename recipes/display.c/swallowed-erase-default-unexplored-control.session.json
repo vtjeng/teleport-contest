@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52877,
+      "datetime": "20260711101500",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017ring of conflict\nPfr\u0007ice vortex\nms ms ms ms ms ms ms ms ms ms ms ms ",
+      "comment": "Control for swallowed-erase-shows-unexplored-symbol with the default S_unexplored: the erased stomach cells stay blank."
+    }
+  ]
+}
