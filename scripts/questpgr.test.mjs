@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { com_pager, deliver_splev_message, qtext_pronoun } from '../js/questpgr.js';
+import { game } from '../js/gstate.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { com_pager, deliver_splev_message, qt_pager, qtext_pronoun } from '../js/questpgr.js';
+import { msghistory_snapshot } from '../js/topl.js';
 
 const QUESTPGR_SOURCE = readFileSync('nethack-c/upstream/src/questpgr.c', 'utf8');
 const CMD_C_SOURCE = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
@@ -49,6 +52,50 @@ test('common string pager converts Lua substitutions and emits one line', async 
     assert.deepEqual(draws, [3, 2]);
     // %l is converted by the same common pager path as portal and cuss text.
     assert.deepEqual(lines, ['You again sense your leader demanding your attendance.']);
+});
+
+// A started Barbarian game with a tty message window; each window-delivered
+// quest text below is dismissed by queued keys.
+async function startedBarbarian() {
+    await runSegment({
+        seed: 7, // Any seed: these tests read only the role's quest text.
+        datetime: '20040612081500',
+        nethackrc: 'OPTIONS=name:Homecomer,role:Barbarian,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    return game;
+}
+
+test('promoted quest text without a synopsis writes "[text]" to history', async () => {
+    // questpgr.c:582-590: the fallback synopsis brackets the raw text and
+    // turns every newline into a space before convert_line().
+    assert.match(QUESTPGR_SOURCE, /if \(!synopsis\) \{\s*char tmpbuf\[BUFSZ\];\s*Sprintf\(tmpbuf, "\[%\.\*s\]", BUFSZ - 1 - 2, text\);[\s\S]*?strNsubst\(tmpbuf, "\\n", " ", 0\);/u);
+    const state = await startedBarbarian();
+    // Two keys: the welcome --More--, then the nexttime text window.
+    state.nhDisplay.pushKey(27);
+    state.nhDisplay.pushKey(27);
+    await qt_pager('nexttime', state, () => 0); // 0: first nhlib shuffle result.
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+    // Bar nexttime (quest.lua) has default output and a newline, so it is
+    // promoted to a window; %H and %l are the Barbarian home and leader.
+    assert.equal(msghistory_snapshot(false, state).at(-1),
+        '[Once again, you near the Camp of the Duali Tribe.  You know that Pelias will be waiting.]');
+});
+
+test('com_pager writes a common entry\'s synopsis to history', async () => {
+    // questpgr.c com_pager() goes through the same com_pager_core() as
+    // qt_pager(), including its putmsghistory() of the synopsis.
+    assert.match(QUESTPGR_SOURCE, /com_pager\(const char \*msgid\)\s*\{\s*\(void\) com_pager_core\("common", msgid, TRUE, \(char \*\*\) 0\);/u);
+    const state = await startedBarbarian();
+    state.nhDisplay.pushKey(27); // The welcome --More--.
+    state.nhDisplay.pushKey(27); // The banished text window.
+    await com_pager('banished', state, { random: () => 0 });
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+    // common.banished's own synopsis, with the Barbarian %H and %d.
+    assert.equal(msghistory_snapshot(false, state).at(-1),
+        '[You are banished from the Camp of the Duali Tribe for betraying your allegiance to Crom.]');
 });
 
 // questpgr.c:200-236 names plural artifacts independently of gender entries.

@@ -13,6 +13,7 @@ import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { save_mapseen } from '../js/dungeon.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { InMemoryStorage } from '../js/storage.js';
 
 test('save is in DISPATCHED_COMMANDS', () => {
@@ -68,10 +69,10 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
     );
 
     // The save file must exist in VFS storage.
-    const saveData = storage.getItem('vfs:nhsave');
+    const saveData = storage.getItem(savefileKey(game));
     assert.ok(
         saveData !== null,
-        'VFS storage must contain the save file at "nhsave"',
+        'VFS storage must contain the hero\'s save file',
     );
 
     // The save data must be valid JSON.
@@ -136,7 +137,7 @@ test('dosave undoes Friday-13th luck adjustment', async () => {
     // On Friday the 13th, moveloop_preamble() applied change_luck(-1).
     // dosave0() (save.c:145) undoes it with change_luck(1). The serialized
     // u.uluck should reflect the undone adjustment.
-    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
 
     // The base luck for a fresh hero is 0. After Friday-13th adjustment
     // (-1) and its undo (+1), the serialized value should be 0 (unless
@@ -188,7 +189,7 @@ test('dosave cancels on "n" answer without ending the segment', async () => {
     );
 
     // No save file should exist.
-    const saveData = storage.getItem('vfs:nhsave');
+    const saveData = storage.getItem(savefileKey(game));
     assert.equal(
         saveData, null,
         'no save file should be written when save is declined',

@@ -1,5 +1,5 @@
 // files.js -- Data-file handling shared by configuration readers.
-// C refs: files.c nh_basename(), read_sym_file().
+// C refs: files.c nh_basename(), set_savefile_name(), read_sym_file().
 
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
@@ -9,6 +9,7 @@ import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
+import { RECORDER_UID, regularize } from './unixunix.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
 // at 207-210 is compiled only for WIN32 and MSDOS, so a UNIX build keeps a
@@ -22,6 +23,16 @@ export function nh_basename(fname, keepSuffix) {
     const dot = name.lastIndexOf('.');
     if (dot >= 0 && !keepSuffix && dot < 80) name = name.slice(0, dot);
     return name;
+}
+
+// C ref: files.c set_savefile_name(TRUE) (1020-1123), the UNIX arm:
+// "save/<uid><plname>" with regularize() applied after "save/". The recorder
+// build defines no SAVE_EXTENSION and no save-file indicator. C stores the
+// result in gs.SAVEF; the port returns it, the storage name of the game's
+// save file. Every caller reads the current svp.plname, as C does when
+// restore_saved_game() and dosave0() name the file.
+export function set_savefile_name(state = game) {
+    return `save/${regularize(`${RECORDER_UID}${state.plname ?? ''}`)}`;
 }
 
 export function isDefaultSymsetName(name) {

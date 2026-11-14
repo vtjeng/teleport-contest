@@ -225,7 +225,7 @@ import { hideunder, maybe_unhide_at } from './mon.js';
 import { mon_to_glyph, newsym, obj_to_glyph, suppress_map_output } from './display.js';
 import { impossible, livelog_printf } from './pline.js';
 import { fingers_or_gloves, setwornEnv } from './do_wear.js';
-import { visible_region_at } from './region.js';
+import { reg_damg, visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import {
     is_drawbridge_wall,
@@ -2518,7 +2518,7 @@ export async function look_here(
     // feature and tactile-surface output, and is omitted by the count arm.
     if (region || seenTrap) {
         const regionText = region
-            ? `a ${Math.trunc(region.arg ?? 0) ? 'poison gas' : 'vapor'} cloud`
+            ? `a ${reg_damg(region) ? 'poison gas' : 'vapor'} cloud`
             : '';
         const trapText = seenTrap ? an(trapname(seenTrap.ttyp, false, state)) : '';
         await message(

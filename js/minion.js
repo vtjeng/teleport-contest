@@ -406,6 +406,15 @@ export function newemin(monster) {
     };
 }
 
+// C ref: minion.c free_emin() (29-36). Discards the minion extension and
+// clears isminion; dog.c make_familiar() calls it for a figurine Angel that
+// makemon() made a minion, so has_emin() is false afterwards.
+export function free_emin(monster) {
+    if (monster.mextra && monster.mextra.emin)
+        monster.mextra.emin = null;
+    monster.isminion = false;
+}
+
 // C ref: minion.c dprince() (391-402).  The fallback is deliberately the
 // source's approximate lower rank rather than a second selection strategy.
 export function dprince(atyp = A_NONE, state = game, random = coreRandom) {

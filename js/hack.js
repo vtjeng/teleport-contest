@@ -414,6 +414,7 @@ import {
 } from './pickup.js';
 import {
     in_out_region,
+    reg_damg,
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
@@ -3481,11 +3482,6 @@ export async function avoid_running_into_trap_or_liquid(
     return false;
 }
 
-function region_damage(region) {
-    return (!region?.visible || region.ttl === -2)
-        ? 0 : Math.trunc(region.arg ?? 0);
-}
-
 // C ref: hack.c avoid_trap_andor_region() (2515-2581).
 export async function avoid_trap_andor_region(x, y, state = game) {
     const paranoia = Math.trunc(state.flags?.paranoia_bits ?? 0);
@@ -3498,14 +3494,14 @@ export async function avoid_trap_andor_region(x, y, state = game) {
         const newreg = visible_region_at(x, y, state);
         const oldreg = visible_region_at(state.u.ux, state.u.uy, state);
         if (newreg && (!oldreg
-            || (region_damage(newreg) > 0 && region_damage(oldreg) === 0))
+            || (reg_damg(newreg) > 0 && reg_damg(oldreg) === 0))
             && await test_move(
                 state.u.ux, state.u.uy, state.u.dx, state.u.dy,
                 TEST_MOVE, state,
             )) {
             const qbuf = upstart(
                 `${u_locomotion('step', state)} into that ${
-                    region_damage(newreg) > 0 ? 'poison gas' : 'vapor'
+                    reg_damg(newreg) > 0 ? 'poison gas' : 'vapor'
                 } cloud?`,
             );
             if (!await paranoid_query(

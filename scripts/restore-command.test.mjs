@@ -13,6 +13,7 @@ import { readFileSync } from 'node:fs';
 import { A_CHAOTIC, DISPLACED, W_ARMC } from '../js/const.js';
 import { save_mapseen } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dorestore } from '../js/restore.js';
 import { welcomeBackMessage } from '../js/role_init.js';
@@ -129,13 +130,13 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
 
     // Confirm the save file exists in storage.
     assert.ok(
-        storage.getItem('vfs:nhsave') !== null,
+        storage.getItem(savefileKey(game)) !== null,
         'save file must exist in storage after segment 0',
     );
     // Give every substantive overview family a distinctive value before the
     // restore. A coordinate-only assertion would pass if restoration dropped
     // all of these fields.
-    const savedSnapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const savedSnapshot = JSON.parse(storage.getItem(savefileKey(game)));
     const savedOverview = savedSnapshot.mapseenchn.find((entry) =>
         entry.lev.dnum === savedSnapshot.u.uz.dnum
         && entry.lev.dlevel === savedSnapshot.u.uz.dlevel);
@@ -144,7 +145,7 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
     savedOverview.msrooms[0] = { seen: 1, untended: 1 };
     savedOverview.custom = 'distinct overview';
     savedOverview.custom_lth = savedOverview.custom.length;
-    storage.setItem('vfs:nhsave', JSON.stringify(savedSnapshot));
+    storage.setItem(savefileKey(game), JSON.stringify(savedSnapshot));
 
     // Segment 1: restore. The moves 'i ' are: 'i' to dismiss the
     // welcome --More-- prompt, then space to dismiss the full moon
@@ -185,7 +186,7 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
     // Check that the save file was deleted after successful restore
     // (C ref: dorecover():904 delete_savefile).
     assert.equal(
-        storage.getItem('vfs:nhsave'), null,
+        storage.getItem(savefileKey(game)), null,
         'save file must be deleted after successful restore',
     );
 
@@ -236,7 +237,7 @@ test('restore reinitializes the primary pick-axe and conservative unweapon flag'
     const storage = new InMemoryStorage();
     await runSegment({ ...recipe.segments[0], storage });
     assert.equal(game.unweapon, false, 'explicit wield starts as an ordinary weapon');
-    assert.ok(storage.getItem('vfs:nhsave'), 'the production save command completed');
+    assert.ok(storage.getItem(savefileKey(game)), 'the production save command completed');
     await runSegment({ ...recipe.segments[1], storage });
     assert.ok(game.uwep, 'the source primary pointer is restored');
     assert.equal(game.unweapon, true, 'restore.c forces the conservative pick-axe reminder');
@@ -249,11 +250,11 @@ for (const [variation, expected] of [['long-sword', false], ['bare-hands', true]
         )));
         const storage = new InMemoryStorage();
         await runSegment({ ...recipe.segments[0], storage });
-        const saved = JSON.parse(storage.getItem('vfs:nhsave'));
+        const saved = JSON.parse(storage.getItem(savefileKey(game)));
         // C restgamestate derives gu.unweapon from the reinitialized primary;
         // the serialized JSON flag must not determine either source arm.
         saved.unweapon = !expected;
-        storage.setItem('vfs:nhsave', JSON.stringify(saved));
+        storage.setItem(savefileKey(game), JSON.stringify(saved));
         await runSegment({ ...recipe.segments[1], storage });
         assert.equal(game.unweapon, expected);
     });
@@ -267,9 +268,9 @@ test('restore rebuilds the artifact catalog and preserves Sunsword light', async
     )));
     const storage = new InMemoryStorage();
     await runSegment({ ...recipe.segments[0], storage });
-    const saved = JSON.parse(storage.getItem('vfs:nhsave'));
+    const saved = JSON.parse(storage.getItem(savefileKey(game)));
     await runSegment({ ...recipe.segments[1], storage });
-    assert.equal(storage.getItem('vfs:nhsave'), null, 'debug restore declines retaining the save');
+    assert.equal(storage.getItem(savefileKey(game)), null, 'debug restore declines retaining the save');
     assert.ok(game.artilist[game.uwep.oartifact], 'the reconstructed primary artifact definition is available');
     assert.deepEqual(game.artiexist, saved.artiexist);
     assert.deepEqual(game.artidisco, saved.artidisco);
@@ -287,7 +288,7 @@ test('debug restore can retain the save through the production prompt', async ()
     await runSegment({ ...recipe.segments[0], storage });
     // Replace only the answer to the source keep-save prompt.
     await runSegment({ ...recipe.segments[1], moves: ' y ', storage });
-    assert.ok(storage.getItem('vfs:nhsave'), 'the y arm preserves the VFS save');
+    assert.ok(storage.getItem(savefileKey(game)), 'the y arm preserves the VFS save');
 });
 
 // restore.c restgamestate() (685-689) calls setworn() for every worn object,
@@ -306,11 +307,11 @@ test('restore sets a worn object\'s extrinsic property bit', async () => {
     // displacement is worn from the first turn.
     await runSegment({ seed: 8150232, datetime: '20261120143000', nethackrc,
         moves: ' Sy', storage });
-    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
     assert.equal(snapshot.u.uprops[DISPLACED].extrinsic & W_ARMC, W_ARMC,
         'the cloak of displacement is worn when the game is saved');
     snapshot.u.uprops[DISPLACED].extrinsic = 0;
-    storage.setItem('vfs:nhsave', JSON.stringify(snapshot));
+    storage.setItem(savefileKey(game), JSON.stringify(snapshot));
 
     await runSegment({ seed: 8150233, datetime: '20261120150000', nethackrc,
         moves: ' ', storage });
@@ -334,7 +335,7 @@ test('restore reverses the hero level\'s trap chain', async () => {
     // order; the datetime is arbitrary.
     await runSegment({ seed: 7240101, datetime: '20330611091500', nethackrc,
         moves: ' Sy', storage });
-    const saved = JSON.parse(storage.getItem('vfs:nhsave')).level.traps
+    const saved = JSON.parse(storage.getItem(savefileKey(game))).level.traps
         .map(({ tx, ty }) => `${tx},${ty}`);
     assert.equal(saved.length, 2);
     await runSegment({ seed: 7240102, datetime: '20330611100000', nethackrc,

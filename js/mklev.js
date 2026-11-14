@@ -5477,9 +5477,10 @@ function mkmap_join_map_cleanup(state) {
 // temporary rooms for them, then dig corridors to connect adjacent regions.
 // A step generator: it yields the impossible() C prints when a region has no
 // square somexy() can pick.
-function* mkmap_join_map_steps(bg_typ, fg_typ, state) {
-    // Find all regions via flood fill and create rooms for them.
-    for (let x = 2; x <= WIDTH; x++) {
+export function* mkmap_join_map_steps(bg_typ, fg_typ, state) {
+    // Find all regions via flood fill and create rooms for them. C's
+    // `goto joinm` leaves both loops, so the label is on the outer one.
+    joinm: for (let x = 2; x <= WIDTH; x++) {
         for (let y = 1; y < HEIGHT; y++) {
             if (state.level.at(x, y).typ === fg_typ
                 && state.level.at(x, y).roomno === NO_ROOM) {
@@ -5502,7 +5503,7 @@ function* mkmap_join_map_steps(bg_typ, fg_typ, state) {
                     state.level.rooms[state.level.nroom - 1].irregular
                         = true;
                     if (state.level.nroom >= MAXNROFROOMS * 2)
-                        break; // goto joinm
+                        break joinm;
                 } else {
                     // Tiny hole: erase it.
                     for (let sx = state._mkmap_min_rx;

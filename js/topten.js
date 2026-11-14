@@ -40,6 +40,7 @@ import { ATR_BOLD } from './terminal.js';
 import { coreRandom, rnd } from './rng.js';
 
 import { note_unported } from './unported.js';
+import { RECORDER_UID } from './unixunix.js';
 import { canseemon } from './display.js';
 import { dungeon_at } from './dungeon_table.js';
 
@@ -110,7 +111,6 @@ const ROLESZ = 3;
 // pers_is_uid: the C build uses uid-based per-player limits; all JS games
 // share a single constant uid so the behavior matches.
 const PERS_IS_UID = true;
-const JS_UID = 501;
 
 // C ref: topten.c:38-55 struct toptenentry, 61 zerott.
 function newttentry() {
@@ -521,7 +521,7 @@ function toptenEntries(how, when, state) {
     t0.hp = state.u.uhp;
     t0.maxhp = state.u.uhpmax;
     t0.deaths = state.u.umortality;
-    t0.uid = JS_UID;
+    t0.uid = RECORDER_UID;
     t0.plrole = (state.urole?.filecode ?? '???').substring(0, ROLESZ);
     t0.plrace = (state.urace?.filecode ?? '???').substring(0, ROLESZ);
     t0.plgend = (genders[state.flags.female ? 1 : 0]?.filecode ?? 'Mal')

@@ -78,7 +78,7 @@ import {
 } from './wintty.js';
 import { LL_NONE, NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
-import { SAVE_FILE_PATH } from './save.js';
+import { set_savefile_name } from './files.js';
 import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
@@ -575,8 +575,11 @@ export class NethackGame {
         // welcome(FALSE). moveloop(TRUE) then follows with resuming=true.
         //
         // unixmain.c:242 restore_saved_game() answers whether a save file
-        // could be opened; the one VFS save path stands in for its search.
-        const haveSaveFile = vfsReadFile(SAVE_FILE_PATH) != null;
+        // could be opened. It opens only the file set_savefile_name() names
+        // for the current svp.plname, which set_playmode() has already made
+        // "wizard" in debug mode, so another hero's save starts a new game.
+        const savefile = set_savefile_name(g);
+        const haveSaveFile = !!g.plname && vfsReadFile(savefile) != null;
         if (haveSaveFile) {
             // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
             // its text on the screen, so the notice is raw output too rather
@@ -677,7 +680,7 @@ export class NethackGame {
             if (g.discover || g.wizard) {
                 if (await yn_function('Do you want to keep the save file?',
                     'yn', 'n', true, g) === 'n') {
-                    vfsDeleteFile(SAVE_FILE_PATH);
+                    vfsDeleteFile(savefile);
                 }
             }
 

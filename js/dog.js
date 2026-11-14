@@ -170,6 +170,7 @@ import { ttyPline } from './tty_message.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
+import { free_emin } from './minion.js';
 import { del_light_source } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { finish_meating } from './dogmove.js';
@@ -277,11 +278,10 @@ export async function make_familiar(otmp, x, y, quietly = false, env = {}) {
                 break;
             }
             if (monster.isminion) {
-                // minion.c free_emin() is a discarded void cleanup call. Keep
-                // its preceding C flag clear and record the remaining storage
-                // release gap instead of inventing minion-state mutations.
+                // Fixup for figurine of an Angel: makemon() can make a random
+                // Angel a minion of random allegiance; drop that record.
                 monster.isminion = false;
-                note_unported('minion.c free_emin');
+                free_emin(monster);
             }
         }
     } while (!monster && --trycnt > 0);

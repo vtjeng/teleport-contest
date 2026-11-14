@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { runDifferential } from './diff-fresh.mjs';
@@ -34,7 +35,7 @@ export function runOutoracleMatrix() {
                 assert.equal(game.svo.oracle_cnt, expected);
                 assert.equal(game.u.uevent.major_oracle, true);
                 if (game.program_state.gameover) {
-                    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+                    const snapshot = JSON.parse(storage.getItem(savefileKey(game)));
                     assert.equal(snapshot.oracles.oracle_cnt, expected);
                     assert.equal(snapshot.oracles.oracle_loc.length, expected);
                 }

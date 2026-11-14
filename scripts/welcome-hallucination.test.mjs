@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { HALLUC, HALLUC_RES, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { make_hallucinated } from '../js/potion.js';
 import { welcomeHallucinationMessage } from '../js/role_init.js';
@@ -38,7 +39,7 @@ for (const hallucinating of [true, false]) {
         // segments. C allmain.c:welcome() prints the film line before the
         // ordinary welcome only when Hallucination is effective.
         await dosave0(game);
-        assert.ok(storage.getItem('vfs:nhsave'));
+        assert.ok(storage.getItem(savefileKey(game)));
         const replay = await runSegment({ seed: 901755,
             datetime: '20320405060810', nethackrc, moves: '  ', storage });
         assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT,

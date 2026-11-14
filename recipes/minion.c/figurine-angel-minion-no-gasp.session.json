@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 165,
+      "datetime": "20031105143000",
+      "nethackrc": "OPTIONS=name:AngelFig,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "#wizwish\nuncursed figurine of an Angel\nafk#wizgenesis\npeaceful gnome lord\nFu\n\n\n",
+      "comment": "dog.c make_familiar: makemon.c:1416 makes the Angel from the applied uncursed figurine a non-renegade minion, and the figurine's rn2(10)==0 tames it, so make_familiar calls minion.c free_emin. Attacking the peaceful gnome lord then runs mon.c peacefuls_respond, whose !rn2(5) passes for the watching tame Angel; with EMIN freed, sounds.c maybe_gasp keeps the Angel's MS_CUSS sound and returns no exclamation, so C prints none and draws no ROLL_FROM. Seed 165 is the first of seeds 1-400 whose port replay met every condition (port-only scan); the branch does not read the wizard flag."
+    }
+  ]
+}

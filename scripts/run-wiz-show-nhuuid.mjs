@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { compareSessionOutputs, runDifferential } from './diff-fresh.mjs';
@@ -44,7 +45,7 @@ export function runWizardUuidMatrix() {
                     assert.equal(game.multi, 0);
                 }
                 if (name === 'restore' && index === 0) {
-                    assert.equal(JSON.parse(storage.getItem('vfs:nhsave')).nhuuid, '');
+                    assert.equal(JSON.parse(storage.getItem(savefileKey(game))).nhuuid, '');
                 }
             }
             return runDifferential(recipe);
