@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4001 | 67 | 0 |
-| diagnostic | 723 | 357 | 6 | 360 |
+| diagnostic | 723 | 358 | 6 | 359 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4361 | 73 | 477 |
+| total | 4911 | 4362 | 73 | 476 |
 
 ## Missing by C file
 
@@ -119,7 +119,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/trap.c | yes | 0 | 8 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
 | src/uhitm.c | yes | 0 | 2 | 0 |
-| src/vault.c | yes | 0 | 2 | 2 |
+| src/vault.c | yes | 0 | 1 | 2 |
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/windows.c | yes | 0 | 2 | 1 |
 | src/wizcmds.c | yes | 0 | 1 | 0 |
@@ -1145,9 +1145,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 5819 impossible: `strange attack of yours (`
 
 ### src/vault.c
-
-- `find_guard_dest()`
-  - 311 impossible: `Not a single corridor on this level?`
 
 - `gd_pick_corridor_gold()`
   - 766 impossible: `vault guard: no gold at hero's feet?`
