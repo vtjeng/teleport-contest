@@ -345,7 +345,7 @@ async function deliverByWindow(text, state, output) {
     await output.window(state, converted);
 }
 
-// BUFSZ - 1 from the C source.
+// C ref: global.h BUFSZ.
 const BUFSZ = 256;
 
 // C ref: questpgr.c:10.
@@ -430,6 +430,13 @@ async function comPagerCore(
     if (mode === 0
         && (text.includes('\n') || text.length >= BUFSZ - 1)) {
         mode = 2;
+        // C ref: questpgr.c:582-590. Text promoted to a window with no
+        // synopsis gets "[text]", cut to BUFSZ - 1 - 2 characters inside
+        // the brackets, with every newline changed to a space.
+        if (!synopsis) {
+            synopsis = `[${text.slice(0, BUFSZ - 1 - 2)}]`
+                .replaceAll('\n', ' ');
+        }
     }
 
     if (mode === 0 || mode === 1) {
@@ -493,7 +500,7 @@ export async function com_pager(
 ) {
     return await comPagerCore(
         'common', messageId, true, state, random,
-        { pline: message, window: displayTtyTextWindow },
+        { ...QUEST_PAGER_OUTPUT, pline: message },
     );
 }
 

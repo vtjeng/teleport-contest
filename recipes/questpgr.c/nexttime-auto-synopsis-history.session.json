@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7,
+      "datetime": "20040612081500",
+      "nethackrc": "OPTIONS=name:Homecomer,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0016?\n>y\n\n\u0016?\nc\n\u0016?\n>y\n\n\u0010\u0010\u0010\u001bSy",
+      "comment": "questpgr.c com_pager_core auto-synopsis: the debug level-teleport menu takes a Barbarian to Bar-strt (quest.c on_start firsttime), then to the Oracle level and back, so on_start shows Bar nexttime. That entry has default output, a newline and no synopsis, so C promotes it to a window and writes '[text]' with newlines as spaces to message history (questpgr.c:582-609). Three ^P recalls show it; the game is then saved."
+    },
+    {
+      "seed": 7,
+      "datetime": "20040612083000",
+      "nethackrc": "OPTIONS=name:Homecomer,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\nn\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u0010\u001b",
+      "comment": "Restores the saved game. After the welcome --More-- and the debug-mode keep-save-file prompt (answered n), nine ^P recalls walk back through the restored message history past the synopsis line."
+    }
+  ]
+}
