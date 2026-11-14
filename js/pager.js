@@ -290,6 +290,8 @@ import {
     Unblind_telepat,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { note_unported } from './unported.js';
+import { impossible } from './pline.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -644,6 +646,15 @@ function look_at_monster(monster, x, y, state, output = null) {
                 labels.push(Hallucination(state.u)
                     ? 'paranoid delusion'
                     : 'warned of ' + warningMonsterName(monster, state));
+            }
+            /* should have used up all the how_seen bits by now */
+            const unknown = seen & ~(MONSEEN_NORMAL | MONSEEN_SEEINVIS
+                | MONSEEN_INFRAVIS | MONSEEN_TELEPAT | MONSEEN_XRAYVIS
+                | MONSEEN_DETECT | MONSEEN_WARNMON);
+            if (unknown) {
+                // C: impossible("lookat: unknown method of seeing monster");
+                note_unported('pline.c impossible');
+                labels.push(`(${unknown >>> 0})`);
             }
             output.monbuf = labels.join(', ');
         }
@@ -1130,7 +1141,14 @@ export async function look_engrs(nearby, state = game) {
 export function append_str(out, description) {
     if (lcase(out).includes(lcase(description))) return out;
     const spaceLeft = BUFSZ - 1 - out.length;
-    if (spaceLeft <= 0) return out;
+    if (spaceLeft <= 0) {
+        if (spaceLeft < 0) {
+            // C: impossible("append_str: 'buf' contains %lu characters.",
+            //               (unsigned long) oldlen);
+            note_unported('pline.c impossible');
+        }
+        return out; /* no space available */
+    }
     const separator = ' or ';
     return out + separator.slice(0, spaceLeft)
         + description.slice(0, Math.max(0, spaceLeft - separator.length));
@@ -1886,6 +1904,14 @@ export async function checkfile(
     const userTyped = (chkflags & CHKFIL_USR_TYPED) !== 0;
     const dontAsk = (chkflags & CHKFIL_DONT_ASK) !== 0;
     const iaChecking = (chkflags & CHKFIL_IA_CHECK) !== 0;
+    /* If someone passed us garbage, prevent fault. */
+    if (input == null || textBytes(input).length > BUFSZ - 1) {
+        await impossible(
+            `bad do_look buffer passed (${input == null ? 'null' : 'too long'})!`,
+            state,
+        );
+        return false;
+    }
     const source = pm && !userTyped
         ? pm.pmnames?.[NEUTRAL] ?? input
         : input;

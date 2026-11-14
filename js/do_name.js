@@ -162,6 +162,7 @@ import { hides_under } from './mondata.js';
 import { beautiful } from './apply.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
+import { note_unported } from './unported.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
 import {
     Blind, Deaf, EHalluc_resistance, Hallucination,
@@ -1252,9 +1253,10 @@ export function obj_pmname(obj, state = game) {
 
         return pmname(state.mons[mndx], mgend);
     }
-    // C reports impossible() and returns this sentinel. Keeping the return
-    // makes the helper total without adding output or mutation to this pure
-    // port; valid callers never reach it.
+    // C reports impossible() and returns this sentinel; valid callers never
+    // reach it.
+    // C: impossible("obj_pmname otyp:%i,corpsenm:%i", obj->otyp, obj->corpsenm);
+    note_unported('pline.c impossible');
     return 'two-legged glorkum-seeker';
 }
 

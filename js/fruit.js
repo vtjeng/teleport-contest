@@ -12,6 +12,7 @@ import {
     strstri, lcase, ucase, upstart, highc, lowc, strncmpi,
 } from './hacklib.js';
 import { Strlen_ } from './strutil.js';
+import { note_unported } from './unported.js';
 import { name_to_mon } from './mondata.js';
 import {
     FOOD_CLASS,
@@ -282,7 +283,11 @@ function ch_ksound(value) {
 // healing" becomes "potions of healing" rather than "potion of healings".
 export function makeplural(oldstr) {
     const original = String(oldstr ?? '').replace(/^ +/u, '');
-    if (!original) return 's';
+    if (!original) {
+        // C: impossible("plural of null?");
+        note_unported('pline.c impossible');
+        return 's';
+    }
 
     const pronouns = new Map([
         ['he', 'they'],
@@ -380,7 +385,11 @@ export function makeplural(oldstr) {
 // stores the singular name, and later slime molds retain that spelling.
 export function makesingular(oldstr) {
     let original = String(oldstr ?? '').replace(/^ +/u, '');
-    if (!original) return '';
+    if (!original) {
+        // C: impossible("singular of null?");
+        note_unported('pline.c impossible');
+        return '';
+    }
 
     const pronouns = new Map([
         ['they', 'it'],
