@@ -3691,7 +3691,10 @@ async function accessory_or_armor_on(obj, state = game) {
             await unmul('', state);
             await on_msg(obj, state);
         }
-        takeoffContext(state).mask = 0;
+        const takeoff = takeoffContext(state);
+        takeoff.mask = takeoff.what = 0;
+        /* gw.wasinwater = 0U; // can't clear this yet; Boots_on() needs it
+         * and gets called via afternmv() after this routine has returned */
     } else { /* not armor */
         if (ring) {
             /* Ring_on() expects ring to already be worn as uleft or uright */

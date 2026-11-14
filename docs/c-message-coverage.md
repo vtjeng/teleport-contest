@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4004 | 64 | 0 |
-| diagnostic | 723 | 358 | 6 | 359 |
+| diagnostic | 723 | 359 | 6 | 358 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4365 | 70 | 476 |
+| total | 4911 | 4366 | 70 | 475 |
 
 ## Missing by C file
 
@@ -113,7 +113,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/steed.c | yes | 0 | 0 | 1 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
-| src/timeout.c | yes | 0 | 10 | 0 |
+| src/timeout.c | yes | 0 | 9 | 0 |
 | src/topten.c | yes | 0 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
 | src/trap.c | yes | 0 | 8 | 1 |
@@ -1082,9 +1082,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `cleanup_burn()`
   - 1833 impossible: `cleanup_burn: obj`
-
-- `start_timer()`
-  - 2273 impossible: `Attempted to start duplicate`
 
 - `obj_move_timers()`
   - 2351 panic: `obj_move_timers`

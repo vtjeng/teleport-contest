@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c wildmiss(): an invisible, displaced hero; a Woodland-elf, which perceives invisible, attacks the displaced image, so the message says \"invisible displaced image\" (C tests Invis alone there).",
+  "segments": [
+    {
+      "seed": 7340211,
+      "datetime": "20610314101500",
+      "nethackrc": "OPTIONS=name:Imagine,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n14\n\u001b\u0017cloak of displacement\nWe \u0017ring of invisibility\nPfr \u0007hostile Woodland-elf\nh l j k "
+    }
+  ]
+}

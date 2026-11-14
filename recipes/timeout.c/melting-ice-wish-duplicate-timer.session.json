@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "timeout.c start_timer(): a second wizard-mode \"melting ice\" wish on the same square starts a second melt_ice_away timer for it, so start_timer() reports the duplicate through impossible().",
+  "segments": [
+    {
+      "seed": 9128856,
+      "datetime": "20620507083011",
+      "nethackrc": "OPTIONS=name:Icer,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017melting ice\n\u0017melting ice\n  ss"
+    }
+  ]
+}

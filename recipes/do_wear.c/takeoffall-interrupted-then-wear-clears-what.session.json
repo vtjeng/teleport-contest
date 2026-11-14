@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_wear.c accessory_or_armor_on() clears context.takeoff.what as well as mask: an A of the suit is interrupted by an adjacent monster, a helmet is then worn, and the inventory shows the suit as \"being worn\", not \"being doffed\".",
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20600921174233",
+      "nethackrc": "OPTIONS=name:Dresser,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0007hostile jackal\nAc\ne\n\u0017elven leather helm\nWgi"
+    }
+  ]
+}
