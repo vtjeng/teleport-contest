@@ -256,7 +256,7 @@ import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { ttyPline } from './tty_message.js';
-import { impossible_printer, pline_mon, youHear } from './pline.js';
+import { impossible, impossible_printer, pline_mon, youHear } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { messageAt } from './startup_a11y.js';
 
@@ -1457,7 +1457,8 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
             otmp = mksobj(BLINDING_VENOM, true, false, { state, random });
             break;
         default:
-            /* C: impossible("bad attack type in spitmm"); FALLTHROUGH */
+            await impossible('bad attack type in spitmm', state, env);
+            // FALLTHROUGH
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, true, false, { state, random });
             break;
@@ -1582,7 +1583,9 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                     if (dog && dog.hungrytime >= 10)
                         dog.hungrytime -= 10;
                 }
-            } /* else impossible("Breath weapon %d used", typ-1); */
+            } else {
+                await impossible(`Breath weapon ${typ - 1} used`, state, env);
+            }
         } else {
             return M_ATTK_MISS;
         }

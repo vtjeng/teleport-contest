@@ -2236,7 +2236,11 @@ export function trapname(ttyp, override, state, random = coreRandom,
 // hidden immunity still asks the hero for confirmation, while clearly visible
 // immunity suppresses the prompt.
 export function immune_to_trap(mon, ttype, state = game) {
-    if (!mon) return TRAP_NOT_IMMUNE;
+    if (!mon) {
+        // C: impossible("immune_to_trap: null monster");
+        note_unported('pline.c impossible');
+        return TRAP_NOT_IMMUNE;
+    }
     const pm = mon.data;
     const isYou = mon === state.youmonst;
     switch (ttype) {
@@ -2337,6 +2341,8 @@ export function immune_to_trap(mon, ttype, state = game) {
     case VIBRATING_SQUARE:
         return TRAP_CLEARLY_IMMUNE;
     default:
+        // C: impossible("immune_to_trap: bad ttype %u", ttype);
+        note_unported('pline.c impossible');
         return TRAP_NOT_IMMUNE;
     }
 }
@@ -3605,7 +3611,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         case 3: case 2: case 1: case 0:
             msg = 'gas cloud blows away'; break;
         default:
-            // impossible("chest disarm bug")
+            await impossible('chest disarm bug', state);
             msg = null;
             break;
         }
@@ -3780,7 +3786,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             break;
         }
         default:
-            // impossible("bad chest trap")
+            await impossible('bad chest trap', state);
             break;
         }
         await bot();

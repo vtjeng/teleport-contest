@@ -3566,6 +3566,8 @@ export function counter_were(mndx) {
     }
 }
 
+const UNKNOWN_LYCANTHROPE = Symbol('unknown lycanthrope');
+
 function preflightNewWere(monster, normalized) {
     const { state } = normalized;
     if (Protection_from_shape_changers(state.u)
@@ -3574,13 +3576,8 @@ function preflightNewWere(monster, normalized) {
     }
     const targetIndex = counter_were(monster.data?.pmidx);
     const target = state.mons?.[targetIndex];
-    if (!target || target.pmidx !== targetIndex) {
-        // C reports an impossible state and returns without refusing the
-        // caller. Keep that discarded diagnostic explicit until pline.c's
-        // impossible() path is ported.
-        note_unported('pline.c impossible');
-        return null;
-    }
+    // new_were() prints C's impossible() for an unknown lycanthrope.
+    if (!target || target.pmidx !== targetIndex) return UNKNOWN_LYCANTHROPE;
     if (typeof normalized.redrawSquare !== 'function') {
         throw new TypeError(
             'new_were requires a redrawSquare operation',
@@ -3626,6 +3623,12 @@ export async function new_were(monster, rawEnv = {}) {
     const normalized = normalizedDistressEnv(rawEnv);
     const { state } = normalized;
     const target = preflightNewWere(monster, normalized);
+    if (target === UNKNOWN_LYCANTHROPE) {
+        await impossible(
+            `unknown lycanthrope ${monster.data.pmnames[NEUTRAL]}.`,
+            state, normalized);
+        return false;
+    }
     if (!target) return false;
 
     await announceNewWere(monster, target, normalized);
@@ -4536,6 +4539,9 @@ export function unstuck(mtmp, state = game, env = {}) {
 // dog.c owns the migration variant of this same C helper; this copy keeps the
 // null-list arm that removes an old monster permanently from the live list.
 async function relmon(mon, state = game) {
+    if (!state.level?.monlist)
+        await panic('relmon: no fmon available.', state);
+
     await mon_leaving_level(mon, state);
     let previous = null;
     let current = state.level?.monlist ?? null;

@@ -98,6 +98,7 @@ import {
     buzz, flash_str, flashburn, mon_spell_hits_spot,
 } from './zap.js';
 import {
+    impossible,
     impossible_printer,
     pline_mon,
     verbalize as plineVerbalize,
@@ -459,6 +460,11 @@ export async function castmu(
                     || await finish_steps(
                         spell_would_be_useless_steps(mtmp, spellnum, env),
                         impossible_printer(state))) {
+                    if (foundyou) {
+                        await impossible(
+                            "spellcasting monster found you and doesn't know it?",
+                            state);
+                    }
                     return M_ATTK_MISS;
                 }
                 break;
@@ -540,7 +546,10 @@ export async function castmu(
     if (!foundyou) {
         dmg = 0;
         if (mattk.adtyp !== AD_SPEL && mattk.adtyp !== AD_CLRC) {
-            // impossible() in C
+            const caster = Monnam(mtmp, state, env);
+            await impossible(
+                `${caster} casting non-hand-to-hand version of hand-to-hand spell ${mattk.adtyp}?`,
+                state);
             return M_ATTK_MISS;
         }
     } else if (mattk.damd) {

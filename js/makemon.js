@@ -48,7 +48,7 @@ import { tamedog } from './dog.js';
 import {
     level_difficulty, level_difficulty_steps, on_level,
 } from './dungeon.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
@@ -999,6 +999,8 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
         throw new TypeError('mkclass random injection requires rnd');
     if (!Number.isInteger(classSymbol)
         || classSymbol < 1 || classSymbol >= MAXMCLASSES) {
+        // C: impossible("mkclass called with bad class!");
+        note_unported('pline.c impossible');
         return null;
     }
 
@@ -1014,7 +1016,11 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
     for (first = LOW_PM; first < SPECIAL_PM; first++) {
         if (state.mons[mongen_order[first]].mlet === classSymbol) break;
     }
-    if (first === SPECIAL_PM) return null;
+    if (first === SPECIAL_PM) {
+        // C: impossible("mkclass found no class %d monsters", class);
+        note_unported('pline.c impossible');
+        return null;
+    }
 
     let mvflagsMask = G_GONE;
     let specialMask = Math.trunc(special);
@@ -1130,8 +1136,8 @@ export function qt_montype(env = {}) {
 // Weighted reservoir sampling is intentional. It consumes one rn2 call for
 // every viable positive-weight candidate, in mons[] order; replacing it with
 // a final weighted draw would select the same distribution but the wrong RNG.
-// level_difficulty()'s impossible() is a step; rndmonst_adj() is the
-// synchronous form, which records it as a gap.
+// Its own impossible() and level_difficulty()'s are steps; rndmonst_adj() is
+// the synchronous form, which records them as gaps.
 export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
     return finish_steps(rndmonst_adj_steps(minadj, maxadj, env));
 }
@@ -1167,7 +1173,10 @@ export function* rndmonst_adj_steps(minadj = 0, maxadj = 0, env = {}) {
 
         let weight = (monster.geno & G_FREQ) + align_shift(monster, state);
         weight += temperature_shift(monster, state);
-        if (weight < 0 || weight > 127) weight = 0;
+        if (weight < 0 || weight > 127) {
+            yield new ImpossibleCall(`bad weight in rndmonst for mndx ${index}`);
+            weight = 0;
+        }
         if (weight > 0) {
             totalWeight += weight;
             if (random.rn2(totalWeight) < weight) selected = index;

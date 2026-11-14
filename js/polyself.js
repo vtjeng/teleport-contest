@@ -1848,7 +1848,13 @@ export function body_part(part, youmonst) {
 }
 
 export function mbodypart(monster, part) {
-    if (part <= NO_PART || part > STOMACH) return 'mystery part';
+    if (part <= NO_PART) {
+        // C: impossible("mbodypart: bad part %d", part);
+        note_unported('pline.c impossible');
+        return 'mystery part';
+    }
+    // C indexes its part arrays without a bound; the port answers past them.
+    if (part > STOMACH) return 'mystery part';
     const species = monster?.data;
     if (!species) throw new TypeError('mbodypart requires monster data');
 

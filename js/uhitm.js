@@ -189,6 +189,7 @@ import {
 } from './do_name.js';
 import {
     consume_msg_xy,
+    impossible,
     impossible_printer,
     livelog_printf,
     verbalize,
@@ -2464,7 +2465,12 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
     const clockwise = Boolean(state.cleaverClockwise);
     const { u } = state;
     let direction = xytodir(u.dx, u.dy);
-    if (direction < 0 || direction >= 8) return true;
+    if (direction < 0 || direction >= 8) {
+        await impossible(
+            `hitum_cleave: unknown target direction [${u.dx},${u.dy},${u.dz}]?`,
+            state, env);
+        return true; /* target hasn't been killed */
+    }
     direction = (direction + (clockwise ? 6 : 2)) % 8;
 
     const oldMortality = u.umortality;

@@ -116,6 +116,7 @@ import {
     yname,
 } from './objnam.js';
 import { makeplural } from './fruit.js';
+import { impossible } from './pline.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
@@ -814,8 +815,9 @@ export async function steal(
             break;
         }
         default:
-            // impossible
-            break;
+            await impossible(
+                `Tried to steal a strange worn thing. [${otmp.oclass}]`,
+                state, env);
         }
         // hero's blindfold might have just been stolen
         if (!seen && canspotmon(mtmp, state))

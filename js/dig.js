@@ -206,7 +206,7 @@ import { cvt_sdoor_to_door } from './detect.js';
 import {
     cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
 } from './display.js';
-import { verbalize, youFeel } from './pline.js';
+import { impossible, verbalize, youFeel } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
 import {
@@ -398,8 +398,8 @@ export async function mkcavepos(
     state.viz_array[y][x] = dist < 3 ? IN_SIGHT | COULD_SEE : COULD_SEE;
     location.typ = rockit ? STONE : ROOM;
 
-    // C's impossible() here is a debug diagnostic: mkcavearea() calls this
-    // helper only with distances one and two.
+    if (dist >= 3)
+        await impossible(`mkcavepos called with dist ${dist}`, state, rawEnv);
     const feelNewsym = rawEnv.feelNewsym ?? feel_newsym;
     feelNewsym(x, y, state);
 }
@@ -2260,8 +2260,13 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     }
     if (!IS_OBSTRUCTED(location.typ) && !IS_TREE(location.typ, state))
         return false;
-    if ((location.flags ?? 0) & W_NONDIGGABLE)
-        return false;
+    if ((location.flags ?? 0) & W_NONDIGGABLE) {
+        const what = IS_WALL(location.typ) ? 'wall'
+            : IS_TREE(location.typ, state) ? 'tree' : 'stone';
+        await impossible(`mdig_tunnel:  ${what} at (${x},${y}) is undiggable`,
+            state, rawEnv);
+        return false; /* still alive */
+    }
 
     if (IS_WALL(location.typ)) {
         if (state.flags?.verbose && !random.rn2(5)) {
