@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41593,
+      "datetime": "20260712123000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Samurai,race:human,gender:female,align:lawful,!legacy,!splash_screen,tutorial,statuslines:3,time,showvers,weaponstatus,armorstatus,terrainstatus,blind,deaf,cond_barehanded\n",
+      "moves": "    ",
+      "comment": "Control for newgame-explicit-bot-sends-nothing-before-legacy: no field changes before the welcome pline, so its --More-- still shows the last row as newgame()'s first status pass drew it; entering the tutorial then changes the level and the optional fields."
+    }
+  ]
+}

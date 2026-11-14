@@ -7946,15 +7946,7 @@ export async function flush_screen(mode) {
         // C ref: display.c flush_screen() (2235-2239). The turn counter has
         // its own arm, which refreshes that field alone.
         if (game.disp?.botl || game.disp?.botlx) {
-            await bot({
-                // Before moveloop_preamble(), tty field dirtiness can preserve
-                // the initial three-row condition/optional-field overlap.
-                initialTtyRefresh: Boolean(
-                    game.program_state
-                    && !game.program_state.in_moveloop
-                    && game.u?.ux,
-                ),
-            });
+            await bot();
         } else if (game.disp?.time_botl) {
             await timebot();
         }
@@ -8065,7 +8057,7 @@ export async function cls() {
 // render HP:0 (clamped) before done() sets u.uhp = 0, and screens captured
 // during the "You die..." --More-- sequence would show HP:0 instead of the
 // pre-damage value that C's incremental terminal leaves on screen.
-export async function bot({ initialTtyRefresh = false } = {}) {
+export async function bot() {
     if (game.gb?.bot_disabled === true)
         return;
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
@@ -8128,10 +8120,12 @@ export async function bot({ initialTtyRefresh = false } = {}) {
         // field (every row-three field follows BL_GOLD, so the gold test's
         // update_all covers them too); otherwise a field goes to the window
         // port when its value changed, and BL_FLUSH follows only if something
-        // went or disp.botlx is set. Before moveloop_preamble(), C's bot()
-        // reaches render_status() even where this port finds nothing
-        // changed: newgame()'s explicit bot() after flush_screen() redraws
-        // the conditions over the optional fields (display-symbols.test.mjs).
+        // went or disp.botlx is set. newgame()'s explicit bot() right after
+        // flush_screen(1) (allmain.c 816-818) therefore sends nothing and
+        // renders nothing. The next pass with a changed field, such as the
+        // welcome pline's flush once u_init_skills_discoveries() has called
+        // find_ac() (u_init.c 1413), is the first to redraw the conditions
+        // over the optional fields.
         const upperRowsChanged = !previousLayouts
             || [0, 1].some((index) => previousLayouts[index]?.text
                 !== layouts[index].text
@@ -8142,7 +8136,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
             dirty: (group, previous) => updateAll || !previous
                 || group.text !== previous.text
                 || group.style !== previous.style,
-            flush: initialTtyRefresh || updateAll || upperRowsChanged,
+            flush: updateAll || upperRowsChanged,
         });
         styles[2] = _statusStyleRows([layouts[2]])[0];
     }

@@ -8399,7 +8399,7 @@ test('conditions stay where they fall once right justifying would not fit',
         assert.equal(terminalRow(state, 23).trimEnd().length, 78);
     });
 
-test('initial three-line status preserves tty overlap until the forced refresh', async () => {
+test('initial three-line status keeps the tty overlap until the forced refresh', async () => {
     const state = statusRenderingState();
     state.uwep = null;
     state.uarms = null;
@@ -8414,10 +8414,21 @@ test('initial three-line status preserves tty overlap until the forced refresh',
     state.program_state = { in_moveloop: 0 };
     state.disp = {};
 
-    // The first pass seeds wintty's BEFORE values; the explicit second pass
-    // then exposes the unchanged-field overlap under test.
+    // The first pass seeds wintty's BEFORE values. As newgame()'s explicit
+    // bot() after flush_screen(1) does, a pass with no changed field sends
+    // nothing (botl.c evaluate_and_notify_windowport()), so no BL_FLUSH
+    // redraws the row.
     await bot();
-    await bot({ initialTtyRefresh: true });
+    const firstPassRow = terminalRow(state, 23);
+    await bot();
+    assert.equal(terminalRow(state, 23), firstPassRow,
+        'a pass that sends no field leaves the last row as drawn');
+    // AC changes before the welcome pline's flush, as find_ac() in
+    // u_init_skills_discoveries() changes it. BL_AC is sent, BL_FLUSH reaches
+    // render_status(), and the conditions are redrawn from their moved x
+    // over the unchanged optional fields.
+    state.u.uac -= 1;
+    await bot();
 
     // The condition starts at the preceding row's hunger slot (column 45),
     // while the right-justified version starts at column 75.

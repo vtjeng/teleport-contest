@@ -643,7 +643,7 @@ export class NethackGame {
             await cls();
             await docrt();
             await flush_screen(1);
-            await bot({ initialTtyRefresh: true });
+            await bot();
             clearTtyMessageWindow(g);
 
             // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64271,
+      "datetime": "20260714093000",
+      "nethackrc": "OPTIONS=name:Ren,role:Monk,race:human,gender:male,align:neutral,legacy,!tutorial,!splash_screen,pettype:none,statuslines:3,time,showvers,weaponstatus,armorstatus,terrainstatus,blind,deaf,pauper\n",
+      "moves": "    s",
+      "comment": "Three status lines with conditions and the optional weapon, armor and terrain fields. allmain.c newgame() calls flush_screen(1), whose bot() redraws every field (disp.botlx from docrt()), then bot() again (816-818). Nothing changed in between, so botl.c evaluate_and_notify_windowport() sends no field and no BL_FLUSH, and the legacy text shows the first pass's last row. The pauper's AC changes in u_init_skills_discoveries()'s find_ac(), so the welcome pline's flush sends BL_AC and render_status() redraws the conditions from their moved x over the optional fields."
+    }
+  ]
+}
