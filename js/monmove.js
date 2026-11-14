@@ -2398,9 +2398,6 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'monsterCanSeeHero',
     );
-    // castmu()'s unported AD_FIRE arm (through castUndirectedSpell) refuses
-    // through this.
-    const unsupported = requireDochugOperation(rawEnv, 'unsupported');
     // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
     // calls castmu(FALSE, FALSE) for each; the provider answers whether one
     // returned M_ATTK_HIT.
@@ -2420,7 +2417,7 @@ export async function dochug(monster, rawEnv = {}) {
     const relocateRandomMonster = rawEnv.relocateRandomMonster ?? rloc;
     // C's Hallucination arms below repaint the monster once.
     const redraw = rawEnv.redraw ?? newsym;
-    const env = { ...rawEnv, state, random, unsupported };
+    const env = { ...rawEnv, state, random };
     const hallucinating = () => Hallucination(state.u);
 
     // PHASE ONE: pre-movement adjustments.

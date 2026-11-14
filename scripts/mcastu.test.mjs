@@ -13,6 +13,7 @@ import {
     COULD_SEE,
     DIED,
     KILLED_BY,
+    FIRE_RES,
     FROMFORM,
     FREE_ACTION,
     HALF_SPDAM,
@@ -23,6 +24,7 @@ import {
     M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_SEEN_FIRE,
     M_SEEN_MAGR,
     MFAST,
     MM_ANGRY,
@@ -125,12 +127,6 @@ function makeState(overrides = {}) {
         ...overrides,
         level,
     };
-}
-
-// Every castmu() call needs an unsupported operation. A fixture that expects
-// no refusal fails on the first one; a fixture that expects one records it.
-function refuse(what) {
-    assert.fail(`unexpected refusal: ${what}`);
 }
 
 // A random source that hands out `values` in order and records each draw as
@@ -416,7 +412,7 @@ test('choose_monster_spell: rn2(m_lev) is the only draw for a directed pick',
         const random = scriptedRandom([4]);
         const result = await castmu(
             makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, false, false,
-            { state: makeState(), random, unsupported: refuse },
+            { state: makeState(), random },
         );
         assert.equal(result, M_ATTK_MISS);
         assert.deepEqual(random.draws, ['rn2(7)']);
@@ -430,7 +426,7 @@ test('choose_monster_spell: spellval above maxlev gates and rerolls', async () =
     const random = scriptedRandom([16, 6, 1]);
     const result = await castmu(
         makeCaster({ m_lev: 24 }), AD_CLRC_ATTACK, false, false,
-        { state: makeState(), random, unsupported: refuse },
+        { state: makeState(), random },
     );
     assert.equal(result, M_ATTK_MISS);
     assert.deepEqual(random.draws, ['rn2(24)', 'rn2(13)', 'rn2(13)']);
@@ -445,7 +441,7 @@ test('castmu: a cancelled caster calls cursetxt and misses', async () => {
     const result = await castmu(
         makeCaster({ m_lev: 7, mcan: true }), AD_CLRC_ATTACK, true, true,
         {
-            state: makeState(), random, unsupported: refuse,
+            state: makeState(), random,
             message: (m) => messages.push(m),
         },
     );
@@ -459,20 +455,10 @@ test('castmu: mspec_used on cooldown misses without casting', async () => {
     const random = scriptedRandom([2]);
     const result = await castmu(
         makeCaster({ m_lev: 7, mspec_used: 5 }), AD_CLRC_ATTACK, true, true,
-        { state: makeState(), random, unsupported: refuse, message: () => {} },
+        { state: makeState(), random, message: () => {} },
     );
     assert.equal(result, M_ATTK_MISS);
     assert.deepEqual(random.draws, ['rn2(7)']);
-});
-
-test('castmu: requires an unsupported operation', async () => {
-    // AD_MAGM requires mdamageu for its source-ordered hero damage callback.
-    const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
-    await assert.rejects(
-        castmu(makeCaster(), mattk, true, true,
-            { state: makeState(), random: scriptedRandom([50]) }),
-        /castmu requires a unsupported operation/u,
-    );
 });
 
 test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async () => {
@@ -484,7 +470,7 @@ test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async ()
     const events = [];
     let damageArgs;
     const result = await castmu(makeCaster(), mattk, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: async (text) => events.push(`message:${text}`),
         mdamageu: async (...args) => {
             events.push('damage');
@@ -517,7 +503,7 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     const gaps = recordGaps();
     const damageCalls = [];
     const result = await castmu(makeCaster(), mattk, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: async (text) => messages.push(text),
         mdamageu: (...args) => damageCalls.push(args),
     });
@@ -531,6 +517,61 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     assert.deepEqual(damageCalls, []);
 });
 
+// C ref: mcastu.c castmu() AD_FIRE arm (253-266). No monsters.h entry
+// casts AT_MAGC for AD_FIRE, so this constructed attack is the arm's only
+// evidence. m_lev 7 with damn 0 and damd 0 makes the common roll d(7/2+1, 6),
+// that is d(4,6); scriptedRandom answers every die with 8, the damage that
+// reaches mdamageu() without fire resistance.
+test('castmu: AD_FIRE envelops the hero and damages without resistance',
+    async () => {
+        const mattk = { aatyp: AT_MAGC, adtyp: AD_FIRE, damn: 0, damd: 0 };
+        const state = makeState();
+        // seen_resistance starts with M_SEEN_FIRE so monstunseesu() visibly
+        // clears it.
+        const watcher = watcherAt(state, 6, 5, M_SEEN_FIRE);
+        // 50 passes the rn2(70) fumble check (fumble needs < 20).
+        const random = scriptedRandom([50], 8);
+        const messages = [];
+        const damageCalls = [];
+        const result = await castmu(makeCaster(), mattk, true, true, {
+            state, random,
+            message: async (text) => messages.push(text),
+            mdamageu: async (...args) => damageCalls.push(args[1]),
+        });
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
+        assert.ok(messages.includes("You're enveloped in flames."));
+        assert.ok(!messages.includes('But you resist the effects.'));
+        assert.equal(watcher.seen_resistance, 0);
+        assert.deepEqual(damageCalls, [8]);
+    });
+
+test('castmu: AD_FIRE is resisted by fire resistance without damage',
+    async () => {
+        const mattk = { aatyp: AT_MAGC, adtyp: AD_FIRE, damn: 0, damd: 0 };
+        const state = makeState({
+            u: { ux: 4, uy: 5, uprops: { [FIRE_RES]: { intrinsic: 1 } } },
+        });
+        // A watcher with no memory gains M_SEEN_FIRE from monstseesu().
+        const watcher = watcherAt(state, 6, 5, 0);
+        const random = scriptedRandom([50], 8);
+        const messages = [];
+        const damageCalls = [];
+        const result = await castmu(makeCaster(), mattk, true, true, {
+            state, random,
+            message: async (text) => messages.push(text),
+            mdamageu: (...args) => damageCalls.push(args),
+        });
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
+        assert.deepEqual(messages.slice(-2), [
+            "You're enveloped in flames.",
+            'But you resist the effects.',
+        ]);
+        assert.equal(watcher.seen_resistance, M_SEEN_FIRE);
+        assert.deepEqual(damageCalls, []);
+    });
+
 // -- spell_would_be_useless --------------------------------------------
 
 test('spell_would_be_useless: MCAST_CURE_SELF at full health', async () => {
@@ -540,7 +581,7 @@ test('spell_would_be_useless: MCAST_CURE_SELF at full health', async () => {
     const result = await castmu(
         makeCaster({ m_lev: 7, mhp: 20, mhpmax: 20 }), AD_CLRC_ATTACK,
         false, false,
-        { state: makeState(), random: scriptedRandom([1]), unsupported: refuse },
+        { state: makeState(), random: scriptedRandom([1]) },
     );
     assert.equal(result, M_ATTK_MISS);
 });
@@ -552,7 +593,7 @@ test('spell_would_be_useless: MCAST_HASTE_SELF when already fast', async () => {
     const result = await castmu(
         makeCaster({ m_lev: 7, permspeed: MFAST }), AD_SPEL_ATTACK,
         false, false,
-        { state: makeState(), random: scriptedRandom([2]), unsupported: refuse },
+        { state: makeState(), random: scriptedRandom([2]) },
     );
     assert.equal(result, M_ATTK_MISS);
 });
@@ -587,7 +628,6 @@ test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
                 makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
                 {
                     state, random, message: (message) => messages.push(message),
-                    unsupported: refuse,
                 },
             );
             // C mcastu.c:mcast_spell calls You_feel before aggravate().
@@ -617,7 +657,7 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         };
         const result = await castmu(
             makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
-            { state, random, unsupported: refuse },
+            { state, random },
         );
         assert.equal(result, M_ATTK_MISS);
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
@@ -630,7 +670,7 @@ test('castmu curses the supplied state inventory', async () => {
     const item = newObject({ otyp: DAGGER, oclass: WEAPON_CLASS, quan: 1 });
     const state = makeState({ invent: item });
     const result = await castmu(makeCaster({ m_lev: 11 }), AD_SPEL_ATTACK,
-        true, true, { state, random, unsupported: refuse });
+        true, true, { state, random });
     assert.equal(result, M_ATTK_HIT);
     assert.equal(item.cursed, true, 'the curse changes the supplied inventory');
     assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(6)', 'rnd(1)']);
@@ -650,7 +690,6 @@ test('mcast_spell dispatches the summon branch and its production message',
                 state: makeState(), random,
                 message: (text) => messages.push(text),
                 nasty: async () => 1,
-                unsupported: refuse,
             },
         );
         assert.equal(result, M_ATTK_HIT);
@@ -675,7 +714,6 @@ async function blindYouEffect(blinded) {
     const refusals = recordGaps();
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random: scriptedRandom([6, 50]), message: () => {},
-        unsupported: refuse,
         mdamageu: () => {},
     });
     return refusals();
@@ -725,7 +763,6 @@ test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
                 state, random,
                 message: (line) => messages.push(line),
                 visionRecalc: (...args) => visionCalls.push(args),
-                unsupported: refuse,
                 mdamageu: () => assert.fail('blindness clears spell damage'),
             });
 
@@ -779,7 +816,7 @@ test('cursetxt: a hero mimicking a strange object gets the general-direction lin
         });
         const messages = [];
         await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, {
-            state, random: scriptedRandom([2]), unsupported: refuse,
+            state, random: scriptedRandom([2]),
             message: (m) => messages.push(m),
         });
         assert.deepEqual(messages,
@@ -795,7 +832,7 @@ async function mumbledCurse(u) {
     const norepMessages = [];
     const random = scriptedRandom([2]);
     const env = {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         norepMessage: (m) => norepMessages.push(m),
     };
@@ -842,7 +879,6 @@ test('castmu awaits the spell announcement before damage work', async () => {
         {
             state: makeState(),
             random,
-            unsupported: refuse,
             message: async (text) => {
                 events.push(`message-start:${text}`);
                 if (firstMessage) {
@@ -903,7 +939,6 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
         {
             state: makeState(),
             random,
-            unsupported: refuse,
             message: async (text) => {
                 const number = messageNumber++;
                 events.push(`message-start:${text}`);
@@ -964,7 +999,7 @@ test('castmu fumble: m_lev=2 always fumbles (rn2(20) is always < 20)', async () 
     const result = await castmu(
         makeCaster({ m_lev: 2 }), AD_SPEL_ATTACK, true, true,
         {
-            state: makeState(), random, unsupported: refuse,
+            state: makeState(), random,
             message: (m) => messages.push(m),
         },
     );
@@ -1005,7 +1040,7 @@ test('castmu fumble names priests and minions through mon_nam', async () => {
     for (const [caster, name] of namedCasters) {
         const messages = [];
         const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
-            state, random: scriptedRandom([0, 0]), unsupported: refuse,
+            state, random: scriptedRandom([0, 0]),
             message: (text) => messages.push(text),
         });
         assert.equal(result, M_ATTK_MISS);
@@ -1018,7 +1053,7 @@ test('castmu fumble preserves the injected monnam provider', async () => {
     const result = await castmu(makeCaster({ m_lev: 2 }),
         AD_SPEL_ATTACK, true, true, {
             state: makeState(), random: scriptedRandom([0, 0]),
-            unsupported: refuse, monnam: () => 'the injected curate',
+            monnam: () => 'the injected curate',
             message: (text) => messages.push(text),
         });
     assert.equal(result, M_ATTK_MISS);
@@ -1047,7 +1082,7 @@ test('castmu fumble: the deaf roleplay option silences the crackle', async () =>
     const result = await castmu(
         makeCaster({ m_lev: 2 }), AD_SPEL_ATTACK, true, true,
         {
-            state, random: scriptedRandom([0, 0]), unsupported: refuse,
+            state, random: scriptedRandom([0, 0]),
             message: (m) => messages.push(m),
         },
     );
@@ -1067,7 +1102,6 @@ test('castmu fumble: m_lev=7 passes when rn2(70) >= 20', async () => {
         {
             state: makeState(), random,
             message: (m) => messages.push(m),
-            unsupported: () => {},
         },
     );
 
@@ -1105,7 +1139,6 @@ test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
             {
                 state,
                 random,
-                unsupported: refuse,
                 message: async (text) => messages.push(text),
                 mdamageu: async (...args) => damageCalls.push(args),
             },
@@ -1141,7 +1174,6 @@ test('MCAST_CONFUSE_YOU adds raw HConfusion flags before timeout clamping',
             {
                 state,
                 random,
-                unsupported: refuse,
                 message: async (text) => messages.push(text),
             },
         );
@@ -1164,7 +1196,6 @@ test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
             {
                 state,
                 random: scriptedRandom([2, 50]),
-                unsupported: refuse,
                 message: async (text) => messages.push(text),
             },
         );
@@ -1191,7 +1222,6 @@ test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
             {
                 state: resistantState,
                 random: scriptedRandom([2, 50]),
-                unsupported: refuse,
                 message: async (text) => resistantMessages.push(text),
             },
         );
@@ -1216,7 +1246,6 @@ test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
                     },
                 }),
                 random: scriptedRandom([2, 50]),
-                unsupported: refuse,
                 monsterName: () => 'The kobold shaman',
                 message: async (text) => hallucinatedMessages.push(text),
             },
@@ -1252,7 +1281,6 @@ test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alon
             {
                 state,
                 random: scriptedRandom([2, 50]),
-                unsupported: refuse,
                 message: async (text) => messages.push(text),
                 mdamageu: async (...args) => damageCalls.push(args),
             },
@@ -1293,7 +1321,7 @@ test('castmu: a blind telepath reads the name of the caster it senses', async ()
         makeCaster({ m_lev: 7, data: { mflags1: 0, pmnames: [null, null, 'kobold shaman'] } }),
         AD_SPEL_ATTACK, true, true,
         {
-            state, random: scriptedRandom([0, 50], 10), unsupported: refuse,
+            state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
             mdamageu: () => {},
             monsterName: () => 'The kobold shaman',
@@ -1313,7 +1341,7 @@ test('castmu: an unsensed, unseen caster is "Something"', async () => {
         makeCaster({ m_lev: 7, data: { mflags1: 0, pmnames: [null, null, 'kobold shaman'] } }),
         AD_SPEL_ATTACK, true, true,
         {
-            state, random: scriptedRandom([0, 50], 10), unsupported: refuse,
+            state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
             mdamageu: () => {},
             monsterName: () => 'The kobold shaman',
@@ -1352,7 +1380,7 @@ test('psi_bolt: headache message, mdamageu called, resistance forgotten', async 
     const result = await castmu(
         makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true,
         {
-            state, random, unsupported: refuse,
+            state, random,
             message: (m) => messages.push(m),
             mdamageu: (mon, dmg) => { damageAmount = dmg; },
             monsterName: (m) => 'The kobold shaman',
@@ -1380,7 +1408,7 @@ test('psi_bolt: ANTIMAGIC halves damage and tracks resistance', async () => {
     let damageAmount = 0;
 
     await castmu(makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
@@ -1406,7 +1434,7 @@ test('open_wounds: wound message for dmg in 6-10 range', async () => {
     let damageAmount = 0;
 
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
@@ -1429,7 +1457,7 @@ test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
     let damageAmount = 0;
 
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
@@ -1456,7 +1484,7 @@ test('geyser: production cleric cast applies its own physical damage', async () 
     let damage = null;
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (_mon, value) => { damage = value; },
     });
@@ -1478,7 +1506,7 @@ test('fire pillar: production cleric cast applies fire damage and item effects',
     let damage = null;
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (_mon, value) => { damage = value; },
     });
@@ -1506,7 +1534,7 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
     let damage = null;
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (_mon, value) => { damage = value; },
     });
@@ -1527,7 +1555,7 @@ test('paralyze: production cleric cast applies nomul damage', async () => {
     const messages = [];
     let damage = null;
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: (m) => messages.push(m),
         mdamageu: (_mon, value) => { damage = value; },
     });
@@ -1556,7 +1584,7 @@ test('stun spell: free action uses the resistant branch without a stun roll',
         const messages = [];
         const gaps = recordGaps();
         await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
-            state, random, unsupported: refuse,
+            state, random,
             message: (text) => messages.push(text),
         });
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)', 'd(8,6)']);
@@ -1581,7 +1609,7 @@ test('stun spell: unresisted damage extends the timeout after its own roll',
         });
         const messages = [];
         await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
-            state, random, unsupported: refuse,
+            state, random,
             message: (text) => messages.push(text),
         });
         assert.deepEqual(random.draws, [
@@ -1611,7 +1639,6 @@ test('cure_self: heals monster and produces no hero damage', async () => {
     await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
         state: makeState(),
         random,
-        unsupported: refuse,
         message: (m) => messages.push(m),
         mdamageu: () => { damageCalled = true; },
         monsterName: (m) => 'The kobold shaman',
@@ -1635,7 +1662,6 @@ test('cure_self: is not chosen when the monster is at full health', async () => 
     await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
         state: makeState(),
         random,
-        unsupported: refuse,
         message: (m) => messages.push(m),
         mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
@@ -1666,7 +1692,6 @@ test('haste_self: speeds the caster without damage or extra RNG', async () => {
     const result = await castmu(mtmp, AD_SPEL_ATTACK, true, true, {
         state: makeState(),
         random,
-        unsupported: refuse,
         message: (m) => messages.push(m),
         mdamageu: () => { damageCalled = true; },
     });
@@ -1783,7 +1808,6 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
         const result = await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
             random,
-            unsupported: refuse,
             monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
         });
@@ -1815,7 +1839,6 @@ test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
         await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
             random: scriptedRandom([4, 45]),
-            unsupported: refuse,
             monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
         });
@@ -1844,7 +1867,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
     await castmu(caster, AD_SPEL_ATTACK, false, false, {
         state,
         random: scriptedRandom([4, 45]),
-        unsupported: refuse,
         message: async (text) => messages.push(text),
     });
 
@@ -1868,7 +1890,6 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
     await castmu(accessibleCaster, AD_SPEL_ATTACK, false, false, {
         state: accessibleState,
         random: scriptedRandom([4, 45]),
-        unsupported: refuse,
         message: async (text) => accessibleMessages.push(text),
     });
 
@@ -1900,7 +1921,6 @@ test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
                 {
                     state: makeState(),
                     random,
-                    unsupported: refuse,
                 },
             );
 
@@ -2136,7 +2156,7 @@ test('castmu death spell reaches the shared touch with source-ordered RNG', asyn
     // C's20 threshold; chance13 succeeds and damage24 gives the74-point hit.
     const random = scriptedRandom([20, 200, 13], 24), messages = [], losses = [];
     const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
-        state, random, unsupported: refuse, canSpotMonster: () => true,
+        state, random, canSpotMonster: () => true,
         message: async text => messages.push(text),
         losehp: async (loss, reason, format, owner) => {
             assert.equal(owner, state);
@@ -2173,7 +2193,7 @@ test('mcast_weaken_you follows source damage, half-spell rounding, and losestr o
     const messages = [];
 
     const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
-        state, random, unsupported: refuse,
+        state, random,
         message: async text => messages.push(text),
         losehp: () => assert.fail('ordinary three-point loss does not reach the HP-loss arm'),
         encumberMessage: async () => {},

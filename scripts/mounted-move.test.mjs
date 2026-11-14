@@ -8,8 +8,6 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mattacku } from '../js/mhitu.js';
 import { m_at } from '../js/monst.js';
 import { PM_ACID_BLOB, PM_GOBLIN, PM_JACKAL } from '../js/monsters.js';
-import { UnsupportedSimpleMonsterActionError }
-    from '../js/unported_monster_actions.js';
 import { exercise_steed } from '../js/steed.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -61,12 +59,6 @@ function fixedRandom(value) {
     };
 }
 
-function refuser() {
-    return (reason) => {
-        throw new UnsupportedSimpleMonsterActionError(reason);
-    };
-}
-
 // mattacku() runs past the steed arm now, so every fixture below states the
 // fields the armor-class differential and the attack loop read. mux and muy
 // are the hero's own square, which is what set_apparxy() leaves behind for a
@@ -101,7 +93,6 @@ function steedTestEnv(state, random) {
         lines,
         message: async (text) => { lines.push(text); },
         statusRefresh: async () => {},
-        unsupported: refuser(),
         throwRangedWeapon: () => {},
         wieldMonsterItem: async () => 0,
         wieldMonsterItemAgainstMonster: async () => 0,

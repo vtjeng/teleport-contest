@@ -440,11 +440,8 @@ export async function castmu(
 ) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
-    // The remaining AD_FIRE arm and most mcast_spell() effects still refuse
-    // through this boundary rather than running as spells that quietly do nothing.
-    const unsupported = requireCastmuOperation(rawEnv, 'unsupported');
     const message = rawEnv.message;
-    const env = { ...rawEnv, state, random, unsupported };
+    const env = { ...rawEnv, state, random };
     const ml = mtmp.m_lev;
     let spellnum = 0;
 
@@ -558,11 +555,34 @@ export async function castmu(
 
     const ret = M_ATTK_HIT;
 
+    // C's switch lists AD_FIRE, AD_COLD, AD_MAGM, then AD_SPEL and AD_CLRC;
+    // the arms do not fall through, so their order here does not matter.
+    // No monsters.h entry has an AT_MAGC attack for AD_FIRE and getmattk()
+    // makes none, so no recorded game reaches that arm.
     switch (mattk.adtyp) {
     case AD_SPEL: /* wizard spell */
     case AD_CLRC: /* clerical spell */
         await mcast_spell(mtmp, dmg, spellnum, env);
         dmg = 0; /* done by the spell casting functions */
+        break;
+    case AD_FIRE:
+        if (message)
+            await message("You're enveloped in flames.", state, env);
+        if (Fire_resistance(state.u)) {
+            await shieldeff(state.u.ux, state.u.uy, state);
+            if (message)
+                await message('But you resist the effects.', state, env);
+            monstseesu(M_SEEN_FIRE, state);
+            dmg = 0;
+        } else {
+            monstunseesu(M_SEEN_FIRE, state);
+        }
+        await burn_away_slime(state, env);
+        /* burn up flammable items on the floor, melt ice terrain */
+        await mon_spell_hits_spot(
+            mtmp, mattk.adtyp, state.u.ux, state.u.uy,
+            { ...env, state, random },
+        );
         break;
     case AD_MAGM:
         if (message)
@@ -600,8 +620,6 @@ export async function castmu(
         );
         break;
     default:
-        // AD_FIRE remains unported.
-        unsupported('castmu() elemental spell type');
         break;
     }
     if (dmg) {

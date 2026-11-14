@@ -80,9 +80,6 @@ import { teleds } from '../js/teleport.js';
 import { setuwep } from '../js/wield.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    UnsupportedSimpleMonsterActionError,
-} from '../js/unported_monster_actions.js';
-import {
     M1_ANIMAL,
     M1_BREATHLESS,
     M1_MINDLESS,
@@ -1482,9 +1479,6 @@ function offensiveMonster(state, pmidx, minvent = null, overrides = {}) {
 function offensiveEnv(state) {
     return {
         state,
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
         random: { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) },
     };
 }
@@ -2039,9 +2033,6 @@ test('use_offensive fires a monster fire wand and records its first-use state',
         state,
         random,
         message: async (text) => { messages.push(text); },
-        unsupported(reason) {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
     };
 
     assert.equal(find_offensive(gnome, env), true);
@@ -2105,9 +2096,6 @@ test('use_offensive keeps wand beam draws on the caller random stream',
         state,
         random,
         message: async () => {},
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
     };
 
     assert.equal(await use_offensive(gnome, env), 2);
@@ -2171,9 +2159,6 @@ test('use_offensive gives up its zap when a cursed wand explodes',
         state,
         random,
         message: async () => {},
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
     };
 
     assert.equal(await use_offensive(gnome, env), 0);
@@ -2344,7 +2329,6 @@ test('mbhitm forwards discarded cancellation result through its C caller',
     assert.equal(await mbhitm(golem, wand, state, {
         random,
         message: async (line) => { messages.push(line); },
-        unsupported: (reason) => { throw new Error(reason); },
     }), 0);
     assert.ok(golem.mhp < 1);
     assert.ok(messages.some((line) => line.includes('writing vanishes')));

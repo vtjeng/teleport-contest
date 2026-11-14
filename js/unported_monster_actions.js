@@ -122,20 +122,6 @@ import {
 import { canseemon, canspotmon } from './display.js';
 import { Invis } from './youprop.js';
 
-export class UnsupportedSimpleMonsterActionError extends Error {
-    constructor(reason) {
-        super(`simple monster action requires ${reason}`);
-        this.name = 'UnsupportedSimpleMonsterActionError';
-        this.reason = reason;
-    }
-}
-
-// castmu()'s unported AD_FIRE arm refuses through this operation, which
-// simpleMonsterActionOperations() hands it.
-function unsupported(reason) {
-    throw new UnsupportedSimpleMonsterActionError(reason);
-}
-
 // monmove.js dochug() calls this before the turn. It admits every monster
 // state; the comments record why no state needs a guard.
 function assertSimpleActionState() {
@@ -465,9 +451,6 @@ function attackHeroWithMattacku(monster, env) {
         throwRangedWeapon,
         wieldMonsterItemAgainstMonster,
         useOffensiveItem,
-        // castmu()'s unported AD_FIRE arm refuses through this; mattacku()
-        // hands its env to castMonsterSpell below.
-        unsupported,
         // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
         castMonsterSpell: (subject, mattk, thinkFound, actualFound, spellEnv) => {
             const state = spellEnv.state ?? env.state;
@@ -622,9 +605,6 @@ function simpleMonsterActionOperations(env, state) {
                 }),
         monsterCanSeeHero: ordinaryMonsterCanSeeHero,
         moveMonster: moveSimpleOrdinary,
-        // dochug() hands this, through castUndirectedSpell, to castmu()'s
-        // unported AD_FIRE arm.
-        unsupported,
         // C ref: monmove.c dochug():794-799 runs muse.c use_defensive() or
         // use_misc() as soon as find_defensive() or find_misc() selects an
         // item. Both change the monster or the level -- a potion or wand of

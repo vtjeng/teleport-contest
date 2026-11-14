@@ -206,9 +206,6 @@ import {
     mhitm_ad_legs,
     mhitm_ad_phys,
 } from '../js/uhitm.js';
-import {
-    UnsupportedSimpleMonsterActionError,
-} from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
 import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 import { coreRandom } from '../js/rng.js';
@@ -568,9 +565,6 @@ function meleeEnv(state, rolls, extra = {}) {
                     bounds.push(`rn1(${x},${y})`);
                     return y;
                 },
-            },
-            unsupported: (reason) => {
-                throw new UnsupportedSimpleMonsterActionError(reason);
             },
             message: async (text) => { lines.push(text); },
             redraw: () => {},
@@ -2583,9 +2577,6 @@ test('mattacku demands a random source that answers all three bounds',
     // bare `assert.rejects(..., TypeError)` pass.
     const state = await meleeHero();
     const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
-    const refuse = (reason) => {
-        throw new UnsupportedSimpleMonsterActionError(reason);
-    };
     const guarded = (error) => error instanceof TypeError
         && error.message === 'mattacku requires an rn2, rnd and d random source';
     for (const random of [
@@ -2594,7 +2585,7 @@ test('mattacku demands a random source that answers all three bounds',
         { rn2: () => 0, rnd: () => 1 },
     ]) {
         await assert.rejects(
-            () => mattacku(rat, { state, unsupported: refuse, random }),
+            () => mattacku(rat, { state, random }),
             guarded,
         );
     }
@@ -2797,9 +2788,6 @@ function hitmsgEnv(state) {
         env: {
             state,
             message: async (text) => { lines.push(text); },
-            unsupported: (reason) => {
-                throw new UnsupportedSimpleMonsterActionError(reason);
-            },
         },
     };
 }
@@ -3495,9 +3483,6 @@ function physEnv(state) {
         env: {
             state,
             message: async (text) => { lines.push(text); },
-            unsupported: (reason) => {
-                throw new UnsupportedSimpleMonsterActionError(reason);
-            },
         },
     };
 }
@@ -4331,9 +4316,6 @@ function coldEnv(state, rn2Answers, rndAnswers = []) {
                 },
             },
             message: async (text) => { lines.push(text); },
-            unsupported: (reason) => {
-                throw new UnsupportedSimpleMonsterActionError(reason);
-            },
             redraw: () => {},
         },
     };

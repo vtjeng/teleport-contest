@@ -140,7 +140,6 @@ import {
 import {
     moveSimpleOrdinary,
     runSimpleMonsterAction,
-    UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
 import {
@@ -567,9 +566,6 @@ function directMattackuEnv(state, random, messages) {
     const message = async text => {
         messages.push(text);
     };
-    const unsupported = reason => {
-        throw new UnsupportedSimpleMonsterActionError(reason);
-    };
     const loseSpellHp = async (amount, killer, format) =>
         losehp(amount, killer, format, state, {
             state,
@@ -580,7 +576,6 @@ function directMattackuEnv(state, random, messages) {
         state,
         random,
         message,
-        unsupported,
         useOffensiveItem: use_offensive,
         castMonsterSpell: (subject, attack, thinksFound, found, spellEnv) => {
             const spellState = spellEnv.state ?? state;
@@ -3030,7 +3025,6 @@ test('a held monster in sight pulls free of its bear trap', async () => {
         finishEating: () => {},
         movePet: () => assert.fail('an ordinary monster is not a pet'),
         resistsTrapEffect: () => false,
-        unsupported: (reason) => assert.fail(reason),
     });
 
     assert.equal(status, MMOVE_DONE, 'monmove.c:1749, still eating');

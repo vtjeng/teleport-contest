@@ -162,7 +162,6 @@ import {
 } from './monmove.js';
 import {
     runSimpleMonsterAction,
-    UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from './unported_monster_actions.js';
 import {
@@ -1031,7 +1030,6 @@ export async function finishElapsedTurn(state, random) {
 // their declarations execute.
 function elapsedTurnRefusals() {
     return [
-        UnsupportedSimpleMonsterActionError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
         // mpickstuff()'s -- call splitobj() from inside the monster scan, so
         // this class reaches here from a path that used to stop at an

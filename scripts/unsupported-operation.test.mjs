@@ -5,12 +5,11 @@
 // unstuck(), m_detach(), mintrap(), dotrap(), thitmonst(), damageum() and
 // more. Such a key is a copy of a refusal that no input can reach, and a
 // requirement for it refuses a caller that omits a value nobody uses. Both
-// are deleted. An `unsupported` operation remains only where code invokes it:
+// are deleted.
 //
-// - mcastu.js castmu() refuses its unported AD_FIRE arm through it. Its two
-//   suppliers are unported_monster_actions.js attackHeroWithMattacku()
-//   (mattacku() passes its env to castMonsterSpell) and the dochug()
-//   operation bundle (dochug() passes its env to castUndirectedSpell).
+// mcastu.js castmu() refused its AD_FIRE arm through one, which mattacku()
+// and the dochug() operation bundle supplied; the arm is now ported, so no
+// `unsupported` operation remains in js/.
 //
 // quest.js expulsion(seal) refused its sealing arm through one, which its
 // quest_chat() and quest_talk() callers had to supply; no C caller passes
@@ -31,14 +30,7 @@ import { assertExceptionCount } from './exception-count.mjs';
 
 const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 
-const REMAINING_UNSUPPORTED = {
-    // castmu(): the requirement and the env that carries it to the AD_FIRE arm.
-    'mcastu.js': 2,
-    // dochug(): the requirement and its env.
-    'monmove.js': 2,
-    // attackHeroWithMattacku() and the dochug() operation bundle.
-    'unported_monster_actions.js': 2,
-};
+const REMAINING_UNSUPPORTED = {};
 
 function stripComments(source) {
     return source
