@@ -28,10 +28,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
-| gameplay | 4068 | 4001 | 67 | 0 |
+| gameplay | 4068 | 4004 | 64 | 0 |
 | diagnostic | 723 | 358 | 6 | 359 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4362 | 73 | 476 |
+| total | 4911 | 4365 | 70 | 476 |
 
 ## Missing by C file
 
@@ -1630,13 +1630,6 @@ Whole file not ported by design: it parses NetHack's command line; the recorder'
 
 - `md_rush()`: needs the mailbox file ($MAIL, or MAILPATH under LINUX) to change during play; no session input writes to it (approved: Vincent, 2026-11-13)
   - 373 verbalize: `This place's too crowded.  I'm outta here.`
-
-### src/makemon.c
-
-- `dump_mongen()`: output of the --dumpmongen option (earlyarg.c argcheck()); reachable only through a player name that starts with '-', which the recorder refuses (record-session.mjs recorderPlayerName()) (approved: Vincent, 2026-11-13)
-  - 1843 raw_printf: `int mongen_order[] = {`
-  - 1852 raw_printf: `', diff=`
-  - 1857 raw_printf: `(G_NOGEN | G_UNIQ)`
 
 ### src/mkmaze.c
 

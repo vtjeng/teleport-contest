@@ -29,7 +29,6 @@ function commandLine(what) {
     return `${what}; reachable only through a player name that starts with '-', `
         + 'which the recorder refuses (record-session.mjs recorderPlayerName())';
 }
-const DUMPMONGEN = commandLine('output of the --dumpmongen option (earlyarg.c argcheck())');
 const PRSCORE = commandLine('output of the -s option (earlyarg.c scores_only())');
 const COMPRESS = 'the external compressor process failed (wait() error or nonzero '
     + 'exit status); no game input controls it';
@@ -101,12 +100,6 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
     entry('src/files.c', 'livelog_add', 'Cannot open live log file!',
         "needs sysconf LIVELOG, which the recorder's sysconf leaves commented out, so "
         + 'sysopt.livelog is 0 and livelog_add() returns first'),
-    entry('src/makemon.c', 'dump_mongen', 'int mongen_order[] = {',
-        DUMPMONGEN),
-    entry('src/makemon.c', 'dump_mongen', "', diff=",
-        DUMPMONGEN),
-    entry('src/makemon.c', 'dump_mongen', '(G_NOGEN | G_UNIQ)',
-        DUMPMONGEN),
     entry('src/mkmaze.c', 'mv_bubble', 'bubble xmin: x =', MKMAZE_BUBBLE),
     entry('src/mkmaze.c', 'mv_bubble', 'bubble ymin: y =', MKMAZE_BUBBLE),
     entry('src/mkmaze.c', 'mv_bubble', 'bubble xmax: x =', MKMAZE_BUBBLE),
