@@ -24,6 +24,11 @@
 // coverage. A fragment is covered when it occurs verbatim in one of those
 // strings.
 //
+// A fragment that is not covered is missing unless it is exempt: its C file is
+// in scripts/not-ported-by-design.mjs, or scripts/c-message-exemptions.mjs
+// records why no recorded game can print it. The report lists exempt messages
+// in a section of their own, and refuses to run while an exemption is stale.
+//
 //   node scripts/c-message-coverage.mjs            write docs/c-message-coverage.md
 //   node scripts/c-message-coverage.mjs --check    fail if that file is stale
 //   node scripts/c-message-coverage.mjs --json     print every entry as JSON
@@ -33,6 +38,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import * as acorn from 'acorn';
 
+import { exemptionProblems, messageExemption } from './c-message-exemptions.mjs';
 import {
     PROJECT_ROOT,
     UPSTREAM_ROOT,
@@ -522,7 +528,8 @@ const KIND_HEADINGS = {
 export function renderReport({ entries, shortFragments }) {
     const files = [...new Set(entries.map((e) => e.file))].sort();
     const count = (list, kind) => list.filter((e) => e.kind === kind).length;
-    const missing = entries.filter((e) => !e.covered);
+    const missing = entries.filter((e) => !e.covered && !e.exemption);
+    const exempt = entries.filter((e) => !e.covered && e.exemption);
     const lines = [];
     const push = (...more) => lines.push(...more);
     push('# C message coverage', '',
@@ -537,16 +544,23 @@ export function renderReport({ entries, shortFragments }) {
         '(`impossible()`, `panic()`) reports a bug in the game, and a debug trace',
         '(`debugpline*()`) prints only for files named in sysconf `DEBUGFILES`;',
         'neither appears in a correct recorded game.', '',
+        'An exempt message is one no recorded game can print: its C file is not',
+        'ported by design (`scripts/not-ported-by-design.mjs`), or',
+        '`scripts/c-message-exemptions.mjs` records the reason, such as a',
+        'command-line option or a file-system error. Exempt messages are listed',
+        'at the end, not under Missing.', '',
         `Message literals of ${MIN_LITERAL_LENGTH} or more characters: ${entries.length + shortFragments}.`,
         `Of these, ${shortFragments} have no fixed piece of ${MIN_FRAGMENT_LENGTH} or more characters and are not checked.`, '',
-        '| Kind | Checked | Found in `js/` | Missing |',
-        '| --- | ---: | ---: | ---: |');
+        '| Kind | Checked | Found in `js/` | Exempt | Missing |',
+        '| --- | ---: | ---: | ---: | ---: |');
     for (const kind of KINDS) {
         const checked = count(entries, kind);
+        const excused = count(exempt, kind);
         const lost = count(missing, kind);
-        push(`| ${kind} | ${checked} | ${checked - lost} | ${lost} |`);
+        push(`| ${kind} | ${checked} | ${checked - excused - lost} | ${excused} | ${lost} |`);
     }
-    push(`| total | ${entries.length} | ${entries.length - missing.length} | ${missing.length} |`, '',
+    const found = entries.length - exempt.length - missing.length;
+    push(`| total | ${entries.length} | ${found} | ${exempt.length} | ${missing.length} |`, '',
         '## Missing by C file', '',
         'The JS module column says whether `js/` has a module with the C file\'s name.', '',
         '| C file | JS module | Gameplay | Diagnostic | Debug |',
@@ -573,6 +587,27 @@ export function renderReport({ entries, shortFragments }) {
             }
         }
     }
+    push('', '## Exempt messages', '',
+        'Each function line gives the reason and who approved it; each line under',
+        'it gives the C line, the message function, and the fragment.');
+    for (const file of files) {
+        const excused = exempt.filter((e) => e.file === file);
+        if (excused.length === 0) continue;
+        push('', `### ${file}`);
+        // A file not ported by design gives its reason once, above its functions.
+        const { reason: fileReason, approved: fileApproved, source } = excused[0].exemption;
+        if (source === 'file') push('', `Whole file ${fileReason} (approved: ${fileApproved})`);
+        let group = null;
+        for (const e of excused) {
+            const { reason, approved } = e.exemption;
+            if (`${e.function}\0${reason}` !== group) {
+                group = `${e.function}\0${reason}`;
+                push('', source === 'file' ? `- \`${e.function}()\``
+                    : `- \`${e.function}()\`: ${reason} (approved: ${approved})`);
+            }
+            push(`  - ${e.line} ${e.callee}: ${code(e.fragment)}`);
+        }
+    }
     push('');
     return lines.join('\n');
 }
@@ -580,7 +615,10 @@ export function renderReport({ entries, shortFragments }) {
 export async function buildCoverage({ compiler, jobs } = {}) {
     const { entries, shortFragments } = await collectCMessages({ compiler, jobs });
     const corpus = collectJsStrings();
-    for (const e of entries) e.covered = corpus.includes(e.fragment);
+    for (const e of entries) {
+        e.covered = corpus.includes(e.fragment);
+        e.exemption = e.covered ? null : messageExemption(e);
+    }
     return { entries, shortFragments };
 }
 
@@ -598,6 +636,12 @@ async function main() {
         process.stdout.write(`${JSON.stringify(coverage, null, 1)}\n`);
         return;
     }
+    const problems = exemptionProblems(coverage.entries);
+    if (problems.length > 0) {
+        console.error('scripts/c-message-exemptions.mjs needs fixing:');
+        for (const problem of problems) console.error(`  ${problem}`);
+        process.exit(1);
+    }
     const report = renderReport(coverage);
     const rel = relative(PROJECT_ROOT, REPORT_PATH);
     if (args.includes('--check')) {
@@ -611,8 +655,10 @@ async function main() {
         return;
     }
     writeFileSync(REPORT_PATH, report);
-    const missing = coverage.entries.filter((e) => !e.covered).length;
-    console.log(`wrote ${rel}: ${coverage.entries.length} checked, ${missing} missing`);
+    const missing = coverage.entries.filter((e) => !e.covered && !e.exemption).length;
+    const exempt = coverage.entries.filter((e) => !e.covered && e.exemption).length;
+    console.log(`wrote ${rel}: ${coverage.entries.length} checked, ${exempt} exempt, `
+        + `${missing} missing`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) await main();

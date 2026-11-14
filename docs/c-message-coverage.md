@@ -17,15 +17,21 @@ A gameplay message is any other message call. A diagnostic
 (`debugpline*()`) prints only for files named in sysconf `DEBUGFILES`;
 neither appears in a correct recorded game.
 
+An exempt message is one no recorded game can print: its C file is not
+ported by design (`scripts/not-ported-by-design.mjs`), or
+`scripts/c-message-exemptions.mjs` records the reason, such as a
+command-line option or a file-system error. Exempt messages are listed
+at the end, not under Missing.
+
 Message literals of 14 or more characters: 4981.
 Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
-| Kind | Checked | Found in `js/` | Missing |
-| --- | ---: | ---: | ---: |
-| gameplay | 4068 | 4000 | 68 |
-| diagnostic | 723 | 225 | 498 |
-| debug | 120 | 3 | 117 |
-| total | 4911 | 4228 | 683 |
+| Kind | Checked | Found in `js/` | Exempt | Missing |
+| --- | ---: | ---: | ---: | ---: |
+| gameplay | 4068 | 4000 | 55 | 13 |
+| diagnostic | 723 | 225 | 6 | 492 |
+| debug | 120 | 3 | 0 | 117 |
+| total | 4911 | 4228 | 61 | 622 |
 
 ## Missing by C file
 
@@ -41,10 +47,9 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/ball.c | yes | 0 | 10 | 0 |
 | src/bones.c | yes | 1 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
-| src/cfgfiles.c | yes | 5 | 0 | 2 |
+| src/cfgfiles.c | yes | 0 | 0 | 2 |
 | src/cmd.c | yes | 0 | 3 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
-| src/decl.c | no | 1 | 0 | 0 |
 | src/detect.c | yes | 0 | 1 | 0 |
 | src/dig.c | yes | 0 | 3 | 3 |
 | src/display.c | yes | 0 | 8 | 0 |
@@ -55,13 +60,12 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dogmove.c | yes | 0 | 1 | 0 |
 | src/dothrow.c | yes | 0 | 2 | 0 |
 | src/dungeon.c | yes | 0 | 17 | 7 |
-| src/earlyarg.c | no | 1 | 0 | 0 |
 | src/eat.c | yes | 0 | 4 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
 | src/engrave.c | yes | 0 | 12 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/extralev.c | yes | 0 | 7 | 0 |
-| src/files.c | yes | 16 | 3 | 1 |
+| src/files.c | yes | 2 | 3 | 1 |
 | src/glyphs.c | yes | 0 | 1 | 0 |
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
@@ -70,13 +74,13 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/light.c | yes | 0 | 21 | 0 |
 | src/lock.c | yes | 0 | 2 | 0 |
 | src/mail.c | no | 1 | 0 | 1 |
-| src/makemon.c | yes | 3 | 7 | 4 |
+| src/makemon.c | yes | 0 | 7 | 4 |
 | src/mcastu.c | yes | 0 | 8 | 1 |
 | src/mhitu.c | yes | 0 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
 | src/mklev.c | yes | 0 | 10 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
-| src/mkmaze.c | yes | 4 | 10 | 2 |
+| src/mkmaze.c | yes | 0 | 10 | 2 |
 | src/mkobj.c | no | 0 | 26 | 4 |
 | src/mkroom.c | yes | 0 | 3 | 0 |
 | src/mon.c | yes | 0 | 12 | 2 |
@@ -85,13 +89,13 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mthrowu.c | yes | 0 | 3 | 0 |
 | src/muse.c | yes | 0 | 7 | 0 |
 | src/music.c | yes | 0 | 1 | 0 |
-| src/nhlua.c | yes | 1 | 11 | 1 |
-| src/o_init.c | yes | 1 | 7 | 0 |
+| src/nhlua.c | yes | 0 | 11 | 1 |
+| src/o_init.c | yes | 0 | 7 | 0 |
 | src/objnam.c | yes | 0 | 14 | 0 |
 | src/options.c | yes | 3 | 6 | 0 |
-| src/pager.c | yes | 2 | 6 | 0 |
+| src/pager.c | yes | 0 | 6 | 0 |
 | src/pickup.c | yes | 1 | 5 | 1 |
-| src/pline.c | yes | 1 | 2 | 0 |
+| src/pline.c | yes | 0 | 2 | 0 |
 | src/polyself.c | yes | 0 | 2 | 0 |
 | src/pray.c | yes | 0 | 6 | 0 |
 | src/priest.c | yes | 0 | 1 | 0 |
@@ -99,15 +103,14 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/read.c | yes | 0 | 2 | 0 |
 | src/rect.c | yes | 0 | 2 | 0 |
 | src/region.c | yes | 0 | 1 | 0 |
-| src/restore.c | yes | 6 | 7 | 1 |
+| src/restore.c | yes | 0 | 7 | 1 |
 | src/rnd.c | yes | 0 | 1 | 0 |
 | src/role.c | no | 0 | 3 | 0 |
 | src/rumors.c | yes | 0 | 2 | 0 |
-| src/save.c | yes | 2 | 3 | 1 |
+| src/save.c | yes | 0 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
-| src/sfstruct.c | no | 0 | 6 | 0 |
 | src/shk.c | yes | 0 | 25 | 1 |
-| src/shknam.c | yes | 2 | 4 | 0 |
+| src/shknam.c | yes | 0 | 4 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 14 | 3 |
 | src/spell.c | yes | 0 | 3 | 0 |
@@ -117,24 +120,22 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
 | src/timeout.c | yes | 0 | 18 | 0 |
-| src/topten.c | yes | 3 | 3 | 0 |
+| src/topten.c | yes | 0 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
 | src/trap.c | yes | 0 | 14 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
 | src/uhitm.c | yes | 0 | 3 | 0 |
 | src/vault.c | yes | 0 | 3 | 2 |
-| src/version.c | yes | 5 | 0 | 0 |
 | src/vision.c | yes | 0 | 1 | 0 |
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
-| src/windows.c | yes | 1 | 2 | 1 |
+| src/windows.c | yes | 0 | 2 | 1 |
 | src/wizcmds.c | yes | 0 | 6 | 0 |
 | src/worm.c | yes | 0 | 8 | 0 |
 | src/worn.c | yes | 0 | 4 | 0 |
 | src/write.c | yes | 0 | 1 | 0 |
 | src/zap.c | yes | 0 | 10 | 1 |
 | sys/share/ioctl.c | yes | 1 | 0 | 0 |
-| sys/unix/unixunix.c | yes | 3 | 0 | 0 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
 | win/tty/wintty.c | yes | 0 | 5 | 1 |
 
@@ -147,66 +148,13 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `getbones()`
   - 665 pline: `Discarding unusable bones; no need to panic...`
 
-### src/cfgfiles.c
-
-- `do_write_config_file()`
-  - 206 pline: `An error occurred, wrote only partial data (`
-
-- `fopen_config_file()`
-  - 271 raw_printf: `Couldn't open requested config file`
-  - 365 raw_printf: `Couldn't open default config file`
-
-- `config_erradd()`
-  - 1560 pline: `config_error_add:`
-
-- `assure_syscf_file()`
-  - 2066 raw_printf: `Unable to open SYSCF_FILE.`
-
-### src/decl.c
-
-- `decl_globals_init()`
-  - 1142 raw_printf: `.havestate not True.`
-
-### src/earlyarg.c
-
-- `argcheck()`
-  - 515 raw_printf: `version can only be extended with -`
-
 ### src/files.c
 
-- `commit_bonesfile()`
-  - 936 pline: `couldn't rename`
-
-- `docompress_file()`
-  - 1727 raw_printf: `compressing`
-  - 1751 raw_printf: `Unable to uncompress`
-
-- `lock_file()`
-  - 2279 raw_printf: `.  Is NetHack installed correctly?`
-  - 2304 raw_printf: `Waiting for release of fcntl lock on`
-  - 2310 raw_printf: `Some other process has an unnatural grip on`
-
-- `unlock_file()`
-  - 2428 raw_printf: `Can't remove fcntl lock on`
-
 - `fopen_wizkit_file()`
-  - 2497 raw_printf: `Couldn't open requested wizkit file`
   - 2526 raw_printf: `Couldn't open default gw.wizkit file`
-
-- `check_recordfile()`
-  - 2714 raw_printf: `Warning: cannot write scoreboard file '`
-
-- `reveal_paths()`
-  - 3216 raw_printf: `system configuration file`
-  - 3229 raw_printf: `above is missing or inaccessible!`
-  - 3300 raw_printf: `are in many separate files.`
-  - 3360 raw_printf: `Your personal configuration file`
 
 - `read_tribute()`
   - 3506 You_feel: `too overwhelmed to continue!`
-
-- `livelog_add()`
-  - 3678 pline: `Cannot open live log file!`
 
 ### src/invent.c
 
@@ -219,31 +167,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `md_rush()`
   - 373 verbalize: `This place's too crowded.  I'm outta here.`
 
-### src/makemon.c
-
-- `dump_mongen()`
-  - 1843 raw_printf: `int mongen_order[] = {`
-  - 1852 raw_printf: `', diff=`
-  - 1857 raw_printf: `(G_NOGEN | G_UNIQ)`
-
-### src/mkmaze.c
-
-- `mv_bubble()`
-  - 1981 pline: `bubble xmin: x =`
-  - 1985 pline: `bubble ymin: y =`
-  - 1989 pline: `bubble xmax: x =`
-  - 1994 pline: `bubble ymax: y =`
-
-### src/nhlua.c
-
-- `nhl_test()`
-  - 1414 pline: `TEST:{ x=`
-
-### src/o_init.c
-
-- `setgemprobs()`
-  - 70 raw_printf: `Not enough gems? - first=`
-
 ### src/options.c
 
 - `handler_msg_window()`
@@ -255,49 +178,10 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `initoptions_finish()`
   - 7359 raw_printf: `Status highlighting not supported for`
 
-### src/pager.c
-
-- `checkfile()`
-  - 848 pline: `Cannot open 'data' file!`
-  - 1073 pline: `? Seek error on 'data' file!`
-
 ### src/pickup.c
 
 - `query_objlist()`
   - 1182 You_cant: `pick yourself up!`
-
-### src/pline.c
-
-- `execplinehandler()`
-  - 670 pline: `Fork to message handler failed.`
-
-### src/restore.c
-
-- `inven_inuse()`
-  - 121 pline: `Finishing off`
-
-- `restgamestate()`
-  - 547 pline: `Saved game was not yours.`
-  - 633 You: `were not healthy enough to survive restoration.`
-
-- `trickery()`
-  - 1037 pline: `Strange, this map is not as I remember it.`
-  - 1038 pline: `Somebody is trying some trickery here...`
-  - 1039 pline: `This game is void.`
-
-### src/save.c
-
-- `dosave0()`
-  - 130 pline: `Cannot open save file.`
-
-- `tricked_fileremoved()`
-  - 341 pline: `Probably someone removed it.`
-
-### src/shknam.c
-
-- `shkinit()`
-  - 645 pline: `Room at (`
-  - 647 pline: `doormax=`
 
 ### src/symbols.c
 
@@ -305,46 +189,10 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1042 pline: `Unable to access "`
   - 1046 There: `were no symbol sets found in "`
 
-### src/topten.c
-
-- `prscore()`
-  - 1211 raw_printf: `prscore: bad arguments (`
-  - 1339 raw_printf: `-s [-v] <playertypes> [maxrank] [playernames]`
-  - 1341 raw_printf: `Player types are: [-p role] [-r race]`
-
-### src/version.c
-
-- `early_version_info()`
-  - 309 raw_printf: `Paste buffer copy is not available.`
-
-- `check_version()`
-  - 402 pline: `Version mismatch for file "`
-  - 416 pline: `Configuration incompatibility for file "`
-
-- `uptodate()`
-  - 730 raw_printf: `comparison of critical bytes mismatched at`
-
-- `compare_critical_bytes()`
-  - 774 raw_printf: `critical byte counts do not match, file:`
-
-### src/windows.c
-
-- `choose_windows()`
-  - 296 raw_printf: `No window types supported?`
-
 ### sys/share/ioctl.c
 
 - `dosuspend()`
   - 194 pline: `I don't think your shell has job control.`
-
-### sys/unix/unixunix.c
-
-- `ask_about_panic_save()`
-  - 269 pline: `There is no regular save file but there is a panic one.`
-  - 270 pline: `It might be recoverable with demi-divine intervention.`
-
-- `child()`
-  - 390 pline: `Fork failed.  Try again.`
 
 ## Missing diagnostics (impossible, panic)
 
@@ -1361,22 +1209,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `selection_do_gradient()`
   - 591 impossible: `Unrecognized gradient type! Defaulting to radial...`
 
-### src/sfstruct.c
-
-- `bufon()`
-  - 423 panic: `buffering already enabled`
-  - 426 panic: `buffering of file`
-
-- `bflush()`
-  - 486 panic: `flush of savefile failed!`
-
-- `bwrite()`
-  - 540 panic: `bytes to file #`
-  - 543 impossible: `fd not in list (`
-
-- `mread()`
-  - 588 panic: `Error reading level file.`
-
 ### src/shk.c
 
 - `money2mon()`
@@ -2080,3 +1912,189 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `tty_curs()`
   - 2106 pline: `tty_curs: bad positioning win`
+
+## Exempt messages
+
+Each function line gives the reason and who approved it; each line under
+it gives the C line, the message function, and the fragment.
+
+### src/cfgfiles.c
+
+- `do_write_config_file()`: #saveoptions reports a short fwrite() of the config file, which only a full or failing disk causes (approved: Vincent, 2026-11-13)
+  - 206 pline: `An error occurred, wrote only partial data (`
+
+- `fopen_config_file()`: a config file named by --nethackrc or NETHACKOPTIONS="@file"; the recorder sets neither and writes the session options to $HOME/.nethackrc (approved: Vincent, 2026-11-13)
+  - 271 raw_printf: `Couldn't open requested config file`
+
+- `fopen_config_file()`: opening $HOME/.nethackrc failed with an errno other than ENOENT; the recorder writes that file before it starts NetHack (approved: Vincent, 2026-11-13)
+  - 365 raw_printf: `Couldn't open default config file`
+
+- `config_erradd()`: the prefix prints only for an option error outside config_error_init() before windows exist; sysconf (options.c initoptions()), the nethackrc and NETHACKOPTIONS (cfgfiles.c rcfile()) and the command line are each read inside config_error_init() (approved: Vincent, 2026-11-13)
+  - 1560 pline: `config_error_add:`
+
+- `assure_syscf_file()`: installation check: the sysconf file the recorder build installs is missing (approved: Vincent, 2026-11-13)
+  - 2066 raw_printf: `Unable to open SYSCF_FILE.`
+
+### src/decl.c
+
+- `decl_globals_init()`: MAGICCHECK self-check of the global initializers at start-up; only a miscompiled build fails it (approved: Vincent, 2026-11-13)
+  - 1142 raw_printf: `.havestate not True.`
+
+### src/earlyarg.c
+
+- `argcheck()`: rejects a bad --version:<word> option; the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+  - 515 raw_printf: `version can only be extended with -`
+
+### src/files.c
+
+- `commit_bonesfile()`: debug mode reports a failed rename() of the temporary bones file within its own directory, a filesystem error (approved: Vincent, 2026-11-13)
+  - 936 pline: `couldn't rename`
+
+- `docompress_file()`: the external compressor process failed (wait() error or nonzero exit status); no game input controls it (approved: Vincent, 2026-11-13)
+  - 1727 raw_printf: `compressing`
+  - 1751 raw_printf: `Unable to uncompress`
+
+- `lock_file()`: the locked file is missing from the installation or another NetHack process holds its lock; no game input causes either (approved: Vincent, 2026-11-13)
+  - 2279 raw_printf: `.  Is NetHack installed correctly?`
+  - 2304 raw_printf: `Waiting for release of fcntl lock on`
+  - 2310 raw_printf: `Some other process has an unnatural grip on`
+
+- `unlock_file()`: fcntl(F_UNLCK) failed on a descriptor the game holds, an operating-system error (approved: Vincent, 2026-11-13)
+  - 2428 raw_printf: `Can't remove fcntl lock on`
+
+- `fopen_wizkit_file()`: access(R_OK) succeeded but fopen("r") failed; the recorder is not setuid, and on Linux an open for reading succeeds whenever access() grants read, directories included (approved: Vincent, 2026-11-13)
+  - 2497 raw_printf: `Couldn't open requested wizkit file`
+
+- `check_recordfile()`: start-up check (unixmain.c) that the record file can be created in the playground the recorder installs (approved: Vincent, 2026-11-13)
+  - 2714 raw_printf: `Warning: cannot write scoreboard file '`
+
+- `reveal_paths()`: output of the --showpaths option (files.c do_deferred_showpaths()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+  - 3216 raw_printf: `system configuration file`
+  - 3229 raw_printf: `above is missing or inaccessible!`
+  - 3300 raw_printf: `are in many separate files.`
+  - 3360 raw_printf: `Your personal configuration file`
+
+- `livelog_add()`: needs sysconf LIVELOG, which the recorder's sysconf leaves commented out, so sysopt.livelog is 0 and livelog_add() returns first (approved: Vincent, 2026-11-13)
+  - 3678 pline: `Cannot open live log file!`
+
+### src/makemon.c
+
+- `dump_mongen()`: output of the --dumpmongen option (earlyarg.c argcheck()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+  - 1843 raw_printf: `int mongen_order[] = {`
+  - 1852 raw_printf: `', diff=`
+  - 1857 raw_printf: `(G_NOGEN | G_UNIQ)`
+
+### src/mkmaze.c
+
+- `mv_bubble()`: mk_bubble() places each bubble inside gbxmin..gbxmax and gbymin..gbymax, and mv_bubble() turns a one-square move back at the border, so these bounds reports never fire (approved: Vincent, 2026-11-13)
+  - 1981 pline: `bubble xmin: x =`
+  - 1985 pline: `bubble ymin: y =`
+  - 1989 pline: `bubble xmax: x =`
+  - 1994 pline: `bubble ymax: y =`
+
+### src/nhlua.c
+
+- `nhl_test()`: the Lua binding nh.test(), which no dat/*.lua program calls (approved: Vincent, 2026-11-13)
+  - 1414 pline: `TEST:{ x=`
+
+### src/o_init.c
+
+- `setgemprobs()`: self-check of the objects[] gem order; setgemprobs() zeroes at most 9 gems, which leaves real gems at every depth (approved: Vincent, 2026-11-13)
+  - 70 raw_printf: `Not enough gems? - first=`
+
+### src/pager.c
+
+- `checkfile()`: the installed 'data' file is missing, an installation fault (approved: Vincent, 2026-11-13)
+  - 848 pline: `Cannot open 'data' file!`
+
+- `checkfile()`: fseek() failed on the installed 'data' file, an operating-system error (approved: Vincent, 2026-11-13)
+  - 1073 pline: `? Seek error on 'data' file!`
+
+### src/pline.c
+
+- `execplinehandler()`: needs sysconf MSGHANDLER, which the recorder's sysconf leaves commented out, and then a failed fork() (approved: Vincent, 2026-11-13)
+  - 670 pline: `Fork to message handler failed.`
+
+### src/restore.c
+
+- `inven_inuse()`: objects still marked in_use in a save file, which a hangup during an action leaves (the comment names the HUP cheat); a recorded segment saves through the S command, after the action that set in_use has cleared it or used the object up (approved: Vincent, 2026-11-13)
+  - 121 pline: `Finishing off`
+
+- `restgamestate()`: sysconf CHECK_SAVE_UID and a save file written by another user ID; every segment of a recording runs as the same user (approved: Vincent, 2026-11-13)
+  - 547 pline: `Saved game was not yours.`
+
+- `restgamestate()`: a save file written with u.uhp <= 0, which only a hangup during death leaves; the S command saves a living hero (approved: Vincent, 2026-11-13)
+  - 633 You: `were not healthy enough to survive restoration.`
+
+- `trickery()`: a level or bones file whose stored PID, level number or bones ID differs from the file it was read as (restore.c getlev(), bones.c getbones()); only a tampered or swapped file does that (approved: Vincent, 2026-11-13)
+  - 1037 pline: `Strange, this map is not as I remember it.`
+  - 1038 pline: `Somebody is trying some trickery here...`
+  - 1039 pline: `This game is void.`
+
+### src/save.c
+
+- `dosave0()`: create_savefile() failed because the save directory is missing or not writable, an installation fault (approved: Vincent, 2026-11-13)
+  - 130 pline: `Cannot open save file.`
+
+- `tricked_fileremoved()`: a level file the game wrote is gone when it reopens it; only another process deleting it does that (approved: Vincent, 2026-11-13)
+  - 341 pline: `Probably someone removed it.`
+
+### src/sfstruct.c
+
+Whole file not ported by design: the port keeps game state between segments through input.storage, not NetHack's save-file format (approved: Vincent, 2026-11-13)
+
+- `bufon()`
+  - 423 panic: `buffering already enabled`
+  - 426 panic: `buffering of file`
+
+- `bflush()`
+  - 486 panic: `flush of savefile failed!`
+
+- `bwrite()`
+  - 540 panic: `bytes to file #`
+  - 543 impossible: `fd not in list (`
+
+- `mread()`
+  - 588 panic: `Error reading level file.`
+
+### src/shknam.c
+
+- `shkinit()`: part of the impossible("Where is shopdoor?") report, printed under DEBUG in debug mode in the same branch; like any diagnostic it appears only when the game has a bug (approved: Vincent, 2026-11-13)
+  - 645 pline: `Room at (`
+  - 647 pline: `doormax=`
+
+### src/topten.c
+
+- `prscore()`: output of the -s option (earlyarg.c scores_only()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+  - 1211 raw_printf: `prscore: bad arguments (`
+  - 1339 raw_printf: `-s [-v] <playertypes> [maxrank] [playernames]`
+  - 1341 raw_printf: `Player types are: [-p role] [-r race]`
+
+### src/version.c
+
+- `early_version_info()`: output of the --version:copy option (earlyarg.c argcheck()); the recorder passes only "-u <name>" (scripts/record-session.mjs), and a session has no command line (approved: Vincent, 2026-11-13)
+  - 309 raw_printf: `Paste buffer copy is not available.`
+
+- `check_version()`: a save or bones file written by another build; every segment of a recording writes and reads its files with the same recorder build (approved: Vincent, 2026-11-13)
+  - 402 pline: `Version mismatch for file "`
+  - 416 pline: `Configuration incompatibility for file "`
+
+- `uptodate()`: a save or bones file written by another build; every segment of a recording writes and reads its files with the same recorder build (approved: Vincent, 2026-11-13)
+  - 730 raw_printf: `comparison of critical bytes mismatched at`
+
+- `compare_critical_bytes()`: a save or bones file written by another build; every segment of a recording writes and reads its files with the same recorder build (approved: Vincent, 2026-11-13)
+  - 774 raw_printf: `critical byte counts do not match, file:`
+
+### src/windows.c
+
+- `choose_windows()`: build check that some window port is compiled in; the recorder build has tty (approved: Vincent, 2026-11-13)
+  - 296 raw_printf: `No window types supported?`
+
+### sys/unix/unixunix.c
+
+- `ask_about_panic_save()`: needs a panic save file without a regular one, which only a panic in an earlier segment leaves; a correct game does not panic (approved: Vincent, 2026-11-13)
+  - 269 pline: `There is no regular save file but there is a panic one.`
+  - 270 pline: `It might be recoverable with demi-divine intervention.`
+
+- `child()`: fork() failed when starting a shell or mail reader; the operating system decides that, not game input (approved: Vincent, 2026-11-13)
+  - 390 pline: `Fork failed.  Try again.`

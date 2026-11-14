@@ -12,7 +12,18 @@ import {
     renderReport,
     tokenizePreprocessed,
 } from './c-message-coverage.mjs';
+import { C_MESSAGE_EXEMPTIONS, exemptionProblems, messageExemption } from './c-message-exemptions.mjs';
 import { requireCompiler } from './recorder-headers.mjs';
+
+// Preprocessing every C file takes seconds; the checks below share one run.
+let coverage = null;
+function currentCoverage() {
+    coverage ??= buildCoverage({
+        compiler: requireCompiler('the report needs the C preprocessor'),
+        jobs: 2,
+    });
+    return coverage;
+}
 
 test('longestFragment splits at printf conversions and trims spaces', () => {
     // pline.c-style format with %s, a width (%3d), and %%: the longest
@@ -70,9 +81,51 @@ test('jsStringsOf joins wrapped strings and expands string conditionals', () => 
     assert.ok(strings.includes(' falls!'));
 });
 
+test('exemptionProblems reports stale, unneeded, unexplained, and duplicate exemptions', () => {
+    // Two report entries: one missing message and one js/ now contains.
+    const entries = [
+        { file: 'src/x.c', function: 'foo', fragment: 'missing text', covered: false },
+        { file: 'src/x.c', function: 'foo', fragment: 'ported text', covered: true },
+    ];
+    const ok = { file: 'src/x.c', function: 'foo', fragment: 'missing text',
+        reason: 'a reason', approved: 'Vincent, 2026-11-13' };
+    assert.deepEqual(exemptionProblems(entries, [ok]), []);
+    // Same fragment in another function: no C message matches it (stale).
+    const stale = { ...ok, function: 'bar' };
+    // js/ contains this text, so the exemption is no longer needed.
+    const unneeded = { ...ok, fragment: 'ported text' };
+    // Empty reason and an approval without a date.
+    const unexplained = { ...ok, reason: ' ', approved: 'Vincent' };
+    // sfstruct.c is in scripts/not-ported-by-design.mjs, which exempts it.
+    const duplicated = { ...ok, file: 'src/sfstruct.c' };
+    const problems = exemptionProblems(entries,
+        [ok, stale, unneeded, unexplained, duplicated]);
+    const has = (pattern) => problems.some((p) => pattern.test(p));
+    assert.ok(has(/foo\(\) "missing text" is listed twice/u), problems.join('\n'));
+    assert.ok(has(/bar\(\) "missing text" matches no C message/u), problems.join('\n'));
+    assert.ok(has(/"ported text" is now found in js/u), problems.join('\n'));
+    assert.ok(has(/has no reason/u), problems.join('\n'));
+    assert.ok(has(/needs "approved: who, date"/u), problems.join('\n'));
+    assert.ok(has(/src\/sfstruct.c .* not ported by design/u), problems.join('\n'));
+});
+
+test('messageExemption exempts files not ported by design and listed messages', () => {
+    // sfstruct.c is in NOT_PORTED_BY_DESIGN; any function and text is exempt.
+    assert.equal(messageExemption({ file: 'src/sfstruct.c', function: 'bufon',
+        fragment: 'anything' })?.source, 'file');
+    // The first listed exemption matches itself.
+    const [first] = C_MESSAGE_EXEMPTIONS;
+    assert.equal(messageExemption(first)?.source, 'message');
+    // The same text in another function is not exempt.
+    assert.equal(messageExemption({ ...first, function: 'not_a_function' }), null);
+});
+
+test('every exemption in scripts/c-message-exemptions.mjs matches a missing C message', async () => {
+    assert.deepEqual(exemptionProblems((await currentCoverage()).entries), []);
+});
+
 test('docs/c-message-coverage.md matches the current C and JS sources', async () => {
-    const compiler = requireCompiler('the report needs the C preprocessor');
-    const expected = renderReport(await buildCoverage({ compiler, jobs: 2 }));
+    const expected = renderReport(await currentCoverage());
     assert.ok(readFileSync(REPORT_PATH, 'utf8') === expected,
         'docs/c-message-coverage.md is stale; run node scripts/c-message-coverage.mjs');
 });
