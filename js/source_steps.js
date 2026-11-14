@@ -53,3 +53,31 @@ export function finish_steps(steps, onImpossible = gap_impossible) {
     };
     return advance(undefined, false);
 }
+
+// A synchronous function that C has call impossible() cannot wait for the
+// message. An async caller that formats an object through such code, and
+// prints right after it, runs that code inside collect_impossibles(): each
+// impossible() text is queued and returned with the result, for the caller
+// to print before its own output, which is the order C prints in. Outside
+// a collection the call records the unported print, as gap_impossible()
+// does.
+export function sync_impossible(text, state) {
+    const queue = state?.program_state?.collected_impossibles;
+    if (queue) queue.push(text);
+    else gap_impossible();
+}
+
+// Run the synchronous `fn` and return { value, texts }, the impossible()
+// texts sync_impossible() queued while it ran. Collections nest; each
+// returns only its own texts.
+export function collect_impossibles(state, fn) {
+    state.program_state ??= {};
+    const outer = state.program_state.collected_impossibles;
+    const texts = [];
+    state.program_state.collected_impossibles = texts;
+    try {
+        return { value: fn(), texts };
+    } finally {
+        state.program_state.collected_impossibles = outer;
+    }
+}

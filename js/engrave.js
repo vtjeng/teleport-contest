@@ -37,11 +37,14 @@ import {
     HAND,
     ECMD_TIME,
     vision_clears,
+    Is_airlevel,
+    Is_waterlevel,
     } from './const.js';
 import {
     is_pool,
     is_lava,
     is_ice,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { exercise_nonphysical } from './attrib.js';
 import { ART_FIRE_BRAND, is_art } from './artifacts.js';
@@ -74,7 +77,8 @@ import {
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
-import { impossible_printer, livelog_printf, youSee } from './pline.js';
+import { impossible, impossible_printer, livelog_printf, youSee } from './pline.js';
+import { isok } from './cmd_isok.js';
 import { finish_steps } from './source_steps.js';
 import { dry_a_towel } from './weapon.js';
 import { goodpos } from './teleport.js';
@@ -1448,4 +1452,33 @@ export function engr_stats(headerFormat, state = game) {
         size += memoryLayout.engr + entry.engr_alloc;
     }
     return { header: headerFormat.replace('%ld', String(memoryLayout.engr)), count, size };
+}
+
+// C ref: engrave.c engraving_sanity_check() (1523-1548). No engraving may
+// exist on the Planes of Air or Water, off the map, or on terrain that cannot
+// hold one: pool, lava, air, or anything ACCESSIBLE() rejects.
+export async function engraving_sanity_check(state = game) {
+    const head = state.head_engr ?? null;
+    if (head && (Is_airlevel(state.u.uz, state)
+                 || Is_waterlevel(state.u.uz, state))) {
+        await impossible('engraving sanity: on plane of air/water', state);
+        return;
+    }
+
+    for (let ep = head; ep; ep = ep.nxt_engr) {
+        const x = ep.engr_x, y = ep.engr_y;
+
+        if (!isok(x, y)) {
+            await impossible(`engraving sanity: !isok <${x},${y}>`, state);
+            continue;
+        }
+        // C's SURFACE_AT(x, y) is surface_typ(levl[x][y]).
+        const levtyp = surface_typ(state.level.at(x, y));
+        if (is_pool_or_lava(x, y, state) || IS_AIR(levtyp)
+            || !ACCESSIBLE(levtyp)) {
+            await impossible('engraving sanity: illegal surface '
+                + `(${levtyp}: "${surface(x, y, state)}")`, state);
+            continue;
+        }
+    }
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c sanity_check() reporting a state C really reaches: an Archeologist leashes her little dog, then level-teleports into the tutorial, which puts her inventory away while the dog stays leashed, so mon.c sanity_check_single_mon() prints \"monst N: leashed but no leash for little dog\" before each command. ESC, ^R (a CMD_INSANE row) and an unknown command each set iflags.sanity_no_check in cmd.c rhack(), so the check after each of them is skipped and prints nothing. She kills the dog with a wished-for wand of death and teleports back; the restored leash names a dead monster, so mkobj.c objlist_sanity() reports it and its doname() first prints objnam.c's \"leashed monster #N not found\". Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 8675309,
+      "datetime": "20240229064500",
+      "nethackrc": "OPTIONS=name:Leashkeeper,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "  \u0017leash\nain\u0016?\n>>P   s\u001bs\u0012s s\u0017wand of death\nzal \u0016?\na    ss"
+    }
+  ]
+}

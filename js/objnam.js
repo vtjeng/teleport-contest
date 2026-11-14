@@ -98,7 +98,7 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { note_unported } from './unported.js';
-import { ImpossibleCall, finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps, sync_impossible } from './source_steps.js';
 import { Blind, EWarn_of_mon, Glib } from './youprop.js';
 
 // C ref: objnam.c erosion_matters() (1195-1215). Keep this predicate in the
@@ -1854,7 +1854,11 @@ function doname_base(
                     0, bufferOffset,
                 );
             } else {
-                note_unported('pline.c impossible');
+                // find_mid(FM_FMON) skips dead monsters, so C's "leashed %s
+                // #%u is dead" arm cannot run (objnam.c:1436-1442).
+                sync_impossible(
+                    `leashed monster #${obj.leashmon} not found`, state,
+                );
                 obj.leashmon = 0;
             }
             allowToolChargeSuffix = false;

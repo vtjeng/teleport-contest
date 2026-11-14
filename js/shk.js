@@ -285,6 +285,7 @@ import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { note_unported } from './unported.js';
+import { sync_impossible } from './source_steps.js';
 import {
     findgold, mdrop_special_objs, mpickobj, remove_worn_item,
 } from './steal.js';
@@ -4248,9 +4249,11 @@ export function obfree_shop_bill(obj, merge, env = {}) {
 export function unpaid_cost(obj, costType = 0, state = game) {
     let amount = 0;
     let found = null;
+    // C's shkp keeps the last shop_keeper() result of the loop.
+    let shkp = null;
     for (const room of state.u?.ushops ?? []) {
         if (!room) continue;
-        const shopkeeper = shop_keeper(room, state);
+        const shopkeeper = shkp = shop_keeper(room, state);
         if (!shopkeeper) continue;
         const bill = onbill(obj, shopkeeper, true);
         if (bill) {
@@ -4264,8 +4267,9 @@ export function unpaid_cost(obj, costType = 0, state = game) {
         }
         if (found || (!obj.unpaid && amount)) break;
     }
-    if (obj.unpaid && !found)
-        note_unported('shk.c unpaid_cost: object was not on a bill');
+    /* onbill() gave no message if unexpected problem occurred */
+    if (!shkp || (obj.unpaid && !found))
+        sync_impossible('unpaid_cost: object wasn\'t on any bill.', state);
     return amount;
 }
 

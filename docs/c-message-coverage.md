@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4001 | 67 | 0 |
-| diagnostic | 723 | 227 | 6 | 490 |
+| diagnostic | 723 | 273 | 6 | 444 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4231 | 73 | 607 |
+| total | 4911 | 4277 | 73 | 561 |
 
 ## Missing by C file
 
@@ -44,7 +44,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/apply.c | yes | 0 | 6 | 0 |
 | src/artifact.c | no | 0 | 8 | 0 |
 | src/attrib.c | yes | 0 | 1 | 10 |
-| src/ball.c | yes | 0 | 10 | 0 |
+| src/ball.c | yes | 0 | 5 | 0 |
 | src/bones.c | yes | 0 | 0 | 2 |
 | src/botl.c | no | 0 | 13 | 0 |
 | src/cfgfiles.c | yes | 0 | 0 | 2 |
@@ -62,7 +62,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/dungeon.c | yes | 0 | 17 | 7 |
 | src/eat.c | yes | 0 | 4 | 36 |
 | src/end.c | yes | 0 | 4 | 1 |
-| src/engrave.c | yes | 0 | 12 | 2 |
+| src/engrave.c | yes | 0 | 9 | 2 |
 | src/explode.c | yes | 0 | 5 | 0 |
 | src/extralev.c | yes | 0 | 7 | 0 |
 | src/files.c | yes | 0 | 3 | 1 |
@@ -70,20 +70,20 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/hack.c | yes | 0 | 1 | 0 |
 | src/iactions.c | yes | 0 | 1 | 0 |
 | src/insight.c | yes | 0 | 4 | 0 |
-| src/invent.c | yes | 0 | 8 | 0 |
-| src/light.c | yes | 0 | 21 | 0 |
+| src/invent.c | yes | 0 | 5 | 0 |
+| src/light.c | yes | 0 | 17 | 0 |
 | src/lock.c | yes | 0 | 2 | 0 |
 | src/mail.c | no | 0 | 0 | 1 |
 | src/makemon.c | yes | 0 | 7 | 4 |
 | src/mcastu.c | yes | 0 | 8 | 1 |
 | src/mhitu.c | yes | 0 | 4 | 0 |
 | src/minion.c | yes | 0 | 2 | 0 |
-| src/mklev.c | yes | 0 | 9 | 2 |
+| src/mklev.c | yes | 0 | 7 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 0 | 10 | 2 |
-| src/mkobj.c | no | 0 | 26 | 4 |
+| src/mkobj.c | no | 0 | 24 | 4 |
 | src/mkroom.c | yes | 0 | 3 | 0 |
-| src/mon.c | yes | 0 | 12 | 2 |
+| src/mon.c | yes | 0 | 8 | 2 |
 | src/mondata.c | yes | 0 | 1 | 0 |
 | src/monmove.c | yes | 0 | 1 | 0 |
 | src/mthrowu.c | yes | 0 | 3 | 0 |
@@ -91,7 +91,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/music.c | yes | 0 | 1 | 0 |
 | src/nhlua.c | yes | 0 | 11 | 1 |
 | src/o_init.c | yes | 0 | 7 | 0 |
-| src/objnam.c | yes | 0 | 14 | 0 |
+| src/objnam.c | yes | 0 | 13 | 0 |
 | src/options.c | yes | 0 | 6 | 0 |
 | src/pager.c | yes | 0 | 6 | 0 |
 | src/pickup.c | yes | 0 | 5 | 1 |
@@ -109,7 +109,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rumors.c | yes | 0 | 2 | 0 |
 | src/save.c | yes | 0 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
-| src/shk.c | yes | 0 | 25 | 1 |
+| src/shk.c | yes | 0 | 24 | 1 |
 | src/shknam.c | yes | 0 | 4 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 14 | 3 |
@@ -118,10 +118,10 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/steed.c | yes | 0 | 0 | 1 |
 | src/sys.c | no | 0 | 1 | 0 |
 | src/teleport.c | yes | 0 | 2 | 3 |
-| src/timeout.c | yes | 0 | 18 | 0 |
+| src/timeout.c | yes | 0 | 10 | 0 |
 | src/topten.c | yes | 0 | 3 | 0 |
 | src/track.c | yes | 0 | 1 | 0 |
-| src/trap.c | yes | 0 | 14 | 1 |
+| src/trap.c | yes | 0 | 12 | 1 |
 | src/u_init.c | yes | 0 | 1 | 1 |
 | src/uhitm.c | yes | 0 | 3 | 0 |
 | src/vault.c | yes | 0 | 3 | 2 |
@@ -129,9 +129,9 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/weapon.c | yes | 0 | 2 | 0 |
 | src/were.c | yes | 0 | 1 | 0 |
 | src/windows.c | yes | 0 | 2 | 1 |
-| src/wizcmds.c | yes | 0 | 6 | 0 |
-| src/worm.c | yes | 0 | 8 | 0 |
-| src/worn.c | yes | 0 | 4 | 0 |
+| src/wizcmds.c | yes | 0 | 1 | 0 |
+| src/worm.c | yes | 0 | 3 | 0 |
+| src/worn.c | yes | 0 | 3 | 0 |
 | src/write.c | yes | 0 | 1 | 0 |
 | src/zap.c | yes | 0 | 10 | 1 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
@@ -228,13 +228,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `drag_ball()`
   - 766 impossible: `bad chain movement`
-
-- `bc_sanity_check()`
-  - 1040 impossible: `Punished without`
-  - 1043 impossible: `attached chain`
-  - 1045 impossible: `without being Punished?`
-  - 1066 impossible: `, wornmask=0x`
-  - 1098 impossible: `b&c distance: you@<`
 
 ### src/botl.c
 
@@ -460,11 +453,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1375 impossible: `<= -3 weapon valid for engraving`
   - 1398 impossible: `overly dry marker valid for graffiti?`
 
-- `engraving_sanity_check()`
-  - 1530 impossible: `engraving sanity: on plane of air/water`
-  - 1538 impossible: `engraving sanity: !isok <`
-  - 1543 impossible: `engraving sanity: illegal surface (`
-
 - `del_engr()`
   - 1658 impossible: `Error in del_engr?`
 
@@ -553,11 +541,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `getobj()`
   - 1868 impossible: `getobj: inventory overflow`
 
-- `check_invent_gold()`
-  - 4904 impossible: `gold in wrong slots`
-  - 4905 impossible: `gold in wrong slot`
-  - 4908 impossible: `multiple gold stacks`
-
 ### src/light.c
 
 - `new_light_core()`
@@ -584,12 +567,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `maybe_write_ls()`
   - 578 impossible: `maybe_write_ls: no id! [range=`
   - 590 impossible: `maybe_write_ls: bad type (`
-
-- `light_sources_sanity_check()`
-  - 615 panic: `insane light source: no id!`
-  - 620 panic: `insane light source: can't find obj #`
-  - 625 panic: `insane light source: can't find mon #`
-  - 627 panic: `insane light source: bad ls type`
 
 - `write_ls()`
   - 651 impossible: `write_ls: can't find obj #`
@@ -685,10 +662,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1074 impossible: `couldn't generate supply chest item`
   - 1163 impossible: `trycnt overflow4`
 
-- `mklev_sanity_check()`
-  - 1235 impossible: `] door not ok`
-  - 1245 impossible: `not connected?`
-
 - `makelevel()`
   - 1261 impossible: `makelevel() called when dungeon not yet initialized.`
 
@@ -783,12 +756,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `hornoplenty()`
   - 2855 impossible: `bad horn o' plenty`
 
-- `obj_sanity_check()`
-  - 3006 impossible: `gm.mydogs sanity [not empty]`
-
-- `mon_obj_sanity()`
-  - 3240 impossible: `) wielding`
-
 - `obj_nexto()`
   - 3646 impossible: `obj_nexto: wasn't given an object to check`
 
@@ -810,14 +777,6 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 1070 impossible: `invalid_shop_shape: no squares inside door?`
 
 ### src/mon.c
-
-- `sanity_check_single_mon()`
-  - 193 impossible: `ceiling hider hiding`
-
-- `mon_sanity_check()`
-  - 271 impossible: `) claims to be at <`
-  - 288 impossible: `) with mstate set to 0x`
-  - 303 impossible: `) is on the map at <`
 
 - `mfndpos()`
   - 2355 impossible: `A monster looked at a very strange trap of type`
@@ -942,9 +901,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `xname_flags()`
   - 751 impossible: `Bad fruit #`
-
-- `doname_base()`
-  - 1441 impossible: `leashed monster #`
 
 - `an()`
   - 2150 impossible: `Alphabet soup: 'an(`
@@ -1190,9 +1146,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `finish_paybill()`
   - 2738 impossible: `finish_paybill: bad location <`
 
-- `unpaid_cost()`
-  - 3303 impossible: `unpaid_cost: object wasn't on any bill.`
-
 - `splitbill()`
   - 3640 impossible: `Negative quantity on bill??`
   - 3643 impossible: `Zero quantity on bill??`
@@ -1325,16 +1278,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `cleanup_burn()`
   - 1833 impossible: `cleanup_burn: obj`
 
-- `timer_sanity_check()`
-  - 2147 impossible: `timer sanity: untimed obj`
-  - 2165 impossible: `timer sanity: can't locate obj`
-  - 2169 impossible: `timer sanity: obj`
-  - 2175 impossible: `timer sanity: unexpected monster timer`
-  - 2198 impossible: `timer sanity: melt timer`
-  - 2201 impossible: `timer sanity: spot timer`
-  - 2207 impossible: `timer sanity: unexpected global timer`
-  - 2210 impossible: `timer sanity: unknown timer`
-
 - `start_timer()`
   - 2273 impossible: `Attempted to start duplicate`
 
@@ -1390,10 +1333,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `chest_trap()`
   - 6339 impossible: `chest disarm bug`
   - 6491 impossible: `bad chest trap`
-
-- `trap_sanity_check()`
-  - 7204 impossible: `trap sanity: location (`
-  - 7206 impossible: `trap sanity: type (`
 
 ### src/u_init.c
 
@@ -1451,15 +1390,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `wiz_map()`
   - 193 impossible: `mon_notices_blocked<0`
 
-- `you_sanity_check()`
-  - 1408 impossible: `sanity_check: swallowed by nothing?`
-  - 1418 impossible: `sanity_check: you over monster`
-  - 1423 impossible: `) better than maximum? (`
-  - 1429 impossible: `current hero health as monster (`
-
-- `levl_sanity_check()`
-  - 1454 impossible: `] vision blocking`
-
 ### src/worm.c
 
 - `wormgone()`
@@ -1468,13 +1398,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `cutworm()`
   - 401 impossible: `cutworm: no segment at (`
 
-- `sanity_check_worm()`
-  - 645 impossible: `worm_sanity: null monster!`
-  - 653 impossible: `worm_sanity: not a worm!`
-  - 659 impossible: `is set without proper tail`
-  - 670 impossible: `worm seg not isok <`
-  - 672 impossible: `) at seg location is not worm (`
-
 - `worm_cross()`
   - 914 impossible: `worm_cross checking for non-adjacent location?`
 
@@ -1482,9 +1405,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `setworn()`
   - 88 impossible: `Setworn: mask=0x`
-
-- `check_wornmask_slots()`
-  - 385 impossible: `Worn-slot insanity:`
 
 - `which_armor()`
   - 1025 impossible: `bad flag in which_armor`

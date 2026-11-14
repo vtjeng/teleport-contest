@@ -203,6 +203,7 @@ import { random_engraving } from './random_engraving.js';
 import {
     AUTOCOMPLETE,
     AUTOCOMP_ADJ,
+    CMD_INSANE,
     CMD_NOT_AVAILABLE,
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
@@ -1955,12 +1956,21 @@ export async function end_of_input(state = game) {
 // 0xFF is that value. NUL and 0377 ring nhbell(): win/tty/termcap.c
 // tty_nhbell():751-757 writes BEL, which changes no cell and, as its comment
 // says, leaves the cursor where it was, so the port writes nothing for it.
-// ESC instead copies iflags.sanity_check into iflags.sanity_no_check, which
-// only wizcmds.c sanity_check() reads; that check is not ported, so the copy
-// is left out. Every arm then calls reset_cmd_vars(TRUE) and returns, with no
+// ESC instead copies iflags.sanity_check into iflags.sanity_no_check, so
+// wizcmds.c sanity_check() skips its next run (skip_next_sanity_check()
+// below). Every arm then calls reset_cmd_vars(TRUE) and returns, with no
 // message and no turn.
 function isNoCommandKey(key) {
     return !key || key === 0xFF || key === ESC;
+}
+
+// C ref: cmd.c rhack() `iflags.sanity_no_check = iflags.sanity_check` at
+// 3666 (ESC), 3745-3746 (a CMD_INSANE row: ^P, ^R) and 3837 (an unknown
+// command): the next wizcmds.c sanity_check() is skipped, so its output
+// cannot interfere with what the command shows. Without the sanity_check
+// option this stores false and has no effect.
+function skip_next_sanity_check(state) {
+    state.iflags.sanity_no_check = Boolean(state.iflags.sanity_check);
 }
 
 // C ref: cmd.c reset_occupations() (194-200). Its own comment lists the three
@@ -5363,6 +5373,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         }
 
         if (!cmdqCommand && isNoCommandKey(key)) {
+            if (key === ESC) skip_next_sanity_check(state);
             resetCommandVars(state);
             return;
         }
@@ -5432,6 +5443,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 }
             }
             if (!commandAfterPrefix && isNoCommandKey(key)) {
+                if (key === ESC) skip_next_sanity_check(state);
                 resetCommandVars(state);
                 return;
             }
@@ -5493,6 +5505,10 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 state,
             );
         }
+        // C ref: rhack():3742-3746. Some commands shouldn't trigger the next
+        // sanity_check() in case it produces output that would interfere
+        // with them: the CMD_INSANE rows, ^P (prevmsg) and ^R (redraw).
+        if (row && (row.flags & CMD_INSANE)) skip_next_sanity_check(state);
         // C ref: iactions.c itemactions_pushkeys() queues do_reqmenu, dotip,
         // and the chosen inventory letter. cmd.c's queued-extcmd path invokes
         // the queued function pointer directly; the item-action route must
@@ -6499,6 +6515,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             SUPPRESS_HISTORY,
             state,
         );
+        skip_next_sanity_check(state); /* skip sanity check */
         state.context.move = 0;
         state.multi = 0;
     } catch (error) {

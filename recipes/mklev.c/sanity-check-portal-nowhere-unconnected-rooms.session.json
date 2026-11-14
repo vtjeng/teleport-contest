@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mklev.c mklev_sanity_check() reporting \"room N not connected?\" on a level C really makes: with the sanity_check option on, a Priest improvises on a wished-for wooden harp until the tune has one note (svc.context.jingle, which svd.dungeons[-1].ledger_start overlays), wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it. makelevel() builds a room-and-corridor level of dungeon -1 on which makecorridors() leaves rooms 1-6 unjoined, and each report prints the full impossible() block outside sanity_check(). The recipe stops before the next divergence: after the level is made C prints a third builds_up() impossible() where the port prints \"goto_level: no corresponding portal!\". Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 112358,
+      "datetime": "20191231235500",
+      "nethackrc": "OPTIONS=name:Wayfarer,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "j\u0017wooden harp\nakyakyakyakyakyaky\u0017magic portal\nkj                     "
+    }
+  ]
+}

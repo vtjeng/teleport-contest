@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c sanity_check() with the sanity_check option on, run by allmain.c moveloop_core() before each of about 80 turns of a sane game, which prints nothing: a punished Knight (bc_sanity_check with ball and chain on the floor and dragged), a lit oil lamp (light_sources_sanity_check, timer_sanity_check burn timer), a tame giant mimic that eats a corpse and the starting pony (pet_sanity_check, the mimic arms of sanity_check_single_mon), a long worm with a tail until it dies (sanity_check_worm), a dust engraving (engraving_sanity_check), worn armor and wielded lance (check_wornmask_slots, sanity_check_worn), and #wizmakemap, whose regenerated level runs mklev.c mklev_sanity_check(). Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4242,
+      "datetime": "20010517093000",
+      "nethackrc": "OPTIONS=name:Sanguine,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,time\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "\u0017uncursed scroll of punishment\nri \u0017oil lamp\naj\u0017blessed figurine of a giant mimic\nakh \u0007long worm\nE- Elbereth\n20sFkFkFkFkFkFkFkFk40s jhhhkk#wizmakemap\n30s20sFlFlFlFl50s50s"
+    }
+  ]
+}

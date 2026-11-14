@@ -27,7 +27,7 @@ const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossi
 const OWN_DIAGNOSTIC = 'diagnostic arm inside the named function itself';
 
 const EXCEPTIONS = new Map([
-    ['pline.c impossible', { count: 184, reason: IMPOSSIBLE }],
+    ['pline.c impossible', { count: 176, reason: IMPOSSIBLE }],
     ['hack.c impossible', { count: 1, reason: IMPOSSIBLE }],
     ['mcastu.c impossible', { count: 4, reason: IMPOSSIBLE }],
     ['mkroom.c impossible', { count: 1, reason: IMPOSSIBLE }],
@@ -40,17 +40,15 @@ const EXCEPTIONS = new Map([
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.
     ['end.c panic', { count: 1, reason: 'synchronous shkname() cannot wait for async panic()' }],
-    // js/mon.js sanityPanic() is synchronous and throws after the marker.
-    ['pline.c panic', { count: 1, reason: 'synchronous sanity check throws in place of async panic()' }],
     ['explode.c adtyp_to_expltype', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['explode.c explosionmask', { count: 2, reason: OWN_DIAGNOSTIC }],
     ['explode.c mon_explodes', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['explode.c scatter', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['light.c obj_adjust_light_radius', { count: 1, reason: OWN_DIAGNOSTIC }],
+    ['mon.c set_ustuck', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['read.c seffects', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['shk.c doinvbill', { count: 2, reason: OWN_DIAGNOSTIC }],
     ['shk.c get_cost', { count: 1, reason: OWN_DIAGNOSTIC }],
-    ['shk.c unpaid_cost', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['trap.c lava_effects', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['zap.c bhitm', { count: 1, reason: OWN_DIAGNOSTIC }],
     ['zap.c bhito', { count: 2, reason: OWN_DIAGNOSTIC }],

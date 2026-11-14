@@ -18,7 +18,11 @@ import {
     IS_OBSTRUCTED,
     OBJ_FREE,
     OBJ_FLOOR,
+    OBJ_INVENT,
     POOL,
+    W_BALL,
+    W_CHAIN,
+    W_WEAPONS,
     SLT_ENCUMBER,
     HEAD,
     KILLED_BY,
@@ -77,7 +81,8 @@ import { find_mac } from './worn.js';
 import { hmon } from './uhitm.js';
 import { miss } from './zap.js';
 import { hliquid } from './do_name.js';
-import { otense, xnameFresh, yname, Yname2 } from './objnam.js';
+import { otense, safe_typename, xnameFresh, yname, Yname2 } from './objnam.js';
+import { HEAVY_IRON_BALL, IRON_CHAIN } from './objects.js';
 import { body_part } from './polyself.js';
 import { hard_helmet } from './do_wear.js';
 import { encumber_msg } from './pickup.js';
@@ -87,7 +92,7 @@ import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { impossible, youFeel } from './pline.js';
-import { Blind, Levitation, Maybe_Half_Phys } from './youprop.js';
+import { Blind, Levitation, Maybe_Half_Phys, Punished } from './youprop.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;
@@ -863,4 +868,68 @@ export async function drop_ball(x, y, state = game) {
     newsym(u.ux0, u.uy0, state);
     if (u.ux0 !== u.ux || u.uy0 !== u.uy)
         await spoteffects(true, state);
+}
+
+// C ref: ball.c bc_sanity_check() (1033-1102). Punishment needs both the ball
+// and the chain; each must have its own type, a legal location and its worn
+// bit; and a non-free chain lies under or beside the hero, with the ball on
+// or beside the chain unless carried.
+export async function bc_sanity_check(state = game) {
+    const { u } = state;
+    const uball = state.uball ?? null;
+    const uchain = state.uchain ?? null;
+    const hex08 = (mask) => (mask >>> 0).toString(16).padStart(8, '0');
+
+    if (Punished(state) && (!uball || !uchain)) {
+        await impossible(`Punished without ${!uball ? 'iron ball' : ''}`
+            + `${!uball && !uchain ? ' and ' : ''}`
+            + `${!uchain ? 'attached chain' : ''}?`, state);
+    } else if (!Punished(state) && (uball || uchain)) {
+        await impossible(`Attached ${uchain ? 'chain' : ''}`
+            + `${uchain && uball ? ' and ' : ''}`
+            + `${uball ? 'iron ball' : ''} without being Punished?`, state);
+    }
+    const freechain = !uchain || uchain.where === OBJ_FREE;
+    const freeball = !uball || uball.where === OBJ_FREE
+        /* lie to simplify the testing logic */
+        || (freechain && uball.where === OBJ_INVENT);
+    if (uball && (uball.otyp !== HEAVY_IRON_BALL
+                  || (uball.where !== OBJ_FLOOR
+                      && uball.where !== OBJ_INVENT
+                      && uball.where !== OBJ_FREE)
+                  || (freeball !== freechain)
+                  || (uball.owornmask & W_BALL) === 0
+                  || (uball.owornmask & ~(W_BALL | W_WEAPONS)) !== 0)) {
+        const otyp = uball.otyp;
+        const onam = safe_typename(otyp, state);
+        await impossible(`uball: type ${otyp} (${onam}), where ${uball.where},`
+            + ` wornmask=0x${hex08(uball.owornmask)}`, state);
+    }
+    /* similar check to ball except can't be in inventory */
+    if (uchain && (uchain.otyp !== IRON_CHAIN
+                   || (uchain.where !== OBJ_FLOOR
+                       && uchain.where !== OBJ_FREE)
+                   || (freechain !== freeball)
+                   || (uchain.owornmask & W_CHAIN) === 0
+                   || (uchain.owornmask & ~W_CHAIN) !== 0)) {
+        const otyp = uchain.otyp;
+        const onam = safe_typename(otyp, state);
+        await impossible(`uchain: type ${otyp} (${onam}), where ${uchain.where},`
+            + ` wornmask=0x${hex08(uchain.owornmask)}`, state);
+    }
+    if (uball && uchain && !(freeball && freechain)) {
+        /* non-free chain should be under or next to the hero;
+           non-free ball should be on or next to the chain or else carried */
+        const cx = uchain.ox, cy = uchain.oy;
+        const cdx = Math.abs(cx - u.ux), cdy = Math.abs(cy - u.uy);
+        let bx, by;
+        if (uball.where === OBJ_INVENT) /* carried(uball) */
+            bx = u.ux, by = u.uy; /* get_obj_location() */
+        else
+            bx = uball.ox, by = uball.oy;
+        const bdx = Math.abs(bx - cx), bdy = Math.abs(by - cy);
+        if (cdx > 1 || cdy > 1 || bdx > 1 || bdy > 1)
+            await impossible(`b&c distance: you@<${u.ux},${u.uy}>,`
+                + ` chain@<${cx},${cy}>, ball@<${bx},${by}>`, state);
+    }
 }

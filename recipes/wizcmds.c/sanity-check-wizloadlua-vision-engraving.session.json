@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c levl_sanity_check() and engrave.c engraving_sanity_check() reporting a state C really reaches: #wizloadlua bigrm-3 draws a new map over the current level without vision_reset(), so before the next command the transparency index disagrees with does_block() on many squares and a random engraving left from the old level lies on solid ground. Each impossible() prints its one line inside sanity_check(); the spaces step through the first of them. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 271828,
+      "datetime": "20131105201500",
+      "nethackrc": "OPTIONS=name:Cartographer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "  #wizloadlua\nbigrm-3\n                        "
+    }
+  ]
+}
