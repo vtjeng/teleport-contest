@@ -1586,8 +1586,9 @@ export const _wornInternals = Object.freeze({
 // name an inventory object with that slot's owornmask bit and no other slot
 // bit, and no other inventory object may claim the slot. The embedded-scales
 // and two-weapon checks are under #ifdef EXTRA_SANITY_CHECKS, which the
-// released recorder build leaves undefined (config.h:634-638).
-export async function check_wornmask_slots(state = game) {
+// released recorder build leaves undefined (config.h:634-638). `env` passes
+// impossible()'s message operations through, which a test can replace.
+export async function check_wornmask_slots(state = game, env = {}) {
     /* we'll skip ball and chain here--they warrant separate sanity check */
     const IGNORE_SLOTS = W_ART | W_ARTI | W_SADDLE | W_BALL | W_CHAIN;
     const hex08 = (mask) => (mask >>> 0).toString(16).padStart(8, '0');
@@ -1614,7 +1615,7 @@ export async function check_wornmask_slots(state = game) {
                 whybuf = `${wp.what} wrong bit set in owornmask`
                     + ` [0x${hex08(o.owornmask)}]`;
             if (whybuf)
-                await impossible(`Worn-slot insanity: ${whybuf}.`, state);
+                await impossible(`Worn-slot insanity: ${whybuf}.`, state, env);
         }
 
         /* check whether any item other than the one in the slot pointer
@@ -1627,7 +1628,7 @@ export async function check_wornmask_slots(state = game) {
                 const whybuf = `${simpleonames(otmp, state)}`
                     + ` [0x${hex08(otmp.owornmask)}] has ${wp.what} mask`
                     + ` 0x${hex08(m)} bit set`;
-                await impossible(`Worn-slot insanity: ${whybuf}.`, state);
+                await impossible(`Worn-slot insanity: ${whybuf}.`, state, env);
             }
         }
     }

@@ -7989,8 +7989,9 @@ export function chk_okdoor(x, y, state = game) {
 // sanity_check(), so each impossible() prints its full "Program in
 // disorder!" block. makecorridors() can leave a room unjoined, since join()
 // returns without merging smeq[] when finddpos() or dig_corridor() fails,
-// so "room %i not connected?" reports a level C really makes.
-async function mklev_sanity_check(state = game) {
+// so "room %i not connected?" reports a level C really makes. `env` passes
+// impossible()'s message operations through, which a test can replace.
+export async function mklev_sanity_check(state = game, env = {}) {
     let rmno = -1;
 
     if (!(state.iflags?.sanity_check || state.iflags?.debug_fuzzer))
@@ -7999,7 +8000,7 @@ async function mklev_sanity_check(state = game) {
     for (let y = 0; y < ROWNO; y++) {
         for (let x = 1; x < COLNO; x++) {
             if (!chk_okdoor(x, y, state))
-                await impossible(`levl[${x}][${y}] door not ok`, state);
+                await impossible(`levl[${x}][${y}] door not ok`, state, env);
         }
     }
 
@@ -8009,7 +8010,7 @@ async function mklev_sanity_check(state = game) {
         if (rmno === -1)
             rmno = state.smeq[i];
         if (rmno !== -1 && state.smeq[i] !== rmno)
-            await impossible(`room ${i} not connected?`, state);
+            await impossible(`room ${i} not connected?`, state, env);
     }
 }
 
