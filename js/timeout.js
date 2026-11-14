@@ -123,6 +123,7 @@ import {
     is_ice,
 } from './dbridge.js';
 import { surface } from './dungeon.js';
+import { sync_impossible } from './source_steps.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
 import { artifact_light } from './artifacts.js';
@@ -1725,8 +1726,11 @@ export function start_timer(
         if (timer.kind === kind
             && timer.func_index === funcIndex
             && timer.arg === arg) {
-            // C: impossible("Attempted to start duplicate %s, aborted.", idbuf);
-            note_unported('pline.c impossible');
+            // timeout.c defines VERBOSE_TIMER, so idbuf names the function.
+            // start_timer() cannot wait for the message; an async caller
+            // runs it inside collect_impossibles() and prints the text.
+            sync_impossible('Attempted to start duplicate '
+                + `${timeout_funcs[funcIndex].name} timer, aborted.`, state);
             return false;
         }
     }
