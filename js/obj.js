@@ -84,6 +84,7 @@ import {
     W_TOOL,
     W_WEAPONS,
     W_WEP,
+    FM_FMON,
 } from './const.js';
 import {
     is_pool,
@@ -94,7 +95,7 @@ import { isok } from './cmd_isok.js';
 // corpstat.js imports from this file; both sides use the other's exports only
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
-import { noveltitle, x_monnam } from './do_name.js';
+import { mon_pmname, noveltitle, x_monnam } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 // shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
 // imports from this file; both sides use the other's exports only inside
@@ -131,6 +132,7 @@ import { set_moreluck } from './attrib.js';
 import {
     arti_light_radius,
     del_light_source,
+    find_mid,
     obj_adjust_light_radius,
     get_obj_location,
     obj_sheds_light,
@@ -157,7 +159,7 @@ import {
 // already imports this file, and both sides use the other's exports only
 // inside function bodies, so this direct edge resolves the same way the
 // js/mondata.js edge onto js/dungeon.js does.
-import { copy_mextra, maybe_unhide_at } from './mon.js';
+import { copy_mextra, dealloc_mextra, maybe_unhide_at } from './mon.js';
 // newomonst() allocates a blank monster on the oextra; newMonster() is the
 // port of C's newmonst() / cg.zeromonst. monst.js does not import this file.
 import { newMonster } from './monst.js';
@@ -750,10 +752,7 @@ export function free_omonst(otmp) {
     if (otmp.oextra) {
         const m = otmp.oextra.omonst;
         if (m) {
-            // C: if (m->mextra) dealloc_mextra(m);
-            if (m.mextra) {
-                note_unported('mon.c dealloc_mextra');
-            }
+            if (m.mextra) dealloc_mextra(m);
             otmp.oextra.omonst = null;
         }
     }
@@ -3441,10 +3440,34 @@ export function objlist_sanity(objlist, wheretype, mesg, state = game) {
                 break;
             }
         }
-        // C: leash checks using find_mid(), mon_pmname(), where_name().
-        // find_mid() is in light.c and not yet ported.
-        if (obj.otyp === LEASH && obj.leashmon)
-            note_unported('light.c find_mid');
+        // C ref: objlist_sanity() (3085-3120) leash checks.
+        if (obj.otyp === LEASH && obj.leashmon) {
+            const mtmp = find_mid(obj.leashmon, FM_FMON, state);
+            if (obj.where === OBJ_INVENT) {
+                if (!mtmp) { /* found leash with phantom mon */
+                    insane_object(obj, ofmt0,
+                        `leashmon=${obj.leashmon >>> 0} no monst,`, null, state);
+                } else if (!mtmp.mleashed) {
+                    insane_object(obj, ofmt0,
+                        `leashmon=${obj.leashmon >>> 0} `
+                        + `${mon_pmname(mtmp, state)} not leashed,`,
+                        null, state);
+                }
+            /* migrating objects overlay leashmon with migr_species */
+            } else if (obj.where !== OBJ_MIGRATING) {
+                const mtmp2 = obj.where === OBJ_MINVENT ? obj.ocarry : null;
+                if (mtmp) { /* found monst leashed by non-invent leash */
+                    insane_object(obj, ofmt0,
+                        `leashmon:${obj.leashmon >>> 0} `
+                        + `${mon_pmname(mtmp, state)} leashed by `
+                        + `${where_name(obj)} leash,`, mtmp2, state);
+                } else { /* non-invent leash with m_id of phantom mon */
+                    insane_object(obj, ofmt0,
+                        `leashmon:${obj.leashmon >>> 0} no monst for `
+                        + `${where_name(obj)} leash,`, mtmp2, state);
+                }
+            }
+        }
         if (obj.globby)
             check_glob(obj, mesg, state);
         // C: temporary flag checks (in_use, bypass, nomerge, next_boulder)

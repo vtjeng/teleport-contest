@@ -85,9 +85,11 @@ import {
     set_utrap,
 } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { free_msghistory_snapshot, msghistory_snapshot } from '../js/topl.js';
 import { game } from '../js/gstate.js';
 import {
     M1_FLY,
+    PM_COCKATRICE,
     PM_LICHEN,
     PM_PURPLE_WORM,
     PM_SALAMANDER,
@@ -110,7 +112,7 @@ import { set_ustuck } from '../js/mon.js';
 import { dog_move } from '../js/dogmove.js';
 import { update_player_regions } from '../js/region.js';
 import { vault_occupied } from '../js/vault.js';
-import { is_pole } from '../js/worn.js';
+import { is_pole, which_armor } from '../js/worn.js';
 import { block_point } from '../js/vision.js';
 import { getRngLog } from '../js/rng.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -207,6 +209,40 @@ test('a successful mount moves the hero onto the steed and off the map',
     // longer at its own coordinates as far as m_at() is concerned.
     assert.equal(m_at(pony.mx, pony.my, state), null);
     assert.equal(state.u.uprops[STEALTH].blocked, FROMOUTSIDE);
+});
+
+test('touching a saddled cockatrice while mounting calls instapetrify',
+    async () => {
+    // steed.c:288-295. No valid input saddles a cockatrice: can_saddle()
+    // (steed.c:26-33) excludes S_COCKATRICE at use_saddle(), wizard-mode
+    // creation (read.c:3331) and makemon (makemon.c:1448), and a saddled
+    // steed that turns into one loses the saddle (worn.c:1313-1314). So the
+    // pony's species is swapped in place here. Wizard mode makes done() ask
+    // "Die?"; the queued spaces answer each --More-- and take its default
+    // 'n', so instapetrify() returns and mount_steed() continues.
+    const state = await rideTo(`.${RIDE_COMMAND}`);
+    const pony = m_at(state.u.ux, state.u.uy + 1, state);
+    assert.ok(which_armor(pony, W_SADDLE, state), 'the pony is saddled');
+    pony.data = state.mons[PM_COCKATRICE];
+    pony.mnum = PM_COCKATRICE;
+    state.wizard = true;
+    state.unported?.delete('trap.c instapetrify');
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await mount_steed(pony, false, state);
+
+    const history = msghistory_snapshot(false, state);
+    free_msghistory_snapshot(false, state);
+    // trap.c:3850 urgent_pline() then end.c's wizard-mode query; savelife()
+    // clears the killer that instapetrify() set, so the messages are the
+    // evidence. The last line is mount_steed()'s later can_ride() refusal.
+    assert.deepEqual(history.slice(-3), [
+        'You touch the saddled cockatrice.  You turn to stone...',
+        'Die? [yn] (n) n',
+        "OK, so you don't die.  You can't ride such a creature.",
+    ]);
+    assert.equal(state.unported?.has('trap.c instapetrify'), false);
 });
 
 test('the mount runs teleds, which marks the steed as seen', async () => {

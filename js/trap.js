@@ -364,9 +364,7 @@ export function sokoban_guilt(state = game) {
     change_luck(-1, state);
 }
 
-// C ref: trap.c instapetrify() (3844-3855). Supporting wielding_corpse's
-// protection-loss callers; other source callers retain their named gaps, so
-// this helper is not established complete across its wider entry points.
+// C ref: trap.c instapetrify() (3844-3855).
 export async function instapetrify(str, state = game, env = {}) {
     if (Stone_resistance(state.u)) return;
     if (poly_when_stoned(state.youmonst.data, state)

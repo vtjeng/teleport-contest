@@ -69,6 +69,7 @@ import { m_unleash } from './apply.js';
 import { heal_legs, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { finish_meating } from './dogmove.js';
 import {
+    Mgender,
     Monnam,
     a_monnam,
     YMonnam,
@@ -162,7 +163,6 @@ import { mpickobj, remove_worn_item } from './steal.js';
 import { objdescr_is } from './o_init.js';
 import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
-import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 import {
     Blind, Blind_telepat, Confusion, Flying, Fumbling, Glib, HWounded_legs,
@@ -496,8 +496,10 @@ export async function mount_steed(mtmp, force, state = game) {
     const ptr = mtmp.data;
     if (touch_petrifies(ptr) && !Stone_resistance(state.u)) {
         await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
-        // trap.c:instapetrify is a void callee; its death/poly effect is unported.
-        note_unported('trap.c instapetrify');
+        await instapetrify(
+            `attempting to ride ${an(pmname(mtmp.data, Mgender(mtmp, state)))}`,
+            state,
+        );
     }
     if (!mtmp.mtame || mtmp.isminion) {
         await ttyPline(

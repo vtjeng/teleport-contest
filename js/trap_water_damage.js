@@ -51,6 +51,7 @@ import { get_obj_location } from './light.js';
 import { game } from './gstate.js';
 import { delobj, obj_extract_self, useupall } from './invent.js';
 import { discover_object } from './o_init.js';
+import { remove_worn_item } from './steal.js';
 import {
     DRAGON_HIDE,
     ICE_BOX,
@@ -69,7 +70,6 @@ import {
 } from './objects.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
@@ -374,13 +374,8 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
                 );
             }
         }
-        if (obj.where === OBJ_INVENT) {
-            if (obj.owornmask) {
-                // trap.c delegates this discarded void transition to
-                // steal.c remove_worn_item(); its remaining armor and
-                // punishment arms are an explicit source gap here.
-                note_unported('steal.c remove_worn_item');
-            }
+        if (obj.where === OBJ_INVENT) { /* shouldn't happen */
+            await remove_worn_item(obj, true, state, rawEnv);
             await useupall(obj, { ...rawEnv, state });
         } else {
             await delobj(obj, { ...rawEnv, state });

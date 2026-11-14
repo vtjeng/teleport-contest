@@ -3801,11 +3801,12 @@ export async function armor_or_accessory_off(obj, state = game) {
         // do_wear.c:1820-1821. Blindf_off does its own off_msg.
         await Blindf_off(obj, state);
     } else {
-        // C's remaining arm is an impossible accessory type. Both calls have
-        // discarded results; keep their unported sites explicit.
-        note_unported('pline.c impossible');
+        await impossible(
+            `removing strange accessory: ${safe_typename(obj.otyp, state)}`,
+            state,
+        );
         if (obj.owornmask)
-            note_unported('do_wear.c remove_worn_item');
+            await remove_worn_item(obj, false, state);
     }
     return ECMD_TIME;
 }

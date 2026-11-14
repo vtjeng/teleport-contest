@@ -69,7 +69,7 @@ import { cancel_doff } from './do_wear.js';
 import { game } from './gstate.js';
 import { see_wsegs } from './worm.js';
 import { newsym, canspotmon } from './display.js';
-import { Monnam, mon_nam, hcolor } from './do_name.js';
+import { Mgender, Monnam, mon_nam, hcolor, pmname } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
 import { can_saddle } from './dog.js';
@@ -165,6 +165,7 @@ import { arti_light_description } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
 import { can_ride } from './steed.js';
+import { instapetrify } from './trap.js';
 import { m_useup } from './mthrowu.js';
 import { surface } from './dungeon.js';
 import { youHear } from './monmove.js';
@@ -179,6 +180,7 @@ import {
     cloak_simple_name,
     simpleonames,
     otense,
+    an,
     Yname2,
 } from './objnam.js';
 import { canseemon } from './display.js';
@@ -1256,8 +1258,6 @@ export function nxt_unbypassed_loot(lootarray, listhead, state = game) {
 // cannot wear is destroyed or dropped in source order. Keep its no-effect
 // paths synchronous: mon.c newcham() is called synchronously during level
 // construction, and the C helper does not suspend when no equipment changes.
-// The fall-specific steed and petrification calls remain named gaps because
-// their source owners are not complete in this port.
 export function mon_break_armor(monster, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
     // C evaluates both pronouns even when no armor changes. Hallucination
@@ -1501,7 +1501,11 @@ async function mon_break_armor_effects(monster, polyspot, env, pronoun, possessi
         if (touch_petrifies(steed.data) && !Stone_resistance(state.u)
             && random.rnl(3)) {
             await message(`You touch ${mon_nam(steed, state)}.`, state, env);
-            note_unported('trap.c instapetrify');
+            await instapetrify(
+                `falling off ${an(pmname(steed.data, Mgender(steed, state)))}`,
+                state,
+                env,
+            );
         }
         // worn.c:1332 calls dismount_steed() after the polymorph gear checks.
         await dismount_steed(DISMOUNT_FELL, state);

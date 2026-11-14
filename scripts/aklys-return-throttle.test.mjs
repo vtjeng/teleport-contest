@@ -8,6 +8,7 @@ import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { PM_GOBLIN } from '../js/monsters.js';
 import { AKLYS } from '../js/objects.js';
+import { ART_FIRE_BRAND } from '../js/artifacts.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -63,6 +64,34 @@ test('zero remains the C uninitialized sentinel', async () => {
     game.moves = 0; await invoke(game, lines); await invoke(game, lines);
     assert.equal(lines.length, 2);
     assert.equal(game._returnDoNotAnnoy, 0);
+});
+test('an artifact that returns and hits its thrower runs artifact_hit', async () => {
+    // mthrowu.c:935-937. Only an aklys returns (weapon.c:514-517) and no
+    // artifact is an aklys, so the artifact here is constructed: Fire Brand's
+    // attack has no damage die (artilist.h), so spec_dbon() doubles the
+    // goblin's damage when artifact_hit() runs.
+    await init(); game.moves = 10;
+    const monster = newMonster({ data: game.mons[PM_GOBLIN], mnum: PM_GOBLIN,
+        mx: 1, my: 1, mhp: 20, mhpmax: 20, mcansee: true });
+    const object = newObject({ otyp: AKLYS, oclass: game.objects[AKLYS].oc_class,
+        quan: 1, oartifact: ART_FIRE_BRAND });
+    game.gb.bhitpos = { x: 1, y: 1 };
+    // rn2(100) twice: 1 makes it back, then 0 misses the catch
+    // (mthrowu.c:881); rn2(2) = 1 hits the thrower; rnd(3) = 1. Every later
+    // draw returns bound - 1, so artifact_hit()'s rn2(4)/rn2(7) item and
+    // armor burns stay off.
+    const queue = [1, 0, 1];
+    const random = {
+        rn2: (bound) => (queue.length ? queue.shift() : bound - 1),
+        rnd: () => 1,
+        rnl: (bound) => bound - 1,
+    };
+    await return_from_mtoss(monster, object, true, game, random, {
+        message: async () => {}, temporaryDisplay: async () => {}, newsym: () => {},
+    });
+    // dmg = 1 + rnd(3) = 2, doubled to 4 by spec_dbon().
+    assert.equal(monster.mhp, 16);
+    assert.equal(game.unported?.has('artifact.c artifact_hit'), false);
 });
 for (const name of ['return', 'monochrome', 'before-control']) {
     test('aklys return throttle ' + name + ' matches independent C', async () => {

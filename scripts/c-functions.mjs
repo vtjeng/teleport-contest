@@ -20,7 +20,13 @@ const C_DIRECTORIES = ['src', join('win', 'tty')];
 // body before it counts as a definition.
 const DEFINITION = /^([A-Za-z_][A-Za-z0-9_]*)\(/u;
 
-const JS_DEFINITION = /\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/gu;
+// A JavaScript function definition: a declaration, generator or async
+// function, or a const/let/var bound to an arrow or function expression.
+const JS_DEFINITION = new RegExp([
+    String.raw`\bfunction\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(`,
+    String.raw`\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*`
+        + String.raw`(?:async\s+)?(?:function\b|\([^()]*\)\s*=>|[A-Za-z_$][\w$]*\s*=>)`,
+].join('|'), 'gu');
 
 function missingCheckout(root) {
     return new Error(`no C source under ${root}; run `
@@ -125,13 +131,72 @@ function walkJs(directory, out) {
     return out;
 }
 
-/** Every function name defined with `function name(` under js/. */
+function camelCase(name) {
+    return name.replace(/_([a-z0-9])/gu, (_, ch) => ch.toUpperCase());
+}
+
+// The comment lines directly above line `index`, nearest last.
+function leadingComment(lines, index) {
+    const block = [];
+    let inBlock = false;
+    for (let i = index - 1; i >= 0; --i) {
+        const line = lines[i].trim();
+        if (inBlock) {
+            block.push(line);
+            if (line.startsWith('/*')) inBlock = false;
+        } else if (line.startsWith('//') || line.startsWith('*')
+            || line.startsWith('/*')) {
+            block.push(line);
+        } else if (line.endsWith('*/')) {
+            block.push(line);
+            inBlock = !line.startsWith('/*');
+        } else {
+            break;
+        }
+    }
+    return block.reverse().join('\n');
+}
+
+/**
+ * The names of the JavaScript functions in one file's text, plus the C
+ * names those functions port under another name.
+ *
+ * A definition is `function name(`, a generator, an async function, or a
+ * const/let/var bound to an arrow or function expression. A function named
+ * `name_steps`, camelCase `name` or camelCase `nameSteps` also declares the C
+ * function `name` when a `C ref:` comment directly above it names `name`.
+ */
+export function jsDefinitionNames(text) {
+    const names = new Set();
+    const blanked = blankCommentsAndStrings(text);
+    const lines = text.split('\n');
+    const lineStarts = [0];
+    for (let i = 0; i < text.length; ++i)
+        if (text[i] === '\n') lineStarts.push(i + 1);
+    let line = 0;
+    for (const match of blanked.matchAll(JS_DEFINITION)) {
+        const name = match[1] ?? match[2];
+        names.add(name);
+        while (line + 1 < lineStarts.length && lineStarts[line + 1] <= match.index)
+            line++;
+        const comment = leadingComment(lines, line);
+        if (!comment.includes('C ref:')) continue;
+        for (const [cName] of comment.matchAll(/\b[A-Za-z_][A-Za-z0-9_]*\b/gu)) {
+            const camel = camelCase(cName);
+            if (name === `${cName}_steps` || name === `${camel}Steps`
+                || (camel !== cName && name === camel))
+                names.add(cName);
+        }
+    }
+    return names;
+}
+
+/** Every function name `jsDefinitionNames()` finds under js/. */
 export function jsFunctionNames(jsRoot = join(PROJECT_ROOT, 'js')) {
     const names = new Set();
     for (const path of walkJs(jsRoot, [])) {
-        const text = readFileSync(path, 'utf8');
-        for (const match of blankCommentsAndStrings(text).matchAll(JS_DEFINITION))
-            names.add(match[1]);
+        for (const name of jsDefinitionNames(readFileSync(path, 'utf8')))
+            names.add(name);
     }
     return names;
 }

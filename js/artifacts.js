@@ -100,6 +100,7 @@ import {
     NOTELL,
     engulfing_u,
     NECK,
+    DISMOUNT_THROWN,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
@@ -216,6 +217,7 @@ import { coreRandom, d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { dismount_steed } from './steed.js';
 import { livelog_printf } from './pline.js';
 import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
 import {
@@ -3192,8 +3194,7 @@ export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
         /* untouchable() expects inventory, but removal is harmless for a
            saddle and dropping is suppressed as in the C source. */
         if (await untouchable(obj, false, state, retouchEnv))
-            // artifact.c discards dismount_steed()'s void result here.
-            note_unported('steed.c dismount_steed DISMOUNT_THROWN');
+            await dismount_steed(DISMOUNT_THROWN, state, retouchEnv);
     }
 
     /* TODO? Force off gloves before rings and cloak [suit] before suit [shirt].

@@ -242,7 +242,7 @@ import {
     mwepgone,
     select_rwep,
 } from './weapon.js';
-import { spec_abon } from './artifacts.js';
+import { artifact_hit, spec_abon } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mwelded } from './wield.js';
@@ -1332,10 +1332,11 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     }
     if (otmp) {
         if (hits_thrower_flag) {
-            // artifact_hit() is an unowned side-effect hook in this caller;
-            // the ordinary weapon damage and monster death remain local.
-            if (otmp.oartifact)
-                note_unported('artifact.c artifact_hit');
+            if (otmp.oartifact) {
+                const dmgptr = { value: dmg };
+                await artifact_hit(null, magr, otmp, dmgptr, 0, state, env);
+                dmg = dmgptr.value;
+            }
             magr.mhp -= dmg;
             if (magr.mhp < 1) /* DEADMONSTER */
                 await monkilled(magr, canspotmon(magr, state) ? '' : null,
