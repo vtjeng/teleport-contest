@@ -26,9 +26,9 @@ const JS_ROOT = join(PROJECT_ROOT, 'js');
 const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossible()';
 
 const EXCEPTIONS = new Map([
-    // 267: vault.c find_guard_dest() now awaits impossible() and tele()
-    // (2026-11-14).
-    ['pline.c impossible', { count: 267, reason: IMPOSSIBLE }],
+    // 266: timeout.c start_timer()'s duplicate-timer report goes through
+    // sync_impossible(), which the melting-ice wish prints (2026-11-14).
+    ['pline.c impossible', { count: 266, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.
