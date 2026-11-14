@@ -1544,7 +1544,10 @@ test('getlin prompt flush writes a dirty blank glyph and preserves clean physica
     const x = state.u.ux;
     const y = state.u.uy;
     const dirty = state.level.at(x, y);
-    dirty.disp_ch = ' '; // C print_glyph must erase even when the dirty glyph is blank.
+    // C print_glyph must erase even when the dirty glyph is blank. The flush
+    // prints the gbuf entry (disp_glyph), so the blank goes there too.
+    dirty.disp_glyph = { ...dirty.disp_glyph, ch: ' ' };
+    dirty.disp_ch = ' ';
     dirty.gnew = 1;
     state.nhDisplay.setCell(x - 1, y + 1, 'X', 2, 1);
     const clean = state.level.at(x + 1, y);
