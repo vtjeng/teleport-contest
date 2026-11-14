@@ -200,6 +200,8 @@ export const PORT_ONLY = new Map([
         + ' recorder build\'s value', ['BUILD_TIME', 'IGNORED_FEATURES']),
     ...portOnly('the port\'s model of the recorder\'s time zone, where C calls localtime()',
         ['HOUR_MILLIS', 'NEW_YORK_DAYLIGHT_OFFSET_MILLIS', 'TRANSITION_PROBE_MILLIS']),
+    ['RECORDER_UID', 'the value getuid() answers for the recorder\'s process, which files.c'
+        + ' and topten.c read at run time'],
     ...portOnly('a count of entries in a dat/*.lua level file', [
         'RAN_GOAL_TRAP_COUNT', 'RAN_LOCA_OBJECT_COUNT', 'SAM_STRT_LEVEL_TRAP_COUNT',
         'WIZ_GOAL_RANDOM_TRAP_COUNT',
@@ -213,7 +215,6 @@ export const PORT_ONLY = new Map([
         ['CUSTOMPLINE_FLAGS', 'ORIGIN_MASK']),
     ['DONAME_BODY_CAPACITY', 'BUFSZ - PREFIX - 1; objnam.c\'s PREFIX is checked as PREFIX'],
     ['FEATURE_NOTICE_3_7_0', 'the result of cfgfiles.c get_feature_notice_ver("3.7.0")'],
-    ['JS_UID', 'stands for the getuid() result that topten.c compares'],
     ['OVERWRITE_FILENAME_LIMIT', 'derived from the length of cfgfiles.c\'s prompt format'],
     ['SPACE_VISIBLE_ATTRS', 'the attributes frozen/screen-decode.mjs paints on a space'],
     ['STATUS_HP_BAR_WIDTH', 'the width of the hit-point bar that wintty.c draws over the'
