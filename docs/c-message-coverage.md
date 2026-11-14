@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4000 | 67 | 1 |
-| diagnostic | 723 | 270 | 6 | 447 |
+| diagnostic | 723 | 271 | 6 | 446 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4911 | 4273 | 73 | 565 |
+| total | 4911 | 4274 | 73 | 564 |
 
 ## Missing by C file
 
@@ -109,7 +109,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rumors.c | yes | 0 | 2 | 0 |
 | src/save.c | yes | 0 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
-| src/shk.c | yes | 0 | 25 | 1 |
+| src/shk.c | yes | 0 | 24 | 1 |
 | src/shknam.c | yes | 0 | 4 | 0 |
 | src/sounds.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 14 | 3 |
@@ -1156,9 +1156,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `finish_paybill()`
   - 2738 impossible: `finish_paybill: bad location <`
-
-- `unpaid_cost()`
-  - 3303 impossible: `unpaid_cost: object wasn't on any bill.`
 
 - `splitbill()`
   - 3640 impossible: `Negative quantity on bill??`
