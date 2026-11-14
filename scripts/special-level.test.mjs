@@ -4,12 +4,12 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import { game, resetGame } from '../js/gstate.js';
-import { mklev } from '../js/mklev.js';
+import { mklev, mkmap_join_map_steps } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, MAXNROFROOMS, ROOM, STONE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -213,6 +213,30 @@ test('mines finish_map stores source pool and moat ice flags', async () => {
             assert.ok(ice > 0); // Source background I must reach the finish-map assignment.
         });
     }
+});
+
+test('join_map stops scanning every column once it has MAXNROFROOMS*2 regions', async () => {
+    const source = readFileSync('nethack-c/upstream/src/mkmap.c', 'utf8');
+    const join = source.slice(source.indexOf('join_map(schar bg_typ'), source.indexOf(' joinm:'));
+    // mkmap.c join_map: the goto sits inside both scan loops and its label
+    // follows them, so reaching the cap ends the whole flood-fill pass.
+    assert.match(join, /for \(x = 2; x <= WIDTH; x\+\+\)\s*for \(y = 1; y < HEIGHT; y\+\+\)[\s\S]*?if \(svn\.nroom >= \(MAXNROFROOMS \* 2\)\)\s*goto joinm;/u);
+    assert.equal(MAXNROFROOMS * 2, 80); // The cap the layout below reaches.
+    await runLoader(async des => {
+        await des.level_init({style:'solidfill', fg:' '}); // All STONE.
+        // 2x2 ROOM blobs (4 squares, above the tiny-hole limit of 3) on a
+        // 3-square stride: 6 per column at y=1..16 and 14 columns at
+        // x=2..41, so the scan, which runs down each column, makes its
+        // 80th region at (41,4).
+        for (let i = 0; i < 14; ++i) for (let j = 0; j < 6; ++j)
+            for (let dx = 0; dx < 2; ++dx) for (let dy = 0; dy < 2; ++dy)
+                game.level.at(2 + 3 * i + dx, 1 + 3 * j + dy).typ = ROOM;
+        // A one-square tiny hole far to the right of every corridor between
+        // those blobs: C stops before reaching it, so it is never erased.
+        game.level.at(78, 10).typ = ROOM;
+        for (const _ of mkmap_join_map_steps(STONE, ROOM, game)) { /* no impossible() expected */ }
+        assert.equal(game.level.at(78, 10).typ, ROOM);
+    });
 });
 
 test('fixed des.stair forces ROOM before a dungeon-end refusal', async () => {
