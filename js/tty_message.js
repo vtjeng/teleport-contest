@@ -281,9 +281,10 @@ export async function dismissPendingTtyMessage(
 // C ref: win/tty/wintty.c tty_message_menu(). The one-item inventory
 // shortcut uses the selected inventory letter as ttyDisplay->dismiss_more,
 // so the message line itself is the menu and the matching key is the result.
-// The caller has just answered a prompt, which is why the normal pline path
-// is safe here; tty_message_menu() then forces its own More boundary and
-// clears WIN_MESSAGE before returning to invent.c.
+// The PICK_ONE arm writes with tty_putstr(WIN_MESSAGE, 0, mesg), not pline():
+// MSGTYPE, gp.prevmsg and vpline()'s map flush are bypassed. tty_message_menu()
+// then forces its own More boundary and clears WIN_MESSAGE before returning
+// to invent.c.
 export async function tty_message_menu(
     invletter,
     how,
@@ -308,7 +309,8 @@ export async function tty_message_menu(
     // records its key in morc and leaves the top line TOPLINE_EMPTY.
     display.dismiss_more = selected;
     display.morc = 0;
-    await ttyPline(mesg, state);
+    // wintty.c 2832: tty_putstr() reaches update_topl() without vpline().
+    await ttyPlineCore(mesg, state, 0, null, false);
     // wintty.c 2834-2839: a message that fit on one line gets its --More--
     // here; more() resets the state to EMPTY, so NEED_MORE is restored
     // before tty_clear_nhwindow().
