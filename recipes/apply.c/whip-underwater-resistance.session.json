@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5530817,
+      "datetime": "20250318143000",
+      "nethackrc": "OPTIONS=name:Tidewater,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017amulet of magical breathing\nPj\u0017pool\nhml   aal",
+      "comment": "apply.c use_whip() Underwater arm (3008-3009): the wizard-mode wish for a pool (objnam.c wizterrainwish()) puts water under the hero; stepping off and back in with 'm' while wearing an amulet of magical breathing reaches trap.c drown()'s Amphibious arm, which sets u.uinwater, so applying the wielded bullwhip prints \"There is too much resistance to flick your bullwhip.\""
+    }
+  ]
+}

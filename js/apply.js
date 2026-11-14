@@ -814,7 +814,7 @@ export async function use_whip(obj, state = game, env = {}) {
     if (u.uswallow) {
         await ttyPline('There is not enough room to flick your bullwhip.', state);
     } else if (u.uinwater) {
-        await ttyPline("There's too much resistance to flick your bullwhip.", state);
+        await ttyPline('There is too much resistance to flick your bullwhip.', state);
     } else if (u.dz < 0) {
         await ttyPline(`You flick a bug off of the ${ceiling(u.ux, u.uy, state)}.`, state);
     } else if (!u.dz && (IS_WATERWALL(state.level.at(rx, ry).typ)
