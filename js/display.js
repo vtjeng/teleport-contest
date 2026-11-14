@@ -8104,10 +8104,26 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     const layouts = statusLayouts({ deliverCapacity: true });
     const previousLayouts = game._renderedStatusLayouts;
     const previousStyles = game._renderedStatusStyles;
-    // This pass redraws the status window over a screen clear: the port
-    // draws every field of the upper rows, and _renderStatusLastRow() draws
-    // the last row over its blanked cw->data.
-    game._erasedStatusRows = null;
+    // botl.c evaluate_and_notify_windowport(): gu.update_all sends every
+    // field, and BL_RESET (disp.botlx) makes check_fields() redraw every
+    // field. Every other pass sends only the fields whose value changed.
+    const updateAll = Boolean(game._statusHiliteUpdateAll
+        || game._statusGoldUpdateAll);
+    // After a screen clear, wintty.c tty_clear_nhwindow() sets disp.botlx,
+    // so the next bot() normally redraws every field over the blanked
+    // cw->data. A bot() that returns early while u.uhp == -1 clears that
+    // disp.botlx without drawing (as done() does at end.c:1043-1046), and a
+    // later pass then draws only the fields it sends: check_fields() finds
+    // each one unlike the blank cw->data, so the rest of the row stays
+    // blank. A full pass ends the erased state; _renderStatusLastRow()
+    // models the third row of three either way.
+    // Approximation: a BL_GOLD-triggered update_all sends only BL_GOLD and
+    // the fields after it in initblstats[] order; it is treated here as a
+    // full pass.
+    const redrawsErasedFields = Boolean(game._erasedStatusRows)
+        && !game.disp?.botlx && !updateAll;
+    if (!redrawsErasedFields)
+        game._erasedStatusRows = null;
     const titleDirty = _collectStatusHilites(layouts);
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
@@ -8120,8 +8136,6 @@ export async function bot({ initialTtyRefresh = false } = {}) {
         // reaches render_status() even where this port finds nothing
         // changed: newgame()'s explicit bot() after flush_screen() redraws
         // the conditions over the optional fields (display-symbols.test.mjs).
-        const updateAll = Boolean(game._statusHiliteUpdateAll
-            || game._statusGoldUpdateAll);
         const upperRowsChanged = !previousLayouts
             || [0, 1].some((index) => previousLayouts[index]?.text
                 !== layouts[index].text
@@ -8146,9 +8160,14 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     // not modelled here.
     const forcedRedraw = Boolean(game.disp?.botlx);
     try {
-        writeStatusRows(game?.nhDisplay, layouts, styles,
-            { forced: forcedRedraw, titleDirty });
         const display = game?.nhDisplay;
+        if (redrawsErasedFields) {
+            _repaintErasedStatusRows(display, layouts, styles, { titleDirty });
+            writeErasedStatusRows(display);
+        } else {
+            writeStatusRows(display, layouts, styles,
+                { forced: forcedRedraw, titleDirty });
+        }
         if (forcedRedraw && display?.grid && layouts.length) {
             display.setCursor(
                 Math.min(layouts.at(-1).text.length, display.cols - 1),
@@ -8301,7 +8320,7 @@ function _stat_update_time() {
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
     if (game._erasedStatusRows) {
-        _repaintErasedTimeField(game?.nhDisplay, layouts, styles);
+        _repaintErasedStatusRows(game?.nhDisplay, layouts, styles);
         writeErasedStatusRows(game?.nhDisplay);
         return;
     }
@@ -8309,57 +8328,62 @@ function _stat_update_time() {
 }
 
 // C ref: win/tty/wintty.c check_fields() and render_status() after a screen
-// clear. Only BL_TIME is dirty after stat_update_time(), so render_status()
-// redraws that field and any field after it whose position moved against
-// tty_status[BEFORE][] (update_right), and cl_end() erases the row's tail
-// when the row got shorter. The other cells stay as erase_status_rows() left
-// them.
-function _repaintErasedTimeField(display, layouts, styles) {
+// clear, for a pass without BL_RESET: bot() with disp.botlx already spent, or
+// stat_update_time(). cw->data is blank, so check_fields() redraws every field
+// botl.c sent (its value changed), and every field whose position moved against
+// tty_status[BEFORE][] (update_right); cl_end() erases a row's tail when the
+// row got shorter. The other cells stay as erase_status_rows() left them.
+function _repaintErasedStatusRows(
+    display, layouts, styles, { titleDirty = false } = {},
+) {
     const physical = game._erasedStatusRows;
     const before = physical.before;
-    const row = layouts.length - 1;
-    if (layouts.length === 3) {
-        // _renderStatusLastRow() already drew the time row over the cells
-        // erase_status_rows() blanked.
-        physical.layouts = [...physical.layouts.slice(0, row), layouts[row]];
-        physical.styles = [...physical.styles.slice(0, row), styles[row]];
-        game._statusOverlayBasis = {
-            layouts: physical.layouts, styles: physical.styles,
-        };
-        return;
-    }
     const forced = before?.layouts?.length !== layouts.length;
-    const args = [
-        row, before?.layouts?.[row], before?.styles?.[row],
-        layouts[row], styles[row], forced,
-    ];
-    if (display?.grid)
-        _clearRedrawnStatusOverlay(
-            display.rows - layouts.length, ...args, false, display.cols,
-        );
-    const { keys, redraw } = _statusRedrawnFields(...args);
-    const { text, owners } = layouts[row];
-    const oldText = physical.layouts[row].text;
-    const width = (before?.layouts?.[row]?.text.length ?? 0) > text.length
-        ? text.length : Math.max(oldText.length, text.length);
-    const chars = [];
-    const cellOwners = [];
-    const cellStyles = [];
-    for (let column = 0; column < width; ++column) {
-        const drawn = column < text.length
-            && (forced || redraw.has(keys[column]));
-        chars.push(drawn ? text[column] : (oldText[column] ?? ' '));
-        cellOwners.push(drawn ? owners[column]
-            : (physical.layouts[row].owners[column] ?? null));
-        cellStyles.push(drawn ? styles[row]?.[column]
-            : physical.styles[row]?.[column]);
+    const lastRow = layouts.length - 1;
+    const nextLayouts = [];
+    const nextStyles = [];
+    for (let row = 0; row < layouts.length; ++row) {
+        if (layouts.length === 3 && row === lastRow) {
+            // _renderStatusLastRow() already drew this row over the cells
+            // erase_status_rows() blanked.
+            nextLayouts.push(layouts[row]);
+            nextStyles.push(styles[row]);
+            continue;
+        }
+        const args = [
+            row, before?.layouts?.[row], before?.styles?.[row],
+            layouts[row], styles[row], forced,
+        ];
+        if (display?.grid)
+            _clearRedrawnStatusOverlay(
+                display.rows - layouts.length + row, ...args, titleDirty,
+                display.cols,
+            );
+        const { keys, redraw } = _statusRedrawnFields(...args, titleDirty);
+        const { text, owners } = layouts[row];
+        const oldLayout = physical.layouts[row] ?? { text: '', owners: [] };
+        const oldText = oldLayout.text;
+        const width = (before?.layouts?.[row]?.text.length ?? 0) > text.length
+            ? text.length : Math.max(oldText.length, text.length);
+        const chars = [];
+        const cellOwners = [];
+        const cellStyles = [];
+        for (let column = 0; column < width; ++column) {
+            const drawn = column < text.length
+                && (forced || redraw.has(keys[column]));
+            chars.push(drawn ? text[column] : (oldText[column] ?? ' '));
+            cellOwners.push(drawn ? owners[column]
+                : (oldLayout.owners[column] ?? null));
+            cellStyles.push(drawn ? styles[row]?.[column]
+                : physical.styles[row]?.[column]);
+        }
+        nextLayouts.push({ text: chars.join(''), owners: cellOwners });
+        nextStyles.push(cellStyles);
     }
-    physical.layouts = physical.layouts.map((layout, index) => index === row
-        ? { text: chars.join(''), owners: cellOwners } : layout);
-    physical.styles = physical.styles.map((style, index) => index === row
-        ? cellStyles : style);
-    // render_status() copies every field of the row into [BEFORE]; cw->data
-    // now holds what it drew.
+    physical.layouts = nextLayouts;
+    physical.styles = nextStyles;
+    // render_status() copies every field into [BEFORE]; cw->data now holds
+    // what it drew.
     physical.before = { layouts, styles };
     game._statusOverlayBasis = {
         layouts: physical.layouts, styles: physical.styles,
@@ -8392,9 +8416,10 @@ function writeErasedStatusRows(display) {
 // term_clear_screen() erases the terminal, and erase_tty_screen() then
 // blanks the status window's cw->data (1059-1073); tty_status[BEFORE][] and
 // status_vals[] keep their values. game._erasedStatusRows is the physical
-// status rows from then until bot() redraws every field: blank, apart from
-// any field timebot() has redrawn. botl.c bot() draws nothing while
-// u.uhp == -1, so the rows can stay blank for many turns.
+// status rows from then until a bot() pass redraws every field (disp.botlx or
+// gu.update_all): blank, apart from any field timebot() or a later bot() has
+// sent. botl.c bot() draws nothing while u.uhp == -1, yet clears the
+// disp.botlx this clear set, so the rows can stay blank for many turns.
 // game._statusOverlayBasis stands for cw->data, which check_fields()
 // compares each sent field with, so after the clear every field bot() sends
 // is redrawn over any map glyph on its cells.

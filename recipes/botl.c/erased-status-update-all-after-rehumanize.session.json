@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48213,
+      "datetime": "20260708151500",
+      "nethackrc": "OPTIONS=name:Thora,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#polyself\nkobold\n\u0017uncursed scroll of genocide\nre  dwarf\n\u0012\u0017wand of striking\nzf.     ",
+      "comment": "Control: without Unchanging, the self-zap returns the self-genocided kobold to dwarven form. set_uasmon() calls status_initialize(REASSESS_ONLY), which sets gu.update_all as well as disp.botlx. bot() skips both passes while u.uhp == -1, which clears disp.botlx but not gu.update_all, so the Die? prompt's bot() sends and draws every field."
+    }
+  ]
+}

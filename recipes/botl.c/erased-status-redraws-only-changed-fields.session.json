@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60617,
+      "datetime": "20260708143000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#polyself\nkobold\n\u0017amulet of unchanging\nPe\u0017uncursed scroll of genocide\nrf  human\n\u0012\u0017wand of striking\nzg.n  zg.n  ",
+      "comment": "An amulet of unchanging keeps a polymorphed hero who genocides her own race in kobold form with u.uhp == -1 (read.c do_genocide()). ^R clears the screen (wintty.c tty_clear_nhwindow() NHW_MAP sets disp.botlx and blanks the status window's cw->data), and botl.c bot() returns without drawing but clears that disp.botlx. The self-zap kills the kobold; rehumanize() calls done(), whose own bot() is skipped too. At the Die? prompt flush_screen()'s bot() therefore sends only the fields that changed (evaluate_and_notify_windowport()): BL_HP alone, which wintty.c check_fields() draws over the blank row."
+    }
+  ]
+}

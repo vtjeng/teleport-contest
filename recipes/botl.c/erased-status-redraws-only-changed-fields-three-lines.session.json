@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73009,
+      "datetime": "20260708143000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,statuslines:3,time\n",
+      "moves": "#polyself\nkobold\n\u0017amulet of unchanging\nPf\u0017uncursed scroll of genocide\nrg  human\n\u0012\u0017wand of striking\nzh.n  zh.n  ",
+      "comment": "Three status lines and the turn counter: the same erased-status pass as erased-status-redraws-only-changed-fields draws BL_HP alone on the middle row, and timebot() later draws T: alone on the last row."
+    }
+  ]
+}
