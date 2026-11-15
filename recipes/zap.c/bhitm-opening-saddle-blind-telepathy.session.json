@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhitm() 428-429: a Knight eats a wished floating eye corpse for telepathy, puts on a blindfold and zaps a wand of opening at his saddled pony, which he senses but cannot see: the WAN_OPENING saddle branch takes the canspotmon() arm and prints \"The pony's saddle falls off.\"",
+  "segments": [
+    {
+      "seed": 1940627,
+      "datetime": "20341215090000",
+      "nethackrc": "OPTIONS=name:Gareth,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time\n",
+      "moves": "\u001b\u0017floating eye corpse\n\u001b\u0017blindfold\n\u001b\u0017wand of opening\n\u001bei\u001b\u001b\u001bPj\u001bzkl"
+    }
+  ]
+}
