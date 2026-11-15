@@ -9,6 +9,7 @@ import {
 import { map_glyphinfo } from './display.js';
 import { def_char_to_objclass } from './drawing.js';
 import { tty_getlin } from './getline.js';
+import { ucase } from './hacklib.js';
 import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
@@ -42,7 +43,7 @@ function cByteAt(str, index) {
 // rnd(9000), so each game has its own key and decode_glyph() rejects a
 // sequence that a player types without knowing it.
 export function encglyph(glyph, state = game) {
-    const hex = (value) => (value >>> 0).toString(16).toUpperCase()
+    const hex = (value) => ucase((value >>> 0).toString(16))
         .padStart(4, '0');
     return `\\G${hex(state.context?.rndencode ?? 0)}${hex(glyph)}`;
 }
