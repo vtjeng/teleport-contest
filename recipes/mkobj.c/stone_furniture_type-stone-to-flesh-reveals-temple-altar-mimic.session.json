@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c stone_furniture_type() 1285-1286: a debug dwarvish Valkyrie builds Bazaar Town (#wizloaddes minetn-7), teleports into its temple and creates a giant mimic with ^G; set_mimic_sym() disguises a mimic in a TEMPLE room as an altar. Casting stone to flesh at it with #wizcast reaches the S_MIMIC branch of bhitm(), where stone_furniture_type() accepts the altar appearance and the mimic is revealed ('That altar actually is a giant mimic!').",
+  "segments": [
+    {
+      "seed": 7051301,
+      "datetime": "20370325152000",
+      "nethackrc": "OPTIONS=name:Sacker,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0014  HHhhjjjjjj.  \u0007giant mimic\n#wizcast\n>sh\u001b"
+    }
+  ]
+}
