@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "muse.c use_misc() MUSE_BULLWHIP against a two-weaponing hero whose main weapon is welded (2560: the whip goes for uswapwep because canletgo(uwep) fails). A level-14 Samurai drops a wished bullwhip, a ^G gnome picks it up and wields it, the Samurai wields a wished cursed long sword (welded) and starts #twoweapon with his wakizashi, and waits until the gnome flicks the whip.",
+  "segments": [
+    {
+      "seed": 5530817,
+      "datetime": "20320914190500",
+      "nethackrc": "OPTIONS=name:Hideo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!safe_wait\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017bullwhip\ndf\u0007gnome\njjsss\u0017cursed long sword\nwg Xsssssssssssssssssss  "
+    }
+  ]
+}
