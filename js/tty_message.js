@@ -32,6 +32,7 @@ import { YOU_BUF_FORMATS } from './you_buf_messages_data.js';
 import { impossible_printer, youFeel, youHear, youSee } from './pline.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
+import { decode_mixed } from './windows.js';
 import { nomux_putch_byte } from './termcap.js';
 import { msgtype_type } from './options.js';
 import { sound_speak } from './sounds.js';
@@ -602,14 +603,25 @@ export async function ttyPline(message, state = game) {
     }
 }
 
-// C ref: win/tty/wintty.c tty_putmixed(), for pager.c do_look()'s encoded
-// leading glyph. The raw one-byte symbol preserves TTY wrapping, while the
-// rendered cell gives the scorer the same visual DEC glyph as C's SO/SI span.
-export async function ttyPutmixed(
-    message, renderedFirstCell, state = game,
-) {
+// C ref: win/tty/wintty.c tty_putmixed() (4169-4196) for WIN_MESSAGE. `str`
+// holds C's encoded text, with windows.c encglyph() sequences; tty_putmixed()
+// decodes it with windows.c decode_mixed() (utf8map.c mixed_to_utf8() under a
+// UTF-8 symbol set, the same loop) and hands the result to tty_putstr().
+//
+// `renderGlyph(glyph)` gives the port's form of a decoded glyph, `{ text,
+// cell }`, or null for decode_mixed()'s gs.showsyms[] byte. `text` is what
+// goes into the message: one byte for a DEC or IBM symbol, which keeps TTY
+// wrapping, or a UTF-8 symbol's bytes. `cell` is the rendered character the
+// scorer sees for a glyph that starts the line, as C's SO/SI span shows it.
+export async function ttyPutmixed(str, state = game, renderGlyph = undefined) {
+    let firstCell = null;
+    const message = decode_mixed(str, state, renderGlyph && ((glyph, column) => {
+        const rendered = renderGlyph(glyph);
+        if (rendered && column === 0) firstCell = rendered.cell ?? null;
+        return rendered?.text;
+    }));
     // pager.c's putmixed bypasses pline.c:vpline and its last_msg reset.
-    return ttyPlineCore(message, state, 0, renderedFirstCell, false);
+    return ttyPlineCore(message, state, 0, firstCell, false);
 }
 
 export async function ttyNorep(message, state = game) {

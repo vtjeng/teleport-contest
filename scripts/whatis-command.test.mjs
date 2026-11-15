@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { utf8Text } from '../js/hacklib.js';
 
 import {
     ARROW_TRAP,
@@ -67,10 +66,12 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import { encglyph } from '../js/windows.js';
 import { cloneIsaacContext, initRng } from '../js/rng.js';
 import {
     NO_GLYPH,
     cmap_to_glyph,
+    glyph_at,
     glyph_is_monster,
     glyph_is_trap,
     glyph_to_trap,
@@ -509,6 +510,17 @@ test('blind heroes enter the production quick-glance cursor path',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+// pager.c do_screen_description() 1270 begins `out` with windows.c
+// encglyph() of the looked-at glyph, which putmixed() decodes later. Check
+// that sequence, then drop it so each expectation shows only the eight
+// spaces and the text pager.c builds after it.
+function describeLooked(state) {
+    const result = do_screen_description({ x: 3, y: 4 }, true, 0, state);
+    const encoded = encglyph(glyph_at(3, 4, state), state);
+    assert.equal(result.out.slice(0, encoded.length), encoded);
+    return { ...result, out: result.out.slice(encoded.length) };
+}
+
 function terrainDescriptionState(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
@@ -531,7 +543,7 @@ function terrainDescriptionState(cmap, flags = 0) {
 
 function terrainDescription(cmap, flags = 0) {
     const state = terrainDescriptionState(cmap, flags);
-    return do_screen_description({ x: 3, y: 4 }, true, 0, state);
+    return describeLooked(state);
 }
 
 function waterbodyState(typ, {
@@ -666,13 +678,13 @@ function statueDescription() {
     state.level.at = (x, y) => x === 3 && y === 4
         ? { disp_glyph: { glyph: statue_to_glyph(statue, state) } }
         : undefined;
-    return do_screen_description({ x: 3, y: 4 }, true, 0, state);
+    return describeLooked(state);
 }
 
 test('statue glyph keeps monster and object classes before species refinement', () => {
     assert.deepEqual(statueDescription(), {
         found: 1,
-        out: 'C        a centaur or a statue (a statue of a plains centaur)',
+        out: '        a centaur or a statue (a statue of a plains centaur)',
         firstmatch: 'a statue of a plains centaur',
     });
 });
@@ -682,7 +694,7 @@ test('branch stairs retain the symbol ambiguity and specific terrain', () => {
     // ladders use '/', so pager.c lists these two before lookat() refines it.
     assert.deepEqual(terrainDescription(S_brupstair), {
         found: 1,
-        out: '<        a staircase up or a branch staircase up (branch staircase up)',
+        out: '        a staircase up or a branch staircase up (branch staircase up)',
         firstmatch: 'branch staircase up',
     });
 });
@@ -701,9 +713,9 @@ test('quest-start downstairs is described as blocked before the quest', () => {
     state.level.at = (x, y) => (x === 3 && y === 4
         ? { disp_glyph: { glyph: cmap_to_glyph(S_dnstair, state) } }
         : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+    assert.deepEqual(describeLooked(state), {
         found: 1,
-        out: '>        a staircase down or a branch staircase down (blocked staircase down)',
+        out: '        a staircase down or a branch staircase down (blocked staircase down)',
         firstmatch: 'blocked staircase down',
     });
 });
@@ -713,8 +725,7 @@ test('room floor retains every dot ambiguity before lookat refinement', () => {
     // and S_ice, in defsym.h order.
     assert.deepEqual(terrainDescription(S_room), {
         found: 1,
-        // `out` holds the display glyph as its UTF-8 bytes.
-        out: utf8Text('·        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)'),
+        out: '        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)',
         firstmatch: 'floor of a room',
     });
 });
@@ -733,9 +744,9 @@ test('looked descriptions compare the raw tty byte behind DEC graphics', () => {
             disp_decgfx: glyphInfo.dec,
         }
         : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+    assert.deepEqual(describeLooked(state), {
         found: 1,
-        out: utf8Text('│        the interior of a monster or a wall (wall)'),
+        out: '        the interior of a monster or a wall (wall)',
         firstmatch: 'wall',
     });
 });
@@ -745,7 +756,7 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
     // after the fifth match, then lookat() appends the actual S_corr detail.
     assert.deepEqual(terrainDescription(S_corr), {
         found: 1,
-        out: '#        can be many things (corridor)',
+        out: '        can be many things (corridor)',
         firstmatch: 'corridor',
     });
 });
@@ -762,9 +773,9 @@ test('blank stone retains matching monster and misc classes before refinement', 
             disp_glyph: { glyph: cmap_to_glyph(S_stone, state) },
         }
         : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+    assert.deepEqual(describeLooked(state), {
         found: 1,
-        out: '         can be many things (stone)',
+        out: '        can be many things (stone)',
         firstmatch: 'stone',
     });
 });
@@ -790,7 +801,7 @@ test('cloud ambiguity names air and non-air terrain', () => {
     // dungeon branch uses pager.c's fog/vapor wording.
     assert.deepEqual(terrainDescription(S_cloud), {
         found: 1,
-        out: '#        can be many things (fog/vapor cloud)',
+        out: '        can be many things (fog/vapor cloud)',
         firstmatch: 'fog/vapor cloud',
     });
 
@@ -809,9 +820,9 @@ test('cloud ambiguity names air and non-air terrain', () => {
     state.level.at = (x, y) => (x === 3 && y === 4
         ? { disp_glyph: { glyph: cmap_to_glyph(S_cloud, state) } }
         : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+    assert.deepEqual(describeLooked(state), {
         found: 1,
-        out: '#        can be many things (cloudy area)',
+        out: '        can be many things (cloudy area)',
         firstmatch: 'cloudy area',
     });
 });
@@ -819,12 +830,12 @@ test('cloud ambiguity names air and non-air terrain', () => {
 test('lookat refines shared sink/fountain symbols and ordinary cmap defaults', () => {
     assert.deepEqual(terrainDescription(S_sink), {
         found: 1,
-        out: '{        a sink or a fountain (sink)',
+        out: '        a sink or a fountain (sink)',
         firstmatch: 'sink',
     });
     assert.deepEqual(terrainDescription(S_fountain), {
         found: 1,
-        out: '{        a sink or a fountain (fountain)',
+        out: '        a sink or a fountain (fountain)',
         firstmatch: 'fountain',
     });
 
@@ -832,13 +843,13 @@ test('lookat refines shared sink/fountain symbols and ordinary cmap defaults', (
     // generated defsym explanation for the actual tree tile.
     assert.deepEqual(terrainDescription(S_tree), {
         found: 1,
-        out: 'g        a tree',
+        out: '        a tree',
         firstmatch: 'tree',
     });
 });
 
 test('doorway refinement distinguishes broken and trapped-broken masks', () => {
-    const prefix = utf8Text('·        a doorway or the floor of a room or the dark part of a room or ice');
+    const prefix = '        a doorway or the floor of a room or the dark part of a room or ice';
     assert.deepEqual(terrainDescription(S_ndoor), {
         found: 1,
         out: `${prefix} (doorway)`,
@@ -868,9 +879,9 @@ test('visible dart traps refine the overloaded trap symbol', () => {
     state.level.at = (x, y) => (x === 3 && y === 4
         ? { disp_glyph: { glyph: trap_to_glyph({ ttyp: DART_TRAP }) } }
         : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+    assert.deepEqual(describeLooked(state), {
         found: 1,
-        out: '^        a trap (dart trap)',
+        out: '        a trap (dart trap)',
         firstmatch: 'dart trap',
     });
     assert.equal(typeof doquickwhatis, 'function');

@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 279,
+    otherName: 277,
     unreachable: 200,
     noVisibleEffect: 194,
     unportedVisible: 2,
@@ -1069,10 +1069,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'the colour test of the glyph map'),
     'windows.c glyph2ttychar': unreachable(NO_CALLER),
     'windows.c glyph2symidx': unreachable(NO_CALLER),
-    'windows.c encglyph': ported('js/pager.js look_all',
-        'the encoded glyph text of the status and look commands'),
-    'windows.c decode_glyph': ported('js/pager.js textWindowGlyphCell',
-        'the decoding of an encoded glyph'),
     'windows.c genl_putmixed': unreachable(GENL),
     'windows.c genl_display_file': unreachable(CMDLINE),
     'windows.c mixed_to_glyphinfo': unreachable(NO_CALLER),

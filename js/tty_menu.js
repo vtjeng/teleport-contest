@@ -54,7 +54,12 @@ import {
     ATR_INVERSE,
     NO_COLOR,
 } from './terminal.js';
-import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
+import {
+    decode_mixed,
+    menuitem_invert_test,
+    select_menu,
+    ttyMenuColorAttribute,
+} from './windows.js';
 import { pmatchi } from './strutil.js';
 import { nomux_g_putch_byte, nomux_putch_byte } from './termcap.js';
 
@@ -970,6 +975,23 @@ async function dmore(state, display, row) {
         display.setCell(index, row, MORE_PROMPT[index], NO_COLOR, 0);
     display.setCursor(MORE_PROMPT.length, row);
     return xwaitforspace(state);
+}
+
+// C ref: win/tty/wintty.c tty_putmixed() (4169-4196) for an NHW_TEXT window:
+// the line tty_putstr() stores after windows.c decode_mixed() (or utf8map.c
+// mixed_to_utf8(), the same loop) has decoded `str`. It returns one
+// displayTtyTextWindow() line. `renderGlyph(glyph, column)` gives the port's
+// form of a decoded glyph that starts at `column`, `{ text, cell }`, where
+// `cell` is the line's glyphCells entry for that glyph; null keeps
+// decode_mixed()'s gs.showsyms[] byte with no rendered cell.
+export function ttyPutmixedLine(str, state = game, renderGlyph = undefined) {
+    const glyphCells = [];
+    const text = decode_mixed(str, state, renderGlyph && ((glyph, column) => {
+        const rendered = renderGlyph(glyph, column);
+        if (rendered?.cell) glyphCells.push(rendered.cell);
+        return rendered?.text;
+    }));
+    return { text, glyphCells };
 }
 
 // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_TEXT) followed by

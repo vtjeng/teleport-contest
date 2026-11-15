@@ -41,6 +41,7 @@ import {
     UnsupportedCustomPlineFlagsError,
 } from '../js/tty_message.js';
 import { NO_COLOR } from '../js/terminal.js';
+import { encglyph } from '../js/windows.js';
 import {
     loadStartupMsgtypeRecipe,
     STARTUP_MSGTYPE_CASES,
@@ -699,7 +700,11 @@ test('a same-line append preserves a pending DEC mixed first cell', async () => 
             .join('').trimEnd(),
     });
 
-    await ttyPutmixed('q        a wall', '─', state);
+    // An encglyph() prefix that the caller renders as DEC's 'q' byte and
+    // its line-drawing cell; glyph 0 stands for any glyph, as the
+    // renderGlyph callback ignores its value.
+    await ttyPutmixed(`${encglyph(0, state)}        a wall`, state,
+        () => ({ text: 'q', cell: '─' }));
     await ttyPline('Pick a monster, object or location.', state);
     await dismissPendingTtyMessage(state);
 

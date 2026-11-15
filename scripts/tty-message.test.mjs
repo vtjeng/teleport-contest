@@ -257,7 +257,7 @@ test('raw mixed window output bypasses vpline last_msg reset', async () => {
     // window output and does not change iflags.last_msg.
     const state = messageState('', TOPLINE_EMPTY);
     state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
-    await ttyPutmixed('@  a human', '@', state);
+    await ttyPutmixed('@  a human', state);
     assert.equal(state.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
 });
 
