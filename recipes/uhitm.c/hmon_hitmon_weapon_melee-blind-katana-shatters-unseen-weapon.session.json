@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmon_hitmon_weapon_melee() unseen-shatter branch (998, 1003-1004): a debug Samurai quaffs 20 blessed potions of gain level, wears +5 gray dragon scale mail, advances long sword to Skilled without practice, puts on a blindfold and creates eight soldiers, then fights them with F in all eight directions until a dieroll of 2 shatters one's weapon (step 378, zero-based). Blind, she cannot see the soldier, so C builds 'Its weapon shatters' from s_suffix(Monnam()) instead of Yobjnam2(). The debug-mode 'Die?' prompts on the way are declined by default.",
+  "segments": [
+    {
+      "seed": 52217,
+      "datetime": "20370214093000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,time\n",
+      "moves": " \u001720 blessed potions of gain level\n qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf \u0017blessed +5 gray dragon scale mail\nTe     Wg      #enhance\nyh \u001b \u0017blindfold\nPh 8\u0007soldier\nFh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh"
+    }
+  ]
+}
