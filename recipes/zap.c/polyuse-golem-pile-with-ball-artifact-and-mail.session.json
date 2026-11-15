@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c polyuse() 1514, 1516 and 1519: a debug Valkyrie reads a wished cursed scroll of punishment (the heavy iron ball lies at her feet), wishes Sting, a scroll of mail, 100 daggers and the Bell of Opening, drops them all on the ball's square and zaps a wished wand of polymorph down. The 100 daggers make a golem likely; create_polymon() makes an iron golem and polyuse() walks the pile, skipping the ball (uball), the Bell (obj_resists() for a unique item) and the mail scroll (MAIL_STRUCTURES).",
+  "segments": [
+    {
+      "seed": 8040562,
+      "datetime": "20400909111100",
+      "nethackrc": "OPTIONS=name:Smelter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u0017cursed scroll of punishment\nre \u0017Sting\n\u0017scroll of mail\n\u0017100 daggers\n \u0017Bell of Opening\ndhdgdfdi\u0017wand of polymorph\nzj> "
+    }
+  ]
+}

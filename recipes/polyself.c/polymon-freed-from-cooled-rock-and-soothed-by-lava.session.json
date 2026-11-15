@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c polymon() 979 and 987-989: a debug Valkyrie with a wished ring of fire resistance wishes lava under herself and sinks in (TT_LAVA), then zaps a wished wand of cold down: the lava cools and she is stuck in rock (TT_INFLOOR). Polymorphing into a xorn (passes walls) frees her: 'The rock seems to no longer trap you.' As a xorn she steps east, wishes lava again and sinks in, then polymorphs into a salamander (likes lava): 'The lava now feels soothing.'",
+  "segments": [
+    {
+      "seed": 6290117,
+      "datetime": "20391104092500",
+      "nethackrc": "OPTIONS=name:Magma,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u0017ring of fire resistance\nPer\u0017lava\n \u0017wand of cold\nzf> #polyself\nxorn\nl\u0017lava\n #polyself\nsalamander\n"
+    }
+  ]
+}
