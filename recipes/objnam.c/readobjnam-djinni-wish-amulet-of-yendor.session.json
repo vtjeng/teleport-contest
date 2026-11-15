@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "objnam.c readobjnam() for a wish outside debug mode. Seed 7312255 was found by a bounded port scan of gnomish Healer seeds 7310001-7317000 on Friday 13 August 2032 (Luck -1): its smoky potion of healing (letter d) releases a djinni on quaff 2 that grants a wish. The real Amulet is replaced by a fake one outside debug mode (5004-5006).",
+  "segments": [
+    {
+      "seed": 7312255,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " qdqd\r\r\rAmulet of Yendor\n"
+    }
+  ]
+}

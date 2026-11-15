@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "objnam.c readobjnam() for a wish outside debug mode. Seed 7312696 was found by a bounded port scan of gnomish Healer seeds 7310001-7317000 on Friday 13 August 2032 (Luck -1): its smoky potion of healing (letter e) releases a djinni on quaff 3 that grants a wish. A magic lamp becomes an oil lamp outside debug mode (5016-5017).",
+  "segments": [
+    {
+      "seed": 7312696,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " qeqeqe\r\r\rmagic lamp\n"
+    }
+  ]
+}

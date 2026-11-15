@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "objnam.c readobjnam() for a wish outside debug mode. Seed 7312827 was found by a bounded port scan of gnomish Healer seeds 7310001-7317000 on Friday 13 August 2032 (Luck -1): its smoky potion of healing (letter d) releases a djinni on quaff 3 that grants a wish. The Bell of Opening becomes an ordinary bell outside debug mode (5010-5011).",
+  "segments": [
+    {
+      "seed": 7312827,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " qdqdqd\r\r\rBell of Opening\n"
+    }
+  ]
+}
