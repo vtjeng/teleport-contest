@@ -26,9 +26,9 @@ function snapshotFor(plname, role, race, female, align, mode = {}) {
         plname,
         urole: { filecode: role },
         urace: { filecode: race },
-        flags: { female },
+        // wizard and discover are flags.debug and flags.explore.
+        flags: { female, ...mode },
         u: { ualign: { type: align } },
-        ...mode,
     });
 }
 const text = (buffer) => buffer.split('\0')[0];
@@ -89,8 +89,8 @@ test('plname_from_file() rebuilds the store_plname_in_file() header', () => {
     // One file per play mode, and one that does not parse. A neutral male
     // gnome tests aligns[1 - 0]; debug mode outranks explore mode.
     storage.setItem('vfs:save/1Pip', snapshotFor('Pip', 'Hea', 'Gno', false, 0));
-    storage.setItem('vfs:save/1Ex', snapshotFor('Ex', 'Val', 'Dwa', true, 1, { discover: true }));
-    storage.setItem('vfs:save/1wizard', snapshotFor('wizard', 'Pri', 'Hum', false, 0, { wizard: true, discover: true }));
+    storage.setItem('vfs:save/1Ex', snapshotFor('Ex', 'Val', 'Dwa', true, 1, { explore: true }));
+    storage.setItem('vfs:save/1wizard', snapshotFor('wizard', 'Pri', 'Hum', false, 0, { debug: true, explore: true }));
     storage.setItem('vfs:save/1Bad', '{');
     setStorageForTesting(storage);
     try {

@@ -72,7 +72,8 @@ export function plname_from_file(filename) {
     ].map((code) => `-${String(code ?? '').slice(0, 3)}`);
     const hero = (String(snapshot.plname ?? '') + codes.join(''))
         .slice(0, PL_NSIZ_PLUS - 2);
-    const mode = snapshot.wizard ? 'D' : snapshot.discover ? 'X' : '-';
+    // wizard and discover are C's flags.debug and flags.explore.
+    const mode = snapshot.flags?.debug ? 'D' : snapshot.flags?.explore ? 'X' : '-';
     return hero.padEnd(PL_NSIZ_PLUS - 1, '\0') + mode;
 }
 
