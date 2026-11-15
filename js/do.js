@@ -407,7 +407,7 @@ import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 import { canseemon, canspotmon } from './display.js';
 import {
-    BLevitation, Blind, Deaf, EBlinded, ELevitation, EWounded_legs,
+    BLevitation, Blind, Deaf, ELevitation, EWounded_legs,
     Fire_resistance, Flying, Fumbling, HBlinded, HLevitation, HWounded_legs,
     Hallucination, Levitation, Maybe_Half_Phys, Wounded_legs,
 } from './youprop.js';
@@ -817,9 +817,7 @@ async function familiar_level_msg(state) {
     const halluc = Hallucination(state.u);
     let mesg = halluc ? halu_fam_msgs[which] : fam_msgs[which];
     if (mesg && mesg.includes('%s')) {
-        const blind = Boolean(HBlinded(state.u)
-            || EBlinded(state.u));
-        mesg = mesg.replace('%s', !blind ? 'looks' : 'seems');
+        mesg = mesg.replace('%s', !Blind(state.u) ? 'looks' : 'seems');
     }
     if (mesg)
         await ttyPline(mesg, state);

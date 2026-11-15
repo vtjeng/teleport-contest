@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c mhitm_ad_sedu() 4657-4661: a cancelled water nymph's touch tests !Blind, and a female Monk wearing the Eyes of the Overworld after quaffing blindness is not Blind (youprop.h 103, BBlinded), so C prints 'The plain water nymph tries to charm you, but you seem unaffected.'",
+  "segments": [
+    {
+      "seed": 4418201,
+      "datetime": "20410613101500",
+      "nethackrc": "OPTIONS=name:Ikuko,role:Monk,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017Eyes of the Overworld\n\u001b\u0017potion of blindness\n\u001b\u0017wand of cancellation\n\u001bPk\u001bql\u001b\u0007water nymph\n\u001bzmh\u001bms\u001bms\u001b"
+    }
+  ]
+}

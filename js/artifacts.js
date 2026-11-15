@@ -293,7 +293,7 @@ import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 import {
     Antimagic, BBlinded, BInvis, Blind, Cold_resistance, Drain_resistance,
-    EBlinded, ELevitation, Fire_resistance, HBlinded, HConfusion, HLevitation,
+    ELevitation, Fire_resistance, HBlinded, HConfusion, HLevitation,
     HStun, Hallucination, Levitation, Maybe_Half_Phys, Poison_resistance,
     Shock_resistance, Sick, Slimed, Stone_resistance,
 } from './youprop.js';
@@ -2978,8 +2978,7 @@ export async function Sting_effects(orc_count, state = game, env = {}) {
         const oldstr = glow_strength(warn_cnt);
         const newstr = glow_strength(orc_count);
 
-        const blind = HBlinded(state.u) !== 0
-            || EBlinded(state.u) !== 0;
+        const blind = Blind(state.u);
 
         if (orc_count === -1 && warn_cnt > 0) {
             await message(

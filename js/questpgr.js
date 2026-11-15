@@ -27,7 +27,7 @@ import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
-import { EBlinded, HBlinded } from './youprop.js';
+import { Blind } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
 
 // C ref: questpgr.c quest_info(). Role quest identities remain fixed even
@@ -199,10 +199,7 @@ function convertArg(c, state) {
     case 'N': return 'neutral';
     case 'L': return 'lawful';
     case 'x': {
-        const blind = Boolean(
-            (HBlinded(state.u) || EBlinded(state.u))
-            && !state.u?.uroleplay?.blind);
-        return blind ? 'sense' : 'see';
+        return Blind(state.u) ? 'sense' : 'see';
     }
     case 'Z': return dungeon_at(0, state)?.dname
         ?? 'The Dungeons of Doom';

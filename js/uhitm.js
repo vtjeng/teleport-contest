@@ -689,7 +689,7 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
 import {
     Acid_resistance, Antimagic, Blind, Blind_telepat, Cold_resistance,
-    Confusion, Deaf, Detect_monsters, Drain_resistance, EBlinded, EFumbling,
+    Confusion, Deaf, Detect_monsters, Drain_resistance, EFumbling,
     EMagical_breathing, ESwimming, Fire_resistance, Flying, Free_action,
     HBlinded, HConfusion, HFast, HFumbling, HMagical_breathing, HStun,
     HSwimming, Half_physical_damage, Hallucination, Invisible, Levitation,
@@ -4169,11 +4169,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             mhm.done = true;
             return;
         } else if (magr.mcan) {
-            const blind = Boolean(
-                HBlinded(state.u)
-                || EBlinded(state.u),
-            );
-            if (!blind) {
+            if (!Blind(state.u)) {
                 const adj = Adjmonnam(magr, 'plain', state);
                 const verb = state.flags?.female ? 'charm' : 'seduce';
                 const seem = state.flags?.female ? 'unaffected' : 'uninterested';
