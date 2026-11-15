@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "topten.c outentry() for a normal-mode petrification ('turned to stone', 999-1001). Seed 7314036 comes from the same bounded port scan as recipes/objnam.c/readobjnam-djinni-wish-*: the gloved gnomish Healer's first smoky potion of healing gives a djinni wish, she wishes for a cockatrice corpse and eats it, answers n to each disclosure question (q would set done_stopprint and skip the score list), and the score list prints her entry.",
+  "segments": [
+    {
+      "seed": 7314036,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " qd\r\r\rcockatrice corpse\nel\r\rnnn\r\r\r"
+    }
+  ]
+}
