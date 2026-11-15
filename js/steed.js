@@ -167,13 +167,8 @@ import { canspotmon } from './display.js';
 import {
     Blind, Blind_telepat, Confusion, Flying, Fumbling, Glib, HWounded_legs,
     Hallucination, Lev_at_will, Levitation, Maybe_Half_Phys, Stealth,
-    Stone_resistance, Stunned, Wounded_legs,
+    Stone_resistance, Stunned, Wounded_legs, Punished,
 } from './youprop.js';
-
-// youprop.h:77. The punishing ball is the whole test.
-export function Punished(state) {
-    return Boolean(state.uball);
-}
 
 
 function saddleEnv(env = {}) {

@@ -367,7 +367,7 @@ import {
     u_on_upstairs,
     u_on_sstairs,
 } from './stairs.js';
-import { Punished, dismount_steed, stucksteed } from './steed.js';
+import { dismount_steed, stucksteed } from './steed.js';
 import { enexto, rloc, safe_teleds } from './teleport.js';
 import { burn_away_slime, obj_has_timer, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
@@ -409,7 +409,7 @@ import { canseemon, canspotmon } from './display.js';
 import {
     BLevitation, Blind, Deaf, ELevitation, EWounded_legs,
     Fire_resistance, Flying, Fumbling, HBlinded, HLevitation, HWounded_legs,
-    Hallucination, Levitation, Maybe_Half_Phys, Wounded_legs,
+    Hallucination, Levitation, Maybe_Half_Phys, Wounded_legs, Punished,
 } from './youprop.js';
 
 // C ref: do.c revive_corpse() (2111-2250). revive() deletes the corpse on

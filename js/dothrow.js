@@ -474,11 +474,10 @@ import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 import { canseemon, canspotmon } from './display.js';
-import { Punished } from './steed.js';
 import {
     Blind, Confusion, Deaf, EWwalking, Flying, Fumbling, HBlinded,
     Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
-    Stone_resistance, Stunned, Wwalking,
+    Stone_resistance, Stunned, Wwalking, Punished,
 } from './youprop.js';
 
 
