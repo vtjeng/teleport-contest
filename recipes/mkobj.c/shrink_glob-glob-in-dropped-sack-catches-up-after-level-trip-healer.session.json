@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of shrink_glob-glob-in-sack-in-sack-shrinks-valkyrie: mkobj.c shrink_glob() 1549. A debug gnome Healer stashes a wished glob of gray ooze in a wished sack, drops the sack, level-teleports to Dlvl 2, searches about 100 turns and returns. The glob's timer expired while the level was saved, so on arrival shrink_glob() catches up the lost shrinkage and updates the weight of the floor sack that holds it (1549).",
+  "segments": [
+    {
+      "seed": 5038867,
+      "datetime": "20381027150000",
+      "nethackrc": "OPTIONS=name:Wenna,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017glob of gray ooze\n\u0017sack\nansmdn\u00162\n20s20s20s20s20s20s\u00161\n"
+    }
+  ]
+}
