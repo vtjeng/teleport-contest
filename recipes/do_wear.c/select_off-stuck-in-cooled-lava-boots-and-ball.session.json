@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_wear.c select_off() 2752-2755 and dothrow.c throwit() 1669: a hero stuck in the floor (TT_INFLOOR). A debug Valkyrie wears wished iron shoes (lava would burn leather boots), puts on a ring of fire resistance, reads a wished uncursed scroll of punishment and picks up the ball, wishes lava under herself (she sinks in, TT_LAVA) and zaps a wand of cold down: zap_over_floor() solidifies the lava and sets TT_INFLOOR ('You are firmly stuck in the cooling rock.'). Taking off the shoes is refused ('You are stuck in the floor'), and throwing the carried ball gets range 1.",
+  "segments": [
+    {
+      "seed": 7400127,
+      "datetime": "20420405100000",
+      "nethackrc": "OPTIONS=name:Sif,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": " h\u0017iron shoes\n\u0017ring of fire resistance\n\u0017wand of cold\n\u0017uncursed scroll of punishment\nWePfrrh ,\u0017lava\n zg> Tetil"
+    }
+  ]
+}
