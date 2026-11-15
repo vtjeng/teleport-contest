@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mondata.c Resists_Elem() 183-184: a debug Samurai with no cold resistance starts two-weapon combat (X), wishes for ice under himself and steps off it. domove() calls slippery_ice_fumbling() (hack.c 2743), which asks resists_cold(&youmonst); the hero lacks the intrinsic, so the item loop adds W_SWAPWEP to the slot mask for the two-weaponing hero.",
+  "segments": [
+    {
+      "seed": 6100433,
+      "datetime": "20410611090000",
+      "nethackrc": "OPTIONS=name:Rin,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "X\u0017ice\nl"
+    }
+  ]
+}

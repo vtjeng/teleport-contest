@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of getmattk-high-energy-hero-energy-vortex: a gnome Healer reaches 138 of 138 energy from the same potions, and the vortex's first engulf drains it ('You feel your magical energy drain away'), so getmattk() 359-364 runs for a different role, race and energy total.",
+  "segments": [
+    {
+      "seed": 6100507,
+      "datetime": "20420104063000",
+      "nethackrc": "OPTIONS=name:Ula,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001715 blessed potions of gain energy\nqkqkqkqkqkqkqkqkqkqkqkqkqk\u0007energy vortex\nmsms  "
+    }
+  ]
+}
