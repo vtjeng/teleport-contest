@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c really_kick_object() 783, 764 and 740: a debug Valkyrie level-teleports into Akalapi's general store on Dlvl 3 (seed from a port scan of 5520001-5520300 for a ^V arrival in a shop). She stashes 20 wished gold pieces in a wished bag, drops it (the shopkeeper credits the gold; she declines to sell the bag) and kicks it along the shop: the refund of contained gold runs donate_gold() (783). She drops a single wished gold piece in line with the door and, once the keeper has stepped off his post, kicks it out through the door, reducing her credit (costly_gold(), 764). Outside, she drops a wished pick-axe on the doorway, steps back and kicks it in; the keeper catches it (shkcatch()), and bhit() leaves no kicked object, so the kick returns at 740. 745 is not reached here.",
+  "segments": [
+    {
+      "seed": 5520002,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u00163\n  \u0017sack\n\u001720 gold pieces\nafs$hdf  nl\u0004h \u00171 gold piece\nbhhhhhhd$ ls\u0004hhhhhh\u0017pick-axe\nl  dgh\u0004l"
+    }
+  ]
+}
