@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c use_pole() 3485-3487: a spot the hero sees but could not see. A debug neutral Monk wishes and puts on the Eyes of the Overworld (x-ray vision) and applies a wished glaive at the corridor square two south of her, beyond the room's bottom wall: cansee() holds through x-ray but couldsee() does not, so 'You can't reach that spot from here.'",
+  "segments": [
+    {
+      "seed": 7400122,
+      "datetime": "20420326100000",
+      "nethackrc": "OPTIONS=name:Tove,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u0017Eyes of the Overworld\n \u0017glaive\nPjak jj."
+    }
+  ]
+}

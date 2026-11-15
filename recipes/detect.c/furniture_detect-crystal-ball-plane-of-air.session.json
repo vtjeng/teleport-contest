@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c furniture_detect() 1119: a crystal ball finding no furniture. A debug elven Wizard level-teleports to the Plane of Air (wizard mode hands over the Amulet; its wish is answered 'nothing'), which has no stairs, altars, fountains or other furniture, wishes a blessed crystal ball and applies it, looking for '{': use_crystal_ball() calls furniture_detect(), which finds nothing and prints 'There seems to be nothing of interest on this level.' Air elementals then engulf her; debug mode's Die? prompts are answered n.",
+  "segments": [
+    {
+      "seed": 7400123,
+      "datetime": "20420401100000",
+      "nethackrc": "OPTIONS=name:Zeno,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": " \u0016?\n>>M      nothing\n\u0017blessed crystal ball\naq {      n     n "
+    }
+  ]
+}

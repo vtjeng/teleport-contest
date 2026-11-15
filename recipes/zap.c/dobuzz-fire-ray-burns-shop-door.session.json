@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c dobuzz() 5029-5035: pay_for_damage() after a ray destroys a shop door. A debug Valkyrie level-teleports to Dlvl 3, arriving inside Chibougamau's general store beside the keeper (seed chosen from a port scan of 7400200-7400320 for a shop arrival), wishes a wand of fire and zaps it northwest into the closed shop door: zap_over_floor() burns it (D_NODOOR, add_damage(), *shopdamage), so dobuzz() calls pay_for_damage(\"burn away\").",
+  "segments": [
+    {
+      "seed": 7400304,
+      "datetime": "20420320100000",
+      "nethackrc": "OPTIONS=name:Ines,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u00163\n \u0017wand of fire\nzey "
+    }
+  ]
+}

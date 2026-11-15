@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dothrow.c throwit() 1745-1746: a returning Mjollnir that hits the thrower. A debug Valkyrie wears wished gauntlets of power (St 25, so Mjollnir can be thrown), wields a wished Mjollnir and puts on a blindfold, so 'impaired' holds and the catch fails; she throws it east, picks it up and rewields it until rn2(2) gives damage, so the hammer 'hits your arm' and artifact_hit() applies its lightning to her before losehp(); debug mode's Die? prompt is answered n.",
+  "segments": [
+    {
+      "seed": 7400115,
+      "datetime": "20411217111100",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u0017gauntlets of power\n\u0017Mjollnir\n\u0017blindfold\nWewfPgtfl,wftfl,wftfl   n"
+    }
+  ]
+}

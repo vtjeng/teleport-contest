@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of dobuzz-fire-ray-burns-shop-door with a wand of lightning: the door splinters (D_BROKEN) and the verb chain in dobuzz() 5029-5035 falls through to \"destroy\".",
+  "segments": [
+    {
+      "seed": 7400304,
+      "datetime": "20420320100000",
+      "nethackrc": "OPTIONS=name:Ines,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u00163\n \u0017wand of lightning\nzey "
+    }
+  ]
+}

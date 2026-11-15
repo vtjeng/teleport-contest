@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of spelleffects-skilled-cone-of-cold-cut-short-engulfed with fireball: zapyourself() handles SPE_FIREBALL with explode() and returns 0, so 1429-1433 do not run; the engulfing dust vortex is destroyed by the first blast.",
+  "segments": [
+    {
+      "seed": 7400110,
+      "datetime": "20410901150000",
+      "nethackrc": "OPTIONS=name:Oda,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "#enhance\nyp\n\u001b\u0017blessed spellbook of fireball\n\u00173 blessed potions of gain energy\nro qpqpqp\u0007dust vortex\nmsms Zc.         "
+    }
+  ]
+}

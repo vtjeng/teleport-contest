@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of weapon_hit_bonus-twoweapon-skilled-samurai for the riding switch: weapon.c weapon_hit_bonus() 1628-1629 and weapon_dam_bonus() 1722-1724, the P_EXPERT riding case. A debug Knight advances riding twice without practice (Basic to Expert) with #enhance, forces #ride onto the saddled starting pony, and kills a ^G gnome lord with the long sword while mounted.",
+  "segments": [
+    {
+      "seed": 7400102,
+      "datetime": "20410419083000",
+      "nethackrc": "OPTIONS=name:Galen,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time",
+      "moves": "#enhance\nyc\nc\n\u001b#ride\nny\u0007gnome lord\nFyFyFy"
+    }
+  ]
+}

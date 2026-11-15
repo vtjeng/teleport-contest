@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "potion.c potionhit() 1685-1688: a potion of oil hitting the hero (isyou). A debug dwarven Archeologist wishes four uncursed potions of oil and throws one straight up: toss_up() lets it fall back on her head and calls potionhit(&youmonst), reaching the POT_OIL case unlit (1685, 1688). She escapes the naming prompt, lights another with apply and throws it up too, so explode_oil() runs (1686-1687), igniting a carried potion; debug mode's Die? prompt is answered n.",
+  "segments": [
+    {
+      "seed": 7400119,
+      "datetime": "20420212100000",
+      "nethackrc": "OPTIONS=name:Inga,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": " \u00174 uncursed potions of oil\nti<  \u001bai \u001btj<      n"
+    }
+  ]
+}

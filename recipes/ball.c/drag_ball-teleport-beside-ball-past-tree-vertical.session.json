@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of drag_ball-teleport-beside-ball-past-tree: a dwarven Caveman on another seed builds the same case vertically (tree north of the ball, hero two squares south, ^T to two squares north of the ball), reaching ball.c drag_ball() 839-840 again.",
+  "segments": [
+    {
+      "seed": 7400105,
+      "datetime": "20410702093000",
+      "nethackrc": "OPTIONS=name:Ugo,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u0017uncursed scroll of punishment\n\u0017tree\njrf jj\u0014 kkkk.  "
+    }
+  ]
+}

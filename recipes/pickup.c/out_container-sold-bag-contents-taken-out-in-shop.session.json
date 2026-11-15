@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c out_container() 2763-2766: taking a shop-owned item out of a floor container on a costly square. A debug Valkyrie level-teleports into Chibougamau's general store on Dlvl 3 (the shop seed of dobuzz-fire-ray-burns-shop-door), wishes a bag and a dagger (which merges with her own), puts both daggers in the bag and drops it; she sells the bag and contents to the keeper, then #loots the now shop-owned bag and takes the daggers out: they are not unpaid and the bag is not carried and on a costly spot, so addtobill() bills them ('The daggers will cost you 5 zorkmids each.').",
+  "segments": [
+    {
+      "seed": 7400304,
+      "datetime": "20420320100000",
+      "nethackrc": "OPTIONS=name:Ines,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u00163\n \u0017sack\n\u0017uncursed dagger\n aeib\nb\nde y#loot\noa\n "
+    }
+  ]
+}
