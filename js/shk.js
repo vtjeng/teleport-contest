@@ -239,7 +239,6 @@ import {
     PM_KOP_SERGEANT,
     PM_KNIGHT,
     PM_ROGUE,
-    PM_SHOPKEEPER,
     PM_TOURIST,
     S_KOP,
 } from './monsters.js';
@@ -3060,9 +3059,7 @@ export async function u_entered_shop(
     } else if (!Deaf(state.u) && !muteshk(shopkeeper)) {
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(
-            `${Hello(state.urole, {
-                shopkeeper: shopkeeper.data === state.mons[PM_SHOPKEEPER],
-            })}, ${playerName}!  `
+            `${Hello(state.urole, shopkeeper)}, ${playerName}!  `
             + `Welcome${extension.visitct++ ? ' again' : ''} to `
             + `${s_suffix(shkname(shopkeeper, state, namingEnv))} ${shopName}!`,
             state, { message },
@@ -3489,13 +3486,13 @@ export async function shk_chat(shkp, state = game, env = {}) {
         if (!isCustomer) {
             if (speaks()) {
                 set_voice(shkp, 0, 80, 0, state);
-                await verbalize(`${Hello(state.urole, { shopkeeper: true })} ${
+                await verbalize(`${Hello(state.urole, shkp)} ${
                     state.plname}!  I was looking for ${eshk.customer}.`, state, env);
             }
             eshk.following = 0;
         } else if (speaks()) {
             set_voice(shkp, 0, 80, 0, state);
-            await verbalize(`${Hello(state.urole, { shopkeeper: true })} ${
+            await verbalize(`${Hello(state.urole, shkp)} ${
                 state.plname}!  Didn't you forget to pay?`, state, env);
         } else {
             await message(`${Shknam(shkp, state, env)} taps you on the ${
@@ -3955,7 +3952,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                 if (!Deaf(state.u) && !muteshk(shkp)) {
                     set_voice(shkp, 0, 80, 0, state);
                     await verbalize(
-                        `${Hello(state.urole, { shopkeeper: true })}, ${state.plname}!  I was looking for ${eshkp.customer}.`,
+                        `${Hello(state.urole, shkp)}, ${state.plname}!  I was looking for ${eshkp.customer}.`,
                         state, { message: env.message ?? ttyPline },
                     );
                 }
@@ -3967,7 +3964,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                 if (!Deaf(state.u) && !muteshk(shkp)) {
                     set_voice(shkp, 0, 80, 0, state);
                     await verbalize(
-                        `${Hello(state.urole, { shopkeeper: true })}, ${state.plname}!  Didn't you forget to pay?`,
+                        `${Hello(state.urole, shkp)}, ${state.plname}!  Didn't you forget to pay?`,
                         state, { message: env.message ?? ttyPline },
                     );
                 } else {

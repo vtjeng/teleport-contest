@@ -18,6 +18,8 @@ import {
     MS_LEADER,
     MS_NEMESIS,
     NUMMONS,
+    PM_MAIL_DAEMON,
+    PM_SHOPKEEPER,
 } from './monsters.js';
 import { SPE_LIGHT } from './objects.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
@@ -533,17 +535,19 @@ export function role_init(state, random = rn2) {
     return state;
 }
 
-export function Hello(
-    role,
-    { shopkeeper = false, mailDaemon = false } = {},
-) {
+// C ref: role.c Hello(mtmp). The speaker's current form picks the Samurai and
+// Valkyrie greetings, so a polymorphed shopkeeper says "Konnichi wa"; callers
+// pass the speaking monster, or nothing for the game's own welcome.
+export function Hello(role, mtmp = null) {
     const index = roleIndex(role?.urole ?? role);
     const mnum = index >= 0 ? roles[index].mnum : role?.mnum;
+    const speaker = mtmp?.data?.pmidx;
     if (mnum === PM_KNIGHT) return 'Salutations';
     if (mnum === PM_SAMURAI)
-        return shopkeeper ? 'Irasshaimase' : 'Konnichi wa';
+        return speaker === PM_SHOPKEEPER ? 'Irasshaimase' : 'Konnichi wa';
     if (mnum === PM_TOURIST) return 'Aloha';
-    if (mnum === PM_VALKYRIE) return mailDaemon ? 'Hallo' : 'Velkommen';
+    if (mnum === PM_VALKYRIE)
+        return speaker === PM_MAIL_DAEMON ? 'Hallo' : 'Velkommen';
     return 'Hello';
 }
 

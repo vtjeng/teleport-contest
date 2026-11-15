@@ -5,7 +5,7 @@ import test from 'node:test';
 import { P_CLERIC_SPELL } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
-import { monst_globals_init } from '../js/monsters.js';
+import { monst_globals_init, PM_MAIL_DAEMON } from '../js/monsters.js';
 import { objects_globals_init, SPE_LIGHT } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -354,7 +354,8 @@ test('PM-index helpers and compiled greeting cases are supported', () => {
     assert.equal(raceIndex(260), 0);
     assert.equal(raceIndex(264), 1);
     assert.equal(Hello(341), 'Aloha');
-    assert.equal(Hello(342, { mailDaemon: true }), 'Hallo');
+    // role.c Hello(): a Valkyrie greets only the mail daemon with 'Hallo'.
+    assert.equal(Hello(342, { data: { pmidx: PM_MAIL_DAEMON } }), 'Hallo');
 });
 
 test('fresh C recorder cases match the role_init PRNG prefix', () => {
