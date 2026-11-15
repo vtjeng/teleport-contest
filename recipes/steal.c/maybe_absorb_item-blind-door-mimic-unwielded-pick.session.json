@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c maybe_absorb_item(), blind variation: as maybe_absorb_item-door-mimic-takes-lock-pick, but the Rogue wears a wished blindfold and applies the unwielded lock pick, so the mimic's square is not seen: 'Your lock pick is pulled from your hand!' (794-798). The one rest chooses the 50% obj_resists() outcome.",
+  "segments": [
+    {
+      "seed": 4418021,
+      "datetime": "20290611054500",
+      "nethackrc": "OPTIONS=name:Corvin,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001b\u0017blindfold\n.kkk8\u0007small mimic\n\u001bPgaek"
+    }
+  ]
+}

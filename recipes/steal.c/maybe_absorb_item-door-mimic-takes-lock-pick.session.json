@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c maybe_absorb_item() via lock.c pick_lock(): a Rogue stands under a doorway and creates eight small mimics with a counted ^G; the one placed in the doorway mimics a closed door (makemon.c set_mimic_sym()). Applying the wielded lock pick at it reveals the mimic (stumble_onto_mimic()), which absorbs the pick: remove_worn_item() and 'pulls your lock pick away from you and absorbs it!' (782-810 less the blind and unpaid branches). The two rests choose the 50% obj_resists() outcome.",
+  "segments": [
+    {
+      "seed": 4418021,
+      "datetime": "20290208201000",
+      "nethackrc": "OPTIONS=name:Corvin,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b..kkk8\u0007small mimic\n\u001bweaek\r\r"
+    }
+  ]
+}
