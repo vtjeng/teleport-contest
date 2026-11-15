@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "artifact.c finesse_ahriman() 2254-2259, with do.c drop() 765 and 771: a debug neutral Barbarian wishes for the Heart of Ahriman (its own quest artifact, so touching it is safe), #invokes it to start levitating (ELevitation W_ARTI), then drops it. drop() cannot reach the floor, so it asks finesse_ahriman() whether letting go ends the levitation; with no other source, the probe finds Levitation would stop (TRUE), so drop() sets ELevitation to W_ART, lets the stone hit the floor, then floats the hero down.",
+  "segments": [
+    {
+      "seed": 5560921,
+      "datetime": "20400128154500",
+      "nethackrc": "OPTIONS=name:Brun,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017Heart of Ahriman\n\n#invoke\nfdf    "
+    }
+  ]
+}
