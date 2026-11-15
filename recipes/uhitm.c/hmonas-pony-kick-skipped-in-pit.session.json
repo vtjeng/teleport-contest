@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmonas() skipping a kick while the hero is trapped in a pit (5558-5560): a debug elven Wizard falls into a wished pit, polymorphs into a pony (bite and kick), and attacks a newt beside the pit; only the bite is used.",
+  "segments": [
+    {
+      "seed": 3858201,
+      "datetime": "20370721150000",
+      "nethackrc": "OPTIONS=name:Vesna,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001bh\u0017pit\nlh#polyself\npony\n\u001b\u0007newt\nFn"
+    }
+  ]
+}
