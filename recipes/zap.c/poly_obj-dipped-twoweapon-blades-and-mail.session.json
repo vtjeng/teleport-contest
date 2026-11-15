@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c poly_obj() 1936, 1941 and 1751-1753: a debug Samurai starts two-weapon combat with her katana and wakizashi, wishes three potions of polymorph and dips each blade: the new primary keeps two-weapon combat (1936, a dart) and so does the new secondary (1941, a ya). She drops a wished scroll of mail and zaps a wished wand of polymorph down at it; the MAIL_STRUCTURES branch turns the new scroll back into mail. The ':' look ends the recipe.",
+  "segments": [
+    {
+      "seed": 4402871,
+      "datetime": "20360722083000",
+      "nethackrc": "OPTIONS=name:Smith,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " #twoweapon\n\u00173 potions of polymorph\n\u0017scroll of mail\n#dip\naf#dip\nbfdg\u0017wand of polymorph\nzh>: "
+    }
+  ]
+}
