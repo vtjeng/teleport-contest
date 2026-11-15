@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c flip_level() for conjoined pits (603-605, 612-614, and flip_encoded_dir_bits()): a debug Archeologist wishes for two adjacent pits, falls into the second, digs toward the first with the pick-axe so the two are conjoined ('You clear some debris from between the pits'), then #wizfliplevel 3 flips the level on both axes. She then tries to step into the first pit, now east of her, which reads the flipped pit state.",
+  "segments": [
+    {
+      "seed": 4417730,
+      "datetime": "20331102193000",
+      "nethackrc": "OPTIONS=name:Doran,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001bl\u0017pit\nl\u0017pit\nlhae\r\rh#wizfliplevel\n3ly"
+    }
+  ]
+}
