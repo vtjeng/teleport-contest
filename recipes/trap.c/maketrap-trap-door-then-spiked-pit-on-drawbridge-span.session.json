@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of maketrap-pit-wished-on-iced-drawbridge-span: the same castle route, but the first wish is a 'trap door' (maketrap() 521-522 hole_destination() on the span; the flying dragon does not fall) and a second wished 'spiked pit' replaces it at the same spot (oldplace), reaching 536-539 again with DB_FLOOR under the bridge, so was_ice is false.",
+  "segments": [
+    {
+      "seed": 4410007,
+      "datetime": "20380911093000",
+      "nethackrc": "OPTIONS=name:Spanner,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0016?\nj   \u0017wand of death\nzfk #polyself\nred dragon\n   \u0017scroll of magic mapping\nrg _  Hhhkkk._.  \u001bh\u0017ice\n\u0017trap door\n\u0017spiked pit\n"
+    }
+  ]
+}

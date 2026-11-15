@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c maketrap() 536-545: a debug Valkyrie level-teleports to the castle (this seed flips it, so the hero starts in the east maze), kills the adjacent minotaur with a wished wand of death, #polyselfs into a red dragon (flying, 96 HP) and reads magic mapping, then travels to the land east of the raised drawbridge and flies onto its span square. Wishing 'ice' there sets only the drawbridgemask (Ice in front of the drawbridge), so is_pool_or_lava() is false and a wished 'pit' reaches the DRAWBRIDGE_UP branch of maketrap(): the span keeps its drawbridgemask, DB_ICE becomes DB_FLOOR, and was_ice runs obj_ice_effects() and spot_stop_timers().",
+  "segments": [
+    {
+      "seed": 4410007,
+      "datetime": "20380911093000",
+      "nethackrc": "OPTIONS=name:Spanner,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0016?\nj   \u0017wand of death\nzfk #polyself\nred dragon\n   \u0017scroll of magic mapping\nrg _  Hhhkkk._.  \u001bh\u0017ice\n\u0017pit\n"
+    }
+  ]
+}
