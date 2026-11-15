@@ -281,7 +281,9 @@ import {
     SCATTER_MAY_HIT,
     scatter,
 } from './explode.js';
-import { impossible, livelog_printf, verbalize } from './pline.js';
+import {
+    impossible, livelog_printf, verbalize, norep_printer,
+} from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { setuwep, welded, weldmsg } from './wield.js';
@@ -455,7 +457,7 @@ export async function describe_decor(state = game, env = {}) {
     }
 
     const message = env.message ?? ttyPline;
-    const norepMessage = env.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(env);
     // C calls dfeature_at() before its unchanged non-furniture arm, even when
     // that arm suppresses output. Keep that live side effect (ICE's rating
     // and display-RNG description) out of describeDecorPlan(), which is also

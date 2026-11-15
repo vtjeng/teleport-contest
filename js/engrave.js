@@ -77,7 +77,9 @@ import {
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
-import { impossible, impossible_printer, livelog_printf, youSee } from './pline.js';
+import {
+    impossible, impossible_printer, livelog_printf, youSee, norep_printer,
+} from './pline.js';
 import { isok } from './cmd_isok.js';
 import { finish_steps } from './source_steps.js';
 import { dry_a_towel } from './weapon.js';
@@ -832,9 +834,7 @@ export async function disturb_grave(x, y, state = game, env = {}) {
 
     const ttyMessage = await import('./tty_message.js');
     const message = env.message ?? ttyMessage.ttyPline;
-    const norepMessage = env.norepMessage
-        ?? (message === ttyMessage.ttyPline
-            ? ttyMessage.ttyNorep : message);
+    const norepMessage = norep_printer(env);
     await message('You disturb the undead!', state);
     maploc.horizontal = true;
 

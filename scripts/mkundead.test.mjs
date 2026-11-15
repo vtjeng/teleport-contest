@@ -193,7 +193,7 @@ test('Book carried revival keeps C Norep appearance boundaries after unturn_dead
     const recording = JSON.parse(readFileSync(
         'recordings/mkroom.c/mkundead-book-carried-revive.session.json', 'utf8'));
     assert.match(MAKEMON_C, /Norep\("%s%s %s%s%c"/u);
-    assert.match(SPELL_JS, /norepMessage: env\.norepMessage[\s\S]*?env\.message === ttyPline \? ttyNorep : env\.message/u);
+    assert.match(SPELL_JS, /norepMessage: norep_printer\(env\)/u);
     assert.equal(compareSessionOutputs(recording,
         await runJsSession(recording, process.cwd())).passed, true);
 });

@@ -206,7 +206,7 @@ import { cvt_sdoor_to_door } from './detect.js';
 import {
     cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
 } from './display.js';
-import { impossible, verbalize, youFeel } from './pline.js';
+import { impossible, verbalize, youFeel, norep_printer } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
 import {
@@ -866,7 +866,7 @@ export async function dig(state = game, rawEnv = {}) {
                     state,
                     random,
                     message,
-                    norepMessage: rawEnv.norepMessage ?? message,
+                    norepMessage: norep_printer(rawEnv),
                     hooks: {
                         ...(rawEnv.hooks ?? {}),
                         stopOccupation: rawEnv.hooks?.stopOccupation

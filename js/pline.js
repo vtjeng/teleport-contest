@@ -10,7 +10,7 @@ import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
 import { BUFSZ, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { messageAt } from './startup_a11y.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
 import { Blind, Deaf, Unaware } from './youprop.js';
 
@@ -123,6 +123,16 @@ export async function impossible(text, state = game, env = {}) {
     } finally {
         programState.in_impossible = 0;
     }
+}
+
+// C ref: pline.c Norep(): the no-repeat sink for a caller's env, which is
+// the caller's own norepMessage or else ttyNorep. A plain message sink never
+// stands in for it: it would print again a line that Norep() suppresses as a
+// repeat, such as makemon.c's appearance line (1492-1499) for a second
+// monster of the same kind. scripts/norep-sink.test.mjs keeps js/ from
+// choosing a fallback anywhere else.
+export function norep_printer(env = {}) {
+    return env.norepMessage ?? ttyNorep;
 }
 
 // finish_steps()'s onImpossible (js/source_steps.js) for a caller that can

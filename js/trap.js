@@ -232,7 +232,7 @@ import {
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, push_front, sgn, upstart, lcase } from './hacklib.js';
-import { impossible, livelog_printf, youFeel } from './pline.js';
+import { impossible, livelog_printf, youFeel, norep_printer } from './pline.js';
 import { messageAt } from './startup_a11y.js';
 import {
     stackobj,
@@ -3313,7 +3313,7 @@ export async function animate_statue(
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
-    const norepMessage = rawEnv.norepMessage ?? message;
+    const norepMessage = norep_printer(rawEnv);
     const objectEnv = objectGenerationEnv({
         ...rawEnv,
         state,

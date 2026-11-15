@@ -104,9 +104,10 @@ import {
     verbalize as plineVerbalize,
     youFeel,
     youHear,
+    norep_printer,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import { ttyPline } from './tty_message.js';
 import {
     Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
     Detect_monsters, Displaced, Fire_resistance, Free_action, HConfusion,
@@ -382,7 +383,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     const message = env.message;
-    const norepMessage = env.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(env);
 
     if (canseemon(mtmp, state)
         && couldsee(mtmp.mx, mtmp.my, state)) {

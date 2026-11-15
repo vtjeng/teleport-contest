@@ -242,7 +242,6 @@ import {
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
-    ttyNorep,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -259,6 +258,7 @@ import {
     livelog_printf,
     set_msg_xy,
     youFeel,
+    norep_printer,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { waterbody_name } from './pager.js';
@@ -2616,7 +2616,7 @@ export async function poly_obj(obj, id, state = game,
                     hot_pursuit(shopkeeper, state);
                 }
             } else {
-                await (env.norepMessage ?? ttyNorep)(
+                await norep_printer(env)(
                     `${Shknam(shopkeeper, state, namingEnv)} is furious!`,
                     state,
                     env,
@@ -2634,7 +2634,7 @@ export async function poly_obj(obj, id, state = game,
 export async function stone_to_flesh_obj(obj, state = game,
     random = coreRandom, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
-    const norepMessage = rawEnv.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(rawEnv);
     const env = zapObjectEnv(state, random, {
         ...rawEnv,
         message,
@@ -4972,7 +4972,7 @@ export async function zhitu(type, nd, fltxt, sx, sy, state = game,
 export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const message = env.message ?? ttyPline;
-    const norepMessage = env.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(env);
     const canSee = env.canSee ?? ((cx, cy) => cansee(cx, cy, state));
     const redraw = env.newsym ?? env.redraw
         ?? newsym;
@@ -5095,7 +5095,7 @@ export async function zap_over_floor(
 ) {
     const env = { ...rawEnv, state, random };
     const message = env.message ?? ttyPline;
-    const norepMessage = env.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(env);
     const redrawAt = env.newsym ?? newsym;
     // hliquid() consumes the display stream. Keep the core random source in
     // `random` out of this environment when a caller omits an explicit

@@ -494,8 +494,8 @@ import { newegd } from './vault.js';
 import { coreRandom } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
-import { impossible_printer } from './pline.js';
+import { ttyPline } from './tty_message.js';
+import { impossible_printer, norep_printer } from './pline.js';
 import { block_point, cansee, couldsee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
 import {
@@ -2592,7 +2592,7 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
         yield finishRuntimeCreationTail(monster, mmflags, {
             ...normalized,
             message: normalized.message ?? ttyPline,
-            norepMessage: normalized.norepMessage ?? ttyNorep,
+            norepMessage: norep_printer(normalized),
         });
         return monster;
     }
@@ -2605,9 +2605,8 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
 // awaited recursive group tails, parent inventory, and final output order.
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const message = env.message === undefined ? ttyPline : env.message;
-    const norepMessage = env.norepMessage === undefined
-        ? ttyNorep
-        : env.norepMessage;
+    // An explicit null is a missing owner, not a request for the default.
+    const norepMessage = env.norepMessage === null ? null : norep_printer(env);
     if (typeof message !== 'function' || typeof norepMessage !== 'function') {
         throw new TypeError('makemon_runtime requires message operations');
     }

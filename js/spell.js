@@ -158,10 +158,11 @@ import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { aggravate_steps } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
-    ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
+import {
+    impossible, impossible_printer, livelog_printf, youFeel, norep_printer,
+} from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
     P_SKILL,
@@ -749,10 +750,8 @@ function deadbookMakemonEnv(state, random, env) {
         state,
         random,
         // C's makemon appearance uses Norep(), including repeated species
-        // within the swarm. A custom message sink also receives the Norep
-        // lines; the ordinary pline owner maps to the ttyNorep owner.
-        norepMessage: env.norepMessage
-            ?? (env.message === ttyPline ? ttyNorep : env.message),
+        // within the swarm.
+        norepMessage: norep_printer(env),
     };
 }
 

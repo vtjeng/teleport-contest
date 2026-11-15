@@ -596,6 +596,7 @@ import {
 } from './monst.js';
 import {
     impossible, impossible_printer, livelog_printf, pline_mon, youFeel, youSee,
+    norep_printer,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { SHTYPES } from './shtypes_data.js';
@@ -712,7 +713,7 @@ import {
     fill_pit,
     t_at,
 } from './trap.js';
-import { displayPendingTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
@@ -3696,11 +3697,8 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
             state,
             random,
             message,
-            // makemon.c:1492 prints the appearance line with Norep(); the
-            // ordinary pline owner maps to ttyNorep, as in spell.js and
-            // engrave.js, and a custom sink receives the line unchanged.
-            norepMessage: rawEnv.norepMessage
-                ?? (message === ttyPline ? ttyNorep : message),
+            // makemon.c:1492 prints the appearance line with Norep().
+            norepMessage: norep_printer(rawEnv),
             hooks: {
                 ...(rawEnv.hooks ?? {}),
                 ...(rawEnv.stopOccupation

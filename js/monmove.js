@@ -215,6 +215,7 @@ import {
     youHear,
     youSee,
     verbalize,
+    norep_printer,
 } from './pline.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { note_unported } from './unported.js';
@@ -451,7 +452,7 @@ import {
     rloc,
     tele_restrict,
 } from './teleport.js';
-import { displayPendingTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { gd_move } from './vault.js';
 import { cuss, tactics } from './wizard.js';
 import { block_point, cansee, clear_path, couldsee, m_canseeu, recalc_block_point, vision_recalc_async } from './vision.js';
@@ -3197,7 +3198,7 @@ export async function postmov(
     const random = rawEnv.random ?? coreRandom;
     // pline() and newsym().
     const message = rawEnv.message ?? ttyPline;
-    const norepMessage = rawEnv.norepMessage ?? ttyNorep;
+    const norepMessage = norep_printer(rawEnv);
     const redraw = rawEnv.redraw ?? newsym;
     // vision.c recalc_block_point() and vision_recalc(), which UnblockDoor
     // calls in that order.  recalc_block_point() already takes the state it

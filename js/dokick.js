@@ -192,8 +192,7 @@ import {
 import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
-    displayPendingTtyMessageWindow,
-    ttyNorep, ttyPline,
+    displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
 import {
     find_drawbridge,
@@ -219,7 +218,7 @@ import { sink_backs_up } from './fountain.js';
 import { body_part, poly_gender, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { bhit, miss } from './zap.js';
-import { verbalize } from './pline.js';
+import { verbalize, norep_printer } from './pline.js';
 import { mpickobj } from './steal.js';
 import { finish_meating } from './dogmove.js';
 import { hidden_gold } from './vault.js';
@@ -667,7 +666,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     let costly = Boolean(keeper && (costly_spot(x, y, state)
         || (costly_adjacent(keeper, x, y, state) && object().unpaid)));
     const kickLine = `You kick ${!isGold ? singular(object(), donameFresh, state) : donameFresh(object(), state)}.`;
-    await (rawEnv.norepMessage ?? rawEnv.message ?? ttyNorep)(kickLine, state, env);
+    await norep_printer(rawEnv)(kickLine, state, env);
     if (IS_OBSTRUCTED(state.level.at(x, y).typ) || closed_door(x, y, state)) {
         if ((!martial(state) && random.rn2(20) > acurr(state, A_DEX))
             || IS_OBSTRUCTED(state.level.at(u.ux, u.uy).typ)

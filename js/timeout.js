@@ -211,6 +211,7 @@ import { m_at } from './monst.js';
 import { cansee } from './vision.js';
 import {
     impossible, verbalize, youFeel, youHear, youSee,
+    norep_printer,
 } from './pline.js';
 import { isok } from './cmd_isok.js';
 import { AD_ELEC } from './monsters.js';
@@ -219,7 +220,7 @@ import { cry_sound, set_voice } from './sounds.js';
 import { coreRandom,
     createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd,
 } from './rng.js';
-import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     Acid_resistance, BInvis, Blind, Breathless, Confusion, Deaf, Displaced,
     EFumbling, ELevitation, EPasses_walls, Fast, Fire_resistance, Flying,
@@ -1563,7 +1564,7 @@ export async function nh_timeout(state = game, env = {}) {
         --u.uspellprot;
         find_ac(state);
         if (!Blind(state.u))
-            await (env.norepMessage ?? ttyNorep)(
+            await norep_printer(env)(
                 `The ${hcolor('golden', state, displayEnv)} haze around you ${u.uspellprot ? 'becomes less dense' : 'disappears'}.`,
                 state,
             );
