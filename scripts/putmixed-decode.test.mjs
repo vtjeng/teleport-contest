@@ -28,8 +28,14 @@ test('only ttyPutmixed() gives update_topl() a decoded first cell', () => {
     // ttyPlineCore(message, state, pflags, mixedFirstCell, viaVpline): the
     // fourth argument is the rendered cell of a glyph that starts the line.
     const text = source('tty_message.js');
-    // The lookbehind skips the declaration itself.
-    const calls = [...text.matchAll(/(?<!function )ttyPlineCore\(([^()]*)\)/gu)]
+    // The lookbehind skips the declaration itself. A call whose arguments
+    // hold parentheses would escape the parse, so every occurrence must
+    // parse.
+    const parsed = [...text.matchAll(/(?<!function )ttyPlineCore\(([^()]*)\)/gu)];
+    assert.equal(parsed.length,
+        [...text.matchAll(/(?<!function )ttyPlineCore\(/gu)].length,
+        'every ttyPlineCore( occurrence has an argument list without parentheses');
+    const calls = parsed
         .map((match) => ({
             index: match.index,
             args: match[1].split(',').map((arg) => arg.trim()),
