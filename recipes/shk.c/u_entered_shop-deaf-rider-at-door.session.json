@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c u_entered_shop() refusal of a mounted hero who cannot hear (902-906): a Knight in debug mode builds minetn-7 (#wizloaddes), mounts his pony with a forced #ride, deafens himself with a wished leather drum, teleports outside the delicatessen door and rides in; the shopkeeper's 'Leave your pony outside' becomes the silent pline form.",
+  "segments": [
+    {
+      "seed": 6083315,
+      "datetime": "20360902111500",
+      "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time\n",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0006#ride\nhy  \u0017leather drum\n  ai  \u0014 hhhhhhhkkkkkk.  j  j  "
+    }
+  ]
+}
