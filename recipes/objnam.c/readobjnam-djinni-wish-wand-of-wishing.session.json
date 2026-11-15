@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "objnam.c readobjnam() for a wish outside debug mode. Seed 7310391 was found by a bounded port scan of Healer seeds 7310001-7311000 (65 with smoky healing potions, 1 reaching a wish on the first quaff): the gnomish Healer quaffs a smoky potion of healing and the djinni grants a wish. The first answer, blinding venom, is oc_nowish and fails (readobjnam 5018-5020, makewish retries); the second, a +3 wand of wishing, is cut to its random charge count and then to (0:-1) or (0:0) with recharged set (5108, 5115-5116, 5182-5184, 5294).",
+  "segments": [
+    {
+      "seed": 7310391,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " qd\r\r\rblinding venom\n\r+3 wand of wishing\n"
+    }
+  ]
+}
