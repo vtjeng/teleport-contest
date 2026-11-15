@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "lock.c pick_lock() and picklock() with the Master Key of Thievery carried by a Rogue (a magic key) and the autounlock:untrap+apply-key option. #loot of a wished trapped locked large box asks 'Check the large box for a trap?' and q returns (pick_lock 478). Applying the key to the box finds the trap and the hero declines to disarm it (picklock 132-134). On a doorway turned into a wished trapped locked door, applying the key from inside the room and accepting the disarm runs the door branch (picklock 119-121).",
+  "segments": [
+    {
+      "seed": 4482163,
+      "datetime": "20340604091200",
+      "nethackrc": "OPTIONS=name:Pell,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,!tips,autounlock:untrap+apply-key\n",
+      "moves": "\u001b\u0017Master Key of Thievery\n\r\u0017trapped locked large box\ndh#loot\n\rqag.y\r\r\rn_d.\u0017trapped locked door\nlaghny\r\ry"
+    }
+  ]
+}
