@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c trapname() 7136-7146: the hallucinatory role trap name takes its gender from Upolyd ? u.mfemale : flags.female (trap.c 7137). A male human Priest in debug mode polymorphs into a water nymph (polyself.c 764 saves u.mfemale=0, then the female-only form sets flags.female), quaffs a wished potion of hallucination, wishes a squeaky board, steps off and back onto it, and looks at it with '^' until the display RNG picks the role-trap entry: C names it a 'priest trap', the hero's own gender.",
+  "segments": [
+    {
+      "seed": 6194023,
+      "datetime": "20340722141205",
+      "nethackrc": "OPTIONS=name:Ilse,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "#polyself\nwater nymph\n\r\u0017potion of hallucination\nqjl\u0017squeaky board\nhl^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^."
+    }
+  ]
+}

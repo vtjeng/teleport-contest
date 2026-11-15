@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of trapname-hallucinating-priest-polymorphed-into-water-nymph with the genders reversed: a female dwarvish Cavewoman polymorphs into a Keystone Kop (male-only, so flags.female is cleared while u.mfemale keeps 1). trap.c 7137 reads u.mfemale while polymorphed, so the hallucinatory role trap is a 'cavewoman trap'.",
+  "segments": [
+    {
+      "seed": 2750981,
+      "datetime": "20330309071840",
+      "nethackrc": "OPTIONS=name:Odda,role:Caveman,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "#polyself\nKeystone Kop\n\u0017potion of hallucination\nqfl\u0017squeaky board\nhl^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^.^."
+    }
+  ]
+}
