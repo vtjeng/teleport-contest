@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c dodown() 'You are held back by your pet!' (1252-1254): a Tourist leashes his kitten with a wished cursed leash, teleports (^T) beside the corner down staircase, puts the kitten to sleep with a wand of sleep two squares from the stairs, steps onto them and fills the three free neighbours with a counted ^G of brown molds. On '>', mnexto() cannot put the kitten next to him, and the cursed leash holds him back (apply.c mleashed_next2u()).",
+  "segments": [
+    {
+      "seed": 1840551,
+      "datetime": "20311120133000",
+      "nethackrc": "OPTIONS=name:Odo,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:cat,time,!tips,!safe_wait\n",
+      "moves": "\u001b\u0017cursed leash\n\u0017wand of sleep\nanb\u0006\u0014 >h.zohl3\u0007brown mold\n\u001b>"
+    }
+  ]
+}
