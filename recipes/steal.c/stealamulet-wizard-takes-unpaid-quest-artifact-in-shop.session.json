@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c stealamulet() 757-758: a debug Priest level-teleports to Dlvl 3 into an armor shop, rises to experience level 30, wishes for his quest artifact (the Mitre of Holiness, a helmet), sells it to the keeper by dropping it and picks it up again, so it is unpaid. A forced Wizard of Yendor (covetous) then steals the quest artifact, and stealamulet() takes the unpaid item off the bill before removing it from inventory.",
+  "segments": [
+    {
+      "seed": 6100541,
+      "datetime": "20420501120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u00163\n  #levelchange\n30\n                             \u0017Mitre of Holiness\n dj y,a\n \u0007Wizard of Yendor\nymsms   ms  ms  ms  ms   "
+    }
+  ]
+}
