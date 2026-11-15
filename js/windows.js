@@ -11,7 +11,11 @@ import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
-import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
+import {
+    menuLineChoiceDescription,
+    menuTitleStyle,
+    selectTtyMenu,
+} from './tty_menu.js';
 import { regex_match } from './posixregex.js';
 import {
     ATR_BOLD,
@@ -44,15 +48,18 @@ export function ttyMenuColorAttribute(attr) {
 
 // C ref: windows.c add_menu(). JavaScript callers already construct the TTY
 // item's other fields; this common step applies menu coloring to the original
-// description, then clears the one flag no window port receives.
-export function add_menu(state, item) {
+// description, then clears the one flag no window port receives.  `str` is
+// that description when the item's own text is not: a preformatted `lines`
+// row carries tty_add_menu()'s "x - " prefix, which get_menu_coloring() never
+// saw.
+export function add_menu(state, item, str) {
     if (typeof item === 'string') item = { text: item };
     if (typeof item !== 'object' || item === null) return item;
     const itemflags = Number.isInteger(item.itemflags) ? item.itemflags : 0;
     const skip = item.skipMenuColors === true || item.heading === true
         || (itemflags & MENU_ITEMFLAGS_SKIPMENUCOLORS) !== 0;
     if (!skip && state.iflags?.use_menu_color) {
-        const text = item.label ?? item.text ?? '';
+        const text = str ?? item.label ?? item.text ?? '';
         const style = get_menu_coloring(text, state);
         if (style) {
             // Recorder 006 serializes foreground7 (CLR_GRAY) as default SGR.
@@ -138,7 +145,11 @@ export async function select_menu(state, spec) {
         titleAttr: spec.titleAttr ?? titleStyle.titleAttr,
         titleColor: spec.titleColor ?? titleStyle.titleColor,
         items: spec.items?.map((item) => add_menu(state, item)),
-        lines: spec.lines?.map((line) => add_menu(state, line)),
+        lines: spec.lines?.map((line) => add_menu(
+            state,
+            line,
+            menuLineChoiceDescription(line, spec.choices) ?? undefined,
+        )),
     };
     const reslt = await selectTtyMenu(state, adjustedSpec);
     state.gb.bot_disabled = old_bot_disabled;

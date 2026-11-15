@@ -591,18 +591,41 @@ export async function displayTtyMenuTextWindow(
     return response;
 }
 
+// C ref: wintty.c process_menu_window() (1436-1445). The attribute and color
+// start at curr->str[attr_n]: after "x - " when the stored menu string has
+// that shape ("[0]=letter, [1]=space, [2]=[-+#], [3]=space"), otherwise at
+// the first character.  tty_add_menu() stores every selectable item as
+// "%c - %s", so its marker is '-' however the item is drawn.
+export function menuAttrStart(str) {
+    return str.length >= 4 && str[1] === ' ' && '-+#'.includes(str[2])
+        && str[3] === ' ' ? 4 : 0;
+}
+
+// A `lines` row is the selectable item tty_add_menu() stored as
+// "%c - %s" when sourceChoiceSelector() reads its selector and the spec's
+// choices map that selector.  Returns the `str` its add_menu() call passed,
+// or null for a display-only row.
+export function menuLineChoiceDescription(line, choices) {
+    const selector = sourceChoiceSelector(line);
+    if (!selector || !choices?.has(selector)) return null;
+    const text = typeof line === 'string'
+        ? line : String(line?.text ?? line?.label ?? '');
+    return text.slice(4);
+}
+
 function itemLine(item) {
     if (typeof item === 'string')
-        return { text: item, attr: 0, styleStart: 0, item: null };
+        return { text: item, attr: 0, styleStart: menuAttrStart(item), item: null };
     if (!Object.hasOwn(item, 'value')) {
         // C ref: wintty.c tty_add_menu() (2594-2614). An entry added with a
         // zero identifier is drawn without the "x - " prefix, but its
         // selector is stored all the same; visiblePickOneChoice() reads it.
+        const text = item.text ?? item.label ?? '';
         return {
-            text: item.text ?? item.label ?? '',
+            text,
             attr: item.attr ?? 0,
             color: item.color,
-            styleStart: 0,
+            styleStart: menuAttrStart(String(text)),
             item: null,
             ...(item.selector ? { zeroIdentifierSelector: item.selector } : {}),
         };
@@ -616,19 +639,31 @@ function itemLine(item) {
         text: `${selector} ${marker} ${item.label ?? item.text ?? ''}`,
         attr: item.attr ?? 0,
         color: item.color,
+        // menuAttrStart() of the stored "%c - %s".
         styleStart: 4,
         item,
+    };
+}
+
+// A `lines` row's styleStart is menuAttrStart() of the string C stored: a
+// selectable row's drawn marker stands in for the '-' tty_add_menu() wrote.
+function lineMenuLine(line, choices) {
+    const row = typeof line === 'string'
+        ? { text: line, attr: 0 } : { ...line };
+    const text = String(row.text ?? row.label ?? '');
+    const description = menuLineChoiceDescription(line, choices);
+    return {
+        ...row,
+        styleStart: menuAttrStart(description === null
+            ? text : `${text[0]} - ${description}`),
+        item: null,
     };
 }
 
 function menuLines(spec) {
     const body = spec.items
         ? spec.items.map(itemLine)
-        : (spec.lines ?? []).map((line) => (
-            typeof line === 'string'
-                ? { text: line, attr: 0, item: null }
-                : { ...line, item: null }
-        ));
+        : (spec.lines ?? []).map((line) => lineMenuLine(line, spec.choices));
     // tty_end_menu() writes a prompt line and its blank separator only when
     // the caller supplied one; invent.c display_pickinv() passes none for a
     // plain inventory display.
