@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c clone_mon() 918-927: a debug Valkyrie with the monpolycontrol option forces an aligned cleric, which makemon() makes a minion (isminion, makemon.c 1414-1422). A wished wand of polymorph turns it, after it resists once, into a brown pudding chosen at the polycontrol prompt. Hitting it with the iron spear splits it (uhitm.c 1625), and the clone copies the minion's emin and recomputes renegade. Brown pudding, so its bites do not kill the hero.",
+  "segments": [
+    {
+      "seed": 6100401,
+      "datetime": "20410322101500",
+      "nethackrc": "OPTIONS=name:Mira,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,monpolycontrol\n",
+      "moves": "\u0017wand of polymorph\n\u0007aligned cleric\nyzeyzeybrown pudding\n  Fy FyFy  "
+    }
+  ]
+}
