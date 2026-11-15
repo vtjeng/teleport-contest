@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c ghitm() 353 and 359-365, gold thrown at a vault guard: a debug gnomish Healer level-teleports to Dlvl 3 and lands inside a closed vault (seed 7302399 from a bounded 7302101-7302400 shop scan, where this character arrives in the vault). She searches until the guard enters, gives her name, and throws 100 of her starting gold at him ('Drop the rest and follow me.'), then the rest ('I'll take care of that; please move along.').",
+  "segments": [
+    {
+      "seed": 7302399,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Oozer,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u00163\n40s Oozer\n  t100$lt$l "
+    }
+  ]
+}
