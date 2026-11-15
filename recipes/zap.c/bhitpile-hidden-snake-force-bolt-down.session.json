@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhitpile() 2469-2478 and 2501: the hidingunder branch. A debug elven Wizard drops her whole inventory (D, A, a; ESC skips the drop messages), turns into a snake with #polyself, hides under the pile with #monster (u.uundetected with hides_under()), and casts force bolt downward: zap_updown() calls bhitpile() with zz > 0, which skips the top item and breaks the potions below, then maybe_unhide_at() runs. Zapping up never reaches bhitpile() (zap_updown() calls it only for u.dz > 0 or probing down), so 2474-2476 stay unrun.",
+  "segments": [
+    {
+      "seed": 7400103,
+      "datetime": "20410520141000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "DAa\n\u001b#polyself\nsnake\n #monster\nZa>  "
+    }
+  ]
+}
