@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c mhitm_ad_phys() hero-versus-shade branch (3991-3992): a debug Priest wears blessed leather gloves and a ring of free action, unwields, polymorphs into an ape and claws a created shade. The blessed gloves give special_dmgval() a bonus, so hmonas() 5643 lets the claw through to damageum(), where the shade's physical damage is zeroed and only the blessed bonus applies; the bite, with no bonus, passes harmlessly.",
+  "segments": [
+    {
+      "seed": 274453,
+      "datetime": "20330917163000",
+      "nethackrc": "OPTIONS=name:Odo,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed leather gloves\n\u0017uncursed ring of free action\nWiPjlw-#polyself\nape\n\u0007shade\nFb Fb  Fb  "
+    }
+  ]
+}
