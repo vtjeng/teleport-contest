@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c steal() 444: a debug Tourist wears a wished cloak over her Hawaiian shirt and drops everything else (D, all types), so the only stealable items are the worn shirt and cloak. A nymph created next to her (^G) is woken with F and charms her; when the random pick is the shirt, the worn cloak is taken instead (444). Seven searches before ^G set the timing for that pick; earlier timings picked the cloak itself.",
+  "segments": [
+    {
+      "seed": 5540001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017dwarvish cloak\nWnDAa\n                sssssss\u0007nymph\nFj ms "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c really_kick_object() 549 and 619: a debug Valkyrie (no boots) wishes a cockatrice corpse onto the floor, polymorphs (#polyself) into a clay golem and kicks the corpse barefoot; poly_when_stoned() turns her into a stone golem and the kick continues (549). As a xorn she then drops her dagger inside the room's top wall, steps east into the wall, puts on a blindfold and kicks the dagger: the hero's own square is obstructed, so it never comes loose, and blind she gets 'It doesn't come loose.' (619).",
+  "segments": [
+    {
+      "seed": 5530001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017cockatrice corpse\nh#polyself\nclay golem\n \u0004l  \u0017blindfold\n#polyself\nxorn\n kdblPg\u0004h"
+    }
+  ]
+}

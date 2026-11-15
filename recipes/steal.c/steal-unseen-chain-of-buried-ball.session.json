@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c steal() 385-390: a debug Valkyrie reads a wished cursed scroll of punishment, buries the ball with #wizbury (u.utrap becomes TT_BURIEDBALL and she is no longer Punished), takes off her shield and drops everything (D, all types), so she carries nothing a nymph can take. She wakes a nymph created next to her (^G) with F and waits; on the 1-in-4 roll the nymph 'takes off your unseen chain' and openholdingtrap() frees her from the buried ball (seed from a port scan of 5540101-5540140).",
+  "segments": [
+    {
+      "seed": 5540126,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017cursed scroll of punishment\nre #wizbury\nTDAa\n          \u0007nymph\nFu ms  "
+    }
+  ]
+}
