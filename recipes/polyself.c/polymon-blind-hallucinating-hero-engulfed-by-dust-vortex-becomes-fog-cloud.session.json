@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation: a male human Wizard quaffs blessed monster detection and hallucination, is engulfed and blinded by a hostile dust vortex and polymorphs into a fog cloud. polymon() names the sensed engulfer afresh with canspotmon() (polyself.c 924-926): '<random name> can no longer contain you.'",
+  "segments": [
+    {
+      "seed": 9034517,
+      "datetime": "20620711093000",
+      "nethackrc": "OPTIONS=name:Tarn,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,time\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b\u0017blessed potion of monster detection\n\u001bqo\u001b\u001b\u001b\u0017potion of hallucination\n\u001bqp\u001b\u001b\u001b\u0007hostile dust vortex\n\u001bms\u001bms\u001b#polyself\nfog cloud\n\n\n\n\n"
+    }
+  ]
+}
