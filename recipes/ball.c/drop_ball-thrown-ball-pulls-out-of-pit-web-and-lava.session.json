@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "ball.c drop_ball() 899-910: a debug Valkyrie reads a wished cursed scroll of punishment, picks up the heavy iron ball, steps into a wished pit and throws the ball south: 'The ball pulls you out of the pit!' (899-901). She picks the ball up, steps into a wished web and throws it south: the ball pulls her out and the web is destroyed (902-907). She picks it up again, puts on a wished ring of fire resistance, wishes lava under herself (she sinks in, TT_LAVA) and throws the ball north: 'The ball pulls you out of the lava!' (908-910).",
+  "segments": [
+    {
+      "seed": 5580001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "jl\u0017cursed scroll of punishment\nrf ,\u0017pit\nlh tgjj,k\u0017web\nlhtgjj,\u0017ring of fire resistance\nPhl\u0017lava\n  tgk"
+    }
+  ]
+}
