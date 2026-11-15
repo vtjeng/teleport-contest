@@ -55,7 +55,7 @@ export const VERDICT_TOTALS = Object.freeze({
     otherName: 279,
     unreachable: 200,
     noVisibleEffect: 194,
-    unportedVisible: 3,
+    unportedVisible: 2,
 });
 
 const ported = (js, reason = 'ported under another name or inside a caller') =>
@@ -218,10 +218,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'cfgfiles.c parse_conf_str': ported('js/tutorial_level.js loadTutorialLevel',
         'nh.parse_config() from tut-1.lua, reduced to the three fixed lines that program '
         + 'passes'),
-    'cfgfiles.c vconfig_error_add': visible('cuts the formatted message to BUFSZ - 1 = 255 '
-        + 'bytes before config_erradd() (cfgfiles.c:1886); js/cfgfiles.js config_error_add() '
-        + 'prints the whole text, so a SYMBOLS line holding an unparsable definition of more '
-        + 'than about 225 bytes shows a longer error line than C'),
     'cfgfiles.c rcfile_interface_options': unreachable(WINDOWS_RC),
     'cfgfiles.c heed_all_config_statements': unreachable(WINDOWS_RC),
     'cfgfiles.c disregard_all_config_statements': unreachable(WINDOWS_RC),

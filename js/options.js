@@ -147,6 +147,7 @@ import {
     cnf_line_WARNINGS,
     cnf_line_WIZKIT,
     config_error_add,
+    vconfig_error_add,
     config_error_init,
     find_optparam,
     get_configfile,
@@ -793,7 +794,9 @@ function optionError(lineNumber, message) {
 // screen in between.
 function configErrorAdd(result, message) {
     if (result.liveConfigErrors) {
-        result.liveConfigErrors.push(message);
+        // cfgfiles.c vconfig_error_add() cuts the message before
+        // config_erradd() prints it, in this arm as in the rc read.
+        result.liveConfigErrors.push(vconfig_error_add(message));
         return;
     }
     config_error_add(result.configErrorFrame, message);
