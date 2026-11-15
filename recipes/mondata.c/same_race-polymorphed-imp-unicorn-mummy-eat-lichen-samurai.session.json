@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of same_race-polymorphed-imp-unicorn-mummy-eat-lichen: a lawful human Samurai makes the same three polymorphs and eats the lichen corpses, so same_race() 805-806, 818-820 and 829-830 run for another role.",
+  "segments": [
+    {
+      "seed": 6100853,
+      "datetime": "20421102081500",
+      "nethackrc": "OPTIONS=name:Lio,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u00173 lichen corpses\nDaA\n   #polyself\nimp\ney #polyself\nwhite unicorn\n ey #polyself\nettin mummy\ney "
+    }
+  ]
+}

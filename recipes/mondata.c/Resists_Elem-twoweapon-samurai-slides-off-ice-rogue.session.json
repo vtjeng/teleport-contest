@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of Resists_Elem-twoweapon-samurai-slides-off-ice: a chaotic Rogue two-weapons with his starting short sword and daggers, then steps south off a wished ice square, so Resists_Elem() 183-184 adds W_SWAPWEP for a different role and weapon pair.",
+  "segments": [
+    {
+      "seed": 6100467,
+      "datetime": "20410815181500",
+      "nethackrc": "OPTIONS=name:Pell,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "X\u0017ice\nj"
+    }
+  ]
+}

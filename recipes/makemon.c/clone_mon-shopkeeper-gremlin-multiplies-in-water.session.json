@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c clone_mon() 903-907: a debug Valkyrie with monpolycontrol level-teleports to Dlvl 3, lands in a weapon shop beside its keeper, rises to experience level 30 (#levelchange) to survive, and zaps a wished wand of polymorph at the keeper, forcing a gremlin (validspecmon() refuses puddings for shopkeepers: notake). Thrown potions of water make the gremlin multiply (potion.c split_mon()), and the clone of a shopkeeper with no given name is christened with shkname().",
+  "segments": [
+    {
+      "seed": 6100569,
+      "datetime": "20420501120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,monpolycontrol\n",
+      "moves": "\u00163\n #levelchange\n30\n                             \u0017wand of polymorph\n\u00173 potions of water\nzelgremlin\n tfl  \u001b  tfl  \u001b"
+    }
+  ]
+}

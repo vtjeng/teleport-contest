@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c newcham() 5300-5306: a debug Valkyrie at experience level 30 creates a chameleon (it appears as a stalker), zaps a wished wand of cancellation at it, which returns it to chameleon form with cham cleared and mcan set, then zaps a wand of polymorph at it until it fails to resist. newcham() sees a cancelled monster with no cham whose base form is a shapechanger, restores cham and uncancels it ('The chameleon turns into an ogre!').",
+  "segments": [
+    {
+      "seed": 6100831,
+      "datetime": "20421011154500",
+      "nethackrc": "OPTIONS=name:Lio,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "#levelchange\n30\n                             \u0017wand of cancellation\n\u0017wand of polymorph\n\u0007chameleon\nzfbzgb"
+    }
+  ]
+}

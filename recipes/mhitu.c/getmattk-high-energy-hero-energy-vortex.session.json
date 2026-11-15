@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c getmattk() 359-364: a debug elf Wizard quaffs 13 of 15 wished blessed potions of gain energy, raising energy to 151 of 151 at experience level 1 (above 12*6 current and 20*6 maximum), then creates an energy vortex. When the vortex's AT_ENGL AD_DREN attack is fetched against the hero, getmattk() raises it from 2d6 to 3d9. 'm' before 's' forces the search, which 5.0 otherwise refuses next to a found monster.",
+  "segments": [
+    {
+      "seed": 6100493,
+      "datetime": "20410920201000",
+      "nethackrc": "OPTIONS=name:Tam,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001715 blessed potions of gain energy\nqpqpqpqpqpqpqpqpqpqpqpqpqp\u0007energy vortex\nsssmsms   ms "
+    }
+  ]
+}

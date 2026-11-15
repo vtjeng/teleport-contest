@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of newcham-cancelled-chameleon-uncancelled-by-polymorph: an orcish Barbarian cancels a chameleon disguised as a zruty and polymorphs it into a shark, so newcham() 5300-5306 runs for another role, race and disguise.",
+  "segments": [
+    {
+      "seed": 6100833,
+      "datetime": "20421011154500",
+      "nethackrc": "OPTIONS=name:Lio,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "#levelchange\n30\n                             \u0017wand of cancellation\n\u0017wand of polymorph\n\u0007chameleon\nzgjzhj"
+    }
+  ]
+}
