@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "shk.c getcad() 5165-5168: a debug Archeologist level-teleports to Dlvl 3 and arrives inside a general store (seed from a port scan of 8810001-8810150 for a shop arrival), wizard-teleports (^T) onto the open shop door and walks two squares west along the corridor, beats a wished leather drum ('a deafening row': Deaf), then zaps a wished wand of digging northeast through the rock into the shop's west wall. pay_for_damage('dig into') finds the hero outside the shop and more than one square from the damage, so getcad() takes its distant-offender branch, and because the hero is deaf it prints 'Ouiatchouane is furious that someone decided to dig into her shop!' instead of the shout.",
+  "comment": "shk.c getcad() 5165-5168: a debug Archeologist level-teleports to Dlvl 3 and arrives inside a general store (seed from a port scan of 8810001-8810150 for a shop arrival), wizard-teleports (^T) onto the open shop door and walks three squares west along the corridor, beats a wished leather drum ('a deafening row': Deaf), then zaps a wished wand of digging northeast through the rock into the shop's west wall. pay_for_damage('dig into') finds the hero outside the shop and more than one square from the damage, so getcad() takes its distant-offender branch, and because the hero is deaf it prints 'Ouiatchouane is furious that someone decided to dig into her shop!' instead of the shout.",
   "segments": [
     {
       "seed": 8810086,

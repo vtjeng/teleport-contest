@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "comment": "Variation of H2Opotion_dip-unholy-water-unblesses-bought-back-holy-water-in-shop: in another Dlvl 3 general store (same scan) the Archeologist sells and buys back a +1 ring of protection and a potion of unholy water, charges the unpaid ring (832) and dips the unpaid unholy water into holy water, which uncurses it (COST_UNCURS: 1573, 1577, 1580-1581, 'You uncurse that clear potion, you pay for it!').",
+  "comment": "x",
   "segments": [
     {
-      "seed": 8810086,
+      "seed": 8810135,
       "datetime": "20410214120000",
       "nethackrc": "OPTIONS=name:Ari,role:Archeologist,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
-      "moves": "\u00163\n \u0017uncursed +1 ring of protection\n\u0017cursed potion of water\ndi ydj y  ,ab\n   \u0017scroll of charging\n \u0017blessed potion of water\nrk i#dip\njl  \u001bIu\u001b"
+      "moves": "\u00163\n \u0017uncursed +1 ring of protection\n\u0017cursed potion of water\ndj ydk y,ab\n   \u0017scroll of charging\n \u0017blessed potion of water\nrl j#dip\nkm  \u001bIu\u001b"
     }
   ]
 }
