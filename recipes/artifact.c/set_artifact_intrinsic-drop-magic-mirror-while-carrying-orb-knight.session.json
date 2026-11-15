@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of set_artifact_intrinsic-drop-orb-while-carrying-magic-mirror-archeologist: a debug Knight carries his own Magic Mirror of Merlin and a wished Orb of Detection (an Archeologist's: blasted) after two blessed full healing potions, then drops the Mirror; the Orb still confers AD_MAGM, so 756-758 keep magic resistance.",
+  "segments": [
+    {
+      "seed": 6248815,
+      "datetime": "20370822194500",
+      "nethackrc": "OPTIONS=name:Gawen,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u00172 blessed potions of full healing\nqiqi\u0017Magic Mirror of Merlin\n\n\u0017Orb of Detection\n  dj "
+    }
+  ]
+}

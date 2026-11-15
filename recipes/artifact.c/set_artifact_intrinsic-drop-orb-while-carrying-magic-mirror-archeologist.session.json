@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "artifact.c set_artifact_intrinsic() 756-758: a debug lawful Archeologist quaffs two wished blessed potions of full healing (max HP 13 to 29, so the cross-role blast survives), wishes for the Orb of Detection (her own quest artifact) and the Magic Mirror of Merlin (a Knight's: 'You are blasted'), both CARY(AD_MAGM), then drops the Orb. freeinv() calls set_artifact_intrinsic(orb, off, W_ART); the inventory loop finds the Mirror conferring the same AD_MAGM, so it leaves EAntimagic alone (mask = 0, break).",
+  "segments": [
+    {
+      "seed": 3917044,
+      "datetime": "20420215110000",
+      "nethackrc": "OPTIONS=name:Ida,role:Archeologist,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u00172 blessed potions of full healing\nqiqi\u0017Orb of Detection\n\n\u0017Magic Mirror of Merlin\n dj"
+    }
+  ]
+}
