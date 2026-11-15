@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c ghitm() 329-336 and 344: a debug Samurai level-teleports into Tuktoyaktuk's general store on Dlvl 5 (seed from a bounded 7302101-7302400 scan for a ^V arrival in a shop), picks up an unpaid spellbook and ^T-teleports to the corridor north of the door, robbing the shop. Thrown gold that the pursuing keeper catches covers the 356-zorkmid loss ('The amount covers its recent losses.', make_happy_shk()). Back at the door, ya thrown at the keeper anger him without a robbery, and the rest of the gold gets 'Thanks, scum!'. The priest (350-351) and vault guard (353-365) branches need a temple priest and a vault guard and are not covered here.",
+  "segments": [
+    {
+      "seed": 7302399,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Tinker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": " \u00165\n  \u00171000 gold pieces\n, \u0014 llllkkk.    t400$jjjjtdh tdh  t$h"
+    }
+  ]
+}
