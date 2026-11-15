@@ -16,7 +16,7 @@ import { resetGame } from '../js/gstate.js';
 import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { status_initialize } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
-import { get_saved_games } from '../js/restore.js';
+import { get_saved_games } from '../js/files.js';
 import { parseCFunctions } from './c-functions.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import {
@@ -259,14 +259,27 @@ test('tty_askname preserves SELECTSAVED return paths before prompting', async ()
     state.nhDisplay = new GameDisplay(null);
     state.iflags = { wc2_selectsaved: true };
     const storage = new InMemoryStorage();
-    storage.setItem(savefileKey({ plname: 'saved' }), JSON.stringify({ plname: 'saved' }));
+    // A normal-play save of a neutral female human Valkyrie: the header text
+    // plname_from_file() rebuilds is "saved-Val-Hum-Fem-Neu".
+    storage.setItem(savefileKey({ plname: 'saved' }), JSON.stringify({
+        plname: 'saved',
+        urole: { filecode: 'Val' },
+        urace: { filecode: 'Hum' },
+        flags: { female: true },
+        u: { ualign: { type: 0 } },
+    }));
     setStorageForTesting(storage);
     state.nhDisplay.pushKey('a'.charCodeAt(0));
 
     try {
-        assert.deepEqual(get_saved_games(state), ['saved']);
+        assert.deepEqual(
+            get_saved_games(state).map((entry) => entry.split('\0')[0]),
+            ['saved-Val-Hum-Fem-Neu'],
+        );
         await tty_askname(state);
-        assert.equal(state.plname, 'saved');
+        // restore_menu() copies the whole header text; plnamesuffix() later
+        // splits the suffix off.
+        assert.equal(state.plname, 'saved-Val-Hum-Fem-Neu');
         assert.equal(state.iflags.renameallowed, undefined);
     } finally {
         setStorageForTesting(null);

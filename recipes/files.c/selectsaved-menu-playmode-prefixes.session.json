@@ -1,0 +1,30 @@
+{
+  "version": 5,
+  "comment": "files.c plname_from_file() and get_saved_games(), and restore.c restore_menu() with mixed play modes. A normal-mode Ranger, an explore-mode Valkyrie and a debug-mode Priest (renamed \"wizard\") each save. The fourth segment's rc names no hero, so wintty.c tty_askname() shows the selectsaved menu: the copyright banner moves into the menu, each entry is the save header's \"name-Rol-Rac-Gen-Ali\" text, and because some saves are not normal play every entry carries its playmode prefix ('-', 'X', 'D'); \"Never mind (quit)\" is preselected. Choosing the explore-mode save restores it. Seeds, clocks, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4401927,
+      "datetime": "20290611140500",
+      "nethackrc": "OPTIONS=name:Quilla,role:Ranger,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " Sy"
+    },
+    {
+      "seed": 4401928,
+      "datetime": "20290611141000",
+      "nethackrc": "OPTIONS=name:Torvald,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:explore\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  Sy"
+    },
+    {
+      "seed": 4401929,
+      "datetime": "20290611141500",
+      "nethackrc": "OPTIONS=name:Ignored,role:Priest,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " Sy"
+    },
+    {
+      "seed": 4401930,
+      "datetime": "20290611142000",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "b  ns"
+    }
+  ]
+}

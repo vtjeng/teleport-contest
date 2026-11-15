@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "files.c plname_from_file() and get_saved_games(), and restore.c restore_menu() with every save in normal play. A Healer and a Barbarian save; the third segment's rc names no hero, so wintty.c tty_askname() shows the selectsaved menu, whose entries are sorted with strcmp() and carry no playmode prefix. Choosing \"Start a new character\" returns 0: restore_menu() clears the screen and puts back COPYRIGHT_BANNER_A, and tty_askname() prompts \"Who are you?\" under it. Seeds, clocks, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9035512,
+      "datetime": "20310122193000",
+      "nethackrc": "OPTIONS=name:Mirela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 9035513,
+      "datetime": "20310122194500",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 9035514,
+      "datetime": "20310122200000",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nFen\nyy"
+    }
+  ]
+}

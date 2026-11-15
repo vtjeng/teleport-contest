@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cfgfiles.c cnf_line_SYMBOLS() and vconfig_error_add(). A 262-byte SYMBOLS value with no ':' or '=' fails parsesymbols(), and config_error_add() quotes it; vconfig_error_add() cuts the message to BUFSZ - 1 = 255 bytes before config_erradd() raw-prints it. The raw print drops everything past column 80, so this screen is the same with or without the cut (it matches on 602f66dce too); it is runtime evidence for the error path, and scripts/config-error.test.mjs pins the cut itself. The Tourist then plays a turn. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 61207733,
+      "datetime": "20321108071500",
+      "nethackrc": "OPTIONS=name:Odile,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nSYMBOLS=brick0 mortar1 granite2 basalt3 slate4 marble5 brick6 mortar7 granite8 basalt9 slate10 marble11 brick12 mortar13 granite14 basalt15 slate16 marble17 brick18 mortar19 granite20 basalt21 slate22 marble23 brick24 mortar25 granite26 basalt27 slate28 marble29 brick30\n",
+      "moves": "\n s"
+    }
+  ]
+}

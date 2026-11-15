@@ -5,7 +5,7 @@ import test from 'node:test';
 import { OBJ_CONTAINED, OBJ_FLOOR, OBJ_MINVENT, W_WEP } from '../js/const.js';
 import { newObject } from '../js/obj.js';
 import { restmonchn, restobjchn } from '../js/restore.js';
-import { parseSnapshot, serializeSnapshot } from '../js/save.js';
+import { parseSnapshot, serializeSnapshot } from '../js/snapshot.js';
 
 test('save snapshot preserves aliases and cyclic object references', () => {
     const object = { o_id: 23 };

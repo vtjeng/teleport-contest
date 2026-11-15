@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "end.c save_killers() and restore_killers(), from save.c savegamestate():293 and restore.c restgamestate():653. A debug-mode Samurai wishes for a cockatrice egg and eats it, so eat.c sets the delayed STONED killer \"cockatrice egg\", then saves. The second segment restores, waits until timeout.c stoned_dialogue() finishes her, and dismisses the end-of-game prompts; the tombstone reads \"petrified by a cockatrice egg\" only if the delayed killer survived the save. !safe_wait lets 's' pass while Stoned. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 81726354,
+      "datetime": "20280317091500",
+      "nethackrc": "OPTIONS=name:Basalt,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017cockatrice egg\nefSy"
+    },
+    {
+      "seed": 81726355,
+      "datetime": "20280317100000",
+      "nethackrc": "OPTIONS=name:Basalt,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " nsss  ynnnnn  "
+    }
+  ]
+}

@@ -11,12 +11,13 @@
 // caller (jsmain.js).
 
 import { push_front } from './hacklib.js';
-import { cliparound } from './wintty.js';
+import { cliparound, tty_clear_base_window, tty_putstr_base } from './wintty.js';
 import { rest_regions, rest_saved_level_regions } from './region.js';
 import { installLevel, newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import { restore_timers } from './timeout.js';
+import { restore_killers } from './end.js';
 import {
     COLNO,
     COULD_SEE,
@@ -45,6 +46,9 @@ import {
     W_WEP,
     STONE,
     ROGUESET,
+    MENU_ITEMFLAGS_SKIPMENUCOLORS,
+    PL_NSIZ_PLUS,
+    WIN_ERR,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
 import {
@@ -75,18 +79,18 @@ import { restore_light_sources } from './light.js';
 import { add_worn_property, setworn } from './worn.js';
 import { coreRandom, rnd } from './rng.js';
 import {
-    parseSnapshot, savemonchn, saveobjchn,
+    savemonchn, saveobjchn,
     shift_level_edog_times,
 } from './save.js';
+import { parseSnapshot } from './snapshot.js';
 import { restore_oracles } from './rumors.js';
 import { assign_graphics } from './symbols.js';
 import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
 import { rest_rooms } from './mkroom.js';
 import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
-import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
-import { set_savefile_name } from './files.js';
-import { RECORDER_UID } from './unixunix.js';
+import { vfsReadFile, vfsDeleteFile } from './storage.js';
+import { get_saved_games, set_savefile_name } from './files.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
 import { set_uasmon } from './polyself.js';
@@ -102,59 +106,90 @@ export function restore_msghistory(messages, state = game) {
     if (saved.length) tty_putmsghistory(null, true, state);
 }
 
-// C ref: files.c get_saved_games() (1397-1540), the UNIX arm. Each file in
-// save/ whose name sscanf("%d%63s") splits into this process's uid and a rest
-// contributes the name plname_from_file() reads from it, here the snapshot's
-// plname; the names are then sorted with strcmp().
-export function get_saved_games(_state = game) {
-    const result = [];
-    for (const path of vfsListFiles('save/')) {
-        const match = /^([-+]?\d+)(\S{1,63})/u.exec(path.slice('save/'.length));
-        if (!match || Number(match[1]) !== RECORDER_UID) continue;
-        const raw = vfsReadFile(path);
-        if (raw == null) continue;
-        try {
-            const snapshot = JSON.parse(raw);
-            if (snapshot.plname) result.push(String(snapshot.plname));
-        } catch {
-            // plname_from_file() returns null for a file it cannot read.
+// C ref: restore.c restore_menu() (1536-1619), with the tty window port's
+// BASE_WINDOW as `bannerwin`. The menu is asynchronous because the TTY input
+// port is; its return values keep C's contract: 1 selects the saved
+// character, whose "name-role-race-gend-algn" text it leaves in
+// svp.plname[] for plnamesuffix() to split, 0 starts a new game, and -1
+// quits.
+export async function restore_menu(bannerwin = WIN_ERR, state = game) {
+    let ch = 0; // 0 => new game
+    state.plname = '';
+    const saved = get_saved_games(state); // array of character names
+    if (saved.length) {
+        const items = [];
+        if (bannerwin !== WIN_ERR) {
+            // for tty; erase copyright notice and redo it in the menu
+            tty_clear_base_window(state);
+            // COPYRIGHT_BANNER_[ABCD]
+            for (let k = 1; k <= 4; ++k)
+                items.push({ text: copyright_banner_line(k) });
+            items.push({ text: '' });
+        }
+        items.push({ text: 'Select one of your saved games' });
+        // If every save file's playmode is '-', list the bare
+        // name-role-race-gend-algn values; if any is 'X' or 'D', prefix every
+        // entry with its playmode.
+        let all_normal = true;
+        for (let k = 0; all_normal && k < saved.length; ++k) {
+            if (saved[k][PL_NSIZ_PLUS - 1] !== '-') all_normal = false;
+        }
+        let k;
+        for (k = 0; k < saved.length; ++k) {
+            const next = saved[k];
+            const mode = next[PL_NSIZ_PLUS - 1];
+            // "%.*s" with PL_NSIZ_PLUS - 1 stops at the first NUL.
+            const text = next.slice(0, PL_NSIZ_PLUS - 1).split('\0')[0];
+            items.push({
+                value: k + 1,
+                label: all_normal ? text : `${mode} ${text}`,
+                itemflags: MENU_ITEMFLAGS_SKIPMENUCOLORS,
+            });
+        }
+        // A selector of 0 lets the window port pick the next letter.
+        const a = 'a'.charCodeAt(0);
+        const A = 'A'.charCodeAt(0);
+        let clet = (k <= 'n'.charCodeAt(0) - a) ? 'n' // new game
+            : (k <= 26 + 'N'.charCodeAt(0) - A) ? 'N' : 0;
+        items.push({
+            value: -1, // not >= 0
+            ...(clet ? { selector: clet } : {}),
+            groupSelector: 'N',
+            label: 'Start a new character',
+        });
+        clet = (k + 1 <= 'q'.charCodeAt(0) - a && clet === 'n') ? 'q' // quit
+            : (k + 1 <= 26 + 'Q'.charCodeAt(0) - A && clet === 'N') ? 'Q' : 0;
+        items.push({
+            value: -2,
+            ...(clet ? { selector: clet } : {}),
+            groupSelector: 'Q',
+            label: 'Never mind (quit)',
+            selected: true, // MENU_ITEMFLAGS_SELECTED
+        });
+        // No prompt on end_menu(); the menu carries its own heading line.
+        const choice = await select_menu(state, {
+            items,
+            preselected: -2,
+            cancelValue: null,
+        });
+        if (choice !== null && choice !== undefined) {
+            ch = choice;
+            if (ch > 0)
+                state.plname = saved[ch - 1].split('\0')[0];
+            else if (ch < 0)
+                ++ch; // -1 -> 0 (new game), -2 -> -1 (quit)
+        } else {
+            ch = -1; // quit menu without making a selection => quit
+        }
+        if (bannerwin !== WIN_ERR) {
+            // for tty; clear the menu away and put a subset of the copyright
+            // back: COPYRIGHT_BANNER_A, ahead of the "Who are you?" prompt
+            tty_clear_base_window(state);
+            if (ch === 0)
+                tty_putstr_base(copyright_banner_line(1), state);
         }
     }
-    return result.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-}
-
-// C ref: restore.c restore_menu() (1536-1619). The menu is asynchronous in
-// the browser because the TTY input port is asynchronous; its return values
-// retain C's contract: 1 selects the saved character, 0 starts a new game,
-// and -1 quits or cancels.
-export async function restore_menu(_bannerwin = null, state = game) {
-    // restore.c clears svp.plname before inspecting the save directory, so a
-    // failed or declined selection falls through to a fresh name prompt.
-    state.plname = '';
-    const saved = get_saved_games(state);
-    if (!saved.length) return 0;
-
-    const items = saved.map((name, index) => ({
-        selector: String.fromCharCode('a'.charCodeAt(0) + index),
-        label: name,
-        value: index + 1,
-    }));
-    items.push({ selector: 'n', label: 'Start a new character', value: 0 });
-    items.push({ selector: 'q', label: 'Never mind (quit)', value: -1 });
-    const choice = await select_menu(state, {
-        title: 'Select one of your saved games',
-        // COPYRIGHT_BANNER_[ABCD], then an empty line (restore.c:1557-1560).
-        lines: [1, 2, 3, 4].map(copyright_banner_line).concat(''),
-        items,
-        cancelValue: null,
-    });
-    if (choice === null || choice === undefined) return -1;
-    if (choice > 0) {
-        const name = saved[choice - 1];
-        state.plname = name;
-        return 1;
-    }
-    return choice < 0 ? -1 : 0;
+    return (ch > 0) ? 1 : ch;
 }
 
 // The readers getlev() calls for most of a level's lists link each record
@@ -377,6 +412,9 @@ export async function dorestore(state = game) {
     // getlev():1144 inserts the hero's level's. insert_timer() puts a timer
     // ahead of any with the same timeout, so timers that tie come back in
     // reverse, and the hero level's ahead of global ones they tie with.
+    // C ref: restore.c restgamestate():653 restore_killers(), just before
+    // the global timers.
+    restore_killers(snapshot.killers, state);
     state.gt ??= {};
     state.gt.timer_base = null;
     // C ref: timeout.c restore_timers() reads svt.timer_id first for

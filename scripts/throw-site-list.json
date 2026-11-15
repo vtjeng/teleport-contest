@@ -3348,7 +3348,7 @@
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
     },
-    "js/save.js | reconnect | 'save snapshot has a dangling object reference'": {
+    "js/snapshot.js | reconnect | 'save snapshot has a dangling object reference'": {
       "count": 1,
       "class": "invariant",
       "c": null,

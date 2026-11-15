@@ -1,10 +1,12 @@
 // files.js -- Data-file handling shared by configuration readers.
-// C refs: files.c nh_basename(), set_savefile_name(), read_sym_file().
+// C refs: files.c nh_basename(), set_savefile_name(), read_sym_file(),
+// plname_from_file(), get_saved_games().
 
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
 import {
     BUFSZ, LFILE_EXISTS, MIGR_NOBREAK, MIGR_NOSCATTER, MIGR_WITH_HERO,
+    PL_NSIZ_PLUS,
 } from './const.js';
 import { COIN_CLASS } from './objects.js';
 import {
@@ -15,6 +17,9 @@ import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
 import { RECORDER_UID, regularize } from './unixunix.js';
+import { aligns, genders } from './roles.js';
+import { parseSnapshot } from './snapshot.js';
+import { vfsListFiles, vfsReadFile } from './storage.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
 // at 207-210 is compiled only for WIN32 and MSDOS, so a UNIX build keeps a
@@ -38,6 +43,57 @@ export function nh_basename(fname, keepSuffix) {
 // restore_saved_game() and dosave0() name the file.
 export function set_savefile_name(state = game) {
     return `save/${regularize(`${RECORDER_UID}${state.plname ?? ''}`)}`;
+}
+
+// C ref: files.c plname_from_file() (1355-1388) and the get_plname_from_file()
+// (restore.c 1338-1362) call it makes with name_only FALSE. The save file's
+// header is the PL_NSIZ_PLUS-byte buffer that save.c store_plname_in_file()
+// (999-1027) built at save time: "name-role-race-gend-algn", NULs, and the
+// playmode ('D', 'X' or '-') in the last byte. The snapshot keeps every value
+// that header encodes, so the buffer is rebuilt from it here, with each NUL a
+// '\0' character. A file that does not parse, which validate() would refuse,
+// gives null.
+export function plname_from_file(filename) {
+    const raw = vfsReadFile(filename);
+    if (raw == null) return null;
+    let snapshot;
+    try {
+        snapshot = parseSnapshot(raw);
+    } catch {
+        return null;
+    }
+    // Snprintf(hero, sizeof hero, "%s-%.3s-%.3s-%.3s-%.3s", ...); the
+    // gender and alignment are the ones in effect when the game was saved.
+    const codes = [
+        snapshot.urole?.filecode,
+        snapshot.urace?.filecode,
+        genders[snapshot.flags?.female ? 1 : 0].filecode,
+        aligns[1 - (snapshot.u?.ualign?.type ?? 0)].filecode,
+    ].map((code) => `-${String(code ?? '').slice(0, 3)}`);
+    const hero = (String(snapshot.plname ?? '') + codes.join(''))
+        .slice(0, PL_NSIZ_PLUS - 2);
+    const mode = snapshot.wizard ? 'D' : snapshot.discover ? 'X' : '-';
+    return hero.padEnd(PL_NSIZ_PLUS - 1, '\0') + mode;
+}
+
+// C ref: files.c get_saved_games() (1397-1540), the UNIX arm. Each file in
+// save/ whose name sscanf("%d%63s") splits into this process's uid and a rest
+// contributes the buffer plname_from_file() reads from it; the buffers are
+// then sorted with strcmp(), which stops at the first NUL.
+export function get_saved_games(_state = game) {
+    const result = [];
+    for (const path of vfsListFiles('save/')) {
+        const match = /^([-+]?\d+)(\S{1,63})/u.exec(path.slice('save/'.length));
+        if (!match || Number(match[1]) !== RECORDER_UID) continue;
+        const r = plname_from_file(`save/${Number(match[1])}${match[2]}`);
+        if (r) result.push(r);
+    }
+    const cstr = (buffer) => buffer.split('\0')[0];
+    return result.sort((a, b) => {
+        const x = cstr(a);
+        const y = cstr(b);
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
 }
 
 export function isDefaultSymsetName(name) {

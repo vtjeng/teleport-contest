@@ -273,12 +273,27 @@ export function config_error_nextline(frame, line) {
     return true;
 }
 
-// C ref: pline.c config_error_add(), whose vconfig_error_add() formats the
-// message and hands it to cfgfiles.c config_erradd() (1543-1589).
+// C ref: cfgfiles.c config_error_add() (1864-1872). The caller has already
+// formatted the message, as the varargs do in C; vconfig_error_add() cuts it
+// and config_erradd() reports it through `frame`.
+export function config_error_add(frame, str) {
+    config_erradd(frame, vconfig_error_add(str));
+}
+
+// C ref: cfgfiles.c vconfig_error_add() (1874-1889). vsnprintf() formats into
+// a BIGBUFSZ buffer, and buf[BUFSZ - 1] = '\0' then cuts the message to
+// BUFSZ - 1 = 255 bytes before config_erradd() sees it, so a long bad
+// statement quoted in an error loses its tail. Every config error passes
+// through here, including those js/options.js collects for the 'O' command.
+export function vconfig_error_add(str) {
+    return truncateByteString(String(str ?? ''), BUFSZ - 1);
+}
+
+// C ref: cfgfiles.c config_erradd() (1543-1589).
 // program_state.config_error_ready is true for the whole rc read, so the early
 // pline()-and-return arm at 1557 belongs to the interactive 'O' command rather
 // than to this path, and iflags.in_lua is false outside a Lua callback.
-export function config_error_add(frame, str) {
+export function config_erradd(frame, str) {
     const buf = str || 'Unknown error';
     // config_erradd() adds a period unless the message already ends in one of
     // these three, and appends it to the message rather than to buf[].

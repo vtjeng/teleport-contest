@@ -1832,6 +1832,41 @@ export function dealloc_killer(killer, state = game) {
     }
 }
 
+// C ref: end.c save_killers() (1759-1775). savegamestate() (save.c:293)
+// writes svk.killer and then each delayed-killer record linked from it, in
+// chain order. The snapshot keeps them as an array, head first; the release
+// half of the C function only frees the chain, which the port leaves to the
+// garbage collector.
+export function save_killers(state = game) {
+    // svk.killer always exists in C; a port state that has not named a
+    // killer yet holds its zero value.
+    const head = state.killer ?? { id: 0, format: KILLED_BY_AN, name: '' };
+    const saved = [];
+    for (let kptr = head; kptr; kptr = kptr.next ?? null) {
+        saved.push({
+            id: kptr.id ?? 0,
+            format: kptr.format ?? KILLED_BY_AN,
+            name: kptr.name ?? '',
+        });
+    }
+    return saved;
+}
+
+// C ref: end.c restore_killers() (1778-1789). restgamestate()
+// (restore.c:653) reads svk.killer over the head and allocates a record for
+// each link the saved chain had, so the delayed killers come back in order.
+// With no saved head, svk.killer keeps its zero value.
+export function restore_killers(saved, state = game) {
+    const records = saved ?? [];
+    const head = records[0] ?? { id: 0, format: KILLED_BY_AN, name: '' };
+    state.killer = { ...head, next: null };
+    let prev = state.killer;
+    for (let i = 1; i < records.length; i++) {
+        prev.next = { ...records[i], next: null };
+        prev = prev.next;
+    }
+}
+
 // C ref: end.c container_contents() (1594-1670). Iterates `list` via nobj,
 // creating a NHW_MENU text window listing the contents of each container or
 // statue found. When `all_containers` is TRUE, iterates the full list and

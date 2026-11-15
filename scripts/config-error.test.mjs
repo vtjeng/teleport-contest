@@ -12,7 +12,9 @@ import {
     RECORDER_CONFIGFILE,
     config_error_done,
     get_configfile,
+    vconfig_error_add,
 } from '../js/cfgfiles.js';
+import { readFileSync } from 'node:fs';
 import {
     MENU_COMBINATION,
     MENU_FULL,
@@ -2154,3 +2156,24 @@ test('the config-error summary names the recorder config path',
         assert.equal(get_configfile({ configfile: '/home/you/.nethackrc' }),
             '/home/you/.nethackrc');
     });
+
+test('vconfig_error_add() cuts every config error to BUFSZ - 1 bytes', () => {
+    const CFGFILES_C = readFileSync('nethack-c/upstream/src/cfgfiles.c', 'utf8');
+    assert.match(CFGFILES_C, /vconfig_error_add\(const char \*str, va_list the_args\)[\s\S]*?char buf\[BIGBUFSZ\];[\s\S]*?vlen = vsnprintf\(buf, sizeof buf, str, the_args\);[\s\S]*?buf\[BUFSZ - 1\] = '\\0';\s*config_erradd\(buf\);/u);
+    // 255 bytes survive whole and 256 lose the last one (BUFSZ is 256).
+    assert.equal(vconfig_error_add('x'.repeat(255)), 'x'.repeat(255));
+    assert.equal(vconfig_error_add('x'.repeat(256)), 'x'.repeat(255));
+    // An empty message stays empty; config_erradd() substitutes its text.
+    assert.equal(vconfig_error_add(''), '');
+
+    // A SYMBOLS value of 240 bytes with no ':' or '=' makes
+    // cnf_line_SYMBOLS() quote it: 29 bytes of "Error in SYMBOLS definition '"
+    // leave room for 226 of them, so the closing quote is lost, and the
+    // cut text ends in a letter, so config_erradd() adds its period.
+    const value = 'abcdefghij'.repeat(24);
+    const parsed = parseNethackrc(`SYMBOLS=${value}\n`);
+    assert.deepEqual(parsed.configErrorFrame.output, [
+        `\nSYMBOLS=${value}`,
+        ` * Line 1: Error in SYMBOLS definition '${value.slice(0, 226)}.`,
+    ]);
+});

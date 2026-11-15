@@ -36,12 +36,13 @@
 // module initialization; neither belongs in a module-scope value initializer
 // while the cycle remains.
 import { yn_function } from './cmd.js';
+import { serializeSnapshot } from './snapshot.js';
 import {
     BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, OBJ_FREE, RANGE_GLOBAL,
     RANGE_LEVEL, VISITED, W_BALL, W_CHAIN,
 } from './const.js';
 import { game } from './gstate.js';
-import { done_object_cleanup, nh_terminate } from './end.js';
+import { done_object_cleanup, nh_terminate, save_killers } from './end.js';
 import { nomul } from './hack.js';
 import { light_sources_in_range, save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
@@ -480,73 +481,6 @@ export async function dosave0(state = game) {
     return 1;
 }
 
-// Keep the JSON snapshot's visible field layout, but encode each repeated
-// object reference as its first path. This preserves C pointer identity after
-// the JSON round trip without serializing functions or display handles.
-const SNAPSHOT_REFERENCE = '__teleport_graph_reference_v1__';
-
-export function serializeSnapshot(value) {
-    const firstPath = new WeakMap();
-    const objectPath = new WeakMap();
-    return JSON.stringify(value, function snapshotReplacer(key, val) {
-        if (typeof val === 'function') return undefined;
-        if (val === null || typeof val !== 'object') return val;
-
-        const parent = objectPath.get(this) ?? [];
-        const property = Array.isArray(this) ? Number(key) : key;
-        const path = [...parent, property];
-        const previous = firstPath.get(val);
-        if (previous) return { [SNAPSHOT_REFERENCE]: JSON.stringify(previous) };
-        firstPath.set(val, path);
-        objectPath.set(val, path);
-        return val;
-    });
-}
-
-// Resolve reference paths after parsing. Older JSON saves without reference
-// markers remain readable.
-export function parseSnapshot(serialized) {
-    const root = JSON.parse(serialized);
-    const byPath = new Map();
-    const pathKey = path => JSON.stringify(path);
-    const referencePath = value => {
-        if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-        const keys = Object.keys(value);
-        return keys.length === 1 && keys[0] === SNAPSHOT_REFERENCE
-            && typeof value[SNAPSHOT_REFERENCE] === 'string'
-            ? value[SNAPSHOT_REFERENCE] : null;
-    };
-
-    function index(value, path) {
-        if (!value || typeof value !== 'object' || referencePath(value)) return;
-        byPath.set(pathKey(path), value);
-        for (const key of Object.keys(value)) {
-            const property = Array.isArray(value) ? Number(key) : key;
-            index(value[key], [...path, property]);
-        }
-    }
-
-    const rootPath = [''];
-    index(root, rootPath);
-    const visited = new WeakSet();
-    function reconnect(value, path) {
-        const target = referencePath(value);
-        if (target) {
-            const resolved = byPath.get(target);
-            if (!resolved) throw new Error('save snapshot has a dangling object reference');
-            return resolved;
-        }
-        if (!value || typeof value !== 'object' || visited.has(value)) return value;
-        visited.add(value);
-        for (const key of Object.keys(value)) {
-            const property = Array.isArray(value) ? Number(key) : key;
-            value[key] = reconnect(value[key], [...path, property]);
-        }
-        return value;
-    }
-    return reconnect(root, rootPath);
-}
-
 // Serialize the game state into a plain object suitable for JSON.stringify.
 // The fields mirror what C's savegamestate() (save.c:265-333) writes: the
 // hero struct, flags, moves, context, inventory, level data, dungeon state,
@@ -651,6 +585,9 @@ function serializeGameState(state) {
         // the rest with RANGE_GLOBAL.
         // C ref: timeout.c save_timers() writes svt.timer_id ahead of the
         // RANGE_GLOBAL timers, so a restored game keeps numbering from it.
+        // C ref: save.c savegamestate():293 save_killers() writes svk.killer
+        // and its delayed-killer chain before the global timers.
+        killers: save_killers(state),
         timer_id: state.svt.timer_id,
         level_timers: maybe_write_timer(RANGE_LEVEL, state),
         timers: maybe_write_timer(RANGE_GLOBAL, state),
