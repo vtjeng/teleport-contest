@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of armor_or_accessory_off-shirt-under-suit-and-cloak-tourist: a debug Valkyrie wears a wished T-shirt, ring mail and a dwarvish cloak over it (her small shield gives T a second choice) and asks to take off the T-shirt; 1788 joins the cloak and the suit's simple name: 'cloak and mail'.",
+  "segments": [
+    {
+      "seed": 3203871,
+      "datetime": "20381203113000",
+      "nethackrc": "OPTIONS=name:Sif,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017T-shirt\n\u0017ring mail\n\u0017dwarvish cloak\nWeWfWgTe"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_wear.c armor_or_accessory_off() 1788: a debug Tourist (who starts in a Hawaiian shirt) wishes for and wears leather armor, a leather cloak and an orcish helm (so T asks which item instead of choosing the only one), then picks the shirt (m) at the T prompt. With both a cloak and a suit over it, the refusal names both: 'You can't take that off without taking off your cloak and suit first.'",
+  "segments": [
+    {
+      "seed": 5592408,
+      "datetime": "20400830141500",
+      "nethackrc": "OPTIONS=name:Ilka,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017leather armor\n\u0017leather cloak\nWpWq\u0017orcish helm\nWrTm"
+    }
+  ]
+}
