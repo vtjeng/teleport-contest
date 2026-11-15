@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of dokeylist-count-prefix-bound-to-movement-key with number_pad:2 (the 1-2-3 top-row layout, still num_pad) and a Tourist: the count prefix bound to Ctrl-C is again listed as '[count]' among the keyless special key commands.",
+  "segments": [
+    {
+      "seed": 4471288,
+      "datetime": "20330917141500",
+      "nethackrc": "OPTIONS=name:Keyer,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,number_pad:2,pettype:none\nBIND=^C:count\n",
+      "moves": "?j\u001b"
+    }
+  ]
+}
