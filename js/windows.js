@@ -6,6 +6,7 @@ import {
     MENU_ITEMFLAGS_SKIPMENUCOLORS,
     PICK_ANY,
 } from './const.js';
+import { map_glyphinfo } from './display.js';
 import { def_char_to_objclass } from './drawing.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
@@ -24,6 +25,121 @@ import {
     ATR_UNDERLINE,
     NO_COLOR,
 } from './terminal.js';
+
+// C ref: decl.c hexdd[]. Each hexadecimal digit appears in lower and upper
+// case, so decode_glyph() halves a digit's index to get its value.
+const hexdd = '00112233445566778899aAbBcCdDeEfF';
+
+// C's `*str` loop guard: the byte at `index`, or '' at the end of the string
+// or at a NUL, where the C string ends.
+function cByteAt(str, index) {
+    const ch = str[index] ?? '';
+    return ch === '\0' ? '' : ch;
+}
+
+// C ref: windows.c encglyph() (1427-1434): `\\G%04X%04X` of
+// svc.context.rndencode and the glyph. moveloop_preamble() sets rndencode to
+// rnd(9000), so each game has its own key and decode_glyph() rejects a
+// sequence that a player types without knowing it.
+export function encglyph(glyph, state = game) {
+    const hex = (value) => (value >>> 0).toString(16).toUpperCase()
+        .padStart(4, '0');
+    return `\\G${hex(state.context?.rndencode ?? 0)}${hex(glyph)}`;
+}
+
+// C ref: windows.c decode_glyph() (1438-1463). `str` is the text after the
+// `\G`. It reads up to four hexadecimal digits as the rndencode key and, when
+// they match svc.context.rndencode, up to four more as the glyph. It returns
+// C's retval, the number of digits read, as `count`; 0 means the key did not
+// match, or matched with no digits, and the sequence is a forgery. C leaves
+// *glyph_ptr unset on a mismatch, so `glyph` is then undefined. Pure: it
+// reads only the string and the key.
+export function decode_glyph(str, state = game) {
+    let rndchk = 0;
+    let dcount = 0;
+    let retval = 0;
+    let index = 0;
+
+    for (; cByteAt(str, index) && ++dcount <= 4; ++index) {
+        const dp = hexdd.indexOf(str[index]);
+        if (dp >= 0) {
+            retval++;
+            rndchk = (rndchk * 16) + Math.trunc(dp / 2);
+        } else
+            break;
+    }
+    if (rndchk === (state.context?.rndencode ?? 0)) {
+        let glyph = dcount = 0;
+        for (; cByteAt(str, index) && ++dcount <= 4; ++index) {
+            const dp = hexdd.indexOf(str[index]);
+            if (dp >= 0) {
+                retval++;
+                glyph = (glyph * 16) + Math.trunc(dp / 2);
+            } else
+                break;
+        }
+        return { count: retval, glyph };
+    }
+    return { count: 0, glyph: undefined };
+}
+
+// C ref: windows.c decode_mixed()'s replacement for one decoded glyph,
+// gs.showsyms[] at map_glyphinfo(0, 0, glyph, 0)'s symidx, which is the
+// glyphinfo's ttychar.
+function decodedGlyphByte(glyph, state) {
+    return String.fromCharCode(map_glyphinfo(glyph, state).ttychar);
+}
+
+// C ref: windows.c decode_mixed() (1465-1511). It copies `str`, replaces each
+// `\G` sequence that decode_glyph() accepts with the glyph's symbol, and
+// drops a backslash before any other character: `\\` becomes one backslash
+// and `\x` becomes `x`. A forged `\G` and a backslash that ends the string
+// are copied as they are.
+//
+// `putGlyph(glyph, column)` returns the text that replaces a decoded glyph,
+// where `column` is the length of the output before it. Without it, or when
+// it returns null, the replacement is C's gs.showsyms[] byte. utf8map.c mixed_to_utf8(), which wintty.c
+// tty_putmixed() uses instead under a UTF-8 symbol set, runs this same loop
+// and differs only in that replacement, so the tty callers pass their glyph
+// rendering here rather than through a second copy of the loop.
+export function decode_mixed(str, state = game, putGlyph = undefined) {
+    if (str == null) return '';
+    let buf = '';
+    let index = 0;
+
+    while (cByteAt(str, index)) {
+        if (str[index] === '\\') {
+            const saveIndex = index++;
+            switch (cByteAt(str, index)) {
+            case 'G': { /* glyph value \GXXXXNNNN */
+                const { count, glyph } = decode_glyph(
+                    str.slice(index + 1), state,
+                );
+                if (count) {
+                    index += count + 1;
+                    buf += putGlyph?.(glyph, buf.length)
+                        ?? decodedGlyphByte(glyph, state);
+                    /* 'index' is ready for the next loop iteration and
+                       str[index] should not be copied at the end of this
+                       iteration */
+                    continue;
+                }
+                /* possible forgery - leave it the way it is */
+                index = saveIndex;
+                break;
+            }
+            case '\\':
+                break;
+            case '':
+                /* String ended with '\\', as an object name can. */
+                index = saveIndex;
+                break;
+            }
+        }
+        buf += str[index++];
+    }
+    return buf;
+}
 
 // C ref: windows.c get_menu_coloring(). The list is newest-first and the
 // first matching expression supplies both fields.
