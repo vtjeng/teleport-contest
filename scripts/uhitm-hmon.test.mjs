@@ -1997,13 +1997,19 @@ test('hmonas source keeps attack selection, results, passive, and knockback orde
     assert.match(cFunction,
         /mhitm_knockback\(&gy\.youmonst, mon, mattk, &sum\[i\], weapon_used\)\)\s*break;[\s\S]*?if \(uswapwep && weapon == uswapwep && weapon->cursed\) \{\s*drop_uswapwep\(\);\s*break;/u);
     assert.match(cFunction, /if \(DEADMONSTER\(mon\)\)\s+break;/u);
+    // uhitm.c 5538-5543: a worm cut in half jumps past passive() and
+    // mhitm_knockback() to passivedone.
+    assert.match(cFunction,
+        /m_at\(u\.ux \+ u\.dx, u\.uy \+ u\.dy\) != mon\) \{\s*i = NATTK;[\s\S]*?goto passivedone;/u);
 
     const jsSource = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
     const jsStart = jsSource.indexOf('export async function hmonas(');
     const jsEnd = jsSource.indexOf('// C ref: uhitm.c hitum()', jsStart);
     const jsFunction = jsSource.slice(jsStart, jsEnd);
     assert.match(jsFunction,
-        /await mhitm_knockback\([\s\S]*?break;\s*\}\s*sums\[i\] = hitflags\.value;\s*if \(state\.uswapwep && weapon === state\.uswapwep && weapon\.cursed\) \{\s*await drop_uswapwep\(state, attackEnv\);\s*break;/u);
+        /await mhitm_knockback\([\s\S]*?break;\s*\}\s*sums\[i\] = hitflags\.value;\s*\}\s*\/\* passivedone: \*\/\s*if \(state\.uswapwep && weapon === state\.uswapwep && weapon\.cursed\) \{\s*await drop_uswapwep\(state, attackEnv\);\s*break;/u);
+    assert.match(jsFunction,
+        /i = NATTK;\s*cutWorm = true;[\s\S]*?if \(!cutWorm\) \{\s*if \(dhit === -1\)[\s\S]*?await passive\(/u);
 });
 
 // uhitm.c1878 prints silver feedback before the common reaction tail.
