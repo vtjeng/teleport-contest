@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730917,
+      "datetime": "20351107102700",
+      "nethackrc": "OPTIONS=playmode:debug,name:SteedProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,number_pad:1\n",
+      "comment": "Variation of apply-saddle-knight-independent: the same saddling (the pony appears north-west, number_pad 7), then accepting the debug-mode forced #ride mount, so steed.c mount_steed() completes and the Knight rides the pony.",
+      "moves": "\u0007tame pony\n\u0017saddle\n ai7#ride\n7y"
+    }
+  ]
+}
