@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c untrap() 6075-6081, 6090, 5944-5945 and 5887-5889. A debug Valkyrie, in a room against the map's west edge, wishes a trapped door onto the room's east doorway, steps back and repeats #untrap until she finds the trap; disarming it at XL1 fails, so the door explodes (6075-6081; not a shop, so 6082 does not run). She wishes a closed door into the empty doorway, quaffs a wished potion of confusion and repeats #untrap until the confused 1-in-3 roll 'finds' a trap: 'This door was not trapped.' (6090). She drops a wished large box, wishes a squeaky board under it, steps off and back on to reveal the board, and answers q to 'There is a container and a squeaky board here' (5944-5945). As a xorn (#polyself) she walks through the west wall to map column 1 and tries #untrap west: 'The perils lurking there are beyond your grasp.' (5887-5889).",
+  "segments": [
+    {
+      "seed": 5550002,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "kklllllllll\u0017trapped door\nh#untrap\nl#untrap\nl#untrap\nl#untrap\nl y20sl\u0017closed door\nh\u0017potion of confusion\nqf#untrap\nl#untrap\nl#untrap\nl#untrap\nl#untrap\nl#untrap\nl#untrap\nl#untrap\nl#untrap\nl y\u0017large box\ndg\u0017squeaky board\n20shl #untrap\n.q#polyself\nxorn\n 13h#untrap\nh"
+    }
+  ]
+}
