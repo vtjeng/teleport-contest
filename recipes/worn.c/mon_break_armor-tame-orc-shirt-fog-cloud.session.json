@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "worn.c mon_break_armor() 1259-1260: a level-12 Priestess rings herself with eight wished T-shirts; a tame hill orc picks one up and wears it (dog_invent() -> check_gear_next_turn()). A wand of polymorph with monpolycontrol turns it into a fog cloud (sliparm, size above MZ_SMALL) in view: \"The fog cloud seeps right through its shirt!\"",
+  "segments": [
+    {
+      "seed": 6120456,
+      "datetime": "20350416194500",
+      "nethackrc": "OPTIONS=name:Hild,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,monpolycontrol\n",
+      "moves": "\u001b#levelchange\n12\n\u001bk\u0017T-shirt\n\u001bdj\u001bl\u0017T-shirt\n\u001bdk\u001bj\u0017T-shirt\n\u001bdl\u001bj\u0017T-shirt\n\u001bdm\u001bh\u0017T-shirt\n\u001bdn\u001bh\u0017T-shirt\n\u001bdo\u001bk\u0017T-shirt\n\u001bdp\u001bk\u0017T-shirt\n\u001bdq\u001bn#wizgenesis\ntame hill orc\n\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b\u0017wand of polymorph\n\u001bzrlfog cloud\n\r\r\u001b"
+    }
+  ]
+}

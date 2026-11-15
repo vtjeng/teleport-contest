@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "worn.c mon_break_armor() 1225-1226: as in mon_break_armor-tame-orc-shirt-fog-cloud, a tame hill orc dresses in one of the T-shirts ringed around the Priestess (a set of gray dragon scales lies on the first square). She plays a magic flute so it sleeps, puts on a blindfold, and zaps a wand of polymorph at it with monpolycontrol, choosing a hill giant (breakarm). The hero cannot see the square, so the shirt branch prints \"You hear a ripping sound.\" Variation: the blind hero and a breakarm form.",
+  "segments": [
+    {
+      "seed": 6120456,
+      "datetime": "20350416194500",
+      "nethackrc": "OPTIONS=name:Hild,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,monpolycontrol\n",
+      "moves": "\u001b#levelchange\n12\n\u001bk\u0017T-shirt\n\u001bdj\u001b\u0017gray dragon scales\n\u001bdk\u001bl\u0017T-shirt\n\u001bdl\u001bj\u0017T-shirt\n\u001bdm\u001bj\u0017T-shirt\n\u001bdn\u001bh\u0017T-shirt\n\u001bdo\u001bh\u0017T-shirt\n\u001bdp\u001bk\u0017T-shirt\n\u001bdq\u001bk\u0017T-shirt\n\u001bdr\u001bn#wizgenesis\ntame hill orc\n\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b\u0017magic flute\n\u001b\u0017blindfold\n\u001b\u0017wand of polymorph\n\u001basy\u001bPt\u001bzujhill giant\n"
+    }
+  ]
+}
