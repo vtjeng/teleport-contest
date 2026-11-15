@@ -752,9 +752,9 @@ export async function explode(
     }
 
     if (shopdamage.value) {
-        const damageText = type === AD_FIRE ? 'burn away'
-            : type === AD_COLD ? 'shatter'
-                : type === AD_DISN ? 'disintegrate' : 'destroy';
+        const damageText = adtyp === AD_FIRE ? 'burn away'
+            : adtyp === AD_COLD ? 'shatter'
+                : adtyp === AD_DISN ? 'disintegrate' : 'destroy';
         await pay_for_damage(damageText, false, state, { ...env, random });
     }
     let noise = dam * dam;
