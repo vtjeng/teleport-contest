@@ -409,7 +409,7 @@ import {
     ETelepat, Fast, Flying, Glib, HDetect_monsters, HDisplaced, HFast,
     HFumbling, HInvis, HLevitation, HMagical_breathing, HSee_invisible,
     HSleepy, HStealth, HSwimming, HTelepat, Hallucination, Invis, Levitation,
-    See_invisible, Slimed, Stone_resistance, Strangled, Unchanging, Very_fast,
+    Protection_from_shape_changers, See_invisible, Slimed, Stone_resistance, Strangled, Unchanging, Very_fast,
 } from './youprop.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
@@ -1111,7 +1111,11 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         break;
     }
     case RIN_PROTECTION_FROM_SHAPE_CHAN:
-        restartcham(state);
+        /* if you're no longer protected, let the chameleons change
+           shape again; however, might still be protected if wearing
+           2nd ring of this type (or via #wizintrinsic) */
+        if (!Protection_from_shape_changers(state.u))
+            restartcham(state);
         break;
     }
 }
