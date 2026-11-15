@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c use_whip() 3102: a debug Valkyrie wields a wished bullwhip, walks two squares from the up staircase (stairs count as furniture to wrap the whip around), wishes a pit, steps off and back in, and creates a lichen beside her (^G). Applying the whip at the small lichen from inside the pit, with no boulder or furniture there, goes to the whip attack (3102). 3144-3145 (a hider brought out of hiding; makemon() hides eels and snakes only during level creation, makemon.c 1322-1325) and 3214-3229 (snatching a cockatrice corpse from a gloved monster) are not covered.",
+  "segments": [
+    {
+      "seed": 5560001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017bullwhip\nwfjjl\u0017pit\nlh  \u0007lichen\nafh"
+    }
+  ]
+}
