@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mondata.c same_race() 805-806, 818-820 and 829-830: a debug Valkyrie drops everything, including three wished lichen corpses, then #polyselfs into an imp, a white unicorn and an ettin mummy in turn, eating one floor corpse in each form. maybe_cannibal() (eat.c 776) asks same_race() of the polymorphed form, which reaches the S_IMP, unicorn and S_MUMMY tests (an ettin mummy has no race flag, unlike the kobold, gnome, orc, dwarf, elf and human mummies). Cavemen and orcs skip the test, as cannibalism is allowed for them.",
+  "segments": [
+    {
+      "seed": 6100851,
+      "datetime": "20421102081500",
+      "nethackrc": "OPTIONS=name:Lio,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u00173 lichen corpses\nDaA\n   #polyself\nimp\ney #polyself\nwhite unicorn\n ey #polyself\nettin mummy\ney "
+    }
+  ]
+}
