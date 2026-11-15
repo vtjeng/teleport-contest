@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c chest_trap() 6469: a Monk wearing a wished ring of free action loots a wished unlocked trapped large box; the trap roll lands on cases 3-5, and Free_action turns the paralysis into \"You momentarily stiffen.\"",
+  "segments": [
+    {
+      "seed": 8830126,
+      "datetime": "20341122161000",
+      "nethackrc": "OPTIONS=name:Odo,role:Monk,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b\u0017ring of free action\n\u001bPlr\u001b\u0017unlocked trapped large box\n\u001bdm\u001b#loot\n\r\u001b\u001b"
+    }
+  ]
+}
