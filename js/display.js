@@ -7637,7 +7637,7 @@ function _clearRedrawnStatusOverlay(
 // before that cls() -- an object rotting away in goto_level()'s run_timers()
 // -- then compares the new glyph with the old level's, as C does.
 // scripts/install-level.test.mjs fails when other code assigns the level.
-const SCREEN_BUFFER_FIELDS = Object.freeze([
+export const SCREEN_BUFFER_FIELDS = Object.freeze([
     'disp_ch', 'disp_color', 'disp_decgfx', 'disp_attr', 'disp_browser_ch',
     'disp_browser_color', 'disp_browser_attr', 'disp_glyph', 'gnew',
     'tty_ch', 'tty_color', 'tty_decgfx', 'tty_attr',
@@ -7654,6 +7654,27 @@ export function installLevel(level, state) {
             if (!from || !to) continue;
             for (const field of SCREEN_BUFFER_FIELDS) to[field] = from[field];
         }
+    }
+}
+
+// C ref: sp_lev.c flip_level() 827-829 and 848-850, `trm = levl[a];
+// levl[a] = levl[b]; levl[b] = trm`. Only struct rm moves: gg.gbuf and the
+// physical screen keep showing each coordinate's old cell until a newsym()
+// or docrt() reaches it, so SCREEN_BUFFER_FIELDS stay where they were.
+// scripts/levl-entry-swap.test.mjs fails when other code assigns a location.
+export function swap_levl_entries(level, x1, y1, x2, y2) {
+    const first = level.locations[x1][y1];
+    const second = level.locations[x2][y2];
+    level.locations[x1][y1] = second;
+    level.locations[x2][y2] = first;
+    for (const field of SCREEN_BUFFER_FIELDS) {
+        const firstHas = Object.hasOwn(first, field);
+        const secondHas = Object.hasOwn(second, field);
+        const value = first[field];
+        if (secondHas) first[field] = second[field];
+        else delete first[field];
+        if (firstHas) second[field] = value;
+        else delete second[field];
     }
 }
 

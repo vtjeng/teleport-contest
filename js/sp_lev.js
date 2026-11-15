@@ -7,7 +7,9 @@ import { COLNO, ROWNO, DB_DIR, DB_WEST, DB_EAST, DB_NORTH, DB_SOUTH,
 import { swapbits } from './hacklib.js';
 import { carried } from './obj.js';
 import { on_level } from './dungeon.js';
-import { back_to_glyph, glyph_is_cmap, set_wall_state } from './display.js';
+import {
+    back_to_glyph, glyph_is_cmap, set_wall_state, swap_levl_entries,
+} from './display.js';
 import { get_level_extends } from './mkmaze.js';
 import { fix_wall_spines } from './mklev.js';
 import { placebc, unplacebc } from './ball.js';
@@ -329,7 +331,8 @@ export async function flip_level(flp, extras = false, state = game) {
     for (let i = 0; i < level.doorindex; i++) flipCoord(level.doors[i]);
 
     // C ref: sp_lev.c:818-860. The map: swap terrain, object grid, and
-    // monster grid, turning drawbridges to face the other way first.
+    // monster grid, turning drawbridges to face the other way first. The
+    // screen state on each location stays put; see swap_levl_entries().
     if (flp & 1) {
         for (let x = minx; x <= maxx; x++) {
             const half = miny + Math.trunc((maxy - miny + 1) / 2);
@@ -339,9 +342,7 @@ export async function flip_level(flp, extras = false, state = game) {
                 flip_dbridge_vertical(level.locations[x][y]);
                 flip_dbridge_vertical(level.locations[x][ny]);
 
-                const trm = level.locations[x][y];
-                level.locations[x][y] = level.locations[x][ny];
-                level.locations[x][ny] = trm;
+                swap_levl_entries(level, x, y, x, ny);
                 const otmp = level.objects[x][y];
                 level.objects[x][y] = level.objects[x][ny];
                 level.objects[x][ny] = otmp;
@@ -360,9 +361,7 @@ export async function flip_level(flp, extras = false, state = game) {
                 flip_dbridge_horizontal(level.locations[x][y]);
                 flip_dbridge_horizontal(level.locations[nx][y]);
 
-                const trm = level.locations[x][y];
-                level.locations[x][y] = level.locations[nx][y];
-                level.locations[nx][y] = trm;
+                swap_levl_entries(level, x, y, nx, y);
                 const otmp = level.objects[x][y];
                 level.objects[x][y] = level.objects[nx][y];
                 level.objects[nx][y] = otmp;
