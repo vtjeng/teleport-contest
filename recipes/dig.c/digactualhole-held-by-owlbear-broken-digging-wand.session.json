@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c digactualhole() for a hole under the monster that holds the hero (807): a Valkyrie in debug mode raised to level 10 creates an owlbear, waits (m-prefixed searches) until it grabs her, then breaks a wished wand of digging (0:6); the owlbear survives the blast, and when a HOLE opens under it, the u.ustuck check returns before it can fall.",
+  "segments": [
+    {
+      "seed": 9917324,
+      "datetime": "20390808200000",
+      "nethackrc": "OPTIONS=name:Hrodny,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n10\n\u001b\u0017wand of digging (0:6)\n  \u0007owlbear\n  ms  ms  aey            "
+    }
+  ]
+}
