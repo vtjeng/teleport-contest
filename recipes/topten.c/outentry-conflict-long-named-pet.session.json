@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "topten.c outentry() wrapping a death line inside one long word (1064-1065, 1070-1071). Seed 7315001 comes from the bounded port scan described in recipes/objnam.c/readobjnam-djinni-wish-*: the normal-mode Healer's smoky potion gives a djinni wish for a ring of conflict, she names her little dog with a 61-letter name that has no space, puts the ring on, and the dog kills her; the score list line 'killed by <name>' is wider than the Hp column and has no space to break at.",
+  "segments": [
+    {
+      "seed": 7315001,
+      "datetime": "20320813101500",
+      "nethackrc": "OPTIONS=name:Sela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " qd\r\r\rring of conflict\n#name\nmm.Bartholomewthegreatandterriblehoundofthenorthernmarchesandsea\nPmr20s\r20s\r20s\r20s\r\rnnnn\r\r"
+    }
+  ]
+}
