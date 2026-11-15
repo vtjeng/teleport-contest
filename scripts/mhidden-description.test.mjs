@@ -144,15 +144,6 @@ test('MHID_ALTMON alone gives a bare furniture name', () => {
     assert.equal(mhidden_description(mimic, MHID_ALTMON, state), 'wall');
 });
 
-test('mhidden_description refuses a call without MHID_* flags', () => {
-    const state = { u: {}, level: { at: () => undefined, regions: [] } };
-    // An options object where the flags belong is the old calling form.
-    assert.throws(
-        () => mhidden_description({ mx: 0, my: 0 }, state, {}),
-        TypeError,
-    );
-});
-
 // Every JavaScript call of mhidden_description(), keyed by
 // "<file> | <enclosing function>", with the MHID_* mask its C call site
 // passes.  A new call fails until it is listed here with its C site, and a

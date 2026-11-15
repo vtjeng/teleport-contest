@@ -417,20 +417,18 @@ function menuLines(state) {
 
 // C ref: pager.c mhidden_description() (186-281).  This helper belongs to
 // pager.c even though monster status-line code also consumes it.
-// `mhid_flags` is C's MHID_* mask and is required, so every caller states
-// the flags its C call site passes.  `isYou` preserves the source's special
-// treatment of &gy.youmonst: its coordinates, hidden flag, appearance type,
-// and current glyph all come from u rather than from the synthetic monster
-// record used by some callers.
+// `mhid_flags` is C's MHID_* mask; scripts/mhidden-description.test.mjs
+// checks that every caller passes the flags of its C call site.  `isYou`
+// preserves the source's special treatment of &gy.youmonst: its
+// coordinates, hidden flag, appearance type, and current glyph all come
+// from u rather than from the synthetic monster record used by some
+// callers.
 export function mhidden_description(
     monster,
     mhid_flags,
     state,
     { isYou = monster === state?.youmonst } = {},
 ) {
-    if (!Number.isInteger(mhid_flags)) {
-        throw new TypeError('mhidden_description requires MHID_* flags');
-    }
     const includePrefix = (mhid_flags & MHID_PREFIX) !== 0;
     const includeArticle = (mhid_flags & MHID_ARTICLE) !== 0;
     const showAlternateMonster = (mhid_flags & MHID_ALTMON) !== 0;
