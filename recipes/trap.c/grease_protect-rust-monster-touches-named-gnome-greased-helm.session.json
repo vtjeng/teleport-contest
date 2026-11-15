@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c grease_protect() 371-373: a tame gnome picks up and wears a dropped greased orcish helm, is named Boris, and a Valkyrie polymorphed into a rust monster touches it; uhitm.c erode_armor() picks the helm and C prints \"Boris's orcish helm is protected by the layer of grease!\" with a literal 's, not s_suffix().",
+  "segments": [
+    {
+      "seed": 5120934,
+      "datetime": "20410908141200",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017greased orcish helm\n\u001b\u0007tame gnome\n\u001bdejlssssssss#name\nm\n\ny.Boris\n#polyself\nrust monster\n\u001bFyFy\u001b"
+    }
+  ]
+}

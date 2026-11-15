@@ -43,7 +43,7 @@ import {
     W_ARMU,
     materialnm,
 } from './const.js';
-import { monsterPossessive } from './do_name.js';
+import { Monnam, monsterPossessive } from './do_name.js';
 import { game } from './gstate.js';
 import { delobj, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
@@ -396,8 +396,10 @@ export async function grease_protect(obj, description, victim, env = {}) {
                 state,
             );
         } else if (vismon) {
+            // trap.c 372 writes "%s's" after Monnam() rather than calling
+            // s_suffix(), so a name ending in s still takes 's.
             await message(
-                `${monsterPossessive(victim, state, true)} ${description} `
+                `${Monnam(victim, state)}'s ${description} `
                 + `${vtense(description, 'are')} protected by the layer of `
                 + 'grease!',
                 state,

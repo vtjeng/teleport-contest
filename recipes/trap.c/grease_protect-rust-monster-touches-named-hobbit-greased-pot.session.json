@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of grease_protect-rust-monster-touches-named-gnome-greased-helm with a male Samurai, a tame hobbit wearing a greased dented pot, another seed and map: trap.c grease_protect() 371-373 prints \"Agnes's dented pot is protected by the layer of grease!\".",
+  "segments": [
+    {
+      "seed": 8837116,
+      "datetime": "20400717062000",
+      "nethackrc": "OPTIONS=name:Taro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017greased dented pot\n\u001b\u0007tame hobbit\n\u001bdf\u001bj\u001bj\u001bs\u001b#name\nm\n\nkk.Agnes\n#polyself\nrust monster\n\u001bk\u001bFk\u001b"
+    }
+  ]
+}
