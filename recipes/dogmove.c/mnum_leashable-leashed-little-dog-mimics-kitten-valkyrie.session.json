@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of mnum_leashable-leashed-little-dog-mimics-kitten-samurai with a Valkyrie, another seed and map: dogmove.c quickmimic() 1525-1527 calls mnum_leashable() 1463-1469 for a leashed little dog that mimics a kitten after eating a small mimic corpse. The wait count before the drop was chosen so qm[] picks the kitten rather than the tripe ration (port scan of 0-3 extra turns).",
+  "segments": [
+    {
+      "seed": 6641533,
+      "datetime": "20390712201000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:dog,time",
+      "moves": " \u0017leash\naeh\u0017small mimic corpse\ndf l   s"
+    }
+  ]
+}
