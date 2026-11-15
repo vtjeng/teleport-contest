@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of classify_terrain-xorn-in-rock-on-arboreal-quest-home: hack.c classify_terrain() 3119-3120. With terrainstatus on, a debug dwarvish Caveman #polyselfs into a xorn on Dlvl 1, phases into the room's west wall, wishes it into a locked door, steps out and back in; the door's doormask is D_LOCKED, so the status shows 'Shut-door'.",
+  "segments": [
+    {
+      "seed": 5522019,
+      "datetime": "20390408111500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,terrainstatus",
+      "moves": " #polyself\nxorn\n h\u0017locked door\nlh"
+    }
+  ]
+}
