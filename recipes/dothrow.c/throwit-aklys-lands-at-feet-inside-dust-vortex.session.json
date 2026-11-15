@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of throwit-aklys-fails-to-return-inside-fog-cloud: a Priest engulfed by a dust vortex (which blinds, so the catch is impaired) throws a wielded aklys; it returns but 'lands at your feet' and swallowit() keeps it (throwit() 1733 and 1752-1754, run before).",
+  "segments": [
+    {
+      "seed": 7400117,
+      "datetime": "20420116143000",
+      "nethackrc": "OPTIONS=name:Bede,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u0017uncursed aklys\nwj\u0007dust vortex\nmsms tjl"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dothrow.c throwit() 1773-1775: a returning weapon that fails to return (rn2(100) == 0) while the hero is engulfed. A debug Priest wields a wished uncursed aklys, waits 14 m-searches, creates a hostile fog cloud with ^G and m-searches until it engulfs him, then throws the aklys: it hits the fog cloud, 'fails to return', and swallowit() keeps it inside the engulfer. The wait count was chosen from a scan of 0-159 for the 1-in-100 failure.",
+  "segments": [
+    {
+      "seed": 7400118,
+      "datetime": "20420117143000",
+      "nethackrc": "OPTIONS=name:Bede,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "\u0017uncursed aklys\nwimsmsmsmsmsmsmsmsmsmsmsmsmsms\u0007hostile fog cloud\nmsmsmsmsmsmsmsmsmsmsmsmsms til  "
+    }
+  ]
+}
