@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of doconsult-declined-then-too-little-gold: a gnomish Archeologist with 49 wished gold pieces declines the Oracle's minor consultation with ESC, then accepts it and is told he does not have enough gold.",
+  "segments": [
+    {
+      "seed": 2240988,
+      "datetime": "20350507091500",
+      "nethackrc": "OPTIONS=playmode:debug,name:Asker,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0016?\nc\u001749 gold pieces\n\u0014 \nllj. #chat\nl\u001b#chat\nly"
+    }
+  ]
+}
