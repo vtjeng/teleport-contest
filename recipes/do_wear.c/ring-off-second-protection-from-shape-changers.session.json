@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do_wear.c Ring_off_or_gone() RIN_PROTECTION_FROM_SHAPE_CHAN (1438-1443): a debug-mode Valkyrie at experience level 10 wears two rings of protection from shape changers, creates a chameleon, and removes one ring. She is still protected, so C does not call mon.c restartcham() and the chameleon draws no decide_to_shapeshift() random numbers. Removing the second ring then calls restartcham().",
+  "segments": [
+    {
+      "seed": 5180841,
+      "datetime": "20370322094512",
+      "nethackrc": "OPTIONS=name:Ringa,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "#levelchange\n10\n\n\n\n\n\n\n\n\n\n\u0017ring of protection from shape changers\n\u0017ring of protection from shape changers\nPerPf\u0007chameleon\nRemsmsmsmsmsmsmssRmsmsmsmsmsms"
+    }
+  ]
+}
