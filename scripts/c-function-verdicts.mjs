@@ -55,7 +55,7 @@ export const VERDICT_TOTALS = Object.freeze({
     otherName: 279,
     unreachable: 200,
     noVisibleEffect: 194,
-    unportedVisible: 4,
+    unportedVisible: 3,
 });
 
 const ported = (js, reason = 'ported under another name or inside a caller') =>
@@ -332,7 +332,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'setting LFILE_EXISTS for the level, without the file'),
     'files.c open_levelfile': noEffect(FILE_IO),
     'files.c clearlocks': noEffect(FILE_IO),
-    'files.c strcmp_wrap': ported('js/restore.js get_saved_games',
+    'files.c strcmp_wrap': ported('js/files.js get_saved_games',
         'the strcmp() order of the saved-game names'),
     'files.c set_bonestemp_name': noEffect(FILE_IO),
     'files.c compress_bonesfile': noEffect(COMPRESS),
@@ -348,11 +348,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'removing the save after a restore'),
     'files.c get_freeing_nhfile': noEffect(FILE_IO),
     'files.c check_panic_save': noEffect(FILE_IO),
-    'files.c plname_from_file': visible('returns each save\'s "name-role-race-gend-algn" '
-        + 'and play mode for restore_menu(); js/restore.js get_saved_games() returns only '
-        + 'snapshot.plname, so the selectsaved menu that tty_askname() shows for an empty '
-        + 'player name lists "agent" where C lists "agent-Val-Hum-Fem-Neu", and lacks the '
-        + '"D " or "X " prefixes C adds when any save is from debug or explore mode'),
     'files.c free_saved_games': noEffect(MEMORY),
     'files.c redirect': noEffect(COMPRESS),
     'files.c docompress_file': noEffect(COMPRESS),
@@ -758,8 +753,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'restore.c moves_to_relative_time': ported('js/save.js shift_level_edog_times'),
     'restore.c relative_time_to_moves': ported('js/save.js shift_level_edog_times'),
     'restore.c get_plname_from_file': ported('js/restore.js dorestore',
-        'dorestore() takes snapshot.plname, the name_only read; the full read that '
-        + 'plname_from_file() asks for is that entry\'s gap'),
+        'dorestore() takes snapshot.plname, the name_only read; js/files.js '
+        + 'plname_from_file() makes the full read'),
     'restore.c rest_bubbles': ported('js/restore.js dorestore'),
     'restore.c restore_gamelog': ported('js/restore.js dorestore'),
     'restore.c clear_id_mapping': ported('js/bones.js restoreBonesLevel'),
@@ -817,8 +812,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'save.c savelevchn': ported('js/save.js dosave0'),
     'save.c store_plname_in_file': ported('js/save.js serializeGameState',
         'the snapshot holds every value the header encodes (plname, urole, urace, '
-        + 'flags.female, u.ualign, wizard, discover); the menu text built from them is '
-        + 'plname_from_file()\'s gap'),
+        + 'flags.female, u.ualign, wizard, discover); js/files.js plname_from_file() '
+        + 'rebuilds the header from them'),
     'save.c free_dungeons': noEffect('memory'),
     'save.c freedynamicdata': noEffect('exit-time memory release'),
 

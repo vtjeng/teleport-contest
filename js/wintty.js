@@ -358,6 +358,31 @@ export function tty_clear_map_window(state = game) {
     if (state._ttyBaseCursorRow !== undefined) state._ttyBaseCursorRow = 0;
 }
 
+// C ref: wintty.c tty_clear_nhwindow() NHW_BASE arm (1079-1090) and its
+// closing reset (1108): term_clear_screen() erases the terminal, and
+// erase_tty_screen() leaves BASE_WINDOW's cursor at its first row.
+// restore.c restore_menu() calls it on BASE_WINDOW before and after its menu.
+export function tty_clear_base_window(state = game) {
+    const display = state.nhDisplay;
+    if (!display?.grid) return;
+    display.clearScreen();
+    display.setCursor(0, 0);
+    state._ttyBaseCursorRow = 0;
+}
+
+// C ref: wintty.c tty_putstr() NHW_BASE arm with attribute 0, for a line
+// shorter than the terminal: the text goes on the window's current row from
+// its left edge, the terminal cursor stays after it, and the row advances.
+// The wrap at the last column is not ported; no caller passes so long a line.
+export function tty_putstr_base(str, state = game) {
+    const display = state.nhDisplay;
+    if (!display?.grid) return;
+    const row = state._ttyBaseCursorRow ?? display.cursorRow;
+    display.putstr(0, row, str, NO_COLOR);
+    display.setCursor(str.length, row);
+    state._ttyBaseCursorRow = row + 1;
+}
+
 // C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()
 // on every status row, spaces in the window's data, and disp.botlx. The
 // port's status window contents are the cached layouts the screen rebuild
