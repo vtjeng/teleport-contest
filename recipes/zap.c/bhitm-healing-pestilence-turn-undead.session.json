@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhitm() 255 and 470-471: a level-30 Priestess learns turn undead and healing from blessed spellbooks. She casts turn undead at a hostile ettin zombie (it usually fails at 90%; the failed tries and the knockback only cost turns), so a successful cast adds spell_damage_bonus() to the undead damage (255). She then forces the creation of Pestilence and casts healing at it; Pestilence always resists, taking half of healamt/2 (470-471).",
+  "segments": [
+    {
+      "seed": 2861094,
+      "datetime": "20350721153000",
+      "nethackrc": "OPTIONS=name:Mirela,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n30\n\u001b\u0017blessed spellbook of turn undead\n\u001b\u0017blessed spellbook of healing\n\u001bri\u001b\u001b\u001brj\u001b\u001b\u001b#wizgenesis\nhostile ettin zombie\n\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001bZcj\u001b\u001b#wizgenesis\nPestilence\ny\u001bZdu\u001b"
+    }
+  ]
+}

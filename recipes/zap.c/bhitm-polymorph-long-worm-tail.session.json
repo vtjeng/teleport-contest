@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhitm() 269: with monpolycontrol, a dwarvish Valkyrie zaps a wand of polymorph east along a hostile long worm and its tail and keeps it a long worm at the prompt. The zap marks it with MCORPSENM(PM_LONG_WORM), so the hit on the next tail segment takes the 'already polymorphed by this zap' branch instead of prompting again.",
+  "segments": [
+    {
+      "seed": 3305581,
+      "datetime": "20360115123000",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,monpolycontrol\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017wand of polymorph\n\u001b#wizgenesis\nhostile long worm\n\u001bms\u001bms\u001bms\u001bms\u001bzellong worm\n"
+    }
+  ]
+}

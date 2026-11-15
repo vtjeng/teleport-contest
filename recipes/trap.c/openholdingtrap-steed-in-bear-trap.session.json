@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c openholdingtrap() 6175-6176: a mounted Knight rides onto a wished, unseen bear trap, which catches the pony (u.utraptype TT_BEARTRAP), then zaps a wand of opening at self: C prints \"The saddled pony is released from a bear trap.\" through the noit_Monnam(u.usteed) branch. Variation from the web recipes: a bear trap rather than a web.",
+  "segments": [
+    {
+      "seed": 4417203,
+      "datetime": "20340318091500",
+      "nethackrc": "OPTIONS=name:Lancelot,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time\n",
+      "moves": "\u001b#ride\nly\u0017wand of opening\nj\u0017trapped bear trap\nkjzi."
+    }
+  ]
+}

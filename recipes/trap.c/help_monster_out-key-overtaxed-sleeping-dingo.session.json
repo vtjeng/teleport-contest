@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c help_monster_out() 5723, 5753-5755 and 5767-5770. A level-14 Rogue wishes for the Master Key of Thievery, a magic flute and a pit trap, and lures a hostile dingo into the pit. Overtaxed by five heavy iron balls, she #invokes the key toward the dingo: invoke_untrap() calls untrap(TRUE) without could_untrap(), so help_monster_out() reaches check_capacity() (5723; #untrap itself refuses at could_untrap() 5263 for HVY_ENCUMBER). She drops the balls, plays the flute (msleeping and mfrozen set) and #untraps: untrap_prob() is nonzero, so the grasp fails and the dingo awakens (5753-5755). Three more tunes fail on the still-frozen dingo, and the next #untrap grabs it and rn2(mfrozen) lets it stir (5767-5770).",
+  "segments": [
+    {
+      "seed": 7302215,
+      "datetime": "20351104201500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017Master Key of Thievery\n\u001b\u0017magic flute\n\u001bhh\u0017pit trap\n#wizgenesis\nhostile dingo\nj.\u0017heavy iron ball\n\u001b\u0017heavy iron ball\n\u001b\u0017heavy iron ball\n\u001b\u0017heavy iron ball\n\u001b\u0017heavy iron ball\n\u001b,,\ny\ry\ry\r\u001b#invoke\ngk\u001bdi\u001bdj\u001bdl\u001bdm\u001bahy\u001b#untrap\nk\u001bahy\u001bahy\u001bahy\u001b#untrap\nk\u001b"
+    }
+  ]
+}

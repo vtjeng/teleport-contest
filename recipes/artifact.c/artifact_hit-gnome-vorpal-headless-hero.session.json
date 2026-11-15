@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "artifact.c artifact_hit() 1626-1629, and uhitm.c mhitm_ad_phys() for its zero damage: a level-14 Valkyrie wishes for a -7 Vorpal Blade (so hits stay light), polymorphs into a freezing sphere (headless, with eyes), drops the blade and steps aside. A hostile gnome lord (neutral, so touch_artifact() lets it) picks the blade up and wields it, then attacks; blessed potions of full healing keep the sphere alive. When mhitu_dieroll is 1 the Vorpal Blade branch finds that the hero has no head: \"Somehow, the gnome lord misses you wildly.\"",
+  "segments": [
+    {
+      "seed": 3378802,
+      "datetime": "20341009081500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017-7 Vorpal Blade\n\u001bn\u001b#polyself\nfreezing sphere\n\u001b\u001b\u001bde\u001b#wizgenesis\nhostile gnome lord\n\u001bkms\u001bms\u001bms\u001bms\u001bms\u001b\u001712 blessed potions of full healing\n\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bqf\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}
