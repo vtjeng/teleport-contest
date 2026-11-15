@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c domagictrap() 4374-4376: a debug Priest puts on a wished ring of invisibility, steps off the up stairs, wishes for a magic trap and #sits on it. The seed was chosen from a scan of 6120001-6120150 for fate 11 (rnd(20)): the hero is invisible only extrinsically (EInvis), so 'You feel a little more hidden now.' prints and HInvis gains FROMOUTSIDE.",
+  "segments": [
+    {
+      "seed": 6120023,
+      "datetime": "20391022174500",
+      "nethackrc": "OPTIONS=name:Hum,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0017ring of invisibility\nPir j\u0017magic trap\n#sit\n"
+    }
+  ]
+}

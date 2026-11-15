@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of domagictrap-ring-invisible-hero-feels-more-hidden: trap.c domagictrap() 4369-4370. The debug Priest quaffs a wished blessed potion of invisibility (intrinsic HInvis with FROMOUTSIDE, no EInvis) and puts on a ring of see invisible before sitting on a wished magic trap; fate 11 then takes the !EInvis branch with See_invisible set: 'You can't see through yourself anymore.' Seed chosen from a scan of 6130001-6130200 for fate 11.",
+  "segments": [
+    {
+      "seed": 6130017,
+      "datetime": "20391022174500",
+      "nethackrc": "OPTIONS=name:Hum,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0017blessed potion of invisibility\nqi \u0017ring of see invisible\nPjr j\u0017magic trap\n#sit\n "
+    }
+  ]
+}
