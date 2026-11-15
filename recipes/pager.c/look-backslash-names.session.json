@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5530917,
+      "datetime": "20280122201500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "E- a\\b\n/e Cmm.c\\d\n;m. /m ",
+      "comment": "windows.c decode_mixed() on text a player typed, under each putmixed() caller that shows it: the dust engraving \"a\\b\" lists as \"ab\" in pager.c look_engrs() (/ e), and the kitten called \"c\\d\" shows as \"cd\" in do_look()'s farlook (; m .) and in look_all()'s monster list (/ m). getpos.c auto_describe() prints with custompline(), not putmixed(), so the cursor's autodescribe keeps \"c\\d\"."
+    }
+  ]
+}
