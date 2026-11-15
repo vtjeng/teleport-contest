@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of lookaround-guess-dark-room-from-perimeter: a debug Wizard lands on the left column of a dark 6 by 5 room on Dlvl 20 (seed from the same port scan with these options), walks the top row, back along it, down the left column and along the bottom row, so the bounds' top and bottom rows are seen but the right column's middle square is not; u_have_seen_bounds_selection() returns FALSE at 1238 and #lookaround says it can't guess the size of the area.",
+  "segments": [
+    {
+      "seed": 6610526,
+      "datetime": "20320615223000",
+      "nethackrc": "OPTIONS=playmode:debug,name:Peeker,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u001620\nkllllhhhhjjjjllll#lookaround\n"
+    }
+  ]
+}
