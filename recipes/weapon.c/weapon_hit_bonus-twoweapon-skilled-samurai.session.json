@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "weapon.c weapon_hit_bonus() 1594-1596 and weapon_dam_bonus() 1689-1691: the P_SKILLED case of the two-weapon switch. A debug Samurai answers y to #enhance's 'Advance skills without practice?' (enhance_weapon_skill() speedy), advances two weapon combat twice (Unskilled to Skilled) and long sword once (Basic to Skilled), starts #twoweapon with katana and wakizashi, and fights a ^G gnome lord, so the katana's skill min(two weapon, long sword) is Skilled.",
+  "segments": [
+    {
+      "seed": 7400101,
+      "datetime": "20410312101500",
+      "nethackrc": "OPTIONS=name:Akane,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "#enhance\nyb\nb\nh\n\u001bX\u0007gnome lord\nFbFbFb "
+    }
+  ]
+}
