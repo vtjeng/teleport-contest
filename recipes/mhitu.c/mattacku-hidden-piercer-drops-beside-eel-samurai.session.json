@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of mattacku-hidden-piercer-drops-beside-eel: a debug Samurai makes the pool, a giant eel and the iron-piercer form the same way, with no kobold to clear, and the eel's attack on the hidden hero again ends in 'It draws back as you drop!' (mhitu.c mattacku() 568-580).",
+  "segments": [
+    {
+      "seed": 6100527,
+      "datetime": "20420303223000",
+      "nethackrc": "OPTIONS=name:Ken,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u0017pool\nl\u0007giant eel\n#polyself\npiercer\n  #monster\n   "
+    }
+  ]
+}

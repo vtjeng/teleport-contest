@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c mattacku() 568-580: a debug Valkyrie wishes for a pool under herself, steps east, creates a giant eel (placed in the pool) and kills the kobold beside her. She #polyselfs into an iron piercer and hides on the ceiling with #monster. When the eel attacks the hidden hero, the ceiling-hider branch removes it from the map, but a fish in water beside a hero on land will not swap places, so 'It draws back as you drop!' prints and both stay put.",
+  "segments": [
+    {
+      "seed": 6100521,
+      "datetime": "20420212101500",
+      "nethackrc": "OPTIONS=name:Gus,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u0017pool\nl\u0007giant eel\nFk#polyself\npiercer\n #monster\n    "
+    }
+  ]
+}
