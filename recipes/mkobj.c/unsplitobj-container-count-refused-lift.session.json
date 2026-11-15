@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c unsplitobj() on a container's contents (583-585): with pickup_burden:unencumbered, the hero puts 160 wished rocks into a wished large box, asks the take-out menu for 120 of them (splitobj() in the container), and answers n to 'You have a little trouble removing 120 rocks. Continue?', so out_container() returns 0 and menu_loot() merges the split stack back (pickup.c 3384).",
+  "segments": [
+    {
+      "seed": 5590214,
+      "datetime": "20330221163000",
+      "nethackrc": "OPTIONS=name:Brund,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none,pickup_burden:unencumbered\n",
+      "moves": "\u001b\u0017unlocked large box\nde\u001780 rocks\n#loot\niP\n\u001780 rocks\n#loot\niP\n#loot\noe\n120b\nn"
+    }
+  ]
+}
