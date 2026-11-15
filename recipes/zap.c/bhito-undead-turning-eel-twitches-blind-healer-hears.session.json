@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhito() for wand of undead turning on floor corpses. A debug Healer zaps it at a giant eel corpse on dry floor, which only twitches because revive() refuses an eel out of water (2353-2355). Then, hallucinating from a potion and blindfolded, she zaps it again at the same square after adding a newt corpse: the newt revives where she cannot see, and a Healer hallucinating hears 'a defibrillator' (2376-2379).",
+  "segments": [
+    {
+      "seed": 6123579,
+      "datetime": "20360310083000",
+      "nethackrc": "OPTIONS=name:Mirela,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001b\u0017wand of undead turning\n\u0017giant eel corpse\ndlhzkl\u0017newt corpse\nl\rdmh\u0017potion of hallucination\n\u0017blindfold\nqnPozkl"
+    }
+  ]
+}
