@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "windows.c add_menu() matches MENUCOLOR against the item's own text, before wintty.c tty_add_menu() prefixes it with \"x - \"; process_menu_window() then starts the color and attribute at attr_n = 4 for a line of that shape and at 0 otherwise. A lawful female dwarf asks for the role menu: \"Valkyrie\"=cyan&inverse colors the role item from its fifth column. In the confirmation menu, the same rule colors the whole zero-identifier header line, \"^Yes\"=red&underline matches the label alone, and \"^n - \"=green&bold matches no item, because no add_menu() string carries the prefix. Bold, underline and inverse are used because the recorder drops blink.",
+  "_comment": "windows.c add_menu() matches MENUCOLOR against the item's own text, before wintty.c tty_add_menu() prefixes it with \"x - \"; process_menu_window() then starts the color and attribute at attr_n = 4 for a line of that shape and at 0 otherwise. A lawful female dwarf asks for the role menu: \"Archeologist\"=cyan&inverse colors the role item from its fifth column. In the confirmation menu, the same rule colors the whole zero-identifier header line, \"^Yes\"=red&underline matches the label alone, and \"^n - \"=green&bold matches no item, because no add_menu() string carries the prefix. Bold, underline and inverse are used because the recorder drops blink, and the Archeologist item sits on row 4 because the scorer masks the row holding the startup version banner.",
   "segments": [
     {
       "seed": 4180227,
       "datetime": "20470615082000",
-      "nethackrc": "OPTIONS=name:Hilde,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nMENUCOLOR=\"^n - \"=green&bold\nMENUCOLOR=\"^Yes\"=red&underline\nMENUCOLOR=\"Valkyrie\"=cyan&inverse\n",
-      "moves": "nvy"
+      "nethackrc": "OPTIONS=name:Hilde,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nMENUCOLOR=\"^n - \"=green&bold\nMENUCOLOR=\"^Yes\"=red&underline\nMENUCOLOR=\"Archeologist\"=cyan&inverse\n",
+      "moves": "nay"
     }
   ]
 }
