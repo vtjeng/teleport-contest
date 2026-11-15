@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "spell.c spelleffects() 1487: the atme branch. A debug Wizard advances escape spells to Expert without practice, raises energy to 52 with five blessed potions of gain energy, and uses m^T, which in wizard mode offers a menu; 's' (via spellcast; no intrinsic teleport) adds teleport away, and dotele() calls spelleffects(SPE_TELEPORT_AWAY, TRUE, FALSE), so u.dx, u.dy and u.dz are zeroed instead of asking for a direction; the wizard-mode teleport prompt then takes a square two rows down.",
+  "segments": [
+    {
+      "seed": 7400106,
+      "datetime": "20410815120000",
+      "nethackrc": "OPTIONS=name:Oda,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "#enhance\ny>c\n>c\n>c\n\u001b\u00175 blessed potions of gain energy\nqoqoqoqoqom\u0014sjj."
+    }
+  ]
+}
