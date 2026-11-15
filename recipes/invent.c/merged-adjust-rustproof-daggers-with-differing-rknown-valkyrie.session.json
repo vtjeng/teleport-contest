@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c merged() 866-869: a debug Valkyrie wishes for 4 rustproof daggers (oerodeproof set, rknown 0: shown as '4 daggers'), a potion of confusion and a scroll of enchant weapon. She wields the daggers, #adjusts 2 of them to slot h, drinks the potion and reads the scroll while confused, which (read.c 1639-1648, not blind) proofs the wielded pair again and sets its rknown. #adjust h onto e then merges stacks whose rknown differs (mergable() ignores rknown unless blind or hallucinating); the wielded stack is erodeproof, so merged() reports 'You learn more about your items by comparing them.' The inventory shows the result.",
+  "segments": [
+    {
+      "seed": 3368021,
+      "datetime": "20420606121200",
+      "nethackrc": "OPTIONS=name:Thyra,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u00174 rustproof daggers\n\u0017potion of confusion\n\u0017scroll of enchant weapon\nwe#adjust\n2ehqfrg   \u001b#adjust\nhe i\u001b"
+    }
+  ]
+}
