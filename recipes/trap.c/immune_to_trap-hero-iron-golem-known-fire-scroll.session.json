@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c immune_to_trap() for the hero's paranoid_confirmation:trap question (hack.c 2553-2561). A fire-resistant Valkyrie (ring of fire resistance) whose only burnable item is a scroll of fire she has identified by reading another steps back onto a seen fire trap: the known scroll is skipped (2913-2915) and the trap counts as hidden-immune, so she is asked. Polymorphed into an iron golem, she tries to step back onto a seen rust trap, which is never harmless to an iron golem (2880-2881), and declines.",
+  "segments": [
+    {
+      "seed": 3371940,
+      "datetime": "20340819140000",
+      "nethackrc": "OPTIONS=name:Runa,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none,paranoid_confirmation:trap\n",
+      "moves": "\u001bT\u00172 scrolls of fire\n\u0017ring of fire resistance\nPfrre\r\r.j\u0017fire trap\nkjkjyhh\u0017rust trap\nhl\u001bh#polyself\niron golem\n\u001bln"
+    }
+  ]
+}
