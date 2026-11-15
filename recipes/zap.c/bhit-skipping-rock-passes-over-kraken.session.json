@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhit() 3965, 3968-3969: a debug Valkyrie wishes a row of seven pools along the south wall of her room, ^G creates a tame kraken in the last one, and she steps two squares east onto the floor and throws 29 wished rocks west one at a time. Thrown rocks may skip on water (skiprange(), allow_skip); while a rock is skipping it reaches the submerged kraken, M_IN_WATER() is true, and the rock passes over it without a message because the hero cannot spot the kraken (3966-3967 need a visible swimmer).",
+  "segments": [
+    {
+      "seed": 9917301,
+      "datetime": "20420907173000",
+      "nethackrc": "OPTIONS=name:Skipper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " hhhhhh\u0017pool\nl\u0017pool\nl\u0017pool\nl\u0017pool\nl\u0017pool\nl\u0017pool\nl\u0017pool\n\u0007tame kraken\nll\u001730 rocks\ntehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehtehteh"
+    }
+  ]
+}
