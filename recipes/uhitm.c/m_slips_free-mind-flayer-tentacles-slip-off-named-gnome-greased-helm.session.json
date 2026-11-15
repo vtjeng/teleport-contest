@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c m_slips_free() 2060-2091 through mhitm_ad_drin(): a Valkyrie polymorphed into a mind flayer hits a tame gnome named Boris that wears a dropped greased orcish helm; the tentacle attack targets the head and prints \"You grab, but cannot hold onto Boris' greased orcish helm!\" (s_suffix(), unlike grease_protect()). Variation of recipes/trap.c/grease_protect-rust-monster-touches-named-gnome-greased-helm with a mind flayer form. targets.md calls these lines unreachable (worm-tail wrapping); mhitm_ad_drin() reaches them.",
+  "segments": [
+    {
+      "seed": 5120934,
+      "datetime": "20410908141200",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017greased orcish helm\n\u001b\u0007tame gnome\n\u001bdejlssssssss#name\nm\n\ny.Boris\n#polyself\nmind flayer\n\u001bFy\u001b"
+    }
+  ]
+}
