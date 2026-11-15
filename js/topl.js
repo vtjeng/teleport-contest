@@ -771,6 +771,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
     const defByte = def ? def.charCodeAt(0) : 0;
     let q;
     let doprev = false;
+    // The count that addtopl() echoed after the prompt.  Only the abort path
+    // at topl.c:526-527 removes it with removetopl(); otherwise it stays on
+    // the physical line after clean_up, as typed ("#05" for a count of 5,
+    // "#0" for the 'n' answer a zero count gives).
+    let echoedCount = '';
     if (resp === null) {
         q = await readchar(state);
     } else {
@@ -834,7 +839,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 let digitLength = q === 0x23 ? 0 : 1;
                 let invalid = false;
                 addtopl('#', state);
-                if (digitLength) addtopl(String.fromCharCode(q), state);
+                echoedCount = '#';
+                if (digitLength) {
+                    addtopl(String.fromCharCode(q), state);
+                    echoedCount += String.fromCharCode(q);
+                }
                 for (;;) {
                     const z = await readchar(state);
                     const lower = !preserveCase && z >= 0x41 && z <= 0x5A
@@ -846,6 +855,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                             break;
                         }
                         addtopl(String.fromCharCode(lower), state);
+                        echoedCount += String.fromCharCode(lower);
                         digitLength++;
                     } else if (lower === 0x79
                         || quitchars.includes(String.fromCharCode(lower))) {
@@ -859,6 +869,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                         value = Math.trunc(value / 10);
                         digitLength--;
                         removetopl(1, state);
+                        echoedCount = echoedCount.slice(0, -1);
                     } else {
                         invalid = true;
                         break;
@@ -866,6 +877,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 }
                 if (invalid || value < 0) {
                     removetopl(digitLength + 1, state); // include the leading '#'
+                    echoedCount = '';
                     q = 0;
                 } else if (value === 0) {
                     q = 0x6e; // 'n'
@@ -888,8 +900,9 @@ export async function tty_yn_function(query, resp, def, state = game) {
     display.topMessage = state._ttyToplines;
     // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
     // commented out in favour of rewriting gt.toplines. A one-line prompt
-    // stays on the physical line, and js/display.js _buildScreenOutput()
-    // repaints row 0 from _pending_message. TOPLINE_NON_EMPTY is what stops
+    // stays on the physical line with any count still echoed after it, and
+    // js/display.js _buildScreenOutput() repaints row 0 from
+    // _pending_message. TOPLINE_NON_EMPTY is what stops
     // the next message treating that line as one awaiting --More--, exactly
     // as topl.c update_topl():262 does.
     //
@@ -902,7 +915,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
         await clearMessageWindow(state);
         state._pending_message = '';
     } else {
-        state._pending_message = prompt;
+        state._pending_message = `${prompt}${echoedCount}`;
     }
     display.inread = Math.max(0, display.inread - 1);
     if (display.intr) --display.intr;

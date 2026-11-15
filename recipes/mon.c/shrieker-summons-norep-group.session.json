@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c m_respond_shrieker() summons with makemon(), whose appearance line is Norep() (makemon.c:1492-1499); pline.c vpline() (246-262) drops a no-repeat line equal to gp.prevmsg. makemon_create.js passes that line to its norepMessage owner, and the shriek handed it plain pline. A dwarvish Caveman wears an amulet of ESP and a blindfold, so sensemon() names monsters anywhere on the level, creates a shrieker beside him with ^G, and searches 20 turns at a time; each shriek interrupts the count and the space after it is an unknown command. The shriek at step 143 makes a sewer rat whose m_initgrp() companion prints the same far-away line, which C suppresses. Seed 9061403 is the first of 9061400-9061409 whose replay differs between the fixed and the unfixed port.",
+  "segments": [
+    {
+      "seed": 9061403,
+      "datetime": "20460321110000",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of ESP\n\u0017blindfold\nPfPg\u0007shrieker\n20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s 20s "
+    }
+  ]
+}
