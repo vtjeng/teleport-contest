@@ -56,7 +56,10 @@ test('game code writes Blind as Blind(), not as HBlinded || EBlinded', () => {
     // `blockedBlind && (...)`, where blockedBlind already holds the BBlinded
     // term (insight.c "blind but blocked" line). The count must change only
     // when a site is removed or a new exception is justified here.
-    assert.deepEqual(scanRepository(), ['js/insight.js:1551']);
+    // The file is pinned with its count, not its line, so edits above the
+    // site do not break the check.
+    const files = scanRepository().map((site) => site.replace(/:\d+$/u, ''));
+    assert.deepEqual(files, ['js/insight.js']);
 });
 
 test('the scan flags a bare disjunction and accepts one with BBlinded', () => {
