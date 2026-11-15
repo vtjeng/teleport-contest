@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of soundlib_id_from_opt-rc-nosound: soundlib:fmod names a library this build lacks, so the loop finds no match and soundlib_id_from_opt() returns the nosound default (1894).",
+  "segments": [
+    {
+      "seed": 144031,
+      "datetime": "20311107120000",
+      "nethackrc": "OPTIONS=name:Wren,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=soundlib:fmod\n",
+      "moves": "O\u001b"
+    }
+  ]
+}
