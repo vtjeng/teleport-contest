@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "priest.c priest_talk() 'Thy selfless generosity is deeply appreciated.' after a protection donation that does not raise u.ublessed (704-705). A gnomish Healer in debug mode builds minetn-7 with #wizloaddes, maps it and teleports beside the neutral altar, wishes 6000 gold and donates the larger suggested amount twice: the first (12 times the base) raises u.ublessed past 9, and the second (4 times) leaves it unchanged under rn2(u.ublessed).",
+  "segments": [
+    {
+      "seed": 6083315,
+      "datetime": "20360902111500",
+      "nethackrc": "OPTIONS=name:Aelis,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0006\u0014_l.\u001b\u001b\u0017uncursed 6000 gold pieces\n\u001b#chat\nb\r5016\n\u001b\u001bb#chat\nh\r1632\n\u001b\u001b"
+    }
+  ]
+}
