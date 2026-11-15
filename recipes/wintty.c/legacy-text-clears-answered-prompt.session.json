@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3381906,
+      "datetime": "20250707071500",
+      "nethackrc": "OPTIONS=name:LegacyAsk,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=reroll\n",
+      "moves": "\u001bn s",
+      "comment": "Reaches wintty.c tty_display_nhwindow() 1938-1940: Escape at the reroll menu leads to y_n(\"Reroll this character?\"), whose answered prompt stays on the top line; the overlaid legacy text window then clears the message window before drawing, and its dismissal leaves the top line blank."
+    }
+  ]
+}
