@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "end.c done() 1089: a debug Samurai puts on a wished blessed amulet of life saving, eats one of four wished food rations (gunyoki), then eats a second and answers y to 'Continue eating?'; he chokes, and done(CHOKING) uses the amulet and prints 'You vomit ...' before 'You feel much better!'.",
+  "segments": [
+    {
+      "seed": 5520733,
+      "datetime": "20310905123000",
+      "nethackrc": "OPTIONS=playmode:debug,name:Glutton,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed amulet of life saving\n\u00174 food rations\nPfeg eg y   "
+    }
+  ]
+}
