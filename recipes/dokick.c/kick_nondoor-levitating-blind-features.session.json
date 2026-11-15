@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c kick_nondoor() terrain branches: a lawful Samurai (debug mode, Friday the 13th so Luck is -1) wishes a grave, tree, sink, throne and altar around the bottom-left corner of the start room. Levitating on a ring with the corner walls to brace against, the kicks at the grave and the altar are kick_dumb() (1067-1069, 1100). Blindfolded, repeated kicks break the headstone (1115 lawful penalty, 1123 'Crack!  Something broke!'), destroy the throne (1028, Luck < 0) and raise a black pudding from the sink unseen (1213-1214). Each kick is followed by a 10-turn search so wounded legs heal; doubled escapes clear --More-- and the 'Call a scroll' prompt a nearby monster's reading opens.",
+  "segments": [
+    {
+      "seed": 3150071,
+      "datetime": "20340113091500",
+      "nethackrc": "OPTIONS=name:Ichiro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017uncursed ring of levitation\n\u0017uncursed blindfold\n\u0017uncursed scroll of genocide\n\u0017uncursed ring of free action\ni\u001bb\u0017grave\nl\u0017tree\nl\u0017sink\nn\u0017throne\nhh\u0017lawful altar\nhPfr\r\u0004k\u0004lR\rPilrh\r\rkiller bee\nPg\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001bll\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b10s\u001b\u001b\u0004k\u001b\u001b"
+    }
+  ]
+}
