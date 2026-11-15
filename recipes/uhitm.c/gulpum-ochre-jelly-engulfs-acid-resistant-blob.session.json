@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c gulpum() AD_ACID branch for an acid-resistant victim (5123-5125): a debug Priest drops everything, polymorphs into an ochre jelly (eyeless, so the hero is blind) and engulfs a created acid blob with F; the blob resists acid, so C prints 'It seems harmless to it.' and the damage is zeroed before the expulsion.",
+  "segments": [
+    {
+      "seed": 455027,
+      "datetime": "20360306150000",
+      "nethackrc": "OPTIONS=name:Vorm,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,pettype:none,!autopickup,time,verbose\n",
+      "moves": "DAa\n    #polyself\nochre jelly\n   \u0007acid blob\nFhFhFh "
+    }
+  ]
+}

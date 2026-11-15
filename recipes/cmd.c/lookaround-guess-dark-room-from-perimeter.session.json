@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c u_have_seen_bounds_selection() 1230-1241 and lookaround_known_room() 1297-1300: a debug Ranger level-teleports to Dlvl 20 and lands on the top row of a dark 7 by 5 room (seed from a port scan for a ^V arrival inside a dark room of at least 5 by 5 with no monster near). She walks its whole floor perimeter, which leaves the middle of the centre row unseen, and #lookaround says 'You guess this to be a rectangular 7 by 5 room.'",
+  "segments": [
+    {
+      "seed": 6610324,
+      "datetime": "20320614101500",
+      "nethackrc": "OPTIONS=playmode:debug,name:Looker,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u001620\nhhjjjjllllllkkkkhhh#lookaround\n "
+    }
+  ]
+}

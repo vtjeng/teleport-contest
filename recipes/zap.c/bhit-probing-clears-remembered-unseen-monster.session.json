@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c bhit() 4041-4043: a blindfolded debug Valkyrie is bitten by a ^G newt, so it is remembered as 'I' where it attacked from; she walks three squares east, the newt following, and removes the blindfold, leaving stale 'I' marks. A wished wand of probing zapped west probes the newt and travels on over a square still showing 'I' with no monster there, which bhit() unmaps.",
+  "segments": [
+    {
+      "seed": 6128844,
+      "datetime": "20400601120000",
+      "nethackrc": "OPTIONS=name:Prober,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u0017blindfold\nPe\u0007newt\nmsmsmslllR\u0017wand of probing\nzfh "
+    }
+  ]
+}

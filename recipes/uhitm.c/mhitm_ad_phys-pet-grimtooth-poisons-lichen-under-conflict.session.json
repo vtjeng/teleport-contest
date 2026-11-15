@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c mhitm_ad_phys() monster-weapon poison branch (4189-4190): a debug chaotic Barbarian quaffs 12 blessed potions of gain level, creates a tame large kobold, wishes for -5 Grimtooth (permapoisoned()), rings of conflict and free action, puts on free action and drops Grimtooth for the pet to pick up, then puts on conflict; the kobold wields Grimtooth and attacks a created lichen until the poison fires ('The large kobold's weapon was poisoned!'). A shade created next passes Grimtooth harmlessly (shade_miss).",
+  "segments": [
+    {
+      "seed": 830411,
+      "datetime": "20360522101000",
+      "nethackrc": "OPTIONS=name:Ylva,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,pettype:none,!autopickup,time,verbose\n",
+      "moves": "\u001712 blessed potions of gain level\nqeqeqeqeqeqe qeqeqeqeqeqe\u0007tame large kobold\n\u0017uncursed -5 Grimtooth\n\u0017uncursed ring of conflict\n\u0017uncursed ring of free action\nPhldfhssssPg \u0007lichen\nms    msms    msms    msms   ms   \u0007shade\nms  msms msms ms     "
+    }
+  ]
+}

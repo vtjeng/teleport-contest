@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mthrowu.c ohitmon() 418-428: a debug Samurai drops 20 wished silver daggers, arms a wished land mine under them, searches eleven turns (to settle the scatter directions) and ^G creates a lemure, then steps off and back onto the mine. blow_up_landmine() scatters the daggers with MAY_HIT; one flies into the adjacent lemure, a silver-hating demon, and 'The silver sears the lemure's flesh!'. The seed was kept and the search count chosen from a scan of 0-11 searches.",
+  "segments": [
+    {
+      "seed": 7741206,
+      "datetime": "20410703120000",
+      "nethackrc": "OPTIONS=name:Sapper,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "hh\u001720 silver daggers\ndg\u0017land mine\nahsssssssssss\u0007lemure\nlhy    "
+    }
+  ]
+}

@@ -1354,6 +1354,19 @@ export function keyBindingLines(state = game) {
     lines.push({
         text: `${key2txt(0x03).padEnd(7)} interrupt: break out of NetHack (SIGINT)`,
     });
+    // C cmd.c:2965-2980: keyless special key commands, listed when a
+    // special key is unbound or shares a movement or earlier special key.
+    if (spkeyGap) {
+        for (const item of miscKeys) {
+            if (item.numpad && !model.numPad) continue;
+            const key = model.specialKeys[item.name] & 0xFF;
+            if (!key || pfxSeen[key] !== item.index) {
+                lines.push({
+                    text: `${`[${spkey_name(item.index)}]`.padEnd(21)} ${item.desc}`,
+                });
+            }
+        }
+    }
 
     lines.push({ text: '' });
     show_menu_controls(lines, true, state);

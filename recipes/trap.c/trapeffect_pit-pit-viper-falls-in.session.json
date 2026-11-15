@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c trapeffect_pit() 1899: a debug Valkyrie wishes a pit under herself, polymorphs (#polyself) into a pit viper, steps off and back onto the unseen pit and falls in: 'How pitiful.  Isn't that the pits?'. Not covered: 1847 (riding a named steed into a pit), 1855-1856 (a clinger over a known pit: dotrap() lets a wumpus escape the known pit first, also via #sit), and 1882-1885 (entering an adjacent pit while still trapped, which domove() never allows: it passes trapmove() a null desttrap, hack.c 2831).",
+  "segments": [
+    {
+      "seed": 5620001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "kl\u0017pit\n#polyself\npit viper\n    lh     "
+    }
+  ]
+}

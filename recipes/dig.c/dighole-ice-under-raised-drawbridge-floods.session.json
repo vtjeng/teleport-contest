@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c dighole() 966-968 and 977-982: a debug dwarven Archeologist level-teleports to the castle (this seed leaves it unflipped, with the hero in the west maze), reads a wished scroll of magic mapping and travels to the land west of the raised drawbridge, puts on a wished ring of levitation and floats onto the bridge's span square. A wished 'ice' there changes only the drawbridgemask (DB_ICE; objnam.c wizterrainwish() 3672-3674, since the span is a drawbridge), so dighole() reaches the DRAWBRIDGE_UP branch when a wished wand of digging is zapped down: fillholetyp() finds the moat beside it and 'As you dig, the hole fills with water!' (liquid_flow()). Castle monsters' killing blows are refused at Die?.",
+  "segments": [
+    {
+      "seed": 2290553,
+      "datetime": "20390504101000",
+      "nethackrc": "OPTIONS=name:Bridger,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0016?\nj   \u0017scroll of magic mapping\n rj_  llllllj.    \u001b\u0017ring of levitation\nPkr l\u0017ice\n\u0017wand of digging\nzl>     \u001b  \u001b "
+    }
+  ]
+}

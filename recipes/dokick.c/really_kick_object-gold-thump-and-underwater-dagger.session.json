@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c really_kick_object() 711-713 and 583: a debug Valkyrie drops 400 wished gold pieces in open floor and kicks them; the 1-in-20 roll that does not scatter them leaves a pile over 300 coins, so 'Thump!' (seed from a port scan of 5530001-5530260 for a non-scattering kick with floor beyond). She then puts on a wished amulet of magical breathing, wishes pools (wizard terrain wishes) under herself and under a dropped dagger one square north, sinks into her pool and kicks north until the 1-in-2 underwater kick connects, so the range is cut for a hero in water (583).",
+  "segments": [
+    {
+      "seed": 5530153,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017400 gold pieces\nd$h\u0004l\u0017amulet of magical breathing\nPe\u0017pool\nkdb\u0017pool\nj  \u0004k \u0004k"
+    }
+  ]
+}

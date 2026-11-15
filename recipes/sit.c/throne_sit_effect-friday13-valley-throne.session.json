@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sit.c throne_sit_effect() 107-109, 148-150 and 175-178. On Friday 13 November 2037 (Luck -1) a debug Priestess wishes a throne and sits, choosing effect 6 at the wizard-mode prompt until 'You feel your luck is changing' (Luck + rn2(5) < 0; the other tries grant a wish, answered 'nothing'), which brings Luck to 0. She walks away from a lichen, polymorphs into an eyeless gray ooze (so Blind), wishes another throne and chooses effect 10: with Luck 0 and no intrinsic see invisible, eyecount() is 0 and 'You have a very strange feeling in your cerebral area' prints, granting see invisible. She level-teleports to the nommap Valley of the Dead, wishes a third throne and chooses effect 10 again: the intrinsic now sends her to the nommap branch, 'A terrible drone fills your head!'. Analyze-throne prompts are answered ESC; a Valley monster's killing blow is refused at Die?.",
+  "segments": [
+    {
+      "seed": 3318807,
+      "datetime": "20371113220500",
+      "nethackrc": "OPTIONS=name:Regent,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u0017throne\n#sit\n#sit\n 6\n nothing\n#sit\n#sit\n#sit\n#sit\n \u001b\u001b#sit\n 6\n \u001bhhh#polyself\ngray ooze\n h\u0017throne\n#sit\n 10\n\u0016?\nk   \u0017throne\n#sit\n \u001b\u001b#sit\n  #sit\n \u001b#sit\n \u001b #sit\n #sit\n 10\n  \u001b"
+    }
+  ]
+}

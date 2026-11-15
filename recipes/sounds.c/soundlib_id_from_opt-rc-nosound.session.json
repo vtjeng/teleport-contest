@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c soundlib_id_from_opt() and assign_soundlib(): the rc option soundlib:nosound is read from the config file (options.c optfn_soundlib, string_for_env_opt), matches the built-in nosound library (1891-1892) and assigns it; the Healer then opens and closes the O menu.",
+  "segments": [
+    {
+      "seed": 144023,
+      "datetime": "20311105120000",
+      "nethackrc": "OPTIONS=name:Lark,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,soundlib:nosound,pettype:none\n",
+      "moves": "O\u001b"
+    }
+  ]
+}

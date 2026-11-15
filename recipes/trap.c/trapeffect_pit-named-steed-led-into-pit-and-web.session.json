@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c trapeffect_pit() 1847 and trapeffect_web() 2121: a debug Knight force-mounts her starting pony (#ride east, accepting the debug forced mount), names it Bucky (#name, monster, own square), wishes a pit beside the start, steps off and back on and leads Bucky into it: a named steed suppresses the article (1847). She rides out, wishes a web, steps off and back on and leads Bucky into it (2121). 2175-2177 (the steed escaping the web) are not reached: Bucky is caught.",
+  "segments": [
+    {
+      "seed": 5640001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time\n",
+      "moves": "#ride\nly#name\nm  .Bucky\nl\u0017pit\nlhlllll\u0017web\nlh  "
+    }
+  ]
+}

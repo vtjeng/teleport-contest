@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c still_chewing(): a debug Caveman level-teleports to Minetown (^V menu, which builds minetn-6 for this seed), drops everything, wishes 400 gold, polymorphs into a rock mole and teleports (^T) into Izchak's lighting store, then chews through its west wall: the in_rooms(SHOPBASE) branch (754-756) adds shop damage, and the keeper's 'Beast!' line comes from shk.c cad(). After paying, ^V 4 lands on a Mines filler level (is_cavernous_lev, not in town), where chewing a wall turns it into corridor (761).",
+  "segments": [
+    {
+      "seed": 611207,
+      "datetime": "20391012141500",
+      "nethackrc": "OPTIONS=name:Chewer,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!autopickup,time\n",
+      "moves": " \u0016?\n>wDAa\n  \u0017400 gold pieces\n#polyself\nrock mole\n\u0014HHhhjjjjjjj.   hhhh y    \u00164\njjjj"
+    }
+  ]
+}

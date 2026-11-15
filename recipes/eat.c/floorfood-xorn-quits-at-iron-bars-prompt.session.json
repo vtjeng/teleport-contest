@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c floorfood() 3655: a debug Barbarian polymorphs into a xorn (metallivorous, passes walls), wishes iron bars onto his own square and #eats; 'There are iron bars here; eat them?' is answered q, so floorfood() returns no object.",
+  "segments": [
+    {
+      "seed": 3092219,
+      "datetime": "20380126190000",
+      "nethackrc": "OPTIONS=name:Chomper,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " l#polyself\nxorn\n\u0017iron bars\neq"
+    }
+  ]
+}

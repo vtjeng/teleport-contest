@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c container_impact_dmg() 477-484 and 445: in Akalapi's general store on Dlvl 3 (the dokick.c shop seed), a debug Valkyrie drops a wished empty unlocked large box (declining to sell it), picks up a shop potion and puts it and a wished mirror into the box, then kicks the box from inside the shop: the shop's potion shatters and 'You owe Akalapi 89 zorkmids for objects destroyed.' (insider, 480-483). A third kick shatters the mirror (-2 Luck, 445). 477-479 (kicking from outside the shop) and 450 (an egg the hero laid) are not covered.",
+  "segments": [
+    {
+      "seed": 5520002,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u00163\n  \u0017empty unlocked large box\n\u0017mirror\nhhhhhh, df n#loot\nia\ngh\n l\u0004h   \u0004h   \u0004h "
+    }
+  ]
+}
