@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bones.c fixuporacle() 339-344 and 348: a debug Samurai level-teleports to the Oracle level, teleports into the Delphi beside the Oracle and zaps a wished wand of teleportation at her (she vanishes to another part of the level), then dies by zapping a wand of death at himself and saves bones. savebones() finds the Oracle outside a DELPHI room, so fixuporacle() looks up the original Delphi chamber and moves her back with enexto() and rloc_to().",
+  "segments": [
+    {
+      "seed": 8203117,
+      "datetime": "20360707201500",
+      "nethackrc": "OPTIONS=name:Seer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0016?\nc \u0014  ljjj. \u0017wand of teleportation\nzfb\u0017wand of death\nzg.  yqy"
+    }
+  ]
+}
