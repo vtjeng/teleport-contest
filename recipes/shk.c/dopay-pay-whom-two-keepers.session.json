@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c dopay() 1837-1839 and 1848-1849, the 'Pay whom?' branch with more than one shopkeeper in view: a debug Tourist level-teleports to Minetown with the ^V menu, wears a wished helm of telepathy and ^T-teleports into Kachzi Rellim's hardware store, two squares from the keeper. Blindfolded, she senses every shopkeeper on the level, so p asks 'Pay whom?' and choosing the resident keeper proceeds to 'You do not owe Kachzi Rellim anything.' (1848-1849). With the blindfold off, the helm still shows the keeper of the shop to the south (within 8 squares), so p asks again, and choosing an empty square in view gives 'There is no one there to receive your payment.' (1837-1839).",
+  "segments": [
+    {
+      "seed": 7302501,
+      "datetime": "20381019101000",
+      "nethackrc": "OPTIONS=name:Payer,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": " \u0016?\n>w\u0006\u0017helm of telepathy\n\u0017blindfold\nWo\u0014 lllllK.  Ppphhhjj.Rpjj."
+    }
+  ]
+}
