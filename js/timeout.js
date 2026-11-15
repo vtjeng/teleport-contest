@@ -157,7 +157,9 @@ import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
 import { an, donameFresh, the, vtense, xname, Yname2 } from './objnam.js';
 import {
-    candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
+    candle_light_range, arti_light_radius, del_light_source,
+    del_light_source_async, get_obj_location, new_light_source,
+} from './light.js';
 import {
     big_to_little, cantvomit, emits_light, is_rider, is_silent,
     is_were, locomotion, name_to_mon, mhe, nolimbs, touch_petrifies,
@@ -1150,7 +1152,7 @@ export async function slimed_to_death(killer, state = game, env = {}) {
     dealloc_killer(killer, state);
 
     if (emits_light(state.youmonst.data))
-        del_light_source(LS_MONSTER, state.youmonst, state);
+        await del_light_source_async(LS_MONSTER, state.youmonst, state);
     const vital = state.svm.mvitals[PM_GREEN_SLIME];
     const saveMvflags = vital.mvflags;
     vital.mvflags = saveMvflags & ~G_GENOD;

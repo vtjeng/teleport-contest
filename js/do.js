@@ -2500,7 +2500,7 @@ function* updateDunlevReachedSteps(level, state) {
 // as unreachable. The file and overview operations stay with their C owners:
 // files.c delete_levelfile() and dungeon.c remdun_mapseen(). Then dog.c's
 // discard_migrations() removes migrants bound to unreachable levels.
-function discard_unreachable_levels(state, leavingTutorial) {
+async function discard_unreachable_levels(state, leavingTutorial) {
     const tutorialDnum = state.tutorial_dnum;
 
     // do.c:1656-1659, files.c delete_levelfile(). C counts down from the
@@ -2521,7 +2521,7 @@ function discard_unreachable_levels(state, leavingTutorial) {
             remdun_mapseen(dnum, state);
     }
 
-    discard_migrations(state);
+    await discard_migrations(state);
 }
 
 // C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
@@ -2727,7 +2727,7 @@ export async function goto_level(
     }
     savelev(ledger_no(u.uz, state), state,
         { mode: cant_go_back ? 'FREEING' : 'WRITING|FREEING' });
-    if (cant_go_back) discard_unreachable_levels(state, leaving_tutorial);
+    if (cant_go_back) await discard_unreachable_levels(state, leaving_tutorial);
 
     // do.c:1666-1668. Graphics are selected before u.uz changes, so the
     // destination test and the departing-level test use the source values.

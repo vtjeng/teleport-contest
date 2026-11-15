@@ -1,9 +1,9 @@
 // C functions that report a bad state through pline.c impossible() and
 // carry on. The port used to throw at these points, ending the game where C
 // goes on. Each is synchronous here, so the report is recorded with
-// note_unported('pline.c impossible') and the function continues as C does.
-// No input is known to reach any of them; each test builds the bad state
-// directly and pins what C does after the report.
+// note_unported('pline.c impossible') and the function continues as C does;
+// del_light_source() also has an async form that prints the report. Each
+// test builds the bad state directly and pins what C does after the report.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -14,6 +14,7 @@ import { notice_mon_on } from '../js/hack.js';
 import { record_achievement } from '../js/insight.js';
 import {
     del_light_source,
+    del_light_source_async,
     light_globals_init,
     light_sources_in_range,
     new_light_source,
@@ -49,8 +50,11 @@ test('notice_mon_on reports an unpaired resume and clamps to zero', () => {
 });
 
 // C ref: light.c del_light_source():134-137. A source that is not on the
-// list is reported and nothing is deleted.
-test('del_light_source reports a missing source and deletes nothing', () => {
+// list is reported and nothing is deleted. The synchronous form records the
+// report as a gap; del_light_source_async() prints it, as rehumanize() does
+// for a yellow light that died inside polymon()
+// (recordings/light.c/rehumanize-before-hero-light-eye.session.json).
+test('del_light_source reports a missing source and deletes nothing', async () => {
     const state = freshGame();
     light_globals_init(state);
     // Radius 3 at <5,5>: an ordinary object source that stays on the list.
@@ -59,6 +63,39 @@ test('del_light_source reports a missing source and deletes nothing', () => {
     del_light_source(LS_OBJECT, { where: 'floor' }, state);
     assert.equal(state.gl.light_base, kept);
     assert.ok(game.unported.has('pline.c impossible'));
+
+    const lines = [];
+    const sink = async (text) => { lines.push(text); };
+    await del_light_source_async(LS_OBJECT, { where: 'floor' }, state,
+        { message: sink, urgentMessage: sink });
+    assert.equal(state.gl.light_base, kept);
+    // type=1 is LS_OBJECT; alloc.c fmt_ptr() prints a non-null pointer as
+    // <ptr> under patch 007. Nothing is worth saving in a fresh game, so the
+    // second line has no "Saving and reloading" clause.
+    assert.deepEqual(lines, [
+        'del_light_source: not found type=1, id=<ptr>',
+        'Program in disorder!',
+        'Please report these messages to devteam@nethack.org.',
+    ]);
+});
+
+// C ref: light.c del_light_source():108-111, 134-137. LS_NONE is reported,
+// then searched for with a zero id; no source has that type, so the search
+// fails and C reports that too.
+test('del_light_source reports type none, then the failed search', async () => {
+    const state = freshGame();
+    light_globals_init(state);
+    // Radius 2 at <3,3>: a source of another type, which the search skips.
+    const kept = new_light_source(3, 3, 2, LS_OBJECT, { where: 'floor' }, state);
+    const lines = [];
+    const sink = async (text) => { lines.push(text); };
+    await del_light_source_async(LS_NONE, {}, state,
+        { message: sink, urgentMessage: sink });
+    assert.equal(state.gl.light_base, kept);
+    assert.deepEqual(lines.filter((line) => line.startsWith('del_light_source')), [
+        'del_light_source:type=none',
+        'del_light_source: not found type=0, id=<ptr>',
+    ]);
 });
 
 // C ref: light.c maybe_write_ls():587-592. A source of neither mobile type

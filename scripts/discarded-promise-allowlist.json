@@ -284,6 +284,10 @@
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
+    "js/light.js | del_light_source | finish_steps": {
+      "count": 1,
+      "reason": "del_light_source() is the synchronous form of del_light_source_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. del_light_source_async() is the form for a caller that can wait; scripts/level-difficulty-steps.test.mjs lists the synchronous callers."
+    },
     "js/makemon.js | unmakemon | discard_minvent": {
       "count": 1,
       "reason": "unmakemon() undoes a monster makemon() just made. makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and mhp = 0 skips update_mon_extrinsics(), so discard_minvent() returns synchronously."

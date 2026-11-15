@@ -34,7 +34,12 @@ import { ignitable } from './apply_catch_lit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { note_unported } from './unported.js';
-import { sync_impossible } from './source_steps.js';
+import {
+    finish_steps,
+    ImpossibleCall,
+    sync_impossible,
+} from './source_steps.js';
+import { impossible_printer } from './pline.js';
 import { fmt_ptr } from './alloc.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
@@ -159,12 +164,19 @@ export function new_light_source(x, y, range, type, id, state = game) {
 // relinked (LSF_NEEDS_FIXUP) still holds the saved o_id or m_id, which C
 // compares with the owner's current id. On a bones level that is the dead
 // hero's id, not the new one restmon() gave the monster, so C misses it.
-export function del_light_source(type, id, state = game) {
+//
+// Both impossible() reports are steps (js/source_steps.js): a caller that can
+// wait drives del_light_source_steps() with finish_steps(...,
+// impossible_printer(state)) or `yield*`, so the report and its --More--
+// prompts come where C prints them. del_light_source() is the synchronous
+// form, which records the print as a gap;
+// scripts/level-difficulty-steps.test.mjs lists the callers that use it.
+// del_light_source_async() is the form for a caller that can wait.
+export function* del_light_source_steps(type, id, state = game) {
     const globals = lightGlobals(state);
     if (type === LS_NONE) {
-        // C: impossible("del_light_source:type=none");
+        yield new ImpossibleCall('del_light_source:type=none');
         // C then searches with a zero id.
-        note_unported('pline.c impossible');
     }
     const currentId = type === LS_OBJECT ? (id?.o_id ?? 0)
         : type === LS_MONSTER ? id.m_id : 0;
@@ -177,16 +189,25 @@ export function del_light_source(type, id, state = game) {
         current = current.next;
     }
     if (!current) {
-        // impossible("del_light_source: not found type=%d, id=%s", ...);
-        // this synchronous function cannot wait on the print, and C deletes
-        // nothing.
-        note_unported('pline.c impossible');
+        // fmt_ptr((genericptr_t) id->a_obj): the union's pointer, whichever
+        // member the caller set. C deletes nothing.
+        yield new ImpossibleCall(
+            `del_light_source: not found type=${type}, id=${fmt_ptr(id)}`);
         return;
     }
     if (previous) previous.next = current.next;
     else globals.light_base = current.next;
     current.next = null;
     state.vision_full_recalc = 1;
+}
+
+export function del_light_source(type, id, state = game) {
+    finish_steps(del_light_source_steps(type, id, state));
+}
+
+export function del_light_source_async(type, id, state = game, env = {}) {
+    return finish_steps(del_light_source_steps(type, id, state),
+        impossible_printer(state, env));
 }
 
 function transientLightOperation(env, name) {
@@ -263,7 +284,7 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
 // source ids use {a_obj:null}; ordinary object ids remain their direct object
 // identity and are therefore retained by discard_flashes().
 export async function transient_light_cleanup(state = game, env = {}) {
-    discard_flashes(state);
+    await discard_flashes(state);
     if (state.vision_full_recalc)
         await transientLightOperation(env, 'visionRecalc')(0);
 
@@ -286,11 +307,12 @@ export async function transient_light_cleanup(state = game, env = {}) {
 }
 
 // C ref: light.c discard_flashes().
-function discard_flashes(state) {
+async function discard_flashes(state) {
     for (let source = state.gl?.light_base ?? null; source;) {
         const next = source.next;
-        if (source.type === LS_OBJECT && source.id?.a_obj === null)
-            del_light_source(source.type, source.id, state);
+        if (source.type === LS_OBJECT && source.id?.a_obj === null) {
+            await del_light_source_async(source.type, source.id, state);
+        }
         source = next;
     }
 }

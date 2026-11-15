@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "light.c del_light_source() finds no light source and reports it through pline.c impossible(). A neutral human Valkyrie in debug mode raises her level so that she survives two blasts, wishes for the Eye of the Aethiopica (another role's quest artifact, so touching it blasts her) and puts it on. #polyself into a yellow light then runs polyself.c polymon(), whose retouch_equipment(2) blasts the new form to death before polyself()'s made_change creates the hero's light source; rehumanize() then calls del_light_source(LS_MONSTER) for a light that does not exist, and C prints the report and two more lines, each at --More--, before 'You return to human form!'. The date avoids a full moon. The seed is the first of 5150423-5150428 whose blast kills the yellow light; the others leave it alive.",
+  "segments": [
+    {
+      "seed": 5150428,
+      "datetime": "20300622103000",
+      "nethackrc": "OPTIONS=name:Lumen,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n14\n\u001b\u0017Eye of the Aethiopica\n\u001bPe\u001b#polyself\nyellow light\n      s"
+    }
+  ]
+}

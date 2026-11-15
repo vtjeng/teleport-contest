@@ -250,7 +250,7 @@ import { losehp, nomul, rounddiv, spoteffects, unmul } from './hack.js';
 import { dist2, s_suffix, strstri, strsubst } from './hacklib.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
-    arti_light_radius, del_light_source, new_light_source,
+    arti_light_radius, del_light_source_async, new_light_source,
 } from './light.js';
 import { has_ceiling, surface } from './dungeon.js';
 import { On_stairs } from './stairs.js';
@@ -1827,7 +1827,7 @@ export async function polyself(psflags, state = game, env = {}) {
     let new_light = emits_light(state.youmonst.data);
     if (old_light !== new_light) {
         if (old_light)
-            del_light_source(LS_MONSTER, state.youmonst, state);
+            await del_light_source_async(LS_MONSTER, state.youmonst, state);
         if (new_light === 1)
             ++new_light; /* otherwise it's undetectable */
         if (new_light)
@@ -1995,7 +1995,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
      */
 
     if (emits_light(state.youmonst.data))
-        del_light_source(LS_MONSTER, state.youmonst, state);
+        await del_light_source_async(LS_MONSTER, state.youmonst, state, env);
     await polyman('You return to %s form!', state.urace.adj, state, env);
 
     if (u.uhp < 1) {

@@ -250,6 +250,8 @@ import {
 import {
     any_light_source,
     del_light_source,
+    del_light_source_async,
+    del_light_source_steps,
     new_light_source,
 } from './light.js';
 import { mkcorpstat } from './corpstat.js';
@@ -2924,7 +2926,8 @@ function* apply_newcham_steps(
     }
 
     if (emits_light(olddata) !== emits_light(target)) {
-        if (emits_light(olddata)) del_light_source(LS_MONSTER, monster, state);
+        if (emits_light(olddata))
+            yield* del_light_source_steps(LS_MONSTER, monster, state);
         if (emits_light(target)) {
             new_light_source(monster.mx, monster.my, emits_light(target),
                 LS_MONSTER, monster, state);
@@ -4593,7 +4596,7 @@ export async function replmon(mtmp, mtmp2, state = game) {
             mtmp2,
             state,
         );
-        del_light_source(LS_MONSTER, mtmp, state);
+        await del_light_source_async(LS_MONSTER, mtmp, state);
     }
     mtmp2.nmon = state.level.monlist;
     state.level.monlist = mtmp2;

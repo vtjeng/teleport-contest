@@ -171,7 +171,7 @@ import { experience, more_experienced, newexplevel } from './exper.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
 import { free_emin } from './minion.js';
-import { del_light_source } from './light.js';
+import { del_light_source_async } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
@@ -1470,7 +1470,7 @@ export async function migrate_to_level(
 // C ref: dog.c discard_migrations(). Terminal destinations retain only the
 // Wizard and endgame monsters/objects; every other migrant is removed from
 // its global chain and passed through its normal owner cleanup.
-export function discard_migrations(state = game, rawEnv = {}) {
+export async function discard_migrations(state = game, rawEnv = {}) {
     const env = objectGenerationEnv({ ...rawEnv, state });
     const isEndgameDestination = destination => Boolean(
         state.astral_level
@@ -1491,7 +1491,7 @@ export function discard_migrations(state = game, rawEnv = {}) {
             monster.nmon = null;
             discard_minvent(monster, false, env);
             if (emits_light(monster.data))
-                del_light_source(LS_MONSTER, monster, state);
+                await del_light_source_async(LS_MONSTER, monster, state);
             dealloc_monst(monster);
         }
         monster = next;

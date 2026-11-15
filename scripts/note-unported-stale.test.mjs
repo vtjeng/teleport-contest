@@ -28,7 +28,9 @@ const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossi
 const EXCEPTIONS = new Map([
     // 266: timeout.c start_timer()'s duplicate-timer report goes through
     // sync_impossible(), which the melting-ice wish prints (2026-11-14).
-    ['pline.c impossible', { count: 266, reason: IMPOSSIBLE }],
+    // 264: light.c del_light_source()'s two reports are steps, which a
+    // yellow light's death inside polymon() prints (2026-11-15).
+    ['pline.c impossible', { count: 264, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

@@ -16,6 +16,9 @@
 //
 // .cache/lead/wt-levdiff-notes/DESIGN.md (not in the repository) has the
 // call graph this list came from.
+//
+// light.c del_light_source() uses the same pattern for its two impossible()
+// reports, so its synchronous form and step generator are listed here too.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -37,6 +40,7 @@ const SYNC_FORMS = new Set([
     'newmonhp',
     'rndmonst_adj',
     'rndmonst',
+    'del_light_source',
 ]);
 
 // Step generators: each must be driven by its caller.
@@ -51,6 +55,7 @@ const STEP_FORMS = new Set([
     'makemon_steps',
     'finishMonsterInventoryAndStrategySteps',
     'updateDunlevReachedSteps',
+    'del_light_source_steps',
 ]);
 
 // "<file> | <enclosing function> | <callee>": [count, reason]. Level
@@ -122,11 +127,26 @@ const ALLOWED = {
     'obj.js | mkbox_cnts | level_difficulty': [1, OBJECT_CREATION],
     'obj.js | mkgold | level_difficulty': [1,
         `${OBJECT_CREATION}; only mkgold(0, ...) reads it`],
+    // light.c del_light_source()'s impossible() reports. Each of these
+    // deletes a source that its owner's creation made, so no recording
+    // reaches the report on these paths.
+    'obj.js | dealloc_obj | del_light_source': [1,
+        'dealloc_obj() is synchronous, with 21 calls, and obfree() above '
+            + 'it has 62'],
+    'timeout.js | objectLightDeletion | del_light_source': [1,
+        'end_burn() and the timer cleanup run their light deletion '
+            + 'synchronously'],
+    'mon.js | m_detach | del_light_source': [1,
+        'm_detach() is synchronous for mongone(), which has 30 calls'],
+    'themeroom_fill.js | createMonsterBody | del_light_source': [1,
+        'a themed room\'s shapechanger is made during level creation, '
+            + 'which is synchronous'],
 };
 
 // Entries and calls in ALLOWED, pinned both ways (scripts/exception-count.mjs).
-// 35 entries holding 39 calls on branch levdiff (11 November 2026).
-const ALLOWED_PINS = { entries: 35, calls: 39 };
+// 35 entries holding 39 calls on branch levdiff (11 November 2026); 39 and 43
+// once light.c del_light_source() joined (15 November 2026).
+const ALLOWED_PINS = { entries: 39, calls: 43 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',
@@ -210,7 +230,7 @@ function scanJs() {
     return { syncCalls, undriven };
 }
 
-test('every synchronous level_difficulty()/builds_up() path is listed', () => {
+test('every synchronous level_difficulty()/builds_up()/del_light_source() path is listed', () => {
     const { syncCalls } = scanJs();
     const problems = [];
     for (const [key, count] of Object.entries(syncCalls)) {
