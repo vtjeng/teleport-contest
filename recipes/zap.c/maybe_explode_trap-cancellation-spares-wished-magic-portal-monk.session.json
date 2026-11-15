@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c maybe_explode_trap() 3605-3610: a debug Monk wishes for a wand of cancellation, steps west off the up stairs and wishes a 'magic portal' (objnam.c makes 'A magic portal to nowhere' under the hero), steps back east and zaps cancellation west across it. zap_map() offers the portal to maybe_explode_trap(); undestroyable_trap() holds for a magic portal, so it shows the shield effect and marks the visible portal seen instead of exploding it.",
+  "segments": [
+    {
+      "seed": 2840159,
+      "datetime": "20400602094500",
+      "nethackrc": "OPTIONS=name:Tenzin,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017wand of cancellation\nh\u0017magic portal\nlzjh"
+    }
+  ]
+}

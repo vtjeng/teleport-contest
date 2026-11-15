@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of maybe_explode_trap-cancellation-spares-wished-magic-portal-monk: a debug elven Wizard wishes a vibrating square one square north, steps back and zaps cancellation north across it; the vibrating square is also undestroyable, so 3605-3610 run.",
+  "segments": [
+    {
+      "seed": 9516372,
+      "datetime": "20380115201000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017wand of cancellation\nk\u0017vibrating square\njzpk"
+    }
+  ]
+}
