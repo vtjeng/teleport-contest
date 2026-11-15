@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmon_hitmon_misc_obj() 1197-1198 and 1201: a debug Tourist wishes for 3 giant ant eggs and a blessed lump of royal jelly, rubs it on the stack (use_royal_jelly() sets spe 2: the hatchlings would be hers), wields the eggs and attacks a created hostile newt until a blow lands. Hitting with eggs the hero counts as her own (spe set, species known) costs Luck equal to the stack size, here 3.",
+  "segments": [
+    {
+      "seed": 4766302,
+      "datetime": "20410411170000",
+      "nethackrc": "OPTIONS=name:Bea,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u00173 giant ant eggs\n\u0017blessed lump of royal jelly\narqwq\u0007hostile newt\nFhFhFhFhFhFhFh\u0018\u001b"
+    }
+  ]
+}
