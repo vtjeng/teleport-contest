@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41102,
+      "datetime": "20361110101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,time\n",
+      "moves": "\u00172000 gold pieces\n\u0017wand of sleep\n\u0007leprechaun\nzen t$n  \u001720 blessed potions of gain level\n qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf \u0017blessed +5 gray dragon scale mail\nWg \u001720000 gold pieces\n \u0007soldier\nt3000$k  t3000$k  \u0007lieutenant\nt100$b  \u0007captain\nt100$k  "
+    }
+  ],
+  "comment": "dokick.c ghitm() via dothrow.c throw_gold(): a debug-mode Valkyrie throws gold at a leprechaun she has put to sleep (gold harmlessly hits), then, after drinking potions of gain level and donning dragon scale mail, bribes a soldier twice ('That should do', then 'Thanks for the tip'), a lieutenant and a captain ('That's not enough')."
+}

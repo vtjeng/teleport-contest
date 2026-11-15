@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52207,
+      "datetime": "20361110101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,time\n",
+      "moves": "\u0017Vorpal Blade\nwe\u0007ghost\nFj Fj Fj Fj Fj Fj Fj Fj Fj Fj Fj Fj \u0007peaceful jabberwock\n#wizintrinsic\nh\n Fh Fh Fh Fh Fh Fh "
+    }
+  ],
+  "comment": "artifact.c artifact_hit() SPFX_BEHEAD, Vorpal Blade branch: a male Barbarian in debug mode wishes for and wields Vorpal Blade, strikes a ghost until a natural 1 slices through its neck (noncorporeal target), then hallucinates and beheads a jabberwock, which prints the 'Good job Henry' line for a male hero."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 63311,
+      "datetime": "20361110101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,time\n",
+      "moves": "\u001720 blessed potions of gain level\n qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg qg \u0017-7 Tsurugi of Muramasa\n wh \u0007air elemental\nFh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   \u0007air elemental\nFh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   \u0007air elemental\nFh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   "
+    }
+  ],
+  "comment": "artifact.c artifact_hit() SPFX_BEHEAD, Tsurugi of Muramasa branch while the hero is engulfed: a debug-mode Samurai drinks 20 potions of gain level, wields a -7 Tsurugi so its blows do little damage, and fights air elementals from inside until a natural 1 slices one wide open."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41108,
+      "datetime": "20361110101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,!autopickup,time\n",
+      "moves": "\u001720 blessed potions of gain level\n qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf qf \u0017blessed +5 gray dragon scale mail\nTe     Wg      #enhance\nyh \u001b 8\u0007soldier\nFh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  Fh  Fj  Fk  Fl  Fy  Fu  Fb  Fn  "
+    }
+  ],
+  "comment": "BLOCKED by objnam.c Yobjnam2(): first mismatch seg 0 step 211 (zero-based), key 'k', top line: C prints \"The soldier's wakizashi shatters from the force of your blow!\", JavaScript prints \"The wakizashi shatters ...\" (the owner possessive for an object in a monster's inventory is missing). uhitm.c hmon_hitmon_weapon_melee() weapon-shattering branch: a debug-mode Samurai levels up, advances long sword to Skilled with #enhance's practice-free option, and fights eight soldiers with a katana and no shield until a natural 2 shatters a soldier's wielded weapon."
+}
