@@ -673,6 +673,9 @@ function menuLines(spec) {
             text: spec.title,
             attr: spec.titleAttr ?? ATR_INVERSE,
             color: spec.titleColor ?? NO_COLOR,
+            // tty_end_menu() (2682-2689) adds the prompt with tty_add_menu(),
+            // so process_menu_window()'s attr_n test applies to it as well.
+            styleStart: menuAttrStart(String(spec.title)),
             item: null,
         },
         { text: '', attr: 0, item: null },

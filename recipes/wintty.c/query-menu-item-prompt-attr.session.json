@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9152034,
+      "datetime": "20290305151500",
+      "nethackrc": "OPTIONS=name:QueryDrop,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=menustyle:traditional,query_menu\n",
+      "moves": "D)\nnq",
+      "comment": "Reaches wintty.c tty_end_menu() 2682-2689 and process_menu_window() 1442-1447 for a menu prompt: traditional D asks about each weapon through yn_function(), and query_menu turns that into a menu whose \"a - ...?\" prompt highlights only after its letter and dash."
+    }
+  ]
+}

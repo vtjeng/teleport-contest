@@ -3510,12 +3510,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/startup_reroll.js | renderRerollPrompt | 'reroll prompt requires a tty display'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Refuses a call made without the initialized tty display every game has."
-    },
     "js/startup_reroll.js | reroll_menu | 'reroll_menu requires initialized u.uroleplay'": {
       "count": 1,
       "class": "invariant",

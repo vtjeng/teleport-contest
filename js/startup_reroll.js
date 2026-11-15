@@ -9,8 +9,6 @@ import {
     A_STR,
     A_WIS,
     PICK_ONE,
-    TOPLINE_NON_EMPTY,
-    TOPLINE_SPECIAL_PROMPT,
 } from './const.js';
 import {
     get_strength_str as strengthText,
@@ -18,17 +16,14 @@ import {
     object_glyph_info,
     random_object_glyph_info,
 } from './display.js';
+import { y_n } from './cmd.js';
 import { game } from './gstate.js';
-import { nhgetch } from './input.js';
 import { donameFresh } from './objnam.js';
 import * as O from './objects.js';
 import { rn2_on_display_rng } from './rng.js';
-import { NO_COLOR } from './terminal.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
-import { setToplinesDirectly } from './topl.js';
 import { Hallucination } from './youprop.js';
-import { lcase } from './hacklib.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
 const REROLL_QUERY = 'Reroll this character?';
@@ -134,48 +129,6 @@ export function buildRerollMenuSpec(
     };
 }
 
-function renderRerollPrompt(state) {
-    const display = state.nhDisplay;
-    if (!display) throw new Error('reroll prompt requires a tty display');
-    const prompt = `${REROLL_QUERY} [yn] (n) `;
-    display.clearRow(0);
-    display.putstr(0, 0, prompt, NO_COLOR, 0);
-    display.setCursor(prompt.length, 0);
-    // C's custompline() leaves gt.toplines empty while the prompt is up;
-    // fallbackRerollChoice() rewrites it before anything reads it.
-    setToplinesDirectly(prompt.trimEnd(), state);
-    display.topMessage = state._ttyToplines;
-    display.toplin = TOPLINE_SPECIAL_PROMPT;
-    return prompt;
-}
-
-async function fallbackRerollChoice(state) {
-    const prompt = renderRerollPrompt(state);
-    let response;
-    for (;;) {
-        const code = await nhgetch(state);
-        if (code === 0 || code === 10 || code === 13
-            || code === 27 || code === 32) {
-            response = 'n';
-            break;
-        }
-        const key = lcase(String.fromCharCode(code & 0xFF));
-        if (key === 'y' || key === 'n') {
-            response = key;
-            break;
-        }
-    }
-    // tty_yn_function() keeps the physical prompt un-echoed but appends the
-    // accepted key to its logical topline for message history and the next
-    // pline() boundary.
-    // tty_yn_function() writes this line with Sprintf() (topl.c:539), not
-    // update_topl().
-    setToplinesDirectly(`${prompt}${response}`, state);
-    state.nhDisplay.topMessage = state._ttyToplines;
-    state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
-    return response;
-}
-
 // Returns true and increments numrerolls only when the player explicitly
 // chooses to reroll, matching invent.c:reroll_menu().
 export async function reroll_menu(state = game, options = {}) {
@@ -191,7 +144,9 @@ export async function reroll_menu(state = game, options = {}) {
         state,
         spec,
     );
-    if (choice === REPROMPT) choice = await fallbackRerollChoice(state);
+    // invent.c 2603-2608: a menu closed without a choice asks again through
+    // the ordinary y_n(), whose custompline() flushes the screen first.
+    if (choice === REPROMPT) choice = await y_n(REROLL_QUERY, state);
     if (choice !== 'y') return false;
 
     const roleplay = state.u?.uroleplay;
@@ -203,7 +158,6 @@ export async function reroll_menu(state = game, options = {}) {
 
 export const _startupRerollInternals = Object.freeze({
     effectiveAttribute,
-    fallbackRerollChoice,
     rerollAttributeLine,
     rerollObjectGlyphInfo,
     strengthText,

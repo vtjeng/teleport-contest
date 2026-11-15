@@ -8,6 +8,11 @@ import { nhgetch } from './input.js';
 import { convertLine, initializeQuestPagerLua } from './questpgr.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
 import { tty_putmsghistory } from './topl.js';
+import {
+    clearTtyMessageWindow,
+    dismissPendingTtyMessage,
+} from './tty_message.js';
+import { TOPLINE_EMPTY, TOPLINE_NEED_MORE } from './const.js';
 import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { CLR_GRAY, NO_COLOR } from './terminal.js';
@@ -148,6 +153,12 @@ export function renderTtyLegacyIntroduction(state = game) {
         throw new Error('legacy introduction unexpectedly exceeds one tty page');
     }
 
+    // wintty.c tty_display_nhwindow() 1930-1941: a full-screen window
+    // clears the screen and empties the top line; an overlaid one clears the
+    // message window first, so an answered prompt such as the reroll y_n()
+    // neither shows beside the text nor returns when the snapshot is restored.
+    if (layout.fullScreen) display.toplin = TOPLINE_EMPTY;
+    else clearTtyMessageWindow(state);
     const snapshot = snapshotDisplay(display);
     if (layout.fullScreen) display.clearScreen();
     for (let row = 0; row < lines.length; ++row) {
@@ -183,6 +194,17 @@ export function dismissTtyLegacyIntroduction(state = game, rendered) {
 export async function ttyLegacyIntroduction(state = game, random = rn2) {
     if (!state.flags?.legacy) return false;
     initializeQuestPagerLua(random, state);
+    // wintty.c tty_display_nhwindow() 1921-1922: an unacknowledged message
+    // gets its --More-- before the text window covers it.  The NHW_MESSAGE
+    // arm (1874-1877) then clears the top line; restoring NEED_MORE lets
+    // clearTtyMessageWindow() erase it, as tty_menu.js does for menus.
+    const display = state.nhDisplay;
+    if (display?.toplin === TOPLINE_NEED_MORE
+        && !state._ttyMessageStopped
+        && await dismissPendingTtyMessage(state)) {
+        display.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    }
     const rendered = renderTtyLegacyIntroduction(state);
     for (;;) {
         const code = await nhgetch(state);

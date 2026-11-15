@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6203817,
+      "datetime": "20270914201000",
+      "nethackrc": "OPTIONS=name:RerollAsk,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=reroll,!menu_overlay\n",
+      "moves": "\u001bns",
+      "comment": "Reaches invent.c reroll_menu() 2603-2608: Escape closes the full-screen reroll menu without a choice, so y_n(\"Reroll this character?\") asks again. Its custompline() runs vpline()'s flush_screen(1) (pline.c 273-274), which paints the status rows the menu's dismissal left blank."
+    }
+  ]
+}

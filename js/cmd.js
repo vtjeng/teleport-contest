@@ -51,6 +51,7 @@ import {
     LOOK_QUICK,
     LOOK_TRADITIONAL,
     LOOK_VERBOSE,
+    CORR,
     DOOR,
     DRAWBRIDGE_UP,
     GFILTER_VIEW,
@@ -2621,7 +2622,10 @@ export async function dolookaround(state = game) {
     try {
         const { ux, uy } = state.u;
         const here = state.level?.at(ux, uy)?.typ;
-        if (here === DOOR) {
+        if (here === CORR) {
+            // C cmd.c 1318-1322: a corridor gets no room description; the
+            // shared loop below mentions the corridors next to the hero.
+        } else if (here === DOOR) {
             // C checks the four cardinal neighbors in DIR_W..N_DIRS steps of
             // two, which is exactly this west/north/east/south order.
             for (const [dx, dy] of [[-1, 0], [0, -1], [1, 0], [0, 1]]) {

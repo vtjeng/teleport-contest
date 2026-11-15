@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4410104,
+      "datetime": "20260326113000",
+      "nethackrc": "OPTIONS=name:FlipShop,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": "\u0017amulet of ESP\n\u0017blindfold\nPfPg\u0006#wizloaddes\nminetn-4\n       s",
+      "comment": "Reaches sp_lev.c flip_level() 818-860 from load_special()'s flip_level_rnd() (6482) with both axes flipped for this seed. A blind, telepathic hero senses each shopkeeper makemon() places, so its appear message stops at --More-- while the screen still shows the magic-mapped old level unflipped: flip_level() swaps levl[] only."
+    }
+  ]
+}
