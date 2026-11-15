@@ -41,7 +41,10 @@
 //    comments are read as one block, so a reference split across lines
 //    still matches. The name must follow the file directly; a line number
 //    in between ("allmain.c:73 set_wear(") marks a call site, not a port,
-//    and does not match.
+//    and does not match. A comment can still cite a function it does not
+//    port, such as one guard of it; C_FUNCTION_RULE_OVERRIDES in
+//    scripts/c-function-verdicts.mjs gives such an entry's category in place
+//    of this rule's.
 //
 // Every other entry needs a verdict in scripts/c-function-verdicts.mjs,
 // which also gives the categories a person decided.
@@ -63,7 +66,11 @@ import {
     listCFiles,
     parseCFunctions,
 } from './c-functions.mjs';
-import { C_FUNCTION_VERDICTS, VERDICT_CATEGORIES } from './c-function-verdicts.mjs';
+import {
+    C_FUNCTION_RULE_OVERRIDES,
+    C_FUNCTION_VERDICTS,
+    VERDICT_CATEGORIES,
+} from './c-function-verdicts.mjs';
 import { NOT_PORTED_BY_DESIGN } from './not-ported-by-design.mjs';
 import { requireCompiler } from './recorder-headers.mjs';
 
@@ -307,12 +314,17 @@ export function cRefs(jsRoot = JS_ROOT) {
 // ---------------------------------------------------------------- the map
 
 /**
- * Classify every entry. Returns `{ entries, unusedVerdicts }`: each entry
- * gains `category` (null when nothing classifies it) and `evidence`, and
- * `unusedVerdicts` lists the verdict keys that no entry needed.
+ * Classify every entry. Returns `{ entries, unusedVerdicts, unusedOverrides }`:
+ * each entry gains `category` (null when nothing classifies it) and
+ * `evidence`; `unusedVerdicts` lists the verdict keys that no entry needed,
+ * and `unusedOverrides` the override keys whose entry the otherName rule
+ * does not match.
  */
-export function classify(entries, { compiled, refs, verdicts = C_FUNCTION_VERDICTS }) {
+export function classify(entries, {
+    compiled, refs, verdicts = C_FUNCTION_VERDICTS, overrides = C_FUNCTION_RULE_OVERRIDES,
+}) {
     const used = new Set();
+    const usedOverrides = new Set();
     const classified = entries.map((entry) => {
         const key = entryKey(entry.file, entry.name);
         const source = `${entry.dir}/${entry.file}`;
@@ -326,11 +338,19 @@ export function classify(entries, { compiled, refs, verdicts = C_FUNCTION_VERDIC
         const sites = refs.get(key);
         if (sites) {
             const site = sites[0];
-            return {
-                ...entry, category: 'otherName',
-                evidence: `${site.path}:${site.line} C ref ${site.placement === 'above'
-                    ? `above ${site.jsFunction ?? 'an unnamed function'}` : 'in a function body'}`,
-            };
+            const where = `${site.path}:${site.line} C ref ${site.placement === 'above'
+                ? `above ${site.jsFunction ?? 'an unnamed function'}` : 'in a function body'}`;
+            const override = overrides[key];
+            if (override) {
+                usedOverrides.add(key);
+                return {
+                    ...entry, category: override.category,
+                    evidence: `${where} is not a port: ${override.js
+                        ? `${override.js}: ` : ''}${override.reason}`,
+                    verdict: override,
+                };
+            }
+            return { ...entry, category: 'otherName', evidence: where };
         }
         const verdict = verdicts[key];
         if (verdict) {
@@ -344,7 +364,8 @@ export function classify(entries, { compiled, refs, verdicts = C_FUNCTION_VERDIC
         return { ...entry, category: null, evidence: null };
     });
     const unusedVerdicts = Object.keys(verdicts).filter((key) => !used.has(key));
-    return { entries: classified, unusedVerdicts };
+    const unusedOverrides = Object.keys(overrides).filter((key) => !usedOverrides.has(key));
+    return { entries: classified, unusedVerdicts, unusedOverrides };
 }
 
 export async function buildFunctionMap({ compiler = requireCompiler('the map needs the C preprocessor'), jobs = 4 } = {}) {
@@ -379,9 +400,11 @@ export function summarize(entries) {
 }
 
 async function main(args) {
-    const { entries, unusedVerdicts } = await buildFunctionMap();
+    const { entries, unusedVerdicts, unusedOverrides } = await buildFunctionMap();
     if (args.includes('--summary')) {
-        const summary = { ...summarize(entries), staleVerdicts: unusedVerdicts };
+        const summary = {
+            ...summarize(entries), staleVerdicts: unusedVerdicts, staleOverrides: unusedOverrides,
+        };
         if (args.includes('--json')) console.log(JSON.stringify(summary, null, 1));
         else console.log(summary);
     } else if (args.includes('--json')) {

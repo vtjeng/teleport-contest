@@ -1,8 +1,8 @@
 // Enforces scripts/c-function-map.mjs: every C function that js/ does not
 // define under its own name has exactly one category, from a rule or from a
-// verdict in scripts/c-function-verdicts.mjs, and the verdict file's counts
-// match its pinned totals. The first test scans the repository; the others
-// pin the rules on small hand-written sources.
+// verdict or rule override in scripts/c-function-verdicts.mjs, and the
+// verdict file's counts match its pinned totals. The first test scans the
+// repository; the others pin the rules on small hand-written sources.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -22,15 +22,21 @@ import {
     tokenLines,
 } from './c-function-map.mjs';
 import {
+    C_FUNCTION_RULE_OVERRIDES,
     C_FUNCTION_VERDICTS,
     VERDICT_CATEGORIES,
     VERDICT_TOTALS,
 } from './c-function-verdicts.mjs';
 import { requireCompiler } from './recorder-headers.mjs';
 
+// Every entry of the verdict file, overrides included, as [key, verdict].
+const ALL_VERDICTS = [
+    ...Object.entries(C_FUNCTION_VERDICTS), ...Object.entries(C_FUNCTION_RULE_OVERRIDES),
+];
+
 test('every C function without a same-named JS function has one category', async () => {
     requireCompiler('the map needs the C preprocessor');
-    const { entries, unusedVerdicts } = await buildFunctionMap();
+    const { entries, unusedVerdicts, unusedOverrides } = await buildFunctionMap();
     console.log(JSON.stringify(summarize(entries).counts));
 
     // An entry with no category needs a verdict. A verdict whose function
@@ -45,13 +51,24 @@ test('every C function without a same-named JS function has one category', async
             ? `${key}: stale verdict; matched by rule (${entry.category}, ${entry.evidence})`
             : `${key}: stale verdict; js/ defines it under its own name, or no C file defines it`;
     });
-    assert.deepEqual([...unclassified, ...stale], [],
+    // An override whose entry the otherName rule no longer matches is stale
+    // too: the comment it answered has gone, so the entry needs a verdict or
+    // nothing.
+    const staleOverrides = unusedOverrides.map((key) => {
+        const entry = byKey.get(key);
+        return entry
+            ? `${key}: stale override; no accepted C ref names it (${entry.category}, ${entry.evidence})`
+            : `${key}: stale override; js/ defines it under its own name, or no C file defines it`;
+    });
+    assert.deepEqual([...unclassified, ...stale, ...staleOverrides], [],
         'edit scripts/c-function-verdicts.mjs for each function listed');
 });
 
 test('the verdict file\'s counts equal its pinned totals', () => {
     const counts = Object.fromEntries(VERDICT_CATEGORIES.map((c) => [c, 0]));
-    for (const [key, verdict] of Object.entries(C_FUNCTION_VERDICTS)) {
+    for (const key of Object.keys(C_FUNCTION_RULE_OVERRIDES))
+        assert.ok(!Object.hasOwn(C_FUNCTION_VERDICTS, key), `${key}: both a verdict and an override`);
+    for (const [key, verdict] of ALL_VERDICTS) {
         assert.ok(VERDICT_CATEGORIES.includes(verdict.category), `${key}: unknown category`);
         assert.ok(verdict.reason, `${key}: needs a reason`);
         counts[verdict.category]++;
@@ -65,7 +82,7 @@ test('the verdict file\'s counts equal its pinned totals', () => {
 test('each otherName verdict cites a function its JS file defines', () => {
     const names = new Map();
     const problems = [];
-    for (const [key, verdict] of Object.entries(C_FUNCTION_VERDICTS)) {
+    for (const [key, verdict] of ALL_VERDICTS) {
         if (verdict.category !== 'otherName') continue;
         const match = /^(js\/[\w/.-]+\.js) ([A-Za-z_$][\w$]*)$/u.exec(verdict.js ?? '');
         if (!match) {
@@ -182,27 +199,41 @@ test('classify applies the rules in order, then the verdicts', () => {
         // of two #if signatures shares the body (tty_nh_poskey).
         at('alternate', 4, 5),
         at('ref', 3),
+        // A C ref names it, but an override says the comment is not a port.
+        at('overridden', 3),
         at('judged', 3),
         at('missing', 3),
     ];
-    const refs = new Map([['x.c ref', [{ path: 'js/x.js', line: 7, placement: 'above', jsFunction: 'refPort' }]]]);
+    const site = { path: 'js/x.js', line: 7, placement: 'above', jsFunction: 'refPort' };
+    const refs = new Map([['x.c ref', [site]], ['x.c overridden', [site]]]);
     const verdicts = {
         'x.c judged': { category: 'noVisibleEffect', reason: 'frees memory' },
         'x.c ref': { category: 'otherName', js: 'js/x.js refPort', reason: 'stale' },
         'x.c gone': { category: 'unreachable', reason: 'no caller' },
     };
-    const { entries: out, unusedVerdicts } = classify(entries, { compiled, refs, verdicts });
+    const overrides = {
+        'x.c overridden': { category: 'unreachable', reason: 'the comment cites one guard' },
+        // No C ref names x.c judged, so this override has nothing to replace.
+        'x.c judged': { category: 'unreachable', reason: 'stale' },
+    };
+    const { entries: out, unusedVerdicts, unusedOverrides } = classify(entries, {
+        compiled, refs, verdicts, overrides,
+    });
     assert.deepEqual(out.map((e) => [e.name, e.category]), [
         ['dropped', 'notCompiled'],
         ['alternate', null],
         ['ref', 'otherName'],
+        ['overridden', 'unreachable'],
         ['judged', 'noVisibleEffect'],
         ['missing', null],
     ]);
     // x.c ref is matched by rule before its verdict is read, and x.c gone
     // names no entry, so both are unused.
     assert.deepEqual(unusedVerdicts, ['x.c ref', 'x.c gone']);
+    assert.deepEqual(unusedOverrides, ['x.c judged']);
+    // An override counts as a verdict, not as the rule.
+    assert.deepEqual([summarize(out).byRule, summarize(out).byVerdict], [2, 2]);
     assert.deepEqual(summarize(out).counts, {
-        notCompiled: 1, otherName: 1, unreachable: 0, noVisibleEffect: 1, unportedVisible: 0,
+        notCompiled: 1, otherName: 1, unreachable: 1, noVisibleEffect: 1, unportedVisible: 0,
     });
 });
