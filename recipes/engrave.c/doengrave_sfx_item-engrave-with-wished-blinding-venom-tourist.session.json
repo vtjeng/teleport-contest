@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "engrave.c doengrave_sfx_item() 883-884: a debug Tourist wishes for a splash of blinding venom (objnam.c 4550 allows VENOM_CLASS wishes in debug mode, spe 1) and engraves with it (E, which downplays but accepts any object). The VENOM_CLASS case prints 'Writing a poison pen letter?' and the engraving goes on in the dust.",
+  "segments": [
+    {
+      "seed": 6630178,
+      "datetime": "20400419172500",
+      "nethackrc": "OPTIONS=name:Lotte,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017splash of blinding venom\nEk  Ink\n"
+    }
+  ]
+}

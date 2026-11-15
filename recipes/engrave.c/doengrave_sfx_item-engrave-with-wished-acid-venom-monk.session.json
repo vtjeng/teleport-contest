@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of doengrave_sfx_item-engrave-with-wished-blinding-venom-tourist: a debug Monk engraves 'Hiss' with a wished splash of acid venom (883-884), then reads it back with ':'.",
+  "segments": [
+    {
+      "seed": 2481905,
+      "datetime": "20371130060000",
+      "nethackrc": "OPTIONS=name:Bao,role:Monk,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017splash of acid venom\nEj  Hiss\n: "
+    }
+  ]
+}
