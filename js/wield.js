@@ -1107,7 +1107,7 @@ export async function doquiver_core(verb, state = game) {
         await ttyPline(`You are now ${empty_handed(state)}.`, state);
         res = 1;
     } else if (was_twoweap && !state.u.twoweap) {
-        await ttyPline(`${are_no_longer_twoweap}.`, state);
+        await ttyPline(`You ${are_no_longer_twoweap}.`, state);
         res = 1;
     }
     return res ? ECMD_TIME : ECMD_OK;
