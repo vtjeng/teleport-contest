@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "timeout.c nh_timeout() 819-821 and eat.c eating_dangerous_corpse() 487: a debug Caveman wishes for a blessed black naga corpse (acidic, 43 turns to eat), sets acid resistance to a 5-turn timeout with #wizintrinsic (page 2, count 5), and eats the corpse from the floor. When the timeout runs out mid-meal, nh_timeout() sees he is eating an acidic corpse and extends the resistance one turn at a time until he finishes.",
+  "segments": [
+    {
+      "seed": 9031408,
+      "datetime": "20340210143000",
+      "nethackrc": "OPTIONS=playmode:debug,name:Sipper,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed black naga corpse\n#wizintrinsic\n>5c\n ey "
+    }
+  ]
+}
