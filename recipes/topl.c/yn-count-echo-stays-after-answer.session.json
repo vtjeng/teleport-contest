@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "topl.c tty_yn_function() echoes a count after the prompt with addtopl() and removes it with removetopl() only on the abort path (526-527); clean_up rewrites gt.toplines but leaves the physical line as typed. A Samurai in a debug game drops a stack of potions and a stack of scrolls and picks up potions under menustyle:traditional, whose pickup.c pickup() loop asks ynNaq() at line 854. A bare 0 answers 'n' and leaves \"#0\"; \"#5\", backspace and Enter leaves \"#\"; \"0\" ended by 'y' leaves \"#0\"; \"#02\" picks up two potions.",
+  "segments": [
+    {
+      "seed": 5530841,
+      "datetime": "20481203171500",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional\n",
+      "moves": "\u00173 potions of water\n\u00172 scrolls of light\ndfdg, !\n0\n, !\n#5\b\n, !\n0y, !\n#02\n"
+    }
+  ]
+}
