@@ -3145,11 +3145,13 @@ export async function openholdingtrap(mon, state = game) {
         case TT_BEARTRAP:
         case TT_PIT:
         case TT_WEB:
+            // C reads defsyms[].explanation directly, so a hallucinating
+            // hero still sees the real name (trapname()'s override).
             trapdescr = trapname(
                 u.utraptype === TT_WEB ? WEB
                 : u.utraptype === TT_PIT ? PIT
                 : BEAR_TRAP,
-                false, state,
+                true, state,
             );
             break;
         default:
@@ -3157,7 +3159,9 @@ export async function openholdingtrap(mon, state = game) {
             break;
         }
 
-        if (!which) {
+        // C 6159 tests for NULL, not for "": every case above leaves `which`
+        // set, and TT_BURIEDBALL's "" stays empty, so no article is added.
+        if (which === undefined) {
             which = t.tseen
                 ? the_your[t.madeby_u ? 1 : 0]
                 : 'aeiouAEIOU'.includes(trapdescr[0]) ? 'an' : 'a';

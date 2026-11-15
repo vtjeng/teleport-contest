@@ -1796,6 +1796,7 @@ export async function hmonas(mon, state = game, env = {}) {
 
         let weapon = null;
         let originalSlot = null;
+        let cutWorm = false; /* C's 'goto passivedone' */
         let useWeapon = mattk.aatyp === AT_WEAP;
         if (mattk.aatyp === AT_CLAW && state.uwep
             && !cantwield(state.youmonst.data) && !weaponUsed) {
@@ -1864,7 +1865,11 @@ export async function hmonas(mon, state = game, env = {}) {
             if (monsterSurvived
                 && m_at(state.u.ux + state.u.dx, state.u.uy + state.u.dy, state)
                     !== mon) {
+                /* uhitm.c 5538-5543: a worm cut in half skips additional
+                   attacks and goes straight to passivedone, bypassing
+                   rehumanize(), passive() and mhitm_knockback(). */
                 i = NATTK;
+                cutWorm = true;
             } else if (monsterSurvived && dhit
                 && mattk.adtyp !== AD_SPEL && mattk.adtyp !== AD_PHYS) {
                 sums[i] = await damageum(mon, mattk, 0, state, attackEnv);
@@ -2102,35 +2107,38 @@ export async function hmonas(mon, state = game, env = {}) {
             }
         }
 
-        if (dhit === -1) {
-            state.u.mh = -1;
-            await rehumanize(state, attackEnv);
-        }
-        // A killing blow can end the game; C's done() does not return.
-        if (state.program_state?.gameover) return false;
-        if (sums[i] === M_ATTK_DEF_DIED) {
-            await passive(mon, weapon, 1, 0, mattk.aatyp, false, state, attackEnv);
-        } else {
-            await passive(
-                mon,
-                weapon,
-                sums[i] !== M_ATTK_MISS,
-                1,
-                mattk.aatyp,
-                false,
-                state,
-                attackEnv,
-            );
-        }
-        const hitflags = { value: sums[i] };
-        if (await mhitm_knockback(
-            state.youmonst, mon, mattk, hitflags, weaponUsed, state, attackEnv, random,
-        )) {
+        if (!cutWorm) {
+            if (dhit === -1) {
+                state.u.mh = -1;
+                await rehumanize(state, attackEnv);
+            }
+            // A killing blow can end the game; C's done() does not return.
+            if (state.program_state?.gameover) return false;
+            if (sums[i] === M_ATTK_DEF_DIED) {
+                await passive(mon, weapon, 1, 0, mattk.aatyp, false, state, attackEnv);
+            } else {
+                await passive(
+                    mon,
+                    weapon,
+                    sums[i] !== M_ATTK_MISS,
+                    1,
+                    mattk.aatyp,
+                    false,
+                    state,
+                    attackEnv,
+                );
+            }
+            const hitflags = { value: sums[i] };
+            if (await mhitm_knockback(
+                state.youmonst, mon, mattk, hitflags, weaponUsed, state, attackEnv, random,
+            )) {
+                sums[i] = hitflags.value;
+                break;
+            }
             sums[i] = hitflags.value;
-            break;
         }
-        sums[i] = hitflags.value;
 
+        /* passivedone: */
         if (state.uswapwep && weapon === state.uswapwep && weapon.cursed) {
             await drop_uswapwep(state, attackEnv);
             break;
@@ -2823,23 +2831,34 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
                    100,
                    { ...env, state, random },
                )) {
+        /* uhitm.c 979-1012: name the weapon, then use it up. */
+        const from_your_blow = ' from the force of your blow!';
         const monwep = mon.mw;
-        mon.weapon_check = NEED_WEAPON;
         await (await import('./weapon.js')).setmnotwielded(
             mon, monwep, { ...env, state },
+        );
+        mon.weapon_check = NEED_WEAPON;
+        let buf;
+        if (canseemon(mon, state))
+            buf = Yobjnam2(monwep, 'shatter', state);
+        else /* hero is blind or can't see invisible mon */
+            buf = `${s_suffix(Monnam(mon, state, env))} weapon`
+                + `${monwep.quan === 1 ? '' : 's'}`
+                + ` ${otense(monwep, 'shatter', state)}`;
+        /* buf[sizeof buf - sizeof from_your_blow] = '\0' */
+        buf = buf.slice(0, BUFSZ - (from_your_blow.length + 1));
+        await requireAttackOperation(env, 'message')(
+            `${buf}${from_your_blow}`,
+            state,
         );
         await (await import('./mthrowu.js')).m_useupall(
             mon, monwep, { ...env, state },
         );
-        if (canseemon(mon, state)) {
-            await requireAttackOperation(env, 'message')(
-                `${Yobjnam2(monwep, 'shatter', state)} from the force of your blow!`,
-                state,
-            );
-        }
+        /* If someone just shattered MY weapon, I'd flee! */
         if (random.rn2(4))
             await monflee(mon, random.d(2, 3), true, true,
                          { ...env, state, random });
+        hmd.hittxt = true;
     }
 
     if (obj.oartifact) {
@@ -3874,6 +3893,12 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     if (hmd.lightobj)
         await hmon_hitmon_msg_lightobj(hmd, mon, state, env);
 
+    /* uhitm.c 1882-1890: obj->opoisoned was cleared above and every message
+       naming the "poisoned <obj>" has been given, so rename obj for the
+       last message while it is still accessible. */
+    if (hmd.unpoisonmsg)
+        hmd.saved_oname = cxname(obj, state);
+
     const postMessage = requireAttackOperation(env, 'message');
     if (hmd.needpoismsg)
         await postMessage(
@@ -3914,8 +3939,6 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     }
 
     if (hmd.unpoisonmsg) {
-        /* hmon_hitmon_do_hit() captured cxname() before poison/killed can
-           destroy or detach obj, matching uhitm.c:1886-1889. */
         await postMessage(
             `Your ${hmd.saved_oname} ${vtense(hmd.saved_oname, 'are')}`
                 + ' no longer poisoned.',
