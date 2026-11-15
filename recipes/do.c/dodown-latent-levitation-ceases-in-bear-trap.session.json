@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c dodown() ending controlled levitation that a trap blocks (1172-1174). A dwarven Valkyrie steps into a wished bear trap and drinks a wished blessed potion of levitation (I_SPECIAL, blocked while trapped); '>' calls float_down(), which returns 0 under BLevitation with no levitation left: 'You are no longer trying to float up from the trap's jaws.  Your latent levitation ceases.'",
+  "segments": [
+    {
+      "seed": 6915203,
+      "datetime": "20340805220000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u001b\u0017blessed potion of levitation\nj\u0017trapped bear trap\njkqe> "
+    }
+  ]
+}
