@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c trapeffect_anti_magic(), hero branch with magic resistance from a carried artifact that is not the hero's own quest artifact (2365-2370): a lawful Knight raised to level 14 (so the Orb's blast cannot kill her) wishes for the Archeologists' Orb of Detection, which gives magic resistance when carried, then steps back onto a wished anti-magic field and feels sluggish.",
+  "segments": [
+    {
+      "seed": 2246081,
+      "datetime": "20360129074500",
+      "nethackrc": "OPTIONS=name:Ilse,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u0017The Orb of Detection\n\u001bl\u0017anti-magic field\nhl"
+    }
+  ]
+}
