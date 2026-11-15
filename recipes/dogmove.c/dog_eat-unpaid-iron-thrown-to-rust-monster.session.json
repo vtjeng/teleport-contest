@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dogmove.c dog_eat() 265, 297-299 and 335-340: in Kopasker's general store on Dlvl 3 (seed from a bounded 7302101-7302400 scan for a ^V arrival in a shop), a debug Samurai picks up an unpaid chain mail, creates a tame rust monster beside him and throws the mail at it. Iron armor is DOGFOOD for a rust monster and, unlike a weapon, reaches the tamedog() catch in thitmonst(), so the pet catches and eats it and the hero hears 'That chain mail will cost you 113 zorkmids.' The rustproof branch 302-311 needs the rust monster hungry (ACCFOOD) and is not covered here.",
+  "segments": [
+    {
+      "seed": 7302205,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Tinker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u00163\n  uu,  \u0007tame rust monster\ntfl   "
+    }
+  ]
+}
