@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7340221,
+      "datetime": "20280611093000",
+      "nethackrc": "OPTIONS=name:CorrLook,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": "\u0006\u0014 \u001bH.#lookaround\n  \u001bs",
+      "comment": "Reaches cmd.c dolookaround() 1318-1322 on a corridor square: wizard ^F maps the level, ^T lands the hero on the corridor eight columns west, and #lookaround prints no room description, only the corridor squares on the map."
+    }
+  ]
+}
