@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c in_container() 2666 and 2675-2682: a debug Valkyrie level-teleports into Akalapi's general store on Dlvl 3 (the shop seed of the dokick.c shop recipe), sells a wished wand of cancellation and picks it up again, so it is unpaid. She drops a wished bag of holding (declining to sell it) and #loots it, putting the unpaid wand in: the bag explodes, the wand is billed before it is destroyed (2666), and because the bag lies on a costly square it is billed too, keeping its no_charge flag (2675-2682). The 6d6 blast kills her and she declines to die.",
+  "segments": [
+    {
+      "seed": 5520002,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u00163\n  \u0017bag of holding\n\u0017wand of cancellation\ndg y,b\n df n#loot\nia\ng\n  n"
+    }
+  ]
+}
