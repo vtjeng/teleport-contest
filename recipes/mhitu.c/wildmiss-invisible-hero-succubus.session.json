@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c wildmiss() 216: a debug Samurai puts on a wished ring of invisibility and ^G creates a succubus, which does not see invisible. While the hero steps back and forth, set_apparxy() guesses a wrong square, mattacku() calls wildmiss() with unotseen set, and the AD_SSEX attack is compatible (could_seduce() is nonzero for a male hero), so 'The succubus tries to touch you and misses!' prints. Seed chosen from a scan of 5503201-5503212 for that miss.",
+  "segments": [
+    {
+      "seed": 5503209,
+      "datetime": "20400215211500",
+      "nethackrc": "OPTIONS=name:Ghost,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017ring of invisibility\nPgr \u0007succubus\nlhlhlhlhl"
+    }
+  ]
+}

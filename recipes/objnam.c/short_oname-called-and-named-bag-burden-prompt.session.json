@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "objnam.c short_oname() 2052-2061: with pickup_burden:unencumbered, a debug Valkyrie calls the unidentified bag type by a 63-character string (C, o) and names her bag of holding with a 60-character name (C, i), wishes a heavy iron ball, drops the bag, wishes 35 rocks to sit just under her capacity, and picks the bag up. pickup.c lift_object() builds 'You have a little trouble lifting ...  Continue?' through safe_qbuf(); the bag's doname() is too long with either string shortened alone, so short_oname() shortens both ('a bag called the satc... named Bottomle...'). The prompt is answered n.",
+  "segments": [
+    {
+      "seed": 6610453,
+      "datetime": "20370318081200",
+      "nethackrc": "OPTIONS=name:Porter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,pickup_burden:unencumbered\n",
+      "moves": " \u0017bag of holding\nCoethe satchel my grandmother sewed from old sailcloth and kept by the hearth\nCieBottomless Wonder of the Northern Fjords and Glaciers Beyond\n\u0017heavy iron ball\nde \u001735 rocks\n,n"
+    }
+  ]
+}
