@@ -24,6 +24,8 @@ test('cmdq_add_key() stores the key code for a code and for a letter', () => {
     cmdq_add_key(CQ_CANNED, 'i'.charCodeAt(0), state);
     cmdq_add_key(CQ_CANNED, '-', state);
     cmdq_add_key(CQ_CANNED, 0x1B, state);
+    // An object with no letter has invlet '', C's '\0'.
+    cmdq_add_key(CQ_CANNED, '', state);
     const nodes = [];
     for (let node = cmdq_pop(state); node; node = cmdq_pop(state)) nodes.push(node);
     assert.deepEqual(nodes, [
@@ -31,8 +33,9 @@ test('cmdq_add_key() stores the key code for a code and for a letter', () => {
         { typ: CMDQ_KEY, key: 105 },
         { typ: CMDQ_KEY, key: 45 },
         { typ: CMDQ_KEY, key: 0x1B },
+        { typ: CMDQ_KEY, key: 0 },
     ]);
-    assert.deepEqual(nodes.map(cmdq_key_char), ['i', 'i', '-', '\x1b']);
+    assert.deepEqual(nodes.map(cmdq_key_char), ['i', 'i', '-', '\x1b', '\0']);
 });
 
 // Returns the 1-based line of every use of a popped or peeked queue node's

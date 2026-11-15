@@ -2044,7 +2044,9 @@ export function cmdq_add_ec(q, entry, state = game) {
 // scripts/cmdq-key-type.test.mjs fails if game code compares a queued key
 // with a string.
 export function cmdq_add_key(q, key, state = game) {
-    const code = typeof key === 'string' ? key.charCodeAt(0) : key;
+    // An empty string is a letterless object's invlet, C's '\0'.
+    const code = typeof key !== 'string' ? key
+        : key.length ? key.charCodeAt(0) : 0;
     commandQueue(state)[q].push({ typ: CMDQ_KEY, key: code });
 }
 
