@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c kick_nondoor() tree branch when no killer bee can be made (1186-1187, 'You smell stale honey.'): a Priestess in debug mode genocides killer bees with a wished scroll, wishes a tree on her square, steps west and kicks it; the first kick that passes rn2(3) drops pears (TREE_LOOTED), and a later one reaches the swarm branch, where makemon() fails for the genocided species. Each kick is followed by a 10-turn search so wounded legs heal.",
+  "segments": [
+    {
+      "seed": 3150214,
+      "datetime": "20350704160000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001b\u0017uncursed scroll of genocide\n\u0017tree\nhri\r\rkiller bee\n\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b10s\u001b\u001b\u0004l\u001b\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c trap_detect() door and buried-box arms (1042-1047, 1071-1076), read through cursed scrolls of gold detection on a trap-free Dlvl 1 (seed 8240018 from a port scan of 8240001-8240100 for a level with no traps and a doorway in line with the start). First read standing on a wished trapped door (found under the hero, 1075); then a wished trapped large box is dropped on a wished pit and buried by pushing a wished boulder into it (do.c flooreffects() bury_objs()); the second read away from the box shows the map (1042-1044), the third on the buried box finds it underfoot (1046) and the door elsewhere (1071-1073).",
+  "segments": [
+    {
+      "seed": 8240018,
+      "datetime": "20340522143000",
+      "nethackrc": "OPTIONS=name:Ogg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b\u00173 cursed scrolls of gold detection\nllll\u0017trapped door\nrf\r\u001bhhh\u0017trapped large box\n\rdg\u0017pit\nl\u0017boulder\nlhrf\r\u001b\u001b\u001b\u001bhrf\r\u001b\u001b\u001b"
+    }
+  ]
+}

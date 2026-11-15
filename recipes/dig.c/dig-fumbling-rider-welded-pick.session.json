@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c dig() fumble with a welded pick-axe while mounted (344-345): a Knight in debug mode wears wished fumble boots, mounts his pony with a forced #ride and applies a wished cursed pick-axe (which welds) at the room's top wall; when Fumbling picks case 0, the welded pick 'bounces and hits the saddled pony'.",
+  "segments": [
+    {
+      "seed": 2770417,
+      "datetime": "20370522174500",
+      "nethackrc": "OPTIONS=name:Gareth,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time\n",
+      "moves": "\u001b\u0017uncursed fumble boots\n  \u0017cursed pick-axe\n  db  Wi  #ride\nly  aj k  ajk  ajk  "
+    }
+  ]
+}

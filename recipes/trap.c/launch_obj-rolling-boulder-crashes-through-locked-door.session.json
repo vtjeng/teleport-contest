@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c launch_obj() for a rolling boulder meeting a closed door (3534-3541): a dwarvish Caveman in debug mode wishes a rolling boulder trap just inside the doorway east of his start (two searches first, so mkroll_launch() puts the boulder in the corridor beyond: found by replaying the port with 0-15 searches), steps back and zaps a wished wand of locking at the empty doorway, which assembles a locked door, then steps onto the trap: 'The boulder crashes through a door.'",
+  "segments": [
+    {
+      "seed": 8240018,
+      "datetime": "20340522143000",
+      "nethackrc": "OPTIONS=name:Ogg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001blllss\u0017rolling boulder trap\n  h\u0017wand of locking\n  zfl  l    "
+    }
+  ]
+}

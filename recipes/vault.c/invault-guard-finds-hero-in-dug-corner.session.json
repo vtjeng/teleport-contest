@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "vault.c invault() door search when the hero stands in a dug vault corner (370-372): an Archeologist in debug mode (seed 1950007 from a port scan of 1950001-1950300 for a Dlvl 1 vault) teleports into the vault, digs its south-east corner diagonally with her pick-axe and steps into the opening; when the guard arrives, the hero's square is not ROOM, and only the north-west neighbour is, so invault() takes the x-1, y-1 arm. She answers the guard's question and is told to follow.",
+  "segments": [
+    {
+      "seed": 1950007,
+      "datetime": "20380614101500",
+      "nethackrc": "OPTIONS=name:Indy,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u001b\u0014 LLlllk.  ae  n  n  40s Indy\n    "
+    }
+  ]
+}

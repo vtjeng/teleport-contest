@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c shopdig(1) when the shopkeeper cannot reach the hero (5083-5090): a gnomish Healer in debug mode builds minetn-7 (#wizloaddes), teleports into the candle shop, wishes walls on the three squares beside its north-east corner, picks up two unpaid candles there and digs down with a wished pick-axe. When the hole opens, mnexto() finds no square next to her, so Eforie 'curses you in anger and frustration' and is riled before she falls through.",
+  "segments": [
+    {
+      "seed": 6083315,
+      "datetime": "20360902111500",
+      "nethackrc": "OPTIONS=name:Aelis,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0006\u0014lllllkkkkkkk.\u001b\u001b\u0017pick-axe\n u \u0017wall\n l j \u0017wall\n h \u0017wall\n u ,  ak >   ak>      "
+    }
+  ]
+}

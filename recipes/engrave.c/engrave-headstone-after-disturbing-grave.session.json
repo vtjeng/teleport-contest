@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "engrave.c engrave() HEADSTONE finish verb (1419): a dwarvish Valkyrie in debug mode wishes a grave beside the stairs; the first E with her dagger disturbs the grave (a ghoul appears) and the second appends to the epitaph, so doengrave() sets type HEADSTONE and the engrave() occupation takes the HEADSTONE case.",
+  "segments": [
+    {
+      "seed": 4471902,
+      "datetime": "20360219080000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001bl\u0017grave\nEbEb\rOdin\n\u001b\u001b"
+    }
+  ]
+}
