@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of do_class_genocide-unchanging-dwarf-form-genocides-own-class-ranger: a debug Barbarian turns into a hill orc, puts on a wished amulet of unchanging and genocides class o with a blessed scroll (2759-2764).",
+  "segments": [
+    {
+      "seed": 6014428,
+      "datetime": "20380712190000",
+      "nethackrc": "OPTIONS=name:Grom,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017amulet of unchanging\n\u0017blessed scroll of genocide\n#polyself\nhill orc\nPerf  o\n    n "
+    }
+  ]
+}

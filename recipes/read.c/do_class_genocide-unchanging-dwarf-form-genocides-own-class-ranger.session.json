@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "read.c do_class_genocide() 2759-2764: a debug Ranger wishes for an amulet of unchanging and a blessed scroll of genocide, #polyselfs into a dwarf (Unchanging would block it afterwards), puts on the amulet and genocides class h. Her own form is in the class, so u.mh goes to -1; Unchanging prevents rehumanize(), so 'You die.' is printed once and the class is finished before gameover (debug mode: answer n to 'Die?').",
+  "segments": [
+    {
+      "seed": 3871195,
+      "datetime": "20410922110000",
+      "nethackrc": "OPTIONS=name:Orla,role:Ranger,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017amulet of unchanging\n\u0017blessed scroll of genocide\n#polyself\ndwarf\nPgrh  h\n    n "
+    }
+  ]
+}
