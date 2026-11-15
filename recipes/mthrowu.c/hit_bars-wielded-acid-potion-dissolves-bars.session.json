@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mthrowu.c hit_bars() 1436-1438 and 1443-1445: a debug Valkyrie wishes iron bars on two adjacent floor squares (wizard terrain wishes), wishes two potions of acid, wields them and fights (F) the nearer bars. Potions pass through bars when thrown (hits_bars() default case), but a melee hit always strikes them; the potion breaks, 'The iron bars are dissolved!', and dissolve_bars() removes them. The type-naming prompt is escaped.",
+  "segments": [
+    {
+      "seed": 2604415,
+      "datetime": "20380820154500",
+      "nethackrc": "OPTIONS=name:Etcher,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u0017iron bars\nl\u0017iron bars\nll\u00172 potions of acid\nhwfFh \u001b"
+    }
+  ]
+}
