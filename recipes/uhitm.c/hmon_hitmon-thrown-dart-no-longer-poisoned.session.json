@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmon_hitmon_poison() and hmon_hitmon() (1526-1529, 1882-1890, 1919-1921): a debug-mode chaotic Rogue at experience level 14 throws wished poisoned darts at eight brown molds, which resist poison, until !rn2(nopoison) clears a dart's poison. hmon_hitmon() renames the dart with cxname() after the poison is gone, so the last message is 'Your dart is no longer poisoned.'",
+  "segments": [
+    {
+      "seed": 8846120,
+      "datetime": "20370212161718",
+      "nethackrc": "OPTIONS=name:Pfeil,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "#levelchange\n14\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001760 poisoned darts\n\u00078 hostile brown mold\ntgh\ntgj\ntgk\ntgl\n\ntgy\ntgu\ntgb\ntgn\ntgh\n\n"
+    }
+  ]
+}

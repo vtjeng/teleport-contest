@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "uhitm.c hmonas() AT_WEAP branch (5538-5543): a debug-mode Barbarian at experience level 14 polymorphs into an elf-lord, creates long worms, and fights with a two-handed sword, a blade, until worm.c cutworm() cuts part of a tail off. When m_at() no longer returns the target, C jumps to passivedone, skipping rehumanize(), passive() and mhitm_knockback() and their random numbers.",
+  "segments": [
+    {
+      "seed": 7730519,
+      "datetime": "20370519123456",
+      "nethackrc": "OPTIONS=name:Wurm,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "#levelchange\n14\n\n\n\n\n\n\n\n\n\n\n\n\n\n#polyself\nelf-lord\n\u00073 long worm\nFlFlFu\n"
+    }
+  ]
+}
