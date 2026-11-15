@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c dokeylist() 2901 and 2966-2980, spkey_name() for NHKF_COUNT: with number_pad on, BIND=^C:count puts the count prefix on Ctrl-C, which dokeylist() reserves as the interrupt key before classifying special keys, so spkey_gap is set and the 'Full list of keyboard commands' (? j) lists '[count]' among the keyless special key commands. ESC closes the list.",
+  "segments": [
+    {
+      "seed": 4471203,
+      "datetime": "20330917141500",
+      "nethackrc": "OPTIONS=name:Keyer,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,number_pad:1,pettype:none\nBIND=^C:count\n",
+      "moves": "?j\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of nh_timeout-acid-resistance-held-while-eating-acidic-corpse: an orcish Wizard sets a 2-turn acid resistance timeout and eats a wished blessed acid blob corpse (3 turns), so nh_timeout() 819-821 extends the resistance while she eats.",
+  "segments": [
+    {
+      "seed": 9031455,
+      "datetime": "20340211031500",
+      "nethackrc": "OPTIONS=playmode:debug,name:Slurper,role:Wizard,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed acid blob corpse\n#wizintrinsic\n>2c\n eo  "
+    }
+  ]
+}

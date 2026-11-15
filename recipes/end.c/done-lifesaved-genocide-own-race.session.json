@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "end.c done() 1098: a debug dwarvish Archeologist puts on a wished blessed amulet of life saving and reads an uncursed scroll of genocide naming her own race, 'dwarf'. done(GENOCIDED) uses the amulet ('But wait...'), then prints 'Unfortunately you are still genocided...'; she answers n to the debug-mode 'Die?' and survives.",
+  "segments": [
+    {
+      "seed": 5520417,
+      "datetime": "20310322201000",
+      "nethackrc": "OPTIONS=playmode:debug,name:Mortal,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed amulet of life saving\n\u0017uncursed scroll of genocide\n Pirj dwarf\n   n"
+    }
+  ]
+}

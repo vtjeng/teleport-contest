@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of done-lifesaved-choking-vomits: a gnomish Healer chokes on her second wished lembas wafer while wearing a blessed amulet of life saving; done() 1089 prints 'You vomit ...'.",
+  "segments": [
+    {
+      "seed": 5520781,
+      "datetime": "20310905231500",
+      "nethackrc": "OPTIONS=playmode:debug,name:Nibbles,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017blessed amulet of life saving\n\u00173 lembas wafers\nPkel  el   "
+    }
+  ]
+}

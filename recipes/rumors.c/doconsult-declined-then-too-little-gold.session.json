@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "rumors.c doconsult() 721-727: a debug Monk level-teleports to the Oracle level from the ^V menu (entry c), wishes for 20 gold pieces, teleports (^T) beside the Oracle and #chats west. She answers q to the minor consultation (50 zorkmids), then chats again and answers y: 'You don't even have enough gold for that!'",
+  "segments": [
+    {
+      "seed": 2240917,
+      "datetime": "20350506141500",
+      "nethackrc": "OPTIONS=playmode:debug,name:Seeker,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " \u0016?\nc\u001720 gold pieces\n\u0014 \nhhhh. #chat\nhq#chat\nhy"
+    }
+  ]
+}
