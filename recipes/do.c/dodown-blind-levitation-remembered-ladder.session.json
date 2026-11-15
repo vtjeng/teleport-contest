@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for do.c dodown() 1180-1190: a blind, levitating hero on a known down ladder. C reads the remembered levl[x][y].glyph, which shows the ladder, so the message is 'You are floating high above the ladder.'; surface() would say 'stairs'. Seed, clock and character chosen for this recipe; ^V ? H goes to Vlad's Tower level 2, which has a down ladder, ^F maps it, ^T teleports onto the ladder, #wizintrinsic sets blinded (i) and levitating (q).",
+  "segments": [
+    {
+      "seed": 71640213,
+      "datetime": "20640517091522",
+      "nethackrc": "OPTIONS=name:Floater,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " \u0016?\n>H \u0006\u0014>.#wizintrinsic\niq\n >"
+    }
+  ]
+}

@@ -2266,7 +2266,7 @@ export async function dodown(state = game, env = {}) {
         // do.c:1180-1190 checks the displayed cmap glyph only when the hero
         // is blind and levitation is not blocked; unknown stairs stay hidden.
         if (!BLevitation(u) && Blind(state.u)) {
-            const glyph = state.level?.at(u.ux, u.uy)?.glyph;
+            const glyph = state.level?.at(u.ux, u.uy)?.remembered_glyph?.glyph;
             if (stairs_down)
                 stairs_down = glyph_to_cmap(glyph) === S_dnstair;
             else if (ladder_down)
