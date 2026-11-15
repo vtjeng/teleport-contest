@@ -34,6 +34,7 @@ import {
     validgend,
     validrace,
 } from '../js/roles.js';
+import { y_n } from '../js/cmd.js';
 import { initRng } from '../js/rng.js';
 import { remember_topl } from '../js/topl.js';
 import {
@@ -47,7 +48,6 @@ import { u_init_inventory_attrs } from '../js/u_init_inventory_attrs.js';
 import { loadRerollMenuNamingRecipe } from './run-reroll-menu-naming.mjs';
 
 const {
-    fallbackRerollChoice,
     rerollAttributeLine,
     rerollObjectGlyphInfo,
     strengthText,
@@ -912,7 +912,7 @@ test('the fallback reroll answer is filed as a line written directly', async () 
     tty_create_nhwindow(NHW_MESSAGE, state);
     // 'y' is one of the two answers the prompt accepts.
     state.nhDisplay.pushKey('y'.charCodeAt(0));
-    assert.equal(await fallbackRerollChoice(state), 'y');
+    assert.equal(await y_n('Reroll this character?', state), 'y');
     assert.equal(state._ttyToplines, 'Reroll this character? [yn] (n) y');
     remember_topl(state);
     const win = state.wintty.wins[state.wintty.messageWindow];

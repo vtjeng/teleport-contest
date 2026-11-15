@@ -26,7 +26,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // mkobj.c check_contained() cycles) with end.c panic(). The diagnostic
 // marker audit (branch diag-markers) gave 13 more C panic() calls in
 // synchronous functions a listed throw: 96 panic in all.
-const LIST_PINS = { entries: 738, sites: 744 };
+const LIST_PINS = { entries: 737, sites: 743 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());
