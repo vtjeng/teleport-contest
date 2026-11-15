@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c drown() 5134-5135: a debug Knight level-teleports to the first Sokoban level (noteleport), puts on wished rings of teleportation and teleport control, wishes a pool onto her square, steps off and moves back in with the m prefix. Drowning, she attempts a teleport spell, which fails on a no-teleport level, and then crawls out.",
+  "segments": [
+    {
+      "seed": 8813057,
+      "datetime": "20390715171500",
+      "nethackrc": "OPTIONS=name:Sinker,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0016?\n>B\u0017ring of teleportation\nPir\u0017ring of teleport control\nPjl\u0017pool\nhml   "
+    }
+  ]
+}
