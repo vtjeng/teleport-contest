@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for engrave.c read_engr_at() 371-391: three 79-byte dust writings, each added to the last with E- y, make a 237-byte engraving; ':' reads it, and C cuts the text to 232 bytes (BUFSZ minus sizeof \"You feel the words: \\\"\\\".\") before the message. Byte 232 is '!' in both the text and its pristine copy, so no period follows the cut. Seed, clock, character and text chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 91844017,
+      "datetime": "20650228111509",
+      "nethackrc": "OPTIONS=name:Scribe,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "E- Here lies the long note of a patient scribe who wrote on and on about the weath\nE-y and the price of candles in the town below the hill, and the crows on the walls\nE-y which he counted every morning before the bells rang for the market to op!n aga\n:  "
+    }
+  ]
+}

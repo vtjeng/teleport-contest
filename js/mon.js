@@ -5875,7 +5875,7 @@ export async function monstone(mdef, state = game, env = {}) {
     }
 
     stackobj(statue, objectEnv);
-    if (glyph_is_invisible(state.level.at(x, y).glyph))
+    if (glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph))
         unmap_object(x, y, state);
     // A state other than the live game gets a no-op redraw; the live state
     // keeps the ordinary newsym owner.

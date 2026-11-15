@@ -353,7 +353,7 @@ import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
-import { save_msghistory, savelev } from './save.js';
+import { save_msghistory, savelev, savemonchn } from './save.js';
 import { fix_shop_damage, sellobj, sellobj_state } from './shk.js';
 import {
     container_impact_dmg, impact_drop, obj_delivery, ship_object,
@@ -2266,7 +2266,7 @@ export async function dodown(state = game, env = {}) {
         // do.c:1180-1190 checks the displayed cmap glyph only when the hero
         // is blind and levitation is not blocked; unknown stairs stay hidden.
         if (!BLevitation(u) && Blind(state.u)) {
-            const glyph = state.level?.at(u.ux, u.uy)?.glyph;
+            const glyph = state.level?.at(u.ux, u.uy)?.remembered_glyph?.glyph;
             if (stairs_down)
                 stairs_down = glyph_to_cmap(glyph) === S_dnstair;
             else if (ladder_down)
@@ -3157,7 +3157,7 @@ export async function goto_level(
 // remember_topl(), which under program_state.in_checkpoint copies the
 // current top line into the ring's next slot without advancing the ring or
 // clearing the top line, so ^P can show that message twice. Called from
-// allmain.c newgame() and do.c goto_level().
+// allmain.c newgame(), do.c goto_level() and cmd.c makemap_prepost().
 export function save_currentstate(state = game) {
     if (!state.flags?.ins_chkpt) return;
     state.program_state ??= {};
@@ -3168,7 +3168,12 @@ export function save_currentstate(state = game) {
     try {
         if (state.iflags?.purge_monsters) dmonsfree(state);
         level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
+        // save.c savemonchn() 891-894: writing fmon (savelev() 542) and
+        // gm.migrating_mons (savegamestate() 307) makes every priest
+        // forget its temple entry.
+        savemonchn(state.level?.monlist, state, { releasing: false });
         save_engravings(state);
+        savemonchn(state.gm?.migrating_mons, state, { releasing: false });
         save_msghistory(state);
     } finally {
         if (savedCheckpoint === undefined) delete state.program_state.in_checkpoint;

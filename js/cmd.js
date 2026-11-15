@@ -139,6 +139,7 @@ import {
     dodrop, doddrop,
     dowipe,
     doup,
+    save_currentstate,
     u_collide_m,
 } from './do.js';
 import {
@@ -2031,28 +2032,27 @@ export function cmdq_add_ec(q, entry, state = game) {
     commandQueue(state)[q].push({ typ: CMDQ_EXTCMD, ec_entry: entry });
 }
 
-// C ref: cmd.c cmdq_add_key() (286-295). Pushes a single key onto the
+// C ref: cmd.c cmdq_add_key() (272-290). Pushes a single key onto the
 // command queue. itemactions_pushkeys() (iactions.c) uses this to queue
 // the inventory letter that identifies the object the player chose.
+//
+// Key type rule: C's _cmd_queue.key is a char, and the node always holds
+// that char's code. A caller may pass the code or a one-character string
+// such as an inventory letter; this is the only place that builds a key
+// node, so a reader never sees the string form. A reader that compares the
+// key with characters takes it through cmdq_key_char().
+// scripts/cmdq-key-type.test.mjs fails if game code compares a queued key
+// with a string.
 export function cmdq_add_key(q, key, state = game) {
-    commandQueue(state)[q].push({ typ: CMDQ_KEY, key });
+    // An empty string is a letterless object's invlet, C's '\0'.
+    const code = typeof key !== 'string' ? key
+        : key.length ? key.charCodeAt(0) : 0;
+    commandQueue(state)[q].push({ typ: CMDQ_KEY, key: code });
 }
 
-// C ref: cmd.c _cmd_queue.key is a char. Producers in this port push either
-// that key code or a one-character string (an inventory letter), so a reader
-// that compares the key with characters takes it from here and sees one form.
+// The queued key as the one-character string the port's prompts compare.
 export function cmdq_key_char(node) {
-    return typeof node.key === 'number'
-        ? String.fromCharCode(node.key) : node.key;
-}
-
-// The same key as the C char code, for a reader that compares it with key
-// codes. rhack() is one: an item action whose command refuses before reading
-// its queued inventory letter leaves that letter for the next rhack() call,
-// which runs it as a command key.
-export function cmdq_key_code(node) {
-    return typeof node.key === 'string'
-        ? node.key.charCodeAt(0) : node.key;
+    return String.fromCharCode(node.key);
 }
 
 // C ref: cmd.c cmdq_add_dir() (294-315). The direction fields are kept as
@@ -2723,6 +2723,8 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     await flush_screen(1);
     await deliver_splev_message(state);
     await check_special_room(false, state);
+    // cmd.c:1062-1064, under INSURANCE: checkpoint the new level.
+    save_currentstate(state);
     return ECMD_OK;
 }
 
@@ -5352,7 +5354,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 cmdqCommand = queued.ec_entry.ef_txt
                     ?? queued.ec_entry.ef_funct;
             } else {
-                key = queued.typ === CMDQ_KEY ? cmdq_key_code(queued) : 0;
+                key = queued.typ === CMDQ_KEY ? queued.key : 0;
             }
         } else if (firstTime) {
             const pending = state.context.pendingCommand;
@@ -5437,7 +5439,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 } else {
                     queuedExtcmdEntry = null;
                     key = queuedAfterPrefix.typ === CMDQ_KEY
-                        ? cmdq_key_code(queuedAfterPrefix) : 0;
+                        ? queuedAfterPrefix.key : 0;
                 }
             } else {
                 queuedExtcmdEntry = null;

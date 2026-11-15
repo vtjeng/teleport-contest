@@ -160,7 +160,8 @@ test('cmdq_add_key pushes a CMDQ_KEY node that cmdq_pop retrieves', () => {
     cmdq_add_key(CQ_CANNED, 'b', state);
     const node = cmdq_pop(state);
     assert.equal(node.typ, CMDQ_KEY);
-    assert.equal(node.key, 'b');
+    // The node holds C's char as its code (js/cmd.js key type rule).
+    assert.equal(node.key, 'b'.charCodeAt(0));
 });
 
 test('itemactions queues the selected action and inventory letter', async () => {
@@ -181,7 +182,7 @@ test('itemactions queues the selected action and inventory letter', async () => 
     assert.equal(command.ec_entry.ef_txt, 'drop');
     const key = cmdq_pop(state);
     assert.equal(key.typ, CMDQ_KEY);
-    assert.equal(key.key, 'a');
+    assert.equal(key.key, 'a'.charCodeAt(0));
 });
 
 test('new game clears the transient item-action takeoff flag', () => {

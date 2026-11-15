@@ -20,6 +20,7 @@ import {
     ACH_INVK,
     ACH_NOVL,
     CMDQ_KEY,
+    CQ_REPEAT,
     CLOUD, IS_TREE,
     ERODE_CORRODE,
     EF_GREASE,
@@ -57,7 +58,9 @@ import {
 } from './const.js';
 import { acurr, exercise, poison_strdmg } from './attrib.js';
 import { jump } from './apply.js';
-import { cmdq_pop, getdir, set_occupation, yn_function } from './cmd.js';
+import {
+    cmdq_add_key, cmdq_key_char, cmdq_pop, getdir, set_occupation, yn_function,
+} from './cmd.js';
 import { morehungry } from './eat.js';
 import { trycall } from './do.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -1495,7 +1498,7 @@ async function getspell(state, { message, menu }) {
     const cq = cmdq_pop(state);
     if (cq != null) {
         if (cq.typ === CMDQ_KEY) {
-            const idx = spell_let_to_idx(cq.key);
+            const idx = spell_let_to_idx(cmdq_key_char(cq));
             if (idx < 0 || idx >= nspells)
                 return { ok: false, spell_no: -1 };
             return { ok: true, spell_no: idx };
@@ -2051,8 +2054,8 @@ export async function cast_chain_lightning(state = game, env = {}) {
 export async function docast(state = game, env = {}) {
     const { ok, spell_no } = await getspell(state, env);
     if (ok) {
-        // cmdq_add_key(CQ_REPEAT, spellet(spell_no)): the CQ_REPEAT queue is
-        // not ported, so the repeat mechanism is skipped.
+        // spell.c:825: queue the spell letter so #repeat recasts it.
+        cmdq_add_key(CQ_REPEAT, spellet(spell_no).charCodeAt(0), state);
         return spelleffects(
             spellid(spell_no, state), false, false, state, env,
         );

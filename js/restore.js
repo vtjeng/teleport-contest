@@ -97,6 +97,7 @@ import { set_uasmon } from './polyself.js';
 import { select_menu } from './windows.js';
 import { copyright_banner_line } from './version.js';
 import { tty_putmsghistory } from './topl.js';
+import { set_playmode } from './jsmain.js';
 
 // C ref: restore.c restore_msghistory(). The callback buffers messages in
 // order, then the null terminator asks the window port to restore the ring.
@@ -320,7 +321,26 @@ export async function dorestore(state = game) {
     state.svn.nhuuid = snapshot.nhuuid;
     state.moves = snapshot.moves;
     state.hero_seq = snapshot.hero_seq ?? (snapshot.moves * 8);
+    // C ref: restore.c restgamestate() 567-595. The saved flags replace the
+    // ones the options built (newgameflags), and the play mode is then taken
+    // from both: wizard and discover are flags.debug and flags.explore. A
+    // debug request overrides the save; a normal save restored with an
+    // explore request defers explore mode to moveloop_preamble(); a debug
+    // or explore save is authorized again.
+    const newgameflags = state.flags ?? {};
     state.flags = snapshot.flags;
+    state.iflags ??= {};
+    state.iflags.deferred_X = Boolean(newgameflags.explore && !state.flags.explore);
+    const restoring_special = Boolean(state.flags.debug || state.flags.explore);
+    if (newgameflags.debug) {
+        state.flags.debug = true;
+        state.flags.explore = false;
+        state.iflags.deferred_X = false;
+    } else if (restoring_special) {
+        set_playmode(state);
+    }
+    state.wizard = state.flags.debug;
+    state.discover = state.flags.explore;
     // C ref: restore.c restgamestate():596 role_init(), right after the
     // saved flags are read and before the hero struct. The permonst changes
     // for the quest leader, guardians and nemesis do not survive a save, and
@@ -504,8 +524,6 @@ export async function dorestore(state = game) {
     state.svq.quest_status = snapshot.quest_status;
 
     // Hero identity and timing
-    if (snapshot.wizard != null) state.wizard = snapshot.wizard;
-    if (snapshot.discover != null) state.discover = snapshot.discover;
     state.multi = snapshot.multi ?? 0;
     state.multi_reason = snapshot.multi_reason ?? null;
     // C ref: restore.c restgamestate():615-617. The saved local time string

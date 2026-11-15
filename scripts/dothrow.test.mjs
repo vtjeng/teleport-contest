@@ -2825,7 +2825,9 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
         })),
         [
             { command: 'wield', key: undefined },
-            { command: undefined, key: spare.invlet },
+            // cmdq_add_key() stores the letter's code; this fixture's
+            // launcher has no letter, which is C's '\0'.
+            { command: undefined, key: spare.invlet ? spare.invlet.charCodeAt(0) : 0 },
             { command: 'fire', key: undefined },
         ],
     );

@@ -1117,7 +1117,7 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
 
     if (!canspotmon(mtmp, state)
         && !glyph_is_invisible(
-            state.level?.at(mtmp.mx, mtmp.my)?.glyph)) {
+            state.level?.at(mtmp.mx, mtmp.my)?.remembered_glyph?.glyph)) {
         map_invisible(mtmp.mx, mtmp.my, state);
     }
 }

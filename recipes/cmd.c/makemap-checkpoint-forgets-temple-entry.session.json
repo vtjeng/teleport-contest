@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for cmd.c makemap_prepost() 1062-1065: after #wizloaddes builds minetn-7, the INSURANCE checkpoint (do.c save_currentstate() -> save.c savemonchn() 893-894) makes the priest forget the temple entry the hero has just made. Leaving through ^T to the up stairs and returning beside the altar makes the priest intone again, with intemple()'s d(10,500) and d(10,20). Seed chosen by scanning for a hero placed inside the temple; clock and character chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 5310074,
+      "datetime": "20590823143307",
+      "nethackrc": "OPTIONS=name:Shrine,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " #wizloaddes\nminetn-7\n \u0006\u0014<.\u0014_l. "
+    }
+  ]
+}

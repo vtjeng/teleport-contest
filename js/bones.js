@@ -90,7 +90,6 @@ import {
 import { enexto, rloc_to } from './teleport.js';
 import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
-import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import { the, xname } from './objnam.js';
 import { artifact_light } from './artifacts.js';
@@ -757,7 +756,9 @@ export async function savebones(how, when, corpse, state) {
                 if (loc) {
                     loc.seenv = 0;
                     loc.waslit = 0;
-                    loc.glyph = GLYPH_UNEXPLORED_OFF;
+                    // bones.c:569 levl[x][y].glyph = GLYPH_UNEXPLORED: the
+                    // port's map memory is remembered_glyph, and undefined
+                    // means the hero remembers nothing here.
                     loc.remembered_glyph = undefined;
                     lastseentyp_grid(state)[x][y] = 0;
                 }

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for restore.c restgamestate() 583-595: a debug game switches to explore mode with #exploremode and saves; the next segment asks for playmode:debug, which overrides the saved explore flag (wizard = TRUE, discover = FALSE), so unixmain.c asks 'Do you want to keep the save file?' instead of printing the explore-mode notice. Seeds, clocks and character chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 80417733,
+      "datetime": "20610302201544",
+      "nethackrc": "OPTIONS=name:Ledger,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "#exploremode\n ySy"
+    },
+    {
+      "seed": 80417734,
+      "datetime": "20610302203012",
+      "nethackrc": "OPTIONS=name:Ledger,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " n"
+    }
+  ]
+}

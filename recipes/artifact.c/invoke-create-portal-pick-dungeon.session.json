@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for artifact.c invoke_create_portal() 1896-1903: a Wizard wishes for the Eye of the Aethiopica, level-teleports into the Gnomish Mines so two dungeons are reached, and invokes it; the PICK_ONE menu offers both, and choosing The Dungeons of Doom opens the portal. Seed, clock and character chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 63150288,
+      "datetime": "20630904170255",
+      "nethackrc": "OPTIONS=name:Portal,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " \u0017Eye of the Aethiopica\n \u0016?\n>w#invoke\noa  "
+    }
+  ]
+}

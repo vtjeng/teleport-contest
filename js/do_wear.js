@@ -156,6 +156,7 @@ import { makeplural, makesingular } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
 import {
     cmdq_clear,
+    cmdq_key_char,
     cmdq_peek,
     cmdq_pop,
     paranoid_query,
@@ -656,7 +657,7 @@ export async function menu_remarm(retry, state = game) {
 // deliberately removes a cursed alternate weapon without calling cursed().
 export async function remarm_swapwep(state = game) {
     const queued = cmdq_pop(state);
-    if (queued?.typ !== CMDQ_KEY || queued.key !== '-' || !state.uswapwep)
+    if (queued?.typ !== CMDQ_KEY || cmdq_key_char(queued) !== '-' || !state.uswapwep)
         return ECMD_FAIL;
 
     const oldbknown = state.uswapwep.bknown;

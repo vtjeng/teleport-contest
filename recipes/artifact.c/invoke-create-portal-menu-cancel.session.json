@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for artifact.c invoke_create_portal() 1898-1901: the same setup as invoke-create-portal-pick-dungeon with its own seed, but Escape cancels the dungeon menu, so nothing_special() reports the surge of power and the invocation still uses a turn.",
+  "segments": [
+    {
+      "seed": 63150289,
+      "datetime": "20630904170255",
+      "nethackrc": "OPTIONS=name:Portal,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " \u0017Eye of the Aethiopica\n \u0016?\n>w#invoke\no\u001b "
+    }
+  ]
+}

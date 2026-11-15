@@ -52,7 +52,7 @@ import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import { newsym } from './display.js';
 import {
-    bytesText, textBytes, xcrypt, } from './hacklib.js';
+    bytesText, textBytes, truncateByteString, xcrypt, } from './hacklib.js';
 import { nomul } from './hack.js';
 import {
     is_animal, is_demon, is_vampire, is_whirly, resists_blnd_steps, sticks, } from './mondata.js';
@@ -1268,16 +1268,22 @@ export async function read_engr_at(
     }
     if (!sensed) return false;
 
+    // engrave.c:371-384: the text is cut to fit buf[BUFSZ] beside the
+    // longer of the two message frames, sizeof "You feel the words: \"\"."
+    // = 24 with its NUL, before the message and the punctuation test.
+    // Engraving text is a byte string.
+    const maxelen = BUFSZ - 24;
+    const et = truncateByteString(text, maxelen);
     const pristine = engraving.engr_txt[2] ?? text;
-    const finalCharacter = text.at(-1) ?? '';
+    const finalCharacter = et.at(-1) ?? '';
     // C compares against the pristine character at the same buffer position:
     // engr_txt[actual_text] - engr_text_space(ep) plus the current length.
     const off = engraving.actual_text_offset ?? 0;
-    const hasOriginalPunctuation = text.length >= 2
+    const hasOriginalPunctuation = et.length >= 2
         && '.!?'.includes(finalCharacter)
-        && pristine[off + text.length - 1] === finalCharacter;
+        && pristine[off + et.length - 1] === finalCharacter;
     await pline(
-        `You ${blind ? 'feel the words' : 'read'}: "${text}"${hasOriginalPunctuation ? '' : '.'}`,
+        `You ${blind ? 'feel the words' : 'read'}: "${et}"${hasOriginalPunctuation ? '' : '.'}`,
         state,
     );
     engraving.engr_txt[1] = text;
