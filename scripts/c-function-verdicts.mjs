@@ -55,7 +55,7 @@ export const VERDICT_TOTALS = Object.freeze({
     otherName: 279,
     unreachable: 200,
     noVisibleEffect: 194,
-    unportedVisible: 6,
+    unportedVisible: 4,
 });
 
 const ported = (js, reason = 'ported under another name or inside a caller') =>
@@ -106,10 +106,6 @@ const DUMPLOG = 'DUMPLOG is off (include/config.h:669); the compiled stub writes
 const SYSCF_GDB = 'a sysconf statement that the recorder\'s sysconf keeps only on a host with '
     + '/usr/bin/gdb (nethack-c/build-recorder.sh:166-178); its value steers only NH_abort()\'s '
     + 'backtrace, which a correct game never reaches';
-const KILLERS_SAVE = 'savegamestate() and restgamestate() keep svk.killer and its delayed-killer '
-    + 'chain (save.c:293, restore.c:653); js/save.js serializeGameState() saves no killer, so a '
-    + 'hero who saves while Stoned, Slimed or Sick and then dies of it in the next segment is '
-    + '"killed by petrification" (or the like) rather than by the recorded cause';
 const DUMP_INSTALLED = 'installed only by dump_redirect(TRUE), whose every call (end.c:549, '
     + '1402, 1484) is inside #ifdef DUMPLOG, which include/config.h:669 leaves undefined';
 export const C_FUNCTION_VERDICTS = Object.freeze({
@@ -305,8 +301,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'end.c done_intr': unreachable('signal handler'),
     'end.c done_hangup': unreachable('SIGHUP handler'),
     'end.c dump_everything': noEffect(DUMPLOG),
-    'end.c save_killers': visible(KILLERS_SAVE),
-    'end.c restore_killers': visible(KILLERS_SAVE),
     'end.c wordcount': ported('js/jsmain.js buildEnglishList'),
     'end.c bel_copy1': ported('js/jsmain.js buildEnglishList'),
     'end.c build_english_list': ported('js/jsmain.js buildEnglishList'),

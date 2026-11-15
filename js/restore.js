@@ -17,6 +17,7 @@ import { installLevel, newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import { restore_timers } from './timeout.js';
+import { restore_killers } from './end.js';
 import {
     COLNO,
     COULD_SEE,
@@ -377,6 +378,9 @@ export async function dorestore(state = game) {
     // getlev():1144 inserts the hero's level's. insert_timer() puts a timer
     // ahead of any with the same timeout, so timers that tie come back in
     // reverse, and the hero level's ahead of global ones they tie with.
+    // C ref: restore.c restgamestate():653 restore_killers(), just before
+    // the global timers.
+    restore_killers(snapshot.killers, state);
     state.gt ??= {};
     state.gt.timer_base = null;
     // C ref: timeout.c restore_timers() reads svt.timer_id first for

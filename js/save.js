@@ -41,7 +41,7 @@ import {
     RANGE_LEVEL, VISITED, W_BALL, W_CHAIN,
 } from './const.js';
 import { game } from './gstate.js';
-import { done_object_cleanup, nh_terminate } from './end.js';
+import { done_object_cleanup, nh_terminate, save_killers } from './end.js';
 import { nomul } from './hack.js';
 import { light_sources_in_range, save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
@@ -651,6 +651,9 @@ function serializeGameState(state) {
         // the rest with RANGE_GLOBAL.
         // C ref: timeout.c save_timers() writes svt.timer_id ahead of the
         // RANGE_GLOBAL timers, so a restored game keeps numbering from it.
+        // C ref: save.c savegamestate():293 save_killers() writes svk.killer
+        // and its delayed-killer chain before the global timers.
+        killers: save_killers(state),
         timer_id: state.svt.timer_id,
         level_timers: maybe_write_timer(RANGE_LEVEL, state),
         timers: maybe_write_timer(RANGE_GLOBAL, state),
