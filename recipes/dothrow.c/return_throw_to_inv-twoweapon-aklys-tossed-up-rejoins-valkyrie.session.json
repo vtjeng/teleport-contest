@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dothrow.c return_throw_to_inv() 1904: a debug Valkyrie wishes for an aklys, wields it (tethered; her dagger stays the alternate weapon), takes off her small shield and starts two-weapon combat, then throws the aklys upward. throwit() 1586-1587: a returning missile thrown up 'hits the ceiling and returns to your hand', and return_throw_to_inv() rewields it and, since the throw ended dual-wielding, calls set_twoweap(TRUE).",
+  "segments": [
+    {
+      "seed": 9047213,
+      "datetime": "20390513142000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017aklys\nweTXte<i\u001b"
+    }
+  ]
+}
