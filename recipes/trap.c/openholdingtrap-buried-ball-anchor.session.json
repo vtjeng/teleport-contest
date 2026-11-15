@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c openholdingtrap() TT_BURIEDBALL and steed branches (6137-6140, 6159-6163, 6171-6176): a mounted Knight (forced mount) reads a cursed scroll of punishment, buries the ball with #wizbury (dig.c bury_an_obj() sets TT_BURIEDBALL), and zaps opening at self at seg 0 step 70 (zero-based). C sets which = \"\" for TT_BURIEDBALL, so it prints 'You and your pony are released from your anchor.' with no article.",
+  "segments": [
+    {
+      "seed": 5113307,
+      "datetime": "20360622104500",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup\n",
+      "moves": "\u001b\u0017cursed scroll of punishment\n#ride\nnyri #wizbury\n\u0017wand of opening\nzj.s"
+    }
+  ]
+}
