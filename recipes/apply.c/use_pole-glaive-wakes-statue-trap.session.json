@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c use_pole() 3528: a polearm applied at a statue trap. A debug Valkyrie steps off the stairs, wishes a statue trap under herself (wizterrainwish makes the trap and its statue), walks two squares west, takes off her shield, wishes a glaive and applies it at the statue: activate_statue_trap() animates the leprechaun and use_pole() takes the empty feedback branch.",
+  "segments": [
+    {
+      "seed": 7400121,
+      "datetime": "20420325100000",
+      "nethackrc": "OPTIONS=name:Tove,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips",
+      "moves": "h\u0017statue trap\nhh\u0017glaive\nTae ll."
+    }
+  ]
+}
