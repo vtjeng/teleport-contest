@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of recharge-stripped-marker-dries-out-wizard: a debug Priest (who sees BUC) strips a wished magic marker with a cursed scroll of charging, then reads a blessed one at it; a recharged marker is never refilled whatever the scroll's blessing, so 863 reports it permanently dried out.",
+  "segments": [
+    {
+      "seed": 2290614,
+      "datetime": "20370904170000",
+      "nethackrc": "OPTIONS=name:Hugo,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017magic marker\n\u0017cursed scroll of charging\n\u0017blessed scroll of charging\nrj irk i"
+    }
+  ]
+}
