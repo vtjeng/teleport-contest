@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uhitm.c hmon_hitmon_misc_obj() witness: a Valkyrie wields two fresh wished eggs and hits a cockatrice with them. touch_petrifies() turns the stack to rock, and C chooses the verb by count: \"The eggs aren't alive any more...\" (uhitm.c 1232-1233). The seed, clock, character and input were chosen for this branch.",
+  "segments": [
+    {
+      "seed": 9035517,
+      "datetime": "20390614083000",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u00172 uncursed eggs\nwe\u0007cockatrice\nFb  "
+    }
+  ]
+}

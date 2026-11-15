@@ -3109,7 +3109,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             && state.moves - (obj.age ?? 0) > 2 * MAX_EGG_HATCH_TIME;
         if (hmd.mdat && touch_petrifies(hmd.mdat) && !staleEgg) {
             await message(
-                `The egg${count === 1 ? '' : 's'} isn't alive any more...`,
+                `The egg${count === 1 ? '' : 's'} ${count === 1 ? "isn't" : "aren't"} alive any more...`,
                 state,
             );
             if (obj.timed) {
