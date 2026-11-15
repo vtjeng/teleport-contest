@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c help_monster_out() 5763-5764: a level-12 gnomish Ranger digs her own pit with a wished pick-axe, climbs out and lures a hostile dingo into it, sleeps it with a magic flute, then #untraps it. untrap_prob() for the hero's own pit is 3-1 = 2, and the Ranger's extra -1 makes it rn2(1) = 0, so the grab always succeeds and the sleeping dingo awakens. Variation from help_monster_out-key-overtaxed-sleeping-dingo: a dug (madeby_u) pit and a Ranger, for the uprob == 0 branch.",
+  "segments": [
+    {
+      "seed": 5590341,
+      "datetime": "20360227073000",
+      "nethackrc": "OPTIONS=name:Ilsa,role:Ranger,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b#levelchange\n12\n\u001b\u0017pick-axe\n\u001b\u0017magic flute\n\u001bklag\r>\u001bkkkk#wizgenesis\nhostile dingo\nn.\u001bahy\u001b#untrap\ny\u001b"
+    }
+  ]
+}
