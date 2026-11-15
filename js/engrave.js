@@ -1269,9 +1269,10 @@ export async function read_engr_at(
     if (!sensed) return false;
 
     // engrave.c:371-384: the text is cut to fit buf[BUFSZ] beside the
-    // longer of the two message frames, whose sizeof counts its NUL, before
-    // the message and the punctuation test. Engraving text is a byte string.
-    const maxelen = BUFSZ - ('You feel the words: "".'.length + 1);
+    // longer of the two message frames, sizeof "You feel the words: \"\"."
+    // = 24 with its NUL, before the message and the punctuation test.
+    // Engraving text is a byte string.
+    const maxelen = BUFSZ - 24;
     const et = truncateByteString(text, maxelen);
     const pristine = engraving.engr_txt[2] ?? text;
     const finalCharacter = et.at(-1) ?? '';
