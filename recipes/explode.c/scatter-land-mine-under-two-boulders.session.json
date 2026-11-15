@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c scatter() 787-788: a debug Samurai stands beside the west wall, wishes two boulders (both drop at his feet), arms a wished land mine under them, polymorphs into a hill giant, steps east and back. Neither boulder can be pushed into the wall, so the giant maneuvers over them and sets the mine off; blow_up_landmine() calls scatter() with MAY_FRACTURE, the first boulder breaks apart and the second is restacked on top before it breaks in turn.",
+  "segments": [
+    {
+      "seed": 7741206,
+      "datetime": "20410703120000",
+      "nethackrc": "OPTIONS=name:Sapper,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "hh\u0017boulder\n\u0017boulder\n\u0017land mine\nai#polyself\nhill giant\nlhy      "
+    }
+  ]
+}
