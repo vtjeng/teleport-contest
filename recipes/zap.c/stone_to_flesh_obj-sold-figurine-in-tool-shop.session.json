@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c stone_to_flesh_obj() for a shop-owned figurine (2037-2040): a gnomish Healer in debug mode builds minetn-7 (#wizloaddes; seed 6083301 from a port scan of 6083301-6083320 for a layout with a hardware store), teleports into the store, levels up for Pw, sells a wished figurine of a jackal to the shopkeeper and casts stone to flesh downward at it: the figurine animates and stolen_value() bills her ('You owe Ymla 60 zorkmids for it!').",
+  "segments": [
+    {
+      "seed": 6083301,
+      "datetime": "20360902111500",
+      "nethackrc": "OPTIONS=name:Aelis,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0006\u0014 hjjjjjj.  #levelchange\n10\n\u001b\u0017uncursed figurine of a jackal\n  dl y  Zc>   "
+    }
+  ]
+}
