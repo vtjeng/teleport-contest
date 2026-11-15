@@ -63,6 +63,9 @@ const FIXED_NAMES = new Set(["'record'", "''", "'save/'"]);
 const SAVE_NAME_BINDINGS = [
     /\bconst (\w+) = set_savefile_name\(/gu,
     /\bfor \(const (\w+) of vfsListFiles\('save\/'\)\)/gu,
+    // files.c plname_from_file() opens each name get_saved_games(), beside
+    // it in js/files.js, listed from save/.
+    /\bexport function plname_from_file\((\w+)\)/gu,
 ];
 // In js/files_bones.js each bones function sets `name` from
 // set_bonesfile_name().

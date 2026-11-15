@@ -78,7 +78,11 @@ export const PORT_NAMES = {
 // one appears, so that the new port is examined. A `ports` entry excepts only
 // the port functions in the files it names.
 export const FRONT_PUSH_EXCEPTIONS = {
-    config_erradd: { unported: true, reason: 'cfgfiles.js reports a config error as it is found' },
+    // cfgfiles.c config_erradd() pushes onto config_error_msg only in its
+    // iflags.in_lua arm, which no ported Lua callback reaches.
+    config_erradd: {
+        ports: { 'cfgfiles.js': 'the rc-read arm, which reports each error as it is found' },
+    },
     reorder_fruit: { unported: true, reason: 'its one caller is a DEBUG-only block in insight.c' },
     add_id_mapping: { unported: true, reason: 'the port maps saved ids with a Map, looked up by key' },
     parse_sym_line: { unported: true, reason: 'the port has no symset file reader' },

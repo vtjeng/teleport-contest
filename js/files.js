@@ -18,7 +18,7 @@ import { note_unported } from './unported.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
 import { RECORDER_UID, regularize } from './unixunix.js';
 import { aligns, genders } from './roles.js';
-import { parseSnapshot } from './save.js';
+import { parseSnapshot } from './snapshot.js';
 import { vfsListFiles, vfsReadFile } from './storage.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut

@@ -79,9 +79,10 @@ import { restore_light_sources } from './light.js';
 import { add_worn_property, setworn } from './worn.js';
 import { coreRandom, rnd } from './rng.js';
 import {
-    parseSnapshot, savemonchn, saveobjchn,
+    savemonchn, saveobjchn,
     shift_level_edog_times,
 } from './save.js';
+import { parseSnapshot } from './snapshot.js';
 import { restore_oracles } from './rumors.js';
 import { assign_graphics } from './symbols.js';
 import { role_init } from './role_init.js';
