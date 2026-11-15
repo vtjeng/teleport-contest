@@ -190,7 +190,7 @@ test('dorub wields an unwielded lamp and queues its continuation', async () => {
             { typ: CMDQ_EXTCMD, command: 'rub', key: undefined },
             // cmdq_add_key() stores the selected lamp's existing inventory
             // letter so the continuation does not prompt the player again.
-            { typ: CMDQ_KEY, command: undefined, key: lamp.invlet },
+            { typ: CMDQ_KEY, command: undefined, key: lamp.invlet.charCodeAt(0) },
         ],
     );
 });

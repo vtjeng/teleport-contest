@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent recipe for spell.c docast() 825: casting queues the spell letter on CQ_REPEAT, so ^A (#repeat) recasts force bolt without the spell menu, and getdir() takes the repeated direction from the same queue. Two repeats show the queue rebuilt by each cast. #levelchange to 3 gives the energy for three casts. Seed, clock and character chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 42719906,
+      "datetime": "20620711084130",
+      "nethackrc": "OPTIONS=name:Repeat,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " #levelchange\n3\n\u001bZal\u0001\u0001"
+    }
+  ]
+}

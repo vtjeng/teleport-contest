@@ -35,11 +35,12 @@ function makeState() {
 }
 
 test('cmdq_key_char() reads a queued key as one character in either form', () => {
-    // cmd.c keeps _cmd_queue.key as a char. This port's producers push that
+    // cmd.c keeps _cmd_queue.key as a char. This port's producers pass that
     // char either as its code (yn_function(), getpos()) or as a one-character
     // string (iactions.c itemactions_pushkeys() pushes 'i' and an inventory
-    // letter), and pager.c do_look() and invent.c display_inventory() compare
-    // the key with characters, so both forms must read back as the same one.
+    // letter); cmdq_add_key() stores the code, and pager.c do_look() and
+    // invent.c display_inventory() compare the key with characters, so both
+    // forms must read back as the same one.
     const state = makeState();
     cmdq_add_key(CQ_CANNED, 'i'.charCodeAt(0), state);
     cmdq_add_key(CQ_CANNED, 'i', state);

@@ -3237,7 +3237,7 @@ test('itemactions dispatches queued adjust by its C function identity',
             cmdq_peek(CQ_CANNED, game).ec_entry.ef_funct,
             'doorganize',
         );
-        assert.equal(game.command_queue[CQ_CANNED][1].key, selected.invlet);
+        assert.equal(game.command_queue[CQ_CANNED][1].key, selected.invlet.charCodeAt(0));
 
         // doorganize's first prompt acknowledges the still-pending startup
         // line; z is the independent destination-letter answer that follows.
@@ -3305,7 +3305,7 @@ test('itemactions split dispatches the queued adjust_split function pointer',
         const queued = cmdq_peek(CQ_CANNED, game);
         assert.equal(queued.ec_entry.ef_funct, 'adjust_split');
         assert.equal(queued.ec_entry.ef_txt, 'altadjust');
-        assert.equal(game.command_queue[CQ_CANNED][1].key, stack.invlet);
+        assert.equal(game.command_queue[CQ_CANNED][1].key, stack.invlet.charCodeAt(0));
 
         // The queued source letter bypasses getobj's picker; `z` directly
         // chooses the destination slot for the source's one-item split.
