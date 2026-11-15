@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "muse.c use_misc() MUSE_POT_GAIN_LEVEL for a monster that grows into a genocided form (2438). A Priest reads a wished scroll of genocide for large kobolds and drops a wished potion of gain level. A ^G kobold follows him off the line, picks the potion up (monmove.c m_search_items()), drinks it, and grow_up() kills it: 'As the kobold grows up into a large kobold, he dies!'",
+  "segments": [
+    {
+      "seed": 3306914,
+      "datetime": "20330121112000",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u001b\u0017uncursed scroll of genocide\n\u0017uncursed potion of gain level\nrj  large kobold\ndk\u0007kobold\njjhhhsss "
+    }
+  ]
+}

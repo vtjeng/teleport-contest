@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c show_achievements() ACH_MINE_PRIZE (2320-2322), and invent.c addinv_core1()'s Mines-prize branch. A gnomish Archeologist level-teleports (^V menu) to Mines' End, which this seed builds from minend-2.lua; she teleports (^T) onto the luckstone's fixed square, map (70,5), picks up the gray stone, and #conduct lists 'You have completed the Gnomish Mines.'",
+  "segments": [
+    {
+      "seed": 4471906,
+      "datetime": "20350203101500",
+      "nethackrc": "OPTIONS=name:Garnet,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,!safe_wait\n",
+      "moves": "\u001b#levelchange\n20\n\u001b\u0016?\n>x\u0006\u0014 LLLlllllkkkkkk.  ,d\n#conduct\n\u001b"
+    }
+  ]
+}
