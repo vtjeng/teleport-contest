@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of Sting_effects-flickers-for-monk-under-eyes-of-overworld with a male Monk, Orcrist, a Mordor orc, another seed and map: artifact.c Sting_effects() 2487-2491 gives the not-blind 'start' message because the Eyes of the Overworld block the potion's blindness.",
+  "segments": [
+    {
+      "seed": 9014462,
+      "datetime": "20400831071000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017Eyes of the Overworld\n\u001b\u0017potion of blindness\n\u001b\u0017Orcrist\n\u001bPk\u001bql\u001bwm\u001b\u0007Mordor orc\n\u001bs\u001b"
+    }
+  ]
+}

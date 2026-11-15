@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "artifact.c Sting_effects() 2487-2491: a female Monk wearing the Eyes of the Overworld quaffs blindness, which the Eyes block (youprop.h 103), wields Sting and creates a hill orc; not being Blind, she sees \"Sting flickers light blue!\" rather than \"Sting quivers slightly.\"",
+  "segments": [
+    {
+      "seed": 3381907,
+      "datetime": "20410119203000",
+      "nethackrc": "OPTIONS=name:Ayumi,role:Monk,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017Eyes of the Overworld\n\u001b\u0017potion of blindness\n\u001b\u0017Sting\n\u001bPk\u001bql\u001bwm\u001b\u0007hill orc\n\u001bs\u001bs\u001b"
+    }
+  ]
+}
