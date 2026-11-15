@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of destroy_drawbridge-pit-on-span-deleted-when-bridge-disintegrates: dbridge.c destroy_drawbridge() 935-936. The same route, but the dwarf king quaffs a wished potion of blindness before zapping striking, so the hero cannot see the span and hears 'a loud *CRASH*!' instead.",
+  "segments": [
+    {
+      "seed": 4410007,
+      "datetime": "20380911093000",
+      "nethackrc": "OPTIONS=name:Spanner,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0016?\nj   \u0017wand of death\nzfk #polyself\nred dragon\n   \u0017scroll of magic mapping\nrg _  Hhhkkk._.  \u001bh\u0017ice\n\u0017pit\nl#polyself\ndwarf king\n\u0017potion of blindness\nqh\u0017wand of striking\nzih\u001b\u001b\u001b"
+    }
+  ]
+}

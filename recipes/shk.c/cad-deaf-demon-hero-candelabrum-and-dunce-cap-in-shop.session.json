@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of cad-demon-hero-takes-pick-from-sack-in-shop: the same shop and form, but the hero is made deaf first (#wizintrinsic), so the keeper only glares at the pick. She then drops a wished Candelabrum of Invocation (shk.c special_stock() 3134-3138: a deaf hero sees the keeper, who is not Izchak, shake his head in refusal), wears a wished dunce cap (a silver ring of adornment cannot be handled in demon form) and picks up candles, priced by get_cost() with the dunce-cap surcharge (2948).",
+  "segments": [
+    {
+      "seed": 7051301,
+      "datetime": "20370325152000",
+      "nethackrc": "OPTIONS=name:Sacker,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0014  ljjj.  #wizintrinsic\nj\n #polyself\nbarbed devil\n\u0017pick-axe\n\u0017sack\nafseafoa\na\n\u0017Candelabrum of Invocation\ndg \u0017+12 ring of adornment\nPhr\u0017dunce cap\nWi  ,b\n "
+    }
+  ]
+}

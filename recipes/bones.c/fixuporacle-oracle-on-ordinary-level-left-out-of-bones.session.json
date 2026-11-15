@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of fixuporacle-teleported-oracle-moved-home-in-bones: bones.c fixuporacle() 318. A debug gnomish Healer level-teleports to Dlvl 3, forces creation of the Oracle there with ^G, and dies by her own wand of death; saving bones calls fixuporacle() for the Oracle on a level that is not the Oracle level, which returns FALSE so she is left out of the bones.",
+  "segments": [
+    {
+      "seed": 8204431,
+      "datetime": "20361112081500",
+      "nethackrc": "OPTIONS=name:Augur,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u00163\n\u0007Oracle\ny\u0017wand of death\nzn.  y qy"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c cad() 5923-5925: a debug dwarvish Valkyrie builds Bazaar Town (#wizloaddes minetn-7), teleports into its candle shop and #polyselfs into a barbed devil. She stashes a wished pick-axe in a wished sack and takes it out again; pick_pick() has the shopkeeper object, and since the hero's form is a demon cad() picks 'fiend': 'You sneaky fiend!  Get out of here with that pick!'",
+  "segments": [
+    {
+      "seed": 7051301,
+      "datetime": "20370325152000",
+      "nethackrc": "OPTIONS=name:Sacker,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0014  ljjj.  #polyself\nbarbed devil\n\u0017pick-axe\n\u0017sack\nafseafoa\na\n "
+    }
+  ]
+}

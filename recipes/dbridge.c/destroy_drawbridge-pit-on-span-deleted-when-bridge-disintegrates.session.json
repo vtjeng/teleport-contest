@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dbridge.c destroy_drawbridge() 943-944: the castle route of trap.c/maketrap-pit-wished-on-iced-drawbridge-span (seed 4410007; a debug Valkyrie as a flying red dragon wishes ice, then a pit, on the raised drawbridge's span), then steps back east, #polyselfs into a dwarf king to get hands, and zaps a wished wand of striking west at the bridge. With DB_FLOOR under the span there is no moat, so the drawbridge disintegrates and deltrap() removes the pit at the span. Escapes skip the castle's ensuing messages to end on a settled screen.",
+  "segments": [
+    {
+      "seed": 4410007,
+      "datetime": "20380911093000",
+      "nethackrc": "OPTIONS=name:Spanner,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": "\u0016?\nj   \u0017wand of death\nzfk #polyself\nred dragon\n   \u0017scroll of magic mapping\nrg _  Hhhkkk._.  \u001bh\u0017ice\n\u0017pit\nl#polyself\ndwarf king\n\u0017wand of striking\nzhh\u001b\u001b\u001b"
+    }
+  ]
+}

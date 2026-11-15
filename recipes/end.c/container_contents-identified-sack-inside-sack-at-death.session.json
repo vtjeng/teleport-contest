@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "end.c container_contents() 1646-1647: a debug Valkyrie puts one wished sack inside another, dies by her own wand of death, and asks to see her possessions identified. Listing the outer sack's contents with identification marks the nested sack's contents and lock as known.",
+  "segments": [
+    {
+      "seed": 9911873,
+      "datetime": "20381231235000",
+      "nethackrc": "OPTIONS=name:Packer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017sack\n\u0017sack\naesf\u0017wand of death\nzg.  yy  qn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c classify_terrain() 3107-3108: with the terrainstatus option on, a debug elven Ranger level-teleports to her quest home (Ran-strt.lua sets the arboreal level flag), #polyselfs into a xorn and steps west into solid rock; switch_terrain() calls classify_terrain(), which reports STONE on an arboreal level as a tree ('Tree' in the status line).",
+  "segments": [
+    {
+      "seed": 5521873,
+      "datetime": "20391204193000",
+      "nethackrc": "OPTIONS=name:Ranger,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,terrainstatus",
+      "moves": " \u0016?\n>y \u001b#polyself\nxorn\n h"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bones.c resetobjs() 163-164: a debug orcish Barbarian level-teleports to Dlvl 4, forces creation of the unique Lord Surtur with ^G and kills him with a wished wand of death (a large monster always leaves a corpse, which keeps his monster traits; the bounced ray is refused at Die?). He then breaks a wished wand of lightning, dies in the explosion and saves bones. resetobjs() finds the unique corpse with omonst: cant_revive() maps it to a doppelganger and set_corpsenm() turns it into a doppelganger corpse.",
+  "segments": [
+    {
+      "seed": 3318841,
+      "datetime": "20380117064500",
+      "nethackrc": "OPTIONS=name:Brakka,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u00164\n\u0007Lord Surtur\ny\u0017wand of death\nzfl     \u0017wand of lightning\nagy    yqy"
+    }
+  ]
+}

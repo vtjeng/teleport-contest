@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c add_cmap_descr() 1150-1161: a Tourist uses the / command's 'something else (by symbol or name)' choice and types the symbol '}'. do_screen_description() describes each matching map symbol with no glyph, so the S_pool and S_water entries, both explained as 'water', are renamed 'pool of water' and 'wall of water' (off the Plane of Water).",
+  "segments": [
+    {
+      "seed": 7730117,
+      "datetime": "20410217101500",
+      "nethackrc": "OPTIONS=name:Asker,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,time",
+      "moves": " /?}\n "
+    }
+  ]
+}
