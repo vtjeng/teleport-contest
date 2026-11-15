@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c globby_bill_fixup() 6042-6043 and 6046 (scenario 2 with a loan): in Ouiatchouane's general store on Dlvl 3 (seed from a bounded 7302101-7302400 scan for a ^V arrival in a shop), a debug Samurai drops 100 gold for credit, spends the credit on a milky potion and picks the gold up again, so he owes the shop money he carries (debit and loan). He sells one wished glob of gray ooze, then drops a second onto it: the globs coalesce and the donated glob 'partially pays off your debt', reducing the loan by its price. 6044-6045, a loan smaller than the glob's price while the debt is not, need extra debit such as a usage fee and are not covered here.",
+  "segments": [
+    {
+      "seed": 7302293,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Tinker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u00163\n  \u0017200 gold pieces\nd100$l, pa\n  h ,$\n \u0017glob of gray ooze\ndh y\u0017glob of gray ooze\ndi "
+    }
+  ]
+}

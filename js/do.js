@@ -354,7 +354,7 @@ import { delete_levelfile } from './files.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { save_msghistory, savelev, savemonchn } from './save.js';
-import { fix_shop_damage, sellobj, sellobj_state } from './shk.js';
+import { fix_shop_damage, is_unpaid, sellobj, sellobj_state } from './shk.js';
 import {
     container_impact_dmg, impact_drop, obj_delivery, ship_object,
 } from './dokick.js';
@@ -1682,7 +1682,8 @@ async function drop(obj, state = game) {
                 holderName = `${s_suffix(holderName)} `
                     + `${mbodypart(holder, STOMACH)}`;
             }
-            const objectName = obj.unpaid
+            // do.c:748 is_unpaid(): a container with unpaid contents counts.
+            const objectName = is_unpaid(obj)
                 ? yobjnam(obj, null, state) : donameFresh(obj, state);
             await ttyPline(`You drop ${objectName} into ${holderName}.`, state);
         }
@@ -2101,7 +2102,8 @@ export async function dropz(obj, with_impact, env = {}) {
     await clearDropSlots(obj, normalized);
     if (state.u?.uswallow) {
         if (obj !== state.uball) {
-            if (obj.unpaid) {
+            // do.c:820 is_unpaid(): unpaid contents make the drop a theft.
+            if (is_unpaid(obj)) {
                 const { stolen_value } = await import('./shk.js');
                 await stolen_value(
                     obj, state.u.ux, state.u.uy, true, false, state,

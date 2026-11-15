@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "muse.c muse_unslime() 3170-3171 and 3183-3200, the potion-of-oil cure, through mhitm_ad_slim() and munslime(): a debug Valkyrie wears a cloak of invisibility, drops two wished potions of oil and creates a hostile gnomish wizard. With the hero unseen the gnome's approach is usually 0, so m_move() searches for items and it picks up the oil (gnomish wizards like magic items). A tame green slime then touches it; the gnome starts turning green, ignites one potion split from the stack (3183-3184), quaffs it burning and is burned, and its slime burns away, all in view. 3153-3159 (a confused reader of fire) and 3221-3222 are not covered here; 3221-3222 need by_you, which only the hero's own slime touch passes, and a hero in green slime form is always blind (no eyes, and polyself.c 1291 removes worn lenses from a headless form), so vis is false there.",
+  "segments": [
+    {
+      "seed": 7302601,
+      "datetime": "20381203081500",
+      "nethackrc": "OPTIONS=name:Ooze,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017cloak of invisibility\nWe \u00172 potions of oil\nndf\u0007gnomish wizard\nlll\u0007tame green slime\nms ms ms ms ms ms ms ms ms ms ms ms ms ms ms "
+    }
+  ]
+}

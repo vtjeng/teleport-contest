@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c stolen_container() 3732, 3737-3742 and 3747, and stolen_value() 3848-3850: a debug Samurai level-teleports into Ouiatchouane's general store on Dlvl 3 (seed from the same bounded 7302101-7302400 scan), picks up an unpaid brown potion, stashes it in a wished oilskin sack, stashes that sack and a wished partly eaten gunyoki in a wished sack, and drops the sack while engulfed by a hostile dust vortex. dropz() bills the theft: the unpaid potion is on the bill (3737-3742, reached through the nested sack, 3747), the eaten gunyoki is neither billable nor on the bill (3732), and the message names 'some of its contents' (3848-3850). 3744 needs a billable content counted by price, which for a carried container means an unpaid item not on the bill.",
+  "segments": [
+    {
+      "seed": 7302293,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Tinker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u00163\n  \u0017sack\n\u0017oilskin sack\n\u0017partly eaten food ration\n, ahsjagshagsi\u0007hostile dust vortex\nmsmsms dg "
+    }
+  ]
+}

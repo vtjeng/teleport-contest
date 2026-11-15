@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c litter_scatter() 4635-4653 and 4683-4694: a debug Samurai level-teleports into Kopasker's general store on Dlvl 3 (seed from a bounded scan of 7302101-7302400 for a ^V arrival in a general store), reads a cursed scroll of punishment, carries the heavy iron ball and an unpaid gunyoki, zaps a wand of digging through the north wall and pays for the damage, then drops the ball and the unpaid gunyoki in the gap and steps back inside. When the keeper repairs the wall, the ball on the gap square (the chain is under the hero, so 4635-4636 are tested) gives 'Get your junk out of my wall!' and the unpaid gunyoki is moved into the shop and taken off the bill. 4674 cannot run (litter_getpos() guarantees an in-shop spot and ten tries cover all nine); 4698-4701 need a no_charge object in the gap (a dropped one is not no_charge, and stolen_value() clears no_charge on a kicked one unless it is a container with shop contents); not covered here.",
+  "segments": [
+    {
+      "seed": 7302205,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Tinker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u00163\n  \u00172000 gold pieces\n\u0017wand of digging\n\u0017cursed scroll of punishment\nrg ,b\n u, uzfk y kdh dij s "
+    }
+  ]
+}

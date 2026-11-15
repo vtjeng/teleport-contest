@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c dotele() 1057-1064 and 1147, ^T on a vault teleporter: a debug gnomish Healer level-teleports to Dlvl 3 (seed 7302399, where this character lands in a vault and the level has a vault-teleporter niche above the room at x 47-58), wears a cloak of magic resistance, ^T-teleports below the niche, kills a newt with #wizkill, finds the hidden door and the hidden passage by searching, and steps onto the once-only teleport trap, which magic resistance blocks ('You feel a wrenching sensation.'). ^T there asks 'This is a vault teleport, usable once only. Jump in?'; y deletes the trap and vault_tele() puts her back in the vault.",
+  "segments": [
+    {
+      "seed": 7302399,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Oozer,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u00163\n\u0017cloak of magic resistance\nWl\u0014LLLLLLlj. 15s#wizkill\nn.\u001b20sokk20skk20sk\u0014 y  "
+    }
+  ]
+}

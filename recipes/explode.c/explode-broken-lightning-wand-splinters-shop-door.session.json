@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c explode() 684-685, pay_for_damage() after an explosion damages a shop door: in Kopasker's general store on Dlvl 3 (seed from a bounded 7302101-7302400 scan for a ^V arrival in a shop), a debug Samurai steps diagonally beside the open west door, closes it (the first try resists) and breaks a wished wand of lightning. The ball of lightning splinters the door (zap_over_floor() sets shopdamage), so explode() calls pay_for_damage('destroy'), and the keeper asks 'How dare you destroy my door?'. The blast is fatal; the debug-mode 'Die?' prompt is answered n. 684 is the AD_DISN choice and runs because the conditional expression's lines are evaluated in turn.",
+  "segments": [
+    {
+      "seed": 7302205,
+      "datetime": "20380604151500",
+      "nethackrc": "OPTIONS=name:Breaker,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": " \u00163\n  \u0017wand of lightning\nycbcbafy     n  "
+    }
+  ]
+}

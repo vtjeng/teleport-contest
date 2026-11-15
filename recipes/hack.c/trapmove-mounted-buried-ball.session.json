@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c trapmove() 1661-1663 and 1667, TT_BURIEDBALL with a steed: a debug Knight force-mounts her pony, reads a cursed scroll of punishment, buries the ball with #wizbury, moves once within the chain's reach and then tries to move again: 'You and your pony are chained to the buried ball.' Other unrun lines: 1559 and 1683-1688 are sanity checks; 1583 cannot run because the only caller, domove() (hack.c 2831), passes a null desttrap; 1613, 1622-1623 and 1665-1666 need the steed to stand in lava with the hero (TT_LAVA, and TT_INFLOOR only comes from freezing that lava, zap.c 5305), but no saddleable monster class (steeds in steed.c) resists fire without flying, wished lava kills a pony steed, and mount_steed() refuses a trapped hero (steed.c 270).",
+  "segments": [
+    {
+      "seed": 7302701,
+      "datetime": "20390505120000",
+      "nethackrc": "OPTIONS=name:Lancelyn,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time,!tips\n",
+      "moves": "\u001b#ride\nuy\u0017cursed scroll of punishment\nri #wizbury\nhh"
+    }
+  ]
+}
