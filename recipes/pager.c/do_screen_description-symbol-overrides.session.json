@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c do_screen_description() and checkfile() with SYMBOLS overrides. A gnomish Healer names her stethoscope 'kit (spare)' and looks it up with / i: checkfile() cuts the alternate name at ' (' (975). / ? I matches the boulder, shown as I by S_boulder, and then the remembered unseen creature (1417-1418). / ? 7 matches S_pet_override and stops (1564-1565, 1572). A farlook at unexplored stone, shown as # by S_unexplored, finds no earlier match (1437-1439). A wished fountain shares the digit 8 with S_venom, so the venom skipped for a farlook is put back after one match (1538-1539). Not covered: the farlooked pet override (1566-1571) needs sysconf ACCESSIBILITY to draw a pet with it, and any other square drawn with that symbol makes C loop forever, because MG_FLAG_NOOVERRIDE keeps SYMBOLS overrides.",
+  "segments": [
+    {
+      "seed": 8125530,
+      "datetime": "20310729163000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:cat,!tips\nSYMBOLS=S_pet_override:7,S_unexplored:#,S_boulder:I,S_venom:8,S_fountain:8\n",
+      "moves": "\u001b#name\nickit (spare)\n/ic /?I\n/?7\n// HH. \u001b\u001b\u0017fountain\nl// h. \u001b\u001b"
+    }
+  ]
+}
