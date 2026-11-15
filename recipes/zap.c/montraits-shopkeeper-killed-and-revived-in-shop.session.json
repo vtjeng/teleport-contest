@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c montraits() 808-819, mon.c replmon() 2551-2552 and shk.c replshk(): a debug Priest level-teleports to Dlvl 3 and lands in an armor shop, kills the shopkeeper with a wished wand of death, walks onto the corpse and zaps a wished wand of undead turning down. revive() restores the saved traits, montraits() copies the eshk data to the new monster because the traits are a shopkeeper's, and replmon() calls replshk() to repoint the shop at the revived keeper. The first undead-turning zap, east along the stocked row, ran out of range before the corpse.",
+  "segments": [
+    {
+      "seed": 6100541,
+      "datetime": "20420501120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u00163\n  \u0017wand of death\n\u0017wand of undead turning\nzjlzklllllll: zk>"
+    }
+  ]
+}
