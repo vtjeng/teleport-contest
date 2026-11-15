@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c flip_level() -> flip_vault_guard(): a female human Valkyrie in debug mode maps DL1 (^F), teleports (^T) into the closed vault, searches until the vault guard arrives, gives a name, waits while the guard starts its fake corridor, then runs #wizfliplevel vertically, horizontally and both, so flip_level() flips the guard's egd positions and fake-corridor squares. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6606,
+      "datetime": "20370305101500",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": "\u001b\u0006\u0014hhhkkkkkkkkkkk.\r30s\r\rProbe\r\r\r\rss#wizfliplevel\n1#wizfliplevel\n2#wizfliplevel\n3ss"
+    }
+  ]
+}
