@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "topten.c encode_extended_achievements() for the Oracle and Sokoban-prize achievements (535-540), written to the xlogfile even in debug mode. A debug Samurai wishes for gold, level-teleports to the Oracle (m ^V), maps the level, teleports onto the fountain north of her and pays for a minor consultation (rumors.c 744), then level-teleports to the top Sokoban level, teleports into the closets beside the zoo until the third holds the amulet of reflection, picks it up (invent.c 1001), and quits.",
+  "segments": [
+    {
+      "seed": 9046612,
+      "datetime": "20350518111500",
+      "nethackrc": "OPTIONS=name:Oda,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,!autopickup,pettype:none\n",
+      "moves": "\u001b\u0017500 gold pieces\nm\u0016c\u0006\u0014{.\r#chat\njy\rm\u0016>B\u0014Hhhjj.\u0014Hk.\u0014jj.\u0014jj.\r\r,a\n#quit\nynnnnn\r"
+    }
+  ]
+}
