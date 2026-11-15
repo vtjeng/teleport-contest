@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c call_kops() 528-531: a debug Archeologist arrives inside a Dlvl 3 general store (seed from a port scan of 8810001-8810150), genocides class K with a wished blessed scroll, picks up a shop potion and wizard-teleports (^T) into the corridor outside. Escaping without paying robs the shop and the keeper sounds the alarm, but every Kop is gone and no watch is present, so 'But no one seems to respond to it.'",
+  "segments": [
+    {
+      "seed": 8810086,
+      "datetime": "20410214120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Archeologist,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": "\u00163\n \u0017blessed scroll of genocide\n ri K\n l  , \u0014 \nhhhhk.   "
+    }
+  ]
+}

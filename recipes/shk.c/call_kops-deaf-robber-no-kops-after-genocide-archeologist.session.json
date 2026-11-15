@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of call_kops-no-kops-after-genocide-robbery-by-teleport-archeologist: in another Dlvl 3 general store the Archeologist genocides the Kops, deafens herself with a wished leather drum, picks up a maple wand for sale and teleports out; call_kops() returns at 528-531 without the alarm or the 'no one responds' message, since she is deaf.",
+  "segments": [
+    {
+      "seed": 8810062,
+      "datetime": "20410214120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Archeologist,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": "\u00163\n  \u0017blessed scroll of genocide\n rj K\n \u0017leather drum\nak, \u0014 \nhhhhk.     "
+    }
+  ]
+}
