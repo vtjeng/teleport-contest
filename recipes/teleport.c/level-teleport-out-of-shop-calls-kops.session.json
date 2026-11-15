@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent teleport.c level_tele() witness: a Valkyrie level-teleports in debug mode to Dlvl 2, arrives in a bookstore, steps once, picks up an unpaid scroll and level-teleports to -3. level_tele() sets in_mklev around u_left_shop() (teleport.c 1326-1332); rob_shop() calls call_kops(), and makekops() creates the Kops through makemon() with in_mklev set, which skips only makemon()'s display and message tail. The recipe stops at the Die? prompt after the plummet. The seed, clock, character and input were chosen for this branch.",
+  "segments": [
+    {
+      "seed": 62001,
+      "datetime": "20400711090000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u001b\u00162\n  h, \u0016-3\n     "
+    }
+  ]
+}
