@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c costly_alteration() 790-791 and 813: a debug Valkyrie level-teleports into Pakka Pakka's general store on Dlvl 3 (seed from a port scan of 5520001-5520300 for a ^V arrival in a shop), sells two wished holy waters on a shop square and zaps a wished wand of cancellation down at them: 'You unbless those, you pay for them!' (a stack, 790-791; unblessing makes bknown known, 813). She sells a wished cursed potion of water two squares south, walks back north and zaps south through both piles: 'You uncurse that, you pay for it!'. 822-823 (the hero off a costly square) are not reached: the square she zaps from counts as costly.",
+  "segments": [
+    {
+      "seed": 5520127,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u00163\n  j\u00172 holy water\nde y\u0017wand of cancellation\nzf> j\u0017cursed potion of water\ndg yk k zfj "
+    }
+  ]
+}
