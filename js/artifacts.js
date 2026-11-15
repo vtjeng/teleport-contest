@@ -2449,6 +2449,7 @@ async function invoke_create_portal(obj, state) {
             title: 'Open a portal to which dungeon?',
             items,
             how: PICK_ONE,
+            returnSelections: true,
             cancelValue: null,
         });
         if (!selected || selected.length <= 0) {
