@@ -11,7 +11,7 @@ import {
 } from './const.js';
 import { friday_13th, phase_of_the_moon } from './calendar.js';
 import { see_monsters } from './display.js';
-import { failClosedCommandRefusals } from './cmd.js';
+import { enter_explore_mode, failClosedCommandRefusals } from './cmd.js';
 import { set_wear } from './do_wear.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
@@ -45,7 +45,12 @@ export async function moveloop_preamble(
     state.disp ??= {};
     state.u ??= {};
 
-    // Deferred explore-mode entry is restore-only and belongs with restore.
+    // allmain.c:50-54: a normal save restored with an explore request is
+    // treated as a normal restore followed by the 'X' command, which asks
+    // for confirmation (restore.c restgamestate() sets deferred_X).
+    if (resuming && state.iflags.deferred_X)
+        await enter_explore_mode(state);
+
     state.flags.moonphase = phase_of_the_moon(state);
     if (state.flags.moonphase === FULL_MOON) {
         await ttyPline('You are lucky!  Full moon tonight.', state);

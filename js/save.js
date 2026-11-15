@@ -598,8 +598,6 @@ function serializeGameState(state) {
         // C ref: save.c savegamestate():316 Sfo_q_score(&svq.quest_status).
         quest_status: state.svq.quest_status,
         // Hero identity and timing
-        wizard: state.wizard,
-        discover: state.discover,
         multi: state.multi,
         multi_reason: state.multi_reason,
         // C ref: save.c savegamestate():288 writes ubirthday as the
