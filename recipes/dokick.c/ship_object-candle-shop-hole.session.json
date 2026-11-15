@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dokick.c ship_object() for shop goods kicked down a hole (1696-1712): a gnomish Healer in debug mode builds minetn-7 (#wizloaddes), maps it and teleports into the candle shop's west column. She piles three candles on the middle square, wishes a hole on the west square and kicks candles west from the east square before the shopkeeper's REPAIR_DELAY elapses; the second kick's candle passes rn2(3) and falls, so stolen_value() bills the shop floor object (1699-1705) and its no_charge is cleared.",
+  "segments": [
+    {
+      "seed": 6083315,
+      "datetime": "20360902111500",
+      "nethackrc": "OPTIONS=name:Aelis,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u001b#wizloaddes\nminetn-7\n \u0006\u0014lllllkkkkkkk.\u001b\u001bl l ,  h dk h \u0017hole\n l l \u0004h  \u0004h    "
+    }
+  ]
+}
