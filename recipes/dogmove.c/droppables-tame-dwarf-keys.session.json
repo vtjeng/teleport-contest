@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dogmove.c droppables() 108: a debug Valkyrie drops a wished credit card, lock pick and skeleton key in a pile, steps away and creates a tame dwarf (^G). The dwarf picks up the key and then the lock pick; with the lock pick ahead of the key in its inventory, droppables() returns the lock pick to drop (108), and 'The dwarf drops a lock pick.'",
+  "segments": [
+    {
+      "seed": 5590001,
+      "datetime": "20330522140000",
+      "nethackrc": "OPTIONS=name:Kim,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time\n",
+      "moves": "\u0017credit card\n\u0017lock pick\n\u0017skeleton key\ndedfdgll\u0007tame dwarf\nssssssssssssssssssssssssssssssssssssssss"
+    }
+  ]
+}
