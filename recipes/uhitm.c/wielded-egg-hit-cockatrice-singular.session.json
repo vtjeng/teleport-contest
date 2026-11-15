@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of wielded-eggs-hit-cockatrice-plural: the Valkyrie wishes for one egg, so uhitm.c hmon_hitmon_misc_obj() takes the singular arm of 1232-1233, \"The egg isn't alive any more...\".",
+  "segments": [
+    {
+      "seed": 9035517,
+      "datetime": "20390614083000",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017uncursed egg\nwe\u0007cockatrice\nFb "
+    }
+  ]
+}

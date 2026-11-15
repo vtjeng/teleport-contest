@@ -99,6 +99,10 @@ import {
     u_at,
     H_UTF8,
     PRIMARYSET,
+    MHID_PREFIX,
+    MHID_ARTICLE,
+    MHID_ALTMON,
+    MHID_REGION,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -412,21 +416,23 @@ function menuLines(state) {
 }
 
 // C ref: pager.c mhidden_description() (186-281).  This helper belongs to
-// pager.c even though monster status-line code also consumes it.  `isYou`
-// preserves the source's special treatment of &gy.youmonst: its coordinates,
-// hidden flag, appearance type, and current glyph all come from u rather than
-// from the synthetic monster record used by some callers.
+// pager.c even though monster status-line code also consumes it.
+// `mhid_flags` is C's MHID_* mask; scripts/mhidden-description.test.mjs
+// checks that every caller passes the flags of its C call site.  `isYou`
+// preserves the source's special treatment of &gy.youmonst: its
+// coordinates, hidden flag, appearance type, and current glyph all come
+// from u rather than from the synthetic monster record used by some
+// callers.
 export function mhidden_description(
     monster,
+    mhid_flags,
     state,
-    {
-        includePrefix = true,
-        includeArticle = true,
-        showAlternateMonster = false,
-        forceRegion = false,
-        isYou = monster === state?.youmonst,
-    } = {},
+    { isYou = monster === state?.youmonst } = {},
 ) {
+    const includePrefix = (mhid_flags & MHID_PREFIX) !== 0;
+    const includeArticle = (mhid_flags & MHID_ARTICLE) !== 0;
+    const showAlternateMonster = (mhid_flags & MHID_ALTMON) !== 0;
+    const forceRegion = (mhid_flags & MHID_REGION) !== 0;
     const u = state?.u ?? {};
     const x = isYou ? u.ux : monster.mx;
     const y = isYou ? u.uy : monster.my;
@@ -571,10 +577,10 @@ export function self_lookat(state = game) {
     if (u.uundetected
         || (heroAppearance & M_AP_TYPMASK)
         || visible_region_at(u.ux, u.uy, state)) {
-        description += mhidden_description(heroMonster, state, {
-            isYou: true,
-            forceRegion: true,
-        });
+        description += mhidden_description(
+            heroMonster, MHID_PREFIX | MHID_ARTICLE | MHID_REGION, state,
+            { isYou: true },
+        );
     }
     if (state.uball)
         description += ', chained to ' + ansimpleoname(state.uball, state);
@@ -629,7 +635,9 @@ function look_at_monster(monster, x, y, state, output = null) {
     if (monster.mundetected
         || (monster.m_ap_type & M_AP_TYPMASK)
         || visible_region_at(x, y, state)) {
-        detail += mhidden_description(monster, state, { forceRegion: true });
+        detail += mhidden_description(
+            monster, MHID_PREFIX | MHID_ARTICLE | MHID_REGION, state,
+        );
     }
     if (output) {
         output.monbuf = '';

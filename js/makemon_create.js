@@ -84,6 +84,8 @@ import {
     W_SADDLE,
     IS_WALL,
     ZOO,
+    MHID_ARTICLE,
+    MHID_ALTMON,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { note_unported } from './unported.js';
@@ -653,11 +655,9 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         // (canseemon())`, even though canSeeMonster() is also the first
         // condition's left operand. Furniture and object appearances are the
         // cases where the appearance-type test makes the first arm false.
-        name = upstart(mhidden_description(monster, state, {
-            includePrefix: false,
-            includeArticle: true,
-            showAlternateMonster: true,
-        }));
+        name = upstart(mhidden_description(
+            monster, MHID_ARTICLE | MHID_ALTMON, state,
+        ));
     }
     if (!name) return null;
     // C ref: makemon.c:1483-1484. In C a mimic already wearing another
@@ -2624,6 +2624,13 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const monster = maybeMonster && typeof maybeMonster.then === 'function'
         ? await maybeMonster : maybeMonster;
     if (!monster) return null;
+    // C's one makemon() tests in_mklev itself, so a runtime caller can
+    // reach the level-creation form: teleport.c level_tele() 1326-1332 sets
+    // in_mklev around u_left_shop(), whose robbery reaches shk.c makekops().
+    // With in_mklev set, makemon() has already run the groups and inventory
+    // and skips newsym(), the appearance message and dochugw()
+    // (makemon.c 1472-1506), so nothing is left to continue.
+    if (normalized.state.in_mklev) return monster;
     if (!runtimeContinuation.claimed
         || runtimeContinuation.monster !== monster) {
         throw new Error('makemon runtime continuation was not claimed');

@@ -72,6 +72,9 @@ import {
     LA_DOWN,
     OBJ_FREE,
     OBJ_FLOOR,
+    MHID_PREFIX,
+    MHID_ARTICLE,
+    MHID_REGION,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
@@ -1002,9 +1005,9 @@ export function describeMonster(monster, env = {}) {
             && (monster.mundetected
                 || (monster.m_ap_type & M_AP_TYPMASK)
                 || visible_region_at(monster.mx, monster.my, state))) {
-            text += mhidden_description(monster, state, {
-                forceRegion: true,
-            });
+            text += mhidden_description(
+                monster, MHID_PREFIX | MHID_ARTICLE | MHID_REGION, state,
+            );
         }
     }
     return text;

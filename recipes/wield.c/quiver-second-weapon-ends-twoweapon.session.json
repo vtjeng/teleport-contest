@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wield.c dowieldquiver() witness: a Samurai starts two-weapon combat with X, then readies the short sword, her second weapon, with Q and confirms. untwoweapon() ends two-weapon combat and C prints \"You are no longer using two weapons at once.\" (wield.c 674-675). The seed, clock, character and input were chosen for this branch.",
+  "segments": [
+    {
+      "seed": 4471203,
+      "datetime": "20410327101500",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "XQby "
+    }
+  ]
+}

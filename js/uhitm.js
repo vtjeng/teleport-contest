@@ -167,6 +167,7 @@ import {
     xdir,
     ydir,
     vision_clears,
+    MHID_ALTMON,
 } from './const.js';
 import {
     Adjmonnam,
@@ -799,9 +800,9 @@ export async function flash_hits_mon(
 
     if (M_AP_TYPE(monster) !== M_AP_NOTHING) {
         const oldGlyph = glyph_at(x, y, state);
-        const description = mhidden_description(monster, state, {
-            showAlternateMonster: true,
-        });
+        const description = mhidden_description(
+            monster, MHID_ALTMON, state,
+        );
         await wakeup(monster, false, { ...rawEnv, state, random });
         if (glyph_at(x, y, state) !== oldGlyph) {
             const article = monster.mtame ? ARTICLE_YOUR : ARTICLE_A;
@@ -3109,7 +3110,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             && state.moves - (obj.age ?? 0) > 2 * MAX_EGG_HATCH_TIME;
         if (hmd.mdat && touch_petrifies(hmd.mdat) && !staleEgg) {
             await message(
-                `The egg${count === 1 ? '' : 's'} isn't alive any more...`,
+                `The egg${count === 1 ? '' : 's'} ${count === 1 ? "isn't" : "aren't"} alive any more...`,
                 state,
             );
             if (obj.timed) {

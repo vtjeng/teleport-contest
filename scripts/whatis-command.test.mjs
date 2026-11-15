@@ -47,6 +47,9 @@ import {
     TT_BURIEDBALL,
     WATER,
     LAST_PROP,
+    MHID_PREFIX,
+    MHID_ARTICLE,
+    MHID_REGION,
 } from '../js/const.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
@@ -322,8 +325,12 @@ test('mhidden_description uses the hero state for hidden self coordinates', () =
         },
         level: { at: () => undefined, regions: [] },
     };
+    // self_lookat()'s mask (pager.c 124); the hiding text ignores every flag.
     assert.equal(
-        mhidden_description(state.youmonst, state, { isYou: true }),
+        mhidden_description(
+            state.youmonst, MHID_PREFIX | MHID_ARTICLE | MHID_REGION, state,
+            { isYou: true },
+        ),
         ', hiding',
     );
 });

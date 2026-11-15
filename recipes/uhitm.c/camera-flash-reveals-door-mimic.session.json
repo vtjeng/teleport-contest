@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uhitm.c flash_hits_mon() witness: a Tourist walks beside a doorway, creates eight small mimics with a count before ^G (one takes the doorway and looks like a closed door), and flashes her expensive camera at it. mhidden_description() gets only MHID_ALTMON (uhitm.c 6361), so C prints \"That closed door is really a small mimic!\" with no prefix or article. The seed, clock, character and input were chosen for this branch.",
+  "segments": [
+    {
+      "seed": 72319,
+      "datetime": "20420822193000",
+      "nethackrc": "OPTIONS=name:Mabel,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u001blll8\u0007small mimic\n    all  "
+    }
+  ]
+}

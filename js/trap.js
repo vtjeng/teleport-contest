@@ -1008,8 +1008,14 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     case HOLE:
     case TRAPDOOR:
         hole_destination(trap.dst, env);
+        // trap.c maketrap() 523-527: every hole in a shop schedules a
+        // repair, and one dug into a door or wall by the hero costs
+        // SHOP_HOLE_COST.
         if (in_rooms(x, y, SHOPBASE, state).length)
-            add_damage(x, y, 0, state);
+            add_damage(x, y,
+                (IS_DOOR(location.typ) || IS_WALL(location.typ))
+                    && !state.context?.mon_moving ? SHOP_HOLE_COST : 0,
+                state);
         {
             const exposed = pitTerrain(x, y, env);
             if (exposed && typeof exposed.then === 'function')
