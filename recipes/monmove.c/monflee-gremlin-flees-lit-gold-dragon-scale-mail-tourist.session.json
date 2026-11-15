@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "monmove.c monflee() 507-508: a debug Tourist (whose shirt allows body armor) wishes for and wears gold dragon scale mail, which do_wear.c lights as an artifact_light() source. A ^G gremlin beside the hero sees it, so m_move()'s scare check (monmove.c 560-563, flees_light()) calls monflee(..., fleemsg TRUE); no wielded Sunsword, so the light source is named from uarm via yname(): 'flees from the painful light of your gold dragon scale mail'. ms is used to pass turns next to the known gremlin.",
+  "segments": [
+    {
+      "seed": 6652071,
+      "datetime": "20391122170500",
+      "nethackrc": "OPTIONS=name:Tobias,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017blessed gold dragon scale mail\nWm \u0007gremlin\nmsmsmsms"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of monflee-gremlin-flees-lit-gold-dragon-scale-mail-tourist with a gnome Healer, another seed and map: monflee() 507-508 names the worn gold dragon scale mail as the light a ^G gremlin flees from. A first try with unmodified gold dragon scales on a Valkyrie gave no flee in 16 turns and was dropped.",
+  "segments": [
+    {
+      "seed": 6652388,
+      "datetime": "20400104083000",
+      "nethackrc": "OPTIONS=name:Astrid,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+      "moves": " \u0017gold dragon scale mail\nWk \u0007gremlin\nmsms   "
+    }
+  ]
+}
