@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c mhidden_description() 234-242: a debug Samurai drops a wished small mimic corpse beside his little dog, which eats it and quick-mimics a kitten (dogmove.c quickmimic()). Zapping a wished wand of probing at the dog runs mstatusline(), which calls mhidden_description() with MHID_ALTMON for an M_AP_MONSTER disguise: ', masquerading as a kitten'.",
+  "segments": [
+    {
+      "seed": 6640913,
+      "datetime": "20381019143000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:dog,time",
+      "moves": " \u0017small mimic corpse\ndfj  \u0017wand of probing\nzgk "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of mhidden_description-probed-pet-dog-masquerading-as-kitten: an elven Wizard's kitten eats the dropped small mimic corpse and quick-mimics a little dog; probing it reports 'masquerading as a little dog' (the status names it by its disguise).",
+  "segments": [
+    {
+      "seed": 6641207,
+      "datetime": "20380322090000",
+      "nethackrc": "OPTIONS=name:Mira,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:cat,time",
+      "moves": " \u0017small mimic corpse\ndph  \u0017wand of probing\nzql "
+    }
+  ]
+}
