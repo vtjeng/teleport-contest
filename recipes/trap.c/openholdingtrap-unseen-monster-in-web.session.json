@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "trap.c openholdingtrap() via a wand of opening zapped at a monster: a newt caught in a wished web is made invisible, and opening zapped at it prints 'Something is released from the web' (not canspotmon, but the web's square is seen), then reward_untrap() pacifies it.",
+  "segments": [
+    {
+      "seed": 5113307,
+      "datetime": "20360622104500",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup\n",
+      "moves": "\u001b#ride\nny\u0017wand of opening\n\u0017web\nh\u0017wand of make invisible\nmszjlzils"
+    }
+  ]
+}

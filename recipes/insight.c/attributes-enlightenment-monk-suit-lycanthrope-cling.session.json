@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c attributes_enlightenment() via ^X: a Monk in body armour (tux_penalty) with a +3 ring of increase accuracy reports the partly offset suit penalty; after eating a human werejackal corpse and wearing an amulet of unchanging, the blocked shape change; then, polymorphed into a piercer and sent by wizard-mode 'm ^V' (teleport.c level_tele() levTport_menu) to the Plane of Fire, the ceiling clinger 'could cling to the ceiling if there was one' (dungeon.c has_ceiling() is false in the endgame).",
+  "segments": [
+    {
+      "seed": 6630815,
+      "datetime": "20360520091500",
+      "nethackrc": "OPTIONS=name:Tenzin,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u001b\u0017+0 ring mail\nTbWj\u0017+3 ring of increase accuracy\nPkr\u0017werejackal corpse\ney  \u0017amulet of unchanging\nPm\u0018   Rm#polyself\npiercer\n\u001bm\u0016>>L\u001b\u001b\u001b\u001b\u0018   "
+    }
+  ]
+}

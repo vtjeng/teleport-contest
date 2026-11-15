@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "insight.c show_achievements(): a hero blind from birth (OPTIONS=blind) who has entered the Gnomish Mines and Minetown (wizard-mode 'm ^V' menu) dies, and the end-of-game conduct disclosure lists 'You explored without being able to see' (end.c really_done() records ACH_BLND once an achievement exists).",
+  "segments": [
+    {
+      "seed": 2290417,
+      "datetime": "20361105201500",
+      "nethackrc": "OPTIONS=name:Odile,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,blind\n",
+      "moves": "\u001bm\u0016>w\u001b\u0017wand of death\nzi.  y nny nn"
+    }
+  ]
+}

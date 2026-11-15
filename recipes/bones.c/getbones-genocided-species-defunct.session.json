@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "bones.c getbones(): a bones level holding a monster of a species genocided in the loading game removes it as defunct (mvitals DEFUNCT_MONSTER from getlev(), mongone()).",
+  "segments": [
+    {
+      "seed": 7720413,
+      "datetime": "20360305101500",
+      "nethackrc": "OPTIONS=name:Ossian,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00163\n\u0007lichen\n\u0017wand of death\nzg.  y nnnny  "
+    },
+    {
+      "seed": 7720447,
+      "datetime": "20360307111500",
+      "nethackrc": "OPTIONS=name:Ossian,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed scroll of genocide\nrf  lichen\n\u00163\nyy "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c dodown(): a hero polymorphed into a piercer (ceiling hider) and hidden with #monster presses '>' and drops to the floor: onto a squeaky board, then dotrap(TOOKPLUNGE); onto a wished pool, then pooleffects().",
+  "segments": [
+    {
+      "seed": 4417029,
+      "datetime": "20361210141500",
+      "nethackrc": "OPTIONS=name:Holer,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "lj\u0017squeaky board\n#polyself\npiercer\n\u001b#monster\n>\u001b\u001b\u001bl#monster\n\u0017pool\n\u001b>\u001b"
+    }
+  ]
+}

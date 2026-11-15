@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED by trap.c openholdingtrap(): first mismatch seg 0 step 70 (zero-based), the wand of opening zapped at self. C prints 'You and your pony are released from your anchor.'; the port prints 'released from a your anchor': C's TT_BURIEDBALL case sets which = \"\" so no article is added, and the port supplies 'a '. Inputs: a mounted Knight (forced mount) reads a cursed scroll of punishment, buries the ball with #wizbury (dig.c TT_BURIEDBALL), and zaps opening at self, reaching the TT_BURIEDBALL and steed branches of openholdingtrap().",
+  "segments": [
+    {
+      "seed": 5113307,
+      "datetime": "20360622104500",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup\n",
+      "moves": "\u001b\u0017cursed scroll of punishment\n#ride\nnyri #wizbury\n\u0017wand of opening\nzj.s"
+    }
+  ]
+}
