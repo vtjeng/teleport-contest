@@ -139,6 +139,7 @@ import {
     dodrop, doddrop,
     dowipe,
     doup,
+    save_currentstate,
     u_collide_m,
 } from './do.js';
 import {
@@ -2723,6 +2724,8 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     await flush_screen(1);
     await deliver_splev_message(state);
     await check_special_room(false, state);
+    // cmd.c:1062-1064, under INSURANCE: checkpoint the new level.
+    save_currentstate(state);
     return ECMD_OK;
 }
 

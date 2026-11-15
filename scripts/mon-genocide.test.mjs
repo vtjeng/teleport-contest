@@ -196,7 +196,11 @@ test('the existing post-map callback removes genocided monsters before arrival c
     state.nhDisplay.pushKey(' '.charCodeAt(0));
     await makemap_prepost(false,false,state);
     assert.equal(mon.mhp,0);
-    assert.ok(mon.mstate&MON_DETACH);
+    // cmd.c:1062-1064: the INSURANCE checkpoint's savelev() purges the dead
+    // monster (dmonsfree()), so it has left the level's chain.
+    const chain=[];
+    for(let mtmp=state.level.monlist;mtmp;mtmp=mtmp.nmon)chain.push(mtmp);
+    assert.equal(chain.includes(mon),false);
     assert.equal(m_at(mon.mx,mon.my,state),null);
     assert.equal(state.unported.has('mon.c kill_genocided_monsters'),false);
 });

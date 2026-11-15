@@ -160,11 +160,13 @@ export function saveobjchn(first, state) {
 //
 // When the chain is written (update_file(), 891-894), every priest forgets
 // its temple entry (priest.c forget_temple_entry()), so leaving the level
-// and coming back gives a fresh intone and entry message.
-export function savemonchn(first, state, writing = true) {
+// and coming back gives a fresh intone and entry message. `writing` and
+// `releasing` are C's update_file() and release_data(): an INSURANCE
+// checkpoint (do.c save_currentstate()) writes without releasing.
+export function savemonchn(first, state, { writing = true, releasing = true } = {}) {
     for (let mtmp = first; mtmp; mtmp = mtmp.nmon) {
         if (writing && mtmp.ispriest) forget_temple_entry(mtmp);
-        if (mtmp.minvent) saveobjchn(mtmp.minvent, state);
+        if (releasing && mtmp.minvent) saveobjchn(mtmp.minvent, state);
     }
 }
 
@@ -273,7 +275,7 @@ export function savelev(ledger, state = game, options = {}) {
     // the buried list and gb.billobjs (547), in both the WRITING | FREEING
     // and the FREEING mode. Only their svc.context pointer invalidation
     // remains; see saveobjchn() above.
-    savemonchn(state.level?.monlist, state, !freeing);
+    savemonchn(state.level?.monlist, state, { writing: !freeing });
     saveobjchn(state.level?.objlist, state);
     saveobjchn(state.level?.buriedobjlist, state);
     saveobjchn(state.gb?.billobjs, state);
