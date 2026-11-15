@@ -84,6 +84,8 @@ import {
     W_SADDLE,
     IS_WALL,
     ZOO,
+    MHID_ARTICLE,
+    MHID_ALTMON,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { note_unported } from './unported.js';
@@ -653,11 +655,9 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         // (canseemon())`, even though canSeeMonster() is also the first
         // condition's left operand. Furniture and object appearances are the
         // cases where the appearance-type test makes the first arm false.
-        name = upstart(mhidden_description(monster, state, {
-            includePrefix: false,
-            includeArticle: true,
-            showAlternateMonster: true,
-        }));
+        name = upstart(mhidden_description(
+            monster, MHID_ARTICLE | MHID_ALTMON, state,
+        ));
     }
     if (!name) return null;
     // C ref: makemon.c:1483-1484. In C a mimic already wearing another

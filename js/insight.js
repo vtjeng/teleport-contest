@@ -226,6 +226,10 @@ import {
     WARNING,
     WWALKING,
     ARTICLE_THE,
+    MHID_PREFIX,
+    MHID_ARTICLE,
+    MHID_ALTMON,
+    MHID_REGION,
 } from './const.js';
 import {
     is_pool,
@@ -3056,10 +3060,11 @@ export async function mstatusline(mtmp, state = game) {
     // own, so the port reads it unmasked too.
     if (mtmp.mundetected || mtmp.m_ap_type
         || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
-        info += mhidden_description(mtmp, state, {
-            showAlternateMonster: true,
-            forceRegion: true,
-        });
+        info += mhidden_description(
+            mtmp,
+            MHID_PREFIX | MHID_ARTICLE | MHID_ALTMON | MHID_REGION,
+            state,
+        );
     }
     if (mtmp.mcan)
         info += ', cancelled';
