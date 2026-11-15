@@ -717,7 +717,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
     const pline = (text) => message(text, state);
 
     if (!obj || !obj.owornmask) return;
-    if (state.utotype || !m_next2u(mon, state)) return;
+    if (state.u.utotype || !m_next2u(mon, state)) return;
 
     if (Deaf(state.u)) {
         await pline(`${seducer} takes off your ${str}.`);
@@ -909,7 +909,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                         + `${yname(ring, state)}.`,
                 );
                 await Ring_gone(state.uright, state);
-                if (state.utotype || !m_next2u(mon, state)) return 1;
+                if (state.u.utotype || !m_next2u(mon, state)) return 1;
                 await setworn(ring, RIGHT_RING, { state });
             } else if (state.uleft
                 && state.uleft.otyp !== RIN_ADORNMENT) {
@@ -918,7 +918,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                         + `${yname(ring, state)}.`,
                 );
                 await Ring_gone(state.uleft, state);
-                if (state.utotype || !m_next2u(mon, state)) return 1;
+                if (state.u.utotype || !m_next2u(mon, state)) return 1;
                 await setworn(ring, LEFT_RING, { state });
             } else {
                 note_unported('pline.c impossible');
@@ -960,7 +960,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         await mayberem(mon, who, state.uarmu, 'shirt', state, effectEnv);
     }
 
-    if (state.utotype || !m_next2u(mon, state)) return 1;
+    if (state.u.utotype || !m_next2u(mon, state)) return 1;
     if (state.uarm || state.uarmc) {
         if (!Deaf(state.u)) {
             // mhitu.c's ld() compares the fixed date's MMDD remainder with

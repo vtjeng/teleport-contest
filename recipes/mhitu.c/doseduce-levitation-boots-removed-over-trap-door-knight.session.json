@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mhitu.c recipe: a female Knight in debug mode wears wished levitation boots, wishes a trap door under herself and creates a hostile incubus. doseduce() asks to remove her mail (n) and boots (y); losing levitation drops her through the trap door, which schedules a level change, so mayberem() returns early for her gloves, shield and helmet (mhitu.c 2319-2320) and doseduce() returns before the encounter (2136-2137).",
+  "segments": [
+    {
+      "seed": 6640021,
+      "datetime": "20610922161500",
+      "nethackrc": "OPTIONS=name:Ines,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "j\u0017levitation boots\n\u001bWi\u001b\u001b\u001b\u0017trap door\n\u001b\u0007hostile incubus\n\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bny\u001b\u001b\u001bs"
+    }
+  ]
+}
