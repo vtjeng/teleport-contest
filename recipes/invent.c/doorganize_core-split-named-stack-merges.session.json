@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c doorganize_core() 5238-5240 and 5243-5245: a debug Rogue wishes for 4 rocks named Snick and 4 rocks named Snack (different names keep the stacks apart), then #adjust splits 1 from the Snick stack onto the Snack letter. The split rock loses its name, which makes it mergable, so the name is discarded and it merges: 'Splitting and merging: j - 5 rocks named Snack.' 5124 needs an inventory item with the overflow letter '#', which a wish or pickup into a full 52-letter inventory does not give (the wished item drops to the floor); not covered here.",
+  "segments": [
+    {
+      "seed": 7302801,
+      "datetime": "20391130194500",
+      "nethackrc": "OPTIONS=name:Sorter,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,time,!tips,pettype:none\n",
+      "moves": "\u001b\u0017uncursed 4 rocks named Snick\n\u0017uncursed 4 rocks named Snack\n#adjust\n1ij"
+    }
+  ]
+}
