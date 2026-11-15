@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5510725,
+      "datetime": "20350612084512",
+      "nethackrc": "OPTIONS=name:Fruity,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,suppress_alert:3.4.3,fruit:nemesis\n",
+      "moves": " \u0017uncursed scroll of genocide\n\u001b\u001bre\n\nnewt\n\u001b\u001b\u0017tin of newt\n\u001b\u001b\u00174 very large globs of gray ooze\nn\u001b\u001bOalarva\n\u001b\u00172 larva\n\u001b\u001bOagateau\n\u001b\u00172 gateau\n\u001b\u001bOamatzoh\n\u001b\u00172 matzoh\n\u001b\u001bOamatzo\n\u001b\u00172 matzo\n\u001b\u001bOacodex\n\u001b\u00172 codex\n\u001b\u001bOanerf\n\u001b\u00172 nerf\n\u001b\u001bOaIt\n\u001b\u00172 It\n\u001b\u001bOahim\n\u001b\u00172 him\n\u001b\u001bOaher\n\u001b\u00172 her\n\u001b\u001bOafoxes\n\u001b\u00172 foxes\n\u001b\u001bOawatchmen\n\u001b\u00172 watchmen\n\u001b\u001bOaalgae\n\u001b\u00172 algae\n\u001b\u001bOabacteria\n\u001b\u00172 bacteria\n\u001b\u001bOamatzot\n\u001b\u00172 matzot\n\u001b\u001bOagateaux\n\u001b\u00172 gateaux\n\u001b\u001bOalotus\n\u001b\u00172 lotus\n\u001b\u001b\u0017they\n\u001b\u001b\u0017Them\n\u001b\u001b\u0017their\n\u001b\u001b\u0017nerves\n\u001b\u001b\u0017ruby stone\n\u001b\u001b"
+    }
+  ],
+  "comment": "Independent objnam.c makeplural()/makesingular() and readobjnam() wish-parsing probe. Debug-mode Valkyrie renames the fruit through the O menu (fruit option) to larva, gateau, matzoh, matzo, codex, nerf, It, him, her, foxes, watchmen, algae, bacteria, matzot, gateaux and lotus, wishing for two of each so xname() pluralizes the name and readobjnam() singularizes the wish; then wishes for the pronouns they/Them/their and nerves (makesingular pronoun and cloves/nerves branches), 'ruby stone' (readobjnam_postparse2 ' stone' suffix), four very large globs (glob weight cap, declined override), and a tin of a genocided newt (readobjnam dead_species tin)."
+}
