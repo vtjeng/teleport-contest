@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c cry_sound() 638-640, from timeout.c hatch_egg() 1115-1122: a debug Valkyrie wishes for a crocodile egg and a blessed lump of royal jelly, rubs it on the egg (apply.c use_royal_jelly() sets spe 2, so the hatchling is 'yours'), turns into a xorn and hides in the rock beside the room, then fights what reaches her and searches until the egg hatches in her pack. A baby crocodile is MS_CHIRP: 'Its chirping sounds like \"mommy.\"'",
+  "segments": [
+    {
+      "seed": 7759031,
+      "datetime": "20390308140000",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017crocodile egg\n\u0017blessed lump of royal jelly\nafe#polyself\nxorn\nhhh20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s 20s20s20s 20s20s20s 20s20s 20s20s20s20s 20s20s 20s 20sFu FnFu20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s20s  "
+    }
+  ]
+}
