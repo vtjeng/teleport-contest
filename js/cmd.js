@@ -2045,8 +2045,6 @@ export function cmdq_add_ec(q, entry, state = game) {
 // with a string.
 export function cmdq_add_key(q, key, state = game) {
     const code = typeof key === 'string' ? key.charCodeAt(0) : key;
-    if (!Number.isInteger(code))
-        throw new TypeError(`cmdq_add_key() takes a key, not ${String(key)}`);
     commandQueue(state)[q].push({ typ: CMDQ_KEY, key: code });
 }
 

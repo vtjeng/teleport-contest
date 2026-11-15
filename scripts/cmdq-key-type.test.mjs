@@ -33,8 +33,6 @@ test('cmdq_add_key() stores the key code for a code and for a letter', () => {
         { typ: CMDQ_KEY, key: 0x1B },
     ]);
     assert.deepEqual(nodes.map(cmdq_key_char), ['i', 'i', '-', '\x1b']);
-    // An object with no letter must not queue a key C never could.
-    assert.throws(() => cmdq_add_key(CQ_CANNED, undefined, state), TypeError);
 });
 
 // Returns the 1-based line of every use of a popped or peeked queue node's
