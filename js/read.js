@@ -3186,9 +3186,11 @@ async function seffect_mail(scroll, state = game, env = {}) {
         // comes from that program and the host's mailbox, and when the
         // program is missing the child runs nh_terminate() itself. The
         // parent's unixunix.c child(1) then raw_print()s "" and waits for a
-        // key before resume_nhwindows(). A local recording (2026-11-14,
-        // /bin/mail absent) showed two blank screens and the next turn's RNG
-        // after the second key, which the judge's host need not reproduce.
+        // key before resume_nhwindows(). The blocked recipe
+        // recipes/mail.c/readmail-killed-mail-daemon.session.json shows the
+        // dependence: with /bin/mail absent, repeated recordings disagree with
+        // one another just after the read; with MAILREADER=/bin/true or
+        // /bin/echo they agree and the map returns after one key.
         note_unported('mail.c readmail');
         break;
     }

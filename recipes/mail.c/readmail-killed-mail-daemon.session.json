@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked by mail.c readmail(), whose output depends on the recording host. Debug mode's ^G makes a mail daemon, #wizkill kills it through xkilled() without XKILL_NOCORPSE, and mon.c xkilled():3578-3579 drops a stamped scroll with spe 0; reading it reaches read.c seffect_mail():2177-2178, which calls readmail(). readmail() forks and execs MAILREADER or DEF_MAILREADER, then unixunix.c child(1) waits for a key before resume_nhwindows(). Recorded 2026-11-16 on Linux: with /bin/mail absent, repeated runs disagree with one another within a few keys of the read (steps 35 and 39 in two pairs of runs); with MAILREADER=/bin/true or /bin/echo, runs agree and the screen returns after one key. Keep this recipe out of recordings/ until the judge's mail reader is known.",
+  "segments": [
+    {
+      "seed": 51840277,
+      "datetime": "20690822191500",
+      "nethackrc": "OPTIONS=name:MailReader,role:Priest,race:human,gender:female,align:lawful,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!tips\n",
+      "moves": "\u0007mail daemon\n#wizkill\nm.\u001bn ,a\nray     s s s"
+    }
+  ]
+}

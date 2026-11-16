@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of polymon-stuck-mimic-becomes-small-mimic with a new seed and clock and a non-mimic target: polymon() still calls unmul(\"\") for the stuck hero and then also clears the appearance in the non-mimic branch at 779-783.",
+  "segments": [
+    {
+      "seed": 73105541,
+      "datetime": "20740918063000",
+      "nethackrc": "OPTIONS=name:StuckMimicPoly,role:Caveman,race:human,gender:male,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017ring of polymorph control\nPar\u0017blessed tin opener\nwb\u0017blessed tin of small mimic meat\nj\u0017polymorph trap\n#wizintrinsic\n6q\n ec y     newt\n     sss:"
+    }
+  ]
+}

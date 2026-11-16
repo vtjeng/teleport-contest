@@ -139,8 +139,12 @@ test('polymon preserves its C return and post-form branch order', () => {
     assert.doesNotMatch(js,
         /note_unported\('dig\.c buried_ball_to_freedom'\)/u);
     assert.match(js, /return 0;[\s\S]*?return 1;/u);
+    // polyself.c:776-778 tests only the hero's current form; the new form
+    // takes no part, so a stuck non-mimic that becomes a mimic still stops.
+    assert.match(c,
+        /if \(gm\.multi < 0 && U_AP_TYPE == M_AP_OBJECT\s*&& gy\.youmonst\.data->mlet != S_MIMIC\)\s*unmul\(""\);/u);
     assert.match(js,
-        /if \(state\.multi < 0 && M_AP_TYPE\(state\.youmonst\) === M_AP_OBJECT\s*&& state\.youmonst\.data\.mlet !== M\.S_MIMIC\s*&& mdat\.mlet !== M\.S_MIMIC\)\s*\{\s*await unmul/u);
+        /if \(state\.multi < 0 && M_AP_TYPE\(state\.youmonst\) === M_AP_OBJECT\s*&& state\.youmonst\.data\.mlet !== M\.S_MIMIC\)\s*\{\s*await unmul\(''/u);
     assert.match(YOU_PROP_H,
         /#define Swimming[\s\S]*?HSwimming \|\| ESwimming \|\| \(u\.usteed && is_swimmer\(u\.usteed->data\)\)/u);
     assert.match(YOU_PROP_H,
