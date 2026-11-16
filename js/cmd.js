@@ -319,7 +319,10 @@ import { enhance_weapon_skill } from './weapon.js';
 import {
     displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
-import { add_menu_heading, getlin, select_menu } from './windows.js';
+import {
+    add_menu_heading, getlin, nhwindows_hangup, select_menu, windowprocs_hup,
+} from './windows.js';
+import { tty_exit_nhwindows } from './wintty.js';
 import { pmatchi } from './strutil.js';
 import { deliver_splev_message } from './questpgr.js';
 import {
@@ -688,10 +691,10 @@ async function readchar_core(x, y, mod, state = game) {
         }
 
         if (eof) {
-            // HANGUPHANDLING is defined (include/global.h:278). hangup() sets
-            // done_hup and, with a game worth saving, returns; tty's
-            // HUPSKIP_RESULT() and rhack()'s done_hup test, which would then
-            // end the game, are not ported.
+            // HANGUPHANDLING is defined (include/global.h:278). hangup()
+            // swaps in the no-op window procedures, sets done_hup and, with a
+            // game worth saving, returns; moveloop_core() or rhack() then
+            // calls end_of_input().
             await hangup(0, state);
             sym = ESC;
         } else if (sym === ESC && state.iflags.altmeta
@@ -878,9 +881,10 @@ export async function yn_function(
         // menu-capable path as an ordinary prompt, after its marker is popped.
         const menuResult = await yn_function_menu(
             query, resp, def, state, sharedResp);
-        res = menuResult === null
-            ? await tty_yn_function(query, resp, def, state)
-            : menuResult;
+        if (menuResult !== null) res = menuResult;
+        // windows.c hup_yn_function(): the default, or ESC without one.
+        else if (windowprocs_hup(state)) res = def && def !== '\0' ? def : '\x1b';
+        else res = await tty_yn_function(query, resp, def, state);
     }
     // The queue keeps the key code that the port's other producers push.
     if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res.charCodeAt(0), state);
@@ -1940,32 +1944,37 @@ export async function parse(state = game) {
     }
 }
 
-// C ref: cmd.c hangup() (5159-5185). The terminal hangup swap has no browser
-// equivalent; the saved flags and deferred-save decision remain observable.
-// The recorder sends no SIGHUP, so its one caller is readchar_core(), after
-// 0377 has arrived through pgetchar() more than NR_OF_EOFS times running.
+// C ref: cmd.c hangup() (5159-5180). The recorder sends no SIGHUP, so its
+// one caller is readchar_core(), after 0377 has arrived through pgetchar()
+// more than NR_OF_EOFS times running.
 export async function hangup(_sig = 0, state = game) {
     state.program_state ??= {};
     if (state.program_state.exiting) state.program_state.in_moveloop = 0;
+    nhwindows_hangup(state);
     state.program_state.done_hup = (state.program_state.done_hup ?? 0) + 1;
     if (state.program_state.in_moveloop
         && state.program_state.something_worth_saving) return;
     await end_of_input(state);
 }
 
-// C ref: cmd.c end_of_input() (5188-5212), which ends in nh_terminate() and
-// does not return. Sound shutdown, exit_nhwindows() and clearlocks() have no
-// stateful browser implementation. hangup() is its one caller: replay input
-// that runs out ends the segment without it (js/jsmain.js playSegment()).
+// C ref: cmd.c end_of_input() (5182-5209), which ends in nh_terminate() and
+// does not return. Its callers are hangup(), moveloop_core() and rhack();
+// replay input that runs out ends the segment without it (js/jsmain.js
+// playSegment()). NOSAVEONHANGUP is not defined and SAFERHANGUP is, so a game
+// worth saving is saved. The recorder links no sound library, so
+// soundprocs.sound_exit_nhsound is null. clearlocks() removes lock files only.
 export async function end_of_input(state = game) {
     state.program_state ??= {};
+    state.iflags ??= {};
     if (In_tutorial(state.u?.uz, state))
         state.program_state.something_worth_saving = 0;
-    if (state.program_state.something_worth_saving
-        && !state.program_state.done_hup_saved) {
+    if (state.program_state.something_worth_saving)
         await dosave0(state);
-        state.program_state.done_hup_saved = true;
-    }
+    // exit_nhwindows() reaches hup_exit_nhwindows(), which runs the tty's
+    // tty_exit_nhwindows() with no farewell (windows.c:643-654).
+    // An omitted window_inited stands for the initialized window (see
+    // cmd.js:757).
+    if (state.iflags.window_inited !== false) tty_exit_nhwindows(null, state);
     await nh_terminate(state);
 }
 
@@ -5375,6 +5384,10 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
     let newLogicalCommand = !firstTime && !selectedPrefixEntry;
     let retryableBoundary = false;
     try {
+        // C ref: rhack():3637-3640. SAFERHANGUP is defined, so got_prefix_input
+        // ends the game here once a hangup is pending; the prefix loop below
+        // repeats the test.
+        if (state.program_state?.done_hup) await end_of_input(state);
         // C ref: rhack():3642-3657. The queue is consulted first, ahead of
         // both the pending-command retry and any key read, and `firsttime`
         // was captured before it. A CMDQ_EXTCMD node jumps straight to the
@@ -5470,6 +5483,8 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // cleared, so `Fm` and `mF` both leave the CMD_M_PREFIX rule in
             // force for the command that follows.
             if (command === 'reqmenu') wasMPrefix = true;
+            // got_prefix_input, rhack():3637-3640.
+            if (state.program_state?.done_hup) await end_of_input(state);
             const queuedAfterPrefix = cmdq_pop(state);
             let commandAfterPrefix = null;
             if (queuedAfterPrefix) {

@@ -84,3 +84,35 @@ test('serialize matches the frozen method when no edge space is visible',
          }
          assert.equal(disp.serialize(), frozen.serialize());
      });
+
+test('after hangup() every GameDisplay write leaves the screen as it was', () => {
+    // windows.c nhwindows_hangup() swaps in hup_procs, whose output routines
+    // draw nothing. Every terminal write in js/ goes through these methods
+    // (none reaches display.terminal directly), so each must be a no-op.
+    const disp = display();
+    // A top-line prompt and a map cursor at (9,5) stand for the screen
+    // getpos() leaves when the hangup arrives; any visible cell and any
+    // cursor away from (0,0) would serve.
+    put(disp, 0, 0, 'Pick a monster', CLR_GRAY, 0);
+    disp.setCursor(9, 5);
+    const before = disp.serialize();
+    disp.hangup();
+    // One call per mutator; the coordinates and text are arbitrary values
+    // that would each change the screen or the cursor before the hangup.
+    disp.clearScreen();
+    disp.clearRow(0);
+    disp.setCell(0, 0, 'X', CLR_RED, ATR_BOLD);
+    disp.putstr(0, 1, 'text', CLR_RED, 0);
+    disp.putstr_message('message');
+    disp.setCursor(0, 0);
+    disp.moveCursor(1, 1);
+    disp.cursorCol = 3;
+    disp.cursorRow = 3;
+    disp.clearToEol();
+    disp.putString('abc');
+    disp.putCharAtCursor('z');
+    disp.putChar(2, 2, 'q', 0);
+    disp.scrollUp();
+    assert.equal(disp.serialize(), before);
+    assert.deepEqual([disp.cursorCol, disp.cursorRow], [9, 5]);
+});

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30577,
+      "datetime": "20350927173000",
+      "nethackrc": "OPTIONS=name:Ashen,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0,playmode:debug\n",
+      "moves": "\u0017blessed spellbook of drain life\n\u00172 blessed potions of gain energy\nqqqqrp Zc. n\u0001 y \u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff"
+    }
+  ],
+  "comment": "cmd.c hangup() witness for its direct end_of_input() call (5175-5179). In debug mode an elven Wizard learns drain life from a wished blessed spellbook, drinks two wished blessed potions of gain energy, and casts the spell at himself; 'n' refuses the 'Die?' question. ^A repeats the cast, and this time 'y' accepts death, so really_done() runs while do_repeat() still has in_doagain set and has already cleared something_worth_saving (end.c:1148). The disclosure prompt reads its answer through readchar() (win/tty/topl.c tty_yn_function()), which takes pgetchar() under in_doagain, so the 0377 bytes reach hangup(); with nothing worth saving it calls end_of_input() at once, which saves nothing and ends the program."
+}

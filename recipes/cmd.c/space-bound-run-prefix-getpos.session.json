@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 81264,
+      "datetime": "20350118094500",
+      "nethackrc": "OPTIONS=name:Spacer,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0\nBIND=<space>:run\nBIND=G:wait\n",
+      "moves": ";.; l.G"
+    }
+  ],
+  "comment": "cmd.c cmd_from_func() witness for its last-resort <space> arm (3062-3064). The rc file binds <space> to the run prefix and rebinds G, run's only key, to #wait. getpos() asks cmd_from_func(do_run) for every key it reads (getpos.c:898), and with no other key bound to run the answer is ' '. Farlook picks the hero with '.', then a second farlook reads <space> as the run prefix, so the following 'l' moves the cursor in getpos()'s rush-and-run steps before '.' picks that spot. G then waits a turn."
+}

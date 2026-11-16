@@ -27,6 +27,23 @@ import {
     NO_COLOR,
 } from './terminal.js';
 
+// C ref: windows.c nhwindows_hangup() (614-640): switch to the no-op
+// hup_procs interface. ALTMETA is defined, so ESC no longer waits for a
+// second key. The tty's exit routine and getmsghistory() stay reachable:
+// js/cmd.js end_of_input() still calls tty_exit_nhwindows(), and the
+// message history the save writes is the tty's, unchanged since the swap
+// because vpline() returns early once done_hup is set.
+export function nhwindows_hangup(state = game) {
+    state.iflags ??= {};
+    state.iflags.altmeta = false;
+    state.nhDisplay?.hangup();
+}
+
+// True once nhwindows_hangup() has swapped in hup_procs.
+export function windowprocs_hup(state = game) {
+    return Boolean(state.nhDisplay?.windowprocsHup);
+}
+
 // C ref: decl.c hexdd[]. Each hexadecimal digit appears in lower and upper
 // case, so decode_glyph() halves a digit's index to get its value.
 const hexdd = '00112233445566778899aAbBcCdDeEfF';

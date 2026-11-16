@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40917,
+      "datetime": "20350304101530",
+      "nethackrc": "OPTIONS=name:Hangup,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0\n",
+      "moves": ";.\u0001\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff"
+    },
+    {
+      "seed": 71523,
+      "datetime": "20350305083000",
+      "nethackrc": "OPTIONS=name:Hangup,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0\n",
+      "moves": "\u0010\u0010\u0010:"
+    }
+  ],
+  "comment": "cmd.c hangup() and end_of_input() witness. ^A repeats the farlook command, so getpos() reads its next key through pgetchar() with gi.in_doagain set. pgetchar() returns a signed char, so byte 0377 equals EOF; the NR_OF_EOFS loop reads twenty more 0377 bytes, and readchar_core() calls hangup(0). With a game in progress, hangup() swaps in the hangup window procedures, sets done_hup and returns. getpos() sees ESC, and the next moveloop_core() calls end_of_input() (allmain.c:182-183), which saves the game and exits without drawing anything. A second segment restores that save; ^P three times recalls the messages saved with it, and : looks at the hero's square."
+}
