@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c noneoftheabove(): the spelling (polymorphed) is a catch-all text rule for a polymorphed hero's title, so the jackal's title is green.",
+  "segments": [
+    {
+      "seed": 5120447,
+      "datetime": "20260214171500",
+      "nethackrc": "OPTIONS=name:Ula,role:Priest,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color\nOPTIONS=statushilites:3,hilite_status:title/(polymorphed)/green\n",
+      "moves": "#polyself\njackal\ns"
+    }
+  ]
+}
