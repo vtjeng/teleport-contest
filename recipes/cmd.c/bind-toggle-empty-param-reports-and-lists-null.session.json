@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c bind_key 2700-2705 and get_changed_key_binds 2253-2257: binding toggle with an empty parameter from the options menu prints config_error_add's \"Required parameter cannot be empty.\" (cfgfiles.c config_erradd 1557-1563) before \"Bound key\", leaves bind->param NULL, and 'view changed key binds' prints it with %s as \"BIND=~:toggle((null))\". Seed and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 51150504,
+      "datetime": "20570214091530",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n      h\na~:toggle:\n\n c \u001b\u001b."
+    }
+  ]
+}

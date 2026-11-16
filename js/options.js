@@ -807,7 +807,7 @@ function configErrorAdd(result, message) {
 // the 'O' command can run, so the message carries no "config_error_add: "
 // prefix, gains a period unless it already ends in one of the three
 // punctuation marks, and is followed by wait_synch().
-async function plineConfigErrors(state, messages) {
+export async function plineConfigErrors(state, messages) {
     if (!messages.length) return;
     const { tty_wait_synch } = await import('./tty_rawprint.js');
     for (const message of messages) {
