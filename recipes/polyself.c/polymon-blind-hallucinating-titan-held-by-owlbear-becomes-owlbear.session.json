@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c recipe: a female elven Wizard in debug mode polymorphs into a titan, is grabbed by a hostile owlbear, quaffs blessed monster detection and hallucination and puts on her blindfold, then polymorphs into an owlbear. The owlbear is sensed but not seen, so polymon() names it afresh with canspotmon() (polyself.c 946-947): 'The <random name> loses its grip on you.'",
+  "segments": [
+    {
+      "seed": 8102244,
+      "datetime": "20610505200000",
+      "nethackrc": "OPTIONS=name:Vela,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,time\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b#polyself\ntitan\n\u001b\u001b\u001b\u0007hostile owlbear\n\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001b\u0017blessed potion of monster detection\n\u001bqq\u001b\u001b\u001b\u0017potion of hallucination\n\u001bqr\u001b\u001b\u001bPo\u001b\u001b\u001b#polyself\nowlbear\n\n\n\n"
+    }
+  ]
+}

@@ -240,7 +240,7 @@ import { mapseen_room } from './dungeon.js';
 import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
 import { paranoid_query, xytodir } from './cmd.js';
-import { dismount_steed, Punished } from './steed.js';
+import { dismount_steed } from './steed.js';
 import { dist2, highc, ing_suffix, s_suffix, sgn, strstri } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
@@ -696,7 +696,7 @@ import {
     Maybe_Half_Phys, Protection_from_shape_changers, See_invisible,
     Shock_resistance, Sick, Sick_resistance, Sleep_resistance, Slimed,
     Slow_digestion, Stone_resistance, Stoned, Stunned, Teleport_control,
-    Unchanging,
+    Unchanging, Punished,
 } from './youprop.js';
 
 

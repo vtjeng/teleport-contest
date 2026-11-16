@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation: a Valkyrie wishes for '+2 eggs' (generic, laid-by-you flag set) and throws one west into the room wall, where it splatters; ^X reports zero luck.",
+  "segments": [
+    {
+      "seed": 4471906,
+      "datetime": "20620303151500",
+      "nethackrc": "OPTIONS=name:Runa,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b\u0017+2 eggs\n\u001bteh\u001b\u001b\u001b\u0018 "
+    }
+  ]
+}

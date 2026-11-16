@@ -249,7 +249,7 @@ import { enexto, teleds } from './teleport.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_quest_artifact } from './questpgr.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
-import { dismount_steed, Punished } from './steed.js';
+import { dismount_steed } from './steed.js';
 import { messageAt } from './startup_a11y.js';
 import {
     t_at,
@@ -326,7 +326,7 @@ import {
     HHallucination, HMagical_breathing, HProtection, HShock_resistance, HStun,
     Half_physical_damage, Hallucination, Invis, Maybe_Half_Phys,
     Protection_from_shape_changers, Reflecting, See_invisible, Sick,
-    Slow_digestion, Stone_resistance, Unaware,
+    Slow_digestion, Stone_resistance, Unaware, Punished,
 } from './youprop.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
@@ -717,7 +717,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
     const pline = (text) => message(text, state);
 
     if (!obj || !obj.owornmask) return;
-    if (state.utotype || !m_next2u(mon, state)) return;
+    if (state.u.utotype || !m_next2u(mon, state)) return;
 
     if (Deaf(state.u)) {
         await pline(`${seducer} takes off your ${str}.`);
@@ -909,7 +909,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                         + `${yname(ring, state)}.`,
                 );
                 await Ring_gone(state.uright, state);
-                if (state.utotype || !m_next2u(mon, state)) return 1;
+                if (state.u.utotype || !m_next2u(mon, state)) return 1;
                 await setworn(ring, RIGHT_RING, { state });
             } else if (state.uleft
                 && state.uleft.otyp !== RIN_ADORNMENT) {
@@ -918,7 +918,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                         + `${yname(ring, state)}.`,
                 );
                 await Ring_gone(state.uleft, state);
-                if (state.utotype || !m_next2u(mon, state)) return 1;
+                if (state.u.utotype || !m_next2u(mon, state)) return 1;
                 await setworn(ring, LEFT_RING, { state });
             } else {
                 note_unported('pline.c impossible');
@@ -960,7 +960,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         await mayberem(mon, who, state.uarmu, 'shirt', state, effectEnv);
     }
 
-    if (state.utotype || !m_next2u(mon, state)) return 1;
+    if (state.u.utotype || !m_next2u(mon, state)) return 1;
     if (state.uarm || state.uarmc) {
         if (!Deaf(state.u)) {
             // mhitu.c's ld() compares the fixed date's MMDD remainder with

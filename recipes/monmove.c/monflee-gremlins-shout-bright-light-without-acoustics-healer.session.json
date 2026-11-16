@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent monmove.c recipe: a human Healer in debug mode, with the acoustics option off, wears wished gold dragon scale mail and creates six gremlins beside him. Each gremlin that flees the light reaches monflee() 499-515; one in ten verbalizes \"Bright light!\" (513-514), which pline.c verbalize() prints whatever the acoustics option says.",
+  "segments": [
+    {
+      "seed": 5120907,
+      "datetime": "20610214191500",
+      "nethackrc": "OPTIONS=name:Brann,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b\u0017gold dragon scale mail\n\u001bWm\u001b\u001b\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001bms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\n"
+    }
+  ]
+}

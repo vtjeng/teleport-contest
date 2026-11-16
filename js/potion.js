@@ -314,7 +314,7 @@ import {
     Infravision, Invis, Levitation, Maybe_Half_Phys, PermaBlind,
     Poison_resistance, Protection_from_shape_changers, See_invisible, Sick,
     Sick_resistance, Sleep_resistance, Slimed, Stoned, Strangled, Unaware,
-    Unchanging, Very_fast, Vomiting, Wounded_legs,
+    Unchanging, Very_fast, Vomiting, Wounded_legs, Half_gas_damage,
 } from './youprop.js';
 
 // potion.c keeps this file-static because dodrink(), dodip() and dip_into()
@@ -2251,14 +2251,6 @@ export async function toggle_blindness(state = game, env = {}) {
 
 
 
-
-// C ref: youprop.h:405 Half_gas_damage, "wrap it round your head to ward off
-// noxious fumes [we require it to be damp or wet]". It is the one property
-// here with no u.uprops slot: a worn towel with charges left, and nothing else.
-function Half_gas_damage(state) {
-    return Boolean(state.ublindf && state.ublindf.otyp === TOWEL
-        && state.ublindf.spe > 0);
-}
 
 // C ref: potion.c bottlenames[] (1478-1479) and hbottlenames[] (1480-1485).
 const bottlenames = [

@@ -302,14 +302,21 @@ test('dog_nutrition scales a whole mimic corpse for every pet size', () => {
 });
 
 test('dog_nutrition handles coin and unusual object nutrition', () => {
+    // dogmove.c:197-212: coins and unusual objects get no size factor and
+    // no partly-eaten scaling; those apply to FOOD_CLASS only (172-195).
+    // The pet is the small little dog quickState() builds, whose size
+    // factor would be 6.
     const { monster, state } = quickState(false);
+    // 4000 coins: nutrition 4000 / 20 = 200, meating 4000 / 2000 + 1 = 3.
     assert.equal(dog_nutrition(monster, {
         oclass: COIN_CLASS, otyp: TRIPE_RATION, quan: 4000,
-    }, state), 1200);
+    }, state), 200);
     assert.equal(monster.meating, 3);
+    // An unusual object: 5 * oc_nutrition, meating 25 / 20 + 1 = 2. The
+    // oeaten value would halve a food item's nutrition; it is ignored here.
     assert.equal(dog_nutrition(monster, {
-        oclass: WEAPON_CLASS, otyp: TRIPE_RATION, owt: 25,
-    }, state), state.objects[TRIPE_RATION].oc_nutrition * 5 * 6);
+        oclass: WEAPON_CLASS, otyp: TRIPE_RATION, owt: 25, oeaten: 1,
+    }, state), state.objects[TRIPE_RATION].oc_nutrition * 5);
     assert.equal(monster.meating, 2);
 });
 

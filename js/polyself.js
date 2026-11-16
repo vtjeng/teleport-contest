@@ -268,7 +268,7 @@ import { were_beastie, were_summon } from './were.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
-import { canseemon } from './display.js';
+import { canseemon, canspotmon } from './display.js';
 import {
     Blind, Confusion, EFlying, ELevitation, Flying, Free_action, HFlying,
     HLevitation, Hallucination, Invis, Levitation, Passes_walls,
@@ -1069,7 +1069,9 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
                 && !is_whirly(engulfer.data))) {
             let expulsionMessage = true;
             if (unsolid(state.youmonst.data)) {
-                if (canseemon(engulfer, state))
+                // C ref: polyself.c:924. canspotmon(), not canseemon(): a
+                // holder the hero only senses is named too.
+                if (canspotmon(engulfer, state))
                     ustuckName = Monnam(engulfer, state, env);
                 await message(`${ustuckName} can no longer contain you.`,
                     state, env);
@@ -1085,7 +1087,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         }
     } else if (u.ustuck && !sticking
         && (sticks(state.youmonst.data) || unsolid(state.youmonst.data))) {
-        if (canseemon(u.ustuck, state))
+        // C ref: polyself.c:946. canspotmon(), as at 924.
+        if (canspotmon(u.ustuck, state))
             ustuckName = Monnam(u.ustuck, state, env);
         set_ustuck(null, state);
         await message(`${ustuckName} loses its grip on you.`, state, env);

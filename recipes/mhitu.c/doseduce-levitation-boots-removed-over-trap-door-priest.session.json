@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation: a male Priest with low Charisma and a hostile succubus. The succubus takes off his robe and boots without asking; the fall through the wished trap door again ends doseduce() at mhitu.c 2136-2137 before the encounter.",
+  "segments": [
+    {
+      "seed": 7713408,
+      "datetime": "20620117084500",
+      "nethackrc": "OPTIONS=name:Oren,role:Priest,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "k\u0017uncursed levitation boots\n\u001bWi\u001b\u001b\u001b\u0017trap door\n\u001b\u0007hostile succubus\n\u001bms\u001b\u001bms\u001b\u001bs"
+    }
+  ]
+}

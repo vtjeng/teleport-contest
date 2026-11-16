@@ -66,7 +66,8 @@ export const ROUTED_PROPERTIES = Object.freeze([
 ]);
 
 // youprop.h macros that read no u.uprops[] slot.
-export const ROUTED_PSEUDO_MACROS = Object.freeze(['Unaware', 'Maybe_Half_Phys']);
+export const ROUTED_PSEUDO_MACROS = Object.freeze(['Unaware', 'Maybe_Half_Phys',
+    'Punished', 'Underwater', 'Hate_silver', 'Half_gas_damage']);
 
 // Each entry allows the findings in `file` whose source line contains
 // `text`. `reason` says why the line is not a property test.

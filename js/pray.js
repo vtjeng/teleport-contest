@@ -342,14 +342,13 @@ import { note_unported } from './unported.js';
 import { punish, unpunish } from './read.js';
 import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
-import { Punished } from './steed.js';
 import {
     Antimagic, Blind, Blinded, BlindedTimeout, Blindfolded, Deaf,
     Disint_resistance, EBlinded, EDisint_resistance, EReflecting, Fixed_abil,
     Flying, Glib, HBlinded, HConfusion, HDeaf, HFast, HHallucination,
     HProtection, HStealth, HStun, HTelepat, Hallucination, Levitation,
     Passes_walls, Reflecting, Shock_resistance, Sick, Slimed,
-    Stoned, Strangled, Unchanging, Wounded_legs,
+    Stoned, Strangled, Unchanging, Wounded_legs, Punished,
 } from './youprop.js';
 
 // C ref: pray.c TROUBLE_* (76-101). Positive values are serious trouble,

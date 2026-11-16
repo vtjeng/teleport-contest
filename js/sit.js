@@ -125,14 +125,10 @@ import {
     EAcid_resistance, ETelepat, Fire_resistance, Flying, HAcid_resistance,
     HBlinded, HConfusion, HSee_invisible, HTelepat, Half_physical_damage,
     Half_spell_damage, Hallucination, Levitation, See_invisible,
-    Shock_resistance, Slimed,
+    Shock_resistance, Slimed, Underwater,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
 
-
-function Underwater(state) {
-    return Boolean(state.u?.uinwater);
-}
 
 function Is_waterlevel(state) {
     const level = state.water_level;
@@ -676,7 +672,7 @@ export async function lay_an_egg(state = game, rawEnv = {}) {
         return ECMD_OK;
     }
     if (eggs_in_water(species)) {
-        if (!(Underwater(state) || Is_waterlevel(state))) {
+        if (!(Underwater(state.u) || Is_waterlevel(state))) {
             await message('A splash tetra you are not.', state);
             return ECMD_OK;
         }
@@ -773,7 +769,7 @@ export async function dosit(state = game, rawEnv = {}) {
             await message(`${Monnam(u.ustuck, state, rawEnv)} has no lap.`, state);
         }
         return ECMD_OK;
-    } else if (is_pool(u.ux, u.uy, state) && !Underwater(state)) {
+    } else if (is_pool(u.ux, u.uy, state) && !Underwater(state.u)) {
         await sit_in_water(state, random, rawEnv);
         return ECMD_TIME;
     } else if (Upolyd(u) && u.umonnum === PM_GREMLIN
@@ -874,7 +870,7 @@ export async function dosit(state = game, rawEnv = {}) {
             const { dotrap } = await import('./trap_effects.js');
             await dotrap(trap, VIASITTING, state, rawEnv);
         }
-    } else if ((Underwater(state) || Is_waterlevel(state))
+    } else if ((Underwater(state.u) || Is_waterlevel(state))
                 && !eggs_in_water(species)) {
         if (Is_waterlevel(state))
             await message('There are no cushions floating nearby.', state);

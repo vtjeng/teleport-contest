@@ -403,13 +403,12 @@ import {
     water_damage_monster_equipment,
 } from './trap_water_damage.js';
 import { canseemon, canspotmon } from './display.js';
-import { Punished } from './steed.js';
 import {
     Antimagic, Blind, Deaf, EDrain_resistance, EFumbling, EInvis,
     ESleep_resistance, Fire_resistance, Flying, HConfusion, HDrain_resistance,
     HFumbling, HInvis, HSleep_resistance, Half_physical_damage,
     Half_spell_damage, Hallucination, Invis, Levitation, Maybe_Half_Phys,
-    Passes_walls, See_invisible, Unchanging,
+    Passes_walls, See_invisible, Unchanging, Punished,
 } from './youprop.js';
 
 // Effects receive the source owners through their caller's environment.

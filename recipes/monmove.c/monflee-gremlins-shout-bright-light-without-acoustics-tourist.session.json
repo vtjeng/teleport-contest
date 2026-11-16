@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation: a female Tourist with acoustics off, another seed and map, wears gold dragon scale mail among six created gremlins; one shouts \"Bright light!\" as it flees.",
+  "segments": [
+    {
+      "seed": 6230014,
+      "datetime": "20620920071500",
+      "nethackrc": "OPTIONS=name:Pell,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b\u0017gold dragon scale mail\n\u001bWl\u001b\u001b\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001b\u0007gremlin\n\u001bms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\nms\n\n\n"
+    }
+  ]
+}

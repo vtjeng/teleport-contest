@@ -334,7 +334,7 @@ import {
     NODIAG,
 } from './hack.js';
 import { nhgetch } from './input.js';
-import { doride, Punished } from './steed.js';
+import { doride } from './steed.js';
 import { done2, nh_terminate } from './end.js';
 import { doread } from './read.js';
 import {
@@ -391,7 +391,7 @@ import { set_uinwater } from './hack.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { canspotmon } from './display.js';
 import {
-    Sick, Slimed, Stoned, Strangled,
+    Sick, Slimed, Stoned, Strangled, Punished,
 } from './youprop.js';
 
 export const MAX_COMMAND_COUNT = 32767;
