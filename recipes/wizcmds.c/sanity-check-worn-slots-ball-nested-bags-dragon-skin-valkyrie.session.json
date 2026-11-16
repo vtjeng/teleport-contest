@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Sane play under the sanity_check option through checks no other recording reaches: mkobj.c sanity_check_worn() for a worn amulet, ring, blindfold and boots, a chained ball carried (ball.c bc_sanity_check() 1091), wielded (3487-3488) and then alternate-wielded, a glob in a bag inside a bag (check_contained() 3399 and 3409-3414), and gray dragon scale mail merged into the hero's skin by #polyself (3474-3476, worn.c 398). C prints no sanity_check() message anywhere. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 771001,
+      "datetime": "20290611143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "\n\u0017cursed scroll of punishment\n\u001bre\u001b\u001b\u0017amulet of ESP\n\u001bPf\u001b\u0017ring of protection\n\u001bPgl\u001b\u0017blindfold\n\u001bPh\u001bRh\u001b\u0017speed boots\n\u001bWi\u001bs\u001b,\u001bwj\u001bs\u001b\u0017sack\n\u001b\u0017oilskin sack\n\u001b\u0017glob of gray ooze\n\u001bakia\nm\n\u001balia\nk\n\u001bs\u001bs\u001b\u0017blessed gray dragon scale mail\n\u001bwb\u001bWn\u001bs\u001bs\u001bs\u001bs\u001bs\u001b#polyself\ngray dragon\n\u001b\u001bs\u001bs\u001b"
+    }
+  ]
+}

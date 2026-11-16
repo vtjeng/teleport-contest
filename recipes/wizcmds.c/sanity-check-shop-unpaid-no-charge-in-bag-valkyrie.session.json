@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Sane shop states under the sanity_check option: a debug-mode Valkyrie level-teleports to Minetown, detects objects, teleports beside Izchak's lighting store, picks up an unpaid candle, drops her dagger (no_charge), puts the candle in a wished bag and drops the bag on the shop floor. mkobj.c shop_obj_sanity() (no other recording enters it) runs on each state and C prints no sanity_check() message. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 771002,
+      "datetime": "20290611143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "\n\u0016?\n>w\u001b\u001b\u0006\u001b\u0017blessed potion of object detection\n\u001bqe\u001b\u001b\u001b\u001b\u001b\u0014hhhhhhjjjjjj.\u001bk\u001bk\u001bk\u001bk\u001bk\u001bl\u001bk\u001b,\u001b\u001bdb\u001b\u001bs\u001b\u0017sack\n\u001bagiu\nf\n\u001b\u001bs\u001bs\u001bdg\u001b\u001bs\u001bs\u001b"
+    }
+  ]
+}

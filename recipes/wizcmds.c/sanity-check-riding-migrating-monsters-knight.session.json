@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Sane riding and migration under the sanity_check option: a debug-mode Knight mounts his saddled pony (mon.c sanity_check_single_mon() 142-147, mon_sanity_check() 276), sends four random monsters to the next level with #migratemons (mon_sanity_check() 313-318 for each), lists them, picks the empty current-level category ('None.') and shows #stats. C prints no sanity_check() message. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 771003,
+      "datetime": "20290611143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "\n#ride\nb\u001b\u001bs\u001bj\u001bk\u001b#migratemons\n\n4\n\u001bs\u001bs\u001b#migratemons\n\nn\u001b\n\u001b#migratemons\n\nc\u001b\n\u001b#stats\n\u001b\u001b"
+    }
+  ]
+}

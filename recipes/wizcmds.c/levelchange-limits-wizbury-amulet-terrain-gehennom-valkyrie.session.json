@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wizard-mode command edges: #levelchange to 0 and -3 at experience level 1 ('already as inexperienced', wizcmds.c 468-469), to 31 (clamped to 30 at 481) and then to 40 ('already as experienced', 477-478); #wizbury over only the wished Amulet of Yendor ('No objects buried.', dig.c 2314); and #terrain's base-36 view in the Valley and deeper Gehennom. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 771013,
+      "datetime": "20290611143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n",
+      "moves": "\n#levelchange\n0\n\u001b#levelchange\n-3\n\u001b#levelchange\n31\n\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b#levelchange\n40\n\u001b\u0017Amulet of Yendor\n\u001b\u001bapple\n\u001b\u001bde\u001b#wizbury\n\u001b\u001645\n\u001b\u001b\u001b\u001b#terrain\ne\n\u001b\u001b\u001645\n\u001b\u001b\u001b\u001b#terrain\ne\n"
+    }
+  ]
+}
