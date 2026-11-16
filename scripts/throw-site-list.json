@@ -3906,6 +3906,12 @@
       "c": null,
       "reason": "Refuses a call made without the initialized tty display every game has."
     },
+    "js/topten.js | formatkiller | `formatkiller needs C's buffer size, not ${siz}`": {
+      "count": 1,
+      "class": "guard",
+      "c": "src/topten.c:90",
+      "reason": "C's formatkiller(buf, siz, ...) always receives its caller's buffer size; a JS caller that omits it would keep text C cuts (see scripts/formatkiller.test.mjs)."
+    },
     "js/trap_effects.js | mintrap | `mintrap requires ${randomNames.join(', ')}`": {
       "count": 1,
       "class": "invariant",
