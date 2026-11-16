@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cfgfiles.c parse_conf_buf() and config_erradd(). The first .nethackrc line is a 1150-byte comment, so fgets() fills the 1024-byte buffer with no newline and parse_conf_buf() calls config_error_add(\"Line too long, skipping\") before config_error_nextline() has counted any line. The rc frame (not secure) still has line_num 0, so config_erradd() prints an empty original line and omits the 'Line N:' prefix (cfgfiles.c:1582-1585). The rest of the long line is discarded and the options on later lines apply. Return dismisses the error, Return dismisses the welcome --More--, then the Archeologist searches. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 29384107,
+      "datetime": "20440909061733",
+      "nethackrc": "# amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt cobalt dolomite emery feldspar gypsum hematite ilmenite jasper kyanite limonite magnetite amber basalt co\nOPTIONS=name:Orrin,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\n\ns"
+    }
+  ]
+}
