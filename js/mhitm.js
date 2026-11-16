@@ -208,7 +208,7 @@ import {
 } from './uhitm.js';
 import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
-import { hitval, possibly_unwield } from './weapon.js';
+import { hitval, mon_wield_item, possibly_unwield } from './weapon.js';
 import { find_mac, is_pole, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly_async, remove_worm } from './worm.js';
@@ -809,11 +809,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             }
             if (magr.weapon_check === NEED_WEAPON || !magr.mw) {
                 magr.weapon_check = NEED_HTH_WEAPON;
-                const wieldMonsterItem = requireAttackOperation(
-                    env,
-                    'wieldMonsterItemAgainstMonster',
-                );
-                if (await wieldMonsterItem(magr, env) !== 0)
+                if (await mon_wield_item(magr, env) !== 0)
                     return M_ATTK_MISS;
             }
             // weapon.c mon_wield_item() returns 0 for the goblin's empty
