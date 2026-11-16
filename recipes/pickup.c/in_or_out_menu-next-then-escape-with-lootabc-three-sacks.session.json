@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of in_or_out_menu-escape-quits-looting-first-of-two-sacks: a debug-mode gnomish Wizard with lootabc drops three sacks and #loots all of them. At the first menu, 'n' toggles off the preselected 'loot next container' row (n == 0 with more containers: 'n', pickup.c 3476); at the second, ESC (n == -1) quits although a third sack remains.",
+  "segments": [
+    {
+      "seed": 9038215,
+      "datetime": "20330926201110",
+      "nethackrc": "OPTIONS=name:Pim,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,lootabc\n",
+      "moves": "\r\u0017sack\ndp\u0017sack\ndq\u0017sack\ndr#loot\nabc\nn\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c in_or_out_menu() 3468-3476 returns (n == 0 && more_containers) ? 'n' : 'q'. A debug-mode dwarvish Archeologist wishes for two sacks, drops both, #loots and selects both containers; at the first sack's 'Do what with the sack?' menu, ESC (n == -1) answers 'q', so use_container() sets abort_looting (pickup.c 3126-3127) and the second sack is never offered.",
+  "segments": [
+    {
+      "seed": 4417096,
+      "datetime": "20350118163045",
+      "nethackrc": "OPTIONS=name:Bryn,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\r\u0017sack\ndi\u0017sack\ndj#loot\nab\n\u001b"
+    }
+  ]
+}

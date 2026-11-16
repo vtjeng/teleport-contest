@@ -2128,7 +2128,7 @@ export async function artifact_hit(
                  * of just not getting hit.  We must add a large enough
                  * value to the damage so that this reduction in
                  * damage does not prevent death. */
-                dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
+                dmgptr.value = 2 * (Upolyd(state.u) ? state.u.mh : state.u.uhp)
                              + FATAL_DAMAGE_MODIFIER;
                 await message(`${wepdesc} cuts you in half!`, state);
                 observe_object(otmp, state);
@@ -2193,7 +2193,7 @@ export async function artifact_hit(
                         state);
                     return true;
                 }
-                dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
+                dmgptr.value = 2 * (Upolyd(state.u) ? state.u.mh : state.u.uhp)
                              + FATAL_DAMAGE_MODIFIER;
                 // C: ROLL_FROM(behead_msg) = behead_msg[random.rn2(2)]
                 const msg = behead_msg[random.rn2(2)];

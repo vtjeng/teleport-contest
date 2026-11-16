@@ -329,6 +329,22 @@ test('makeplural preserves source compounds and irregular object names', () => {
         assert.equal(makeplural(singular), plural, singular);
 });
 
+test('makeplural maps only the pronouns in role.c genders[]', () => {
+    // objnam.c:2857-2869 compares the word with genders[0..2].he, .him and
+    // .his (role.c:689-691: he/him/his, she/her/her, it/it/its) and returns
+    // genders[3]'s they/them/their. "her" matches .him first, so it becomes
+    // "them". "hers" is in no row, so it takes the ordinary s -> "es" rule
+    // (objnam.c:3000-3007).
+    const cases = [
+        ['he', 'they'], ['she', 'they'], ['it', 'they'],
+        ['him', 'them'], ['her', 'them'],
+        ['his', 'their'], ['its', 'their'],
+        ['hers', 'herses'],
+    ];
+    for (const [singular, plural] of cases)
+        assert.equal(makeplural(singular), plural, singular);
+});
+
 test('fruit inflection keeps the C helper owners and direction flag', () => {
     assert.match(OBJNAM_SOURCE,
         /singplur_lookup\([\s\S]*?boolean to_plural[\s\S]*?alt_as_is/u);

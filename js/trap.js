@@ -2221,7 +2221,7 @@ export function trapname(ttyp, override, state, random = coreRandom,
         const totalNames = TRAPNUM + halu_trapnames.length;
         const nameidx = displayRandom(totalNames + 1);
         if (nameidx === totalNames) {
-            const female = Upolyd(state) ? state.u.mfemale : state.flags.female;
+            const female = Upolyd(state.u) ? state.u.mfemale : state.flags.female;
             const title = random.rn2(3)
                 ? ((female && state.urole.name.f)
                     ? state.urole.name.f : state.urole.name.m)

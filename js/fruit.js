@@ -289,6 +289,8 @@ export function makeplural(oldstr) {
         return 's';
     }
 
+    // objnam.c:2857-2869: genders[0..2]'s he, him and his (role.c:689-691)
+    // become genders[3]'s they, them and their; "her" matches .him first.
     const pronouns = new Map([
         ['he', 'they'],
         ['she', 'they'],
@@ -296,7 +298,6 @@ export function makeplural(oldstr) {
         ['him', 'them'],
         ['her', 'them'],
         ['his', 'their'],
-        ['hers', 'their'],
         ['its', 'their'],
     ]);
     const pronoun = pronouns.get(lcase(original));
