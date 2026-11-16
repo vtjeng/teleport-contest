@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41155,
+      "datetime": "20450809090909",
+      "nethackrc": "OPTIONS=name:Rover,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,playmode:debug,suppress_alert:3.7.0,!autopickup\n",
+      "moves": "\u0017leash\nafk#migratemons\n\n-1\ns"
+    }
+  ],
+  "comment": "Debug-mode Caveman wishes for a leash, leashes his starting little dog (the newest monster, so the head of fmon) and runs #migratemons with -1, which sends fmon to the next level through migrate_to_level(); the leashed dog loses a point of tameness and pulls free of the leash (dog.c:898-901). Independent seed, date and character."
+}

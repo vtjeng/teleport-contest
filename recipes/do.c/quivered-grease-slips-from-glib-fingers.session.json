@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 23409,
+      "datetime": "20430927154023",
+      "nethackrc": "OPTIONS=name:Slick,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0,!autopickup\n",
+      "moves": "\u0017blessed can of grease\nQiai-ais"
+    }
+  ],
+  "comment": "Debug-mode Rogue wishes for a can of grease, readies it in the quiver, greases her own fingers with it (her short sword slips away) and applies it again; with Glib the can slips from her fingers through dropx(), so dropz() clears the quiver slot for the dropped can. Independent seed, date and orcish Rogue."
+}

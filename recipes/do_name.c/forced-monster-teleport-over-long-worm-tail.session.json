@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66203,
+      "datetime": "20460214161616",
+      "nethackrc": "OPTIONS=playmode:debug\nOPTIONS=name:Wormy,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,suppress_alert:3.7.0,!autopickup,montelecontrol,!tips\n",
+      "moves": "\u0007sleeping long worm\n\u0007sleeping newt\n\u0007sleeping newt\n\u0017wand of teleportation\nziyljj.y\n\n\nzibk.y\n\n\n\ns"
+    }
+  ],
+  "comment": "Debug mode with the wizard-only montelecontrol option: the Priestess creates a sleeping long worm with a tail and two sleeping newts, then zaps a wished wand of teleportation at each newt and forces the first onto the worm head and the second onto a tail segment. place_monster() reports each overlap through impossible(); the second report calls minimal_monnam(worm, TRUE) while level.monsters at the head now holds the first newt, so it names the long worm tail with its coordinates (do_name.c:1271-1275). Independent seed, date and character."
+}

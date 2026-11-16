@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83321,
+      "datetime": "20440601120030",
+      "nethackrc": "OPTIONS=name:Anchor,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0,!autopickup\n",
+      "moves": "ll\u0017cursed scroll of punishment\nre\n\u0017pit\n\u0017boulder\n\nl\u0017pit\n\u0017boulder\n\nlll"
+    }
+  ],
+  "comment": "Debug-mode dwarven Valkyrie steps off the stairs, reads a cursed scroll of punishment, wishes a pit under herself and a boulder that drops into it and buries the iron ball, leaving her tethered (TT_BURIEDBALL). She moves one square within the chain reach, wishes a second pit there (maketrap() leaves the tether because the ball is buried elsewhere) and a second boulder; flooreffects() drops it into the pit with her, delfloortrap() keeps the buried-ball tether, so flooreffects() resets it itself (do.c:263-264). She then walks three squares east, which only an untethered hero can do. Independent seed, date and character."
+}

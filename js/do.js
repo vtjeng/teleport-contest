@@ -1059,6 +1059,10 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             if (currentTrap) {
                 const { delfloortrap } = await import('./trap.js');
                 await delfloortrap(currentTrap, state);
+                // do.c:263-264: delfloortrap() keeps a buried-ball tether,
+                // so a hero squished in the pit is released here.
+                if (state.u.utrap && u_at(x, y, state))
+                    reset_utrap(false, state);
             }
             await useupf(obj, 1, { ...rawEnv, state });
             await bury_objs(x, y, state, rawEnv);

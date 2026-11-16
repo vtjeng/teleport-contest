@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 38117,
+      "datetime": "20490522123456",
+      "nethackrc": "OPTIONS=name:Pitcher,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0,!autopickup,!tips\n",
+      "moves": "\u0016?\n>y\n\n\u0014HHHhhjjjjj.\u00174 potions of paralysis\n\u0017Bell of Opening\ntkj\n\n\n\u001btlj\n\u001b\u001b"
+    }
+  ],
+  "comment": "Debug-mode elven Priestess level-teleports to her quest home, teleports with control into the temple three squares north of the Arch Priest, and throws a wished potion of paralysis that hits and freezes him. She then throws a wished Bell of Opening at him: special_obj_hits_leader() holds, but the leader cannot move, so thitmonst() returns 0 without catching it (dothrow.c:2149). Independent seed, date and character."
+}
