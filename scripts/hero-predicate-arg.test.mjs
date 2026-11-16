@@ -7,7 +7,7 @@
 // monster indexes. The scan found three such sites, all Upolyd(state):
 // trap.js trapname()'s role-trap gender (trap.c 7137) and artifacts.js
 // artifact_hit()'s Tsurugi and Vorpal Blade fatal damage (artifact.c 1590,
-// 1630).
+// 1637).
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
