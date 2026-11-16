@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "questpgr.c com_pager_core() line 485, the skip_pager(TRUE) return while files.c read_wizkit() is wishing: a debug chaotic elven Wizard's .nethackrc names itself as WIZKIT and lists The Eye of the Aethiopica, her own quest artifact. initoptions() rejects that line as 'Not a config statement'; read_wizkit() then wishes for it, wizkit_addinv() -> addinv_core1() -> quest.c artitouch() -> qt_pager() -> com_pager_core(), which returns at 485 because program_state.wizkit_wishing is set (the probe counts 485 twice). The keys dismiss the startup error and welcome --More--, list the inventory to show the Eye, and close it.",
+  "segments": [
+    {
+      "seed": 88120547,
+      "datetime": "20481205213000",
+      "nethackrc": "OPTIONS=name:Kitted,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nWIZKIT=.nethackrc\nThe Eye of the Aethiopica\n",
+      "moves": "\n   i  \u001b"
+    }
+  ]
+}

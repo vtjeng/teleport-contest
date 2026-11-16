@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c lookup_id_mapping() line 1506, a failed monster-id lookup while loading bones, through region.c reset_region_mids() line 936. Segment 1: a debug Valkyrie level-teleports to D:4 of seed 6612004, creates a brown mold, steps away, reads an uncursed scroll of stinking cloud centred on the mold (create_gas_cloud() adds it to the region's monster list; the mold resists poison, so run_regions() keeps it), slays it with #wizkill, which takes no game time, and zaps herself with a wand of death before run_regions() can drop the dead mold's id; she saves bones. Segment 2: a debug Samurai on seed 6612002 (whose D:4 is not a branch level) level-teleports to D:4 and answers y to 'Get bones?' and the default to 'Unlink bones?'; restoring the gas cloud maps its monster ids, the mold's id has no mapping, and reset_region_mids() drops it. The final key closes the arrival message.",
+  "segments": [
+    {
+      "seed": 6612004,
+      "datetime": "20460708140000",
+      "nethackrc": "OPTIONS=name:Fumer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u00164\n \u0017wand of death\n\u0017uncursed scroll of stinking cloud\n#wizgenesis\nbrown mold\nllkkkrf  m.#wizkill\nhhhjj.\u001bze.  y     y"
+    },
+    {
+      "seed": 6612002,
+      "datetime": "20460709090000",
+      "nethackrc": "OPTIONS=name:Heir,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u00164\ny  \u001b"
+    }
+  ]
+}

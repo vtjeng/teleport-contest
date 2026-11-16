@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "questpgr.c find_quest_artifact() line 101 and find_qarti() line 81, through quest.c on_goal() on revisits of the quest goal level. A debug Valkyrie wishes for the Orb of Fate before visiting the goal level (so the level makes no second artifact), stashes it in a wished sack, visits the goal level, creates a newt there, leaves for the locate level and genocides newts with an uncursed scroll. On her return goto_level() runs kill_genocided_monsters(), which leaves the dead newt in fmon, and onquest() -> on_goal() searches the floor (nothing), then the monster inventories, skipping the dead newt at 101. She then drops the sack, leaves and returns: the floor search recurses into the sack, and find_qarti() returns the Orb from the recursive call at 81. The final keys dismiss any --More--.",
+  "segments": [
+    {
+      "seed": 30418862,
+      "datetime": "20460903163000",
+      "nethackrc": "OPTIONS=name:Seeker,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips,time\n",
+      "moves": " \u0017the Orb of Fate\n \u0017sack\nafse\u0017uncursed scroll of genocide\n#wizlevelport\n?\n>A  #wizgenesis\nnewt\n#wizlevelport\n?\n>z rg  newt\n#wizlevelport\n?\n>A df#wizlevelport\n?\n>z #wizlevelport\n?\n>A  \u001b"
+    }
+  ]
+}

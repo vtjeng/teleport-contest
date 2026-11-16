@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "shk.c u_entered_shop() lines 833-836: a shopkeeper whose shop was robbed in an earlier game greets a new customer by muttering imprecations against shoplifters. Segment 1: a debug Valkyrie (named 'wizard' by debug mode) level-teleports to D:2 of seed 5310076, where she arrives in a general store, picks up an expensive camera, ^T-teleports out (rob_shop() adds 267 to robbed and hot_pursuit() makes the keeper follow), zaps herself with a wand of death, and saves bones; inherits() takes her possessions but subtracts only her 0 gold from robbed. Segment 2: an ordinary Archeologist named Passerby digs through D:1 and falls into that shop on the bones level (getbones()'s rn2(3) is 0 for this seed); restshk() pacifies the keeper because the customer differs, and u_entered_shop()'s new-customer branch resets following and pacifies again, so neither the anger nor the surcharge arm applies and robbed > 0 gives the mutter. The Deaf arm (838-839) is not reached: no ordinary-mode role can be made deaf on demand. The final keys dismiss the remaining --More-- prompts.",
+  "segments": [
+    {
+      "seed": 5310076,
+      "datetime": "20450311120000",
+      "nethackrc": "OPTIONS=name:Pilf,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u00162\n  \u0017wand of teleportation\n\u0017wand of death\nl, \u0014LLLLLL.    zf.  y     y"
+    },
+    {
+      "seed": 7720096,
+      "datetime": "20450315093000",
+      "nethackrc": "OPTIONS=name:Passerby,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup\n",
+      "moves": " hae  >ae>  \u001b"
+    }
+  ]
+}

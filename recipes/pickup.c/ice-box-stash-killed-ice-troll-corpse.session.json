@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c in_container() line 2654: an ice troll corpse that carries its monster's traits goes into an ice box. A debug Valkyrie wears wished gauntlets of power (St 25) so she can lift 1000 weight, drops a wished ice box, kills a created ice troll with #wizkill (a large monster always leaves a corpse, and make_corpse() saves its traits as OMONST), picks the corpse up, returns to the box and stashes the corpse with #loot s. in_container() stops the corpse's timers and, because corpsenm is PM_ICE_TROLL and has_omonst() holds, clears OMONST(obj)->mcan at 2654. The final keys dismiss the --More-- and the encumbrance message.",
+  "segments": [
+    {
+      "seed": 71250394,
+      "datetime": "20450117120000",
+      "nethackrc": "OPTIONS=name:Freezer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips,time\n",
+      "moves": " \u0017blessed gauntlets of power\nWe\u0017ice box\n#wizgenesis\nice troll\n#wizkill\nm.\u001bl ,b\n h #loot\nsg \u001b"
+    }
+  ]
+}
