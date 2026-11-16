@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "spell.c learn() 450-455: a book cursed between interrupted study and resumed study. A debug-mode Valkyrie wishes for a blessed spellbook of finger of death, two cursed potions of water and a scroll of genocide, creates a newt so monster_nearby() stops the study after its first turn, genocides newts, dips the book twice in unholy water (blessed -> uncursed -> cursed) and resumes reading. learn() finds the book cursed, cursed_book()'s rn2(7) picks 6 (explosion, returns TRUE), and learn() uses up the book (452-455). Seed chosen by trying fresh seeds 5512331-5512360 for the rn2(7)==6 case.",
+  "segments": [
+    {
+      "seed": 5512347,
+      "datetime": "20470715101500",
+      "nethackrc": "OPTIONS=name:Lector,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug,!acoustics,!tips\n",
+      "moves": " \u0017blessed spellbook of finger of death\n\u0017 2 cursed potions of water\n\u0017uncursed scroll of genocide\n\u0007newt\nre  rg  newt\n   #dip\nef \u001b #dip\nef \u001b re                    "
+    }
+  ]
+}

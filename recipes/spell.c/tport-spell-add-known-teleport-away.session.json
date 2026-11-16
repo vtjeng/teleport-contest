@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "spell.c tport_spell() 1742-1744: debug-mode m^T 's' (via spellcast) when the hero already knows teleport away. A Wizard wishes for and learns a blessed spellbook of teleport away, then picks 's' in wizard ^T's teleport-mode menu; teleport.c dotelecmd() calls tport_spell(ADD_SPELL), which finds the spell present and only resets the save index, then dotele() reports the lack of energy.",
+  "segments": [
+    {
+      "seed": 5512411,
+      "datetime": "20470802091000",
+      "nethackrc": "OPTIONS=name:Porter,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug,!tips\n",
+      "moves": " \u0017blessed spellbook of teleport away\nrp    m\u0014s   "
+    }
+  ]
+}
