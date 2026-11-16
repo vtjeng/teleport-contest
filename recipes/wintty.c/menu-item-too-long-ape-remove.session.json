@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review c block 486 (wintty.c tty_add_menu 2656-2658): an AUTOPICKUP_EXCEPTION whose pattern is the 253-byte sscanf maximum (options.c:9317) makes the remove-menu entry \"<pattern\" 256 bytes, so tty_add_menu reports impossible(\"Menu item too long (256).\") and truncates. Independent seed and inputs.",
+  "segments": [
+    {
+      "seed": 73021945,
+      "datetime": "20480914093512",
+      "nethackrc": "OPTIONS=name:Ivo,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nAUTOPICKUP_EXCEPTION=\"<longexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexceptionpatternlongexception\"\n",
+      "moves": "\u001b#optionsfull\n:autopickup exceptions\n\nra\n\u001b\u001b"
+    }
+  ]
+}
