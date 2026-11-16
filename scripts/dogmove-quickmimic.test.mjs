@@ -619,10 +619,8 @@ test('m_consume_obj removes punished ball and chain in source order',
                 return 0; // C obj_resists(0, 0) returns the non-resistance result.
             };
 
-            await m_consume_obj(monster, consumedPart === 'ball' ? ball : chain, {
-                ...env,
-                quickMimic: async () => assert.fail(name),
-            });
+            await m_consume_obj(monster, consumedPart === 'ball' ? ball : chain,
+                env);
 
             assert.deepEqual(draws, expectedDraws, name);
             assert.equal(chain.where, OBJ_DELETED, name);
@@ -631,27 +629,41 @@ test('m_consume_obj removes punished ball and chain in source order',
             assert.equal(state.uball, null, name);
             assert.equal(ball.owornmask, 0, name);
             assert.equal(ball.where, expectedBallWhere, name);
+            // quickState()'s pet is still eating (meating 7), so a
+            // quickmimic() call would have given it a disguise.
+            assert.equal(monster.m_ap_type, M_AP_NOTHING, name);
         }
     });
 
 // m_consume_obj accepts a non-mimic inert corpse: delobj fires and the
 // corpse is removed from the floor.  No quickmimic call occurs because the
-// corpse is not a mimic.
+// corpse is not a mimic; quickState()'s pet is still eating (meating 7), so
+// a call would have left it disguised.
 test('m_consume_obj deletes an inert non-mimic corpse without quickmimic',
     async () => {
         const { monster, state } = quickState(false);
         // newt: mconveys 0, not giant, not stalker, no polymorph
         const corpse = floorMimicCorpse(state, PM_NEWT);
-        let quickMimicCalled = false;
-        await m_consume_obj(monster, corpse, {
-            ...eatingEnv(state),
-            quickMimic: async () => { quickMimicCalled = true; },
-        });
+        await m_consume_obj(monster, corpse, eatingEnv(state));
         assert.equal(state.level.objects[5][5], null,
             'newt corpse removed from floor');
-        assert.equal(quickMimicCalled, false,
+        assert.equal(monster.m_ap_type, M_AP_NOTHING,
             'quickmimic not called for non-mimic');
     });
+
+// C ref: mon.c m_consume_obj():1446-1447 calls quickmimic() for any pet that
+// ate a mimic corpse, not only for dogmove.c dog_eat()'s caller; monmove.c
+// gelcube_digests() reaches it for a tame gelatinous cube.
+test('m_consume_obj disguises a pet that ate a mimic corpse', async () => {
+    const { monster, state } = quickState(true);
+    const corpse = floorMimicCorpse(state, PM_SMALL_MIMIC);
+    await m_consume_obj(monster, corpse, eatingEnv(state));
+    assert.equal(state.level.objects[5][5], null);
+    // eatingEnv()'s rn2() returns 0, picking quickmimic()'s first entry: a
+    // little dog appears as a kitten.
+    assert.equal(monster.m_ap_type, M_AP_MONSTER);
+    assert.equal(monster.mappearance, PM_KITTEN);
+});
 
 test('m_consume_obj heals a non-pet by the consumed object weight',
     async () => {
@@ -662,15 +674,13 @@ test('m_consume_obj heals a non-pet by the consumed object weight',
         const corpse = floorMimicCorpse(state, PM_NEWT);
         const weight = state.objects[CORPSE].oc_weight;
 
-        await m_consume_obj(monster, corpse, {
-            ...eatingEnv(state),
-            quickMimic: async () => assert.fail('newt corpse'),
-        });
+        await m_consume_obj(monster, corpse, eatingEnv(state));
 
         // mon.c:1396-1399 calls healmon() before delobj(); the ordinary
         // corpse has no later effect that changes this amount.
         assert.equal(monster.mhp, 1 + weight);
         assert.equal(state.level.objects[5][5], null);
+        assert.equal(monster.m_ap_type, M_AP_NOTHING, 'no quickmimic');
     });
 
 // C ref: mon.c m_consume_obj() mon.c:1438-1441. obj.h mhealup() holds for a
@@ -696,10 +706,7 @@ test('m_consume_obj heals and cures a nurse-food eater after deleting it',
             });
             const messages = [];
 
-            await m_consume_obj(monster, food, {
-                ...eatingEnv(state, messages),
-                quickMimic: async () => assert.fail(`${name}: not a mimic`),
-            });
+            await m_consume_obj(monster, food, eatingEnv(state, messages));
 
             assert.equal(food.where, OBJ_DELETED, `${name}: consumed`);
             assert.equal(monster.mhp, monster.mhpmax, `${name}: healed`);
@@ -708,6 +715,10 @@ test('m_consume_obj heals and cures a nurse-food eater after deleting it',
             // quickState(false) leaves the square out of sight, so
             // mcureblindness() gets canseemon() == FALSE and stays silent.
             assert.deepEqual(messages, [], `${name}: no cure message`);
+            // The pet is still eating (meating 7): a quickmimic() call
+            // would have disguised it.
+            assert.equal(monster.m_ap_type, M_AP_NOTHING,
+                `${name}: not a mimic`);
         }
     });
 
@@ -783,16 +794,14 @@ test('m_consume_obj eats a stalker corpse and grants invisibility',
     async () => {
         const { monster, state } = quickState(false);
         const corpse = floorMimicCorpse(state, PM_STALKER);
-        await m_consume_obj(monster, corpse, {
-            ...eatingEnv(state),
-            quickMimic: async () => assert.fail('stalker corpse'),
-        });
+        await m_consume_obj(monster, corpse, eatingEnv(state));
         assert.equal(state.level.objects[5][5], null,
             'stalker corpse removed from floor');
         assert.equal(monster.minvis, 1,
             'stalker corpse grants temporary invisibility');
         assert.equal(monster.perminvis, 1,
             'stalker corpse grants permanent invisibility');
+        assert.equal(monster.m_ap_type, M_AP_NOTHING, 'no quickmimic');
     });
 
 test('quickmimic turns a visible little dog into a kitten appearance',

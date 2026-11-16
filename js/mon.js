@@ -209,7 +209,7 @@ import {
     y_monnam,
 } from './do_name.js';
 import { flooreffects, revive_corpse } from './do.js';
-import { cursed_object_at, finish_meating } from './dogmove.js';
+import { cursed_object_at, finish_meating, quickmimic } from './dogmove.js';
 import {
     has_ceiling,
     In_W_tower_steps,
@@ -1521,10 +1521,6 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const heal = ofood && otmp.corpsenm === PM_NURSE;
     const eyes = otmp.otyp === CARROT;
     const mstone = Boolean(foodSpecies) && flesh_petrifies(foodSpecies);
-    // dogmove.c dog_eat() binds quickmimic(); check it before the deletion.
-    if (ispet && deadmimic && typeof rawEnv.quickMimic !== 'function')
-        throw new TypeError('m_consume_obj requires a quickMimic operation');
-
     await delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
 
     if (poly || slimer) {
@@ -1576,7 +1572,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         }
     }
     if (ispet && deadmimic)
-        await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
+        await quickmimic(mtmp, { ...rawEnv, state });
     // mon.c:1447-1448 tests `otmp->otyp == EGG && corpsenm == PM_PYROLISK`,
     // but corpsenm is NON_PM for an EGG, so its explode() never runs.
     if (corpsenm !== NON_PM)
@@ -2586,13 +2582,6 @@ function normalizedDistressEnv(rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const redrawSquare = rawEnv.redrawSquare
         ?? (state === game ? newsym : null);
-    if (typeof seeMonster !== 'function'
-        || typeof spotMonster !== 'function'
-        || typeof message !== 'function') {
-        throw new TypeError(
-            'monster distress perception and message operations must be functions',
-        );
-    }
     return {
         ...rawEnv,
         state,
@@ -3252,14 +3241,11 @@ export async function newcham_distress(monster, target = null, rawEnv = {}) {
 }
 
 export function preflight_newcham_distress(monster, rawEnv = {}) {
-    const normalized = newchamEnv(rawEnv);
+    // newchamEnv() rejects an incomplete random injection before mutation.
+    newchamEnv(rawEnv);
     if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
         || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
         throw new TypeError('newcham_distress requires positive integer hit points');
-    }
-    if (typeof normalized.canSpotMonster !== 'function'
-        || typeof normalized.message !== 'function') {
-        throw new TypeError('newcham_distress requires perception and message operations');
     }
     return true;
 }
@@ -3582,11 +3568,6 @@ function preflightNewWere(monster, normalized) {
     const target = state.mons?.[targetIndex];
     // new_were() prints C's impossible() for an unknown lycanthrope.
     if (!target || target.pmidx !== targetIndex) return UNKNOWN_LYCANTHROPE;
-    if (typeof normalized.redrawSquare !== 'function') {
-        throw new TypeError(
-            'new_were requires a redrawSquare operation',
-        );
-    }
     return target;
 }
 
@@ -3637,11 +3618,15 @@ export async function new_were(monster, rawEnv = {}) {
 
     await announceNewWere(monster, target, normalized);
 
+    // were.c new_were() calls newsym(). normalizedDistressEnv() supplies it
+    // for the live game; a caller with its own state may name its redraw.
     const changed = applyNewWereForm(
         monster,
         target,
         state,
-        (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
+        normalized.redrawSquare
+            ? (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized)
+            : (x, y) => newsym(x, y),
     );
     await mon_break_armor(monster, false, {
         ...normalized,
@@ -4250,13 +4235,6 @@ export async function were_change(monster, rawEnv = {}) {
     return true;
 }
 
-function requiredDistressOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`mcalcdistress requires a ${name} operation`);
-    return operation;
-}
-
 // C ref: mon.c m_calcdistress(). The per-monster callback handles the
 // once-per-turn upkeep after mcalcdistress() has selected its downstream
 // operation owners.
@@ -4295,14 +4273,11 @@ export async function m_calcdistress(monster, rawEnv = {}) {
     // FIXME: C's mtmp->mlstmv ought to be updated here.
 }
 
-// C refs: mon.c mcalcdistress() and m_calcdistress(). Resolve every downstream
-// owner for the current list before changing any monster, so an unsupported
-// rare shape/liquid branch cannot leave earlier monsters partially advanced.
+// C refs: mon.c mcalcdistress() and m_calcdistress(). The list is taken
+// before the first callback; m_calcdistress() supplies each callee a caller
+// does not name.
 export async function mcalcdistress(state = game, env = {}) {
     const monsters = [];
-    let needsLiquid = false;
-    let needsShapechange = false;
-    let needsWerechange = false;
     for (let monster = state.level?.monlist ?? null;
         monster;
         monster = monster.nmon) {
@@ -4311,35 +4286,9 @@ export async function mcalcdistress(state = game, env = {}) {
             continue;
         }
         monsters.push(monster);
-        if (!monster.data?.mmove) {
-            needsLiquid = true;
-        }
-        needsShapechange ||= ismnum(monster.cham);
-        needsWerechange ||= is_were(monster.data);
     }
-    // An earlier liquid or shapechange operation can dirty vision before a
-    // later immobile monster. Resolve the owner atomically whenever that
-    // source check can be reached, then consult the live flag in list order.
-    const visionRecalc = needsLiquid
-        ? requiredDistressOperation(env, 'visionRecalc') : null;
-    const minLiquid = needsLiquid
-        ? requiredDistressOperation(env, 'minLiquid') : null;
-    const decideToShapeshift = needsShapechange
-        ? requiredDistressOperation(env, 'decideToShapeshift') : null;
-    const wereChange = needsWerechange
-        ? requiredDistressOperation(env, 'wereChange')
-        : env.wereChange ?? were_change;
-
-    for (const monster of monsters) {
-        await m_calcdistress(monster, {
-            ...env,
-            state,
-            visionRecalc,
-            minLiquid,
-            decideToShapeshift,
-            wereChange,
-        });
-    }
+    for (const monster of monsters)
+        await m_calcdistress(monster, { ...env, state });
 }
 
 // ---------------------------------------------------------------------------
