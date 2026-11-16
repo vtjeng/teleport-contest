@@ -101,6 +101,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
+import { atoi } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { aggravate_steps } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
@@ -338,7 +339,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 await message('Never mind.', state);
                 return; // sit.c: the caller still consumes a turn.
             }
-            const requested = Number.parseInt(answer ?? '', 10) || 0;
+            const requested = atoi(answer ?? '');
             if (requested >= 1 && requested <= 13) effect = requested;
         }
 

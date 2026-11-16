@@ -25,7 +25,7 @@ import { lookup_novel, oname, safe_oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import {
-    digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri, strsubst, upstart, } from './hacklib.js';
+    atoi, digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri, strsubst, upstart, } from './hacklib.js';
 import {
     consume_oeaten, obj_nutrition, set_tin_variety, tin_variety_txt, } from './eat.js';
 import {
@@ -909,15 +909,15 @@ export function readobjnam_init(bp, state) {
 // C's `atoi(p)` followed by `while (digit(*p)) p++`.  atoi() skips leading
 // whitespace and accepts a sign, while the digit loop that follows advances
 // only over digits, so it stops where atoi() started when the number carried
-// either.  Answering both keeps that quirk visible.
+// either.  Answering both keeps that quirk visible.  The value is hacklib.js
+// atoi()'s, so a count past 2^31 keeps C's low 32 bits.
 export function scanCount(str, from) {
-    const match = /^[ \t\n\v\f\r]*[+-]?[0-9]*/u.exec(str.slice(from));
-    const value = Number.parseInt(match[0], 10);
+    const value = atoi(str.slice(from));
     let end = from;
     // Indexing past the end answers undefined, and every comparison against it
     // is false, so this stops where C's digit loop stops at the '\0'.
     while (str[end] >= '0' && str[end] <= '9') end++;
-    return { value: Number.isNaN(value) ? 0 : value, end };
+    return { value, end };
 }
 
 // C ref: objnam.c readobjnam_parse_charges() (4178-4237).  Consumes a

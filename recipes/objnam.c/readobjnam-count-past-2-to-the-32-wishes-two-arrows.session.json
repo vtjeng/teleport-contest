@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "objnam.c readobjnam() 3983: the wished count is atoi(), so \"4294967298 arrows\" (2^32 + 2) in debug mode gives \"d - 2 +0 arrows\".",
+ "segments": [
+  {
+   "seed": 8822014,
+   "datetime": "20450721091500",
+   "nethackrc": "OPTIONS=name:Fletch,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": " \u00174294967298 arrows\n"
+  }
+ ]
+}

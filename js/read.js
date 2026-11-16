@@ -152,7 +152,7 @@ import {
     strstri,
     upstart,
     upwords,
-    push_front, lcase,
+    push_front, lcase, atoi,
 } from './hacklib.js';
 import { game } from './gstate.js';
 import {
@@ -3426,7 +3426,8 @@ export function create_particular_parse(str, state = game) {
 
     const countMatch = bufp.match(/^\d+/u);
     if (countMatch) {
-        d.quan = Number.parseInt(countMatch[0], 10);
+        // read.c 3156: atoi() keeps the low 32 bits of a long count.
+        d.quan = atoi(countMatch[0]);
         bufp = bufp.slice(countMatch[0].length);
         while (bufp.startsWith(' ')) bufp = bufp.slice(1);
     }

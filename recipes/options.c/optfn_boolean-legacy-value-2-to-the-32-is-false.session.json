@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "options.c optfn_boolean() 5232 (variation): OPTIONS=legacy:4294967296 (2^32) is atoi() 0, so legacy is off and the game opens without the legacy text or a configuration error.",
+ "segments": [
+  {
+   "seed": 8822025,
+   "datetime": "20450722100000",
+   "nethackrc": "OPTIONS=name:Quiet,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=playmode:debug,pettype:none,!tutorial,!splash_screen,!autopickup\nOPTIONS=legacy:4294967296\n",
+   "moves": "i\u001b"
+  }
+ ]
+}

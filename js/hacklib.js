@@ -24,6 +24,23 @@ export function appendLongDigit(value, digitValue) {
     return appended > 9223372036854775807n ? -1n : appended;
 }
 
+// C library atoi() as the recorder's LP64 glibc computes it: skip ASCII
+// whitespace, read an optional sign and a decimal run (0 when there is none),
+// saturate to signed 64-bit long as strtol() does, then keep the low 32 bits
+// as the int result. So "4294967298" is 2 and "2147483648" is -2147483648.
+// Every C atoi() site in js/ calls this one; scripts/c-atoi.test.mjs fails
+// when another parseInt() or atoi copy appears.
+const LONG_MAX = (1n << 63n) - 1n;
+const LONG_MIN = -(1n << 63n);
+export function atoi(str) {
+    const match = /^[\t\n\v\f\r ]*([+-]?[0-9]+)/u.exec(String(str ?? ''));
+    if (!match) return 0;
+    let wide = BigInt(match[1]);
+    if (wide > LONG_MAX) wide = LONG_MAX;
+    else if (wide < LONG_MIN) wide = LONG_MIN;
+    return Number(BigInt.asIntN(32, wide));
+}
+
 // Text the game reads or builds is a byte string: one JavaScript code unit
 // per C char, each from 0 to 0xFF, the way C holds it in a char array. The
 // player's typed keys arrive one byte each, and nethackrc lines, getlin()

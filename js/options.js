@@ -181,7 +181,7 @@ import {
     str_start_is,
     strstri,
     truncateByteString,
-    visctrl, lcase, strcmpi, strncmpi,
+    visctrl, lcase, strcmpi, strncmpi, atoi,
 } from './hacklib.js';
 import { isDefaultSymsetName, read_sym_file } from './files.js';
 import {
@@ -955,13 +955,13 @@ function booleanValue(result, row, statement, value, negated) {
         || normalized === 'on'
         // options.c optfn_boolean() accepts digit-leading strings according
         // to atoi(), including spellings such as "01" and "1suffix".
-        || (/^[0-9]/u.test(normalized)
-            && Number.parseInt(normalized, 10) === 1)) return true;
+        || (/^[0-9]/u.test(normalized) && atoi(normalized) === 1))
+        return true;
     if ('false'.startsWith(normalized)
         || 'no'.startsWith(normalized)
         || normalized === 'off'
-        || (/^[0-9]/u.test(normalized)
-            && Number.parseInt(normalized, 10) === 0)) return false;
+        || (/^[0-9]/u.test(normalized) && atoi(normalized) === 0))
+        return false;
     // C's third arm (5233-5237) is `else if (!allopt[optidx].valok)`: a row
     // that admits arbitrary values keeps `negated` as it was and falls through
     // to the assignment, and only the rest report and return optn_silenterr.
@@ -2014,7 +2014,7 @@ function menuHeadingColor(token, rawToken = token) {
     // coloratt.c also accepts an in-range decimal color index when the
     // string begins with a digit; the tty color table occupies 0 through 15.
     if (/^\d/u.test(rawToken)) {
-        const color = Number.parseInt(rawToken, 10);
+        const color = atoi(rawToken);
         if (color >= CLR_BLACK && color <= CLR_WHITE) return color;
     }
     return null;
@@ -2817,8 +2817,9 @@ function setStatusHiliteDuration(result, value, negated) {
         result.iflags.hilite_delta = 0;
         return;
     }
+    // options.c 4029-4030 reads the duration with atol().
     const parsed = value == null || value === ''
-        ? 3 : Number.parseInt(value, 10) || 0;
+        ? 3 : Number(atol(value));
     result.iflags.hilite_delta = parsed < 0 ? 1 : parsed;
 }
 
@@ -3550,21 +3551,6 @@ function applyMenuBinding(result, binding) {
     };
     result.gameplayBindings.push(operation);
     result.commandOperations.push({ type: 'bind', ...operation });
-}
-
-// C ref: the recorder's glibc atoi(), which skips leading whitespace, reads an
-// optional sign and a decimal run, answers zero when there is none, saturates
-// first to signed long and then narrows to a signed 32-bit int.  BigInt
-// preserves that phase order across JavaScript hosts, and its digit class is
-// ASCII-only, as C's is.
-function atoi(str) {
-    const digits = String(str).match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
-    let wide = digits ? BigInt(digits[0].trim().replace(/^\+/u, '')) : 0n;
-    const longMax = (1n << 63n) - 1n;
-    const longMin = -(1n << 63n);
-    if (wide > longMax) wide = longMax;
-    else if (wide < longMin) wide = longMin;
-    return Number(BigInt.asIntN(32, wide));
 }
 
 // C ref: the recorder's LP64 glibc atol().  Unlike atoi(), the option handlers
@@ -6449,7 +6435,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         }
         // atoi() answers 0 for text that starts with no digits, and the guard
         // is `!val || (val & ~7) != 0`, which admits exactly 1 through 7.
-        const versinfo = Number.parseInt(op, 10);
+        const versinfo = atoi(op);
         if (!Number.isInteger(versinfo) || versinfo < 1 || versinfo > 7) {
             configErrorAdd(
                 result,

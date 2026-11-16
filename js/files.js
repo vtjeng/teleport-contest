@@ -10,7 +10,7 @@ import {
 } from './const.js';
 import { COIN_CLASS } from './objects.js';
 import {
-    bytesText, textBytes, mungspaces, lcase, truncateByteString,
+    atoi, bytesText, textBytes, mungspaces, lcase, truncateByteString,
 } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
@@ -149,11 +149,6 @@ function asciiFold(text) {
     return String(text).replace(/[A-Z]/gu, (character) => (
         String.fromCharCode(character.charCodeAt(0) + 32)
     ));
-}
-
-function atoi(text) {
-    const match = /^[\t\n\v\f\r ]*([+-]?\d+)/u.exec(text);
-    return match ? Number.parseInt(match[1], 10) : 0;
 }
 
 function prefixCommand(line, command) {

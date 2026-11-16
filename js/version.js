@@ -13,6 +13,7 @@ import {
     runtime_info_init,
     version_id_string,
 } from './mdlib.js';
+import { atoi } from './hacklib.js';
 import { nhlL_newstate, nhl_init } from './nhlua.js';
 
 export const VI_NUMBER = 1;
@@ -26,21 +27,6 @@ const RECORDER_VERSION_ID = version_id_string(RECORDER_BUILD_DATE);
 const RECORDER_COPYRIGHT_BANNER_C = bannerc_string(RECORDER_BUILD_DATE);
 const LUA_VERSION = '5.4.8';
 const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
-
-const LONG_MAX = (1n << 63n) - 1n;
-const LONG_MIN = -(1n << 63n);
-
-// C ref: the recorder's glibc atoi(). version.c stores each result in int
-// before FEATURE_NOTICE_VER casts it to unsigned long, so conversion has two
-// widths: signed-long saturation followed by signed-32-bit narrowing.
-function atoi(str) {
-    const match = /^[\t\n\v\f\r ]*([+-]?[0-9]+)/u.exec(String(str));
-    if (!match) return 0;
-    let wide = BigInt(match[1]);
-    if (wide > LONG_MAX) wide = LONG_MAX;
-    else if (wide < LONG_MIN) wide = LONG_MIN;
-    return Number(BigInt.asIntN(32, wide));
-}
 
 // C ref: hack.h FEATURE_NOTICE_VER(). The recorder ABI uses a 64-bit
 // unsigned long. Cast each int before shifting, as the macro does; shifting a

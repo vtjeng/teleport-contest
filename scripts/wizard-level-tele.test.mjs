@@ -38,7 +38,8 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { cAtoi, level_tele } from '../js/teleport.js';
+import { atoi } from '../js/hacklib.js';
+import { level_tele } from '../js/teleport.js';
 import { wiz_level_tele } from '../js/wizcmds.js';
 import {
     ESCAPE_KEY,
@@ -291,7 +292,7 @@ test('level-teleport decimal conversion matches the recorder ABI', () => {
         ['no digits', 0],
     ];
     for (const [text, expected] of cases)
-        assert.equal(cAtoi(text), expected, text);
+        assert.equal(atoi(text), expected, text);
 });
 
 test('a numeric special level schedules through the common destination tail',

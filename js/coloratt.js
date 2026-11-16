@@ -7,6 +7,7 @@
 import { BUFSZ, CLR_MAX, NH_BASIC_COLOR, PICK_ONE, PICK_ANY, HL_NONE, HL_BOLD, HL_DIM, HL_ITALIC, HL_ULINE, HL_BLINK, HL_INVERSE } from './const.js';
 import { COLOR_NAMES, COLOR_TABLE } from './color_data.js';
 import {
+    atoi,
     fuzzymatch,
     mungspaces,
     strstri,
@@ -252,9 +253,7 @@ export function rgbstr_to_int32(rgbstr) {
         const b = components.at(-1);
         if (components.length >= 3
             && [r, g, b].every((part) => part.length > 0 && part.length < 4)) {
-            return (Number.parseInt(r, 10) << 16)
-                | (Number.parseInt(g, 10) << 8)
-                | Number.parseInt(b, 10);
+            return (atoi(r) << 16) | (atoi(g) << 8) | atoi(b);
         }
     } else if (value) {
         return check_enhanced_colors(value);

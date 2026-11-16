@@ -147,7 +147,7 @@ import {
     u_locomotion,
 } from './hack.js';
 import { exercise, acurr } from './attrib.js';
-import { dist2, distmin } from './hacklib.js';
+import { atoi, dist2, distmin } from './hacklib.js';
 import {
     control_teleport,
     can_teleport,
@@ -2092,22 +2092,6 @@ export async function level_tele_trap(
 }
 
 
-// The comparison recorder's atoi() reaches strtol() and then stores the
-// result in a signed int. Match that concrete LP64 ABI: ASCII whitespace,
-// optional sign, a decimal prefix, long saturation, then low-32-bit narrowing.
-// level_tele() deliberately accepts the prefix, so "2foo" still means level 2.
-const LONG_MAX = (1n << 63n) - 1n;
-const LONG_MIN = -(1n << 63n);
-
-export function cAtoi(text) {
-    const match = /^[ \t\n\v\f\r]*([+-]?[0-9]+)/.exec(String(text));
-    if (!match) return 0;
-    let wide = BigInt(match[1]);
-    if (wide > LONG_MAX) wide = LONG_MAX;
-    else if (wide < LONG_MIN) wide = LONG_MIN;
-    return Number(BigInt.asIntN(32, wide));
-}
-
 // C ref: teleport.c random_teleport_level() (2191-2257). Selects a random
 // destination depth relative to the current dungeon. The 1-in-5 early return,
 // the single-level-branch early return, and the endgame early return all hand
@@ -2316,7 +2300,7 @@ export async function level_tele(state = game) {
                     break;
                 }
                 newlev = lev_by_name(buf, state);
-                if (!newlev) newlev = cAtoi(buf);
+                if (!newlev) newlev = atoi(buf);
             } while (!newlev
                 && !/^[0-9]/u.test(buf)
                 && (buf[0] !== '-' || !/^[0-9]/u.test(buf[1] ?? ''))

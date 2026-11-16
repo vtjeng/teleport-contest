@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "objnam.c readobjnam() 3991 (variation): the \"+N\" enchantment is atoi(), so \"+4294967298 dagger\" is +2 (debug mode skips the rnd(5) cap, 5097-5098); ^I shows \"e - a +2 dagger\", where a whole value would be capped at SPE_LIM.",
+ "segments": [
+  {
+   "seed": 8822022,
+   "datetime": "20450722091500",
+   "nethackrc": "OPTIONS=name:Blade,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "\u0017+4294967298 dagger\n\t\u001b"
+  }
+ ]
+}
