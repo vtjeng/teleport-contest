@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c newcham() 5326-5338: polymorphing an ordinary monster that wears red dragon scales after red dragons are genocided. select_newcham_form() returns red dragon on every try (mon.c 5195-5200), accept_newcham_form() rejects it as G_GENOD, and after 20 tries newcham() returns 0 (5338), so the zap has no effect. A debug Valkyrie drops wished red dragon scales beside a tame djinni, which picks them up and puts them on; she reads an uncursed scroll of genocide for red dragons and zaps a wand of polymorph at the djinni twice (the first zap misses as it moves).",
+  "segments": [
+    {
+      "seed": 6630023,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Egger,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017red dragon scales\n\u0017uncursed scroll of genocide\n\u0017wand of polymorph\n\u0007tame djinni\ndehhh\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001brf  red dragon\nzgn\u001bzgn\u001b"
+    }
+  ]
+}

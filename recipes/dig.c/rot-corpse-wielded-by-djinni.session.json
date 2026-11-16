@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c rot_corpse() 2166-2169: a cockatrice corpse rots away while a monster wields it, so rot_corpse() unwields it with setmnotwielded() (2169). A debug Valkyrie puts on wished leather gloves, wishes for a cockatrice corpse and drops it beside a tame djinni; the djinni (stone resistant, so select_hwep() ranks the corpse first) picks it up and wields it, and she searches in counts of 20 until the corpse's ROT_CORPSE timer fires near turn 500.",
+  "segments": [
+    {
+      "seed": 6630022,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Rotter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017leather gloves\nWe\u0017cockatrice corpse\n\u0007tame djinni\ndfhhh\u001b20s       20s20s 20s  20s 20s  20s20s20s20s20s20s20s20s 20s 20s  20s 20s  20s20s 20s20s20s  20s 20s 20s20s 20s 20s20s20s20s20s    "
+    }
+  ]
+}

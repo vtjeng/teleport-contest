@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mhitu.c explmu() 1617-1621: an exploding monster survives mon_explodes() through life saving, so explmu() clears kill_agr (1621). A debug Valkyrie (monpolycontrol) drops a wished amulet of life saving beside a tame djinni, which picks it up and puts it on; she zaps a wand of polymorph at it and answers 'flaming sphere' (mon_break_armor keeps the amulet), then puts on a ring of conflict, so the sphere explodes at her; its amulet saves it ('The flaming sphere reconstitutes!') and the explosion's damage kills her, which debug mode declines.",
+  "segments": [
+    {
+      "seed": 6630022,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Boomer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,monpolycontrol\n",
+      "moves": "\u0017amulet of life saving\n\u0017wand of polymorph\n\u0017ring of conflict\n\u0007tame djinni\ndehhh\u001bszflflaming sphere\nPgrs      n"
+    }
+  ]
+}

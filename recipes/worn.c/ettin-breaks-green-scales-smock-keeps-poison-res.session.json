@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "worn.c update_mon_extrinsics() 668-672, off branch: a monster loses green dragon scales (POISON_RES) while still wearing an alchemy smock, whose oc_oprop is also POISON_RES, so the loop breaks at 672 and the monster keeps poison resistance. A debug Valkyrie (monpolycontrol) drops green dragon scales and then an alchemy smock beside a tame djinni, which puts both on; she zaps a wand of polymorph at it and answers 'ettin', and mon_break_armor() breaks the suit (m_useup) before tearing the cloak.",
+  "segments": [
+    {
+      "seed": 6630026,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Smocker,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,monpolycontrol\n",
+      "moves": "\u0017uncursed green dragon scales\n\u0017wand of polymorph\n\u0017uncursed alchemy smock\n\u0007tame djinni\nhhh\u001bdell msdgllmsmsmsmszfhettin\n "
+    }
+  ]
+}

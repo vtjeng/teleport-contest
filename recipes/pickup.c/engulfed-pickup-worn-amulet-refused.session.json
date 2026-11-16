@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c query_objlist() 1058-1062 and 1185-1208: picking up from an engulfer's inventory refuses items it wears. A debug Valkyrie (monpolycontrol) drops an amulet of life saving beside a tame djinni, which puts it on, then drops her dagger, which it picks up and wields; she zaps a wand of polymorph at it and answers 'fog cloud', puts on a ring of conflict, and the fog cloud engulfs her. Inside, ',' lists the worn amulet, the dagger and a scroll; picking all three refuses the amulet ('You can't pick ... up', 1186) and shrinks the list (1204-1208). A second ',' lists only the worn amulet, so AUTOSELECT_SINGLE is cleared (1061-1062); picking it empties the list (1197-1199).",
+  "segments": [
+    {
+      "seed": 6630026,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Boomer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,monpolycontrol\n",
+      "moves": "\u0017uncursed amulet of life saving\n\u0017wand of polymorph\n\u0017ring of conflict\n\u0007tame djinni\ndehhh\u001bmsmsmsmsmsmsmsmsmsmsmsmsmsdbll msmsmsmsmsmsmsmsmsmszfhfog cloud\nPgrmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsms ,abc\n  ,a\n"
+    }
+  ]
+}
