@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c noneoftheabove() gives \"(polymorphed)\" its own ignore set (quotes and parentheses only), so title/poly-morphed is no catch-all rule for a polymorphed hero: the newt's title stays uncolored.",
+  "segments": [
+    {
+      "seed": 4417301,
+      "datetime": "20250911093000",
+      "nethackrc": "OPTIONS=name:Odo,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color\nOPTIONS=statushilites:2,hilite_status:title/poly-morphed/red\n",
+      "moves": "#polyself\nnewt\nss"
+    }
+  ]
+}
