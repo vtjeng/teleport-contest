@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review c block 150 (worn.c wearslot 316-318): the worn small shield dipped into a potion of polymorph becomes a shirt, so poly_obj() (zap.c:1929) asks wearslot() for the new armor's slot and gets W_ARMU. Seed found by searching seeds for that outcome; inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5170020,
+      "datetime": "20470318120000",
+      "nethackrc": "OPTIONS=name:Sifr,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b#wizwish\n3 potions of polymorph\n#dip\nce"
+    }
+  ]
+}
