@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c wall_angle() for a corner whose wall_info mode it does not know (set_corner()'s default): #wizloadlua knox runs Fort Ludios's des-file over Dlvl 1 without set_wall_state(); with this seed des.terrain(36,09,\"|\") lays a vertical wall on the map's secret door, keeping the door's D_CLOSED as wall mode 4. The Priest then wishes for \"wall\" (objnam.c wizterrainwish() -> fix_wall_spines()) on five floor squares around it, east (37,9) and (37,10) in the throne room and west (35,10), (35,9), (35,8) in the treasury, reached by ^T; the last wish leaves only its north and east spines, so fix_wall_spines() makes it a BLCORNER that still has mode 4. ^F (do_mapping) draws it through back_to_glyph() -> wall_angle(), and C prints impossible(\"wall_angle: unknown blcorn mode 4\") among the reports for the other mode-4 squares. A court monster's potion on the way confuses the hero briefly; the naming prompt is escaped. Seed, date, Priest and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7310265,
+      "datetime": "20460517220841",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,suppress_alert:3.7.0\n",
+      "moves": "  #wizloadlua\nknox\n\u0014 LLLllllllljjjjj.       \u0017wall\nj        \u001b\u0017wall\n\u0014 hh.       \u0017wall\n\u0014 k.       \u0017wall\n\u0014 k.    \u0017wall\n\u0006                                   "
+    }
+  ]
+}
