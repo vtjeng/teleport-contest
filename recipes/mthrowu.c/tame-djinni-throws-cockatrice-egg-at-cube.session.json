@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mthrowu.c ohitmon() 444-448: a monster-thrown cockatrice egg hits a stone-resistant monster, so munstone()/minstapetrify() leave it alive and the damage is zeroed (448). A debug Valkyrie wishes for three cockatrice eggs and drops them beside a tame djinni (stone resistant, so can_touch_safely() lets it carry them); the djinni picks them up, and when a peaceful gelatinous cube (stone resistant; pets rarely melee it) lines up, thrwmm() selects the egg first (select_rwep Oselect(EGG)) and throws it.",
+  "segments": [
+    {
+      "seed": 6630023,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Egger,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u00173 cockatrice eggs\n\u0007tame djinni\ndehhh\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b\u0007peaceful gelatinous cube\ns\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}
