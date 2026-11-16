@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5512893,
+      "datetime": "20441207094500",
+      "nethackrc": "OPTIONS=name:Prizer,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0016?\n B  ,b\n#wizmakemap\n "
+    }
+  ],
+  "comment": "cmd.c makemap_prepost() 1004-1006: after picking up the Sokoban prize (here the bag of holding, on whose closet the wizard-mode level teleport to soko1 lands), #wizmakemap revokes the achievement and prints \"Soko-prize achievement revoked.\" from Unachieve[] (cmd.c 995)."
+}

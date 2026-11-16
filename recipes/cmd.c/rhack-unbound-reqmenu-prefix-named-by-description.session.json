@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9182736,
+      "datetime": "20420115120000",
+      "nethackrc": "OPTIONS=name:Rebinder,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen\nBIND=m:pray\n",
+      "moves": " #reqmenu\nx "
+    }
+  ],
+  "comment": "cmd.c rhack() 3696-3720: BIND=m:pray leaves do_reqmenu with no key, so after #reqmenu the swap command x, which takes no 'm' prefix, is refused with cmd_from_func()'s fallback name \"move-no-pickup or request-menu\" (3699)."
+}

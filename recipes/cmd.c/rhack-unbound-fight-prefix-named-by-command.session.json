@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5730241,
+      "datetime": "20400822183000",
+      "nethackrc": "OPTIONS=name:Unfought,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen\nBIND=F:pray\n",
+      "moves": " #fight\nx"
+    }
+  ],
+  "comment": "Variation of rhack-unbound-reqmenu-prefix-named-by-description: BIND=F:pray leaves the fight prefix keyless, so #fight then x names it by its ef_txt \"fight\" (3700)."
+}

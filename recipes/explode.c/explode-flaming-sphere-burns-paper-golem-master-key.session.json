@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60217733,
+      "datetime": "20410621160000",
+      "nethackrc": "OPTIONS=name:Keyholder,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\u0017the Master Key of Thievery\n #polyself\nmastodon\n u\u0007hostile paper golem\n\u0007hostile flaming sphere\nmsms   "
+    }
+  ],
+  "comment": "explode.c explode() 577-581 and 611: on a monster's turn a flaming sphere's fire blast completely burns a paper golem, so adtyp becomes AD_RBRE before the hero's injury; AD_RBRE is not AD_PHYS, so Maybe_Half_Phys() does not halve the damage even though the Master Key of Thievery gives this Rogue (polymorphed into a mastodon for hit points) half physical damage. One step northeast puts the hero against the east wall, and this seed places the golem and the sphere next to each other there."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84402117,
+      "datetime": "20470309081500",
+      "nethackrc": "OPTIONS=name:Fatebearer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\u0017the Orb of Fate\n #polyself\nmastodon\n \u0007hostile straw golem\n\u0007hostile flaming sphere\nmsms  \u0007hostile flaming sphere\nmsms   "
+    }
+  ],
+  "comment": "Variation of explode-flaming-sphere-burns-paper-golem-master-key: a Valkyrie carrying the Orb of Fate and a straw golem; the first sphere explodes out of the golem's reach and the second burns it completely."
+}

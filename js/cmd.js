@@ -2682,13 +2682,15 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         const ledger = ledger_no(state.u.uz, state);
         rm_mapseen(ledger, state);
         state.context.achieveo ??= {};
+        // cmd.c:995 Unachieve[] = "%s achievement revoked."
+        const unachieve = (name) => `${name} achievement revoked.`;
         if (on_level(state.u.uz, state.mineend_level)) {
             if (remove_achievement(ACH_MINE_PRIZE, state))
-                await ttyPline('Mine\'s-end achievement revoked.', state);
+                await ttyPline(unachieve("Mine's-end"), state);
             state.context.achieveo.mines_prize_oid = 0;
         } else if (on_level(state.u.uz, state.sokoend_level)) {
             if (remove_achievement(ACH_SOKO_PRIZE, state))
-                await ttyPline('Sokoban end achievement revoked.', state);
+                await ttyPline(unachieve('Soko-prize'), state);
             state.context.achieveo.soko_prize_oid = 0;
         }
         if (Punished(state)) {
@@ -4947,16 +4949,20 @@ async function rhackCanDoExtcmd(command, state) {
 }
 
 // C ref: rhack():3696-3722, the two messages for a command that was given a
-// prefix it does not accept. `which` is the key bound to the prefix; C's two
-// fallbacks for an unbound prefix cannot fire, because commands_init() binds
-// both prefixes this port dispatches.
+// prefix it does not accept. `which` is the key bound to the prefix. When an
+// rc BIND takes the prefix's only key and the prefix arrives as an extended
+// command (#reqmenu), C's cmd_from_func() finds no key and names do_reqmenu
+// "move-no-pickup or request-menu" and any other prefix by its ef_txt.
 //
 // Both lines end the command. C sets res = ECMD_FAIL and its result handling
 // at 3810 turns that into reset_cmd_vars(TRUE), which the caller does here.
 async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
-    const which = visibleCommandKey(
-        keyForCommand(commandBindings(state), prefixCommand),
-    );
+    const pfxidx = keyForCommand(commandBindings(state), prefixCommand);
+    const prefixEntry = EXTCMD_BY_NAME.get(prefixCommand);
+    const which = pfxidx ? visibleCommandKey(pfxidx)
+        : prefixEntry?.ef_funct === 'do_reqmenu'
+            ? 'move-no-pickup or request-menu'
+            : prefixEntry?.ef_txt ?? prefixCommand;
     if (wasMPrefix) {
         // custompline(SUPPRESS_HISTORY, ...) is pline() that stays out of the
         // message history doprev_message() recalls; no message history is

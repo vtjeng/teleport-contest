@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7740219,
+      "datetime": "20391003201500",
+      "nethackrc": "OPTIONS=name:Boxer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0016?\n B\u0014  Hhhhjj.  ,a\n#wizmakemap\n "
+    }
+  ],
+  "comment": "Variation of makemap_prepost-soko-prize-revoked-bag-of-holding: another seed and role whose soko1 prize is the amulet of reflection; wizard-mode ^T moves the hero 11 west and 2 south into its closet before the pickup and #wizmakemap."
+}
