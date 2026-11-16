@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31337,
+      "datetime": "20350815100000",
+      "nethackrc": "OPTIONS=name:Pupil,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0\n",
+      "moves": "    ;.\u0001\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff"
+    }
+  ],
+  "comment": "cmd.c end_of_input() witness for the tutorial (5193-5194). The tutorial option starts the game in the tutorial level. ^A repeats farlook, whose getpos() reads twenty-one 0377 bytes through pgetchar(), so readchar_core() calls hangup(). The next moveloop_core() calls end_of_input(), which clears something_worth_saving because the hero is in the tutorial, so the game ends without a save."
+}

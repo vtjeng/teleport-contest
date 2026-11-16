@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c explosionmask() AD_DISN for the hero from a WAND_CLASS explosion: a Samurai in debug mode wishes for a wand of death, polymorphs into a human zombie (nonliving), and applies the wand to break it. do_break_wand() -> broken_wand_explode() -> explode(-WAN_DEATH, WAND_CLASS) makes a 'death field' (AD_DISN); explosionmask() takes the WAND_CLASS arm, nonliving(youmonst.data) holds, and it returns EXPL_HERO, so the hero gets the shield effect instead of the damage. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 8642017,
+      "datetime": "20480203141522",
+      "nethackrc": "OPTIONS=name:Ichiro,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,suppress_alert:3.7.0\n",
+      "moves": "\u0017wand of death\n#polyself\nhuman zombie\nafy  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50311,
+      "datetime": "20480117073344",
+      "nethackrc": "OPTIONS=name:Turncoat,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0,!autopickup,!tips\n",
+      "moves": "\nh\u0017chaotic altar\n\u0017white unicorn corpse\n\n#offer\ny\n\n\n\u0016?\n>y\n\n\u0017helm of opposite alignment\nWgs"
+    }
+  ],
+  "comment": "Debug-mode lawful Samurai steps off the stairs, wishes a chaotic altar and a white unicorn corpse that drops onto it, and offers the corpse: sacrificing a co-aligned unicorn on a cross-aligned altar sets the record to -1, so Susanowo accepts his allegiance and he is permanently converted. He then level-teleports to the quest home through the debug menu, wishes a helm of opposite alignment and tries to wear it; accessory_or_armor_on() refuses it in the quest with the converted-hero message (do_wear.c:2232-2233). Independent seed, date and character."
+}

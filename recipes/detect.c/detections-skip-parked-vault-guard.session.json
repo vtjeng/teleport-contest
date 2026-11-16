@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c detections skipping a vault guard parked at <0,0> (gold_detect 349, 437; object_detect 670, 740; trap_detect 1050; display_trap_map 973). A debug Wizard maps Dlvl 1 (seed 8812297: a vault and no traps, from a port scan of 8812001-8812800), teleports into the vault and searches until the guard arrives, gives a name, and follows the guard out along its temporary corridor. When the guard reaches the real corridor, vault.c gd_move_cleanup() parks it at <0,0> ('Suddenly, the guard disappears.') while the hero still stands in the fake corridor; C then reports newsym() for <0,0> through impossible() on each full redraw. Still in the corridor she reads a scroll of gold detection, quaffs a potion of object detection and reads a cursed scroll of gold detection (trap detection on a trap-free level: the monster loop reaches the parked guard, then 'strange feeling'). She then wishes a squeaky board, steps back along the corridor and reads another cursed scroll, so the trap away from her makes trap_detect() call display_trap_map().",
+  "segments": [
+    {
+      "seed": 8812297,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Orrin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,suppress_alert:3.7.0,!tips\n",
+      "moves": " \u0006\u0014HHhhhj. 40s Orrin\nssysysysysy   \u0017scroll of gold detection\nro \u001b  \u0017potion of object detection\nqp\u001b  \u0017cursed scroll of gold detection\nrq \u0017squeaky board\nn\u0017cursed scroll of gold detection\nrr \u001b  "
+    }
+  ]
+}

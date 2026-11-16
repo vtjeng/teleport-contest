@@ -5566,10 +5566,11 @@ async function doorganize_core(obj, state = game, hooks = {}) {
     for (let code = 97; code <= 122; ++code) lets.push(String.fromCharCode(code));
     for (let code = 65; code <= 90; ++code) lets.push(String.fromCharCode(code));
     lets.push(''); // overflow slot, filled below when it is in use
+    // C 5109-5110: for floating letters, truncate the list after the first
+    // open slot whenever fewer than invlet_basic stacks are carried.
     if (!state.flags?.invlet_constant) {
         const count = inv_cnt(false, state);
-        const limit = count + (splitting ? 1 : 2);
-        if (limit < INVLET_BASIC) lets.length = limit;
+        if (count < INVLET_BASIC) lets.length = count + (splitting ? 1 : 2);
     }
     for (let current = inventoryHead(state); current; current = current.nobj) {
         if (current === obj || mergable(current, obj, { state, hooks })) continue;

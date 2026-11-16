@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c parse_status_hl2(). A hilite_status rule 'hitpoints/criticalhp/red' sets only criticalhp, so the behavior chain passes always, percent, changed, numeric and txtval, evaluates hilite.value.a_void (still zero from the memset; 3084) and picks BL_TH_CRITICALHP (3086-3087). statushilites is on so the rule is live while the Samurai searches twice at full HP. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 73019468,
+      "datetime": "20410322094012",
+      "nethackrc": "OPTIONS=name:Toshiro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=statushilites:20\nOPTIONS=hilite_status:hitpoints/criticalhp/red\n",
+      "moves": "ss"
+    }
+  ]
+}

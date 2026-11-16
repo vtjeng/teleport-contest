@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61849,
+      "datetime": "20400312063015",
+      "nethackrc": "OPTIONS=name:Puddle,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0,!autopickup\n",
+      "moves": "\n\u0017water walking boots\nWf\u0017pool\nl\u0017figurine of a jackal\naghs\ns\u00073 sleeping erinyes\n\u0017figurine of an erinys\nahl\ns"
+    }
+  ],
+  "comment": "Debug-mode Samurai wears wished water walking boots, wishes a pool onto her square, steps off it and applies a jackal figurine toward the pool, so make_familiar() places the jackal in water and minliquid() drowns it. She then creates three sleeping erinyes, which reaches their birth limit and marks them extinct, and applies an erinys figurine, which crumbles to dust because pick_familiar_pm() refuses an extinct birth-limited species. Independent seed and date."
+}

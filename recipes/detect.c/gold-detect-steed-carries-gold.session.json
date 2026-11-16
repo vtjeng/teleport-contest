@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c gold_detect() steed arms for loose gold (352, 462). A debug Knight on Dlvl 1 of seed 9133002 raises himself to experience level 30, wishes for 50 gold pieces, drops them and steps aside until his pony picks up one gold piece, wishes for an uncursed scroll of gold detection and forces the mount. Reading it, the first monster loop finds the steed's gold and sets steedgold (352) instead of mapping; the floor gold elsewhere sends it to the map, where the steed's gold is mapped at the hero's own spot (462).",
+  "segments": [
+    {
+      "seed": 9133002,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,suppress_alert:3.7.0,!tips\n",
+      "moves": " #levelchange\n30\n\u001b\u001750 gold pieces\nd$lssssssssss\u0017uncursed scroll of gold detection\n#ride\nkyri \u001b\u001b"
+    }
+  ]
+}

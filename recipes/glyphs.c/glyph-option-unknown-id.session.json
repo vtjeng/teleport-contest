@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "glyphs.c parse_id() through optfn_glyph() and glyphrep_to_custom_map_entries(). The rc file is parsed while the glyph-ID cache is filled, so OPTIONS=glyph:G_unheard_of_relic/U+0041 looks the G_ name up with find_glyph_in_cache(), misses, and returns 0 (glyphs.c:884-885); glyph_find_core() fails and the option is rejected. The Wizard then searches twice. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 85521904,
+      "datetime": "20470214221508",
+      "nethackrc": "OPTIONS=name:Ilse,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=glyph:G_unheard_of_relic/U+0041\n",
+      "moves": "ss"
+    }
+  ]
+}

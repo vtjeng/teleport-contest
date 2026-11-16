@@ -111,6 +111,8 @@ function nomux_enter_raw_mode(state) {
 export function tty_raw_print(state, str) {
     const display = state?.nhDisplay;
     if (!display) return;
+    // wintty.c HUPSKIP(): nothing, not even the rawprint count, after hangup.
+    if (state.program_state?.done_hup) return;
 
     const raw = display.nomuxRaw;
     raw.rawprint = (raw.rawprint ?? 0) + 1;
@@ -127,6 +129,8 @@ export function tty_raw_print(state, str) {
 export function tty_raw_print_bold(state, str) {
     const display = state?.nhDisplay;
     if (!display) return;
+    // wintty.c HUPSKIP().
+    if (state.program_state?.done_hup) return;
 
     const raw = display.nomuxRaw;
     raw.rawprint = (raw.rawprint ?? 0) + 1;
@@ -144,6 +148,8 @@ export function tty_raw_print_bold(state, str) {
 export function nomux_get_cursor(display) {
     const raw = display?.nomuxRaw;
     if (raw?.active) return [raw.col, raw.row];
+    // `ttyDisplay ? ttyDisplay->curx : 0`: tty_exit_nhwindows() freed it.
+    if (display?.ttyDisplayFreed) return [0, 0];
     return [display?.cursorCol ?? 0, display?.cursorRow ?? 0];
 }
 

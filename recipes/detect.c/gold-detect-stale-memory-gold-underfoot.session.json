@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c gold_detect() stale-map redraw when the only gold is underfoot (409). Dlvl 1 of seed 8813687 has two gold piles, both in rooms, no monster carrying gold, and three traps (port scan of 8813001-8814200). A debug Wizard maps the level, teleports onto each pile and picks it up, then reads a cursed scroll of gold detection: trap detection with a cursed source shows the distant traps as gold, and the out-of-sight fake gold stays in map memory. She drops her gold and reads an uncursed scroll of gold detection: clear_stale_map() removes the remembered fake gold (stale), no monster or floor gold lies away from her, so gold_detect() redraws with docrt() and reports gold between her feet.",
+  "segments": [
+    {
+      "seed": 8813687,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Thessaly,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,suppress_alert:3.7.0,!tips\n",
+      "moves": " \u0006\u0014Lllkkkk.,\u0014HHhhhhhhhjj.,\u0017cursed scroll of gold detection\nro \u001b\u001bd$\u0017uncursed scroll of gold detection\nrp "
+    }
+  ]
+}

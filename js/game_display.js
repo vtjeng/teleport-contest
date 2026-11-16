@@ -92,6 +92,17 @@ export class GameDisplay {
         // and a window display or tty_wait_synch clears.
         this.nomuxRaw = { active: false, rawprint: 0, row: 0, col: 0 };
 
+        // C ref: windows.c nhwindows_hangup() (614-640) sets `windowprocs` to
+        // hup_procs, whose output routines draw nothing.  hangup() is the one
+        // caller; nothing switches the procedures back for the rest of the
+        // process.  Every terminal write below goes through this class, so
+        // these methods are where the swap takes effect.
+        this.windowprocsHup = false;
+        // C ref: wintty.c tty_exit_nhwindows() (863-864) frees ttyDisplay
+        // under FREE_ALL_MEMORY, which include/config.h defines; recorder
+        // patch 006 nomux_get_cursor() then reports 0,0 until raw output.
+        this.ttyDisplayFreed = false;
+
         // NetHack-specific message state
         this.topMessage = null;
         this.toplines = '';
@@ -106,20 +117,35 @@ export class GameDisplay {
     get cols() { return this.terminal.cols; }
     get grid() { return this.terminal.grid; }
     get cursorCol() { return this.terminal.cursorCol; }
-    set cursorCol(v) { this.terminal.cursorCol = v; }
+    set cursorCol(v) { if (!this.windowprocsHup) this.terminal.cursorCol = v; }
     get cursorRow() { return this.terminal.cursorRow; }
-    set cursorRow(v) { this.terminal.cursorRow = v; }
+    set cursorRow(v) { if (!this.windowprocsHup) this.terminal.cursorRow = v; }
     get cursorVisible() { return this.terminal.cursorVisible; }
-    set cursorVisible(v) { this.terminal.cursorVisible = v; }
+    set cursorVisible(v) {
+        if (!this.windowprocsHup) this.terminal.cursorVisible = v;
+    }
     get spans() { return this.terminal.spans; }
     get container() { return this.terminal.container; }
     get flags() { return this.terminal.flags; }
     set flags(v) { this.terminal.flags = v; }
 
+    // C ref: windows.c nhwindows_hangup(). From here on the hup_procs
+    // output routines are no-ops, so the screen keeps what it showed.
+    hangup() { this.windowprocsHup = true; }
+
     // Display methods
-    setCell(col, row, ch, color, attr) { return this.terminal.setCell(col, row, ch, color, attr); }
-    putstr(col, row, str, color, attr) { return this.terminal.putstr(col, row, str, color, attr); }
-    setCursor(col, row) { return this.terminal.setCursor(col, row); }
+    setCell(col, row, ch, color, attr) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.setCell(col, row, ch, color, attr);
+    }
+    putstr(col, row, str, color, attr) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.putstr(col, row, str, color, attr);
+    }
+    setCursor(col, row) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.setCursor(col, row);
+    }
     // C's TTY clear operations leave the terminal's default foreground active.
     // The recorder shadow grid stores that as fg=7; its serializer emits no
     // color change because 7 is the terminal's initial foreground. Store the
@@ -133,14 +159,35 @@ export class GameDisplay {
         for (let column = 0; column < this.cols; ++column)
             this.setCell(column, row, ' ', NO_COLOR, 0);
     }
-    scrollUp() { return this.terminal.scrollUp(); }
-    moveCursor(x, y) { return this.terminal.moveCursor(x, y); }
-    putChar(x, y, ch, attr) { return this.terminal.putChar(x, y, ch, attr); }
+    scrollUp() {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.scrollUp();
+    }
+    moveCursor(x, y) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.moveCursor(x, y);
+    }
+    putChar(x, y, ch, attr) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.putChar(x, y, ch, attr);
+    }
     getChar(x, y) { return this.terminal.getChar(x, y); }
-    putString(str) { return this.terminal.putString(str); }
-    putCharAtCursor(ch) { return this.terminal.putCharAtCursor(ch); }
-    clearToEol() { return this.terminal.clearToEol(); }
-    cursSet(visibility) { return this.terminal.cursSet(visibility); }
+    putString(str) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.putString(str);
+    }
+    putCharAtCursor(ch) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.putCharAtCursor(ch);
+    }
+    clearToEol() {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.clearToEol();
+    }
+    cursSet(visibility) {
+        if (this.windowprocsHup) return undefined;
+        return this.terminal.cursSet(visibility);
+    }
     flush() { return this.terminal.flush?.(); }
     getPreElement() { return this.terminal.getPreElement(); }
     getCanvas() { return this.terminal.getCanvas?.(); }
@@ -178,6 +225,7 @@ export class GameDisplay {
     // --- NetHack-specific methods ---
 
     putstr_message(msg) {
+        if (this.windowprocsHup) return;
         this.clearRow(0);
         this.putstr(0, 0, msg, CLR_GRAY);
         this.topMessage = msg.trimEnd();

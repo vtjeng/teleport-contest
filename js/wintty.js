@@ -228,11 +228,15 @@ export function tty_curs(window, x, y, state = game, _env = {}) {
 // ttyDisplay is still alive.  Patch 006 nomux_raw_emit() drops an empty
 // string at that point unless raw mode is already active, where it ends the
 // current raw line; C still counts the call in ttyDisplay->rawprint.
+// After a hangup, settty() skips term_end_screen() because WINDOWPORT(tty)
+// no longer holds; here the hangup-frozen GameDisplay ignores the clear.
 export function tty_suspend_nhwindows(str, state = game) {
     const display = state.nhDisplay;
     display?.clearScreen();
     if (str) {
         tty_raw_print(state, str);
+    } else if (state.program_state?.done_hup) {
+        // tty_raw_print("") returns at its HUPSKIP() before counting.
     } else if (display?.nomuxRaw?.active) {
         tty_raw_print(state, '');
     } else if (display?.nomuxRaw) {
@@ -246,6 +250,7 @@ export function tty_suspend_nhwindows(str, state = game) {
 // farewell screen and window_inited, which tty_init_nhwindows() set.
 export function tty_exit_nhwindows(str, state = game) {
     tty_suspend_nhwindows(str, state);
+    if (state.nhDisplay) state.nhDisplay.ttyDisplayFreed = true;
     state.iflags ??= {};
     state.iflags.window_inited = false;
 }

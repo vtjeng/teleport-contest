@@ -19,6 +19,10 @@ export async function nhgetch(state = game) {
             'nhgetch() called after the segment terminated');
         await neverSettles();
     }
+    // C ref: windows.c hup_nhgetch() and hup_nh_poskey(). After a hangup
+    // the window procedures answer ESC without reading a key, so the
+    // recorder's tty_nhgetch() input boundary does not happen either.
+    if (state?.nhDisplay?.windowprocsHup) return KEY_ESC;
     // Fire the capture hook before reading the next key
     const hook = state._preNhgetchHook;
     if (hook) await hook();
