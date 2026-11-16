@@ -383,6 +383,9 @@ function facetMenuSpec(state, context, random) {
         lines,
         choices,
         preselected: randomChoice,
+        // role.c: n == 0 (Random toggled off) is ROLE_RANDOM; ESC is
+        // ROLE_NONE, quit.
+        emptyValue: randomChoice,
         cancelValue: quitChoice,
     };
 }
@@ -409,6 +412,9 @@ function confirmationMenuSpec(state) {
         lines,
         choices,
         preselected: 'y',
+        // role.c: n == 0 (Yes toggled off) is choice 1, start the game;
+        // ESC is -1, quit.
+        emptyValue: 'y',
         cancelValue: 'q',
     };
 }

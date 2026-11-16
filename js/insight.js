@@ -2337,6 +2337,9 @@ export async function set_vanq_order(
         // with Return or Space without selecting another row.  Keep this
         // value even when #genocided filtered its row from `items`.
         preselected: currentMode,
+        // n == 0, the preselected row toggled off, keeps the current mode;
+        // only ESC (n < 0) answers -1.
+        emptyValue: currentMode,
         cancelValue: null,
     });
     if (selected === null || selected === undefined) return -1;

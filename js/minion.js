@@ -24,7 +24,7 @@ import { flush_screen, map_invisible, newsym } from './display.js';
 import { In_hell } from './dungeon.js';
 import { Hear_again, is_fainted, reset_faint } from './eat.js';
 import { game } from './gstate.js';
-import { sgn, s_suffix } from './hacklib.js';
+import { atol, sgn, s_suffix } from './hacklib.js';
 import { nomul, unmul } from './hack.js';
 import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
@@ -347,7 +347,8 @@ export async function bribe(mtmp, prompt, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const input = await (env.getlin ?? getlin)(prompt, state);
     const match = /^\s*([+-]?\d+)/u.exec(String(input ?? ''));
-    let offer = match ? Number.parseInt(match[1], 10) : 0;
+    // glibc converts the %ld field as atol(), saturating at LONG_MAX.
+    let offer = match ? Number(atol(match[1])) : 0;
     const umoney = money_cnt(state.invent);
 
     if (offer < 0) {

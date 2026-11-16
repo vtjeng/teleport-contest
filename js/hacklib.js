@@ -17,28 +17,37 @@ export function push_front(list, item) {
     return list;
 }
 
+// The signed 64-bit long range of the recorder's LP64 build.
+const LONG_MAX = (1n << 63n) - 1n;
+const LONG_MIN = -(1n << 63n);
+
 // C integer.h AppendLongDigit for the recorded signed 64-bit-long profile.
 // Callers decide how to reset a count when the source reports overflow.
 export function appendLongDigit(value, digitValue) {
     const appended = value * 10n + BigInt(digitValue);
-    return appended > 9223372036854775807n ? -1n : appended;
+    return appended > LONG_MAX ? -1n : appended;
 }
 
-// C library atoi() as the recorder's LP64 glibc computes it: skip ASCII
-// whitespace, read an optional sign and a decimal run (0 when there is none),
-// saturate to signed 64-bit long as strtol() does, then keep the low 32 bits
-// as the int result. So "4294967298" is 2 and "2147483648" is -2147483648.
-// Every C atoi() site in js/ calls this one; scripts/c-atoi.test.mjs fails
-// when another parseInt() or atoi copy appears.
-const LONG_MAX = (1n << 63n) - 1n;
-const LONG_MIN = -(1n << 63n);
-export function atoi(str) {
+// C library atol() and atoi() as the recorder's LP64 glibc computes them.
+// atol() is strtol(str, NULL, 10): skip ASCII whitespace, read an optional
+// sign and a decimal run (0 when there is none) and saturate to the signed
+// 64-bit long range. It returns a BigInt so LONG_MIN and LONG_MAX stay exact.
+// atoi() is (int) strtol(): the same long with only its low 32 bits kept, so
+// "4294967298" is 2 and "2147483648" is -2147483648.
+// glibc's scanf family converts a %d or %ld field with the same strtol() call
+// (vfscanf-internal.c stores the long through an int * for %d), so a port of
+// sscanf() or fscanf() passes each matched field to atoi() or atol() too.
+// Every such site in js/ calls these two; scripts/c-atoi.test.mjs fails when
+// another parseInt(), atoi or atol copy, or long-saturation constant appears.
+export function atol(str) {
     const match = /^[\t\n\v\f\r ]*([+-]?[0-9]+)/u.exec(String(str ?? ''));
-    if (!match) return 0;
-    let wide = BigInt(match[1]);
-    if (wide > LONG_MAX) wide = LONG_MAX;
-    else if (wide < LONG_MIN) wide = LONG_MIN;
-    return Number(BigInt.asIntN(32, wide));
+    if (!match) return 0n;
+    const wide = BigInt(match[1]);
+    return wide > LONG_MAX ? LONG_MAX : wide < LONG_MIN ? LONG_MIN : wide;
+}
+
+export function atoi(str) {
+    return Number(BigInt.asIntN(32, atol(str)));
 }
 
 // Text the game reads or builds is a byte string: one JavaScript code unit

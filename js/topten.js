@@ -20,7 +20,7 @@ import {
 import { yyyymmdd } from './calendar.js';
 import { depth, deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
-import { highc, onlyspace, ordin, strsubst } from './hacklib.js';
+import { atoi, atol, highc, onlyspace, ordin, strsubst } from './hacklib.js';
 import { an } from './objnam.js';
 import { genders, aligns, roles } from './roles.js';
 import {
@@ -158,19 +158,20 @@ function readentry(line) {
     );
     if (!match) return tt;
 
-    tt.ver_major = parseInt(match[1], 10);
-    tt.ver_minor = parseInt(match[2], 10);
-    tt.patchlevel = parseInt(match[3], 10);
-    tt.points = parseInt(match[4], 10);
-    tt.deathdnum = parseInt(match[5], 10);
-    tt.deathlev = parseInt(match[6], 10);
-    tt.maxlvl = parseInt(match[7], 10);
-    tt.hp = parseInt(match[8], 10);
-    tt.maxhp = parseInt(match[9], 10);
-    tt.deaths = parseInt(match[10], 10);
-    tt.deathdate = parseInt(match[11], 10);
-    tt.birthdate = parseInt(match[12], 10);
-    tt.uid = parseInt(match[13], 10);
+    // glibc converts each %d field as atoi() and each %ld field as atol().
+    tt.ver_major = atoi(match[1]);
+    tt.ver_minor = atoi(match[2]);
+    tt.patchlevel = atoi(match[3]);
+    tt.points = Number(atol(match[4]));
+    tt.deathdnum = atoi(match[5]);
+    tt.deathlev = atoi(match[6]);
+    tt.maxlvl = atoi(match[7]);
+    tt.hp = atoi(match[8]);
+    tt.maxhp = atoi(match[9]);
+    tt.deaths = atoi(match[10]);
+    tt.deathdate = Number(atol(match[11]));
+    tt.birthdate = Number(atol(match[12]));
+    tt.uid = atoi(match[13]);
 
     const rest = match[14];
     // Version < 3.3 uses a two-char format; version >= 3.3 uses

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "insight.c set_vanq_order() returns flags.vanq_sortmode when the player toggles the preselected row off and commits (n == 0); only ESC returns -1, which makes list_vanquished() skip the list. The port must reach the list. A debug Samurai creates a newt and a jackal with ^G (wizgenesis), slays both with #wizkill ('m' moves getpos to the next monster, '.' picks it, ESC ends), quits without dumping core, and answers 'a' at 'Do you want an account of creatures vanquished? [ynaq]' (disclose:yv asks it). The two kinds make list_vanquished() offer the sort menu. Segment 1 clears the preselected 'traditional' row with '-' (MENU_UNSELECT_ALL) and commits with Return; segment 2 toggles it off with its own selector 't', which ends the PICK_ONE menu with n == 0 too.",
+  "segments": [
+    {
+      "seed": 61730245,
+      "datetime": "20450214111500",
+      "nethackrc": "OPTIONS=name:Tallykeep,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,disclose:-i -a yv -g -c -o\n",
+      "moves": "\u0007newt\n\u0007jackal\n#wizkill\nm.m.\u001b#quit\nyna-\n"
+    },
+    {
+      "seed": 61730246,
+      "datetime": "20450215162000",
+      "nethackrc": "OPTIONS=name:Tallykeep,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,disclose:-i -a yv -g -c -o\n",
+      "moves": "\u0007newt\n\u0007jackal\n#wizkill\nm.m.\u001b#quit\nynat"
+    }
+  ]
+}

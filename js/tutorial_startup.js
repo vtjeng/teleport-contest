@@ -53,7 +53,7 @@ export function buildTutorialMenuSpec(state = game, repeated = false) {
         // select_menu(PICK_ONE) returns zero for Space or Return when no
         // entry is selected.  ask_do_tutorial() then destroys and rebuilds
         // the menu with its extra diagnostic line.
-        preselected: REPROMPT,
+        emptyValue: REPROMPT,
         cancelValue: false,
     };
 }

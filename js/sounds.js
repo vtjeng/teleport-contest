@@ -125,6 +125,7 @@ import { impossible_printer, youHear } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { mplayer_talk } from './mplayer.js';
 import {
+    atoi,
     bytesText,
     textBytes, lcase, ucase,
 } from './hacklib.js';
@@ -1777,8 +1778,9 @@ function parseSoundMapping(mapping) {
             msgtyp: '',
             text: plain[1],
             filename: plain[2],
-            volume: Number.parseInt(plain[3], 10),
-            idx: plain[4] === undefined ? -1 : Number.parseInt(plain[4], 10),
+            // glibc converts each %d field as atoi().
+            volume: atoi(plain[3]),
+            idx: plain[4] === undefined ? -1 : atoi(plain[4]),
         };
     }
     const typed = /^MESG[\t ]+([^"]{1,10})"([^"]{0,255})"[\t ]+"([^"]{0,255})"[\t ]+([+-]?\d+)(?:[\t ]+([+-]?\d+))?[\t ]*$/u
@@ -1788,8 +1790,8 @@ function parseSoundMapping(mapping) {
         msgtyp: typed[1].trim(),
         text: typed[2],
         filename: typed[3],
-        volume: Number.parseInt(typed[4], 10),
-        idx: typed[5] === undefined ? -1 : Number.parseInt(typed[5], 10),
+        volume: atoi(typed[4]),
+        idx: typed[5] === undefined ? -1 : atoi(typed[5]),
     };
 }
 

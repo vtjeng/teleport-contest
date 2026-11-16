@@ -181,7 +181,7 @@ import {
     str_start_is,
     strstri,
     truncateByteString,
-    visctrl, lcase, strcmpi, strncmpi, atoi,
+    visctrl, lcase, strcmpi, strncmpi, atoi, atol,
 } from './hacklib.js';
 import { isDefaultSymsetName, read_sym_file } from './files.js';
 import {
@@ -3551,19 +3551,6 @@ function applyMenuBinding(result, binding) {
     };
     result.gameplayBindings.push(operation);
     result.commandOperations.push({ type: 'bind', ...operation });
-}
-
-// C ref: the recorder's LP64 glibc atol().  Unlike atoi(), the option handlers
-// print the long result before narrowing an accepted value to int.  Keep the
-// result as BigInt so overflow diagnostics retain LONG_MIN or LONG_MAX exactly.
-function atol(str) {
-    const digits = String(str).match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
-    let value = digits ? BigInt(digits[0].trim().replace(/^\+/u, '')) : 0n;
-    const longMax = (1n << 63n) - 1n;
-    const longMin = -(1n << 63n);
-    if (value > longMax) value = longMax;
-    else if (value < longMin) value = longMin;
-    return value;
 }
 
 // C ref: options.c nmcpy() (6861-6876). This is byte-oriented, stops at a
@@ -9089,7 +9076,8 @@ export async function handle_add_list_remove(state, optname, count, helpers) {
     const rows = [['a', `add new ${optname}`], ['l', `list ${makeplural(optname)}`],
         ['r', `remove existing ${optname}`], ['x', 'exit this menu']];
     const items = rows.flatMap(([accelerator, text], i) => !count && (i === 1 || i === 2) ? [] : [{ text, selector: accelerator, value: i + 1, selected: i === 3 }]);
-    const selected = await optionMenuSelect(state, { items, title: 'Do what?', how: PICK_ONE, preselected: 4 }, helpers);
+    // pick_cnt <= 0, an emptied selection or ESC, exits the menu.
+    const selected = await optionMenuSelect(state, { items, title: 'Do what?', how: PICK_ONE, preselected: 4, emptyValue: null }, helpers);
     const picks = menuSelectionValues(selected);
     if (!picks.length) return 3;
     return (picks.length > 1 && picks[0] === 4 ? picks[1] : picks[0]) - 1;

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "coloratt.c query_color() and query_attr() (PICK_ONE) return their default when the player toggles the preselected row off and commits (pick_cnt == 0); only ESC (-1) makes options.c's menu_colors handler skip add_menu_coloring_parsed(). 'O' opens the options menu, ':' searches for 'menu colors', 'a' adds the pattern 'dagger', and '-' (MENU_UNSELECT_ALL) then Return commits a cleared menu. Segment 1 clears 'no color' in the colour menu and picks bold (b); segment 2 picks red (b) and clears 'none' in the attribute menu. Each then shows the 'Do what?' menu, which lists the new colouring, and ESC leaves both menus.",
+  "segments": [
+    {
+      "seed": 29384751,
+      "datetime": "20440720193000",
+      "nethackrc": "OPTIONS=name:Hueless,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "O:menu colors\nadagger\n-\nb\u001b\u001b"
+    },
+    {
+      "seed": 29384752,
+      "datetime": "20440721084500",
+      "nethackrc": "OPTIONS=name:Hueless,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "O:menu colors\nadagger\nb-\n\u001b\u001b"
+    }
+  ]
+}
