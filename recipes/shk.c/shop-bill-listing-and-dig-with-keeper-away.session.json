@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c doinvbill() and shopdig(): a debug-mode Knight level-teleports into Izchak's lighting store in Minetown, lists inventory with I while the keeper tends the shop (doinvbill(0) counts the bill, 4214-4226), lights an unpaid candle ('You burn it, you bought it') and picks I > x 'Unpaid items already used up' (doinvbill(1), 4229-4240), fills the shop with yellow molds and zaps a wand of teleportation at Izchak, whom rloc() can only put outside his full shop; then I again (doinvbill(0) finds the keeper out of his shop, 4210-4212) and digs down with a pick-axe (dig() -> shopdig(0) finds him away: 'You feel like a common thief', 5028-5032). Seed, date and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20460314101500",
+      "nethackrc": "OPTIONS=name:Shopper,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0016?\n>w  I\u001b,  aiIx\n \u0017wand of teleportation\n \u0017pick-axe\n \u000740 yellow mold\nzjbI\u001bak >   "
+    }
+  ]
+}
