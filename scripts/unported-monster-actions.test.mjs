@@ -3213,9 +3213,11 @@ test('both production castmu adapters preserve source mon_nam', () => {
     const dochugStart = MONMOVE_SOURCE.indexOf('dochug(struct monst *mtmp)');
     const dochugEnd = MONMOVE_SOURCE.indexOf('\n/* ', dochugStart);
     const dochug = MONMOVE_SOURCE.slice(dochugStart, dochugEnd);
-    const spellStart = js.indexOf('castUndirectedSpell: async (subject, spellEnv) =>');
-    const spellEnd = js.indexOf('\n                    for (const a of mdat.mattk)', spellStart);
-    const spellAdapter = js.slice(spellStart, spellEnd);
+    const monmoveJs = readFileSync(new URL('../js/monmove.js', import.meta.url), 'utf8');
+    const spellStart = monmoveJs.indexOf('async function cast_undirected_spell(');
+    const spellEnd = monmoveJs.indexOf('\n    for (const attack of attacks)', spellStart);
+    assert.ok(spellStart >= 0 && spellEnd > spellStart);
+    const spellAdapter = monmoveJs.slice(spellStart, spellEnd);
     const fumbleStart = MCASTU_SOURCE.indexOf('if (rn2(ml * 10)');
     const fumbleEnd = MCASTU_SOURCE.indexOf('return M_ATTK_MISS;', fumbleStart);
     const fumble = MCASTU_SOURCE.slice(fumbleStart, fumbleEnd);
@@ -3226,7 +3228,7 @@ test('both production castmu adapters preserve source mon_nam', () => {
     assert.match(attackAdapter,
         /monnam: \(mtmp\) => mon_nam\(mtmp, state, env\)/u);
     assert.match(spellAdapter,
-        /monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
+        /monnam: \(mtmp\) => mon_nam\(mtmp, state, env\)/u);
     assert.doesNotMatch(spellAdapter, /pmnames\?\./u,
         'the undirected-spell adapter must preserve invisible and other C naming rules');
 });

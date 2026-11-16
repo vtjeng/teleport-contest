@@ -2687,7 +2687,6 @@ test('runtime random coordinates relax visibility on the final scan', async () =
         step('rn2', [21], 4),
     ]).flat();
     const redraws = [];
-    const stopped = [];
     const random = scriptedRandom([
         ...failedPairs,
         ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
@@ -2711,12 +2710,6 @@ test('runtime random coordinates relax visibility on the final scan', async () =
         },
         hooks: {
             newsym: (x, y) => redraws.push([x, y]),
-            async stopOccupation(threat, env) {
-                stopped.push(threat);
-                assert.equal(state.go.occupation, occupation);
-                await env.message('You stop waiting.');
-                state.go.occupation = null;
-            },
         },
     });
     await Promise.resolve();
@@ -2725,7 +2718,6 @@ test('runtime random coordinates relax visibility on the final scan', async () =
         'A newt suddenly appears next to you!',
     ]]);
     assert.equal(state.go.occupation, occupation);
-    assert.deepEqual(stopped, []);
     releaseAppearance();
     const monster = await creation;
     random.assertExhausted();
@@ -2735,7 +2727,7 @@ test('runtime random coordinates relax visibility on the final scan', async () =
         ['norep', 'A newt suddenly appears next to you!'],
         ['pline', 'You stop waiting.'],
     ]);
-    assert.deepEqual(stopped, [monster]);
+    // dochugw() -> allmain.c stop_occupation() ends the wait.
     assert.equal(state.go.occupation, null);
 });
 

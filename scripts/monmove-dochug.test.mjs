@@ -89,7 +89,6 @@ function baseEnv(state, events) {
             return true;
         },
         moveMonster: () => MMOVE_NOTHING,
-        preflight: () => events.push('preflight'),
         usePreMoveItems: () => {
             events.push('items');
             return false;
@@ -179,16 +178,6 @@ function magicCasterFixture(events, spellResult) {
     return { monster, env };
 }
 
-test('dochug requires the castUndirectedSpell operation', async () => {
-    const events = [];
-    const { monster, env } = magicCasterFixture(events, false);
-    delete env.castUndirectedSpell;
-    await assert.rejects(
-        dochug(monster, env),
-        /dochug requires a castUndirectedSpell operation/u,
-    );
-});
-
 test('dochug consumes demon_talk result in the adjacent peaceful bribe branch',
     async () => {
         // C ref: monmove.c:802-825. This branch follows find_defensive() and
@@ -232,7 +221,7 @@ test('dochug consumes demon_talk result in the adjacent peaceful bribe branch',
 
         assert.equal(await dochug(monster, env), 1);
         assert.deepEqual(events, [
-            'preflight', 'wipe', 'apparxy', 'apparxy', 'range', 'items',
+            'wipe', 'apparxy', 'apparxy', 'range', 'items',
             'demon-talk',
         ]);
     });
@@ -375,8 +364,8 @@ test('dochug demon hero relocates a peaceful briber targeting thin air',
         };
 
         assert.equal(await dochug(monster, env), 0);
-        assert.deepEqual(events.filter((event) => event !== 'preflight'
-            && event !== 'wipe' && event !== 'apparxy'), [
+        assert.deepEqual(events.filter((event) => event !== 'wipe'
+            && event !== 'apparxy'), [
             'items', 'tele-restrict', 'relocate',
         ]);
         assert.equal(monster.mpeaceful, true);
@@ -389,7 +378,6 @@ test('dochug skips m_move() after a successful undirected spell', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -406,7 +394,6 @@ test('dochug moves after a failed undirected spell', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -454,7 +441,6 @@ test('dochug clears arrival and wait state before ordinary movement', async () =
     assert.equal(await dochug(monster, env), 0);
     assert.equal(monster.mstrategy, 0);
     assert.deepEqual(events, [
-        'preflight',
         'can-see-hero',
         'wipe',
         'apparxy',
@@ -502,7 +488,6 @@ test('dochug carries an armed mover into the standard-attack phase',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range-1',
@@ -546,7 +531,6 @@ test('dochug lets PHASE FOUR reject the armed mover it broke into it with',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -587,7 +571,6 @@ test('dochug carries a mover with a distance attack into the attack phase',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -652,7 +635,6 @@ test('dochug rolls a random breath where C rolls it, before the attack phase',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -701,7 +683,6 @@ test('dochug keeps a melee-only mover out of the attack phase', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -743,7 +724,6 @@ test('dochug stops a mover that fell asleep before it tests its attacks',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -778,7 +758,6 @@ test('dochug attacks a nearby hostile after declining movement', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -815,7 +794,6 @@ test('dochug attacks an in-range hostile that is not adjacent', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -853,7 +831,6 @@ test('dochug leaves a scared in-range hostile alone', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -889,7 +866,6 @@ test('dochug lets a cornered scared hostile attack anyway', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -932,7 +908,6 @@ test('dochug leaves an attackless hostile beside the hero alone', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -970,7 +945,6 @@ test('dochug leaves a cornered hostile out of range alone', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -998,7 +972,6 @@ test('dochug stops when m_move reports the monster died', async () => {
 
     assert.equal(await dochug(monster, env), 1);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -1027,7 +1000,6 @@ test('dochug stops after a pre-move item action', async () => {
 
     assert.equal(await dochug(monster, env), 1);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',
@@ -1070,7 +1042,6 @@ test('dochug spends the action when its weapon gate selects a wield',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -1098,7 +1069,6 @@ test('dochug redraws a sleeping monster that stays asleep during hallucination',
 
         assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
-            'preflight',
             'disturb',
             'redraw:4,4',
         ]);
@@ -1290,7 +1260,6 @@ test('dochug does not attack after m_move spends the action', async () => {
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range-1',
@@ -1431,7 +1400,7 @@ test('dochug teleports a fleeing monster and spends its turn', async () => {
     };
 
     assert.equal(await dochug(monster, env), 0);
-    assert.deepEqual(events, ['preflight', 'wipe', 'relocate']);
+    assert.deepEqual(events, ['wipe', 'relocate']);
     assert.deepEqual([monster.mx, monster.my], [5, 4]);
 });
 
@@ -1529,7 +1498,7 @@ test('dochug lets an adjacent waiting quest leader speak', async () => {
     const { monster, env } = waitingQuestLeaderFixture(events);
 
     assert.equal(await dochug(monster, env), 0);
-    assert.deepEqual(events, ['preflight', 'stat-check', 'talk']);
+    assert.deepEqual(events, ['stat-check', 'talk']);
 });
 
 test('dochug keeps a sleeping waiting quest monster silent', async () => {
@@ -1539,7 +1508,7 @@ test('dochug keeps a sleeping waiting quest monster silent', async () => {
     });
 
     assert.equal(await dochug(monster, env), 0);
-    assert.deepEqual(events, ['preflight', 'stat-check']);
+    assert.deepEqual(events, ['stat-check']);
 });
 
 test('dochug keeps a distant waiting quest monster silent', async () => {
@@ -1551,7 +1520,7 @@ test('dochug keeps a distant waiting quest monster silent', async () => {
     });
 
     assert.equal(await dochug(monster, env), 0);
-    assert.deepEqual(events, ['preflight', 'stat-check']);
+    assert.deepEqual(events, ['stat-check']);
 });
 
 test('dochug updates quest status before the frozen-monster return', async () => {
@@ -1563,7 +1532,7 @@ test('dochug updates quest status before the frozen-monster return', async () =>
     });
 
     assert.equal(await dochug(monster, env), 0);
-    assert.deepEqual(events, ['preflight', 'stat-check']);
+    assert.deepEqual(events, ['stat-check']);
 });
 
 // C monmove.c:913-915 ends the action before distfleeck when an escape
@@ -1634,7 +1603,7 @@ test('dochug releases a confused holder immediately after it wanders away',
         assert.equal(state.u.ustuck, null);
         assert.equal(monster.mspec_used, 2);
         assert.deepEqual(events, [
-            'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
+            'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
         ]);
     });
 
@@ -1678,6 +1647,6 @@ test('dochug retains a confused holder after an adjacent move',
         assert.equal(state.u.ustuck, monster);
         assert.equal(monster.mspec_used, 0);
         assert.deepEqual(events, [
-            'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items',
+            'wipe', 'rn2(50)', 'apparxy', 'items',
         ]);
     });

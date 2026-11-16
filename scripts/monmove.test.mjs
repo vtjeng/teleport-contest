@@ -2968,54 +2968,76 @@ test('monhaskey distinguishes credit-card unlocking from locking tools', () => {
 
 test('m_everyturn_effect creates only unobstructed missing fog clouds', async () => {
     const { locations, state } = makeState();
+    state.level.regions = [];
+    // Each created cloud is one region square; record its rectangle and
+    // damage as monmove.c's create_gas_cloud(x, y, 1, 0) sets them.
+    const clouds = () => state.level.regions.map((region) => ({
+        x: region.bounding_box.lx,
+        y: region.bounding_box.ly,
+        damage: region.arg,
+    }));
     const ordinary = ordinaryMonster(state);
     await m_everyturn_effect(ordinary, { state });
+    assert.deepEqual(clouds(), []);
 
+    // <4,4> is an open ROOM square in makeState(), so the vapor forms there.
     const fog = newMonster({
         data: state.mons[PM_FOG_CLOUD],
         mnum: PM_FOG_CLOUD,
         mx: 4,
         my: 4,
     });
-    await assert.rejects(
-        m_everyturn_effect(fog, { state }),
-        /createGasCloud/,
-    );
-
-    const calls = [];
-    const env = {
-        state,
-        createGasCloud(x, y, radius, damage) {
-            calls.push({ x, y, radius, damage });
-        },
-    };
+    // create_gas_cloud() draws the cloud's lifetime with rn2(3); any value
+    // serves, since only the cloud's square and damage are checked.
+    const env = { state, random: { rn2: () => 0 } };
     await m_everyturn_effect(fog, env);
-    assert.deepEqual(calls, [{ x: 4, y: 4, radius: 1, damage: 0 }]);
+    assert.deepEqual(clouds(), [{ x: 4, y: 4, damage: 0 }]);
 
+    // A closed door blocks the vapor (monmove.c:658).
+    state.level.regions = [];
     locations.set('4,4', { typ: DOOR, flags: D_CLOSED });
     await m_everyturn_effect(fog, env);
-    assert.equal(calls.length, 1);
+    assert.deepEqual(clouds(), []);
 
+    // A visible region already on the square blocks it too.
     locations.set('4,4', { typ: ROOM, flags: 0 });
     const existing = create_region([{ lx: 4, ly: 4, hx: 4, hy: 4 }]);
     existing.visible = true;
     state.level.regions = [existing];
     await m_everyturn_effect(fog, env);
-    assert.equal(calls.length, 1);
+    assert.equal(state.level.regions.length, 1);
 
+    // The hero in fog-cloud form makes vapor at its own square.
+    state.level.regions = [];
     state.youmonst.data = state.mons[PM_FOG_CLOUD];
     state.youmonst.mnum = PM_FOG_CLOUD;
     await m_everyturn_effect(state.youmonst, env);
-    assert.deepEqual(calls.at(-1), {
-        x: state.u.ux,
-        y: state.u.uy,
-        radius: 1,
-        damage: 0,
-    });
+    assert.deepEqual(clouds(), [{ x: state.u.ux, y: state.u.uy, damage: 0 }]);
 });
+
+// vision.c's viz_array for dochugw()'s own canspotmon() and couldsee()
+// calls: IN_SIGHT lets the hero see a visible monster there, COULD_SEE
+// answers couldsee(). `bits` fills every square; `squares` overrides some.
+function dochugwSight(state, bits, squares = []) {
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO).fill(bits),
+    );
+    for (const [x, y, squareBits] of squares)
+        state.viz_array[y][x] = squareBits;
+}
+
+// allmain.c stop_occupation() prints "You stop <occtxt>." through the
+// message seam dochugw() hands it, then nomul(0) reads context.run.
+function occupy(state) {
+    state.go.occupation = () => {};
+    state.go.occtxt = 'waiting';
+    state.context ??= {};
+}
 
 test('dochugw delegates movement and leaves an idle hero alone', async () => {
     const { state } = makeState();
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     const monster = ordinaryMonster(state);
     const calls = [];
 
@@ -3026,9 +3048,7 @@ test('dochugw delegates movement and leaves an idle hero alone', async () => {
             candidate.mx = 5;
             return 2;
         },
-        canSpotMonster: () => assert.fail('idle hero skips sensing'),
-        couldSee: () => assert.fail('idle hero skips old visibility'),
-        stopOccupation: () => assert.fail('idle hero has no occupation'),
+        message: () => assert.fail('idle hero has no occupation'),
     }), 2);
     assert.deepEqual(calls, [['dochug', 4, 4]]);
 
@@ -3037,7 +3057,10 @@ test('dochugw delegates movement and leaves an idle hero alone', async () => {
 
 test('dochugw stops work for a newly nearby visible threat in source order', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
+    // <1,1> is outside the nine-square threat radius of the hero at
+    // <10,10>; <9,10> is adjacent to it.
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 1,
@@ -3048,34 +3071,23 @@ test('dochugw stops work for a newly nearby visible threat in source order', asy
 
     const result = dochugw(monster, true, {
         state,
-        canSpotMonster(candidate) {
-            calls.push(['spot', candidate.mx, candidate.my]);
-            return true;
-        },
         async dochug(candidate) {
             calls.push(['dochug', candidate.mx, candidate.my]);
             candidate.mx = 9;
             candidate.my = 10;
             return 0;
         },
-        couldSee(x, y) {
-            calls.push(['couldSee', x, y]);
-            return true;
-        },
-        async stopOccupation() {
-            calls.push(['stop']);
+        async message(text) {
+            calls.push(['message', text]);
             await stop.promise;
         },
     });
 
     await Promise.resolve();
+    await Promise.resolve();
     assert.deepEqual(calls, [
-        ['spot', 1, 1],
         ['dochug', 1, 1],
-        ['couldSee', 1, 1],
-        ['spot', 9, 10],
-        ['couldSee', 9, 10],
-        ['stop'],
+        ['message', 'You stop waiting.'],
     ]);
     let settled = false;
     result.then(() => { settled = true; });
@@ -3083,37 +3095,40 @@ test('dochugw stops work for a newly nearby visible threat in source order', asy
     assert.equal(settled, false);
     stop.resolve();
     assert.equal(await result, 0);
+    assert.equal(state.go.occupation, null);
 });
 
 test('dochugw hallucination bypasses hostility only without resistance', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     state.u.uprops[HALLUC].intrinsic = 5;
+    // A peaceful monster adjacent to the hero is a threat only while
+    // Hallucination distorts the hero's knowledge.
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mpeaceful: true,
         mx: 9,
         my: 10,
     });
-    let stops = 0;
-    const env = {
-        state,
-        canSpotMonster: () => true,
-        couldSee: () => true,
-        stopOccupation() { ++stops; },
-    };
+    const lines = [];
+    const env = { state, message: (text) => lines.push(text) };
 
+    occupy(state);
     assert.equal(await dochugw(monster, false, env), 0);
-    assert.equal(stops, 1);
+    assert.deepEqual(lines, ['You stop waiting.']);
+    assert.equal(state.go.occupation, null);
 
     state.u.uprops[HALLUC_RES].extrinsic = 1;
+    occupy(state);
     assert.equal(await dochugw(monster, false, env), 0);
-    assert.equal(stops, 1);
+    assert.deepEqual(lines, ['You stop waiting.']);
+    assert.notEqual(state.go.occupation, null);
 });
 
 test('dochugw rechecks occupation after the monster action', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 9,
@@ -3122,17 +3137,22 @@ test('dochugw rechecks occupation after the monster action', async () => {
 
     assert.equal(await dochugw(monster, true, {
         state,
-        canSpotMonster: () => true,
-        couldSee: () => true,
         dochug() {
             state.go.occupation = null;
             return 0;
         },
-        stopOccupation: () => assert.fail('action already stopped work'),
+        message: () => assert.fail('action already stopped work'),
     }), 0);
 });
 
 test('dochugw retains every threat-interruption rejection gate', async () => {
+    // The hero stands at <10,10>; <1,1> is outside the threat radius and
+    // <9,10> is adjacent.
+    const movesAdjacent = (candidate) => {
+        candidate.mx = 9;
+        candidate.my = 10;
+        return 0;
+    };
     const cases = [
         ['action result', ({ env }) => { env.dochug = () => 1; }],
         ['peaceful', ({ context, monster }) => {
@@ -3149,36 +3169,25 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
         }],
         ['already visible nearby', () => {}],
         ['already visible at the exact prior boundary', ({ env, monster }) => {
-            // The hero is at <10,10>; the old square is exactly distance 9.
-            // C requires old distu > 81, so equality must not interrupt even
+            // The old square is exactly distance 9 from the hero. C
+            // requires old distu > 81, so equality must not interrupt even
             // after the monster moves adjacent.
             monster.mx = 1;
             monster.my = 10;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
+            env.dochug = movesAdjacent;
         }],
-        ['not spotted now', ({ env, monster }) => {
+        ['not spotted now', ({ env, monster, state }) => {
             monster.mx = monster.my = 1;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
-            let spots = 0;
-            env.canSpotMonster = () => ++spots === 1;
+            env.dochug = movesAdjacent;
+            // couldsee() holds at the new square but cansee() does not, so
+            // canspotmon() fails there.
+            dochugwSight(state, IN_SIGHT | COULD_SEE, [[9, 10, COULD_SEE]]);
         }],
-        ['not visible now', ({ env, monster }) => {
+        ['not visible now', ({ env, monster, state }) => {
             monster.mx = monster.my = 1;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
-            let visibilityChecks = 0;
-            env.couldSee = () => ++visibilityChecks === 1;
+            env.dochug = movesAdjacent;
+            // cansee() holds at the new square but couldsee() does not.
+            dochugwSight(state, IN_SIGHT | COULD_SEE, [[9, 10, IN_SIGHT]]);
         }],
         ['immobile', ({ context, monster }) => {
             context.chug = false;
@@ -3195,20 +3204,18 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
 
     for (const [name, configure] of cases) {
         const { state } = makeState();
-        state.go.occupation = () => {};
+        occupy(state);
+        dochugwSight(state, IN_SIGHT | COULD_SEE);
         const monster = ordinaryMonster(state, {
             mcanmove: true,
             mx: 9,
             my: 10,
         });
-        let stops = 0;
         const context = { chug: true };
         const env = {
             state,
             dochug: () => 0,
-            canSpotMonster: () => true,
-            couldSee: () => true,
-            stopOccupation() { ++stops; },
+            message: () => assert.fail(`${name}: work continues`),
         };
         configure({ context, env, monster, state });
 
@@ -3217,38 +3224,28 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
             true,
             name,
         );
-        assert.equal(stops, 0, name);
+        assert.notEqual(state.go.occupation, null, name);
     }
+
+    // The same setup with every gate open does interrupt, so each case
+    // above is rejected by its own gate.
+    const { state } = makeState();
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
+    const monster = ordinaryMonster(state, { mcanmove: true, mx: 1, my: 1 });
+    const lines = [];
+    await dochugw(monster, true, {
+        state,
+        dochug: movesAdjacent,
+        message: (text) => lines.push(text),
+    });
+    assert.deepEqual(lines, ['You stop waiting.']);
 });
 
-test('dochugw preflights occupation owners before monster action', async () => {
+test('dochugw requires its dochug operation before the monster action', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
     const monster = ordinaryMonster(state);
-    let actions = 0;
-    const dochug = () => { ++actions; return 0; };
-
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        stopOccupation() {},
-    }), /canSpotMonster/);
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        canSpotMonster: () => true,
-    }), /stopOccupation/);
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        canSpotMonster: () => true,
-        couldSee: true,
-        stopOccupation() {},
-    }), /couldSee/);
-    assert.equal(actions, 0);
-
     await assert.rejects(dochugw(monster, true, { state }), /dochug/);
-    assert.equal(actions, 0);
 });
 
 // monmove.c:889-970.  A monster which has just resisted fightm() still enters
@@ -3936,9 +3933,16 @@ test('m_harmless_trap keeps structural cases local to movement legality', () => 
         false,
     );
 
-    assert.throws(
-        () => m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, { state }),
-        /resistsTrapEffect/,
+    // trap.c's SLP_GAS_TRAP arm asks resists_sleep(): a plain human has no
+    // sleep resistance, a human zombie's species has MR_SLEEP.
+    assert.equal(
+        m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, { state }),
+        false,
+    );
+    const zombie = newMonster({ data: state.mons[PM_HUMAN_ZOMBIE] });
+    assert.equal(
+        m_harmless_trap(zombie, { ttyp: SLP_GAS_TRAP }, { state }),
+        true,
     );
     assert.equal(m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, {
         state,
@@ -4167,7 +4171,7 @@ test('mfndpos rebuilds the nine output slots on every call', () => {
     );
 });
 
-test('mfndpos rolls back partial output when trap resistance is unavailable', () => {
+test('mfndpos rolls back partial output when trap resistance throws', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
     locations.set('3,3', { typ: ROOM, flags: 0 });
@@ -4179,7 +4183,11 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
     state.level.traps = [{ tx: 5, ty: 5, ttyp: SLP_GAS_TRAP }];
     // hasAdjacentResistanceTrap() owns three trap types and trapResistance()
     // is reached through each, so the rollback must hold for all three rather
-    // than for whichever one the fixture happens to place.
+    // than for whichever one the fixture happens to place. A caller's
+    // resistance seam that throws stands in for any failure there.
+    const refuseResistance = () => {
+        throw new Error('resistance unavailable');
+    };
     for (const ttyp of [SLP_GAS_TRAP, FIRE_TRAP, ANTI_MAGIC]) {
         const each = makeState();
         sealNeighborhood(each.locations, 4, 4);
@@ -4194,8 +4202,9 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
             () => mfndpos(eachMonster, eachData, ALLOW_U, {
                 state: each.state,
                 onScary: () => false,
+                resistsTrapEffect: refuseResistance,
             }),
-            /resistsTrapEffect/,
+            /resistance unavailable/,
             String(ttyp),
         );
         assert.deepEqual([eachMonster.mux, eachMonster.muy], [12, 12], String(ttyp));
@@ -4214,11 +4223,15 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
         poss: data.poss.map((position) => ({ ...position })),
         info: [...data.info],
     };
-    const env = { state, onScary: () => false };
+    const env = {
+        state,
+        onScary: () => false,
+        resistsTrapEffect: refuseResistance,
+    };
 
     assert.throws(
         () => mfndpos(monster, data, ALLOW_U, env),
-        /resistsTrapEffect/,
+        /resistance unavailable/,
     );
     assert.deepEqual([monster.mux, monster.muy], [12, 12]);
     assert.equal(data.poss, positions);
@@ -5248,7 +5261,6 @@ test('disturb includes the exact ten-square wake boundary', async () => {
                 return 1;
             },
         },
-        wakeMessage() {},
     }), 0);
     assert.deepEqual(draws, [7]);
     assert.equal(bee.msleeping, true);
@@ -5263,7 +5275,6 @@ test('disturb includes the exact ten-square wake boundary', async () => {
                 return 0;
             },
         },
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(draws, [7]);
     assert.equal(bee.msleeping, false);
@@ -5284,7 +5295,6 @@ test('disturb treats blocked Stealth as inactive without an Ettin draw', async (
         state,
         random: { rn2: () => assert.fail('blocked Stealth is inactive') },
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
 
     const ettin = newMonster({
@@ -5299,7 +5309,6 @@ test('disturb treats blocked Stealth as inactive without an Ettin draw', async (
         state,
         random: sequenceRandom([0], calls),
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(calls, [7]);
 });
@@ -5315,16 +5324,19 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
         msleeping: true,
     });
     const ettinCalls = [];
+    const ettinLines = [];
 
     assert.equal(await disturb(ettin, {
         state,
         random: sequenceRandom([1, 0], ettinCalls),
         couldSee: () => true,
-        wakeMessage(candidate, hostile) {
-            assert.equal(candidate.msleeping, true);
-            assert.equal(hostile, true);
-        },
+        // wake_msg() prints only while the monster still sleeps; a hostile
+        // monster's line ends in '!'.
+        canSeeMonster: () => true,
+        message: (text) => ettinLines.push(text),
     }), 1);
+    assert.equal(ettinLines.length, 1);
+    assert.match(ettinLines[0], /wakes up!$/);
     assert.deepEqual(ettinCalls, [10, 7]);
     assert.equal(ettin.msleeping, false);
 
@@ -5342,7 +5354,8 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
             state,
             random: sequenceRandom([1], calls),
             couldSee: () => true,
-            wakeMessage: () => assert.fail('failed rare wake stays asleep'),
+            canSeeMonster: () => true,
+            message: () => assert.fail('failed rare wake stays asleep'),
         }), 0);
         assert.deepEqual(calls, [50]);
         assert.equal(hardSleeper.msleeping, true);
@@ -5360,7 +5373,6 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
         state,
         random: sequenceRandom([0, 0], nymphCalls),
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(nymphCalls, [50, 7]);
 });
@@ -5376,17 +5388,18 @@ test('disturb lets dogs and aggravation bypass the final random draw', async () 
         my: 10,
     });
     const noDraw = { rn2: () => assert.fail('readily awakened without draw') };
-    let dogHostile;
+    const dogLines = [];
 
     assert.equal(await disturb(dog, {
         state,
         random: noDraw,
         couldSee: () => true,
-        wakeMessage(_candidate, hostile) {
-            dogHostile = hostile;
-        },
+        canSeeMonster: () => true,
+        message: (text) => dogLines.push(text),
     }), 1);
-    assert.equal(dogHostile, false);
+    // A peaceful dog is not "interesting": wake_msg() ends with '.'.
+    assert.equal(dogLines.length, 1);
+    assert.match(dogLines[0], /wakes up\.$/);
 
     const ordinary = ordinaryMonster(state, {
         mx: 9,
@@ -5398,7 +5411,6 @@ test('disturb lets dogs and aggravation bypass the final random draw', async () 
         state,
         random: noDraw,
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
 });
 
@@ -5416,25 +5428,10 @@ test('disturb draws before rejecting a concealed ordinary monster', async () => 
         state,
         random: sequenceRandom([0], calls),
         couldSee: () => true,
-        wakeMessage: () => assert.fail('concealed monster stays asleep'),
+        canSeeMonster: () => true,
+        message: () => assert.fail('concealed monster stays asleep'),
     }), 0);
     assert.deepEqual(calls, [7]);
-    assert.equal(monster.msleeping, true);
-});
-
-test('disturb preflights wake-message ownership before consuming randomness', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state, {
-        msleeping: true,
-        mx: 9,
-        my: 10,
-    });
-
-    await assert.rejects(disturb(monster, {
-        state,
-        random: { rn2: () => assert.fail('missing wake owner preflights') },
-        couldSee: () => true,
-    }), /wakeMessage/);
     assert.equal(monster.msleeping, true);
 });
 
@@ -5453,7 +5450,9 @@ test('disturb keeps sleep state behind the asynchronous wake owner', async () =>
         state,
         random: { rn2: () => assert.fail('dogs wake without a draw') },
         couldSee: () => true,
-        wakeMessage: () => wake.promise,
+        // wake_msg() awaits its message before disturb() clears msleeping.
+        canSeeMonster: () => true,
+        message: () => wake.promise,
     });
     pending.then(() => { settled = true; });
 
@@ -6031,32 +6030,17 @@ test('distfleeck always draws brave-gremlin before checking a far monster', asyn
         },
         fleesLight: () => assert.fail('nearby gate comes first'),
         inYourSanctuary: () => assert.fail('nearby gate comes first'),
-        monFlee: () => assert.fail('a far monster does not flee'),
     });
 
     assert.deepEqual(events, ['rn2(5)', 'onscary']);
     assert.deepEqual(result, { inrange: false, nearby: false, scared: false });
-});
-
-test('distfleeck validates its action owner before consuming randomness', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state);
-
-    await assert.rejects(
-        distfleeck(monster, {
-            state,
-            random: {
-                rn2: () => assert.fail('missing monFlee must preflight'),
-                rnd: () => assert.fail('missing monFlee must preflight'),
-            },
-        }),
-        /requires a monFlee operation/,
-    );
+    assert.equal(monster.mflee, false, 'a far monster does not flee');
 });
 
 test('distfleeck preserves scare duration draws and monflee arguments', async () => {
     const { state } = makeState();
     const monster = ordinaryMonster(state, {
+        mhp: 5, // alive: monflee() returns at once for a dead monster
         mx: 9,
         my: 10,
         mux: 10,
@@ -6083,9 +6067,12 @@ test('distfleeck preserves scare duration draws and monflee arguments', async ()
         },
         fleesLight: () => assert.fail('a seen scare short-circuits light'),
         inYourSanctuary: () => assert.fail('a seen scare short-circuits temple'),
-        async monFlee(candidate, duration, first, message) {
-            events.push(`monflee(${duration},${first},${message})`);
+        // monflee() asks this only when distfleeck passes showMessage TRUE;
+        // an unseen monster then flees without a message.
+        canSeeMonster(candidate) {
+            events.push('monflee-message-check');
             assert.equal(candidate, monster);
+            return false;
         },
     });
 
@@ -6094,14 +6081,18 @@ test('distfleeck preserves scare duration draws and monflee arguments', async ()
         'onscary',
         'rn2(7)',
         'rnd(10)',
-        'monflee(6,true,true)',
+        'monflee-message-check',
     ]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: true });
+    // monflee(mtmp, 6, TRUE, TRUE): the rnd(10) duration becomes the timer.
+    assert.equal(monster.mflee, true);
+    assert.equal(monster.mfleetim, 6);
 });
 
 test('distfleeck awaits the asynchronous flee owner before returning', async () => {
     const { state } = makeState();
     const monster = ordinaryMonster(state, {
+        mhp: 5, // alive: monflee() returns at once for a dead monster
         mx: 9,
         my: 10,
         mux: 10,
@@ -6123,9 +6114,13 @@ test('distfleeck awaits the asynchronous flee owner before returning', async () 
             },
         },
         onScary: () => true,
-        fleesLight: () => assert.fail('scary square short-circuits light'),
+        // monflee()'s message choice asks fleesLight(); distfleeck's own
+        // short-circuit is pinned by the scare-duration test above.
+        fleesLight: () => false,
         inYourSanctuary: () => assert.fail('scary square short-circuits temple'),
-        async monFlee() {
+        // monflee() awaits its message owner before setting mflee.
+        canSeeMonster: () => true,
+        async fleeMessage() {
             fleeStarted.resolve();
             await flee.promise;
         },
@@ -6135,6 +6130,7 @@ test('distfleeck awaits the asynchronous flee owner before returning', async () 
     await fleeStarted.promise;
     await Promise.resolve();
     assert.equal(settled, false);
+    assert.equal(monster.mflee, false);
     flee.resolve();
     assert.deepEqual(await pending, {
         inrange: true,
@@ -6148,6 +6144,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
     async function runCause({ brave, light, peaceful, sanctuary }) {
         const { state } = makeState();
         const monster = ordinaryMonster(state, {
+            mhp: 5, // alive: monflee() returns at once for a dead monster
             mpeaceful: peaceful,
             mx: 9,
             my: 10,
@@ -6181,11 +6178,12 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
                 events.push('sanctuary');
                 return sanctuary;
             },
-            monFlee(candidate, duration, first, message) {
-                events.push(`monflee(${duration},${first},${message})`);
-                assert.equal(candidate, monster);
-            },
+            // An unseen monster flees without monflee()'s message branch,
+            // which would ask fleesLight() a second time.
+            canSeeMonster: () => false,
         });
+        if (monster.mflee)
+            events.push(`monflee(${monster.mfleetim})`);
         return { events, result };
     }
 
@@ -6201,7 +6199,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
             'light',
             'rn2(7)',
             'rnd(10)',
-            'monflee(6,true,true)',
+            'monflee(6)',
         ],
         result: { inrange: true, nearby: true, scared: true },
     });
@@ -6227,7 +6225,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
             'sanctuary',
             'rn2(7)',
             'rnd(10)',
-            'monflee(6,true,true)',
+            'monflee(6)',
         ],
         result: { inrange: true, nearby: true, scared: true },
     });
@@ -6254,11 +6252,11 @@ test('distfleeck checks an invisible hero at the guessed square', async () => {
             return false;
         },
         fleesLight: () => false,
-        monFlee: () => assert.fail('not scared'),
     });
 
     assert.deepEqual(checked, [[monster.mux, monster.muy]]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: false });
+    assert.equal(monster.mflee, false, 'not scared');
 });
 
 // C ref: monmove.c can_hide_under_obj() (2119-2167).

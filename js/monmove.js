@@ -158,6 +158,8 @@ import {
     W_NONDIGGABLE,
     helpless,
     is_pit,
+    FIRE_RES,
+    SLEEP_RES,
 } from './const.js';
 import {
     is_pool,
@@ -181,11 +183,12 @@ import {
     Monnam,
     YMonnam,
     capitalizedMonsterName,
+    mon_nam,
     monsterCommonName,
 } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
-import { could_reach_item } from './dogmove.js';
+import { could_reach_item, finish_meating } from './dogmove.js';
 import { Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
@@ -242,6 +245,7 @@ import {
     mnexto,
     mpickstuff,
     unstuck,
+    wake_msg,
     wake_nearto,
     wakeup,
 } from './mon.js';
@@ -282,6 +286,8 @@ import {
     mon_knows_traps,
     mon_learns_traps,
     Resists_Elem,
+    defended,
+    resists_magm,
     needspick,
     noattacks,
     nohands,
@@ -309,12 +315,18 @@ import {
     remove_monster,
 } from './monst.js';
 import {
+    AD_CLRC,
     AD_CORR,
     AD_DRIN,
     AD_DRST,
+    AD_FIRE,
+    AD_MAGM,
     AD_RBRE,
     AD_RUST,
+    AD_SLEE,
+    AD_SPEL,
     AT_BREA,
+    AT_MAGC,
     AT_WEAP,
     MS_LEADER,
     MZ_SMALL,
@@ -352,7 +364,8 @@ import {
 import { lined_up, m_has_launcher_and_ammo } from './mthrowu.js';
 import { an, bare_artifactname, xnameFresh, yname } from './objnam.js';
 import {
-    find_defensive, find_offensive_steps, searches_for_item, use_defensive,
+    find_defensive, find_misc, find_offensive_steps, searches_for_item,
+    use_defensive, use_misc,
 } from './muse.js';
 import { fracture_rock } from './zap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -474,6 +487,8 @@ import {
     Stealth, Unaware,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { stop_occupation } from './allmain.js';
+import { castmu } from './mcastu.js';
 
 
 function movementEnv(env = {}) {
@@ -805,7 +820,8 @@ async function mind_blast(mtmp, env = {}) {
 
 // C ref: monmove.c m_everyturn_effect(). This runs for each living on-map
 // monster before its movement-ration check and for the hero near the end of
-// each input cycle. createGasCloud owns create_gas_cloud().
+// each input cycle. region.js create_gas_cloud() supplies its own display
+// and vision owners when the caller's environment does not.
 export async function m_everyturn_effect(monster, env = {}) {
     const state = env.state ?? game;
     if (!isSpecies(monster, PM_FOG_CLOUD, state)) return;
@@ -813,12 +829,7 @@ export async function m_everyturn_effect(monster, env = {}) {
     const x = isHero ? state.u?.ux : monster.mx;
     const y = isHero ? state.u?.uy : monster.my;
     if (closed_door(x, y, state) || visible_region_at(x, y, state)) return;
-    if (typeof env.createGasCloud !== 'function') {
-        throw new TypeError(
-            'm_everyturn_effect requires a createGasCloud operation',
-        );
-    }
-    await env.createGasCloud(x, y, 1, 0, { ...env, state });
+    await create_gas_cloud(x, y, 1, 0, { ...env, state });
 }
 
 // C ref: monmove.c m_postmove_effect() (672-689). Post-movement gas cloud
@@ -880,11 +891,8 @@ function requireDochugwOperation(env, name) {
 }
 
 
-// Source predicate shared by monmove.c:dochugw() and makemon.c:makemon()'s
-// runtime-creation tail.  makemon() calls dochugw(mtmp, FALSE), so it needs to
-// decide this at the exact recursive-creation point even though its TTY
-// message is drained by an async wrapper after the synchronous constructor
-// returns.
+// C ref: monmove.c dochugw():222-235, the test whether the hero notices a
+// threatening monster and stops the current activity.
 function dochugwInterruptsOccupation(
     monster,
     {
@@ -893,16 +901,9 @@ function dochugwInterruptsOccupation(
         alreadySawMonster = false,
         oldX = monster.mx,
         oldY = monster.my,
-        canSpotMonster,
-        couldSee = (x, y) => couldsee(x, y, state),
     } = {},
 ) {
     if (!state.go?.occupation) return false;
-    if (typeof canSpotMonster !== 'function') {
-        throw new TypeError(
-            'dochugw occupation check requires a canSpotMonster operation',
-        );
-    }
     const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
     return !result
         && (Hallucination(state.u)
@@ -910,18 +911,16 @@ function dochugwInterruptsOccupation(
         && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)
             <= threatRange
         && (!alreadySawMonster
-            || !couldSee(oldX, oldY, state)
+            || !couldsee(oldX, oldY, state)
             || dist2(oldX, oldY, state.u?.ux, state.u?.uy) > threatRange)
-        && canSpotMonster(monster, state)
-        && couldSee(monster.mx, monster.my, state)
+        && canspotmon(monster, state)
+        && couldsee(monster.mx, monster.my, state)
         && monster.mcanmove
         && !onscary(state.u?.ux, state.u?.uy, monster, state);
 }
 
 // C ref: monmove.c dochugw(). The injected dochug operation owns the complete
-// monster action. canSpotMonster and stopOccupation retain display/sensing and
-// command-state ownership. When an occupation is active, preflight those
-// later seams before dochug can mutate the monster or game state.
+// monster action.
 //
 // C's `go.occupation` lives at state.go.occupation, where cmd.c
 // set_occupation() writes it. Both reads below name that field, and the second
@@ -933,22 +932,11 @@ export async function dochugw(monster, chug, env = {}) {
     const dochugOperation = chug
         ? requireDochugwOperation(env, 'dochug')
         : null;
-    let canSpotMonster;
-    let stopOccupation;
-    if (occupation) {
-        canSpotMonster = requireDochugwOperation(env, 'canSpotMonster');
-        stopOccupation = requireDochugwOperation(env, 'stopOccupation');
-    }
-    const couldSee = env.couldSee
-        ?? ((x, y) => couldsee(x, y, state));
-    if (occupation && typeof couldSee !== 'function') {
-        throw new TypeError('dochugw requires a couldSee operation');
-    }
 
     const x = monster.mx;
     const y = monster.my;
     const alreadySawMonster = chug && occupation
-        ? Boolean(canSpotMonster(monster, { ...env, state }))
+        ? canspotmon(monster, state)
         : false;
     const result = chug
         ? await dochugOperation(monster, { ...env, state })
@@ -959,17 +947,12 @@ export async function dochugw(monster, chug, env = {}) {
         alreadySawMonster,
         oldX: x,
         oldY: y,
-        canSpotMonster: (subject) => canSpotMonster(
-            subject,
-            { ...env, state },
-        ),
-        couldSee: (targetX, targetY) => couldSee(
-            targetX,
-            targetY,
-            { ...env, state },
-        ),
     })) {
-        await stopOccupation({ ...env, state });
+        await stop_occupation(state, {
+            ...env,
+            state,
+            message: env.message ?? ttyPline,
+        });
     }
 
     return result;
@@ -1181,18 +1164,30 @@ function monsterPoisonGasSafe(monster, state) {
         || attacktype_fordmg(species, AT_BREA, AD_RBRE);
 }
 
+// C ref: trap.c m_harmless_trap()'s SLP_GAS_TRAP, FIRE_TRAP and ANTI_MAGIC
+// arms: resists_sleep(), resists_fire() or resists_magm(), or an
+// artifact.c defended() against that damage type. A caller may replace it.
 function trapResistance(monster, trap, env) {
-    if (typeof env.resistsTrapEffect !== 'function') {
-        throw new TypeError(
-            'm_harmless_trap requires resistsTrapEffect for this trap type',
-        );
+    if (typeof env.resistsTrapEffect === 'function')
+        return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
+    const { state } = env;
+    switch (trap.ttyp) {
+    case SLP_GAS_TRAP:
+        return Resists_Elem(monster, SLEEP_RES, state)
+            || defended(monster, AD_SLEE, state);
+    case FIRE_TRAP:
+        return Resists_Elem(monster, FIRE_RES, state)
+            || defended(monster, AD_FIRE, state);
+    case ANTI_MAGIC:
+        return resists_magm(monster, state)
+            || defended(monster, AD_MAGM, state);
+    default:
+        return false;
     }
-    return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
 }
 
-// C ref: trap.c m_harmless_trap(). Elemental and antimagic equipment defense
-// stays with its artifact/equipment owner and is requested only on those three
-// branches; every shape, flight, and ordinary-trap clause is local.
+// C ref: trap.c m_harmless_trap(). Every shape, flight, ordinary-trap and
+// resistance clause is local.
 export function m_harmless_trap(monster, trap, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
@@ -1599,14 +1594,11 @@ export function* mfndpos_steps(monster, data, initialFlags, env = {}) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     const state = env.state ?? game;
-    // Trap resistance can throw after earlier candidates have already written
-    // monster.mux/muy and data, so an adjacent resistance trap means the call
-    // needs a rollback point. Both callers reach it: m_move() supplies a
-    // resistsTrapEffect that raises the unported-path error, and the pet path
-    // supplies none, so the operation's presence says nothing about whether it
-    // throws. Snapshot on the trap alone, which leaves every other
-    // neighborhood on the allocation-free path. No other throw from the core
-    // is rolled back.
+    // A caller's resistsTrapEffect can throw after earlier candidates have
+    // already written monster.mux/muy and data, so an adjacent resistance
+    // trap means the call needs a rollback point. Snapshot on the trap alone,
+    // which leaves every other neighborhood on the allocation-free path. No
+    // other throw from the core is rolled back.
     const usesDefaultHarmlessTrap = env.mHarmlessTrap == null
         || env.mHarmlessTrap === m_harmless_trap;
     const snapshot = usesDefaultHarmlessTrap
@@ -1889,13 +1881,6 @@ function fleeingLightSource(state) {
     return null;
 }
 
-function requireFleeOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`monflee requires a ${name} operation`);
-    return operation;
-}
-
 // C ref: monmove.c release_hero() (362-374). If the monster is grabbing or
 // engulfing the hero, release them. The swallowed branch delegates its message
 // and relocation to mhitu.c:expels; the grab-only branch calls unstuck().
@@ -2083,23 +2068,14 @@ export async function monflee(
             ?? ((mon, detail, e) => monfleeMessage(mon, detail, e)))
         : null;
     const createGasCloud = createsGas
-        ? (env.createGasCloud === undefined
-            ? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
+        ? (env.createGasCloud
+            ?? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
                 x, y, size, damage,
                 postmoveRegionEnv(cloudEnv, state),
-            ))
-            : requireFleeOperation(env, 'createGasCloud'))
+            )))
         : null;
-    if (checksMessage) {
-        if (typeof checksFleeingLight !== 'function'
-            || typeof couldSee !== 'function') {
-            throw new TypeError('monflee light predicates must be functions');
-        }
-        if (typeof random.rn2 !== 'function')
-            throw new TypeError('monflee random injection requires rn2');
-    } else if (createsGas && typeof random.rn2 !== 'function') {
+    if ((checksMessage || createsGas) && typeof random.rn2 !== 'function')
         throw new TypeError('monflee random injection requires rn2');
-    }
     const normalized = {
         ...env,
         state,
@@ -2157,9 +2133,7 @@ export async function monflee(
     mon_track_clear(monster);
 }
 
-// C ref: monmove.c disturb(). wakeMessage owns wake_msg(), including its
-// visibility-dependent message. It is preflighted before the first possible
-// random draw so an unavailable output owner cannot advance the PRNG stream.
+// C ref: monmove.c disturb().
 export async function disturb(monster, env = {}) {
     const normalized = movementEnv(env);
     const { couldSee, random, state } = normalized;
@@ -2170,8 +2144,6 @@ export async function disturb(monster, env = {}) {
     }
     const stealthyHero = Stealth(state.u);
     if (stealthyHero && !isSpecies(monster, PM_ETTIN, state)) return 0;
-    if (typeof env.wakeMessage !== 'function')
-        throw new TypeError('disturb requires a wakeMessage operation');
 
     if (stealthyHero && !random.rn2(10)) return 0;
     const hardToWake = monster.data?.mlet === S_NYMPH
@@ -2190,13 +2162,13 @@ export async function disturb(monster, env = {}) {
         }
     }
 
-    await env.wakeMessage(monster, !monster.mpeaceful, normalized);
+    await wake_msg(monster, !monster.mpeaceful, normalized);
     monster.msleeping = false;
     return 1;
 }
 
 // C ref: monmove.c distfleeck(). monflee() owns messages, release behavior,
-// Vrock gas, and track clearing, so callers supply that complete operation.
+// Vrock gas, and track clearing.
 export async function distfleeck(monster, env = {}) {
     const normalized = movementEnv(env);
     const { random, state } = normalized;
@@ -2205,13 +2177,6 @@ export async function distfleeck(monster, env = {}) {
     const inSanctuary = env.inYourSanctuary ?? in_your_sanctuary;
     if (typeof random.rnd !== 'function')
         throw new TypeError('distfleeck random injection requires rnd');
-    if (typeof onScary !== 'function'
-        || typeof checksFleeingLight !== 'function'
-        || typeof inSanctuary !== 'function') {
-        throw new TypeError('distfleeck predicate injections must be functions');
-    }
-    if (typeof env.monFlee !== 'function')
-        throw new TypeError('distfleeck requires a monFlee operation');
 
     const braveGremlin = random.rn2(5) === 0;
     const inrange = dist2(
@@ -2247,7 +2212,7 @@ export async function distfleeck(monster, env = {}) {
 
     if (scared) {
         const fleeTime = random.rnd(random.rn2(7) ? 10 : 100);
-        await env.monFlee(monster, fleeTime, true, true, normalized);
+        await monflee(monster, fleeTime, true, true, normalized);
     }
     return { inrange, nearby, scared: Boolean(scared) };
 }
@@ -2342,7 +2307,8 @@ function requireDochugOperation(env, name) {
 }
 
 // C ref: monmove.c dochug(), pre-move AT_WEAP gate. Weapon selection and
-// wield state remain owned by weapon.js through the injected operation.
+// wield state remain owned by weapon.js mon_wield_item(); a caller may
+// replace it.
 export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if ((monster.mpeaceful && !Conflict(state.u))
@@ -2373,8 +2339,45 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
     }
 
     monster.weapon_check = NEED_HTH_WEAPON;
-    const wieldMonsterItem = requireDochugOperation(rawEnv, 'wieldMonsterItem');
+    const wieldMonsterItem = rawEnv.wieldMonsterItem ?? mon_wield_item;
     return Boolean(await wieldMonsterItem(monster, rawEnv));
+}
+
+// C ref: monmove.c dochug():793-799. find_defensive() or find_misc() picks an
+// item and use_defensive() or use_misc() uses it at once; a nonzero result
+// ends the monster's turn.
+async function use_pre_move_items(monster, env) {
+    const defensive = find_defensive(monster, false, env);
+    if (defensive)
+        return await use_defensive(monster, defensive, env.state, env) !== 0;
+    const misc = find_misc(monster, env);
+    if (misc)
+        return await use_misc(monster, misc, env.state, env) !== 0;
+    return false;
+}
+
+// C ref: monmove.c dochug():895-907. Walk the AT_MAGC attack slots with
+// AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE) for each, stopping at the
+// first M_ATTK_HIT. Most of the time castmu() picks a directed spell and
+// returns at once.
+async function cast_undirected_spell(monster, env) {
+    const { state } = env;
+    const attacks = monster.data?.mattk;
+    if (!attacks) return false;
+    const castEnv = {
+        ...env,
+        monsterName: (mtmp) => capitalizedMonsterName(mtmp, state),
+        monnam: (mtmp) => mon_nam(mtmp, state, env),
+        message: async (text, s) => { await ttyPline(text, s); },
+    };
+    for (const attack of attacks) {
+        if (attack.aatyp === AT_MAGC
+            && (attack.adtyp === AD_SPEL || attack.adtyp === AD_CLRC)) {
+            const result = await castmu(monster, attack, false, false, castEnv);
+            if (result & M_ATTK_HIT) return true;
+        }
+    }
+    return false;
 }
 
 // C ref: monmove.c dochug().  One function for tame and non-tame monsters,
@@ -2399,24 +2402,13 @@ export async function dochug(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     // C captures mdat before movement; a trap may polymorph this monster.
     const preMoveSpecies = monster.data;
-    const preflight = requireDochugOperation(rawEnv, 'preflight');
-    const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
     const attackHero = requireDochugOperation(rawEnv, 'attackHero');
-    const wakeMessage = requireDochugOperation(rawEnv, 'wakeMessage');
-    const monFlee = requireDochugOperation(rawEnv, 'monFlee');
-    const monsterCanSeeHero = requireDochugOperation(
-        rawEnv,
-        'monsterCanSeeHero',
-    );
-    // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
-    // calls castmu(FALSE, FALSE) for each; the provider answers whether one
-    // returned M_ATTK_HIT.
-    const castUndirectedSpell = requireDochugOperation(
-        rawEnv,
-        'castUndirectedSpell',
-    );
     // C ref: monmove.c:714 and :722. A caller may replace these.
+    const monsterCanSeeHero = rawEnv.monsterCanSeeHero ?? m_canseeu;
+    const usePreMoveItems = rawEnv.usePreMoveItems ?? use_pre_move_items;
+    const castUndirectedSpell = rawEnv.castUndirectedSpell
+        ?? cast_undirected_spell;
     const questStatCheck = rawEnv.questStatCheck ?? quest_stat_check;
     const questTalk = rawEnv.questTalk ?? quest_talk;
     const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
@@ -2432,7 +2424,6 @@ export async function dochug(monster, rawEnv = {}) {
     const hallucinating = () => Hallucination(state.u);
 
     // PHASE ONE: pre-movement adjustments.
-    preflight(monster, state);
     // C ref: monmove.c:704-707. m_arrival() clears STRAT_ARRIVE and returns
     // -1, so the `res >= 0` guard never fires and control always falls through.
     if (monster.mstrategy & STRAT_ARRIVE) {
@@ -2456,7 +2447,7 @@ export async function dochug(monster, rawEnv = {}) {
         return 0;             /* other frozen monsters can't do anything */
     }
     if (monster.msleeping
-        && !await disturbMonster(monster, { ...env, wakeMessage })) {
+        && !await disturbMonster(monster, env)) {
         if (hallucinating()) redraw(monster.mx, monster.my);
         return 0;
     }
@@ -2547,7 +2538,7 @@ export async function dochug(monster, rawEnv = {}) {
         if (monster.mstate) return 0;
         setApparentHero(monster, env);
     }
-    let range = await distanceAndFear(monster, { ...env, monFlee });
+    let range = await distanceAndFear(monster, env);
     if (await usePreMoveItems(monster, env)) return 1;
 
     // C ref: monmove.c:802-825, demonic blackmail. This follows the
@@ -2601,7 +2592,7 @@ export async function dochug(monster, rawEnv = {}) {
         const message = rawEnv.message ?? ttyPline;
         await mind_blast(monster, { ...env, random, message });
         setApparentHero(monster, env);
-        range = await distanceAndFear(monster, { ...env, monFlee });
+        range = await distanceAndFear(monster, env);
     }
 
     if (await wieldPreMoveWeapon(monster, range, env)) return 0;
@@ -2658,7 +2649,7 @@ export async function dochug(monster, rawEnv = {}) {
         // C returns before fear/range checks when an escape migrated it.
         if (mon_offmap(monster)) return 1;
         if (status !== MMOVE_DIED) {
-            range = await distanceAndFear(monster, { ...env, monFlee });
+            range = await distanceAndFear(monster, env);
         }
         if (status === MMOVE_DIED) return 1;
         if (status === MMOVE_MOVED) {
@@ -3643,11 +3634,8 @@ export async function m_move(monster, rawEnv = {}) {
     // convert, so it would escape runSegment() and discard the segment rather
     // than stop it.
     const random = rawEnv.random ?? coreRandom;
-    const resistsTrapEffect = requireMoveOperation(
-        rawEnv,
-        'resistsTrapEffect',
-    );
-    const finishEating = requireMoveOperation(rawEnv, 'finishEating');
+    // C ref: monmove.c:1748 finish_meating(); a caller may replace it.
+    const finishEating = rawEnv.finishEating ?? finish_meating;
     const movePet = requireMoveOperation(rawEnv, 'movePet');
     const env = { ...rawEnv, state, random };
     let oldX = monster.mx;
@@ -3991,7 +3979,7 @@ export async function m_move(monster, rawEnv = {}) {
         monster,
         data,
         mon_allowflags(monster, env),
-        { ...env, resistsTrapEffect },
+        env,
     ), impossible_printer(state));
     if (!count && !is_unicorn(monster.data)) {
         // C ref: monmove.c:1927. A monster with no movement options attempts

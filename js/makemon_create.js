@@ -498,7 +498,7 @@ import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { impossible_printer, norep_printer } from './pline.js';
-import { block_point, cansee, couldsee, does_block } from './vision.js';
+import { block_point, cansee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
 import {
     S_altar,
@@ -523,7 +523,7 @@ import {
     mon_set_minvis,
     which_armor,
 } from './worn.js';
-import { canseemon, canspotmon, sensemon } from './display.js';
+import { canseemon, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
 // include/monattk.h predicate used by muse.c's random-item selectors.
@@ -2209,29 +2209,11 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 }
 
 // C ref: makemon.c makemon() (1502-1504), outside mklev: "if discernable and
-// a threat, stop fiddling while Rome burns".  dochugw() calls allmain.c
-// stop_occupation() directly; a caller's hook stands in for it only when the
-// caller supplies one.
+// a threat, stop fiddling while Rome burns".
 async function makemonOccupationCheck(monster, normalized) {
     const { state } = normalized;
     if (!state.go?.occupation) return;
-    const stopOccupation = typeof normalized.hooks?.stopOccupation
-        === 'function'
-        ? normalized.hooks.stopOccupation
-        : async (_monster, hookEnv) => {
-            const { stop_occupation } = await import('./allmain.js');
-            await stop_occupation(state, {
-                ...hookEnv,
-                message: hookEnv.message ?? ttyPline,
-            });
-        };
-    await dochugw(monster, false, {
-        ...normalized,
-        state,
-        canSpotMonster: (subject) => canspotmon(subject, state),
-        couldSee: (x, y) => couldsee(x, y, state),
-        stopOccupation: () => stopOccupation(monster, normalized),
-    });
+    await dochugw(monster, false, { ...normalized, state });
 }
 
 // C ref: makemon.c makemon() (1147-1512). Like C, it admits every species,

@@ -2112,12 +2112,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/mon.js | m_consume_obj | 'm_consume_obj requires a quickMimic operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | mongone | 'mongone requires a monster instance'": {
       "count": 1,
       "class": "invariant",
@@ -2166,41 +2160,17 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/mon.js | normalizedDistressEnv | 'monster distress perception and message operations must be ": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | preflight_newcham_distress | 'newcham_distress requires perception and message operations": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | preflight_newcham_distress | 'newcham_distress requires positive integer hit points'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/mon.js | preflightNewWere | 'new_were requires a redrawSquare operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | relmon | 'relmon: monster is not in the list'": {
       "count": 1,
       "class": "panic",
       "c": "src/mon.c:2583",
       "reason": "relmon() panics when the monster is not on fmon."
-    },
-    "js/mon.js | requiredDistressOperation | `mcalcdistress requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | requiredSingleMonsterOperation | `movemon_singlemon requires a ${name} operation`": {
       "count": 1,
@@ -2304,43 +2274,7 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | distfleeck | 'distfleeck predicate injections must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | distfleeck | 'distfleeck random injection requires rnd'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | distfleeck | 'distfleeck requires a monFlee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | disturb | 'disturb requires a wakeMessage operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | dochugw | 'dochugw requires a couldSee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | dochugwInterruptsOccupation | 'dochugw occupation check requires a canSpotMonster operatio": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | m_everyturn_effect | 'm_everyturn_effect requires a createGasCloud operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2364,14 +2298,8 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | monflee | 'monflee light predicates must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | monflee | 'monflee random injection requires rn2'": {
-      "count": 2,
+      "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
@@ -2406,12 +2334,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | requireFleeOperation | `monflee requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | requireMoveOperation | `m_move requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
@@ -2423,12 +2345,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/monmove.js | trapResistance | 'm_harmless_trap requires resistsTrapEffect for this trap ty": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | undesirable_disp | 'undesirable_disp requires cursedObjectAt for a pet'": {
       "count": 1,
