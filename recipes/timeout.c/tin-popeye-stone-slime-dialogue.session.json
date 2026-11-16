@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review (reviewer c) of timeout.c stoned_dialogue 161, slime_dialogue 430 and slimed_to_death 463-464: debug Valkyrie wishes 2 unknown tins; #wizintrinsic petrifying 4 then a counted eat (2e) of a tin, so Popeye(STONED) keeps the tin occupation and multi>0 reaches nomul(0); after declining death, sliming 7 with another counted tin eat (Popeye(SLIMED)) reaches 430; as the resulting green slime, sliming 3 runs out and slimed_to_death returns early. Seed 7310531 chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 7310531,
+      "datetime": "20470915101500",
+      "nethackrc": "OPTIONS=name:Popeye,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u00172 tins\n#wizintrinsic\n4b\n 2ee    #wizintrinsic\n7c\n 2ee          #wizintrinsic\n3c\n 5s"
+    }
+  ]
+}

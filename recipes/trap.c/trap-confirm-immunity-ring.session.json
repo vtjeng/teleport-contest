@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review (reviewer c) of trap.c immune_to_trap (2783-2934) via hack.c paranoid trap confirmation: debug Valkyrie wishes arrow, bear, sleeping gas, teleport, polymorph, web, anti-magic and rust traps around the start square, reveals them with ^E and declines each 'Really step' prompt; then sleep/magic resistance (hidden immunity, Antimagic) and levitation (clearly immune bear trap, no prompt). Seed 7310421 chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 7310421,
+      "datetime": "20470812103000",
+      "nethackrc": "OPTIONS=name:Trapwise,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,paranoid_confirmation:trap\n",
+      "moves": "y\u0017arrow trap\nl\u0017bear trap trap\nl\u0017sleeping gas trap\nj\u0017teleportation trap\nj\u0017polymorph trap\nh\u0017web\nh\u0017anti-magic field\nk\u0017rust trap\nl\u0005ynknunlnnnjnbnhn#wizintrinsic\n>kq\n  unnnbn#wizintrinsic\nq\n k."
+    }
+  ]
+}
