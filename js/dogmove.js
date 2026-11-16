@@ -482,18 +482,35 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
 // object arms all feed dog_eat's used nutrition result.
 export function dog_nutrition(mtmp, obj, state = game) {
     let nutrit;
-    if (obj?.oclass === FOOD_CLASS && obj.otyp === CORPSE) {
-        const corpse = state.mons?.[obj.corpsenm];
-        if (!corpse)
-            throw new RangeError(
-                `dog_nutrition requires monster ${obj.corpsenm}`,
-            );
-        mtmp.meating = 3 + (corpse.cwt >> 6);
-        nutrit = corpse.cnutrit;
-    } else if (obj?.oclass === FOOD_CLASS) {
-        const odata = state.objects[obj.otyp];
-        mtmp.meating = odata.oc_delay;
-        nutrit = odata.oc_nutrition;
+    if (obj?.oclass === FOOD_CLASS) {
+        if (obj.otyp === CORPSE) {
+            const corpse = state.mons?.[obj.corpsenm];
+            if (!corpse)
+                throw new RangeError(
+                    `dog_nutrition requires monster ${obj.corpsenm}`,
+                );
+            mtmp.meating = 3 + (corpse.cwt >> 6);
+            nutrit = corpse.cnutrit;
+        } else {
+            const odata = state.objects[obj.otyp];
+            mtmp.meating = odata.oc_delay;
+            nutrit = odata.oc_nutrition;
+        }
+        // dogmove.c:172-195. The size factor and the partly-eaten scaling
+        // apply to food only, not to the coin and unusual-object arms below.
+        switch (mtmp.data.msize) {
+        case MZ_TINY: nutrit *= 8; break;
+        case MZ_SMALL: nutrit *= 6; break;
+        default:
+        case MZ_MEDIUM: nutrit *= 5; break;
+        case MZ_LARGE: nutrit *= 4; break;
+        case MZ_HUGE: nutrit *= 3; break;
+        case MZ_GIGANTIC: nutrit *= 2; break;
+        }
+        if (obj.oeaten) {
+            mtmp.meating = eaten_stat(mtmp.meating, obj, { state });
+            nutrit = eaten_stat(nutrit, obj, { state });
+        }
     } else if (obj?.oclass === COIN_CLASS) {
         mtmp.meating = Math.max(1, Math.trunc((obj.quan ?? 0) / 2000) + 1);
         nutrit = Math.max(0, Math.trunc((obj.quan ?? 0) / 20));
@@ -502,19 +519,6 @@ export function dog_nutrition(mtmp, obj, state = game) {
         // weight/nutrition fallback as C, including gold objects.
         mtmp.meating = Math.trunc((obj?.owt ?? 0) / 20) + 1;
         nutrit = 5 * (state.objects?.[obj?.otyp]?.oc_nutrition ?? 0);
-    }
-    switch (mtmp.data.msize) {
-    case MZ_TINY: nutrit *= 8; break;
-    case MZ_SMALL: nutrit *= 6; break;
-    default:
-    case MZ_MEDIUM: nutrit *= 5; break;
-    case MZ_LARGE: nutrit *= 4; break;
-    case MZ_HUGE: nutrit *= 3; break;
-    case MZ_GIGANTIC: nutrit *= 2; break;
-    }
-    if (obj.oeaten) {
-        mtmp.meating = eaten_stat(mtmp.meating, obj, { state });
-        nutrit = eaten_stat(nutrit, obj, { state });
     }
     return nutrit;
 }
