@@ -1710,12 +1710,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mhitm.js | requireAttackOperation | `mattackm requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitu.js | draw | `mhitu.c gazemu requires random.${name}`": {
       "count": 1,
       "class": "invariant",
@@ -4105,12 +4099,6 @@
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/uhitm.js | erode_armor | 'erode_armor random injection requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/uhitm.js | requireAttackOperation | `do_attack requires ${name}`": {
       "count": 1,
       "class": "invariant",
       "c": null,

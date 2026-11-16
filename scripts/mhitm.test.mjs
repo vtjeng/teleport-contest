@@ -99,7 +99,6 @@ import {
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { mksobj, objectType } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
-import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
 import { APPLE, CLUB, SHORT_SWORD, IRON, METAL } from '../js/objects.js';
 import { S_hcdoor } from '../js/symbols.js';
@@ -1182,20 +1181,51 @@ test('mattackm falls through an adjacent empty-handed weapon attack',
             ],
         };
         const env = attackEnv([], 20);
-        let calls = 0;
-        env.wieldMonsterItemAgainstMonster = async (monster) => {
-            ++calls;
-            assert.equal(monster.weapon_check, NEED_HTH_WEAPON);
-            return mon_wield_item(monster, env);
-        };
 
         assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
-        assert.equal(calls, 1);
         assert.equal(goblin.mw, null);
+        // mattackm() sets NEED_HTH_WEAPON before it calls mon_wield_item();
+        // only mon_wield_item()'s empty selection resets it to NEED_WEAPON,
+        // so the final value shows the call happened.
         assert.equal(goblin.weapon_check, NEED_WEAPON);
         assert.equal(kitten.mhp, 4);
         assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)']);
         assert.deepEqual(env.lines, ['The hill orc misses the kitten.']);
+        goblin.data = ordinary;
+    });
+
+// mhitm.c mattackm():406-410. When mon_wield_item() wields something it
+// returns 1, the wield costs the attacker its move, and mattackm() returns
+// M_ATTK_MISS before any attack roll.
+test('mattackm ends the attack when the attacker wields a weapon',
+    async () => {
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        const goblin = fixture(PM_HILL_ORC, ax, y, {
+            weapon_check: NEED_WEAPON,
+            mw: null,
+        });
+        // A club is the only weapon carried, so select_hwep() must pick it.
+        const club = mksobj(CLUB, false, false, { state: game });
+        add_to_minv(goblin, club, { state: game });
+        const kitten = fixture(PM_KITTEN, dx, y, { mhp: 4, mhpmax: 4 });
+        aim(kitten);
+        const ordinary = goblin.data;
+        goblin.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+        // A to-hit roll of 20 would land if the attack went ahead.
+        const env = attackEnv([], 20);
+
+        assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
+        assert.equal(goblin.mw, club);
+        assert.equal(goblin.weapon_check, NEED_WEAPON);
+        assert.equal(kitten.mhp, 4);
+        assert.equal(env.bounds.includes('rnd(20)'), false);
         goblin.data = ordinary;
     });
 
@@ -1215,7 +1245,7 @@ test('a metal weapon splits a pudding after hitmm and before mintrap',
                 MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {')),
         );
         assert.match(jsBranch,
-            /clone_mon\([\s\S]*?requireAttackOperation\(env, 'message'\)[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
+            /clone_mon\([\s\S]*?env\.message \?\? ttyPline[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
 
         await hero();
         const { ax, dx, y } = battlefield(1);
@@ -1313,16 +1343,23 @@ test('mattackm continues past weapon selection for supported arms',
         const cases = [
             // Distant attack: thrwmm is now ported; with no ranged weapon the
             // goblin misses. mattackm falls through to the remaining attacks.
-            { name: 'distant attack', gap: 2, mw: null, result: 1, calls: 0,
-                rejects: false },
+            // finalCheck is weapon_check after the attack. The distant arm
+            // never reaches the wield check. The armed swing skips
+            // mon_wield_item(), and possibly_unwield() then resets
+            // NEED_WEAPON because the stand-in weapon is not in the
+            // goblin's inventory. The empty selection gets NEED_HTH_WEAPON
+            // from mattackm(), which only mon_wield_item()'s empty
+            // selection resets to NEED_WEAPON.
+            { name: 'distant attack', gap: 2, mw: null,
+                finalCheck: NEED_WEAPON },
             {
                 name: 'armed swing', gap: 1,
                 mw: { otyp: 1, owornmask: 0 },
                 weaponCheck: NEED_HTH_WEAPON,
-                result: 1, calls: 0,
+                finalCheck: NEED_WEAPON,
             },
             { name: 'empty selection and damage', gap: 1, mw: null,
-                result: 0, calls: 1, rejects: false },
+                finalCheck: NEED_WEAPON },
         ];
         for (const row of cases) {
             await hero();
@@ -1341,13 +1378,7 @@ test('mattackm continues past weapon selection for supported arms',
                     ...ordinary.mattk.slice(1),
                 ],
             };
-            let calls = 0;
             const env = attackEnv();
-            env.wieldMonsterItemAgainstMonster = async (monster) => {
-                ++calls;
-                monster.weapon_check = NEED_WEAPON;
-                return row.result;
-            };
 
             if (row.name === 'empty selection and damage') {
                 assert.equal(await mattackm(goblin, kitten, env), M_ATTK_HIT,
@@ -1358,7 +1389,7 @@ test('mattackm continues past weapon selection for supported arms',
                 const result = await mattackm(goblin, kitten, env);
                 assert.equal(typeof result, 'number', row.name);
             }
-            assert.equal(calls, row.calls, row.name);
+            assert.equal(goblin.weapon_check, row.finalCheck, row.name);
             goblin.data = ordinary;
         }
     });

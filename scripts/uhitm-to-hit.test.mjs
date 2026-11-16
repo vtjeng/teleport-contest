@@ -38,6 +38,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { inv_weight, near_capacity } from '../js/hack.js';
 import { is_undead } from '../js/mondata.js';
 import { CHEST } from '../js/objects.js';
 import { mksobj, place_object } from '../js/obj.js';
@@ -190,8 +191,14 @@ async function hitumFromDoAttack(mon, uattk, env) {
 
 const REFUSING = {
     unsupported: (reason) => { throw new Error(reason); },
-    nearCapacity: () => 0,
 };
+
+// uhitm.c:405-406. A small polymorphed form carries less, so the starting
+// inventory can encumber it; the form tests below subtract this real term.
+function encumbrancePenalty(state) {
+    const capacity = near_capacity(state);
+    return capacity !== 0 ? (capacity * 2) - 1 : 0;
+}
 
 test('attack_checks admits an ordinary hostile and clears its wait strategy',
     async () => {
@@ -633,13 +640,17 @@ test('find_roll_to_hit adds every adjustment its source names', async () => {
     assert.equal(await roll(target()), base - 3);
     game.u.utrap = 0;
 
-    // uhitm.c:405-406, `tmp -= (near_capacity() * 2) - 1`.
-    assert.equal(
-        await roll(target(), game, {
-            ...REFUSING, nearCapacity: () => HVY_ENCUMBER,
-        }),
-        base - ((HVY_ENCUMBER * 2) - 1),
-    );
+    // uhitm.c:405-406, `tmp -= (near_capacity() * 2) - 1`. A chest weighing
+    // exactly enough to put the excess at one full carrying capacity makes
+    // calc_capacity() return (wc * 2 / wc) + 1, which is HVY_ENCUMBER.
+    const freeCapacity = -inv_weight(game);
+    const load = mksobj(CHEST, false, false, { state: game });
+    load.owt = freeCapacity + game.gw.wc;
+    load.nobj = game.invent;
+    game.invent = load;
+    assert.equal(near_capacity(game), HVY_ENCUMBER);
+    assert.equal(await roll(target()), base - ((HVY_ENCUMBER * 2) - 1));
+    game.invent = load.nobj;
 
     // uhitm.c:401-402: an elf hits an orc more easily. This hero is human, so
     // the same orc is worth nothing extra.
@@ -662,6 +673,7 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     const unpolymorphedLevel = game.u.ulevel;
     const humanRoll = await roll(targetLichen);
     const humanAbon = abon(game);
+    const humanLoad = encumbrancePenalty(game);
 
     // The independent B64 recipe attacks in Gremlin form; C maybe_polyd at
     // uhitm.c:378 uses the form's monster level instead of the hero's level.
@@ -671,7 +683,8 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     assert.equal(
         await roll(targetLichen),
         humanRoll + game.mons[PM_GREMLIN].mlevel - unpolymorphedLevel
-            + abon(game) - humanAbon,
+            + abon(game) - humanAbon
+            + humanLoad - encumbrancePenalty(game),
     );
 
     // C maybe_polyd at uhitm.c:404 checks the Elf form while polymorphed; an
@@ -681,13 +694,15 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     const heroLevel = game.u.ulevel;
     const elfLevel = game.mons[PM_ELF].mlevel;
     const humanVsOrcAbon = abon(game);
+    const humanVsOrcLoad = encumbrancePenalty(game);
     game.u.umonnum = PM_ELF;
     game.youmonst.data = game.mons[PM_ELF];
     game.youmonst.mnum = PM_ELF;
     assert.equal(
         await roll(target(PM_HILL_ORC)),
         humanVsOrc + elfLevel - heroLevel + 1
-            + abon(game) - humanVsOrcAbon,
+            + abon(game) - humanVsOrcAbon
+            + humanVsOrcLoad - encumbrancePenalty(game),
     );
 });
 
@@ -752,6 +767,7 @@ test('find_roll_to_hit skips the Monk role bonus while polymorphed', async () =>
     );
     const heroLevel = game.u.ulevel;
     const humanRoll = await attack(target());
+    const humanLoad = encumbrancePenalty(game);
 
     // C uhitm.c:397-401 gates the Monk bare-hand bonus with !Upolyd; Gremlin
     // form also selects its C monster level through maybe_polyd at line 378.
@@ -761,7 +777,8 @@ test('find_roll_to_hit skips the Monk role bonus while polymorphed', async () =>
     assert.equal(
         await attack(target()),
         humanRoll + game.mons[PM_GREMLIN].mlevel - heroLevel
-            - (Math.trunc(heroLevel / 3) + 2),
+            - (Math.trunc(heroLevel / 3) + 2)
+            + humanLoad - encumbrancePenalty(game),
     );
 });
 
