@@ -39,7 +39,7 @@ test('color preview preserves user list identity and includes gray', async () =>
     assert.equal(await query_color(s, null, 8, { selectMenu: () => {
         assert.notEqual(s.gm.menu_colorings, user);
         let gray = false; for (let p = s.gm.menu_colorings; p; p = p.next) if (p.origstr === 'gray') gray = true;
-        assert.equal(gray, true); return [16, 5]; // Source no-color row16 then blue row5.
+        assert.equal(gray, true); return [5, 16]; // Blue row5, then the preselected no-color row16, in menu order.
     } }), 4);
     assert.equal(s.gm.menu_colorings, user);
     assert.equal(s.iflags.use_menu_color, false);

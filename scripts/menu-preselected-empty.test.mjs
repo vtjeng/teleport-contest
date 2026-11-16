@@ -91,8 +91,8 @@ test('every preselected PICK_ONE spec states what C does with n == 0', () => {
     // An assignment would add `preselected` where this scan cannot see the
     // spec that receives it.
     assert.deepEqual(assignments, []);
-    // The scan must find the eleven specs that name `preselected` today
-    // (coloratt.js 2, cmd.js 1, insight.js 1, options.js 1, pickup.js 3,
+    // The scan must find the ten specs that name `preselected` today
+    // (coloratt.js 1, cmd.js 1, insight.js 1, options.js 1, pickup.js 3,
     // player_selection_tty.js 2, restore.js 1); fewer means it went blind.
-    assert.equal(specs, 11);
+    assert.equal(specs, 10);
 });
