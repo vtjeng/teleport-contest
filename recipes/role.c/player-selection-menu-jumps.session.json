@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises role.c genl_player_setup() and plsel_startmenu(): Enter answers the 'Shall I pick' question as y (2266) and 'n' at 'Is this ok?' opens the role menu; '/', '?', '\"' and '[' jump between the role, race, gender and alignment menus, and a jump resets the facet it names once that facet is chosen (2433-2440, 2521-2528, 2607-2614); Enter in the race menu takes its first entry; '*' in the gender menu takes its Random entry (2536-2538); and after '/' resets the race, 'd' picks dwarf, which leaves lawful as the only alignment, so the game asks 'Is this ok?' at once.",
+  "segments": [
+    {
+      "seed": 2408816,
+      "datetime": "20270111074500",
+      "nethackrc": "OPTIONS=name:Ulla,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\nn/?a\"/\n[\"*/d\nys"
+    }
+  ]
+}

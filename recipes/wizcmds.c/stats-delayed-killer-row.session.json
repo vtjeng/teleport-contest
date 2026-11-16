@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wizcmds.c misc_stats() (1360-1370) through #stats: a hero made to petrify with #wizintrinsic has a delayed killer, so #stats lists that row with its count and size.",
+  "segments": [
+    {
+      "seed": 4472906,
+      "datetime": "20270114160000",
+      "nethackrc": "OPTIONS=name:Hesper,role:Priest,race:elf,gender:male,align:chaotic,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=playmode:debug\n",
+      "moves": "\n#wizintrinsic\nb\n\u001b\u001b#wizgenesis\nAngel\n\u001b\u001b#stats\n "
+    }
+  ]
+}

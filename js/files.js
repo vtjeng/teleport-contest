@@ -10,7 +10,8 @@ import {
 } from './const.js';
 import { COIN_CLASS } from './objects.js';
 import {
-    atoi, bytesText, textBytes, mungspaces, lcase, truncateByteString,
+    atoi, bytesText, textBytes, fuzzymatch, mungspaces, lcase,
+    truncateByteString,
 } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { DAT_LUA_FILES } from './dat_files.js';
@@ -100,11 +101,13 @@ export function get_saved_games(_state = game) {
     });
 }
 
+// C ref: files.c read_sym_file() (2653-2656), its test for a name that
+// "looks like" the built-in set: a fuzzymatch() against "Default symbols"
+// that skips ' ', '-' and '_' and folds case, or strcmpi() against "default".
 export function isDefaultSymsetName(name) {
     const text = String(name ?? '');
-    if (lcase(text) === 'default') return true;
-    const folded = lcase(text).replace(/[ _-]/gu, '');
-    return folded === 'defaultsymbols';
+    return fuzzymatch(text, 'Default symbols', ' -_', true)
+        || lcase(text) === 'default';
 }
 
 // C ref: files.c read_sym_file().  The scorer installs the generated projection

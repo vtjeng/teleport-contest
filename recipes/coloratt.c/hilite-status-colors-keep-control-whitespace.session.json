@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises coloratt.c match_str2clr() (348-371) and match_str2attr() (373-393) through botl.c parse_status_hl2() and parse_condition(): both compare with fuzzymatch(..., \" -_\", TRUE), which skips spaces, hyphens and underscores but not a vertical tab or form feed. A colour preceded by a vertical tab is an unknown colour, and an attribute preceded by a form feed is no attribute, so it is tried as a colour and reported twice, where 'Light_Blue' and 'under-line' match. The variation is the condition path, whose attribute loop differs from the field path's.",
+  "segments": [
+    {
+      "seed": 2650917,
+      "datetime": "20270305071845",
+      "nethackrc": "OPTIONS=name:Bertil,role:Archeologist,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=hilite_status:power/always/\u000bred\nOPTIONS=hilite_status:hitpoints/always/Light_Blue&under-line\nOPTIONS=hilite_status:time/always/green&\fbold\nOPTIONS=hilite_status:condition/blind/brown&\finverse\nOPTIONS=hilite_status:condition/stun/Bright-Magenta&Under_Line\n",
+      "moves": "\n\ns"
+    }
+  ]
+}

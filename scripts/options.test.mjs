@@ -3055,11 +3055,8 @@ test('status highlighting uses source field and condition vocabularies', () => {
             "hilite_status: invalid percentage value '>100%'."],
         // conditions[] spells this one "Hallu"; "hallucinat" is condtests[].
         ['condition/hallucinat/red', "Unknown condition 'hallucinat'."],
-        // botl.c walks its condition and threshold tables with strcmp(), so a
-        // name Object.prototype carries is as unknown as any other.  Only an
-        // all-lowercase one can arrive: match_str2clr()'s normalization, which
-        // this port spells menuHeadingToken(), folds case and drops '_', so
-        // "toString" becomes "tostring" and "__proto__" becomes "proto".
+        // botl.c walks its condition and threshold tables by name, so a name
+        // Object.prototype carries is as unknown as any other.
         ['condition/constructor/red', "Unknown condition 'constructor'."],
         ['hunger/constructor/red', "Unknown behavior 'constructor'."],
         ['carrying-capacity/constructor/red',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() with statuslines:3, the variation of render-status-version-after-conditions: the same three potions are quaffed, and the version field is right-justified at the end of the third status line. No status condition appears on any of the three lines, although the hero is Blind, Confused and Hallucinating; the C recording shows that too.",
+  "segments": [
+    {
+      "seed": 1185317,
+      "datetime": "20270909101500",
+      "nethackrc": "OPTIONS=name:Ek,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,showvers,time,statuslines:3\n",
+      "moves": "\n\u0017potion of blindness\nqe\u0017potion of hallucination\nqf\u0017potion of confusion\nqgss"
+    }
+  ]
+}

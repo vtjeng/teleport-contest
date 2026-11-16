@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises options.c txt2key() (6978-7064) and parsebindings() (7611-7660) through BIND lines, one for each txt2key() branch: '^-v' (a caret with the optional hyphen), '006' (three decimal digits), '99z' (a third character that is not a digit), 'M-' (meta of the hyphen itself), 'C-?' (rubout), '<esc>' and '<space>' (the named keys), '\\t' (a backslash escape), 'mz' (meta of a plain character, on a line whose comma-separated right half '<enter>:look' is parsed first) and 'nz', which names no key. ^V, ^F, DEL, space and tab, pressed afterwards, each open the inventory; ESC, although bound to it too, does nothing on the map.",
+  "segments": [
+    {
+      "seed": 8127340,
+      "datetime": "20270617221500",
+      "nethackrc": "OPTIONS=name:Ansel,role:Wizard,race:gnome,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nBIND=^-v:inventory\nBIND=006:inventory\nBIND=99z:inventory\nBIND=M-:look\nBIND=C-?:inventory\nBIND=<esc>:inventory\nBIND=<space>:inventory\nBIND=\\t:inventory\nBIND=mz:inventory,<enter>:look\nBIND=nz:look\n",
+      "moves": "\n\u0016\u001b\u0006\u001b\u007f\u001b \u001b\t\u001b\u001b\u001bs"
+    }
+  ]
+}

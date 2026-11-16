@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c condattr() (5006-5020): a condition highlight naming bold, italic, underline and blink sets all four attribute bits on the Blind status condition once a potion of blindness is quaffed, and a second rule with italic alone styles Conf after booze.",
+  "segments": [
+    {
+      "seed": 9130458,
+      "datetime": "20270520224500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color\nOPTIONS=statushilites:5,hilite_status:condition/blind/magenta&underline&blink&bold&italic condition/conf/yellow&italic\n",
+      "moves": "\n\u0017potion of blindness\nqf\u0017potion of booze\nqgss"
+    }
+  ]
+}

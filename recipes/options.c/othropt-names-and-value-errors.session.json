@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises options.c optfn_o_autocomplete(), optfn_o_autopickup_exceptions(), optfn_o_message_types(), optfn_o_status_cond() (8310-8441), optfn_o_bind_keys(), optfn_o_menu_colors() and optfn_o_status_hilites(), whose do_set arm is empty, so OPTIONS lines naming them with a value are accepted silently; optfn_versinfo()'s two errors (4499-4509), for a missing value and for a value outside 1-7; and optfn_pickup_burden()'s 'l' (overLoaded) arm (3285-3287), which lowc() reaches from a capital. A bare pile_limit on the same line reports its missing parameter, and the second versinfo line also reports that the compound option was given twice.",
+  "segments": [
+    {
+      "seed": 1937465,
+      "datetime": "20270208113020",
+      "nethackrc": "OPTIONS=name:Wren,role:Monk,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=autocompletions:zap\nOPTIONS=autopickup exceptions:<*\nOPTIONS=message types:hide\nOPTIONS=status condition fields:stun\nOPTIONS=menu colors:x\nOPTIONS=bind keys:y\nOPTIONS=status highlight rules:z\nOPTIONS=versinfo:0\nOPTIONS=versinfo\nOPTIONS=pickup_burden:Loaded,pile_limit\n",
+      "moves": "\ns"
+    }
+  ]
+}

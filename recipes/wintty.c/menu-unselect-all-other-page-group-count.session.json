@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c process_menu_window() and invert_all_on_page(): in the options menu, '-' unselects an item selected on another page (1731-1733); in a pickup menu, the digit group accelerator '0' selects the iron ball (1617), and a count before the ')' group accelerator stores the count, so 3 of the daggers are picked up (1292).",
+  "segments": [
+    {
+      "seed": 3356702,
+      "datetime": "20270302130000",
+      "nethackrc": "OPTIONS=name:Sif,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "Oc>-<\u001b\u0017heavy iron ball\n\u00174 daggers\n\ndfdb,03)\ni\u001bs"
+    }
+  ]
+}
