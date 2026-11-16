@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review c block 151 (worn.c mon_adjust_speed 503-504): a monster slowed by a wand of slow monster (permspeed MSLOW, zap.c:223) and then zapped with a wand of speed monster (adjust 1, zap.c:237) has its permspeed reset to 0. Independent seed and inputs.",
+  "segments": [
+    {
+      "seed": 60417733,
+      "datetime": "20450612141516",
+      "nethackrc": "OPTIONS=name:Odran,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u001b#wizwish\nwand of slow monster\n#wizwish\nwand of speed monster\n#wizgenesis\nhill orc\nzpkzqk"
+    }
+  ]
+}
