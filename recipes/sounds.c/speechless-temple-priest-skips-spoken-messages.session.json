@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c temple_priest_sound() 161-162: a debug Valkyrie with monpolycontrol wishes for a wand of polymorph, level-teleports to Minetown, maps it and ^T-teleports beside the temple altar. Zapping the priestess angers her (Tyr smites the hero; wizard mode declines each death) and she resists; a second zap lets the hero turn her into a newt, which keeps ispriest. The hero ^T-teleports to the up stairs outside the temple, turns on debug_mongen and rests: dosounds() picks the temple, and because the newt is speechless (MS_SILENT <= MS_ANIMAL) the loop skips each '*' message (162) before 'You hear an animal carcass being offered in sacrifice.' The last ESC dismisses the --More--.",
+  "segments": [
+    {
+      "seed": 7731402,
+      "datetime": "20381203081500",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,monpolycontrol\n",
+      "moves": "\u0017wand of polymorph\n\u001b\u0016?\n>w\u001b\u0006\u0014_j.\u001b\u001b\u001bzel\u001b\u001bn\u001b\u001b\u001bn\u001bzelnewt\n\u001b\u001b\u0014<.\u001b\u001b#optionsfull\n>r\n50.\u001b50.\u001b"
+    }
+  ]
+}
