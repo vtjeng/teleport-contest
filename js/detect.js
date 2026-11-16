@@ -104,6 +104,7 @@ import {
     map_trap,
     map_object,
     newsym,
+    newsym_steps,
     object_glyph_info,
     remembered_glyph_from_presentation,
     show_glyph_cell,
@@ -1616,7 +1617,7 @@ export function* show_map_spot_steps(
     const oldglyph = glyph_at(x, y, state);
     if (state.level?.flags?.hero_memory) {
         yield* magic_map_background_steps(x, y, 0, state);
-        newsym(x, y);
+        yield* newsym_steps(x, y); /* show it, if not blocked */
     } else {
         yield* magic_map_background_steps(x, y, 1, state);
     }

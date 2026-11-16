@@ -161,7 +161,7 @@ const ALLOWED = {
     'bones.js | * | newsym': 1,
     'bury.js | * | newsym': 1,
     'dbridge.js | * | newsym': 6,
-    'detect.js | * | newsym': 11,
+    'detect.js | * | newsym': 10,
     'dig.js | * | newsym': 7,
     'display.js | * | newsym': 10,
     'do.js | * | newsym': 4,
