@@ -1364,7 +1364,7 @@ export async function find_roll_to_hit(
     }
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
-    const tmp2 = requireAttackOperation(env, 'nearCapacity')(state);
+    const tmp2 = near_capacity(state);
     if (tmp2 !== 0) tmp -= (tmp2 * 2) - 1;
     if (u.utrap) tmp -= 3;
 
