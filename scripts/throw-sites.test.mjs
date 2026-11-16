@@ -27,7 +27,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // marker audit (branch diag-markers) gave 13 more C panic() calls in
 // synchronous functions a listed throw: 96 panic in all. formatkiller()
 // added one guard for a missing C buffer size (source-review-3c).
-const LIST_PINS = { entries: 719, sites: 724 };
+const LIST_PINS = { entries: 718, sites: 723 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

@@ -2400,12 +2400,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | trapResistance | 'm_harmless_trap requires resistsTrapEffect for this trap ty": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | undesirable_disp | 'undesirable_disp requires cursedObjectAt for a pet'": {
       "count": 1,
       "class": "invariant",

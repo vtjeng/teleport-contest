@@ -8,12 +8,7 @@
 
 import {
     BURN,
-    FIRE_RES,
     HEADSTONE,
-    SLEEP_RES,
-    SLP_GAS_TRAP,
-    FIRE_TRAP,
-    ANTI_MAGIC,
 } from './const.js';
 import {
     is_ice,
@@ -31,7 +26,6 @@ import {
     best_target,
     dog_eat,
     dog_move,
-    finish_meating,
     pet_ranged_attk,
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
@@ -54,16 +48,6 @@ import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 
 
-import {
-    defended,
-    Resists_Elem,
-    resists_magm,
-} from './mondata.js';
-import {
-    AD_FIRE,
-    AD_MAGM,
-    AD_SLEE,
-} from './monsters.js';
 import {
     dochug,
     dochugw,
@@ -112,26 +96,6 @@ import { canseemon, canspotmon } from './display.js';
 
 function actionRandom(rawEnv) {
     return rawEnv.random ?? coreRandom;
-}
-
-// C ref: trap.c m_harmless_trap() (1133-1175). Only these three traps ask
-// for resistance; the surrounding trap cases are decided by
-// monmove.js m_harmless_trap() without a callback.
-function resistsTrapEffect(monster, trapType, env) {
-    const state = env.state ?? game;
-    if (trapType === SLP_GAS_TRAP) {
-        return Resists_Elem(monster, SLEEP_RES, state)
-            || defended(monster, AD_SLEE, state);
-    }
-    if (trapType === FIRE_TRAP) {
-        return Resists_Elem(monster, FIRE_RES, state)
-            || defended(monster, AD_FIRE, state);
-    }
-    if (trapType === ANTI_MAGIC) {
-        return resists_magm(monster, state)
-            || defended(monster, AD_MAGM, state);
-    }
-    return false;
 }
 
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
@@ -201,14 +165,12 @@ export async function moveSimpleOrdinary(monster, env) {
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
-        finishEating: env.finishEating ?? finish_meating,
         movePet: env.movePet ?? moveSimplePet,
         // monmove.c m_move():1953 rejects the square the hero most recently
         // kicked before it filters occupants and tracking. The ordinary
         // adapter must provide the same predicate that the pet adapter uses.
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
-        resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers. m_search_items(), postmov(), and
         // their object consumers now use artifactTouchable()'s canonical
@@ -518,7 +480,6 @@ function simpleMonsterActionOperations(env, state) {
                     mon_wield_item(weaponUser, weaponEnv),
         wieldMonsterItemAgainstMonster,
         wipeEngraving: wipeSimpleEngraving,
-        finishEating: finish_meating,
         movePet: moveSimplePet,
     };
 }

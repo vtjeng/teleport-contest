@@ -3933,9 +3933,16 @@ test('m_harmless_trap keeps structural cases local to movement legality', () => 
         false,
     );
 
-    assert.throws(
-        () => m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, { state }),
-        /resistsTrapEffect/,
+    // trap.c's SLP_GAS_TRAP arm asks resists_sleep(): a plain human has no
+    // sleep resistance, a human zombie's species has MR_SLEEP.
+    assert.equal(
+        m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, { state }),
+        false,
+    );
+    const zombie = newMonster({ data: state.mons[PM_HUMAN_ZOMBIE] });
+    assert.equal(
+        m_harmless_trap(zombie, { ttyp: SLP_GAS_TRAP }, { state }),
+        true,
     );
     assert.equal(m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, {
         state,
@@ -4164,7 +4171,7 @@ test('mfndpos rebuilds the nine output slots on every call', () => {
     );
 });
 
-test('mfndpos rolls back partial output when trap resistance is unavailable', () => {
+test('mfndpos rolls back partial output when trap resistance throws', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
     locations.set('3,3', { typ: ROOM, flags: 0 });
@@ -4176,7 +4183,11 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
     state.level.traps = [{ tx: 5, ty: 5, ttyp: SLP_GAS_TRAP }];
     // hasAdjacentResistanceTrap() owns three trap types and trapResistance()
     // is reached through each, so the rollback must hold for all three rather
-    // than for whichever one the fixture happens to place.
+    // than for whichever one the fixture happens to place. A caller's
+    // resistance seam that throws stands in for any failure there.
+    const refuseResistance = () => {
+        throw new Error('resistance unavailable');
+    };
     for (const ttyp of [SLP_GAS_TRAP, FIRE_TRAP, ANTI_MAGIC]) {
         const each = makeState();
         sealNeighborhood(each.locations, 4, 4);
@@ -4191,8 +4202,9 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
             () => mfndpos(eachMonster, eachData, ALLOW_U, {
                 state: each.state,
                 onScary: () => false,
+                resistsTrapEffect: refuseResistance,
             }),
-            /resistsTrapEffect/,
+            /resistance unavailable/,
             String(ttyp),
         );
         assert.deepEqual([eachMonster.mux, eachMonster.muy], [12, 12], String(ttyp));
@@ -4211,11 +4223,15 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
         poss: data.poss.map((position) => ({ ...position })),
         info: [...data.info],
     };
-    const env = { state, onScary: () => false };
+    const env = {
+        state,
+        onScary: () => false,
+        resistsTrapEffect: refuseResistance,
+    };
 
     assert.throws(
         () => mfndpos(monster, data, ALLOW_U, env),
-        /resistsTrapEffect/,
+        /resistance unavailable/,
     );
     assert.deepEqual([monster.mux, monster.muy], [12, 12]);
     assert.equal(data.poss, positions);

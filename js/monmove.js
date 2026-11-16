@@ -158,6 +158,8 @@ import {
     W_NONDIGGABLE,
     helpless,
     is_pit,
+    FIRE_RES,
+    SLEEP_RES,
 } from './const.js';
 import {
     is_pool,
@@ -186,7 +188,7 @@ import {
 } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
-import { could_reach_item } from './dogmove.js';
+import { could_reach_item, finish_meating } from './dogmove.js';
 import { Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
@@ -284,6 +286,8 @@ import {
     mon_knows_traps,
     mon_learns_traps,
     Resists_Elem,
+    defended,
+    resists_magm,
     needspick,
     noattacks,
     nohands,
@@ -315,8 +319,11 @@ import {
     AD_CORR,
     AD_DRIN,
     AD_DRST,
+    AD_FIRE,
+    AD_MAGM,
     AD_RBRE,
     AD_RUST,
+    AD_SLEE,
     AD_SPEL,
     AT_BREA,
     AT_MAGC,
@@ -1157,18 +1164,30 @@ function monsterPoisonGasSafe(monster, state) {
         || attacktype_fordmg(species, AT_BREA, AD_RBRE);
 }
 
+// C ref: trap.c m_harmless_trap()'s SLP_GAS_TRAP, FIRE_TRAP and ANTI_MAGIC
+// arms: resists_sleep(), resists_fire() or resists_magm(), or an
+// artifact.c defended() against that damage type. A caller may replace it.
 function trapResistance(monster, trap, env) {
-    if (typeof env.resistsTrapEffect !== 'function') {
-        throw new TypeError(
-            'm_harmless_trap requires resistsTrapEffect for this trap type',
-        );
+    if (typeof env.resistsTrapEffect === 'function')
+        return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
+    const { state } = env;
+    switch (trap.ttyp) {
+    case SLP_GAS_TRAP:
+        return Resists_Elem(monster, SLEEP_RES, state)
+            || defended(monster, AD_SLEE, state);
+    case FIRE_TRAP:
+        return Resists_Elem(monster, FIRE_RES, state)
+            || defended(monster, AD_FIRE, state);
+    case ANTI_MAGIC:
+        return resists_magm(monster, state)
+            || defended(monster, AD_MAGM, state);
+    default:
+        return false;
     }
-    return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
 }
 
-// C ref: trap.c m_harmless_trap(). Elemental and antimagic equipment defense
-// stays with its artifact/equipment owner and is requested only on those three
-// branches; every shape, flight, and ordinary-trap clause is local.
+// C ref: trap.c m_harmless_trap(). Every shape, flight, ordinary-trap and
+// resistance clause is local.
 export function m_harmless_trap(monster, trap, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
@@ -1575,14 +1594,11 @@ export function* mfndpos_steps(monster, data, initialFlags, env = {}) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     const state = env.state ?? game;
-    // Trap resistance can throw after earlier candidates have already written
-    // monster.mux/muy and data, so an adjacent resistance trap means the call
-    // needs a rollback point. Both callers reach it: m_move() supplies a
-    // resistsTrapEffect that raises the unported-path error, and the pet path
-    // supplies none, so the operation's presence says nothing about whether it
-    // throws. Snapshot on the trap alone, which leaves every other
-    // neighborhood on the allocation-free path. No other throw from the core
-    // is rolled back.
+    // A caller's resistsTrapEffect can throw after earlier candidates have
+    // already written monster.mux/muy and data, so an adjacent resistance
+    // trap means the call needs a rollback point. Snapshot on the trap alone,
+    // which leaves every other neighborhood on the allocation-free path. No
+    // other throw from the core is rolled back.
     const usesDefaultHarmlessTrap = env.mHarmlessTrap == null
         || env.mHarmlessTrap === m_harmless_trap;
     const snapshot = usesDefaultHarmlessTrap
@@ -3618,11 +3634,8 @@ export async function m_move(monster, rawEnv = {}) {
     // convert, so it would escape runSegment() and discard the segment rather
     // than stop it.
     const random = rawEnv.random ?? coreRandom;
-    const resistsTrapEffect = requireMoveOperation(
-        rawEnv,
-        'resistsTrapEffect',
-    );
-    const finishEating = requireMoveOperation(rawEnv, 'finishEating');
+    // C ref: monmove.c:1748 finish_meating(); a caller may replace it.
+    const finishEating = rawEnv.finishEating ?? finish_meating;
     const movePet = requireMoveOperation(rawEnv, 'movePet');
     const env = { ...rawEnv, state, random };
     let oldX = monster.mx;
@@ -3966,7 +3979,7 @@ export async function m_move(monster, rawEnv = {}) {
         monster,
         data,
         mon_allowflags(monster, env),
-        { ...env, resistsTrapEffect },
+        env,
     ), impossible_printer(state));
     if (!count && !is_unicorn(monster.data)) {
         // C ref: monmove.c:1927. A monster with no movement options attempts
