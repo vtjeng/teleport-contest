@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c dogaze() 1677: a monster that died after the last movemon() is still on fmon when the hero gazes, and dogaze() skips it. A debug Valkyrie quaffs two blessed potions of gain energy for the 15 Pw a gaze costs, drops her gear, polymorphs into a pyrolisk (fire gaze), quaffs a blessed potion of speed so that her next action follows the once-per-turn block, creates a sleeping newt, steps away and reads a cursed scroll of stinking cloud centred on it. run_regions() kills the newt ('You kill it!'); dmonsfree() has not run, so #monster's fmon loop meets the dead newt (1677) before 'You gaze at no place in particular.'",
+  "segments": [
+    {
+      "seed": 5517203,
+      "datetime": "20380911101500",
+      "nethackrc": "OPTIONS=name:Gazer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u00172 blessed potions of gain energy\n\u0017cursed scroll of stinking cloud\n\u0017blessed potion of speed\nqeqedadbdd#polyself\npyrolisk\n   qg  \u0007sleeping newt\nkkhrf  m.#monster\n "
+    }
+  ]
+}

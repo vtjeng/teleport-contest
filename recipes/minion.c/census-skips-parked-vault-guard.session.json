@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "minion.c monster_census() 49: a vault guard parked at <0,0> is left out of the census. A debug Tourist drops her gold, ^T-teleports into the closed vault on Dlvl 1 (seed 4410027), waits for the guard, answers 'Visitor' and follows him down his temporary corridor. When the corridor reaches the room below, gd_move_cleanup() parks him at <0,0> ('Suddenly, the guard disappears.', followed by C's own 'newsym: attempting screen update for <0,0>' impossible) while she still stands in the corridor. She then reads a cursed scroll of genocide naming newts; the reverse genocide counts monsters before and after with monster_census(FALSE), which skips the parked guard (49) both times.",
+  "segments": [
+    {
+      "seed": 4410027,
+      "datetime": "20380714093000",
+      "nethackrc": "OPTIONS=name:Visitor,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "d$\u0014LLLLLLLlllllk. 30s Visitor\njsjjjjjhs   \u0017cursed scroll of genocide\nrm  newt\n "
+    }
+  ]
+}

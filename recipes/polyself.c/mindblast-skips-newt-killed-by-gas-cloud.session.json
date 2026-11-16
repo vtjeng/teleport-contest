@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c domindblast() 1913: a monster that died after the last movemon() is still on fmon when the hero emits a mind blast, and domindblast() skips it. A debug elven Wizard quaffs a blessed potion of gain energy for the 10 Pw a blast costs, polymorphs into a mind flayer, creates a sleeping newt, steps four squares away and reads a cursed scroll of stinking cloud centred on it. run_regions() kills the newt ('You kill the newt!'); dmonsfree() has not run, so #monster's fmon loop meets the dead newt (1913).",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20381103201000",
+      "nethackrc": "OPTIONS=name:Blaster,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017blessed potion of gain energy\n\u0017cursed scroll of stinking cloud\nqp#polyself\nmind flayer\n \u0007sleeping newt\nullllrq  m.#monster\n "
+    }
+  ]
+}
