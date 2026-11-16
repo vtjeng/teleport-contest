@@ -3619,14 +3619,13 @@ export async function new_were(monster, rawEnv = {}) {
     await announceNewWere(monster, target, normalized);
 
     // were.c new_were() calls newsym(). normalizedDistressEnv() supplies it
-    // for the live game; a caller with its own state may name its redraw.
+    // for the live game; a synthetic state with no redraw of its own must
+    // not repaint the live map.
     const changed = applyNewWereForm(
         monster,
         target,
         state,
-        normalized.redrawSquare
-            ? (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized)
-            : (x, y) => newsym(x, y),
+        (x, y, owner) => normalized.redrawSquare?.(x, y, owner, normalized),
     );
     await mon_break_armor(monster, false, {
         ...normalized,
