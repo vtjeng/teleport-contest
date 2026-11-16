@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "timeout.c nh_timeout() SICK 713-719: a debug dwarvish Valkyrie wishes for a cursed Oracle corpse, drops it, waits about 190 turns (#wizkill removes a newt that interrupts) and eats it: 'Ulch - that meat was tainted!' makes her deathly sick with the killer 'the Oracle's rotted corpse'. When the illness runs out, name_to_mon() finds the Oracle, who is G_UNIQ without M2_PNAME, so the killer is prefixed with the() and the format becomes KILLED_BY (718-719). ESC answers the wizard-mode 'Die?' with no, and the last ESC dismisses the message.",
+  "segments": [
+    {
+      "seed": 5120877,
+      "datetime": "20381019201500",
+      "nethackrc": "OPTIONS=name:Brakka,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017cursed Oracle corpse\n\u001bde130s#wizkill\nm.\u001b130sey\u001b\u001b25s\u001b\u001b\u001b\u001b"
+    }
+  ]
+}
