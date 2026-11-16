@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mthrowu.c thrwmm() 997-1001: a pet archer whose crossbow and bolts are ready lines up with a monster farther than PET_MISSILE_RANGE2 (dist2 > 36), so thrwmm() returns M_ATTK_MISS without shooting (1001). A debug Valkyrie creates three peaceful cockatrices (pets never melee them) and four tame plains centaurs (half get a crossbow and bolts, makemon.c m_initweap); after she walks west the centaurs wield crossbows, shoot at cockatrices within range and once find one 7 squares away in a straight line.",
+  "segments": [
+    {
+      "seed": 5520015,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Archer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "3\u0007peaceful cockatrice\n4\u0007tame plains centaur\nhhhhhh\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}
