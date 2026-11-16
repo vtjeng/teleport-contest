@@ -28,8 +28,6 @@ import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
 import { should_mulch_missile } from './dothrow.js';
 import {
-    best_target,
-    dog_eat,
     dog_move,
     finish_meating,
     pet_ranged_attk,
@@ -51,7 +49,6 @@ import {
 import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thrwmu } from './mthrowu.js';
 import { quest_stat_check, quest_talk } from './quest.js';
-import { whimper } from './sounds.js';
 import {
     wake_msg,
 } from './mon.js';
@@ -73,8 +70,6 @@ import {
     dochug,
     dochugw,
     m_avoid_kicked_loc,
-    m_avoid_soko_push_loc,
-    m_digweapon_check,
     m_move,
     monflee,
     monfleeMessage,
@@ -85,7 +80,6 @@ import { m_at } from './monst.js';
 import {
     find_defensive,
     find_misc,
-    mon_reflects,
     use_defensive,
     use_misc,
     use_offensive,
@@ -285,22 +279,9 @@ async function moveSimplePet(monster, after, env) {
         attackHero: attackHeroWithMattacku,
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
-        avoidSokobanPush: (subject, x, y) =>
-            m_avoid_soko_push_loc(subject, x, y, env.state),
-        bestTarget: best_target,
         canSeeMonster: (subject) => canseemon(subject, env.state),
-        // C ref: dogmove.c dog_move():1291-1292 calls the same
-        // m_digweapon_check() m_move() does, so the pet gets the real function
-        // rather than a constant answer.
-        digWeaponCheck: (subject, x, y, moveEnv) => m_digweapon_check(
-            subject,
-            x,
-            y,
-            { ...moveEnv, ...monsterWieldOperations(env) },
-        ),
         displaceMonster: (subject, target, moveEnv) =>
             mdisplacem(subject, target, false, moveEnv),
-        eatObject: dog_eat,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c
@@ -316,21 +297,8 @@ async function moveSimplePet(monster, after, env) {
         // through display.c map_invisible(), which writes map memory and then
         // paints through show_glyph_cell().
         markInvisible: map_invisible,
-        // C ref: dogmove.c:1133. The reflection predicate consumes the pet's
-        // own worn equipment, just as the monster attack callers do.
-        monsterReflects: (subject, moveEnv) => mon_reflects(
-            subject,
-            null,
-            moveEnv.state,
-            moveEnv,
-        ),
         petRangedAttack: runPetRangedAttack,
         redraw: newsym,
-        whimper,
-        // C dogmove.c dog_invent() equips weapon-using pets through
-        // weapon.c mon_wield_item().
-        wieldPickedItem: (subject, actionEnv) =>
-            mon_wield_item(subject, actionEnv),
     });
 }
 
