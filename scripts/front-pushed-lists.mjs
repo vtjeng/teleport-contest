@@ -88,9 +88,11 @@ export const FRONT_PUSH_EXCEPTIONS = {
     parse_sym_line: { unported: true, reason: 'the port has no symset file reader' },
     savedsym_add: { unported: true, reason: 'the port has no symset file reader' },
     wl_addhead: { unported: true, reason: 'WINCHAIN is not compiled' },
+    // wintty.c tty_add_menu() pushes each item and tty_end_menu() reverses
+    // them; tty_menu.js tty_add_menu() ports only its length check, and the
+    // port keeps the items in the order they were added.
     tty_add_menu: {
-        unported: true,
-        reason: 'tty_end_menu() reverses the pushed items; the port adds them in order',
+        ports: { 'tty_menu.js': 'the length check only; the port adds the items in order' },
     },
     reverse: { unported: true, reason: "wintty.c's reverse() serves only tty_end_menu()" },
     config_error_init: {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review (reviewer c) of trap.c openholdingtrap 6169: debug Priest steps off the upstairs, wishes a web under himself (not trapped) and applies a wished blessed Bell of Opening; openit() -> detect.c openone() at the hero's spot -> openholdingtrap(&youmonst) returns FALSE because u.utrap is 0. Seed 7310503 chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 7310503,
+      "datetime": "20470915101500",
+      "nethackrc": "OPTIONS=name:Ringer,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "j\u0017web\n\u0017blessed Bell of Opening\n#apply\ni:"
+    }
+  ]
+}

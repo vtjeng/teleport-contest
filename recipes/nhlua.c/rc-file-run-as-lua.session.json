@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4471902,
+      "datetime": "20470611120000",
+      "nethackrc": "--[[\nOPTIONS=name:Luarc,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n]]\nnh.pline(\"rc file ran as lua\")\n",
+      "moves": "\n#wizloadlua\n../home/.nethackrc\n   "
+    }
+  ],
+  "comment": "BLOCKED (port has no general Lua runtime; js/nhlua.js load_lua runs only translated level programs). Witness that judged input can run arbitrary Lua: options sit in a Lua block comment, and debug-mode #wizloadlua ../home/.nethackrc (wizcmds.c wiz_load_lua 353-372 -> nhlua.c load_lua -> dlb_fopen relative to HACKDIR) runs the rc file as Lua. Found by blind review c, 2026-11-16."
+}

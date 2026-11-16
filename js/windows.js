@@ -20,6 +20,7 @@ import {
     menuLineChoiceDescription,
     menuTitleStyle,
     selectTtyMenu,
+    tty_add_menu,
 } from './tty_menu.js';
 import { regex_match } from './posixregex.js';
 import {
@@ -269,7 +270,6 @@ export async function select_menu(state, spec) {
     state.gb ??= {};
     const old_bot_disabled = bot_disabled_is_set(state);
 
-    state.gb.bot_disabled = true;
     // Core callers model calls to add_menu() as item objects or display-only
     // strings. Apply the interface-independent adjustment once before the
     // TTY port stores or draws them.
@@ -288,6 +288,36 @@ export async function select_menu(state, spec) {
             menuLineChoiceDescription(line, spec.choices) ?? undefined,
         )),
     };
+    // Each add_menu() call reaches tty_add_menu() before the menu is shown,
+    // in item order; only its length check has a visible effect here.
+    if (adjustedSpec.items) {
+        for (let i = 0; i < adjustedSpec.items.length; ++i) {
+            const item = adjustedSpec.items[i];
+            if (typeof item !== 'object' || item === null
+                || !Object.hasOwn(item, 'value')) continue;
+            const key = item.label != null ? 'label' : 'text';
+            const str = String(item[key] ?? '');
+            const stored = await tty_add_menu(state, str);
+            if (stored !== str) adjustedSpec.items[i] = { ...item, [key]: stored };
+        }
+    }
+    if (adjustedSpec.lines) {
+        for (let i = 0; i < adjustedSpec.lines.length; ++i) {
+            const line = adjustedSpec.lines[i];
+            const str = menuLineChoiceDescription(line, spec.choices);
+            if (str === null) continue;
+            const stored = await tty_add_menu(state, str);
+            if (stored === str) continue;
+            const text = typeof line === 'string'
+                ? line : String(line?.text ?? line?.label ?? '');
+            const row = `${text.slice(0, 4)}${stored}`;
+            adjustedSpec.lines[i] = typeof line === 'string'
+                ? row : { ...line, [line?.text != null ? 'text' : 'label']: row };
+        }
+    }
+    // windows.c select_menu() raises the flag; the add_menu() calls above
+    // ran before it, so an impossible() there could still update status.
+    state.gb.bot_disabled = true;
     const reslt = await selectTtyMenu(state, adjustedSpec);
     state.gb.bot_disabled = old_bot_disabled;
     return reslt;

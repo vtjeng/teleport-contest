@@ -61,6 +61,7 @@ import {
     ttyMenuColorAttribute,
 } from './windows.js';
 import { pmatchi } from './strutil.js';
+import { impossible } from './pline.js';
 import { nomux_g_putch_byte, nomux_putch_byte } from './termcap.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
@@ -604,6 +605,22 @@ export async function displayTtyMenuTextWindow(
 export function menuAttrStart(str) {
     return str.length >= 4 && str[1] === ' ' && '-+#'.includes(str[2])
         && str[3] === ' ' ? 4 : 0;
+}
+
+// C ref: wintty.c tty_add_menu() (2650-2662), its length check only; the
+// rest of the function is the layout below.  An entry with a nonzero
+// identifier is stored as "%c - %s" in a 4+BUFSZ buffer, so a description of
+// BUFSZ bytes or more is reported with impossible() when add_menu() is
+// called, before the menu is shown, and cut to BUFSZ-1 bytes.  An entry with
+// a zero identifier is stored as passed.  Returns the description stored.
+export async function tty_add_menu(state, str) {
+    let len = str.length;
+    if (len >= BUFSZ) {
+        // We *think* everything's coming in off at most BUFSZ bufs...
+        await impossible(`Menu item too long (${len}).`, state);
+        len = BUFSZ - 1;
+    }
+    return str.slice(0, len);
 }
 
 // A `lines` row is the selectable item tty_add_menu() stored as

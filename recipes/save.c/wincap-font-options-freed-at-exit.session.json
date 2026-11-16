@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent witness for save.c freedynamicdata() 1143-1154: the tty build accepts the wincap font_* and tile_file options from the config file (options.c wc_set_font_name, optfn_tile_file), and nh_terminate() frees them after #save. Seed 6620417 and clock chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20470822184500",
+      "nethackrc": "OPTIONS=name:FontKeeper,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=font_map:Courier,font_message:Helvetica,font_text:Times,font_menu:Palatino,font_status:Monaco,tile_file:tiles.bmp\n",
+      "moves": "s Sy"
+    }
+  ]
+}

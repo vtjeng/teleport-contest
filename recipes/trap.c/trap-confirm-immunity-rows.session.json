@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blind review (reviewer c) of trap.c immune_to_trap (2783-2934): debug Valkyrie wishes two rows of traps (vibrating square, magic portal, fire, magic, level teleporter; dart, falling rock, squeaky board, land mine, spiked pit, hole), reveals them with ^E, declines each paranoid trap prompt, retries the fire trap with fire resistance (flammable worn shield keeps it harmful) and steps onto the vibrating square, which is clearly harmless and asks nothing. Seed 7310481 chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 7310481,
+      "datetime": "20470915083000",
+      "nethackrc": "OPTIONS=name:Trapwise,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,paranoid_confirmation:trap\n",
+      "moves": "l\u0017vibrating square\nhh\u0017magic portal\nh\u0017fire trap\nh\u0017magic trap\nh\u0017level teleporter\nkkkk\u0017dart trap\nl\u0017falling rock trap\nl\u0017squeaky board\nl\u0017land mine trap\nl\u0017spiked pit\nl\u0017hole\nj\u0005knhknhknhknhknhknjjjnljnljn#wizintrinsic\n>i\n jnljnllj."
+    }
+  ]
+}
