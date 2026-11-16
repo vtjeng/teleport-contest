@@ -1,0 +1,116 @@
+file	lines	function	js	class	note
+ball.c	1040-1043,1045-1049	bc_sanity_check	js/ball.js bc_sanity_check	match-text	Punished/attached-without-Punished impossible(); same texts and conditions. Insane state only (punish()/unpunish() set Punished, uball and uchain together)
+ball.c	1064-1068,1077-1081	bc_sanity_check	js/ball.js bc_sanity_check	match-text	uball/uchain impossible(): same conditions (freeball^freechain as !==), safe_typename, where numbers (OBJ_* values equal) and %08lx mask. Insane state only
+ball.c	1091	bc_sanity_check	js/ball.js bc_sanity_check	match	carried ball with chain on floor uses hero position; same. Sane, reachable (pick up the ball while Punished); recipe wizcmds.c/sanity-check-worn-slots-ball-nested-bags-dragon-skin-valkyrie (passes)
+ball.c	1097-1099	bc_sanity_check	js/ball.js bc_sanity_check	match-text	b&c distance impossible(); same text and distance tests. Insane state only
+dig.c	2296	wiz_debug_cmd_bury	js/dig.js wiz_debug_cmd_bury	match	!isok continue at the map edge; same
+dig.c	2314	wiz_debug_cmd_bury	js/dig.js wiz_debug_cmd_bury	match-text	"No objects buried." when only unburiable objects are present; same ternary. Levelchange recipe buries only the Amulet (passes)
+display.c	3454-3456,3461-3498	t_warn	js/display.js t_warn	unreachable-C	both callers (wall_angle T-wall mode 0 and WM_T_LONG) exclude every nonzero seenv, and wall_angle runs only with seenv != 0 (display.c 2322; JS back_to_glyph 2848 same guard), so t_warn cannot run; its non-T-wall names are unreachable a second way (callers are T walls). JS text and seenv/mode formatting match anyway
+end.c	402	panic	js/end.js panic	match	nested panic -> NH_abort; same
+end.c	409	panic	js/end.js panic	unreachable-config	soundprocs.sound_exit_nhsound is null (no sound library); JS comment agrees
+end.c	428-442	panic	js/end.js panic	match-text	non-wizard report lines ("To report this error, ...", "Report error to \"wizard\"..."); same branches. Reached only by a real non-wizard panic
+end.c	448-454	panic	js/end.js panic	nobehaviour	447 ran 3 times and 448 never, so every recorded panic had something_worth_saving 0 or the fuzzer on; a mid-game #panic would reach it. set_error_savefile()/dosave0() write a host ".e" file, then NH_abort() ends the process (CRASHREPORT); JS note_unported(files.c set_error_savefile). sysopt.recover is unset in the recorder sysconf
+engrave.c	1530-1532,1538-1540	engraving_sanity_check	js/engrave.js engraving_sanity_check	match-text	plane of air/water and !isok impossible(); same texts. Insane state only
+hacklib.c	50-55	nh_deterministic_qsort	js/hacklib.js nh_deterministic_qsort	unreachable-config	malloc() failure in the patch-added qsort wrapper
+light.c	615,620,625-628	light_sources_sanity_check	js/light.js light_sources_sanity_check	match-text	panic() texts for a light source with no id, a lost object or monster, or a bad type; same. Insane state only
+light.c	943	wiz_light_sources	js/light.js wiz_light_sources	unreachable-config	create_nhwindow() returning WIN_ERR; tty never does
+mklev.c	1235	mklev_sanity_check	js/mklev.js mklev_sanity_check	match-text	door not ok impossible(); same text and loop bounds
+mkobj.c	2969-2972,2978-2990	obj_sanity_check	js/obj.js obj_sanity_check	match-text	location and boulder sanity insane_object() formats; same. Insane state only
+mkobj.c	3006-3008	obj_sanity_check	js/obj.js obj_sanity_check	match-text	mydogs not empty: impossible() then mon_obj_sanity(mydogs); same. Insane state only (keepdogs/losedogs empty it within a move)
+mkobj.c	3013-3017,3021-3022,3026-3027	obj_sanity_check	js/obj.js obj_sanity_check	match-text	thrownobj/kickedobj/returning_missile/current_wand insane_object(); same, including C passing gk.kickedobj for returning_missile. JS stores current_wand at state.current_wand, which zap.js and muse.js clear after each use
+mkobj.c	3038-3040,3043-3045,3049-3050	objlist_sanity	js/obj.js objlist_sanity	match-text	wrong-list, how_lost and container-on-bill insane_object(); same
+mkobj.c	3054-3055	objlist_sanity	js/obj.js objlist_sanity	match	shop_obj_sanity() call for unpaid or no_charge; same. Sane, reachable in any shop
+mkobj.c	3065,3068	objlist_sanity	js/obj.js objlist_sanity	match	OBJ_MIGRATING worn-mask skip; same
+mkobj.c	3079-3081	objlist_sanity	js/obj.js objlist_sanity	match-text	worn mask on a non-inventory object; same text (uchain/uball on floor exempt)
+mkobj.c	3096-3099,3106-3119	objlist_sanity	js/obj.js objlist_sanity	match-text	leash insanity texts; same, leashmon printed unsigned. Insane state only
+mkobj.c	3122	objlist_sanity	js/obj.js objlist_sanity	match	check_glob() for a glob on a list; same
+mkobj.c	3127	objlist_sanity	js/obj.js objlist_sanity	match	insane_obj_bits() call; same flags, and nomerge_exception() (mines/soko prize) keeps a sane prize silent
+mkobj.c	3135-3140,3143-3145,3150,3154-3163,3170-3181,3185-3200	shop_obj_sanity	js/obj.js shop_obj_sanity	match	whole function (entries 0): otop walk, get_obj_location(BURIED_TOO), find_objowner, ONBILL shk position, costly_spot/costly_adjacent and the eight why texts in the same order; mcarried(otop) monster. Sane shop states: recipe wizcmds.c/sanity-check-shop-unpaid-no-charge-in-bag-valkyrie (passes)
+mkobj.c	3215-3217,3221-3225	mon_obj_sanity	js/obj.js mon_obj_sanity	match-text	mfmt1/mfmt2 insane_object() and check_glob() for a carried glob; same
+mkobj.c	3228	mon_obj_sanity	js/obj.js mon_obj_sanity	match	shop_obj_sanity() for a monster-carried unpaid/no_charge object; same
+mkobj.c	3231	mon_obj_sanity	js/obj.js mon_obj_sanity	match	insane_obj_bits(obj, mon); same
+mkobj.c	3240-3244	mon_obj_sanity	js/obj.js mon_obj_sanity	match-text	wielding-not-in-inventory impossible(); same text (pmname, mhis)
+mkobj.c	3390-3399	check_contained	js/obj.js check_contained	match-text	container-holds-itself panic, wrong-where insane_object, wrong-container impossible, check_glob; same order
+mkobj.c	3405-3406	check_contained	js/obj.js check_contained	match-text	holds-its-parent panic; same
+mkobj.c	3409-3414	check_contained	js/obj.js check_contained	match	nested container recursion with "nested " prefix and copynchars() limit 112; same. Sane: worn-slots recipe (a glob in a bag in a bag; passes)
+mkobj.c	3474-3479	sanity_check_worn	js/obj.js sanity_check_worn	match	uskin W_ARM|I_SPECIAL handling (I_SPECIAL 0x20000000 in both); same. Sane: worn-slots recipe (#polyself gray dragon in its scale mail; passes)
+mkobj.c	3487-3489	sanity_check_worn	js/obj.js sanity_check_worn	match	wielded chained ball: W_BALL dropped, n=1; same. Sane: worn-slots recipe (passes)
+mkobj.c	3492-3494,3498-3500	sanity_check_worn	js/obj.js sanity_check_worn	match-text	multiple/bogus worn-mask texts (including the doubled ")"); same
+mkobj.c	3508,3512,3516,3520,3524-3529,3532,3536,3540,3544-3553,3556-3572	sanity_check_worn	js/obj.js sanity_check_worn	match	slot-pointer switch: case labels (boots, amulet, rings, blindfold, ball, chain run in sane play) and the what names; same
+mkobj.c	3575-3577	sanity_check_worn	js/obj.js sanity_check_worn	match-text	worn mask != slot text; same
+mkobj.c	3586,3590,3594-3595,3600-3603,3606-3623	sanity_check_worn	js/obj.js sanity_check_worn	match	slot-class checks (armor, skin, monst alt weapon/quiver, coins, amulet, ring incl. meat ring, blindfold/towel/lenses, ball, chain, saddle); same order and conditions
+mkobj.c	3627-3630	sanity_check_worn	js/obj.js sanity_check_worn	match-text	"worn (%s %s)" with makesingular(def_oc_syms name); JS name table equals drawing.c def_oc_syms names
+mon.c	65-67	pet_sanity_check	js/mon.js pet_sanity_check	match-text	droptime in the future; same text
+mon.c	84-85	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	illegal mon data panic; JS tests mons[] identity
+mon.c	91-94	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match	mnum repair after the impossible(); same state change
+mon.c	105-108,119-123,126-132,136	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	HP, genocided, tame-not-peaceful, shk/priest/guard/minion/pet extra-data texts; same order
+mon.c	142-151	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match	steed checks: m_carrying(SADDLE), which_armor(W_SADDLE) and text; same. Sane: riding recipe wizcmds.c/sanity-check-riding-migrating-monsters-knight (passes)
+mon.c	154-158	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match	trapped monster: worm skip, t_at test and text; same. Sane, reachable (a monster in a trap)
+mon.c	164-166	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	frozen-but-can-move text; same
+mon.c	173-177,180-182,193-198	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	hiding checks: !isok reset, stuck, under nothing, eel, ceiling hider (same terrain list), trapped non-pit; same
+mon.c	207-214,221-222	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	mimic checks incl. "migr" special case and Prot_from_shape_changers; same
+mon.c	242-243	sanity_check_single_mon	js/mon.js sanity_check_single_mon	match-text	leashed but not tame; same
+mon.c	271-272,276-281,288-290,300-304,307-309	mon_sanity_check	js/mon.js mon_sanity_check	match-text	fmon/map consistency texts; same (m_at is levl.monsters in both). 276 is the sane steed test, reachable when riding
+mon.c	313-321	mon_sanity_check	js/mon.js mon_sanity_check	match	migrating-monster loop: sanity_check_single_mon(FALSE, "migr") and mstate bit test; same. Sane: recipe wizcmds.c/sanity-check-riding-migrating-monsters-knight (passes)
+mon.c	5096	wiz_force_cham_form	js/mon.js wiz_force_cham_form	unreachable-C	prompt over QBUFSZ needs "Change <name> @ <coords> into what?" >= 128 bytes; names are at most PL_PSIZ-1 (62) bytes and coord_desc is short (provisional). JS truncation equivalent
+mon.c	5117-5119	wiz_force_cham_form	js/mon.js wiz_force_cham_form	match	"*" or "random" answer -> NON_PM; same (strcmpi vs lcase)
+options.c	1270,1296	optfn_crash_email,optfn_crash_name	js/options.js optfn_crash_email/optfn_crash_name	nobehaviour	free() of the previous value when the option is set twice; JS overwrites the string
+options.c	1276,1302,8335,8378,8460	optfn_crash_email,optfn_crash_name,optfn_o_bind_keys,optfn_o_menu_colors,optfn_o_status_hilites	js/options.js	unreachable-C	!opts for get_val/get_cnf_val: every caller passes a buffer
+options.c	1281,1307,2316,2374,2570,2691	optfn_crash_email,optfn_crash_name,optfn_menuinvertmode,optfn_menustyle,optfn_name,optfn_packorder	js/options.js	unreachable-C	fall-through return for a req other than init/set/get: only do_handler remains, and doset calls do_handler only for has_handler options (options.c 8665, 8934); these rows have handler No
+options.c	8332,8375,8385,8457,8473	optfn_o_bind_keys,optfn_o_menu_colors,optfn_o_status_hilites	js/options.js / js/cmd.js	match	empty do_set arm of an OthrOpt, which OPTIONS=bind keys / menu colors / status highlight rules (with or without a value) should reach; C and JS both accept those lines silently (probes op1, op2, op3 pass), but no coverage build confirmed the arm ran
+options.c	8466	optfn_o_status_hilites	js/options.js optfn_o_status_hilites	match	status_hilite_menu() failure -> optn_err; JS same
+pline.c	592	impossible	js/pline.js impossible	match-text	impossible inside impossible -> panic; same
+pline.c	600	impossible	js/pline.js impossible	unreachable-config	debug_fuzzer == fuzzer_impossible_panic; the port never enters fuzzer mode (note_unported wizcmds.c wiz_fuzzer)
+pline.c	618-619	impossible	js/pline.js impossible	unreachable-config	sysopt.support unset in the recorder sysconf; JS same branch
+pline.c	623-630	impossible	js/pline.js impossible	unreachable-config	CRASHREPORT "Report now?" needs sysopt.crashreporturl, unset in the recorder sysconf (621 runs and is false)
+timeout.c	2051	wiz_timeout_queue	js/timeout.js wiz_timeout_queue	unreachable-config	WIN_ERR from create_nhwindow; tty never
+timeout.c	2108-2111	wiz_timeout_queue	js/timeout.js wiz_timeout_queue	match	"Vault counter is %d." when u.uinvault; same. Reachable in a vault
+timeout.c	2147-2149,2164-2171	timer_sanity_check	js/timeout.js timer_sanity_check	match-text	untimed obj, can't locate, located off map texts; same
+timeout.c	2160	timer_sanity_check	js/timeout.js timer_sanity_check	match	migrating or carried-by-migrating skip; same (mon_is_local)
+timeout.c	2174-2182,2188-2190,2195-2212	timer_sanity_check	js/timeout.js timer_sanity_check	match	TIMER_LEVEL decode (signed 16-bit), melt-timer ice test incl. frozen drawbridge span (JS reads DB_UNDER from flags, the drawbridgemask owner), and monster/global/unknown texts; same. Sane melt timer: recipe wizcmds.c/sanity-check-melting-ice-timer-underwater-valkyrie (passes)
+trap.c	7204-7206	trap_sanity_check	js/trap.js trap_sanity_check	match-text	location and type texts; same. Unproven ordering note: C walks gf.ftrap (newest first), JS walks state.level.traps; the order of two reports would differ only if both were insane
+wizcmds.c	42,64,168-169,197,212,222-223,233-234,370,393,403-404,1094,1982	wiz_wish,wiz_identify,wiz_makemap,wiz_map,wiz_genesis,wiz_where,wiz_detect,wiz_load_lua,wiz_load_splua,wiz_level_tele,wiz_intrinsic,wiz_custom	js/wizcmds.js	unreachable-C	"Unavailable command" arm: cmd.c can_do_extcmd() refuses every WIZMODECMD row first (cmd.c 479-481, called at 505 and 3689); no other caller. JS same text
+wizcmds.c	60	wiz_identify	js/wizcmds.js wiz_identify	match	override_ID = C('I') when #wizidentify has no key; JS || 0x09. Probe r6a/p/id1 (BIND=^I:pray) passes
+wizcmds.c	90	makemap_unmakemon	js/wizcmds.js makemap_unmakemon	unreachable-C	dead non-guard: the fmon caller skips DEADMONSTER, and the migrating caller passes only living shk/priest/guard migrants (provisional). JS same
+wizcmds.c	332	wiz_kill	js/wizcmds.js wiz_kill	match	break when u.utotype is set or the level changed; same
+wizcmds.c	468-472,477-479	wiz_level_change	js/wizcmds.js wiz_level_change	match-text	already inexperienced/experienced texts and newlevel clamp; same. 468-469 and 477-478 in recipe wizcmds.c/levelchange-limits-wizbury-amulet-terrain-gehennom-valkyrie (passes); 472 not run
+wizcmds.c	537-540	wiz_panic	js/wizcmds.js wiz_panic	unreachable-config	debug_fuzzer only; JS same
+wizcmds.c	558	wiz_fuzzer	js/wizcmds.js wiz_fuzzer	unreachable-config	sets fuzzer mode; JS note_unported(wizcmds.c wiz_fuzzer) by design; no game can continue past it in C
+wizcmds.c	721	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	match	"!" for diggable column 0; same
+wizcmds.c	738-740	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	unreachable-C	mazelike/hellish flags: dungeon.lua sets neither for any level (C comment); JS same
+wizcmds.c	790,796,809	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	match-text	" tree", " invoke", " ludios"; same tests
+wizcmds.c	821	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	unreachable-C	unexpected branch name: every dnum is classified above
+wizcmds.c	828	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	match	truncate to COLNO-1 bytes; JS truncateByteString(dsc, 79)
+wizcmds.c	935	wiz_smell	js/wizcmds.js wiz_smell	match	unmap_invisible on a remembered-unseen glyph; same
+wizcmds.c	938	wiz_smell	js/wizcmds.js wiz_smell	unreachable-C	after an infinite loop
+wizcmds.c	1007	wiz_intrinsic	js/wizcmds.js wiz_intrinsic	DIFFERS	D1: (int) cast of the long menu count (1005) not ported: JS applied 2147483648/4294967296 and threw on counts above 2^53. FIXED 72704f22e; recipes wizcmds.c/wizintrinsic-count-int-cast-dwarf-valkyrie and -above-2-53-human-tourist fail on main, pass after
+wizcmds.c	1068	wiz_intrinsic	js/wizcmds.js wiz_intrinsic	DIFFERS-covered	D2: make_glib((int) newtimeout) cast not ported; a sum past INT_MAX kept Glib at TIMEOUT instead of clearing it. FIXED 2e8b42d14; recipe wizcmds.c/wizintrinsic-glib-int-cast-elf-ranger fails on main, passes after
+wintty.c	1584	process_menu_window	js/tty_menu.js single-choice loop	DIFFERS-covered	D3: a menu count above 2^53 (C long, AppendLongDigit). FIXED 079a9529f with check scripts/menu-count-math.test.mjs; recipes invent.c/getobj-menu-count-above-2-53-dwarf-caveman, do.c/menu_drop-justpicked-count-above-2-53-human-ranger, pickup.c/menu_loot-justpicked-count-above-2-53-human-samurai fail on main, pass after: the single-choice loop dropped the count
+do.c	1012	menu_drop	js/do.js menu_drop	DIFFERS-covered	D3: a menu count above 2^53 (C long, AppendLongDigit). FIXED 079a9529f with check scripts/menu-count-math.test.mjs; recipes invent.c/getobj-menu-count-above-2-53-dwarf-caveman, do.c/menu_drop-justpicked-count-above-2-53-human-ranger, pickup.c/menu_loot-justpicked-count-above-2-53-human-samurai fail on main, pass after: Math.max(0, count) threw on the BigInt
+pickup.c	3301	menu_loot	js/pickup.js menu_loot	DIFFERS-covered	D3: a menu count above 2^53 (C long, AppendLongDigit). FIXED 079a9529f with check scripts/menu-count-math.test.mjs; recipes invent.c/getobj-menu-count-above-2-53-dwarf-caveman, do.c/menu_drop-justpicked-count-above-2-53-human-ranger, pickup.c/menu_loot-justpicked-count-above-2-53-human-samurai fail on main, pass after: Math.max(0, count) threw on the BigInt
+wizcmds.c	1087	wiz_intrinsic	js/wizcmds.js wiz_intrinsic	match	pooleffects(FALSE) when underwater after water walking/levitation/flying; same. Melting-ice recipe (passes)
+wizcmds.c	1128	size_obj	js/wizcmds.js size_obj	unreachable-config	OMAILCMD exists only on scrolls delivered by the mail daemon, which the recorder does not run
+wizcmds.c	1240,1246	size_monst	js/wizcmds.js size_monst	match	egd/emin sizes from memoryLayout; same structure
+wizcmds.c	1337-1347,1360-1370	misc_stats	js/wizcmds.js misc_stats	match	shop damage and delayed killer rows (plur(count), sizes from memoryLayout); same. Delayed killer row (size 272) matches in probe r6a/p/st1 (stoned hero, #stats)
+wizcmds.c	1408-1414	you_sanity_check	js/wizcmds.js you_sanity_check	match	swallowed by nothing: impossible, display_nhwindow(WIN_MESSAGE), repair, docrt; same
+wizcmds.c	1418	you_sanity_check	js/wizcmds.js you_sanity_check	match-text	you over monster; same
+wizcmds.c	1423-1437	you_sanity_check	js/wizcmds.js you_sanity_check	match	HP/monster-HP/energy over maximum: impossible then repair; same
+wizcmds.c	1449	levl_sanity_check	js/wizcmds.js levl_sanity_check	match	Underwater return; same. Melting-ice recipe sinks the hero (passes)
+wizcmds.c	1494,1497	migrsort_cmp	js/wizcmds.js migrsort_cmp	match	dnum then dlevel difference; same (total order, so Array.sort equals the deterministic qsort)
+wizcmds.c	1576-1577	list_migrating_mons	js/wizcmds.js list_migrating_mons	match	showit for 'o'; same
+wizcmds.c	1591	list_migrating_mons	js/wizcmds.js list_migrating_mons	match	" named %s"; same
+wizcmds.c	1606-1607	list_migrating_mons	js/wizcmds.js list_migrating_mons	match-text	"None." for a chosen empty category; same
+wizcmds.c	1659-1660	wiz_show_stats	js/wizcmds.js wiz_show_stats	unreachable-C	gm.mydogs is empty between moves (C comment); JS same
+wizcmds.c	1720-1726,1729-1735,1738-1744,1751-1757,1764-1770	wiz_display_macros	js/wizcmds.js wiz_display_macros	unreachable-C	glyph macro failures cannot occur with the generated tables; JS same texts (SIZE(defsyms) = MAXPCHARS+1)
+wizcmds.c	1815	wiz_mon_diff	js/wizcmds.js wiz_mon_diff	unreachable-C	no monster above level 50 has a difficulty discrepancy (table data); JS same
+wizcmds.c	1824	wiz_mon_diff	js/wizcmds.js wiz_mon_diff	unreachable-C	discrepancies exist in the 5.0 table, so the none-found line cannot print; JS same
+wizcmds.c	1886	wiz_migrate_mons	js/wizcmds.js wiz_migrate_mons	match	Castle -> valley destination; same
+wizcmds.c	1889-1890	wiz_migrate_mons	js/wizcmds.js wiz_migrate_mons	match	bottom level -> no destination; same
+wizcmds.c	1899-1900	wiz_migrate_mons	js/wizcmds.js wiz_migrate_mons	match-text	"Can't get there from here."; same
+wizcmds.c	1977	wiz_custom	js/wizcmds.js wiz_custom	nobehaviour	free(pick_list): PICK_NONE never picks
+worm.c	645-647,653-655	sanity_check_worm	js/worm.js sanity_check_worm	unreachable-C	null or non-worm: the only caller passes an fmon monster with wormno set (mon.c 284); JS same texts
+worm.c	659-661	sanity_check_worm	js/worm.js sanity_check_worm	match-text	missing tail; same
+worm.c	664	sanity_check_worm	js/worm.js sanity_check_worm	unreachable-C	mx 0: the caller reaches it only after isok(x, y), which needs x >= 1
+worm.c	670-674	sanity_check_worm	js/worm.js sanity_check_worm	match-text	segment texts; same (head excluded in both)
+worn.c	376-385	check_wornmask_slots	js/worn.js check_wornmask_slots	match-text	slot texts; worn[] table and IGNORE_SLOTS equal
+worn.c	398-402	check_wornmask_slots	js/worn.js check_wornmask_slots	match	uskin W_ARM exemption and text; same. 398 runs in sane play when polymorphed into a dragon in its scales

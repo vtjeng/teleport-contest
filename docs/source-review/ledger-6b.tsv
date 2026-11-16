@@ -1,0 +1,191 @@
+file	lines	function	js	class	note
+botl.c	971	bot_via_windowport	js/display.js status renderer (_statusFieldData / evaluate_and_notify)	nobehaviour	panic("bot before init."): blinit is set before the first bot()
+botl.c	1052	bot_via_windowport	js/display.js botl_gold	unreachable-C	money_cnt() never negative (no negative gold quantity); botl_gold clamps anyway
+botl.c	2337-2344	noneoftheabove	js/display.js noneoftheabove (was _noneOfTheAbove)	DIFFERS	JS stripped `" _()-` from the rule text and compared with three spellings; C gives each spelling its own ignore set ("(polymorphed)" ignores only quotes and parentheses; "none of the above" keeps parentheses). title/poly-morphed and title/(none)of-the-above highlighted a polymorphed hero's title in JS only (D-6b-1). Proof: recipes/botl.c/noneoftheabove-{hyphenated-polymorphed-rule-skips-newt-title,parenthesized-none-rule-skips-jackal-title} fail on 5376c814a (screens 15/18, 17/19); fixed 97e2f43b6; control -polymorphed-rule-colors-jackal-title passes on both
+botl.c	2375	get_hilite	js/display.js _selectStatusHilite	unreachable-C	fldidx out of range; callers pass a field of initblstats[]
+botl.c	2401	get_hilite	js/display.js _selectStatusHilite	match	crit_hp skips non-critical rules
+botl.c	2441-2444	get_hilite	js/display.js _selectStatusHilite	match	percentage >= rule, best (largest) threshold kept per behaviour bank
+botl.c	2469-2473,2502-2506	get_hilite	js/display.js _selectStatusHilite	match	absolute = (int and long); exactmatch skips later relational rules
+botl.c	2510-2512,2522-2524,2528-2531	get_hilite	js/display.js _selectStatusHilite	match	long < / > / >= arms; per-type LONG_MAX/LARGEST_INT bounds by field type
+botl.c	2538	get_hilite	js/display.js _statusFieldData('title')	match	skips plname bytes + " the "
+botl.c	2547-2548	get_hilite	js/display.js _selectStatusHilite	DIFFERS	via noneoftheabove (D-6b-1); exact text match and Upolyd test otherwise match
+botl.c	2554-2560	get_hilite	js/display.js _selectStatusHilite	match	criticalhp: critically_low_hp(FALSE) on HP only; resets perc_or_abs (JS persistent=false); updown/changed reset is moot because a critical rule is skipped once a temporary rule is held (both sides)
+botl.c	2561-2564	get_hilite	not implemented	nobehaviour	BL_TH_NONE/default break
+cfgfiles.c	639-650,654-670,674-692,696-703,707-714,718-725,729-736,740-747,751-758	cnf_line_HACKDIR,cnf_line_LEVELDIR,cnf_line_SAVEDIR,cnf_line_BONESDIR,cnf_line_DATADIR,cnf_line_SCOREDIR,cnf_line_LOCKDIR,cnf_line_CONFIGDIR,cnf_line_TROUBLEDIR	js/config_statement_data.js + js/options.js (recognized, recorded in unportedConfigStatements, no effect)	match	non-MICRO, no NOCWD_ASSUMPTIONS: nhUse only, return TRUE. Probe r6b/p/dirs (all nine plus LEVELS) passes, no error
+cfgfiles.c	779-782	cnf_line_dogname	js/options.js applyDirectOption	match	strncpy PL_PSIZ-1 without sanitize; probe r6b/p/dirs (DOG=Rufus the Great Beast, farlook shows the name) passes
+cfgfiles.c	1240-1250,1254-1264,1268-1278,1282-1291	cnf_line_QT_TILEWIDTH,cnf_line_QT_TILEHEIGHT,cnf_line_QT_FONTSIZE,cnf_line_QT_COMPACT	js/options.js (recognized, no effect)	match	no QT_GRAPHICS: nhUse; probe r6b/p/dirs passes
+cfgfiles.c	1402	parse_config_line	js/options.js parse_config_line path	unreachable-C	parse_conf_buf already skipped leading blanks; the only other buffer source (parse_conf_str) goes through parse_conf_buf too
+cfgfiles.c	1630	read_config_file	js/jsmain.js (segment nethackrc text)	unreachable-config	fopen of the rc file fails only without a file; a segment always supplies rc text (empty text and missing file both give no statements)
+cfgfiles.c	1699-1700	parse_conf_buf	js/cfgfiles.js logicalConfigLines	match	skip until newline after an over-long line
+cfgfiles.c	1708-1710	parse_conf_buf	js/cfgfiles.js logicalConfigLines	match	"Line too long, skipping" when no newline and strlen >= inbufsz-2
+cfgfiles.c	1731-1736	parse_conf_buf	js/cfgfiles.js config_error_nextline	unreachable-config	config_error_nextline() fails only for a CONFIG_ERROR_SECURE frame (rc named by argv or NETHACKOPTIONS)
+cfgfiles.c	1747,1753,1757-1759,1762	parse_conf_buf	js/cfgfiles.js logicalConfigLines	match	continuation merge with one space; truncation to inbufsz-1 bytes
+cfgfiles.c	1780-1785,1788-1789,1794-1796	parse_conf_buf	js/cfgfiles.js parse_conf_file	match	CHOOSE without '=' error; re-CHOOSE frees previous; no section error. p->rv is discarded by rcfile()
+cfgfiles.c	1825,1830	parse_conf_str	js/mklev.js nh.parse_config (tutorial binding)	unreachable-config	only caller is tut-1.lua with three one-line strings; pbreak needs a secure frame
+cfgfiles.c	1911-1922,1935-1941,1948-1952,1955	rcfile	js/jsmain.js runSegment + js/options.js parseNethackrc (segment nethackrc text)	unreachable-config	command-line rc file and NETHACKOPTIONS (argv/environment, fixed by the judge's recorder)
+cfgfiles.c	2023	config_unmatched_ignored	js/options.js (no counterpart flag)	unreachable-C	ignore_errors_on_unmatched is set only by set_ignore_errors_on_unmatched(), reached only from rcfile_interface_options(), which has no caller (audit dead-code)
+coloratt.c	875	set_map_customcolor	js/glyphs.js reset_customcolors / glyph customcolor entries	unreachable-C	every caller passes a glyph_map address
+coloratt.c	880-881	set_map_customcolor	js/display.js customcolor rendering	unreachable-C	closest_color() always finds an index (non-empty table, similar starts at INT_MAX) and both pointers are non-null, so it never returns FALSE
+files.c	824	set_bonestemp_name	js/storage-backed bones (no file names)	nobehaviour	temp file name only; never shown
+files.c	887	create_bonesfile	js/files_bones.js	unreachable-config	open() failure of the bones temp file (filesystem); JS bones live in input.storage
+files.c	936	commit_bonesfile	js/files_bones.js	unreachable-config	rename() failure (filesystem)
+files.c	1282-1284	restore_saved_game	js/restore (input.storage)	unreachable-config	a save that fails validate(): the previous segment's save is always current; JS storage holds the port's own state
+getpos.c	77-78	getpos_toggle_hilite_state	js/getpos.js getpos() getpos.valid key arm (inlined)	match	finish symbol overlay before cycling; cycle modulo 3 with bgcolors else 2; sethilite; begin when state becomes HiliteGoodposSymbol
+hacklib.c	29	nh_qsort_idx_cmp	JS Array.prototype.sort (stable)	match	recorder patch: equal keys ordered by original index, which a stable sort gives
+hacklib.c	652-655	strNsubst	inlined replaceAll at each caller (e.g. js/options.js, js/pline.js)	unreachable-C	orig=="" append case: every C caller passes a non-empty orig
+hacklib.c	677	findword	js/tty_startup.js isGenericPlayerName	unreachable-config	trailing blanks in sysopt.genericusers; the recorder's sysconf list has none
+hacklib.c	681	findword	js/tty_startup.js isGenericPlayerName (GENERIC_USERS set)	match	name in GENERICUSERS (exact, case-sensitive, up to '-'); see probe r6b/p/generic
+hacklib.c	952	unicodeval_to_utf8str	js/glyphs.js (UTF-8 encoding)	unreachable-C	every caller passes a buffer of at least 5 bytes
+hacklib.c	1060	datamodel	js/version text	unreachable-config	unknown data model; fixed by the build platform
+invent.c	5670-5674	perm_invent_toggled	not implemented (callers only under TTY_PERM_INVENT)	unreachable-config	perm_invent_toggled(FALSE) is called only under TTY_PERM_INVENT (options.c 5513, 6076), which config.h leaves off; js/options.js can_set_perm_invent has no call
+options.c	3224-3227,3234	optfn_pettype	js/options.js setPettype	match	'r'/'*' random; negated without value gives 'n'
+options.c	3231	optfn_pettype	not implemented	nobehaviour	break after return
+options.c	3245-3253	optfn_pettype	js/options.js (none)	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	3278-3280,3285-3287,3294	optfn_pickup_burden	js/options.js setPickupBurden (PICKUP_BURDEN_LEVELS)	match	'n' HVY, 'l' OVERLOADED; empty value returns optn_err after string_for_env_opt's error; probe r6b/p/othr (pickup_burden:lots) passes
+options.c	3304,3434,3503,3585,3665,3954,4106,4235,4744,8320,8410,8441	optfn_pickup_burden,optfn_pile_limit,optfn_playmode,optfn_roguesymset,optfn_runmode,optfn_sortloot,optfn_statuslines,optfn_symset,optfn_whatis_coord,optfn_o_autopickup_exceptions,optfn_o_message_types,optfn_o_status_cond	js/options.js runmode arm; js/options.js handler_sortloot; js/options.js symset arm; js/options.js	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it) (get_cnf_val falls through to the closing return)
+options.c	3421-3423	optfn_pile_limit	js/options.js setPileLimit	match	negated with a value: bad_negation, optn_err
+options.c	3484,3493-3496	optfn_playmode	js/options.js setPlaymode	match	empty value silent optn_err; "Invalid value for \"playmode\":%s"
+options.c	3536-3542,3618-3624	optfn_race,optfn_role	js/options.js (race do_set arm); js/options.js (role do_set arm)	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	3555-3556	optfn_roguesymset	js/options.js parseoptions symset arm	match	second roguesymset frees the previous name; JS replaces it
+options.c	3566	optfn_roguesymset	not implemented	unreachable-C	do_set with !opt_initial: roguesymset has a handler, so the O menu never sends do_set; nh.parse_config runs with opt_initial TRUE
+options.c	3571	optfn_roguesymset	js/options.js (value == '' return)	match	empty value: string_for_opt's error, no change
+options.c	3636	optfn_runmode	js/options.js runmode arm (4531)	match	negated sets RUN_TPORT
+options.c	4056-4063	optfn_statushilites	js/options.js	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	4082-4084	optfn_statuslines	js/options.js optfn_statuslines	unreachable-C	statuslines negateok No: parseoptions() answers bad_negation first
+options.c	4102-4103	optfn_statuslines	js/options.js statuslines get_val	unreachable-config	tty advertises WC2_STATUSLINES
+options.c	4218-4222	optfn_symset	js/options.js symset arm	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	4428-4437	optfn_traps	js/options.js generic compound arm (result.flags.traps)	unreachable-C	get_val only from doset menus, which list compounds from set_gameview up; traps is set_in_config; get_cnf_val is the #saveoptions body. do_set (covered) is a no-op; probe r6b/p/othr (traps:abc) passes
+options.c	4494-4496	optfn_versinfo	js/options.js versinfo arm	unreachable-C	versinfo negateok No
+options.c	4499-4502,4505-4509	optfn_versinfo	js/options.js versinfo arm	match	both error texts; probe r6b/p/othr (versinfo:9, bare versinfo) passes
+options.c	4528-4529	optfn_versinfo	not implemented	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	4712-4713,4729	optfn_whatis_coord	js/options.js optfn_whatis_coord (5226)	match	negated: GPCOORDS_NONE; no value: optn_err after string_for_env_opt's error
+options.c	6621-6654	handler_windowborders	not implemented (tty lacks WC2_WINDOWBORDERS)	unreachable-config	tty does not advertise WC2_WINDOWBORDERS (wintty.c 113-124), so doset skips the option and never calls its handler
+options.c	6813-6820	rejectoption	js/options.js string_for_env_opt (comment)	unreachable-C	string_for_env_opt with !opt_initial: every caller is a set_gameview/set_in_config option or has a handler, so the O menu never parses it in game
+options.c	6978,6986-6990,6994-7000,7012-7021,7032,7038,7041,7046,7055-7064	txt2key	js/options.js textToKey	match	empty, <enter>/<space>/<esc>, backslash escapes (first byte), M-/M-x, ^x/C-x/^-x, ^?, meta of plain char, three-digit decimal (byte arithmetic mod 256 equal); 7012-7013 unreachable-C (length-1 text returned earlier). Probe r6b/p/bind passes
+options.c	7099-7101,7295-7297	initoptions,initoptions_init	js/jsmain.js + js/options.js (defaults); js/options.js default option state	unreachable-config	sysconf parse failure; the recorder's sysconf is fixed
+options.c	7112	initoptions	js/jsmain.js + js/options.js (defaults)	unreachable-config	--showpaths (argv)
+options.c	7134-7151	initoptions_init	js/options.js default option state	unreachable-config	windowtype from the command line (argv)
+options.c	7224-7230,7239-7242	initoptions_init	js/options.js default option state	unreachable-config	TERM=AT* / vt* with AS/AE (environment fixed by the recorder)
+options.c	7522-7538	warning_opts	js/options.js optfn_warnings	match	escapes() in place, strlen stops at NUL, slots past the length are 0 (def_warnsyms arm is dead because i < length implies a non-NUL byte); no game sets warnings: (not probed)
+options.c	7611,7618,7625	parsebindings	js/options.js bindingSeparator, applyMenuBindings	match	leading comma is a key; \, and ',' skip; suffix parsed first (right to left); probe r6b/p/bind (mx:inventory,<enter>:look) passes
+options.c	7637-7642	parsebindings	js/options.js applyMenuBinding, bind_mousebtn	match	mouse1/mouse2; failure falls through to txt2key
+options.c	7659-7660	parsebindings	js/options.js applyMenuBinding	match	"Bad menu key %s:%s"
+options.c	7697	msgtype2name	js/options.js handler_msgtype ('(null)' fallback)	unreachable-C	every stored msgtype has a named descr row
+options.c	7727	query_msgtype	js/options.js handler_msgtype	match	no pick: msgtype not added
+options.c	7785,7790-7793	free_one_msgtype	js/options.js handler_msgtype removal loop	match	index minus picks already removed; relink previous
+options.c	8048-8051	illegal_menu_cmd_key	js/options.js illegalMenuCommandKey	match	17 class symbols of def_oc_syms[1..] equal DEFAULT_OBJECT_CLASS_SYMBOLS
+options.c	8310,8354,8400,8425-8426	optfn_o_autopickup_exceptions,optfn_o_autocomplete,optfn_o_message_types,optfn_o_status_cond	js/options.js (OthrOpt names accepted silently)	match	OPTIONS=autocompletions:/autopickup exceptions:/message types:/status condition fields: do nothing and return optn_ok; probe r6b/p/othr passes
+options.c	8313,8357,8403,8429	optfn_o_autopickup_exceptions,optfn_o_autocomplete,optfn_o_message_types,optfn_o_status_cond	js/options.js	unreachable-C	opts never null
+options.c	8434-8435	optfn_o_status_cond	js/options.js	nobehaviour	#saveoptions body only: get_cnf_val comes only from get_option_value(..., TRUE), called by all_options_strbuf() (file written, never shown) and nhl_get_config (no shipped Lua calls it)
+options.c	8482-8505	get_option_value	not implemented (#saveoptions / nh.get_config only)	nobehaviour	called only by all_options_strbuf (#saveoptions file) and nhl_get_config (not used by shipped Lua)
+options.c	9358,9365-9367	remove_autopickup_exception	js/options.js handler_autopickup_exception removal loop	match	removing a non-head exception relinks prev
+options.c	9860-9862,9940-9943	set_option_mod_status,set_wc2_option_mod_status	not implemented (constant statuses); js/wintty.js	unreachable-C	callers pass constant valid statuses
+options.c	9882-9896	set_wc_option_mod_status	not implemented (no tty caller)	unreachable-config	no caller in the tty build
+options.c	10117-10127	options_free_window_colors	not implemented (exit-time free)	nobehaviour	freedynamicdata() at exit
+options.c	10165	enhance_menu_text	js/options.js	unreachable-C	buf never null
+nhlobj.c	122	l_obj_add_to_container	js/mklev.js water_surrounded_vault_contents (obj.new, itm:class, box:addcontent inlined)	unreachable-C	both objects are live Lua objects at themerms.lua 804
+nhlobj.c	178-184,193-196	l_obj_objects_to_table	js/mklev.js water_surrounded_vault_contents (obj.new, itm:class, box:addcontent inlined)	unreachable-lua	wrong-argument errors and a numeric otyp argument; shipped Lua never makes this call (Lua map: every shipped Lua line runs except the 111 in lua-unreachable.json; grep of dat/*.lua for the binding shows only the covered argument shapes)
+nhlobj.c	255-257,268-269,275-282,300,309,327-329,339	l_obj_to_table	js/themeroom_fill.js fillBuriedTreasure (reads NO_OBJ/ox/oy only)	unreachable-lua	the only caller (themerms.lua 137) passes a live chest: no description, not a statue/corpse/potion/poisonable, corpsenm NON_PM, no name
+nhlobj.c	361,365-383	l_obj_new_readobjnam	js/mklev.js water_surrounded_vault_contents (obj.new, itm:class, box:addcontent inlined)	unreachable-lua	readobjnam of the four fixed escape items never yields hands_obj; the table form and the error are never used; shipped Lua never makes this call (Lua map: every shipped Lua line runs except the 111 in lua-unreachable.json; grep of dat/*.lua for the binding shows only the covered argument shapes)
+nhlobj.c	420	l_obj_placeobj	js/sp_lev_object.js (obj placement in Lua ports)	unreachable-lua	wrong-argument error; shipped Lua never makes this call (Lua map: every shipped Lua line runs except the 111 in lua-unreachable.json; grep of dat/*.lua for the binding shows only the covered argument shapes)
+nhlobj.c	552-556,566-568,570-571	l_obj_timer_stop	js/themeroom_fill.js "Buried zombies" (stop_timer(ROT_CORPSE))	unreachable-lua	only o:stop_timer("rot-corpse") (two arguments, object timer) is shipped
+nhlobj.c	590,594	l_obj_timer_start	js/themeroom_fill.js "Buried zombies" finishCorpse	match	duplicate zombify-mon timer stopped before start_timer (JS obj_has_timer arm); not reached: a fresh corpse has no such timer. Error arm 594 unreachable-lua
+nhlsel.c	439-442	l_selection_room	js/themeroom_fill.js roomSelection -> selection_room	unreachable-lua	untruncated grep: no shipped Lua passes an argument to selection.room()
+nhlsel.c	494-502	params_sel_2coords	js/bigrm.js selection_line/rect/fillrect (four numbers)	unreachable-lua	five-argument form (sel, x1, y1, x2, y2) unused; shipped line/rect/fillrect pass four numbers
+nhlsel.c	515-516,537-538,566-567	l_selection_line,l_selection_rect,l_selection_fillrect	js Lua ports (minetn/valley/bigrm/fakewiz)	unreachable-lua	illegal-argument errors
+nhlsel.c	667	l_selection_filter_mapchar	js Lua ports (filter_mapchar('.'))	unreachable-lua	INVALID_TYPE map character
+nhlsel.c	700-702,705-707	l_selection_match	js Lua ports (bigrm-3, bigrm-11, fakewiz)	unreachable-lua	mapfrag errors and wrong parameters for fixed strings
+nhlsel.c	737,742-744	l_selection_flood	js Lua ports (floodfill(x,y))	unreachable-lua	three-argument (diagonals) form and wrong parameters
+nhlua.c	182-185	l_nhcore_call	js/nhlua.js nhl_call_field	unreachable-C	nhcore.lua failing to load; the shipped file loads
+nhlua.c	645,672-673,1080-1081,1103-1104,1117-1118,1137-1138,1162-1163,1775-1778	nhl_pline,nhl_parse_config,nhl_rn2,nhl_random,nhl_level_difficulty,nhl_is_genocided,nhl_get_debug_themerm_name,nhl_timer_start_at	js/nhlua.js; js/mklev.js nh.parse_config (tutorial binding); inlined: JS Lua ports call rn2() directly; inlined: JS Lua ports call rn2() (nhlib math.random shim); js/dungeon.js level_difficulty (called by JS Lua ports); js/quest_levels.js; not implemented (THEMERM environment only); js/themeroom_fill.js start_timer (melt-ice)	unreachable-lua	"Wrong args" errors; shipped Lua never makes this call (Lua map: every shipped Lua line runs except the 111 in lua-unreachable.json; grep of dat/*.lua for the binding shows only the covered argument shapes)
+nhlua.c	834-839	nhl_text	js/hack.js show_getpos_tip (inlined)	unreachable-lua	the only caller (nhcore.lua show_getpos_tip) passes fixed lines all shorter than 76 bytes, so the wrap arm never runs
+nhlua.c	1094-1096	nhl_random	js Lua ports (nh.random)	unreachable-lua	only caller is nhlib.lua math.random shim, which passes two arguments (one-argument math.random uses nh.rn2)
+nhlua.c	1159-1160	nhl_get_debug_themerm_name	js/themerooms.js	unreachable-config	THEMERM / THEMERMFILL environment variables (wizard mode debug themes); the recorder sets neither
+nhlua.c	1456-1459,1464-1465,1826-1829	get_nh_lua_variables,nhl_callback	js/restore.js / Lua-port state in game objects; js/nhlua.js tutorial callbacks	nobehaviour	panic/defensive returns when luacore is missing
+nhlua.c	1490	save_luadata	js/restore.js (restore_luadata note); save bytes not modelled	nobehaviour	save-file bytes (empty Lua data string)
+nhlua.c	1810	nhl_get_cmd_key	js/allmain.js / js/cmd.js (tutorial key lookups)	unreachable-lua	unknown command name
+nhlua.c	1844,1849	nhl_callback	js/nhlua.js tutorial callbacks	unreachable-lua	removing an unregistered callback; impossible() on bad counts
+nhlua.c	2107-2110	nhl_push_anything	inlined: JS Lua ports read game.u fields directly	unreachable-lua	ANY_SCHAR fields (u.dlevel, u.dnum, u.uluck, u.dx..) are read only by nhcore.lua mk_dgl_extrainfo(), which is commented out of the callback table
+nhlua.c	2160-2161,2166-2170	nhl_meta_u_index	inlined: JS Lua ports read game.u fields directly	unreachable-lua	u.moves and u.uhave_amulet are read only by nhcore.lua mk_dgl_extrainfo(), commented out of the callback table; no shipped Lua reads u.invent
+nhlua.c	2179-2181	nhl_meta_u_index	inlined: JS Lua ports read game.u fields directly	unreachable-lua	unknown u index
+nhlua.c	2284-2286,2296-2303	nhl_pcall	js/nhlua.js	unreachable-config	Lua instruction limit panic; LUASTATS livelog (debug flags)
+nhlua.c	2837-2839	end_luapat	not implemented (interpreter shutdown)	nobehaviour	interpreter shutdown
+selvar.c	80,233,255,328,790	selection_getbounds,selection_filter_percent,selection_filter_mapchar,selection_do_grow,selection_from_mkroom	js/selvar.js, js/nhlsel.js	unreachable-C	null selection / null room arguments
+selvar.c	266,270-277	selection_filter_mapchar	js/themerooms.js ThemeroomSelection.filter_mapchar	match	lit -1 (rn2(2)) and 0/1 (lit compare) arms ported; untruncated grep of dat/*.lua: all 7 filter_mapchar calls pass only "." (lit -2), so the arms are not reached
+selvar.c	652,659-661,672-674	selection_do_line	js/bigrm.js selection_line, selection_rect, selection_fillrect	match	single point and diagonal Bresenham steps ported (same d0/ai/bi updates; JS while equals C do-while since the loop variable differs at entry); untruncated grep: every shipped selection.line/rect/fillrect is axis-aligned, so the diagonal arms are not reached
+rnd.c	127,138	whichrng,init_isaac64	js/rnd.js (scorer's isaac64)	unreachable-C	every caller passes a function in rnglist[]
+rnd.c	435	reseed_random	js/do.js	unreachable-config	has_strong_rngseed is false in the recorder build (seeded by the patch)
+role.c	1324-1329	rolefilterstring	not implemented (#saveoptions only)	nobehaviour	only caller is options.c 7984 saveoptstr (#saveoptions body)
+role.c	1348-1351	rolefilterstring	not implemented (#saveoptions only)	nobehaviour	impossible() default, saveoptions only
+role.c	1834-1836	role_menu_extra	js/player_selection_tty.js aspectExtra	unreachable-C	no caller passes RS_NAME
+role.c	1844-1846,1863-1865,1920-1922	role_menu_extra	js/player_selection_tty.js aspectExtra	match	"filter forces role/race/alignment" when OPTIONS role/race/align negations leave one choice
+role.c	1875	role_menu_extra	js/player_selection_tty.js aspectExtra	unreachable-C	no role allows only males
+role.c	1958-1959	role_menu_extra	js/player_selection_tty.js aspectExtra	nobehaviour	impossible() on a bad argument; callers pass constants
+role.c	2231-2239	genl_player_setup	js/player_selection.js prepare_player_selection	unreachable-config	flags.randomall is set only by argv -@
+role.c	2266	genl_player_setup	js/player_selection.js initialResponse	match	Space/Enter/Return answer 'y'; probe r6b/p/plsel1 passes
+role.c	2347,2431,2519,2605	genl_player_setup	js/player_selection_tty.js facetMenuSpec (cancelValue quit / 'q')	match	quit from a facet menu; probes r6b/p/plsel2 (race menu ESC) and plsel3 (alignment menu q) pass
+role.c	2364,2450,2536-2538,2624	genl_player_setup	js/player_selection.js manualRandomChoice	match	menu "Random" whose pick_* fails falls back to rand* without the "Incompatible" message; probe plsel3 (gender '*' toggled off) passes
+role.c	2396-2401,2484-2489,2572-2577	genl_player_setup	js/player_selection.js advanceWithoutMenus (validrace/validgend/validalign fallback)	match	no ok_* candidate under the filter: count valid ones instead
+role.c	2425,2513,2599	genl_player_setup	js/player_selection_tty.js facetMenuSpec emptyValue/cancelValue	match	n == 0 (preselected Random toggled off) gives ROLE_RANDOM, ESC gives quit
+role.c	2433-2434,2439-2440,2521-2522,2524-2525,2527-2528,2607-2608,2610-2611,2613-2614	genl_player_setup	js/player_selection.js continue_player_selection 'jump'	match	the launching facet and the target facet are both reset; nextpick is the target; probe plsel1 (race->role, gender->race, gender->alignment) passes
+role.c	2442-2446,2530-2534,2616-2620	genl_player_setup	js/player_selection.js continue_player_selection 'filter'	match	facet reset; reset_role_filtering() nonzero restarts at role, else the same facet
+role.c	2704,2712	genl_player_setup	js/player_selection.js + js/player_selection_tty.js	nobehaviour	closing brace / break after goto
+role.c	2838	plsel_startmenu	js/player_selection_tty.js	nobehaviour	panic when create_nhwindow fails
+role.c	2961	setup_gendmenu	js/player_selection_tty.js genderCandidates	match	filtering skips a gender that is not ok_role/ok_race
+strutil.c	121-127	pmatch_internal	js/strutil.js pmatchi	unreachable-C	the skip-character variant serves pmatchz(), which has no caller
+symbols.c	447,475-476,497-499,581-586,599-602	parse_sym_line	js/symbols.js (generated symset table)	unreachable-config	parse_sym_line() reads only the shipped dat/symbols file (read_sym_file): no over-long line, no stray line without '=', no unknown keyword, no "finish=" keyword, and only "Color: Yes"
+symbols.c	674-690	load_symset	js/symbols.js	unreachable-config	called only from initoptions_init()'s TERM=AT*/vt* arms (environment)
+symbols.c	791,793,797	parsesymbols	js/options.js parseSymbolAssignments	match	quoted ',' and ':' and backslash-comma skipped when finding separators
+symbols.c	825-826	parsesymbols	js/options.js parseSymbolAssignments (glyphName)	match	G_ name (case-sensitive gate) goes to match_glyph
+symbols.c	881	match_sym	js/options.js parseSymbolAssignments (lookupName trim)	match	one space before '=' dropped (reached through parsesymbols' carried-colon quirk); exact case-insensitive name match incl. S_armour/S_explodeN alternates
+utf8map.c	42	set_map_u	js/glyphs.js	unreachable-C	null map or zero code point not passed
+utf8map.c	50-52	set_map_u	js/glyphs.js (customcolor/urep map)	nobehaviour	frees the old string before storing the new one (memory)
+utf8map.c	92	mixed_to_utf8	js/windows.js decode_mixed	unreachable-C	str never null from tty_putmixed
+utf8map.c	124-129,136-137	mixed_to_utf8	js/windows.js decode_mixed (shared with the UTF-8 path)	match	forged \G kept, "\\\\" gives one backslash, trailing backslash kept. Probes r6b/p/mixedb (catname S\\t) and mixedc (horsename P\Gzz9) under symset:Enhanced1 pass; mixeda did not reach the trailing-backslash arm (name shows "R")
+utf8map.c	178-180,194-196	add_custom_urep_entry	js/glyphs.js	unreachable-C	only caller (glyphs.c 81) passes a nonzero code point and its UTF-8 string
+windows.c	1279	dump_forward_putstr	js/end.js (disclosure text via putstr; no dumplog)	unreachable-config	dumplog_file is never opened (DUMPLOG off, config.h 669)
+wintty.c	1065,1434,1912,2007,2062-2065,2292-2294,2581,2641,2722-2725,2841,4252-4254,4883,4970-4971,5078-5080	tty_clear_nhwindow,process_menu_window,tty_display_nhwindow,tty_dismiss_nhwindow,tty_destroy_nhwindow,tty_putstr,tty_start_menu,tty_add_menu,tty_end_menu,tty_select_menu,tty_putmixed,tty_putstatusfield,check_windowdata,render_status	js/tty_menu.js / js/tty_message.js; js/tty_menu.js; js/tty_rawprint.js / js/display.js; js/tty_menu.js dismissTtyMenu; js/tty_message.js; js/windows.js / js/tty_menu.js; js/windows.js add_menu; js/display.js; js/display.js (status layout)	nobehaviour	ttywindowpanic()/panic()/paniclog() or raw_print for an invalid window id; callers pass live windows
+wintty.c	1122	tty_clear_nhwindow	js/tty_menu.js (window reuse)	not-compared	clearing a still-active menu/text window (via tty_start_menu() reusing one); no core caller found that does this; not compared in detail
+wintty.c	1174	toggle_menu_curr	js/tty_menu.js toggleItem	match	counting with count 0 on an unselected item does nothing
+wintty.c	1292	invert_all_on_page	js/tty_menu.js invertItems	match	group accelerator with a count stores the count; probe r6b/p/menu1 ("2)" in a pickup menu picks 2 of 5 daggers) passes
+wintty.c	1439-1441,1827-1829	process_menu_window,process_text_window	js/tty_menu.js; js/pager.js / js/tty_menu.js	unreachable-C	tty_display_nhwindow() sets offy 0 for menus, and text windows are full-screen from row 0
+wintty.c	1542-1544,1558-1563	process_menu_window	js/tty_menu.js	unreachable-config	corner menu with a shorter later page: a multi-page menu has maxrow = lmax+1 = rows, which forces full-screen (offx 0) on the 24-row terminal
+wintty.c	1581-1582	process_menu_window	js/tty_menu.js	unreachable-C	msave is always set (tty_end_menu gives morestr "(end) " or "")
+wintty.c	1617	process_menu_window	js/tty_menu.js (digit group accelerator arm)	match	'0' selects iron balls when not counting; probe r6b/p/menu1 passes
+wintty.c	1625	process_menu_window	js/tty_menu.js appendLongDigit	match	count overflow resets the count
+wintty.c	1731-1733	process_menu_window	js/tty_menu.js MENU_UNSELECT_ALL	match	unselect items on other pages; probe r6b/p/menu1 (O, select c, next page, '-', previous page) passes
+wintty.c	1866-1867	process_text_window	js/pager.js textWindowGlyphCell	match	high-bit byte after column 0 goes through g_putch(); recorder patch drops it (JS null cell)
+wintty.c	2014	tty_dismiss_nhwindow	js/tty_menu.js dismissTtyMenu	unreachable-C	dismissing WIN_MESSAGE with a non-empty topline: the core never dismisses the message window
+wintty.c	2091	erase_tty_screen	js/wintty.js	unreachable-C	re-entry guard
+wintty.c	2353	tty_putstr	js/tty_message.js	nobehaviour	closing brace of the NHW_MESSAGE case
+wintty.c	2387-2401	tty_putstr	js/tty_message.js	unreachable-config	putstr(WIN_MAP) only from save.c/restore.c under MICRO
+wintty.c	2407-2410	tty_putstr	js/tty_message.js	unreachable-C	base-window wrap: the only base-window strings (banner lines, "Who are you?", the name prompt) are under 79 columns
+wintty.c	2457	tty_putstr	js/tty_message.js	nobehaviour	frees a row being rewritten (memory)
+wintty.c	2527-2536	tty_display_file	js/pager.js	unreachable-config	every file display_file() is asked for ships with the recorder (NEWS is asked with complain FALSE)
+wintty.c	2559	tty_display_file	js/pager.js	unreachable-config	tab expansion: none of the files display_file() shows (help, hh, opthelp, optmenu, license, wizhelp, usagehlp, history) contains a tab (cmdhelp and keyhelp are read elsewhere)
+wintty.c	2636	tty_add_menu	js/windows.js add_menu	unreachable-C	null item text
+wintty.c	2656-2658	tty_add_menu	js/windows.js add_menu	unreachable-C	item text >= BUFSZ: callers build items in BUFSZ buffers
+wintty.c	2765	tty_end_menu	js/tty_menu.js	nobehaviour	page list reallocation (memory)
+wintty.c	2782	tty_end_menu	js/tty_menu.js	unreachable-config	'z' -> 'A' wrap needs more than 26 items on a page; lmax = rows-1 = 23
+wintty.c	2812-2815	tty_end_menu	js/tty_menu.js	unreachable-config	morestr longer than the screen width (at most "(nn of nn) ")
+wintty.c	2844-2845	tty_select_menu	js/tty_menu.js	unreachable-config	MENU_BEHAVE_PERMINV (TTY_PERM_INVENT off)
+wintty.c	2922,2925-2926,2960,2964-2965	tty_ctrl_nhwindow	js/windows.js (menu prompt style); request types unported (TTY_PERM_INVENT)	unreachable-config	set_mode/request_settings serve TTY_PERM_INVENT (off); null request and default unused
+wintty.c	3791-3793,3957	end_glyphout,tty_print_glyph	js/display.js (cell colors computed directly)	nobehaviour	terminal color-state resets; the grid records each cell's color, which JS computes per cell
+wintty.c	3949-3951	tty_print_glyph	js/display.js	unreachable-config	ul_hack: terminal without non-destructive underscore
+wintty.c	4138	tty_nhgetch	js/input.js nhgetch	unreachable-config	debug_fuzzer (audit keeps the fuzzer out)
+wintty.c	4142,4156-4159	tty_nhgetch	js/input.js (comment)	unreachable-config	SIGWINCH resize (fixed pty)
+wintty.c	4164	tty_nhgetch	js/input.js nhgetch	match	NUL key mapped to ESC
+wintty.c	4166-4168	tty_nhgetch	js/input.js nhgetch	unreachable-config	EOF on the terminal
+wintty.c	4228	win_tty_init	not implemented (no-op)	nobehaviour	no-op
+wintty.c	4543,4578	tty_status_update	js/display.js	unreachable-C	field index out of range; every field has a format
+wintty.c	4643	tty_status_update	js/display.js	unreachable-C	gold's \G sequence was already decoded by decode_mixed() above
+wintty.c	4675-4677,4726,4737	make_things_fit,check_fields	js/display.js (status layout)	unreachable-C	window data not initialized / an active field never sent: status_initialize() sends every active field before the first flush
+wintty.c	5006-5008,5012-5020	condattr	js/display.js _statusConditionStyle, Begin_Attr	match	bold/italic/underline/blink bits; probe r6b/p/cond (condition/blind/red&bold&italic&underline&blink, then quaff blindness) passes
+wintty.c	5122	render_status	js/display.js _conditionIndent (comment)	unreachable-C	third-row branch: threelineorder[] puts BL_WEAPON, not BL_VERS, after BL_CONDITION
+wintty.c	5136-5137	render_status	js/display.js _conditionIndent	match	no room to indent or right justify: keep check_fields()'s column
+wintty.c	5165-5170,5189-5190	render_status	js/display.js	nobehaviour	impossible()/paniclog() on unexpected overflow; make_things_fit() truncates first
+wintty.c	5207-5208	render_status	js/display.js hitpoint bar	unreachable-C	BL_TITLE text arrives exactly 30 columns wide when hitpointbar is on (botl.c 1714 formats it "%-30.30s")
+wintty.c	5226	render_status	js/display.js hitpoint bar	unreachable-C	bar_pos >= 30 with hpbar_percent < 100: percent*30/100 < 30
+wintty.c	5276-5278	render_status	js/display.js _writeVersion	match	version after conditions on the two-line layout; probes r6b/p/vers (2 lines, Blind+Hallu+showvers) and vers3 pass
+role.c	2511,2597	genl_player_setup	js/tty_menu.js PICK_ONE with a preselected entry	match	n == 2 with Random first: tty returns picks in menu order, so a pick listed below Random (a jump, filter or Quit entry) comes second; reached by probes r6b/p/plsel1 (gender menu "/" and "[") and plsel3 (alignment "q"), which pass
+botl.c	2539	get_hilite	js/display.js _selectStatusHilite (_statusFuzzyText)	differs-unobservable	UNPROVEN, not changed: C skips a text rule whose textmatch is empty (hl->textmatch[0]); JS compares stripped strings, so an empty rule would match a field whose text strips to empty. Every text field the rule can name (title, alignment, dungeon level, enc/hunger names) has non-empty text when shown; covered line, noted while reviewing 2538-2548

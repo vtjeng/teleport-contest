@@ -1,0 +1,518 @@
+id	ledger	file	lines	function	js	class	note
+0	ledger-2a.tsv	mkobj.c	158-164	new_omailcmd	js/obj.js	skip-targets	targets unreachable (no mail delivery); NOT COMPARED in detail
+1	ledger-2a.tsv	mkobj.c	168-173	free_omailcmd	js/obj.js	skip-targets	targets unreachable; NOT COMPARED in detail
+2	ledger-2a.tsv	mkobj.c	333-335,357,373-376	mkbox_cnts	-	skip-targets	targets unreachable; NOT COMPARED
+3	ledger-2a.tsv	mkobj.c	2310-2325	place_object	-	skip-targets	targets unreachable (panic/impossible)
+4	ledger-2a.tsv	mkobj.c	2750-2763	dealloc_obj	-	skip-targets	targets unreachable
+5	ledger-2a.tsv	mkobj.c	3250-3274,3279-3286,3302-3307,3330-3334,3435-3442	insane_obj_bits/nomerge_exception/where_name/insane_object/check_glob	-	skip-targets	targets unreachable (sanity checking)
+6	ledger-2a.tsv	invent.c	2840-2854	doperminv	-	skip-targets	targets unreachable; NOT COMPARED
+7	ledger-2a.tsv	invent.c	3108-3377	display_pickinv	-	skip-targets	targets unreachable (perm_invent); NOT COMPARED
+8	ledger-2a.tsv	invent.c	3457-3460	repopulate_perminvent	-	skip-targets	perm_invent only
+9	ledger-2a.tsv	invent.c	3935-3941	dotypeinv	-	skip-targets	targets unreachable
+10	ledger-2a.tsv	invent.c	4899-4910	check_invent_gold	-	skip-targets	targets unreachable
+11	ledger-2a.tsv	invent.c	5124	doorganize_core	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+12	ledger-2a.tsv	invent.c	5291-5305	invdisp_nothing	-	skip-targets	targets unreachable
+13	ledger-2a.tsv	invent.c	5310-5325	worn_wield_only	js/invent.js	unreachable-C	both display_minventory callers (invent.c 4156, zap.c 634) pass MINV_ALL; JS matches
+14	ledger-2a.tsv	invent.c	5550-5562	prepare_perminvent	-	skip-targets	perm_invent only
+15	ledger-2a.tsv	apply.c	1044-1056,1192-1193	use_mirror	-	skip-targets	targets unreachable; NOT COMPARED
+16	ledger-2a.tsv	apply.c	2192-2194,2218-2220	use_tinning_kit	-	skip-targets	targets unreachable
+17	ledger-2a.tsv	objnam.c	313-330	safe_typename	-	skip-targets	targets unreachable (impossible() reports only)
+18	ledger-2a.tsv	objnam.c	524-554	reorder_fruit	-	unreachable-C	"only caller is insight.c 1963 under #ifdef DEBUG with explicitdebug(""fruit""); not ported"
+19	ledger-2a.tsv	objnam.c	613,751-752,945-948,1016-1026	xname_flags	-	skip-targets	targets unreachable; NOT COMPARED
+20	ledger-2a.tsv	objnam.c	1438-1439,1728-1747	doname_base	-	skip-targets	targets unreachable
+21	ledger-2a.tsv	objnam.c	5647-5690	safe_qbuf	-	skip-targets	targets unreachable
+22	ledger-2a.tsv	artifact.c	980-990	arti_immune	-	skip-targets	targets unreachable (no caller)
+23	ledger-2a.tsv	artifact.c	1021,1025,1046,1049-1050,1053-1055,1059	spec_applies	-	skip-targets	targets unreachable
+24	ledger-2a.tsv	artifact.c	1633-1636	artifact_hit	-	skip-targets	targets unreachable
+25	ledger-2a.tsv	artifact.c	1770-1777,2155	invoke_taming/arti_invoke	-	skip-targets	targets unreachable (Palantir #if 0)
+26	ledger-2a.tsv	eat.c	410-419	food_substitution	-	unreachable-C	no caller in src/ (grep food_substitution: only the definition)
+27	ledger-2a.tsv	do_wear.c	2058-2061,2193-2196	canwearobj	-	skip-targets	targets unreachable
+28	ledger-2a.tsv	do_wear.c	2232-2233,2344-2345,2350-2352	accessory_or_armor_on	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+29	ledger-2a.tsv	do_wear.c	2702	select_off	-	skip-targets	targets unreachable
+30	ledger-2a.tsv	pickup.c	1048,1061-1062,1182-1209	query_objlist	-	skip-targets	targets unreachable (fork D)
+31	ledger-2a.tsv	pickup.c	2605,2654	in_container	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+32	ledger-2a.tsv	pickup.c	2742	out_container	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+33	ledger-2b.tsv	mon.c	513-515,517-528	genus	-	skip-targets	targets unreachable (MS_GUARDIAN default); NOT COMPARED
+34	ledger-2b.tsv	mon.c	1361,1367-1370,1374,1378-1380	meatbox	-	skip-targets	targets unreachable; NOT COMPARED
+35	ledger-2b.tsv	mon.c	1449	m_consume_obj	js/mon.js m_consume_obj	unreachable-C	corpsenm is NON_PM for an EGG, so the pyrolisk-egg explode never runs; JS omits it with a comment (equivalent)
+36	ledger-2b.tsv	mon.c	1838-1839	mpickgold	js/mon.js mpickgold	unreachable-C	only callers are vault.c 802/813/1194 with the guard, and the message requires !isgd; JS also calls message() without await (unobservable here)
+37	ledger-2b.tsv	mon.c	2521-2524	replmon	-	skip-targets	targets unreachable; NOT COMPARED
+38	ledger-2b.tsv	mon.c	2550	replmon	-	skip-targets	targets unreachable; NOT COMPARED
+39	ledger-2b.tsv	mon.c	2600	copy_mextra	-	skip-targets	targets unreachable; NOT COMPARED
+40	ledger-2b.tsv	mon.c	3940-3941,3943-3948	elemental_clog	-	skip-targets	targets unreachable; NOT COMPARED
+41	ledger-2b.tsv	mon.c	4067-4068	mnearto	js/mon.js mnearto	not-compared	othermon overcrowding; JS located and messages/strings matched only; logic not compared line by line
+42	ledger-2b.tsv	mon.c	4599-4601	healmon	js/mon.js healmon	unreachable-C	no C caller passes &youmonst (21 callers checked); JS omits the hero branch
+43	ledger-2b.tsv	mon.c	5054-5056	validvamp	-	skip-targets	targets unreachable; NOT COMPARED
+44	ledger-2b.tsv	mon.c	5338,5378	newcham	-	skip-targets	targets unreachable; NOT COMPARED
+45	ledger-2b.tsv	muse.c	1665-1668	mbhitm	js/muse.js mbhitm	not-compared	cancellation (monsters never zap it); JS located and messages/strings matched only; logic not compared line by line
+46	ledger-2b.tsv	muse.c	1789-1790	mbhit	js/muse.js mbhit	not-compared	placeholder cases (monsters do not use opening/locking); JS located and messages/strings matched only; logic not compared line by line
+47	ledger-2b.tsv	muse.c	2411,2474-2475,2540,2562,2581-2583,2585-2586,2617	use_misc	-	skip-targets	targets unreachable (incl. batch 21); NOT COMPARED
+48	ledger-2b.tsv	muse.c	3132,3221-3222	muse_unslime	-	skip-targets	targets unreachable; NOT COMPARED
+49	ledger-2b.tsv	mhitu.c	39-41	hitmsg	js/mhitu.js hitmsg	unreachable-C	compat needs a nymph or amorous demon with an SEDU/SITM/SSEX attack, but no C hitmsg() caller passes one (mhitm_ad_sedu calls hitmsg only for is_animal, which could_seduce rejects; mhitm_ad_ssex returns under SYSOPT_SEDUCE). JS omits the arm; its comment ('only mhitm_ad_phys and mhitm_ad_elec call hitmsg') is stale, 9 JS callers; verdict provisional: mhitm_ad_sedu read only for its is_animal hitmsg arm
+50	ledger-2b.tsv	mhitu.c	1621	explmu	js/mhitu.js explmu	not-compared	lifesaved exploder; JS located and messages/strings matched only; logic not compared line by line
+51	ledger-2b.tsv	mhitu.c	2159	doseduce	js/mhitu.js doseduce	not-compared	appears to sigh; JS located and messages/strings matched only; logic not compared line by line
+52	ledger-2b.tsv	mhitu.c	2269-2270	doseduce	js/mhitu.js doseduce	not-compared	leprechaun hero gold; JS located and messages/strings matched only; logic not compared line by line
+53	ledger-2b.tsv	mhitu.c	2282	doseduce	js/mhitu.js doseduce	not-compared	peaceful cost floor 1; JS located and messages/strings matched only; logic not compared line by line
+54	ledger-2b.tsv	mhitu.c	2396-2398,2400-2405	mon_avoiding_this_attack	-	unreachable-C	no C caller (only a comment at 2409)
+55	ledger-2b.tsv	mhitm.c	152	fightm	js/mhitm.js fightm	not-compared	has_u_swallowed returns 0; JS located and messages/strings matched only; logic not compared line by line
+56	ledger-2b.tsv	polyself.c	606-607	polyself	js/polyself.js polyself	not-compared	class retry counter; JS located and messages/strings matched only; logic not compared line by line
+57	ledger-2b.tsv	polyself.c	778	polymon	js/polyself.js polymon	not-compared	unmul; JS located and messages/strings matched only; logic not compared line by line
+58	ledger-2b.tsv	polyself.c	1341,1348	drop_weapon	js/polyself.js drop_weapon	not-compared	in_use updateinv; JS located and messages/strings matched only; logic not compared line by line
+59	ledger-2b.tsv	polyself.c	1677,1683	dogaze	js/polyself.js dogaze	not-compared	can't see where to gaze; JS located and messages/strings matched only; logic not compared line by line
+60	ledger-2b.tsv	polyself.c	1913	domindblast	js/polyself.js domindblast	not-compared	JS located and messages/strings matched only; logic not compared line by line
+61	ledger-2b.tsv	dothrow.c	1689,1703,1724	throwit	js/dothrow.js throwit	not-compared	tmp_at end; quivered returning aklys; JS located and messages/strings matched only; logic not compared line by line
+62	ledger-2b.tsv	dothrow.c	2149	thitmonst	js/dothrow.js thitmonst	not-compared	immobile leader returns 0; JS located and messages/strings matched only; logic not compared line by line
+63	ledger-2b.tsv	dogmove.c	407	dog_invent	js/dogmove.js dog_invent	not-compared	helpless/meating; JS located and messages/strings matched only; logic not compared line by line
+64	ledger-2b.tsv	makemon.c	857-860,863,900-901	clone_mon	-	skip-targets	targets unreachable / open (enexto on full level); NOT COMPARED
+65	ledger-2b.tsv	makemon.c	1271	makemon	js/makemon_create.js makemon	not-compared	leader gender from quest_status; JS located and messages/strings matched only; logic not compared line by line
+66	ledger-2b.tsv	makemon.c	1457	makemon	js/makemon_create.js makemon	not-compared	discard_minvent when no inventory allowed; JS located and messages/strings matched only; logic not compared line by line
+67	ledger-2b.tsv	makemon.c	2201-2202	mongets	js/makemon_create.js mongets	unreachable-C	is_mplayer() && is_sword(): m_initweap() gives player-monsters nothing and mk_mplayer() uses mksobj(); JS omits the branch and its rn2(4) (provisional; would differ if reached)
+68	ledger-2b.tsv	weapon.c	1190	peaked_skill	js/weapon.js peaked_skill	not-compared	JS located and messages/strings matched only; logic not compared line by line
+69	ledger-2b.tsv	weapon.c	1273	add_skills_to_menu	js/weapon.js add_skills_to_menu	not-compared	maxed prefix; JS located and messages/strings matched only; logic not compared line by line
+70	ledger-2b.tsv	weapon.c	1655	weapon_dam_bonus	js/weapon.js weapon_dam_bonus	not-compared	P_NONE; JS located and messages/strings matched only; logic not compared line by line
+71	ledger-2b.tsv	monmove.c	415	bee_eat_jelly	js/monmove.js bee_eat_jelly	not-compared	JS located and messages/strings matched only; logic not compared line by line
+72	ledger-2b.tsv	monmove.c	470	monflee	js/monmove.js monflee	not-compared	dead guard; JS located and messages/strings matched only; logic not compared line by line
+73	ledger-2b.tsv	monmove.c	1515-1516,1545-1547,1561-1562,1579-1580,1672,1677	postmov	js/monmove.js postmov	not-compared	offmap; Master Key disarms door trap; trapped door mb_trapped; JS located and messages/strings matched only; logic not compared line by line
+74	ledger-2b.tsv	monmove.c	2130	can_hide_under_obj	js/monmove.js can_hide_under_obj	not-compared	JS located and messages/strings matched only; logic not compared line by line
+75	ledger-2b.tsv	mthrowu.c	430-431,448	ohitmon	js/mthrowu.js ohitmon	not-compared	is seared!; JS located and messages/strings matched only; logic not compared line by line
+76	ledger-2b.tsv	mthrowu.c	1001	thrwmm	js/mthrowu.js thrwmm	not-compared	out of range; JS located and messages/strings matched only; logic not compared line by line
+77	ledger-2b.tsv	mthrowu.c	1054	spitmm	js/mthrowu.js spitmm	not-compared	mtarget; JS located and messages/strings matched only; logic not compared line by line
+78	ledger-2b.tsv	mthrowu.c	1311	linedup_callback	js/mthrowu.js linedup_callback	not-compared	JS located and messages/strings matched only; logic not compared line by line
+79	ledger-2b.tsv	mthrowu.c	1357	linedup	js/mthrowu.js linedup	not-compared	JS located and messages/strings matched only; logic not compared line by line
+80	ledger-2b.tsv	mthrowu.c	1439-1442	hit_bars	js/mthrowu.js hit_bars	not-compared	hissing noise / angry snakes; JS located and messages/strings matched only; logic not compared line by line
+81	ledger-2b.tsv	dog.c	150,183,201	make_familiar	js/dog.js make_familiar	not-compared	JS located and messages/strings matched only; logic not compared line by line
+82	ledger-2b.tsv	dog.c	258	makedog	js/dog.js makedog	not-compared	JS located and messages/strings matched only; logic not compared line by line
+83	ledger-2b.tsv	dog.c	636,638,640-641,644,714-716	mon_catchup_elapsed_time	-	skip-targets	targets unreachable; NOT COMPARED
+84	ledger-2b.tsv	dog.c	899-901	migrate_to_level	js/dog.js migrate_to_level	not-compared	leashed pet loses tameness; JS located and messages/strings matched only; logic not compared line by line
+85	ledger-2b.tsv	dog.c	973	discard_migrations	js/dog.js discard_migrations	not-compared	JS located and messages/strings matched only; logic not compared line by line
+86	ledger-2b.tsv	dog.c	1018	dogfood	js/dogfood.js dogfood	not-compared	JS located and messages/strings matched only; logic not compared line by line
+87	ledger-2b.tsv	minion.c	49	monster_census	js/minion.js monster_census	not-compared	JS located and messages/strings matched only; logic not compared line by line
+88	ledger-2b.tsv	steal.c	171	stealarm	js/steal.js stealarm	not-compared	JS located and messages/strings matched only; logic not compared line by line
+89	ledger-2b.tsv	steal.c	866-868	mdrop_special_objs	js/steal.js mdrop_special_objs	not-compared	migrating monster rloco; JS located and messages/strings matched only; logic not compared line by line
+90	ledger-2b.tsv	mcastu.c	253-263,265-266	castmu	js/mcastu.js castmu	unreachable-C	no monster has AT_MAGC AD_FIRE (monsters.h); JS branch matches C text and order anyway (provisional)
+91	ledger-2b.tsv	mcastu.c	740	mcast_blind_you	js/mcastu.js mcast_blind_you	not-compared	vision clears; JS located and messages/strings matched only; logic not compared line by line
+92	ledger-2c.tsv	cmd.c	483-484	can_do_extcmd	js/cmd.js can_do_extcmd	unreachable-C	u.uburied is set only by dig.c bury_you() (2222), which has no caller (grep bury_you src/*.c); JS text matches
+93	ledger-2c.tsv	cmd.c	935	domonability	js/cmd.js domonability	unreachable-C	u.uburied never set (see 483); JS text matches
+94	ledger-2c.tsv	cmd.c	960-967	enter_explore_mode	js/cmd.js	skip-targets	targets: sysconf EXPLORERS only; text compared and matches
+95	ledger-2c.tsv	cmd.c	2968	dokeylist	js/cmd.js	not-compared	skip special key with no binding row; C read, JS side not read
+96	ledger-2c.tsv	cmd.c	3024,3064	ext_func_tab_from_func,cmd_from_func	js/cmd.js	not-compared	not-found returns; C read, JS side not read
+97	ledger-2c.tsv	cmd.c	3093-3102	ecname_from_fn	js/cmd.js ecname_from_fn	skip-targets	targets unreachable; JS equivalent lookup
+98	ledger-2c.tsv	cmd.c	3124,3129-3154	cmdname_from_func	js/cmd.js cmdname_from_func	unreachable-C	every caller (pager.c 2921, 2935, 2949; options.c 5978) passes fullname TRUE; 3124 needs fn without a row (all callers pass a listed fn)
+99	ledger-2c.tsv	cmd.c	3297-3308	all_options_autocomplete	js/cmd.js	skip-targets	targets unreachable (#saveoptions fopen)
+100	ledger-2c.tsv	cmd.c	4130	show_direction_keys	js/cmd.js	not-compared	centerchar default; C read, JS side not read
+101	ledger-2c.tsv	cmd.c	4231,4235-4236	help_dir	js/cmd.js help_dir	unreachable-C	4231 create_nhwindow failure; 4235 buf is filled only in the #if 0 block (4198-4220)
+102	ledger-2c.tsv	cmd.c	4321	directionname	js/cmd.js	not-compared	invalid dir; C read, JS side not read
+103	ledger-2c.tsv	cmd.c	4354,4444,4537	dotherecmdmenu,there_cmd_menu_self,there_cmd_menu_next2u	js/cmd.js	unreachable-C	4354 needs clicklook_cc set (mouse click only); 4444/4537 guard callers already test
+104	ledger-2c.tsv	cmd.c	4907-4913,5263-5264,5222,5382-5384	click_to_cmd,readchar_core,doclicklook	-	skip-targets	targets: mouse clicks / readchar_queue only
+105	ledger-2c.tsv	cmd.c	5162-5209,5218-5219,5244-5247	hangup,end_of_input,readchar_core	-	skip-targets	targets: SIGHUP/EOF/fuzzer
+106	ledger-2c.tsv	cmd.c	5490-5494,5514-5529	yn_function	-	skip-targets	targets: overlong query / fuzzer
+107	ledger-2c.tsv	cmd.c	5675-5676	dosuspend_core	js/cmd.js dosuspend_core	unreachable-C	tty win_can_suspend is genl_can_suspend_yes (JS comment agrees); entries=15 all took the dosuspend() arm
+108	ledger-2c.tsv	hack.c	1559,1583,1683-1688	trapmove	js/hack.js trapmove	skip-targets	targets: sanity checks / null desttrap
+109	ledger-2c.tsv	hack.c	2183-2189,2196-2221	domove_swap_with_pet	js/hack.js domove_swap_with_pet	skip-targets	targets batch 20 unreachable (peaceful refuses trapped/unsafe square); compared anyway, matches
+110	ledger-2c.tsv	hack.c	3516-3558	in_rooms	js/rooms.js	skip-targets	targets unreachable (SHARED_PLUS never assigned; edge rooms)
+111	ledger-2c.tsv	hack.c	3757-3758	check_special_room	js/rooms.js	unreachable-C	TEMPLE falls through to default which sets rt=0, so the second switch never sees TEMPLE; JS same
+112	ledger-2c.tsv	do.c	264	flooreffects	js/do.js	not-compared	reset_utrap when the filled pit holds the hero; C read, JS side only grepped or not read
+113	ledger-2c.tsv	do.c	724-725	drop	js/do.js drop	unreachable-C	canletgo() 672 already refuses a welded uwep (JS comment agrees)
+114	ledger-2c.tsv	do.c	812	dropz	js/do.js	not-compared	clear quiver; C read, JS side not read
+115	ledger-2c.tsv	do.c	896	obj_no_longer_held	js/obj.js	not-compared	null obj; C read, JS side not read
+116	ledger-2c.tsv	do.c	1095	menu_drop	js/do.js	not-compared	skip unpaid/worn in A drop; C read, JS side not read
+117	ledger-2c.tsv	do.c	1257-1287	dodown	js/do.js dodown	unreachable-C	trap is non-null here only for a seen hole under the hero, and uescaped_shaft() (trap.c 6660) is then TRUE, so 1225-1227 already took dotrap(TOOKPLUNGE) and returned; JS has the same reading and the same code
+118	ledger-2c.tsv	do.c	1417-1422,1439-1444	u_collide_m	js/do.js	skip-targets	targets unreachable
+119	ledger-2c.tsv	do.c	1736	goto_level	js/do.js	skip-targets	targets unreachable (expulsion(TRUE) never called)
+120	ledger-2c.tsv	teleport.c	269,389,409,443,690	enexto_core,tele_jump_ok,teleok,collect_coords	js/teleport.js	not-compared	guard returns; C read, JS side not read
+121	ledger-2c.tsv	teleport.c	513-520	teleds	js/teleport.js teleds	not-compared	drag_ball failure: unplacebc only if uball still placed; C read, JS side only grepped or not read
+122	ledger-2c.tsv	teleport.c	766-767	safe_teleds	js/teleport.js	not-compared	backup spot after 400 tries; C read, JS side not read
+123	ledger-2c.tsv	teleport.c	2068	mlevel_tele_trap	js/teleport.js	unreachable-C	NO_TRAP arm: the only caller (trap.c 2100) passes a trap; JS omits the arm
+124	ledger-2c.tsv	teleport.c	2283,2289	u_teleport_mon	js/teleport.js	not-compared	engulfer on no-teleport level into limbo; rloc failure; C read, JS side not read
+125	ledger-2c.tsv	dig.c	227,232	dig_check	js/dig.js dig_check	not-compared	water level / undestroyable trap codes; C read, JS side only grepped or not read
+126	ledger-2c.tsv	dig.c	262,265-267,288-295	digcheck_fail_message	js/dig.js	skip-targets	targets unreachable
+127	ledger-2c.tsv	dig.c	428-430	dig	js/dig.js	skip-targets	targets unreachable (altar refused by dig_check)
+128	ledger-2c.tsv	dig.c	559	dig	js/dig.js	not-compared	; C read, JS side only grepped or not read
+129	ledger-2c.tsv	dig.c	850-856	liquid_flow	-	skip-targets	targets unreachable / sanity_check
+130	ledger-2c.tsv	dig.c	1040	dig_up_grave	js/dig.js	not-compared	; C read, JS side only grepped or not read
+131	ledger-2c.tsv	dig.c	1133	use_pick_axe	js/dig.js	not-compared	NODIAG skip in direction list; C read, JS side only grepped or not read
+132	ledger-2c.tsv	dig.c	1771,1773	adj_pit_checks	js/dig.js	skip-targets	targets unreachable
+133	ledger-2c.tsv	dig.c	1796-1797	adj_pit_checks	js/dig.js adj_pit_checks	unreachable-C	1777 sets room->flags = 0 first and wall_info aliases flags (rm.h), so the W_NONDIGGABLE test is always false; JS does the same
+134	ledger-2c.tsv	dig.c	2011,2022	bury_an_obj	js/bury.js	not-compared	unleash; dealloced flag; C read, JS side only grepped or not read
+135	ledger-2c.tsv	dig.c	2169	rot_corpse	js/dig.js	not-compared	monster-wielded corpse; C read, JS side only grepped or not read
+136	ledger-2c.tsv	timeout.c	161,430	stoned_dialogue,slime_dialogue	js/timeout.js	not-compared	nomul(0) when multi>0; C read, JS side not read
+137	ledger-2c.tsv	timeout.c	463-464	slimed_to_death	js/timeout.js	not-compared	lifesaved slime / free killer; C read, JS side not read
+138	ledger-2c.tsv	timeout.c	708-709,718-719	nh_timeout	js/timeout.js nh_timeout	skip-targets	targets: no-cause sickness / unique non-pname source; compared anyway, matches
+139	ledger-2c.tsv	timeout.c	1719,1769-1771,1782-1783,1794-1795	begin_burn	js/timeout.js begin_burn	skip-targets	targets unreachable (burnt-out lamp / impossible / start_timer failure)
+140	ledger-2c.tsv	timeout.c	1998-2010	kind_name	js/timeout.js	skip-targets	targets unreachable
+141	ledger-2c.tsv	timeout.c	2257,2340-2353	start_timer,obj_move_timers	-	skip-targets	panic / whole function unreachable (targets)
+142	ledger-2c.tsv	timeout.c	2431	spot_stop_timers	js/timeout.js	not-compared	cleanup callback for a stopped spot timer; C read, JS side not read
+143	ledger-2c.tsv	timeout.c	2511,2519,2532-2549	write_timer	-	skip-targets	targets unreachable (save file)
+144	ledger-2c.tsv	sounds.c	162,295	temple_priest_sound,dosounds	js/sounds.js	not-compared	loop skips; C read, JS side not read
+145	ledger-2c.tsv	sounds.c	523,529-532,538-539	beg	js/sounds.js beg	skip-targets	targets: open (pet confused from hunger, unseen); compared: text and order match
+146	ledger-2c.tsv	sounds.c	818	domonnoise	js/sounds.js domonnoise	unreachable-C	vampmsg[] has two entries, so rn2(SIZE(vampmsg)) never reaches index 2; JS draws rn2(2)
+147	ledger-2c.tsv	sounds.c	1117	domonnoise	js/sounds.js	skip-targets	SYSOPT_SEDUCE off needs sysconf (targets)
+148	ledger-2c.tsv	worn.c	213	wearmask_to_obj	js/worn.js	not-compared	; C read, JS side not read
+149	ledger-2c.tsv	worn.c	219-246	wornmask_to_armcat	-	skip-targets	targets: whole function dropped (unreachable)
+150	ledger-2c.tsv	worn.c	316-318,322-325,332,338-348	wearslot	js/worn.js wearslot	skip-targets	targets: 322-325/338-348 unreachable, 316-318/332 rare; compared: same mapping
+151	ledger-2c.tsv	worn.c	504,516-518	mon_adjust_speed	js/worn.js mon_adjust_speed	not-compared	slowed monster sped back to normal; -2 unused; C read, JS side only grepped or not read
+152	ledger-2c.tsv	worn.c	608,641,645,672,676	update_mon_extrinsics	js/worn.js	not-compared	; C read, JS side not read
+153	ledger-2c.tsv	worn.c	1107	clear_bypasses	js/worn.js	not-compared	; C read, JS side not read
+154	ledger-2c.tsv	worn.c	1207-1210	mon_break_armor	js/worn.js	skip-targets	targets unreachable (no artifact cloak)
+155	ledger-2c.tsv	worn.c	1320,1323-1332	mon_break_armor	js/worn.js mon_break_armor	skip-targets	targets: probably unreachable (polymorphing the steed dismounts first)
+156	ledger-2c.tsv	detect.c	101	map_redisplay	js/detect.js map_redisplay	unreachable-C	u.uburied never set (dig.c bury_you has no caller); JS omits with that comment
+157	ledger-2c.tsv	detect.c	145,166-176	trapped_chest_at	js/detect.js	skip-targets	targets: 145 unreachable, 166-176 open
+158	ledger-2c.tsv	detect.c	349,352,362,409,437,462	gold_detect	js/detect.js gold_detect	skip-targets	targets: steed/vault-guard/stale-memory cases open
+159	ledger-2c.tsv	detect.c	670,689,706-707,740	object_detect	js/detect.js object_detect	skip-targets	"targets open; 689 text ""You feel a lack of something."" matches"
+160	ledger-2c.tsv	detect.c	850	monster_detect	js/detect.js	not-compared	display_nhwindow after cursed detection with no monsters shown; C read, JS side not read
+161	ledger-2c.tsv	detect.c	875-877,892-896	sense_trap	js/detect.js	skip-targets	targets unreachable
+162	ledger-2c.tsv	detect.c	973,1050,1053-1057	display_trap_map,trap_detect	js/detect.js	skip-targets	targets open (vault guard / monster with trapped box)
+163	ledger-2c.tsv	detect.c	1107-1112	furniture_detect	js/detect.js	skip-targets	targets open (furniture mimic)
+164	ledger-2c.tsv	detect.c	1647	findone	js/detect.js	not-compared	; C read, JS side not read
+165	ledger-2c.tsv	detect.c	1766-1769,1775-1777	openone	js/detect.js openone	skip-targets	targets open; compared: SCORR->CORR and unseen non-statue trap marked seen, counts match
+166	ledger-2c.tsv	explode.c	54,60-70,101-111	explosionmask	js/explode.js	skip-targets	AD_DRST/AD_ACID explosions unreachable (targets 52/engulfer); 54 matches
+167	ledger-2c.tsv	explode.c	133-172	engulfer_explosion_msg	js/explode.js	skip-targets	targets unreachable
+168	ledger-2c.tsv	explode.c	338-345	explode	js/explode.js	skip-targets	explosion types 6/7 unreachable (same reason as explosionmask)
+169	ledger-2c.tsv	explode.c	373	explode	js/explode.js	not-compared	dead monster skipped in mask pass; C read, JS side only grepped or not read
+170	ledger-2c.tsv	explode.c	794	scatter	js/explode.js	skip-targets	targets unreachable
+171	ledger-2c.tsv	explode.c	847-852	scatter	js/explode.js	skip-targets	targets open (scatter past map edge)
+172	ledger-2c.tsv	explode.c	1001-1005	adtyp_to_expltype	js/explode.js	skip-targets	targets unreachable
+173	ledger-2c.tsv	explode.c	1028-1033	mon_explodes	js/explode.js	skip-targets	targets unreachable
+174	ledger-2c.tsv	pray.c	335	worst_cursed_item	js/pray.js	not-compared	cursed uswapwep; C read, JS side not read
+175	ledger-2c.tsv	pray.c	359,400,503-504	fix_curse_trouble,fix_worst_trouble	js/pray.js	not-compared	; C read, JS side not read
+176	ledger-2c.tsv	pray.c	894,900,970	gcrownu	js/pray.js gcrownu	not-compared	; C read, JS side not read
+177	ledger-2c.tsv	pray.c	1536,1539-1540	offer_real_amulet	js/pray.js	not-compared	; C read, JS side not read
+178	ledger-2c.tsv	spell.c	180-181	cursed_book	js/spell.js	unreachable-C	switch(rn2(lev)) has cases 0-6 and lev <= 7, so default never runs
+179	ledger-2c.tsv	spell.c	452-455	learn	js/spell.js learn	not-compared	cursed book destroyed by cursed_book(); C read, JS side not read
+180	ledger-2c.tsv	spell.c	659-665	book_substitution	-	unreachable-C	entries=0; no caller in src/*.c (grep book_substitution)
+181	ledger-2c.tsv	spell.c	962,1011	propagate_chain_lightning,cast_chain_lightning	js/spell.js	not-compared	range cap; engulfed return after display RNG draw; C read, JS side not read
+182	ledger-2c.tsv	spell.c	1610,1613,1649	spell_aim_step,display_spell_target_positions	js/spell.js	not-compared	; C read, JS side not read
+183	ledger-2c.tsv	spell.c	1744	tport_spell	js/spell.js	not-compared	; C read, JS side not read
+184	ledger-2c.tsv	spell.c	1916-1917,1941	spell_cmp,sortspells	js/spell.js	not-compared	stable tie / short list; C read, JS side not read
+185	ledger-2c.tsv	spell.c	2060-2069	show_spells	js/spell.js	skip-targets	targets unreachable (DUMPLOG off)
+186	ledger-3a.tsv	mkroom.c	445-447	fill_zoo	js/mkroom.js fill_zoo	unreachable-C	SWAMP never reaches fill_zoo (only caller sp_lev.c 2774 lists zoo types); JS has the same branch
+187	ledger-3a.tsv	dungeon.c	1023-1031,1104	init_dungeon_dungeons	js/dungeon.js	unreachable-C	targets: dungeon chance only on bigrm level; MAXLEVEL clamp
+188	ledger-3a.tsv	mkmaze.c	594-595	fixup_special	js/mkmaze.js	unreachable-C	"numeric ""chutes and ladders"" portal name: no level defines one (provisional); not compared in detail"
+189	ledger-3a.tsv	mkmaze.c	1086	pick_vibrasquare_location	js/mklev.js	not-compared	coverage artifact: 1087 (inv_pos.y = y) ran 182 times while 1086 shows 0; the assignment is in the JS caller
+190	ledger-3a.tsv	mkmaze.c	1140-1156	makemaz	js/mklev.js makemaz	missing-unreachable	"UNPROVEN, not changed: JS omits the dungeon-protofile branch; makelevel reaches makemaz("""") only for a non-special level of a dungeon with a protofile, and Vlad's Tower (the only one) has all three levels special (targets rank 64 1272). Missing in JS but unreachable"
+191	ledger-3a.tsv	mkmaze.c	1339-1350	mazexy	js/mkmaze.js	skip-targets	targets unreachable; NOT COMPARED
+192	ledger-3a.tsv	mkmaze.c	1786-1796	restore_waterlevel	js/mkmaze.js	skip-targets	targets unreachable (impossible); NOT COMPARED
+193	ledger-3a.tsv	mklev.c	379-380,389	makerooms	js/mklev.js	unreachable-C	themerms.lua failing to load
+194	ledger-3a.tsv	mklev.c	989,998	fill_ordinary_room	js/mklev.js	skip-targets	targets unreachable (rogue level, depth 40+); NOT COMPARED in detail
+195	ledger-3a.tsv	mklev.c	1261-1263,1272,1339-1340,1348,1423-1427	makelevel	js/mklev.js	skip-targets	targets unreachable (provisional); NOT COMPARED
+196	ledger-3a.tsv	mklev.c	1650-1655	topologize	js/mklev.js topologize	missing-unreachable	UNPROVEN, not changed: C topologize() ends by recursing into croom->sbrooms[] (1650-1654); js/mklev.js topologize (7147-7169) has no recursion. Unreachable: sp_lev.c 4087-4089 makes every room that gains a subroom irregular, and topologize() returns at 1613 for an irregular room before the loop (C coverage: 1654 ran 0 times; 1650 ran 960,729 times, equal to 1620). JS experiment: 10,000 level-1 generations made 266 subrooms, 4 of them at the parent's top-left corner (the only case where the parent's early-return test fails), and topologize reached its body for a subroomed parent 0 times; traced seed 704296: the parent has irregular set
+197	ledger-3a.tsv	mklev.c	2050-2059,2090	mktrap	js/mktrap.js	skip-targets	targets unreachable; 2090 compared: 200-try return matches (js/mktrap.js 449)
+198	ledger-3a.tsv	light.c	109-112,119-121	del_light_source	js/light.js	skip-targets	targets unreachable (LS_NONE impossible, default); NOT COMPARED
+199	ledger-3a.tsv	light.c	412-417	whereis_mon	js/light.js whereis_mon	skip-targets	targets unreachable; compared anyway: match
+200	ledger-3a.tsv	light.c	642,651-654,678-688,692,700-701	write_ls	js/light.js	skip-targets	targets unreachable (impossible reports, LSF_NEEDS_FIXUP); NOT COMPARED
+201	ledger-3a.tsv	light.c	707-715	obj_move_light_source	-	unreachable-C	no caller: grep obj_move_light_source src/*.c finds only the definition (light.c 706)
+202	ledger-3a.tsv	vault.c	36-42	free_egd	-	unreachable-C	no caller: grep -rn 'free_egd(' src/ include/ finds only the definition (vault.c 35) and its extern.h declaration
+203	ledger-3a.tsv	vault.c	496-498	invault	js/vault.js invault	missing-unreachable	UNPROVEN, not changed: stop_occupation() (allmain.c 692-694) already does nomul(0) whenever multi >= 0, so multi > 0 cannot hold; JS omits unmul(), unobservable for that reason
+204	ledger-3a.tsv	vault.c	1062	gd_move	js/vault.js	skip-targets	targets unreachable; compared: match
+205	ledger-3a.tsv	region.c	88,98-107	create_region	js/region.js	skip-targets	targets unreachable (nrect > 0); NOT COMPARED
+206	ledger-3a.tsv	region.c	271-273	free_region	-	unreachable-C	enter/leave messages: no region has one (targets rank 98)
+207	ledger-3a.tsv	region.c	487,493-495,501,506-508,515,520-522	in_out_region	js/region.js	skip-targets	targets unreachable; NOT COMPARED
+208	ledger-3a.tsv	region.c	540,546-548,554,559,566,571	m_in_out_region	js/region.js	skip-targets	targets unreachable; NOT COMPARED
+209	ledger-3a.tsv	region.c	766-768,772-773,824-825,834-836,844-847,916-918	save_regions,rest_regions,region_stats	js/region.js	skip-targets	targets unreachable (region messages, no rects); NOT COMPARED
+210	ledger-3a.tsv	mkmap.c	380-401,413-436	remove_rooms,remove_room	-	unreachable-C	no caller: grep 'remove_rooms(' src/ finds only the definition (mkmap.c 379); JS has none
+211	ledger-3a.tsv	dbridge.c	900	destroy_drawbridge	js/dbridge.js	skip-targets	targets: callers check first; compared: match
+212	ledger-3a.tsv	vision.c	612,663-667,672-675	vision_recalc	js/vision.js	skip-targets	targets unreachable (xray/nv range 0, pit on row 0); NOT COMPARED
+213	ledger-3a.tsv	vision.c	980-986,1061-1067	dig_point,fill_point	js/vision.js	skip-targets	targets unreachable (column 0); NOT COMPARED
+214	ledger-3a.tsv	extralev.c	62,68-70,84,104,110-112,126,134	roguecorr	js/extralev.js	skip-targets	targets unreachable (impossible reports)
+215	ledger-3b.tsv	mondata.c	159-164	Resists_Elem	js/mondata.js Resists_Elem	unreachable-C	the resists_* macros pass only FIRE_RES..STONE_RES (targets.md agrees); JS dispatches the same three
+216	ledger-3b.tsv	mondata.c	1634	mon_learns_traps	js/mondata.js mon_learns_traps	unreachable-C	no caller passes NO_TRAP (grep mon_learns_traps src/*.c)
+217	ledger-3b.tsv	o_init.c	70-73	setgemprobs	js/o_init.js setgemprobs	unreachable-C	lev >= 0 keeps j <= 9, so first stays inside the 22 real gems (JS comment agrees)
+218	ledger-3b.tsv	o_init.c	215-224	init_objects	js/o_init.js init_objects	unreachable-C	objects[] is fixed and consistent; JS repairs the same way, sanity impossible() as note_unported
+219	ledger-3b.tsv	o_init.c	255-262	init_oclass_probs	js/o_init.js init_oclass_probs	unreachable-C	targets.md; JS repairs the same way
+220	ledger-3b.tsv	o_init.c	910,1083	doclassdisco	js/o_init.js doclassdisco	unreachable-C	targets.md (option validation; impossible)
+221	ledger-3b.tsv	o_init.c	1215,1217	get_sortdisco	js/options.js	not-compared	O-menu / #saveoptions value; C read, JS side only grepped
+222	ledger-3b.tsv	do_name.c	141-144	christen_monst	js/do_name.js christen_monst	unreachable-C	name_from_player() (126) already cuts names to PL_PSIZ-1 bytes, and other callers pass short fixed names; JS truncates by bytes the same way
+223	ledger-3b.tsv	do_name.c	384-387	oname	js/do_name.js oname	unreachable-C	as christen_monst 141 (names come through name_from_player); JS same
+224	ledger-3b.tsv	do_name.c	618,622-630	docall_xname	js/do_name.js docall_xname	unreachable-C	targets.md (objtyp_is_callable); JS has every arm
+225	ledger-3b.tsv	do_name.c	1260-1270,1273-1275	minimal_monnam	js/do_name.js minimal_monnam	unreachable-C	targets.md (debug guards; ckloc only from impossible())
+226	ledger-3b.tsv	do_name.c	1378	bogusmon	js/do_name.js bogusmon	unreachable-C	bogusmon file is always present in the build
+227	ledger-3b.tsv	read.c	785-787	recharge	js/read.js recharge	unreachable-C	C comment: currently unreachable (wishing caps at 3 first)
+228	ledger-3b.tsv	read.c	2177-2179,2186	seffect_mail	js/read.js seffect_mail	not-compared	readmail() is host-dependent (JS note_unported with the reason)
+229	ledger-3b.tsv	read.c	2687	do_class_genocide	js/read.js do_class_genocide	unreachable-C	targets.md; JS same fallback (name_to_monplus)
+230	ledger-3b.tsv	read.c	2952	do_genocide	js/read.js do_genocide	unreachable-C	needs a G_UNIQ species past the G_GENO check or own role/race; no unique is G_GENO and role/race species are not G_UNIQ (provisional); JS same
+231	ledger-3b.tsv	potion.c	1512	H2Opotion_dip	js/potion.js H2Opotion_dip	unreachable-C	targets.md
+232	ledger-3b.tsv	potion.c	1920-1922	potionhit	js/potion.js potionhit	unreachable-C	targets.md (C comment)
+233	ledger-3b.tsv	potion.c	2768-2769	potion_dip	js/potion.js potion_dip	unreachable-C	inside if (!Blind), newbuf is always set
+234	ledger-3b.tsv	engrave.c	745,886-888	doengrave_sfx_item	js/engrave.js	unreachable-C	targets.md (ILLOBJ impossible)
+235	ledger-3b.tsv	engrave.c	1725-1727,1733-1741	see_engraving,feel_engraving	-	unreachable-C	no caller (grep see_engraving/feel_engraving src/*.c; C comment says feel_engraving is unused)
+236	ledger-3b.tsv	steed.c	145-148,154-155	put_saddle_on_mon	js/steed.js put_saddle_on_mon	unreachable-C	targets.md (impossible; mksobj failure); JS same guards
+237	ledger-3b.tsv	steed.c	908-912,916-921	place_monster	js/monst.js	unreachable-C	targets.md (impossible() reports)
+238	ledger-3b.tsv	ball.c	683,692,720,752	drag_ball	js/ball.js drag_ball	unreachable-C	targets.md (geometry)
+239	ledger-3b.tsv	attrib.c	228-230,241-243	losestr	js/attrib.js losestr	unreachable-C	targets.md; JS keeps both arms (JS tests !knam where C tests !knam || !*knam: same, every caller passes a nonempty name)
+240	ledger-3b.tsv	attrib.c	456-484	restore_attrib	js/attrib.js restore_attrib	unreachable-C	no caller (grep restore_attrib src/*.c); JS same body
+241	ledger-3b.tsv	music.c	357	do_earthquake	js/music.js do_earthquake	unreachable-C	targets.md (C comment: maximum used is 10)
+242	ledger-3b.tsv	worm.c	382,401-403	cutworm	js/worm.js cutworm	unreachable-C	targets.md (bullet-proofing, impossible)
+243	ledger-3b.tsv	worm.c	746-748,754-759	place_worm_tail_randomly	js/worm.js place_worm_tail_randomly_steps	unreachable-C	targets.md (impossible() reports and cleanup)
+244	ledger-3b.tsv	wield.c	796	can_twoweapon	js/wield.js can_twoweapon	unreachable-C	C comment: !TWOWEAPOK() prevents reaching it
+245	ledger-3b.tsv	quest.c	196,200-203,208-215	expulsion	js/quest.js expulsion	unreachable-C	targets.md (expulsion(TRUE) never called); JS ports the arm
+246	ledger-3b.tsv	quest.c	234	finish_quest	js/quest.js finish_quest	not-compared	deaf hero tossing a non-quest invocation item at the leader; C read, JS only skimmed
+247	ledger-3b.tsv	u_init.c	1081-1083	skills_for_role	js/role_skills.js	not-compared	coverage artefact: Wizard games (sessions seed0006, seed0108, ...) run this; the switch compiles to a table. JS name differs
+248	ledger-3b.tsv	u_init.c	1276	ini_inv_use_obj	js/u_init_inventory_use.js	not-compared	coverage artefact (Wizard's cloak runs it); JS branch present
+249	ledger-3b.tsv	mplayer.c	124,127	mk_mplayer	js/mplayer.js mk_mplayer	unreachable-C	targets.md (callers pass player monsters; insurance rloc)
+250	ledger-3b.tsv	exper.c	179-181	more_experienced	js/exper.js more_experienced	unreachable-C	64-bit wraparound cap (JS comment gives the arithmetic)
+251	ledger-3b.tsv	write.c	52-56	cost	js/write.js cost	unreachable-C	targets.md (impossible)
+252	ledger-3c.tsv	getpos.c	875-878,886,903-909	getpos	js/getpos.js	skip-targets	targets: non-key queued command, iflags.remember_getpos (no option sets it), mouse click
+253	ledger-3c.tsv	getpos.c	346	gloc_filter_classify_glyph	js/getpos.js gloc_filter_classify_glyph	unreachable-C	only caller gloc_filter_floodfill_matcharea() passes back_to_glyph() results, always cmap; JS same and the is_cmap_* ranges match sym.h 101-106
+254	ledger-3c.tsv	display.c	534-541	display_monster	js/display.js	skip-targets	targets unreachable (bad m_ap_type)
+255	ledger-3c.tsv	display.c	645-649	display_warning	js/display.js display_warning	unreachable-C	both callers (newsym 1030, 1055) test mon_warning(mon) first, so the MATCH_WARN_OF_MON arm and the impossible() never run; JS has the same arms
+256	ledger-3c.tsv	display.c	676	mon_overrides_region	js/display.js	unreachable-C	C comment: newsym() never calls it while swallowed
+257	ledger-3c.tsv	display.c	857	feel_location	js/display.js feel_location	unreachable-C	the outer IS_ROOM() arm (C 807) already takes typ ROOM, so the else's ROOM test never holds; JS has the same arm
+258	ledger-3c.tsv	display.c	1446-1467	under_ground	-	unreachable-C	only caller docrt_flags 1735 / detect.c under u.uburied, which nothing sets (dig.c bury_you has no caller); JS detect.js comment agrees
+259	ledger-3c.tsv	display.c	1718,1735-1737	docrt_flags	js/display.js docrt	unreachable-C	1718 !u.ux before display ready; 1735 u.uburied (never set)
+260	ledger-3c.tsv	display.c	1906-1995,1998-2001	show_glyph	js/display.js show_glyph_cell	skip-targets	targets unreachable (impossible() reports for bad pos/glyph); C show_glyph is split into newsym/show_glyph_cell/commitFlushedGlyph in JS
+261	ledger-3c.tsv	display.c	2355	back_to_glyph	js/display.js back_to_glyph	skip-targets	targets unreachable (no branch ladder); JS 2901 same mapping
+262	ledger-3c.tsv	display.c	2410-2414,2420-2423	back_to_glyph	js/display.js	skip-targets	impossible()
+263	ledger-3c.tsv	display.c	2517-2565	get_bkglyph_and_framecolor	js/display.js (comment at 2150)	skip-targets	targets unreachable: iflags.use_background_glyph never set; JS implements only the frame-color half
+264	ledger-3c.tsv	display.c	2639-2644,2651-2652	map_glyphinfo	js/display.js	skip-targets	targets unreachable (sysopt.accessibility)
+265	ledger-3c.tsv	display.c	3070-3076	reset_glyphmap	js/display.js configuredPetOverride	skip-targets	targets unreachable (sysopt.accessibility)
+266	ledger-3c.tsv	display.c	3548-3550,3563,3590-3594,3601-3603,3658-3662,3745-3747,3775-3778,3783-3784	wall_angle	js/display.js wall_angle	skip-targets	targets: t_warn/impossible/dead arboreal arm
+267	ledger-3c.tsv	botl.c	342	rank_of	js/display.js rank_of	skip-targets	targets unreachable (non-role monnum)
+268	ledger-3c.tsv	botl.c	353-358	rank_of	js/display.js rank_of	skip-targets	targets unreachable (every role has all nine titles)
+269	ledger-3c.tsv	botl.c	381,389	title_to_mon	js/mondata.js title_to_mon	unreachable-C	only caller mondata.c 1075 passes rank_indx NULL
+270	ledger-3c.tsv	botl.c	1461-1490	opt_next_cond	-	skip-targets	targets unreachable (#saveoptions only)
+271	ledger-3c.tsv	botl.c	1602-1604	eval_notify_windowport_field	js/display.js	unreachable-C	chg is never 2: the only assignment (1566) is commented out
+272	ledger-3c.tsv	botl.c	1816-1880	compare_blstats	js/display.js (status bank comparison, 6968)	skip-targets	targets unreachable: panics and ANY_* types no status field uses; INT/LONG arms are compared at JS 6968
+273	ledger-3c.tsv	botl.c	1892-1923	anything_to_s	-	skip-targets	targets unreachable (unused types); JS formats each field inline
+274	ledger-3c.tsv	botl.c	1933,1942-1966	s_to_anything	js/display.js s_to_anything	skip-targets	targets unreachable
+275	ledger-3c.tsv	botl.c	1989-1992,2012-2035	percentage	js/display.js _statusPercentage	skip-targets	targets unreachable (unused types)
+276	ledger-3c.tsv	end.c	135-142	done2	js/end.js done2	skip-targets	targets unreachable ('Dump core?' y aborts)
+277	ledger-3c.tsv	end.c	487-492,514-515	should_query_disclose_option	js/end.js	skip-targets	targets unreachable (impossible)
+278	ledger-3c.tsv	end.c	1059-1061	done	js/end.js done	skip-targets	targets: fuzzer only
+279	ledger-3c.tsv	end.c	1151,1210,1244,1509,1563	really_done	js/end.js really_done	skip-targets	targets unreachable (hangup, PANICKED, sound, fresh mksobj)
+280	ledger-3c.tsv	end.c	1808-1873	wordcount,bel_copy1,build_english_list	-	skip-targets	targets unreachable (sysconf WIZARDS list; recorder has WIZARDS=*)
+281	ledger-3c.tsv	insight.c	338-356	fmt_elapsed_time	js/insight.js	skip-targets	targets unreachable (recorder elapsed time is always 0)
+282	ledger-3c.tsv	insight.c	666	background_enlightenment	js/insight.js	unreachable-C	"enclosing test (653) admits only FULL_MOON and NEW_MOON, so ""last quarter"" is dead; JS prints only full/new"
+283	ledger-3c.tsv	insight.c	993	status_enlightenment	js/insight.js	unreachable-C	Underwater is u.uinwater (youprop.h), so 991 takes every u.uinwater case
+284	ledger-3c.tsv	insight.c	1020	status_enlightenment	js/insight.js	unreachable-C	u.uburied never set
+285	ledger-3c.tsv	insight.c	1590,1598-1601	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable; JS chains compared, same order and text
+286	ledger-3c.tsv	insight.c	1780	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable (uhitinc >= spelarmr); JS same thresholds
+287	ledger-3c.tsv	insight.c	1807	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable (MC > 3)
+288	ledger-3c.tsv	insight.c	1961-1974	attributes_enlightenment	-	skip-targets	targets unreachable (DEBUGFILES fruit)
+289	ledger-3c.tsv	insight.c	2036-2041,2066-2067	youhiding	js/insight.js youhiding	skip-targets	targets unreachable; JS has the same furniture/monster arms
+290	ledger-3c.tsv	insight.c	2266-2267,2400-2402	show_achievements	js/insight.js	skip-targets	targets unreachable (en_win always set)
+291	ledger-3c.tsv	insight.c	2392-2395	show_achievements	js/insight.js	skip-targets	default case
+292	ledger-3c.tsv	insight.c	2538-2539	do_gamelog	js/insight.js do_gamelog	unreachable-C	the game-start event is always logged, so gamelog is never empty during play; JS text matches
+293	ledger-3c.tsv	rumors.c	130,142-144,162-164,173,177-179	getrumor	js/random_text.js getrumor	skip-targets	targets unreachable
+294	ledger-3c.tsv	rumors.c	210-212,280-290	rumor_check	js/rumors.js	skip-targets	targets unreachable
+295	ledger-3c.tsv	rumors.c	322-407	others_check	js/rumors.js	skip-targets	targets: every unrun line is a file error path
+296	ledger-3c.tsv	rumors.c	650,659,664,676-677,690-692	outoracle	js/rumors.js	skip-targets	targets unreachable
+297	ledger-3c.tsv	rumors.c	707-708,720	doconsult	js/rumors.js	skip-targets	targets unreachable
+298	ledger-3c.tsv	rumors.c	835,920-932	init_CapMons	js/random_text.js	skip-targets	targets unreachable (re-init, DEBUGFILES)
+299	ledger-3c.tsv	topten.c	253-257,260-273,282	readentry	js/topten.js readentry	skip-targets	targets unreachable (only this version's records); JS drops pre-3.3 lines, unobservable
+300	ledger-3c.tsv	topten.c	653,705,716,740,749-752,812-814,822-826	topten	js/topten.js	skip-targets	targets unreachable (panic, file/lock failures, ENTRYMAX)
+301	ledger-3c.tsv	topten.c	971-972	outentry	js/topten.js outentry	skip-targets	targets unreachable (alignment '?')
+302	ledger-3c.tsv	topten.c	1365-1366,1370-1375	classmon	js/topten.js	skip-targets	targets unreachable
+303	ledger-3c.tsv	pager.c	546,550-552	look_at_monster	js/pager.js	unreachable-C	546 needs a how_seen bit after MONSEEN_WARNMON, the highest; 550 impossible
+304	ledger-3c.tsv	pager.c	723-727	lookat	js/pager.js lookat	skip-targets	targets: answered before lookat
+305	ledger-3c.tsv	pager.c	848-856,863,998-1007,1019,1046,1049,1073-1075,1086,1089,1103-1104,1123,1126,1129	checkfile	js/pager.js	skip-targets	targets: data-file error paths and null monster
+306	ledger-3c.tsv	pager.c	1099-1101	checkfile	js/pager.js	unreachable-C	space-indented data lines: grep -c '^ ' dat/data.base prints 0 (entries are tab-indented)
+307	ledger-3c.tsv	pager.c	1317-1318,1383-1384,1567-1571	do_screen_description	js/pager.js	skip-targets	targets unreachable
+308	ledger-3c.tsv	pager.c	1697-1698,1885-1889,1961	do_look	js/pager.js	skip-targets	targets unreachable
+309	ledger-3c.tsv	pager.c	2436	whatdoes_help	js/pager.js whatdoes_help	unreachable-C	dat/keyhelp has no comment line: grep -c '^#' dat/keyhelp prints 0; JS uses pregenerated lines
+310	ledger-3c.tsv	pager.c	2725-2733	docontact	js/pager.js	skip-targets	targets unreachable (sysconf SUPPORT/WIZARDS)
+311	ledger-3c.tsv	questpgr.c	81,95,101,107-115	find_qarti,find_quest_artifact	js/quest.js	skip-targets	targets unreachable (on_goal asks only floor/minvent/buried)
+312	ledger-3c.tsv	questpgr.c	293-295,305-307,317-322	convert_arg	js/questpgr.js convertArg	skip-targets	targets unreachable (codes only in quest.lua comments); JS arms compared: same strings
+313	ledger-3c.tsv	questpgr.c	336-339,384-386	convert_line	js/questpgr.js convertLine	skip-targets	targets unreachable (no newline or %xS in quest.lua); JS has no newline arm, unobservable
+314	ledger-3c.tsv	questpgr.c	485-565	com_pager_core	js/questpgr.js comPagerCore	skip-targets	targets unreachable (wizkit, nhl failures, impossible)
+315	ledger-3c.tsv	glyphs.c	263-272,277	glyph_find_core	js/glyphs.js glyph_find	skip-targets	targets unreachable
+316	ledger-3c.tsv	glyphs.c	838-844,850-851,884-885,1109,1113	parse_id	js/glyphs.js parse_id	skip-targets	targets unreachable (dump file, cache-fill failures)
+317	ledger-3c.tsv	pline.c	651-671,686	execplinehandler	-	skip-targets	targets: sysconf MSGHANDLER
+318	ledger-3c.tsv	shknam.c	608-609,619-620,623	good_shopdoor	js/shknam.js	skip-targets	targets unreachable (mkshop picks one-door rooms)
+319	ledger-3c.tsv	shknam.c	638-657	shkinit	js/shknam.js	skip-targets	targets unreachable
+320	ledger-4a.tsv	sp_lev.c	1002-1013	set_wall_property	js/mklev.js set_wall_property	unreachable-C	only lspo_wall_property calls it and no dat/*.lua calls des.wall_property (grep -l 'des\.wall_property' dat/*.lua: none; des.non_diggable/non_passwall go through set_wallprop_in_selection 5911-5931). Compared anyway: clamps and loop order match
+321	ledger-4a.tsv	sp_lev.c	1865-1881	m_bad_boulder_spot	js/themeroom_fill.js m_bad_boulder_spot	unreachable-C	entries=0; only the mimic-boulder retry calls it, and that retry is dead code (see 2043-2059). Compared anyway: trap, boulder, closed/locked door tests match
+322	ledger-4a.tsv	sp_lev.c	2043-2054,2057-2059	create_monster	js/themeroom_fill.js createMonsterBody	unreachable-C	dead code: 1993 sets m->x to the placed square before the m->x < 0 test at 2042. JS keeps the structure (with the same comment) and matches it
+323	ledger-4a.tsv	sp_lev.c	2260	create_object	js/sp_lev_object.js applyObjectFields	unreachable-C	corpsenm NON_PM-1 (random): nothing in sp_lev.c sets it (grep 'NON_PM - 1' src/sp_lev.c: only 2259). JS keeps the same test
+324	ledger-4a.tsv	sp_lev.c	2496-2540	search_door	js/mklev.js search_door	unreachable-C	only create_corridor() calls it, from lspo_corridor(); no dat file calls des.corridor (grep -l 'des\.corridor' dat/*.lua: none). Compared anyway: wall cases, scan and cnt countdown match; JS returns the square instead of writing *x,*y
+325	ledger-4a.tsv	sp_lev.c	2683-2725	create_corridor	js/mklev.js create_corridor	unreachable-C	needs des.corridor (none in dat; random_corridors takes 2675). Compared anyway: random-wall refusal, door search, outward steps and dig_corridor(CORR, STONE) match; JS impossible() is note_unported
+326	ledger-4a.tsv	sp_lev.c	2915	maze1xy	js/mklev.js maze1xy	not-compared	coverage artefact: the closing assignment runs on every call (entries 316,473); JS returns {x, y} after the same loop
+327	ledger-4a.tsv	sp_lev.c	3940-3955	lspo_mineralize	js/mklev.js lspo_mineralize	unreachable-C	entries=0; no dat file calls des.mineralize (grep -l: none). Compared anyway: same four optional fields and mineralize(kelp_pool, kelp_moat, gold_prob, gem_prob, TRUE)
+328	ledger-4a.tsv	sp_lev.c	4244-4278	lspo_grave	js/mklev.js lspo_grave	unreachable-C	entries=0; no dat file calls des.grave (grep -l: none). Compared anyway: both argument forms, random/fixed packing, DRY location, isok && !t_at test and make_grave match
+329	ledger-4a.tsv	sp_lev.c	4368-4376	get_trapname_bytype	js/mklev.js get_trapname_bytype	unreachable-C	entries=0; only nhl_gettrap (nhlua.c 440, nh.gettrap) calls it and no dat file calls nh.gettrap (descalls tally of nh.* calls). Compared anyway: same table scan
+330	ledger-4a.tsv	sp_lev.c	4530-4554	lspo_corridor	js/mklev.js lspo_corridor	unreachable-C	entries=0; no dat file calls des.corridor. Compared anyway: wall option tables and fields match
+331	ledger-4a.tsv	sp_lev.c	4744-4755	l_table_getset_feature_flag	js/mklev.js l_table_getset_feature_flag	unreachable-C	entries=0; needs the table form of des.feature. Compared anyway: -2 absent, -1 random rn2(2), set/clear match
+332	ledger-4a.tsv	sp_lev.c	4812-4836	nhl_abs_coord	js/mklev.js nhl_abs_coord	unreachable-C	entries=0; no dat file calls nh.abscoord. Compared anyway: both forms and cvt_to_abscoord() match
+333	ledger-4a.tsv	sp_lev.c	5877-5908	lspo_wall_property	js/mklev.js lspo_wall_property	unreachable-C	entries=0; no dat file calls des.wall_property. Compared anyway: defaults, get_location(ANY_LOC) and set_wall_property match
+334	ledger-4b.tsv	restore.c	121	inven_inuse	-	missing-unreachable	JS dorestore() has no inven_inuse(FALSE) (restore.c 922). An in_use object at save time needs a hangup save; every in_use setter (grep -n 'in_use = ' src/*.c) clears it or uses the object up before the command ends, and segments end with #save (provisional)
+335	ledger-4b.tsv	restore.c	544,547-554	restgamestate	-	skip-targets	targets: uid mismatch (SYSOPT_CHECK_SAVE_UID with another uid); unreachable. Compared anyway: JS has no uid check
+336	ledger-4b.tsv	restore.c	611-612	restgamestate	-	skip-targets	targets: explore_error_flag needs EXPLORERS restricted
+337	ledger-4b.tsv	restore.c	632-633,637-647	restgamestate	-	skip-targets	"targets: ""not healthy enough to survive restoration"" needs u.uhp <= 0 (and u.mh <= 0 if polymorphed) at #save, which done()/rehumanize() prevent; JS has no such branch (agree unreachable)"
+338	ledger-4b.tsv	restore.c	663-669	restgamestate	js/restore.js dorestore	skip-targets	targets: dangling ball and chain; JS reads bc_objs and relinks them as C does
+339	ledger-4b.tsv	restore.c	813-823	dorecover	-	skip-targets	targets: restgamestate() failure
+340	ledger-4b.tsv	restore.c	833,887	dorecover	-	skip-targets	targets: recursive dorecover
+341	ledger-4b.tsv	restore.c	1007,1010-1016	restcemetery	-	skip-targets	targets: savefile conversion only
+342	ledger-4b.tsv	restore.c	1036-1042	trickery	-	unreachable-C	only getlev() 1099 calls it, on a PID or level-number mismatch in a level file (file tampering)
+343	ledger-4b.tsv	restore.c	1090-1100	getlev	-	skip-targets	targets: trickery
+344	ledger-4b.tsv	restore.c	1119-1121	getlev	-	skip-targets	targets: doors always freed before getlev
+345	ledger-4b.tsv	restore.c	1245-1254	getlev	-	skip-targets	targets: bones between Medusa and the castle without down stairs
+346	ledger-4b.tsv	restore.c	1278-1285	getlev	-	skip-targets	targets: portal-branch dlevel 1 bones
+347	ledger-4b.tsv	restore.c	1294	getlev	-	skip-targets	targets: can_make_bones() refuses non-branch levels with portals
+348	ledger-4b.tsv	restore.c	1506	lookup_id_mapping	js/bones.js idMap	unreachable-C	no mapping for an omid; the only omid is the dead hero's corpse attached to its ghost (bones.c 503), and the ghost is always restored with the bones level (provisional). JS idMap.get() misses the same way
+349	ledger-4b.tsv	save.c	89-93	dosave0	-	skip-targets	targets: hangup-save flags
+350	ledger-4b.tsv	save.c	101	dosave0	-	skip-targets	targets: nothing worth saving or no SAVEF
+351	ledger-4b.tsv	save.c	130-136	dosave0	-	skip-targets	targets: create_savefile() failure, fplog
+352	ledger-4b.tsv	save.c	203-209	dosave0	js/save.js save_other_levels	skip-targets	targets: missing level file; JS throws (port invariant)
+353	ledger-4b.tsv	save.c	340-345	tricked_fileremoved	-	skip-targets	targets: a level file removed while the game runs
+354	ledger-4b.tsv	save.c	378-380,384-387,392-394,400-403	savestateinlock	-	skip-targets	targets: missing or mismatched level-0 file; INSURANCE checkpoint has no JS counterpart
+355	ledger-4b.tsv	save.c	705-719	save_bc	js/save.js save_bc	skip-targets	targets: looseball/loosechain at save; JS mirrors BALL_IN_MON/CHAIN_IN_MON and the chain-then-ball order
+356	ledger-4b.tsv	save.c	1043	save_msghistory	js/save.js save_msghistory	unreachable-C	empty history entry: topl.c msghistory_snapshot() copies only non-empty messages (JS savedHistory() skips them too)
+357	ledger-4b.tsv	save.c	1143-1154	freedynamicdata	-	skip-targets	targets: wc_font_* and wc_tile_file options tty rejects
+358	ledger-4b.tsv	role.c	766,832,896,959	str2role,str2race,str2gend,str2align	js/roles.js	unreachable-C	filecode match after a failed prefix match: every filecode (Arc..Wiz, hum..orc, Mal/Fem, Law/Neu/Cha) is a prefix of its own name, noun or adjective, which matches first. JS has the same order
+359	ledger-4b.tsv	role.c	809	randrace	js/role_init.js randrace	skip-targets	targets: role with no permitted race; JS rn2(races.length) = C rn2(SIZE(races)-1)
+360	ledger-4b.tsv	role.c	876	randgend	js/role_init.js randgend	skip-targets	targets (unreachable)
+361	ledger-4b.tsv	role.c	939	randalign	js/role_init.js randalign	skip-targets	targets (unreachable)
+362	ledger-4b.tsv	role.c	1101	pick_race	js/role_init.js pick_race	unreachable-C	second scan always finds the counted race
+363	ledger-4b.tsv	role.c	1166	pick_gend	js/role_init.js pick_gend	unreachable-C	as pick_race 1101
+364	ledger-4b.tsv	role.c	1231	pick_align	js/role_init.js pick_align	unreachable-C	as pick_race 1101
+365	ledger-4b.tsv	role.c	1409	role_gendercount	js/player_selection.js roleGenderCount	unreachable-C	no role allows ROLE_NEUTER
+366	ledger-4b.tsv	role.c	1592	build_plselection_prompt	js/player_selection.js	unreachable-C	buflen < QBUFSZ: the only caller passes QBUFSZ; JS has no buflen
+367	ledger-4b.tsv	role.c	1993-1996,2005,2015,2020	role_init	js/role_init.js role_init	skip-targets	targets: invalid role/race/gender/alignment resolved earlier; JS branches compared and match
+368	ledger-4b.tsv	role.c	2071-2077	role_init	js/role_init.js role_init	skip-targets	targets: every role has a lawful god; JS findIndex matches
+369	ledger-4b.tsv	allmain.c	183	moveloop_core	-	skip-targets	targets: hangup
+370	ledger-4b.tsv	allmain.c	254-257	moveloop_core	-	skip-targets	targets: a billion turns
+371	ledger-4b.tsv	allmain.c	396	moveloop_core	js/allmain.js	skip-targets	targets: counter attribution
+372	ledger-4b.tsv	allmain.c	434	moveloop_core	js/allmain.js	skip-targets	targets: buried hero
+373	ledger-4b.tsv	allmain.c	443	moveloop_core	js/allmain.js	skip-targets	targets: counter attribution
+374	ledger-4b.tsv	allmain.c	572	maybe_do_tutorial	js/tutorial_startup.js	unreachable-C	dungeon.lua always defines tut-1
+375	ledger-5a.tsv	options.c	585-589	parseoptions	js/options.js applyOption	unreachable-C	optlen is length_without_val(opts) and match_optname() matched only because that same length reached minmatch, so optlen < minmatch cannot hold for a non-pfx row (JS comment at parseoptions agrees)
+376	ledger-5a.tsv	options.c	726-729	opt2roleopt	js/options.js opt2roleopt	unreachable-C	every caller passes opt_role/race/gender/alignment
+377	ledger-5a.tsv	options.c	1276,1302	optfn_crash_email/name	js/options.js	unreachable-C	get_val with opts NULL: callers always pass a buffer
+378	ledger-5a.tsv	options.c	1519-1521	optfn_disclose	js/options.js optfn_disclose	unreachable-C	impossible(): disclosure_options has NUM_DISCLOSURE_OPTIONS letters
+379	ledger-5a.tsv	options.c	1827-1831	optfn_glyph	js/options.js	unreachable-C	glyph negateok No: parseoptions() bad_negation()s first (probe glyph1 shows that message)
+380	ledger-5a.tsv	options.c	1945	optfn_IBMgraphics	js/options.js	unreachable-C	!opt_initial: IBMgraphics is set_in_config and not on the O menu
+381	ledger-5a.tsv	options.c	3152-3153,3168-3169	optfn_petattr	js/options.js optfn_petattr	unreachable-C	petattr negateok No: parseoptions() refuses !petattr first (probe petattr1)
+382	ledger-5a.tsv	options.c	3173	optfn_petattr	js/options.js	unreachable-C	!opt_initial: the O menu reaches petattr only through handler_petattr()
+383	ledger-5a.tsv	options.c	5012-5014	pfxfn_cond_	js/options.js pfxfn_cond_	unreachable-C	parse_cond_option() (botl.c 1354-1371) never returns 3
+384	ledger-5a.tsv	options.c	5027-5036	pfxfn_cond_	js/options.js	unreachable-C	get_val/do_handler of a set_hidden prefix row
+385	ledger-5a.tsv	options.c	5208	optfn_boolean	js/options.js optfn_boolean	unreachable-C	!opt_initial set_in_config boolean: doset lists only set_in_game rows
+386	ledger-5a.tsv	options.c	5282-5284	optfn_boolean	js/options.js	unreachable-C	nosexchange needs !opt_initial female/male, which doset never offers (C comment 5270-5276)
+387	ledger-5a.tsv	options.c	5455-5456	spcfn_misc_menu_cmd	js/options.js spcfn_misc_menu_cmd	unreachable-C	do_init: never requested
+388	ledger-5a.tsv	options.c	5470-5475	spcfn_misc_menu_cmd	js/options.js	unreachable-C	get_val/get_cnf_val never requested (shared_menu_optfn answers those)
+389	ledger-5a.tsv	options.c	6442-6444	handler_menu_colors	js/options.js	unreachable-C	add_menu_coloring_parsed() fails only when regex_compile() fails, which test_regex_pattern() has just ruled out, or on allocation failure
+390	ledger-5a.tsv	options.c	6523-6525	handler_msgtype	js/options.js	unreachable-C	msgtype_add() fails only on a regex test_regex_pattern() has accepted, or on allocation failure
+391	ledger-5a.tsv	options.c	6686-6688	string_for_env_opt	js/options.js string_for_env_opt	unreachable-C	!opt_initial: every string_for_env_opt() option (msghistory, soundlib, sortdiscoveries, sortvanquished, whatis_filter, windowtype, roles) is either not on the O menu or has a handler
+392	ledger-5a.tsv	options.c	7879-7881,7885-7887	test_regex_pattern	js/options.js test_regex_pattern	unreachable-C	null pattern, null errmsg and regex_init() failure: callers pass both strings; allocation
+393	ledger-5a.tsv	options.c	8068	oc_to_str	js/options.js oc_to_str	unreachable-C	impossible() for an illegal class
+394	ledger-5a.tsv	options.c	8332,8335,8375,8378,8385,8457,8460,8466,8473	optfn_o_*	js/options.js, js/cmd.js	unreachable-C	empty do_set bodies and get_val with opts NULL; doset always passes a buffer
+395	ledger-5a.tsv	options.c	8622-8624	doset_simple_menu	js/options.js	unreachable-C	default of an opttyp switch over the three types
+396	ledger-5a.tsv	options.c	8922	doset	js/options.js doset	unreachable-C	opt_indx < -1 needs an a_int below 0 other than HELP_IDX
+397	ledger-5a.tsv	options.c	9245	handle_add_list_remove	js/options.js handle_add_list_remove	unreachable-C	exit is the last row, so a second pick never follows a first pick of exit
+398	ledger-5a.tsv	options.c	9500	option_help	js/options.js option_help	unreachable-C	every set_wiznofuz row is a boolean (optlist.h 275-281); this loop lists compounds
+399	ledger-5b.tsv	botl.c	3029-3031	parse_status_hl2	js/options.js parse_status_hl2	unreachable-C	`if (!how)` tests an array element, never null
+400	ledger-5b.tsv	botl.c	3084-3085	parse_status_hl2	-	unreachable-C	a_void nonzero only with numeric set, which an earlier arm takes
+401	ledger-5b.tsv	botl.c	3088-3089	parse_status_hl2	-	unreachable-C	every threshold arm sets a flag
+402	ledger-5b.tsv	botl.c	3242	parse_condition	-	unreachable-C	s never null
+403	ledger-5b.tsv	botl.c	3641-3646	status_hilite2str	js/display.js status_hilite2str	unreachable-C	BL_TH_CONDITION is never stored in a threshold list (conditions use cond_hilites[])
+404	ledger-5b.tsv	botl.c	3653-3656	status_hilite2str	-	unreachable-C	BL_TH_NONE/default: every stored rule has a behavior
+405	ledger-5b.tsv	botl.c	3673-3704	status_hilite_menu_choose_field	js/display.js status_hilite_menu_choose_field	unreachable-C	every caller passes a known field (recipes/botl.c/status-menu-choose-field-blocked); compared: index+1 values and score skip match
+406	ledger-5b.tsv	botl.c	3719	status_hilite_menu_choose_behavior	js/display.js status_hilite_menu_choose_behavior	unreachable-C	fld out of range
+407	ledger-5b.tsv	botl.c	3905-3909,3912,3929	status_hilite_menu_add	js/display.js status_hilite_menu_add	unreachable-C	origfld is never BL_FLUSH (as 3673)
+408	ledger-5b.tsv	cmd.c	2629-2632	bind_mousebtn	js/options.js bind_mousebtn	unreachable-C	parsebindings passes only buttons 1 and 2
+409	ledger-5b.tsv	cmd.c	2740,2745	bind_key_fn	js/cmd.js bind_key	unreachable-C	commands_init binds only functions that exist and are not INTERNALCMD
+410	ledger-5b.tsv	windows.c	305-309	choose_windows	js/options.js choose_windows	unreachable-C	options.c 4972 and 7134 nmcpy() at most WINTYPELEN (16, hack.h 90) into chosen_windowtype, below WINDOW_TYPE_MAXLEN 50
+411	ledger-5b.tsv	windows.c	1660	choose_classes_menu	js/windows.js choose_classes_menu	unreachable-C	the only caller (options.c 3360) passes a non-empty list
+412	ledger-5b.tsv	windows.c	1670-1680,1692-1693	choose_classes_menu	-	unreachable-C	category 0 and bad categories: the only caller passes category 1; JS ports category 1 only (says so)
+413	ledger-5b.tsv	windows.c	1707-1709	choose_classes_menu	js/windows.js choose_classes_menu	unreachable-C	pickup_types lists fewer than 26 classes
+414	ledger-5b.tsv	windows.c	1799-1801	add_menu	-	unreachable-C	no caller passes a null string
+415	ledger-5b.tsv	wintty.c	927	tty_create_nhwindow	-	unreachable-C	optfn_statuslines (options.c 4088) refuses values outside 2..3; LI is 24
+416	ledger-5b.tsv	wintty.c	997-998	erase_menu_or_text	-	unreachable-C	menus and text windows have offy 0
+417	ledger-5b.tsv	topl.c	576	msghistory_snapshot	js/topl.js msghistory_snapshot	unreachable-C	message window always exists when called
+418	ledger-5b.tsv	files.c	3438	choose_passage	js/files.js choose_passage	unreachable-C	passagecnt < 1 never in the tribute file
+419	ledger-5b.tsv	files.c	3494-3497	read_tribute	js/files.js read_tribute	unreachable-C	both callers pass section and title
+420	ledger-5b.tsv	files.c	3556	read_tribute	js/files.js read_tribute	unreachable-C	both callers pass tribpassage 0
+421	ledger-5b.tsv	files.c	3576	read_tribute	-	unreachable-C	create_nhwindow never returns WIN_ERR in tty
+422	ledger-5b.tsv	files.c	3642	read_tribute	js/files.js read_tribute	unreachable-C	novel titles come from the tribute file's own list (provisional)
+423	ledger-5b.tsv	cfgfiles.c	472	choose_random_part	js/cfgfiles.js choose_random_part	unreachable-C	null str
+424	ledger-5b.tsv	cfgfiles.c	577	handle_config_section	js/cfgfiles.js handle_config_section	unreachable-C	current is set only while chosen is set
+425	ledger-5b.tsv	cfgfiles.c	1585	config_erradd	-	unreachable-C	line_num 0 inside a frame
+426	ledger-5b.tsv	cfgfiles.c	1854	parse_conf_file	-	unreachable-C	pbreak is set only by the SFCTOOL parser
+427	ledger-5b.tsv	nhlua.c	251,267,288	get_table_mapchr, get_table_mapchr_opt, nhl_get_timertype	-	unreachable-C	shipped dat/*.lua use valid map chars and timer types
+428	ledger-5b.tsv	nhlua.c	1219-1223	get_table_str_opt	-	unreachable-C	no shipped Lua passes a function or non-string there
+429	ledger-5b.tsv	nhlua.c	1245,1252,1256	get_table_boolean	-	unreachable-C	shipped Lua passes true/false, not strings
+430	ledger-5b.tsv	nhlsel.c	168,172-176,185-188	l_selection_setpoint	-	unreachable-C	every shipped selection.set() passes a selection first (grep dat/*.lua)
+431	ledger-5b.tsv	nhlsel.c	607-615	l_selection_randline	-	unreachable-C	shipped selection.randline() callers pass a selection
+432	ledger-5b.tsv	selvar.c	57-60	selection_clear	js/themerooms.js selection_clear	unreachable-C	every caller passes val 1
+433	ledger-5b.tsv	selvar.c	425-427	selection_floodfill	-	unreachable-C	every caller sets a check function first
+434	ledger-5b.tsv	selvar.c	735	selection_iterate	-	unreachable-C	null selection
+435	ledger-5b.tsv	role.c	1441,1579	root_plselection_prompt	-	unreachable-C	callers pass a BUFSZ buffer
+436	ledger-5b.tsv	role.c	1466	root_plselection_prompt	-	unreachable-C	donefirst is always FALSE at the first word
+437	ledger-6a.tsv	display.c	3454-3456,3461-3498	t_warn	js/display.js t_warn	unreachable-C	both callers (wall_angle T-wall mode 0 and WM_T_LONG) exclude every nonzero seenv, and wall_angle runs only with seenv != 0 (display.c 2322; JS back_to_glyph 2848 same guard), so t_warn cannot run; its non-T-wall names are unreachable a second way (callers are T walls). JS text and seenv/mode formatting match anyway
+438	ledger-6a.tsv	mon.c	5096	wiz_force_cham_form	js/mon.js wiz_force_cham_form	unreachable-C	"prompt over QBUFSZ needs ""Change <name> @ <coords> into what?"" >= 128 bytes; names are at most PL_PSIZ-1 (62) bytes and coord_desc is short (provisional). JS truncation equivalent"
+439	ledger-6a.tsv	options.c	1276,1302,8335,8378,8460	optfn_crash_email,optfn_crash_name,optfn_o_bind_keys,optfn_o_menu_colors,optfn_o_status_hilites	js/options.js	unreachable-C	!opts for get_val/get_cnf_val: every caller passes a buffer
+440	ledger-6a.tsv	options.c	1281,1307,2316,2374,2570,2691	optfn_crash_email,optfn_crash_name,optfn_menuinvertmode,optfn_menustyle,optfn_name,optfn_packorder	js/options.js	unreachable-C	fall-through return for a req other than init/set/get: only do_handler remains, and doset calls do_handler only for has_handler options (options.c 8665, 8934); these rows have handler No
+441	ledger-6a.tsv	wizcmds.c	42,64,168-169,197,212,222-223,233-234,370,393,403-404,1094,1982	wiz_wish,wiz_identify,wiz_makemap,wiz_map,wiz_genesis,wiz_where,wiz_detect,wiz_load_lua,wiz_load_splua,wiz_level_tele,wiz_intrinsic,wiz_custom	js/wizcmds.js	unreachable-C	Unavailable command arm: cmd.c can_do_extcmd() refuses every WIZMODECMD row first (cmd.c 479-481, called at 505 and 3689); no other caller. JS same text
+442	ledger-6a.tsv	wizcmds.c	90	makemap_unmakemon	js/wizcmds.js makemap_unmakemon	unreachable-C	dead non-guard: the fmon caller skips DEADMONSTER, and the migrating caller passes only living shk/priest/guard migrants (provisional). JS same
+443	ledger-6a.tsv	wizcmds.c	738-740	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	unreachable-C	mazelike/hellish flags: dungeon.lua sets neither for any level (C comment); JS same
+444	ledger-6a.tsv	wizcmds.c	821	wiz_map_levltyp	js/wizcmds.js wiz_map_levltyp	unreachable-C	unexpected branch name: every dnum is classified above
+445	ledger-6a.tsv	wizcmds.c	938	wiz_smell	js/wizcmds.js wiz_smell	unreachable-C	after an infinite loop
+446	ledger-6a.tsv	wizcmds.c	1659-1660	wiz_show_stats	js/wizcmds.js wiz_show_stats	unreachable-C	gm.mydogs is empty between moves (C comment); JS same
+447	ledger-6a.tsv	wizcmds.c	1720-1726,1729-1735,1738-1744,1751-1757,1764-1770	wiz_display_macros	js/wizcmds.js wiz_display_macros	unreachable-C	glyph macro failures cannot occur with the generated tables; JS same texts (SIZE(defsyms) = MAXPCHARS+1)
+448	ledger-6a.tsv	wizcmds.c	1815	wiz_mon_diff	js/wizcmds.js wiz_mon_diff	unreachable-C	no monster above level 50 has a difficulty discrepancy (table data); JS same
+449	ledger-6a.tsv	wizcmds.c	1824	wiz_mon_diff	js/wizcmds.js wiz_mon_diff	unreachable-C	discrepancies exist in the 5.0 table, so the none-found line cannot print; JS same
+450	ledger-6a.tsv	worm.c	645-647,653-655	sanity_check_worm	js/worm.js sanity_check_worm	unreachable-C	null or non-worm: the only caller passes an fmon monster with wormno set (mon.c 284); JS same texts
+451	ledger-6a.tsv	worm.c	664	sanity_check_worm	js/worm.js sanity_check_worm	unreachable-C	mx 0: the caller reaches it only after isok(x, y), which needs x >= 1
+452	ledger-6b.tsv	botl.c	1052	bot_via_windowport	js/display.js botl_gold	unreachable-C	money_cnt() never negative (no negative gold quantity); botl_gold clamps anyway
+453	ledger-6b.tsv	botl.c	2375	get_hilite	js/display.js _selectStatusHilite	unreachable-C	fldidx out of range; callers pass a field of initblstats[]
+454	ledger-6b.tsv	cfgfiles.c	1402	parse_config_line	js/options.js parse_config_line path	unreachable-C	parse_conf_buf already skipped leading blanks; the only other buffer source (parse_conf_str) goes through parse_conf_buf too
+455	ledger-6b.tsv	cfgfiles.c	2023	config_unmatched_ignored	js/options.js (no counterpart flag)	unreachable-C	ignore_errors_on_unmatched is set only by set_ignore_errors_on_unmatched(), reached only from rcfile_interface_options(), which has no caller (audit dead-code)
+456	ledger-6b.tsv	coloratt.c	875	set_map_customcolor	js/glyphs.js reset_customcolors / glyph customcolor entries	unreachable-C	every caller passes a glyph_map address
+457	ledger-6b.tsv	coloratt.c	880-881	set_map_customcolor	js/display.js customcolor rendering	unreachable-C	closest_color() always finds an index (non-empty table, similar starts at INT_MAX) and both pointers are non-null, so it never returns FALSE
+458	ledger-6b.tsv	hacklib.c	652-655	strNsubst	inlined replaceAll at each caller (e.g. js/options.js, js/pline.js)	unreachable-C	"orig=="""" append case: every C caller passes a non-empty orig"
+459	ledger-6b.tsv	hacklib.c	952	unicodeval_to_utf8str	js/glyphs.js (UTF-8 encoding)	unreachable-C	every caller passes a buffer of at least 5 bytes
+460	ledger-6b.tsv	options.c	3566	optfn_roguesymset	not implemented	unreachable-C	do_set with !opt_initial: roguesymset has a handler, so the O menu never sends do_set; nh.parse_config runs with opt_initial TRUE
+461	ledger-6b.tsv	options.c	4082-4084	optfn_statuslines	js/options.js optfn_statuslines	unreachable-C	statuslines negateok No: parseoptions() answers bad_negation first
+462	ledger-6b.tsv	options.c	4428-4437	optfn_traps	js/options.js generic compound arm (result.flags.traps)	unreachable-C	get_val only from doset menus, which list compounds from set_gameview up; traps is set_in_config; get_cnf_val is the #saveoptions body. do_set (covered) is a no-op; probe r6b/p/othr (traps:abc) passes
+463	ledger-6b.tsv	options.c	4494-4496	optfn_versinfo	js/options.js versinfo arm	unreachable-C	versinfo negateok No
+464	ledger-6b.tsv	options.c	6813-6820	rejectoption	js/options.js string_for_env_opt (comment)	unreachable-C	string_for_env_opt with !opt_initial: every caller is a set_gameview/set_in_config option or has a handler, so the O menu never parses it in game
+465	ledger-6b.tsv	options.c	7697	msgtype2name	js/options.js handler_msgtype ('(null)' fallback)	unreachable-C	every stored msgtype has a named descr row
+466	ledger-6b.tsv	options.c	8313,8357,8403,8429	optfn_o_autopickup_exceptions,optfn_o_autocomplete,optfn_o_message_types,optfn_o_status_cond	js/options.js	unreachable-C	opts never null
+467	ledger-6b.tsv	options.c	9860-9862,9940-9943	set_option_mod_status,set_wc2_option_mod_status	not implemented (constant statuses); js/wintty.js	unreachable-C	callers pass constant valid statuses
+468	ledger-6b.tsv	options.c	10165	enhance_menu_text	js/options.js	unreachable-C	buf never null
+469	ledger-6b.tsv	nhlobj.c	122	l_obj_add_to_container	js/mklev.js water_surrounded_vault_contents (obj.new, itm:class, box:addcontent inlined)	unreachable-C	both objects are live Lua objects at themerms.lua 804
+470	ledger-6b.tsv	nhlua.c	182-185	l_nhcore_call	js/nhlua.js nhl_call_field	unreachable-C	nhcore.lua failing to load; the shipped file loads
+471	ledger-6b.tsv	selvar.c	80,233,255,328,790	selection_getbounds,selection_filter_percent,selection_filter_mapchar,selection_do_grow,selection_from_mkroom	js/selvar.js, js/nhlsel.js	unreachable-C	null selection / null room arguments
+472	ledger-6b.tsv	rnd.c	127,138	whichrng,init_isaac64	js/rnd.js (scorer's isaac64)	unreachable-C	every caller passes a function in rnglist[]
+473	ledger-6b.tsv	role.c	1834-1836	role_menu_extra	js/player_selection_tty.js aspectExtra	unreachable-C	no caller passes RS_NAME
+474	ledger-6b.tsv	role.c	1875	role_menu_extra	js/player_selection_tty.js aspectExtra	unreachable-C	no role allows only males
+475	ledger-6b.tsv	strutil.c	121-127	pmatch_internal	js/strutil.js pmatchi	unreachable-C	the skip-character variant serves pmatchz(), which has no caller
+476	ledger-6b.tsv	utf8map.c	42	set_map_u	js/glyphs.js	unreachable-C	null map or zero code point not passed
+477	ledger-6b.tsv	utf8map.c	92	mixed_to_utf8	js/windows.js decode_mixed	unreachable-C	str never null from tty_putmixed
+478	ledger-6b.tsv	utf8map.c	178-180,194-196	add_custom_urep_entry	js/glyphs.js	unreachable-C	only caller (glyphs.c 81) passes a nonzero code point and its UTF-8 string
+479	ledger-6b.tsv	wintty.c	1122	tty_clear_nhwindow	js/tty_menu.js (window reuse)	not-compared	clearing a still-active menu/text window (via tty_start_menu() reusing one); no core caller found that does this; not compared in detail
+480	ledger-6b.tsv	wintty.c	1439-1441,1827-1829	process_menu_window,process_text_window	js/tty_menu.js; js/pager.js / js/tty_menu.js	unreachable-C	tty_display_nhwindow() sets offy 0 for menus, and text windows are full-screen from row 0
+481	ledger-6b.tsv	wintty.c	1581-1582	process_menu_window	js/tty_menu.js	unreachable-C	"msave is always set (tty_end_menu gives morestr ""(end) "" or """")"
+482	ledger-6b.tsv	wintty.c	2014	tty_dismiss_nhwindow	js/tty_menu.js dismissTtyMenu	unreachable-C	dismissing WIN_MESSAGE with a non-empty topline: the core never dismisses the message window
+483	ledger-6b.tsv	wintty.c	2091	erase_tty_screen	js/wintty.js	unreachable-C	re-entry guard
+484	ledger-6b.tsv	wintty.c	2407-2410	tty_putstr	js/tty_message.js	unreachable-C	"base-window wrap: the only base-window strings (banner lines, ""Who are you?"", the name prompt) are under 79 columns"
+485	ledger-6b.tsv	wintty.c	2636	tty_add_menu	js/windows.js add_menu	unreachable-C	null item text
+486	ledger-6b.tsv	wintty.c	2656-2658	tty_add_menu	js/windows.js add_menu	unreachable-C	item text >= BUFSZ: callers build items in BUFSZ buffers
+487	ledger-6b.tsv	wintty.c	4543,4578	tty_status_update	js/display.js	unreachable-C	field index out of range; every field has a format
+488	ledger-6b.tsv	wintty.c	4643	tty_status_update	js/display.js	unreachable-C	gold's \G sequence was already decoded by decode_mixed() above
+489	ledger-6b.tsv	wintty.c	4675-4677,4726,4737	make_things_fit,check_fields	js/display.js (status layout)	unreachable-C	window data not initialized / an active field never sent: status_initialize() sends every active field before the first flush
+490	ledger-6b.tsv	wintty.c	5122	render_status	js/display.js _conditionIndent (comment)	unreachable-C	third-row branch: threelineorder[] puts BL_WEAPON, not BL_VERS, after BL_CONDITION
+491	ledger-6b.tsv	wintty.c	5207-5208	render_status	js/display.js hitpoint bar	unreachable-C	"BL_TITLE text arrives exactly 30 columns wide when hitpointbar is on (botl.c 1714 formats it ""%-30.30s"")"
+492	ledger-6b.tsv	wintty.c	5226	render_status	js/display.js hitpoint bar	unreachable-C	bar_pos >= 30 with hpbar_percent < 100: percent*30/100 < 30
+493	ledger.tsv	shk.c	5028-5033	shopdig	-	skip-targets	targets: cannot run (batch 20); NOT COMPARED
+494	ledger.tsv	shk.c	4674-4676	litter_scatter	-	skip-targets	targets unreachable; NOT COMPARED
+495	ledger.tsv	uhitm.c	5639-5641	hmonas	-	skip-targets	targets unreachable; NOT COMPARED
+496	ledger.tsv	uhitm.c	5086	gulpum	-	skip-targets	targets unreachable; NOT COMPARED
+497	ledger.tsv	uhitm.c	4501,4504	mhitm_ad_dgst	-	skip-targets	targets unreachable; NOT COMPARED
+498	ledger.tsv	uhitm.c	4001,4175-4180	mhitm_ad_phys	-	skip-targets	targets unreachable; NOT COMPARED
+499	ledger.tsv	uhitm.c	4396-4402	mhitm_ad_stun	-	skip-targets	targets unreachable for the hero; NOT COMPARED
+500	ledger.tsv	zap.c	2131,2168-2170,2179,2346,2415-2417	bhito	js/zap.js bhito	skip-targets	targets.md unreachable/impossible; NOT COMPARED
+501	ledger.tsv	trap.c	1420-1426,1442	trapeffect_sqky_board	js/trap_effects.js	skip-targets	targets unreachable; NOT COMPARED
+502	ledger.tsv	trap.c	2020-2024,2048-2051	trapeffect_hole	js/trap_effects.js	skip-targets	targets unreachable; NOT COMPARED
+503	ledger.tsv	trap.c	2609-2623	trapeffect_landmine	js/trap_effects.js	skip-targets	targets unreachable (m_in_air); NOT COMPARED
+504	ledger.tsv	trap.c	2790-2933	immune_to_trap	js/trap.js	skip-targets	targets: monster lines unreachable, impossible(); NOT COMPARED
+505	ledger.tsv	trap.c	3689	mkroll_launch	js/trap.js makeRollingBoulderLaunch	unreachable-C	only caller (maketrap 512) passes ROLLING_BOULDER_TRAP; JS omits the branch
+506	ledger.tsv	trap.c	3902-3909	selftouch	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+507	ledger.tsv	trap.c	5472-5477	try_disarm	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+508	ledger.tsv	trap.c	6147-6151,6169	openholdingtrap	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+509	ledger.tsv	uhitm.c	1021-1025	hmon_hitmon_weapon_melee	js/uhitm.js	skip-targets	targets unreachable; NOT COMPARED
+510	ledger.tsv	uhitm.c	2065-2091	m_slips_free	js/uhitm.js	skip-targets	targets unreachable (batch 20); NOT COMPARED
+511	ledger.tsv	shk.c	759,833-840	u_entered_shop	js/shk.js	skip-targets	targets: bones-only / likely unreachable; NOT COMPARED
+512	ledger.tsv	shk.c	1065-1077	shop_keeper	-	skip-targets	impossible; NOT COMPARED
+513	ledger.tsv	shk.c	1239-1245,1267-1273	obfree	-	skip-targets	impossible; NOT COMPARED
+514	ledger.tsv	shk.c	1324-1326	home_shk	js/shk.js	unreachable-C	every C caller (1411, 2671, 5319) passes killkops FALSE; JS ignores the argument
+515	ledger.tsv	shk.c	3522-3524,3559-3561	addtobill	js/shk.js	skip-targets	targets unreachable; NOT COMPARED
+516	ledger.tsv	shk.c	4210-4240	doinvbill	js/shk.js	skip-targets	NOT COMPARED
