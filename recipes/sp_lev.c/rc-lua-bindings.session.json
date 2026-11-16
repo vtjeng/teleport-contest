@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: needs a general Lua runtime in the port and the nh.gettrap/nh.abscoord bindings. Debug-mode #wizloadlua ../home/.nethackrc runs Lua from the rc file; in C this runs sp_lev.c get_trapname_bytype, nhl_abs_coord and other binding lines no installed Lua reaches (blind review c blocks 320, 327-329, 331-333). See recipes/nhlua.c/rc-file-run-as-lua.",
+  "segments": [
+    {
+      "seed": 4471977,
+      "datetime": "20470613140000",
+      "nethackrc": "--[[\nOPTIONS=name:Luaspl,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n]]\nlocal ax, ay = nh.abscoord(5, 5)\nlocal p = nh.abscoord({ x = 6, y = 6 })\nnh.pline(\"abs \" .. ax .. \",\" .. ay .. \" \" .. p.x .. \",\" .. p.y)\ndes.trap({ type = \"board\", x = 10, y = 10 })\nlocal t = nh.gettrap(10, 10)\nif t then nh.pline(\"trap \" .. t.ttyp_name) end\ndes.grave(12, 12, \"rc grave\")\ndes.grave({ x = 14, y = 12, text = \"table grave\" })\ndes.grave({ text = \"random grave\" })\ndes.mineralize({ gem_prob = 10, gold_prob = 20 })\ndes.feature({ type = \"fountain\", x = 16, y = 12, looted = true, warned = false })\ndes.feature({ type = \"sink\", x = 18, y = 12, pudding = \"no\", dishwasher = true, ring = false })\ndes.feature({ type = \"throne\", x = 20, y = 12, looted = true })\ndes.feature({ type = \"tree\", x = 22, y = 12, looted = false, swarm = true })\ndes.wall_property({ x1 = 0, y1 = 0, x2 = 79, y2 = 20, property = \"nonpasswall\" })\ndes.wall_property({ x1 = -1, y1 = -1, x2 = 10, y2 = 10, property = \"nondiggable\" })\ndes.wall_property({ x1 = 2, y1 = 2, x2 = -1, y2 = -1 })\nnh.pline(\"lua part done\")\nnh.abscoord(\"bad\")\n",
+      "moves": "\n#wizloadlua\n../home/.nethackrc\n        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: needs a general Lua runtime in the port (js/nhlua.js load_lua runs only translated level programs). Debug-mode #wizloadlua ../home/.nethackrc runs des.corridor calls from the rc file; in C this runs sp_lev.c lspo_corridor, create_corridor and search_door lines no installed Lua reaches (blind review c blocks 324, 325, 330). See recipes/nhlua.c/rc-file-run-as-lua.",
+  "segments": [
+    {
+      "seed": 4471931,
+      "datetime": "20470612130000",
+      "nethackrc": "--[[\nOPTIONS=name:Corrido,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n]]\ndes.corridor({ srcroom=0, srcdoor=0, srcwall=\"north\", destroom=1, destdoor=0, destwall=\"south\" })\ndes.corridor({ srcroom=1, srcdoor=0, srcwall=\"west\", destroom=0, destdoor=0, destwall=\"east\" })\nnh.pline(\"corridors done\")\n",
+      "moves": "\n#wizloadlua\n../home/.nethackrc\n  "
+    }
+  ]
+}
