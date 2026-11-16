@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pray.c gcrownu() lines 894 and 900: a lawful debug Monk is crowned while she knows the spell of her class gift and wields a weapon. She wishes for two blessed rubies, a blessed luckstone, a blessed spellbook of restore ability, an uncursed quarterstaff and 14 blessed potions of gain level, identifies everything with #wizidentify, throws an identified ruby at each of two peaceful white unicorns (Luck +5 each, the luckstone adds 3), learns restore ability from the book and drops it (so carrying() is false and class_gift stays SPE_RESTORE_ABILITY), wields the staff, and drinks the potions to experience level 15. On her quest home she chats with a forced peaceful Grand Master and answers y to the debug 'adjust?' question in is_pure(), which sets her alignment record to 20 (PIOUS) without the moves-based ALIGNLIM cap. Back on level 1 she searches twice and prays, forcing success; pleased() pats her on the head and rn2((Luck+6)>>1) picks the crowning case. gcrownu() replaces obj with uwep because restore ability is a known spell (894) and the lawful arm skips the long-sword bonus because a class gift was given (900). The final keys dismiss the remaining --More-- prompts.",
+  "segments": [
+    {
+      "seed": 52240917,
+      "datetime": "20470520101500",
+      "nethackrc": "OPTIONS=name:Crowned,role:Monk,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips,time\n",
+      "moves": " \u00172 blessed rubies\n\u0017blessed luckstone\n\u0017blessed spellbook of restore ability\n\u0017uncursed quarterstaff\n\u001714 blessed potions of gain level\n\t\t\n      #wizgenesis\n2 peaceful white unicorn\ntju  tjb  rl dlwmqn   qn   qn   qn   qn   qn   qn   qn   qn   qn   qn   qn   qn   qn   #wizlevelport\n?\n>y  #wizgenesis\npeaceful Grand Master\ny#chat\nn  y #wizlevelport\n?\nass#pray\ny y  \u001b"
+    }
+  ]
+}
