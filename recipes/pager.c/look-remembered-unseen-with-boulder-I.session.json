@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3381907,
+      "datetime": "20400118220415",
+      "nethackrc": "OPTIONS=name:Torvi,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\nSYMBOLS=S_boulder:I\n",
+      "moves": "\u0017blindfold\nPe\u0007newt\n4s;k.\n\n\n"
+    }
+  ],
+  "comment": "Blind review: lookat() 726-727. With SYMBOLS=S_boulder:I a remembered unseen-monster 'I' also matches ROCK_CLASS, so do_screen_description() finds two meanings and calls lookat() on the invisible-monster glyph."
+}

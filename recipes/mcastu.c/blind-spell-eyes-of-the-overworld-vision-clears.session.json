@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30411,
+      "datetime": "20310722190000",
+      "nethackrc": "OPTIONS=name:Seer,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,playmode:debug\n",
+      "moves": " \u0017Eyes of the Overworld\n Pj \u0007hostile cleric\nms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms   ms "
+    }
+  ],
+  "comment": "A Monk in debug mode wishes for and wears her quest artifact, the Eyes of the Overworld, then creates a hostile player-monster cleric. When it casts the clerical blindness spell, Blinded is false because the Eyes block blindness, so mcast_blind_you() blinds the hero; Blind stays false, so 'Your vision quickly clears.' prints (mcastu.c:739-740). The hero's deaths are refused at the debug-mode Die? prompt."
+}

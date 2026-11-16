@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5520917,
+      "datetime": "20390604181040",
+      "nethackrc": "OPTIONS=name:Corvin,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0017wand of wishing (0:3)\n\u0017scroll of charging\nrg\nf\n\n\n\n"
+    }
+  ],
+  "comment": "Blind review: recharge() 785-787. Debug wishing skips the charge limits (objnam.c:5097), so a wand of wishing with no prior recharge and 3 charges is charged to 4 and explodes through the 'more than three wishes' branch."
+}

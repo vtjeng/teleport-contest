@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 771904,
+      "datetime": "20361203201544",
+      "nethackrc": "OPTIONS=name:Saver,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\nOPTIONS=sortdiscoveries:c,suppress_alert:3.7.0\n",
+      "moves": "\u001b#saveoptions\nyes\n"
+    }
+  ],
+  "comment": "With sortdiscoveries set in the configuration, #saveoptions answered yes runs all_options_strbuf(), which asks get_option_value(cnfvalid) for the option and reaches get_sortdisco()'s config-format arm (o_init.c:1217)."
+}

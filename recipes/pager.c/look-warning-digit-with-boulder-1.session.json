@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2290415,
+      "datetime": "20400726031950",
+      "nethackrc": "OPTIONS=name:Asvor,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\nSYMBOLS=S_boulder:1\n",
+      "moves": "\u0017ring of warning\nPer\u0017blindfold\nPf\u0007troll\n;n.\n\n\n"
+    }
+  ],
+  "comment": "Blind review: lookat() 723-725. With SYMBOLS=S_boulder:1 a warning digit 1 also matches ROCK_CLASS, so do_screen_description() finds two meanings and calls lookat() on the warning glyph."
+}

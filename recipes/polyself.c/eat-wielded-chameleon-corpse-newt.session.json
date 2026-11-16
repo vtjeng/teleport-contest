@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6614203,
+      "datetime": "20380921140733",
+      "nethackrc": "OPTIONS=name:Hallr,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0017chameleon corpse\n\u0017ring of polymorph control\nPfrwe\nee\n\n\nnewt\n\n\n\n"
+    }
+  ],
+  "comment": "Blind review: drop_weapon() 1345-1348. done_eating() marks the wielded chameleon corpse in_use (eat.c:548) before cpostfx() polymorphs the hero; with polymorph control the hero becomes a newt, which cannot wield, so drop_weapon(1) finds uwep in use and leaves it to the eating code."
+}

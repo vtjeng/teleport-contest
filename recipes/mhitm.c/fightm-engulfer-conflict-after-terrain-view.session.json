@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66841,
+      "datetime": "20300918101000",
+      "nethackrc": "OPTIONS=name:Gulped,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,playmode:debug\n",
+      "moves": " \u0017ring of conflict\nPer \u0007hostile ice vortex\nms  ms \u0007newt\n#terrain\n\n\u001bms  "
+    }
+  ],
+  "comment": "A Valkyrie wearing a ring of conflict is engulfed by a hostile ice vortex, creates a newt beside it, and uses #terrain. reveal_terrain() lifts the engulfment while it redraws (detect.c:2375-2376), so vision_recalc(0) leaves stale could-see data that map_redisplay() does not clear. On the vortex's next move m_canseeu() therefore passes (mon.c:1306), fightm() lets it attack the newt, and the has_u_swallowed arm returns 0 (mhitm.c:151-152)."
+}

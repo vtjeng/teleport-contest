@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1873320,
+      "datetime": "20410909121212",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\nSYMBOLS=S_pet_override:@\n",
+      "moves": "\u001b;."
+    }
+  ],
+  "comment": "Blocked: C never returns from pager.c do_screen_description() (pager.c:1564-1571 goto check_monsters loop), so this recipe cannot be recorded. Blind review: do_screen_description() 1564-1571. With S_pet_override set to the hero's own symbol, a farlook at '@' takes the SYM_PET_OVERRIDE case, remaps the glyph without override (same '@' without sysconf ACCESSIBILITY) and jumps back to check_monsters, looping forever in C."
+}

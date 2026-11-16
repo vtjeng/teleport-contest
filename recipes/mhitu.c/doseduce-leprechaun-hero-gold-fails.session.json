@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51177,
+      "datetime": "20300403211500",
+      "nethackrc": "OPTIONS=name:Leppy,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,playmode:debug\n",
+      "moves": " #polyself\nleprechaun\n   \u0007hostile incubus\nmsms      "
+    }
+  ],
+  "comment": "A female Valkyrie polymorphs into a leprechaun in debug mode and creates a hostile incubus; after the seduction her charisma check fails, so doseduce() takes the polymorphed-leprechaun payment arm (mhitu.c:2268-2270, 'tries to take your gold, but fails')."
+}

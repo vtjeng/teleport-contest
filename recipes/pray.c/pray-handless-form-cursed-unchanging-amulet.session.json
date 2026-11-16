@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9150223,
+      "datetime": "20420503101827",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u001b\u0017cursed amulet of unchanging\n#polyself\npurple worm\n\u001b\u001b\u001bPe\u001b\u001b#pray\ny\ny\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b"
+    }
+  ],
+  "comment": "Blind review: fix_worst_trouble() 501-504. A hero polymorphed into a handless purple worm while wearing a cursed amulet of unchanging prays and, in debug mode, forces the gods to be pleased; TROUBLE_UNUSEABLE_HANDS cannot rehumanize, so the god uncurses the amulet instead."
+}

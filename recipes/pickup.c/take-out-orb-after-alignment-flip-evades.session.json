@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8812045,
+      "datetime": "20391130164455",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u001b#levelchange\n14\n\u001b\u001b\u0017The Orb of Detection\n\n\n\u0017sack\n\n\u0017helm of opposite alignment\n\nafse\n\nWg\n\n\nafoa\n\n\n\n"
+    }
+  ],
+  "comment": "Blind review: out_container() 2741-2742. A lawful Valkyrie stashes the Archeologists' intelligent lawful Orb of Detection in a sack, then a helm of opposite alignment makes her chaotic; taking the Orb out, touch_artifact() finds wrong class, wrong alignment and self-will, so the Orb evades her grasp."
+}
