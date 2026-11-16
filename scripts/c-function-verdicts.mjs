@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 277,
+    otherName: 276,
     unreachable: 200,
     noVisibleEffect: 194,
     unportedVisible: 2,
@@ -143,8 +143,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'botl.c fldname_to_bl_indx': ported('js/options.js statusHiliteFieldName'),
     'botl.c hilite_reset_needed': ported('js/display.js _statusFieldNotice',
         'the status highlight timer test'),
-    'botl.c noneoftheabove': ported('js/display.js _noneOfTheAbove',
-        'ported under a camelCase name'),
     'botl.c get_hilite': ported('js/display.js _statusFieldData',
         'the status highlight rule choice'),
     'botl.c is_fld_arrayvalues': ported('js/options.js parse_status_hl2'),
