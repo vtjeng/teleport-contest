@@ -413,6 +413,10 @@ async function wallify_vault(grd, state, env) {
                 // Monster at wall position: relocate or throw
                 const mon = m_at(x, y, state);
                 if (mon && mon !== grd) {
+                    if (mon.mtame) {
+                        const { yelp } = await import('./sounds.js');
+                        await yelp(mon, state, env.random);
+                    }
                     if (!(await rloc(mon, RLOC_MSG, { state }))) {
                         await m_into_limbo(mon, state, env);
                     }
