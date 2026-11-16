@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "monmove.c postmov() 1555-1562: a debug Valkyrie with monpolycontrol kills a jackal with #wizkill, wishes for a wand of polymorph, forces a hostile shopkeeper (who carries a skeleton key, makemon.c:703) and zaps it into a gnome lady, who keeps the key and so can unlock doors. In the doorway on the room's west wall she wishes for a trapped locked door, steps into the corridor and waits: the gnome lady unlocks the door, which explodes (mb_trapped, 1561) and kills her (1562). Each ESC dismisses a possible --More--.",
+  "segments": [
+    {
+      "seed": 6021187,
+      "datetime": "20380807120000",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,monpolycontrol\n",
+      "moves": "#wizkill\nm.\u001b\u0017wand of polymorph\n\u001bll\u0007hostile shopkeeper\ny\u001bzekgnome lord\n\u001bhhh\u0017trapped locked door\n\u001bhs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}
