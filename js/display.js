@@ -125,7 +125,7 @@ import {
     dist2,
     textBytes,
     mungspaces,
-    sgn, lcase, ucase, upstart, strcmpi,
+    sgn, lcase, ucase, upstart, strcmpi, atol,
 } from './hacklib.js';
 import { push_front, truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
@@ -8486,14 +8486,12 @@ const statusField = fld => STATUS_FIELDS.find(row => row.fld === fld);
 // four come from the row at that position: initblstats[BL_VERS] is terrain's.
 const initblstat = fld => STATUS_FIELDS[fld];
 
-// C ref: botl.c s_to_anything(). LP64 strtol saturation followed by the
-// target union member's width; pointer members write the pointed-to value.
+// C ref: botl.c s_to_anything(). Every arm reads atol() or atoi(), and
+// atoi() is atol()'s low 32 bits, so one atol() result feeds the target union
+// member's width; pointer members write the pointed-to value.
 export function s_to_anything(a, buf, type) {
     if (buf == null || a == null) return;
-    const digits = String(buf).match(/^[\t\n\v\f\r ]*([+-]?\d+)/u);
-    let wide = digits ? BigInt(digits[1].replace(/^\+/u, '')) : 0n;
-    const max = (1n << 63n) - 1n, min = -(1n << 63n);
-    wide = wide > max ? max : wide < min ? min : wide;
+    const wide = atol(buf);
     const int = Number(BigInt.asIntN(32, wide));
     switch (type) {
     case ANY_LONG: a.a_long = wide; break;

@@ -37,23 +37,14 @@ export const MENU_COLOR_ATTRIBUTES = Object.freeze([
     Object.freeze({ name: 'reverse', attr: 7 }),
 ]);
 
-function colorAtoi(value) {
-    const digits = String(value).match(/^[+-]?\d+/u);
-    let wide = digits ? BigInt(digits[0].replace(/^\+/u, '')) : 0n;
-    const longMax = (1n << 63n) - 1n;
-    const longMin = -(1n << 63n);
-    if (wide > longMax) wide = longMax;
-    else if (wide < longMin) wide = longMin;
-    return Number(BigInt.asIntN(32, wide));
-}
-
 function basicColor(value) {
     for (const { name, color } of COLOR_NAMES) {
         if (name === null) continue;
         if (fuzzymatch(value, name, ' -_', true)) return color;
     }
+    // coloratt.c match_str2clr(): `digit(*str)` guards `c = atoi(str)`.
     if (/^\d/u.test(value)) {
-        const color = colorAtoi(value);
+        const color = atoi(value);
         if (color >= 0 && color < CLR_MAX) return color;
     }
     return null;

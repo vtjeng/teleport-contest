@@ -181,7 +181,7 @@ import {
     str_start_is,
     strstri,
     truncateByteString,
-    visctrl, lcase, strcmpi, strncmpi, atoi,
+    visctrl, lcase, strcmpi, strncmpi, atoi, atol,
 } from './hacklib.js';
 import { isDefaultSymsetName, read_sym_file } from './files.js';
 import {
@@ -3551,19 +3551,6 @@ function applyMenuBinding(result, binding) {
     };
     result.gameplayBindings.push(operation);
     result.commandOperations.push({ type: 'bind', ...operation });
-}
-
-// C ref: the recorder's LP64 glibc atol().  Unlike atoi(), the option handlers
-// print the long result before narrowing an accepted value to int.  Keep the
-// result as BigInt so overflow diagnostics retain LONG_MIN or LONG_MAX exactly.
-function atol(str) {
-    const digits = String(str).match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
-    let value = digits ? BigInt(digits[0].trim().replace(/^\+/u, '')) : 0n;
-    const longMax = (1n << 63n) - 1n;
-    const longMin = -(1n << 63n);
-    if (value > longMax) value = longMax;
-    else if (value < longMin) value = longMin;
-    return value;
 }
 
 // C ref: options.c nmcpy() (6861-6876). This is byte-oriented, stops at a
