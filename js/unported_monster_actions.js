@@ -23,7 +23,7 @@ import {
 // ES module cycle initializes before either module body runs; nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
+import { bot, map_invisible, newsym, tmp_at } from './display.js';
 import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
 import { should_mulch_missile } from './dothrow.js';
@@ -39,17 +39,15 @@ import { capitalizedMonsterName, mon_nam } from './do_name.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
-    losehp,
     nh_delay_output,
-    nomul,
 } from './hack.js';
 import { obj_extract_self, stackobj } from './invent.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
 } from './mhitu.js';
-import { buzzmu, castmu } from './mcastu.js';
-import { m_throw, thrwmu } from './mthrowu.js';
+import { castmu } from './mcastu.js';
+import { m_throw } from './mthrowu.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 import {
@@ -88,16 +86,11 @@ import {
     mon_reflects,
     use_defensive,
     use_misc,
-    use_offensive,
 } from './muse.js';
 import {
-    clear_dknown,
     place_object,
     remove_object,
 } from './obj.js';
-import { observe_object } from './o_init.js';
-import { encumber_msg } from './pickup.js';
-import { potionhit } from './potion.js';
 import {
     create_gas_cloud,
     m_in_out_region,
@@ -116,7 +109,6 @@ import {
 import {
     dmgval,
     mon_wield_item,
-    setmnotwielded,
 } from './weapon.js';
 import { canseemon, canspotmon } from './display.js';
 import { Invis } from './youprop.js';
@@ -334,15 +326,15 @@ async function moveSimplePet(monster, after, env) {
     });
 }
 
-// The operations mthrowu.c m_throw() and its callers need but js/mthrowu.js
-// cannot import. Both live callers -- thrwmu()'s ordinary thrown weapon and
-// muse.c use_offensive()'s hurled potion -- bind the same set, so the flight
-// itself behaves identically whichever announcement preceded it.
+// Operations the monster attack callers below put on the env. js/mthrowu.js
+// m_throw() calls its callees itself; each key here stays because another
+// reader on the same env takes it (grep -rn "<key>" js/), among them
+// js/mthrowu.js drop_throw()'s floor operations and js/muse.js
+// use_offensive()'s monsterName and throwMissile.
 function monsterMissileEnv(monster, env) {
     return {
         canSeeMonster: (subject) => canseemon(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
-        clearObjectKnowledge: (obj) => clear_dknown(obj, env.state),
         damageValue: (obj, target, actionEnv) => dmgval(
             obj,
             target,
@@ -350,7 +342,6 @@ function monsterMissileEnv(monster, env) {
             { random: actionEnv.random },
         ),
         delayOutput: nh_delay_output,
-        endMulti: (value, state) => nomul(value, state),
         extractObject: (obj, actionEnv) => obj_extract_self(obj, actionEnv),
         floorEffects: (obj, x, y, verb, actionEnv) => flooreffects(
             obj,
@@ -370,9 +361,6 @@ function monsterMissileEnv(monster, env) {
         unblockPoint: (x, y, state) => {
             unblock_point(x, y, state);
         },
-        objectToGlyph: (obj, state) =>
-            obj_to_glyph(obj, state, env.displayRandom),
-        observeObject: (obj, state) => observe_object(obj, state),
         passiveObject: (target, obj, attack, actionEnv) => passive_obj(
             target,
             obj,
@@ -386,8 +374,6 @@ function monsterMissileEnv(monster, env) {
             y,
             actionEnv,
         ),
-        setMonsterNotWielded: (subject, obj, actionEnv) =>
-            setmnotwielded(subject, obj, actionEnv),
         shouldMulch: (obj, actionEnv) => should_mulch_missile(
             obj,
             actionEnv.state,
@@ -405,84 +391,15 @@ function monsterMissileEnv(monster, env) {
     };
 }
 
-// C ref: muse.c use_offensive(), reached from mhitu.c mattacku():758-762. The
-// potion it hurls flies through the same m_throw() a thrown weapon does, so the
-// missile operations are shared; potionhit() is the one this caller adds.
-async function useOffensiveItem(monster, env) {
-    return use_offensive(monster, {
-        ...env,
-        ...monsterMissileEnv(monster, env),
-        potionHit: (target, obj, how, actionEnv) => potionhit(
-            target,
-            obj,
-            how,
-            {
-                ...actionEnv,
-                encumberMessage: encumber_msg,
-            },
-        ),
-    });
-}
-
-// C ref: mhitu.c mattacku()'s range2 AT_WEAP arm calls mthrowu.c:thrwmu().
-// The caller supplies the same missile and message operations as the other
-// m_throw() entries; mon_wield_item() owns the initial wield check, and
-// thrwmu() performs its source-ordered second select_rwep() for the throw.
-async function throwRangedWeapon(monster, env) {
-    return thrwmu(monster, {
-        ...env,
-        ...monsterMissileEnv(monster, env),
-    });
-}
-
 // Shared mattacku adapter for dochug, pet attacks and the special movers.
-// Supply the canonical combat operations used by its nested source owners.
+// mattacku() calls its own dispatch callees; this keeps the missile keys
+// other readers on its env take, and the wield operation js/mhitm.js
+// mattackm() reads when mattacku() turns on the hero's steed.
 function attackHeroWithMattacku(monster, env) {
-    const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
         ...env,
-        // mhitu.c's AT_BREA/AT_SPIT arms call breamu()/spitmu() directly.
-        // Those mthrowu.c paths enter m_throw(), so they need the same owner
-        // operations as the AT_WEAP and muse.c callers below. Without this
-        // shared adapter, a live spit reaches m_throw() with no monsterAt
-        // operation and escapes runSegment() as a bare TypeError.
-        ...missileEnv,
-        throwRangedWeapon,
+        ...monsterMissileEnv(monster, env),
         wieldMonsterItemAgainstMonster,
-        useOffensiveItem,
-        // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
-        castMonsterSpell: (subject, mattk, thinkFound, actualFound, spellEnv) => {
-            const state = spellEnv.state ?? env.state;
-            const spellMessage = spellEnv.message
-                ?? (async (text, owner) => {
-                    await ttyPline(text, owner);
-                });
-            const loseSpellHp = spellEnv.losehp ?? (async (n, knam, format) =>
-                losehp(n, knam, format, state, {
-                    ...spellEnv,
-                    fromMonster: true,
-                    message: spellMessage,
-                }));
-            return castmu(subject, mattk, thinkFound, actualFound, {
-                ...spellEnv,
-                losehp: loseSpellHp,
-                encumberMessage: spellEnv.encumberMessage ?? encumber_msg,
-                monsterName: (mtmp) => capitalizedMonsterName(
-                    mtmp, env.state, { displayRandom: spellEnv.displayRandom },
-                ),
-                monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
-                message: spellMessage,
-            });
-        },
-        // C ref: mhitu.c AT_MAGC range2 arm -> buzzmu() (mcastu.c:988-1012).
-        castRangedSpell: (subject, mattk, spellEnv) =>
-            buzzmu(subject, mattk, {
-                ...spellEnv,
-                monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
-                message: async (text, s) => {
-                    await ttyPline(text, s);
-                },
-            }),
     });
 }
 
