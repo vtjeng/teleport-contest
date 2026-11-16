@@ -786,12 +786,6 @@
       "c": "src/dog.c:887",
       "reason": "C migrate_to_level() does not check; callers pass a monster on the map or parked in limbo."
     },
-    "js/dog.js | migratingOperation | `migrate_to_level requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dog.js | mon_catchup_elapsed_time | 'catchup from future time?'": {
       "count": 1,
       "class": "panic",

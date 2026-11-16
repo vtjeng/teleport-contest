@@ -2703,12 +2703,7 @@ export async function goto_level(
     await set_uinwater(false, state);
     u.uundetected = false;
     if (!state.iflags?.nofollowers) {
-        await keepdogs(false, {
-            state,
-            inWizardTower: (x, y, level, callbackState) =>
-                finish_steps(In_W_tower_steps(x, y, level, callbackState),
-                    impossible_printer(callbackState)),
-        });
+        await keepdogs(false, { state });
     }
 
     // do.c:1625 refreshes the departing level's overview before savelev()
