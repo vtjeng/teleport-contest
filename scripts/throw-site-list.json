@@ -1758,12 +1758,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mhitu.js | expels | 'expels requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitu.js | explmu | 'explmu requires d and rnd random operations'": {
       "count": 1,
       "class": "invariant",

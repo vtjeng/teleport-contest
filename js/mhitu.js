@@ -1223,7 +1223,7 @@ function hitmsgState(state) {
 // prints yet; it is ported rather than deferred because the state it reads is
 // the state missmu() already clears.
 export async function hitmsg(mtmp, mattk, state = game, env = {}) {
-    const message = requireMattackuOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const gh = hitmsgState(state);
     let punct = '!';
     let verb;
@@ -1291,8 +1291,8 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 // message. capitalizedMonsterName() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const message = requireMattackuOperation(rawEnv, 'message');
-    const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
+    const message = rawEnv.message ?? ttyPline;
+    const markInvisible = rawEnv.markInvisible ?? map_invisible;
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const gh = hitmsgState(state);
 
@@ -1355,7 +1355,7 @@ export function mswings_verb(mwep, bash, rawEnv = {}) {
 // C ref: mhitu.c mswings() (129-141). "monster swings obj".
 async function mswings(mtmp, otemp, bash, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const message = requireMattackuOperation(rawEnv, 'message');
+    const message = rawEnv.message ?? ttyPline;
     const visible = rawEnv.monsterVisible ?? mon_visible;
 
     if (state.flags?.verbose && !Blind(state.u)
@@ -2029,9 +2029,6 @@ export async function mattacku(monster, rawEnv = {}) {
 // and optional monster-telecontrol continuations; expels waits for them.
 export async function expels(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    if (rawEnv.message !== undefined && typeof rawEnv.message !== 'function') {
-        throw new TypeError('expels requires a message operation');
-    }
 
     state.disp ??= {};
     state.disp.botl = true;
@@ -2593,7 +2590,7 @@ export function magic_negation(mon, state = game) {
 async function hitmu(mtmp, mattk, env) {
     const state = env.state;
     const random = env.random;
-    const markInvisible = requireMattackuOperation(env, 'markInvisible');
+    const markInvisible = env.markInvisible ?? map_invisible;
     const spotMonster = env.canSpotMonster ?? canspotmon;
     const mdat = mtmp.data;
     const olduasmon = state.youmonst.data;
@@ -2751,7 +2748,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
         || typeof random?.rnd !== 'function') {
         throw new TypeError('explmu requires d and rnd random operations');
     }
-    const message = requireMattackuOperation(rawEnv, 'message');
+    const message = rawEnv.message ?? ttyPline;
     let killAgr = true;
     let notAffected;
 
