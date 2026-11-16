@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c tele_jump_ok() 409: on the Plane of Air the up and down teleport regions exclude different areas, so a hero inside the up region's excluded area (x 25-79) cannot teleport out of it. A debug dwarven Archeologist puts on a ring of levitation and level-teleports to the Plane of Air (the debug menu supplies the Amulet; she declines its wish with 'nothing' and #wizkills the Wizard of Yendor who arrives beside her). A controlled ^T takes her to x 24, she floats one step east to x 25, and a second ^T (overriding the Amulet's disorientation) back to x 24 fails the updest test (409): 'Sorry...'.",
+  "segments": [
+    {
+      "seed": 8106631,
+      "datetime": "20381020183000",
+      "nethackrc": "OPTIONS=name:Drifter,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": " \u0017ring of levitation\nPir \u0016?\n>>M      nothing\n#wizkill\nu.\u001b\u001b\u0014LLlllllll.l\u0014 yh.\u001b"
+    }
+  ]
+}
