@@ -690,7 +690,7 @@ test('noteleport_level counts only living on-map demon-court blockers', () => {
     const jsNoteleport = sourceScrolltele(
         JS_TELEPORT_SOURCE,
         'export function noteleport_level(monster, state = game)',
-        '\nfunction monsterTeleportOperation',
+        '\n// C ref: teleport.c tele_restrict()',
     );
     assert.match(cNoteleport,
         /In_hell\(&u\.uz\)[\s\S]*get_iter_mons\(m_blocks_teleporting\)/u);

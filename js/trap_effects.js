@@ -2015,11 +2015,6 @@ async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
     await mtele_trap(mtmp, trap, canseemon(mtmp, state)
         || mtmp === state.u?.usteed, {
         ...env,
-        seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
-            seetrap(candidate, {
-                ...operationEnv,
-                redraw: env.redraw ?? (() => {}),
-            })),
         newsym: env.newsym ?? env.redraw,
     });
     return Trap_Moved_Mon;
@@ -2044,11 +2039,6 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
         canseemon(mtmp, state) || mtmp === state.u?.usteed,
         {
             ...env,
-            seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
-                seetrap(candidate, {
-                    ...operationEnv,
-                    redraw: env.redraw ?? (() => {}),
-                })),
             newsym: env.newsym ?? env.redraw,
         },
     );

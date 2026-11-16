@@ -3660,24 +3660,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/teleport.js | mlevel_tele_trap | 'monster teleport requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/teleport.js | monsterTeleportOperation | `monster teleport requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/teleport.js | mtele_trap | 'monster teleport requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/teleport.js | rloc | 'rloc random injection requires rnd and rn2'": {
       "count": 1,
       "class": "invariant",
