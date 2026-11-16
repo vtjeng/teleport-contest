@@ -2682,13 +2682,15 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         const ledger = ledger_no(state.u.uz, state);
         rm_mapseen(ledger, state);
         state.context.achieveo ??= {};
+        // cmd.c:995 Unachieve[] = "%s achievement revoked."
+        const unachieve = (name) => `${name} achievement revoked.`;
         if (on_level(state.u.uz, state.mineend_level)) {
             if (remove_achievement(ACH_MINE_PRIZE, state))
-                await ttyPline('Mine\'s-end achievement revoked.', state);
+                await ttyPline(unachieve("Mine's-end"), state);
             state.context.achieveo.mines_prize_oid = 0;
         } else if (on_level(state.u.uz, state.sokoend_level)) {
             if (remove_achievement(ACH_SOKO_PRIZE, state))
-                await ttyPline('Sokoban end achievement revoked.', state);
+                await ttyPline(unachieve('Soko-prize'), state);
             state.context.achieveo.soko_prize_oid = 0;
         }
         if (Punished(state)) {
