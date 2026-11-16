@@ -1398,10 +1398,13 @@ async function selectOneTtyMenu(state, spec) {
         }
         if (ch >= '0' && ch <= '9') {
             const digit = ch.charCodeAt(0) - '0'.charCodeAt(0);
-            const previous = pendingCount ?? 0;
-            const next = previous * 10 + digit;
-            pendingCount = Number.isSafeInteger(next) && next > 0
-                ? next : null;
+            // The same long count as the PICK_ANY loop below: a Number while
+            // it is a safe integer, then an exact BigInt up to LONG_MAX, and
+            // reset by AppendLongDigit()'s overflow.
+            const next = appendLongDigit(BigInt(pendingCount ?? 0), digit);
+            pendingCount = next > 0n
+                ? (next <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(next) : next)
+                : null;
             continue;
         }
         if (ch === MENU_SEARCH) {

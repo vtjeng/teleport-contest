@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Sane level timer and underwater state under the sanity_check option: a debug-mode Valkyrie wishes for melting ice (timeout.c timer_sanity_check() TIMER_LEVEL arm, 2177-2196) and shows #timeout, then wears an amulet of magical breathing, wishes a pool under herself and sinks (wizcmds.c levl_sanity_check() 1449), and takes water walking from #wizintrinsic while underwater (1087 pooleffects()). C prints no sanity_check() message. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 771004,
+      "datetime": "20290611143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "\n\u0017melting ice\n\u001b\u001bs\u001bs\u001b#timeout\n\u001b\u001b\u0017amulet of magical breathing\n\u001bPe\u001b\u0017pool\n\u001b\u001b\u001bs\u001bs\u001b#wizintrinsic\n>h\n\u001b\u001bs\u001bs\u001b"
+    }
+  ]
+}

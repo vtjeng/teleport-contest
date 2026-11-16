@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c wiz_intrinsic() 1004-1007: the menu count is a long that C stores with an (int) cast, so only its low 32 bits count. A debug-mode dwarf Valkyrie selects stunned with count 4294967296 (int 0) and confused with 2147483648 (int -2147483648), which both take the 'amt <= 0' continue at 1007 with no message, and hallucinating with 4294967326 (int 30), then #timeout lists only hallucinating at 30. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 917355,
+      "datetime": "20280719211200",
+      "nethackrc": "OPTIONS=name:Ragna,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n",
+      "moves": "\n#wizintrinsic\n4294967296f2147483648g4294967326h\n\n#timeout\n\u001b"
+    }
+  ]
+}

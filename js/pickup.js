@@ -3450,7 +3450,8 @@ export async function menu_loot(retry, put_in, state = game) {
             } else if (put_in && choice.value === 'P') {
                 // C: 3299-3303. 'P' (JUSTPICKED) category is put-in only.
                 loot_justpicked = true;
-                count = Math.max(0, choice.count);
+                // C max(0, count); the count can be a BigInt above 2^53.
+                count = choice.count > 0 ? choice.count : 0;
                 add_valid_menu_class(choice.value, state);
                 loot_everything = false;
             } else if (choice.value === ALL_TYPES_SELECTED) {

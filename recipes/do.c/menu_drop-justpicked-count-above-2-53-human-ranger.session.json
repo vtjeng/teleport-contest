@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c menu_drop() 1012: justpicked_quan = max(0, pick_list[i].count) for the 'P' (items just picked up) category with a count above 2^53. The tty menu returns that long count exactly; C drops the one just-picked stack whole, as the count exceeds its quantity. The port applied Math.max() to the count, which a tty count above Number.MAX_SAFE_INTEGER makes a BigInt, and threw. A debug-mode Ranger drops and picks up her cram rations first. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2718002,
+      "datetime": "20330830194500",
+      "nethackrc": "OPTIONS=name:Faramir,role:Ranger,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n",
+      "moves": "\ndf\u001b,\u001bD9007199254741022P\n\u001b\u001bi"
+    }
+  ]
+}

@@ -589,7 +589,12 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
             extrinsic: 0,
         };
         const oldTimeout = prop.intrinsic & TIMEOUT;
-        const amount = entry.count === -1 ? 30 : entry.count;
+        // C stores the menu's long count with an (int) cast, keeping its low
+        // 32 bits: 2147483648 or 4294967296 becomes zero or negative and is
+        // skipped, and 4294967326 becomes 30. A tty count above
+        // Number.MAX_SAFE_INTEGER arrives as a BigInt.
+        const amount = entry.count === -1 ? 30
+            : Number(BigInt.asIntN(32, BigInt(entry.count)));
         if (amount <= 0) continue;
         let newTimeout = oldTimeout + amount;
 
@@ -611,7 +616,9 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
             // intrinsic fields.
             await make_deaf(newTimeout, true, state);
         } else if (property === GLIB) {
-            make_glib(newTimeout, state);
+            // C passes (int) newtimeout (wizcmds.c 1068): a sum past
+            // INT_MAX wraps negative, and itimeout() then clears Glib.
+            make_glib(newTimeout | 0, state);
             state.disp.botl = true;
             await ttyPline(
                 `Timeout for ${name} ${oldTimeout ? 'increased by' : 'set to'} `
