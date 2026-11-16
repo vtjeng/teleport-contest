@@ -43,6 +43,7 @@ import {
     STONE,
     TLCORNER,
     TRCORNER,
+    Upolyd,
     VAULT,
     VAULT_GUARD_TIME,
     VWALL,
@@ -312,7 +313,7 @@ async function clear_fcorr(grd, forceshow, state, env) {
 
     if (sawcorridor && !silently)
         await message('The corridor disappears.', state, env);
-    const heroHp = state.u.upolyd ? state.u.mh : state.u.uhp;
+    const heroHp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
     if (IS_OBSTRUCTED(state.level.at(state.u.ux, state.u.uy).typ)
         && heroHp > 0 && !silently)
         await message('You are encased in rock.', state, env);

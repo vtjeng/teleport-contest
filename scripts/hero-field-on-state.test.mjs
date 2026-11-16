@@ -65,3 +65,49 @@ test('the scan flags state.utotype and accepts state.u.utotype', () => {
     assert.deepEqual(heroFieldReads(source, ['utotype', 'ux']),
         [{ field: 'utotype', line: 1 }]);
 });
+
+// The converse defect: a read of a field off state.u that the hero struct
+// does not have. js/vault.js clear_fcorr() tested `state.u.upolyd`, which is
+// always undefined, where C tests Upolyd (vault.c 112), so a polymorphed
+// hero whose form had died still got "You are encased in rock.".
+export function unknownHeroFieldReads(source, fields) {
+    const code = source.replace(/\/\/.*$/gmu, '');
+    const known = new Set(fields);
+    return [...code.matchAll(/\b(?:state|game|g)\.u\??\.(\w+)/gu)]
+        .filter((m) => !known.has(m[1]))
+        .map((m) => ({
+            field: m[1],
+            line: code.slice(0, m.index).split('\n').length,
+        }));
+}
+
+test('game code reads only hero fields from state.u', () => {
+    const source = readFileSync(join(ROOT, 'js', 'u_init.js'), 'utf8');
+    const body = /function zeroHero\(roleplay\) \{\s*return \{([\s\S]*?)\n {4}\};/u
+        .exec(source);
+    if (!body) throw new Error('js/u_init.js zeroHero() not found');
+    // Every field zeroHero() defines, not only the u-prefixed ones.
+    const fields = [...body[1].matchAll(/^\s+(\w+):/gmu)].map((m) => m[1]);
+    assert.ok(fields.length > 60, `only ${fields.length} hero fields found`);
+    const found = [];
+    for (const name of readdirSync(join(ROOT, 'js')).sort()) {
+        if (!name.endsWith('.js')) continue;
+        const text = readFileSync(join(ROOT, 'js', name), 'utf8');
+        for (const { field } of unknownHeroFieldReads(text, fields))
+            found.push(`js/${name}:${field}`);
+    }
+    // Two exceptions: `state.youmonst?.data ?? state.u?.data` in dog.js and
+    // muse.js, fallbacks that never run because youmonst.data is always set.
+    // The list must change only when a justified exception is added here.
+    assert.deepEqual(found, ['js/dog.js:data', 'js/muse.js:data']);
+});
+
+test('the scan flags state.u.upolyd and accepts state.u.mh', () => {
+    // Line 1 is the defect; line 2 reads a real hero field.
+    const source = [
+        'const hp = state.u.upolyd ? state.u.mh : state.u.uhp;',
+        'const hp = Upolyd(state.u) ? state.u.mh : state.u.uhp;',
+    ].join('\n');
+    assert.deepEqual(unknownHeroFieldReads(source, ['mh', 'uhp']),
+        [{ field: 'upolyd', line: 1 }]);
+});
