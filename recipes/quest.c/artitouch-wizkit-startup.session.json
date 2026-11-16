@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83026030,
+      "datetime": "20320927114503",
+      "nethackrc": "OPTIONS=name:QuestTouchWizkitA27,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\nWIZKIT=.nethackrc\nThe Eye of the Aethiopica\n",
+      "moves": "\n i\u001b"
+    }
+  ],
+  "comment": "quest.c artitouch() reached at startup through the wizard kit. A debug neutral human female Wizard names her own .nethackrc as WIZKIT and lists The Eye of the Aethiopica, her own quest artifact. initoptions() rejects that line as 'Not a config statement'; files.c read_wizkit() then wishes for it, and wizkit_addinv() -> invent.c addinv_core1() -> artitouch() marks the artifact touched, calls qt_pager(\"gotit\"), which questpgr.c skip_pager() silences while program_state.wizkit_wishing is set, and calls exercise(A_WIS, TRUE), whose rn2(19) the RNG log shows. It varies recipes/questpgr.c/wizkit-own-quest-artifact-skips-pager (a chaotic elven male) in race, gender and alignment. The keys dismiss the startup error and the welcome message, list the inventory to show the amulet, and close it."
+}
