@@ -81,7 +81,7 @@ import { acurr, acurrstr, exercise as attribExercise, poisoned } from './attrib.
 import { stop_occupation } from './allmain.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { calc_capacity, losehp, nomul, rounddiv } from './hack.js';
+import { calc_capacity, losehp, nh_delay_output, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart, lcase } from './hacklib.js';
 import {
     add_to_minv,
@@ -155,6 +155,7 @@ import {
 import { closed_door, dissolve_bars } from './monmove.js';
 import {
     ammo_and_launcher,
+    clear_dknown,
     is_flammable,
     is_flimsy,
     is_ammo,
@@ -241,6 +242,7 @@ import {
     mon_wield_item,
     mwepgone,
     select_rwep,
+    setmnotwielded,
 } from './weapon.js';
 import { artifact_hit, spec_abon } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
@@ -271,7 +273,7 @@ import {
 } from './do_name.js';
 
 import { snuff_candle } from './apply_splash_lit.js';
-import { canseemon, canspotmon, newsym } from './display.js';
+import { canseemon, canspotmon, newsym, obj_to_glyph, tmp_at } from './display.js';
 import {
     Acid_resistance, Blind, Confusion, Deaf, Fumbling, HBlinded,
     Hallucination, Maybe_Half_Phys, Sleep_resistance, Stone_resistance,
@@ -459,14 +461,6 @@ export function m_lined_up(mtarg, mtmp, rawEnv = {}) {
 export function lined_up(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     return m_lined_up(state.youmonst, mtmp, { ...rawEnv, state });
-}
-
-
-function requireRangedOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`monster ranged attack requires a ${name} operation`);
-    return operation;
 }
 
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
@@ -844,32 +838,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const tethered_weapon = monster.mw === obj
         && Boolean(arw?.tethered);
 
-    // Resolve every injected owner before the source-ordered inventory
-    // extraction, so a missing adapter fails before mutation.
-    const canSeeMonster = requireRangedOperation(env, 'canSeeMonster');
-    const canSeeSquare = requireRangedOperation(env, 'canSeeSquare');
-    const monsterAt = requireRangedOperation(env, 'monsterAt');
-    const objectToGlyph = requireRangedOperation(env, 'objectToGlyph');
-    const temporaryDisplay = requireRangedOperation(env, 'temporaryDisplay');
-    const delayOutput = requireRangedOperation(env, 'delayOutput');
-    const clearObjectKnowledge = requireRangedOperation(
-        env,
-        'clearObjectKnowledge',
-    );
-    const observeObject = requireRangedOperation(env, 'observeObject');
-    const extractObject = requireRangedOperation(env, 'extractObject');
-    const setMonsterNotWielded = requireRangedOperation(
-        env,
-        'setMonsterNotWielded',
-    );
-    const damageValue = requireRangedOperation(env, 'damageValue');
-    // drop_throw() uses these bound floor and inventory operations.
-    requireRangedOperation(env, 'shouldMulch');
-    requireRangedOperation(env, 'floorEffects');
-    requireRangedOperation(env, 'placeObject');
-    requireRangedOperation(env, 'passiveObject');
-    requireRangedOperation(env, 'stackObject');
-
     state.gb ??= {};
     state.gb.bhitpos ??= {};
     state.gb.bhitpos.x = x;
@@ -880,25 +848,25 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     let singleobj;
     if (Math.trunc(obj.quan ?? 1) === 1) {
         if (monster.mw === obj)
-            await setMonsterNotWielded(monster, obj, env);
-        extractObject(obj, env);
+            await setmnotwielded(monster, obj, env);
+        await obj_extract_self(obj, env);
         singleobj = obj;
     } else {
         // C splitobj(obj, 1L) keeps the parent stack in monster inventory;
         // obj_extract_self() moves the one missile into OBJ_FREE.
         singleobj = await splitobj(obj, 1, env);
-        extractObject(singleobj, env);
+        await obj_extract_self(singleobj, env);
     }
     state.gt ??= {};
     state.gt.thrownobj = singleobj;
     singleobj.owornmask = 0;
-    if (!canSeeMonster(monster, state)) clearObjectKnowledge(singleobj, state);
+    if (!canseemon(monster, state)) clear_dknown(singleobj, state);
 
     // C ref: mthrowu.c:622-637. Cursed or greased missiles can misfire after
     // extraction, and both replacement direction draws precede flight-check.
     if ((singleobj.cursed || singleobj.greased) && (dx || dy)
         && !random.rn2(7)) {
-        if (canSeeMonster(monster, state) && state.flags?.verbose) {
+        if (canseemon(monster, state) && state.flags?.verbose) {
             if (is_ammo(singleobj, state)) {
                 if (typeof env.message === 'function')
                     await env.message(`${Monnam(monster, state)} misfires!`, state);
@@ -937,9 +905,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         return 0;
     }
     state.mesg_given = 0;
-    await temporaryDisplay(
+    await tmp_at(
         tethered_weapon ? DISP_TETHER : DISP_FLASH,
-        objectToGlyph(singleobj, state),
+        obj_to_glyph(singleobj, state, env.displayRandom),
         state,
     );
 
@@ -954,11 +922,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     while (range-- > 0) {
         singleobj.ox = state.gb.bhitpos.x += dx;
         singleobj.oy = state.gb.bhitpos.y += dy;
-        if (canSeeSquare(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
-            observeObject(singleobj, state);
+        if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
+            observe_object(singleobj, state);
 
         { /* C ref: m_throw lines 679-693 -- monster hit or hero hit */
-            let mtmp = monsterAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+            let mtmp = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
             if (mtmp && await shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
                 /* shade: missile passes harmlessly through */
                 mtmp = null;
@@ -969,7 +937,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             }
         }
         if (u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
-            if (state.multi) requireRangedOperation(env, 'endMulti')(0, state);
+            if (state.multi) nomul(0, state);
             /* hero might be poly'd into a unicorn */
             if (singleobj.oclass === GEM_CLASS
                 && await ucatchgem(singleobj, monster, env)) {
@@ -981,7 +949,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             if (singleobj.oclass === POTION_CLASS) {
                 // potionhit() always uses the object up, so the flight loop
                 // hands over ownership and never reaches drop_throw().
-                await requireRangedOperation(env, 'potionHit')(
+                await potionhit(
                     state.youmonst,
                     singleobj,
                     POTHIT_MONST_THROW,
@@ -1013,7 +981,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 damage = 0;
                 hitv = 8;
             } else {
-                damage = damageValue(singleobj, state.youmonst, env);
+                damage = dmgval(singleobj, state.youmonst, state, { random });
                 hitv = 3 - distmin(
                     state.u.ux,
                     state.u.uy,
@@ -1184,21 +1152,21 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             }
             break;
         }
-        await temporaryDisplay(
+        await tmp_at(
             state.gb.bhitpos.x,
             state.gb.bhitpos.y,
             state,
         );
-        await delayOutput(state);
+        await nh_delay_output(state);
     }
 
-    await temporaryDisplay(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-    await delayOutput(state);
+    await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    await nh_delay_output(state);
     if (arw && return_flightpath) {
         await return_from_mtoss(monster, singleobj, tethered_weapon, state, random, env);
         // monster could be DEADMONSTER now
     } else {
-        await temporaryDisplay(DISP_END, 0, state);
+        await tmp_at(DISP_END, 0, state);
     }
     state.mesg_given = 0;
     if (blindinc) {
@@ -1237,27 +1205,25 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     if (otmp && made_it_back) {
         /* it made it back to thrower's location */
         if (tethered_weapon) {
-            if (typeof env.temporaryDisplay === 'function')
-                await env.temporaryDisplay(DISP_END, BACKTRACK, state);
+            await tmp_at(DISP_END, BACKTRACK, state);
         } else if (x !== magr.mx || y !== magr.my) {
             // C ref: mthrowu.c:865-877. The non-tethered return retraces the
             // path, consuming display-only work but no gameplay RNG.
-            if (typeof env.temporaryDisplay === 'function') {
-                const objectToGlyph = typeof env.objectToGlyph === 'function'
-                    ? env.objectToGlyph(otmp, state) : 0;
-                await env.temporaryDisplay(DISP_FLASH, objectToGlyph, state);
-                const dx = sgn(x - magr.mx);
-                const dy = sgn(y - magr.my);
-                while (isok(x, y)
-                       && (x !== magr.mx || y !== magr.my)) {
-                    await env.temporaryDisplay(x, y, state);
-                    if (typeof env.delayOutput === 'function')
-                        await env.delayOutput(state);
-                    x -= dx;
-                    y -= dy;
-                }
-                await env.temporaryDisplay(DISP_END, 0, state);
+            await tmp_at(
+                DISP_FLASH,
+                obj_to_glyph(otmp, state, env.displayRandom),
+                state,
+            );
+            const dx = sgn(x - magr.mx);
+            const dy = sgn(y - magr.my);
+            while (isok(x, y)
+                   && (x !== magr.mx || y !== magr.my)) {
+                await tmp_at(x, y, state);
+                await nh_delay_output(state);
+                x -= dx;
+                y -= dy;
             }
+            await tmp_at(DISP_END, 0, state);
         }
         x = magr.mx;
         y = magr.my;
@@ -1323,8 +1289,8 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
         }
     } else {
         /* it didn't make it back to thrower's location */
-        if (tethered_weapon && typeof env.temporaryDisplay === 'function')
-            await env.temporaryDisplay(DISP_END, 0, state);
+        if (tethered_weapon)
+            await tmp_at(DISP_END, 0, state);
         const heard = youHear('a loud snap!', state);
         if (heard)
             await message(heard, state, env);
@@ -1610,8 +1576,7 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
     );
     const multishot = monmulti(monster, missile, launcher, env);
     state.m_shot ??= {};
-    const canSeeMonster = requireRangedOperation(env, 'canSeeMonster');
-    if (canSeeMonster(monster, state)) {
+    if (canseemon(monster, state)) {
         // Visible arm: announce the throw and record the missile type.
         let onm;
         if (multishot > 1) {
@@ -1629,11 +1594,13 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
                 displayRandom: env.displayRandom,
             })
             : '';
-        const monsterName = requireRangedOperation(env, 'monsterName');
-        const message = requireRangedOperation(env, 'message');
+        const message = env.message ?? ttyPline;
+        const monsterName = capitalizedMonsterName(monster, state, {
+            displayRandom: env.displayRandom,
+        });
         await message(
             messageAt(
-                `${monsterName(monster, state)} ${state.m_shot.s ? 'shoots' : 'throws'} ${onm}${mtarg ? ' at ' : ''}${trgbuf}!`,
+                `${monsterName} ${state.m_shot.s ? 'shoots' : 'throws'} ${onm}${mtarg ? ' at ' : ''}${trgbuf}!`,
                 monster.mx, monster.my, state),
             state,
         );
@@ -1643,9 +1610,8 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
         state.m_shot.o = STRANGE_OBJECT;
     }
     state.m_shot.n = multishot;
-    const throwMissile = requireRangedOperation(env, 'throwMissile');
     for (state.m_shot.i = 1; state.m_shot.i <= state.m_shot.n; state.m_shot.i++) {
-        await throwMissile(
+        await m_throw(
             monster,
             monster.mx,
             monster.my,
@@ -1821,9 +1787,8 @@ export async function thrwmu(monster, rawEnv = {}) {
         return 0;
     }
 
-    const endMulti = requireRangedOperation(env, 'endMulti');
     await monshoot(monster, selected, monster.mw, env);
-    endMulti(0, state);
+    nomul(0, state);
     return 0;
 }
 

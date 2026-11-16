@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
+import { DISP_TETHER } from '../js/const.js';
+import { tmp_at } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { return_from_mtoss } from '../js/mthrowu.js';
@@ -16,20 +18,30 @@ async function init() {
     await runSegment({ seed: 8432160, datetime: '20261112120000',
         nethackrc: 'OPTIONS=name:ReturnOwner,role:Valkyrie,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n', moves: '' });
 }
+// m_throw() opens the DISP_TETHER frame before a tethered aklys flies, and
+// return_from_mtoss() closes it with tmp_at(DISP_END, BACKTRACK). These tests
+// call return_from_mtoss() directly, so they open that frame themselves. The
+// glyph is never drawn: the frame saves no squares before it closes.
+async function openTether(state) {
+    await tmp_at(DISP_TETHER, 0, state);
+}
 async function invoke(state, lines) {
     const monster = newMonster({ data: state.mons[PM_GOBLIN], mnum: PM_GOBLIN,
         mx: 1, my: 1, mhp: 20, mhpmax: 20, mcansee: true });
     const object = newObject({ otyp: AKLYS, oclass: state.objects[AKLYS].oc_class, quan: 1 });
     state.gb.bhitpos = { x: 1, y: 1 };
+    await openTether(state);
     const coreBefore = structuredClone(game.coreCtx);
     let draws = 0;
     await return_from_mtoss(monster, object, true, state, { rn2: bound => {
         assert.equal(bound, 100); ++draws; return 1;
     } }, {
         message: async text => { lines.push(text); },
-        temporaryDisplay: async () => {}, newsym: () => {},
+        newsym: () => {},
     });
     assert.equal(draws, 2);
+    // The successful return closed the frame openTether() opened.
+    assert.deepEqual(state.tmp_at_stack, []);
     assert.deepEqual(game.coreCtx, coreBefore);
     assert.equal(monster.mw, object);
 }
@@ -86,8 +98,9 @@ test('an artifact that returns and hits its thrower runs artifact_hit', async ()
         rnd: () => 1,
         rnl: (bound) => bound - 1,
     };
+    await openTether(game);
     await return_from_mtoss(monster, object, true, game, random, {
-        message: async () => {}, temporaryDisplay: async () => {}, newsym: () => {},
+        message: async () => {}, newsym: () => {},
     });
     // dmg = 1 + rnd(3) = 2, doubled to 4 by spec_dbon().
     assert.equal(monster.mhp, 16);

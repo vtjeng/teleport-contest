@@ -78,6 +78,7 @@ import { recharge } from './read.js';
 import { canseemon } from './display.js';
 import { note_unported } from './unported.js';
 import { Blind, Fire_resistance, Shock_resistance } from './youprop.js';
+import { ignite_items } from './apply_catch_lit.js';
 
 // C ref: zap.c destroyable() (5612-5650), translated whole. "Return TRUE if obj
 // is eligible to pass to maybe_destroy_item given the type of elemental damage
@@ -507,12 +508,6 @@ export async function burn_floor_objects(
     uCaused,
     env,
 ) {
-    if (typeof env.igniteItems !== 'function') {
-        throw new TypeError(
-            'floor fire requires an igniteItems operation',
-        );
-    }
-
     const message = env.message ?? ttyPline;
     let count = 0;
     for (let obj = env.state.level.objects[x][y]; obj;) {
@@ -549,6 +544,6 @@ export async function burn_floor_objects(
         }
         obj = next;
     }
-    await env.igniteItems(env.state.level.objects[x][y], env);
+    await ignite_items(env.state.level.objects[x][y], env);
     return count;
 }

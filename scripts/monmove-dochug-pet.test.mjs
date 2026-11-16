@@ -86,7 +86,6 @@ function baseEnv(events) {
             events.push(`post:${oldX},${oldY}:${status}`);
             return status;
         },
-        preflight: () => events.push('preflight'),
         // The merged dochug() runs C's pre-move item and weapon gates for
         // every monster, pets included. C's weapon gate additionally requires
         // (!mpeaceful || Conflict), so a peaceful pet never reaches it.
@@ -151,7 +150,6 @@ test('pet dochug sends an unchanged MMOVE_MOVED result through postmov',
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'rn2(40)',
         'apparxy',
@@ -187,7 +185,6 @@ test('pet dochug finishes eating without entering dog_move or postmov',
         assert.equal(await dochug(monster, env), 0);
         assert.equal(monster.meating, 0);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range-1',
@@ -221,7 +218,6 @@ test('pet dochug returns a still-trapped result without entering postmov',
 
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range-1',
@@ -252,7 +248,6 @@ test('pet dochug skips the second range check after postmov kills the pet',
 
         assert.equal(await dochug(monster, env), 1);
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -294,7 +289,6 @@ test('pet dochug does not recalculate range when movement is not selected',
         // Clearing mpeaceful to suppress movement also opens C's phase-four
         // attack gate, which a genuine peaceful pet never reaches.
         assert.deepEqual(events, [
-            'preflight',
             'wipe',
             'apparxy',
             'range',
@@ -320,7 +314,6 @@ test('pet dochug redraws a no-action pet during hallucination', async () => {
 
     assert.equal(await dochug(makeMonster(), env), 0);
     assert.deepEqual(events, [
-        'preflight',
         'wipe',
         'apparxy',
         'range',

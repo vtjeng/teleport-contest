@@ -5490,8 +5490,6 @@ export async function zap_over_floor(
             ...env,
             state,
             random,
-            igniteItems: env.igniteItems
-                ?? ((head, igniteEnv) => ignite_items(head, igniteEnv)),
         });
         if (burned && couldsee(x, y, state)) {
             redrawAt(x, y, state);

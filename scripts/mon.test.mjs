@@ -758,38 +758,6 @@ test('mcalcdistress resolves vision for a later immobile monster', async () => {
     assert.deepEqual(events, ['shape', 'vision', 'liquid']);
 });
 
-test('mcalcdistress preflights rare downstream owners atomically', async () => {
-    const ordinary = {
-        nmon: null,
-        data: { mmove: 12, mflags1: 0, mflags2: 0 },
-        cham: -1,
-        mhp: 1,
-        mhpmax: 2,
-        mspec_used: 1,
-        mblinded: 1,
-        mfrozen: 0,
-        mfleetim: 0,
-    };
-    const were = {
-        ...ordinary,
-        data: { mmove: 12, mflags1: 0, mflags2: M2_WERE },
-    };
-    ordinary.nmon = were;
-    const state = {
-        moves: 20,
-        level: { monlist: ordinary },
-        vision_full_recalc: 0,
-    };
-    await assert.rejects(
-        () => mcalcdistress(state),
-        /requires a wereChange operation/u,
-    );
-    assert.deepEqual(
-        [ordinary.mhp, ordinary.mspec_used, ordinary.mblinded],
-        [1, 1, 1],
-    );
-});
-
 test('waiting vampires skip distress shapechange without a random draw', async () => {
     const noDraw = () => assert.fail('waiting vampire consumed randomness');
     const vampire = {

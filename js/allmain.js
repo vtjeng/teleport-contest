@@ -167,10 +167,7 @@ import {
     runSimpleMonsterAction,
     wieldMonsterItemAgainstMonster,
 } from './unported_monster_actions.js';
-import {
-    create_gas_cloud,
-    run_regions,
-} from './region.js';
+import { run_regions } from './region.js';
 import {
     nh_timeout,
     do_storms,
@@ -675,18 +672,6 @@ function regionEffectEnv(state, random) {
     };
 }
 
-async function runEveryTurnEffectWithRegionHooks(monster, env) {
-    const regionEnv = regionEffectEnv(env.state, env.random);
-    await m_everyturn_effect(monster, {
-        ...env,
-        createGasCloud: (x, y, size, damage, effectEnv) =>
-            create_gas_cloud(x, y, size, damage, {
-                ...effectEnv,
-                ...regionEnv,
-            }),
-    });
-}
-
 function elapsedTurnMinLiquid(monster, env) {
     return minliquid(monster, {
         ...env,
@@ -1054,7 +1039,7 @@ async function moveElapsedTurnMonster(monster, env) {
         ...env,
         // C ref: mon.c movemon_singlemon():1233-1239, a guard parked at <0,0>.
         guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
-        everyTurnEffect: runEveryTurnEffectWithRegionHooks,
+        everyTurnEffect: m_everyturn_effect,
         visionRecalc: vision_recalc_async,
         clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
         minLiquid: elapsedTurnMinLiquid,
@@ -1348,7 +1333,7 @@ async function moveloop_core_body() {
         await flush_screen(1);
     }
 
-    await runEveryTurnEffectWithRegionHooks(g.youmonst, {
+    await m_everyturn_effect(g.youmonst, {
         state: g,
         random: coreRandom,
     });

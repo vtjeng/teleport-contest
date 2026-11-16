@@ -8,12 +8,7 @@
 
 import {
     BURN,
-    FIRE_RES,
     HEADSTONE,
-    SLEEP_RES,
-    SLP_GAS_TRAP,
-    FIRE_TRAP,
-    ANTI_MAGIC,
 } from './const.js';
 import {
     is_ice,
@@ -23,59 +18,32 @@ import {
 // ES module cycle initializes before either module body runs; nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
+import { bot, map_invisible, newsym, tmp_at } from './display.js';
 import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
 import { should_mulch_missile } from './dothrow.js';
 import {
-    best_target,
-    dog_eat,
     dog_move,
-    finish_meating,
     pet_ranged_attk,
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
-import { capitalizedMonsterName, mon_nam } from './do_name.js';
+import { capitalizedMonsterName } from './do_name.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
-    losehp,
     nh_delay_output,
-    nomul,
 } from './hack.js';
 import { obj_extract_self, stackobj } from './invent.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
-    mdamageu,
 } from './mhitu.js';
-import { buzzmu, castmu } from './mcastu.js';
-import { m_throw, thrwmu } from './mthrowu.js';
+import { m_throw } from './mthrowu.js';
 import { quest_stat_check, quest_talk } from './quest.js';
-import { whimper } from './sounds.js';
-import {
-    wake_msg,
-} from './mon.js';
-import {
-    defended,
-    Resists_Elem,
-    perceives,
-    resists_magm,
-} from './mondata.js';
-import {
-    AD_CLRC,
-    AD_FIRE,
-    AD_MAGM,
-    AD_SLEE,
-    AD_SPEL,
-    AT_MAGC,
-} from './monsters.js';
 import {
     dochug,
     dochugw,
     m_avoid_kicked_loc,
-    m_avoid_soko_push_loc,
-    m_digweapon_check,
     m_move,
     monflee,
     monfleeMessage,
@@ -84,110 +52,29 @@ import {
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
-    find_defensive,
-    find_misc,
-    mon_reflects,
-    use_defensive,
-    use_misc,
-    use_offensive,
-} from './muse.js';
-import {
-    clear_dknown,
     place_object,
     remove_object,
 } from './obj.js';
-import { observe_object } from './o_init.js';
-import { encumber_msg } from './pickup.js';
-import { potionhit } from './potion.js';
 import {
     create_gas_cloud,
     m_in_out_region,
 } from './region.js';
 import { coreRandom } from './rng.js';
-
-
 import { ttyPline } from './tty_message.js';
 import { passive_obj } from './uhitm.js';
 import {
     block_point,
     cansee,
-    couldsee,
     unblock_point,
 } from './vision.js';
 import {
     dmgval,
     mon_wield_item,
-    setmnotwielded,
 } from './weapon.js';
 import { canseemon, canspotmon } from './display.js';
-import { Invis } from './youprop.js';
-
-// monmove.js dochug() calls this before the turn. It admits every monster
-// state; the comments record why no state needs a guard.
-function assertSimpleActionState() {
-    // STRAT_ARRIVE needs no guard: dog.c mon_arrive() is the only writer, and
-    // monmove.c dochug() answers it at 704-708 by calling m_arrival(), which
-    // clears the bit and returns -1 so that dochug() carries straight on.
-    // js/monmove.js dochug() carries that clear.
-    //
-    // STRAT_CLOSE needs no guard either: it always implies STRAT_WAITMASK, so
-    // dochug() returns 0 from its early arm after at most a quest_talk(), and
-    // js/quest.js refuses every conversation branch it does not carry.
-    //
-    // A moving monster has mfrozen 0: every writer of a nonzero mfrozen
-    // clears mcanmove, and every writer of mcanmove clears mfrozen.
-    // trap.c mintrap() owns every held-trap escape, including pits,
-    // metallivore effects, and clearing a stale mtrapped bit on no trap.
-    // C monmove.c:m_move() sends every tame monster through
-    // dogmove.c:dog_move(), whatever its species. dog.c tamedog() and
-    // initedog() give every tame non-minion its edog extension; the tame
-    // minions -- the Astral guardian Angel (minion.c gain_guardian_angel()),
-    // its clones, and any form it is changed into -- have none, and
-    // dog_move()'s null-edog path follows the hero without pet hunger or
-    // fetching. C dochug() calls disturb() before m_move() reaches dog_move().
-    //
-    // isgd is admitted: m_move() dispatches to gd_move() which handles the
-    // peaceful escort path and throws on unported branches.
-    // isshk and ispriest are admitted: m_move() dispatches to shk_move()
-    // and pri_move() respectively, which handle the stationary and milling
-    // paths and refuse the rest.
-    //
-    // mon.c m_respond() is now wired through dochug(); its remaining
-    // unported callees record their own gaps without stopping the turn.
-    // Awake and sleeping leprechauns now reach canonical dochug(), including
-    // its gold movement term, leppie_avoidance(), and AD_SGLD dispatch.
-    // C dochug() owns sleeping-bee wakeup through disturb(), then checks
-    // the bee's square for royal jelly before ordinary movement and attacks.
-}
 
 function actionRandom(rawEnv) {
     return rawEnv.random ?? coreRandom;
-}
-
-function ordinaryMonsterCanSeeHero(monster, state) {
-    return (!Invis(state.u) || perceives(monster.data))
-        && !state.u.uinwater
-        && couldsee(monster.mx, monster.my, state);
-}
-
-// C ref: trap.c m_harmless_trap() (1133-1175). Only these three traps ask
-// for resistance; the surrounding trap cases are decided by
-// monmove.js m_harmless_trap() without a callback.
-function resistsTrapEffect(monster, trapType, env) {
-    const state = env.state ?? game;
-    if (trapType === SLP_GAS_TRAP) {
-        return Resists_Elem(monster, SLEEP_RES, state)
-            || defended(monster, AD_SLEE, state);
-    }
-    if (trapType === FIRE_TRAP) {
-        return Resists_Elem(monster, FIRE_RES, state)
-            || defended(monster, AD_FIRE, state);
-    }
-    if (trapType === ANTI_MAGIC) {
-        return resists_magm(monster, state)
-            || defended(monster, AD_MAGM, state);
-    }
-    return false;
 }
 
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
@@ -257,14 +144,12 @@ export async function moveSimpleOrdinary(monster, env) {
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
-        finishEating: env.finishEating ?? finish_meating,
         movePet: env.movePet ?? moveSimplePet,
         // monmove.c m_move():1953 rejects the square the hero most recently
         // kicked before it filters occupants and tracking. The ordinary
         // adapter must provide the same predicate that the pet adapter uses.
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
-        resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers. m_search_items(), postmov(), and
         // their object consumers now use artifactTouchable()'s canonical
@@ -286,22 +171,9 @@ async function moveSimplePet(monster, after, env) {
         attackHero: attackHeroWithMattacku,
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
-        avoidSokobanPush: (subject, x, y) =>
-            m_avoid_soko_push_loc(subject, x, y, env.state),
-        bestTarget: best_target,
         canSeeMonster: (subject) => canseemon(subject, env.state),
-        // C ref: dogmove.c dog_move():1291-1292 calls the same
-        // m_digweapon_check() m_move() does, so the pet gets the real function
-        // rather than a constant answer.
-        digWeaponCheck: (subject, x, y, moveEnv) => m_digweapon_check(
-            subject,
-            x,
-            y,
-            { ...moveEnv, ...monsterWieldOperations(env) },
-        ),
         displaceMonster: (subject, target, moveEnv) =>
             mdisplacem(subject, target, false, moveEnv),
-        eatObject: dog_eat,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c
@@ -317,33 +189,20 @@ async function moveSimplePet(monster, after, env) {
         // through display.c map_invisible(), which writes map memory and then
         // paints through show_glyph_cell().
         markInvisible: map_invisible,
-        // C ref: dogmove.c:1133. The reflection predicate consumes the pet's
-        // own worn equipment, just as the monster attack callers do.
-        monsterReflects: (subject, moveEnv) => mon_reflects(
-            subject,
-            null,
-            moveEnv.state,
-            moveEnv,
-        ),
         petRangedAttack: runPetRangedAttack,
         redraw: newsym,
-        whimper,
-        // C dogmove.c dog_invent() equips weapon-using pets through
-        // weapon.c mon_wield_item().
-        wieldPickedItem: (subject, actionEnv) =>
-            mon_wield_item(subject, actionEnv),
     });
 }
 
-// The operations mthrowu.c m_throw() and its callers need but js/mthrowu.js
-// cannot import. Both live callers -- thrwmu()'s ordinary thrown weapon and
-// muse.c use_offensive()'s hurled potion -- bind the same set, so the flight
-// itself behaves identically whichever announcement preceded it.
+// Operations the monster attack callers below put on the env. js/mthrowu.js
+// m_throw() calls its callees itself; each key here stays because another
+// reader on the same env takes it (grep -rn "<key>" js/), among them
+// js/mthrowu.js drop_throw()'s floor operations and js/muse.js
+// use_offensive()'s monsterName and throwMissile.
 function monsterMissileEnv(monster, env) {
     return {
         canSeeMonster: (subject) => canseemon(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
-        clearObjectKnowledge: (obj) => clear_dknown(obj, env.state),
         damageValue: (obj, target, actionEnv) => dmgval(
             obj,
             target,
@@ -351,7 +210,6 @@ function monsterMissileEnv(monster, env) {
             { random: actionEnv.random },
         ),
         delayOutput: nh_delay_output,
-        endMulti: (value, state) => nomul(value, state),
         extractObject: (obj, actionEnv) => obj_extract_self(obj, actionEnv),
         floorEffects: (obj, x, y, verb, actionEnv) => flooreffects(
             obj,
@@ -371,9 +229,6 @@ function monsterMissileEnv(monster, env) {
         unblockPoint: (x, y, state) => {
             unblock_point(x, y, state);
         },
-        objectToGlyph: (obj, state) =>
-            obj_to_glyph(obj, state, env.displayRandom),
-        observeObject: (obj, state) => observe_object(obj, state),
         passiveObject: (target, obj, attack, actionEnv) => passive_obj(
             target,
             obj,
@@ -387,8 +242,6 @@ function monsterMissileEnv(monster, env) {
             y,
             actionEnv,
         ),
-        setMonsterNotWielded: (subject, obj, actionEnv) =>
-            setmnotwielded(subject, obj, actionEnv),
         shouldMulch: (obj, actionEnv) => should_mulch_missile(
             obj,
             actionEnv.state,
@@ -406,86 +259,15 @@ function monsterMissileEnv(monster, env) {
     };
 }
 
-// C ref: muse.c use_offensive(), reached from mhitu.c mattacku():758-762. The
-// potion it hurls flies through the same m_throw() a thrown weapon does, so the
-// missile operations are shared; potionhit() is the one this caller adds.
-async function useOffensiveItem(monster, env) {
-    return use_offensive(monster, {
-        ...env,
-        ...monsterMissileEnv(monster, env),
-        potionHit: (target, obj, how, actionEnv) => potionhit(
-            target,
-            obj,
-            how,
-            {
-                ...actionEnv,
-                encumberMessage: encumber_msg,
-            },
-        ),
-    });
-}
-
-// C ref: mhitu.c mattacku()'s range2 AT_WEAP arm calls mthrowu.c:thrwmu().
-// The caller supplies the same missile and message operations as the other
-// m_throw() entries; mon_wield_item() owns the initial wield check, and
-// thrwmu() performs its source-ordered second select_rwep() for the throw.
-async function throwRangedWeapon(monster, env) {
-    return thrwmu(monster, {
-        ...env,
-        ...monsterMissileEnv(monster, env),
-    });
-}
-
 // Shared mattacku adapter for dochug, pet attacks and the special movers.
-// Supply the canonical combat operations used by its nested source owners.
+// mattacku() calls its own dispatch callees; this keeps the missile keys
+// other readers on its env take, and the wield operation js/mhitm.js
+// mattackm() reads when mattacku() turns on the hero's steed.
 function attackHeroWithMattacku(monster, env) {
-    const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
         ...env,
-        // mhitu.c's AT_BREA/AT_SPIT arms call breamu()/spitmu() directly.
-        // Those mthrowu.c paths enter m_throw(), so they need the same owner
-        // operations as the AT_WEAP and muse.c callers below. Without this
-        // shared adapter, a live spit reaches m_throw() with no monsterAt
-        // operation and escapes runSegment() as a bare TypeError.
-        ...missileEnv,
-        throwRangedWeapon,
+        ...monsterMissileEnv(monster, env),
         wieldMonsterItemAgainstMonster,
-        useOffensiveItem,
-        // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
-        castMonsterSpell: (subject, mattk, thinkFound, actualFound, spellEnv) => {
-            const state = spellEnv.state ?? env.state;
-            const spellMessage = spellEnv.message
-                ?? (async (text, owner) => {
-                    await ttyPline(text, owner);
-                });
-            const loseSpellHp = spellEnv.losehp ?? (async (n, knam, format) =>
-                losehp(n, knam, format, state, {
-                    ...spellEnv,
-                    fromMonster: true,
-                    message: spellMessage,
-                }));
-            return castmu(subject, mattk, thinkFound, actualFound, {
-                ...spellEnv,
-                losehp: loseSpellHp,
-                encumberMessage: spellEnv.encumberMessage ?? encumber_msg,
-                monsterName: (mtmp) => capitalizedMonsterName(
-                    mtmp, env.state, { displayRandom: spellEnv.displayRandom },
-                ),
-                monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
-                message: spellMessage,
-                mdamageu: (mtmp2, dmg) =>
-                    mdamageu(mtmp2, dmg, spellEnv.state ?? env.state, spellEnv),
-            });
-        },
-        // C ref: mhitu.c AT_MAGC range2 arm -> buzzmu() (mcastu.c:988-1012).
-        castRangedSpell: (subject, mattk, spellEnv) =>
-            buzzmu(subject, mattk, {
-                ...spellEnv,
-                monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
-                message: async (text, s) => {
-                    await ttyPline(text, s);
-                },
-            }),
     });
 }
 
@@ -551,38 +333,6 @@ function simpleMonsterActionOperations(env, state) {
         // Canonical mattacku operations are shared by both dochug
         // attacks, both pet calls, shk_move, pri_move and wormhitu.
         attackHero: attackHeroWithMattacku,
-                // C ref: monmove.c:895-907. Iterate AT_MAGC attack slots
-                // with AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE).
-                // Most of the time, choose_monster_spell picks a directed
-                // spell and castmu returns M_ATTK_MISS immediately.
-        castUndirectedSpell: async (subject, spellEnv) => {
-                    const mdat = subject.data;
-                    if (!mdat?.mattk) return false;
-                    const castEnv = {
-                        ...spellEnv,
-                        monsterName: (mtmp) =>
-                            capitalizedMonsterName(mtmp, state),
-                        monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
-                        message: async (text, s) => { await ttyPline(text, s); },
-                        mdamageu: (mtmp2, dmg) =>
-                            mdamageu(
-                                mtmp2, dmg,
-                                spellEnv.state ?? state,
-                                spellEnv,
-                            ),
-                    };
-                    for (const a of mdat.mattk) {
-                        if (a.aatyp === AT_MAGC
-                            && (a.adtyp === AD_SPEL
-                                || a.adtyp === AD_CLRC)) {
-                            const result = await castmu(
-                                subject, a, false, false, castEnv,
-                            );
-                            if (result & 0x1) return true; /* M_ATTK_HIT */
-                        }
-                    }
-                    return false;
-                },
                 // monmove.c:distfleeck564 and dochug's fear calls share the
                 // canonical flight owner.
         monFlee: (subject, time, first, showMessage, fleeEnv) =>
@@ -603,53 +353,12 @@ function simpleMonsterActionOperations(env, state) {
                     message: ttyPline,
                     yn: undefined,
                 }),
-        monsterCanSeeHero: ordinaryMonsterCanSeeHero,
         moveMonster: moveSimpleOrdinary,
-        // C ref: monmove.c dochug():794-799 runs muse.c use_defensive() or
-        // use_misc() as soon as find_defensive() or find_misc() selects an
-        // item. Both change the monster or the level -- a potion or wand of
-        // speed monster sets mspeed through worn.c mon_adjust_speed(), which
-        // the next allocation's mcalcmove() reads; other items heal,
-        // teleport, dig, or use up the object -- and both write straight to
-        // the terminal.
-        usePreMoveItems: async (itemUser, itemEnv) => {
-                    const defensive = find_defensive(
-                        itemUser,
-                        false,
-                        itemEnv,
-                    );
-                    if (defensive) {
-                        const result = await use_defensive(
-                            itemUser,
-                            defensive,
-                            itemEnv.state,
-                            itemEnv,
-                        );
-                        return result !== 0;
-                    }
-                    const misc = find_misc(
-                        itemUser,
-                        itemEnv,
-                    );
-                    if (misc) {
-                        const result = await use_misc(
-                            itemUser,
-                            misc,
-                            itemEnv.state,
-                            itemEnv,
-                        );
-                        return result !== 0;
-                    }
-                    return false;
-                },
         wieldMonsterItem: (weaponUser, weaponEnv) =>
                     mon_wield_item(weaponUser, weaponEnv),
         wieldMonsterItemAgainstMonster,
-        wakeMessage: wake_msg,
         wipeEngraving: wipeSimpleEngraving,
-        finishEating: finish_meating,
         movePet: moveSimplePet,
-        preflight: assertSimpleActionState,
     };
 }
 

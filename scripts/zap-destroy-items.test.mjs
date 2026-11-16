@@ -713,7 +713,6 @@ test('monster-caused floor fire destroys quantities before ignition',
             [3, 0], // destroy one scroll
             [3, 1], // preserve the other scroll
         ];
-        const ignited = [];
 
         const burned = await burn_floor_objects(
             monster.mx,
@@ -721,9 +720,6 @@ test('monster-caused floor fire destroys quantities before ignition',
             false,
             false,
             {
-                igniteItems: (head) => {
-                    ignited.push(head);
-                },
                 random: {
                     rn1: () => assert.fail('floor fire does not call rn1'),
                     rn2: (bound) => {
@@ -741,7 +737,6 @@ test('monster-caused floor fire destroys quantities before ignition',
         assert.equal(burned, 1);
         assert.equal(scroll.quan, 1);
         assert.equal(scroll.where, OBJ_FLOOR);
-        assert.deepEqual(ignited, [scroll]);
         assert.equal(script.length, 0);
     });
 
@@ -753,7 +748,6 @@ test('hero-caused floor fire traverses and then ignites', async () => {
     };
 
     const burned = await burn_floor_objects(0, 0, false, true, {
-            igniteItems: () => {},
             random: {
                 rn2: () => assert.fail('empty floor has no eligible objects'),
             },

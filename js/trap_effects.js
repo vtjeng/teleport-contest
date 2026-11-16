@@ -2015,11 +2015,6 @@ async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
     await mtele_trap(mtmp, trap, canseemon(mtmp, state)
         || mtmp === state.u?.usteed, {
         ...env,
-        seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
-            seetrap(candidate, {
-                ...operationEnv,
-                redraw: env.redraw ?? (() => {}),
-            })),
         newsym: env.newsym ?? env.redraw,
     });
     return Trap_Moved_Mon;
@@ -2044,11 +2039,6 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
         canseemon(mtmp, state) || mtmp === state.u?.usteed,
         {
             ...env,
-            seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
-                seetrap(candidate, {
-                    ...operationEnv,
-                    redraw: env.redraw ?? (() => {}),
-                })),
             newsym: env.newsym ?? env.redraw,
         },
     );
@@ -2182,7 +2172,6 @@ export async function dofiretrap(box, rawEnv = {}) {
     }
     if (!box && await burn_floor_objects(u.ux, u.uy, seeIt, true, {
         ...env,
-        igniteItems: ignite_items,
     }) && !seeIt) {
         await message('You smell paper burning.', state, env);
     }
@@ -2304,7 +2293,6 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 
     const burned = await burn_floor_objects(tx, ty, seeIt, false, {
         ...env,
-        igniteItems: ignite_items,
     });
     if (burned && !seeIt
         && dist2(tx, ty, state.u.ux, state.u.uy) <= 3 * 3) {

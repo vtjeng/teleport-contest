@@ -82,7 +82,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:get_artifact()",
-      "reason": "C returns &artilist[oartifact] without a check; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/artifacts.js | artifact_name | 'artifact_name requires an initialized artilist'": {
       "count": 1,
@@ -166,7 +166,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:908",
-      "reason": "C reads get_artifact(obj) directly; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/attrib.js | exerchk | 'attribute check random injection requires rn1 and rn2'": {
       "count": 1,
@@ -334,7 +334,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:spec_ability()",
-      "reason": "C reads get_artifact() directly; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/detect.js | browse_map | 'browse_map() redraws the global game'": {
       "count": 1,
@@ -786,12 +786,6 @@
       "c": "src/dog.c:887",
       "reason": "C migrate_to_level() does not check; callers pass a monster on the map or parked in limbo."
     },
-    "js/dog.js | migratingOperation | `migrate_to_level requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dog.js | mon_catchup_elapsed_time | 'catchup from future time?'": {
       "count": 1,
       "class": "panic",
@@ -814,7 +808,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/dog.c:104",
-      "reason": "C reads &mons[otmp->corpsenm] directly; a figurine always carries a valid species."
+      "reason": "C assert(ismnum(...)) calls abort() (include/cstd.h includes <assert.h> without NDEBUG), ending the game as the throw does; every figurine carries a valid corpsenm."
     },
     "js/dog.js | see_monster_closeup | 'see_monster_closeup requires observedAt when resolved as a ": {
       "count": 1,
@@ -888,29 +882,11 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/dogmove.js | goalOperation | `dog_goal requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/dogmove.js | inventoryOperation | `dog_invent requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dogmove.js | normalizePetMoveEnv | 'dog_move random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
-    },
-    "js/dogmove.js | petMoveOperation | `dog_move requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/dogmove.js | quickmimic | 'quickmimic random injection requires rn2'": {
       "count": 1,
@@ -972,29 +948,11 @@
       "c": "src/dungeon.c:level_info usage",
       "reason": "C indexes svl.level_info[] without a bounds check (a wished portal can read past it); the out-of-bounds read is not modelled."
     },
-    "js/dungeon.js | next_level | 'next_level requires a gotoLevel operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dungeon.js | panic | message": {
       "count": 1,
       "class": "panic",
       "c": "src/dungeon.c:init_dungeons()",
       "reason": "Synchronous stand-in for end.c panic() used by the dungeon.lua loading and lookup code, whose C counterparts call panic()."
-    },
-    "js/dungeon.js | prev_level | 'prev_level requires a done operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/dungeon.js | prev_level | 'prev_level requires a gotoLevel operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/dungeon.js | print_mapseen | `print_mapseen: unknown dungeon ${dnum}`": {
       "count": 1,
@@ -1006,7 +964,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/eat.c:1865",
-      "reason": "C assert(ismnum(mnum)) reports through impossible() and then indexes mons[] out of range, which has no defined continuation; every corpse carries a valid corpsenm."
+      "reason": "C assert(ismnum(...)) calls abort() (include/cstd.h includes <assert.h> without NDEBUG), ending the game as the throw does; every corpse carries a valid corpsenm."
     },
     "js/eat.js | gethungry | 'gethungry random injection requires rn2'": {
       "count": 1,
@@ -1218,12 +1176,6 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/hack.js | domove_swap_with_pet | 'pet swap requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/hack.js | dump_weights | 'dump_weights requires an initialized monster catalog'": {
       "count": 1,
       "class": "invariant",
@@ -1235,12 +1187,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/hack.js | requiredMessageOperation | `${arm} requires a message operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/hack.js | rounddiv | 'division by zero in rounddiv'": {
       "count": 1,
@@ -1752,18 +1698,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mcastu.js | mcast_spell | 'mcast_spell requires the mdamageu operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/mcastu.js | requireCastmuOperation | `castmu requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitm.js | attackEnv | `mattackm random injection requires ${name}`": {
       "count": 1,
       "class": "invariant",
@@ -1776,19 +1710,7 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mhitm.js | requireAttackOperation | `mattackm requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitu.js | draw | `mhitu.c gazemu requires random.${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/mhitu.js | expels | 'expels requires a message operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -1807,12 +1729,6 @@
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/mhitu.js | mattacku | 'mattacku requires an rn2, rnd and d random source'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/mhitu.js | requireMattackuOperation | `mattacku requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2196,12 +2112,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/mon.js | m_consume_obj | 'm_consume_obj requires a quickMimic operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | mongone | 'mongone requires a monster instance'": {
       "count": 1,
       "class": "invariant",
@@ -2250,41 +2160,17 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/mon.js | normalizedDistressEnv | 'monster distress perception and message operations must be ": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | preflight_newcham_distress | 'newcham_distress requires perception and message operations": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | preflight_newcham_distress | 'newcham_distress requires positive integer hit points'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/mon.js | preflightNewWere | 'new_were requires a redrawSquare operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | relmon | 'relmon: monster is not in the list'": {
       "count": 1,
       "class": "panic",
       "c": "src/mon.c:2583",
       "reason": "relmon() panics when the monster is not on fmon."
-    },
-    "js/mon.js | requiredDistressOperation | `mcalcdistress requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | requiredSingleMonsterOperation | `movemon_singlemon requires a ${name} operation`": {
       "count": 1,
@@ -2388,43 +2274,7 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | distfleeck | 'distfleeck predicate injections must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | distfleeck | 'distfleeck random injection requires rnd'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | distfleeck | 'distfleeck requires a monFlee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | disturb | 'disturb requires a wakeMessage operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | dochugw | 'dochugw requires a couldSee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | dochugwInterruptsOccupation | 'dochugw occupation check requires a canSpotMonster operatio": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | m_everyturn_effect | 'm_everyturn_effect requires a createGasCloud operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2448,14 +2298,8 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | monflee | 'monflee light predicates must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | monflee | 'monflee random injection requires rn2'": {
-      "count": 2,
+      "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
@@ -2490,12 +2334,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | requireFleeOperation | `monflee requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | requireMoveOperation | `m_move requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
@@ -2507,12 +2345,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/monmove.js | trapResistance | 'm_harmless_trap requires resistsTrapEffect for this trap ty": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | undesirable_disp | 'undesirable_disp requires cursedObjectAt for a pet'": {
       "count": 1,
@@ -2591,12 +2423,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
-    },
-    "js/mthrowu.js | requireRangedOperation | `monster ranged attack requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mthrowu.js | thitu | 'thitu: name & obj both null?'": {
       "count": 1,
@@ -3690,24 +3516,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/teleport.js | mlevel_tele_trap | 'monster teleport requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/teleport.js | monsterTeleportOperation | `monster teleport requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/teleport.js | mtele_trap | 'monster teleport requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/teleport.js | rloc | 'rloc random injection requires rnd and rn2'": {
       "count": 1,
       "class": "invariant",
@@ -4194,12 +4002,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/uhitm.js | requireAttackOperation | `do_attack requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/version.js | doversion | 'doversion requires the pline operation'": {
       "count": 1,
       "class": "invariant",
@@ -4231,12 +4033,6 @@
       "reason": "C view_from() panics on a range outside 1..MAX_RADIUS; the function is synchronous."
     },
     "js/weapon.js | drain_weapon_skill | 'drain_weapon_skill requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/weapon.js | endWieldedArtifactLight | 'setmnotwielded requires an endArtifactLight operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -4381,12 +4177,6 @@
       "reason": "A missing injected operation."
     },
     "js/write.js | dowrite | 'write.c dowrite() requires fingersOrGloves and dropx'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/zap_destroy_items.js | burn_floor_objects | 'floor fire requires an igniteItems operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,

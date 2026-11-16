@@ -93,9 +93,9 @@ function teleportEnv(messages = null) {
     const env = {
         newsym: (x, y) => newsym(x, y),
         onscary: (x, y, monster) => onscary(x, y, monster, game),
-        seeTrap: (trap) => {
-            trap.tseen = true;
-        },
+        // trap.c seetrap() redraws the trap square; mintrap() supplies
+        // newsym() as this redraw.
+        redraw: (x, y) => newsym(x, y),
         setApparxy: (monster, env) => set_apparxy(monster, env),
         state: game,
     };

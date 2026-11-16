@@ -2414,7 +2414,7 @@ export async function dodown(state = game, env = {}) {
     } else {
         state.ga ??= {};
         state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-        await next_level(!trap, state, { gotoLevel: goto_level });
+        await next_level(!trap, state);
         state.ga.at_ladder = false;
     }
     return ECMD_TIME;
@@ -2471,7 +2471,7 @@ export async function doup(state = game) {
     }
     state.ga ??= {};
     state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-    await prev_level(true, state, { gotoLevel: goto_level, done });
+    await prev_level(true, state);
     state.ga.at_ladder = false;
     return ECMD_TIME;
 }
@@ -2703,12 +2703,7 @@ export async function goto_level(
     await set_uinwater(false, state);
     u.uundetected = false;
     if (!state.iflags?.nofollowers) {
-        await keepdogs(false, {
-            state,
-            inWizardTower: (x, y, level, callbackState) =>
-                finish_steps(In_W_tower_steps(x, y, level, callbackState),
-                    impossible_printer(callbackState)),
-        });
+        await keepdogs(false, { state });
     }
 
     // do.c:1625 refreshes the departing level's overview before savelev()

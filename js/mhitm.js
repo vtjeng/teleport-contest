@@ -208,7 +208,7 @@ import {
 } from './uhitm.js';
 import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
-import { hitval, possibly_unwield } from './weapon.js';
+import { hitval, mon_wield_item, possibly_unwield } from './weapon.js';
 import { find_mac, is_pole, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly_async, remove_worm } from './worm.js';
@@ -334,15 +334,6 @@ export async function slept_monst(mtmp, env = {}) {
     await unstuck(mtmp, state, env);
 }
 
-// The operations mhitm.c reaches that this file cannot import: the caller owns
-// the terminal and the fail-closed boundary its own segment stops on.
-function requireAttackOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`mattackm requires a ${name} operation`);
-    return operation;
-}
-
 function attackEnv(rawEnv) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? coreRandom;
@@ -367,7 +358,7 @@ function attackEnv(rawEnv) {
 // only the second still writes both fields, as C does.
 async function noises(magr, mattk, env) {
     const { state } = env;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     /* hack.h mdistu(): distu() applied to the monster's own square */
     const farq = dist2(magr.mx, magr.my, state.u.ux, state.u.uy) > 15;
 
@@ -448,7 +439,7 @@ function pre_mm_attack(magr, mdef, env) {
 // so the call happens where C makes it.
 async function missmm(magr, mdef, mattk, env) {
     const { state } = env;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
 
     pre_mm_attack(magr, mdef, env);
 
@@ -499,7 +490,7 @@ export async function fightm(mtmp, rawEnv = {}) {
             if (!state.u?.uswallow && mtmp === state.u?.ustuck) {
                 if (!random.rn2(4)) {
                     set_ustuck(null, state);
-                    const message = requireAttackOperation(env, 'message');
+                    const message = env.message ?? ttyPline;
                     await message(
                         `${capitalizedMonsterName(mtmp, state)} releases you!`,
                         state,
@@ -729,7 +720,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
         mdef.mundetected = 0;
         (env.redraw ?? newsym)(mdef.mx, mdef.my);
         if (canseemon(mdef, state) && !sensemon(mdef, state)) {
-            const message = requireAttackOperation(env, 'message');
+            const message = env.message ?? ttyPline;
             if (Unaware(state)) {
                 const justone = Boolean(mdef.data.geno & G_UNIQ);
                 let montype = noname_monnam(
@@ -809,11 +800,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             }
             if (magr.weapon_check === NEED_WEAPON || !magr.mw) {
                 magr.weapon_check = NEED_HTH_WEAPON;
-                const wieldMonsterItem = requireAttackOperation(
-                    env,
-                    'wieldMonsterItemAgainstMonster',
-                );
-                if (await wieldMonsterItem(magr, env) !== 0)
+                if (await mon_wield_item(magr, env) !== 0)
                     return M_ATTK_MISS;
             }
             // weapon.c mon_wield_item() returns 0 for the goblin's empty
@@ -881,7 +868,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                     });
                     if (mclone) {
                         if (state.gv.vis && canspotmon(mdef, state)) {
-                            await requireAttackOperation(env, 'message')(
+                            await (env.message ?? ttyPline)(
                                 `${Monnam(mdef, state, env)} divides as `
                                     + `${mon_nam(magr, state, env)} hits it!`,
                                 state,
@@ -936,7 +923,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
         case AT_ENGL:
             if (mdef.data === state.mons[PM_SHADE]) {
                 if (state.gv.vis) {
-                    await requireAttackOperation(env, 'message')(
+                    await (env.message ?? ttyPline)(
                         `${s_suffix(Monnam(magr, state, env))} attempt to engulf `
                             + `${mon_nam(mdef, state, env)} is futile.`, state, env);
                 }
@@ -1012,7 +999,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 // mdamagem() flags before the aggressor's separate death/lifesaving step.
 async function explmm(magr, mdef, mattk, env) {
     const { state } = env;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
 
     if (magr.mcan) return M_ATTK_MISS;
 
@@ -1164,7 +1151,7 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
     // C names sensed monsters even when the combat sight hook cannot see them.
     const nameEnv = { ...env, canSpotMonster: env.canSpotMonster ?? canspotmon };
     if (!engulf_target(magr, mdef, state)) return M_ATTK_MISS;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const redraw = env.redraw ?? newsym;
     // mondata.h digests()/enfolds() test the engulf attack's damage type.
     const digests = () => magr.data.mattk.some(
@@ -1249,7 +1236,7 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
 // keeps the default hit line from hiding artifact names.
 async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     const { state } = env;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const weaponhit = mattk.aatyp === AT_WEAP
         || (mattk.aatyp === AT_CLAW && mwep);
     const silverhit = weaponhit && mwep
@@ -1367,7 +1354,7 @@ async function mswingsm(magr, mdef, otemp, env) {
     const bash = is_pole(otemp, state)
         && otemp.oartifact !== ART_SNICKERSNEE
         && dist2(magr.mx, magr.my, mdef.mx, mdef.my) <= 2;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const pronounEnv = {
         ...env,
         canSpotMonster: env.canSpotMonster ?? canspotmon,
@@ -1391,7 +1378,7 @@ async function mswingsm(magr, mdef, otemp, env) {
 async function gazemm(magr, mdef, mattk, env) {
     const { state } = env;
     const random = env.random;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const archon = magr.data === state.mons?.[PM_ARCHON]
         && mattk.adtyp === AD_BLND;
     const altmesg = archon && !magr.mcansee;
@@ -1505,7 +1492,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
                 return M_ATTK_HIT;
             }
             if (state.gv?.vis && canspotmon(magr, state)) {
-                await requireAttackOperation(env, 'message')(messageAt(
+                await (env.message ?? ttyPline)(messageAt(
                     `${Monnam(magr, state, { displayRandom: env.displayRandom })} turns to stone!`,
                     magr.mx, magr.my, state,
                 ), state);
@@ -1513,7 +1500,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             await monstone(magr, state, env);
             if (magr.mhp >= 1) return M_ATTK_HIT;
             if (magr.mtame && !state.gv?.vis) {
-                await requireAttackOperation(env, 'message')(
+                await (env.message ?? ttyPline)(
                     'You have a peculiarly sad feeling for a moment, then it passes.',
                     state,
                 );
@@ -1704,7 +1691,7 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
 // mask even when a discarded helper remains a named gap.
 async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     const { state, random } = env;
-    const message = requireAttackOperation(env, 'message');
+    const message = env.message ?? ttyPline;
     const mddat = mdef.data;
     let i;
     let tmp;

@@ -10,13 +10,11 @@ import { set_apparxy } from '../js/monmove.js';
 import { make_blinded, set_itimeout } from '../js/potion.js';
 import { rn2, rnd } from '../js/rng.js';
 import { m_throw } from '../js/mthrowu.js';
-import { mksobj, clear_dknown, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { AKLYS } from '../js/objects.js';
-import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
-import { observe_object } from '../js/o_init.js';
-import { setmnotwielded } from '../js/weapon.js';
-import { canseemon, obj_to_glyph } from '../js/display.js';
-import { vision_reset, vision_recalc, cansee } from '../js/vision.js';
+import { add_to_minv, stackobj } from '../js/invent.js';
+import { canseemon } from '../js/display.js';
+import { vision_reset, vision_recalc } from '../js/vision.js';
 
 // C mthrowu.c:return_from_mtoss:937-939 calls monkilled after lethal fumble.
 // Enter through m_throw so extraction, flight, return and ownership are real.
@@ -65,14 +63,7 @@ for (const hp of [2, 3]) test(`${hp === 2 ? 'target' : 'control'}: returning akl
     await m_throw(mon, 8, 6, -1, 0, 1, weapon, {
         state: game,
         random: { rn2: n => choose('rn2', n), rnd: n => choose('rnd', n) },
-        canSeeMonster: canseemon, canSeeSquare: cansee, monsterAt: m_at,
-        objectToGlyph: obj_to_glyph,
-        temporaryDisplay: async () => {}, delayOutput: async () => {},
-        clearObjectKnowledge: obj => clear_dknown(obj, game),
-        observeObject: obj => observe_object(obj, game),
-        extractObject: obj => obj_extract_self(obj, { state: game }),
-        setMonsterNotWielded: (m, obj) => setmnotwielded(m, obj, { state: game }),
-        damageValue: unexpected,
+        monsterAt: m_at,
         shouldMulch: unexpected, floorEffects: unexpected,
         placeObject: (obj, x, y) => place_object(obj, x, y, { state: game }),
         passiveObject: unexpected, stackObject: obj => stackobj(obj, { state: game }),

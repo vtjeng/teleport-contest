@@ -195,7 +195,7 @@ const ALLOWED = {
     'shknam.js | * | newsym': 2,
     'sit.js | * | newsym': 3,
     'steed.js | * | newsym': 2,
-    'teleport.js | * | newsym': 4,
+    'teleport.js | * | newsym': 3,
     'trap.js | * | newsym': 5,
     'trap_effects.js | * | newsym': 6,
     'uhitm.js | * | newsym': 2,

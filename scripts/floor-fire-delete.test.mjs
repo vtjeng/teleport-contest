@@ -34,7 +34,7 @@ for (const partial of [false, true]) {
             // the owned ID context through its source rnd(2).
             if (partial && uCaused) script.push(['rnd', 2, 1]);
             if (deletesObject) script.push([100, 37]);
-            const redraws = [], ignited = [];
+            const redraws = [];
             const core = structuredClone(game.coreCtx);
             const count = await burn_floor_objects(x, y, false, uCaused, {
                 state,
@@ -54,7 +54,6 @@ for (const partial of [false, true]) {
                     rn1: () => assert.fail('unexpected rn1'),
                     rne: () => assert.fail('unexpected rne'),
                 },
-                igniteItems: async head => { ignited.push(head); },
                 redraw: (a, b) => { redraws.push([a, b]); },
                 message: async () => assert.fail('feedback is disabled'),
             });
@@ -69,7 +68,6 @@ for (const partial of [false, true]) {
                 assert.equal(state.level.objlist, null);
             }
             assert.deepEqual(redraws, deletesObject ? [[x, y]] : []);
-            assert.deepEqual(ignited, [partial ? object : null]);
             assert.deepEqual(game.coreCtx, core);
         });
     }

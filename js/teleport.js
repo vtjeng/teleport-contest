@@ -129,7 +129,6 @@ import { game } from './gstate.js';
 import { addinv, prinv, obj_extract_self, sobj_at } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { discover_object } from './o_init.js';
-import { stop_occupation } from './allmain.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
 import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
@@ -232,7 +231,7 @@ import { morehungry } from './eat.js';
 import { clamp_hole_destination, deltrap, fill_pit, reset_utrap,
     t_at, unconscious }
     from './trap.js';
-import { mintrap } from './trap_effects.js';
+import { mintrap, seetrap } from './trap_effects.js';
 import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
@@ -581,17 +580,6 @@ export function noteleport_level(monster, state = game) {
         >= Math.trunc(state.moves ?? 0);
 }
 
-function monsterTeleportOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            `monster teleport requires a ${name} operation`,
-        );
-    }
-    return operation;
-}
-
-
 // C ref: teleport.c tele_restrict() (1950-1960). Returns true when the
 // level forbids teleportation, printing a message if the hero can see the
 // monster.
@@ -662,15 +650,7 @@ export async function mtele_trap(
     if (noteleport_level(monster, state)) return;
     if (monster === state.u?.usteed) return;
     if (!await teleport_pet(monster, false, env)) return;
-    const message = inSight ? (env.message ?? ttyPline) : null;
-    if (inSight && typeof message !== 'function') {
-        throw new TypeError(
-            'monster teleport requires a message operation',
-        );
-    }
-    const seeTrap = inSight
-        ? monsterTeleportOperation(env, 'seeTrap')
-        : null;
+    const message = env.message ?? ttyPline;
 
     const name = capitalizedMonsterName(monster, state);
     const destinationX = trap.teledest?.x;
@@ -700,7 +680,9 @@ export async function mtele_trap(
                 : `${name} suddenly disappears!`,
             state,
         );
-        seeTrap(trap, env);
+        // trap.c seetrap() redraws through env.redraw; mintrap(), the only
+        // caller's route here, defaults it to newsym().
+        seetrap(trap, env);
     }
 }
 
@@ -742,20 +724,7 @@ export async function mlevel_tele_trap(
     // their own adapter; any other caller, such as a fountain
     // monster that lands on a level teleporter, gets the source function.
     const migrateToLevel = env.migrateToLevel ?? migrate_to_level;
-    const seeTrap = inSight
-        ? (env.seeTrap ?? ((candidate, operationEnv) => {
-            candidate.tseen = true;
-            if (typeof operationEnv.newsym === 'function') {
-                operationEnv.newsym(candidate.tx, candidate.ty, operationEnv);
-            }
-        }))
-        : null;
     const message = env.message ?? ttyPline;
-    if (inSight && typeof message !== 'function') {
-        throw new TypeError(
-            'monster teleport requires a message operation',
-        );
-    }
 
     // trap.c passes the clamped destination by value to migrate_to_level();
     // never rewrite trap->dst because the trap remains in the source level's
@@ -778,7 +747,7 @@ export async function mlevel_tele_trap(
                     monster.my,
                     state,
                 ), state);
-                seeTrap(trap, env);
+                seetrap(trap, env);
             }
             return 'finished';
         }
@@ -854,7 +823,7 @@ export async function mlevel_tele_trap(
             monster.my,
             state,
         ), state);
-        seeTrap(trap, env);
+        seetrap(trap, env);
     }
     if (is_xport(trapType) && !control_teleport(monster.data))
         monster.mconf = 1;
@@ -1314,14 +1283,9 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
 
     const afterShopItems = () => {
         if (state.go?.occupation) {
-            return thenResult(dochugw(monster, false, {
-                ...env,
-                state,
-                canSpotMonster: (subject) => canspotmon(subject, state),
-                couldSee: (targetX, targetY) => couldsee(targetX, targetY, state),
-                // teleport.c:1763 dochugw() -> monmove.c:235.
-                stopOccupation: () => stop_occupation(state, { ...env, message }),
-            }), afterOccupation);
+            // teleport.c:1763 dochugw() -> monmove.c:235 stop_occupation().
+            return thenResult(dochugw(monster, false, { ...env, state }),
+                afterOccupation);
         }
         return afterOccupation();
     };

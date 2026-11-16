@@ -2,7 +2,7 @@
 // the C function it comes from: wizard.c mon_has_amulet()/resurrect(), mon.c
 // get_iter_mons(), mondata.c levl_follower(), apply.c next_to_u(), lock.c
 // reset_pick()/maybe_reset_pick(), hack.c set_uinwater()/check_special_room(),
-// and dungeon.c dunlevs_in_dungeon()/In_hell()/next_level().
+// and dungeon.c dunlevs_in_dungeon()/In_hell().
 //
 // Every expected value comes from reading those functions. None was copied
 // from a run of the port. scripts/dodown.test.mjs pins what goto_level() does
@@ -25,7 +25,6 @@ import { next_to_u } from '../js/apply_next_to_u.js';
 import {
     In_hell,
     dunlevs_in_dungeon,
-    next_level,
 } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
@@ -434,45 +433,6 @@ test('dunlevs_in_dungeon and In_hell read the dungeon the level belongs to',
     assert.equal(dunlevs_in_dungeon({ dnum: 1, dlevel: 1 }, state), 20);
     assert.equal(In_hell({ dnum: 0, dlevel: 1 }, state), false);
     assert.equal(In_hell({ dnum: 1, dlevel: 1 }, state), true);
-});
-
-test('next_level follows the staircase it stands on, or descends one level',
-    async () => {
-    // dungeon.c:1496-1514. The branch that matters is `at_stairs && stway`:
-    // with both, the destination comes from the stairway and `falling` is
-    // FALSE; without either, it is the next level down and `falling` is
-    // !at_stairs.
-    const state = heroState();
-    // stairs.c stairway_add() writes the module-level game rather than a
-    // supplied state, so the node is built here in the shape it produces.
-    const stway = { sx: HERO_X, sy: HERO_Y, up: false, isladder: false,
-        tolev: { dnum: 1, dlevel: 1 }, next: null };
-    state.stairs = stway;
-
-    const calls = [];
-    const gotoLevel = (...args) => calls.push(args.slice(0, 4));
-
-    next_level(true, state, { gotoLevel });
-    assert.equal(stway.u_traversed, true);
-    assert.deepEqual(calls.at(-1),
-        [{ dnum: 1, dlevel: 1 }, true, false, false]);
-
-    // No stairway under the hero: a trap door drops her to dlevel + 1 and
-    // marks the arrival as a fall.
-    state.stairs = null;
-    next_level(false, state, { gotoLevel });
-    assert.deepEqual(calls.at(-1),
-        [{ dnum: 0, dlevel: 5 }, false, true, false]);
-
-    // at_stairs TRUE with no stairway keeps falling FALSE.
-    next_level(true, state, { gotoLevel });
-    assert.deepEqual(calls.at(-1),
-        [{ dnum: 0, dlevel: 5 }, true, false, false]);
-
-    // next_level() is async because goto_level() is; the missing-operation
-    // check still runs before its first await, so it rejects rather than
-    // throwing.
-    await assert.rejects(() => next_level(true, state, {}), TypeError);
 });
 
 test('is_fshk needs both the shopkeeper flag and the following flag', () => {

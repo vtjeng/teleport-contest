@@ -27,7 +27,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
-import { PM_KITTEN, PM_LONG_WORM, monst_globals_init } from '../js/monsters.js';
+import { PM_KITTEN, PM_LONG_WORM, PM_VALKYRIE, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
@@ -35,7 +35,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { moveloop_core } from '../js/allmain.js';
 import { initUnported } from '../js/unported.js';
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD, init_artifacts } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
     ARROW,
@@ -599,9 +599,19 @@ test('extract_from_minvent unwields a weapon and ends an armor artifact light',
 
 test('extract_from_minvent waits for canonical wielded-light cleanup', async () => {
     // C worn.c:1413-1415 calls mwepgone() after obj_no_longer_held().  The
-    // source mwepgone/setmnotwielded pair must finish its light cleanup before
-    // the caller can free, merge, or reuse the extracted object.
+    // source mwepgone/setmnotwielded pair must finish its light cleanup,
+    // which ends with weapon.c setmnotwielded()'s stop-shining pline() for a
+    // monster the hero can see, before the caller can free, merge, or reuse
+    // the extracted object.
     const state = catalogState();
+    light_globals_init(state);
+    // The message names the sword, and xname() looks its artifact up.
+    // init_artifacts() reads role_init()'s role and alignment. The Valkyrie
+    // role number and alignment 0 are arbitrary; questarti 0 skips the quest
+    // artifact fix-up, which naming Sunsword does not need.
+    state.urole = { mnum: PM_VALKYRIE, questarti: 0 };
+    state.flags = { initalign: 0 };
+    init_artifacts(state);
     const sword = wornObject(state, LONG_SWORD, W_WEP, {
         oartifact: ART_SUNSWORD,
         lamplit: true,
@@ -614,36 +624,38 @@ test('extract_from_minvent waits for canonical wielded-light cleanup', async () 
     sword.where = OBJ_MINVENT;
     sword.ocarry = mon;
     mon.mw = sword;
+    // The light source end_burn() deletes.
+    new_light_source(0, 0, 1, LS_OBJECT, sword, state);
 
     const events = [];
     let release;
-    const lightFinished = new Promise((resolve) => { release = resolve; });
+    const messageShown = new Promise((resolve) => { release = resolve; });
     const extraction = extract_from_minvent(mon, sword, false, true, {
         state,
-        hooks: {
-            endArtifactLight: async (obj) => {
-                events.push(`started:${obj.where}`);
-                await lightFinished;
-                events.push('finished');
-                obj.lamplit = false;
-            },
+        canseemon: () => true,
+        message: async (text) => {
+            events.push(`message:${sword.lamplit}`);
+            await messageShown;
+            events.push('finished');
         },
     });
 
     // Dynamic import of weapon.c's canonical owner is part of the production
-    // path, so yield through the event loop before observing the delayed hook.
-    // The production extraction path dynamically loads weapon.c before it can
-    // invoke mwepgone(); wait for that module turn without sleeping on a fixed
-    // timing assumption.
+    // path, so yield through the event loop before observing the delayed
+    // message. The production extraction path dynamically loads weapon.c
+    // before it can invoke mwepgone(); wait for that module turn without
+    // sleeping on a fixed timing assumption.
     for (let turn = 0; turn < 8 && events.length === 0; turn++)
         await new Promise((resolve) => setImmediate(resolve));
-    assert.deepEqual(events, [`started:${OBJ_FREE}`]);
+    // end_burn() has put the light out before the message.
+    assert.deepEqual(events, ['message:false']);
+    assert.equal(state.gl.light_base, null);
     assert.equal(mon.mw, sword);
     assert.equal(mon.weapon_check, 0);
 
     release();
     await extraction;
-    assert.deepEqual(events, [`started:${OBJ_FREE}`, 'finished']);
+    assert.deepEqual(events, ['message:false', 'finished']);
     assert.equal(mon.mw, null);
     assert.equal(sword.owornmask, 0);
     assert.equal(mon.weapon_check, NEED_WEAPON);

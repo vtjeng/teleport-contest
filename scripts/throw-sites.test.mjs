@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { assertExceptionCount } from './exception-count.mjs';
-import { readJsSources, scanThrowSites } from './throw-sites.mjs';
+import { readJsSources, scanThrowSites, throwSitesInSource } from './throw-sites.mjs';
 
 const LIST = JSON.parse(readFileSync(
     new URL('./throw-site-list.json', import.meta.url), 'utf8'));
@@ -26,8 +26,11 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // mkobj.c check_contained() cycles) with end.c panic(). The diagnostic
 // marker audit (branch diag-markers) gave 13 more C panic() calls in
 // synchronous functions a listed throw: 96 panic in all. formatkiller()
-// added one guard for a missing C buffer size (source-review-3c).
-const LIST_PINS = { entries: 738, sites: 744 };
+// added one guard for a missing C buffer size (source-review-3c). Branch
+// remove-injected-ops replaced injected operations with direct calls and
+// removed 36 invariant throws, 708 left under 703 keys; 28 of them matched
+// INJECTED_OPERATION_PIN below.
+const LIST_PINS = { entries: 703, sites: 708 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());
@@ -60,6 +63,39 @@ test('the list holds the pinned number of entries and throws', () => {
         what: 'listed throws',
         pin: 'LIST_PINS.sites in scripts/throw-sites.test.mjs',
     });
+});
+
+// A throw for a missing injected operation ("<fn> requires a <name>
+// operation") ends the scored segment when a production caller omits that
+// operation. C calls the function directly, so the port does too: import the
+// ported callee and call it. The pin counts the throws that remain and comes
+// down to 0; a new one fails here.
+const INJECTED_OPERATION_THROW = /requires an? \S+ operation/u;
+const INJECTED_OPERATION_PIN = 11;
+
+test('no new missing-operation throw', () => {
+    // The whole message, not the key's 60-character head, which can cut
+    // "operation" off a long one.
+    const sites = Object.entries(readJsSources())
+        .flatMap(([file, source]) => throwSitesInSource(file, source))
+        .filter((site) => INJECTED_OPERATION_THROW.test(site.message));
+    assertExceptionCount(sites.length, INJECTED_OPERATION_PIN, {
+        what: 'missing-operation throws',
+        pin: 'INJECTED_OPERATION_PIN in scripts/throw-sites.test.mjs',
+    });
+});
+
+test('the missing-operation pattern matches each form the port wrote', () => {
+    // Messages as the source writes them: a literal, a template naming the
+    // operation, and the "an" form (js/weapon.js setmnotwielded()).
+    for (const head of [
+        "'next_level requires a gotoLevel operation'",
+        '`mattackm requires a ${name} operation`',
+        "'setmnotwielded requires an endArtifactLight operation'",
+    ]) assert.match(head, INJECTED_OPERATION_THROW);
+    // A guard that mentions a requirement but no operation is not counted.
+    assert.doesNotMatch("'lit-item splash requires a monster-carried object'",
+        INJECTED_OPERATION_THROW);
 });
 
 test('the scan keys each listed throw by file, function and message head', () => {

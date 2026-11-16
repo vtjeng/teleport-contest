@@ -25,6 +25,7 @@ import {
     HMON_MELEE,
     HMON_THROWN,
     HMON_KICKED,
+    HMON_DRAGGED,
     OBJ_MINVENT,
     OBJ_DELETED,
     W_WEP,
@@ -126,6 +127,7 @@ import {
     AMULET_OF_LIFE_SAVING,
     LOADSTONE,
     POT_BLINDNESS,
+    HEAVY_IRON_BALL,
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
 import { addinv } from '../js/invent.js';
@@ -316,6 +318,30 @@ test('hmon admits a thrown cream pie', async () => {
     assert.equal(mon.mblinded, 22);
     assert.equal(pie.where, OBJ_DELETED);
     assert.ok(env.lines.some((line) => line.includes('cream pie')));
+});
+
+// ball.c drag_ball():806 calls hmon(victim, uball, HMON_DRAGGED, dieroll) for
+// a monster on the chain's square, and js/ball.js passes no operation bundle.
+// The hit line must reach the terminal through ttyPline rather than stop the
+// segment on a missing `message` operation.
+test('hmon with no operations prints a dragged-ball hit', async () => {
+    await hero();
+    const mon = target(PM_LICHEN);
+    place_monster(mon, mon.mx, mon.my, game);
+    // zap.c hit() reads gb.bhitpos. In play, hack.c domove() sets it before
+    // it reaches drag_ball(); this fresh segment has not moved yet.
+    game.gb.bhitpos = { x: mon.mx, y: mon.my };
+    const ball = mksobj(HEAVY_IRON_BALL, false, false, { state: game });
+    // Spaces answer any --More-- the hit raises after the opening messages.
+    game.nhDisplay.clearInputQueue();
+    for (let i = 0; i < 8; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // A dieroll of 10 is an ordinary hit: not the 1 or 20 some arms test.
+    assert.equal(await hmon(mon, ball, HMON_DRAGGED, 10, game), true);
+    // target() gives 99 hit points, more than a ball blow can take.
+    assert.ok(mon.mhp < 99);
+    // HMON_DRAGGED is non-zero, so hmon_hitmon_msg_hit() takes C's
+    // `hmd->thrown` arm and zap.c hit() words the line.
+    assert.equal(game._ttyToplines, 'The heavy iron ball hits the lichen!');
 });
 
 // uhitm.c:1140-1152 calls release_camera_demon() before useup(); the latter

@@ -42,8 +42,7 @@ test('weapon swing naming keeps its native display owner', async () => {
         displayRandom: n => rn2_on_display_rng(n, game),
         unsupported: reason => assert.fail(reason),
         message: async text => { lines.push(text); },
-        redraw() {}, markInvisible() {}, statusRefresh: async () => {},
-        wieldMonsterItem: async () => 0, throwRangedWeapon() {} });
+        redraw() {}, markInvisible() {}, statusRefresh: async () => {} });
     assert.notDeepEqual(game.displayCtx, displayBefore);
     assert.deepEqual(game.coreCtx, coreBefore);
     assert.ok(lines.some(line => line.includes('swings')));
