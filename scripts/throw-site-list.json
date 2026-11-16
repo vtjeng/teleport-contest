@@ -82,7 +82,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:get_artifact()",
-      "reason": "C returns &artilist[oartifact] without a check; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/artifacts.js | artifact_name | 'artifact_name requires an initialized artilist'": {
       "count": 1,
@@ -166,7 +166,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:908",
-      "reason": "C reads get_artifact(obj) directly; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/attrib.js | exerchk | 'attribute check random injection requires rn1 and rn2'": {
       "count": 1,
@@ -334,7 +334,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:spec_ability()",
-      "reason": "C reads get_artifact() directly; oartifact is always a valid index."
+      "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
     "js/detect.js | browse_map | 'browse_map() redraws the global game'": {
       "count": 1,
@@ -814,7 +814,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/dog.c:104",
-      "reason": "C reads &mons[otmp->corpsenm] directly; a figurine always carries a valid species."
+      "reason": "C assert(ismnum(...)) calls abort() (include/cstd.h includes <assert.h> without NDEBUG), ending the game as the throw does; every figurine carries a valid corpsenm."
     },
     "js/dog.js | see_monster_closeup | 'see_monster_closeup requires observedAt when resolved as a ": {
       "count": 1,
@@ -988,7 +988,7 @@
       "count": 1,
       "class": "guard",
       "c": "src/eat.c:1865",
-      "reason": "C assert(ismnum(mnum)) reports through impossible() and then indexes mons[] out of range, which has no defined continuation; every corpse carries a valid corpsenm."
+      "reason": "C assert(ismnum(...)) calls abort() (include/cstd.h includes <assert.h> without NDEBUG), ending the game as the throw does; every corpse carries a valid corpsenm."
     },
     "js/eat.js | gethungry | 'gethungry random injection requires rn2'": {
       "count": 1,
