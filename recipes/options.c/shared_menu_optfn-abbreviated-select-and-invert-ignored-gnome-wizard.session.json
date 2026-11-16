@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source review 5a: two menu command options written as abbreviations parseoptions() accepts (menu_select_p for menu_select_page, menu_invert_a for menu_invert_all) reach shared_menu_optfn() (options.c 2054-2062), whose check_misc_menu_command() (695-707) needs the complete name and returns -1, so both fail silently with no configuration error; MENU_DESELECT_ALL:& in capitals is the complete name and is applied. The menu control key list shows the defaults for the first two and '&' for the third.",
+  "segments": [
+    {
+      "seed": 61834207,
+      "datetime": "20330214080906",
+      "nethackrc": "OPTIONS=name:Fizzwick,role:Wizard,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=menu_select_p:Z,menu_invert_a:I\nOPTIONS=MENU_DESELECT_ALL:&\n",
+      "moves": "\n?l  j"
+    }
+  ]
+}

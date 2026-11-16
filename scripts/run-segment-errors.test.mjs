@@ -22,10 +22,13 @@ const START = {
 // is input the segment never reaches.
 const REFUSED_KEY = 'Z';
 const MID_GAME = { ...START, moves: `ssss${REFUSED_KEY}s` };
-// options.c parseoptions() accepts a unique prefix of a menu command option;
-// js/options.js applyOption() has not ported that match and throws a plain
-// Error while start() reads the rc, before any capture.
-const START_CRASH = { ...START, nethackrc: `${START.nethackrc}OPTIONS=menu_first_pa:x\n` };
+// No option text makes start() throw any more, so the rc itself does: its
+// conversion to text throws a plain Error while start() reads it, before any
+// capture.
+const START_CRASH = {
+    ...START,
+    nethackrc: { toString() { throw new Error('rc text unreadable'); } },
+};
 
 // No short input reaches a fail-closed refusal any more, so the key reader
 // raises the command refusal itself when it reads REFUSED_KEY, as rhack()
@@ -103,8 +106,7 @@ test('runSegment() returns a game that crashed during start()', async () => {
     assert.ok(before.getScreens().length > 0);
 
     const game = await runSegment(START_CRASH);
-    assert.equal(game.segmentError.message,
-        "nethackrc line 3: menu command option 'menu_first_pa' requires its full canonical name");
+    assert.equal(game.segmentError.message, 'rc text unreadable');
     assert.deepEqual(game.getScreens(), []);
     assert.deepEqual(game.getCursors(), []);
     assert.deepEqual(game.getAnimationFramesByStep(), []);
@@ -112,7 +114,7 @@ test('runSegment() returns a game that crashed during start()', async () => {
     // between, so this segment has logged no call.
     assert.deepEqual(game.getRngLog(), []);
 
-    await assert.rejects(runSegmentStrict(START_CRASH), /menu command option 'menu_first_pa'/u);
+    await assert.rejects(runSegmentStrict(START_CRASH), /rc text unreadable/u);
 });
 
 test('runSegment() leaves segmentError null when nothing crashed', async () => {

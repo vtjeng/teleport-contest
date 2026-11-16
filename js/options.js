@@ -3235,13 +3235,6 @@ function menuCommandOption(name) {
     return index >= 0 ? MENU_COMMAND_OPTIONS[index] : null;
 }
 
-function isMenuCommandPrefix(name) {
-    return MENU_COMMAND_OPTIONS.some(
-        ({ name: canonical }) => canonical !== name
-            && canonical.startsWith(name),
-    );
-}
-
 function byteOf(character) {
     return character.charCodeAt(0) & 0xFF;
 }
@@ -6256,15 +6249,14 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_hilite_status(result, DO_SET, negated, statement, value);
     } else if (name === 'statushilites') {
         setStatusHiliteDuration(result, value, negated);
-    } else if (menuCommand && parsedName === name) {
+    } else if (menuCommand) {
+        // shared_menu_optfn() hands the statement to
+        // check_misc_menu_command(), which wants the complete name, so an
+        // abbreviation parseoptions() accepted is refused there with a
+        // silent optn_err (options.c 2060-2062, 706).
         MENU_OPTION_FUNCTIONS[name](
             result, allopt.indexOf(matchedRow), DO_SET, negated,
             statement, value ?? '', null,
-        );
-    } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
-        optionError(
-            lineNumber,
-            `menu command option '${parsedName}' requires its full canonical name`,
         );
     } else if (name === 'packorder') {
         // optlist.h gives negateok No, so a negated spelling never arrives.
