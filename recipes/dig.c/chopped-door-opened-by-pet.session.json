@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c dig() 557-559: a debug Valkyrie kills a jackal with #wizkill, wishes a closed door into the doorway on her room's west wall, steps into the corridor and makes a tame gnome lord there, wields a wished -20 axe (whose chopping effort never completes) and ^T-teleports back into the room. She applies the axe westward at the door; the tame gnome lord, which monster_nearby() ignores, opens the door from the corridor, so on the next dig() call dig_typ() returns DIGTYP_UNDIGGABLE and dig() stops silently at 559. A search and ESC end the recipe.",
+  "segments": [
+    {
+      "seed": 6021187,
+      "datetime": "20380807120000",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "#wizkill\nm.\u001bh\u0017closed door\n\u001bh\u0007tame gnome lord\n\u001b\u0017uncursed -20 axe\n\u001bwe\u0014ll.\u001baehs\u001b"
+    }
+  ]
+}
