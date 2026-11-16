@@ -729,7 +729,7 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.match(jsMHurtle,
         /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
     assert.match(jsMHurtle,
-        /state\.svk\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.svk\.killer\.name, state, env\);[\s\S]*?redraw\(state\.u\.ux, state\.u\.uy\);/u);
+        /state\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.killer\.name, state, env\);[\s\S]*?redraw\(state\.u\.ux, state\.u\.uy\);/u);
     assert.doesNotMatch(jsMHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsThrow,
         /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);/u);
@@ -2156,8 +2156,8 @@ test('throw_obj calls instapetrify before continuing a barehanded corpse throw',
     assert.ok(cThrowStart >= 0 && cThrowEnd > cThrowStart);
     assert.ok(jsThrowStart >= 0 && jsThrowEnd > jsThrowStart);
     assert.match(cThrowObj, /if \(!uarmg && obj->otyp == CORPSE[\s\S]*?Sprintf\(svk\.killer\.name, "throwing %s bare-handed",[\s\S]*?instapetrify\(svk\.killer\.name\);[\s\S]*?if \(welded\(obj\)\)/u);
-    const killerSetup = 'state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;';
-    const instapetrifyCall = 'await instapetrify(state.svk.killer.name, state);';
+    const killerSetup = 'state.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;';
+    const instapetrifyCall = 'await instapetrify(state.killer.name, state);';
     assert.ok(jsThrowObj.includes(killerSetup));
     assert.ok(jsThrowObj.includes(instapetrifyCall));
     assert.ok(jsThrowObj.indexOf(killerSetup) < jsThrowObj.indexOf(instapetrifyCall));

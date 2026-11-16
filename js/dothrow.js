@@ -747,8 +747,7 @@ export async function mhurtle_step(arg, x, y) {
         }
         if (touch_petrifies(monster.data)
             && !(state.uarmu || state.uarm || state.uarmc)) {
-            state.svk ??= {};
-            state.svk.killer ??= {};
+            state.killer ??= {};
             const article = monster.mtame ? ARTICLE_YOUR : ARTICLE_A;
             const name = x_monnam(
                 monster,
@@ -759,8 +758,8 @@ export async function mhurtle_step(arg, x, y) {
                 state,
                 env,
             );
-            state.svk.killer.name = `being hit by ${name}`;
-            await instapetrify(state.svk.killer.name, state, env);
+            state.killer.name = `being hit by ${name}`;
+            await instapetrify(state.killer.name, state, env);
             redraw(state.u.ux, state.u.uy);
         }
     }
@@ -2096,10 +2095,9 @@ export async function throw_obj(obj, shotlimit, state = game) {
                 + `with your bare ${makeplural(body_part(HAND, state.youmonst))}.`,
             state,
         );
-        state.svk ??= {};
-        state.svk.killer ??= {};
-        state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;
-        await instapetrify(state.svk.killer.name, state);
+        state.killer ??= {};
+        state.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;
+        await instapetrify(state.killer.name, state);
     }
     if (welded(obj, state)) {
         // canletgo() above rejects an actually welded wielded item first. Keep
