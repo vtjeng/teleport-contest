@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4402871,
+      "datetime": "20370215201209",
+      "nethackrc": "OPTIONS=name:Sela,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u00175 uncursed scrolls of genocide\nre\n\nWoodland-elf\nre\nGreen-elf\nre\nGrey-elf\nre\nelf-lord\nre\nElvenking\n#polyself\n@\n\n\n\n"
+    }
+  ],
+  "comment": "Blind review: polyself() 598-607. A dwarven hero genocides the five polyok elves, so mkclass_poly(S_HUMAN) can only return were-humans, the doppelganger, soldiers or the nurse, none polyok() and none the hero's race; #polyself with '@' then retries by class until tryct is used up and reports that it cannot polymorph into the last pick."
+}

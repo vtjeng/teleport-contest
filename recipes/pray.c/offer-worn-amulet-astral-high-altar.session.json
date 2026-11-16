@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7004413,
+      "datetime": "20380815120000",
+      "nethackrc": "OPTIONS=name:Ragna,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u001b#levelchange\n30\n\u001b\u001b\u0016?\n>J\u001b\u001b\u001b\u001b#wizmap\n\u001b\u0014\ny_.\u001b\u001b\u001bPe\u001b#offer\ne\u001b\u001b"
+    }
+  ],
+  "comment": "Blind review: offer_real_amulet() 1535-1536. A debug Valkyrie level-teleports to the Astral Plane (receiving the Amulet), maps it, teleports onto a high altar, puts the Amulet on and offers it from inventory; the worn Amulet is taken off with Amulet_off() before it is used up."
+}
