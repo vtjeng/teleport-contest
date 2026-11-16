@@ -94,7 +94,8 @@ function enclosingName(ancestors) {
     return '<module>';
 }
 
-// Each listed throw in one file: { key, line, errorClass }.
+// Each listed throw in one file: { key, line, errorClass, message }, where
+// `message` is the whole source text of the message argument.
 export function throwSitesInSource(file, source) {
     const ast = parse(source, {
         ecmaVersion: 'latest',
@@ -118,6 +119,7 @@ export function throwSitesInSource(file, source) {
             key: `${file} | ${enclosingName(ancestors)} | ${head}`,
             line: node.loc.start.line,
             errorClass,
+            message,
         });
     });
     return sites;
