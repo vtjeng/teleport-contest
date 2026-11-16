@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30577,
+      "datetime": "20350927173000",
+      "nethackrc": "OPTIONS=name:Ashen,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.7.0,playmode:debug\n",
+      "moves": "\u0017blessed spellbook of drain life\n\u00172 blessed potions of gain energy\nqqqqrp Zc_l.\u0001 \u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff"
+    }
+  ],
+  "comment": "end.c really_done() witness for a death after a hangup (done_hup set, end.c:1149-1151). In debug mode an elven Wizard wishes for a blessed spellbook of drain life and two blessed potions of gain energy, drinks both, learns the spell, and casts it east by answering the direction prompt with the simulated-mouse key '_' and picking a spot with getpos(). ^A repeats the cast: getspell() and getdir() take 'c' and '_' from CQ_REPEAT, docast() appends 'c' to that queue again, and getpos() takes it as an unknown direction before reading the keyboard through pgetchar() with in_doagain set. The 0377 bytes make readchar_core() call hangup(), which swaps in the no-op window procedures and returns ESC; getpos() fails, so getdir() clears u.dx, u.dy and u.dz, spelleffects() reuses that direction, and the spell drains the level-1 hero, whose losexp() calls done(DIED). With done_hup set, done() skips the wizard-mode 'Die?' query (end.c:1110), and really_done() sets done_stopprint, so nothing more is drawn."
+}
