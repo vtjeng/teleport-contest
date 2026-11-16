@@ -122,25 +122,7 @@ import {
     str2race,
     str2role,
 } from './roles.js';
-import {
-    ATR_NONE,
-    CLR_BLACK,
-    CLR_BLUE,
-    CLR_BRIGHT_BLUE,
-    CLR_BRIGHT_CYAN,
-    CLR_BRIGHT_GREEN,
-    CLR_BRIGHT_MAGENTA,
-    CLR_BROWN,
-    CLR_CYAN,
-    CLR_GRAY,
-    CLR_GREEN,
-    CLR_MAGENTA,
-    CLR_ORANGE,
-    CLR_RED,
-    CLR_WHITE,
-    CLR_YELLOW,
-    NO_COLOR,
-} from './terminal.js';
+import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
     cnf_line_BOULDER,
     cnf_line_MENUCOLOR,
@@ -1951,76 +1933,27 @@ function optfn_crash_urlmax(result, statement) {
     result.gc.crash_urlmax = limit;
 }
 
-const MENU_HEADING_COLORS = Object.freeze({
-    black: CLR_BLACK,
-    red: CLR_RED,
-    green: CLR_GREEN,
-    brown: CLR_BROWN,
-    blue: CLR_BLUE,
-    magenta: CLR_MAGENTA,
-    purple: CLR_MAGENTA,
-    cyan: CLR_CYAN,
-    gray: CLR_GRAY,
-    grey: CLR_GRAY,
-    orange: CLR_ORANGE,
-    lightgreen: CLR_BRIGHT_GREEN,
-    brightgreen: CLR_BRIGHT_GREEN,
-    yellow: CLR_YELLOW,
-    lightblue: CLR_BRIGHT_BLUE,
-    brightblue: CLR_BRIGHT_BLUE,
-    lightmagenta: CLR_BRIGHT_MAGENTA,
-    brightmagenta: CLR_BRIGHT_MAGENTA,
-    lightpurple: CLR_BRIGHT_MAGENTA,
-    brightpurple: CLR_BRIGHT_MAGENTA,
-    lightcyan: CLR_BRIGHT_CYAN,
-    brightcyan: CLR_BRIGHT_CYAN,
-    brightred: CLR_ORANGE,
-    white: CLR_WHITE,
-    nocolor: NO_COLOR,
-    transparent: NO_COLOR,
-});
-
-// The status-highlight reading of coloratt.c attrnames[]: match_str2attr()
-// composed with the ATR_ to HL_ chain that botl.c spells identically in
-// parse_status_hl2() (3040-3060) and parse_condition() (3306-3326).  Each
-// answer is the HL_ bit from include/botl.h:251-258 that the chain selects,
-// so a caller ORs it in -- except HL_NONE, which C assigns rather than ORs
-// and which therefore discards whatever the same action named earlier.
+// The ATR_ to HL_ chain that botl.c spells identically in parse_status_hl2()
+// (3040-3060) and parse_condition() (3306-3326), applied to the ATR_ value
+// match_str2attr() answers.  The keys are include/wintype.h's ATR_NONE (0),
+// ATR_BOLD (1), ATR_DIM (2), ATR_ITALIC (3), ATR_ULINE (4), ATR_BLINK (5) and
+// ATR_INVERSE (7), the values coloratt.c attrnames[] holds.  Each answer is
+// the HL_ bit from include/botl.h:251-258 that the chain selects, so a caller
+// ORs it in -- except HL_NONE, which C assigns rather than ORs and which
+// therefore discards whatever the same action named earlier.
 //
 // Status rules store C's HL bitset; menu and pet options instead store
 // the separate C ATR enum. Captured terminal masks are produced only by
 // windows.ttyMenuColorAttribute at their drawing reads.
-const STATUS_HILITE_ATTRIBUTES = Object.freeze({
-    none: HL_NONE,
-    bold: HL_BOLD,
-    dim: HL_DIM,
-    italic: HL_ITALIC,
-    underline: HL_ULINE,
-    blink: HL_BLINK,
-    inverse: HL_INVERSE,
-    normal: HL_NONE,
-    uline: HL_ULINE,
-    reverse: HL_INVERSE,
-});
-
-function menuHeadingToken(value) {
-    // coloratt.c match_str2clr()/match_str2attr() ignore spaces, hyphens,
-    // and underscores anywhere in the value.
-    return lcase(String(value).trim()).replace(/[ _-]+/gu, '');
-}
-
-function menuHeadingColor(token, rawToken = token) {
-    if (Object.hasOwn(MENU_HEADING_COLORS, token)) {
-        return MENU_HEADING_COLORS[token];
-    }
-    // coloratt.c also accepts an in-range decimal color index when the
-    // string begins with a digit; the tty color table occupies 0 through 15.
-    if (/^\d/u.test(rawToken)) {
-        const color = atoi(rawToken);
-        if (color >= CLR_BLACK && color <= CLR_WHITE) return color;
-    }
-    return null;
-}
+const STATUS_HILITE_ATTRIBUTES = new Map([
+    [0, HL_NONE],
+    [1, HL_BOLD],
+    [2, HL_DIM],
+    [3, HL_ITALIC],
+    [4, HL_ULINE],
+    [5, HL_BLINK],
+    [7, HL_INVERSE],
+]);
 
 // C ref: coloratt.c match_str2attr() (373-393).  Null is its -1, the answer
 // its callers read as "not an attribute".  Only a caller that passes complain
@@ -2056,9 +1989,9 @@ function color_attr_parse_str(result, str) {
 // Null is match_str2attr()'s -1, the answer its two status-highlight callers
 // take as "not an attribute, try a colour next".  Both pass complain FALSE,
 // so an unmatched name reports nothing here.
-function statusHiliteAttribute(token) {
-    return Object.hasOwn(STATUS_HILITE_ATTRIBUTES, token)
-        ? STATUS_HILITE_ATTRIBUTES[token] : null;
+function statusHiliteAttribute(subfield) {
+    const attr = sourceMatchStr2attr(subfield, false);
+    return attr === null ? null : STATUS_HILITE_ATTRIBUTES.get(attr);
 }
 
 // C refs: botl.c initblstats[], fieldids_alias[], parse_status_hl1(), and
@@ -2116,29 +2049,31 @@ const STATUS_TEXT_THRESHOLDS = Object.freeze({
     }),
 });
 
-const STATUS_HILITE_FIELD_ALIASES = Object.freeze({
-    characteristics: 'characteristics',
-    encumbrance: 'carrying-capacity',
-    experiencepoints: 'experience',
-    dx: 'dexterity',
-    co: 'constitution',
-    con: 'constitution',
-    points: 'score',
-    cap: 'carrying-capacity',
-    pw: 'power',
-    pwmax: 'power-max',
-    xl: 'experience-level',
-    xplvl: 'experience-level',
-    ac: 'armor-class',
-    hitdice: 'hd',
-    turns: 'time',
-    hp: 'hitpoints',
-    hpmax: 'hitpoints-max',
-    dgn: 'dungeon-level',
-    xp: 'experience',
-    exp: 'experience',
-    flags: 'condition',
-});
+// C ref: botl.c fieldids_alias[] (2186-2212), spelled and ordered as C has
+// them; fldname_to_bl_indx() compares them with fuzzymatch().
+const STATUS_HILITE_FIELD_ALIASES = Object.freeze([
+    ['characteristics', 'characteristics'],
+    ['encumbrance', 'carrying-capacity'],
+    ['experience-points', 'experience'],
+    ['dx', 'dexterity'],
+    ['co', 'constitution'],
+    ['con', 'constitution'],
+    ['points', 'score'],
+    ['cap', 'carrying-capacity'],
+    ['pw', 'power'],
+    ['pw-max', 'power-max'],
+    ['xl', 'experience-level'],
+    ['xplvl', 'experience-level'],
+    ['ac', 'armor-class'],
+    ['hit-dice', 'hd'],
+    ['turns', 'time'],
+    ['hp', 'hitpoints'],
+    ['hp-max', 'hitpoints-max'],
+    ['dgn', 'dungeon-level'],
+    ['xp', 'experience'],
+    ['exp', 'experience'],
+    ['flags', 'condition'],
+]);
 
 const STATUS_CHARACTERISTIC_FIELDS = Object.freeze([
     'strength',
@@ -2149,38 +2084,41 @@ const STATUS_CHARACTERISTIC_FIELDS = Object.freeze([
     'charisma',
 ]);
 
-const STATUS_HILITE_CONDITIONS = Object.freeze({
-    bare: 'barehanded',
-    blind: 'blind',
-    busy: 'busy',
-    conf: 'conf',
-    deaf: 'deaf',
-    iron: 'iron',
-    fly: 'fly',
-    foodpois: 'foodpois',
-    glow: 'glowhands',
-    grab: 'grab',
-    hallu: 'hallucinat',
-    held: 'held',
-    icy: 'ice',
-    inlava: 'lava',
-    lev: 'levitate',
-    parlyz: 'paralyzed',
-    ride: 'ride',
-    zzz: 'sleep',
-    slime: 'slime',
-    slip: 'slip',
-    stone: 'stone',
-    strngl: 'strngl',
-    stun: 'stun',
-    submrg: 'submerged',
-    termill: 'termill',
-    teth: 'tethered',
-    trap: 'trap',
-    out: 'unconscious',
-    wlegs: 'woundedlegs',
-    uhold: 'holding',
-});
+// C ref: botl.c conditions[].text[0] (781-813), spelled and ordered as C
+// has them, with the condtests[] option name each mask bit selects here.
+// match_str2conditionbitmask() compares them with fuzzymatch().
+const STATUS_HILITE_CONDITIONS = Object.freeze([
+    ['Bare', 'barehanded'],
+    ['Blind', 'blind'],
+    ['Busy', 'busy'],
+    ['Conf', 'conf'],
+    ['Deaf', 'deaf'],
+    ['Iron', 'iron'],
+    ['Fly', 'fly'],
+    ['FoodPois', 'foodpois'],
+    ['Glow', 'glowhands'],
+    ['Grab', 'grab'],
+    ['Hallu', 'hallucinat'],
+    ['Held', 'held'],
+    ['Icy', 'ice'],
+    ['InLava', 'lava'],
+    ['Lev', 'levitate'],
+    ['Parlyz', 'paralyzed'],
+    ['Ride', 'ride'],
+    ['Zzz', 'sleep'],
+    ['Slime', 'slime'],
+    ['Slip', 'slip'],
+    ['Stone', 'stone'],
+    ['Strngl', 'strngl'],
+    ['Stun', 'stun'],
+    ['Submrg', 'submerged'],
+    ['TermIll', 'termill'],
+    ['Teth', 'tethered'],
+    ['Trap', 'trap'],
+    ['Out', 'unconscious'],
+    ['WLegs', 'woundedlegs'],
+    ['UHold', 'holding'],
+]);
 
 // C ref: botl.c condition_aliases[] (748-775).  The keys are the C ids
 // verbatim, underscores included, because match_str2conditionbitmask()'s
@@ -2208,25 +2146,30 @@ const MAX_THRESH = 21;
 const MAXVALWIDTH = 80;
 const MAX_SUBFIELDS = 16;
 
+// C ref: botl.c fldname_to_bl_indx() (2219-2253).  Null is its BL_FLUSH, the
+// answer for no match and for more than one.  The STATUS_HILITE_FIELDS keys
+// are the initblstats[] names, lowercased; every comparison below folds case,
+// so "hd" compares as C's "HD" does.
 function statusHiliteFieldName(rawName) {
-    const normalized = menuHeadingToken(rawName);
-    const exact = Object.keys(STATUS_HILITE_FIELDS).find(
-        (name) => menuHeadingToken(name) === normalized,
+    const name = String(rawName ?? '');
+    if (!name) return null;
+    const fields = Object.keys(STATUS_HILITE_FIELDS);
+    let matches = fields.filter(
+        (field) => fuzzymatch(field, name, ' -_', true),
     );
-    if (exact) return exact;
-    if (Object.hasOwn(STATUS_HILITE_FIELD_ALIASES, normalized)) {
-        return STATUS_HILITE_FIELD_ALIASES[normalized];
+    if (!matches.length) {
+        matches = STATUS_HILITE_FIELD_ALIASES
+            .filter(([alias]) => fuzzymatch(alias, name, ' -_', true))
+            .map(([, field]) => field);
     }
-    // C ref: fldname_to_bl_indx()'s third pass, strncmpi(), which keeps the
-    // ' ', '-' and '_' the two fuzzymatch() passes above drop.  "carrying" is
-    // a prefix of carrying-capacity where "carryingc" is not.  The keys below
-    // are the initblstats[] names, and strncmpi() folds case, so the lowercase
-    // spelling of "HD" compares the same way.
-    const prefix = lcase(String(rawName));
-    const partials = Object.keys(STATUS_HILITE_FIELDS).filter(
-        (name) => name.startsWith(prefix),
-    );
-    return partials.length === 1 ? partials[0] : null;
+    if (!matches.length) {
+        // The third pass, strncmpi(), keeps the ' ', '-' and '_' the two
+        // fuzzymatch() passes above skip.  "carrying" is a prefix of
+        // carrying-capacity where "carryingc" is not.
+        const prefix = lcase(name);
+        matches = fields.filter((field) => field.startsWith(prefix));
+    }
+    return matches.length === 1 ? matches[0] : null;
 }
 
 // C ref: botl.c initblstats[fld].fldname, which two of the messages below
@@ -2268,23 +2211,14 @@ function splitsubfields(str, maxsf = 0) {
     return subfields;
 }
 
-// C ref: coloratt.c match_str2clr() (348-371).  menuHeadingColor() is its
-// table walk and digit fall-back; this adds the report and C's "none of the
-// above" answer, which every caller rejects a second time by comparing against
-// CLR_MAX.  Every status-highlight caller passes suppress_msg FALSE, and
-// color_attr_parse_str() passes FALSE from both of its arms as well, so the
-// suppressing call is the one this port has no caller for -- coloratt.c's own
-// query_color() menu.
-// "%.60s" counts bytes, as match_str2attr()'s "%.50s" above does.
+// C ref: coloratt.c match_str2clr() (348-371), which js/coloratt.js ports.
+// This supplies the configuration report and turns its null back into C's
+// "none of the above" CLR_MAX, which every caller rejects a second time by
+// comparing against CLR_MAX.
 function match_str2clr(result, str, suppress_msg) {
-    const color = menuHeadingColor(menuHeadingToken(str), str);
-    if (color != null) return color;
-    if (!suppress_msg) {
-        configErrorAdd(
-            result, `Unknown color '${truncateByteString(str, 60)}'`,
-        );
-    }
-    return CLR_MAX;
+    return colorattMatchStr2clr(
+        str, suppress_msg, (message) => configErrorAdd(result, message),
+    ) ?? CLR_MAX;
 }
 
 // C ref: botl.c parse_status_hl2() (3021-3059), its action half: at most one
@@ -2304,7 +2238,7 @@ function parseStatusHiliteAction(result, how) {
     let attrib = HL_UNDEF;
     let coloridx = -1;
     for (const subfield of subfields) {
-        const parsedAttr = statusHiliteAttribute(menuHeadingToken(subfield));
+        const parsedAttr = statusHiliteAttribute(subfield);
         if (parsedAttr != null) {
             if (parsedAttr === HL_NONE) attrib = HL_NONE;
             else attrib |= parsedAttr;
@@ -2331,18 +2265,18 @@ function parseStatusHiliteAction(result, how) {
 // where "majort" is not.  The empty answer is C's zero mask.
 function match_str2conditionbitmask(str) {
     if (!str) return [];
-    const token = menuHeadingToken(str);
-    // Both tables are indexed by rc text, so an inherited name would
-    // otherwise answer for a condition C's strcmp() walks never spell.
-    if (Object.hasOwn(STATUS_HILITE_CONDITIONS, token)) {
-        return [STATUS_HILITE_CONDITIONS[token]];
-    }
+    const names = STATUS_HILITE_CONDITIONS
+        .filter(([text]) => fuzzymatch(text, str, ' -_', true))
+        .map(([, name]) => name);
+    if (names.length) return names;
     const aliases = Object.keys(STATUS_CONDITION_ALIASES);
-    const exact = aliases.find((name) => menuHeadingToken(name) === token);
-    if (exact) return STATUS_CONDITION_ALIASES[exact];
+    const exact = aliases.filter((id) => fuzzymatch(id, str, ' -_', true));
+    if (exact.length) {
+        return exact.flatMap((id) => STATUS_CONDITION_ALIASES[id]);
+    }
     const prefix = lcase(str);
-    return aliases.filter((name) => name.startsWith(prefix))
-        .flatMap((name) => STATUS_CONDITION_ALIASES[name]);
+    return aliases.filter((id) => id.startsWith(prefix))
+        .flatMap((id) => STATUS_CONDITION_ALIASES[id]);
 }
 
 // C ref: botl.c str2conditionbitmask() (3208-3229).  Null is its 0UL: either
@@ -2441,7 +2375,7 @@ function parse_condition(result, s, fieldIndex) {
         // C has no `sf < 1` guard here, so a split it refuses leaves the color
         // and the attributes at whatever the group before this one left.
         for (const subfield of splitsubfields(how) ?? []) {
-            const parsedAttr = statusHiliteAttribute(menuHeadingToken(subfield));
+            const parsedAttr = statusHiliteAttribute(subfield);
             if (parsedAttr != null) {
                 if (parsedAttr === HL_NONE) {
                     attrib = HL_UNDEF;

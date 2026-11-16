@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises botl.c fldname_to_bl_indx() (2219-2253) and match_str2conditionbitmask() (3170-3206) through parse_status_hl1()/parse_status_hl2() and parse_condition(): each compares names with fuzzymatch(..., \" -_\", TRUE), which skips spaces, hyphens and underscores but not a tab or form feed. A field name wrapped in tabs is an unknown status field, and a condition name followed by a form feed is an unknown condition, where 'Hit_Points' (canonical name), 'Experience-Points' (fieldids_alias[] entry) and 'Food-Pois' (conditions[] text) match. The variation is a canonical name against an alias.",
+  "segments": [
+    {
+      "seed": 4418263,
+      "datetime": "20270119203300",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=hilite_status:\tgold\t/always/yellow\nOPTIONS=hilite_status:Hit_Points/always/green&bold\nOPTIONS=hilite_status:Experience-Points/always/cyan\nOPTIONS=hilite_status:condition/deaf\f+blind/red\nOPTIONS=hilite_status:condition/Food-Pois/magenta\n",
+      "moves": "\n\ns"
+    }
+  ]
+}

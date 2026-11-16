@@ -6527,10 +6527,6 @@ function _statusFieldData(field, valueSnapshot = null) {
     }
 }
 
-function _statusFuzzyText(value) {
-    return lcase(String(value ?? '')).replace(/[" _-]+/gu, '');
-}
-
 // C ref: botl.c noneoftheabove() (2336-2344). Each spelling has its own
 // ignore set: "(polymorphed)" skips only quotes and parentheses, so
 // "poly-morphed" names no rule there, and "none of the above" does not skip
@@ -7122,9 +7118,10 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
                 persistent = false;
             }
         } else if (rule.behavior === 'text') {
-            const matches = _statusFuzzyText(rule.text)
-                === _statusFuzzyText(data.text);
-            if (matches) {
+            // C ref: botl.c get_hilite() (2540), which skips '"', ' ', '-'
+            // and '_' and folds case.
+            if (fuzzymatch(String(rule.text ?? ''), String(data.text ?? ''),
+                '" -_', true)) {
                 selected = rule;
                 exact = true;
             } else if (!exact && field === 'title' && Upolyd(state.u)
