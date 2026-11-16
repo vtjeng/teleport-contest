@@ -58,13 +58,20 @@ const killed_by_prefix = Object.freeze([
 // C ref: topten.c formatkiller() (90-162).  Builds the death description
 // string for the tombstone, bones grave inscription, and score file.
 //
-// The C version writes into a fixed-size char buffer; the JS version returns
-// a new string (no size limit).
-export function formatkiller(how, incl_helpless, state = game) {
+// `siz` is C's buffer size, which every caller passes: the text is cut to
+// siz - 1 bytes, and the ", while <reason>" suffix is replaced by ", while
+// helpless", or left out, when it would not fit in the space C's countdown
+// leaves.  The countdown's `--siz > 0` test also spends one byte when the
+// name ends, so the room it reports is one less than the buffer really has.
+// A topten or bones entry (DTHSZ + 1) loses a helpless reason that a longer
+// buffer would keep.  Each string character stands for one C byte.
+export function formatkiller(how, incl_helpless, state = game, siz) {
+    if (!Number.isInteger(siz) || siz < 1)
+        throw new TypeError(`formatkiller needs C's buffer size, not ${siz}`);
     const killer = state.killer;
     let kname = killer.name ?? '';
 
-    const parts = [];
+    let buf = '';
     switch (killer.format) {
     default:
         // C: impossible("bad killer format? (%d)", svk.killer.format);
@@ -76,38 +83,41 @@ export function formatkiller(how, incl_helpless, state = game) {
         kname = an(kname);
         // fall through
     case KILLED_BY:
-        parts.push(killed_by_prefix[how] ?? '');
+        // strncat(buf, killed_by_prefix[how], siz - 1)
+        buf = (killed_by_prefix[how] ?? '').slice(0, siz - 1);
+        siz -= buf.length;
         break;
     }
 
     // Copy kname, sanitizing characters that would confuse field splitting
     // when record/logfile/xlogfile is re-read.
-    const sanitized = [];
-    for (const ch of kname) {
-        if (ch === ',') sanitized.push(';');
-        else if (ch === '=') sanitized.push('_');
-        else if (ch === '\t') sanitized.push(' ');
-        else sanitized.push(ch);
+    let index = 0;
+    while (--siz > 0) {
+        if (index >= kname.length) break;
+        const ch = kname[index++];
+        buf += ch === ',' ? ';' : ch === '=' ? '_' : ch === '\t' ? ' ' : ch;
     }
-    parts.push(sanitized.join(''));
 
     // C ref: topten.c:152-161. Append helpless reason when the hero was
-    // paralyzed (multi < 0) at time of death.
+    // paralyzed (multi < 0) at time of death.  sizeof ", while " is 9 and
+    // sizeof ", while helpless" is 17, each counting the terminator.
     if (incl_helpless && (state.multi ?? 0) < 0) {
-        if (state.multi_reason) {
-            parts.push(`, while ${state.multi_reason}`);
-        } else {
-            parts.push(', while helpless');
-        }
+        const reason = state.multi_reason;
+        if (reason && reason.length + 9 <= siz)
+            buf += `, while ${reason}`;
+        else if (17 <= siz)
+            buf += ', while helpless';
     }
 
-    return parts.join('');
+    return buf;
 }
 
 // ---- topten struct, I/O, and display (C ref: topten.c:38-926) ----
 
 const NAMSZ = 10;
-const DTHSZ = 100;
+// C ref: topten.c DTHSZ; a death text fills a DTHSZ + 1 byte buffer in
+// struct toptenentry and in rm.h struct cemetery (bones).
+export const DTHSZ = 100;
 const ROLESZ = 3;
 // pers_is_uid: the C build uses uid-based per-player limits; all JS games
 // share a single constant uid so the behavior matches.
@@ -530,7 +540,7 @@ function toptenEntries(how, when, state) {
     t0.plalign = (aligns[1 - (state.u.ualign?.type ?? 0)]?.filecode ?? '???')
         .substring(0, ROLESZ);
     t0.name = (state.plname ?? '').substring(0, NAMSZ);
-    t0.death = formatkiller(how, true, state).substring(0, DTHSZ);
+    t0.death = formatkiller(how, true, state, DTHSZ + 1);
     t0.birthdate = yyyymmdd(state, state.ubirthday);
     t0.deathdate = yyyymmdd(state, when);
     t0.tt_next = null;
