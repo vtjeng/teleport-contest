@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c dorecover() 930 run_timers(): \"expire all timers that have gone off while away\". A debug Valkyrie wishes for speed boots, an ice box (it drops to the floor) and a gecko corpse, wears the boots and searches until the corpse is about 248 turns old. She stashes it in the ice box and takes it out again; mkobj.c start_corpse_timeout() gives it ROT_AGE - age + rnz(10) - 10 turns, which this draw makes zero or less, so its ROT_CORPSE timer is already due. Speed boots give her a second action in that turn, so she saves before nh_timeout() runs it. The second segment restores: C's dorecover() runs the due timer before docrt(), so \"Your gecko corpse rots away.\" precedes the welcome-back message and the corpse is gone when she lists her inventory; she then searches once. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20280903160000",
+      "nethackrc": "OPTIONS=name:Frosti,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "  \u0017speed boots\n\u0017ice box\n\u0017gecko corpse\nWe100s\u001b100s\u001b100s\u001b100s\u001b10s\u001b10s\u001b#loot\nsg#loot\noa\nSy"
+    },
+    {
+      "seed": 6620418,
+      "datetime": "20280903170000",
+      "nethackrc": "OPTIONS=name:Frosti,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "  ni\u001bs"
+    }
+  ]
+}
