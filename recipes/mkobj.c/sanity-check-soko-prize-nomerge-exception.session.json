@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73019,
+      "datetime": "20320217083000",
+      "nethackrc": "OPTIONS=name:Sorter,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,pettype:none,!autopickup,playmode:debug\nOPTIONS=sanity_check\n",
+      "moves": " \u0016?\n Bss"
+    }
+  ],
+  "comment": "With the wizard-only sanity_check option, a debug-mode level teleport to soko1 puts the Sokoban prize (nomerge until picked up) on the floor list, so obj_sanity_check() calls insane_obj_bits() and nomerge_exception() accepts the prize (mkobj.c:3125-3127, 3250-3264, 3279-3283) without a complaint."
+}

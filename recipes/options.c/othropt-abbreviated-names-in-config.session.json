@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation: abbreviated OthrOpt names with values ('bind', 'menu colo:x', 'status highlight') on one comma-separated line, a Wizard, and no debug mode; each still reaches its optfn's empty do_set block.",
+  "segments": [
+    {
+      "seed": 7731409,
+      "datetime": "20310807220314",
+      "nethackrc": "OPTIONS=name:Bindra,role:Wizard,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=bind,menu colo:x,status highlight\n",
+      "moves": "s"
+    }
+  ]
+}

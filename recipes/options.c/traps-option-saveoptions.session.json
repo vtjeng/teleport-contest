@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "traps is a set_in_config compound option; setting it in the config file marks it set, and #saveoptions builds the option text through all_options_strbuf, which asks optfn_traps for get_cnf_val (options.c:4432-4434, 9704-9712).",
+  "segments": [
+    {
+      "seed": 3390214,
+      "datetime": "20290112063012",
+      "nethackrc": "OPTIONS=name:Trapa,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,suppress_alert:3.7.0\nOPTIONS=traps:^\n",
+      "moves": "#saveoptions\nyes\ns"
+    }
+  ]
+}

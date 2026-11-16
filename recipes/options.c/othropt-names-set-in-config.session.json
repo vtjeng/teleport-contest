@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Config lines name the 'other' options bind keys, menu colors and status highlight rules; parseoptions matches each OthrOpt name and calls its optfn with do_set, whose empty do_set block falls through to return optn_ok (options.c:8331-8343, 8374-8386, 8456-8474).",
+  "segments": [
+    {
+      "seed": 5208813,
+      "datetime": "20270419091522",
+      "nethackrc": "OPTIONS=name:Ostrid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=bind keys\nOPTIONS=menu colors\nOPTIONS=status highlight rules\n",
+      "moves": "ss"
+    }
+  ]
+}
